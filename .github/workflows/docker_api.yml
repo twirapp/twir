@@ -1,4 +1,4 @@
-name: Publish Backend To Docker
+name: Publish Api To Docker
 
 on:
   push:
