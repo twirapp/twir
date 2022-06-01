@@ -29,5 +29,5 @@ jobs:
         run: |
           docker buildx build --push \
             --tag satont/tsuwari:migrations \
-            -f ./apps/migrations/Dockerfile \
+            -f ./libs/migrations/Dockerfile \
             --platform linux/amd64,linux/arm64 .
