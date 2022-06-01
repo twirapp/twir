@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package StreamStatus;
+
+option go_package = "/streamstatus";
+
+service Main {
+  rpc CacheStreams(stream CacheStreamRequest) returns (stream CachedStreamResult);
+}
+
+message CacheStreamRequest {
+  repeated string channelsIds = 1;
+}
+
+message CachedStreamResult {
+  bool success = 1;
+}

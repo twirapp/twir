@@ -1,0 +1,3 @@
+{
+  "extends": "@satont/eslint-config"
+}

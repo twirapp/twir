@@ -1,0 +1,7 @@
+{
+  "watch": [
+    "src"
+  ],
+  "exec": "rm -rf dist; pnpm build",
+  "ext": "ts"
+}

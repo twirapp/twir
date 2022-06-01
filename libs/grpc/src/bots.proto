@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package Bots;
+
+option go_package = "/bots";
+
+service Main {
+  rpc JoinOrLeave (JoinOrLeaveRequest) returns (MockedResult) {}
+}
+
+service Timers {
+  rpc AddTimersToQueue (AddTimerToQueueRequest) returns (MockedResult) {}
+  rpc RemoveTimerFromQueue (RemoveTimerFromQueueRequest) returns (MockedResult) {}
+}
+
+service Greetings {
+  rpc UpdateByChannelId (UpdateByChannelIdRequest) returns (MockedResult) {}
+}
+
+service Commands {
+  rpc UpdateByChannelId (UpdateByChannelIdRequest) returns (MockedResult) {}
+}
+
+message JoinOrLeaveRequest {
+  enum Action {
+    PART = 0;
+    JOIN = 1;
+  }
+  Action action = 1;
+  string botId = 2;
+  string username = 3;
+}
+
+message AddTimerToQueueRequest {
+  string timerId = 1;
+}
+
+message RemoveTimerFromQueueRequest {
+  string timerId = 1;
+}
+
+message MockedResult {
+  bool success = 1;
+  oneof optional {
+    string error = 2;
+  }
+}
+
+message UpdateByChannelIdRequest { 
+  string userId = 1;
+}

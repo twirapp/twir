@@ -1,0 +1,92 @@
+/* eslint-disable */
+import { Observable } from 'rxjs';
+import { Metadata } from '@grpc/grpc-js';
+
+{{#*inline "selector"}}
+{{#each nested}}
+{{#if fields}}
+{{> type }}
+{{else if methods}}
+{{> service }}
+{{else if values}}
+{{> enum }}
+{{else}}
+{{> namespace }}
+{{/if}}
+{{/each}}
+{{/inline}}
+{{> selector }}
+{{#*inline "namespace"}}
+{{#if comment}}
+{{comment}}
+{{/if}}
+export namespace {{@key}} {
+{{> selector }}
+}
+{{/inline}}
+
+{{#*inline "service"}}
+{{#each methods}}
+{{else}}
+// tslint:disable-next-line:no-empty-interface
+{{/each}}
+{{#if comment}}
+{{comment}}
+{{/if}}
+export interface {{@key}} {
+{{#each methods}}
+{{#if comment}}
+{{comment}}
+{{/if}}
+{{#if this.requestStream}}
+{{uncapitalize @key}}(data: Observable<{{this.requestType}}>, metadata?: Metadata): Observable<{{this.responseType}}>;
+    {{else}}
+    {{uncapitalize @key}}(data: {{this.requestType}}, metadata?: Metadata): Observable<{{this.responseType}}>;
+      {{/if}}
+      {{/each}}
+      }
+      {{> selector }}
+      {{/inline}}
+      {{#*inline "type"}}
+      {{#each fields}}
+      {{else}}
+      // tslint:disable-next-line:no-empty-interface
+      {{/each}}
+      {{#if comment}}
+      {{comment}}
+      {{/if}}
+      export interface {{@key}} {
+      {{#each fields}}
+      {{#if comment}}
+      {{comment}}
+      {{/if}}
+      {{@key}}?: {{type this}};
+      {{/each}}
+      }
+      {{#if nested}}
+      export namespace {{@key}} {
+      {{#if comment}}
+      {{comment}}
+      {{/if}}
+      {{> selector }}
+      }
+      {{/if}}
+      {{/inline}}
+      {{#*inline "enum"}}
+      {{#each values}}
+      {{else}}
+      // tslint:disable-next-line:no-empty-interface
+      {{/each}}
+      {{#if comment}}
+      {{comment}}
+      {{/if}}
+      {{var "comments" comments ~}}
+      export enum {{@key}} {
+      {{#each values}}
+      {{#if (enumComment @key)}}
+      {{enumComment @key}}
+      {{/if}}
+      {{@key}} = {{this}},
+      {{/each}}
+      }
+      {{/inline}}

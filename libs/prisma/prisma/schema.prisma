@@ -1,0 +1,304 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id
+
+  channel       Channel?
+  commandUsages CommandUsage[]
+  stats         UserStats[]
+  token         Token?
+
+  DashboardAccess DashboardAccess[]
+
+  testerId String?
+  tester   Tester?
+
+  Permit Permit[]
+  @@map("users")
+}
+
+model UserStats {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  userId    String
+  channelId String
+  messages  Int    @default(0)
+  watched   BigInt @default(0)
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channelId])
+  @@map("users_stats")
+}
+
+model Channel {
+  id String @id
+
+  isEnabled      Boolean @default(true)
+  isTwitchBanned Boolean @default(false)
+  isBanned       Boolean @default(false)
+
+  botId String
+
+  user User @relation(fields: [id], references: [id], onDelete: Cascade)
+  bot  Bot  @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  commands           Command[]
+  timers             Timer[]
+  greetings          Greeting[]
+  usersStats         UserStats[]
+  integrations       ChannelIntegration[]
+  moderationSettings ModerationSettings?
+
+  dashboardAccess DashboardAccess[]
+  Permit          Permit[]
+  @@map("channels")
+}
+
+model Tester {
+  id     String @id @default(dbgenerated("gen_random_uuid()"))
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  @@map("users_testers")
+}
+
+model DashboardAccess {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  channelId String
+  channel   Channel @relation(fields: [channelId], references: [id])
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  @@map("dashboard_access")
+}
+
+enum IntegrationService {
+  LASTFM
+  VK
+  FACEIT
+  SPOTIFY
+}
+
+model Integration {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  service IntegrationService
+
+  accessToken  String?
+  refreshToken String?
+
+  clientId     String?
+  clientSecret String?
+
+  apiKey String?
+
+  redirectUrl String?
+
+  channelsIntegrations ChannelIntegration[]
+
+  @@map("integrations")
+}
+
+model ChannelIntegration {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  enabled       Boolean     @default(false)
+  channel       Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId     String
+  integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  integrationId String
+
+  accessToken  String?
+  refreshToken String?
+
+  clientId     String?
+  clientSecret String?
+
+  apiKey String?
+
+  data Json?
+
+  @@map("channels_integrations")
+}
+
+enum BotType {
+  DEFAULT
+  CUSTOM
+}
+
+model Bot {
+  id String @id
+
+  type BotType
+
+  token    Token?
+  channels Channel[]
+
+  @@map("bots")
+}
+
+enum CommandPermission {
+  BROADCASTER
+  MODERATOR
+  SUBSCRIBER
+  VIP
+  VIEWER
+  FOLLOWER
+}
+
+enum CooldownType {
+  GLOBAL
+  PER_USER
+}
+
+model Command {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  name         String
+  cooldown     Int?              @default(0)
+  cooldownType CooldownType      @default(GLOBAL)
+  enabled      Boolean           @default(true)
+  aliases      Json?             @default("[]")
+  description  String?
+  visible      Boolean           @default(true)
+  channelId    String
+  permission   CommandPermission
+
+  channel   Channel        @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  responses Response[]
+  usages    CommandUsage[]
+
+
+  @@index([channelId])
+  @@map("commands")
+}
+
+model Response {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  text      String?
+  commandId String
+
+  command Command @relation(fields: [commandId], references: [id], onDelete: Cascade)
+
+  @@map("commands_responses")
+}
+
+model CommandUsage {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  userId    String
+  channelId String
+  commandId String
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  command Command @relation(fields: [commandId], references: [id], onDelete: Cascade)
+
+  @@map("commands_usages")
+}
+
+model Timer {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  channelId String
+  name      String  @db.VarChar(255)
+  enabled   Boolean @default(true)
+  responses Json    @default("[]")
+  last      Int     @default(0)
+
+  timeInterval    Int @default(0)
+  messageInterval Int @default(0)
+
+  channel Channel @relation(fields: [channelId], references: [id])
+  @@map("timers")
+}
+
+model Token {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  accessToken         String
+  refreshToken        String
+  expiresIn           Int
+  obtainmentTimestamp DateTime
+
+  botId String? @unique
+  bot   Bot?    @relation(fields: [botId], references: [id])
+
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id])
+
+  @@map("tokens")
+}
+
+model Greeting {
+  id        String  @id @default(dbgenerated("gen_random_uuid()"))
+  channelId String
+  userId    String
+  enabled   Boolean @default(true)
+
+  text String
+
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@map("greetings")
+}
+
+enum SettingsType {
+  links
+  blacklists
+  symbols
+  longMessage
+  caps
+  emotes
+}
+
+model ModerationSettings {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  type        SettingsType
+  channelId   String       @unique
+  enabled     Boolean      @default(false)
+  subscribers Boolean      @default(false)
+  vips        Boolean      @default(false)
+
+  banTime        Int
+  banMessage     String
+  warningMessage String
+
+  checkClips    Boolean?
+  triggerLength Int?
+  maxPercentage Int?
+
+  blackListSentences Json?
+
+  channel Channel @relation(fields: [channelId], references: [id])
+
+  @@unique([channelId, type])
+  @@map("channels_moderation_settings")
+}
+
+model Permit {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  channel   Channel @relation(fields: [channelId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+  channelId String
+  userId    String
+
+  @@map("permits")
+}

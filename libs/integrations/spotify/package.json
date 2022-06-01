@@ -1,0 +1,19 @@
+{
+  "name": "@tsuwari/spotify",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "module": "./dist/src/index.js",
+  "main": "./dist/src/index.js",
+  "scripts": {
+    "prebuild": "rm -rf .dist",
+    "build": "tsc -b tsconfig.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tsuwari/prisma": "workspace:*",
+    "axios": "^0.27.2"
+  }
+}

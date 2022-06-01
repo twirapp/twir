@@ -1,0 +1,41 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+  },
+  "editor.formatOnSave": true,
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "typescript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "remote.SSH.defaultForwardedPorts": [
+    {
+      "localPort": 3001,
+      "name": "frontend",
+      "remotePort": 3001
+    },
+    {
+      "localPort": 3002,
+      "name": "api",
+      "remotePort": 3002
+    },
+    {
+      "localPort": 3005,
+      "name": "frontendv2",
+      "remotePort": 3005
+    },
+    {
+      "localPort": 3006,
+      "name": "frontendv3",
+      "remotePort": 3006
+    },
+    {
+      "localPort": 5555,
+      "name": "prisma studio",
+      "remotePort": 5555
+    },
+  ],
+  "gopls": {
+    "experimentalWorkspaceModule": true
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@tsuwari/prisma",
+  "description": "",
+  "type": "module",
+  "module": "./dist/src/index.js",
+  "main": "./dist/src/index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -b tsconfig.json",
+    "symlink": "ln -s ../../apps/backend/.env .env",
+    "generate": "prisma generate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@nestjs/common": "^8.4.5",
+    "@prisma/client": "^3.14.0",
+    "prisma": "^3.14.0"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "watch": [
+    "src",
+    ".env"
+  ],
+  "exec": "rm -rf dist; pnpm build; node --enable-source-maps --inspect=0.0.0.0:9229 --nolazy dist/src/index.js",
+  "ext": "ts"
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "baseBranch": "origin/master",
+  "pipeline": {
+    "build": {
+      "dependsOn": [
+        "^build",
+        "@tsuwari/prisma#generate"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "generate": {
+      "dependsOn": [],
+      "outputs": []
+    },
+    "dev": {
+      "dependsOn": [
+        "^build",
+        "@tsuwari/prisma#generate"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "lint": {
+      "outputs": []
+    }
+  }
+}

@@ -1,0 +1,11 @@
+node_modules
+# Keep environment variables out of version control
+.env
+dist
+tsconfig.tsbuildinfo
+.turbo
+.pnpm-debug.log
+libs/grpc/go/bots
+libs/grpc/go/streamstatus
+libs/grpc/src/*.ts
+!libs/grpc/src/index.ts

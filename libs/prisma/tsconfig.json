@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "incremental": true,
+    "composite": true,
+  },
+  "exclude": ["./prisma", "./dist"],
+  "include": ["src"]
+}

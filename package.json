@@ -1,0 +1,41 @@
+{
+  "name": "tsuwari",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint --ext .ts,.vue apps/",
+    "lint:fix": "eslint --fix --ext .ts,.vue apps/",
+    "dev": "pnpm run -r dev",
+    "start:api": "pnpm --filter=@tsuwari/api start",
+    "start:bots": "pnpm --filter=@tsuwari/bots start",
+    "start:scheduler": "pnpm --filter=@tsuwari/scheduler start",
+    "start:streamstatus": "pnpm --filter=@tsuwari/streamstatus start",
+    "start:watched": "pnpm --filter=@tsuwari/watched start",
+    "build:bots": "turbo run build --filter=bots",
+    "build:api": "turbo run build --filter=api",
+    "build:scheduler": "turbo run build --filter=scheduler",
+    "build:streamstatus": "turbo run build --filter=streamstatus",
+    "build:watched": "turbo run build --filter=watched",
+    "dev:bots": "turbo run dev --filter=bots",
+    "dev:api": "turbo run dev --filter=api",
+    "dev:streamstatus": "turbo run dev --filter=streamstatus",
+    "dev:scheduler": "turbo run dev --filter=scheduler",
+    "dev:watched": "turbo run dev --filter=watched",
+    "dev:frontend": "turbo run dev --filter=frontend",
+    "dev:frontendv2": "turbo run dev --filter=frontendv2",
+    "dev:frontendv3": "turbo run dev --filter=frontendv3",
+    "dev:config": "turbo run dev --filter=config"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@satont/eslint-config": "github:satont/eslint-config",
+    "@types/node": "^17.0.36",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
+    "eslint": "^8.16.0",
+    "turbo": "^1.2.14",
+    "typescript": "^4.7.2"
+  }
+}

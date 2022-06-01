@@ -1,0 +1,44 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Docker: Attach to Node",
+      "remoteRoot": "/app",
+      "sourceMaps": true,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/apps/bots",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/apps/bots/dist/**/*",
+      ],
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/apps/bots/<node_internals>/**",
+      ],
+      "autoAttachChildProcesses": false,
+      "trace": false
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Debug StreamStatus",
+      "port": 9231,
+      "remoteRoot": "/app",
+      "sourceMaps": true,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/apps/streamstatus",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/apps/streamstatus/dist/**/*",
+      ],
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/apps/streamstatus/<node_internals>/**",
+      ],
+      "autoAttachChildProcesses": false,
+      "trace": false
+    }
+  ]
+}
