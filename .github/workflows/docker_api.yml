@@ -28,7 +28,6 @@ jobs:
       - name: build the image
         run: |
           docker buildx build --push \
-            --tag satont/tsuwari/api:latest \
-            --tag satont/tsuwari/api:${{ github.sha }} \
+            --tag satont/tsuwari:api \
             -f ./apps/api/Dockerfile \
             --platform linux/amd64,linux/arm64 .

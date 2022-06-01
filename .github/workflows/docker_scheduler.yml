@@ -1,4 +1,4 @@
-name: Publish Bots To Docker
+name: Publish Scheduler To Docker
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
   docker:
     if: "! contains(toJSON(github.event.commits.*.message), '[skip-docker]')"
     runs-on: ubuntu-latest
-   steps:
+    steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set up QEMU
@@ -28,6 +28,6 @@ jobs:
       - name: build the image
         run: |
           docker buildx build --push \
-            --tag satont/tsuwari:bots \
-            -f ./apps/bots/Dockerfile \
+            --tag satont/tsuwari:scheduler \
+            -f ./apps/scheduler/Dockerfile \
             --platform linux/amd64,linux/arm64 .
