@@ -6,12 +6,13 @@ WORKDIR /app
 
 RUN npm i -g pnpm
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
 COPY apps/api/package.json apps/api/
 COPY libs/prisma/package.json libs/prisma/
 COPY libs/integrations/spotify/package.json libs/integrations/spotify/
 COPY libs/grpc/package.json libs/grpc/
 COPY libs/config/package.json libs/config/
+COPY libs/shared/package.json libs/shared/
 
 RUN pnpm install
 
@@ -20,6 +21,7 @@ COPY libs/prisma libs/prisma
 COPY libs/integrations/spotify libs/integrations/spotify
 COPY libs/grpc libs/grpc
 COPY libs/config libs/config
+COPY libs/shared libs/shared
 
 RUN pnpm build:api
 
