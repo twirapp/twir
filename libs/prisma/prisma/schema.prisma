@@ -61,9 +61,10 @@ model Channel {
   usersStats         UserStats[]
   integrations       ChannelIntegration[]
   moderationSettings ModerationSettings?
+  dashboardAccess    DashboardAccess[]
+  permits            Permit[]
+  keywords           Keyword[]
 
-  dashboardAccess DashboardAccess[]
-  Permit          Permit[]
   @@map("channels")
 }
 
@@ -301,4 +302,18 @@ model Permit {
   userId    String
 
   @@map("permits")
+}
+
+model Keyword {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  channelId String
+  text      String
+  response  String
+  enabled   Boolean @default(true)
+  cooldown  Int?    @default(0)
+
+  channel Channel @relation(fields: [channelId], references: [id])
+
+  @@map("keywords")
 }

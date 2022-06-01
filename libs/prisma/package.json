@@ -9,7 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -b tsconfig.json",
     "symlink": "ln -s ../../apps/backend/.env .env",
-    "generate": "prisma generate"
+    "generate": "prisma generate",
+    "deploy": "prisma migrate deploy"
   },
   "keywords": [],
   "author": "",

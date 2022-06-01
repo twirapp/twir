@@ -17,6 +17,14 @@ services:
     volumes:
       - ./keydb_data:/data
 
+  migrations:
+    restart: unless-stopped
+    image: satont/tsuwari:migrations
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
   api:
     restart: unless-stopped
     image: satont/tsuwari:api
@@ -26,27 +34,37 @@ services:
       replicas: 2
     ports:
       - 3002:3002
+    depends_on:
+      - migrations
 
   bots:
     restart: unless-stopped
     image: satont/tsuwari:bots
     env_file:
       - .env
+    depends_on:
+      - migrations
 
   scheduler:
     restart: unless-stopped
     image: satont/tsuwari:scheduler
     env_file:
       - .env
+    depends_on:
+      - migrations
 
   streamstatus:
     restart: unless-stopped
     image: satont/tsuwari:streamstatus
     env_file:
       - .env
+    depends_on:
+      - migrations
       
   watched:
     restart: unless-stopped
     image: satont/tsuwari:watched
     env_file:
       - .env
+    depends_on:
+      - migrations

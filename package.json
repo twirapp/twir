@@ -24,7 +24,8 @@
     "dev:frontend": "turbo run dev --filter=frontend",
     "dev:frontendv2": "turbo run dev --filter=frontendv2",
     "dev:frontendv3": "turbo run dev --filter=frontendv3",
-    "dev:config": "turbo run dev --filter=config"
+    "dev:config": "turbo run dev --filter=config",
+    "migrate:deploy": "pnpm --filter=@tsuwari/prisma deploy"
   },
   "keywords": [],
   "author": "",
