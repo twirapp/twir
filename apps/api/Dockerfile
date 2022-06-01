@@ -6,7 +6,7 @@ WORKDIR /app
 
 RUN npm i -g pnpm
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
 COPY apps/api/package.json apps/api/
 COPY libs/prisma/package.json libs/prisma/
 COPY libs/integrations/spotify/package.json libs/integrations/spotify/
