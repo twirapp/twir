@@ -29,5 +29,5 @@ jobs:
         run: |
           docker buildx build --push \
             --tag satont/tsuwari:migrations \
-            -f ./libs/migrations/Dockerfile \
+            -f ./libs/prisma/Dockerfile \
             --platform linux/amd64,linux/arm64 .
