@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useTitle } from '@vueuse/core';
-import { onMounted } from 'vue';
 import { RouterView, useRouter } from 'vue-router';
 
 import Layout from '@/components/Layout.vue';
@@ -10,14 +9,6 @@ const router = useRouter();
 
 const title = useTitle();
 title.value = 'Tsuwari - Main page';
-
-onMounted(async () => {
-  /* const accessToken = localStorage.getItem("accessToken");
-  const refreshToken = localStorage.getItem("refreshToken");
-  if (accessToken && refreshToken) {
-    fetchAndSetUser();
-  } */
-});
 </script>
 
 <template>

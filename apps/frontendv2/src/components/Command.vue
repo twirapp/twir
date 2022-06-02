@@ -57,7 +57,7 @@ const schema = computed(() => yup.object({
           return false;
         }
 
-        if (otherCommands?.some(c => c.aliases?.some(aliases => aliases.includes(v)))) {
+        if (otherCommands?.some(c => c.aliases?.some(aliases => aliases.includes(v!)))) {
           return false;
         }
 

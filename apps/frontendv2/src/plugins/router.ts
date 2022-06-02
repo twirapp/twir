@@ -72,13 +72,18 @@ export const router = createRouter({
 
 
 router.beforeEach(async (to, _from, next) => {
-  let user = userStore.get();
+  if (to.path.startsWith('/dashboard')) {
+    let user = userStore.get();
+    if (!user) await fetchAndSetUser();
+    user = userStore.get();
 
-  if (!user) await fetchAndSetUser();
-  user = userStore.get();
-  if (user && !user?.isTester && to.path.startsWith('/dashboard')) {
-    alert('We are sorry, but currently bot access only via invites.');
-    next('/');
+    if (!user?.isTester) {
+      alert('We are sorry, but currently bot access only via invites.');
+      next('/');
+    } else {
+      next();
+    }
+
   } else {
     next();
   }
