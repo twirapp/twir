@@ -99,10 +99,10 @@ async function saveCommand() {
   const index = commands.value.indexOf(command.value);
   let data: CommandType;
   if (command.value.id) {
-    const request = await api.put(`/v1/channels/${selectedDashboard.value.channelId}/commands/${command.value.id}`, command);  
+    const request = await api.put(`/v1/channels/${selectedDashboard.value.channelId}/commands/${command.value.id}`, command.value);  
     data = request.data;
   } else {
-    const request = await api.post(`/v1/channels/${selectedDashboard.value.channelId}/commands`, command);
+    const request = await api.post(`/v1/channels/${selectedDashboard.value.channelId}/commands`, command.value);
     data = request.data;
   }
 
