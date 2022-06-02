@@ -315,10 +315,12 @@ function cancelEdit(command: CommandType, index: number) {
                 >
                   <input
                     v-model.lazy="command.aliases![aliaseIndex]"
+                    :disabled="!command.edit"
                     type="text"
                     class="flex-shrink flex-grow flex-auto leading-normal w-px flex-1 border border-grey-light text-gray-700 rounded rounded-r-none px-3 py-1.5 relative"
                   >
                   <div
+                    v-if="command.edit"
                     class="flex -mr-px cursor-pointer"
                     @click="command.aliases?.splice(aliaseIndex, 1)"
                   >
