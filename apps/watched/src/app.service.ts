@@ -24,34 +24,33 @@ export class AppService {
 
   async #getCachedTwitchUsers() {
     const usersKeys = await this.redis.keys(`twitch:users:*`);
-    const users: Array<HelixUserData> = [];
 
-    for (const key of usersKeys) {
-      const user = await this.redis.hgetall(`twitch:users:${key.split(':')[2]}`);
-      if (Object.keys(user).length) users.push(user as unknown as HelixUserData);
-    }
-
-    return users;
+    const request = await Promise.all(usersKeys.map(k => this.redis.hgetall(`twitch:users:${k.split(':')[2]}`)));
+    return request.filter(d => Object.keys(d).length > 0) as unknown as Array<HelixUserData>;
   }
 
-  async #cacheTwitchUsers(users: HelixUserData[]) {
+  #cacheTwitchUsers(users: HelixUserData[]) {
     for (const user of users) {
-      this.redis.hmset(`twitch:users:${user.id}`, user);
+      const key = `twitch:users:${user.id}`;
+      this.redis.hmset(key, user).then(() => {
+        this.redis.expire(key, 5 * 3600);
+      });
     }
   }
 
   async handleIncrease(keys: string[]) {
-    for (let index = 0; index < keys.length; index++) {
-      const key = keys[index]!;
+    const start = performance.now();
+    const cachedUsers = await this.#getCachedTwitchUsers();
 
+    await Promise.all(keys.map(async (key) => {
       const cachedStream = await this.redis.get(key);
-      if (!cachedStream) continue;
+      if (!cachedStream) return;
       const stream = JSON.parse(cachedStream) as CachedStream;
       const chatters = await api.unsupported.getChatters(stream.user_login);
 
-      const cachedUsers = await this.#getCachedTwitchUsers();
+      const cachedUsersNames = cachedUsers.map(u => u.login);
 
-      const userNamesForGetFromTwitch = [...chatters.allChattersWithStatus.keys()].filter(name => cachedUsers.some(u => u.login !== name));
+      const userNamesForGetFromTwitch = [...chatters.allChattersWithStatus.keys()].filter(name => !cachedUsersNames.includes(name));
       const usersChunks = _.chunk(userNamesForGetFromTwitch, 100);
 
       const twitchUsers = await Promise.all(usersChunks.map(c => api.users.getUsersByNames(c)))
@@ -62,116 +61,83 @@ export class AppService {
       this.#cacheTwitchUsers(twitchUsers);
 
       const usersForIncrease = [...cachedUsers, ...twitchUsers];
+      const usersForUpdate: string[] = [];
+      const usersForUpsert: string[] = [];
 
-      for (let index = 0; index < usersForIncrease.length; index++) {
-        const user = usersForIncrease[index];
-        if (!user) continue;
+      const cachedUsersStats = await Promise.all(usersForIncrease.map(async (u) => {
+        return {
+          id: u.id,
+          data: await this.redis.hgetall(`usersStats:${stream.user_id}:${u.id}`),
+        };
+      }));
 
-        const key = `usersStats:${stream.user_id}:${user.id}`;
-        const cachedUser = await this.redis.hgetall(key);
-
-        if (Object.keys(cachedUser).length) {
-          this.redis.hset(key, 'watched', Number(Number(cachedUser.watched) + this.incrNumber)).then(() => {
-            this.redis.expire(key, 1200);
+      cachedUsersStats.forEach(user => {
+        const userKey = `usersStats:${stream.user_id}:${user.id}`;
+        if (Object.keys(user.data).length) {
+          this.redis.hset(`usersStats:${stream.user_id}:${user.id}`, 'watched', Number(Number(user.data.watched) + this.incrNumber)).then(() => {
+            this.redis.expire(userKey, 1200);
           });
 
-          this.prisma.userStats.update({
-            where: {
-              userId_channelId: {
-                userId: user.id,
-                channelId: stream.user_id,
-              },
-            },
-            data: {
-              watched: { increment: this.incrNumber },
-            },
-          });
+          usersForUpdate.push(user.id);
         } else {
-          this.prisma.userStats.upsert({
-            where: {
-              userId_channelId: {
-                userId: user.id,
-                channelId: stream.user_id,
-              },
-            },
-            create: {
-              user: {
-                connectOrCreate: {
-                  where: {
-                    id: user.id,
-                  },
-                  create: {
-                    id: user.id,
-                  },
-                },
-              },
-              channel: {
-                connect: {
-                  id: stream.user_id,
-                },
-              },
-            },
-            update: {
-              watched: {
-                increment: config.isDev ? 10000 : 5 * 60 * 1000,
-              },
-            },
-            select: {
-              userId: true,
-              watched: true,
-            },
-          }).then(u => {
-            this.redis.hset(key, 'watched', String(u.watched)).then(() => {
-              this.redis.expire(key, 1200);
-            });
-          });
+          usersForUpsert.push(user.id);
         }
-      }
+      });
 
-      /* await Promise.all(_.chunk(twitchUsers, 1000).map(c => {
-        return this.prisma.$transaction(c.map(user => {
-          return this.prisma.userStats
-            .upsert({
-              where: {
-                userId_channelId: {
-                  userId: user.id,
-                  channelId: stream.user_id,
+      /* this.prisma.userStats.updateMany({
+        where: {
+          channelId: stream.user_id,
+          userId: { in: usersForUpdate },
+        },
+        data: {
+          watched: { increment: this.incrNumber },
+        },
+      });
+
+      this.prisma.$transaction(usersForUpsert.map(u => {
+        return this.prisma.userStats.upsert({
+          where: {
+            userId_channelId: {
+              userId: u,
+              channelId: stream.user_id,
+            },
+          },
+          create: {
+            user: {
+              connectOrCreate: {
+                where: {
+                  id: u,
+                },
+                create: {
+                  id: u,
                 },
               },
-              create: {
-                user: {
-                  connectOrCreate: {
-                    where: {
-                      id: user.id,
-                    },
-                    create: {
-                      id: user.id,
-                    },
-                  },
-                },
-                channel: {
-                  connect: {
-                    id: stream.user_id,
-                  },
-                },
+            },
+            channel: {
+              connect: {
+                id: stream.user_id,
               },
-              update: {
-                watched: {
-                  increment: config.isDev ? 10000 : 5 * 60 * 1000,
-                },
-              },
-            });
-        }));
+            },
+          },
+          update: {
+            watched: {
+              increment: this.incrNumber,
+            },
+          },
+          select: {
+            userId: true,
+            watched: true,
+          },
+        });
       })).then(users => {
-        for (const user of users.flat()) {
-          const key = `usersStats:${stream.user_id}:${user.userId}`;
-          this.redis.hset(key, 'watched', String(user.watched)).then(() => {
-            this.redis.expire(key, 600);
+        for (const user of users) {
+          this.redis.hset(`usersStats:${stream.user_id}:${user.userId}`, 'watched', String(user.watched)).then(() => {
+            this.redis.expire(`usersStats:${stream.user_id}:${user.userId}`, 1200);
           });
         }
-
-        console.log('done');
       }); */
-    }
+    }));
+
+    console.log(`End ${performance.now() - start}ms`);
   }
 }
