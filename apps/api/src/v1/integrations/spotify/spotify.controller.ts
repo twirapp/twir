@@ -16,8 +16,10 @@ export class SpotifyController {
 
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
   @Post('token')
-  getToken(@Param('channelId') channelId: string, @Body() body: { code: string }) {
-    return this.spotifyService.getTokens(channelId, body.code);
+  async getToken(@Param('channelId') channelId: string, @Body() body: { code: string }) {
+    const result = await this.spotifyService.getTokens(channelId, body.code);
+    await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/integrations/spotify/profile`);
+    return result;
   }
 
   @CacheTTL(600)

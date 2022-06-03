@@ -48,10 +48,10 @@ onMounted(async () => {
 
       router.push('/dashboard/integrations');
     }
+  }
 
-    if (!spotifyProfile.value) {
-      fetchSpotifyProfile();
-    }
+  if (!spotifyProfile.value) {
+    fetchSpotifyProfile();
   }
 });
 </script>
