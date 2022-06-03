@@ -116,7 +116,7 @@ function insertCommand() {
     </div>
     <div 
       v-else
-      class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2"
+      class="grid xl:grid-cols-3 lg:grid-cols-2  grid-cols-1 gap-2"
     >
       <div
         v-for="command, commandIndex in commands"
