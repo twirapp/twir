@@ -23,7 +23,7 @@ function spotifyRedirect() {
         response_type: 'code',
         client_id: '47b25d8409384208873be26062de7243',
         scope: 'user-read-currently-playing',
-        redirect_uri: `${window.location.origin}/dashboard/integrations`,
+        redirect_uri: `${window.location.origin}/dashboard/integrations/spotify`,
       }),
   );
 }
@@ -36,19 +36,22 @@ async function fetchSpotifyProfile() {
 }
 
 onMounted(async () => {
+  const route = router.currentRoute.value;
   const params = new URLSearchParams(window.location.search);
-
   const code = params.get('code');
-  if (code) {
-    await api.post(`v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/token`, {
-      code,
-    });
 
-    router.push('/dashboard/integrations');
-  }
+  if (route.params.integration === 'spotify' && code) {
+    if (code) {
+      await api.post(`v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/token`, {
+        code,
+      });
 
-  if (!spotifyProfile.value) {
-    fetchSpotifyProfile();
+      router.push('/dashboard/integrations');
+    }
+
+    if (!spotifyProfile.value) {
+      fetchSpotifyProfile();
+    }
   }
 });
 </script>

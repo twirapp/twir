@@ -22,6 +22,10 @@ export const router = createRouter({
       component: () => import('../dashboard/Integrations.vue'),
     },
     {
+      path: '/dashboard/integrations/:integration',
+      component: () => import('../dashboard/Integrations.vue'),
+    },
+    {
       path: '/dashboard/events',
       component: () => import('../dashboard/Events.vue'),
     },

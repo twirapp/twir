@@ -11,12 +11,10 @@ const app = createApp(App).use(router);
 
 app.mount('#app');
 
-onMounted(() => {
-  if (router.currentRoute.value.path === '/') {
-    const accessToken = localStorage.getItem('accessToken');
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (accessToken && refreshToken) {
-      fetchAndSetUser();
-    }
+if (router.currentRoute.value.path === '/') {
+  const accessToken = localStorage.getItem('accessToken');
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (accessToken && refreshToken) {
+    fetchAndSetUser();
   }
-});
+}
