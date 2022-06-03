@@ -21,7 +21,7 @@ export class IncreaseWatchedService {
     this.watchedMicroservice = this.client.getService<Watched.Main>('Main');
   }
 
-  @Timeout(500)
+  // @Timeout(500)
   async updateStatuses() {
     console.log('start');
     const streamsKeys = await this.redis.keys('streams:*');
