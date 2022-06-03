@@ -47,14 +47,12 @@ export class AppService {
       const cachedStream = await this.redis.get(key);
       if (!cachedStream) return;
       const stream = JSON.parse(cachedStream) as CachedStream;
-      const chatters = await api.unsupported.getChatters(stream.user_login);
-
+      const chattersRequest = await api.unsupported.getChatters(stream.user_login);
+      const chatters = new Set(Object.values(getRawData(chattersRequest).chatters).flat());
       const userNamesForGetFromTwitch = new Set<string>();
-      for (const name of chatters.allChatters) {
+      for (const name of chatters) {
         if (!cachedUsersNames.has(name)) userNamesForGetFromTwitch.add(name);
       }
-
-      console.log('userNamesForGetFromTwitch', userNamesForGetFromTwitch.size);
 
       const usersChunks = _.chunk([...userNamesForGetFromTwitch], 100);
       const twitchUsers = await Promise.all(usersChunks.map(c => api.users.getUsersByNames(c)))
@@ -64,7 +62,8 @@ export class AppService {
         });
       this.#cacheTwitchUsers(twitchUsers);
 
-      const usersForIncrease = [...cachedUsers, ...twitchUsers].filter(n => chatters.allChatters.includes(n.login));
+      const usersForIncrease = [...cachedUsers, ...twitchUsers].filter(n => chatters.has(n.login));
+
       const usersForUpdate: string[] = [];
       const usersForUpsert: string[] = [];
 
