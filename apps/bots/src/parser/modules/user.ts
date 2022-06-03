@@ -3,9 +3,9 @@ import { formatDuration, intervalToDuration } from 'date-fns';
 import { getuserFollowAge } from '../../functions/getUserFollowAge.js';
 import { Module } from '../index.js';
 
-const formatDistanceLocale: { [x: string]: string } = { 
+const formatDistanceLocale: { [x: string]: string } = {
   xMinutes: '{{count}}m',
-  xHours: '{{count}}h', 
+  xHours: '{{count}}h',
 };
 const shortEnLocale = { formatDistance: (token: string, count: string) => formatDistanceLocale[token]?.replace('{{count}}', count) };
 
@@ -30,10 +30,10 @@ export const user: Module[] = [
     handler: async (_, state) => {
       const stats = await state.cache.getUserStats();
       if (!stats) return '0h0m';
-
+      console.log(stats);
       return formatDuration(
         intervalToDuration({ start: 0, end: Number(stats.watched ?? 0) }),
-        { 
+        {
           zero: true,
           format: ['hours', 'minutes'],
           delimiter: '',

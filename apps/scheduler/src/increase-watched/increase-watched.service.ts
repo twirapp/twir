@@ -23,6 +23,7 @@ export class IncreaseWatchedService {
 
   @Timeout(500)
   async updateStatuses() {
+    console.log('start');
     const streamsKeys = await this.redis.keys('streams:*');
     if (!streamsKeys.length) return;
 

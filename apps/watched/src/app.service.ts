@@ -23,15 +23,15 @@ export class AppService {
   }
 
   async #getCachedTwitchUsers() {
-    const usersKeys = await this.redis.keys(`twitch:users:*`);
+    const usersKeys = await this.redis.keys(`twitch:usersByName:*`);
 
-    const request = await Promise.all(usersKeys.map(k => this.redis.hgetall(`twitch:users:${k.split(':')[2]}`)));
+    const request = await Promise.all(usersKeys.map(k => this.redis.hgetall(`twitch:usersByName:${k.split(':')[2]}`)));
     return request.filter(d => Object.keys(d).length > 0) as unknown as Array<HelixUserData>;
   }
 
   #cacheTwitchUsers(users: HelixUserData[]) {
     for (const user of users) {
-      const key = `twitch:users:${user.id}`;
+      const key = `twitch:usersByName:${user.login}`;
       this.redis.hmset(key, user).then(() => {
         this.redis.expire(key, 5 * 3600);
       });
@@ -41,6 +41,7 @@ export class AppService {
   async handleIncrease(keys: string[]) {
     const start = performance.now();
     const cachedUsers = await this.#getCachedTwitchUsers();
+    const cachedUsersNames = new Set(cachedUsers.map(u => u.login));
 
     await Promise.all(keys.map(async (key) => {
       const cachedStream = await this.redis.get(key);
@@ -48,11 +49,14 @@ export class AppService {
       const stream = JSON.parse(cachedStream) as CachedStream;
       const chatters = await api.unsupported.getChatters(stream.user_login);
 
-      const cachedUsersNames = cachedUsers.map(u => u.login);
+      const userNamesForGetFromTwitch = new Set<string>();
+      for (const name of chatters.allChatters) {
+        if (!cachedUsersNames.has(name)) userNamesForGetFromTwitch.add(name);
+      }
 
-      const userNamesForGetFromTwitch = [...chatters.allChattersWithStatus.keys()].filter(name => !cachedUsersNames.includes(name));
-      const usersChunks = _.chunk(userNamesForGetFromTwitch, 100);
+      console.log('userNamesForGetFromTwitch', userNamesForGetFromTwitch.size);
 
+      const usersChunks = _.chunk([...userNamesForGetFromTwitch], 100);
       const twitchUsers = await Promise.all(usersChunks.map(c => api.users.getUsersByNames(c)))
         .then(v => v.flat())
         .then(v => {
@@ -60,7 +64,7 @@ export class AppService {
         });
       this.#cacheTwitchUsers(twitchUsers);
 
-      const usersForIncrease = [...cachedUsers, ...twitchUsers];
+      const usersForIncrease = [...cachedUsers, ...twitchUsers].filter(n => chatters.allChatters.includes(n.login));
       const usersForUpdate: string[] = [];
       const usersForUpsert: string[] = [];
 
@@ -74,14 +78,14 @@ export class AppService {
       cachedUsersStats.forEach(user => {
         const userKey = `usersStats:${stream.user_id}:${user.id}`;
         if (Object.keys(user.data).length) {
-          this.redis.hset(`usersStats:${stream.user_id}:${user.id}`, 'watched', Number(Number(user.data.watched) + this.incrNumber)).then(() => {
-            this.redis.expire(userKey, 1200);
-          });
-
           usersForUpdate.push(user.id);
         } else {
           usersForUpsert.push(user.id);
         }
+
+        this.redis.hset(`usersStats:${stream.user_id}:${user.id}`, 'watched', this.incrNumber).then(() => {
+          this.redis.expire(userKey, 1200);
+        });
       });
 
       /* this.prisma.userStats.updateMany({

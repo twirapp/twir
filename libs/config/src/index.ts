@@ -16,9 +16,9 @@ export const config = cleanEnv(process.env, {
   JWT_EXPIRES_IN: str({ default: '5m' }),
   JWT_ACCESS_SECRET: str({ default: 'CoolSecretForAccess' }),
   JWT_REFRESH_SECRET: str({ default: 'CoolSecretForRefresh' }),
-  REDIS_URL: str({ default: 'redis://:576294Aa@localhost:6379/0' }),
+  REDIS_URL: str({ default: 'redis://localhost:6379/0' }),
   SAY_IN_CHAT: bool({ default: true }),
-  MICROSERVICE_STREAM_STATUS_URL: str({ default: '0.0.0.0:50000' }),
-  MICROSERVICE_BOTS_URL: str({ default: '0.0.0.0:50001' }),
-  MICROSERVICE_WATCHED_URL: str({ default: '0.0.0.0:50002' }),
+  MICROSERVICE_STREAM_STATUS_URL: str({ default: 'localhost:50000' }),
+  MICROSERVICE_BOTS_URL: str({ default: 'localhost:50001' }),
+  MICROSERVICE_WATCHED_URL: str({ default: 'localhost:50002' }),
 });
