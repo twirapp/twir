@@ -81,4 +81,21 @@ export class SpotifyService {
 
     return profile;
   }
+
+  async getIntegration(channelId: string) {
+    return this.prisma.channelIntegration.findFirst({
+      where: {
+        channelId,
+        integration: {
+          service: 'SPOTIFY',
+        },
+      },
+      select: {
+        enabled: true,
+        id: true,
+        integrationId: true,
+        channelId: true,
+      },
+    });
+  }
 }

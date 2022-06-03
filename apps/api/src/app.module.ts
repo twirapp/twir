@@ -16,7 +16,6 @@ import { V1Module } from './v1/v1.module.js';
 
 export const redis = new Redis(config.REDIS_URL);
 
-
 @Module({
   imports: [
     CacheModule.register<RedisOptions>({

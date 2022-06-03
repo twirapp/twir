@@ -15,10 +15,22 @@ export class SpotifyController {
   ) { }
 
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
+  @CacheTTL(600)
+  @UseInterceptors(CustomCacheInterceptor(ctx => {
+    const req = ctx.switchToHttp().getRequest() as Request;
+    return `nest:cache:v1/channels/${req.params.channelId}/integrations/spotify`;
+  }))
+  @Get()
+  getIntegration(@Param('channelId') channelId: string) {
+    return this.spotifyService.getIntegration(channelId);
+  }
+
+  @UseGuards(JwtAuthGuard, DashboardAccessGuard)
   @Post('token')
   async getToken(@Param('channelId') channelId: string, @Body() body: { code: string }) {
     const result = await this.spotifyService.getTokens(channelId, body.code);
     await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/integrations/spotify/profile`);
+    await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/integrations/spotify`);
     return result;
   }
 

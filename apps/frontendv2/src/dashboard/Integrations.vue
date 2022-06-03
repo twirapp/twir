@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
+import { ChannelIntegration } from '@tsuwari/prisma';
 import { useTitle } from '@vueuse/core';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { api } from '@/plugins/api';
@@ -14,7 +15,17 @@ title.value = 'Tsuwari - Integrations';
 
 const router = useRouter();
 
+const spotifyIntegration = ref<Partial<ChannelIntegration>>({
+  enabled: true,
+});
 const selectedDashboard = useStore(selectedDashboardStore);
+
+
+selectedDashboardStore.subscribe(d => {
+  api(`/v1/channels/${d.channelId}/integrations/spotify`).then(async (r) => {
+    spotifyIntegration.value = r.data;
+  });
+});
 
 function spotifyRedirect() {
   window.location.replace(
@@ -57,183 +68,50 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2 p-1">
-    <div class="card rounded card-compact bg-base-200 drop-shadow-lg">
-      <div class="card-body">
-        <label class="label cursor-pointer mb-5">
-          <h2 class="card-title outline-none">Donation Alerts</h2>
+  <div class="grid xl:grid-cols-4 lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-2">
+    <div class="card rounded card-compact bg-base-200 drop-shadow-lg p-4">
+      <div class="flex justify-between mb-5">
+        <div>
+          <h2 class="card-title">
+            Spotify
+          </h2>
+        </div>
+        <div class="form-check form-switch">
           <input
+            id="flexSwitchCheckDefault"
+            v-model="spotifyIntegration.enabled"
+            class="form-check-input appearance-none w-9 -ml-10 rounded-full float-left h-5 align-top bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer shadow-sm"
             type="checkbox"
-            class="toggle"
-            checked
+            role="switch"
           >
-        </label>
-
-        <div class="mb-5">
-          <span class="label-text">Access token</span>
-          <input
-            type="text"
-            placeholder="Donation Alerts Access token"
-            class="rounded input input-sm input-bordered w-full max-w-xs mb-5"
-          >
-
-          <br>
-
-          <span class="label-text">Refresh token</span>
-          <input
-            type="text"
-            placeholder="Donation Alerts Refresh token"
-            class="rounded input input-sm input-bordered w-full max-w-xs"
-          >
-        </div>
-
-        <div class="card-actions">
-          <button class="btn btn-outline btn-sm small-screen rounded">
-            Generate Tokens
-          </button>
-          <button class="btn btn-secondary btn-sm small-screen rounded">
-            Save
-          </button>
         </div>
       </div>
-    </div>
 
-    <div class="card rounded card-compact bg-base-200 drop-shadow-lg">
-      <div class="card-body">
-        <label class="label cursor-pointer mb-5">
-          <h2 class="card-title">Spotify</h2>
-          <input
-            type="checkbox"
-            class="toggle"
-            checked
-          >
-        </label>
-
-        <div class="mb-5">
-          <span v-if="spotifyProfile">Logged in as {{ spotifyProfile.display_name }}#{{ spotifyProfile.id }}</span>
-          <span v-else>Not logged in</span>
+      <div class="mb-5">
+        <div
+          v-if="spotifyProfile"
+        >
+          <div class="flex justify-center mb-3">
+            <img
+              v-if="spotifyProfile.images"
+              :src="spotifyProfile.images[0].url"
+              class="rounded-full w-32 ring-2 ring-white"
+              alt="Avatar"
+            >
+          </div>
+          {{ spotifyProfile.display_name }}#{{ spotifyProfile.id }}
         </div>
-
-        <div class="card-actions">
-          <button
-            class="btn btn-outline btn-sm small-screen rounded"
-            @click="spotifyRedirect"
-          >
-            Login
-          </button>
+        <div v-else>
+          Not logged in
         </div>
       </div>
-    </div>
 
-    <div class="card rounded card-compact bg-base-200 drop-shadow-lg">
-      <div class="card-body">
-        <label class="label cursor-pointer mb-5">
-          <h2 class="card-title">QIWI</h2>
-          <input
-            type="checkbox"
-            class="toggle"
-            checked
-          >
-        </label>
-
-        <div class="mb-5">
-          <span class="label-text">Access token</span>
-          <input
-            type="text"
-            placeholder="QIWI Access token"
-            class="rounded input input-sm input-bordered w-full max-w-xs mb-5"
-          >
-
-          <br>
-
-          <span class="label-text">Refresh token</span>
-          <input
-            type="text"
-            placeholder="QIWI Refresh token"
-            class="rounded input input-sm input-bordered w-full max-w-xs"
-            disabled
-          >
-        </div>
-
-        <div class="card-actions">
-          <button class="btn btn-outline btn-sm small-screen rounded">
-            Generate Tokens
-          </button>
-          <button class="btn btn-secondary btn-sm small-screen rounded">
-            Save
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card rounded card-compact bg-base-200 drop-shadow-lg">
-      <div class="card-body">
-        <h2 class="card-title mb-5">
-          Satont API
-        </h2>
-
-        <div class="mb-5">
-          <label class="label cursor-pointer">
-            <span class="label-text">Songs</span>
-            <input
-              type="checkbox"
-              class="toggle"
-              checked
-            >
-          </label>
-
-          <label class="rounded input-group input-group-vertical mb-5">
-            <span>VK ID</span>
-            <input
-              type="text"
-              placeholder="VKontakte ID"
-              class="rounded w-full input input-sm input-bordered"
-            >
-          </label>
-
-          <label class="rounded input-group input-group-vertical mb-5">
-            <span>Last FM</span>
-            <input
-              type="text"
-              placeholder="Last FM ID"
-              class="rounded w-full input input-sm input-bordered"
-            >
-          </label>
-
-          <label class="rounded input-group input-group-vertical mb-5">
-            <span>Twitch DJ</span>
-            <input
-              type="text"
-              placeholder="Twitch DJ ID"
-              class="rounded w-full input input-sm input-bordered"
-            >
-          </label>
-
-          <label class="label cursor-pointer">
-            <span class="label-text">FaceIT</span>
-            <input
-              type="checkbox"
-              class="toggle"
-              checked
-            >
-          </label>
-
-          <label class="input-group input-group-vertical mb-5">
-            <span>FaceIT</span>
-            <input
-              type="text"
-              placeholder="Faceit nickname"
-              class="rounded w-full input input-sm input-bordered"
-            >
-          </label>
-        </div>
-
-        <div class="card-actions justify-start">
-          <button class="btn btn-secondary btn-sm w-full rounded">
-            Save
-          </button>
-        </div>
-      </div>
+      <button
+        class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
+        @click="spotifyRedirect"
+      >
+        Login
+      </button>
     </div>
   </div>
 </template>

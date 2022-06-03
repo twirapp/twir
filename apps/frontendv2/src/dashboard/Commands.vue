@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
 import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/create';
-import { CommandPermission, CooldownType } from '@tsuwari/prisma';
 import { useTitle } from '@vueuse/core';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import { ref, watch } from 'vue';
@@ -13,19 +12,6 @@ import { selectedDashboardStore } from '@/stores/userStore';
 
 const title = useTitle();
 title.value = 'Tsuwari - Commands';
-
-const perms = {
-  'Broadcaster': 'BROADCASTER',
-  'Moderator\'s': 'MODERATOR',
-  'Vip\'s': 'VIP',
-  'Subscriber\'s': 'SUBSCRIBER',
-  'Viewers': 'VIEWER',
-} as { [x: string]: CommandPermission };
-
-const cooldownType = {
-  'Global': 'GLOBAL',
-  'Per user': 'PER_USER',
-} as { [x: string]: CooldownType };
 
 type CommandType = UpdateOrCreateCommandDto & { 
   edit?: boolean
@@ -116,7 +102,7 @@ function insertCommand() {
     </div>
     <div 
       v-else
-      class="grid xl:grid-cols-3 lg:grid-cols-2  grid-cols-1 gap-2"
+      class="grid xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-2"
     >
       <div
         v-for="command, commandIndex in commands"
@@ -132,9 +118,3 @@ function insertCommand() {
     </div>
   </div>
 </template>
-
-<style>
-.card {
-  background: linear-gradient(0deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)), #121212;
-}
-</style>
