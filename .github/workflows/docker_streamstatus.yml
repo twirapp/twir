@@ -18,6 +18,15 @@ jobs:
         uses: actions/checkout@v2
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '18.x'
+      - run: npm i -g pnpm
+      - name: Install modules
+        run: pnpm install
+      - name: Build
+        run: pnpm build:streamstatus
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Login to Docker Hub

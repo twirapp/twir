@@ -23,7 +23,7 @@ jobs:
       - run: npm i -g pnpm
       - name: Install modules
         run: pnpm install
-      - name: Build api
+      - name: Build
         run: pnpm build:api
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
