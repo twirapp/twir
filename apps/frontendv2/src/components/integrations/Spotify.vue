@@ -16,7 +16,6 @@ const selectedDashboard = useStore(selectedDashboardStore);
 
 selectedDashboardStore.subscribe(d => {
   api(`/v1/channels/${d.channelId}/integrations/spotify`).then(async (r) => {
-    console.log('spotify', r.data);
     spotifyIntegration.value = r.data;
   });
 });
