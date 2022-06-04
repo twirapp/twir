@@ -16,6 +16,7 @@ const selectedDashboard = useStore(selectedDashboardStore);
 
 selectedDashboardStore.subscribe(d => {
   api(`/v1/channels/${d.channelId}/integrations/spotify`).then(async (r) => {
+    console.log('spotify', r.data);
     spotifyIntegration.value = r.data;
   });
 });
@@ -37,6 +38,14 @@ const spotifyProfile = useStore(spotifyProfileStore);
 async function fetchSpotifyProfile() {
   const { data } = await api(`v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/profile`);
   setSpotifyProfile(data);
+}
+
+async function patch() {
+  const { data } = await api.patch(`v1/channels/${selectedDashboard.value.channelId}/integrations/spotify`, {
+    enabled: spotifyIntegration.value.enabled,
+  });
+
+  spotifyIntegration.value = data;
 }
 
 onMounted(async () => {
@@ -75,6 +84,7 @@ onMounted(async () => {
           class="form-check-input appearance-none w-9 -ml-10 rounded-full float-left h-5 align-top bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer shadow-sm"
           type="checkbox"
           role="switch"
+          @change="patch"
         >
       </div>
     </div>

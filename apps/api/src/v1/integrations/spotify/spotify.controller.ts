@@ -27,8 +27,11 @@ export class SpotifyController {
   }
 
   @Patch()
-  updateIntegration(@Param('channelId') channelId: string, @Body() body: UpdateSpotifyIntegrationDto) {
-    return this.spotifyService.updateIntegration(channelId, body);
+  async updateIntegration(@Param('channelId') channelId: string, @Body() body: UpdateSpotifyIntegrationDto) {
+    const result = await this.spotifyService.updateIntegration(channelId, body);
+    await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/integrations/spotify/profile`);
+    await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/integrations/spotify`);
+    return result;
   }
 
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)

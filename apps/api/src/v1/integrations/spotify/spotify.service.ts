@@ -120,6 +120,10 @@ export class SpotifyService {
     return this.prisma.channelIntegration.update({
       where: { id: integration.id },
       data: body,
+      select: {
+        enabled: true,
+        id: true,
+      },
     });
   }
 }
