@@ -38,7 +38,7 @@ function insertCommand() {
     const command: CommandType = {
       name: '',
       aliases: [],
-      cooldown: 0,
+      cooldown: 5,
       permission: 'VIEWER',
       description: null,
       visible: true,
