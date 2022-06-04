@@ -243,67 +243,6 @@ importers:
       '@vueuse/integrations': ^8.5.0
       autoprefixer: ^10.4.7
       axios: ^0.27.2
-      daisyui: ^2.15.0
-      date-fns: ^2.28.0
-      jwt-decode: ^3.1.2
-      nanostores: ^0.5.12
-      postcss: ^8.4.14
-      socket.io-client: ^4.5.1
-      tailwind-scrollbar: ^1.3.1
-      tailwindcss: ^3.0.24
-      type-fest: ^2.13.0
-      typescript: ^4.7.2
-      vite: ^2.9.9
-      vite-svg-loader: ^3.3.0
-      vue: ^3.2.35
-      vue-router: '4'
-      vue-tsc: ^0.34.15
-    dependencies:
-      '@nanostores/persistent': 0.5.3_nanostores@0.5.12
-      '@nanostores/vue': 0.5.5_gzt6a34mwq26z66v3knemz74gi
-      '@tsuwari/api': link:../api
-      '@vueuse/core': 8.6.0_vue@3.2.36
-      '@vueuse/integrations': 8.6.0_xurgydom4nkya6wgo5lej5e544
-      axios: 0.27.2
-      daisyui: 2.15.2_ugi4xkrfysqkt4c4y6hkyfj344
-      date-fns: 2.28.0
-      jwt-decode: 3.1.2
-      nanostores: 0.5.12
-      socket.io-client: 4.5.1
-      vite-svg-loader: 3.3.0
-      vue: 3.2.36
-      vue-router: 4.0.15_vue@3.2.36
-    devDependencies:
-      '@tsuwari/prisma': link:../../libs/prisma
-      '@tsuwari/shared': link:../../libs/shared
-      '@twurple/api': 5.1.6
-      '@twurple/common': 5.1.6
-      '@types/node': 17.0.36
-      '@vitejs/plugin-vue': 2.3.3_vite@2.9.9+vue@3.2.36
-      autoprefixer: 10.4.7_postcss@8.4.14
-      postcss: 8.4.14
-      tailwind-scrollbar: 1.3.1
-      tailwindcss: 3.0.24
-      type-fest: 2.13.0
-      typescript: 4.7.2
-      vite: 2.9.9
-      vue-tsc: 0.34.17_typescript@4.7.2
-
-  apps/frontendv2:
-    specifiers:
-      '@nanostores/persistent': ^0.5.2
-      '@nanostores/vue': ^0.5.5
-      '@tsuwari/api': workspace:*
-      '@tsuwari/prisma': workspace:*
-      '@tsuwari/shared': workspace:*
-      '@twurple/api': ^5.1.6
-      '@twurple/common': ^5.1.6
-      '@types/node': ^17.0.35
-      '@vitejs/plugin-vue': ^2.3.3
-      '@vueuse/core': ^8.5.0
-      '@vueuse/integrations': ^8.5.0
-      autoprefixer: ^10.4.7
-      axios: ^0.27.2
       date-fns: ^2.28.0
       jwt-decode: ^3.1.2
       nanostores: ^0.5.12
@@ -338,6 +277,67 @@ importers:
       vue: 3.2.36
       vue-router: 4.0.15_vue@3.2.36
       yup: 0.32.11
+    devDependencies:
+      '@tsuwari/prisma': link:../../libs/prisma
+      '@tsuwari/shared': link:../../libs/shared
+      '@twurple/api': 5.1.6
+      '@twurple/common': 5.1.6
+      '@types/node': 17.0.36
+      '@vitejs/plugin-vue': 2.3.3_vite@2.9.9+vue@3.2.36
+      autoprefixer: 10.4.7_postcss@8.4.14
+      postcss: 8.4.14
+      tailwind-scrollbar: 1.3.1
+      tailwindcss: 3.0.24
+      type-fest: 2.13.0
+      typescript: 4.7.2
+      vite: 2.9.9
+      vue-tsc: 0.34.17_typescript@4.7.2
+
+  apps/frontend_daisy:
+    specifiers:
+      '@nanostores/persistent': ^0.5.2
+      '@nanostores/vue': ^0.5.5
+      '@tsuwari/api': workspace:*
+      '@tsuwari/prisma': workspace:*
+      '@tsuwari/shared': workspace:*
+      '@twurple/api': ^5.1.6
+      '@twurple/common': ^5.1.6
+      '@types/node': ^17.0.35
+      '@vitejs/plugin-vue': ^2.3.3
+      '@vueuse/core': ^8.5.0
+      '@vueuse/integrations': ^8.5.0
+      autoprefixer: ^10.4.7
+      axios: ^0.27.2
+      daisyui: ^2.15.0
+      date-fns: ^2.28.0
+      jwt-decode: ^3.1.2
+      nanostores: ^0.5.12
+      postcss: ^8.4.14
+      socket.io-client: ^4.5.1
+      tailwind-scrollbar: ^1.3.1
+      tailwindcss: ^3.0.24
+      type-fest: ^2.13.0
+      typescript: ^4.7.2
+      vite: ^2.9.9
+      vite-svg-loader: ^3.3.0
+      vue: ^3.2.35
+      vue-router: '4'
+      vue-tsc: ^0.34.15
+    dependencies:
+      '@nanostores/persistent': 0.5.3_nanostores@0.5.12
+      '@nanostores/vue': 0.5.5_gzt6a34mwq26z66v3knemz74gi
+      '@tsuwari/api': link:../api
+      '@vueuse/core': 8.6.0_vue@3.2.36
+      '@vueuse/integrations': 8.6.0_xurgydom4nkya6wgo5lej5e544
+      axios: 0.27.2
+      daisyui: 2.15.2_ugi4xkrfysqkt4c4y6hkyfj344
+      date-fns: 2.28.0
+      jwt-decode: 3.1.2
+      nanostores: 0.5.12
+      socket.io-client: 4.5.1
+      vite-svg-loader: 3.3.0
+      vue: 3.2.36
+      vue-router: 4.0.15_vue@3.2.36
     devDependencies:
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
@@ -1502,8 +1502,8 @@ packages:
       redis:
         optional: true
     dependencies:
-      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
-      '@nestjs/core': 8.4.6_c6vxkfylnngi2mhywxcozvksxy
+      '@nestjs/common': 8.4.6_47vcjb2de6lyibr6g4enoa5lyu
+      '@nestjs/core': 8.4.6_ohkmdv3xyvkszfvb2ghqzzao7e
       iterare: 1.2.1
       reflect-metadata: 0.1.13
       rxjs: 7.5.5

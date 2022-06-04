@@ -1,6 +1,5 @@
-import Axios, { AxiosError } from 'axios';
-
 import { refreshAccessToken } from '@/functions/refreshAccessToken';
+import Axios, { AxiosError } from 'axios';
 
 // eslint-disable-next-line import/no-cycle
 

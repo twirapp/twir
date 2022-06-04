@@ -8,7 +8,6 @@ type Dashboard = DashboardAccess & { twitch: HelixUser[typeof rawDataSymbol] }
 
 export type User = HelixUser[typeof rawDataSymbol] & {
   dashboards: Array<Dashboard>
-  isTester: boolean,
 }
 
 export const userStore = atom<User | null | undefined>(null);

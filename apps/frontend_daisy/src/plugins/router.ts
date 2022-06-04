@@ -1,8 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import { fetchAndSetUser } from '@/functions/fetchAndSetUser.js';
-import { userStore } from '@/stores/userStore';
-
 export const router = createRouter({
   routes: [
     {
@@ -15,14 +12,10 @@ export const router = createRouter({
     },
     {
       path: '/dashboard',
-      component: () => import('../dashboard/DashBoard.vue'),
+      component: () => import('../dashboard/Widgets.vue'),
     },
     {
       path: '/dashboard/integrations',
-      component: () => import('../dashboard/Integrations.vue'),
-    },
-    {
-      path: '/dashboard/integrations/:integration',
       component: () => import('../dashboard/Integrations.vue'),
     },
     {
@@ -72,23 +65,4 @@ export const router = createRouter({
     { path: '/:pathMatch(.*)*', component: () => import('../pages/NotFound.vue') },
   ],
   history: createWebHistory(),
-});
-
-
-router.beforeEach(async (to, _from, next) => {
-  if (to.path.startsWith('/dashboard')) {
-    let user = userStore.get();
-    if (!user) await fetchAndSetUser();
-    user = userStore.get();
-
-    if (!user?.isTester) {
-      alert('We are sorry, but currently bot access only via invites.');
-      next('/');
-    } else {
-      next();
-    }
-
-  } else {
-    next();
-  }
 });

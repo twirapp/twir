@@ -5,7 +5,7 @@ import { io, Socket } from 'socket.io-client';
 import { refreshAccessToken } from '../functions/refreshAccessToken.js';
 import { selectedDashboardStore } from '../stores/userStore.js';
 
-const url = import.meta.env.DEV ? 'http://localhost:3002' : `ws://${window.location.host}/api`
+const url = import.meta.env.DEV ? 'http://localhost:3002' : `ws://${window.location.host}/api`;
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(url, {
   auth: (cb) => {
@@ -14,7 +14,7 @@ export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(url
 });
 
 selectedDashboardStore.subscribe(v => {
-  if (!v?.channelId || !v?.userId) return
+  if (!v?.channelId || !v?.userId) return;
   socket.io.opts.query = {
     channelId: v.channelId,
     userId: v.userId,
