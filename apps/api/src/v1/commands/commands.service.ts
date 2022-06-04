@@ -22,14 +22,25 @@ export class CommandsService {
     return commands;
   }
 
-  async #setCommandCache(command: Command & { responses: Response[] }) {
+  async #setCommandCache(command: Command & { responses: Response[] }, oldCommand?: Command & { responses: Response[] }) {
+    const preKey = `commands:${command.channelId}`;
+
+    if (oldCommand) {
+      await this.redis.del(`commands:${oldCommand.channelId}`);
+
+      if (oldCommand.aliases && Array.isArray(command.aliases)) {
+        for (const alias of command.aliases) {
+          await this.redis.del(`${preKey}:${alias}`);
+        }
+      }
+    }
+
     const commandForSet = {
       ...command,
       responses: JSON.stringify(command.responses.map(r => r.text) ?? []),
       aliases: Array.isArray(command.aliases) ? JSON.stringify(command.aliases) : command.aliases,
     };
 
-    const preKey = `commands:${command.channelId}`;
     await this.redis.hmset(`${preKey}:${command.name}`, commandForSet);
 
     if (command.aliases && Array.isArray(command.aliases)) {
@@ -37,6 +48,7 @@ export class CommandsService {
         await this.redis.hmset(`${preKey}:${alias}`, commandForSet);
       }
     }
+
   }
 
   async create(userId: string, data: UpdateOrCreateCommandDto) {
@@ -128,7 +140,7 @@ export class CommandsService {
     await this.#setCommandCache({
       ...newCommand,
       responses: newResponses.flat(),
-    });
+    }, command);
 
     return {
       ...newCommand,

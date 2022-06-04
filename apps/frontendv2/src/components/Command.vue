@@ -64,7 +64,7 @@ const schema = computed(() => yup.object({
       return true;
       },
     ),
-  cooldown: yup.number().optional().min(5, 'Cooldown cannot be lower then 5 seconds.'),
+  cooldown: yup.number().notRequired().min(5, 'Cooldown cannot be lower then 5 seconds.'),
   permission: yup.mixed().oneOf(Object.values(perms)),
   aliases: yup.array<Array<string>>().optional().of(
     yup.string().test((v) => {
@@ -171,8 +171,9 @@ function cancelEdit() {
             
           <div class="grid grid-cols-2">
             <Field
-              v-model="command.cooldown"
+              v-model.number="command.cooldown"
               name="cooldown"
+              as="input"
               type="number"
               placeholder="0"
               :disabled="!command.edit"
