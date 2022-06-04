@@ -15,4 +15,5 @@ COPY libs/grpc libs/grpc
 COPY libs/config libs/config
 COPY libs/shared libs/shared
 
+RUN pnpm install --prod
 CMD ["pnpm", "start:api"]
