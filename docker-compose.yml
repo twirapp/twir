@@ -1,29 +1,29 @@
 version: "3.7"
 
 services:
-  postgres:
-    restart: unless-stopped
-    image: postgres:14-alpine
-    volumes:
-      - ./postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: tsuwari
-      POSTGRES_PASSWORD: tsuwari
-      POSTGRES_DB: tsuwari
+  # postgres:
+  #   restart: unless-stopped
+  #   image: postgres:14-alpine
+  #   volumes:
+  #     - ./postgres_data:/var/lib/postgresql/data
+  #   environment:
+  #     POSTGRES_USER: tsuwari
+  #     POSTGRES_PASSWORD: tsuwari
+  #     POSTGRES_DB: tsuwari
   
-  redis:
-    restart: unless-stopped
-    image: eqalpha/keydb
-    volumes:
-      - ./keydb_data:/data
-
   migrations:
     restart: unless-stopped
     image: satont/tsuwari:migrations
     env_file:
       - .env
-    depends_on:
-      - postgres
+    # depends_on:
+    #   - postgres
+
+  redis:
+    restart: unless-stopped
+    image: eqalpha/keydb
+    volumes:
+      - ./keydb_data:/data
 
   api:
     restart: unless-stopped
