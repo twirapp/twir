@@ -1,4 +1,4 @@
-import { HttpException, Inject, Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@tsuwari/prisma';
 
 import { RedisService } from '../../redis.service.js';
@@ -7,8 +7,8 @@ import { CreateKeywordDto } from './dto/create.js';
 @Injectable()
 export class KeywordsService {
   constructor(
-    @Inject() private readonly prisma: PrismaService,
-    @Inject() private readonly redis: RedisService,
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
   ) { }
 
   async getList(channelId: string) {

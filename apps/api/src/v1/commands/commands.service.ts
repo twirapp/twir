@@ -1,24 +1,16 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { ClientGrpc } from '@nestjs/microservices';
-import { Bots } from '@tsuwari/grpc';
+import { Injectable } from '@nestjs/common';
 import { Command, PrismaService, Response } from '@tsuwari/prisma';
 
 import { RedisService } from '../../redis.service.js';
 import { UpdateOrCreateCommandDto } from './dto/create.js';
 
 @Injectable()
-export class CommandsService implements OnModuleInit {
-  private botsMicroservice: Bots.Commands;
+export class CommandsService {
 
   constructor(
-    @Inject() private readonly prisma: PrismaService,
-    @Inject('BOTS_MICROSERVICE') private client: ClientGrpc,
-    @Inject() private readonly redis: RedisService,
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
   ) { }
-
-  onModuleInit(): void {
-    this.botsMicroservice = this.client.getService<Bots.Commands>('Commands');
-  }
 
   async getList(userId: string) {
     const commands = await this.prisma.command.findMany({

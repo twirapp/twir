@@ -1,4 +1,5 @@
 import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, Patch, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import { Request } from 'express';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
@@ -11,12 +12,12 @@ import { KeywordsService } from './keywords.service.js';
 @Controller('v1/channels/:channelId/keywords')
 export class KeywordsController {
   constructor(
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    @Inject() private readonly keywordsService: KeywordsService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly keywordsService: KeywordsService,
   ) { }
 
   async #delCache(channelId: string) {
-    await this.cacheManager.delete(`nest:cache:v1/channels/${channelId}/keywords`);
+    await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/keywords`);
   }
 
   @CacheTTL(600)

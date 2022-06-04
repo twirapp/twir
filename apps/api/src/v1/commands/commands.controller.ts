@@ -12,7 +12,7 @@ import { UpdateOrCreateCommandDto } from './dto/create.js';
 export class CommandsController {
   constructor(
     private readonly commandsSerivce: CommandsService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) { }
 
   private delCache(channelId: string) {
