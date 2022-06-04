@@ -1,7 +1,7 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { config } from '@tsuwari/config';
-import { PrismaModule, PrismaService } from '@tsuwari/prisma';
+import { PrismaModule } from '@tsuwari/prisma';
 import cacheRedisStore from 'cache-manager-ioredis';
 import Redis, { RedisOptions } from 'ioredis';
 
@@ -10,12 +10,12 @@ import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { JwtAuthModule } from './jwt/jwt.module.js';
 import { BotsMicroserviceModule } from './microservices/bots/bots.module.js';
+import { RedisModule } from './redis.module.js';
 import { RedisService } from './redis.service.js';
 import { SocketModule } from './socket/socket.module.js';
 import { V1Module } from './v1/v1.module.js';
 
 export const redis = new Redis(config.REDIS_URL);
-
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ export const redis = new Redis(config.REDIS_URL);
       ttl: 60,
     } as any),
     PrismaModule,
-    RedisService,
+    RedisModule,
     BotsMicroserviceModule,
     AuthModule,
     ThrottlerModule.forRoot({
@@ -39,8 +39,10 @@ export const redis = new Redis(config.REDIS_URL);
   ],
   controllers: [AppController],
   providers: [
+    CacheModule,
+    RedisModule,
+    RedisService,
     PrismaModule,
-    PrismaService,
     AppService,
   ],
 })

@@ -20,7 +20,7 @@ onMounted(async () => {
       '/api/auth/token?' +
         new URLSearchParams({
           code,
-          state: window.btoa(window.location.origin + '/login'),
+          state: window.btoa(window.location.origin),
         }),
     );
 

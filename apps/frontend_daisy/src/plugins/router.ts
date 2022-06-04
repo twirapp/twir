@@ -12,7 +12,7 @@ export const router = createRouter({
     },
     {
       path: '/dashboard',
-      component: () => import('../dashboard/DashBoard.vue'),
+      component: () => import('../dashboard/Widgets.vue'),
     },
     {
       path: '/dashboard/integrations',

@@ -11,4 +11,4 @@ await Bots.init();
 await startNest();
 initTimers();
 
-process.on('unhandledRejection', (r) => console.log(r));
+/* process.on('unhandledRejection', (r) => console.log(r)); */

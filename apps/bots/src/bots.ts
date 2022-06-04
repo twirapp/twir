@@ -58,34 +58,11 @@ class BotsClass {
       this.cache.set(bot.id, instance);
 
       for (const channel of bot.channels) {
-        this.updateCommandsCacheByChannelid(channel.id);
         this.updateGreetingsCacheByChannelid(channel.id);
       }
     }
   }
 
-  async setCommandCache(command: Command & { responses: Response[] }) {
-    const commandForSet = {
-      ...command,
-      responses: undefined,
-      aliases: Array.isArray(command.aliases) ? JSON.stringify(command.aliases) : command.aliases,
-    };
-
-    const preKey = `commands:${command.channelId}`;
-    await redis.hmset(`${preKey}:${command.name}`, commandForSet);
-
-    if (command.aliases && Array.isArray(command.aliases)) {
-      for (const alias of command.aliases) {
-        await redis.hmset(`${preKey}:${alias}`, commandForSet);
-      }
-    }
-
-    if (command.responses.length) {
-      for (const response of command.responses) {
-        await redis.hmset(`${preKey}:${command.id}:responses:${response.id}`, response);
-      }
-    }
-  }
 
 
   async updateGreetingsCacheByChannelid(channelId: string) {
@@ -106,33 +83,6 @@ class BotsClass {
       const [, channelId, userId] = key.split(':');
       if (!greetings.some((g) => g.channelId === channelId && g.userId === userId)) {
         await redis.del(key);
-      }
-    }
-  }
-
-  async updateCommandsCacheByChannelid(channelId: string) {
-    const commands = await prisma.command.findMany({
-      where: { channelId },
-      include: { responses: true },
-    });
-
-    for (const command of commands) {
-      this.setCommandCache(command);
-    }
-
-    const keys = await redis.keys(`commands:${channelId}:*`);
-
-    for (const key of keys) {
-      const [, , idOrName, _responses, responseId] = key.split(':');
-      if (!commands.some((c) => {
-        const aliases = (c.aliases as Array<string>) ?? [];
-        return c.name === idOrName || c.id === idOrName || aliases.includes(idOrName!);
-      })) {
-        redis.del(key);
-      }
-
-      if (responseId && !commands.some((c) => c.responses.map((c) => c.id).includes(responseId))) {
-        redis.del(key);
       }
     }
   }

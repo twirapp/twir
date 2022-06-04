@@ -15,8 +15,8 @@ export class TimersController {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) { }
 
-  private delCache(channelId: string) {
-    this.cacheManager.del(`nest:cache:v1/channels/${channelId}/timers`);
+  private async delCache(channelId: string) {
+    await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/timers`);
   }
 
   @CacheTTL(600)
@@ -42,7 +42,7 @@ export class TimersController {
   @Post()
   async create(@Param('channelId') channelId: string, @Body() body: CreateTimerDto) {
     const result = await this.timersService.create(channelId, body);
-    this.delCache(channelId);
+    await this.delCache(channelId);
     return result;
   }
 
@@ -50,7 +50,7 @@ export class TimersController {
   @Delete(':id')
   async delete(@Param('channelId') channelId: string, @Param('id') id: string) {
     const result = await this.timersService.delete(channelId, id);
-    this.delCache(channelId);
+    await this.delCache(channelId);
     return result;
   }
 
@@ -58,7 +58,7 @@ export class TimersController {
   @Put(':id')
   async update(@Param('channelId') channelId: string, @Param('id') id: string, @Body() body: CreateTimerDto) {
     const result = await this.timersService.update(channelId, id, body);
-    this.delCache(channelId);
+    await this.delCache(channelId);
     return result;
   }
 }

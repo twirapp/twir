@@ -9,23 +9,9 @@ import { prisma } from './prisma.js';
 import { redis, redlock } from './redis.js';
 
 
-export type CommandConditional = Command & { responses: Response[] };
+export type CommandConditional = Command & { responses: string[] };
 
 export class CommandsParser {
-  async #getCommandResponses(channelId: string, commandId: string) {
-    const keys = await redis.keys(`commands:${channelId}:${commandId}:responses:*`);
-    if (!keys.length) return;
-
-    const responsesIds = keys.map((k) => k.split(':')[4]);
-    if (!responsesIds?.length) return;
-
-    const responses = await Promise.all(
-      responsesIds.map((id) => redis.hgetall(`commands:${channelId}:${commandId}:responses:${id}`)),
-    );
-
-    return responses as Response[];
-  }
-
   async parse(message: string, state: TwitchPrivateMessage) {
     if (!message.startsWith('!') || !state.channelId) return;
     const channelCommandsNames = await getChannelCommandsNamesFromRedis(state.channelId);
@@ -37,6 +23,7 @@ export class CommandsParser {
     const command: CommandConditional = (await redis.hgetall(
       `commands:${state.channelId}:${findCommand.commandName}`,
     )) as unknown as CommandConditional;
+    command.responses = JSON.parse(command.responses as unknown as string);
 
     if (!command || !command.enabled) return;
 
@@ -52,9 +39,6 @@ export class CommandsParser {
       const onCooldown = await this.#isOnCooldown(command, state.userInfo.userId);
       if (onCooldown /* && !(userPermissions.BROADCASTER || userPermissions.MODERATOR) */) return;
 
-      const responses = await this.#getCommandResponses(state.channelId, command.id);
-      command.responses = responses ?? [];
-
       if (!command.responses?.length) return;
 
       prisma.commandUsage.create({
@@ -62,8 +46,7 @@ export class CommandsParser {
       });
       this.#setCommandCooldown(command, state.userInfo.userId);
 
-
-      return command.responses.filter((r) => r.text).map((r) => r.text);
+      return command.responses;
     } finally {
       // await lock.release();
     }

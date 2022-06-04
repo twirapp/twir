@@ -9,9 +9,10 @@ import { Module } from '../index.js';
 export const song: Module = {
   key: 'currentsong',
   handler: async (_, state) => {
+
     const enabledIntegrations = await prisma.channelIntegration.findMany({
       where: {
-        channelId: state.channelId, 
+        channelId: state.channelId,
         enabled: true,
       },
       include: {
@@ -29,7 +30,7 @@ export const song: Module = {
           if (!instance) continue;
           const song = await instance.getCurrentSong();
           if (song) result = song;
-          
+
           break;
         }
         case 'VK': {
@@ -37,7 +38,7 @@ export const song: Module = {
           if (!data.userId) continue;
           const song = await VKIntegration.fetchSong(data.userId);
           if (song) result = song;
-          
+
           break;
         }
         case 'LASTFM': {

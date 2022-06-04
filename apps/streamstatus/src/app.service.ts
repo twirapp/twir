@@ -21,7 +21,6 @@ export class AppService {
       userId: channelsIds,
     });
 
-
     for (const channel of channelsIds) {
       const stream = streams.find(s => s.userId === channel);
       const key = `streams:${channel}`;

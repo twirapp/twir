@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { Interval } from '@nestjs/schedule';
+import { Interval, Timeout } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
 import { Watched } from '@tsuwari/grpc';
 import _ from 'lodash';
@@ -21,8 +21,9 @@ export class IncreaseWatchedService {
     this.watchedMicroservice = this.client.getService<Watched.Main>('Main');
   }
 
-  @Interval(config.isDev ? 10000 : 5 * 60 * 1000)
+  // @Timeout(500)
   async updateStatuses() {
+    console.log('start');
     const streamsKeys = await this.redis.keys('streams:*');
     if (!streamsKeys.length) return;
 

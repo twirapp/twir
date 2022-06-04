@@ -1,12 +1,29 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@tsuwari/prisma';
+import { HttpException, Injectable } from '@nestjs/common';
+import { IntegrationService, PrismaService } from '@tsuwari/prisma';
 import { UserIntegration } from '@tsuwari/spotify';
 
+import { UpdateSpotifyIntegrationDto } from './dto/patch.js';
 import { SpotifyIntegrationService } from './integration.js';
 
 @Injectable()
 export class SpotifyService {
   constructor(private readonly prisma: PrismaService, private readonly spotify: SpotifyIntegrationService) { }
+
+  async getAuthLink() {
+    const integration = await this.prisma.integration.findFirst({
+      where: { service: 'SPOTIFY' },
+    });
+
+    if (!integration) throw new HttpException('Service Spotify not found', 404);
+
+    return `https://accounts.spotify.com/authorize?` +
+      new URLSearchParams({
+        response_type: 'code',
+        client_id: integration.clientId!,
+        scope: 'user-read-currently-playing',
+        redirect_uri: integration.redirectUrl!,
+      });
+  }
 
   async getTokens(userId: string, code: string) {
     const service = await this.spotify.getSettings();
@@ -80,5 +97,49 @@ export class SpotifyService {
     const profile = spotifyIntegration.getProfile();
 
     return profile;
+  }
+
+  async getIntegration(channelId: string) {
+    return this.prisma.channelIntegration.findFirst({
+      where: {
+        channelId,
+        integration: {
+          service: 'SPOTIFY',
+        },
+      },
+      select: {
+        enabled: true,
+        id: true,
+        integrationId: true,
+        channelId: true,
+      },
+    });
+  }
+
+  async updateIntegration(channelId: string, body: UpdateSpotifyIntegrationDto) {
+    const integration = await this.prisma.channelIntegration.findFirst({
+      where: {
+        channelId,
+        integration: {
+          service: 'SPOTIFY',
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!integration) {
+      throw new HttpException('Integration not found, that means you need to authorize first.', 404);
+    }
+
+    return this.prisma.channelIntegration.update({
+      where: { id: integration.id },
+      data: body,
+      select: {
+        enabled: true,
+        id: true,
+      },
+    });
   }
 }

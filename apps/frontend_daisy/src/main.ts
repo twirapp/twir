@@ -1,5 +1,4 @@
 import { createApp } from 'vue';
-import 'tw-elements';
 
 import App from './App.vue';
 import { fetchAndSetUser } from './functions/fetchAndSetUser';

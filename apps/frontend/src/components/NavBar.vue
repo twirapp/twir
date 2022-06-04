@@ -14,11 +14,9 @@ useIntervalFn(() => {
 <template>
   <nav class="relative w-full flex flex-wrap items-center justify-between py-3 text-white shadow-lg border-b border-stone-700">
     <div class="container-fluid w-full flex flex-wrap items-center justify-between px-6">
-      <div class="container-fluid">
-        <a
-          class="text-xl"
-          href="#"
-        >Navbar</a>
+      <div class="container-fluid flex space-x-2">
+        <p>Online: <span class="font-bold">{{ uptime }}</span></p>
+        <p>Viewers: <span class="font-bold">158</span></p>
       </div>
     </div>
   </nav>

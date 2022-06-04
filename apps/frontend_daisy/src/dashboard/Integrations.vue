@@ -54,7 +54,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2 p-1">
+  <div class="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-1 p-1">
     <div class="card rounded card-compact bg-base-200 drop-shadow-lg">
       <div class="card-body">
         <label class="label cursor-pointer mb-5">

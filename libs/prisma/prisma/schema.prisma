@@ -179,13 +179,14 @@ model Command {
   visible      Boolean           @default(true)
   channelId    String
   permission   CommandPermission
+  default      Boolean           @default(false)
 
   channel   Channel        @relation(fields: [channelId], references: [id], onDelete: Cascade)
   responses Response[]
   usages    CommandUsage[]
 
-
   @@index([channelId])
+  @@index([name])
   @@map("commands")
 }
 
@@ -315,5 +316,6 @@ model Keyword {
 
   channel Channel @relation(fields: [channelId], references: [id])
 
+  @@unique([channelId, text])
   @@map("keywords")
 }

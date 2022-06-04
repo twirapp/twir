@@ -92,11 +92,13 @@ export async function addTimerToQueue(timerOrId: Timer | string) {
   let timer: Timer | null;
 
   if (typeof id === 'string') {
-    timer = await prisma.timer.findFirst({ where: { id: timerOrId as string } });
+    timer = await prisma.timer.findFirst({ where: { id: id as string } });
     if (!timer?.enabled) return;
   } else {
     timer = timerOrId as Timer;
   }
+
+  console.log('adding');
 
   if (timer) {
     await timersQueue.add(timer.id, { id: timer.id }, { repeat: { every: timer.timeInterval * 1000 } });
