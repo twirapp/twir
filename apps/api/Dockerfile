@@ -1,5 +1,6 @@
 FROM node:18-slim
 
+RUN apt-get update
 RUN apt-get install git curl wget -y
 
 WORKDIR /app
