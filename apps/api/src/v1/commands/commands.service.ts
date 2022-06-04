@@ -1,30 +1,23 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { Bots } from '@tsuwari/grpc';
-import { PrismaService } from '@tsuwari/prisma';
+import { Command, PrismaService, Response } from '@tsuwari/prisma';
 
+import { RedisService } from '../../redis.service.js';
 import { UpdateOrCreateCommandDto } from './dto/create.js';
 
 @Injectable()
 export class CommandsService implements OnModuleInit {
   private botsMicroservice: Bots.Commands;
 
-  constructor(private readonly prisma: PrismaService, @Inject('BOTS_MICROSERVICE') private client: ClientGrpc) { }
+  constructor(
+    @Inject() private readonly prisma: PrismaService,
+    @Inject('BOTS_MICROSERVICE') private client: ClientGrpc,
+    @Inject() private readonly redis: RedisService,
+  ) { }
 
   onModuleInit(): void {
     this.botsMicroservice = this.client.getService<Bots.Commands>('Commands');
-  }
-
-  findOne(userId: string, commandId: string) {
-    return this.prisma.command.findFirst({
-      where: {
-        channelId: userId,
-        id: commandId,
-      },
-      include: {
-        responses: true,
-      },
-    });
   }
 
   async getList(userId: string) {
@@ -35,6 +28,23 @@ export class CommandsService implements OnModuleInit {
       },
     });
     return commands;
+  }
+
+  async #setCommandCache(command: Command & { responses: Response[] }) {
+    const commandForSet = {
+      ...command,
+      responses: JSON.stringify(command.responses.map(r => r.text) ?? []),
+      aliases: Array.isArray(command.aliases) ? JSON.stringify(command.aliases) : command.aliases,
+    };
+
+    const preKey = `commands:${command.channelId}`;
+    await this.redis.hmset(`${preKey}:${command.name}`, commandForSet);
+
+    if (command.aliases && Array.isArray(command.aliases)) {
+      for (const alias of command.aliases) {
+        await this.redis.hmset(`${preKey}:${alias}`, commandForSet);
+      }
+    }
   }
 
   async create(userId: string, data: UpdateOrCreateCommandDto) {
@@ -57,7 +67,7 @@ export class CommandsService implements OnModuleInit {
       },
     });
 
-    await this.botsMicroservice.updateByChannelId({ userId }).toPromise();
+    await this.#setCommandCache(command);
 
     return command;
   }
@@ -75,7 +85,12 @@ export class CommandsService implements OnModuleInit {
       },
     });
 
-    await this.botsMicroservice.updateByChannelId({ userId }).toPromise();
+    await this.redis.del(`commands:${userId}:${command.name}`);
+    if (Array.isArray(command.aliases)) {
+      for (const aliase of command.aliases as string[]) {
+        await this.redis.del(`commands:${userId}:${aliase}`);
+      }
+    }
 
     return result;
   }
@@ -118,7 +133,10 @@ export class CommandsService implements OnModuleInit {
       this.prisma.response.findMany({ where: { commandId: command.id } }),
     ]);
 
-    await this.botsMicroservice.updateByChannelId({ userId }).toPromise();
+    await this.#setCommandCache({
+      ...newCommand,
+      responses: newResponses.flat(),
+    });
 
     return {
       ...newCommand,
