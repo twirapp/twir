@@ -1,10 +1,11 @@
-import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, Patch, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { Request } from 'express';
 
 import { DashboardAccessGuard } from '../../../guards/DashboardAccess.guard.js';
 import { CustomCacheInterceptor } from '../../../helpers/customCacheInterceptor.js';
 import { JwtAuthGuard } from '../../../jwt/jwt.guard.js';
+import { UpdateSpotifyIntegrationDto } from './dto/patch.js';
 import { SpotifyService } from './spotify.service.js';
 
 @Controller('v1/channels/:channelId/integrations/spotify')
@@ -23,6 +24,11 @@ export class SpotifyController {
   @Get()
   getIntegration(@Param('channelId') channelId: string) {
     return this.spotifyService.getIntegration(channelId);
+  }
+
+  @Patch()
+  updateIntegration(@Param('channelId') channelId: string, @Body() body: UpdateSpotifyIntegrationDto) {
+    return this.spotifyService.updateIntegration(channelId, body);
   }
 
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)

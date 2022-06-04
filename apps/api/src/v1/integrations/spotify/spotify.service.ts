@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@tsuwari/prisma';
+import { HttpException, Injectable } from '@nestjs/common';
+import { IntegrationService, PrismaService } from '@tsuwari/prisma';
 import { UserIntegration } from '@tsuwari/spotify';
 
+import { UpdateSpotifyIntegrationDto } from './dto/patch.js';
 import { SpotifyIntegrationService } from './integration.js';
 
 @Injectable()
@@ -96,6 +97,29 @@ export class SpotifyService {
         integrationId: true,
         channelId: true,
       },
+    });
+  }
+
+  async updateIntegration(channelId: string, body: UpdateSpotifyIntegrationDto) {
+    const integration = await this.prisma.channelIntegration.findFirst({
+      where: {
+        channelId,
+        integration: {
+          service: 'SPOTIFY',
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!integration) {
+      throw new HttpException('Integration not found, that means you need to authorize first.', 404);
+    }
+
+    return this.prisma.channelIntegration.update({
+      where: { id: integration.id },
+      data: body,
     });
   }
 }
