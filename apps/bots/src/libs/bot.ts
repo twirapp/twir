@@ -12,6 +12,7 @@ import { ParserCache } from '../parser/cache.js';
 import { Parser } from '../parser/index.js';
 import { CommandsParser } from './commandsParser.js';
 import { GreetingsParser } from './greetingsParser.js';
+import { KeywordsParser } from './keywordsParser.js';
 import { ConsoleLogger } from './logger.js';
 import { messageAls } from './message.als.js';
 import { ModerationParser } from './moderationParser.js';
@@ -24,6 +25,7 @@ export class Bot extends ChatClient {
   #commandsParser: CommandsParser;
   #greetingsParser: GreetingsParser;
   #moderationParser: ModerationParser;
+  #keywordsParser: KeywordsParser;
 
   constructor(authProvider: RefreshingAuthProvider, channels: string[]) {
     super({
@@ -35,6 +37,7 @@ export class Bot extends ChatClient {
     this.#commandsParser = new CommandsParser();
     this.#greetingsParser = new GreetingsParser();
     this.#moderationParser = new ModerationParser();
+    this.#keywordsParser = new KeywordsParser();
     this.#api = new ApiClient({
       authProvider,
     });
@@ -145,6 +148,10 @@ export class Bot extends ChatClient {
         this.#greetingsParser.parse(state).then(async (response) => {
           if (!response) return;
           this.say(channel, await Parser.parse(response, msgObject), { replyTo: state.id });
+        });
+
+        this.#keywordsParser.parse(state).then(async (response) => {
+          return;
         });
 
         increaseUserMessages(state.userInfo.userId, state.channelId);

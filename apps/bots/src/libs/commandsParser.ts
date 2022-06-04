@@ -9,7 +9,7 @@ import { prisma } from './prisma.js';
 import { redis, redlock } from './redis.js';
 
 
-export type CommandConditional = Command & { responses: Response[] };
+export type CommandConditional = Command & { responses: string[] };
 
 export class CommandsParser {
   async #getCommandResponses(channelId: string, commandId: string) {
@@ -37,6 +37,7 @@ export class CommandsParser {
     const command: CommandConditional = (await redis.hgetall(
       `commands:${state.channelId}:${findCommand.commandName}`,
     )) as unknown as CommandConditional;
+    command.responses = JSON.parse(command.responses as unknown as string);
 
     if (!command || !command.enabled) return;
 
@@ -52,9 +53,6 @@ export class CommandsParser {
       const onCooldown = await this.#isOnCooldown(command, state.userInfo.userId);
       if (onCooldown /* && !(userPermissions.BROADCASTER || userPermissions.MODERATOR) */) return;
 
-      const responses = await this.#getCommandResponses(state.channelId, command.id);
-      command.responses = responses ?? [];
-
       if (!command.responses?.length) return;
 
       prisma.commandUsage.create({
@@ -62,8 +60,7 @@ export class CommandsParser {
       });
       this.#setCommandCooldown(command, state.userInfo.userId);
 
-
-      return command.responses.filter((r) => r.text).map((r) => r.text);
+      return command.responses;
     } finally {
       // await lock.release();
     }

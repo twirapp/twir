@@ -67,7 +67,7 @@ class BotsClass {
   async setCommandCache(command: Command & { responses: Response[] }) {
     const commandForSet = {
       ...command,
-      responses: undefined,
+      responses: JSON.stringify(command.responses.map(r => r.text) ?? []),
       aliases: Array.isArray(command.aliases) ? JSON.stringify(command.aliases) : command.aliases,
     };
 
@@ -77,12 +77,6 @@ class BotsClass {
     if (command.aliases && Array.isArray(command.aliases)) {
       for (const alias of command.aliases) {
         await redis.hmset(`${preKey}:${alias}`, commandForSet);
-      }
-    }
-
-    if (command.responses.length) {
-      for (const response of command.responses) {
-        await redis.hmset(`${preKey}:${command.id}:responses:${response.id}`, response);
       }
     }
   }
