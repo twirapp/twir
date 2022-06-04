@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '18.x'
-      - uses: npm i -g pnpm
+      - run: npm i -g pnpm
       - name: Install modules
         uses: pnpm install
       - name: Build api
