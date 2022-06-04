@@ -1,6 +1,6 @@
 FROM node:18-slim
 
-RUN apt-get update && apt-get install git curl wget protobuf-compiler -y
+RUN apt-get install git curl wget -y
 
 WORKDIR /app
 
