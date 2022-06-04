@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Login to Docker Hub
@@ -24,26 +26,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: build the image
-        run: | 
+        run: |
           docker buildx build --push \
             --tag satont/tsuwari:api \
-            -f ./apps/api/Dockerfile .
-
-  docker-arm:
-    if: "! contains(toJSON(github.event.commits.*.message), '[skip-docker]')"
-    runs-on: [self-hosted, ARM64]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: build the image
-        run: | 
-          docker buildx build --push \
-            --tag satont/tsuwari:api \
-            -f ./apps/api/Dockerfile .
+            -f ./apps/api/Dockerfile \
+            --platform linux/amd64,linux/arm64 .
