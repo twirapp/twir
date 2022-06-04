@@ -24,7 +24,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: build the image
-        run: docker build --push --tag satont/tsuwari:api -f ./apps/api/Dockerfile .
+        run: | 
+          docker buildx build --push \
+            --tag satont/tsuwari:api \
+            -f ./apps/api/Dockerfile .
 
   docker-arm:
     if: "! contains(toJSON(github.event.commits.*.message), '[skip-docker]')"
@@ -40,4 +43,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: build the image
-        run: docker build --push --tag satont/tsuwari:api -f ./apps/api/Dockerfile .
+        run: | 
+          docker buildx build --push \
+            --tag satont/tsuwari:api \
+            -f ./apps/api/Dockerfile .
