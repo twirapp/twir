@@ -91,7 +91,6 @@ export async function addTimerToQueue(timerOrId: Timer | string) {
   const id = getId(timerOrId);
   let timer: Timer | null;
 
-  console.log('addTimerToQueue', id);
   if (typeof id === 'string') {
     timer = await prisma.timer.findFirst({ where: { id: id as string } });
     if (!timer?.enabled) return;
