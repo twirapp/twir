@@ -311,7 +311,7 @@ function cancelEdit() {
         </div>
       </div>
 
-      <div class="card-actions flex justify-between mt-5">
+      <div class="flex justify-between mt-5">
         <div>
           <button
             v-if="!command.edit"

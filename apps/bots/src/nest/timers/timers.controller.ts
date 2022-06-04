@@ -7,9 +7,10 @@ import { addTimerToQueue, removeTimerFromQueue } from '../../libs/timers.js';
 
 @Controller()
 export class TimersController implements Bots.Timers {
-  @GrpcMethod('BotsServiceTimers', 'addTimersToQueue')
-  addTimersToQueue(data: Bots.AddTimerToQueueRequest): Observable<Bots.MockedResult> {
+  @GrpcMethod('Timers', 'addTimerToQueue')
+  addTimerToQueue(data: Bots.AddTimerToQueueRequest): Observable<Bots.MockedResult> {
     try {
+      console.log('controller', data.timerId);
       addTimerToQueue(data.timerId!);
       return of({ success: true });
     } catch (error) {
@@ -17,7 +18,7 @@ export class TimersController implements Bots.Timers {
     }
   }
 
-  @GrpcMethod('BotsServiceTimers', 'addTimersToQueue')
+  @GrpcMethod('Timers', 'removeTimerFromQueue')
   removeTimerFromQueue(data: Bots.RemoveTimerFromQueueRequest): Observable<Bots.MockedResult> {
     try {
       removeTimerFromQueue(data.timerId!);
