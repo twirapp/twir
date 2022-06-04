@@ -1,6 +1,6 @@
-import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, Patch, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, Patch, Post, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 import { DashboardAccessGuard } from '../../../guards/DashboardAccess.guard.js';
 import { CustomCacheInterceptor } from '../../../helpers/customCacheInterceptor.js';
@@ -21,9 +21,16 @@ export class SpotifyController {
     const req = ctx.switchToHttp().getRequest() as Request;
     return `nest:cache:v1/channels/${req.params.channelId}/integrations/spotify`;
   }))
+
   @Get()
   getIntegration(@Param('channelId') channelId: string) {
     return this.spotifyService.getIntegration(channelId);
+  }
+
+  @Get('auth')
+  async auth(@Res() res: Response) {
+    const result = await this.spotifyService.getAuthLink();
+    res.redirect(result);
   }
 
   @Patch()

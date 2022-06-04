@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
 import { ChannelIntegration } from '@tsuwari/prisma';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { api } from '@/plugins/api';
@@ -13,26 +13,18 @@ const spotifyIntegration = ref<Partial<ChannelIntegration>>({
   enabled: true,
 });
 const selectedDashboard = useStore(selectedDashboardStore);
+const spotifyProfile = useStore(spotifyProfileStore);
+const authurl = computed(() => {
+  return `${window.location.origin}/api/v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/auth`;
+});
 
 selectedDashboardStore.subscribe(d => {
   api(`/v1/channels/${d.channelId}/integrations/spotify`).then(async (r) => {
     spotifyIntegration.value = r.data;
+    fetchSpotifyProfile();
   });
 });
 
-function spotifyRedirect() {
-  window.location.replace(
-    `https://accounts.spotify.com/authorize?` +
-      new URLSearchParams({
-        response_type: 'code',
-        client_id: '47b25d8409384208873be26062de7243',
-        scope: 'user-read-currently-playing',
-        redirect_uri: `${window.location.origin}/dashboard/integrations/spotify`,
-      }),
-  );
-}
-
-const spotifyProfile = useStore(spotifyProfileStore);
 
 async function fetchSpotifyProfile() {
   const { data } = await api(`v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/profile`);
@@ -107,11 +99,11 @@ onMounted(async () => {
       </div>
     </div>
 
-    <button
+    <a
       class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
-      @click="spotifyRedirect"
+      :href="authurl"
     >
       Login
-    </button>
+    </a>
   </div>
 </template>

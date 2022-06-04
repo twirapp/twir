@@ -9,6 +9,22 @@ import { SpotifyIntegrationService } from './integration.js';
 export class SpotifyService {
   constructor(private readonly prisma: PrismaService, private readonly spotify: SpotifyIntegrationService) { }
 
+  async getAuthLink() {
+    const integration = await this.prisma.integration.findFirst({
+      where: { service: 'SPOTIFY' },
+    });
+
+    if (!integration) throw new HttpException('Service Spotify not found', 404);
+
+    return `https://accounts.spotify.com/authorize?` +
+      new URLSearchParams({
+        response_type: 'code',
+        client_id: integration.clientId!,
+        scope: 'user-read-currently-playing',
+        redirect_uri: integration.redirectUrl!,
+      });
+  }
+
   async getTokens(userId: string, code: string) {
     const service = await this.spotify.getSettings();
     if (!service) throw new Error('Spotify not setuped.');
