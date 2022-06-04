@@ -150,8 +150,16 @@ export class Bot extends ChatClient {
           this.say(channel, await Parser.parse(response, msgObject), { replyTo: state.id });
         });
 
-        this.#keywordsParser.parse(state).then(async (response) => {
-          return;
+        this.#keywordsParser.parse(message, state).then(async (responses) => {
+          if (!responses || !responses.length) return;
+
+          for (const response of responses) {
+            if (!response) continue;
+            if (responses.indexOf(response) > 0 && !isBotMod) break;
+            const msg = await Parser.parse(response, msgObject);
+
+            this.say(channel, msg, { replyTo: state.id });
+          }
         });
 
         increaseUserMessages(state.userInfo.userId, state.channelId);
