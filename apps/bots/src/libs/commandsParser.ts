@@ -12,20 +12,6 @@ import { redis, redlock } from './redis.js';
 export type CommandConditional = Command & { responses: string[] };
 
 export class CommandsParser {
-  async #getCommandResponses(channelId: string, commandId: string) {
-    const keys = await redis.keys(`commands:${channelId}:${commandId}:responses:*`);
-    if (!keys.length) return;
-
-    const responsesIds = keys.map((k) => k.split(':')[4]);
-    if (!responsesIds?.length) return;
-
-    const responses = await Promise.all(
-      responsesIds.map((id) => redis.hgetall(`commands:${channelId}:${commandId}:responses:${id}`)),
-    );
-
-    return responses as Response[];
-  }
-
   async parse(message: string, state: TwitchPrivateMessage) {
     if (!message.startsWith('!') || !state.channelId) return;
     const channelCommandsNames = await getChannelCommandsNamesFromRedis(state.channelId);
