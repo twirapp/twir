@@ -1,9 +1,7 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { config } from '@tsuwari/config';
 import { PrismaModule } from '@tsuwari/prisma';
-import { options } from '@tsuwari/typeorm';
 import cacheRedisStore from 'cache-manager-ioredis';
 import Redis, { RedisOptions } from 'ioredis';
 
@@ -22,10 +20,6 @@ export const redis = new Redis(config.REDIS_URL);
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      ...options,
-    }),
     CacheModule.register<RedisOptions>({
       store: cacheRedisStore,
       redisInstance: redis,
