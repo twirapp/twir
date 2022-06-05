@@ -15,7 +15,7 @@ export class GreetingsController {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) { }
 
-  private delCache(channelId: string) {
+  async #delCache(channelId: string) {
     this.cacheManager.del(`nest:cache:v1/channels/${channelId}/greetings`);
   }
 
@@ -34,7 +34,7 @@ export class GreetingsController {
   @Post()
   async create(@Param('channelId') channelId: string, @Body() body: GreetingCreateDto) {
     const result = await this.greetingsService.create(channelId, body);
-    this.delCache(channelId);
+    await this.#delCache(channelId);
     return result;
   }
 
@@ -42,7 +42,7 @@ export class GreetingsController {
   @Put(':greetingId')
   async update(@Param('channelId') channelId: string, @Param('greetingId') greetingId: string, @Body() body: GreetingCreateDto) {
     const result = await this.greetingsService.update(channelId, greetingId, body);
-    this.delCache(channelId);
+    await this.#delCache(channelId);
     return result;
   }
 
@@ -50,7 +50,7 @@ export class GreetingsController {
   @Delete(':greetingId')
   async delete(@Param('channelId') channelId: string, @Param('greetingId') greetingId: string) {
     const result = await this.greetingsService.delete(channelId, greetingId);
-    this.delCache(channelId);
+    await this.#delCache(channelId);
     return result;
   }
 }

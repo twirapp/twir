@@ -3,6 +3,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { Bots } from '@tsuwari/grpc';
 import { PrismaService } from '@tsuwari/prisma';
 
+import { RedisService } from '../../redis.service.js';
 import { staticApi } from '../../twitchApi.js';
 import { GreetingCreateDto } from './dto/create.js';
 
@@ -10,7 +11,11 @@ import { GreetingCreateDto } from './dto/create.js';
 export class GreetingsService implements OnModuleInit {
   private botsMicroservice: Bots.Greetings;
 
-  constructor(private readonly prisma: PrismaService, @Inject('BOTS_MICROSERVICE') private client: ClientGrpc) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject('BOTS_MICROSERVICE') private client: ClientGrpc,
+    private readonly redis: RedisService,
+  ) { }
 
   onModuleInit(): void {
     this.botsMicroservice = this.client.getService<Bots.Greetings>('Greetings');
@@ -50,7 +55,10 @@ export class GreetingsService implements OnModuleInit {
       },
     });
 
-    await this.botsMicroservice.updateByChannelId({ userId }).toPromise();
+    await this.redis.hset(`greetings:${greeting.channelId}:${greeting.userId}`, {
+      ...greeting,
+      processed: false,
+    });
 
     return {
       ...greeting,
@@ -83,7 +91,10 @@ export class GreetingsService implements OnModuleInit {
       },
     });
 
-    await this.botsMicroservice.updateByChannelId({ userId }).toPromise();
+    await this.redis.hset(`greetings:${greeting.channelId}:${greeting.userId}`, {
+      ...greeting,
+      processed: false,
+    });
 
     return {
       ...greeting,
@@ -92,9 +103,9 @@ export class GreetingsService implements OnModuleInit {
   }
 
   async delete(userId: string, greetingId: string) {
-    const command = await this.prisma.greeting.findFirst({ where: { channelId: userId, id: greetingId } });
+    const greeting = await this.prisma.greeting.findFirst({ where: { channelId: userId, id: greetingId } });
 
-    if (!command) {
+    if (!greeting) {
       throw new Error('Greeting not exists');
     }
 
@@ -104,7 +115,7 @@ export class GreetingsService implements OnModuleInit {
       },
     });
 
-    await this.botsMicroservice.updateByChannelId({ userId }).toPromise();
+    await this.redis.del(`greetings:${greeting.channelId}:${greeting.userId}`);
 
     return result;
   }

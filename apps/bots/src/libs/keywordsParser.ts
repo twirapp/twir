@@ -6,7 +6,7 @@ import { redis } from './redis.js';
 export class KeywordsParser {
   async parse(message: string, state: TwitchPrivateMessage) {
     const keywordsKeys = await redis.keys(`keywords:${state.channelId}:*`);
-    if (!keywordsKeys.length) return;
+    if (!keywordsKeys?.length) return;
 
     const keywords = await Promise.all(keywordsKeys.map(key => redis.hgetall(key))) as unknown as Keyword[];
 

@@ -1,5 +1,4 @@
 import { config } from '@tsuwari/config';
-import { Command, Response } from '@tsuwari/prisma';
 import { MyRefreshingProvider } from '@tsuwari/shared';
 import { ApiClient } from '@twurple/api';
 import { ClientCredentialsAuthProvider } from '@twurple/auth';
@@ -7,7 +6,6 @@ import pc from 'picocolors';
 
 import { Bot } from './libs/bot.js';
 import { prisma } from './libs/prisma.js';
-import { redis } from './libs/redis.js';
 
 const staticProvider = new ClientCredentialsAuthProvider(config.TWITCH_CLIENTID, config.TWITCH_CLIENTSECRET);
 export const staticApi = new ApiClient({ authProvider: staticProvider });
@@ -56,34 +54,6 @@ class BotsClass {
       await instance.connect();
 
       this.cache.set(bot.id, instance);
-
-      for (const channel of bot.channels) {
-        this.updateGreetingsCacheByChannelid(channel.id);
-      }
-    }
-  }
-
-
-
-  async updateGreetingsCacheByChannelid(channelId: string) {
-    const greetings = await prisma.greeting.findMany({
-      where: { channelId },
-    });
-
-    for (const greeting of greetings) {
-      await redis.hset(`greetings:${greeting.channelId}:${greeting.userId}`, {
-        ...greeting,
-        processed: false,
-      });
-    }
-
-    const keys = await redis.keys(`greetings:${channelId}:*`);
-
-    for (const key of keys) {
-      const [, channelId, userId] = key.split(':');
-      if (!greetings.some((g) => g.channelId === channelId && g.userId === userId)) {
-        await redis.del(key);
-      }
     }
   }
 }
