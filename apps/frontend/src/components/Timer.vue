@@ -23,7 +23,7 @@ const timersBeforeEdit = toRef(props, 'timersBeforeEdit');
 
 const emit = defineEmits<{
   (e: 'delete', index: number): void
-}>()
+}>();
 
 async function deleteTimer() {
   const index = timers.value.indexOf(timer.value);
@@ -31,7 +31,7 @@ async function deleteTimer() {
     await api.delete(`/v1/channels/${selectedDashboard.value.channelId}/timers/${timer.value.id}`);
   }
 
-  emit('delete', index)
+  emit('delete', index);
 }
 
 async function saveTimer() {

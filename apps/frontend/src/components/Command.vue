@@ -46,7 +46,7 @@ const commands = toRef(props, 'commands');
 const commandsBeforeEdit = toRef(props, 'commandsBeforeEdit');
 const emit = defineEmits<{
   (e: 'delete', index: number): void
-}>()
+}>();
 
 
 const schema = computed(() => yup.object({
@@ -94,7 +94,7 @@ async function deleteCommand() {
     await api.delete(`/v1/channels/${selectedDashboard.value.channelId}/commands/${command.value.id}`);
   }
 
-  emit('delete', index)
+  emit('delete', index);
 }
 
 async function saveCommand() {

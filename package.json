@@ -12,6 +12,7 @@
     "start:streamstatus": "pnpm --filter=@tsuwari/streamstatus start",
     "start:watched": "pnpm --filter=@tsuwari/watched start",
     "build:bots": "turbo run build --filter=bots",
+    "build:frontend": "turbo run build --filter=frontend",
     "build:api": "turbo run build --filter=api",
     "build:scheduler": "turbo run build --filter=scheduler",
     "build:streamstatus": "turbo run build --filter=streamstatus",

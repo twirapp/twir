@@ -1,0 +1,163 @@
+<script lang="ts" setup>
+import { useStore } from '@nanostores/vue';
+import { Form, Field } from 'vee-validate';
+import { toRef } from 'vue';
+
+import { GreeTingType } from '@/dashboard/Greetings.vue';
+import { api } from '@/plugins/api';
+import { selectedDashboardStore } from '@/stores/userStore';
+
+const props = defineProps<{
+  greeting: GreeTingType,
+  greetings: GreeTingType[],
+  greetingsBeforeEdit: GreeTingType[]
+}>();
+
+const greeting = toRef(props, 'greeting');
+const greetings = toRef(props, 'greetings');
+const greetingsBeforeEdit = toRef(props, 'greetingsBeforeEdit');
+const selectedDashboard = useStore(selectedDashboardStore);
+
+const emit = defineEmits<{
+  (e: 'delete', index: number): void
+}>();
+
+async function saveGreeting() {
+  const index = greetings.value.indexOf(greeting.value);
+
+  let data;
+  if (props.greeting.id) {
+    const request = await api.put(`/v1/channels/${selectedDashboard.value.channelId}/greetings/${greeting.value.id}`, greeting.value);  
+    data = request.data;
+  } else {
+    const request = await api.put(`/v1/channels/${selectedDashboard.value.channelId}/greetings`, greeting.value);
+    data = request.data;
+  }
+
+  greetings.value[index] = data;
+}
+
+async function deleteGreeting() {
+  const index = greetings.value.indexOf(greeting.value);
+  if (greeting.value.id) {
+    await api.delete(`/v1/channels/${selectedDashboard.value.channelId}/greetings/${greeting.value.id}`);
+  }
+
+  emit('delete', index);
+}
+
+function cancelEdit() {
+  const index = greetings.value.indexOf(greeting.value);
+  if (greeting.value.id && greetings.value) {
+    const editableCommand = greetingsBeforeEdit.value?.find(c => c.id === greeting.value.id);
+    if (editableCommand) {
+      greetings.value[index] = {
+        ...editableCommand,
+        edit: false,
+      };
+      greetingsBeforeEdit.value?.splice(greetingsBeforeEdit.value.indexOf(editableCommand), 1);
+    }
+  } else {
+    greetings.value?.splice(index, 1);
+  }
+}
+</script>
+
+<template>
+  <div class="p-4">
+    <Form
+      v-slot="{ errors }"
+      @submit="saveGreeting"
+    >
+      <div
+        v-for="error of errors"
+        :key="error"
+        class="bg-red-100 rounded-lg py-5 px-6 mb-4 text-base text-red-700 mb-3"
+        role="alert"
+      >
+        {{ error }}
+      </div>
+      <div
+        class="grid grid-cols-1 gap-1"
+      >
+        <div>
+          <div class="label mb-3">
+            <span class="label-text">Username</span>
+          </div>
+          <Field
+            v-model="greeting.username"
+            name="username"
+            as="input" 
+            type="text"
+            placeholder="Username of twitch user"
+            :disabled="!greeting.edit"
+            class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+          />
+        </div>
+
+        <div>
+          <div class="label mb-3">
+            <span class="label-text">Message for sending</span>
+          </div>
+          <Field
+            v-model="greeting.text"
+            name="text"
+            as="input" 
+            type="text"
+            placeholder="This message will be sent in chat"
+            :disabled="!greeting.edit"
+            class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+          />
+        </div>
+      </div>
+
+      <div class="flex justify-between mt-5">
+        <div>
+          <button
+            v-if="!greeting.edit"
+            type="button"
+            class="inline-block px-6 py-2.5 bg-gray-200 text-gray-700 font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-gray-300 hover:shadow-lg focus:bg-gray-300 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-400 active:shadow-lg transition duration-150 ease-in-out"
+            @click="() => {
+              greeting.edit = true;
+              if (greeting.id) greetingsBeforeEdit?.push(JSON.parse(JSON.stringify(greeting)))
+            }"
+          >
+            Edit
+          </button>
+          <button
+            v-else
+            class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
+            @click="cancelEdit"
+          >
+            Cancel
+          </button>
+        </div>
+        <div v-if="greeting.edit">
+          <button
+            v-if="greeting.id"
+            type="button"
+            class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out"
+            @click="deleteGreeting"
+          >
+            Delete
+          </button>
+          <button
+            type="submit"
+            class="inline-block ml-2 px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-green-600 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-700 active:shadow-lg transition duration-150 ease-in-out"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </Form>
+  </div>
+</template>
+
+<style scoped>
+input, select {
+  @apply border-inherit
+}
+input:disabled, select:disabled {
+  @apply bg-zinc-400 opacity-100 border-transparent
+}
+</style>
