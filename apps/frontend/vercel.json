@@ -10,6 +10,10 @@
     {
       "source": "/api/:path*/",
       "destination": "https://api.tsuwari.tk/:path*/"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
