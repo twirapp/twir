@@ -39,7 +39,8 @@ services:
     env_file:
       - .env
     deploy:
-      replicas: 2
+      mode: replicated
+      replicas: 6
     ports:
       - 3002:3002
     depends_on:
