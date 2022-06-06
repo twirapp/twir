@@ -12,14 +12,6 @@
       "destination": "https://api.tsuwari.tk/:path*/"
     },
     {
-      "source": "/socket.io/",
-      "destination": "https://api.tsuwari.tk/socket.io/"
-    },
-    {
-      "source": "/socket.io/:path*/",
-      "destination": "https://api.tsuwari.tk/socket.io/:path*/"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
