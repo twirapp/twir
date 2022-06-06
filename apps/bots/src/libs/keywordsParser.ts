@@ -18,7 +18,10 @@ export class KeywordsParser {
       if (message.includes(keyword.text.toLowerCase())) {
         if (keyword.cooldown && isOnCooldown) continue;
         responses.push(keyword.response);
-        redis.set(cooldownKey, 'true').then(() => redis.expire(cooldownKey, keyword.cooldown));
+
+        if (keyword.cooldown !== null) {
+          redis.set(cooldownKey, 'true').then(() => redis.expire(cooldownKey, keyword.cooldown!));
+        }
       }
     }
 
