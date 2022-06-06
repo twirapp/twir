@@ -2,8 +2,7 @@
 import { useTitle } from '@vueuse/core';
 import { RouterView, useRouter } from 'vue-router';
 
-import Layout from '@/components/Layout.vue';
-
+import Layout from '@/components/layout/Layout.vue';
 
 const router = useRouter();
 
