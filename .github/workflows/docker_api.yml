@@ -49,8 +49,6 @@ jobs:
       - name: Build
         run: pnpm build:api
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Login to Docker Hub
@@ -62,6 +60,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: satont/tsuwari:api
+          tags: satont/tsuwari:api-${{ matrix.os }}
           file: ./apps/api/Dockerfile
           context: .
