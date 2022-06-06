@@ -1,47 +1,47 @@
 <script lang="ts" setup>
-export type GreeTingType = SetOptional<Omit<Greeting, 'channelId'> & { username: string, edit?: boolean }, 'id'>
+export type KeywordType = SetOptional<Omit<Keyword, 'channelId'> & { edit?: boolean }, 'id'>
 
 import { useStore } from '@nanostores/vue';
-import { Greeting } from '@tsuwari/prisma';
+import { Keyword } from '@tsuwari/prisma';
 import { useTitle } from '@vueuse/core';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import type { SetOptional } from 'type-fest';
 import { ref, watch } from 'vue';
 
-import GreetingComponent from '@/components/Greeting.vue';
+import KeywordComponent from '@/components/Keyword.vue';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
 const title = useTitle();
-title.value = 'Tsuwari - Greetings';
+title.value = 'Tsuwari - Keywords';
 
 const selectedDashboard = useStore(selectedDashboardStore);
 
-const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/greetings`, api, { immediate: false });
-const greetings = ref<Array<GreeTingType>>([]);
-const greetingsBeforeEdit = ref<Array<GreeTingType>>([]);
+const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/keywords`, api, { immediate: false });
+const keywords = ref<Array<KeywordType>>([]);
+const keywordsBeforeEdit = ref<Array<KeywordType>>([]);
 
 selectedDashboardStore.subscribe((v) => {
-  execute(`/v1/channels/${v.channelId}/greetings`);
+  execute(`/v1/channels/${v.channelId}/keywords`);
 });
 
 watch(axiosData, (v: any[]) => {
-  greetings.value = v;
-  greetingsBeforeEdit.value = [];
+  keywords.value = v;
+  keywordsBeforeEdit.value = [];
 });
 
 function insert() {
-  greetings.value.unshift({
-    username: '',
-    userId: '',
+  keywords.value.unshift({
     text: '',
-    edit: true,
+    response: '',
+    cooldown: 5,
     enabled: true,
+    edit: true,
   });
 }
 
-async function deleteGreeting(index: number) {
-  greetings.value = greetings.value.filter((_, i) => i !== index);
+async function deletekeyword(index: number) {
+  keywords.value = keywords.value.filter((_, i) => i !== index);
 }
 </script>
 
@@ -61,15 +61,15 @@ async function deleteGreeting(index: number) {
 
   <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2">
     <div
-      v-for="greeting of greetings"
-      :key="greeting.username"
+      v-for="keyword, index of keywords"
+      :key="index"
       class="block rounded-lg card text-white shadow-lg"
     >
-      <GreetingComponent 
-        :greeting="greeting"
-        :greetings="greetings"
-        :greetings-before-edit="greetingsBeforeEdit"
-        @delete="deleteGreeting"
+      <KeywordComponent 
+        :keyword="keyword"
+        :keywords="keywords"
+        :keywords-before-edit="keywordsBeforeEdit"
+        @delete="deletekeyword"
       />
     </div>
   </div>

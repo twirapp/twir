@@ -1,4 +1,4 @@
-import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, Patch, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, CacheTTL, CACHE_MANAGER, Controller, Delete, Get, Inject, Param, Patch, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { Request } from 'express';
 
@@ -32,7 +32,7 @@ export class KeywordsController {
   }
 
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
-  @Get()
+  @Delete(':keywordId')
   async delete(@Param('channelId') channelId: string, @Param('keywordId') keywordId: string) {
     const result = await this.keywordsService.delete(channelId, keywordId);
     await this.#delCache(channelId);

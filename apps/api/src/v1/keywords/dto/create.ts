@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 
 export class CreateKeywordDto {
@@ -13,6 +13,7 @@ export class CreateKeywordDto {
   enabled?: boolean;
 
   @IsNumber()
+  @Min(5)
   @IsOptional()
   cooldown?: number;
 }

@@ -41,6 +41,10 @@ export const router = createRouter({
       path: '/dashboard/timers',
       component: () => import('../dashboard/Timers.vue'),
     },
+    {
+      path: '/dashboard/keywords',
+      component: () => import('../dashboard/Keywords.vue'),
+    },
     /* {
       path: '/dashboard/settings',
       component: () => import('../dashboard/Settings.vue')
@@ -48,10 +52,6 @@ export const router = createRouter({
     {
       path: '/dashboard/users',
       component: () => import('../dashboard/Users.vue')
-    },
-    {
-      path: '/dashboard/keywords',
-      component: () => import('../dashboard/Keywords.vue')
     },
     {
       path: '/dashboard/variables',
