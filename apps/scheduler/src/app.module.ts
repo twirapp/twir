@@ -13,7 +13,7 @@ import { StreamStatusModule } from './streamstatus/streamstatus.module.js';
     ScheduleModule.forRoot(),
     StreamStatusModule,
     MicroservicesModule,
-    IncreaseWatchedModule,
+    // IncreaseWatchedModule,
   ],
   providers: [RedisService],
 })

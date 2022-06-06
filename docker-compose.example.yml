@@ -44,6 +44,7 @@ services:
       - 3002:3002
     depends_on:
       - migrations
+      - redis
 
   bots:
     restart: unless-stopped
@@ -52,6 +53,7 @@ services:
       - .env
     depends_on:
       - migrations
+      - redis
 
   scheduler:
     restart: unless-stopped
@@ -60,6 +62,7 @@ services:
       - .env
     depends_on:
       - migrations
+      - redis
 
   streamstatus:
     restart: unless-stopped
@@ -68,11 +71,4 @@ services:
       - .env
     depends_on:
       - migrations
-
-  watched:
-    restart: unless-stopped
-    image: satont/tsuwari:watched
-    env_file:
-      - .env
-    depends_on:
-      - migrations
+      - redis

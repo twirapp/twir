@@ -18,19 +18,7 @@ import { resolveProtoPath } from '@tsuwari/grpc';
           },
         }),
     },
-    {
-      provide: 'WATCHED_MICROSERVICE',
-      useValue: ClientProxyFactory
-        .create({
-          transport: Transport.GRPC,
-          options: {
-            package: 'Watched',
-            protoPath: resolveProtoPath('watched'),
-            url: config.MICROSERVICE_WATCHED_URL,
-          },
-        }),
-    },
   ],
-  exports: ['STREAMSTATUS_MICROSERVICE', 'WATCHED_MICROSERVICE'],
+  exports: ['STREAMSTATUS_MICROSERVICE'],
 })
 export class MicroservicesModule { }
