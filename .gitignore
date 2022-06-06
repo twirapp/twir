@@ -10,3 +10,4 @@ libs/grpc/go/streamstatus
 libs/grpc/src/*.ts
 !libs/grpc/src/index.ts
 keydb_data
+tests.yml

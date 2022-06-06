@@ -1,21 +1,14 @@
 FROM node:18-slim
 
-RUN apt-get update && apt-get install git curl wget protobuf-compiler -y
+RUN apt-get update && apt-get install git curl wget -y
 
 WORKDIR /app
 
 RUN npm i -g pnpm
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
-COPY apps/api/package.json apps/api/
-COPY libs/prisma/package.json libs/prisma/
-COPY libs/integrations/spotify/package.json libs/integrations/spotify/
-COPY libs/grpc/package.json libs/grpc/
-COPY libs/config/package.json libs/config/
-COPY libs/shared/package.json libs/shared/
 
-RUN pnpm install
-
+COPY node_modules node_modules
 COPY apps/api apps/api
 COPY libs/prisma libs/prisma
 COPY libs/integrations/spotify libs/integrations/spotify
@@ -23,7 +16,7 @@ COPY libs/grpc libs/grpc
 COPY libs/config libs/config
 COPY libs/shared libs/shared
 
-RUN pnpm build:api
 RUN pnpm install --prod
+RUN pnpm prisma:generate
 
 CMD ["pnpm", "start:api"]
