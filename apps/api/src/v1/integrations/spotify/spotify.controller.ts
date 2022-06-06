@@ -21,7 +21,6 @@ export class SpotifyController {
     const req = ctx.switchToHttp().getRequest() as Request;
     return `nest:cache:v1/channels/${req.params.channelId}/integrations/spotify`;
   }))
-
   @Get()
   getIntegration(@Param('channelId') channelId: string) {
     return this.spotifyService.getIntegration(channelId);

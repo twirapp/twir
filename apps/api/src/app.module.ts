@@ -15,7 +15,6 @@ import { RedisService } from './redis.service.js';
 import { SocketModule } from './socket/socket.module.js';
 import { V1Module } from './v1/v1.module.js';
 
-
 export const redis = new Redis(config.REDIS_URL);
 
 @Module({
@@ -23,6 +22,7 @@ export const redis = new Redis(config.REDIS_URL);
     CacheModule.register<RedisOptions>({
       store: cacheRedisStore,
       redisInstance: redis,
+      isCacheableValue: () => true,
       isGlobal: true,
       ttl: 60,
     } as any),
