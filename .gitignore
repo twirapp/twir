@@ -12,3 +12,4 @@ libs/grpc/src/*.ts
 postgres_data
 redis-data
 tests.yml
+docker-compose.yml
