@@ -61,8 +61,8 @@ async function deleteGreeting(index: number) {
 
   <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2">
     <div
-      v-for="greeting of greetings"
-      :key="greeting.username"
+      v-for="greeting, index of greetings"
+      :key="index"
       class="block rounded-lg card text-white shadow-lg"
     >
       <GreetingComponent 
