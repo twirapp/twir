@@ -9,5 +9,6 @@ libs/grpc/go/bots
 libs/grpc/go/streamstatus
 libs/grpc/src/*.ts
 !libs/grpc/src/index.ts
-keydb_data
+postgres_data
+redis-data
 tests.yml
