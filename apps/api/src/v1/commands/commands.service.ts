@@ -26,7 +26,7 @@ export class CommandsService {
     const preKey = `commands:${command.channelId}`;
 
     if (oldCommand) {
-      await this.redis.del(`commands:${oldCommand.channelId}`);
+      await this.redis.del(`commands:${oldCommand.channelId}:${oldCommand.name}`);
 
       if (oldCommand.aliases && Array.isArray(command.aliases)) {
         for (const alias of command.aliases) {
