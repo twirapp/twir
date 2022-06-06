@@ -6,7 +6,7 @@ import { refreshAccessToken } from '../functions/refreshAccessToken.js';
 import { selectedDashboardStore } from '../stores/userStore.js';
 
 const protocol = window.location.protocol.includes('https') ? 'wss' : 'ws';
-const url = import.meta.env.DEV ? 'http://localhost:3002' : process.env.BACKEND_URL ?? `${protocol}://${window.location.host}/api`;
+const url = import.meta.env.DEV ? 'http://localhost:3002' : process.env.BACKEND_URL ?? `${protocol}://${window.location.host}`;
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(url, {
   auth: (cb) => {
