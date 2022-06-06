@@ -44,6 +44,10 @@ const props = defineProps<{
 const command = toRef(props, 'command');
 const commands = toRef(props, 'commands');
 const commandsBeforeEdit = toRef(props, 'commandsBeforeEdit');
+const emit = defineEmits<{
+  (e: 'delete', index: number): void
+}>()
+
 
 const schema = computed(() => yup.object({
   name: yup.string().min(1, 'Name cannot be empty')
@@ -90,9 +94,7 @@ async function deleteCommand() {
     await api.delete(`/v1/channels/${selectedDashboard.value.channelId}/commands/${command.value.id}`);
   }
 
-  if (commands.value) {
-    commands.value = commands.value.filter((_, i) => i !== index);
-  }
+  emit('delete', index)
 }
 
 async function saveCommand() {

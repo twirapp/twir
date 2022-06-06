@@ -171,18 +171,6 @@ function logOut() {
         style="width: max-content;"
         aria-labelledby="dropdownMenuButton1e"
       >
-        <!-- <span
-          class="
-            text-sm
-            py-2
-            px-4
-            font-normal
-            block
-            w-full
-            whitespace-nowrap
-            bg-transparent
-          "
-        >Dropdown item text</span> -->
         <li
           v-for="dashboard of user?.dashboards"
           :key="dashboard.channelId"

@@ -37,6 +37,10 @@ function insert() {
     edit: true,
   });
 }
+
+function deleteTimer(index: number) {
+  timers.value = timers.value.filter((_, i) => i !== index);
+}
 </script>
 
 <template>
@@ -69,6 +73,7 @@ function insert() {
         :timer="timer"
         :timers="timers"
         :timers-before-edit="timersBeforeEdit"
+        @delete="deleteTimer"
       />
     </div>
   </div>

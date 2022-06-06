@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/vue';
 import { Timer } from '@tsuwari/prisma';
 import type { SetOptional } from 'type-fest';
 import { Form, Field } from 'vee-validate';
-import { defineProps, toRef } from 'vue';
+import { toRef } from 'vue';
 
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
@@ -21,15 +21,17 @@ const timer = toRef(props, 'timer');
 const timers = toRef(props, 'timers');
 const timersBeforeEdit = toRef(props, 'timersBeforeEdit');
 
+const emit = defineEmits<{
+  (e: 'delete', index: number): void
+}>()
+
 async function deleteTimer() {
   const index = timers.value.indexOf(timer.value);
   if (timer.value.id) {
     await api.delete(`/v1/channels/${selectedDashboard.value.channelId}/timers/${timer.value.id}`);
   }
 
-  if (timers.value) {
-    timers.value = timers.value.filter((_, i) => i !== index);
-  }
+  emit('delete', index)
 }
 
 async function saveTimer() {
@@ -211,3 +213,12 @@ function cancelEdit() {
     </Form>
   </div> 
 </template>
+
+<style scoped>
+input, select {
+  @apply border-inherit
+}
+input:disabled, select:disabled {
+  @apply bg-zinc-400 opacity-100 border-transparent
+}
+</style>

@@ -53,6 +53,10 @@ function insertCommand() {
     commands.value.unshift(command);
   }
 }
+
+function deleteCommand(index: number) {
+  commands.value = commands.value.filter((_, i) => i !== index);
+}
 </script>
 
 <template>
@@ -113,6 +117,7 @@ function insertCommand() {
           :command="command"
           :commands="commands"
           :commands-before-edit="commandsBeforeEdit"
+          @delete="deleteCommand"
         />
       </div>
     </div>
