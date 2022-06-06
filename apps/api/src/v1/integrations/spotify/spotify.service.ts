@@ -57,7 +57,12 @@ export class SpotifyService {
     const { access_token: accessToken, refresh_token: refreshToken } = response;
 
     const currentIntegration = await this.prisma.channelIntegration.findFirst({
-      where: { channelId: userId },
+      where: {
+        channelId: userId,
+        integration: {
+          service: 'SPOTIFY',
+        },
+      },
     });
 
     const data = { accessToken, refreshToken, enabled: true };

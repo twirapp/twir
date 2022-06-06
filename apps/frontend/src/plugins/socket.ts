@@ -5,7 +5,8 @@ import { io, Socket } from 'socket.io-client';
 import { refreshAccessToken } from '../functions/refreshAccessToken.js';
 import { selectedDashboardStore } from '../stores/userStore.js';
 
-const url = import.meta.env.DEV ? 'http://localhost:3002' : `ws://${window.location.host}/api`;
+const protocol = window.location.protocol.includes('https') ? 'wss' : 'ws';
+const url = import.meta.env.DEV ? 'http://localhost:3002' : `${protocol}://${window.location.host}/api`;
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(url, {
   auth: (cb) => {

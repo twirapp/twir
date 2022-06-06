@@ -49,8 +49,9 @@ onMounted(async () => {
       await api.post(`v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/token`, {
         code,
       });
+      await fetchSpotifyProfile();
 
-      router.push('/dashboard/integrations');
+      return router.push('/dashboard/integrations');
     }
   }
 

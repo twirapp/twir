@@ -1,4 +1,4 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { CacheModule, CacheModuleOptions, Module } from '@nestjs/common';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { config } from '@tsuwari/config';
 import { PrismaModule } from '@tsuwari/prisma';
@@ -15,17 +15,24 @@ import { RedisService } from './redis.service.js';
 import { SocketModule } from './socket/socket.module.js';
 import { V1Module } from './v1/v1.module.js';
 
-export const redis = new Redis(config.REDIS_URL);
+
+const redis = new class extends Redis {
+  constructor() {
+    super(config.REDIS_URL, {
+      isCacheableValue: () => true,
+    } as any);
+  }
+};
 
 @Module({
   imports: [
-    CacheModule.register<RedisOptions>({
+    CacheModule.register<CacheModuleOptions>({
       store: cacheRedisStore,
       redisInstance: redis,
       isCacheableValue: () => true,
       isGlobal: true,
       ttl: 60,
-    } as any),
+    }),
     PrismaModule,
     RedisModule,
     BotsMicroserviceModule,
@@ -40,7 +47,6 @@ export const redis = new Redis(config.REDIS_URL);
   ],
   controllers: [AppController],
   providers: [
-    CacheModule,
     RedisModule,
     RedisService,
     PrismaModule,
