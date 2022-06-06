@@ -12,7 +12,10 @@ on:
 jobs:
   docker:
     if: "! contains(toJSON(github.event.commits.*.message), '[skip-docker]')"
-    runs-on: self-hosted
+    strategy:
+      matrix:
+        os: [ARM64, X64]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -57,7 +60,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: build the image
         run: |
-          docker buildx build --push \
+          docker buildx build --push --compress \
             --tag satont/tsuwari:api \
             -f ./apps/api/Dockerfile \
             --platform linux/amd64,linux/arm64 .

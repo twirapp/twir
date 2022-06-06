@@ -1,4 +1,4 @@
-import { ChannelIntegration, IntegrationService, UserStats } from '@tsuwari/prisma';
+import { ChannelIntegration, CustomVar, IntegrationService, UserStats } from '@tsuwari/prisma';
 import { CachedStream } from '@tsuwari/shared';
 import { getRawData } from '@twurple/common';
 
@@ -20,6 +20,7 @@ export class ParserCache {
       service: IntegrationService;
     };
   })[];
+  #customVars: CustomVar[] | null;
 
   constructor(private readonly broadcasterId: string, private readonly senderId: string) { }
 
@@ -39,6 +40,20 @@ export class ParserCache {
     this.#enabledIntegrations = integrations;
 
     return this.#enabledIntegrations;
+  }
+
+  async getCustomVars() {
+    if (this.#customVars) return this.#customVars;
+
+    const vars = await prisma.customVar.findMany({
+      where: {
+        channelId: this.broadcasterId,
+      },
+    });
+
+    this.#customVars = vars;
+
+    return this.#customVars;
   }
 
   async getStream() {

@@ -57,7 +57,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: build the image
         run: |
-          docker buildx build --push \
+          docker buildx build --push --compress \
             --tag satont/tsuwari:streamstatus \
             -f ./apps/streamstatus/Dockerfile \
             --platform linux/amd64,linux/arm64 .

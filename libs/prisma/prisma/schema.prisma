@@ -66,6 +66,7 @@ model Channel {
   permits            Permit[]
   keywords           Keyword[]
 
+  CustomVar CustomVar[]
   @@map("channels")
 }
 
@@ -319,4 +320,24 @@ model Keyword {
 
   @@unique([channelId, text])
   @@map("keywords")
+}
+
+enum CustomVarType {
+  SCRIPT
+  TEXT
+}
+
+model CustomVar {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  name        String
+  description String?
+  type        CustomVarType
+  evalValue   String?
+  response    String?
+  channelId   String
+
+  channel Channel @relation(fields: [channelId], references: [id])
+
+  @@map("channels_customvars")
 }

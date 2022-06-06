@@ -11,7 +11,7 @@ export type State = {
   cache: ParserCache;
 };
 
-type Handler = (key: string, state: State, params?: string) => number | string | Promise<string | number>;
+type Handler = (key: string, state: State, params?: string) => number | string | Promise<string | number | undefined> | undefined;
 
 export type Module = {
   key: string;
@@ -47,13 +47,14 @@ class CommandParser {
       result += parts[i];
       if (i + 1 < parts.length) {
         const key = parts[i + 1];
+        const params = parts[i + 2];
         if (!key) continue;
         const newValue = this.#vars[key];
         if (newValue === undefined) {
           result += `$(${key})`;
         } else if (typeof newValue === 'function') {
-          const value = await newValue(key, state, parts[i + 2]);
-          result += value.toString();
+          const value = await newValue(key, state, params);
+          result += typeof value !== 'undefined' ? value!.toString() : `$(${key + params ? `|${params}` : ''})`;
         } else continue;
       }
     }

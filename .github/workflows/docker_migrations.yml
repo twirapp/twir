@@ -27,7 +27,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: build the image
         run: |
-          docker buildx build --push \
+          docker buildx build --push --compress \
             --tag satont/tsuwari:migrations \
             -f ./libs/prisma/Dockerfile \
             --platform linux/amd64,linux/arm64 .

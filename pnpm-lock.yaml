@@ -181,6 +181,7 @@ importers:
       tslib: ^2.4.0
       type-fest: ^2.13.0
       typescript: ^4.7.2
+      vm2: ^3.9.9
     dependencies:
       '@nestjs-hybrid-auth/twitch': 1.0.0_s2ns3jpbfqkzpwnc5zezhfquja
       '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
@@ -220,6 +221,7 @@ importers:
       reflect-metadata: 0.1.13
       rxjs: 7.5.5
       tlds: 1.231.0
+      vm2: 3.9.9
     devDependencies:
       '@types/bull': 3.15.8
       '@types/cookie-parser': 1.4.3
@@ -1055,8 +1057,8 @@ packages:
       '@nestjs/core': ^8.0.0
       reflect-metadata: ^0.1.13
     dependencies:
-      '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
-      '@nestjs/core': 8.4.6_pjpsmokgzvmh2tjol2wirtbzna
+      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
+      '@nestjs/core': 8.4.6_c6vxkfylnngi2mhywxcozvksxy
       reflect-metadata: 0.1.13
     dev: false
 
@@ -1070,8 +1072,8 @@ packages:
       reflect-metadata: ^0.1.13
     dependencies:
       '@nestjs-hybrid-auth/core': 1.0.1_ppbi2tyth2jyod2vg4y74lzsra
-      '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
-      '@nestjs/core': 8.4.6_pjpsmokgzvmh2tjol2wirtbzna
+      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
+      '@nestjs/core': 8.4.6_c6vxkfylnngi2mhywxcozvksxy
       '@nestjs/passport': 8.2.1_goeifnko2ksklhhajumjzug7ey
       '@types/lodash': 4.14.182
       '@types/passport-twitch-latest': 1.0.1
@@ -1387,7 +1389,7 @@ packages:
     peerDependencies:
       '@nestjs/common': ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
-      '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
+      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
       '@types/jsonwebtoken': 8.5.8
       jsonwebtoken: 8.5.1
     dev: false
@@ -1560,8 +1562,8 @@ packages:
       redis:
         optional: true
     dependencies:
-      '@nestjs/common': 8.4.6_47vcjb2de6lyibr6g4enoa5lyu
-      '@nestjs/core': 8.4.6_ohkmdv3xyvkszfvb2ghqzzao7e
+      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
+      '@nestjs/core': 8.4.6_c6vxkfylnngi2mhywxcozvksxy
       iterare: 1.2.1
       reflect-metadata: 0.1.13
       rxjs: 7.5.5
@@ -1574,7 +1576,7 @@ packages:
       '@nestjs/common': ^6.0.0 || ^7.0.0 || ^8.0.0
       passport: ^0.4.0 || ^0.5.0
     dependencies:
-      '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
+      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
       passport: 0.5.3
     dev: false
 
@@ -1584,8 +1586,8 @@ packages:
       '@nestjs/common': ^8.0.0
       '@nestjs/core': ^8.0.0
     dependencies:
-      '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
-      '@nestjs/core': 8.4.6_pjpsmokgzvmh2tjol2wirtbzna
+      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
+      '@nestjs/core': 8.4.6_c6vxkfylnngi2mhywxcozvksxy
       body-parser: 1.20.0
       cors: 2.8.5
       express: 4.18.1
@@ -1662,8 +1664,8 @@ packages:
       '@nestjs/core': ^7.0.0 || ^8.0.0
       reflect-metadata: ^0.1.13
     dependencies:
-      '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
-      '@nestjs/core': 8.4.6_pjpsmokgzvmh2tjol2wirtbzna
+      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
+      '@nestjs/core': 8.4.6_c6vxkfylnngi2mhywxcozvksxy
       md5: 2.3.0
       reflect-metadata: 0.1.13
     dev: false
@@ -2649,7 +2651,6 @@ packages:
   /acorn-walk/8.2.0:
     resolution: {integrity: sha512-k+iyHEuPgSw6SbuDpGQM+06HQUa04DZ3o+F6CSzXMvvI5KMvnaEqXe+YVe555R9nn6GPt404fos4wcgpw12SDA==}
     engines: {node: '>=0.4.0'}
-    dev: true
 
   /acorn/7.4.1:
     resolution: {integrity: sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==}
@@ -2660,7 +2661,6 @@ packages:
     resolution: {integrity: sha512-Xx54uLJQZ19lKygFXOWsscKUbsBZW0CPykPhVQdhIeIwrbPmJzqeASDInc8nKBnp/JT6igTs82qPXz069H8I/A==}
     engines: {node: '>=0.4.0'}
     hasBin: true
-    dev: true
 
   /ajv-formats/2.1.1:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
@@ -7882,6 +7882,15 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
+
+  /vm2/3.9.9:
+    resolution: {integrity: sha512-xwTm7NLh/uOjARRBs8/95H0e8fT3Ukw5D/JJWhxMbhKzNh1Nu981jQKvkep9iKYNxzlVrdzD0mlBGkDKZWprlw==}
+    engines: {node: '>=6.0'}
+    hasBin: true
+    dependencies:
+      acorn: 8.7.1
+      acorn-walk: 8.2.0
+    dev: false
 
   /vue-demi/0.13.1_vue@3.2.37:
     resolution: {integrity: sha512-xmkJ56koG3ptpLnpgmIzk9/4nFf4CqduSJbUM0OdPoU87NwRuZ6x49OLhjSa/fC15fV+5CbEnrxU4oyE022svg==}

@@ -50,7 +50,8 @@
     "redlock": "5.0.0-beta.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5",
-    "tlds": "^1.231.0"
+    "tlds": "^1.231.0",
+    "vm2": "^3.9.9"
   },
   "devDependencies": {
     "@types/bull": "^3.15.8",
