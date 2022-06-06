@@ -13,15 +13,11 @@
     },
     {
       "source": "/socket.io/",
-      "destination": "https://api.tsuwari.tk"
+      "destination": "https://api.tsuwari.tk/socket.io/"
     },
     {
       "source": "/socket.io/:path*/",
-      "destination": "https://api.tsuwari.tk/"
-    },
-    {
-      "source": "/socket.io/:path*",
-      "destination": "https://api.tsuwari.tk*"
+      "destination": "https://api.tsuwari.tk/socket.io/:path*/"
     },
     {
       "source": "/(.*)",
