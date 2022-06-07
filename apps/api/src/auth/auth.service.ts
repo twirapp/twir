@@ -1,7 +1,7 @@
-import { HttpException, HttpStatus, Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { ClientGrpc } from '@nestjs/microservices';
 import { Bots } from '@tsuwari/grpc';
-import { PrismaService } from '@tsuwari/prisma';
+import { Channel, PrismaService, Token, User } from '@tsuwari/prisma';
 import { AccessToken } from '@twurple/auth';
 import { getRawData } from '@twurple/common';
 
@@ -55,23 +55,39 @@ export class AuthService implements OnModuleInit {
       },
     };
 
-    const user = await this.prisma.user.upsert({
+    let user: (User & {
+      channel: Channel | null;
+      token: Token | null;
+    }) | null = await this.prisma.user.findFirst({
       where: { id: userId },
-      update: tokensQuery,
-      create: {
-        id: userId,
-        ...tokensQuery,
-        token: {
-          connectOrCreate: {
-            where: { userId },
-            create: tokenData,
-          },
-        },
-      },
-      include: {
-        channel: true,
-      },
+      include: { channel: true, token: true },
     });
+
+    if (user) {
+      if (!user.channel) {
+        user.channel = await this.prisma.channel.create({
+          data: { id: user.id, botId: bot.id },
+        });
+      }
+
+      await this.prisma.token.upsert({
+        where: { id: user.token?.id },
+        update: tokenData,
+        create: tokenData,
+      });
+    } else {
+      user = await this.prisma.user.create({
+        data: {
+          id: userId,
+          channel: { create: { botId: bot.id } },
+          token: { create: tokenData },
+        },
+        include: {
+          channel: true,
+          token: true,
+        },
+      });
+    }
 
     if (username) {
       await this.botsMicroservice.joinOrLeave({
