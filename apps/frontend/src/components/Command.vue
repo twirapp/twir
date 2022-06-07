@@ -6,6 +6,7 @@ import { configure, Form, Field } from 'vee-validate';
 import { computed, toRef } from 'vue';
 import * as yup from 'yup';
 
+import type { VariablesList } from '@/dashboard/Commands.vue';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
@@ -39,6 +40,7 @@ const props = defineProps<{
   command: CommandType,
   commands: CommandType[]
   commandsBeforeEdit: CommandType[]
+  variablesList: VariablesList
 }>();
 
 const command = toRef(props, 'command');
@@ -47,7 +49,6 @@ const commandsBeforeEdit = toRef(props, 'commandsBeforeEdit');
 const emit = defineEmits<{
   (e: 'delete', index: number): void
 }>();
-
 
 const schema = computed(() => yup.object({
   name: yup.string().min(1, 'Name cannot be empty')
@@ -132,6 +133,10 @@ function cancelEdit() {
   } else {
     commands.value?.splice(index, 1);
   }
+}
+
+function changeCommandResponse(index: number, value: string) {
+  command.value.responses[index].text = value;
 }
 </script>
 
@@ -250,21 +255,75 @@ function cancelEdit() {
             </span>
           </span>
 
-          <div class="input-group grid grid-cols-1 pt-1 gap-2 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+          <!-- max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600-->
+          <div class="input-group min-h-[150px] grid grid-cols-1 pt-1 gap-2">
             <div
               v-for="_response, responseIndex in command.responses"
               :key="responseIndex"
-              class="flex flex-wrap items-stretch mb-4 relative"
+              class="flex flex-wrap items-stretch mb-4 h-8 relative dropdown relative"
               style="width: 99%;"
             >
-              <input
-                v-model="command.responses[responseIndex].text"
-                type="text"
-                :disabled="!command.edit"
-                class="flex-shrink flex-grow flex-auto leading-normal w-px flex-1 border text-gray-700 rounded px-3 py-1.5 relative"
-                placeholder="command response"
-                :class="{ 'rounded-r-none': command.edit }"
+              <div 
+                :id="'dropdownMenuButton' + responseIndex"
+                class="form-control dropdown-toggle px-3 py-1.5 text-gray-700 rounded input input-bordered w-[90%] input-sm" 
+                :contenteditable="command.edit"
+                :data-bs-toggle="command.edit ? 'dropdown' : 'none'"
+                aria-expanded="false"
+                :class="{ 
+                  'bg-white': command.edit,
+                  'rounded-r-none': command.edit,
+                  'bg-zinc-400 opacity-100 border-transparent': !command.edit 
+                }" 
+                @input="(payload) => changeCommandResponse(responseIndex, (payload.target! as HTMLElement).innerText)"
               >
+                {{ command.responses[responseIndex].text }}
+              </div>
+              <ul
+                class="
+                  dropdown-menu w-[90%] absolute hidden bg-white text-base z-50 float-left py-2 list-none text-left rounded-lg shadow-lg mt-1 hidden m-0 bg-clip-padding border-none bg-gray-800 max-h-52 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600
+                "
+                :aria-labelledby="'dropdownMenuButton' + responseIndex"
+              >
+                <h6
+                  class="
+                    text-gray-500
+                    font-semibold
+                    text-sm
+                    py-2
+                    px-4
+                    block
+                    w-full
+                    whitespace-nowrap
+                    bg-transparent
+                  "
+                >
+                  Variables
+                </h6>
+                <li
+                  v-for="variable of variablesList"
+                  :key="variable.name"
+                >
+                  <a
+                    class="
+                      dropdown-item
+                      text-sm
+                      py-2
+                      px-4
+                      font-normal
+                      block
+                      w-full
+                      whitespace-nowrap
+                      bg-transparent
+                      text-white
+                      hover:text-gray-700
+                      hover:bg-gray-100
+                    "
+                    @click="() => {
+                      command.responses[responseIndex].text += `$(${variable.example ? variable.example : variable.name})`;
+                    }"
+                  >{{ variable.description ?? variable.name }}</a>
+                </li>
+              </ul>
               <div
                 v-if="command.edit"
                 class="flex -mr-px cursor-pointer"

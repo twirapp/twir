@@ -4,6 +4,8 @@ import { Module } from '../index.js';
 
 export const random: Module = {
   key: 'random',
+  description: 'Random numbefrom N to N',
+  example: 'random|1-40',
   handler: (key, state, params) => {
     if (!params) return '';
     const [from, to] = params.split('-').map(Number);

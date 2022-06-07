@@ -19,6 +19,12 @@ export class VariablesController {
     await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/variables`);
   }
 
+  @Get('builtin')
+  @UseGuards(JwtAuthGuard, DashboardAccessGuard)
+  builtIn() {
+    return this.variablesService.getBuildInVariables();
+  }
+
   @CacheTTL(600)
   @UseInterceptors(CustomCacheInterceptor(ctx => {
     const req = ctx.switchToHttp().getRequest() as Request;

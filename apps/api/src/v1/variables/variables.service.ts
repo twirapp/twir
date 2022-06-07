@@ -1,15 +1,30 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { ClientGrpc } from '@nestjs/microservices';
+import { Bots } from '@tsuwari/grpc';
 import { PrismaService } from '@tsuwari/prisma';
 
 import { RedisService } from '../../redis.service.js';
 import { CreateVariableDto } from './dto/create.js';
 
 @Injectable()
-export class VariablesService {
+export class VariablesService implements OnModuleInit {
+  #botsMicroservice: Bots.Main;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
+    @Inject('BOTS_MICROSERVICE') private readonly botsProxy: ClientGrpc,
   ) { }
+
+  onModuleInit() {
+    this.#botsMicroservice = this.botsProxy.getService<Bots.Main>('Main');
+  }
+
+  async getBuildInVariables() {
+    const list = await this.#botsMicroservice.getVariables({}).toPromise();
+
+    return list?.variables;
+  }
 
   getList(channelId: string) {
     return this.prisma.customVar.findMany({ where: { channelId } });

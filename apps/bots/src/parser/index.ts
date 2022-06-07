@@ -15,11 +15,14 @@ type Handler = (key: string, state: State, params?: string) => number | string |
 
 export type Module = {
   key: string;
+  description?: string;
+  example?: string;
+  visible?: boolean;
   handler: Handler;
 };
 
 class CommandParser {
-  #vars: {
+  vars: {
     [x: string]: Handler;
   } = {};
   readonly #regular = /\$\(([^)|]+)(?:\|([^)]+))?\)/g;
@@ -30,11 +33,11 @@ class CommandParser {
 
   #registerModules(modules: Array<Module>, rewrite = false) {
     for (const module of modules) {
-      if (this.#vars[module.key] && !rewrite) {
+      if (this.vars[module.key] && !rewrite) {
         throw new Error(`Module ${module.key} already registered`);
       }
 
-      this.#vars[module.key] = module.handler;
+      this.vars[module.key] = module.handler;
     }
   }
 
@@ -49,7 +52,7 @@ class CommandParser {
         const key = parts[i + 1];
         const params = parts[i + 2];
         if (!key) continue;
-        const newValue = this.#vars[key];
+        const newValue = this.vars[key];
         if (newValue === undefined) {
           result += `$(${key})`;
         } else if (typeof newValue === 'function') {

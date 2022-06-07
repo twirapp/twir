@@ -14,6 +14,8 @@ const vm = new VM({
 
 export const customvar: Module = {
   key: 'customvar',
+  description: 'Custom variable',
+  visible: false,
   async handler(key, state, params) {
     if (!params) return;
     const vars = await state.cache.getCustomVars();

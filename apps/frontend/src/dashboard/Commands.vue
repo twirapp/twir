@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+export type VariablesList = Array<{ name: string, example?: string, description?: string }>
+
 import { useStore } from '@nanostores/vue';
 import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/create';
 import { useTitle } from '@vueuse/core';
@@ -6,6 +8,7 @@ import { useAxios } from '@vueuse/integrations/useAxios';
 import { ref, watch } from 'vue';
 
 import Command from '../components/Command.vue';
+import { VariableType } from './Variables.vue';
 
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
@@ -23,15 +26,26 @@ const { execute, data: axiosData, isLoading } = useAxios(`/v1/channels/${selecte
 
 const commands = ref<CommandType[]>([]);
 const commandsBeforeEdit = ref<CommandType[]>([]);
+const variablesList = ref<VariablesList>([]);
 
 watch(axiosData, (v: CommandType[]) => {
   commands.value = v;
   commandsBeforeEdit.value = [];
 });
 
-selectedDashboardStore.subscribe((v) => {
+selectedDashboardStore.subscribe(async (v) => {
   execute(`/v1/channels/${v.channelId}/commands`);
+  const [custom, builtIn] = await Promise.all([
+    api(`v1/channels/${v.channelId}/variables`),
+    api(`v1/channels/${v.channelId}/variables/builtin`),
+  ]);
+
+  variablesList.value = [
+    ...custom.data.map((c: VariableType) => ({ name: c.name, example: `$(customvar:${c.name})`, description: `Created custom variable ${c.name}` })),
+    ...builtIn.data,
+  ];
 });
+
 
 function insertCommand() {
   if (commands.value) {
@@ -43,9 +57,7 @@ function insertCommand() {
       description: null,
       visible: true,
       enabled: true,
-      responses: [
-        { text: '' },
-      ],
+      responses: [],
       edit: true,
       cooldownType: 'GLOBAL',
     };
@@ -117,6 +129,7 @@ function deleteCommand(index: number) {
           :command="command"
           :commands="commands"
           :commands-before-edit="commandsBeforeEdit"
+          :variables-list="variablesList"
           @delete="deleteCommand"
         />
       </div>

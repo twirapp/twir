@@ -3,9 +3,11 @@ syntax = "proto3";
 package Bots;
 
 option go_package = "/bots";
+import "google/protobuf/empty.proto";
 
 service Main {
   rpc JoinOrLeave (JoinOrLeaveRequest) returns (MockedResult) {}
+  rpc GetVariables (google.protobuf.Empty) returns (GetVariablesResult) {}
 }
 
 service Timers {
@@ -48,4 +50,15 @@ message MockedResult {
 
 message UpdateByChannelIdRequest { 
   string userId = 1;
+}
+
+message Variable {
+  string module = 1;
+  string name = 2;
+  string description = 3;
+  string example = 4;
+}
+
+message GetVariablesResult {
+  repeated Variable variables = 1;
 }

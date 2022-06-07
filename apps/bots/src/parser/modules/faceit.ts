@@ -16,6 +16,7 @@ const getFaceitIntegrationData = async (state: State) => {
 export const faceit: Module[] = [
   {
     key: 'faceit.elo',
+    description: 'Faceit elo',
     handler: async (_key, state) => {
       const data = await getFaceitIntegrationData(state);
       if (!data) {
@@ -30,6 +31,7 @@ export const faceit: Module[] = [
   },
   {
     key: 'faceit.lvl',
+    description: 'Faceit Lvl',
     handler: async (_key, state) => {
       const data = await getFaceitIntegrationData(state);
       if (!data) {
@@ -44,6 +46,7 @@ export const faceit: Module[] = [
   },
   {
     key: 'faceit.todayEloDiff',
+    description: 'Faceit today elo earned',
     handler: async (_key, state) => {
       const data = await getFaceitIntegrationData(state);
       if (!data) {
@@ -58,6 +61,7 @@ export const faceit: Module[] = [
   },
   {
     key: 'faceit.latestMatchesTrend.simple',
+    description: 'Faceit matches trend',
     handler: async (_key, state) => {
       const data = await getFaceitIntegrationData(state);
       if (!data) {
@@ -72,6 +76,7 @@ export const faceit: Module[] = [
   },
   {
     key: 'faceit.latestMatchesTrend.extended',
+    description: 'Faceit matches trend with elo diff',
     handler: async (_key, state) => {
       const data = await getFaceitIntegrationData(state);
       if (!data) {
