@@ -18,7 +18,7 @@ model User {
   channel       Channel?
   commandUsages CommandUsage[]
   stats         UserStats[]
-  token         Token?         @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  token         Token?         @relation(fields: [tokenId], references: [id])
   tokenId       String?        @unique
 
   DashboardAccess DashboardAccess[]
@@ -37,8 +37,8 @@ model UserStats {
   messages  Int    @default(0)
   watched   BigInt @default(0)
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+  channel Channel @relation(fields: [channelId], references: [id])
 
   @@unique([userId, channelId])
   @@map("users_stats")
@@ -53,8 +53,8 @@ model Channel {
 
   botId String
 
-  user User @relation(fields: [id], references: [id], onDelete: Cascade)
-  bot  Bot  @relation(fields: [botId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [id], references: [id])
+  bot  Bot  @relation(fields: [botId], references: [id])
 
   commands           Command[]
   timers             Timer[]
@@ -113,7 +113,7 @@ model ChannelIntegration {
   id String @id @default(dbgenerated("gen_random_uuid()"))
 
   enabled       Boolean     @default(false)
-  channel       Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channel       Channel     @relation(fields: [channelId], references: [id])
   channelId     String
   integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
   integrationId String
@@ -141,7 +141,7 @@ model Bot {
 
   type BotType
 
-  token   Token?  @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  token   Token?  @relation(fields: [tokenId], references: [id])
   tokenId String? @unique
 
   channels Channel[]
@@ -176,7 +176,7 @@ model Command {
   permission   CommandPermission
   default      Boolean           @default(false)
 
-  channel   Channel        @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channel   Channel        @relation(fields: [channelId], references: [id])
   responses Response[]
   usages    CommandUsage[]
 
@@ -203,7 +203,7 @@ model CommandUsage {
   channelId String
   commandId String
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
   command Command @relation(fields: [commandId], references: [id], onDelete: Cascade)
 
   @@map("channels_commands_usages")
@@ -247,7 +247,7 @@ model Greeting {
 
   text String
 
-  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channel Channel @relation(fields: [channelId], references: [id])
 
   @@map("channels_greetings")
 }
