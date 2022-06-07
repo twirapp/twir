@@ -8,10 +8,6 @@ export class MyRefreshingProvider extends RefreshingAuthProvider {
     prisma: PrismaClient,
     token: Token
   }) {
-    if (!opts.token.userId && !opts.token.botId) {
-      throw new Error('UserId or TokenId should be passed');
-    }
-
     super({
       clientId: opts.clientId,
       clientSecret: opts.clientSecret,
@@ -20,8 +16,7 @@ export class MyRefreshingProvider extends RefreshingAuthProvider {
         if (!refreshToken || !obtainmentTimestamp || !expiresIn) return;
         await opts.prisma.token.update({
           where: {
-            botId: opts.token.botId ?? undefined,
-            userId: opts.token.userId ?? undefined,
+            id: opts.token.id,
           },
           data: { accessToken, refreshToken, obtainmentTimestamp: new Date(obtainmentTimestamp), expiresIn },
         });
