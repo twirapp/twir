@@ -47,7 +47,6 @@ export class AuthService implements OnModuleInit {
       include: { channel: true, token: true },
     });
 
-    console.log(user);
     if (user) {
       if (!user.channel) {
         user.channel = await this.prisma.channel.create({
