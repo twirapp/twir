@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-export type variablesType = SetOptional<Omit<CustomVar, 'channelId'> & { edit?: boolean }, 'id'>
+export type VariableType = SetOptional<Omit<CustomVar, 'channelId'| 'evalValue'> & { edit?: boolean, evalValue: string }, 'id'>
 
 import { useStore } from '@nanostores/vue';
-import { CustomVar, CustomVarType } from '@tsuwari/prisma';
+import { CustomVar } from '@tsuwari/prisma';
 import { useTitle } from '@vueuse/core';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import type { SetOptional } from 'type-fest';
@@ -18,8 +18,8 @@ title.value = 'Tsuwari - Variables';
 const selectedDashboard = useStore(selectedDashboardStore);
 
 const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/variables`, api, { immediate: false });
-const variables = ref<Array<variablesType>>([]);
-const variablesBeforeEdit = ref<Array<variablesType>>([]);
+const variables = ref<Array<VariableType>>([]);
+const variablesBeforeEdit = ref<Array<VariableType>>([]);
 
 selectedDashboardStore.subscribe((v) => {
   execute(`/v1/channels/${v.channelId}/variables`);
@@ -59,17 +59,17 @@ async function deleteVariable(index: number) {
     </div>
   </div>
 
-  <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2">
+  <div class="grid lg:grid-cols-2 md:grid-cols-1 grid-cols-1 gap-2">
     <div
-      v-for="variables, index of variabless"
+      v-for="variable, index of variables"
       :key="index"
       class="block rounded-lg card text-white shadow-lg"
     >
-      <variablesComponent 
-        :variables="variables"
+      <VariableComponent 
+        :variable="variable"
         :variables="variables"
         :variables-before-edit="variablesBeforeEdit"
-        @delete="deletevariables"
+        @delete="deleteVariable"
       />
     </div>
   </div>
