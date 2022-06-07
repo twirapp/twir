@@ -1,9 +1,10 @@
 import { TwitchAuthGuardOptions } from '@nestjs-hybrid-auth/twitch';
-import { BadRequestException, Body, CacheTTL, Controller, ExecutionContext, Get, Post, Query, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, CacheTTL, CACHE_MANAGER, Controller, ExecutionContext, Get, Inject, Post, Query, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { AuthGuard, IAuthModuleOptions } from '@nestjs/passport';
 import { config } from '@tsuwari/config';
 import { exchangeCode, getTokenInfo } from '@twurple/auth';
+import { Cache } from 'cache-manager';
 import type { Request, Response } from 'express';
 import merge from 'lodash.merge';
 
@@ -35,7 +36,11 @@ function UseTwitchAuth(options?: TwitchAuthGuardOptions) {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly jwtAuthService: JwtAuthService, private readonly authService: AuthService) { }
+  constructor(
+    private readonly jwtAuthService: JwtAuthService,
+    private readonly authService: AuthService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+  ) { }
 
   @UseTwitchAuth()
   @Get('')
@@ -71,6 +76,13 @@ export class AuthController {
     const newTokens = await this.jwtAuthService.refresh(body.refreshToken);
 
     return newTokens;
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  async logout(@Req() req: Request) {
+    await this.cacheManager.del(`nest:cache:auth/profile:${req.user.id}`);
+    return true;
   }
 
   @CacheTTL(600)
