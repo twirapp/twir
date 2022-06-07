@@ -5,7 +5,7 @@ import type { CustomVarType as TCustomVarType } from '@tsuwari/prisma';
 //@ts-ignore
 import { highlight, languages } from 'prismjs/components/prism-core';
 import { Form, Field } from 'vee-validate';
-import { toRef } from 'vue';
+import { onMounted, ref, toRef } from 'vue';
 import { PrismEditor } from 'vue-prism-editor';
 
 import 'vue-prism-editor/dist/prismeditor.min.css';
@@ -77,6 +77,12 @@ function cancelEdit() {
     variables.value?.splice(index, 1);
   }
 }
+const loaded = ref(false);
+
+onMounted(() => {
+  setTimeout(() => (loaded.value = true), 100);
+});
+
 </script>
 
 <template>
@@ -139,7 +145,7 @@ function cancelEdit() {
           v-model="variable.evalValue"
           class="my-editor"
           :highlight="highlighter"
-          :line-numbers="false"
+          :line-numbers="loaded"
           :readonly="!variable.edit"
         />
       </div>
