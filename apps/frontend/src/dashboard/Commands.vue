@@ -41,7 +41,7 @@ selectedDashboardStore.subscribe(async (v) => {
   ]);
 
   variablesList.value = [
-    ...custom.data.map((c: VariableType) => ({ name: c.name, example: `$(customvar:${c.name})`, description: `Created custom variable ${c.name}` })),
+    ...custom.data.map((c: VariableType) => ({ name: c.name, example: `customvar|${c.name}`, description: `Created custom variable ${c.name.toUpperCase()}` })),
     ...builtIn.data,
   ];
 });

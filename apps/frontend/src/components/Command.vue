@@ -138,6 +138,8 @@ function cancelEdit() {
 function changeCommandResponse(index: number, value: string) {
   command.value.responses[index].text = value;
 }
+
+const consoleLog = console.log;
 </script>
 
 <template>
@@ -319,7 +321,8 @@ function changeCommandResponse(index: number, value: string) {
                       hover:bg-gray-100
                     "
                     @click="() => {
-                      command.responses[responseIndex].text += `$(${variable.example ? variable.example : variable.name})`;
+                      consoleLog(variable)
+                      command.responses[responseIndex].text += ` $(${variable.example ? variable.example : variable.name})`;
                     }"
                   >{{ variable.description ?? variable.name }}</a>
                 </li>
