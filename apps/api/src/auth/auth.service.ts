@@ -87,6 +87,7 @@ export class AuthService implements OnModuleInit {
       await this.botsMicroservice.joinOrLeave({
         action: user.channel?.isEnabled ? Bots.JoinOrLeaveRequest.Action.JOIN : Bots.JoinOrLeaveRequest.Action.PART,
         username,
+        botId: bot.id,
       }).toPromise();
     }
 
