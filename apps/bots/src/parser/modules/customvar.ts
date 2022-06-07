@@ -36,8 +36,8 @@ export const customvar: Module = {
           return `Unexpected error happend on processing ${key}|${params} variable`;
         }
       }
-    }
-
-    return '';
+    } else if (myVar.type === CustomVarType.TEXT && myVar.response) {
+      return myVar.response;
+    } else return;
   },
 };

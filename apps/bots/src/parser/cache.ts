@@ -45,11 +45,23 @@ export class ParserCache {
   async getCustomVars() {
     if (this.#customVars) return this.#customVars;
 
+    const keys = await redis.keys(`variables:${this.broadcasterId}:*`);
+
+    if (keys.length) {
+      const variables = await Promise.all(keys.map(k => redis.get(k)));
+      this.#customVars = variables.map(v => JSON.parse(v!) as CustomVar);
+      return this.#customVars;
+    }
+
     const vars = await prisma.customVar.findMany({
       where: {
         channelId: this.broadcasterId,
       },
     });
+
+    for (const variable of vars) {
+      redis.set(`variables:${this.broadcasterId}:${variable.name}`, JSON.stringify(variable));
+    }
 
     this.#customVars = vars;
 

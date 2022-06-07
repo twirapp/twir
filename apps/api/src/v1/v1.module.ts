@@ -6,8 +6,9 @@ import { LastfmModule } from './integrations/lastfm/lastfm.module.js';
 import { SpotifyModule } from './integrations/spotify/spotify.module.js';
 import { KeywordsModule } from './keywords/keywords.module.js';
 import { TimersModule } from './timers/timers.module.js';
+import { VariablesModule } from './variables/variables.module.js';
 
 @Module({
-  imports: [CommandsModule, GreetingsModule, TimersModule, SpotifyModule, LastfmModule, KeywordsModule],
+  imports: [CommandsModule, GreetingsModule, TimersModule, SpotifyModule, LastfmModule, KeywordsModule, VariablesModule],
 })
 export class V1Module { }
