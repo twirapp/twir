@@ -62,7 +62,7 @@ export class AuthController {
       id: tokenInfo.userId!,
       login: tokenInfo.userName!,
     });
-    this.authService.checkUser(code, tokenInfo.userId!, tokenInfo.userName);
+    await this.authService.checkUser(code, tokenInfo.userId!, tokenInfo.userName);
 
     res.send({
       accessToken,

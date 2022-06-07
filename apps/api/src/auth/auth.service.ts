@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { HttpException, Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { Bots } from '@tsuwari/grpc';
 import { Channel, PrismaService, Token, User } from '@tsuwari/prisma';
@@ -28,31 +28,15 @@ export class AuthService implements OnModuleInit {
       throw new Error('Bot not created, cannot create user.');
     }
 
+    if (!tokens.refreshToken || !tokens.expiresIn) {
+      throw new HttpException(`Something went wrong on gettings twitch tokens. Please, try again later.`, 500);
+    }
+
     const tokenData = {
       accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken!,
+      refreshToken: tokens.refreshToken,
       obtainmentTimestamp: new Date(tokens.obtainmentTimestamp),
-      expiresIn: tokens.expiresIn!,
-    };
-
-    const tokensQuery = {
-      channel: {
-        connectOrCreate: {
-          where: {
-            id: userId,
-          },
-          create: {
-            isEnabled: true,
-            botId: bot.id,
-          },
-        },
-      },
-      token: {
-        upsert: {
-          update: tokenData,
-          create: tokenData,
-        },
-      },
+      expiresIn: tokens.expiresIn,
     };
 
     let user: (User & {
@@ -63,6 +47,7 @@ export class AuthService implements OnModuleInit {
       include: { channel: true, token: true },
     });
 
+    console.log(user);
     if (user) {
       if (!user.channel) {
         user.channel = await this.prisma.channel.create({
@@ -70,11 +55,21 @@ export class AuthService implements OnModuleInit {
         });
       }
 
-      await this.prisma.token.upsert({
-        where: { id: user.token?.id },
-        update: tokenData,
-        create: tokenData,
-      });
+      if (user.tokenId) {
+        await this.prisma.token.update({
+          where: {
+            id: user.tokenId,
+          },
+          data: tokenData,
+        });
+      } else {
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            token: { create: tokenData },
+          },
+        });
+      }
     } else {
       user = await this.prisma.user.create({
         data: {
