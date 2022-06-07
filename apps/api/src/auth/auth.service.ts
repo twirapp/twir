@@ -117,7 +117,7 @@ export class AuthService implements OnModuleInit {
 
     return {
       ...getRawData(user),
-      isTester: !dbUser.isTester,
+      isTester: dbUser.isTester,
       dashboards: dashboards.map(d => {
         const twitchUser = neededUsers.find(u => u.id === d.channelId);
         if (!twitchUser) return;
