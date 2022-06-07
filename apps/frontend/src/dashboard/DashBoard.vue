@@ -25,7 +25,6 @@ useTimeoutPoll(() => {
     channelName: dash.twitch.login,
     userId: dash.userId,
   }, (data) => {
-    console.log('isBotMod', data);
     isBotMod.value = data.value;
   });
 }, 1000, { immediate: true });
