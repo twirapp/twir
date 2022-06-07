@@ -84,8 +84,8 @@ export class AuthService implements OnModuleInit {
   }
 
   async getProfile(userId: string) {
-    const [isTester, dashboards] = await Promise.all([
-      this.prisma.tester.count({ where: { userId } }),
+    const [dbUser, dashboards] = await Promise.all([
+      this.prisma.user.findFirst({ where: { id: userId } }),
       this.prisma.dashboardAccess.findMany({
         where: { userId },
       }),
@@ -97,11 +97,11 @@ export class AuthService implements OnModuleInit {
     ]);
     const user = neededUsers.find(u => u.id === userId);
 
-    if (!user) throw new Error('User not found');
+    if (!user || !dbUser) throw new Error('User not found');
 
     return {
       ...getRawData(user),
-      isTester: !!isTester,
+      isTester: !dbUser.isTester,
       dashboards: dashboards.map(d => {
         const twitchUser = neededUsers.find(u => u.id === d.channelId);
         if (!twitchUser) return;

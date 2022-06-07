@@ -18,12 +18,12 @@ model User {
   channel       Channel?
   commandUsages CommandUsage[]
   stats         UserStats[]
-  token         Token?
+  token         Token?         @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  tokenId       String?        @unique
 
   DashboardAccess DashboardAccess[]
 
-  testerId String?
-  tester   Tester?
+  isTester Boolean @default(false)
 
   Permit Permit[]
   @@map("users")
@@ -70,14 +70,6 @@ model Channel {
   @@map("channels")
 }
 
-model Tester {
-  id     String @id @default(dbgenerated("gen_random_uuid()"))
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
-
-  @@map("users_testers")
-}
-
 model DashboardAccess {
   id String @id @default(dbgenerated("gen_random_uuid()"))
 
@@ -87,7 +79,7 @@ model DashboardAccess {
   user   User   @relation(fields: [userId], references: [id])
   userId String
 
-  @@map("dashboard_access")
+  @@map("channels_dashboard_access")
 }
 
 enum IntegrationService {
@@ -149,9 +141,10 @@ model Bot {
 
   type BotType
 
-  token    Token?
-  channels Channel[]
+  token   Token?  @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  tokenId String? @unique
 
+  channels Channel[]
   @@map("bots")
 }
 
@@ -189,7 +182,7 @@ model Command {
 
   @@index([channelId])
   @@index([name])
-  @@map("commands")
+  @@map("channels_commands")
 }
 
 model Response {
@@ -200,7 +193,7 @@ model Response {
 
   command Command @relation(fields: [commandId], references: [id], onDelete: Cascade)
 
-  @@map("commands_responses")
+  @@map("channels_commands_responses")
 }
 
 model CommandUsage {
@@ -213,7 +206,7 @@ model CommandUsage {
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   command Command @relation(fields: [commandId], references: [id], onDelete: Cascade)
 
-  @@map("commands_usages")
+  @@map("channels_commands_usages")
 }
 
 model Timer {
@@ -229,7 +222,7 @@ model Timer {
   messageInterval Int @default(0)
 
   channel Channel @relation(fields: [channelId], references: [id])
-  @@map("timers")
+  @@map("channels_timers")
 }
 
 model Token {
@@ -240,11 +233,8 @@ model Token {
   expiresIn           Int
   obtainmentTimestamp DateTime
 
-  botId String? @unique
-  bot   Bot?    @relation(fields: [botId], references: [id])
-
-  userId String? @unique
-  user   User?   @relation(fields: [userId], references: [id])
+  bot  Bot?
+  user User?
 
   @@map("tokens")
 }
@@ -259,7 +249,7 @@ model Greeting {
 
   channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
-  @@map("greetings")
+  @@map("channels_greetings")
 }
 
 enum SettingsType {
@@ -304,7 +294,7 @@ model Permit {
   channelId String
   userId    String
 
-  @@map("permits")
+  @@map("channels_permits")
 }
 
 model Keyword {
@@ -319,7 +309,7 @@ model Keyword {
   channel Channel @relation(fields: [channelId], references: [id])
 
   @@unique([channelId, text])
-  @@map("keywords")
+  @@map("channels_keywords")
 }
 
 enum CustomVarType {
