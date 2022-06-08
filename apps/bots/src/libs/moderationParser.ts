@@ -10,6 +10,7 @@ const urlRegexps = [
   new RegExp(`(www)? ??\\.? ?[a-zA-Z0-9]+([a-zA-Z0-9-]+) ??\\. ?(${tlds.join('|')})(?=\\P{L}|$)`, 'iu'),
   new RegExp(`[a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})(?=\\P{L}|$)`, 'iu'),
 ];
+const symbolsRegexp = /([^\s\u0500-\u052F\u0400-\u04FF\w]+)/g;
 
 // @TODO: update redis cache on changes from panel
 export class ModerationParser {
@@ -33,6 +34,25 @@ export class ModerationParser {
     }
 
     return result;
+  }
+
+  async returnByWarnedState(cacheKey: SettingsType, userId: string, settings: ModerationSettings) {
+    const redisKey = `moderation:warnings:${cacheKey}:${userId}`;
+    const isWarned = await redis.get(redisKey);
+
+    if (isWarned === null) {
+      redis.set(redisKey, '', 'EX', 60 * 60);
+      return {
+        message: settings.warningMessage,
+        delete: true,
+      };
+    } else {
+      redis.del(redisKey);
+      return {
+        time: settings.banTime,
+        message: settings.banMessage,
+      };
+    }
   }
 
   async parse(message: string, state: TwitchPrivateMessage) {
@@ -66,22 +86,7 @@ export class ModerationParser {
       return;
     }
 
-    const redisKey = `moderation:warnings:links:${state.userInfo.userId}`;
-    const isWarned = await redis.get(redisKey);
-
-    if (isWarned === null) {
-      redis.set(redisKey, '', 'EX', 60 * 60);
-      return {
-        message: settings.warningMessage,
-        delete: true,
-      };
-    } else {
-      redis.del(redisKey);
-      return {
-        time: settings.banTime,
-        message: settings.banMessage,
-      };
-    }
+    return this.returnByWarnedState('links', state.userInfo.userId, settings);
   }
 
   async blacklistsParser(message: string, settings: ModerationSettings, state: TwitchPrivateMessage) {
@@ -89,49 +94,64 @@ export class ModerationParser {
     const blackListed = settings.blackListSentences.some(b => message.includes(b as string));
     if (!blackListed) return;
 
-    const redisKey = `moderation:warnings:blacklist:${state.userInfo.userId}`;
-    const isWarned = await redis.get(redisKey);
+    return this.returnByWarnedState('blacklists', state.userInfo.userId, settings);
+  }
 
-    if (isWarned === null) {
-      redis.set(redisKey, '', 'EX', 60 * 60);
-      return {
-        message: settings.warningMessage,
-        delete: true,
-      };
-    } else {
-      redis.del(redisKey);
-      return {
-        time: settings.banTime,
-        message: settings.banMessage,
-      };
+  async symbolsParser(message: string, settings: ModerationSettings, state: TwitchPrivateMessage) {
+    if (!settings.maxPercentage) return;
+
+    const matched = message.match(symbolsRegexp);
+    if (!matched) return;
+
+    let symbolsCount = 0;
+
+    for (const item of matched) {
+      symbolsCount = symbolsCount + item.length;
     }
+
+    const check = Math.ceil(symbolsCount * 100 / message.length) >= settings.maxPercentage;
+    if (!check) return;
+
+    return this.returnByWarnedState('symbols', state.userInfo.userId, settings);
   }
 
-  async symbolsParser(message: string, settings: ModerationSettings | null, state: TwitchPrivateMessage) {
-    return {
-      time: 1,
-      message: '1',
-    };
+  async longMessageParser(message: string, settings: ModerationSettings, state: TwitchPrivateMessage) {
+    if (!settings.triggerLength) return;
+    if (message.length <= settings.triggerLength) return;
+
+    return this.returnByWarnedState('longMessage', state.userInfo.userId, settings);
   }
 
-  async longMessageParser(message: string, settings: ModerationSettings | null, state: TwitchPrivateMessage) {
-    return {
-      time: 1,
-      message: '1',
-    };
+  async capsParser(message: string, settings: ModerationSettings, state: TwitchPrivateMessage) {
+    if (!settings.maxPercentage) return;
+
+    let capsCount = 0;
+
+    for (const emote of state.parseEmotes().filter((o) => o.type === 'emote')) {
+      if ('name' in emote) {
+        message = message.replace(emote['name'], '').trim();
+      }
+    }
+
+    for (let i = 0; i < message.length; i++) {
+      const char = message.charAt(i);
+      if (char !== char.toLowerCase()) {
+        capsCount += 1;
+      }
+    }
+
+    const check = Math.ceil(capsCount * 100 / message.length) >= settings.maxPercentage;
+    if (!check) return;
+
+    return this.returnByWarnedState('caps', state.userInfo.userId, settings);
   }
 
-  async capsParser(message: string, settings: ModerationSettings | null, state: TwitchPrivateMessage) {
-    return {
-      time: 1,
-      message: '1',
-    };
-  }
+  async emotesParser(_message: string, settings: ModerationSettings, state: TwitchPrivateMessage) {
+    if (!settings.triggerLength) return;
 
-  async emotesParser(message: string, settings: ModerationSettings | null, state: TwitchPrivateMessage) {
-    return {
-      time: 1,
-      message: '1',
-    };
+    const emotesLength = state.parseEmotes().filter((o) => o.type === 'emote').length;
+    if (emotesLength < settings.triggerLength) return;
+
+    return this.returnByWarnedState('emotes', state.userInfo.userId, settings);
   }
 }

@@ -1,4 +1,4 @@
-import { describe, expect, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 
 import './__mocks__/index.mock.js';
 
@@ -11,27 +11,26 @@ const settings = {
   enabled: true,
   vips: true,
   subscribers: true,
+  maxPercentage: 50,
   banMessage: 'ban',
   banTime: 1,
   warningMessage: 'warning',
   blackListSentences: ['test'],
 };
 vi.spyOn(parser, 'getModerationSettings').mockImplementation(() => ({
-  blacklists: settings,
+  symbols: settings,
 }) as any);
 
-describe('Regular user', (t) => {
-  t('Should moderate "test"', async () => {
-    const state = createState();
-    const result = await parser.parse('test', state);
+test('Should moderate "/////qqqqq"', async () => {
+  const state = createState();
+  const result = await parser.parse('/////qqqqq', state);
 
-    expect(result?.time).toBe(1);
-  });
+  expect(result?.time).toBe(1);
+});
 
-  t('Should not moderate "qwe"', async () => {
-    const state = createState();
-    const result = await parser.parse('qwe', state);
+test('Should not moderate "qqqqqqqqqq"', async () => {
+  const state = createState();
+  const result = await parser.parse('qqqqqqqqqq', state);
 
-    expect(result).toBe(undefined);
-  });
+  expect(result).toBe(undefined);
 });
