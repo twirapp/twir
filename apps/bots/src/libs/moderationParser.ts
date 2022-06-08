@@ -1,19 +1,19 @@
 import { ModerationSettings, SettingsType } from '@tsuwari/prisma';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
-import tlds from 'tlds' assert { type: 'json' };
+import tlds from 'tlds';
 
 import { prisma } from './prisma.js';
 import { redis } from './redis.js';
 
 const clipsRegexps = [/.*(clips.twitch.tv\/)(\w+)/g, /.*(www.twitch.tv\/\w+\/clip\/)(\w+)/g];
 const urlRegexps = [
-  new RegExp(`(www)? ??\\.? ?[a-zA-Z0-9]+([a-zA-Z0-9-]+) ??\\. ?(${tlds.join('|')})(?=\\P{L}|$)`, 'igu'),
-  new RegExp(`[a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})(?=\\P{L}|$)`, 'igu'),
+  new RegExp(`(www)? ??\\.? ?[a-zA-Z0-9]+([a-zA-Z0-9-]+) ??\\. ?(${tlds.join('|')})(?=\\P{L}|$)`, 'iu'),
+  new RegExp(`[a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})(?=\\P{L}|$)`, 'iu'),
 ];
 
 // @TODO: update redis cache on changes from panel
 export class ModerationParser {
-  async #getModerationSettings(channelId: string) {
+  async getModerationSettings(channelId: string) {
     const result = {} as Record<SettingsType, ModerationSettings>;
     const settingsKeys = Object.values(SettingsType);
 
@@ -37,20 +37,24 @@ export class ModerationParser {
 
   async parse(message: string, state: TwitchPrivateMessage) {
     if (!state?.channelId) return;
-    const settings = await this.#getModerationSettings(state.channelId);
+    const settings = await this.getModerationSettings(state.channelId);
 
-    const results = await Promise.all([
-      this.#linksParser(message, settings.links, state),
-    ]);
+    const results = await Promise.all(Object.keys(settings).map((k) => {
+      const key = k as SettingsType;
+      const parserSettings = settings[key];
+
+      if (state.userInfo.isMod || state.userInfo.isBroadcaster) return;
+      if (!parserSettings || !parserSettings.enabled) return;
+      if (!parserSettings.vips && state.userInfo.isVip) return;
+      if (!parserSettings.subscribers && state.userInfo.isSubscriber) return;
+
+      return this[`${key}Parser`](message, parserSettings, state);
+    }));
 
     return results.find(r => typeof r !== 'undefined');
   }
 
-  async #linksParser(message: string, settings: ModerationSettings | null, state: TwitchPrivateMessage) {
-    if (!settings || !settings.enabled) return;
-    if (settings.vips && state.userInfo.isVip) return;
-    if (settings.subscribers && state.userInfo.isSubscriber) return;
-
+  async linksParser(message: string, settings: ModerationSettings, state: TwitchPrivateMessage) {
     const containLink = urlRegexps.some(r => r.test(message));
     if (!containLink) return;
 
@@ -78,5 +82,40 @@ export class ModerationParser {
         delete: true,
       };
     }
+  }
+
+  async blacklistsParser(message: string, settings: ModerationSettings | null, state: TwitchPrivateMessage) {
+    return {
+      time: 1,
+      message: '1',
+    };
+  }
+
+  async symbolsParser(message: string, settings: ModerationSettings | null, state: TwitchPrivateMessage) {
+    return {
+      time: 1,
+      message: '1',
+    };
+  }
+
+  async longMessageParser(message: string, settings: ModerationSettings | null, state: TwitchPrivateMessage) {
+    return {
+      time: 1,
+      message: '1',
+    };
+  }
+
+  async capsParser(message: string, settings: ModerationSettings | null, state: TwitchPrivateMessage) {
+    return {
+      time: 1,
+      message: '1',
+    };
+  }
+
+  async emotesParser(message: string, settings: ModerationSettings | null, state: TwitchPrivateMessage) {
+    return {
+      time: 1,
+      message: '1',
+    };
   }
 }
