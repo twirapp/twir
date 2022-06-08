@@ -8,6 +8,5 @@ export default defineConfig({
     coverage: {
       enabled: false,
     },
-    reporters: ['verbose'],
   },
 });
