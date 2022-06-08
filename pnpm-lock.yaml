@@ -38,6 +38,8 @@ importers:
       '@nestjs/platform-socket.io': ^8.4.5
       '@nestjs/throttler': ^2.0.1
       '@nestjs/websockets': ^8.4.5
+      '@sentry/node': ^7.1.1
+      '@sentry/tracing': ^7.1.1
       '@tsuwari/config': workspace:*
       '@tsuwari/grpc': workspace:*
       '@tsuwari/prisma': workspace:*
@@ -88,6 +90,8 @@ importers:
       '@nestjs/platform-socket.io': 8.4.6_gv7eeveto7sfdlrkgawjizcf54
       '@nestjs/throttler': 2.0.1_ppbi2tyth2jyod2vg4y74lzsra
       '@nestjs/websockets': 8.4.6_6a7csugkuqc2e66avgu3rijc4a
+      '@sentry/node': 7.1.1
+      '@sentry/tracing': 7.1.1
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/grpc': link:../../libs/grpc
       '@tsuwari/prisma': link:../../libs/prisma
@@ -139,6 +143,8 @@ importers:
       '@nestjs/passport': ^8.2.1
       '@nestjs/platform-express': ^8.4.5
       '@nestjs/throttler': ^2.0.1
+      '@sentry/node': ^7.1.1
+      '@sentry/tracing': ^7.1.1
       '@tsuwari/config': workspace:*
       '@tsuwari/grpc': workspace:*
       '@tsuwari/prisma': workspace:*
@@ -192,6 +198,8 @@ importers:
       '@nestjs/passport': 8.2.1_goeifnko2ksklhhajumjzug7ey
       '@nestjs/platform-express': 8.4.6_etfae4mmenqzp3rs3pua7csngy
       '@nestjs/throttler': 2.0.1_ppbi2tyth2jyod2vg4y74lzsra
+      '@sentry/node': 7.1.1
+      '@sentry/tracing': 7.1.1
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/grpc': link:../../libs/grpc
       '@tsuwari/prisma': link:../../libs/prisma
@@ -443,6 +451,8 @@ importers:
       '@nestjs/core': ^8.4.5
       '@nestjs/microservices': ^8.4.5
       '@nestjs/schedule': ^2.0.1
+      '@sentry/node': ^7.1.1
+      '@sentry/tracing': ^7.1.1
       '@tsuwari/config': workspace:*
       '@tsuwari/grpc': workspace:*
       '@tsuwari/prisma': workspace:*
@@ -461,6 +471,8 @@ importers:
       '@nestjs/core': 8.4.6_ohkmdv3xyvkszfvb2ghqzzao7e
       '@nestjs/microservices': 8.4.6_ylfx5swiot7inr3kdyigrsa54e
       '@nestjs/schedule': 2.0.1_ppbi2tyth2jyod2vg4y74lzsra
+      '@sentry/node': 7.1.1
+      '@sentry/tracing': 7.1.1
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/grpc': link:../../libs/grpc
       '@tsuwari/prisma': link:../../libs/prisma
@@ -481,6 +493,8 @@ importers:
       '@nestjs/common': ^8.4.5
       '@nestjs/core': ^8.4.5
       '@nestjs/microservices': ^8.4.5
+      '@sentry/node': ^7.1.1
+      '@sentry/tracing': ^7.1.1
       '@tsuwari/config': workspace:*
       '@tsuwari/grpc': workspace:*
       '@tsuwari/prisma': workspace:*
@@ -498,6 +512,8 @@ importers:
       '@nestjs/common': 8.4.6_47vcjb2de6lyibr6g4enoa5lyu
       '@nestjs/core': 8.4.6_ohkmdv3xyvkszfvb2ghqzzao7e
       '@nestjs/microservices': 8.4.6_ylfx5swiot7inr3kdyigrsa54e
+      '@sentry/node': 7.1.1
+      '@sentry/tracing': 7.1.1
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/grpc': link:../../libs/grpc
       '@tsuwari/prisma': link:../../libs/prisma
@@ -1067,8 +1083,8 @@ packages:
       '@nestjs/core': ^8.0.0
       reflect-metadata: ^0.1.13
     dependencies:
-      '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
-      '@nestjs/core': 8.4.6_pjpsmokgzvmh2tjol2wirtbzna
+      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
+      '@nestjs/core': 8.4.6_c6vxkfylnngi2mhywxcozvksxy
       reflect-metadata: 0.1.13
     dev: false
 
@@ -1082,8 +1098,8 @@ packages:
       reflect-metadata: ^0.1.13
     dependencies:
       '@nestjs-hybrid-auth/core': 1.0.1_ppbi2tyth2jyod2vg4y74lzsra
-      '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
-      '@nestjs/core': 8.4.6_pjpsmokgzvmh2tjol2wirtbzna
+      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
+      '@nestjs/core': 8.4.6_c6vxkfylnngi2mhywxcozvksxy
       '@nestjs/passport': 8.2.1_goeifnko2ksklhhajumjzug7ey
       '@types/lodash': 4.14.182
       '@types/passport-twitch-latest': 1.0.1
@@ -1342,7 +1358,7 @@ packages:
     peerDependencies:
       '@nestjs/common': ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
-      '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
+      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
       '@types/jsonwebtoken': 8.5.8
       jsonwebtoken: 8.5.1
     dev: false
@@ -1486,7 +1502,7 @@ packages:
       '@nestjs/common': ^6.0.0 || ^7.0.0 || ^8.0.0
       passport: ^0.4.0 || ^0.5.0
     dependencies:
-      '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
+      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
       passport: 0.5.3
     dev: false
 
@@ -1496,8 +1512,8 @@ packages:
       '@nestjs/common': ^8.0.0
       '@nestjs/core': ^8.0.0
     dependencies:
-      '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
-      '@nestjs/core': 8.4.6_pjpsmokgzvmh2tjol2wirtbzna
+      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
+      '@nestjs/core': 8.4.6_c6vxkfylnngi2mhywxcozvksxy
       body-parser: 1.20.0
       cors: 2.8.5
       express: 4.18.1
@@ -1575,8 +1591,8 @@ packages:
       '@nestjs/core': ^7.0.0 || ^8.0.0
       reflect-metadata: ^0.1.13
     dependencies:
-      '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
-      '@nestjs/core': 8.4.6_pjpsmokgzvmh2tjol2wirtbzna
+      '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
+      '@nestjs/core': 8.4.6_c6vxkfylnngi2mhywxcozvksxy
       md5: 2.3.0
       reflect-metadata: 0.1.13
     dev: false
@@ -1709,6 +1725,64 @@ packages:
       vite: 2.9.9_sass@1.32.0
       vue: 3.2.37
     dev: true
+
+  /@sentry/core/7.1.1:
+    resolution: {integrity: sha512-SADdAoG5u1LTJhPN5KPtn5HHmH6r0mr6h2LokuZnhj6/okrAuCIIKOb6Fh8jV7j2VuABvew8+FjJHORxi7D/3Q==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/hub': 7.1.1
+      '@sentry/types': 7.1.1
+      '@sentry/utils': 7.1.1
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/hub/7.1.1:
+    resolution: {integrity: sha512-ASsRVjYDIii6ZTf36JnIYKHWBQBk0P42Tgq324MpyPgaeVDg3saBcyXO5iAtWvY6Vmdi2H4JCVDoir2Zz3Me1w==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.1.1
+      '@sentry/utils': 7.1.1
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/node/7.1.1:
+    resolution: {integrity: sha512-QD9KPzVNu4zCL2Rjd5Go2/bjiuR9PLSutX7MkngHdGfy6JnN8CixTAXCjEyxb3oexI9xQyzgrQqns+UP5jdnlA==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/core': 7.1.1
+      '@sentry/hub': 7.1.1
+      '@sentry/types': 7.1.1
+      '@sentry/utils': 7.1.1
+      cookie: 0.4.1
+      https-proxy-agent: 5.0.1
+      lru_map: 0.3.3
+      tslib: 1.14.1
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@sentry/tracing/7.1.1:
+    resolution: {integrity: sha512-MJ+EPGfvPlgbJOcZRoIl6+Oi0oRE2nIi/HP2BPJSKGxXFi2Y09bcZUwfxOH8fkUa465jOGBFdCm+sXcbyExvuw==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/hub': 7.1.1
+      '@sentry/types': 7.1.1
+      '@sentry/utils': 7.1.1
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/types/7.1.1:
+    resolution: {integrity: sha512-5N1UMd2SqvUXprcIUMyDEju3H9lJY2oWfWQBGo0lG6Amn/lGAPAYlchg+4vQCLutDQMyd8K9zPwcbKn4u6gHdw==}
+    engines: {node: '>=8'}
+    dev: false
+
+  /@sentry/utils/7.1.1:
+    resolution: {integrity: sha512-DPRHDf3InfyVgmxToE4Z+AATAR4OVm+wsXDLFGGyncR91CE1x4wLQKOcAJJwX3F0Hz1VHENfmx1DvyYTHOrC/A==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.1.1
+      tslib: 1.14.1
+    dev: false
 
   /@sindresorhus/is/0.14.0:
     resolution: {integrity: sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==}
@@ -2586,6 +2660,15 @@ packages:
     resolution: {integrity: sha512-Xx54uLJQZ19lKygFXOWsscKUbsBZW0CPykPhVQdhIeIwrbPmJzqeASDInc8nKBnp/JT6igTs82qPXz069H8I/A==}
     engines: {node: '>=0.4.0'}
     hasBin: true
+
+  /agent-base/6.0.2:
+    resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
+    engines: {node: '>= 6.0.0'}
+    dependencies:
+      debug: 4.3.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /ajv-formats/2.1.1:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
@@ -5013,6 +5096,16 @@ packages:
       sshpk: 1.17.0
     dev: false
 
+  /https-proxy-agent/5.0.1:
+    resolution: {integrity: sha512-dFcAjpTQFgoLMzC2VwU+C/CbS7uRL0lWmxDITmqm7C+7F0Odmj6s9l6alZc6AELXhrnggM2CeWSXHGOdX2YtwA==}
+    engines: {node: '>= 6'}
+    dependencies:
+      agent-base: 6.0.2
+      debug: 4.3.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /human-signals/1.1.1:
     resolution: {integrity: sha512-SEQu7vl8KjNL2eoGBLF3+wAjpsNfA9XMlXAYj/3EdaNfAlxKthD1xjEQfGOUhllCGGJVNY34bRr6lPINhNjyZw==}
     engines: {node: '>=8.12.0'}
@@ -5655,6 +5748,10 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       yallist: 4.0.0
+
+  /lru_map/0.3.3:
+    resolution: {integrity: sha512-Pn9cox5CsMYngeDbmChANltQl+5pi6XmTrraMSzhPmMBbmgcxmqWry0U3PGapCU1yB4/LqCcom7qhHZiF/jGfQ==}
+    dev: false
 
   /luxon/1.28.0:
     resolution: {integrity: sha512-TfTiyvZhwBYM/7QdAVDh+7dBTBA29v4ik0Ce9zda3Mnf8on1S5KJI8P2jKFZ8+5C0jhmr0KwJEO/Wdpm0VeWJQ==}

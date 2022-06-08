@@ -11,6 +11,8 @@
     "@nestjs/common": "^8.4.5",
     "@nestjs/core": "^8.4.5",
     "@nestjs/microservices": "^8.4.5",
+    "@sentry/node": "^7.1.1",
+    "@sentry/tracing": "^7.1.1",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/grpc": "workspace:*",
     "@tsuwari/prisma": "workspace:*",

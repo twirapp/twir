@@ -22,6 +22,8 @@
     "@nestjs/passport": "^8.2.1",
     "@nestjs/platform-express": "^8.4.5",
     "@nestjs/throttler": "^2.0.1",
+    "@sentry/node": "^7.1.1",
+    "@sentry/tracing": "^7.1.1",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/grpc": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
