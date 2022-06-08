@@ -84,11 +84,27 @@ export class ModerationParser {
     }
   }
 
-  async blacklistsParser(message: string, settings: ModerationSettings | null, state: TwitchPrivateMessage) {
-    return {
-      time: 1,
-      message: '1',
-    };
+  async blacklistsParser(message: string, settings: ModerationSettings, state: TwitchPrivateMessage) {
+    if (!Array.isArray(settings.blackListSentences)) return;
+    const blackListed = settings.blackListSentences.some(b => message.includes(b as string));
+    if (!blackListed) return;
+
+    const redisKey = `moderation:warnings:blacklist:${state.userInfo.userId}`;
+    const isWarned = await redis.get(redisKey);
+
+    if (isWarned === null) {
+      redis.set(redisKey, '', 'EX', 60 * 60);
+      return {
+        message: settings.warningMessage,
+        delete: true,
+      };
+    } else {
+      redis.del(redisKey);
+      return {
+        time: settings.banTime,
+        message: settings.banMessage,
+      };
+    }
   }
 
   async symbolsParser(message: string, settings: ModerationSettings | null, state: TwitchPrivateMessage) {
