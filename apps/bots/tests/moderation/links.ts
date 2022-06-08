@@ -4,6 +4,7 @@ import './__mocks__/index.mock.js';
 
 import { ModerationParser } from '../../src/libs/moderationParser.js';
 import { prisma } from '../../src/libs/prisma.js';
+import { redis } from '../../src/libs/redis.js';
 import { createState } from './helpers.js';
 
 const parser = new ModerationParser();

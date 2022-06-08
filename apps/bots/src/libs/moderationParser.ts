@@ -69,17 +69,17 @@ export class ModerationParser {
     const redisKey = `moderation:warnings:links:${state.userInfo.userId}`;
     const isWarned = await redis.get(redisKey);
 
-    if (isWarned !== null) {
-      redis.del(redisKey);
-      return {
-        time: settings.banTime,
-        message: settings.banMessage,
-      };
-    } else {
+    if (isWarned === null) {
       redis.set(redisKey, '', 'EX', 60 * 60);
       return {
         message: settings.warningMessage,
         delete: true,
+      };
+    } else {
+      redis.del(redisKey);
+      return {
+        time: settings.banTime,
+        message: settings.banMessage,
       };
     }
   }
