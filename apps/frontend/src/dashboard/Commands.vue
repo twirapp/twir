@@ -118,7 +118,7 @@ function deleteCommand(index: number) {
     </div>
     <div 
       v-else
-      class="grid xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-2"
+      class="grid items-start xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-2"
     >
       <div
         v-for="command, commandIndex in commands"

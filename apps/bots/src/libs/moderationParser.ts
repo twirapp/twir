@@ -1,6 +1,6 @@
 import { ModerationSettings, SettingsType } from '@tsuwari/prisma';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
-import tlds from 'tlds';
+import tlds from 'tlds' assert { type: 'json' };
 
 import { prisma } from './prisma.js';
 import { redis } from './redis.js';

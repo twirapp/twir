@@ -262,7 +262,7 @@ const consoleLog = console.log;
             <div
               v-for="_response, responseIndex in command.responses"
               :key="responseIndex"
-              class="flex flex-wrap items-stretch mb-4 h-8 relative dropdown relative"
+              class="flex flex-wrap max-h-max items-stretch mb-4 relative dropdown relative"
               style="width: 99%;"
             >
               <div 
