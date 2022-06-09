@@ -12,9 +12,7 @@ import { selectedDashboardStore } from '@/stores/userStore';
 
 const selectedDashboard = useStore(selectedDashboardStore);
 
-type CommandType = UpdateOrCreateCommandDto & { 
-  edit?: boolean
-}
+type CommandType = UpdateOrCreateCommandDto
 
 configure({
   validateOnBlur: true, // controls if `blur` events should trigger validation with `handleChange` handler
@@ -39,13 +37,11 @@ const cooldownType = {
 const props = defineProps<{ 
   command: CommandType,
   commands: CommandType[]
-  commandsBeforeEdit: CommandType[]
   variablesList: VariablesList
 }>();
 
 const command = toRef(props, 'command');
 const commands = toRef(props, 'commands');
-const commandsBeforeEdit = toRef(props, 'commandsBeforeEdit');
 const emit = defineEmits<{
   (e: 'delete', index: number): void
 }>();
@@ -111,27 +107,6 @@ async function saveCommand() {
 
   if (commands.value && commands.value[index]) {
     commands.value[index] = data;
-
-    const editableCommand = commandsBeforeEdit.value?.find(c => c.id === data.id);
-    if (editableCommand) {
-      commandsBeforeEdit.value?.splice(commandsBeforeEdit.value.indexOf(editableCommand));
-    }
-  }
-}
-
-function cancelEdit() {
-  const index = commands.value.indexOf(command.value);
-  if (command.value.id && commands.value) {
-    const editableCommand = commandsBeforeEdit.value?.find(c => c.id === command.value.id);
-    if (editableCommand) {
-      commands.value[index] = {
-        ...editableCommand,
-        edit: false,
-      };
-      commandsBeforeEdit.value?.splice(commandsBeforeEdit.value.indexOf(editableCommand), 1);
-    }
-  } else {
-    commands.value?.splice(index, 1);
   }
 }
 
@@ -169,7 +144,6 @@ const consoleLog = console.log;
             name="name"
             type="text"
             placeholder="uptime"
-            :disabled="!command.edit"
             class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
           />
         </div>
@@ -185,7 +159,6 @@ const consoleLog = console.log;
               as="input"
               type="number"
               placeholder="0"
-              :disabled="!command.edit"
               class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-4/5 input-sm"
             />
                 
@@ -193,7 +166,6 @@ const consoleLog = console.log;
               v-model="command.cooldownType"
               name="cooldownType"
               as="select"
-              :disabled="!command.edit"
               class="form-control px-3 py-1.5 text-gray-700 rounded select select-sm w-full"
             >
               <option
@@ -213,7 +185,6 @@ const consoleLog = console.log;
             v-model="command.permission"
             as="select"
             name="permission"
-            :disabled="!command.edit"
             class="form-control px-3 py-1.5 text-gray-700 rounded select select-sm w-full"
           >
             <option
@@ -238,7 +209,6 @@ const consoleLog = console.log;
             v-model="command.description"
             name="description"
             type="text"
-            :disabled="!command.edit"
             placeholder="great command ;)"
             class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
           />
@@ -248,7 +218,6 @@ const consoleLog = console.log;
           <span class="label">
             <span>Responses
               <a
-                v-if="command.edit"
                 class="px-2 py-0.5 inline-block bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 cursor-pointer ease-in-out"
                 @click="command.responses.push({ text: '' })"
               >
@@ -267,15 +236,10 @@ const consoleLog = console.log;
             >
               <div 
                 :id="'dropdownMenuButton' + responseIndex"
-                class="form-control dropdown-toggle px-3 py-1.5 text-gray-700 rounded input input-bordered w-[90%] input-sm" 
-                :contenteditable="command.edit"
-                :data-bs-toggle="command.edit ? 'dropdown' : 'none'"
+                class="form-control dropdown-toggle px-3 py-1.5 text-gray-700 rounded input input-bordered w-[90%] input-sm bg-white rounded-r-none" 
+                contenteditable
+                data-bs-toggle="dropdown"
                 aria-expanded="false"
-                :class="{ 
-                  'bg-white': command.edit,
-                  'rounded-r-none': command.edit,
-                  'bg-zinc-400 opacity-100 border-transparent': !command.edit 
-                }" 
                 @input="(payload) => changeCommandResponse(responseIndex, (payload.target! as HTMLElement).innerText)"
               >
                 {{ command.responses[responseIndex].text }}
@@ -328,7 +292,6 @@ const consoleLog = console.log;
                 </li>
               </ul>
               <div
-                v-if="command.edit"
                 class="flex -mr-px cursor-pointer"
                 @click="command.responses?.splice(responseIndex, 1)"
               >
@@ -342,7 +305,6 @@ const consoleLog = console.log;
           <span class="label">  
             <span>Aliases
               <a
-                v-if="command.edit"
                 class="px-2 py-0.5 inline-block bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md  hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out cursor-pointer"
                 @click="command.aliases?.push('')"
               >
@@ -359,13 +321,10 @@ const consoleLog = console.log;
             >
               <input
                 v-model.lazy="command.aliases![aliaseIndex]"
-                :disabled="!command.edit"
                 type="text"
-                class="flex-shrink flex-grow flex-auto leading-normal w-px flex-1 border border-grey-light text-gray-700 rounded px-3 py-1.5 relative"
-                :class="{ 'rounded-r-none': command.edit }"
+                class="flex-shrink rounded-r-none flex-grow flex-auto leading-normal w-px flex-1 border border-grey-light text-gray-700 rounded px-3 py-1.5 relative"
               >
               <div
-                v-if="command.edit"
                 class="flex -mr-px cursor-pointer"
                 @click="command.aliases?.splice(aliaseIndex, 1)"
               >
@@ -377,27 +336,8 @@ const consoleLog = console.log;
       </div>
 
       <div class="flex justify-between mt-5">
+        <div />
         <div>
-          <button
-            v-if="!command.edit"
-            type="button"
-            class="inline-block px-6 py-2.5 bg-gray-200 text-gray-700 font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-gray-300 hover:shadow-lg focus:bg-gray-300 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-400 active:shadow-lg transition duration-150 ease-in-out"
-            @click="() => {
-              command.edit = true;
-              if (command.id) commandsBeforeEdit?.push(JSON.parse(JSON.stringify(command)))
-            }"
-          >
-            Edit
-          </button>
-          <button
-            v-else
-            class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
-            @click="cancelEdit"
-          >
-            Cancel
-          </button>
-        </div>
-        <div v-if="command.edit">
           <button
             v-if="command.id"
             type="button"

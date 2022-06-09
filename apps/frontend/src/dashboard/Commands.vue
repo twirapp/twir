@@ -16,22 +16,18 @@ import { selectedDashboardStore } from '@/stores/userStore';
 const title = useTitle();
 title.value = 'Tsuwari - Commands';
 
-type CommandType = UpdateOrCreateCommandDto & { 
-  edit?: boolean
-}
+type CommandType = UpdateOrCreateCommandDto
 
 const selectedDashboard = useStore(selectedDashboardStore);
 
-const { execute, data: axiosData, isLoading } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/commands`, api, { immediate: false });
+const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/commands`, api, { immediate: false });
 
 const commands = ref<CommandType[]>([]);
-const commandsBeforeEdit = ref<CommandType[]>([]);
 const variablesList = ref<VariablesList>([]);
 const currentEditableCommand = ref<CommandType>({} as any);
 
 watch(axiosData, (v: CommandType[]) => {
   commands.value = v;
-  commandsBeforeEdit.value = [];
   currentEditableCommand.value = v[0];
 });
 
@@ -50,7 +46,7 @@ selectedDashboardStore.subscribe(async (v) => {
 
 
 function insertCommand() {
-  if (commands.value) {
+  if (commands.value && currentEditableCommand.value.id) {
     const command: CommandType = {
       name: '',
       aliases: [],
@@ -60,10 +56,10 @@ function insertCommand() {
       visible: true,
       enabled: true,
       responses: [],
-      edit: true,
       cooldownType: 'GLOBAL',
     };
 
+    currentEditableCommand.value = command;
     commands.value.unshift(command);
   }
 }
@@ -71,6 +67,7 @@ function insertCommand() {
 
 function deleteCommand(index: number) {
   commands.value = commands.value.filter((_, i) => i !== index);
+  currentEditableCommand.value = commands.value[0];
 }
 </script>
 
@@ -111,14 +108,18 @@ function deleteCommand(index: number) {
           <li
             v-for="command, index of commands"
             :key="index"
-            class="border-l-2"
+            :class="{ 'border-l-2': commands.indexOf(currentEditableCommand) === index }"
+            @click="() => {
+              if (!currentEditableCommand.id) commands.splice(commands.indexOf(currentEditableCommand), 1)
+              currentEditableCommand = command  
+            }"
           >
             <button
               aria-current="page"
               href="/dashboard/commands"
               class="flex items-center mt-0 text-sm px-2 h-8 w-full overflow-hidden text-white text-ellipsis whitespace-nowrap hover:bg-[#202122] border-slate-300 transition duration-300 ease-in-out ripple-surface-primary"
               :class="{
-                'bg-neutral-700': currentEditableCommand.name === command.name,
+                'bg-neutral-700': commands.indexOf(currentEditableCommand) === index
               }"
             >
               <span class="w-3 h-3" /><span>{{ command.name }}</span>
@@ -128,11 +129,10 @@ function deleteCommand(index: number) {
       </div>
     </div>
 
-    <div class="w-full p-1 hidden sm:block h-fit m-4 block rounded-lg card text-white shadow-lg">
+    <div class="w-full p-1 hidden sm:block h-fit m-4 block max-w-2xl rounded-lg card text-white shadow-lg">
       <Command 
         :command="currentEditableCommand" 
         :commands="commands" 
-        :commands-before-edit="commandsBeforeEdit"
         :variables-list="variablesList"
         @delete="deleteCommand"
       />
