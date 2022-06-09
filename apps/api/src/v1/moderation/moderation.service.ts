@@ -50,6 +50,7 @@ export class ModerationService {
         update: updateObject,
         create: {
           ...updateObject,
+          channelId: undefined,
           channel: {
             connect: {
               id: channelId,

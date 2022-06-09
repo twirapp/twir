@@ -34,7 +34,6 @@ export class ModerationController {
   @UsePipes(new ValidationPipe({ transform: false }))
   @Post()
   async update(@Param('channelId') channelId: string, @Body(new ParseArrayPipe({ items: ModerationSettingsDto })) data: ModerationSettingsDto[]) {
-    console.log(data);
     const result = await this.moderationService.update(channelId, data);
     await this.#delCache(channelId);
     return result;
