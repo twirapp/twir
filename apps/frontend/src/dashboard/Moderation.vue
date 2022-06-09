@@ -23,10 +23,34 @@ async function getModerationSettings() {
 onMounted(() => {
   getModerationSettings();
 });
+
+async function save() {
+  await api.post(`/v1/channels/${selectedDashboard.value.channelId}/moderation`, {
+    items: settings.value,
+  });
+}
 </script>
 
 
 <template>
+  <div class="p-1">
+    <div class="flow-root">
+      <div class="float-left rounded btn btn-primary btn-sm w-full mb-1 md:w-auto">
+        <button
+          class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
+          @click="save"
+        >
+          Save settings
+        </button>
+      </div>
+
+      <!-- <input
+        type="text"
+        placeholder="Search by keyword..."
+        class="float-right rounded input input-sm input-bordered w-full md:w-60"
+      > -->
+    </div>
+  </div>
   <div 
     class="grid items-start xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-2"
   >

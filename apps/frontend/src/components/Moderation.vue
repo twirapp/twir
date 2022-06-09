@@ -293,6 +293,38 @@ const settings = toRef(props, 'settings', {
           placeholder="50"
         >
       </div>
+      <div
+        v-if="settings.type === 'emotes'"
+        class="mt-3"
+      >
+        <label
+          :for="'maxEmotes' + settings.type"
+          class="form-label inline-block mb-2"
+        >Max emotes in message.</label>
+        <input
+          :id="'maxEmotes' + settings.type"
+          v-model="settings.triggerLength"
+          type="text"
+          class="
+            form-control
+            block
+            w-full
+            px-3
+            py-1.5
+            text-base
+            font-normal
+            text-gray-700
+            bg-white bg-clip-padding
+            border border-solid border-gray-300
+            rounded
+            transition
+            ease-in-out
+            m-0
+            focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+          "
+          placeholder="50"
+        >
+      </div>
     </div>
   </div>
 </template>
