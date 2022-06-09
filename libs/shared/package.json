@@ -9,7 +9,8 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@twurple/auth": "^5.1.6"
+    "@twurple/auth": "^5.1.6",
+    "class-validator": "^0.13.2"
   },
   "devDependencies": {
     "@tsuwari/prisma": "workspace:*",

@@ -12,6 +12,7 @@ import Keywords from '@/assets/sidebar/keywords.svg?url';
 import Overlays from '@/assets/sidebar/overlays.svg?url';
 import Quotes from '@/assets/sidebar/quotes.svg?url';
 import Settings from '@/assets/sidebar/settings.svg?url';
+import Sword from '@/assets/sidebar/sword.svg?url';
 import Timers from '@/assets/sidebar/timers.svg?url';
 import Users from '@/assets/sidebar/users.svg?url';
 import Variables from '@/assets/sidebar/variables.svg?url';
@@ -54,6 +55,11 @@ const routes = [
     icon: Timers,
     path: '/dashboard/timers',
   },
+  { 
+    name: 'Moderation',
+    icon: Sword,
+    path: '/dashboard/moderation',
+  },
   {
     name: 'Users',
     icon: Users,
@@ -81,7 +87,6 @@ const routes = [
   },
   {
     name: 'Files',
-    /* icon: Files, */
     path: '/dashboard/files',
   },
   {

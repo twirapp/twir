@@ -112,11 +112,14 @@ export class Bot extends ChatClient {
           if (moderateResult) {
             if (moderateResult.delete) {
               this.deleteMessage(channel, state.id);
-              this.say(channel, moderateResult.message);
             } else {
-              this.timeout(channel, user, moderateResult.time);
+              this.timeout(channel, user, moderateResult.time, moderateResult.message ?? undefined);
+            }
+
+            if (moderateResult.message) {
               this.say(channel, moderateResult.message);
             }
+
             return;
           }
         }
