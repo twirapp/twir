@@ -2,7 +2,11 @@
 import { ModerationUpdateDto } from '@tsuwari/shared';
 import { toRef } from 'vue';
 
-type Settings = ModerationUpdateDto['items'][0] & { checkClips: boolean, blackListSentences: string[] }
+type Settings = ModerationUpdateDto['items'][0] & { 
+  checkClips: boolean,
+  blackListSentences: string[],
+  triggerLength: number,
+}
 const props = defineProps<{
   settings: Settings
 }>();
@@ -12,6 +16,7 @@ const settings = toRef(props, 'settings', {
   ...props.settings,
   checkClips: props.settings.checkClips ?? false as boolean,
   blackListSentences: props.settings.blackListSentences ?? [],
+  triggerLength: props.settings.triggerLength ?? 300,
 });
 </script>
 
@@ -225,17 +230,68 @@ const settings = toRef(props, 'settings', {
         >
       </div>
       <div
-        class="
-        flex
-        justify-end
-        p-2"
+        v-if="settings.type === 'longMessage'"
+        class="mt-3"
       >
-        <button
-          type="button"
-          class="inline-block ml-2 px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-green-600 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-700 active:shadow-lg transition duration-150 ease-in-out"
+        <label
+          :for="'longMessage' + settings.type"
+          class="form-label inline-block mb-2"
+        >Max message length</label>
+        <input
+          :id="'longMessage' + settings.type"
+          v-model="settings.triggerLength"
+          type="text"
+          class="
+            form-control
+            block
+            w-full
+            px-3
+            py-1.5
+            text-base
+            font-normal
+            text-gray-700
+            bg-white bg-clip-padding
+            border border-solid border-gray-300
+            rounded
+            transition
+            ease-in-out
+            m-0
+            focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+          "
+          placeholder="50"
         >
-          Save
-        </button>
+      </div>
+      <div
+        v-if="settings.type === 'caps'"
+        class="mt-3"
+      >
+        <label
+          :for="'maxCaps' + settings.type"
+          class="form-label inline-block mb-2"
+        >Max caps in message (in percent)</label>
+        <input
+          :id="'maxCaps' + settings.type"
+          v-model="settings.maxPercentage"
+          type="text"
+          class="
+            form-control
+            block
+            w-full
+            px-3
+            py-1.5
+            text-base
+            font-normal
+            text-gray-700
+            bg-white bg-clip-padding
+            border border-solid border-gray-300
+            rounded
+            transition
+            ease-in-out
+            m-0
+            focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+          "
+          placeholder="50"
+        >
       </div>
     </div>
   </div>
