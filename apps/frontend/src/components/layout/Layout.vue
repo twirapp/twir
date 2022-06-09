@@ -1,7 +1,11 @@
 <script lang="ts" setup>
+import { useRouter } from 'vue-router';
+
 import Footer from './Footer.vue';
 import NavBar from './NavBar.vue';
 import Sidebar from './Sidebar.vue';
+
+const router = useRouter();
 </script>
 
 <template>
@@ -12,7 +16,10 @@ import Sidebar from './Sidebar.vue';
       <div class="main flex flex-col flex-grow">
         <NavBar />
 
-        <div class="flex flex-col flex-grow m-3">
+        <div
+          class="flex flex-col flex-grow"
+          :class="{'m-3': router.currentRoute.value.name !== 'Commands'}"
+        >
           <slot />
         </div>
 

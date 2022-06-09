@@ -30,6 +30,7 @@ export const router = createRouter({
       component: () => import('../dashboard/Events.vue'),
     },
     {
+      name: 'Commands',
       path: '/dashboard/commands',
       component: () => import('../dashboard/Commands.vue'),
     },
