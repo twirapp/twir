@@ -62,7 +62,7 @@ export class CommandsService {
         channelId: userId,
         responses: {
           createMany: {
-            data: data.responses.map((r) => ({ text: r.text })),
+            data: data.responses.map((r) => ({ text: r.text?.trim().replace(/(\r\n|\n|\r)/, '') })),
           },
         },
       },
@@ -108,6 +108,8 @@ export class CommandsService {
     if (!command) {
       throw new Error('Command not exists');
     }
+
+    data.responses = data.responses.map(r => ({ ...r, text: r.text ? r.text.trim().replace(/(\r\n|\n|\r)/, '') : null }));
 
     const responsesForUpdate = data.responses
       .filter(r => command.responses.some(c => c.id === r.id && r.text && r.id))
