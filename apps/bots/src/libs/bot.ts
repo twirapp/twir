@@ -106,17 +106,21 @@ export class Bot extends ChatClient {
         const isBotMod = isBotModRequest === 'true';
 
         const isModerate = !state.userInfo.isBroadcaster && !state.userInfo.isMod && isBotMod;
+        console.log(isModerate, isBotMod);
         if (isModerate) {
           const moderateResult = await this.#moderationParser.parse(message, state);
 
           if (moderateResult) {
             if (moderateResult.delete) {
               this.deleteMessage(channel, state.id);
-              this.say(channel, moderateResult.message);
             } else {
-              this.timeout(channel, user, moderateResult.time);
+              this.timeout(channel, user, moderateResult.time, moderateResult.message ?? undefined);
+            }
+
+            if (moderateResult.message) {
               this.say(channel, moderateResult.message);
             }
+
             return;
           }
         }

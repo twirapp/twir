@@ -28,6 +28,7 @@
     "@tsuwari/config": "workspace:*",
     "@tsuwari/grpc": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
+    "@tsuwari/shared": "workspace:*",
     "@tsuwari/spotify": "workspace:*",
     "@twurple/api": "^5.1.6",
     "@twurple/auth": "^5.1.6",
@@ -54,7 +55,6 @@
     "tslib": "^2.4.0"
   },
   "devDependencies": {
-    "@tsuwari/shared": "workspace:*",
     "@types/cache-manager": "^3.4.3",
     "@types/cache-manager-ioredis": "^2.0.2",
     "@types/cookie-parser": "^1.4.3",

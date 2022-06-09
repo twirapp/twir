@@ -61,7 +61,7 @@ model Channel {
   greetings          Greeting[]
   usersStats         UserStats[]
   integrations       ChannelIntegration[]
-  moderationSettings ModerationSettings?
+  moderationSettings ModerationSettings[]
   dashboardAccess    DashboardAccess[]
   permits            Permit[]
   keywords           Keyword[]
@@ -265,20 +265,20 @@ model ModerationSettings {
   id String @id @default(dbgenerated("gen_random_uuid()"))
 
   type        SettingsType
-  channelId   String       @unique
+  channelId   String
   enabled     Boolean      @default(false)
   subscribers Boolean      @default(false)
   vips        Boolean      @default(false)
 
-  banTime        Int
-  banMessage     String
-  warningMessage String
+  banTime        Int     @default(600)
+  banMessage     String?
+  warningMessage String?
 
-  checkClips    Boolean?
-  triggerLength Int?
-  maxPercentage Int?
+  checkClips    Boolean? @default(false)
+  triggerLength Int?     @default(300)
+  maxPercentage Int?     @default(50)
 
-  blackListSentences Json?
+  blackListSentences Json? @default("[]")
 
   channel Channel @relation(fields: [channelId], references: [id])
 

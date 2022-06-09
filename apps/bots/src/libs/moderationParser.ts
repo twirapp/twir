@@ -71,6 +71,8 @@ export class ModerationParser {
       return this[`${key}Parser`](message, parserSettings, state);
     }));
 
+    console.log(results);
+
     return results.find(r => typeof r !== 'undefined');
   }
 
