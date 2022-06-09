@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { ModerationUpdateDto } from '@tsuwari/shared';
+import { ModerationSettingsDto } from '@tsuwari/shared';
 import { toRef } from 'vue';
 
-type Settings = ModerationUpdateDto['items'][0] & { 
+type Settings = ModerationSettingsDto & {
   checkClips: boolean,
   blackListSentences: string[],
   triggerLength: number,

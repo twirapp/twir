@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
-import { ModerationUpdateDto } from '@tsuwari/shared';
+import { ModerationSettingsDto } from '@tsuwari/shared';
 import { onMounted, ref } from 'vue';
 
 import ModerationComponent from '@/components/Moderation.vue';
 import { api } from '@/plugins/api.js';
 import { selectedDashboardStore } from '@/stores/userStore';
 
-const settings = ref<ModerationUpdateDto['items']>();
+const settings = ref<ModerationSettingsDto[]>();
 
 const selectedDashboard = useStore(selectedDashboardStore);
 
@@ -25,9 +25,7 @@ onMounted(() => {
 });
 
 async function save() {
-  await api.post(`/v1/channels/${selectedDashboard.value.channelId}/moderation`, {
-    items: settings.value,
-  });
+  await api.post(`/v1/channels/${selectedDashboard.value.channelId}/moderation`, settings.value);
 }
 </script>
 

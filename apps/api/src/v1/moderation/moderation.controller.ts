@@ -1,5 +1,5 @@
-import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, Post, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ModerationUpdateDto } from '@tsuwari/shared';
+import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, ParseArrayPipe, Post, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ModerationSettingsDto } from '@tsuwari/shared';
 import { Cache } from 'cache-manager';
 import { Request } from 'express';
 
@@ -31,8 +31,10 @@ export class ModerationController {
   }
 
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
+  @UsePipes(new ValidationPipe({ transform: false }))
   @Post()
-  async update(@Param('channelId') channelId: string, @Body() data: ModerationUpdateDto) {
+  async update(@Param('channelId') channelId: string, @Body(new ParseArrayPipe({ items: ModerationSettingsDto })) data: ModerationSettingsDto[]) {
+    console.log(data);
     const result = await this.moderationService.update(channelId, data);
     await this.#delCache(channelId);
     return result;

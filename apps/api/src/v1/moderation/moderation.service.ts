@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService, SettingsType } from '@tsuwari/prisma';
-import { ModerationUpdateDto } from '@tsuwari/shared';
+import { ModerationSettingsDto } from '@tsuwari/shared';
 
 import { RedisService } from '../../redis.service.js';
 
@@ -33,8 +33,8 @@ export class ModerationService {
     return result;
   }
 
-  async update(channelId: string, data: ModerationUpdateDto) {
-    const result = await Promise.all(data.items.map(item => {
+  async update(channelId: string, data: ModerationSettingsDto[]) {
+    const result = await Promise.all(data.map(item => {
       const updateObject = {
         ...item,
         blackListSentences: item.blackListSentences as string[] | undefined,
@@ -50,11 +50,16 @@ export class ModerationService {
         update: updateObject,
         create: {
           ...updateObject,
-          channelId,
+          channel: {
+            connect: {
+              id: channelId,
+            },
+          },
         },
       });
     }));
 
+    await Promise.all(data.map(item => this.redis.del(`settings:moderation:${channelId}:${item.type}`)));
     return result;
   }
 }
