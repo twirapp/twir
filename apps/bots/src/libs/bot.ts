@@ -106,7 +106,6 @@ export class Bot extends ChatClient {
         const isBotMod = isBotModRequest === 'true';
 
         const isModerate = !state.userInfo.isBroadcaster && !state.userInfo.isMod && isBotMod;
-        console.log(isModerate, isBotMod);
         if (isModerate) {
           const moderateResult = await this.#moderationParser.parse(message, state);
 
