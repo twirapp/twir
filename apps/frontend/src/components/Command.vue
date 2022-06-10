@@ -120,7 +120,10 @@ const consoleLog = console.log;
 </script>
 
 <template>
-  <div class="p-4">
+  <div
+    v-if="command"
+    class="p-4"
+  >
     <Form
       v-slot="{ errors }"
       :validation-schema="schema"

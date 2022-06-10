@@ -16,7 +16,7 @@ import { selectedDashboardStore } from '@/stores/userStore';
 const title = useTitle();
 title.value = 'Tsuwari - Commands';
 
-type CommandType = UpdateOrCreateCommandDto
+type CommandType = UpdateOrCreateCommandDto & { new?: boolean }
 
 const selectedDashboard = useStore(selectedDashboardStore);
 
@@ -24,10 +24,10 @@ const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.
 
 const commands = ref<CommandType[]>([]);
 const variablesList = ref<VariablesList>([]);
-const currentEditableCommand = ref<CommandType>({} as any);
+const currentEditableCommand = ref<CommandType | null>(null);
 const searchFilter = ref<string>('');
 const filteredCommands = computed(() => {
-  return commands.value.filter(c => searchFilter.value ? [c.name, ...c.aliases as string[]].some(s => s.includes(searchFilter.value)) : true).sort((a, b) => a.name.localeCompare(b.name));
+  return commands.value.filter(c => c.name).filter(c => searchFilter.value ? [c.name, ...c.aliases as string[]].some(s => s.includes(searchFilter.value)) : true).sort((a, b) => a.name.localeCompare(b.name));
 });
 
 watch(axiosData, (v: CommandType[]) => {
@@ -49,7 +49,7 @@ selectedDashboardStore.subscribe(async (v) => {
 });
 
 function insertCommand() {
-  if (commands.value && currentEditableCommand.value.id) {
+  if (commands.value && !currentEditableCommand.value?.new) {
     const command: CommandType = {
       name: '',
       aliases: [],
@@ -60,10 +60,11 @@ function insertCommand() {
       enabled: true,
       responses: [],
       cooldownType: 'GLOBAL',
+      new: true,
     };
 
-    currentEditableCommand.value = command;
     commands.value.unshift(command);
+    currentEditableCommand.value = command;
   }
 }
 
@@ -116,9 +117,9 @@ function onSave(index: number) {
             v-for="command, index of filteredCommands
             "
             :key="index"
-            :class="{ 'border-l-2': filteredCommands.indexOf(currentEditableCommand) === index }"
+            :class="{ 'border-l-2': filteredCommands.indexOf(currentEditableCommand!) === index }"
             @click="() => {
-              if (!currentEditableCommand.id) commands.splice(commands.indexOf(currentEditableCommand), 1)
+              if (!currentEditableCommand!.id) commands.splice(commands.indexOf(currentEditableCommand!), 1)
               currentEditableCommand = command  
             }"
           >
@@ -127,7 +128,7 @@ function onSave(index: number) {
               href="/dashboard/commands"
               class="flex items-center mt-0 text-sm px-2 h-8 w-full overflow-hidden text-white text-ellipsis whitespace-nowrap hover:bg-[#202122] border-slate-300 transition duration-300 ease-in-out ripple-surface-primary"
               :class="{
-                'bg-neutral-700': filteredCommands.indexOf(currentEditableCommand) === index
+                'bg-neutral-700': filteredCommands.indexOf(currentEditableCommand!) === index
               }"
             >
               <span class="w-3 h-3" /><span>{{ command.name }}</span>
@@ -137,7 +138,10 @@ function onSave(index: number) {
       </div>
     </div>
 
-    <div class="w-full p-1 hidden sm:block h-fit m-4 block max-w-2xl rounded-lg card text-white shadow-lg">
+    <div
+      v-if="currentEditableCommand"
+      class="w-full p-1 hidden sm:block h-fit m-4 block max-w-2xl rounded-lg card text-white shadow-lg"
+    >
       <Command 
         :command="currentEditableCommand" 
         :commands="commands" 

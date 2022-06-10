@@ -7,16 +7,6 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2017",
     "sourceMap": true,
-    "skipLibCheck": true,
-    "composite": true,
-    "incremental": true
-  },
-  "references": [
-    {
-      "path": "./apps/*"
-    },
-    {
-      "path": "./libs/*"
-    }
-  ]
+    "skipLibCheck": true
+  }
 }
