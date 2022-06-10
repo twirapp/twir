@@ -44,6 +44,7 @@ const command = toRef(props, 'command');
 const commands = toRef(props, 'commands');
 const emit = defineEmits<{
   (e: 'delete', index: number): void
+  (e: 'save', index): void
 }>();
 
 const schema = computed(() => yup.object({
@@ -107,6 +108,7 @@ async function saveCommand() {
 
   if (commands.value && commands.value[index]) {
     commands.value[index] = data;
+    emit('save', index);
   }
 }
 

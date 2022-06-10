@@ -70,6 +70,10 @@ function deleteCommand(index: number) {
   commands.value = commands.value.filter((_, i) => i !== index);
   currentEditableCommand.value = commands.value[0];
 }
+
+function onSave(index: number) {
+  currentEditableCommand.value = commands.value[index];
+}
 </script>
 
 <template>
@@ -137,6 +141,7 @@ function deleteCommand(index: number) {
         :commands="commands" 
         :variables-list="variablesList"
         @delete="deleteCommand"
+        @save="onSave"
       />
     </div>
   </div>
