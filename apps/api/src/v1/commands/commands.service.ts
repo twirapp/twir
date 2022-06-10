@@ -38,6 +38,8 @@ export class CommandsService implements OnModuleInit {
               defaultName: command.name!,
               name: command.name!,
               permission: command.permission! as any,
+              cooldown: 0,
+              cooldownType: 'GLOBAL',
             },
           });
         }
