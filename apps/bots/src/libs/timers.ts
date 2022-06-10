@@ -6,7 +6,7 @@ import Redis from 'ioredis';
 
 import { Bots, staticApi } from '../bots.js';
 import { ParserCache } from '../parser/cache.js';
-import { Parser } from '../parser/index.js';
+import { ResponseParser } from '../parser/index.js';
 import { prisma } from './prisma.js';
 
 const createConnection = () => new Redis(config.REDIS_URL, { maxRetriesPerRequest: null });
@@ -58,7 +58,7 @@ new Worker<Data>(
       const me = await api.users.getMe();
       bot.say(
         user.name,
-        await Parser.parse(response, {
+        await ResponseParser.parse(response, {
           channelId: timer.channelId,
           sender: { id: me.id, name: me.name },
           cache: new ParserCache(timer.channelId, me.id),

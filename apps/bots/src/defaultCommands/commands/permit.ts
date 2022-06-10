@@ -28,7 +28,6 @@ export const permit: DefaultCommand = {
       });
     }));
 
-
     return `you gave out ${parsedCount} ${parsedCount > 1 ? 'permits' : 'permit'} to user ${user.displayName}`;
   },
 };
