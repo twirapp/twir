@@ -4,7 +4,7 @@ import { ModerationSettingsDto } from '@tsuwari/shared';
 import { onMounted, ref } from 'vue';
 
 import ModerationComponent from '@/components/Moderation.vue';
-import { api } from '@/plugins/api.js';
+import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
 const settings = ref<ModerationSettingsDto[]>();

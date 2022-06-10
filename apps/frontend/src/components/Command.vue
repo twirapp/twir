@@ -84,7 +84,6 @@ const schema = computed(() => yup.object({
       return true;
     }),
   ),
-  commands: yup.array().required('Responses cannot be empty.'),
 }));
   
 async function deleteCommand() {
