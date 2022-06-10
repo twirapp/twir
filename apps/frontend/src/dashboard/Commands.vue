@@ -25,6 +25,7 @@ const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.
 const commands = ref<CommandType[]>([]);
 const variablesList = ref<VariablesList>([]);
 const currentEditableCommand = ref<CommandType>({} as any);
+const searchFilter = ref<string>('');
 
 watch(axiosData, (v: CommandType[]) => {
   commands.value = v;
@@ -86,6 +87,7 @@ function deleteCommand(index: number) {
           <div class="form-floating">
             <input
               id="searchCommand"
+              v-model="searchFilter"
               type="text"
               class="form-control
                     w-full
@@ -106,7 +108,7 @@ function deleteCommand(index: number) {
             >Search command</label>
           </div>
           <li
-            v-for="command, index of commands"
+            v-for="command, index of commands.filter(c => searchFilter ? [c.name, ...c.aliases as string[]].some(s => s.includes(searchFilter)) : true)"
             :key="index"
             :class="{ 'border-l-2': commands.indexOf(currentEditableCommand) === index }"
             @click="() => {
