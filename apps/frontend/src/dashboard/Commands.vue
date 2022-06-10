@@ -5,7 +5,7 @@ import { useStore } from '@nanostores/vue';
 import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/create';
 import { useTitle } from '@vueuse/core';
 import { useAxios } from '@vueuse/integrations/useAxios';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import Command from '../components/Command.vue';
 import { VariableType } from './Variables.vue';
@@ -26,10 +26,13 @@ const commands = ref<CommandType[]>([]);
 const variablesList = ref<VariablesList>([]);
 const currentEditableCommand = ref<CommandType>({} as any);
 const searchFilter = ref<string>('');
+const filteredCommands = computed(() => {
+  return commands.value.filter(c => searchFilter.value ? [c.name, ...c.aliases as string[]].some(s => s.includes(searchFilter.value)) : true).sort((a, b) => a.name.localeCompare(b.name));
+});
 
 watch(axiosData, (v: CommandType[]) => {
   commands.value = v;
-  currentEditableCommand.value = v[0];
+  currentEditableCommand.value = filteredCommands.value[0];
 });
 
 selectedDashboardStore.subscribe(async (v) => {
@@ -44,7 +47,6 @@ selectedDashboardStore.subscribe(async (v) => {
     ...builtIn.data,
   ];
 });
-
 
 function insertCommand() {
   if (commands.value && currentEditableCommand.value.id) {
@@ -111,10 +113,7 @@ function onSave(index: number) {
         </div>
         <ul class="menu max-h-screen min-h-screen scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
           <li
-            v-for="command, index of 
-              commands
-                .filter(c => searchFilter ? [c.name, ...c.aliases as string[]].some(s => s.includes(searchFilter)) : true)
-                .sort((a, b) => a.name.localeCompare(b.name))
+            v-for="command, index of filteredCommands
             "
             :key="index"
             :class="{ 'border-l-2': commands.indexOf(currentEditableCommand) === index }"
