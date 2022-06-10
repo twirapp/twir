@@ -180,6 +180,8 @@ model Command {
   responses Response[]
   usages    CommandUsage[]
 
+  defaultName String?
+
   @@index([channelId])
   @@index([name])
   @@map("channels_commands")

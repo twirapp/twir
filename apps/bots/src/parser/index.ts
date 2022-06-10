@@ -21,7 +21,7 @@ export type Module = {
   handler: Handler;
 };
 
-class CommandParser {
+class ResponseParserClass {
   vars: {
     [x: string]: Handler;
   } = {};
@@ -66,4 +66,4 @@ class CommandParser {
   }
 }
 
-export const Parser = new CommandParser();
+export const ResponseParser = new ResponseParserClass();

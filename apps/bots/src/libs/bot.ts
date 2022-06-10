@@ -9,7 +9,7 @@ import pc from 'picocolors';
 import { increaseParsedMessages } from '../functions/increaseParsedMessages.js';
 import { increaseUserMessages } from '../functions/increaseUserMessages.js';
 import { ParserCache } from '../parser/cache.js';
-import { Parser } from '../parser/index.js';
+import { ResponseParser } from '../parser/index.js';
 import { CommandsParser } from './commandsParser.js';
 import { GreetingsParser } from './greetingsParser.js';
 import { KeywordsParser } from './keywordsParser.js';
@@ -130,9 +130,9 @@ export class Bot extends ChatClient {
             id: state.userInfo.userId,
             name: state.userInfo.userName,
           },
+          raw: state,
           cache: new ParserCache(state.channelId, state.userInfo.userId),
         };
-
 
         this.#commandsParser.parse(message, state).then(async (responses) => {
           if (!state.channelId) return;
@@ -142,7 +142,7 @@ export class Bot extends ChatClient {
           for (const response of responses) {
             if (!response) continue;
             if (responses.indexOf(response) > 0 && !isBotMod) break;
-            const msg = await Parser.parse(response, msgObject);
+            const msg = await ResponseParser.parse(response, msgObject);
 
             this.say(channel, msg, { replyTo: state.id });
           }
@@ -150,7 +150,7 @@ export class Bot extends ChatClient {
 
         this.#greetingsParser.parse(state).then(async (response) => {
           if (!response) return;
-          this.say(channel, await Parser.parse(response, msgObject), { replyTo: state.id });
+          this.say(channel, await ResponseParser.parse(response, msgObject), { replyTo: state.id });
         });
 
         this.#keywordsParser.parse(message, state).then(async (responses) => {
@@ -159,7 +159,7 @@ export class Bot extends ChatClient {
           for (const response of responses) {
             if (!response) continue;
             if (responses.indexOf(response) > 0 && !isBotMod) break;
-            const msg = await Parser.parse(response, msgObject);
+            const msg = await ResponseParser.parse(response, msgObject);
 
             this.say(channel, msg, { replyTo: state.id });
           }
