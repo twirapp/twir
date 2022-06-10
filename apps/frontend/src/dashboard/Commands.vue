@@ -111,7 +111,11 @@ function onSave(index: number) {
         </div>
         <ul class="menu max-h-screen min-h-screen scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
           <li
-            v-for="command, index of commands.filter(c => searchFilter ? [c.name, ...c.aliases as string[]].some(s => s.includes(searchFilter)) : true)"
+            v-for="command, index of 
+              commands
+                .filter(c => searchFilter ? [c.name, ...c.aliases as string[]].some(s => s.includes(searchFilter)) : true)
+                .sort((a, b) => a.name.localeCompare(b.name))
+            "
             :key="index"
             :class="{ 'border-l-2': commands.indexOf(currentEditableCommand) === index }"
             @click="() => {
