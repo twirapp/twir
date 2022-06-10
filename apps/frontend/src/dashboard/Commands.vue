@@ -16,7 +16,7 @@ import { selectedDashboardStore } from '@/stores/userStore';
 const title = useTitle();
 title.value = 'Tsuwari - Commands';
 
-type CommandType = UpdateOrCreateCommandDto & { new?: boolean }
+type CommandType = UpdateOrCreateCommandDto & { new?: boolean, default?: boolean | null }
 
 const selectedDashboard = useStore(selectedDashboardStore);
 

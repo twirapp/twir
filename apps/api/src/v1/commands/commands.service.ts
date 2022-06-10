@@ -1,16 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
+import { Bots } from '@tsuwari/grpc';
 import { Command, PrismaService, Response } from '@tsuwari/prisma';
 
 import { RedisService } from '../../redis.service.js';
 import { UpdateOrCreateCommandDto } from './dto/create.js';
 
 @Injectable()
-export class CommandsService {
+export class CommandsService implements OnModuleInit {
+  botsMicroservce: Bots.Commands;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
+    @Inject('BOTS_MICROSERVICE') private readonly botsClient: ClientGrpc,
   ) { }
+
+  onModuleInit() {
+    this.botsMicroservce = this.botsClient.getService<Bots.Commands>('Commands');
+  }
 
   async getList(userId: string) {
     const commands = await this.prisma.command.findMany({
@@ -19,6 +27,23 @@ export class CommandsService {
         responses: true,
       },
     });
+
+    const defaultCommands = await this.botsMicroservce.getDefaultCommands({}).toPromise();
+    if (defaultCommands?.commands) {
+      for (const command of defaultCommands.commands) {
+        if (!commands.some(c => c.defaultName === command)) {
+          await this.prisma.command.create({
+            data: {
+              channelId: userId,
+              defaultName: command.name!,
+              name: command.name!,
+              permission: command.permission! as any,
+            },
+          });
+        }
+      }
+    }
+
     return commands;
   }
 
@@ -72,7 +97,6 @@ export class CommandsService {
     });
 
     await this.#setCommandCache(command);
-
     return command;
   }
 
@@ -81,6 +105,10 @@ export class CommandsService {
 
     if (!command) {
       throw new Error('Command not exists');
+    }
+
+    if (command.default) {
+      throw new Error('You cannot delete default command.');
     }
 
     const result = await this.prisma.command.delete({

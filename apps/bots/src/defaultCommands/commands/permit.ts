@@ -5,6 +5,7 @@ import { DefaultCommand } from '../types.js';
 
 export const permit: DefaultCommand = {
   name: 'permit',
+  permission: 'MODERATOR',
   handler: async (state, params) => {
     if (!params || !state.channelId) return;
     const paramsArray = params.split(' ');
