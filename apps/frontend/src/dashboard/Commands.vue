@@ -16,21 +16,20 @@ import { selectedDashboardStore } from '@/stores/userStore';
 const title = useTitle();
 title.value = 'Tsuwari - Commands';
 
-type CommandType = UpdateOrCreateCommandDto & { 
-  edit?: boolean
-}
+type CommandType = UpdateOrCreateCommandDto
 
 const selectedDashboard = useStore(selectedDashboardStore);
 
-const { execute, data: axiosData, isLoading } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/commands`, api, { immediate: false });
+const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/commands`, api, { immediate: false });
 
 const commands = ref<CommandType[]>([]);
-const commandsBeforeEdit = ref<CommandType[]>([]);
 const variablesList = ref<VariablesList>([]);
+const currentEditableCommand = ref<CommandType>({} as any);
+const searchFilter = ref<string>('');
 
 watch(axiosData, (v: CommandType[]) => {
   commands.value = v;
-  commandsBeforeEdit.value = [];
+  currentEditableCommand.value = v[0];
 });
 
 selectedDashboardStore.subscribe(async (v) => {
@@ -48,7 +47,7 @@ selectedDashboardStore.subscribe(async (v) => {
 
 
 function insertCommand() {
-  if (commands.value) {
+  if (commands.value && currentEditableCommand.value.id) {
     const command: CommandType = {
       name: '',
       aliases: [],
@@ -58,81 +57,92 @@ function insertCommand() {
       visible: true,
       enabled: true,
       responses: [],
-      edit: true,
       cooldownType: 'GLOBAL',
     };
 
+    currentEditableCommand.value = command;
     commands.value.unshift(command);
   }
 }
 
+
 function deleteCommand(index: number) {
   commands.value = commands.value.filter((_, i) => i !== index);
+  currentEditableCommand.value = commands.value[0];
+}
+
+function onSave(index: number) {
+  currentEditableCommand.value = commands.value[index];
 }
 </script>
 
 <template>
-  <div class="p-1">
-    <div class="flow-root">
-      <div class="float-left rounded btn btn-primary btn-sm w-full mb-1 md:w-auto">
+  <div class="flex">
+    <div>
+      <div class="w-40 h-[90%] rounded border-r border-b border-gray-700">
         <button
-          class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
+          class="px-6 py-2.5 w-full inline-block bg-green-500 text-white font-medium text-xs leading-tight uppercase shadow-md hover:bg-green-500 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out"
           @click="insertCommand"
         >
-          Add new command
+          +
         </button>
-      </div>
 
-      <!-- <input
-        type="text"
-        placeholder="Search by keyword..."
-        class="float-right rounded input input-sm input-bordered w-full md:w-60"
-      > -->
+        <ul class="menu max-h-screen min-h-screen scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+          <div class="form-floating">
+            <input
+              id="searchCommand"
+              v-model="searchFilter"
+              type="text"
+              class="form-control
+                    w-full
+                    text-base
+                    font-normal
+                    text-gray-700
+                    bg-white bg-clip-padding
+                    border border-solid border-gray-300
+                    transition
+                    ease-in-out
+                    m-0
+                    focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+              placeholder="command"
+            >
+            <label
+              for="searchCommand"
+              class="text-gray-700"
+            >Search command</label>
+          </div>
+          <li
+            v-for="command, index of commands.filter(c => searchFilter ? [c.name, ...c.aliases as string[]].some(s => s.includes(searchFilter)) : true)"
+            :key="index"
+            :class="{ 'border-l-2': commands.indexOf(currentEditableCommand) === index }"
+            @click="() => {
+              if (!currentEditableCommand.id) commands.splice(commands.indexOf(currentEditableCommand), 1)
+              currentEditableCommand = command  
+            }"
+          >
+            <button
+              aria-current="page"
+              href="/dashboard/commands"
+              class="flex items-center mt-0 text-sm px-2 h-8 w-full overflow-hidden text-white text-ellipsis whitespace-nowrap hover:bg-[#202122] border-slate-300 transition duration-300 ease-in-out ripple-surface-primary"
+              :class="{
+                'bg-neutral-700': commands.indexOf(currentEditableCommand) === index
+              }"
+            >
+              <span class="w-3 h-3" /><span>{{ command.name }}</span>
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
-  </div>
 
-  <div class="w-full">
-    <div v-if="isLoading">
-      <div class="flex items-center justify-center ">
-        <svg
-          class="animate-spin -ml-1 mr-3 h-24 w-24 text-white"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            class="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            stroke-width="4"
-          />
-          <path
-            class="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          />
-        </svg>
-      </div>
-    </div>
-    <div 
-      v-else
-      class="grid items-start xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-2"
-    >
-      <div
-        v-for="command, commandIndex in commands"
-        :key="commandIndex"
-        class="block rounded-lg card text-white shadow-lg"
-      >
-        <Command
-          :command="command"
-          :commands="commands"
-          :commands-before-edit="commandsBeforeEdit"
-          :variables-list="variablesList"
-          @delete="deleteCommand"
-        />
-      </div>
+    <div class="w-full p-1 hidden sm:block h-fit m-4 block max-w-2xl rounded-lg card text-white shadow-lg">
+      <Command 
+        :command="currentEditableCommand" 
+        :commands="commands" 
+        :variables-list="variablesList"
+        @delete="deleteCommand"
+        @save="onSave"
+      />
     </div>
   </div>
 </template>
