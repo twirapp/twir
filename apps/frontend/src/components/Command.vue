@@ -44,7 +44,7 @@ const command = toRef(props, 'command');
 const commands = toRef(props, 'commands');
 const emit = defineEmits<{
   (e: 'delete', index: number): void
-  (e: 'save', index): void
+  (e: 'save', index: number): void
 }>();
 
 const schema = computed(() => yup.object({
@@ -84,7 +84,8 @@ const schema = computed(() => yup.object({
       return true;
     }),
   ),
-  }));
+  commands: yup.array().required('Responses cannot be empty.'),
+}));
   
 async function deleteCommand() {
   const index = commands.value.indexOf(command.value);
