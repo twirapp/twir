@@ -10,7 +10,7 @@ const router = useRouter();
 
 <template>
   <main>
-    <div class="flex flex-row min-h-screen text-white">
+    <div class="flex flex-row h-screen text-white">
       <Sidebar />
 
       <div class="main flex flex-col flex-grow">

@@ -105,7 +105,7 @@ function logOut() {
 </script>
 
 <template>
-  <aside class="w-54 hidden sm:block shadow-md min-w-max border-r border-stone-700">
+  <aside class="w-54 hidden sm:block shadow-md min-w-max border-r border-stone-700 h-screen scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
     <div class="sidebar-header flex items-center justify-center py-1">
       <div>
         <router-link
