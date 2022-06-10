@@ -116,7 +116,7 @@ function onSave(index: number) {
             v-for="command, index of filteredCommands
             "
             :key="index"
-            :class="{ 'border-l-2': commands.indexOf(currentEditableCommand) === index }"
+            :class="{ 'border-l-2': filteredCommands.indexOf(currentEditableCommand) === index }"
             @click="() => {
               if (!currentEditableCommand.id) commands.splice(commands.indexOf(currentEditableCommand), 1)
               currentEditableCommand = command  
@@ -127,7 +127,7 @@ function onSave(index: number) {
               href="/dashboard/commands"
               class="flex items-center mt-0 text-sm px-2 h-8 w-full overflow-hidden text-white text-ellipsis whitespace-nowrap hover:bg-[#202122] border-slate-300 transition duration-300 ease-in-out ripple-surface-primary"
               :class="{
-                'bg-neutral-700': commands.indexOf(currentEditableCommand) === index
+                'bg-neutral-700': filteredCommands.indexOf(currentEditableCommand) === index
               }"
             >
               <span class="w-3 h-3" /><span>{{ command.name }}</span>
