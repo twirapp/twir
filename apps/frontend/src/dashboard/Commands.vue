@@ -86,14 +86,12 @@ function onSave(index: number) {
         >
           +
         </button>
-
-        <ul class="menu max-h-screen min-h-screen scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
-          <div class="form-floating">
-            <input
-              id="searchCommand"
-              v-model="searchFilter"
-              type="text"
-              class="form-control
+        <div class="form-floating">
+          <input
+            id="searchCommand"
+            v-model="searchFilter"
+            type="text"
+            class="form-control
                     w-full
                     text-base
                     font-normal
@@ -104,13 +102,14 @@ function onSave(index: number) {
                     ease-in-out
                     m-0
                     focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-              placeholder="command"
-            >
-            <label
-              for="searchCommand"
-              class="text-gray-700"
-            >Search command</label>
-          </div>
+            placeholder="command"
+          >
+          <label
+            for="searchCommand"
+            class="text-gray-700"
+          >Search command</label>
+        </div>
+        <ul class="menu max-h-screen min-h-screen scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
           <li
             v-for="command, index of commands.filter(c => searchFilter ? [c.name, ...c.aliases as string[]].some(s => s.includes(searchFilter)) : true)"
             :key="index"
