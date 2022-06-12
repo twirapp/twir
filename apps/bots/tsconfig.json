@@ -25,6 +25,7 @@
     "dist",
   ],
   "include": [
-    "src"
+    "src",
+    "../api/test.ts"
   ],
 }

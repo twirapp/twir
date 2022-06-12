@@ -12,7 +12,7 @@ import { redis, redlock } from './redis.js';
 
 const defaultCommands: Map<keyof typeof DefCommands | string, DefaultCommand> = new Map();
 
-for (const command of Object.values(DefCommands)) {
+for (const command of Object.values(DefCommands).flat()) {
   defaultCommands.set(command.name, command);
 }
 

@@ -28,12 +28,10 @@ onMounted(async () => {
       return router.push('/');
     }
 
-    console.log(request);
     const response = await request.json();
     localStorage.setItem('accessToken', response.accessToken);
     localStorage.setItem('refreshToken', response.refreshToken);
 
-    //await fetchAndSetUser();
     router.push('/dashboard');
   }
 });

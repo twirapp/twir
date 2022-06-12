@@ -5,7 +5,7 @@ import { of } from 'rxjs';
 
 import * as DefCommands from '../../defaultCommands/index.js';
 
-const commands = Object.values(DefCommands);
+const commands = Object.values(DefCommands).flat();
 
 @Controller('commands')
 export class CommandsController implements Bots.Commands {
