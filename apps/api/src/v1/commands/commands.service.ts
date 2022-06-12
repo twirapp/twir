@@ -39,6 +39,7 @@ export class CommandsService implements OnModuleInit {
               channelId: userId,
               default: true,
               defaultName: command.name!,
+              description: command.description,
               name: command.name!,
               permission: command.permission! as any,
               cooldown: 0,

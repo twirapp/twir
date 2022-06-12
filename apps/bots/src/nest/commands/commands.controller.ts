@@ -11,6 +11,6 @@ const commands = Object.values(DefCommands).flat();
 export class CommandsController implements Bots.Commands {
   @GrpcMethod('Commands', 'getDefaultCommands')
   getDefaultCommands() {
-    return of({ commands: commands.map(c => ({ name: c.name, permission: c.permission })) });
+    return of({ commands: commands.map(c => ({ name: c.name, permission: c.permission, description: c.description })) });
   }
 }

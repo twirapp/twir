@@ -66,6 +66,7 @@ message GetVariablesResult {
 message DefaultCommand {
   string name = 1;
   string permission = 2;
+  string description = 3;
 }
 
 message GetDefaultCommandsResponse {

@@ -8,6 +8,7 @@ import { DefaultCommand } from '../types.js';
 export const channelInfo: DefaultCommand[] = [
   {
     name: 'game set',
+    description: 'Changing game of the channel.',
     permission: 'MODERATOR',
     async handler(state, params?) {
       if (!state.channelId) return;
@@ -52,6 +53,7 @@ export const channelInfo: DefaultCommand[] = [
   },
   {
     name: 'title set',
+    description: 'Changing title of the channel.',
     permission: 'MODERATOR',
     async handler(state, params?) {
       if (!state.channelId) return;
