@@ -21,7 +21,6 @@ export class JwtAuthService {
 
   async refresh(token: string) {
     const user = await this.jwtService.verifyAsync<JwtPayload>(token, { secret: config.JWT_REFRESH_SECRET });
-    console.log(user);
     return this.login(user);
   }
 }
