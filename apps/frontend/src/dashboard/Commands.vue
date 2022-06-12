@@ -16,7 +16,7 @@ import { selectedDashboardStore } from '@/stores/userStore';
 const title = useTitle();
 title.value = 'Tsuwari - Commands';
 
-type CommandType = UpdateOrCreateCommandDto & { new?: boolean, default?: boolean | null }
+type CommandType = UpdateOrCreateCommandDto & { new?: boolean, default?: boolean }
 
 const selectedDashboard = useStore(selectedDashboardStore);
 
@@ -51,7 +51,7 @@ selectedDashboardStore.subscribe(async (v) => {
 function insertCommand() {
   if (commands.value && !currentEditableCommand.value?.new) {
     const command: CommandType = {
-      name: '',
+      name: 'New Command Name',
       aliases: [],
       cooldown: 5,
       permission: 'VIEWER',

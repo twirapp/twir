@@ -18,9 +18,7 @@
     "moduleResolution": "Node",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "strictPropertyInitialization": false,
-    "incremental": true,
-    "composite": true,
+    "strictPropertyInitialization": false
   },
   "exclude": [
     "node_modules",

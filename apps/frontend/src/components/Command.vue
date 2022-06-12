@@ -2,6 +2,7 @@
 import { useStore } from '@nanostores/vue';
 import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/create';
 import { CommandPermission, CooldownType } from '@tsuwari/prisma';
+import { isNumber } from '@vueuse/core';
 import { configure, Form, Field } from 'vee-validate';
 import { computed, toRef } from 'vue';
 import * as yup from 'yup';
@@ -12,7 +13,7 @@ import { selectedDashboardStore } from '@/stores/userStore';
 
 const selectedDashboard = useStore(selectedDashboardStore);
 
-type CommandType = UpdateOrCreateCommandDto
+type CommandType = UpdateOrCreateCommandDto & { default?: boolean }
 
 configure({
   validateOnBlur: true, // controls if `blur` events should trigger validation with `handleChange` handler
@@ -63,10 +64,21 @@ const schema = computed(() => yup.object({
           return false;
         }
 
-      return true;
+        return true;
       },
     ),
-  cooldown: yup.number().notRequired().min(5, 'Cooldown cannot be lower then 5 seconds.'),
+  cooldown: yup.number().notRequired()
+    .test(
+      'cooldown', 
+      () => `Cooldown cannot be lower then 5 seconds.`,
+      (v) => {
+        if (!v || !isNumber(v)) return false;
+        console.log(command.value.default);
+        if (command.value.default) return false;
+
+        return v >= 5;
+      },
+  ),
   permission: yup.mixed().oneOf(Object.values(perms)),
   aliases: yup.array<Array<string>>().optional().of(
     yup.string().test((v) => {
@@ -223,6 +235,7 @@ const consoleLog = console.log;
           <span class="label">
             <span>Responses
               <a
+                v-if="!command.default"
                 class="px-2 py-0.5 inline-block bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 cursor-pointer ease-in-out"
                 @click="command.responses.push({ text: '' })"
               >
@@ -232,7 +245,10 @@ const consoleLog = console.log;
           </span>
 
           <!-- max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600-->
-          <div class="input-group min-h-[150px] grid grid-cols-1 pt-1 gap-2">
+          <div
+            v-if="!command.default"
+            class="input-group min-h-[150px] grid grid-cols-1 pt-1 gap-2"
+          >
             <div
               v-for="_response, responseIndex in command.responses"
               :key="responseIndex"
@@ -304,6 +320,14 @@ const consoleLog = console.log;
               </div>
             </div>
           </div>
+          
+          <div
+            v-else
+            class="bg-yellow-100 rounded-lg py-5 px-6 mb-4 text-base text-yellow-700 mb-3"
+            role="alert"
+          >
+            This is a built-in command. You can't change its response, but it may be added in the future if a certain percentage of users want to use it.
+          </div>
         </div>
 
         <div class="col-span-2">
@@ -344,7 +368,7 @@ const consoleLog = console.log;
         <div />
         <div>
           <button
-            v-if="command.id"
+            v-if="command.id && !command.default"
             type="button"
             class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out"
             @click="deleteCommand"
