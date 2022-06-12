@@ -20,14 +20,14 @@ export const permit: DefaultCommand = {
     const parsedCount = count ? isNaN(parseInt(count, 10)) ? 1 : parseInt(count, 10) : 1;
     if (parsedCount > 100) return 'cannot create more then 100 permits.';
 
-    await Promise.all(Array(parsedCount).map(() => {
-      prisma.permit.create({
-        data: {
-          userId: user.id,
-          channelId: state.channelId!,
-        },
-      });
-    }));
+    console.log(user.id, state.channelId);
+
+    await prisma.$transaction([...Array(parsedCount)].map(() => prisma.permit.create({
+      data: {
+        userId: user.id,
+        channelId: state.channelId!,
+      },
+    })));
 
     return `you gave out ${parsedCount} ${parsedCount > 1 ? 'permits' : 'permit'} to user ${user.displayName}`;
   },
