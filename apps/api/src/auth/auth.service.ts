@@ -99,7 +99,7 @@ export class AuthService implements OnModuleInit {
     const [dbUser, dashboards] = await Promise.all([
       this.prisma.user.findFirst({ where: { id: userPayload.id } }),
       this.prisma.dashboardAccess.findMany({
-        where: { id: userPayload.id },
+        where: { userId: userPayload.id },
       }),
     ]);
 

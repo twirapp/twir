@@ -31,7 +31,8 @@ onMounted(async () => {
     const response = await request.json();
     localStorage.setItem('accessToken', response.accessToken);
     localStorage.setItem('refreshToken', response.refreshToken);
-    fetchAndSetUser();
+
+    await fetchAndSetUser();
     router.push('/dashboard');
   }
 });

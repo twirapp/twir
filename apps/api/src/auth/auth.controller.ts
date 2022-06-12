@@ -73,7 +73,7 @@ export class AuthController {
   }
 
   @Post('token')
-  async refresh(@Req() user: Request['user'], @Res() res: Response, @Body() body: { refreshToken: string }) {
+  async refresh(@Res() res: Response, @Body() body: { refreshToken: string }) {
     if (!body.refreshToken) throw new BadRequestException('Refresh token not passed to body');
     const newTokens = await this.jwtAuthService.refresh(body.refreshToken);
 
