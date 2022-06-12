@@ -11,7 +11,7 @@ on:
 
 jobs:
   docker:
-    if: "contains(toJSON(github.event.commits.*.message), '[build-docker]')"
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip-docker]')"
     strategy:
       matrix:
         os: [ARM64]
