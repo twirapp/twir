@@ -7,7 +7,7 @@
     "prebuild": "rm -rf dist",
     "build": "tsc -b tsconfig.json",
     "dev": "nodemon",
-    "start": "node --enable-source-maps dist/src/index.js",
+    "start": "node --enable-source-maps dist/index.js",
     "test": "vitest"
   },
   "keywords": [],

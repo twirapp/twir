@@ -1,28 +1,61 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
+import { Bots } from '@tsuwari/grpc';
 import { Command, PrismaService, Response } from '@tsuwari/prisma';
 
 import { RedisService } from '../../redis.service.js';
 import { UpdateOrCreateCommandDto } from './dto/create.js';
 
 @Injectable()
-export class CommandsService {
+export class CommandsService implements OnModuleInit {
+  botsMicroservce: Bots.Commands;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
+    @Inject('BOTS_MICROSERVICE') private readonly botsClient: ClientGrpc,
   ) { }
 
+  onModuleInit() {
+    this.botsMicroservce = this.botsClient.getService<Bots.Commands>('Commands');
+  }
+
   async getList(userId: string) {
-    const commands = await this.prisma.command.findMany({
+    const commands: (Command & {
+      responses?: Response[];
+    })[] = await this.prisma.command.findMany({
       where: { channelId: userId },
       include: {
         responses: true,
       },
     });
+
+    const defaultCommands = await this.botsMicroservce.getDefaultCommands({}).toPromise();
+    if (defaultCommands?.commands) {
+      for (const command of defaultCommands.commands) {
+        if (!commands.some(c => c.defaultName === command.name)) {
+          const newCommand = await this.prisma.command.create({
+            data: {
+              channelId: userId,
+              default: true,
+              defaultName: command.name!,
+              name: command.name!,
+              permission: command.permission! as any,
+              cooldown: 0,
+              cooldownType: 'GLOBAL',
+            },
+          });
+
+          this.#setCommandCache(newCommand);
+          commands.push(newCommand);
+        }
+      }
+    }
+
     return commands;
   }
 
-  async #setCommandCache(command: Command & { responses: Response[] }, oldCommand?: Command & { responses: Response[] }) {
+  async #setCommandCache(command: Command & { responses?: Response[] }, oldCommand?: Command & { responses?: Response[] }) {
     const preKey = `commands:${command.channelId}`;
 
     if (oldCommand) {
@@ -37,7 +70,7 @@ export class CommandsService {
 
     const commandForSet = {
       ...command,
-      responses: JSON.stringify(command.responses.map(r => r.text) ?? []),
+      responses: command.responses ? JSON.stringify(command.responses.map(r => r.text)) : [],
       aliases: Array.isArray(command.aliases) ? JSON.stringify(command.aliases) : command.aliases,
     };
 
@@ -51,9 +84,21 @@ export class CommandsService {
 
   }
 
-  async create(userId: string, data: UpdateOrCreateCommandDto) {
-    if (await this.prisma.command.count({ where: { channelId: userId, name: data.name } })) {
-      throw new Error('Command already exists');
+  async create(userId: string, data: UpdateOrCreateCommandDto & { defaultName?: string }) {
+    const isExists = await this.prisma.command.findMany({
+      where: {
+        name: data.name,
+        OR: {
+          name: { in: data.aliases },
+          aliases: {
+            array_contains: data.aliases,
+          },
+        },
+      },
+    });
+
+    if (isExists.length) {
+      throw new HttpException(`Command already exists`, 400);
     }
 
     const command = await this.prisma.command.create({
@@ -72,7 +117,6 @@ export class CommandsService {
     });
 
     await this.#setCommandCache(command);
-
     return command;
   }
 
@@ -81,6 +125,10 @@ export class CommandsService {
 
     if (!command) {
       throw new Error('Command not exists');
+    }
+
+    if (command.default) {
+      throw new Error('You cannot delete default command.');
     }
 
     const result = await this.prisma.command.delete({
@@ -116,7 +164,7 @@ export class CommandsService {
       .map(r => ({ id: r.id, text: r.text }))
       .map(r => this.prisma.response.update({ where: { id: r.id }, data: { text: r.text } }));
 
-    const [newCommand, , ...newResponses] = await this.prisma.$transaction([
+    const [newCommand] = await this.prisma.$transaction([
       this.prisma.command.update({
         where: { id: commandId },
         data: {
@@ -136,13 +184,16 @@ export class CommandsService {
         },
       }),
       ...responsesForUpdate,
-      this.prisma.response.findMany({ where: { commandId: command.id } }),
     ]);
+
+    const newResponses = await this.prisma.response.findMany({ where: { commandId: command.id } });
 
     await this.#setCommandCache({
       ...newCommand,
       responses: newResponses.flat(),
     }, command);
+
+    console.log(newResponses);
 
     return {
       ...newCommand,

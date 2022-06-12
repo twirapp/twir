@@ -4,12 +4,19 @@ import { Command, CommandPermission, Response } from '@tsuwari/prisma';
 import { ChatUser } from '@twurple/chat/lib';
 import type { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
 
+import * as DefCommands from '../defaultCommands/index.js';
+import { DefaultCommand } from '../defaultCommands/types.js';
 import { getChannelCommandsNamesFromRedis } from '../functions/getChannelCommandListFromRedis.js';
 import { prisma } from './prisma.js';
 import { redis, redlock } from './redis.js';
 
+const defaultCommands: Map<keyof typeof DefCommands | string, DefaultCommand> = new Map();
 
-export type CommandConditional = Command & { responses: string[] };
+for (const command of Object.values(DefCommands)) {
+  defaultCommands.set(command.name, command);
+}
+
+export type CommandConditional = Command & { responses: (string | undefined)[] | undefined };
 
 export class CommandsParser {
   async parse(message: string, state: TwitchPrivateMessage) {
@@ -23,8 +30,6 @@ export class CommandsParser {
     const command: CommandConditional = (await redis.hgetall(
       `commands:${state.channelId}:${findCommand.commandName}`,
     )) as unknown as CommandConditional;
-    command.responses = JSON.parse(command.responses as unknown as string);
-
     if (!command || !command.enabled) return;
 
     const userPermissions = this.#getUserPermissions(state.userInfo);
@@ -34,10 +39,20 @@ export class CommandsParser {
       return;
     }
 
+    if (command.default && command.defaultName) {
+      const cmd = defaultCommands.get(command.defaultName);
+      if (cmd) {
+        const result = await cmd.handler(state, findCommand.params);
+        command.responses = Array.isArray(result) ? result : [result];
+      }
+    } else {
+      command.responses = JSON.parse(command.responses as unknown as string);
+    }
+
     // const lock = await redlock.acquire([`locks:commandsParser:msg:${state.id}`], 1000);
     try {
       const onCooldown = await this.#isOnCooldown(command, state.userInfo.userId);
-      if (onCooldown /* && !(userPermissions.BROADCASTER || userPermissions.MODERATOR) */) return;
+      if (onCooldown && !(userPermissions.BROADCASTER || userPermissions.MODERATOR)) return;
 
       if (!command.responses?.length) return;
 
@@ -74,6 +89,7 @@ export class CommandsParser {
     return {
       isFound,
       commandName,
+      params: message.replace(new RegExp(`^${commandName}`), '').trim(),
     };
   }
 

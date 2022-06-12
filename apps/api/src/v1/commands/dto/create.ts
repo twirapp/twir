@@ -37,5 +37,6 @@ export class UpdateOrCreateCommandDto {
   enabled?: boolean;
 
   @IsArray()
+  @IsOptional()
   responses: Array<SetOptional<Omit<Response, 'commandId'>, 'id'>>;
 }

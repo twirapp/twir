@@ -20,7 +20,7 @@ service Greetings {
 }
 
 service Commands {
-  rpc UpdateByChannelId (UpdateByChannelIdRequest) returns (MockedResult) {}
+  rpc GetDefaultCommands (google.protobuf.Empty) returns (GetDefaultCommandsResponse) {}
 }
 
 message JoinOrLeaveRequest {
@@ -61,4 +61,13 @@ message Variable {
 
 message GetVariablesResult {
   repeated Variable variables = 1;
+}
+
+message DefaultCommand {
+  string name = 1;
+  string permission = 2;
+}
+
+message GetDefaultCommandsResponse {
+  repeated DefaultCommand commands = 1;
 }
