@@ -193,8 +193,6 @@ export class CommandsService implements OnModuleInit {
       responses: newResponses.flat(),
     }, command);
 
-    console.log(newResponses);
-
     return {
       ...newCommand,
       responses: newResponses.flat(),
