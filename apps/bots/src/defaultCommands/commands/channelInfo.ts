@@ -10,11 +10,8 @@ export const channelInfo: DefaultCommand[] = [
     name: 'game set',
     permission: 'MODERATOR',
     async handler(state, params?) {
-      if (!params || !state.channelId) return;
-      const paramsArray = params.split(' ');
-      const gameName = paramsArray[0];
-
-      if (!gameName) return 'you must specify what game to set.';
+      if (!state.channelId) return;
+      if (!params || !params.length) return 'you must specify what game to set.';
 
       const streamerToken = await prisma.token.findFirst({
         where: {
@@ -40,10 +37,10 @@ export const channelInfo: DefaultCommand[] = [
         return `Missed scope from streamer. @${state.target.value.substring(1)} should re-login to the dashboard.`;
       }
 
-      const game = await api.games.getGameByName(gameName);
+      const game = await api.games.getGameByName(params);
 
       if (!game) {
-        return `game ${gameName} not found on twitch.`;
+        return `game ${params} not found on twitch.`;
       }
 
       await api.channels.updateChannelInfo(state.channelId, {
@@ -57,11 +54,8 @@ export const channelInfo: DefaultCommand[] = [
     name: 'title set',
     permission: 'MODERATOR',
     async handler(state, params?) {
-      if (!params || !state.channelId) return;
-      const paramsArray = params.split(' ');
-      const title = paramsArray[0];
-
-      if (!title) return 'you must specify what title to set.';
+      if (!state.channelId) return;
+      if (!params || !params.length) return 'you must specify what title to set.';
 
       const streamerToken = await prisma.token.findFirst({
         where: {
@@ -88,7 +82,7 @@ export const channelInfo: DefaultCommand[] = [
       }
 
       await api.channels.updateChannelInfo(state.channelId, {
-        title,
+        title: params,
       });
 
       return '✅';
