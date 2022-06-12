@@ -72,9 +72,8 @@ const schema = computed(() => yup.object({
       'cooldown', 
       () => `Cooldown cannot be lower then 5 seconds.`,
       (v) => {
-        if (!v || !isNumber(v)) return false;
-        console.log(command.value.default);
-        if (command.value.default) return false;
+        if (typeof v === 'undefined' || !isNumber(v)) return false;
+        if (command.value.default) return true;
 
         return v >= 5;
       },
