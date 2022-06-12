@@ -2,7 +2,6 @@ import { staticApi } from '../../bots.js';
 import { prisma } from '../../libs/prisma.js';
 import { DefaultCommand } from '../types.js';
 
-
 export const permit: DefaultCommand = {
   name: 'permit',
   permission: 'MODERATOR',

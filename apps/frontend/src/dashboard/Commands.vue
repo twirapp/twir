@@ -82,7 +82,7 @@ function onSave(index: number) {
 <template>
   <div class="flex">
     <div>
-      <div class="w-40 h-[90%] rounded border-r border-b border-gray-700">
+      <div class="w-40 rounded border-r border-b border-gray-700">
         <button
           class="px-6 py-2.5 w-full inline-block bg-green-500 text-white font-medium text-xs leading-tight uppercase shadow-md hover:bg-green-500 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out"
           @click="insertCommand"
@@ -103,7 +103,6 @@ function onSave(index: number) {
                     border border-solid border-gray-300
                     transition
                     ease-in-out
-                    m-0
                     focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
             placeholder="command"
           >
@@ -112,7 +111,9 @@ function onSave(index: number) {
             class="text-gray-700"
           >Search command</label>
         </div>
-        <ul class="menu max-h-screen min-h-screen scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+        <ul
+          class="menu h-[77vh] scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600"
+        >
           <li
             v-for="command, index of filteredCommands
             "
