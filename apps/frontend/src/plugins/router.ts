@@ -81,6 +81,16 @@ export const router = createRouter({
 
 
 router.beforeEach(async (to, _from, next) => {
+  if (to.path === '/') {
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (accessToken && refreshToken) {
+      fetchAndSetUser();
+    }
+
+    return next();
+  }
+
   if (to.path.startsWith('/dashboard')) {
     let user = userStore.get();
     if (!user) await fetchAndSetUser();
