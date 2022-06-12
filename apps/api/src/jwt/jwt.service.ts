@@ -9,7 +9,7 @@ export class JwtAuthService {
   constructor(private jwtService: JwtService) { }
 
   login(user: JwtPayload) {
-    const payload = { username: user.login, id: user.id };
+    const payload = { username: user.login, id: user.id, scopes: user.scopes };
     return {
       accessToken: this.jwtService.sign(payload, {
         expiresIn: config.JWT_EXPIRES_IN,
@@ -21,6 +21,7 @@ export class JwtAuthService {
 
   async refresh(token: string) {
     const user = await this.jwtService.verifyAsync<JwtPayload>(token, { secret: config.JWT_REFRESH_SECRET });
+    console.log(user);
     return this.login(user);
   }
 }

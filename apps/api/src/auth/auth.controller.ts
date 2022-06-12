@@ -1,5 +1,5 @@
 import { TwitchAuthGuardOptions } from '@nestjs-hybrid-auth/twitch';
-import { BadRequestException, Body, CacheTTL, CACHE_MANAGER, Controller, ExecutionContext, Get, Inject, Post, Query, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, CacheTTL, CACHE_MANAGER, Controller, ExecutionContext, Get, HttpException, HttpStatus, Inject, Post, Query, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { AuthGuard, IAuthModuleOptions } from '@nestjs/passport';
 import { config } from '@tsuwari/config';
@@ -11,6 +11,7 @@ import merge from 'lodash.merge';
 import { CustomCacheInterceptor } from '../helpers/customCacheInterceptor.js';
 import { JwtAuthGuard } from '../jwt/jwt.guard.js';
 import { JwtAuthService } from '../jwt/jwt.service.js';
+import { scope } from './auth.module.js';
 import { AuthService } from './auth.service.js';
 
 @Injectable()
@@ -61,6 +62,7 @@ export class AuthController {
     const { accessToken, refreshToken } = this.jwtAuthService.login({
       id: tokenInfo.userId!,
       login: tokenInfo.userName!,
+      scopes: tokenInfo.scopes,
     });
     await this.authService.checkUser(code, tokenInfo.userId!, tokenInfo.userName);
 
@@ -71,11 +73,11 @@ export class AuthController {
   }
 
   @Post('token')
-  async refresh(@Body() body: { refreshToken: string }) {
+  async refresh(@Req() user: Request['user'], @Res() res: Response, @Body() body: { refreshToken: string }) {
     if (!body.refreshToken) throw new BadRequestException('Refresh token not passed to body');
     const newTokens = await this.jwtAuthService.refresh(body.refreshToken);
 
-    return newTokens;
+    res.send(newTokens);
   }
 
   @Post('logout')
@@ -92,7 +94,13 @@ export class AuthController {
   }))
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  public showProfile(@Req() req: Request) {
-    return this.authService.getProfile(req.user.id);
+  async showProfile(@Req() req: Request) {
+    const isHasNeededScopes = req.user.scopes ? scope.every(s => req.user.scopes.includes(s)) : false;
+
+    if (!isHasNeededScopes) {
+      throw new HttpException('Missed scopes', HttpStatus.UNAUTHORIZED);
+    }
+
+    return await this.authService.getProfile(req.user);
   }
 }

@@ -5,6 +5,7 @@ import { Channel, PrismaService, Token, User } from '@tsuwari/prisma';
 import { AccessToken } from '@twurple/auth';
 import { getRawData } from '@twurple/common';
 
+import { JwtPayload } from '../jwt/jwt.strategy.js';
 import { staticApi } from '../twitchApi.js';
 
 @Injectable()
@@ -94,19 +95,19 @@ export class AuthService implements OnModuleInit {
     return user;
   }
 
-  async getProfile(userId: string) {
+  async getProfile(userPayload: JwtPayload) {
     const [dbUser, dashboards] = await Promise.all([
-      this.prisma.user.findFirst({ where: { id: userId } }),
+      this.prisma.user.findFirst({ where: { id: userPayload.id } }),
       this.prisma.dashboardAccess.findMany({
-        where: { userId },
+        where: { id: userPayload.id },
       }),
     ]);
 
     const neededUsers = await staticApi.users.getUsersByIds([
       ...dashboards.map(d => d.channelId),
-      userId,
+      userPayload.id,
     ]);
-    const user = neededUsers.find(u => u.id === userId);
+    const user = neededUsers.find(u => u.id === userPayload.id);
 
     if (!user || !dbUser) throw new Error('User not found');
 

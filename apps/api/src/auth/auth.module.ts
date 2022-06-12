@@ -6,6 +6,8 @@ import { JwtAuthModule } from '../jwt/jwt.module.js';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 
+export const scope = ['moderation:read', 'channel:manage:broadcast'];
+
 @Module({
   imports: [
     TwitchAuthModule.forRoot({
@@ -13,7 +15,7 @@ import { AuthService } from './auth.service.js';
       clientSecret: config.TWITCH_CLIENTSECRET,
       callbackURL: config.TWITCH_CALLBACKURL,
       forceVerify: false,
-      scope: ['moderation:read'],
+      scope,
     } as any),
     JwtAuthModule,
   ],

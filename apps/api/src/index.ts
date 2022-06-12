@@ -25,6 +25,7 @@ export async function initHttp() {
 
   const adapter = app.getHttpAdapter() as unknown as Express;
   adapter.disable('x-powered-by');
+  adapter.disable('etag');
 
   app.use(cookieParser());
   app.useGlobalPipes(

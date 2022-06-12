@@ -3,6 +3,8 @@ import { useStore } from '@nanostores/vue';
 import { defineProps } from 'vue';
 import { RouterLink } from 'vue-router';
 
+
+import { redirectToLogin } from '@/functions/redirectToLogin';
 import { api } from '@/plugins/api';
 import { setUser, userStore } from '@/stores/userStore';
 
@@ -15,10 +17,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   size: 'small',
 });
-
-function redirectToLogin() {
-  window.location.replace(`/api/auth?state=${window.btoa(window.location.origin)}/login`);
-}
 
 async function logOut() {
   await api.post('/auth/logout');
