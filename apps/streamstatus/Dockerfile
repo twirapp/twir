@@ -11,7 +11,6 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig
 COPY node_modules node_modules
 COPY apps/streamstatus apps/streamstatus
 COPY libs/config/ libs/config
-COPY libs/grpc libs/grpc
 COPY libs/prisma libs/prisma
 
 RUN pnpm install --prod

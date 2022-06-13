@@ -11,7 +11,6 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig
 COPY node_modules node_modules
 COPY apps/scheduler apps/scheduler
 COPY libs/prisma libs/prisma
-COPY libs/grpc libs/grpc
 COPY libs/config/ libs/config
 
 RUN pnpm install --prod

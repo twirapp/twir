@@ -17,7 +17,6 @@ RUN pnpm install
 
 COPY apps/watched apps/watched
 COPY libs/prisma libs/prisma
-COPY libs/grpc libs/grpc
 COPY libs/config/ libs/config
 COPY libs/shared/ libs/shared
 
