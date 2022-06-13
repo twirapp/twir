@@ -20,6 +20,7 @@
     "@twurple/auth": "^5.1.6",
     "@twurple/common": "^5.1.6",
     "ioredis": "^5.0.5",
+    "nats": "^2.7.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5",
     "tslib": "^2.4.0"

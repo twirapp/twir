@@ -22,4 +22,5 @@ export const config = cleanEnv(process.env, {
   MICROSERVICE_STREAM_STATUS_URL: str({ default: 'localhost:50000' }),
   MICROSERVICE_BOTS_URL: str({ default: 'localhost:50001' }),
   MICROSERVICE_WATCHED_URL: str({ default: 'localhost:50002' }),
+  NATS_URL: str({ default: 'nats://localhost:4222' }),
 });

@@ -1,6 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { Transport } from '@nestjs/microservices';
+import { NatsOptions, Transport } from '@nestjs/microservices';
 import * as Sentry from '@sentry/node';
 import '@sentry/tracing';
 import { config } from '@tsuwari/config';
@@ -20,6 +20,12 @@ export async function initHttp() {
     transport: Transport.REDIS,
     options: {
       url: config.REDIS_URL,
+    },
+  });
+  app.connectMicroservice<NatsOptions>({
+    transport: Transport.NATS,
+    options: {
+      servers: [config.NATS_URL],
     },
   });
 

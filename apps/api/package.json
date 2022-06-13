@@ -45,6 +45,7 @@
     "ioredis": "^5.0.5",
     "jsonwebtoken": "^8.5.1",
     "lodash.merge": "^4.6.2",
+    "nats": "^2.7.1",
     "passport": "^0.5.2",
     "passport-jwt": "^4.0.0",
     "prom-client": "^14.0.1",

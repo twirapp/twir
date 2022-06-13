@@ -33,6 +33,10 @@ services:
     volumes:
       - ./redis-data:/data
 
+  nats:
+    restart: unless-stopped
+    image: nats:latest
+
   api:
     restart: unless-stopped
     image: satont/tsuwari:api
