@@ -223,7 +223,7 @@ function logOut() {
           :class="{
             'bg-neutral-700': currentRoute.path === route.path,
           }"
-          @click="title = route.name"
+          @click="title = `Tsuwari - ${route.name.charAt(0).toUpperCase() + route.name.substring(1)}`"
         >
           <span
             v-if="route.icon"
