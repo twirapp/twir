@@ -8,6 +8,7 @@
   "labels": [
     "dependencies"
   ],
+  "prHourlyLimit": 100,
   "lockFileMaintenance": {
     "enabled": true
   },
