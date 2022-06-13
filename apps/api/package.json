@@ -34,7 +34,7 @@
     "@twurple/auth": "^5.1.6",
     "@twurple/chat": "^5.1.6",
     "@twurple/common": "^5.1.6",
-    "cache-manager": "^3.6.3",
+    "cache-manager": "^4.0.0",
     "cache-manager-ioredis": "^2.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
@@ -55,7 +55,7 @@
     "tslib": "^2.4.0"
   },
   "devDependencies": {
-    "@types/cache-manager": "^3.4.3",
+    "@types/cache-manager": "4.0.0",
     "@types/cache-manager-ioredis": "^2.0.2",
     "@types/cookie-parser": "^1.4.3",
     "@types/express": "^4.17.13",
