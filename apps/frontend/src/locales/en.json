@@ -107,7 +107,21 @@
       "sidebarName": "Users"
     },
     "keywords": {
-      "sidebarName": "Keywords"
+      "sidebarName": "Keywords",
+      "card": {
+        "text": {
+          "title": "Text of trigger",
+          "placeholder": "Keyword will be triggered, when user type this in chat"
+        },
+        "response": {
+          "title": "Response",
+          "placeholder": "This response will be sended in chat"
+        },
+        "cooldown": {
+          "title": "Cooldown",
+          "placeholder": "Cooldown time in seconds"
+        }
+      }
     },
     "variables": {
       "sidebarName": "Variables",
