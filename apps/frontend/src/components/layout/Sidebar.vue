@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
+import { useTitle } from '@vueuse/core';
+import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
 
 import Commands from '@/assets/sidebar/commands.svg?url';
@@ -20,77 +22,81 @@ import { selectedDashboardStore, userStore, setSelectedDashboard } from '@/store
 
 const user = useStore(userStore);
 const router = useRouter();
-
+const { t } = useI18n({
+  useScope: 'global',
+  inheritLocale: true,
+});
+const title = useTitle();
 const selectedDashboard = useStore(selectedDashboardStore);
 
 const currentRoute = useRoute();
 const routes = [
   {
-    name: 'Dashboard',
+    name: t(`pages.dashboard.sidebarName`),
     icon: Dashboard,
     path: '/dashboard',
   },
   {
-    name: 'Events',
+    name: t(`pages.events.sidebarName`),
     icon: Events,
     path: '/dashboard/events',
   },
   {
-    name: 'Integrations',
+    name: t(`pages.integrations.sidebarName`),
     icon: Integrations,
     path: '/dashboard/integrations',
   },
   {
-    name: 'Settings',
+    name: t(`pages.settings.sidebarName`),
     icon: Settings,
     path: '/dashboard/settings',
   },
   {
-    name: 'Commands',
+    name: t(`pages.commands.sidebarName`),
     icon: Commands,
     path: '/dashboard/commands',
   },
   {
-    name: 'Timers',
+    name: t(`pages.timers.sidebarName`),
     icon: Timers,
     path: '/dashboard/timers',
   },
   { 
-    name: 'Moderation',
+    name: t(`pages.moderation.sidebarName`),
     icon: Sword,
     path: '/dashboard/moderation',
   },
   {
-    name: 'Users',
+    name: t(`pages.users.sidebarName`),
     icon: Users,
     path: '/dashboard/users',
   },
   {
-    name: 'Keywords',
+    name: t(`pages.keywords.sidebarName`),
     icon: Keywords,
     path: '/dashboard/keywords',
   },
   {
-    name: 'Variables',
+    name: t(`pages.variables.sidebarName`),
     icon: Variables,
     path: '/dashboard/variables',
   },
   {
-    name: 'Greetings',
+    name: t(`pages.greetings.sidebarName`),
     icon: Greetings,
     path: '/dashboard/greetings',
   },
   {
-    name: 'Overlays',
+    name: t(`pages.overlays.sidebarName`),
     icon: Overlays,
     path: '/dashboard/overlays',
   },
   {
-    name: 'Files',
+    name: t(`pages.files.sidebarName`),
     path: '/dashboard/files',
   },
   {
-    name: 'Quotes',
+    name: t(`pages.quotes.sidebarName`),
     icon: Quotes,
     path: '/dashboard/quotes',
   },
@@ -217,6 +223,7 @@ function logOut() {
           :class="{
             'bg-neutral-700': currentRoute.path === route.path,
           }"
+          @click="title = route.name"
         >
           <span
             v-if="route.icon"

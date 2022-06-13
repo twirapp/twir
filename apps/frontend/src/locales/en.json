@@ -1,0 +1,102 @@
+{
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+  },
+  "pages": {
+    "dashboard": {
+      "sidebarName": "Dashboard",
+      "widgets": {
+        "status": {
+          "title": "Bot status",
+          "notMod": " We detect bot is not moderator on the channel. Please, mod a bot, or some of functionality may work incorrectly.",
+          "mod": "Bot is mod on the channel",
+          "buttons": {
+            "leave": "Leave",
+            "join": "Join"
+          }
+        }
+      }
+    },
+    "events": {
+      "sidebarName": "Events"
+    },
+    "integrations": {
+      "sidebarName": "Integrations"
+    },
+    "settings": {
+      "sidebarName": "Settings"
+    },
+    "commands": {
+      "sidebarName": "Commands",
+      "searchCommand": "Search command",
+      "card": {
+        "name": {
+          "title": "Name",
+          "placeholder": "Command name"
+        },
+        "cooldown": {
+          "title": "Cooldown",
+          "type": {
+            "GLOBAL": "Global",
+            "PER_USER": "Per user"
+          }
+        },
+        "permission": {
+          "title": "Permission",
+          "selectPlaceholder": "Select permission"
+        },
+        "description": {
+          "title": "Description (optional)",
+          "placeholder": "My cool great command!"
+        },
+        "responses": {
+          "title": "Responses",
+          "builtInAlert": "This is a built-in command. You can't change its response, but it may be added in the future if a certain percentage of users want to use it."
+        },
+        "aliases": {
+          "title": "aliases"
+        }
+      }
+    },
+    "timers": {
+      "sidebarName": "Timers"
+    },
+    "moderation": {
+      "sidebarName": "Moderation"
+    },
+    "users": {
+      "sidebarName": "Users"
+    },
+    "keywords": {
+      "sidebarName": "Keywords"
+    },
+    "variables": {
+      "sidebarName": "Variables"
+    },
+    "greetings": {
+      "sidebarName": "Greetings",
+      "buttons": {
+        "add": "Add new greeting"
+      },
+      "username": {
+        "title": "Username",
+        "placeholder": "Username of twitch user"
+      },
+      "message": {
+        "title": "Message for sending",
+        "placeholder": "This message will be sent in chat"
+      }
+    },
+    "overlays": {
+      "sidebarName": "Overlays"
+    },
+    "files": {
+      "sidebarName": "Files"
+    },
+    "quotes": {
+      "sidebarName": "Quotes"
+    }
+  }
+}

@@ -3,18 +3,15 @@ export type VariablesList = Array<{ name: string, example?: string, description?
 
 import { useStore } from '@nanostores/vue';
 import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/create';
-import { useTitle } from '@vueuse/core';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import Command from '../components/Command.vue';
 import { VariableType } from './Variables.vue';
 
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
-
-const title = useTitle();
-title.value = 'Tsuwari - Commands';
 
 type CommandType = UpdateOrCreateCommandDto & { new?: boolean, default?: boolean }
 
@@ -28,6 +25,9 @@ const currentEditableCommand = ref<CommandType | null>(null);
 const searchFilter = ref<string>('');
 const filteredCommands = computed(() => {
   return commands.value.filter(c => c.name).filter(c => searchFilter.value ? [c.name, ...c.aliases as string[]].some(s => s.includes(searchFilter.value)) : true).sort((a, b) => a.name.localeCompare(b.name));
+});
+const { t } = useI18n({
+  useScope: 'global',
 });
 
 watch(axiosData, (v: CommandType[]) => {
@@ -109,7 +109,7 @@ function onSave(index: number) {
           <label
             for="searchCommand"
             class="text-gray-700"
-          >Search command</label>
+          >{{ t('pages.commands.searchCommand') }}</label>
         </div>
         <ul
           class="menu h-[77vh] scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600"

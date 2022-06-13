@@ -5,6 +5,7 @@ import { CommandPermission, CooldownType } from '@tsuwari/prisma';
 import { isNumber } from '@vueuse/core';
 import { configure, Form, Field } from 'vee-validate';
 import { computed, toRef } from 'vue';
+import { useI18n } from 'vue-i18n';
 import * as yup from 'yup';
 
 import type { VariablesList } from '@/dashboard/Commands.vue';
@@ -47,6 +48,9 @@ const emit = defineEmits<{
   (e: 'delete', index: number): void
   (e: 'save', index: number): void
 }>();
+const { t } = useI18n({
+  useScope: 'global',
+});
 
 const schema = computed(() => yup.object({
   name: yup.string().min(1, 'Name cannot be empty')
@@ -153,20 +157,20 @@ const consoleLog = console.log;
       >
         <div>
           <div class="label">
-            <span class="label-text">Name</span>
+            <span class="label-text">{{ t('pages.commands.card.name.title') }}</span>
           </div>
           <Field
             v-model="command.name"
             name="name"
             type="text"
-            placeholder="uptime"
+            :placeholder="t('pages.commands.card.name.placeholder')"
             class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
           />
         </div>
 
 
         <div>
-          <span class="label text-center">Cooldown</span>
+          <span class="label text-center">{{ t('pages.commands.card.cooldown.title') }}</span>
             
           <div class="grid grid-cols-2">
             <Field
@@ -189,14 +193,14 @@ const consoleLog = console.log;
                 :key="type[0]"
                 :value="type[1]"
               >
-                {{ type[0] }}
+                {{ t(`pages.commands.card.cooldown.type.${type[1]}`) }}
               </option>
             </Field>
           </div>
         </div>
 
         <div>
-          <span class="label">Permission</span>
+          <span class="label">{{ t('pages.commands.card.permission.title') }}</span>
           <Field
             v-model="command.permission"
             as="select"
@@ -207,7 +211,7 @@ const consoleLog = console.log;
               disabled
               selected
             >
-              Choose permission
+              {{ t('pages.commands.card.permission.selectPlaceholder') }}
             </option>
             <option
               v-for="permission of Object.entries(perms)"
@@ -220,19 +224,19 @@ const consoleLog = console.log;
         </div>
 
         <div>
-          <span class="label">Description (optional)</span>
+          <span class="label">{{ t('pages.commands.card.description.title') }}</span>
           <Field
             v-model="command.description"
             name="description"
             type="text"
-            placeholder="great command ;)"
+            :placeholder="t('pages.commands.card.description.placeholder')"
             class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
           />
         </div>
 
         <div class="col-span-2">
           <span class="label">
-            <span>Responses
+            <span>{{ t('pages.commands.card.responses.title') }}
               <a
                 v-if="!command.default"
                 class="px-2 py-0.5 inline-block bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 cursor-pointer ease-in-out"
@@ -322,16 +326,16 @@ const consoleLog = console.log;
           
           <div
             v-else
-            class="bg-yellow-100 rounded-lg py-5 px-6 mb-4 text-base text-yellow-700 mb-3"
+            class="bg-yellow-100 rounded-lg py-5 px-6 mb-4 text-base text-yellow-700"
             role="alert"
           >
-            This is a built-in command. You can't change its response, but it may be added in the future if a certain percentage of users want to use it.
+            {{ t('pages.commands.card.responses.builtInAlert') }}
           </div>
         </div>
 
         <div class="col-span-2">
           <span class="label">  
-            <span>Aliases
+            <span>{{ t('pages.commands.card.aliases.title') }}
               <a
                 class="px-2 py-0.5 inline-block bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md  hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out cursor-pointer"
                 @click="command.aliases?.push('')"
@@ -372,13 +376,13 @@ const consoleLog = console.log;
             class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out"
             @click="deleteCommand"
           >
-            Delete
+            {{ t('buttons.delete') }}
           </button>
           <button
             type="submit"
             class="inline-block ml-2 px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-green-600 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-700 active:shadow-lg transition duration-150 ease-in-out"
           >
-            Save
+            {{ t('buttons.save') }}
           </button>
         </div>
       </div>
