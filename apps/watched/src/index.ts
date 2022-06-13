@@ -1,9 +1,8 @@
-import 'reflect-metadata';
+/* import 'reflect-metadata';
 
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
-import { resolveProtoPath } from '@tsuwari/grpc';
 
 import '@tsuwari/config';
 import { AppModule } from './app.module.js';
@@ -17,4 +16,4 @@ const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule,
   },
 });
 
-await app.listen();
+await app.listen(); */

@@ -1,6 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { ClientGrpc } from '@nestjs/microservices';
-import { Bots } from '@tsuwari/grpc';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@tsuwari/prisma';
 
 import { RedisService } from '../../redis.service.js';
@@ -8,18 +6,12 @@ import { staticApi } from '../../twitchApi.js';
 import { GreetingCreateDto } from './dto/create.js';
 
 @Injectable()
-export class GreetingsService implements OnModuleInit {
-  private botsMicroservice: Bots.Greetings;
+export class GreetingsService {
 
   constructor(
     private readonly prisma: PrismaService,
-    @Inject('BOTS_MICROSERVICE') private client: ClientGrpc,
     private readonly redis: RedisService,
   ) { }
-
-  onModuleInit(): void {
-    this.botsMicroservice = this.client.getService<Bots.Greetings>('Greetings');
-  }
 
   async getList(userId: string) {
     const greetings = await this.prisma.greeting.findMany({

@@ -4,7 +4,7 @@
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "tsc -b tsconfig.json",
-    "dev": "tsx watch src/index.ts src/index.ts",
+    "dev": "nodemon",
     "start": "node --enable-source-maps dist/index.js"
   },
   "dependencies": {
@@ -14,7 +14,6 @@
     "@sentry/node": "^7.1.1",
     "@sentry/tracing": "^7.1.1",
     "@tsuwari/config": "workspace:*",
-    "@tsuwari/grpc": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
     "@twurple/api": "^5.1.6",
     "@twurple/auth": "^5.1.6",

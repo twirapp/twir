@@ -4,7 +4,7 @@
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "tsc -b tsconfig.json",
-    "dev": "tsx watch src/index.ts src/index.ts",
+    "dev": "nodemon",
     "start": "node --enable-source-maps dist/index.js"
   },
   "keywords": [],
@@ -18,10 +18,10 @@
     "@sentry/node": "^7.1.1",
     "@sentry/tracing": "^7.1.1",
     "@tsuwari/config": "workspace:*",
-    "@tsuwari/grpc": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
     "ioredis": "^5.0.5",
     "lodash": "^4.17.21",
+    "nats": "^2.7.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5",
     "tslib": "^2.4.0"

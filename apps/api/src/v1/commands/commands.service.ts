@@ -1,24 +1,21 @@
-import { HttpException, Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
-import { Bots } from '@tsuwari/grpc';
+import { HttpException, Injectable } from '@nestjs/common';
+import { Client, ClientProxy, Transport } from '@nestjs/microservices';
+import { config } from '@tsuwari/config';
 import { Command, PrismaService, Response } from '@tsuwari/prisma';
 
 import { RedisService } from '../../redis.service.js';
 import { UpdateOrCreateCommandDto } from './dto/create.js';
 
 @Injectable()
-export class CommandsService implements OnModuleInit {
-  botsMicroservce: Bots.Commands;
+export class CommandsService {
+  @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
+  nats: ClientProxy;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
-    @Inject('BOTS_MICROSERVICE') private readonly botsClient: ClientGrpc,
   ) { }
 
-  onModuleInit() {
-    this.botsMicroservce = this.botsClient.getService<Bots.Commands>('Commands');
-  }
 
   async getList(userId: string) {
     const commands: (Command & {
@@ -30,7 +27,7 @@ export class CommandsService implements OnModuleInit {
       },
     });
 
-    const defaultCommands = await this.botsMicroservce.getDefaultCommands({}).toPromise();
+    const defaultCommands = await this.nats.send<{ commands: Command[] }>('bots.getDefaultCommands', {}).toPromise();
     if (defaultCommands?.commands) {
       for (const command of defaultCommands.commands) {
         if (!commands.some(c => c.defaultName === command.name)) {
@@ -38,10 +35,10 @@ export class CommandsService implements OnModuleInit {
             data: {
               channelId: userId,
               default: true,
-              defaultName: command.name!,
+              defaultName: command.name,
               description: command.description,
-              name: command.name!,
-              permission: command.permission! as any,
+              name: command.name,
+              permission: command.permission,
               cooldown: 0,
               cooldownType: 'GLOBAL',
             },

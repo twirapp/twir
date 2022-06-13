@@ -1,27 +1,21 @@
 import { Controller } from '@nestjs/common';
-import { GrpcMethod } from '@nestjs/microservices';
-import { Bots as GBots } from '@tsuwari/grpc';
-import { Observable, of } from 'rxjs';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 
 import { Bots } from '../bots.js';
 import * as Variables from '../parser/modules/index.js';
 
 @Controller()
-export class AppController implements GBots.Main {
-  @GrpcMethod('Main', 'joinOrLeave')
-  joinOrLeave(request: GBots.JoinOrLeaveRequest): Observable<GBots.MockedResult> {
-    const bot = Bots.cache.get(request.botId!);
+export class AppController {
+  @EventPattern('bots.joinOrLeave')
+  joinOrLeave(@Payload() data: { action: 'join' | 'part', botId: string, username: string }) {
+    const bot = Bots.cache.get(data.botId);
     if (bot) {
-      const action = request.action === GBots.JoinOrLeaveRequest.Action.JOIN ? 'join' : 'part';
-      bot[action](request.username!);
-      return of({ success: true });
-    } else {
-      return of({ success: false, error: 'Bot not found for that user.' });
+      bot[data.action](data.username);
     }
   }
 
-  @GrpcMethod('Main', 'GetVariables')
-  getVariables(): Observable<GBots.GetVariablesResult> {
+  @MessagePattern('bots.getVariables')
+  getVariables() {
     const variables = Object.values(Variables).map(v => {
       const modules = Array.isArray(v) ? v : [v];
 
@@ -30,6 +24,6 @@ export class AppController implements GBots.Main {
         .map(m => ({ name: m.key, example: m.example, description: m.description }));
     }).flat();
 
-    return of({ variables });
+    return { variables };
   }
 }

@@ -1,21 +1,16 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { ClientGrpc } from '@nestjs/microservices';
-import { Bots } from '@tsuwari/grpc';
+import { Injectable } from '@nestjs/common';
+import { Client, ClientProxy, Transport } from '@nestjs/microservices';
+import { config } from '@tsuwari/config';
 import { PrismaService } from '@tsuwari/prisma';
 
 import { CreateTimerDto } from './dto/create.js';
 
 @Injectable()
-export class TimersService implements OnModuleInit {
-  botsMicroservice: Bots.Timers;
+export class TimersService {
+  @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
+  nats: ClientProxy;
 
-  constructor(private readonly prisma: PrismaService, @Inject('BOTS_MICROSERVICE') private readonly botsClient: ClientGrpc) { }
-
-
-  onModuleInit() {
-    this.botsMicroservice = this.botsClient.getService<Bots.Timers>('Timers');
-  }
-
+  constructor(private readonly prisma: PrismaService) { }
 
   getList(userId: string) {
     return this.prisma.timer.findMany({
@@ -51,8 +46,7 @@ export class TimersService implements OnModuleInit {
       },
     });
 
-    await this.botsMicroservice.addTimerToQueue({ timerId: timer.id }).toPromise();
-
+    await this.nats.emit('bots.addTimerToQueue', timer.id).toPromise();
     return timer;
   }
 
@@ -72,7 +66,7 @@ export class TimersService implements OnModuleInit {
       },
     });
 
-    await this.botsMicroservice.removeTimerFromQueue({ timerId: timer.id }).toPromise();
+    await this.nats.emit('bots.removeTimerFromQueue', timer.id).toPromise();
 
     return timer;
   }

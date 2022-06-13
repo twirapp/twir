@@ -1,6 +1,5 @@
-import { Controller, Logger } from '@nestjs/common';
+/* import { Controller, Logger } from '@nestjs/common';
 import { GrpcStreamMethod } from '@nestjs/microservices';
-import { Watched } from '@tsuwari/grpc';
 import { Observable, Subject } from 'rxjs';
 
 import { AppService } from './app.service.js';
@@ -30,3 +29,4 @@ export class AppController implements Watched.Main {
     return subject.asObservable();
   }
 }
+ */

@@ -52,5 +52,7 @@ export class AppService {
         this.redis.del(key);
       }
     }
+
+    return true;
   }
 }

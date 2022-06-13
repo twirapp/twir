@@ -5,7 +5,6 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import * as Sentry from '@sentry/node';
 import '@sentry/tracing';
 import { config } from '@tsuwari/config';
-import { resolveProtoPath } from '@tsuwari/grpc';
 
 import '@tsuwari/config';
 import { AppModule } from './app.module.js';
@@ -18,11 +17,9 @@ Sentry.init({
 });
 
 const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
-  transport: Transport.GRPC,
+  transport: Transport.NATS,
   options: {
-    package: 'StreamStatus',
-    url: config.MICROSERVICE_STREAM_STATUS_URL,
-    protoPath: resolveProtoPath('streamstatus'),
+    servers: [config.NATS_URL],
   },
 });
 

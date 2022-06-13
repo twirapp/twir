@@ -12,7 +12,6 @@
     "@nestjs/core": "^8.4.5",
     "@nestjs/microservices": "^8.4.5",
     "@tsuwari/config": "workspace:*",
-    "@tsuwari/grpc": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@twurple/api": "^5.1.6",

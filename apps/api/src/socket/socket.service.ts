@@ -1,7 +1,6 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { ClientGrpc } from '@nestjs/microservices';
+import { Injectable } from '@nestjs/common';
+import { Client, ClientProxy, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
-import { Bots, StreamStatus } from '@tsuwari/grpc';
 import { PrismaService } from '@tsuwari/prisma';
 import { EventParams, ClientToServerEvents, MyRefreshingProvider } from '@tsuwari/shared';
 import { ApiClient } from '@twurple/api';
@@ -9,18 +8,14 @@ import { ApiClient } from '@twurple/api';
 import { RedisService } from '../redis.service.js';
 
 @Injectable()
-export class SocketService implements OnModuleInit {
-  private botsMicroservice: Bots.Main;
+export class SocketService {
+  @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
+  nats: ClientProxy;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
-    @Inject('BOTS_MICROSERVICE') private client: ClientGrpc,
   ) { }
-
-  onModuleInit(): void {
-    this.botsMicroservice = this.client.getService<Bots.Main>('Main');
-  }
 
   async isBotMod(opts: EventParams<ClientToServerEvents, 'isBotMod'>[0]) {
     const channel = await this.prisma.channel.findFirst({
@@ -83,10 +78,10 @@ export class SocketService implements OnModuleInit {
       },
     });
 
-    await this.botsMicroservice.joinOrLeave({
+    await this.nats.emit('bots.joinOrLeave', {
+      action,
       botId: channel.botId,
       username: opts.channelName,
-      action: action === 'join' ? Bots.JoinOrLeaveRequest.Action.JOIN : Bots.JoinOrLeaveRequest.Action.PART,
     }).toPromise();
   }
 }
