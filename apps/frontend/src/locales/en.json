@@ -3,6 +3,11 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
+    "login": "Login"
+  },
+  "statuses": {
+    "enabled": "Enabled",
+    "disabled": "Disabled"
   },
   "pages": {
     "dashboard": {
@@ -64,7 +69,25 @@
       "sidebarName": "Timers"
     },
     "moderation": {
-      "sidebarName": "Moderation"
+      "sidebarName": "Moderation",
+      "moderate": "Moderate {key}",
+      "timeout": {
+        "title": "Timeout message",
+        "placeholder": "Message for timeout"
+      },
+      "time": {
+        "title": "Timeout time"
+      },
+      "warning": {
+        "title": "Warning message",
+        "placeholder": "Message for warning"
+      },
+      "clips": "Moderate clips",
+      "blacklist": "Blacklisted words",
+      "symbols": "Max symbols in message (in percent)",
+      "lnght": "Max message length",
+      "caps": "Max caps in message (in percent)",
+      "emotes": "Max emotes in message"
     },
     "users": {
       "sidebarName": "Users"

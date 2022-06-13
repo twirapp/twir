@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ModerationSettingsDto } from '@tsuwari/shared';
 import { toRef } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 type Settings = ModerationSettingsDto & {
   checkClips: boolean,
@@ -10,7 +11,9 @@ type Settings = ModerationSettingsDto & {
 const props = defineProps<{
   settings: Settings
 }>();
-
+const { t } = useI18n({
+  useScope: 'global',
+});
 
 const settings = toRef(props, 'settings', {
   ...props.settings,
@@ -39,7 +42,7 @@ const settings = toRef(props, 'settings', {
             :class="[settings.enabled ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600' ]"
             @click="() => settings.enabled = !settings.enabled"
           >
-            {{ settings.enabled ? 'Enabled' : 'Disabled' }}
+            {{ t(`statuses.${settings.enabled ? 'enabled' : 'disabled'}`) }}
           </button>
           <button
             type="button"
@@ -47,7 +50,7 @@ const settings = toRef(props, 'settings', {
             :class="[settings.subscribers ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600' ]"
             @click="() => settings.subscribers = !settings.subscribers"
           >
-            Moderate Subscribers
+            {{ t('pages.moderation.moderate', { key: 'subscribers' }) }}
           </button>
           <button
             type="button"
@@ -55,7 +58,7 @@ const settings = toRef(props, 'settings', {
             :class="[settings.vips ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600' ]"
             @click="() => settings.vips = !settings.vips"
           >
-            Moderate vips
+            {{ t('pages.moderation.moderate', { key: 'vips' }) }}
           </button>
         </div>
       </div>
@@ -63,7 +66,7 @@ const settings = toRef(props, 'settings', {
         <label
           :for="'timeoutMessage' + settings.type"
           class="form-label inline-block mb-2"
-        >Timeout message</label>
+        >{{ t('pages.moderation.timeout.title') }}</label>
         <input
           :id="'timeoutMessage' + settings.type"
           v-model="settings.banMessage"
@@ -85,14 +88,14 @@ const settings = toRef(props, 'settings', {
             m-0
             focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
           "
-          placeholder="Message for timeout"
+          :placeholder="t('pages.moderation.timeout.placeholder')"
         >
       </div>
       <div class="mt-3">
         <label
           :for="'timeoutTime' + settings.type"
           class="form-label inline-block mb-2"
-        >Timeout time</label>
+        >{{ t('pages.moderation.time.title') }}</label>
         <input
           :id="'timeoutTime' + settings.type"
           v-model="settings.banTime"
@@ -142,7 +145,7 @@ const settings = toRef(props, 'settings', {
             m-0
             focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
           "
-          placeholder="Message for warning"
+          :placeholder="t('pages.moderation.warning.placeholder')"
         >
       </div>
       <div
@@ -153,7 +156,7 @@ const settings = toRef(props, 'settings', {
           <label
             class="form-check-label inline-block"
             for="flexSwitchCheckChecked"
-          >Moderate clips</label>
+          >{{ t('pages.moderation.clips') }}</label>
           <input
             id="flexSwitchCheckChecked"
             v-model="settings.checkClips"
@@ -168,7 +171,7 @@ const settings = toRef(props, 'settings', {
         class="mt-3"
       >
         <span class="label">  
-          <span>Blacklisted words
+          <span>{{ t('pages.moderation.blacklist') }}
             <a
               class="px-2 py-0.5 inline-block bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md  hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out cursor-pointer"
               @click="settings.blackListSentences?.push('')"
@@ -204,7 +207,7 @@ const settings = toRef(props, 'settings', {
         <label
           :for="'maxSymbols' + settings.type"
           class="form-label inline-block mb-2"
-        >Max symbols in message (in percent)</label>
+        >{{ t('pages.moderation.symbols') }}</label>
         <input
           :id="'maxSymbols' + settings.type"
           v-model="settings.maxPercentage"
@@ -236,7 +239,7 @@ const settings = toRef(props, 'settings', {
         <label
           :for="'longMessage' + settings.type"
           class="form-label inline-block mb-2"
-        >Max message length</label>
+        >{{ t('pages.moderation.lnght') }}</label>
         <input
           :id="'longMessage' + settings.type"
           v-model="settings.triggerLength"
@@ -268,7 +271,7 @@ const settings = toRef(props, 'settings', {
         <label
           :for="'maxCaps' + settings.type"
           class="form-label inline-block mb-2"
-        >Max caps in message (in percent)</label>
+        >{{ t('pages.moderation.caps') }}</label>
         <input
           :id="'maxCaps' + settings.type"
           v-model="settings.maxPercentage"
@@ -300,7 +303,7 @@ const settings = toRef(props, 'settings', {
         <label
           :for="'maxEmotes' + settings.type"
           class="form-label inline-block mb-2"
-        >Max emotes in message.</label>
+        >{{ t('pages.moderation.emotes') }}</label>
         <input
           :id="'maxEmotes' + settings.type"
           v-model="settings.triggerLength"
