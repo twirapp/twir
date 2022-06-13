@@ -3,6 +3,12 @@ import { useIntervalFn  } from '@vueuse/core';
 import { intervalToDuration, formatDuration } from 'date-fns';
 import { ref } from 'vue';
 
+import { localeStore } from '@/stores/locale';
+
+function setLocale(v: string) {
+  localeStore.set(v);
+}
+
 const uptime = ref('');
 
 useIntervalFn(() => {
@@ -17,6 +23,23 @@ useIntervalFn(() => {
       <div class="container-fluid flex space-x-2">
         <p>Online: <span class="font-bold">{{ uptime }}</span></p>
         <p>Viewers: <span class="font-bold">158</span></p>
+      </div>
+      <div>
+        <div class="locale-changer">
+          <select 
+            v-model="$i18n.locale"
+            class="form-control px-3 py-1.5 text-gray-700 rounded select select-sm"
+            @change="setLocale($i18n.locale)"
+          >
+            <option
+              v-for="(lang, i) in ['en', 'ru']"
+              :key="`Lang${i}`"
+              :value="lang"
+            >
+              {{ lang }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
   </nav>
