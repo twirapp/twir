@@ -3,23 +3,23 @@ export type VariableType = SetOptional<Omit<CustomVar, 'channelId'| 'evalValue'>
 
 import { useStore } from '@nanostores/vue';
 import { CustomVar } from '@tsuwari/prisma';
-import { useTitle } from '@vueuse/core';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import type { SetOptional } from 'type-fest';
 import { ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import VariableComponent from '@/components/Variable.vue';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
-
-const title = useTitle();
-title.value = 'Tsuwari - Variables';
 
 const selectedDashboard = useStore(selectedDashboardStore);
 
 const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/variables`, api, { immediate: false });
 const variables = ref<Array<VariableType>>([]);
 const variablesBeforeEdit = ref<Array<VariableType>>([]);
+const { t } = useI18n({
+  useScope: 'global',
+});
 
 selectedDashboardStore.subscribe((v) => {
   execute(`/v1/channels/${v.channelId}/variables`);
@@ -53,7 +53,7 @@ async function deleteVariable(index: number) {
           class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
           @click="insert"
         >
-          Add new
+          {{ t('buttons.addNew') }}
         </button>
       </div>
     </div>

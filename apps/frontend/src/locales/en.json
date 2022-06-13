@@ -1,0 +1,164 @@
+{
+  "buttons": {
+    "save": "Save",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "login": "Login",
+    "addNew": "Add new"
+  },
+  "statuses": {
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "pages": {
+    "dashboard": {
+      "sidebarName": "Dashboard",
+      "widgets": {
+        "status": {
+          "title": "Bot status",
+          "notMod": " We detect bot is not moderator on the channel. Please, mod a bot, or some of functionality may work incorrectly.",
+          "mod": "Bot is mod on the channel",
+          "buttons": {
+            "leave": "Leave",
+            "join": "Join"
+          }
+        }
+      }
+    },
+    "events": {
+      "sidebarName": "Events"
+    },
+    "integrations": {
+      "sidebarName": "Integrations"
+    },
+    "settings": {
+      "sidebarName": "Settings"
+    },
+    "commands": {
+      "sidebarName": "Commands",
+      "searchCommand": "Search command",
+      "card": {
+        "name": {
+          "title": "Name",
+          "placeholder": "Command name"
+        },
+        "cooldown": {
+          "title": "Cooldown",
+          "type": {
+            "GLOBAL": "Global",
+            "PER_USER": "Per user"
+          }
+        },
+        "permission": {
+          "title": "Permission",
+          "selectPlaceholder": "Select permission"
+        },
+        "description": {
+          "title": "Description (optional)",
+          "placeholder": "My cool great command!"
+        },
+        "responses": {
+          "title": "Responses",
+          "builtInAlert": "This is a built-in command. You can't change its response, but it may be added in the future if a certain percentage of users want to use it."
+        },
+        "aliases": {
+          "title": "Aliases"
+        }
+      }
+    },
+    "timers": {
+      "sidebarName": "Timers",
+      "buttons": {
+        "new": "Add new timer"
+      },
+      "card": {
+        "name": {
+          "title": "Name",
+          "placeholder": "Timer name"
+        },
+        "secondsInterval": "Seconds Interval",
+        "messagesInterval": "Messages Interval",
+        "responses": "Responses"
+      }
+    },
+    "moderation": {
+      "sidebarName": "Moderation",
+      "moderate": "Moderate {key}",
+      "timeout": {
+        "title": "Timeout message",
+        "placeholder": "Message for timeout"
+      },
+      "time": {
+        "title": "Timeout time"
+      },
+      "warning": {
+        "title": "Warning message",
+        "placeholder": "Message for warning"
+      },
+      "clips": "Moderate clips",
+      "blacklist": "Blacklisted words",
+      "symbols": "Max symbols in message (in percent)",
+      "lnght": "Max message length",
+      "caps": "Max caps in message (in percent)",
+      "emotes": "Max emotes in message"
+    },
+    "users": {
+      "sidebarName": "Users"
+    },
+    "keywords": {
+      "sidebarName": "Keywords",
+      "card": {
+        "text": {
+          "title": "Text of trigger",
+          "placeholder": "Keyword will be triggered, when user type this in chat"
+        },
+        "response": {
+          "title": "Response",
+          "placeholder": "This response will be sended in chat"
+        },
+        "cooldown": {
+          "title": "Cooldown",
+          "placeholder": "Cooldown time in seconds"
+        }
+      }
+    },
+    "variables": {
+      "sidebarName": "Variables",
+      "card": {
+        "name": {
+          "title": "Name",
+          "placeholder": "Name of variable"
+        },
+        "type": "Type",
+        "messageForSending": {
+          "title": "Message for sending",
+          "placeholder": "This message will be sent in chat"
+        }
+      }
+    },
+    "greetings": {
+      "sidebarName": "Greetings",
+      "buttons": {
+        "add": "Add new greeting"
+      },
+      "username": {
+        "title": "Username",
+        "placeholder": "Username of twitch user"
+      },
+      "message": {
+        "title": "Message for sending",
+        "placeholder": "This message will be sent in chat"
+      }
+    },
+    "overlays": {
+      "sidebarName": "Overlays"
+    },
+    "files": {
+      "sidebarName": "Files"
+    },
+    "quotes": {
+      "sidebarName": "Quotes"
+    }
+  }
+}

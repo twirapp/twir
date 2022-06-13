@@ -2,6 +2,7 @@
 import { useStore } from '@nanostores/vue';
 import { Form, Field } from 'vee-validate';
 import { toRef } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { KeywordType } from '@/dashboard/Keywords.vue';
 import { api } from '@/plugins/api';
@@ -17,7 +18,7 @@ const keyword = toRef(props, 'keyword');
 const keywords = toRef(props, 'keywords');
 const keywordsBeforeEdit = toRef(props, 'keywordsBeforeEdit');
 const selectedDashboard = useStore(selectedDashboardStore);
-
+const { t } = useI18n();
 const emit = defineEmits<{
   (e: 'delete', index: number): void
 }>();
@@ -83,14 +84,14 @@ function cancelEdit() {
       >
         <div>
           <div class="label mb-3">
-            <span class="label-text">Text of trigger</span>
+            <span class="label-text">{{ t('pages.keywords.card.text.title') }}</span>
           </div>
           <Field
             v-model.lazy="keyword.text"
             name="text"
             as="input" 
             type="text"
-            placeholder="Text of trigger"
+            :placeholder="t('pages.keywords.card.text.placeholder')"
             :disabled="!keyword.edit"
             class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
           />
@@ -98,14 +99,14 @@ function cancelEdit() {
 
         <div>
           <div class="label mb-3">
-            <span class="label-text">Response</span>
+            <span class="label-text">{{ t('pages.keywords.card.response.title') }}</span>
           </div>
           <Field
             v-model.lazy="keyword.response"
             name="response"
             as="input" 
             type="text"
-            placeholder="This response will be sended in chat"
+            :placeholder="t('pages.keywords.card.response.placeholder')"
             :disabled="!keyword.edit"
             class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
           />
@@ -113,14 +114,14 @@ function cancelEdit() {
 
         <div>
           <div class="label mb-3">
-            <span class="label-text">Cooldown</span>
+            <span class="label-text">{{ t('pages.keywords.card.cooldown.title') }}</span>
           </div>
           <Field
             v-model="keyword.cooldown"
             name="cooldown"
             as="input" 
             type="number"
-            placeholder="Username of twitch user"
+            :placeholder="t('pages.keywords.card.cooldown.placeholder')"
             :disabled="!keyword.edit"
             class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
           />
@@ -138,14 +139,14 @@ function cancelEdit() {
               if (keyword.id) keywordsBeforeEdit?.push(JSON.parse(JSON.stringify(keyword)))
             }"
           >
-            Edit
+            {{ t('buttons.edit') }}
           </button>
           <button
             v-else
             class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
             @click="cancelEdit"
           >
-            Cancel
+            {{ t('buttons.cancel') }}
           </button>
         </div>
         <div v-if="keyword.edit">
@@ -155,13 +156,13 @@ function cancelEdit() {
             class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out"
             @click="deletekeyword"
           >
-            Delete
+            {{ t('buttons.delete') }}
           </button>
           <button
             type="submit"
             class="inline-block ml-2 px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-green-600 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-700 active:shadow-lg transition duration-150 ease-in-out"
           >
-            Save
+            {{ t('buttons.save') }}
           </button>
         </div>
       </div>

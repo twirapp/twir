@@ -3,17 +3,18 @@ export type GreeTingType = SetOptional<Omit<Greeting, 'channelId'> & { username:
 
 import { useStore } from '@nanostores/vue';
 import { Greeting } from '@tsuwari/prisma';
-import { useTitle } from '@vueuse/core';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import type { SetOptional } from 'type-fest';
 import { ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import GreetingComponent from '@/components/Greeting.vue';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
-const title = useTitle();
-title.value = 'Tsuwari - Greetings';
+const { t } = useI18n({
+  useScope: 'global',
+});
 
 const selectedDashboard = useStore(selectedDashboardStore);
 
@@ -53,7 +54,7 @@ async function deleteGreeting(index: number) {
           class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
           @click="insert"
         >
-          Add new
+          {{ t('pages.greetings.buttons.add') }}
         </button>
       </div>
     </div>

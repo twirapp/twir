@@ -2,13 +2,18 @@
 import { useStore } from '@nanostores/vue';
 import { useTimeoutPoll, get, useTitle  } from '@vueuse/core';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { socketEmit } from '@/plugins/socket';
 import { selectedDashboardStore } from '@/stores/userStore';
 
-
 const title = useTitle();
-title.value = 'Tsuwari - Widgets';
+title.value = 'Dashboard';
+
+const { t } = useI18n({
+  useScope: 'global',
+  inheritLocale: true,
+});
 
 const isBotMod = ref(false);
 
@@ -59,7 +64,7 @@ function joinChannel() {
         class="block rounded-lg card text-white shadow-lg max-w-sm"
       >
         <h2 class="card-title p-2 flex justify-between border-b border-gray-700 outline-none">
-          <p>Bot status</p>
+          <p>{{ t('pages.dashboard.widgets.status.title') }}</p>
 
           <!-- <a
               href="/"
@@ -73,11 +78,12 @@ function joinChannel() {
           >
             <div v-if="!isBotMod">
               <div class="text-sm">
+                {{ t('pages.dashboard.widgets.status.notMod' ) }}
                 We detect bot is not moderator on the channel. Please, mod a bot, or some of functionality may work incorrectly.
               </div>
             </div>
             <div v-else>
-              Bot is mod on the channel
+              {{ t('pages.dashboard.widgets.status.mod' ) }}
             </div>
           </div>
           <button
@@ -85,14 +91,14 @@ function joinChannel() {
             class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out"
             @click="leaveChannel"
           >
-            Leave
+            {{ t('pages.dashboard.widgets.status.buttons.leave') }}
           </button>
           <button
             type="button"
             class="inline-block ml-2 px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-green-600 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-700 active:shadow-lg transition duration-150 ease-in-out"
             @click="joinChannel"
           >
-            Join
+            {{ t('pages.dashboard.widgets.status.buttons.join') }}
           </button>
         </div>
       </div>

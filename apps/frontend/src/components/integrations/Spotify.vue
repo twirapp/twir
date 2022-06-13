@@ -2,6 +2,7 @@
 import { useStore } from '@nanostores/vue';
 import { ChannelIntegration } from '@tsuwari/prisma';
 import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
 import { api } from '@/plugins/api';
@@ -16,6 +17,9 @@ const selectedDashboard = useStore(selectedDashboardStore);
 const spotifyProfile = useStore(spotifyProfileStore);
 const authurl = computed(() => {
   return `${window.location.origin}/api/v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/auth`;
+});
+const { t } = useI18n({
+  useScope: 'global',
 });
 
 selectedDashboardStore.subscribe(d => {
@@ -104,7 +108,7 @@ onMounted(async () => {
       class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
       :href="authurl"
     >
-      Login
+      {{ t('buttons.login') }}
     </a>
   </div>
 </template>

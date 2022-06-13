@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
+import { useTitle } from '@vueuse/core';
+import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
 
 import Commands from '@/assets/sidebar/commands.svg?url';
@@ -20,77 +22,81 @@ import { selectedDashboardStore, userStore, setSelectedDashboard } from '@/store
 
 const user = useStore(userStore);
 const router = useRouter();
-
+const { t } = useI18n({
+  useScope: 'global',
+  inheritLocale: true,
+});
+const title = useTitle();
 const selectedDashboard = useStore(selectedDashboardStore);
 
 const currentRoute = useRoute();
 const routes = [
   {
-    name: 'Dashboard',
+    name: 'dashboard',
     icon: Dashboard,
     path: '/dashboard',
   },
   {
-    name: 'Events',
+    name: 'events',
     icon: Events,
     path: '/dashboard/events',
   },
   {
-    name: 'Integrations',
+    name: 'integrations',
     icon: Integrations,
     path: '/dashboard/integrations',
   },
   {
-    name: 'Settings',
+    name: 'settings',
     icon: Settings,
     path: '/dashboard/settings',
   },
   {
-    name: 'Commands',
+    name: 'commands',
     icon: Commands,
     path: '/dashboard/commands',
   },
   {
-    name: 'Timers',
+    name: 'timers',
     icon: Timers,
     path: '/dashboard/timers',
   },
   { 
-    name: 'Moderation',
+    name: 'moderation',
     icon: Sword,
     path: '/dashboard/moderation',
   },
   {
-    name: 'Users',
+    name: 'users',
     icon: Users,
     path: '/dashboard/users',
   },
   {
-    name: 'Keywords',
+    name: 'keywords',
     icon: Keywords,
     path: '/dashboard/keywords',
   },
   {
-    name: 'Variables',
+    name: 'variables',
     icon: Variables,
     path: '/dashboard/variables',
   },
   {
-    name: 'Greetings',
+    name: 'greetings',
     icon: Greetings,
     path: '/dashboard/greetings',
   },
   {
-    name: 'Overlays',
+    name: 'overlays',
     icon: Overlays,
     path: '/dashboard/overlays',
   },
   {
-    name: 'Files',
+    name: 'files',
     path: '/dashboard/files',
   },
   {
-    name: 'Quotes',
+    name: 'quotes',
     icon: Quotes,
     path: '/dashboard/quotes',
   },
@@ -217,6 +223,7 @@ function logOut() {
           :class="{
             'bg-neutral-700': currentRoute.path === route.path,
           }"
+          @click="title = route.name"
         >
           <span
             v-if="route.icon"
@@ -225,7 +232,7 @@ function logOut() {
             <img :src="route.icon">
           </span>
              
-          <span>{{ route.name }}</span>
+          <span>{{ t(`pages.${route.name}.sidebarName`) }}</span>
         </RouterLink>
       </li>
     </ul>

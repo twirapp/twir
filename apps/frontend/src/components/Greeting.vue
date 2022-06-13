@@ -2,6 +2,7 @@
 import { useStore } from '@nanostores/vue';
 import { Form, Field } from 'vee-validate';
 import { toRef } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { GreeTingType } from '@/dashboard/Greetings.vue';
 import { api } from '@/plugins/api';
@@ -17,6 +18,9 @@ const greeting = toRef(props, 'greeting');
 const greetings = toRef(props, 'greetings');
 const greetingsBeforeEdit = toRef(props, 'greetingsBeforeEdit');
 const selectedDashboard = useStore(selectedDashboardStore);
+const { t } = useI18n({
+  useScope: 'global',
+});
 
 const emit = defineEmits<{
   (e: 'delete', index: number): void
@@ -82,14 +86,14 @@ function cancelEdit() {
       >
         <div>
           <div class="label mb-3">
-            <span class="label-text">Username</span>
+            <span class="label-text">{{ t('pages.greetings.username.title') }}</span>
           </div>
           <Field
             v-model="greeting.username"
             name="username"
             as="input" 
             type="text"
-            placeholder="Username of twitch user"
+            :placeholder="t('pages.greetings.username.placeholder')"
             :disabled="!greeting.edit"
             class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
           />
@@ -97,14 +101,14 @@ function cancelEdit() {
 
         <div>
           <div class="label mb-3">
-            <span class="label-text">Message for sending</span>
+            <span class="label-text">{{ t('pages.greetings.message.title') }}</span>
           </div>
           <Field
             v-model="greeting.text"
             name="text"
             as="input" 
             type="text"
-            placeholder="This message will be sent in chat"
+            :placeholder="t('pages.greetings.message.placeholder')"
             :disabled="!greeting.edit"
             class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
           />
@@ -129,7 +133,7 @@ function cancelEdit() {
             class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
             @click="cancelEdit"
           >
-            Cancel
+            {{ t('buttons.cancel') }}
           </button>
         </div>
         <div v-if="greeting.edit">
@@ -139,13 +143,13 @@ function cancelEdit() {
             class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out"
             @click="deleteGreeting"
           >
-            Delete
+            {{ t('buttons.delete') }}
           </button>
           <button
             type="submit"
             class="inline-block ml-2 px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-green-600 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-700 active:shadow-lg transition duration-150 ease-in-out"
           >
-            Save
+            {{ t('buttons.save') }}
           </button>
         </div>
       </div>
