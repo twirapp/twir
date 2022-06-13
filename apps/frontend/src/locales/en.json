@@ -1,9 +1,11 @@
 {
   "buttons": {
     "save": "Save",
+    "edit": "Edit",
     "cancel": "Cancel",
     "delete": "Delete",
-    "login": "Login"
+    "login": "Login",
+    "addNew": "Add new"
   },
   "statuses": {
     "enabled": "Enabled",
@@ -66,7 +68,19 @@
       }
     },
     "timers": {
-      "sidebarName": "Timers"
+      "sidebarName": "Timers",
+      "buttons": {
+        "new": "Add new timer"
+      },
+      "card": {
+        "name": {
+          "title": "Name",
+          "placeholder": "Timer name"
+        },
+        "secondsInterval": "Seconds Interval",
+        "messagesInterval": "Messages Interval",
+        "responses": "Responses"
+      }
     },
     "moderation": {
       "sidebarName": "Moderation",
@@ -96,7 +110,18 @@
       "sidebarName": "Keywords"
     },
     "variables": {
-      "sidebarName": "Variables"
+      "sidebarName": "Variables",
+      "card": {
+        "name": {
+          "title": "Name",
+          "placeholder": "Name of variable"
+        },
+        "type": "Type",
+        "messageForSending": {
+          "title": "Message for sending",
+          "placeholder": "This message will be sent in chat"
+        }
+      }
     },
     "greetings": {
       "sidebarName": "Greetings",

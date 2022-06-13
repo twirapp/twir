@@ -4,6 +4,7 @@ import { Timer } from '@tsuwari/prisma';
 import type { SetOptional } from 'type-fest';
 import { Form, Field } from 'vee-validate';
 import { toRef } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
@@ -20,6 +21,9 @@ const props = defineProps<{
 const timer = toRef(props, 'timer');
 const timers = toRef(props, 'timers');
 const timersBeforeEdit = toRef(props, 'timersBeforeEdit');
+const { t } = useI18n({
+  useScope: 'global',
+});
 
 const emit = defineEmits<{
   (e: 'delete', index: number): void
@@ -81,7 +85,7 @@ function cancelEdit() {
       <div
         v-for="error of errors"
         :key="error"
-        class="bg-red-100 rounded-lg py-5 px-6 mb-4 text-base text-red-700 mb-3"
+        class="bg-red-100 rounded-lg py-5 px-6 mb-4 text-base text-red-700"
         role="alert"
       >
         {{ error }}
@@ -91,14 +95,14 @@ function cancelEdit() {
       >
         <div>
           <div class="label mb-3">
-            <span class="label-text">Name</span>
+            <span class="label-text">{{ t('pages.timers.card.name.title') }}</span>
           </div>
           <Field
             v-model="timer.name"
             name="name"
             as="input" 
             type="text"
-            placeholder="Timer name"
+            :placeholder="t('pages.timers.card.name.placeholder')"
             :disabled="!timer.edit"
             class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
           />
@@ -106,7 +110,7 @@ function cancelEdit() {
 
         <div>
           <div class="label mb-3">
-            <span class="label-text">Seconds interval</span>
+            <span class="label-text">{{ t('pages.timers.card.secondsInterval') }}</span>
           </div>
           <Field
             v-model.number="timer.timeInterval"
@@ -120,7 +124,7 @@ function cancelEdit() {
 
         <div>
           <div class="label mb-3">
-            <span class="label-text">Messages interval</span>
+            <span class="label-text">{{ t('pages.timers.card.messagesInterval') }}</span>
           </div>
           <Field
             v-model.number="timer.messageInterval"
@@ -134,7 +138,7 @@ function cancelEdit() {
 
         <div class="col-span-2">
           <span class="label">
-            <span>Responses
+            <span>{{ t('pages.timers.card.responses') }}
               <a
                 v-if="timer.edit"
                 class="px-2 py-0.5 inline-block bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 cursor-pointer ease-in-out"
@@ -183,14 +187,14 @@ function cancelEdit() {
               if (timer.id) timersBeforeEdit?.push(JSON.parse(JSON.stringify(timer)))
             }"
           >
-            Edit
+            {{ t('buttons.edit') }}
           </button>
           <button
             v-else
             class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
             @click="cancelEdit"
           >
-            Cancel
+            {{ t('buttons.cancel') }}
           </button>
         </div>
         <div v-if="timer.edit">
@@ -200,13 +204,13 @@ function cancelEdit() {
             class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out"
             @click="deleteTimer"
           >
-            Delete
+            {{ t('buttons.delete') }}
           </button>
           <button
             type="submit"
             class="inline-block ml-2 px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-green-600 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-700 active:shadow-lg transition duration-150 ease-in-out"
           >
-            Save
+            {{ t('buttons.save') }}
           </button>
         </div>
       </div>
