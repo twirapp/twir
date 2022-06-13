@@ -6,7 +6,7 @@
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "tsc -b tsconfig.json",
-    "dev": "nodemon",
+    "dev": "tsx watch src/index.ts src/index.ts",
     "start": "node --enable-source-maps dist/index.js"
   },
   "keywords": [],
