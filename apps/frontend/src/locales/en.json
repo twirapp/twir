@@ -61,7 +61,7 @@
           "builtInAlert": "This is a built-in command. You can't change its response, but it may be added in the future if a certain percentage of users want to use it."
         },
         "aliases": {
-          "title": "aliases"
+          "title": "Aliases"
         }
       }
     },
