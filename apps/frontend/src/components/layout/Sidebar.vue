@@ -32,71 +32,71 @@ const selectedDashboard = useStore(selectedDashboardStore);
 const currentRoute = useRoute();
 const routes = [
   {
-    name: t(`pages.dashboard.sidebarName`),
+    name: 'dashboard',
     icon: Dashboard,
     path: '/dashboard',
   },
   {
-    name: t(`pages.events.sidebarName`),
+    name: 'events',
     icon: Events,
     path: '/dashboard/events',
   },
   {
-    name: t(`pages.integrations.sidebarName`),
+    name: 'integrations',
     icon: Integrations,
     path: '/dashboard/integrations',
   },
   {
-    name: t(`pages.settings.sidebarName`),
+    name: 'settings',
     icon: Settings,
     path: '/dashboard/settings',
   },
   {
-    name: t(`pages.commands.sidebarName`),
+    name: 'commands',
     icon: Commands,
     path: '/dashboard/commands',
   },
   {
-    name: t(`pages.timers.sidebarName`),
+    name: 'timers',
     icon: Timers,
     path: '/dashboard/timers',
   },
   { 
-    name: t(`pages.moderation.sidebarName`),
+    name: 'moderation',
     icon: Sword,
     path: '/dashboard/moderation',
   },
   {
-    name: t(`pages.users.sidebarName`),
+    name: 'users',
     icon: Users,
     path: '/dashboard/users',
   },
   {
-    name: t(`pages.keywords.sidebarName`),
+    name: 'keywords',
     icon: Keywords,
     path: '/dashboard/keywords',
   },
   {
-    name: t(`pages.variables.sidebarName`),
+    name: 'variables',
     icon: Variables,
     path: '/dashboard/variables',
   },
   {
-    name: t(`pages.greetings.sidebarName`),
+    name: 'greetings',
     icon: Greetings,
     path: '/dashboard/greetings',
   },
   {
-    name: t(`pages.overlays.sidebarName`),
+    name: 'overlays',
     icon: Overlays,
     path: '/dashboard/overlays',
   },
   {
-    name: t(`pages.files.sidebarName`),
+    name: 'files',
     path: '/dashboard/files',
   },
   {
-    name: t(`pages.quotes.sidebarName`),
+    name: 'quotes',
     icon: Quotes,
     path: '/dashboard/quotes',
   },
@@ -232,7 +232,7 @@ function logOut() {
             <img :src="route.icon">
           </span>
              
-          <span>{{ route.name }}</span>
+          <span>{{ t(`pages.${route.name}.sidebarName`) }}</span>
         </RouterLink>
       </li>
     </ul>
