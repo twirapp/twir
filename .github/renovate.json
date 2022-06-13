@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "semanticCommits": true,
+  "semanticPrefix": "chore(dependency)",
+  "separateMajorMinor": false,
+  "labels": [
+    "dependencies"
+  ],
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "baseBranches": [
+    "main"
+  ],
+  "packageFiles": [
+    "package.json",
+    "apps/**/package.json",
+    "libs/**/package.json",
+    ".github/workflows/**/*.yml"
+  ]
+}
