@@ -4,7 +4,7 @@ import { Module } from '../index.js';
 
 export const random: Module = {
   key: 'random',
-  description: 'Random numbefrom N to N',
+  description: 'Random number from N to N',
   example: 'random|1-40',
   handler: (key, state, params) => {
     if (!params) return '';
