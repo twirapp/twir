@@ -48,7 +48,7 @@
     "passport": "^0.5.2",
     "passport-jwt": "^4.0.0",
     "prom-client": "^14.0.1",
-    "redis": "^3",
+    "redis": "^4.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5",
     "socket.io": "^4.5.1",
