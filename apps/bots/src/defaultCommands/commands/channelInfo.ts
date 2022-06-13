@@ -33,12 +33,14 @@ export const channelInfo: DefaultCommand[] = [
 
       const api = new ApiClient({ authProvider });
 
-      const tokenInfo = await api.getTokenInfo();
+      const [tokenInfo, game] = await Promise.all([
+        api.getTokenInfo(),
+        api.games.getGameByName(params),
+      ]);
+
       if (!tokenInfo.scopes.includes('channel:manage:broadcast')) {
         return `Missed scope from streamer. @${state.target.value.substring(1)} should re-login to the dashboard.`;
       }
-
-      const game = await api.games.getGameByName(params);
 
       if (!game) {
         return `game ${params} not found on twitch.`;
