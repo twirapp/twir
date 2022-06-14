@@ -12,6 +12,7 @@ COPY node_modules node_modules
 COPY apps/scheduler apps/scheduler
 COPY libs/prisma libs/prisma
 COPY libs/config/ libs/config
+COPY libs/shared/ libs/shared
 
 RUN pnpm install --prod
 RUN pnpm prisma:generate

@@ -15,6 +15,7 @@
     "@sentry/tracing": "^7.1.1",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
+    "@tsuwari/shared": "workspace:*",
     "@twurple/api": "^5.1.6",
     "@twurple/auth": "^5.1.6",
     "@twurple/common": "^5.1.6",

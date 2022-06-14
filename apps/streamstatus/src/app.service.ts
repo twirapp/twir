@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Client, ClientProxy, Transport } from '@nestjs/microservices';
+import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
+import { ClientProxy } from '@tsuwari/shared';
 import { ApiClient } from '@twurple/api';
 import { ClientCredentialsAuthProvider } from '@twurple/auth';
 import { getRawData } from '@twurple/common';

@@ -1,5 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
+import { ClientProxyResult } from '@tsuwari/shared';
+import { of } from 'rxjs';
 
 import { Bots } from '../bots.js';
 import * as Variables from '../parser/modules/index.js';
@@ -15,7 +17,7 @@ export class AppController {
   }
 
   @MessagePattern('bots.getVariables')
-  getVariables() {
+  getVariables(): ClientProxyResult<'bots.getVariables'> {
     const variables = Object.values(Variables).map(v => {
       const modules = Array.isArray(v) ? v : [v];
 
@@ -24,6 +26,6 @@ export class AppController {
         .map(m => ({ name: m.key, example: m.example, description: m.description }));
     }).flat();
 
-    return { variables };
+    return of(variables);
   }
 }

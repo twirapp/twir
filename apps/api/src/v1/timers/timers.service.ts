@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Client, ClientProxy, Transport } from '@nestjs/microservices';
+import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { PrismaService } from '@tsuwari/prisma';
+import { ClientProxy } from '@tsuwari/shared';
 
 import { CreateTimerDto } from './dto/create.js';
 

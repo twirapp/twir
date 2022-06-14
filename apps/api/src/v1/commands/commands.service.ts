@@ -1,7 +1,8 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { Client, ClientProxy, Transport } from '@nestjs/microservices';
+import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { Command, PrismaService, Response } from '@tsuwari/prisma';
+import { ClientProxy } from '@tsuwari/shared';
 
 import { RedisService } from '../../redis.service.js';
 import { UpdateOrCreateCommandDto } from './dto/create.js';
@@ -27,9 +28,9 @@ export class CommandsService {
       },
     });
 
-    const defaultCommands = await this.nats.send<{ commands: Command[] }>('bots.getDefaultCommands', {}).toPromise();
-    if (defaultCommands?.commands) {
-      for (const command of defaultCommands.commands) {
+    const defaultCommands = await this.nats.send('bots.getDefaultCommands', {}).toPromise();
+    if (defaultCommands) {
+      for (const command of defaultCommands) {
         if (!commands.some(c => c.defaultName === command.name)) {
           const newCommand = await this.prisma.command.create({
             data: {

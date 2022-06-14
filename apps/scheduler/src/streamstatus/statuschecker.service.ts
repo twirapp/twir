@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
 import { PrismaService } from '@tsuwari/prisma';
+import { ClientProxy } from '@tsuwari/shared';
 import _ from 'lodash';
+
 
 @Injectable()
 export class StreamStatusService {

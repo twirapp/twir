@@ -331,6 +331,7 @@ importers:
       '@sentry/tracing': ^7.1.1
       '@tsuwari/config': workspace:*
       '@tsuwari/prisma': workspace:*
+      '@tsuwari/shared': workspace:*
       '@types/cron': ^2.0.0
       '@types/lodash': ^4.14.182
       '@types/node': ^17.0.36
@@ -351,6 +352,7 @@ importers:
       '@sentry/tracing': 7.1.1
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/prisma': link:../../libs/prisma
+      '@tsuwari/shared': link:../../libs/shared
       ioredis: 5.0.6
       lodash: 4.17.21
       nats: 2.7.1
@@ -373,6 +375,7 @@ importers:
       '@sentry/tracing': ^7.1.1
       '@tsuwari/config': workspace:*
       '@tsuwari/prisma': workspace:*
+      '@tsuwari/shared': workspace:*
       '@twurple/api': ^5.1.6
       '@twurple/auth': ^5.1.6
       '@twurple/common': ^5.1.6
@@ -392,6 +395,7 @@ importers:
       '@sentry/tracing': 7.1.1
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/prisma': link:../../libs/prisma
+      '@tsuwari/shared': link:../../libs/shared
       '@twurple/api': 5.1.6_@twurple+auth@5.1.6
       '@twurple/auth': 5.1.6
       '@twurple/common': 5.1.6
@@ -477,14 +481,18 @@ importers:
 
   libs/shared:
     specifiers:
+      '@nestjs/microservices': ^8.4.5
       '@tsuwari/prisma': workspace:*
       '@twurple/api': ^5.1.6
       '@twurple/auth': ^5.1.6
       '@twurple/common': ^5.1.6
       class-validator: ^0.13.2
+      rxjs: ^7.5.5
     dependencies:
+      '@nestjs/microservices': 8.4.6_rxjs@7.5.5
       '@twurple/auth': 5.1.6
       class-validator: 0.13.2
+      rxjs: 7.5.5
     devDependencies:
       '@tsuwari/prisma': link:../prisma
       '@twurple/api': 5.1.6_@twurple+auth@5.1.6
@@ -1224,6 +1232,47 @@ packages:
       iterare: 1.2.1
       nats: 2.7.1
       reflect-metadata: 0.1.13
+      rxjs: 7.5.5
+      tslib: 2.4.0
+    dev: false
+
+  /@nestjs/microservices/8.4.6_rxjs@7.5.5:
+    resolution: {integrity: sha512-HEGznxFKnNwjIk+GT/xKzZ4jo4Itus0PhSMm689SDCBOzvdAOuqCkCWZXsP+jTRzeqaI+/7GEFq+P8q1eZsc/A==}
+    peerDependencies:
+      '@grpc/grpc-js': '*'
+      '@nestjs/common': ^8.0.0
+      '@nestjs/core': ^8.0.0
+      '@nestjs/websockets': ^8.0.0
+      amqp-connection-manager: '*'
+      amqplib: '*'
+      cache-manager: '*'
+      kafkajs: '*'
+      mqtt: '*'
+      nats: '*'
+      redis: '*'
+      reflect-metadata: ^0.1.12
+      rxjs: ^7.1.0
+    peerDependenciesMeta:
+      '@grpc/grpc-js':
+        optional: true
+      '@nestjs/websockets':
+        optional: true
+      amqp-connection-manager:
+        optional: true
+      amqplib:
+        optional: true
+      cache-manager:
+        optional: true
+      kafkajs:
+        optional: true
+      mqtt:
+        optional: true
+      nats:
+        optional: true
+      redis:
+        optional: true
+    dependencies:
+      iterare: 1.2.1
       rxjs: 7.5.5
       tslib: 2.4.0
     dev: false

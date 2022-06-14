@@ -1,7 +1,8 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { Client, ClientProxy, Transport } from '@nestjs/microservices';
+import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { Channel, PrismaService, Token, User } from '@tsuwari/prisma';
+import { ClientProxy } from '@tsuwari/shared';
 import { AccessToken } from '@twurple/auth';
 import { getRawData } from '@twurple/common';
 

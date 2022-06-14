@@ -1,7 +1,8 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { Client, ClientProxy, Transport } from '@nestjs/microservices';
+import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { PrismaService } from '@tsuwari/prisma';
+import { ClientProxy } from '@tsuwari/shared';
 
 
 import { RedisService } from '../../redis.service.js';
@@ -20,7 +21,7 @@ export class VariablesService {
   async getBuildInVariables() {
     const list = await this.nats.send('bots.getVariables', {}).toPromise();
 
-    return list?.variables;
+    return list;
   }
 
   getList(channelId: string) {

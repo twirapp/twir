@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Client, ClientProxy, Transport } from '@nestjs/microservices';
+import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { PrismaService } from '@tsuwari/prisma';
-import { EventParams, ClientToServerEvents, MyRefreshingProvider } from '@tsuwari/shared';
+import { EventParams, ClientToServerEvents, MyRefreshingProvider, ClientProxy } from '@tsuwari/shared';
 import { ApiClient } from '@twurple/api';
 
 import { RedisService } from '../redis.service.js';
