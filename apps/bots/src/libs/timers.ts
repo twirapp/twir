@@ -8,6 +8,7 @@ import { Bots, staticApi } from '../bots.js';
 import { ParserCache } from '../parser/cache.js';
 import { ResponseParser } from '../parser/index.js';
 import { prisma } from './prisma.js';
+import { redis } from './redis.js';
 
 const createConnection = () => new Redis(config.REDIS_URL, { maxRetriesPerRequest: null });
 
@@ -39,6 +40,9 @@ new Worker<Data>(
       await job.remove();
       return;
     }
+
+    const stream = await redis.get(`streams:${timer.channelId}`);
+    if (!stream) return;
 
     const responses = timer.responses as Array<string>;
 
