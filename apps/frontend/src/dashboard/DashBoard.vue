@@ -73,13 +73,12 @@ function joinChannel() {
         </h2>
         <div class="p-4">
           <div
-            class="rounded-lg py-5 px-6 mb-4 text-base mb-4"
+            class="rounded-lg py-5 px-6 text-base mb-4"
             :class="{ 'text-yellow-700 bg-yellow-100': !isBotMod, 'bg-green-100 text-green-700': isBotMod }"
           >
             <div v-if="!isBotMod">
               <div class="text-sm">
                 {{ t('pages.dashboard.widgets.status.notMod' ) }}
-                We detect bot is not moderator on the channel. Please, mod a bot, or some of functionality may work incorrectly.
               </div>
             </div>
             <div v-else>
