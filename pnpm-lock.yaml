@@ -8,23 +8,23 @@ importers:
   .:
     specifiers:
       '@satont/eslint-config': github:satont/eslint-config
-      '@types/node': ^17.0.36
-      '@typescript-eslint/eslint-plugin': ^5.27.0
-      '@typescript-eslint/parser': ^5.27.0
-      eslint: ^8.16.0
-      eslint-plugin-import: ^2.26.0
-      ts-node: ^10.8.1
-      tsx: ^3.4.2
-      turbo: ^1.2.14
-      typescript: ^4.7.2
+      '@types/node': 17.0.44
+      '@typescript-eslint/eslint-plugin': 5.28.0
+      '@typescript-eslint/parser': 5.28.0
+      eslint: 8.17.0
+      eslint-plugin-import: 2.26.0
+      ts-node: 10.8.1
+      tsx: 3.4.2
+      turbo: 1.2.16
+      typescript: 4.7.3
     devDependencies:
       '@satont/eslint-config': github.com/satont/eslint-config/37aa88af00903b3baa0f7cd5820798dd2b779065_wyrfqmvemfacbroyi3ypviy7f4
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
       '@typescript-eslint/eslint-plugin': 5.28.0_7yumg2qjgbp7maccqlfhx2vudu
       '@typescript-eslint/parser': 5.28.0_ud6rd4xtew5bv4yhvkvu24pzm4
       eslint: 8.17.0
       eslint-plugin-import: 2.26.0_wyrfqmvemfacbroyi3ypviy7f4
-      ts-node: 10.8.1_wpmar7q2se7jlmxe5wggegnl2m
+      ts-node: 10.8.1_k2m7pzviyiodwgodkpl42ylg7y
       tsx: 3.4.2
       turbo: 1.2.16
       typescript: 4.7.3
@@ -51,14 +51,14 @@ importers:
       '@twurple/auth': ^5.1.6
       '@twurple/chat': ^5.1.6
       '@twurple/common': ^5.1.6
-      '@types/cache-manager': ^3.4.3
-      '@types/cache-manager-ioredis': ^2.0.2
-      '@types/cookie-parser': ^1.4.3
-      '@types/express': ^4.17.13
-      '@types/jsonwebtoken': ^8.5.8
-      '@types/lodash.merge': ^4.6.7
-      '@types/node': ^17.0.33
-      '@types/passport-jwt': ^3.0.6
+      '@types/cache-manager': 3.4.3
+      '@types/cache-manager-ioredis': 2.0.2
+      '@types/cookie-parser': 1.4.3
+      '@types/express': 4.17.13
+      '@types/jsonwebtoken': 8.5.8
+      '@types/lodash.merge': 4.6.7
+      '@types/node': 17.0.44
+      '@types/passport-jwt': 3.0.6
       cache-manager: ^3.6.3
       cache-manager-ioredis: ^2.1.0
       class-transformer: ^0.5.1
@@ -71,7 +71,7 @@ importers:
       jsonwebtoken: ^8.5.1
       lodash.merge: ^4.6.2
       nats: ^2.7.1
-      nodemon: ^2.0.16
+      nodemon: 2.0.16
       passport: ^0.5.2
       passport-jwt: ^4.0.0
       prom-client: ^14.0.1
@@ -80,8 +80,8 @@ importers:
       rxjs: ^7.5.5
       socket.io: ^4.5.1
       tslib: ^2.4.0
-      type-fest: ^2.13.0
-      typescript: ^4.7.2
+      type-fest: 2.13.1
+      typescript: 4.7.3
     dependencies:
       '@nestjs-hybrid-auth/twitch': 1.0.0_s2ns3jpbfqkzpwnc5zezhfquja
       '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
@@ -130,7 +130,7 @@ importers:
       '@types/express': 4.17.13
       '@types/jsonwebtoken': 8.5.8
       '@types/lodash.merge': 4.6.7
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
       '@types/passport-jwt': 3.0.6
       nodemon: 2.0.16
       type-fest: 2.13.1
@@ -156,14 +156,14 @@ importers:
       '@twurple/auth': ^5.1.6
       '@twurple/chat': ^5.1.6
       '@twurple/common': ^5.1.6
-      '@types/bull': ^3.15.8
-      '@types/cookie-parser': ^1.4.3
-      '@types/express': ^4.17.13
-      '@types/lodash.chunk': ^4.2.7
-      '@types/lodash.merge': ^4.6.7
-      '@types/lodash.omit': ^4.5.7
-      '@types/node': ^17.0.35
-      '@types/passport-jwt': ^3.0.6
+      '@types/bull': 3.15.8
+      '@types/cookie-parser': 1.4.3
+      '@types/express': 4.17.13
+      '@types/lodash.chunk': 4.2.7
+      '@types/lodash.merge': 4.6.7
+      '@types/lodash.omit': 4.5.7
+      '@types/node': 17.0.44
+      '@types/passport-jwt': 3.0.6
       axios: ^0.27.2
       bullmq: ^1.83.2
       class-transformer: ^0.5.1
@@ -178,7 +178,7 @@ importers:
       lodash.merge: ^4.6.2
       lodash.omit: ^4.5.0
       nats: ^2.7.1
-      nodemon: ^2.0.16
+      nodemon: 2.0.16
       passport: ^0.5.3
       passport-jwt: ^4.0.0
       picocolors: ^1.0.0
@@ -188,8 +188,8 @@ importers:
       rxjs: ^7.5.5
       tlds: ^1.231.0
       tslib: ^2.4.0
-      type-fest: ^2.13.0
-      typescript: ^4.7.2
+      type-fest: 2.13.1
+      typescript: 4.7.3
       vitest: 0.15.1
       vm2: ^3.9.9
     dependencies:
@@ -242,7 +242,7 @@ importers:
       '@types/lodash.chunk': 4.2.7
       '@types/lodash.merge': 4.6.7
       '@types/lodash.omit': 4.5.7
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
       '@types/passport-jwt': 3.0.6
       nodemon: 2.0.16
       type-fest: 2.13.1
@@ -251,41 +251,41 @@ importers:
 
   apps/frontend:
     specifiers:
-      '@intlify/vite-plugin-vue-i18n': ^3.4.0
-      '@nanostores/persistent': ^0.5.2
-      '@nanostores/vue': ^0.5.5
+      '@intlify/vite-plugin-vue-i18n': 3.4.0
+      '@nanostores/persistent': 0.5.3
+      '@nanostores/vue': 0.5.5
       '@tsuwari/api': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
-      '@twurple/api': ^5.1.6
-      '@twurple/common': ^5.1.6
-      '@types/node': ^17.0.35
-      '@types/prismjs': ^1.26.0
-      '@vitejs/plugin-vue': ^2.3.3
-      '@vueuse/core': ^8.5.0
-      '@vueuse/integrations': ^8.5.0
-      autoprefixer: ^10.4.7
-      axios: ^0.27.2
-      date-fns: ^2.28.0
-      jwt-decode: ^3.1.2
-      nanostores: ^0.5.12
-      postcss: ^8.4.14
-      prismjs: ^1.28.0
+      '@twurple/api': 5.1.6
+      '@twurple/common': 5.1.6
+      '@types/node': 17.0.44
+      '@types/prismjs': 1.26.0
+      '@vitejs/plugin-vue': 2.3.3
+      '@vueuse/core': 8.6.0
+      '@vueuse/integrations': 8.6.0
+      autoprefixer: 10.4.7
+      axios: 0.27.2
+      date-fns: 2.28.0
+      jwt-decode: 3.1.2
+      nanostores: 0.5.12
+      postcss: 8.4.14
+      prismjs: 1.28.0
       socket.io-client: 4.5.1
-      tailwind-scrollbar: ^1.3.1
-      tailwindcss: ^3.0.24
+      tailwind-scrollbar: 1.3.1
+      tailwindcss: 3.1.3
       tw-elements: 1.0.0-alpha12
-      type-fest: ^2.13.0
-      typescript: ^4.7.2
-      vee-validate: ^4.5.11
-      vite: ^2.9.9
-      vite-svg-loader: ^3.3.0
-      vue: ^3.2.35
-      vue-i18n: ^9.2.0-beta.36
+      type-fest: 2.13.1
+      typescript: 4.7.3
+      vee-validate: 4.5.11
+      vite: 2.9.12
+      vite-svg-loader: 3.3.0
+      vue: 3.2.37
+      vue-i18n: 9.2.0-beta.36
       vue-prism-editor: 2.0.0-alpha.2
-      vue-router: '4'
-      vue-tsc: ^0.34.15
-      yup: ^0.32.11
+      vue-router: 4.0.16
+      vue-tsc: 0.34.17
+      yup: 0.32.11
     dependencies:
       '@nanostores/persistent': 0.5.3_nanostores@0.5.12
       '@nanostores/vue': 0.5.5_ympl27tda4o7w6en7idglmssei
@@ -312,13 +312,13 @@ importers:
       '@tsuwari/shared': link:../../libs/shared
       '@twurple/api': 5.1.6
       '@twurple/common': 5.1.6
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
       '@types/prismjs': 1.26.0
       '@vitejs/plugin-vue': 2.3.3_vite@2.9.12+vue@3.2.37
       autoprefixer: 10.4.7_postcss@8.4.14
       postcss: 8.4.14
       tailwind-scrollbar: 1.3.1
-      tailwindcss: 3.1.2
+      tailwindcss: 3.1.3
       type-fest: 2.13.1
       typescript: 4.7.3
       vite: 2.9.12
@@ -326,31 +326,31 @@ importers:
 
   apps/scheduler:
     specifiers:
-      '@nestjs/common': ^8.4.5
-      '@nestjs/core': ^8.4.5
-      '@nestjs/microservices': ^8.4.5
-      '@nestjs/schedule': ^2.0.1
-      '@sentry/node': ^7.1.1
-      '@sentry/tracing': ^7.1.1
+      '@nestjs/common': 8.4.7
+      '@nestjs/core': 8.4.7
+      '@nestjs/microservices': 8.4.7
+      '@nestjs/schedule': 2.0.1
+      '@sentry/node': 7.1.1
+      '@sentry/tracing': 7.1.1
       '@tsuwari/config': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
-      '@types/cron': ^2.0.0
-      '@types/lodash': ^4.14.182
-      '@types/node': ^17.0.36
-      ioredis: ^5.0.5
-      lodash: ^4.17.21
-      nats: ^2.7.1
-      nodemon: ^2.0.16
-      reflect-metadata: ^0.1.13
-      rxjs: ^7.5.5
-      tslib: ^2.4.0
-      typescript: ^4.7.2
+      '@types/cron': 2.0.0
+      '@types/lodash': 4.14.182
+      '@types/node': 17.0.44
+      ioredis: 5.0.6
+      lodash: 4.17.21
+      nats: 2.7.1
+      nodemon: 2.0.16
+      reflect-metadata: 0.1.13
+      rxjs: 7.5.5
+      tslib: 2.4.0
+      typescript: 4.7.3
     dependencies:
-      '@nestjs/common': 8.4.6_47vcjb2de6lyibr6g4enoa5lyu
-      '@nestjs/core': 8.4.6_ohkmdv3xyvkszfvb2ghqzzao7e
-      '@nestjs/microservices': 8.4.6_g57lpe67zmu7v5x5vdakcjoikq
-      '@nestjs/schedule': 2.0.1_ppbi2tyth2jyod2vg4y74lzsra
+      '@nestjs/common': 8.4.7_47vcjb2de6lyibr6g4enoa5lyu
+      '@nestjs/core': 8.4.7_uqox75xpi6vzmoesxch6gsx23q
+      '@nestjs/microservices': 8.4.7_w3ikimstnjmv7g7t6sjfprllce
+      '@nestjs/schedule': 2.0.1_zysgbzrbqurgi5bpxpfkrj3lie
       '@sentry/node': 7.1.1
       '@sentry/tracing': 7.1.1
       '@tsuwari/config': link:../../libs/config
@@ -365,35 +365,35 @@ importers:
     devDependencies:
       '@types/cron': 2.0.0
       '@types/lodash': 4.14.182
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
       nodemon: 2.0.16
       typescript: 4.7.3
 
   apps/streamstatus:
     specifiers:
-      '@nestjs/common': ^8.4.5
-      '@nestjs/core': ^8.4.5
-      '@nestjs/microservices': ^8.4.5
-      '@sentry/node': ^7.1.1
-      '@sentry/tracing': ^7.1.1
+      '@nestjs/common': 8.4.7
+      '@nestjs/core': 8.4.7
+      '@nestjs/microservices': 8.4.7
+      '@sentry/node': 7.1.1
+      '@sentry/tracing': 7.1.1
       '@tsuwari/config': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
-      '@twurple/api': ^5.1.6
-      '@twurple/auth': ^5.1.6
-      '@twurple/common': ^5.1.6
-      '@types/node': ^17.0.36
-      ioredis: ^5.0.5
-      nats: ^2.7.1
-      nodemon: ^2.0.16
-      reflect-metadata: ^0.1.13
-      rxjs: ^7.5.5
-      tslib: ^2.4.0
-      typescript: ^4.7.2
+      '@twurple/api': 5.1.6
+      '@twurple/auth': 5.1.6
+      '@twurple/common': 5.1.6
+      '@types/node': 17.0.44
+      ioredis: 5.0.6
+      nats: 2.7.1
+      nodemon: 2.0.16
+      reflect-metadata: 0.1.13
+      rxjs: 7.5.5
+      tslib: 2.4.0
+      typescript: 4.7.3
     dependencies:
-      '@nestjs/common': 8.4.6_47vcjb2de6lyibr6g4enoa5lyu
-      '@nestjs/core': 8.4.6_ohkmdv3xyvkszfvb2ghqzzao7e
-      '@nestjs/microservices': 8.4.6_g57lpe67zmu7v5x5vdakcjoikq
+      '@nestjs/common': 8.4.7_47vcjb2de6lyibr6g4enoa5lyu
+      '@nestjs/core': 8.4.7_uqox75xpi6vzmoesxch6gsx23q
+      '@nestjs/microservices': 8.4.7_w3ikimstnjmv7g7t6sjfprllce
       '@sentry/node': 7.1.1
       '@sentry/tracing': 7.1.1
       '@tsuwari/config': link:../../libs/config
@@ -408,34 +408,34 @@ importers:
       rxjs: 7.5.5
       tslib: 2.4.0
     devDependencies:
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
       nodemon: 2.0.16
       typescript: 4.7.3
 
   apps/watched:
     specifiers:
-      '@nestjs/common': ^8.4.5
-      '@nestjs/core': ^8.4.5
-      '@nestjs/microservices': ^8.4.5
+      '@nestjs/common': 8.4.7
+      '@nestjs/core': 8.4.7
+      '@nestjs/microservices': 8.4.7
       '@tsuwari/config': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
-      '@twurple/api': ^5.1.6
-      '@twurple/auth': ^5.1.6
-      '@twurple/common': ^5.1.6
-      '@types/lodash': ^4.14.182
-      '@types/node': ^17.0.36
-      ioredis: ^5.0.5
-      lodash: ^4.17.21
-      nodemon: ^2.0.16
-      reflect-metadata: ^0.1.13
-      rxjs: ^7.5.5
-      tslib: ^2.4.0
-      typescript: ^4.7.2
+      '@twurple/api': 5.1.6
+      '@twurple/auth': 5.1.6
+      '@twurple/common': 5.1.6
+      '@types/lodash': 4.14.182
+      '@types/node': 17.0.44
+      ioredis: 5.0.6
+      lodash: 4.17.21
+      nodemon: 2.0.16
+      reflect-metadata: 0.1.13
+      rxjs: 7.5.5
+      tslib: 2.4.0
+      typescript: 4.7.3
     dependencies:
-      '@nestjs/common': 8.4.6_47vcjb2de6lyibr6g4enoa5lyu
-      '@nestjs/core': 8.4.6_ohkmdv3xyvkszfvb2ghqzzao7e
-      '@nestjs/microservices': 8.4.6_ylfx5swiot7inr3kdyigrsa54e
+      '@nestjs/common': 8.4.7_47vcjb2de6lyibr6g4enoa5lyu
+      '@nestjs/core': 8.4.7_uqox75xpi6vzmoesxch6gsx23q
+      '@nestjs/microservices': 8.4.7_is5nhplidwfwwktrrhg7r46vx4
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
@@ -448,16 +448,16 @@ importers:
       rxjs: 7.5.5
     devDependencies:
       '@types/lodash': 4.14.182
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
       nodemon: 2.0.16
       tslib: 2.4.0
       typescript: 4.7.3
 
   libs/config:
     specifiers:
-      dotenv: ^16.0.1
-      envalid: ^7.3.1
-      nodemon: ^2.0.16
+      dotenv: 16.0.1
+      envalid: 7.3.1
+      nodemon: 2.0.16
     dependencies:
       dotenv: 16.0.1
       envalid: 7.3.1
@@ -467,7 +467,7 @@ importers:
   libs/integrations/spotify:
     specifiers:
       '@tsuwari/prisma': workspace:*
-      axios: ^0.27.2
+      axios: 0.27.2
     dependencies:
       '@tsuwari/prisma': link:../../prisma
       axios: 0.27.2
@@ -484,15 +484,15 @@ importers:
 
   libs/shared:
     specifiers:
-      '@nestjs/microservices': ^8.4.5
+      '@nestjs/microservices': 8.4.7
       '@tsuwari/prisma': workspace:*
-      '@twurple/api': ^5.1.6
-      '@twurple/auth': ^5.1.6
-      '@twurple/common': ^5.1.6
-      class-validator: ^0.13.2
-      rxjs: ^7.5.5
+      '@twurple/api': 5.1.6
+      '@twurple/auth': 5.1.6
+      '@twurple/common': 5.1.6
+      class-validator: 0.13.2
+      rxjs: 7.5.5
     dependencies:
-      '@nestjs/microservices': 8.4.6_rxjs@7.5.5
+      '@nestjs/microservices': 8.4.7_rxjs@7.5.5
       '@twurple/auth': 5.1.6
       class-validator: 0.13.2
       rxjs: 7.5.5
@@ -504,8 +504,8 @@ importers:
   libs/typeorm:
     specifiers:
       '@tsuwari/config': workspace:*
-      '@types/glob': ^7.2.0
-      glob: ^8.0.3
+      '@types/glob': 7.2.0
+      glob: 8.0.3
       pg: ^8.7.3
       reflect-metadata: ^0.1.13
       typeorm: ^0.3.6
@@ -980,32 +980,6 @@ packages:
       - debug
     dev: false
 
-  /@nestjs/common/8.4.6_47vcjb2de6lyibr6g4enoa5lyu:
-    resolution: {integrity: sha512-INp1ERDrLiQ4GwRc3zotTwBLZm2sIwcJwnBE2yXqsth17KijmoVmY8UB5Tares0IlwjsqlRFWkCX8uWE5rzbSA==}
-    peerDependencies:
-      cache-manager: '*'
-      class-transformer: '*'
-      class-validator: '*'
-      reflect-metadata: ^0.1.12
-      rxjs: ^7.1.0
-    peerDependenciesMeta:
-      cache-manager:
-        optional: true
-      class-transformer:
-        optional: true
-      class-validator:
-        optional: true
-    dependencies:
-      axios: 0.27.2
-      iterare: 1.2.1
-      reflect-metadata: 0.1.13
-      rxjs: 7.5.5
-      tslib: 2.4.0
-      uuid: 8.3.2
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
   /@nestjs/common/8.4.6_kgmvgmqc4iohdboj3f7yqhrie4:
     resolution: {integrity: sha512-INp1ERDrLiQ4GwRc3zotTwBLZm2sIwcJwnBE2yXqsth17KijmoVmY8UB5Tares0IlwjsqlRFWkCX8uWE5rzbSA==}
     peerDependencies:
@@ -1025,6 +999,32 @@ packages:
       axios: 0.27.2
       class-transformer: 0.5.1
       class-validator: 0.13.2
+      iterare: 1.2.1
+      reflect-metadata: 0.1.13
+      rxjs: 7.5.5
+      tslib: 2.4.0
+      uuid: 8.3.2
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@nestjs/common/8.4.7_47vcjb2de6lyibr6g4enoa5lyu:
+    resolution: {integrity: sha512-m/YsbcBal+gA5CFrDpqXqsSfylo+DIQrkFY3qhVIltsYRfu8ct8J9pqsTO6OPf3mvqdOpFGrV5sBjoyAzOBvsw==}
+    peerDependencies:
+      cache-manager: '*'
+      class-transformer: '*'
+      class-validator: '*'
+      reflect-metadata: ^0.1.12
+      rxjs: ^7.1.0
+    peerDependenciesMeta:
+      cache-manager:
+        optional: true
+      class-transformer:
+        optional: true
+      class-validator:
+        optional: true
+    dependencies:
+      axios: 0.27.2
       iterare: 1.2.1
       reflect-metadata: 0.1.13
       rxjs: 7.5.5
@@ -1068,39 +1068,6 @@ packages:
       - encoding
     dev: false
 
-  /@nestjs/core/8.4.6_ohkmdv3xyvkszfvb2ghqzzao7e:
-    resolution: {integrity: sha512-5zHpxTYV7HT3lfF7l/x0EWBfmuyuDOnGRcALf88tzDGs/7Q/VC6l65d6eFwDwI37NLtScqnmEkT9of8E3fT3mA==}
-    requiresBuild: true
-    peerDependencies:
-      '@nestjs/common': ^8.0.0
-      '@nestjs/microservices': ^8.0.0
-      '@nestjs/platform-express': ^8.0.0
-      '@nestjs/websockets': ^8.0.0
-      reflect-metadata: ^0.1.12
-      rxjs: ^7.1.0
-    peerDependenciesMeta:
-      '@nestjs/microservices':
-        optional: true
-      '@nestjs/platform-express':
-        optional: true
-      '@nestjs/websockets':
-        optional: true
-    dependencies:
-      '@nestjs/common': 8.4.6_47vcjb2de6lyibr6g4enoa5lyu
-      '@nestjs/microservices': 8.4.6_g57lpe67zmu7v5x5vdakcjoikq
-      '@nuxtjs/opencollective': 0.3.2
-      fast-safe-stringify: 2.1.1
-      iterare: 1.2.1
-      object-hash: 3.0.0
-      path-to-regexp: 3.2.0
-      reflect-metadata: 0.1.13
-      rxjs: 7.5.5
-      tslib: 2.4.0
-      uuid: 8.3.2
-    transitivePeerDependencies:
-      - encoding
-    dev: false
-
   /@nestjs/core/8.4.6_pjpsmokgzvmh2tjol2wirtbzna:
     resolution: {integrity: sha512-5zHpxTYV7HT3lfF7l/x0EWBfmuyuDOnGRcALf88tzDGs/7Q/VC6l65d6eFwDwI37NLtScqnmEkT9of8E3fT3mA==}
     requiresBuild: true
@@ -1123,6 +1090,39 @@ packages:
       '@nestjs/microservices': 8.4.6_7zlwoxtay5nlctrzwpnb6zrgqi
       '@nestjs/platform-express': 8.4.6_etfae4mmenqzp3rs3pua7csngy
       '@nestjs/websockets': 8.4.6_6a7csugkuqc2e66avgu3rijc4a
+      '@nuxtjs/opencollective': 0.3.2
+      fast-safe-stringify: 2.1.1
+      iterare: 1.2.1
+      object-hash: 3.0.0
+      path-to-regexp: 3.2.0
+      reflect-metadata: 0.1.13
+      rxjs: 7.5.5
+      tslib: 2.4.0
+      uuid: 8.3.2
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /@nestjs/core/8.4.7_uqox75xpi6vzmoesxch6gsx23q:
+    resolution: {integrity: sha512-XB9uexHqzr2xkPo6QSiQWJJttyYYLmvQ5My64cFvWFi7Wk2NIus0/xUNInwX3kmFWB6pF1ab5Y2ZBvWdPwGBhw==}
+    requiresBuild: true
+    peerDependencies:
+      '@nestjs/common': ^8.0.0
+      '@nestjs/microservices': ^8.0.0
+      '@nestjs/platform-express': ^8.0.0
+      '@nestjs/websockets': ^8.0.0
+      reflect-metadata: ^0.1.12
+      rxjs: ^7.1.0
+    peerDependenciesMeta:
+      '@nestjs/microservices':
+        optional: true
+      '@nestjs/platform-express':
+        optional: true
+      '@nestjs/websockets':
+        optional: true
+    dependencies:
+      '@nestjs/common': 8.4.7_47vcjb2de6lyibr6g4enoa5lyu
+      '@nestjs/microservices': 8.4.7_w3ikimstnjmv7g7t6sjfprllce
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
@@ -1239,8 +1239,52 @@ packages:
       tslib: 2.4.0
     dev: false
 
-  /@nestjs/microservices/8.4.6_rxjs@7.5.5:
-    resolution: {integrity: sha512-HEGznxFKnNwjIk+GT/xKzZ4jo4Itus0PhSMm689SDCBOzvdAOuqCkCWZXsP+jTRzeqaI+/7GEFq+P8q1eZsc/A==}
+  /@nestjs/microservices/8.4.7_is5nhplidwfwwktrrhg7r46vx4:
+    resolution: {integrity: sha512-JZX29tBWbbPa+Q06QcCbwKTyEsOFHAPrxgfEkRNwoaiEqqCsITT9w2n5bcz3vlUurdpy5dIgX3/almbitghbKg==}
+    peerDependencies:
+      '@grpc/grpc-js': '*'
+      '@nestjs/common': ^8.0.0
+      '@nestjs/core': ^8.0.0
+      '@nestjs/websockets': ^8.0.0
+      amqp-connection-manager: '*'
+      amqplib: '*'
+      cache-manager: '*'
+      kafkajs: '*'
+      mqtt: '*'
+      nats: '*'
+      redis: '*'
+      reflect-metadata: ^0.1.12
+      rxjs: ^7.1.0
+    peerDependenciesMeta:
+      '@grpc/grpc-js':
+        optional: true
+      '@nestjs/websockets':
+        optional: true
+      amqp-connection-manager:
+        optional: true
+      amqplib:
+        optional: true
+      cache-manager:
+        optional: true
+      kafkajs:
+        optional: true
+      mqtt:
+        optional: true
+      nats:
+        optional: true
+      redis:
+        optional: true
+    dependencies:
+      '@nestjs/common': 8.4.7_47vcjb2de6lyibr6g4enoa5lyu
+      '@nestjs/core': 8.4.7_uqox75xpi6vzmoesxch6gsx23q
+      iterare: 1.2.1
+      reflect-metadata: 0.1.13
+      rxjs: 7.5.5
+      tslib: 2.4.0
+    dev: false
+
+  /@nestjs/microservices/8.4.7_rxjs@7.5.5:
+    resolution: {integrity: sha512-JZX29tBWbbPa+Q06QcCbwKTyEsOFHAPrxgfEkRNwoaiEqqCsITT9w2n5bcz3vlUurdpy5dIgX3/almbitghbKg==}
     peerDependencies:
       '@grpc/grpc-js': '*'
       '@nestjs/common': ^8.0.0
@@ -1280,8 +1324,8 @@ packages:
       tslib: 2.4.0
     dev: false
 
-  /@nestjs/microservices/8.4.6_ylfx5swiot7inr3kdyigrsa54e:
-    resolution: {integrity: sha512-HEGznxFKnNwjIk+GT/xKzZ4jo4Itus0PhSMm689SDCBOzvdAOuqCkCWZXsP+jTRzeqaI+/7GEFq+P8q1eZsc/A==}
+  /@nestjs/microservices/8.4.7_w3ikimstnjmv7g7t6sjfprllce:
+    resolution: {integrity: sha512-JZX29tBWbbPa+Q06QcCbwKTyEsOFHAPrxgfEkRNwoaiEqqCsITT9w2n5bcz3vlUurdpy5dIgX3/almbitghbKg==}
     peerDependencies:
       '@grpc/grpc-js': '*'
       '@nestjs/common': ^8.0.0
@@ -1316,9 +1360,10 @@ packages:
       redis:
         optional: true
     dependencies:
-      '@nestjs/common': 8.4.6_47vcjb2de6lyibr6g4enoa5lyu
-      '@nestjs/core': 8.4.6_ohkmdv3xyvkszfvb2ghqzzao7e
+      '@nestjs/common': 8.4.7_47vcjb2de6lyibr6g4enoa5lyu
+      '@nestjs/core': 8.4.7_uqox75xpi6vzmoesxch6gsx23q
       iterare: 1.2.1
+      nats: 2.7.1
       reflect-metadata: 0.1.13
       rxjs: 7.5.5
       tslib: 2.4.0
@@ -1369,15 +1414,15 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@nestjs/schedule/2.0.1_ppbi2tyth2jyod2vg4y74lzsra:
+  /@nestjs/schedule/2.0.1_zysgbzrbqurgi5bpxpfkrj3lie:
     resolution: {integrity: sha512-NqiCk3P7HDMw55kpefNIzAAQEsP+6dDIXUt4/KQANtAZ+opdLzo8rkzI0j8vDqgYeTh+PKq+V6zwSRjR61xPAQ==}
     peerDependencies:
       '@nestjs/common': ^6.10.11 || ^7.0.0 || ^8.0.0
       '@nestjs/core': ^7.0.0 || ^8.0.0
       reflect-metadata: ^0.1.12
     dependencies:
-      '@nestjs/common': 8.4.6_47vcjb2de6lyibr6g4enoa5lyu
-      '@nestjs/core': 8.4.6_ohkmdv3xyvkszfvb2ghqzzao7e
+      '@nestjs/common': 8.4.7_47vcjb2de6lyibr6g4enoa5lyu
+      '@nestjs/core': 8.4.7_uqox75xpi6vzmoesxch6gsx23q
       cron: 2.0.0
       reflect-metadata: 0.1.13
       uuid: 8.3.2
@@ -1667,7 +1712,7 @@ packages:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
 
   /@types/bull/3.15.8:
     resolution: {integrity: sha512-8DbSPMSsZH5PWPnGEkAZLYgJEH4ghHJNKF7LB6Wr5R0/v6g+Vs+JoaA7kcvLtHE936xg2WpFPkaoaJgExOmKDw==}
@@ -1704,7 +1749,7 @@ packages:
   /@types/connect/3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
 
   /@types/cookie-parser/1.4.3:
     resolution: {integrity: sha512-CqSKwFwefj4PzZ5n/iwad/bow2hTCh0FlNAeWLtQM3JA/NX/iYagIpWG2cf1bQKQ2c9gU2log5VUCrn7LDOs0w==}
@@ -1724,13 +1769,13 @@ packages:
     resolution: {integrity: sha512-xZM08fqvwIXgghtPVkSPKNgC+JoMQ2OHazEvyTKnNf7aWu1aB6/4lBbQFrb03Td2cUGG7ITzMv3mFYnMu6xRaQ==}
     dependencies:
       '@types/luxon': 2.3.2
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
     dev: true
 
   /@types/express-serve-static-core/4.17.28:
     resolution: {integrity: sha512-P1BJAEAW3E2DJUlkgq4tOL3RyMunoWXqbSCygWo5ZIWTjUgN1YnaXWW4VWl/oc8vs/XoYibEGBKP0uZyF4AHig==}
     dependencies:
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
 
@@ -1746,13 +1791,13 @@ packages:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
     dependencies:
       '@types/minimatch': 3.0.5
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
     dev: true
 
   /@types/ioredis/4.28.10:
     resolution: {integrity: sha512-69LyhUgrXdgcNDv7ogs1qXZomnfOEnSmrmMFqKgt1XMJxmoOSG/u3wYy13yACIfKuMJ8IhKgHafDO3sx19zVQQ==}
     dependencies:
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
     dev: true
 
   /@types/json-schema/7.0.11:
@@ -1766,12 +1811,12 @@ packages:
   /@types/jsonwebtoken/8.5.8:
     resolution: {integrity: sha512-zm6xBQpFDIDM6o9r6HSgDeIcLy82TKWctCXEPbJJcXb5AKmi5BNNdLXneixK4lplX3PqIVcwLBCGE/kAGnlD4A==}
     dependencies:
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
 
   /@types/keyv/3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
     dev: true
 
   /@types/lodash.chunk/4.2.7:
@@ -1809,7 +1854,7 @@ packages:
   /@types/node-fetch/2.6.1:
     resolution: {integrity: sha512-oMqjURCaxoSIsHSr1E47QHzbmzNR5rK8McHuNb11BOM9cHcIK3Avy0s/b2JlXHoQGTYS3NsvWzV1M0iK7l0wbA==}
     dependencies:
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
       form-data: 3.0.1
 
   /@types/node/12.20.55:
@@ -1822,13 +1867,13 @@ packages:
     resolution: {integrity: sha512-K0MsdV42vPwm9L6UwhIxMAOmcvH/1OoVkZyCgEtVu4Wx7sElGloy/W7kMBNe/oJ7V/jW9BVt1F6RahH6e7tPXw==}
     dev: false
 
-  /@types/node/17.0.42:
-    resolution: {integrity: sha512-Q5BPGyGKcvQgAMbsr7qEGN/kIPN6zZecYYABeTDBizOsau+2NMdSVTar9UQw21A2+JyA2KRNDYaYrPB0Rpk2oQ==}
+  /@types/node/17.0.44:
+    resolution: {integrity: sha512-gWYiOlu6Y4oyLYBvsJAPlwHbC8H4tX+tLsHy6Ee976wedwwZKrG2hFl3Y/HiH6bIyLTbDWQexQF/ohwKkOpUCg==}
 
   /@types/oauth/0.9.1:
     resolution: {integrity: sha512-a1iY62/a3yhZ7qH7cNUsxoI3U/0Fe9+RnuFrpTKr+0WVOzbKlSLojShCKe20aOD1Sppv+i8Zlq0pLDuTJnwS4A==}
     dependencies:
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
     dev: false
 
   /@types/passport-jwt/3.0.6:
@@ -1880,25 +1925,25 @@ packages:
   /@types/redis/2.8.32:
     resolution: {integrity: sha512-7jkMKxcGq9p242exlbsVzuJb57KqHRhNl4dHoQu2Y5v9bCAbtIXXH0R3HleSQW4CTOqpHIYUW3t6tpUj4BVQ+w==}
     dependencies:
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
     dev: true
 
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
     dev: true
 
   /@types/serve-static/1.13.10:
     resolution: {integrity: sha512-nCkHGI4w7ZgAdNkrEu0bv+4xNV/XDqW+DydknebMOQwkpDGx8G+HTlj7R7ABI8i8nKxVw0wtKPi1D+lPOkh4YQ==}
     dependencies:
       '@types/mime': 1.3.2
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
 
   /@types/ws/8.5.3:
     resolution: {integrity: sha512-6YOoWjruKj1uLf3INHH7D3qTXwFfEsg1kf3c0uDdSBJwfa/llkwIjrAGV7j7mVgGNbzTQ3HiHKKDXl6bJPD97w==}
     dependencies:
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
     dev: false
 
   /@typescript-eslint/eslint-plugin/5.28.0_7yumg2qjgbp7maccqlfhx2vudu:
@@ -3240,7 +3285,7 @@ packages:
     dependencies:
       '@types/cookie': 0.4.1
       '@types/cors': 2.8.12
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
       accepts: 1.3.8
       base64id: 2.0.0
       cookie: 0.4.2
@@ -4727,7 +4772,7 @@ packages:
     dev: false
 
   /json-buffer/3.0.0:
-    resolution: {integrity: sha1-Wx85evx11ne96Lz8Dkfh+aPZqJg=}
+    resolution: {integrity: sha512-CuUqjv0FUZIdXkHPI8MezCnFCdaTAacej1TZYulLoAg1h/PhwkdXFN4V/gzY4g+fMBCOV2xF+rp7t2XD2ns/NQ==}
     dev: true
 
   /json-schema-traverse/0.4.1:
@@ -6203,13 +6248,13 @@ packages:
   /tailwind-scrollbar/1.3.1:
     resolution: {integrity: sha512-FeYuLxLtCRMO4PmjPJCzm5wQouFro2BInZXKPxqg54DR/55NAHoS8uNYWMiRG5l6qsLkWBfVEM34gq2XAQUwVg==}
     dependencies:
-      tailwindcss: 3.1.2
+      tailwindcss: 3.1.3
     transitivePeerDependencies:
       - ts-node
     dev: true
 
-  /tailwindcss/3.1.2:
-    resolution: {integrity: sha512-yJ6L5s1U5AeS5g7HHy212zdQfjwD426FBfm59pet/JsyneuZuD4C2W7PpJEg4ppisiB21uLqtNagv8KXury3+Q==}
+  /tailwindcss/3.1.3:
+    resolution: {integrity: sha512-PRJNYdSIthrb8hjmAyymEyEN8Yo61TMXpzyFUpxULeeyRn3Y3gpvuw6FlRTKrJvK7thSGKRnhT36VovVx4WeMA==}
     engines: {node: '>=12.13.0'}
     hasBin: true
     dependencies:
@@ -6318,7 +6363,7 @@ packages:
   /tr46/0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
-  /ts-node/10.8.1_wpmar7q2se7jlmxe5wggegnl2m:
+  /ts-node/10.8.1_k2m7pzviyiodwgodkpl42ylg7y:
     resolution: {integrity: sha512-Wwsnao4DQoJsN034wePSg5nZiw4YKXf56mPIAeD6wVmiv+RytNSWqc2f3fKvcUoV+Yn2+yocD71VOfQHbmVX4g==}
     hasBin: true
     peerDependencies:
@@ -6337,7 +6382,7 @@ packages:
       '@tsconfig/node12': 1.0.10
       '@tsconfig/node14': 1.0.2
       '@tsconfig/node16': 1.0.3
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
       acorn: 8.7.1
       acorn-walk: 8.2.0
       arg: 4.1.3
@@ -6529,7 +6574,7 @@ packages:
       detect-autofill: 1.1.4
       perfect-scrollbar: 1.5.5
       popper.js: 1.16.1
-      tailwindcss: 3.1.2
+      tailwindcss: 3.1.3
     transitivePeerDependencies:
       - ts-node
     dev: false
@@ -6835,7 +6880,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.1
       '@types/chai-subset': 1.3.3
-      '@types/node': 17.0.42
+      '@types/node': 17.0.44
       chai: 4.3.6
       debug: 4.3.4
       local-pkg: 0.4.1
