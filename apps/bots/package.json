@@ -46,7 +46,7 @@
     "lodash.merge": "^4.6.2",
     "lodash.omit": "^4.5.0",
     "nats": "^2.7.1",
-    "passport": "^0.5.3",
+    "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "picocolors": "^1.0.0",
     "prom-client": "^14.0.1",
