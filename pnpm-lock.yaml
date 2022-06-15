@@ -190,7 +190,7 @@ importers:
       tslib: ^2.4.0
       type-fest: ^2.13.0
       typescript: ^4.7.2
-      vitest: 0.15.0
+      vitest: 0.15.1
       vm2: ^3.9.9
     dependencies:
       '@nestjs-hybrid-auth/twitch': 1.0.0_s2ns3jpbfqkzpwnc5zezhfquja
@@ -247,7 +247,7 @@ importers:
       nodemon: 2.0.16
       type-fest: 2.13.1
       typescript: 4.7.3
-      vitest: 0.15.0
+      vitest: 0.15.1
 
   apps/frontend:
     specifiers:
@@ -6814,8 +6814,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitest/0.15.0:
-    resolution: {integrity: sha512-ofXZ8tBYAkVJpTpkaGruBh9nG6lO9cs04IdFpneDblCwBpncnlpEgZvlF3XWF4lSsklPe9le4MO8+j90DnsX+g==}
+  /vitest/0.15.1:
+    resolution: {integrity: sha512-NaNFi93JKSuvV4YGnfQ0l0GKYxH0EsLcTrrXaCzd6qfVEZM/RJpjwSevg6waNFqu2DyN6e0aHHdrCZW5/vh5NA==}
     engines: {node: '>=v14.16.0'}
     hasBin: true
     peerDependencies:
