@@ -5,6 +5,7 @@
   "extends": [
     "config:base"
   ],
+  "commitBody": "[skip-docker]",
   "dependencyDashboardTitle": "Dependency Dashboard self-hosted",
   "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
   "semanticCommits": true,
