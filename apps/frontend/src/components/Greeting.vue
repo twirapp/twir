@@ -126,7 +126,7 @@ function cancelEdit() {
               if (greeting.id) greetingsBeforeEdit?.push(JSON.parse(JSON.stringify(greeting)))
             }"
           >
-            Edit
+            {{ t('buttons.edit') }}
           </button>
           <button
             v-else
