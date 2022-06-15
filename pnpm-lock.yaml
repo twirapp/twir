@@ -72,7 +72,7 @@ importers:
       lodash.merge: ^4.6.2
       nats: ^2.7.1
       nodemon: 2.0.16
-      passport: ^0.5.2
+      passport: ^0.6.0
       passport-jwt: ^4.0.0
       prom-client: ^14.0.1
       redis: ^3
@@ -83,12 +83,12 @@ importers:
       type-fest: 2.13.1
       typescript: 4.7.3
     dependencies:
-      '@nestjs-hybrid-auth/twitch': 1.0.0_s2ns3jpbfqkzpwnc5zezhfquja
+      '@nestjs-hybrid-auth/twitch': 1.0.0_j2qtd27g446uy3pvio2y3kiazu
       '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
       '@nestjs/core': 8.4.6_pjpsmokgzvmh2tjol2wirtbzna
       '@nestjs/jwt': 8.0.1_@nestjs+common@8.4.6
       '@nestjs/microservices': 8.4.6_7zlwoxtay5nlctrzwpnb6zrgqi
-      '@nestjs/passport': 8.2.1_goeifnko2ksklhhajumjzug7ey
+      '@nestjs/passport': 8.2.1_rgfpjs3s462m3ujji7kreilcr4
       '@nestjs/platform-express': 8.4.6_etfae4mmenqzp3rs3pua7csngy
       '@nestjs/platform-socket.io': 8.4.6_gv7eeveto7sfdlrkgawjizcf54
       '@nestjs/throttler': 2.0.1_ppbi2tyth2jyod2vg4y74lzsra
@@ -115,7 +115,7 @@ importers:
       jsonwebtoken: 8.5.1
       lodash.merge: 4.6.2
       nats: 2.7.1
-      passport: 0.5.3
+      passport: 0.6.0
       passport-jwt: 4.0.0
       prom-client: 14.0.1
       redis: 3.1.2
@@ -179,7 +179,7 @@ importers:
       lodash.omit: ^4.5.0
       nats: ^2.7.1
       nodemon: 2.0.16
-      passport: ^0.5.3
+      passport: ^0.6.0
       passport-jwt: ^4.0.0
       picocolors: ^1.0.0
       prom-client: ^14.0.1
@@ -193,12 +193,12 @@ importers:
       vitest: 0.15.1
       vm2: ^3.9.9
     dependencies:
-      '@nestjs-hybrid-auth/twitch': 1.0.0_s2ns3jpbfqkzpwnc5zezhfquja
+      '@nestjs-hybrid-auth/twitch': 1.0.0_j2qtd27g446uy3pvio2y3kiazu
       '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
       '@nestjs/core': 8.4.6_c6vxkfylnngi2mhywxcozvksxy
       '@nestjs/jwt': 8.0.1_@nestjs+common@8.4.6
       '@nestjs/microservices': 8.4.6_g57lpe67zmu7v5x5vdakcjoikq
-      '@nestjs/passport': 8.2.1_goeifnko2ksklhhajumjzug7ey
+      '@nestjs/passport': 8.2.1_rgfpjs3s462m3ujji7kreilcr4
       '@nestjs/platform-express': 8.4.6_etfae4mmenqzp3rs3pua7csngy
       '@nestjs/throttler': 2.0.1_ppbi2tyth2jyod2vg4y74lzsra
       '@sentry/node': 7.1.1
@@ -225,7 +225,7 @@ importers:
       lodash.merge: 4.6.2
       lodash.omit: 4.5.0
       nats: 2.7.1
-      passport: 0.5.3
+      passport: 0.6.0
       passport-jwt: 4.0.0
       picocolors: 1.0.0
       prom-client: 14.0.1
@@ -906,7 +906,7 @@ packages:
       reflect-metadata: 0.1.13
     dev: false
 
-  /@nestjs-hybrid-auth/twitch/1.0.0_s2ns3jpbfqkzpwnc5zezhfquja:
+  /@nestjs-hybrid-auth/twitch/1.0.0_j2qtd27g446uy3pvio2y3kiazu:
     resolution: {integrity: sha512-4jfdWSQ94gFLKR3I0VBEcHD5JobRU3yFqtVKXufGYxfYwEEHz4oLgJTaE6iBGYaAekuG7m+RioCEBDZSo/68KA==}
     peerDependencies:
       '@nestjs/common': ^8.0.0
@@ -918,11 +918,11 @@ packages:
       '@nestjs-hybrid-auth/core': 1.0.1_ppbi2tyth2jyod2vg4y74lzsra
       '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
       '@nestjs/core': 8.4.6_pjpsmokgzvmh2tjol2wirtbzna
-      '@nestjs/passport': 8.2.1_goeifnko2ksklhhajumjzug7ey
+      '@nestjs/passport': 8.2.1_rgfpjs3s462m3ujji7kreilcr4
       '@types/lodash': 4.14.182
       '@types/passport-twitch-latest': 1.0.1
       lodash: 4.17.21
-      passport: 0.5.3
+      passport: 0.6.0
       passport-twitch-latest: 1.0.0
       reflect-metadata: 0.1.13
     dev: false
@@ -1369,14 +1369,14 @@ packages:
       tslib: 2.4.0
     dev: false
 
-  /@nestjs/passport/8.2.1_goeifnko2ksklhhajumjzug7ey:
+  /@nestjs/passport/8.2.1_rgfpjs3s462m3ujji7kreilcr4:
     resolution: {integrity: sha512-HXEKMLX1x865+lsJB4srwKHBciDNAhWY1Ha+xbxYRbk7J5leGDoHJAmeqe+Wb3NDn5nkboggLV87t0q2mbYc8w==}
     peerDependencies:
       '@nestjs/common': ^6.0.0 || ^7.0.0 || ^8.0.0
       passport: ^0.4.0 || ^0.5.0
     dependencies:
       '@nestjs/common': 8.4.6_37tgzg5iwyrf23cqcmjxlmljgu
-      passport: 0.5.3
+      passport: 0.6.0
     dev: false
 
   /@nestjs/platform-express/8.4.6_etfae4mmenqzp3rs3pua7csngy:
@@ -5423,12 +5423,13 @@ packages:
       request: 2.88.2
     dev: false
 
-  /passport/0.5.3:
-    resolution: {integrity: sha512-gGc+70h4gGdBWNsR3FuV3byLDY6KBTJAIExGFXTpQaYfbbcHCBlRRKx7RBQSpqEqc5Hh2qVzRs7ssvSfOpkUEA==}
+  /passport/0.6.0:
+    resolution: {integrity: sha512-0fe+p3ZnrWRW74fe8+SvCyf4a3Pb2/h7gFkQ8yTJpAO50gDzlfjZUZTO1k5Eg9kUct22OxHLqDZoKUWRHOh9ug==}
     engines: {node: '>= 0.4.0'}
     dependencies:
       passport-strategy: 1.0.0
       pause: 0.0.1
+      utils-merge: 1.0.1
     dev: false
 
   /path-exists/3.0.0:
@@ -5466,7 +5467,7 @@ packages:
     dev: true
 
   /pause/0.0.1:
-    resolution: {integrity: sha1-HUCLP9t2kjuVQ9lvtMnf1TXZy10=}
+    resolution: {integrity: sha512-KG8UEiEVkR3wGEb4m5yZkVCzigAD+cVEJck2CzYZO37ZGJfctvVptVO192MwrtPhzONn6go8ylnOdMhKqi4nfg==}
     dev: false
 
   /perfect-scrollbar/1.5.5:
