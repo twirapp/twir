@@ -44,6 +44,12 @@ new Worker<Data>(
     const stream = await redis.get(`streams:${timer.channelId}`);
     if (!stream) return;
 
+    const parsedStream = JSON.parse(stream);
+
+    if (timer.messageInterval > 0 && timer.lastTriggerMessageNumber - parsedStream.parsedMessages + timer.messageInterval > 0) {
+      return;
+    }
+
     const responses = timer.responses as Array<string>;
 
     const bot = Bots.cache.get(timer.channel.botId);
@@ -76,6 +82,7 @@ new Worker<Data>(
       },
       data: {
         last: ++timer.last % (timer.responses as string[]).length,
+        lastTriggerMessageNumber: parsedStream.parsedMessages as number,
       },
     });
   },

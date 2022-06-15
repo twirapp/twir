@@ -225,6 +225,8 @@ model Timer {
   timeInterval    Int @default(0)
   messageInterval Int @default(0)
 
+  lastTriggerMessageNumber Int @default(0)
+
   channel Channel @relation(fields: [channelId], references: [id])
   @@map("channels_timers")
 }

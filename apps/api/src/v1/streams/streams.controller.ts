@@ -10,7 +10,6 @@ export class StreamsController {
   @EventPattern('streams.online')
   @EventPattern('streams.offline')
   handler(@Payload() data: { channelId: string, streamId?: string }) {
-    console.log('event!', data);
     this.streamsService.handleStreamStateChange(data.channelId);
   }
 }
