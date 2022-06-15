@@ -1,5 +1,8 @@
 lockfileVersion: 5.4
 
+overrides:
+  ircv3: ^0.29.3
+
 importers:
 
   .:
@@ -1646,7 +1649,7 @@ packages:
       '@d-fischer/typed-event-emitter': 3.2.3
       '@twurple/auth': 5.1.6
       '@twurple/common': 5.1.6
-      ircv3: 0.28.1
+      ircv3: 0.29.4
       tslib: 2.4.0
     transitivePeerDependencies:
       - bufferutil
@@ -4520,8 +4523,8 @@ packages:
     engines: {node: '>= 0.10'}
     dev: false
 
-  /ircv3/0.28.1:
-    resolution: {integrity: sha512-zYTN7S96evwQrQF7+1024JpGzPrK0enSiabd9uhzik9TZMstsellIUkLcQHYOxdq+P0dfDPqbvGqKrg2OAiaeA==}
+  /ircv3/0.29.4:
+    resolution: {integrity: sha512-qsqURrO558ZGoihQHP8rSMala8/I5Y6OFrhk31TVBDIAxucPyOZPnwOX2pXPYTN23kT/G+v8h29w7xnxk77g0A==}
     dependencies:
       '@d-fischer/connection': 6.6.2
       '@d-fischer/escape-string-regexp': 5.0.0
