@@ -14,7 +14,7 @@ importers:
       eslint: 8.17.0
       eslint-plugin-import: 2.26.0
       ts-node: 10.8.1
-      tsx: 3.4.2
+      tsx: 3.4.3
       turbo: 1.2.16
       typescript: 4.7.3
     devDependencies:
@@ -25,7 +25,7 @@ importers:
       eslint: 8.17.0
       eslint-plugin-import: 2.26.0_wyrfqmvemfacbroyi3ypviy7f4
       ts-node: 10.8.1_k2m7pzviyiodwgodkpl42ylg7y
-      tsx: 3.4.2
+      tsx: 3.4.3
       turbo: 1.2.16
       typescript: 4.7.3
 
@@ -6424,8 +6424,8 @@ packages:
       typescript: 4.7.3
     dev: true
 
-  /tsx/3.4.2:
-    resolution: {integrity: sha512-Rd1gm2noOUiVynF+VFxo4bVBNbzS6haWKWtlQ0bEfCLLEqm+GG3R98D3Rqk6foQ3NnJk6JAWOx1ragwcAPj4Lg==}
+  /tsx/3.4.3:
+    resolution: {integrity: sha512-2joLNBKxg6Jn+qEMlzMrS2K6uxBG2faQNX7J/w8cO56ysCxJPbfeyWX5Qxbv0l8GeCkkc0Q0/wlH9eEI5LkZeQ==}
     hasBin: true
     dependencies:
       '@esbuild-kit/cjs-loader': 2.1.0
