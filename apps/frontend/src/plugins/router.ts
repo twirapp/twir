@@ -96,12 +96,12 @@ router.beforeEach(async (to, _from, next) => {
     if (!user) await fetchAndSetUser();
     user = userStore.get();
 
-    if (!user?.isTester) {
+    /* if (!user?.isTester) {
       alert('We are sorry, but currently bot access only via invites.');
       next('/');
     } else {
       next();
-    }
+    } */
 
   } else {
     next();
