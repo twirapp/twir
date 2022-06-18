@@ -117,7 +117,7 @@ function cancelEdit() {
             <span class="label-text">{{ t('pages.keywords.card.cooldown.title') }}</span>
           </div>
           <Field
-            v-model="keyword.cooldown"
+            v-model.number="keyword.cooldown"
             name="cooldown"
             as="input" 
             type="number"
