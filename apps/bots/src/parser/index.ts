@@ -57,7 +57,6 @@ class ResponseParserClass {
         if (newValue === undefined) {
           result += `$(${key})`;
         } else if (typeof newValue === 'function') {
-          console.log(key, await newValue(key, state, params, chatMessage));
           const value = await newValue(key, state, params, chatMessage);
           result += typeof value !== 'undefined' ? value.toString() : `$(${key + params ? `|${params}` : ''})`;
         } else continue;

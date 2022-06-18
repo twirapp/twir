@@ -3,13 +3,20 @@ import { prisma } from '../../libs/prisma.js';
 import { Module } from '../index.js';
 
 
-const getTop = async (channelId: string, type: 'watched' | 'messages', page: string | number = 1) => {
+const getTop = async (channelId: string, type: 'watched' | 'messages', page: string | number = 1, skipIds?: string[]): Promise<Array<{
+  displayName: string;
+  userName: string;
+  value: number | bigint;
+} | undefined>> => {
   const offset = (Number(page) - 1) * 10;
   const limit = 10;
 
   const stats = await prisma.userStats.findMany({
     where: {
       channelId,
+      userId: {
+        notIn: skipIds,
+      },
     },
     take: limit,
     skip: offset,
@@ -19,6 +26,12 @@ const getTop = async (channelId: string, type: 'watched' | 'messages', page: str
   });
 
   const users = await staticApi.users.getUsersByIds(stats.map(s => s.userId));
+
+  if (users.length !== stats.length) {
+    const notExistedUsers = stats.filter(s => !users.some(u => u.id === s.userId)).map(s => s.userId);
+
+    return await getTop(channelId, type, page, notExistedUsers);
+  }
 
   return stats.map(stat => {
     const user = users.find(u => u.id === stat.userId);
@@ -50,7 +63,7 @@ export const top: Module[] = [
 
       const page = getPage(message);
       const top = await getTop(state.channelId, 'messages', page);
-      console.log(top);
+
       return top
         .map((u, index) => {
           const name = u?.displayName.toLowerCase() === u?.userName ? u?.displayName : `${u?.userName}`;
