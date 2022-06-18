@@ -5,7 +5,7 @@ services:
     image: adminer
     restart: always
     ports:
-      - 54310:8080
+      - 54320:8080
     environment:
       - ADMINER_PLUGINS=enum-types
 
@@ -14,10 +14,14 @@ services:
     image: postgres:14-alpine
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+    #command: postgres -c 'max_connections=100000'
     environment:
-      POSTGRES_USER: tsuwari
-      POSTGRES_PASSWORD: tsuwari
-      POSTGRES_DB: tsuwari
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      #ports:
+      #- 5432:5432
+
 
   backup:
     restart: unless-stopped
@@ -36,8 +40,8 @@ services:
       S3_ENDPOINT: ${S3_ENDPOINT}
 
   migrations:
-    restart: unless-stopped
-    image: satont/tsuwari:migrations
+    restart: "no"
+    image: satont/tsuwari:migrations-ARM64
     env_file:
       - .env
     depends_on:
@@ -55,41 +59,50 @@ services:
 
   api:
     restart: unless-stopped
-    image: satont/tsuwari:api
+    image: satont/tsuwari:api-ARM64
     env_file:
       - .env
     deploy:
       mode: replicated
-      replicas: 6
+      replicas: 2
     ports:
-      - 3002:3002
+      - "3002:3002"
     depends_on:
-      - migrations
       - redis
+      - migrations
+      - postgres
+      - nats
 
   bots:
     restart: unless-stopped
-    image: satont/tsuwari:bots
+    image: satont/tsuwari:bots-ARM64
     env_file:
       - .env
     depends_on:
-      - migrations
       - redis
+      - migrations
+      - postgres
+      - nats
 
   scheduler:
     restart: unless-stopped
-    image: satont/tsuwari:scheduler
+    image: satont/tsuwari:scheduler-ARM64
     env_file:
       - .env
     depends_on:
-      - migrations
       - redis
+      - migrations
+      - streamstatus
+      - postgres
+      - nats
 
   streamstatus:
     restart: unless-stopped
-    image: satont/tsuwari:streamstatus
+    image: satont/tsuwari:streamstatus-ARM64
     env_file:
       - .env
     depends_on:
-      - migrations
       - redis
+      - migrations
+      - postgres
+      - nats
