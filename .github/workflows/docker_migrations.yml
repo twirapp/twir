@@ -12,7 +12,10 @@ on:
 jobs:
   docker:
     if: "! contains(toJSON(github.event.commits.*.message), '[skip-docker]')"
-    runs-on: self-hosted
+    strategy:
+      matrix:
+        os: [ARM64]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -25,9 +28,10 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: build the image
-        run: |
-          docker buildx build --push --compress \
-            --tag satont/tsuwari:migrations \
-            -f ./libs/prisma/Dockerfile \
-            --platform linux/amd64,linux/arm64 .
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: satont/tsuwari:migrations-${{ matrix.os }}
+          file: ./libs/prisma/Dockerfile
+          context: .
