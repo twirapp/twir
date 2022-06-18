@@ -10,7 +10,8 @@
     "build": "tsc -b tsconfig.json",
     "symlink": "ln -s ../../apps/backend/.env .env",
     "generate": "prisma generate",
-    "deploy": "prisma migrate deploy"
+    "deploy": "prisma migrate deploy",
+    "prisma": "doppler run -- prisma"
   },
   "keywords": [],
   "author": "",
