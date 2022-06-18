@@ -23,17 +23,17 @@ services:
     restart: unless-stopped
     image: satont/postgresql-backup-s3
     environment:
-      POSTGRES_DATABASE: tsuwari
-      POSTGRES_HOST: postgres
-      POSTGRES_USER: tsuwari
-      POSTGRES_PASSWORD: tsuwari
-      S3_ACCESS_KEY_ID: example
-      S3_SECRET_ACCESS_KEY: example
-      S3_BUCKET: example
-      S3_PREFIX: example
-      SCHEDULE: example
-      S3_REGION: example
-      S3_ENDPOINT: example
+      POSTGRES_DATABASE: ${DB_NAME}
+      POSTGRES_HOST: ${DB_HOST}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_PREFIX: ${S3_PREFIX}
+      SCHEDULE: ${S3_SCHEDULE}
+      S3_REGION: ${S3_REGION}
+      S3_ENDPOINT: ${S3_ENDPOINT}
 
   migrations:
     restart: unless-stopped
