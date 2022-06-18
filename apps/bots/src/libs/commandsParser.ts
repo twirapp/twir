@@ -61,7 +61,11 @@ export class CommandsParser {
       });
       this.#setCommandCooldown(command, state.userInfo.userId);
 
-      return command.responses;
+      return {
+        responses: command.responses,
+        params: findCommand.params,
+        commandName: findCommand.commandName,
+      };
     } finally {
       // await lock.release();
     }

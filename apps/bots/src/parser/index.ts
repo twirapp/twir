@@ -3,6 +3,7 @@ import { ParserCache } from './cache.js';
 import * as modules from './modules/index.js';
 
 export type State = {
+  message?: string,
   channelId: string;
   sender: {
     id: string;
@@ -11,7 +12,7 @@ export type State = {
   cache: ParserCache;
 };
 
-type Handler = (key: string, state: State, params?: string) => number | string | Promise<string | number | undefined> | undefined;
+type Handler = (key: string, state: State, params?: string | null, chatMessage?: string) => number | string | Promise<string | number | undefined> | undefined;
 
 export type Module = {
   key: string;
@@ -42,7 +43,7 @@ class ResponseParserClass {
   }
 
   @timer()
-  async parse(response: string, state: State) {
+  async parse(response: string, state: State, chatMessage?: string) {
     let result = '';
     const parts = response.split(this.#regular);
 
@@ -56,8 +57,9 @@ class ResponseParserClass {
         if (newValue === undefined) {
           result += `$(${key})`;
         } else if (typeof newValue === 'function') {
-          const value = await newValue(key, state, params);
-          result += typeof value !== 'undefined' ? value!.toString() : `$(${key + params ? `|${params}` : ''})`;
+          console.log(key, await newValue(key, state, params, chatMessage));
+          const value = await newValue(key, state, params, chatMessage);
+          result += typeof value !== 'undefined' ? value.toString() : `$(${key + params ? `|${params}` : ''})`;
         } else continue;
       }
     }

@@ -6,3 +6,4 @@ export { user } from './user.js';
 export { random } from './random.js';
 export { faceit } from './faceit.js';
 export { customvar } from './customvar.js';
+export { top } from './top.js';

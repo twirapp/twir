@@ -125,6 +125,7 @@ export class Bot extends ChatClient {
         }
 
         const msgObject = {
+          message,
           channelId: state.channelId,
           sender: {
             id: state.userInfo.userId,
@@ -134,15 +135,15 @@ export class Bot extends ChatClient {
           cache: new ParserCache(state.channelId, state.userInfo.userId),
         };
 
-        this.#commandsParser.parse(message, state).then(async (responses) => {
+        this.#commandsParser.parse(message, state).then(async (result) => {
           if (!state.channelId) return;
-          if (!responses?.length) return;
+          if (!result?.responses?.length) return;
           commandsCounter.inc();
 
-          for (const response of responses) {
+          for (const response of result.responses) {
             if (!response) continue;
-            if (responses.indexOf(response) > 0 && !isBotMod) break;
-            const msg = await ResponseParser.parse(response, msgObject);
+            if (result.responses.indexOf(response) > 0 && !isBotMod) break;
+            const msg = await ResponseParser.parse(response, msgObject, result.params);
 
             this.say(channel, msg, { replyTo: state.id });
           }
@@ -150,7 +151,7 @@ export class Bot extends ChatClient {
 
         this.#greetingsParser.parse(state).then(async (response) => {
           if (!response) return;
-          this.say(channel, await ResponseParser.parse(response, msgObject), { replyTo: state.id });
+          this.say(channel, await ResponseParser.parse(response, msgObject, message), { replyTo: state.id });
         });
 
         this.#keywordsParser.parse(message, state).then(async (responses) => {
@@ -159,7 +160,7 @@ export class Bot extends ChatClient {
           for (const response of responses) {
             if (!response) continue;
             if (responses.indexOf(response) > 0 && !isBotMod) break;
-            const msg = await ResponseParser.parse(response, msgObject);
+            const msg = await ResponseParser.parse(response, msgObject, message);
 
             this.say(channel, msg, { replyTo: state.id });
           }

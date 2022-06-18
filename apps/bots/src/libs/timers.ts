@@ -109,8 +109,6 @@ export async function addTimerToQueue(timerOrId: Timer | string) {
     timer = timerOrId as Timer;
   }
 
-  console.log('adding');
-
   if (timer) {
     await timersQueue.add(timer.id, { id: timer.id }, { repeat: { every: timer.timeInterval * 1000 } });
   }
