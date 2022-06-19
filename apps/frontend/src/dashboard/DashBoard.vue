@@ -104,9 +104,3 @@ function joinChannel() {
     </div>
   </div>
 </template>
-
-<style scoped>
-.card {
-  background: linear-gradient(0deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)), #121212;
-}
-</style>

@@ -54,10 +54,11 @@ export const router = createRouter({
       path: '/dashboard/moderation',
       component: () => import('../dashboard/Moderation.vue'),
     },
-    /* {
+    {
       path: '/dashboard/settings',
-      component: () => import('../dashboard/Settings.vue')
+      component: () => import('../dashboard/Settings.vue'),
     },
+    /*
     {
       path: '/dashboard/users',
       component: () => import('../dashboard/Users.vue')
@@ -97,7 +98,7 @@ router.beforeEach(async (to, _from, next) => {
     user = userStore.get();
 
 
-    next()
+    next();
     /* if (!user?.isTester) {
       alert('We are sorry, but currently bot access only via invites.');
       next('/');

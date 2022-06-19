@@ -309,7 +309,6 @@ const consoleLog = console.log;
                       hover:bg-gray-100
                     "
                     @click="() => {
-                      consoleLog(variable)
                       command.responses[responseIndex].text += ` $(${variable.example ? variable.example : variable.name})`;
                     }"
                   >{{ variable.description ?? variable.name }}</a>

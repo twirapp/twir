@@ -33,7 +33,14 @@
       "sidebarName": "Интеграции"
     },
     "settings": {
-      "sidebarName": "Настройки"
+      "sidebarName": "Настройки",
+      "widgets": {
+        "dashboardAccess": {
+          "title": "Доступ к панели",
+          "thatsYou": "это вы",
+          "placeholder": "Добавить пользователя по нику"
+        }
+      }
     },
     "commands": {
       "sidebarName": "Команды",

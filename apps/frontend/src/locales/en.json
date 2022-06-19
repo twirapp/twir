@@ -33,7 +33,14 @@
       "sidebarName": "Integrations"
     },
     "settings": {
-      "sidebarName": "Settings"
+      "sidebarName": "Settings",
+      "widgets": {
+        "dashboardAccess": {
+          "title": "Dashboard Access",
+          "thatsYou": "thats you",
+          "placeholder": "Add member to dashboard by username"
+        }
+      }
     },
     "commands": {
       "sidebarName": "Commands",
