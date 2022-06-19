@@ -10,15 +10,14 @@ const router = useRouter();
 
 <template>
   <main>
-    <div class="flex flex-row h-screen text-white">
+    <div class="flex h-screen text-white">
       <Sidebar />
 
       <div class="main flex flex-col flex-grow">
         <NavBar />
 
         <div
-          class="flex flex-col flex-grow"
-          :class="{'m-3': router.currentRoute.value.name !== 'Commands'}"
+          class="flex max-h-screen overflow-y-auto flex-col flex-grow scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-600 scrollbar-track-gray-900"
         >
           <slot />
         </div>

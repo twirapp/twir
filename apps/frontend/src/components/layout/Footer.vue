@@ -1,31 +1,13 @@
 <template>
-  <footer class="footer ml-4 mb-2">
-    <div class="grid-flow-col">
-      <!-- @TODO -->
+  <footer class="w-full text-white">
+    <div class="ml-6 flex space-x-1 mt-1">
       <a
         href="/"
-        class="
-              text-sm
-              py-2
-              px-2
-              h-12
-              overflow-hidden
-              text-white
-              text-ellipsis
-whitespace-nowrap hover:bg-[#202122] rounded border-slate-300 transition duration-300 ease-in-out ripple-surface-primary"
+        class="inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-[#202122] focus:bg-[#202122] focus:outline-none focus:ring-0 active:bg-[#202122] active:shadow-lg transition duration-150 ease-in-out"
       >@tsuwari</a>
       <a
         href="/"
-        class="
-              ml-2
-              text-sm
-              py-2
-              px-2
-              h-12
-              overflow-hidden
-              text-white
-              text-ellipsis
-whitespace-nowrap hover:bg-[#202122] rounded border-slate-300 transition duration-300 ease-in-out ripple-surface-primary"
+        class="inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-[#202122] focus:bg-[#202122] focus:outline-none focus:ring-0 active:bg-[#202122] active:shadow-lg transition duration-150 ease-in-out"
       >@satont</a>
     </div>
   </footer>

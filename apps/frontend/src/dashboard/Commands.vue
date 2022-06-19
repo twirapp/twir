@@ -80,21 +80,20 @@ function onSave(index: number) {
 </script>
 
 <template>
-  <div class="flex">
-    <div>
-      <div class="w-40 rounded border-r border-b border-gray-700">
-        <button
-          class="px-6 py-2.5 w-full inline-block bg-green-500 text-white font-medium text-xs leading-tight uppercase shadow-md hover:bg-green-500 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out"
-          @click="insertCommand"
-        >
-          +
-        </button>
-        <div class="form-floating">
-          <input
-            id="searchCommand"
-            v-model="searchFilter"
-            type="text"
-            class="form-control
+  <div class="flex h-full">
+    <div class="w-40 rounded border-r border-b border-gray-700">
+      <button
+        class="px-6 py-2.5 w-full inline-block bg-green-500 text-white font-medium text-xs leading-tight uppercase shadow-md hover:bg-green-500 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out"
+        @click="insertCommand"
+      >
+        +
+      </button>
+      <div class="form-floating">
+        <input
+          id="searchCommand"
+          v-model="searchFilter"
+          type="text"
+          class="form-control
                     w-full
                     text-base
                     font-normal
@@ -104,44 +103,43 @@ function onSave(index: number) {
                     transition
                     ease-in-out
                     focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-            placeholder="command"
-          >
-          <label
-            for="searchCommand"
-            class="text-gray-700"
-          >{{ t('pages.commands.searchCommand') }}</label>
-        </div>
-        <ul
-          class="menu h-[77vh] scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600"
+          placeholder="command"
         >
-          <li
-            v-for="command, index of filteredCommands
-            "
-            :key="index"
-            :class="{ 'border-l-2': filteredCommands.indexOf(currentEditableCommand!) === index }"
-            @click="() => {
-              if (!currentEditableCommand!.id) commands.splice(commands.indexOf(currentEditableCommand!), 1)
-              currentEditableCommand = command  
+        <label
+          for="searchCommand"
+          class="text-gray-700"
+        >{{ t('pages.commands.searchCommand') }}</label>
+      </div> <!--75vh-->
+
+
+      <ul class="menu max-h-[75vh] scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+        <li
+          v-for="command, index of filteredCommands
+          "
+          :key="index"
+          :class="{ 'border-l-2': filteredCommands.indexOf(currentEditableCommand!) === index }"
+          @click="() => {
+            if (!currentEditableCommand!.id) commands.splice(commands.indexOf(currentEditableCommand!), 1)
+            currentEditableCommand = command  
+          }"
+        >
+          <button
+            aria-current="page"
+            href="/dashboard/commands"
+            class="flex items-center mt-0 text-sm px-2 h-8 w-full overflow-hidden text-white text-ellipsis whitespace-nowrap hover:bg-[#202122] border-slate-300 transition duration-300 ease-in-out ripple-surface-primary"
+            :class="{
+              'bg-neutral-700': filteredCommands.indexOf(currentEditableCommand!) === index
             }"
           >
-            <button
-              aria-current="page"
-              href="/dashboard/commands"
-              class="flex items-center mt-0 text-sm px-2 h-8 w-full overflow-hidden text-white text-ellipsis whitespace-nowrap hover:bg-[#202122] border-slate-300 transition duration-300 ease-in-out ripple-surface-primary"
-              :class="{
-                'bg-neutral-700': filteredCommands.indexOf(currentEditableCommand!) === index
-              }"
-            >
-              <span class="w-3 h-3" /><span>{{ command.name }}</span>
-            </button>
-          </li>
-        </ul>
-      </div>
+            <span class="w-3 h-3" /><span>{{ command.name }}</span>
+          </button>
+        </li>
+      </ul>
     </div>
 
     <div
       v-if="currentEditableCommand"
-      class="w-full p-1 hidden sm:block h-fit m-4 block max-w-2xl rounded-lg card text-white shadow-lg"
+      class="w-full p-1 sm:block h-fit m-4 max-w-2xl rounded-lg card text-white shadow-lg"
     >
       <Command 
         :command="currentEditableCommand" 
