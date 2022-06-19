@@ -12,7 +12,7 @@
     "@nanostores/vue": "0.5.5",
     "@tsuwari/api": "workspace:*",
     "@vueuse/core": "8.7.4",
-    "@vueuse/integrations": "8.7.3",
+    "@vueuse/integrations": "8.7.4",
     "axios": "0.27.2",
     "date-fns": "2.28.0",
     "jwt-decode": "3.1.2",
