@@ -25,6 +25,13 @@ selectedDashboardStore.subscribe(d => {
   api(`/v1/channels/${d.channelId}/integrations/vk`).then(async (r) => {
     if (r.data) {
       vkIntegration.value = r.data;
+    } else {
+      vkIntegration.value = {
+        enabled: true,
+        data: {
+          userId: '',
+        },
+      };
     }
   });
 });

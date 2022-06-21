@@ -24,6 +24,13 @@ selectedDashboardStore.subscribe(d => {
   api(`/v1/channels/${d.channelId}/integrations/lastfm`).then(async (r) => {
     if (r.data) {
       lastfmIntegration.value = r.data;
+    } else {
+      lastfmIntegration.value = {
+        enabled: true,
+        data: {
+          username: '',
+        },
+      };
     }
   });
 });
