@@ -38,7 +38,8 @@
         "dashboardAccess": {
           "title": "Dashboard Access",
           "thatsYou": "thats you",
-          "placeholder": "Add member to dashboard by username"
+          "placeholder": "Add member to dashboard by username",
+          "noAccs": "No accounts added"
         }
       }
     },

@@ -55,7 +55,7 @@ async function addMember() {
               v-if="!dashboardMembers?.length"
               class="text-center"
             >
-              Нет аккаунтов!
+              {{ t('pages.settings.widgets.dashboardAccess.noAccs')}}
             </p>
             <ul
               v-else
