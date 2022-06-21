@@ -7,7 +7,6 @@ import { useRouter, useRoute } from 'vue-router';
 import Commands from '@/assets/sidebar/commands.svg?url';
 import Dashboard from '@/assets/sidebar/dashboard.svg?url';
 import Events from '@/assets/sidebar/events.svg?url';
-import Files from '@/assets/sidebar/files.svg?url';
 import Greetings from '@/assets/sidebar/greetings.svg?url';
 import Integrations from '@/assets/sidebar/integrations.svg?url';
 import Keywords from '@/assets/sidebar/keywords.svg?url';
@@ -93,7 +92,6 @@ const routes = [
   },
   {
     name: 'files',
-    icon: Files,
     path: '/dashboard/files',
   },
   {
