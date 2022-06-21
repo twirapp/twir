@@ -80,7 +80,7 @@ function onSave(index: number) {
 </script>
 
 <template>
-  <div class="flex h-full m-3">
+  <div class="flex h-full">
     <div class="w-40 rounded border-r border-b border-gray-700">
       <button
         class="px-6 py-2.5 w-full inline-block bg-green-500 text-white font-medium text-xs leading-tight uppercase shadow-md hover:bg-green-500 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out"
