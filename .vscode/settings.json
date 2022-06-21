@@ -35,7 +35,11 @@
       "remotePort": 5555
     },
   ],
-  "gopls": {
-    "experimentalWorkspaceModule": true
-  }
+  "i18n-ally.localesPaths": [
+    "apps/frontend/src/locales"
+  ],
+  "i18n-ally.editor.preferEditor": true,
+  "i18n-ally.sortKeys": true,
+  "i18n-ally.keepFulfilled": true,
+  "i18n-ally.keystyle": "nested"
 }
