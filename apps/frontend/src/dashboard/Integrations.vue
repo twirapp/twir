@@ -8,7 +8,7 @@ title.value = 'Tsuwari - Integrations';
 </script>
 
 <template>
-  <div class="grid xl:grid-cols-4 lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-2">
+  <div class="grid xl:grid-cols-4 lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-2 m-3">
     <Spotify />
   </div>
 </template>
