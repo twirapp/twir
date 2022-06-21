@@ -51,7 +51,7 @@ selectedDashboardStore.subscribe(async (v) => {
 function insertCommand() {
   if (commands.value && !currentEditableCommand.value?.new) {
     const command: CommandType = {
-      name: 'New Command Name',
+      name: '',
       aliases: [],
       cooldown: 5,
       permission: 'VIEWER',
