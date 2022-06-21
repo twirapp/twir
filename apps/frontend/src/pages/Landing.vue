@@ -9,93 +9,37 @@ import { userStore } from '@/stores/userStore';
 
 <template>
   <div style="font-family: 'Inter', sans-serif">
-    <nav
-      class="
-        relative
-        w-full
-        flex flex-wrap
-        items-center
-        justify-between
-        py-4
-        navbar navbar-expand-lg navbar-light
-        text-white"
-    >
-      <div class="container-fluid w-full flex flex-wrap items-center justify-between px-6">
-        <button
-          class="
-      navbar-toggler
-      text-gray-500
-      border-0
-      hover:shadow-none hover:no-underline
-      py-2
-      px-2.5
-      bg-transparent
-      focus:outline-none focus:ring-0 focus:shadow-none focus:no-underline
-    "
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <svg
-            aria-hidden="true"
-            focusable="false"
-            data-prefix="fas"
-            data-icon="bars"
-            class="w-6"
-            role="img"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 448 512"
-          >
-            <path
-              fill="currentColor"
-              d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"
-            />
-          </svg>
-        </button>
-        
-        <div
-          id="navbarSupportedContent"
-          class="collapse navbar-collapse select-none flex-grow items-center"
+    <nav class="p-1 flex items-center w-full justify-between text-white">
+      <div>
+        <a
+          class="ml-2 flex flex-grow items-center"
+          href="/"
         >
           <Logo />
 
           <a
-            class="text-xl ml-2"
-            href="#"
+            class="text-xl font-bold ml-2"
           >Tsuwari</a>
-          <!-- Left links -->
-          <ul class="navbar-nav flex flex-col pl-0 list-style-none mr-auto ml-auto">
-            <li class="nav-item p-2">
-              <a
-                class="nav-link hover:text-gray-700 focus:text-gray-700 p-0"
-                href="#"
-              >Dashboard</a>
-            </li>
-            <li class="nav-item p-2">
-              <a
-                class="nav-link hover:text-gray-700 focus:text-gray-700 p-0"
-                href="#"
-              >Team</a>
-            </li>
-            <li class="nav-item p-2">
-              <a
-                class="nav-link hover:text-gray-700 focus:text-gray-700 p-0"
-                href="#"
-              >Projects</a>
-            </li>
-          </ul>
-          <!-- Left links -->
-        </div>
-        <!-- Collapsible wrapper -->
+        </a>
+      </div>
 
-        <!-- Right elements -->
-        <div class="flex items-center relative">
-          <LandingButtons />
-        </div>
-        <!-- Right elements -->
+      <div class="flex space-x-1">
+        <a
+          href="/dashboard"
+          class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-blue-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-0 active:bg-gray-200 transition duration-150 ease-in-out"
+        >Dashabord</a>
+        <a
+          href="/dashboard"
+          class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-blue-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-0 active:bg-gray-200 transition duration-150 ease-in-out"
+        >Team</a>
+        <a
+          href="/dashboard"
+          class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-blue-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-0 active:bg-gray-200 transition duration-150 ease-in-out"
+        >About</a>
+      </div>
+
+      <div>
+        <LandingButtons />
       </div>
     </nav>
 

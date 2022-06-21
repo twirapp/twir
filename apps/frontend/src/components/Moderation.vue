@@ -24,12 +24,12 @@ const settings = toRef(props, 'settings', {
 </script>
 
 <template>
-  <h2 class="card-title p-2 flex justify-between border-b border-gray-700 outline-none">
+  <h2 class="card-title font-bold p-2 flex justify-between border-b border-gray-700 outline-none">
     <p>{{ settings.type.charAt(0).toUpperCase() + settings.type.substring(1, settings.type.length) }}</p>
   </h2>
   <div class="p-0">
     <div
-      class="rounded-lg py-5 px-6 mb-4 text-base mb-4"
+      class="rounded-lg py-5 px-6 mb-4 text-base"
     >
       <div class="flex items-center justify-center">
         <div
@@ -39,7 +39,7 @@ const settings = toRef(props, 'settings', {
           <button
             type="button"
             class="rounded-l inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
-            :class="[settings.enabled ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600' ]"
+            :class="[settings.enabled ? 'bg-green-500 hover:bg-green-600' : 'bg-[#ED4245] hover:bg-red-600' ]"
             @click="() => settings.enabled = !settings.enabled"
           >
             {{ t(`statuses.${settings.enabled ? 'enabled' : 'disabled'}`) }}

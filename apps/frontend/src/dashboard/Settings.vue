@@ -31,7 +31,7 @@ async function deleteMember(id: string) {
   execute();
 }
 
-async function addMember() {
+async function addMember() {  
   await api.post(`/v1/channels/${selectedDashboard.value.channelId}/settings/dashboardAccess`, { username: newMember.value });
   execute();
   newMember.value = '';
@@ -49,10 +49,17 @@ async function addMember() {
         </h2>
         <div>
           <div
-            class="rounded-lg text-base mb-4"
+            class="rounded-lg text-base my-4"
           >
+            <p
+              v-if="!dashboardMembers?.length"
+              class="text-center"
+            >
+              Нет аккаунтов!
+            </p>
             <ul
-              class="w-full"
+              v-else
+              class="w-full max-h-[55vh] overflow-y-auto scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600"
             >
               <li
                 v-for="member of dashboardMembers"
@@ -84,7 +91,18 @@ async function addMember() {
                     <span class="ml-4">{{ member.display_name }}</span>
                   </div>
                   <div v-if="member.id !== user?.id">
-                    X
+                    <svg
+                      class="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    ><path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    /></svg>
                   </div>
                   <div v-if="member.id === user?.id">
                     <span class="text-xs inline-block py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-gray-200 text-gray-700 rounded">{{ t('pages.settings.widgets.dashboardAccess.thatsYou') }}</span>
@@ -96,16 +114,28 @@ async function addMember() {
           </div>
           <div class="flex flex-wrap items-stretch w-full relative">
             <input
-              v-model.lazy="newMember"
+              v-model="newMember"
               type="text"
               class="form-control input text-gray-700 flex-shrink flex-grow leading-normal w-px flex-1 border h-10 border-grey-light px-3 relative"
               :placeholder="t('pages.settings.widgets.dashboardAccess.placeholder')"
+              @keyup.enter="addMember"
             >
             <div
               class="flex -mr-px cursor-pointer"
               @click="addMember"
             >
-              <span class="flex items-center leading-normal bg-green-600 px-3 whitespace-no-wrap text-grey-dark text-sm">+</span>
+              <span class="flex items-center leading-normal bg-green-600 px-3 whitespace-no-wrap text-grey-dark text-sm"><svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              ><path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              /></svg></span>
             </div>
           </div>
         </div>

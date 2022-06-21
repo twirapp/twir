@@ -27,7 +27,7 @@ export const router = createRouter({
     },
     {
       path: '/dashboard/events',
-      component: () => import('../dashboard/Events.vue'),
+      component: () => import('../components/Soon.vue'),
     },
     {
       name: 'Commands',
@@ -58,23 +58,22 @@ export const router = createRouter({
       path: '/dashboard/settings',
       component: () => import('../dashboard/Settings.vue'),
     },
-    /*
     {
       path: '/dashboard/users',
-      component: () => import('../dashboard/Users.vue')
+      component: () => import('../components/Soon.vue'),
     },
     {
       path: '/dashboard/overlays',
-      component: () => import('../dashboard/Overlays.vue')
+      component: () => import('../components/Soon.vue'),
     },
     {
       path: '/dashboard/files',
-      component: () => import('../dashboard/Files.vue')
+      component: () => import('../components/Soon.vue'),
     },
     {
       path: '/dashboard/quotes',
-      component: () => import('../dashboard/Quotes.vue')
-    }, */
+      component: () => import('../components/Soon.vue'),
+    }, 
     { path: '/:pathMatch(.*)*', component: () => import('../pages/NotFound.vue') },
   ],
   history: createWebHistory(),

@@ -93,6 +93,7 @@ const routes = [
   },
   {
     name: 'files',
+    icon: Files,
     path: '/dashboard/files',
   },
   {
