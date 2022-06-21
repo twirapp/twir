@@ -1,10 +1,10 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { Prisma, PrismaService } from '@tsuwari/prisma';
 
-import { LastfmUpdateDto } from './dto/update.js';
+import { VkUpdateDto } from './dto/update.js';
 
 @Injectable()
-export class LastfmService {
+export class VkService {
   constructor(private readonly prisma: PrismaService) { }
 
   async getIntegration(channelId: string) {
@@ -12,7 +12,7 @@ export class LastfmService {
       where: {
         channelId,
         integration: {
-          service: 'LASTFM',
+          service: 'VK',
         },
       },
     });
@@ -20,23 +20,24 @@ export class LastfmService {
     return integration;
   }
 
-  async updateIntegration(channelId: string, body: LastfmUpdateDto) {
+  async updateIntegration(channelId: string, data: VkUpdateDto) {
     const integrationService = await this.prisma.integration.findFirst({
       where: {
-        service: 'LASTFM',
+        service: 'VK',
       },
     });
 
-    if (!integrationService) throw new HttpException(`LastFM not enabled on our backed. Please, make patience or contact us`, 404);
+    if (!integrationService) throw new HttpException(`Vk not enabled on our backed. Please, make patience or contact us`, 404);
 
     let integration = await this.getIntegration(channelId);
+
     if (!integration) {
       integration = await this.prisma.channelIntegration.create({
         data: {
           channelId,
           data: {
-            enabled: body.enabled,
-            data: { ...body.data } as unknown as Prisma.InputJsonObject,
+            ...data,
+            data: { ...data.data } as unknown as Prisma.InputJsonObject,
           },
           integrationId: integrationService.id,
         },
@@ -47,8 +48,8 @@ export class LastfmService {
           id: integration.id,
         },
         data: {
-          enabled: body.enabled,
-          data: { ...body.data } as unknown as Prisma.InputJsonObject,
+          ...data,
+          data: { ...data.data } as unknown as Prisma.InputJsonObject,
         },
       });
     }

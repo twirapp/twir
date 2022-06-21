@@ -30,7 +30,15 @@
       "sidebarName": "Events"
     },
     "integrations": {
-      "sidebarName": "Integrations"
+      "sidebarName": "Integrations",
+      "widgets": {
+        "vk": {
+          "id": "User or group id in number format."
+        },
+        "lastFm": {
+          "username": "Username on lastfm (case sensitive)"
+        }
+      }
     },
     "settings": {
       "sidebarName": "Settings",

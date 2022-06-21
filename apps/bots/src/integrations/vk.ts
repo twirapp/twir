@@ -41,7 +41,7 @@ class VkIntegrationClass {
       v: '5.131',
     };
 
-    const request = await fetch(`https://api.vk.com/method/status.get?${new URLSearchParams(JSON.stringify(params))}`, {
+    const request = await fetch(`https://api.vk.com/method/status.get?${new URLSearchParams(params)}`, {
       method: 'GET',
     });
 

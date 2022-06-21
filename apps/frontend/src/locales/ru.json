@@ -30,7 +30,15 @@
       "sidebarName": "Ивенты"
     },
     "integrations": {
-      "sidebarName": "Интеграции"
+      "sidebarName": "Интеграции",
+      "widgets": {
+        "vk": {
+          "id": "Айди группы или пользователя (цифры)."
+        },
+        "lastFm": {
+          "username": "Ник на Lastfm"
+        }
+      }
     },
     "settings": {
       "sidebarName": "Настройки",
