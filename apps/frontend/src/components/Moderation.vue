@@ -27,8 +27,14 @@ const settings = toRef(props, 'settings', {
 </script>
 
 <template>
-  <h2 class="card-title font-bold p-2 flex justify-between border-b border-gray-700 outline-none">
+  <h2 class="form-switch card-title font-bold p-2 flex justify-between border-b border-gray-700 outline-none">
     <p>{{ settings.type.charAt(0).toUpperCase() + settings.type.substring(1, settings.type.length) }}</p>
+    <input
+      id="flexSwitchDisable"
+      class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
+      type="checkbox"
+      role="switch"
+    >
   </h2>
   <div class="p-0">
     <div
@@ -331,22 +337,6 @@ const settings = toRef(props, 'settings', {
       </div>
       
       <div class="mt-5">
-        <div class="form-check flex justify-between">
-          <label
-            class="form-check-label inline-block"
-            for="flexSwitchDisable"
-          >Disabled</label>
-        
-          <div class="form-switch">
-            <input
-              id="flexSwitchDisable"
-              class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
-              type="checkbox"
-              role="switch"
-            >
-          </div>
-        </div>
-      
         <div class="form-check flex justify-between">
           <label
             class="form-check-label inline-block"
