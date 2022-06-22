@@ -39,10 +39,10 @@ const settings = toRef(props, 'settings', {
           class="inline-flex shadow  "
           role="group"
         >
-          <button
+          <!--<button
             type="button"
             class="rounded-l inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
-            :class="[settings.enabled ? 'bg-green-600 hover:bg-green-700' : 'bg-[#ED4245] hover:bg-red-700' ]"
+            :class="[settings.enabled ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700' ]"
             @click="() => settings.enabled = !settings.enabled"
           >
             {{ t(`statuses.${settings.enabled ? 'enabled' : 'disabled'}`) }}
@@ -62,7 +62,7 @@ const settings = toRef(props, 'settings', {
             @click="() => settings.vips = !settings.vips"
           >
             {{ t('pages.moderation.moderate', { key: 'vips' }) }}
-          </button>
+          </button>-->
         </div>
       </div>
       <div class="mt-3">
@@ -328,6 +328,56 @@ const settings = toRef(props, 'settings', {
           "
           placeholder="50"
         >
+      </div>
+      
+      <div class="mt-5">
+        <div class="form-check flex justify-between">
+          <label
+            class="form-check-label inline-block"
+            for="flexSwitchDisable"
+          >Disabled</label>
+        
+          <div class="form-switch">
+            <input
+              id="flexSwitchDisable"
+              class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
+              type="checkbox"
+              role="switch"
+            >
+          </div>
+        </div>
+      
+        <div class="form-check flex justify-between">
+          <label
+            class="form-check-label inline-block"
+            for="flexSwitchSubs"
+          >Moderate subscribers</label>
+        
+          <div class="form-switch">
+            <input
+              id="flexSwitchSubs"
+              class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
+              type="checkbox"
+              role="switch"
+            >
+          </div>
+        </div>
+      
+        <div class="form-check flex justify-between">
+          <label
+            class="form-check-label inline-block"
+            for="flexSwitchVip"
+          >Moderate vips</label>
+        
+          <div class="form-switch">
+            <input
+              id="flexSwitchVip"
+              class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
+              type="checkbox"
+              role="switch"
+            >
+          </div>
+        </div>
       </div>
     </div>
   </div>
