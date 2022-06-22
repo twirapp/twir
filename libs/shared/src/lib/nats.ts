@@ -18,6 +18,20 @@ export interface ClientProxyCommands {
       example?: string,
       description?: string
     }>
+  },
+  'parseChatMessage': {
+    input: string,
+    result: string[]
+  },
+  'parseResponse': {
+    input: {
+      userId?: string,
+      channelId: string,
+      userName?: string,
+      userDisplayName?: string,
+      text: string
+    };
+    result: string[];
   }
 }
 

@@ -29,11 +29,11 @@ const settings = toRef(props, 'settings', {
   </h2>
   <div class="p-0">
     <div
-      class="rounded-lg py-5 px-6 mb-4 text-base"
+      class="rounded py-5 px-6 mb-4 text-base"
     >
       <div class="flex items-center justify-center">
         <div
-          class="inline-flex shadow-md hover:shadow-lg focus:shadow-lg"
+          class="inline-flex shadow hover:shadow focus:shadow"
           role="group"
         >
           <button
@@ -160,7 +160,7 @@ const settings = toRef(props, 'settings', {
           <input
             id="flexSwitchCheckChecked"
             v-model="settings.checkClips"
-            class="form-check-input appearance-none w-9 -ml-10 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer shadow-sm"
+            class="form-check-input appearance-none w-9 -ml-10 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer shadow"
             type="checkbox"
             role="switch"
           >
@@ -173,7 +173,7 @@ const settings = toRef(props, 'settings', {
         <span class="label">  
           <span>{{ t('pages.moderation.blacklist') }}
             <a
-              class="px-2 py-0.5 inline-block bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md  hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out cursor-pointer"
+              class="px-2 py-0.5 inline-block bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow  hover:shadow focus:shadow focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow transition duration-150 ease-in-out cursor-pointer"
               @click="settings.blackListSentences?.push('')"
             >
               +

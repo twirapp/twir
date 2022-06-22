@@ -1,6 +1,11 @@
-import { staticApi } from '../../bots.js';
-import { prisma } from '../../libs/prisma.js';
+import { PrismaService } from '@tsuwari/prisma';
+import { TwitchApiService } from '@tsuwari/shared';
+
+import { app } from '../../index.js';
 import { Module } from '../index.js';
+
+const staticApi = app.get(TwitchApiService);
+const prisma = app.get(PrismaService);
 
 
 const getTop = async (channelId: string, type: 'watched' | 'messages', page: string | number = 1, skipIds?: string[]): Promise<Array<{

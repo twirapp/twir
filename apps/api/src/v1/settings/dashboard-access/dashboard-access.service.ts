@@ -37,6 +37,7 @@ export class DashboardAccessService {
     const twitchUser = await staticApi.users.getUserByName(username);
 
     if (!twitchUser) throw new HttpException(`Member with username ${username} not found on twitch.`, 404);
+    if (channelId === twitchUser.id) throw new HttpException(`You cannot add youself as member`, 400);
 
     const isExists = await this.prisma.dashboardAccess.findFirst({
       where: {

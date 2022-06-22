@@ -1,6 +1,11 @@
-import { staticApi } from '../../bots.js';
-import { prisma } from '../../libs/prisma.js';
+import { PrismaService } from '@tsuwari/prisma';
+import { TwitchApiService } from '@tsuwari/shared';
+
+import { app } from '../../index.js';
 import { DefaultCommand } from '../types.js';
+
+const prisma = app.get(PrismaService);
+const staticApi = app.get(TwitchApiService);
 
 export const permit: DefaultCommand = {
   name: 'permit',
@@ -18,8 +23,6 @@ export const permit: DefaultCommand = {
 
     const parsedCount = count ? isNaN(parseInt(count, 10)) ? 1 : parseInt(count, 10) : 1;
     if (parsedCount > 100) return 'cannot create more then 100 permits.';
-
-    console.log(user.id, state.channelId);
 
     await prisma.$transaction([...Array(parsedCount)].map(() => prisma.permit.create({
       data: {

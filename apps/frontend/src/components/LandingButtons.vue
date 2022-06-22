@@ -12,10 +12,12 @@ const user = useStore(userStore);
 
 interface Props {
   size?: 'large' | 'small'
+  type?: 'col' | 'normal'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: 'small',
+  type: 'normal',
 });
 
 async function logOut() {
@@ -26,12 +28,17 @@ async function logOut() {
 </script>
 
 <template>
-  <div>
+  <div
+    class="space-x-2 select-none"
+    :class="[
+      props.type === 'col' ? 'space-x-0 space-y-2 flex flex-col w-full' : ''
+    ]"
+  >
     <RouterLink
       v-if="user"
       type="button"
       to="/dashboard"
-      class="inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
+      class="inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700 hover:shadow focus:bg-purple-700 focus:shadow focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow transition duration-150 ease-in-out"
       :class="[
         props.size === 'small' ? 'px-6 py-3' : 'px-7 py-3'
       ]"
@@ -42,7 +49,7 @@ async function logOut() {
     <button
       v-else
       type="button"
-      class="inline-block border-2 border-purple-600 text-white font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+      class="inline-block border-2 border-[#9146FF] text-white font-medium text-xs leading-tight uppercase rounded hover:bg-[#9146FF] hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
       :class="[
         props.size === 'small' ? 'px-6 py-2.5' : 'px-7 py-2.5'
       ]"
@@ -54,9 +61,10 @@ async function logOut() {
     <button
       v-if="user"
       type="button"
-      class="inline-block ml-3 border-2 border-red-600 text-white font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+      class="inline-block border-2 border-red-600 text-white font-medium text-xs leading-tight uppercase rounded hover:bg-red-200 hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
       :class="[
-        props.size === 'small' ? 'px-4 py-2.5' : 'px-7 py-2.5'
+        props.size === 'small' ? 'px-4 py-2.5' : 'px-7 py-2.5',
+        props.type === 'col' ? 'w-full' : ''
       ]"
       @click="logOut"
     >

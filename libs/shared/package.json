@@ -9,12 +9,15 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
+    "@nestjs/common": "^8.4.7",
     "@nestjs/microservices": "8.4.7",
+    "@tsuwari/config": "workspace:*",
     "@twurple/auth": "5.1.6",
     "class-validator": "0.13.2",
     "ioredis": "^5.0.6",
     "lodash": "4.17.21",
-    "rxjs": "7.5.5"
+    "rxjs": "7.5.5",
+    "tslib": "^2.4.0"
   },
   "devDependencies": {
     "@tsuwari/prisma": "workspace:*",

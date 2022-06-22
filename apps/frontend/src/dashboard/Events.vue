@@ -49,7 +49,7 @@ title.value = 'Tsuwari - Events';
 
       <div class="w-full p-1 hidden sm:block">
         <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2">
-          <div class="card card-compact bg-base-200 drop-shadow-lg rounded">
+          <div class="card card-compact bg-base-200 drop-shadow rounded">
             <div class="card-body">
               <span class="label-text">Action</span>
               <select class="select select-sm w-full rounded">
@@ -133,7 +133,7 @@ title.value = 'Tsuwari - Events';
 
     <div class="w-full p-1 md:hidden">
       <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2">
-        <div class="card card-compact bg-base-200 drop-shadow-lg rounded">
+        <div class="card card-compact bg-base-200 drop-shadow rounded">
           <div class="card-body">
             <span class="label-text">Action</span>
             <select class="select select-sm w-full">

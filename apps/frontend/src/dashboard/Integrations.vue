@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useTitle } from '@vueuse/core';
 
+import FaceIt from '@/components/integrations/FaceIt.vue';
 import Lastfm from '@/components/integrations/Lastfm.vue';
 import Spotify from '@/components/integrations/Spotify.vue';
 import Vk from '@/components/integrations/Vk.vue';
@@ -19,6 +20,8 @@ title.value = 'Tsuwari - Integrations';
         <Lastfm />
       </div>
     </div>
+
+    <FaceIt />
   </div>
 </template>
 

@@ -1,3 +1,4 @@
+import axios, { AxiosInstance } from 'axios';
 import { endOfDay, startOfDay } from 'date-fns';
 import omit from 'lodash.omit';
 
@@ -9,8 +10,7 @@ export interface FaceitDbData {
 }
 
 class FaceitIntegrationClass {
-  #apiKey: string;
-  readonly #baseApiUrl = 'https://open.faceit.com/data/v4/';
+  private axios: AxiosInstance;
 
   async init() {
     const service = await prisma.integration.findFirst({
@@ -20,17 +20,21 @@ class FaceitIntegrationClass {
     });
 
     if (service && service.apiKey) {
-      this.#apiKey = service.apiKey;
+      this.axios = axios.create({
+        baseURL: 'https://open.faceit.com/data/v4/',
+        headers: {
+          Authorization: `Bearer ${service.apiKey}`,
+        },
+      });
     }
 
     return this;
   }
 
   async fetchStats(nickname: string, game = 'csgo') {
-    const baseProfileRequest = await fetch(`${this.#baseApiUrl}/players?nickname=${nickname}`);
-    if (!baseProfileRequest.ok) return null;
+    const baseProfileRequest = await this.axios(`/players?nickname=${nickname}`);
 
-    const baseProfile = await baseProfileRequest.json() as unknown as BaseProfileResponse;
+    const baseProfile = baseProfileRequest.data() as BaseProfileResponse;
     const userGame = baseProfile.games[game];
     if (!userGame) return null;
 
@@ -136,10 +140,9 @@ class FaceitIntegrationClass {
   }
 
   async #getUserStats(playerId: string, game = 'csgo') {
-    const statsRequest = await fetch(`${this.#baseApiUrl}players/${playerId}/stats/${game}`);
+    const statsRequest = await this.axios(`players/${playerId}/stats/${game}`);
 
-    if (!statsRequest.ok) return null;
-    const data = await statsRequest.json() as FaceitUserStats;
+    const data = await statsRequest.data() as FaceitUserStats;
     return omit(data, 'lifetime.Recent Results');
   }
 }

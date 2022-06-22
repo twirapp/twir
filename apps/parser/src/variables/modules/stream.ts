@@ -1,6 +1,13 @@
-import { humanizeStreamDuration } from '../../functions/humanizeStreamDuration.js';
+
+import { intervalToDuration, format, formatDuration } from 'date-fns';
+
 import { Module } from '../index.js';
 
+function humanizeStreamDuration(start: number, locale = 'en') {
+  const duration = intervalToDuration({ start: start, end: Date.now() });
+
+  return formatDuration(duration);
+}
 export const stream: Module[] = [
   {
     key: 'stream.title',

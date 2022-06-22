@@ -5,8 +5,8 @@ import { Worker, Queue, QueueScheduler } from 'bullmq';
 import Redis from 'ioredis';
 
 import { Bots, staticApi } from '../bots.js';
-import { ParserCache } from '../parser/cache.js';
-import { ResponseParser } from '../parser/index.js';
+import { nestApp } from '../nest/index.js';
+import { ParserService } from '../nest/parser/parser.service.js';
 import { prisma } from './prisma.js';
 import { redis } from './redis.js';
 
@@ -64,16 +64,20 @@ new Worker<Data>(
     }
 
     if (bot._authProvider) {
-      const api = new ApiClient({ authProvider: bot._authProvider });
-      const me = await api.users.getMe();
-      bot.say(
-        user.name,
-        await ResponseParser.parse(response, {
-          channelId: timer.channelId,
-          sender: { id: me.id, name: me.name },
-          cache: new ParserCache(timer.channelId, me.id),
-        }),
-      );
+      const service = nestApp.get(ParserService);
+      const parsedResponses = await service.parseResponse({
+        channelId: timer.channelId,
+        text: response,
+      });
+
+      if (parsedResponses) {
+        for (const r of parsedResponses) {
+          bot.say(
+            user.name,
+            r,
+          );
+        }
+      }
     }
 
     await prisma.timer.update({
