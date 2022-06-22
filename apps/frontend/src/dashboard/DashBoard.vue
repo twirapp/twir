@@ -75,10 +75,10 @@ function joinChannel() {
           <div class="p-4">
             <div
               class="rounded py-5 px-6 text-base mb-4"
-              :class="{ 'text-yellow-700 bg-yellow-100': !isBotMod, 'bg-green-100 text-green-700': isBotMod }"
+              :class="{ 'bg-red-600': !isBotMod, 'bg-green-600': isBotMod }"
             >
               <div v-if="!isBotMod">
-                <div class="text-sm">
+                <div>
                   {{ t('pages.dashboard.widgets.status.notMod' ) }}
                 </div>
               </div>
@@ -90,14 +90,14 @@ function joinChannel() {
             <div class="text-right">
               <button
                 type="button"
-                class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700 hover:shadow focus:bg-red-700 focus:shadow focus:outline-none focus:ring-0 active:bg-red-800 active:shadow transition duration-150 ease-in-out"
+                class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
                 @click="leaveChannel"
               >
                 {{ t('pages.dashboard.widgets.status.buttons.leave') }}
               </button>
               <button
                 type="button"
-                class="inline-block ml-2 px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-600 hover:shadow focus:bg-green-600 focus:shadow focus:outline-none focus:ring-0 active:bg-green-700 active:shadow transition duration-150 ease-in-out"
+                class="inline-block ml-2 px-6 py-2.5 bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
                 @click="joinChannel"
               >
                 {{ t('pages.dashboard.widgets.status.buttons.join') }}

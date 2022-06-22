@@ -3,6 +3,9 @@ import { ModerationSettingsDto } from '@tsuwari/shared';
 import { toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import Add from '@/assets/buttons/add.svg';
+import Remove from '@/assets/buttons/remove.svg';
+
 type Settings = ModerationSettingsDto & {
   checkClips: boolean,
   blackListSentences: string[],
@@ -33,13 +36,13 @@ const settings = toRef(props, 'settings', {
     >
       <div class="flex items-center justify-center">
         <div
-          class="inline-flex shadow hover:shadow focus:shadow"
+          class="inline-flex shadow  "
           role="group"
         >
           <button
             type="button"
             class="rounded-l inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
-            :class="[settings.enabled ? 'bg-green-500 hover:bg-green-600' : 'bg-[#ED4245] hover:bg-red-600' ]"
+            :class="[settings.enabled ? 'bg-green-600 hover:bg-green-700' : 'bg-[#ED4245] hover:bg-red-700' ]"
             @click="() => settings.enabled = !settings.enabled"
           >
             {{ t(`statuses.${settings.enabled ? 'enabled' : 'disabled'}`) }}
@@ -47,7 +50,7 @@ const settings = toRef(props, 'settings', {
           <button
             type="button"
             class="inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
-            :class="[settings.subscribers ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600' ]"
+            :class="[settings.subscribers ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700' ]"
             @click="() => settings.subscribers = !settings.subscribers"
           >
             {{ t('pages.moderation.moderate', { key: 'subscribers' }) }}
@@ -55,7 +58,7 @@ const settings = toRef(props, 'settings', {
           <button
             type="button"
             class="inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase focus:outline-none focus:ring-0 transition duration-150 ease-in-out rounded-r"
-            :class="[settings.vips ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600' ]"
+            :class="[settings.vips ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700' ]"
             @click="() => settings.vips = !settings.vips"
           >
             {{ t('pages.moderation.moderate', { key: 'vips' }) }}
@@ -86,7 +89,7 @@ const settings = toRef(props, 'settings', {
             transition
             ease-in-out
             m-0
-            focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+            focus:outline-none
           "
           :placeholder="t('pages.moderation.timeout.placeholder')"
         >
@@ -115,7 +118,7 @@ const settings = toRef(props, 'settings', {
             transition
             ease-in-out
             m-0
-            focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+            focus:outline-none
           "
         >
       </div>
@@ -143,7 +146,7 @@ const settings = toRef(props, 'settings', {
             transition
             ease-in-out
             m-0
-            focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+          focus:outline-none
           "
           :placeholder="t('pages.moderation.warning.placeholder')"
         >
@@ -160,7 +163,7 @@ const settings = toRef(props, 'settings', {
           <input
             id="flexSwitchCheckChecked"
             v-model="settings.checkClips"
-            class="form-check-input appearance-none w-9 -ml-10 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer shadow"
+            class="form-check-input appearance-none w-9 -ml-10 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain focus:outline-none cursor-pointer shadow"
             type="checkbox"
             role="switch"
           >
@@ -170,32 +173,30 @@ const settings = toRef(props, 'settings', {
         v-if="settings.type === 'blacklists'"
         class="mt-3"
       >
-        <span class="label">  
-          <span>{{ t('pages.moderation.blacklist') }}
-            <a
-              class="px-2 py-0.5 inline-block bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow  hover:shadow focus:shadow focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow transition duration-150 ease-in-out cursor-pointer"
-              @click="settings.blackListSentences?.push('')"
-            >
-              +
-            </a>
-          </span>
+        <span class="label flex items-center">  
+          <span>{{ t('pages.moderation.blacklist') }}</span>
+          <span
+            class="px-1 ml-2 py-1 inline-block bg-green-600 hover:bg-green-700 text-white font-medium text-xs leading-tight uppercase rounded shadow    focus:outline-none focus:ring-0  transition duration-150 ease-in-out cursor-pointer"
+            @click="settings.blackListSentences?.push('')"
+          ><Add /></span>
         </span>
-        <div class="input-group pt-1 pr-2 grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 xl:grid-cols-3 gap-1 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+  
+        <div class="input-group pt-1 pr-2 grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 xl:grid-cols-3 gap-2 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
           <div
             v-for="word, wordIndex in settings.blackListSentences"
             :key="wordIndex"
-            class="flex flex-wrap items-stretch mb-4 relative"
+            class="flex flex-wrap items-stretch relative"
           >
             <input
               v-model.lazy="settings.blackListSentences[wordIndex]"
               type="text"
-              class="flex-shrink flex-grow flex-auto leading-normal w-px flex-1 border border-grey-light text-gray-700 rounded px-3 py-1.5 relative rounded-r-none"
+              class="flex-shrink flex-grow flex-auto leading-normal w-px border border-grey-light text-gray-700 rounded px-3 py-1.5 relative rounded-r-none"
             >
             <div
               class="flex -mr-px cursor-pointer"
               @click="settings.blackListSentences.splice(wordIndex, 1)"
             >
-              <span class="flex items-center leading-normal bg-red-500 rounded rounded-l-none border-0 border-l-0 border-grey-light px-5 py-1.5 whitespace-no-wrap text-grey-dark text-sm">X</span>
+              <span class="flex items-center leading-normal bg-red-600 hover:bg-red-700 rounded rounded-l-none border-0 border-l-0 border-grey-light px-5 py-1.5 whitespace-no-wrap text-grey-dark text-sm"><Remove /></span>
             </div>
           </div>
         </div>
@@ -227,7 +228,7 @@ const settings = toRef(props, 'settings', {
             transition
             ease-in-out
             m-0
-            focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+            focus:outline-none
           "
           placeholder="50"
         >
@@ -259,7 +260,7 @@ const settings = toRef(props, 'settings', {
             transition
             ease-in-out
             m-0
-            focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+            focus:outline-none
           "
           placeholder="50"
         >
@@ -291,7 +292,7 @@ const settings = toRef(props, 'settings', {
             transition
             ease-in-out
             m-0
-            focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+             focus:outline-none
           "
           placeholder="50"
         >
@@ -323,7 +324,7 @@ const settings = toRef(props, 'settings', {
             transition
             ease-in-out
             m-0
-            focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+             focus:outline-none
           "
           placeholder="50"
         >

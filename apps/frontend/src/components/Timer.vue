@@ -6,6 +6,8 @@ import { Form, Field } from 'vee-validate';
 import { toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import Add from '@/assets/buttons/add.svg';
+import Remove from '@/assets/buttons/remove.svg';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
@@ -85,7 +87,7 @@ function cancelEdit() {
       <div
         v-for="error of errors"
         :key="error"
-        class="bg-red-100 rounded py-5 px-6 mb-4 text-base text-red-700"
+        class="bg-red-600 rounded py-5 px-6 mb-4 text-base text-red-700"
         role="alert"
       >
         {{ error }}
@@ -137,15 +139,15 @@ function cancelEdit() {
         </div>
 
         <div class="col-span-2">
-          <span class="label">
-            <span>{{ t('pages.timers.card.responses') }}
-              <a
-                v-if="timer.edit"
-                class="px-2 py-0.5 inline-block bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:shadow focus:shadow focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow transition duration-150 cursor-pointer ease-in-out"
-                @click="timer.responses.push('')"
-              >
-                +
-              </a>
+          <span class="label flex items-center">
+            <span>{{ t('pages.timers.card.responses') }}</span>
+            <span
+              v-if="timer.edit"
+              class="ml-2 px-1 py-1 inline-block bg-green-600 hover:bg-green-700 text-white font-medium text-xs leading-tight uppercase rounded shadow focus:outline-none focus:ring-0  transition duration-150 cursor-pointer ease-in-out"
+              @click="timer.responses.push('')"
+            >
+              <Add />
+          
             </span>
           </span>
 
@@ -153,7 +155,7 @@ function cancelEdit() {
             <div
               v-for="_response, responseIndex in timer.responses"
               :key="responseIndex"
-              class="flex flex-wrap items-stretch mb-4 relative"
+              class="flex flex-wrap items-stretch relative"
               style="width: 99%;"
             >
               <input
@@ -166,10 +168,10 @@ function cancelEdit() {
               >
               <div
                 v-if="timer.edit"
-                class="flex -mr-px cursor-pointer"
+                class="flex cursor-pointer"
                 @click="timer.responses?.splice(responseIndex, 1)"
               >
-                <span class="flex items-center leading-normal bg-red-500 rounded rounded-l-none border-0 border-l-0 border-grey-light px-5 py-1.5 whitespace-no-wrap text-grey-dark text-sm">X</span>
+                <span class="flex items-center leading-normal bg-red-600 hover:bg-red-700 rounded rounded-l-none border-0 border-l-0 border-grey-light px-5 py-1.5 whitespace-no-wrap text-grey-dark text-sm"><Remove /></span>
               </div>
             </div>
           </div>
@@ -181,7 +183,7 @@ function cancelEdit() {
           <button
             v-if="!timer.edit"
             type="button"
-            class="inline-block px-6 py-2.5 bg-gray-200 text-gray-700 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-gray-300 hover:shadow focus:bg-gray-300 focus:shadow focus:outline-none focus:ring-0 active:bg-gray-400 active:shadow transition duration-150 ease-in-out"
+            class="inline-block px-6 py-2.5 bg-gray-200 text-gray-700 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-gray-300    focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
             @click="() => {
               timer.edit = true;
               if (timer.id) timersBeforeEdit?.push(JSON.parse(JSON.stringify(timer)))
@@ -191,7 +193,7 @@ function cancelEdit() {
           </button>
           <button
             v-else
-            class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700 hover:shadow focus:bg-purple-700 focus:shadow focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow transition duration-150 ease-in-out"
+            class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700    focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
             @click="cancelEdit"
           >
             {{ t('buttons.cancel') }}
@@ -201,14 +203,14 @@ function cancelEdit() {
           <button
             v-if="timer.id"
             type="button"
-            class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700 hover:shadow focus:bg-red-700 focus:shadow focus:outline-none focus:ring-0 active:bg-red-800 active:shadow transition duration-150 ease-in-out"
+            class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
             @click="deleteTimer"
           >
             {{ t('buttons.delete') }}
           </button>
           <button
             type="submit"
-            class="inline-block ml-2 px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-600 hover:shadow focus:bg-green-600 focus:shadow focus:outline-none focus:ring-0 active:bg-green-700 active:shadow transition duration-150 ease-in-out"
+            class="inline-block ml-2 px-6 py-2.5 bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-700 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
           >
             {{ t('buttons.save') }}
           </button>

@@ -109,7 +109,7 @@ onMounted(async () => {
 
     <div class="mt-auto text-right">
       <a
-        class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700 hover:shadow focus:bg-purple-700 focus:shadow focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow transition duration-150 ease-in-out"
+        class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700    focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
         :href="authurl"
       >
         {{ t('buttons.login') }}

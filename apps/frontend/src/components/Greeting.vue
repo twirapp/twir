@@ -76,7 +76,7 @@ function cancelEdit() {
       <div
         v-for="error of errors"
         :key="error"
-        class="bg-red-100 rounded py-5 px-6 mb-4 text-base text-red-700"
+        class="bg-red-600 rounded py-5 px-6 mb-4 text-base text-red-700"
         role="alert"
       >
         {{ error }}
@@ -120,7 +120,7 @@ function cancelEdit() {
           <button
             v-if="!greeting.edit"
             type="button"
-            class="inline-block px-6 py-2.5 bg-gray-200 text-gray-700 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-gray-300 hover:shadow focus:bg-gray-300 focus:shadow focus:outline-none focus:ring-0 active:bg-gray-400 active:shadow transition duration-150 ease-in-out"
+            class="inline-block px-6 py-2.5 bg-gray-200 text-gray-700 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-gray-300  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
             @click="() => {
               greeting.edit = true;
               if (greeting.id) greetingsBeforeEdit?.push(JSON.parse(JSON.stringify(greeting)))
@@ -130,7 +130,7 @@ function cancelEdit() {
           </button>
           <button
             v-else
-            class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700 hover:shadow focus:bg-purple-700 focus:shadow focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow transition duration-150 ease-in-out"
+            class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700  focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
             @click="cancelEdit"
           >
             {{ t('buttons.cancel') }}
@@ -140,14 +140,14 @@ function cancelEdit() {
           <button
             v-if="greeting.id"
             type="button"
-            class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700 hover:shadow focus:bg-red-700 focus:shadow focus:outline-none focus:ring-0 active:bg-red-800 active:shadow transition duration-150 ease-in-out"
+            class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
             @click="deleteGreeting"
           >
             {{ t('buttons.delete') }}
           </button>
           <button
             type="submit"
-            class="inline-block ml-2 px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-600 hover:shadow focus:bg-green-600 focus:shadow focus:outline-none focus:ring-0 active:bg-green-700 active:shadow transition duration-150 ease-in-out"
+            class="inline-block ml-2 px-6 py-2.5 bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
           >
             {{ t('buttons.save') }}
           </button>

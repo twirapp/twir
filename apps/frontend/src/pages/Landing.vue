@@ -27,15 +27,15 @@ import { userStore } from '@/stores/userStore';
       <div class="flex space-x-1 hidden md:block">
         <a
           href="/dashboard"
-          class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-0 active:bg-gray-200 transition duration-150 ease-in-out"
+          class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
         >Dashboard</a>
         <a
           href="/dashboard"
-          class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-0 active:bg-gray-200 transition duration-150 ease-in-out"
+          class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
         >Team</a>
         <a
           href="/dashboard"
-          class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-0 active:bg-gray-200 transition duration-150 ease-in-out"
+          class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
         >About</a>
       </div>
 
@@ -59,9 +59,8 @@ import { userStore } from '@/stores/userStore';
           uppercase
           rounded
           shadow
-          hover:bg-[#9146FF] hover:shadow
-          focus:bg-[#9146FF] focus:shadow focus:outline-none focus:ring-0
-          active:bg-[#772CE8] active:shadow active:text-white
+          hover:bg-[#9146FF] 
+          focus:outline-none focus:ring-0
           transition
           duration-150
           ease-in-out
@@ -113,19 +112,19 @@ import { userStore } from '@/stores/userStore';
               <li>
                 <a
                   href="/dashboard"
-                  class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-0 active:bg-gray-200 transition duration-150 ease-in-out"
+                  class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
                 >Dashboard</a>
               </li>
               <li>
                 <a
                   href="/dashboard"
-                  class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-0 active:bg-gray-200 transition duration-150 ease-in-out"
+                  class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
                 >Team</a>
               </li>
               <li>
                 <a
                   href="/dashboard"
-                  class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-0 active:bg-gray-200 transition duration-150 ease-in-out"
+                  class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
                 >About</a>
               </li>
               <hr class="h-0 border border-solid border-t-0 border-gray-700 opacity-50">

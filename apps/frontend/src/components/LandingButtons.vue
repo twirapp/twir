@@ -38,7 +38,7 @@ async function logOut() {
       v-if="user"
       type="button"
       to="/dashboard"
-      class="inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700 hover:shadow focus:bg-purple-700 focus:shadow focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow transition duration-150 ease-in-out"
+      class="inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700 focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
       :class="[
         props.size === 'small' ? 'px-6 py-3' : 'px-7 py-3'
       ]"

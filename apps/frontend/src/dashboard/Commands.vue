@@ -85,7 +85,7 @@ function onSave(index: number) {
   <div class="flex h-full">
     <div class="w-40 rounded border-r border-b border-gray-700">
       <button
-        class="grid place-items-center m-auto px-6 py-2.5 w-full inline-block bg-green-500 hover:bg-green-600 text-white font-medium text-xs leading-tight uppercase shadow hover:shadow focus:bg-green-600 focus:shadow focus:outline-none focus:ring-0 active:shadow transition duration-150 ease-in-out"
+        class="grid place-items-center m-auto px-6 py-2.5 w-full inline-block bg-green-600 hover:bg-green-700 text-white font-medium text-xs leading-tight uppercase shadow   focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
         @click="insertCommand"
       >
         <Add />
@@ -104,7 +104,7 @@ function onSave(index: number) {
                     border border-solid border-gray-300
                     transition
                     ease-in-out
-                    focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                     focus:outline-none"
           placeholder="command"
         >
         <label

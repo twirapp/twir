@@ -58,9 +58,8 @@ useIntervalFn(() => {
           uppercase
           rounded
           shadow
-          hover:bg-blue-700 hover:shadow
-          focus:bg-blue-700 focus:shadow focus:outline-none focus:ring-0
-          active:bg-blue-800 active:shadow active:text-white
+          hover:bg-blue-700 
+          focus:outline-none focus:ring-0
           transition
           duration-150
           ease-in-out
