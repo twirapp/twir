@@ -14,7 +14,7 @@ jobs:
     if: "! contains(toJSON(github.event.commits.*.message), '[skip-docker]')"
     strategy:
       matrix:
-        os: [ARM64]
+        os: [X64]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -60,6 +60,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: satont/tsuwari:api-${{ matrix.os }}
+          platforms: linux/arm64
+          tags: satont/tsuwari:api-ARM64
           file: ./apps/api/Dockerfile
           context: .
