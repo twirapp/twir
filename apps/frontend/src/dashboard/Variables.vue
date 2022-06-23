@@ -47,16 +47,14 @@ async function deleteVariable(index: number) {
 
 <template>
   <div class="m-1.5 md:m-3">
-    <div class="p-1">
-      <div class="flow-root">
-        <div class="float-left rounded btn btn-primary btn-sm w-full mb-1 md:w-auto">
-          <button
-            class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700    focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
-            @click="insert"
-          >
-            {{ t('buttons.addNew') }}
-          </button>
-        </div>
+    <div class="flow-root">
+      <div class="float-left rounded btn btn-primary btn-sm w-full mb-1 md:w-auto">
+        <button
+          class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700    focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
+          @click="insert"
+        >
+          {{ t('buttons.addNew') }}
+        </button>
       </div>
     </div>
 

@@ -6,6 +6,7 @@ import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/creat
 import { useAxios } from '@vueuse/integrations/useAxios';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useToast } from 'vue-toastification';
 
 import Command from '../components/Command.vue';
 import { VariableType } from './Variables.vue';
@@ -19,7 +20,7 @@ type CommandType = UpdateOrCreateCommandDto & { new?: boolean, default?: boolean
 
 const selectedDashboard = useStore(selectedDashboardStore);
 
-const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/commands`, api, { immediate: false });
+const { execute, data: axiosData, error } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/commands`, api, { immediate: false });
 
 const commands = ref<CommandType[]>([]);
 const variablesList = ref<VariablesList>([]);
@@ -30,6 +31,13 @@ const filteredCommands = computed(() => {
 });
 const { t } = useI18n({
   useScope: 'global',
+});
+const toast = useToast();
+
+watch(error, (data) => {
+  if (data?.response?.data.message) {
+    toast(data.response.data.message);
+  }
 });
 
 watch(axiosData, (v: CommandType[]) => {

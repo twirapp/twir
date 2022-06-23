@@ -1,18 +1,41 @@
 <script lang="ts" setup>
+import { useStore } from '@nanostores/vue';
+import { HelixStreamData } from '@twurple/api/lib/index.js';
 import { useIntervalFn  } from '@vueuse/core';
+import { useAxios } from '@vueuse/integrations/useAxios';
 import { intervalToDuration, formatDuration } from 'date-fns';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
+import { api } from '@/plugins/api';
 import { localeStore } from '@/stores/locale';
+import { selectedDashboardStore } from '@/stores/userStore';
 
 function setLocale(v: string) {
   localeStore.set(v);
 }
 
+const selectedDashboard = useStore(selectedDashboardStore);
+const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/streams`, api, { immediate: false });
+
+const stream = ref<HelixStreamData & { parsedMessages: number } | null>(null);
 const uptime = ref('');
 
+watch(axiosData, (v) => {
+  stream.value = v;
+});
+
+selectedDashboardStore.subscribe(async (v) => {
+  execute(`/v1/channels/${v.channelId}/streams`);
+});
+
 useIntervalFn(() => {
-  uptime.value = formatDuration(intervalToDuration({ start: new Date('2022-05-24T21:56:15Z'), end: Date.now() }));
+  execute(`/v1/channels/${selectedDashboard.value.channelId}/streams`);
+}, 15000);
+
+useIntervalFn(() => {
+  if (stream.value) {
+    uptime.value = formatDuration(intervalToDuration({ start: new Date(stream.value.started_at), end: Date.now() }));
+  }
 }, 1000, { immediate: true });
 
 </script>
@@ -20,8 +43,21 @@ useIntervalFn(() => {
 <template>
   <nav class="relative w-full flex flex-wrap items-center justify-between py-3 text-white shadow border-b border-stone-700">
     <div class="container-fluid w-full flex flex-wrap items-center justify-between px-6">
-      <div class="container-fluid flex space-x-2">
-        <p>Viewers: <span class="font-bold">150000</span></p>
+      <div
+        v-if="stream"
+        class="container-fluid flex space-x-2"
+      >
+        <p>Viewers: <span class="font-bold">{{ stream.viewer_count }}</span></p>
+        <p>Category: <span class="font-bold">{{ stream.game_name }}</span></p>
+        <p>Title: <span class="font-bold">{{ stream.title }}</span></p>
+        <p>Mesages sended: <span class="font-bold">{{ stream.parsedMessages }}</span></p>
+        <p>Uptime: <span class="font-bold">{{ uptime }}</span></p>
+      </div>
+      <div
+        v-else
+        class="container-fluid flex space-x-2"
+      >
+        Stream Offline
       </div>
       <div>
         <div class="locale-changer">

@@ -3,9 +3,11 @@ import { useStore } from '@nanostores/vue';
 import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/create';
 import { CommandPermission, CooldownType } from '@tsuwari/prisma';
 import { isNumber } from '@vueuse/core';
+import axios from 'axios';
 import { configure, Form, Field } from 'vee-validate';
 import { computed, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useToast } from 'vue-toastification';
 import * as yup from 'yup';
 
 import Add from '@/assets/buttons/add.svg';
@@ -53,6 +55,7 @@ const emit = defineEmits<{
 const { t } = useI18n({
   useScope: 'global',
 });
+const toast = useToast();
 
 const schema = computed(() => yup.object({
   name: yup.string().min(1, 'Name cannot be empty')
@@ -107,6 +110,7 @@ async function deleteCommand() {
   const index = commands.value.indexOf(command.value);
   if (command.value.id) {
     await api.delete(`/v1/channels/${selectedDashboard.value.channelId}/commands/${command.value.id}`);
+    toast.success('Command deleted');
   }
 
   emit('delete', index);
@@ -115,17 +119,32 @@ async function deleteCommand() {
 async function saveCommand() {
   const index = commands.value.indexOf(command.value);
   let data: CommandType;
-  if (command.value.id) {
-    const request = await api.put(`/v1/channels/${selectedDashboard.value.channelId}/commands/${command.value.id}`, command.value);  
-    data = request.data;
-  } else {
-    const request = await api.post(`/v1/channels/${selectedDashboard.value.channelId}/commands`, command.value);
-    data = request.data;
-  }
 
-  if (commands.value && commands.value[index]) {
-    commands.value[index] = data;
-    emit('save', index);
+  try {
+    if (command.value.id) {
+      const request = await api.put(
+        `/v1/channels/${selectedDashboard.value.channelId}/commands/${command.value.id}`,
+        command.value,
+      );  
+      data = request.data;
+      toast.success('Command updated');
+    } else {
+      const request = await api.post(
+        `/v1/channels/${selectedDashboard.value.channelId}/commands`, 
+        command.value,
+      );
+      data = request.data;
+      toast.success('Command created');
+    }
+
+    if (commands.value && commands.value[index]) {
+      commands.value[index] = data;
+      emit('save', index);
+    }
+  } catch (e) {
+    if (axios.isAxiosError(e) && (e.response?.data as any)?.message) {
+      toast.error((e.response?.data as any)?.message);
+    }
   }
 }
 

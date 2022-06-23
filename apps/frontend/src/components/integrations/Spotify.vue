@@ -67,8 +67,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex flex-col card rounded card-compact bg-base-200 drop-shadow p-4 break-inside mb-[0.5rem]">
-    <div class="flex justify-between mb-5">
+  <div class="flex flex-col card rounded card-compact bg-base-200 drop-shadow p-2 break-inside mb-[0.5rem]">
+    <div class="flex mb-5 justify-between">
       <div>
         <h2 class="card-title flex font-bold">
           Spotify

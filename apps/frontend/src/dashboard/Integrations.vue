@@ -11,14 +11,10 @@ title.value = 'Tsuwari - Integrations';
 </script>
 
 <template>
-  <div class="masonry sm:masonry-sm md:masonry-md lg:masonry-lg m-3">
+  <div class="mansory sm:mansory-sm md:mansory-md lg:masonry-lg m-1.5 md:m-3">
     <Spotify />
-
-    <div class="grid grid-cols-1 mb-[0.5rem] break-inside">
-      <div><Vk /></div>
-      <div>        <Lastfm />    </div>
-    </div>
-
+    <Vk />
+    <Lastfm />
     <FaceIt />
   </div>
 </template>
