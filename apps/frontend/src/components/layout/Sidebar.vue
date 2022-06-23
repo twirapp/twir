@@ -193,18 +193,16 @@ function logOut() {
               w-full
               whitespace-nowrap
               bg-transparent
-              hover:bg-[#121212]"
+              hover:bg-[#121212]
+              cursor-pointer
+            "
+          @click="setSelectedDashboard(dashboard)"
         >
-          <div
-            class="cursor-pointer"
-            @click="setSelectedDashboard(dashboard)"
+          <img
+            class="w-6 rounded-full inline"
+            :src="dashboard?.twitch?.profile_image_url ?? dashboard.twitch?.profile_image_url"
           >
-            <img
-              class="w-6 rounded-full inline"
-              :src="dashboard?.twitch?.profile_image_url ?? dashboard.twitch?.profile_image_url"
-            >
-            <span class="ml-4">{{ dashboard.twitch.display_name }}</span>
-          </div>
+          <span class="ml-4">{{ dashboard.twitch.display_name }}</span>
         </li>
         <ul />
       </ul>
