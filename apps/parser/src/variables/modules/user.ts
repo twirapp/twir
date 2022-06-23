@@ -1,6 +1,7 @@
+import { TwitchApiService } from '@tsuwari/shared';
 import { formatDuration, intervalToDuration } from 'date-fns';
 
-import { getuserFollowAge } from '../../functions/getUserFollowAge.js';
+import { app } from '../../index.js';
 import { Module } from '../index.js';
 
 const formatDistanceLocale: { [x: string]: string } = {
@@ -9,12 +10,25 @@ const formatDistanceLocale: { [x: string]: string } = {
 };
 const shortEnLocale = { formatDistance: (token: string, count: string) => formatDistanceLocale[token]?.replace('{{count}}', count) };
 
+const staticApi = app.get(TwitchApiService);
+
+async function getuserFollowAge(fromId: string, toId: string) {
+  const follow = await staticApi.users.getFollowFromUserToBroadcaster(fromId, toId);
+
+  if (!follow) return 'not follower';
+
+  const duration = intervalToDuration({ start: follow.followDate.getTime(), end: Date.now() });
+
+  return formatDuration(duration);
+}
+
+
 export const user: Module[] = [
   {
     key: 'user.followage',
     description: 'User followage',
     handler: (_, state) => {
-      if (!state.sender.id || !state.channelId) return 'cannot fetch data';
+      if (!state.sender?.id || !state.channelId) return 'cannot fetch data';
       return getuserFollowAge(state.sender.id, state.channelId);
     },
   },
@@ -33,7 +47,6 @@ export const user: Module[] = [
     handler: async (_, state) => {
       const stats = await state.cache.getUserStats();
       if (!stats) return '0h0m';
-      console.log(stats);
       return formatDuration(
         intervalToDuration({ start: 0, end: Number(stats.watched ?? 0) }),
         {

@@ -8,9 +8,8 @@ import pc from 'picocolors';
 
 import { increaseParsedMessages } from '../functions/increaseParsedMessages.js';
 import { increaseUserMessages } from '../functions/increaseUserMessages.js';
-import { ParserCache } from '../parser/cache.js';
-import { ResponseParser } from '../parser/index.js';
-import { CommandsParser } from './commandsParser.js';
+import { nestApp } from '../nest/index.js';
+import { ParserService } from '../nest/parser/parser.service.js';
 import { GreetingsParser } from './greetingsParser.js';
 import { KeywordsParser } from './keywordsParser.js';
 import { ConsoleLogger } from './logger.js';
@@ -19,13 +18,12 @@ import { ModerationParser } from './moderationParser.js';
 import { commandsCounter, messagesCounter } from './prometheus.js';
 import { redis } from './redis.js';
 
-
 export class Bot extends ChatClient {
   #api: ApiClient;
-  #commandsParser: CommandsParser;
   #greetingsParser: GreetingsParser;
   #moderationParser: ModerationParser;
   #keywordsParser: KeywordsParser;
+  #parserService = nestApp.get(ParserService);
 
   constructor(authProvider: RefreshingAuthProvider, channels: string[]) {
     super({
@@ -34,7 +32,6 @@ export class Bot extends ChatClient {
       isAlwaysMod: true,
     });
 
-    this.#commandsParser = new CommandsParser();
     this.#greetingsParser = new GreetingsParser();
     this.#moderationParser = new ModerationParser();
     this.#keywordsParser = new KeywordsParser();
@@ -124,34 +121,33 @@ export class Bot extends ChatClient {
           }
         }
 
-        const msgObject = {
-          message,
-          channelId: state.channelId,
-          sender: {
-            id: state.userInfo.userId,
-            name: state.userInfo.userName,
-          },
-          raw: state,
-          cache: new ParserCache(state.channelId, state.userInfo.userId),
-        };
-
-        this.#commandsParser.parse(message, state).then(async (result) => {
+        this.#parserService.parseChatMessage(state.rawLine!).then(result => {
           if (!state.channelId) return;
-          if (!result?.responses?.length) return;
+          if (!result?.length) return;
           commandsCounter.inc();
 
-          for (const response of result.responses) {
+          for (const response of result) {
             if (!response) continue;
-            if (result.responses.indexOf(response) > 0 && !isBotMod) break;
-            const msg = await ResponseParser.parse(response, msgObject, result.params);
+            if (result.indexOf(response) > 0 && !isBotMod) break;
 
-            this.say(channel, msg, { replyTo: state.id });
+            this.say(channel, response, { replyTo: state.id });
           }
         });
 
         this.#greetingsParser.parse(state).then(async (response) => {
           if (!response) return;
-          this.say(channel, await ResponseParser.parse(response, msgObject, message), { replyTo: state.id });
+          const result = await this.#parserService.parseResponse({
+            channelId: state.channelId!,
+            userId: state.userInfo.userId,
+            userName: state.userInfo.userName,
+            text: response,
+          });
+
+          if (result) {
+            for (const r of result) {
+              this.say(channel, r, { replyTo: state.id });
+            }
+          }
         });
 
         this.#keywordsParser.parse(message, state).then(async (responses) => {
@@ -160,9 +156,18 @@ export class Bot extends ChatClient {
           for (const response of responses) {
             if (!response) continue;
             if (responses.indexOf(response) > 0 && !isBotMod) break;
-            const msg = await ResponseParser.parse(response, msgObject, message);
+            const result = await this.#parserService.parseResponse({
+              channelId: state.channelId!,
+              userId: state.userInfo.userId,
+              userName: state.userInfo.userName,
+              text: response,
+            });
 
-            this.say(channel, msg, { replyTo: state.id });
+            if (result) {
+              for (const r of result) {
+                this.say(channel, r, { replyTo: state.id });
+              }
+            }
           }
         });
 

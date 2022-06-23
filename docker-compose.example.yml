@@ -84,6 +84,21 @@ services:
       - postgres
       - nats
 
+  parser:
+    restart: unless-stopped
+    image: satont/tsuwari:parser-ARM64
+    env_file:
+      - .env
+    deploy:
+      mode: replicated
+      replicas: 8
+    depends_on:
+      - redis
+      - migrations
+      - postgres
+      - nats
+      - bots
+
   scheduler:
     restart: unless-stopped
     image: satont/tsuwari:scheduler-ARM64

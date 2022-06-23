@@ -40,7 +40,7 @@ async function save() {
       <div class="flow-root">
         <div class="float-left rounded btn btn-primary btn-sm w-full mb-1 md:w-auto">
           <button
-            class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out"
+            class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700    focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
             @click="save"
           >
             {{ t('buttons.save') }}
@@ -55,12 +55,12 @@ async function save() {
       </div>
     </div>
     <div 
-      class="grid items-start xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-2"
+      class="masonry sm:masonry-sm md:masonry-md lg:masonry-lg"
     >
       <div
         v-for="setting, index in settings"
         :key="index"
-        class="block rounded-lg card text-white shadow-lg"
+        class="break-inside block rounded card text-white shadow"
       >
         <ModerationComponent :settings="(setting as any)" />
       </div>

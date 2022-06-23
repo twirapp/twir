@@ -110,12 +110,12 @@ function logOut() {
 </script>
 
 <template>
-  <aside class="w-54 hidden sm:block shadow-md min-w-max border-r border-stone-700 h-screen scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+  <aside class="select-none w-54 hidden sm:block shadow min-w-max border-r border-stone-700 h-screen scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
     <div class="sidebar-header flex items-center justify-center py-1">
       <div>
         <router-link
           to="/"
-          class="mt-5 inline-flex flex-row items-center text-xl"
+          class="mt-5 font-bold inline-flex flex-row items-center text-xl"
         >
           <svg
             width="30"
@@ -134,7 +134,7 @@ function logOut() {
         </router-link>
       </div>
     </div>
-    <div class="px-1 dropend">
+    <div class="dropend">
       <a
         id="dropdownMenuButton1e"
         href="#"
@@ -169,10 +169,9 @@ function logOut() {
           list-none
           text-left
           text-white
-          rounded-lg
-          shadow-lg
+          rounded
+          shadow
           mt-1
-          hidden
           m-0
           bg-clip-padding
           border-none

@@ -1,35 +1,40 @@
-import { timer } from '../decorators/timer.js';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+
 import { ParserCache } from './cache.js';
-import * as modules from './modules/index.js';
 
 export type State = {
   message?: string,
   channelId: string;
-  sender: {
-    id: string;
-    name: string;
+  sender?: {
+    id?: string;
+    name?: string;
   };
   cache: ParserCache;
 };
 
 type Handler = (key: string, state: State, params?: string | null, chatMessage?: string) => number | string | Promise<string | number | undefined> | undefined;
 
-export type Module = {
+export interface Module {
   key: string;
   description?: string;
   example?: string;
   visible?: boolean;
   handler: Handler;
-};
+}
 
-class ResponseParserClass {
+@Injectable()
+export class VariablesParser implements OnModuleInit {
   vars: {
     [x: string]: Handler;
   } = {};
   readonly #regular = /\$\(([^)|]+)(?:\|([^)]+))?\)/g;
 
-  constructor() {
-    this.#registerModules(Object.values(modules).flat());
+  onModuleInit() {
+    setTimeout(async () => {
+      const modules = await import('./modules/index.js');
+
+      this.#registerModules(Object.values(modules).flat());
+    }, 1000);
   }
 
   #registerModules(modules: Array<Module>, rewrite = false) {
@@ -42,7 +47,6 @@ class ResponseParserClass {
     }
   }
 
-  @timer()
   async parse(response: string, state: State, chatMessage?: string) {
     let result = '';
     const parts = response.split(this.#regular);
@@ -66,5 +70,3 @@ class ResponseParserClass {
     return result;
   }
 }
-
-export const ResponseParser = new ResponseParserClass();

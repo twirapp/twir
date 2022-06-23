@@ -1,9 +1,12 @@
+import { config } from '@tsuwari/config';
+import { PrismaService } from '@tsuwari/prisma';
 import { MyRefreshingProvider } from '@tsuwari/shared';
 import { ApiClient } from '@twurple/api';
 
-import { config } from '../../config.js';
-import { prisma } from '../../libs/prisma.js';
+import { app } from '../../index.js';
 import { DefaultCommand } from '../types.js';
+
+const prisma = app.get(PrismaService);
 
 export const channelInfo: DefaultCommand[] = [
   {

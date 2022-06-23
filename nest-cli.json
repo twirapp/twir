@@ -41,6 +41,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/streamstatus/tsconfig.json"
       }
+    },
+    "parser": {
+      "type": "application",
+      "root": "apps/parser",
+      "entryFile": "index",
+      "sourceRoot": "apps/parser/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/parser/tsconfig.json"
+      }
     }
   }
 }

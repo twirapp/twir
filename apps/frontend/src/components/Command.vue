@@ -8,6 +8,8 @@ import { computed, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as yup from 'yup';
 
+import Add from '@/assets/buttons/add.svg';
+import Remove from '@/assets/buttons/remove.svg';
 import type { VariablesList } from '@/dashboard/Commands.vue';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
@@ -130,8 +132,6 @@ async function saveCommand() {
 function changeCommandResponse(index: number, value: string) {
   command.value.responses[index].text = value;
 }
-
-const consoleLog = console.log;
 </script>
 
 <template>
@@ -147,10 +147,22 @@ const consoleLog = console.log;
       <div
         v-for="error of errors"
         :key="error"
-        class="bg-red-100 rounded-lg py-5 px-6 mb-4 text-base text-red-700 mb-3"
+        class="bg-red-600 rounded py-2 px-6 mb-4 text-white flex"
         role="alert"
       >
-        {{ error }}
+        <svg
+          class="w-6 h-6 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        ><path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+        /></svg>
+        <p>{{ error }}</p>
       </div>
       <div
         class="grid grid-cols-2 gap-1"
@@ -235,28 +247,27 @@ const consoleLog = console.log;
         </div>
 
         <div class="col-span-2">
-          <span class="label">
+          <span class="label flex items-center">
             <span>{{ t('pages.commands.card.responses.title') }}
-              <a
-                v-if="!command.default"
-                class="px-2 py-0.5 inline-block bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 cursor-pointer ease-in-out"
-                @click="command.responses.push({ text: '' })"
-              >
-                +
-              </a>
+            </span>
+            <span
+              v-if="!command.default"
+              class="px-1 ml-1 py-1 inline-block bg-green-600 hover:bg-green-700 text-white font-medium text-xs leading-tight uppercase rounded shadow   focus:outline-none focus:ring-0 ansition duration-150 cursor-pointer ease-in-out"
+              @click="command.responses.push({ text: '' })"
+            >
+              <Add />
             </span>
           </span>
 
           <!-- max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600-->
           <div
             v-if="!command.default"
-            class="input-group min-h-[150px] grid grid-cols-1 pt-1 gap-2"
+            class="input-group min-h-[150px] grid grid-cols-1 pt-1 gap-1"
           >
             <div
               v-for="_response, responseIndex in command.responses"
               :key="responseIndex"
-              class="flex flex-wrap max-h-max items-stretch mb-4 relative dropdown relative"
-              style="width: 99%;"
+              class="flex flex-wrap max-h-max items-stretch mb-1 relative dropdown"
             >
               <div 
                 :id="'dropdownMenuButton' + responseIndex"
@@ -270,7 +281,7 @@ const consoleLog = console.log;
               </div>
               <ul
                 class="
-                  dropdown-menu w-[90%] absolute hidden bg-white text-base z-50 float-left py-2 list-none text-left rounded-lg shadow-lg mt-1 hidden m-0 bg-clip-padding border-none bg-gray-800 max-h-52 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600
+                  dropdown-menu w-[90%] absolute bg-white text-base z-50 float-left py-2 list-none text-left rounded shadow mt-1 hidden m-0 bg-clip-padding border-none bg-gray-800 max-h-52 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600
                 "
                 :aria-labelledby="'dropdownMenuButton' + responseIndex"
               >
@@ -315,17 +326,17 @@ const consoleLog = console.log;
                 </li>
               </ul>
               <div
-                class="flex -mr-px cursor-pointer"
+                class="flex cursor-pointer"
                 @click="command.responses?.splice(responseIndex, 1)"
               >
-                <span class="flex items-center leading-normal bg-red-500 rounded rounded-l-none border-0 border-l-0 border-grey-light px-5 py-1.5 whitespace-no-wrap text-grey-dark text-sm">X</span>
+                <span class="flex items-center leading-normal bg-red-600 hover:bg-red-700 rounded rounded-l-none border-0 border-l-0 border-grey-light px-4 py-1.5 whitespace-no-wrap text-grey-dark text-sm"><Remove /></span>
               </div>
             </div>
           </div>
           
           <div
             v-else
-            class="bg-yellow-100 rounded-lg py-5 px-6 mb-4 text-base text-yellow-700"
+            class="bg-red-600 rounded py-2 px-6 mb-4 text-white flex"
             role="alert"
           >
             {{ t('pages.commands.card.responses.builtInAlert') }}
@@ -333,33 +344,33 @@ const consoleLog = console.log;
         </div>
 
         <div class="col-span-2">
-          <span class="label">  
-            <span>{{ t('pages.commands.card.aliases.title') }}
-              <a
-                class="px-2 py-0.5 inline-block bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md  hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-purple-800 active:shadow-lg transition duration-150 ease-in-out cursor-pointer"
-                @click="command.aliases?.push('')"
-              >
-                +
-              </a>
+          <span class="label flex items-center">  
+            <span>{{ t('pages.commands.card.aliases.title') }}</span>
+            <span
+              class="items-center ml-1 px-1 py-1 inline-block bg-green-600 hover:bg-green-700 text-white font-medium text-xs leading-tight uppercase rounded shadow    focus:outline-none focus:ring-0 transition duration-150 ease-in-out cursor-pointer"
+              @click="command.aliases?.push('')"
+            >
+              <Add />
             </span>
+           
           </span>
 
-          <div class="input-group pt-1 pr-2 grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 xl:grid-cols-3 gap-1 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+          <div class="input-group pt-1 pr-2 grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 xl:grid-cols-3 gap-2 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
             <div
               v-for="aliase, aliaseIndex in command.aliases"
               :key="aliase"
-              class="flex flex-wrap items-stretch mb-4 relative"
+              class="flex flex-wrap items-stretch relative"
             >
               <input
                 v-model.lazy="command.aliases![aliaseIndex]"
                 type="text"
-                class="flex-shrink rounded-r-none flex-grow flex-auto leading-normal w-px flex-1 border border-grey-light text-gray-700 rounded px-3 py-1.5 relative"
+                class="flex-shrink rounded-r-none flex-grow leading-normal w-px border border-grey-light text-gray-700 rounded px-3 py-1.5 relative"
               >
               <div
-                class="flex -mr-px cursor-pointer"
+                class="flex cursor-pointer"
                 @click="command.aliases?.splice(aliaseIndex, 1)"
               >
-                <span class="flex items-center leading-normal bg-red-500 rounded rounded-l-none border-0 border-l-0 border-grey-light px-5 py-1.5 whitespace-no-wrap text-grey-dark text-sm">X</span>
+                <span class="flex items-center leading-normal bg-red-600 hover:bg-red-700 rounded rounded-l-none border-0 border-l-0 border-grey-light px-5 py-1.5 whitespace-no-wrap text-grey-dark text-sm"><Remove /></span>
               </div>
             </div>
           </div>
@@ -372,14 +383,14 @@ const consoleLog = console.log;
           <button
             v-if="command.id && !command.default"
             type="button"
-            class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out"
+            class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
             @click="deleteCommand"
           >
             {{ t('buttons.delete') }}
           </button>
           <button
             type="submit"
-            class="inline-block ml-2 px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-green-600 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-700 active:shadow-lg transition duration-150 ease-in-out"
+            class="inline-block ml-2 px-6 py-2.5 bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
           >
             {{ t('buttons.save') }}
           </button>

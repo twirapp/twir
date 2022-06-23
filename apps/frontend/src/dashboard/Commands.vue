@@ -10,6 +10,8 @@ import { useI18n } from 'vue-i18n';
 import Command from '../components/Command.vue';
 import { VariableType } from './Variables.vue';
 
+import Add from '@/assets/buttons/add.svg';
+import Remove from '@/assets/buttons/remove.svg';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
@@ -83,10 +85,10 @@ function onSave(index: number) {
   <div class="flex h-full">
     <div class="w-40 rounded border-r border-b border-gray-700">
       <button
-        class="px-6 py-2.5 w-full inline-block bg-green-500 text-white font-medium text-xs leading-tight uppercase shadow-md hover:bg-green-500 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out"
+        class="grid place-items-center m-auto px-6 py-2.5 w-full inline-block bg-green-600 hover:bg-green-700 text-white font-medium text-xs leading-tight uppercase shadow   focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
         @click="insertCommand"
       >
-        +
+        <Add />
       </button>
       <div class="form-floating">
         <input
@@ -102,7 +104,7 @@ function onSave(index: number) {
                     border border-solid border-gray-300
                     transition
                     ease-in-out
-                    focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                     focus:outline-none"
           placeholder="command"
         >
         <label
@@ -139,7 +141,7 @@ function onSave(index: number) {
 
     <div
       v-if="currentEditableCommand"
-      class="w-full p-1 sm:block h-fit m-4 max-w-2xl rounded-lg card text-white shadow-lg"
+      class="w-full p-1 sm:block h-fit m-4 max-w-2xl rounded card text-white shadow"
     >
       <Command 
         :command="currentEditableCommand" 

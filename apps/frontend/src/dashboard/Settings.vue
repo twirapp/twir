@@ -5,6 +5,8 @@ import { useAxios } from '@vueuse/integrations/useAxios';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import Add from '@/assets/buttons/add.svg';
+import Remove from '@/assets/buttons/remove.svg';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore, userStore } from '@/stores/userStore';
 
@@ -40,22 +42,22 @@ async function addMember() {
 
 <template>
   <div class="p-1 m-3">
-    <div class="grid lg:grid-cols-3 grid-cols-1 gap-2">
+    <div class="masonry sm:masonry-sm md:masonry-md lg:masonry-lg">
       <div
-        class="block rounded-lg card text-white shadow-lg max-w-sm"
+        class="block rounded card text-white shadow max-w-sm break-inside mb-[0.5rem]"
       >
-        <h2 class="card-title p-2 flex justify-between border-b border-gray-700 outline-none">
+        <h2 class="card-title p-2 flex justify-center border-b border-gray-700 outline-none font-bold">
           <p>{{ t('pages.settings.widgets.dashboardAccess.title') }}</p>
         </h2>
         <div>
           <div
-            class="rounded-lg text-base my-4"
+            class="rounded text-base my-4"
           >
             <p
               v-if="!dashboardMembers?.length"
               class="text-center"
             >
-              {{ t('pages.settings.widgets.dashboardAccess.noAccs')}}
+              {{ t('pages.settings.widgets.dashboardAccess.noAccs') }}
             </p>
             <ul
               v-else
@@ -79,7 +81,7 @@ async function addMember() {
                 }"
               >
                 <div
-                  class="flex justify-between"
+                  class="flex justify-between items-center"
                   :class="{'cursor-pointer': member.id !== user?.id}"
                   @click="member.id !== user?.id ? deleteMember(member.id) : null"
                 >
@@ -91,18 +93,7 @@ async function addMember() {
                     <span class="ml-4">{{ member.display_name }}</span>
                   </div>
                   <div v-if="member.id !== user?.id">
-                    <svg
-                      class="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    ><path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    /></svg>
+                    <Remove />
                   </div>
                   <div v-if="member.id === user?.id">
                     <span class="text-xs inline-block py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-gray-200 text-gray-700 rounded">{{ t('pages.settings.widgets.dashboardAccess.thatsYou') }}</span>
@@ -116,26 +107,15 @@ async function addMember() {
             <input
               v-model="newMember"
               type="text"
-              class="form-control input text-gray-700 flex-shrink flex-grow leading-normal w-px flex-1 border h-10 border-grey-light px-3 relative"
+              class="form-control rounded-l input text-gray-700 flex-shrink flex-grow leading-normal flex-1 border h-10 border-grey-light px-3 relative"
               :placeholder="t('pages.settings.widgets.dashboardAccess.placeholder')"
               @keyup.enter="addMember"
             >
             <div
-              class="flex -mr-px cursor-pointer"
+              class="flex cursor-pointer"
               @click="addMember"
             >
-              <span class="flex items-center leading-normal bg-green-600 px-3 whitespace-no-wrap text-grey-dark text-sm"><svg
-                class="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              ><path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              /></svg></span>
+              <span class="flex items-center leading-normal bg-green-600 hover:bg-green-700 px-3 whitespace-no-wrap text-grey-dark text-sm rounded-r"><Add /></span>
             </div>
           </div>
         </div>
