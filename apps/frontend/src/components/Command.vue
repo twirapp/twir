@@ -120,31 +120,25 @@ async function saveCommand() {
   const index = commands.value.indexOf(command.value);
   let data: CommandType;
 
-  try {
-    if (command.value.id) {
-      const request = await api.put(
-        `/v1/channels/${selectedDashboard.value.channelId}/commands/${command.value.id}`,
-        command.value,
-      );  
-      data = request.data;
-      toast.success('Command updated');
-    } else {
-      const request = await api.post(
-        `/v1/channels/${selectedDashboard.value.channelId}/commands`, 
-        command.value,
-      );
-      data = request.data;
-      toast.success('Command created');
-    }
+  if (command.value.id) {
+    const request = await api.put(
+      `/v1/channels/${selectedDashboard.value.channelId}/commands/${command.value.id}`,
+      command.value,
+    );  
+    data = request.data;
+    toast.success('Command updated');
+  } else {
+    const request = await api.post(
+      `/v1/channels/${selectedDashboard.value.channelId}/commands`, 
+      command.value,
+    );
+    data = request.data;
+    toast.success('Command created');
+  }
 
-    if (commands.value && commands.value[index]) {
-      commands.value[index] = data;
-      emit('save', index);
-    }
-  } catch (e) {
-    if (axios.isAxiosError(e) && (e.response?.data as any)?.message) {
-      toast.error((e.response?.data as any)?.message);
-    }
+  if (commands.value && commands.value[index]) {
+    commands.value[index] = data;
+    emit('save', index);
   }
 }
 

@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
 import { ChannelIntegration } from '@tsuwari/prisma';
+import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import { useToast } from 'vue-toastification';
 
 import { api } from '@/plugins/api';
 import { setSpotifyProfile, spotifyProfileStore } from '@/stores/spotifyProfile';
@@ -15,9 +17,7 @@ const spotifyIntegration = ref<Partial<ChannelIntegration>>({
 });
 const selectedDashboard = useStore(selectedDashboardStore);
 const spotifyProfile = useStore(spotifyProfileStore);
-const authurl = computed(() => {
-  return `${window.location.origin}/api/v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/auth`;
-});
+
 const { t } = useI18n({
   useScope: 'global',
 });
@@ -29,6 +29,11 @@ selectedDashboardStore.subscribe(d => {
   });
 });
 
+async function auth() {
+  const { data } = await api(`/v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/auth`);
+
+  window.location.replace(data);
+}
 
 async function fetchSpotifyProfile() {
   const { data } = await api(`v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/profile`);
@@ -108,12 +113,12 @@ onMounted(async () => {
     </div>
 
     <div class="mt-auto text-right">
-      <a
+      <button
         class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700    focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
-        :href="authurl"
+        @click="auth"
       >
         {{ t('buttons.login') }}
-      </a>
+      </button>
     </div>
   </div>
 </template>

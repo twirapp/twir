@@ -1,4 +1,5 @@
 import Axios, { AxiosError } from 'axios';
+import { useToast } from 'vue-toastification';
 
 import { refreshAccessToken } from '@/functions/refreshAccessToken';
 
@@ -7,6 +8,8 @@ import { refreshAccessToken } from '@/functions/refreshAccessToken';
 export const api = Axios.create({
   baseURL: '/api',
 });
+
+const toast = useToast();
 
 api.interceptors.request.use(
   (config) => {
@@ -39,7 +42,14 @@ api.interceptors.response.use(
         error.config.__isRetryRequest = true;
         return api(error.config);
       }
+      const data = response.data as any;
+      if (data?.message) {
+        toast.error(data.message);
+
+        return Promise.reject(error);
+      }
     }
+
 
     return Promise.reject(error);
   },

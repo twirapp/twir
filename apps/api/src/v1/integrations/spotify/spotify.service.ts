@@ -14,7 +14,7 @@ export class SpotifyService {
       where: { service: 'SPOTIFY' },
     });
 
-    if (!integration) throw new HttpException('Service Spotify not found', 404);
+    if (!integration) throw new HttpException('Spotify service not enabled on our side. Please, contact site owner.', 404);
 
     return `https://accounts.spotify.com/authorize?` +
       new URLSearchParams({
@@ -27,7 +27,7 @@ export class SpotifyService {
 
   async getTokens(userId: string, code: string) {
     const service = await this.spotify.getSettings();
-    if (!service) throw new Error('Spotify not setuped.');
+    if (!service) throw new HttpException('Spotify service not enabled on our side. Please, contact site owner.', 404);
 
     const token = Buffer.from(service.clientId + ':' + service.clientSecret).toString('base64');
 
@@ -136,7 +136,7 @@ export class SpotifyService {
     });
 
     if (!integration) {
-      throw new HttpException('Integration not found, that means you need to authorize first.', 404);
+      throw new HttpException('You need to authorize first.', 404);
     }
 
     return this.prisma.channelIntegration.update({
