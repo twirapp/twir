@@ -36,16 +36,16 @@ const settings = toRef(props, 'settings', {
       role="switch"
     >
   </h2>
-  <div class="p-0">
-    <div
-      class="rounded py-5 px-6 mb-4 text-base"
-    >
-      <div class="flex items-center justify-center">
-        <div
-          class="inline-flex shadow  "
-          role="group"
-        >
-          <!--<button
+
+  <div
+    class="rounded py-5 px-6 mb-[0.5rem] text-base"
+  >
+    <div class="flex items-center justify-center">
+      <div
+        class="inline-flex shadow  "
+        role="group"
+      >
+        <!--<button
             type="button"
             class="rounded-l inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
             :class="[settings.enabled ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700' ]"
@@ -69,18 +69,18 @@ const settings = toRef(props, 'settings', {
           >
             {{ t('pages.moderation.moderate', { key: 'vips' }) }}
           </button>-->
-        </div>
       </div>
-      <div class="mt-3">
-        <label
-          :for="'timeoutMessage' + settings.type"
-          class="form-label inline-block mb-2"
-        >{{ t('pages.moderation.timeout.title') }}</label>
-        <input
-          :id="'timeoutMessage' + settings.type"
-          v-model="settings.banMessage"
-          type="text"
-          class="
+    </div>
+    <div class="mt-3">
+      <label
+        :for="'timeoutMessage' + settings.type"
+        class="form-label inline-block mb-2"
+      >{{ t('pages.moderation.timeout.title') }}</label>
+      <input
+        :id="'timeoutMessage' + settings.type"
+        v-model="settings.banMessage"
+        type="text"
+        class="
             form-control
             block
             w-full
@@ -97,19 +97,19 @@ const settings = toRef(props, 'settings', {
             m-0
             focus:outline-none
           "
-          :placeholder="t('pages.moderation.timeout.placeholder')"
-        >
-      </div>
-      <div class="mt-3">
-        <label
-          :for="'timeoutTime' + settings.type"
-          class="form-label inline-block mb-2"
-        >{{ t('pages.moderation.time.title') }}</label>
-        <input
-          :id="'timeoutTime' + settings.type"
-          v-model="settings.banTime"
-          type="number"
-          class="
+        :placeholder="t('pages.moderation.timeout.placeholder')"
+      >
+    </div>
+    <div class="mt-3">
+      <label
+        :for="'timeoutTime' + settings.type"
+        class="form-label inline-block mb-2"
+      >{{ t('pages.moderation.time.title') }}</label>
+      <input
+        :id="'timeoutTime' + settings.type"
+        v-model="settings.banTime"
+        type="number"
+        class="
             form-control
             block
             w-full
@@ -126,18 +126,18 @@ const settings = toRef(props, 'settings', {
             m-0
             focus:outline-none
           "
-        >
-      </div>
-      <div class="mt-3">
-        <label
-          :for="'warningMessage' + settings.type"
-          class="form-label inline-block mb-2"
-        >Warning message</label>
-        <input
-          :id="'warningMessage' + settings.type"
-          v-model="settings.warningMessage"
-          type="text"
-          class="
+      >
+    </div>
+    <div class="mt-3">
+      <label
+        :for="'warningMessage' + settings.type"
+        class="form-label inline-block mb-2"
+      >Warning message</label>
+      <input
+        :id="'warningMessage' + settings.type"
+        v-model="settings.warningMessage"
+        type="text"
+        class="
             form-control
             block
             w-full
@@ -154,72 +154,75 @@ const settings = toRef(props, 'settings', {
             m-0
           focus:outline-none
           "
-          :placeholder="t('pages.moderation.warning.placeholder')"
-        >
-      </div>
-      <div
-        v-if="settings.type === 'links'"
-        class="mt-3"
+        :placeholder="t('pages.moderation.warning.placeholder')"
       >
-        <div class="form-check form-switch">
-          <label
-            class="form-check-label inline-block"
-            for="flexSwitchCheckChecked"
-          >{{ t('pages.moderation.clips') }}</label>
+    </div>
+    <div
+      v-if="settings.type === 'links'"
+      class="mt-3"
+    >
+      <div class="form-check flex justify-between">
+        <label
+          class="form-check-label inline-block"
+          for="flexSwitchModClips"
+        >{{ t('pages.moderation.clips') }}</label>
+        
+        <div class="form-switch">
           <input
-            id="flexSwitchCheckChecked"
+            id="flexSwitchModClips"
             v-model="settings.checkClips"
-            class="form-check-input appearance-none w-9 -ml-10 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain focus:outline-none cursor-pointer shadow"
+            class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
             type="checkbox"
             role="switch"
           >
         </div>
       </div>
-      <div
-        v-if="settings.type === 'blacklists'"
-        class="mt-3"
-      >
-        <span class="label flex items-center">  
-          <span>{{ t('pages.moderation.blacklist') }}</span>
-          <span
-            class="px-1 ml-2 py-1 inline-block bg-green-600 hover:bg-green-700 text-white font-medium text-xs leading-tight uppercase rounded shadow    focus:outline-none focus:ring-0  transition duration-150 ease-in-out cursor-pointer"
-            @click="settings.blackListSentences?.push('')"
-          ><Add /></span>
-        </span>
+    </div>
+    <div
+      v-if="settings.type === 'blacklists'"
+      class="mt-3"
+    >
+      <span class="label flex items-center">  
+        <span>{{ t('pages.moderation.blacklist') }}</span>
+        <span
+          class="px-1 ml-2 py-1 inline-block bg-green-600 hover:bg-green-700 text-white font-medium text-xs leading-tight uppercase rounded shadow    focus:outline-none focus:ring-0  transition duration-150 ease-in-out cursor-pointer"
+          @click="settings.blackListSentences?.push('')"
+        ><Add /></span>
+      </span>
   
-        <div class="input-group pt-1 pr-2 grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 xl:grid-cols-3 gap-2 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
-          <div
-            v-for="word, wordIndex in settings.blackListSentences"
-            :key="wordIndex"
-            class="flex flex-wrap items-stretch relative"
+      <div class="input-group pt-1 pr-2 grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 xl:grid-cols-3 gap-2 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+        <div
+          v-for="word, wordIndex in settings.blackListSentences"
+          :key="wordIndex"
+          class="flex flex-wrap items-stretch relative"
+        >
+          <input
+            v-model.lazy="settings.blackListSentences[wordIndex]"
+            type="text"
+            class="flex-shrink flex-grow flex-auto leading-normal w-px border border-grey-light text-gray-700 rounded px-3 py-1.5 relative rounded-r-none"
           >
-            <input
-              v-model.lazy="settings.blackListSentences[wordIndex]"
-              type="text"
-              class="flex-shrink flex-grow flex-auto leading-normal w-px border border-grey-light text-gray-700 rounded px-3 py-1.5 relative rounded-r-none"
-            >
-            <div
-              class="flex -mr-px cursor-pointer"
-              @click="settings.blackListSentences.splice(wordIndex, 1)"
-            >
-              <span class="flex items-center leading-normal bg-red-600 hover:bg-red-700 rounded rounded-l-none border-0 border-l-0 border-grey-light px-5 py-1.5 whitespace-no-wrap text-grey-dark text-sm"><Remove /></span>
-            </div>
+          <div
+            class="flex -mr-px cursor-pointer"
+            @click="settings.blackListSentences.splice(wordIndex, 1)"
+          >
+            <span class="flex items-center leading-normal bg-red-600 hover:bg-red-700 rounded rounded-l-none border-0 border-l-0 border-grey-light px-5 py-1.5 whitespace-no-wrap text-grey-dark text-sm"><Remove /></span>
           </div>
         </div>
       </div>
-      <div
-        v-if="settings.type === 'symbols'"
-        class="mt-3"
-      >
-        <label
-          :for="'maxSymbols' + settings.type"
-          class="form-label inline-block mb-2"
-        >{{ t('pages.moderation.symbols') }}</label>
-        <input
-          :id="'maxSymbols' + settings.type"
-          v-model="settings.maxPercentage"
-          type="text"
-          class="
+    </div>
+    <div
+      v-if="settings.type === 'symbols'"
+      class="mt-3"
+    >
+      <label
+        :for="'maxSymbols' + settings.type"
+        class="form-label inline-block mb-2"
+      >{{ t('pages.moderation.symbols') }}</label>
+      <input
+        :id="'maxSymbols' + settings.type"
+        v-model="settings.maxPercentage"
+        type="text"
+        class="
             form-control
             block
             w-full
@@ -236,22 +239,22 @@ const settings = toRef(props, 'settings', {
             m-0
             focus:outline-none
           "
-          placeholder="50"
-        >
-      </div>
-      <div
-        v-if="settings.type === 'longMessage'"
-        class="mt-3"
+        placeholder="50"
       >
-        <label
-          :for="'longMessage' + settings.type"
-          class="form-label inline-block mb-2"
-        >{{ t('pages.moderation.lnght') }}</label>
-        <input
-          :id="'longMessage' + settings.type"
-          v-model="settings.triggerLength"
-          type="text"
-          class="
+    </div>
+    <div
+      v-if="settings.type === 'longMessage'"
+      class="mt-3"
+    >
+      <label
+        :for="'longMessage' + settings.type"
+        class="form-label inline-block mb-2"
+      >{{ t('pages.moderation.lnght') }}</label>
+      <input
+        :id="'longMessage' + settings.type"
+        v-model="settings.triggerLength"
+        type="text"
+        class="
             form-control
             block
             w-full
@@ -268,22 +271,22 @@ const settings = toRef(props, 'settings', {
             m-0
             focus:outline-none
           "
-          placeholder="50"
-        >
-      </div>
-      <div
-        v-if="settings.type === 'caps'"
-        class="mt-3"
+        placeholder="50"
       >
-        <label
-          :for="'maxCaps' + settings.type"
-          class="form-label inline-block mb-2"
-        >{{ t('pages.moderation.caps') }}</label>
-        <input
-          :id="'maxCaps' + settings.type"
-          v-model="settings.maxPercentage"
-          type="text"
-          class="
+    </div>
+    <div
+      v-if="settings.type === 'caps'"
+      class="mt-3"
+    >
+      <label
+        :for="'maxCaps' + settings.type"
+        class="form-label inline-block mb-2"
+      >{{ t('pages.moderation.caps') }}</label>
+      <input
+        :id="'maxCaps' + settings.type"
+        v-model="settings.maxPercentage"
+        type="text"
+        class="
             form-control
             block
             w-full
@@ -300,22 +303,22 @@ const settings = toRef(props, 'settings', {
             m-0
              focus:outline-none
           "
-          placeholder="50"
-        >
-      </div>
-      <div
-        v-if="settings.type === 'emotes'"
-        class="mt-3"
+        placeholder="50"
       >
-        <label
-          :for="'maxEmotes' + settings.type"
-          class="form-label inline-block mb-2"
-        >{{ t('pages.moderation.emotes') }}</label>
-        <input
-          :id="'maxEmotes' + settings.type"
-          v-model="settings.triggerLength"
-          type="text"
-          class="
+    </div>
+    <div
+      v-if="settings.type === 'emotes'"
+      class="mt-3"
+    >
+      <label
+        :for="'maxEmotes' + settings.type"
+        class="form-label inline-block mb-2"
+      >{{ t('pages.moderation.emotes') }}</label>
+      <input
+        :id="'maxEmotes' + settings.type"
+        v-model="settings.triggerLength"
+        type="text"
+        class="
             form-control
             block
             w-full
@@ -332,41 +335,40 @@ const settings = toRef(props, 'settings', {
             m-0
              focus:outline-none
           "
-          placeholder="50"
-        >
-      </div>
+        placeholder="50"
+      >
+    </div>
       
-      <div class="mt-5">
-        <div class="form-check flex justify-between">
-          <label
-            class="form-check-label inline-block"
-            for="flexSwitchSubs"
-          >Moderate subscribers</label>
+    <div class="mt-5">
+      <div class="form-check flex justify-between">
+        <label
+          class="form-check-label inline-block"
+          for="flexSwitchSubs"
+        >Moderate subscribers</label>
         
-          <div class="form-switch">
-            <input
-              id="flexSwitchSubs"
-              class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
-              type="checkbox"
-              role="switch"
-            >
-          </div>
+        <div class="form-switch">
+          <input
+            id="flexSwitchSubs"
+            class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
+            type="checkbox"
+            role="switch"
+          >
         </div>
+      </div>
       
-        <div class="form-check flex justify-between">
-          <label
-            class="form-check-label inline-block"
-            for="flexSwitchVip"
-          >Moderate vips</label>
+      <div class="form-check flex justify-between">
+        <label
+          class="form-check-label inline-block"
+          for="flexSwitchVip"
+        >Moderate vips</label>
         
-          <div class="form-switch">
-            <input
-              id="flexSwitchVip"
-              class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
-              type="checkbox"
-              role="switch"
-            >
-          </div>
+        <div class="form-switch">
+          <input
+            id="flexSwitchVip"
+            class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
+            type="checkbox"
+            role="switch"
+          >
         </div>
       </div>
     </div>

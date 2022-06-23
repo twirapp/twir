@@ -42,9 +42,9 @@ async function addMember() {
 
 <template>
   <div class="p-1 m-3">
-    <div class="grid lg:grid-cols-3 grid-cols-1 gap-2">
+    <div class="masonry sm:masonry-sm md:masonry-md lg:masonry-lg">
       <div
-        class="block rounded card text-white shadow max-w-sm"
+        class="block rounded card text-white shadow max-w-sm break-inside mb-[0.5rem]"
       >
         <h2 class="card-title p-2 flex justify-center border-b border-gray-700 outline-none font-bold">
           <p>{{ t('pages.settings.widgets.dashboardAccess.title') }}</p>

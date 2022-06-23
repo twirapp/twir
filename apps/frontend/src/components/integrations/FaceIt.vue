@@ -4,6 +4,8 @@ import { ChannelIntegration } from '@tsuwari/prisma';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import Soon from '../Soon.vue';
+
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
@@ -47,14 +49,15 @@ async function post() {
 </script>
 
 <template>
-  <div class="flex flex-col card rounded card-compact bg-base-200 drop-shadow p-4">
+  <div class="flex flex-col card rounded card-compact bg-base-200 drop-shadow p-4 break-inside mb-[0.5rem]">
     <div class="flex justify-between mb-5">
       <div>
         <h2 class="card-title font-bold">
           FaceIt
         </h2>
       </div>
-      <div class="form-check form-switch">
+    </div>
+    <!--      <div class="form-check form-switch">
         <input
           id="flexSwitchCheckDefault"
           v-model="vkIntegration.enabled"
@@ -126,6 +129,9 @@ async function post() {
       >
         {{ t('buttons.save') }}
       </button>
+    </div>-->
+    <div class="flex justify-center">
+      <Soon :button="false" />
     </div>
   </div>
 </template>

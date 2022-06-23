@@ -55,12 +55,12 @@ async function save() {
       </div>
     </div>
     <div 
-      class="grid items-start xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-2"
+      class="masonry sm:masonry-sm md:masonry-md lg:masonry-lg"
     >
       <div
         v-for="setting, index in settings"
         :key="index"
-        class="block rounded card text-white shadow"
+        class="break-inside block rounded card text-white shadow"
       >
         <ModerationComponent :settings="(setting as any)" />
       </div>

@@ -67,7 +67,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex flex-col card rounded card-compact bg-base-200 drop-shadow p-4">
+  <div class="flex flex-col card rounded card-compact bg-base-200 drop-shadow p-4 break-inside mb-[0.5rem]">
     <div class="flex justify-between mb-5">
       <div>
         <h2 class="card-title flex font-bold">
@@ -94,7 +94,7 @@ onMounted(async () => {
           <img
             v-if="spotifyProfile.images"
             :src="spotifyProfile.images[0].url"
-            class="rounded-full w-32 ring-2 ring-white"
+            class="rounded-full w-32 ring-2 ring-white select-none"
             alt="Avatar"
           >
         </div>

@@ -4,6 +4,31 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+    @variants responsive {
+        .masonry {
+            column-gap: 0.5rem;
+            column-count: 1;
+        }
+        .masonry-sm {
+            column-gap: 0.5rem;
+            column-count: 2;
+        }
+        .masonry-md {
+            column-gap: 0.5rem;
+            column-count: 2;
+        }
+                .masonry-lg {
+            column-gap: 0.5rem;
+            column-count: 3;
+        }
+        .break-inside {
+            break-inside: avoid;
+        }
+
+    }
+}
+
 .card {
   background: linear-gradient(0deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)), #121212;
 }

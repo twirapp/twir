@@ -60,11 +60,11 @@ async function deleteVariable(index: number) {
       </div>
     </div>
 
-    <div class="grid lg:grid-cols-2 md:grid-cols-1 grid-cols-1 gap-2">
+    <div class="masonry sm:masonry-sm md:masonry-md lg:masonry-lg">
       <div
         v-for="variable, index of variables"
         :key="index"
-        class="block rounded card text-white shadow"
+        class="block rounded card text-white shadow break-inside mb-[0.5rem]"
       >
         <VariableComponent 
           :variable="variable"

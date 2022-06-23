@@ -65,11 +65,11 @@ function deleteTimer(index: number) {
       </div>
     </div>
 
-    <div class="grid xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-2">
+    <div class="masonry sm:masonry-sm md:masonry-md lg:masonry-lg">
       <div
         v-for="timer, timerIndex of timers"
         :key="timerIndex"
-        class="block rounded card text-white shadow"
+        class="block rounded card text-white shadow break-inside mb-[0.5rem]"
       >
         <Timer
           :timer="timer"
