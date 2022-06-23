@@ -552,16 +552,16 @@ importers:
       '@nestjs/common': 8.4.7_gyq3r4mlmserdceiurum6nlypq
       '@nestjs/microservices': 8.4.7_fza6kdyxj72qfijr7qxztestbi
       '@tsuwari/config': link:../config
+      '@tsuwari/prisma': link:../prisma
+      '@twurple/api': 5.1.6_@twurple+auth@5.1.6
       '@twurple/auth': 5.1.6
+      '@twurple/common': 5.1.6
       class-validator: 0.13.2
       ioredis: 5.0.6
       lodash: 4.17.21
       rxjs: 7.5.5
       tslib: 2.4.0
     devDependencies:
-      '@tsuwari/prisma': link:../prisma
-      '@twurple/api': 5.1.6_@twurple+auth@5.1.6
-      '@twurple/common': 5.1.6
       '@types/lodash': 4.14.182
 
   libs/typeorm:
@@ -1721,6 +1721,7 @@ packages:
       tslib: 2.4.0
     transitivePeerDependencies:
       - encoding
+    dev: false
 
   /@twurple/auth/5.1.6:
     resolution: {integrity: sha512-XnhNaJWEifr2aL1vvshhXj7v3yck38IJSVu7lzZ8csUFAzi7xphLit3LHlFGrrVYPkGQeNUx6crj0cDEUv7mtg==}
@@ -1732,6 +1733,7 @@ packages:
       tslib: 2.4.0
     transitivePeerDependencies:
       - encoding
+    dev: false
 
   /@twurple/chat/5.1.6_@twurple+auth@5.1.6:
     resolution: {integrity: sha512-HyJe7JP8wCWkZfSRbYSh+izLtBkNDm4TuWGqishV1s9PHrAaffi8exRAbd9DSauytRy2jyCh4MyRCTHJqo5zOg==}
