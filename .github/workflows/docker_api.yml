@@ -14,7 +14,7 @@ jobs:
     if: "! contains(toJSON(github.event.commits.*.message), '[skip-docker]')"
     strategy:
       matrix:
-        os: [X64]
+        os: [ARM64]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -49,8 +49,6 @@ jobs:
       - name: Build
         run: pnpm build:api
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to Docker Hub
@@ -62,7 +60,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          platforms: linux/arm64
-          tags: satont/tsuwari:api-ARM64
+          tags: satont/tsuwari:api-${{ matrix.os }}
           file: ./apps/api/Dockerfile
           context: .
