@@ -5,6 +5,7 @@ import { ClientProxy } from '@tsuwari/shared';
 import { ApiClient } from '@twurple/api';
 import { ClientCredentialsAuthProvider } from '@twurple/auth';
 import { getRawData } from '@twurple/common';
+import _ from 'lodash';
 
 import { RedisService } from './redis.service.js';
 
@@ -34,7 +35,7 @@ export class AppService {
       if (stream) {
         let data = { ...getRawData(stream) };
         if (cachedStream) {
-          data = { ...data, ...JSON.parse(cachedStream) };
+          data = _.merge(JSON.parse(cachedStream), data);
         } else {
           await this.nats.emit('streams.online', { streamId: stream.id, channelId: channel }).toPromise();
         }
