@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ClientProxyCommands, ClientProxyResult } from '@tsuwari/shared';
 import { parseTwitchMessage } from '@twurple/chat';
@@ -10,6 +10,8 @@ import { VariablesParser } from './variables/index.js';
 
 @Controller()
 export class AppController {
+  private logger = new Logger(AppController.name);
+
   constructor(
     private readonly service: AppService,
     private readonly variablesParser: VariablesParser,
@@ -51,6 +53,7 @@ export class AppController {
   async parseChatMessage(@Payload() data: ClientProxyCommands['parseChatMessage']['input']) {
     const state = parseTwitchMessage(data) as TwitchPrivateMessage;
     const message = state.content.value;
+    this.logger.log(`${state.channelId} | ${state.userInfo.userName}: ${message}`);
     if (!message.startsWith('!') || !state.channelId) return;
 
     const commandData = await this.service.getResponses(message, state);
