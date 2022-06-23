@@ -24,4 +24,10 @@ export class StreamsService {
   async handleStreamStateChange(channelId: string) {
     this.#resetGreetings(channelId);
   }
+
+  async getStream(channelId: string) {
+    const stream = await this.redis.get(`streams:${channelId}`);
+
+    return stream;
+  }
 }
