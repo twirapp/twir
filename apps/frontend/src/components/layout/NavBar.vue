@@ -50,7 +50,7 @@ useIntervalFn(() => {
         <p>Viewers: <span class="font-bold">{{ stream.viewer_count }}</span></p>
         <p>Category: <span class="font-bold">{{ stream.game_name }}</span></p>
         <p>Title: <span class="font-bold">{{ stream.title }}</span></p>
-        <p>Mesages sended: <span class="font-bold">{{ stream.parsedMessages }}</span></p>
+        <p>Messages sended: <span class="font-bold">{{ stream.parsedMessages }}</span></p>
         <p>Uptime: <span class="font-bold">{{ uptime }}</span></p>
       </div>
       <div
