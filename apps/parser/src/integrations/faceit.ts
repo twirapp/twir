@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '@tsuwari/prisma';
 import axios, { AxiosInstance } from 'axios';
 import { endOfDay, startOfDay } from 'date-fns';
@@ -10,12 +10,12 @@ export interface FaceitDbData {
 }
 
 @Injectable()
-export class FaceitIntegration {
+export class FaceitIntegration implements OnModuleInit {
   private axios: AxiosInstance;
 
   constructor(private readonly prisma: PrismaService) { }
 
-  async init() {
+  async onModuleInit() {
     const service = await this.prisma.integration.findFirst({
       where: {
         service: 'FACEIT',
@@ -37,7 +37,7 @@ export class FaceitIntegration {
   async fetchStats(nickname: string, game = 'csgo') {
     const baseProfileRequest = await this.axios(`/players?nickname=${nickname}`);
 
-    const baseProfile = baseProfileRequest.data() as BaseProfileResponse;
+    const baseProfile = baseProfileRequest.data as BaseProfileResponse;
     const userGame = baseProfile.games[game];
     if (!userGame) return null;
 
@@ -83,13 +83,8 @@ export class FaceitIntegration {
   }
 
   async #getLastMatches(playerId: string, game = 'csgo') {
-    const matchesRequest = await fetch(
-      `https://api.faceit.com/stats/api/v1/stats/time/users/${playerId}/games/${game}?size=30`,
-    );
-
-    if (!matchesRequest.ok) return null;
-
-    const matchesResponse = (await matchesRequest.json()) as unknown as Array<FaceitMatch>;
+    const matchesRequest = await axios.get(`https://api.faceit.com/stats/api/v1/stats/time/users/${playerId}/games/${game}?size=30`);
+    const matchesResponse = matchesRequest.data as unknown as Array<FaceitMatch>;
 
     const dayStart = startOfDay(Date.now()).getTime();
     const dayEnd = endOfDay(Date.now()).getTime();
@@ -145,7 +140,7 @@ export class FaceitIntegration {
   async #getUserStats(playerId: string, game = 'csgo') {
     const statsRequest = await this.axios(`players/${playerId}/stats/${game}`);
 
-    const data = await statsRequest.data() as FaceitUserStats;
+    const data = await statsRequest.data as FaceitUserStats;
     return _.omit(data, 'lifetime.Recent Results');
   }
 }

@@ -5,9 +5,8 @@ const getFaceitIntegrationData = async (state: State) => {
   const integrations = await state.cache.getEnabledIntegrations();
   const integration = integrations.find((i) => i.integration.service === 'FACEIT');
 
-  if (!integration) return 'Integration with faceit not enabled';
+  if (!integration) return 'Faceit integration not enabled';
   const integrationData = integration.data as unknown as FaceitDbData;
-
   const data = await state.cache.getFaceitData(integrationData.username, integrationData.game);
 
   return data;

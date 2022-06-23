@@ -77,6 +77,7 @@ export class SpotifyService {
           ...data,
           channel: { connect: { id: userId } },
           integration: { connect: { id: service.id } },
+          enabled: true,
         },
       });
     }

@@ -17,7 +17,7 @@ const router = useRouter();
         <NavBar />
 
         <div
-          class="flex max-h-screen overflow-y-auto flex-col flex-grow scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-600 scrollbar-track-gray-900"
+          class="flex max-h-screen flex-col flex-grow overflow-y-auto"
         >
           <slot />
         </div>

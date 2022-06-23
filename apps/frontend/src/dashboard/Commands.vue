@@ -141,7 +141,7 @@ function onSave(index: number) {
 
     <div
       v-if="currentEditableCommand"
-      class="w-full p-1 sm:block h-fit m-4 max-w-2xl rounded card text-white shadow"
+      class="w-full p-1 sm:block h-fit m-1.5 md:m-3 max-w-2xl rounded card text-white shadow"
     >
       <Command 
         :command="currentEditableCommand" 

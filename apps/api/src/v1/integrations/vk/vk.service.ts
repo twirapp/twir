@@ -35,10 +35,8 @@ export class VkService {
       integration = await this.prisma.channelIntegration.create({
         data: {
           channelId,
-          data: {
-            ...data,
-            data: { ...data.data } as unknown as Prisma.InputJsonObject,
-          },
+          enabled: data.enabled,
+          data: { ...data.data } as unknown as Prisma.InputJsonObject,
           integrationId: integrationService.id,
         },
       });

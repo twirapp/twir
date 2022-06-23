@@ -41,10 +41,10 @@ async function addMember() {
 </script>
 
 <template>
-  <div class="p-1 m-3">
+  <div class="p-1 m-1.5 md:m-3">
     <div class="masonry sm:masonry-sm md:masonry-md lg:masonry-lg">
       <div
-        class="block rounded card text-white shadow max-w-sm break-inside mb-[0.5rem]"
+        class="block rounded card text-white shadow break-inside mb-[0.5rem]"
       >
         <h2 class="card-title p-2 flex justify-center border-b border-gray-700 outline-none font-bold">
           <p>{{ t('pages.settings.widgets.dashboardAccess.title') }}</p>
@@ -107,7 +107,7 @@ async function addMember() {
             <input
               v-model="newMember"
               type="text"
-              class="form-control rounded-l input text-gray-700 flex-shrink flex-grow leading-normal flex-1 border h-10 border-grey-light px-3 relative"
+              class="form-control rounded-l input text-gray-700 w-full leading-normal flex-1 border h-10 border-grey-light px-3 relative"
               :placeholder="t('pages.settings.widgets.dashboardAccess.placeholder')"
               @keyup.enter="addMember"
             >

@@ -1,10 +1,10 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { Prisma, PrismaService } from '@tsuwari/prisma';
 
-import { LastfmUpdateDto } from './dto/update.js';
+import { FaceitUpdateDto } from './dto/update.js';
 
 @Injectable()
-export class LastfmService {
+export class FaceitService {
   constructor(private readonly prisma: PrismaService) { }
 
   async getIntegration(channelId: string) {
@@ -12,7 +12,7 @@ export class LastfmService {
       where: {
         channelId,
         integration: {
-          service: 'LASTFM',
+          service: 'FACEIT',
         },
       },
     });
@@ -20,14 +20,16 @@ export class LastfmService {
     return integration;
   }
 
-  async updateIntegration(channelId: string, body: LastfmUpdateDto) {
+  async updateIntegration(channelId: string, body: FaceitUpdateDto) {
     const integrationService = await this.prisma.integration.findFirst({
       where: {
-        service: 'LASTFM',
+        service: 'FACEIT',
       },
     });
 
-    if (!integrationService) throw new HttpException(`LastFM not enabled on our backed. Please, make patience or contact us`, 404);
+    if (!integrationService) throw new HttpException(`Faceit not enabled on our backed. Please, make patience or contact us`, 404);
+
+    body.data.game = body.data.game ?? 'csgo';
 
     let integration = await this.getIntegration(channelId);
     if (!integration) {

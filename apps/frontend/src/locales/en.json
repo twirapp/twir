@@ -37,6 +37,10 @@
         },
         "lastFm": {
           "username": "Username on lastfm (case sensitive)"
+        },
+        "faceit": {
+          "username": "Username on Faceit (case sensitive)",
+          "game": "Game for checking statistic"
         }
       }
     },

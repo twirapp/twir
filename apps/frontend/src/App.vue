@@ -13,9 +13,7 @@ title.value = 'Tsuwari - Main page';
 <template>
   <Layout v-if="!['/', '/login'].includes(router.currentRoute.value.path)">
     <RouterView v-slot="{ Component }">
-      <!-- <transition> -->
       <component :is="Component" />
-      <!-- </transition> -->
     </RouterView>
   </Layout>
   <RouterView v-else />

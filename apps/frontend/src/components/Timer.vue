@@ -79,7 +79,7 @@ function cancelEdit() {
 </script>
 
 <template>
-  <div class="p-4">
+  <div class="p-2">
     <Form
       v-slot="{ errors }"
       @submit="saveTimer"
@@ -93,7 +93,7 @@ function cancelEdit() {
         {{ error }}
       </div>
       <div
-        class="grid grid-cols-1 gap-1"
+        class="md:grid grid-cols-1 gap-1"
       >
         <div>
           <div class="label mb-3">
@@ -138,7 +138,7 @@ function cancelEdit() {
           />
         </div>
 
-        <div class="col-span-2">
+        <div class="col-span-2 mt-1">
           <span class="label flex items-center">
             <span>{{ t('pages.timers.card.responses') }}</span>
             <span

@@ -138,6 +138,7 @@ export class ParserCache {
       this.#faceit = data as unknown as Awaited<ReturnType<typeof FaceitIntegration.prototype.fetchStats>> | null;
       return this.#faceit;
     } catch (e) {
+      console.log(e);
       return null;
     }
   }

@@ -47,7 +47,7 @@ async function deleteGreeting(index: number) {
 </script>
 
 <template>
-  <div class="m-3">
+  <div class="m-1.5 md:m-3">
     <div class="p-1">
       <div class="flow-root">
         <div class="float-left rounded btn btn-primary btn-sm w-full mb-1 md:w-auto">

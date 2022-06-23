@@ -4,18 +4,16 @@ import { ChannelIntegration } from '@tsuwari/prisma';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import Soon from '../Soon.vue';
-
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
+type Faceit = Omit<ChannelIntegration, 'data'> & { data: { username: string, game?: string }}
 
-type Vk = Omit<ChannelIntegration, 'data'> & { data: { userId: string }}
-
-const vkIntegration = ref<Partial<Vk>>({
+const faceitIntegration = ref<Partial<Faceit>>({
   enabled: true,
   data: {
-    userId: '',
+    username: '',
+    game: 'csgo',
   },
 });
 const selectedDashboard = useStore(selectedDashboardStore);
@@ -24,14 +22,15 @@ const { t } = useI18n({
 });
 
 selectedDashboardStore.subscribe(d => {
-  api(`/v1/channels/${d.channelId}/integrations/vk`).then(async (r) => {
+  api(`/v1/channels/${d.channelId}/integrations/faceit`).then(async (r) => {
     if (r.data) {
-      vkIntegration.value = r.data;
+      faceitIntegration.value = r.data;
     } else {
-      vkIntegration.value = {
+      faceitIntegration.value = {
         enabled: true,
         data: {
-          userId: '',
+          username: '',
+          game: 'csgo',
         },
       };
     }
@@ -39,12 +38,12 @@ selectedDashboardStore.subscribe(d => {
 });
 
 async function post() {
-  const { data } = await api.post(`v1/channels/${selectedDashboard.value.channelId}/integrations/vk`, {
-    enabled: vkIntegration.value.enabled,
-    data: vkIntegration.value.data,
+  const { data } = await api.post(`v1/channels/${selectedDashboard.value.channelId}/integrations/faceit`, {
+    enabled: faceitIntegration.value.enabled,
+    data: faceitIntegration.value.data,
   });
 
-  vkIntegration.value = data;
+  faceitIntegration.value = data;
 }
 </script>
 
@@ -53,14 +52,13 @@ async function post() {
     <div class="flex justify-between mb-5">
       <div>
         <h2 class="card-title font-bold">
-          FaceIt
+          Faceit
         </h2>
       </div>
-    </div>
-    <!--      <div class="form-check form-switch">
+      <div class="form-check form-switch">
         <input
           id="flexSwitchCheckDefault"
-          v-model="vkIntegration.enabled"
+          v-model="faceitIntegration.enabled"
           class="form-check-input appearance-none w-9 -ml-10 rounded-full float-left h-5 align-top bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer shadow"
           type="checkbox"
           role="switch"
@@ -68,58 +66,30 @@ async function post() {
       </div>
     </div>
 
-    <div class="mb-5">
+    <div>
       <div class="label">
-        <span class="label-text">{{ t('pages.integrations.widgets.vk.id') }}</span>
+        <span class="label-text">{{ t('pages.integrations.widgets.faceit.username') }}</span>
       </div>
       <input
-        v-model="vkIntegration.data!.userId"
+        v-model="faceitIntegration.data!.username"
         type="text"
         class="form-control input text-gray-700 w-full flex-shrink flex-grow leading-normal rounded flex-1 border h-8 border-grey-light px-3 relative"
-        :placeholder="t('pages.integrations.widgets.vk.id')"
+        :placeholder="t('pages.integrations.widgets.faceit.username')"
       >
     </div>
-    
+
     <div>
       <div class="label">
         <span class="label-text">{{ t('pages.integrations.widgets.vk.id') }}</span>
       </div>
-     
-      <div class="flex justify-center">
-        <div class="mb-3 w-full">
-          <select
-            class="form-select appearance-none
-      block
-      w-full
-      px-3
-      py-1.5
-      text-base
-      font-normal
-      text-gray-700
-      bg-white bg-clip-padding bg-no-repeat
-      border border-solid border-gray-300
-      rounded
-      transition
-      ease-in-out
-      m-0
-       focus:outline-none"
-            aria-label="Default select example"
-          >
-            <option selected>
-              Open this select menu
-            </option>
-            <option value="1">
-              One
-            </option>
-            <option value="2">
-              Two
-            </option>
-            <option value="3">
-              Three
-            </option>
-          </select>
-        </div>
-      </div>
+      <select
+        v-model="faceitIntegration.data!.game"
+        class="form-control px-3 py-1.5 text-gray-700 rounded select select-sm w-full"
+      >
+        <option value="csgo">
+          CSGO
+        </option>
+      </select>
     </div>
 
     <div class="mt-auto text-right">
@@ -129,9 +99,6 @@ async function post() {
       >
         {{ t('buttons.save') }}
       </button>
-    </div>-->
-    <div class="flex justify-center">
-      <Soon :button="false" />
     </div>
   </div>
 </template>

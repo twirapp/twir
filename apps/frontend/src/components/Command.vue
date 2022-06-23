@@ -267,26 +267,33 @@ function changeCommandResponse(index: number, value: string) {
             <div
               v-for="_response, responseIndex in command.responses"
               :key="responseIndex"
-              class="flex flex-wrap max-h-max items-stretch mb-1 relative dropdown"
+              class="flex max-h-max items-stretch mb-1 relative dropdown"
             >
-              <div 
-                :id="'dropdownMenuButton' + responseIndex"
-                class="form-control dropdown-toggle px-3 py-1.5 text-gray-700 rounded input input-bordered w-[90%] input-sm bg-white rounded-r-none" 
-                contenteditable
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                @input="(payload) => changeCommandResponse(responseIndex, (payload.target! as HTMLElement).innerText)"
-              >
-                {{ command.responses[responseIndex].text }}
-              </div>
-              <ul
-                class="
+              <div class="flex w-full items-stretch relative">
+                <div 
+                  :id="'dropdownMenuButton' + responseIndex"
+                  class="form-control w-full dropdown-toggle px-3 py-1.5 text-gray-700 rounded input input-bordered input-sm bg-white rounded-r-none" 
+                  contenteditable
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  @input="(payload) => changeCommandResponse(responseIndex, (payload.target! as HTMLElement).innerText)"
+                >
+                  {{ command.responses[responseIndex].text }}
+                </div>
+ 
+                <span
+                  class="flex items-center leading-normal bg-red-600 hover:bg-red-700 rounded rounded-l-none border-0 border-l-0 border-grey-light px-4 py-1.5 whitespace-no-wrap text-grey-dark text-sm"
+                  @click="command.responses?.splice(responseIndex, 1)"
+                ><Remove /></span>
+
+                <ul
+                  class="
                   dropdown-menu w-[90%] absolute bg-white text-base z-50 float-left py-2 list-none text-left rounded shadow mt-1 hidden m-0 bg-clip-padding border-none bg-gray-800 max-h-52 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600
                 "
-                :aria-labelledby="'dropdownMenuButton' + responseIndex"
-              >
-                <h6
-                  class="
+                  :aria-labelledby="'dropdownMenuButton' + responseIndex"
+                >
+                  <h6
+                    class="
                     text-gray-500
                     font-semibold
                     text-sm
@@ -297,15 +304,15 @@ function changeCommandResponse(index: number, value: string) {
                     whitespace-nowrap
                     bg-transparent
                   "
-                >
-                  Variables
-                </h6>
-                <li
-                  v-for="variable of variablesList"
-                  :key="variable.name"
-                >
-                  <a
-                    class="
+                  >
+                    Variables
+                  </h6>
+                  <li
+                    v-for="variable of variablesList"
+                    :key="variable.name"
+                  >
+                    <a
+                      class="
                       dropdown-item
                       text-sm
                       py-2
@@ -319,17 +326,12 @@ function changeCommandResponse(index: number, value: string) {
                       hover:text-gray-700
                       hover:bg-gray-100
                     "
-                    @click="() => {
-                      command.responses[responseIndex].text += ` $(${variable.example ? variable.example : variable.name})`;
-                    }"
-                  >{{ variable.description ?? variable.name }}</a>
-                </li>
-              </ul>
-              <div
-                class="flex cursor-pointer"
-                @click="command.responses?.splice(responseIndex, 1)"
-              >
-                <span class="flex items-center leading-normal bg-red-600 hover:bg-red-700 rounded rounded-l-none border-0 border-l-0 border-grey-light px-4 py-1.5 whitespace-no-wrap text-grey-dark text-sm"><Remove /></span>
+                      @click="() => {
+                        command.responses[responseIndex].text += ` $(${variable.example ? variable.example : variable.name})`;
+                      }"
+                    >{{ variable.description ?? variable.name }}</a>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
@@ -355,7 +357,7 @@ function changeCommandResponse(index: number, value: string) {
            
           </span>
 
-          <div class="input-group pt-1 pr-2 grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 xl:grid-cols-3 gap-2 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+          <div class="input-group pt-1 pr-2 grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-2 grid-cols-1 xl:grid-cols-3 gap-2 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
             <div
               v-for="aliase, aliaseIndex in command.aliases"
               :key="aliase"
@@ -377,24 +379,22 @@ function changeCommandResponse(index: number, value: string) {
         </div>
       </div>
 
-      <div class="flex justify-between mt-5">
-        <div />
-        <div>
-          <button
-            v-if="command.id && !command.default"
-            type="button"
-            class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
-            @click="deleteCommand"
-          >
-            {{ t('buttons.delete') }}
-          </button>
-          <button
-            type="submit"
-            class="inline-block ml-2 px-6 py-2.5 bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
-          >
-            {{ t('buttons.save') }}
-          </button>
-        </div>
+
+      <div class="mt-5 space-y-2 justify-end flex flex-col w-full md:flex-row md:space-x-2 md:space-y-0">
+        <button
+          v-if="command.id && !command.default"
+          class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
+          @click="deleteCommand"
+        >
+          {{ t('buttons.delete') }}
+        </button>
+
+        <button
+          type="submit"
+          class="inline-block px-6 py-2.5 bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
+        >
+          {{ t('buttons.save') }}
+        </button>
       </div>
     </Form>
   </div>
