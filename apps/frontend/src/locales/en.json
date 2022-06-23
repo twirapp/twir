@@ -17,7 +17,7 @@
       "widgets": {
         "status": {
           "title": "Bot status",
-          "notMod": " We detect bot is not moderator on the channel. Please, mod a bot, or some of functionality may work incorrectly.",
+          "notMod": " We detect bot is not moderator on the channel. Please, mod a <b>TsuwariBot</b>, or some of functionality may work incorrectly.",
           "mod": "Bot is mod on the channel",
           "buttons": {
             "leave": "Leave",
