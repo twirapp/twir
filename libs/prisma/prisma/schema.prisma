@@ -88,6 +88,7 @@ enum IntegrationService {
   VK
   FACEIT
   SPOTIFY
+  DONATIONALERTS
 }
 
 model Integration {

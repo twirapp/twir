@@ -71,7 +71,7 @@ useIntervalFn(() => {
               :key="`Lang${i}`"
               :value="lang"
             >
-              {{ lang }}
+              {{ lang.toUpperCase() }}
             </option>
           </select>
         </div>

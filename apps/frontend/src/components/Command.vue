@@ -351,7 +351,7 @@ function changeCommandResponse(index: number, value: string) {
           
           <div
             v-else
-            class="bg-red-600 rounded py-2 px-6 mb-4 text-white flex"
+            class="bg-[#ED4245] rounded py-2 px-6 mb-4 text-white flex"
             role="alert"
           >
             {{ t('pages.commands.card.responses.builtInAlert') }}

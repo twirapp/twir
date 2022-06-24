@@ -76,7 +76,7 @@ function joinChannel() {
           <div class="p-4">
             <div
               class="rounded py-5 px-6 text-base mb-4"
-              :class="{ 'bg-red-500': !isBotMod, 'bg-green-600': isBotMod }"
+              :class="{ 'bg-[#ED4245]': !isBotMod, 'bg-green-600': isBotMod }"
             >
               <div v-if="!isBotMod">
                 <div v-html="t('pages.dashboard.widgets.status.notMod' )" />
