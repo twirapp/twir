@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
 import { ChannelIntegration } from '@tsuwari/prisma';
-import axios from 'axios';
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
+
+import Tooltip from '../Tooltip.vue';
 
 import { api } from '@/plugins/api';
 import { setSpotifyProfile, spotifyProfileStore } from '@/stores/spotifyProfile';
@@ -21,6 +22,7 @@ const spotifyProfile = useStore(spotifyProfileStore);
 const { t } = useI18n({
   useScope: 'global',
 });
+const toast = useToast();
 
 selectedDashboardStore.subscribe(d => {
   api(`/v1/channels/${d.channelId}/integrations/spotify`).then(async (r) => {
@@ -46,6 +48,8 @@ async function patch() {
   });
 
   spotifyIntegration.value = data;
+
+  toast.success('Saved');
 }
 
 onMounted(async () => {
@@ -75,8 +79,9 @@ onMounted(async () => {
   <div class="flex flex-col card rounded card-compact bg-base-200 drop-shadow p-2 break-inside mb-[0.5rem]">
     <div class="flex mb-5 justify-between">
       <div>
-        <h2 class="card-title flex font-bold">
-          Spotify
+        <h2 class="flex space-x-2 card-title font-bold">
+          <p>Spotify</p>
+          <Tooltip text="test" />
         </h2>
       </div>
       <div class="form-check form-switch">

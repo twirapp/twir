@@ -59,7 +59,7 @@ function joinChannel() {
 </script>
 
 <template>
-  <div class="m3">
+  <div class="m-1.5 md:m-3">
     <div class="p-1">
       <div class="grid lg:grid-cols-3 grid-cols-1 gap-2">
         <div

@@ -3,6 +3,9 @@ import { useStore } from '@nanostores/vue';
 import { ChannelIntegration } from '@tsuwari/prisma';
 import {  ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useToast } from 'vue-toastification';
+
+import Tooltip from '../Tooltip.vue';
 
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
@@ -19,6 +22,7 @@ const selectedDashboard = useStore(selectedDashboardStore);
 const { t } = useI18n({
   useScope: 'global',
 });
+const toast = useToast();
 
 selectedDashboardStore.subscribe(d => {
   api(`/v1/channels/${d.channelId}/integrations/lastfm`).then(async (r) => {
@@ -42,6 +46,7 @@ async function post() {
   });
 
   lastfmIntegration.value = data;
+  toast.success('Saved');
 }
 </script>
 
@@ -49,8 +54,9 @@ async function post() {
   <div class="flex flex-col card rounded card-compact bg-base-200 drop-shadow p-2 break-inside mb-[0.5rem]">
     <div class="flex justify-between mb-5">
       <div>
-        <h2 class="card-title font-bold">
-          Last.fm
+        <h2 class="flex space-x-2 card-title font-bold">
+          <p>Last.fm</p>
+          <Tooltip text="test" />
         </h2>
       </div>
       <div class="form-check form-switch">

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { useStore } from '@nanostores/vue';
 import { useTitle } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
@@ -17,16 +16,14 @@ import Sword from '@/assets/sidebar/sword.svg?url';
 import Timers from '@/assets/sidebar/timers.svg?url';
 import Users from '@/assets/sidebar/users.svg?url';
 import Variables from '@/assets/sidebar/variables.svg?url';
-import { selectedDashboardStore, userStore, setSelectedDashboard } from '@/stores/userStore';
+import {  userStore } from '@/stores/userStore';
 
-const user = useStore(userStore);
 const router = useRouter();
 const { t } = useI18n({
   useScope: 'global',
   inheritLocale: true,
 });
 const title = useTitle();
-const selectedDashboard = useStore(selectedDashboardStore);
 
 const currentRoute = useRoute();
 const routes = [
@@ -133,79 +130,6 @@ function logOut() {
           Tsuwari
         </router-link>
       </div>
-    </div>
-    <div class="dropend">
-      <a
-        id="dropdownMenuButton1e"
-        href="#"
-        class="flex items-center mt-1 text-sm py-4 px-2 h-12 overflow-hidden text-white text-ellipsis whitespace-nowrap rounded border-l-2 border-white transition duration-300 ease-in-out ripple-surface-primary dropdown-toggle"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-      >
-        <div class="flex items-center">
-          <div class="shrink-0">
-            <img
-              :src="selectedDashboard?.twitch?.profile_image_url ?? user?.profile_image_url"
-              class="rounded-full w-10"
-              alt="Dashboard Avatar"
-            >
-          </div>
-          <div class="grow ml-3">
-            <p class="text-sm font-semibold">{{ selectedDashboard?.twitch?.display_name ?? user?.display_name }}</p>
-          </div>
-        </div>
-      </a>
-      <ul
-        class="
-          dropdown-menu
-          min-w-max
-          absolute
-          hidden
-          bg-[#202122]
-          text-base
-          z-50
-          float-left
-          py-2
-          list-none
-          text-left
-          text-white
-          rounded
-          shadow
-          mt-1
-          m-0
-          bg-clip-padding
-          border-none
-          w-48
-        "
-        style="width: max-content;"
-        aria-labelledby="dropdownMenuButton1e"
-      >
-        <li
-          v-for="dashboard of user?.dashboards"
-          :key="dashboard.channelId"
-          :class="{'btn-disabled': selectedDashboard.channelId === dashboard.channelId}"
-          class="dropdown-item
-              text-sm
-              py-2
-              px-4
-              font-normal
-              block
-              w-full
-              whitespace-nowrap
-              bg-transparent
-              hover:bg-[#121212]
-              cursor-pointer
-            "
-          @click="setSelectedDashboard(dashboard)"
-        >
-          <img
-            class="w-6 rounded-full inline"
-            :src="dashboard?.twitch?.profile_image_url ?? dashboard.twitch?.profile_image_url"
-          >
-          <span class="ml-4">{{ dashboard.twitch.display_name }}</span>
-        </li>
-        <ul />
-      </ul>
     </div>
 
     <ul class="relative px-1 mt-3">

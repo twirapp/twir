@@ -337,7 +337,7 @@ function changeCommandResponse(index: number, value: string) {
                       bg-transparent
                       text-white
                       hover:text-gray-700
-                      hover:bg-gray-100
+                      hover:bg-gray-200
                     "
                       @click="() => {
                         command.responses[responseIndex].text += ` $(${variable.example ? variable.example : variable.name})`;
