@@ -64,7 +64,7 @@ function deleteTimer(index: number) {
       </div>
     </div>
 
-    <div class="grid md:w-4/5 masonry sm:masonry-sm md:masonry-md lg:masonry-lg">
+    <div class="masonry sm:masonry-sm md:masonry-md lg:masonry-lg">
       <div
         v-for="timer, timerIndex of timers"
         :key="timerIndex"

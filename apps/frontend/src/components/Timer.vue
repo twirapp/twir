@@ -93,7 +93,7 @@ function cancelEdit() {
         {{ error }}
       </div>
       <div
-        class="md:grid grid-cols-1 gap-1"
+        class="md:grid grid-cols-2 gap-2"
       >
         <div>
           <div class="label mb-3">
