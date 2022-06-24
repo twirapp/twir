@@ -100,6 +100,10 @@ export class CommandsService {
       throw new HttpException(`Command already exists`, 400);
     }
 
+    if (!data.responses?.length) {
+      throw new HttpException(`You should add atleast 1 response to command.`, 400);
+    }
+
     const command = await this.prisma.command.create({
       data: {
         ...data,
@@ -154,6 +158,10 @@ export class CommandsService {
 
     if (!command) {
       throw new Error('Command not exists');
+    }
+
+    if (!command.responses?.length && !command.default) {
+      throw new HttpException(`You should add atleast 1 response to command.`, 400);
     }
 
     data.responses = data.responses?.map(r => ({ ...r, text: r.text ? r.text.trim().replace(/(\r\n|\n|\r)/, '') : null }));

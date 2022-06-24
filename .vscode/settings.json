@@ -10,24 +10,19 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "remote.SSH.defaultForwardedPorts": [
     {
-      "localPort": 3001,
-      "name": "frontend",
-      "remotePort": 3001
-    },
-    {
       "localPort": 3002,
       "name": "api",
       "remotePort": 3002
     },
     {
-      "localPort": 3005,
-      "name": "frontendv2",
-      "remotePort": 3005
+      "localPort": 3003,
+      "name": "eventsub",
+      "remotePort": 3003
     },
     {
-      "localPort": 3006,
-      "name": "frontendv3",
-      "remotePort": 3006
+      "localPort": 3005,
+      "name": "frontend",
+      "remotePort": 3005
     },
     {
       "localPort": 5555,
