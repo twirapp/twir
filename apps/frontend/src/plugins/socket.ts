@@ -24,7 +24,7 @@ selectedDashboardStore.subscribe(v => {
 });
 
 export async function socketEmit<EV extends keyof ClientToServerEvents>(event: EV, ...params: EventParams<ClientToServerEvents, EV>) {
-  /* const accessToken = localStorage.getItem('accessToken');
+  const accessToken = localStorage.getItem('accessToken');
   if (!accessToken) {
     throw new Error('No access token');
   }
@@ -38,9 +38,7 @@ export async function socketEmit<EV extends keyof ClientToServerEvents>(event: E
     socket.disconnect().connect().emit(event, ...params);
   } else {
     socket.emit(event, ...params);
-  } */
-
-  socket.emit(event, ...params);
+  }
 }
 
 socket.on('connect_error', (err) => {
