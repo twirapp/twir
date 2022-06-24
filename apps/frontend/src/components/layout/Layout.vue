@@ -1,11 +1,7 @@
 <script lang="ts" setup>
-import { useRouter } from 'vue-router';
-
 import Footer from './Footer.vue';
 import NavBar from './NavBar.vue';
 import Sidebar from './Sidebar.vue';
-
-const router = useRouter();
 </script>
 
 <template>
