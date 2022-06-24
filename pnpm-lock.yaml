@@ -254,6 +254,7 @@ importers:
       '@intlify/vite-plugin-vue-i18n': 3.4.0
       '@nanostores/persistent': 0.5.3
       '@nanostores/vue': 0.5.5
+      '@popperjs/core': ^2.11.5
       '@tsuwari/api': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
@@ -290,6 +291,7 @@ importers:
     dependencies:
       '@nanostores/persistent': 0.5.3_nanostores@0.5.12
       '@nanostores/vue': 0.5.5_ympl27tda4o7w6en7idglmssei
+      '@popperjs/core': 2.11.5
       '@tsuwari/api': link:../api
       '@vueuse/core': 8.7.4_vue@3.2.37
       '@vueuse/integrations': 8.7.4_2m7nih6u2b7bgtgjwf6onm22be

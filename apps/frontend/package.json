@@ -10,6 +10,7 @@
   "dependencies": {
     "@nanostores/persistent": "0.5.3",
     "@nanostores/vue": "0.5.5",
+    "@popperjs/core": "^2.11.5",
     "@tsuwari/api": "workspace:*",
     "@vueuse/core": "8.7.4",
     "@vueuse/integrations": "8.7.4",
