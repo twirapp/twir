@@ -53,7 +53,7 @@ onMounted(async () => {
       <p
         class="text-lg"
       >
-        That seems like you denied us to use your account data. Sorry, but we can't provide our service then.
+        That seems like you denied us to use your account data.<br>Sorry, but we can't provide our service then.
       </p>
 
       <button
