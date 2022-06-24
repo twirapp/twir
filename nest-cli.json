@@ -50,6 +50,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/parser/tsconfig.json"
       }
+    },
+    "eventsub": {
+      "type": "application",
+      "root": "apps/eventsub",
+      "entryFile": "index",
+      "sourceRoot": "apps/eventsub/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/eventsub/tsconfig.json"
+      }
     }
   }
 }

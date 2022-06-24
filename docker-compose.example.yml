@@ -62,9 +62,6 @@ services:
     image: satont/tsuwari:api-ARM64
     env_file:
       - .env
-    deploy:
-      mode: replicated
-      replicas: 2
     ports:
       - "3002:3002"
     depends_on:
@@ -116,6 +113,19 @@ services:
     image: satont/tsuwari:streamstatus-ARM64
     env_file:
       - .env
+    depends_on:
+      - redis
+      - migrations
+      - postgres
+      - nats
+
+  eventsub:
+    restart: unless-stopped
+    image: satont/tsuwari:eventsub-ARM64
+    env_file:
+      - .env
+    ports:
+      - "3003:3003"
     depends_on:
       - redis
       - migrations

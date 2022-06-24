@@ -1,5 +1,7 @@
 import { ClientProxy as CP } from '@nestjs/microservices';
 import { CommandPermission } from '@tsuwari/prisma';
+import { rawDataSymbol } from '@twurple/common';
+import { EventSubChannelUpdateEvent } from '@twurple/eventsub';
 import { Observable } from 'rxjs';
 
 export interface ClientProxyCommands {
@@ -44,6 +46,10 @@ export interface ClientProxyEvents {
     input: { channelId: string },
     result: any
   },
+  'stream.update': {
+    input: EventSubChannelUpdateEvent[typeof rawDataSymbol],
+    result: any,
+  }
   'bots.joinOrLeave': {
     input: {
       action: 'join' | 'part',
@@ -60,6 +66,9 @@ export interface ClientProxyEvents {
 }
 
 export type ClientProxyResult<K extends keyof ClientProxyCommands> = Observable<ClientProxyCommands[K]['result']>
+export type ClientProxyCommandsKey = keyof ClientProxyCommands
+export type ClientProxyEventsKey = keyof ClientProxyEvents
+
 
 export abstract class ClientProxy extends CP {
   abstract send<TEvent extends keyof ClientProxyCommands>(pattern: TEvent, data: ClientProxyCommands[TEvent]['input']): Observable<ClientProxyCommands[TEvent]['result']>;

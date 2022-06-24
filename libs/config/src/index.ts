@@ -20,4 +20,5 @@ export const config = cleanEnv(process.env, {
   REDIS_URL: str({ default: 'redis://:576294Aa@localhost:6379/0' }),
   SAY_IN_CHAT: bool({ default: true }),
   NATS_URL: str({ default: 'nats://localhost:4222' }),
+  HOSTNAME: str({ default: '' }),
 });
