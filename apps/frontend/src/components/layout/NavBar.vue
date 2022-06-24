@@ -69,25 +69,21 @@ useIntervalFn(() => {
       </div>
 
       <div class="flex space-x-5">
-        <!-- <div class="locale-changer">
-            <select 
-              v-model="$i18n.locale"
-              class="form-control bg-gray-700 px-3 py-1.5 rounded select select-sm"
-              @change="setLocale($i18n.locale)"
+        <div class="locale-changer">
+          <select 
+            v-model="$i18n.locale"
+            class="form-control bg-gray-700 px-3 py-1.5 rounded select select-sm"
+            @change="setLocale($i18n.locale)"
+          >
+            <option
+              v-for="(lang, i) in ['en', 'ru']"
+              :key="`Lang${i}`"
+              :value="lang"
             >
-              <option
-                v-for="(lang, i) in ['en', 'ru']"
-                :key="`Lang${i}`"
-                :value="lang"
-              >
-                {{ lang.toUpperCase() }}
-              </option>
-            </select>
-          </div>-->
-      </div>
-    
-
-      <div class="flex space-x-5">
+              {{ lang.toUpperCase() }}
+            </option>
+          </select>
+        </div>
         <Notification />
         <Profile />
       </div>

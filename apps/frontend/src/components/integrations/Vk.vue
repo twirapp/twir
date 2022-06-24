@@ -58,7 +58,7 @@ async function post() {
       <div>
         <h2 class="flex space-x-2 card-title font-bold">
           <p>VK</p>
-          <Tooltip text="test" />
+          <Tooltip :text="t('pages.integrations.widgets.vk.description')" />
         </h2>
       </div>
       <div class="form-check form-switch">

@@ -56,7 +56,7 @@ async function post() {
       <div>
         <h2 class="flex space-x-2 card-title font-bold">
           <p>Last.fm</p>
-          <Tooltip text="test" />
+          <Tooltip :text="t('pages.integrations.widgets.lastFm.description')" />
         </h2>
       </div>
       <div class="form-check form-switch">

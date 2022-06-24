@@ -32,15 +32,21 @@
     "integrations": {
       "sidebarName": "Integrations",
       "widgets": {
+        "spotify": {
+          "description": "This integration enables fetching played song from spotify.com"
+        },
         "vk": {
-          "id": "User or group id in number format."
+          "id": "User or group id in number format.",
+          "description": "This integration enables fetching played song from vk.com. Please, make attention, you should specify ID of the page, not a slug. Example: 123456789, or -123456789 for a group."
         },
         "lastFm": {
-          "username": "Username on lastfm (case sensitive)"
+          "username": "Username on lastfm (case sensitive)",
+          "description": "This integration enables fetching played song from last.fm"
         },
         "faceit": {
           "username": "Username on Faceit (case sensitive)",
-          "game": "Game for checking statistic"
+          "game": "Game for checking statistic",
+          "description": "This integration enables fetching data from faceit. You can show in chats such stats from faceit as: elo, lvl, latest matches trent, elo gain per day."
         }
       }
     },

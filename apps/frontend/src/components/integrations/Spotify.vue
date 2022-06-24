@@ -81,7 +81,7 @@ onMounted(async () => {
       <div>
         <h2 class="flex space-x-2 card-title font-bold">
           <p>Spotify</p>
-          <Tooltip text="test" />
+          <Tooltip :text="t('pages.integrations.widgets.spotify.description')" />
         </h2>
       </div>
       <div class="form-check form-switch">
