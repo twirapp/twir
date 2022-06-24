@@ -29,7 +29,13 @@ export class AppService {
     const stream = await api.streams.getStreamByUserId(e.broadcaster_user_id);
     if (!stream) return;
     const cachedStream = await this.redis.get(`streams:${e.broadcaster_user_id}`);
-    await this.cacheStream(stream, cachedStream);
+
+    const rawData = getRawData(stream);
+    rawData.title = e.title;
+    rawData.game_name = e.category_name;
+    rawData.game_id = e.category_id;
+
+    await this.cacheStream(rawData, cachedStream);
   }
 
   async handleOnline(e: ClientProxyEvents['streams.online']['input']) {
@@ -38,16 +44,16 @@ export class AppService {
     const key = `streams:${e.channelId}`;
     const cachedStream = await this.redis.get(key);
 
-    this.cacheStream(stream, cachedStream);
+    this.cacheStream(getRawData(stream), cachedStream);
   }
 
   async handleOffline(e: ClientProxyEvents['streams.offline']['input']) {
     this.redis.del(`stream:${e.channelId}`);
   }
 
-  async cacheStream(stream: HelixStream, cachedStream?: string | null) {
-    const key = `streams:${stream.userId}`;
-    let data = { ...getRawData(stream) };
+  async cacheStream(stream: HelixStreamData, cachedStream?: string | null) {
+    const key = `streams:${stream.user_id}`;
+    let data = stream;
 
     if (cachedStream) {
       data = _.merge(JSON.parse(cachedStream), data);
