@@ -24,37 +24,19 @@ const { t } = useI18n({
 </script>
 
 <template>
-  <!-- <img
-    src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp"
-    class="rounded-full w-9"
-    alt="Avatar"
-  > 
-
-  <div class="dropdown relative">
-    <img
-      id="avatarDropdown"
-      src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp"
-      class="rounded-full w-9"
-      alt="Avatar"
-      data-bs-toggle="dropdown"
-      aria-expanded="false"
-    >
-
-    <ul aria-labelledby="avatarDropdown">
-      <p>sasi</p>
-    </ul>
-  </div> -->
-
-  <div class="flex justify-center">
+  <div class="flex justify-center select-none">
     <div>
       <div class="dropdown relative">
-        <div class="absolute inline-block top-auto right-0 bottom-0 left-auto translate-x-1/4 translate-y-1/3 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 p-1.5 text-xs rounded-full z-10">
+        <div
+          id="profileMenu"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          class="absolute inline-block top-auto right-0 bottom-0 left-auto translate-x-1/4 translate-y-1/3 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 p-1.5 text-xs rounded-full z-10"
+        >
           <img
             v-if="selectedDashboard.channelId !== user?.id"
-            id="profileMenu"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
+
             :src="user?.profile_image_url"
             class="
           rounded-full
@@ -101,12 +83,12 @@ const { t } = useI18n({
         "
           aria-labelledby="profileMenu"
         >
-          <div class="my-2 space-y-0.5">
+          <div class="my-2 space-y-0.5 max-h-[55vh] overflow-y-auto scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-600 scrollbar-track-gray-500">
             <span
               v-for="dashboard of user?.dashboards"
               :key="dashboard.channelId"
               :class="{'btn-disabled': selectedDashboard.channelId === dashboard.channelId}"
-              class="dropdown-item
+              class="
               text-sm
               py-2
               px-4

@@ -1,6 +1,6 @@
 <template>
   <div class="inline-flex items-center relative w-fit dropdown">
-    <div class="absolute inline-block top-0 right-0 bottom-auto left-auto translate-x-2/4 -translate-y-1/2 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 py-0.5 px-1.5 text-xs leading-none text-center whitespace-nowrap align-baseline font-bold bg-[#772CE8] text-white rounded z-10">
+    <div class="select-none absolute inline-block top-0 right-0 bottom-auto left-auto translate-x-2/4 -translate-y-1/2 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 py-0.5 px-1.5 text-xs leading-none text-center whitespace-nowrap align-baseline font-bold bg-[#772CE8] text-white rounded z-10">
       99+
     </div>
     <button
@@ -36,11 +36,9 @@
           z-50
           float-left
           py-2
-          list-none
           text-left
           rounded
           mt-1
-          
           m-0
           bg-clip-padding
           border-none
@@ -49,14 +47,11 @@
     >
       <li>
         <p
-          class="
-                  
-              dropdown-item
+          class="    
               text-sm
               py-2
               px-2
               font-normal
-              block
               w-full
               hover:bg-gray-600
             "

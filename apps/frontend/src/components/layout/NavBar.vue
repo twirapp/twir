@@ -50,7 +50,7 @@ useIntervalFn(() => {
         v-if="stream"
         class="flex space-x-2"
       >
-        <p>Viewers: <span class="font-bold">{{ stream.viewer_count }}00000</span></p>
+        <p>Viewers: <span class="font-bold">{{ stream.viewer_count }}</span></p>
         <p class="hidden md:block">
           Category: <span class="font-bold">{{ stream.game_name }}</span>
         </p>
