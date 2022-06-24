@@ -7,7 +7,7 @@
     "lint:fix": "eslint --fix --ext .ts,.vue apps/",
     "dev": "pnpm run -r dev",
     "start:api": "pnpm --filter=@tsuwari/api start",
-    "start:eventsub": "pnpm --filter=@tsuwari/api start",
+    "start:eventsub": "pnpm --filter=@tsuwari/eventsub start",
     "start:bots": "pnpm --filter=@tsuwari/bots start",
     "start:scheduler": "pnpm --filter=@tsuwari/scheduler start",
     "start:parser": "pnpm --filter=@tsuwari/parser start",
