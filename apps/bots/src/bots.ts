@@ -57,9 +57,9 @@ class BotsClass {
 
       this.cache.set(bot.id, instance);
 
-      for (const channel of bot.channels) {
+      /* for (const channel of bot.channels) {
         this.#updateGreetingsCacheByChannelid(channel.id);
-      }
+      } */
     }
   }
 
