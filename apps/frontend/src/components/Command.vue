@@ -3,7 +3,6 @@ import { useStore } from '@nanostores/vue';
 import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/create';
 import { CommandPermission, CooldownType } from '@tsuwari/prisma';
 import { isNumber } from '@vueuse/core';
-import axios from 'axios';
 import { configure, Form, Field } from 'vee-validate';
 import { computed, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';

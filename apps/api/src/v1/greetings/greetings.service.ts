@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@tsuwari/prisma';
 
 import { RedisService } from '../../redis.service.js';
@@ -26,7 +26,7 @@ export class GreetingsService {
   async create(userId: string, data: GreetingCreateDto) {
     const user = await staticApi.users.getUserByName(data.username);
 
-    if (!user) throw new Error(`User ${data.username} not found on twitch`);
+    if (!user) throw new HttpException(`User ${data.username} not found on twitch`, 404);
 
     const isExists = await this.prisma.greeting.count({
       where: {
@@ -36,7 +36,7 @@ export class GreetingsService {
     });
 
     if (isExists) {
-      throw new Error('Greeting already exists');
+      throw new HttpException(`Greeting for user ${user.name} already exists`, 400);
     }
 
     const greeting = await this.prisma.greeting.create({

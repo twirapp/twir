@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
 import { Form, Field } from 'vee-validate';
-import { toRef } from 'vue';
+import { computed, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
+import * as yup from 'yup';
 
 import { GreeTingType } from '@/dashboard/Greetings.vue';
 import { api } from '@/plugins/api';
@@ -25,6 +26,11 @@ const { t } = useI18n({
 const emit = defineEmits<{
   (e: 'delete', index: number): void
 }>();
+
+const schema = computed(() => yup.object({
+  username: yup.string().required(),
+  text: yup.string().required(),
+}));
 
 async function saveGreeting() {
   const index = greetings.value.indexOf(greeting.value);
@@ -71,12 +77,13 @@ function cancelEdit() {
   <div class="p-4">
     <Form
       v-slot="{ errors }"
+      :validation-schema="schema"
       @submit="saveGreeting"
     >
       <div
         v-for="error of errors"
         :key="error"
-        class="bg-red-600 rounded py-5 px-6 mb-4 text-base text-red-700"
+        class="bg-red-600 rounded py-5 px-6 mb-4 text-white"
         role="alert"
       >
         {{ error }}
