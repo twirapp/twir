@@ -1,7 +1,11 @@
+<script lang="ts" setup>
+import Soon from '@/components/Soon.vue';
+</script>
+
 <template>
   <div class="inline-flex items-center relative w-fit dropdown">
     <div class="select-none absolute inline-block top-0 right-0 bottom-auto left-auto translate-x-2/4 -translate-y-1/2 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 py-0.5 px-1.5 text-xs leading-none text-center whitespace-nowrap align-baseline font-bold bg-[#772CE8] text-white rounded z-10">
-      99+
+      0
     </div>
     <button
       id="alertDropdown"
@@ -31,7 +35,7 @@
           max-h-[55vh]
           absolute
           hidden
-          bg-gray-800
+          bg-[#202020]
           text-base
           z-50
           float-left
@@ -45,7 +49,8 @@
         "
       aria-labelledby="alertDropdown"
     >
-      <li>
+      <Soon :button="false" />
+      <!--  <li>
         <p
           class="    
               text-sm
@@ -53,12 +58,12 @@
               px-2
               font-normal
               w-full
-              hover:bg-gray-600
+              hover:bg-[#393636]
             "
         >
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque, facere. Quia obcaecati, veniam voluptatem minima iste deserunt excepturi odio asperiores tenetur ipsum iure nemo officiis, corporis quam ea odit nesciunt?
         </p>
-      </li>
+      </li> -->
     </ul>
   </div>
 </template>

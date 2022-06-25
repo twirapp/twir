@@ -107,7 +107,7 @@ onMounted(() => {
         class="grid grid-cols-1 gap-1"
       >
         <div>
-          <div class="label mb-3">
+          <div class="label mb-1">
             <span class="label-text">{{ t('pages.variables.card.name.title') }}</span>
           </div>
           <Field
@@ -122,8 +122,8 @@ onMounted(() => {
         </div>
       </div>
 
-      <div>
-        <div class="label mt-2 mb-3">
+      <div class="mt-5">
+        <div class="label mt-2 mb-1">
           <span class="label-text">{{ t('pages.variables.card.type') }}</span>
         </div>
         <select
@@ -143,7 +143,7 @@ onMounted(() => {
 
       <div
         v-if="variable.type === 'SCRIPT'"
-        class="mt-3"
+        class="mt-5"
       >
         <prism-editor
           v-model="variable.evalValue"
@@ -154,8 +154,11 @@ onMounted(() => {
         />
       </div>
 
-      <div v-if="variable.type === 'TEXT'">
-        <div class="label mb-3">
+      <div
+        v-if="variable.type === 'TEXT'"
+        class="mt-5"
+      >
+        <div class="label mb-1">
           <span class="label-text">{{ t('pages.variables.card.messageForSending.title') }}</span>
         </div>
         <Field
@@ -174,7 +177,7 @@ onMounted(() => {
           <button
             v-if="!variable.edit"
             type="button"
-            class="inline-block px-6 py-2.5 bg-gray-200 text-gray-700 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-gray-300    focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+            class="inline-block px-6 py-2.5 bg-purple-600 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
             @click="() => {
               variable.edit = true;
               if (variable.id) variablesBeforeEdit?.push(JSON.parse(JSON.stringify(variable)))

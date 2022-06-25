@@ -96,7 +96,7 @@ function cancelEdit() {
         class="md:grid grid-cols-2 gap-2"
       >
         <div>
-          <div class="label mb-3">
+          <div class="label mb-1">
             <span class="label-text">{{ t('pages.timers.card.name.title') }}</span>
           </div>
           <Field
@@ -111,7 +111,7 @@ function cancelEdit() {
         </div>
 
         <div>
-          <div class="label mb-3">
+          <div class="label mb-1">
             <span class="label-text">{{ t('pages.timers.card.secondsInterval') }}</span>
           </div>
           <Field
@@ -125,7 +125,7 @@ function cancelEdit() {
         </div>
 
         <div>
-          <div class="label mb-3">
+          <div class="label mb-1">
             <span class="label-text">{{ t('pages.timers.card.messagesInterval') }}</span>
           </div>
           <Field
@@ -183,7 +183,7 @@ function cancelEdit() {
           <button
             v-if="!timer.edit"
             type="button"
-            class="inline-block px-6 py-2.5 bg-gray-200 text-gray-700 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-gray-300    focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+            class="inline-block px-6 py-2.5 bg-purple-600 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
             @click="() => {
               timer.edit = true;
               if (timer.id) timersBeforeEdit?.push(JSON.parse(JSON.stringify(timer)))

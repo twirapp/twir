@@ -85,7 +85,7 @@ function cancelEdit() {
         class="grid grid-cols-1 gap-1"
       >
         <div>
-          <div class="label mb-3">
+          <div class="label mb-1">
             <span class="label-text">{{ t('pages.greetings.username.title') }}</span>
           </div>
           <Field
@@ -99,8 +99,8 @@ function cancelEdit() {
           />
         </div>
 
-        <div>
-          <div class="label mb-3">
+        <div class="mt-5">
+          <div class="label mb-1">
             <span class="label-text">{{ t('pages.greetings.message.title') }}</span>
           </div>
           <Field
@@ -120,7 +120,7 @@ function cancelEdit() {
           <button
             v-if="!greeting.edit"
             type="button"
-            class="inline-block px-6 py-2.5 bg-gray-200 text-gray-700 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-gray-300  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+            class="inline-block px-6 py-2.5 bg-purple-600 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
             @click="() => {
               greeting.edit = true;
               if (greeting.id) greetingsBeforeEdit?.push(JSON.parse(JSON.stringify(greeting)))

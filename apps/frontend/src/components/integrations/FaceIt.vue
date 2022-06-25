@@ -73,7 +73,7 @@ async function post() {
     </div>
 
     <div>
-      <div class="label">
+      <div class="label mb-1">
         <span class="label-text">{{ t('pages.integrations.widgets.faceit.username') }}</span>
       </div>
       <input
@@ -84,9 +84,9 @@ async function post() {
       >
     </div>
 
-    <div>
-      <div class="label">
-        <span class="label-text">{{ t('pages.integrations.widgets.vk.id') }}</span>
+    <div class="mt-5">
+      <div class="label mb-1">
+        <span class="label-text">{{ t('pages.integrations.widgets.faceit.game') }}</span>
       </div>
       <select
         v-model="faceitIntegration.data!.game"

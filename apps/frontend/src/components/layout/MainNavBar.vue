@@ -24,15 +24,15 @@ import Logo from '@/assets/logo.svg?component';
     <div class="flex space-x-1 hidden md:block">
       <a
         href="/dashboard"
-        class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+        class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-white  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
       >Dashboard</a>
       <a
         href="#"
-        class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+        class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-white  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
       >Team</a>
       <a
         href="#"
-        class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+        class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-white  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
       >About</a>
     </div>
 
@@ -109,19 +109,19 @@ import Logo from '@/assets/logo.svg?component';
             <li>
               <a
                 href="/dashboard"
-                class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+                class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-white  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
               >Dashboard</a>
             </li>
             <li>
               <a
                 href="#"
-                class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+                class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-white  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
               >Team</a>
             </li>
             <li>
               <a
                 href="#"
-                class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-gray-100  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+                class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-white  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
               >About</a>
             </li>
             <hr class="h-0 border border-solid border-t-0 border-gray-700 opacity-50">

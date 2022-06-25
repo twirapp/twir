@@ -1,74 +1,18 @@
 {
-  "name": "English",
   "buttons": {
-    "save": "Save",
-    "edit": "Edit",
+    "addNew": "Add new",
     "cancel": "Cancel",
     "delete": "Delete",
+    "edit": "Edit",
     "login": "Login",
-    "addNew": "Add new"
+    "save": "Save"
   },
-  "statuses": {
-    "enabled": "Enabled",
-    "disabled": "Disabled"
-  },
+  "name": "English",
   "pages": {
-    "dashboard": {
-      "sidebarName": "Dashboard",
-      "widgets": {
-        "status": {
-          "title": "Bot status",
-          "notMod": " We detect bot is not moderator on the channel. Please, mod a <b>TsuwariBot</b>, or some of functionality may work incorrectly.",
-          "mod": "Bot is mod on the channel",
-          "buttons": {
-            "leave": "Leave",
-            "join": "Join"
-          }
-        }
-      }
-    },
-    "events": {
-      "sidebarName": "Events"
-    },
-    "integrations": {
-      "sidebarName": "Integrations",
-      "widgets": {
-        "spotify": {
-          "description": "This integration enables fetching played song from spotify.com"
-        },
-        "vk": {
-          "id": "User or group id in number format.",
-          "description": "This integration enables fetching played song from vk.com. Please, make attention, you should specify ID of the page, not a slug. Example: 123456789, or -123456789 for a group."
-        },
-        "lastFm": {
-          "username": "Username on lastfm (case sensitive)",
-          "description": "This integration enables fetching played song from last.fm"
-        },
-        "faceit": {
-          "username": "Username on Faceit (case sensitive)",
-          "game": "Game for checking statistic",
-          "description": "This integration enables fetching data from faceit. You can show in chats such stats from faceit as: elo, lvl, latest matches trent, elo gain per day."
-        }
-      }
-    },
-    "settings": {
-      "sidebarName": "Settings",
-      "widgets": {
-        "dashboardAccess": {
-          "title": "Dashboard Access",
-          "thatsYou": "thats you",
-          "placeholder": "Add member to dashboard by username",
-          "noAccs": "No accounts added"
-        }
-      }
-    },
     "commands": {
-      "sidebarName": "Commands",
-      "searchCommand": "Search command",
       "card": {
-        "name": {
-          "title": "Name",
-          "placeholder": "Command name"
+        "aliases": {
+          "title": "Aliases"
         },
         "cooldown": {
           "title": "Cooldown",
@@ -77,115 +21,178 @@
             "PER_USER": "Per user"
           }
         },
-        "permission": {
-          "title": "Permission",
-          "selectPlaceholder": "Select permission"
-        },
         "description": {
-          "title": "Description (optional)",
-          "placeholder": "My cool great command!"
+          "placeholder": "My cool great command!",
+          "title": "Description (optional)"
+        },
+        "name": {
+          "placeholder": "Command name",
+          "title": "Name"
+        },
+        "permission": {
+          "selectPlaceholder": "Select permission",
+          "title": "Permission"
         },
         "responses": {
-          "title": "Responses",
-          "builtInAlert": "This is a built-in command. You can't change its response, but it may be added in the future if a certain percentage of users want to use it."
+          "builtInAlert": "This is a built-in command. You can't change its response, but it may be added in the future if a certain percentage of users want to use it.",
+          "title": "Responses"
+        }
+      },
+      "searchCommand": "Search command",
+      "sidebarName": "Commands"
+    },
+    "dashboard": {
+      "sidebarName": "Dashboard",
+      "widgets": {
+        "feedback": {
+          "buttons": {
+            "send": "Send"
+          },
+          "placeholder": "Type your awesome feedback <3",
+          "title": "Send feedback"
         },
-        "aliases": {
-          "title": "Aliases"
+        "status": {
+          "buttons": {
+            "join": "Join",
+            "leave": "Leave"
+          },
+          "mod": "Bot is mod on the channel",
+          "notMod": " We detect bot is not moderator on the channel. Please, mod a <b>TsuwariBot</b>, or some of functionality may work incorrectly.",
+          "title": "Bot status"
         }
       }
     },
-    "timers": {
-      "sidebarName": "Timers",
-      "buttons": {
-        "new": "Add new timer"
-      },
-      "card": {
-        "name": {
-          "title": "Name",
-          "placeholder": "Timer name"
-        },
-        "secondsInterval": "Seconds Interval",
-        "messagesInterval": "Messages Interval",
-        "responses": "Responses"
-      }
+    "events": {
+      "sidebarName": "Events"
     },
-    "moderation": {
-      "sidebarName": "Moderation",
-      "moderate": "Moderate {key}",
-      "timeout": {
-        "title": "Timeout message",
-        "placeholder": "Message for timeout"
-      },
-      "time": {
-        "title": "Timeout time"
-      },
-      "warning": {
-        "title": "Warning message",
-        "placeholder": "Message for warning"
-      },
-      "clips": "Moderate clips",
-      "blacklist": "Blacklisted words",
-      "symbols": "Max symbols in message (in percent)",
-      "lnght": "Max message length",
-      "caps": "Max caps in message (in percent)",
-      "emotes": "Max emotes in message"
-    },
-    "users": {
-      "sidebarName": "Users"
-    },
-    "keywords": {
-      "sidebarName": "Keywords",
-      "card": {
-        "text": {
-          "title": "Text of trigger",
-          "placeholder": "Keyword will be triggered, when user type this in chat"
-        },
-        "response": {
-          "title": "Response",
-          "placeholder": "This response will be sended in chat"
-        },
-        "cooldown": {
-          "title": "Cooldown",
-          "placeholder": "Cooldown time in seconds"
-        }
-      }
-    },
-    "variables": {
-      "sidebarName": "Variables",
-      "card": {
-        "name": {
-          "title": "Name",
-          "placeholder": "Name of variable"
-        },
-        "type": "Type",
-        "messageForSending": {
-          "title": "Message for sending",
-          "placeholder": "This message will be sent in chat"
-        }
-      }
+    "files": {
+      "sidebarName": "Files"
     },
     "greetings": {
-      "sidebarName": "Greetings",
       "buttons": {
         "add": "Add new greeting"
       },
-      "username": {
-        "title": "Username",
-        "placeholder": "Username of twitch user"
-      },
       "message": {
-        "title": "Message for sending",
-        "placeholder": "This message will be sent in chat"
+        "placeholder": "This message will be sent in chat",
+        "title": "Message for sending"
+      },
+      "sidebarName": "Greetings",
+      "username": {
+        "placeholder": "Username of twitch user",
+        "title": "Username"
+      }
+    },
+    "integrations": {
+      "sidebarName": "Integrations",
+      "widgets": {
+        "faceit": {
+          "description": "This integration enables fetching data from faceit. You can show in chats such stats from faceit as: elo, lvl, latest matches trent, elo gain per day.",
+          "game": "Game for checking statistic",
+          "username": "Username on Faceit (case sensitive)"
+        },
+        "lastFm": {
+          "description": "This integration enables fetching played song from last.fm",
+          "username": "Username on lastfm (case sensitive)"
+        },
+        "spotify": {
+          "description": "This integration enables fetching played song from spotify.com"
+        },
+        "vk": {
+          "description": "This integration enables fetching played song from vk.com. Please, make attention, you should specify ID of the page, not a slug. Example: 123456789, or -123456789 for a group.",
+          "id": "User or group id in number format."
+        }
+      }
+    },
+    "keywords": {
+      "card": {
+        "cooldown": {
+          "placeholder": "Cooldown time in seconds",
+          "title": "Cooldown"
+        },
+        "response": {
+          "placeholder": "This response will be sended in chat",
+          "title": "Response"
+        },
+        "text": {
+          "placeholder": "Keyword will be triggered, when user type this in chat",
+          "title": "Text of trigger"
+        }
+      },
+      "sidebarName": "Keywords"
+    },
+    "moderation": {
+      "blacklist": "Blacklisted words",
+      "caps": "Max caps in message (in percent)",
+      "clips": "Moderate clips",
+      "emotes": "Max emotes in message",
+      "lnght": "Max message length",
+      "moderate": "Moderate {key}",
+      "sidebarName": "Moderation",
+      "symbols": "Max symbols in message (in percent)",
+      "time": {
+        "title": "Timeout time"
+      },
+      "timeout": {
+        "placeholder": "Message for timeout",
+        "title": "Timeout message"
+      },
+      "warning": {
+        "placeholder": "Message for warning",
+        "title": "Warning message"
       }
     },
     "overlays": {
       "sidebarName": "Overlays"
     },
-    "files": {
-      "sidebarName": "Files"
-    },
     "quotes": {
       "sidebarName": "Quotes"
+    },
+    "settings": {
+      "sidebarName": "Settings",
+      "widgets": {
+        "dashboardAccess": {
+          "noAccs": "No accounts added",
+          "placeholder": "Add member to dashboard by username",
+          "thatsYou": "thats you",
+          "title": "Dashboard Access"
+        }
+      }
+    },
+    "timers": {
+      "buttons": {
+        "new": "Add new timer"
+      },
+      "card": {
+        "messagesInterval": "Messages Interval",
+        "name": {
+          "placeholder": "Timer name",
+          "title": "Name"
+        },
+        "responses": "Responses",
+        "secondsInterval": "Seconds Interval"
+      },
+      "sidebarName": "Timers"
+    },
+    "users": {
+      "sidebarName": "Users"
+    },
+    "variables": {
+      "card": {
+        "messageForSending": {
+          "placeholder": "This message will be sent in chat",
+          "title": "Message for sending"
+        },
+        "name": {
+          "placeholder": "Name of variable",
+          "title": "Name"
+        },
+        "type": "Type"
+      },
+      "sidebarName": "Variables"
     }
+  },
+  "statuses": {
+    "disabled": "Disabled",
+    "enabled": "Enabled"
   }
 }

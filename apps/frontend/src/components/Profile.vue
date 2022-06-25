@@ -32,7 +32,7 @@ const { t } = useI18n({
           type="button"
           data-bs-toggle="dropdown"
           aria-expanded="false"
-          class="absolute inline-block top-auto right-0 bottom-0 left-auto translate-x-1/4 translate-y-1/3 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 p-1.5 text-xs rounded-full z-10"
+          class="hover:opacity-80 absolute inline-block top-auto right-0 bottom-0 left-auto translate-x-1/4 translate-y-1/3 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 p-1.5 text-xs rounded-full z-10"
         >
           <img
             v-if="selectedDashboard.channelId !== user?.id"
@@ -53,6 +53,7 @@ const { t } = useI18n({
           :src="selectedDashboard?.twitch?.profile_image_url ?? user?.profile_image_url"
           class="
           rounded-full
+          hover:opacity-60 
           w-9
           hover:cursor-pointer"
           
@@ -67,7 +68,7 @@ const { t } = useI18n({
           absolute
           w-64
           px-2
-          bg-gray-700
+          bg-[#202020]
           text-base
           z-50
           float-left
@@ -97,14 +98,14 @@ const { t } = useI18n({
               w-full
               whitespace-nowrap
               bg-transparent
-              hover:bg-gray-600
+              hover:bg-[#393636]
               rounded
               cursor-pointer
             "
               @click="setSelectedDashboard(dashboard)"
             >
               <img
-                class="w-6 rounded-full inline"
+                class="w-6 rounded-full inline border"
                 :src="dashboard?.twitch?.profile_image_url ?? dashboard.twitch?.profile_image_url"
               >
               <span class="ml-4">{{ dashboard.twitch.display_name }}        
@@ -116,8 +117,9 @@ const { t } = useI18n({
             </span>
           </div>
         
+         
           <button
-            class="inline-block w-full border-2 border-red-600 py-1.5 leading-tight uppercase rounded hover:bg-red-200 hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+            class="w-full inline-block px-6 py-2 bg-red-600 text-white font-medium text-sm leading-tight uppercase rounded hover:bg-red-700 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
             @click="logOut"
           >
             Logout

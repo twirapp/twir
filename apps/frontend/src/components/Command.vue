@@ -181,7 +181,7 @@ function changeCommandResponse(index: number, value: string) {
         class="grid grid-cols-2 gap-1"
       >
         <div>
-          <div class="label">
+          <div class="label mb-1">
             <span class="label-text">{{ t('pages.commands.card.name.title') }}</span>
           </div>
           <Field
@@ -197,7 +197,7 @@ function changeCommandResponse(index: number, value: string) {
         <div>
           <span class="label text-center">{{ t('pages.commands.card.cooldown.title') }}</span>
             
-          <div class="grid grid-cols-2">
+          <div class="grid grid-cols-2 mt-1">
             <Field
               v-model.number="command.cooldown"
               name="cooldown"
@@ -224,8 +224,10 @@ function changeCommandResponse(index: number, value: string) {
           </div>
         </div>
 
-        <div>
-          <span class="label">{{ t('pages.commands.card.permission.title') }}</span>
+        <div class="mt-5">
+          <div class="label mb-1">
+            <span class="label-text">{{ t('pages.commands.card.permission.title') }}</span>
+          </div>
           <Field
             v-model="command.permission"
             as="select"
@@ -248,8 +250,10 @@ function changeCommandResponse(index: number, value: string) {
           </Field>
         </div>
 
-        <div>
-          <span class="label">{{ t('pages.commands.card.description.title') }}</span>
+        <div class="mt-5">
+          <div class="label mb-1">
+            <span class="label-text">{{ t('pages.commands.card.description.title') }}</span>
+          </div>
           <Field
             v-model="command.description"
             name="description"
@@ -259,7 +263,7 @@ function changeCommandResponse(index: number, value: string) {
           />
         </div>
 
-        <div class="col-span-2">
+        <div class="col-span-2 mt-5">
           <span class="label flex items-center">
             <span>{{ t('pages.commands.card.responses.title') }}
             </span>
@@ -272,7 +276,6 @@ function changeCommandResponse(index: number, value: string) {
             </span>
           </span>
 
-          <!-- max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600-->
           <div
             v-if="!command.default"
             class="input-group min-h-[150px] grid grid-cols-1 pt-1 gap-1"
@@ -301,13 +304,12 @@ function changeCommandResponse(index: number, value: string) {
 
                 <ul
                   class="
-                  dropdown-menu w-[90%] absolute bg-white text-base z-50 float-left py-2 list-none text-left rounded shadow mt-1 hidden m-0 bg-clip-padding border-none bg-gray-800 max-h-52 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600
+                  dropdown-menu w-[90%] absolute text-base text-white z-50 float-left py-2 list-none text-left rounded shadow mt-1 hidden m-0 bg-clip-padding border-none bg-[#393636] max-h-52 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600
                 "
                   :aria-labelledby="'dropdownMenuButton' + responseIndex"
                 >
                   <h6
                     class="
-                    text-gray-500
                     font-semibold
                     text-sm
                     py-2
@@ -336,8 +338,7 @@ function changeCommandResponse(index: number, value: string) {
                       whitespace-nowrap
                       bg-transparent
                       text-white
-                      hover:text-gray-700
-                      hover:bg-gray-200
+                      hover:bg-[#4f4a4a]
                     "
                       @click="() => {
                         command.responses[responseIndex].text += ` $(${variable.example ? variable.example : variable.name})`;
@@ -351,14 +352,14 @@ function changeCommandResponse(index: number, value: string) {
           
           <div
             v-else
-            class="bg-[#ED4245] rounded py-2 px-6 mb-4 text-white flex"
+            class="bg-[#ED4245] rounded py-2 px-6 text-white flex"
             role="alert"
           >
             {{ t('pages.commands.card.responses.builtInAlert') }}
           </div>
         </div>
 
-        <div class="col-span-2">
+        <div class="col-span-2 mt-5">
           <span class="label flex items-center">  
             <span>{{ t('pages.commands.card.aliases.title') }}</span>
             <span

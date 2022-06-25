@@ -1,18 +1,18 @@
 import { createI18n } from 'vue-i18n';
 
-import en from '../locales/en.json';
+import gb from '../locales/gb.json';
 import ru from '../locales/ru.json';
 
 import { localeStore } from '@/stores/locale';
 
-export type MessageSchema = typeof en
+export type MessageSchema = typeof gb
 
-export const i18n = createI18n<[MessageSchema], 'en' | 'ru'>({
+export const i18n = createI18n<[MessageSchema], 'gb' | 'ru'>({
   legacy: false,
   locale: localeStore.get(),
-  fallbackLocale: 'en',
+  fallbackLocale: 'gb',
   messages: {
-    'en': en,
+    'gb': gb,
     'ru': ru,
   },
 });

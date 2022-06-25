@@ -6,16 +6,12 @@ import { useAxios } from '@vueuse/integrations/useAxios';
 import { intervalToDuration, formatDuration } from 'date-fns';
 import { ref, watch } from 'vue';
 
+import LanguageSelector from '../LanguageSelector.vue';
 import Notification from '../Notification.vue';
 import Profile from '../Profile.vue';
 
 import { api } from '@/plugins/api';
-import { localeStore } from '@/stores/locale';
 import { selectedDashboardStore } from '@/stores/userStore';
-
-function setLocale(v: string) {
-  localeStore.set(v);
-}
 
 const selectedDashboard = useStore(selectedDashboardStore);
 const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/streams`, api, { immediate: false });
@@ -40,7 +36,6 @@ useIntervalFn(() => {
     uptime.value = formatDuration(intervalToDuration({ start: new Date(stream.value.started_at), end: Date.now() }));
   }
 }, 1000, { immediate: true });
-
 </script>
 
 <template>
@@ -69,21 +64,7 @@ useIntervalFn(() => {
       </div>
 
       <div class="flex space-x-5">
-        <div class="locale-changer">
-          <select 
-            v-model="$i18n.locale"
-            class="form-control bg-gray-700 px-3 py-1.5 rounded select select-sm"
-            @change="setLocale($i18n.locale)"
-          >
-            <option
-              v-for="(lang, i) in ['en', 'ru']"
-              :key="`Lang${i}`"
-              :value="lang"
-            >
-              {{ lang.toUpperCase() }}
-            </option>
-          </select>
-        </div>
+        <LanguageSelector />
         <Notification />
         <Profile />
       </div>

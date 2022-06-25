@@ -26,36 +26,40 @@
     </script>
 
 <template>
-  <div class="flex flex-wrap">
-    <div class="w-full text-center">
-      <div
-        ref="btnRef"
-        type="button"
-        @mouseenter="toggleTooltip()"
-        @mouseleave="toggleTooltip()"
-      >
-        <svg
-          class="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        ><path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        /></svg>
-      </div>
+  <div
+    class="flex flex-wrap"
+  >
+    <div
+      ref="btnRef"
+      type="button"
+      @mouseenter="toggleTooltip()"
+      @mouseleave="toggleTooltip()"
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      ><path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      /></svg>
+    </div>
 
-      <div
-        ref="tooltipRef"
-        :class="{'hidden': !tooltipShow, 'block': tooltipShow}"
-        class="px-2 py-0.5 block z-50 w-45 break-words rounded bg-gray-700"
-      >
-        <div>
-          <p>{{ text }}</p>
-        </div>
+    <div
+      ref="tooltipRef"
+      :class="{'hidden': !tooltipShow, 'block': tooltipShow}"
+      class="px-3 py-1 block z-50 w-auto break-words rounded bg-[#111111]"
+    >
+      <div>
+        <p
+          class="text-left font-light"
+        >
+          {{ text }}
+        </p>
       </div>
     </div>
   </div>

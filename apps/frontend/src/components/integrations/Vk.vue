@@ -73,7 +73,7 @@ async function post() {
     </div>
 
     <div>
-      <div class="label">
+      <div class="label mb-1">
         <span class="label-text">{{ t('pages.integrations.widgets.vk.id') }}</span>
       </div>
       <input

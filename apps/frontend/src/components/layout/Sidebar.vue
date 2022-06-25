@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { useTitle } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 import Commands from '@/assets/sidebar/commands.svg?url';
 import Dashboard from '@/assets/sidebar/dashboard.svg?url';
 import Events from '@/assets/sidebar/events.svg?url';
+import Folder from '@/assets/sidebar/folder.svg?url';
 import Greetings from '@/assets/sidebar/greetings.svg?url';
 import Integrations from '@/assets/sidebar/integrations.svg?url';
 import Keywords from '@/assets/sidebar/keywords.svg?url';
@@ -16,9 +17,9 @@ import Sword from '@/assets/sidebar/sword.svg?url';
 import Timers from '@/assets/sidebar/timers.svg?url';
 import Users from '@/assets/sidebar/users.svg?url';
 import Variables from '@/assets/sidebar/variables.svg?url';
-import {  userStore } from '@/stores/userStore';
 
-const router = useRouter();
+console.log(Greetings, Folder);
+
 const { t } = useI18n({
   useScope: 'global',
   inheritLocale: true,
@@ -89,6 +90,7 @@ const routes = [
   },
   {
     name: 'files',
+    icon: Folder,
     path: '/dashboard/files',
   },
   {
@@ -97,13 +99,6 @@ const routes = [
     path: '/dashboard/quotes',
   },
 ];
-
-function logOut() {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-  userStore.set(null);
-  router.push('/');
-}
 </script>
 
 <template>

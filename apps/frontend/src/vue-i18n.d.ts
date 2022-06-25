@@ -1,6 +1,6 @@
 import 'vue-i18n';
 
-import enUS from './locales/en.json';
+import enUS from './locales/gb.json';
 
 type Messages = typeof enUS
 

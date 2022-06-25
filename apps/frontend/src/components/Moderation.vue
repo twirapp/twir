@@ -71,16 +71,16 @@ const settings = toRef(props, 'settings', {
           </button>-->
       </div>
     </div>
-    <div class="mt-3">
-      <label
-        :for="'timeoutMessage' + settings.type"
-        class="form-label inline-block mb-2"
-      >{{ t('pages.moderation.timeout.title') }}</label>
-      <input
-        :id="'timeoutMessage' + settings.type"
-        v-model="settings.banMessage"
-        type="text"
-        class="
+ 
+    <label
+      :for="'timeoutMessage' + settings.type"
+      class="form-label inline-block mb-1"
+    >{{ t('pages.moderation.timeout.title') }}</label>
+    <input
+      :id="'timeoutMessage' + settings.type"
+      v-model="settings.banMessage"
+      type="text"
+      class="
             form-control
             block
             w-full
@@ -97,13 +97,14 @@ const settings = toRef(props, 'settings', {
             m-0
             focus:outline-none
           "
-        :placeholder="t('pages.moderation.timeout.placeholder')"
-      >
-    </div>
-    <div class="mt-3">
+      :placeholder="t('pages.moderation.timeout.placeholder')"
+    >
+ 
+ 
+    <div class="mt-5">
       <label
         :for="'timeoutTime' + settings.type"
-        class="form-label inline-block mb-2"
+        class="form-label inline-block mb-1"
       >{{ t('pages.moderation.time.title') }}</label>
       <input
         :id="'timeoutTime' + settings.type"
@@ -128,10 +129,11 @@ const settings = toRef(props, 'settings', {
           "
       >
     </div>
-    <div class="mt-3">
+
+    <div class="mt-5">
       <label
         :for="'warningMessage' + settings.type"
-        class="form-label inline-block mb-2"
+        class="form-label inline-block mb-1"
       >Warning message</label>
       <input
         :id="'warningMessage' + settings.type"
@@ -159,7 +161,7 @@ const settings = toRef(props, 'settings', {
     </div>
     <div
       v-if="settings.type === 'links'"
-      class="mt-3"
+      class="mt-5"
     >
       <div class="form-check flex justify-between">
         <label
@@ -180,7 +182,7 @@ const settings = toRef(props, 'settings', {
     </div>
     <div
       v-if="settings.type === 'blacklists'"
-      class="mt-3"
+      class="mt-5"
     >
       <span class="label flex items-center">  
         <span>{{ t('pages.moderation.blacklist') }}</span>
@@ -190,7 +192,7 @@ const settings = toRef(props, 'settings', {
         ><Add /></span>
       </span>
   
-      <div class="input-group pt-1 pr-2 grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 xl:grid-cols-3 gap-2 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+      <div class="mt-1 input-group pt-1 pr-2 grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 xl:grid-cols-3 gap-2 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
         <div
           v-for="word, wordIndex in settings.blackListSentences"
           :key="wordIndex"
@@ -212,11 +214,11 @@ const settings = toRef(props, 'settings', {
     </div>
     <div
       v-if="settings.type === 'symbols'"
-      class="mt-3"
+      class="mt-5"
     >
       <label
         :for="'maxSymbols' + settings.type"
-        class="form-label inline-block mb-2"
+        class="form-label inline-block mb-1"
       >{{ t('pages.moderation.symbols') }}</label>
       <input
         :id="'maxSymbols' + settings.type"
@@ -244,11 +246,11 @@ const settings = toRef(props, 'settings', {
     </div>
     <div
       v-if="settings.type === 'longMessage'"
-      class="mt-3"
+      class="mt-5"
     >
       <label
         :for="'longMessage' + settings.type"
-        class="form-label inline-block mb-2"
+        class="form-label inline-block mb-1"
       >{{ t('pages.moderation.lnght') }}</label>
       <input
         :id="'longMessage' + settings.type"
@@ -276,11 +278,11 @@ const settings = toRef(props, 'settings', {
     </div>
     <div
       v-if="settings.type === 'caps'"
-      class="mt-3"
+      class="mt-5"
     >
       <label
         :for="'maxCaps' + settings.type"
-        class="form-label inline-block mb-2"
+        class="form-label inline-block mb-1"
       >{{ t('pages.moderation.caps') }}</label>
       <input
         :id="'maxCaps' + settings.type"
@@ -308,11 +310,11 @@ const settings = toRef(props, 'settings', {
     </div>
     <div
       v-if="settings.type === 'emotes'"
-      class="mt-3"
+      class="mt-5"
     >
       <label
         :for="'maxEmotes' + settings.type"
-        class="form-label inline-block mb-2"
+        class="form-label inline-block mb-1"
       >{{ t('pages.moderation.emotes') }}</label>
       <input
         :id="'maxEmotes' + settings.type"
