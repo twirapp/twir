@@ -120,6 +120,8 @@ async function saveCommand() {
   const index = commands.value.indexOf(command.value);
   let data: CommandType;
 
+  command.value.responses = command.value.responses.filter(r => r.text);
+
   if (command.value.id) {
     const request = await api.put(
       `/v1/channels/${selectedDashboard.value.channelId}/commands/${command.value.id}`,

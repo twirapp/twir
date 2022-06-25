@@ -110,7 +110,7 @@ export class CommandsService {
         channelId: userId,
         responses: {
           createMany: {
-            data: data.responses.map((r) => ({ text: r.text?.trim().replace(/(\r\n|\n|\r)/, '') })),
+            data: data.responses.filter(r => r.text).map((r) => ({ text: r.text?.trim().replace(/(\r\n|\n|\r)/, '') })),
           },
         },
       },
@@ -164,7 +164,7 @@ export class CommandsService {
       throw new HttpException(`You should add atleast 1 response to command.`, 400);
     }
 
-    data.responses = data.responses?.map(r => ({ ...r, text: r.text ? r.text.trim().replace(/(\r\n|\n|\r)/, '') : null }));
+    data.responses = data.responses?.filter(r => r.text).map(r => ({ ...r, text: r.text ? r.text.trim().replace(/(\r\n|\n|\r)/, '') : null }));
 
     const responsesForUpdate = data.responses
       .filter(r => command.responses.some(c => c.id === r.id && r.text && r.id))
