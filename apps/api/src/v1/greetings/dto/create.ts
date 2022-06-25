@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class GreetingCreateDto {
   @IsString()
@@ -7,6 +7,7 @@ export class GreetingCreateDto {
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(400)
   text: string;
 
   @IsBoolean()

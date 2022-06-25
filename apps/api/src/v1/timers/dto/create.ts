@@ -1,8 +1,9 @@
-import { ArrayNotEmpty, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 
 export class CreateTimerDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(510)
   name: string;
 
   @IsBoolean()
@@ -11,14 +12,16 @@ export class CreateTimerDto {
 
   @IsNumber()
   @Min(5)
+  @Max(84000)
   @IsNotEmpty()
   timeInterval: number;
 
   @IsNumber()
   @IsNotEmpty()
+  @Max(10000)
   messageInterval: number;
 
-  @IsArray({})
+  @IsArray()
   @ArrayNotEmpty()
   @IsString({ each: true })
   @IsNotEmpty({ each: true })

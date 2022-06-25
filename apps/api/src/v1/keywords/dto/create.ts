@@ -1,13 +1,15 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 
 
 export class CreateKeywordDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(100)
   text: string;
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(400)
   response: string;
 
   @IsBoolean()
@@ -16,6 +18,7 @@ export class CreateKeywordDto {
 
   @IsNumber()
   @Min(5)
+  @Max(84000)
   @IsOptional()
   cooldown?: number;
 }
