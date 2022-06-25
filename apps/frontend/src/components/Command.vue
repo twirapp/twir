@@ -119,19 +119,23 @@ async function saveCommand() {
   const index = commands.value.indexOf(command.value);
   let data: CommandType;
 
-  command.value.responses = command.value.responses.filter(r => r.text);
-
   if (command.value.id) {
     const request = await api.put(
       `/v1/channels/${selectedDashboard.value.channelId}/commands/${command.value.id}`,
-      command.value,
+      {
+        ...command.value,
+        responses: command.value.responses.filter(r => r.text),
+      },
     );  
     data = request.data;
     toast.success('Command updated');
   } else {
     const request = await api.post(
       `/v1/channels/${selectedDashboard.value.channelId}/commands`, 
-      command.value,
+      {
+        ...command.value,
+        responses: command.value.responses.filter(r => r.text),
+      },
     );
     data = request.data;
     toast.success('Command created');
