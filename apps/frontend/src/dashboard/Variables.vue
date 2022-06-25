@@ -37,6 +37,7 @@ function insert() {
     type: 'SCRIPT',
     evalValue: '',
     response: null,
+    edit: true,
   });
 }
 

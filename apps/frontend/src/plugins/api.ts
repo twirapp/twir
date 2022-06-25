@@ -44,7 +44,7 @@ api.interceptors.response.use(
       }
       const data = response.data as any;
       if (data?.message) {
-        toast.error(data.message);
+        toast.error(Array.isArray(data.message) ? data.message.join(', ') : data.message);
 
         return Promise.reject(error);
       }

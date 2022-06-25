@@ -3,6 +3,7 @@ import { IsIn, IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-valida
 
 export class CreateVariableDto implements Partial<CustomVar> {
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsString()
@@ -13,8 +14,8 @@ export class CreateVariableDto implements Partial<CustomVar> {
   type: CustomVarType;
 
   @ValidateIf((o: CreateVariableDto) => o.type === CustomVarType.SCRIPT)
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'Script should be string.' })
+  @IsNotEmpty({ message: 'Script should not be empty.' })
   evalValue?: string | null;
 
   @ValidateIf((o: CreateVariableDto) => o.type === CustomVarType.TEXT)
