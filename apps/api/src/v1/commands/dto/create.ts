@@ -1,5 +1,5 @@
 import { CommandPermission, Response, CooldownType } from '@tsuwari/prisma';
-import { IsArray, IsBoolean, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsBoolean, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 import type { SetOptional } from 'type-fest';
 
 export class UpdateOrCreateCommandDto {
@@ -37,6 +37,7 @@ export class UpdateOrCreateCommandDto {
   enabled?: boolean;
 
   @IsArray()
-  @IsOptional()
+  @ArrayNotEmpty()
+  @MaxLength(400, { each: true })
   responses: Array<SetOptional<Omit<Response, 'commandId'>, 'id'>>;
 }
