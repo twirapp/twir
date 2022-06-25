@@ -1,10 +1,10 @@
 <script lang="ts" setup>import { useStore } from '@nanostores/vue';
 import { useI18n } from 'vue-i18n';
 
-import { api } from '@/plugins/api.js';
-import { router } from '@/plugins/router.js';
+import { api } from '@/plugins/api';
+import { router } from '@/plugins/router';
 import { selectedDashboardStore, userStore, setSelectedDashboard } from '@/stores/userStore';
-import { setUser } from '@/stores/userStore.js';
+import { setUser } from '@/stores/userStore';
 
 const user = useStore(userStore);
 const selectedDashboard = useStore(selectedDashboardStore);

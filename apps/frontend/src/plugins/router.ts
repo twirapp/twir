@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import { fetchAndSetUser } from '@/functions/fetchAndSetUser.js';
+import { fetchAndSetUser } from '@/functions/fetchAndSetUser';
 import { userStore } from '@/stores/userStore';
 
 export const router = createRouter({
@@ -73,7 +73,7 @@ export const router = createRouter({
     {
       path: '/dashboard/quotes',
       component: () => import('../components/Soon.vue'),
-    }, 
+    },
     { path: '/:pathMatch(.*)*', component: () => import('../pages/NotFound.vue') },
   ],
   history: createWebHistory(),

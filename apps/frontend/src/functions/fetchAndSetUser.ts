@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { redirectToLogin } from './redirectToLogin.js';
+import { redirectToLogin } from './redirectToLogin';
 
 import { api } from '@/plugins/api';
 import { setUser, User } from '@/stores/userStore';

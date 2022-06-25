@@ -2,8 +2,8 @@ import type { ClientToServerEvents, EventParams, ServerToClientEvents } from '@t
 import jwtDecode from 'jwt-decode';
 import { io, Socket } from 'socket.io-client';
 
-import { refreshAccessToken } from '../functions/refreshAccessToken.js';
-import { selectedDashboardStore } from '../stores/userStore.js';
+import { refreshAccessToken } from '../functions/refreshAccessToken';
+import { selectedDashboardStore } from '../stores/userStore';
 
 const protocol = window.location.protocol.includes('https') ? 'wss' : 'ws';
 const url = import.meta.env.DEV ? 'http://localhost:3002' : `${protocol}://${window.location.host}`;
