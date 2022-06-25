@@ -1,9 +1,10 @@
 
 import { Type } from 'class-transformer';
-import { IsBoolean, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 class Data {
   @IsString()
+  @IsNotEmpty()
   username: string;
 
   @IsString()

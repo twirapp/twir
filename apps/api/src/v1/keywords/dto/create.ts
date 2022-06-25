@@ -1,11 +1,13 @@
-import { IsBoolean, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 
 export class CreateKeywordDto {
   @IsString()
+  @IsNotEmpty()
   text: string;
 
   @IsString()
+  @IsNotEmpty()
   response: string;
 
   @IsBoolean()
