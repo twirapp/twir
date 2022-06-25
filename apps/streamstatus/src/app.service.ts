@@ -48,7 +48,7 @@ export class AppService {
   }
 
   async handleOffline(e: ClientProxyEvents['streams.offline']['input']) {
-    this.redis.del(`stream:${e.channelId}`);
+    this.redis.del(`streams:${e.channelId}`);
   }
 
   async cacheStream(stream: HelixStreamData, cachedStream?: string | null) {
