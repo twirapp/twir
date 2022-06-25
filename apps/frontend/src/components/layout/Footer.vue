@@ -6,7 +6,8 @@
         class="inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-[#202122] focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
       >@tsuwari</a>
       <a
-        href="/"
+        href="https://satont.dev"
+        target="_blank"
         class="inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-[#202122] focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
       >@satont</a>
     </div>
