@@ -14,12 +14,12 @@ export class CreateVariableDto implements Partial<CustomVar> {
   type: CustomVarType;
 
   @ValidateIf((o: CreateVariableDto) => o.type === CustomVarType.SCRIPT)
-  @IsString({ message: 'Script should be string.' })
-  @IsNotEmpty({ message: 'Script should not be empty.' })
+  @IsString({ message: 'script should be string.' })
+  @IsNotEmpty({ message: 'script should not be empty.' })
   evalValue?: string | null;
 
   @ValidateIf((o: CreateVariableDto) => o.type === CustomVarType.TEXT)
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'text should be not empty.' })
   response?: string | null;
 }
