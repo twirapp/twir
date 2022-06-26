@@ -66,11 +66,11 @@ export class GreetingsService {
       },
     });
 
-    if (!currentGreeting) throw new Error(`Greeting with id ${greetingId} not found.`);
+    if (!currentGreeting) throw new HttpException(`Greeting with id ${greetingId} not found.`, 404);
 
     const user = await staticApi.users.getUserByName(data.username);
 
-    if (!user) throw new Error(`User ${data.username} not found on twitch`);
+    if (!user) throw new HttpException(`User ${data.username} not found on twitch`, 404);
 
     const greeting = await this.prisma.greeting.update({
       where: {
@@ -98,7 +98,7 @@ export class GreetingsService {
     const greeting = await this.prisma.greeting.findFirst({ where: { channelId: userId, id: greetingId } });
 
     if (!greeting) {
-      throw new Error('Greeting not exists');
+      throw new HttpException('Greeting not exists', 404);
     }
 
     const result = await this.prisma.greeting.delete({

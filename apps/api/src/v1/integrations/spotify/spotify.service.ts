@@ -44,7 +44,7 @@ export class SpotifyService {
       },
     });
 
-    if (!request.ok) throw new Error(`Cannot get tokens`);
+    if (!request.ok) throw new HttpException(`Cannot get tokens`, 404);
 
     const response = await request.json() as {
       'access_token': string,

@@ -108,7 +108,7 @@ export class AuthService {
     ]);
     const user = neededUsers.find(u => u.id === userPayload.id);
 
-    if (!user || !dbUser) throw new Error('User not found');
+    if (!user || !dbUser) throw new HttpException('User not found', 404);
 
     return {
       ...getRawData(user),

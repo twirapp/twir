@@ -127,11 +127,11 @@ export class CommandsService {
     const command = await this.prisma.command.findFirst({ where: { channelId: userId, id: commandId } });
 
     if (!command) {
-      throw new Error('Command not exists');
+      throw new HttpException('Command not exists', 404);
     }
 
     if (command.default) {
-      throw new Error('You cannot delete default command.');
+      throw new HttpException('You cannot delete default command.', 400);
     }
 
     const result = await this.prisma.command.delete({
@@ -157,7 +157,7 @@ export class CommandsService {
     });
 
     if (!command) {
-      throw new Error('Command not exists');
+      throw new HttpException('Command not exists', 404);
     }
 
     if (!command.responses?.length && !command.default) {
