@@ -59,7 +59,7 @@ export class TimersService {
       },
     });
 
-    if (!isExists) throw new HttpException(`Timer with id ${timerId} not exists`б 404);
+    if (!isExists) throw new HttpException(`Timer with id ${timerId} not exists`, 404);
 
     const timer = await this.prisma.timer.delete({
       where: {
@@ -80,7 +80,7 @@ export class TimersService {
       },
     });
 
-    if (!isExists) throw new HttpException(`Timer with id ${timerId} not exists`б 404);
+    if (!isExists) throw new HttpException(`Timer with id ${timerId} not exists`, 404);
 
     const updated = await this.prisma.timer.update({
       where: {

@@ -1,6 +1,5 @@
 import { config } from '@tsuwari/config';
 import { Timer } from '@tsuwari/prisma';
-import { ApiClient } from '@twurple/api';
 import { Worker, Queue, QueueScheduler } from 'bullmq';
 import Redis from 'ioredis';
 
