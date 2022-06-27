@@ -74,11 +74,26 @@ export const router = createRouter({
       path: '/dashboard/quotes',
       component: () => import('../components/Soon.vue'),
     },
-    { path: '/:pathMatch(.*)*', component: () => import('../pages/NotFound.vue') },
+    {
+      path: '/admin',
+      component: () => import('../admin/Main.vue'),
+    },
+    { name: '404', path: '/:pathMatch(.*)*', component: () => import('../pages/NotFound.vue') },
   ],
   history: createWebHistory(),
 });
 
+router.beforeResolve(async (to, _from, next) => {
+  if (to.fullPath.startsWith('/admin')) {
+    const user = userStore.get() || await fetchAndSetUser().then(() => userStore.get());
+
+    if (user?.isBotAdmin) {
+      return next();
+    } else return router.push({ name: '404', params: { pagePath: to.fullPath } });
+  } else {
+    return next();
+  }
+});
 
 router.beforeEach(async (to, _from, next) => {
   if (to.path === '/') {
@@ -92,9 +107,7 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   if (to.path.startsWith('/dashboard')) {
-    let user = userStore.get();
-    if (!user) await fetchAndSetUser();
-    user = userStore.get();
+    userStore.get() || await fetchAndSetUser().then(() => userStore.get());
 
 
     next();

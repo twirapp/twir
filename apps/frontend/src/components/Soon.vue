@@ -5,11 +5,12 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   button: true,
-});</script>
+});
+</script>
 
 <template>
   <div class="flex h-full select-none">
-    <div class="m-auto text-center space-y-2">
+    <div class="m-auto space-y-2 text-center">
       <h1 class="font-bold text-6xl">
         Oops!
       </h1>
@@ -21,11 +22,11 @@ const props = withDefaults(defineProps<Props>(), {
 
       <button
         v-if="props.button"
-        class="inline-block px-10 py-2.5 bg-[#9146FF] text-white text-lg leading-tight uppercase rounded shadow hover:bg-[#772CE8]  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+        class="bg-[#9146FF] duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-[#772CE8] inline-block leading-tight px-10 py-2.5 rounded shadow text-lg text-white transition uppercase"
         @click="$router.go(-1)"
       >
         <svg
-          class="w-6 h-6"
+          class="h-6 w-6"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

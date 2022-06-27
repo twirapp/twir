@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { Channel, PrismaService, Token, User } from '@tsuwari/prisma';
-import { ClientProxy } from '@tsuwari/shared';
+import { ClientProxy, AuthUser } from '@tsuwari/shared';
 import { AccessToken } from '@twurple/auth';
 import { getRawData } from '@twurple/common';
 
@@ -110,7 +110,7 @@ export class AuthService {
 
     if (!user || !dbUser) throw new HttpException('User not found', 404);
 
-    return {
+    const result: AuthUser = {
       ...getRawData(user),
       isTester: dbUser.isTester,
       dashboards: dashboards.map(d => {
@@ -120,7 +120,14 @@ export class AuthService {
           ...d,
           twitch: getRawData(twitchUser),
         };
-      }),
+      }).filter(Boolean) as AuthUser['dashboards'],
     };
+
+
+    if (dbUser.isBotAdmin) {
+      result.isBotAdmin = dbUser.isBotAdmin;
+    }
+
+    return result;
   }
 }

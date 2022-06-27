@@ -24,7 +24,8 @@ model User {
 
   DashboardAccess DashboardAccess[]
 
-  isTester Boolean @default(false)
+  isTester   Boolean @default(false)
+  isBotAdmin Boolean @default(false)
 
   Permit Permit[]
   @@map("users")

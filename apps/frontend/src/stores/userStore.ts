@@ -1,23 +1,16 @@
 import { persistentAtom } from '@nanostores/persistent';
-import { DashboardAccess } from '@tsuwari/prisma';
-import { HelixUser } from '@twurple/api';
-import { rawDataSymbol } from '@twurple/common';
+import { AuthUser } from '@tsuwari/shared';
 import { atom } from 'nanostores';
 
-type Dashboard = DashboardAccess & { twitch: HelixUser[typeof rawDataSymbol] }
+type Dashboard = AuthUser['dashboards'][0]
 
-export type User = HelixUser[typeof rawDataSymbol] & {
-  dashboards: Array<Dashboard>
-  isTester: boolean,
-}
-
-export const userStore = atom<User | null | undefined>(null);
+export const userStore = atom<AuthUser | null | undefined>(null);
 export const selectedDashboardStore = persistentAtom<Dashboard>('selectedDashboard', null as any, {
   encode: JSON.stringify,
   decode: JSON.parse,
 });
 
-export function setUser(data: User | null) {
+export function setUser(data: AuthUser | null) {
   if (data?.id) {
     const dashboard = { id: '0', channelId: data.id, userId: data.id, twitch: { ...data, dashboards: undefined } };
     data.dashboards?.push(dashboard);

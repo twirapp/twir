@@ -9,11 +9,11 @@ import Sidebar from './Sidebar.vue';
     <div class="flex h-screen text-white">
       <Sidebar />
 
-      <div class="main flex flex-col flex-grow">
+      <div class="flex flex-col flex-grow main">
         <NavBar />
 
         <div
-          class="flex max-h-screen flex-col flex-grow overflow-y-auto"
+          class="flex flex-col flex-grow max-h-screen overflow-y-auto"
         >
           <slot />
         </div>

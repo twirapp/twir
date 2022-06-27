@@ -3,6 +3,7 @@ import { useTitle } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 
+import AdminMain from '@/admin/Main.vue';
 import Commands from '@/assets/sidebar/commands.svg?url';
 import Dashboard from '@/assets/sidebar/dashboard.svg?url';
 import Events from '@/assets/sidebar/events.svg?url';
@@ -18,16 +19,15 @@ import Timers from '@/assets/sidebar/timers.svg?url';
 import Users from '@/assets/sidebar/users.svg?url';
 import Variables from '@/assets/sidebar/variables.svg?url';
 
-console.log(Greetings, Folder);
 
+const currentRoute = useRoute();
 const { t } = useI18n({
   useScope: 'global',
   inheritLocale: true,
 });
 const title = useTitle();
 
-const currentRoute = useRoute();
-const routes = [
+const publicRoutes = [
   {
     name: 'dashboard',
     icon: Dashboard,
@@ -99,15 +99,23 @@ const routes = [
     path: '/dashboard/quotes',
   },
 ];
+
+const adminRoutes = [
+  {
+    name: 'admin',
+    icon: Dashboard,
+    path: '/admin',
+  },
+];
 </script>
 
 <template>
-  <aside class="select-none w-54 hidden sm:block shadow min-w-max border-r border-stone-700 h-screen scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
-    <div class="sidebar-header flex items-center justify-center py-1">
+  <aside class="border-r border-stone-700 h-screen hidden min-w-max overflow-auto scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 select-none shadow sm:block w-54">
+    <div class="flex items-center justify-center py-1 sidebar-header">
       <div>
         <router-link
           to="/"
-          class="mt-5 font-bold inline-flex flex-row items-center text-xl"
+          class="flex-row font-bold inline-flex items-center mt-5 text-xl"
         >
           <svg
             width="30"
@@ -127,14 +135,14 @@ const routes = [
       </div>
     </div>
 
-    <ul class="relative px-1 mt-3">
+    <ul class="mt-3 px-1 relative">
       <li
-        v-for="(route, index) in routes"
+        v-for="(route, index) in currentRoute.fullPath.includes('/admin') ? adminRoutes : publicRoutes"
         :key="index"
       >
         <RouterLink
           :to="route.path"
-          class="flex items-center mt-1 text-sm py-4 px-6 h-12 overflow-hidden text-white text-ellipsis whitespace-nowrap hover:bg-[#202122] rounded border-slate-300 transition duration-300 ease-in-out ripple-surface-primary"
+          class="border-slate-300 duration-300 ease-in-out flex h-12 hover:bg-[#202122] items-center mt-1 overflow-hidden px-6 py-4 ripple-surface-primary rounded text-ellipsis text-sm text-white transition whitespace-nowrap"
           :class="{
             'bg-neutral-700': currentRoute.path === route.path,
           }"
@@ -142,7 +150,7 @@ const routes = [
         >
           <span
             v-if="route.icon"
-            class="w-3 h-3 mr-3"
+            class="h-3 mr-3 w-3"
           >
             <img :src="route.icon">
           </span>
