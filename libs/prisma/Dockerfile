@@ -20,4 +20,4 @@ RUN pnpm install
 COPY libs/prisma libs/prisma
 
 ENTRYPOINT ["doppler", "run", "--"]
-CMD ["pnpm", "migrate:deploy"]
+CMD ["pnpm", "deploy"]
