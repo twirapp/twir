@@ -1,69 +1,124 @@
 <script lang="ts" setup>
-import Soon from '@/components/Soon.vue';
+ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
+import { useStore } from '@nanostores/vue';
+import { Notification, ViewedNotification } from '@tsuwari/prisma';
+import { vElementVisibility  } from '@vueuse/components';
+import { useAxios } from '@vueuse/integrations/useAxios';
+import { computed, ComputedRef, Ref, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+import Bell from '@/assets/icons/bell.svg?component';
+import Mark from '@/assets/icons/check.svg?component';
+import { api } from '@/plugins/api';
+import { selectedDashboardStore } from '@/stores/userStore';
+
+const selectedDashboard = useStore(selectedDashboardStore);
+
+const { execute: executeNew, data: newNotificationsData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/notifications/new`, api, { immediate: false });
+const { execute: executeViewed, data: viewedNotificationsData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/notifications/viewed`, api, { immediate: false });
+
+type Viewed = ViewedNotification & { notification: Notification }
+
+const newNotifications = ref<Notification[]>([]);
+const viewedNotifications = ref<Viewed[]>([]);
+const showNew = ref(true);
+const { t } = useI18n();
+
+const notifications: ComputedRef<Ref<Notification[]> | Ref<Viewed[]>> = computed(() => {
+  return showNew.value ? newNotifications : viewedNotifications;
+});
+
+function onNotificationVisibility(id: string, state: boolean) {
+  console.log(id, state);
+}
+
+async function markNotificationAsReaded(notification: Notification) {
+  await api.post(`v1/channels/${selectedDashboard.value.channelId}/notifications/viewed`, {
+    notificationId: notification.id,
+  });
+
+  newNotifications.value = newNotifications.value.filter(v => v.id !== notification.id);
+  executeViewed(`/v1/channels/${selectedDashboard.value.channelId}/notifications/viewed`);
+}
+
+watch(newNotificationsData, (v: any[]) => {
+  newNotifications.value = v;
+});
+
+watch(viewedNotificationsData, (v) => {
+  viewedNotifications.value = v;
+});
+
+selectedDashboardStore.subscribe(async (v) => {
+  executeNew(`/v1/channels/${v.channelId}/notifications/new`);
+  executeViewed(`/v1/channels/${v.channelId}/notifications/viewed`);
+});
 </script>
 
 <template>
-  <div class="inline-flex items-center relative w-fit dropdown">
-    <div class="select-none absolute inline-block top-0 right-0 bottom-auto left-auto translate-x-2/4 -translate-y-1/2 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 py-0.5 px-1.5 text-xs leading-none text-center whitespace-nowrap align-baseline font-bold bg-[#772CE8] text-white rounded z-10">
-      0
-    </div>
-    <button
-      id="alertDropdown"
-      data-bs-toggle="dropdown"
-      aria-expanded="false"
-      class="hover:text-slate-300"
-    >
-      <svg
-        class="w-6 h-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      ><path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-      /></svg>
-    </button>
-    <ul
-      class="
-              space-y-0.5
-          dropdown-menu
-          w-96
-         scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-600 scrollbar-track-gray-500
-          max-h-[55vh]
-          absolute
-          hidden
-          bg-[#202020]
-          text-base
-          z-50
-          float-left
-          py-2
-          text-left
-          rounded
-          mt-1
-          m-0
-          bg-clip-padding
-          border-none
-        "
-      aria-labelledby="alertDropdown"
-    >
-      <Soon :button="false" />
-      <!--  <li>
-        <p
-          class="    
-              text-sm
-              py-2
-              px-2
-              font-normal
-              w-full
-              hover:bg-[#393636]
-            "
+  <div class="block inline-flex items-center relative">
+    <Popover>
+      <div
+        v-if="newNotifications.length"
+        class="-translate-y-1/2 0 absolute align-baseline bg-[#772CE8] bottom-auto font-bold inline-block leading-none left-auto px-1.5 py-0.5 rotate-0 rounded scale-x-100 scale-y-100 select-none skew-x-0 skew-y-0 text-center text-white text-xs translate-x-2/4 whitespace-nowrap z-10"
+      >
+        {{ newNotifications.length }}
+      </div>
+      <PopoverButton
+        class="hover:text-slate-300"
+      >
+        <Bell class="inline" />
+      </PopoverButton>
+      
+      <div
+        class="-translate-x-3/4 absolute float-left mt-3 w-96 z-10"
+      >
+        <PopoverPanel
+          class="bg-[#202020] max-h-[55vh] overflow-auto scrollbar scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-500 sm:px-0 z-10"
         >
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque, facere. Quia obcaecati, veniam voluptatem minima iste deserunt excepturi odio asperiores tenetur ipsum iure nemo officiis, corporis quam ea odit nesciunt?
-        </p>
-      </li> -->
-    </ul>
+          <div
+            class="flex items-center justify-between mt-1 px-2 space-y-1"
+          >
+            <div>Notifications center</div>
+            <div>
+              <button
+                type="button"
+                class="bg-[#522f87] duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-[#772CE8] inline-block leading-tight px-1 py-1 rounded shadow text-white text-xs transition uppercase"
+                @click="showNew = !showNew"
+              >
+                {{ t(showNew ? `navbar.notifications.showOld` : `navbar.notifications.showNew`) }}
+              </button>
+            </div>
+          </div>
+          <div
+            v-if="!notifications.value?.length"
+            class="mb-3 mt-3 text-center"
+          >
+            {{ t('navbar.notifications.noUnreadNotifications') }}
+          </div>
+          <!-- v-element-visibility="[(state) => onNotificationVisibility(notification.text, state)]" -->
+          <div
+            v-for="notification of notifications.value"
+            v-else
+            :key="notification.id"
+            class="block font-normal hover:bg-[#393636] mt-1 px-2 py-2 text-sm w-full"
+          >
+            {{ ('text' in notification) ? notification.text : notification.notification.text }}
+            <div
+              v-if="('text' in notification)"
+              class="flex flex-col md:flex-row md:justify-end md:space-x-1 md:space-y-0 md:text-right mt-1 pr-2 space-y-1"
+            >
+              <button
+                type="button"
+                class="duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-[#772CE8] inline-block leading-tight px-1 py-1 rounded shadow text-white text-xs transition uppercase"
+                @click="markNotificationAsReaded(notification)"
+              >
+                <Mark style="width: 16px; height: 16px;" />
+              </button>
+            </div>
+          </div>
+        </PopoverPanel>
+      </div>
+    </Popover>
   </div>
 </template>

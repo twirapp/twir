@@ -22,12 +22,14 @@ model User {
   token         Token?         @relation(fields: [tokenId], references: [id])
   tokenId       String?        @unique
 
-  DashboardAccess DashboardAccess[]
 
   isTester   Boolean @default(false)
   isBotAdmin Boolean @default(false)
 
-  Permit Permit[]
+  dashboardAccess       DashboardAccess[]
+  permits               Permit[]
+  personalNotifications Notification[]
+  viewedNotifications   ViewedNotification[]
   @@map("users")
 }
 
@@ -338,4 +340,31 @@ model CustomVar {
   channel Channel @relation(fields: [channelId], references: [id])
 
   @@map("channels_customvars")
+}
+
+model Notification {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  title     String?
+  text      String
+  imageSrc  String?
+  createdAt DateTime @default(now())
+  userId    String?
+
+  user                User?                @relation(fields: [userId], references: [id])
+  viewedNotifications ViewedNotification[]
+  @@map("notifications")
+}
+
+model ViewedNotification {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  userId         String
+  notificationId String
+
+  createdAt DateTime @default(now())
+
+  notification Notification @relation(fields: [notificationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+  @@map("users_viewed_notifications")
 }

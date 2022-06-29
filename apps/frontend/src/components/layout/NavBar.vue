@@ -39,21 +39,18 @@ useIntervalFn(() => {
 </script>
 
 <template>
-  <nav class="relative w-full flex flex-wrap items-center justify-between py-3 text-white shadow border-b border-stone-700">
-    <div class="w-full flex flex-wrap items-center justify-between px-6">
+  <nav class="border-b border-stone-700 flex flex-wrap items-center justify-between py-3 relative shadow text-white w-full">
+    <div class="flex flex-wrap items-center justify-between px-6 w-full">
       <div
         v-if="stream"
         class="flex space-x-2"
       >
         <p>Viewers: <span class="font-bold">{{ stream.viewer_count }}</span></p>
-        <p class="hidden md:block">
+        <p class="hidden lg:block">
           Category: <span class="font-bold">{{ stream.game_name }}</span>
         </p>
-        <p class="hidden lg:block">
+        <p class="hidden md:block">
           Title: <span class="font-bold">{{ stream.title.length >= 20 ? stream.title.slice(0, 20) + "..." : stream.title }}</span>
-        </p>
-        <p class="hidden xl:block">
-          Uptime: <span class="font-bold">{{ uptime }}</span>
         </p>
       </div>
       <div
@@ -63,8 +60,10 @@ useIntervalFn(() => {
         Stream Offline
       </div>
 
-      <div class="flex space-x-5">
+      
+      <div class="flex flex-row space-x-3.5">
         <LanguageSelector />
+      
         <Notification />
         <Profile />
       </div>

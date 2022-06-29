@@ -1,13 +1,14 @@
 <script lang="ts" setup>import { useStore } from '@nanostores/vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 
 import { api } from '@/plugins/api';
-import { router } from '@/plugins/router';
 import { selectedDashboardStore, userStore, setSelectedDashboard } from '@/stores/userStore';
 import { setUser } from '@/stores/userStore';
 
 const user = useStore(userStore);
 const selectedDashboard = useStore(selectedDashboardStore);
+const router = useRouter();
 
 async function logOut() {
   await api.post('/auth/logout');
@@ -32,15 +33,14 @@ const { t } = useI18n({
           type="button"
           data-bs-toggle="dropdown"
           aria-expanded="false"
-          class="hover:opacity-80 absolute inline-block top-auto right-0 bottom-0 left-auto translate-x-1/4 translate-y-1/3 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 p-1.5 text-xs rounded-full z-10"
+          class="absolute bottom-0 hover:opacity-80 inline-block left-auto p-1.5 right-0 rotate-0 rounded-full scale-x-100 scale-y-100 skew-x-0 skew-y-0 text-xs top-auto translate-x-1/4 translate-y-1/3 z-10"
         >
           <img
             v-if="selectedDashboard.channelId !== user?.id"
 
             :src="user?.profile_image_url"
-            class="
-          rounded-full
-          hover:cursor-pointer"
+            class="hover:cursor-pointer
+          rounded-full"
           
             alt="Avatar"
           > 
@@ -51,81 +51,100 @@ const { t } = useI18n({
           data-bs-toggle="dropdown"
           aria-expanded="false"
           :src="selectedDashboard?.twitch?.profile_image_url ?? user?.profile_image_url"
-          class="
+          class="hover:cursor-pointer
+          hover:opacity-60
           rounded-full
-          hover:opacity-60 
-          w-9
-          hover:cursor-pointer"
-          
+          w-9"
           alt="Avatar"
         > 
 
 
         <div
-          class="
-          dropdown-menu
-          min-w-max
-          absolute
-          w-64
-          px-2
+          class="absolute
           bg-[#202020]
-          text-base
-          z-50
-          float-left
-          py-2
-          list-none
-          text-left
-          rounded
-          mt-1
-          hidden
-          m-0
           bg-clip-padding
           border-none
-        "
+          dropdown-menu
+          float-left
+          hidden
+          list-none
+          m-0
+          min-w-max
+          mt-1
+          px-2
+          py-2
+          rounded
+          text-base
+          text-left
+          w-64
+          z-50"
           aria-labelledby="profileMenu"
         >
-          <div class="my-2 space-y-0.5 max-h-[55vh] overflow-y-auto scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-600 scrollbar-track-gray-500">
+          <div
+            v-if="!router.currentRoute.value.fullPath.startsWith('/admin')"
+            class="max-h-[55vh] mb-2 overflow-auto overflow-y-auto scrollbar scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-500 space-y-0.5"
+          >
             <span
               v-for="dashboard of user?.dashboards"
               :key="dashboard.channelId"
               :class="{'btn-disabled': selectedDashboard.channelId === dashboard.channelId}"
-              class="
-              text-sm
-              py-2
-              px-4
-              font-normal
+              class="bg-transparent
               block
-              w-full
-              whitespace-nowrap
-              bg-transparent
-              hover:bg-[#393636]
-              rounded
               cursor-pointer
-            "
+              font-normal
+              hover:bg-[#393636]
+              px-4
+              py-2
+              rounded
+              text-sm
+              w-full
+              whitespace-nowrap"
               @click="setSelectedDashboard(dashboard)"
             >
               <img
-                class="w-6 rounded-full inline border"
+                class="border inline rounded-full w-6"
                 :src="dashboard?.twitch?.profile_image_url ?? dashboard.twitch?.profile_image_url"
               >
               <span class="ml-4">{{ dashboard.twitch.display_name }}        
                 <span
                   v-if="selectedDashboard?.id === user?.id"
-                  class="text-xs inline-block py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-gray-200 text-gray-700 rounded"
+                  class="align-baseline bg-gray-200 font-bold inline-block leading-none px-2.5 py-1 rounded text-center text-gray-700 text-xs whitespace-nowrap"
                 >{{ t('pages.settings.widgets.dashboardAccess.thatsYou') }}</span>
               </span>
             </span>
           </div>
         
-         
-          <button
-            class="w-full inline-block px-6 py-2 bg-red-600 text-white font-medium text-sm leading-tight uppercase rounded hover:bg-red-700 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
-            @click="logOut"
-          >
-            Logout
-          </button>
+          <div class="flex flex-col space-y-1 w-full">
+            <button
+              v-if="router.currentRoute.value.fullPath.startsWith('/admin')"
+              class="switch-button"
+              @click="router.push('/dashboard')"
+            >
+              Dashboard
+            </button>
+            <button
+              v-if="!router.currentRoute.value.fullPath.startsWith('/admin') && user?.isBotAdmin"
+              class="switch-button"
+              @click="router.push('/admin')"
+            >
+              Admin
+            </button>
+            <button
+              class="bg-red-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-red-700 inline-block leading-tight px-6 py-2 rounded text-sm text-white transition uppercase"
+              @click="logOut"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.switch-button {
+  @apply bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-purple-700 inline-block leading-tight px-6 py-2 rounded text-sm text-white transition uppercase
+}
+
+</style>

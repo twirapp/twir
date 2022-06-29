@@ -194,5 +194,12 @@
   "statuses": {
     "disabled": "Выключено",
     "enabled": "Включено"
+  },
+  "navbar": {
+    "notifications": {
+      "showNew": "Показать новые",
+      "showOld": "Показать старые",
+      "noUnreadNotifications": "У вас нет непрочитанных уведомлений."
+    }
   }
 }

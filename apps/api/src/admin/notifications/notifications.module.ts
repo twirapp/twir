@@ -1,0 +1,11 @@
+import { Module } from '@nestjs/common';
+import { TwitchApiService } from '@tsuwari/shared';
+
+import { NotificationsController } from './notifications.controller.js';
+import { NotificationsService } from './notifications.service.js';
+
+@Module({
+  controllers: [NotificationsController],
+  providers: [NotificationsService, TwitchApiService],
+})
+export class NotificationsModule { }

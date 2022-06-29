@@ -8,10 +8,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/vue": "^1.6.5",
     "@nanostores/persistent": "0.5.3",
     "@nanostores/vue": "0.5.5",
     "@popperjs/core": "^2.11.5",
     "@tsuwari/api": "workspace:*",
+    "@vueuse/components": "^8.7.5",
     "@vueuse/core": "8.7.4",
     "@vueuse/integrations": "8.7.4",
     "axios": "0.27.2",

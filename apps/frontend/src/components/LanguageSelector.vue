@@ -17,9 +17,7 @@ function setLocale(v: string) {
       <div class="dropdown relative select-none">
         <div
           id="langSelector"
-          class="hover:text-slate-300         flex
-          items-center space-x-2 dropdown-toggle
-           rounded px-1 cursor-pointer"
+          class="cursor-pointer dropdown-toggle flex hover:text-slate-300 items-center rounded space-x-2"
           data-bs-toggle="dropdown"
           aria-expanded="false"
         >
@@ -27,15 +25,15 @@ function setLocale(v: string) {
             class="fi rounded-sm"
             :class="`fi-${$i18n.locale}`"
           />
-          <p>
+          <!-- <p class="hidden md:block">
             {{ $t("name", $i18n.locale) }}
-          </p>
+          </p> -->
           <svg
             aria-hidden="true"
             focusable="false"
             data-prefix="fas"
             data-icon="caret-down"
-            class="w-2 ml-2"
+            class="ml-2 w-2"
             role="img"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 320 512"
@@ -48,37 +46,39 @@ function setLocale(v: string) {
         </div>
 
         <ul
-          class="
-          dropdown-menu
-          absolute
-          hidden
-bg-[#202020]
-          text-base
-          z-50
-          float-left
-          py-1
-          list-none
-          text-left
-          rounded
-          mt-1
-          m-0
+          class="absolute
+          bg-[#202020]
           bg-clip-padding
           border-none
-          space-y-0.5
-          w-max
-          space-y-0.5
+          dropdown-menu
+          float-left
+          hidden
+          list-none
+          m-0
           max-h-[55vh]
-                   scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-600 scrollbar-track-gray-500
-        "
+          mt-1
+          mx-2
+          overflow-auto
+          py-1
+          rounded
+          scrollbar
+          scrollbar-thin
+          scrollbar-thumb-gray-600
+          scrollbar-track-gray-500
+          space-y-1
+          text-base
+          text-left
+          w-max
+          z-50"
           aria-labelledby="langSelector"
         >
           <div
             v-for="(lang) in $i18n.availableLocales"
             :key="lang"
-            class="flex px-1 hover:bg-[#393636] hover:rounded space-x-2 items-center"
+            class="flex hover:bg-[#393636] hover:rounded items-center mx-1 px-2"
             @click="setLocale(lang)"
           >
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2.5">
               <span
                 class="fi rounded-sm"
                 :class="`fi-${lang}`"

@@ -2,9 +2,11 @@ import { CacheModule, CacheModuleOptions, Module } from '@nestjs/common';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { config } from '@tsuwari/config';
 import { PrismaModule } from '@tsuwari/prisma';
+import { TwitchApiService } from '@tsuwari/shared';
 import cacheRedisStore from 'cache-manager-ioredis';
-import Redis, { RedisOptions } from 'ioredis';
+import Redis from 'ioredis';
 
+import { AdminModule } from './admin/admin.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
@@ -44,6 +46,7 @@ const redis = new class extends Redis {
     JwtAuthModule,
     V1Module,
     SocketModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [
@@ -51,6 +54,7 @@ const redis = new class extends Redis {
     RedisService,
     PrismaModule,
     AppService,
+    TwitchApiService,
   ],
 })
 export class AppModule { }

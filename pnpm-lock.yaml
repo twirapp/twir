@@ -93,8 +93,8 @@ importers:
       '@nestjs/platform-socket.io': 8.4.7_r6nuebog4bg27giimlqlqtxmem
       '@nestjs/throttler': 2.0.1_zysgbzrbqurgi5bpxpfkrj3lie
       '@nestjs/websockets': 8.4.7_aheyi6luzvgwkvcv7ramv2w3ee
-      '@sentry/node': 7.3.0
-      '@sentry/tracing': 7.3.0
+      '@sentry/node': 7.3.1
+      '@sentry/tracing': 7.3.1
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
@@ -201,8 +201,8 @@ importers:
       '@nestjs/passport': 8.2.2_ajebcnomotz225cztrmzhvaeiq
       '@nestjs/platform-express': 8.4.7_7tsmhnugyerf5okgqzer2mfqme
       '@nestjs/throttler': 2.0.1_zysgbzrbqurgi5bpxpfkrj3lie
-      '@sentry/node': 7.3.0
-      '@sentry/tracing': 7.3.0
+      '@sentry/node': 7.3.1
+      '@sentry/tracing': 7.3.1
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
@@ -212,7 +212,7 @@ importers:
       '@twurple/chat': 5.1.6_@twurple+auth@5.1.6
       '@twurple/common': 5.1.6
       axios: 0.27.2
-      bullmq: 1.86.2
+      bullmq: 1.86.4
       class-transformer: 0.5.1
       class-validator: 0.13.2
       cookie-parser: 1.4.6
@@ -292,6 +292,7 @@ importers:
 
   apps/frontend:
     specifiers:
+      '@headlessui/vue': ^1.6.5
       '@intlify/vite-plugin-vue-i18n': 3.4.0
       '@nanostores/persistent': 0.5.3
       '@nanostores/vue': 0.5.5
@@ -304,6 +305,7 @@ importers:
       '@types/node': 17.0.44
       '@types/prismjs': 1.26.0
       '@vitejs/plugin-vue': 2.3.3
+      '@vueuse/components': ^8.7.5
       '@vueuse/core': 8.7.4
       '@vueuse/integrations': 8.7.4
       autoprefixer: 10.4.7
@@ -331,10 +333,12 @@ importers:
       vue-tsc: 0.37.8
       yup: 0.32.11
     dependencies:
+      '@headlessui/vue': 1.6.5_vue@3.2.37
       '@nanostores/persistent': 0.5.3_nanostores@0.5.12
       '@nanostores/vue': 0.5.5_ympl27tda4o7w6en7idglmssei
       '@popperjs/core': 2.11.5
       '@tsuwari/api': link:../api
+      '@vueuse/components': 8.7.5_vue@3.2.37
       '@vueuse/core': 8.7.4_vue@3.2.37
       '@vueuse/integrations': 8.7.4_2m7nih6u2b7bgtgjwf6onm22be
       axios: 0.27.2
@@ -400,8 +404,8 @@ importers:
       '@nestjs/common': 8.4.7_47vcjb2de6lyibr6g4enoa5lyu
       '@nestjs/core': 8.4.7_uqox75xpi6vzmoesxch6gsx23q
       '@nestjs/microservices': 8.4.7_w3ikimstnjmv7g7t6sjfprllce
-      '@sentry/node': 7.3.0
-      '@sentry/tracing': 7.3.0
+      '@sentry/node': 7.3.1
+      '@sentry/tracing': 7.3.1
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
@@ -629,7 +633,7 @@ importers:
       '@tsuwari/config': link:../config
       pg: 8.7.3
       reflect-metadata: 0.1.13
-      typeorm: 0.3.6_pg@8.7.3
+      typeorm: 0.3.7_pg@8.7.3
     devDependencies:
       '@types/glob': 7.2.0
       glob: 8.0.3
@@ -782,7 +786,7 @@ packages:
     resolution: {integrity: sha512-pq2Z4DcqTBF7y1wQuIzFVqmHJVnmP6hgHEWN2ubPjeG7OzXMZ9NvozW+YA/MIeMdZWp1jcJ/EvXk2+mfEKoCDQ==}
     dependencies:
       '@esbuild-kit/core-utils': 2.0.2
-      get-tsconfig: 4.0.6
+      get-tsconfig: 4.1.0
     dev: true
 
   /@esbuild-kit/core-utils/1.4.0:
@@ -803,7 +807,7 @@ packages:
     resolution: {integrity: sha512-CC0H91Oa02cczLswEoiLowTzWxvnS3tIBGkQa1BnieFK7HHV4whrBFGRlUD9rMHfyyoO55IuOqNujycXX+gI8A==}
     dependencies:
       '@esbuild-kit/core-utils': 2.0.2
-      get-tsconfig: 4.0.6
+      get-tsconfig: 4.1.0
     dev: true
 
   /@eslint/eslintrc/1.3.0:
@@ -822,6 +826,15 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /@headlessui/vue/1.6.5_vue@3.2.37:
+    resolution: {integrity: sha512-C/BeTVuowTDLkGgUd6UfiPZVDLdR7OTnd8o4wF37Ub9Js1uhQ3XSTfitdZvlJALUqeQ30j+5Hk3KyjVDLQ3GYQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      vue: ^3.2.0
+    dependencies:
+      vue: 3.2.37
+    dev: false
 
   /@humanwhocodes/config-array/0.9.5:
     resolution: {integrity: sha512-ObyMyWxZiCu/yTisA7uzx81s40xR2fD5Cg/2Kq7G02ajkNubJf6BopgDTmDyc3U7sXpNKM8cYOw7s7Tyr+DnCw==}
@@ -939,20 +952,20 @@ packages:
     resolution: {integrity: sha512-Sx1pU8EM64o2BrqNpEO1CNLtKQwyhuXuqyfH7oGKCk+1a33d2r5saW8zNwm3j6BTExtjrv2BxTgzzkMwts6vGg==}
     dev: false
 
-  /@jridgewell/resolve-uri/3.0.7:
-    resolution: {integrity: sha512-8cXDaBBHOr2pQ7j77Y6Vp5VDT2sIqWyWQ56TjEq4ih/a4iST3dItRe8Q9fp0rrIl9DoKhWQtUQz/YpOxLkXbNA==}
+  /@jridgewell/resolve-uri/3.0.8:
+    resolution: {integrity: sha512-YK5G9LaddzGbcucK4c8h5tWFmMPBvRZ/uyWmN1/SbBdIvqGUdWGkJ5BAaccgs6XbzVLsqbPJrBSFwKv3kT9i7w==}
     engines: {node: '>=6.0.0'}
     dev: true
 
-  /@jridgewell/sourcemap-codec/1.4.13:
-    resolution: {integrity: sha512-GryiOJmNcWbovBxTfZSF71V/mXbgcV3MewDe3kIMCLyIh5e7SKAeUZs+rMnJ8jkMolZ/4/VsdBmMrw3l+VdZ3w==}
+  /@jridgewell/sourcemap-codec/1.4.14:
+    resolution: {integrity: sha512-XPSJHWmi394fuUuzDnGz1wiKqWfo1yXecHQMRf2l6hztTO+nPru658AyDngaBe7isIxEkRsPR3FZh+s7iVa4Uw==}
     dev: true
 
   /@jridgewell/trace-mapping/0.3.9:
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
     dependencies:
-      '@jridgewell/resolve-uri': 3.0.7
-      '@jridgewell/sourcemap-codec': 1.4.13
+      '@jridgewell/resolve-uri': 3.0.8
+      '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
   /@msgpackr-extract/msgpackr-extract-darwin-arm64/2.0.2:
@@ -1755,13 +1768,13 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /@sentry/core/7.3.0:
-    resolution: {integrity: sha512-EvuWVlYm0F0+BtIEmQiCL31Fw0cfKSwUTmxc99wvouaabpHBr2zCJHRxaXOWzxS705bYBJEQiFDTIHfoOQZMzA==}
+  /@sentry/core/7.3.1:
+    resolution: {integrity: sha512-UYPNDluFtj5w6alh+SjSm9p6kxReKVcKEE+EPE4o44pdowjZ1BFTUY6ipMJhtIiDPr/51eeP8TuYdOAbo0Z9Pg==}
     engines: {node: '>=8'}
     dependencies:
-      '@sentry/hub': 7.3.0
-      '@sentry/types': 7.3.0
-      '@sentry/utils': 7.3.0
+      '@sentry/hub': 7.3.1
+      '@sentry/types': 7.3.1
+      '@sentry/utils': 7.3.1
       tslib: 1.14.1
     dev: false
 
@@ -1774,12 +1787,12 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /@sentry/hub/7.3.0:
-    resolution: {integrity: sha512-0GtTaWf/hoAMoIFY7Ke6eozIbG3FdIPM364sER4SxUQVSklp6AORrV6p82IgWPROK6aj83cPk9Bszgi6RiF/BA==}
+  /@sentry/hub/7.3.1:
+    resolution: {integrity: sha512-TFewt7zDvVLLrCfKkmvJEO4GPw3oPvR2t+606Z4S2gKiekGXKFGX4YC5u0ytoPfi+NMadXz4HivfrPuxrMy1JQ==}
     engines: {node: '>=8'}
     dependencies:
-      '@sentry/types': 7.3.0
-      '@sentry/utils': 7.3.0
+      '@sentry/types': 7.3.1
+      '@sentry/utils': 7.3.1
       tslib: 1.14.1
     dev: false
 
@@ -1799,14 +1812,14 @@ packages:
       - supports-color
     dev: false
 
-  /@sentry/node/7.3.0:
-    resolution: {integrity: sha512-hPqLQMdpL9MeirtKDCgy0ekptWh58CCUhvcoQ2bYstVBsyMMTNTbiQqF/ClzanrScQ5CEuGWnCbKxrFN/S6cQg==}
+  /@sentry/node/7.3.1:
+    resolution: {integrity: sha512-nuv/TZToJgRAIR4o/cpxhd3zYN5cSbXgctygDlaPSZmAdJeuuivy8Qy2ZJn37COA60yoAKRhGFBr38YBw8GQ6Q==}
     engines: {node: '>=8'}
     dependencies:
-      '@sentry/core': 7.3.0
-      '@sentry/hub': 7.3.0
-      '@sentry/types': 7.3.0
-      '@sentry/utils': 7.3.0
+      '@sentry/core': 7.3.1
+      '@sentry/hub': 7.3.1
+      '@sentry/types': 7.3.1
+      '@sentry/utils': 7.3.1
       cookie: 0.4.2
       https-proxy-agent: 5.0.1
       lru_map: 0.3.3
@@ -1825,13 +1838,13 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /@sentry/tracing/7.3.0:
-    resolution: {integrity: sha512-A+mLEH8jtLkhfyw81EZA1XgI96jh9TIwH9EST3hdfSPgdZQf0A5sV8oVVh/d9Hw7NVb65Va5KhAZDNhcx5QxUA==}
+  /@sentry/tracing/7.3.1:
+    resolution: {integrity: sha512-7WXIw9JiCqs3fYr2+ZwSpDQaCt64VfzjeDBo+YzPR+FmPDboo4ECHFSie4d7nZXgpVkC45iOeWE1Y1Fd0vkjgA==}
     engines: {node: '>=8'}
     dependencies:
-      '@sentry/hub': 7.3.0
-      '@sentry/types': 7.3.0
-      '@sentry/utils': 7.3.0
+      '@sentry/hub': 7.3.1
+      '@sentry/types': 7.3.1
+      '@sentry/utils': 7.3.1
       tslib: 1.14.1
     dev: false
 
@@ -1840,8 +1853,8 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /@sentry/types/7.3.0:
-    resolution: {integrity: sha512-cGkHdh9+uvbFTj65TjWcXuhe6vQiMY+U+N2GE5xCfmZT9hwuouCASViNsbJMpZqvCg+Yi0fasQLZ71rujiRNOA==}
+  /@sentry/types/7.3.1:
+    resolution: {integrity: sha512-EZaRLJ8G2aSb7Vlpe1TR9LRZKY5gNpufuu8OXVrnTHiEMLHNUv1NrLQevy2m1SQUkg43oLdTyMKdM+nTESIC+A==}
     engines: {node: '>=8'}
     dev: false
 
@@ -1853,11 +1866,11 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /@sentry/utils/7.3.0:
-    resolution: {integrity: sha512-xUP8TBf2p/c6CN8eFQ7Y+xk0IFrJXsph5ScozqNl/2l/Xs8hd2EiYETqgUklphoYD4J2RxvPwMyqBL15QN6wNg==}
+  /@sentry/utils/7.3.1:
+    resolution: {integrity: sha512-lrwbyajioWeG/CTFCzRh0Pu+zd/P+A+ASToEy2WIQsRbUORZrOmHSVzP0KR+TSZE0TMNrwxUwjSYZoyWCfZ1wQ==}
     engines: {node: '>=8'}
     dependencies:
-      '@sentry/types': 7.3.0
+      '@sentry/types': 7.3.1
       tslib: 1.14.1
     dev: false
 
@@ -2267,6 +2280,10 @@ packages:
       '@types/mime': 1.3.2
       '@types/node': 17.0.44
 
+  /@types/web-bluetooth/0.0.14:
+    resolution: {integrity: sha512-5d2RhCard1nQUC3aHcq/gHzWYO6K0WJmAbjO7mQJgCQKtZpgXxv1rOM6O/dBDhDYYVutk1sciOgNSe+5YyfM8A==}
+    dev: false
+
   /@types/ws/8.5.3:
     resolution: {integrity: sha512-6YOoWjruKj1uLf3INHH7D3qTXwFfEsg1kf3c0uDdSBJwfa/llkwIjrAGV7j7mVgGNbzTQ3HiHKKDXl6bJPD97w==}
     dependencies:
@@ -2524,6 +2541,17 @@ packages:
   /@vue/shared/3.2.37:
     resolution: {integrity: sha512-4rSJemR2NQIo9Klm1vabqWjD8rs/ZaJSzMxkMNeJS6lHiUjjUeYFbooN19NgFjztubEKh3WlZUeOLVdbbUWHsw==}
 
+  /@vueuse/components/8.7.5_vue@3.2.37:
+    resolution: {integrity: sha512-hlERb/d/meyJXMzMKEhvRaxggBoU/Y2FE97PREHfLxfnM0sip7YvS+k1HgEyx1sYo7pX39XVqd9UZIvXJ2+93Q==}
+    dependencies:
+      '@vueuse/core': 8.7.5_vue@3.2.37
+      '@vueuse/shared': 8.7.5_vue@3.2.37
+      vue-demi: 0.13.1_vue@3.2.37
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
+
   /@vueuse/core/8.7.4_vue@3.2.37:
     resolution: {integrity: sha512-dQgxjb79PDcizlaclgCkCzNoqNv12PnbXxUOFL9VacakmD/ACoSMWwTpcG3HKoDoYyl2V3kSW/8AkvXGEYEGFA==}
     peerDependencies:
@@ -2537,6 +2565,24 @@ packages:
     dependencies:
       '@vueuse/metadata': 8.7.4
       '@vueuse/shared': 8.7.4_vue@3.2.37
+      vue: 3.2.37
+      vue-demi: 0.13.1_vue@3.2.37
+    dev: false
+
+  /@vueuse/core/8.7.5_vue@3.2.37:
+    resolution: {integrity: sha512-tqgzeZGoZcXzoit4kOGLWJibDMLp0vdm6ZO41SSUQhkhtrPhAg6dbIEPiahhUu6sZAmSYvVrZgEr5aKD51nrLA==}
+    peerDependencies:
+      '@vue/composition-api': ^1.1.0
+      vue: ^2.6.0 || ^3.2.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+      vue:
+        optional: true
+    dependencies:
+      '@types/web-bluetooth': 0.0.14
+      '@vueuse/metadata': 8.7.5
+      '@vueuse/shared': 8.7.5_vue@3.2.37
       vue: 3.2.37
       vue-demi: 0.13.1_vue@3.2.37
     dev: false
@@ -2590,8 +2636,27 @@ packages:
     resolution: {integrity: sha512-CwEYS6/M6JDxk9D1mUsZq3F0VnYnf39rAxOytP58vb4BrhmPKEVfiSpvxuYcJimU9ccT/xjWhwBnsdGC2H9mIQ==}
     dev: false
 
+  /@vueuse/metadata/8.7.5:
+    resolution: {integrity: sha512-emJZKRQSaEnVqmlu39NpNp8iaW+bPC2kWykWoWOZMSlO/0QVEmO/rt8A5VhOEJTKLX3vwTevqbiRy9WJRwVOQg==}
+    dev: false
+
   /@vueuse/shared/8.7.4_vue@3.2.37:
     resolution: {integrity: sha512-QhwTEd2Gr/8ZliWVEM8sbMUkXtVVV1Mt1mOkCnIbIN33D/V28FwGKUKqEPGZZCXuJchARnun/J1TAiT/UmZd1w==}
+    peerDependencies:
+      '@vue/composition-api': ^1.1.0
+      vue: ^2.6.0 || ^3.2.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+      vue:
+        optional: true
+    dependencies:
+      vue: 3.2.37
+      vue-demi: 0.13.1_vue@3.2.37
+    dev: false
+
+  /@vueuse/shared/8.7.5_vue@3.2.37:
+    resolution: {integrity: sha512-THXPvMBFmg6Gf6AwRn/EdTh2mhqwjGsB2Yfp374LNQSQVKRHtnJ0I42bsZTn7nuEliBxqUrGQm/lN6qUHmhJLw==}
     peerDependencies:
       '@vue/composition-api': ^1.1.0
       vue: ^2.6.0 || ^3.2.0
@@ -2936,10 +3001,10 @@ packages:
       ieee754: 1.2.1
     dev: false
 
-  /bullmq/1.86.2:
-    resolution: {integrity: sha512-QMrRCw4RDu9+OZJN9mVojdEXEA9Rj45jicfpKY9UlTJE0BnkZqr02+CB2w9YY+F7QO1KCaMK/uBcoZ+A2dnFFQ==}
+  /bullmq/1.86.4:
+    resolution: {integrity: sha512-f8O/2k3ETEc0KzplNdxZhEvSXY0iDwP14tr5VDZ67QC6VG3LvRdBvxwz3fioJQbCz+8mehWSW2P9KIqgTrmdag==}
     dependencies:
-      cron-parser: 4.4.0
+      cron-parser: 4.5.0
       get-port: 5.1.1
       glob: 7.2.3
       ioredis: 4.28.5
@@ -3296,11 +3361,11 @@ packages:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
     dev: true
 
-  /cron-parser/4.4.0:
-    resolution: {integrity: sha512-TrE5Un4rtJaKgmzPewh67yrER5uKM0qI9hGLDBfWb8GGRe9pn/SDkhVrdHa4z7h0SeyeNxnQnogws/H+AQANQA==}
-    engines: {node: '>=0.8'}
+  /cron-parser/4.5.0:
+    resolution: {integrity: sha512-QHdeh3zLWz6YvYTFKpRb860rJlip16pEinbxXT1i2NZB/nOxBjd2RbSv54sn5UrAj9WykiSLYWWDgo8azQK0HA==}
+    engines: {node: '>=12.0.0'}
     dependencies:
-      luxon: 1.28.0
+      luxon: 2.4.0
     dev: false
 
   /cron/2.0.0:
@@ -4339,12 +4404,12 @@ packages:
     resolution: {integrity: sha512-dm9s5Pw7Jc0GvMYbshN6zchCA9RgQlzzEZX3vylR9IqFfS8XciblUXOKfW6SiuJ0e13eDYZoZV5wdrev7P3Nwg==}
     engines: {node: ^10.12.0 || >=12.0.0}
     dependencies:
-      flatted: 3.2.5
+      flatted: 3.2.6
       rimraf: 3.0.2
     dev: true
 
-  /flatted/3.2.5:
-    resolution: {integrity: sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==}
+  /flatted/3.2.6:
+    resolution: {integrity: sha512-0sQoMh9s0BYsm+12Huy/rkKxVu4R1+r96YX5cG44rHV0pQ6iC3Q+mkoMFaGWObMFYQxCVT+ssG1ksneA2MI9KQ==}
     dev: true
 
   /follow-redirects/1.15.1:
@@ -4471,8 +4536,8 @@ packages:
       call-bind: 1.0.2
       get-intrinsic: 1.1.2
 
-  /get-tsconfig/4.0.6:
-    resolution: {integrity: sha512-yK9g+lk9PSaYS4RM9jnlmFSyymNDdLaIk42h6uOO6DOvqKEpL4KhUAcI1/7/sWe8+FWZe1/EjFXFfvv6T+cgPA==}
+  /get-tsconfig/4.1.0:
+    resolution: {integrity: sha512-bhshxJhpfmeQ8x4fAvDqJV2VfGp5TfHdLpmBpNZZhMoVyfIrOippBW4mayC3DT9Sxuhcyl56Efw61qL28hG4EQ==}
     dev: true
 
   /getpass/0.1.7:
@@ -5250,6 +5315,11 @@ packages:
 
   /luxon/1.28.0:
     resolution: {integrity: sha512-TfTiyvZhwBYM/7QdAVDh+7dBTBA29v4ik0Ce9zda3Mnf8on1S5KJI8P2jKFZ8+5C0jhmr0KwJEO/Wdpm0VeWJQ==}
+    dev: false
+
+  /luxon/2.4.0:
+    resolution: {integrity: sha512-w+NAwWOUL5hO0SgwOHsMBAmZ15SoknmQXhSO0hIbJCAmPKSsGeK8MlmhYh2w6Iib38IxN2M+/ooXWLbeis7GuA==}
+    engines: {node: '>=12'}
     dev: false
 
   /magic-string/0.25.9:
@@ -6369,8 +6439,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /socket.io-parser/4.0.4:
-    resolution: {integrity: sha512-t+b0SS+IxG7Rxzda2EVvyBZbvFPBCjJoyHuE0P//7OAsN23GItzDRdWa6ALxZI/8R5ygK7jAR6t028/z+7295g==}
+  /socket.io-parser/4.0.5:
+    resolution: {integrity: sha512-sNjbT9dX63nqUFIOv95tTVm6elyIU4RvB1m8dOeZt+IgWwcWklFDOdmGcfo3zSiRsnR/3pJkjY5lfoGqEe4Eig==}
     engines: {node: '>=10.0.0'}
     dependencies:
       '@types/component-emitter': 1.2.11
@@ -6399,7 +6469,7 @@ packages:
       debug: 4.3.4
       engine.io: 6.2.0
       socket.io-adapter: 2.4.0
-      socket.io-parser: 4.0.4
+      socket.io-parser: 4.0.5
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -6936,18 +7006,18 @@ packages:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
     dev: false
 
-  /typeorm/0.3.6_pg@8.7.3:
-    resolution: {integrity: sha512-DRqgfqcelMiGgWSMbBmVoJNFN2nPNA3EeY2gC324ndr2DZoGRTb9ILtp2oGVGnlA+cu5zgQ6it5oqKFNkte7Aw==}
+  /typeorm/0.3.7_pg@8.7.3:
+    resolution: {integrity: sha512-MsPJeP6Zuwfe64c++l80+VRqpGEGxf0CkztIEnehQ+CMmQPSHjOnFbFxwBuZ2jiLqZTjLk2ZqQdVF0RmvxNF3Q==}
     engines: {node: '>= 12.9.0'}
     hasBin: true
     peerDependencies:
       '@google-cloud/spanner': ^5.18.0
-      '@sap/hana-client': ^2.11.14
+      '@sap/hana-client': ^2.12.25
       better-sqlite3: ^7.1.2
       hdb-pool: ^0.1.6
-      ioredis: ^4.28.3
+      ioredis: ^5.0.4
       mongodb: ^3.6.0
-      mssql: ^6.3.1
+      mssql: ^7.3.0
       mysql2: ^2.2.5
       oracledb: ^5.1.0
       pg: ^8.5.1
@@ -6955,7 +7025,7 @@ packages:
       pg-query-stream: ^4.0.0
       redis: ^3.1.1 || ^4.0.0
       sql.js: ^1.4.0
-      sqlite3: ^5.0.2
+      sqlite3: ^5.0.3
       ts-node: ^10.7.0
       typeorm-aurora-data-api-driver: ^2.0.0
     peerDependenciesMeta:

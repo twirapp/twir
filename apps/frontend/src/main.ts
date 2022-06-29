@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
-import 'tw-elements';
 import Toast, { PluginOptions, POSITION, TYPE } from 'vue-toastification';
+
+import 'tw-elements';
 
 import App from './App.vue';
 import { i18n } from './plugins/i18n';
@@ -9,6 +10,7 @@ import './main.css';
 import './plugins/socket';
 import 'vue-toastification/dist/index.css';
 import 'flag-icons/css/flag-icons.css';
+
 
 const app = createApp(App).use(i18n).use(router);
 

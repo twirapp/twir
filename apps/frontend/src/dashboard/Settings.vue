@@ -42,16 +42,16 @@ async function addMember() {
 
 <template>
   <div class="m-1.5 md:m-3">
-    <div class="masonry sm:masonry-sm md:masonry-md lg:masonry-lg">
+    <div class="lg:masonry-lg masonry md:masonry-md sm:masonry-sm">
       <div
-        class="block rounded card text-white shadow break-inside mb-[0.5rem] pb-0.5"
+        class="block break-inside card mb-[0.5rem] pb-0.5 rounded shadow text-white"
       >
-        <h2 class="card-title p-2 flex justify-center border-b border-gray-700 outline-none font-bold">
+        <h2 class="border-b border-gray-700 card-title flex font-bold justify-center outline-none p-2">
           <p>{{ t('pages.settings.widgets.dashboardAccess.title') }}</p>
         </h2>
         <div>
           <div
-            class="rounded text-base my-4"
+            class="my-4 rounded text-base"
           >
             <p
               v-if="!dashboardMembers?.length"
@@ -61,33 +61,32 @@ async function addMember() {
             </p>
             <ul
               v-else
-              class="w-full max-h-[55vh] overflow-y-auto scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600"
+              class="max-h-[55vh] overflow-auto overflow-y-auto scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 w-full"
             >
               <li
                 v-for="member of dashboardMembers"
                 :key="member.id"
-                class="
-                  text-sm
-                  py-2
-                  px-4
-                  font-normal
+                class="bg-transparent
                   block
+                  font-normal
+                  px-4
+                  py-2
+                  text-sm
                   w-full
-                  whitespace-nowrap
-                  bg-transparent"
+                  whitespace-nowrap"
                 :class="{
                   'hover:bg-[#121212]': member.id !== user?.id,
                   'bg-[#121212]': member.id === user?.id
                 }"
               >
                 <div
-                  class="flex justify-between items-center"
+                  class="flex items-center justify-between"
                   :class="{'cursor-pointer': member.id !== user?.id}"
                   @click="member.id !== user?.id ? deleteMember(member.id) : null"
                 >
                   <div>
                     <img
-                      class="w-6 rounded-full inline"
+                      class="inline rounded-full w-6"
                       :src="member.profile_image_url"
                     >
                     <span class="ml-4">{{ member.display_name }}</span>
@@ -96,26 +95,26 @@ async function addMember() {
                     <Remove />
                   </div>
                   <div v-if="member.id === user?.id">
-                    <span class="text-xs inline-block py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-gray-200 text-gray-700 rounded">{{ t('pages.settings.widgets.dashboardAccess.thatsYou') }}</span>
+                    <span class="align-baseline bg-gray-200 font-bold inline-block leading-none px-2.5 py-1 rounded text-center text-gray-700 text-xs whitespace-nowrap">{{ t('pages.settings.widgets.dashboardAccess.thatsYou') }}</span>
                   </div>
                 </div>
               </li>
               <ul />
             </ul>
           </div>
-          <div class="flex flex-wrap items-stretch w-full relative">
+          <div class="flex flex-wrap items-stretch relative w-full">
             <input
               v-model="newMember"
               type="text"
-              class="form-control rounded-l input text-gray-700 w-full leading-normal flex-1 border h-10 border-grey-light px-3 relative"
+              class="border border-grey-light flex-1 form-control h-10 input leading-normal px-3 relative rounded-l text-gray-700 w-full"
               :placeholder="t('pages.settings.widgets.dashboardAccess.placeholder')"
               @keyup.enter="addMember"
             >
             <div
-              class="flex cursor-pointer"
+              class="cursor-pointer flex"
               @click="addMember"
             >
-              <span class="flex items-center leading-normal bg-green-600 hover:bg-green-700 px-3 whitespace-no-wrap text-grey-dark text-sm rounded-r"><Add /></span>
+              <span class="bg-green-600 flex hover:bg-green-700 items-center leading-normal px-3 rounded-r text-grey-dark text-sm whitespace-no-wrap"><Add /></span>
             </div>
           </div>
         </div>

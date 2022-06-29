@@ -194,5 +194,12 @@
   "statuses": {
     "disabled": "Disabled",
     "enabled": "Enabled"
+  },
+  "navbar": {
+    "notifications": {
+      "showNew": "Show new",
+      "showOld": "Show old",
+      "noUnreadNotifications": "You haven't unreaded notifications."
+    }
   }
 }

@@ -91,9 +91,9 @@ function onSave(index: number) {
 
 <template>
   <div class="flex h-full">
-    <div class="w-40 rounded border-r border-b border-gray-700">
+    <div class="border-b border-gray-700 border-r rounded w-40">
       <button
-        class="grid place-items-center m-auto px-6 py-2.5 w-full inline-block bg-green-600 hover:bg-green-700 text-white font-medium text-xs leading-tight uppercase shadow   focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
+        class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium grid hover:bg-green-700 inline-block leading-tight m-auto place-items-center px-6 py-2.5 shadow text-white text-xs transition uppercase w-full"
         @click="insertCommand"
       >
         <Add />
@@ -103,16 +103,19 @@ function onSave(index: number) {
           id="searchCommand"
           v-model="searchFilter"
           type="text"
-          class="form-control
-                    w-full
-                    text-base
-                    font-normal
-                    text-gray-700
-                    bg-white bg-clip-padding
-                    border border-solid border-gray-300
-                    transition
+          class="bg-clip-padding
+                    bg-white
+                    border
+                    border-gray-300
+                    border-solid
                     ease-in-out
-                     focus:outline-none"
+                    focus:outline-none
+                    font-normal
+                    form-control
+                    text-base
+                    text-gray-700
+                    transition
+                    w-full"
           placeholder="command"
         >
         <label
@@ -122,7 +125,7 @@ function onSave(index: number) {
       </div> <!--75vh-->
 
 
-      <ul class="menu max-h-[75vh] scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+      <ul class="max-h-[75vh] menu overflow-auto scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600">
         <li
           v-for="command, index of filteredCommands
           "
@@ -136,12 +139,12 @@ function onSave(index: number) {
           <button
             aria-current="page"
             href="/dashboard/commands"
-            class="flex items-center mt-0 text-sm px-2 h-8 w-full overflow-hidden text-white text-ellipsis whitespace-nowrap hover:bg-[#202122] border-slate-300 transition duration-300 ease-in-out ripple-surface-primary"
+            class="border-slate-300 duration-300 ease-in-out flex h-8 hover:bg-[#202122] items-center mt-0 overflow-hidden px-2 ripple-surface-primary text-ellipsis text-sm text-white transition w-full whitespace-nowrap"
             :class="{
               'bg-neutral-700': filteredCommands.indexOf(currentEditableCommand!) === index
             }"
           >
-            <span class="w-3 h-3" /><span>{{ command.name }}</span>
+            <span class="h-3 w-3" /><span>{{ command.name }}</span>
           </button>
         </li>
       </ul>
@@ -149,7 +152,7 @@ function onSave(index: number) {
 
     <div
       v-if="currentEditableCommand"
-      class="w-full p-1 sm:block h-fit m-1.5 md:m-3 max-w-2xl rounded card text-white shadow"
+      class="card h-fit m-1.5 max-w-2xl md:m-3 p-1 rounded shadow sm:block text-white w-full"
     >
       <Command 
         :command="currentEditableCommand" 

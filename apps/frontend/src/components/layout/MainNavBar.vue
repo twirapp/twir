@@ -1,38 +1,39 @@
 <script lang="ts" setup>
 import LandingButtons from '../LandingButtons.vue';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import Logo from '@/assets/logo.svg?component';
 </script>
 
 <template>
-  <nav class="select-none mt-1.5 p-1 flex items-center w-full justify-between text-white">
+  <nav class="flex items-center justify-between mt-1.5 p-1 select-none text-white w-full">
     <div>
       <a
-        class="ml-2 flex flex-grow items-center"
+        class="flex flex-grow items-center ml-2"
         href="/"
       >
         <Logo />
 
         <a
-          class="text-xl font-bold ml-2"
+          class="font-bold ml-2 text-xl"
           translate="no"
         >Tsuwari</a>
       </a>
     </div>
 
-    <div class="flex space-x-1 hidden md:block">
+    <div class="flex hidden md:block space-x-1">
       <a
         href="/dashboard"
-        class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-white  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+        class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-sm text-white transition"
       >Dashboard</a>
       <a
         href="#"
-        class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-white  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+        class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-sm text-white transition"
       >Team</a>
       <a
         href="#"
-        class="inline-block text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-white  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+        class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-sm text-white transition"
       >About</a>
     </div>
 
@@ -40,37 +41,36 @@ import Logo from '@/assets/logo.svg?component';
       <LandingButtons />
     </div>
 
-    <div class="block md:hidden flex justify-center">
+    <div class="block flex justify-center md:hidden">
       <div>
         <div class="dropdown relative">
           <button
             id="dropdownMenuButton1d"
-            class="
-          dropdown-toggle
-          px-2
-          py-2
-          text-white
-          font-medium
-          text-xs
-          leading-tight
-          uppercase
-          rounded
-          shadow
-          hover:bg-[#9146FF] 
-          focus:outline-none focus:ring-0
-          transition
+            class="dropdown-toggle
           duration-150
           ease-in-out
           flex
+          focus:outline-none
+          focus:ring-0
+          font-medium
+          hover:bg-[#9146FF]
           items-center
-          whitespace-nowrap
-        "
+          leading-tight
+          px-2
+          py-2
+          rounded
+          shadow
+          text-white
+          text-xs
+          transition
+          uppercase
+          whitespace-nowrap"
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
             <svg
-              class="w-6 h-6"
+              class="h-6 w-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -83,48 +83,46 @@ import Logo from '@/assets/logo.svg?component';
             /></svg>
           </button>
           <ul
-            class="
-              space-y-1
+            class="absolute
               bg-[#141414]
+              bg-clip-padding
+              border-none
+              dropdown-menu
+              float-left
+              hidden
+              list-none
+              m-0
+              min-w-max
+              mt-1
               px-1
-          dropdown-menu
-          min-w-max
-          absolute
-          text-base
-          z-50
-          float-left
-          py-2
-          list-none
-          text-left
-          rounded
-          shadow
-          mt-1
-          hidden
-          m-0
-          bg-clip-padding
-          border-none
-        "
+              py-2
+              rounded
+              shadow
+              space-y-1
+              text-base
+              text-left
+              z-50"
             aria-labelledby="dropdownMenuButton1d"
           >
             <li>
               <a
                 href="/dashboard"
-                class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-white  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+                class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-center text-sm text-white transition w-full"
               >Dashboard</a>
             </li>
             <li>
               <a
                 href="#"
-                class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-white  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+                class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-center text-sm text-white transition w-full"
               >Team</a>
             </li>
             <li>
               <a
                 href="#"
-                class="inline-block w-full text-center text-white px-6 py-2.5 bg-transparent text-sm leading-tight rounded hover:text-black hover:bg-white  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+                class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-center text-sm text-white transition w-full"
               >About</a>
             </li>
-            <hr class="h-0 border border-solid border-t-0 border-gray-700 opacity-50">
+            <hr class="border border-gray-700 border-solid border-t-0 h-0 opacity-50">
             <LandingButtons type="col" />
           </ul>
         </div>
