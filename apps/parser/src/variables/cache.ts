@@ -27,11 +27,12 @@ export class ParserCache {
     private readonly senderId?: string,
   ) { }
 
-  async getEnabledIntegrations() {
+  async getEnabledIntegrations(channelId: string) {
     if (this.#enabledIntegrations) return this.#enabledIntegrations;
     const integrations = await this.prisma.channelIntegration.findMany({
       where: {
         enabled: true,
+        channelId,
       },
       include: {
         integration: {

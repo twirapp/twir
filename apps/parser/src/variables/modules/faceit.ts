@@ -2,7 +2,7 @@ import { FaceitDbData } from '../../integrations/faceit.js';
 import { Module, State } from '../index.js';
 
 const getFaceitIntegrationData = async (state: State) => {
-  const integrations = await state.cache.getEnabledIntegrations();
+  const integrations = await state.cache.getEnabledIntegrations(state.channelId);
   const integration = integrations.find((i) => i.integration.service === 'FACEIT');
 
   if (!integration) return 'Faceit integration not enabled';
