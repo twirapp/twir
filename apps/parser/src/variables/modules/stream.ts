@@ -19,7 +19,7 @@ export const stream: Module[] = [
   },
   {
     key: 'stream.uptime',
-    description: 'stream.uptime',
+    description: 'Stream uptime',
     handler: async (_, state) => {
       const stream = await state.cache.getStream();
       return !stream ? 'Stream offline.' : humanizeStreamDuration(new Date(stream.started_at).getTime());
@@ -27,7 +27,7 @@ export const stream: Module[] = [
   },
   {
     key: 'stream.viewers',
-    description: 'Stream vieweirs',
+    description: 'Stream viewers',
     handler: async (_, state) => {
       const stream = await state.cache.getStream();
       return stream?.viewer_count ?? '';
