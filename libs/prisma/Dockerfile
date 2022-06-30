@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y git curl wget doppler
 
 WORKDIR /app
 
-RUN npm i -g pnpm@7.3.0
+RUN npm i -g pnpm
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
 COPY libs/prisma/package.json libs/prisma/
