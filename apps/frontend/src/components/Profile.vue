@@ -1,4 +1,6 @@
-<script lang="ts" setup>import { useStore } from '@nanostores/vue';
+<script lang="ts" setup>
+import { useStore } from '@nanostores/vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
@@ -9,6 +11,13 @@ import { setUser } from '@/stores/userStore';
 const user = useStore(userStore);
 const selectedDashboard = useStore(selectedDashboardStore);
 const router = useRouter();
+
+const searchFilter = ref<string>('');
+const filteredDashboards = computed(() => {
+  return user.value?.dashboards
+    .filter(c => searchFilter.value ? [c.twitch.login, c.twitch.display_name].some(s => s.includes(searchFilter.value)) : true)
+    .sort((a, b) => a.twitch.login.localeCompare(b.twitch.login));
+});
 
 async function logOut() {
   await api.post('/auth/logout');
@@ -84,8 +93,35 @@ const { t } = useI18n({
             v-if="!router.currentRoute.value.fullPath.startsWith('/admin')"
             class="max-h-[55vh] mb-2 overflow-auto overflow-y-auto scrollbar scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-500 space-y-0.5"
           >
+            <input
+              v-if="(user?.dashboards && user.dashboards.length > 5) || user?.isBotAdmin"
+              v-model="searchFilter"
+              type="text"
+              class="bg-clip-padding
+              bg-white
+              block
+              border
+              border-gray-300
+              border-solid
+              ease-in-out
+              focus:bg-white
+              focus:border-blue-600
+              focus:outline-none
+              focus:text-gray-700
+              font-normal
+              form-control
+              m-0
+              px-3
+              py-0.5
+              rounded
+              text-base
+              text-gray-700
+              transition
+              w-full"
+              placeholder="Search..."
+            >
             <span
-              v-for="dashboard of user?.dashboards"
+              v-for="dashboard of filteredDashboards"
               :key="dashboard.channelId"
               :class="{'btn-disabled': selectedDashboard.channelId === dashboard.channelId}"
               class="bg-transparent

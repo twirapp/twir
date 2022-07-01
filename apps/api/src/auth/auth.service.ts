@@ -3,9 +3,10 @@ import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { Channel, PrismaService, Token, User } from '@tsuwari/prisma';
 import { ClientProxy, AuthUser } from '@tsuwari/shared';
+import { HelixUser } from '@twurple/api';
 import { AccessToken } from '@twurple/auth';
 import { getRawData } from '@twurple/common';
-
+import chunk from 'lodash.chunk';
 
 import { JwtPayload } from '../jwt/jwt.strategy.js';
 import { staticApi } from '../twitchApi.js';
@@ -102,11 +103,28 @@ export class AuthService {
       }),
     ]);
 
-    const neededUsers = await staticApi.users.getUsersByIds([
-      ...dashboards.map(d => d.channelId),
-      userPayload.id,
-    ]);
-    const user = neededUsers.find(u => u.id === userPayload.id);
+    if (dbUser?.isBotAdmin) {
+      const channels = await this.prisma.channel.findMany({
+        where: {
+          id: {
+            notIn: [...dashboards.map(d => d.channelId), dbUser.id],
+          },
+        },
+      });
+
+      for (const channel of channels) {
+        dashboards.push({
+          id: channel.id,
+          channelId: channel.id,
+          userId: dbUser.id,
+        });
+      }
+    }
+
+    const chunks = chunk([...dashboards.map(d => d.channelId), userPayload.id], 100);
+    const twitchUsers = await Promise.all(chunks.map((c) => staticApi.users.getUsersByIds(c))).then(v => v.flat());
+
+    const user = twitchUsers.find(u => u.id === userPayload.id);
 
     if (!user || !dbUser) throw new HttpException('User not found', 404);
 
@@ -114,7 +132,7 @@ export class AuthService {
       ...getRawData(user),
       isTester: dbUser.isTester,
       dashboards: dashboards.map(d => {
-        const twitchUser = neededUsers.find(u => u.id === d.channelId);
+        const twitchUser = twitchUsers.find(u => u.id === d.channelId);
         if (!twitchUser) return;
         return {
           ...d,

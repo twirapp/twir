@@ -24,14 +24,17 @@ export class DashboardAccessGuard implements CanActivate {
       return true;
     }
 
-    const requester = await this.prisma.dashboardAccess.count({
-      where: {
-        channelId: request.params.channelId,
-        userId: request.user.id,
-      },
-    });
+    const [requestUser, dashBoardAccess] = await Promise.all([
+      this.prisma.user.findFirst({ where: { id: request.user.id } }),
+      this.prisma.dashboardAccess.count({
+        where: {
+          channelId: request.params.channelId,
+          userId: request.user.id,
+        },
+      }),
+    ]);
 
-    return !!requester;
+    return requestUser?.isBotAdmin || !!dashBoardAccess;
   }
 
   async #handleWs(context: ExecutionContext) {
@@ -39,17 +42,21 @@ export class DashboardAccessGuard implements CanActivate {
     const query = client.handshake.query;
     if (!query?.channelId || !query?.userId) throw new Error('DashboardId not specified.');
 
+    if (Array.isArray(query.userId) || Array.isArray(query.channelId)) throw new Error('UserId or channelId cannot be array.');
     if (query.channelId === query.userId) {
       return true;
     }
 
-    const requester = await this.prisma.dashboardAccess.count({
-      where: {
-        channelId: query.channelId as string,
-        userId: query.userId as string,
-      },
-    });
+    const [requestUser, dashBoardAccess] = await Promise.all([
+      this.prisma.user.findFirst({ where: { id: query.userId } }),
+      this.prisma.dashboardAccess.count({
+        where: {
+          channelId: query.channelId,
+          userId: query.userId,
+        },
+      }),
+    ]);
 
-    return !!requester;
+    return requestUser?.isBotAdmin || !!dashBoardAccess;
   }
 }
