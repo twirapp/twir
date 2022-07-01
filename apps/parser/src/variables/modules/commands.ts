@@ -12,7 +12,7 @@ export const commands: Module[] = [
       const names = await helpers.getChannelCommandsNamesFromRedis(state.channelId) ?? [];
       const commands = await helpers.getChannelCommandsByNamesFromRedis(state.channelId, names);
       const filteredCommands = commands.filter(c => c.visible ?? true).map((c) => `!${c.name}`).join(', ') ?? '';
-      console.log(commands.filter(c => c.visible ?? true));
+
       return filteredCommands;
     },
   },
