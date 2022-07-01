@@ -4,7 +4,7 @@ import type { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPriv
 export type DefaultCommand = {
   name: string,
   description?: string,
-  visible?: string,
+  visible?: boolean,
   example?: string,
   permission: CommandPermission,
   handler: (state: TwitchPrivateMessage, params?: string) => undefined | string | string[] | Promise<string[] | undefined> | Promise<undefined | string>

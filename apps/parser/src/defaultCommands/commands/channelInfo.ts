@@ -13,6 +13,7 @@ export const channelInfo: DefaultCommand[] = [
     name: 'game set',
     description: 'Changing game of the channel.',
     permission: 'MODERATOR',
+    visible: false,
     async handler(state, params?) {
       if (!state.channelId) return;
       if (!params || !params.length) return 'you must specify what game to set.';
@@ -60,6 +61,7 @@ export const channelInfo: DefaultCommand[] = [
     name: 'title set',
     description: 'Changing title of the channel.',
     permission: 'MODERATOR',
+    visible: false,
     async handler(state, params?) {
       if (!state.channelId) return;
       if (!params || !params.length) return 'you must specify what title to set.';

@@ -11,7 +11,7 @@ export interface ClientProxyCommands {
   },
   'bots.getDefaultCommands': {
     input: any,
-    result: Array<{ name: string, description?: string, permission: CommandPermission }>
+    result: Array<{ name: string, description?: string, visible: boolean, permission: CommandPermission }>
   },
   'bots.getVariables': {
     input: any,

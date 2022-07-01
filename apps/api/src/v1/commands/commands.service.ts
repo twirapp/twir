@@ -38,6 +38,7 @@ export class CommandsService {
               default: true,
               defaultName: command.name,
               description: command.description,
+              visible: command.visible,
               name: command.name,
               permission: command.permission,
               cooldown: 0,

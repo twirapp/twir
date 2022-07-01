@@ -10,6 +10,7 @@ const staticApi = app.get(TwitchApiService);
 export const permit: DefaultCommand = {
   name: 'permit',
   permission: 'MODERATOR',
+  visible: false,
   handler: async (state, params) => {
     if (!params || !state.channelId) return;
     const paramsArray = params.split(' ');
