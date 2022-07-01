@@ -109,7 +109,7 @@ selectedDashboardStore.subscribe(async (v) => {
           >
             {{ ('messages' in notification ? notification?.messages : notification.notification.messages).find(m => m.langCode === selectedLang.toUpperCase())?.text }}
             <div
-              v-if="'messages' in notification && selectedDashboard.userId !== user?.id"
+              v-if="'messages' in notification && selectedDashboard.userId === user?.id"
               class="flex flex-col md:flex-row md:justify-end md:space-x-1 md:space-y-0 md:text-right mt-1 pr-2 space-y-1"
             >
               <button
