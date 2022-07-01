@@ -165,11 +165,11 @@ function changeCommandResponse(index: number, value: string) {
       <div
         v-for="error of errors"
         :key="error"
-        class="bg-red-600 rounded py-2 px-6 mb-4 text-white flex"
+        class="bg-red-600 flex mb-4 px-6 py-2 rounded text-white"
         role="alert"
       >
         <svg
-          class="w-6 h-6 mr-2"
+          class="h-6 mr-2 w-6"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -183,7 +183,7 @@ function changeCommandResponse(index: number, value: string) {
         <p>{{ error }}</p>
       </div>
       <div
-        class="grid grid-cols-2 gap-1"
+        class="gap-1 grid grid-cols-2"
       >
         <div>
           <div class="label mb-1">
@@ -194,7 +194,7 @@ function changeCommandResponse(index: number, value: string) {
             name="name"
             type="text"
             :placeholder="t('pages.commands.card.name.placeholder')"
-            class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
           />
         </div>
 
@@ -209,14 +209,14 @@ function changeCommandResponse(index: number, value: string) {
               as="input"
               type="number"
               placeholder="0"
-              class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-4/5 input-sm"
+              class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-4/5"
             />
                 
             <Field
               v-model="command.cooldownType"
               name="cooldownType"
               as="select"
-              class="form-control px-3 py-1.5 text-gray-700 rounded select select-sm w-full"
+              class="form-control px-3 py-1.5 rounded select select-sm text-gray-700 w-full"
             >
               <option
                 v-for="type of Object.entries(cooldownType)"
@@ -237,7 +237,7 @@ function changeCommandResponse(index: number, value: string) {
             v-model="command.permission"
             as="select"
             name="permission"
-            class="form-control px-3 py-1.5 text-gray-700 rounded select select-sm w-full"
+            class="form-control px-3 py-1.5 rounded select select-sm text-gray-700 w-full"
           >
             <option
               disabled
@@ -264,17 +264,36 @@ function changeCommandResponse(index: number, value: string) {
             name="description"
             type="text"
             :placeholder="t('pages.commands.card.description.placeholder')"
-            class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
           />
         </div>
 
+        <div class="mt-5">
+          <div class="flex form-check justify-between">
+            <label
+              class="form-check-label inline-block"
+              for="commandVisibility"
+            >{{ t('pages.commands.card.visible.title') }}</label>
+        
+            <div class="form-switch">
+              <input
+                id="commandVisibility"
+                v-model="command.visible"
+                class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat bg-white cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full w-9"
+                type="checkbox"
+                role="switch"
+              >
+            </div>
+          </div>
+        </div>
+
         <div class="col-span-2 mt-5">
-          <span class="label flex items-center">
+          <span class="flex items-center label">
             <span>{{ t('pages.commands.card.responses.title') }}
             </span>
             <span
               v-if="!command.default"
-              class="px-1 ml-1 py-1 inline-block bg-green-600 hover:bg-green-700 text-white font-medium text-xs leading-tight uppercase rounded shadow   focus:outline-none focus:ring-0 ansition duration-150 cursor-pointer ease-in-out"
+              class="ansition bg-green-600 cursor-pointer duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight ml-1 px-1 py-1 rounded shadow text-white text-xs uppercase"
               @click="command.responses.push({ text: '' })"
             >
               <Add />
@@ -283,17 +302,17 @@ function changeCommandResponse(index: number, value: string) {
 
           <div
             v-if="!command.default"
-            class="input-group min-h-[150px] grid grid-cols-1 pt-1 gap-1"
+            class="gap-1 grid grid-cols-1 input-group min-h-[150px] pt-1"
           >
             <div
               v-for="_response, responseIndex in command.responses"
               :key="responseIndex"
-              class="flex max-h-max items-stretch mb-1 relative dropdown"
+              class="dropdown flex items-stretch max-h-max mb-1 relative"
             >
-              <div class="flex w-full items-stretch relative">
+              <div class="flex items-stretch relative w-full">
                 <div 
                   :id="'dropdownMenuButton' + responseIndex"
-                  class="form-control w-full dropdown-toggle px-3 py-1.5 text-gray-700 rounded input input-bordered input-sm bg-white rounded-r-none" 
+                  class="bg-white dropdown-toggle form-control input input-bordered input-sm px-3 py-1.5 rounded rounded-r-none text-gray-700 w-full" 
                   contenteditable
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
@@ -303,27 +322,46 @@ function changeCommandResponse(index: number, value: string) {
                 </div>
  
                 <span
-                  class="flex items-center leading-normal bg-red-600 hover:bg-red-700 rounded rounded-l-none border-0 border-l-0 border-grey-light px-4 py-1.5 whitespace-no-wrap text-grey-dark text-sm"
+                  class="bg-red-600 border-0 border-grey-light border-l-0 flex hover:bg-red-700 items-center leading-normal px-4 py-1.5 rounded rounded-l-none text-grey-dark text-sm whitespace-no-wrap"
                   @click="command.responses?.splice(responseIndex, 1)"
                 ><Remove /></span>
 
                 <ul
-                  class="
-                  dropdown-menu w-[90%] absolute text-base text-white z-50 float-left py-2 list-none text-left rounded shadow mt-1 hidden m-0 bg-clip-padding border-none bg-[#393636] max-h-52 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600
-                "
+                  class="absolute
+                  bg-[#393636]
+                  bg-clip-padding
+                  border-none
+                  dropdown-menu
+                  float-left
+                  hidden
+                  list-none
+                  m-0
+                  max-h-52
+                  mt-1
+                  overflow-auto
+                  py-2
+                  rounded
+                  scrollbar
+                  scrollbar-thin
+                  scrollbar-thumb-gray-900
+                  scrollbar-track-gray-600
+                  shadow
+                  text-base
+                  text-left
+                  text-white
+                  w-[90%]
+                  z-50"
                   :aria-labelledby="'dropdownMenuButton' + responseIndex"
                 >
                   <h6
-                    class="
-                    font-semibold
-                    text-sm
-                    py-2
-                    px-4
+                    class="bg-transparent
                     block
+                    font-semibold
+                    px-4
+                    py-2
+                    text-sm
                     w-full
-                    whitespace-nowrap
-                    bg-transparent
-                  "
+                    whitespace-nowrap"
                   >
                     Variables
                   </h6>
@@ -332,19 +370,17 @@ function changeCommandResponse(index: number, value: string) {
                     :key="variable.name"
                   >
                     <a
-                      class="
-                      dropdown-item
-                      text-sm
-                      py-2
-                      px-4
-                      font-normal
+                      class="bg-transparent
                       block
-                      w-full
-                      whitespace-nowrap
-                      bg-transparent
-                      text-white
+                      dropdown-item
+                      font-normal
                       hover:bg-[#4f4a4a]
-                    "
+                      px-4
+                      py-2
+                      text-sm
+                      text-white
+                      w-full
+                      whitespace-nowrap"
                       @click="() => {
                         command.responses[responseIndex].text += ` $(${variable.example ? variable.example : variable.name})`;
                       }"
@@ -357,7 +393,7 @@ function changeCommandResponse(index: number, value: string) {
           
           <div
             v-else
-            class="bg-[#ED4245] rounded py-2 px-6 text-white flex"
+            class="bg-[#ED4245] flex px-6 py-2 rounded text-white"
             role="alert"
           >
             {{ t('pages.commands.card.responses.builtInAlert') }}
@@ -365,10 +401,10 @@ function changeCommandResponse(index: number, value: string) {
         </div>
 
         <div class="col-span-2 mt-5">
-          <span class="label flex items-center">  
+          <span class="flex items-center label">  
             <span>{{ t('pages.commands.card.aliases.title') }}</span>
             <span
-              class="items-center ml-1 px-1 py-1 inline-block bg-green-600 hover:bg-green-700 text-white font-medium text-xs leading-tight uppercase rounded shadow    focus:outline-none focus:ring-0 transition duration-150 ease-in-out cursor-pointer"
+              class="bg-green-600 cursor-pointer duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block items-center leading-tight ml-1 px-1 py-1 rounded shadow text-white text-xs transition uppercase"
               @click="command.aliases?.push('')"
             >
               <Add />
@@ -376,7 +412,7 @@ function changeCommandResponse(index: number, value: string) {
            
           </span>
 
-          <div class="input-group pt-1 pr-2 grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-2 grid-cols-1 xl:grid-cols-3 gap-2 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+          <div class="gap-2 grid grid-cols-1 input-group lg:grid-cols-2 max-h-40 md:grid-cols-2 overflow-auto pr-2 pt-1 scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 sm:grid-cols-2 xl:grid-cols-3">
             <div
               v-for="aliase, aliaseIndex in command.aliases"
               :key="aliase"
@@ -385,13 +421,13 @@ function changeCommandResponse(index: number, value: string) {
               <input
                 v-model.lazy="command.aliases![aliaseIndex]"
                 type="text"
-                class="flex-shrink rounded-r-none flex-grow leading-normal w-px border border-grey-light text-gray-700 rounded px-3 py-1.5 relative"
+                class="border border-grey-light flex-grow flex-shrink leading-normal px-3 py-1.5 relative rounded rounded-r-none text-gray-700 w-px"
               >
               <div
-                class="flex cursor-pointer"
+                class="cursor-pointer flex"
                 @click="command.aliases?.splice(aliaseIndex, 1)"
               >
-                <span class="flex items-center leading-normal bg-red-600 hover:bg-red-700 rounded rounded-l-none border-0 border-l-0 border-grey-light px-5 py-1.5 whitespace-no-wrap text-grey-dark text-sm"><Remove /></span>
+                <span class="bg-red-600 border-0 border-grey-light border-l-0 flex hover:bg-red-700 items-center leading-normal px-5 py-1.5 rounded rounded-l-none text-grey-dark text-sm whitespace-no-wrap"><Remove /></span>
               </div>
             </div>
           </div>
@@ -399,10 +435,10 @@ function changeCommandResponse(index: number, value: string) {
       </div>
 
 
-      <div class="mt-5 space-y-2 justify-end flex flex-col w-full md:flex-row md:space-x-2 md:space-y-0">
+      <div class="flex flex-col justify-end md:flex-row md:space-x-2 md:space-y-0 mt-5 space-y-2 w-full">
         <button
           v-if="command.id && !command.default"
-          class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
+          class="bg-red-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-red-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
           @click="deleteCommand"
         >
           {{ t('buttons.delete') }}
@@ -410,7 +446,7 @@ function changeCommandResponse(index: number, value: string) {
 
         <button
           type="submit"
-          class="inline-block px-6 py-2.5 bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
+          class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
         >
           {{ t('buttons.save') }}
         </button>

@@ -1,20 +1,21 @@
-import { CommandPermission, Response, CooldownType } from '@tsuwari/prisma';
+import { CommandPermission, CooldownType } from '@tsuwari/prisma';
 import { Type } from 'class-transformer';
-import { ArrayNotEmpty, IsArray, IsBoolean, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
-import type { SetOptional } from 'type-fest';
+import { ArrayNotEmpty, IsArray, IsBoolean, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min, ValidateIf, ValidateNested } from 'class-validator';
 
 export class UpdateOrCreateCommandDto {
   id?: string;
+  default?: boolean;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
   name: string;
 
+  @ValidateIf((o: UpdateOrCreateCommandDto) => o.default === false)
   @IsNumber()
   @IsOptional()
   @Min(5)
-  @Max(86400)
+  @Max(86400, { always: true })
   cooldown?: number;
 
   @IsIn(Object.keys(CooldownType))
@@ -43,6 +44,7 @@ export class UpdateOrCreateCommandDto {
   @IsOptional()
   enabled?: boolean;
 
+  @ValidateIf((o: UpdateOrCreateCommandDto) => o.default === false)
   @IsArray()
   @ValidateNested()
   @Type(() => ResponseValidation)

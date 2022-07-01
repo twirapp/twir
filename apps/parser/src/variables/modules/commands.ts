@@ -11,7 +11,9 @@ export const commands: Module[] = [
     handler: async (_, state) => {
       const names = await helpers.getChannelCommandsNamesFromRedis(state.channelId) ?? [];
       const commands = await helpers.getChannelCommandsByNamesFromRedis(state.channelId, names);
-      return commands.map((c) => `!${c.name}`).join(', ') ?? '';
+      const filteredCommands = commands.filter(c => c.visible ?? true).map((c) => `!${c.name}`).join(', ') ?? '';
+      console.log(commands.filter(c => c.visible ?? true));
+      return filteredCommands;
     },
   },
 ];

@@ -27,22 +27,22 @@ const settings = toRef(props, 'settings', {
 </script>
 
 <template>
-  <h2 class="form-switch card-title font-bold p-2 flex justify-between border-b border-gray-700 outline-none">
+  <h2 class="border-b border-gray-700 card-title flex font-bold form-switch justify-between outline-none p-2">
     <p>{{ settings.type.charAt(0).toUpperCase() + settings.type.substring(1, settings.type.length) }}</p>
     <input
       id="flexSwitchDisable"
-      class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
+      class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat bg-white cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full w-9"
       type="checkbox"
       role="switch"
     >
   </h2>
 
   <div
-    class="rounded py-5 px-6 mb-[0.5rem] text-base"
+    class="mb-[0.5rem] px-6 py-5 rounded text-base"
   >
     <div class="flex items-center justify-center">
       <div
-        class="inline-flex shadow  "
+        class="inline-flex shadow"
         role="group"
       >
         <!--<button
@@ -80,23 +80,24 @@ const settings = toRef(props, 'settings', {
       :id="'timeoutMessage' + settings.type"
       v-model="settings.banMessage"
       type="text"
-      class="
-            form-control
+      class="bg-clip-padding
+            bg-white
             block
-            w-full
+            border
+            border-gray-300
+            border-solid
+            ease-in-out
+            focus:outline-none
+            font-normal
+            form-control
+            m-0
             px-3
             py-1.5
-            text-base
-            font-normal
-            text-gray-700
-            bg-white bg-clip-padding
-            border border-solid border-gray-300
             rounded
+            text-base
+            text-gray-700
             transition
-            ease-in-out
-            m-0
-            focus:outline-none
-          "
+            w-full"
       :placeholder="t('pages.moderation.timeout.placeholder')"
     >
  
@@ -110,23 +111,24 @@ const settings = toRef(props, 'settings', {
         :id="'timeoutTime' + settings.type"
         v-model="settings.banTime"
         type="number"
-        class="
-            form-control
+        class="bg-clip-padding
+            bg-white
             block
-            w-full
+            border
+            border-gray-300
+            border-solid
+            ease-in-out
+            focus:outline-none
+            font-normal
+            form-control
+            m-0
             px-3
             py-1.5
-            text-base
-            font-normal
-            text-gray-700
-            bg-white bg-clip-padding
-            border border-solid border-gray-300
             rounded
+            text-base
+            text-gray-700
             transition
-            ease-in-out
-            m-0
-            focus:outline-none
-          "
+            w-full"
       >
     </div>
 
@@ -139,23 +141,24 @@ const settings = toRef(props, 'settings', {
         :id="'warningMessage' + settings.type"
         v-model="settings.warningMessage"
         type="text"
-        class="
-            form-control
+        class="bg-clip-padding
+            bg-white
             block
-            w-full
+            border
+            border-gray-300
+            border-solid
+            ease-in-out
+            focus:outline-none
+            font-normal
+            form-control
+            m-0
             px-3
             py-1.5
-            text-base
-            font-normal
-            text-gray-700
-            bg-white bg-clip-padding
-            border border-solid border-gray-300
             rounded
+            text-base
+            text-gray-700
             transition
-            ease-in-out
-            m-0
-          focus:outline-none
-          "
+            w-full"
         :placeholder="t('pages.moderation.warning.placeholder')"
       >
     </div>
@@ -163,7 +166,7 @@ const settings = toRef(props, 'settings', {
       v-if="settings.type === 'links'"
       class="mt-5"
     >
-      <div class="form-check flex justify-between">
+      <div class="flex form-check justify-between">
         <label
           class="form-check-label inline-block"
           for="flexSwitchModClips"
@@ -173,7 +176,7 @@ const settings = toRef(props, 'settings', {
           <input
             id="flexSwitchModClips"
             v-model="settings.checkClips"
-            class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
+            class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat bg-white cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full w-9"
             type="checkbox"
             role="switch"
           >
@@ -184,15 +187,15 @@ const settings = toRef(props, 'settings', {
       v-if="settings.type === 'blacklists'"
       class="mt-5"
     >
-      <span class="label flex items-center">  
+      <span class="flex items-center label">  
         <span>{{ t('pages.moderation.blacklist') }}</span>
         <span
-          class="px-1 ml-2 py-1 inline-block bg-green-600 hover:bg-green-700 text-white font-medium text-xs leading-tight uppercase rounded shadow    focus:outline-none focus:ring-0  transition duration-150 ease-in-out cursor-pointer"
+          class="bg-green-600 cursor-pointer duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight ml-2 px-1 py-1 rounded shadow text-white text-xs transition uppercase"
           @click="settings.blackListSentences?.push('')"
         ><Add /></span>
       </span>
   
-      <div class="mt-1 input-group pt-1 pr-2 grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-2 grid-cols-2 xl:grid-cols-3 gap-2 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+      <div class="gap-2 grid grid-cols-2 input-group lg:grid-cols-2 max-h-40 md:grid-cols-2 mt-1 overflow-auto pr-2 pt-1 scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 sm:grid-cols-2 xl:grid-cols-3">
         <div
           v-for="word, wordIndex in settings.blackListSentences"
           :key="wordIndex"
@@ -201,13 +204,13 @@ const settings = toRef(props, 'settings', {
           <input
             v-model.lazy="settings.blackListSentences[wordIndex]"
             type="text"
-            class="flex-shrink flex-grow flex-auto leading-normal w-px border border-grey-light text-gray-700 rounded px-3 py-1.5 relative rounded-r-none"
+            class="border border-grey-light flex-auto flex-grow flex-shrink leading-normal px-3 py-1.5 relative rounded rounded-r-none text-gray-700 w-px"
           >
           <div
-            class="flex -mr-px cursor-pointer"
+            class="-mr-px cursor-pointer flex"
             @click="settings.blackListSentences.splice(wordIndex, 1)"
           >
-            <span class="flex items-center leading-normal bg-red-600 hover:bg-red-700 rounded rounded-l-none border-0 border-l-0 border-grey-light px-5 py-1.5 whitespace-no-wrap text-grey-dark text-sm"><Remove /></span>
+            <span class="bg-red-600 border-0 border-grey-light border-l-0 flex hover:bg-red-700 items-center leading-normal px-5 py-1.5 rounded rounded-l-none text-grey-dark text-sm whitespace-no-wrap"><Remove /></span>
           </div>
         </div>
       </div>
@@ -224,23 +227,24 @@ const settings = toRef(props, 'settings', {
         :id="'maxSymbols' + settings.type"
         v-model="settings.maxPercentage"
         type="text"
-        class="
-            form-control
+        class="bg-clip-padding
+            bg-white
             block
-            w-full
+            border
+            border-gray-300
+            border-solid
+            ease-in-out
+            focus:outline-none
+            font-normal
+            form-control
+            m-0
             px-3
             py-1.5
-            text-base
-            font-normal
-            text-gray-700
-            bg-white bg-clip-padding
-            border border-solid border-gray-300
             rounded
+            text-base
+            text-gray-700
             transition
-            ease-in-out
-            m-0
-            focus:outline-none
-          "
+            w-full"
         placeholder="50"
       >
     </div>
@@ -256,23 +260,24 @@ const settings = toRef(props, 'settings', {
         :id="'longMessage' + settings.type"
         v-model="settings.triggerLength"
         type="text"
-        class="
-            form-control
+        class="bg-clip-padding
+            bg-white
             block
-            w-full
+            border
+            border-gray-300
+            border-solid
+            ease-in-out
+            focus:outline-none
+            font-normal
+            form-control
+            m-0
             px-3
             py-1.5
-            text-base
-            font-normal
-            text-gray-700
-            bg-white bg-clip-padding
-            border border-solid border-gray-300
             rounded
+            text-base
+            text-gray-700
             transition
-            ease-in-out
-            m-0
-            focus:outline-none
-          "
+            w-full"
         placeholder="50"
       >
     </div>
@@ -288,23 +293,24 @@ const settings = toRef(props, 'settings', {
         :id="'maxCaps' + settings.type"
         v-model="settings.maxPercentage"
         type="text"
-        class="
-            form-control
+        class="bg-clip-padding
+            bg-white
             block
-            w-full
+            border
+            border-gray-300
+            border-solid
+            ease-in-out
+            focus:outline-none
+            font-normal
+            form-control
+            m-0
             px-3
             py-1.5
-            text-base
-            font-normal
-            text-gray-700
-            bg-white bg-clip-padding
-            border border-solid border-gray-300
             rounded
+            text-base
+            text-gray-700
             transition
-            ease-in-out
-            m-0
-             focus:outline-none
-          "
+            w-full"
         placeholder="50"
       >
     </div>
@@ -320,29 +326,30 @@ const settings = toRef(props, 'settings', {
         :id="'maxEmotes' + settings.type"
         v-model="settings.triggerLength"
         type="text"
-        class="
-            form-control
+        class="bg-clip-padding
+            bg-white
             block
-            w-full
+            border
+            border-gray-300
+            border-solid
+            ease-in-out
+            focus:outline-none
+            font-normal
+            form-control
+            m-0
             px-3
             py-1.5
-            text-base
-            font-normal
-            text-gray-700
-            bg-white bg-clip-padding
-            border border-solid border-gray-300
             rounded
+            text-base
+            text-gray-700
             transition
-            ease-in-out
-            m-0
-             focus:outline-none
-          "
+            w-full"
         placeholder="50"
       >
     </div>
       
     <div class="mt-5">
-      <div class="form-check flex justify-between">
+      <div class="flex form-check justify-between">
         <label
           class="form-check-label inline-block"
           for="flexSwitchSubs"
@@ -351,14 +358,14 @@ const settings = toRef(props, 'settings', {
         <div class="form-switch">
           <input
             id="flexSwitchSubs"
-            class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
+            class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat bg-white cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full w-9"
             type="checkbox"
             role="switch"
           >
         </div>
       </div>
       
-      <div class="form-check flex justify-between">
+      <div class="flex form-check justify-between">
         <label
           class="form-check-label inline-block"
           for="flexSwitchVip"
@@ -367,7 +374,7 @@ const settings = toRef(props, 'settings', {
         <div class="form-switch">
           <input
             id="flexSwitchVip"
-            class="form-check-input appearance-none w-9 rounded-full float-left h-5 align-top bg-white bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer "
+            class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat bg-white cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full w-9"
             type="checkbox"
             role="switch"
           >

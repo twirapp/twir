@@ -28,10 +28,23 @@ export class HelpersService {
     for (const name of names) {
       const command: CommandConditional = await this.redis.hgetall(
         `commands:${channelId}:${name}`,
-      ) as unknown as CommandConditional;
+      )
+        .then(c => Object.entries(c).map(e => {
+          const result = [e[0]] as any;
+
+          try {
+            result[1] = JSON.parse(e[1]);
+          } catch {
+            result[1] = e[1];
+          }
+
+          return result;
+        }))
+        .then(c => Object.fromEntries(c)) as unknown as CommandConditional;
 
       if (!Object.keys(command).length) continue;
-      if ((JSON.parse(command.aliases as string) as Array<string>).includes(name)) continue;
+      if (Array.isArray(command.aliases) && command.aliases.includes(name)) continue;
+
       result.push(command);
     }
 
