@@ -30,7 +30,8 @@ const settings = toRef(props, 'settings', {
   <h2 class="border-b border-gray-700 card-title flex font-bold form-switch justify-between outline-none p-2">
     <p>{{ settings.type.charAt(0).toUpperCase() + settings.type.substring(1, settings.type.length) }}</p>
     <input
-      id="flexSwitchDisable"
+      :id="'enabledState' + settings.type"
+      v-model="settings.enabled"
       class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat bg-white cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full w-9"
       type="checkbox"
       role="switch"
@@ -357,7 +358,8 @@ const settings = toRef(props, 'settings', {
         
         <div class="form-switch">
           <input
-            id="flexSwitchSubs"
+            :id="'moderateSubscribers' + settings.subscribers"
+            v-model="settings.subscribers"
             class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat bg-white cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full w-9"
             type="checkbox"
             role="switch"
@@ -373,7 +375,8 @@ const settings = toRef(props, 'settings', {
         
         <div class="form-switch">
           <input
-            id="flexSwitchVip"
+            :id="'moderateVips' + settings.vips"
+            v-model="settings.vips"
             class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat bg-white cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full w-9"
             type="checkbox"
             role="switch"
