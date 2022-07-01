@@ -11,9 +11,10 @@ import Bell from '@/assets/icons/bell.svg?component';
 import Mark from '@/assets/icons/check.svg?component';
 import { api } from '@/plugins/api';
 import { localeStore } from '@/stores/locale';
-import { selectedDashboardStore } from '@/stores/userStore';
+import { selectedDashboardStore, userStore } from '@/stores/userStore';
 
 const selectedDashboard = useStore(selectedDashboardStore);
+const user = useStore(userStore);
 
 const { execute: executeNew, data: newNotificationsData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/notifications/new`, api, { immediate: false });
 const { execute: executeViewed, data: viewedNotificationsData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/notifications/viewed`, api, { immediate: false });
@@ -108,7 +109,7 @@ selectedDashboardStore.subscribe(async (v) => {
           >
             {{ ('messages' in notification ? notification?.messages : notification.notification.messages).find(m => m.langCode === selectedLang.toUpperCase())?.text }}
             <div
-              v-if="'messages' in notification"
+              v-if="'messages' in notification && selectedDashboard.userId !== user?.id"
               class="flex flex-col md:flex-row md:justify-end md:space-x-1 md:space-y-0 md:text-right mt-1 pr-2 space-y-1"
             >
               <button
