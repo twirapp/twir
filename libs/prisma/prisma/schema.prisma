@@ -345,15 +345,31 @@ model CustomVar {
 model Notification {
   id String @id @default(dbgenerated("gen_random_uuid()"))
 
-  title     String?
-  text      String
   imageSrc  String?
   createdAt DateTime @default(now())
   userId    String?
 
-  user                User?                @relation(fields: [userId], references: [id])
+  user                User?                 @relation(fields: [userId], references: [id])
+  messages            NotificationMessage[]
   viewedNotifications ViewedNotification[]
   @@map("notifications")
+}
+
+enum LangCode {
+  RU
+  GB
+}
+
+model NotificationMessage {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  text           String
+  title          String?
+  langCode       LangCode
+  notificationId String
+
+  Notification Notification @relation(fields: [notificationId], references: [id])
+  @@map("notifications_messages")
 }
 
 model ViewedNotification {

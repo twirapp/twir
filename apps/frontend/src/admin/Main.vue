@@ -1,23 +1,23 @@
 <script lang="ts" setup>
-import { reactive, ref } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { api } from '@/plugins/api';
 
-const { t } = useI18n({
-  useScope: 'global',
-  inheritLocale: true,
-});
+const { availableLocales } = useI18n();
 
+const locales = (availableLocales as string[]).map(l => l.toUpperCase());
 const form = ref({
-  title: null,
-  text: '',
   imageSrc: null,
   userName: null,
+  messages: Object.fromEntries(locales.map((l) => ([l, {}]))) as Record<string, any>,
 });
 
 async function sendForm() {
-  await api.post('/admin/notifications', form.value);
+  await api.post('/admin/notifications', {
+    ...form.value,
+    messages: Object.entries(form.value.messages).map(m => ({ langCode: m[0], ...m[1] })),
+  });
 }
 
 </script>
@@ -42,16 +42,6 @@ async function sendForm() {
               class="flex flex-col mb-4 rounded space-y-3"
             >
               <input 
-                v-model="form.title"
-                class="border border-grey-light flex-1 form-control h-10 input leading-normal px-3 relative rounded text-gray-700 w-full"
-                placeholder="title"
-              >
-              <input 
-                v-model="form.text"
-                class="border border-grey-light flex-1 form-control h-10 input leading-normal px-3 relative rounded text-gray-700 w-full"
-                placeholder="text"
-              >
-              <input 
                 v-model="form.imageSrc"
                 class="border border-grey-light flex-1 form-control h-10 input leading-normal px-3 relative rounded text-gray-700 w-full"
                 placeholder="Image src"
@@ -60,6 +50,23 @@ async function sendForm() {
                 v-model="form.userName"
                 class="border border-grey-light flex-1 form-control h-10 input leading-normal px-3 relative rounded text-gray-700 w-full"
                 placeholder="username"
+              >
+            </div>
+
+            <div
+              v-for="(lang) in locales"
+              :key="lang"
+            >
+              {{ lang }}
+              <input 
+                v-model="form.messages[lang].title"
+                class="border border-grey-light flex-1 form-control h-5 input leading-normal px-3 relative rounded text-gray-700 w-full"
+                placeholder="title"
+              >
+              <input 
+                v-model="form.messages[lang].text"
+                class="border border-grey-light flex-1 form-control h-5 input leading-normal px-3 relative rounded text-gray-700 w-full"
+                placeholder="text"
               >
             </div>
          

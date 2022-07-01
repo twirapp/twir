@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@tsuwari/prisma';
+import { LangCode, PrismaService } from '@tsuwari/prisma';
 
 @Injectable()
 export class NotificationsService {
@@ -17,6 +17,9 @@ export class NotificationsService {
           },
         },
       },
+      include: {
+        messages: true,
+      },
       orderBy: {
         createdAt: 'desc',
       },
@@ -29,7 +32,11 @@ export class NotificationsService {
         userId: channelId,
       },
       include: {
-        notification: true,
+        notification: {
+          include: {
+            messages: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',

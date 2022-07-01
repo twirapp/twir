@@ -1,7 +1,7 @@
 <script lang="ts" setup>
  import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 import { useStore } from '@nanostores/vue';
-import { Notification, ViewedNotification } from '@tsuwari/prisma';
+import { Notification, ViewedNotification, NotificationMessage } from '@tsuwari/prisma';
 import { vElementVisibility  } from '@vueuse/components';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import { computed, ComputedRef, Ref, ref, watch } from 'vue';
@@ -10,6 +10,7 @@ import { useI18n } from 'vue-i18n';
 import Bell from '@/assets/icons/bell.svg?component';
 import Mark from '@/assets/icons/check.svg?component';
 import { api } from '@/plugins/api';
+import { localeStore } from '@/stores/locale';
 import { selectedDashboardStore } from '@/stores/userStore';
 
 const selectedDashboard = useStore(selectedDashboardStore);
@@ -17,14 +18,16 @@ const selectedDashboard = useStore(selectedDashboardStore);
 const { execute: executeNew, data: newNotificationsData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/notifications/new`, api, { immediate: false });
 const { execute: executeViewed, data: viewedNotificationsData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/notifications/viewed`, api, { immediate: false });
 
-type Viewed = ViewedNotification & { notification: Notification }
+type Viewed = ViewedNotification & { notification: Notification & { messages: NotificationMessage[] } }
+type NotViewed = Notification & { messages: NotificationMessage[] }
 
-const newNotifications = ref<Notification[]>([]);
+const newNotifications = ref<NotViewed[]>([]);
 const viewedNotifications = ref<Viewed[]>([]);
 const showNew = ref(true);
 const { t } = useI18n();
+const selectedLang = useStore(localeStore);
 
-const notifications: ComputedRef<Ref<Notification[]> | Ref<Viewed[]>> = computed(() => {
+const notifications: ComputedRef<Ref<NotViewed[]> | Ref<Viewed[]>> = computed(() => {
   return showNew.value ? newNotifications : viewedNotifications;
 });
 
@@ -32,7 +35,7 @@ function onNotificationVisibility(id: string, state: boolean) {
   console.log(id, state);
 }
 
-async function markNotificationAsReaded(notification: Notification) {
+async function markNotificationAsReaded(notification: Viewed | NotViewed) {
   await api.post(`v1/channels/${selectedDashboard.value.channelId}/notifications/viewed`, {
     notificationId: notification.id,
   });
@@ -103,9 +106,9 @@ selectedDashboardStore.subscribe(async (v) => {
             :key="notification.id"
             class="block font-normal hover:bg-[#393636] mt-1 px-2 py-2 text-sm w-full"
           >
-            {{ ('text' in notification) ? notification.text : notification.notification.text }}
+            {{ ('messages' in notification ? notification?.messages : notification.notification.messages).find(m => m.langCode === selectedLang.toUpperCase())?.text }}
             <div
-              v-if="('text' in notification)"
+              v-if="'messages' in notification"
               class="flex flex-col md:flex-row md:justify-end md:space-x-1 md:space-y-0 md:text-right mt-1 pr-2 space-y-1"
             >
               <button

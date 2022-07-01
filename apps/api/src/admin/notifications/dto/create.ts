@@ -1,6 +1,8 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { LangCode } from '@tsuwari/prisma';
+import { Type } from 'class-transformer';
+import { IsArray, IsIn, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 
-export class CreateNotificationDto {
+export class CreateNotificationMessage {
   @IsString()
   @IsOptional()
   @IsNotEmpty()
@@ -10,6 +12,11 @@ export class CreateNotificationDto {
   @IsNotEmpty()
   text: string;
 
+  @IsIn(Object.values(LangCode))
+  langCode: LangCode;
+}
+
+export class CreateNotificationDto {
   @IsString()
   @IsOptional()
   @IsNotEmpty()
@@ -19,4 +26,9 @@ export class CreateNotificationDto {
   @IsOptional()
   @IsNotEmpty()
   userName?: string;
+
+  @IsArray()
+  @ValidateNested()
+  @Type(() => CreateNotificationMessage)
+  messages: Array<CreateNotificationMessage>;
 }

@@ -27,6 +27,11 @@ export class NotificationsService {
       data: {
         ...data as Omit<CreateNotificationDto, 'userName'>,
         ...query,
+        messages: {
+          createMany: {
+            data: data.messages,
+          },
+        },
       },
     });
   }
