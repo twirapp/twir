@@ -18,6 +18,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src'),
+      '@elements': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src', 'components', 'elements'),
       'vue-i18n': 'vue-i18n/dist/vue-i18n.runtime.esm-bundler.js',
     },
   },

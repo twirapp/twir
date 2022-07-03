@@ -5,6 +5,7 @@ import { computed, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as yup from 'yup';
 
+import MyBtn from '@/components/elements/MyBtn.vue';
 import { GreeTingType } from '@/dashboard/Greetings.vue';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
@@ -83,13 +84,13 @@ function cancelEdit() {
       <div
         v-for="error of errors"
         :key="error"
-        class="bg-red-600 rounded py-5 px-6 mb-4 text-white"
+        class="bg-red-600 mb-4 px-6 py-5 rounded text-white"
         role="alert"
       >
         {{ error }}
       </div>
       <div
-        class="grid grid-cols-1 gap-1"
+        class="gap-1 grid grid-cols-1"
       >
         <div>
           <div class="label mb-1">
@@ -102,7 +103,7 @@ function cancelEdit() {
             type="text"
             :placeholder="t('pages.greetings.username.placeholder')"
             :disabled="!greeting.edit"
-            class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
           />
         </div>
 
@@ -117,47 +118,47 @@ function cancelEdit() {
             type="text"
             :placeholder="t('pages.greetings.message.placeholder')"
             :disabled="!greeting.edit"
-            class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
           />
         </div>
       </div>
 
       <div class="flex justify-between mt-5">
         <div>
-          <button
+          <MyBtn
             v-if="!greeting.edit"
-            type="button"
-            class="inline-block px-6 py-2.5 bg-purple-600 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+            color="purple"
             @click="() => {
               greeting.edit = true;
               if (greeting.id) greetingsBeforeEdit?.push(JSON.parse(JSON.stringify(greeting)))
             }"
           >
             {{ t('buttons.edit') }}
-          </button>
-          <button
+          </MyBtn>
+          <MyBtn
             v-else
-            class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700  focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
+            color="purple"
             @click="cancelEdit"
           >
             {{ t('buttons.cancel') }}
-          </button>
+          </MyBtn>
         </div>
         <div v-if="greeting.edit">
-          <button
+          <MyBtn
             v-if="greeting.id"
-            type="button"
-            class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
+            color="red"
             @click="deleteGreeting"
           >
             {{ t('buttons.delete') }}
-          </button>
-          <button
+          </MyBtn>
+          <MyBtn
+            color="green"
             type="submit"
-            class="inline-block ml-2 px-6 py-2.5 bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
+            class="ml-1"
+            @click="deleteGreeting"
           >
             {{ t('buttons.save') }}
-          </button>
+          </MyBtn>
         </div>
       </div>
     </Form>

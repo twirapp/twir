@@ -6,70 +6,62 @@ import { api } from '@/plugins/api';
 
 const { availableLocales } = useI18n();
 
-const locales = (availableLocales as string[]).map(l => l.toUpperCase());
+const locales = (availableLocales as string[]).map((l) => l.toUpperCase());
 const form = ref({
   imageSrc: null,
   userName: null,
-  messages: Object.fromEntries(locales.map((l) => ([l, {}]))) as Record<string, any>,
+  messages: Object.fromEntries(locales.map((l) => [l, {}])) as Record<string, any>,
 });
 
 async function sendForm() {
   await api.post('/admin/notifications', {
     ...form.value,
-    messages: Object.entries(form.value.messages).map(m => ({ langCode: m[0], ...m[1] })),
+    messages: Object.entries(form.value.messages).map((m) => ({ langCode: m[0], ...m[1] })),
   });
 }
-
 </script>
 
 <template>
   <div class="m-1.5 md:m-3">
     <div class="p-1">
       <div class="gap-2 grid grid-cols-1 lg:grid-cols-3">
-        <div
-          class="block card rounded shadow text-white"
-        >
+        <div class="block card rounded shadow text-white">
           <h2 class="border-b border-gray-700 card-title flex font-bold justify-center outline-none p-2">
             <p>Notifications</p>
 
-          <!-- <a
+            <!-- <a
               href="/"
               class="btn btn-outline btn-error btn-sm rounded"
             >Remove</a> -->
           </h2>
           <div class="p-4 w-full">
-            <div
-              class="flex flex-col mb-4 rounded space-y-3"
-            >
-              <input 
+            <div class="flex flex-col mb-4 rounded space-y-3">
+              <input
                 v-model="form.imageSrc"
                 class="border border-grey-light flex-1 form-control h-10 input leading-normal px-3 relative rounded text-gray-700 w-full"
                 placeholder="Image src"
-              >
-              <input 
+              />
+              <input
                 v-model="form.userName"
                 class="border border-grey-light flex-1 form-control h-10 input leading-normal px-3 relative rounded text-gray-700 w-full"
                 placeholder="username"
-              >
+              />
             </div>
 
-            <div
-              v-for="(lang) in locales"
-              :key="lang"
-            >
+            <div v-for="lang in locales" :key="lang">
               {{ lang }}
-              <input 
+              <input
                 v-model="form.messages[lang].title"
                 class="border border-grey-light flex-1 form-control h-5 input leading-normal px-3 relative rounded text-gray-700 w-full"
                 placeholder="title"
-              >
-              <input 
+              />
+              <input
                 v-model="form.messages[lang].text"
                 class="border border-grey-light flex-1 form-control h-5 input leading-normal px-3 relative rounded text-gray-700 w-full"
                 placeholder="text"
-              >
+              />
             </div>
-         
+
             <div class="flex flex-col md:flex-row md:justify-end md:space-x-1 md:space-y-0 md:text-right space-y-1">
               <button
                 type="button"

@@ -23,7 +23,7 @@
         },
       },
     };
-    </script>
+</script>
 
 <template>
   <div
@@ -36,7 +36,7 @@
       @mouseleave="toggleTooltip()"
     >
       <svg
-        class="w-6 h-6"
+        class="h-6 w-6"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -52,11 +52,11 @@
     <div
       ref="tooltipRef"
       :class="{'hidden': !tooltipShow, 'block': tooltipShow}"
-      class="px-3 py-1 block z-50 w-auto break-words rounded bg-[#111111]"
+      class="bg-[#111111] block break-words px-3 py-1 rounded w-auto z-50"
     >
       <div>
         <p
-          class="text-left font-light"
+          class="font-light text-left"
         >
           {{ text }}
         </p>

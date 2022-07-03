@@ -46,7 +46,7 @@ export class CommandsService {
             },
           });
 
-          this.#setCommandCache(newCommand);
+          this.setCommandCache(newCommand);
           commands.push(newCommand);
         }
       }
@@ -55,7 +55,7 @@ export class CommandsService {
     return commands;
   }
 
-  async #setCommandCache(command: Command & { responses?: Response[] }, oldCommand?: Command & { responses?: Response[] }) {
+  async setCommandCache(command: Command & { responses?: Response[] }, oldCommand?: Command & { responses?: Response[] }) {
     const preKey = `commands:${command.channelId}`;
 
     if (oldCommand) {
@@ -120,7 +120,7 @@ export class CommandsService {
       },
     });
 
-    await this.#setCommandCache(command);
+    await this.setCommandCache(command);
     return command;
   }
 
@@ -196,7 +196,7 @@ export class CommandsService {
 
     const newResponses = await this.prisma.response.findMany({ where: { commandId: command.id } });
 
-    await this.#setCommandCache({
+    await this.setCommandCache({
       ...newCommand,
       responses: newResponses.flat(),
     }, command);

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import MyBtn from '@elements/MyBtn.vue';
 import { useStore } from '@nanostores/vue';
 import { Timer } from '@tsuwari/prisma';
 import type { SetOptional } from 'type-fest';
@@ -87,13 +88,13 @@ function cancelEdit() {
       <div
         v-for="error of errors"
         :key="error"
-        class="bg-red-600 rounded py-5 px-6 mb-4 text-base text-red-700"
+        class="bg-red-600 mb-4 px-6 py-5 rounded text-base text-red-700"
         role="alert"
       >
         {{ error }}
       </div>
       <div
-        class="md:grid grid-cols-2 gap-2"
+        class="gap-2 grid-cols-2 md:grid"
       >
         <div>
           <div class="label mb-1">
@@ -106,7 +107,7 @@ function cancelEdit() {
             type="text"
             :placeholder="t('pages.timers.card.name.placeholder')"
             :disabled="!timer.edit"
-            class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
           />
         </div>
 
@@ -120,7 +121,7 @@ function cancelEdit() {
             type="number"
             name="timeInterval"
             :disabled="!timer.edit"
-            class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
           />
         </div>
 
@@ -134,16 +135,16 @@ function cancelEdit() {
             as="input" 
             type="number"
             :disabled="!timer.edit"
-            class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
           />
         </div>
 
         <div class="col-span-2 mt-1">
-          <span class="label flex items-center">
+          <span class="flex items-center label">
             <span>{{ t('pages.timers.card.responses') }}</span>
             <span
               v-if="timer.edit"
-              class="ml-2 px-1 py-1 inline-block bg-green-600 hover:bg-green-700 text-white font-medium text-xs leading-tight uppercase rounded shadow focus:outline-none focus:ring-0  transition duration-150 cursor-pointer ease-in-out"
+              class="bg-green-600 cursor-pointer duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight ml-2 px-1 py-1 rounded shadow text-white text-xs transition uppercase"
               @click="timer.responses.push('')"
             >
               <Add />
@@ -151,7 +152,7 @@ function cancelEdit() {
             </span>
           </span>
 
-          <div class="input-group grid grid-cols-1 pt-1 gap-2 max-h-40 scrollbar-thin overflow-auto scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+          <div class="gap-2 grid grid-cols-1 input-group max-h-40 overflow-auto pt-1 scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600">
             <div
               v-for="_response, responseIndex in timer.responses"
               :key="responseIndex"
@@ -162,16 +163,16 @@ function cancelEdit() {
                 v-model="timer.responses[responseIndex]"
                 type="text"
                 :disabled="!timer.edit"
-                class="flex-shrink flex-grow flex-auto leading-normal w-px flex-1 border text-gray-700 rounded px-3 py-1.5 relative"
+                class="border flex-1 flex-auto flex-grow flex-shrink leading-normal px-3 py-1.5 relative rounded text-gray-700 w-px"
                 placeholder="Timer response"
                 :class="{ 'rounded-r-none': timer.edit }"
               >
               <div
                 v-if="timer.edit"
-                class="flex cursor-pointer"
+                class="cursor-pointer flex"
                 @click="timer.responses?.splice(responseIndex, 1)"
               >
-                <span class="flex items-center leading-normal bg-red-600 hover:bg-red-700 rounded rounded-l-none border-0 border-l-0 border-grey-light px-5 py-1.5 whitespace-no-wrap text-grey-dark text-sm"><Remove /></span>
+                <span class="bg-red-600 border-0 border-grey-light border-l-0 flex hover:bg-red-700 items-center leading-normal px-5 py-1.5 rounded rounded-l-none text-grey-dark text-sm whitespace-no-wrap"><Remove /></span>
               </div>
             </div>
           </div>
@@ -180,40 +181,41 @@ function cancelEdit() {
 
       <div class="flex justify-between mt-5">
         <div>
-          <button
+          <MyBtn
             v-if="!timer.edit"
-            type="button"
-            class="inline-block px-6 py-2.5 bg-purple-600 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+            color="purple"
             @click="() => {
               timer.edit = true;
               if (timer.id) timersBeforeEdit?.push(JSON.parse(JSON.stringify(timer)))
             }"
           >
             {{ t('buttons.edit') }}
-          </button>
-          <button
+          </MyBtn>
+
+          <MyBtn
             v-else
-            class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700    focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
+            color="purple"
             @click="cancelEdit"
           >
             {{ t('buttons.cancel') }}
-          </button>
+          </MyBtn>
         </div>
         <div v-if="timer.edit">
-          <button
+          <MyBtn
             v-if="timer.id"
-            type="button"
-            class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+            color="red"
             @click="deleteTimer"
           >
             {{ t('buttons.delete') }}
-          </button>
-          <button
+          </MyBtn>
+          <MyBtn
+            color="green"
             type="submit"
-            class="inline-block ml-2 px-6 py-2.5 bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-700 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+            class="ml-2"
+            @click="deleteTimer"
           >
             {{ t('buttons.save') }}
-          </button>
+          </MyBtn>
         </div>
       </div>
     </Form>

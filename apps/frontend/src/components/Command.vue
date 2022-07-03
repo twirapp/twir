@@ -9,8 +9,12 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import * as yup from 'yup';
 
+
+import Button1 from './elements/MyBtn.vue';
+
 import Add from '@/assets/buttons/add.svg';
 import Remove from '@/assets/buttons/remove.svg';
+import MyBtn from '@/components/elements/MyBtn.vue';
 import type { VariablesList } from '@/dashboard/Commands.vue';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
@@ -291,13 +295,13 @@ function changeCommandResponse(index: number, value: string) {
           <span class="flex items-center label">
             <span>{{ t('pages.commands.card.responses.title') }}
             </span>
-            <span
-              v-if="!command.default"
-              class="ansition bg-green-600 cursor-pointer duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight ml-1 px-1 py-1 rounded shadow text-white text-xs uppercase"
+            <MyBtn
+              :show="!command.default"
+              color="green"
+              size="small"
+              class="ml-1"
               @click="command.responses.push({ text: '' })"
-            >
-              <Add />
-            </span>
+            ><Add /></MyBtn>
           </span>
 
           <div
@@ -403,13 +407,12 @@ function changeCommandResponse(index: number, value: string) {
         <div class="col-span-2 mt-5">
           <span class="flex items-center label">  
             <span>{{ t('pages.commands.card.aliases.title') }}</span>
-            <span
-              class="bg-green-600 cursor-pointer duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block items-center leading-tight ml-1 px-1 py-1 rounded shadow text-white text-xs transition uppercase"
+            <MyBtn
+              color="green"
+              size="small"
+              class="ml-1"
               @click="command.aliases?.push('')"
-            >
-              <Add />
-            </span>
-           
+            ><Add /></MyBtn>
           </span>
 
           <div class="gap-2 grid grid-cols-1 input-group lg:grid-cols-2 max-h-40 md:grid-cols-2 overflow-auto pr-2 pt-1 scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 sm:grid-cols-2 xl:grid-cols-3">
@@ -436,21 +439,20 @@ function changeCommandResponse(index: number, value: string) {
 
 
       <div class="flex flex-col justify-end md:flex-row md:space-x-2 md:space-y-0 mt-5 space-y-2 w-full">
-        <button
-          v-if="command.id && !command.default"
-          class="bg-red-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-red-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
-          type="button"
+        <MyBtn 
+          :show="Boolean(command.id && !command.default)"
+          color="red"
           @click="deleteCommand"
         >
           {{ t('buttons.delete') }}
-        </button>
+        </MyBtn>
 
-        <button
+        <MyBtn 
+          color="green"
           type="submit"
-          class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
         >
           {{ t('buttons.save') }}
-        </button>
+        </MyBtn>
       </div>
     </Form>
   </div>

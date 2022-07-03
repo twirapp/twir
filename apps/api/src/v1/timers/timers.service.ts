@@ -91,6 +91,8 @@ export class TimersService {
       },
     });
 
+    await this.nats.emit('bots.addTimerToQueue', updated.id).toPromise();
+
     return updated;
   }
 }

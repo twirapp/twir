@@ -46,7 +46,7 @@ onMounted(async () => {
     v-if="error"
     class="flex h-screen select-none"
   >
-    <div class="m-auto text-center space-y-2 text-white">
+    <div class="m-auto space-y-2 text-center text-white">
       <h1 class="font-bold text-6xl">
         Oops!
       </h1>
@@ -57,7 +57,7 @@ onMounted(async () => {
       </p>
 
       <button
-        class="inline-block px-10 py-2.5 bg-[#9146FF] text-white text-lg leading-tight uppercase rounded shadow hover:bg-[#772CE8]  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+        class="bg-[#9146FF] duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-[#772CE8] inline-block leading-tight px-10 py-2.5 rounded shadow text-lg text-white transition uppercase"
         @click="router.push('/')"
       >
         Home

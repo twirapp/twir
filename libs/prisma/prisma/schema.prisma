@@ -3,7 +3,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  output          = "../node_modules/@prisma/client"
+  output          = "../node_modules/.prisma/client"
   binaryTargets   = ["native", "debian-openssl-1.1.x", "linux-arm64-openssl-1.1.x", "linux-musl"]
   previewFeatures = ["filterJson"]
 }

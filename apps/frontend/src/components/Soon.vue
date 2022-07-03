@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import MyBtn from '@elements/MyBtn.vue';
+
 interface Props {
   button?: boolean
 }
@@ -20,9 +22,11 @@ const props = withDefaults(defineProps<Props>(), {
         This feature is coming soon!
       </p>
 
-      <button
+      <MyBtn
         v-if="props.button"
-        class="bg-[#9146FF] duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-[#772CE8] inline-block leading-tight px-10 py-2.5 rounded shadow text-lg text-white transition uppercase"
+        size="default"
+        color="purple"
+        class="px-10"
         @click="$router.go(-1)"
       >
         <svg
@@ -37,7 +41,7 @@ const props = withDefaults(defineProps<Props>(), {
           stroke-width="1"
           d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"
         /></svg>
-      </button>
+      </MyBtn>
     </div>
   </div>
 </template>

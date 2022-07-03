@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import MyBtn from '@elements/MyBtn.vue';
 import { useStore } from '@nanostores/vue';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -151,26 +152,26 @@ const { t } = useI18n({
           </div>
         
           <div class="flex flex-col space-y-1 w-full">
-            <button
+            <MyBtn
               v-if="router.currentRoute.value.fullPath.startsWith('/admin')"
-              class="switch-button"
+              color="purple"
               @click="router.push('/dashboard')"
             >
               Dashboard
-            </button>
-            <button
+            </MyBtn>
+            <MyBtn
               v-if="!router.currentRoute.value.fullPath.startsWith('/admin') && user?.isBotAdmin"
-              class="switch-button"
+              color="purple"
               @click="router.push('/admin')"
             >
               Admin
-            </button>
-            <button
-              class="bg-red-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-red-700 inline-block leading-tight px-6 py-2 rounded text-sm text-white transition uppercase"
+            </MyBtn>
+            <MyBtn
+              color="red"
               @click="logOut"
             >
               Logout
-            </button>
+            </MyBtn>
           </div>
         </div>
       </div>

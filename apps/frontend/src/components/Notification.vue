@@ -7,8 +7,10 @@ import { useAxios } from '@vueuse/integrations/useAxios';
 import { computed, ComputedRef, Ref, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+
 import Bell from '@/assets/icons/bell.svg?component';
 import Mark from '@/assets/icons/check.svg?component';
+import MyBtn from '@/components/elements/MyBtn.vue';
 import { api } from '@/plugins/api';
 import { localeStore } from '@/stores/locale';
 import { selectedDashboardStore, userStore } from '@/stores/userStore';
@@ -85,13 +87,20 @@ selectedDashboardStore.subscribe(async (v) => {
           >
             <div>Notifications center</div>
             <div>
-              <button
+              <MyBtn
+                color="purple"
+                size="small"
+                @click="showNew = !showNew"
+              >
+                {{ t(showNew ? `navbar.notifications.showOld` : `navbar.notifications.showNew`) }}
+              </MyBtn>
+              <!-- <button
                 type="button"
                 class="bg-[#522f87] duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-[#772CE8] inline-block leading-tight px-1 py-1 rounded shadow text-white text-xs transition uppercase"
                 @click="showNew = !showNew"
               >
                 {{ t(showNew ? `navbar.notifications.showOld` : `navbar.notifications.showNew`) }}
-              </button>
+              </button> -->
             </div>
           </div>
           <div

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { LangCode, PrismaService } from '@tsuwari/prisma';
+import { PrismaService } from '@tsuwari/prisma';
 
 @Injectable()
 export class NotificationsService {

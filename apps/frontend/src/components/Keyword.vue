@@ -74,13 +74,13 @@ function cancelEdit() {
       <div
         v-for="error of errors"
         :key="error"
-        class="bg-red-600 rounded py-5 px-6 mb-4 text-base text-red-700 mb-3"
+        class="bg-red-600 mb-4 px-6 py-5 rounded text-base text-red-700"
         role="alert"
       >
         {{ error }}
       </div>
       <div
-        class="grid grid-cols-1 gap-1"
+        class="gap-1 grid grid-cols-1"
       >
         <div>
           <div class="label mb-1">
@@ -93,7 +93,7 @@ function cancelEdit() {
             type="text"
             :placeholder="t('pages.keywords.card.text.placeholder')"
             :disabled="!keyword.edit"
-            class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
           />
         </div>
 
@@ -108,7 +108,7 @@ function cancelEdit() {
             type="text"
             :placeholder="t('pages.keywords.card.response.placeholder')"
             :disabled="!keyword.edit"
-            class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
           />
         </div>
 
@@ -123,7 +123,7 @@ function cancelEdit() {
             type="number"
             :placeholder="t('pages.keywords.card.cooldown.placeholder')"
             :disabled="!keyword.edit"
-            class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
           />
         </div>
       </div>
@@ -133,7 +133,7 @@ function cancelEdit() {
           <button
             v-if="!keyword.edit"
             type="button"
-            class="inline-block px-6 py-2.5 bg-purple-600 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-putple-700  focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+            class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-putple-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-xs transition uppercase"
             @click="() => {
               keyword.edit = true;
               if (keyword.id) keywordsBeforeEdit?.push(JSON.parse(JSON.stringify(keyword)))
@@ -143,7 +143,7 @@ function cancelEdit() {
           </button>
           <button
             v-else
-            class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700  focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
+            class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-purple-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
             @click="cancelEdit"
           >
             {{ t('buttons.cancel') }}
@@ -153,14 +153,14 @@ function cancelEdit() {
           <button
             v-if="keyword.id"
             type="button"
-            class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
+            class="bg-red-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-red-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
             @click="deletekeyword"
           >
             {{ t('buttons.delete') }}
           </button>
           <button
             type="submit"
-            class="inline-block ml-2 px-6 py-2.5 bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
+            class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight ml-2 px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
           >
             {{ t('buttons.save') }}
           </button>

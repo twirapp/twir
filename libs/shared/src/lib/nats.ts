@@ -1,5 +1,5 @@
 import { ClientProxy as CP } from '@nestjs/microservices';
-import { CommandPermission } from '@tsuwari/prisma';
+import { Command, CommandPermission, Response } from '@tsuwari/prisma';
 import { rawDataSymbol } from '@twurple/common';
 import { EventSubChannelUpdateEvent } from '@twurple/eventsub';
 import { Observable } from 'rxjs';
@@ -34,6 +34,10 @@ export interface ClientProxyCommands {
       text: string
     };
     result: string[];
+  },
+  'setCommandCache': {
+    input: Command & { responses?: Response[] },
+    result: any,
   }
 }
 

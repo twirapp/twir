@@ -112,6 +112,7 @@ export async function addTimerToQueue(timerOrId: Timer | string) {
     timer = timerOrId as Timer;
   }
 
+  await removeTimerFromQueue(timerOrId);
   if (timer) {
     await timersQueue.add(timer.id, { id: timer.id }, { repeat: { every: timer.timeInterval * 1000 } });
   }
