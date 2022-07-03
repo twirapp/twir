@@ -2,8 +2,8 @@
   "name": "@tsuwari/prisma",
   "description": "",
   "type": "module",
-  "module": "./dist/src/index.js",
-  "main": "./dist/src/index.js",
+  "module": "./dist/index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "prebuild": "rm -rf dist",
     "test": "echo \"Error: no test specified\" && exit 1",

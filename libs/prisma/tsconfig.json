@@ -5,8 +5,7 @@
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
-    "incremental": true,
-    "composite": true,
+    "declaration": true
   },
   "exclude": ["./prisma", "./dist"],
   "include": ["src"]
