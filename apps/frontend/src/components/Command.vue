@@ -439,6 +439,7 @@ function changeCommandResponse(index: number, value: string) {
         <button
           v-if="command.id && !command.default"
           class="bg-red-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-red-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
+          type="button"
           @click="deleteCommand"
         >
           {{ t('buttons.delete') }}
