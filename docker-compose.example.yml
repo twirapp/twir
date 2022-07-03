@@ -80,6 +80,7 @@ services:
       - migrations
       - postgres
       - nats
+      - api
 
   parser:
     restart: unless-stopped
