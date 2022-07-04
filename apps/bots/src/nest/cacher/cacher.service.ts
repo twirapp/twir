@@ -39,7 +39,6 @@ export class CacherService implements OnModuleInit {
 
     for (const timer of timers) {
       if (timer.enabled) {
-        await removeTimerFromQueue(timer);
         await addTimerToQueue(timer);
       } else {
         await removeTimerFromQueue(timer);
