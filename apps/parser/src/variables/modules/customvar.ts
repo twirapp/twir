@@ -25,7 +25,7 @@ export const customvar: Module = {
 
     if (myVar.type === CustomVarType.SCRIPT && myVar.evalValue) {
       try {
-        const opCounterFnc = 'let __opCount__ = 0; function __opCounter__() { if (__opCount__ > 10) { throw new Error("Running script seems to be in loop."); } else { __opCount__++; }};';
+        const opCounterFnc = 'let __opCount__ = 0; function __opCounter__() { if (__opCount__ > 50000) { throw new Error("Running script seems to be in infinite loop."); } else { __opCount__++; }};';
         const toEval = `(async function () { ${opCounterFnc} ${myVar.evalValue.split(';\n').map(line => '__opCounter__();' + line).join(';')} })`.replace(/\n/g, '');
         const result = await vm.run(toEval)();
 
