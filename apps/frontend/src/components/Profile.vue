@@ -17,7 +17,7 @@ const searchFilter = ref<string>('');
 const filteredDashboards = computed(() => {
   return user.value?.dashboards
     .filter(c => searchFilter.value ? [c.twitch.login, c.twitch.display_name].some(s => s.includes(searchFilter.value)) : true)
-    .sort((a, b) => a.twitch.login.localeCompare(b.twitch.login));
+    .sort((a, b) => a.twitch.id === user.value?.id ? -1 : a.twitch.login.localeCompare(b.twitch.login));
 });
 
 async function logOut() {
@@ -121,34 +121,29 @@ const { t } = useI18n({
               w-full"
               placeholder="Search..."
             >
-            <span
+            <div
               v-for="dashboard of filteredDashboards"
-              :key="dashboard.channelId"
-              :class="{'btn-disabled': selectedDashboard.channelId === dashboard.channelId}"
-              class="bg-transparent
-              block
-              cursor-pointer
-              font-normal
-              hover:bg-[#393636]
-              px-4
-              py-2
-              rounded
-              text-sm
-              w-full
-              whitespace-nowrap"
-              @click="setSelectedDashboard(dashboard)"
+              :key="dashboard.id"
             >
-              <img
-                class="border inline rounded-full w-6"
-                :src="dashboard?.twitch?.profile_image_url ?? dashboard.twitch?.profile_image_url"
+              <span
+                :class="{
+                  'border-2  border-cyan-600': dashboard.channelId === user?.id
+                }"
+                class="bg-transparent block cursor-pointer font-normal hover:bg-[#393636] mb-1 mt-1 px-4 py-2 rounded text-sm w-full whitespace-nowrap"
+                @click="setSelectedDashboard(dashboard)"
               >
-              <span class="ml-4">{{ dashboard.twitch.display_name }}        
-                <span
-                  v-if="selectedDashboard?.id === user?.id"
-                  class="align-baseline bg-gray-200 font-bold inline-block leading-none px-2.5 py-1 rounded text-center text-gray-700 text-xs whitespace-nowrap"
-                >{{ t('pages.settings.widgets.dashboardAccess.thatsYou') }}</span>
+                <img
+                  class="border inline rounded-full w-6"
+                  :src="dashboard?.twitch?.profile_image_url ?? dashboard.twitch?.profile_image_url"
+                >
+                <span class="ml-4">{{ dashboard.twitch.display_name }}        
+                  <span
+                    v-if="selectedDashboard?.id === user?.id"
+                    class="align-baseline bg-gray-200 font-bold inline-block leading-none px-2.5 py-1 rounded text-center text-gray-700 text-xs whitespace-nowrap"
+                  >{{ t('pages.settings.widgets.dashboardAccess.thatsYou') }}</span>
+                </span>
               </span>
-            </span>
+            </div>
           </div>
         
           <div class="flex flex-col space-y-1 w-full">
