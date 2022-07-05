@@ -87,7 +87,7 @@ function cancelEdit() {
             <span class="label-text">{{ t('pages.keywords.card.text.title') }}</span>
           </div>
           <Field
-            v-model.lazy="keyword.text"
+            v-model.lazy.trim="keyword.text"
             name="text"
             as="input" 
             type="text"
@@ -102,7 +102,7 @@ function cancelEdit() {
             <span class="label-text">{{ t('pages.keywords.card.response.title') }}</span>
           </div>
           <Field
-            v-model.lazy="keyword.response"
+            v-model.lazy.trim="keyword.response"
             name="response"
             as="input" 
             type="text"

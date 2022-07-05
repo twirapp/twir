@@ -97,7 +97,7 @@ function cancelEdit() {
             <span class="label-text">{{ t('pages.greetings.username.title') }}</span>
           </div>
           <Field
-            v-model="greeting.username"
+            v-model.trim="greeting.username"
             name="username"
             as="input" 
             type="text"
@@ -112,7 +112,7 @@ function cancelEdit() {
             <span class="label-text">{{ t('pages.greetings.message.title') }}</span>
           </div>
           <Field
-            v-model="greeting.text"
+            v-model.trim="greeting.text"
             name="text"
             as="input" 
             type="text"

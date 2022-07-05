@@ -194,7 +194,7 @@ function changeCommandResponse(index: number, value: string) {
             <span class="label-text">{{ t('pages.commands.card.name.title') }}</span>
           </div>
           <Field
-            v-model="command.name"
+            v-model.trim="command.name"
             name="name"
             type="text"
             :placeholder="t('pages.commands.card.name.placeholder')"
@@ -217,7 +217,7 @@ function changeCommandResponse(index: number, value: string) {
             />
                 
             <Field
-              v-model="command.cooldownType"
+              v-model.trim="command.cooldownType"
               name="cooldownType"
               as="select"
               class="form-control px-3 py-1.5 rounded select select-sm text-gray-700 w-full"
@@ -238,7 +238,7 @@ function changeCommandResponse(index: number, value: string) {
             <span class="label-text">{{ t('pages.commands.card.permission.title') }}</span>
           </div>
           <Field
-            v-model="command.permission"
+            v-model.trim="command.permission"
             as="select"
             name="permission"
             class="form-control px-3 py-1.5 rounded select select-sm text-gray-700 w-full"
@@ -264,7 +264,7 @@ function changeCommandResponse(index: number, value: string) {
             <span class="label-text">{{ t('pages.commands.card.description.title') }}</span>
           </div>
           <Field
-            v-model="command.description"
+            v-model.trim="command.description"
             name="description"
             type="text"
             :placeholder="t('pages.commands.card.description.placeholder')"
@@ -320,7 +320,7 @@ function changeCommandResponse(index: number, value: string) {
                   contenteditable
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
-                  @input="(payload) => changeCommandResponse(responseIndex, (payload.target! as HTMLElement).innerText)"
+                  @input="(payload) => changeCommandResponse(responseIndex, (payload.target! as HTMLElement).innerText.trim())"
                 >
                   {{ command.responses[responseIndex].text }}
                 </div>
@@ -422,7 +422,7 @@ function changeCommandResponse(index: number, value: string) {
               class="flex flex-wrap items-stretch relative"
             >
               <input
-                v-model.lazy="command.aliases![aliaseIndex]"
+                v-model.lazy.trim="command.aliases![aliaseIndex]"
                 type="text"
                 class="border border-grey-light flex-grow flex-shrink leading-normal px-3 py-1.5 relative rounded rounded-r-none text-gray-700 w-px"
               >

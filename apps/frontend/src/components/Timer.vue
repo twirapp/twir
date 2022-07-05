@@ -101,7 +101,7 @@ function cancelEdit() {
             <span class="label-text">{{ t('pages.timers.card.name.title') }}</span>
           </div>
           <Field
-            v-model="timer.name"
+            v-model.trim="timer.name"
             name="name"
             as="input" 
             type="text"
@@ -160,7 +160,7 @@ function cancelEdit() {
               style="width: 99%;"
             >
               <input
-                v-model="timer.responses[responseIndex]"
+                v-model.trim="timer.responses[responseIndex]"
                 type="text"
                 :disabled="!timer.edit"
                 class="border flex-1 flex-auto flex-grow flex-shrink leading-normal px-3 py-1.5 relative rounded text-gray-700 w-px"
