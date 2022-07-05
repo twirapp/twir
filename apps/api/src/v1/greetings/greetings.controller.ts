@@ -16,7 +16,7 @@ export class GreetingsController {
   ) { }
 
   async #delCache(channelId: string) {
-    this.cacheManager.del(`nest:cache:v1/channels/${channelId}/greetings`);
+    await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/greetings`);
   }
 
   @CacheTTL(600)
