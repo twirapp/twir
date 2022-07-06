@@ -212,7 +212,6 @@ function cancelEdit() {
             color="green"
             type="submit"
             class="ml-2"
-            @click="deleteTimer"
           >
             {{ t('buttons.save') }}
           </MyBtn>
