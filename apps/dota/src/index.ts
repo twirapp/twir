@@ -6,7 +6,9 @@ import protobufjs from 'protobufjs';
 import SteamUser from 'steam-user';
 import SteamID from 'steamid';
 
-const client = new SteamUser();
+const client = new SteamUser({
+  autoRelogin: true,
+});
 
 const proto = await new protobufjs.Root().load(resolve(dirname(fileURLToPath(import.meta.url)), '..', 'protos', 'dota2', 'dota_gcmessages_client_watch.proto'), {
   keepCase: true,
@@ -17,9 +19,10 @@ client.logOn({
   password: config.STEAM_PASSWORD,
 });
 
-client.on('loggedOn', () => {
-  console.log('Logged into Steam as ' + client.steamID?.getSteam3RenderedID());
-  client.gamesPlayed([570]);
+client.on('loggedOn', (e, d) => {
+  console.log(`Logged into Steam as ${e.client_supplied_steamid} ${e.vanity_url}`);
+  client.setPersona(1);
+  client.gamesPlayed([570], true);
 });
 
 type RP = SteamUser.RichPresence & {
@@ -46,25 +49,36 @@ function converUsers(users: Record<string, { richPresence: RP }>) {
 }
 
 client.on('appLaunched', async (appid) => {
-  console.log('Dota launched');
-
-  client.requestRichPresence(570, [911977148, 1102609846].map(SteamID.fromIndividualAccountID), 'english', (error, data) => {
+  console.log('Dota launched', appid);
+  const accs = [911977148, 1102609846, 70388657, 86738694].map(SteamID.fromIndividualAccountID).map(id => id.getSteamID64());
+  client.requestRichPresence(570, accs, 'english', (error, data) => {
     const users = converUsers(data.users);
 
-    const lobbyIds = users.filter(u => u.richPresence.watching_server).map(u => u.richPresence.watching_server);
+    const lobbyIds = new Set(users.filter(u => u.richPresence.lobbyId).map(u => u.richPresence.lobbyId));
 
-    if (!lobbyIds.length) return;
+    if (!lobbyIds.size) return;
     const type = proto.root.lookupType('CMsgClientToGCFindTopSourceTVGames');
     const newMsg = type.encode({
       search_key: '',
       league_id: 0,
       hero_id: 0,
-      start_game: 0,
+      start_game: 90,
       game_list_index: 0,
-      lobby_ids: lobbyIds,
-    }).finish();
+      lobby_ids: [],
+    });
 
-    client.sendToGC(570, 8009, {}, Buffer.from(newMsg));
+    console.info(type.fromObject({
+      search_key: '',
+      league_id: 0,
+      hero_id: 0,
+      start_game: 90,
+      game_list_index: 0,
+      lobby_ids: [],
+    }));
+    console.info('Sending to GC', accs, [...lobbyIds.values()]);
+
+    client.sendToGC(570, 8009, {}, Buffer.from(newMsg.finish()));
+    setInterval(() => client.sendToGC(570, 8009, {}, Buffer.from(newMsg.finish())), 5000);
   });
 });
 
@@ -82,15 +96,10 @@ client.on('receivedFromGC', (app, msg, payload) => {
       match_id?: string
     }>
   };
-
+  console.log('receivedFromGC', app, msg, data);
   if (data.game_list) {
-    console.dir({
-      app,
-      msg,
-      games: data.game_list,
-    }, { depth: null });
-  } else {
-    console.log(data);
+    const match = data.game_list.find(g => g.players.find(p => p.account_id == 86738694));
+    console.log(match, { depth: null });
   }
 });
 
