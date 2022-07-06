@@ -14,6 +14,8 @@ import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/themes/prism-tomorrow.css';
 
+import MyBtn from './elements/MyBtn.vue';
+
 import { VariableType } from '@/dashboard/Variables.vue';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
@@ -174,40 +176,39 @@ onMounted(() => {
 
       <div class="flex justify-between mt-5">
         <div>
-          <button
+          <MyBtn
             v-if="!variable.edit"
-            type="button"
-            class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-purple-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-xs transition uppercase"
+            color="purple"
             @click="() => {
               variable.edit = true;
               if (variable.id) variablesBeforeEdit?.push(JSON.parse(JSON.stringify(variable)))
             }"
           >
             {{ t('buttons.edit') }}
-          </button>
-          <button
+          </MyBtn>
+          <MyBtn
             v-else
-            class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-purple-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
+            color="purple"
             @click="cancelEdit"
           >
             {{ t('buttons.cancel') }}
-          </button>
+          </MyBtn>
         </div>
         <div v-if="variable.edit">
-          <button
+          <MyBtn
             v-if="variable.id"
-            type="button"
-            class="bg-red-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-red-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
+            color="red"
             @click="deleteVariable"
           >
             {{ t('buttons.delete') }}
-          </button>
-          <button
+          </MyBtn>
+          <MyBtn
+            color="green"
             type="submit"
-            class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight ml-2 px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
+            class="ml-1"
           >
             {{ t('buttons.save') }}
-          </button>
+          </MyBtn>
         </div>
       </div>
     </Form>
