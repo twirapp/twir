@@ -30,7 +30,6 @@ model User {
   permits               Permit[]
   personalNotifications Notification[]
   viewedNotifications   ViewedNotification[]
-  dotaMatches           DotaMatch[]
   @@map("users")
 }
 
@@ -71,6 +70,7 @@ model Channel {
   permits            Permit[]
   keywords           Keyword[]
   customVar          CustomVar[]
+  dotaAccounts       DotaAccount[]
 
   @@map("channels")
 }
@@ -387,19 +387,11 @@ model ViewedNotification {
   @@map("users_viewed_notifications")
 }
 
-model DotaMatch {
-  id String @id
+model DotaAccount {
+  id        String @id
+  channelId String
 
-  watching_server               String?
-  createdAt                     DateTime
-  lobbyId                       String?
-  lobbyType                     String?
-  heroId                        String?
-  weekend_tourney_bracket_round String?
-  weekend_tourney_skill_level   String?
-  userId                        String
-
-  user User @relation(fields: [userId], references: [id])
-  @@unique([id, userId])
-  @@map("dota_matches")
+  channel Channel @relation(fields: [channelId], references: [id])
+  @@unique([id, channelId])
+  @@map("channels_dota_accounts")
 }
