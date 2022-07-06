@@ -59,6 +59,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/eventsub/tsconfig.json"
       }
+    },
+    "dota": {
+      "type": "application",
+      "root": "apps/dota",
+      "entryFile": "index",
+      "sourceRoot": "apps/dota/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/dota/tsconfig.json"
+      }
     }
   }
 }
