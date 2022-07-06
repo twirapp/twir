@@ -1,0 +1,21 @@
+{
+  "name": "@tsuwari/dota",
+  "type": "module",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "dev": "nodemon",
+    "start": "node --enable-source-maps dist/index.js"
+  },
+  "devDependencies": {
+    "@types/steam-user": "^4.23.0",
+    "@types/steamid": "^2.0.1",
+    "nodemon": "2.0.16"
+  },
+  "dependencies": {
+    "@tsuwari/config": "workspace:*",
+    "protobufjs": "^6.11.3",
+    "steam-user": "^4.24.3",
+    "steamid": "^2.0.0"
+  }
+}

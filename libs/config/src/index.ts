@@ -21,4 +21,6 @@ export const config = cleanEnv(process.env, {
   SAY_IN_CHAT: bool({ default: true }),
   NATS_URL: str({ default: 'nats://localhost:4222' }),
   HOSTNAME: str({ default: '' }),
+  STEAM_USERNAME: str(),
+  STEAM_PASSWORD: str(),
 });

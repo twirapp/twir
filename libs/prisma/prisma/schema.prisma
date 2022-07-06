@@ -30,6 +30,7 @@ model User {
   permits               Permit[]
   personalNotifications Notification[]
   viewedNotifications   ViewedNotification[]
+  dotaMatches           DotaMatch[]
   @@map("users")
 }
 
@@ -69,8 +70,8 @@ model Channel {
   dashboardAccess    DashboardAccess[]
   permits            Permit[]
   keywords           Keyword[]
+  customVar          CustomVar[]
 
-  CustomVar CustomVar[]
   @@map("channels")
 }
 
@@ -92,6 +93,7 @@ enum IntegrationService {
   FACEIT
   SPOTIFY
   DONATIONALERTS
+  DOTA
 }
 
 model Integration {
@@ -383,4 +385,21 @@ model ViewedNotification {
   notification Notification @relation(fields: [notificationId], references: [id])
   user         User         @relation(fields: [userId], references: [id])
   @@map("users_viewed_notifications")
+}
+
+model DotaMatch {
+  id String @id
+
+  watching_server               String?
+  createdAt                     DateTime
+  lobbyId                       String?
+  lobbyType                     String?
+  heroId                        String?
+  weekend_tourney_bracket_round String?
+  weekend_tourney_skill_level   String?
+  userId                        String
+
+  user User @relation(fields: [userId], references: [id])
+  @@unique([id, userId])
+  @@map("dota_matches")
 }

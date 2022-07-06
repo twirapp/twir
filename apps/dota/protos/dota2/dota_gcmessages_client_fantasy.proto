@@ -1,0 +1,340 @@
+import "dota_shared_enums.proto";
+
+option optimize_for = SPEED;
+option cc_generic_services = false;
+
+enum DOTA_2013PassportSelectionIndices {
+	PP13_SEL_ALLSTAR_PLAYER_0 = 0;
+	PP13_SEL_ALLSTAR_PLAYER_1 = 1;
+	PP13_SEL_ALLSTAR_PLAYER_2 = 2;
+	PP13_SEL_ALLSTAR_PLAYER_3 = 3;
+	PP13_SEL_ALLSTAR_PLAYER_4 = 4;
+	PP13_SEL_ALLSTAR_PLAYER_5 = 5;
+	PP13_SEL_ALLSTAR_PLAYER_6 = 6;
+	PP13_SEL_ALLSTAR_PLAYER_7 = 7;
+	PP13_SEL_ALLSTAR_PLAYER_8 = 8;
+	PP13_SEL_ALLSTAR_PLAYER_9 = 9;
+	PP13_SEL_QUALPRED_WEST_0 = 10;
+	PP13_SEL_QUALPRED_WEST_1 = 11;
+	PP13_SEL_QUALPRED_WEST_2 = 12;
+	PP13_SEL_QUALPRED_WEST_3 = 13;
+	PP13_SEL_QUALPRED_WEST_4 = 14;
+	PP13_SEL_QUALPRED_WEST_5 = 15;
+	PP13_SEL_QUALPRED_WEST_6 = 16;
+	PP13_SEL_QUALPRED_WEST_7 = 17;
+	PP13_SEL_QUALPRED_WEST_8 = 18;
+	PP13_SEL_QUALPRED_WEST_9 = 19;
+	PP13_SEL_QUALPRED_WEST_10 = 20;
+	PP13_SEL_QUALPRED_WEST_11 = 21;
+	PP13_SEL_QUALPRED_WEST_12 = 22;
+	PP13_SEL_QUALPRED_WEST_13 = 23;
+	PP13_SEL_QUALPRED_WEST_14 = 24;
+	PP13_SEL_QUALPRED_EAST_0 = 25;
+	PP13_SEL_QUALPRED_EAST_1 = 26;
+	PP13_SEL_QUALPRED_EAST_2 = 27;
+	PP13_SEL_QUALPRED_EAST_3 = 28;
+	PP13_SEL_QUALPRED_EAST_4 = 29;
+	PP13_SEL_QUALPRED_EAST_5 = 30;
+	PP13_SEL_QUALPRED_EAST_6 = 31;
+	PP13_SEL_QUALPRED_EAST_7 = 32;
+	PP13_SEL_QUALPRED_EAST_8 = 33;
+	PP13_SEL_QUALPRED_EAST_9 = 34;
+	PP13_SEL_QUALPRED_EAST_10 = 35;
+	PP13_SEL_QUALPRED_EAST_11 = 36;
+	PP13_SEL_QUALPRED_EAST_12 = 37;
+	PP13_SEL_QUALPRED_EAST_13 = 38;
+	PP13_SEL_QUALPRED_EAST_14 = 39;
+	PP13_SEL_TEAMCUP_TEAM = 40;
+	PP13_SEL_TEAMCUP_PLAYER = 41;
+	PP13_SEL_TEAMCUP_TEAM_LOCK = 42;
+	PP13_SEL_TEAMCUP_PLAYER_LOCK = 43;
+	PP13_SEL_EVENTPRED_0 = 44;
+	PP13_SEL_EVENTPRED_1 = 45;
+	PP13_SEL_EVENTPRED_2 = 46;
+	PP13_SEL_EVENTPRED_3 = 47;
+	PP13_SEL_EVENTPRED_4 = 48;
+	PP13_SEL_EVENTPRED_5 = 49;
+	PP13_SEL_EVENTPRED_6 = 50;
+	PP13_SEL_EVENTPRED_7 = 51;
+	PP13_SEL_EVENTPRED_8 = 52;
+	PP13_SEL_EVENTPRED_9 = 53;
+	PP13_SEL_EVENTPRED_10 = 54;
+	PP13_SEL_EVENTPRED_11 = 55;
+	PP13_SEL_EVENTPRED_12 = 56;
+	PP13_SEL_EVENTPRED_13 = 57;
+	PP13_SEL_EVENTPRED_14 = 58;
+	PP13_SEL_EVENTPRED_15 = 59;
+	PP13_SEL_EVENTPRED_16 = 60;
+	PP13_SEL_EVENTPRED_17 = 61;
+	PP13_SEL_EVENTPRED_18 = 62;
+	PP13_SEL_EVENTPRED_19 = 63;
+	PP13_SEL_EVENTPRED_20 = 64;
+	PP13_SEL_EVENTPRED_21 = 65;
+	PP13_SEL_EVENTPRED_22 = 66;
+	PP13_SEL_EVENTPRED_23 = 67;
+	PP13_SEL_EVENTPRED_24 = 68;
+	PP13_SEL_EVENTPRED_25 = 69;
+	PP13_SEL_EVENTPRED_26 = 70;
+	PP13_SEL_EVENTPRED_27 = 71;
+	PP13_SEL_EVENTPRED_28 = 72;
+	PP13_SEL_EVENTPRED_29 = 73;
+	PP13_SEL_EVENTPRED_30 = 74;
+	PP13_SEL_EVENTPRED_31 = 75;
+	PP13_SEL_EVENTPRED_32 = 76;
+	PP13_SEL_EVENTPRED_33 = 77;
+	PP13_SEL_EVENTPRED_34 = 78;
+	PP13_SEL_EVENTPRED_35 = 79;
+	PP13_SEL_EVENTPRED_36 = 80;
+	PP13_SEL_EVENTPRED_37 = 81;
+	PP13_SEL_EVENTPRED_38 = 82;
+	PP13_SEL_EVENTPRED_39 = 83;
+	PP13_SEL_EVENTPRED_40 = 84;
+	PP13_SEL_EVENTPRED_41 = 85;
+	PP13_SEL_EVENTPRED_42 = 86;
+	PP13_SEL_EVENTPRED_43 = 87;
+	PP13_SEL_SOLO_0 = 88;
+	PP13_SEL_SOLO_1 = 89;
+	PP13_SEL_SOLO_2 = 90;
+	PP13_SEL_SOLO_3 = 91;
+	PP13_SEL_SOLO_4 = 92;
+	PP13_SEL_SOLO_5 = 93;
+	PP13_SEL_SOLO_6 = 94;
+	PP13_SEL_SOLO_7 = 95;
+}
+
+message CMsgDOTAPlayerInfo {
+	message Results {
+		optional uint32 league_id = 1;
+		optional uint32 placement = 2;
+		optional uint32 earnings = 3;
+	}
+
+	message AuditEntry {
+		optional uint32 start_timestamp = 1;
+		optional uint32 end_timestamp = 2;
+		optional uint32 team_id = 3;
+		optional string team_name = 4;
+		optional string team_tag = 5;
+		optional string team_url_logo = 6;
+	}
+
+	optional uint32 account_id = 1;
+	optional string name = 2;
+	optional string country_code = 3;
+	optional .Fantasy_Roles fantasy_role = 4 [default = FANTASY_ROLE_UNDEFINED];
+	optional uint32 team_id = 5;
+	optional string team_name = 6;
+	optional string team_tag = 7;
+	optional string sponsor = 8;
+	optional bool is_locked = 9;
+	optional bool is_pro = 10;
+	optional string real_name = 11;
+	optional uint32 total_earnings = 13;
+	repeated .CMsgDOTAPlayerInfo.Results results = 14;
+	optional string team_url_logo = 15;
+	repeated .CMsgDOTAPlayerInfo.AuditEntry audit_entries = 16;
+	optional string team_abbreviation = 17;
+}
+
+message CMsgDOTAPlayerInfoList {
+	repeated .CMsgDOTAPlayerInfo player_infos = 1;
+}
+
+message CMsgDOTATeamRoster {
+	optional uint32 timestamp = 1;
+	optional uint32 team_id = 2;
+	repeated uint32 member_account_ids = 3;
+	optional uint32 coach_account_id = 4;
+}
+
+message CMsgDOTADPCProfileInfo {
+	message PredictionInfo {
+		optional uint32 percent = 1;
+		optional int32 shard_winnings = 2;
+	}
+
+	message FantasyInfo {
+		optional uint32 top_90_finishes = 1;
+		optional uint32 top_75_finishes = 2;
+		optional uint32 top_50_finishes = 3;
+		optional uint32 shard_winnings = 4;
+	}
+
+	optional .CMsgDOTAPlayerInfo player_info = 1;
+	optional .CMsgDOTADPCProfileInfo.PredictionInfo prediction_info = 2;
+	optional .CMsgDOTADPCProfileInfo.FantasyInfo fantasy_info = 3;
+	repeated uint32 disabled_notifications = 4;
+}
+
+message CMsgDOTALeaderboards {
+	message RegionLeaderboard {
+		optional uint32 division = 1;
+		repeated uint32 account_ids = 2;
+	}
+
+	repeated .CMsgDOTALeaderboards.RegionLeaderboard leaderboards = 2;
+}
+
+message CMsgDOTAPassportVoteTeamGuess {
+	optional uint32 league_id = 1;
+	optional uint32 winner_id = 2;
+	optional uint32 runnerup_id = 3;
+}
+
+message CMsgDOTAPassportVoteGenericSelection {
+	optional .DOTA_2013PassportSelectionIndices selection_index = 1 [default = PP13_SEL_ALLSTAR_PLAYER_0];
+	optional uint32 selection = 2;
+}
+
+message CMsgDOTAPassportStampedPlayer {
+	optional uint64 steam_id = 1;
+	optional uint32 stamp_level = 2;
+}
+
+message CMsgDOTAPassportPlayerCardChallenge {
+	optional uint32 challenge_id = 1;
+}
+
+message CMsgDOTAPassportVote {
+	repeated .CMsgDOTAPassportVoteTeamGuess team_votes = 1;
+	repeated .CMsgDOTAPassportVoteGenericSelection generic_selections = 2;
+	repeated .CMsgDOTAPassportStampedPlayer stamped_players = 3;
+	repeated .CMsgDOTAPassportPlayerCardChallenge player_card_challenges = 4;
+}
+
+message CMsgClientToGCGetPlayerCardRosterRequest {
+	optional uint32 league_id = 1;
+	optional uint32 fantasy_period = 3;
+}
+
+message CMsgClientToGCGetPlayerCardRosterResponse {
+	enum Result {
+		SUCCESS = 0;
+		ERROR_UNSPECIFIED = 1;
+		ERROR_INVALID_LEAGUE_ID = 2;
+		ERROR_INVALID_TIMESTAMP = 3;
+	}
+
+	optional .CMsgClientToGCGetPlayerCardRosterResponse.Result result = 1 [default = SUCCESS];
+	repeated uint64 player_card_item_id = 2;
+	optional float score = 3;
+	optional bool finalized = 4;
+	optional float percentile = 5;
+}
+
+message CMsgClientToGCBatchGetPlayerCardRosterRequest {
+	message LeagueTimestamp {
+		optional uint32 league_id = 1;
+		optional uint32 fantasy_period = 3;
+	}
+
+	repeated .CMsgClientToGCBatchGetPlayerCardRosterRequest.LeagueTimestamp league_timestamps = 1;
+}
+
+message CMsgClientToGCBatchGetPlayerCardRosterResponse {
+	message RosterResponse {
+		optional uint32 league_id = 1;
+		optional uint32 deprecated_timestamp = 2;
+		optional .CMsgClientToGCBatchGetPlayerCardRosterResponse.Result result = 3 [default = SUCCESS];
+		repeated uint64 player_card_item_id = 4;
+		optional float score = 5;
+		optional bool finalized = 6;
+		optional float percentile = 7;
+		optional uint32 fantasy_period = 8;
+	}
+
+	enum Result {
+		SUCCESS = 0;
+		ERROR_UNSPECIFIED = 1;
+		ERROR_INVALID_LEAGUE_ID = 2;
+		ERROR_INVALID_TIMESTAMP = 3;
+	}
+
+	repeated .CMsgClientToGCBatchGetPlayerCardRosterResponse.RosterResponse responses = 1;
+}
+
+message CMsgClientToGCSetPlayerCardRosterRequest {
+	optional uint32 league_id = 1;
+	optional uint32 deprecated_timestamp = 2;
+	optional uint32 slot = 3;
+	optional uint64 player_card_item_id = 4;
+	optional uint32 event_id = 5;
+	optional uint32 fantasy_period = 6;
+}
+
+message CMsgClientToGCSetPlayerCardRosterResponse {
+	enum Result {
+		SUCCESS = 0;
+		ERROR_UNSPECIFIED = 1;
+		ERROR_INVALID_LEAGUE_ID = 2;
+		ERROR_INVALID_TIMESTAMP = 3;
+		ERROR_PLAYER_CARD_NOT_OWNED = 4;
+		ERROR_INVALID_SLOT = 5;
+		ERROR_FAILED_CARD_INFO = 6;
+		ERROR_ACCOUNT_DUPLICATE = 7;
+		ERROR_LOCKED_TIMESTAMP = 8;
+		ERROR_INVALID_LEAGUE_FOR_PERIOD = 9;
+		ERROR_INVALID_EVENT = 10;
+	}
+
+	optional .CMsgClientToGCSetPlayerCardRosterResponse.Result result = 1 [default = SUCCESS];
+}
+
+message CMsgDOTAFantasyDPCLeagueStatus {
+	message LeagueInfo {
+		optional uint32 league_id = 1;
+		optional string league_name = 2;
+		optional uint32 start_timestamp = 3;
+		optional uint32 end_timestamp = 4;
+		repeated uint32 day_timestamps = 5;
+		optional .CMsgDOTAFantasyDPCLeagueStatus.ERosterStatus status = 8 [default = UNSET];
+	}
+
+	enum ERosterStatus {
+		UNSET = 0;
+		PARTIAL = 1;
+		FULL = 2;
+		CONCLUDED = 3;
+	}
+
+	repeated .CMsgDOTAFantasyDPCLeagueStatus.LeagueInfo league_infos = 1;
+}
+
+message CMsgDOTADPCSearchResults {
+	message Player {
+		optional uint32 id = 1;
+		optional string name = 2;
+		optional string real_name = 3;
+	}
+
+	message Team {
+		optional uint32 id = 1;
+		optional string name = 2;
+		optional string url = 3;
+	}
+
+	message League {
+		optional uint32 id = 1;
+		optional string name = 2;
+	}
+
+	enum ESearchResultsDesired {
+		k_ESearchResultsDesired_Players = 1;
+		k_ESearchResultsDesired_Teams = 2;
+		k_ESearchResultsDesired_Leagues = 4;
+		k_ESearchResultsDesired_All = 7;
+	}
+
+	repeated .CMsgDOTADPCSearchResults.Player players = 1;
+	repeated .CMsgDOTADPCSearchResults.Team teams = 2;
+	repeated .CMsgDOTADPCSearchResults.League leagues = 3;
+}
+
+message CMsgDOTADPCTeamFavoriteRankings {
+	message Team {
+		optional uint32 team_id = 1;
+		optional uint32 favorites = 2;
+	}
+
+	repeated .CMsgDOTADPCTeamFavoriteRankings.Team teams = 1;
+}
