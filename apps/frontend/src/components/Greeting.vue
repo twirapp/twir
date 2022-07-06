@@ -155,7 +155,6 @@ function cancelEdit() {
             color="green"
             type="submit"
             class="ml-1"
-            @click="deleteGreeting"
           >
             {{ t('buttons.save') }}
           </MyBtn>
