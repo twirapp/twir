@@ -94,6 +94,7 @@ export class AppService extends SteamUser implements OnModuleInit {
 
     if (data.game_list) {
       for (const game of data.game_list) {
+        // TURBO MATCHES SHOULD BE INCLUDED, NOT SKIPPED
         if (!game.average_mmr || !game.players || !game.match_id) continue;
 
         for (const player of game.players) {

@@ -93,7 +93,6 @@ enum IntegrationService {
   FACEIT
   SPOTIFY
   DONATIONALERTS
-  DOTA
 }
 
 model Integration {
@@ -394,4 +393,26 @@ model DotaAccount {
   channel Channel @relation(fields: [channelId], references: [id])
   @@unique([id, channelId])
   @@map("channels_dota_accounts")
+}
+
+model DotaHero {
+  id   String @id
+  name String
+
+  @@map("dota_heroes")
+}
+
+model DotaMode {
+  id   String @id
+  name String
+
+  @@map("dota_game_modes")
+}
+
+model DotaMedals {
+  rank_tier String @id
+  name      String
+
+  @@index([rank_tier])
+  @@map("dota_medals")
 }
