@@ -424,7 +424,7 @@ model DotaMatch {
   startedAt                     DateTime
   lobby_type                    Int
   gameModeId                    Int
-  players                       Json[]
+  players                       Int[]
   weekend_tourney_bracket_round String?
   weekend_tourney_skill_level   String?
   match_id                      String   @unique

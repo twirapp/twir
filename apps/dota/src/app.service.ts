@@ -4,13 +4,12 @@ import { fileURLToPath } from 'url';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { config } from '@tsuwari/config';
 import { PrismaClient, Prisma } from '@tsuwari/prisma';
-import { RedisService } from '@tsuwari/shared';
+import { DotaGame, RedisService } from '@tsuwari/shared';
 import protobufjs from 'protobufjs';
 import SteamUser from 'steam-user';
 import SteamID from 'steamid';
 
 import { converUsers } from './helpers/convertUsers.js';
-import { Game } from './types.js';
 import { dotaHeroes, gameModes } from './constants.js';
 
 @Injectable()
@@ -63,14 +62,19 @@ export class AppService extends SteamUser implements OnModuleInit {
     const convertedAccs = accs.map(SteamID.fromIndividualAccountID).map(id => id.getSteamID64());
     const type = this.#watchRoot.lookupType('CMsgClientToGCFindTopSourceTVGames');
 
-    await Promise.all(accs.map(a => this.redis.del(`dotaMatches:${a}`)))
+    await Promise.all([
+      Promise.all(accs.map(a => this.redis.del(`dotaMatches:${a}`))),
+      Promise.all(accs.map(a => this.redis.del(`dotaRps:${a}`)))
+    ])
 
-    this.requestRichPresence(570, convertedAccs, 'english', (error, data) => {
+    this.requestRichPresence(570, convertedAccs, 'english', async (error, data) => {
       if (error) {
         return this.#logger.error(error)
       }
       if (!data.users) return;
       const users = converUsers(data.users);
+
+      await Promise.all(users.map(u => this.redis.set(`dotaRps:${u.userId}`, JSON.stringify(u.richPresence), 'EX', 60)))
 
       const lobbyIds = new Set(users.filter(u => u.richPresence.lobbyId).map(u => u.richPresence.lobbyId));
       if (!lobbyIds.size) return;
@@ -92,7 +96,7 @@ export class AppService extends SteamUser implements OnModuleInit {
     const type = this.#watchRoot.lookupType('CMsgGCToClientFindTopSourceTVGamesResponse');
 
     const data = type.decode(payload).toJSON() as {
-      game_list?: Array<Game>
+      game_list?: Array<DotaGame>
     };
 
     if (data.game_list) {
@@ -106,7 +110,7 @@ export class AppService extends SteamUser implements OnModuleInit {
           await this.prisma.dotaMatch.create({
             data: {
               lobby_type: game.lobby_type,
-              players: game.players,
+              players: game.players.map(p => p.account_id),
               startedAt: new Date(Number(`${game.activate_time}000`)),
               match_id: game.match_id,
               avarage_mmr: game.average_mmr,
