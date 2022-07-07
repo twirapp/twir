@@ -24,7 +24,6 @@ const getGames = async (accounts: string[]) => {
   }
 
   const parsedGames = cachedGames.map(g => JSON.parse(g!) as DotaGame)
-
   const dbGames = await prisma.dotaMatch.findMany({
     where: {
       startedAt: {
