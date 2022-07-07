@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { config } from '@tsuwari/config';
-import { PrismaClient } from '@tsuwari/prisma';
+import { PrismaClient, Prisma } from '@tsuwari/prisma';
 import { RedisService } from '@tsuwari/shared';
 import protobufjs from 'protobufjs';
 import SteamUser from 'steam-user';
@@ -11,6 +11,7 @@ import SteamID from 'steamid';
 
 import { converUsers } from './helpers/convertUsers.js';
 import { Game } from './types.js';
+import { dotaHeroes, gameModes } from './constants.js';
 
 @Injectable()
 export class AppService extends SteamUser implements OnModuleInit {
@@ -56,11 +57,13 @@ export class AppService extends SteamUser implements OnModuleInit {
     });
   }
 
-  getPresences(accs: string[]) {
+  async getPresences(accs: string[]) {
     this.#logger.log(`Getting presences of ${accs.length} accounts.`)
 
     const convertedAccs = accs.map(SteamID.fromIndividualAccountID).map(id => id.getSteamID64());
     const type = this.#watchRoot.lookupType('CMsgClientToGCFindTopSourceTVGames');
+
+    await Promise.all(accs.map(a => this.redis.del(`dotaMatches:${a}`)))
 
     this.requestRichPresence(570, convertedAccs, 'english', (error, data) => {
       if (error) {
@@ -95,10 +98,54 @@ export class AppService extends SteamUser implements OnModuleInit {
     if (data.game_list) {
       for (const game of data.game_list) {
         // TURBO MATCHES SHOULD BE INCLUDED, NOT SKIPPED
-        if (!game.average_mmr || !game.players || !game.match_id) continue;
+        if (!game.players || !game.match_id) continue;
+
+        const gameMode = gameModes.find(g => g.id === game.game_mode)
+
+        if (gameMode) {
+          await this.prisma.dotaMatch.create({
+            data: {
+              lobby_type: game.lobby_type,
+              players: game.players,
+              startedAt: new Date(Number(`${game.activate_time}000`)),
+              match_id: game.match_id,
+              avarage_mmr: game.average_mmr,
+              weekend_tourney_bracket_round: game.weekend_tourney_bracket_round,
+              weekend_tourney_skill_level: game.weekend_tourney_skill_level,
+              gameMode: {
+                connectOrCreate: {
+                  where: {
+                    id: game.game_mode,
+                  },
+                  create: {
+                    id: game.game_mode,
+                    name: gameMode.name,
+                  }
+                }
+              }
+            }
+          }).catch((e) => {
+            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002' && (e.meta?.target as string[]).includes('match_id')) {
+
+            } else throw e
+          })
+        }
 
         for (const player of game.players) {
           await this.redis.set(`dotaMatches:${player.account_id}`, JSON.stringify(game), 'EX', 30 * 60)
+          const hero = dotaHeroes.find(h => h.id === player.hero_id)
+          if (hero) {
+            await this.prisma.dotaHero.create({
+              data: {
+                id: hero.id,
+                name: hero.localized_name
+              }
+            }).catch((e) => {
+              if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002' && (e.meta?.target as string[]).includes('id')) {
+
+              } else throw e
+            })
+          }
         }
       }
     }

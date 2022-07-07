@@ -9,6 +9,7 @@ export type RP = SteamUser.RichPresence & {
 }
 
 export type Game = {
+  activate_time: number,
   lobby_type: number,
   game_mode: number,
   average_mmr: number,

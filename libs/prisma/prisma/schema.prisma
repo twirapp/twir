@@ -396,16 +396,17 @@ model DotaAccount {
 }
 
 model DotaHero {
-  id   String @id
+  id   Int    @id @unique
   name String
 
   @@map("dota_heroes")
 }
 
 model DotaMode {
-  id   String @id
+  id   Int    @id
   name String
 
+  matches DotaMatch[]
   @@map("dota_game_modes")
 }
 
@@ -415,4 +416,21 @@ model DotaMedals {
 
   @@index([rank_tier])
   @@map("dota_medals")
+}
+
+model DotaMatch {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  startedAt                     DateTime
+  lobby_type                    Int
+  gameModeId                    Int
+  players                       Json[]
+  weekend_tourney_bracket_round String?
+  weekend_tourney_skill_level   String?
+  match_id                      String   @unique
+  avarage_mmr                   Int
+
+  gameMode DotaMode @relation(fields: [gameModeId], references: [id])
+
+  @@map("dota_matches")
 }
