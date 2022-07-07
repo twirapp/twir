@@ -430,6 +430,7 @@ model DotaMatch {
   weekend_tourney_skill_level   String?
   match_id                      String   @unique
   avarage_mmr                   Int
+  lobbyId                       String
 
   gameMode DotaMode @relation(fields: [gameModeId], references: [id])
 

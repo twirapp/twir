@@ -9,47 +9,51 @@ const staticApi = app.get(TwitchApiService);
 const redis = app.get(RedisService);
 
 const messages = Object.freeze({
-  GAME_NOT_FOUND: 'Game not found.'
-})
+  GAME_NOT_FOUND: 'Game not found.',
+});
 
 const getGames = async (accounts: string[]) => {
-  const rps = await Promise.all(accounts.map(a => redis.get(`dotaRps:${a}`)))
+  const rps = await Promise.all(accounts.map(a => redis.get(`dotaRps:${a}`)));
   if (!rps.filter(r => r !== null).length) {
     return messages.GAME_NOT_FOUND;
   }
+  const cachedRps = rps.filter(r => r !== null).map(r => JSON.parse(r!));
 
-  const cachedGames = await Promise.all(accounts.map(a => redis.get(`dotaMatches:${a}`)))
+  const cachedGames = await Promise.all(accounts.map(a => redis.get(`dotaMatches:${a}`)));
   if (!cachedGames.filter(r => r !== null).length) {
     return messages.GAME_NOT_FOUND;
   }
 
-  const parsedGames = cachedGames.map(g => JSON.parse(g!) as DotaGame)
+  const parsedGames = cachedGames.filter(g => g !== null).map(g => JSON.parse(g!) as DotaGame);
   const dbGames = await prisma.dotaMatch.findMany({
     where: {
-      startedAt: {
-        gte: new Date(new Date().getTime() - 900000)
+      lobbyId: {
+        in: cachedRps.map(r => r.lobbyId),
       },
       players: {
-        hasSome: accounts.map(a => Number(a))
-      }
+        hasSome: accounts.map(a => Number(a)),
+      },
     },
     orderBy: {
-      startedAt: 'desc'
+      startedAt: 'desc',
+    },
+    include: {
+      gameMode: true,
     },
     take: 2,
-  })
+  });
 
   return dbGames.map(g => {
-    const cachedGame = parsedGames.find(game => game.match_id === g.match_id)!
+    const cachedGame = parsedGames.find(game => game.match_id === g.match_id)!;
 
     return {
       ...g,
-      players: cachedGame.players
-    }
-  })
-}
+      players: cachedGame.players,
+    };
+  });
+};
 
-const dota: DefaultCommand[] = [{
+export const dota: DefaultCommand[] = [{
   name: 'np',
   permission: 'VIEWER',
   visible: false,
@@ -59,11 +63,22 @@ const dota: DefaultCommand[] = [{
     const accounts = await prisma.dotaAccount.findMany({
       where: {
         channelId: state.channelId,
-      }
-    })
+      },
+    });
 
-    if (!accounts.length) return 'You have not added account.'
+    if (!accounts.length) return 'You have not added account.';
 
-    const games = await getGames(accounts.map(a => a.id))
+    const games = await getGames(accounts.map(a => a.id));
+
+    if (typeof games === 'string') return games;
+    if (!games.length) return messages.GAME_NOT_FOUND;
+
+    console.dir(games, { depth: null });
+    return games
+      .map(g => {
+        const avgMmr = g.gameMode.id === 22 ? ` (${g.avarage_mmr}mmr)` : '';
+        return `${g.gameMode.name}${avgMmr}`;
+      })
+      .join(' | ');
   },
 }];

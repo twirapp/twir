@@ -35,10 +35,10 @@ export class AppController {
   @MessagePattern('bots.getDefaultCommands')
   async getDefaultCommands(): Promise<ClientProxyResult<'bots.getDefaultCommands'>> {
     const commands = await import('./defaultCommands/index.js');
+
     return of(Object.values(commands)
       .flat()
-      .map(c => ({ name: c.name, permission: c.permission, visible: c.visible ?? true, description: c.description }))
-      .filter(c => c.visible),
+      .map(c => ({ name: c.name, permission: c.permission, visible: c.visible ?? true, description: c.description })),
     );
   }
 

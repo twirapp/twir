@@ -4,13 +4,12 @@ import { fileURLToPath } from 'url';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { config } from '@tsuwari/config';
 import { PrismaClient, Prisma } from '@tsuwari/prisma';
-import { DotaGame, RedisService } from '@tsuwari/shared';
+import { DotaGame, dotaHeroes, gameModes, RedisService } from '@tsuwari/shared';
 import protobufjs from 'protobufjs';
 import SteamUser from 'steam-user';
 import SteamID from 'steamid';
 
 import { converUsers } from './helpers/convertUsers.js';
-import { dotaHeroes, gameModes } from './constants.js';
 
 @Injectable()
 export class AppService extends SteamUser implements OnModuleInit {
@@ -57,24 +56,24 @@ export class AppService extends SteamUser implements OnModuleInit {
   }
 
   async getPresences(accs: string[]) {
-    this.#logger.log(`Getting presences of ${accs.length} accounts.`)
+    this.#logger.log(`Getting presences of ${accs.length} accounts.`);
 
     const convertedAccs = accs.map(SteamID.fromIndividualAccountID).map(id => id.getSteamID64());
     const type = this.#watchRoot.lookupType('CMsgClientToGCFindTopSourceTVGames');
 
     await Promise.all([
       Promise.all(accs.map(a => this.redis.del(`dotaMatches:${a}`))),
-      Promise.all(accs.map(a => this.redis.del(`dotaRps:${a}`)))
-    ])
+      Promise.all(accs.map(a => this.redis.del(`dotaRps:${a}`))),
+    ]);
 
     this.requestRichPresence(570, convertedAccs, 'english', async (error, data) => {
       if (error) {
-        return this.#logger.error(error)
+        return this.#logger.error(error);
       }
       if (!data.users) return;
       const users = converUsers(data.users);
 
-      await Promise.all(users.map(u => this.redis.set(`dotaRps:${u.userId}`, JSON.stringify(u.richPresence), 'EX', 60)))
+      await Promise.all(users.map(u => this.redis.set(`dotaRps:${u.userId}`, JSON.stringify(u.richPresence), 'EX', 60)));
 
       const lobbyIds = new Set(users.filter(u => u.richPresence.lobbyId).map(u => u.richPresence.lobbyId));
       if (!lobbyIds.size) return;
@@ -104,7 +103,7 @@ export class AppService extends SteamUser implements OnModuleInit {
         // TURBO MATCHES SHOULD BE INCLUDED, NOT SKIPPED
         if (!game.players || !game.match_id) continue;
 
-        const gameMode = gameModes.find(g => g.id === game.game_mode)
+        const gameMode = gameModes.find(g => g.id === game.game_mode);
 
         if (gameMode) {
           const data = {
@@ -116,6 +115,7 @@ export class AppService extends SteamUser implements OnModuleInit {
             avarage_mmr: game.average_mmr,
             weekend_tourney_bracket_round: game.weekend_tourney_bracket_round,
             weekend_tourney_skill_level: game.weekend_tourney_skill_level,
+            lobbyId: game.lobby_id,
             gameMode: {
               connectOrCreate: {
                 where: {
@@ -124,35 +124,35 @@ export class AppService extends SteamUser implements OnModuleInit {
                 create: {
                   id: game.game_mode,
                   name: gameMode.name,
-                }
-              }
-            }
-          }
+                },
+              },
+            },
+          };
 
           if (await this.prisma.dotaMatch.findFirst({ where: { match_id: game.match_id } })) {
             await this.prisma.dotaMatch.update({
               where: { match_id: game.match_id },
               data,
-            })
+            });
           } else {
-            await this.prisma.dotaMatch.create({ data })
+            await this.prisma.dotaMatch.create({ data });
           }
         }
 
         for (const player of game.players) {
-          await this.redis.set(`dotaMatches:${player.account_id}`, JSON.stringify(game), 'EX', 30 * 60)
-          const hero = dotaHeroes.find(h => h.id === player.hero_id)
+          await this.redis.set(`dotaMatches:${player.account_id}`, JSON.stringify(game), 'EX', 30 * 60);
+          const hero = dotaHeroes.find(h => h.id === player.hero_id);
           if (hero) {
             await this.prisma.dotaHero.create({
               data: {
                 id: hero.id,
-                name: hero.localized_name
-              }
+                name: hero.localized_name,
+              },
             }).catch((e) => {
               if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002' && (e.meta?.target as string[]).includes('id')) {
 
-              } else throw e
-            })
+              } else throw e;
+            });
           }
         }
       }
