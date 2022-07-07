@@ -82,7 +82,7 @@ export class AppService extends SteamUser implements OnModuleInit {
         search_key: '',
         league_id: 0,
         hero_id: 0,
-        start_game: 0,
+        start_game: 90,
         game_list_index: 0,
         lobby_ids: [...lobbyIds.values()],
       });
