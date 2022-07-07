@@ -20,6 +20,7 @@ const messages = Object.freeze({
 
 const dotaApi = axios.create({
   baseURL: `http://api.steampowered.com/`,
+  timeout: 1000,
 });
 
 dotaApi.interceptors.request.use((req) => {
@@ -135,11 +136,14 @@ export const dota: DefaultCommand[] = [
         select: {
           match_id: true,
           gameMode: true,
+          players_heroes: true,
+          finished: true,
         },
-      });
+      }).then(gms => gms.filter(g => !g.players_heroes.some(h => h === 0)));
 
 
-      const matchesRequest = await Promise.all(games.map(g => dotaApi.get('IDOTA2Match_570/GetMatchDetails/v1', { params: { match_id: g.match_id } })));
+      const matchesRequest = await Promise.all(games.map(g => dotaApi.get('IDOTA2Match_570/GetMatchDetails/v1', { params: { match_id: g.match_id } })))
+        .then(requests => requests.filter(r => r.status === 200));
 
       const matchesData: any[] = [];
       for (const response of matchesRequest) {
@@ -153,7 +157,16 @@ export const dota: DefaultCommand[] = [
 
       for (const account of accounts) {
         for (const match of matchesData) {
-          if (!match.result?.players) continue;
+          if (typeof match.result.radiant_win === 'undefined' || !match.result?.players) continue;
+
+          await prisma.dotaMatch.update({
+            where: {
+              match_id: match.result.match_id.toString(),
+            },
+            data: {
+              finished: true,
+            },
+          });
           const player = match.result.players.find((p: any) => p.account_id === Number(account.id));
           if (!player) continue;
           const isWinner = player.team_number === 0 && match.result.radiant_win;
@@ -168,13 +181,16 @@ export const dota: DefaultCommand[] = [
         }
       }
 
-      const result: string[] = []
-      for (const [modeId, matches] of Object.entries(matchesByGameMode)) {
+      const result: string[] = [];
+
+      for (const [modeId, matches] of Object.entries(matchesByGameMode).filter(e => e[1].length)) {
         const wins = matches.filter(r => r.isWinner);
         const mode = gameModes.find(m => m.id === Number(modeId));
-        result.push(``)
+        const heroesResult = matches.map(m => `${m.hero.localized_name} (${m.kills}/${m.deaths}/${m.assists})`);
+        result.push(`${mode?.name ?? 'Unknown'} W ${wins.length} — L ${matches.length - wins.length}: ${heroesResult.join(', ')}`);
       }
-      return `W ${wins.length} — ${result.length - wins.length} L`;
+
+      return result.length ? result.join(' | ') : 'W 0 — L 0';
     },
   },
 ];

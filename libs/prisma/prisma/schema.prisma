@@ -431,6 +431,7 @@ model DotaMatch {
   match_id                      String   @unique
   avarage_mmr                   Int
   lobbyId                       String
+  finished                      Boolean  @default(false)
 
   gameMode DotaMode @relation(fields: [gameModeId], references: [id])
 
