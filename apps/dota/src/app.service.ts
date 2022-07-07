@@ -107,35 +107,36 @@ export class AppService extends SteamUser implements OnModuleInit {
         const gameMode = gameModes.find(g => g.id === game.game_mode)
 
         if (gameMode) {
-          await this.prisma.dotaMatch.create({
-            data: {
-              lobby_type: game.lobby_type,
-              players: game.players.map(p => p.account_id),
-              startedAt: new Date(Number(`${game.activate_time}000`)),
-              match_id: game.match_id,
-              avarage_mmr: game.average_mmr,
-              weekend_tourney_bracket_round: game.weekend_tourney_bracket_round,
-              weekend_tourney_skill_level: game.weekend_tourney_skill_level,
-              gameMode: {
-                connectOrCreate: {
-                  where: {
-                    id: game.game_mode,
-                  },
-                  create: {
-                    id: game.game_mode,
-                    name: gameMode.name,
-                  }
+          const data = {
+            lobby_type: game.lobby_type,
+            players: game.players.map(p => p.account_id),
+            players_heroes: game.players.map(p => p.hero_id),
+            startedAt: new Date(Number(`${game.activate_time}000`)),
+            match_id: game.match_id,
+            avarage_mmr: game.average_mmr,
+            weekend_tourney_bracket_round: game.weekend_tourney_bracket_round,
+            weekend_tourney_skill_level: game.weekend_tourney_skill_level,
+            gameMode: {
+              connectOrCreate: {
+                where: {
+                  id: game.game_mode,
+                },
+                create: {
+                  id: game.game_mode,
+                  name: gameMode.name,
                 }
               }
             }
-          }).catch((e) => {
-            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002' && (e.meta?.target as string[]).includes('match_id')) {
+          }
 
-            } else {
-              this.#logger.log(e)
-              throw new e
-            }
-          })
+          if (await this.prisma.dotaMatch.findFirst({ where: { match_id: game.match_id } })) {
+            await this.prisma.dotaMatch.update({
+              where: { match_id: game.match_id },
+              data,
+            })
+          } else {
+            await this.prisma.dotaMatch.create({ data })
+          }
         }
 
         for (const player of game.players) {

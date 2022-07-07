@@ -38,6 +38,15 @@ const getGames = async (accounts: string[]) => {
     },
     take: 2,
   })
+
+  return dbGames.map(g => {
+    const cachedGame = parsedGames.find(game => game.match_id === g.match_id)!
+
+    return {
+      ...g,
+      players: cachedGame.players
+    }
+  })
 }
 
 const dota: DefaultCommand[] = [{
