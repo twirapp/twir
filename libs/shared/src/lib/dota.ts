@@ -30,7 +30,7 @@ export const gameModes = [
   { id: 19, name: 'Event Game' },
   { id: 20, name: 'All Random Deathmatch' },
   { id: 21, name: '1v1 Mid Only' },
-  { id: 22, name: 'All Pick' },
+  { id: 22, name: 'Ranked' },
   { id: 23, name: 'Turbo' },
   { id: 24, name: 'Mutation' },
 ];

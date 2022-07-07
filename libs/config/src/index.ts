@@ -23,4 +23,5 @@ export const config = cleanEnv(process.env, {
   HOSTNAME: str({ default: '' }),
   STEAM_USERNAME: str(),
   STEAM_PASSWORD: str(),
+  STEAM_API_KEY: str(),
 });

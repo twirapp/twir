@@ -150,7 +150,7 @@ export class AppService extends SteamUser implements OnModuleInit {
               },
             }).catch((e) => {
               if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002' && (e.meta?.target as string[]).includes('id')) {
-
+                null;
               } else throw e;
             });
           }

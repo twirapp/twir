@@ -1,5 +1,9 @@
+import { config } from '@tsuwari/config';
 import { PrismaService } from '@tsuwari/prisma';
-import { DotaGame, RedisService, TwitchApiService } from '@tsuwari/shared';
+import { DotaGame, dotaHeroes, gameModes, RedisService, TwitchApiService } from '@tsuwari/shared';
+import { HelixStreamData } from '@twurple/api/lib/index.js';
+import axios from 'axios';
+import { mk } from 'date-fns/locale';
 
 import { app } from '../../index.js';
 import { DefaultCommand } from '../types.js';
@@ -10,6 +14,18 @@ const redis = app.get(RedisService);
 
 const messages = Object.freeze({
   GAME_NOT_FOUND: 'Game not found.',
+  NO_ACCOUNTS: 'You have not added account.',
+});
+
+
+const dotaApi = axios.create({
+  baseURL: `http://api.steampowered.com/`,
+});
+
+dotaApi.interceptors.request.use((req) => {
+  req.params = req.params || {};
+  req.params['key'] = config.STEAM_API_KEY;
+  return req;
 });
 
 const getGames = async (accounts: string[]) => {
@@ -43,6 +59,8 @@ const getGames = async (accounts: string[]) => {
     take: 2,
   });
 
+  if (!dbGames.length) return messages.GAME_NOT_FOUND;
+
   return dbGames.map(g => {
     const cachedGame = parsedGames.find(game => game.match_id === g.match_id)!;
 
@@ -53,32 +71,110 @@ const getGames = async (accounts: string[]) => {
   });
 };
 
-export const dota: DefaultCommand[] = [{
-  name: 'np',
-  permission: 'VIEWER',
-  visible: false,
-  handler: async (state, params) => {
-    if (!state.channelId) return;
+const getAccounts = async (channelId: string) => {
+  const accounts = await prisma.dotaAccount.findMany({
+    where: {
+      channelId,
+    },
+  });
 
-    const accounts = await prisma.dotaAccount.findMany({
-      where: {
-        channelId: state.channelId,
-      },
-    });
+  return accounts.length ? accounts : messages.NO_ACCOUNTS;
+};
 
-    if (!accounts.length) return 'You have not added account.';
+export const dota: DefaultCommand[] = [
+  {
+    name: 'np',
+    permission: 'VIEWER',
+    visible: true,
+    handler: async (state) => {
+      if (!state.channelId) return;
 
-    const games = await getGames(accounts.map(a => a.id));
+      const accounts = await getAccounts(state.channelId);
+      if (typeof accounts === 'string') return accounts;
 
-    if (typeof games === 'string') return games;
-    if (!games.length) return messages.GAME_NOT_FOUND;
+      const games = await getGames(accounts.map(a => a.id));
+      if (typeof games === 'string') return games;
 
-    console.dir(games, { depth: null });
-    return games
-      .map(g => {
-        const avgMmr = g.gameMode.id === 22 ? ` (${g.avarage_mmr}mmr)` : '';
-        return `${g.gameMode.name}${avgMmr}`;
-      })
-      .join(' | ');
+      return games
+        .map(g => {
+          const avgMmr = g.gameMode.id === 22 ? ` (${g.avarage_mmr}mmr)` : '';
+          return `${g.gameMode.name}${avgMmr}`;
+        })
+        .join(' | ');
+    },
   },
-}];
+  {
+    name: 'wl',
+    permission: 'VIEWER',
+    visible: true,
+    handler: async (state) => {
+      if (!state.channelId) return;
+
+      const stream = await redis.get(`streams:${state.channelId}`);
+      if (!stream) return 'Stream is offline';
+      const parsedStream = JSON.parse(stream) as HelixStreamData;
+
+      const accounts = await getAccounts(state.channelId);
+      if (typeof accounts === 'string') return accounts;
+
+      const games = await prisma.dotaMatch.findMany({
+        where: {
+          startedAt: {
+            gte: new Date(new Date(parsedStream.started_at).getTime() - 10 * 60 * 1000),
+          },
+          players: {
+            hasSome: accounts.map(a => Number(a.id)),
+          },
+          lobby_type: {
+            in: [0, 7],
+          },
+        },
+        orderBy: {
+          startedAt: 'desc',
+        },
+        select: {
+          match_id: true,
+          gameMode: true,
+        },
+      });
+
+
+      const matchesRequest = await Promise.all(games.map(g => dotaApi.get('IDOTA2Match_570/GetMatchDetails/v1', { params: { match_id: g.match_id } })));
+
+      const matchesData: any[] = [];
+      for (const response of matchesRequest) {
+        if (response.data) matchesData.push(response.data);
+      }
+
+      const matchesByGameMode: { [x: number]: any[] } = {};
+      gameModes.forEach(m => {
+        matchesByGameMode[m.id] = [];
+      });
+
+      for (const account of accounts) {
+        for (const match of matchesData) {
+          if (!match.result?.players) continue;
+          const player = match.result.players.find((p: any) => p.account_id === Number(account.id));
+          if (!player) continue;
+          const isWinner = player.team_number === 0 && match.result.radiant_win;
+          const hero = dotaHeroes.find(h => h.id === player.hero_id);
+          matchesByGameMode[match.result.game_mode]?.push({
+            isWinner,
+            hero,
+            kills: player.kills,
+            deaths: player.deaths,
+            assists: player.assists,
+          });
+        }
+      }
+
+      const result: string[] = []
+      for (const [modeId, matches] of Object.entries(matchesByGameMode)) {
+        const wins = matches.filter(r => r.isWinner);
+        const mode = gameModes.find(m => m.id === Number(modeId));
+        result.push(``)
+      }
+      return `W ${wins.length} — ${result.length - wins.length} L`;
+    },
+  },
+];
