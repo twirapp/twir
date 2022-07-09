@@ -21,4 +21,5 @@ export const config = cleanEnv(process.env, {
   SAY_IN_CHAT: bool({ default: true }),
   NATS_URL: str({ default: 'nats://localhost:4222' }),
   HOSTNAME: str({ default: '' }),
+  GITHUB_TOKEN: str(),
 });

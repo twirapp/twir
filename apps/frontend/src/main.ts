@@ -11,7 +11,6 @@ import './plugins/socket';
 import 'vue-toastification/dist/index.css';
 import 'flag-icons/css/flag-icons.css';
 
-
 const app = createApp(App).use(i18n).use(router);
 
 app.use(Toast, {
@@ -33,3 +32,14 @@ app.use(Toast, {
 
 app.mount('#app');
 
+setTimeout(async () => {
+  if (!process.env.VERCEL) return;
+
+  const request = await fetch('/api/version');
+  if (!request.ok) return;
+
+  const data = await request.text();
+
+  const sha = process.env.VITE_VERCEL_GIT_COMMIT_SHA ?? process.env.VERCEL_GIT_COMMIT_SHA;
+  if (sha != data) window.location.reload();
+}, 20 * 1000);

@@ -16,6 +16,7 @@ import { RedisModule } from './redis.module.js';
 import { RedisService } from './redis.service.js';
 import { SocketModule } from './socket/socket.module.js';
 import { V1Module } from './v1/v1.module.js';
+import { VersionModule } from './version/version.module.js';
 
 
 const redis = new class extends Redis {
@@ -47,6 +48,7 @@ const redis = new class extends Redis {
     V1Module,
     SocketModule,
     AdminModule,
+    VersionModule,
   ],
   controllers: [AppController],
   providers: [
