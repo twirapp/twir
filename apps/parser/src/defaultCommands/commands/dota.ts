@@ -1,5 +1,6 @@
+import { ID } from '@node-steam/id';
 import { config } from '@tsuwari/config';
-import { PrismaService } from '@tsuwari/prisma';
+import { Prisma, PrismaService } from '@tsuwari/prisma';
 import { DotaGame, dotaHeroes, gameModes, RedisService, TwitchApiService } from '@tsuwari/shared';
 import { HelixStreamData } from '@twurple/api/lib/index.js';
 import axios from 'axios';
@@ -82,6 +83,66 @@ const getAccounts = async (channelId: string) => {
 };
 
 export const dota: DefaultCommand[] = [
+  {
+    name: 'dota addacc',
+    permission: 'BROADCASTER',
+    visible: false,
+    async handler(state, params?) {
+      if (!params || !state.channelId) return;
+
+      const id = new ID(params).getAccountID();
+      if (Number.isNaN(id)) return 'Wrong account id.';
+
+      try {
+        await prisma.dotaAccount.create({
+          data: {
+            channelId: state.channelId,
+            id: params,
+          },
+        });
+
+      } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002' && (e.meta?.target as string[]).includes('id')) {
+          return `Account ${id} already added.`;
+        } else throw e;
+      }
+
+      return 'Account added.';
+    },
+  },
+  {
+    name: 'dota delacc',
+    permission: 'BROADCASTER',
+    visible: false,
+    async handler(state, params?) {
+      if (!params || !state.channelId) return;
+
+      const id = new ID(params).getAccountID();
+      if (Number.isNaN(id)) return 'Wrong account id.';
+
+      const account = await prisma.dotaAccount.findUnique({
+        where: {
+          id_channelId: {
+            channelId: state.channelId,
+            id: id.toString(),
+          },
+        },
+      });
+
+      if (!account) return `Account ${id} not linked.`;
+
+      await prisma.dotaAccount.delete({
+        where: {
+          id_channelId: {
+            channelId: state.channelId,
+            id: params,
+          },
+        },
+      });
+
+      return 'Account deleted.';
+    },
+  },
   {
     name: 'np',
     permission: 'VIEWER',
