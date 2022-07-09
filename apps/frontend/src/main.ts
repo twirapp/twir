@@ -33,6 +33,7 @@ app.use(Toast, {
 app.mount('#app');
 
 async function checkIfUpdateAvailable() {
+  console.log(import.meta.env);
   if (!import.meta.env.VERCEL || !import.meta.env.VITE_VERCEL) return;
 
   const request = await fetch('/api/version');
