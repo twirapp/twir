@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 export type VariablesList = Array<{ name: string, example?: string, description?: string }>
 
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 import { useStore } from '@nanostores/vue';
 import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/create';
 import { useAxios } from '@vueuse/integrations/useAxios';
@@ -11,8 +12,10 @@ import { useToast } from 'vue-toastification';
 import Command from '../components/Command.vue';
 import { VariableType } from './Variables.vue';
 
+
 import Add from '@/assets/buttons/add.svg';
 import Integrations from '@/assets/sidebar/integrations.svg?component';
+import MyBtn from '@/components/elements/MyBtn.vue';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
@@ -90,8 +93,72 @@ function onSave(index: number) {
 </script>
 
 <template>
+  <div class="block flex justify-between md:hidden mx-2 my-2 space-x-2">
+    <Popover
+      class="relative"
+    >
+      <PopoverButton class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition">
+        <svg
+          fill="none"
+          width="16"
+          height="16"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        ><path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16m-7 6h7"
+        /></svg>
+      </PopoverButton>
+
+      <PopoverPanel
+        v-slot="{ close }"
+        :focus="true"
+        class="absolute bg-[#121010] z-10"
+      >
+        <ul class="overflow-auto scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+          <li
+            v-for="command, index of filteredCommands
+            "
+            :key="index"
+            :class="{ 'border-l-2': filteredCommands.indexOf(currentEditableCommand!) === index }"
+            @click="() => {
+              if (!currentEditableCommand!.id) commands.splice(commands.indexOf(currentEditableCommand!), 1)
+              currentEditableCommand = command
+              close()
+            }"
+          >
+            <button
+              aria-current="page"
+              href="/dashboard/commands"
+              class="border-slate-300 duration-300 ease-in-out flex h-8 hover:bg-[#202122] items-center justify-between mt-0 overflow-hidden px-2 ripple-surface-primary text-ellipsis text-sm text-white transition w-full whitespace-nowrap"
+              :class="{
+                'bg-neutral-700': filteredCommands.indexOf(currentEditableCommand!) === index
+              }"
+            > 
+              <span>{{ command.name }}</span>
+            <!-- <Integrations /> -->
+            </button>
+          </li>
+        </ul>
+      </PopoverPanel>
+    </Popover>
+
+    <div>
+      <MyBtn
+        color="green"
+        size="default"
+        @click="insertCommand"
+      >
+        <Add />
+      </MyBtn>
+    </div>
+  </div>
+
   <div class="flex h-full">
-    <div class="border-b border-gray-700 border-r rounded w-40">
+    <div class="border-b border-gray-700 border-r hidden md:block rounded w-40">
       <button
         class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium grid hover:bg-green-700 inline-block leading-tight m-auto place-items-center px-6 py-2.5 shadow text-white text-xs transition uppercase w-full"
         @click="insertCommand"
