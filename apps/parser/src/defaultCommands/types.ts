@@ -7,5 +7,5 @@ export type DefaultCommand = {
   visible?: boolean,
   example?: string,
   permission: CommandPermission,
-  handler: (state: TwitchPrivateMessage, params?: string) => undefined | string | string[] | Promise<string[] | undefined> | Promise<undefined | string>
+  handler: (state: TwitchPrivateMessage, params?: string) => undefined | string | string[] | Promise<string[] | string | undefined> | Promise<undefined | string>
 }

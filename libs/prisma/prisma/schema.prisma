@@ -387,11 +387,12 @@ model ViewedNotification {
 }
 
 model DotaAccount {
-  id        String @id
+  id        String
   channelId String
 
   channel Channel @relation(fields: [channelId], references: [id])
   @@unique([id, channelId])
+  @@index(id)
   @@map("channels_dota_accounts")
 }
 
