@@ -59,7 +59,7 @@ async function deleteVariable(index: number) {
       </div>
     </div>
 
-    <div class="masonry">
+    <div class="gap-2 grid grid-cols-1 lg:grid-cols-2">
       <div
         v-for="variable, index of variables"
         :key="index"
