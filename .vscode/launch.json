@@ -4,7 +4,28 @@
     {
       "type": "node",
       "request": "attach",
-      "name": "Docker: Attach to Node",
+      "name": "Debug Api",
+      "port": 9229,
+      "remoteRoot": "/app",
+      "sourceMaps": true,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/apps/api",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/apps/api/dist/**/*",
+      ],
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/apps/api/<node_internals>/**",
+      ],
+      "autoAttachChildProcesses": false,
+      "trace": false
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Debug Bots",
+      "port": 9230,
       "remoteRoot": "/app",
       "sourceMaps": true,
       "restart": true,
@@ -23,8 +44,88 @@
     {
       "type": "node",
       "request": "attach",
-      "name": "Debug StreamStatus",
+      "name": "Debug Dota",
       "port": 9231,
+      "remoteRoot": "/app",
+      "sourceMaps": true,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/apps/dota",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/apps/dota/dist/**/*",
+      ],
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/apps/dota/<node_internals>/**",
+      ],
+      "autoAttachChildProcesses": false,
+      "trace": false
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Debug EventSub",
+      "port": 9232,
+      "remoteRoot": "/app",
+      "sourceMaps": true,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/apps/eventsub",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/apps/eventsub/dist/**/*",
+      ],
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/apps/eventsub/<node_internals>/**",
+      ],
+      "autoAttachChildProcesses": false,
+      "trace": false
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Debug Parser",
+      "port": 9233,
+      "remoteRoot": "/app",
+      "sourceMaps": true,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/apps/parser",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/apps/parser/dist/**/*",
+      ],
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/apps/parser/<node_internals>/**",
+      ],
+      "autoAttachChildProcesses": false,
+      "trace": false
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Debug Scheduler",
+      "port": 9234,
+      "remoteRoot": "/app",
+      "sourceMaps": true,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/apps/scheduler",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/apps/scheduler/dist/**/*",
+      ],
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/apps/scheduler/<node_internals>/**",
+      ],
+      "autoAttachChildProcesses": false,
+      "trace": false
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Debug StreamStatus",
+      "port": 9234,
       "remoteRoot": "/app",
       "sourceMaps": true,
       "restart": true,
@@ -39,6 +140,6 @@
       ],
       "autoAttachChildProcesses": false,
       "trace": false
-    }
+    },
   ]
 }

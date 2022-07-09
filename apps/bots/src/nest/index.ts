@@ -11,6 +11,7 @@ export const nestApp: INestMicroservice = await NestFactory.createMicroservice<M
   transport: Transport.NATS,
   options: {
     servers: [config.NATS_URL],
+    timeout: 100,
   },
 });
 
