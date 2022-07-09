@@ -23,6 +23,13 @@ export class AppService extends SteamUser implements OnModuleInit {
     });
   }
 
+
+  sendHelloEvent() {
+    const helloType = this.#clientHelloRoot.lookupType('CMsgClientHello');
+    this.sendToGC(570, 4006, {}, Buffer.from(helloType.encode({}).finish()));
+    this.#logger.log('Sent hello event.');
+  }
+
   async onModuleInit() {
     this.#watchRoot = await new protobufjs.Root().load(resolve(dirname(fileURLToPath(import.meta.url)), '..', 'protos', 'dota2', 'dota_gcmessages_client_watch.proto'), {
       keepCase: true,
@@ -44,10 +51,9 @@ export class AppService extends SteamUser implements OnModuleInit {
     });
 
     this.on('appLaunched', async (appId) => {
-      const helloType = this.#clientHelloRoot.lookupType('CMsgClientHello');
-      if (appId === 570) {
-        this.sendToGC(570, 4006, {}, Buffer.from(helloType.encode({}).finish()));
-      }
+      this.sendHelloEvent();
+
+      setInterval(() => this.sendHelloEvent(), 5 * 1000);
     });
 
     this.on('receivedFromGC', (_appId, msgId, payload) => {
@@ -100,7 +106,6 @@ export class AppService extends SteamUser implements OnModuleInit {
 
     if (data.game_list) {
       for (const game of data.game_list) {
-        // TURBO MATCHES SHOULD BE INCLUDED, NOT SKIPPED
         if (!game.players || !game.match_id) continue;
 
         const gameMode = gameModes.find(g => g.id === game.game_mode);

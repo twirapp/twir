@@ -3,7 +3,6 @@ import { PrismaService } from '@tsuwari/prisma';
 import { DotaGame, dotaHeroes, gameModes, RedisService, TwitchApiService } from '@tsuwari/shared';
 import { HelixStreamData } from '@twurple/api/lib/index.js';
 import axios from 'axios';
-import { mk } from 'date-fns/locale';
 
 import { app } from '../../index.js';
 import { DefaultCommand } from '../types.js';
@@ -45,7 +44,7 @@ const getGames = async (accounts: string[]) => {
   const dbGames = await prisma.dotaMatch.findMany({
     where: {
       lobbyId: {
-        in: cachedRps.map(r => r.lobbyId),
+        in: cachedRps.filter(r => r.lobbyId).map(r => r.lobbyId),
       },
       players: {
         hasSome: accounts.map(a => Number(a)),
@@ -137,16 +136,16 @@ export const dota: DefaultCommand[] = [
           match_id: true,
           gameMode: true,
           players_heroes: true,
+          players: true,
           finished: true,
         },
       }).then(gms => gms.filter(g => !g.players_heroes.some(h => h === 0)));
-
 
       const matchesRequest = await Promise.all(games.map(g => dotaApi.get('IDOTA2Match_570/GetMatchDetails/v1', { params: { match_id: g.match_id } })))
         .then(requests => requests.filter(r => r.status === 200));
 
       const matchesData: any[] = [];
-      for (const response of matchesRequest) {
+      for (const response of matchesRequest.filter(m => !m.data.result?.error)) {
         if (response.data) matchesData.push(response.data);
       }
 
@@ -167,10 +166,17 @@ export const dota: DefaultCommand[] = [
               finished: true,
             },
           });
-          const player = match.result.players.find((p: any) => p.account_id === Number(account.id));
-          if (!player) continue;
-          const isWinner = player.team_number === 0 && match.result.radiant_win;
+
+          let player = match.result.players.find((p: any) => p.account_id === Number(account.id));
+          if (!player) {
+            const dbMatch = games.find(g => g.match_id === match.match_id);
+            console.log(dbMatch);
+            if (!dbMatch) continue;
+            const playerIndex = dbMatch.players.indexOf(Number(account.id));
+            player = match.result.players[playerIndex];
+          }
           const hero = dotaHeroes.find(h => h.id === player.hero_id);
+          const isWinner = player.team_number === 0 && match.result.radiant_win;
           matchesByGameMode[match.result.game_mode]?.push({
             isWinner,
             hero,
