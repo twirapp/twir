@@ -33,7 +33,7 @@ app.use(Toast, {
 app.mount('#app');
 
 setTimeout(async () => {
-  if (!process.env.VERCEL) return;
+  if (!process.env.VERCEL || !process.env.VITE_VERCEL) return;
 
   const request = await fetch('/api/version');
   if (!request.ok) return;
