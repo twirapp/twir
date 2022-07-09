@@ -8,6 +8,15 @@
     "save": "Save"
   },
   "name": "English",
+  "navbar": {
+    "notifications": {
+      "noUnreadNotifications": "You haven't unreaded notifications.",
+      "showNew": "Show new",
+      "showOld": "Show old",
+      "title": "Notifications center"
+    },
+    "offline": "Stream Offline"
+  },
   "pages": {
     "commands": {
       "card": {
@@ -33,12 +42,12 @@
           "selectPlaceholder": "Select permission",
           "title": "Permission"
         },
-        "visible": {
-          "title": "Show command in commands list"
-        },
         "responses": {
           "builtInAlert": "This is a built-in command. You can't change its response, but it may be added in the future if a certain percentage of users want to use it.",
           "title": "Responses"
+        },
+        "visible": {
+          "title": "Show command in commands list"
         }
       },
       "searchCommand": "Search command",
@@ -197,12 +206,5 @@
   "statuses": {
     "disabled": "Disabled",
     "enabled": "Enabled"
-  },
-  "navbar": {
-    "notifications": {
-      "showNew": "Show new",
-      "showOld": "Show old",
-      "noUnreadNotifications": "You haven't unreaded notifications."
-    }
   }
 }

@@ -12,7 +12,7 @@ import Command from '../components/Command.vue';
 import { VariableType } from './Variables.vue';
 
 import Add from '@/assets/buttons/add.svg';
-import Remove from '@/assets/buttons/remove.svg';
+import Integrations from '@/assets/sidebar/integrations.svg?component';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
@@ -122,7 +122,7 @@ function onSave(index: number) {
           for="searchCommand"
           class="text-gray-700"
         >{{ t('pages.commands.searchCommand') }}</label>
-      </div> <!--75vh-->
+      </div>
 
 
       <ul class="max-h-[75vh] menu overflow-auto scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600">
@@ -139,12 +139,13 @@ function onSave(index: number) {
           <button
             aria-current="page"
             href="/dashboard/commands"
-            class="border-slate-300 duration-300 ease-in-out flex h-8 hover:bg-[#202122] items-center mt-0 overflow-hidden px-2 ripple-surface-primary text-ellipsis text-sm text-white transition w-full whitespace-nowrap"
+            class="border-slate-300 duration-300 ease-in-out flex h-8 hover:bg-[#202122] items-center justify-between mt-0 overflow-hidden px-2 ripple-surface-primary text-ellipsis text-sm text-white transition w-full whitespace-nowrap"
             :class="{
               'bg-neutral-700': filteredCommands.indexOf(currentEditableCommand!) === index
             }"
-          >
-            <span class="h-3 w-3" /><span>{{ command.name }}</span>
+          > 
+            <span>{{ command.name }}</span>
+            <!-- <Integrations /> -->
           </button>
         </li>
       </ul>

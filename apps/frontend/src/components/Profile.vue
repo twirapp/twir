@@ -124,6 +124,7 @@ const { t } = useI18n({
             <div
               v-for="dashboard of filteredDashboards"
               :key="dashboard.id"
+              :class="{'mr-2': user?.dashboards && user.dashboards.length > 5}"
             >
               <span
                 :class="{

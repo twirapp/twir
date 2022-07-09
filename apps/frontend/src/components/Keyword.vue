@@ -149,7 +149,10 @@ function cancelEdit() {
             {{ t('buttons.cancel') }}
           </button>
         </div>
-        <div v-if="keyword.edit">
+        <div
+          v-if="keyword.edit"
+          class="flex md:flex-none ml-2"
+        >
           <button
             v-if="keyword.id"
             type="button"

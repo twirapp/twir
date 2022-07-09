@@ -2,7 +2,6 @@
  import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 import { useStore } from '@nanostores/vue';
 import { Notification, ViewedNotification, NotificationMessage } from '@tsuwari/prisma';
-import { vElementVisibility  } from '@vueuse/components';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import { computed, ComputedRef, Ref, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -33,10 +32,6 @@ const selectedLang = useStore(localeStore);
 const notifications: ComputedRef<Ref<NotViewed[]> | Ref<Viewed[]>> = computed(() => {
   return showNew.value ? newNotifications : viewedNotifications;
 });
-
-function onNotificationVisibility(id: string, state: boolean) {
-  console.log(id, state);
-}
 
 async function markNotificationAsReaded(notification: Viewed | NotViewed) {
   await api.post(`v1/channels/${selectedDashboard.value.channelId}/notifications/viewed`, {
@@ -80,12 +75,14 @@ selectedDashboardStore.subscribe(async (v) => {
         class="-translate-x-3/4 absolute float-left mt-3 w-96 z-10"
       >
         <PopoverPanel
-          class="bg-[#202020] max-h-[55vh] overflow-auto scrollbar scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-500 sm:px-0 z-10"
+          class="bg-[#202020] max-h-[55vh] overflow-auto scrollbar scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-500 z-10"
         >
           <div
             class="flex items-center justify-between mt-1 px-2 space-y-1"
           >
-            <div>Notifications center</div>
+            <div class="font-bold">
+              {{ t("navbar.notifications.title") }}
+            </div>
             <div>
               <MyBtn
                 color="purple"
@@ -105,7 +102,7 @@ selectedDashboardStore.subscribe(async (v) => {
           </div>
           <div
             v-if="!notifications.value?.length"
-            class="mb-3 mt-3 text-center"
+            class="mx-3 my-3 text-center"
           >
             {{ t('navbar.notifications.noUnreadNotifications') }}
           </div>

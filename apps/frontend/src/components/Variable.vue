@@ -100,7 +100,7 @@ onMounted(() => {
       <div
         v-for="error of errors"
         :key="error"
-        class="bg-red-600 mb-3 mb-4 px-6 py-5 rounded text-base text-red-700"
+        class="bg-red-600 mb-4 px-6 py-5 rounded text-base text-red-700"
         role="alert"
       >
         {{ error }}
@@ -149,11 +149,11 @@ onMounted(() => {
       >
         <prism-editor
           v-model="variable.evalValue"
-          class="my-editor"
+          class="my-editor rounded"
           :highlight="highlighter"
           :line-numbers="loaded"
           :readonly="!variable.edit"
-        />
+        /> 
       </div>
 
       <div
@@ -194,7 +194,10 @@ onMounted(() => {
             {{ t('buttons.cancel') }}
           </MyBtn>
         </div>
-        <div v-if="variable.edit">
+        <div
+          v-if="variable.edit"
+          class="flex md:flex-none ml-2"
+        >
           <MyBtn
             v-if="variable.id"
             color="red"
@@ -221,5 +224,11 @@ input, select {
 }
 input:disabled, select:disabled {
   @apply bg-zinc-400 opacity-100 border-transparent
+}
+</style>
+
+<style>
+.prism-editor__container {
+  word-break: break-all;
 }
 </style>
