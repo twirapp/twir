@@ -184,7 +184,7 @@ function changeCommandResponse(index: number, value: string) {
         <p>{{ error }}</p>
       </div>
       <div
-        class="gap-1 grid grid-cols-2"
+        class="gap-1 grid grid-cols-1 md:grid-cols-2"
       >
         <div>
           <div class="label mb-1">
