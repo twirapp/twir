@@ -24,7 +24,7 @@ importers:
       turbo: 1.2.16
       typescript: 4.7.4
     devDependencies:
-      '@satont/eslint-config': github.com/satont/eslint-config/24ef3ef9f01c5a7f5d0674d0afcb4f0f2e019846_6lykrgsjl6r2vncmjcievjkgyy
+      '@satont/eslint-config': github.com/satont/eslint-config/db55fe5f29bcd17c115b523492a98af0075033e3_6lykrgsjl6r2vncmjcievjkgyy
       '@types/node': 17.0.44
       '@typescript-eslint/eslint-plugin': 5.28.0_py5roj3ykd3sga4gtxlmfvv4pa
       '@typescript-eslint/parser': 5.28.0_b5e7v2qnwxfo6hmiq56u52mz3e
@@ -8019,9 +8019,9 @@ packages:
       toposort: 2.0.2
     dev: false
 
-  github.com/satont/eslint-config/24ef3ef9f01c5a7f5d0674d0afcb4f0f2e019846_6lykrgsjl6r2vncmjcievjkgyy:
-    resolution: {tarball: https://codeload.github.com/satont/eslint-config/tar.gz/24ef3ef9f01c5a7f5d0674d0afcb4f0f2e019846}
-    id: github.com/satont/eslint-config/24ef3ef9f01c5a7f5d0674d0afcb4f0f2e019846
+  github.com/satont/eslint-config/db55fe5f29bcd17c115b523492a98af0075033e3_6lykrgsjl6r2vncmjcievjkgyy:
+    resolution: {tarball: https://codeload.github.com/satont/eslint-config/tar.gz/db55fe5f29bcd17c115b523492a98af0075033e3}
+    id: github.com/satont/eslint-config/db55fe5f29bcd17c115b523492a98af0075033e3
     name: '@satont/eslint-config'
     version: 0.0.1
     peerDependencies:
