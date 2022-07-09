@@ -260,37 +260,12 @@ function changeCommandResponse(index: number, value: string) {
         <div class="label mb-1">
           <span class="label-text">{{ t('pages.commands.card.description.title') }}</span>
         </div>
-        <!-- <Field
-            v-model.trim="command.description"
-            name="description"
-            type="text"
-            :placeholder="t('pages.commands.card.description.placeholder')"
-            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
-          /> -->
-        <textarea
-          id="exampleFormControlTextarea1"
+        <Field
+          v-model.trim="command.description"
+          name="description"
+          as="textarea"
           :placeholder="t('pages.commands.card.description.placeholder')"
-          class="bg-clip-padding
-        bg-white
-        block
-        border
-        border-gray-300
-        border-solid
-        ease-in-out
-        focus:bg-white
-        focus:border-blue-600
-        focus:outline-none
-        focus:text-gray-700
-        font-normal
-        form-control
-        m-0
-        px-3
-        py-1.5
-        rounded
-        text-base
-        text-gray-700
-        transition
-        w-full"
+          class="bg-clip-padding bg-white block border border-gray-300 border-solid ease-in-out focus:bg-white focus:border-blue-600 focus:outline-none focus:text-gray-700 font-normal form-control m-0 px-3 py-1.5 rounded text-base text-gray-700 transition w-full"
           rows="3"
         />
 
