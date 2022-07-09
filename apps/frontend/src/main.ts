@@ -33,15 +33,14 @@ app.use(Toast, {
 app.mount('#app');
 
 async function checkIfUpdateAvailable() {
-  console.log(process.env);
-  if (!process.env.VERCEL || !process.env.VITE_VERCEL) return;
+  if (!import.meta.env.VERCEL || !import.meta.env.VITE_VERCEL) return;
 
   const request = await fetch('/api/version');
   if (!request.ok) return;
 
   const data = await request.text();
 
-  const sha = process.env.VITE_VERCEL_GIT_COMMIT_SHA ?? process.env.VERCEL_GIT_COMMIT_SHA;
+  const sha = import.meta.env.VITE_VERCEL_GIT_COMMIT_SHA ?? import.meta.env.VERCEL_GIT_COMMIT_SHA;
   if (sha != data) window.location.reload();
 }
 
