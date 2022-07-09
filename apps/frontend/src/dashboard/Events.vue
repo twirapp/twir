@@ -9,8 +9,8 @@ title.value = 'Tsuwari - Events';
   <div>
     <div class="flex">
       <div>
-        <div class="w-40 h-screen rounded border-r border-b border-gray-700">
-          <h2 class="mb-2 pt-2 font-bold text-lg text-center outline-none">
+        <div class="border-b border-gray-700 border-r h-screen rounded w-40">
+          <h2 class="font-bold mb-2 outline-none pt-2 text-center text-lg">
             Events
           </h2>
 
@@ -23,9 +23,9 @@ title.value = 'Tsuwari - Events';
           </ul>
         </div>
 
-        <div class="w-56 h-screen flex-1 border-b border-gray-700">
+        <div class="border-b border-gray-700 flex-1 h-screen w-56">
           <div class="mb-5">
-            <h2 class="mb-2 pt-2 text-lg font-bold text-center">
+            <h2 class="font-bold mb-2 pt-2 text-center text-lg">
               Follow event
             </h2>
             <p class="px-2 text-center text-gray-300">
@@ -33,7 +33,7 @@ title.value = 'Tsuwari - Events';
             </p>
           </div>
 
-          <div class="bg-base-200 rounded p-1 m-1 h-4/5 overflow-y-auto">
+          <div class="bg-base-200 h-4/5 m-1 overflow-y-auto p-1 rounded">
             <!-- @TODO -->
             <div class="my-1">
               <p class="text-xl">
@@ -47,12 +47,12 @@ title.value = 'Tsuwari - Events';
         </div>
       </div>
 
-      <div class="w-full p-1 hidden sm:block">
-        <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2">
-          <div class="card card-compact bg-base-200 drop-shadow rounded">
+      <div class="hidden p-1 sm:block w-full">
+        <div class="gap-2 grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2">
+          <div class="bg-base-200 card card-compact drop-shadow rounded">
             <div class="card-body">
               <span class="label-text">Action</span>
-              <select class="select select-sm w-full rounded">
+              <select class="rounded select select-sm w-full">
                 <option
                   disabled
                   selected
@@ -67,14 +67,14 @@ title.value = 'Tsuwari - Events';
               <input
                 type="text"
                 placeholder="$username === 'lwjerri'"
-                class="rounded input input-bordered w-full input-sm mb-5"
+                class="input input-bordered input-sm mb-5 rounded w-full"
               >
 
               <span class="label-text">Message for sending</span>
               <input
                 type="text"
                 placeholder="$username, thank u <3"
-                class="rounded input input-bordered w-full input-sm"
+                class="input input-bordered input-sm rounded w-full"
               >
 
               <div class="card-actions justify-end">
@@ -89,7 +89,7 @@ title.value = 'Tsuwari - Events';
           </div>
 
           <div
-            class="card card-compact bg-transparent cursor-pointer rounded border-solid border-2 hover:border-sky-500"
+            class="bg-transparent border-2 border-solid card card-compact cursor-pointer hover:border-sky-500 rounded"
           >
             <div class="card-body grid place-items-center">
               <svg
@@ -131,9 +131,9 @@ title.value = 'Tsuwari - Events';
       </div>
     </div>
 
-    <div class="w-full p-1 md:hidden">
-      <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2">
-        <div class="card card-compact bg-base-200 drop-shadow rounded">
+    <div class="md:hidden p-1 w-full">
+      <div class="gap-2 grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2">
+        <div class="bg-base-200 card card-compact drop-shadow rounded">
           <div class="card-body">
             <span class="label-text">Action</span>
             <select class="select select-sm w-full">
@@ -151,14 +151,14 @@ title.value = 'Tsuwari - Events';
             <input
               type="text"
               placeholder="$username === 'lwjerri'"
-              class="input input-bordered w-full input-sm mb-5"
+              class="input input-bordered input-sm mb-5 w-full"
             >
 
             <span class="label-text">Message for sending</span>
             <input
               type="text"
               placeholder="$username, thank u <3"
-              class="input input-bordered w-full input-sm"
+              class="input input-bordered input-sm w-full"
             >
 
             <div class="card-actions justify-end">
@@ -172,7 +172,7 @@ title.value = 'Tsuwari - Events';
           </div>
         </div>
 
-        <div class="card card-compact bg-transparent cursor-pointer rounded border-solid border-2 hover:border-sky-500">
+        <div class="bg-transparent border-2 border-solid card card-compact cursor-pointer hover:border-sky-500 rounded">
           <div class="card-body grid place-items-center">
             <svg
               width="48"

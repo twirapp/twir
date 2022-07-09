@@ -7,9 +7,9 @@ import MainNavBar from '@/components/layout/MainNavBar.vue';
   <div style="font-family: 'Inter', sans-serif">
     <MainNavBar />
 
-    <div class="flex text-center h-screen">
+    <div class="flex h-screen text-center">
       <div class="m-auto text-white">
-        <h1 class="text-5xl md:text-7xl break-words outline-none font-bold mb-5">
+        <h1 class="break-words font-bold mb-5 md:text-7xl outline-none text-5xl">
           The perfect bot for<br> your stream
         </h1>
         <p class="py-6 text-xl">

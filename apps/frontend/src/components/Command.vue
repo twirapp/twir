@@ -9,9 +9,6 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import * as yup from 'yup';
 
-
-import Button1 from './elements/MyBtn.vue';
-
 import Add from '@/assets/buttons/add.svg';
 import Remove from '@/assets/buttons/remove.svg';
 import MyBtn from '@/components/elements/MyBtn.vue';
@@ -187,7 +184,7 @@ function changeCommandResponse(index: number, value: string) {
         <p>{{ error }}</p>
       </div>
       <div
-        class="gap-1 grid grid-cols-2"
+        class="gap-1 grid grid-cols-1 md:grid-cols-2"
       >
         <div>
           <div class="label mb-1">
@@ -258,19 +255,19 @@ function changeCommandResponse(index: number, value: string) {
             </option>
           </Field>
         </div>
-
-        <div class="mt-5">
-          <div class="label mb-1">
-            <span class="label-text">{{ t('pages.commands.card.description.title') }}</span>
-          </div>
-          <Field
-            v-model.trim="command.description"
-            name="description"
-            type="text"
-            :placeholder="t('pages.commands.card.description.placeholder')"
-            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
-          />
+      </div>
+      <div class="mt-5">
+        <div class="label mb-1">
+          <span class="label-text">{{ t('pages.commands.card.description.title') }}</span>
         </div>
+        <Field
+          v-model.trim="command.description"
+          name="description"
+          as="textarea"
+          :placeholder="t('pages.commands.card.description.placeholder')"
+          class="bg-clip-padding bg-white block border border-gray-300 border-solid ease-in-out focus:bg-white focus:border-blue-600 focus:outline-none focus:text-gray-700 font-normal form-control m-0 px-3 py-1.5 rounded text-base text-gray-700 transition w-full"
+          rows="3"
+        />
 
         <div class="mt-5">
           <div class="flex form-check justify-between">
@@ -283,7 +280,7 @@ function changeCommandResponse(index: number, value: string) {
               <input
                 id="commandVisibility"
                 v-model="command.visible"
-                class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat bg-white cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full w-9"
+                class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
                 type="checkbox"
                 role="switch"
               >

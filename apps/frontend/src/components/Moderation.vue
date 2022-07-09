@@ -32,7 +32,7 @@ const settings = toRef(props, 'settings', {
     <input
       :id="'enabledState' + settings.type"
       v-model="settings.enabled"
-      class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat bg-white cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full w-9"
+      class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
       type="checkbox"
       role="switch"
     >
@@ -127,7 +127,7 @@ const settings = toRef(props, 'settings', {
           <input
             id="flexSwitchModClips"
             v-model="settings.checkClips"
-            class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat bg-white cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full w-9"
+            class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
             type="checkbox"
             role="switch"
           >
@@ -254,7 +254,7 @@ const settings = toRef(props, 'settings', {
           <input
             :id="'moderateSubscribers' + settings.subscribers"
             v-model="settings.subscribers"
-            class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat bg-white cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full w-9"
+            class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
             type="checkbox"
             role="switch"
           >
@@ -271,7 +271,7 @@ const settings = toRef(props, 'settings', {
           <input
             :id="'moderateVips' + settings.vips"
             v-model="settings.vips"
-            class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat bg-white cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full w-9"
+            class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
             type="checkbox"
             role="switch"
           >

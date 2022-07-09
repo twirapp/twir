@@ -200,7 +200,10 @@ function cancelEdit() {
             {{ t('buttons.cancel') }}
           </MyBtn>
         </div>
-        <div v-if="timer.edit">
+        <div
+          v-if="timer.edit"
+          class="flex md:flex-none ml-2"
+        >
           <MyBtn
             v-if="timer.id"
             color="red"
@@ -212,7 +215,6 @@ function cancelEdit() {
             color="green"
             type="submit"
             class="ml-2"
-            @click="deleteTimer"
           >
             {{ t('buttons.save') }}
           </MyBtn>

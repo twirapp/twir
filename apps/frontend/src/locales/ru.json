@@ -12,8 +12,10 @@
     "notifications": {
       "noUnreadNotifications": "У вас нет непрочитанных уведомлений.",
       "showNew": "Показать новые",
-      "showOld": "Показать старые"
-    }
+      "showOld": "Показать старые",
+      "title": "Центр оповещений"
+    },
+    "offline": "Стрим оффлайн"
   },
   "pages": {
     "commands": {

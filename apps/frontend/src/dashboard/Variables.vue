@@ -49,9 +49,9 @@ async function deleteVariable(index: number) {
 <template>
   <div class="m-1.5 md:m-3">
     <div class="flow-root">
-      <div class="float-left rounded btn btn-primary btn-sm w-full mb-1 md:w-auto">
+      <div class="btn btn-primary btn-sm float-left mb-1 md:w-auto rounded w-full">
         <button
-          class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700    focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
+          class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-purple-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
           @click="insert"
         >
           {{ t('buttons.addNew') }}
@@ -59,11 +59,11 @@ async function deleteVariable(index: number) {
       </div>
     </div>
 
-    <div class="masonry sm:masonry-sm md:masonry-md lg:masonry-lg">
+    <div class="gap-2 grid grid-cols-1 lg:grid-cols-2">
       <div
         v-for="variable, index of variables"
         :key="index"
-        class="block rounded card text-white shadow break-inside mb-[0.5rem]"
+        class="block break-inside card mb-[0.5rem] rounded shadow text-white"
       >
         <VariableComponent 
           :variable="variable"

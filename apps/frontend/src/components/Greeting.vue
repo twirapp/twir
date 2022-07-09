@@ -143,7 +143,10 @@ function cancelEdit() {
             {{ t('buttons.cancel') }}
           </MyBtn>
         </div>
-        <div v-if="greeting.edit">
+        <div
+          v-if="greeting.edit"
+          class="flex md:flex-none ml-2"
+        >
           <MyBtn
             v-if="greeting.id"
             color="red"
@@ -155,7 +158,6 @@ function cancelEdit() {
             color="green"
             type="submit"
             class="ml-1"
-            @click="deleteGreeting"
           >
             {{ t('buttons.save') }}
           </MyBtn>

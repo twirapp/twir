@@ -64,4 +64,19 @@ onMounted(async () => {
       </button>
     </div>
   </div>
+
+  <div
+    v-else
+    class="flex h-screen select-none"
+  >
+    <div class="m-auto">
+      <div class="flex items-center text-white">
+        <div
+          class="animate-spin border-4 h-8 inline-block rounded-full spinner-border w-8"
+          role="status"
+        />
+        <span class="ml-2 text-lg">Loading...</span>
+      </div>
+    </div>
+  </div>
 </template>

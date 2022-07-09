@@ -14,6 +14,8 @@ import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/themes/prism-tomorrow.css';
 
+import MyBtn from './elements/MyBtn.vue';
+
 import { VariableType } from '@/dashboard/Variables.vue';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
@@ -98,13 +100,13 @@ onMounted(() => {
       <div
         v-for="error of errors"
         :key="error"
-        class="bg-red-600 rounded py-5 px-6 mb-4 text-base text-red-700 mb-3"
+        class="bg-red-600 mb-4 px-6 py-5 rounded text-base text-red-700"
         role="alert"
       >
         {{ error }}
       </div>
       <div
-        class="grid grid-cols-1 gap-1"
+        class="gap-1 grid grid-cols-1"
       >
         <div>
           <div class="label mb-1">
@@ -117,19 +119,19 @@ onMounted(() => {
             type="text"
             :placeholder="t('pages.variables.card.name.placeholder')"
             :disabled="!variable.edit"
-            class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
           />
         </div>
       </div>
 
       <div class="mt-5">
-        <div class="label mt-2 mb-1">
+        <div class="label mb-1 mt-2">
           <span class="label-text">{{ t('pages.variables.card.type') }}</span>
         </div>
         <select
           v-model="variable.type"
           :disabled="!variable.edit"
-          class="form-control px-3 py-1.5 text-gray-700 rounded select select-sm w-full"
+          class="form-control px-3 py-1.5 rounded select select-sm text-gray-700 w-full"
         >
           <option
             v-for="type of Object.entries(CustomVarType)"
@@ -147,11 +149,11 @@ onMounted(() => {
       >
         <prism-editor
           v-model="variable.evalValue"
-          class="my-editor"
+          class="my-editor rounded"
           :highlight="highlighter"
           :line-numbers="loaded"
           :readonly="!variable.edit"
-        />
+        /> 
       </div>
 
       <div
@@ -168,46 +170,48 @@ onMounted(() => {
           type="text"
           :placeholder="t('pages.variables.card.messageForSending.placeholder')"
           :disabled="!variable.edit"
-          class="form-control px-3 py-1.5 text-gray-700 rounded input input-bordered w-full input-sm"
+          class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
         />
       </div>
 
       <div class="flex justify-between mt-5">
         <div>
-          <button
+          <MyBtn
             v-if="!variable.edit"
-            type="button"
-            class="inline-block px-6 py-2.5 bg-purple-600 font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+            color="purple"
             @click="() => {
               variable.edit = true;
               if (variable.id) variablesBeforeEdit?.push(JSON.parse(JSON.stringify(variable)))
             }"
           >
             {{ t('buttons.edit') }}
-          </button>
-          <button
+          </MyBtn>
+          <MyBtn
             v-else
-            class="px-6 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700    focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
+            color="purple"
             @click="cancelEdit"
           >
             {{ t('buttons.cancel') }}
-          </button>
+          </MyBtn>
         </div>
-        <div v-if="variable.edit">
-          <button
+        <div
+          v-if="variable.edit"
+          class="flex md:flex-none ml-2"
+        >
+          <MyBtn
             v-if="variable.id"
-            type="button"
-            class="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-red-700 focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
+            color="red"
             @click="deleteVariable"
           >
             {{ t('buttons.delete') }}
-          </button>
-          <button
+          </MyBtn>
+          <MyBtn
+            color="green"
             type="submit"
-            class="inline-block ml-2 px-6 py-2.5 bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
+            class="ml-1"
           >
             {{ t('buttons.save') }}
-          </button>
+          </MyBtn>
         </div>
       </div>
     </Form>
@@ -220,5 +224,11 @@ input, select {
 }
 input:disabled, select:disabled {
   @apply bg-zinc-400 opacity-100 border-transparent
+}
+</style>
+
+<style>
+.prism-editor__container {
+  word-break: break-all;
 }
 </style>
