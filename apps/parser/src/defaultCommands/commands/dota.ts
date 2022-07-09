@@ -170,11 +170,13 @@ export const dota: DefaultCommand[] = [
           let player = match.result.players.find((p: any) => p.account_id === Number(account.id));
           if (!player) {
             const dbMatch = games.find(g => g.match_id === match.result.match_id.toString());
-            console.log(dbMatch);
             if (!dbMatch) continue;
             const playerIndex = dbMatch.players.indexOf(Number(account.id));
             player = match.result.players[playerIndex];
           }
+
+          if (!player) continue;
+
           const hero = dotaHeroes.find(h => h.id === player.hero_id);
           const isWinner = player.team_number === 0 && match.result.radiant_win;
           matchesByGameMode[match.result.game_mode]?.push({
