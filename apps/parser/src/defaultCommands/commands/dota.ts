@@ -172,7 +172,7 @@ export const dota: DefaultCommand[] = [
       if (!state.channelId) return;
 
       const stream = await redis.get(`streams:${state.channelId}`);
-      if (!stream) return 'Stream is offline';
+      if (!stream || !config.isDev) return 'Stream is offline';
       const parsedStream = JSON.parse(stream) as HelixStreamData;
 
       const accounts = await getAccounts(state.channelId);
