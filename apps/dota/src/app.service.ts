@@ -118,8 +118,8 @@ export class AppService extends SteamUser implements OnModuleInit {
             startedAt: new Date(Number(`${game.activate_time}000`)),
             match_id: game.match_id,
             avarage_mmr: game.average_mmr,
-            weekend_tourney_bracket_round: game.weekend_tourney_bracket_round,
-            weekend_tourney_skill_level: game.weekend_tourney_skill_level,
+            weekend_tourney_bracket_round: game.weekend_tourney_bracket_round?.toString(),
+            weekend_tourney_skill_level: game.weekend_tourney_skill_level?.toString(),
             lobbyId: game.lobby_id,
             gameMode: {
               connectOrCreate: {
