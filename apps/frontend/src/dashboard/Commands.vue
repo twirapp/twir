@@ -12,14 +12,14 @@ import { useToast } from 'vue-toastification';
 import Command from '../components/Command.vue';
 import { VariableType } from './Variables.vue';
 
-
 import Add from '@/assets/buttons/add.svg';
+import Dota2Icon from '@/assets/icons/dota2.svg?component';
 import Integrations from '@/assets/sidebar/integrations.svg?component';
 import MyBtn from '@/components/elements/MyBtn.vue';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
-type CommandType = UpdateOrCreateCommandDto & { new?: boolean, default?: boolean }
+type CommandType = UpdateOrCreateCommandDto & { new?: boolean, default?: boolean, defaultName?: string }
 
 const selectedDashboard = useStore(selectedDashboardStore);
 
@@ -36,6 +36,8 @@ const { t } = useI18n({
   useScope: 'global',
 });
 const toast = useToast();
+
+const DotaGroup = new Set(['np', 'dota addacc', 'dota delacc', 'wl']);
 
 watch(error, (data) => {
   if (data?.response?.data.message) {
@@ -139,6 +141,10 @@ function onSave(index: number) {
               }"
             > 
               <span>{{ command.name }}</span>
+              <Dota2Icon
+                v-if="command.defaultName && DotaGroup.has(command.defaultName)"
+                class="h-[17px] ml-3"
+              />
             <!-- <Integrations /> -->
             </button>
           </li>
@@ -212,7 +218,10 @@ function onSave(index: number) {
             }"
           > 
             <span>{{ command.name }}</span>
-            <!-- <Integrations /> -->
+            <Dota2Icon
+              v-if="command.defaultName && DotaGroup.has(command.defaultName)"
+              class="h-[17px]"
+            />
           </button>
         </li>
       </ul>
