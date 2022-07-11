@@ -1,8 +1,8 @@
 import SteamID from 'steamid';
 
-import { RP } from '../types.js';
+import { RichPresence } from '../types.js';
 
-export function converUsers(users: Record<string, { richPresence: RP }>) {
+export function converUsers(users: Record<string, { richPresence: RichPresence }>) {
   return Object.entries(users).map(user => {
     const USERRP = user[1].richPresence;
     return {

@@ -1,4 +1,4 @@
-import { dirname, resolve } from 'path';
+/* import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 import { config } from '@tsuwari/config';
@@ -112,4 +112,4 @@ client.on('receivedFromGC', async (app, msg, payload) => {
 
 client.on('error', (e) => {
   console.log(e);
-});
+}); */

@@ -1,6 +1,10 @@
-import SteamUser from 'steam-user';
-
-export type RP = SteamUser.RichPresence & {
+export interface RichPresence {
+  status: string;
+  version: string;
+  time?: string;
+  'game:state': string;
+  steam_display: string;
+  connect: string;
   watching_server?: string,
   param0?: string, // lobby type
   param1?: string,

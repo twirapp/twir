@@ -15,6 +15,7 @@ RUN npm i -g pnpm
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
 COPY libs/prisma/package.json libs/prisma/
 
+
 RUN pnpm install
 
 COPY libs/prisma libs/prisma

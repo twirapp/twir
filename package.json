@@ -55,9 +55,6 @@
   "pnpm": {
     "overrides": {
       "ircv3": "^0.29.3"
-    },
-    "patchedDependencies": {
-      "@types/steam-user@4.23.0": "patches/@types__steam-user@4.23.0.patch"
     }
   }
 }

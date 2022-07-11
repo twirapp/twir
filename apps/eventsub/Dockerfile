@@ -15,7 +15,7 @@ RUN npm i -g pnpm@7.5.0
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
 
 COPY node_modules node_modules
-COPY patches patches
+
 COPY apps/eventsub apps/eventsub
 COPY libs/prisma libs/prisma
 COPY libs/config libs/config

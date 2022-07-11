@@ -16,7 +16,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig
 
 COPY node_modules node_modules
 COPY apps/api apps/api
-COPY patches patches
+
 COPY libs/prisma libs/prisma
 COPY libs/integrations/spotify libs/integrations/spotify
 COPY libs/config libs/config

@@ -17,7 +17,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig
 COPY node_modules node_modules
 COPY apps/dota apps/dota
 COPY apps/dota/protos apps/dota/protos
-COPY patches patches
+
 COPY libs/prisma libs/prisma
 COPY libs/config libs/config
 COPY libs/shared libs/shared
