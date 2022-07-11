@@ -265,6 +265,7 @@ importers:
       '@tsuwari/shared': workspace:*
       '@types/steam-user': ^4.23.0
       '@types/steamid': ^2.0.1
+      nats: ^2.7.1
       nodemon: 2.0.16
       protobufjs: ^6.11.3
       reflect-metadata: ^0.1.13
@@ -274,10 +275,11 @@ importers:
     dependencies:
       '@nestjs/common': 8.4.7_reflect-metadata@0.1.13
       '@nestjs/core': 8.4.7_sgddc7xmi7n5vlxuj5hge4d3aq
-      '@nestjs/microservices': 8.4.7_zysgbzrbqurgi5bpxpfkrj3lie
+      '@nestjs/microservices': 8.4.7_a3xx4arw5qs6dmi7wt2v7zwttq
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
+      nats: 2.7.1
       protobufjs: 6.11.3
       reflect-metadata: 0.1.13
       steam-user: 4.24.3
@@ -1344,7 +1346,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 8.4.7_reflect-metadata@0.1.13
-      '@nestjs/microservices': 8.4.7_zysgbzrbqurgi5bpxpfkrj3lie
+      '@nestjs/microservices': 8.4.7_a3xx4arw5qs6dmi7wt2v7zwttq
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
@@ -1505,7 +1507,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 8.4.7_reflect-metadata@0.1.13
-      '@nestjs/core': 8.4.7_uvm5abx3gkfcajtrlnzfg6wtku
+      '@nestjs/core': 8.4.7_sgddc7xmi7n5vlxuj5hge4d3aq
       iterare: 1.2.1
       nats: 2.7.1
       reflect-metadata: 0.1.13
@@ -1688,49 +1690,6 @@ packages:
       nats: 2.7.1
       reflect-metadata: 0.1.13
       rxjs: 7.5.5
-      tslib: 2.4.0
-    dev: false
-
-  /@nestjs/microservices/8.4.7_zysgbzrbqurgi5bpxpfkrj3lie:
-    resolution: {integrity: sha512-JZX29tBWbbPa+Q06QcCbwKTyEsOFHAPrxgfEkRNwoaiEqqCsITT9w2n5bcz3vlUurdpy5dIgX3/almbitghbKg==}
-    peerDependencies:
-      '@grpc/grpc-js': '*'
-      '@nestjs/common': ^8.0.0
-      '@nestjs/core': ^8.0.0
-      '@nestjs/websockets': ^8.0.0
-      amqp-connection-manager: '*'
-      amqplib: '*'
-      cache-manager: '*'
-      kafkajs: '*'
-      mqtt: '*'
-      nats: '*'
-      redis: '*'
-      reflect-metadata: ^0.1.12
-      rxjs: ^7.1.0
-    peerDependenciesMeta:
-      '@grpc/grpc-js':
-        optional: true
-      '@nestjs/websockets':
-        optional: true
-      amqp-connection-manager:
-        optional: true
-      amqplib:
-        optional: true
-      cache-manager:
-        optional: true
-      kafkajs:
-        optional: true
-      mqtt:
-        optional: true
-      nats:
-        optional: true
-      redis:
-        optional: true
-    dependencies:
-      '@nestjs/common': 8.4.7_reflect-metadata@0.1.13
-      '@nestjs/core': 8.4.7_sgddc7xmi7n5vlxuj5hge4d3aq
-      iterare: 1.2.1
-      reflect-metadata: 0.1.13
       tslib: 2.4.0
     dev: false
 
@@ -2155,6 +2114,7 @@ packages:
       tslib: 2.4.0
     transitivePeerDependencies:
       - encoding
+    dev: false
 
   /@twurple/auth/5.1.6:
     resolution: {integrity: sha512-XnhNaJWEifr2aL1vvshhXj7v3yck38IJSVu7lzZ8csUFAzi7xphLit3LHlFGrrVYPkGQeNUx6crj0cDEUv7mtg==}

@@ -19,6 +19,7 @@
     "@tsuwari/config": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
     "@tsuwari/shared": "workspace:*",
+    "nats": "^2.7.1",
     "protobufjs": "^6.11.3",
     "reflect-metadata": "^0.1.13",
     "steam-user": "^4.24.3",
