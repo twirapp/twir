@@ -6,7 +6,7 @@ export class VersionService {
   async getCommitSha() {
     const request = await fetch('https://api.github.com/repos/satont/tsuwari/commits', {
       headers: {
-        'Authorization': `token: ${config.GITHUB_TOKEN}`,
+        'Authorization': `token ${config.GITHUB_TOKEN}`,
       },
     });
     if (!request.ok) {
@@ -15,7 +15,6 @@ export class VersionService {
     }
 
     const data = await request.json();
-
     return data[0].sha;
   }
 }
