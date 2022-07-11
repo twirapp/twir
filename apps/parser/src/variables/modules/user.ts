@@ -22,6 +22,16 @@ async function getuserFollowAge(fromId: string, toId: string) {
   return formatDuration(duration);
 }
 
+async function getUserAge(userId: string) {
+  const user = await staticApi.users.getUserById(userId);
+
+  if (!user) return 'Error on getting info.';
+
+  const duration = intervalToDuration({ start: user.creationDate.getTime(), end: Date.now() });
+
+  return formatDuration(duration);
+}
+
 
 export const user: Module[] = [
   {
@@ -56,6 +66,14 @@ export const user: Module[] = [
           locale: shortEnLocale,
         },
       );
+    },
+  },
+  {
+    key: 'user.age',
+    description: 'User account age.',
+    handler(key, state) {
+      if (!state.sender?.id || !state.channelId) return 'cannot fetch data';
+      return getUserAge(state.sender.id);
     },
   },
 ];
