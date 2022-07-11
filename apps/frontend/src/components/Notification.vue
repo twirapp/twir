@@ -1,5 +1,6 @@
+<!-- eslint-disable vue/no-v-html -->
 <script lang="ts" setup>
- import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 import { useStore } from '@nanostores/vue';
 import { Notification, ViewedNotification, NotificationMessage } from '@tsuwari/prisma';
 import { useAxios } from '@vueuse/integrations/useAxios';
@@ -113,7 +114,11 @@ selectedDashboardStore.subscribe(async (v) => {
             :key="notification.id"
             class="block font-normal hover:bg-[#393636] mt-1 px-2 py-2 text-sm w-full"
           >
-            {{ ('messages' in notification ? notification?.messages : notification.notification.messages).find(m => m.langCode === selectedLang.toUpperCase())?.text }}
+            <div
+              class="notification"
+              v-html="('messages' in notification ? notification?.messages : notification.notification.messages).find(m => m.langCode === selectedLang.toUpperCase())?.text"
+            />
+            <!-- {{ ('messages' in notification ? notification?.messages : notification.notification.messages).find(m => m.langCode === selectedLang.toUpperCase())?.text }} -->
             <div
               v-if="('messages' in notification) && selectedDashboard.channelId === user?.id"
               class="flex flex-col md:flex-row md:justify-end md:space-x-1 md:space-y-0 md:text-right mt-1 pr-2 space-y-1"
@@ -132,3 +137,9 @@ selectedDashboardStore.subscribe(async (v) => {
     </Popover>
   </div>
 </template>
+
+<style scoped>
+.notification :deep(a) {
+  @apply text-purple-500 font-bold
+}
+</style>
