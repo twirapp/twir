@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { RedisService } from '@tsuwari/shared';
 import _ from 'lodash';
-
-import { RedisService } from '../redis.service.js';
 
 @Injectable()
 export class IncreaseWatchedService {

@@ -1,4 +1,4 @@
-import { Global, Injectable } from '@nestjs/common';
+import { Global, Injectable, Module } from '@nestjs/common';
 import { config } from '@tsuwari/config';
 import Redis from 'ioredis';
 
@@ -9,3 +9,11 @@ export class RedisService extends Redis {
     super(config.REDIS_URL);
   }
 }
+
+@Global()
+@Module({
+  controllers: [],
+  providers: [RedisService],
+  exports: [RedisService],
+})
+export class RedisModule { }
