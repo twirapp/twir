@@ -132,3 +132,14 @@ services:
       - migrations
       - postgres
       - nats
+
+  dota:
+    restart: unless-stopped
+    image: satont/tsuwari:dota-ARM64
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - migrations
+      - postgres
+      - nats
