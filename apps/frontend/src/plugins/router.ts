@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import { fetchAndSetUser } from '@/functions/fetchAndSetUser';
+import { redirectToLogin } from '@/functions/redirectToLogin.js';
 import { userStore } from '@/stores/userStore';
 
 export const router = createRouter({
@@ -109,6 +110,9 @@ router.beforeEach(async (to, _from, next) => {
   if (to.path.startsWith('/dashboard')) {
     userStore.get() || await fetchAndSetUser().then(() => userStore.get());
 
+    if (!userStore.get()) {
+      return redirectToLogin();
+    }
 
     next();
     /* if (!user?.isTester) {
