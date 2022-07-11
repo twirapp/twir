@@ -5,7 +5,7 @@ import tlds from 'tlds' assert { type: 'json' };
 import { prisma } from './prisma.js';
 import { redis } from './redis.js';
 
-const clipsRegexps = [/.*(clips.twitch.tv\/)(\w+)/g, /.*(www.twitch.tv\/\w+\/clip\/)(\w+)/g];
+const clipsRegexps = [/.*(clips.twitch.tv\/)(\w+)/, /.*(www.twitch.tv\/\w+\/clip\/)(\w+)/];
 const urlRegexps = [
   new RegExp(`(www)? ??\\.? ?[a-zA-Z0-9]+([a-zA-Z0-9-]+) ??\\. ?(${tlds.join('|')})(?=\\P{L}|$)`, 'iu'),
   new RegExp(`[a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})(?=\\P{L}|$)`, 'iu'),
