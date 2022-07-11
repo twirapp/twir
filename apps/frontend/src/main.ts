@@ -32,7 +32,7 @@ app.use(Toast, {
 
 app.mount('#app');
 
-async function checkIfUpdateAvailable() {
+/* async function checkIfUpdateAvailable() {
   if (!import.meta.env.PROD) return;
 
   const request = await fetch('/api/version');
@@ -45,4 +45,4 @@ async function checkIfUpdateAvailable() {
 }
 
 setInterval(checkIfUpdateAvailable, 20 * 1000);
-checkIfUpdateAvailable();
+checkIfUpdateAvailable(); */
