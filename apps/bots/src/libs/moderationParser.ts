@@ -18,7 +18,7 @@ export class ModerationParser {
     const result = {} as Record<SettingsType, ModerationSettings>;
     const settingsKeys = Object.values(SettingsType);
 
-    for (const key of settingsKeys) {
+    await Promise.all(settingsKeys.map(async (key) => {
       const redisKey = `settings:moderation:${channelId}:${key}`;
       const cachedSettings = await redis.get(redisKey);
 
@@ -31,7 +31,7 @@ export class ModerationParser {
           result[key] = entity;
         }
       }
-    }
+    }));
 
     return result;
   }
