@@ -26,6 +26,7 @@ export async function initHttp() {
     transport: Transport.NATS,
     options: {
       servers: [config.NATS_URL],
+      timeout: 100,
     },
   });
 

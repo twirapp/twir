@@ -66,7 +66,11 @@ export interface ClientProxyEvents {
     input: string,
     result: any
   },
-  'bots.removeTimerFromQueue': ClientProxyEvents['bots.addTimerToQueue']
+  'bots.removeTimerFromQueue': ClientProxyEvents['bots.addTimerToQueue'],
+  'dota.cacheAccountsMatches': {
+    input: string[],
+    result: any,
+  }
 }
 
 export type ClientProxyResult<K extends keyof ClientProxyCommands> = Observable<ClientProxyCommands[K]['result']>

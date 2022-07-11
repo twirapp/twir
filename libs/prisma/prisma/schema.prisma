@@ -69,8 +69,9 @@ model Channel {
   dashboardAccess    DashboardAccess[]
   permits            Permit[]
   keywords           Keyword[]
+  customVar          CustomVar[]
+  dotaAccounts       DotaAccount[]
 
-  CustomVar CustomVar[]
   @@map("channels")
 }
 
@@ -383,4 +384,57 @@ model ViewedNotification {
   notification Notification @relation(fields: [notificationId], references: [id])
   user         User         @relation(fields: [userId], references: [id])
   @@map("users_viewed_notifications")
+}
+
+model DotaAccount {
+  id        String
+  channelId String
+
+  channel Channel @relation(fields: [channelId], references: [id])
+  @@unique([id, channelId])
+  @@index(id)
+  @@map("channels_dota_accounts")
+}
+
+model DotaHero {
+  id   Int    @id @unique
+  name String
+
+  @@map("dota_heroes")
+}
+
+model DotaMode {
+  id   Int    @id
+  name String
+
+  matches DotaMatch[]
+  @@map("dota_game_modes")
+}
+
+model DotaMedals {
+  rank_tier String @id
+  name      String
+
+  @@index([rank_tier])
+  @@map("dota_medals")
+}
+
+model DotaMatch {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  startedAt                     DateTime
+  lobby_type                    Int
+  gameModeId                    Int
+  players                       Int[]
+  players_heroes                Int[]
+  weekend_tourney_bracket_round String?
+  weekend_tourney_skill_level   String?
+  match_id                      String   @unique
+  avarage_mmr                   Int
+  lobbyId                       String
+  finished                      Boolean  @default(false)
+
+  gameMode DotaMode @relation(fields: [gameModeId], references: [id])
+
+  @@map("dota_matches")
 }

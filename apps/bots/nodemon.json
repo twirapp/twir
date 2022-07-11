@@ -3,6 +3,6 @@
     "src",
     ".env"
   ],
-  "exec": "rm -rf dist; pnpm build; node --enable-source-maps --inspect=0.0.0.0:9250 --nolazy dist/index.js",
+  "exec": "rm -rf dist; pnpm build; node --enable-source-maps --inspect=0.0.0.0:9230 --nolazy dist/index.js",
   "ext": "ts"
 }

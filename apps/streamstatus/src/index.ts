@@ -20,6 +20,7 @@ const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule,
   transport: Transport.NATS,
   options: {
     servers: [config.NATS_URL],
+    timeout: 100,
   },
 });
 

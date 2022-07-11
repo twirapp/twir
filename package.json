@@ -8,6 +8,7 @@
     "dev": "doppler run -- pnpm run -r dev",
     "start:api": "pnpm --filter=@tsuwari/api start",
     "start:eventsub": "pnpm --filter=@tsuwari/eventsub start",
+    "start:dota": "pnpm --filter=@tsuwari/dota start",
     "start:bots": "pnpm --filter=@tsuwari/bots start",
     "start:scheduler": "pnpm --filter=@tsuwari/scheduler start",
     "start:parser": "pnpm --filter=@tsuwari/parser start",
@@ -18,6 +19,7 @@
     "build:parser": "turbo run build --filter=parser",
     "build:frontend": "turbo run build --filter=frontend",
     "build:api": "turbo run build --filter=api",
+    "build:dota": "turbo run build --filter=dota",
     "build:scheduler": "turbo run build --filter=scheduler",
     "build:streamstatus": "turbo run build --filter=streamstatus",
     "build:watched": "turbo run build --filter=watched",
@@ -30,6 +32,7 @@
     "dev:frontend": "doppler run -- turbo run dev --filter=frontend",
     "dev:parser": "doppler run -- turbo run dev --filter=parser",
     "dev:config": "doppler run -- turbo run dev --filter=config",
+    "dev:dota": "doppler run -- turbo run dev --filter=dota",
     "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/prisma run deploy",
     "prisma:generate": "pnpm --filter=@tsuwari/prisma generate"
   },
@@ -43,6 +46,7 @@
     "@typescript-eslint/parser": "5.28.0",
     "eslint": "8.18.0",
     "eslint-plugin-import": "2.26.0",
+    "nodemon": "2.0.16",
     "ts-node": "10.8.1",
     "tsx": "3.4.3",
     "turbo": "1.2.16",
@@ -51,6 +55,9 @@
   "pnpm": {
     "overrides": {
       "ircv3": "^0.29.3"
+    },
+    "patchedDependencies": {
+      "@types/steam-user@4.23.0": "patches/@types__steam-user@4.23.0.patch"
     }
   }
 }

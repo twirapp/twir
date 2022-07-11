@@ -1,0 +1,51 @@
+import "steammessages_unified_base.steamclient.proto";
+import "common.proto";
+
+message CClientMetrics_ReportClientError_Notification {
+	optional string product = 1;
+	optional string version = 2;
+	repeated .CClientMetrics_ReportClientError_Notification_Error errors = 3;
+}
+
+message CClientMetrics_ReportClientError_Notification_Error {
+	optional string identifier = 1;
+	optional string message = 2;
+	optional uint32 count = 3;
+}
+
+message CClientMetrics_ReportReactUsage_Notification {
+	optional string product = 1;
+	optional string version = 2;
+	repeated .CClientMetrics_ReportReactUsage_Notification_RouteData routes = 3;
+	repeated .CClientMetrics_ReportReactUsage_Notification_ComponentData components = 4;
+	repeated .CClientMetrics_ReportReactUsage_Notification_ActionData actions = 5;
+}
+
+message CClientMetrics_ReportReactUsage_Notification_ActionData {
+	optional string action = 1;
+	optional uint32 count = 2;
+}
+
+message CClientMetrics_ReportReactUsage_Notification_ComponentData {
+	optional string component = 1;
+	optional uint32 count = 2;
+}
+
+message CClientMetrics_ReportReactUsage_Notification_RouteData {
+	optional string route = 1;
+	optional uint32 count = 2;
+}
+
+service ClientMetrics {
+	rpc ClientAppInterfaceStatsReport (.NotImplemented) returns (.NoResponse);
+	rpc ClientBootstrapReport (.NotImplemented) returns (.NoResponse);
+	rpc ClientCloudAppSyncStats (.NotImplemented) returns (.NoResponse);
+	rpc ClientContentValidationReport (.NotImplemented) returns (.NoResponse);
+	rpc ClientDownloadRatesReport (.NotImplemented) returns (.NoResponse);
+	rpc ClientDownloadResponseCodeCounts (.NotImplemented) returns (.NoResponse);
+	rpc ClientIPv6ConnectivityReport (.NotImplemented) returns (.NoResponse);
+	rpc ReportClientError (.CClientMetrics_ReportClientError_Notification) returns (.NoResponse);
+	rpc ReportReactUsage (.CClientMetrics_ReportReactUsage_Notification) returns (.NoResponse);
+	rpc SteamPipeWorkStatsReport (.NotImplemented) returns (.NoResponse);
+}
+

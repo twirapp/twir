@@ -52,6 +52,8 @@ export class CommandsService {
       }
     }
 
+    console.log(defaultCommands, commands);
+
     return commands;
   }
 

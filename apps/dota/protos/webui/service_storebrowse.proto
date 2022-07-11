@@ -1,0 +1,21 @@
+import "steammessages_unified_base.steamclient.proto";
+import "common.proto";
+
+message CStoreBrowse_GetStoreCategories_Response {
+	repeated .CStoreBrowse_GetStoreCategories_Response_Category categories = 1;
+}
+
+message CStoreBrowse_GetStoreCategories_Response_Category {
+	optional uint32 categoryid = 1;
+	optional int32 type = 2 [(description) = "enum"];
+	optional string internal_name = 3;
+	optional string display_name = 4;
+	optional string image_url = 5;
+	optional bool show_in_search = 6;
+}
+
+service StoreBrowse {
+	rpc GetItems (.CStoreBrowse_GetItems_Request) returns (.CStoreBrowse_GetItems_Response);
+	rpc GetStoreCategories (.NotImplemented) returns (.CStoreBrowse_GetStoreCategories_Response);
+}
+
