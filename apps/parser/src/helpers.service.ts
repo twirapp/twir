@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Command, CommandPermission } from '@tsuwari/prisma';
+import { Command, CommandPermission, PrismaService } from '@tsuwari/prisma';
 import { RedisService } from '@tsuwari/shared';
 import { ChatUser } from '@twurple/chat';
 
@@ -9,6 +9,7 @@ export type CommandConditional = Command & { responses: (string | undefined)[] |
 export class HelpersService {
   constructor(
     private readonly redis: RedisService,
+    private readonly prisma: PrismaService,
   ) { }
 
   async getChannelCommandsNamesFromRedis(channelId: string) {
@@ -51,12 +52,14 @@ export class HelpersService {
     return result;
   }
 
-  getUserPermissions(userInfo: ChatUser): Record<CommandPermission, boolean> {
+  async getUserPermissions(userInfo: ChatUser, getFromDb = false): Promise<Record<CommandPermission, boolean>> {
+    const dbUser = getFromDb ? undefined : await this.prisma.user.findFirst({ where: { id: userInfo.userId } });
+
     return {
-      BROADCASTER: userInfo.isBroadcaster,
-      MODERATOR: userInfo.isMod,
-      VIP: userInfo.isVip,
-      SUBSCRIBER: userInfo.isSubscriber || userInfo.isFounder,
+      BROADCASTER: userInfo.isBroadcaster || (dbUser?.isBotAdmin ?? false),
+      MODERATOR: userInfo.isMod || (dbUser?.isBotAdmin ?? false),
+      VIP: userInfo.isVip || (dbUser?.isBotAdmin ?? false),
+      SUBSCRIBER: userInfo.isSubscriber || userInfo.isFounder || (dbUser?.isBotAdmin ?? false),
       FOLLOWER: true,
       VIEWER: true,
     };
