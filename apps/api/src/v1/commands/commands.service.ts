@@ -30,7 +30,7 @@ export class CommandsService {
 
     const defaultCommands = await this.nats.send('bots.getDefaultCommands', {}).toPromise();
     if (defaultCommands) {
-      for (const command of defaultCommands) {
+      for (const command of defaultCommands.filter(defaultCommand => !commands.some(c => c.defaultName === defaultCommand.name))) {
         if (!commands.some(c => c.defaultName === command.name)) {
           const newCommand = await this.prisma.command.create({
             data: {
