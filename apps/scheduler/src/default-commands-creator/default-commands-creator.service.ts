@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
 import { PrismaService } from '@tsuwari/prisma';
@@ -7,6 +7,8 @@ import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class DefaultCommandsCreatorService {
+  #logger = new Logger(DefaultCommandsCreatorService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     @Inject('NATS') private nats: ClientProxy,
@@ -33,6 +35,8 @@ export class DefaultCommandsCreatorService {
         commands: true,
       },
     });
+
+    this.#logger.log(`Creating default commands for ${usersForUpdate.length} users.`);
 
     for (const user of usersForUpdate) {
       const existedCommands = user.commands.filter(c => c.default).map(c => c.defaultName);
