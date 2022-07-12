@@ -39,6 +39,24 @@ services:
       S3_REGION: ${S3_REGION}
       S3_ENDPOINT: ${S3_ENDPOINT}
 
+  minio:
+    image: quay.io/minio/minio
+    command: server --address 0.0.0.0:9000 --console-address ":9001" /data
+    volumes:
+      - ./minio_data:/data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_REGION_NAME: eu-east-1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
   migrations:
     restart: "no"
     image: satont/tsuwari:migrations-ARM64

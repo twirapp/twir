@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
+import { config } from '@tsuwari/config';
+import { S3Module } from 'nestjs-s3';
 
 import { CommandsModule } from './commands/commands.module.js';
+import { FeedbackModule } from './feedback/feedback.module.js';
+import { FilesModule } from './files/files.module.js';
 import { GreetingsModule } from './greetings/greetings.module.js';
 import { FaceitModule } from './integrations/faceit/faceit.module.js';
 import { LastfmModule } from './integrations/lastfm/lastfm.module.js';
@@ -15,6 +19,16 @@ import { TimersModule } from './timers/timers.module.js';
 import { VariablesModule } from './variables/variables.module.js';
 
 @Module({
-  imports: [CommandsModule, GreetingsModule, TimersModule, SpotifyModule, LastfmModule, KeywordsModule, VariablesModule, ModerationModule, StreamsModule, SettingsModule, VkModule, FaceitModule, NotificationsModule],
+  imports: [
+    S3Module.forRoot({
+      config: {
+        accessKeyId: config.MINIO_ACCESS_KEY,
+        secretAccessKey: config.MINIO_ACCESS_SECRET,
+        endpoint: config.MINIO_URL,
+        s3ForcePathStyle: true,
+        region: 'eu-east-1',
+        signatureVersion: 'v4',
+      },
+    }), CommandsModule, GreetingsModule, TimersModule, SpotifyModule, LastfmModule, KeywordsModule, VariablesModule, ModerationModule, StreamsModule, SettingsModule, VkModule, FaceitModule, NotificationsModule, FeedbackModule, FilesModule],
 })
 export class V1Module { }

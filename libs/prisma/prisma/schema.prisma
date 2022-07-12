@@ -29,6 +29,7 @@ model User {
   permits               Permit[]
   personalNotifications Notification[]
   viewedNotifications   ViewedNotification[]
+  files                 File[]
   @@map("users")
 }
 
@@ -436,4 +437,15 @@ model DotaMatch {
   gameMode DotaMode @relation(fields: [gameModeId], references: [id])
 
   @@map("dota_matches")
+}
+
+model File {
+  id     String  @id @default(dbgenerated("gen_random_uuid()"))
+  name   String
+  size   Int
+  type   String
+  userId String?
+
+  user User? @relation(fields: [userId], references: [id])
+  @@map("users_files")
 }
