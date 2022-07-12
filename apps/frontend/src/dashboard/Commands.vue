@@ -37,7 +37,7 @@ const { t } = useI18n({
 });
 const toast = useToast();
 
-const DotaGroup = new Set(['np', 'dota addacc', 'dota delacc', 'wl']);
+const DotaGroup = new Set(['np', 'dota addacc', 'dota delacc', 'wl', 'dota listacc']);
 
 watch(error, (data) => {
   if (data?.response?.data.message) {
