@@ -74,8 +74,6 @@ async function sendForm() {
   const uploadedFiles = [];
 
   if (!feedBack.value) return;
-  myFiles.value = [];
-  feedBack.value = '';
   if (myFiles.value.length) {
     const formData = new FormData();
 
@@ -95,6 +93,9 @@ async function sendForm() {
     text: feedBack.value,
     files: uploadedFiles,
   });
+
+  myFiles.value = [];
+  feedBack.value = '';
 }
 </script>
 
