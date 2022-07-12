@@ -1,11 +1,22 @@
+<!-- eslint-disable @typescript-eslint/ban-ts-comment -->
 <script lang="ts" setup>
-/* eslint-disable vue/no-v-html */
 import { useStore } from '@nanostores/vue';
 import { useTimeoutPoll, get, useTitle  } from '@vueuse/core';
+// @ts-ignore
+import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.esm.js';
+// @ts-ignore
+import FilePondPluginImagePreview from 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.esm.js';
+import { Form, Field } from 'vee-validate';
 import { ref } from 'vue';
+import vueFilePond from 'vue-filepond';
 import { useI18n } from 'vue-i18n';
 
-import Soon from '@/components/Soon.vue';
+import 'filepond/dist/filepond.min.css';
+import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
+
+
+import MyBtn from '@/components/elements/MyBtn.vue';
+import { api } from '@/plugins/api';
 import { socketEmit } from '@/plugins/socket';
 import { selectedDashboardStore } from '@/stores/userStore';
 
@@ -52,11 +63,38 @@ function joinChannel() {
   });
 }
 
-/* watch(isWindowFocused, (v) => {
-  if (v) checkIsMod.resume();
-  else checkIsMod.pause();
-}); */
+const feedBack = ref('');
+const myFiles = ref([]);
+const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImagePreview);
+function updateFiles(files: any) {
+  myFiles.value = files.map((f: any) => f.file);
+}
 
+async function sendForm() {
+  const uploadedFiles = [];
+
+  if (!feedBack.value) return;
+
+  if (myFiles.value.length) {
+    const formData = new FormData();
+
+    for (const file of myFiles.value) {
+      formData.append('files', file);
+    }
+
+    const filesRequest = await api.post('/v1/files', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    uploadedFiles.push(...filesRequest.data);
+  }
+
+  await api.post('/v1/feedback', {
+    text: feedBack.value,
+    files: uploadedFiles,
+  });
+}
 </script>
 
 <template>
@@ -67,11 +105,6 @@ function joinChannel() {
       >
         <h2 class="border-b border-gray-700 card-title flex font-bold justify-center outline-none p-2">
           <p>{{ t('pages.dashboard.widgets.status.title') }}</p>
-
-          <!-- <a
-              href="/"
-              class="btn btn-outline btn-error btn-sm rounded"
-            >Remove</a> -->
         </h2>
         <div class="p-4 w-full">
           <div
@@ -111,48 +144,63 @@ function joinChannel() {
         <h2 class="border-b border-gray-700 card-title flex font-bold justify-center outline-none p-2">
           <p>{{ t('pages.dashboard.widgets.feedback.title') }}</p>
         </h2>
-        <div class="inline-block p-4 w-full">
-          <Soon :button="false" />
-          <!-- <div class="flex justify-center">
+        <Form @submit="sendForm">
+          <div class="inline-block p-4 w-full">
+            <!-- <Soon :button="false" /> -->
+            <div class="flex justify-center">
               <div class="mb-3 w-full">
-                <textarea
-                  id="exampleFormControlTextarea1"
-                  class="
-        form-control
-        block
-        w-full
-        px-3
-        py-1.5
-        text-base
-        font-normal
-        text-gray-700
-        bg-white bg-clip-padding
-        border border-solid border-gray-300
-        rounded
-        transition
-        ease-in-out
-        m-0
-        focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
-      "
-                  rows="3"
-                
+                <Field
+                  v-model.trim="feedBack"
+                  name="feedback"
+                  as="textarea"
                   :placeholder="t('pages.dashboard.widgets.feedback.placeholder')"
+                  class="bg-clip-padding bg-white block border border-gray-300 border-solid ease-in-out focus:bg-white focus:border-blue-600 focus:outline-none focus:text-gray-700 font-normal form-control m-0 px-3 py-1.5 rounded text-base text-gray-700 transition w-full"
+                  rows="3"
+                />
+                <file-pond
+                  ref="pond"
+                  name="test"
+                  class-name="mt-3"
+                  label-idle="Drop files here..."
+                  :allow-multiple="true"
+                  accepted-file-types="image/jpeg, image/png"
+                  :files="myFiles"
+                  :credits="[]"
+                  :max-files="5"
+                  @updatefiles="updateFiles"
                 />
               </div>
             </div>
 
             <div class="text-right">
-              <button
-                type="button"
-                class="opacity-60 pointer-events-none inline-block ml-2 px-6 py-2.5 bg-green-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-green-700  focus:outline-none focus:ring-0   transition duration-150 ease-in-out"
-                
-                @click="joinChannel"
+              <MyBtn
+                color="green"
+                type="submit"
               >
                 {{ t('pages.dashboard.widgets.feedback.buttons.send') }}
-              </button>
-            </div> -->
-        </div>
+              </MyBtn>
+            </div>
+          </div>
+        </Form>
       </div>
     </div>
   </div>
 </template>
+
+<style>
+.filepond--root {
+    max-height: 350px;
+}
+
+@media (min-width: 30em) {
+    .filepond--item {
+        width: calc(50% - 0.5em);
+    }
+}
+
+@media (min-width: 50em) {
+    .filepond--item {
+        width: calc(33.33% - 0.5em);
+    }
+}
+</style>
