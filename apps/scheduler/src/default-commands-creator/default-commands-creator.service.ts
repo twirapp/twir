@@ -20,7 +20,21 @@ export class DefaultCommandsCreatorService {
     const defaultCommands = await lastValueFrom(this.nats.send('bots.getDefaultCommands', {}));
 
     for (const command of defaultCommands) {
-      const usersForUpdate: Channel[] = await this.prisma.$queryRaw`SELECT * FROM "channels" where id not in (select "channelId" from "channels_commands" where "channels_commands"."defaultName" = ${command.name})`;
+      // const usersForUpdate: Channel[] = await this.prisma.$queryRaw`SELECT * FROM "channels" where id not in (select "channelId" from "channels_commands" where "channels_commands"."defaultName" = ${command.name})`;
+      const usersForUpdate = await this.prisma.channel.findMany({
+        where: {
+          commands: {
+            none: {
+              default: true,
+              defaultName: command.name,
+            },
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+
       if (!usersForUpdate.length) continue;
 
       this.#logger.log(`Creating default command ${command.name} for ${usersForUpdate.length} users.`);
