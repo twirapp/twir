@@ -70,7 +70,7 @@ export const user: Module[] = [
   },
   {
     key: 'user.age',
-    description: 'User account age.',
+    description: 'User account age',
     handler(key, state) {
       if (!state.sender?.id || !state.channelId) return 'cannot fetch data';
       return getUserAge(state.sender.id);

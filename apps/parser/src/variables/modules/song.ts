@@ -14,7 +14,7 @@ const Spotify = app.get(SpotifyIntegration);
 
 export const song: Module = {
   key: 'currentsong',
-  description: 'Current played song.',
+  description: 'Current played song',
   handler: async (_, state) => {
     const enabledIntegrations = await prisma.channelIntegration.findMany({
       where: {

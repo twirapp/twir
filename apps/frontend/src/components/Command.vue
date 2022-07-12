@@ -183,6 +183,18 @@ function changeCommandResponse(index: number, value: string) {
         /></svg>
         <p>{{ error }}</p>
       </div>
+      <div class="flex justify-end">
+        <div class="flex form-switch space-x-2">
+          <p>{{ t('pages.commands.card.status.title') }}</p>
+          <input
+            id="commandVisibility"
+            v-model="command.enabled"
+            class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
+            type="checkbox"
+            role="switch"
+          >
+        </div>
+      </div>
       <div
         class="gap-1 grid grid-cols-1 md:grid-cols-2"
       >
@@ -303,7 +315,7 @@ function changeCommandResponse(index: number, value: string) {
 
           <div
             v-if="!command.default"
-            class="gap-1 grid grid-cols-1 input-group min-h-[150px] pt-1"
+            class="gap-1 grid grid-cols-1 input-group mшx-h-[5px] pt-1"
           >
             <div
               v-for="_response, responseIndex in command.responses"

@@ -93,9 +93,20 @@ function cancelEdit() {
       >
         {{ error }}
       </div>
-      <div
-        class="gap-2 grid-cols-2 md:grid"
-      >
+      <div class="flex justify-end">
+        <div class="flex form-switch space-x-2">
+          <p>{{ t('pages.timers.card.status.title') }}</p>
+          <input
+            id="commandVisibility"
+            v-model="timer.enabled"
+            :disabled="!timer.edit"
+            class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
+            type="checkbox"
+            role="switch"
+          >
+        </div>
+      </div>
+      <div>
         <div>
           <div class="label mb-1">
             <span class="label-text">{{ t('pages.timers.card.name.title') }}</span>
@@ -164,7 +175,7 @@ function cancelEdit() {
                 type="text"
                 :disabled="!timer.edit"
                 class="border flex-1 flex-auto flex-grow flex-shrink leading-normal px-3 py-1.5 relative rounded text-gray-700 w-px"
-                placeholder="Timer response"
+                :placeholder="t('pages.timers.card.response')"
                 :class="{ 'rounded-r-none': timer.edit }"
               >
               <div
@@ -179,10 +190,11 @@ function cancelEdit() {
         </div>
       </div>
 
-      <div class="flex justify-between mt-5">
+      <div class="flex flex-col lg:flex-row lg:justify-between lg:space-x-1 lg:space-y-0 mt-5 space-y-1">
         <div>
           <MyBtn
             v-if="!timer.edit"
+            class="w-full"
             color="purple"
             @click="() => {
               timer.edit = true;
@@ -194,6 +206,7 @@ function cancelEdit() {
 
           <MyBtn
             v-else
+            class="lg:w-auto w-full"
             color="purple"
             @click="cancelEdit"
           >
@@ -202,19 +215,20 @@ function cancelEdit() {
         </div>
         <div
           v-if="timer.edit"
-          class="flex md:flex-none ml-2"
+          class="flex md:flex-none space-x-1"
         >
           <MyBtn
             v-if="timer.id"
+            class="lg:w-auto w-1/2"
             color="red"
             @click="deleteTimer"
           >
             {{ t('buttons.delete') }}
           </MyBtn>
           <MyBtn
+            class="lg:w-auto w-1/2"
             color="green"
             type="submit"
-            class="ml-2"
           >
             {{ t('buttons.save') }}
           </MyBtn>

@@ -196,7 +196,7 @@ onMounted(() => {
         </div>
         <div
           v-if="variable.edit"
-          class="flex md:flex-none ml-2"
+          class="flex md:flex-none ml-1"
         >
           <MyBtn
             v-if="variable.id"

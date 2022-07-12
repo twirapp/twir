@@ -46,6 +46,9 @@
           "builtInAlert": "This is a built-in command. You can't change its response, but it may be added in the future if a certain percentage of users want to use it.",
           "title": "Responses"
         },
+        "status": {
+          "title": "Command status"
+        },
         "visible": {
           "title": "Show command in commands list"
         }
@@ -83,6 +86,11 @@
     "greetings": {
       "buttons": {
         "add": "Add new greeting"
+      },
+      "card": {
+        "status": {
+          "title": "Greetings status"
+        }
       },
       "message": {
         "placeholder": "This message will be sent in chat",
@@ -124,6 +132,9 @@
         "response": {
           "placeholder": "This response will be sended in chat",
           "title": "Response"
+        },
+        "status": {
+          "title": "Keywords status"
         },
         "text": {
           "placeholder": "Keyword will be triggered, when user type this in chat",
@@ -180,8 +191,12 @@
           "placeholder": "Timer name",
           "title": "Name"
         },
+        "response": "Timer response",
         "responses": "Responses",
-        "secondsInterval": "Seconds Interval"
+        "secondsInterval": "Seconds Interval",
+        "status": {
+          "title": "Timer status"
+        }
       },
       "sidebarName": "Timers"
     },

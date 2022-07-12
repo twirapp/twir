@@ -120,11 +120,11 @@ function onSave(index: number) {
         :focus="true"
         class="absolute bg-[#121010] z-10"
       >
-        <ul class="overflow-auto scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+        <ul class="max-h-[55vh] overflow-y-auto scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600">
           <li
-            v-for="command, index of filteredCommands
-            "
+            v-for="command, index of filteredCommands"
             :key="index"
+            class="px-0.5"
             :class="{ 'border-l-2': filteredCommands.indexOf(currentEditableCommand!) === index }"
             @click="() => {
               if (!currentEditableCommand!.id) commands.splice(commands.indexOf(currentEditableCommand!), 1)
@@ -164,7 +164,7 @@ function onSave(index: number) {
   </div>
 
   <div class="flex h-full">
-    <div class="border-b border-gray-700 border-r hidden md:block rounded w-40">
+    <div class="border-gray-700 border-r hidden md:block rounded w-40">
       <button
         class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium grid hover:bg-green-700 inline-block leading-tight m-auto place-items-center px-6 py-2.5 shadow text-white text-xs transition uppercase w-full"
         @click="insertCommand"

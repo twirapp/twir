@@ -79,6 +79,19 @@ function cancelEdit() {
       >
         {{ error }}
       </div>
+      <div class="flex justify-end">
+        <div class="flex form-switch space-x-2">
+          <p>{{ t('pages.keywords.card.status.title') }}</p>
+          <input
+            id="commandVisibility"
+            v-model="keyword.enabled"
+            :disabled="!keyword.edit"
+            class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
+            type="checkbox"
+            role="switch"
+          >
+        </div>
+      </div>
       <div
         class="gap-1 grid grid-cols-1"
       >
@@ -151,7 +164,7 @@ function cancelEdit() {
         </div>
         <div
           v-if="keyword.edit"
-          class="flex md:flex-none ml-2"
+          class="flex md:flex-none ml-1"
         >
           <button
             v-if="keyword.id"
@@ -163,7 +176,7 @@ function cancelEdit() {
           </button>
           <button
             type="submit"
-            class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight ml-2 px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
+            class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight ml-1 px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
           >
             {{ t('buttons.save') }}
           </button>
