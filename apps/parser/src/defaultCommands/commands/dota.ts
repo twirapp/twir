@@ -270,4 +270,14 @@ export const dota: DefaultCommand[] = [
       return result.length ? result : 'W 0 — L 0';
     },
   },
+  {
+    name: 'dota listacc',
+    permission: 'BROADCASTER',
+    async handler(state) {
+      if (!state.channelId) return;
+
+      const accounts = await getAccounts(state.channelId);
+      return typeof accounts === 'string' ? accounts : accounts.map(a => a.id).join(', ');
+    },
+  },
 ];
