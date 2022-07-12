@@ -13,7 +13,7 @@ export class DefaultCommandsCreatorService {
     private readonly redis: RedisService,
   ) { }
 
-  @Interval(config.isDev ? 10000 : 5 * 60 * 1000)
+  @Interval(config.isDev ? 1000 : 5 * 60 * 1000)
   async createDefaultCommands() {
     const defaultCommands = await lastValueFrom(this.nats.send('bots.getDefaultCommands', {}));
     const defaultCommandsNames = defaultCommands.map(c => c.name);
@@ -21,7 +21,7 @@ export class DefaultCommandsCreatorService {
     const usersForUpdate = await this.prisma.channel.findMany({
       where: {
         commands: {
-          every: {
+          none: {
             defaultName: {
               in: defaultCommandsNames,
             },
