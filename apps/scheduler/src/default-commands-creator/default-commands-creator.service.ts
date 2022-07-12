@@ -15,7 +15,7 @@ export class DefaultCommandsCreatorService {
     private readonly redis: RedisService,
   ) { }
 
-  @Interval(config.isDev ? 1000 : 5 * 60 * 1000)
+  @Interval(config.isDev ? 1000 : 1 * 60 * 1000)
   async createDefaultCommands() {
     const defaultCommands = await lastValueFrom(this.nats.send('bots.getDefaultCommands', {}));
 
