@@ -22,8 +22,8 @@ import { VariablesModule } from './variables/variables.module.js';
   imports: [
     S3Module.forRoot({
       config: {
-        accessKeyId: config.MINIO_ACCESS_KEY,
-        secretAccessKey: config.MINIO_ACCESS_SECRET,
+        accessKeyId: config.MINIO_USER,
+        secretAccessKey: config.MINIO_PASSWORD,
         endpoint: config.MINIO_URL,
         s3ForcePathStyle: true,
         region: 'eu-east-1',
