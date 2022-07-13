@@ -68,7 +68,7 @@ export class HelpersService {
       MODERATOR: userInfo.isMod || (dbUser?.isBotAdmin ?? false),
       VIP: userInfo.isVip || (dbUser?.isBotAdmin ?? false),
       SUBSCRIBER: userInfo.isSubscriber || userInfo.isFounder || (dbUser?.isBotAdmin ?? false),
-      FOLLOWER: twitchFollow ? true : false,
+      FOLLOWER: !!twitchFollow || (dbUser?.isBotAdmin ?? false),
       VIEWER: true,
     };
   }
