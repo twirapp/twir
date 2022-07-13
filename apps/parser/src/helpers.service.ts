@@ -52,8 +52,8 @@ export class HelpersService {
     return result;
   }
 
-  async getUserPermissions(userInfo: ChatUser, getFromDb = false): Promise<Record<CommandPermission, boolean>> {
-    const dbUser = getFromDb ? undefined : await this.prisma.user.findFirst({ where: { id: userInfo.userId } });
+  async getUserPermissions(userInfo: ChatUser, checkAdmin = false): Promise<Record<CommandPermission, boolean>> {
+    const dbUser = checkAdmin ? await this.prisma.user.findFirst({ where: { id: userInfo.userId } }) : undefined;
 
     return {
       BROADCASTER: userInfo.isBroadcaster || (dbUser?.isBotAdmin ?? false),
