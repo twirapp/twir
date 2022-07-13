@@ -16,7 +16,7 @@ export class StreamStatusService {
     @Inject('NATS') private nats: ClientProxy,
   ) { }
 
-  @Interval(config.isDev ? 10000 : 5 * 60 * 1000)
+  @Interval('streamstatus', config.isDev ? 10000 : 5 * 60 * 1000)
   async updateStatuses() {
     const channelsIds = await this.prisma.channel.findMany({
       select: {

@@ -3,6 +3,7 @@ import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { Command, PrismaService, Response } from '@tsuwari/prisma';
 import { ClientProxy } from '@tsuwari/shared';
+import { lastValueFrom } from 'rxjs';
 
 import { RedisService } from '../../redis.service.js';
 import { UpdateOrCreateCommandDto } from './dto/create.js';
@@ -19,6 +20,8 @@ export class CommandsService {
 
 
   async getList(userId: string) {
+    await this.nats.send('bots.createDefaultCommands', [userId]).toPromise();
+
     const commands: (Command & {
       responses?: Response[];
     })[] = await this.prisma.command.findMany({
@@ -27,30 +30,6 @@ export class CommandsService {
         responses: true,
       },
     });
-
-    const defaultCommands = await this.nats.send('bots.getDefaultCommands', {}).toPromise();
-    if (defaultCommands) {
-      for (const command of defaultCommands.filter(defaultCommand => !commands.some(c => c.defaultName === defaultCommand.name))) {
-        if (!commands.some(c => c.defaultName === command.name)) {
-          const newCommand = await this.prisma.command.create({
-            data: {
-              channelId: userId,
-              default: true,
-              defaultName: command.name,
-              description: command.description,
-              visible: command.visible,
-              name: command.name,
-              permission: command.permission,
-              cooldown: 0,
-              cooldownType: 'GLOBAL',
-            },
-          });
-
-          this.setCommandCache(newCommand);
-          commands.push(newCommand);
-        }
-      }
-    }
 
     return commands;
   }

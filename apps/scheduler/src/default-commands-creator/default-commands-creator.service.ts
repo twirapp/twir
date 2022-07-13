@@ -15,25 +15,42 @@ export class DefaultCommandsCreatorService {
     private readonly redis: RedisService,
   ) { }
 
-  @Interval(config.isDev ? 1000 : 1 * 60 * 1000)
-  async createDefaultCommands() {
+  @Interval('defaultCommands', config.isDev ? 1000 : 1 * 60 * 1000)
+  async createDefaultCommands(usersIds?: string[]) {
     const defaultCommands = await lastValueFrom(this.nats.send('bots.getDefaultCommands', {}));
 
     for (const command of defaultCommands) {
       // const usersForUpdate: Channel[] = await this.prisma.$queryRaw`SELECT * FROM "channels" where id not in (select "channelId" from "channels_commands" where "channels_commands"."defaultName" = ${command.name})`;
-      const usersForUpdate = await this.prisma.channel.findMany({
-        where: {
-          commands: {
-            none: {
-              default: true,
-              defaultName: command.name,
+      const usersForUpdate = usersIds
+        ? await this.prisma.channel.findMany({
+          where: {
+            id: {
+              in: usersIds,
+            },
+            commands: {
+              none: {
+                default: true,
+                defaultName: command.name,
+              },
             },
           },
-        },
-        select: {
-          id: true,
-        },
-      });
+          select: {
+            id: true,
+          },
+        })
+        : await this.prisma.channel.findMany({
+          where: {
+            commands: {
+              none: {
+                default: true,
+                defaultName: command.name,
+              },
+            },
+          },
+          select: {
+            id: true,
+          },
+        });
 
       if (!usersForUpdate.length) continue;
 

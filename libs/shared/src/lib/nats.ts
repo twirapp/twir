@@ -38,6 +38,10 @@ export interface ClientProxyCommands {
   'setCommandCache': {
     input: Command & { responses?: Response[] },
     result: any,
+  },
+  'bots.createDefaultCommands': {
+    input: string[],
+    result: any,
   }
 }
 

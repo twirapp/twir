@@ -11,7 +11,7 @@ export class DotaService {
 
   constructor(private readonly prisma: PrismaService, @Inject('NATS') private nats: ClientProxy) { }
 
-  @Interval(config.isDev ? 10000 : 1 * 60 * 1000)
+  @Interval('dota', config.isDev ? 10000 : 1 * 60 * 1000)
   async cacheDota() {
     const accounts = await this.prisma.dotaAccount.findMany({});
     const chunks = _.chunk(accounts.map(a => a.id), 50);

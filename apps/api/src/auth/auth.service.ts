@@ -7,6 +7,7 @@ import { HelixUser } from '@twurple/api';
 import { AccessToken } from '@twurple/auth';
 import { getRawData } from '@twurple/common';
 import chunk from 'lodash.chunk';
+import { lastValueFrom } from 'rxjs';
 
 import { JwtPayload } from '../jwt/jwt.strategy.js';
 import { staticApi } from '../twitchApi.js';
@@ -91,6 +92,8 @@ export class AuthService {
         botId: bot.id,
       }).toPromise();
     }
+
+    await this.nats.send('bots.createDefaultCommands', [userId]).toPromise();
 
     return user;
   }

@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 
 import { NestFactory } from '@nestjs/core';
+import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import * as Sentry from '@sentry/node';
 import '@sentry/tracing';
+import { config } from '@tsuwari/config';
 
 import { AppModule } from './app.module.js';
 
@@ -12,9 +14,15 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-const app = await NestFactory.createApplicationContext(AppModule);
+const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+  transport: Transport.NATS,
+  options: {
+    servers: [config.NATS_URL],
+    reconnectTimeWait: 100,
+  },
+});
 
-await app.init();
+await app.listen();
 
 process.on('unhandledRejection', (e) => {
   console.error(e);
