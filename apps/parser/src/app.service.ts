@@ -46,7 +46,11 @@ export class AppService implements OnModuleInit {
     )) as unknown as CommandConditional;
     if (!command || !command.enabled) return;
 
-    const userPermissions = await this.helpers.getUserPermissions(state.userInfo, command.permission !== 'VIEWER');
+    const userPermissions = await this.helpers.getUserPermissions(state.userInfo, {
+      checkAdmin: command.permission !== 'VIEWER',
+      checkFollower: command.permission === 'FOLLOWER',
+      channelId: state.channelId,
+    });
     const hasPermission = this.helpers.hasPermission(userPermissions, command.permission);
 
     if (!hasPermission) {

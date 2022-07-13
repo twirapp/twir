@@ -32,6 +32,7 @@ const perms = {
   'Moderator\'s': 'MODERATOR',
   'Vip\'s': 'VIP',
   'Subscriber\'s': 'SUBSCRIBER',
+  'Followers': 'FOLLOWER',
   'Viewers': 'VIEWER',
 } as { [x: string]: CommandPermission };
 
@@ -340,30 +341,7 @@ function changeCommandResponse(index: number, value: string) {
                 ><Remove /></span>
 
                 <ul
-                  class="absolute
-                  bg-[#393636]
-                  bg-clip-padding
-                  border-none
-                  dropdown-menu
-                  float-left
-                  hidden
-                  list-none
-                  m-0
-                  max-h-52
-                  mt-1
-                  overflow-auto
-                  py-2
-                  rounded
-                  scrollbar
-                  scrollbar-thin
-                  scrollbar-thumb-gray-900
-                  scrollbar-track-gray-600
-                  shadow
-                  text-base
-                  text-left
-                  text-white
-                  w-[90%]
-                  z-50"
+                  class="absolute bg-[#393636] bg-clip-padding border-none dropdown-menu float-left hidden list-none m-0 max-h-52 mt-1 overflow-auto py-2 rounded scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 shadow text-base text-left text-white w-[90%] z-50"
                   :aria-labelledby="'dropdownMenuButton' + responseIndex"
                 >
                   <h6
@@ -383,17 +361,7 @@ function changeCommandResponse(index: number, value: string) {
                     :key="variable.name"
                   >
                     <a
-                      class="bg-transparent
-                      block
-                      dropdown-item
-                      font-normal
-                      hover:bg-[#4f4a4a]
-                      px-4
-                      py-2
-                      text-sm
-                      text-white
-                      w-full
-                      whitespace-nowrap"
+                      class="bg-transparent block dropdown-item font-normal hover:bg-[#4f4a4a] px-4 py-2 text-sm text-white w-full whitespace-nowrap"
                       @click="() => {
                         command.responses[responseIndex].text += ` $(${variable.example ? variable.example : variable.name})`;
                       }"

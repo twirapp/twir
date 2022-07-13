@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Command, CommandPermission, PrismaService } from '@tsuwari/prisma';
-import { RedisService } from '@tsuwari/shared';
+import { RedisService, TwitchApiService } from '@tsuwari/shared';
 import { ChatUser } from '@twurple/chat';
 
 export type CommandConditional = Command & { responses: (string | undefined)[] | undefined };
@@ -10,6 +10,7 @@ export class HelpersService {
   constructor(
     private readonly redis: RedisService,
     private readonly prisma: PrismaService,
+    private readonly twitchApi: TwitchApiService,
   ) { }
 
   async getChannelCommandsNamesFromRedis(channelId: string) {
@@ -52,15 +53,22 @@ export class HelpersService {
     return result;
   }
 
-  async getUserPermissions(userInfo: ChatUser, checkAdmin = false): Promise<Record<CommandPermission, boolean>> {
-    const dbUser = checkAdmin ? await this.prisma.user.findFirst({ where: { id: userInfo.userId } }) : undefined;
+  async getUserPermissions(userInfo: ChatUser,
+    opts: {
+      checkAdmin?: boolean,
+      checkFollower?: boolean,
+      channelId?: string
+    } = {},
+  ): Promise<Record<CommandPermission, boolean>> {
+    const dbUser = opts.checkAdmin ? await this.prisma.user.findFirst({ where: { id: userInfo.userId } }) : undefined;
+    const twitchFollow = (opts.channelId && opts.checkFollower) ? await this.twitchApi.users.getFollowFromUserToBroadcaster(userInfo.userId, opts.channelId) : null;
 
     return {
       BROADCASTER: userInfo.isBroadcaster || (dbUser?.isBotAdmin ?? false),
       MODERATOR: userInfo.isMod || (dbUser?.isBotAdmin ?? false),
       VIP: userInfo.isVip || (dbUser?.isBotAdmin ?? false),
       SUBSCRIBER: userInfo.isSubscriber || userInfo.isFounder || (dbUser?.isBotAdmin ?? false),
-      FOLLOWER: true,
+      FOLLOWER: twitchFollow ? true : false,
       VIEWER: true,
     };
   }
