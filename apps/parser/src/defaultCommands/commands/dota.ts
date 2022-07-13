@@ -273,6 +273,7 @@ export const dota: DefaultCommand[] = [
   {
     name: 'dota listacc',
     permission: 'BROADCASTER',
+    visible: false,
     async handler(state) {
       if (!state.channelId) return;
 
