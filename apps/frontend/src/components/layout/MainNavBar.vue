@@ -3,6 +3,8 @@ import LandingButtons from '../LandingButtons.vue';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
+import LanguageSelector from '../LanguageSelector.vue';
+
 import Logo from '@/assets/logo.svg?component';
 </script>
 
@@ -37,16 +39,19 @@ import Logo from '@/assets/logo.svg?component';
       >About</a>
     </div>
 
-    <div class="hidden md:block">
-      <LandingButtons />
-    </div>
+    <div class="flex md:space-x-5 space-x-2">
+      <LanguageSelector />
 
-    <div class="block flex justify-center md:hidden">
-      <div>
-        <div class="dropdown relative">
-          <button
-            id="dropdownMenuButton1d"
-            class="dropdown-toggle
+      <div class="hidden md:block">
+        <LandingButtons />
+      </div>
+
+      <div class="block flex justify-center md:hidden">
+        <div>
+          <div class="dropdown relative">
+            <button
+              id="dropdownMenuButton1d"
+              class="dropdown-toggle
           duration-150
           ease-in-out
           flex
@@ -65,25 +70,25 @@ import Logo from '@/assets/logo.svg?component';
           transition
           uppercase
           whitespace-nowrap"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <svg
-              class="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            ><path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16m-7 6h7"
-            /></svg>
-          </button>
-          <ul
-            class="absolute
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <svg
+                class="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              ><path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16m-7 6h7"
+              /></svg>
+            </button>
+            <ul
+              class="absolute
               bg-[#141414]
               bg-clip-padding
               border-none
@@ -102,29 +107,30 @@ import Logo from '@/assets/logo.svg?component';
               text-base
               text-left
               z-50"
-            aria-labelledby="dropdownMenuButton1d"
-          >
-            <li>
-              <a
-                href="/dashboard"
-                class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-center text-sm text-white transition w-full"
-              >Dashboard</a>
-            </li>
-            <li>
-              <a
-                href="#"
-                class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-center text-sm text-white transition w-full"
-              >Team</a>
-            </li>
-            <li>
-              <a
-                href="#"
-                class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-center text-sm text-white transition w-full"
-              >About</a>
-            </li>
-            <hr class="border border-gray-700 border-solid border-t-0 h-0 opacity-50">
-            <LandingButtons type="col" />
-          </ul>
+              aria-labelledby="dropdownMenuButton1d"
+            >
+              <li>
+                <a
+                  href="/dashboard"
+                  class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-center text-sm text-white transition w-full"
+                >Dashboard</a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-center text-sm text-white transition w-full"
+                >Team</a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-center text-sm text-white transition w-full"
+                >About</a>
+              </li>
+              <hr class="border border-gray-700 border-solid border-t-0 h-0 opacity-50">
+              <LandingButtons type="col" />
+            </ul>
+          </div>
         </div>
       </div>
     </div>

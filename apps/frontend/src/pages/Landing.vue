@@ -21,11 +21,5 @@ import MainNavBar from '@/components/layout/MainNavBar.vue';
         <LandingButtons size="large" />
       </div>
     </div>
-
-    <img
-      src="../assets/bottom.png"
-      class="select-none"
-      alt="PREVIEW"
-    >
   </div>
 </template>

@@ -59,7 +59,7 @@ async function deletekeyword(index: number) {
       <div
         v-for="keyword, index of keywords"
         :key="index"
-        class="block card mb-[0.5rem] rounded shadow text-white"
+        class="block card rounded shadow text-white"
       >
         <KeywordComponent 
           :keyword="keyword"

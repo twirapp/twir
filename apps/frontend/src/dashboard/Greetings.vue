@@ -64,7 +64,7 @@ async function deleteGreeting(index: number) {
       <div
         v-for="greeting, index of greetings"
         :key="index"
-        class="block card mb-[0.5rem] rounded shadow text-white"
+        class="block card rounded shadow text-white"
       >
         <GreetingComponent 
           :greeting="greeting"
