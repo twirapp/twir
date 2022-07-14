@@ -2,7 +2,7 @@
 <script lang="ts" setup>
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 import { useStore } from '@nanostores/vue';
-import { Notification, ViewedNotification, NotificationMessage } from '@tsuwari/prisma';
+import { Notification, NotificationMessage } from '@tsuwari/prisma';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import { computed, ComputedRef, Ref, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -21,8 +21,8 @@ const user = useStore(userStore);
 const { execute: executeNew, data: newNotificationsData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/notifications/new`, api, { immediate: false });
 const { execute: executeViewed, data: viewedNotificationsData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/notifications/viewed`, api, { immediate: false });
 
-type Viewed = ViewedNotification & { notification: Notification & { messages: NotificationMessage[] } }
-type NotViewed = Notification & { messages: NotificationMessage[] }
+type Viewed = Notification & { messages: NotificationMessage[] }
+type NotViewed = Viewed
 
 const newNotifications = ref<NotViewed[]>([]);
 const viewedNotifications = ref<Viewed[]>([]);
@@ -34,7 +34,7 @@ const notifications: ComputedRef<Ref<NotViewed[]> | Ref<Viewed[]>> = computed(()
   return showNew.value ? newNotifications : viewedNotifications;
 });
 
-async function markNotificationAsReaded(notification: Viewed | NotViewed) {
+async function markNotificationAsReaded(notification: Viewed) {
   await api.post(`v1/channels/${selectedDashboard.value.channelId}/notifications/viewed`, {
     notificationId: notification.id,
   });
@@ -48,7 +48,7 @@ watch(newNotificationsData, (v: any[]) => {
 });
 
 watch(viewedNotificationsData, (v) => {
-  viewedNotifications.value = v;
+  viewedNotifications.value = v.map((v: any) => v.notification);
 });
 
 selectedDashboardStore.subscribe(async (v) => {
@@ -73,10 +73,10 @@ selectedDashboardStore.subscribe(async (v) => {
       </PopoverButton>
       
       <div
-        class="-translate-x-3/4 absolute float-left mt-3 w-96 z-10"
+        class="-translate-x-56 absolute float-left md:-translate-x-3/4 md:w-96 mt-3 w-80 z-10"
       >
         <PopoverPanel
-          class="bg-[#202020] max-h-[55vh] overflow-auto scrollbar scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-500 z-10"
+          class="bg-[#202020] break-words max-h-[55vh] overflow-auto pr-2 scrollbar scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-500 z-10"
         >
           <div
             class="flex items-center justify-between mt-1 px-2 space-y-1"
@@ -92,13 +92,6 @@ selectedDashboardStore.subscribe(async (v) => {
               >
                 {{ t(showNew ? `navbar.notifications.showOld` : `navbar.notifications.showNew`) }}
               </MyBtn>
-              <!-- <button
-                type="button"
-                class="bg-[#522f87] duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-[#772CE8] inline-block leading-tight px-1 py-1 rounded shadow text-white text-xs transition uppercase"
-                @click="showNew = !showNew"
-              >
-                {{ t(showNew ? `navbar.notifications.showOld` : `navbar.notifications.showNew`) }}
-              </button> -->
             </div>
           </div>
           <div
@@ -107,29 +100,47 @@ selectedDashboardStore.subscribe(async (v) => {
           >
             {{ t('navbar.notifications.noUnreadNotifications') }}
           </div>
-          <!-- v-element-visibility="[(state) => onNotificationVisibility(notification.text, state)]" -->
           <div
             v-for="notification of notifications.value"
             v-else
             :key="notification.id"
-            class="block font-normal hover:bg-[#393636] mt-1 px-2 py-2 text-sm w-full"
+            class="block flex font-normal hover:bg-[#393636] jus mt-1 px-2 py-2 space-x-2 text-sm w-full"
           >
-            <div
-              class="notification"
-              v-html="('messages' in notification ? notification?.messages : notification.notification.messages).find(m => m.langCode === selectedLang.toUpperCase())?.text"
-            />
-            <!-- {{ ('messages' in notification ? notification?.messages : notification.notification.messages).find(m => m.langCode === selectedLang.toUpperCase())?.text }} -->
-            <div
-              v-if="('messages' in notification) && selectedDashboard.channelId === user?.id"
-              class="flex flex-col md:flex-row md:justify-end md:space-x-1 md:space-y-0 md:text-right mt-1 pr-2 space-y-1"
+            <img
+              v-if="notification.imageSrc"
+              :src="notification.imageSrc"
+              alt="ALET_IMG"
+              class="h-12 rounded w-12"
             >
-              <button
-                type="button"
-                class="duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-[#772CE8] inline-block leading-tight px-1 py-1 rounded shadow text-white text-xs transition uppercase"
-                @click="markNotificationAsReaded(notification)"
+
+            <div class="flex flex-col w-full">
+              <div class="flex justify-between">
+                <p
+                  v-if="notification.messages.some(m => m.title)"
+                  class="break-all font-bold"
+                >
+                  {{ notification.messages.find(m => m.langCode === selectedLang.toUpperCase())?.title }}
+                </p>
+                <p class="italic">
+                  {{ new Date(notification?.createdAt).toLocaleDateString() }}
+                </p>
+              </div>
+              <div
+                class="notification"
+                v-html="notification.messages.find(m => m.langCode === selectedLang.toUpperCase())?.text"
+              />
+              <div
+                v-if="('messages' in notification) && selectedDashboard.channelId === user?.id"
+                class="text-right"
               >
-                <Mark style="width: 16px; height: 16px;" />
-              </button>
+                <button
+                  type="button"
+                  class="duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-[#772CE8] inline-block leading-tight px-1 py-1 rounded shadow text-white transition uppercase"
+                  @click="markNotificationAsReaded(notification)"
+                >
+                  <Mark style="width: 16px; height: 16px;" />
+                </button>
+              </div>
             </div>
           </div>
         </PopoverPanel>
