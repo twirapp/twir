@@ -243,7 +243,15 @@ export const dota: DefaultCommand[] = [
           if (!player) continue;
 
           const hero = dotaHeroes.find(h => h.id === player.hero_id);
-          const isWinner = player.team_number === 0 && match.result.radiant_win;
+          const isPlayerRadiant = player.team_number === 0;
+          let isWinner: boolean;
+
+          if ((isPlayerRadiant && match.result.radiant_win) || (!isPlayerRadiant && match.result.radiant_win)) {
+            isWinner = true;
+          } else {
+            isWinner = false;
+          }
+
           matchesByGameMode[match.result.game_mode]?.push({
             isWinner,
             hero,
