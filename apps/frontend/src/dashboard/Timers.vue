@@ -1,28 +1,20 @@
 <script lang="ts" setup>
-import { useStore } from '@nanostores/vue';
-import { useAxios } from '@vueuse/integrations/useAxios';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import Timer from '@/components/Timer.vue';
-import { api } from '@/plugins/api';
-import { selectedDashboardStore } from '@/stores/userStore';
+import { useUpdatingData } from '@/functions/useUpdatingData';
 
 
 const { t } = useI18n({
   useScope: 'global',
 });
-const selectedDashboard = useStore(selectedDashboardStore);
 const timers = ref<Array<any>>([]);
 const timersBeforeEdit = ref<Array<any>>([]);
 
-const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/timers`, api, { immediate: false });
+const { data } = useUpdatingData(`/v1/channels/{dashboardId}/timers`);
 
-selectedDashboardStore.subscribe((v) => {
-  execute(`/v1/channels/${v.channelId}/timers`);
-});
-
-watch(axiosData, (v: any[]) => {
+watch(data, (v: any[]) => {
   timers.value = v;
   timersBeforeEdit.value = [];
 });

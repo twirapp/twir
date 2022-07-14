@@ -1,8 +1,6 @@
 <script lang="ts" setup>
-import { useStore } from '@nanostores/vue';
 import { HelixStreamData } from '@twurple/api';
 import { useIntervalFn, useTitle  } from '@vueuse/core';
-import { useAxios } from '@vueuse/integrations/useAxios';
 import { intervalToDuration, formatDuration } from 'date-fns';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -13,29 +11,17 @@ import Notification from '../Notification.vue';
 import Profile from '../Profile.vue';
 import { publicRoutes, adminRoutes } from './sidebarLinks';
 
-import EventsIcon from '@/assets/sidebar/events.svg?component';
-import { api } from '@/plugins/api';
-import { selectedDashboardStore } from '@/stores/userStore';
+import { useUpdatingData } from '@/functions/useUpdatingData';
 
-const selectedDashboard = useStore(selectedDashboardStore);
-const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/streams`, api, { immediate: false });
+const { data: stream, execute } = useUpdatingData<HelixStreamData & { parsedMessages: number } | null>(`/v1/channels/{dashboardId}/streams`);
 
-const stream = ref<HelixStreamData & { parsedMessages: number } | null>(null);
 const uptime = ref('');
 const currentRoute = useRoute();
 const title = useTitle();
 const { t } = useI18n();
 
-watch(axiosData, (v) => {
-  stream.value = v;
-});
-
-selectedDashboardStore.subscribe(async (v) => {
-  execute(`/v1/channels/${v.channelId}/streams`);
-});
-
 useIntervalFn(() => {
-  execute(`/v1/channels/${selectedDashboard.value.channelId}/streams`);
+  execute();
 }, 15000);
 
 useIntervalFn(() => {

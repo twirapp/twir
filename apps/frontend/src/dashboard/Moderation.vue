@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
 import { ModerationSettingsDto } from '@tsuwari/shared';
-import { onMounted, ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import ModerationComponent from '@/components/Moderation.vue';
+import { useUpdatingData } from '@/functions/useUpdatingData';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
@@ -13,20 +14,14 @@ const { t } = useI18n({
   useScope: 'global',
 });
 
+
+const { data } = useUpdatingData(`/v1/channels/{dashboardId}/moderation`);
+
+watch(data, (v) => {
+  settings.value = v;
+});
+
 const selectedDashboard = useStore(selectedDashboardStore);
-
-selectedDashboardStore.subscribe(() => {
-  getModerationSettings();
-});
-
-async function getModerationSettings() {
-  const { data } = await api(`/v1/channels/${selectedDashboard.value.channelId}/moderation`);
-  settings.value = data;
-}
-
-onMounted(() => {
-  getModerationSettings();
-});
 
 async function save() {
   await api.post(`/v1/channels/${selectedDashboard.value.channelId}/moderation`, settings.value);

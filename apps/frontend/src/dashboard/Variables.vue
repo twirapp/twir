@@ -1,31 +1,24 @@
 <script lang="ts" setup>
 export type VariableType = SetOptional<Omit<CustomVar, 'channelId'| 'evalValue'> & { edit?: boolean, evalValue: string }, 'id'>
 
-import { useStore } from '@nanostores/vue';
 import { CustomVar } from '@tsuwari/prisma';
-import { useAxios } from '@vueuse/integrations/useAxios';
 import type { SetOptional } from 'type-fest';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import VariableComponent from '@/components/Variable.vue';
-import { api } from '@/plugins/api';
-import { selectedDashboardStore } from '@/stores/userStore';
+import { useUpdatingData } from '@/functions/useUpdatingData';
 
-const selectedDashboard = useStore(selectedDashboardStore);
 
-const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/variables`, api, { immediate: false });
+const { data } = useUpdatingData(`/v1/channels/{dashboardId}/variables`);
+
 const variables = ref<Array<VariableType>>([]);
 const variablesBeforeEdit = ref<Array<VariableType>>([]);
 const { t } = useI18n({
   useScope: 'global',
 });
 
-selectedDashboardStore.subscribe((v) => {
-  execute(`/v1/channels/${v.channelId}/variables`);
-});
-
-watch(axiosData, (v: any[]) => {
+watch(data, (v: any[]) => {
   variables.value = v;
   variablesBeforeEdit.value = [];
 });

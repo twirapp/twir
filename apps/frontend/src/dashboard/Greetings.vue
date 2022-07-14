@@ -1,32 +1,23 @@
 <script lang="ts" setup>
 export type GreeTingType = SetOptional<Omit<Greeting, 'channelId'> & { username: string, edit?: boolean }, 'id'>
 
-import { useStore } from '@nanostores/vue';
 import { Greeting } from '@tsuwari/prisma';
-import { useAxios } from '@vueuse/integrations/useAxios';
 import type { SetOptional } from 'type-fest';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import GreetingComponent from '@/components/Greeting.vue';
-import { api } from '@/plugins/api';
-import { selectedDashboardStore } from '@/stores/userStore';
+import { useUpdatingData } from '@/functions/useUpdatingData';
 
 const { t } = useI18n({
   useScope: 'global',
 });
 
-const selectedDashboard = useStore(selectedDashboardStore);
-
-const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/greetings`, api, { immediate: false });
+const { data } = useUpdatingData(`/v1/channels/{dashboardId}/greetings`);
 const greetings = ref<Array<GreeTingType>>([]);
 const greetingsBeforeEdit = ref<Array<GreeTingType>>([]);
 
-selectedDashboardStore.subscribe((v) => {
-  execute(`/v1/channels/${v.channelId}/greetings`);
-});
-
-watch(axiosData, (v: any[]) => {
+watch(data, (v: any[]) => {
   greetings.value = v;
   greetingsBeforeEdit.value = [];
 });

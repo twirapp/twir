@@ -3,7 +3,6 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 import { useStore } from '@nanostores/vue';
 import { Notification, NotificationMessage } from '@tsuwari/prisma';
-import { useAxios } from '@vueuse/integrations/useAxios';
 import { computed, ComputedRef, Ref, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -11,6 +10,7 @@ import { useI18n } from 'vue-i18n';
 import Bell from '@/assets/icons/bell.svg?component';
 import Mark from '@/assets/icons/check.svg?component';
 import MyBtn from '@/components/elements/MyBtn.vue';
+import { useUpdatingData } from '@/functions/useUpdatingData';
 import { api } from '@/plugins/api';
 import { localeStore } from '@/stores/locale';
 import { selectedDashboardStore, userStore } from '@/stores/userStore';
@@ -18,42 +18,31 @@ import { selectedDashboardStore, userStore } from '@/stores/userStore';
 const selectedDashboard = useStore(selectedDashboardStore);
 const user = useStore(userStore);
 
-const { execute: executeNew, data: newNotificationsData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/notifications/new`, api, { immediate: false });
-const { execute: executeViewed, data: viewedNotificationsData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/notifications/viewed`, api, { immediate: false });
+const { data: newNotifications } = useUpdatingData<MyNotification[]>(`/v1/channels/{dashboardId}/notifications/new`);
+const { execute: executeViewed, data: viewedNotificationsData } = useUpdatingData(`/v1/channels/{dashboardId}/notifications/viewed`);
 
-type Viewed = Notification & { messages: NotificationMessage[] }
-type NotViewed = Viewed
+type MyNotification = Notification & { messages: NotificationMessage[] }
 
-const newNotifications = ref<NotViewed[]>([]);
-const viewedNotifications = ref<Viewed[]>([]);
+const viewedNotifications = ref<MyNotification[]>([]);
 const showNew = ref(true);
 const { t } = useI18n();
 const selectedLang = useStore(localeStore);
 
-const notifications: ComputedRef<Ref<NotViewed[]> | Ref<Viewed[]>> = computed(() => {
+const notifications = computed(() => {
   return showNew.value ? newNotifications : viewedNotifications;
 });
 
-async function markNotificationAsReaded(notification: Viewed) {
+async function markNotificationAsReaded(notification: MyNotification) {
   await api.post(`v1/channels/${selectedDashboard.value.channelId}/notifications/viewed`, {
     notificationId: notification.id,
   });
 
-  newNotifications.value = newNotifications.value.filter(v => v.id !== notification.id);
-  executeViewed(`/v1/channels/${selectedDashboard.value.channelId}/notifications/viewed`);
+  newNotifications.value = newNotifications?.value?.filter(v => v.id !== notification.id);
+  executeViewed();
 }
-
-watch(newNotificationsData, (v: any[]) => {
-  newNotifications.value = v;
-});
 
 watch(viewedNotificationsData, (v) => {
   viewedNotifications.value = v.map((v: any) => v.notification);
-});
-
-selectedDashboardStore.subscribe(async (v) => {
-  executeNew(`/v1/channels/${v.channelId}/notifications/new`);
-  executeViewed(`/v1/channels/${v.channelId}/notifications/viewed`);
 });
 </script>
 
@@ -61,7 +50,7 @@ selectedDashboardStore.subscribe(async (v) => {
   <div class="block inline-flex items-center relative">
     <Popover>
       <div
-        v-if="newNotifications.length"
+        v-if="newNotifications?.length"
         class="-translate-y-1/2 0 absolute align-baseline bg-[#772CE8] bottom-auto font-bold inline-block leading-none left-auto px-1.5 py-0.5 rotate-0 rounded scale-x-100 scale-y-100 select-none skew-x-0 skew-y-0 text-center text-white text-xs translate-x-2/4 whitespace-nowrap z-10"
       >
         {{ newNotifications.length }}

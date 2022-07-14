@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
 import { HelixUserData } from '@twurple/api';
-import { useAxios } from '@vueuse/integrations/useAxios';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import Add from '@/assets/buttons/add.svg';
 import Remove from '@/assets/buttons/remove.svg';
+import { useUpdatingData } from '@/functions/useUpdatingData';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore, userStore } from '@/stores/userStore';
 
@@ -18,14 +18,10 @@ const { t } = useI18n({
 const user = useStore(userStore);
 const newMember = ref('');
 const dashboardMembers = ref<Array<HelixUserData>>();
-const { execute, data: axiosData } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/settings/dashboardAccess`, api, { immediate: false });
+const { data, execute } = useUpdatingData(`/v1/channels/{dashboardId}/settings/dashboardAccess`);
 
-watch(axiosData, (v) => {
+watch(data, (v) => {
   dashboardMembers.value = v;
-});
-
-selectedDashboardStore.subscribe(async (v) => {
-  execute(`/v1/channels/${v.channelId}/settings/dashboardAccess`);
 });
 
 async function deleteMember(id: string) {
@@ -66,14 +62,7 @@ async function addMember() {
               <li
                 v-for="member of dashboardMembers"
                 :key="member.id"
-                class="bg-transparent
-                  block
-                  font-normal
-                  px-4
-                  py-2
-                  text-sm
-                  w-full
-                  whitespace-nowrap"
+                class="bg-transparent block font-normal px-4 py-2 text-sm w-full whitespace-nowrap"
                 :class="{
                   'hover:bg-[#121212]': member.id !== user?.id,
                   'bg-[#121212]': member.id === user?.id

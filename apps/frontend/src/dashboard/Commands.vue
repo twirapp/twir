@@ -2,12 +2,9 @@
 export type VariablesList = Array<{ name: string, example?: string, description?: string }>
 
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
-import { useStore } from '@nanostores/vue';
 import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/create';
-import { useAxios } from '@vueuse/integrations/useAxios';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useToast } from 'vue-toastification';
 
 import Command from '../components/Command.vue';
 import { VariableType } from './Variables.vue';
@@ -16,14 +13,13 @@ import Add from '@/assets/buttons/add.svg';
 import Dota2Icon from '@/assets/icons/dota2.svg?component';
 import Integrations from '@/assets/sidebar/integrations.svg?component';
 import MyBtn from '@/components/elements/MyBtn.vue';
+import { useUpdatingData } from '@/functions/useUpdatingData';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
 type CommandType = UpdateOrCreateCommandDto & { new?: boolean, default?: boolean, defaultName?: string }
 
-const selectedDashboard = useStore(selectedDashboardStore);
-
-const { execute, data: axiosData, error } = useAxios(`/v1/channels/${selectedDashboard.value.channelId}/commands`, api, { immediate: false });
+const { data: axiosData } = useUpdatingData(`/v1/channels/{dashboardId}/commands`);
 
 const commands = ref<CommandType[]>([]);
 const variablesList = ref<VariablesList>([]);
@@ -35,15 +31,8 @@ const filteredCommands = computed(() => {
 const { t } = useI18n({
   useScope: 'global',
 });
-const toast = useToast();
 
 const DotaGroup = new Set(['np', 'dota addacc', 'dota delacc', 'wl', 'dota listacc']);
-
-watch(error, (data) => {
-  if (data?.response?.data.message) {
-    toast(data.response.data.message);
-  }
-});
 
 watch(axiosData, (v: CommandType[]) => {
   commands.value = v;
@@ -51,7 +40,6 @@ watch(axiosData, (v: CommandType[]) => {
 });
 
 selectedDashboardStore.subscribe(async (v) => {
-  execute(`/v1/channels/${v.channelId}/commands`);
   const [custom, builtIn] = await Promise.all([
     api(`v1/channels/${v.channelId}/variables`),
     api(`v1/channels/${v.channelId}/variables/builtin`),

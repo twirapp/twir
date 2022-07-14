@@ -11,7 +11,7 @@ title.value = 'Tsuwari - Integrations';
 </script>
 
 <template>
-  <div class="mansory sm:mansory-sm md:mansory-md lg:masonry-lg m-1.5 md:m-3">
+  <div class="lg:masonry-lg m-1.5 mansory md:m-3 md:mansory-md sm:mansory-sm">
     <Spotify />
     <Vk />
     <Lastfm />
