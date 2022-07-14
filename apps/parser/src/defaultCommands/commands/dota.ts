@@ -178,7 +178,6 @@ export const dota: DefaultCommand[] = [
       }
 
       const parsedStream = JSON.parse(stream) as HelixStreamData;
-      const date = new Date('2022-07-14 08:10:24');
       const accounts = await getAccounts(state.channelId);
       if (typeof accounts === 'string') return accounts;
 
@@ -203,15 +202,36 @@ export const dota: DefaultCommand[] = [
           players_heroes: true,
           players: true,
           finished: true,
+          result: true,
         },
       }).then(gms => gms.filter(g => !g.players_heroes.some(h => h === 0)));
-      console.log(date, games.length);
-      const matchesRequest = await Promise.all(games.map(g => dotaApi.get('IDOTA2Match_570/GetMatchDetails/v1', { params: { match_id: g.match_id } })))
+
+      const gamesForRequest = games.filter(g => !g.result);
+      const matchesRequest = await Promise.all(gamesForRequest.map(g => dotaApi.get('IDOTA2Match_570/GetMatchDetails/v1', { params: { match_id: g.match_id } })))
         .then(requests => requests.filter(r => r.status === 200));
 
-      const matchesData: any[] = [];
+      const matchesData: any[] = [...games.filter(g => g.result).map(g => g.result)];
       for (const response of matchesRequest.filter(m => !m.data.result?.error)) {
-        if (response.data) matchesData.push(response.data);
+        if (response.data?.result) {
+          matchesData.push(response.data.result);
+        }
+      }
+
+      const createMatchesData = matchesRequest
+        .filter(m => !m.data.result?.error && m.data?.result)
+        .map(m => m.data.result);
+
+      if (createMatchesData.length) {
+        const data = createMatchesData.map(d => ({
+          match_id: d.match_id.toString(),
+          players: d.players,
+          radiant_win: d.radiant_win,
+          game_mode: d.game_mode,
+        }));
+
+        await prisma.dotaMatchResult.createMany({
+          data,
+        });
       }
 
       const matchesByGameMode: { [x: number]: any[] } = {};
@@ -221,23 +241,23 @@ export const dota: DefaultCommand[] = [
 
       for (const account of accounts) {
         for (const match of matchesData) {
-          if (typeof match.result.radiant_win === 'undefined' || !match.result?.players) continue;
+          if (typeof match.radiant_win === 'undefined' || !match.players) continue;
 
           await prisma.dotaMatch.update({
             where: {
-              match_id: match.result.match_id.toString(),
+              match_id: match.match_id.toString(),
             },
             data: {
               finished: true,
             },
           });
 
-          let player = match.result.players.find((p: any) => p.account_id === Number(account.id));
+          let player = match.players.find((p: any) => p.account_id === Number(account.id));
           if (!player) {
-            const dbMatch = games.find(g => g.match_id === match.result.match_id.toString());
+            const dbMatch = games.find(g => g.match_id === match.match_id.toString());
             if (!dbMatch) continue;
             const playerIndex = dbMatch.players.indexOf(Number(account.id));
-            player = match.result.players[playerIndex];
+            player = match.players[playerIndex];
           }
 
           if (!player) continue;
@@ -246,13 +266,13 @@ export const dota: DefaultCommand[] = [
           const isPlayerRadiant = player.team_number === 0;
           let isWinner: boolean;
 
-          if ((isPlayerRadiant && match.result.radiant_win) || (!isPlayerRadiant && !match.result.radiant_win)) {
+          if ((isPlayerRadiant && match.radiant_win) || (!isPlayerRadiant && !match.radiant_win)) {
             isWinner = true;
           } else {
             isWinner = false;
           }
 
-          matchesByGameMode[match.result.game_mode]?.push({
+          matchesByGameMode[match.game_mode]?.push({
             isWinner,
             hero,
             kills: player.kills,
