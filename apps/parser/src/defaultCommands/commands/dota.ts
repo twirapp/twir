@@ -171,22 +171,22 @@ export const dota: DefaultCommand[] = [
     handler: async (state) => {
       if (!state.channelId) return;
 
-      /* const stream = await redis.get(`streams:${state.channelId}`);
+      const stream = await redis.get(`streams:${state.channelId}`);
 
       if (!stream) {
         return 'Stream is offline';
-      } */
+      }
 
-      //const parsedStream = JSON.parse(stream) as HelixStreamData;
+      const parsedStream = JSON.parse(stream) as HelixStreamData;
       const date = new Date('2022-07-14 08:10:24');
       const accounts = await getAccounts(state.channelId);
       if (typeof accounts === 'string') return accounts;
 
       const games = await prisma.dotaMatch.findMany({
         where: {
-          /* startedAt: {
-            gte: new Date(date.getTime() - 10 * 60 * 1000),
-          }, */
+          startedAt: {
+            gte: new Date(new Date(parsedStream.started_at).getTime() - 10 * 60 * 1000),
+          },
           players: {
             hasSome: accounts.map(a => Number(a.id)),
           },
@@ -275,7 +275,6 @@ export const dota: DefaultCommand[] = [
         result.push(msg);
       }
 
-      console.log(result);
       return result.length ? result : 'W 0 — L 0';
     },
   },
