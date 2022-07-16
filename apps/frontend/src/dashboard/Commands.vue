@@ -11,7 +11,6 @@ import { VariableType } from './Variables.vue';
 
 import Add from '@/assets/buttons/add.svg';
 import Dota2Icon from '@/assets/icons/dota2.svg?component';
-import Integrations from '@/assets/sidebar/integrations.svg?component';
 import MyBtn from '@/components/elements/MyBtn.vue';
 import { useUpdatingData } from '@/functions/useUpdatingData';
 import { api } from '@/plugins/api';
@@ -32,7 +31,7 @@ const { t } = useI18n({
   useScope: 'global',
 });
 
-const DotaGroup = new Set(['np', 'dota addacc', 'dota delacc', 'wl', 'dota listacc']);
+const DotaGroup = new Set(['np', 'dota addacc', 'dota delacc', 'wl', 'dota listacc', 'lg']);
 
 watch(axiosData, (v: CommandType[]) => {
   commands.value = v;
@@ -133,7 +132,6 @@ function onSave(index: number) {
                 v-if="command.defaultName && DotaGroup.has(command.defaultName)"
                 class="h-[17px] ml-3"
               />
-            <!-- <Integrations /> -->
             </button>
           </li>
         </ul>
