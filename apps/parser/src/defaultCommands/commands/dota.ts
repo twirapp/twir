@@ -29,24 +29,34 @@ dotaApi.interceptors.request.use((req) => {
   return req;
 });
 
+// DO NOT CHANGE ORDER!
+const colors = ['Blue', 'Teal', 'Purple', 'Yellow', 'Orange', 'Pink', 'Gray', 'Light Blue', 'Green', 'Brown'];
+
+const getPlayerHero = (heroId: number, index?: number) => {
+  if (heroId === 0 && index) {
+    const color = colors[index];
+    return color ?? 'Unknown';
+  } else if (heroId === 0 && !index) return 'Unknown';
+  else {
+    const hero = dotaHeroes.find(h => h.id === heroId);
+    if (!hero) return 'Unknown';
+    return hero.localized_name;
+  }
+};
+
 const getGames = async (accounts: string[]) => {
   const rps = await Promise.all(accounts.map(a => redis.get(`dotaRps:${a}`)));
   if (!rps.filter(r => r !== null).length) {
     return messages.GAME_NOT_FOUND;
   }
-  const cachedRps = rps.filter(r => r !== null).map(r => JSON.parse(r!));
 
   const cachedGames = await Promise.all(accounts.map(a => redis.get(`dotaMatches:${a}`)));
   if (!cachedGames.filter(r => r !== null).length) {
     return messages.GAME_NOT_FOUND;
   }
 
-  const parsedGames = cachedGames.filter(g => g !== null).map(g => JSON.parse(g!) as DotaGame);
   const dbGames = await prisma.dotaMatch.findMany({
     where: {
-      lobbyId: {
-        in: cachedRps.filter(r => r.lobbyId).map(r => r.lobbyId),
-      },
       players: {
         hasSome: accounts.map(a => Number(a)),
       },
@@ -63,11 +73,11 @@ const getGames = async (accounts: string[]) => {
   if (!dbGames.length) return messages.GAME_NOT_FOUND;
 
   return dbGames.map(g => {
-    const cachedGame = parsedGames.find(game => game.match_id === g.match_id)!;
+    const players = g.players.map((p, index) => ({ account_id: p, hero_id: g.players_heroes[index]! }));
 
     return {
       ...g,
-      players: cachedGame.players,
+      players,
     };
   });
 };
@@ -309,4 +319,47 @@ export const dota: DefaultCommand[] = [
       return typeof accounts === 'string' ? accounts : accounts.map(a => a.id).join(', ');
     },
   },
+  {
+    name: 'lg',
+    permission: 'VIEWER',
+    visible: false,
+    async handler(state) {
+      if (!state.channelId) return;
+
+      const accounts = await getAccounts(state.channelId);
+      if (typeof accounts === 'string') return accounts;
+
+      const accountsIds = accounts.map(a => a.id);
+      const games = await getGames(accountsIds);
+      if (typeof games === 'string') return games;
+
+      const prevGame = games[1];
+      if (!prevGame) return 'Previous game not found.';
+
+      const currentGame = games[0]!;
+
+      const neededPlayers: Array<{
+        prev: Player,
+        curr: Player,
+      }> = [];
+
+      for (const player of currentGame.players.filter(p => !accountsIds.includes(p.account_id.toString()))) {
+        const findedPlayer = prevGame.players.find(p => p.account_id === player.account_id);
+
+        if (!findedPlayer) continue;
+        neededPlayers.push({
+          prev: findedPlayer,
+          curr: player,
+        });
+      }
+
+      if (!neededPlayers.length) return 'Not playing with anyone from last game.';
+      return neededPlayers.map((p) => `${getPlayerHero(p.curr.hero_id)} played as ${getPlayerHero(p.prev.hero_id)}`).join(', ');
+    },
+  },
 ];
+
+type Player = {
+  account_id: number;
+  hero_id: number;
+}

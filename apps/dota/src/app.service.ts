@@ -15,6 +15,7 @@ import { converUsers } from './helpers/convertUsers.js';
 export class AppService extends SteamUser implements OnModuleInit {
   #watchRoot: protobufjs.Root;
   #clientHelloRoot: protobufjs.Root;
+  #matchRoot: protobufjs.Root;
   #logger = new Logger('Dota');
 
   constructor(private readonly redis: RedisService, private readonly prisma: PrismaClient) {
@@ -39,6 +40,10 @@ export class AppService extends SteamUser implements OnModuleInit {
       keepCase: true,
     });
 
+    this.#matchRoot = await new protobufjs.Root().load(resolve(dirname(fileURLToPath(import.meta.url)), '..', 'protos', 'dota2', 'dota_gcmessages_client.proto'), {
+      keepCase: true,
+    });
+
     this.logOn({
       accountName: config.STEAM_USERNAME,
       password: config.STEAM_PASSWORD,
@@ -50,14 +55,29 @@ export class AppService extends SteamUser implements OnModuleInit {
       this.gamesPlayed([570], true);
     });
 
+    this.on('error', (e) => this.#logger.error(e));
+
     this.on('appLaunched', async (appId) => {
       this.sendHelloEvent();
 
-      setInterval(() => this.sendHelloEvent(), 5 * 1000);
+      setInterval(() => {
+        this.sendHelloEvent();
+      }, 5 * 1000);
     });
 
     this.on('receivedFromGC', (_appId, msgId, payload) => {
       if (msgId === 8010) this.recievedFromGcCallback(payload);
+    });
+  }
+
+  async testMatchResults() {
+    const type = this.#matchRoot.lookupType('CMsgGCMatchDetailsRequest');
+    const msg = type.encode({
+      match_id: 6662322079,
+    });
+    this.sendToGC(570, 7095, {}, Buffer.from(msg.finish()), (_appId, msgId, payload) => {
+      const type = this.#matchRoot.lookupType('CMsgGCMatchDetailsResponse');
+      console.log('r', type.decode(payload).toJSON());
     });
   }
 
