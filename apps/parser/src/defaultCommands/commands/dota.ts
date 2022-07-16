@@ -44,7 +44,7 @@ const getPlayerHero = (heroId: number, index?: number) => {
   }
 };
 
-const getGames = async (accounts: string[]) => {
+const getGames = async (accounts: string[], take = 1) => {
   const rps = await Promise.all(accounts.map(a => redis.get(`dotaRps:${a}`)));
   if (!rps.filter(r => r !== null).length) {
     return messages.GAME_NOT_FOUND;
@@ -67,7 +67,7 @@ const getGames = async (accounts: string[]) => {
     include: {
       gameMode: true,
     },
-    take: 2,
+    take,
   });
 
   if (!dbGames.length) return messages.GAME_NOT_FOUND;
@@ -163,7 +163,7 @@ export const dota: DefaultCommand[] = [
       const accounts = await getAccounts(state.channelId);
       if (typeof accounts === 'string') return accounts;
 
-      const games = await getGames(accounts.map(a => a.id));
+      const games = await getGames(accounts.map(a => a.id), 1);
       if (typeof games === 'string') return games;
 
       return games
