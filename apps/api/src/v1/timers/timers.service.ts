@@ -47,7 +47,10 @@ export class TimersService {
       },
     });
 
-    await this.nats.emit('bots.addTimerToQueue', timer.id).toPromise();
+    if (timer.enabled) {
+      await this.nats.emit('bots.addTimerToQueue', timer.id).toPromise();
+    }
+
     return timer;
   }
 
@@ -91,7 +94,11 @@ export class TimersService {
       },
     });
 
-    await this.nats.emit('bots.addTimerToQueue', updated.id).toPromise();
+    if (updated.enabled) {
+      await this.nats.emit('bots.addTimerToQueue', updated.id).toPromise();
+    } else {
+      await this.nats.emit('bots.removeTimerFromQueue', updated.id).toPromise();
+    }
 
     return updated;
   }

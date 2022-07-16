@@ -34,7 +34,7 @@ new Worker<Data>(
       },
     });
 
-    if (!timer) {
+    if (!timer || !timer.enabled) {
       job.discard();
       await job.remove();
       return;
