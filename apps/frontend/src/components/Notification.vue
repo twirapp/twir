@@ -105,10 +105,9 @@ watch(viewedNotificationsData, (v) => {
             <div class="flex flex-col w-full">
               <div class="flex justify-between">
                 <p
-                  v-if="notification.messages.some(m => m.title)"
                   class="break-all font-bold"
                 >
-                  {{ notification.messages.find(m => m.langCode === selectedLang.toUpperCase())?.title }}
+                  {{ notification.messages.find(m => m.langCode === selectedLang.toUpperCase())?.title ?? "" }}
                 </p>
                 <p class="italic">
                   {{ new Date(notification?.createdAt).toLocaleDateString() }}
