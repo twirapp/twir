@@ -19,7 +19,8 @@
     "@twurple/eventsub": "^5.1.6",
     "class-validator": "0.13.2",
     "ioredis": "^5.0.6",
-    "lodash": "4.17.21"
+    "lodash": "4.17.21",
+    "rxjs": "^7.5.6"
   },
   "devDependencies": {
     "@types/lodash": "4.14.182"
