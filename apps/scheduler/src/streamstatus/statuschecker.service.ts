@@ -19,6 +19,9 @@ export class StreamStatusService {
   @Interval('streamstatus', config.isDev ? 10000 : 5 * 60 * 1000)
   async updateStatuses() {
     const channelsIds = await this.prisma.channel.findMany({
+      where: {
+        isEnabled: true,
+      },
       select: {
         id: true,
       },

@@ -77,7 +77,7 @@ export class AppService extends SteamUser implements OnModuleInit {
         return this.#logger.error(error);
       }
       if (!data.users) return;
-      const users = converUsers(data.users);
+      const users = converUsers(data.users).filter(u => !['#DOTA_RP_INIT', '#DOTA_RP_IDLE'].includes(u.richPresence.status));
 
       await Promise.all(users.map(u => this.redis.set(`dotaRps:${u.userId}`, JSON.stringify(u.richPresence), 'EX', 60)));
 
@@ -106,7 +106,7 @@ export class AppService extends SteamUser implements OnModuleInit {
 
     if (data.game_list) {
       for (const game of data.game_list) {
-        if (!game.players || !game.match_id) continue;
+        if (!game.players || !game.match_id || game.players.length < 9) continue;
 
         const gameMode = gameModes.find(g => g.id === game.game_mode);
 
