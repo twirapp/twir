@@ -10,7 +10,7 @@ export class GreetingsParser {
     const key = `greetings:${state.channelId}:${state.userInfo.userId}`;
     const item = await redis.hgetall(key) as unknown as GreetingConditional;
 
-    if (!Object.keys(item).length || item.processed !== 'false') return;
+    if (!Object.keys(item).length || item.processed !== 'false' || !item.enabled) return;
 
     await redis.hset(key, 'processed', 'true');
     return item.text;
