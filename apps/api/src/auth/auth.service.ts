@@ -93,7 +93,10 @@ export class AuthService {
       }).toPromise();
     }
 
-    await this.nats.send('bots.createDefaultCommands', [userId]).toPromise();
+    await Promise.all([
+      this.nats.send('bots.createDefaultCommands', [userId]).toPromise(),
+      this.nats.emit('eventsub.subscribeToEventsByChannelId', userId).toPromise(),
+    ]);
 
     return user;
   }

@@ -34,14 +34,30 @@ export class EventSub extends EventSubMiddleware {
     });
   }
 
+  async subscribeToEvents(channelId: string) {
+    for (const type of subScriptionValues.keys()) {
+      const typeValue = subScriptionValues.get(type);
+      if (!typeValue) continue;
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      this[typeValue](channelId, (e) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        this.handler[typeValue](e);
+      }).catch();
+
+      this.logger.log(`Subsribed to ${type}#${channelId} event.`);
+    }
+  }
+
   async init(force = false) {
     const channels = await this.prisma.channel.findMany();
     if (config.isProd || force) {
-      const subscriptions = await this.twitchApi.eventSub.getSubscriptionsPaginated().getAll();
+      //const subscriptions = await this.twitchApi.eventSub.getSubscriptionsPaginated().getAll();
 
       for (const channel of channels) {
-
-        for (const type of subScriptionValues.keys()) {
+        /* for (const type of subScriptionValues.keys()) {
           const isExists = subscriptions.find(s => s.type === type && s.condition.broadcaster_user_id === channel.id);
           if (isExists) continue;
           const typeValue = subScriptionValues.get(type);
@@ -56,8 +72,8 @@ export class EventSub extends EventSubMiddleware {
           });
 
           this.logger.log(`Subsribed to ${type}#${channel.id} event.`);
-        }
-
+        } */
+        this.subscribeToEvents(channel.id);
       }
 
     } else {

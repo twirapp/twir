@@ -26,6 +26,7 @@
     "nats": "^2.7.1",
     "ngrok": "^4.3.1",
     "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.5.6",
     "tslib": "^2.4.0"
   },
   "devDependencies": {

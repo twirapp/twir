@@ -74,6 +74,10 @@ export interface ClientProxyEvents {
   'dota.cacheAccountsMatches': {
     input: string[],
     result: any,
+  },
+  'eventsub.subscribeToEventsByChannelId': {
+    input: string,
+    result: any,
   }
 }
 
