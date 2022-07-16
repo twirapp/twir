@@ -3,7 +3,7 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 import { useStore } from '@nanostores/vue';
 import { Notification, NotificationMessage } from '@tsuwari/prisma';
-import { computed, ComputedRef, Ref, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 
@@ -119,7 +119,7 @@ watch(viewedNotificationsData, (v) => {
                 v-html="notification.messages.find(m => m.langCode === selectedLang.toUpperCase())?.text"
               />
               <div
-                v-if="('messages' in notification) && selectedDashboard.channelId === user?.id"
+                v-if="('messages' in notification) && selectedDashboard.channelId === user?.id && showNew"
                 class="text-right"
               >
                 <button

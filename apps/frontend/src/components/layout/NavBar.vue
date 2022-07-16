@@ -2,7 +2,7 @@
 import { HelixStreamData } from '@twurple/api';
 import { useIntervalFn, useTitle  } from '@vueuse/core';
 import { intervalToDuration, formatDuration } from 'date-fns';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 
