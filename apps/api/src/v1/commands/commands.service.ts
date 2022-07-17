@@ -140,7 +140,7 @@ export class CommandsService {
       throw new HttpException('Command not exists', 404);
     }
 
-    if (!command.responses?.length && !command.default) {
+    if (!data.responses?.length && !command.default) {
       throw new HttpException(`You should add atleast 1 response to command.`, 400);
     }
 
