@@ -196,9 +196,8 @@ function changeCommandResponse(index: number, value: string) {
           >
         </div>
       </div>
-      <div
-        class="gap-1 grid grid-cols-1 md:grid-cols-2"
-      >
+
+      <div>
         <div>
           <div class="label mb-1">
             <span class="label-text">{{ t('pages.commands.card.name.title') }}</span>
@@ -211,9 +210,7 @@ function changeCommandResponse(index: number, value: string) {
             class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
           />
         </div>
-
-
-        <div>
+        <div class="mt-5">
           <span class="label text-center">{{ t('pages.commands.card.cooldown.title') }}</span>
             
           <div class="grid grid-cols-2 mt-1">
@@ -242,65 +239,11 @@ function changeCommandResponse(index: number, value: string) {
             </Field>
           </div>
         </div>
-
-        <div class="mt-5">
-          <div class="label mb-1">
-            <span class="label-text">{{ t('pages.commands.card.permission.title') }}</span>
-          </div>
-          <Field
-            v-model.trim="command.permission"
-            as="select"
-            name="permission"
-            class="form-control px-3 py-1.5 rounded select select-sm text-gray-700 w-full"
-          >
-            <option
-              disabled
-              selected
-            >
-              {{ t('pages.commands.card.permission.selectPlaceholder') }}
-            </option>
-            <option
-              v-for="permission of Object.entries(perms)"
-              :key="permission[0]"
-              :value="permission[1]"
-            >
-              {{ permission[0] }}
-            </option>
-          </Field>
-        </div>
       </div>
-      <div class="mt-5">
-        <div class="label mb-1">
-          <span class="label-text">{{ t('pages.commands.card.description.title') }}</span>
-        </div>
-        <Field
-          v-model.trim="command.description"
-          name="description"
-          as="textarea"
-          :placeholder="t('pages.commands.card.description.placeholder')"
-          class="bg-clip-padding bg-white block border border-gray-300 border-solid ease-in-out focus:bg-white focus:border-blue-600 focus:outline-none focus:text-gray-700 font-normal form-control m-0 px-3 py-1.5 rounded text-base text-gray-700 transition w-full"
-          rows="3"
-        />
 
-        <div class="mt-5">
-          <div class="flex form-check justify-between">
-            <label
-              class="form-check-label inline-block"
-              for="commandVisibility"
-            >{{ t('pages.commands.card.visible.title') }}</label>
-        
-            <div class="form-switch">
-              <input
-                id="commandVisibility"
-                v-model="command.visible"
-                class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
-                type="checkbox"
-                role="switch"
-              >
-            </div>
-          </div>
-        </div>
-
+      <div
+        class="gap-1 grid grid-cols-1 md:grid-cols-2"
+      >
         <div class="col-span-2 mt-5">
           <span class="flex items-center label">
             <span>{{ t('pages.commands.card.responses.title') }}
@@ -313,7 +256,7 @@ function changeCommandResponse(index: number, value: string) {
               @click="command.responses.push({ text: '' })"
             ><Add /></MyBtn>
           </span>
-
+        
           <div
             v-if="!command.default"
             class="gap-1 grid grid-cols-1 input-group mшx-h-[5px] pt-1"
@@ -334,25 +277,25 @@ function changeCommandResponse(index: number, value: string) {
                 >
                   {{ command.responses[responseIndex].text }}
                 </div>
- 
+        
                 <span
                   class="bg-red-600 border-0 border-grey-light border-l-0 flex hover:bg-red-700 items-center leading-normal px-4 py-1.5 rounded rounded-l-none text-grey-dark text-sm whitespace-no-wrap"
                   @click="command.responses?.splice(responseIndex, 1)"
                 ><Remove /></span>
-
+        
                 <ul
                   class="absolute bg-[#393636] bg-clip-padding border-none dropdown-menu float-left hidden list-none m-0 max-h-52 mt-1 overflow-auto py-2 rounded scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 shadow text-base text-left text-white w-[90%] z-50"
                   :aria-labelledby="'dropdownMenuButton' + responseIndex"
                 >
                   <h6
                     class="bg-transparent
-                    block
-                    font-semibold
-                    px-4
-                    py-2
-                    text-sm
-                    w-full
-                    whitespace-nowrap"
+                      block
+                      font-semibold
+                      px-4
+                      py-2
+                      text-sm
+                      w-full
+                      whitespace-nowrap"
                   >
                     Variables
                   </h6>
@@ -371,7 +314,7 @@ function changeCommandResponse(index: number, value: string) {
               </div>
             </div>
           </div>
-          
+            
           <div
             v-else
             class="bg-[#ED4245] flex px-6 py-2 rounded text-white"
@@ -381,38 +324,98 @@ function changeCommandResponse(index: number, value: string) {
           </div>
         </div>
 
-        <div class="col-span-2 mt-5">
-          <span class="flex items-center label">  
-            <span>{{ t('pages.commands.card.aliases.title') }}</span>
-            <MyBtn
-              color="green"
-              size="small"
-              class="ml-1"
-              @click="command.aliases?.push('')"
-            ><Add /></MyBtn>
-          </span>
-
-          <div class="gap-2 grid grid-cols-1 input-group lg:grid-cols-2 max-h-40 md:grid-cols-2 overflow-auto pr-2 pt-1 scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 sm:grid-cols-2 xl:grid-cols-3">
-            <div
-              v-for="aliase, aliaseIndex in command.aliases"
-              :key="aliase"
-              class="flex flex-wrap items-stretch relative"
+        <div class="mt-5">
+          <div class="label mb-1">
+            <span class="label-text">{{ t('pages.commands.card.permission.title') }}</span>
+          </div>
+          <Field
+            v-model.trim="command.permission"
+            as="select"
+            name="permission"
+            class="form-control px-3 py-1.5 rounded select select-sm text-gray-700"
+          >
+            <option
+              disabled
+              selected
             >
-              <input
-                v-model.lazy.trim="command.aliases![aliaseIndex]"
-                type="text"
-                class="border border-grey-light flex-grow flex-shrink leading-normal px-3 py-1.5 relative rounded rounded-r-none text-gray-700 w-px"
-              >
-              <div
-                class="cursor-pointer flex"
-                @click="command.aliases?.splice(aliaseIndex, 1)"
-              >
-                <span class="bg-red-600 border-0 border-grey-light border-l-0 flex hover:bg-red-700 items-center leading-normal px-5 py-1.5 rounded rounded-l-none text-grey-dark text-sm whitespace-no-wrap"><Remove /></span>
-              </div>
+              {{ t('pages.commands.card.permission.selectPlaceholder') }}
+            </option>
+            <option
+              v-for="permission of Object.entries(perms)"
+              :key="permission[0]"
+              :value="permission[1]"
+            >
+              {{ permission[0] }}
+            </option>
+          </Field>
+        </div>
+      </div>
+      <div class="mt-5">
+        <div class="flex form-check justify-between">
+          <label
+            class="form-check-label inline-block"
+            for="commandVisibility"
+          >{{ t('pages.commands.card.visible.title') }}</label>
+  
+          <div class="form-switch">
+            <input
+              id="commandVisibility"
+              v-model="command.visible"
+              class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
+              type="checkbox"
+              role="switch"
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <div class="label mb-1">
+          <span class="label-text">{{ t('pages.commands.card.description.title') }}</span>
+        </div>
+        <Field
+          v-model.trim="command.description"
+          name="description"
+          as="textarea"
+          :placeholder="t('pages.commands.card.description.placeholder')"
+          class="bg-clip-padding bg-white block border border-gray-300 border-solid ease-in-out focus:bg-white focus:border-blue-600 focus:outline-none focus:text-gray-700 font-normal form-control m-0 px-3 py-1.5 rounded text-base text-gray-700 transition w-full"
+          rows="2"
+        />
+      </div>
+        
+      <div class="col-span-2 mt-5">
+        <span class="flex items-center label">  
+          <span>{{ t('pages.commands.card.aliases.title') }}</span>
+          <MyBtn
+            color="green"
+            size="small"
+            class="ml-1"
+            @click="command.aliases?.push('')"
+          ><Add /></MyBtn>
+        </span>
+  
+        <div class="gap-2 grid grid-cols-1 input-group lg:grid-cols-2 max-h-40 md:grid-cols-2 overflow-auto pr-2 pt-1 scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 sm:grid-cols-2 xl:grid-cols-3">
+          <div
+            v-for="aliase, aliaseIndex in command.aliases"
+            :key="aliase"
+            class="flex flex-wrap items-stretch relative"
+          >
+            <input
+              v-model.lazy.trim="command.aliases![aliaseIndex]"
+              type="text"
+              class="border border-grey-light flex-grow flex-shrink leading-normal px-3 py-1.5 relative rounded rounded-r-none text-gray-700 w-px"
+            >
+            <div
+              class="cursor-pointer flex"
+              @click="command.aliases?.splice(aliaseIndex, 1)"
+            >
+              <span class="bg-red-600 border-0 border-grey-light border-l-0 flex hover:bg-red-700 items-center leading-normal px-5 py-1.5 rounded rounded-l-none text-grey-dark text-sm whitespace-no-wrap"><Remove /></span>
             </div>
           </div>
         </div>
       </div>
+          
+
 
 
       <div class="flex flex-col justify-end md:flex-row md:space-x-2 md:space-y-0 mt-5 space-y-2 w-full">

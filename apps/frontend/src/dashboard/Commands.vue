@@ -60,7 +60,9 @@ function insertCommand() {
       description: null,
       visible: true,
       enabled: true,
-      responses: [],
+      responses: [{
+        text: '',
+      }],
       cooldownType: 'GLOBAL',
       new: true,
     };
