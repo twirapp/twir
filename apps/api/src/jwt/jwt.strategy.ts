@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { config } from '@tsuwari/config';
-import { Request } from 'express';
+import Express from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 
@@ -15,7 +15,7 @@ export type JwtPayload = {
 export class JwtAuthStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
-      jwtFromRequest: (req: Request) => {
+      jwtFromRequest: (req: Express.Request) => {
         const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
         return token;
       },

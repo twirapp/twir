@@ -1,8 +1,8 @@
 import { Body, CacheTTL, CACHE_MANAGER, Controller, Delete, Get, Inject, Param, Post, Put, UseGuards, UseInterceptors } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { ClientProxyCommands, ClientProxyCommandsKey, ClientProxyEventsKey } from '@tsuwari/shared';
+import { ClientProxyCommands, ClientProxyCommandsKey } from '@tsuwari/shared';
 import { Cache } from 'cache-manager';
-import { Request } from 'express';
+import Express from 'express';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
 import { CustomCacheInterceptor } from '../../helpers/customCacheInterceptor.js';
@@ -28,7 +28,7 @@ export class CommandsController {
 
   @CacheTTL(600)
   @UseInterceptors(CustomCacheInterceptor(ctx => {
-    const req = ctx.switchToHttp().getRequest() as Request;
+    const req = ctx.switchToHttp().getRequest() as Express.Request;
     return `nest:cache:v1/channels/${req.params.channelId}/commands`;
   }))
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)

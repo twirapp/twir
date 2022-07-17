@@ -1,6 +1,6 @@
 import { Body, CacheTTL, CACHE_MANAGER, Controller, Delete, Get, Inject, Param, Post, Put, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { Request } from 'express';
+import Express from 'express';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
 import { CustomCacheInterceptor } from '../../helpers/customCacheInterceptor.js';
@@ -27,7 +27,7 @@ export class VariablesController {
 
   @CacheTTL(600)
   @UseInterceptors(CustomCacheInterceptor(ctx => {
-    const req = ctx.switchToHttp().getRequest() as Request;
+    const req = ctx.switchToHttp().getRequest() as Express.Request;
     return `nest:cache:v1/channels/${req.params.channelId}/variables`;
   }))
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)

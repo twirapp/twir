@@ -1,7 +1,7 @@
 import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, ParseArrayPipe, Post, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ModerationSettingsDto } from '@tsuwari/shared';
 import { Cache } from 'cache-manager';
-import { Request } from 'express';
+import Express from 'express';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
 import { CustomCacheInterceptor } from '../../helpers/customCacheInterceptor.js';
@@ -21,7 +21,7 @@ export class ModerationController {
 
   @CacheTTL(600)
   @UseInterceptors(CustomCacheInterceptor(ctx => {
-    const req = ctx.switchToHttp().getRequest() as Request;
+    const req = ctx.switchToHttp().getRequest() as Express.Request;
     return `nest:cache:v1/channels/${req.params.channelId}/moderation`;
   }))
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)

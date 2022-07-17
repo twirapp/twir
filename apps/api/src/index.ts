@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/node';
 import '@sentry/tracing';
 import { config } from '@tsuwari/config';
 import cookieParser from 'cookie-parser';
-import { Express } from 'express';
+import Express from 'express';
 
 import { AppModule } from './app.module.js';
 
@@ -30,7 +30,7 @@ export async function initHttp() {
     },
   });
 
-  const adapter = app.getHttpAdapter() as unknown as Express;
+  const adapter = app.getHttpAdapter() as unknown as Express.Express;
   adapter.disable('x-powered-by');
   adapter.disable('etag');
 

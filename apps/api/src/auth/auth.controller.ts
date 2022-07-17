@@ -5,7 +5,7 @@ import { AuthGuard, IAuthModuleOptions } from '@nestjs/passport';
 import { config } from '@tsuwari/config';
 import { exchangeCode, getTokenInfo } from '@twurple/auth';
 import { Cache } from 'cache-manager';
-import type { Request, Response } from 'express';
+import Express from 'express';
 import merge from 'lodash.merge';
 
 import { CustomCacheInterceptor } from '../helpers/customCacheInterceptor.js';
@@ -25,7 +25,7 @@ class TwitchAuthGuard extends AuthGuard('twitch') {
   }
 
   getAuthenticateOptions(context: ExecutionContext): Promise<IAuthModuleOptions> | IAuthModuleOptions | undefined {
-    const req = context.switchToHttp().getRequest() as Request;
+    const req = context.switchToHttp().getRequest() as Express.Request;
 
     return req.query;
   }
@@ -50,7 +50,7 @@ export class AuthController {
   }
 
   @Get('token')
-  async callback(@Res() res: Response, @Query() query: { code: string; state: string }) {
+  async callback(@Res() res: Express.Response, @Query() query: { code: string; state: string }) {
     const code = await exchangeCode(
       config.TWITCH_CLIENTID,
       config.TWITCH_CLIENTSECRET,
@@ -73,7 +73,7 @@ export class AuthController {
   }
 
   @Post('token')
-  async refresh(@Res() res: Response, @Body() body: { refreshToken: string }) {
+  async refresh(@Res() res: Express.Response, @Body() body: { refreshToken: string }) {
     if (!body.refreshToken) throw new BadRequestException('Refresh token not passed to body');
     const newTokens = await this.jwtAuthService.refresh(body.refreshToken);
 
@@ -82,19 +82,19 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
-  async logout(@Req() req: Request) {
+  async logout(@Req() req: Express.Request) {
     await this.cacheManager.del(`nest:cache:auth/profile:${req.user.id}`);
     return true;
   }
 
   @CacheTTL(600)
   @UseInterceptors(CustomCacheInterceptor(ctx => {
-    const req = ctx.switchToHttp().getRequest() as Request;
+    const req = ctx.switchToHttp().getRequest() as Express.Request;
     return `nest:cache:auth/profile:${req.user.id}`;
   }))
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  async showProfile(@Req() req: Request) {
+  async showProfile(@Req() req: Express.Request) {
     const isHasNeededScopes = req.user.scopes ? scope.every(s => req.user.scopes.includes(s)) : false;
 
     if (!isHasNeededScopes) {

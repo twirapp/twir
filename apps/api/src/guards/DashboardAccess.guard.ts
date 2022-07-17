@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, HttpException } from '@nestjs/common';
 import { PrismaService } from '@tsuwari/prisma';
-import { Request } from 'express';
+import Express from 'express';
 import { Socket } from 'socket.io';
 
 
@@ -17,7 +17,7 @@ export class DashboardAccessGuard implements CanActivate {
       return this.#handleWs(context);
     }
 
-    const request = context.switchToHttp().getRequest() as Request;
+    const request = context.switchToHttp().getRequest() as Express.Request;
     if (!request.params?.channelId || !request.user?.id) throw new HttpException('DashboardId not specified.', 400);
 
     if (request.user.id === request.params.channelId) {

@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
-import { Request } from 'express';
+import Express from 'express';
 
 import { JwtAuthGuard } from '../../jwt/jwt.guard.js';
 import { FeedBackPostDto } from './dto/post.dto.js';
@@ -13,7 +13,7 @@ export class FeedbackController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  postFeedBack(@Body() body: FeedBackPostDto, @Req() req: Request) {
+  postFeedBack(@Body() body: FeedBackPostDto, @Req() req: Express.Request) {
     return this.service.postFeedBack(body, req.user.id);
   }
 }

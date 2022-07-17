@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
-import { Request } from 'express';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import Express from 'express';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
 import { JwtAuthGuard } from '../../jwt/jwt.guard.js';
@@ -26,7 +26,7 @@ export class NotificationsController {
 
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
   @Post('viewed')
-  markAsReaded(@Param('channelId') channelId: string, @Body() body: MarkAsReadedDto, @Req() req: Request) {
+  markAsReaded(@Param('channelId') channelId: string, @Body() body: MarkAsReadedDto, @Req() req: Express.Request) {
     if (req.user.id !== channelId) return;
     return this.service.markAsRead(channelId, body.notificationId);
   }
