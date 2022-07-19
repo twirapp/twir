@@ -42,7 +42,7 @@ const redis = new class extends Redis {
     AuthModule,
     ThrottlerModule.forRoot({
       ttl: 60,
-      limit: 60,
+      limit: 100,
     }),
     JwtAuthModule,
     V1Module,
