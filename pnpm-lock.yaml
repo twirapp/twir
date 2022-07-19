@@ -455,13 +455,13 @@ importers:
       nats: ^2.7.1
       nodemon: 2.0.16
       reflect-metadata: ^0.1.13
-      rxjs: ^7.5.5
+      rxjs: ^7.5.6
       tslib: ^2.4.0
       vm2: ^3.9.9
     dependencies:
-      '@nestjs/common': 8.4.7_47vcjb2de6lyibr6g4enoa5lyu
-      '@nestjs/core': 8.4.7_uqox75xpi6vzmoesxch6gsx23q
-      '@nestjs/microservices': 8.4.7_w3ikimstnjmv7g7t6sjfprllce
+      '@nestjs/common': 8.4.7_j5hagqx4mwzscud4kyjdvubauy
+      '@nestjs/core': 8.4.7_6uygoibgw6f75wtvzcbnmx726q
+      '@nestjs/microservices': 8.4.7_dwjfxykcj5vxffoorkr2flzdg4
       '@node-steam/id': 1.2.0
       '@sentry/node': 7.5.1
       '@sentry/tracing': 7.5.1
@@ -478,7 +478,7 @@ importers:
       lodash: 4.17.21
       nats: 2.7.1
       reflect-metadata: 0.1.13
-      rxjs: 7.5.5
+      rxjs: 7.5.6
       tslib: 2.4.0
       vm2: 3.9.10
     devDependencies:
@@ -1364,6 +1364,39 @@ packages:
       - encoding
     dev: false
 
+  /@nestjs/core/8.4.7_6uygoibgw6f75wtvzcbnmx726q:
+    resolution: {integrity: sha512-XB9uexHqzr2xkPo6QSiQWJJttyYYLmvQ5My64cFvWFi7Wk2NIus0/xUNInwX3kmFWB6pF1ab5Y2ZBvWdPwGBhw==}
+    requiresBuild: true
+    peerDependencies:
+      '@nestjs/common': ^8.0.0
+      '@nestjs/microservices': ^8.0.0
+      '@nestjs/platform-express': ^8.0.0
+      '@nestjs/websockets': ^8.0.0
+      reflect-metadata: ^0.1.12
+      rxjs: ^7.1.0
+    peerDependenciesMeta:
+      '@nestjs/microservices':
+        optional: true
+      '@nestjs/platform-express':
+        optional: true
+      '@nestjs/websockets':
+        optional: true
+    dependencies:
+      '@nestjs/common': 8.4.7_j5hagqx4mwzscud4kyjdvubauy
+      '@nestjs/microservices': 8.4.7_dwjfxykcj5vxffoorkr2flzdg4
+      '@nuxtjs/opencollective': 0.3.2
+      fast-safe-stringify: 2.1.1
+      iterare: 1.2.1
+      object-hash: 3.0.0
+      path-to-regexp: 3.2.0
+      reflect-metadata: 0.1.13
+      rxjs: 7.5.6
+      tslib: 2.4.0
+      uuid: 8.3.2
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /@nestjs/core/8.4.7_i3f5zm642k3dmniju5nf7aptmy:
     resolution: {integrity: sha512-XB9uexHqzr2xkPo6QSiQWJJttyYYLmvQ5My64cFvWFi7Wk2NIus0/xUNInwX3kmFWB6pF1ab5Y2ZBvWdPwGBhw==}
     requiresBuild: true
@@ -1589,7 +1622,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 8.4.7_j5hagqx4mwzscud4kyjdvubauy
-      '@nestjs/core': 8.4.7_4qoppofai642zqwo5bal5ungd4
+      '@nestjs/core': 8.4.7_6uygoibgw6f75wtvzcbnmx726q
       iterare: 1.2.1
       nats: 2.7.1
       reflect-metadata: 0.1.13
