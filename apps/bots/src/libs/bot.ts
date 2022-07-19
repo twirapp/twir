@@ -13,7 +13,6 @@ import { ParserService } from '../nest/parser/parser.service.js';
 import { GreetingsParser } from './greetingsParser.js';
 import { KeywordsParser } from './keywordsParser.js';
 import { ConsoleLogger } from './logger.js';
-import { messageAls } from './message.als.js';
 import { ModerationParser } from './moderationParser.js';
 import { commandsCounter, messagesCounter } from './prometheus.js';
 import { redis } from './redis.js';
@@ -24,8 +23,9 @@ export class Bot extends ChatClient {
   #moderationParser: ModerationParser;
   #keywordsParser: KeywordsParser;
   #parserService = nestApp.get(ParserService);
+  #logger: Logger;
 
-  constructor(authProvider: RefreshingAuthProvider, channels: string[]) {
+  constructor(authProvider: RefreshingAuthProvider, channels: string[], botId: string) {
     super({
       authProvider,
       channels,
@@ -40,11 +40,11 @@ export class Bot extends ChatClient {
     });
 
     this.#registerListeners();
+    this.#logger = new Logger(botId);
   }
 
   async say(channel: string, message: string, attributes?: ChatSayMessageAttributes) {
-    const als = messageAls.getStore();
-    als?.logger.log(`${pc.bgCyan(pc.black('OUT'))} ${pc.bgGreen(pc.white(channel))}: ${pc.bgYellow(pc.white(message))}`);
+    this.#logger.log(`${pc.bgCyan(pc.black('OUT'))} ${pc.bgGreen(pc.white(channel))}: ${pc.bgYellow(pc.white(message))}`);
     if (config.isProd || config.SAY_IN_CHAT) {
       super.say(channel, message, attributes);
     }
@@ -91,51 +91,66 @@ export class Bot extends ChatClient {
     });
 
     this.onMessage(async (channel, user, message, state) => {
-      messageAls.run({
-        messageId: state.id,
-        logger: new Logger(state.id),
-      }, async () => {
-        if (!state.channelId || !state.userInfo?.userId) return;
+      if (!state.channelId || !state.userInfo?.userId) return;
 
-        const store = messageAls.getStore();
-        store?.logger.log(`IN ${pc.green(channel)} | ${pc.magenta(`${user}#${state.userInfo.userId}`)}: ${pc.white(message)}`);
-        const isBotModRequest = await redis.get(`isBotMod:${channel.substring(1)}`);
-        const isBotMod = isBotModRequest === 'true';
+      this.#logger.log(`IN ${pc.green(channel)} | ${pc.magenta(`${user}#${state.userInfo.userId}`)}: ${pc.white(message)}`);
+      const isBotModRequest = await redis.get(`isBotMod:${channel.substring(1)}`);
+      const isBotMod = isBotModRequest === 'true';
 
-        const isModerate = !state.userInfo.isBroadcaster && !state.userInfo.isMod && isBotMod;
-        if (isModerate) {
-          const moderateResult = await this.#moderationParser.parse(message, state);
+      const isModerate = !state.userInfo.isBroadcaster && !state.userInfo.isMod && isBotMod;
+      if (isModerate) {
+        const moderateResult = await this.#moderationParser.parse(message, state);
 
-          if (moderateResult) {
-            if (moderateResult.delete) {
-              this.deleteMessage(channel, state.id);
-            } else {
-              this.timeout(channel, user, moderateResult.time, moderateResult.message ?? undefined);
-            }
-
-            if (moderateResult.message) {
-              this.say(channel, moderateResult.message);
-            }
-
-            return;
+        if (moderateResult) {
+          if (moderateResult.delete) {
+            this.deleteMessage(channel, state.id);
+          } else {
+            this.timeout(channel, user, moderateResult.time, moderateResult.message ?? undefined);
           }
+
+          if (moderateResult.message) {
+            this.say(channel, moderateResult.message);
+          }
+
+          return;
         }
+      }
 
-        this.#parserService.parseChatMessage(state.rawLine!).then(result => {
-          if (!state.channelId) return;
-          if (!result?.length) return;
-          commandsCounter.inc();
+      this.#parserService.parseChatMessage(state.rawLine!).then(result => {
+        if (!state.channelId) return;
+        if (!result?.length) return;
+        commandsCounter.inc();
 
-          for (const response of result) {
-            if (!response) continue;
-            if (result.indexOf(response) > 0 && !isBotMod) break;
+        for (const response of result) {
+          if (!response) continue;
+          if (result.indexOf(response) > 0 && !isBotMod) break;
 
-            this.say(channel, response, { replyTo: state.id });
-          }
+          this.say(channel, response, { replyTo: state.id });
+        }
+      });
+
+      this.#greetingsParser.parse(state).then(async (response) => {
+        if (!response) return;
+        const result = await this.#parserService.parseResponse({
+          channelId: state.channelId!,
+          userId: state.userInfo.userId,
+          userName: state.userInfo.userName,
+          text: response,
         });
 
-        this.#greetingsParser.parse(state).then(async (response) => {
-          if (!response) return;
+        if (result) {
+          for (const r of result) {
+            this.say(channel, r, { replyTo: state.id });
+          }
+        }
+      });
+
+      this.#keywordsParser.parse(message, state).then(async (responses) => {
+        if (!responses || !responses.length) return;
+
+        for (const response of responses) {
+          if (!response) continue;
+          if (responses.indexOf(response) > 0 && !isBotMod) break;
           const result = await this.#parserService.parseResponse({
             channelId: state.channelId!,
             userId: state.userInfo.userId,
@@ -148,33 +163,13 @@ export class Bot extends ChatClient {
               this.say(channel, r, { replyTo: state.id });
             }
           }
-        });
-
-        this.#keywordsParser.parse(message, state).then(async (responses) => {
-          if (!responses || !responses.length) return;
-
-          for (const response of responses) {
-            if (!response) continue;
-            if (responses.indexOf(response) > 0 && !isBotMod) break;
-            const result = await this.#parserService.parseResponse({
-              channelId: state.channelId!,
-              userId: state.userInfo.userId,
-              userName: state.userInfo.userName,
-              text: response,
-            });
-
-            if (result) {
-              for (const r of result) {
-                this.say(channel, r, { replyTo: state.id });
-              }
-            }
-          }
-        });
-
-        increaseUserMessages(state.userInfo.userId, state.channelId);
-        increaseParsedMessages(state.channelId);
-        messagesCounter.inc();
+        }
       });
+
+      increaseUserMessages(state.userInfo.userId, state.channelId);
+      increaseParsedMessages(state.channelId);
+      messagesCounter.inc();
+
     });
   }
 }

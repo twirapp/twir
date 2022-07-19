@@ -50,6 +50,7 @@ class BotsClass {
       const instance = new Bot(
         authProvider,
         channels.map((c) => c.name),
+        bot.id,
       );
 
       console.log(`${pc.bgCyan(pc.black('!'))} ${pc.magenta(botInfo.name)} ${pc.bgYellow('Connecting to twitch...')}`);

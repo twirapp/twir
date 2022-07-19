@@ -1,32 +1,32 @@
 /* eslint-disable prefer-rest-params */
+import { Logger } from '@nestjs/common';
 import pc from 'picocolors';
 
-import { messageAls } from '../libs/message.als.js';
+const logger = new Logger('Timer');
+
+
+
+const log = (name: string, key: string | symbol, time: number) => logger.log(`Timer | ${name}.${key.toString()}() ${pc.bold(
+  (time).toFixed(2),
+)}ms`);
 
 export function timer() {
   return (_target: any, key: string | symbol, descriptor: PropertyDescriptor) => {
     const method = descriptor.value;
-    const msgAls = messageAls.getStore();
     if (method.constructor.name === 'AsyncFunction') {
       descriptor.value = async function () {
         const start = performance.now();
 
         const result = await method.apply(this, arguments);
 
-        if (msgAls) {
-          msgAls?.logger.log(`Timer | ${this.constructor.name}.${key.toString()}() ${pc.bold(
-            (performance.now() - start).toFixed(2),
-          )}ms`);
-        }
+        log(this.constructor.name, key, performance.now() - start);
         return result;
       };
     } else {
       descriptor.value = function () {
         const start = performance.now();
         const result = method.apply(this, arguments);
-        msgAls?.logger.log(`Timer | ${this.constructor.name}.${key.toString()}() ${pc.bold(
-          (performance.now() - start).toFixed(2),
-        )}ms`);
+        log(this.constructor.name, key, performance.now() - start);
         return result;
       };
     }
