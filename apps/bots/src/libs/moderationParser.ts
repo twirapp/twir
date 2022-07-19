@@ -15,7 +15,7 @@ const symbolsRegexp = /([^\s\u0500-\u052F\u0400-\u04FF\w]+)/g;
 // @TODO: update redis cache on changes from panel
 export class ModerationParser {
   async getModerationSettings(channelId: string) {
-    const result = {} as Record<SettingsType, ModerationSettings>;
+    const result = {} as Record<SettingsType, ModerationSettings | null>;
     const settingsKeys = Object.values(SettingsType);
 
     await Promise.all(settingsKeys.map(async (key) => {
@@ -23,12 +23,18 @@ export class ModerationParser {
       const cachedSettings = await redis.get(redisKey);
 
       if (cachedSettings) {
-        result[key] = JSON.parse(cachedSettings) as ModerationSettings;
+        if (cachedSettings !== 'null') {
+          result[key] = JSON.parse(cachedSettings) as ModerationSettings;
+        } else {
+          result[key] = null;
+        }
       } else {
         const entity = await prisma.moderationSettings.findFirst({ where: { channelId: channelId, type: key } });
         if (entity) {
           redis.set(redisKey, JSON.stringify(entity), 'EX', 5 * 60 * 60);
           result[key] = entity;
+        } else {
+          redis.set(redisKey, 'null', 'EX', 5 * 60 * 60);
         }
       }
     }));
@@ -62,6 +68,7 @@ export class ModerationParser {
     const results = await Promise.all(Object.keys(settings).map((k) => {
       const key = k as SettingsType;
       const parserSettings = settings[key];
+      if (!parserSettings) return;
 
       if (state.userInfo.isMod || state.userInfo.isBroadcaster) return;
       if (!parserSettings || !parserSettings.enabled) return;
