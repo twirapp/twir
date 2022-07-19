@@ -55,7 +55,10 @@ export class AppService extends SteamUser implements OnModuleInit {
       this.gamesPlayed([570], true);
     });
 
-    this.on('error', (e) => this.#logger.error(e));
+    this.on('error', (e) => {
+      console.log(e);
+      this.#logger.error(e);
+    });
 
     this.on('appLaunched', async (appId) => {
       this.sendHelloEvent();
@@ -94,6 +97,7 @@ export class AppService extends SteamUser implements OnModuleInit {
 
     this.requestRichPresence(570, convertedAccs, 'english', async (error, data) => {
       if (error) {
+        console.log(error);
         return this.#logger.error(error);
       }
       if (!data.users) return;
