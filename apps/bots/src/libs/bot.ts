@@ -116,18 +116,20 @@ export class Bot extends ChatClient {
         }
       }
 
-      this.#parserService.parseChatMessage(state.rawLine!).then(result => {
-        if (!state.channelId) return;
-        if (!result?.length) return;
-        commandsCounter.inc();
+      if (message.startsWith('!')) {
+        this.#parserService.parseChatMessage(state.rawLine!).then(result => {
+          if (!state.channelId) return;
+          if (!result?.length) return;
+          commandsCounter.inc();
 
-        for (const response of result) {
-          if (!response) continue;
-          if (result.indexOf(response) > 0 && !isBotMod) break;
+          for (const response of result) {
+            if (!response) continue;
+            if (result.indexOf(response) > 0 && !isBotMod) break;
 
-          this.say(channel, response, { replyTo: state.id });
-        }
-      });
+            this.say(channel, response, { replyTo: state.id });
+          }
+        });
+      }
 
       this.#greetingsParser.parse(state).then(async (response) => {
         if (!response) return;
