@@ -2,12 +2,12 @@ import { randomUUID } from 'node:crypto';
 
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@tsuwari/prisma';
-import { InjectS3, S3 } from 'nestjs-s3';
+import S3 from 'nestjs-s3';
 
 @Injectable()
 export class FilesService {
   constructor(
-    @InjectS3() private readonly s3: S3,
+    @S3.InjectS3() private readonly s3: S3.S3,
     private readonly prisma: PrismaService,
   ) { }
 

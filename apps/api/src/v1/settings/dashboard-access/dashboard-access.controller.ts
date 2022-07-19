@@ -1,5 +1,5 @@
 import { Body, CacheTTL, CACHE_MANAGER, Controller, Delete, Get, Inject, Param, Post, UseGuards, UseInterceptors } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import CacheManager from 'cache-manager';
 import Express from 'express';
 
 import { DashboardAccessGuard } from '../../../guards/DashboardAccess.guard.js';
@@ -9,7 +9,7 @@ import { DashboardAccessService } from './dashboard-access.service.js';
 
 @Controller('v1/channels/:channelId/settings/dashboardAccess')
 export class DashboardAccessController {
-  constructor(private readonly service: DashboardAccessService, @Inject(CACHE_MANAGER) private readonly cacheManager: Cache) { }
+  constructor(private readonly service: DashboardAccessService, @Inject(CACHE_MANAGER) private readonly cacheManager: CacheManager.Cache) { }
 
   async #delCache(channelId: string, userId?: string) {
     await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/settings/dashboardAccess`);

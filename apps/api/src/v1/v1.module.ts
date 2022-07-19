@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { config } from '@tsuwari/config';
-import { S3Module } from 'nestjs-s3';
+import S3 from 'nestjs-s3';
 
 import { CommandsModule } from './commands/commands.module.js';
 import { FeedbackModule } from './feedback/feedback.module.js';
@@ -20,7 +20,7 @@ import { VariablesModule } from './variables/variables.module.js';
 
 @Module({
   imports: [
-    S3Module.forRoot({
+    S3.S3Module.forRoot({
       config: {
         accessKeyId: config.MINIO_USER,
         secretAccessKey: config.MINIO_PASSWORD,

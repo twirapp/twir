@@ -428,11 +428,12 @@ model DotaMatch {
   players_heroes                Int[]
   weekend_tourney_bracket_round String?
   weekend_tourney_skill_level   String?
-  match_id                      String           @unique
+  match_id                      String                 @unique
   avarage_mmr                   Int
   lobbyId                       String
-  finished                      Boolean          @default(false)
+  finished                      Boolean                @default(false)
   result                        DotaMatchResult?
+  playersCards                  DotaMatchProfileCard[]
 
   gameMode DotaMode @relation(fields: [gameModeId], references: [id])
   @@map("dota_matches")
@@ -445,8 +446,20 @@ model DotaMatchResult {
   radiant_win Boolean
   game_mode   Int
 
-  DotaMatch DotaMatch @relation(fields: [match_id], references: [match_id])
+  match DotaMatch @relation(fields: [match_id], references: [match_id])
   @@map("dota_matches_results")
+}
+
+model DotaMatchProfileCard {
+  id               String @id @default(dbgenerated("gen_random_uuid()"))
+  match_id         String
+  account_id       String
+  rank_tier        Int?
+  leaderboard_rank Int?
+
+  match DotaMatch @relation(fields: [match_id], references: [id])
+  @@unique([match_id, account_id])
+  @@map("dota_matches_cards")
 }
 
 model File {

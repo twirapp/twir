@@ -1,5 +1,5 @@
 import { Body, CacheTTL, CACHE_MANAGER, Controller, Delete, Get, Inject, Param, Patch, Post, UseGuards, UseInterceptors } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import CacheManager from 'cache-manager';
 import Express from 'express';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
@@ -12,7 +12,7 @@ import { KeywordsService } from './keywords.service.js';
 @Controller('v1/channels/:channelId/keywords')
 export class KeywordsController {
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: CacheManager.Cache,
     private readonly keywordsService: KeywordsService,
   ) { }
 

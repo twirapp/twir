@@ -1,5 +1,5 @@
 import { Body, CacheTTL, CACHE_MANAGER, Controller, Delete, Get, Inject, Param, Post, Put, UseGuards, UseInterceptors } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import CacheManager from 'cache-manager';
 import Express from 'express';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
@@ -12,7 +12,7 @@ import { VariablesService } from './variables.service.js';
 export class VariablesController {
   constructor(
     private readonly variablesService: VariablesService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private cacheManager: CacheManager.Cache,
   ) { }
 
   private async delCache(channelId: string) {

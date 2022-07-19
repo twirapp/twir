@@ -1,10 +1,10 @@
-import { TwitchAuthGuardOptions } from '@nestjs-hybrid-auth/twitch';
+import Twitch from '@nestjs-hybrid-auth/twitch';
 import { BadRequestException, Body, CacheTTL, CACHE_MANAGER, Controller, ExecutionContext, Get, HttpException, HttpStatus, Inject, Post, Query, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { AuthGuard, IAuthModuleOptions } from '@nestjs/passport';
 import { config } from '@tsuwari/config';
 import { exchangeCode, getTokenInfo } from '@twurple/auth';
-import { Cache } from 'cache-manager';
+import CacheManager from 'cache-manager';
 import Express from 'express';
 import merge from 'lodash.merge';
 
@@ -16,7 +16,7 @@ import { AuthService } from './auth.service.js';
 
 @Injectable()
 class TwitchAuthGuard extends AuthGuard('twitch') {
-  constructor(options?: TwitchAuthGuardOptions) {
+  constructor(options?: Twitch.TwitchAuthGuardOptions) {
     super(
       merge({}, options, {
         property: 'hybridAuthResult',
@@ -31,7 +31,7 @@ class TwitchAuthGuard extends AuthGuard('twitch') {
   }
 }
 
-function UseTwitchAuth(options?: TwitchAuthGuardOptions) {
+function UseTwitchAuth(options?: Twitch.TwitchAuthGuardOptions) {
   return UseGuards(new TwitchAuthGuard(options));
 }
 
@@ -40,7 +40,7 @@ export class AuthController {
   constructor(
     private readonly jwtAuthService: JwtAuthService,
     private readonly authService: AuthService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: CacheManager.Cache,
   ) { }
 
   @UseTwitchAuth()

@@ -1,7 +1,7 @@
 import { ID } from '@node-steam/id';
 import { config } from '@tsuwari/config';
 import { Prisma, PrismaService } from '@tsuwari/prisma';
-import { DotaGame, dotaHeroes, gameModes, RedisService, TwitchApiService } from '@tsuwari/shared';
+import { ClientProxy, dotaHeroes, dotaMedals, gameModes, RedisService } from '@tsuwari/shared';
 import { HelixStreamData } from '@twurple/api/lib/index.js';
 import axios from 'axios';
 
@@ -9,8 +9,8 @@ import { app } from '../../index.js';
 import { DefaultCommand } from '../types.js';
 
 const prisma = app.get(PrismaService);
-const staticApi = app.get(TwitchApiService);
 const redis = app.get(RedisService);
+const nats = app.get('NATS').providers[0].useValue as ClientProxy;
 
 const messages = Object.freeze({
   GAME_NOT_FOUND: 'Game not found.' as string,
@@ -66,6 +66,7 @@ const getGames = async (accounts: string[], take = 1) => {
     },
     include: {
       gameMode: true,
+      playersCards: true,
     },
     take,
   });
@@ -168,7 +169,7 @@ export const dota: DefaultCommand[] = [
 
       return games
         .map(g => {
-          const avgMmr = g.gameMode.id === 22 ? ` (${g.avarage_mmr}mmr)` : '';
+          const avgMmr = g.gameMode.id === 22 && g.lobby_type === 7 ? ` (${g.avarage_mmr}mmr)` : '';
           return `${g.gameMode.name}${avgMmr}`;
         })
         .join(' | ');
@@ -355,6 +356,65 @@ export const dota: DefaultCommand[] = [
 
       if (!neededPlayers.length) return 'Not playing with anyone from last game.';
       return neededPlayers.map((p) => `${getPlayerHero(p.curr.hero_id)} played as ${getPlayerHero(p.prev.hero_id)}`).join(', ');
+    },
+  },
+  {
+    name: 'gm',
+    permission: 'VIEWER',
+    visible: false,
+    async handler(state) {
+      if (!state.channelId) return;
+
+      const accounts = await getAccounts(state.channelId);
+      if (typeof accounts === 'string') return accounts;
+
+      const accountsIds = accounts.map(a => a.id);
+      const games = await getGames(accountsIds);
+      if (typeof games === 'string') return games;
+
+      const game = games[0]!;
+
+      const usersForGet = game.players.filter(p => !game.playersCards.some(c => c.account_id === p.account_id.toString()));
+
+      const cardsResponses = await Promise.all(usersForGet.map((u) =>
+        nats.send('dota.getProfileCard', u.account_id).toPromise(),
+      ));
+
+      cardsResponses.forEach(async (c) => {
+        if (!c) return;
+        await prisma.dotaMatchProfileCard.create({
+          data: {
+            account_id: c.account_id.toString(),
+            match_id: game.id,
+            rank_tier: c.rank_tier,
+            leaderboard_rank: c.leaderboard_rank,
+          },
+        });
+      });
+
+      const users = [
+        ...game.playersCards.map(p => ({
+          account_id: p.account_id,
+          rank_tier: p.rank_tier,
+          leaderboard_rank: p.leaderboard_rank,
+        })),
+        ...cardsResponses.map(p => ({
+          account_id: p!.account_id.toString(),
+          rank_tier: p!.rank_tier,
+          leaderboard_rank: p?.leaderboard_rank,
+        })),
+      ];
+
+      return users
+        .map((p) => {
+          const playerIndex = game.players.map(p => p.account_id).indexOf(Number(p.account_id));
+          const player = game.players[playerIndex]!;
+          const medal = dotaMedals.find(m => m.rank_tier === p.rank_tier) || { rank_tier: 0, name: 'Unknown' };
+          const rank = medal.rank_tier === 80 && p.leaderboard_rank ? `#${p.leaderboard_rank}` : '';
+
+          return `${getPlayerHero(player.hero_id, playerIndex)}: ${medal.name}${rank}`;
+        })
+        .join(', ');
     },
   },
 ];

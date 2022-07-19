@@ -2,7 +2,7 @@ import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import Express from 'express';
 
 import { JwtAuthGuard } from '../../jwt/jwt.guard.js';
-import { FeedBackPostDto } from './dto/post.dto.js';
+import type { FeedBackPostDto } from './dto/post.dto.js';
 import { FeedbackService } from './feedback.service.js';
 
 @Controller('v1/feedback')

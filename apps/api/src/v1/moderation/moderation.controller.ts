@@ -1,6 +1,6 @@
 import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, ParseArrayPipe, Post, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ModerationSettingsDto } from '@tsuwari/shared';
-import { Cache } from 'cache-manager';
+import CacheManager from 'cache-manager';
 import Express from 'express';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
@@ -11,7 +11,7 @@ import { ModerationService } from './moderation.service.js';
 @Controller('v1/channels/:channelId/moderation')
 export class ModerationController {
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: CacheManager.Cache,
     private readonly moderationService: ModerationService,
   ) { }
 

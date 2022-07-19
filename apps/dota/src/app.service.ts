@@ -15,8 +15,10 @@ import { converUsers } from './helpers/convertUsers.js';
 export class AppService extends SteamUser implements OnModuleInit {
   #watchRoot: protobufjs.Root;
   #clientHelloRoot: protobufjs.Root;
-  #matchRoot: protobufjs.Root;
+  #gcMessagesClient: protobufjs.Root;
+  #gcMessagesCommon: protobufjs.Root;
   #logger = new Logger('Dota');
+  ready = false;
 
   constructor(private readonly redis: RedisService, private readonly prisma: PrismaClient) {
     super({
@@ -24,8 +26,8 @@ export class AppService extends SteamUser implements OnModuleInit {
     });
   }
 
-
   sendHelloEvent() {
+    if (!this.ready) return;
     const helloType = this.#clientHelloRoot.lookupType('CMsgClientHello');
     this.sendToGC(570, 4006, {}, Buffer.from(helloType.encode({}).finish()));
     this.#logger.log('Sent hello event.');
@@ -40,13 +42,21 @@ export class AppService extends SteamUser implements OnModuleInit {
       keepCase: true,
     });
 
-    this.#matchRoot = await new protobufjs.Root().load(resolve(dirname(fileURLToPath(import.meta.url)), '..', 'protos', 'dota2', 'dota_gcmessages_client.proto'), {
+    this.#gcMessagesClient = await new protobufjs.Root().load(resolve(dirname(fileURLToPath(import.meta.url)), '..', 'protos', 'dota2', 'dota_gcmessages_client.proto'), {
+      keepCase: true,
+    });
+
+    this.#gcMessagesCommon = await new protobufjs.Root().load(resolve(dirname(fileURLToPath(import.meta.url)), '..', 'protos', 'dota2', 'dota_gcmessages_common.proto'), {
       keepCase: true,
     });
 
     this.logOn({
       accountName: config.STEAM_USERNAME,
       password: config.STEAM_PASSWORD,
+    });
+
+    this.on('disconnected', (e) => {
+      this.#logger.log(`Disconnected, ${e}`);
     });
 
     this.on('loggedOn', (e) => {
@@ -62,7 +72,8 @@ export class AppService extends SteamUser implements OnModuleInit {
 
     this.on('appLaunched', async (appId) => {
       this.sendHelloEvent();
-
+      this.ready = true;
+      this.getDotaProfileCard(1102609846);
       setInterval(() => {
         this.sendHelloEvent();
       }, 5 * 1000);
@@ -74,17 +85,20 @@ export class AppService extends SteamUser implements OnModuleInit {
   }
 
   async testMatchResults() {
-    const type = this.#matchRoot.lookupType('CMsgGCMatchDetailsRequest');
+    const type = this.#gcMessagesClient.lookupType('CMsgGCMatchDetailsRequest');
     const msg = type.encode({
       match_id: 6662322079,
     });
     this.sendToGC(570, 7095, {}, Buffer.from(msg.finish()), (_appId, msgId, payload) => {
-      const type = this.#matchRoot.lookupType('CMsgGCMatchDetailsResponse');
+      const type = this.#gcMessagesClient.lookupType('CMsgGCMatchDetailsResponse');
       console.log('r', type.decode(payload).toJSON());
     });
   }
 
   async getPresences(accs: string[]) {
+    if (!this.ready) {
+      return this.#logger.error('App not ready for getting presences.');
+    }
     this.#logger.log(`Getting presences of ${accs.length} accounts.`);
 
     const convertedAccs = accs.map(SteamID.fromIndividualAccountID).map(id => id.getSteamID64());
@@ -120,6 +134,25 @@ export class AppService extends SteamUser implements OnModuleInit {
     });
   }
 
+
+  getDotaProfileCard(accountId: string | number) {
+    const type = this.#gcMessagesClient.lookupType('CMsgClientToGCGetProfileCard');
+    const request = type.encode({
+      account_id: Number(accountId),
+    });
+
+    const responseType = this.#gcMessagesCommon.lookupType('CMsgDOTAProfileCard');
+
+    return new Promise((resolve) => {
+      this.sendToGC(570, 7534, {}, Buffer.from(request.finish()), (_appid, msgType, payload) => {
+        if (msgType === 7535) {
+          const response = responseType.decode(payload).toJSON();
+          if (!response.account_id) resolve(null);
+          resolve(response);
+        } else resolve(null);
+      });
+    });
+  }
 
   async recievedFromGcCallback(payload: Buffer) {
     const type = this.#watchRoot.lookupType('CMsgGCToClientFindTopSourceTVGamesResponse');

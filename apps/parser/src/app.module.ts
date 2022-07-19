@@ -10,11 +10,12 @@ import { FaceitIntegration } from './integrations/faceit.js';
 import { LastFmIntegration } from './integrations/lastfm.js';
 import { SpotifyIntegration } from './integrations/spotify.js';
 import { VkIntegration } from './integrations/vk.js';
+import { NatsModule } from './nats.module.js';
 import { ParserCache } from './variables/cache.js';
 import { VariablesParser } from './variables/index.js';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, NatsModule],
   controllers: [AppController],
   providers: [RedisService, ParserCache, VariablesParser, LastFmIntegration, SpotifyIntegration, VkIntegration, FaceitIntegration, TwitchApiService, HelpersService, AppService],
 })

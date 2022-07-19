@@ -1,5 +1,5 @@
 import { Body, CacheTTL, CACHE_MANAGER, Controller, Delete, Get, Inject, Param, Post, Put, UseGuards, UseInterceptors } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import CacheManager from 'cache-manager';
 import Express from 'express';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
@@ -12,7 +12,7 @@ import { GreetingsService } from './greetings.service.js';
 export class GreetingsController {
   constructor(
     private readonly greetingsService: GreetingsService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private cacheManager: CacheManager.Cache,
   ) { }
 
   async #delCache(channelId: string) {

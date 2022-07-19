@@ -35,6 +35,20 @@ export const gameModes = [
   { id: 24, name: 'Mutation' },
 ];
 
+export const dotaMedals = [{ rank_tier: 0, name: 'Uncalibrated' }, { rank_tier: 11, name: 'Herald☆1' }, { rank_tier: 12, name: 'Herald☆2' },
+{ rank_tier: 13, name: 'Herald☆3' }, { rank_tier: 14, name: 'Herald☆4' }, { rank_tier: 15, name: 'Herald☆5' }, { rank_tier: 16, name: 'Herald☆6' },
+{ rank_tier: 17, name: 'Herald☆7' }, { rank_tier: 21, name: 'Guardian☆1' }, { rank_tier: 22, name: 'Guardian☆2' }, { rank_tier: 23, name: 'Guardian☆3' },
+{ rank_tier: 24, name: 'Guardian☆4' }, { rank_tier: 25, name: 'Guardian☆5' }, { rank_tier: 26, name: 'Guardian☆6' }, { rank_tier: 27, name: 'Guardian☆7' },
+{ rank_tier: 31, name: 'Crusader☆1' }, { rank_tier: 32, name: 'Crusader☆2' }, { rank_tier: 33, name: 'Crusader☆3' }, { rank_tier: 34, name: 'Crusader☆4' },
+{ rank_tier: 35, name: 'Crusader☆5' }, { rank_tier: 36, name: 'Crusader☆6' }, { rank_tier: 37, name: 'Crusader☆7' }, { rank_tier: 41, name: 'Archon☆1' },
+{ rank_tier: 42, name: 'Archon☆2' }, { rank_tier: 43, name: 'Archon☆3' }, { rank_tier: 44, name: 'Archon☆4' }, { rank_tier: 45, name: 'Archon☆5' },
+{ rank_tier: 46, name: 'Archon☆6' }, { rank_tier: 47, name: 'Archon☆7' }, { rank_tier: 51, name: 'Legend☆1' }, { rank_tier: 52, name: 'Legend☆2' },
+{ rank_tier: 53, name: 'Legend☆3' }, { rank_tier: 54, name: 'Legend☆4' }, { rank_tier: 55, name: 'Legend☆5' }, { rank_tier: 56, name: 'Legend☆6' },
+{ rank_tier: 57, name: 'Legend☆7' }, { rank_tier: 61, name: 'Ancient☆1' }, { rank_tier: 62, name: 'Ancient☆2' }, { rank_tier: 63, name: 'Ancient☆3' },
+{ rank_tier: 64, name: 'Ancient☆4' }, { rank_tier: 65, name: 'Ancient☆5' }, { rank_tier: 66, name: 'Ancient☆6' }, { rank_tier: 67, name: 'Ancient☆7' },
+{ rank_tier: 71, name: 'Divine☆1' }, { rank_tier: 72, name: 'Divine☆2' }, { rank_tier: 73, name: 'Divine☆3' }, { rank_tier: 74, name: 'Divine☆4' },
+{ rank_tier: 75, name: 'Divine☆5' }, { rank_tier: 76, name: 'Divine☆6' }, { rank_tier: 77, name: 'Divine☆7' }, { rank_tier: 80, name: 'Immortal' }];
+
 export const dotaHeroes = [
   {
     'localized_name': 'Not Picked',

@@ -10,7 +10,7 @@
   "devDependencies": {
     "@types/steam-user": "^4.23.0",
     "@types/steamid": "^2.0.1",
-    "nodemon": "2.0.16"
+    "nodemon": "2.0.19"
   },
   "dependencies": {
     "@nestjs/common": "^8.4.7",
@@ -20,9 +20,9 @@
     "@tsuwari/prisma": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "nats": "^2.7.1",
-    "protobufjs": "^6.11.3",
+    "protobufjs": "^7.0.0",
     "reflect-metadata": "^0.1.13",
-    "steam-user": "^4.24.3",
+    "steam-user": "^4.24.5",
     "steamid": "^2.0.0",
     "tslib": "^2.4.0"
   }

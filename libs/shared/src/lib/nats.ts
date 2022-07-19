@@ -42,6 +42,14 @@ export interface ClientProxyCommands {
   'bots.createDefaultCommands': {
     input: string[],
     result: any,
+  },
+  'dota.getProfileCard': {
+    input: string | number,
+    result: {
+      account_id: number,
+      rank_tier?: number,
+      leaderboard_rank?: number;
+    } | null
   }
 }
 

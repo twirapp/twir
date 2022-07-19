@@ -1,7 +1,7 @@
 import { Body, CacheTTL, CACHE_MANAGER, Controller, Delete, Get, Inject, Param, Post, Put, UseGuards, UseInterceptors } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ClientProxyCommands, ClientProxyCommandsKey } from '@tsuwari/shared';
-import { Cache } from 'cache-manager';
+import CacheManager from 'cache-manager';
 import Express from 'express';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
@@ -14,7 +14,7 @@ import { UpdateOrCreateCommandDto } from './dto/create.js';
 export class CommandsController {
   constructor(
     private readonly commandsSerivce: CommandsService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: CacheManager.Cache,
   ) { }
 
   private delCache(channelId: string) {
