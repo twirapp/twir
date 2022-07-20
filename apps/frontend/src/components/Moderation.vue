@@ -94,7 +94,7 @@ const settings = toRef(props, 'settings', {
       }}</label>
       <input
         :id="'timeoutTime' + settings.type"
-        v-model="settings.banTime"
+        v-model.number="settings.banTime"
         type="number"
         class="bg-clip-padding bg-white block border border-gray-300 border-solid ease-in-out focus:outline-none font-normal form-control m-0 px-3 py-1.5 rounded text-base text-gray-700 transition w-full"
       >
@@ -182,7 +182,7 @@ const settings = toRef(props, 'settings', {
       }}</label>
       <input
         :id="'maxSymbols' + settings.type"
-        v-model="settings.maxPercentage"
+        v-model.number="settings.maxPercentage"
         type="text"
         class="bg-clip-padding bg-white block border border-gray-300 border-solid ease-in-out focus:outline-none font-normal form-control m-0 px-3 py-1.5 rounded text-base text-gray-700 transition w-full"
         placeholder="50"
@@ -200,7 +200,7 @@ const settings = toRef(props, 'settings', {
       }}</label>
       <input
         :id="'longMessage' + settings.type"
-        v-model="settings.triggerLength"
+        v-model.number="settings.triggerLength"
         type="text"
         class="bg-clip-padding bg-white block border border-gray-300 border-solid ease-in-out focus:outline-none font-normal form-control m-0 px-3 py-1.5 rounded text-base text-gray-700 transition w-full"
         placeholder="50"
@@ -218,7 +218,7 @@ const settings = toRef(props, 'settings', {
       }}</label>
       <input
         :id="'maxCaps' + settings.type"
-        v-model="settings.maxPercentage"
+        v-model.number="settings.maxPercentage"
         type="text"
         class="bg-clip-padding bg-white block border border-gray-300 border-solid ease-in-out focus:outline-none font-normal form-control m-0 px-3 py-1.5 rounded text-base text-gray-700 transition w-full"
         placeholder="50"
@@ -236,7 +236,7 @@ const settings = toRef(props, 'settings', {
       }}</label>
       <input
         :id="'maxEmotes' + settings.type"
-        v-model="settings.triggerLength"
+        v-model.number="settings.triggerLength"
         type="text"
         class="bg-clip-padding bg-white block border border-gray-300 border-solid ease-in-out focus:outline-none font-normal form-control m-0 px-3 py-1.5 rounded text-base text-gray-700 transition w-full"
         placeholder="50"
