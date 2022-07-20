@@ -36,7 +36,7 @@ const getPlayerHero = (heroId: number, index?: number) => {
   if (heroId === 0 && typeof index !== 'undefined') {
     const color = colors[index];
     return color ?? 'Unknown';
-  } else if (heroId === 0 && !index) return 'Unknown';
+  } else if (heroId === 0 && typeof index === 'undefined') return 'Unknown';
   else {
     const hero = dotaHeroes.find(h => h.id === heroId);
     if (!hero) return 'Unknown';
