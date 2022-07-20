@@ -33,7 +33,7 @@ dotaApi.interceptors.request.use((req) => {
 const colors = ['Blue', 'Teal', 'Purple', 'Yellow', 'Orange', 'Pink', 'Gray', 'Light Blue', 'Green', 'Brown'];
 
 const getPlayerHero = (heroId: number, index?: number) => {
-  if (heroId === 0 && index) {
+  if (heroId === 0 && typeof index !== 'undefined') {
     const color = colors[index];
     return color ?? 'Unknown';
   } else if (heroId === 0 && !index) return 'Unknown';
