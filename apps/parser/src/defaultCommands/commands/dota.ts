@@ -405,16 +405,18 @@ export const dota: DefaultCommand[] = [
         })),
       ];
 
-      return users
-        .map((p) => {
-          const playerIndex = game.players.map(p => p.account_id).indexOf(Number(p.account_id));
-          const player = game.players[playerIndex]!;
-          const medal = dotaMedals.find(m => m.rank_tier === p.rank_tier) || { rank_tier: 0, name: 'Unknown' };
-          const rank = medal.rank_tier === 80 && p.leaderboard_rank ? `#${p.leaderboard_rank}` : '';
+      const result: string[] = [];
 
-          return `${getPlayerHero(player.hero_id, playerIndex)}: ${medal.name}${rank}`;
-        })
-        .join(', ');
+      for (const p of users) {
+        const playerIndex = game.players.map(p => p.account_id).indexOf(Number(p.account_id));
+        const player = game.players[playerIndex]!;
+        const medal = dotaMedals.find(m => m.rank_tier === p.rank_tier) || { rank_tier: 0, name: 'Unknown' };
+        const rank = medal.rank_tier === 80 && p.leaderboard_rank ? `#${p.leaderboard_rank}` : '';
+
+        result[playerIndex] = `${getPlayerHero(player.hero_id, playerIndex)}: ${medal.name}${rank}`;
+      }
+
+      return result.join(', ');
     },
   },
 ];
