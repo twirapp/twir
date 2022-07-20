@@ -57,7 +57,7 @@ async function addMember() {
             </p>
             <ul
               v-else
-              class="max-h-[55vh] overflow-auto overflow-y-auto scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 w-full"
+              class="max-h-[55vh] overflow-auto overflow-y-auto scrollbar w-full"
             >
               <li
                 v-for="member of dashboardMembers"

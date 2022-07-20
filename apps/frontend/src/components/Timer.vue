@@ -163,7 +163,7 @@ function cancelEdit() {
             </span>
           </span>
 
-          <div class="gap-2 grid grid-cols-1 input-group max-h-40 overflow-auto pt-1 scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+          <div class="gap-2 grid grid-cols-1 input-group max-h-40 overflow-auto pt-1 scrollbar">
             <div
               v-for="_response, responseIndex in timer.responses"
               :key="responseIndex"

@@ -15,7 +15,7 @@ const title = useTitle();
 </script>
 
 <template>
-  <aside class="border-r border-stone-700 h-screen hidden min-w-max overflow-auto scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 select-none shadow sm:block w-54">
+  <aside class="border-r border-stone-700 h-screen hidden min-w-max overflow-auto scrollbar select-none shadow sm:block w-54">
     <div class="flex items-center justify-center py-1 sidebar-header">
       <div>
         <router-link
@@ -40,7 +40,7 @@ const title = useTitle();
       </div>
     </div>
 
-    <ul class="mt-3 px-1 relative">
+    <ul class="mt-3 px-0.5 relative">
       <li
         v-for="(route, index) in currentRoute.fullPath.includes('/admin') ? adminRoutes : publicRoutes"
         :key="index"

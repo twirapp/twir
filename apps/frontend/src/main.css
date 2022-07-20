@@ -5,28 +5,42 @@
 @tailwind utilities;
 
 @layer utilities {
-    @variants responsive {
-        .masonry {
-            column-gap: 0.5rem;
-            column-count: 1;
-        }
-        .masonry-sm {
-            column-gap: 0.5rem;
-            column-count: 2;
-        }
-        .masonry-md {
-            column-gap: 0.5rem;
-            column-count: 2;
-        }
-                .masonry-lg {
-            column-gap: 0.5rem;
-            column-count: 3;
-        }
-        .break-inside {
-            break-inside: avoid;
-        }
+  .scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 20px;
+  }
 
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: #333333;
+    border-radius: 0.25rem;
+    border: 1px solid #161616;
+  }
+
+  @variants responsive {
+    .masonry {
+      column-gap: 0.5rem;
+      column-count: 1;
     }
+
+    .masonry-sm {
+      column-gap: 0.5rem;
+      column-count: 2;
+    }
+
+    .masonry-md {
+      column-gap: 0.5rem;
+      column-count: 2;
+    }
+
+    .masonry-lg {
+      column-gap: 0.5rem;
+      column-count: 3;
+    }
+
+    .break-inside {
+      break-inside: avoid;
+    }
+  }
 }
 
 .card {

@@ -65,7 +65,7 @@ watch(viewedNotificationsData, (v) => {
         class="-translate-x-56 absolute float-left md:-translate-x-3/4 md:w-96 mt-3 w-80 z-10"
       >
         <PopoverPanel
-          class="bg-[#202020] break-words max-h-[55vh] overflow-auto pr-2 scrollbar scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-500 z-10"
+          class="bg-[#202020] break-words max-h-[55vh] overflow-auto pr-2 scrollbar z-10"
         >
           <div
             class="flex items-center justify-between mt-1 px-2 space-y-1"

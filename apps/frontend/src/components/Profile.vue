@@ -92,7 +92,7 @@ const { t } = useI18n({
         >
           <div
             v-if="!router.currentRoute.value.fullPath.startsWith('/admin')"
-            class="max-h-[55vh] mb-2 overflow-auto overflow-y-auto scrollbar scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-500 space-y-0.5"
+            class="max-h-[55vh] mb-2 overflow-auto overflow-y-auto scrollbar space-y-0.5"
           >
             <input
               v-if="(user?.dashboards && user.dashboards.length > 5) || user?.isBotAdmin"

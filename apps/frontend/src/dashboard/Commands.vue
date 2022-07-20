@@ -109,7 +109,7 @@ function onSave(index: number) {
         :focus="true"
         class="absolute bg-[#121010] z-10"
       >
-        <ul class="max-h-[55vh] overflow-y-auto scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+        <ul class="max-h-[55vh] overflow-y-auto scrollbar">
           <li
             v-for="command, index of filteredCommands"
             :key="index"
@@ -186,7 +186,7 @@ function onSave(index: number) {
       </div>
 
 
-      <ul class="max-h-[75vh] menu overflow-auto scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600">
+      <ul class="max-h-[75vh] menu overflow-auto scrollbar">
         <li
           v-for="command, index of filteredCommands
           "

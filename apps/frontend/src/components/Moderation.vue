@@ -147,7 +147,7 @@ const settings = toRef(props, 'settings', {
       </span>
 
       <div
-        class="gap-2 grid grid-cols-2 input-group lg:grid-cols-2 max-h-40 md:grid-cols-2 mt-1 overflow-auto pr-2 pt-1 scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 sm:grid-cols-2 xl:grid-cols-3"
+        class="gap-2 grid grid-cols-2 input-group lg:grid-cols-2 max-h-40 md:grid-cols-2 mt-1 overflow-auto pr-2 pt-1 scrollbar sm:grid-cols-2 xl:grid-cols-3"
       >
         <div
           v-for="(word, wordIndex) in settings.blackListSentences"

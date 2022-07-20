@@ -62,9 +62,6 @@ function setLocale(v: string) {
           py-1
           rounded
           scrollbar
-          scrollbar-thin
-          scrollbar-thumb-gray-600
-          scrollbar-track-gray-500
           space-y-1
           text-base
           text-left

@@ -284,7 +284,7 @@ function changeCommandResponse(index: number, value: string) {
                 ><Remove /></span>
         
                 <ul
-                  class="absolute bg-[#393636] bg-clip-padding border-none dropdown-menu float-left hidden list-none m-0 max-h-52 mt-1 overflow-auto py-2 rounded scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 shadow text-base text-left text-white w-[90%] z-50"
+                  class="absolute bg-[#393636] bg-clip-padding border-none dropdown-menu float-left hidden list-none m-0 max-h-52 mt-1 overflow-auto py-2 rounded scrollbar shadow text-base text-left text-white w-[90%] z-50"
                   :aria-labelledby="'dropdownMenuButton' + responseIndex"
                 >
                   <h6
@@ -394,7 +394,7 @@ function changeCommandResponse(index: number, value: string) {
           ><Add /></MyBtn>
         </span>
   
-        <div class="gap-2 grid grid-cols-1 input-group lg:grid-cols-2 max-h-40 md:grid-cols-2 overflow-auto pr-2 pt-1 scrollbar scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-600 sm:grid-cols-2 xl:grid-cols-3">
+        <div class="gap-2 grid grid-cols-1 input-group lg:grid-cols-2 max-h-40 md:grid-cols-2 overflow-auto pr-2 pt-1 scrollbar sm:grid-cols-2 xl:grid-cols-3">
           <div
             v-for="aliase, aliaseIndex in command.aliases"
             :key="aliase"
