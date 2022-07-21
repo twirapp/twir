@@ -1,6 +1,6 @@
 import { CommandPermission, CooldownType } from '@tsuwari/prisma';
 import { Type } from 'class-transformer';
-import { ArrayNotEmpty, IsArray, IsBoolean, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min, ValidateIf, ValidateNested } from 'class-validator';
+import { ArrayMaxSize, ArrayNotEmpty, IsArray, IsBoolean, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min, ValidateIf, ValidateNested } from 'class-validator';
 
 export class UpdateOrCreateCommandDto {
   id?: string;
@@ -47,6 +47,7 @@ export class UpdateOrCreateCommandDto {
   @ValidateIf((o: UpdateOrCreateCommandDto) => o.default === false)
   @IsArray()
   @ValidateNested()
+  @ArrayMaxSize(5)
   @Type(() => ResponseValidation)
   @ArrayNotEmpty()
   responses: Array<ResponseValidation>;
