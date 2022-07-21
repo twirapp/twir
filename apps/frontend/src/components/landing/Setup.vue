@@ -46,16 +46,6 @@ import { redirectToLogin } from '@/functions/redirectToLogin';
             <h5 class="font-medium text-left text-lg">
               Use the sidebar to navigate between settings, enable or disable specific functions and click on the Save button.
             </h5>
-
-            <div class="flex justify-end mt-5">
-              <button
-                type="button"
-                class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-purple-700 inline-block leading-tight px-4 py-2.5 rounded shadow text-white text-xs transition uppercase"
-                @click="redirectToLogin"
-              >
-                Open Dashboard
-              </button>
-            </div>
           </div>
         </div>
       </div>

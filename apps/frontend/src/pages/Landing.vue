@@ -3,6 +3,8 @@ import Setup from '../components/landing/Setup.vue';
 import Statistics from '../components/landing/Statistics.vue';
 import Streamers from '../components/landing/Streamers.vue';
 
+import Footer from '@/components/landing/Footer.vue';
+import UseIt from '@/components/landing/UseIt.vue';
 import Welcome from '@/components/landing/Welcome.vue';
 import MainNavBar from '@/components/layout/MainNavBar.vue';
 </script>
@@ -13,8 +15,10 @@ import MainNavBar from '@/components/layout/MainNavBar.vue';
 
     <Welcome />
 
-    <!-- <Setup />
-    <Statistics />
-    <Streamers /> -->
+    <Setup />
+    <!-- <Statistics />
+    <Streamers />
+    <UseIt /> -->
+    <Footer />
   </div>
 </template>
