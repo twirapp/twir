@@ -13,8 +13,8 @@ import MainNavBar from '@/components/layout/MainNavBar.vue';
 
     <Welcome />
 
-    <Setup />
+    <!-- <Setup />
     <Statistics />
-    <Streamers />
+    <Streamers /> -->
   </div>
 </template>
