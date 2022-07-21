@@ -32,32 +32,28 @@ async function save() {
 <template>
   <div class="m-1.5 md:m-3">
     <div class="flow-root">
-      <div class="btn btn-primary btn-sm float-left mb-1 md:w-auto rounded w-full">
+      <div class="btn btn-primary btn-sm float-left mb-5 md:w-auto rounded w-full">
         <button
           class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-purple-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
           @click="save"
         >
           {{ t('buttons.save') }}
         </button>
-
-
-      <!-- <input
-        type="text"
-        placeholder="Search by keyword..."
-        class="float-right rounded input input-sm input-bordered w-full md:w-60"
-      > -->
       </div>
     </div>
-    <div 
-      class="lg:masonry-lg masonry md:masonry-md sm:masonry-sm"
+
+    <masonry-wall
+      :items="settings"
+      :gap="8"
     >
-      <div
-        v-for="setting, index in settings"
-        :key="index"
-        class="block break-inside card rounded shadow text-white"
-      >
-        <ModerationComponent :settings="(setting as any)" />
-      </div>
-    </div>
+      <template #default="{ item, index }">
+        <div
+          :key="index"
+          class="block card rounded shadow text-white"
+        >
+          <ModerationComponent :settings="(item as any)" />
+        </div>
+      </template>
+    </masonry-wall>
   </div>
 </template>

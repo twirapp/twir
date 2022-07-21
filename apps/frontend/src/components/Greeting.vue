@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
 import { Form, Field } from 'vee-validate';
-import { computed, toRef } from 'vue';
+import { computed, Ref, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as yup from 'yup';
 
@@ -25,7 +25,8 @@ const { t } = useI18n({
 });
 
 const emit = defineEmits<{
-  (e: 'delete', index: number): void
+  (e: 'delete', index: number): void,
+  (e: 'cancelEdit', greeting: Ref<GreeTingType>): void
 }>();
 
 const schema = computed(() => yup.object({
@@ -58,19 +59,7 @@ async function deleteGreeting() {
 }
 
 function cancelEdit() {
-  const index = greetings.value.indexOf(greeting.value);
-  if (greeting.value.id && greetings.value) {
-    const editableCommand = greetingsBeforeEdit.value?.find(c => c.id === greeting.value.id);
-    if (editableCommand) {
-      greetings.value[index] = {
-        ...editableCommand,
-        edit: false,
-      };
-      greetingsBeforeEdit.value?.splice(greetingsBeforeEdit.value.indexOf(editableCommand), 1);
-    }
-  } else {
-    greetings.value?.splice(index, 1);
-  }
+  emit('cancelEdit', greeting);
 }
 </script>
 

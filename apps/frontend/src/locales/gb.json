@@ -105,6 +105,9 @@
     "integrations": {
       "sidebarName": "Integrations",
       "widgets": {
+        "dota2": {
+          "description": "This integration enables fetching data from Dota 2."
+        },
         "faceit": {
           "description": "This integration enables fetching data from faceit. You can show in chats such stats from faceit as: elo, lvl, latest matches trent, elo gain per day.",
           "game": "Game for checking statistic",

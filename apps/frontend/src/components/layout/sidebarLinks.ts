@@ -1,4 +1,3 @@
-import AdminMain from '@/admin/Main.vue';
 import Commands from '@/assets/sidebar/commands.svg?url';
 import Dashboard from '@/assets/sidebar/dashboard.svg?url';
 import Events from '@/assets/sidebar/events.svg?url';

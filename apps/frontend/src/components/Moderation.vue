@@ -43,32 +43,7 @@ const settings = toRef(props, 'settings', {
       <div
         class="inline-flex shadow"
         role="group"
-      >
-        <!--<button
-            type="button"
-            class="rounded-l inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
-            :class="[settings.enabled ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700' ]"
-            @click="() => settings.enabled = !settings.enabled"
-          >
-            {{ t(`statuses.${settings.enabled ? 'enabled' : 'disabled'}`) }}
-          </button>
-          <button
-            type="button"
-            class="inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
-            :class="[settings.subscribers ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700' ]"
-            @click="() => settings.subscribers = !settings.subscribers"
-          >
-            {{ t('pages.moderation.moderate', { key: 'subscribers' }) }}
-          </button>
-          <button
-            type="button"
-            class="inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase focus:outline-none focus:ring-0 transition duration-150 ease-in-out rounded-r"
-            :class="[settings.vips ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700' ]"
-            @click="() => settings.vips = !settings.vips"
-          >
-            {{ t('pages.moderation.moderate', { key: 'vips' }) }}
-          </button>-->
-      </div>
+      />
     </div>
 
     <label
@@ -279,4 +254,4 @@ const settings = toRef(props, 'settings', {
       </div>
     </div>
   </div>
-</template>
+</template>0

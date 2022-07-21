@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { useTitle } from '@vueuse/core';
 
+import NewEvent from '../assets/buttons/new_event.svg?component';
+
 const title = useTitle();
 title.value = 'Tsuwari - Events';
 </script>
@@ -92,35 +94,7 @@ title.value = 'Tsuwari - Events';
             class="bg-transparent border-2 border-solid card card-compact cursor-pointer hover:border-sky-500 rounded"
           >
             <div class="card-body grid place-items-center">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M38 6H10C7.79086 6 6 7.79086 6 10V38C6 40.2091 7.79086 42 10 42H38C40.2091 42 42 40.2091 42 38V10C42 7.79086 40.2091 6 38 6Z"
-                  stroke="white"
-                  stroke-width="3.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M24 16V32"
-                  stroke="white"
-                  stroke-width="3.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M16 24H32"
-                  stroke="white"
-                  stroke-width="3.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <NewEvent />
 
               <p class="text-lg">
                 Add new action
@@ -174,35 +148,7 @@ title.value = 'Tsuwari - Events';
 
         <div class="bg-transparent border-2 border-solid card card-compact cursor-pointer hover:border-sky-500 rounded">
           <div class="card-body grid place-items-center">
-            <svg
-              width="48"
-              height="48"
-              viewBox="0 0 48 48"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M38 6H10C7.79086 6 6 7.79086 6 10V38C6 40.2091 7.79086 42 10 42H38C40.2091 42 42 40.2091 42 38V10C42 7.79086 40.2091 6 38 6Z"
-                stroke="white"
-                stroke-width="3.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M24 16V32"
-                stroke="white"
-                stroke-width="3.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M16 24H32"
-                stroke="white"
-                stroke-width="3.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+            <NewEvent />
 
             <p class="text-lg">
               Add new action

@@ -1,5 +1,5 @@
 import path from 'path';
-import { fileURLToPath, URL } from 'url';
+import { fileURLToPath } from 'url';
 
 import vueI18n from '@intlify/vite-plugin-vue-i18n';
 import vue from '@vitejs/plugin-vue';

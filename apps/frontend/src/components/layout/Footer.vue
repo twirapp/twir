@@ -1,6 +1,6 @@
 <template>
-  <footer class="w-full text-white my-2">
-    <div class="contacts mx-6 flex justify-end space-x-1 mt-1">
+  <footer class="my-2 text-white w-full">
+    <div class="contacts flex justify-end mt-1 mx-6 space-x-1">
       <a
         href="/"
       >@tsuwari</a>

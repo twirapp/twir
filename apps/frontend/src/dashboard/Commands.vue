@@ -6,6 +6,7 @@ import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/creat
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import Menu from '../assets/icons/menu.svg?component';
 import Command from '../components/Command.vue';
 import { VariableType } from './Variables.vue';
 
@@ -89,19 +90,7 @@ function onSave(index: number) {
       class="relative"
     >
       <PopoverButton class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition">
-        <svg
-          fill="none"
-          width="16"
-          height="16"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        ><path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 6h16M4 12h16m-7 6h7"
-        /></svg>
+        <Menu />
       </PopoverButton>
 
       <PopoverPanel
@@ -151,7 +140,7 @@ function onSave(index: number) {
     </div>
   </div>
 
-  <div class="flex h-full">
+  <div class="flex max-h-screen">
     <div class="border-gray-700 border-r hidden md:block rounded w-40">
       <button
         class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium grid hover:bg-green-700 inline-block leading-tight m-auto place-items-center px-6 py-2.5 shadow text-white text-xs transition uppercase w-full"

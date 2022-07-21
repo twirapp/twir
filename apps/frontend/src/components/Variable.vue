@@ -5,7 +5,7 @@ import type { CustomVarType as TCustomVarType } from '@tsuwari/prisma';
 //@ts-ignore
 import { highlight, languages } from 'prismjs/components/prism-core';
 import { Form, Field } from 'vee-validate';
-import { onMounted, ref, toRef } from 'vue';
+import { onMounted, Ref, ref, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { PrismEditor } from 'vue-prism-editor';
 
@@ -42,6 +42,7 @@ const { t } = useI18n({
 
 const emit = defineEmits<{
   (e: 'delete', index: number): void
+  (e: 'cancelEdit', variable: Ref<VariableType>): void
 }>();
 
 async function saveVariable() {
@@ -69,19 +70,7 @@ async function deleteVariable() {
 }
 
 function cancelEdit() {
-  const index = variables.value.indexOf(variable.value);
-  if (variable.value.id && variables.value) {
-    const editableCommand = variablesBeforeEdit.value?.find(c => c.id === variable.value.id);
-    if (editableCommand) {
-      variables.value[index] = {
-        ...editableCommand,
-        edit: false,
-      };
-      variablesBeforeEdit.value?.splice(variablesBeforeEdit.value.indexOf(editableCommand), 1);
-    }
-  } else {
-    variables.value?.splice(index, 1);
-  }
+  emit('cancelEdit', variable);
 }
 const loaded = ref(false);
 

@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import LandingButtons from '../LandingButtons.vue';
+// eslint-disable-next-line import/order
+import MenuSelector from '../../assets/buttons/menu_selector.svg?component';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -74,18 +76,7 @@ import Logo from '@/assets/logo.svg?component';
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <svg
-                class="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              ><path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16m-7 6h7"
-              /></svg>
+              <MenuSelector />
             </button>
             <ul
               class="absolute

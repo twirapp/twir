@@ -12,4 +12,7 @@ module.exports = {
   plugins: [
     require('tw-elements/dist/plugin'),
   ],
+  variants: {
+    scrollbar: ['rounded'],
+  },
 };

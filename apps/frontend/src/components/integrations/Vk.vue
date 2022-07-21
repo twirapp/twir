@@ -53,10 +53,10 @@ async function post() {
 </script>
 
 <template>
-  <div class="flex flex-col card rounded card-compact bg-base-200 drop-shadow p-2 break-inside mb-[0.5rem]">
+  <div class="bg-base-200 break-inside card card-compact drop-shadow flex flex-col mb-[0.5rem] p-2 rounded">
     <div class="flex justify-between mb-5">
       <div>
-        <h2 class="flex space-x-2 card-title font-bold">
+        <h2 class="card-title flex font-bold space-x-2">
           <p>VK</p>
           <Tooltip :text="t('pages.integrations.widgets.vk.description')" />
         </h2>
@@ -65,7 +65,7 @@ async function post() {
         <input
           id="flexSwitchCheckDefault"
           v-model="vkIntegration.enabled"
-          class="form-check-input appearance-none w-9 -ml-10 rounded-full float-left h-5 align-top bg-no-repeat bg-contain bg-gray-300 focus:outline-none cursor-pointer shadow"
+          class="-ml-10 align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
           type="checkbox"
           role="switch"
         >
@@ -79,14 +79,14 @@ async function post() {
       <input
         v-model="vkIntegration.data!.userId"
         type="text"
-        class="form-control input text-gray-700 w-full flex-shrink flex-grow leading-normal rounded flex-1 border h-8 border-grey-light px-3 relative"
+        class="border border-grey-light flex-1 flex-grow flex-shrink form-control h-8 input leading-normal px-3 relative rounded text-gray-700 w-full"
         :placeholder="t('pages.integrations.widgets.vk.id')"
       >
     </div>
 
     <div class="mt-auto text-right">
       <button
-        class="px-6 mt-3 py-2.5 inline-block bg-purple-600 text-white font-medium text-xs leading-tight uppercase rounded shadow hover:bg-purple-700    focus:outline-none focus:ring-0  transition duration-150 ease-in-out"
+        class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-purple-700 inline-block leading-tight mt-3 px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
         @click="post"
       >
         {{ t('buttons.save') }}

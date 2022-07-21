@@ -6,6 +6,7 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 
+import CmdMenu from '../../assets/buttons/cmd_menu.svg?component';
 import LanguageSelector from '../LanguageSelector.vue';
 import Notification from '../Notification.vue';
 import Profile from '../Profile.vue';
@@ -37,21 +38,7 @@ useIntervalFn(() => {
     <div class="flex flex-wrap items-center justify-between px-6 w-full">
       <div class="flex space-x-2">
         <div class="block sm:hidden">
-          <svg
-            id="sidebarDropdown"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            class="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          ><path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h7"
-          /></svg>
+          <CmdMenu />
 
           <ul
             class="absolute

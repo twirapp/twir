@@ -28,11 +28,6 @@ async function sendForm() {
         <div class="block card rounded shadow text-white">
           <h2 class="border-b border-gray-700 card-title flex font-bold justify-center outline-none p-2">
             <p>Notifications</p>
-
-            <!-- <a
-              href="/"
-              class="btn btn-outline btn-error btn-sm rounded"
-            >Remove</a> -->
           </h2>
           <div class="p-4 space-y-5 w-full">
             <div class="flex flex-col mb-4 rounded space-y-3">

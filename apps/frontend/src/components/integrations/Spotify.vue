@@ -130,26 +130,26 @@ onMounted(async () => {
 
 <style scoped>
 .tooltip { 
-width: 140px;
-background: #59c7f9;
-color: #ffffff;
-text-align: center;
-padding: 10px 20px 10px 20px;
-border-radius: 10px;
-top: calc(100% + 11px);
-left: 50%;
-transform: translate-x(-50%)
+  width: 140px;
+  background: #59c7f9;
+  color: #ffffff;
+  text-align: center;
+  padding: 10px 20px 10px 20px;
+  border-radius: 10px;
+  top: calc(100% + 11px);
+  left: 50%;
+  transform: translate-x(-50%)
  }
 .tooltip-box { 
-position: relative
+  position: relative
  }
 .triangle { 
-border-width: 0 6px 6px;
-border-color: transparent;
-border-bottom-color: #59c7f9;
-position: absolute;
-top: -6px;
-left: 50%;
-transform: translate-x(-50%)
+  border-width: 0 6px 6px;
+  border-color: transparent;
+  border-bottom-color: #59c7f9;
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translate-x(-50%)
  }
 </style>

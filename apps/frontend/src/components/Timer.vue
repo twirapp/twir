@@ -4,7 +4,7 @@ import { useStore } from '@nanostores/vue';
 import { Timer } from '@tsuwari/prisma';
 import type { SetOptional } from 'type-fest';
 import { Form, Field } from 'vee-validate';
-import { toRef } from 'vue';
+import { Ref, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import Add from '@/assets/buttons/add.svg';
@@ -29,7 +29,8 @@ const { t } = useI18n({
 });
 
 const emit = defineEmits<{
-  (e: 'delete', index: number): void
+  (e: 'delete', index: number): void,
+  (e: 'cancelEdit', timer: Ref<TimerType>): void
 }>();
 
 async function deleteTimer() {
@@ -63,19 +64,7 @@ async function saveTimer() {
 }
 
 function cancelEdit() {
-  const index = timers.value.indexOf(timer.value);
-  if (timer.value.id && timers.value) {
-    const editableCommand = timersBeforeEdit.value?.find(c => c.id === timer.value.id);
-    if (editableCommand) {
-      timers.value[index] = {
-        ...editableCommand,
-        edit: false,
-      };
-      timersBeforeEdit.value?.splice(timersBeforeEdit.value.indexOf(editableCommand), 1);
-    }
-  } else {
-    timers.value?.splice(index, 1);
-  }
+  emit('cancelEdit', timer);
 }
 </script>
 

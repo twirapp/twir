@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
 import { Form, Field } from 'vee-validate';
-import { toRef } from 'vue';
+import { Ref, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { KeywordType } from '@/dashboard/Keywords.vue';
@@ -20,7 +20,8 @@ const keywordsBeforeEdit = toRef(props, 'keywordsBeforeEdit');
 const selectedDashboard = useStore(selectedDashboardStore);
 const { t } = useI18n();
 const emit = defineEmits<{
-  (e: 'delete', index: number): void
+  (e: 'delete', index: number): void,
+  (e: 'cancelEdit', keyword: Ref<KeywordType>): void,
 }>();
 
 async function saveKeyword() {
@@ -49,19 +50,7 @@ async function deletekeyword() {
 }
 
 function cancelEdit() {
-  const index = keywords.value.indexOf(keyword.value);
-  if (keyword.value.id && keywords.value) {
-    const editableCommand = keywordsBeforeEdit.value?.find(c => c.id === keyword.value.id);
-    if (editableCommand) {
-      keywords.value[index] = {
-        ...editableCommand,
-        edit: false,
-      };
-      keywordsBeforeEdit.value?.splice(keywordsBeforeEdit.value.indexOf(editableCommand), 1);
-    }
-  } else {
-    keywords.value?.splice(index, 1);
-  }
+  emit('cancelEdit', keyword);
 }
 </script>
 
@@ -156,6 +145,7 @@ function cancelEdit() {
           </button>
           <button
             v-else
+            type="button"
             class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-purple-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
             @click="cancelEdit"
           >
