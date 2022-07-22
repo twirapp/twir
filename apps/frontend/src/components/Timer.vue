@@ -140,6 +140,7 @@ function cancelEdit() {
             <div class="w-[18%]">
               <input 
                 v-model.number="timer.timeInterval"
+                :disabled="!timer.edit"
                 class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
                 type="number"
               >
