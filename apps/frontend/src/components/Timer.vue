@@ -125,7 +125,7 @@ function cancelEdit() {
                 :disabled="!timer.edit"
                 min="1"
                 max="120"
-                class="appearance-none bg-transparent focus:outline-none focus:ring-0 focus:shadow-none form-range h-6 p-0 w-full"
+                class="focus:ring-0 form-range h-6 p-0 w-full"
               />
               <ul class="flex justify-between px-[10px] w-full">
                 <li class="flex justify-center relative">
