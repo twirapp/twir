@@ -11,8 +11,8 @@ export class CreateTimerDto {
   enabled: boolean;
 
   @IsNumber()
-  @Min(5)
-  @Max(84000)
+  @Min(1)
+  @Max(120)
   @IsNotEmpty()
   timeInterval: number;
 
