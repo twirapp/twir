@@ -7,3 +7,4 @@ export * from './lib/nats.js';
 export * from './lib/redis.js';
 export * from './lib/dota.js';
 export * from './lib/merge.js';
+export * from './lib/queue.js';

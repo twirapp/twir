@@ -1,7 +1,7 @@
+import { Logger } from '@nestjs/common';
 import { config } from '@tsuwari/config';
 import { Timer } from '@tsuwari/prisma';
-import { Worker, Queue, QueueScheduler } from 'bullmq';
-import Redis from 'ioredis';
+import { Queue } from '@tsuwari/shared';
 
 import { Bots, staticApi } from '../bots.js';
 import { nestApp } from '../nest/index.js';
@@ -9,98 +9,75 @@ import { ParserService } from '../nest/parser/parser.service.js';
 import { prisma } from './prisma.js';
 import { redis } from './redis.js';
 
-const createConnection = () => new Redis(config.REDIS_URL, { maxRetriesPerRequest: null });
+const logger = new Logger('Timers');
+export const timersQueue = new Queue<Timer>(async function (taskId: string) {
+  const timer = await prisma.timer.findFirst({
+    where: {
+      id: taskId,
+    },
+    include: {
+      channel: true,
+    },
+  });
 
-type Data = { id: string }
+  if (!timer || !timer.enabled) {
+    return;
+  }
 
-new QueueScheduler('timers', {
-  connection: createConnection(),
-});
-export const timersQueue = new Queue<Data>('timers', {
-  connection: createConnection(),
-});
-await timersQueue.drain(true);
-await timersQueue.clean(0, Number.MAX_SAFE_INTEGER);
+  const stream = await redis.get(`streams:${timer.channelId}`);
+  if (!stream) return;
 
-new Worker<Data>(
-  'timers',
-  async (job) => {
-    const timer = await prisma.timer.findFirst({
-      where: {
-        id: job.data.id,
-      },
-      include: {
-        channel: true,
-      },
+  const parsedStream = JSON.parse(stream);
+
+  if (timer.messageInterval > 0 && timer.lastTriggerMessageNumber - parsedStream.parsedMessages + timer.messageInterval > 0) {
+    return;
+  }
+
+  const responses = timer.responses as Array<string>;
+
+  const bot = Bots.cache.get(timer.channel.botId);
+  const user = await staticApi.users.getUserById(timer.channelId);
+
+  const response = responses[timer.last];
+  if (!response) return;
+
+  if (!bot || !user) {
+    return;
+  }
+
+  if (bot._authProvider) {
+    const service = nestApp.get(ParserService);
+    const parsedResponses = await service.parseResponse({
+      channelId: timer.channelId,
+      text: response,
     });
 
-    if (!timer || !timer.enabled) {
-      job.discard();
-      await job.remove();
-      return;
-    }
-
-    const stream = await redis.get(`streams:${timer.channelId}`);
-    if (!stream) return;
-
-    const parsedStream = JSON.parse(stream);
-
-    if (timer.messageInterval > 0 && timer.lastTriggerMessageNumber - parsedStream.parsedMessages + timer.messageInterval > 0) {
-      return;
-    }
-
-    const responses = timer.responses as Array<string>;
-
-    const bot = Bots.cache.get(timer.channel.botId);
-    const user = await staticApi.users.getUserById(timer.channelId);
-
-    const response = responses[timer.last];
-    if (!response) return;
-
-    if (!bot || !user) {
-      await job.remove();
-      throw new Error('Something very unexpected happend');
-    }
-
-    if (bot._authProvider) {
-      const service = nestApp.get(ParserService);
-      const parsedResponses = await service.parseResponse({
-        channelId: timer.channelId,
-        text: response,
-      });
-
-      if (parsedResponses) {
-        for (const r of parsedResponses) {
+    if (parsedResponses) {
+      for (const r of parsedResponses) {
+        if (config.isProd) {
           bot.say(
             user.name,
             r,
           );
+        } else {
+          logger.log(`${user.name} -> ${r}`);
         }
       }
     }
-
-    await prisma.timer.update({
-      where: {
-        id: timer.id,
-      },
-      data: {
-        last: ++timer.last % (timer.responses as string[]).length,
-        lastTriggerMessageNumber: parsedStream.parsedMessages as number,
-      },
-    });
-  },
-  {
-    connection: createConnection(),
-  },
-);
-
-export async function initTimers() {
-  const timers = await prisma.timer.findMany();
-  for (const timer of timers.filter(t => t.enabled)) {
-    addTimerToQueue(timer);
   }
-}
 
+  await prisma.timer.update({
+    where: {
+      id: timer.id,
+    },
+    data: {
+      last: ++timer.last % (timer.responses as string[]).length,
+      lastTriggerMessageNumber: parsedStream.parsedMessages as number,
+    },
+  });
+});
+
+const getId = (t: Timer | string) => typeof t === 'string' ? t : t.id;
 export async function addTimerToQueue(timerOrId: Timer | string) {
   const id = getId(timerOrId);
   let timer: Timer | null;
@@ -112,28 +89,17 @@ export async function addTimerToQueue(timerOrId: Timer | string) {
     timer = timerOrId as Timer;
   }
 
-  await removeTimerFromQueue(timerOrId);
+  removeTimerFromQueue(timerOrId);
   if (timer) {
-    await timersQueue.add(timer.id, { id: timer.id }, { repeat: { every: timer.timeInterval * 60000 } });
+    timersQueue.addTimerToQueue(timer.id, timer, {
+      interval: timer.timeInterval * 1000,
+    });
   }
 }
 
-const getId = (t: Timer | string) => typeof t === 'string' ? t : t.id;
 
-export async function updateTimer(timer: Timer | string) {
+export function removeTimerFromQueue(timer: Timer | string) {
   const id = getId(timer);
 
-  await removeTimerFromQueue(timer);
-  if (typeof id === 'string') {
-    const entity = await prisma.timer.findFirst({ where: { id } });
-    if (entity) await addTimerToQueue(entity);
-  } else {
-    addTimerToQueue(timer as Timer);
-  }
-}
-
-export async function removeTimerFromQueue(timer: Timer | string) {
-  const id = getId(timer);
-
-  return await timersQueue.remove(id);
+  timersQueue.removeTimerFromQueue(id);
 }
