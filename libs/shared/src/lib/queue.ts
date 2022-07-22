@@ -45,6 +45,6 @@ export class Queue<T> {
 
     await this.callback(id);
 
-    task.data.lastTimeout = setTimeout(() => this.#process(id), task?.opts.interval);
+    task.data.lastTimeout = setTimeout(() => this.#process(id), task.opts.interval);
   }
 }
