@@ -137,7 +137,7 @@ function cancelEdit() {
                 </li>
               </ul>
             </div>
-            <div class="w-[15%]">
+            <div class="w-[18%]">
               <input 
                 v-model.number="timer.timeInterval"
                 class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
