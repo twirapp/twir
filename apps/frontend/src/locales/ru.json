@@ -196,7 +196,7 @@
         },
         "response": "Ответ таймера",
         "responses": "Ответы",
-        "secondsInterval": "Интервал в секундах",
+        "secondsInterval": "Интервал в минутах",
         "status": {
           "title": "Статус таймера"
         }

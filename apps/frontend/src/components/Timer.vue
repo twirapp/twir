@@ -115,17 +115,39 @@ function cancelEdit() {
           <div class="label mb-1">
             <span class="label-text">{{ t('pages.timers.card.secondsInterval') }}</span>
           </div>
-          <Field
-            v-model.number="timer.timeInterval"
-            as="input" 
-            type="number"
-            name="timeInterval"
-            :disabled="!timer.edit"
-            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
-          />
+          <div class="flex justify-between w-[100%]">
+            <div class="flex flex-col my-2 w-[75%]">
+              <Field
+                v-model.number="timer.timeInterval"
+                as="input" 
+                type="range"
+                name="timeInterval"
+                :disabled="!timer.edit"
+                min="1"
+                max="120"
+                class="appearance-none bg-transparent focus:outline-none focus:ring-0 focus:shadow-none form-range h-6 p-0 w-full"
+              />
+              <ul class="flex justify-between px-[10px] w-full">
+                <li class="flex justify-center relative">
+                  <span class="absolute">1</span>
+                </li>
+  
+                <li class="flex justify-center relative">
+                  <span class="absolute">120</span>
+                </li>
+              </ul>
+            </div>
+            <div class="w-[15%]">
+              <input 
+                v-model.number="timer.timeInterval"
+                class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
+                type="number"
+              >
+            </div>
+          </div>
         </div>
 
-        <div>
+        <div class="mt-5">
           <div class="label mb-1">
             <span class="label-text">{{ t('pages.timers.card.messagesInterval') }}</span>
           </div>

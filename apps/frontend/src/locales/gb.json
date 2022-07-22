@@ -196,7 +196,7 @@
         },
         "response": "Timer response",
         "responses": "Responses",
-        "secondsInterval": "Seconds Interval",
+        "secondsInterval": "Minutes Interval",
         "status": {
           "title": "Timer status"
         }
