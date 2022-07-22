@@ -92,7 +92,7 @@ export async function addTimerToQueue(timerOrId: Timer | string) {
   removeTimerFromQueue(timerOrId);
   if (timer) {
     timersQueue.addTimerToQueue(timer.id, timer, {
-      interval: timer.timeInterval * 1000,
+      interval: timer.timeInterval * (config.isDev ? 1000 : 60000),
     });
   }
 }
