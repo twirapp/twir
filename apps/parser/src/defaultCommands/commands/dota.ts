@@ -300,7 +300,9 @@ export const dota: DefaultCommand[] = [
         const mode = gameModes.find(m => m.id === Number(modeId));
         const heroesResult = matches
           .filter(m => typeof m.hero !== 'undefined')
-          .map(m => `${m.hero.localized_name}(${m.isWinner ? 'W' : 'L'}) [${m.kills}/${m.deaths}/${m.assists}]`);
+          .map(m => `${m.hero.localized_name}(${m.isWinner ? 'W' : 'L'}) [${m.kills}/${m.deaths}/${m.assists}]`)
+          .reverse();
+
         let msg = `${mode?.name ?? 'Unknown'} W ${wins.length} — L ${matches.length - wins.length}`;
         /* if (mode?.id === 22)  */msg += `: ${heroesResult.join(', ')} `;
         result.push(msg);
