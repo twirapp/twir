@@ -1,13 +1,14 @@
 
 
-import { INestMicroservice } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 
 import { AppModule } from './app.module.js';
 
-export const nestApp: INestMicroservice = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+export const nestApp: INestApplication = await NestFactory.create(AppModule);
+nestApp.connectMicroservice({
   transport: Transport.NATS,
   options: {
     servers: [config.NATS_URL],
@@ -15,4 +16,7 @@ export const nestApp: INestMicroservice = await NestFactory.createMicroservice<M
   },
 });
 
-export const startNest = async () => await nestApp.listen();
+export const startNest = async () => {
+  await nestApp.startAllMicroservices();
+  await nestApp.listen(3001);
+};

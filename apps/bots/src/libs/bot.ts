@@ -12,9 +12,8 @@ import { nestApp } from '../nest/index.js';
 import { ParserService } from '../nest/parser/parser.service.js';
 import { GreetingsParser } from './greetingsParser.js';
 import { KeywordsParser } from './keywordsParser.js';
-import { ConsoleLogger } from './logger.js';
 import { ModerationParser } from './moderationParser.js';
-import { commandsCounter, messagesCounter } from './prometheus.js';
+import { commandsCounter, commandsResponseTime, greetingsCounter, greetingsParseTime, keywordsCounter, keywordsParseTime, messageParseTime, messagesCounter, moderationParseTime } from './prometheus.js';
 import { redis } from './redis.js';
 
 export class Bot extends ChatClient {
@@ -92,6 +91,8 @@ export class Bot extends ChatClient {
 
     this.onMessage(async (channel, user, message, state) => {
       if (!state.channelId || !state.userInfo?.userId) return;
+      const perfStart = performance.now();
+      messagesCounter.inc();
 
       this.#logger.log(`IN ${pc.green(channel)} | ${pc.magenta(`${user}#${state.userInfo.userId}`)}: ${pc.white(message)}`);
       const isBotModRequest = await redis.get(`isBotMod:${channel.substring(1)}`);
@@ -109,15 +110,16 @@ export class Bot extends ChatClient {
           }
 
           if (moderateResult.message) {
-            this.say(channel, moderateResult.message);
+            await this.say(channel, moderateResult.message);
           }
 
+          moderationParseTime.observe(performance.now() - perfStart);
           return;
         }
       }
 
       if (message.startsWith('!')) {
-        this.#parserService.parseChatMessage(state.rawLine!).then(result => {
+        this.#parserService.parseChatMessage(state.rawLine!).then(async (result) => {
           if (!state.channelId) return;
           if (!result?.length) return;
           commandsCounter.inc();
@@ -126,8 +128,10 @@ export class Bot extends ChatClient {
             if (!response) continue;
             if (result.indexOf(response) > 0 && !isBotMod) break;
 
-            this.say(channel, response, { replyTo: state.id });
+            await this.say(channel, response, { replyTo: state.id });
           }
+
+          commandsResponseTime.labels(channel, message.split(' ')[0] ?? '').observe(performance.now() - perfStart);
         });
       }
 
@@ -142,8 +146,10 @@ export class Bot extends ChatClient {
 
         if (result) {
           for (const r of result) {
-            this.say(channel, r, { replyTo: state.id });
+            await this.say(channel, r, { replyTo: state.id });
           }
+          greetingsCounter.inc();
+          greetingsParseTime.observe(performance.now() - perfStart);
         }
       });
 
@@ -162,16 +168,17 @@ export class Bot extends ChatClient {
 
           if (result) {
             for (const r of result) {
-              this.say(channel, r, { replyTo: state.id });
+              await this.say(channel, r, { replyTo: state.id });
             }
+            keywordsCounter.inc();
+            keywordsParseTime.observe(performance.now() - perfStart);
           }
         }
       });
 
       increaseUserMessages(state.userInfo.userId, state.channelId);
       increaseParsedMessages(state.channelId);
-      messagesCounter.inc();
-
+      messageParseTime.observe(performance.now() - perfStart);
     });
   }
 }
