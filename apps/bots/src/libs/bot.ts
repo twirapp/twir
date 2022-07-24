@@ -16,6 +16,8 @@ import { ModerationParser } from './moderationParser.js';
 import { commandsCounter, commandsResponseTime, greetingsCounter, greetingsParseTime, keywordsCounter, keywordsParseTime, messageParseTime, messagesCounter, moderationParseTime } from './prometheus.js';
 import { redis } from './redis.js';
 
+
+const strRegexp = /.{1,500}(\s|$)/;
 export class Bot extends ChatClient {
   #api: ApiClient;
   #greetingsParser: GreetingsParser;
@@ -45,7 +47,7 @@ export class Bot extends ChatClient {
   async say(channel: string, message: string, attributes?: ChatSayMessageAttributes) {
     this.#logger.log(`${pc.bgCyan(pc.black('OUT'))} ${pc.bgGreen(pc.white(channel))}: ${pc.bgYellow(pc.white(message))}`);
     if (config.isProd || config.SAY_IN_CHAT) {
-      for (const str of message.match(/.{1,500}(\s|$)/g)!.map(s => s.trim())) {
+      for (const str of message.match(strRegexp)!.map(s => s.trim())) {
         super.say(channel, str, attributes);
       }
     }

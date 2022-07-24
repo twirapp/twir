@@ -1,4 +1,6 @@
-import { TwitchApiService } from '@tsuwari/shared';
+import { RedisService, TwitchApiService, WEEK } from '@tsuwari/shared';
+import { HelixUserData } from '@twurple/api';
+import { getRawData } from '@twurple/common';
 import { formatDuration, intervalToDuration } from 'date-fns';
 
 import { app } from '../../index.js';
@@ -11,6 +13,7 @@ const formatDistanceLocale: { [x: string]: string } = {
 const shortEnLocale = { formatDistance: (token: string, count: string) => formatDistanceLocale[token]?.replace('{{count}}', count) };
 
 const staticApi = app.get(TwitchApiService);
+const redis = app.get(RedisService);
 
 async function getuserFollowAge(fromId: string, toId: string) {
   const follow = await staticApi.users.getFollowFromUserToBroadcaster(fromId, toId);
@@ -23,12 +26,23 @@ async function getuserFollowAge(fromId: string, toId: string) {
 }
 
 async function getUserAge(userId: string) {
-  const user = await staticApi.users.getUserById(userId);
+  const redisKey = `twitchUsersCache:${userId}`;
+  let data: HelixUserData | null = null;
 
-  if (!user) return 'Error on getting info.';
+  const cachedData = await redis.get(redisKey);
+  if (cachedData) {
+    data = JSON.parse(cachedData) as HelixUserData;
+  } else {
+    const user = await staticApi.users.getUserById(userId);
+    if (user) {
+      data = getRawData(user);
+      redis.set(redisKey, JSON.stringify(data), 'EX', (WEEK * 2) / 1000);
+    }
+  }
 
-  const duration = intervalToDuration({ start: user.creationDate.getTime(), end: Date.now() });
+  if (!data) return 'Error on getting info.';
 
+  const duration = intervalToDuration({ start: new Date(data.created_at).getTime(), end: Date.now() });
   return formatDuration(duration);
 }
 
