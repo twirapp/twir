@@ -258,7 +258,10 @@ export const dota: DefaultCommand[] = [
         }
       } = {};
       gameModes.forEach(m => {
-        matchesByGameMode[m.id]!.matches = [];
+        matchesByGameMode[m.id] = {
+          matches: [],
+          stringResult: '',
+        };
       });
 
       for (const account of accounts) {
