@@ -10,6 +10,7 @@ const subScriptionValues = new Map([
   ['channel.update', 'subscribeToChannelUpdateEvents'],
   ['stream.online', 'subscribeToStreamOnlineEvents'],
   ['stream.offline', 'subscribeToStreamOfflineEvents'],
+  ['user.update', 'subscribeToUserUpdateEvents'],
 ]);
 
 @Injectable()
@@ -38,7 +39,6 @@ export class EventSub extends EventSubMiddleware {
     for (const type of subScriptionValues.keys()) {
       const typeValue = subScriptionValues.get(type);
       if (!typeValue) continue;
-
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       this[typeValue](channelId, (e) => {

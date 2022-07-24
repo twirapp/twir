@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@tsuwari/shared';
 import { getRawData } from '@twurple/common';
-import { EventSubChannelUpdateEvent, EventSubStreamOfflineEvent, EventSubStreamOnlineEvent } from '@twurple/eventsub';
+import { EventSubChannelUpdateEvent, EventSubStreamOfflineEvent, EventSubStreamOnlineEvent, EventSubUserUpdateEvent } from '@twurple/eventsub';
 
 
 @Injectable()
@@ -25,5 +25,9 @@ export class HandlerService {
     await this.nats.emit('streams.offline', {
       channelId: e.broadcasterId,
     }).toPromise();
+  }
+
+  async subscribeToUserUpdateEvents(e: EventSubUserUpdateEvent) {
+    await this.nats.emit('user.update', getRawData(e)).toPromise();
   }
 }
