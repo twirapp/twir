@@ -45,7 +45,9 @@ export class Bot extends ChatClient {
   async say(channel: string, message: string, attributes?: ChatSayMessageAttributes) {
     this.#logger.log(`${pc.bgCyan(pc.black('OUT'))} ${pc.bgGreen(pc.white(channel))}: ${pc.bgYellow(pc.white(message))}`);
     if (config.isProd || config.SAY_IN_CHAT) {
-      super.say(channel, message, attributes);
+      for (const str of message.match(/.{1,500}(\s|$)/g)!.map(s => s.trim())) {
+        super.say(channel, str, attributes);
+      }
     }
   }
 

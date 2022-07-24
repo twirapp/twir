@@ -324,7 +324,7 @@ export const dota: DefaultCommand[] = [
         result.push(msg);
       }
       //send from matchesByGameMode
-      return result.length ? result.map(str => str.match(/.{1,500}(\s|$)/g)!.map(s => s.trim())).flat() : 'W 0 — L 0';
+      return result.length ? result : 'W 0 — L 0';
     },
   },
   {
