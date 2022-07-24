@@ -318,28 +318,13 @@ export const dota: DefaultCommand[] = [
           .reverse();
 
         let msg = `${mode?.name ?? 'Unknown'} W ${wins.length} — L ${data.matches.length - wins.length}`;
+        msg += `: ${heroesResult.join(', ')}`;
 
-        if (heroesResult.join(', ').length > 500) {
-          const heroesResultShort = data.matches
-            .filter(m => typeof m.hero !== 'undefined')
-            .map(m => `${m.hero.shortName ?? m.hero.localized_name}(${m.isWinner ? 'W' : 'L'}) [${m.kills}/${m.deaths}/${m.assists}]`)
-            .reverse()
-            .join(', ');
-
-          if (heroesResultShort.length <= 500) {
-            msg += `: ${heroesResultShort}`;
-          } else {
-            msg += `: ${data.matches
-              .filter(m => typeof m.hero !== 'undefined')
-              .map(m => `${m.hero.shortName ?? m.hero.localized_name}(${m.isWinner ? 'W' : 'L'})`)
-              .reverse().join(', ')}`;
-          }
-        } else msg += `: ${heroesResult.join(', ')}`;
         matchesByGameMode[Number(modeId)]!.stringResult = msg;
         result.push(msg);
       }
       //send from matchesByGameMode
-      return result.length ? result : 'W 0 — L 0';
+      return result.length ? result.map(str => str.match(/.{1,500}(\s|$)/g)!.map(s => s.trim())).flat() : 'W 0 — L 0';
     },
   },
   {
