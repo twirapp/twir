@@ -4,6 +4,7 @@ import { Prisma, PrismaService } from '@tsuwari/prisma';
 import { ClientProxy, dotaHeroes, dotaMedals, gameModes, RedisService } from '@tsuwari/shared';
 import { HelixStreamData } from '@twurple/api/lib/index.js';
 import axios from 'axios';
+import rateLimit from 'axios-rate-limit';
 
 import { app } from '../../index.js';
 import { DefaultCommand } from '../types.js';
@@ -17,17 +18,17 @@ const messages = Object.freeze({
   NO_ACCOUNTS: 'You have not added account.' as string,
 });
 
-
-const dotaApi = axios.create({
+const dotaApiInstance = axios.create({
   baseURL: `http://api.steampowered.com/`,
   timeout: 1000,
 });
-
-dotaApi.interceptors.request.use((req) => {
+dotaApiInstance.interceptors.request.use((req) => {
   req.params = req.params || {};
   req.params['key'] = config.STEAM_API_KEY;
   return req;
 });
+const dotaApi = rateLimit(dotaApiInstance, { maxRequests: 2, perMilliseconds: 1000, maxRPS: 2 });
+
 
 // DO NOT CHANGE ORDER!
 const colors = ['Blue', 'Teal', 'Purple', 'Yellow', 'Orange', 'Pink', 'Gray', 'Light Blue', 'Green', 'Brown'];
@@ -218,22 +219,27 @@ export const dota: DefaultCommand[] = [
       }).then(gms => gms.filter(g => !g.players_heroes.some(h => h === 0)));
 
       const gamesForRequest = games.filter(g => !g.result);
-      const matchesRequest = await Promise.all(gamesForRequest.map(g => dotaApi.get('IDOTA2Match_570/GetMatchDetails/v1', { params: { match_id: g.match_id } })))
-        .then(requests => requests.filter(r => r.status === 200));
-
       const matchesData: any[] = [...games.filter(g => g.result).map(g => g.result)];
-      for (const response of matchesRequest.filter(m => !m.data.result?.error)) {
-        if (response.data?.result) {
-          matchesData.push(response.data.result);
+      const createResults: any[] = [];
+
+      for (const game of gamesForRequest) {
+        try {
+          const request = await dotaApi.get('IDOTA2Match_570/GetMatchDetails/v1', { params: { match_id: game.match_id } });
+          if (request.status !== 200) continue;
+          const data = request.data;
+          if (data.result.error) continue;
+          if (data.result) {
+            matchesData.push(data.result);
+            createResults.push(data.result);
+          }
+        } catch (e) {
+          console.error(e);
+          continue;
         }
       }
 
-      const createMatchesData = matchesRequest
-        .filter(m => !m.data.result?.error && m.data?.result)
-        .map(m => m.data.result);
-
-      if (createMatchesData.length) {
-        const data = createMatchesData.map(d => ({
+      if (createResults.length) {
+        const data = createResults.map(d => ({
           match_id: d.match_id.toString(),
           players: d.players,
           radiant_win: d.radiant_win,
@@ -307,7 +313,7 @@ export const dota: DefaultCommand[] = [
         /* if (mode?.id === 22)  */msg += `: ${heroesResult.join(', ')} `;
         result.push(msg);
       }
-
+      console.log(result);
       return result.length ? result : 'W 0 — L 0';
     },
   },
