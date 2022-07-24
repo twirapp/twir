@@ -251,9 +251,14 @@ export const dota: DefaultCommand[] = [
         });
       }
 
-      const matchesByGameMode: { [x: number]: any[] } = {};
+      const matchesByGameMode: {
+        [x: number]: {
+          matches: any[],
+          stringResult: string
+        }
+      } = {};
       gameModes.forEach(m => {
-        matchesByGameMode[m.id] = [];
+        matchesByGameMode[m.id]!.matches = [];
       });
 
       for (const account of accounts) {
@@ -289,7 +294,7 @@ export const dota: DefaultCommand[] = [
             isWinner = false;
           }
 
-          matchesByGameMode[match.game_mode]?.push({
+          matchesByGameMode[match.game_mode]?.matches.push({
             isWinner,
             hero,
             kills: player.kills,
@@ -301,19 +306,36 @@ export const dota: DefaultCommand[] = [
 
       const result: string[] = [];
 
-      for (const [modeId, matches] of Object.entries(matchesByGameMode).filter(e => e[1].length)) {
-        const wins = matches.filter(r => r.isWinner);
+      for (const [modeId, data] of Object.entries(matchesByGameMode).filter(e => e[1].matches.length)) {
+        const wins = data.matches.filter(r => r.isWinner);
         const mode = gameModes.find(m => m.id === Number(modeId));
-        const heroesResult = matches
+        const heroesResult = data.matches
           .filter(m => typeof m.hero !== 'undefined')
           .map(m => `${m.hero.localized_name}(${m.isWinner ? 'W' : 'L'}) [${m.kills}/${m.deaths}/${m.assists}]`)
           .reverse();
 
-        let msg = `${mode?.name ?? 'Unknown'} W ${wins.length} — L ${matches.length - wins.length}`;
-        /* if (mode?.id === 22)  */msg += `: ${heroesResult.join(', ')} `;
+        let msg = `${mode?.name ?? 'Unknown'} W ${wins.length} — L ${data.matches.length - wins.length}`;
+
+        if (heroesResult.join(', ').length > 500) {
+          const heroesResultShort = data.matches
+            .filter(m => typeof m.hero !== 'undefined')
+            .map(m => `${m.hero.shortName}(${m.isWinner ? 'W' : 'L'}) [${m.kills}/${m.deaths}/${m.assists}]`)
+            .reverse()
+            .join(', ');
+
+          if (heroesResultShort.length <= 500) {
+            msg += `: ${heroesResultShort}`;
+          } else {
+            msg += `: ${data.matches
+              .filter(m => typeof m.hero !== 'undefined')
+              .map(m => `${m.hero.shortName}(${m.isWinner ? 'W' : 'L'})`)
+              .reverse().join(', ')}`;
+          }
+        } else msg += `: ${heroesResult.join(', ')}`;
+        matchesByGameMode[Number(modeId)]!.stringResult = msg;
         result.push(msg);
       }
-      console.log(result);
+      //send from matchesByGameMode
       return result.length ? result : 'W 0 — L 0';
     },
   },

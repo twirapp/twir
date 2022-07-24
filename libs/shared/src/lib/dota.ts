@@ -73,6 +73,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Crystal Maiden',
     'id': 5,
+    shortName: 'CM',
   },
   {
     'localized_name': 'Drow Ranger',
@@ -93,14 +94,17 @@ export const dotaHeroes = [
   {
     'localized_name': 'Morphling',
     'id': 10,
+    shortName: 'Morph',
   },
   {
     'localized_name': 'Shadow Fiend',
     'id': 11,
+    shortName: 'SF',
   },
   {
     'localized_name': 'Phantom Lancer',
     'id': 12,
+    shortName: 'PL',
   },
   {
     'localized_name': 'Puck',
@@ -117,10 +121,12 @@ export const dotaHeroes = [
   {
     'localized_name': 'Sand King',
     'id': 16,
+    shortName: 'SK',
   },
   {
     'localized_name': 'Storm Spirit',
     'id': 17,
+    shortName: 'Storm',
   },
   {
     'localized_name': 'Sven',
@@ -137,6 +143,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Windranger',
     'id': 21,
+    shortName: 'WR',
   },
   {
     'localized_name': 'Zeus',
@@ -157,6 +164,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Shadow Shaman',
     'id': 27,
+    shortName: 'Shaman',
   },
   {
     'localized_name': 'Slardar',
@@ -193,6 +201,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Necrophos',
     'id': 36,
+    shortName: 'Necr',
   },
   {
     'localized_name': 'Warlock',
@@ -205,6 +214,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Queen of Pain',
     'id': 39,
+    shortName: 'QoP',
   },
   {
     'localized_name': 'Venomancer',
@@ -225,6 +235,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Phantom Assassin',
     'id': 44,
+    shortName: 'PA',
   },
   {
     'localized_name': 'Pugna',
@@ -233,6 +244,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Templar Assassin',
     'id': 46,
+    shortName: 'TA',
   },
   {
     'localized_name': 'Viper',
@@ -245,6 +257,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Dragon Knight',
     'id': 49,
+    shortName: 'DK',
   },
   {
     'localized_name': 'Dazzle',
@@ -261,6 +274,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Nature\'s Prophet',
     'id': 53,
+    shortName: 'Furion',
   },
   {
     'localized_name': 'Lifestealer',
@@ -277,10 +291,12 @@ export const dotaHeroes = [
   {
     'localized_name': 'Omniknight',
     'id': 57,
+    shortname: 'Omnik',
   },
   {
     'localized_name': 'Enchantress',
     'id': 58,
+    shortName: 'Encha',
   },
   {
     'localized_name': 'Huskar',
@@ -289,14 +305,17 @@ export const dotaHeroes = [
   {
     'localized_name': 'Night Stalker',
     'id': 60,
+    shortName: 'NS',
   },
   {
     'localized_name': 'Broodmother',
     'id': 61,
+    shortName: 'Brood',
   },
   {
     'localized_name': 'Bounty Hunter',
     'id': 62,
+    shortName: 'BH',
   },
   {
     'localized_name': 'Weaver',
@@ -321,6 +340,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Ancient Apparition',
     'id': 68,
+    shortName: 'AA',
   },
   {
     'localized_name': 'Doom',
@@ -337,10 +357,12 @@ export const dotaHeroes = [
   {
     'localized_name': 'Gyrocopter',
     'id': 72,
+    shortName: 'Gyro',
   },
   {
     'localized_name': 'Alchemist',
     'id': 73,
+    shortName: 'Alch',
   },
   {
     'localized_name': 'Invoker',
@@ -353,6 +375,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Outworld Devourer',
     'id': 76,
+    shortName: 'OD',
   },
   {
     'localized_name': 'Lycan',
@@ -373,6 +396,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Chaos Knight',
     'id': 81,
+    shortName: 'CK',
   },
   {
     'localized_name': 'Meepo',
@@ -381,10 +405,12 @@ export const dotaHeroes = [
   {
     'localized_name': 'Treant Protector',
     'id': 83,
+    shortName: 'Treant',
   },
   {
     'localized_name': 'Ogre Magi',
     'id': 84,
+    shortName: 'Ogre',
   },
   {
     'localized_name': 'Undying',
@@ -405,10 +431,12 @@ export const dotaHeroes = [
   {
     'localized_name': 'Naga Siren',
     'id': 89,
+    shortName: 'Naga',
   },
   {
     'localized_name': 'Keeper of the Light',
     'id': 90,
+    shortName: 'KOTL',
   },
   {
     'localized_name': 'Io',
@@ -433,6 +461,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Centaur Warrunner',
     'id': 96,
+    shortName: 'Centaur',
   },
   {
     'localized_name': 'Magnus',
@@ -453,6 +482,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Skywrath Mage',
     'id': 101,
+    shortName: 'Skywrath',
   },
   {
     'localized_name': 'Abaddon',
@@ -461,6 +491,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Elder Titan',
     'id': 103,
+    shortName: 'Elder',
   },
   {
     'localized_name': 'Legion Commander',
@@ -473,6 +504,7 @@ export const dotaHeroes = [
   {
     'localized_name': 'Ember Spirit',
     'id': 106,
+    shortName: 'Ember',
   },
   {
     'localized_name': 'Earth Spirit',
@@ -497,10 +529,12 @@ export const dotaHeroes = [
   {
     'localized_name': 'Winter Wyvern',
     'id': 112,
+    shortName: 'Wyvern',
   },
   {
     'localized_name': 'Arc Warden',
     'id': 113,
+    shortName: 'Arc',
   },
   {
     'localized_name': 'Monkey King',
