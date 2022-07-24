@@ -322,7 +322,7 @@ export const dota: DefaultCommand[] = [
         if (heroesResult.join(', ').length > 500) {
           const heroesResultShort = data.matches
             .filter(m => typeof m.hero !== 'undefined')
-            .map(m => `${m.hero.shortName}(${m.isWinner ? 'W' : 'L'}) [${m.kills}/${m.deaths}/${m.assists}]`)
+            .map(m => `${m.hero.shortName ?? m.hero.localized_name}(${m.isWinner ? 'W' : 'L'}) [${m.kills}/${m.deaths}/${m.assists}]`)
             .reverse()
             .join(', ');
 
@@ -331,7 +331,7 @@ export const dota: DefaultCommand[] = [
           } else {
             msg += `: ${data.matches
               .filter(m => typeof m.hero !== 'undefined')
-              .map(m => `${m.hero.shortName}(${m.isWinner ? 'W' : 'L'})`)
+              .map(m => `${m.hero.shortName ?? m.hero.localized_name}(${m.isWinner ? 'W' : 'L'})`)
               .reverse().join(', ')}`;
           }
         } else msg += `: ${heroesResult.join(', ')}`;
