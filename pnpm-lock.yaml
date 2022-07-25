@@ -653,6 +653,7 @@ importers:
 
   libs/shared:
     specifiers:
+      '@d-fischer/cache-decorators': ^3.0.0
       '@nestjs/common': ^8.4.7
       '@nestjs/microservices': 8.4.7
       '@tsuwari/config': workspace:*
@@ -667,6 +668,7 @@ importers:
       lodash: 4.17.21
       rxjs: ^7.5.6
     dependencies:
+      '@d-fischer/cache-decorators': 3.0.0
       '@nestjs/common': 8.4.7_lgmj4mab2zqmetcfgcrg2pdwq4
       '@nestjs/microservices': 8.4.7_xs64hf64efjmugmawhh4noitca
       '@tsuwari/config': link:../config

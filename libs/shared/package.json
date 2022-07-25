@@ -10,6 +10,7 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@d-fischer/cache-decorators": "^3.0.0",
     "@nestjs/common": "^8.4.7",
     "@nestjs/microservices": "8.4.7",
     "@tsuwari/config": "workspace:*",
