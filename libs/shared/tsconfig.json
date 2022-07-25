@@ -4,9 +4,7 @@
     "outDir": "./dist",
     "target": "esnext",
     "module": "ESNext",
-    "moduleResolution": "node",
-    "incremental": true,
-    "composite": true,
+    "moduleResolution": "node"
   },
   "exclude": [
     "./dist"

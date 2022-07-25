@@ -2,10 +2,10 @@
   "name": "@tsuwari/shared",
   "private": true,
   "type": "module",
-  "module": "./dist/src/index.js",
-  "main": "./dist/src/index.js",
+  "module": "./dist/index.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "prebuild": "rm -rf .dist",
+    "prebuild": "rm -rf dist",
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
