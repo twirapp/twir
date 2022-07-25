@@ -4,9 +4,10 @@
   "type": "module",
   "module": "./dist/index.js",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "tsc -b tsconfig.json"
+    "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@nestjs/common": "^8.4.7",
