@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
-import { PrismaService, Channel } from '@tsuwari/prisma';
+import { PrismaService } from '@tsuwari/prisma';
 import { ClientProxy, RedisService } from '@tsuwari/shared';
 import * as Knex from 'knex';
 import { lastValueFrom } from 'rxjs';
@@ -70,6 +70,7 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
             permission: command.permission,
             cooldown: 0,
             cooldownType: 'GLOBAL',
+            module: command.module,
           },
         });
 

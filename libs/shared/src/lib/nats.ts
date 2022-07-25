@@ -1,5 +1,5 @@
 import { ClientProxy as CP } from '@nestjs/microservices';
-import { Command, CommandPermission, Response } from '@tsuwari/prisma';
+import { Command, CommandModule, CommandPermission, Response } from '@tsuwari/prisma';
 import { rawDataSymbol } from '@twurple/common';
 import { EventSubChannelUpdateEvent, EventSubUserUpdateEvent } from '@twurple/eventsub';
 import { Observable } from 'rxjs';
@@ -11,7 +11,7 @@ export interface ClientProxyCommands {
   },
   'bots.getDefaultCommands': {
     input: any,
-    result: Array<{ name: string, description?: string, visible: boolean, permission: CommandPermission }>
+    result: Array<{ name: string, description?: string, visible: boolean, permission: CommandPermission, module?: CommandModule }>
   },
   'bots.getVariables': {
     input: any,

@@ -11,6 +11,7 @@ export const permit: DefaultCommand = {
   name: 'permit',
   permission: 'MODERATOR',
   visible: false,
+  module: 'MODERATION',
   handler: async (state, params) => {
     if (!params || !state.channelId) return;
     const paramsArray = params.split(' ');

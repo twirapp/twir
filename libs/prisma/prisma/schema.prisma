@@ -21,7 +21,6 @@ model User {
   token         Token?         @relation(fields: [tokenId], references: [id])
   tokenId       String?        @unique
 
-
   isTester   Boolean @default(false)
   isBotAdmin Boolean @default(false)
 
@@ -30,6 +29,7 @@ model User {
   personalNotifications Notification[]
   viewedNotifications   ViewedNotification[]
   files                 File[]
+
   @@map("users")
 }
 
@@ -151,6 +151,7 @@ model Bot {
   tokenId String? @unique
 
   channels Channel[]
+
   @@map("bots")
 }
 
@@ -168,6 +169,13 @@ enum CooldownType {
   PER_USER
 }
 
+enum CommandModule {
+  CUSTOM
+  DOTA
+  CHANNEL
+  MODERATION
+}
+
 model Command {
   id String @id @default(dbgenerated("gen_random_uuid()"))
 
@@ -181,6 +189,7 @@ model Command {
   channelId    String
   permission   CommandPermission
   default      Boolean           @default(false)
+  module       CommandModule     @default(CUSTOM)
 
   channel   Channel        @relation(fields: [channelId], references: [id])
   responses Response[]
@@ -233,6 +242,7 @@ model Timer {
   lastTriggerMessageNumber Int @default(0)
 
   channel Channel @relation(fields: [channelId], references: [id])
+
   @@map("channels_timers")
 }
 
@@ -353,6 +363,7 @@ model Notification {
   user                User?                 @relation(fields: [userId], references: [id])
   messages            NotificationMessage[]
   viewedNotifications ViewedNotification[]
+
   @@map("notifications")
 }
 
@@ -370,6 +381,7 @@ model NotificationMessage {
   notificationId String
 
   Notification Notification @relation(fields: [notificationId], references: [id])
+
   @@map("notifications_messages")
 }
 
@@ -383,6 +395,7 @@ model ViewedNotification {
 
   notification Notification @relation(fields: [notificationId], references: [id])
   user         User         @relation(fields: [userId], references: [id])
+
   @@map("users_viewed_notifications")
 }
 
@@ -391,6 +404,7 @@ model DotaAccount {
   channelId String
 
   channel Channel @relation(fields: [channelId], references: [id])
+
   @@unique([id, channelId])
   @@index(id)
   @@map("channels_dota_accounts")
@@ -408,6 +422,7 @@ model DotaMode {
   name String
 
   matches DotaMatch[]
+
   @@map("dota_game_modes")
 }
 
@@ -437,6 +452,7 @@ model DotaMatch {
   playersCards                  DotaMatchProfileCard[]
 
   gameMode DotaMode @relation(fields: [gameModeId], references: [id])
+
   @@map("dota_matches")
 }
 
@@ -448,6 +464,7 @@ model DotaMatchResult {
   game_mode   Int
 
   match DotaMatch @relation(fields: [match_id], references: [match_id])
+
   @@map("dota_matches_results")
 }
 
@@ -459,6 +476,7 @@ model DotaMatchProfileCard {
   leaderboard_rank Int?
 
   match DotaMatch @relation(fields: [match_id], references: [id])
+
   @@unique([match_id, account_id])
   @@map("dota_matches_cards")
 }
@@ -471,5 +489,6 @@ model File {
   userId String?
 
   user User? @relation(fields: [userId], references: [id])
+
   @@map("users_files")
 }

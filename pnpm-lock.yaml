@@ -506,13 +506,13 @@ importers:
       nodemon: 2.0.16
       pg: ^8.7.3
       reflect-metadata: 0.1.13
-      rxjs: 7.5.5
+      rxjs: 7.5.6
       tslib: 2.4.0
       typescript: 4.7.4
     dependencies:
-      '@nestjs/common': 8.4.7_47vcjb2de6lyibr6g4enoa5lyu
-      '@nestjs/core': 8.4.7_uqox75xpi6vzmoesxch6gsx23q
-      '@nestjs/microservices': 8.4.7_w3ikimstnjmv7g7t6sjfprllce
+      '@nestjs/common': 8.4.7_j5hagqx4mwzscud4kyjdvubauy
+      '@nestjs/core': 8.4.7_6uygoibgw6f75wtvzcbnmx726q
+      '@nestjs/microservices': 8.4.7_dwjfxykcj5vxffoorkr2flzdg4
       '@nestjs/schedule': 2.0.1_zysgbzrbqurgi5bpxpfkrj3lie
       '@sentry/node': 7.2.0
       '@sentry/tracing': 7.2.0
@@ -525,7 +525,7 @@ importers:
       nats: 2.7.1
       pg: 8.7.3
       reflect-metadata: 0.1.13
-      rxjs: 7.5.5
+      rxjs: 7.5.6
       tslib: 2.4.0
     devDependencies:
       '@types/cron': 2.0.0
@@ -1813,8 +1813,8 @@ packages:
       '@nestjs/core': ^7.0.0 || ^8.0.0
       reflect-metadata: ^0.1.12
     dependencies:
-      '@nestjs/common': 8.4.7_47vcjb2de6lyibr6g4enoa5lyu
-      '@nestjs/core': 8.4.7_uqox75xpi6vzmoesxch6gsx23q
+      '@nestjs/common': 8.4.7_j5hagqx4mwzscud4kyjdvubauy
+      '@nestjs/core': 8.4.7_6uygoibgw6f75wtvzcbnmx726q
       cron: 2.0.0
       reflect-metadata: 0.1.13
       uuid: 8.3.2

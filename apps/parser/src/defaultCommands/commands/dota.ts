@@ -99,6 +99,7 @@ export const dota: DefaultCommand[] = [
     name: 'dota addacc',
     permission: 'BROADCASTER',
     visible: false,
+    module: 'DOTA',
     async handler(state, params?) {
       if (!params || !state.channelId) return;
 
@@ -126,6 +127,7 @@ export const dota: DefaultCommand[] = [
     name: 'dota delacc',
     permission: 'BROADCASTER',
     visible: false,
+    module: 'DOTA',
     async handler(state, params?) {
       if (!params || !state.channelId) return;
 
@@ -159,6 +161,7 @@ export const dota: DefaultCommand[] = [
     name: 'np',
     permission: 'VIEWER',
     visible: true,
+    module: 'DOTA',
     handler: async (state) => {
       if (!state.channelId) return;
 
@@ -180,6 +183,7 @@ export const dota: DefaultCommand[] = [
     name: 'wl',
     permission: 'VIEWER',
     visible: true,
+    module: 'DOTA',
     handler: async (state) => {
       if (!state.channelId) return;
 
@@ -331,6 +335,7 @@ export const dota: DefaultCommand[] = [
     name: 'dota listacc',
     permission: 'BROADCASTER',
     visible: false,
+    module: 'DOTA',
     async handler(state) {
       if (!state.channelId) return;
 
@@ -342,6 +347,7 @@ export const dota: DefaultCommand[] = [
     name: 'lg',
     permission: 'VIEWER',
     visible: false,
+    module: 'DOTA',
     async handler(state) {
       if (!state.channelId) return;
 
@@ -380,6 +386,7 @@ export const dota: DefaultCommand[] = [
     name: 'gm',
     permission: 'VIEWER',
     visible: false,
+    module: 'DOTA',
     async handler(state) {
       if (!state.channelId) return;
 

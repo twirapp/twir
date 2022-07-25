@@ -38,7 +38,7 @@ export class AppController {
 
     return of(Object.values(commands)
       .flat()
-      .map(c => ({ name: c.name, permission: c.permission, visible: c.visible ?? true, description: c.description })),
+      .map(c => ({ name: c.name, permission: c.permission, visible: c.visible ?? true, description: c.description, module: c.module })),
     );
   }
 
