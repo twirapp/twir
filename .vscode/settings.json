@@ -3,6 +3,9 @@
     "source.fixAll.eslint": true,
   },
   "editor.formatOnSave": true,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": true,
+  "editor.tabSize": 2,
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   },
