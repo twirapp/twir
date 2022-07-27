@@ -20,13 +20,13 @@ export class AuthService {
   constructor(private readonly prisma: PrismaService) { }
 
   async checkUser(tokens: AccessToken, userId: string, username?: string | null) {
-    const bot = await this.prisma.bot.findFirst({
+    const defaultBot = await this.prisma.bot.findFirst({
       where: {
         type: 'DEFAULT',
       },
     });
 
-    if (!bot) {
+    if (!defaultBot) {
       throw new Error('Bot not created, cannot create user.');
     }
 
@@ -46,13 +46,20 @@ export class AuthService {
       token: Token | null;
     }) | null = await this.prisma.user.findFirst({
       where: { id: userId },
-      include: { channel: true, token: true },
+      include: {
+        channel: {
+          include: {
+            bot: true,
+          },
+        },
+        token: true,
+      },
     });
 
     if (user) {
       if (!user.channel) {
         user.channel = await this.prisma.channel.create({
-          data: { id: user.id, botId: bot.id },
+          data: { id: user.id, botId: defaultBot.id },
         });
       }
 
@@ -75,7 +82,7 @@ export class AuthService {
       user = await this.prisma.user.create({
         data: {
           id: userId,
-          channel: { create: { botId: bot.id } },
+          channel: { create: { botId: defaultBot.id } },
           token: { create: tokenData },
         },
         include: {
@@ -89,7 +96,7 @@ export class AuthService {
       await this.nats.emit('bots.joinOrLeave', {
         action: user.channel?.isEnabled ? 'join' : 'part',
         username,
-        botId: bot.id,
+        botId: user.channel!.botId,
       }).toPromise();
     }
 
