@@ -48,7 +48,7 @@ export class ModerationParser {
         }
       }
     }));
-    console.log(result);
+
     return result;
   }
 
