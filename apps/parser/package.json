@@ -12,7 +12,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/lodash": "4.14.182",
-    "nodemon": "2.0.16"
+    "nodemon": "2.0.19"
   },
   "dependencies": {
     "@nestjs/common": "^8.4.7",
