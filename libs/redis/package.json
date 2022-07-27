@@ -1,8 +1,10 @@
 {
   "name": "@tsuwari/redis",
+  "private": true,
   "type": "module",
   "module": "./dist/index.js",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebuild": "rm -rf dist",
