@@ -10,7 +10,7 @@ export const commands: Module[] = [
     description: 'List of commands',
     handler: async (_, state) => {
       const commands = await helpers.getChannelCommands(state.channelId);
-      const filteredCommands = commands.filter(c => c.visible ?? true).map((c) => `!${c.name}`).join(', ') ?? '';
+      const filteredCommands = commands.filter(c => (c.visible ?? true) && c.enabled).map((c) => `!${c.name}`).join(', ') ?? '';
 
       return filteredCommands;
     },
