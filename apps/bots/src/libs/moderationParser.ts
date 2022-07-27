@@ -35,7 +35,7 @@ export class ModerationParser {
       const cachedSettings = await repository.fetch(redisKey);
 
       if (Object.keys(cachedSettings).length) {
-        result[key] = cachedSettings;
+        result[key] = cachedSettings.toRedisJson();
       } else {
         const entity = await prisma.moderationSettings.findFirst({ where: { channelId: channelId, type: key } });
         if (entity) {
