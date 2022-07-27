@@ -75,12 +75,12 @@ export class HelpersService implements OnModuleInit {
   }
 
   setCommandCooldown(command: CommandConditional, senderId: string) {
-    if (command.cooldown && command.cooldown <= 0) return;
+    if (!command.cooldown || command.cooldown === 0) return;
 
     if (command.cooldownType === 'GLOBAL') {
-      this.redis.set(`commands:cooldowns:${command.id}`, '', 'EX', command.cooldown!);
+      this.redis.set(`commands:cooldowns:${command.id}`, '', 'EX', command.cooldown);
     } else {
-      this.redis.set(`commands:cooldowns:${command.id}:${senderId}`, '', 'EX', command.cooldown!);
+      this.redis.set(`commands:cooldowns:${command.id}:${senderId}`, '', 'EX', command.cooldown);
     }
   }
 
