@@ -1,22 +1,21 @@
-import { ChannelIntegration, CustomVar, IntegrationService, PrismaService, UserStats } from '@tsuwari/prisma';
-import { CachedStream, RedisService, TwitchApiService } from '@tsuwari/shared';
+import { ChannelIntegration, IntegrationService, PrismaService } from '@tsuwari/prisma';
+import { RedisORMService, CustomVar, UsersStats, usersStatsSchema, customVarSchema, streamSchema, Stream } from '@tsuwari/redis';
+import { RedisService, TwitchApiService } from '@tsuwari/shared';
 import { getRawData } from '@twurple/common';
 
 import { USERS_STATUS_CACHE_TTL } from '../constants.js';
 import { FaceitIntegration } from '../integrations/faceit.js';
 
-export type StatsOfUser = { [key in keyof UserStats]: string } | null;
-
 export class ParserCache {
-  #stream: CachedStream | null;
-  #userStats: StatsOfUser | null;
+  #stream: ReturnType<typeof Stream.prototype.toRedisJson> | null;
+  #userStats: ReturnType<typeof UsersStats.prototype.toRedisJson>;
   #faceit: Awaited<ReturnType<typeof FaceitIntegration.prototype.fetchStats>> | null;
   #enabledIntegrations: (ChannelIntegration & {
     integration: {
       service: IntegrationService;
     };
   })[];
-  #customVars: CustomVar[] | null;
+  #customVars: ReturnType<typeof CustomVar.prototype.toRedisJson>[] | null;
 
   constructor(
     private readonly staticApi: TwitchApiService,
@@ -24,6 +23,7 @@ export class ParserCache {
     private readonly redis: RedisService,
     private readonly faceitIntegration: FaceitIntegration,
     private readonly broadcasterId: string,
+    private readonly redisOm: RedisORMService,
     private readonly senderId?: string,
   ) { }
 
@@ -49,11 +49,16 @@ export class ParserCache {
   async getCustomVars() {
     if (this.#customVars) return this.#customVars;
 
-    const keys = await this.redis.keys(`variables:${this.broadcasterId}:*`);
+    const repository = this.redisOm.fetchRepository(customVarSchema);
+    const redisVars = await repository.search()
+      .where('channelId').equals(this.broadcasterId)
+      .returnAll()
+      .then(data => {
+        return data.map(v => v.toRedisJson()).filter(v => Object.keys(v).length);
+      });
 
-    if (keys.length) {
-      const variables = await Promise.all(keys.map(k => this.redis.get(k)));
-      this.#customVars = variables.map(v => JSON.parse(v!) as CustomVar);
+    if (redisVars.length) {
+      this.#customVars = redisVars;
       return this.#customVars;
     }
 
@@ -64,7 +69,7 @@ export class ParserCache {
     });
 
     for (const variable of vars) {
-      this.redis.set(`variables:${this.broadcasterId}:${variable.name}`, JSON.stringify(variable));
+      repository.createAndSave(variable, `${this.broadcasterId}:${variable.name}`);
     }
 
     this.#customVars = vars;
@@ -75,16 +80,17 @@ export class ParserCache {
   async getStream() {
     if (this.#stream) return this.#stream;
 
-    const streamKey = `streams:${this.broadcasterId}`;
-    const cachedStream = await this.redis.get(streamKey);
-    if (cachedStream) {
-      this.#stream = JSON.parse(cachedStream) as CachedStream;
+    const repository = this.redisOm.fetchRepository(streamSchema);
+
+    const cachedStream = await repository.fetch(this.broadcasterId).then(s => s.toRedisJson());
+    if (Object.keys(cachedStream).length) {
+      this.#stream = cachedStream;
     } else {
       const stream = await this.staticApi.streams.getStreamByUserId(this.broadcasterId);
 
       if (stream) {
         this.#stream = getRawData(stream);
-        this.redis.set(streamKey, JSON.stringify(this.#stream));
+        repository.createAndSave(this.#stream, this.broadcasterId);
       } else {
         this.#stream = null;
       }
@@ -93,28 +99,37 @@ export class ParserCache {
     return this.#stream;
   }
 
-  async getUserStats(): Promise<StatsOfUser | null> {
+  async getUserStats() {
     if (this.#userStats) {
       return this.#userStats;
     }
+    const repository = this.redisOm.fetchRepository(usersStatsSchema);
 
-    const userKey = `usersStats:${this.broadcasterId}:${this.senderId}`;
-    const redisStats = await this.redis.hgetall(userKey);
+    const userKey = `${this.broadcasterId}:${this.senderId}`;
+    const redisStats = await repository.fetch(userKey).then(r => r.toRedisJson());
+
     if (!Object.keys(redisStats).length) {
-      this.#userStats = await this.prisma.userStats.findFirst({
+      const stats = await this.prisma.userStats.findFirst({
         where: {
           userId: this.senderId,
           channelId: this.broadcasterId,
         },
-      }) as unknown as StatsOfUser;
+      });
 
-      if (this.#userStats) {
-        this.redis.hmset(userKey, this.#userStats).then(() => {
-          this.redis.expire(userKey, USERS_STATUS_CACHE_TTL);
+      if (stats) {
+        repository.createAndSave({
+          ...stats,
+          watched: stats.watched.toString(),
+        }, userKey).then(() => {
+          repository.expire(userKey, USERS_STATUS_CACHE_TTL);
         });
+        this.#userStats = {
+          ...stats,
+          watched: stats.watched.toString(),
+        };
       }
     } else {
-      this.#userStats = redisStats as unknown as StatsOfUser;
+      this.#userStats = redisStats;
     }
 
     return this.#userStats;

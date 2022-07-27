@@ -1,15 +1,23 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '@tsuwari/prisma';
+import { Keyword, keywordsSchema, RedisORMService, Repository } from '@tsuwari/redis';
+import { RedisService } from '@tsuwari/shared';
 
-import { RedisService } from '../../redis.service.js';
 import { CreateKeywordDto } from './dto/create.js';
 
 @Injectable()
-export class KeywordsService {
+export class KeywordsService implements OnModuleInit {
+  #repository: Repository<Keyword>;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
+    private readonly redisOrm: RedisORMService,
   ) { }
+
+  onModuleInit() {
+    this.#repository = this.redisOrm.fetchRepository(keywordsSchema);
+  }
 
   async getList(channelId: string) {
     return this.prisma.keyword.findMany({
@@ -35,7 +43,7 @@ export class KeywordsService {
       },
     });
 
-    await this.redis.del(`keywords:${channelId}:${keyword.id}`);
+    await this.#repository.remove(`${channelId}:${keyword.id}`);
   }
 
   async create(channelId: string, data: CreateKeywordDto) {
@@ -57,7 +65,7 @@ export class KeywordsService {
       },
     });
 
-    await this.redis.hmset(`keywords:${channelId}:${keyword.id}`, keyword);
+    await this.#repository.createAndSave(keyword, `${channelId}:${keyword.id}`);
     return keyword;
   }
 
@@ -77,7 +85,7 @@ export class KeywordsService {
       data,
     });
 
-    await this.redis.hmset(`keywords:${channelId}:${keyword.id}`, keyword);
+    await this.#repository.createAndSave(keyword, `${channelId}:${keyword.id}`);
     return keyword;
   }
 }

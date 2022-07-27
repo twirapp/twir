@@ -1,23 +1,35 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '@tsuwari/prisma';
+import { Greetings, greetingsSchema, RedisORMService, Repository, Stream, streamSchema } from '@tsuwari/redis';
+import { RedisService } from '@tsuwari/shared';
 
-import { RedisService } from '../../redis.service.js';
 
 @Injectable()
-export class StreamsService {
-  constructor(private readonly redis: RedisService, private readonly prisma: PrismaService) { }
+export class StreamsService implements OnModuleInit {
+  #greetingsRepository: Repository<Greetings>;
+  #streamRepository: Repository<Stream>;
+
+  constructor(
+    private readonly redis: RedisService,
+    private readonly prisma: PrismaService,
+    private readonly redisOrm: RedisORMService,
+  ) { }
+
+  onModuleInit() {
+    this.#greetingsRepository = this.redisOrm.fetchRepository(greetingsSchema);
+    this.#streamRepository = this.redisOrm.fetchRepository(streamSchema);
+  }
 
   async #resetGreetings(channelId: string) {
-    const keys = await this.redis.keys(`greetings:${channelId}:*`);
+    const greetings = await this.#greetingsRepository.search()
+      .where('channelId').equal(channelId)
+      .returnAll();
 
-    for (const key of keys) {
-      const greeting = await this.redis.hgetall(key);
-      if (!Object.keys(greeting).length) continue;
-
-      await this.redis.hset(`greetings:${greeting.channelId}:${greeting.userId}`, {
+    for (const greeting of greetings.map(g => g.toRedisJson())) {
+      this.#greetingsRepository.createAndSave({
         ...greeting,
         processed: false,
-      });
+      }, `${greeting.channelId}:${greeting.userId}`);
     }
   }
 
@@ -26,8 +38,7 @@ export class StreamsService {
   }
 
   async getStream(channelId: string) {
-    const stream = await this.redis.get(`streams:${channelId}`);
-
-    return stream;
+    const s = await this.#streamRepository.fetch(channelId);
+    return s.toRedisJson();
   }
 }

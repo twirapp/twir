@@ -16,12 +16,6 @@ Sentry.init({
 
 export async function initHttp() {
   const app = await NestFactory.create(AppModule);
-  app.connectMicroservice({
-    transport: Transport.REDIS,
-    options: {
-      url: config.REDIS_URL,
-    },
-  });
   app.connectMicroservice<NatsOptions>({
     transport: Transport.NATS,
     options: {
@@ -47,3 +41,11 @@ export async function initHttp() {
 }
 
 initHttp();
+
+process
+  .on('uncaughtException', (e) => console.error(e))
+  .on('unhandledRejection', (e) => console.error(e))
+  .on('warning', (e) => {
+    if (e.message.includes('ExperimentalWarning')) return;
+    else console.error(e);
+  });

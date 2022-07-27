@@ -1,4 +1,5 @@
 import { config } from '@tsuwari/config';
+import { Client } from '@tsuwari/redis';
 import Redis from 'ioredis';
 import Redlock from 'redlock';
 
@@ -7,7 +8,7 @@ export const redis = new Redis(config.REDIS_URL);
 export const redlock = new Redlock(
   // You should have one client for each independent redis node
   // or cluster.
-  [redis],
+  [redis as any],
   {
     // The expected clock drift; for more details see:
     // http://redis.io/topics/distlock
@@ -47,3 +48,5 @@ export async function findOrSetString(key: string, data: string) {
 
   await redis.set(key, data);
 }
+
+export const redisOm = await new Client().open(config.REDIS_URL);

@@ -1,17 +1,24 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '@tsuwari/prisma';
+import { Greetings, greetingsSchema, RedisORMService, Repository } from '@tsuwari/redis';
+import { RedisService } from '@tsuwari/shared';
 
-import { RedisService } from '../../redis.service.js';
 import { staticApi } from '../../twitchApi.js';
 import { GreetingCreateDto } from './dto/create.js';
 
 @Injectable()
-export class GreetingsService {
+export class GreetingsService implements OnModuleInit {
+  #repository: Repository<Greetings>;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
+    private readonly redisOrm: RedisORMService,
   ) { }
+
+  onModuleInit() {
+    this.#repository = this.redisOrm.fetchRepository(greetingsSchema);
+  }
 
   async getList(userId: string) {
     const greetings = await this.prisma.greeting.findMany({
@@ -47,10 +54,10 @@ export class GreetingsService {
       },
     });
 
-    await this.redis.hset(`greetings:${greeting.channelId}:${greeting.userId}`, {
+    await this.#repository.createAndSave({
       ...greeting,
       processed: false,
-    });
+    }, `${greeting.channelId}:${greeting.userId}`);
 
     return {
       ...greeting,
@@ -83,10 +90,10 @@ export class GreetingsService {
       },
     });
 
-    await this.redis.hset(`greetings:${greeting.channelId}:${greeting.userId}`, {
+    await this.#repository.createAndSave({
       ...greeting,
       processed: false,
-    });
+    }, `${greeting.channelId}:${greeting.userId}`);
 
     return {
       ...greeting,
@@ -107,7 +114,7 @@ export class GreetingsService {
       },
     });
 
-    await this.redis.del(`greetings:${greeting.channelId}:${greeting.userId}`);
+    await this.#repository.remove(`${greeting.channelId}:${greeting.userId}`);
 
     return result;
   }

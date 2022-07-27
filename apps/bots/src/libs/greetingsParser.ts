@@ -1,18 +1,23 @@
-import { Greeting } from '@tsuwari/prisma';
+import { greetingsSchema } from '@tsuwari/redis';
 import type { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
 
-import { redis } from './redis.js';
+import { redisOm } from './redis.js';
 
-type GreetingConditional = Greeting & { processed: 'true' | 'false' };
 
 export class GreetingsParser {
+  #repository = redisOm.fetchRepository(greetingsSchema);
+
   async parse(state: TwitchPrivateMessage) {
-    const key = `greetings:${state.channelId}:${state.userInfo.userId}`;
-    const item = await redis.hgetall(key) as unknown as GreetingConditional;
+    const key = `${state.channelId}:${state.userInfo.userId}`;
+    const item = await this.#repository.fetch(key).then(i => i.toRedisJson());
 
-    if (!Object.keys(item).length || item.processed !== 'false' || !item.enabled) return;
+    if (!Object.keys(item).length || item.processed !== false || !item.enabled) return;
 
-    await redis.hset(key, 'processed', 'true');
+    await this.#repository.createAndSave({
+      ...item,
+      processed: true,
+    }, key);
+
     return item.text;
   }
 }

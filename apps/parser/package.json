@@ -23,6 +23,7 @@
     "@sentry/tracing": "^7.2.0",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
+    "@tsuwari/redis": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/spotify": "workspace:^1.0.0",
     "@twurple/api": "^5.1.6",

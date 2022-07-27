@@ -1,5 +1,6 @@
 import { Injectable, OnApplicationBootstrap, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '@tsuwari/prisma';
+import { RedisORMService } from '@tsuwari/redis';
 import { ClientProxyCommands, RedisService, TwitchApiService } from '@tsuwari/shared';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage.js';
 
@@ -20,6 +21,7 @@ export class AppService implements OnModuleInit {
     private readonly staticApi: TwitchApiService,
     private readonly faceitIntegration: FaceitIntegration,
     private readonly variablesParser: VariablesParser,
+    private readonly redisOm: RedisORMService,
   ) { }
 
   onModuleInit() {
@@ -35,15 +37,16 @@ export class AppService implements OnModuleInit {
   async getResponses(message: string, state: TwitchPrivateMessage) {
     if (!state.channelId) return;
 
-    const channelCommandsNames = await this.helpers.getChannelCommandsNamesFromRedis(state.channelId);
-    if (!channelCommandsNames || !channelCommandsNames.length) return;
+    const channelCommands = await this.helpers.getChannelCommands(state.channelId);
+    if (!channelCommands || !channelCommands.length) return;
 
-    const findCommand = this.helpers.findCommandInArrayOfNames(message, channelCommandsNames as string[]);
+    const findCommand = this.helpers.findCommandInArrayOfNames(
+      message,
+      channelCommands.map(c => [c.name, ...c.aliases]).flat(),
+    );
     if (!findCommand.isFound) return;
 
-    const command: CommandConditional = (await this.redis.hgetall(
-      `commands:${state.channelId}:${findCommand.commandName}`,
-    )) as unknown as CommandConditional;
+    const command = channelCommands.find(c => [c.name, ...c.aliases].includes(findCommand.commandName));
     if (!command || !command.enabled) return;
 
     const userPermissions = await this.helpers.getUserPermissions(state.userInfo, {
@@ -61,10 +64,8 @@ export class AppService implements OnModuleInit {
       const cmd = this.#defaultCommands.get(command.defaultName);
       if (cmd) {
         const result = await cmd.handler(state, findCommand.params);
-        command.responses = Array.isArray(result) ? result : [result];
+        command.responses = result ? Array.isArray(result) ? result : [result] : [];
       }
-    } else {
-      command.responses = JSON.parse(command.responses as unknown as string);
     }
 
     // const lock = await redlock.acquire([`locks:commandsParser:msg:${state.id}`], 1000);
@@ -99,7 +100,7 @@ export class AppService implements OnModuleInit {
         id: state.userId,
         name: state.userName,
       },
-      cache: new ParserCache(this.staticApi, this.prisma, this.redis, this.faceitIntegration, state.channelId, state.userId),
+      cache: new ParserCache(this.staticApi, this.prisma, this.redis, this.faceitIntegration, state.channelId, this.redisOm, state.userId),
     };
 
     const parsedResponses: string[] = [];

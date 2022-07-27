@@ -1,13 +1,16 @@
-import { redis } from '../libs/redis.js';
+import { Stream, streamSchema } from '@tsuwari/redis';
+
+import { redisOm } from '../libs/redis.js';
+
+const repository = redisOm.fetchRepository(streamSchema);
 
 export const increaseParsedMessages = async (channelId: string) => {
-  const stream = await redis.get(`streams:${channelId}`);
-
-  if (stream) {
-    const streamData = JSON.parse(stream);
-    await redis.set(`streams:${channelId}`, JSON.stringify({
-      ...streamData,
-      parsedMessages: (streamData.parsedMessages ?? 0) + 1,
-    }));
+  const stream = await repository.fetch(channelId);
+  const json = stream.toRedisJson();
+  if (Object.keys(json).length) {
+    await repository.createAndSave({
+      ...json as Stream,
+      parsedMessages: (json.parsedMessages ?? 0) + 1,
+    }, channelId);
   }
 };

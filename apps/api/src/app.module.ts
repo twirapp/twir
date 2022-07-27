@@ -1,8 +1,10 @@
-import { CacheModule, CacheModuleOptions, Module } from '@nestjs/common';
+import { CacheModule, CacheModuleOptions, Module, Scope } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { config } from '@tsuwari/config';
 import { PrismaModule } from '@tsuwari/prisma';
-import { TwitchApiService } from '@tsuwari/shared';
+import { RedisORMModule, RedisORMService } from '@tsuwari/redis';
+import { RedisModule, TwitchApiService } from '@tsuwari/shared';
 import cacheRedisStore from 'cache-manager-ioredis';
 import Redis from 'ioredis';
 
@@ -10,14 +12,12 @@ import { AdminModule } from './admin/admin.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
+import { ThrottlerGuard } from './guards/Throttle.guard.js';
 import { JwtAuthModule } from './jwt/jwt.module.js';
 import { BotsMicroserviceModule } from './microservices/bots/bots.module.js';
-import { RedisModule } from './redis.module.js';
-import { RedisService } from './redis.service.js';
 import { SocketModule } from './socket/socket.module.js';
 import { V1Module } from './v1/v1.module.js';
 import { VersionModule } from './version/version.module.js';
-
 
 const redis = new class extends Redis {
   constructor() {
@@ -38,6 +38,7 @@ const redis = new class extends Redis {
     }),
     PrismaModule,
     RedisModule,
+    RedisORMModule,
     BotsMicroserviceModule,
     AuthModule,
     ThrottlerModule.forRoot({
@@ -52,11 +53,15 @@ const redis = new class extends Redis {
   ],
   controllers: [AppController],
   providers: [
-    RedisModule,
-    RedisService,
     PrismaModule,
+    RedisORMService,
     AppService,
     TwitchApiService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+      scope: Scope.DEFAULT,
+    },
   ],
 })
 export class AppModule { }

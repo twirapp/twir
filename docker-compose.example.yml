@@ -68,7 +68,7 @@ services:
 
   redis:
     restart: unless-stopped
-    image: redis:latest
+    image: redis/redis-stack:latest
     volumes:
       - ./redis-data:/data
 

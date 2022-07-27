@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule, PrismaService } from '@tsuwari/prisma';
+import { PrismaModule } from '@tsuwari/prisma';
+import { RedisORMModule } from '@tsuwari/redis';
 
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
-import { RedisService } from './redis.service.js';
 
 
 @Module({
-  imports: [PrismaModule],
-  providers: [RedisService, PrismaService, AppService],
+  imports: [PrismaModule, RedisORMModule],
+  providers: [AppService],
   controllers: [AppController],
 })
 export class AppModule { }

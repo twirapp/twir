@@ -1,14 +1,22 @@
 import { Keyword } from '@tsuwari/prisma';
+import { keywordsSchema } from '@tsuwari/redis';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage.js';
 
-import { redis } from './redis.js';
+import { redis, redisOm } from './redis.js';
 
 export class KeywordsParser {
+  #repository = redisOm.fetchRepository(keywordsSchema);
+
   async parse(message: string, state: TwitchPrivateMessage) {
+    if (!state.channelId) return;
     const keywordsKeys = await redis.keys(`keywords:${state.channelId}:*`);
     if (!keywordsKeys?.length) return;
 
-    const keywords = await Promise.all(keywordsKeys.map(key => redis.hgetall(key))) as unknown as Keyword[];
+    const keywords = (await this.#repository.search()
+      .where('channelId').equals(state.channelId)
+      .returnAll())
+      .map(k => k.toRedisJson());
+
     const responses: string[] = [];
 
     message = message.toLowerCase();

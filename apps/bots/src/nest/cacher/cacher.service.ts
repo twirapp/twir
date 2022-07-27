@@ -1,10 +1,10 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
+import { RedisORMService, greetingsSchema, keywordsSchema, customVarSchema } from '@tsuwari/redis';
 import { ClientProxy } from '@tsuwari/shared';
 
 import { prisma } from '../../libs/prisma.js';
-import { redis } from '../../libs/redis.js';
 import { removeTimerFromQueue, addTimerToQueue } from '../../libs/timers.js';
 
 @Injectable()
@@ -12,6 +12,8 @@ export class CacherService implements OnModuleInit {
   @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
   nats: ClientProxy;
   private readonly logger = new Logger(CacherService.name);
+
+  constructor(private readonly redis: RedisORMService) { }
 
   async onModuleInit() {
     const channels = await prisma.channel.findMany({
@@ -21,13 +23,17 @@ export class CacherService implements OnModuleInit {
     });
 
     for (const channel of channels) {
-      this.logger.log(`Updating systems cache for ${channel.id}`);
-      this.updateCommandsCacheByChannelId(channel.id);
-      this.updateTimersCacheByChannelId(channel.id);
-      this.updateGreetingsCacheByChannelId(channel.id);
-      this.updateKeywordsCacheByChannelId(channel.id);
-      this.updateVariablesCacheByChannelId(channel.id);
+      this.updateChannel(channel.id);
     }
+  }
+
+  async updateChannel(channelId: string) {
+    this.logger.log(`Updating systems cache for ${channelId}`);
+    this.updateCommandsCacheByChannelId(channelId);
+    this.updateTimersCacheByChannelId(channelId);
+    this.updateGreetingsCacheByChannelId(channelId);
+    this.updateKeywordsCacheByChannelId(channelId);
+    this.updateVariablesCacheByChannelId(channelId);
   }
 
   async updateTimersCacheByChannelId(channelId: string) {
@@ -41,7 +47,7 @@ export class CacherService implements OnModuleInit {
       if (timer.enabled) {
         await addTimerToQueue(timer);
       } else {
-        await removeTimerFromQueue(timer);
+        removeTimerFromQueue(timer);
       }
     }
   }
@@ -68,8 +74,12 @@ export class CacherService implements OnModuleInit {
       },
     });
 
+    const repository = this.redis.fetchRepository(greetingsSchema);
     for (const greeting of greetings) {
-      await redis.hset(`greetings:${greeting.channelId}:${greeting.userId}`, greeting);
+      repository.createAndSave({
+        ...greeting,
+        processed: false,
+      }, `${greeting.channelId}:${greeting.userId}`);
     }
   }
 
@@ -80,8 +90,10 @@ export class CacherService implements OnModuleInit {
       },
     });
 
+    const repository = this.redis.fetchRepository(keywordsSchema);
+
     for (const keyword of keywords) {
-      await redis.hmset(`keywords:${channelId}:${keyword.id}`, keyword);
+      repository.createAndSave(keyword, `${channelId}:${keyword.id}`);
     }
   }
 
@@ -92,8 +104,10 @@ export class CacherService implements OnModuleInit {
       },
     });
 
+    const repository = this.redis.fetchRepository(customVarSchema);
+
     for (const variable of variables) {
-      await redis.set(`variables:${channelId}:${variable.name}`, JSON.stringify(variable));
+      repository.createAndSave(variable, `${channelId}:${variable.id}`);
     }
   }
 }

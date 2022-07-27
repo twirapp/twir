@@ -59,18 +59,6 @@ class BotsClass {
       this.cache.set(bot.id, instance);
     }
   }
-
-  async #updateGreetingsCacheByChannelid(channelId: string) {
-    const keys = await redis.keys(`greetings:${channelId}:*`);
-    const greetings = await Promise.all(keys.map(k => redis.hgetall(k))) as unknown as Greeting[];
-
-    for (const greeting of greetings) {
-      await redis.hset(`greetings:${greeting.channelId}:${greeting.userId}`, {
-        ...greeting,
-        processed: false,
-      });
-    }
-  }
 }
 
 export const Bots = new BotsClass();

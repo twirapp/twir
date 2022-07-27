@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '@tsuwari/prisma';
+import { RedisORMModule } from '@tsuwari/redis';
 import { RedisService, TwitchApiService } from '@tsuwari/shared';
 
 
@@ -15,8 +16,19 @@ import { ParserCache } from './variables/cache.js';
 import { VariablesParser } from './variables/index.js';
 
 @Module({
-  imports: [PrismaModule, NatsModule],
+  imports: [PrismaModule, NatsModule, RedisORMModule],
   controllers: [AppController],
-  providers: [RedisService, ParserCache, VariablesParser, LastFmIntegration, SpotifyIntegration, VkIntegration, FaceitIntegration, TwitchApiService, HelpersService, AppService],
+  providers: [
+    RedisService,
+    ParserCache,
+    VariablesParser,
+    LastFmIntegration,
+    SpotifyIntegration,
+    VkIntegration,
+    FaceitIntegration,
+    TwitchApiService,
+    HelpersService,
+    AppService,
+  ],
 })
 export class AppModule { }

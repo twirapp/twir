@@ -1,15 +1,17 @@
 import { Logger } from '@nestjs/common';
 import { config } from '@tsuwari/config';
 import { Timer } from '@tsuwari/prisma';
+import { streamSchema } from '@tsuwari/redis';
 import { Queue } from '@tsuwari/shared';
 
 import { Bots, staticApi } from '../bots.js';
 import { nestApp } from '../nest/index.js';
 import { ParserService } from '../nest/parser/parser.service.js';
 import { prisma } from './prisma.js';
-import { redis } from './redis.js';
+import { redis, redisOm } from './redis.js';
 
 const logger = new Logger('Timers');
+const repository = redisOm.fetchRepository(streamSchema);
 export const timersQueue = new Queue<Timer>(async function (taskId: string) {
   const timer = await prisma.timer.findFirst({
     where: {
@@ -24,12 +26,12 @@ export const timersQueue = new Queue<Timer>(async function (taskId: string) {
     return;
   }
 
-  const stream = await redis.get(`streams:${timer.channelId}`);
-  if (!stream) return;
+  const stream = await repository.fetch(timer.channelId).then(s => s.toRedisJson());
+  if (!Object.keys(stream).length) return;
 
-  const parsedStream = JSON.parse(stream);
+  stream.parsedMessages = stream.parsedMessages ?? 0;
 
-  if (timer.messageInterval > 0 && timer.lastTriggerMessageNumber - parsedStream.parsedMessages + timer.messageInterval > 0) {
+  if (timer.messageInterval > 0 && timer.lastTriggerMessageNumber - stream.parsedMessages + timer.messageInterval > 0) {
     return;
   }
 
@@ -72,7 +74,7 @@ export const timersQueue = new Queue<Timer>(async function (taskId: string) {
     },
     data: {
       last: ++timer.last % (timer.responses as string[]).length,
-      lastTriggerMessageNumber: parsedStream.parsedMessages as number,
+      lastTriggerMessageNumber: stream.parsedMessages as number,
     },
   });
 });

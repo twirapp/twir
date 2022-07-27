@@ -15,7 +15,7 @@ export class FeedbackController {
   }
 
   @Throttle(2, 60)
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   @Post()
   @UseGuards(JwtAuthGuard)
   postFeedBack(@Body() body: FeedBackPostDto, @Req() req: Express.Request) {

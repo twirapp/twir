@@ -1,6 +1,7 @@
 import { ID } from '@node-steam/id';
 import { config } from '@tsuwari/config';
 import { Prisma, PrismaService } from '@tsuwari/prisma';
+import { RedisORMService, streamSchema } from '@tsuwari/redis';
 import { ClientProxy, dotaHeroes, dotaMedals, gameModes, RedisService } from '@tsuwari/shared';
 import { HelixStreamData } from '@twurple/api/lib/index.js';
 import axios from 'axios';
@@ -12,6 +13,7 @@ import { DefaultCommand } from '../types.js';
 const prisma = app.get(PrismaService);
 const redis = app.get(RedisService);
 const nats = app.get('NATS').providers[0].useValue as ClientProxy;
+const redisOm = app.get(RedisORMService);
 
 const messages = Object.freeze({
   GAME_NOT_FOUND: 'Game not found.' as string,
@@ -187,20 +189,19 @@ export const dota: DefaultCommand[] = [
     handler: async (state) => {
       if (!state.channelId) return;
 
-      const stream = await redis.get(`streams:${state.channelId}`);
+      const stream = await redisOm.fetchRepository(streamSchema).fetch(state.channelId).then(s => s.toRedisJson());
 
-      if (!stream) {
+      if (!Object.keys(stream).length) {
         return 'Stream is offline';
       }
 
-      const parsedStream = JSON.parse(stream) as HelixStreamData;
       const accounts = await getAccounts(state.channelId);
       if (typeof accounts === 'string') return accounts;
 
       const games = await prisma.dotaMatch.findMany({
         where: {
           startedAt: {
-            gte: new Date(new Date(parsedStream.started_at).getTime() - 10 * 60 * 1000),
+            gte: new Date(new Date(stream.started_at).getTime() - 10 * 60 * 1000),
           },
           players: {
             hasSome: accounts.map(a => Number(a.id)),

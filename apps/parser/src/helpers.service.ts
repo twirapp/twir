@@ -1,56 +1,32 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Command, CommandPermission, PrismaService } from '@tsuwari/prisma';
+import { RedisORMService, Repository, Command as CommandCacheClass, commandSchema } from '@tsuwari/redis';
 import { RedisService, TwitchApiService } from '@tsuwari/shared';
 import { ChatUser } from '@twurple/chat';
 
 export type CommandConditional = Command & { responses: (string | undefined)[] | undefined };
 
 @Injectable()
-export class HelpersService {
+export class HelpersService implements OnModuleInit {
+  #commandsRepository: Repository<CommandCacheClass>;
+
   constructor(
     private readonly redis: RedisService,
     private readonly prisma: PrismaService,
     private readonly twitchApi: TwitchApiService,
+    private readonly redisOrm: RedisORMService,
   ) { }
 
-  async getChannelCommandsNamesFromRedis(channelId: string) {
-    const channelCommandsKeys = await this.redis.keys(`commands:${channelId}:*`);
-
-    if (!channelCommandsKeys.length) return;
-
-    const channelCommandsNames = channelCommandsKeys.map((c) => c.split(':')[2]) as string[];
-    if (!channelCommandsNames || !channelCommandsNames.length) return;
-
-    return channelCommandsNames;
+  onModuleInit() {
+    this.#commandsRepository = this.redisOrm.fetchRepository(commandSchema);
   }
 
-  async getChannelCommandsByNamesFromRedis(channelId: string, names: string[]) {
-    const result: CommandConditional[] = [];
+  async getChannelCommands(channelId: string) {
+    const cmds = await this.#commandsRepository.search()
+      .where('channelId').equals(channelId)
+      .returnAll();
 
-    for (const name of names) {
-      const command: CommandConditional = await this.redis.hgetall(
-        `commands:${channelId}:${name}`,
-      )
-        .then(c => Object.entries(c).map(e => {
-          const result = [e[0]] as any;
-
-          try {
-            result[1] = JSON.parse(e[1]);
-          } catch {
-            result[1] = e[1];
-          }
-
-          return result;
-        }))
-        .then(c => Object.fromEntries(c)) as unknown as CommandConditional;
-
-      if (!Object.keys(command).length) continue;
-      if (Array.isArray(command.aliases) && command.aliases.includes(name)) continue;
-
-      result.push(command);
-    }
-
-    return result;
+    return cmds.map(c => c.toRedisJson());
   }
 
   async getUserPermissions(userInfo: ChatUser,

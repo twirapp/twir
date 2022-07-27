@@ -1,5 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { IntegrationService, PrismaService } from '@tsuwari/prisma';
+import { PrismaService } from '@tsuwari/prisma';
 import { UserIntegration } from '@tsuwari/spotify';
 
 import { UpdateSpotifyIntegrationDto } from './dto/patch.js';

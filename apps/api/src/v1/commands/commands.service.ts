@@ -1,23 +1,28 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { Command, PrismaService, Response } from '@tsuwari/prisma';
-import { ClientProxy } from '@tsuwari/shared';
-import { lastValueFrom } from 'rxjs';
+import { RedisORMService, Repository, Command as CommandCacheClass, commandSchema } from '@tsuwari/redis';
+import { ClientProxy, RedisService } from '@tsuwari/shared';
 
-import { RedisService } from '../../redis.service.js';
 import { UpdateOrCreateCommandDto } from './dto/create.js';
 
 @Injectable()
-export class CommandsService {
+export class CommandsService implements OnModuleInit {
   @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
   nats: ClientProxy;
+  #commandsRepository: Repository<CommandCacheClass>;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
+    private readonly redisOrm: RedisORMService,
   ) { }
 
+  async onModuleInit() {
+    await this.redisOrm.open(config.REDIS_URL);
+    this.#commandsRepository = this.redisOrm.fetchRepository(commandSchema);
+  }
 
   async getList(userId: string) {
     await this.nats.send('bots.createDefaultCommands', [userId]).toPromise();
@@ -35,31 +40,31 @@ export class CommandsService {
   }
 
   async setCommandCache(command: Command & { responses?: Response[] }, oldCommand?: Command & { responses?: Response[] }) {
-    const preKey = `commands:${command.channelId}`;
 
     if (oldCommand) {
-      await this.redis.del(`commands:${oldCommand.channelId}:${oldCommand.name}`);
+      await this.#commandsRepository.remove(`${oldCommand.channelId}:${oldCommand.name}`);
 
       if (oldCommand.aliases && Array.isArray(command.aliases)) {
         for (const alias of command.aliases) {
-          await this.redis.del(`${preKey}:${alias}`);
+          await this.#commandsRepository.remove(`${oldCommand.channelId}:${alias}`);
         }
       }
     }
 
     const commandForSet = {
       ...command,
-      responses: command.responses ? JSON.stringify(command.responses.map(r => r.text)) : [],
-      aliases: Array.isArray(command.aliases) ? JSON.stringify(command.aliases) : command.aliases,
+      responses: command.responses ? command.responses.filter(r => r.text).map(r => r.text!) : [] as string[],
+      aliases: command.aliases as string[],
+      defaultName: command.defaultName ?? null,
     };
 
-    await this.redis.hmset(`${preKey}:${command.name}`, commandForSet);
+    await this.#commandsRepository.createAndSave(commandForSet, `${command.channelId}:${command.name}`);
 
-    if (command.aliases && Array.isArray(command.aliases)) {
+    /* if (command.aliases && Array.isArray(command.aliases)) {
       for (const alias of command.aliases) {
-        await this.redis.hmset(`${preKey}:${alias}`, commandForSet);
+        await this.#commandsRepository.createAndSave(commandForSet, `${command.channelId}:${alias}`);
       }
-    }
+    } */
 
   }
 

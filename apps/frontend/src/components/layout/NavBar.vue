@@ -41,23 +41,7 @@ useIntervalFn(() => {
           <CmdMenu />
 
           <ul
-            class="absolute
-            bg-[#202020]
-            bg-clip-padding
-            border-none
-            dropdown-menu
-            float-left
-            hidden
-            list-none
-            max-h-[85vh]
-            overflow-y-auto
-            px-1
-            py-2
-            rounded
-            space-y-0.5
-            text-left
-            w-full
-            z-1"
+            class="absolute bg-[#202020] bg-clip-padding border-none dropdown-menu float-left hidden list-none max-h-[85vh] overflow-y-auto px-1 py-2 rounded space-y-0.5 text-left w-full z-1"
             aria-labelledby="sidebarDropdown"
           >
             <li
@@ -81,7 +65,7 @@ useIntervalFn(() => {
           </ul>
         </div>
         <div
-          v-if="stream"
+          v-if="stream && Object.keys(stream).length"
           class="flex space-x-2"
         >
           <p>Viewers: <span class="font-bold">{{ stream.viewer_count }}</span></p>

@@ -1,22 +1,28 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { PrismaService } from '@tsuwari/prisma';
-import { ClientProxy } from '@tsuwari/shared';
+import { CustomVar, customVarSchema, RedisORMService, Repository } from '@tsuwari/redis';
+import { ClientProxy, RedisService } from '@tsuwari/shared';
 
 
-import { RedisService } from '../../redis.service.js';
 import { CreateVariableDto } from './dto/create.js';
 
 @Injectable()
-export class VariablesService {
+export class VariablesService implements OnModuleInit {
   @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
   nats: ClientProxy;
+  #repository: Repository<CustomVar>;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
+    private readonly redisOrm: RedisORMService,
   ) { }
+
+  onModuleInit() {
+    this.#repository = this.redisOrm.fetchRepository(customVarSchema);
+  }
 
   async getBuildInVariables() {
     const list = await this.nats.send('bots.getVariables', {}).toPromise();
@@ -45,7 +51,7 @@ export class VariablesService {
       },
     });
 
-    await this.redis.set(`variables:${channelId}:${variable.name}`, JSON.stringify(variable));
+    await this.#repository.createAndSave(variable, `${channelId}:${variable.name}`);
 
     return variable;
   }
@@ -64,7 +70,7 @@ export class VariablesService {
       where: { id: variableId },
     });
 
-    await this.redis.del(`variables:${channelId}:${variable.name}`);
+    await this.#repository.remove(`${channelId}:${variable.name}`);
 
     return variable;
   }
@@ -86,7 +92,7 @@ export class VariablesService {
       data,
     });
 
-    await this.redis.set(`variables:${channelId}:${variable.name}`, JSON.stringify(newVariable));
+    await this.#repository.createAndSave(newVariable, `${channelId}:${variable.name}`);
 
     return newVariable;
   }

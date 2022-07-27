@@ -1,7 +1,7 @@
 import { resolve } from 'path';
 
 import dotenv from 'dotenv';
-import { cleanEnv, str, bool } from 'envalid';
+import { cleanEnv, str, bool, num } from 'envalid';
 
 try {
   dotenv.config({ path: resolve(process.cwd(), '.env') });
@@ -17,7 +17,7 @@ export const config = cleanEnv(process.env, {
   JWT_EXPIRES_IN: str({ default: '5m' }),
   JWT_ACCESS_SECRET: str({ default: 'CoolSecretForAccess' }),
   JWT_REFRESH_SECRET: str({ default: 'CoolSecretForRefresh' }),
-  REDIS_URL: str({ default: 'redis://:576294Aa@localhost:6379/0' }),
+  REDIS_URL: str({ default: 'redis://localhost:6379/0' }),
   SAY_IN_CHAT: bool({ default: true }),
   NATS_URL: str({ default: 'nats://localhost:4222' }),
   HOSTNAME: str({ default: '' }),
