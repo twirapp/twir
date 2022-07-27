@@ -18,6 +18,7 @@ COPY node_modules node_modules
 
 COPY apps/scheduler apps/scheduler
 COPY libs/prisma libs/prisma
+COPY libs/redis libs/redis
 COPY libs/config/ libs/config
 COPY libs/shared/ libs/shared
 

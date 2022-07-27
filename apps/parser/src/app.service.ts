@@ -44,9 +44,11 @@ export class AppService implements OnModuleInit {
       message,
       channelCommands.map(c => [c.name, ...c.aliases]).flat(),
     );
+    console.log(channelCommands, channelCommands.map(c => [c.name, ...c.aliases]).flat(), findCommand);
     if (!findCommand.isFound) return;
 
     const command = channelCommands.find(c => [c.name, ...c.aliases].includes(findCommand.commandName));
+    console.log(command);
     if (!command || !command.enabled) return;
 
     const userPermissions = await this.helpers.getUserPermissions(state.userInfo, {
@@ -64,6 +66,7 @@ export class AppService implements OnModuleInit {
       const cmd = this.#defaultCommands.get(command.defaultName);
       if (cmd) {
         const result = await cmd.handler(state, findCommand.params);
+        console.log(cmd, result);
         command.responses = result ? Array.isArray(result) ? result : [result] : [];
       }
     }

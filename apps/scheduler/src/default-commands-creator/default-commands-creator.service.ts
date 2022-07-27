@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
 import { PrismaService } from '@tsuwari/prisma';
+import { commandSchema, RedisORMModule, RedisORMService } from '@tsuwari/redis';
 import { ClientProxy, RedisService } from '@tsuwari/shared';
 import * as Knex from 'knex';
 import { lastValueFrom } from 'rxjs';
@@ -15,6 +16,7 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
     private readonly prisma: PrismaService,
     @Inject('NATS') private nats: ClientProxy,
     private readonly redis: RedisService,
+    private readonly redisOrm: RedisORMService,
   ) { }
 
   async onModuleInit() {
@@ -30,6 +32,7 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
   async createDefaultCommands(usersIds?: string[]) {
     const defaultCommands = await lastValueFrom(this.nats.send('bots.getDefaultCommands', {}));
     const defaultCommandsNames = defaultCommands.map(c => c.name);
+    const repository = this.redisOrm.fetchRepository(commandSchema);
 
     const channels: Array<{
       id: string,
@@ -76,11 +79,12 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
 
         const commandForSet = {
           ...newCommand,
-          responses: JSON.stringify([]),
-          aliases: JSON.stringify([]),
+          responses: [],
+          aliases: [],
         };
 
-        await this.redis.hmset(`commands:${channel.id}:${command.name}`, commandForSet);
+
+        await repository.createAndSave(commandForSet, `${channel.id}:${command.name}`);
       }
     }
 

@@ -23,7 +23,7 @@ export class HelpersService implements OnModuleInit {
 
   async getChannelCommands(channelId: string) {
     const cmds = await this.#commandsRepository.search()
-      .where('channelId').equals(channelId)
+      .where('channelId').eq(channelId)
       .returnAll();
 
     return cmds.map(c => c.toRedisJson());
