@@ -56,7 +56,14 @@ export class AppController {
   @MessagePattern('parseChatMessage')
   async parseChatMessage(@Payload() data: ClientProxyCommands['parseChatMessage']['input']) {
     const state = parseTwitchMessage(data) as TwitchPrivateMessage;
-    const message = state.content.value;
+    let message = state.content.value;
+
+    const replyTo = state.tags.get('reply-parent-display-name');
+
+    if (replyTo) {
+      message = message.replace(`@${replyTo}`, '').trim();
+    }
+
     this.logger.log(`${state.channelId} | ${state.userInfo.userName}: ${message}`);
     if (!message.startsWith('!') || !state.channelId) return;
 

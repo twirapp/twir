@@ -98,6 +98,11 @@ export class Bot extends ChatClient {
       const perfStart = performance.now();
       messagesCounter.inc();
 
+      const replyTo = state.tags.get('reply-parent-display-name');
+      if (replyTo) {
+        message = message.replace(`@${replyTo}`, '').trim();
+      }
+
       this.#logger.log(`IN ${pc.green(channel)} | ${pc.magenta(`${user}#${state.userInfo.userId}`)}: ${pc.white(message)}`);
       const isBotModRequest = await redis.get(`isBotMod:${channel.substring(1)}`);
       const isBotMod = isBotModRequest === 'true';
