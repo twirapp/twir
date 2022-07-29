@@ -1,9 +1,14 @@
 kind: pipeline
 type: docker
 name: default
+
 platform:
   os: linux
   arch: arm64
+
+trigger:
+  branch:
+  - main
 
 steps:
 - name: greeting
