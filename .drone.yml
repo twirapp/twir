@@ -6,15 +6,16 @@ platform:
   os: linux
   arch: arm64
 
-trigger:
-  branch:
-  - main
+# trigger:
+#   branch:
+#   - main
 
 steps:
 - name: Install Deps and Build the all apps.
   image: node:18-slim
   commands:
-  - apt install curl wget git -y
+  - apt-get update
+  - apt-get install curl wget git -y
   - npm i -g pnpm@7.5.0
   - pnpm install
   - pnpm build:backend
