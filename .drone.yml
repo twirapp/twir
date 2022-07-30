@@ -26,51 +26,51 @@ trigger:
     - main
 
 steps:
-- name: restore-cache
-  image: drillster/drone-volume-cache
-  volumes:
-    - name: cache
-      path: /cache
-  settings:
-    restore: true
-    mount:
-      - ./node_modules
+  - name: restore-cache
+    image: drillster/drone-volume-cache
+    volumes:
+      - name: cache
+        path: /cache
+    settings:
+      restore: true
+      mount:
+        - ./node_modules
 
-- name: build
-  image: node:18-slim
-  commands: 
-    - apt-get update
-    - apt-get install curl wget git -y
-    - npm i -g pnpm@7.5.0
-    - pnpm install
-    - pnpm build:backend
-  depends_on:
-    - restore-cache
+  - name: build
+    image: node:18-slim
+    commands: 
+      - apt-get update
+      - apt-get install curl wget git -y
+      - npm i -g pnpm@7.5.0
+      - pnpm install
+      - pnpm build:backend
+    depends_on:
+      - restore-cache
 
-- name: rebuild-cache
-  image: drillster/drone-volume-cache
-  volumes:
-    - name: cache
-      path: /cache
-  settings:
-    rebuild: true
-    mount:
-      - ./node_modules
-  depends_on:
-    - build
+  - name: rebuild-cache
+    image: drillster/drone-volume-cache
+    volumes:
+      - name: cache
+        path: /cache
+    settings:
+      rebuild: true
+      mount:
+        - ./node_modules
+    depends_on:
+      - build
 
-- name: publish-api
-  <<: *docker
-  settings:
-    <<: *docker-settings
-    repo: registry.tsuwari.tk/satont/drone-test-api
-    dockerfile: ./apps/api/Dockerfile
-  when:
-    paths:
-    - apps/api
-    - package.json
-    - pnpm-lock.yaml
-    - libs/**/*
+  - name: publish-api
+    <<: *docker
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/satont/drone-test-api
+      dockerfile: ./apps/api/Dockerfile
+    when:
+      paths:
+      - apps/api
+      - package.json
+      - pnpm-lock.yaml
+      - libs/**/*
 
 # - name: publish-bots
 #   <<: *docker
