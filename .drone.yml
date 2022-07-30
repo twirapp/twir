@@ -9,6 +9,9 @@ platform:
 trigger:
   branch:
     - droneio
+    - main
+
+steps:
 
 - name: restore-cache
   image: drillster/drone-volume-cache
@@ -20,7 +23,6 @@ trigger:
     mount:
       - ./node_modules
 
-steps:
 - name: Install Deps and Build the all apps.
   image: node:18-slim
   commands:
