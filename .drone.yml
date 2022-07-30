@@ -65,10 +65,6 @@ steps:
       <<: *docker-settings
       repo: registry.tsuwari.tk/satont/drone-test-api
       dockerfile: ./apps/api/Dockerfile
-    when:
-      paths:
-        include:
-        - "*.yml"
 
   - name: publish-bots
     <<: *docker
