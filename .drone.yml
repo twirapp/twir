@@ -12,10 +12,6 @@ docker-settings: &docker-settings
     from_secret: docker_password
   tags: latest
 
-when-paths: &when-paths
-  - package.json
-  - pnpm-lock.yaml
-
 kind: pipeline
 type: docker
 name: default
@@ -72,8 +68,9 @@ steps:
     when:
       paths:
         include:
-        <<: *when-paths
-        - apps/api/**/*
+          - package.json
+          - pnpm-lock.yaml
+          - apps/api/**/*
 
   - name: publish-bots
     <<: *docker
@@ -84,8 +81,9 @@ steps:
     when:
       paths:
         include:
-        <<: *when-paths
-        - apps/bots/**/*
+          - package.json
+          - pnpm-lock.yamls
+          - apps/bots/**/*
 
   - name: publish-dota
     <<: *docker
@@ -96,8 +94,9 @@ steps:
     when:
       paths:
         include:
-        <<: *when-paths
-        - apps/dota/**/*
+          - package.json
+          - pnpm-lock.yaml
+          - apps/dota/**/*
 
   - name: publish-eventsub
     <<: *docker
@@ -108,8 +107,9 @@ steps:
     when:
       paths:
         include:
-        <<: *when-paths
-        - apps/eventsub/**/*
+          - package.json
+          - pnpm-lock.yaml
+          - apps/eventsub/**/*
 
   - name: publish-migrations
     <<: *docker
@@ -120,8 +120,9 @@ steps:
     when:
       paths:
         include:
-        <<: *when-paths
-        - libs/prisma/**/*
+          - package.json
+          - pnpm-lock.yaml
+          - libs/prisma/**/*
 
   - name: publish-parser
     <<: *docker
@@ -132,8 +133,9 @@ steps:
     when:
       paths:
         include:
-        <<: *when-paths
-        - apps/parser/**/*
+          - package.json
+          - pnpm-lock.yaml
+          - apps/parser/**/*
 
   - name: publish-scheduler
     <<: *docker
@@ -144,8 +146,9 @@ steps:
     when:
       paths:
         include:
-        <<: *when-paths
-        - apps/scheduler/**/*
+          - package.json
+          - pnpm-lock.yaml
+          - apps/scheduler/**/*
 
   - name: publish-streamstatus
     <<: *docker
@@ -156,8 +159,9 @@ steps:
     when:
       paths:
         include:
-        <<: *when-paths
-        - apps/streamstatus/**/*
+          - package.json
+          - pnpm-lock.yaml
+          - apps/streamstatus/**/*
 
 volumes:
   - name: cache
