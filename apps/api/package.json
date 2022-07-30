@@ -9,9 +9,6 @@
     "dev": "nodemon",
     "start": "node --enable-source-maps dist/index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@nestjs-hybrid-auth/twitch": "^1.0.0",
     "@nestjs/common": "^9.0.5",
