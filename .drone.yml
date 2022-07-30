@@ -11,8 +11,9 @@ trigger:
   - main
 
 steps:
-- name: greeting
-  image: alpine
+- name: Install Deps and Build the all apps.
+  image: node:18-slim
   commands:
-  - echo hello
-  - echo world
+  - npm i -g pnpm@7.5.0
+  - pnpm install
+  - pnpm build
