@@ -23,13 +23,16 @@ steps:
     mount:
       - ./node_modules
 
-- name: Install Deps and Build the all apps.
+- name: deps
+  image: node:18-slim
+  commands: 
+    - apt-get update
+    - apt-get install curl wget git -y
+    - npm i -g pnpm@7.5.0
+
+- name: build
   image: node:18-slim
   commands:
-  - apt-get update
-  - apt-get install curl wget git -y
-  - npm i -g pnpm@7.5.0
-  - pnpm install
   - pnpm build:backend
 
 - name: rebuild-cache
@@ -42,7 +45,7 @@ steps:
     mount:
       - ./node_modules
 
-- name: publish to docker  
+- name: publish-api
   image: plugins/docker
   settings:
     registry: 
@@ -54,6 +57,23 @@ steps:
     repo: registry.tsuwari.tk/satont/drone-test-api
     tags: latest
     dockerfile: ./apps/api/Dockerfile
+  depends_on:
+    - build
+
+- name: publish-bots
+  image: plugins/docker
+  settings:
+    registry: 
+      from_secret: docker_hub
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    repo: registry.tsuwari.tk/satont/drone-test-bots
+    tags: latest
+    dockerfile: ./apps/bots/Dockerfile
+  depends_on:
+    - build
 
 volumes:
   - name: cache
