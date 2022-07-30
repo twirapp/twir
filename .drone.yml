@@ -66,9 +66,9 @@ steps:
       repo: registry.tsuwari.tk/satont/drone-test-api
       dockerfile: ./apps/api/Dockerfile
     when:
-    paths:
-      include:
-      - README.md
+      paths:
+        include:
+        - README.md
 
   # - name: publish-bots
   #   <<: *docker
