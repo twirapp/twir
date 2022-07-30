@@ -19,3 +19,15 @@ steps:
   - npm i -g pnpm@7.5.0
   - pnpm install
   - pnpm build:backend
+
+- name: publish to docker  
+  image: plugins/docker
+  settings:
+    registry:
+      from_secret: DOCKERHUB_URL
+    username:
+      from_secret: DOCKERHUB_USERNAME
+    password:
+      from_secret: DOCKERHUB_PASSWORD
+    repo: satont/drone-test-api
+    tags: latest
