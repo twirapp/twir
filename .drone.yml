@@ -45,11 +45,12 @@ steps:
 - name: publish to docker  
   image: plugins/docker
   settings:
-    registry: registry.tsuwari.tk
-    username: 
-      from_secret: dockerhub_username
-    password: 
-      from_secret: dockerhub_password
+    registry: 
+      - from_secret: docker_hub
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
     repo: satont/drone-test-api
     tags: latest
     dockerfile: ./apps/api/Dockerfile
