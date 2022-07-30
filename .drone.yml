@@ -1,3 +1,17 @@
+docker: &docker
+  image: plugins/docker
+  depends_on:
+    - build
+
+docker-settings: &docker-settings
+  registry: 
+    from_secret: docker_hub
+  username:
+    from_secret: docker_username
+  password:
+    from_secret: docker_password
+  tags: latest
+
 kind: pipeline
 type: docker
 name: default
@@ -12,7 +26,6 @@ trigger:
     - main
 
 steps:
-
 - name: restore-cache
   image: drillster/drone-volume-cache
   volumes:
@@ -47,124 +60,60 @@ steps:
     - build
 
 - name: publish-api
-  image: plugins/docker
+  <<: *docker
   settings:
-    registry: 
-      from_secret: docker_hub
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
+    <<: *docker-settings
     repo: registry.tsuwari.tk/satont/drone-test-api
-    tags: latest
     dockerfile: ./apps/api/Dockerfile
-  depends_on:
-    - build
 
 - name: publish-bots
-  image: plugins/docker
+  <<: *docker
   settings:
-    registry: 
-      from_secret: docker_hub
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
+    <<: *docker-settings
     repo: registry.tsuwari.tk/satont/drone-test-bots
-    tags: latest
     dockerfile: ./apps/bots/Dockerfile
-  depends_on:
-    - build
 
 - name: publish-dota
-  image: plugins/docker
+  <<: *docker
   settings:
-    registry: 
-      from_secret: docker_hub
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
+    <<: *docker-settings
     repo: registry.tsuwari.tk/satont/drone-test-dota
-    tags: latest
     dockerfile: ./apps/dota/Dockerfile
-  depends_on:
-    - build
 
 - name: publish-eventsub
-  image: plugins/docker
+  <<: *docker
   settings:
-    registry: 
-      from_secret: docker_hub
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
+    <<: *docker-settings
     repo: registry.tsuwari.tk/satont/drone-test-eventsub
-    tags: latest
     dockerfile: ./apps/eventsub/Dockerfile
-  depends_on:
-    - build
 
 - name: publish-migrations
-  image: plugins/docker
+  <<: *docker
   settings:
-    registry: 
-      from_secret: docker_hub
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
+    <<: *docker-settings
     repo: registry.tsuwari.tk/satont/drone-test-migrations
-    tags: latest
     dockerfile: ./libs/prisma/Dockerfile
-  depends_on:
-    - build
 
 - name: publish-parser
-  image: plugins/docker
+  <<: *docker
   settings:
-    registry: 
-      from_secret: docker_hub
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
+    <<: *docker-settings
     repo: registry.tsuwari.tk/satont/drone-test-parser
-    tags: latest
     dockerfile: ./apps/parser/Dockerfile
-  depends_on:
-    - build
 
 - name: publish-scheduler
-  image: plugins/docker
+  <<: *docker
   settings:
-    registry: 
-      from_secret: docker_hub
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
+    <<: *docker-settings
     repo: registry.tsuwari.tk/satont/drone-test-scheduler
-    tags: latest
     dockerfile: ./apps/scheduler/Dockerfile
-  depends_on:
-    - build
 
 - name: publish-streamstatus
-  image: plugins/docker
+  <<: *docker
   settings:
-    registry: 
-      from_secret: docker_hub
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
+    <<: *docker-settings
     repo: registry.tsuwari.tk/satont/drone-test-streamstatus
-    tags: latest
     dockerfile: ./apps/streamstatus/Dockerfile
-  depends_on:
-    - build
 
 volumes:
   - name: cache
