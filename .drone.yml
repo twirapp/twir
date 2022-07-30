@@ -67,10 +67,11 @@ steps:
       dockerfile: ./apps/api/Dockerfile
     when:
       paths:
-      - apps/api
-      - package.json
-      - pnpm-lock.yaml
-      - libs/**/*
+        include:
+          - apps/api
+          - package.json
+          - pnpm-lock.yaml
+          - libs/**/*
 
 # - name: publish-bots
 #   <<: *docker
