@@ -72,8 +72,8 @@ steps:
           - pnpm-lock.yaml
           - apps/api/**/*
 
-  - name: publish-bots
-    <<: *docker
+  - <<: *docker
+    name: publish-bots
     settings:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/bots
@@ -85,8 +85,8 @@ steps:
           - pnpm-lock.yamls
           - apps/bots/**/*
 
-  - name: publish-dota
-    <<: *docker
+   - <<: *docker
+    name: publish-dota
     settings:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/dota
@@ -98,8 +98,8 @@ steps:
           - pnpm-lock.yaml
           - apps/dota/**/*
 
-  - name: publish-eventsub
-    <<: *docker
+  - <<: *docker
+    name: publish-eventsub
     settings:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/eventsub
@@ -111,8 +111,8 @@ steps:
           - pnpm-lock.yaml
           - apps/eventsub/**/*
 
-  - name: publish-migrations
-    <<: *docker
+  - <<: *docker
+    name: publish-migrations
     settings:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/migrations
@@ -124,8 +124,8 @@ steps:
           - pnpm-lock.yaml
           - libs/prisma/**/*
 
-  - name: publish-parser
-    <<: *docker
+  - <<: *docker
+    name: publish-parser
     settings:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/parser
@@ -137,8 +137,8 @@ steps:
           - pnpm-lock.yaml
           - apps/parser/**/*
 
-  - name: publish-scheduler
-    <<: *docker
+  - <<: *docker
+    name: publish-scheduler
     settings:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/scheduler
@@ -150,8 +150,8 @@ steps:
           - pnpm-lock.yaml
           - apps/scheduler/**/*
 
-  - name: publish-streamstatus
-    <<: *docker
+  - <<: *docker
+    name: publish-streamstatus
     settings:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/streamstatus
