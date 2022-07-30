@@ -14,6 +14,7 @@ steps:
 - name: Install Deps and Build the all apps.
   image: node:18-slim
   commands:
+  - apt install curl wget git -y
   - npm i -g pnpm@7.5.0
   - pnpm install
-  - pnpm build
+  - pnpm build:backend
