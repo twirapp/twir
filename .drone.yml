@@ -32,6 +32,16 @@ steps:
   - pnpm install
   - pnpm build:backend
 
+- name: rebuild-cache
+  image: drillster/drone-volume-cache
+  volumes:
+    - name: cache
+      path: /cache
+  settings:
+    rebuild: true
+    mount:
+      - ./node_modules
+
 - name: publish to docker  
   image: plugins/docker
   settings:
@@ -44,16 +54,6 @@ steps:
     repo: satont/drone-test-api
     tags: latest
     dockerfile: ./apps/api/Dockerfile
-
-- name: rebuild-cache
-  image: drillster/drone-volume-cache
-  volumes:
-    - name: cache
-      path: /cache
-  settings:
-    rebuild: true
-    mount:
-      - ./node_modules
 
 volumes:
   - name: cache
