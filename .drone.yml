@@ -8,8 +8,8 @@ platform:
 
 trigger:
   branch:
-  - main
-  - droneio
+    - main
+    - droneio
 
 - name: restore-cache
   image: drillster/drone-volume-cache
