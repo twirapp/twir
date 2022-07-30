@@ -6,9 +6,20 @@ platform:
   os: linux
   arch: arm64
 
-# trigger:
-#   branch:
-#   - main
+trigger:
+  branch:
+  - main
+  - droneio
+
+- name: restore-cache
+  image: drillster/drone-volume-cache
+  volumes:
+    - name: cache
+      path: /cache
+  settings:
+    restore: true
+    mount:
+      - ./node_modules
 
 steps:
 - name: Install Deps and Build the all apps.
@@ -23,12 +34,24 @@ steps:
 - name: publish to docker  
   image: plugins/docker
   settings:
-    registry:
-      from_secret: DOCKERHUB_URL
-    username:
-      from_secret: DOCKERHUB_USERNAME
-    password:
-      from_secret: DOCKERHUB_PASSWORD
+    registry: DOCKERHUB_URL
+    username: DOCKERHUB_USERNAME
+    password: DOCKERHUB_PASSWORD
     repo: satont/drone-test-api
     tags: latest
     dockerfile: ./apps/api/Dockerfile
+
+- name: rebuild-cache
+  image: drillster/drone-volume-cache
+  volumes:
+    - name: cache
+      path: /cache
+  settings:
+    rebuild: true
+    mount:
+      - ./node_modules
+
+volumes:
+  - name: cache
+    host:
+      path: /tmp/tsuwari-cache
