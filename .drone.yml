@@ -46,12 +46,12 @@ steps:
   image: plugins/docker
   settings:
     registry: 
-      - from_secret: docker_hub
+      from_secret: docker_hub
     username:
       from_secret: docker_username
     password:
       from_secret: docker_password
-    repo: satont/drone-test-api
+    repo: registry.tsuwari.tk/satont/drone-test-api
     tags: latest
     dockerfile: ./apps/api/Dockerfile
 
