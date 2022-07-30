@@ -68,10 +68,7 @@ steps:
     when:
       paths:
         include:
-          - apps/api
-          - package.json
-          - pnpm-lock.yaml
-          - libs/**/*
+        - "*.yml"
 
   - name: publish-bots
     <<: *docker
