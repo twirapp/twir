@@ -76,6 +76,96 @@ steps:
   depends_on:
     - build
 
+- name: publish-dota
+  image: plugins/docker
+  settings:
+    registry: 
+      from_secret: docker_hub
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    repo: registry.tsuwari.tk/satont/drone-test-dota
+    tags: latest
+    dockerfile: ./apps/dota/Dockerfile
+  depends_on:
+    - build
+
+- name: publish-eventsub
+  image: plugins/docker
+  settings:
+    registry: 
+      from_secret: docker_hub
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    repo: registry.tsuwari.tk/satont/drone-test-eventsub
+    tags: latest
+    dockerfile: ./apps/eventsub/Dockerfile
+  depends_on:
+    - build
+
+- name: publish-migrations
+  image: plugins/docker
+  settings:
+    registry: 
+      from_secret: docker_hub
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    repo: registry.tsuwari.tk/satont/drone-test-migrations
+    tags: latest
+    dockerfile: ./libs/prisma/Dockerfile
+  depends_on:
+    - build
+
+- name: publish-parser
+  image: plugins/docker
+  settings:
+    registry: 
+      from_secret: docker_hub
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    repo: registry.tsuwari.tk/satont/drone-test-parser
+    tags: latest
+    dockerfile: ./apps/parser/Dockerfile
+  depends_on:
+    - build
+
+- name: publish-scheduler
+  image: plugins/docker
+  settings:
+    registry: 
+      from_secret: docker_hub
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    repo: registry.tsuwari.tk/satont/drone-test-scheduler
+    tags: latest
+    dockerfile: ./apps/scheduler/Dockerfile
+  depends_on:
+    - build
+
+- name: publish-streamstatus
+  image: plugins/docker
+  settings:
+    registry: 
+      from_secret: docker_hub
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    repo: registry.tsuwari.tk/satont/drone-test-streamstatus
+    tags: latest
+    dockerfile: ./apps/streamstatus/Dockerfile
+  depends_on:
+    - build
+
 volumes:
   - name: cache
     host:
