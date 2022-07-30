@@ -85,7 +85,7 @@ steps:
           - pnpm-lock.yamls
           - apps/bots/**/*
 
-   - <<: *docker
+  - <<: *docker
     name: publish-dota
     settings:
       <<: *docker-settings
