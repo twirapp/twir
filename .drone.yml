@@ -8,7 +8,6 @@ platform:
 
 trigger:
   branch:
-    # - main
     - droneio
 
 - name: restore-cache
