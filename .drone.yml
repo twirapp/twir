@@ -23,21 +23,15 @@ steps:
     mount:
       - ./node_modules
 
-- name: deps
+- name: build
   image: node:18-slim
   commands: 
     - apt-get update
     - apt-get install curl wget git -y
     - npm i -g pnpm@7.5.0
-  depends_on:
-    - restore-cache
-
-- name: build
-  image: node:18-slim
-  commands:
     - pnpm build:backend
   depends_on:
-    - deps
+    - restore-cache
 
 - name: rebuild-cache
   image: drillster/drone-volume-cache
@@ -49,7 +43,7 @@ steps:
     mount:
       - ./node_modules
   depends_on:
-    - deps
+    - build
 
 - name: publish-api
   image: plugins/docker
