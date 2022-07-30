@@ -73,54 +73,54 @@ steps:
           - pnpm-lock.yaml
           - libs/**/*
 
-# - name: publish-bots
-#   <<: *docker
-#   settings:
-#     <<: *docker-settings
-#     repo: registry.tsuwari.tk/satont/drone-test-bots
-#     dockerfile: ./apps/bots/Dockerfile
+  - name: publish-bots
+    <<: *docker
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/satont/drone-test-bots
+      dockerfile: ./apps/bots/Dockerfile
 
-# - name: publish-dota
-#   <<: *docker
-#   settings:
-#     <<: *docker-settings
-#     repo: registry.tsuwari.tk/satont/drone-test-dota
-#     dockerfile: ./apps/dota/Dockerfile
+  - name: publish-dota
+    <<: *docker
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/satont/drone-test-dota
+      dockerfile: ./apps/dota/Dockerfile
 
-# - name: publish-eventsub
-#   <<: *docker
-#   settings:
-#     <<: *docker-settings
-#     repo: registry.tsuwari.tk/satont/drone-test-eventsub
-#     dockerfile: ./apps/eventsub/Dockerfile
+  - name: publish-eventsub
+    <<: *docker
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/satont/drone-test-eventsub
+      dockerfile: ./apps/eventsub/Dockerfile
 
-# - name: publish-migrations
-#   <<: *docker
-#   settings:
-#     <<: *docker-settings
-#     repo: registry.tsuwari.tk/satont/drone-test-migrations
-#     dockerfile: ./libs/prisma/Dockerfile
+  - name: publish-migrations
+    <<: *docker
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/satont/drone-test-migrations
+      dockerfile: ./libs/prisma/Dockerfile
 
-# - name: publish-parser
-#   <<: *docker
-#   settings:
-#     <<: *docker-settings
-#     repo: registry.tsuwari.tk/satont/drone-test-parser
-#     dockerfile: ./apps/parser/Dockerfile
+  - name: publish-parser
+    <<: *docker
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/satont/drone-test-parser
+      dockerfile: ./apps/parser/Dockerfile
 
-# - name: publish-scheduler
-#   <<: *docker
-#   settings:
-#     <<: *docker-settings
-#     repo: registry.tsuwari.tk/satont/drone-test-scheduler
-#     dockerfile: ./apps/scheduler/Dockerfile
+  - name: publish-scheduler
+    <<: *docker
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/satont/drone-test-scheduler
+      dockerfile: ./apps/scheduler/Dockerfile
 
-# - name: publish-streamstatus
-#   <<: *docker
-#   settings:
-#     <<: *docker-settings
-#     repo: registry.tsuwari.tk/satont/drone-test-streamstatus
-#     dockerfile: ./apps/streamstatus/Dockerfile
+  - name: publish-streamstatus
+    <<: *docker
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/satont/drone-test-streamstatus
+      dockerfile: ./apps/streamstatus/Dockerfile
 
 volumes:
   - name: cache
