@@ -35,9 +35,12 @@ steps:
 - name: publish to docker  
   image: plugins/docker
   settings:
-    registry: DOCKERHUB_URL
-    username: DOCKERHUB_USERNAME
-    password: DOCKERHUB_PASSWORD
+    registry: 
+      from_secret: DOCKERHUB_URL
+    username: 
+      from_secret: DOCKERHUB_USERNAME
+    password: 
+      from_secret: DOCKERHUB_PASSWORD
     repo: satont/drone-test-api
     tags: latest
     dockerfile: ./apps/api/Dockerfile
