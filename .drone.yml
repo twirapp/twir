@@ -31,3 +31,4 @@ steps:
       from_secret: DOCKERHUB_PASSWORD
     repo: satont/drone-test-api
     tags: latest
+    dockerfile: ./apps/api/Dockerfile
