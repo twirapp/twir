@@ -64,6 +64,7 @@ steps:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/api
       dockerfile: ./apps/api/Dockerfile
+      cache_from: registry.tsuwari.tk/tsuwari/api
     when:
       paths:
         include:
@@ -77,6 +78,7 @@ steps:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/bots
       dockerfile: ./apps/bots/Dockerfile
+      cache_from: registry.tsuwari.tk/tsuwari/bots
     when:
       paths:
         include:
@@ -90,6 +92,7 @@ steps:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/dota
       dockerfile: ./apps/dota/Dockerfile
+      cache_from: registry.tsuwari.tk/tsuwari/dota
     when:
       paths:
         include:
@@ -103,6 +106,7 @@ steps:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/eventsub
       dockerfile: ./apps/eventsub/Dockerfile
+      cache_from: registry.tsuwari.tk/tsuwari/eventsub
     when:
       paths:
         include:
@@ -116,6 +120,7 @@ steps:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/migrations
       dockerfile: ./libs/prisma/Dockerfile
+      cache_from: registry.tsuwari.tk/tsuwari/migrations
     when:
       paths:
         include:
@@ -129,6 +134,7 @@ steps:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/parser
       dockerfile: ./apps/parser/Dockerfile
+      cache_from: registry.tsuwari.tk/tsuwari/parser
     when:
       paths:
         include:
@@ -142,6 +148,7 @@ steps:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/scheduler
       dockerfile: ./apps/scheduler/Dockerfile
+      cache_from: registry.tsuwari.tk/tsuwari/scheduler
     when:
       paths:
         include:
@@ -155,6 +162,7 @@ steps:
       <<: *docker-settings
       repo: registry.tsuwari.tk/tsuwari/streamstatus
       dockerfile: ./apps/streamstatus/Dockerfile
+      cache_from: registry.tsuwari.tk/tsuwari/streamstatus
     when:
       paths:
         include:
