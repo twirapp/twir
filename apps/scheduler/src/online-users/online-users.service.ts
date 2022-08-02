@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
 import { PrismaService } from '@tsuwari/prisma';
-import { onlineUserSchema, RedisORMService } from '@tsuwari/redis';
+import { onlineUserSchema, RedisORMService, streamSchema } from '@tsuwari/redis';
 import { TwitchApiService } from '@tsuwari/shared';
 import _ from 'lodash';
 
@@ -19,37 +19,22 @@ export class OnlineUsersService implements OnModuleInit {
   @Interval('onlineUsers', config.isDev ? 5000 : 1 * 60 * 1000)
   async onlineUsers() {
     const repository = this.redisOm.fetchRepository(onlineUserSchema);
+    const streamsRepisitory = this.redisOm.fetchRepository(streamSchema);
 
-    const channelsIds = await this.prisma.channel.findMany({
-      where: {
-        isEnabled: true,
-        isBanned: false,
-        isTwitchBanned: false,
-      },
-      select: {
-        id: true,
-      },
-    });
+    const streams = await streamsRepisitory.search().all();
+    const chunks = _.chunk(streams, 100);
 
-    channelsIds.push({ id: '146712489' });
-
-    const chunks = _.chunk(channelsIds.map(c => c.id), 100);
-
-    for (const channelsIds of chunks) {
-      const streams = await this.twitch.streams.getStreams({
-        userId: channelsIds,
-      });
-
-      for (const stream of streams.data) {
-        const users = await this.twitch.unsupported.getChatters(stream.userName);
+    for (const streams of chunks) {
+      for (const stream of streams) {
+        const users = await this.twitch.unsupported.getChatters(stream.user_name);
 
         for (const user of users.allChatters) {
           repository.createAndSave({
             userName: user,
             userId: '',
-            channelId: stream.userId,
-          }, `${stream.userId}:${user}`).then(() => {
-            repository.expire(`${stream.userId}:${user}`, 300);
+            channelId: stream.user_id,
+          }, `${stream.user_id}:${user}`).then(() => {
+            repository.expire(`${stream.user_id}:${user}`, 300);
           });
         }
       }
