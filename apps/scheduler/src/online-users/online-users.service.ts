@@ -26,7 +26,7 @@ export class OnlineUsersService implements OnModuleInit {
 
     for (const streams of chunks) {
       for (const stream of streams) {
-        const users = await this.twitch.unsupported.getChatters(stream.user_name);
+        const users = await this.twitch.unsupported.getChatters(stream.user_login);
 
         for (const user of users.allChatters) {
           repository.createAndSave({
