@@ -26,16 +26,21 @@ export class OnlineUsersService implements OnModuleInit {
 
     for (const streams of chunks) {
       for (const stream of streams) {
-        const users = await this.twitch.unsupported.getChatters(stream.user_login);
+        try {
+          const users = await this.twitch.unsupported.getChatters(stream.user_login);
 
-        for (const user of users.allChatters) {
-          repository.createAndSave({
-            userName: user,
-            userId: '',
-            channelId: stream.user_id,
-          }, `${stream.user_id}:${user}`).then(() => {
-            repository.expire(`${stream.user_id}:${user}`, 300);
-          });
+          for (const user of users.allChatters) {
+            repository.createAndSave({
+              userName: user,
+              userId: '',
+              channelId: stream.user_id,
+            }, `${stream.user_id}:${user}`).then(() => {
+              repository.expire(`${stream.user_id}:${user}`, 300);
+            });
+          }
+        } catch (e) {
+          console.error(e);
+          continue;
         }
       }
     }
