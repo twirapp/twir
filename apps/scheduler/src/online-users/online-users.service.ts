@@ -39,6 +39,7 @@ export class OnlineUsersService implements OnModuleInit {
             });
           }
         } catch (e) {
+          console.log(stream);
           console.error(e);
           continue;
         }
