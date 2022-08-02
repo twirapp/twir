@@ -26,46 +26,44 @@ export const song: Module = {
       },
     });
 
-    let result = '';
+    let result: string | null = '';
 
     for (const integration of enabledIntegrations) {
-      switch (integration.integration.service) {
-        case 'SPOTIFY': {
-          if (!integration.accessToken || !integration.refreshToken) continue;
-          const instance = await new UserIntegration(state.channelId, Spotify, prisma).init();
-          if (!instance) continue;
-          const song = await instance.getCurrentSong();
-          if (song) result = song;
-
+      const service = integration.integration.service;
+      if (service === 'SPOTIFY') {
+        if (!integration.accessToken || !integration.refreshToken) continue;
+        const instance = await new UserIntegration(state.channelId, Spotify, prisma).init(integration);
+        if (!instance) continue;
+        const song = await instance.getCurrentSong();
+        if (song) {
+          result = song;
           break;
-        }
-        case 'VK': {
-          const data = integration.data as unknown as VKDBData;
-          if (!data.userId) continue;
-          const song = await VK.fetchSong(data.userId);
-          if (song) result = song;
-
+        } else continue;
+      } else if (service === 'VK') {
+        const data = integration.data as unknown as VKDBData;
+        if (!data.userId) continue;
+        const song = await VK.fetchSong(data.userId);
+        if (song) {
+          result = song;
           break;
-        }
-        case 'LASTFM': {
-          const data = integration.data as unknown as LastFMDbData;
-          if (!data.username) continue;
-          const song = await Lastfm.fetchSong(data.username);
-          if (song) {
-            result = song;
-          }
+        } else continue;
+      } else if (service === 'LASTFM') {
+        const data = integration.data as unknown as LastFMDbData;
+        if (!data.username) continue;
+        const song = await Lastfm.fetchSong(data.username);
+        if (song) {
+          result = song;
           break;
-        }
-
-        default:
-          break;
+        } else continue;
+      } else {
+        result = null;
       }
     }
 
     if (result && result.length) {
       return result;
     } else {
-      return 'Not playing any song.';
+      return;
     }
   },
 };

@@ -62,7 +62,7 @@ export class VariablesParser implements OnModuleInit {
           result += `$(${key})`;
         } else if (typeof newValue === 'function') {
           const value = await newValue(key, state, params, chatMessage);
-          result += typeof value !== 'undefined' ? value.toString() : `$(${key + params ? `|${params}` : ''})`;
+          result += typeof value !== 'undefined' ? value.toString() : ``;
         } else continue;
       }
     }
