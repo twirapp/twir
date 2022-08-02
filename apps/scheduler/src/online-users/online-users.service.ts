@@ -22,27 +22,19 @@ export class OnlineUsersService implements OnModuleInit {
     const streamsRepisitory = this.redisOm.fetchRepository(streamSchema);
 
     const streams = await streamsRepisitory.search().all();
-    const chunks = _.chunk(streams, 100);
 
-    for (const streams of chunks) {
-      for (const stream of streams) {
-        try {
-          const users = await this.twitch.unsupported.getChatters(stream.user_login);
+    for (const streamData of streams) {
+      const stream = streamData.toRedisJson();
+      const users = await this.twitch.unsupported.getChatters(stream.user_login);
 
-          for (const user of users.allChatters) {
-            repository.createAndSave({
-              userName: user,
-              userId: '',
-              channelId: stream.user_id,
-            }, `${stream.user_id}:${user}`).then(() => {
-              repository.expire(`${stream.user_id}:${user}`, 300);
-            });
-          }
-        } catch (e) {
-          console.log(stream);
-          console.error(e);
-          continue;
-        }
+      for (const user of users.allChatters) {
+        repository.createAndSave({
+          userName: user,
+          userId: '',
+          channelId: stream.user_id,
+        }, `${stream.user_id}:${user}`).then(() => {
+          repository.expire(`${stream.user_id}:${user}`, 300);
+        });
       }
     }
   }
