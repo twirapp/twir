@@ -1,3 +1,17 @@
+docker: &docker
+  image: plugins/docker
+  depends_on:
+    - build
+
+docker-settings: &docker-settings
+  registry: 
+    from_secret: docker_hub
+  username:
+    from_secret: docker_username
+  password:
+    from_secret: docker_password
+  tags: latest
+
 kind: pipeline
 type: docker
 name: default
@@ -8,13 +22,147 @@ platform:
 
 trigger:
   branch:
-  - main
+    - main
 
 steps:
-- name: Install Deps and Build the all apps.
-  image: node:18-slim
-  commands:
-  - apt install curl wget git -y
-  - npm i -g pnpm@7.5.0
-  - pnpm install
-  - pnpm build:backend
+  - name: restore-cache
+    image: drillster/drone-volume-cache
+    volumes:
+      - name: cache
+        path: /cache
+    settings:
+      restore: true
+      mount:
+        - ./node_modules
+
+  - name: build
+    image: node:18-slim
+    commands: 
+      - apt-get update
+      - apt-get install curl wget git -y
+      - npm i -g pnpm@7.5.0
+      - pnpm install
+      - pnpm build:backend
+    depends_on:
+      - restore-cache
+
+  - name: rebuild-cache
+    image: drillster/drone-volume-cache
+    volumes:
+      - name: cache
+        path: /cache
+    settings:
+      rebuild: true
+      mount:
+        - ./node_modules
+    depends_on:
+      - build
+
+  - <<: *docker
+    name: publish-api
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/tsuwari/api
+      dockerfile: ./apps/api/Dockerfile
+    when:
+      paths:
+        include:
+          - package.json
+          - pnpm-lock.yaml
+          - apps/api/**/*
+
+  - <<: *docker
+    name: publish-bots
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/tsuwari/bots
+      dockerfile: ./apps/bots/Dockerfile
+    when:
+      paths:
+        include:
+          - package.json
+          - pnpm-lock.yamls
+          - apps/bots/**/*
+
+  - <<: *docker
+    name: publish-dota
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/tsuwari/dota
+      dockerfile: ./apps/dota/Dockerfile
+    when:
+      paths:
+        include:
+          - package.json
+          - pnpm-lock.yaml
+          - apps/dota/**/*
+
+  - <<: *docker
+    name: publish-eventsub
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/tsuwari/eventsub
+      dockerfile: ./apps/eventsub/Dockerfile
+    when:
+      paths:
+        include:
+          - package.json
+          - pnpm-lock.yaml
+          - apps/eventsub/**/*
+
+  - <<: *docker
+    name: publish-migrations
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/tsuwari/migrations
+      dockerfile: ./libs/prisma/Dockerfile
+    when:
+      paths:
+        include:
+          - package.json
+          - pnpm-lock.yaml
+          - libs/prisma/**/*
+
+  - <<: *docker
+    name: publish-parser
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/tsuwari/parser
+      dockerfile: ./apps/parser/Dockerfile
+    when:
+      paths:
+        include:
+          - package.json
+          - pnpm-lock.yaml
+          - apps/parser/**/*
+
+  - <<: *docker
+    name: publish-scheduler
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/tsuwari/scheduler
+      dockerfile: ./apps/scheduler/Dockerfile
+    when:
+      paths:
+        include:
+          - package.json
+          - pnpm-lock.yaml
+          - apps/scheduler/**/*
+
+  - <<: *docker
+    name: publish-streamstatus
+    settings:
+      <<: *docker-settings
+      repo: registry.tsuwari.tk/tsuwari/streamstatus
+      dockerfile: ./apps/streamstatus/Dockerfile
+    when:
+      paths:
+        include:
+          - package.json
+          - pnpm-lock.yaml
+          - apps/streamstatus/**/*
+
+volumes:
+  - name: cache
+    host:
+      path: /tmp/tsuwari-cache
