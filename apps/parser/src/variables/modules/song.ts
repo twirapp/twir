@@ -27,36 +27,39 @@ export const song: Module = {
     });
 
     let result: string | null = '';
-
     for (const integration of enabledIntegrations) {
       const service = integration.integration.service;
       if (service === 'SPOTIFY') {
         if (!integration.accessToken || !integration.refreshToken) continue;
         const instance = await new UserIntegration(state.channelId, Spotify, prisma).init(integration);
         if (!instance) continue;
-        const song = await instance.getCurrentSong();
-        if (song) {
-          result = song;
-          break;
-        } else continue;
+        const res = await instance.getCurrentSong();
+        if (res) {
+          result = res;
+        }
       } else if (service === 'VK') {
         const data = integration.data as unknown as VKDBData;
         if (!data.userId) continue;
-        const song = await VK.fetchSong(data.userId);
-        if (song) {
-          result = song;
-          break;
-        } else continue;
+        const res = await VK.fetchSong(data.userId);
+        if (res) {
+          result = res;
+        }
       } else if (service === 'LASTFM') {
         const data = integration.data as unknown as LastFMDbData;
         if (!data.username) continue;
-        const song = await Lastfm.fetchSong(data.username);
-        if (song) {
-          result = song;
-          break;
-        } else continue;
+        const res = await Lastfm.fetchSong(data.username);
+        if (res) {
+          result = res;
+        }
       } else {
         result = null;
+      }
+
+      if (typeof result === 'string' && result.length) {
+        console.log(result);
+        break;
+      } else {
+        continue;
       }
     }
 

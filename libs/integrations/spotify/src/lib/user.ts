@@ -8,13 +8,13 @@ export class UserIntegration {
   #integration: ChannelIntegration;
 
   constructor(
-    private readonly userId: string, 
+    private readonly userId: string,
     private readonly spotify: SpotifyIntegration,
     private readonly prisma: PrismaClient,
   ) {
     this.#axios.interceptors.response.use(
       (response) => response,
-      async (error: AxiosError & { config: { __retry: boolean }}) => {
+      async (error: AxiosError & { config: { __retry: boolean } }) => {
         const response = error.response;
 
         if (response && error.config && response.status === 401 && !error.config.__retry) {
@@ -46,6 +46,9 @@ export class UserIntegration {
     const integration = await this.prisma.channelIntegration.findFirst({
       where: {
         channelId: this.userId,
+        integration: {
+          service: 'SPOTIFY',
+        },
       },
     });
 
@@ -58,7 +61,7 @@ export class UserIntegration {
   async refreshToken() {
     const service = await this.spotify.getSettings();
     if (!service) throw new Error('Service not setuped.');
-    
+
     try {
       const token = Buffer.from(service.clientId + ':' + service.clientSecret).toString('base64');
 
@@ -76,20 +79,20 @@ export class UserIntegration {
             },
           },
         );
-  
+
       const { access_token: accessToken } = request.data;
-  
+
       if (!accessToken) {
         throw new Error('fail');
       }
-  
+
       const integration = await this.prisma.channelIntegration.update({
         where: { id: this.#integration.id },
         data: { accessToken },
       });
-  
+
       this.#integration = integration;
-  
+
       return { accessToken };
     } catch (e) {
       console.log(e);
@@ -104,11 +107,11 @@ export class UserIntegration {
           Authorization: `Bearer ${this.#integration.accessToken}`,
         },
       });
-  
+
       const track = request.data?.item;
-  
+
       if (!track) return null;
-  
+
       return `${track.artists.map((a: { name: string; }) => a.name).join(', ')} — ${track.name}`;
     } catch (error) {
       console.error(error);
