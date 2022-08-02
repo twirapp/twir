@@ -22,7 +22,6 @@ platform:
 
 trigger:
   branch:
-    - droneio
     - main
 
 steps:
