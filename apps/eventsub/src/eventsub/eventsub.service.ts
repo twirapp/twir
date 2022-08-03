@@ -6,6 +6,9 @@ import { EventSubMiddleware } from '@twurple/eventsub';
 
 import { HandlerService } from '../handler/handler.service.js';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () => { };
+
 const subScriptionValues = new Map([
   ['channel.update', 'subscribeToChannelUpdateEvents'],
   ['stream.online', 'subscribeToStreamOnlineEvents'],
@@ -45,7 +48,7 @@ export class EventSub extends EventSubMiddleware {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         this.handler[typeValue](e);
-      }).catch();
+      }).catch(noop);
 
       this.logger.log(`Subsribed to ${type}#${channelId} event.`);
     }
@@ -54,32 +57,15 @@ export class EventSub extends EventSubMiddleware {
   async init(force = false) {
     const channels = await this.prisma.channel.findMany();
     if (config.isProd || force) {
-      //const subscriptions = await this.twitchApi.eventSub.getSubscriptionsPaginated().getAll();
-
       for (const channel of channels) {
-        /* for (const type of subScriptionValues.keys()) {
-          const isExists = subscriptions.find(s => s.type === type && s.condition.broadcaster_user_id === channel.id);
-          if (isExists) continue;
-          const typeValue = subScriptionValues.get(type);
-          if (!typeValue) continue;
-
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          this[typeValue](channel.id, (e) => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            this.handler[typeValue](e);
-          });
-
-          this.logger.log(`Subsribed to ${type}#${channel.id} event.`);
-        } */
         this.subscribeToEvents(channel.id);
       }
-
     } else {
       await this.twitchApi.eventSub.deleteAllSubscriptions();
 
       this.init(true);
     }
+
+    this.subscribeToUserAuthorizationRevokeEvents(config.TWITCH_CLIENTID, this.handler.subscribeToUserAuthorizationRevokeEvents).catch(noop);
   }
 } 
