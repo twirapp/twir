@@ -11,7 +11,7 @@ import Logo from '@/assets/logo.svg?component';
 </script>
 
 <template>
-  <nav class="flex items-center justify-between mt-1.5 p-1 select-none text-white w-full">
+  <nav class="bg-[#131313] drop-shadow-lg fixed flex items-center justify-between p-1 pt-1.5 select-none text-white w-full z-10">
     <div>
       <a
         class="flex flex-grow items-center ml-2"
@@ -26,7 +26,7 @@ import Logo from '@/assets/logo.svg?component';
       </a>
     </div>
 
-    <div class="flex hidden md:block space-x-1">
+    <!-- <div class="flex hidden md:block space-x-1">
       <a
         href="/dashboard"
         class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-sm text-white transition"
@@ -39,7 +39,7 @@ import Logo from '@/assets/logo.svg?component';
         href="#"
         class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-sm text-white transition"
       >About</a>
-    </div>
+    </div> -->
 
     <div class="flex md:space-x-5 space-x-2">
       <LanguageSelector />
@@ -100,7 +100,7 @@ import Logo from '@/assets/logo.svg?component';
               z-50"
               aria-labelledby="dropdownMenuButton1d"
             >
-              <li>
+              <!-- <li>
                 <a
                   href="/dashboard"
                   class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-center text-sm text-white transition w-full"
@@ -117,7 +117,7 @@ import Logo from '@/assets/logo.svg?component';
                   href="#"
                   class="bg-transparent duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-white hover:text-black inline-block leading-tight px-6 py-2.5 rounded text-center text-sm text-white transition w-full"
                 >About</a>
-              </li>
+              </li> -->
               <hr class="border border-gray-700 border-solid border-t-0 h-0 opacity-50">
               <LandingButtons type="col" />
             </ul>

@@ -6,7 +6,7 @@ import Logo from '../../assets/logo.svg?component';
   <div class="bg-[#171717] flex justify-between mt-5 px-6 py-4 text-white">
     <div class="flex font-bold items-center space-x-2">
       <Logo />
-      <p>Tsuwari Twitch Bot</p>
+      <p>Tsuwari Twitch Bot &copy; {{ new Date().getFullYear() }}</p>
     </div>
 
     <div class="font-bold">

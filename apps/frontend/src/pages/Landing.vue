@@ -1,12 +1,16 @@
 <script lang="ts" setup>
 import Setup from '../components/landing/Setup.vue';
-import Statistics from '../components/landing/Statistics.vue';
-import Streamers from '../components/landing/Streamers.vue';
+import Team from '../components/landing/Team.vue';
 
+import Features from '@/components/landing/Features.vue';
 import Footer from '@/components/landing/Footer.vue';
+import Statistics from '@/components/landing/Statistics.vue';
+import Streamers from '@/components/landing/Streamers.vue';
 import UseIt from '@/components/landing/UseIt.vue';
 import Welcome from '@/components/landing/Welcome.vue';
 import MainNavBar from '@/components/layout/MainNavBar.vue';
+
+document.title = 'Tsuwari - Main page';
 </script>
 
 <template>
@@ -15,10 +19,14 @@ import MainNavBar from '@/components/layout/MainNavBar.vue';
 
     <Welcome />
 
+    <Statistics />
+    <Features />
     <Setup />
-    <!-- <Statistics />
     <Streamers />
-    <UseIt /> -->
+    <UseIt />
+
+    <Team />
+
     <Footer />
   </div>
 </template>

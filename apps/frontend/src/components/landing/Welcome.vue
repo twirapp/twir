@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import Verified from '../../assets/icons/verified.svg?component';
+import Go from '../../assets/buttons/go.svg?component';
 
 import LandingButtons from '@/components/LandingButtons.vue';
 </script>
@@ -25,7 +25,7 @@ import LandingButtons from '@/components/LandingButtons.vue';
           href="#install"
         >
           <div class="animate-bounce bg-[#191919] flex h-10 hover:bg-[#202020] items-center justify-center p-2 ring-1 ring-slate-200/20 rounded-full w-10">
-            <Verified />
+            <Go />
           </div>
         </a>
       </div>

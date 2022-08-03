@@ -27,7 +27,9 @@ const toast = useToast();
 selectedDashboardStore.subscribe(d => {
   api(`/v1/channels/${d.channelId}/integrations/spotify`).then(async (r) => {
     spotifyIntegration.value = r.data;
-    fetchSpotifyProfile();
+    if (r.data.accessToken && r.data.refreshToken) {
+      fetchSpotifyProfile();
+    }
   });
 });
 

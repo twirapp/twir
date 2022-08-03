@@ -1,42 +1,58 @@
 <script lang="ts" setup>
 import Verified from '../../assets/icons/verified.svg?component';
+
+const reviews = [
+  { 'name': 'LWGerry', 'isVerified': false, 'message': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ', 'subs': 245125 }, 
+  { 'name': 'LWGerry', 'isVerified': false, 'message': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eget nisi at mi elementum accumsan.  Integer sit amet viverra urna, nec posuere dui. Nullam bibendum lectus sed urna rhoncus vulputate. Aenean lectus lectus, rhoncus sit amet posuere sed, euismod in ligula. Sed rutrum ex sit amet nibh pellentesque, eget bibendum dui lacinia. Aliquam magna nibh, lacinia in luctus a, molestie quis magna.', 'subs': 245 }, 
+  { 'name': 'LWGerry', 'isVerified': true, 'message': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eget nisi at mi elementum accumsan. Proin posuere, lorem et euismod porta, nisi mauris sollicitudin enim, et placerat elit lectus in nulla. Integer sit amet viverra urna, nec posuere dui. Nullam bibendum lectus sed urna rhoncus vulputate. Aenean lectus lectus, rhoncus sit amet posuere sed, euismod in ligula. Sed rutrum ex sit amet nibh pellentesque, eget bibendum dui lacinia. Aliquam magna nibh, lacinia in luctus a, molestie quis magna.', 'subs': 245 }, 
+  { 'name': 'LWGerry', 'isVerified': false, 'message': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eget nisi at mi elementum accumsan. Proin posuere, lorem et euismod porta, nisi mauris sollicitudin enim, et placerat elit lectus in nulla. Integer sit amet viverra urna, nec posuere dui. Nullam bibendum lectus sed urna rhoncus vulputate. Aenean lectus lectus, rhoncus sit amet posuere sed, euismod in ligula. Sed rutrum ex sit amet nibh pellentesque, eget bibendum dui lacinia. Aliquam magna nibh, lacinia in luctus a, molestie quis magna.', 'subs': 2450 }, 
+  { 'name': 'SadisNaMenya', 'isVerified': false, 'message': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eget nisi at mi elementum accumsan. Proin posuere, lorem et euismod porta, nisi mauris sollicitudin enim, et placerat elit lectus in nulla. Integer sit amet viverra urna, nec posuere dui. Nullam bibendum lectus sed urna rhoncus vulputate. Aenean lectus lectus, rhoncus sit amet posuere sed, euismod in ligula. Sed rutrum ex sit amet nibh pellentesque, eget bibendum dui lacinia. Aliquam magna nibh, lacinia in luctus a, molestie quis magna.', 'subs': 245 }, 
+  { 'name': 'LWGerry', 'isVerified': true, 'message': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eget nisi at mi elementum accumsan.   Nullam bibendum lectus sed urna rhoncus vulputate. Aenean lectus lectus, rhoncus sit amet posuere sed, euismod in ligula. Sed rutrum ex sit amet nibh pellentesque, eget bibendum dui lacinia. Aliquam magna nibh, lacinia in luctus a, molestie quis magna.', 'subs': 24500 }, 
+  { 'name': 'LWGerry', 'isVerified': false, 'message': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eget nisi at mi elementum accumsan. Proin posuere, lorem et euismod porta, nisi mauris sollicitudin enim, et placerat elit lectus in nulla. Integer sit amet viverra urna, nec posuere dui. Nullam bibendum lectus sed urna rhoncus vulputate. Aenean lectus lectus, rhoncus sit amet posuere sed, euismod in ligula. Sed rutrum ex sit amet nibh pellentesque, eget bibendum dui lacinia. Aliquam magna nibh, lacinia in luctus a, molestie quis magna.', 'subs': 2450000 }, 
+  { 'name': 'LWGerry', 'isVerified': false, 'message': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eget nisi at mi elementum accumsan. Proin posuere, lorem et euismod porta, nisi mauris sollicitudin enim, et placerat elit lectus in nulla. Integer sit amet viverra urna, nec posuere dui. Nullam bibendum lectus sed urna rhoncus vulputate. Aenean lectus lectus, rhoncus sit amet posuere sed, euismod in ligula. Sed rutrum ex sit amet nibh pellentesque, eget bibendum dui lacinia. Aliquam magna nibh, lacinia in luctus a, molestie quis magna.', 'subs': 245 }, 
+  { 'name': 'LWGerry', 'isVerified': false, 'message': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eget nisi at mi elementum accumsan.  Integer sit amet viverra urna, nec posuere dui. lectus lectus, rhoncus sit amet posuere sed, euismod in ligula. Sed rutrum ex sit amet nibh pellentesque, eget bibendum dui lacinia. Aliquam magna nibh, lacinia in luctus a, molestie quis magna.', 'subs': 245 }, 
+  { 'name': 'LWGerry', 'isVerified': false, 'message': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eget nisi at mi elementum accumsan. Proin posuere, lorem et euismod porta, nisi mauris sollicitudin enim, et placerat elit lectus in nulla. Integer sit amet viverra urna, nec posuere dui. Nullam bibendum lectus sed urna rhoncus vulputate. Aenean lectus lectus, rhoncus sit amet posuere sed, euismod in ligula. Sed rutrum ex sit amet nibh pellentesque, eget bibendum dui lacinia. Aliquam magna nibh, lacinia in luctus a, molestie quis magna.', 'subs': 245 }] as Array<{'name': string, 'subs': number, 'isVerified':boolean, 'message': string}>;
 </script>
 
 <template>
-  <div class="gap-4 grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2">
-    <div class="flex justify-center">
-      <div class="bg-[#181818] block drop-shadow-xl max-w-sm p-6 rounded text-white">
-        <div class="flex flex-col items-center">
-          <div class="flex items-center justify-around mb-5">
-            <img
-              src="https://i.picsum.photos/id/57/512/512.jpg?hmac=tup-ETUL0LHChWZTjAG31HXqECqaxgngmRKP87zOjDs"
-              alt="LOGO"
-              class="flex justify-center rounded-full w-1/3"
-            >
+  <div class="mb-32">
+    <h2 class="font-bold mb-20 text-3xl text-center text-white">
+      😎 Reviews from streamers
+    </h2>
+    
+    <div class="lg:mx-40 md:mx-24 mx-2">
+      <masonry-wall
+        :items="reviews"
+        :gap="30"
+      >
+        <template #default="{ item }">
+          <div class="bg-[#181818] block drop-shadow-xl p-6 rounded text-white">
+            <div class="flex flex-col">
+              <div class="flex items-center mb-5 space-x-5">
+                <img
+                  src="https://i.picsum.photos/id/57/512/512.jpg?hmac=tup-ETUL0LHChWZTjAG31HXqECqaxgngmRKP87zOjDs"
+                  alt="LOGO"
+                  class="h-20 rounded-full w-20"
+                >
 
-            <h5 class="flex flex-col my-2 text-xl">
-              <div class="flex items-center space-x-2">
-                <span class="font-bold">LWGerry</span>
-                <Verified />
+                <h5 class="flex flex-col my-2 text-xl">
+                  <div class="flex items-center space-x-2">
+                    <span class="font-bold">{{ item.name }}</span>
+                    <Verified />
+                  </div>
+
+                  <span class="text-gray-300 text-lg">{{ item.subs }} followers</span>
+                </h5>
               </div>
 
-              <span class="italic text-lg">4.5k followers</span>
-            </h5>
-          </div>
-          <p class="break-words mb-4">
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-          </p>
-        </div>
 
-        <div class="flex justify-end">
-          <button
-            type="button"
-            class="active:bg-blue-800 active:shadow-lg bg-blue-600 duration-150 ease-in-out focus:bg-blue-700 focus:outline-none focus:ring-0 focus:shadow-lg font-medium hover:bg-blue-700 hover:shadow-lg inline-block leading-tight px-6 py-2.5 rounded shadow-md text-white text-xs transition uppercase"
-          >
-            Button
-          </button>
-        </div>
-      </div>
+              <p class="break-words my-2">
+                {{ item.message }}
+              </p>
+            </div>
+          </div>
+        </template>
+      </masonry-wall>
     </div>
   </div>
 </template>
