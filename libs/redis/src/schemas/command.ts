@@ -1,4 +1,4 @@
-import { Command as CommandType, CommandModule, CommandPermission, CooldownType, Prisma } from '@tsuwari/prisma';
+import type { Command as CommandType, CommandModule, CommandPermission, CooldownType } from '@tsuwari/prisma';
 import { Entity, Schema } from 'redis-om';
 
 type CMD = CommandType & { responses: string[] }
