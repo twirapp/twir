@@ -5,7 +5,7 @@
   "extends": [
     "config:base"
   ],
-  "commitBody": "[skip-docker]",
+  "commitBody": "[CI SKIP]",
   "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
   "semanticCommits": true,
   "semanticPrefix": "chore(dependency)",
