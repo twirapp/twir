@@ -3,7 +3,7 @@ import { DefaultCommand } from '../types.js';
 export const spam: DefaultCommand[] = [
   {
     name: 'spam',
-    description: 'Spam into chat.',
+    description: 'Spam into chat. Example usage: <b>!spam 5 https://tsuwari.tk</b>',
     permission: 'MODERATOR',
     visible: false,
     module: 'CHANNEL',

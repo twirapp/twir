@@ -66,7 +66,6 @@ export class AppService implements OnModuleInit {
       const cmd = this.#defaultCommands.get(command.defaultName);
       if (cmd) {
         const result = await cmd.handler(state, findCommand.params);
-        console.log(cmd, result);
         command.responses = result ? Array.isArray(result) ? result : [result] : [];
       }
     }

@@ -8,6 +8,7 @@ import pc from 'picocolors';
 
 import { increaseParsedMessages } from '../functions/increaseParsedMessages.js';
 import { increaseUserMessages } from '../functions/increaseUserMessages.js';
+import { storeUserMessage } from '../functions/storeUserMessage.js';
 import { nestApp } from '../nest/index.js';
 import { ParserService } from '../nest/parser/parser.service.js';
 import { GreetingsParser } from './greetingsParser.js';
@@ -187,6 +188,7 @@ export class Bot extends ChatClient {
 
       increaseUserMessages(state.userInfo.userId, state.channelId);
       increaseParsedMessages(state.channelId);
+      storeUserMessage(state, message);
       messageParseTime.observe(performance.now() - perfStart);
     });
   }

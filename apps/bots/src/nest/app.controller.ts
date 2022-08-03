@@ -1,6 +1,6 @@
 import { Controller, Get, Res } from '@nestjs/common';
-import { EventPattern, Payload } from '@nestjs/microservices';
-import { ClientProxyEvents } from '@tsuwari/shared';
+import { EventPattern, Payload, MessagePattern } from '@nestjs/microservices';
+import { ClientProxyCommands, ClientProxyEvents } from '@tsuwari/shared';
 
 import { Bots } from '../bots.js';
 import { prisma } from '../libs/prisma.js';
@@ -35,5 +35,23 @@ export class AppController {
         bot.join(data.user_name);
       }
     }
+  }
+
+  @MessagePattern('bots.deleteMessages')
+  async deleteMessages(@Payload() data: ClientProxyCommands['bots.deleteMessages']['input']) {
+    const channel = await prisma.channel.findFirst({
+      where: { id: data.channelId },
+    });
+
+    if (!channel) return false;
+
+    const bot = Bots.cache.get(channel?.botId);
+    if (!bot) return false;
+
+    for (const id of data.messageIds) {
+      await bot.deleteMessage(data.channelName, id);
+    }
+
+    return true;
   }
 }

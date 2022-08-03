@@ -21,6 +21,14 @@ export interface ClientProxyCommands {
       description?: string
     }>
   },
+  'bots.deleteMessages': {
+    input: {
+      channelId: string,
+      channelName: string,
+      messageIds: string[],
+    },
+    result: boolean,
+  },
   'parseChatMessage': {
     input: string,
     result: string[]
