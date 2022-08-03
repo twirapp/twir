@@ -68,8 +68,6 @@ steps:
     when:
       paths:
         include:
-          - package.json
-          - pnpm-lock.yaml
           - apps/api/**/*
 
   - <<: *docker
@@ -82,8 +80,6 @@ steps:
     when:
       paths:
         include:
-          - package.json
-          - pnpm-lock.yamls
           - apps/bots/**/*
 
   - <<: *docker
@@ -96,8 +92,6 @@ steps:
     when:
       paths:
         include:
-          - package.json
-          - pnpm-lock.yaml
           - apps/dota/**/*
 
   - <<: *docker
@@ -110,8 +104,6 @@ steps:
     when:
       paths:
         include:
-          - package.json
-          - pnpm-lock.yaml
           - apps/eventsub/**/*
 
   - <<: *docker
@@ -124,8 +116,6 @@ steps:
     when:
       paths:
         include:
-          - package.json
-          - pnpm-lock.yaml
           - libs/prisma/**/*
 
   - <<: *docker
@@ -138,8 +128,6 @@ steps:
     when:
       paths:
         include:
-          - package.json
-          - pnpm-lock.yaml
           - apps/parser/**/*
 
   - <<: *docker
@@ -152,8 +140,6 @@ steps:
     when:
       paths:
         include:
-          - package.json
-          - pnpm-lock.yaml
           - apps/scheduler/**/*
 
   - <<: *docker
@@ -166,8 +152,6 @@ steps:
     when:
       paths:
         include:
-          - package.json
-          - pnpm-lock.yaml
           - apps/streamstatus/**/*
 
 volumes:
