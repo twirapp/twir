@@ -29,7 +29,7 @@ export const random: Module[] = [
       const users = await repository.search().where('channelId').equal(state.channelId).all();
 
       if (!users.length) return;
-      const randomed = _.sample(users)!;
+      const randomed = _.sample(users)!.toRedisJson();
 
       return randomed.userName;
     },
