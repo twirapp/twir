@@ -36,17 +36,29 @@ export class HelpersService implements OnModuleInit {
       channelId?: string
     } = {},
   ): Promise<Record<CommandPermission, boolean>> {
-    const dbUser = opts.checkAdmin ? await this.prisma.user.findFirst({ where: { id: userInfo.userId } }) : undefined;
-    const twitchFollow = (opts.channelId && opts.checkFollower) ? await this.twitchApi.users.getFollowFromUserToBroadcaster(userInfo.userId, opts.channelId) : null;
+    const dbUser = opts.checkAdmin
+      ? await this.prisma.user.findFirst({ where: { id: userInfo.userId } })
+      : null;
+    const twitchFollow = (opts.channelId && opts.checkFollower)
+      ? await this.twitchApi.users.getFollowFromUserToBroadcaster(userInfo.userId, opts.channelId)
+      : null;
 
-    return {
-      BROADCASTER: userInfo.isBroadcaster || (dbUser?.isBotAdmin ?? false),
-      MODERATOR: userInfo.isMod || (dbUser?.isBotAdmin ?? false),
-      VIP: userInfo.isVip || (dbUser?.isBotAdmin ?? false),
-      SUBSCRIBER: userInfo.isSubscriber || userInfo.isFounder || (dbUser?.isBotAdmin ?? false),
-      FOLLOWER: !!twitchFollow || (dbUser?.isBotAdmin ?? false),
+    const perms = {
+      BROADCASTER: userInfo.isBroadcaster,
+      MODERATOR: userInfo.isMod,
+      VIP: userInfo.isVip,
+      SUBSCRIBER: userInfo.isSubscriber || userInfo.isFounder,
+      FOLLOWER: !!twitchFollow,
       VIEWER: true,
     };
+
+    if (dbUser?.isBotAdmin) {
+      Object.keys(perms).forEach((key) => {
+        perms[key as CommandPermission] = true;
+      });
+    }
+
+    return perms;
   }
 
   hasPermission(perms: Record<CommandPermission, boolean>, searchForPermission: CommandPermission) {
