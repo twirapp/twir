@@ -17,3 +17,4 @@ docker-compose*
 !docker-compose.dev.yml
 minio_data
 .pnpm-store
+.DS_Store
