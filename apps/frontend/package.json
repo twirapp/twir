@@ -33,7 +33,8 @@
     "vue-prism-editor": "2.0.0-alpha.2",
     "vue-router": "4.1.5",
     "vue-toastification": "2.0.0-rc.5",
-    "yup": "0.32.11"
+    "yup": "0.32.11",
+    "@tsuwari/uikit": "workspace:*"
   },
   "devDependencies": {
     "@intlify/vite-plugin-vue-i18n": "6.0.3",

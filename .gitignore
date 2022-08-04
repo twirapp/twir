@@ -12,6 +12,12 @@ libs/grpc/src/*.ts
 docker-compose*
 !docker-compose.example.yml
 !docker-compose.dev.yml
+<<<<<<< HEAD
 .devbox
 
 !*/**/.gitkeep
+=======
+minio_data
+.pnpm-store
+.DS_Store
+>>>>>>> 889d1dd (feat: init uikit with storybook)
