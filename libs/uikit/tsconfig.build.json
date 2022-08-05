@@ -7,8 +7,10 @@
         "./src/*"
       ],
     },
+    "outDir": "dist",
+    "declaration": true,
     "target": "esnext",
-    "module": "CommonJS",
+    "module": "ESNext",
     "moduleResolution": "node",
     "strict": true,
     "jsx": "preserve",
@@ -23,4 +25,7 @@
     "src/**/*.ts",
     "src/**/*.vue",
   ],
+  "exclude": [
+    "src/**/*.stories.ts"
+  ]
 }

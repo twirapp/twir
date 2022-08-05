@@ -1,3 +1,13 @@
 {
-  "extends": "@satont/eslint-config"
+  "extends": "@satont/eslint-config",
+  "overrides": [
+    {
+      "files": [
+        "*.config.js"
+      ],
+      "env": {
+        "node": true
+      }
+    }
+  ]
 }
