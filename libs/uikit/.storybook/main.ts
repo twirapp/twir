@@ -1,9 +1,11 @@
 import type { StorybookViteConfig } from "@storybook/builder-vite"
+import { mergeConfig, UserConfig } from 'vite';
+import { resolve } from "node:path"
 
 const config: StorybookViteConfig = {
   stories: [
-    "../components/**/*.stories.mdx",
-    "../components/**/*.stories.@(js|jsx|ts|tsx)"
+    "../src/**/*.stories.mdx",
+    "../src/**/*.stories.@(js|jsx|ts|tsx)"
   ],
   addons: [
     "@storybook/addon-links",
@@ -21,7 +23,13 @@ const config: StorybookViteConfig = {
     check: false,
   },
   async viteFinal(config) {
-    return config;
+    return mergeConfig(config, {
+      resolve: {
+        alias: [
+          { find: '@', replacement: resolve(__dirname, '..', 'src') }
+        ]
+      },
+    } as UserConfig);
   },
 }
 
