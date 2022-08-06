@@ -163,7 +163,7 @@ importers:
       '@twurple/auth': ^5.1.6
       '@twurple/chat': ^5.1.6
       '@twurple/common': ^5.1.6
-      '@types/bull': 3.15.8
+      '@types/bull': 3.15.9
       '@types/cookie-parser': 1.4.3
       '@types/express': 4.17.13
       '@types/lodash.chunk': 4.2.7
@@ -239,7 +239,7 @@ importers:
       tslib: 2.4.0
       vm2: 3.9.10
     devDependencies:
-      '@types/bull': 3.15.8
+      '@types/bull': 3.15.9
       '@types/cookie-parser': 1.4.3
       '@types/express': 4.17.13
       '@types/lodash.chunk': 4.2.7
@@ -2172,8 +2172,8 @@ packages:
       '@types/connect': 3.4.35
       '@types/node': 18.6.4
 
-  /@types/bull/3.15.8:
-    resolution: {integrity: sha512-8DbSPMSsZH5PWPnGEkAZLYgJEH4ghHJNKF7LB6Wr5R0/v6g+Vs+JoaA7kcvLtHE936xg2WpFPkaoaJgExOmKDw==}
+  /@types/bull/3.15.9:
+    resolution: {integrity: sha512-MPUcyPPQauAmynoO3ezHAmCOhbB0pWmYyijr/5ctaCqhbKWsjW0YCod38ZcLzUBprosfZ9dPqfYIcfdKjk7RNQ==}
     dependencies:
       '@types/ioredis': 4.28.10
       '@types/redis': 2.8.32
@@ -2428,7 +2428,7 @@ packages:
   /@types/redis/2.8.32:
     resolution: {integrity: sha512-7jkMKxcGq9p242exlbsVzuJb57KqHRhNl4dHoQu2Y5v9bCAbtIXXH0R3HleSQW4CTOqpHIYUW3t6tpUj4BVQ+w==}
     dependencies:
-      '@types/node': 17.0.44
+      '@types/node': 18.6.4
     dev: true
 
   /@types/responselike/1.0.0:
