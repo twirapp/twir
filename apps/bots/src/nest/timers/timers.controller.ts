@@ -1,6 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { EventPattern } from '@nestjs/microservices';
-import { ClientProxyEvents } from '@tsuwari/shared';
+import { type ClientProxyEventPayload, EventPattern } from '@tsuwari/shared';
 
 import { addTimerToQueue, removeTimerFromQueue } from '../../libs/timers.js';
 import { TimersService } from './timers.service.js';
@@ -20,12 +19,8 @@ export class TimersController {
   }
 
   @EventPattern('streams.online')
-  streamOnline(data: ClientProxyEvents['streams.online']['input']) {
-    this.service.handleStreamChange(data.channelId);
-  }
-
   @EventPattern('streams.offline')
-  streamOffline(data: ClientProxyEvents['streams.offline']['input']) {
+  streamOnline(data: ClientProxyEventPayload<'streams.online'> | ClientProxyEventPayload<'streams.offline'>) {
     this.service.handleStreamChange(data.channelId);
   }
 }

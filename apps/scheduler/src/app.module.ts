@@ -21,7 +21,6 @@ import { StreamStatusModule } from './streamstatus/streamstatus.module.js';
     DotaModule,
     DefaultCommandsCreatorModule,
     OnlineUsersModule,
-    // IncreaseWatchedModule,
   ],
   providers: [TwitchApiService, RedisService],
 })

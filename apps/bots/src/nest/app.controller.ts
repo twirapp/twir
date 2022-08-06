@@ -1,6 +1,6 @@
 import { Controller, Get, Res } from '@nestjs/common';
-import { EventPattern, Payload, MessagePattern } from '@nestjs/microservices';
-import { ClientProxyCommands, ClientProxyEvents } from '@tsuwari/shared';
+import { Payload } from '@nestjs/microservices';
+import { type ClientProxyCommandPayload, type ClientProxyEventPayload, ClientProxyEvents, EventPattern, MessagePattern } from '@tsuwari/shared';
 
 import { Bots } from '../bots.js';
 import { prisma } from '../libs/prisma.js';
@@ -16,7 +16,7 @@ export class AppController {
   }
 
   @EventPattern('bots.joinOrLeave')
-  joinOrLeave(@Payload() data: { action: 'join' | 'part', botId: string, username: string }) {
+  joinOrLeave(@Payload() data: ClientProxyEventPayload<'bots.joinOrLeave'>) {
     const bot = Bots.cache.get(data.botId);
     if (bot) {
       bot[data.action](data.username);
@@ -24,7 +24,7 @@ export class AppController {
   }
 
   @EventPattern('user.update')
-  async userUpdate(@Payload() data: ClientProxyEvents['user.update']['input']) {
+  async userUpdate(@Payload() data: ClientProxyEventPayload<'user.update'>) {
     const channel = await prisma.channel.findFirst({
       where: { id: data.user_id },
     });
@@ -38,7 +38,7 @@ export class AppController {
   }
 
   @MessagePattern('bots.deleteMessages')
-  async deleteMessages(@Payload() data: ClientProxyCommands['bots.deleteMessages']['input']) {
+  async deleteMessages(@Payload() data: ClientProxyCommandPayload<'bots.deleteMessages'>) {
     const channel = await prisma.channel.findFirst({
       where: { id: data.channelId },
     });

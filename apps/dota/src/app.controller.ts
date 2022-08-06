@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
-import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
-import { ClientProxyCommands, ClientProxyCommandsKey, ClientProxyEvents, ClientProxyEventsKey } from '@tsuwari/shared';
+import { Payload } from '@nestjs/microservices';
+import { type ClientProxyCommandPayload, type ClientProxyEventPayload, EventPattern, MessagePattern } from '@tsuwari/shared';
 
 import { AppService } from './app.service.js';
 
@@ -8,13 +8,13 @@ import { AppService } from './app.service.js';
 export class AppController {
   constructor(private readonly service: AppService) { }
 
-  @EventPattern<ClientProxyEventsKey>('dota.cacheAccountsMatches')
-  cacheAccountsMatches(@Payload() data: ClientProxyEvents['dota.cacheAccountsMatches']['input']) {
+  @EventPattern('dota.cacheAccountsMatches')
+  cacheAccountsMatches(@Payload() data: ClientProxyEventPayload<'dota.cacheAccountsMatches'>) {
     this.service.getPresences(data);
   }
 
-  @MessagePattern<ClientProxyCommandsKey>('dota.getProfileCard')
-  getProfileCard(@Payload() data: ClientProxyCommands['dota.getProfileCard']['input']) {
+  @MessagePattern('dota.getProfileCard')
+  getProfileCard(@Payload() data: ClientProxyCommandPayload<'dota.getProfileCard'>) {
     return this.service.getDotaProfileCard(data);
   }
 }

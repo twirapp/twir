@@ -1,5 +1,6 @@
 import { Controller } from '@nestjs/common';
-import { Payload, EventPattern } from '@nestjs/microservices';
+import { Payload } from '@nestjs/microservices';
+import { type ClientProxyEventPayload, EventPattern } from '@tsuwari/shared';
 
 import { EventSub } from './eventsub.service.js';
 
@@ -8,7 +9,7 @@ export class EventSubController {
   constructor(private readonly service: EventSub) { }
 
   @EventPattern('eventsub.subscribeToEventsByChannelId')
-  async subscribeToEvents(@Payload() channelId: string) {
+  async subscribeToEvents(@Payload() channelId: ClientProxyEventPayload<'eventsub.subscribeToEventsByChannelId'>) {
     this.service.subscribeToEvents(channelId);
   }
 }

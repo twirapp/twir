@@ -1,6 +1,7 @@
 import { Body, CacheTTL, CACHE_MANAGER, Controller, Delete, Get, Inject, Param, Post, Put, UseGuards, UseInterceptors } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { ClientProxyCommands, ClientProxyCommandsKey } from '@tsuwari/shared';
+import { Payload } from '@nestjs/microservices';
+import { ClientProxyCommands, ClientProxyCommandsKey, MessagePattern } from '@tsuwari/shared';
+import { type ClientProxyCommandPayload } from '@tsuwari/shared/src/lib/nats.js';
 import CacheManager from 'cache-manager';
 import Express from 'express';
 
@@ -21,8 +22,8 @@ export class CommandsController {
     this.cacheManager.del(`nest:cache:v1/channels/${channelId}/commands`);
   }
 
-  @MessagePattern<ClientProxyCommandsKey>('setCommandCache')
-  async setCommandCache(@Payload() data: ClientProxyCommands['setCommandCache']['input']) {
+  @MessagePattern('setCommandCache')
+  async setCommandCache(@Payload() data: ClientProxyCommandPayload<'setCommandCache'>) {
     return await this.commandsSerivce.setCommandCache(data);
   }
 

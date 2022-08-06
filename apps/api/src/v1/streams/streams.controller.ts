@@ -1,5 +1,6 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
-import { EventPattern, Payload } from '@nestjs/microservices';
+import { Payload } from '@nestjs/microservices';
+import { type ClientProxyEventPayload, EventPattern } from '@tsuwari/shared';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
 import { JwtAuthGuard } from '../../jwt/jwt.guard.js';
@@ -17,7 +18,7 @@ export class StreamsController {
 
   @EventPattern('streams.online')
   @EventPattern('streams.offline')
-  handler(@Payload() data: { channelId: string, streamId?: string }) {
+  handler(@Payload() data: ClientProxyEventPayload<'streams.online'> | ClientProxyEventPayload<'streams.offline'>) {
     this.streamsService.handleStreamStateChange(data.channelId);
   }
 }

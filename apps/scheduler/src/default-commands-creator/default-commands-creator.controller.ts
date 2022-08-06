@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
-import { Payload, MessagePattern } from '@nestjs/microservices';
-import { ClientProxyCommands, ClientProxyCommandsKey } from '@tsuwari/shared';
+import { Payload } from '@nestjs/microservices';
+import { type ClientProxyCommandPayload, MessagePattern } from '@tsuwari/shared';
 
 import { DefaultCommandsCreatorService } from './default-commands-creator.service.js';
 
@@ -8,8 +8,8 @@ import { DefaultCommandsCreatorService } from './default-commands-creator.servic
 export class DefaultCommandsCreatorController {
   constructor(private readonly service: DefaultCommandsCreatorService) { }
 
-  @MessagePattern<ClientProxyCommandsKey>('bots.createDefaultCommands')
-  async setCommandCache(@Payload() data: ClientProxyCommands['bots.createDefaultCommands']['input']) {
+  @MessagePattern('bots.createDefaultCommands')
+  async setCommandCache(@Payload() data: ClientProxyCommandPayload<'bots.createDefaultCommands'>) {
     return await this.service.createDefaultCommands(data);
   }
 }

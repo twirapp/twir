@@ -1,4 +1,4 @@
-import { ClientProxy as CP } from '@nestjs/microservices';
+import { ClientProxy as CP, EventPattern as EP, MessagePattern as MP } from '@nestjs/microservices';
 import { Command, CommandModule, CommandPermission, Response } from '@tsuwari/prisma';
 import { rawDataSymbol } from '@twurple/common';
 import { EventSubChannelUpdateEvent, EventSubUserUpdateEvent } from '@twurple/eventsub';
@@ -105,8 +105,19 @@ export type ClientProxyResult<K extends keyof ClientProxyCommands> = Observable<
 export type ClientProxyCommandsKey = keyof ClientProxyCommands
 export type ClientProxyEventsKey = keyof ClientProxyEvents
 
+export type ClientProxyCommandPayload<K extends keyof ClientProxyCommands> = ClientProxyCommands[K]['input']
+export type ClientProxyEventPayload<K extends keyof ClientProxyEvents> = ClientProxyEvents[K]['input']
 
 export abstract class ClientProxy extends CP {
   abstract send<TEvent extends keyof ClientProxyCommands>(pattern: TEvent, data: ClientProxyCommands[TEvent]['input']): Observable<ClientProxyCommands[TEvent]['result']>;
   abstract emit<TEvent extends keyof ClientProxyEvents>(pattern: TEvent, data: ClientProxyEvents[TEvent]['input']): Observable<ClientProxyEvents[TEvent]['result']>;
 }
+
+
+export const MessagePattern = <K extends ClientProxyCommandsKey>(key: K) => {
+  return MP(key);
+};
+
+export const EventPattern = <K extends ClientProxyEventsKey>(key: K) => {
+  return EP(key);
+};

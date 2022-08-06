@@ -1,6 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { ClientProxyCommands, ClientProxyResult } from '@tsuwari/shared';
+import { Payload } from '@nestjs/microservices';
+import { type ClientProxyCommandPayload, ClientProxyResult, MessagePattern } from '@tsuwari/shared';
 import { parseTwitchMessage } from '@twurple/chat';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage.js';
 import { of } from 'rxjs';
@@ -43,7 +43,7 @@ export class AppController {
   }
 
   @MessagePattern('parseResponse')
-  async parseResponse(@Payload() data: ClientProxyCommands['parseResponse']['input']) {
+  async parseResponse(@Payload() data: ClientProxyCommandPayload<'parseResponse'>) {
     const parsedResponses = await this.service.parseResponses(data, {
       responses: [data.text],
       params: '',
@@ -54,7 +54,7 @@ export class AppController {
 
 
   @MessagePattern('parseChatMessage')
-  async parseChatMessage(@Payload() data: ClientProxyCommands['parseChatMessage']['input']) {
+  async parseChatMessage(@Payload() data: ClientProxyCommandPayload<'parseChatMessage'>) {
     const state = parseTwitchMessage(data) as TwitchPrivateMessage;
     let message = state.content.value;
 
