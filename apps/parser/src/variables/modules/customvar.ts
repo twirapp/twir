@@ -1,4 +1,5 @@
 import { CustomVarType } from '@tsuwari/prisma';
+import _ from 'lodash';
 import { VM } from 'vm2';
 
 import { Module } from '../index.js';
@@ -8,6 +9,7 @@ const vm = new VM({
   sandbox: {
     fetch,
     URLSearchParams,
+    _,
   },
   timeout: 5000,
 });
