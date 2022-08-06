@@ -193,7 +193,7 @@ importers:
       tlds: ^1.231.0
       tslib: ^2.4.0
       type-fest: 2.13.1
-      vitest: 0.15.1
+      vitest: 0.21.0
       vm2: ^3.9.9
     dependencies:
       '@nestjs-hybrid-auth/twitch': 1.0.0_k3frpvw5twb6qffjkljzswcw74
@@ -247,7 +247,7 @@ importers:
       '@types/lodash.omit': 4.5.7
       '@types/passport-jwt': 3.0.6
       type-fest: 2.13.1
-      vitest: 0.15.1
+      vitest: 0.21.0
 
   apps/dota:
     specifiers:
@@ -2107,7 +2107,6 @@ packages:
       tslib: 2.4.0
     transitivePeerDependencies:
       - encoding
-    dev: false
 
   /@twurple/auth/5.1.6:
     resolution: {integrity: sha512-XnhNaJWEifr2aL1vvshhXj7v3yck38IJSVu7lzZ8csUFAzi7xphLit3LHlFGrrVYPkGQeNUx6crj0cDEUv7mtg==}
@@ -5548,8 +5547,8 @@ packages:
     resolution: {integrity: sha512-xaYmXZtTHPAw5m+xLN8ab9C+3a8YmV3asNSPOATITbtwrfbwaLJj8h66H1WMIpALCkqsIzK3h7oQ+PdX+LQ9Eg==}
     engines: {node: '>=10'}
 
-  /local-pkg/0.4.1:
-    resolution: {integrity: sha512-lL87ytIGP2FU5PWwNDo0w3WhIo2gopIAxPg9RxDYF7m4rr5ahuZxP22xnJHIvaLTe4Z9P6uKKY2UHiwyB4pcrw==}
+  /local-pkg/0.4.2:
+    resolution: {integrity: sha512-mlERgSPrbxU3BP4qBqAvvwlgW4MTg78iwJdGGnv7kibKjWcJksrG3t6LB5lXI93wXRDvG4NpUgJFmTG4T6rdrg==}
     engines: {node: '>=14'}
     dev: true
 
@@ -7005,13 +7004,13 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /tinypool/0.1.3:
-    resolution: {integrity: sha512-2IfcQh7CP46XGWGGbdyO4pjcKqsmVqFAPcXfPxcPXmOWt9cYkTP9HcDmGgsfijYoAEc4z9qcpM/BaBz46Y9/CQ==}
+  /tinypool/0.2.4:
+    resolution: {integrity: sha512-Vs3rhkUH6Qq1t5bqtb816oT+HeJTXfwt2cbPH17sWHIYKTotQIFPk3tf2fgqRrVyMDVOc1EnPgzIxfIulXVzwQ==}
     engines: {node: '>=14.0.0'}
     dev: true
 
-  /tinyspy/0.3.3:
-    resolution: {integrity: sha512-gRiUR8fuhUf0W9lzojPf1N1euJYA30ISebSfgca8z76FOvXtVXqd5ojEIaKLWbDQhAaC3ibxZIjqbyi4ybjcTw==}
+  /tinyspy/1.0.0:
+    resolution: {integrity: sha512-FI5B2QdODQYDRjfuLF+OrJ8bjWRMCXokQPcwKm0W3IzcbUmBNv536cQc7eXGoAuXphZwgx1DFbqImwzz08Fnhw==}
     engines: {node: '>=14.0.0'}
     dev: true
 
@@ -7513,7 +7512,7 @@ packages:
       stylus:
         optional: true
     dependencies:
-      esbuild: 0.14.48
+      esbuild: 0.14.49
       postcss: 8.4.14
       resolve: 1.22.1
       rollup: 2.75.7
@@ -7521,16 +7520,22 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitest/0.15.1:
-    resolution: {integrity: sha512-NaNFi93JKSuvV4YGnfQ0l0GKYxH0EsLcTrrXaCzd6qfVEZM/RJpjwSevg6waNFqu2DyN6e0aHHdrCZW5/vh5NA==}
+  /vitest/0.21.0:
+    resolution: {integrity: sha512-+BQB2swk4wQdw5loOoL8esIYh/1ifAliuwj2HWHNE2F8SAl/jF7/aoCJBoXGSf/Ws19k3pH4NrWeVtcSwM0j2w==}
     engines: {node: '>=v14.16.0'}
     hasBin: true
     peerDependencies:
+      '@edge-runtime/vm': '*'
+      '@vitest/browser': '*'
       '@vitest/ui': '*'
       c8: '*'
       happy-dom: '*'
       jsdom: '*'
     peerDependenciesMeta:
+      '@edge-runtime/vm':
+        optional: true
+      '@vitest/browser':
+        optional: true
       '@vitest/ui':
         optional: true
       c8:
@@ -7542,12 +7547,12 @@ packages:
     dependencies:
       '@types/chai': 4.3.1
       '@types/chai-subset': 1.3.3
-      '@types/node': 17.0.44
+      '@types/node': 18.6.4
       chai: 4.3.6
       debug: 4.3.4
-      local-pkg: 0.4.1
-      tinypool: 0.1.3
-      tinyspy: 0.3.3
+      local-pkg: 0.4.2
+      tinypool: 0.2.4
+      tinyspy: 1.0.0
       vite: 2.9.13
     transitivePeerDependencies:
       - less

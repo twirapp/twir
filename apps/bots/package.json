@@ -66,6 +66,6 @@
     "@types/lodash.omit": "4.5.7",
     "@types/passport-jwt": "3.0.6",
     "type-fest": "2.13.1",
-    "vitest": "0.15.1"
+    "vitest": "0.21.0"
   }
 }
