@@ -11,13 +11,13 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@nestjs/common": "^9.0.8",
-    "@nestjs/core": "^9.0.8",
+    "@nestjs/common": "9.0.8",
+    "@nestjs/core": "9.0.8",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
     "redis-om": "github:satont/redis-om-node",
-    "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.5.6",
-    "tslib": "^2.4.0"
+    "reflect-metadata": "0.1.13",
+    "rxjs": "7.5.6",
+    "tslib": "2.4.0"
   }
 }

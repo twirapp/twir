@@ -62,7 +62,7 @@
     "@types/jsonwebtoken": "8.5.8",
     "@types/lodash.chunk": "4.2.7",
     "@types/lodash.merge": "4.6.7",
-    "@types/multer": "^1.4.7",
+    "@types/multer": "1.4.7",
     "@types/passport-jwt": "3.0.6",
     "type-fest": "2.18.0"
   }
