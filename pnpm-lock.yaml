@@ -327,7 +327,7 @@ importers:
     specifiers:
       '@headlessui/vue': ^1.6.5
       '@intlify/vite-plugin-vue-i18n': 3.4.0
-      '@nanostores/persistent': 0.5.3
+      '@nanostores/persistent': 0.6.0
       '@nanostores/vue': 0.5.5
       '@popperjs/core': ^2.11.5
       '@tsuwari/api': workspace:*
@@ -369,7 +369,7 @@ importers:
       yup: 0.32.11
     dependencies:
       '@headlessui/vue': 1.6.5_vue@3.2.37
-      '@nanostores/persistent': 0.5.3_nanostores@0.5.12
+      '@nanostores/persistent': 0.6.0_nanostores@0.5.12
       '@nanostores/vue': 0.5.5_ympl27tda4o7w6en7idglmssei
       '@popperjs/core': 2.11.5
       '@tsuwari/api': link:../api
@@ -987,11 +987,11 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
-  /@nanostores/persistent/0.5.3_nanostores@0.5.12:
-    resolution: {integrity: sha512-WhMef3q382OUZnNYAoQzbAXN2Q3ECFYAJoWDDn+EgJS5wB/2cPduaUd77v2Yy04RnSwgKMr3SZydTNLXHFAffw==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
+  /@nanostores/persistent/0.6.0_nanostores@0.5.12:
+    resolution: {integrity: sha512-7Vjy3QG/LtWrlwJVOL+wLODhRQeyiH/mFCJQsuO2MUzxPtzdUYlTbVC6zzD75i1b3JgmHRYQVxQecc0ad4FUVA==}
+    engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
     peerDependencies:
-      nanostores: ^0.5.0
+      nanostores: ^0.6.0
     dependencies:
       nanostores: 0.5.12
     dev: false

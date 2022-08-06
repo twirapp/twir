@@ -3,8 +3,10 @@
     "satont/tsuwari"
   ],
   "extends": [
-    "config:base"
+    "config:base",
+    ":disableRateLimiting"
   ],
+  "rebaseWhen": "conflicted",
   "commitBody": "[CI SKIP]",
   "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
   "semanticCommits": true,
