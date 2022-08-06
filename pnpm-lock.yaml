@@ -327,14 +327,14 @@ importers:
     specifiers:
       '@headlessui/vue': ^1.6.5
       '@intlify/vite-plugin-vue-i18n': 3.4.0
-      '@nanostores/persistent': 0.5.3
+      '@nanostores/persistent': 0.6.0
       '@nanostores/vue': 0.5.5
       '@popperjs/core': ^2.11.5
       '@tsuwari/api': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
       '@twurple/api': 5.2.0
-      '@twurple/common': 5.1.6
+      '@twurple/common': 5.2.0
       '@types/prismjs': 1.26.0
       '@vitejs/plugin-vue': 2.3.3
       '@vueuse/components': ^8.7.5
@@ -369,7 +369,7 @@ importers:
       yup: 0.32.11
     dependencies:
       '@headlessui/vue': 1.6.5_vue@3.2.37
-      '@nanostores/persistent': 0.5.3_nanostores@0.5.12
+      '@nanostores/persistent': 0.6.0_nanostores@0.5.12
       '@nanostores/vue': 0.5.5_ympl27tda4o7w6en7idglmssei
       '@popperjs/core': 2.11.5
       '@tsuwari/api': link:../api
@@ -401,7 +401,7 @@ importers:
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
       '@twurple/api': 5.2.0
-      '@twurple/common': 5.1.6
+      '@twurple/common': 5.2.0
       '@types/prismjs': 1.26.0
       '@vitejs/plugin-vue': 2.3.3_vite@2.9.12+vue@3.2.37
       autoprefixer: 10.4.8_postcss@8.4.14
@@ -525,7 +525,7 @@ importers:
       '@tsuwari/shared': workspace:*
       '@twurple/api': 5.2.0
       '@twurple/auth': 5.1.6
-      '@twurple/common': 5.1.6
+      '@twurple/common': 5.2.0
       '@types/lodash': 4.14.182
       lodash: 4.17.21
       nats: 2.7.1
@@ -544,7 +544,7 @@ importers:
       '@tsuwari/shared': link:../../libs/shared
       '@twurple/api': 5.2.0_@twurple+auth@5.1.6
       '@twurple/auth': 5.1.6
-      '@twurple/common': 5.1.6
+      '@twurple/common': 5.2.0
       lodash: 4.17.21
       nats: 2.7.1
       reflect-metadata: 0.1.13
@@ -608,7 +608,7 @@ importers:
       '@tsuwari/prisma': workspace:*
       '@twurple/api': 5.2.0
       '@twurple/auth': 5.1.6
-      '@twurple/common': 5.1.6
+      '@twurple/common': 5.2.0
       '@twurple/eventsub': ^5.1.6
       '@types/lodash': 4.14.182
       class-validator: 0.13.2
@@ -623,7 +623,7 @@ importers:
       '@tsuwari/prisma': link:../prisma
       '@twurple/api': 5.2.0_@twurple+auth@5.1.6
       '@twurple/auth': 5.1.6
-      '@twurple/common': 5.1.6
+      '@twurple/common': 5.2.0
       '@twurple/eventsub': 5.1.6_@twurple+api@5.2.0
       class-validator: 0.13.2
       ioredis: 5.1.0
@@ -987,11 +987,11 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
-  /@nanostores/persistent/0.5.3_nanostores@0.5.12:
-    resolution: {integrity: sha512-WhMef3q382OUZnNYAoQzbAXN2Q3ECFYAJoWDDn+EgJS5wB/2cPduaUd77v2Yy04RnSwgKMr3SZydTNLXHFAffw==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
+  /@nanostores/persistent/0.6.0_nanostores@0.5.12:
+    resolution: {integrity: sha512-7Vjy3QG/LtWrlwJVOL+wLODhRQeyiH/mFCJQsuO2MUzxPtzdUYlTbVC6zzD75i1b3JgmHRYQVxQecc0ad4FUVA==}
+    engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
     peerDependencies:
-      nanostores: ^0.5.0
+      nanostores: ^0.6.0
     dependencies:
       nanostores: 0.5.12
     dev: false
@@ -2083,7 +2083,7 @@ packages:
     dependencies:
       '@d-fischer/cross-fetch': 4.1.0
       '@d-fischer/qs': 7.0.2
-      '@twurple/common': 5.1.6
+      '@twurple/common': 5.2.0
       '@types/node-fetch': 2.6.2
       tslib: 2.4.0
     transitivePeerDependencies:
@@ -2158,7 +2158,7 @@ packages:
       '@d-fischer/logger': 4.2.0
       '@d-fischer/shared-utils': 3.2.0
       '@twurple/api-call': 5.1.6
-      '@twurple/common': 5.1.6
+      '@twurple/common': 5.2.0
       tslib: 2.4.0
     transitivePeerDependencies:
       - encoding
@@ -2190,6 +2190,7 @@ packages:
       '@d-fischer/shared-utils': 3.2.0
       klona: 2.0.5
       tslib: 2.4.0
+    dev: false
 
   /@twurple/common/5.2.0:
     resolution: {integrity: sha512-9w97ppHJH7L/Uf30haPsOIGKsOdMFM16g0KvGgYRgzvN03AfJJ2VY6K1/OeIXCI3Em8M5Sju3Rh+m1RDoqB1Mw==}
@@ -2228,7 +2229,7 @@ packages:
       '@d-fischer/typed-event-emitter': 3.2.3
       '@twurple/api': 5.2.0_@twurple+auth@5.1.6
       '@twurple/auth': 5.1.6
-      '@twurple/common': 5.1.6
+      '@twurple/common': 5.2.0
       '@types/express-serve-static-core': 4.17.29
       httpanda: 0.4.6
       tslib: 2.4.0

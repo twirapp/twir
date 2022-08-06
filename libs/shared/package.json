@@ -17,7 +17,7 @@
     "@tsuwari/prisma": "workspace:*",
     "@twurple/api": "5.2.0",
     "@twurple/auth": "5.1.6",
-    "@twurple/common": "5.1.6",
+    "@twurple/common": "5.2.0",
     "@twurple/eventsub": "^5.1.6",
     "class-validator": "0.13.2",
     "ioredis": "^5.0.6",
