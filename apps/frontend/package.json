@@ -41,7 +41,7 @@
     "@intlify/vite-plugin-vue-i18n": "3.4.0",
     "@tsuwari/prisma": "workspace:*",
     "@tsuwari/shared": "workspace:*",
-    "@twurple/api": "5.1.6",
+    "@twurple/api": "5.2.0",
     "@twurple/common": "5.1.6",
     "@types/prismjs": "1.26.0",
     "@vitejs/plugin-vue": "2.3.3",
