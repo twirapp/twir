@@ -19,7 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "@nestjs/common": "^9.0.8",
-    "@prisma/client": "^4.0.0",
-    "prisma": "^4.0.0"
+    "@prisma/client": "^4.1.1",
+    "prisma": "^4.1.1"
   }
 }
