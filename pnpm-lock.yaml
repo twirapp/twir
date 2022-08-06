@@ -327,7 +327,7 @@ importers:
     specifiers:
       '@headlessui/vue': ^1.6.5
       '@intlify/vite-plugin-vue-i18n': 3.4.0
-      '@nanostores/persistent': 0.5.3
+      '@nanostores/persistent': 0.6.0
       '@nanostores/vue': 0.5.5
       '@popperjs/core': ^2.11.5
       '@tsuwari/api': workspace:*
@@ -369,7 +369,7 @@ importers:
       yup: 0.32.11
     dependencies:
       '@headlessui/vue': 1.6.5_vue@3.2.37
-      '@nanostores/persistent': 0.5.3_nanostores@0.5.12
+      '@nanostores/persistent': 0.6.0_nanostores@0.5.12
       '@nanostores/vue': 0.5.5_ympl27tda4o7w6en7idglmssei
       '@popperjs/core': 2.11.5
       '@tsuwari/api': link:../api
@@ -524,7 +524,7 @@ importers:
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
       '@twurple/api': 5.2.0
-      '@twurple/auth': 5.1.6
+      '@twurple/auth': 5.2.0
       '@twurple/common': 5.1.6
       '@types/lodash': 4.14.182
       lodash: 4.17.21
@@ -542,8 +542,8 @@ importers:
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
-      '@twurple/api': 5.2.0_@twurple+auth@5.1.6
-      '@twurple/auth': 5.1.6
+      '@twurple/api': 5.2.0_@twurple+auth@5.2.0
+      '@twurple/auth': 5.2.0
       '@twurple/common': 5.1.6
       lodash: 4.17.21
       nats: 2.7.1
@@ -607,7 +607,7 @@ importers:
       '@tsuwari/config': workspace:*
       '@tsuwari/prisma': workspace:*
       '@twurple/api': 5.2.0
-      '@twurple/auth': 5.1.6
+      '@twurple/auth': 5.2.0
       '@twurple/common': 5.1.6
       '@twurple/eventsub': ^5.1.6
       '@types/lodash': 4.14.182
@@ -621,8 +621,8 @@ importers:
       '@nestjs/microservices': 9.0.8_x6ssginnrshdc63uh2jvf4wu3q
       '@tsuwari/config': link:../config
       '@tsuwari/prisma': link:../prisma
-      '@twurple/api': 5.2.0_@twurple+auth@5.1.6
-      '@twurple/auth': 5.1.6
+      '@twurple/api': 5.2.0_@twurple+auth@5.2.0
+      '@twurple/auth': 5.2.0
       '@twurple/common': 5.1.6
       '@twurple/eventsub': 5.1.6_@twurple+api@5.2.0
       class-validator: 0.13.2
@@ -987,11 +987,11 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
-  /@nanostores/persistent/0.5.3_nanostores@0.5.12:
-    resolution: {integrity: sha512-WhMef3q382OUZnNYAoQzbAXN2Q3ECFYAJoWDDn+EgJS5wB/2cPduaUd77v2Yy04RnSwgKMr3SZydTNLXHFAffw==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
+  /@nanostores/persistent/0.6.0_nanostores@0.5.12:
+    resolution: {integrity: sha512-7Vjy3QG/LtWrlwJVOL+wLODhRQeyiH/mFCJQsuO2MUzxPtzdUYlTbVC6zzD75i1b3JgmHRYQVxQecc0ad4FUVA==}
+    engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
     peerDependencies:
-      nanostores: ^0.5.0
+      nanostores: ^0.6.0
     dependencies:
       nanostores: 0.5.12
     dev: false
@@ -2135,7 +2135,7 @@ packages:
       - encoding
     dev: true
 
-  /@twurple/api/5.2.0_@twurple+auth@5.1.6:
+  /@twurple/api/5.2.0_@twurple+auth@5.2.0:
     resolution: {integrity: sha512-ujALhaqWeJUiHShIYYbzj3AviYF5D7sdJAJj13E7D0oAsLio98i4QUqPuqt1LCkAblpn0CacNLsajATwpRlHbg==}
     peerDependencies:
       '@twurple/auth': ^5.0.0
@@ -2146,7 +2146,7 @@ packages:
       '@d-fischer/rate-limiter': 0.6.1
       '@d-fischer/shared-utils': 3.2.0
       '@twurple/api-call': 5.2.0
-      '@twurple/auth': 5.1.6
+      '@twurple/auth': 5.2.0
       '@twurple/common': 5.2.0
       tslib: 2.4.0
     transitivePeerDependencies:
@@ -2159,6 +2159,18 @@ packages:
       '@d-fischer/shared-utils': 3.2.0
       '@twurple/api-call': 5.1.6
       '@twurple/common': 5.1.6
+      tslib: 2.4.0
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /@twurple/auth/5.2.0:
+    resolution: {integrity: sha512-sXL0lv1fW1myYfwAdhSnGJ1c7eSgQNIwRxAFmrx25e89DYR7pZMll17ey7V/Y4bR/96CIv/28dSQfIjzr0FpRw==}
+    dependencies:
+      '@d-fischer/logger': 4.2.0
+      '@d-fischer/shared-utils': 3.2.0
+      '@twurple/api-call': 5.2.0
+      '@twurple/common': 5.2.0
       tslib: 2.4.0
     transitivePeerDependencies:
       - encoding
@@ -2226,8 +2238,8 @@ packages:
       '@d-fischer/raw-body': 2.4.3
       '@d-fischer/shared-utils': 3.2.0
       '@d-fischer/typed-event-emitter': 3.2.3
-      '@twurple/api': 5.2.0_@twurple+auth@5.1.6
-      '@twurple/auth': 5.1.6
+      '@twurple/api': 5.2.0_@twurple+auth@5.2.0
+      '@twurple/auth': 5.2.0
       '@twurple/common': 5.1.6
       '@types/express-serve-static-core': 4.17.29
       httpanda: 0.4.6

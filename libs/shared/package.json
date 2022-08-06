@@ -16,7 +16,7 @@
     "@tsuwari/config": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
     "@twurple/api": "5.2.0",
-    "@twurple/auth": "5.1.6",
+    "@twurple/auth": "5.2.0",
     "@twurple/common": "5.1.6",
     "@twurple/eventsub": "^5.1.6",
     "class-validator": "0.13.2",

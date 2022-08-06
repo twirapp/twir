@@ -18,7 +18,7 @@
     "@tsuwari/redis": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@twurple/api": "5.2.0",
-    "@twurple/auth": "5.1.6",
+    "@twurple/auth": "5.2.0",
     "@twurple/common": "5.1.6",
     "lodash": "4.17.21",
     "nats": "2.7.1",
