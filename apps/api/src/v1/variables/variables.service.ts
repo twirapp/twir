@@ -51,7 +51,7 @@ export class VariablesService implements OnModuleInit {
       },
     });
 
-    await this.#repository.createAndSave(variable, `${channelId}:${variable.name}`);
+    await this.#repository.createAndSave(variable, `${channelId}:${variable.id}`);
 
     return variable;
   }
@@ -70,7 +70,7 @@ export class VariablesService implements OnModuleInit {
       where: { id: variableId },
     });
 
-    await this.#repository.remove(`${channelId}:${variable.name}`);
+    await this.#repository.remove(`${channelId}:${variable.id}`);
 
     return variable;
   }
@@ -92,7 +92,7 @@ export class VariablesService implements OnModuleInit {
       data,
     });
 
-    await this.#repository.createAndSave(newVariable, `${channelId}:${variable.name}`);
+    await this.#repository.createAndSave(newVariable, `${channelId}:${variable.id}`);
 
     return newVariable;
   }

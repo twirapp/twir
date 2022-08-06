@@ -69,7 +69,7 @@ export class ParserCache {
     });
 
     for (const variable of vars) {
-      repository.createAndSave(variable, `${this.broadcasterId}:${variable.name}`);
+      repository.createAndSave(variable, `${this.broadcasterId}:${variable.id}`);
     }
 
     this.#customVars = vars;
