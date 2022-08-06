@@ -23,7 +23,7 @@
     "filepond-plugin-file-validate-type": "^1.2.8",
     "filepond-plugin-image-preview": "^4.6.11",
     "jwt-decode": "3.1.2",
-    "nanostores": "0.5.12",
+    "nanostores": "0.6.0",
     "prismjs": "1.28.0",
     "socket.io-client": "4.5.1",
     "tw-elements": "1.0.0-alpha12",
