@@ -22,10 +22,10 @@
     "@tsuwari/redis": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "ioredis": "5.2.2",
-    "knex": "^2.2.0",
+    "knex": "2.2.0",
     "lodash": "4.17.21",
     "nats": "2.7.1",
-    "pg": "^8.7.3",
+    "pg": "8.7.3",
     "reflect-metadata": "0.1.13",
     "rxjs": "7.5.6",
     "tslib": "2.4.0"

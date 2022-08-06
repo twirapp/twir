@@ -8,21 +8,21 @@
     "start": "node --enable-source-maps dist/index.js"
   },
   "devDependencies": {
-    "@types/steam-user": "^4.23.0",
-    "@types/steamid": "^2.0.1"
+    "@types/steam-user": "4.23.0",
+    "@types/steamid": "2.0.1"
   },
   "dependencies": {
-    "@nestjs/common": "^9.0.8",
-    "@nestjs/core": "^9.0.8",
-    "@nestjs/microservices": "^9.0.8",
+    "@nestjs/common": "9.0.8",
+    "@nestjs/core": "9.0.8",
+    "@nestjs/microservices": "9.0.8",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
     "@tsuwari/shared": "workspace:*",
-    "nats": "^2.7.1",
-    "protobufjs": "^7.0.0",
-    "reflect-metadata": "^0.1.13",
-    "steam-user": "^4.24.6",
-    "steamid": "^2.0.0",
-    "tslib": "^2.4.0"
+    "nats": "2.7.1",
+    "protobufjs": "7.0.0",
+    "reflect-metadata": "0.1.13",
+    "steam-user": "4.24.6",
+    "steamid": "2.0.0",
+    "tslib": "2.4.0"
   }
 }
