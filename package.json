@@ -52,10 +52,5 @@
     "tsx": "3.8.0",
     "turbo": "1.4.2",
     "typescript": "4.7.4"
-  },
-  "pnpm": {
-    "overrides": {
-      "ircv3": "^0.29.3"
-    }
   }
 }

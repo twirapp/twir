@@ -1,8 +1,5 @@
 lockfileVersion: 5.4
 
-overrides:
-  ircv3: ^0.29.3
-
 importers:
 
   .:
