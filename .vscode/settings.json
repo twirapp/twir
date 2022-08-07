@@ -5,10 +5,16 @@
   "editor.detectIndentation": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.tabSize": 2,
+  "editor.codeActionsOnSave": {
+    "source.sortImports": true
+  },
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   },
   "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[vue]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "typescript.preferences.importModuleSpecifierEnding": "js",
