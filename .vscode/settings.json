@@ -1,13 +1,15 @@
 {
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-  },
+  "files.autoSave": "onFocusChange",
   "editor.formatOnSave": true,
   "editor.insertSpaces": true,
   "editor.detectIndentation": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.tabSize": 2,
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib",
@@ -31,14 +33,15 @@
       "localPort": 5555,
       "name": "prisma studio",
       "remotePort": 5555
-    },
+    }
   ],
-  "i18n-ally.localesPaths": [
-    "apps/frontend/src/locales"
-  ],
+  "i18n-ally.localesPaths": ["apps/frontend/src/locales"],
   "i18n-ally.editor.preferEditor": true,
   "i18n-ally.sortKeys": true,
   "i18n-ally.keepFulfilled": true,
   "i18n-ally.keystyle": "nested",
-  "i18n-ally.sourceLanguage": "gb"
+  "i18n-ally.sourceLanguage": "gb",
+  "prisma.fileWatcher": false,
+  "typescript.format.enable": false,
+  "editor.rulers": [100]
 }

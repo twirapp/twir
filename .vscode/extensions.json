@@ -2,11 +2,12 @@
   "recommendations": [
     "lokalise.i18n-ally",
     "dbaeumer.vscode-eslint",
-    "AbhijoyBasak.nestjs-files",
-    "Prisma.prisma",
-    "Dunn.redis",
+    "abhijoybasak.nestjs-files",
+    "prisma.prisma",
+    "dunn.redis",
     "bradlc.vscode-tailwindcss",
     "rangav.vscode-thunder-client",
-    "Vue.volar"
+    "vue.volar",
+    "esbenp.prettier-vscode"
   ]
 }
