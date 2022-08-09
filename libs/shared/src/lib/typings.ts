@@ -1,11 +1,10 @@
 import { DashboardAccess } from '@tsuwari/prisma';
-import { HelixStream, HelixUser } from '@twurple/api';
-import { rawDataSymbol } from '@twurple/common';
+import { HelixStreamData, HelixUserData } from '@twurple/api';
 
-export type CachedStream = HelixStream[typeof rawDataSymbol] & { parsedMessages?: number }
+export type CachedStream = HelixStreamData & { parsedMessages?: number };
 
-export type AuthUser = HelixUser[typeof rawDataSymbol] & {
-  dashboards: Array<DashboardAccess & { twitch: HelixUser[typeof rawDataSymbol] }>
-  isTester: boolean,
-  isBotAdmin?: boolean,
-}
+export type AuthUser = HelixUserData & {
+  dashboards: Array<DashboardAccess & { twitch: HelixUserData }>;
+  isTester: boolean;
+  isBotAdmin?: boolean;
+};

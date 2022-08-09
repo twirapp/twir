@@ -63,7 +63,6 @@ export class AppController {
   @MessagePattern('parseResponse')
   async parseResponse(@Payload() data: ClientProxyCommandPayload<'parseResponse'>) {
     parseResponseCounter.inc();
-
     const parsedResponses = await this.service.parseResponses(data, {
       responses: [data.text],
       params: '',
@@ -75,7 +74,6 @@ export class AppController {
   @MessagePattern('parseChatMessage')
   async parseChatMessage(@Payload() data: ClientProxyCommandPayload<'parseChatMessage'>) {
     parseChatMessageCounter.inc();
-
     const state = parseTwitchMessage(data) as TwitchPrivateMessage;
     let message = state.content.value;
 
