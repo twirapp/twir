@@ -25,7 +25,7 @@
     "@tsuwari/redis": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/spotify": "workspace:^1.0.0",
-    "@twurple/api": "5.2.0",
+    "@twurple/api": "5.2.1",
     "@twurple/auth": "5.2.0",
     "@twurple/chat": "5.2.0",
     "@twurple/common": "5.2.0",

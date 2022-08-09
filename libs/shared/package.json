@@ -15,7 +15,7 @@
     "@nestjs/microservices": "9.0.8",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
-    "@twurple/api": "5.2.0",
+    "@twurple/api": "5.2.1",
     "@twurple/auth": "5.2.0",
     "@twurple/common": "5.2.0",
     "@twurple/eventsub": "5.2.0",
