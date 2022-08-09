@@ -353,7 +353,7 @@ importers:
       tailwindcss: 3.1.8
       tw-elements: 1.0.0-alpha12
       type-fest: 2.18.0
-      vee-validate: 4.6.2
+      vee-validate: 4.6.4
       vite: 3.0.4
       vite-svg-loader: 3.4.0
       vue: 3.2.37
@@ -384,7 +384,7 @@ importers:
       prismjs: 1.28.0
       socket.io-client: 4.5.1
       tw-elements: 1.0.0-alpha12
-      vee-validate: 4.6.2_vue@3.2.37
+      vee-validate: 4.6.4_vue@3.2.37
       vite-svg-loader: 3.4.0
       vue: 3.2.37
       vue-filepond: 7.0.3_filepond@4.30.4+vue@3.2.37
@@ -1199,7 +1199,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.0.8_j5hagqx4mwzscud4kyjdvubauy
-      '@nestjs/microservices': 9.0.8_pa2dgjwpxilk3ta5jtlsvj3ssm
+      '@nestjs/microservices': 9.0.8_ew7vwaxo6ldi6tzq4af5uguxri
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
@@ -1295,8 +1295,8 @@ packages:
       '@nestjs/websockets':
         optional: true
     dependencies:
-      '@nestjs/common': 9.0.8_j5hagqx4mwzscud4kyjdvubauy
-      '@nestjs/microservices': 9.0.8_pa2dgjwpxilk3ta5jtlsvj3ssm
+      '@nestjs/common': 9.0.8_allg6cauirbqzgqcmexy2wdnoq
+      '@nestjs/microservices': 9.0.8_ew7vwaxo6ldi6tzq4af5uguxri
       '@nestjs/platform-express': 9.0.8_cw6o3dkuyuli4a5gq7b223evly
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
@@ -1598,8 +1598,8 @@ packages:
       '@nestjs/common': ^9.0.0
       '@nestjs/core': ^9.0.0
     dependencies:
-      '@nestjs/common': 9.0.8_j5hagqx4mwzscud4kyjdvubauy
-      '@nestjs/core': 9.0.8_y46a3gxyzfjmwfynwm5lxhdxgm
+      '@nestjs/common': 9.0.8_mgy7w2bm3yhmntrbe3boyroj6m
+      '@nestjs/core': 9.0.8_zflq4taoxqxdbpm3n4urn4whwu
       body-parser: 1.20.0
       cors: 2.8.5
       express: 4.18.1
@@ -7343,8 +7343,8 @@ packages:
       util: 0.12.4
     dev: false
 
-  /vee-validate/4.6.2_vue@3.2.37:
-    resolution: {integrity: sha512-DOOQn3lLgDQXuLogEaiv0WfaW7lNydODdmtB/RjkodioaJ1hjlwoM0zdsIGzMW/t35p04GdZfWM4UCd0gfTiLg==}
+  /vee-validate/4.6.4_vue@3.2.37:
+    resolution: {integrity: sha512-40l/fvtz450zTGf0b2/9pz6c6ADBAoC7EquhJ1Zq6fIknWmiLEz8K+a97WmvCkgR/q56H/Hww5T6iMDFp3lrkg==}
     peerDependencies:
       vue: ^3.0.0
     dependencies:
