@@ -8,6 +8,8 @@ services:
       - 54320:8080
     environment:
       - ADMINER_PLUGINS=enum-types
+    networks:
+      - tsuwari
 
   postgres:
     restart: unless-stopped
@@ -21,6 +23,8 @@ services:
       POSTGRES_DB: ${DB_NAME}
       #ports:
       #- 5432:5432
+    networks:
+      - tsuwari
 
 
   backup:
@@ -38,6 +42,8 @@ services:
       SCHEDULE: ${S3_SCHEDULE}
       S3_REGION: ${S3_REGION}
       S3_ENDPOINT: ${S3_ENDPOINT}
+    networks:
+      - tsuwari
 
   minio:
     image: quay.io/minio/minio
@@ -57,20 +63,26 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+    networks:
+      - tsuwari
 
   migrations:
     restart: "no"
-    image: satont/tsuwari:migrations-ARM64
+    image: registry.tsuwari.tk/tsuwarimigrations
     env_file:
       - .env
     depends_on:
       - postgres
+    networks:
+      - tsuwari
 
   redis:
     restart: unless-stopped
     image: redis/redis-stack:latest
     volumes:
       - ./redis-data:/data
+    networks:
+      - tsuwari
 
   nats:
     restart: unless-stopped
@@ -78,7 +90,7 @@ services:
 
   api:
     restart: unless-stopped
-    image: satont/tsuwari:api-ARM64
+    image: registry.tsuwari.tk/tsuwariapi
     env_file:
       - .env
     ports:
@@ -88,10 +100,12 @@ services:
       - migrations
       - postgres
       - nats
+    networks:
+      - tsuwari
 
   bots:
     restart: unless-stopped
-    image: satont/tsuwari:bots-ARM64
+    image: registry.tsuwari.tk/tsuwaribots
     env_file:
       - .env
     depends_on:
@@ -100,10 +114,12 @@ services:
       - postgres
       - nats
       - api
+    networks:
+      - tsuwari
 
   parser:
     restart: unless-stopped
-    image: satont/tsuwari:parser-ARM64
+    image: registry.tsuwari.tk/tsuwariparser
     env_file:
       - .env
     deploy:
@@ -115,10 +131,12 @@ services:
       - postgres
       - nats
       - bots
+    networks:
+      - tsuwari
 
   scheduler:
     restart: unless-stopped
-    image: satont/tsuwari:scheduler-ARM64
+    image: registry.tsuwari.tk/tsuwarischeduler
     env_file:
       - .env
     depends_on:
@@ -127,10 +145,12 @@ services:
       - streamstatus
       - postgres
       - nats
+    networks:
+      - tsuwari
 
   streamstatus:
     restart: unless-stopped
-    image: satont/tsuwari:streamstatus-ARM64
+    image: registry.tsuwari.tk/tsuwaristreamstatus
     env_file:
       - .env
     depends_on:
@@ -138,10 +158,12 @@ services:
       - migrations
       - postgres
       - nats
+    networks:
+      - tsuwari
 
   eventsub:
     restart: unless-stopped
-    image: satont/tsuwari:eventsub-ARM64
+    image: registry.tsuwari.tk/tsuwarieventsub
     env_file:
       - .env
     ports:
@@ -151,10 +173,12 @@ services:
       - migrations
       - postgres
       - nats
+    networks:
+      - tsuwari
 
   dota:
     restart: unless-stopped
-    image: satont/tsuwari:dota-ARM64
+    image: registry.tsuwari.tk/tsuwaridota
     env_file:
       - .env
     depends_on:
@@ -162,3 +186,8 @@ services:
       - migrations
       - postgres
       - nats
+    networks:
+      - tsuwari
+
+networks:
+  tsuwari:
