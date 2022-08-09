@@ -42,7 +42,7 @@
   "license": "ISC",
   "devDependencies": {
     "@satont/eslint-config": "github:satont/eslint-config",
-    "@types/node": "18.6.4",
+    "@types/node": "18.6.5",
     "@typescript-eslint/eslint-plugin": "5.33.0",
     "@typescript-eslint/parser": "5.33.0",
     "eslint": "8.21.0",

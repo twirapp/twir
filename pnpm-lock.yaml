@@ -5,7 +5,7 @@ importers:
   .:
     specifiers:
       '@satont/eslint-config': github:satont/eslint-config
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
       '@typescript-eslint/eslint-plugin': 5.33.0
       '@typescript-eslint/parser': 5.33.0
       eslint: 8.21.0
@@ -17,13 +17,13 @@ importers:
       typescript: 4.7.4
     devDependencies:
       '@satont/eslint-config': github.com/satont/eslint-config/db55fe5f29bcd17c115b523492a98af0075033e3_qfqnhzzittf54udqwes54xx65q
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
       '@typescript-eslint/eslint-plugin': 5.33.0_njno5y7ry2l2lcmiu4tywxkwnq
       '@typescript-eslint/parser': 5.33.0_qugx7qdu5zevzvxaiqyxfiwquq
       eslint: 8.21.0
       eslint-plugin-import: 2.26.0_qfqnhzzittf54udqwes54xx65q
       nodemon: 2.0.19
-      ts-node: 10.9.1_hn66opzbaneygq52jmwjxha6su
+      ts-node: 10.9.1_cvilj4l3ytrlnvtlqw3tscihve
       tsx: 3.8.1
       turbo: 1.4.2
       typescript: 4.7.4
@@ -47,10 +47,10 @@ importers:
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/spotify': workspace:*
-      '@twurple/api': ^5.2.0
-      '@twurple/auth': ^5.2.0
-      '@twurple/chat': ^5.2.0
-      '@twurple/common': ^5.2.0
+      '@twurple/api': ^5.2.1
+      '@twurple/auth': ^5.2.1
+      '@twurple/chat': ^5.2.1
+      '@twurple/common': ^5.2.1
       '@types/cache-manager': 4.0.1
       '@types/cache-manager-ioredis': 2.0.2
       '@types/cookie-parser': 1.4.3
@@ -60,7 +60,7 @@ importers:
       '@types/lodash.merge': 4.6.7
       '@types/multer': 1.4.7
       '@types/passport-jwt': 3.0.6
-      aws-sdk: ^2.1189.0
+      aws-sdk: ^2.1190.0
       cache-manager: ^4.1.0
       cache-manager-ioredis: ^2.1.0
       class-transformer: ^0.5.1
@@ -101,11 +101,11 @@ importers:
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/spotify': link:../../libs/integrations/spotify
-      '@twurple/api': 5.2.0_@twurple+auth@5.2.0
-      '@twurple/auth': 5.2.0
-      '@twurple/chat': 5.2.0_@twurple+auth@5.2.0
-      '@twurple/common': 5.2.0
-      aws-sdk: 2.1189.0
+      '@twurple/api': 5.2.1_@twurple+auth@5.2.1
+      '@twurple/auth': 5.2.1
+      '@twurple/chat': 5.2.1_@twurple+auth@5.2.1
+      '@twurple/common': 5.2.1
+      aws-sdk: 2.1190.0
       cache-manager: 4.1.0
       cache-manager-ioredis: 2.1.0
       class-transformer: 0.5.1
@@ -119,7 +119,7 @@ importers:
       lodash.chunk: 4.2.0
       lodash.merge: 4.6.2
       nats: 2.7.1
-      nestjs-s3: 1.0.1_hn5pinmhd3oejabnltxseko5wq
+      nestjs-s3: 1.0.1_5ybkdbawdy6vqkw6vhgjgmkj54
       passport: 0.6.0
       passport-jwt: 4.0.0
       prom-client: 14.0.1
@@ -156,10 +156,10 @@ importers:
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/spotify': workspace:*
-      '@twurple/api': ^5.2.0
-      '@twurple/auth': ^5.2.0
-      '@twurple/chat': ^5.2.0
-      '@twurple/common': ^5.2.0
+      '@twurple/api': ^5.2.1
+      '@twurple/auth': ^5.2.1
+      '@twurple/chat': ^5.2.1
+      '@twurple/common': ^5.2.1
       '@types/bull': 3.15.9
       '@types/cookie-parser': 1.4.3
       '@types/express': 4.17.13
@@ -208,10 +208,10 @@ importers:
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/spotify': link:../../libs/integrations/spotify
-      '@twurple/api': 5.2.0_@twurple+auth@5.2.0
-      '@twurple/auth': 5.2.0
-      '@twurple/chat': 5.2.0_@twurple+auth@5.2.0
-      '@twurple/common': 5.2.0
+      '@twurple/api': 5.2.1_@twurple+auth@5.2.1
+      '@twurple/auth': 5.2.1
+      '@twurple/chat': 5.2.1_@twurple+auth@5.2.1
+      '@twurple/common': 5.2.1
       axios: 0.27.2
       class-transformer: 0.5.1
       class-validator: 0.13.2
@@ -289,9 +289,9 @@ importers:
       '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
       '@twurple/api': 5.2.1
-      '@twurple/auth': 5.2.0
-      '@twurple/common': 5.2.0
-      '@twurple/eventsub': 5.2.0
+      '@twurple/auth': 5.2.1
+      '@twurple/common': 5.2.1
+      '@twurple/eventsub': 5.2.1
       '@types/express': 4.17.13
       express: 4.18.1
       nats: 2.7.1
@@ -307,10 +307,10 @@ importers:
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
-      '@twurple/api': 5.2.1_@twurple+auth@5.2.0
-      '@twurple/auth': 5.2.0
-      '@twurple/common': 5.2.0
-      '@twurple/eventsub': 5.2.0_@twurple+api@5.2.1
+      '@twurple/api': 5.2.1_@twurple+auth@5.2.1
+      '@twurple/auth': 5.2.1
+      '@twurple/common': 5.2.1
+      '@twurple/eventsub': 5.2.1_@twurple+api@5.2.1
       express: 4.18.1
       nats: 2.7.1
       ngrok: 4.3.1
@@ -331,7 +331,7 @@ importers:
       '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
       '@twurple/api': 5.2.1
-      '@twurple/common': 5.2.0
+      '@twurple/common': 5.2.1
       '@types/prismjs': 1.26.0
       '@vitejs/plugin-vue': 3.0.1
       '@vueuse/components': 9.1.0
@@ -398,7 +398,7 @@ importers:
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
       '@twurple/api': 5.2.1
-      '@twurple/common': 5.2.0
+      '@twurple/common': 5.2.1
       '@types/prismjs': 1.26.0
       '@vitejs/plugin-vue': 3.0.1_vite@3.0.4+vue@3.2.37
       autoprefixer: 10.4.8_postcss@8.4.16
@@ -424,9 +424,9 @@ importers:
       '@tsuwari/shared': workspace:*
       '@tsuwari/spotify': workspace:^1.0.0
       '@twurple/api': 5.2.1
-      '@twurple/auth': 5.2.0
-      '@twurple/chat': 5.2.0
-      '@twurple/common': 5.2.0
+      '@twurple/auth': 5.2.1
+      '@twurple/chat': 5.2.1
+      '@twurple/common': 5.2.1
       '@types/lodash': 4.14.182
       axios: 0.27.2
       axios-rate-limit: 1.3.0
@@ -451,10 +451,10 @@ importers:
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/spotify': link:../../libs/integrations/spotify
-      '@twurple/api': 5.2.1_@twurple+auth@5.2.0
-      '@twurple/auth': 5.2.0
-      '@twurple/chat': 5.2.0_@twurple+auth@5.2.0
-      '@twurple/common': 5.2.0
+      '@twurple/api': 5.2.1_@twurple+auth@5.2.1
+      '@twurple/auth': 5.2.1
+      '@twurple/chat': 5.2.1_@twurple+auth@5.2.1
+      '@twurple/common': 5.2.1
       axios: 0.27.2
       axios-rate-limit: 1.3.0_axios@0.27.2
       date-fns: 2.29.1
@@ -525,8 +525,8 @@ importers:
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
       '@twurple/api': 5.2.1
-      '@twurple/auth': 5.2.0
-      '@twurple/common': 5.2.0
+      '@twurple/auth': 5.2.1
+      '@twurple/common': 5.2.1
       '@types/lodash': 4.14.182
       lodash: 4.17.21
       nats: 2.7.1
@@ -543,9 +543,9 @@ importers:
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
-      '@twurple/api': 5.2.1_@twurple+auth@5.2.0
-      '@twurple/auth': 5.2.0
-      '@twurple/common': 5.2.0
+      '@twurple/api': 5.2.1_@twurple+auth@5.2.1
+      '@twurple/auth': 5.2.1
+      '@twurple/common': 5.2.1
       lodash: 4.17.21
       nats: 2.7.1
       reflect-metadata: 0.1.13
@@ -608,9 +608,9 @@ importers:
       '@tsuwari/config': workspace:*
       '@tsuwari/prisma': workspace:*
       '@twurple/api': 5.2.1
-      '@twurple/auth': 5.2.0
-      '@twurple/common': 5.2.0
-      '@twurple/eventsub': 5.2.0
+      '@twurple/auth': 5.2.1
+      '@twurple/common': 5.2.1
+      '@twurple/eventsub': 5.2.1
       '@types/lodash': 4.14.182
       class-validator: 0.13.2
       ioredis: 5.2.2
@@ -622,10 +622,10 @@ importers:
       '@nestjs/microservices': 9.0.8_7ghdgducp6noohe64z5725z7ci
       '@tsuwari/config': link:../config
       '@tsuwari/prisma': link:../prisma
-      '@twurple/api': 5.2.1_@twurple+auth@5.2.0
-      '@twurple/auth': 5.2.0
-      '@twurple/common': 5.2.0
-      '@twurple/eventsub': 5.2.0_@twurple+api@5.2.1
+      '@twurple/api': 5.2.1_@twurple+auth@5.2.1
+      '@twurple/auth': 5.2.1
+      '@twurple/common': 5.2.1
+      '@twurple/eventsub': 5.2.1_@twurple+api@5.2.1
       class-validator: 0.13.2
       ioredis: 5.2.2
       lodash: 4.17.21
@@ -1199,7 +1199,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.0.8_j5hagqx4mwzscud4kyjdvubauy
-      '@nestjs/microservices': 9.0.8_ew7vwaxo6ldi6tzq4af5uguxri
+      '@nestjs/microservices': 9.0.8_pa2dgjwpxilk3ta5jtlsvj3ssm
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
@@ -1936,18 +1936,6 @@ packages:
     resolution: {integrity: sha512-yOlFc+7UtL/89t2ZhjPvvB/DeAr3r+Dq58IgzsFkOAvVC6NMJXmCGjbptdXdR9qsX7pKcTL+s87FtYREi2dEEQ==}
     dev: true
 
-  /@twurple/api-call/5.2.0:
-    resolution: {integrity: sha512-dr12OoFd+1BROVLLIDlpo6K+K3aGdK13FG0zBjHbDvtLLQNY2OrSL/tGfcPUnfrffYaLGsu+xgZq+BrDbfdqww==}
-    dependencies:
-      '@d-fischer/cross-fetch': 4.1.0
-      '@d-fischer/qs': 7.0.2
-      '@twurple/common': 5.2.1
-      '@types/node-fetch': 2.6.2
-      tslib: 2.4.0
-    transitivePeerDependencies:
-      - encoding
-    dev: false
-
   /@twurple/api-call/5.2.1:
     resolution: {integrity: sha512-wWYOLuqLHNlhzrf2gYJZn8J3jbIJw0SIYQDROh2Vp9PCa8vkbOD1/JJwWtkJc/fmtNerYZnunby4faD7FVkD8w==}
     dependencies:
@@ -1958,24 +1946,6 @@ packages:
       tslib: 2.4.0
     transitivePeerDependencies:
       - encoding
-
-  /@twurple/api/5.2.0_@twurple+auth@5.2.0:
-    resolution: {integrity: sha512-ujALhaqWeJUiHShIYYbzj3AviYF5D7sdJAJj13E7D0oAsLio98i4QUqPuqt1LCkAblpn0CacNLsajATwpRlHbg==}
-    peerDependencies:
-      '@twurple/auth': ^5.0.0
-    dependencies:
-      '@d-fischer/cache-decorators': 3.0.0
-      '@d-fischer/detect-node': 3.0.1
-      '@d-fischer/logger': 4.2.0
-      '@d-fischer/rate-limiter': 0.6.1
-      '@d-fischer/shared-utils': 3.2.0
-      '@twurple/api-call': 5.2.0
-      '@twurple/auth': 5.2.0
-      '@twurple/common': 5.2.0
-      tslib: 2.4.0
-    transitivePeerDependencies:
-      - encoding
-    dev: false
 
   /@twurple/api/5.2.1:
     resolution: {integrity: sha512-kytYy22D3NntDKklD2lSYQIsUhqFm/5+T8RwCb0ZAbRVDh5/tMAtIn6AuX1mU9PbgYd6bRp05LHI2wsQAehQGg==}
@@ -1994,7 +1964,7 @@ packages:
       - encoding
     dev: true
 
-  /@twurple/api/5.2.1_@twurple+auth@5.2.0:
+  /@twurple/api/5.2.1_@twurple+auth@5.2.1:
     resolution: {integrity: sha512-kytYy22D3NntDKklD2lSYQIsUhqFm/5+T8RwCb0ZAbRVDh5/tMAtIn6AuX1mU9PbgYd6bRp05LHI2wsQAehQGg==}
     peerDependencies:
       '@twurple/auth': ^5.0.0
@@ -2005,27 +1975,26 @@ packages:
       '@d-fischer/rate-limiter': 0.6.1
       '@d-fischer/shared-utils': 3.2.0
       '@twurple/api-call': 5.2.1
-      '@twurple/auth': 5.2.0
+      '@twurple/auth': 5.2.1
+      '@twurple/common': 5.2.1
+      tslib: 2.4.0
+    transitivePeerDependencies:
+      - encoding
+
+  /@twurple/auth/5.2.1:
+    resolution: {integrity: sha512-/fAI6DXa/P8sQuEazI4LbKUAg3Xkp2Ke3VP7wzhnggTfe/KI5WZE/piyq8861ucaK5HMtchtYjKYFKnPPRXi4A==}
+    dependencies:
+      '@d-fischer/logger': 4.2.0
+      '@d-fischer/shared-utils': 3.2.0
+      '@twurple/api-call': 5.2.1
       '@twurple/common': 5.2.1
       tslib: 2.4.0
     transitivePeerDependencies:
       - encoding
     dev: false
 
-  /@twurple/auth/5.2.0:
-    resolution: {integrity: sha512-sXL0lv1fW1myYfwAdhSnGJ1c7eSgQNIwRxAFmrx25e89DYR7pZMll17ey7V/Y4bR/96CIv/28dSQfIjzr0FpRw==}
-    dependencies:
-      '@d-fischer/logger': 4.2.0
-      '@d-fischer/shared-utils': 3.2.0
-      '@twurple/api-call': 5.2.0
-      '@twurple/common': 5.2.0
-      tslib: 2.4.0
-    transitivePeerDependencies:
-      - encoding
-    dev: false
-
-  /@twurple/chat/5.2.0_@twurple+auth@5.2.0:
-    resolution: {integrity: sha512-jgNdHJV4ItR8PxDsxzSny1zkoR8Lhlk9Be+HoKxCd9JD/k8eqdpiTZfJhM4IpyZUwyqoRuHDuD4623i28Iv2qg==}
+  /@twurple/chat/5.2.1_@twurple+auth@5.2.1:
+    resolution: {integrity: sha512-+XjDWdFgW8495Qfrl1VbG6TrQYkSokuE+5J+sBySSXEjViV864hKrkejNJSEmD2ozJ667OB5rMb4B+HENQslTw==}
     peerDependencies:
       '@twurple/auth': ^5.0.0
     dependencies:
@@ -2035,21 +2004,14 @@ packages:
       '@d-fischer/rate-limiter': 0.6.1
       '@d-fischer/shared-utils': 3.2.0
       '@d-fischer/typed-event-emitter': 3.2.3
-      '@twurple/auth': 5.2.0
-      '@twurple/common': 5.2.0
+      '@twurple/auth': 5.2.1
+      '@twurple/common': 5.2.1
       ircv3: 0.29.4
       tslib: 2.4.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
     dev: false
-
-  /@twurple/common/5.2.0:
-    resolution: {integrity: sha512-9w97ppHJH7L/Uf30haPsOIGKsOdMFM16g0KvGgYRgzvN03AfJJ2VY6K1/OeIXCI3Em8M5Sju3Rh+m1RDoqB1Mw==}
-    dependencies:
-      '@d-fischer/shared-utils': 3.2.0
-      klona: 2.0.5
-      tslib: 2.4.0
 
   /@twurple/common/5.2.1:
     resolution: {integrity: sha512-EenvxcKCQAQT/AC+puWw4+N9q8/Dt8qxWzFGcBL/FEJArpb7KyY1nACAfln73vbzCh2OqhPc0TdbM0J/MvF16w==}
@@ -2058,8 +2020,8 @@ packages:
       klona: 2.0.5
       tslib: 2.4.0
 
-  /@twurple/eventsub/5.2.0_@twurple+api@5.2.1:
-    resolution: {integrity: sha512-Y4zRkHtex3P1BFXCRIC7Vsq+J+Z31arxu0oK39Tq8CAvUnO4IbrT8/XfHVqfhAhMWfkaQFh8Gw/RVqWd9+P9Ag==}
+  /@twurple/eventsub/5.2.1_@twurple+api@5.2.1:
+    resolution: {integrity: sha512-tE5OLJdxV7Z9d7PCuVqjyIFZiLirs8bCGoKWyU9P4+ntvx8Y4U9Aq5I8aLCjcPL5n5Ev15a71geUC6St4RzRxw==}
     peerDependencies:
       '@twurple/api': ^5.0.0
     dependencies:
@@ -2067,9 +2029,9 @@ packages:
       '@d-fischer/raw-body': 2.4.3
       '@d-fischer/shared-utils': 3.2.0
       '@d-fischer/typed-event-emitter': 3.2.3
-      '@twurple/api': 5.2.1_@twurple+auth@5.2.0
-      '@twurple/auth': 5.2.0
-      '@twurple/common': 5.2.0
+      '@twurple/api': 5.2.1_@twurple+auth@5.2.1
+      '@twurple/auth': 5.2.1
+      '@twurple/common': 5.2.1
       '@types/express-serve-static-core': 4.17.30
       httpanda: 0.4.6
       tslib: 2.4.0
@@ -2113,7 +2075,7 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/keyv': 3.1.4
-      '@types/node': 18.6.4
+      '@types/node': 8.10.66
       '@types/responselike': 1.0.0
     dev: false
 
@@ -2171,7 +2133,7 @@ packages:
   /@types/express-serve-static-core/4.17.30:
     resolution: {integrity: sha512-gstzbTWro2/nFed1WXtf+TtrpwxH7Ggs4RLYTLbeVgIkUQOI3WG/JKjgeOU1zXDvezllupjrf8OPIdvTbIaVOQ==}
     dependencies:
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
     dev: false
@@ -2214,7 +2176,7 @@ packages:
   /@types/keyv/3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 18.6.4
+      '@types/node': 8.10.66
     dev: false
 
   /@types/lodash.chunk/4.2.7:
@@ -2257,7 +2219,7 @@ packages:
   /@types/node-fetch/2.6.2:
     resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
     dependencies:
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
       form-data: 3.0.1
 
   /@types/node/12.20.55:
@@ -2277,6 +2239,9 @@ packages:
   /@types/node/18.6.4:
     resolution: {integrity: sha512-I4BD3L+6AWiUobfxZ49DlU43gtI+FTHSv9pE2Zekg6KjMpre4ByusaljW3vYSLJrvQ1ck1hUaeVu8HVlY3vzHg==}
 
+  /@types/node/18.6.5:
+    resolution: {integrity: sha512-Xjt5ZGUa5WusGZJ4WJPbOT8QOqp6nDynVFRKcUt32bOgvXEoc6o085WNkYTMO7ifAj2isEfQQ2cseE+wT6jsRw==}
+
   /@types/node/8.10.66:
     resolution: {integrity: sha512-tktOkFUA4kXx2hhhrB8bIFb5TbwzS4uOhKEmwiD+NoiL0qtP2OQ9mFldbgD4dV1djrlBYP6eBuQZiWjuHUpqFw==}
     dev: false
@@ -2284,7 +2249,7 @@ packages:
   /@types/oauth/0.9.1:
     resolution: {integrity: sha512-a1iY62/a3yhZ7qH7cNUsxoI3U/0Fe9+RnuFrpTKr+0WVOzbKlSLojShCKe20aOD1Sppv+i8Zlq0pLDuTJnwS4A==}
     dependencies:
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
     dev: false
 
   /@types/passport-jwt/3.0.6:
@@ -2342,7 +2307,7 @@ packages:
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 18.6.4
+      '@types/node': 8.10.66
     dev: false
 
   /@types/serve-static/1.13.10:
@@ -2377,7 +2342,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 18.6.4
+      '@types/node': 8.10.66
     dev: false
     optional: true
 
@@ -2930,8 +2895,8 @@ packages:
     engines: {node: '>= 0.4'}
     dev: false
 
-  /aws-sdk/2.1189.0:
-    resolution: {integrity: sha512-EqluXSo8XAR086nF9UAtPYwUm82ZIRqg8OmHBRQyftcrD1Z0pqMmiuvacXoEAJ/4UU8KKafbpYarxx8rH/pZjQ==}
+  /aws-sdk/2.1190.0:
+    resolution: {integrity: sha512-VJ3kpqjqww3u2OUOpvDA4EWU2HYetk0/5PQONqXR9N4dAvs8BP/Rv4BoYM/9m4rfhdBEMWizdye7epbBNxb4ZQ==}
     engines: {node: '>= 10.0.0'}
     dependencies:
       buffer: 4.9.2
@@ -3758,7 +3723,7 @@ packages:
       is-weakref: 1.0.2
       object-inspect: 1.12.2
       object-keys: 1.1.1
-      object.assign: 4.1.2
+      object.assign: 4.1.3
       regexp.prototype.flags: 1.4.3
       string.prototype.trimend: 1.0.5
       string.prototype.trimstart: 1.0.5
@@ -5687,7 +5652,7 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
-  /nestjs-s3/1.0.1_hn5pinmhd3oejabnltxseko5wq:
+  /nestjs-s3/1.0.1_5ybkdbawdy6vqkw6vhgjgmkj54:
     resolution: {integrity: sha512-c7xnTcQZHZM3Hdw+Zl0PAgvpVjG4OmdxGFDtyUESXmumt0ZjA7xdUUQ6BgfKmd0eo4AT9LOrjGuSJUPOJgIdkw==}
     peerDependencies:
       '@nestjs/common': '>=6.7.0'
@@ -5696,7 +5661,7 @@ packages:
     dependencies:
       '@nestjs/common': 9.0.8_mgy7w2bm3yhmntrbe3boyroj6m
       '@nestjs/core': 9.0.8_zflq4taoxqxdbpm3n4urn4whwu
-      aws-sdk: 2.1189.0
+      aws-sdk: 2.1190.0
     dev: false
 
   /ngrok/4.3.1:
@@ -5812,8 +5777,8 @@ packages:
     resolution: {integrity: sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==}
     engines: {node: '>= 0.4'}
 
-  /object.assign/4.1.2:
-    resolution: {integrity: sha512-ixT2L5THXsApyiUPYKmW+2EHpXXe5Ii3M+f4e+aJFAHao5amFRW6J0OO6c/LU8Be47utCx2GL89hxGB6XSmKuQ==}
+  /object.assign/4.1.3:
+    resolution: {integrity: sha512-ZFJnX3zltyjcYJL0RoCJuzb+11zWGyaDbjgxZbdV7rFEcHQuYxrZqhow67aA7xpes6LhojyFDaBKAFfogQrikA==}
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
@@ -6962,7 +6927,7 @@ packages:
   /tr46/0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
-  /ts-node/10.9.1_hn66opzbaneygq52jmwjxha6su:
+  /ts-node/10.9.1_cvilj4l3ytrlnvtlqw3tscihve:
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -6981,7 +6946,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.3
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
       acorn: 8.7.1
       acorn-walk: 8.2.0
       arg: 4.1.3

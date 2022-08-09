@@ -4,7 +4,8 @@ import { config } from '@tsuwari/config';
 import { PrismaClient, Token } from '@tsuwari/prisma';
 import { ApiClient, HelixUserApi, HelixUserData, UserIdResolvable } from '@twurple/api';
 import { ClientCredentialsAuthProvider, RefreshingAuthProvider } from '@twurple/auth';
-import { getRawData, rawDataSymbol } from '@twurple/common';
+import { getRawData } from '@twurple/common';
+import Redis from 'ioredis';
 
 import { RedisService } from './redis.js';
 import { WEEK } from './time.js';
@@ -60,7 +61,7 @@ class MyUserApi extends HelixUserApi {
     } else {
       const user = await super.getUserById(userId);
       if (user) {
-        data = user[rawDataSymbol];
+        data = getRawData(user);
         this.redis?.set(redisKey, JSON.stringify(data), 'EX', (WEEK * 2) / 1000);
       }
     }

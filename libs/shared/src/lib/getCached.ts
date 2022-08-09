@@ -1,5 +1,5 @@
 import { ApiClient, HelixUserData } from '@twurple/api';
-import { getRawData, rawDataSymbol } from '@twurple/common';
+import { getRawData } from '@twurple/common';
 import Redis from 'ioredis';
 import _ from 'lodash';
 
@@ -35,7 +35,7 @@ export async function getTwitchUsers(
 
       const twitchUsers = await api.users
         .getUsersByIds(usersForGet)
-        .then((users) => users.map((u) => u[rawDataSymbol]));
+        .then((users) => users.map(getRawData));
       twitchUsers.forEach((u) =>
         redis.set(`twitchCachedUsers:${u.id}`, JSON.stringify(u), 'EX', 5 * 60 * 60),
       );
@@ -47,7 +47,7 @@ export async function getTwitchUsers(
   } else {
     const user = await redis.get(`twitchCachedUsers:${input}`);
     if (!user) {
-      const twitchUser = await api.users.getUserById(input).then((u) => u[rawDataSymbol]);
+      const twitchUser = await api.users.getUserById(input).then((u) => getRawData(u));
       redis.set(
         `twitchCachedUsers:${twitchUser.id}`,
         JSON.stringify(twitchUser),
