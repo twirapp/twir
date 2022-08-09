@@ -414,7 +414,7 @@ importers:
       '@nestjs/common': 9.0.8
       '@nestjs/core': 9.0.8
       '@nestjs/microservices': 9.0.8
-      '@nestjs/platform-express': ^9.0.8
+      '@nestjs/platform-express': 9.0.8
       '@node-steam/id': 1.2.0
       '@sentry/node': 7.9.0
       '@sentry/tracing': 7.9.0
@@ -433,7 +433,7 @@ importers:
       date-fns: 2.29.1
       lodash: 4.17.21
       nats: 2.7.1
-      prom-client: ^14.0.1
+      prom-client: 14.0.1
       reflect-metadata: 0.1.13
       rxjs: 7.5.6
       tslib: 2.4.0
@@ -1199,7 +1199,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.0.8_j5hagqx4mwzscud4kyjdvubauy
-      '@nestjs/microservices': 9.0.8_pa2dgjwpxilk3ta5jtlsvj3ssm
+      '@nestjs/microservices': 9.0.8_ew7vwaxo6ldi6tzq4af5uguxri
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
@@ -1980,6 +1980,7 @@ packages:
       tslib: 2.4.0
     transitivePeerDependencies:
       - encoding
+    dev: false
 
   /@twurple/auth/5.2.1:
     resolution: {integrity: sha512-/fAI6DXa/P8sQuEazI4LbKUAg3Xkp2Ke3VP7wzhnggTfe/KI5WZE/piyq8861ucaK5HMtchtYjKYFKnPPRXi4A==}
