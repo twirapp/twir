@@ -1,12 +1,15 @@
 import 'reflect-metadata';
 
+import { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 
 import { AppModule } from './app.module.js';
 
-export const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+export const app: INestApplication = await NestFactory.create(AppModule);
+
+app.connectMicroservice({
   transport: Transport.NATS,
   options: {
     servers: [config.NATS_URL],
@@ -15,4 +18,5 @@ export const app = await NestFactory.createMicroservice<MicroserviceOptions>(App
   },
 });
 
-await app.listen();
+await app.startAllMicroservices();
+await app.listen(3004);

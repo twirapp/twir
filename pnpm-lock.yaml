@@ -414,6 +414,7 @@ importers:
       '@nestjs/common': 9.0.8
       '@nestjs/core': 9.0.8
       '@nestjs/microservices': 9.0.8
+      '@nestjs/platform-express': ^9.0.8
       '@node-steam/id': 1.2.0
       '@sentry/node': 7.9.0
       '@sentry/tracing': 7.9.0
@@ -432,14 +433,16 @@ importers:
       date-fns: 2.29.1
       lodash: 4.17.21
       nats: 2.7.1
+      prom-client: ^14.0.1
       reflect-metadata: 0.1.13
       rxjs: 7.5.6
       tslib: 2.4.0
       vm2: 3.9.10
     dependencies:
       '@nestjs/common': 9.0.8_j5hagqx4mwzscud4kyjdvubauy
-      '@nestjs/core': 9.0.8_oc6a7lc54uvnzk7gsfkpifbdji
+      '@nestjs/core': 9.0.8_y46a3gxyzfjmwfynwm5lxhdxgm
       '@nestjs/microservices': 9.0.8_pa2dgjwpxilk3ta5jtlsvj3ssm
+      '@nestjs/platform-express': 9.0.8_cw6o3dkuyuli4a5gq7b223evly
       '@node-steam/id': 1.2.0
       '@sentry/node': 7.9.0
       '@sentry/tracing': 7.9.0
@@ -457,6 +460,7 @@ importers:
       date-fns: 2.29.1
       lodash: 4.17.21
       nats: 2.7.1
+      prom-client: 14.0.1
       reflect-metadata: 0.1.13
       rxjs: 7.5.6
       tslib: 2.4.0
@@ -1291,8 +1295,8 @@ packages:
       '@nestjs/websockets':
         optional: true
     dependencies:
-      '@nestjs/common': 9.0.8_allg6cauirbqzgqcmexy2wdnoq
-      '@nestjs/microservices': 9.0.8_ew7vwaxo6ldi6tzq4af5uguxri
+      '@nestjs/common': 9.0.8_j5hagqx4mwzscud4kyjdvubauy
+      '@nestjs/microservices': 9.0.8_pa2dgjwpxilk3ta5jtlsvj3ssm
       '@nestjs/platform-express': 9.0.8_cw6o3dkuyuli4a5gq7b223evly
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
@@ -1594,8 +1598,8 @@ packages:
       '@nestjs/common': ^9.0.0
       '@nestjs/core': ^9.0.0
     dependencies:
-      '@nestjs/common': 9.0.8_mgy7w2bm3yhmntrbe3boyroj6m
-      '@nestjs/core': 9.0.8_zflq4taoxqxdbpm3n4urn4whwu
+      '@nestjs/common': 9.0.8_j5hagqx4mwzscud4kyjdvubauy
+      '@nestjs/core': 9.0.8_y46a3gxyzfjmwfynwm5lxhdxgm
       body-parser: 1.20.0
       cors: 2.8.5
       express: 4.18.1

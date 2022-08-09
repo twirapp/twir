@@ -1,11 +1,13 @@
-import { Controller, Logger } from '@nestjs/common';
+import { Controller, Get, Logger, Res } from '@nestjs/common';
 import { Payload } from '@nestjs/microservices';
-import { type ClientProxyCommandPayload, ClientProxyResult, MessagePattern } from '@tsuwari/shared';
+import { PrismaService } from '@tsuwari/prisma';
+import { ClientProxyResult, MessagePattern, type ClientProxyCommandPayload } from '@tsuwari/shared';
 import { parseTwitchMessage } from '@twurple/chat';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage.js';
 import { of } from 'rxjs';
 
 import { AppService } from './app.service.js';
+import { parseChatMessageCounter, parseResponseCounter, prometheus } from './prom.js';
 import { VariablesParser } from './variables/index.js';
 
 @Controller()
@@ -15,19 +17,28 @@ export class AppController {
   constructor(
     private readonly service: AppService,
     private readonly variablesParser: VariablesParser,
-  ) { }
+    private readonly prisma: PrismaService,
+  ) {}
+
+  @Get('/metrics')
+  async root(@Res() res: any) {
+    res.contentType(prometheus.contentType);
+    res.send((await prometheus.register.metrics()) + (await this.prisma.$metrics.prometheus()));
+  }
 
   @MessagePattern('bots.getVariables')
   async getVariables(): Promise<ClientProxyResult<'bots.getVariables'>> {
     const vars = await import('./variables/modules/index.js');
-    const variables = Object.values(vars).map(v => {
-      const modules = Array.isArray(v) ? v : [v];
+    const variables = Object.values(vars)
+      .map((v) => {
+        const modules = Array.isArray(v) ? v : [v];
 
-      return modules
-        .flat()
-        .filter(m => typeof m.visible !== 'undefined' ? m.visible : true)
-        .map(m => ({ name: m.key, example: m.example, description: m.description }));
-    }).flat();
+        return modules
+          .flat()
+          .filter((m) => (typeof m.visible !== 'undefined' ? m.visible : true))
+          .map((m) => ({ name: m.key, example: m.example, description: m.description }));
+      })
+      .flat();
 
     return of(variables);
   }
@@ -36,14 +47,22 @@ export class AppController {
   async getDefaultCommands(): Promise<ClientProxyResult<'bots.getDefaultCommands'>> {
     const commands = await import('./defaultCommands/index.js');
 
-    return of(Object.values(commands)
-      .flat()
-      .map(c => ({ name: c.name, permission: c.permission, visible: c.visible ?? true, description: c.description, module: c.module })),
+    return of(
+      Object.values(commands)
+        .flat()
+        .map((c) => ({
+          name: c.name,
+          permission: c.permission,
+          visible: c.visible ?? true,
+          description: c.description,
+          module: c.module,
+        })),
     );
   }
 
   @MessagePattern('parseResponse')
   async parseResponse(@Payload() data: ClientProxyCommandPayload<'parseResponse'>) {
+    parseResponseCounter.inc();
     const parsedResponses = await this.service.parseResponses(data, {
       responses: [data.text],
       params: '',
@@ -52,9 +71,9 @@ export class AppController {
     return parsedResponses;
   }
 
-
   @MessagePattern('parseChatMessage')
   async parseChatMessage(@Payload() data: ClientProxyCommandPayload<'parseChatMessage'>) {
+    parseChatMessageCounter.inc();
     const state = parseTwitchMessage(data) as TwitchPrivateMessage;
     let message = state.content.value;
 
@@ -70,12 +89,15 @@ export class AppController {
     const commandData = await this.service.getResponses(message, state);
     if (!commandData) return;
 
-    const parsedResponses = await this.service.parseResponses({
-      channelId: state.channelId,
-      text: '',
-      userId: state.userInfo.userId,
-      userName: state.userInfo.userName,
-    }, commandData);
+    const parsedResponses = await this.service.parseResponses(
+      {
+        channelId: state.channelId,
+        text: '',
+        userId: state.userInfo.userId,
+        userName: state.userInfo.userName,
+      },
+      commandData,
+    );
     return parsedResponses;
   }
 }
