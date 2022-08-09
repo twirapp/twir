@@ -43,8 +43,8 @@
   "devDependencies": {
     "@satont/eslint-config": "github:satont/eslint-config",
     "@types/node": "18.6.4",
-    "@typescript-eslint/eslint-plugin": "5.32.0",
-    "@typescript-eslint/parser": "5.32.0",
+    "@typescript-eslint/eslint-plugin": "5.33.0",
+    "@typescript-eslint/parser": "5.33.0",
     "eslint": "8.21.0",
     "eslint-plugin-import": "2.26.0",
     "nodemon": "2.0.19",
