@@ -19,7 +19,7 @@
     "@tsuwari/shared": "workspace:*",
     "@twurple/api": "5.2.1",
     "@twurple/auth": "5.2.0",
-    "@twurple/common": "5.2.0",
+    "@twurple/common": "5.2.1",
     "lodash": "4.17.21",
     "nats": "2.7.1",
     "reflect-metadata": "0.1.13",

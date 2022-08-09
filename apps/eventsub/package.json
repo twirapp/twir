@@ -20,7 +20,7 @@
     "@tsuwari/shared": "workspace:*",
     "@twurple/api": "5.2.1",
     "@twurple/auth": "5.2.0",
-    "@twurple/common": "5.2.0",
+    "@twurple/common": "5.2.1",
     "@twurple/eventsub": "5.2.0",
     "express": "4.18.1",
     "nats": "2.7.1",
