@@ -3,24 +3,17 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
+      "@/*": ["./src/*"]
     },
-    "target": "esnext",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "target": "ESNext",
+    "module": "None",
+    "moduleResolution": "Node",
     "strict": true,
+    "outDir": "dist",
     "jsx": "preserve",
     "sourceMap": true,
     "esModuleInterop": true,
-    "lib": [
-      "esnext",
-      "dom"
-    ]
+    "lib": ["esnext", "dom"]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.vue",
-  ],
+  "include": ["src/**/*.ts", "src/**/*.vue"]
 }
