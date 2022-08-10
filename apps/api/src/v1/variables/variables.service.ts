@@ -5,7 +5,6 @@ import { PrismaService } from '@tsuwari/prisma';
 import { CustomVar, customVarSchema, RedisORMService, Repository } from '@tsuwari/redis';
 import { ClientProxy, RedisService } from '@tsuwari/shared';
 
-
 import { CreateVariableDto } from './dto/create.js';
 
 @Injectable()
@@ -14,11 +13,24 @@ export class VariablesService implements OnModuleInit {
   nats: ClientProxy;
   #repository: Repository<CustomVar>;
 
+  readonly #vulnerableScriptWords = ['prototype', 'contructor'];
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
     private readonly redisOrm: RedisORMService,
-  ) { }
+  ) {}
+
+  #checkNotSecureVariable(script: string) {
+    if (this.#vulnerableScriptWords.some((w) => script.includes(w))) {
+      throw new HttpException(
+        `You cannot use such vulnerable words in script. You will be banned, if you attemp to abuse this feature.`,
+        400,
+      );
+    }
+
+    return true;
+  }
 
   onModuleInit() {
     this.#repository = this.redisOrm.fetchRepository(customVarSchema);
@@ -50,6 +62,10 @@ export class VariablesService implements OnModuleInit {
         ...data,
       },
     });
+
+    if (data.type === 'SCRIPT' && data.evalValue) {
+      this.#checkNotSecureVariable(data.evalValue);
+    }
 
     await this.#repository.createAndSave(variable, `${channelId}:${variable.id}`);
 
@@ -84,6 +100,10 @@ export class VariablesService implements OnModuleInit {
     });
 
     if (!variable) throw new HttpException(`Variable with id ${variableId} not exists`, 404);
+
+    if (data.type === 'SCRIPT' && data.evalValue) {
+      this.#checkNotSecureVariable(data.evalValue);
+    }
 
     const newVariable = await this.prisma.customVar.update({
       where: {
