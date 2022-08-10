@@ -18,9 +18,24 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src'),
-      '@elements': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src', 'components', 'elements'),
+      '@elements': path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        'src',
+        'components',
+        'elements',
+      ),
       'vue-i18n': 'vue-i18n/dist/vue-i18n.runtime.esm-bundler.js',
     },
+  },
+  optimizeDeps: {
+    exclude: [
+      'amqplib',
+      'mqtt',
+      'kafkajs',
+      '@grpc/grpc-js',
+      'amqp-connection-manager',
+      '@grpc/proto-loader',
+    ],
   },
   server: {
     port: Number(process.env.VITE_PORT ?? 3005),
