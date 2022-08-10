@@ -416,8 +416,8 @@ importers:
       '@nestjs/microservices': 9.0.8
       '@nestjs/platform-express': 9.0.8
       '@node-steam/id': 1.2.0
-      '@sentry/node': 7.9.0
-      '@sentry/tracing': 7.9.0
+      '@sentry/node': 7.10.0
+      '@sentry/tracing': 7.10.0
       '@tsuwari/config': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/redis': workspace:*
@@ -444,8 +444,8 @@ importers:
       '@nestjs/microservices': 9.0.8_pa2dgjwpxilk3ta5jtlsvj3ssm
       '@nestjs/platform-express': 9.0.8_cw6o3dkuyuli4a5gq7b223evly
       '@node-steam/id': 1.2.0
-      '@sentry/node': 7.9.0
-      '@sentry/tracing': 7.9.0
+      '@sentry/node': 7.10.0
+      '@sentry/tracing': 7.10.0
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
@@ -474,8 +474,8 @@ importers:
       '@nestjs/core': 9.0.8
       '@nestjs/microservices': 9.0.8
       '@nestjs/schedule': 2.1.0
-      '@sentry/node': 7.9.0
-      '@sentry/tracing': 7.9.0
+      '@sentry/node': 7.10.0
+      '@sentry/tracing': 7.10.0
       '@tsuwari/config': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/redis': workspace:*
@@ -495,8 +495,8 @@ importers:
       '@nestjs/core': 9.0.8_oc6a7lc54uvnzk7gsfkpifbdji
       '@nestjs/microservices': 9.0.8_ew7vwaxo6ldi6tzq4af5uguxri
       '@nestjs/schedule': 2.1.0_bnr7ep6snzlfkhaoqb7mdwsj4q
-      '@sentry/node': 7.9.0
-      '@sentry/tracing': 7.9.0
+      '@sentry/node': 7.10.0
+      '@sentry/tracing': 7.10.0
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
@@ -518,8 +518,8 @@ importers:
       '@nestjs/common': 9.0.8
       '@nestjs/core': 9.0.8
       '@nestjs/microservices': 9.0.8
-      '@sentry/node': 7.9.0
-      '@sentry/tracing': 7.9.0
+      '@sentry/node': 7.10.0
+      '@sentry/tracing': 7.10.0
       '@tsuwari/config': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/redis': workspace:*
@@ -537,8 +537,8 @@ importers:
       '@nestjs/common': 9.0.8_j5hagqx4mwzscud4kyjdvubauy
       '@nestjs/core': 9.0.8_oc6a7lc54uvnzk7gsfkpifbdji
       '@nestjs/microservices': 9.0.8_pa2dgjwpxilk3ta5jtlsvj3ssm
-      '@sentry/node': 7.9.0
-      '@sentry/tracing': 7.9.0
+      '@sentry/node': 7.10.0
+      '@sentry/tracing': 7.10.0
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
@@ -1841,6 +1841,16 @@ packages:
       picomatch: 2.3.1
     dev: true
 
+  /@sentry/core/7.10.0:
+    resolution: {integrity: sha512-uq6oUXPH+6cjsEL5/j/xSW91mVrJo7knTqax7E5MDiA5j98BPK4budGiBiPO7GEB856QhA7N+pOO0lccii5QYQ==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/hub': 7.10.0
+      '@sentry/types': 7.10.0
+      '@sentry/utils': 7.10.0
+      tslib: 1.14.1
+    dev: false
+
   /@sentry/core/7.9.0:
     resolution: {integrity: sha512-WVGd2hV7Clcpl7/GL8LsRr4Zk9o/7o4rZHfs1Qed5lMRNYcxiMwucC1CYILVpJqVfY+8vIRP9v9Ss9ta2VUikw==}
     engines: {node: '>=8'}
@@ -1851,6 +1861,15 @@ packages:
       tslib: 1.14.1
     dev: false
 
+  /@sentry/hub/7.10.0:
+    resolution: {integrity: sha512-9Appy7J87EU7Xu2BDY1cLK79nsuE72geeYmG71lgdttTD3XOMcQBOxET4/2sAI+d/ansurXnURx+DAQ9FOKT+w==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.10.0
+      '@sentry/utils': 7.10.0
+      tslib: 1.14.1
+    dev: false
+
   /@sentry/hub/7.9.0:
     resolution: {integrity: sha512-KzPbGCB5mONgsXEzqHy6uOaOuqLnhmFmSpGg+M03J6UJnJaNM7nrNp80MhStmjLMq6whEYVE07DrMAn3+iaQdg==}
     engines: {node: '>=8'}
@@ -1858,6 +1877,22 @@ packages:
       '@sentry/types': 7.9.0
       '@sentry/utils': 7.9.0
       tslib: 1.14.1
+    dev: false
+
+  /@sentry/node/7.10.0:
+    resolution: {integrity: sha512-L/DSEJ7Biy8ovvlCyfu5MpCYG108FIGVbJ1h0NBGr5+uLxTNg2WJWojJoiQNiRcWl4s0dcIXrRdi0HR2Sx+DUw==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/core': 7.10.0
+      '@sentry/hub': 7.10.0
+      '@sentry/types': 7.10.0
+      '@sentry/utils': 7.10.0
+      cookie: 0.4.2
+      https-proxy-agent: 5.0.1
+      lru_map: 0.3.3
+      tslib: 1.14.1
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /@sentry/node/7.9.0:
@@ -1876,6 +1911,16 @@ packages:
       - supports-color
     dev: false
 
+  /@sentry/tracing/7.10.0:
+    resolution: {integrity: sha512-ojuBYS1bL/IGWKt/ItY4HmC8NElJrYtTUvm73VbhylhIO4zcn5ICHmgMFj1lqL9gQ1nCnAlifKiWIjL9qUatTA==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/hub': 7.10.0
+      '@sentry/types': 7.10.0
+      '@sentry/utils': 7.10.0
+      tslib: 1.14.1
+    dev: false
+
   /@sentry/tracing/7.9.0:
     resolution: {integrity: sha512-X4HQ7jjP7qyc4saCtq31kLqQzcBpRNifE9KccgEbNXAkKoMrg5F22oUlfN2EcEWy0vm1C23juseDsOSSMXAM+A==}
     engines: {node: '>=8'}
@@ -1886,9 +1931,22 @@ packages:
       tslib: 1.14.1
     dev: false
 
+  /@sentry/types/7.10.0:
+    resolution: {integrity: sha512-1UBwdbS0xXzANzp63g4eNQly/qKIXp0swP5OTKWoADvKBtL4anroLUA/l8ADMtuwFZYtVANc8WRGxM2+YmaXtg==}
+    engines: {node: '>=8'}
+    dev: false
+
   /@sentry/types/7.9.0:
     resolution: {integrity: sha512-VGnUgELVMpGJCYW1triO+5XSyaPjB2Zu6esUgbb8iJ5bi+OWtxklixXgwhdaTb0FDzmRL/T/pckmrIuBTLySHQ==}
     engines: {node: '>=8'}
+    dev: false
+
+  /@sentry/utils/7.10.0:
+    resolution: {integrity: sha512-/aD2DnfyOhV0Wdbb6VF78vu4fQIZJyuReDpBI7MV/EqcEB6FxUKq2YjinfKZF/exHEPig6Ag/Yt+CRFgvtVFuw==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.10.0
+      tslib: 1.14.1
     dev: false
 
   /@sentry/utils/7.9.0:
@@ -1980,6 +2038,7 @@ packages:
       tslib: 2.4.0
     transitivePeerDependencies:
       - encoding
+    dev: false
 
   /@twurple/auth/5.2.1:
     resolution: {integrity: sha512-/fAI6DXa/P8sQuEazI4LbKUAg3Xkp2Ke3VP7wzhnggTfe/KI5WZE/piyq8861ucaK5HMtchtYjKYFKnPPRXi4A==}
