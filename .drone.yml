@@ -23,6 +23,9 @@ platform:
 trigger:
   branch:
     - main
+  event:
+    exclude:
+    - pull_request
 
 steps:
   - name: restore-cache
