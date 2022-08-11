@@ -644,10 +644,15 @@ importers:
       '@storybook/preview-web': ^6.5.10
       '@storybook/testing-library': ^0.0.13
       '@storybook/vue3': ^6.5.10
+      '@types/svgo': ^2.6.3
       '@vitejs/plugin-vue': ^3.0.1
+      '@vue/runtime-core': ^3.2.37
       autoprefixer: 10.4.7
       babel-loader: ^8.2.5
       postcss: 8.4.16
+      postcss-hexrgba: ^2.1.0
+      postcss-import: ^14.1.0
+      postcss-nesting: ^10.1.10
       tailwindcss: 3.1.8
       typescript: 4.7.4
       vite: 3.0.4
@@ -672,10 +677,15 @@ importers:
       '@storybook/preview-web': 6.5.10
       '@storybook/testing-library': 0.0.13
       '@storybook/vue3': 6.5.10_3xy4ofzgwbqhkiiz2juieghqsi
+      '@types/svgo': 2.6.3
       '@vitejs/plugin-vue': 3.0.1_vite@3.0.4+vue@3.2.37
+      '@vue/runtime-core': 3.2.37
       autoprefixer: 10.4.7_postcss@8.4.16
       babel-loader: 8.2.5_@babel+core@7.18.10
       postcss: 8.4.16
+      postcss-hexrgba: 2.1.0_postcss@8.4.16
+      postcss-import: 14.1.0_postcss@8.4.16
+      postcss-nesting: 10.1.10_postcss@8.4.16
       tailwindcss: 3.1.8
       typescript: 4.7.4
       vite: 3.0.4
@@ -2183,6 +2193,17 @@ packages:
       '@jridgewell/trace-mapping': 0.3.9
     dev: true
 
+  /@csstools/selector-specificity/2.0.2_pnx64jze6bptzcedy5bidi3zdi:
+    resolution: {integrity: sha512-IkpVW/ehM1hWKln4fCA3NzJU8KwD+kIOvPZA4cqxoJHtE21CCzjyp+Kxbu0i5I4tBNOlXPL9mjwnWlL0VEG4Fg==}
+    engines: {node: ^12 || ^14 || >=16}
+    peerDependencies:
+      postcss: ^8.2
+      postcss-selector-parser: ^6.0.10
+    dependencies:
+      postcss: 8.4.16
+      postcss-selector-parser: 6.0.10
+    dev: true
+
   /@d-fischer/cache-decorators/3.0.0:
     resolution: {integrity: sha512-mYUCjrp5hJgimceC5bof3zzmElyxzW4ty+73IjY12wvxLAqsq0CbgLGspnJm6KgwEfGoeRnISZD4EXJidG3FvA==}
     dependencies:
@@ -2604,7 +2625,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
       '@types/yargs': 16.0.4
       chalk: 4.1.2
     dev: true
@@ -5620,7 +5641,7 @@ packages:
   /@types/graceful-fs/4.1.5:
     resolution: {integrity: sha512-anKkLmZZ+xm4p8JWBf4hElkM4XR+EZeA2M9BAkkTldmcyDY4mbdIJnRghDJH3Ov5ooY7/UAoENtmdMSkaAd7Cw==}
     dependencies:
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
     dev: true
 
   /@types/hast/2.3.4:
@@ -5868,6 +5889,12 @@ packages:
     resolution: {integrity: sha512-B8sy9wfOOeh+yNrFFzyghCQ1n3rssYbTvZD2kXzuy3HSJEK7TVeYnrpXG/0dOKrq1VU8D7cWORgszsdqKBZnVg==}
     dev: true
 
+  /@types/svgo/2.6.3:
+    resolution: {integrity: sha512-5sP0Xgo0dXppY0tbYF6TevB/1+tzFLuu71XXxC/zGvQAn9PW7y+DwtDO81g0ZUPye00K6tPwtsLDOpARa0mFcA==}
+    dependencies:
+      '@types/node': 18.6.5
+    dev: true
+
   /@types/tapable/1.0.8:
     resolution: {integrity: sha512-ipixuVrh2OdNmauvtT51o3d8z12p6LtFW9in7U79der/kwejjdNchQC5UMn5u/KxNoM7VHHOs/l8KS8uHxhODQ==}
     dev: true
@@ -5893,7 +5920,7 @@ packages:
   /@types/webpack-sources/3.2.0:
     resolution: {integrity: sha512-Ft7YH3lEVRQ6ls8k4Ff1oB4jN6oy/XmU6tQISKdhfh+1mR+viZFphS6WL0IrtDOzvefmJg5a0s7ZQoRXwqTEFg==}
     dependencies:
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
       '@types/source-list-map': 0.1.2
       source-map: 0.7.4
     dev: true
@@ -5901,7 +5928,7 @@ packages:
   /@types/webpack/4.41.32:
     resolution: {integrity: sha512-cb+0ioil/7oz5//7tZUSwbrSAN/NWHrQylz5cW8G0dWTcF/g+/dSdMlKVZspBYuMAN1+WnwHrkxiRrLcwd0Heg==}
     dependencies:
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
       '@types/tapable': 1.0.8
       '@types/uglify-js': 3.16.0
       '@types/webpack-sources': 3.2.0
@@ -11328,7 +11355,7 @@ packages:
     resolution: {integrity: sha512-S5wqyz0DXnNJPd/xfIzZ5Xnp1HrJWBczg8mMfMpN78OJ5eDxXyf+Ygld9wX1DnUWbIbhM1YDY95NjR4CBXkb2g==}
     engines: {node: '>= 10.14.2'}
     dependencies:
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
       graceful-fs: 4.2.10
     dev: true
 
@@ -11348,7 +11375,7 @@ packages:
     resolution: {integrity: sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
       merge-stream: 2.0.0
       supports-color: 7.2.0
     dev: true
@@ -11357,7 +11384,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
       merge-stream: 2.0.0
       supports-color: 8.1.1
     dev: true
@@ -13250,6 +13277,15 @@ packages:
       postcss: 7.0.39
     dev: true
 
+  /postcss-hexrgba/2.1.0_postcss@8.4.16:
+    resolution: {integrity: sha512-Bb8Ca/vTI/X2Pgq1O3VhOdXE0rg/hz6161MHMu93ebePw8d/I9GSOc+wbd151OGGxSyTz+z196tFeEpSafrJfA==}
+    peerDependencies:
+      postcss: ^8.1.4
+    dependencies:
+      postcss: 8.4.16
+      postcss-value-parser: 4.2.0
+    dev: true
+
   /postcss-import/14.1.0_postcss@8.4.16:
     resolution: {integrity: sha512-flwI+Vgm4SElObFVPpTIT7SU7R3qk2L7PyduMcokiaVKuWv9d/U+Gm/QAd8NDLuykTWTkcrjOeD2Pp1rMeBTGw==}
     engines: {node: '>=10.0.0'}
@@ -13342,6 +13378,17 @@ packages:
     dependencies:
       postcss: 8.4.16
       postcss-selector-parser: 6.0.10
+
+  /postcss-nesting/10.1.10_postcss@8.4.16:
+    resolution: {integrity: sha512-lqd7LXCq0gWc0wKXtoKDru5wEUNjm3OryLVNRZ8OnW8km6fSNUuFrjEhU3nklxXE2jvd4qrox566acgh+xQt8w==}
+    engines: {node: ^12 || ^14 || >=16}
+    peerDependencies:
+      postcss: ^8.2
+    dependencies:
+      '@csstools/selector-specificity': 2.0.2_pnx64jze6bptzcedy5bidi3zdi
+      postcss: 8.4.16
+      postcss-selector-parser: 6.0.10
+    dev: true
 
   /postcss-selector-parser/6.0.10:
     resolution: {integrity: sha512-IQ7TZdoaqbT+LCpShg46jnZVlhWD2w6iQYAcYXfHARZ7X1t/UGhhceQDs5X0cGqKvYlHNOuv7Oa1xmb0oQuA3w==}

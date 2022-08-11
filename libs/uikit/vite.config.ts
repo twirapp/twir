@@ -7,6 +7,8 @@ import svgLoaderPlugin from 'vite-svg-loader';
 
 export default defineConfig({
   build: {
+    cssCodeSplit: false,
+    assetsDir: 'assets',
     rollupOptions: {
       preserveEntrySignatures: 'exports-only',
       input: {
@@ -31,6 +33,12 @@ export default defineConfig({
             }
             return '[name].js';
           },
+          assetFileNames: (chunkInfo) => {
+            if (chunkInfo.name?.includes('.css')) {
+              return '[name].css';
+            }
+            return 'assets/[name].[ext]';
+          },
         },
       ],
     },
@@ -42,12 +50,11 @@ export default defineConfig({
     vuePlugin(),
     svgLoaderPlugin(),
     declarationsPlugin({
-      beforeWriteFile: (filePath, content) => {
-        return {
-          filePath,
-          content: content.replace(/(svg\?component)|(vue)/g, 'js'),
-        };
-      },
+      beforeWriteFile: (filePath, content) => ({
+        filePath,
+        content: content.replace(/(\.svg\?component)|(\.vue)/g, '.js'),
+      }),
+      cleanVueFileName: true,
       exclude: './src/shims-vue.d.ts',
     }),
   ],
