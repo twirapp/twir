@@ -21,8 +21,8 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-      #ports:
-      #- 5432:5432
+    ports:
+        - 5432:5432
     networks:
       - tsuwari
 
@@ -67,8 +67,11 @@ services:
       - tsuwari
 
   migrations:
+    build:
+      context: .
+      dockerfile: libs/prisma
     restart: "no"
-    image: registry.tsuwari.tk/tsuwarimigrations
+    image: registry.tsuwari.tk/tsuwari/migrations
     env_file:
       - .env
     depends_on:
@@ -79,20 +82,28 @@ services:
   redis:
     restart: unless-stopped
     image: redis/redis-stack:latest
-    environment:
-      REDIS_ARGS: --requirepass ${DB_PASSWORD}
     volumes:
       - ./redis-data:/data
+    ports:
+      - 6379:6379
+    environment:
+      REDIS_ARGS: --requirepass 95787673576294Aahidden
     networks:
       - tsuwari
+    # command: redis-stack --requirepass 95787673576294Aahidden
 
   nats:
     restart: unless-stopped
     image: nats:latest
+    ports:
+      - 4222:4222
 
   api:
+    build:
+      context: .
+      dockerfile: apps/api
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwariapi
+    image: registry.tsuwari.tk/tsuwari/api
     env_file:
       - .env
     ports:
@@ -106,8 +117,11 @@ services:
       - tsuwari
 
   bots:
+    build:
+      context: .
+      dockerfile: apps/bots
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwaribots
+    image: registry.tsuwari.tk/tsuwari/bots
     env_file:
       - .env
     depends_on:
@@ -120,8 +134,11 @@ services:
       - tsuwari
 
   parser:
+    build:
+      context: .
+      dockerfile: apps/parser
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwariparser
+    image: registry.tsuwari.tk/tsuwari/parser
     env_file:
       - .env
     deploy:
@@ -137,8 +154,11 @@ services:
       - tsuwari
 
   scheduler:
+    build:
+      context: .
+      dockerfile: apps/scheduler
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwarischeduler
+    image: registry.tsuwari.tk/tsuwari/scheduler
     env_file:
       - .env
     depends_on:
@@ -151,8 +171,11 @@ services:
       - tsuwari
 
   streamstatus:
+    build:
+      context: .
+      dockerfile: apps/streamstatus
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwaristreamstatus
+    image: registry.tsuwari.tk/tsuwari/streamstatus
     env_file:
       - .env
     depends_on:
@@ -164,8 +187,11 @@ services:
       - tsuwari
 
   eventsub:
+    build:
+      context: .
+      dockerfile: apps/eventsub
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwarieventsub
+    image: registry.tsuwari.tk/tsuwari/eventsub
     env_file:
       - .env
     ports:
@@ -179,8 +205,11 @@ services:
       - tsuwari
 
   dota:
+    build:
+      context: .
+      dockerfile: apps/dota
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwaridota
+    image: registry.tsuwari.tk/tsuwari/dota
     env_file:
       - .env
     depends_on:
