@@ -95,8 +95,8 @@ services:
   nats:
     restart: unless-stopped
     image: nats:latest
-    ports:
-      - 4222:4222
+    networks:
+      - tsuwari
 
   api:
     build:
