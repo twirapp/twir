@@ -73,6 +73,7 @@
       }
     ]
   },
+<<<<<<< HEAD
   "sqltools.connections": [
     {
       "previewLimit": 50,
@@ -85,4 +86,10 @@
       "password": "tsuwari"
     }
   ]
+=======
+  "tailwindCSS.experimental.configFile": {
+    "libs/uikit/tailwind.config.js": "libs/uikit/src/**/*.{vue,js,ts,jsx,tsx}",
+    "apps/frontend/tailwind.config.js": "apps/frontend/src/**/*.{vue,js,ts,jsx,tsx}"
+  }
+>>>>>>> e383dcb (feat(uikit): fonts, styles and tailwind theme)
 }
