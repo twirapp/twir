@@ -641,10 +641,14 @@ importers:
       '@storybook/preview-web': ^6.5.10
       '@storybook/testing-library': ^0.0.13
       '@storybook/vue3': ^6.5.10
+      '@types/svgo': ^2.6.3
       '@vitejs/plugin-vue': ^3.0.1
       autoprefixer: 10.4.7
       babel-loader: ^8.2.5
       postcss: 8.4.16
+      postcss-hexrgba: ^2.1.0
+      postcss-import: ^14.1.0
+      postcss-nesting: ^10.1.10
       tailwindcss: 3.1.8
       typescript: 4.7.4
       vite: 3.0.4
@@ -669,10 +673,14 @@ importers:
       '@storybook/preview-web': 6.5.10
       '@storybook/testing-library': 0.0.13
       '@storybook/vue3': 6.5.10_3xy4ofzgwbqhkiiz2juieghqsi
+      '@types/svgo': 2.6.3
       '@vitejs/plugin-vue': 3.0.1_vite@3.0.4+vue@3.2.37
       autoprefixer: 10.4.7_postcss@8.4.16
       babel-loader: 8.2.5_@babel+core@7.18.10
       postcss: 8.4.16
+      postcss-hexrgba: 2.1.0_postcss@8.4.16
+      postcss-import: 14.1.0_postcss@8.4.16
+      postcss-nesting: 10.1.10_postcss@8.4.16
       tailwindcss: 3.1.8_postcss@8.4.16
       typescript: 4.7.4
       vite: 3.0.4
@@ -2291,6 +2299,17 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
+    dev: true
+
+  /@csstools/selector-specificity/2.0.2_pnx64jze6bptzcedy5bidi3zdi:
+    resolution: {integrity: sha512-IkpVW/ehM1hWKln4fCA3NzJU8KwD+kIOvPZA4cqxoJHtE21CCzjyp+Kxbu0i5I4tBNOlXPL9mjwnWlL0VEG4Fg==}
+    engines: {node: ^12 || ^14 || >=16}
+    peerDependencies:
+      postcss: ^8.2
+      postcss-selector-parser: ^6.0.10
+    dependencies:
+      postcss: 8.4.16
+      postcss-selector-parser: 6.0.10
     dev: true
 
   /@d-fischer/cache-decorators/3.0.0:
@@ -6368,6 +6387,12 @@ packages:
 
   /@types/steamid/2.0.1:
     resolution: {integrity: sha512-B8sy9wfOOeh+yNrFFzyghCQ1n3rssYbTvZD2kXzuy3HSJEK7TVeYnrpXG/0dOKrq1VU8D7cWORgszsdqKBZnVg==}
+    dev: true
+
+  /@types/svgo/2.6.3:
+    resolution: {integrity: sha512-5sP0Xgo0dXppY0tbYF6TevB/1+tzFLuu71XXxC/zGvQAn9PW7y+DwtDO81g0ZUPye00K6tPwtsLDOpARa0mFcA==}
+    dependencies:
+      '@types/node': 18.6.5
     dev: true
 
   /@types/tapable/1.0.8:
@@ -15094,6 +15119,15 @@ packages:
       postcss: 7.0.39
     dev: true
 
+  /postcss-hexrgba/2.1.0_postcss@8.4.16:
+    resolution: {integrity: sha512-Bb8Ca/vTI/X2Pgq1O3VhOdXE0rg/hz6161MHMu93ebePw8d/I9GSOc+wbd151OGGxSyTz+z196tFeEpSafrJfA==}
+    peerDependencies:
+      postcss: ^8.1.4
+    dependencies:
+      postcss: 8.4.16
+      postcss-value-parser: 4.2.0
+    dev: true
+
   /postcss-import/14.1.0_postcss@8.4.16:
     resolution: {integrity: sha512-flwI+Vgm4SElObFVPpTIT7SU7R3qk2L7PyduMcokiaVKuWv9d/U+Gm/QAd8NDLuykTWTkcrjOeD2Pp1rMeBTGw==}
     engines: {node: '>=10.0.0'}
@@ -15186,6 +15220,17 @@ packages:
     dependencies:
       postcss: 8.4.16
       postcss-selector-parser: 6.0.10
+
+  /postcss-nesting/10.1.10_postcss@8.4.16:
+    resolution: {integrity: sha512-lqd7LXCq0gWc0wKXtoKDru5wEUNjm3OryLVNRZ8OnW8km6fSNUuFrjEhU3nklxXE2jvd4qrox566acgh+xQt8w==}
+    engines: {node: ^12 || ^14 || >=16}
+    peerDependencies:
+      postcss: ^8.2
+    dependencies:
+      '@csstools/selector-specificity': 2.0.2_pnx64jze6bptzcedy5bidi3zdi
+      postcss: 8.4.16
+      postcss-selector-parser: 6.0.10
+    dev: true
 
   /postcss-selector-parser/6.0.10:
     resolution: {integrity: sha512-IQ7TZdoaqbT+LCpShg46jnZVlhWD2w6iQYAcYXfHARZ7X1t/UGhhceQDs5X0cGqKvYlHNOuv7Oa1xmb0oQuA3w==}

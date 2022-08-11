@@ -72,5 +72,9 @@
         "cmd": "golines ${file} -w -m 100 --base-formatter=gofumpt"
       }
     ]
+  },
+  "tailwindCSS.experimental.configFile": {
+    "libs/uikit/tailwind.config.js": "libs/uikit/src/**/*.{vue,js,ts,jsx,tsx}",
+    "apps/frontend/tailwind.config.js": "apps/frontend/src/**/*.{vue,js,ts,jsx,tsx}"
   }
 }

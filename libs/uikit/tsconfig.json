@@ -1,18 +1,17 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
     "target": "ESNext",
-    "module": "None",
+    "module": "Node16",
+    "removeComments": true,
     "moduleResolution": "Node",
     "strict": true,
+    "noImplicitAny": true,
     "outDir": "dist",
     "jsx": "preserve",
-    "sourceMap": true,
-    "esModuleInterop": true,
     "lib": ["esnext", "dom"]
   },
   "include": ["src/**/*.ts", "src/**/*.vue"]
