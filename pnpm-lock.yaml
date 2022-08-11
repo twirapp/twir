@@ -12,7 +12,7 @@ importers:
       eslint-plugin-import: 2.26.0
       nodemon: 2.0.19
       ts-node: 10.9.1
-      tsx: 3.8.1
+      tsx: 3.8.2
       turbo: 1.4.3
       typescript: 4.7.4
     devDependencies:
@@ -24,7 +24,7 @@ importers:
       eslint-plugin-import: 2.26.0_qfqnhzzittf54udqwes54xx65q
       nodemon: 2.0.19
       ts-node: 10.9.1_cvilj4l3ytrlnvtlqw3tscihve
-      tsx: 3.8.1
+      tsx: 3.8.2
       turbo: 1.4.3
       typescript: 4.7.4
 
@@ -2038,6 +2038,7 @@ packages:
       tslib: 2.4.0
     transitivePeerDependencies:
       - encoding
+    dev: false
 
   /@twurple/auth/5.2.1:
     resolution: {integrity: sha512-/fAI6DXa/P8sQuEazI4LbKUAg3Xkp2Ke3VP7wzhnggTfe/KI5WZE/piyq8861ucaK5HMtchtYjKYFKnPPRXi4A==}
@@ -6812,8 +6813,8 @@ packages:
       typescript: 4.7.4
     dev: true
 
-  /tsx/3.8.1:
-    resolution: {integrity: sha512-YA2fDf1V9j/6qX/QSnapMmzulbqlx7FeVL6d9ySHDJoECkslAlZO38UuyFCiNPjam74hbyHbJfUF+n2ZT14KDA==}
+  /tsx/3.8.2:
+    resolution: {integrity: sha512-Jf9izq3Youry5aEarspf6Gm+v/IE2A2xP7YVhtNH1VSCpM0jjACg7C3oD5rIoLBfXWGJSZj4KKC2bwE0TgLb2Q==}
     hasBin: true
     dependencies:
       '@esbuild-kit/cjs-loader': 2.3.3
