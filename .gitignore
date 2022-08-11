@@ -13,3 +13,4 @@ postgres_data
 redis-data
 tests.yml
 docker-compose.yml
+minio_data

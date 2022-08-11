@@ -79,6 +79,8 @@ services:
   redis:
     restart: unless-stopped
     image: redis/redis-stack:latest
+    environment:
+      REDIS_ARGS: --requirepass ${DB_PASSWORD}
     volumes:
       - ./redis-data:/data
     networks:
