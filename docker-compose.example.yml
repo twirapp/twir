@@ -71,7 +71,7 @@ services:
       context: .
       dockerfile: libs/prisma/Dockerfile
     restart: "no"
-    image: registry.tsuwari.tk/tsuwari/migrations
+    image: registry.satont.dev/tsuwari/migrations
     env_file:
       - .env
     depends_on:
@@ -103,7 +103,7 @@ services:
       context: .
       dockerfile: apps/api/Dockerfile
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwari/api
+    image: registry.satont.dev/tsuwari/api
     env_file:
       - .env
     ports:
@@ -121,7 +121,7 @@ services:
       context: .
       dockerfile: apps/bots/Dockerfile
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwari/bots
+    image: registry.satont.dev/tsuwari/bots
     env_file:
       - .env
     depends_on:
@@ -138,7 +138,7 @@ services:
       context: .
       dockerfile: apps/parser/Dockerfile
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwari/parser
+    image: registry.satont.dev/tsuwari/parser
     env_file:
       - .env
     deploy:
@@ -158,7 +158,7 @@ services:
       context: .
       dockerfile: apps/scheduler/Dockerfile
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwari/scheduler
+    image: registry.satont.dev/tsuwari/scheduler
     env_file:
       - .env
     depends_on:
@@ -175,7 +175,7 @@ services:
       context: .
       dockerfile: apps/streamstatus/Dockerfile
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwari/streamstatus
+    image: registry.satont.dev/tsuwari/streamstatus
     env_file:
       - .env
     depends_on:
@@ -191,7 +191,7 @@ services:
       context: .
       dockerfile: apps/eventsub/Dockerfile
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwari/eventsub
+    image: registry.satont.dev/tsuwari/eventsub
     env_file:
       - .env
     ports:
@@ -209,7 +209,7 @@ services:
       context: .
       dockerfile: apps/dota/Dockerfile
     restart: unless-stopped
-    image: registry.tsuwari.tk/tsuwari/dota
+    image: registry.satont.dev/tsuwari/dota
     env_file:
       - .env
     depends_on:
