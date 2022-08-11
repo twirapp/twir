@@ -11,7 +11,7 @@
     "@headlessui/vue": "1.6.7",
     "@nanostores/persistent": "0.6.0",
     "@nanostores/vue": "0.5.5",
-    "@popperjs/core": "2.11.5",
+    "@popperjs/core": "2.11.6",
     "@tsuwari/api": "workspace:*",
     "@vueuse/components": "9.1.0",
     "@vueuse/core": "9.1.0",
