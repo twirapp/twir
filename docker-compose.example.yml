@@ -69,7 +69,7 @@ services:
   migrations:
     build:
       context: .
-      dockerfile: libs/prisma
+      dockerfile: libs/prisma/Dockerfile
     restart: "no"
     image: registry.tsuwari.tk/tsuwari/migrations
     env_file:
@@ -101,7 +101,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: apps/api
+      dockerfile: apps/api/Dockerfile
     restart: unless-stopped
     image: registry.tsuwari.tk/tsuwari/api
     env_file:
@@ -119,7 +119,7 @@ services:
   bots:
     build:
       context: .
-      dockerfile: apps/bots
+      dockerfile: apps/bots/Dockerfile
     restart: unless-stopped
     image: registry.tsuwari.tk/tsuwari/bots
     env_file:
@@ -136,7 +136,7 @@ services:
   parser:
     build:
       context: .
-      dockerfile: apps/parser
+      dockerfile: apps/parser/Dockerfile
     restart: unless-stopped
     image: registry.tsuwari.tk/tsuwari/parser
     env_file:
@@ -156,7 +156,7 @@ services:
   scheduler:
     build:
       context: .
-      dockerfile: apps/scheduler
+      dockerfile: apps/scheduler/Dockerfile
     restart: unless-stopped
     image: registry.tsuwari.tk/tsuwari/scheduler
     env_file:
@@ -173,7 +173,7 @@ services:
   streamstatus:
     build:
       context: .
-      dockerfile: apps/streamstatus
+      dockerfile: apps/streamstatus/Dockerfile
     restart: unless-stopped
     image: registry.tsuwari.tk/tsuwari/streamstatus
     env_file:
@@ -189,7 +189,7 @@ services:
   eventsub:
     build:
       context: .
-      dockerfile: apps/eventsub
+      dockerfile: apps/eventsub/Dockerfile
     restart: unless-stopped
     image: registry.tsuwari.tk/tsuwari/eventsub
     env_file:
@@ -207,7 +207,7 @@ services:
   dota:
     build:
       context: .
-      dockerfile: apps/dota
+      dockerfile: apps/dota/Dockerfile
     restart: unless-stopped
     image: registry.tsuwari.tk/tsuwari/dota
     env_file:
