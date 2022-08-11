@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@d-fischer/cache-decorators": "3.0.0",
-    "@nestjs/common": "9.0.8",
-    "@nestjs/microservices": "9.0.8",
+    "@nestjs/common": "9.0.9",
+    "@nestjs/microservices": "9.0.9",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
     "@twurple/api": "5.2.1",

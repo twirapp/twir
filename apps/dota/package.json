@@ -12,9 +12,9 @@
     "@types/steamid": "2.0.1"
   },
   "dependencies": {
-    "@nestjs/common": "9.0.8",
-    "@nestjs/core": "9.0.8",
-    "@nestjs/microservices": "9.0.8",
+    "@nestjs/common": "9.0.9",
+    "@nestjs/core": "9.0.9",
+    "@nestjs/microservices": "9.0.9",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
     "@tsuwari/shared": "workspace:*",
