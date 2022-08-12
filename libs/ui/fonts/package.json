@@ -1,0 +1,13 @@
+{
+  "name": "@tsuwari/ui-fonts",
+  "version": "1.0.0",
+  "private": true,
+  "files": [
+    "Golos",
+    "index.css"
+  ],
+  "exports": {
+    ".": "./index.css",
+    "./tailwind": "./tailwind-fonts.config.js"
+  }
+}
