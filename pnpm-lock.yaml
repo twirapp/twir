@@ -241,7 +241,6 @@ importers:
       '@popperjs/core': 2.11.6
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
-      '@tsuwari/uikit': workspace:*
       '@twurple/api': 5.2.5
       '@twurple/common': 5.2.5
       '@types/prismjs': 1.26.0
@@ -279,7 +278,6 @@ importers:
       '@nanostores/persistent': 0.7.0_nanostores@0.7.0
       '@nanostores/vue': 0.6.0_r627q4dwpmfpioilrlqhfzrl3q
       '@popperjs/core': 2.11.6
-      '@tsuwari/uikit': link:../../libs/uikit
       '@vueuse/components': 9.4.0_vue@3.2.41
       '@vueuse/core': 9.4.0_vue@3.2.41
       '@vueuse/integrations': 9.4.0_axios@1.1.3+vue@3.2.41
@@ -549,7 +547,7 @@ importers:
     devDependencies:
       dotenv: 16.0.3
 
-  libs/uikit:
+  libs/ui/components:
     specifiers:
       '@babel/core': ^7.18.10
       '@storybook/addon-actions': ^6.5.10
@@ -568,7 +566,9 @@ importers:
       '@storybook/preview-web': ^6.5.10
       '@storybook/testing-library': ^0.0.13
       '@storybook/vue3': ^6.5.10
-      '@types/svgo': ^2.6.3
+      '@tsuwari/ui-fonts': workspace:*
+      '@tsuwari/ui-icons': workspace:*
+      '@tsuwari/ui-theme': workspace:*
       '@vitejs/plugin-vue': ^3.0.1
       autoprefixer: 10.4.7
       babel-loader: ^8.2.5
@@ -580,8 +580,9 @@ importers:
       typescript: 4.7.4
       vite: 3.0.4
       vite-plugin-dts: ^1.4.1
-      vite-svg-loader: 3.4.0
       vue: 3.2.37
+    dependencies:
+      '@tsuwari/ui-icons': link:../icons
     devDependencies:
       '@babel/core': 7.19.6
       '@storybook/addon-actions': 6.5.13
@@ -600,7 +601,8 @@ importers:
       '@storybook/preview-web': 6.5.13
       '@storybook/testing-library': 0.0.13
       '@storybook/vue3': 6.5.13_lgsxcypctzzkfg77xw256lf6oe
-      '@types/svgo': 2.6.3
+      '@tsuwari/ui-fonts': link:../fonts
+      '@tsuwari/ui-theme': link:../theme
       '@vitejs/plugin-vue': 3.0.1_vite@3.0.4+vue@3.2.37
       autoprefixer: 10.4.7_postcss@8.4.16
       babel-loader: 8.2.5_@babel+core@7.19.6
@@ -612,8 +614,35 @@ importers:
       typescript: 4.7.4
       vite: 3.0.4
       vite-plugin-dts: 1.4.1_vite@3.0.4
+      vue: 3.2.37
+
+  libs/ui/fonts:
+    specifiers: {}
+
+  libs/ui/icons:
+    specifiers:
+      '@types/svgo': ^2.6.3
+      typescript: 4.7.4
+      vite: ^3.0.6
+      vite-plugin-dts: ^1.4.1
       vite-svg-loader: 3.4.0
       vue: 3.2.37
+    devDependencies:
+      '@types/svgo': 2.6.3
+      typescript: 4.7.4
+      vite: 3.0.6
+      vite-plugin-dts: 1.4.1_vite@3.0.6
+      vite-svg-loader: 3.4.0
+      vue: 3.2.37
+
+  libs/ui/theme:
+    specifiers:
+      '@tsuwari/ui-fonts': workspace:*
+      tailwindcss: ^3.1.8
+    dependencies:
+      '@tsuwari/ui-fonts': link:../fonts
+    devDependencies:
+      tailwindcss: 3.1.8
 
 packages:
 
@@ -15113,6 +15142,17 @@ packages:
       postcss-value-parser: 4.2.0
     dev: true
 
+  /postcss-import/14.1.0:
+    resolution: {integrity: sha512-flwI+Vgm4SElObFVPpTIT7SU7R3qk2L7PyduMcokiaVKuWv9d/U+Gm/QAd8NDLuykTWTkcrjOeD2Pp1rMeBTGw==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      postcss: ^8.0.0
+    dependencies:
+      postcss-value-parser: 4.2.0
+      read-cache: 1.0.0
+      resolve: 1.22.1
+    dev: true
+
   /postcss-import/14.1.0_postcss@8.4.16:
     resolution: {integrity: sha512-flwI+Vgm4SElObFVPpTIT7SU7R3qk2L7PyduMcokiaVKuWv9d/U+Gm/QAd8NDLuykTWTkcrjOeD2Pp1rMeBTGw==}
     engines: {node: '>=10.0.0'}
@@ -15136,6 +15176,15 @@ packages:
       read-cache: 1.0.0
       resolve: 1.22.1
 
+  /postcss-js/4.0.0:
+    resolution: {integrity: sha512-77QESFBwgX4irogGVPgQ5s07vLvFqWr228qZY+w6lW599cRlK/HmnlivnnVUxkjHnCu4J16PDMHcH+e+2HbvTQ==}
+    engines: {node: ^12 || ^14 || >= 16}
+    peerDependencies:
+      postcss: ^8.3.3
+    dependencies:
+      camelcase-css: 2.0.1
+    dev: true
+
   /postcss-js/4.0.0_postcss@8.4.16:
     resolution: {integrity: sha512-77QESFBwgX4irogGVPgQ5s07vLvFqWr228qZY+w6lW599cRlK/HmnlivnnVUxkjHnCu4J16PDMHcH+e+2HbvTQ==}
     engines: {node: ^12 || ^14 || >= 16}
@@ -15154,6 +15203,22 @@ packages:
     dependencies:
       camelcase-css: 2.0.1
       postcss: 8.4.18
+
+  /postcss-load-config/3.1.4:
+    resolution: {integrity: sha512-6DiM4E7v4coTE4uzA8U//WhtPwyhiim3eyjEMFCnUpzbrkK9wJHgKDT2mR+HbtSrd/NubVaYTOpSpjUl8NQeRg==}
+    engines: {node: '>= 10'}
+    peerDependencies:
+      postcss: '>=8.0.9'
+      ts-node: '>=9.0.0'
+    peerDependenciesMeta:
+      postcss:
+        optional: true
+      ts-node:
+        optional: true
+    dependencies:
+      lilconfig: 2.0.6
+      yaml: 1.10.2
+    dev: true
 
   /postcss-load-config/3.1.4_postcss@8.4.16:
     resolution: {integrity: sha512-6DiM4E7v4coTE4uzA8U//WhtPwyhiim3eyjEMFCnUpzbrkK9wJHgKDT2mR+HbtSrd/NubVaYTOpSpjUl8NQeRg==}
@@ -15236,6 +15301,15 @@ packages:
       postcss: 7.0.39
     dev: true
 
+  /postcss-nested/5.0.6:
+    resolution: {integrity: sha512-rKqm2Fk0KbA8Vt3AdGN0FB9OBOMDVajMG6ZCf/GoHgdxUJ4sBFp0A/uMIRm+MJUdo33YXEtjqIz8u7DAp8B7DA==}
+    engines: {node: '>=12.0'}
+    peerDependencies:
+      postcss: ^8.2.14
+    dependencies:
+      postcss-selector-parser: 6.0.10
+    dev: true
+
   /postcss-nested/5.0.6_postcss@8.4.16:
     resolution: {integrity: sha512-rKqm2Fk0KbA8Vt3AdGN0FB9OBOMDVajMG6ZCf/GoHgdxUJ4sBFp0A/uMIRm+MJUdo33YXEtjqIz8u7DAp8B7DA==}
     engines: {node: '>=12.0'}
@@ -15246,6 +15320,16 @@ packages:
       postcss-selector-parser: 6.0.10
     dev: true
 
+  /postcss-nested/5.0.6_postcss@8.4.18:
+    resolution: {integrity: sha512-rKqm2Fk0KbA8Vt3AdGN0FB9OBOMDVajMG6ZCf/GoHgdxUJ4sBFp0A/uMIRm+MJUdo33YXEtjqIz8u7DAp8B7DA==}
+    engines: {node: '>=12.0'}
+    peerDependencies:
+      postcss: ^8.2.14
+    dependencies:
+      postcss: 8.4.18
+      postcss-selector-parser: 6.0.10
+    dev: false
+
   /postcss-nested/6.0.0_postcss@8.4.18:
     resolution: {integrity: sha512-0DkamqrPcmkBDsLn+vQDIrtkSbNkv5AD/M322ySo9kqFkCIYklym2xEmWkwo+Y3/qZo34tzEPNUw4y7yMCdv5w==}
     engines: {node: '>=12.0'}
@@ -15254,6 +15338,7 @@ packages:
     dependencies:
       postcss: 8.4.18
       postcss-selector-parser: 6.0.10
+    dev: true
 
   /postcss-nesting/10.1.10_postcss@8.4.16:
     resolution: {integrity: sha512-lqd7LXCq0gWc0wKXtoKDru5wEUNjm3OryLVNRZ8OnW8km6fSNUuFrjEhU3nklxXE2jvd4qrox566acgh+xQt8w==}
@@ -16387,6 +16472,14 @@ packages:
       sprintf-js: 1.1.2
     dev: true
 
+  /rollup/2.77.3:
+    resolution: {integrity: sha512-/qxNTG7FbmefJWoeeYJFbHehJ2HNWnjkAFRKzWN/45eNBBF/r8lo992CwcJXEzyVxs5FmfId+vTSTQDb+bxA+g==}
+    engines: {node: '>=10.0.0'}
+    hasBin: true
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
   /rollup/2.78.1:
     resolution: {integrity: sha512-VeeCgtGi4P+o9hIg+xz4qQpRl6R401LWEXBmxYKOV4zlF82lyhgh2hTZnheFUbANE8l2A41F458iwj2vEYaXJg==}
     engines: {node: '>=10.0.0'}
@@ -17321,6 +17414,39 @@ packages:
       tslib: 2.4.0
     dev: true
 
+  /tailwindcss/3.1.8:
+    resolution: {integrity: sha512-YSneUCZSFDYMwk+TGq8qYFdCA3yfBRdBlS7txSq0LUmzyeqRe3a8fBQzbz9M3WS/iFT4BNf/nmw9mEzrnSaC0g==}
+    engines: {node: '>=12.13.0'}
+    hasBin: true
+    peerDependencies:
+      postcss: ^8.0.9
+    dependencies:
+      arg: 5.0.2
+      chokidar: 3.5.3
+      color-name: 1.1.4
+      detective: 5.2.1
+      didyoumean: 1.2.2
+      dlv: 1.1.3
+      fast-glob: 3.2.12
+      glob-parent: 6.0.2
+      is-glob: 4.0.3
+      lilconfig: 2.0.6
+      normalize-path: 3.0.0
+      object-hash: 3.0.0
+      picocolors: 1.0.0
+      postcss: 8.4.18
+      postcss-import: 14.1.0
+      postcss-js: 4.0.0
+      postcss-load-config: 3.1.4
+      postcss-nested: 5.0.6
+      postcss-selector-parser: 6.0.10
+      postcss-value-parser: 4.2.0
+      quick-lru: 5.1.1
+      resolve: 1.22.1
+    transitivePeerDependencies:
+      - ts-node
+    dev: true
+
   /tailwindcss/3.1.8_postcss@8.4.16:
     resolution: {integrity: sha512-YSneUCZSFDYMwk+TGq8qYFdCA3yfBRdBlS7txSq0LUmzyeqRe3a8fBQzbz9M3WS/iFT4BNf/nmw9mEzrnSaC0g==}
     engines: {node: '>=12.13.0'}
@@ -17354,6 +17480,39 @@ packages:
       - ts-node
     dev: true
 
+  /tailwindcss/3.1.8_postcss@8.4.18:
+    resolution: {integrity: sha512-YSneUCZSFDYMwk+TGq8qYFdCA3yfBRdBlS7txSq0LUmzyeqRe3a8fBQzbz9M3WS/iFT4BNf/nmw9mEzrnSaC0g==}
+    engines: {node: '>=12.13.0'}
+    hasBin: true
+    peerDependencies:
+      postcss: ^8.0.9
+    dependencies:
+      arg: 5.0.2
+      chokidar: 3.5.3
+      color-name: 1.1.4
+      detective: 5.2.1
+      didyoumean: 1.2.2
+      dlv: 1.1.3
+      fast-glob: 3.2.12
+      glob-parent: 6.0.2
+      is-glob: 4.0.3
+      lilconfig: 2.0.6
+      normalize-path: 3.0.0
+      object-hash: 3.0.0
+      picocolors: 1.0.0
+      postcss: 8.4.18
+      postcss-import: 14.1.0_postcss@8.4.18
+      postcss-js: 4.0.0_postcss@8.4.18
+      postcss-load-config: 3.1.4_postcss@8.4.18
+      postcss-nested: 5.0.6_postcss@8.4.18
+      postcss-selector-parser: 6.0.10
+      postcss-value-parser: 4.2.0
+      quick-lru: 5.1.1
+      resolve: 1.22.1
+    transitivePeerDependencies:
+      - ts-node
+    dev: false
+
   /tailwindcss/3.2.1_postcss@8.4.18:
     resolution: {integrity: sha512-Uw+GVSxp5CM48krnjHObqoOwlCt5Qo6nw1jlCRwfGy68dSYb/LwS9ZFidYGRiM+w6rMawkZiu1mEMAsHYAfoLg==}
     engines: {node: '>=12.13.0'}
@@ -17386,6 +17545,7 @@ packages:
       resolve: 1.22.1
     transitivePeerDependencies:
       - ts-node
+    dev: true
 
   /tapable/1.1.3:
     resolution: {integrity: sha512-4WK/bYZmj8xLr+HUCODHGF1ZFzsYffasLUgEiMBY4fgtltdO6B4WJtlSbPaDTLpYTcGVwM2qLnFTICEcNxs3kA==}
@@ -17927,7 +18087,7 @@ packages:
       detect-autofill: 1.1.4
       perfect-scrollbar: 1.5.5
       popper.js: 1.16.1
-      tailwindcss: 3.2.1_postcss@8.4.18
+      tailwindcss: 3.1.8_postcss@8.4.18
     transitivePeerDependencies:
       - postcss
       - ts-node
@@ -18607,6 +18767,24 @@ packages:
       - supports-color
     dev: true
 
+  /vite-plugin-dts/1.4.1_vite@3.0.6:
+    resolution: {integrity: sha512-jo7E4ZeheD2o48oGiI3EygPbej7ZkGFHg3GVTt7Wuo6NgzThLvuzGGuduaFpnhJOGi1piDFsu6oui/wDKIIORQ==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      vite: '>=2.4.4'
+    dependencies:
+      '@microsoft/api-extractor': 7.29.0
+      '@rushstack/node-core-library': 3.50.1
+      chalk: 4.1.2
+      debug: 4.3.4
+      fast-glob: 3.2.12
+      fs-extra: 10.1.0
+      ts-morph: 14.0.0
+      vite: 3.0.6
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /vite-svg-loader/3.4.0:
     resolution: {integrity: sha512-xD3yb1FX+f4l9/TmsYIqyki8ncpcVsZ2gEJFh/wLuNNqt55C8OJ+JlcMWOA/Z9gRA+ylV/TA1wmJLxzZkCRqlA==}
     dependencies:
@@ -18644,6 +18822,33 @@ packages:
       postcss: 8.4.18
       resolve: 1.22.1
       rollup: 2.79.1
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /vite/3.0.6:
+    resolution: {integrity: sha512-pjfsWIzfUlQME/VAmU6SsjdHkTt6WAHysuqPkHDcjzNu6IGtxDSZ/VfRYOwHaCqX4M3Ivz0kxuSfAPM6gAIX+w==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.14.53
+      postcss: 8.4.16
+      resolve: 1.22.1
+      rollup: 2.77.3
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
