@@ -1,0 +1,36 @@
+{
+  "name": "@tsuwari/ui-icons",
+  "version": "1.0.0",
+  "private": true,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build"
+  },
+  "exports": {
+    "./icons": "./dist/index.js",
+    "./logos": "./dist/logos/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "icons": [
+        "./dist/index.d.ts"
+      ],
+      "logos": [
+        "./dist/logos/index.d.ts"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@types/svgo": "^2.6.3",
+    "typescript": "4.7.4",
+    "vite": "^3.0.6",
+    "vite-plugin-dts": "^1.4.1",
+    "vite-svg-loader": "3.4.0",
+    "vue": "3.2.37"
+  },
+  "peerDependencies": {
+    "vue": "3.2.37"
+  }
+}

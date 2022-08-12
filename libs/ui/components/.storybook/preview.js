@@ -1,5 +1,5 @@
-import '../fonts/fonts.css';
-import '../src/styles/index.css';
+import '@tsuwari/ui-fonts';
+import '../src/index.css';
 
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
