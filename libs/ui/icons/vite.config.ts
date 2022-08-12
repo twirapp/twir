@@ -1,20 +1,16 @@
 import { resolve } from 'node:path';
 
-import vuePlugin from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import declarationsPlugin from 'vite-plugin-dts';
 import svgLoaderPlugin from 'vite-svg-loader';
 
 export default defineConfig({
   build: {
-    cssCodeSplit: false,
-    assetsDir: 'assets',
     rollupOptions: {
       preserveEntrySignatures: 'exports-only',
       input: {
-        components: resolve(__dirname, 'src/components/index.ts'),
-        logos: resolve(__dirname, 'src/icons/logos/index.ts'),
-        icons: resolve(__dirname, 'src/icons/index.ts'),
+        logos: resolve(__dirname, 'src/logos/index.ts'),
+        icons: resolve(__dirname, 'src/index.ts'),
       },
       external: ['vue'],
       output: [
@@ -47,15 +43,12 @@ export default defineConfig({
     alias: [{ find: '@', replacement: resolve(__dirname, 'src') }],
   },
   plugins: [
-    vuePlugin(),
     svgLoaderPlugin(),
     declarationsPlugin({
       beforeWriteFile: (filePath, content) => ({
         filePath,
         content: content.replace(/(\.svg\?component)|(\.vue)/g, '.js'),
       }),
-      cleanVueFileName: true,
-      exclude: './src/shims-vue.d.ts',
     }),
   ],
 });

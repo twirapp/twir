@@ -2,7 +2,8 @@
   "extends": "@satont/eslint-config",
   "rules": {
     "vue/max-attributes-per-line": "off",
-    "vue/static-class-names-order": "off"
+    "vue/static-class-names-order": "off",
+    "vue/attribute-hyphenation": "off"
   },
   "overrides": [
     {

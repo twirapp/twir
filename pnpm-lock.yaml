@@ -324,7 +324,6 @@ importers:
       '@tsuwari/api': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
-      '@tsuwari/uikit': workspace:*
       '@twurple/api': 5.2.1
       '@twurple/common': 5.2.1
       '@types/prismjs': 1.26.0
@@ -363,7 +362,6 @@ importers:
       '@nanostores/vue': 0.5.5_jcek7dbclq7f4suoygxks7kh6m
       '@popperjs/core': 2.11.6
       '@tsuwari/api': link:../api
-      '@tsuwari/uikit': link:../../libs/uikit
       '@vueuse/components': 9.1.0_vue@3.2.37
       '@vueuse/core': 9.1.0_vue@3.2.37
       '@vueuse/integrations': 9.1.0_axios@0.27.2+vue@3.2.37
@@ -625,7 +623,7 @@ importers:
     devDependencies:
       '@types/lodash': 4.14.182
 
-  libs/uikit:
+  libs/ui/components:
     specifiers:
       '@babel/core': ^7.18.10
       '@storybook/addon-actions': ^6.5.10
@@ -644,9 +642,10 @@ importers:
       '@storybook/preview-web': ^6.5.10
       '@storybook/testing-library': ^0.0.13
       '@storybook/vue3': ^6.5.10
-      '@types/svgo': ^2.6.3
+      '@tsuwari/ui-fonts': workspace:*
+      '@tsuwari/ui-icons': workspace:*
+      '@tsuwari/ui-theme': workspace:*
       '@vitejs/plugin-vue': ^3.0.1
-      '@vue/runtime-core': ^3.2.37
       autoprefixer: 10.4.7
       babel-loader: ^8.2.5
       postcss: 8.4.16
@@ -657,8 +656,9 @@ importers:
       typescript: 4.7.4
       vite: 3.0.4
       vite-plugin-dts: ^1.4.1
-      vite-svg-loader: 3.4.0
       vue: 3.2.37
+    dependencies:
+      '@tsuwari/ui-icons': link:../icons
     devDependencies:
       '@babel/core': 7.18.10
       '@storybook/addon-actions': 6.5.10
@@ -677,9 +677,9 @@ importers:
       '@storybook/preview-web': 6.5.10
       '@storybook/testing-library': 0.0.13
       '@storybook/vue3': 6.5.10_3xy4ofzgwbqhkiiz2juieghqsi
-      '@types/svgo': 2.6.3
+      '@tsuwari/ui-fonts': link:../fonts
+      '@tsuwari/ui-theme': link:../theme
       '@vitejs/plugin-vue': 3.0.1_vite@3.0.4+vue@3.2.37
-      '@vue/runtime-core': 3.2.37
       autoprefixer: 10.4.7_postcss@8.4.16
       babel-loader: 8.2.5_@babel+core@7.18.10
       postcss: 8.4.16
@@ -690,8 +690,35 @@ importers:
       typescript: 4.7.4
       vite: 3.0.4
       vite-plugin-dts: 1.4.1_vite@3.0.4
+      vue: 3.2.37
+
+  libs/ui/fonts:
+    specifiers: {}
+
+  libs/ui/icons:
+    specifiers:
+      '@types/svgo': ^2.6.3
+      typescript: 4.7.4
+      vite: ^3.0.6
+      vite-plugin-dts: ^1.4.1
       vite-svg-loader: 3.4.0
       vue: 3.2.37
+    devDependencies:
+      '@types/svgo': 2.6.3
+      typescript: 4.7.4
+      vite: 3.0.6
+      vite-plugin-dts: 1.4.1_vite@3.0.6
+      vite-svg-loader: 3.4.0
+      vue: 3.2.37
+
+  libs/ui/theme:
+    specifiers:
+      '@tsuwari/ui-fonts': workspace:*
+      tailwindcss: ^3.1.8
+    dependencies:
+      '@tsuwari/ui-fonts': link:../fonts
+    devDependencies:
+      tailwindcss: 3.1.8
 
 packages:
 
@@ -8055,6 +8082,7 @@ packages:
 
   /commander/2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
+    requiresBuild: true
     dev: true
 
   /commander/4.1.1:
@@ -16171,6 +16199,24 @@ packages:
       - supports-color
     dev: true
 
+  /vite-plugin-dts/1.4.1_vite@3.0.6:
+    resolution: {integrity: sha512-jo7E4ZeheD2o48oGiI3EygPbej7ZkGFHg3GVTt7Wuo6NgzThLvuzGGuduaFpnhJOGi1piDFsu6oui/wDKIIORQ==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      vite: '>=2.4.4'
+    dependencies:
+      '@microsoft/api-extractor': 7.29.0
+      '@rushstack/node-core-library': 3.50.1
+      chalk: 4.1.2
+      debug: 4.3.4
+      fast-glob: 3.2.11
+      fs-extra: 10.1.0
+      ts-morph: 14.0.0
+      vite: 3.0.6
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /vite-svg-loader/3.4.0:
     resolution: {integrity: sha512-xD3yb1FX+f4l9/TmsYIqyki8ncpcVsZ2gEJFh/wLuNNqt55C8OJ+JlcMWOA/Z9gRA+ylV/TA1wmJLxzZkCRqlA==}
     dependencies:
@@ -16179,6 +16225,33 @@ packages:
 
   /vite/3.0.4:
     resolution: {integrity: sha512-NU304nqnBeOx2MkQnskBQxVsa0pRAH5FphokTGmyy8M3oxbvw7qAXts2GORxs+h/2vKsD+osMhZ7An6yK6F1dA==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.14.53
+      postcss: 8.4.16
+      resolve: 1.22.1
+      rollup: 2.77.2
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /vite/3.0.6:
+    resolution: {integrity: sha512-pjfsWIzfUlQME/VAmU6SsjdHkTt6WAHysuqPkHDcjzNu6IGtxDSZ/VfRYOwHaCqX4M3Ivz0kxuSfAPM6gAIX+w==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
