@@ -6,7 +6,8 @@
     "dist"
   ],
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./styles": "./dist/style.css"
   },
   "typesVersions": {
     "*": {
