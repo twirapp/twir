@@ -4,8 +4,8 @@
   <component
     :is="icon"
     xmlns="http://www.w3.org/2000/svg"
-    :width="width"
-    :height="height"
+    :width="size"
+    :height="size"
     :stroke="stroke"
     :fill="fill"
     :stroke-width="strokeWidth"
@@ -14,26 +14,29 @@
   />
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import * as icons from '@tsuwari/ui-icons/icons';
-import { defineComponent, FunctionalComponent, PropType, SVGAttributes } from 'vue';
+import { computed, FunctionalComponent, SVGAttributes } from 'vue';
+
+const props = withDefaults(
+  defineProps<{
+    name: icons.IconName;
+    size?: string;
+    fill?: string;
+    stroke?: string;
+    strokeWidth?: number;
+  }>(),
+  {
+    fill: 'none',
+    size: undefined,
+    stroke: 'white',
+    strokeWidth: 1.5,
+  },
+);
 
 type Icons = {
   [K in icons.IconName]: FunctionalComponent<SVGAttributes>;
 };
 
-export default defineComponent({
-  name: 'Icon',
-  props: {
-    name: { type: String as PropType<icons.IconName>, required: true },
-    width: { type: String, default: undefined },
-    height: { type: String, default: undefined },
-    fill: { type: String, default: 'none' },
-    stroke: { type: String, default: 'white' },
-    strokeWidth: { type: Number, default: 1.5 },
-  },
-  setup: (props) => ({
-    icon: (icons as Icons)[props.name],
-  }),
-});
+const icon = computed(() => (icons as Icons)[props.name]);
 </script>
