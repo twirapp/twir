@@ -30,3 +30,4 @@ const Template: Story<TswLoaderProps> = (args) => ({
 });
 
 export const Loader = Template.bind({});
+Loader.args = { size: 'lg' };
