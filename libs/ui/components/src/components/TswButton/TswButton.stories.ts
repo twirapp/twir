@@ -1,7 +1,7 @@
-import { Meta, Story } from '@storybook/vue3';
-import { IconName } from '@tsuwari/ui-icons/icons';
+import type { Meta, Story } from '@storybook/vue3';
+import type { IconName } from '@tsuwari/ui-icons/icons';
 
-import { ButtonSize, ButtonType, ButtonVariant } from '@/components/TswButton/props.types';
+import type { ButtonSize, ButtonType, ButtonVariant } from '@/components/TswButton/props.types';
 import TswButton from '@/components/TswButton/Tswbutton.vue';
 import TswIcon from '@/components/TswIcon/TswIcon.vue';
 import TswLoader from '@/components/TswLoader/TswLoader.vue';
@@ -48,14 +48,14 @@ export default {
 } as Meta;
 
 interface TswButtonProps {
-  href: string;
   text: string;
-  size: ButtonSize;
-  variant: ButtonVariant;
-  type: ButtonType;
-  isRounded: boolean;
-  disabled: boolean;
-  targetBlank: boolean;
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+  type?: ButtonType;
+  isRounded?: boolean;
+  href?: string;
+  disabled?: boolean;
+  targetBlank?: true;
 }
 
 const Template: Story<TswButtonProps> = (args) => ({

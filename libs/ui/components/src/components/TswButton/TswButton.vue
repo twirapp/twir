@@ -17,7 +17,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 
-import { ButtonSize, ButtonVariant, ButtonType } from '@/components/TswButton/props.types';
+import { ButtonSize, ButtonVariant, ButtonType } from './props.types.js';
 
 const props = withDefaults(
   defineProps<{
