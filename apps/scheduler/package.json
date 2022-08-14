@@ -11,9 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nestjs/common": "9.0.8",
-    "@nestjs/core": "9.0.8",
-    "@nestjs/microservices": "9.0.8",
+    "@nestjs/common": "9.0.9",
+    "@nestjs/core": "9.0.9",
+    "@nestjs/microservices": "9.0.9",
     "@nestjs/schedule": "2.1.0",
     "@sentry/node": "7.10.0",
     "@sentry/tracing": "7.10.0",
