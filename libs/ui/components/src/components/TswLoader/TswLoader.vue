@@ -14,7 +14,7 @@ const classes = computed(() => ['loader', `loader-${props.size}`].join(' '));
 
 <style lang="postcss">
 .loader {
-  @apply inline-flex animate-spin border-b-purple-35 rounded-full border-white-10;
+  @apply inline-flex animate-spin border-b-purple-70 rounded-full border-white-95;
 }
 
 .loader-sm {

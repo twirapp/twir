@@ -565,6 +565,7 @@ importers:
       '@storybook/client-api': ^6.5.10
       '@storybook/preview-web': ^6.5.10
       '@storybook/testing-library': ^0.0.13
+      '@storybook/theming': ^6.5.10
       '@storybook/vue3': ^6.5.10
       '@tsuwari/ui-fonts': workspace:*
       '@tsuwari/ui-icons': workspace:*
@@ -574,7 +575,6 @@ importers:
       babel-loader: ^8.2.5
       postcss: 8.4.16
       postcss-hexrgba: ^2.1.0
-      postcss-import: ^14.1.0
       postcss-nesting: ^10.1.10
       tailwindcss: 3.1.8
       typescript: 4.7.4
@@ -600,6 +600,7 @@ importers:
       '@storybook/client-api': 6.5.13
       '@storybook/preview-web': 6.5.13
       '@storybook/testing-library': 0.0.13
+      '@storybook/theming': 6.5.13
       '@storybook/vue3': 6.5.13_lgsxcypctzzkfg77xw256lf6oe
       '@tsuwari/ui-fonts': link:../fonts
       '@tsuwari/ui-theme': link:../theme
@@ -608,7 +609,6 @@ importers:
       babel-loader: 8.2.5_@babel+core@7.19.6
       postcss: 8.4.16
       postcss-hexrgba: 2.1.0_postcss@8.4.16
-      postcss-import: 14.1.0_postcss@8.4.16
       postcss-nesting: 10.1.10_postcss@8.4.16
       tailwindcss: 3.1.8_postcss@8.4.16
       typescript: 4.7.4

@@ -15,12 +15,12 @@
 </template>
 
 <script lang="ts" setup>
-import * as icons from '@tsuwari/ui-icons/icons';
-import { computed, FunctionalComponent, SVGAttributes } from 'vue';
+import icons, { IconName } from '@tsuwari/ui-icons/icons';
+import { computed } from 'vue';
 
 const props = withDefaults(
   defineProps<{
-    name: icons.IconName;
+    name: IconName;
     size?: string;
     fill?: string;
     stroke?: string;
@@ -34,9 +34,5 @@ const props = withDefaults(
   },
 );
 
-type Icons = {
-  [K in icons.IconName]: FunctionalComponent<SVGAttributes>;
-};
-
-const icon = computed(() => (icons as Icons)[props.name]);
+const icon = computed(() => icons[props.name]);
 </script>

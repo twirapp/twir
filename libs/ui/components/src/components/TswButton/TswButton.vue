@@ -7,10 +7,11 @@
     :href="href"
     :target="href && targetBlank ? '_black' : undefined"
     :tabindex="href ? 1 : undefined"
+    @click.prevent="emitClickEvent"
   >
-    <slot name="left" innerClass="btn-inner-el" />
+    <slot name="left" :innerClass="btnInnerClass" />
     {{ text }}
-    <slot name="right" innerClass="btn-inner-el" />
+    <slot name="right" :innerClass="btnInnerClass" />
   </component>
 </template>
 
@@ -41,6 +42,11 @@ const props = withDefaults(
   },
 );
 
+const emit = defineEmits({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  click: (e: MouseEvent) => true,
+});
+
 const classes = computed(() =>
   [
     'btn',
@@ -50,6 +56,12 @@ const classes = computed(() =>
     props.disabled ? 'btn-disabled' : '',
   ].join(' '),
 );
+
+const emitClickEvent = (e: MouseEvent) => {
+  emit('click', e);
+};
+
+const btnInnerClass = 'btn-inner-el';
 </script>
 
 <style lang="postcss">
@@ -100,38 +112,38 @@ const classes = computed(() =>
 }
 
 .btn-outline-gray {
-  @apply bg-black-90 border border-gray-70 text-white-20;
+  @apply border border-gray-35 text-white-95;
 
   &:hover {
-    @apply bg-black-80;
+    @apply bg-black-15;
   }
 
   &:focus {
-    box-shadow: 0 0 0 3px theme('colors.black.80');
+    box-shadow: 0 0 0 3px theme('colors.black.15');
   }
 }
 
 .btn-solid-purple {
-  @apply text-white-0 bg-purple-40;
+  @apply text-white-100 bg-purple-60;
 
   &:hover {
-    @apply bg-purple-45;
+    @apply bg-purple-55;
   }
 
   &:focus {
-    box-shadow: 0 0 0 3px rgba(theme('colors.purple.45'), 0.6);
+    box-shadow: 0 0 0 3px rgba(theme('colors.purple.55'), 0.5);
   }
 }
 
 .btn-solid-gray {
-  @apply bg-black-80 text-white-10;
+  @apply bg-black-15 text-white-95;
 
   &:hover {
-    @apply bg-black-75;
+    @apply bg-black-20;
   }
 
   &:focus {
-    box-shadow: 0 0 0 3px rgba(theme('colors.black.75'), 0.55);
+    box-shadow: 0 0 0 3px rgba(theme('colors.black.20'), 0.55);
   }
 }
 
