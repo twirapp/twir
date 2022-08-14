@@ -2,7 +2,7 @@ import type { Meta, Story } from '@storybook/vue3';
 import type { IconName } from '@tsuwari/ui-icons/icons';
 
 import type { ButtonSize, ButtonType, ButtonVariant } from '@/components/TswButton/props.types';
-import TswButton from '@/components/TswButton/Tswbutton.vue';
+import TswButton from '@/components/TswButton/TswButton.vue';
 import TswIcon from '@/components/TswIcon/TswIcon.vue';
 import TswLoader from '@/components/TswLoader/TswLoader.vue';
 
@@ -43,6 +43,12 @@ export default {
     },
     targetBlank: {
       type: 'boolean',
+    },
+    onClick: {
+      action: 'click',
+      table: {
+        disable: true,
+      },
     },
   },
 } as Meta;
