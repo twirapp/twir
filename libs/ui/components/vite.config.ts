@@ -6,7 +6,7 @@ import declarationsPlugin from 'vite-plugin-dts';
 
 export default defineConfig({
   build: {
-    // cssCodeSplit: false,
+    cssCodeSplit: false,
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       formats: ['es'],

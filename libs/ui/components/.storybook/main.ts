@@ -10,6 +10,7 @@ const config: StorybookViteConfig = {
   addons: [
     '@storybook/addon-links',
     '@storybook/addon-essentials',
+    '@storybook/addon-actions',
     '@storybook/addon-interactions',
   ],
   framework: '@storybook/vue3',
@@ -22,6 +23,7 @@ const config: StorybookViteConfig = {
   typescript: {
     check: false,
   },
+  staticDirs: ['../static'],
   async viteFinal(config) {
     return mergeConfig(config, {
       resolve: {
