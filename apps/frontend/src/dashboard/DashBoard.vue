@@ -35,7 +35,7 @@ useIntervalFn(
     const dash = get(dashboard);
     if (!dash) return;
 
-    const { data } = await api(`v1/channels/${dashboard.value.channelId}`);
+    const { data } = await api(`v1/channels/${dashboard.value.channelId}/bot/checkmod`);
 
     isBotMod.value = data;
   },
