@@ -114,13 +114,13 @@ async function sendForm() {
             <button
               type="button"
               class="bg-red-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-red-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
-              @click="() => patchBotConnection('join')">
+              @click="() => patchBotConnection('part')">
               {{ t('pages.dashboard.widgets.status.buttons.leave') }}
             </button>
             <button
               type="button"
               class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
-              @click="() => patchBotConnection('part')">
+              @click="() => patchBotConnection('join')">
               {{ t('pages.dashboard.widgets.status.buttons.join') }}
             </button>
           </div>
