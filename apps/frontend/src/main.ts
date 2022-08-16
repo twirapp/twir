@@ -9,19 +9,15 @@ import { i18n } from './plugins/i18n';
 import { router } from './plugins/router';
 
 import './main.css';
-import './plugins/socket';
 import 'vue-toastification/dist/index.css';
 import 'flag-icons/css/flag-icons.css';
 
-const app = createApp(App)
-  .use(MasonryWall)
-  .use(i18n)
-  .use(router);
+const app = createApp(App).use(MasonryWall).use(i18n).use(router);
 
 app.use(Toast, {
   position: POSITION.TOP_RIGHT,
   pauseOnFocusLoss: false,
-  'closeOnClick': true,
+  closeOnClick: true,
   maxToasts: 5,
   toastDefaults: {
     [TYPE.ERROR]: {
