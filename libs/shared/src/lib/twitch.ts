@@ -4,7 +4,7 @@ import { config } from '@tsuwari/config';
 import { PrismaClient, Token } from '@tsuwari/prisma';
 import { ApiClient, HelixUserApi, HelixUserData, UserIdResolvable } from '@twurple/api';
 import { ClientCredentialsAuthProvider, RefreshingAuthProvider } from '@twurple/auth';
-import { getRawData } from '@twurple/common';
+import { getRawData, UserNameResolvable } from '@twurple/common';
 import Redis from 'ioredis';
 
 import { RedisService } from './redis.js';
@@ -60,6 +60,24 @@ class MyUserApi extends HelixUserApi {
       data = JSON.parse(cachedData) as HelixUserData;
     } else {
       const user = await super.getUserById(userId);
+      if (user) {
+        data = getRawData(user);
+        this.redis?.set(redisKey, JSON.stringify(data), 'EX', (WEEK * 2) / 1000);
+      }
+    }
+
+    return data;
+  }
+
+  async getUserByNameWithCache(userName: UserNameResolvable): Promise<HelixUserData> {
+    const redisKey = `twitchUsersCache:${userName}`;
+    let data: HelixUserData | null = null;
+
+    const cachedData = await this.redis?.get(redisKey);
+    if (cachedData) {
+      data = JSON.parse(cachedData) as HelixUserData;
+    } else {
+      const user = await super.getUserByName(userName);
       if (user) {
         data = getRawData(user);
         this.redis?.set(redisKey, JSON.stringify(data), 'EX', (WEEK * 2) / 1000);

@@ -8,7 +8,10 @@ const formatDistanceLocale: { [x: string]: string } = {
   xMinutes: '{{count}}m',
   xHours: '{{count}}h',
 };
-const shortEnLocale = { formatDistance: (token: string, count: string) => formatDistanceLocale[token]?.replace('{{count}}', count) };
+const shortEnLocale = {
+  formatDistance: (token: string, count: string) =>
+    formatDistanceLocale[token]?.replace('{{count}}', count),
+};
 
 const staticApi = app.get(TwitchApiService);
 
@@ -26,18 +29,29 @@ async function getUserAge(userId: string) {
   const data = await staticApi.users.getUserByIdWithCache(userId);
   if (!data) return 'Error on getting info.';
 
-  const duration = intervalToDuration({ start: new Date(data.created_at).getTime(), end: Date.now() });
+  const duration = intervalToDuration({
+    start: new Date(data.created_at).getTime(),
+    end: Date.now(),
+  });
   return formatDuration(duration);
 }
-
 
 export const user: Module[] = [
   {
     key: 'user.followage',
     description: 'User followage',
-    handler: (_, state) => {
+    handler: async (_, state, varParams, chatMessage) => {
+      console.log(chatMessage);
       if (!state.sender?.id || !state.channelId) return 'cannot fetch data';
-      return getuserFollowAge(state.sender.id, state.channelId);
+      let userId: string = state.sender.id;
+
+      if (chatMessage) {
+        const user = await staticApi.users.getUserByNameWithCache(chatMessage);
+        if (!user) return `user with name ${chatMessage} not found.`;
+        userId = user.id;
+      }
+
+      return getuserFollowAge(userId, state.channelId);
     },
   },
   {
@@ -55,15 +69,12 @@ export const user: Module[] = [
     handler: async (_, state) => {
       const stats = await state.cache.getUserStats();
       if (!stats) return '0h0m';
-      return formatDuration(
-        intervalToDuration({ start: 0, end: Number(stats.watched ?? 0) }),
-        {
-          zero: true,
-          format: ['hours', 'minutes'],
-          delimiter: '',
-          locale: shortEnLocale,
-        },
-      );
+      return formatDuration(intervalToDuration({ start: 0, end: Number(stats.watched ?? 0) }), {
+        zero: true,
+        format: ['hours', 'minutes'],
+        delimiter: '',
+        locale: shortEnLocale,
+      });
     },
   },
   {

@@ -3,7 +3,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ParserCache } from './cache.js';
 
 export type State = {
-  message?: string,
+  message?: string;
   channelId: string;
   sender?: {
     id?: string;
@@ -12,7 +12,12 @@ export type State = {
   cache: ParserCache;
 };
 
-type Handler = (key: string, state: State, params?: string | null, chatMessage?: string) => number | string | Promise<string | number | undefined> | undefined;
+type Handler = (
+  key: string,
+  state: State,
+  params?: string | null,
+  chatMessage?: string,
+) => number | string | Promise<string | number | undefined> | undefined;
 
 export interface Module {
   key: string;
