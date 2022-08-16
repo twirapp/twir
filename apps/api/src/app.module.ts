@@ -15,17 +15,16 @@ import { AuthModule } from './auth/auth.module.js';
 import { ThrottlerGuard } from './guards/Throttle.guard.js';
 import { JwtAuthModule } from './jwt/jwt.module.js';
 import { BotsMicroserviceModule } from './microservices/bots/bots.module.js';
-import { SocketModule } from './socket/socket.module.js';
 import { V1Module } from './v1/v1.module.js';
 import { VersionModule } from './version/version.module.js';
 
-const redis = new class extends Redis {
+const redis = new (class extends Redis {
   constructor() {
     super(config.REDIS_URL, {
       isCacheableValue: () => true,
     } as any);
   }
-};
+})();
 
 @Module({
   imports: [
@@ -47,7 +46,6 @@ const redis = new class extends Redis {
     }),
     JwtAuthModule,
     V1Module,
-    SocketModule,
     AdminModule,
     VersionModule,
   ],
@@ -64,4 +62,4 @@ const redis = new class extends Redis {
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

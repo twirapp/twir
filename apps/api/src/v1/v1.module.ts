@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { config } from '@tsuwari/config';
 import S3 from 'nestjs-s3';
 
+import { BotModule } from './bot/bot.module.js';
 import { CommandsModule } from './commands/commands.module.js';
 import { FeedbackModule } from './feedback/feedback.module.js';
 import { FilesModule } from './files/files.module.js';
@@ -45,6 +46,7 @@ import { VariablesModule } from './variables/variables.module.js';
     NotificationsModule,
     FeedbackModule,
     FilesModule,
+    BotModule,
   ],
 })
-export class V1Module { }
+export class V1Module {}

@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/ban-ts-comment -->
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
-import { useTimeoutPoll, get, useTitle  } from '@vueuse/core';
+import { get, useTitle, useIntervalFn } from '@vueuse/core';
 // @ts-ignore
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.esm.js';
 // @ts-ignore
@@ -14,10 +14,8 @@ import { useI18n } from 'vue-i18n';
 import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
 
-
 import MyBtn from '@/components/elements/MyBtn.vue';
 import { api } from '@/plugins/api';
-import { socketEmit } from '@/plugins/socket';
 import { selectedDashboardStore } from '@/stores/userStore';
 
 const title = useTitle();
@@ -32,34 +30,26 @@ const isBotMod = ref(false);
 
 const dashboard = useStore(selectedDashboardStore);
 
-selectedDashboardStore.subscribe(() => isBotMod.value = false);
+useIntervalFn(
+  async () => {
+    const dash = get(dashboard);
+    if (!dash) return;
 
-useTimeoutPoll(() => {
-  const dash = get(dashboard);
-  if (!dash) return;
+    const { data } = await api(`v1/channels/${dashboard.value.channelId}`);
 
-  socketEmit('isBotMod', {
-    channelId: dash.channelId,
-    channelName: dash.twitch.login,
-    userId: dash.userId,
-  }, (data) => {
-    isBotMod.value = data.value;
-  });
-}, 1000, { immediate: true });
+    isBotMod.value = data;
+  },
+  1000,
+  { immediate: true },
+);
 
-function leaveChannel() {
-  console.log('leaving');
-  socketEmit('botPart', { 
-    channelName: selectedDashboardStore.get().twitch.login,
-    channelId: selectedDashboardStore.get().channelId,
-  });
-}
+selectedDashboardStore.subscribe(() => {
+  isBotMod.value = false;
+});
 
-function joinChannel() {
-  console.log('joining');
-  socketEmit('botJoin', { 
-    channelName: selectedDashboardStore.get().twitch.login,
-    channelId: selectedDashboardStore.get().channelId,
+async function patchBotConnection(action: 'join' | 'part') {
+  await api.patch(`v1/channels/${dashboard.value.channelId}`, {
+    action,
   });
 }
 
@@ -102,48 +92,44 @@ async function sendForm() {
 <template>
   <div class="m-1.5 md:m-3">
     <div class="masonry md:masonry-md sm:masonry-sm space-y-2">
-      <div
-        class="block break-inside card rounded shadow text-white"
-      >
-        <h2 class="border-b border-gray-700 card-title flex font-bold justify-center outline-none p-2">
+      <div class="block break-inside card rounded shadow text-white">
+        <h2
+          class="border-b border-gray-700 card-title flex font-bold justify-center outline-none p-2">
           <p>{{ t('pages.dashboard.widgets.status.title') }}</p>
         </h2>
         <div class="p-4 w-full">
           <div
             class="mb-4 px-6 py-5 rounded text-base"
-            :class="{ 'bg-[#ED4245]': !isBotMod, 'bg-green-600': isBotMod }"
-          >
+            :class="{ 'bg-[#ED4245]': !isBotMod, 'bg-green-600': isBotMod }">
             <div v-if="!isBotMod">
-              <div v-html="t('pages.dashboard.widgets.status.notMod' )" />
+              <div v-html="t('pages.dashboard.widgets.status.notMod')" />
             </div>
             <div v-else>
-              {{ t('pages.dashboard.widgets.status.mod' ) }}
+              {{ t('pages.dashboard.widgets.status.mod') }}
             </div>
           </div>
-         
-          <div class="flex flex-col md:flex-row md:justify-end md:space-x-1 md:space-y-0 md:text-right space-y-1">
+
+          <div
+            class="flex flex-col md:flex-row md:justify-end md:space-x-1 md:space-y-0 md:text-right space-y-1">
             <button
               type="button"
               class="bg-red-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-red-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
-              @click="leaveChannel"
-            >
+              @click="() => patchBotConnection('join')">
               {{ t('pages.dashboard.widgets.status.buttons.leave') }}
             </button>
             <button
               type="button"
               class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
-              @click="joinChannel"
-            >
+              @click="() => patchBotConnection('part')">
               {{ t('pages.dashboard.widgets.status.buttons.join') }}
             </button>
           </div>
         </div>
       </div>
 
-      <div
-        class="block break-inside card rounded shadow text-white"
-      >
-        <h2 class="border-b border-gray-700 card-title flex font-bold justify-center outline-none p-2">
+      <div class="block break-inside card rounded shadow text-white">
+        <h2
+          class="border-b border-gray-700 card-title flex font-bold justify-center outline-none p-2">
           <p>{{ t('pages.dashboard.widgets.feedback.title') }}</p>
         </h2>
         <Form @submit="sendForm">
@@ -156,8 +142,7 @@ async function sendForm() {
                   as="textarea"
                   :placeholder="t('pages.dashboard.widgets.feedback.placeholder')"
                   class="bg-clip-padding bg-white block border border-gray-300 border-solid ease-in-out focus:bg-white focus:border-blue-600 focus:outline-none focus:text-gray-700 font-normal form-control m-0 px-3 py-1.5 rounded text-base text-gray-700 transition w-full"
-                  rows="3"
-                />
+                  rows="3" />
                 <file-pond
                   ref="pond"
                   name="test"
@@ -168,16 +153,12 @@ async function sendForm() {
                   :files="myFiles"
                   :credits="[]"
                   :max-files="5"
-                  @updatefiles="updateFiles"
-                />
+                  @updatefiles="updateFiles" />
               </div>
             </div>
 
             <div class="text-right">
-              <MyBtn
-                color="green"
-                type="submit"
-              >
+              <MyBtn color="green" type="submit">
                 {{ t('pages.dashboard.widgets.feedback.buttons.send') }}
               </MyBtn>
             </div>
@@ -190,18 +171,18 @@ async function sendForm() {
 
 <style>
 .filepond--root {
-    max-height: 350px;
+  max-height: 350px;
 }
 
 @media (min-width: 30em) {
-    .filepond--item {
-        width: calc(50% - 0.5em);
-    }
+  .filepond--item {
+    width: calc(50% - 0.5em);
+  }
 }
 
 @media (min-width: 50em) {
-    .filepond--item {
-        width: calc(33.33% - 0.5em);
-    }
+  .filepond--item {
+    width: calc(33.33% - 0.5em);
+  }
 }
 </style>

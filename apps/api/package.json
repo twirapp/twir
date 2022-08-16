@@ -17,9 +17,7 @@
     "@nestjs/microservices": "^9.0.8",
     "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "^9.0.8",
-    "@nestjs/platform-socket.io": "^9.0.8",
     "@nestjs/throttler": "^3.0.0",
-    "@nestjs/websockets": "^9.0.8",
     "@sentry/node": "^7.9.0",
     "@sentry/tracing": "^7.9.0",
     "@tsuwari/config": "workspace:*",
@@ -51,7 +49,6 @@
     "prom-client": "^14.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.6",
-    "socket.io": "^4.5.1",
     "tslib": "^2.4.0"
   },
   "devDependencies": {
