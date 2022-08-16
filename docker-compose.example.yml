@@ -106,8 +106,11 @@ services:
     image: registry.satont.dev/tsuwari/api
     env_file:
       - .env
+    deploy:
+      mode: replicated
+      replicas: 4
     ports:
-      - "3002:3002"
+      - "3004-3008:3002"
     depends_on:
       - redis
       - migrations
