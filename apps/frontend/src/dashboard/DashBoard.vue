@@ -48,7 +48,7 @@ selectedDashboardStore.subscribe(() => {
 });
 
 async function patchBotConnection(action: 'join' | 'part') {
-  await api.patch(`v1/channels/${dashboard.value.channelId}`, {
+  await api.patch(`v1/channels/${dashboard.value.channelId}/bot/connection`, {
     action,
   });
 }
