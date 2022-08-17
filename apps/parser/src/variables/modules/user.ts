@@ -40,14 +40,13 @@ export const user: Module[] = [
   {
     key: 'user.followage',
     description: 'User followage',
-    handler: async (_, state, varParams, chatMessage) => {
-      console.log(chatMessage);
+    handler: async (_, state, _varParams, chatMessage) => {
       if (!state.sender?.id || !state.channelId) return 'cannot fetch data';
       let userId: string = state.sender.id;
 
       if (chatMessage) {
         const user = await staticApi.users.getUserByNameWithCache(chatMessage);
-        if (!user) return `user with name ${chatMessage} not found.`;
+        if (!user) return `User with name ${chatMessage} not found.`;
         userId = user.id;
       }
 
@@ -80,9 +79,17 @@ export const user: Module[] = [
   {
     key: 'user.age',
     description: 'User account age',
-    handler(key, state) {
+    handler: async (key, state, _varParams, chatMessage) => {
       if (!state.sender?.id || !state.channelId) return 'cannot fetch data';
-      return getUserAge(state.sender.id);
+      let userId: string = state.sender.id;
+
+      if (chatMessage) {
+        const user = await staticApi.users.getUserByNameWithCache(chatMessage);
+        if (!user) return `User with name ${chatMessage} not found.`;
+        userId = user.id;
+      }
+
+      return getUserAge(userId);
     },
   },
 ];
