@@ -89,7 +89,8 @@
 =======
   "tailwindCSS.experimental.configFile": {
     "libs/ui/components/tailwind.config.js": "libs/ui/components/src/**/*.{vue,js,ts,jsx,tsx,css,postcss}",
-    "apps/frontend/tailwind.config.js": "apps/frontend/src/**/*.{vue,js,ts,jsx,tsx}"
+    "apps/frontend/tailwind.config.js": "apps/frontend/src/**/*.{vue,js,ts,jsx,tsx}",
+    "apps/website/tailwind.config.js": "apps/website/src/**/*.{vue,js,ts,jsx,tsx,astro}"
   }
 >>>>>>> e383dcb (feat(uikit): fonts, styles and tailwind theme)
 }
