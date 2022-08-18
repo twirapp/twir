@@ -26,36 +26,7 @@ import Users from '@/UsersIcon.svg?component';
 import Variable from '@/VariableIcon.svg?component';
 import Warning from '@/WarningIcon.svg?component';
 
-export type IconName =
-  | 'Timer'
-  | 'Selector'
-  | 'Menu'
-  | 'Cross'
-  | 'QuestionMark'
-  | 'Variable'
-  | 'Message'
-  | 'Sword'
-  | 'ArrowLarge'
-  | 'ArrowMedium'
-  | 'Bell'
-  | 'Check'
-  | 'CommandLine'
-  | 'Danger'
-  | 'Home'
-  | 'Layout'
-  | 'SuccessCircle'
-  | 'Users'
-  | 'Warning'
-  | 'Eye'
-  | 'EyeOff'
-  | 'ArrowInCircle'
-  | 'Key';
-
-type Icons = {
-  [K in IconName]: FunctionalComponent<SVGAttributes>;
-};
-
-const icons: Icons = {
+const icons = {
   Timer,
   Message,
   Variable,
@@ -81,4 +52,8 @@ const icons: Icons = {
   EyeOff,
 };
 
-export default icons;
+export type IconName = keyof typeof icons;
+
+export default icons as {
+  readonly [K in IconName]: FunctionalComponent<SVGAttributes>;
+};

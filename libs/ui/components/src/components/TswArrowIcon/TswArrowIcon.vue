@@ -38,6 +38,8 @@ const iconName = computed<IconName>(() => {
       return 'ArrowLarge';
     case 'md':
       return 'ArrowMedium';
+    case 'in-circle':
+      return 'ArrowInCircle';
     default:
       return 'ArrowMedium';
   }

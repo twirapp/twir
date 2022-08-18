@@ -74,7 +74,7 @@
     ]
   },
   "tailwindCSS.experimental.configFile": {
-    "libs/ui/components/tailwind.config.js": "libs/ui/components/src/**/*.{vue,js,ts,jsx,tsx}",
+    "libs/ui/components/tailwind.config.js": "libs/ui/components/src/**/*.{vue,js,ts,jsx,tsx,css,postcss}",
     "apps/frontend/tailwind.config.js": "apps/frontend/src/**/*.{vue,js,ts,jsx,tsx}"
   }
 }

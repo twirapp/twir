@@ -1,5 +1,5 @@
 import '@tsuwari/ui-fonts';
-import '../src/index.css';
+import '../src/styles/storybook-preview.postcss';
 
 import { theme } from './manager.js';
 

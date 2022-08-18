@@ -10,7 +10,7 @@ export default {
     arrowSize: {
       type: {
         name: 'enum',
-        value: ['lg', 'md'] as ArrowSize[],
+        value: ['lg', 'md', 'in-circle'] as ArrowSize[],
       },
       control: 'select',
     },
@@ -20,12 +20,6 @@ export default {
         value: ['bottom', 'left', 'right', 'top'] as ArrowDirection[],
       },
       control: 'select',
-    },
-    strokeWidth: {
-      type: 'number',
-    },
-    size: {
-      type: 'string',
     },
     stroke: {
       control: {
