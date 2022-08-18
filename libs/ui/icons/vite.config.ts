@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 
-import { defineConfig } from 'vite';
+import { defineConfig, Plugin } from 'vite';
 import declarationsPlugin from 'vite-plugin-dts';
 import svgLoaderPlugin from 'vite-svg-loader';
 
@@ -43,7 +43,7 @@ export default defineConfig({
     alias: [{ find: '@', replacement: resolve(__dirname, 'src') }],
   },
   plugins: [
-    svgLoaderPlugin(),
+    svgLoaderPlugin() as Plugin,
     declarationsPlugin({
       beforeWriteFile: (filePath, content) => ({
         filePath,
