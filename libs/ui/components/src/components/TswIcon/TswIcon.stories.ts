@@ -1,7 +1,6 @@
 import { Meta, Story } from '@storybook/vue3';
-import { IconName } from '@tsuwari/ui-icons/icons';
+import icons, { IconName } from '@tsuwari/ui-icons/icons';
 
-import iconNamesArray from '@/components/TswIcon/icon-names-array';
 import TswIcon from '@/components/TswIcon/TswIcon.vue';
 
 export default {
@@ -11,12 +10,9 @@ export default {
     name: {
       type: {
         name: 'enum',
-        value: iconNamesArray,
+        value: Object.keys(icons) as IconName[],
       },
       control: 'select',
-    },
-    size: {
-      type: 'string',
     },
     fill: {
       type: 'string',
@@ -25,9 +21,6 @@ export default {
     stroke: {
       type: 'string',
       control: 'color',
-    },
-    strokeWidth: {
-      type: 'number',
     },
   },
 } as Meta;

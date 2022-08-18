@@ -9,13 +9,7 @@ import Spotify from '@/logos/SpotifyLogo.svg?component';
 import Tsuwari from '@/logos/TsuwariLogo.svg?component';
 import VK from '@/logos/VKLogo.svg?component';
 
-export type LogoName = 'Tsuwari' | 'VK' | 'Spotify' | 'Faceit' | 'Dota2' | 'LastFm';
-
-type Logos = {
-  [K in LogoName]: FunctionalComponent<SVGAttributes>;
-};
-
-const logos: Logos = {
+const logos = {
   Tsuwari,
   Dota2,
   Faceit,
@@ -24,4 +18,8 @@ const logos: Logos = {
   VK,
 };
 
-export default logos;
+export type LogoName = keyof typeof logos;
+
+export default logos as {
+  readonly [K in LogoName]: FunctionalComponent<SVGAttributes>;
+};

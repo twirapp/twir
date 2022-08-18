@@ -32,18 +32,6 @@ export default {
       },
       control: 'select',
     },
-    isRounded: {
-      type: 'boolean',
-    },
-    disabled: {
-      type: 'boolean',
-    },
-    href: {
-      type: 'string',
-    },
-    targetBlank: {
-      type: 'boolean',
-    },
     onClick: {
       action: 'click',
       table: {
