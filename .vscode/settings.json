@@ -49,5 +49,9 @@
   "i18n-ally.sourceLanguage": "gb",
   "prisma.fileWatcher": false,
   "typescript.format.enable": false,
-  "editor.rulers": [100]
+  "editor.rulers": [100],
+  "tailwindCSS.experimental.configFile": {
+    "libs/ui/components/tailwind.config.js": "libs/ui/components/src/**/*.{vue,js,ts,jsx,tsx,css,postcss}",
+    "apps/frontend/tailwind.config.js": "apps/frontend/src/**/*.{vue,js,ts,jsx,tsx}"
+  }
 }

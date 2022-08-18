@@ -1,3 +1,17 @@
 {
-  "extends": "@satont/eslint-config"
+  "extends": "@satont/eslint-config",
+  "rules": {
+    "vue/max-attributes-per-line": "off",
+    "vue/static-class-names-order": "off",
+    "vue/attribute-hyphenation": "off",
+    "vue/html-self-closing": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.config.js"],
+      "env": {
+        "node": true
+      }
+    }
+  ]
 }
