@@ -15,8 +15,8 @@
 </template>
 
 <script lang="ts" setup>
-import icons, { IconName } from '@tsuwari/ui-icons/icons';
-import { computed } from 'vue';
+import type { IconName } from '@tsuwari/ui-icons/icons';
+import { computed, defineAsyncComponent } from 'vue';
 
 const props = withDefaults(
   defineProps<{
@@ -34,5 +34,9 @@ const props = withDefaults(
   },
 );
 
-const icon = computed(() => icons[props.name]);
+const icon = computed(() =>
+  defineAsyncComponent(async () => {
+    return (await import('@tsuwari/ui-icons/icons')).default[props.name];
+  }),
+);
 </script>
