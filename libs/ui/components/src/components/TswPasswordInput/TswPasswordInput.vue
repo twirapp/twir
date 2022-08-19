@@ -46,7 +46,7 @@ const inputValue = computed({
   get() {
     return props.value;
   },
-  set(value) {
+  set(value: string) {
     emit('update:value', value);
   },
 });
