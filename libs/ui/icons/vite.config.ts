@@ -43,7 +43,7 @@ export default defineConfig({
     alias: [{ find: '@', replacement: resolve(__dirname, 'src') }],
   },
   plugins: [
-    svgLoaderPlugin() as Plugin,
+    svgLoaderPlugin({ svgo: false, defaultImport: 'component' }) as Plugin,
     declarationsPlugin({
       beforeWriteFile: (filePath, content) => ({
         filePath,
