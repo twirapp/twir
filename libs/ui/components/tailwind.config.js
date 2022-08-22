@@ -5,7 +5,8 @@ const TsuwariTheme = require('@tsuwari/ui-theme');
 module.exports = {
   content: ['./src/components/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
-    extend: { ...TsuwariTheme },
+    ...TsuwariTheme,
+    extend: {},
   },
   plugins: [],
 };

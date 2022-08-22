@@ -1,8 +1,7 @@
 import { resolve } from 'node:path';
 
-import { defineConfig, Plugin } from 'vite';
-import declarationsPlugin from 'vite-plugin-dts';
-import svgLoaderPlugin from 'vite-svg-loader';
+import { defineConfig } from 'vite';
+import svgPlugin from 'vite-svg-loader';
 
 export default defineConfig({
   build: {
@@ -15,7 +14,7 @@ export default defineConfig({
       external: ['vue'],
       output: [
         {
-          preserveModules: true,
+          preserveModules: false,
           esModule: true,
           exports: 'named',
           dir: 'dist',
@@ -23,12 +22,7 @@ export default defineConfig({
             vue: 'Vue',
           },
           format: 'esm',
-          entryFileNames: (chunkInfo) => {
-            if (chunkInfo.isEntry) {
-              return 'index.js';
-            }
-            return '[name].js';
-          },
+          entryFileNames: '[name].js',
           assetFileNames: (chunkInfo) => {
             if (chunkInfo.name?.includes('.css')) {
               return '[name].css';
@@ -43,12 +37,8 @@ export default defineConfig({
     alias: [{ find: '@', replacement: resolve(__dirname, 'src') }],
   },
   plugins: [
-    svgLoaderPlugin({ svgo: false, defaultImport: 'component' }) as Plugin,
-    declarationsPlugin({
-      beforeWriteFile: (filePath, content) => ({
-        filePath,
-        content: content.replace(/(\.svg\?component)|(\.vue)/g, '.js'),
-      }),
+    svgPlugin({
+      svgo: false,
     }),
   ],
 });

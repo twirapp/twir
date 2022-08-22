@@ -1,5 +1,5 @@
 import type { Meta, Story } from '@storybook/vue3';
-import type { IconName } from '@tsuwari/ui-icons/icons';
+import type { IconName } from '@tsuwari/ui-icons';
 
 import type { ButtonSize, ButtonType, ButtonVariant } from '@/components/TswButton/props.types';
 import TswButton from '@/components/TswButton/TswButton.vue';
