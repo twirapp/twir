@@ -1,5 +1,5 @@
 import { Meta, Story } from '@storybook/vue3';
-import icons, { IconName } from '@tsuwari/ui-icons/icons';
+import icons, { IconName } from '@tsuwari/ui-icons';
 
 import TswIcon from '@/components/TswIcon/TswIcon.vue';
 

@@ -65,7 +65,7 @@ const btnInnerClass = 'btn-inner-el';
 </script>
 
 <style lang="postcss">
-.btn {
+button.btn {
   @apply inline-grid grid-flow-col items-center leading-tight cursor-pointer select-none;
 
   transition: box-shadow 150ms theme('transitionTimingFunction.in-out');
@@ -75,7 +75,7 @@ const btnInnerClass = 'btn-inner-el';
   }
 }
 
-.btn-lg {
+button.btn-lg {
   @apply text-lg px-5 py-3 rounded-md gap-x-2.5;
 
   &.btn-round {
@@ -87,7 +87,7 @@ const btnInnerClass = 'btn-inner-el';
   }
 }
 
-.btn-md {
+button.btn-md {
   @apply px-3 py-2.5 rounded gap-x-2;
 
   &.btn-round {
@@ -99,7 +99,7 @@ const btnInnerClass = 'btn-inner-el';
   }
 }
 
-.btn-sm {
+button.btn-sm {
   @apply text-sm px-2 py-1.5 rounded gap-x-1.5;
 
   &.btn-round {
@@ -111,7 +111,7 @@ const btnInnerClass = 'btn-inner-el';
   }
 }
 
-.btn-outline-gray {
+button.btn-outline-gray {
   @apply border border-gray-35 text-white-95;
 
   &:hover {
@@ -123,7 +123,7 @@ const btnInnerClass = 'btn-inner-el';
   }
 }
 
-.btn-solid-purple {
+button.btn-solid-purple {
   @apply text-white-100 bg-purple-60;
 
   &:hover {
@@ -135,7 +135,7 @@ const btnInnerClass = 'btn-inner-el';
   }
 }
 
-.btn-solid-gray {
+button.btn-solid-gray {
   @apply bg-black-15 text-white-95;
 
   &:hover {
@@ -147,7 +147,7 @@ const btnInnerClass = 'btn-inner-el';
   }
 }
 
-.btn-disabled {
+button.btn-disabled {
   @apply opacity-50 pointer-events-none;
 }
 </style>

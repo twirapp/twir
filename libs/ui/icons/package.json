@@ -6,15 +6,15 @@
     "dist"
   ],
   "scripts": {
-    "build": "vite build"
+    "build": "vite build && vue-tsc --declaration --emitDeclarationOnly"
   },
   "exports": {
-    "./icons": "./dist/index.js",
-    "./logos": "./dist/logos/index.js"
+    ".": "./dist/icons.js",
+    "./logos": "./dist/logos.js"
   },
   "typesVersions": {
     "*": {
-      "icons": [
+      "index": [
         "./dist/index.d.ts"
       ],
       "logos": [
@@ -25,9 +25,9 @@
   "devDependencies": {
     "typescript": "4.7.4",
     "vite": "^3.0.8",
-    "vite-plugin-dts": "^1.4.1",
     "vite-svg-loader": "3.4.0",
-    "vue": "3.2.37"
+    "vue": "3.2.37",
+    "vue-tsc": "0.40.1"
   },
   "peerDependencies": {
     "vue": "3.2.37"

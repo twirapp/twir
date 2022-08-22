@@ -2,7 +2,6 @@ import { resolve } from 'node:path';
 
 import vuePlugin from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
-import declarationsPlugin from 'vite-plugin-dts';
 
 export default defineConfig({
   build: {
@@ -12,7 +11,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', '@tsuwari/ui-icons/icons', 'vee-validate'],
+      external: ['vue', '@tsuwari/ui-icons', 'vee-validate'],
       output: {
         esModule: true,
         exports: 'named',
@@ -28,11 +27,5 @@ export default defineConfig({
   resolve: {
     alias: [{ find: '@', replacement: resolve(__dirname, 'src') }],
   },
-  plugins: [
-    vuePlugin(),
-    declarationsPlugin({
-      cleanVueFileName: true,
-      exclude: './src/shims-vue.d.ts',
-    }),
-  ],
+  plugins: [vuePlugin()],
 });
