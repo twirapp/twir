@@ -7,17 +7,26 @@ export default {
   title: 'TswArrowIcon',
   component: TswArrowIcon,
   argTypes: {
-    arrowSize: {
+    arrowType: {
       type: {
         name: 'enum',
-        value: ['lg', 'md', 'in-circle'] as ArrowSize[],
+        value: ['in-circle', 'narrow', 'triangle-lg', 'triangle-md'] as ArrowSize[],
       },
       control: 'select',
     },
     direction: {
       type: {
         name: 'enum',
-        value: ['bottom', 'left', 'right', 'top'] as ArrowDirection[],
+        value: [
+          'bottom',
+          'left',
+          'right',
+          'top',
+          'bottom-left',
+          'bottom-right',
+          'top-left',
+          'top-right',
+        ] as ArrowDirection[],
       },
       control: 'select',
     },
@@ -31,7 +40,7 @@ export default {
 
 const Template: Story<{
   direction: ArrowDirection;
-  arrowSize?: ArrowSize;
+  arrowType?: ArrowSize;
   stroke?: string;
   strokeWidth?: number;
   size?: string;
@@ -46,7 +55,7 @@ const Template: Story<{
 export const RightArrow = Template.bind({});
 RightArrow.args = {
   size: '36px',
-  arrowSize: 'md',
+  arrowType: 'triangle-md',
   direction: 'right',
   stroke: 'white',
   strokeWidth: 1.5,

@@ -2,24 +2,18 @@
 
 import { FunctionalComponent, SVGAttributes } from 'vue';
 
-import Dota2 from '@/logos/Dota2Logo.svg?component';
-import Faceit from '@/logos/FaceitLogo.svg?component';
-import LastFm from '@/logos/LastFmLogo.svg?component';
-import Spotify from '@/logos/SpotifyLogo.svg?component';
-import Tsuwari from '@/logos/TsuwariLogo.svg?component';
-import VK from '@/logos/VKLogo.svg?component';
+import Dota2Logo from '@/logos/Dota2Logo.svg?component';
+import FaceitLogo from '@/logos/FaceitLogo.svg?component';
+import LastFmLogo from '@/logos/LastFmLogo.svg?component';
+import SpotifyLogo from '@/logos/SpotifyLogo.svg?component';
+import TsuwariLogo from '@/logos/TsuwariLogo.svg?component';
+import VKLogo from '@/logos/VKLogo.svg?component';
 
-const logos = {
-  Tsuwari,
-  Dota2,
-  Faceit,
-  LastFm,
-  Spotify,
-  VK,
-};
+type SvgComponent = FunctionalComponent<SVGAttributes>;
 
-export type LogoName = keyof typeof logos;
-
-export default logos as {
-  readonly [K in LogoName]: FunctionalComponent<SVGAttributes>;
-};
+export const VK = VKLogo as SvgComponent;
+export const Tsuwari = TsuwariLogo as SvgComponent;
+export const Spotify = SpotifyLogo as SvgComponent;
+export const LastFm = LastFmLogo as SvgComponent;
+export const Faceit = FaceitLogo as SvgComponent;
+export const Dota2 = Dota2Logo as SvgComponent;
