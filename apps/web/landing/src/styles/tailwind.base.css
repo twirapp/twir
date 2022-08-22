@@ -1,0 +1,13 @@
+@import '@tsuwari/ui-fonts';
+@import '@tsuwari/ui-components/styles';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: theme('colors.black.10');
+    color: theme('colors.white.100');
+  }
+}
