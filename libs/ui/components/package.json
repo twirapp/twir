@@ -18,10 +18,8 @@
   },
   "scripts": {
     "storybook": "start-storybook -p 6006",
-    "build": "vite build --mode production"
-  },
-  "dependencies": {
-    "@tsuwari/ui-icons": "workspace:*"
+    "dev": "vite",
+    "build": "vite build && vue-tsc --declaration --emitDeclarationOnly -p ./tsconfig.build.json && tsc-alias"
   },
   "devDependencies": {
     "@babel/core": "^7.18.10",
@@ -43,24 +41,29 @@
     "@storybook/theming": "^6.5.10",
     "@storybook/vue3": "^6.5.10",
     "@tsuwari/ui-fonts": "workspace:*",
+    "@tsuwari/ui-icons": "workspace:*",
     "@tsuwari/ui-theme": "workspace:*",
+    "@types/postcss-js": "^4.0.0",
     "@vitejs/plugin-vue": "^3.0.3",
     "autoprefixer": "10.4.8",
     "babel-loader": "^8.2.5",
     "postcss": "8.4.16",
     "postcss-hexrgba": "^2.1.0",
+    "postcss-js": "^4.0.0",
     "postcss-nesting": "^10.1.10",
     "tailwindcss": "3.1.8",
+    "tsc-alias": "^1.7.0",
     "typescript": "4.7.4",
     "vee-validate": "4.6.6",
     "vite": "3.0.8",
-    "vite-plugin-dts": "^1.4.1",
-    "vue": "3.2.37"
+    "vue": "3.2.37",
+    "vue-tsc": "0.40.1"
   },
   "peerDependencies": {
-    "vee-validate": "4.6.6",
+    "@tsuwari/ui-icons": "workspace:*",
     "postcss": "8.4.16",
     "tailwindcss": "3.1.8",
+    "vee-validate": "4.6.6",
     "vue": "3.2.37"
   }
 }
