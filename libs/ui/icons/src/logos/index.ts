@@ -1,5 +1,3 @@
-/// <reference types="vite-svg-loader" />
-
 import { FunctionalComponent, SVGAttributes } from 'vue';
 
 import Dota2Logo from '@/logos/Dota2Logo.svg?component';
