@@ -1,0 +1,25 @@
+---
+import FeaturesBlock from '@/components/FeaturesBlock.vue';
+import FirstScreen from '@/components/FirstScreen.vue';
+import Header from "@/components/Header.vue";
+import IntegrationsBlock from '@/components/IntegrationsBlock.vue';
+import ReviewsBlock from '@/components/ReviewsBlock.vue';
+import StatsLine from '@/components/StatsLine.vue';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+		<Header />
+		<FirstScreen />
+		<StatsLine />
+		<FeaturesBlock />
+		<IntegrationsBlock />
+		<ReviewsBlock client:idle />
+	</body>
+</html>
