@@ -8,6 +8,8 @@
     "dev": "doppler run -- turbo run dev --filter=./apps/*",
     "start": "pnpm run -r start --filter=!@tsuwari/frontend",
     "start:integrations": "pnpm --filter=@tsuwari/integrations start",
+    "build:ui-icons": "pnpm --filter=ui-components build",
+    "build:ui-components": "pnpm --filter=ui-icons build",
     "start:api": "pnpm --filter=@tsuwari/api start",
     "start:eventsub": "pnpm --filter=@tsuwari/eventsub start",
     "start:dota": "pnpm --filter=@tsuwari/dota start",
@@ -42,7 +44,9 @@
     "dev:config": "doppler run -- turbo run dev --filter=config",
     "dev:dota": "doppler run -- turbo run dev --filter=dota",
     "dev:eval": "doppler run -- turbo run dev --filter=eval",
-    "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/typeorm run deploy"
+    "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/typeorm run deploy",
+    "dev:web-landing": "turbo run dev --filter=web-landing",
+    "prisma:generate": "pnpm --filter=@tsuwari/prisma generate"
   },
   "author": "Satont <satontworldwide@gmail.com>",
   "devDependencies": {
