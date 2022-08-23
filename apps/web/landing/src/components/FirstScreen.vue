@@ -1,13 +1,7 @@
 <template>
   <div class="relative overflow-hidden">
-    <img
-      class="absolute -z-10 -right-[500px] -bottom-[400px]"
-      src="@/assets/BlobPurple.svg"
-    />
-    <img
-      class="absolute -left-[440px]"
-      src="@/assets/BlobBlue.svg"
-    />
+    <img class="absolute -z-10 -right-[500px] -bottom-[400px]" src="@/assets/BlobPurple.svg" />
+    <img class="absolute -left-[440px]" src="@/assets/BlobBlue.svg" />
     <div class="container">
       <div class="inline-flex flex-col items-center w-full pt-28 pb-40">
         <h1 class="font-bold text-7xl text-center">
@@ -41,11 +35,8 @@
         </div>
       </div>
       <img class="absolute -bottom-[438px] -z-10 mx-auto left-0 right-0" src="@/assets/Waves.svg" />
-      <img src="@/assets/Rhombus.svg" class="absolute top-[15%] right-[24%]">
-      <img
-        class="absolute top-[41%] left-[22%]"
-        src="@/assets/Lighting.svg"
-      />
+      <img src="@/assets/Rhombus.svg" class="absolute top-[15%] right-[24%]" />
+      <img class="absolute top-[41%] left-[22%]" src="@/assets/Lighting.svg" />
       <img src="@/assets/SmileBot.svg" class="absolute right-[216px] bottom-[200px]" />
     </div>
   </div>
