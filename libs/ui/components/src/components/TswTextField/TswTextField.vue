@@ -98,7 +98,7 @@ const classes = computed(() =>
   }
 
   .error-message {
-    @apply text-xs text-red-200;
+    @apply text-xs text-red-65;
   }
 
   .info-message {
