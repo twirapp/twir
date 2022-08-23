@@ -1,5 +1,3 @@
-/// <reference types="vite-svg-loader" />
-
 import { FunctionalComponent, SVGAttributes } from 'vue';
 
 import ArrowInCircle from '@/ArrowInCircleIcon.svg?component';
@@ -32,13 +30,13 @@ import Twitch from '@/TwitchIcon.svg?component';
 import Users from '@/UsersIcon.svg?component';
 import Variable from '@/VariableIcon.svg?component';
 import Warning from '@/WarningIcon.svg?component';
-import World from '@/WorldIcon.svg?component';
+import Website from '@/WebsiteIcon.svg?component';
 
 const icons = {
   Star,
   Twitch,
   ArrowNarrow,
-  World,
+  Website,
   Telegram,
   Minus,
   Instagram,
