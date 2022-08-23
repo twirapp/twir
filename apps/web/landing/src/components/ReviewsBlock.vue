@@ -42,6 +42,7 @@
 import { Autoplay } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 
+import TextAvatarUrl from '@/assets/avatar.png';
 import ReviewCard from '@/components/ReviewCard.vue';
 
 const modules = [Autoplay];
@@ -60,7 +61,7 @@ const reviews: {
     username: 'random_usergsdagdsagsadgsda',
     comment:
       'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
-    avatarUrl: 'src/assets/avatar.png',
+    avatarUrl: TextAvatarUrl,
     rating: 4,
   },
   {
@@ -68,7 +69,7 @@ const reviews: {
     username: 'random_user',
     comment:
       'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
-    avatarUrl: 'src/assets/avatar.png',
+    avatarUrl: TextAvatarUrl,
     rating: 4,
   },
   {
@@ -76,7 +77,7 @@ const reviews: {
     username: 'random_user',
     comment:
       'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
-    avatarUrl: 'src/assets/avatar.png',
+    avatarUrl: TextAvatarUrl,
     rating: 2,
   },
   {
@@ -84,7 +85,7 @@ const reviews: {
     username: 'random_user',
     comment:
       'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
-    avatarUrl: 'src/assets/avatar.png',
+    avatarUrl: TextAvatarUrl,
     rating: 1,
   },
   {
@@ -92,7 +93,7 @@ const reviews: {
     username: 'random_user',
     comment:
       'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
-    avatarUrl: 'src/assets/avatar.png',
+    avatarUrl: TextAvatarUrl,
     rating: 4,
   },
   {
@@ -100,7 +101,7 @@ const reviews: {
     username: 'random_user',
     comment:
       'Praesent dolor quis aliquam nulla id in orci. Mi sit pulvinar nunc blandit egestas cras. Sed habitant amet ultrices vitae. At volutpat enim vel quam dignissim ut justo.',
-    avatarUrl: 'src/assets/avatar.png',
+    avatarUrl: TextAvatarUrl,
     rating: 4,
   },
 ];

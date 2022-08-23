@@ -1,3 +1,3 @@
 module.exports = {
-  sans: ['Golos', 'sans-serif'],
+  sans: ['Golos Text', 'sans-serif'],
 };
