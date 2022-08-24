@@ -25,7 +25,7 @@ import * as data from '@/data';
 			<StatsLine stats={data.stats} />
 			<FeaturesBlock features={data.features} />
 			<IntegrationsBlock />
-			<ReviewsBlock client:idle />
+			<ReviewsBlock client:idle reviews={data.reviews} />
 			<TeamBlock teamMembers={data.teamMembers} />
 			<PricingBlock planColorThemes={data.planColorThemes} pricePlans={data.pricePlans} />
 		</main>
