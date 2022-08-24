@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-black-10 relative overflow-hidden z-0">
+  <section class="bg-black-10 relative overflow-hidden z-0">
     <div class="container relative max-w-[980px] mt-20 mb-16">
       <img src="@/assets/CurveArrow.svg" class="absolute top-[30px] -left-[90px] -z-[1]" />
       <img
@@ -35,7 +35,7 @@
         />
       </SwiperSlide>
     </Swiper>
-  </div>
+  </section>
 </template>
 
 <script lang="ts" setup>

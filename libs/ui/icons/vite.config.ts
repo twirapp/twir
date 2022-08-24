@@ -23,12 +23,6 @@ export default defineConfig({
           },
           format: 'esm',
           entryFileNames: '[name].js',
-          assetFileNames: (chunkInfo) => {
-            if (chunkInfo.name?.includes('.css')) {
-              return '[name].css';
-            }
-            return 'assets/[name].[ext]';
-          },
         },
       ],
     },

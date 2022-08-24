@@ -8,7 +8,7 @@
     </p>
     <a :href="actionHref" class="text-purple-80 inline-flex items-center">
       {{ actionText }}
-      <TswArrowIcon arrowType="narrow" size="24px" class="stroke-purple-80 ml-[7px]" />
+      <TswArrowIcon arrowName="ArrowNarrow" size="24px" class="stroke-purple-80 ml-[7px]" />
     </a>
   </div>
 </template>
