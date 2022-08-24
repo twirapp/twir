@@ -25,8 +25,13 @@
       :grabCursor="true"
       :modules="modules"
       class="mb-20"
+      @swiper="setSwiper"
+      @mouseenter="slider?.autoplay.stop()"
+      @mouseleave="slider?.autoplay.start()"
     >
-      <SwiperSlide v-for="item in reviews" :key="item.id" style="width: 380px">
+      <SwiperSlide
+        v-for="item in reviews" :key="item.id" style="width: 380px" 
+      >
         <ReviewCard
           :username="item.username"
           :comment="item.comment"
@@ -39,15 +44,22 @@
 </template>
 
 <script lang="ts" setup>
-import { Autoplay } from 'swiper';
+import { Autoplay, type Swiper as ISwiper } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/vue';
+import { ref } from 'vue';
+
+import 'swiper/css';
 
 import TextAvatarUrl from '@/assets/avatar.png';
 import ReviewCard from '@/components/ReviewCard.vue';
 
-const modules = [Autoplay];
+const slider = ref<ISwiper | null>(null);
 
-import 'swiper/css';
+const setSwiper = (swiper: ISwiper) => {
+  slider.value = swiper;
+};
+
+const modules = [Autoplay];
 
 const reviews: {
   id: number;
