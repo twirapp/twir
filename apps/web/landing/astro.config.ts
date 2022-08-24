@@ -5,5 +5,10 @@ import tailwind from './integrations/tailwind';
 
 // https://astro.build/config
 export default defineConfig({
+  vite: {
+    optimizeDeps: {
+      exclude: ['vee-validate'],
+    },
+  },
   integrations: [vue(), tailwind()],
 });

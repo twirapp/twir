@@ -1,6 +1,6 @@
 <template>
   <TswIcon
-    :name="iconName"
+    :name="arrowName"
     :size="size"
     :class="classes"
     :strokeWidth="strokeWidth"
@@ -9,16 +9,15 @@
 </template>
 
 <script lang="ts" setup>
-import type { IconName } from '@tsuwari/ui-icons';
 import { computed } from 'vue';
 
-import type { ArrowDirection, ArrowSize } from '@/components/TswArrowIcon/props.types';
+import type { ArrowDirection, ArrowIconName } from '@/components/TswArrowIcon/props.types';
 import TswIcon from '@/components/TswIcon/TswIcon.vue';
 
 const props = withDefaults(
   defineProps<{
     direction: ArrowDirection;
-    arrowType?: ArrowSize;
+    arrowName?: ArrowIconName;
     stroke?: string;
     strokeWidth?: number;
     size?: string;
@@ -26,26 +25,11 @@ const props = withDefaults(
   {
     direction: 'right',
     stroke: 'white',
-    arrowType: 'triangle-md',
+    arrowName: 'ArrowTriangleMedium',
     strokeWidth: 1.5,
     size: undefined,
   },
 );
-
-const iconName = computed<IconName>(() => {
-  switch (props.arrowType) {
-    case 'triangle-lg':
-      return 'ArrowLarge';
-    case 'triangle-md':
-      return 'ArrowMedium';
-    case 'in-circle':
-      return 'ArrowInCircle';
-    case 'narrow':
-      return 'ArrowNarrow';
-    default:
-      return 'ArrowMedium';
-  }
-});
 
 const classes = computed(() => [`arrow-${props.direction}`].join(' '));
 </script>

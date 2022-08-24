@@ -1,16 +1,22 @@
 import { Meta, Story } from '@storybook/vue3';
 
-import { ArrowDirection, ArrowSize } from '@/components/TswArrowIcon/props.types';
+import { ArrowDirection, ArrowIconName } from '@/components/TswArrowIcon/props.types';
 import TswArrowIcon from '@/components/TswArrowIcon/TswArrowIcon.vue';
 
 export default {
   title: 'TswArrowIcon',
   component: TswArrowIcon,
   argTypes: {
-    arrowType: {
+    arrowName: {
       type: {
         name: 'enum',
-        value: ['in-circle', 'narrow', 'triangle-lg', 'triangle-md'] as ArrowSize[],
+        value: [
+          'ArrowInCircle',
+          'ArrowTriangleLarge',
+          'ArrowTriangleMedium',
+          'ArrowNarrow',
+          'ArrowNarrowShort',
+        ] as ArrowIconName[],
       },
       control: 'select',
     },
@@ -40,7 +46,7 @@ export default {
 
 const Template: Story<{
   direction: ArrowDirection;
-  arrowType?: ArrowSize;
+  arrowName?: ArrowIconName;
   stroke?: string;
   strokeWidth?: number;
   size?: string;
@@ -55,7 +61,7 @@ const Template: Story<{
 export const RightArrow = Template.bind({});
 RightArrow.args = {
   size: '36px',
-  arrowType: 'triangle-md',
+  arrowName: 'ArrowTriangleMedium',
   direction: 'right',
   stroke: 'white',
   strokeWidth: 1.5,

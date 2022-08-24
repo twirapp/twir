@@ -1,11 +1,11 @@
 import { FunctionalComponent, SVGAttributes } from 'vue';
 
-import Dota2Logo from '@/logos/Dota2Logo.svg?component';
-import FaceitLogo from '@/logos/FaceitLogo.svg?component';
-import LastFmLogo from '@/logos/LastFmLogo.svg?component';
-import SpotifyLogo from '@/logos/SpotifyLogo.svg?component';
-import TsuwariLogo from '@/logos/TsuwariLogo.svg?component';
-import VKLogo from '@/logos/VKLogo.svg?component';
+import Dota2Logo from '@/logos/Dota2.svg?component';
+import FaceitLogo from '@/logos/Faceit.svg?component';
+import LastFmLogo from '@/logos/LastFm.svg?component';
+import SpotifyLogo from '@/logos/Spotify.svg?component';
+import TsuwariLogo from '@/logos/Tsuwari.svg?component';
+import VKLogo from '@/logos/VK.svg?component';
 
 type SvgComponent = FunctionalComponent<SVGAttributes>;
 

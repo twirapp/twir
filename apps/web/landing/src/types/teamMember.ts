@@ -1,7 +1,7 @@
-export type TeamMemberMedia = 'Twitch' | 'Telegram' | 'Github' | 'Instagram' | 'Website';
+import type { SocialMedia } from '@/types/socialMedia';
 
 export type TeamMemberMediaLink = {
-  media: TeamMemberMedia;
+  media: SocialMedia;
   link: string;
 };
 
