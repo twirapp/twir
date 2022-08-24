@@ -1,6 +1,8 @@
+import TextAvatarUrl from '@/assets/avatar.png';
 import type { BotFeature } from '@/types/botFeatures.js';
 import type { NavMenuItem } from '@/types/navMenu.js';
 import { FeatureType, PlanColorThemes, PlanId, PricePlan } from '@/types/pricingPlan.js';
+import type { Review } from '@/types/review.js';
 import type { SocialMediaItem } from '@/types/socialMedia.js';
 import type { StatInfo } from '@/types/statsLine.js';
 import type { TeamMember } from '@/types/teamMember.js';
@@ -15,6 +17,57 @@ export const navMenuItems: NavMenuItem[] = [
 export const socials: SocialMediaItem[] = [
   { id: 1, media: 'Telegram', href: '#' },
   { id: 2, media: 'Instagram', href: '#' },
+];
+
+export const reviews: Review[] = [
+  {
+    id: 1,
+    username: 'random_usergsdagdsagsadgsda',
+    comment:
+      'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
+    avatarUrl: TextAvatarUrl,
+    rating: 4,
+  },
+  {
+    id: 2,
+    username: 'random_user',
+    comment:
+      'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
+    avatarUrl: TextAvatarUrl,
+    rating: 4,
+  },
+  {
+    id: 3,
+    username: 'random_user',
+    comment:
+      'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
+    avatarUrl: TextAvatarUrl,
+    rating: 2,
+  },
+  {
+    id: 4,
+    username: 'random_user',
+    comment:
+      'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
+    avatarUrl: TextAvatarUrl,
+    rating: 1,
+  },
+  {
+    id: 5,
+    username: 'random_user',
+    comment:
+      'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
+    avatarUrl: TextAvatarUrl,
+    rating: 4,
+  },
+  {
+    id: 6,
+    username: 'random_user',
+    comment:
+      'Praesent dolor quis aliquam nulla id in orci. Mi sit pulvinar nunc blandit egestas cras. Sed habitant amet ultrices vitae. At volutpat enim vel quam dignissim ut justo.',
+    avatarUrl: TextAvatarUrl,
+    rating: 4,
+  },
 ];
 
 export const features: BotFeature[] = [
