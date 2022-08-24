@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-black-15 py-32">
+  <section class="bg-black-15 py-32">
     <div class="container max-w-[1040px]">
       <div class="flex justify-between items-center">
         <div class="inline-flex flex-col">
@@ -18,7 +18,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script lang="ts" setup>

@@ -65,5 +65,22 @@
     "tailwindcss": "3.1.8",
     "vee-validate": "4.6.6",
     "vue": "3.2.37"
+  },
+  "peerDependenciesMeta": {
+    "vee-validate": {
+      "optional": true
+    },
+    "@tsuwari/ui-icons": {
+      "optional": true
+    },
+    "tailwindcss": {
+      "optional": false
+    },
+    "vue": {
+      "optional": false
+    },
+    "postcss": {
+      "optional": false
+    }
   }
 }

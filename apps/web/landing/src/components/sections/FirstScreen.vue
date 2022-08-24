@@ -1,5 +1,5 @@
 <template>
-  <div class="relative overflow-hidden">
+  <section class="relative overflow-hidden">
     <img class="absolute -z-10 -right-[500px] -bottom-[400px]" src="@/assets/BlobPurple.svg" />
     <img class="absolute -left-[440px]" src="@/assets/BlobBlue.svg" />
     <div class="container">
@@ -39,14 +39,14 @@
       <img class="absolute top-[41%] left-[22%]" src="@/assets/Lighting.svg" />
       <img src="@/assets/SmileBot.svg" class="absolute right-[216px] bottom-[200px]" />
     </div>
-  </div>
+  </section>
 </template>
 
 <style lang="postcss">
 .gradient-title {
-  background: linear-gradient(258.67deg, #d34bf4 4.22%, #905bff 73.01%),
-    linear-gradient(0deg, #ffffff, #ffffff);
+  background: linear-gradient(258.67deg, #d34bf4 4.22%, #905bff 73.01%);
 
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.15;

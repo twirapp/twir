@@ -1,11 +1,14 @@
 ---
-import FeaturesBlock from '@/components/FeaturesBlock.vue';
-import FirstScreen from '@/components/FirstScreen.vue';
-import Header from "@/components/Header.vue";
-import IntegrationsBlock from '@/components/IntegrationsBlock.vue';
-import ReviewsBlock from '@/components/ReviewsBlock.vue';
-import StatsLine from '@/components/StatsLine.vue';
-import TeamBlock from '@/components/TeamBlock.vue';
+import FeaturesBlock from '@/components/sections/FeaturesBlock.vue';
+import FirstScreen from '@/components/sections/FirstScreen.vue';
+import Footer from '@/components/sections/Footer.vue';
+import Header from '@/components/sections/Header.vue';
+import IntegrationsBlock from '@/components/sections/IntegrationsBlock.vue';
+import PricingBlock from '@/components/sections/PricingBlock.vue';
+import ReviewsBlock from '@/components/sections/ReviewsBlock.vue';
+import StatsLine from '@/components/sections/StatsLine.vue';
+import TeamBlock from '@/components/sections/TeamBlock.vue';
+import * as data from '@/data';
 ---
 
 <html lang="en">
@@ -16,12 +19,16 @@ import TeamBlock from '@/components/TeamBlock.vue';
 		<title>Astro</title>
 	</head>
 	<body>
-		<Header />
-		<FirstScreen />
-		<StatsLine />
-		<FeaturesBlock />
-		<IntegrationsBlock />
-		<ReviewsBlock client:idle />
-		<TeamBlock />
+		<Header menuItems={data.navMenuItems} />
+		<main>
+			<FirstScreen />
+			<StatsLine stats={data.stats} />
+			<FeaturesBlock features={data.features} />
+			<IntegrationsBlock />
+			<ReviewsBlock client:idle />
+			<TeamBlock teamMembers={data.teamMembers} />
+			<PricingBlock planColorThemes={data.planColorThemes} pricePlans={data.pricePlans} />
+		</main>
+		<Footer menuItems={data.navMenuItems} socials={data.socials} />
 	</body>
 </html>

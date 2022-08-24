@@ -6,7 +6,7 @@
     </div>
     <nav>
       <ul class="inline-grid grid-flow-col gap-x-2">
-        <li v-for="item in navMenuItems" :key="item.id">
+        <li v-for="item in menuItems" :key="item.id">
           <a :href="item.href" class="leading-tight px-3 py-[10px]">{{ item.name }}</a>
         </li>
       </ul>
@@ -20,11 +20,7 @@
 
 <script lang="ts" setup>
 import LangSelect from '@/components/LangSelect.vue';
+import type { NavMenuItem } from '@/types/navMenu';
 
-const navMenuItems = [
-  { id: 1, name: 'Features', href: '#' },
-  { id: 2, name: 'Reviews', href: '#' },
-  { id: 3, name: 'Pricing', href: '#' },
-  { id: 4, name: 'Team', href: '#' },
-];
+defineProps<{ menuItems: NavMenuItem[] }>();
 </script>
