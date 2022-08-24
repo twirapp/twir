@@ -31,9 +31,19 @@ dotaApiInstance.interceptors.request.use((req) => {
 });
 const dotaApi = rateLimit(dotaApiInstance, { maxRequests: 2, perMilliseconds: 1000, maxRPS: 2 });
 
-
 // DO NOT CHANGE ORDER!
-const colors = ['Blue', 'Teal', 'Purple', 'Yellow', 'Orange', 'Pink', 'Gray', 'Light Blue', 'Green', 'Brown'];
+const colors = [
+  'Blue',
+  'Teal',
+  'Purple',
+  'Yellow',
+  'Orange',
+  'Pink',
+  'Gray',
+  'Light Blue',
+  'Green',
+  'Brown',
+];
 
 const getPlayerHero = (heroId: number, index?: number) => {
   if (heroId === 0 && typeof index !== 'undefined') {
@@ -41,27 +51,27 @@ const getPlayerHero = (heroId: number, index?: number) => {
     return color ?? 'Unknown';
   } else if (heroId === 0 && typeof index === 'undefined') return 'Unknown';
   else {
-    const hero = dotaHeroes.find(h => h.id === heroId);
+    const hero = dotaHeroes.find((h) => h.id === heroId);
     if (!hero) return 'Unknown';
     return hero.localized_name;
   }
 };
 
 const getGames = async (accounts: string[], take = 1) => {
-  const rps = await Promise.all(accounts.map(a => redis.get(`dotaRps:${a}`)));
-  if (!rps.filter(r => r !== null).length) {
+  const rps = await Promise.all(accounts.map((a) => redis.get(`dotaRps:${a}`)));
+  if (!rps.filter((r) => r !== null).length) {
     return messages.GAME_NOT_FOUND;
   }
 
-  const cachedGames = await Promise.all(accounts.map(a => redis.get(`dotaMatches:${a}`)));
-  if (!cachedGames.filter(r => r !== null).length) {
+  const cachedGames = await Promise.all(accounts.map((a) => redis.get(`dotaMatches:${a}`)));
+  if (!cachedGames.filter((r) => r !== null).length) {
     return messages.GAME_NOT_FOUND;
   }
 
   const dbGames = await prisma.dotaMatch.findMany({
     where: {
       players: {
-        hasSome: accounts.map(a => Number(a)),
+        hasSome: accounts.map((a) => Number(a)),
       },
     },
     orderBy: {
@@ -76,8 +86,11 @@ const getGames = async (accounts: string[], take = 1) => {
 
   if (!dbGames.length) return messages.GAME_NOT_FOUND;
 
-  return dbGames.map(g => {
-    const players = g.players.map((p, index) => ({ account_id: p, hero_id: g.players_heroes[index]! }));
+  return dbGames.map((g) => {
+    const players = g.players.map((p, index) => ({
+      account_id: p,
+      hero_id: g.players_heroes[index]!,
+    }));
 
     return {
       ...g,
@@ -115,9 +128,12 @@ export const dota: DefaultCommand[] = [
             id: params,
           },
         });
-
       } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002' && (e.meta?.target as string[]).includes('id')) {
+        if (
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+          e.code === 'P2002' &&
+          (e.meta?.target as string[]).includes('id')
+        ) {
           return `Account ${id} already added.`;
         } else throw e;
       }
@@ -170,11 +186,14 @@ export const dota: DefaultCommand[] = [
       const accounts = await getAccounts(state.channelId);
       if (typeof accounts === 'string') return accounts;
 
-      const games = await getGames(accounts.map(a => a.id), 1);
+      const games = await getGames(
+        accounts.map((a) => a.id),
+        1,
+      );
       if (typeof games === 'string') return games;
 
       return games
-        .map(g => {
+        .map((g) => {
           const avgMmr = g.gameMode.id === 22 && g.lobby_type === 7 ? ` (${g.avarage_mmr}mmr)` : '';
           return `${g.gameMode.name}${avgMmr}`;
         })
@@ -189,7 +208,10 @@ export const dota: DefaultCommand[] = [
     handler: async (state) => {
       if (!state.channelId) return;
 
-      const stream = await redisOm.fetchRepository(streamSchema).fetch(state.channelId).then(s => s.toRedisJson());
+      const stream = await redisOm
+        .fetchRepository(streamSchema)
+        .fetch(state.channelId)
+        .then((s) => s.toRedisJson());
 
       if (!Object.keys(stream).length) {
         return 'Stream is offline';
@@ -198,38 +220,42 @@ export const dota: DefaultCommand[] = [
       const accounts = await getAccounts(state.channelId);
       if (typeof accounts === 'string') return accounts;
 
-      const games = await prisma.dotaMatch.findMany({
-        where: {
-          startedAt: {
-            gte: new Date(new Date(stream.started_at).getTime() - 10 * 60 * 1000),
+      const games = await prisma.dotaMatch
+        .findMany({
+          where: {
+            startedAt: {
+              gte: new Date(new Date(stream.started_at).getTime() - 10 * 60 * 1000),
+            },
+            players: {
+              hasSome: accounts.map((a) => Number(a.id)),
+            },
+            lobby_type: {
+              in: [0, 7],
+            },
           },
-          players: {
-            hasSome: accounts.map(a => Number(a.id)),
+          orderBy: {
+            startedAt: 'desc',
           },
-          lobby_type: {
-            in: [0, 7],
+          select: {
+            match_id: true,
+            gameMode: true,
+            players_heroes: true,
+            players: true,
+            finished: true,
+            result: true,
           },
-        },
-        orderBy: {
-          startedAt: 'desc',
-        },
-        select: {
-          match_id: true,
-          gameMode: true,
-          players_heroes: true,
-          players: true,
-          finished: true,
-          result: true,
-        },
-      }).then(gms => gms.filter(g => !g.players_heroes.some(h => h === 0)));
+        })
+        .then((gms) => gms.filter((g) => !g.players_heroes.some((h) => h === 0)));
 
-      const gamesForRequest = games.filter(g => !g.result);
-      const matchesData: any[] = [...games.filter(g => g.result).map(g => g.result)];
+      const gamesForRequest = games.filter((g) => !g.result);
+      const matchesData: any[] = [...games.filter((g) => g.result).map((g) => g.result)];
       const createResults: any[] = [];
 
       for (const game of gamesForRequest) {
         try {
-          const request = await dotaApi.get('IDOTA2Match_570/GetMatchDetails/v1', { params: { match_id: game.match_id } });
+          const request = await dotaApi.get('IDOTA2Match_570/GetMatchDetails/v1', {
+            params: { match_id: game.match_id },
+          });
           if (request.status !== 200) continue;
           const data = request.data;
           if (data.result.error) continue;
@@ -244,7 +270,7 @@ export const dota: DefaultCommand[] = [
       }
 
       if (createResults.length) {
-        const data = createResults.map(d => ({
+        const data = createResults.map((d) => ({
           match_id: d.match_id.toString(),
           players: d.players,
           radiant_win: d.radiant_win,
@@ -258,11 +284,11 @@ export const dota: DefaultCommand[] = [
 
       const matchesByGameMode: {
         [x: number]: {
-          matches: any[],
-          stringResult: string
-        }
+          matches: any[];
+          stringResult: string;
+        };
       } = {};
-      gameModes.forEach(m => {
+      gameModes.forEach((m) => {
         matchesByGameMode[m.id] = {
           matches: [],
           stringResult: '',
@@ -284,7 +310,7 @@ export const dota: DefaultCommand[] = [
 
           let player = match.players.find((p: any) => p.account_id === Number(account.id));
           if (!player) {
-            const dbMatch = games.find(g => g.match_id === match.match_id.toString());
+            const dbMatch = games.find((g) => g.match_id === match.match_id.toString());
             if (!dbMatch) continue;
             const playerIndex = dbMatch.players.indexOf(Number(account.id));
             player = match.players[playerIndex];
@@ -292,7 +318,7 @@ export const dota: DefaultCommand[] = [
 
           if (!player) continue;
 
-          const hero = dotaHeroes.find(h => h.id === player.hero_id);
+          const hero = dotaHeroes.find((h) => h.id === player.hero_id);
           const isPlayerRadiant = player.team_number === 0;
           let isWinner: boolean;
 
@@ -314,15 +340,23 @@ export const dota: DefaultCommand[] = [
 
       const result: string[] = [];
 
-      for (const [modeId, data] of Object.entries(matchesByGameMode).filter(e => e[1].matches.length)) {
-        const wins = data.matches.filter(r => r.isWinner);
-        const mode = gameModes.find(m => m.id === Number(modeId));
+      for (const [modeId, data] of Object.entries(matchesByGameMode).filter(
+        (e) => e[1].matches.length,
+      )) {
+        const wins = data.matches.filter((r) => r.isWinner);
+        const mode = gameModes.find((m) => m.id === Number(modeId));
         const heroesResult = data.matches
-          .filter(m => typeof m.hero !== 'undefined')
-          .map(m => `${m.hero.localized_name}(${m.isWinner ? 'W' : 'L'}) [${m.kills}/${m.deaths}/${m.assists}]`)
-          .reverse();
+          .filter((m) => typeof m.hero !== 'undefined')
+          .map(
+            (m) =>
+              `${m.hero.localized_name}(${m.isWinner ? 'W' : 'L'}) [${m.kills}/${m.deaths}/${
+                m.assists
+              }]`,
+          );
 
-        let msg = `${mode?.name ?? 'Unknown'} W ${wins.length} — L ${data.matches.length - wins.length}`;
+        let msg = `${mode?.name ?? 'Unknown'} W ${wins.length} — L ${
+          data.matches.length - wins.length
+        }`;
         msg += `: ${heroesResult.join(', ')}`;
 
         matchesByGameMode[Number(modeId)]!.stringResult = msg;
@@ -341,7 +375,7 @@ export const dota: DefaultCommand[] = [
       if (!state.channelId) return;
 
       const accounts = await getAccounts(state.channelId);
-      return typeof accounts === 'string' ? accounts : accounts.map(a => a.id).join(', ');
+      return typeof accounts === 'string' ? accounts : accounts.map((a) => a.id).join(', ');
     },
   },
   {
@@ -355,7 +389,7 @@ export const dota: DefaultCommand[] = [
       const accounts = await getAccounts(state.channelId);
       if (typeof accounts === 'string') return accounts;
 
-      const accountsIds = accounts.map(a => a.id);
+      const accountsIds = accounts.map((a) => a.id);
       const games = await getGames(accountsIds);
       if (typeof games === 'string') return games;
 
@@ -365,12 +399,14 @@ export const dota: DefaultCommand[] = [
       const currentGame = games[0]!;
 
       const neededPlayers: Array<{
-        prev: Player,
-        curr: Player,
+        prev: Player;
+        curr: Player;
       }> = [];
 
-      for (const player of currentGame.players.filter(p => !accountsIds.includes(p.account_id.toString()))) {
-        const findedPlayer = prevGame.players.find(p => p.account_id === player.account_id);
+      for (const player of currentGame.players.filter(
+        (p) => !accountsIds.includes(p.account_id.toString()),
+      )) {
+        const findedPlayer = prevGame.players.find((p) => p.account_id === player.account_id);
 
         if (!findedPlayer) continue;
         neededPlayers.push({
@@ -380,7 +416,9 @@ export const dota: DefaultCommand[] = [
       }
 
       if (!neededPlayers.length) return 'Not playing with anyone from last game.';
-      return neededPlayers.map((p) => `${getPlayerHero(p.curr.hero_id)} played as ${getPlayerHero(p.prev.hero_id)}`).join(', ');
+      return neededPlayers
+        .map((p) => `${getPlayerHero(p.curr.hero_id)} played as ${getPlayerHero(p.prev.hero_id)}`)
+        .join(', ');
     },
   },
   {
@@ -394,17 +432,19 @@ export const dota: DefaultCommand[] = [
       const accounts = await getAccounts(state.channelId);
       if (typeof accounts === 'string') return accounts;
 
-      const accountsIds = accounts.map(a => a.id);
+      const accountsIds = accounts.map((a) => a.id);
       const games = await getGames(accountsIds);
       if (typeof games === 'string') return games;
 
       const game = games[0]!;
 
-      const usersForGet = game.players.filter(p => !game.playersCards.some(c => c.account_id === p.account_id.toString()));
+      const usersForGet = game.players.filter(
+        (p) => !game.playersCards.some((c) => c.account_id === p.account_id.toString()),
+      );
 
-      const cardsResponses = await Promise.all(usersForGet.map((u) =>
-        nats.send('dota.getProfileCard', u.account_id).toPromise(),
-      ));
+      const cardsResponses = await Promise.all(
+        usersForGet.map((u) => nats.send('dota.getProfileCard', u.account_id).toPromise()),
+      );
 
       cardsResponses.forEach(async (c) => {
         if (!c) return;
@@ -419,12 +459,12 @@ export const dota: DefaultCommand[] = [
       });
 
       const users = [
-        ...game.playersCards.map(p => ({
+        ...game.playersCards.map((p) => ({
           account_id: p.account_id,
           rank_tier: p.rank_tier,
           leaderboard_rank: p.leaderboard_rank,
         })),
-        ...cardsResponses.map(p => ({
+        ...cardsResponses.map((p) => ({
           account_id: p!.account_id.toString(),
           rank_tier: p!.rank_tier,
           leaderboard_rank: p?.leaderboard_rank,
@@ -434,9 +474,12 @@ export const dota: DefaultCommand[] = [
       const result: string[] = [];
 
       for (const p of users) {
-        const playerIndex = game.players.map(p => p.account_id).indexOf(Number(p.account_id));
+        const playerIndex = game.players.map((p) => p.account_id).indexOf(Number(p.account_id));
         const player = game.players[playerIndex]!;
-        const medal = dotaMedals.find(m => m.rank_tier === p.rank_tier) || { rank_tier: 0, name: 'Unknown' };
+        const medal = dotaMedals.find((m) => m.rank_tier === p.rank_tier) || {
+          rank_tier: 0,
+          name: 'Unknown',
+        };
         const rank = medal.rank_tier === 80 && p.leaderboard_rank ? `#${p.leaderboard_rank}` : '';
 
         result[playerIndex] = `${getPlayerHero(player.hero_id, playerIndex)}: ${medal.name}${rank}`;
@@ -450,4 +493,4 @@ export const dota: DefaultCommand[] = [
 type Player = {
   account_id: number;
   hero_id: number;
-}
+};
