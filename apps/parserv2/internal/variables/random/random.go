@@ -1,6 +1,7 @@
 package random
 
 import (
+	"errors"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -26,6 +27,14 @@ func Handler(data types.VariableHandlerParams) (*types.VariableHandlerResult, er
 			params[1] = second
 		}
 	}
+
+	if params[0] > params[1] {
+		return nil, errors.New("first number cannot be larger then second")
+	}
+
+	if params[0] < 0 || params[1] < 0 {
+		return nil, errors.New("numbers cannot be lower then 0")
+	}	
 
 	random := params[0] + rand.Intn(params[1] - params[0] + 1)
 	result := types.VariableHandlerResult{Result: strconv.Itoa(random)}

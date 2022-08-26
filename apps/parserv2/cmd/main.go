@@ -3,26 +3,24 @@ package main
 import (
 	"fmt"
 	"regexp"
+	"strconv"
+	"time"
+	"tsuwari/parser/internal/config/cfg"
+	"tsuwari/parser/internal/config/redis"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
 )
 
-
-func substr(input string, start int, length int) string {
-	asRunes := []rune(input)
-	
-	if start >= len(asRunes) {
-			return ""
-	}
-	
-	if start+length > len(asRunes) {
-			length = len(asRunes) - start
-	}
-	
-	return string(asRunes[start : start+length])
-}
-
 func main() {
+	cfg.LoadConfig(".")
+	redis.Connect()
+	// nats.Connect()
+
+	redis.Rdb.Do(
+		redis.RedisCtx,
+		redis.Rdb.B().Set().Key("latestTest").Value(strconv.FormatInt(time.Now().Unix(), 10),
+	).Build()).Error()
+
 	variables.SetVariables()
 	regexp := regexp.MustCompile(`\$\(([^)|]+)(?:\|([^)]+))?\)`)
 
@@ -45,7 +43,7 @@ func main() {
 
 
 			if err != nil {
-				return s
+				return string(err.Error())
 			} else {
 				return res.Result
 			}
@@ -54,5 +52,7 @@ func main() {
 		return s
 	})
 
-	fmt.Println(string(input))
+	fmt.Println(input)
+
+	defer redis.Rdb.Close()
 }
