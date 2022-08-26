@@ -82,7 +82,6 @@ func UserHasPermissionToCommand(badges []string, commandPermission string) bool 
 	res := false
 	for _, b := range badges {
 		idx := helpers.IndexOf(types.CommandPerms, b)
-		fmt.Println(b, idx, commandPermIndex)
 		if idx <= commandPermIndex {
 			res = true
 			break
@@ -92,7 +91,7 @@ func UserHasPermissionToCommand(badges []string, commandPermission string) bool 
 	return res
 }
 
-func ParseCommandResponses(message string) {
+func ParseCommandResponses(message types.ChatMessage) {
 
 }
 

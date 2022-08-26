@@ -15,8 +15,6 @@ type Variable struct {
 	Handler VariableHandler
 }
 
-type basePermission int
-
 type Command struct {
 	Id         string     `json:"id"`
 	Name       string     `json:"name"`
@@ -24,6 +22,16 @@ type Command struct {
 	Aliases 	 []string   `json:"aliases"`
 	Responses  []string   `json:"responses"`
 	Permission string 		`json:"permission"`
+	Description *string   `json:"description"`
+	Visible 		bool			`json:"visible"`
+	Module 		*string			`json:"module"`
+
+}
+
+type DefaultCommand struct {
+	Command 
+	
+	Handler func(data VariableHandlerParams)
 }
 
 var CommandPerms = []string{"BROADCASTER", "MODERATOR", "SUBSCRIBER", "VIP", "FOLLOWER", "VIEWER"}
