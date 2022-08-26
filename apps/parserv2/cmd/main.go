@@ -24,7 +24,7 @@ func main() {
 	variables.SetVariables()
 	regexp := regexp.MustCompile(`\$\(([^)|]+)(?:\|([^)]+))?\)`)
 
-	input := regexp.ReplaceAllStringFunc("$(random|1-1000) qweqweqwe $(random|1-100000000000000000000)", func(s string) string {
+	input := regexp.ReplaceAllStringFunc("$(sender) $(random|1-1000) qwe", func(s string) string {
 		v := regexp.FindStringSubmatchIndex(s)
 		matchedVarName := s[v[2]:v[3]]
 
