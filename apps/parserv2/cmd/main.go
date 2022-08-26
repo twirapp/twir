@@ -2,57 +2,42 @@ package main
 
 import (
 	"fmt"
-	"regexp"
-	"strconv"
-	"time"
 	"tsuwari/parser/internal/config/cfg"
+	"tsuwari/parser/internal/config/nats"
 	"tsuwari/parser/internal/config/redis"
+	"tsuwari/parser/internal/handlers"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
 )
 
 func main() {
-	cfg.LoadConfig(".")
+	err := cfg.LoadConfig()
+	if err != nil {
+		panic("Cannot load config of application")
+	}
+
 	redis.Connect()
-	// nats.Connect()
-
-	redis.Rdb.Do(
-		redis.RedisCtx,
-		redis.Rdb.B().Set().Key("latestTest").Value(strconv.FormatInt(time.Now().Unix(), 10),
-	).Build()).Error()
-
+	nats.Connect()
 	variables.SetVariables()
-	regexp := regexp.MustCompile(`\$\(([^)|]+)(?:\|([^)]+))?\)`)
+	
+	variables.ParseVariables("$(sender) test $(random|1-100)")
 
-	input := regexp.ReplaceAllStringFunc("$(sender) $(random|1-1000) qwe", func(s string) string {
-		v := regexp.FindStringSubmatchIndex(s)
-		matchedVarName := s[v[2]:v[3]]
+	cmds, _ := handlers.GetChannelCommands("123")
+	cmd := handlers.FindCommandByMessage("!First qweqwe", cmds)
+	fmt.Println("cmd:", cmd)
 
-		var params *string
+	userName := "test"
+	displayName := "Test"
 
-		if v[4] != -1 {
-			p := s[v[4]:v[5]]
-			params = &p
-		}
+	user := types.UserInfo{
+		UserId: "1",
+		UserName: &userName,
+		UserDisplayName: &displayName,
+		Badges: []string{"MODERATOR"},
+	}
 
-		if val, ok := variables.Variables[matchedVarName]; ok {
-			res, err := val.Handler(types.VariableHandlerParams{
-				Key: matchedVarName,
-				Params: params,
-			})
-
-
-			if err != nil {
-				return string(err.Error())
-			} else {
-				return res.Result
-			}
-		}
-
-		return s
-	})
-
-	fmt.Println(input)
+	res := handlers.UserHasPermissionToCommand(user.Badges, "MODERATOR")
+	fmt.Println(res)
 
 	defer redis.Rdb.Close()
 }
