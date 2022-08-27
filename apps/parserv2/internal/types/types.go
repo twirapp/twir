@@ -24,7 +24,7 @@ type Command struct {
 	Permission   string   `json:"permission"`
 	Description  *string  `json:"description"`
 	Visible      bool     `json:"visible"`
-	Module       *string  `json:"module"`
+	Module       string   `json:"module"`
 	Enabled      bool     `json:"enabled"`
 	Default      bool     `json:"default"`
 	DefaultName  *bool    `json:"defaultName"`
