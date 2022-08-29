@@ -37,7 +37,7 @@
     "dev:parser": "doppler run -- turbo run dev --filter=parser",
     "dev:config": "doppler run -- turbo run dev --filter=config",
     "dev:dota": "doppler run -- turbo run dev --filter=dota",
-    "dev:web-landing": "turbo run dev --filter=web-landing",
+    "dev:web": "turbo run dev --filter=web",
     "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/prisma run deploy",
     "prisma:generate": "pnpm --filter=@tsuwari/prisma generate"
   },

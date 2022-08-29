@@ -17,6 +17,7 @@
 </template>
 
 <script lang="ts" setup>
+import { navigate } from 'vite-plugin-ssr/client/router';
 import { useI18n } from 'vue-i18n';
 
 import FeaturesBlock from '@/components/sections/FeaturesBlock.vue';
@@ -29,16 +30,19 @@ import TeamBlock from '@/components/sections/TeamBlock.vue';
 import * as data from '@/data';
 import { usePageContext } from '@/hooks/usePageContext.js';
 import type { Locale } from '@/types/locale.js';
-import { locales } from '@/utils/locales.js';
+import { loadLocaleMessages, locales } from '@/utils/locales.js';
 
-
-const { t } = useI18n();
+const { t, setLocaleMessage, locale: i18nLocale } = useI18n();
 
 const { locale } = usePageContext();
 
 async function setLocale(l: Locale) {
-  window.location.pathname = `/${l}`;
-}
+  const messages = await loadLocaleMessages('landing', l);
+  
+  setLocaleMessage<any>(l, messages);
+  i18nLocale.value = l;
 
+  navigate(`/${l}`);
+}
 
 </script>
