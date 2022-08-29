@@ -40,8 +40,6 @@ func main() {
 		r := natsHandler.HandleProcessCommand(m)
 
 		if r != nil {
-			/* buf := &bytes.Buffer{}
-			err = gob.NewEncoder(buf).Encode(&r) */
 			res, _ := json.Marshal(r)
 
 			if err == nil {

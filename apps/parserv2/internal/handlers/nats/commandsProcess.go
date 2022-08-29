@@ -8,7 +8,7 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-func (c natsService) HandleProcessCommand(m *nats.Msg) *Response {
+func (c natsService) HandleProcessCommand(m *nats.Msg) *[]string {
 	data := HandleProcessCommandData{}
 	json.Unmarshal(m.Data, &data)
 
@@ -37,7 +37,7 @@ func (c natsService) HandleProcessCommand(m *nats.Msg) *Response {
 
 	result := c.commands.ParseCommandResponses(cmd)
 
-	return &Response{Responses: &result}
+	return &result
 }
 
 type Sender struct {
@@ -61,8 +61,4 @@ type HandleProcessCommandData struct {
 	Channel Channel `json:"channel"`
 	Sender  Sender  `json:"sender"`
 	Message Message `json:"message"`
-}
-
-type Response struct {
-	Responses *[]string `json:"responses"`
 }
