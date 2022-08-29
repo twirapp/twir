@@ -10,11 +10,18 @@
     "jsx": "preserve",
     "noEmit": true,
     "strict": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "importsNotUsedAsValues": "error",
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["integrations/*.ts", "src/**/*.ts", "src/**/*.vue"]
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue"]
 }
