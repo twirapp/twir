@@ -1,19 +1,11 @@
 package redis
 
 import (
-	"context"
-	"tsuwari/parser/internal/config/cfg"
-
 	"github.com/go-redis/redis/v9"
 )
 
-var (
-	RdbCtx  = context.Background()
-	Rdb redis.Client
-)
-
-func Connect() {
-	url, err := redis.ParseURL(cfg.Cfg.RedisUrl)
+func New(redisUrl string) *redis.Client {
+	url, err := redis.ParseURL(redisUrl)
 
 	if err != nil {
 		panic("Wrong redis url")
@@ -26,5 +18,7 @@ func Connect() {
 		Username: url.Username,
 	})
 
-	Rdb = *client
+	client.Conn()
+
+	return client
 }

@@ -16,7 +16,7 @@ type Variable struct {
 }
 
 type Command struct {
-	Id           string   `json:"id"`
+	Id           *string  `json:"id"`
 	Name         string   `json:"name"`
 	ChannelId    string   `json:"channel_id"`
 	Aliases      []string `json:"aliases"`
@@ -24,10 +24,10 @@ type Command struct {
 	Permission   string   `json:"permission"`
 	Description  *string  `json:"description"`
 	Visible      bool     `json:"visible"`
-	Module       string   `json:"module"`
+	Module       *string  `json:"module"`
 	Enabled      bool     `json:"enabled"`
 	Default      bool     `json:"default"`
-	DefaultName  *bool    `json:"defaultName"`
+	DefaultName  *string  `json:"defaultName"`
 	Cooldown     int      `json:"cooldown"`
 	CooldownType string   `json:"cooldownType"`
 }
@@ -35,7 +35,7 @@ type Command struct {
 type DefaultCommand struct {
 	Command
 
-	Handler func(data VariableHandlerParams)
+	Handler func(data VariableHandlerParams) []string
 }
 
 var CommandPerms = []string{"BROADCASTER", "MODERATOR", "SUBSCRIBER", "VIP", "FOLLOWER", "VIEWER"}

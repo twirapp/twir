@@ -4,3 +4,7 @@ tasks:
   dev:
     cmds:
       - doppler run -- gow -c run cmd/main.go
+  build:
+    cmds:
+      - rm main
+      - go build cmd/main.go

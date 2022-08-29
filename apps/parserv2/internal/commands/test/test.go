@@ -7,15 +7,14 @@ var module = "CHANNEL"
 
 var Command = types.DefaultCommand{
 	Command: types.Command{
-		Name:        "",
+		Name:        "test",
 		Description: &desc,
 		Permission:  "MODERATOR",
-		// Module: &module,
-		Visible: true,
+		Visible:     true,
 	},
 	Handler: Handler,
 }
 
-func Handler(data types.VariableHandlerParams) {
-	return
+func Handler(data types.VariableHandlerParams) []string {
+	return []string{"$(random|1-5000) hi from command"}
 }

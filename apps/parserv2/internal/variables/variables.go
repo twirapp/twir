@@ -5,27 +5,42 @@ import (
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables/random"
 	"tsuwari/parser/internal/variables/sender"
+
+	"github.com/go-redis/redis/v9"
 )
 
-var (
-	Variables = make(map[string]types.Variable)
-	Regexp = regexp.MustCompile(`\$\(([^)|]+)(?:\|([^)]+))?\)`)
-)
+type Variables struct {
+	store  map[string]types.Variable
+	regexp *regexp.Regexp
+	redis  *redis.Client
+}
 
-func SetVariables() {
-	Variables[random.Name] = types.Variable{
-		Name: random.Name,
+func New(redis *redis.Client) Variables {
+	ctx := Variables{
+		store:  make(map[string]types.Variable),
+		regexp: regexp.MustCompile(`\$\(([^)|]+)(?:\|([^)]+))?\)`),
+		redis:  redis,
+	}
+
+	ctx.load()
+
+	return ctx
+}
+
+func (c Variables) load() {
+	c.store[random.Name] = types.Variable{
+		Name:    random.Name,
 		Handler: random.Handler,
 	}
-	Variables[sender.Name] = types.Variable{
-		Name: sender.Name,
+	c.store[sender.Name] = types.Variable{
+		Name:    sender.Name,
 		Handler: sender.Handler,
 	}
 }
 
-func ParseVariables(input string) string {
-	result := Regexp.ReplaceAllStringFunc(input, func(s string) string {
-		v := Regexp.FindStringSubmatchIndex(s)
+func (c Variables) ParseInput(input string) string {
+	result := c.regexp.ReplaceAllStringFunc(input, func(s string) string {
+		v := c.regexp.FindStringSubmatchIndex(s)
 		matchedVarName := s[v[2]:v[3]]
 
 		var params *string
@@ -35,12 +50,11 @@ func ParseVariables(input string) string {
 			params = &p
 		}
 
-		if val, ok := Variables[matchedVarName]; ok {
+		if val, ok := c.store[matchedVarName]; ok {
 			res, err := val.Handler(types.VariableHandlerParams{
-				Key: matchedVarName,
+				Key:    matchedVarName,
 				Params: params,
 			})
-
 
 			if err != nil {
 				return string(err.Error())

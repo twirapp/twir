@@ -1,19 +1,17 @@
-package nats
+package mynats
 
 import (
-	"tsuwari/parser/internal/config/cfg"
+	"time"
 
 	"github.com/nats-io/nats.go"
 )
 
-var Nats *nats.Conn
-
-func Connect() {
-	nc, err := nats.Connect(cfg.Cfg.NatsUrl)
-
-	if err != nil {
-		panic(err)
-	}
-
-	Nats = nc
+func New(url string) (*nats.Conn, error) {
+	return nats.Connect("nats://localhost:4222",
+		nats.RetryOnFailedConnect(true),
+		nats.MaxReconnects(10),
+		nats.ReconnectWait(time.Second),
+		nats.Name("Parser-go"),
+		nats.Timeout(5*time.Second),
+	)
 }

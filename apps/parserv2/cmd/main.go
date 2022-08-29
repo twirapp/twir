@@ -1,48 +1,62 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"runtime"
+	commands "tsuwari/parser/internal/commands"
 	"tsuwari/parser/internal/config/cfg"
-	n "tsuwari/parser/internal/config/nats"
+	mynats "tsuwari/parser/internal/config/nats"
 	"tsuwari/parser/internal/config/redis"
-	"tsuwari/parser/internal/handlers"
-	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variables"
+	natshandler "tsuwari/parser/internal/handlers/nats"
+	variables "tsuwari/parser/internal/variables"
 
 	"github.com/nats-io/nats.go"
 )
 
 func main() {
-	err := cfg.LoadConfig()
-	if err != nil {
+	cfg, err := cfg.New()
+	if err != nil || cfg == nil {
 		panic("Cannot load config of application")
 	}
 
-	redis.Connect()
-	n.Connect()
-	variables.SetVariables()
-	
-	v := variables.ParseVariables("$(sender) test $(random|1-100)")
-	fmt.Println("variables.ParseVariables:", v)
+	r := redis.New(cfg.RedisUrl)
+	n, err := mynats.New(cfg.NatsUrl)
+	natsJson, err := nats.NewEncodedConn(n, nats.JSON_ENCODER)
 
-	cmds, _ := handlers.GetChannelCommands("123")
-	fmt.Println("handlers.GetChannelCommands:", cmds)
-	cmd := handlers.FindCommandByMessage("!f qweqwe", cmds)
-	fmt.Println("handlers.FindCommandByMessage:", cmd)
-
-	user := types.UserInfo{
-		UserId: "1",
-		UserName: nil,
-		UserDisplayName: nil,
-		Badges: []string{"MODERATOR"},
+	if err != nil {
+		panic(err)
 	}
 
-	res := handlers.UserHasPermissionToCommand(user.Badges, "MODERATOR")
-	fmt.Println("handlers.UserHasPermissionToCommand:", res)
+	variablesService := variables.New(r)
+	commandsService := commands.New(r, variablesService)
+	natsHandler := natshandler.New(r, variablesService, commandsService)
 
-	n.Nats.Subscribe("request", func(m *nats.Msg) {
-    m.Respond([]byte("answer is 42"))
+	if err != nil {
+		panic(err)
+	}
+
+	natsJson.Subscribe("parser.handleProcessCommand", func(m *nats.Msg) {
+		r := natsHandler.HandleProcessCommand(m)
+
+		if r != nil {
+			/* buf := &bytes.Buffer{}
+			err = gob.NewEncoder(buf).Encode(&r) */
+			res, _ := json.Marshal(r)
+
+			if err == nil {
+				m.Respond(res)
+			} else {
+				fmt.Println(err)
+			}
+		} else {
+			m.Respond([]byte{})
+		}
 	})
 
-	defer redis.Rdb.Close()
+	fmt.Println("Started")
+
+	runtime.Goexit()
+	defer r.Close()
+	defer n.Close()
 }
