@@ -42,6 +42,7 @@
     "dev:eval": "doppler run -- turbo run dev --filter=eval",
     "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/typeorm run deploy",
     "dev:web-landing": "turbo run dev --filter=web-landing",
+    "dev:web": "turbo run dev --filter=web",
     "prisma:generate": "pnpm --filter=@tsuwari/prisma generate"
   },
   "keywords": [],
