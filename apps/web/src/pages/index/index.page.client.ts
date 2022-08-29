@@ -3,7 +3,6 @@ import '@/styles/tailwind.base.css';
 import type { PageContext } from '@/types/pageContext';
 import { getPageTitle } from '@/utils/getPageTitle.js';
 import { setupI18n } from '@/utils/I18n.js';
-import { loadLocaleMessages } from '@/utils/locales.js';
 
 export const clientRouting = true;
 export const prefetchStaticAssets = { when: 'VIEWPORT' };
@@ -14,9 +13,7 @@ async function render(pageContext: PageContext) {
   if (!app) {
     app = createApp(pageContext);
 
-    const i18n = setupI18n(pageContext.locale);
-    const messages = await loadLocaleMessages('landing', pageContext.locale);
-    i18n.global.setLocaleMessage<any>(pageContext.locale, messages);
+    const i18n = await setupI18n(pageContext.locale, 'landing');
     app.use(i18n);
 
     app.mount('#app');

@@ -6,7 +6,7 @@ import type { Locale } from '@/types/locale.js';
 import type { PageContext } from '@/types/pageContext.js';
 import { getPageTitle } from '@/utils/getPageTitle.js';
 import { setupI18n } from '@/utils/I18n.js';
-import { defaultLocale, loadLocaleMessages, locales } from '@/utils/locales.js';
+import { defaultLocale, locales } from '@/utils/locales.js';
 
 export const passToClient = ['pageProps', 'documentProps', 'locale'];
 
@@ -16,9 +16,7 @@ export async function render(pageContext: PageContext) {
 
   const app = createApp(pageContext);
 
-  const i18n = setupI18n(locale);
-  const messages = await loadLocaleMessages('landing', locale);
-  i18n.global.setLocaleMessage<any>(locale, messages);
+  const i18n = await setupI18n(locale, 'landing');
   app.use(i18n);
 
   const stream = renderToNodeStream(app);
