@@ -23,6 +23,7 @@ export async function loadLocaleMessages(
   const messages = await import(`../locales/${localeType}/${locale}.json`);
 
   i18n.global.setLocaleMessage(locale, messages.default);
+  (i18n.global.locale as WritableComputedRef<Locale>).value = locale;
 
-  // return nextTick();
+  return nextTick();
 }
