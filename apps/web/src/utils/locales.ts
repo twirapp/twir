@@ -8,7 +8,9 @@ interface LocaleTypes {
   app: ReturnType<() => typeof import('@/locales/app/en.json')>;
 }
 
-export async function loadLocaleMessages<L extends keyof LocaleTypes>(
+export type LocaleType = keyof LocaleTypes;
+
+export async function loadLocaleMessages<L extends LocaleType>(
   localeType: L,
   locale: Locale,
 ): Promise<LocaleTypes[L]> {
