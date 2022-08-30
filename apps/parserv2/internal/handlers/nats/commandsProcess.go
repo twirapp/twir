@@ -1,17 +1,20 @@
 package natshandler
 
 import (
-	"encoding/json"
 	"strings"
 	"tsuwari/parser/internal/permissions"
-	types "tsuwari/parser/internal/types"
+	testproto "tsuwari/parser/internal/proto"
 
 	"github.com/nats-io/nats.go"
+	"google.golang.org/protobuf/proto"
 )
 
 func (c natsService) HandleProcessCommand(m *nats.Msg) *[]string {
-	data := types.HandleProcessCommandData{}
-	json.Unmarshal(m.Data, &data)
+	data := testproto.Request{}
+	err := proto.Unmarshal(m.Data, &data)
+	if err != nil {
+		panic(err)
+	}
 
 	if !strings.HasPrefix(data.Message.Text, "!") {
 		return nil

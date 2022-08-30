@@ -2,6 +2,29 @@ syntax = "proto3";
 
 option go_package = "tsuwari/parser/internal/proto";
 
-message Person {
-  string name = 1;
+message Sender {
+  string id = 1;
+  string name = 2;
+  string displayName = 3;
+  repeated string badges = 4;
+}
+
+message Channel {
+  string id = 1;
+  string name = 2;
+}
+
+message Message {
+  string text = 1;
+  string id = 2;
+}
+
+message Request {
+  Sender sender = 1;
+  Channel channel = 2;
+  Message message = 3;
+}
+
+message Response {
+  repeated string responses = 1;
 }

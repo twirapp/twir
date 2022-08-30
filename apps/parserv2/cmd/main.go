@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"runtime"
 	"tsuwari/parser/internal/commands"
@@ -11,7 +10,11 @@ import (
 	natshandler "tsuwari/parser/internal/handlers/nats"
 	"tsuwari/parser/internal/variables"
 
+	testproto "tsuwari/parser/internal/proto"
+
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/encoders/protobuf"
+	proto "google.golang.org/protobuf/proto"
 )
 
 func main() {
@@ -22,7 +25,7 @@ func main() {
 
 	r := redis.New(cfg.RedisUrl)
 	n, err := mynats.New(cfg.NatsUrl)
-	natsJson, err := nats.NewEncodedConn(n, nats.JSON_ENCODER)
+	natsJson, err := nats.NewEncodedConn(n, protobuf.PROTOBUF_ENCODER)
 
 	if err != nil {
 		panic(err)
@@ -45,7 +48,9 @@ func main() {
 		r := natsHandler.HandleProcessCommand(m)
 
 		if r != nil {
-			res, _ := json.Marshal(r)
+			res, _ := proto.Marshal(&testproto.Response{
+				Responses: *r,
+			})
 
 			if err == nil {
 				m.Respond(res)

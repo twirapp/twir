@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 	testcommand "tsuwari/parser/internal/commands/test"
+	testproto "tsuwari/parser/internal/proto"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
 	"tsuwari/parser/internal/variablescache"
@@ -95,7 +96,7 @@ func (c Commands) FindByMessage(input string, cmds *[]types.Command) *types.Comm
 	return cmd
 }
 
-func (c Commands) ParseCommandResponses(command *types.Command, data types.HandleProcessCommandData) []string {
+func (c Commands) ParseCommandResponses(command *types.Command, data testproto.Request) []string {
 	responses := []string{}
 
 	if command.Default && c.defaultCommands[*command.DefaultName] != nil {
