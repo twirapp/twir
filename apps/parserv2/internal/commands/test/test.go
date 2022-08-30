@@ -16,5 +16,5 @@ var Command = types.DefaultCommand{
 }
 
 func Handler(data types.VariableHandlerParams) []string {
-	return []string{"$(random|1-5000) hi from command"}
+	return []string{"$(random|1-5000) 1", "$(random|6000-10000) 2"}
 }
