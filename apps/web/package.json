@@ -1,11 +1,13 @@
 {
   "name": "@tsuwari/web",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve:dev": "cross-env NODE_ENV=development PORT=3000 tsx watch ./src/server/index.ts",
-    "serve:prod": "cross-env NODE_ENV=production PORT=3000 tsx ./src/server/index.ts"
+    "serve:dev": "cross-env NODE_ENV=development PORT=3000 node ./dist/server/index.js",
+    "serve:prod": "cross-env NODE_ENV=production PORT=3000 node ./dist/server/index.js",
+    "build:server": "tsc -p tsconfig.server.json"
   },
   "devDependencies": {
     "@intlify/vite-plugin-vue-i18n": "6.0.1",
@@ -31,10 +33,9 @@
     "@fastify/static": "^6.5.0",
     "@nanostores/persistent": "0.6.0",
     "@nanostores/vue": "0.5.5",
-    "@types/express": "4.17.13",
     "cross-env": "^7.0.3",
-    "fastify": "^4.5.3",
-    "nanostores": "0.6.0",
-    "tsx": "3.8.2"
+    "fastify": "^4.0.0-rc.2",
+    "@fastify/express": "^2.0.2",
+    "nanostores": "0.6.0"
   }
 }
