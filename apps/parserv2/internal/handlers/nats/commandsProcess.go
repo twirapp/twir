@@ -18,7 +18,6 @@ func (c natsService) HandleProcessCommand(m *nats.Msg) *[]string {
 	data.Message.Text = strings.ToLower(data.Message.Text[1:])
 
 	cmds, err := c.commands.GetChannelCommands(data.Channel.Id)
-
 	if err != nil {
 		return nil
 	}

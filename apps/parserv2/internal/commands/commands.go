@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
+	"sync"
 	testcommand "tsuwari/parser/internal/commands/test"
 	"tsuwari/parser/internal/types"
 	variables "tsuwari/parser/internal/variables"
@@ -95,6 +97,7 @@ func (c Commands) FindByMessage(input string, cmds *[]types.Command) *types.Comm
 
 func (c Commands) ParseCommandResponses(command *types.Command) []string {
 	responses := []string{}
+	wg := sync.WaitGroup{}
 
 	if command.Default && c.defaultCommands[*command.DefaultName] != nil {
 		results := c.defaultCommands[*command.DefaultName].Handler(types.VariableHandlerParams{
@@ -106,8 +109,14 @@ func (c Commands) ParseCommandResponses(command *types.Command) []string {
 	}
 
 	for i, r := range responses {
-		responses[i] = c.variablesService.ParseInput(r)
+		wg.Add(1)
+		go func(i int, r string) {
+			defer wg.Done()
+			responses[i] = c.variablesService.ParseInput(r)
+		}(i, r)
 	}
 
+	wg.Wait()
+	log.Println(responses)
 	return responses
 }
