@@ -2,7 +2,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import compress from '@fastify/compress';
-import fastifyExpress from '@fastify/express';
+import middie from '@fastify/middie';
 import { fastify } from 'fastify';
 import { PageContextBuiltIn, renderPage } from 'vite-plugin-ssr';
 
@@ -18,7 +18,7 @@ async function startServer() {
   try {
     const app = fastify();
 
-    await app.register(fastifyExpress);
+    await app.register(middie);
     await app.register(compress, { global: false });
 
     if (isProduction) {
