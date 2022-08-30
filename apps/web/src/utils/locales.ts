@@ -3,7 +3,7 @@ import { ComposerTranslation, createI18n, useI18n } from 'vue-i18n';
 
 import type { Locale } from '@/types/locale';
 
-type Languages = { [K in Locale]: { name: string; locale: Locale }[] };
+type Languages = { name: string; locale: Locale }[];
 type LocaleType = keyof LocaleTypes;
 
 interface LocaleTypes {
@@ -11,16 +11,10 @@ interface LocaleTypes {
   app: ReturnType<() => typeof import('@/locales/app/en.json')>;
 }
 
-export const languages: Languages = {
-  en: [
-    { name: 'English', locale: 'en' },
-    { name: 'Russian', locale: 'ru' },
-  ],
-  ru: [
-    { name: 'Английский', locale: 'en' },
-    { name: 'Русский', locale: 'ru' },
-  ],
-};
+export const languages: Languages = [
+  { name: 'English', locale: 'en' },
+  { name: 'Русский', locale: 'ru' },
+];
 
 export const locales: Locale[] = ['en', 'ru'];
 export const defaultLocale = 'en';
