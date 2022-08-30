@@ -1,14 +1,12 @@
 import { renderToNodeStream } from '@vue/server-renderer';
-import { escapeInject } from 'vite-plugin-ssr';
 
+import { landingPage } from '@/data/seo.js';
 import { createApp } from '@/pages/index/app';
 import type { Locale } from '@/types/locale.js';
 import type { PageContext } from '@/types/pageContext.js';
-import { getPageTitle } from '@/utils/getPageTitle.js';
-import { setupI18n } from '@/utils/I18n.js';
-import { defaultLocale, locales } from '@/utils/locales.js';
-
-export const passToClient = ['pageProps', 'documentProps', 'locale'];
+import type { PassToClient, PrerenderFn } from '@/types/vitePluginSSR.js';
+import { htmlLayout } from '@/utils/htmlLayout.js';
+import { defaultLocale, locales, setupI18n } from '@/utils/locales.js';
 
 export async function render(pageContext: PageContext) {
   const locale = (pageContext.routeParams as { locale: Locale }).locale;
@@ -19,20 +17,17 @@ export async function render(pageContext: PageContext) {
   const i18n = await setupI18n(locale, 'landing');
   app.use(i18n);
 
-  const stream = renderToNodeStream(app);
+  const seoInfo = landingPage[locale];
 
-  const title = getPageTitle(pageContext);
-
-  const documentHtml = escapeInject`<!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8" />
-        <title>${title}</title>
-      </head>
-      <body>
-        <div id="app">${stream}</div>
-      </body>
-    </html>`;
+  const documentHtml = htmlLayout({
+    title: seoInfo.title,
+    description: seoInfo.description,
+    keywords: seoInfo.keywords,
+    locale,
+    urlCanonical: pageContext.urlParsed.origin || undefined,
+    urlOriginal: pageContext.urlOriginal,
+    content: renderToNodeStream(app),
+  });
 
   return {
     documentHtml,
@@ -43,19 +38,19 @@ export async function render(pageContext: PageContext) {
   };
 }
 
-export function prerender() {
-  return [
-    {
-      pageContext: {
-        locale: defaultLocale,
-      },
-      url: '/',
+export const passToClient: PassToClient = ['pageProps', 'documentProps', 'locale'];
+
+export const prerender: PrerenderFn = () => [
+  {
+    pageContext: {
+      locale: defaultLocale,
     },
-    ...locales.map((locale) => ({
-      url: `/${locale}`,
-      pageContext: {
-        locale,
-      },
-    })),
-  ];
-}
+    url: '/',
+  },
+  ...locales.map((locale) => ({
+    url: `/${locale}`,
+    pageContext: {
+      locale,
+    },
+  })),
+];

@@ -1,8 +1,8 @@
 import { createApp } from '@/pages/index/app';
 import '@/styles/tailwind.base.css';
+import type { Locale } from '@/types/locale.js';
 import type { PageContext } from '@/types/pageContext';
-import { getPageTitle } from '@/utils/getPageTitle.js';
-import { setupI18n } from '@/utils/I18n.js';
+import { setupI18n } from '@/utils/locales.js';
 
 export const clientRouting = true;
 export const prefetchStaticAssets = { when: 'VIEWPORT' };
@@ -17,9 +17,11 @@ async function render(pageContext: PageContext) {
     app.use(i18n);
 
     app.mount('#app');
+    return;
   }
 
-  app.changePage(pageContext);
+  const locale = (pageContext.routeParams as { locale: Locale }).locale;
+  pageContext.locale = locale;
 
-  document.title = getPageTitle(pageContext);
+  app.changePage(pageContext);
 }

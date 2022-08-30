@@ -15,7 +15,7 @@
           <div class="inline-grid grid-flow-col gap-x-8">
             <ul class="inline-grid grid-flow-col gap-x-6">
               <li v-for="item in menuItems" :key="item.id">
-                <a :href="item.href" class="leading-[130%]">{{ item.name }}</a>
+                <a :href="rt(item.href)" class="leading-[130%]">{{ rt(item.name) }}</a>
               </li>
             </ul>
             <ul class="inline-grid grid-flow-col gap-x-3">
@@ -49,9 +49,12 @@
 
 <script lang="ts" setup>
 import { TswIcon, TswArrowIcon } from '@tsuwari/ui-components';
+import { useI18n } from 'vue-i18n';
 
 import type { NavMenuItem } from '@/types/navMenu.js';
 import type { SocialMediaItem } from '@/types/socialMedia.js';
 
 defineProps<{ menuItems: NavMenuItem[], socials: SocialMediaItem[] }>();
+
+const { rt } = useI18n();
 </script>

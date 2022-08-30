@@ -1,18 +1,10 @@
 import TextAvatarUrl from '@/assets/avatar.png';
 import type { BotFeature } from '@/types/botFeatures.js';
-import type { NavMenuItem } from '@/types/navMenu.js';
 import { FeatureType, PlanColorThemes, PlanId, PricePlan } from '@/types/pricingPlan.js';
 import type { Review } from '@/types/review.js';
 import type { SocialMediaItem } from '@/types/socialMedia.js';
 import type { StatInfo } from '@/types/statsLine.js';
 import type { TeamMember } from '@/types/teamMember.js';
-
-export const navMenuItems: NavMenuItem[] = [
-  { id: 1, name: 'Features', href: '#' },
-  { id: 2, name: 'Reviews', href: '#' },
-  { id: 3, name: 'Pricing', href: '#' },
-  { id: 4, name: 'Team', href: '#' },
-];
 
 export const socials: SocialMediaItem[] = [
   { id: 1, media: 'Telegram', href: '#' },
