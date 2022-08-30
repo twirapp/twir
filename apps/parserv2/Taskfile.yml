@@ -2,9 +2,11 @@ version: '3'
 
 tasks:
   dev:
+    deps: [protogen]
     cmds:
       - doppler run -- gow -c run cmd/main.go
   build:
+    deps: [protogen]
     cmds:
       - rm main
       - go build cmd/main.go

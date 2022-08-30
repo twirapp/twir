@@ -111,6 +111,7 @@ func (c Commands) ParseCommandResponses(command *types.Command, data testproto.R
 	wg := sync.WaitGroup{}
 	for i, r := range responses {
 		wg.Add(1)
+		// TODO: concatenate all responses into one slice and use it for cache
 		cacheService := variablescache.New(r, data.Sender.Id, data.Channel.Id, &data.Sender.Name, c.redis, *c.variablesService.Regexp)
 
 		go func(i int, r string) {
