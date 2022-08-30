@@ -5,7 +5,7 @@
     }`"
     @click="emit('change', locale)"
   >
-    {{ name }}
+    <span class="pr-2">{{ name }}</span>
     <TswIcon
       v-if="isActive"
       name="Check"
