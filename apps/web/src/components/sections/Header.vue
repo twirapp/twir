@@ -7,20 +7,36 @@
     <nav>
       <ul class="inline-grid grid-flow-col gap-x-2">
         <li v-for="item in menuItems" :key="item.id">
-          <a :href="item.href" class="leading-tight px-3 py-[10px]">{{ item.name }}</a>
+          <a :href="rt(item.href)" class="leading-tight px-3 py-[10px]">{{ rt(item.name) }}</a>
         </li>
       </ul>
     </nav>
     <div class="inline-grid grid-flow-col gap-x-3 items-center">
-      <LangSelect />
+      <LangSelect @change="setLocale" />
       <a href="#" class="inline-flex bg-purple-60 px-4 py-[10px] rounded-md leading-tight">Login</a>
     </div>
   </header>
 </template>
 
 <script lang="ts" setup>
-import LangSelect from '@/components/LangSelect.vue';
+import { navigate } from 'vite-plugin-ssr/client/router';
+import { useI18n } from 'vue-i18n';
+
+import LangSelect from '@/components/LangSelect/LangSelect.vue';
+import type { Locale } from '@/types/locale.js';
 import type { NavMenuItem } from '@/types/navMenu';
+import { loadLocaleMessages } from '@/utils/locales.js';
 
 defineProps<{ menuItems: NavMenuItem[] }>();
+
+const { setLocaleMessage, locale: i18nLocale, rt } = useI18n();
+
+async function setLocale(locale: Locale) {
+  const messages = await loadLocaleMessages('landing', locale);
+
+  setLocaleMessage<any>(locale, messages);
+  i18nLocale.value = locale;
+
+  navigate(`/${locale}`);
+}
 </script>

@@ -1,8 +1,6 @@
 {
-  "app": {
-    "tabs": {
-      "dashboard": "Dashboard",
-      "commands": "Commands"
-    }
+  "tabs": {
+    "dashboard": "Dashboard",
+    "commands": "Commands"
   }
 }

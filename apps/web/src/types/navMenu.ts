@@ -1,5 +1,5 @@
 export interface NavMenuItem {
   id: number;
-  name: string;
-  href: string;
+  name: () => string;
+  href: () => string;
 }
