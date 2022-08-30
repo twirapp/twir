@@ -5,7 +5,7 @@ import (
 	types "tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables/random"
 	sender "tsuwari/parser/internal/variables/sender"
-	stream "tsuwari/parser/internal/variables/stream"
+	"tsuwari/parser/internal/variables/stream/streamId"
 	variablescache "tsuwari/parser/internal/variablescache"
 
 	"github.com/go-redis/redis/v9"
@@ -32,9 +32,9 @@ func New(redis *redis.Client) Variables {
 		Name:    sender.Name,
 		Handler: sender.Handler,
 	}
-	ctx.Store[stream.Name] = types.Variable{
-		Name:    stream.Name,
-		Handler: stream.Handler,
+	ctx.Store[streamId.Name] = types.Variable{
+		Name:    streamId.Name,
+		Handler: streamId.Handler,
 	}
 
 	return ctx

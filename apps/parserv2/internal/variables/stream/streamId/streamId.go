@@ -1,4 +1,4 @@
-package stream
+package streamId
 
 import (
 	types "tsuwari/parser/internal/types"
