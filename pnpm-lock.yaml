@@ -509,6 +509,7 @@ importers:
   apps/web:
     specifiers:
       '@fastify/compress': ^6.1.1
+      '@fastify/express': ^2.0.2
       '@fastify/middie': ^8.0.0
       '@fastify/static': ^6.5.0
       '@intlify/vite-plugin-vue-i18n': 6.0.1
@@ -518,17 +519,15 @@ importers:
       '@tsuwari/ui-fonts': workspace:*
       '@tsuwari/ui-icons': workspace:*
       '@tsuwari/ui-theme': workspace:*
-      '@types/express': 4.17.13
       '@vitejs/plugin-vue': ^3.0.3
       '@vue/server-renderer': ^3.2.37
       autoprefixer: ^10.4.8
       cross-env: ^7.0.3
-      fastify: ^4.5.3
+      fastify: ^4.0.0-rc.2
       nanostores: 0.6.0
       postcss: ^8.4.16
       swiper: ^8.3.2
       tailwindcss: ^3.1.8
-      tsx: 3.8.2
       vite: ^3.0.9
       vite-plugin-ssr: ^0.4.27
       vue: 3.2.37
@@ -536,15 +535,14 @@ importers:
       vue-router: 4.1.3
     dependencies:
       '@fastify/compress': 6.1.1
+      '@fastify/express': 2.0.2
       '@fastify/middie': 8.0.0
       '@fastify/static': 6.5.0
       '@nanostores/persistent': 0.6.0_nanostores@0.6.0
       '@nanostores/vue': 0.5.5_jcek7dbclq7f4suoygxks7kh6m
-      '@types/express': 4.17.13
       cross-env: 7.0.3
       fastify: 4.5.3
       nanostores: 0.6.0
-      tsx: 3.8.2
     devDependencies:
       '@intlify/vite-plugin-vue-i18n': 6.0.1_vite@3.1.3+vue-i18n@9.2.2
       '@tsuwari/ui-components': link:../../libs/ui/components
@@ -2463,18 +2461,21 @@ packages:
     dependencies:
       '@esbuild-kit/core-utils': 2.1.0
       get-tsconfig: 4.2.0
+    dev: true
 
   /@esbuild-kit/core-utils/2.1.0:
     resolution: {integrity: sha512-fZirrc2KjeTumVjE4bpleWOk2gD83b7WuGeQqOceKFQL+heNKKkNB5G5pekOUTLzfSBc0hP7hCSBoD9TuR0hLw==}
     dependencies:
       esbuild: 0.14.53
       source-map-support: 0.5.21
+    dev: true
 
   /@esbuild-kit/esm-loader/2.4.2:
     resolution: {integrity: sha512-N9dPKAj8WOx6djVnStgILWXip4fjDcBk9L7azO0/uQDpu8Ee0eaL78mkN4Acid9BzvNAKWwdYXFJZnsVahNEew==}
     dependencies:
       '@esbuild-kit/core-utils': 2.1.0
       get-tsconfig: 4.2.0
+    dev: true
 
   /@esbuild/linux-loong64/0.14.53:
     resolution: {integrity: sha512-W2dAL6Bnyn4xa/QRSU3ilIK4EzD5wgYXKXJiS1HDF5vU3675qc2bvFyLwbUcdmssDveyndy7FbitrCoiV/eMLg==}
@@ -2482,6 +2483,7 @@ packages:
     cpu: [loong64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-loong64/0.15.7:
@@ -2542,6 +2544,15 @@ packages:
 
   /@fastify/error/3.0.0:
     resolution: {integrity: sha512-dPRyT40GiHRzSCll3/Jn2nPe25+E1VXc9tDwRAIKwFCxd5Np5wzgz1tmooWG3sV0qKgrBibihVoCna2ru4SEFg==}
+    dev: false
+
+  /@fastify/express/2.0.2:
+    resolution: {integrity: sha512-I/BR8XFvWXcavSBxs6Eh54QsOVIJp1RWhxwX5z8g7rjDFhLtvY1zUJmrNthGSqOPMu5XWIZ7PH6LxnpNq9D+5Q==}
+    dependencies:
+      express: 4.18.1
+      fastify-plugin: 4.2.1
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /@fastify/fast-json-stringify-compiler/4.1.0:
@@ -9411,6 +9422,7 @@ packages:
     cpu: [x64]
     os: [android]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-android-64/0.15.7:
@@ -9428,6 +9440,7 @@ packages:
     cpu: [arm64]
     os: [android]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-android-arm64/0.15.7:
@@ -9445,6 +9458,7 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-darwin-64/0.15.7:
@@ -9462,6 +9476,7 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-darwin-arm64/0.15.7:
@@ -9479,6 +9494,7 @@ packages:
     cpu: [x64]
     os: [freebsd]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-freebsd-64/0.15.7:
@@ -9496,6 +9512,7 @@ packages:
     cpu: [arm64]
     os: [freebsd]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-freebsd-arm64/0.15.7:
@@ -9513,6 +9530,7 @@ packages:
     cpu: [ia32]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-linux-32/0.15.7:
@@ -9530,6 +9548,7 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-linux-64/0.15.7:
@@ -9547,6 +9566,7 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-linux-arm/0.15.7:
@@ -9564,6 +9584,7 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-linux-arm64/0.15.7:
@@ -9581,6 +9602,7 @@ packages:
     cpu: [mips64el]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-linux-mips64le/0.15.7:
@@ -9598,6 +9620,7 @@ packages:
     cpu: [ppc64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-linux-ppc64le/0.15.7:
@@ -9615,6 +9638,7 @@ packages:
     cpu: [riscv64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-linux-riscv64/0.15.7:
@@ -9632,6 +9656,7 @@ packages:
     cpu: [s390x]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-linux-s390x/0.15.7:
@@ -9649,6 +9674,7 @@ packages:
     cpu: [x64]
     os: [netbsd]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-netbsd-64/0.15.7:
@@ -9666,6 +9692,7 @@ packages:
     cpu: [x64]
     os: [openbsd]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-openbsd-64/0.15.7:
@@ -9683,6 +9710,7 @@ packages:
     cpu: [x64]
     os: [sunos]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-sunos-64/0.15.7:
@@ -9700,6 +9728,7 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-windows-32/0.15.7:
@@ -9717,6 +9746,7 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-windows-64/0.15.7:
@@ -9734,6 +9764,7 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
+    dev: true
     optional: true
 
   /esbuild-windows-arm64/0.15.7:
@@ -9772,6 +9803,7 @@ packages:
       esbuild-windows-32: 0.14.53
       esbuild-windows-64: 0.14.53
       esbuild-windows-arm64: 0.14.53
+    dev: true
 
   /esbuild/0.15.7:
     resolution: {integrity: sha512-7V8tzllIbAQV1M4QoE52ImKu8hT/NLGlGXkiDsbEU5PS6K8Mn09ZnYoS+dcmHxOS9CRsV4IRAMdT3I67IyUNXw==}
@@ -10908,6 +10940,7 @@ packages:
 
   /get-tsconfig/4.2.0:
     resolution: {integrity: sha512-X8u8fREiYOE6S8hLbq99PeykTDoLVnxvF4DjWKJmz9xy2nNRdUcV8ZN9tniJFeKyTU3qnC9lL8n4Chd6LmVKHg==}
+    dev: true
 
   /get-value/2.0.6:
     resolution: {integrity: sha512-Ln0UQDlxH1BapMu3GPtf7CuYNwRZf2gwCuPqbyG6pB8WfmFpzqcy4xtAaAMUhnNqjMKTiCPZG2oMT3YSx8U2NA==}
@@ -15541,6 +15574,7 @@ packages:
     dependencies:
       buffer-from: 1.1.2
       source-map: 0.6.1
+    dev: true
 
   /source-map-url/0.4.1:
     resolution: {integrity: sha512-cPiFOTLUKvJFIg4SKVScy4ilPPW6rFgMgfuZJPNoDuMs3nC1HbMUycBoJw77xFIp6z1UJQJOfx6C9GMH80DiTw==}
@@ -16420,6 +16454,7 @@ packages:
       '@esbuild-kit/esm-loader': 2.4.2
     optionalDependencies:
       fsevents: 2.3.2
+    dev: true
 
   /tty-browserify/0.0.0:
     resolution: {integrity: sha512-JVa5ijo+j/sOoHGjw0sxw734b1LhBkQ3bvUGNdxnVXDCX81Yx7TFgnZygxrIIWn23hbfTaMYLwRmAxFyDuFmIw==}

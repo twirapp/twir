@@ -9,7 +9,7 @@
   },
   "overrides": [
     {
-      "files": ["*.config.js"],
+      "files": ["*.config.js", "*.config.cjs"],
       "env": {
         "node": true
       },
