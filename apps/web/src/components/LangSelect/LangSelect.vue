@@ -1,0 +1,88 @@
+<template>
+  <div class="relative">
+    <button
+      class="
+        inline-grid
+        grid-flow-col
+        gap-x-2
+        items-center
+        py-[10px]
+        px-3
+        leading-tight
+        bg-black-10
+      "
+      @click="isOpen = !isOpen"
+    >
+      {{ pageContext.locale.toUpperCase() }}
+      <TswArrowIcon
+        arrowSize="lg"
+        size="18px"
+        direction="bottom"
+        :strokeWidth="1.5"
+        class="stroke-gray-60"
+      />
+    </button>
+    <Transition>
+      <div
+        v-if="isOpen"
+        class="
+        inline-flex
+        flex-col
+        p-[5px]
+        bg-black-15
+        border border-black-25
+        rounded-md
+        min-w-[100px]
+        absolute
+        right-0
+        top-10
+        z-10
+      "
+      >
+        <LangSelectOption
+          v-for="lang in localLangs"
+          :key="lang.locale"
+          :isActive="lang.locale === pageContext.locale"
+          :locale="lang.locale"
+          :name="lang.name"
+          @change="(l) => emit('change', l)"
+        />
+      </div>
+    </Transition>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { TswArrowIcon } from '@tsuwari/ui-components';
+import { computed, ref } from 'vue';
+
+import LangSelectOption from './LangSelectOption.vue';
+
+import { usePageContext } from '@/hooks/usePageContext.js';
+import type { Locale } from '@/types/locale.js';
+import { languages } from '@/utils/locales.js';
+
+const emit = defineEmits<{ (event: 'change', locale: Locale): void }>();
+
+const pageContext = usePageContext();
+if (!pageContext) {
+  throw new Error('Not found page context');
+}
+
+const localLangs = computed(() => languages[pageContext.locale]);
+
+const isOpen = ref(false);
+</script>
+
+<style scoped lang="postcss">
+.v-enter-active,
+.v-leave-active {
+  transition: transform 0.25s theme('transitionTimingFunction.DEFAULT'), opacity 0.25s theme('transitionTimingFunction.DEFAULT');
+}
+
+.v-enter-from,
+.v-leave-to {
+  transform: translateY(10px);
+  opacity: 0;
+}
+</style>
