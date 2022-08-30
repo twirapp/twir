@@ -1,5 +1,7 @@
 package types
 
+import variablescache "tsuwari/parser/internal/variablescache"
+
 type VariableHandlerParams struct {
 	Key    string
 	Params *string
@@ -9,7 +11,7 @@ type VariableHandlerResult struct {
 	Result string
 }
 
-type VariableHandler func(data VariableHandlerParams) (*VariableHandlerResult, error)
+type VariableHandler func(ctx *variablescache.VariablesCacheService, data VariableHandlerParams) (*VariableHandlerResult, error)
 type Variable struct {
 	Name    string
 	Handler VariableHandler
@@ -38,13 +40,11 @@ type DefaultCommand struct {
 	Handler func(data VariableHandlerParams) []string
 }
 
-var CommandPerms = []string{"BROADCASTER", "MODERATOR", "SUBSCRIBER", "VIP", "FOLLOWER", "VIEWER"}
-
-type UserInfo struct {
-	UserId          string   `json:"user_id"`
-	UserName        *string  `json:"user_name"`
-	UserDisplayName *string  `json:"user_display_name"`
-	Badges          []string `json:"badges"`
+type Sender struct {
+	Id          string   `json:"id"`
+	Name        string   `json:"name"`
+	DisplayName string   `json:"displayName"`
+	Badges      []string `json:"badges"`
 }
 
 type Channel struct {
@@ -52,8 +52,13 @@ type Channel struct {
 	Name *string `json:"name"`
 }
 
-type ChatMessage struct {
-	Channel Channel  `json:"channel"`
-	Sender  UserInfo `json:"sender"`
-	Text    string   `json:"text"`
+type Message struct {
+	Id   string `json:"id"`
+	Text string `json:"text"`
+}
+
+type HandleProcessCommandData struct {
+	Channel Channel `json:"channel"`
+	Sender  Sender  `json:"sender"`
+	Message Message `json:"message"`
 }

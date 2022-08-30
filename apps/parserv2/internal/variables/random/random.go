@@ -6,15 +6,16 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"tsuwari/parser/internal/types"
+	types "tsuwari/parser/internal/types"
+	variablescache "tsuwari/parser/internal/variablescache"
 )
 
 const Name = "random"
 
-func Handler(data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	rand.Seed(time.Now().UnixNano())
 
-	params := [2]int{0,50}
+	params := [2]int{0, 50}
 	if data.Params != nil {
 		parsed := strings.Split(*data.Params, "-")
 
@@ -34,9 +35,9 @@ func Handler(data types.VariableHandlerParams) (*types.VariableHandlerResult, er
 
 	if params[0] < 0 || params[1] < 0 {
 		return nil, errors.New("numbers cannot be lower then 0")
-	}	
+	}
 
-	random := params[0] + rand.Intn(params[1] - params[0] + 1)
+	random := params[0] + rand.Intn(params[1]-params[0]+1)
 	result := types.VariableHandlerResult{Result: strconv.Itoa(random)}
 
 	return &result, nil

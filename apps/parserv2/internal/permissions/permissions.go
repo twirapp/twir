@@ -1,16 +1,17 @@
 package permissions
 
 import (
-	"tsuwari/parser/internal/types"
 	"tsuwari/parser/pkg/helpers"
 )
 
+var CommandPerms = []string{"BROADCASTER", "MODERATOR", "SUBSCRIBER", "VIP", "FOLLOWER", "VIEWER"}
+
 func UserHasPermissionToCommand(badges []string, commandPermission string) bool {
-	commandPermIndex := helpers.IndexOf(types.CommandPerms, commandPermission)
+	commandPermIndex := helpers.IndexOf(CommandPerms, commandPermission)
 
 	res := false
 	for _, b := range badges {
-		idx := helpers.IndexOf(types.CommandPerms, b)
+		idx := helpers.IndexOf(CommandPerms, b)
 		if idx <= commandPermIndex {
 			res = true
 			break

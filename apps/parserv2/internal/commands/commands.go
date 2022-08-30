@@ -9,7 +9,8 @@ import (
 	"sync"
 	testcommand "tsuwari/parser/internal/commands/test"
 	"tsuwari/parser/internal/types"
-	variables "tsuwari/parser/internal/variables"
+	"tsuwari/parser/internal/variables"
+	"tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/go-redis/redis/v9"
@@ -94,7 +95,7 @@ func (c Commands) FindByMessage(input string, cmds *[]types.Command) *types.Comm
 	return cmd
 }
 
-func (c Commands) ParseCommandResponses(command *types.Command) []string {
+func (c Commands) ParseCommandResponses(command *types.Command, data types.HandleProcessCommandData) []string {
 	responses := []string{}
 
 	if command.Default && c.defaultCommands[*command.DefaultName] != nil {
@@ -109,9 +110,11 @@ func (c Commands) ParseCommandResponses(command *types.Command) []string {
 	wg := sync.WaitGroup{}
 	for i, r := range responses {
 		wg.Add(1)
+		cacheService := variablescache.New(r, data.Sender.Id, data.Channel.Id, &data.Sender.Name, c.redis, *c.variablesService.Regexp)
+
 		go func(i int, r string) {
 			defer wg.Done()
-			responses[i] = c.variablesService.ParseInput(r)
+			responses[i] = c.variablesService.ParseInput(cacheService, r)
 		}(i, r)
 	}
 	wg.Wait()

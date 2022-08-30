@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+option go_package = "tsuwari/parser/internal/proto";
+
+message Person {
+  string name = 1;
+}

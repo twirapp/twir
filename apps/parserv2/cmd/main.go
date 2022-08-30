@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"runtime"
-	commands "tsuwari/parser/internal/commands"
+	"tsuwari/parser/internal/commands"
 	"tsuwari/parser/internal/config/cfg"
 	mynats "tsuwari/parser/internal/config/nats"
 	"tsuwari/parser/internal/config/redis"
 	natshandler "tsuwari/parser/internal/handlers/nats"
-	variables "tsuwari/parser/internal/variables"
+	"tsuwari/parser/internal/variables"
 
 	"github.com/nats-io/nats.go"
 )
@@ -35,6 +35,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	/* natsJson.Subscribe("proto", func(m *nats.Msg) {
+		fmt.Println(m.Data)
+		m.Respond([]byte(m.Reply))
+	}) */
 
 	natsJson.Subscribe("parser.handleProcessCommand", func(m *nats.Msg) {
 		r := natsHandler.HandleProcessCommand(m)

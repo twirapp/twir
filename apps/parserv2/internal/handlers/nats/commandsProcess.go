@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"strings"
 	"tsuwari/parser/internal/permissions"
+	types "tsuwari/parser/internal/types"
 
 	"github.com/nats-io/nats.go"
 )
 
 func (c natsService) HandleProcessCommand(m *nats.Msg) *[]string {
-	data := HandleProcessCommandData{}
+	data := types.HandleProcessCommandData{}
 	json.Unmarshal(m.Data, &data)
 
 	if !strings.HasPrefix(data.Message.Text, "!") {
@@ -34,30 +35,7 @@ func (c natsService) HandleProcessCommand(m *nats.Msg) *[]string {
 		return nil
 	}
 
-	result := c.commands.ParseCommandResponses(cmd)
+	result := c.commands.ParseCommandResponses(cmd, data)
 
 	return &result
-}
-
-type Sender struct {
-	Id          string   `json:"id"`
-	Name        string   `json:"name"`
-	DisplayName string   `json:"displayName"`
-	Badges      []string `json:"badges"`
-}
-
-type Channel struct {
-	Id   string  `json:"id"`
-	Name *string `json:"name"`
-}
-
-type Message struct {
-	Id   string `json:"id"`
-	Text string `json:"text"`
-}
-
-type HandleProcessCommandData struct {
-	Channel Channel `json:"channel"`
-	Sender  Sender  `json:"sender"`
-	Message Message `json:"message"`
 }
