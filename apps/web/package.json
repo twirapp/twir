@@ -35,7 +35,6 @@
     "@nanostores/vue": "0.5.5",
     "cross-env": "^7.0.3",
     "fastify": "^4.0.0-rc.2",
-    "@fastify/express": "^2.0.2",
     "nanostores": "0.6.0"
   }
 }
