@@ -40,7 +40,7 @@
       "
       >
         <LangSelectOption
-          v-for="lang in localLangs"
+          v-for="lang in languages"
           :key="lang.locale"
           :isActive="lang.locale === pageContext.locale"
           :locale="lang.locale"
@@ -54,7 +54,7 @@
 
 <script lang="ts" setup>
 import { TswArrowIcon } from '@tsuwari/ui-components';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 
 import LangSelectOption from './LangSelectOption.vue';
 
@@ -68,8 +68,6 @@ const pageContext = usePageContext();
 if (!pageContext) {
   throw new Error('Not found page context');
 }
-
-const localLangs = computed(() => languages[pageContext.locale]);
 
 const isOpen = ref(false);
 </script>
