@@ -2,6 +2,7 @@ import type { Readable } from 'stream';
 
 import { escapeInject } from 'vite-plugin-ssr';
 
+import svgFavicon from '@/assets/NewLogo.svg';
 import { author, ogImage } from '@/data/seo.js';
 import type { Locale } from '@/types/locale.js';
 
@@ -19,6 +20,7 @@ export const htmlLayout = (data: {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta charset="utf-8" />
         ${data.urlCanonical ? escapeInject`<link rel="canonical" href="${data.urlCanonical}">` : ''}
+        <link rel="icon" href="${svgFavicon}" sizes="any" type="image/svg+xml">
         
         <title>${data.title}</title>
         <meta name="description" content="${data.description}" >

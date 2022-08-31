@@ -1,6 +1,18 @@
 <template>
   <section class="relative overflow-hidden">
-    <AsyncBlobs v-if="isBrowser" />
+    <ClientOnly>
+      <template #default>
+        <BlurryBlob
+          color="purple"
+          class="w-[324px] h-[410px] rotate-[28deg] -right-[100px] -bottom-[30px]"
+        />
+        <BlurryBlob
+          color="blue"
+          class="w-[308px] h-[420px] -rotate-[26deg] -left-[100px] -bottom-[80px]"
+        />
+      </template>
+    </ClientOnly>
+    
     <div class="container">
       <div class="inline-flex flex-col items-center w-full pt-28 pb-40">
         <h1 class="font-bold text-7xl text-center">
@@ -42,15 +54,8 @@
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent } from 'vue';
-
-import { useBrowser } from '@/hooks/useBrowser.js';
-
-const { isBrowser } = useBrowser();
-
-const AsyncBlobs = defineAsyncComponent(async () => {
-  return (await import('@/components/landing/FirstScreenBlobs.vue')).default;
-});
+import BlurryBlob from '@/components/BlurryBlob.vue';
+import ClientOnly from '@/components/ClientOnly';
 </script>
 
 <style lang="postcss">
