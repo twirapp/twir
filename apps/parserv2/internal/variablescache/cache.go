@@ -3,16 +3,17 @@ package variablescache
 import (
 	"regexp"
 	"sync"
-	"tsuwari/parser/internal/helix"
+	"tsuwari/parser/internal/config/twitch"
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/go-redis/redis/v9"
+	"github.com/nicklaw5/helix"
 )
 
 type VariablesCacheServices struct {
-	Redis     *redis.Client
-	Regexp    regexp.Regexp
-	TwitchApi *helix.Client
+	Redis  *redis.Client
+	Regexp regexp.Regexp
+	Twitch *twitch.Twitch
 }
 
 type VariablesCacheContext struct {
@@ -32,7 +33,7 @@ type VariablesCache struct {
 	Stream *helix.Stream
 }
 
-func New(text string, senderId string, channelId string, senderName *string, redis *redis.Client, r regexp.Regexp) *VariablesCacheService {
+func New(text string, senderId string, channelId string, senderName *string, redis *redis.Client, r regexp.Regexp, twitch *twitch.Twitch) *VariablesCacheService {
 	cache := &VariablesCacheService{
 		Context: VariablesCacheContext{
 			ChannelId:  channelId,
@@ -43,6 +44,7 @@ func New(text string, senderId string, channelId string, senderName *string, red
 		Services: VariablesCacheServices{
 			Redis:  redis,
 			Regexp: r,
+			Twitch: twitch,
 		},
 		Cache: VariablesCache{
 			Stream: nil,
@@ -61,6 +63,8 @@ func (c *VariablesCacheService) fillCache() {
 	}
 	requesting := []string{}
 	wg := sync.WaitGroup{}
+
+	c.Services.Twitch.RefreshIfNeeded()
 
 	for _, match := range matches {
 		if match[1] == "" {
@@ -84,7 +88,7 @@ func (c *VariablesCacheService) fillCache() {
 func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	stream, err := c.Services.TwitchApi.GetStreams(&helix.StreamsParams{
+	stream, err := c.Services.Twitch.Client.GetStreams(&helix.StreamsParams{
 		UserIDs: []string{c.Context.ChannelId},
 	})
 
