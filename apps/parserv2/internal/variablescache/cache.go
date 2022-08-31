@@ -3,14 +3,16 @@ package variablescache
 import (
 	"regexp"
 	"sync"
+	"tsuwari/parser/internal/helix"
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/go-redis/redis/v9"
 )
 
 type VariablesCacheServices struct {
-	Redis  *redis.Client
-	Regexp regexp.Regexp
+	Redis     *redis.Client
+	Regexp    regexp.Regexp
+	TwitchApi *helix.Client
 }
 
 type VariablesCacheContext struct {
@@ -27,7 +29,7 @@ type VariablesCacheService struct {
 }
 
 type VariablesCache struct {
-	StreamId *string
+	Stream *helix.Stream
 }
 
 func New(text string, senderId string, channelId string, senderName *string, redis *redis.Client, r regexp.Regexp) *VariablesCacheService {
@@ -43,7 +45,7 @@ func New(text string, senderId string, channelId string, senderName *string, red
 			Regexp: r,
 		},
 		Cache: VariablesCache{
-			StreamId: nil,
+			Stream: nil,
 		},
 	}
 
@@ -82,10 +84,13 @@ func (c *VariablesCacheService) fillCache() {
 func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	if c.Cache.StreamId != nil {
+	stream, err := c.Services.TwitchApi.GetStreams(&helix.StreamsParams{
+		UserIDs: []string{c.Context.ChannelId},
+	})
+
+	if err != nil || stream.Data.Streams == nil {
 		return
 	}
 
-	streamId := "qwe"
-	c.Cache.StreamId = &streamId
+	c.Cache.Stream = &stream.Data.Streams[0]
 }

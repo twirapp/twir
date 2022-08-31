@@ -8,20 +8,24 @@ import (
 	"tsuwari/parser/internal/variables/stream/streamId"
 	variablescache "tsuwari/parser/internal/variablescache"
 
+	helix "tsuwari/parser/internal/helix"
+
 	"github.com/go-redis/redis/v9"
 )
 
 type Variables struct {
-	Store map[string]types.Variable
-	Redis *redis.Client
+	Store     map[string]types.Variable
+	Redis     *redis.Client
+	TwitchApi *helix.Client
 }
 
 var Regexp = regexp.MustCompile(`(?m)\$\((?P<all>(?P<main>[^.)|]+)(?:\.[^)|]+)?)(?:\|(?P<params>[^)]+))?\)`)
 
-func New(redis *redis.Client) Variables {
+func New(redis *redis.Client, twitchApi *helix.Client) Variables {
 	ctx := Variables{
-		Store: make(map[string]types.Variable),
-		Redis: redis,
+		Store:     make(map[string]types.Variable),
+		Redis:     redis,
+		TwitchApi: twitchApi,
 	}
 
 	ctx.Store[random.Name] = types.Variable{

@@ -6,8 +6,10 @@ import (
 )
 
 type Config struct {
-	NatsUrl  string `required:"true" default:"nats://localhost:4222" envconfig:"NATS_URL"`
-	RedisUrl string `required:"true" default:"redis://localhost:6379/0" envconfig:"REDIS_URL"`
+	NatsUrl            string `required:"true" default:"nats://localhost:4222" envconfig:"NATS_URL"`
+	RedisUrl           string `required:"true" default:"redis://localhost:6379/0" envconfig:"REDIS_URL"`
+	TwitchClientId     string `required:"true" envconfig:"TWITCH_CLIENTID"`
+	TwitchClientSecret string `required:"true" envconfig:"TWITCH_CLIENTSECRET"`
 }
 
 func New() (*Config, error) {
