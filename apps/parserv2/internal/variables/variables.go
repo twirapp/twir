@@ -12,16 +12,16 @@ import (
 )
 
 type Variables struct {
-	Store  map[string]types.Variable
-	Regexp *regexp.Regexp
-	Redis  *redis.Client
+	Store map[string]types.Variable
+	Redis *redis.Client
 }
+
+var Regexp = regexp.MustCompile(`(?m)\$\((?P<all>(?P<main>[^.)|]+)(?:\.[^)|]+)?)(?:\|(?P<params>[^)]+))?\)`)
 
 func New(redis *redis.Client) Variables {
 	ctx := Variables{
-		Store:  make(map[string]types.Variable),
-		Regexp: regexp.MustCompile(`(?m)\$\((?P<all>(?P<main>[^.)|]+)(?:\.[^)|]+)?)(?:\|(?P<params>[^)]+))?\)`),
-		Redis:  redis,
+		Store: make(map[string]types.Variable),
+		Redis: redis,
 	}
 
 	ctx.Store[random.Name] = types.Variable{
@@ -41,8 +41,8 @@ func New(redis *redis.Client) Variables {
 }
 
 func (c Variables) ParseInput(cache *variablescache.VariablesCacheService, input string) string {
-	result := c.Regexp.ReplaceAllStringFunc(input, func(s string) string {
-		v := c.Regexp.FindStringSubmatch(s)
+	result := Regexp.ReplaceAllStringFunc(input, func(s string) string {
+		v := Regexp.FindStringSubmatch(s)
 		// main := v[1]
 		all := v[2]
 		params := v[3]

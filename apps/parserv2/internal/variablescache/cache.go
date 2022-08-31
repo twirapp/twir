@@ -1,7 +1,6 @@
 package variablescache
 
 import (
-	"log"
 	"regexp"
 	"sync"
 	"tsuwari/parser/pkg/helpers"
@@ -78,7 +77,6 @@ func (c *VariablesCacheService) fillCache() {
 	}
 
 	wg.Wait()
-	log.Println("fillCache done")
 }
 
 func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {

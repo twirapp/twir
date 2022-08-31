@@ -62,9 +62,11 @@ func (c Commands) GetChannelCommands(channelId string) (*[]types.Command, error)
 	return &cmds, nil
 }
 
+var splittedNameRegexp = regexp.MustCompile(`[^\s]+`)
+
 func (c Commands) FindByMessage(input string, cmds *[]types.Command) *types.Command {
 	msg := strings.ToLower(input)
-	splittedName := regexp.MustCompile(`[^\s]+`).FindAllString(msg, -1)
+	splittedName := splittedNameRegexp.FindAllString(msg, -1)
 
 	var cmd *types.Command
 
@@ -112,7 +114,7 @@ func (c Commands) ParseCommandResponses(command *types.Command, data testproto.R
 	for i, r := range responses {
 		wg.Add(1)
 		// TODO: concatenate all responses into one slice and use it for cache
-		cacheService := variablescache.New(r, data.Sender.Id, data.Channel.Id, &data.Sender.Name, c.redis, *c.variablesService.Regexp)
+		cacheService := variablescache.New(r, data.Sender.Id, data.Channel.Id, &data.Sender.Name, c.redis, *variables.Regexp)
 
 		go func(i int, r string) {
 			defer wg.Done()
