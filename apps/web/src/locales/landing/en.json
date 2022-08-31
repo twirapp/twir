@@ -1,0 +1,9 @@
+{
+  "hello": "Hello",
+  "navMenu": [
+    { "id": 1, "name": "Features", "href": "#" },
+    { "id": 2, "name": "Reviews", "href": "#" },
+    { "id": 3, "name": "Pricing", "href": "#" },
+    { "id": 4, "name": "Team", "href": "#" }
+  ]
+}

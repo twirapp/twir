@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "removeComments": true,
+    "outDir": "dist/server",
+    "skipLibCheck": true
+  },
+  "include": ["src/server"]
+}
