@@ -1,7 +1,6 @@
 <template>
   <section class="relative overflow-hidden">
-    <img class="absolute -z-10 -right-[500px] -bottom-[400px]" src="@/assets/BlobPurple.svg" />
-    <img class="absolute -left-[440px]" src="@/assets/BlobBlue.svg" />
+    <AsyncBlobs v-if="isBrowser" />
     <div class="container">
       <div class="inline-flex flex-col items-center w-full pt-28 pb-40">
         <h1 class="font-bold text-7xl text-center">
@@ -41,6 +40,18 @@
     </div>
   </section>
 </template>
+
+<script lang="ts" setup>
+import { defineAsyncComponent } from 'vue';
+
+import { useBrowser } from '@/hooks/useBrowser.js';
+
+const { isBrowser } = useBrowser();
+
+const AsyncBlobs = defineAsyncComponent(async () => {
+  return (await import('@/components/landing/FirstScreenBlobs.vue')).default;
+});
+</script>
 
 <style lang="postcss">
 .gradient-title {

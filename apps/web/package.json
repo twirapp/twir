@@ -4,10 +4,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "pnpm build:app && pnpm build:server",
+    "build:app": "vite build",
+    "build:server": "tsc -p tsconfig.server.json",
     "serve:dev": "cross-env NODE_ENV=development PORT=3000 node ./dist/server/index.js",
-    "serve:prod": "cross-env NODE_ENV=production PORT=3000 node ./dist/server/index.js",
-    "build:server": "tsc -p tsconfig.server.json"
+    "serve:prod": "cross-env NODE_ENV=production PORT=3000 node ./dist/server/index.js"
   },
   "devDependencies": {
     "@intlify/vite-plugin-vue-i18n": "6.0.1",
@@ -17,6 +18,7 @@
     "@tsuwari/ui-theme": "workspace:*",
     "@vitejs/plugin-vue": "^3.0.3",
     "@vue/server-renderer": "^3.2.37",
+    "@vueuse/core": "9.1.0",
     "autoprefixer": "^10.4.8",
     "postcss": "^8.4.16",
     "swiper": "^8.3.2",

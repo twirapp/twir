@@ -29,9 +29,7 @@
       @mouseenter="slider?.autoplay.stop()"
       @mouseleave="slider?.autoplay.start()"
     >
-      <SwiperSlide
-        v-for="item in reviews" :key="item.id" style="width: 380px" 
-      >
+      <SwiperSlide v-for="item in reviews" :key="item.id" style="width: 380px">
         <ReviewCard
           :username="item.username"
           :comment="item.comment"
@@ -50,7 +48,7 @@ import { ref } from 'vue';
 
 import 'swiper/css';
 
-import ReviewCard from '@/components/ReviewCard.vue';
+import ReviewCard from '@/components/landing/ReviewCard.vue';
 import type { Review } from '@/types/review';
 
 const slider = ref<ISwiper | null>(null);
@@ -62,6 +60,4 @@ const setSwiper = (swiper: ISwiper) => {
 const modules = [Autoplay];
 
 defineProps<{reviews: Review[]}>();
-
-
 </script>
