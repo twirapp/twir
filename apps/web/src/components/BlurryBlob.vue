@@ -1,18 +1,21 @@
 <template>
-  <div class="blob purple-blob" :style="blobStyles"></div>
-  <div class="blob blue-blob" :style="blobStyles"></div>
+  <div :class="`blob ${color}-blob`" :style="blobStyles"></div>
 </template>
 
 <script lang="ts" setup>
 import { computed, StyleValue } from 'vue';
 
 const blobStyles = computed<StyleValue>(() => {
-  // In Firefox the blur is not the same as everywhere else and the color transparency is too high
+  // In Firefox the blur is not the same as everywhere else and the color saturation is too high
   if (window.navigator.userAgent.includes('Firefox')) {
     return { animation: 'fadeInFirefox 1s', opacity: '0.25' };
   }
   return { animation: 'fadeIn 1s', opacity: '0.6' };
 });
+
+defineProps<{
+  color: 'purple' | 'blue' | 'cyan';
+}>();
 </script>
 
 <style lang="postcss">
@@ -21,7 +24,6 @@ const blobStyles = computed<StyleValue>(() => {
   filter: blur(180px);
   position: absolute;
   border-radius: 50%;
-  animation: fadeIn 1s;
 }
 
 @keyframes fadeInFirefox {
@@ -43,20 +45,14 @@ const blobStyles = computed<StyleValue>(() => {
 }
 
 .purple-blob {
-  width: 324px;
-  height: 410px;
-  transform: rotate(28deg);
-  right: -100px;
-  bottom: -40px;
   background-color: theme('colors.purple.60');
 }
 
 .blue-blob {
-  width: 308px;
-  height: 420px;
-  transform: rotate(-26deg);
-  left: -100px;
-  bottom: -80px;
   background-color: #5767f8;
+}
+
+.cyan-blob {
+  background-color: #24777c;
 }
 </style>

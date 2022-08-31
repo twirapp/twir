@@ -1,9 +1,6 @@
 <template>
   <header
-    :class="`
-      header
-      ${isHeaderScrolled ? 'header-bb' : ''}
-    `"
+    :class="headerClasses"
   >
     <div class="flex container py-3 items-center justify-between">
       <div class="flex-1 flex">
@@ -19,14 +16,7 @@
           <li v-for="item in menuItems" :key="item.id">
             <a
               :href="rt(item.href)"
-              class="
-                leading-tight
-                px-3
-                py-[10px]
-                text-gray-70
-                transition-colors
-                hover:text-white-100
-              "
+              class="header-nav-link"
             >
               {{ rt(item.name) }}
             </a>
@@ -89,6 +79,12 @@ const { y } = useWindowScroll();
 const isHeaderScrolled = computed(() => {
   return y.value > 70;
 });
+
+const headerClasses = computed(() => (`
+    header
+    ${isHeaderScrolled.value ? 'header-bb' : ''}
+  `),
+);
 </script>
 
 <style lang="postcss" scoped>
@@ -100,14 +96,23 @@ const isHeaderScrolled = computed(() => {
     top-0
     mx-auto
     z-20
-    bg-black-10 bg-opacity-0
+    bg-black-10 bg-opacity-80
     border-b border-opacity-0 border-black-20
     backdrop-blur-sm backdrop-saturate-[180%];
 
-  transition: border-bottom-color 0.3s ease, background 0.3s ease;
+  transition: border-bottom-color 0.3s ease;
 }
 
 .header-bb {
-  @apply border-opacity-80 bg-opacity-80;
+  @apply border-opacity-80;
+}
+
+.header-nav-link {
+  @apply leading-tight
+    px-3
+    py-[10px]
+    text-gray-70
+    transition-colors
+    hover:text-white-100;
 }
 </style>
