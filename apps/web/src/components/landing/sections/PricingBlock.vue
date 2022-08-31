@@ -12,12 +12,19 @@
         </ul>
       </div>
       <img src="@/assets/Waves.svg" class="absolute -z-[1] -bottom-[270px] -right-[300px]" />
-      <img src="@/assets/BlobCyan.svg" class="absolute -z-[1] -top-[600px] -left-[280px]" />
+      <ClientOnly>
+        <BlurryBlob
+          class="w-[324px] h-[400px] rotate-90 -top-[250px] left-[60px]"
+          color="cyan"
+        />
+      </ClientOnly>
     </div>
   </section>
 </template>
 
 <script lang="ts" setup>
+import BlurryBlob from '@/components/BlurryBlob.vue';
+import ClientOnly from '@/components/ClientOnly';
 import PricingPlan from '@/components/landing/PricingPlan.vue';
 import type { PlanColorThemes } from '@/types/pricingPlan';
 import type { PricePlan } from '@/types/pricingPlan';
