@@ -2,9 +2,7 @@
   <section class="bg-black-15 py-24">
     <div class="relative container max-w-[1020px]">
       <div class="flex justify-between mb-10">
-        <h2 class="text-5xl font-semibold leading-[130%] text-center">
-          Our team
-        </h2>
+        <h2 class="text-5xl font-semibold leading-[130%] text-center">Our team</h2>
         <p class="text-[17px] text-gray-70 max-w-2xl">
           Sed eget leo adipiscing lectus nunc laoreet. Scelerisque est justo, pellentesque ut eu sit
           in. Suspendisse venenatis, odio dui a. Vivamus in fames augue blandit ut non sagittis,
@@ -27,10 +25,10 @@
 </template>
 
 <script lang="ts" setup>
-import TeamMemberCard from '@/components/TeamMemberCard.vue';
+import TeamMemberCard from '@/components/landing/TeamMemberCard.vue';
 import type { TeamMember } from '@/types/teamMember';
 
-defineProps<{teamMembers: TeamMember[]}>();
+defineProps<{ teamMembers: TeamMember[] }>();
 </script>
 
 <style lang="postcss">
