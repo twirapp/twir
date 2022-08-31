@@ -18,9 +18,9 @@
 </template>
 
 <script lang="ts" setup>
-import PricingPlan from '@/components/PricingPlan.vue';
+import PricingPlan from '@/components/landing/PricingPlan.vue';
 import type { PlanColorThemes } from '@/types/pricingPlan';
 import type { PricePlan } from '@/types/pricingPlan';
 
-defineProps<{pricePlans: PricePlan[], planColorThemes: PlanColorThemes}>();
+defineProps<{ pricePlans: PricePlan[]; planColorThemes: PlanColorThemes }>();
 </script>

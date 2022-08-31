@@ -10,4 +10,8 @@
     background-color: theme('colors.black.10');
     color: theme('colors.white.100');
   }
+
+  #app {
+    position: relative;
+  }
 }
