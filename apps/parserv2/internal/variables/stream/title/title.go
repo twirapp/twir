@@ -1,4 +1,4 @@
-package streamId
+package streamid
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	variablescache "tsuwari/parser/internal/variablescache"
 )
 
-const Name = "streamId"
+const Name = "stream.title"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}
@@ -14,7 +14,7 @@ func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandl
 	fmt.Println(ctx.Cache.Stream)
 
 	if ctx.Cache.Stream != nil {
-		result.Result = ctx.Cache.Stream.ID
+		result.Result = ctx.Cache.Stream.Title
 	} else {
 		result.Result = "no stream"
 	}

@@ -59,7 +59,7 @@ func New(text string, senderId string, channelId string, senderName *string, red
 func (c *VariablesCacheService) fillCache() {
 	matches := c.Services.Regexp.FindAllStringSubmatch(c.Context.Text, len(c.Context.Text))
 	myMap := map[string]interface{}{
-		"streamId": c.setChannelStream,
+		"stream": c.setChannelStream,
 	}
 	requesting := []string{}
 	wg := sync.WaitGroup{}
@@ -67,15 +67,15 @@ func (c *VariablesCacheService) fillCache() {
 	c.Services.Twitch.RefreshIfNeeded()
 
 	for _, match := range matches {
-		if match[1] == "" {
+		if match[2] == "" {
 			continue
 		}
 
-		if helpers.Contains(requesting, match[1]) {
+		if helpers.Contains(requesting, match[2]) {
 			continue
 		}
 
-		if val, ok := myMap[match[1]]; ok {
+		if val, ok := myMap[match[2]]; ok {
 			wg.Add(1)
 
 			go val.(func(wg *sync.WaitGroup))(&wg)
@@ -88,13 +88,13 @@ func (c *VariablesCacheService) fillCache() {
 func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	stream, err := c.Services.Twitch.Client.GetStreams(&helix.StreamsParams{
+	streams, err := c.Services.Twitch.Client.GetStreams(&helix.StreamsParams{
 		UserIDs: []string{c.Context.ChannelId},
 	})
 
-	if err != nil || stream.Data.Streams == nil {
+	if err != nil || streams.Data.Streams == nil {
 		return
 	}
 
-	c.Cache.Stream = &stream.Data.Streams[0]
+	c.Cache.Stream = &streams.Data.Streams[0]
 }

@@ -6,7 +6,8 @@ import (
 	types "tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables/random"
 	sender "tsuwari/parser/internal/variables/sender"
-	"tsuwari/parser/internal/variables/stream/streamId"
+	streamtitle "tsuwari/parser/internal/variables/stream/title"
+	streamuptime "tsuwari/parser/internal/variables/stream/uptime"
 	variablescache "tsuwari/parser/internal/variablescache"
 
 	"github.com/go-redis/redis/v9"
@@ -35,9 +36,13 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch) Variables {
 		Name:    sender.Name,
 		Handler: sender.Handler,
 	}
-	ctx.Store[streamId.Name] = types.Variable{
-		Name:    streamId.Name,
-		Handler: streamId.Handler,
+	ctx.Store[streamuptime.Name] = types.Variable{
+		Name:    streamuptime.Name,
+		Handler: streamuptime.Handler,
+	}
+	ctx.Store[streamtitle.Name] = types.Variable{
+		Name:    streamtitle.Name,
+		Handler: streamtitle.Handler,
 	}
 
 	return ctx
@@ -46,8 +51,8 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch) Variables {
 func (c Variables) ParseInput(cache *variablescache.VariablesCacheService, input string) string {
 	result := Regexp.ReplaceAllStringFunc(input, func(s string) string {
 		v := Regexp.FindStringSubmatch(s)
-		// main := v[1]
-		all := v[2]
+		all := v[1]
+		// main := v[2]
 		params := v[3]
 
 		if val, ok := c.Store[all]; ok {
