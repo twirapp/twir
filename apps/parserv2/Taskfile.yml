@@ -8,7 +8,7 @@ tasks:
   build:
     deps: [protogen]
     cmds:
-      - rm main
+      - rm main || true
       - go build cmd/main.go
   protogen:
     cmds:
