@@ -1,9 +1,12 @@
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-import fastify from 'fastify';
-import { renderPage } from 'vite-plugin-ssr';
+import compress from '@fastify/compress';
+import middie from '@fastify/middie';
+import { fastify } from 'fastify';
+import { PageContextBuiltIn, renderPage } from 'vite-plugin-ssr';
 
-import type { PageContext } from '@/types/pageContext.js';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const PORT = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === 'production' || false;
@@ -13,15 +16,13 @@ startServer();
 
 async function startServer() {
   try {
-    const app = fastify({
-      logger: isProduction ? true : false,
-    });
+    const app = fastify();
 
-    await app.register(import('@fastify/middie'));
-    await app.register(import('@fastify/compress'), { global: false });
+    await app.register(middie);
+    await app.register(compress, { global: false });
 
     if (isProduction) {
-      await app.register(import('@fastify/static'), {
+      await app.register((await import('@fastify/static')).default, {
         root: `${root}/dist/client`,
       });
     } else {
@@ -40,7 +41,7 @@ async function startServer() {
     app.get(isProduction ? '/app/*' : '*', async (req, res) => {
       const urlOriginal = `${req.protocol}://${req.hostname + req.url}`;
 
-      const pageContextInit: Partial<PageContext> = {
+      const pageContextInit: Partial<PageContextBuiltIn> = {
         urlOriginal,
       };
 
@@ -54,6 +55,8 @@ async function startServer() {
     });
 
     app.listen({ port: PORT });
+    await app.ready();
+
     console.log(`Server running at http://localhost:${PORT}`);
   } catch (error) {
     console.error(error);
