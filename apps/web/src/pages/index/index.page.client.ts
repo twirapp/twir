@@ -1,3 +1,4 @@
+import { landingPage } from '@/data/seo.js';
 import { createApp } from '@/pages/index/app';
 import '@/styles/tailwind.base.css';
 import type { Locale } from '@/types/locale.js';
@@ -23,5 +24,6 @@ async function render(pageContext: PageContext) {
   const locale = (pageContext.routeParams as { locale: Locale }).locale;
   pageContext.locale = locale;
 
+  document.title = landingPage[locale].title;
   app.changePage(pageContext);
 }
