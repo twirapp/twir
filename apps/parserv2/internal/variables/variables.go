@@ -8,6 +8,7 @@ import (
 	sender "tsuwari/parser/internal/variables/sender"
 	streamtitle "tsuwari/parser/internal/variables/stream/title"
 	streamuptime "tsuwari/parser/internal/variables/stream/uptime"
+	streamviewers "tsuwari/parser/internal/variables/stream/viewers"
 	variablescache "tsuwari/parser/internal/variablescache"
 
 	"github.com/go-redis/redis/v9"
@@ -43,6 +44,10 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch) Variables {
 	ctx.Store[streamtitle.Name] = types.Variable{
 		Name:    streamtitle.Name,
 		Handler: streamtitle.Handler,
+	}
+	ctx.Store[streamviewers.Name] = types.Variable{
+		Name:    streamviewers.Name,
+		Handler: streamviewers.Handler,
 	}
 
 	return ctx

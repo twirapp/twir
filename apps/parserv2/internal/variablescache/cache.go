@@ -1,8 +1,11 @@
 package variablescache
 
 import (
+	"context"
+	"encoding/json"
 	"regexp"
 	"sync"
+	"time"
 	"tsuwari/parser/internal/config/twitch"
 	"tsuwari/parser/pkg/helpers"
 
@@ -76,6 +79,7 @@ func (c *VariablesCacheService) fillCache() {
 		}
 
 		if val, ok := myMap[match[2]]; ok {
+			requesting = append(requesting, match[2])
 			wg.Add(1)
 
 			go val.(func(wg *sync.WaitGroup))(&wg)
@@ -88,12 +92,25 @@ func (c *VariablesCacheService) fillCache() {
 func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {
 	defer wg.Done()
 
+	rCtx := context.TODO()
+	cachedStream, _ := c.Services.Redis.Get(rCtx, "streams:"+c.Context.ChannelId).Result()
+
+	if cachedStream != "" {
+		json.Unmarshal([]byte(cachedStream), &c.Cache.Stream)
+		return
+	}
+
 	streams, err := c.Services.Twitch.Client.GetStreams(&helix.StreamsParams{
 		UserIDs: []string{c.Context.ChannelId},
 	})
 
 	if err != nil || streams.Data.Streams == nil {
 		return
+	}
+
+	forRedis, err := json.Marshal(streams.Data.Streams[0])
+	if err == nil {
+		go c.Services.Redis.Set(rCtx, "streams:"+c.Context.ChannelId, forRedis, time.Minute*5)
 	}
 
 	c.Cache.Stream = &streams.Data.Streams[0]

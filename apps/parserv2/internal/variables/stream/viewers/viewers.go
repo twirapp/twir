@@ -1,19 +1,20 @@
-package streamid
+package streamviewers
 
 import (
+	"strconv"
 	types "tsuwari/parser/internal/types"
 	variablescache "tsuwari/parser/internal/variablescache"
 )
 
-const Name = "stream.title"
+const Name = "stream.viewers"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}
 
 	if ctx.Cache.Stream != nil {
-		result.Result = ctx.Cache.Stream.Title
+		result.Result = strconv.Itoa(ctx.Cache.Stream.ViewerCount)
 	} else {
-		result.Result = "no stream"
+		result.Result = "offline"
 	}
 
 	return &result, nil
