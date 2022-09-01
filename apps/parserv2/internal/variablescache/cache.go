@@ -109,14 +109,14 @@ func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {
 		return
 	}
 
-	rData, err := json.Marshal(streams.Data.Streams[0])
-	if err == nil {
-		go c.Services.Redis.Set(rCtx, rKey, rData, time.Minute*5)
-	}
-
 	stream := stream.HelixStream{
 		Stream:   streams.Data.Streams[0],
 		Messages: 0,
+	}
+
+	rData, err := json.Marshal(stream)
+	if err == nil {
+		go c.Services.Redis.Set(rCtx, rKey, rData, time.Minute*5)
 	}
 
 	c.Cache.Stream = &stream
