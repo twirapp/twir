@@ -1,7 +1,5 @@
 <template>
-  <header
-    :class="headerClasses"
-  >
+  <header :class="headerClasses">
     <div class="flex container py-3 items-center justify-between">
       <div class="flex-1 flex">
         <div class="mr-auto">
@@ -13,13 +11,14 @@
       </div>
       <nav>
         <ul class="inline-grid grid-flow-col gap-x-2">
-          <li v-for="item in menuItems" :key="item.id">
-            <a
-              :href="rt(item.href)"
+          <li v-for="item in menuItems" :key="item.id" class="inline-flex">
+            <button
+              :data-section="navMenuHrefs[item.id]"
               class="header-nav-link"
+              @click.prevent="scrollToSection"
             >
               {{ rt(item.name) }}
-            </a>
+            </button>
           </li>
         </ul>
       </nav>
@@ -57,11 +56,23 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import LangSelect from '@/components/LangSelect/LangSelect.vue';
+import { navMenuHrefs } from '@/data/index';
 import type { Locale } from '@/types/locale.js';
-import type { NavMenuItem } from '@/types/navMenu';
+import type { NavMenuLocale } from '@/types/navMenu';
 import { loadLocaleMessages } from '@/utils/locales.js';
 
-defineProps<{ menuItems: NavMenuItem[] }>();
+defineProps<{ menuItems: NavMenuLocale[] }>();
+
+const scrollToSection = (e: Event) => {
+  const sectionId = (e.target as HTMLLinkElement).dataset.section as string;
+  const section = document.getElementById(sectionId);
+  if (!section) {
+    console.error('Section is not founded');
+    return;
+  }
+
+  window.scrollTo({ top: window.scrollY - 70 + section.getBoundingClientRect().top });
+};
 
 const { setLocaleMessage, locale: i18nLocale, rt } = useI18n();
 
@@ -80,10 +91,11 @@ const isHeaderScrolled = computed(() => {
   return y.value > 70;
 });
 
-const headerClasses = computed(() => (`
+const headerClasses = computed(
+  () => `
     header
     ${isHeaderScrolled.value ? 'header-bb' : ''}
-  `),
+  `,
 );
 </script>
 
@@ -109,6 +121,7 @@ const headerClasses = computed(() => (`
 
 .header-nav-link {
   @apply leading-tight
+    cursor-pointer
     px-3
     py-[10px]
     text-gray-70
