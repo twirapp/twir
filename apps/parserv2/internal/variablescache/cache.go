@@ -131,7 +131,10 @@ func (c *VariablesCacheService) setUser(wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	result := model.UsersStats{}
-	_ = c.Services.Db.Where(`"userId" = ? AND "channelId" = ?`, c.Context.SenderId, c.Context.ChannelId).Find(&result).Error
-	fmt.Println(c.Context.SenderId, c.Context.ChannelId, result)
-	c.Cache.DbUserStats = &result
+	err := c.Services.Db.Where(`"userId" = ? AND "channelId" = ?`, c.Context.SenderId, c.Context.ChannelId).Find(&result).Error
+	if err != nil {
+		c.Cache.DbUserStats = &result
+	} else {
+		fmt.Errorf("Cannot fetch user! %v", err)
+	}
 }

@@ -13,6 +13,7 @@ import (
 	streamtitle "tsuwari/parser/internal/variables/stream/title"
 	streamuptime "tsuwari/parser/internal/variables/stream/uptime"
 	streamviewers "tsuwari/parser/internal/variables/stream/viewers"
+	userfollowage "tsuwari/parser/internal/variables/user/followage"
 	usermessages "tsuwari/parser/internal/variables/user/messages"
 	variablescache "tsuwari/parser/internal/variablescache"
 
@@ -76,6 +77,11 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch, db *gorm.DB) Variables {
 	ctx.Store[usermessages.Name] = types.Variable{
 		Name:    usermessages.Name,
 		Handler: usermessages.Handler,
+	}
+
+	ctx.Store[userfollowage.Name] = types.Variable{
+		Name:    userfollowage.Name,
+		Handler: userfollowage.Handler,
 	}
 
 	return ctx
