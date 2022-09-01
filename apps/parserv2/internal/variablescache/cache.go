@@ -116,7 +116,7 @@ func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {
 
 	rData, err := json.Marshal(stream)
 	if err == nil {
-		go c.Services.Redis.Set(rCtx, rKey, rData, time.Minute*5)
+		c.Services.Redis.Set(rCtx, rKey, rData, time.Minute*5)
 	}
 
 	c.Cache.Stream = &stream

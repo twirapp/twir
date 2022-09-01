@@ -7,10 +7,14 @@ import (
 	helix "github.com/nicklaw5/helix"
 )
 
-type Twitch struct {
+type Token struct {
 	tokenExpiresIn *int
 	tokenCreatedAt *int64
-	Client         *helix.Client
+}
+
+type Twitch struct {
+	Token
+	Client *helix.Client
 }
 
 func New(cfg cfg.Config) *Twitch {
@@ -26,6 +30,7 @@ func New(cfg cfg.Config) *Twitch {
 
 	twitch := Twitch{
 		Client: client,
+		Token:  Token{},
 	}
 
 	twitch.RefreshIfNeeded()
@@ -33,24 +38,25 @@ func New(cfg cfg.Config) *Twitch {
 	return &twitch
 }
 
-func (c Twitch) setExpiresAndCreated(expiresIn int) {
-	c.tokenExpiresIn = &expiresIn
+func (c *Twitch) setExpiresAndCreated(expiresIn int) {
+	exp := expiresIn - 100
+	c.Token.tokenExpiresIn = &exp
 	t := time.Now().Unix()
-	c.tokenCreatedAt = &t
+	c.Token.tokenCreatedAt = &t
 }
 
-func (c Twitch) isTokenValid() bool {
+func (c *Twitch) isTokenValid() bool {
 	if c.tokenCreatedAt == nil || c.tokenExpiresIn == nil {
 		return false
 	}
 
 	curr := time.Now().UnixMilli()
-	isExpired := curr > (*c.tokenCreatedAt + int64(*c.tokenExpiresIn))
+	isExpired := curr > (*c.Token.tokenCreatedAt + int64(*c.Token.tokenExpiresIn))
 
 	return isExpired
 }
 
-func (c Twitch) RefreshIfNeeded() {
+func (c *Twitch) RefreshIfNeeded() {
 	if c.isTokenValid() {
 		return
 	}
