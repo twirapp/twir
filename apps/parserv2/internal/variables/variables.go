@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"tsuwari/parser/internal/config/twitch"
 	types "tsuwari/parser/internal/types"
+	emotes7tv "tsuwari/parser/internal/variables/emotes/7tv"
+	emotesffz "tsuwari/parser/internal/variables/emotes/ffz"
 	"tsuwari/parser/internal/variables/random"
 	sender "tsuwari/parser/internal/variables/sender"
 	streamcategory "tsuwari/parser/internal/variables/stream/category"
@@ -53,6 +55,14 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch) Variables {
 	ctx.Store[streamcategory.Name] = types.Variable{
 		Name:    streamcategory.Name,
 		Handler: streamcategory.Handler,
+	}
+	ctx.Store[emotesffz.Name] = types.Variable{
+		Name:    emotesffz.Name,
+		Handler: emotesffz.Handler,
+	}
+	ctx.Store[emotes7tv.Name] = types.Variable{
+		Name:    emotes7tv.Name,
+		Handler: emotes7tv.Handler,
 	}
 
 	return ctx
