@@ -19,12 +19,19 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/encoders/protobuf"
 	proto "google.golang.org/protobuf/proto"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func main() {
 	cfg, err := cfg.New()
 	if err != nil || cfg == nil {
 		panic("Cannot load config of application")
+	}
+
+	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
 	}
 
 	r := redis.New(cfg.RedisUrl)
@@ -38,8 +45,8 @@ func main() {
 	defer n.Close()
 
 	twitchClient := twitch.New(*cfg)
-	variablesService := variables.New(r, twitchClient)
-	commandsService := commands.New(r, variablesService)
+	variablesService := variables.New(r, twitchClient, db)
+	commandsService := commands.New(r, variablesService, db)
 	natsHandler := natshandler.New(r, variablesService, commandsService)
 
 	if err != nil {

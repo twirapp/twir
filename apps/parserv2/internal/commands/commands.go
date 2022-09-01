@@ -15,19 +15,22 @@ import (
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/go-redis/redis/v9"
+	"gorm.io/gorm"
 )
 
 type Commands struct {
 	defaultCommands  map[string]*types.DefaultCommand
 	redis            *redis.Client
 	variablesService variables.Variables
+	Db               *gorm.DB
 }
 
-func New(redis *redis.Client, variablesService variables.Variables) Commands {
+func New(redis *redis.Client, variablesService variables.Variables, db *gorm.DB) Commands {
 	ctx := Commands{
 		redis:            redis,
 		defaultCommands:  make(map[string]*types.DefaultCommand),
 		variablesService: variablesService,
+		Db:               db,
 	}
 
 	ctx.defaultCommands[testcommand.Command.Name] = &testcommand.Command
@@ -114,7 +117,7 @@ func (c Commands) ParseCommandResponses(command *types.Command, data testproto.R
 	for i, r := range responses {
 		wg.Add(1)
 		// TODO: concatenate all responses into one slice and use it for cache
-		cacheService := variablescache.New(r, data.Sender.Id, data.Channel.Id, &data.Sender.Name, c.redis, *variables.Regexp, c.variablesService.Twitch)
+		cacheService := variablescache.New(r, data.Sender.Id, data.Channel.Id, &data.Sender.Name, c.redis, *variables.Regexp, c.variablesService.Twitch, c.Db)
 
 		go func(i int, r string) {
 			defer wg.Done()

@@ -13,3 +13,10 @@ tasks:
   protogen:
     cmds:
       - protoc --proto_path=. --go_out=./internal/proto --go_opt=paths=source_relative test.proto
+  models:
+    cmds:
+      - doppler run -- sqlboiler psql --wipe -o internal/models
+
+  models2:
+    cmds:
+      - gen --sqltype=postgres --connstr $DATABASE_URL --model=models --database tsuwari --json --gorm --out ./internal/models --json-fmt=snake --overwrite

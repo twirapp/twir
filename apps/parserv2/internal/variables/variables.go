@@ -13,24 +13,28 @@ import (
 	streamtitle "tsuwari/parser/internal/variables/stream/title"
 	streamuptime "tsuwari/parser/internal/variables/stream/uptime"
 	streamviewers "tsuwari/parser/internal/variables/stream/viewers"
+	usermessages "tsuwari/parser/internal/variables/user/messages"
 	variablescache "tsuwari/parser/internal/variablescache"
 
 	"github.com/go-redis/redis/v9"
+	"gorm.io/gorm"
 )
 
 type Variables struct {
 	Store  map[string]types.Variable
 	Redis  *redis.Client
 	Twitch *twitch.Twitch
+	Db     *gorm.DB
 }
 
 var Regexp = regexp.MustCompile(`(?m)\$\((?P<all>(?P<main>[^.)|]+)(?:\.[^)|]+)?)(?:\|(?P<params>[^)]+))?\)`)
 
-func New(redis *redis.Client, twitchApi *twitch.Twitch) Variables {
+func New(redis *redis.Client, twitchApi *twitch.Twitch, db *gorm.DB) Variables {
 	ctx := Variables{
 		Store:  make(map[string]types.Variable),
 		Redis:  redis,
 		Twitch: twitchApi,
+		Db:     db,
 	}
 
 	ctx.Store[random.Name] = types.Variable{
@@ -68,6 +72,10 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch) Variables {
 	ctx.Store[emotesbttv.Name] = types.Variable{
 		Name:    emotesbttv.Name,
 		Handler: emotesbttv.Handler,
+	}
+	ctx.Store[usermessages.Name] = types.Variable{
+		Name:    usermessages.Name,
+		Handler: usermessages.Handler,
 	}
 
 	return ctx

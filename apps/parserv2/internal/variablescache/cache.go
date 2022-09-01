@@ -3,21 +3,25 @@ package variablescache
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"regexp"
 	"sync"
 	"time"
 	"tsuwari/parser/internal/config/twitch"
+	model "tsuwari/parser/internal/models"
 	"tsuwari/parser/internal/variables/stream"
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/go-redis/redis/v9"
 	"github.com/nicklaw5/helix"
+	"gorm.io/gorm"
 )
 
 type VariablesCacheServices struct {
 	Redis  *redis.Client
 	Regexp regexp.Regexp
 	Twitch *twitch.Twitch
+	Db     *gorm.DB
 }
 
 type VariablesCacheContext struct {
@@ -34,10 +38,11 @@ type VariablesCacheService struct {
 }
 
 type VariablesCache struct {
-	Stream *stream.HelixStream
+	Stream      *stream.HelixStream
+	DbUserStats *model.UsersStats
 }
 
-func New(text string, senderId string, channelId string, senderName *string, redis *redis.Client, r regexp.Regexp, twitch *twitch.Twitch) *VariablesCacheService {
+func New(text string, senderId string, channelId string, senderName *string, redis *redis.Client, r regexp.Regexp, twitch *twitch.Twitch, db *gorm.DB) *VariablesCacheService {
 	cache := &VariablesCacheService{
 		Context: VariablesCacheContext{
 			ChannelId:  channelId,
@@ -49,6 +54,7 @@ func New(text string, senderId string, channelId string, senderName *string, red
 			Redis:  redis,
 			Regexp: r,
 			Twitch: twitch,
+			Db:     db,
 		},
 		Cache: VariablesCache{
 			Stream: nil,
@@ -64,6 +70,7 @@ func (c *VariablesCacheService) fillCache() {
 	matches := c.Services.Regexp.FindAllStringSubmatch(c.Context.Text, len(c.Context.Text))
 	myMap := map[string]interface{}{
 		"stream": c.setChannelStream,
+		"user":   c.setUser,
 	}
 	requesting := []string{}
 	wg := sync.WaitGroup{}
@@ -118,4 +125,13 @@ func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {
 	}
 
 	c.Cache.Stream = &stream
+}
+
+func (c *VariablesCacheService) setUser(wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	result := model.UsersStats{}
+	_ = c.Services.Db.Where(`"userId" = ? AND "channelId" = ?`, c.Context.SenderId, c.Context.ChannelId).Find(&result).Error
+	fmt.Println(c.Context.SenderId, c.Context.ChannelId, result)
+	c.Cache.DbUserStats = &result
 }
