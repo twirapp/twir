@@ -1,4 +1,4 @@
-package userfollowage
+package userage
 
 import (
 	types "tsuwari/parser/internal/types"
@@ -8,24 +8,23 @@ import (
 	"github.com/nicklaw5/helix"
 )
 
-const Name = "user.followage"
+const Name = "user.age"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}
 
-	follow, err := ctx.Services.Twitch.Client.GetUsersFollows(&helix.UsersFollowsParams{
-		FromID: ctx.Context.SenderId,
-		ToID:   ctx.Context.ChannelId,
+	users, err := ctx.Services.Twitch.Client.GetUsers(&helix.UsersParams{
+		IDs: []string{ctx.Context.SenderId},
 	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	if len(follow.Data.Follows) == 0 {
+	if len(users.Data.Users) == 0 {
 		result.Result = "not a follower"
 	} else {
-		result.Result = helpers.Duration(follow.Data.Follows[0].FollowedAt)
+		result.Result = helpers.Duration(users.Data.Users[0].CreatedAt.Time)
 	}
 
 	return &result, nil
