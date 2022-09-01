@@ -1,6 +1,8 @@
 package types
 
-import variablescache "tsuwari/parser/internal/variablescache"
+import (
+	variablescache "tsuwari/parser/internal/variablescache"
+)
 
 type VariableHandlerParams struct {
 	Key    string

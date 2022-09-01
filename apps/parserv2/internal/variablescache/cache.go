@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 	"tsuwari/parser/internal/config/twitch"
+	"tsuwari/parser/internal/variables/stream"
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/go-redis/redis/v9"
@@ -33,7 +34,7 @@ type VariablesCacheService struct {
 }
 
 type VariablesCache struct {
-	Stream *helix.Stream
+	Stream *stream.HelixStream
 }
 
 func New(text string, senderId string, channelId string, senderName *string, redis *redis.Client, r regexp.Regexp, twitch *twitch.Twitch) *VariablesCacheService {
@@ -104,8 +105,7 @@ func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {
 	streams, err := c.Services.Twitch.Client.GetStreams(&helix.StreamsParams{
 		UserIDs: []string{c.Context.ChannelId},
 	})
-
-	if err != nil || streams.Data.Streams == nil {
+	if err != nil || len(streams.Data.Streams) == 0 {
 		return
 	}
 
@@ -114,5 +114,10 @@ func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {
 		go c.Services.Redis.Set(rCtx, rKey, rData, time.Minute*5)
 	}
 
-	c.Cache.Stream = &streams.Data.Streams[0]
+	stream := stream.HelixStream{
+		Stream:   streams.Data.Streams[0],
+		Messages: 0,
+	}
+
+	c.Cache.Stream = &stream
 }
