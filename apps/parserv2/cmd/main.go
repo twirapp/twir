@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
 	"tsuwari/parser/internal/commands"
 	"tsuwari/parser/internal/config/cfg"
 	mynats "tsuwari/parser/internal/config/nats"
@@ -51,6 +52,7 @@ func main() {
 	}) */
 
 	natsJson.Subscribe("parser.handleProcessCommand", func(m *nats.Msg) {
+		start := time.Now()
 		r := natsHandler.HandleProcessCommand(m)
 
 		if r != nil {
@@ -66,6 +68,8 @@ func main() {
 		} else {
 			m.Respond([]byte{})
 		}
+
+		log.Printf("Binomial took %s", time.Since(start))
 	})
 
 	fmt.Println("Started")
