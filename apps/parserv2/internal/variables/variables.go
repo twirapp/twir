@@ -5,6 +5,7 @@ import (
 	"tsuwari/parser/internal/config/twitch"
 	types "tsuwari/parser/internal/types"
 	emotes7tv "tsuwari/parser/internal/variables/emotes/7tv"
+	emotesbttv "tsuwari/parser/internal/variables/emotes/bttv"
 	emotesffz "tsuwari/parser/internal/variables/emotes/ffz"
 	"tsuwari/parser/internal/variables/random"
 	sender "tsuwari/parser/internal/variables/sender"
@@ -63,6 +64,10 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch) Variables {
 	ctx.Store[emotes7tv.Name] = types.Variable{
 		Name:    emotes7tv.Name,
 		Handler: emotes7tv.Handler,
+	}
+	ctx.Store[emotesbttv.Name] = types.Variable{
+		Name:    emotesbttv.Name,
+		Handler: emotesbttv.Handler,
 	}
 
 	return ctx
