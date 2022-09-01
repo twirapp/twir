@@ -15,7 +15,7 @@
           <div class="inline-grid grid-flow-col gap-x-8">
             <ul class="inline-grid grid-flow-col gap-x-6">
               <li v-for="item in menuItems" :key="item.id">
-                <a :href="rt(item.href)" class="leading-[130%]">{{ rt(item.name) }}</a>
+                <a :href="navMenuHrefs[item.id]" class="leading-[130%]">{{ item.name }}</a>
               </li>
             </ul>
             <ul class="inline-grid grid-flow-col gap-x-3">
@@ -29,15 +29,21 @@
           <span class="text-sm text-gray-60">© Tsuwari 2022. All rights reserved.</span>
         </div>
         <div class="inline-flex flex-col py-10 px-8 items-start">
-          <h6 class="text-2xl font-medium mb-5">
-            Subscribe for updates
-          </h6>
+          <h6 class="text-2xl font-medium mb-5">Subscribe for updates</h6>
           <p class="text-sm text-gray-60 mb-6">
-            Non rhoncus, neque arcu, commodo malesuada sed porttitor dictumst integer. Suscipit dictum quam ut blandit amet.
+            Non rhoncus, neque arcu, commodo malesuada sed porttitor dictumst integer. Suscipit
+            dictum quam ut blandit amet.
           </p>
           <form class="relative inline-flex max-w-[320px] w-full">
-            <input type="email" class=" w-full bg-black-10 text-sm rounded-full px-[18px] py-3 focus:outline-none" placeholder="Type your email" />
-            <button type="submit" class="inline-flex rounded-full p-2 bg-purple-60 z-[1] right-[4px] top-[4px] absolute">
+            <input
+              type="email"
+              class="w-full bg-black-10 text-sm rounded-full px-[18px] py-3 focus:outline-none"
+              placeholder="Type your email"
+            />
+            <button
+              type="submit"
+              class="inline-flex rounded-full p-2 bg-purple-60 z-[1] right-[4px] top-[4px] absolute"
+            >
               <TswArrowIcon arrowName="ArrowNarrowShort" class="stroke-white-100 w-5 h-5" />
             </button>
           </form>
@@ -49,12 +55,10 @@
 
 <script lang="ts" setup>
 import { TswIcon, TswArrowIcon } from '@tsuwari/ui-components';
-import { useI18n } from 'vue-i18n';
 
-import type { NavMenuItem } from '@/types/navMenu.js';
+import { navMenuHrefs } from '@/data/index';
+import type { NavMenuLocale } from '@/types/navMenu.js';
 import type { SocialMediaItem } from '@/types/socialMedia.js';
 
-defineProps<{ menuItems: NavMenuItem[], socials: SocialMediaItem[] }>();
-
-const { rt } = useI18n();
+defineProps<{ menuItems: NavMenuLocale[]; socials: SocialMediaItem[] }>();
 </script>

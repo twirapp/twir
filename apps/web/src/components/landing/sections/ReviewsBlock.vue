@@ -3,40 +3,46 @@
     <div class="container relative max-w-[980px] mt-20 mb-16">
       <img src="@/assets/CurveArrow.svg" class="absolute top-[30px] -left-[90px] -z-[1]" />
       <ClientOnly>
-        <BlurryBlob v-if="isBrowser" class="-top-[300px] -right-[140px] w-[490px] h-[276px] rotate-[27deg]" color="purple" />
+        <BlurryBlob
+          v-if="isBrowser"
+          class="-top-[300px] -right-[140px] w-[490px] h-[276px] rotate-[27deg]"
+          color="purple"
+        />
       </ClientOnly>
       <img src="@/assets/MessageCircle.svg" class="absolute -z-[1] -bottom-3 right-28" />
       <h2 class="text-5xl font-semibold max-w-xl leading-[125%]">
         Reviews from streamers and other viewers
       </h2>
     </div>
-    <Swiper
-      :space-between="24"
-      :autoplay="{
-        delay: 1,
-        disableOnInteraction: false,
-      }"
-      :speed="2000"
-      slidesPerView="auto"
-      :centeredSlides="true"
-      :centeredSlidesBounds="true"
-      :loop="true"
-      :grabCursor="true"
-      :modules="modules"
-      class="mb-20"
-      @swiper="setSwiper"
-      @mouseenter="slider?.autoplay.stop()"
-      @mouseleave="slider?.autoplay.start()"
-    >
-      <SwiperSlide v-for="item in reviews" :key="item.id" style="width: 380px">
-        <ReviewCard
-          :username="item.username"
-          :comment="item.comment"
-          :rating="item.rating"
-          :avatarUrl="item.avatarUrl"
-        />
-      </SwiperSlide>
-    </Swiper>
+    <ClientOnly>
+      <Swiper
+        :space-between="24"
+        :autoplay="{
+          delay: 1,
+          disableOnInteraction: false,
+        }"
+        :speed="2000"
+        slidesPerView="auto"
+        :centeredSlides="true"
+        :centeredSlidesBounds="true"
+        :loop="true"
+        :grabCursor="true"
+        :modules="modules"
+        class="mb-20"
+        @swiper="setSwiper"
+        @mouseenter="slider?.autoplay.stop()"
+        @mouseleave="slider?.autoplay.start()"
+      >
+        <SwiperSlide v-for="item in reviews" :key="item.id" style="width: 380px">
+          <ReviewCard
+            :username="item.username"
+            :comment="item.comment"
+            :rating="item.rating"
+            :avatarUrl="item.avatarUrl"
+          />
+        </SwiperSlide>
+      </Swiper>
+    </ClientOnly>
   </section>
 </template>
 

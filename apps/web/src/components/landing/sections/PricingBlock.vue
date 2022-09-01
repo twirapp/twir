@@ -13,10 +13,7 @@
       </div>
       <img src="@/assets/Waves.svg" class="absolute -z-[1] -bottom-[270px] -right-[300px]" />
       <ClientOnly>
-        <BlurryBlob
-          class="w-[324px] h-[400px] rotate-90 -top-[250px] left-[60px]"
-          color="cyan"
-        />
+        <BlurryBlob class="w-[324px] h-[400px] rotate-90 -top-[250px] left-[60px]" color="cyan" />
       </ClientOnly>
     </div>
   </section>
@@ -29,5 +26,8 @@ import PricingPlan from '@/components/landing/PricingPlan.vue';
 import type { PlanColorThemes } from '@/types/pricingPlan';
 import type { PricePlan } from '@/types/pricingPlan';
 
-defineProps<{ pricePlans: PricePlan[]; planColorThemes: PlanColorThemes }>();
+defineProps<{
+  pricePlans: PricePlan[];
+  planColorThemes: PlanColorThemes;
+}>();
 </script>
