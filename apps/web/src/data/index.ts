@@ -1,5 +1,6 @@
 import TextAvatarUrl from '@/assets/avatar.png';
 import type { BotFeature } from '@/types/botFeatures.js';
+import { NavMenuHrefs, NavMenuTabs } from '@/types/navMenu.js';
 import { FeatureType, PlanColorThemes, PlanId, PricePlan } from '@/types/pricingPlan.js';
 import type { Review } from '@/types/review.js';
 import type { SocialMediaItem } from '@/types/socialMedia.js';
@@ -10,6 +11,13 @@ export const socials: SocialMediaItem[] = [
   { id: 1, media: 'Telegram', href: '#' },
   { id: 2, media: 'Instagram', href: '#' },
 ];
+
+export const navMenuHrefs: NavMenuHrefs = {
+  [NavMenuTabs.features]: 'features',
+  [NavMenuTabs.reviews]: 'reviews',
+  [NavMenuTabs.pricing]: 'pricing',
+  [NavMenuTabs.team]: 'team',
+};
 
 export const reviews: Review[] = [
   {
