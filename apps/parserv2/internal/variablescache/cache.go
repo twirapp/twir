@@ -93,7 +93,8 @@ func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	rCtx := context.TODO()
-	cachedStream, _ := c.Services.Redis.Get(rCtx, "streams:"+c.Context.ChannelId).Result()
+	rKey := "streams:" + c.Context.ChannelId
+	cachedStream, _ := c.Services.Redis.Get(rCtx, rKey).Result()
 
 	if cachedStream != "" {
 		json.Unmarshal([]byte(cachedStream), &c.Cache.Stream)
@@ -108,9 +109,9 @@ func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {
 		return
 	}
 
-	forRedis, err := json.Marshal(streams.Data.Streams[0])
+	rData, err := json.Marshal(streams.Data.Streams[0])
 	if err == nil {
-		go c.Services.Redis.Set(rCtx, "streams:"+c.Context.ChannelId, forRedis, time.Minute*5)
+		go c.Services.Redis.Set(rCtx, rKey, rData, time.Minute*5)
 	}
 
 	c.Cache.Stream = &streams.Data.Streams[0]
