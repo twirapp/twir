@@ -92,6 +92,7 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch, db *gorm.DB) Variables {
 }
 
 func (c Variables) ParseInput(cache *variablescache.VariablesCacheService, input string) string {
+	// TODO: call handlers in gorutines
 	result := Regexp.ReplaceAllStringFunc(input, func(s string) string {
 		v := Regexp.FindStringSubmatch(s)
 		all := v[1]
