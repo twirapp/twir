@@ -33,15 +33,23 @@ func New(cfg cfg.Config) *Twitch {
 		Token:  Token{},
 	}
 
-	twitch.RefreshIfNeeded()
+	go func() {
+		for {
+			if !twitch.isTokenValid() {
+				exp := twitch.Refresh()
+				twitch.setExpiresAndCreated(exp)
+			}
+			time.Sleep(time.Duration(*twitch.Token.tokenExpiresIn) * time.Second)
+		}
+	}()
 
 	return &twitch
 }
 
 func (c *Twitch) setExpiresAndCreated(expiresIn int) {
-	exp := expiresIn - 100
+	exp := expiresIn
 	c.Token.tokenExpiresIn = &exp
-	t := time.Now().Unix()
+	t := time.Now().UnixMilli()
 	c.Token.tokenCreatedAt = &t
 }
 
@@ -56,11 +64,7 @@ func (c *Twitch) isTokenValid() bool {
 	return isExpired
 }
 
-func (c *Twitch) RefreshIfNeeded() {
-	if c.isTokenValid() {
-		return
-	}
-
+func (c *Twitch) Refresh() int {
 	token, err := c.Client.RequestAppAccessToken([]string{})
 
 	if err != nil {
@@ -68,5 +72,5 @@ func (c *Twitch) RefreshIfNeeded() {
 	}
 
 	c.Client.SetAppAccessToken(token.Data.AccessToken)
-	c.setExpiresAndCreated(token.Data.ExpiresIn)
+	return token.Data.ExpiresIn
 }

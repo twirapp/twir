@@ -68,8 +68,6 @@ func (c *VariablesCacheService) fillCache() {
 	requesting := []string{}
 	wg := sync.WaitGroup{}
 
-	c.Services.Twitch.RefreshIfNeeded()
-
 	for _, match := range matches {
 		if match[2] == "" {
 			continue
