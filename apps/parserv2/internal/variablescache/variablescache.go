@@ -3,7 +3,7 @@ package variablescache
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 	"regexp"
 	"sync"
@@ -211,20 +211,18 @@ type FaceitDbData struct {
 	Username string  `json:"username"`
 }
 
-func (c *VariablesCacheService) GetFaceitData() *FaceitGame {
+func (c *VariablesCacheService) GetFaceitData() (*FaceitGame, error) {
 	c.locks.faceitIntegration.Lock()
 	defer c.locks.faceitIntegration.Unlock()
 
 	if c.cache.FaceitData != nil {
-		return c.cache.FaceitData
+		return c.cache.FaceitData, nil
 	}
-
-	fmt.Println("calling faceit")
 
 	integrations := c.GetEnabledIntegrations()
 
 	if integrations == nil {
-		return nil
+		return nil, errors.New("integrations not enabled")
 	}
 
 	integration, ok := lo.Find(*integrations, func(i model.ChannelInegrationWithRelation) bool {
@@ -232,15 +230,14 @@ func (c *VariablesCacheService) GetFaceitData() *FaceitGame {
 	})
 
 	if !ok {
-		return nil
+		return nil, errors.New("faceit integration not enabled")
 	}
 
 	dbData := &FaceitDbData{}
-
 	err := json.Unmarshal([]byte(integration.Data.String), &dbData)
 
 	if err != nil {
-		return nil
+		return nil, errors.New("failed to read your faceit config. Are you sure you are using integration right?")
 	}
 
 	var game string
@@ -255,19 +252,21 @@ func (c *VariablesCacheService) GetFaceitData() *FaceitGame {
 	res, err := client.Do(req)
 
 	if err != nil {
-		return nil
+		return nil, errors.New("failed to fetch data from faceit")
 	}
 
 	data := FaceitResponse{}
 
 	err = json.NewDecoder(res.Body).Decode(&data)
 	if err != nil {
-		return nil
+		return nil, errors.New("failed to fetch data from faceit")
 	}
 
 	if data.Games[game] == nil {
-		return nil
+		return nil, errors.New("Game " + game + " not found in faceit response.")
 	}
 
-	return data.Games[game]
+	c.cache.FaceitData = data.Games[game]
+
+	return data.Games[game], nil
 }
