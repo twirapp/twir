@@ -198,7 +198,7 @@ func (c *VariablesCacheService) GetFaceitLatestMatches() *[]FaceitMatch {
 		match.EloDiff = &newMatchEloDiff
 		matches = append(matches, match)
 	}
-	fmt.Println(matches)
+
 	return &matches
 }
 
