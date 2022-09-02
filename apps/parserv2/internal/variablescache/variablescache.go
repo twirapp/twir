@@ -3,6 +3,7 @@ package variablescache
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"regexp"
 	"sync"
@@ -213,6 +214,12 @@ type FaceitDbData struct {
 func (c *VariablesCacheService) GetFaceitData() *FaceitGame {
 	c.locks.faceitIntegration.Lock()
 	defer c.locks.faceitIntegration.Unlock()
+
+	if c.cache.FaceitData != nil {
+		return c.cache.FaceitData
+	}
+
+	fmt.Println("calling faceit")
 
 	integrations := c.GetEnabledIntegrations()
 
