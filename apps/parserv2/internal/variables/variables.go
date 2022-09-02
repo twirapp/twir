@@ -2,6 +2,8 @@ package variables
 
 import (
 	"regexp"
+	"strings"
+	"sync"
 	"tsuwari/parser/internal/config/twitch"
 	types "tsuwari/parser/internal/types"
 	emotes7tv "tsuwari/parser/internal/variables/emotes/7tv"
@@ -92,28 +94,30 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch, db *gorm.DB) Variables {
 }
 
 func (c Variables) ParseInput(cache *variablescache.VariablesCacheService, input string) string {
-	// TODO: call handlers in gorutines
-	result := Regexp.ReplaceAllStringFunc(input, func(s string) string {
+	wg := sync.WaitGroup{}
+
+	for _, s := range Regexp.FindAllString(input, len(input)) {
+		wg.Add(1)
 		v := Regexp.FindStringSubmatch(s)
 		all := v[1]
-		// main := v[2]
 		params := v[3]
 
 		if val, ok := c.Store[all]; ok {
-			res, err := val.Handler(cache, types.VariableHandlerParams{
-				Key:    all,
-				Params: &params,
-			})
+			go func(s string) {
+				defer wg.Done()
+				res, err := val.Handler(cache, types.VariableHandlerParams{
+					Key:    all,
+					Params: &params,
+				})
 
-			if err != nil {
-				return string(err.Error())
-			} else {
-				return res.Result
-			}
+				if err == nil {
+					input = strings.ReplaceAll(input, s, res.Result)
+				}
+			}(s)
 		}
 
-		return s
-	})
+	}
 
-	return result
+	wg.Wait()
+	return input
 }

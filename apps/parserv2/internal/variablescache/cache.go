@@ -38,8 +38,10 @@ type VariablesCacheService struct {
 }
 
 type VariablesCache struct {
-	Stream      *stream.HelixStream
-	DbUserStats *model.UsersStats
+	Stream       *stream.HelixStream
+	DbUserStats  *model.UsersStats
+	TwitchUser   *helix.User
+	TwitchFollow *helix.UserFollow
 }
 
 func New(text string, senderId string, channelId string, senderName *string, redis *redis.Client, r regexp.Regexp, twitch *twitch.Twitch, db *gorm.DB) *VariablesCacheService {
@@ -66,29 +68,49 @@ func New(text string, senderId string, channelId string, senderName *string, red
 	return cache
 }
 
+type MapItem struct {
+	Instance string
+	Func     func(wg *sync.WaitGroup)
+}
+
 func (c *VariablesCacheService) fillCache() {
 	matches := c.Services.Regexp.FindAllStringSubmatch(c.Context.Text, len(c.Context.Text))
-	myMap := map[string]interface{}{
-		"stream": c.setChannelStream,
-		"user":   c.setUser,
+	myMap := map[string]MapItem{
+		"stream": {
+			Instance: "twitchStream",
+			Func:     c.setChannelStream,
+		},
+		"user.messages": {
+			Instance: "dbUser",
+			Func:     c.setUser,
+		},
+		"user.followage": {
+			Instance: "followage",
+			Func:     c.setFollowAge,
+		},
+		"user.age": {
+			Instance: "twitchUser",
+			Func:     c.setTwitchUser,
+		},
 	}
+
 	requesting := []string{}
 	wg := sync.WaitGroup{}
 
 	for _, match := range matches {
-		if match[2] == "" {
+		if match[1] == "" {
 			continue
 		}
 
-		if helpers.Contains(requesting, match[2]) {
-			continue
-		}
+		if val, ok := myMap[match[1]]; ok {
+			if helpers.Contains(requesting, val.Instance) {
+				continue
+			}
 
-		if val, ok := myMap[match[2]]; ok {
-			requesting = append(requesting, match[2])
+			requesting = append(requesting, val.Instance)
 			wg.Add(1)
 
-			go val.(func(wg *sync.WaitGroup))(&wg)
+			go val.Func(&wg)
 		}
 	}
 
@@ -136,5 +158,30 @@ func (c *VariablesCacheService) setUser(wg *sync.WaitGroup) {
 		c.Cache.DbUserStats = &result
 	} else {
 		fmt.Errorf("Cannot fetch user! %v", err)
+	}
+}
+
+func (c *VariablesCacheService) setTwitchUser(wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	users, err := c.Services.Twitch.Client.GetUsers(&helix.UsersParams{
+		IDs: []string{c.Context.SenderId},
+	})
+
+	if err == nil && len(users.Data.Users) != 0 {
+		c.Cache.TwitchUser = &users.Data.Users[0]
+	}
+}
+
+func (c *VariablesCacheService) setFollowAge(wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	follow, err := c.Services.Twitch.Client.GetUsersFollows(&helix.UsersFollowsParams{
+		FromID: c.Context.SenderId,
+		ToID:   c.Context.ChannelId,
+	})
+
+	if err == nil && len(follow.Data.Follows) != 0 {
+		c.Cache.TwitchFollow = &follow.Data.Follows[0]
 	}
 }
