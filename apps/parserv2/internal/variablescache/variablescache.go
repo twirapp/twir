@@ -76,7 +76,19 @@ type MapItem struct {
 func (c *VariablesCacheService) fillCache() {
 	matches := c.Services.Regexp.FindAllStringSubmatch(c.Context.Text, len(c.Context.Text))
 	myMap := map[string]MapItem{
-		"stream": {
+		"stream.title": {
+			Instance: "twitchStream",
+			Func:     c.setChannelStream,
+		},
+		"stream.uptime": {
+			Instance: "twitchStream",
+			Func:     c.setChannelStream,
+		},
+		"stream.category": {
+			Instance: "twitchStream",
+			Func:     c.setChannelStream,
+		},
+		"stream.viewers": {
 			Instance: "twitchStream",
 			Func:     c.setChannelStream,
 		},
@@ -101,7 +113,7 @@ func (c *VariablesCacheService) fillCache() {
 		if match[1] == "" {
 			continue
 		}
-
+		fmt.Println(match[1])
 		if val, ok := myMap[match[1]]; ok {
 			if helpers.Contains(requesting, val.Instance) {
 				continue

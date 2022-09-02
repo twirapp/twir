@@ -15,8 +15,9 @@ type VariableHandlerResult struct {
 
 type VariableHandler func(ctx *variablescache.VariablesCacheService, data VariableHandlerParams) (*VariableHandlerResult, error)
 type Variable struct {
-	Name    string
-	Handler VariableHandler
+	Name          string
+	Handler       VariableHandler
+	CacheInstance *string
 }
 
 type Command struct {
