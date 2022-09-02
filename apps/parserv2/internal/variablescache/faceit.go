@@ -13,7 +13,7 @@ import (
 
 type FaceitResult struct {
 	FaceitUser *FaceitUser
-	Matches    []*FaceitMatch `json:"matches"`
+	Matches    *[]FaceitMatch `json:"matches"`
 }
 
 type FaceitGame struct {
@@ -75,7 +75,7 @@ func (c *VariablesCacheService) GetFaceitUserData() *FaceitUser {
 	}
 
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "https://open.faceit.com/data/v4/players?nickname="+"Satonteu", nil)
+	req, _ := http.NewRequest("GET", "https://open.faceit.com/data/v4/players?nickname="+dbData.Username, nil)
 	req.Header.Set("Authorization", "Bearer "+integration.Integration.APIKey.String)
 	res, err := client.Do(req)
 
@@ -122,9 +122,9 @@ type FaceitMatch struct {
 	RawIsWin string `json:"i10"`
 }
 
-type FaceitMatchesResponse []*FaceitMatch
+type FaceitMatchesResponse []FaceitMatch
 
-func (c *VariablesCacheService) GetFaceitLatestMatches() []*FaceitMatch {
+func (c *VariablesCacheService) GetFaceitLatestMatches() *[]FaceitMatch {
 	c.locks.faceitMatches.Lock()
 	defer c.locks.faceitMatches.Unlock()
 
@@ -147,10 +147,10 @@ func (c *VariablesCacheService) GetFaceitLatestMatches() []*FaceitMatch {
 	reqResult := FaceitMatchesResponse{}
 	json.NewDecoder(res.Body).Decode(&reqResult)
 
-	matches := make([]*FaceitMatch, len(reqResult))
+	matches := []FaceitMatch{}
 	stream := c.GetChannelStream()
 	if stream == nil {
-		return matches
+		return &matches
 	}
 	startedDate := stream.StartedAt.UnixMilli()
 
@@ -165,19 +165,17 @@ func (c *VariablesCacheService) GetFaceitLatestMatches() []*FaceitMatch {
 			break
 		}
 
-		matches[i] = match
-
 		val := false
 		if match.RawIsWin == "1" {
 			val = true
 		}
-		matches[i].IsWin = val
+		match.IsWin = val
 
 		if i+1 >= len(reqResult)-1 {
 			break
 		}
 
-		prevMatch := reqResult[i+1]
+		prevMatch := &reqResult[i+1]
 		if prevMatch == nil || prevMatch.Elo == nil || match.Elo == nil {
 			continue
 		}
@@ -197,19 +195,20 @@ func (c *VariablesCacheService) GetFaceitLatestMatches() []*FaceitMatch {
 		}
 
 		newMatchEloDiff := strconv.Itoa(eloDiff)
-		matches[i].EloDiff = &newMatchEloDiff
+		match.EloDiff = &newMatchEloDiff
+		matches = append(matches, match)
 	}
-
-	return matches
+	fmt.Println(matches)
+	return &matches
 }
 
-func (c *VariablesCacheService) GetFaceitTodayEloDiff(matches []*FaceitMatch) int {
-	if len(matches) == 0 {
+func (c *VariablesCacheService) GetFaceitTodayEloDiff(matches *[]FaceitMatch) int {
+	if matches == nil {
 		return 0
 	}
 
-	sum := lo.Reduce(matches, func(agg int, item *FaceitMatch, _ int) int {
-		if item == nil || item.EloDiff == nil {
+	sum := lo.Reduce(*matches, func(agg int, item FaceitMatch, _ int) int {
+		if item.EloDiff == nil {
 			return agg
 		}
 		v, err := strconv.Atoi(*item.EloDiff)
