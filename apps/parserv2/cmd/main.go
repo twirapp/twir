@@ -21,6 +21,7 @@ import (
 	proto "google.golang.org/protobuf/proto"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 func main() {
@@ -29,7 +30,9 @@ func main() {
 		panic("Cannot load config of application")
 	}
 
-	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		panic("failed to connect database")
 	}

@@ -10,6 +10,7 @@ import (
 	emotesbttv "tsuwari/parser/internal/variables/emotes/bttv"
 	emotesffz "tsuwari/parser/internal/variables/emotes/ffz"
 	faceitelo "tsuwari/parser/internal/variables/faceit/elo"
+	faceitlvl "tsuwari/parser/internal/variables/faceit/lvl"
 	"tsuwari/parser/internal/variables/random"
 	sender "tsuwari/parser/internal/variables/sender"
 	streamcategory "tsuwari/parser/internal/variables/stream/category"
@@ -98,6 +99,10 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch, db *gorm.DB) Variables {
 	ctx.Store[faceitelo.Name] = types.Variable{
 		Name:    faceitelo.Name,
 		Handler: faceitelo.Handler,
+	}
+	ctx.Store[faceitlvl.Name] = types.Variable{
+		Name:    faceitlvl.Name,
+		Handler: faceitlvl.Handler,
 	}
 
 	return ctx

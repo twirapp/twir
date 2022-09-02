@@ -205,6 +205,11 @@ type FaceitResponse struct {
 	Games map[string]*FaceitGame `json:"games"`
 }
 
+type FaceitDbData struct {
+	Game     *string `json:"game"`
+	Username string  `json:"username"`
+}
+
 func (c *VariablesCacheService) GetFaceitData() *FaceitGame {
 	c.locks.faceitIntegration.Lock()
 	defer c.locks.faceitIntegration.Unlock()
@@ -223,6 +228,20 @@ func (c *VariablesCacheService) GetFaceitData() *FaceitGame {
 		return nil
 	}
 
+	dbData := &FaceitDbData{}
+
+	err := json.Unmarshal([]byte(integration.Data.String), &dbData)
+
+	if err != nil {
+		return nil
+	}
+
+	var game string
+
+	if dbData.Game == nil {
+		game = "csgo"
+	}
+
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", "https://open.faceit.com/data/v4/players?nickname="+"Satonteu", nil)
 	req.Header.Set("Authorization", "Bearer "+integration.Integration.APIKey.String)
@@ -239,9 +258,9 @@ func (c *VariablesCacheService) GetFaceitData() *FaceitGame {
 		return nil
 	}
 
-	if data.Games["csgo"] == nil {
+	if data.Games[game] == nil {
 		return nil
 	}
 
-	return data.Games["csgo"]
+	return data.Games[game]
 }
