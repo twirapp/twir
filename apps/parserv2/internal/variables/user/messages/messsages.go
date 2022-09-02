@@ -11,8 +11,9 @@ const Name = "user.messages"
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}
 
-	if ctx.Cache.DbUserStats != nil {
-		result.Result = strconv.Itoa(int(ctx.Cache.DbUserStats.Messages))
+	dbUser := ctx.GetGbUser()
+	if dbUser != nil {
+		result.Result = strconv.Itoa(int(dbUser.Messages))
 	} else {
 		result.Result = "0"
 	}

@@ -11,12 +11,13 @@ const Name = "stream.uptime"
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}
 
-	if ctx.Cache.Stream == nil {
+	stream := ctx.GetChannelStream()
+	if stream == nil {
 		result.Result = "offline"
 		return &result, nil
 	}
 
-	result.Result = helpers.Duration(ctx.Cache.Stream.StartedAt)
+	result.Result = helpers.Duration(stream.StartedAt)
 
 	return &result, nil
 }

@@ -11,10 +11,11 @@ const Name = "user.followage"
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}
 
-	if ctx.Cache.TwitchFollow == nil {
+	follow := ctx.GetFollowAge()
+	if follow == nil {
 		result.Result = "not a follower"
 	} else {
-		result.Result = helpers.Duration(ctx.Cache.TwitchFollow.FollowedAt)
+		result.Result = helpers.Duration(follow.FollowedAt)
 	}
 
 	return &result, nil

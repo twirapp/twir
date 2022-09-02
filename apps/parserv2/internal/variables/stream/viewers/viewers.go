@@ -11,8 +11,9 @@ const Name = "stream.viewers"
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}
 
-	if ctx.Cache.Stream != nil {
-		result.Result = strconv.Itoa(ctx.Cache.Stream.ViewerCount)
+	stream := ctx.GetChannelStream()
+	if stream != nil {
+		result.Result = strconv.Itoa(stream.ViewerCount)
 	} else {
 		result.Result = "offline"
 	}

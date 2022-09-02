@@ -37,12 +37,15 @@ func main() {
 	r := redis.New(cfg.RedisUrl)
 	defer r.Close()
 	n, err := mynats.New(cfg.NatsUrl)
+	if err != nil {
+		panic(err)
+	}
+	defer n.Close()
 	natsJson, err := nats.NewEncodedConn(n, protobuf.PROTOBUF_ENCODER)
 
 	if err != nil {
 		panic(err)
 	}
-	defer n.Close()
 
 	twitchClient := twitch.New(*cfg)
 	variablesService := variables.New(r, twitchClient, db)
@@ -54,8 +57,8 @@ func main() {
 	}
 
 	/* natsJson.Subscribe("proto", func(m *nats.Msg) {
-		fmt.Println(m.Data)
-		m.Respond([]byte(m.Reply))
+	fmt.Println(m.Data)
+	m.Respond([]byte(m.Reply))
 	}) */
 
 	natsJson.Subscribe("parser.handleProcessCommand", func(m *nats.Msg) {

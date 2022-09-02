@@ -11,10 +11,11 @@ const Name = "user.age"
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}
 
-	if ctx.Cache.TwitchUser == nil {
+	user := ctx.GetTwitchUser()
+	if user == nil {
 		result.Result = "error on getting user"
 	} else {
-		result.Result = helpers.Duration(ctx.Cache.TwitchUser.CreatedAt.Time)
+		result.Result = helpers.Duration(user.CreatedAt.Time)
 	}
 
 	return &result, nil

@@ -10,7 +10,6 @@ import (
 	"tsuwari/parser/internal/config/twitch"
 	model "tsuwari/parser/internal/models"
 	"tsuwari/parser/internal/variables/stream"
-	"tsuwari/parser/pkg/helpers"
 
 	"github.com/go-redis/redis/v9"
 	"github.com/nicklaw5/helix"
@@ -31,17 +30,25 @@ type VariablesCacheContext struct {
 	Text       string
 }
 
-type VariablesCacheService struct {
-	Context  VariablesCacheContext
-	Services VariablesCacheServices
-	Cache    VariablesCache
-}
-
-type VariablesCache struct {
+type variablesCache struct {
 	Stream       *stream.HelixStream
 	DbUserStats  *model.UsersStats
 	TwitchUser   *helix.User
 	TwitchFollow *helix.UserFollow
+}
+
+type variablesLocks struct {
+	stream       *sync.Mutex
+	dbUser       *sync.Mutex
+	twitchUser   *sync.Mutex
+	twitchFollow *sync.Mutex
+}
+
+type VariablesCacheService struct {
+	Context  VariablesCacheContext
+	Services VariablesCacheServices
+	cache    variablesCache
+	locks    *variablesLocks
 }
 
 func New(text string, senderId string, channelId string, senderName *string, redis *redis.Client, r regexp.Regexp, twitch *twitch.Twitch, db *gorm.DB) *VariablesCacheService {
@@ -58,94 +65,41 @@ func New(text string, senderId string, channelId string, senderName *string, red
 			Twitch: twitch,
 			Db:     db,
 		},
-		Cache: VariablesCache{
-			Stream: nil,
+		cache: variablesCache{},
+		locks: &variablesLocks{
+			stream:       &sync.Mutex{},
+			dbUser:       &sync.Mutex{},
+			twitchUser:   &sync.Mutex{},
+			twitchFollow: &sync.Mutex{},
 		},
 	}
-
-	cache.fillCache()
 
 	return cache
 }
 
-type MapItem struct {
-	Instance string
-	Func     func(wg *sync.WaitGroup)
-}
+func (c *VariablesCacheService) GetChannelStream() *stream.HelixStream {
+	c.locks.stream.Lock()
+	defer c.locks.stream.Unlock()
 
-func (c *VariablesCacheService) fillCache() {
-	matches := c.Services.Regexp.FindAllStringSubmatch(c.Context.Text, len(c.Context.Text))
-	myMap := map[string]MapItem{
-		"stream.title": {
-			Instance: "twitchStream",
-			Func:     c.setChannelStream,
-		},
-		"stream.uptime": {
-			Instance: "twitchStream",
-			Func:     c.setChannelStream,
-		},
-		"stream.category": {
-			Instance: "twitchStream",
-			Func:     c.setChannelStream,
-		},
-		"stream.viewers": {
-			Instance: "twitchStream",
-			Func:     c.setChannelStream,
-		},
-		"user.messages": {
-			Instance: "dbUser",
-			Func:     c.setUser,
-		},
-		"user.followage": {
-			Instance: "followage",
-			Func:     c.setFollowAge,
-		},
-		"user.age": {
-			Instance: "twitchUser",
-			Func:     c.setTwitchUser,
-		},
+	if c.cache.Stream != nil {
+		return c.cache.Stream
 	}
-
-	requesting := []string{}
-	wg := sync.WaitGroup{}
-
-	for _, match := range matches {
-		if match[1] == "" {
-			continue
-		}
-		fmt.Println(match[1])
-		if val, ok := myMap[match[1]]; ok {
-			if helpers.Contains(requesting, val.Instance) {
-				continue
-			}
-
-			requesting = append(requesting, val.Instance)
-			wg.Add(1)
-
-			go val.Func(&wg)
-		}
-	}
-
-	wg.Wait()
-}
-
-func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {
-	defer wg.Done()
 
 	rCtx := context.TODO()
 	rKey := "streams:" + c.Context.ChannelId
 	cachedStream, _ := c.Services.Redis.Get(rCtx, rKey).Result()
 
 	if cachedStream != "" {
-		json.Unmarshal([]byte(cachedStream), &c.Cache.Stream)
-		return
+		json.Unmarshal([]byte(cachedStream), &c.cache.Stream)
+		return c.cache.Stream
 	}
 
 	streams, err := c.Services.Twitch.Client.GetStreams(&helix.StreamsParams{
 		UserIDs: []string{c.Context.ChannelId},
 	})
+
 	if err != nil || len(streams.Data.Streams) == 0 {
-		return
+		return nil
 	}
 
 	stream := stream.HelixStream{
@@ -158,35 +112,55 @@ func (c *VariablesCacheService) setChannelStream(wg *sync.WaitGroup) {
 		c.Services.Redis.Set(rCtx, rKey, rData, time.Minute*5)
 	}
 
-	c.Cache.Stream = &stream
+	c.cache.Stream = &stream
+	return c.cache.Stream
 }
 
-func (c *VariablesCacheService) setUser(wg *sync.WaitGroup) {
-	defer wg.Done()
+func (c *VariablesCacheService) GetGbUser() *model.UsersStats {
+	c.locks.dbUser.Lock()
+	defer c.locks.dbUser.Unlock()
+
+	if c.cache.DbUserStats != nil {
+		return c.cache.DbUserStats
+	}
 
 	result := model.UsersStats{}
 	err := c.Services.Db.Where(`"userId" = ? AND "channelId" = ?`, c.Context.SenderId, c.Context.ChannelId).Find(&result).Error
 	if err != nil {
-		c.Cache.DbUserStats = &result
+		c.cache.DbUserStats = &result
 	} else {
 		fmt.Errorf("Cannot fetch user! %v", err)
 	}
+
+	return c.cache.DbUserStats
 }
 
-func (c *VariablesCacheService) setTwitchUser(wg *sync.WaitGroup) {
-	defer wg.Done()
+func (c *VariablesCacheService) GetTwitchUser() *helix.User {
+	c.locks.twitchUser.Lock()
+	defer c.locks.twitchUser.Unlock()
+
+	if c.cache.TwitchUser != nil {
+		return c.cache.TwitchUser
+	}
 
 	users, err := c.Services.Twitch.Client.GetUsers(&helix.UsersParams{
 		IDs: []string{c.Context.SenderId},
 	})
 
 	if err == nil && len(users.Data.Users) != 0 {
-		c.Cache.TwitchUser = &users.Data.Users[0]
+		c.cache.TwitchUser = &users.Data.Users[0]
 	}
+
+	return c.cache.TwitchUser
 }
 
-func (c *VariablesCacheService) setFollowAge(wg *sync.WaitGroup) {
-	defer wg.Done()
+func (c *VariablesCacheService) GetFollowAge() *helix.UserFollow {
+	c.locks.twitchFollow.Lock()
+	defer c.locks.twitchUser.Unlock()
+
+	if c.cache.TwitchFollow != nil {
+		return c.cache.TwitchFollow
+	}
 
 	follow, err := c.Services.Twitch.Client.GetUsersFollows(&helix.UsersFollowsParams{
 		FromID: c.Context.SenderId,
@@ -194,6 +168,8 @@ func (c *VariablesCacheService) setFollowAge(wg *sync.WaitGroup) {
 	})
 
 	if err == nil && len(follow.Data.Follows) != 0 {
-		c.Cache.TwitchFollow = &follow.Data.Follows[0]
+		c.cache.TwitchFollow = &follow.Data.Follows[0]
 	}
+
+	return c.cache.TwitchFollow
 }

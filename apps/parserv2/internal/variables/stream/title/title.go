@@ -10,8 +10,9 @@ const Name = "stream.title"
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}
 
-	if ctx.Cache.Stream != nil {
-		result.Result = ctx.Cache.Stream.Title
+	stream := ctx.GetChannelStream()
+	if stream != nil {
+		result.Result = stream.Title
 	} else {
 		result.Result = "no stream"
 	}

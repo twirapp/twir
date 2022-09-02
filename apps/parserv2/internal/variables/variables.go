@@ -114,8 +114,9 @@ func (c Variables) ParseInput(cache *variablescache.VariablesCacheService, input
 					input = strings.ReplaceAll(input, s, res.Result)
 				}
 			}(s)
+		} else {
+			wg.Done()
 		}
-
 	}
 
 	wg.Wait()
