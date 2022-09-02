@@ -3,7 +3,7 @@ package variablescache
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"net/http"
 	"regexp"
 	"sync"
 	"tsuwari/parser/internal/config/twitch"
@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-redis/redis/v9"
 	"github.com/nicklaw5/helix"
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
 
@@ -34,13 +35,17 @@ type variablesCache struct {
 	DbUserStats  *model.UsersStats
 	TwitchUser   *helix.User
 	TwitchFollow *helix.UserFollow
+	Integrations *[]model.ChannelInegrationWithRelation
+	FaceitData   *FaceitGame
 }
 
 type variablesLocks struct {
-	stream       *sync.Mutex
-	dbUser       *sync.Mutex
-	twitchUser   *sync.Mutex
-	twitchFollow *sync.Mutex
+	stream            *sync.Mutex
+	dbUser            *sync.Mutex
+	twitchUser        *sync.Mutex
+	twitchFollow      *sync.Mutex
+	integrations      *sync.Mutex
+	faceitIntegration *sync.Mutex
 }
 
 type VariablesCacheService struct {
@@ -66,10 +71,12 @@ func New(text string, senderId string, channelId string, senderName *string, red
 		},
 		cache: variablesCache{},
 		locks: &variablesLocks{
-			stream:       &sync.Mutex{},
-			dbUser:       &sync.Mutex{},
-			twitchUser:   &sync.Mutex{},
-			twitchFollow: &sync.Mutex{},
+			stream:            &sync.Mutex{},
+			dbUser:            &sync.Mutex{},
+			twitchUser:        &sync.Mutex{},
+			twitchFollow:      &sync.Mutex{},
+			integrations:      &sync.Mutex{},
+			faceitIntegration: &sync.Mutex{},
 		},
 	}
 
@@ -125,10 +132,8 @@ func (c *VariablesCacheService) GetGbUser() *model.UsersStats {
 
 	result := model.UsersStats{}
 	err := c.Services.Db.Where(`"userId" = ? AND "channelId" = ?`, c.Context.SenderId, c.Context.ChannelId).Find(&result).Error
-	if err != nil {
+	if err == nil {
 		c.cache.DbUserStats = &result
-	} else {
-		fmt.Errorf("Cannot fetch user! %v", err)
 	}
 
 	return c.cache.DbUserStats
@@ -171,4 +176,72 @@ func (c *VariablesCacheService) GetFollowAge() *helix.UserFollow {
 	}
 
 	return c.cache.TwitchFollow
+}
+
+func (c *VariablesCacheService) GetEnabledIntegrations() *[]model.ChannelInegrationWithRelation {
+	c.locks.integrations.Lock()
+	defer c.locks.integrations.Unlock()
+
+	if c.cache.Integrations != nil {
+		return c.cache.Integrations
+	}
+
+	result := &[]model.ChannelInegrationWithRelation{}
+	err := c.Services.Db.Where(`"channelId" = ? AND enabled = ?`, c.Context.ChannelId, true).Joins("Integration").Find(result).Error
+
+	if err == nil {
+		c.cache.Integrations = result
+	}
+
+	return c.cache.Integrations
+}
+
+type FaceitGame struct {
+	Lvl int `json:"skill_level"`
+	Elo int `json:"faceit_elo"`
+}
+
+type FaceitResponse struct {
+	Games map[string]*FaceitGame `json:"games"`
+}
+
+func (c *VariablesCacheService) GetFaceitData() *FaceitGame {
+	c.locks.faceitIntegration.Lock()
+	defer c.locks.faceitIntegration.Unlock()
+
+	integrations := c.GetEnabledIntegrations()
+
+	if integrations == nil {
+		return nil
+	}
+
+	integration, ok := lo.Find(*integrations, func(i model.ChannelInegrationWithRelation) bool {
+		return i.Integration.Service == "FACEIT"
+	})
+
+	if !ok {
+		return nil
+	}
+
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "https://open.faceit.com/data/v4/players?nickname="+"Satonteu", nil)
+	req.Header.Set("Authorization", "Bearer "+integration.Integration.APIKey.String)
+	res, err := client.Do(req)
+
+	if err != nil {
+		return nil
+	}
+
+	data := FaceitResponse{}
+
+	err = json.NewDecoder(res.Body).Decode(&data)
+	if err != nil {
+		return nil
+	}
+
+	if data.Games["csgo"] == nil {
+		return nil
+	}
+
+	return data.Games["csgo"]
 }
