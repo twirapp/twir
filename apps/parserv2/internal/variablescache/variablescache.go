@@ -32,7 +32,7 @@ type variablesCache struct {
 	TwitchUser   *helix.User
 	TwitchFollow *helix.UserFollow
 	Integrations *[]model.ChannelInegrationWithRelation
-	FaceitData   *FaceitGame
+	FaceitData   *FaceitResult
 }
 
 type variablesLocks struct {
@@ -42,6 +42,7 @@ type variablesLocks struct {
 	twitchFollow      *sync.Mutex
 	integrations      *sync.Mutex
 	faceitIntegration *sync.Mutex
+	faceitMatches     *sync.Mutex
 }
 
 type VariablesCacheService struct {
@@ -73,6 +74,7 @@ func New(text string, senderId string, channelId string, senderName *string, red
 			twitchFollow:      &sync.Mutex{},
 			integrations:      &sync.Mutex{},
 			faceitIntegration: &sync.Mutex{},
+			faceitMatches:     &sync.Mutex{},
 		},
 	}
 

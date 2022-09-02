@@ -1,4 +1,4 @@
-package faceitlvl
+package faceitelodiff
 
 import (
 	"strconv"
@@ -6,18 +6,15 @@ import (
 	"tsuwari/parser/internal/variablescache"
 )
 
-const Name = "faceit.lvl"
+const Name = "faceit.todayEloDiff"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := &types.VariableHandlerResult{}
 
-	faceitData := ctx.GetFaceitUserData()
+	matches := ctx.GetFaceitLatestMatches()
+	diff := ctx.GetFaceitTodayEloDiff(matches)
 
-	if faceitData == nil {
-		return result, nil
-	}
-
-	result.Result = strconv.Itoa(faceitData.Lvl)
+	result.Result = strconv.Itoa(diff)
 
 	return result, nil
 }

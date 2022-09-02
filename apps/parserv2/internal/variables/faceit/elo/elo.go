@@ -11,12 +11,7 @@ const Name = "faceit.elo"
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := &types.VariableHandlerResult{}
 
-	faceitData, err := ctx.GetFaceitData()
-
-	if err != nil {
-		result.Result = err.Error()
-		return result, nil
-	}
+	faceitData := ctx.GetFaceitUserData()
 
 	if faceitData == nil {
 		return result, nil
