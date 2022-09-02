@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"regexp"
 	"sync"
-	"time"
 	"tsuwari/parser/internal/config/twitch"
 	model "tsuwari/parser/internal/models"
 	"tsuwari/parser/internal/variables/stream"
@@ -109,7 +108,7 @@ func (c *VariablesCacheService) GetChannelStream() *stream.HelixStream {
 
 	rData, err := json.Marshal(stream)
 	if err == nil {
-		c.Services.Redis.Set(rCtx, rKey, rData, time.Minute*5)
+		c.Services.Redis.Set(rCtx, rKey, rData, 0)
 	}
 
 	c.cache.Stream = &stream
@@ -156,7 +155,7 @@ func (c *VariablesCacheService) GetTwitchUser() *helix.User {
 
 func (c *VariablesCacheService) GetFollowAge() *helix.UserFollow {
 	c.locks.twitchFollow.Lock()
-	defer c.locks.twitchUser.Unlock()
+	defer c.locks.twitchFollow.Unlock()
 
 	if c.cache.TwitchFollow != nil {
 		return c.cache.TwitchFollow

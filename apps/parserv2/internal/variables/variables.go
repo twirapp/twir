@@ -12,6 +12,7 @@ import (
 	"tsuwari/parser/internal/variables/random"
 	sender "tsuwari/parser/internal/variables/sender"
 	streamcategory "tsuwari/parser/internal/variables/stream/category"
+	streammessages "tsuwari/parser/internal/variables/stream/messages"
 	streamtitle "tsuwari/parser/internal/variables/stream/title"
 	streamuptime "tsuwari/parser/internal/variables/stream/uptime"
 	streamviewers "tsuwari/parser/internal/variables/stream/viewers"
@@ -64,6 +65,10 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch, db *gorm.DB) Variables {
 	ctx.Store[streamcategory.Name] = types.Variable{
 		Name:    streamcategory.Name,
 		Handler: streamcategory.Handler,
+	}
+	ctx.Store[streammessages.Name] = types.Variable{
+		Name:    streammessages.Name,
+		Handler: streammessages.Handler,
 	}
 	ctx.Store[emotesffz.Name] = types.Variable{
 		Name:    emotesffz.Name,
