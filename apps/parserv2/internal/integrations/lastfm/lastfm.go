@@ -79,8 +79,8 @@ func (c *LastFm) GetRecentTrack() *string {
 	if err != nil {
 		fmt.Println(err)
 	}
-	bodyString := string(bodyBytes)
-	fmt.Println("body", bodyString)
+	// bodyString := string(bodyBytes)
+	// fmt.Println("body", bodyString)
 
 	var response string
 	data := LastFmResponse{}
