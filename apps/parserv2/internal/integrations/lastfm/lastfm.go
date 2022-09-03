@@ -85,10 +85,7 @@ func (c *LastFm) GetRecentTrack() *string {
 	var response string
 	data := LastFmResponse{}
 	err = json.Unmarshal(bodyBytes, &data)
-	if err != nil {
-		fmt.Println(err)
-		response = "qwe"
-	} else {
+	if err == nil {
 		if data.RecentTracks == nil || data.RecentTracks.Track == nil {
 			return nil
 		}
