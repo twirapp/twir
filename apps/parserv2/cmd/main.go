@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"runtime"
 	"time"
 	"tsuwari/parser/internal/commands"
 	"tsuwari/parser/internal/config/cfg"
@@ -83,6 +84,7 @@ func main() {
 		}
 
 		log.Printf("Binomial took %s", time.Since(start))
+		PrintMemUsage()
 	})
 
 	fmt.Println("Started")
@@ -92,4 +94,15 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 	<-c
 	log.Fatalf("Exiting")
+}
+
+func PrintMemUsage() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
+	fmt.Printf("Alloc = %v MiB", bToMb(m.Alloc))
+}
+
+func bToMb(b uint64) uint64 {
+	return b / 1024 / 1024
 }
