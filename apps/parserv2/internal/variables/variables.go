@@ -15,6 +15,7 @@ import (
 	faceitlvl "tsuwari/parser/internal/variables/faceit/lvl"
 	"tsuwari/parser/internal/variables/random"
 	sender "tsuwari/parser/internal/variables/sender"
+	song "tsuwari/parser/internal/variables/song"
 	streamcategory "tsuwari/parser/internal/variables/stream/category"
 	streammessages "tsuwari/parser/internal/variables/stream/messages"
 	streamtitle "tsuwari/parser/internal/variables/stream/title"
@@ -113,6 +114,10 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch, db *gorm.DB) Variables {
 	ctx.Store[customvar.Name] = types.Variable{
 		Name:    customvar.Name,
 		Handler: customvar.Handler,
+	}
+	ctx.Store[song.Name] = types.Variable{
+		Name:    song.Name,
+		Handler: song.Handler,
 	}
 
 	return ctx
