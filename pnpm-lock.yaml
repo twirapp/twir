@@ -560,6 +560,15 @@ importers:
       '@tsuwari/prisma': link:../../prisma
       axios: 0.27.2
 
+  libs/nats:
+    specifiers:
+      '@protobuf-ts/plugin': ^2.8.0
+      '@protobuf-ts/runtime': ^2.8.0
+    dependencies:
+      '@protobuf-ts/runtime': 2.8.0
+    devDependencies:
+      '@protobuf-ts/plugin': 2.8.0
+
   libs/prisma:
     specifiers:
       '@nestjs/common': ^9.0.8
@@ -1751,6 +1760,38 @@ packages:
     resolution: {integrity: sha512-DCw8L/SS0IXqmj5IW/fMxOXiifnsfjBzDfRhf0j3NFWqvMCh9OtfjmXQZxVgI2mwvJLc/5jzXhkiWT39qS09dA==}
     requiresBuild: true
     dev: false
+
+  /@protobuf-ts/plugin-framework/2.8.0:
+    resolution: {integrity: sha512-MjsV+gdcFUSIJ8NuogTGESbXbpp9C5ftUIMytWCWWYbkSEeWCKnl+CBrQDDHVWQ4hCwYKA2D6jdmFyOlAkrXqQ==}
+    dependencies:
+      '@protobuf-ts/runtime': 2.8.0
+      typescript: 3.9.10
+    dev: true
+
+  /@protobuf-ts/plugin/2.8.0:
+    resolution: {integrity: sha512-Jcl70WPVZdIYnLtjz7uoANzAPIN2awHUV1NfXXK2ZIkha+cPaP1IwETq38N1o1q7hvVC8uWhbJ2kqTcmvQWFPg==}
+    hasBin: true
+    dependencies:
+      '@protobuf-ts/plugin-framework': 2.8.0
+      '@protobuf-ts/protoc': 2.8.0
+      '@protobuf-ts/runtime': 2.8.0
+      '@protobuf-ts/runtime-rpc': 2.8.0
+      typescript: 3.9.10
+    dev: true
+
+  /@protobuf-ts/protoc/2.8.0:
+    resolution: {integrity: sha512-x2NMHDmeJrk+rbfqLA9uWXIYXjUgL5Qoayu7DZcV16ILSjyi+31Nh/B1WH+tIih81KgPEq/G/i6bpCEeWsK/Yw==}
+    hasBin: true
+    dev: true
+
+  /@protobuf-ts/runtime-rpc/2.8.0:
+    resolution: {integrity: sha512-B8pVorf2BvZZiCcX5paoYIKPDwkrdNP/pmJDKTIQ1D+6Yab1e6caW6vAU4RYJmb0McZBvNhSxvnkwAgPlKaFjw==}
+    dependencies:
+      '@protobuf-ts/runtime': 2.8.0
+    dev: true
+
+  /@protobuf-ts/runtime/2.8.0:
+    resolution: {integrity: sha512-70LH3oLG5E608jTP+v4nYyinvrpEgkGy0p8gJsog3fwlEuJgARldOQAk+ci5StZUOXHB7MVw0vZ/T0shqIe/pw==}
 
   /@protobufjs/aspromise/1.1.2:
     resolution: {integrity: sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ==}
@@ -5979,7 +6020,7 @@ packages:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/long': 4.0.2
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
       long: 4.0.0
     dev: false
 
@@ -6906,6 +6947,12 @@ packages:
   /typedarray/0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
     dev: false
+
+  /typescript/3.9.10:
+    resolution: {integrity: sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
 
   /typescript/4.7.4:
     resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}

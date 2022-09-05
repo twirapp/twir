@@ -3,14 +3,15 @@ package natshandler
 import (
 	"strings"
 	"tsuwari/parser/internal/permissions"
-	testproto "tsuwari/parser/internal/proto"
+
+	parserproto "github.com/satont/tsuwari/nats/parser"
 
 	"github.com/nats-io/nats.go"
 	"google.golang.org/protobuf/proto"
 )
 
 func (c natsService) HandleProcessCommand(m *nats.Msg) *[]string {
-	data := testproto.Request{}
+	data := parserproto.Request{}
 	err := proto.Unmarshal(m.Data, &data)
 	if err != nil {
 		panic(err)

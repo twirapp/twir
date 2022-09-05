@@ -28,7 +28,6 @@ func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandl
 		}
 	}
 
-	fmt.Println(page)
 	topUsers := top.GetTop(ctx, ctx.Context.ChannelId, "messages", &page)
 
 	if topUsers == nil || len(*topUsers) == 0 {

@@ -53,6 +53,7 @@ require (
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/samber/lo v1.27.1
+	github.com/satont/tsuwari/nats/parser v0.0.0
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.0.0-20220802222814-0bcc04d9c69b // indirect
@@ -60,3 +61,5 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	rogchap.com/v8go v0.7.0
 )
+
+replace github.com/satont/tsuwari/nats/parser => ../../libs/nats/parser

@@ -8,11 +8,12 @@ import (
 	"strings"
 	"sync"
 	testcommand "tsuwari/parser/internal/commands/test"
-	testproto "tsuwari/parser/internal/proto"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
 	"tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
+
+	parserproto "github.com/satont/tsuwari/nats/parser"
 
 	"github.com/go-redis/redis/v9"
 	"gorm.io/gorm"
@@ -108,7 +109,7 @@ func (c Commands) FindByMessage(input string, cmds *[]types.Command) FindByMessa
 	return res
 }
 
-func (c Commands) ParseCommandResponses(command FindByMessageResult, data testproto.Request) []string {
+func (c Commands) ParseCommandResponses(command FindByMessageResult, data parserproto.Request) []string {
 	responses := []string{}
 
 	cmd := *command.Cmd

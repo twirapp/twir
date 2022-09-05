@@ -15,7 +15,7 @@ import (
 	natshandler "tsuwari/parser/internal/handlers/nats"
 	"tsuwari/parser/internal/variables"
 
-	testproto "tsuwari/parser/internal/proto"
+	parserproto "github.com/satont/tsuwari/nats/parser"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/encoders/protobuf"
@@ -70,7 +70,7 @@ func main() {
 		r := natsHandler.HandleProcessCommand(m)
 
 		if r != nil {
-			res, _ := proto.Marshal(&testproto.Response{
+			res, _ := proto.Marshal(&parserproto.Response{
 				Responses: *r,
 			})
 
