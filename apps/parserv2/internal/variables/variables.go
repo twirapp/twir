@@ -6,6 +6,7 @@ import (
 	"sync"
 	"tsuwari/parser/internal/config/twitch"
 	types "tsuwari/parser/internal/types"
+	commandsvariable "tsuwari/parser/internal/variables/commands"
 	customvar "tsuwari/parser/internal/variables/customvar"
 	emotes7tv "tsuwari/parser/internal/variables/emotes/7tv"
 	emotesbttv "tsuwari/parser/internal/variables/emotes/bttv"
@@ -123,6 +124,10 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch, db *gorm.DB) Variables {
 	ctx.Store[topMessages.Name] = types.Variable{
 		Name:    topMessages.Name,
 		Handler: topMessages.Handler,
+	}
+	ctx.Store[commandsvariable.Name] = types.Variable{
+		Name:    commandsvariable.Name,
+		Handler: commandsvariable.Handler,
 	}
 
 	return ctx
