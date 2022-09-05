@@ -67,11 +67,16 @@ func (c Commands) GetChannelCommands(channelId string) (*[]types.Command, error)
 
 var splittedNameRegexp = regexp.MustCompile(`[^\s]+`)
 
-func (c Commands) FindByMessage(input string, cmds *[]types.Command) *types.Command {
+type FindByMessageResult struct {
+	Cmd     *types.Command
+	FoundBy string
+}
+
+func (c Commands) FindByMessage(input string, cmds *[]types.Command) FindByMessageResult {
 	msg := strings.ToLower(input)
 	splittedName := splittedNameRegexp.FindAllString(msg, -1)
 
-	var cmd *types.Command
+	res := FindByMessageResult{}
 
 	length := len(splittedName)
 
@@ -79,17 +84,19 @@ func (c Commands) FindByMessage(input string, cmds *[]types.Command) *types.Comm
 		query := strings.Join(splittedName, " ")
 		for _, c := range *cmds {
 			if c.Name == query {
-				cmd = &c
+				res.FoundBy = query
+				res.Cmd = &c
 				break
 			}
 
 			if helpers.Contains(c.Aliases, query) {
-				cmd = &c
+				res.FoundBy = query
+				res.Cmd = &c
 				break
 			}
 		}
 
-		if cmd != nil {
+		if res.Cmd != nil {
 			break
 		} else {
 
@@ -98,26 +105,32 @@ func (c Commands) FindByMessage(input string, cmds *[]types.Command) *types.Comm
 		}
 	}
 
-	return cmd
+	return res
 }
 
-func (c Commands) ParseCommandResponses(command *types.Command, data testproto.Request) []string {
+func (c Commands) ParseCommandResponses(command FindByMessageResult, data testproto.Request) []string {
 	responses := []string{}
 
-	if command.Default && c.defaultCommands[*command.DefaultName] != nil {
-		results := c.defaultCommands[*command.DefaultName].Handler(types.VariableHandlerParams{
+	cmd := *command.Cmd
+
+	if cmd.Default && c.defaultCommands[*cmd.DefaultName] != nil {
+		results := c.defaultCommands[*cmd.DefaultName].Handler(types.VariableHandlerParams{
 			Key: "qwe",
 		})
 		responses = results
 	} else {
-		responses = command.Responses
+		responses = cmd.Responses
 	}
+
+	cmdParams := strings.TrimSpace(data.Message.Text[len(command.FoundBy)+1:])
+
+	fmt.Println("cmdParams:", cmdParams)
 
 	wg := sync.WaitGroup{}
 	for i, r := range responses {
 		wg.Add(1)
 		// TODO: concatenate all responses into one slice and use it for cache
-		cacheService := variablescache.New(r, data.Sender.Id, data.Channel.Id, &data.Sender.Name, c.redis, *variables.Regexp, c.variablesService.Twitch, c.Db)
+		cacheService := variablescache.New(cmdParams, data.Sender.Id, data.Channel.Id, &data.Sender.Name, c.redis, *variables.Regexp, c.variablesService.Twitch, c.Db)
 
 		go func(i int, r string) {
 			defer wg.Done()

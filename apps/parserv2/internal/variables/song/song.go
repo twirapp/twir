@@ -1,7 +1,6 @@
 package song
 
 import (
-	"fmt"
 	lastfm "tsuwari/parser/internal/integrations/lastfm"
 	spotify "tsuwari/parser/internal/integrations/spotify"
 	vkIntegr "tsuwari/parser/internal/integrations/vk"
@@ -49,14 +48,12 @@ func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandl
 
 checkServices:
 	for _, integration := range integrations {
-		fmt.Println("service", integration.Integration.Service)
 		switch integration.Integration.Service {
 		case "SPOTIFY":
 			if spoti == nil {
 				continue
 			}
 			track := spoti.GetTrack()
-			fmt.Println("track", &track)
 			if track != nil {
 				result.Result = *track
 				break checkServices

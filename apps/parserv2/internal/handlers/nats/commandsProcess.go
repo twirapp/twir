@@ -28,7 +28,7 @@ func (c natsService) HandleProcessCommand(m *nats.Msg) *[]string {
 
 	cmd := c.commands.FindByMessage(data.Message.Text, cmds)
 
-	if cmd == nil {
+	if cmd.Cmd == nil {
 		return nil
 	}
 
