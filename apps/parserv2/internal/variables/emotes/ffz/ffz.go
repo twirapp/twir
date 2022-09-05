@@ -25,6 +25,7 @@ type FfzResponse struct {
 }
 
 const Name = "emotes.ffz"
+const Description = "Emotes of channel from https://frankerfacez.com"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	resp, err := http.Get("https://api.frankerfacez.com/v1/room/id/" + ctx.Context.ChannelId)

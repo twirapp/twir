@@ -7,6 +7,7 @@ import (
 )
 
 const Name = "faceit.todayEloDiff"
+const Description = "Faceit today elo earned"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := &types.VariableHandlerResult{}

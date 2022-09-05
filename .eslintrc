@@ -1,4 +1,4 @@
 {
   "extends": "@satont/eslint-config",
-  "ignorePatterns": ["./libs/nats/**/*.ts"]
+  "ignorePatterns": ["./libs/nats/**/*.ts", "ecosystem.config.cjs"]
 }

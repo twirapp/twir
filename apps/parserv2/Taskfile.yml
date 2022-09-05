@@ -2,17 +2,12 @@ version: '3'
 
 tasks:
   dev:
-    deps: [protogen]
     cmds:
       - doppler run -- gow -c run cmd/main.go
   build:
-    deps: [protogen]
     cmds:
       - rm main || true
       - go build cmd/main.go
-  protogen:
-    cmds:
-      - protoc --proto_path=. --go_out=./internal/proto --go_opt=paths=source_relative test.proto
   models:
     cmds:
       - doppler run -- sqlboiler psql --wipe -o internal/models

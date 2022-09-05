@@ -1,15 +1,17 @@
 import { resolve } from 'path';
 
 import dotenv from 'dotenv';
-import { cleanEnv, str, bool, num } from 'envalid';
+import { bool, cleanEnv, str } from 'envalid';
 
 try {
   dotenv.config({ path: resolve(process.cwd(), '.env') });
   // eslint-disable-next-line no-empty
-} catch { }
+} catch {}
 
 export const config = cleanEnv(process.env, {
-  DATABASE_URL: str({ default: 'postgresql://tsuwari:tsuwari@localhost:5432/tsuwari?schema=public' }),
+  DATABASE_URL: str({
+    default: 'postgresql://tsuwari:tsuwari@localhost:5432/tsuwari?schema=public',
+  }),
   NODE_ENV: str({ choices: ['development', 'production'], default: 'development' }),
   TWITCH_CLIENTID: str(),
   TWITCH_CLIENTSECRET: str(),
@@ -25,7 +27,7 @@ export const config = cleanEnv(process.env, {
   STEAM_PASSWORD: str(),
   STEAM_API_KEY: str(),
   GITHUB_TOKEN: str(),
-  MINIO_USER: str(),
-  MINIO_PASSWORD: str(),
-  MINIO_URL: str(),
+  MINIO_USER: str({ devDefault: '' }),
+  MINIO_PASSWORD: str({ devDefault: '' }),
+  MINIO_URL: str({ devDefault: '' }),
 });

@@ -3,6 +3,7 @@ import 'reflect-metadata';
 import * as Sentry from '@sentry/node';
 import '@sentry/tracing';
 
+import './libs/nats.js';
 import { prisma } from './libs/prisma.js';
 import { startNest } from './nest/index.js';
 
@@ -13,6 +14,6 @@ Sentry.init({
 
 await startNest();
 await prisma.$connect();
-await import('./bots.js').then(b => b.Bots.init());
+await import('./bots.js').then((b) => b.Bots.init());
 
 /* process.on('unhandledRejection', (r) => console.log(r)); */

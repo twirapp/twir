@@ -1,10 +1,12 @@
 import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
+import * as Parser from '@tsuwari/nats/parser';
 import { PrismaService } from '@tsuwari/prisma';
 import { CustomVar, customVarSchema, RedisORMService, Repository } from '@tsuwari/redis';
 import { ClientProxy, RedisService } from '@tsuwari/shared';
 
+import { nats } from '../../libs/nats.js';
 import { CreateVariableDto } from './dto/create.js';
 
 @Injectable()
@@ -37,9 +39,10 @@ export class VariablesService implements OnModuleInit {
   }
 
   async getBuildInVariables() {
-    const list = await this.nats.send('bots.getVariables', {}).toPromise();
+    const msg = await nats.request('bots.getVariables', new Uint8Array());
+    const list = Parser.GetVariablesResponse.fromBinary(msg.data);
 
-    return list;
+    return list.list;
   }
 
   getList(channelId: string) {

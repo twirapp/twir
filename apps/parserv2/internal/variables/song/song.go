@@ -12,6 +12,7 @@ import (
 )
 
 const Name = "song"
+const Description = "Current played song"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := &types.VariableHandlerResult{}

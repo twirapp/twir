@@ -18,6 +18,7 @@ type Variable struct {
 	Name          string
 	Handler       VariableHandler
 	CacheInstance *string
+	Description   *string
 }
 
 type Command struct {

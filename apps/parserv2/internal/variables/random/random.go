@@ -11,6 +11,7 @@ import (
 )
 
 const Name = "random"
+const Description = "Random number from N to N"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	rand.Seed(time.Now().UnixNano())

@@ -13,8 +13,10 @@ import (
 	"tsuwari/parser/internal/config/redis"
 	twitch "tsuwari/parser/internal/config/twitch"
 	natshandler "tsuwari/parser/internal/handlers/nats"
+	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
 
+	"github.com/samber/lo"
 	parserproto "github.com/satont/tsuwari/nats/parser"
 
 	"github.com/nats-io/nats.go"
@@ -85,6 +87,26 @@ func main() {
 
 		log.Printf("Binomial took %s", time.Since(start))
 		PrintMemUsage()
+	})
+
+	natsJson.Subscribe("bots.getVariables", func(m *nats.Msg) {
+		vars := lo.Map(lo.Values(variablesService.Store), func(v types.Variable, _ int) *parserproto.Variable {
+			desc := v.Name
+			if v.Description != nil {
+				desc = *v.Description
+			}
+			return &parserproto.Variable{
+				Name:        v.Name,
+				Example:     "",
+				Description: desc,
+			}
+		})
+
+		res, _ := proto.Marshal(&parserproto.GetVariablesResponse{
+			List: vars,
+		})
+
+		m.Respond(res)
 	})
 
 	fmt.Println("Started")

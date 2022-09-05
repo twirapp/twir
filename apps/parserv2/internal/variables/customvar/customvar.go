@@ -15,6 +15,7 @@ import (
 )
 
 const Name = "customvar"
+const Description = "Custom variable"
 
 var Iso = v8.NewIsolate()
 var Global = createGlobal(Iso)

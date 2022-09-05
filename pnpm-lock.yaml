@@ -41,6 +41,7 @@ importers:
       '@sentry/node': ^7.9.0
       '@sentry/tracing': ^7.9.0
       '@tsuwari/config': workspace:*
+      '@tsuwari/nats': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
@@ -92,6 +93,7 @@ importers:
       '@sentry/node': 7.9.0
       '@sentry/tracing': 7.9.0
       '@tsuwari/config': link:../../libs/config
+      '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
@@ -146,6 +148,7 @@ importers:
       '@sentry/node': ^7.9.0
       '@sentry/tracing': ^7.9.0
       '@tsuwari/config': workspace:*
+      '@tsuwari/nats': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
@@ -198,6 +201,7 @@ importers:
       '@sentry/node': 7.9.0
       '@sentry/tracing': 7.9.0
       '@tsuwari/config': link:../../libs/config
+      '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared

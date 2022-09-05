@@ -4,10 +4,18 @@
   "scripts": {
     "gen:go": "protoc --proto_path=./protos --go_out=./parser/ --go_opt=paths=source_relative parser.proto",
     "gen:ts": "protoc --plugin=./node_modules/.bin/protoc-gen-ts --ts_out ./parser/ --ts_opt long_type_string --proto_path ./protos  --ts_opt generate_dependencies parser.proto",
-    "gen": "pnpm gen:go && pnpm gen:ts"
+    "gen": "rm -rf dist; pnpm gen:go && pnpm gen:ts && pnpm ts:build",
+    "ts:build": "tsc"
   },
   "exports": {
     "./parser": "./dist/parser.js"
+  },
+  "typesVersions": {
+    "*": {
+      "parser": [
+        "dist/parser.d.ts"
+      ]
+    }
   },
   "dependencies": {
     "@protobuf-ts/runtime": "^2.8.0"

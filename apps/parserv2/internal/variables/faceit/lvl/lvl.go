@@ -7,6 +7,7 @@ import (
 )
 
 const Name = "faceit.lvl"
+const Description = "Faceit Lvl"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := &types.VariableHandlerResult{}

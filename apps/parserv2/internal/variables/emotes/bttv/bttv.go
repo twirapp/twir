@@ -22,6 +22,7 @@ type BttvResponse struct {
 }
 
 const Name = "emotes.bttv"
+const Description = "Emotes of channel from https://betterttv.com/"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	resp, err := http.Get("https://api.betterttv.net/3/cached/users/twitch/" + ctx.Context.ChannelId)

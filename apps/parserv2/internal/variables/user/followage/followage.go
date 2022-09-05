@@ -7,6 +7,7 @@ import (
 )
 
 const Name = "user.followage"
+const Description = "User followage"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}

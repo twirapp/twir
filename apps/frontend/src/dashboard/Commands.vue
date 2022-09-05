@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-export type VariablesList = Array<{ name: string, example?: string, description?: string }>
+export type VariablesList = Array<{ name: string; example?: string; description?: string }>;
 
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/create';
@@ -17,7 +17,11 @@ import { useUpdatingData } from '@/functions/useUpdatingData';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
-type CommandType = UpdateOrCreateCommandDto & { new?: boolean, default?: boolean, defaultName?: string }
+type CommandType = UpdateOrCreateCommandDto & {
+  new?: boolean;
+  default?: boolean;
+  defaultName?: string;
+};
 
 const { data: axiosData } = useUpdatingData(`/v1/channels/{dashboardId}/commands`);
 
@@ -26,7 +30,14 @@ const variablesList = ref<VariablesList>([]);
 const currentEditableCommand = ref<CommandType | null>(null);
 const searchFilter = ref<string>('');
 const filteredCommands = computed(() => {
-  return commands.value.filter(c => c.name).filter(c => searchFilter.value ? [c.name, ...c.aliases as string[]].some(s => s.includes(searchFilter.value)) : true).sort((a, b) => a.name.localeCompare(b.name));
+  return commands.value
+    .filter((c) => c.name)
+    .filter((c) =>
+      searchFilter.value
+        ? [c.name, ...(c.aliases as string[])].some((s) => s.includes(searchFilter.value))
+        : true,
+    )
+    .sort((a, b) => a.name.localeCompare(b.name));
 });
 const { t } = useI18n({
   useScope: 'global',
@@ -45,8 +56,13 @@ selectedDashboardStore.subscribe(async (v) => {
     api(`v1/channels/${v.channelId}/variables/builtin`),
   ]);
 
+  console.log(builtIn.data);
   variablesList.value = [
-    ...custom.data.map((c: VariableType) => ({ name: c.name, example: `customvar|${c.name}`, description: `Created custom variable ${c.name.toUpperCase()}` })),
+    ...custom.data.map((c: VariableType) => ({
+      name: c.name,
+      example: `customvar|${c.name}`,
+      description: `Created custom variable ${c.name.toUpperCase()}`,
+    })),
     ...builtIn.data,
   ];
 });
@@ -61,9 +77,11 @@ function insertCommand() {
       description: null,
       visible: true,
       enabled: true,
-      responses: [{
-        text: '',
-      }],
+      responses: [
+        {
+          text: '',
+        },
+      ],
       cooldownType: 'GLOBAL',
       new: true,
     };
@@ -72,7 +90,6 @@ function insertCommand() {
     currentEditableCommand.value = command;
   }
 }
-
 
 function deleteCommand(index: number) {
   commands.value = commands.value.filter((_, i) => i !== index);
@@ -86,21 +103,33 @@ function onSave(index: number) {
 
 <template>
   <div class="block flex justify-between md:hidden mx-2 my-2 space-x-2">
-    <Popover
-      class="relative"
-    >
-      <PopoverButton class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition">
+    <Popover class="relative">
+      <PopoverButton
+        class="
+          bg-green-600
+          duration-150
+          ease-in-out
+          focus:outline-none
+          focus:ring-0
+          font-medium
+          hover:bg-green-700
+          inline-block
+          leading-tight
+          px-6
+          py-2.5
+          rounded
+          shadow
+          text-white text-xs
+          transition
+        "
+      >
         <Menu />
       </PopoverButton>
 
-      <PopoverPanel
-        v-slot="{ close }"
-        :focus="true"
-        class="absolute bg-[#121010] z-10"
-      >
+      <PopoverPanel v-slot="{ close }" :focus="true" class="absolute bg-[#121010] z-10">
         <ul class="max-h-[55vh] overflow-y-auto scrollbar">
           <li
-            v-for="command, index of filteredCommands"
+            v-for="(command, index) of filteredCommands"
             :key="index"
             class="px-0.5"
             :class="{ 'border-l-2': filteredCommands.indexOf(currentEditableCommand!) === index }"
@@ -113,11 +142,28 @@ function onSave(index: number) {
             <button
               aria-current="page"
               href="/dashboard/commands"
-              class="border-slate-300 duration-300 ease-in-out flex h-8 hover:bg-[#202122] items-center justify-between mt-0 overflow-hidden px-2 ripple-surface-primary text-ellipsis text-sm text-white transition w-full whitespace-nowrap"
+              class="
+                border-slate-300
+                duration-300
+                ease-in-out
+                flex
+                h-8
+                hover:bg-[#202122]
+                items-center
+                justify-between
+                mt-0
+                overflow-hidden
+                px-2
+                ripple-surface-primary
+                text-ellipsis text-sm text-white
+                transition
+                w-full
+                whitespace-nowrap
+              "
               :class="{
                 'bg-neutral-700': filteredCommands.indexOf(currentEditableCommand!) === index
               }"
-            > 
+            >
               <span>{{ command.name }}</span>
               <Dota2Icon
                 v-if="command.defaultName && DotaGroup.has(command.defaultName)"
@@ -130,11 +176,7 @@ function onSave(index: number) {
     </Popover>
 
     <div>
-      <MyBtn
-        color="green"
-        size="default"
-        @click="insertCommand"
-      >
+      <MyBtn color="green" size="default" @click="insertCommand">
         <Add />
       </MyBtn>
     </div>
@@ -143,7 +185,27 @@ function onSave(index: number) {
   <div class="flex max-h-screen">
     <div class="border-gray-700 border-r hidden md:block rounded w-40">
       <button
-        class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium grid hover:bg-green-700 inline-block leading-tight m-auto place-items-center px-6 py-2.5 shadow text-white text-xs transition uppercase w-full"
+        class="
+          bg-green-600
+          duration-150
+          ease-in-out
+          focus:outline-none
+          focus:ring-0
+          font-medium
+          grid
+          hover:bg-green-700
+          inline-block
+          leading-tight
+          m-auto
+          place-items-center
+          px-6
+          py-2.5
+          shadow
+          text-white text-xs
+          transition
+          uppercase
+          w-full
+        "
         @click="insertCommand"
       >
         <Add />
@@ -153,32 +215,27 @@ function onSave(index: number) {
           id="searchCommand"
           v-model="searchFilter"
           type="text"
-          class="bg-clip-padding
-                    bg-white
-                    border
-                    border-gray-300
-                    border-solid
-                    ease-in-out
-                    focus:outline-none
-                    font-normal
-                    form-control
-                    text-base
-                    text-gray-700
-                    transition
-                    w-full"
+          class="
+            bg-clip-padding bg-white
+            border border-gray-300 border-solid
+            ease-in-out
+            focus:outline-none
+            font-normal
+            form-control
+            text-base text-gray-700
+            transition
+            w-full
+          "
           placeholder="command"
-        >
-        <label
-          for="searchCommand"
-          class="text-gray-700"
-        >{{ t('pages.commands.searchCommand') }}</label>
+        />
+        <label for="searchCommand" class="text-gray-700">{{
+          t('pages.commands.searchCommand')
+        }}</label>
       </div>
-
 
       <ul class="max-h-[75vh] menu overflow-auto scrollbar">
         <li
-          v-for="command, index of filteredCommands
-          "
+          v-for="(command, index) of filteredCommands"
           :key="index"
           :class="{ 'border-l-2': filteredCommands.indexOf(currentEditableCommand!) === index }"
           @click="() => {
@@ -189,11 +246,28 @@ function onSave(index: number) {
           <button
             aria-current="page"
             href="/dashboard/commands"
-            class="border-slate-300 duration-300 ease-in-out flex h-8 hover:bg-[#202122] items-center justify-between mt-0 overflow-hidden px-2 ripple-surface-primary text-ellipsis text-sm text-white transition w-full whitespace-nowrap"
+            class="
+              border-slate-300
+              duration-300
+              ease-in-out
+              flex
+              h-8
+              hover:bg-[#202122]
+              items-center
+              justify-between
+              mt-0
+              overflow-hidden
+              px-2
+              ripple-surface-primary
+              text-ellipsis text-sm text-white
+              transition
+              w-full
+              whitespace-nowrap
+            "
             :class="{
               'bg-neutral-700': filteredCommands.indexOf(currentEditableCommand!) === index
             }"
-          > 
+          >
             <span>{{ command.name }}</span>
             <Dota2Icon
               v-if="command.defaultName && DotaGroup.has(command.defaultName)"
@@ -208,9 +282,9 @@ function onSave(index: number) {
       v-if="currentEditableCommand"
       class="card h-fit m-1.5 max-w-2xl md:m-3 p-1 rounded shadow sm:block text-white w-full"
     >
-      <Command 
-        :command="currentEditableCommand" 
-        :commands="commands" 
+      <Command
+        :command="currentEditableCommand"
+        :commands="commands"
         :variables-list="variablesList"
         @delete="deleteCommand"
         @save="onSave"

@@ -35,6 +35,7 @@ export default defineConfig({
       '@grpc/grpc-js',
       'amqp-connection-manager',
       '@grpc/proto-loader',
+      '@nestjs/websockets/socket-module',
     ],
   },
   server: {

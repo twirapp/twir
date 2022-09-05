@@ -6,6 +6,7 @@ import (
 )
 
 const Name = "stream.title"
+const Description = "Stream title"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}

@@ -7,6 +7,7 @@ import (
 )
 
 const Name = "stream.uptime"
+const Description = "Stream uptime"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}

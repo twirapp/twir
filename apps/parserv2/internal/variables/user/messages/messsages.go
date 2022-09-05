@@ -7,6 +7,7 @@ import (
 )
 
 const Name = "user.messages"
+const Description = "User messages"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}

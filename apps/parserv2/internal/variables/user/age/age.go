@@ -7,6 +7,7 @@ import (
 )
 
 const Name = "user.age"
+const Description = "User account age"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}

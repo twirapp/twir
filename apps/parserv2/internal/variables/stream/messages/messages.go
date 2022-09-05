@@ -7,6 +7,7 @@ import (
 )
 
 const Name = "stream.messages"
+const Description = "Messages sended by users in this stream"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	result := types.VariableHandlerResult{}

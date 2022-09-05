@@ -11,6 +11,7 @@ import (
 )
 
 const Name = "commands.list"
+const Description = "List of commands"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	rCtx := context.TODO()

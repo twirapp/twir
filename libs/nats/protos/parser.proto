@@ -28,3 +28,15 @@ message Request {
 message Response {
   repeated string responses = 1;
 }
+
+message GetVariablesRequest {}
+
+message Variable {
+  string name = 1;
+  string example = 2;
+  string description = 3;
+}
+
+message GetVariablesResponse {
+  repeated Variable list = 1;
+}

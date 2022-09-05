@@ -19,6 +19,7 @@ type Emote struct {
 type SevenTvResponse []Emote
 
 const Name = "emotes.7tv"
+const Description = "Emotes of channel from https://7tv.app"
 
 func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	resp, err := http.Get("https://api.7tv.app/v2/users/" + ctx.Context.ChannelId + "/emotes")
