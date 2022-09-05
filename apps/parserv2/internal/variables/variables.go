@@ -21,6 +21,7 @@ import (
 	streamtitle "tsuwari/parser/internal/variables/stream/title"
 	streamuptime "tsuwari/parser/internal/variables/stream/uptime"
 	streamviewers "tsuwari/parser/internal/variables/stream/viewers"
+	topMessages "tsuwari/parser/internal/variables/top/messages"
 	userage "tsuwari/parser/internal/variables/user/age"
 	userfollowage "tsuwari/parser/internal/variables/user/followage"
 	usermessages "tsuwari/parser/internal/variables/user/messages"
@@ -118,6 +119,10 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch, db *gorm.DB) Variables {
 	ctx.Store[song.Name] = types.Variable{
 		Name:    song.Name,
 		Handler: song.Handler,
+	}
+	ctx.Store[topMessages.Name] = types.Variable{
+		Name:    topMessages.Name,
+		Handler: topMessages.Handler,
 	}
 
 	return ctx

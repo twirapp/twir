@@ -15,7 +15,7 @@ type UserStats struct {
 	Value       int
 }
 
-func getTop(ctx *variablescache.VariablesCacheService, channelId string, topType string, page *int) *[]*UserStats {
+func GetTop(ctx *variablescache.VariablesCacheService, channelId string, topType string, page *int) *[]*UserStats {
 	if page == nil {
 		newPage := 1
 		page = &newPage
