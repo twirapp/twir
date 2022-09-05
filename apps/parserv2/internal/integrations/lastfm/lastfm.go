@@ -58,7 +58,7 @@ type LastFmResponse struct {
 	} `json:"recenttracks"`
 }
 
-func (c *LastFm) GetRecentTrack() *string {
+func (c *LastFm) GetTrack() *string {
 	data := LastFmResponse{}
 	var response string
 
@@ -89,39 +89,3 @@ func (c *LastFm) GetRecentTrack() *string {
 
 	return &response
 }
-
-/* func (c *LastFm) GetRecentTrack() *string {
-	data := LastFmResponse{}
-	var response string
-
-	rBuilder := requests.
-		URL("http://ws.audioscrobbler.com/2.0").
-		ContentType("application/json").
-		ToJSON(&data)
-
-	rBuilder.Param("method", "user.getrecenttracks")
-	rBuilder.Param("user", *c.DbData.UserName)
-	rBuilder.Param("api_key", c.integration.Integration.APIKey.String)
-	rBuilder.Param("format", "json")
-	rBuilder.Param("limit", "1")
-
-	err := rBuilder.Fetch(context.Background())
-
-	if err != nil {
-		return nil
-	}
-
-	if data.RecentTracks == nil || data.RecentTracks.Track == nil {
-		return nil
-	}
-	tracks := *data.RecentTracks.Track
-	track := tracks[0]
-	if track == nil || track.Attr == nil || track.Attr.NowPlaying == nil {
-		return nil
-	}
-
-	response = fmt.Sprintf("%s — %s", track.Artist.Text, track.Name)
-
-	return &response
-}
-*/

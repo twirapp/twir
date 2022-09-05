@@ -4,6 +4,7 @@ import (
 	"fmt"
 	lastfm "tsuwari/parser/internal/integrations/lastfm"
 	spotify "tsuwari/parser/internal/integrations/spotify"
+	vkIntegr "tsuwari/parser/internal/integrations/vk"
 	model "tsuwari/parser/internal/models"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variablescache"
@@ -35,10 +36,16 @@ func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandl
 		return integration.Integration.Service == "LASTFM"
 	})
 	lfm := lastfm.New(&lastFmIntegration)
+
 	spotifyIntegration, _ := lo.Find(integrations, func(integration model.ChannelInegrationWithRelation) bool {
 		return integration.Integration.Service == "SPOTIFY"
 	})
 	spoti := spotify.New(&spotifyIntegration, ctx.Services.Db)
+
+	vkIntegration, _ := lo.Find(integrations, func(integration model.ChannelInegrationWithRelation) bool {
+		return integration.Integration.Service == "SPOTIFY"
+	})
+	vk := vkIntegr.New(&vkIntegration)
 
 checkServices:
 	for _, integration := range integrations {
@@ -59,7 +66,16 @@ checkServices:
 				continue
 			}
 
-			track := lfm.GetRecentTrack()
+			track := lfm.GetTrack()
+			if track != nil {
+				result.Result = *track
+				break checkServices
+			}
+		case "VK":
+			if vk == nil {
+				continue
+			}
+			track := vk.GetTrack()
 			if track != nil {
 				result.Result = *track
 				break checkServices
