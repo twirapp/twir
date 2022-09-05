@@ -122,9 +122,11 @@ func (c Commands) ParseCommandResponses(command FindByMessageResult, data testpr
 		responses = cmd.Responses
 	}
 
-	cmdParams := strings.TrimSpace(data.Message.Text[len(command.FoundBy)+1:])
-
-	fmt.Println("cmdParams:", cmdParams)
+	var cmdParams *string
+	params := strings.TrimSpace(data.Message.Text[len(command.FoundBy):])
+	if len(params) > 0 {
+		cmdParams = &params
+	}
 
 	wg := sync.WaitGroup{}
 	for i, r := range responses {

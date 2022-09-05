@@ -32,7 +32,7 @@ func (c natsService) HandleProcessCommand(m *nats.Msg) *[]string {
 		return nil
 	}
 
-	hasPerm := permissions.UserHasPermissionToCommand(data.Sender.Badges, "MODERATOR")
+	hasPerm := permissions.UserHasPermissionToCommand(data.Sender.Badges, cmd.Cmd.Permission)
 
 	if !hasPerm {
 		return nil

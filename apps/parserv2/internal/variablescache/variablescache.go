@@ -23,7 +23,7 @@ type VariablesCacheContext struct {
 	ChannelId  string
 	SenderId   string
 	SenderName string
-	Text       string
+	Text       *string
 }
 
 type variablesCache struct {
@@ -52,7 +52,7 @@ type VariablesCacheService struct {
 	locks    *variablesLocks
 }
 
-func New(text string, senderId string, channelId string, senderName *string, redis *redis.Client, r regexp.Regexp, twitch *twitch.Twitch, db *gorm.DB) *VariablesCacheService {
+func New(text *string, senderId string, channelId string, senderName *string, redis *redis.Client, r regexp.Regexp, twitch *twitch.Twitch, db *gorm.DB) *VariablesCacheService {
 	cache := &VariablesCacheService{
 		Context: VariablesCacheContext{
 			ChannelId:  channelId,
