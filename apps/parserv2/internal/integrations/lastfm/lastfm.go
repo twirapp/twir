@@ -3,9 +3,9 @@ package lastfm
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	model "tsuwari/parser/internal/models"
+
+	req "github.com/imroc/req/v3"
 )
 
 type DbData struct {
@@ -59,44 +59,69 @@ type LastFmResponse struct {
 }
 
 func (c *LastFm) GetRecentTrack() *string {
-	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "http://ws.audioscrobbler.com/2.0", nil)
-	q := req.URL.Query()
-	q.Add("method", "user.getrecenttracks")
-	q.Add("user", *c.DbData.UserName)
-	q.Add("api_key", c.integration.Integration.APIKey.String)
-	q.Add("format", "json")
-	q.Add("limit", "1")
-	req.URL.RawQuery = q.Encode()
+	data := LastFmResponse{}
+	var response string
 
-	res, err := client.Do(req)
+	resp, err := req.R().
+		SetQueryParam("method", "user.getrecenttracks").
+		SetQueryParam("user", *c.DbData.UserName).
+		SetQueryParam("api_key", c.integration.Integration.APIKey.String).
+		SetQueryParam("format", "json").
+		SetQueryParam("limit", "1").
+		SetResult(&data).
+		SetContentType("application/json").
+		Get("http://ws.audioscrobbler.com/2.0")
+
+	if err != nil || !resp.IsSuccess() {
+		return nil
+	}
+
+	if data.RecentTracks == nil || data.RecentTracks.Track == nil {
+		return nil
+	}
+	tracks := *data.RecentTracks.Track
+	track := tracks[0]
+	if track == nil || track.Attr == nil || track.Attr.NowPlaying == nil {
+		return nil
+	}
+
+	response = fmt.Sprintf("%s — %s", track.Artist.Text, track.Name)
+
+	return &response
+}
+
+/* func (c *LastFm) GetRecentTrack() *string {
+	data := LastFmResponse{}
+	var response string
+
+	rBuilder := requests.
+		URL("http://ws.audioscrobbler.com/2.0").
+		ContentType("application/json").
+		ToJSON(&data)
+
+	rBuilder.Param("method", "user.getrecenttracks")
+	rBuilder.Param("user", *c.DbData.UserName)
+	rBuilder.Param("api_key", c.integration.Integration.APIKey.String)
+	rBuilder.Param("format", "json")
+	rBuilder.Param("limit", "1")
+
+	err := rBuilder.Fetch(context.Background())
 
 	if err != nil {
 		return nil
 	}
 
-	bodyBytes, err := io.ReadAll(res.Body)
-	if err != nil {
-		fmt.Println(err)
+	if data.RecentTracks == nil || data.RecentTracks.Track == nil {
+		return nil
 	}
-	// bodyString := string(bodyBytes)
-	// fmt.Println("body", bodyString)
-
-	var response string
-	data := LastFmResponse{}
-	err = json.Unmarshal(bodyBytes, &data)
-	if err == nil {
-		if data.RecentTracks == nil || data.RecentTracks.Track == nil {
-			return nil
-		}
-		tracks := *data.RecentTracks.Track
-		track := tracks[0]
-		if track == nil || track.Attr == nil || track.Attr.NowPlaying == nil {
-			return nil
-		}
-
-		response = fmt.Sprintf("%s — %s", track.Artist.Text, track.Name)
+	tracks := *data.RecentTracks.Track
+	track := tracks[0]
+	if track == nil || track.Attr == nil || track.Attr.NowPlaying == nil {
+		return nil
 	}
+
+	response = fmt.Sprintf("%s — %s", track.Artist.Text, track.Name)
 
 	return &response
 }
+*/

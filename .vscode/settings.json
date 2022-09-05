@@ -49,5 +49,8 @@
   "i18n-ally.sourceLanguage": "gb",
   "prisma.fileWatcher": false,
   "typescript.format.enable": false,
-  "editor.rulers": [100]
+  "editor.rulers": [100],
+  "gopls": {
+    "experimentalWorkspaceModule": true
+  }
 }
