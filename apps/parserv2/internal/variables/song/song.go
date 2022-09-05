@@ -1,7 +1,9 @@
 package song
 
 import (
+	"fmt"
 	lastfm "tsuwari/parser/internal/integrations/lastfm"
+	spotify "tsuwari/parser/internal/integrations/spotify"
 	model "tsuwari/parser/internal/models"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variablescache"
@@ -22,7 +24,7 @@ func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandl
 
 	integrations = lo.Filter(integrations, func(integration model.ChannelInegrationWithRelation, _ int) bool {
 		switch integration.Integration.Service {
-		case "LASTFM", "SPOTIFY", "VK":
+		case "SPOTIFY", "LASTFM", "VK":
 			return integration.Enabled
 		default:
 			return false
@@ -33,10 +35,25 @@ func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandl
 		return integration.Integration.Service == "LASTFM"
 	})
 	lfm := lastfm.New(&lastFmIntegration)
+	spotifyIntegration, _ := lo.Find(integrations, func(integration model.ChannelInegrationWithRelation) bool {
+		return integration.Integration.Service == "SPOTIFY"
+	})
+	spoti := spotify.New(&spotifyIntegration, ctx.Services.Db)
 
 checkServices:
 	for _, integration := range integrations {
+		fmt.Println("service", integration.Integration.Service)
 		switch integration.Integration.Service {
+		case "SPOTIFY":
+			if spoti == nil {
+				continue
+			}
+			track := spoti.GetTrack()
+			fmt.Println("track", &track)
+			if track != nil {
+				result.Result = *track
+				break checkServices
+			}
 		case "LASTFM":
 			if lfm == nil {
 				continue

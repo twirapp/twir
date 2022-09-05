@@ -15,7 +15,7 @@ import (
 
 type Spotify struct {
 	integration *model.ChannelInegrationWithRelation
-	isRetry     *bool
+	isRetry     bool
 	db          *gorm.DB
 }
 
@@ -27,14 +27,14 @@ func New(integration *model.ChannelInegrationWithRelation, db *gorm.DB) *Spotify
 	service := Spotify{
 		integration: integration,
 		db:          db,
+		isRetry:     false,
 	}
 
 	return &service
 }
 
 type SpotifyRefreshResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken string `json:"access_token"`
 }
 
 func (c *Spotify) refreshToken() *error {
@@ -59,8 +59,7 @@ func (c *Spotify) refreshToken() *error {
 		Where(`"id" = ?`, c.integration.ID).
 		Updates(model.ChannelInegrationWithRelation{
 			ChannelsIntegrations: model.ChannelsIntegrations{
-				AccessToken:  sql.NullString{String: data.AccessToken, Valid: true},
-				RefreshToken: sql.NullString{String: data.RefreshToken, Valid: true},
+				AccessToken: sql.NullString{String: data.AccessToken, Valid: true},
 			},
 		}).
 		Clauses(clause.Returning{})
@@ -88,9 +87,8 @@ func (c *Spotify) GetTrack() *string {
 		SetResult(&data).
 		Get("https://api.spotify.com/v1/me/player/currently-playing")
 
-	if req.StatusCode == 401 && !*c.isRetry {
-		newRetry := true
-		c.isRetry = &newRetry
+	if req.StatusCode == 401 && !c.isRetry {
+		c.isRetry = true
 		c.refreshToken()
 		return c.GetTrack()
 	}
