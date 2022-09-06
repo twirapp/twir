@@ -1,16 +1,15 @@
-import { Stream, streamSchema } from '@tsuwari/redis';
+import { HelixStreamData } from '@twurple/api';
 
-import { redisOm } from '../libs/redis.js';
-
-const repository = redisOm.fetchRepository(streamSchema);
+import { redis } from '../libs/redis.js';
 
 export const increaseParsedMessages = async (channelId: string) => {
-  const stream = await repository.fetch(channelId);
-  const json = stream.toRedisJson();
-  if (Object.keys(json).length) {
-    await repository.createAndSave({
-      ...json as Stream,
-      parsedMessages: (json.parsedMessages ?? 0) + 1,
-    }, channelId);
-  }
+  const key = `streams:${channelId}`;
+  const rawStream = await redis.get(`streams:${channelId}`);
+  if (!rawStream) return;
+
+  const stream = JSON.parse(rawStream) as HelixStreamData & { parsedMessages?: number };
+
+  stream.parsedMessages = (stream.parsedMessages ?? 0) + 1;
+
+  redis.set(key, JSON.stringify(stream));
 };

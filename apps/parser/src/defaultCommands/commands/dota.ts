@@ -1,9 +1,9 @@
 import { ID } from '@node-steam/id';
 import { config } from '@tsuwari/config';
 import { Prisma, PrismaService } from '@tsuwari/prisma';
-import { RedisORMService, streamSchema } from '@tsuwari/redis';
+import { RedisORMService } from '@tsuwari/redis';
 import { ClientProxy, dotaHeroes, dotaMedals, gameModes, RedisService } from '@tsuwari/shared';
-import { HelixStreamData } from '@twurple/api/lib/index.js';
+import { HelixStreamData } from '@twurple/api';
 import axios from 'axios';
 import rateLimit from 'axios-rate-limit';
 
@@ -208,14 +208,13 @@ export const dota: DefaultCommand[] = [
     handler: async (state) => {
       if (!state.channelId) return;
 
-      const stream = await redisOm
-        .fetchRepository(streamSchema)
-        .fetch(state.channelId)
-        .then((s) => s.toRedisJson());
+      const rawStream = await redis.get(`streams:${state.channelId}`);
 
-      if (!Object.keys(stream).length) {
+      if (!rawStream) {
         return 'Stream is offline';
       }
+
+      const stream = JSON.parse(rawStream) as HelixStreamData;
 
       const accounts = await getAccounts(state.channelId);
       if (typeof accounts === 'string') return accounts;

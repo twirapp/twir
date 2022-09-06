@@ -1,33 +1,17 @@
-import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { Command, PrismaService, Response } from '@tsuwari/prisma';
-import {
-  Command as CommandCacheClass,
-  commandSchema,
-  RedisORMService,
-  Repository,
-} from '@tsuwari/redis';
 import { ClientProxy, RedisService } from '@tsuwari/shared';
 
 import { UpdateOrCreateCommandDto } from './dto/create.js';
 
 @Injectable()
-export class CommandsService implements OnModuleInit {
+export class CommandsService {
   @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
   nats: ClientProxy;
-  #commandsRepository: Repository<CommandCacheClass>;
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly redis: RedisService,
-    private readonly redisOrm: RedisORMService,
-  ) {}
-
-  async onModuleInit() {
-    await this.redisOrm.open(config.REDIS_URL);
-    this.#commandsRepository = this.redisOrm.fetchRepository(commandSchema);
-  }
+  constructor(private readonly prisma: PrismaService, private readonly redis: RedisService) {}
 
   async getList(userId: string) {
     await this.nats.send('bots.createDefaultCommands', [userId]).toPromise();

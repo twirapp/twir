@@ -1,47 +1,43 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Command, CommandPermission, PrismaService } from '@tsuwari/prisma';
-import { RedisORMService, Repository, Command as CommandCacheClass, commandSchema } from '@tsuwari/redis';
 import { RedisService, TwitchApiService } from '@tsuwari/shared';
 import { ChatUser } from '@twurple/chat';
 
 export type CommandConditional = Command & { responses: (string | undefined)[] | undefined };
 
 @Injectable()
-export class HelpersService implements OnModuleInit {
-  #commandsRepository: Repository<CommandCacheClass>;
-
+export class HelpersService {
   constructor(
     private readonly redis: RedisService,
     private readonly prisma: PrismaService,
     private readonly twitchApi: TwitchApiService,
-    private readonly redisOrm: RedisORMService,
-  ) { }
-
-  onModuleInit() {
-    this.#commandsRepository = this.redisOrm.fetchRepository(commandSchema);
-  }
+  ) {}
 
   async getChannelCommands(channelId: string) {
-    const cmds = await this.#commandsRepository.search()
-      .where('channelId').eq(channelId)
+    const cmds = await this.#commandsRepository
+      .search()
+      .where('channelId')
+      .eq(channelId)
       .returnAll();
 
-    return cmds.map(c => c.toRedisJson());
+    return cmds.map((c) => c.toRedisJson());
   }
 
-  async getUserPermissions(userInfo: ChatUser,
+  async getUserPermissions(
+    userInfo: ChatUser,
     opts: {
-      checkAdmin?: boolean,
-      checkFollower?: boolean,
-      channelId?: string
+      checkAdmin?: boolean;
+      checkFollower?: boolean;
+      channelId?: string;
     } = {},
   ): Promise<Record<CommandPermission, boolean>> {
     const dbUser = opts.checkAdmin
       ? await this.prisma.user.findFirst({ where: { id: userInfo.userId } })
       : null;
-    const twitchFollow = (opts.channelId && opts.checkFollower)
-      ? await this.twitchApi.users.getFollowFromUserToBroadcaster(userInfo.userId, opts.channelId)
-      : null;
+    const twitchFollow =
+      opts.channelId && opts.checkFollower
+        ? await this.twitchApi.users.getFollowFromUserToBroadcaster(userInfo.userId, opts.channelId)
+        : null;
 
     const perms = {
       BROADCASTER: userInfo.isBroadcaster,

@@ -14,9 +14,7 @@ var Command = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("CHANNEL"),
 	},
-	Handler: Handler,
-}
-
-func Handler(data types.VariableHandlerParams) []string {
-	return []string{"$(random|1-5000) 1", "$(random|6000-10000) 2"}
+	Handler: func(data types.VariableHandlerParams) []string {
+		return []string{"$(random|1-5000) 1", "$(random|6000-10000) 2"}
+	},
 }

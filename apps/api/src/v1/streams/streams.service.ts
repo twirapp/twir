@@ -1,29 +1,15 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaService } from '@tsuwari/prisma';
-import {
-  Greetings,
-  greetingsSchema,
-  RedisORMService,
-  Repository,
-  Stream,
-  streamSchema,
-} from '@tsuwari/redis';
+import { Greetings, greetingsSchema, RedisORMService, Repository } from '@tsuwari/redis';
 import { RedisService } from '@tsuwari/shared';
 
 @Injectable()
 export class StreamsService implements OnModuleInit {
   #greetingsRepository: Repository<Greetings>;
-  #streamRepository: Repository<Stream>;
 
-  constructor(
-    private readonly redis: RedisService,
-    private readonly prisma: PrismaService,
-    private readonly redisOrm: RedisORMService,
-  ) {}
+  constructor(private readonly redis: RedisService, private readonly redisOrm: RedisORMService) {}
 
   onModuleInit() {
     this.#greetingsRepository = this.redisOrm.fetchRepository(greetingsSchema);
-    this.#streamRepository = this.redisOrm.fetchRepository(streamSchema);
   }
 
   async #resetGreetings(channelId: string) {

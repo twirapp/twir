@@ -1,12 +1,10 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
 import * as Parser from '@tsuwari/nats/parser';
 import { CommandModule, CommandPermission, PrismaService } from '@tsuwari/prisma';
-import { commandSchema, RedisORMService } from '@tsuwari/redis';
-import { ClientProxy, RedisService } from '@tsuwari/shared';
+import { RedisService } from '@tsuwari/shared';
 import * as Knex from 'knex';
-import { lastValueFrom } from 'rxjs';
 
 import { nats } from '../libs/nats.js';
 
@@ -15,12 +13,7 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
   #logger = new Logger(DefaultCommandsCreatorService.name);
   #knex: Knex.Knex;
 
-  constructor(
-    private readonly prisma: PrismaService,
-    @Inject('NATS') private nats: ClientProxy,
-    private readonly redis: RedisService,
-    private readonly redisOrm: RedisORMService,
-  ) {}
+  constructor(private readonly prisma: PrismaService, private readonly redis: RedisService) {}
 
   async onModuleInit() {
     const knex = Knex.default({
@@ -35,9 +28,8 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
   async createDefaultCommands(usersIds?: string[]) {
     const msg = await nats.request('bots.getDefaultCommands', new Uint8Array());
     const { list: defaultCommands } = Parser.GetDefaultCommandsResponse.fromBinary(msg.data);
-    console.log(defaultCommands);
+
     const defaultCommandsNames = defaultCommands.map((c) => c.name);
-    const repository = this.redisOrm.fetchRepository(commandSchema);
 
     const channels: Array<{
       id: string;
@@ -93,7 +85,10 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
           aliases: [],
         };
 
-        await repository.createAndSave(commandForSet, `${channel.id}:${command.name}`);
+        await this.redis.set(
+          `commands:${channel.id}:${command.name}`,
+          JSON.stringify(commandForSet),
+        );
       }
     }
 
