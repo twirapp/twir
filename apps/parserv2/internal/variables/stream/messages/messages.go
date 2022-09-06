@@ -4,20 +4,23 @@ import (
 	"strconv"
 	types "tsuwari/parser/internal/types"
 	variablescache "tsuwari/parser/internal/variablescache"
+
+	"github.com/samber/lo"
 )
 
-const Name = "stream.messages"
-const Description = "Messages sended by users in this stream"
+var Variable = types.Variable{
+	Name:        "stream.messages",
+	Description: lo.ToPtr("Messages sended by users in this stream"),
+	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		result := types.VariableHandlerResult{}
 
-func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-	result := types.VariableHandlerResult{}
+		stream := ctx.GetChannelStream()
+		if stream != nil {
+			result.Result = strconv.Itoa(stream.Messages)
+		} else {
+			result.Result = "no stream"
+		}
 
-	stream := ctx.GetChannelStream()
-	if stream != nil {
-		result.Result = strconv.Itoa(stream.Messages)
-	} else {
-		result.Result = "no stream"
-	}
-
-	return &result, nil
+		return &result, nil
+	},
 }

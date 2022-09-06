@@ -11,39 +11,40 @@ import (
 	"github.com/samber/lo"
 )
 
-const Name = "top.messages"
-const Description = "Top users by messages"
+var Variable = types.Variable{
+	Name:        "top.messages",
+	Description: lo.ToPtr("Top users by messages"),
+	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		result := &types.VariableHandlerResult{}
+		var page int = 1
 
-func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-	result := &types.VariableHandlerResult{}
-	var page int = 1
+		if ctx.Context.Text != nil {
+			p, err := strconv.Atoi(*ctx.Context.Text)
+			if err != nil {
+				page = p
+			}
 
-	if ctx.Context.Text != nil {
-		p, err := strconv.Atoi(*ctx.Context.Text)
-		if err != nil {
-			page = p
+			if page <= 0 {
+				page = 1
+			}
 		}
 
-		if page <= 0 {
-			page = 1
+		topUsers := top.GetTop(ctx, ctx.Context.ChannelId, "messages", &page)
+
+		if topUsers == nil || len(*topUsers) == 0 {
+			return result, nil
 		}
-	}
 
-	topUsers := top.GetTop(ctx, ctx.Context.ChannelId, "messages", &page)
+		mappedTop := lo.Map(*topUsers, func(user *top.UserStats, idx int) string {
+			return fmt.Sprintf(
+				"%v. %s — %v",
+				(idx+1)+(page-1)*10,
+				user.UserName,
+				user.Value,
+			)
+		})
 
-	if topUsers == nil || len(*topUsers) == 0 {
+		result.Result = strings.Join(mappedTop, ", ")
 		return result, nil
-	}
-
-	mappedTop := lo.Map(*topUsers, func(user *top.UserStats, idx int) string {
-		return fmt.Sprintf(
-			"%v. %s — %v",
-			(idx+1)+(page-1)*10,
-			user.UserName,
-			user.Value,
-		)
-	})
-
-	result.Result = strings.Join(mappedTop, ", ")
-	return result, nil
+	},
 }

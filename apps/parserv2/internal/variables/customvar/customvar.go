@@ -11,48 +11,49 @@ import (
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variablescache"
 
+	"github.com/samber/lo"
 	v8 "rogchap.com/v8go"
 )
 
-const Name = "customvar"
-const Description = "Custom variable"
-
 var Iso = v8.NewIsolate()
 var Global = createGlobal(Iso)
+var Variable = types.Variable{
+	Name:        "customvar",
+	Description: lo.ToPtr("Custom variable"),
+	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		result := &types.VariableHandlerResult{}
+
+		if data.Params == nil {
+			return result, nil
+		}
+
+		v := getVarByName(ctx, *data.Params)
+
+		if v == nil {
+			return result, nil
+		}
+
+		if v.Type == nil {
+			return result, nil
+		}
+
+		if *v.Type == "SCRIPT" {
+			r := executeJs(*v.EvalValue)
+			if r != nil {
+				result.Result = *r
+			}
+		} else {
+			result.Result = *v.Response
+		}
+
+		return result, nil
+	},
+}
 
 type CustomVar struct {
 	Type      *string `json:"type"`
 	EvalValue *string `json:"evalValue"`
 	Response  *string `json:"response"`
-}
-
-func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-	result := &types.VariableHandlerResult{}
-
-	if data.Params == nil {
-		return result, nil
-	}
-
-	v := getVarByName(ctx, *data.Params)
-
-	if v == nil {
-		return result, nil
-	}
-
-	if v.Type == nil {
-		return result, nil
-	}
-
-	if *v.Type == "SCRIPT" {
-		r := executeJs(*v.EvalValue)
-		if r != nil {
-			result.Result = *r
-		}
-	} else {
-		result.Result = *v.Response
-	}
-
-	return result, nil
 }
 
 func getVarByName(ctx *variablescache.VariablesCacheService, name string) *CustomVar {

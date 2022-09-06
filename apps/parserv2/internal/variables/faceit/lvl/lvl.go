@@ -4,21 +4,24 @@ import (
 	"strconv"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variablescache"
+
+	"github.com/samber/lo"
 )
 
-const Name = "faceit.lvl"
-const Description = "Faceit Lvl"
+var Variable = types.Variable{
+	Name:        "faceit.lvl",
+	Description: lo.ToPtr("Faceit Lvl"),
+	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		result := &types.VariableHandlerResult{}
 
-func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-	result := &types.VariableHandlerResult{}
+		faceitData := ctx.GetFaceitUserData()
 
-	faceitData := ctx.GetFaceitUserData()
+		if faceitData == nil {
+			return result, nil
+		}
 
-	if faceitData == nil {
+		result.Result = strconv.Itoa(faceitData.Lvl)
+
 		return result, nil
-	}
-
-	result.Result = strconv.Itoa(faceitData.Lvl)
-
-	return result, nil
+	},
 }

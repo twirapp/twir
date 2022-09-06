@@ -13,6 +13,7 @@ import (
 	"tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
 
+	"github.com/samber/lo"
 	parserproto "github.com/satont/tsuwari/nats/parser"
 
 	"github.com/go-redis/redis/v9"
@@ -20,21 +21,24 @@ import (
 )
 
 type Commands struct {
-	defaultCommands  map[string]*types.DefaultCommand
+	DefaultCommands  []types.DefaultCommand
 	redis            *redis.Client
 	variablesService variables.Variables
 	Db               *gorm.DB
 }
 
 func New(redis *redis.Client, variablesService variables.Variables, db *gorm.DB) Commands {
+	commands := []types.DefaultCommand{
+		testcommand.Command,
+	}
+
 	ctx := Commands{
 		redis:            redis,
-		defaultCommands:  make(map[string]*types.DefaultCommand),
+		DefaultCommands:  commands,
 		variablesService: variablesService,
 		Db:               db,
 	}
 
-	ctx.defaultCommands[testcommand.Command.Name] = &testcommand.Command
 	return ctx
 }
 
@@ -114,8 +118,12 @@ func (c Commands) ParseCommandResponses(command FindByMessageResult, data parser
 
 	cmd := *command.Cmd
 
-	if cmd.Default && c.defaultCommands[*cmd.DefaultName] != nil {
-		results := c.defaultCommands[*cmd.DefaultName].Handler(types.VariableHandlerParams{
+	defaultCommand, isDefault := lo.Find(c.DefaultCommands, func(command types.DefaultCommand) bool {
+		return command.Name == *cmd.DefaultName
+	})
+
+	if cmd.Default && isDefault {
+		results := defaultCommand.Handler(types.VariableHandlerParams{
 			Key: "qwe",
 		})
 		responses = results

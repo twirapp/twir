@@ -1,16 +1,18 @@
 package testcommand
 
-import "tsuwari/parser/internal/types"
+import (
+	"tsuwari/parser/internal/types"
 
-var desc = "test"
-var module = "CHANNEL"
+	"github.com/samber/lo"
+)
 
 var Command = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "test",
-		Description: &desc,
+		Description: lo.ToPtr("test"),
 		Permission:  "MODERATOR",
 		Visible:     true,
+		Module:      lo.ToPtr("CHANNEL"),
 	},
 	Handler: Handler,
 }

@@ -10,6 +10,8 @@ import (
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
+
+	"github.com/samber/lo"
 )
 
 type Emote struct {
@@ -21,41 +23,42 @@ type BttvResponse struct {
 	SharedEmotes  []Emote `json:"sharedEmotes"`
 }
 
-const Name = "emotes.bttv"
-const Description = "Emotes of channel from https://betterttv.com/"
+var Variable = types.Variable{
+	Name:        "emotes.bttv",
+	Description: lo.ToPtr("Emotes of channel from https://betterttv.com/"),
+	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		resp, err := http.Get("https://api.betterttv.net/3/cached/users/twitch/" + ctx.Context.ChannelId)
+		if err != nil {
+			log.Fatalln(err)
+		}
 
-func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-	resp, err := http.Get("https://api.betterttv.net/3/cached/users/twitch/" + ctx.Context.ChannelId)
-	if err != nil {
-		log.Fatalln(err)
-	}
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatalln(err)
+		}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
+		reqData := BttvResponse{}
+		err = json.Unmarshal(body, &reqData)
+		if err != nil {
+			return nil, errors.New("cannot fetch ffz emotes")
+		}
 
-	reqData := BttvResponse{}
-	err = json.Unmarshal(body, &reqData)
-	if err != nil {
-		return nil, errors.New("cannot fetch ffz emotes")
-	}
+		emotes := []string{}
 
-	emotes := []string{}
+		mappedChannelEmotes := helpers.Map(reqData.ChannelEmotes, func(e Emote) string {
+			return e.Code
+		})
+		mappedSharedEmotes := helpers.Map(reqData.SharedEmotes, func(e Emote) string {
+			return e.Code
+		})
 
-	mappedChannelEmotes := helpers.Map(reqData.ChannelEmotes, func(e Emote) string {
-		return e.Code
-	})
-	mappedSharedEmotes := helpers.Map(reqData.SharedEmotes, func(e Emote) string {
-		return e.Code
-	})
+		emotes = append(emotes, mappedChannelEmotes...)
+		emotes = append(emotes, mappedSharedEmotes...)
 
-	emotes = append(emotes, mappedChannelEmotes...)
-	emotes = append(emotes, mappedSharedEmotes...)
+		result := types.VariableHandlerResult{
+			Result: strings.Join(emotes, " "),
+		}
 
-	result := types.VariableHandlerResult{
-		Result: strings.Join(emotes, " "),
-	}
-
-	return &result, nil
+		return &result, nil
+	},
 }

@@ -4,20 +4,23 @@ import (
 	types "tsuwari/parser/internal/types"
 	variablescache "tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
+
+	"github.com/samber/lo"
 )
 
-const Name = "user.age"
-const Description = "User account age"
+var Variable = types.Variable{
+	Name:        "user.age",
+	Description: lo.ToPtr("User account age"),
+	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		result := types.VariableHandlerResult{}
 
-func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-	result := types.VariableHandlerResult{}
+		user := ctx.GetTwitchUser()
+		if user == nil {
+			result.Result = "error on getting user"
+		} else {
+			result.Result = helpers.Duration(user.CreatedAt.Time)
+		}
 
-	user := ctx.GetTwitchUser()
-	if user == nil {
-		result.Result = "error on getting user"
-	} else {
-		result.Result = helpers.Duration(user.CreatedAt.Time)
-	}
-
-	return &result, nil
+		return &result, nil
+	},
 }

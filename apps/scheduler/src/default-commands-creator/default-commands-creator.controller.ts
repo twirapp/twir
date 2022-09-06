@@ -10,7 +10,6 @@ export class DefaultCommandsCreatorController {
 
   @MessagePattern('bots.createDefaultCommands')
   async setCommandCache(@Payload() data: ClientProxyCommandPayload<'bots.createDefaultCommands'>) {
-    // return await this.service.createDefaultCommands(data);
-    return true
+    return await this.service.createDefaultCommands(data);
   }
 }

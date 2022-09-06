@@ -90,7 +90,7 @@ func main() {
 	})
 
 	natsJson.Subscribe("bots.getVariables", func(m *nats.Msg) {
-		vars := lo.Map(lo.Values(variablesService.Store), func(v types.Variable, _ int) *parserproto.Variable {
+		vars := lo.Map(variablesService.Store, func(v types.Variable, _ int) *parserproto.Variable {
 			desc := v.Name
 			if v.Description != nil {
 				desc = *v.Description
@@ -104,6 +104,32 @@ func main() {
 
 		res, _ := proto.Marshal(&parserproto.GetVariablesResponse{
 			List: vars,
+		})
+
+		m.Respond(res)
+	})
+
+	natsJson.Subscribe("bots.getDefaultCommands", func(m *nats.Msg) {
+		list := make([]*parserproto.DefaultCommand, len(commandsService.DefaultCommands))
+
+		for _, v := range commandsService.DefaultCommands {
+			cmd := parserproto.DefaultCommand{
+				Name:        v.Name,
+				Description: *v.Description,
+				Visible:     v.Visible,
+				Permission:  v.Permission,
+				Module:      *v.Module,
+			}
+
+			list = append(list, &cmd)
+		}
+
+		list = lo.Filter(list, func(i *parserproto.DefaultCommand, _ int) bool {
+			return i != nil
+		})
+
+		res, _ := proto.Marshal(&parserproto.GetDefaultCommandsResponse{
+			List: list,
 		})
 
 		m.Respond(res)

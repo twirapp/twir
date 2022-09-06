@@ -40,3 +40,15 @@ message Variable {
 message GetVariablesResponse {
   repeated Variable list = 1;
 }
+
+message DefaultCommand {
+  string name = 1;
+  string description = 2;
+  bool visible = 3;
+  string permission = 4;
+  string module = 5;
+}
+
+message GetDefaultCommandsResponse {
+  repeated DefaultCommand list = 1;
+}
