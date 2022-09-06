@@ -13,6 +13,7 @@ import (
 	"tsuwari/parser/internal/config/redis"
 	twitch "tsuwari/parser/internal/config/twitch"
 	natshandler "tsuwari/parser/internal/handlers/nats"
+	usersauth "tsuwari/parser/internal/twitch/user"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
 
@@ -53,9 +54,14 @@ func main() {
 		panic(err)
 	}
 
+	usersAuthService := usersauth.New(usersauth.UsersServiceOpts{
+		Db:           db,
+		ClientId:     cfg.TwitchClientId,
+		ClientSecret: cfg.TwitchClientSecret,
+	})
 	twitchClient := twitch.New(*cfg)
-	variablesService := variables.New(r, twitchClient, db)
-	commandsService := commands.New(r, variablesService, db)
+	variablesService := variables.New(r, twitchClient, db, usersAuthService)
+	commandsService := commands.New(r, variablesService, db, usersAuthService)
 	natsHandler := natshandler.New(r, variablesService, commandsService)
 
 	if err != nil {

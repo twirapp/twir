@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 	testcommand "tsuwari/parser/internal/commands/test"
+	usersauth "tsuwari/parser/internal/twitch/user"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
 	"tsuwari/parser/internal/variablescache"
@@ -25,9 +26,10 @@ type Commands struct {
 	redis            *redis.Client
 	variablesService variables.Variables
 	Db               *gorm.DB
+	UsersAuth        *usersauth.UsersTokensService
 }
 
-func New(redis *redis.Client, variablesService variables.Variables, db *gorm.DB) Commands {
+func New(redis *redis.Client, variablesService variables.Variables, db *gorm.DB, usersAuth *usersauth.UsersTokensService) Commands {
 	commands := []types.DefaultCommand{
 		testcommand.Command,
 	}
@@ -37,6 +39,7 @@ func New(redis *redis.Client, variablesService variables.Variables, db *gorm.DB)
 		DefaultCommands:  commands,
 		variablesService: variablesService,
 		Db:               db,
+		UsersAuth:        usersAuth,
 	}
 
 	return ctx
@@ -125,6 +128,9 @@ func (c Commands) ParseCommandResponses(command FindByMessageResult, data parser
 	if cmd.Default && isDefault {
 		results := defaultCommand.Handler(types.VariableHandlerParams{
 			Key: "qwe",
+			Services: types.VariableHandlerParamsServices{
+				UsersAuth: c.UsersAuth,
+			},
 		})
 		responses = results
 	} else {

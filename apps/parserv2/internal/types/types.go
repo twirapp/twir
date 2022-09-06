@@ -1,12 +1,17 @@
 package types
 
 import (
+	usersauth "tsuwari/parser/internal/twitch/user"
 	variablescache "tsuwari/parser/internal/variablescache"
 )
 
+type VariableHandlerParamsServices struct {
+	UsersAuth *usersauth.UsersTokensService
+}
 type VariableHandlerParams struct {
-	Key    string
-	Params *string
+	Key      string
+	Params   *string
+	Services VariableHandlerParamsServices
 }
 
 type VariableHandlerResult struct {

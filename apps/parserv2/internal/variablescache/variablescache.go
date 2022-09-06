@@ -5,6 +5,7 @@ import (
 	"sync"
 	"tsuwari/parser/internal/config/twitch"
 	model "tsuwari/parser/internal/models"
+	usersauth "tsuwari/parser/internal/twitch/user"
 	"tsuwari/parser/internal/variables/stream"
 
 	"github.com/go-redis/redis/v9"
@@ -13,10 +14,11 @@ import (
 )
 
 type VariablesCacheServices struct {
-	Redis  *redis.Client
-	Regexp regexp.Regexp
-	Twitch *twitch.Twitch
-	Db     *gorm.DB
+	Redis     *redis.Client
+	Regexp    regexp.Regexp
+	Twitch    *twitch.Twitch
+	Db        *gorm.DB
+	UsersAuth *usersauth.UsersTokensService
 }
 
 type VariablesCacheContext struct {
