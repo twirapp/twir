@@ -1,24 +1,26 @@
-export enum PlanId {
-  basic,
-  pro,
+import type { BasicPlanFeatures, PlanId, ProPlanFeatures } from '@/data/pricingPlans.js';
+
+export type FeatureType = 'accessible' | 'limited';
+
+interface PlanFeatures {
+  [PlanId.basic]: BasicPlanFeatures;
+  [PlanId.pro]: ProPlanFeatures;
 }
 
-export enum FeatureType {
-  accessibly,
-  limited,
-}
+export type PricePlanLocale = PricePlansLocale[keyof PricePlansLocale];
 
-export interface PricePlanFeature {
-  status: FeatureType;
-  feature: string;
-}
-
-export interface PricePlan {
-  id: PlanId;
-  name: string;
-  price: number;
-  features: PricePlanFeature[];
-}
+export type PricePlansLocale = {
+  [P in PlanId]: {
+    name: string;
+    price: number;
+    features: {
+      [F in PlanFeatures[P]]: {
+        name: string;
+        status: FeatureType;
+      };
+    };
+  };
+};
 
 export type PlanColorTheme = 'purple' | 'gray';
 

@@ -4,44 +4,57 @@
       <img src="@/assets/CurveArrow.svg" class="absolute top-[30px] -left-[90px] -z-[1]" />
       <ClientOnly>
         <BlurryBlob
-          v-if="isBrowser"
           class="-top-[300px] -right-[140px] w-[490px] h-[276px] rotate-[27deg]"
           color="purple"
         />
       </ClientOnly>
       <img src="@/assets/MessageCircle.svg" class="absolute -z-[1] -bottom-3 right-28" />
       <h2 class="text-5xl font-semibold max-w-xl leading-[125%]">
-        Reviews from streamers and other viewers
+        {{ t('sections.reviews.title') }}
       </h2>
     </div>
     <ClientOnly>
-      <Swiper
-        :space-between="24"
-        :autoplay="{
-          delay: 1,
-          disableOnInteraction: false,
-        }"
-        :speed="2000"
-        slidesPerView="auto"
-        :centeredSlides="true"
-        :centeredSlidesBounds="true"
-        :loop="true"
-        :grabCursor="true"
-        :modules="modules"
-        class="mb-20"
-        @swiper="setSwiper"
-        @mouseenter="slider?.autoplay.stop()"
-        @mouseleave="slider?.autoplay.start()"
-      >
-        <SwiperSlide v-for="item in reviews" :key="item.id" style="width: 380px">
-          <ReviewCard
-            :username="item.username"
-            :comment="item.comment"
-            :rating="item.rating"
-            :avatarUrl="item.avatarUrl"
-          />
-        </SwiperSlide>
-      </Swiper>
+      <template #default>
+        <Swiper
+          :space-between="24"
+          :autoplay="{
+            delay: 1,
+            disableOnInteraction: false,
+          }"
+          :speed="2000"
+          slidesPerView="auto"
+          :centeredSlides="true"
+          :centeredSlidesBounds="true"
+          :loop="true"
+          :grabCursor="true"
+          :modules="modules"
+          class="mb-20"
+          @swiper="setSwiper"
+          @mouseenter="stopSlider"
+          @mouseleave="startSlider"
+        >
+          <SwiperSlide v-for="item in reviews" :key="item.id" style="width: 380px">
+            <ReviewCard
+              :username="item.username"
+              :comment="item.comment"
+              :rating="item.rating"
+              :avatarUrl="item.avatarUrl"
+            />
+          </SwiperSlide>
+        </Swiper>
+      </template>
+      <template #server>
+        <div class="inline-grid grid-flow-col w-screen overflow-hidden mb-20 gap-x-6">
+          <div v-for="item in reviews" :key="item.id" style="width: 380px">
+            <ReviewCard
+              :username="item.username"
+              :comment="item.comment"
+              :rating="item.rating"
+              :avatarUrl="item.avatarUrl"
+            />
+          </div>
+        </div>
+      </template>
     </ClientOnly>
   </section>
 </template>
@@ -54,19 +67,31 @@ import { ref } from 'vue';
 import 'swiper/css';
 
 import BlurryBlob from '@/components/BlurryBlob.vue';
-import ClientOnly from '@/components/ClientOnly';
+import ClientOnly from '@/components/ClientOnly.vue';
 import ReviewCard from '@/components/landing/ReviewCard.vue';
-import { useBrowser } from '@/hooks/useBrowser.js';
 import type { Review } from '@/types/review';
+import { useTranslation } from '@/utils/locales.js';
 
 defineProps<{reviews: Review[]}>();
 
-const { isBrowser } = useBrowser();
-
 const slider = ref<ISwiper | null>(null);
+
+const t = useTranslation<'landing'>();
 
 const setSwiper = (swiper: ISwiper) => {
   slider.value = swiper;
+};
+
+const stopSlider = () => {
+  if (slider.value) {
+    slider.value.autoplay.stop();
+  }
+};
+
+const startSlider = () => {
+  if (slider.value) {
+    slider.value.autoplay.start();
+  }
 };
 
 const modules = [Autoplay];

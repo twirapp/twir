@@ -1,7 +1,12 @@
 <template>
   <div class="inline-flex flex-col overflow-hidden rounded-[10px] bg-black-17">
     <div class="px-5 py-5 inline-flex border-b border-black-25 items-center">
-      <img :src="avatarUrl" class="w-11 h-11 rounded-full mr-[14px]" />
+      <div
+        class="w-11 h-11 rounded-full mr-[14px] bg-contain"
+        :style="{
+          backgroundImage: `url('${avatarUrl}')`,
+        }"
+      />
       <div class="inline-grid gap-y-[6px] justify-items-start">
         <span
           class="text-lg leading-[130%] whitespace-nowrap overflow-hidden text-ellipsis max-w-full"

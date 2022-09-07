@@ -1,4 +1,6 @@
+import type { BotFeature } from '@/types/botFeatures.js';
 import type { NavMenuLocale } from '@/types/navMenu.js';
+import type { PricePlansLocale } from '@/types/pricingPlan.js';
 
 interface ILandingLocale {
   navMenu: NavMenuLocale[];
@@ -21,7 +23,7 @@ interface ILandingLocale {
     features: {
       title: string;
       featuresInDev: string;
-      content: { name: string; description: string }[];
+      content: BotFeature[];
     };
     integrations: {
       preTitle: string;
@@ -44,14 +46,7 @@ interface ILandingLocale {
       title: string;
       features: string;
       perMonth: string;
-      plans: {
-        id: number;
-        name: string;
-        features: {
-          id: number;
-          name: string;
-        }[];
-      }[];
+      plans: PricePlansLocale;
     };
     subscribeForUpdates: {
       title: string;
