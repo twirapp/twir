@@ -2,11 +2,12 @@
   <section class="py-[100px] bg-black-10">
     <div class="container max-w-[1040px]">
       <div class="flex w-full justify-between mb-14">
-        <h2 class="font-semibold text-5xl leading-[130%]">Bot features</h2>
+        <h2 class="font-semibold text-5xl leading-[130%]">
+          {{ t('sections.features.title') }}
+        </h2>
         <a class="inline-flex items-center">
-          <span class="text-right text-xl text-gray-70 pr-[14px]">
-            Features in<br />
-            development
+          <span class="text-right text-xl text-gray-70 pr-[14px] max-w-[140px]">
+            {{ t('sections.features.featuresInDev') }}
           </span>
           <TswArrowIcon
             arrowName="ArrowInCircle"
@@ -18,12 +19,11 @@
         </a>
       </div>
       <ul class="grid gap-6 grid-cols-2">
-        <li v-for="feature in features" :key="feature.id">
+        <li v-for="(feature, i) in features" :key="i">
           <FeatureCard
-            :title="feature.title"
+            :title="feature.name"
             :description="feature.description"
-            :actionText="feature.actionText"
-            :actionHref="feature.actionHref"
+            :actionHref="'#'"
           />
         </li>
       </ul>
@@ -36,6 +36,9 @@ import { TswArrowIcon } from '@tsuwari/ui-components';
 
 import FeatureCard from '@/components/landing/FeatureCard.vue';
 import type { BotFeature } from '@/types/botFeatures';
+import { useTranslation } from '@/utils/locales.js';
 
 defineProps<{ features: BotFeature[] }>();
+
+const t = useTranslation<'landing'>();
 </script>
