@@ -1,2 +1,5 @@
 parser/*
 !parser/go.mod
+
+bots/*
+!bots/go.mod

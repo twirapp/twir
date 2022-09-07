@@ -9,6 +9,7 @@ import (
 	"tsuwari/parser/internal/variables/stream"
 
 	"github.com/go-redis/redis/v9"
+	"github.com/nats-io/nats.go"
 	"github.com/nicklaw5/helix"
 	"gorm.io/gorm"
 )
@@ -38,14 +39,16 @@ type ExecutionServices struct {
 	Twitch    *twitch.Twitch
 	Db        *gorm.DB
 	UsersAuth *usersauth.UsersTokensService
+	Nats      *nats.Conn
 }
 
 type ExecutionContext struct {
-	ChannelId  string
-	SenderId   string
-	SenderName string
-	Text       *string
-	Services   ExecutionServices
+	ChannelName string
+	ChannelId   string
+	SenderId    string
+	SenderName  string
+	Text        *string
+	Services    ExecutionServices
 }
 
 type VariablesCacheService struct {
@@ -55,23 +58,25 @@ type VariablesCacheService struct {
 }
 
 type VariablesCacheOpts struct {
-	Text       *string
-	SenderId   string
-	ChannelId  string
-	SenderName *string
-	Redis      *redis.Client
-	Regexp     *regexp.Regexp
-	Twitch     *twitch.Twitch
-	DB         *gorm.DB
+	Text        *string
+	SenderId    string
+	ChannelName string
+	ChannelId   string
+	SenderName  *string
+	Redis       *redis.Client
+	Regexp      *regexp.Regexp
+	Twitch      *twitch.Twitch
+	DB          *gorm.DB
 }
 
 func New(opts VariablesCacheOpts) *VariablesCacheService {
 	cache := &VariablesCacheService{
 		ExecutionContext: ExecutionContext{
-			ChannelId:  opts.ChannelId,
-			SenderId:   opts.SenderId,
-			SenderName: *opts.SenderName,
-			Text:       opts.Text,
+			ChannelName: opts.ChannelName,
+			ChannelId:   opts.ChannelId,
+			SenderId:    opts.SenderId,
+			SenderName:  *opts.SenderName,
+			Text:        opts.Text,
 			Services: ExecutionServices{
 				Redis:  opts.Redis,
 				Regexp: opts.Regexp,

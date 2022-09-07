@@ -9,6 +9,7 @@ import (
 	"sync"
 	channel_game "tsuwari/parser/internal/commands/channel/game"
 	channel_title "tsuwari/parser/internal/commands/channel/title"
+	"tsuwari/parser/internal/commands/nuke"
 	"tsuwari/parser/internal/commands/permit"
 	"tsuwari/parser/internal/commands/spam"
 	usersauth "tsuwari/parser/internal/twitch/user"
@@ -17,6 +18,7 @@ import (
 	variables_cache "tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
 
+	"github.com/nats-io/nats.go"
 	"github.com/samber/lo"
 	parserproto "github.com/satont/tsuwari/nats/parser"
 
@@ -30,6 +32,7 @@ type Commands struct {
 	variablesService variables.Variables
 	Db               *gorm.DB
 	UsersAuth        *usersauth.UsersTokensService
+	Nats             *nats.Conn
 }
 
 type CommandsOpts struct {
@@ -37,6 +40,7 @@ type CommandsOpts struct {
 	VariablesService variables.Variables
 	Db               *gorm.DB
 	UsersAuth        *usersauth.UsersTokensService
+	Nats             *nats.Conn
 }
 
 func New(opts CommandsOpts) Commands {
@@ -45,6 +49,7 @@ func New(opts CommandsOpts) Commands {
 		channel_game.Command,
 		permit.Command,
 		spam.Command,
+		nuke.Command,
 	}
 
 	ctx := Commands{
@@ -53,6 +58,7 @@ func New(opts CommandsOpts) Commands {
 		variablesService: opts.VariablesService,
 		Db:               opts.Db,
 		UsersAuth:        opts.UsersAuth,
+		Nats:             opts.Nats,
 	}
 
 	return ctx
@@ -145,16 +151,18 @@ func (c *Commands) ParseCommandResponses(command FindByMessageResult, data parse
 
 	if cmd.Default && isDefaultExists {
 		results := defaultCommand.Handler(variables_cache.ExecutionContext{
-			ChannelId:  data.Channel.Id,
-			SenderId:   data.Sender.Id,
-			SenderName: data.Sender.Name,
-			Text:       cmdParams,
+			ChannelName: data.Channel.Name,
+			ChannelId:   data.Channel.Id,
+			SenderId:    data.Sender.Id,
+			SenderName:  data.Sender.Name,
+			Text:        cmdParams,
 			Services: variables_cache.ExecutionServices{
 				Redis:     c.redis,
 				Regexp:    nil,
 				Twitch:    c.variablesService.Twitch,
 				Db:        c.Db,
 				UsersAuth: c.UsersAuth,
+				Nats:      c.Nats,
 			},
 		})
 		responses = results

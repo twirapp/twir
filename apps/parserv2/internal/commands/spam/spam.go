@@ -12,7 +12,7 @@ import (
 var Command = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "spam",
-		Description: lo.ToPtr("Permits user."),
+		Description: lo.ToPtr("Spam into chat. Example usage: <b>!spam 5 https://tsuwari.tk</b>"),
 		Permission:  "MODERATOR",
 		Visible:     true,
 		Module:      lo.ToPtr("CHANNEL"),

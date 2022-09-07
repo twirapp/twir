@@ -71,6 +71,7 @@ func main() {
 		VariablesService: variablesService,
 		Db:               db,
 		UsersAuth:        usersAuthService,
+		Nats:             n,
 	})
 	natsHandlers := natshandlers.New(r, variablesService, commandsService)
 
