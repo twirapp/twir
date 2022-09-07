@@ -2,25 +2,29 @@
   <header :ref="(h) => (headerStore.set(h as HTMLElement))">
     <div class="flex container py-3 items-center justify-between">
       <div class="flex-1 flex">
-        <div class="mr-auto">
-          <a class="inline-grid items-center grid-flow-col gap-x-[10px] p-2" href="#">
+        <div class="mr-auto flex items-center justify-between max-lg:w-full">
+          <a class="inline-grid items-center grid-flow-col gap-x-[10px] p-2 max-lg:p-1" href="#">
             <img :src="Logo" alt="Tsuwari logo" />
             <span class="font-medium text-xl">Tsuwari</span>
           </a>
+          <BurgerMenuButton v-model:state="menuState" class="min-lg:hidden" />
+          <MobileMenu />
         </div>
       </div>
       <NavMenu
         menuItemClass="header-nav-link"
         menuClass="inline-grid grid-flow-col gap-x-2"
         :menuItems="menuItems"
+        class="max-lg:hidden"
       />
-      <div class="flex-1 flex">
+      <div class="flex-1 flex max-lg:bg-red-60 max-lg:hidden">
         <div class="inline-grid grid-flow-col gap-x-3 items-center ml-auto">
           <LangSelect @change="setLocale" />
           <a href="#" class="login-btn">{{ t('buttons.login') }}</a>
         </div>
       </div>
     </div>
+
     <ClientOnly>
       <div
         :class="{
@@ -36,10 +40,13 @@
 import { useStore } from '@nanostores/vue';
 import { useWindowScroll } from '@vueuse/core';
 import { navigate } from 'vite-plugin-ssr/client/router';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import Logo from '@/assets/NewLogo.svg';
 import ClientOnly from '@/components/ClientOnly.vue';
+import BurgerMenuButton from '@/components/landing/layout/BurgerMenuButton.vue';
+import MobileMenu from '@/components/landing/layout/MobileMenu.vue';
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import LangSelect from '@/components/LangSelect/LangSelect.vue';
 import { headerStore, headerHeightStore } from '@/stores/landing/header.js';
@@ -65,6 +72,8 @@ async function setLocale(locale: Locale) {
 }
 
 const { y: windowY } = useWindowScroll();
+
+const menuState = ref<boolean>(false);
 </script>
 
 <style lang="postcss">
@@ -78,6 +87,10 @@ header {
     z-20
     bg-black-10 bg-opacity-80
     backdrop-blur-sm backdrop-saturate-[180%];
+
+  .container {
+    @apply max-w-[1200px] px-6 max-lg:px-4;
+  }
 }
 
 .header-bottom-line {
@@ -111,5 +124,16 @@ header {
     hover:text-purple-95
     border-2 border-opacity-0 border-purple-70
     transition-colors;
+}
+
+.mobile-menu {
+  @apply block
+    fixed
+    w-full
+    left-0
+    right-0
+    bottom-0
+    max-w-[100vw]
+    z-50;
 }
 </style>

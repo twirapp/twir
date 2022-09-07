@@ -6,13 +6,27 @@ module.exports = {
   container: {
     center: true,
     screens: {
-      xs: '360px',
-      sm: '568px',
-      md: '768px',
-      lg: '996px',
-      xl: '1200px',
-      '2xl': '1480px',
+      xs: { max: '360px' },
+      sm: { max: '568px' },
+      md: { max: '768px' },
+      lg: { max: '996px' },
+      xl: { max: '1200px' },
+      '2xl': { max: '1480px' },
     },
+  },
+  screens: {
+    'max-xs': { max: '360px' },
+    'min-xs': { min: '360px' },
+    'max-sm': { max: '568px' },
+    'min-sm': { min: '568px' },
+    'max-md': { max: '768px' },
+    'min-md': { min: '768px' },
+    'max-lg': { max: '996px' },
+    'min-lg': { min: '996px' },
+    'max-xl': { max: '1200px' },
+    'min-xl': { min: '1200px' },
+    'max-2xl': { max: '1480px' },
+    'min-2xl': { min: '1480px' },
   },
   colors: {
     black: {
@@ -55,5 +69,19 @@ module.exports = {
       60: '#ED3F4A',
       65: '#EF555E',
     },
+  },
+  keyframes: {
+    fadeInDown: {
+      from: { opacity: '0', transform: 'translateY(-20px)' },
+      to: { opacity: '1', transform: 'translateY(0)' },
+    },
+    fadeIn: {
+      from: { opacity: '0' },
+      to: { opacity: '1' },
+    },
+  },
+  animation: {
+    fadeInDown: 'fadeInDown 1s forwards',
+    fadeIn: 'fadeIn 1s forwards',
   },
 };
