@@ -14,16 +14,49 @@
       </template>
     </ClientOnly>
 
-    <div class="container">
+    <div class="container animate-fadeIn">
       <div class="inline-flex flex-col items-center w-full pt-32 pb-40">
         <h1
-          class="font-bold text-7xl text-center gradient-title max-w-[690px]"
+          class="
+            font-bold
+            text-7xl text-center
+            gradient-title
+            max-w-[690px]
+            animate-fadeInDown
+            opacity-0
+            z-10
+          "
           v-html="t('sections.firstScreen.title')"
         ></h1>
-        <p class="text-center leading-[145%] text-gray-70 text-[22px] pt-7 max-w-[600px]">
+        <p
+          class="
+            text-center
+            leading-[145%]
+            text-gray-70 text-[22px]
+            pt-7
+            max-w-[600px]
+            animate-fadeInDown
+            animation-delay-200
+            opacity-0
+            z-10
+          "
+        >
           {{ t('tagline') }}
         </p>
-        <div class="inline-grid grid-flow-col gap-x-3 min-w-[320px] mt-12">
+        <div
+          class="
+            relative
+            z-10
+            inline-grid
+            grid-flow-col
+            gap-x-3
+            min-w-[320px]
+            mt-12
+            opacity-0
+            animate-fadeIn
+            animation-delay-500
+          "
+        >
           <a
             class="
               inline-flex
@@ -36,6 +69,7 @@
               justify-center
               leading-tight
               text-center
+              cursor-pointer
             "
           >
             {{ t('buttons.learnMore') }}
@@ -50,16 +84,20 @@
               justify-center
               leading-tight
               text-center
+              cursor-pointer
             "
           >
             {{ t('buttons.startForFree') }}
           </a>
         </div>
       </div>
-      <img class="absolute -bottom-[438px] -z-10 mx-auto left-0 right-0" src="@/assets/Waves.svg" />
-      <img src="@/assets/Rhombus.svg" class="absolute top-[15%] right-[24%]" />
-      <img class="absolute top-[41%] left-[22%]" src="@/assets/Lighting.svg" />
-      <img src="@/assets/SmileBot.svg" class="absolute right-[216px] bottom-[200px]" />
+      <img
+        class="absolute -bottom-[438px] -z-10 mx-auto left-0 right-0 select-none"
+        src="@/assets/Waves.svg"
+      />
+      <img src="@/assets/Rhombus.svg" class="absolute top-[15%] right-[24%] select-none" />
+      <img class="absolute top-[41%] left-[22%] select-none" src="@/assets/Lighting.svg" />
+      <img src="@/assets/SmileBot.svg" class="absolute right-[216px] select-none bottom-[200px]" />
     </div>
   </section>
 </template>
@@ -80,5 +118,14 @@ const t = useTranslation<'landing'>();
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.15;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="relative min-h-screen">
     <Header :menuItems="tm('navMenu')" />
-    <main>
+    <main class="overflow-x-hidden">
       <slot />
     </main>
   </div>

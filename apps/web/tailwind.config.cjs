@@ -6,5 +6,5 @@ module.exports = {
     ...tsuwariTheme,
     extends: {},
   },
-  plugins: [],
+  plugins: [require('tailwindcss-animation-delay')],
 };
