@@ -1,4 +1,4 @@
-package variablescache
+package variables_cache
 
 import model "tsuwari/parser/internal/models"
 
@@ -11,7 +11,7 @@ func (c *VariablesCacheService) GetGbUser() *model.UsersStats {
 	}
 
 	result := model.UsersStats{}
-	err := c.Services.Db.Where(`"userId" = ? AND "channelId" = ?`, c.Context.SenderId, c.Context.ChannelId).Find(&result).Error
+	err := c.Services.Db.Where(`"userId" = ? AND "channelId" = ?`, c.SenderId, c.ChannelId).Find(&result).Error
 	if err == nil {
 		c.cache.DbUserStats = &result
 	}

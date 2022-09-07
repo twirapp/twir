@@ -2,5 +2,5 @@ package model
 
 type UserWitchToken struct {
 	Users
-	Token Tokens `gorm:"foreignKey:tokenId"`
+	Token Tokens `gorm:"foreignKey:TokenID"`
 }

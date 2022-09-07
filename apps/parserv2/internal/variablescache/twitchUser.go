@@ -1,4 +1,4 @@
-package variablescache
+package variables_cache
 
 import "github.com/nicklaw5/helix"
 
@@ -11,7 +11,7 @@ func (c *VariablesCacheService) GetTwitchUser() *helix.User {
 	}
 
 	users, err := c.Services.Twitch.Client.GetUsers(&helix.UsersParams{
-		IDs: []string{c.Context.SenderId},
+		IDs: []string{c.SenderId},
 	})
 
 	if err == nil && len(users.Data.Users) != 0 {

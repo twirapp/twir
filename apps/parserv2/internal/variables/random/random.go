@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 	types "tsuwari/parser/internal/types"
-	variablescache "tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
@@ -15,7 +15,7 @@ import (
 var Variable = types.Variable{
 	Name:        "random",
 	Description: lo.ToPtr("Random number from N to N"),
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		rand.Seed(time.Now().UnixNano())
 
 		params := [2]int{0, 50}

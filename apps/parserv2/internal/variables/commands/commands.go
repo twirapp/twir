@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/samber/lo"
@@ -17,9 +17,9 @@ const Description = "List of commands"
 
 var Variable = types.Variable{
 	Name: "commands.list",
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		rCtx := context.TODO()
-		keys, err := ctx.Services.Redis.Keys(rCtx, fmt.Sprintf("commands:%s:*", ctx.Context.ChannelId)).Result()
+		keys, err := ctx.Services.Redis.Keys(rCtx, fmt.Sprintf("commands:%s:*", ctx.ChannelId)).Result()
 
 		if err != nil {
 			return nil, err
@@ -55,7 +55,7 @@ var Variable = types.Variable{
 	Description: lo.ToPtr("Command list"),
 }
 
-/* func Handler(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+/* func Handler(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 	rCtx := context.TODO()
 	keys, err := ctx.Services.Redis.Keys(rCtx, fmt.Sprintf("commands:%s:*", ctx.Context.ChannelId)).Result()
 

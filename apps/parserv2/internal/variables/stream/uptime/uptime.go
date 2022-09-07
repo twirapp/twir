@@ -2,7 +2,7 @@ package streamuptime
 
 import (
 	types "tsuwari/parser/internal/types"
-	variablescache "tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/samber/lo"
@@ -11,7 +11,7 @@ import (
 var Variable = types.Variable{
 	Name:        "stream.uptime",
 	Description: lo.ToPtr("Stream uptime"),
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
 		stream := ctx.GetChannelStream()

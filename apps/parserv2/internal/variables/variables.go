@@ -26,7 +26,7 @@ import (
 	userage "tsuwari/parser/internal/variables/user/age"
 	userfollowage "tsuwari/parser/internal/variables/user/followage"
 	usermessages "tsuwari/parser/internal/variables/user/messages"
-	variablescache "tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/go-redis/redis/v9"
 	"github.com/samber/lo"
@@ -43,7 +43,14 @@ type Variables struct {
 
 var Regexp = regexp.MustCompile(`(?m)\$\((?P<all>(?P<main>[^.)|]+)(?:\.[^)|]+)?)(?:\|(?P<params>[^)]+))?\)`)
 
-func New(redis *redis.Client, twitchApi *twitch.Twitch, db *gorm.DB, usersAuthService *usersauth.UsersTokensService) Variables {
+type VariablesOpts struct {
+	Redis     *redis.Client
+	TwitchApi *twitch.Twitch
+	Db        *gorm.DB
+	UsersAuth *usersauth.UsersTokensService
+}
+
+func New(opts VariablesOpts) Variables {
 	store := []types.Variable{
 		commandsvariable.Variable,
 		customvar.Variable,
@@ -68,16 +75,16 @@ func New(redis *redis.Client, twitchApi *twitch.Twitch, db *gorm.DB, usersAuthSe
 
 	ctx := Variables{
 		Store:     store,
-		Redis:     redis,
-		Twitch:    twitchApi,
-		Db:        db,
-		UsersAuth: usersAuthService,
+		Redis:     opts.Redis,
+		Twitch:    opts.TwitchApi,
+		Db:        opts.Db,
+		UsersAuth: opts.UsersAuth,
 	}
 
 	return ctx
 }
 
-func (c Variables) ParseInput(cache *variablescache.VariablesCacheService, input string) string {
+func (c Variables) ParseInput(cache *variables_cache.VariablesCacheService, input string) string {
 	wg := sync.WaitGroup{}
 
 	for _, s := range Regexp.FindAllString(input, len(input)) {

@@ -12,7 +12,7 @@ import (
 	mynats "tsuwari/parser/internal/config/nats"
 	"tsuwari/parser/internal/config/redis"
 	twitch "tsuwari/parser/internal/config/twitch"
-	natshandler "tsuwari/parser/internal/handlers/nats"
+	natshandlers "tsuwari/parser/internal/handlers/nats"
 	usersauth "tsuwari/parser/internal/twitch/user"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
@@ -60,9 +60,19 @@ func main() {
 		ClientSecret: cfg.TwitchClientSecret,
 	})
 	twitchClient := twitch.New(*cfg)
-	variablesService := variables.New(r, twitchClient, db, usersAuthService)
-	commandsService := commands.New(r, variablesService, db, usersAuthService)
-	natsHandler := natshandler.New(r, variablesService, commandsService)
+	variablesService := variables.New(variables.VariablesOpts{
+		Redis:     r,
+		TwitchApi: twitchClient,
+		Db:        db,
+		UsersAuth: usersAuthService,
+	})
+	commandsService := commands.New(commands.CommandsOpts{
+		Redis:            r,
+		VariablesService: variablesService,
+		Db:               db,
+		UsersAuth:        usersAuthService,
+	})
+	natsHandlers := natshandlers.New(r, variablesService, commandsService)
 
 	if err != nil {
 		panic(err)
@@ -75,7 +85,7 @@ func main() {
 
 	natsJson.Subscribe("parser.handleProcessCommand", func(m *nats.Msg) {
 		start := time.Now()
-		r := natsHandler.HandleProcessCommand(m)
+		r := natsHandlers.HandleProcessCommand(m)
 
 		if r != nil {
 			res, _ := proto.Marshal(&parserproto.Response{
@@ -118,8 +128,8 @@ func main() {
 	natsJson.Subscribe("bots.getDefaultCommands", func(m *nats.Msg) {
 		list := make([]*parserproto.DefaultCommand, len(commandsService.DefaultCommands))
 
-		for _, v := range commandsService.DefaultCommands {
-			cmd := parserproto.DefaultCommand{
+		for i, v := range commandsService.DefaultCommands {
+			cmd := &parserproto.DefaultCommand{
 				Name:        v.Name,
 				Description: *v.Description,
 				Visible:     v.Visible,
@@ -127,12 +137,12 @@ func main() {
 				Module:      *v.Module,
 			}
 
-			list = append(list, &cmd)
+			list[i] = cmd
 		}
 
-		list = lo.Filter(list, func(i *parserproto.DefaultCommand, _ int) bool {
+		/* 		list = lo.Filter(list, func(i *parserproto.DefaultCommand, _ int) bool {
 			return i != nil
-		})
+		}) */
 
 		res, _ := proto.Marshal(&parserproto.GetDefaultCommandsResponse{
 			List: list,

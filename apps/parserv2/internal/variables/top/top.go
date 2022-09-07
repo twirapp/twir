@@ -3,7 +3,8 @@ package top
 import (
 	"fmt"
 	model "tsuwari/parser/internal/models"
-	"tsuwari/parser/internal/variablescache"
+
+	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/nicklaw5/helix"
 	"github.com/samber/lo"
@@ -15,7 +16,7 @@ type UserStats struct {
 	Value       int
 }
 
-func GetTop(ctx *variablescache.VariablesCacheService, channelId string, topType string, page *int) *[]*UserStats {
+func GetTop(ctx *variables_cache.VariablesCacheService, channelId string, topType string, page *int) *[]*UserStats {
 	if page == nil {
 		newPage := 1
 		page = &newPage

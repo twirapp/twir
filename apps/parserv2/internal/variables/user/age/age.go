@@ -2,8 +2,9 @@ package userage
 
 import (
 	types "tsuwari/parser/internal/types"
-	variablescache "tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
+
+	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
@@ -11,7 +12,7 @@ import (
 var Variable = types.Variable{
 	Name:        "user.age",
 	Description: lo.ToPtr("User account age"),
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
 		user := ctx.GetTwitchUser()

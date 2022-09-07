@@ -3,7 +3,7 @@ package faceitlvl
 import (
 	"strconv"
 	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
@@ -11,7 +11,7 @@ import (
 var Variable = types.Variable{
 	Name:        "faceit.lvl",
 	Description: lo.ToPtr("Faceit Lvl"),
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		faceitData := ctx.GetFaceitUserData()

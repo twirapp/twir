@@ -1,4 +1,4 @@
-package variablescache
+package variables_cache
 
 import (
 	"regexp"
@@ -12,21 +12,6 @@ import (
 	"github.com/nicklaw5/helix"
 	"gorm.io/gorm"
 )
-
-type VariablesCacheServices struct {
-	Redis     *redis.Client
-	Regexp    regexp.Regexp
-	Twitch    *twitch.Twitch
-	Db        *gorm.DB
-	UsersAuth *usersauth.UsersTokensService
-}
-
-type VariablesCacheContext struct {
-	ChannelId  string
-	SenderId   string
-	SenderName string
-	Text       *string
-}
 
 type variablesCache struct {
 	Stream       *stream.HelixStream
@@ -47,26 +32,52 @@ type variablesLocks struct {
 	faceitMatches     *sync.Mutex
 }
 
-type VariablesCacheService struct {
-	Context  VariablesCacheContext
-	Services VariablesCacheServices
-	cache    variablesCache
-	locks    *variablesLocks
+type ExecutionServices struct {
+	Redis     *redis.Client
+	Regexp    *regexp.Regexp
+	Twitch    *twitch.Twitch
+	Db        *gorm.DB
+	UsersAuth *usersauth.UsersTokensService
 }
 
-func New(text *string, senderId string, channelId string, senderName *string, redis *redis.Client, r regexp.Regexp, twitch *twitch.Twitch, db *gorm.DB) *VariablesCacheService {
+type ExecutionContext struct {
+	ChannelId  string
+	SenderId   string
+	SenderName string
+	Text       *string
+	Services   ExecutionServices
+}
+
+type VariablesCacheService struct {
+	ExecutionContext
+	cache variablesCache
+	locks *variablesLocks
+}
+
+type VariablesCacheOpts struct {
+	Text       *string
+	SenderId   string
+	ChannelId  string
+	SenderName *string
+	Redis      *redis.Client
+	Regexp     *regexp.Regexp
+	Twitch     *twitch.Twitch
+	DB         *gorm.DB
+}
+
+func New(opts VariablesCacheOpts) *VariablesCacheService {
 	cache := &VariablesCacheService{
-		Context: VariablesCacheContext{
-			ChannelId:  channelId,
-			SenderId:   senderId,
-			SenderName: *senderName,
-			Text:       text,
-		},
-		Services: VariablesCacheServices{
-			Redis:  redis,
-			Regexp: r,
-			Twitch: twitch,
-			Db:     db,
+		ExecutionContext: ExecutionContext{
+			ChannelId:  opts.ChannelId,
+			SenderId:   opts.SenderId,
+			SenderName: *opts.SenderName,
+			Text:       opts.Text,
+			Services: ExecutionServices{
+				Redis:  opts.Redis,
+				Regexp: opts.Regexp,
+				Twitch: opts.Twitch,
+				Db:     opts.DB,
+			},
 		},
 		cache: variablesCache{},
 		locks: &variablesLocks{

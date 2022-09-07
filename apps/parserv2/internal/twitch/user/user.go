@@ -2,6 +2,7 @@ package usersauth
 
 import (
 	"fmt"
+	"time"
 	model "tsuwari/parser/internal/models"
 
 	helix "github.com/satont/go-helix"
@@ -38,16 +39,17 @@ func New(opts UsersServiceOpts) *UsersTokensService {
 func (c UsersTokensService) Create(userId string) (*helix.Client, error) {
 	user := model.UserWitchToken{}
 
-	err := c.db.Where(`"id" = ?`, userId).Find(&user).Error
-
+	err := c.db.Where(`id = ?`, userId).Preload("Token").Find(&user).Error
 	if err != nil {
 		return nil, err
 	}
 
 	refreshFunc := func(tokenData helix.RefreshTokenResponse) {
 		err := c.db.Where(`"id" = ?`, user.Token.ID).Updates(model.Tokens{
-			AccessToken:  tokenData.Data.AccessToken,
-			RefreshToken: tokenData.Data.RefreshToken,
+			AccessToken:         tokenData.Data.AccessToken,
+			RefreshToken:        tokenData.Data.RefreshToken,
+			ExpiresIn:           int32(tokenData.Data.ExpiresIn),
+			ObtainmentTimestamp: time.Now(),
 		}).Error
 
 		if err != nil {

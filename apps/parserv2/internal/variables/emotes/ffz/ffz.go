@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 	types "tsuwari/parser/internal/types"
-	variablescache "tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/samber/lo"
@@ -29,8 +29,8 @@ type FfzResponse struct {
 var Variable = types.Variable{
 	Name:        "emotes.ffz",
 	Description: lo.ToPtr("Emotes of channel from https://frankerfacez.com"),
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-		resp, err := http.Get("https://api.frankerfacez.com/v1/room/id/" + ctx.Context.ChannelId)
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		resp, err := http.Get("https://api.frankerfacez.com/v1/room/id/" + ctx.ChannelId)
 		if err != nil {
 			log.Fatalln(err)
 		}

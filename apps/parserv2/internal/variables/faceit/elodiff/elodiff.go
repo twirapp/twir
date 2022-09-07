@@ -3,7 +3,7 @@ package faceitelodiff
 import (
 	"strconv"
 	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
@@ -11,7 +11,7 @@ import (
 var Variable = types.Variable{
 	Name:        "faceit.todayEloDiff",
 	Description: lo.ToPtr("Faceit today elo earned"),
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		matches := ctx.GetFaceitLatestMatches()

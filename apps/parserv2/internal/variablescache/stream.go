@@ -1,4 +1,4 @@
-package variablescache
+package variables_cache
 
 import (
 	"context"
@@ -17,7 +17,7 @@ func (c *VariablesCacheService) GetChannelStream() *stream.HelixStream {
 	}
 
 	rCtx := context.TODO()
-	rKey := "streams:" + c.Context.ChannelId
+	rKey := "streams:" + c.ChannelId
 	cachedStream, _ := c.Services.Redis.Get(rCtx, rKey).Result()
 
 	if cachedStream != "" {
@@ -26,7 +26,7 @@ func (c *VariablesCacheService) GetChannelStream() *stream.HelixStream {
 	}
 
 	streams, err := c.Services.Twitch.Client.GetStreams(&helix.StreamsParams{
-		UserIDs: []string{c.Context.ChannelId},
+		UserIDs: []string{c.ChannelId},
 	})
 
 	if err != nil || len(streams.Data.Streams) == 0 {

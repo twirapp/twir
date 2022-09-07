@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/samber/lo"
@@ -23,8 +23,8 @@ type SevenTvResponse []Emote
 var Variable = types.Variable{
 	Name:        "emotes.7tv",
 	Description: lo.ToPtr("Emotes of channel from https://7tv.app"),
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-		resp, err := http.Get("https://api.7tv.app/v2/users/" + ctx.Context.ChannelId + "/emotes")
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		resp, err := http.Get("https://api.7tv.app/v2/users/" + ctx.ChannelId + "/emotes")
 		if err != nil {
 			log.Fatalln(err)
 		}

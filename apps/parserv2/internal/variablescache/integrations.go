@@ -1,4 +1,4 @@
-package variablescache
+package variables_cache
 
 import model "tsuwari/parser/internal/models"
 
@@ -11,7 +11,7 @@ func (c *VariablesCacheService) GetEnabledIntegrations() *[]model.ChannelInegrat
 	}
 
 	result := &[]model.ChannelInegrationWithRelation{}
-	err := c.Services.Db.Where(`"channelId" = ? AND enabled = ?`, c.Context.ChannelId, true).Joins("Integration").Find(result).Error
+	err := c.Services.Db.Where(`"channelId" = ? AND enabled = ?`, c.ChannelId, true).Joins("Integration").Find(result).Error
 
 	if err == nil {
 		c.cache.Integrations = result

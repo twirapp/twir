@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/samber/lo"
@@ -26,8 +26,8 @@ type BttvResponse struct {
 var Variable = types.Variable{
 	Name:        "emotes.bttv",
 	Description: lo.ToPtr("Emotes of channel from https://betterttv.com/"),
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-		resp, err := http.Get("https://api.betterttv.net/3/cached/users/twitch/" + ctx.Context.ChannelId)
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		resp, err := http.Get("https://api.betterttv.net/3/cached/users/twitch/" + ctx.ChannelId)
 		if err != nil {
 			log.Fatalln(err)
 		}

@@ -2,7 +2,7 @@ package sender
 
 import (
 	types "tsuwari/parser/internal/types"
-	variablescache "tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
@@ -10,8 +10,8 @@ import (
 var Variable = types.Variable{
 	Name:        "sender",
 	Description: lo.ToPtr("Username of user, who sended message"),
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-		result := types.VariableHandlerResult{Result: ctx.Context.SenderName}
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		result := types.VariableHandlerResult{Result: ctx.SenderName}
 
 		return &result, nil
 	},

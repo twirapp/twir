@@ -3,7 +3,7 @@ package streamviewers
 import (
 	"strconv"
 	types "tsuwari/parser/internal/types"
-	variablescache "tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
@@ -11,7 +11,7 @@ import (
 var Variable = types.Variable{
 	Name:        "stream.viewers",
 	Description: lo.ToPtr("Stream viewers"),
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
 		stream := ctx.GetChannelStream()

@@ -2,7 +2,7 @@ package types
 
 import (
 	usersauth "tsuwari/parser/internal/twitch/user"
-	variablescache "tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 )
 
 type VariableHandlerParamsServices struct {
@@ -18,7 +18,7 @@ type VariableHandlerResult struct {
 	Result string
 }
 
-type VariableHandler func(ctx *variablescache.VariablesCacheService, data VariableHandlerParams) (*VariableHandlerResult, error)
+type VariableHandler func(ctx *variables_cache.VariablesCacheService, data VariableHandlerParams) (*VariableHandlerResult, error)
 type Variable struct {
 	Name          string
 	Handler       VariableHandler
@@ -46,7 +46,7 @@ type Command struct {
 type DefaultCommand struct {
 	Command
 
-	Handler func(data VariableHandlerParams) []string
+	Handler func(ctx variables_cache.ExecutionContext) []string
 }
 
 type Sender struct {

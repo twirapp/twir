@@ -6,7 +6,7 @@ import (
 	vkIntegr "tsuwari/parser/internal/integrations/vk"
 	model "tsuwari/parser/internal/models"
 	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
@@ -14,7 +14,7 @@ import (
 var Variable = types.Variable{
 	Name:        "song",
 	Description: lo.ToPtr("Current played song"),
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		integrations := *ctx.GetEnabledIntegrations()

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables/top"
-	"tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
@@ -14,12 +14,12 @@ import (
 var Variable = types.Variable{
 	Name:        "top.messages",
 	Description: lo.ToPtr("Top users by messages"),
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 		var page int = 1
 
-		if ctx.Context.Text != nil {
-			p, err := strconv.Atoi(*ctx.Context.Text)
+		if ctx.Text != nil {
+			p, err := strconv.Atoi(*ctx.Text)
 			if err != nil {
 				page = p
 			}
@@ -29,7 +29,7 @@ var Variable = types.Variable{
 			}
 		}
 
-		topUsers := top.GetTop(ctx, ctx.Context.ChannelId, "messages", &page)
+		topUsers := top.GetTop(ctx, ctx.ChannelId, "messages", &page)
 
 		if topUsers == nil || len(*topUsers) == 0 {
 			return result, nil

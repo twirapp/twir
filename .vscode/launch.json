@@ -10,14 +10,9 @@
       "sourceMaps": true,
       "restart": true,
       "localRoot": "${workspaceFolder}/apps/api",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/apps/api/dist/**/*",
-      ],
+      "resolveSourceMapLocations": ["${workspaceFolder}/apps/api/dist/**/*"],
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "<node_internals>/**",
-        "${workspaceFolder}/apps/api/<node_internals>/**",
-      ],
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/apps/api/<node_internals>/**"],
       "autoAttachChildProcesses": false,
       "trace": false
     },
@@ -30,14 +25,9 @@
       "sourceMaps": true,
       "restart": true,
       "localRoot": "${workspaceFolder}/apps/bots",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/apps/bots/dist/**/*",
-      ],
+      "resolveSourceMapLocations": ["${workspaceFolder}/apps/bots/dist/**/*"],
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "<node_internals>/**",
-        "${workspaceFolder}/apps/bots/<node_internals>/**",
-      ],
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/apps/bots/<node_internals>/**"],
       "autoAttachChildProcesses": false,
       "trace": false
     },
@@ -50,14 +40,9 @@
       "sourceMaps": true,
       "restart": true,
       "localRoot": "${workspaceFolder}/apps/dota",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/apps/dota/dist/**/*",
-      ],
+      "resolveSourceMapLocations": ["${workspaceFolder}/apps/dota/dist/**/*"],
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "<node_internals>/**",
-        "${workspaceFolder}/apps/dota/<node_internals>/**",
-      ],
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/apps/dota/<node_internals>/**"],
       "autoAttachChildProcesses": false,
       "trace": false
     },
@@ -70,14 +55,9 @@
       "sourceMaps": true,
       "restart": true,
       "localRoot": "${workspaceFolder}/apps/eventsub",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/apps/eventsub/dist/**/*",
-      ],
+      "resolveSourceMapLocations": ["${workspaceFolder}/apps/eventsub/dist/**/*"],
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "<node_internals>/**",
-        "${workspaceFolder}/apps/eventsub/<node_internals>/**",
-      ],
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/apps/eventsub/<node_internals>/**"],
       "autoAttachChildProcesses": false,
       "trace": false
     },
@@ -90,14 +70,9 @@
       "sourceMaps": true,
       "restart": true,
       "localRoot": "${workspaceFolder}/apps/parser",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/apps/parser/dist/**/*",
-      ],
+      "resolveSourceMapLocations": ["${workspaceFolder}/apps/parser/dist/**/*"],
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "<node_internals>/**",
-        "${workspaceFolder}/apps/parser/<node_internals>/**",
-      ],
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/apps/parser/<node_internals>/**"],
       "autoAttachChildProcesses": false,
       "trace": false
     },
@@ -110,14 +85,9 @@
       "sourceMaps": true,
       "restart": true,
       "localRoot": "${workspaceFolder}/apps/scheduler",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/apps/scheduler/dist/**/*",
-      ],
+      "resolveSourceMapLocations": ["${workspaceFolder}/apps/scheduler/dist/**/*"],
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "<node_internals>/**",
-        "${workspaceFolder}/apps/scheduler/<node_internals>/**",
-      ],
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/apps/scheduler/<node_internals>/**"],
       "autoAttachChildProcesses": false,
       "trace": false
     },
@@ -130,16 +100,21 @@
       "sourceMaps": true,
       "restart": true,
       "localRoot": "${workspaceFolder}/apps/streamstatus",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/apps/streamstatus/dist/**/*",
-      ],
+      "resolveSourceMapLocations": ["${workspaceFolder}/apps/streamstatus/dist/**/*"],
       "internalConsoleOptions": "neverOpen",
       "skipFiles": [
         "<node_internals>/**",
-        "${workspaceFolder}/apps/streamstatus/<node_internals>/**",
+        "${workspaceFolder}/apps/streamstatus/<node_internals>/**"
       ],
       "autoAttachChildProcesses": false,
       "trace": false
     },
+    {
+      "name": "Go parser",
+      "type": "go",
+      "request": "attach",
+      "mode": "local",
+      "processId": "${command:pickGoProcess}"
+    }
   ]
 }

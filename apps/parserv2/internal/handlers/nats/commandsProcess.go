@@ -20,7 +20,7 @@ func (c natsService) HandleProcessCommand(m *nats.Msg) *[]string {
 	if !strings.HasPrefix(data.Message.Text, "!") {
 		return nil
 	}
-	data.Message.Text = strings.ToLower(data.Message.Text[1:])
+	data.Message.Text = data.Message.Text[1:]
 
 	cmds, err := c.commands.GetChannelCommands(data.Channel.Id)
 	if err != nil {

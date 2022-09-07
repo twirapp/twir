@@ -7,11 +7,12 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	testcommand "tsuwari/parser/internal/commands/test"
+	channel_game "tsuwari/parser/internal/commands/channel/game"
+	channel_title "tsuwari/parser/internal/commands/channel/title"
 	usersauth "tsuwari/parser/internal/twitch/user"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
-	"tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/samber/lo"
@@ -29,23 +30,31 @@ type Commands struct {
 	UsersAuth        *usersauth.UsersTokensService
 }
 
-func New(redis *redis.Client, variablesService variables.Variables, db *gorm.DB, usersAuth *usersauth.UsersTokensService) Commands {
+type CommandsOpts struct {
+	Redis            *redis.Client
+	VariablesService variables.Variables
+	Db               *gorm.DB
+	UsersAuth        *usersauth.UsersTokensService
+}
+
+func New(opts CommandsOpts) Commands {
 	commands := []types.DefaultCommand{
-		testcommand.Command,
+		channel_title.Command,
+		channel_game.Command,
 	}
 
 	ctx := Commands{
-		redis:            redis,
+		redis:            opts.Redis,
 		DefaultCommands:  commands,
-		variablesService: variablesService,
-		Db:               db,
-		UsersAuth:        usersAuth,
+		variablesService: opts.VariablesService,
+		Db:               opts.Db,
+		UsersAuth:        opts.UsersAuth,
 	}
 
 	return ctx
 }
 
-func (c Commands) GetChannelCommands(channelId string) (*[]types.Command, error) {
+func (c *Commands) GetChannelCommands(channelId string) (*[]types.Command, error) {
 	rCtx := context.TODO()
 	keys, err := c.redis.Keys(rCtx, fmt.Sprintf("commands:%s:*", channelId)).Result()
 
@@ -80,7 +89,7 @@ type FindByMessageResult struct {
 	FoundBy string
 }
 
-func (c Commands) FindByMessage(input string, cmds *[]types.Command) FindByMessageResult {
+func (c *Commands) FindByMessage(input string, cmds *[]types.Command) FindByMessageResult {
 	msg := strings.ToLower(input)
 	splittedName := splittedNameRegexp.FindAllString(msg, -1)
 
@@ -116,19 +125,31 @@ func (c Commands) FindByMessage(input string, cmds *[]types.Command) FindByMessa
 	return res
 }
 
-func (c Commands) ParseCommandResponses(command FindByMessageResult, data parserproto.Request) []string {
+func (c *Commands) ParseCommandResponses(command FindByMessageResult, data parserproto.Request) []string {
 	responses := []string{}
 
 	cmd := *command.Cmd
+	var cmdParams *string
+	params := strings.TrimSpace(data.Message.Text[len(command.FoundBy):])
+	if len(params) > 0 {
+		cmdParams = &params
+	}
 
-	defaultCommand, isDefault := lo.Find(c.DefaultCommands, func(command types.DefaultCommand) bool {
+	defaultCommand, isDefaultExists := lo.Find(c.DefaultCommands, func(command types.DefaultCommand) bool {
 		return command.Name == *cmd.DefaultName
 	})
 
-	if cmd.Default && isDefault {
-		results := defaultCommand.Handler(types.VariableHandlerParams{
-			Key: "qwe",
-			Services: types.VariableHandlerParamsServices{
+	if cmd.Default && isDefaultExists {
+		results := defaultCommand.Handler(variables_cache.ExecutionContext{
+			ChannelId:  data.Channel.Id,
+			SenderId:   data.Sender.Id,
+			SenderName: data.Sender.Name,
+			Text:       cmdParams,
+			Services: variables_cache.ExecutionServices{
+				Redis:     c.redis,
+				Regexp:    nil,
+				Twitch:    c.variablesService.Twitch,
+				Db:        c.Db,
 				UsersAuth: c.UsersAuth,
 			},
 		})
@@ -137,17 +158,19 @@ func (c Commands) ParseCommandResponses(command FindByMessageResult, data parser
 		responses = cmd.Responses
 	}
 
-	var cmdParams *string
-	params := strings.TrimSpace(data.Message.Text[len(command.FoundBy):])
-	if len(params) > 0 {
-		cmdParams = &params
-	}
-
 	wg := sync.WaitGroup{}
 	for i, r := range responses {
 		wg.Add(1)
 		// TODO: concatenate all responses into one slice and use it for cache
-		cacheService := variablescache.New(cmdParams, data.Sender.Id, data.Channel.Id, &data.Sender.Name, c.redis, *variables.Regexp, c.variablesService.Twitch, c.Db)
+		cacheService := variables_cache.New(variables_cache.VariablesCacheOpts{
+			Text:       cmdParams,
+			SenderId:   data.Sender.Id,
+			ChannelId:  data.Channel.Id,
+			SenderName: &data.Sender.DisplayName,
+			Redis:      c.redis,
+			Regexp:     variables.Regexp,
+			Twitch:     c.variablesService.Twitch,
+		})
 
 		go func(i int, r string) {
 			defer wg.Done()

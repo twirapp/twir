@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variablescache"
+	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 	v8 "rogchap.com/v8go"
@@ -20,7 +20,7 @@ var Global = createGlobal(Iso)
 var Variable = types.Variable{
 	Name:        "customvar",
 	Description: lo.ToPtr("Custom variable"),
-	Handler: func(ctx *variablescache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		if data.Params == nil {
@@ -56,9 +56,9 @@ type CustomVar struct {
 	Response  *string `json:"response"`
 }
 
-func getVarByName(ctx *variablescache.VariablesCacheService, name string) *CustomVar {
+func getVarByName(ctx *variables_cache.VariablesCacheService, name string) *CustomVar {
 	variable := &CustomVar{}
-	r, err := ctx.Services.Redis.Get(CTX.TODO(), fmt.Sprintf("variables:%s:%s", ctx.Context.ChannelId, name)).Result()
+	r, err := ctx.Services.Redis.Get(CTX.TODO(), fmt.Sprintf("variables:%s:%s", ctx.ChannelId, name)).Result()
 	if err == nil {
 		json.Unmarshal([]byte(r), variable)
 	}

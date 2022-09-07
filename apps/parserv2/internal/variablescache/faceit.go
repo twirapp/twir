@@ -1,4 +1,4 @@
-package variablescache
+package variables_cache
 
 import (
 	"encoding/json"

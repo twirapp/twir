@@ -1,4 +1,4 @@
-package variablescache
+package variables_cache
 
 import "github.com/nicklaw5/helix"
 
@@ -11,8 +11,8 @@ func (c *VariablesCacheService) GetFollowAge() *helix.UserFollow {
 	}
 
 	follow, err := c.Services.Twitch.Client.GetUsersFollows(&helix.UsersFollowsParams{
-		FromID: c.Context.SenderId,
-		ToID:   c.Context.ChannelId,
+		FromID: c.SenderId,
+		ToID:   c.ChannelId,
 	})
 
 	if err == nil && len(follow.Data.Follows) != 0 {
