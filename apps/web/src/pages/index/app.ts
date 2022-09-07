@@ -1,6 +1,6 @@
 import { Component, createSSRApp, defineComponent, h, markRaw, reactive } from 'vue';
 
-import Layout from '@/components/landing/layout/Layout.vue';
+import LandingLayout from '@/components/landing/layout/LandingLayout.vue';
 import { setPageContext } from '@/hooks/usePageContext.js';
 import type { PageContext } from '@/types/pageContext.js';
 import { objectAssign } from '@/utils/objectAssign.js';
@@ -21,7 +21,7 @@ export function createApp(pageContext: PageContext) {
     },
     render() {
       return h(
-        Layout,
+        LandingLayout,
         {},
         {
           default: () => {

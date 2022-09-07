@@ -1,7 +1,4 @@
 export interface BotFeature {
-  title: string;
+  name: string;
   description: string;
-  actionText: string;
-  actionHref: string;
-  id: number;
 }

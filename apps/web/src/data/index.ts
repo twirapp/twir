@@ -1,7 +1,5 @@
 import TextAvatarUrl from '@/assets/avatar.png';
-import type { BotFeature } from '@/types/botFeatures.js';
 import { NavMenuHrefs, NavMenuTabs } from '@/types/navMenu.js';
-import { FeatureType, PlanColorThemes, PlanId, PricePlan } from '@/types/pricingPlan.js';
 import type { Review } from '@/types/review.js';
 import type { SocialMediaItem } from '@/types/socialMedia.js';
 import type { StatInfo } from '@/types/statsLine.js';
@@ -69,75 +67,6 @@ export const reviews: Review[] = [
     rating: 4,
   },
 ];
-
-export const features: BotFeature[] = [
-  {
-    id: 1,
-    title: 'Commands',
-    description:
-      'Facilisi eget laoreet quam fringilla pulvinar diam. Risus massa ut pellentesque mi. Facilisi lobortis erat nibh diam nunc nunc. Sit natoque risus, ut malesuada',
-    actionText: 'Try feature',
-    actionHref: '#',
-  },
-  {
-    id: 2,
-    title: 'Moderation',
-    description:
-      'Facilisi eget laoreet quam fringilla pulvinar diam. Risus massa ut pellentesque mi. Facilisi lobortis erat nibh diam nunc nunc. Sit natoque risus, ut malesuada',
-    actionText: 'Try feature',
-    actionHref: '#',
-  },
-  {
-    id: 3,
-    title: 'Timers',
-    description:
-      'Facilisi eget laoreet quam fringilla pulvinar diam. Risus massa ut pellentesque mi. Facilisi lobortis erat nibh diam nunc nunc. Sit natoque risus, ut malesuada',
-    actionText: 'Try feature',
-    actionHref: '#',
-  },
-  {
-    id: 4,
-    title: 'Greatings',
-    description:
-      'Facilisi eget laoreet quam fringilla pulvinar diam. Risus massa ut pellentesque mi. Facilisi lobortis erat nibh diam nunc nunc. Sit natoque risus, ut malesuada',
-    actionText: 'Try feature',
-    actionHref: '#',
-  },
-];
-
-export const pricePlans: PricePlan[] = [
-  {
-    id: PlanId.basic,
-    name: 'Basic plan',
-    price: 0,
-    features: [
-      { status: FeatureType.accessibly, feature: 'Unlimited commands' },
-      { status: FeatureType.accessibly, feature: '24 hours access' },
-      { status: FeatureType.accessibly, feature: '5 integrations' },
-      { status: FeatureType.accessibly, feature: 'Unlimited commands' },
-      { status: FeatureType.limited, feature: 'Maximum 3 users' },
-      { status: FeatureType.limited, feature: 'Maximum 3 users' },
-    ],
-  },
-  {
-    id: PlanId.pro,
-    name: 'Pro plan',
-    price: 10,
-    features: [
-      { status: FeatureType.accessibly, feature: 'Unlimited commands' },
-      { status: FeatureType.accessibly, feature: '24 hours access' },
-      { status: FeatureType.accessibly, feature: '5 integrations' },
-      { status: FeatureType.accessibly, feature: 'Unlimited commands' },
-      { status: FeatureType.accessibly, feature: 'Maximum 3 users' },
-      { status: FeatureType.accessibly, feature: 'Maximum 3 users' },
-    ],
-  },
-];
-
-export const planColorThemes: PlanColorThemes = {
-  [PlanId.basic]: 'gray',
-  [PlanId.pro]: 'purple',
-};
 
 export const teamMembers: TeamMember[] = [
   {

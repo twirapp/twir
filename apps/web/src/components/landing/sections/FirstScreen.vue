@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <section class="relative overflow-hidden">
     <ClientOnly>
@@ -12,36 +13,46 @@
         />
       </template>
     </ClientOnly>
-    
+
     <div class="container">
-      <div class="inline-flex flex-col items-center w-full pt-28 pb-40">
-        <h1 class="font-bold text-7xl text-center">
-          The
-          <span class="gradient-title">perfect bot</span><br />
-          for your stream
-        </h1>
-        <p class="text-center leading-[145%] text-gray-70 text-[22px] pt-6">
-          Created by streamers. Made for streamers.<br />
-          Used by streamers. For streamers with love
+      <div class="inline-flex flex-col items-center w-full pt-32 pb-40">
+        <h1
+          class="font-bold text-7xl text-center gradient-title max-w-[690px]"
+          v-html="t('sections.firstScreen.title')"
+        ></h1>
+        <p class="text-center leading-[145%] text-gray-70 text-[22px] pt-7 max-w-[600px]">
+          {{ t('tagline') }}
         </p>
-        <div class="inline-grid grid-flow-col gap-x-3 w-[320px] mt-12">
+        <div class="inline-grid grid-flow-col gap-x-3 min-w-[320px] mt-12">
           <a
             class="
               inline-flex
               text-white-95
               bg-black-10
               border border-black-25
-              px-5
+              px-6
               py-3
               rounded-full
               justify-center
               leading-tight
+              text-center
             "
           >
-            Learn more
+            {{ t('buttons.learnMore') }}
           </a>
-          <a class="inline-flex bg-purple-60 px-5 py-3 rounded-full justify-center leading-tight">
-            Start for free
+          <a
+            class="
+              inline-flex
+              bg-purple-60
+              px-6
+              py-3
+              rounded-full
+              justify-center
+              leading-tight
+              text-center
+            "
+          >
+            {{ t('buttons.startForFree') }}
           </a>
         </div>
       </div>
@@ -55,11 +66,14 @@
 
 <script lang="ts" setup>
 import BlurryBlob from '@/components/BlurryBlob.vue';
-import ClientOnly from '@/components/ClientOnly';
+import ClientOnly from '@/components/ClientOnly.vue';
+import { useTranslation } from '@/utils/locales.js';
+
+const t = useTranslation<'landing'>();
 </script>
 
 <style lang="postcss">
-.gradient-title {
+.gradient-title span {
   background: linear-gradient(258.67deg, #d34bf4 4.22%, #905bff 73.01%);
 
   background-clip: text;

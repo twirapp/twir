@@ -6,7 +6,7 @@
       </h6>
       <span class="inline-grid grid-flow-col items-baseline gap-x-2">
         <span class="text-[44px] font-medium">${{ plan.price }}</span>
-        <span class="price-per">per month</span>
+        <span class="price-per">{{ t('sections.pricing.perMonth') }}</span>
       </span>
       <a
         href="#"
@@ -25,21 +25,23 @@
       </a>
     </div>
     <div class="p-6">
-      <span class="uppercase tracking-wider plan-features-title mb-5 block">Features</span>
+      <span class="uppercase tracking-wider plan-features-title mb-5 block">
+        {{ t('sections.pricing.features') }}
+      </span>
       <ul class="grid gap-y-3">
-        <li v-for="(feature, index) in plan.features" :key="index" class="inline-flex">
+        <li v-for="(feature, featureId) in plan.features" :key="featureId" class="inline-flex">
           <TswIcon
             :name="featureTypeIcons[feature.status]"
             size="22px"
             :class="`feature-icon mr-3 ${
               colorTheme === 'purple'
                 ? 'stroke-white-100'
-                : feature.status === FeatureType.accessibly
-                ? 'stroke-purple-80'
-                : 'stroke-gray-70'
+                : feature.status === 'accessible'
+                  ? 'stroke-purple-80'
+                  : 'stroke-gray-70'
             }`"
           />
-          <span>{{ feature.feature }}</span>
+          <span>{{ feature.name }}</span>
         </li>
       </ul>
     </div>
@@ -48,19 +50,23 @@
 
 <script lang="ts" setup>
 import { TswIcon } from '@tsuwari/ui-components';
-import type { IconName } from '@tsuwari/ui-icons';
+import { computed } from 'vue';
 
-import { FeatureType, PlanColorTheme } from '@/types/pricingPlan';
-import type { PricePlan } from '@/types/pricingPlan';
+import { featureTypeIcons } from '@/data/pricingPlans.js';
+import type { PlanColorTheme, PricePlanLocale } from '@/types/pricingPlan';
+import { useTranslation } from '@/utils/locales.js';
 
-const props = defineProps<{ plan: PricePlan; colorTheme: PlanColorTheme }>();
+const props =
+  defineProps<{
+    plan: PricePlanLocale;
+    colorTheme: PlanColorTheme;
+  }>();
 
-const featureTypeIcons: { [K in FeatureType]: IconName } = {
-  [FeatureType.accessibly]: 'Check',
-  [FeatureType.limited]: 'Minus',
-};
+const t = useTranslation<'landing'>();
 
-const buttonText = props.plan.price > 0 ? 'Buy plan' : 'Get started';
+const buttonText = computed(() =>
+  props.plan.price > 0 ? t('buttons.buyPlan') : t('buttons.getStarted'),
+);
 </script>
 
 <style lang="postcss" scoped>

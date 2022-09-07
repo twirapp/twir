@@ -7,7 +7,7 @@
       {{ description }}
     </p>
     <a :href="actionHref" class="text-purple-80 inline-flex items-center">
-      {{ actionText }}
+      {{ t('buttons.learnMore') }}
       <TswArrowIcon arrowName="ArrowNarrow" size="24px" class="stroke-purple-80 ml-[7px]" />
     </a>
   </div>
@@ -16,10 +16,13 @@
 <script lang="ts" setup>
 import { TswArrowIcon } from '@tsuwari/ui-components';
 
+import { useTranslation } from '@/utils/locales.js';
+
 defineProps<{
   title: string;
   description: string;
-  actionText: string;
   actionHref: string;
 }>();
+
+const t = useTranslation<'landing'>();
 </script>

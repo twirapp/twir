@@ -8,16 +8,16 @@
               <img src="@/assets/NewLogo.svg" class="w-[30px] h-[30px]" />
               <span class="text-2xl ml-3 font-medium">Tsuwari</span>
             </div>
-            <p class="text-sm text-gray-60 max-w-xs mt-[14px]">
-              Created by streamers. Made for streamers. Used by streamers. For streamers with love.
+            <p class="text-sm text-gray-60 max-w-sm mt-[14px]">
+              {{ t('tagline') }}
             </p>
           </div>
           <div class="inline-grid grid-flow-col gap-x-8">
-            <ul class="inline-grid grid-flow-col gap-x-6">
-              <li v-for="item in menuItems" :key="item.id">
-                <a :href="navMenuHrefs[item.id]" class="leading-[130%]">{{ item.name }}</a>
-              </li>
-            </ul>
+            <NavMenu
+              :menuItems="menuItems"
+              menuClass="inline-grid grid-flow-col gap-x-6"
+              menuItemClass="leading-[130%]"
+            />
             <ul class="inline-grid grid-flow-col gap-x-3">
               <li v-for="item in socials" :key="item.id">
                 <a :href="item.href">
@@ -26,19 +26,22 @@
               </li>
             </ul>
           </div>
-          <span class="text-sm text-gray-60">© Tsuwari 2022. All rights reserved.</span>
+          <span class="text-sm text-gray-60">
+            {{ t('sections.footer.rights', {year: new Date().getFullYear()}) }}
+          </span>
         </div>
         <div class="inline-flex flex-col py-10 px-8 items-start">
-          <h6 class="text-2xl font-medium mb-5">Subscribe for updates</h6>
+          <h6 class="text-2xl font-medium mb-5">
+            {{ t('sections.subscribeForUpdates.title') }}
+          </h6>
           <p class="text-sm text-gray-60 mb-6">
-            Non rhoncus, neque arcu, commodo malesuada sed porttitor dictumst integer. Suscipit
-            dictum quam ut blandit amet.
+            {{ t('sections.subscribeForUpdates.description') }}
           </p>
           <form class="relative inline-flex max-w-[320px] w-full">
             <input
               type="email"
               class="w-full bg-black-10 text-sm rounded-full px-[18px] py-3 focus:outline-none"
-              placeholder="Type your email"
+              :placeholder="t('sections.subscribeForUpdates.inputPlaceholder')"
             />
             <button
               type="submit"
@@ -56,9 +59,12 @@
 <script lang="ts" setup>
 import { TswIcon, TswArrowIcon } from '@tsuwari/ui-components';
 
-import { navMenuHrefs } from '@/data/index';
+import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import type { NavMenuLocale } from '@/types/navMenu.js';
 import type { SocialMediaItem } from '@/types/socialMedia.js';
+import { useTranslation } from '@/utils/locales.js';
 
 defineProps<{ menuItems: NavMenuLocale[]; socials: SocialMediaItem[] }>();
+
+const t = useTranslation<'landing'>();
 </script>
