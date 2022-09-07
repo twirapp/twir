@@ -17,7 +17,7 @@ var Variable = types.Variable{
 		if stream != nil {
 			result.Result = stream.GameName
 		} else {
-			result.Result = "no stream"
+			result.Result = "stream offline"
 		}
 
 		return &result, nil

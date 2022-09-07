@@ -15,6 +15,7 @@ import (
 var Variable = types.Variable{
 	Name:        "random",
 	Description: lo.ToPtr("Random number from N to N"),
+	Example:     lo.ToPtr("random|1-100"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		rand.Seed(time.Now().UnixNano())
 

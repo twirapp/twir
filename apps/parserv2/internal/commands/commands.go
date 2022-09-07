@@ -146,7 +146,11 @@ func (c *Commands) ParseCommandResponses(command FindByMessageResult, data parse
 	}
 
 	defaultCommand, isDefaultExists := lo.Find(c.DefaultCommands, func(command types.DefaultCommand) bool {
-		return command.Name == *cmd.DefaultName
+		if cmd.DefaultName != nil {
+			return command.Name == *cmd.DefaultName
+		} else {
+			return false
+		}
 	})
 
 	if cmd.Default && isDefaultExists {
@@ -182,6 +186,7 @@ func (c *Commands) ParseCommandResponses(command FindByMessageResult, data parse
 			Redis:      c.redis,
 			Regexp:     variables.Regexp,
 			Twitch:     c.variablesService.Twitch,
+			DB:         c.Db,
 		})
 
 		go func(i int, r string) {

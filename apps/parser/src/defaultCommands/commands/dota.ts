@@ -13,7 +13,6 @@ import { DefaultCommand } from '../types.js';
 const prisma = app.get(PrismaService);
 const redis = app.get(RedisService);
 const nats = app.get('NATS').providers[0].useValue as ClientProxy;
-const redisOm = app.get(RedisORMService);
 
 const messages = Object.freeze({
   GAME_NOT_FOUND: 'Game not found.' as string,

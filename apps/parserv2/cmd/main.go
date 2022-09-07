@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"runtime"
 	"time"
 	"tsuwari/parser/internal/commands"
 	"tsuwari/parser/internal/config/cfg"
@@ -103,7 +102,6 @@ func main() {
 		}
 
 		log.Printf("Binomial took %s", time.Since(start))
-		PrintMemUsage()
 	})
 
 	natsJson.Subscribe("bots.getVariables", func(m *nats.Msg) {
@@ -112,9 +110,13 @@ func main() {
 			if v.Description != nil {
 				desc = *v.Description
 			}
+			example := v.Name
+			if v.Example != nil {
+				example = *v.Example
+			}
 			return &parserproto.Variable{
 				Name:        v.Name,
-				Example:     "",
+				Example:     example,
 				Description: desc,
 			}
 		})
@@ -159,15 +161,4 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 	<-c
 	log.Fatalf("Exiting")
-}
-
-func PrintMemUsage() {
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
-	fmt.Printf("Alloc = %v MiB", bToMb(m.Alloc))
-}
-
-func bToMb(b uint64) uint64 {
-	return b / 1024 / 1024
 }
