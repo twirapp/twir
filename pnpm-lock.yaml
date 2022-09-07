@@ -512,6 +512,8 @@ importers:
       '@fastify/middie': ^8.0.0
       '@fastify/static': ^6.5.0
       '@intlify/vite-plugin-vue-i18n': 6.0.1
+      '@nanostores/persistent': 0.6.0
+      '@nanostores/vue': 0.5.5
       '@tsuwari/ui-components': workspace:*
       '@tsuwari/ui-fonts': workspace:*
       '@tsuwari/ui-icons': workspace:*
@@ -522,6 +524,7 @@ importers:
       autoprefixer: ^10.4.8
       cross-env: ^7.0.3
       fastify: ^4.5.3
+      nanostores: 0.6.0
       postcss: ^8.4.16
       swiper: ^8.3.2
       tailwindcss: ^3.1.8
@@ -538,6 +541,8 @@ importers:
       fastify: 4.5.3
     devDependencies:
       '@intlify/vite-plugin-vue-i18n': 6.0.1_vite@3.1.3+vue-i18n@9.2.2
+      '@nanostores/persistent': 0.6.0_nanostores@0.6.0
+      '@nanostores/vue': 0.5.5_jcek7dbclq7f4suoygxks7kh6m
       '@tsuwari/ui-components': link:../../libs/ui/components
       '@tsuwari/ui-fonts': link:../../libs/ui/fonts
       '@tsuwari/ui-icons': link:../../libs/ui/icons
@@ -546,6 +551,7 @@ importers:
       '@vue/server-renderer': 3.2.37_vue@3.2.37
       '@vueuse/core': 9.1.0_vue@3.2.37
       autoprefixer: 10.4.10_postcss@8.4.16
+      nanostores: 0.6.0
       postcss: 8.4.16
       swiper: 8.4.2
       tailwindcss: 3.1.8
@@ -2914,7 +2920,6 @@ packages:
       nanostores: ^0.6.0
     dependencies:
       nanostores: 0.6.0
-    dev: false
 
   /@nanostores/vue/0.5.5_jcek7dbclq7f4suoygxks7kh6m:
     resolution: {integrity: sha512-hqmTe9Fi09o94MO6dLYCMzlRMTpyXUGhYx42vYv2CxhY0lPFkyySyljXBOZk1my0bkBz2STDMVe7WILwjZiwFA==}
@@ -2929,7 +2934,6 @@ packages:
     dependencies:
       nanostores: 0.6.0
       vue: 3.2.37
-    dev: false
 
   /@nestjs-hybrid-auth/core/1.0.1_bnr7ep6snzlfkhaoqb7mdwsj4q:
     resolution: {integrity: sha512-xORk/Ubr8st0NvfL0Hw8wFJVrE2cWArjjosXrvYGWh4HePOszmpxeYaBh5OwICo6IweJgrnphbmHms9L1H8oGg==}
@@ -13125,7 +13129,6 @@ packages:
   /nanostores/0.6.0:
     resolution: {integrity: sha512-CQpKE8wtaJAr66hbg32t0MOAeybzLywU6UsLAX18kyQL/bME+xwhjWpmrvJRBp5kueFy6hs2oHlt3HFpNP+JaA==}
     engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
-    dev: false
 
   /nats/2.7.1:
     resolution: {integrity: sha512-aH0OXxasfLCTG+LQCFRaWoL1kqejCQg7B+t4z++JgLPgfdpQMET1Rqo95I06DEQyIJGTTgYpxkI/zC0ul8V3pw==}

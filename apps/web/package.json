@@ -12,6 +12,8 @@
   },
   "devDependencies": {
     "@intlify/vite-plugin-vue-i18n": "6.0.1",
+    "@nanostores/persistent": "0.6.0",
+    "@nanostores/vue": "0.5.5",
     "@tsuwari/ui-components": "workspace:*",
     "@tsuwari/ui-fonts": "workspace:*",
     "@tsuwari/ui-icons": "workspace:*",
@@ -20,6 +22,7 @@
     "@vue/server-renderer": "^3.2.37",
     "@vueuse/core": "9.1.0",
     "autoprefixer": "^10.4.8",
+    "nanostores": "0.6.0",
     "postcss": "^8.4.16",
     "swiper": "^8.3.2",
     "tailwindcss": "^3.1.8",

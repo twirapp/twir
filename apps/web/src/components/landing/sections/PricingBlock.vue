@@ -2,12 +2,12 @@
   <section class="bg-black-10 relative overflow-hidden">
     <div class="container relative z-0 py-24">
       <div class="flex flex-col items-center">
-        <h2 class="text-5xl font-semibold leading-[130%] max-w-xl text-center mb-16">
-          We’ve got a plan that’s perfect for you
+        <h2 class="text-5xl font-semibold leading-[130%] max-w-[41rem] text-center mb-16">
+          {{ t('sections.pricing.title') }}
         </h2>
-        <ul class="max-w-[880px] w-full mx-auto grid grid-flow-col gap-x-[30px]">
-          <li v-for="plan in pricePlans" :key="plan.name" class="flex w-full">
-            <PricingPlan :plan="plan" :colorTheme="planColorThemes[plan.id]" />
+        <ul class="max-w-[880px] w-full mx-auto grid grid-flow-col gap-x-[30px] grid-cols-2">
+          <li v-for="(plan, planId) in pricePlans" :key="planId" class="flex w-full">
+            <PricingPlan :plan="plan" :colorTheme="planColorThemes[planId]" />
           </li>
         </ul>
       </div>
@@ -21,13 +21,15 @@
 
 <script lang="ts" setup>
 import BlurryBlob from '@/components/BlurryBlob.vue';
-import ClientOnly from '@/components/ClientOnly';
+import ClientOnly from '@/components/ClientOnly.vue';
 import PricingPlan from '@/components/landing/PricingPlan.vue';
-import type { PlanColorThemes } from '@/types/pricingPlan';
-import type { PricePlan } from '@/types/pricingPlan';
+import { planColorThemes } from '@/data/pricingPlans.js';
+import type { PricePlansLocale } from '@/types/pricingPlan';
+import { useTranslation } from '@/utils/locales.js';
 
 defineProps<{
-  pricePlans: PricePlan[];
-  planColorThemes: PlanColorThemes;
+  pricePlans: PricePlansLocale;
 }>();
+
+const t = useTranslation<'landing'>();
 </script>

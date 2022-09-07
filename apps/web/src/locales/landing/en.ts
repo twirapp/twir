@@ -1,12 +1,13 @@
+import { BasicPlanFeatures, PlanId, ProPlanFeatures } from '@/data/pricingPlans.js';
 import type ILandingLocale from '@/types/landingLocaleInterface.js';
 import { NavMenuTabs } from '@/types/navMenu';
 
 const messages: ILandingLocale = {
   navMenu: [
     { id: NavMenuTabs.features, name: 'Features' },
-    { id: NavMenuTabs.pricing, name: 'Pricing' },
     { id: NavMenuTabs.reviews, name: 'Reviews' },
     { id: NavMenuTabs.team, name: 'Team' },
+    { id: NavMenuTabs.pricing, name: 'Pricing' },
   ],
   buttons: {
     buyPlan: 'Buy plan',
@@ -60,32 +61,44 @@ const messages: ILandingLocale = {
       title: 'We’ve got a plan that’s perfect for you',
       features: 'Features',
       perMonth: 'per month',
-      plans: [
-        {
-          id: 1,
+      plans: {
+        [PlanId.basic]: {
           name: 'Basic plan',
-          features: [
-            { id: 1, name: 'Unlimited commands' },
-            { id: 2, name: '24 hours access' },
-            { id: 3, name: '5 integrations' },
-            { id: 4, name: 'Unlimited commands' },
-            { id: 5, name: 'Maximum 3 users' },
-            { id: 6, name: 'Maximum 3 users' },
-          ],
+          price: 0,
+          features: {
+            [BasicPlanFeatures.first]: {
+              name: 'Unlimited commands',
+              status: 'accessible',
+            },
+            [BasicPlanFeatures.second]: {
+              name: 'Unlimited commands',
+              status: 'accessible',
+            },
+            [BasicPlanFeatures.last]: {
+              name: 'Unlimited commands',
+              status: 'limited',
+            },
+          },
         },
-        {
-          id: 2,
+        [PlanId.pro]: {
           name: 'Pro plan',
-          features: [
-            { id: 1, name: 'Unlimited commands' },
-            { id: 2, name: '24 hours access' },
-            { id: 3, name: '5 integrations' },
-            { id: 4, name: 'Unlimited commands' },
-            { id: 5, name: 'Maximum 3 users' },
-            { id: 6, name: 'Maximum 3 users' },
-          ],
+          price: 10,
+          features: {
+            [ProPlanFeatures.first]: {
+              name: 'Unlimited commands',
+              status: 'accessible',
+            },
+            [ProPlanFeatures.second]: {
+              name: 'Unlimited commands',
+              status: 'accessible',
+            },
+            [ProPlanFeatures.last]: {
+              name: 'Unlimited commands',
+              status: 'accessible',
+            },
+          },
         },
-      ],
+      },
     },
     reviews: {
       title: 'Reviews from streamers and other viewers',

@@ -1,10 +1,15 @@
 <template>
   <div class="px-6 inline-flex justify-items-center items-center w-full">
-    <div class="w-[80px] h-[80px] inline-block bg-[url('../assets/User.svg')] bg-contain" />
+    <div
+      :class="`w-[80px] h-[80px] inline-block bg-contain`"
+      :style="{
+        backgroundImage: `url('${UserImage}')`,
+      }"
+    />
     <div class="inline-flex flex-col items-start w-full flex-1 ml-6">
-      <div class="inline-grid gap-y-[6px] justify-items-center">
-        <div class="inline-flex items-center w-full">
-          <span class="text-[21px] font-medium leading-normal">
+      <div class="inline-flex flex-col justify-items-center">
+        <div class="inline-flex items-center w-full mb-2">
+          <span class="text-[21px] font-medium leading-tight">
             {{ name }}
           </span>
           <span
@@ -19,7 +24,7 @@
               ml-2
             "
           >
-            Founder
+            {{ t('sections.team.founder') }}
           </span>
         </div>
         <p class="text-gray-70 max-w-[180px]">
@@ -40,7 +45,9 @@
 <script lang="ts" setup>
 import { TswIcon } from '@tsuwari/ui-components';
 
+import UserImage from '@/assets/User.svg';
 import type { TeamMemberMediaLink } from '@/types/teamMember';
+import { useTranslation } from '@/utils/locales.js';
 
 withDefaults(
   defineProps<{
@@ -53,4 +60,6 @@ withDefaults(
     isFounder: false,
   },
 );
+
+const t = useTranslation<'landing'>();
 </script>

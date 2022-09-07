@@ -13,8 +13,6 @@ export async function render(pageContext: PageContext) {
   const i18n = await setupI18n('en', 'app');
   app.use(i18n);
 
-  console.log('client');
-
   const router = createAppRouter();
   app.use(router);
   await router.isReady();

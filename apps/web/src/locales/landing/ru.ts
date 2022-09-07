@@ -1,12 +1,13 @@
+import { BasicPlanFeatures, PlanId, ProPlanFeatures } from '@/data/pricingPlans.js';
 import type ILandingLocale from '@/types/landingLocaleInterface.js';
 import { NavMenuTabs } from '@/types/navMenu.js';
 
 const messages: ILandingLocale = {
   navMenu: [
     { id: NavMenuTabs.features, name: 'Функции' },
-    { id: NavMenuTabs.pricing, name: 'Прайсинг' },
     { id: NavMenuTabs.reviews, name: 'Отзывы' },
     { id: NavMenuTabs.team, name: 'Команда' },
+    { id: NavMenuTabs.pricing, name: 'Прайсинг' },
   ],
   buttons: {
     buyPlan: 'Купить план',
@@ -20,7 +21,7 @@ const messages: ILandingLocale = {
     'Создан стримерами. Сделано для стримеров. Используется стримерами. Для стримеров с любовью.',
   sections: {
     features: {
-      title: 'Возможности бота',
+      title: 'Функции бота',
       featuresInDev: 'Функции в разработке',
       content: [
         {
@@ -53,7 +54,7 @@ const messages: ILandingLocale = {
     },
     integrations: {
       preTitle: 'Интеграции',
-      title: 'Бот имеет встроенный API для самых необходимых приложений',
+      title: 'Множество встроенных интеграций с внешними приложения',
       description:
         'Praesent dolor quis aliquam nulla id in orci. Mi sit pulvinar nunc blandit egestas cras. Sed habitant amet ultrices vitae. At volutpat enim vel quam dignissim ut justo.',
     },
@@ -61,32 +62,44 @@ const messages: ILandingLocale = {
       title: 'У нас есть план, который идеально подходит для вас',
       features: 'Функции',
       perMonth: 'в месяц',
-      plans: [
-        {
-          id: 1,
+      plans: {
+        [PlanId.basic]: {
           name: 'Базовый план',
-          features: [
-            { id: 1, name: 'Unlimited commands' },
-            { id: 2, name: '24 hours access' },
-            { id: 3, name: '5 integrations' },
-            { id: 4, name: 'Unlimited commands' },
-            { id: 5, name: 'Maximum 3 users' },
-            { id: 6, name: 'Maximum 3 users' },
-          ],
+          price: 0,
+          features: {
+            [BasicPlanFeatures.first]: {
+              name: 'Unlimited commands',
+              status: 'accessible',
+            },
+            [BasicPlanFeatures.second]: {
+              name: 'Unlimited commands',
+              status: 'accessible',
+            },
+            [BasicPlanFeatures.last]: {
+              name: 'Unlimited commands',
+              status: 'limited',
+            },
+          },
         },
-        {
-          id: 2,
+        [PlanId.pro]: {
           name: 'Профессиональный план',
-          features: [
-            { id: 1, name: 'Unlimited commands' },
-            { id: 2, name: '24 hours access' },
-            { id: 3, name: '5 integrations' },
-            { id: 4, name: 'Unlimited commands' },
-            { id: 5, name: 'Maximum 3 users' },
-            { id: 6, name: 'Maximum 3 users' },
-          ],
+          price: 10,
+          features: {
+            [ProPlanFeatures.first]: {
+              name: 'Unlimited commands',
+              status: 'accessible',
+            },
+            [ProPlanFeatures.second]: {
+              name: 'Unlimited commands',
+              status: 'accessible',
+            },
+            [ProPlanFeatures.last]: {
+              name: 'Unlimited commands',
+              status: 'accessible',
+            },
+          },
         },
-      ],
+      },
     },
     reviews: {
       title: 'Отзывы стримеров и других зрителей',
