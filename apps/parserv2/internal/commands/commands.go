@@ -9,6 +9,8 @@ import (
 	"sync"
 	channel_game "tsuwari/parser/internal/commands/channel/game"
 	channel_title "tsuwari/parser/internal/commands/channel/title"
+	"tsuwari/parser/internal/commands/permit"
+	"tsuwari/parser/internal/commands/spam"
 	usersauth "tsuwari/parser/internal/twitch/user"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
@@ -41,6 +43,8 @@ func New(opts CommandsOpts) Commands {
 	commands := []types.DefaultCommand{
 		channel_title.Command,
 		channel_game.Command,
+		permit.Command,
+		spam.Command,
 	}
 
 	ctx := Commands{

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 var (
@@ -37,7 +37,7 @@ JSON Sample
 // ChannelsPermits struct is a row record of the channels_permits table in the tsuwari database
 type ChannelsPermits struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
-	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id,omitempty"`
 	//[ 1] channelId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
 	ChannelID string `gorm:"column:channelId;type:TEXT;" json:"channel_id"`
 	//[ 2] userId                                         TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
