@@ -10,7 +10,7 @@ const blobStyles = computed<StyleValue>(() => {
   if (window.navigator.userAgent.includes('Firefox')) {
     return { animation: 'fadeInFirefox 1s', opacity: '0.25' };
   }
-  return { animation: 'fadeIn 1s', opacity: '0.6' };
+  return { animation: 'fadeInBlob 1s', opacity: '0.6' };
 });
 
 defineProps<{
@@ -35,7 +35,7 @@ defineProps<{
   }
 }
 
-@keyframes fadeIn {
+@keyframes fadeInBlob {
   from {
     opacity: 0;
   }

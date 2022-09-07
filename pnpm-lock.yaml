@@ -454,6 +454,7 @@ importers:
       postcss: ^8.4.16
       swiper: ^8.3.2
       tailwindcss: ^3.1.8
+      tailwindcss-animation-delay: ^1.0.7
       vite: ^3.0.9
       vite-plugin-ssr: ^0.4.29
       vue: 3.2.37
@@ -481,6 +482,7 @@ importers:
       postcss: 8.4.18
       swiper: 8.4.4
       tailwindcss: 3.2.1_postcss@8.4.18
+      tailwindcss-animation-delay: 1.0.7_tailwindcss@3.2.1
       vite: 3.1.8
       vite-plugin-ssr: 0.4.43_vite@3.1.8
       vue: 3.2.37
@@ -16168,6 +16170,14 @@ packages:
 
   /synchronous-promise/2.0.15:
     resolution: {integrity: sha512-k8uzYIkIVwmT+TcglpdN50pS2y1BDcUnBPK9iJeGu0Pl1lOI8pD6wtzgw91Pjpe+RxtTncw32tLxs/R0yNL2Mg==}
+    dev: true
+
+  /tailwindcss-animation-delay/1.0.7_tailwindcss@3.2.1:
+    resolution: {integrity: sha512-nJIQGJ7zePh7FiLFiZJOi7Vo+dRo+2Tqt8BRFa9yk8um0OFpuD7K3i8bZaNO3C8qMxdv0Y7YlHtCZq4/ydok9A==}
+    peerDependencies:
+      tailwindcss: '>=2.0.0'
+    dependencies:
+      tailwindcss: 3.2.1_postcss@8.4.18
     dev: true
 
   /tailwindcss/3.1.8:
