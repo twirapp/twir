@@ -11,10 +11,6 @@ import (
 	"github.com/samber/lo"
 )
 
-const (
-	WRONG_ACCOUNT_ID = "Wrong account id."
-)
-
 var AddAccCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "dota addacc",

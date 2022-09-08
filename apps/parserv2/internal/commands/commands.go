@@ -52,6 +52,7 @@ func New(opts CommandsOpts) Commands {
 		spam.Command,
 		nuke.Command,
 		dota.AddAccCommand,
+		dota.DelAccCommand,
 	}
 
 	ctx := Commands{

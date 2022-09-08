@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	GAME_NOT_FOUND = "Game not found"
-	NO_ACCOUNTS    = "You do not have any accounts added."
+	GAME_NOT_FOUND   = "Game not found"
+	NO_ACCOUNTS      = "You do not have any accounts added."
+	WRONG_ACCOUNT_ID = "Wrong account id."
 )
 
 var ApiInstance = req.C().
