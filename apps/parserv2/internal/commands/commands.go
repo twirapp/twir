@@ -9,6 +9,7 @@ import (
 	"sync"
 	channel_game "tsuwari/parser/internal/commands/channel/game"
 	channel_title "tsuwari/parser/internal/commands/channel/title"
+	"tsuwari/parser/internal/commands/dota"
 	"tsuwari/parser/internal/commands/nuke"
 	"tsuwari/parser/internal/commands/permit"
 	"tsuwari/parser/internal/commands/spam"
@@ -50,6 +51,7 @@ func New(opts CommandsOpts) Commands {
 		permit.Command,
 		spam.Command,
 		nuke.Command,
+		dota.AddAccCommand,
 	}
 
 	ctx := Commands{

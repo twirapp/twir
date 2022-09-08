@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	"github.com/lib/pq"
+	uuid "github.com/satori/go.uuid"
 )
 
 var (
@@ -64,7 +65,9 @@ type DotaMatches struct {
 	//[10] lobbyId                                        TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
 	LobbyID string `gorm:"column:lobbyId;type:TEXT;" json:"lobby_id"`
 	//[11] finished                                       BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [false]
-	Finished bool `gorm:"column:finished;type:BOOL;default:false;" json:"finished"`
+	Finished      bool          `gorm:"column:finished;type:BOOL;default:false;" json:"finished"`
+	Players       pq.Int64Array `gorm:"column:players;type:integer[]"`
+	PlayersHeroes pq.Int64Array `gorm:"column:players;type:integer[]"`
 }
 
 var dota_matchesTableInfo = &TableInfo{
@@ -279,6 +282,27 @@ var dota_matchesTableInfo = &TableInfo{
 			ProtobufFieldName:  "finished",
 			ProtobufType:       "bool",
 			ProtobufPos:        12,
+		},
+
+		&ColumnInfo{
+			Index:              11,
+			Name:               "players",
+			Comment:            ``,
+			Notes:              ``,
+			Nullable:           false,
+			DatabaseTypeName:   "integer[]",
+			DatabaseTypePretty: "integer[]",
+			IsPrimaryKey:       false,
+			IsAutoIncrement:    false,
+			IsArray:            true,
+			ColumnType:         "integer[]",
+			ColumnLength:       -1,
+			GoFieldName:        "Finished",
+			GoFieldType:        "[]int",
+			JSONFieldName:      "finished",
+			ProtobufFieldName:  "finished",
+			ProtobufType:       "bool",
+			ProtobufPos:        13,
 		},
 	},
 }
