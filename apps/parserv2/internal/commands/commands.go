@@ -53,6 +53,7 @@ func New(opts CommandsOpts) Commands {
 		nuke.Command,
 		dota.AddAccCommand,
 		dota.DelAccCommand,
+		dota.ListAccCommand,
 	}
 
 	ctx := Commands{

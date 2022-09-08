@@ -74,7 +74,7 @@ type GetGamesOpts struct {
 	Db       *gorm.DB
 	Accounts []string
 	Take     *int
-	Redis    *redis.Conn
+	Redis    *redis.Client
 }
 
 func GetGames(opts GetGamesOpts) *[]Game {
@@ -183,7 +183,7 @@ type Game struct {
 
 func GetAccountsByChannelId(db *gorm.DB, channelId string) *[]string {
 	accounts := []model.ChannelsDotaAccounts{}
-	err := db.Where(`"channelId" = ?`, channelId).Select(&accounts).Error
+	err := db.Where(`"channelId" = ?`, channelId).Find(&accounts).Error
 
 	if err != nil {
 		return nil
@@ -194,4 +194,16 @@ func GetAccountsByChannelId(db *gorm.DB, channelId string) *[]string {
 	})
 
 	return &mappedAccounts
+}
+
+func GetGameModeById(id int32) *GameMode {
+	mode, ok := lo.Find(DotaGameModes, func(mode GameMode) bool {
+		return mode.ID == int(id)
+	})
+
+	if !ok {
+		return nil
+	}
+
+	return &mode
 }

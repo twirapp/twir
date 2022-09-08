@@ -5,7 +5,7 @@ type GameMode struct {
 	Name string
 }
 
-var DotaGameModes = [...]GameMode{
+var DotaGameModes = []GameMode{
 	{
 		ID:   1,
 		Name: "All Pick",
