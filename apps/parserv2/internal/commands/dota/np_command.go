@@ -42,14 +42,8 @@ var NpAccCommand = types.DefaultCommand{
 					fmt.Sprintf(" (%v)mmr", game.AvarageMmr)).
 				Else("")
 
-			var modeName string
 			gameMode := GetGameModeById(game.GameMode)
-
-			if gameMode == nil {
-				modeName = "Unknown"
-			} else {
-				modeName = gameMode.Name
-			}
+			modeName := lo.If(gameMode == nil, "Unknown").Else(gameMode.Name)
 
 			return fmt.Sprintf("%s%s", modeName, avgMmr)
 		})
