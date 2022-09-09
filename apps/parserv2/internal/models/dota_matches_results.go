@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 var (
@@ -19,7 +19,6 @@ var (
 DB Table Details
 -------------------------------------
 
-
 Table: dota_matches_results
 [ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: false  col: TEXT            len: -1      default: [gen_random_uuid()]
 [ 1] match_id                                       TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
@@ -27,34 +26,34 @@ Table: dota_matches_results
 [ 3] radiant_win                                    BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: []
 [ 4] game_mode                                      INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: []
 
-
 JSON Sample
 -------------------------------------
 {    "id": "nauQppXWcuwaltChZijFXnuGg",    "match_id": "WKFNatBXgYcFiFdYMhujxDAcZ",    "players": "PRwTsLhgZNRdFuawMUDILbgvm",    "radiant_win": false,    "game_mode": 69}
-
-
-
 */
+type DotaMatchesPlayer struct {
+	AccountId  int `json:"account_id"`
+	TeamNumber int `json:"team_number"`
+	HeroId     int `json:"hero_id"`
+}
 
 // DotaMatchesResults struct is a row record of the dota_matches_results table in the tsuwari database
 type DotaMatchesResults struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] match_id                                       TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	MatchID string `gorm:"column:match_id;type:TEXT;" json:"match_id"`
+	MatchID string `gorm:"column:match_id;type:TEXT;foreignKey:match_id"   json:"match_id"`
 	//[ 2] players                                        JSONB                null: false  primary: false  isArray: false  auto: false  col: JSONB           len: -1      default: []
-	Players string `gorm:"column:players;type:JSONB;" json:"players"`
+	Players []DotaMatchesPlayer `gorm:"column:players;type:JSONB;"                      json:"players"`
 	//[ 3] radiant_win                                    BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: []
-	RadiantWin bool `gorm:"column:radiant_win;type:BOOL;" json:"radiant_win"`
+	RadiantWin bool `gorm:"column:radiant_win;type:BOOL;"                   json:"radiant_win"`
 	//[ 4] game_mode                                      INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: []
-	GameMode int32 `gorm:"column:game_mode;type:INT4;" json:"game_mode"`
+	GameMode int32 `gorm:"column:game_mode;type:INT4;"                     json:"game_mode"`
 }
 
 var dota_matches_resultsTableInfo = &TableInfo{
 	Name: "dota_matches_results",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -75,7 +74,7 @@ var dota_matches_resultsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "match_id",
 			Comment:            ``,
@@ -96,7 +95,7 @@ var dota_matches_resultsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "players",
 			Comment:            ``,
@@ -117,7 +116,7 @@ var dota_matches_resultsTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "radiant_win",
 			Comment:            ``,
@@ -138,7 +137,7 @@ var dota_matches_resultsTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "game_mode",
 			Comment:            ``,

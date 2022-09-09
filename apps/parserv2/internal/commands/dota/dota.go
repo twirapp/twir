@@ -131,6 +131,7 @@ func GetGames(opts GetGamesOpts) *[]Game {
 	err := opts.Db.
 		Table("dota_matches").
 		Where("ARRAY[players] && ARRAY[?]::int[]", intAccounts).
+		Order(`"startedAt" DESC`).
 		Joins("GameMode").
 		Find(&dbGames).Error
 	/* scan := opts.Db.
@@ -160,10 +161,7 @@ func GetGames(opts GetGamesOpts) *[]Game {
 	`,
 		intAccounts,
 	).
-	Scan(&dbGames) */
-
-	fmt.Println(dbGames)
-	if err != nil {
+	Scan(&dbGames) */ if err != nil {
 		fmt.Println("GetGames:", err)
 		return nil
 	}
