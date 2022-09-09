@@ -6,7 +6,7 @@
     "parser:gen:ts": "protoc --plugin=./node_modules/.bin/protoc-gen-ts --ts_out ./parser/ --ts_opt long_type_string --proto_path ./protos  --ts_opt generate_dependencies parser.proto",
     "bots:gen:go": "protoc --proto_path=./protos --go_out=./bots/ --go_opt=paths=source_relative bots.proto",
     "bots:gen:ts": "protoc --plugin=./node_modules/.bin/protoc-gen-ts --ts_out ./bots/ --ts_opt long_type_string --proto_path ./protos  --ts_opt generate_dependencies bots.proto",
-    "gen": "rm -rf dist; pnpm parser:gen:go && pnpm parser:gen:ts && pnpm bots:gen:go && pnpm bots:gen:ts && pnpm ts:build",
+    "build": "rm -rf dist; pnpm parser:gen:go && pnpm parser:gen:ts && pnpm bots:gen:go && pnpm bots:gen:ts && pnpm ts:build",
     "ts:build": "tsc"
   },
   "exports": {
