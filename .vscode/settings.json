@@ -43,7 +43,7 @@
     {
       "localPort": 54320,
       "name": "adminer",
-      "remotePort": 54321
+      "remotePort": 54320
     },
     {
       "localPort": 8222,
@@ -60,7 +60,16 @@
   "prisma.fileWatcher": false,
   "typescript.format.enable": false,
   "editor.rulers": [100],
+  "go.useLanguageServer": true,
   "gopls": {
-    "experimentalWorkspaceModule": true
+    "formatting.gofumpt": true
+  },
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "\\.go$",
+        "cmd": "golines ${file} -w -m 100 --base-formatter=gofumpt"
+      }
+    ]
   }
 }

@@ -49,32 +49,31 @@ type DotaMatches struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] startedAt                                      TIMESTAMP            null: false  primary: false  isArray: false  auto: false  col: TIMESTAMP       len: -1      default: []
-	StartedAt time.Time `gorm:"column:startedAt;type:TIMESTAMP;" json:"started_at"`
+	StartedAt time.Time `gorm:"column:startedAt;type:TIMESTAMP;"                json:"started_at"`
 	//[ 2] lobby_type                                     INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: []
-	LobbyType int32 `gorm:"column:lobby_type;type:INT4;" json:"lobby_type"`
+	LobbyType int32 `gorm:"column:lobby_type;type:INT4;"                    json:"lobby_type"`
 	//[ 3] gameModeId                                     INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: []
-	GameModeID int32 `gorm:"column:gameModeId;type:INT4;" json:"game_mode_id"`
+	GameModeID int32 `gorm:"column:gameModeId;type:INT4;"                    json:"game_mode_id"`
 	//[ 6] weekend_tourney_bracket_round                  TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
 	WeekendTourneyBracketRound sql.NullString `gorm:"column:weekend_tourney_bracket_round;type:TEXT;" json:"weekend_tourney_bracket_round"`
 	//[ 7] weekend_tourney_skill_level                    TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	WeekendTourneySkillLevel sql.NullString `gorm:"column:weekend_tourney_skill_level;type:TEXT;" json:"weekend_tourney_skill_level"`
+	WeekendTourneySkillLevel sql.NullString `gorm:"column:weekend_tourney_skill_level;type:TEXT;"   json:"weekend_tourney_skill_level"`
 	//[ 8] match_id                                       TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	MatchID string `gorm:"column:match_id;type:TEXT;" json:"match_id"`
+	MatchID string `gorm:"column:match_id;type:TEXT;"                      json:"match_id"`
 	//[ 9] avarage_mmr                                    INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: []
-	AvarageMmr int32 `gorm:"column:avarage_mmr;type:INT4;" json:"avarage_mmr"`
+	AvarageMmr int32 `gorm:"column:avarage_mmr;type:INT4;"                   json:"avarage_mmr"`
 	//[10] lobbyId                                        TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	LobbyID string `gorm:"column:lobbyId;type:TEXT;" json:"lobby_id"`
+	LobbyID string `gorm:"column:lobbyId;type:TEXT;"                       json:"lobby_id"`
 	//[11] finished                                       BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [false]
-	Finished      bool          `gorm:"column:finished;type:BOOL;default:false;" json:"finished"`
+	Finished      bool          `gorm:"column:finished;type:BOOL;default:false;"        json:"finished"`
 	Players       pq.Int64Array `gorm:"column:players;type:integer[]"`
-	PlayersHeroes pq.Int64Array `gorm:"column:players;type:integer[]"`
+	PlayersHeroes pq.Int64Array `gorm:"column:players_heroes;type:integer[]"`
 }
 
 var dota_matchesTableInfo = &TableInfo{
 	Name: "dota_matches",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -95,7 +94,7 @@ var dota_matchesTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "startedAt",
 			Comment:            ``,
@@ -116,7 +115,7 @@ var dota_matchesTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "lobby_type",
 			Comment:            ``,
@@ -137,7 +136,7 @@ var dota_matchesTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "gameModeId",
 			Comment:            ``,
@@ -158,7 +157,7 @@ var dota_matchesTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              6,
 			Name:               "weekend_tourney_bracket_round",
 			Comment:            ``,
@@ -179,7 +178,7 @@ var dota_matchesTableInfo = &TableInfo{
 			ProtobufPos:        7,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              7,
 			Name:               "weekend_tourney_skill_level",
 			Comment:            ``,
@@ -200,7 +199,7 @@ var dota_matchesTableInfo = &TableInfo{
 			ProtobufPos:        8,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              8,
 			Name:               "match_id",
 			Comment:            ``,
@@ -221,7 +220,7 @@ var dota_matchesTableInfo = &TableInfo{
 			ProtobufPos:        9,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              9,
 			Name:               "avarage_mmr",
 			Comment:            ``,
@@ -242,7 +241,7 @@ var dota_matchesTableInfo = &TableInfo{
 			ProtobufPos:        10,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              10,
 			Name:               "lobbyId",
 			Comment:            ``,
@@ -263,7 +262,7 @@ var dota_matchesTableInfo = &TableInfo{
 			ProtobufPos:        11,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              11,
 			Name:               "finished",
 			Comment:            ``,
@@ -284,7 +283,7 @@ var dota_matchesTableInfo = &TableInfo{
 			ProtobufPos:        12,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              11,
 			Name:               "players",
 			Comment:            ``,

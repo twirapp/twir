@@ -2,8 +2,11 @@ package dota
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
+
 	model "tsuwari/parser/internal/models"
 
 	"github.com/go-redis/redis/v9"
@@ -77,6 +80,10 @@ type GetGamesOpts struct {
 	Redis    *redis.Client
 }
 
+type CachedGame struct {
+	MatchId string `json:"match_id"`
+}
+
 func GetGames(opts GetGamesOpts) *[]Game {
 	ctx := context.TODO()
 	rpsCount := 0
@@ -97,21 +104,24 @@ func GetGames(opts GetGamesOpts) *[]Game {
 		return nil
 	}
 
-	cachedGamesCount := 0
+	cachedGames := []string{}
 
 	for _, acc := range opts.Accounts {
 		games, err := opts.Redis.MGet(ctx, fmt.Sprintf("dotaMatches:%v", acc)).Result()
 		if err != nil {
 			continue
 		}
-		games = lo.Filter(games, func(r interface{}, _ int) bool {
-			return r != nil
-		})
 
-		cachedGamesCount = cachedGamesCount + len(games)
+		for _, r := range games {
+			g := CachedGame{}
+			err := json.Unmarshal([]byte(r.(string)), &g)
+			if err == nil {
+				cachedGames = append(cachedGames, g.MatchId)
+			}
+		}
 	}
 
-	if cachedGamesCount == 0 {
+	if len(cachedGames) == 0 {
 		return nil
 	}
 
@@ -121,17 +131,43 @@ func GetGames(opts GetGamesOpts) *[]Game {
 		opts.Take = lo.ToPtr(1)
 	}
 
-	err := opts.Db.
-		Where("players && ?", opts.Accounts).
-		Order(`"startedAt" DESC`).
-		Joins("GameMode").
-		Joins("PlayersCards").
-		Find(&dbGames).
-		Take(*opts.Take).
-		Error
+	intAccounts := lo.Map(opts.Accounts, func(a string, _ int) int {
+		n, _ := strconv.Atoi(a)
+		return n
+	})
 
-	if err != nil {
-		fmt.Println(err)
+	scan := opts.Db.
+		Raw(
+			`SELECT 
+			"dota_matches"."id", 
+			"dota_matches"."startedAt", 
+			"dota_matches"."lobby_type", 
+			"dota_matches"."gameModeId", 
+			"dota_matches"."weekend_tourney_bracket_round", 
+			"dota_matches"."weekend_tourney_skill_level", 
+			"dota_matches"."match_id", 
+			"dota_matches"."avarage_mmr", 
+			"dota_matches"."lobbyId", 
+			"dota_matches"."finished", 
+			"dota_matches"."players", 
+			"dota_matches"."players_heroes", 
+			"GameMode"."id" AS "GameMode__id", 
+			"GameMode"."name" AS "GameMode__name" 
+		FROM 
+			"dota_matches" 
+			LEFT JOIN "dota_game_modes" "GameMode" ON "dota_matches"."gameModeId" = "GameMode"."id" 
+		WHERE 
+			ARRAY[players] && ARRAY[?]::int[] AND match_id IN ?
+		ORDER BY 
+			"startedAt" DESC
+		`,
+			intAccounts,
+			cachedGames,
+		).
+		Scan(&dbGames)
+
+	if scan.Error != nil {
+		fmt.Println("GetGames:", scan.Error)
 		return nil
 	}
 
@@ -183,9 +219,13 @@ type Game struct {
 
 func GetAccountsByChannelId(db *gorm.DB, channelId string) *[]string {
 	accounts := []model.ChannelsDotaAccounts{}
-	err := db.Where(`"channelId" = ?`, channelId).Find(&accounts).Error
-
+	err := db.
+		Table("channels_dota_accounts").
+		Where(`"channelId" = ?`, channelId).
+		Find(&accounts).
+		Error
 	if err != nil {
+		fmt.Println(err)
 		return nil
 	}
 

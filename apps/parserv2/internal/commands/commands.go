@@ -7,17 +7,20 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	channel_game "tsuwari/parser/internal/commands/channel/game"
-	channel_title "tsuwari/parser/internal/commands/channel/title"
 	"tsuwari/parser/internal/commands/dota"
 	"tsuwari/parser/internal/commands/nuke"
 	"tsuwari/parser/internal/commands/permit"
 	"tsuwari/parser/internal/commands/spam"
-	usersauth "tsuwari/parser/internal/twitch/user"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
-	variables_cache "tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
+
+	channel_game "tsuwari/parser/internal/commands/channel/game"
+	channel_title "tsuwari/parser/internal/commands/channel/title"
+
+	usersauth "tsuwari/parser/internal/twitch/user"
+
+	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/nats-io/nats.go"
 	"github.com/samber/lo"
@@ -54,6 +57,7 @@ func New(opts CommandsOpts) Commands {
 		dota.AddAccCommand,
 		dota.DelAccCommand,
 		dota.ListAccCommand,
+		dota.NpAccCommand,
 	}
 
 	ctx := Commands{
@@ -71,14 +75,12 @@ func New(opts CommandsOpts) Commands {
 func (c *Commands) GetChannelCommands(channelId string) (*[]types.Command, error) {
 	rCtx := context.TODO()
 	keys, err := c.redis.Keys(rCtx, fmt.Sprintf("commands:%s:*", channelId)).Result()
-
 	if err != nil {
 		return nil, err
 	}
 
-	var cmds = make([]types.Command, len(keys))
+	cmds := make([]types.Command, len(keys))
 	rCmds, err := c.redis.MGet(rCtx, keys...).Result()
-
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +141,10 @@ func (c *Commands) FindByMessage(input string, cmds *[]types.Command) FindByMess
 	return res
 }
 
-func (c *Commands) ParseCommandResponses(command FindByMessageResult, data parserproto.Request) []string {
+func (c *Commands) ParseCommandResponses(
+	command FindByMessageResult,
+	data parserproto.Request,
+) []string {
 	responses := []string{}
 
 	cmd := *command.Cmd
@@ -149,13 +154,16 @@ func (c *Commands) ParseCommandResponses(command FindByMessageResult, data parse
 		cmdParams = &params
 	}
 
-	defaultCommand, isDefaultExists := lo.Find(c.DefaultCommands, func(command types.DefaultCommand) bool {
-		if cmd.DefaultName != nil {
-			return command.Name == *cmd.DefaultName
-		} else {
-			return false
-		}
-	})
+	defaultCommand, isDefaultExists := lo.Find(
+		c.DefaultCommands,
+		func(command types.DefaultCommand) bool {
+			if cmd.DefaultName != nil {
+				return command.Name == *cmd.DefaultName
+			} else {
+				return false
+			}
+		},
+	)
 
 	if cmd.Default && isDefaultExists {
 		results := defaultCommand.Handler(variables_cache.ExecutionContext{
