@@ -2,7 +2,6 @@ package dota
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -80,10 +79,6 @@ type GetGamesOpts struct {
 	Redis    *redis.Client
 }
 
-type CachedGame struct {
-	MatchId string `json:"match_id"`
-}
-
 func GetGames(opts GetGamesOpts) *[]Game {
 	ctx := context.TODO()
 	rpsCount := 0
@@ -104,24 +99,21 @@ func GetGames(opts GetGamesOpts) *[]Game {
 		return nil
 	}
 
-	cachedGames := []string{}
+	cachedGamesCount := 0
 
 	for _, acc := range opts.Accounts {
 		games, err := opts.Redis.MGet(ctx, fmt.Sprintf("dotaMatches:%v", acc)).Result()
 		if err != nil {
 			continue
 		}
+		games = lo.Filter(games, func(r interface{}, _ int) bool {
+			return r != nil
+		})
 
-		for _, r := range games {
-			g := CachedGame{}
-			err := json.Unmarshal([]byte(r.(string)), &g)
-			if err == nil {
-				cachedGames = append(cachedGames, g.MatchId)
-			}
-		}
+		cachedGamesCount = cachedGamesCount + len(games)
 	}
 
-	if len(cachedGames) == 0 {
+	if cachedGamesCount == 0 {
 		return nil
 	}
 
@@ -157,12 +149,11 @@ func GetGames(opts GetGamesOpts) *[]Game {
 			"dota_matches" 
 			LEFT JOIN "dota_game_modes" "GameMode" ON "dota_matches"."gameModeId" = "GameMode"."id" 
 		WHERE 
-			ARRAY[players] && ARRAY[?]::int[] AND match_id IN ?
+			ARRAY[players] && ARRAY[?]::int[] 
 		ORDER BY 
 			"startedAt" DESC
 		`,
 			intAccounts,
-			cachedGames,
 		).
 		Scan(&dbGames)
 

@@ -2,7 +2,6 @@ package dota
 
 import (
 	"fmt"
-	"strings"
 	"tsuwari/parser/internal/types"
 	variables_cache "tsuwari/parser/internal/variablescache"
 
@@ -24,30 +23,27 @@ var NpAccCommand = types.DefaultCommand{
 			return []string{NO_ACCOUNTS}
 		}
 
-		games := GetGames(GetGamesOpts{
+		games := *GetGames(GetGamesOpts{
 			Db:       ctx.Services.Db,
 			Accounts: *accounts,
 			Take:     lo.ToPtr(1),
 			Redis:    ctx.Services.Redis,
 		})
 
-		if games == nil || len(*games) == 0 {
+		if games == nil || len(games) == 0 {
 			return []string{"Game not found."}
 		}
 
-		result := lo.Map(*games, func(game Game, _ int) string {
-			avgMmr := lo.
-				If(
-					game.GameMode == 22 && game.LobbyType == 7,
-					fmt.Sprintf(" (%v)mmr", game.AvarageMmr)).
-				Else("")
+		game := games[0]
+		avgMmr := lo.
+			If(
+				game.GameMode == 22 && game.LobbyType == 7,
+				fmt.Sprintf(" (%v)mmr", game.AvarageMmr)).
+			Else("")
 
-			gameMode := GetGameModeById(game.GameMode)
-			modeName := lo.If(gameMode == nil, "Unknown").Else(gameMode.Name)
+		gameMode := GetGameModeById(game.GameMode)
+		modeName := lo.If(gameMode == nil, "Unknown").Else(gameMode.Name)
 
-			return fmt.Sprintf("%s%s", modeName, avgMmr)
-		})
-
-		return []string{strings.Join(result, " | ")}
+		return []string{fmt.Sprintf("%s%s", modeName, avgMmr)}
 	},
 }
