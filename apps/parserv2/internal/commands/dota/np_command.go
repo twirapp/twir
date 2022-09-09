@@ -3,6 +3,7 @@ package dota
 import (
 	"fmt"
 	"tsuwari/parser/internal/types"
+
 	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/samber/lo"
@@ -23,18 +24,18 @@ var NpAccCommand = types.DefaultCommand{
 			return []string{NO_ACCOUNTS}
 		}
 
-		games := *GetGames(GetGamesOpts{
+		games := GetGames(GetGamesOpts{
 			Db:       ctx.Services.Db,
 			Accounts: *accounts,
 			Take:     lo.ToPtr(1),
 			Redis:    ctx.Services.Redis,
 		})
 
-		if games == nil || len(games) == 0 {
+		if games == nil || len(*games) == 0 {
 			return []string{"Game not found."}
 		}
 
-		game := games[0]
+		game := lo.FromPtr(games)[0]
 		avgMmr := lo.
 			If(
 				game.GameMode == 22 && game.LobbyType == 7,

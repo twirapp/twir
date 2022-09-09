@@ -128,37 +128,43 @@ func GetGames(opts GetGamesOpts) *[]Game {
 		return n
 	})
 
-	scan := opts.Db.
-		Raw(
-			`SELECT 
-			"dota_matches"."id", 
-			"dota_matches"."startedAt", 
-			"dota_matches"."lobby_type", 
-			"dota_matches"."gameModeId", 
-			"dota_matches"."weekend_tourney_bracket_round", 
-			"dota_matches"."weekend_tourney_skill_level", 
-			"dota_matches"."match_id", 
-			"dota_matches"."avarage_mmr", 
-			"dota_matches"."lobbyId", 
-			"dota_matches"."finished", 
-			"dota_matches"."players", 
-			"dota_matches"."players_heroes", 
-			"GameMode"."id" AS "GameMode__id", 
-			"GameMode"."name" AS "GameMode__name" 
-		FROM 
-			"dota_matches" 
-			LEFT JOIN "dota_game_modes" "GameMode" ON "dota_matches"."gameModeId" = "GameMode"."id" 
-		WHERE 
-			ARRAY[players] && ARRAY[?]::int[] 
-		ORDER BY 
-			"startedAt" DESC
-		`,
-			intAccounts,
-		).
-		Scan(&dbGames)
+	err := opts.Db.
+		Table("dota_matches").
+		Where("ARRAY[players] && ARRAY[?]::int[]", intAccounts).
+		Joins("GameMode").
+		Find(&dbGames).Error
+	/* scan := opts.Db.
+	Raw(
+		`SELECT
+		"dota_matches"."id",
+		"dota_matches"."startedAt",
+		"dota_matches"."lobby_type",
+		"dota_matches"."gameModeId",
+		"dota_matches"."weekend_tourney_bracket_round",
+		"dota_matches"."weekend_tourney_skill_level",
+		"dota_matches"."match_id",
+		"dota_matches"."avarage_mmr",
+		"dota_matches"."lobbyId",
+		"dota_matches"."finished",
+		"dota_matches"."players",
+		"dota_matches"."players_heroes",
+		"GameMode"."id" AS "GameMode__id",
+		"GameMode"."name" AS "GameMode__name"
+	FROM
+		"dota_matches"
+		LEFT JOIN "dota_game_modes" "GameMode" ON "dota_matches"."gameModeId" = "GameMode"."id"
+	WHERE
+		ARRAY[players] && ARRAY[?]::int[]
+	ORDER BY
+		"startedAt" DESC
+	`,
+		intAccounts,
+	).
+	Scan(&dbGames) */
 
-	if scan.Error != nil {
-		fmt.Println("GetGames:", scan.Error)
+	fmt.Println(dbGames)
+	if err != nil {
+		fmt.Println("GetGames:", err)
 		return nil
 	}
 
