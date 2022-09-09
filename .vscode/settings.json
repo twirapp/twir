@@ -39,6 +39,16 @@
       "localPort": 5555,
       "name": "prisma studio",
       "remotePort": 5555
+    },
+    {
+      "localPort": 54320,
+      "name": "adminer",
+      "remotePort": 54321
+    },
+    {
+      "localPort": 8222,
+      "name": "nats",
+      "remotePort": 8222
     }
   ],
   "i18n-ally.localesPaths": ["apps/frontend/src/locales"],
