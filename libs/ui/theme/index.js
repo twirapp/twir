@@ -70,18 +70,20 @@ module.exports = {
       65: '#EF555E',
     },
   },
-  keyframes: {
-    fadeInDown: {
-      from: { opacity: '0', transform: 'translateY(-20px)' },
-      to: { opacity: '1', transform: 'translateY(0)' },
+  extend: {
+    keyframes: {
+      fadeInDown: {
+        from: { opacity: '0', transform: 'translateY(-20px)' },
+        to: { opacity: '1', transform: 'translateY(0)' },
+      },
+      fadeIn: {
+        from: { opacity: '0' },
+        to: { opacity: '1' },
+      },
     },
-    fadeIn: {
-      from: { opacity: '0' },
-      to: { opacity: '1' },
+    animation: {
+      fadeInDown: 'fadeInDown 1s forwards',
+      fadeIn: 'fadeIn 1s forwards',
     },
-  },
-  animation: {
-    fadeInDown: 'fadeInDown 1s forwards',
-    fadeIn: 'fadeIn 1s forwards',
   },
 };

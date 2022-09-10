@@ -47,6 +47,8 @@ const toggle = () => {
   border: none;
   user-select: none;
 
+  @apply min-lg:hidden;
+
   div {
     display: flex;
     flex-direction: column;

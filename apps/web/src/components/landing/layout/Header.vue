@@ -7,7 +7,7 @@
             <img :src="Logo" alt="Tsuwari logo" />
             <span class="font-medium text-xl">Tsuwari</span>
           </a>
-          <BurgerMenuButton v-model:state="menuState" class="min-lg:hidden" />
+          <BurgerMenuButton v-model:state="menuState" />
           <MobileMenu />
         </div>
       </div>
