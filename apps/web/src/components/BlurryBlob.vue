@@ -10,7 +10,7 @@ const blobStyles = computed<StyleValue>(() => {
   if (window.navigator.userAgent.includes('Firefox')) {
     return { animation: 'fadeInFirefox 1s', opacity: '0.25' };
   }
-  return { animation: 'fadeInBlob 1s', opacity: '0.6' };
+  return { animation: 'fadeInBlob 1s', opacity: '0.8' };
 });
 
 defineProps<{
@@ -40,19 +40,22 @@ defineProps<{
     opacity: 0;
   }
   to {
-    opacity: 0.6;
+    opacity: 0.8;
   }
 }
 
 .purple-blob {
-  background-color: theme('colors.purple.60');
+  /* background-color: theme('colors.purple.60'); */
+  background: linear-gradient(180deg, #ff00e5 0%, #4617ff 100%);
 }
 
 .blue-blob {
-  background-color: #5767f8;
+  background: linear-gradient(180deg, #0094ff 0%, #801efd 100%);
+  /* background-color: #5767f8; */
 }
 
 .cyan-blob {
-  background-color: #24777c;
+  background: linear-gradient(180deg, #00e9f8 0%, #0c8aff 100%);
+  /* background-color: #24777c; */
 }
 </style>
