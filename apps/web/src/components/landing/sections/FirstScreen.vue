@@ -14,7 +14,7 @@
       </template>
     </ClientOnly>
 
-    <div class="container animate-fadeIn">
+    <div class="container">
       <div class="inline-flex flex-col items-center w-full pt-32 pb-40">
         <h1
           class="
