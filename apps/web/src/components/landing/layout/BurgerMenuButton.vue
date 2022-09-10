@@ -6,7 +6,7 @@
     }"
     @click.prevent="toggle"
   >
-    <div></div>
+    <span></span>
   </button>
 </template>
 
@@ -15,20 +15,20 @@ import { computed } from 'vue';
 
 const props =
   defineProps<{
-    state: boolean;
+    menuState: boolean;
   }>();
 
 const emit =
   defineEmits<{
-    (event: 'update:state', state: boolean): void;
+    (event: 'update:menuState', state: boolean): void;
   }>();
 
 const buttonState = computed<boolean>({
   get() {
-    return props.state;
+    return props.menuState;
   },
   set(value) {
-    emit('update:state', value);
+    emit('update:menuState', value);
   },
 });
 
@@ -49,7 +49,7 @@ const toggle = () => {
 
   @apply min-lg:hidden;
 
-  div {
+  span {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -78,7 +78,7 @@ const toggle = () => {
     }
   }
 
-  &.active div {
+  &.active span {
     &::before {
       transform: translateY(1px) rotate(45deg);
     }

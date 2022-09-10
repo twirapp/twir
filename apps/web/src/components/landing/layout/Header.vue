@@ -7,8 +7,10 @@
             <img :src="Logo" alt="Tsuwari logo" />
             <span class="font-medium text-xl">Tsuwari</span>
           </a>
-          <BurgerMenuButton v-model:state="menuState" />
-          <MobileMenu />
+          <BurgerMenuButton v-model:menuState="menuState" />
+          <ClientOnly>
+            <MobileMenu :menuState="menuState" />
+          </ClientOnly>
         </div>
       </div>
       <NavMenu
@@ -24,7 +26,6 @@
         </div>
       </div>
     </div>
-
     <ClientOnly>
       <div
         :class="{
@@ -85,7 +86,7 @@ header {
     top-0
     mx-auto
     z-20
-    bg-black-10 bg-opacity-80
+    bg-black-10 bg-opacity-70
     backdrop-blur-sm backdrop-saturate-[180%];
 
   .container {
@@ -124,16 +125,5 @@ header {
     hover:text-purple-95
     border-2 border-opacity-0 border-purple-70
     transition-colors;
-}
-
-.mobile-menu {
-  @apply block
-    fixed
-    w-full
-    left-0
-    right-0
-    bottom-0
-    max-w-[100vw]
-    z-50;
 }
 </style>

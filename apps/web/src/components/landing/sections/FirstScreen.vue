@@ -16,24 +16,13 @@
 
     <div class="container">
       <div class="inline-flex flex-col items-center w-full pt-32 pb-40">
-        <h1
-          class="
-            font-bold
-            text-7xl text-center
-            gradient-title
-            max-w-[690px]
-            animate-fadeInDown
-            opacity-0
-            z-10
-          "
-          v-html="t('sections.firstScreen.title')"
-        ></h1>
+        <h1 class="gradient-title" v-html="t('sections.firstScreen.title')"></h1>
         <p
           class="
             text-center
             leading-[145%]
             text-gray-70 text-[22px]
-            pt-7
+            pt-8
             max-w-[600px]
             animate-fadeInDown
             animation-delay-200
@@ -111,21 +100,18 @@ const t = useTranslation<'landing'>();
 </script>
 
 <style lang="postcss">
-.gradient-title span {
-  background: linear-gradient(258.67deg, #d34bf4 4.22%, #905bff 73.01%);
+.gradient-title {
+  @apply font-bold text-center max-w-[690px] animate-fadeInDown opacity-0 z-10;
+  letter-spacing: -2px;
+  font-size: 80px;
+  line-height: 1.1;
 
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  line-height: 1.15;
-}
+  & > span {
+    background: linear-gradient(258.67deg, #d34bf4 4.22%, #905bff 73.01%);
 
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }
 </style>
