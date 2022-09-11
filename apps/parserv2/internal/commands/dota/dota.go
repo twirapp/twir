@@ -134,34 +134,7 @@ func GetGames(opts GetGamesOpts) *[]Game {
 		Order(`"startedAt" DESC`).
 		Joins("GameMode").
 		Find(&dbGames).Error
-	/* scan := opts.Db.
-	Raw(
-		`SELECT
-		"dota_matches"."id",
-		"dota_matches"."startedAt",
-		"dota_matches"."lobby_type",
-		"dota_matches"."gameModeId",
-		"dota_matches"."weekend_tourney_bracket_round",
-		"dota_matches"."weekend_tourney_skill_level",
-		"dota_matches"."match_id",
-		"dota_matches"."avarage_mmr",
-		"dota_matches"."lobbyId",
-		"dota_matches"."finished",
-		"dota_matches"."players",
-		"dota_matches"."players_heroes",
-		"GameMode"."id" AS "GameMode__id",
-		"GameMode"."name" AS "GameMode__name"
-	FROM
-		"dota_matches"
-		LEFT JOIN "dota_game_modes" "GameMode" ON "dota_matches"."gameModeId" = "GameMode"."id"
-	WHERE
-		ARRAY[players] && ARRAY[?]::int[]
-	ORDER BY
-		"startedAt" DESC
-	`,
-		intAccounts,
-	).
-	Scan(&dbGames) */ if err != nil {
+	if err != nil {
 		fmt.Println("GetGames:", err)
 		return nil
 	}
@@ -184,8 +157,8 @@ func GetGames(opts GetGamesOpts) *[]Game {
 
 		g.Players = lo.Map(game.Players, func(p int64, i int) Player {
 			return Player{
-				AccountId: p,
-				HeroId:    game.PlayersHeroes[i],
+				AccountId: int(p),
+				HeroId:    int(game.PlayersHeroes[i]),
 			}
 		})
 
@@ -196,8 +169,8 @@ func GetGames(opts GetGamesOpts) *[]Game {
 }
 
 type Player struct {
-	AccountId int64 `json:"account_id"`
-	HeroId    int64 `json:"hero_id"`
+	AccountId int `json:"account_id"`
+	HeroId    int `json:"hero_id"`
 }
 
 type Game struct {

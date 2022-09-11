@@ -255,9 +255,6 @@ var WlCommand = types.DefaultCommand{
 			mode, _ := lo.Find(DotaGameModes, func(m GameMode) bool {
 				return int(entry.Key) == m.ID
 			})
-			// `${m.hero.localized_name}(${m.isWinner ? 'W' : 'L'}) [${m.kills}/${m.deaths}/${
-			// 	m.assists
-			// }]`,
 
 			heroesResult := lo.Map(entry.Value.Matches, func(m Match, _ int) string {
 				return fmt.Sprintf(

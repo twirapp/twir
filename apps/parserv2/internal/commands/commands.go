@@ -59,6 +59,7 @@ func New(opts CommandsOpts) Commands {
 		dota.ListAccCommand,
 		dota.NpAccCommand,
 		dota.WlCommand,
+		dota.LgCommand,
 	}
 
 	ctx := Commands{
