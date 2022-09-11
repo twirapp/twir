@@ -1,30 +1,26 @@
 import type { WritableComputedRef } from 'vue';
-import { ComposerTranslation, createI18n, useI18n } from 'vue-i18n';
+import { createI18n } from 'vue-i18n';
 
-import type ILandingLocale from '@/types/landingLocaleInterface.js';
-import type { Locale } from '@/types/locale';
+import type ILandingLocale from '@/locales/landing/interface.js';
+
+export type Locale = 'en' | 'ru';
+
+export const locales: Locale[] = ['en', 'ru'];
+export const defaultLocale: Locale = 'en';
 
 type Languages = { name: string; locale: Locale }[];
-type LocaleType = keyof LocaleTypes;
-
-interface LocaleTypes {
-  landing: ILandingLocale;
-  app: ReturnType<() => typeof import('@/locales/app/en.json')>;
-}
 
 export const languages: Languages = [
   { name: 'English', locale: 'en' },
   { name: 'Русский', locale: 'ru' },
 ];
 
-export const locales: Locale[] = ['en', 'ru'];
-export const defaultLocale = 'en';
+export interface LocaleTypes {
+  landing: ILandingLocale;
+  app: ReturnType<() => typeof import('@/locales/app/en.json')>;
+}
 
-export const useTranslation = <L extends LocaleType>() => {
-  const { t } = useI18n();
-
-  return t as ComposerTranslation<{ en: LocaleTypes[L] }, Locale>;
-};
+export type LocaleType = keyof LocaleTypes;
 
 export async function loadLocaleMessages<L extends LocaleType>(
   localeType: L,

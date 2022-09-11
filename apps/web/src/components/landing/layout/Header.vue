@@ -7,21 +7,20 @@
             <img :src="Logo" alt="Tsuwari logo" />
             <span class="font-medium text-xl">Tsuwari</span>
           </a>
-          <BurgerMenuButton v-model:menuState="menuState" />
+          <BurgerMenuButton />
           <ClientOnly>
-            <MobileMenu :menuState="menuState" />
+            <MobileMenu />
           </ClientOnly>
         </div>
       </div>
       <NavMenu
         menuItemClass="header-nav-link"
         menuClass="inline-grid grid-flow-col gap-x-2"
-        :menuItems="menuItems"
         class="max-lg:hidden"
       />
       <div class="flex-1 flex max-lg:bg-red-60 max-lg:hidden">
         <div class="inline-grid grid-flow-col gap-x-3 items-center ml-auto">
-          <LangSelect @change="setLocale" />
+          <LangSelect @change="setLandingLocale" />
           <a href="#" class="login-btn">{{ t('buttons.login') }}</a>
         </div>
       </div>
@@ -40,9 +39,6 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
 import { useWindowScroll } from '@vueuse/core';
-import { navigate } from 'vite-plugin-ssr/client/router';
-import { ref } from 'vue';
-import { useI18n } from 'vue-i18n';
 
 import Logo from '@/assets/NewLogo.svg';
 import ClientOnly from '@/components/ClientOnly.vue';
@@ -50,31 +46,17 @@ import BurgerMenuButton from '@/components/landing/layout/BurgerMenuButton.vue';
 import MobileMenu from '@/components/landing/layout/MobileMenu.vue';
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import LangSelect from '@/components/LangSelect/LangSelect.vue';
+import useLandingLocale from '@/hooks/useLandingLocale';
+import useTranslation from '@/hooks/useTranslation';
 import { headerStore, headerHeightStore } from '@/stores/landing/header.js';
-import type { Locale } from '@/types/locale.js';
-import type { NavMenuLocale } from '@/types/navMenu';
-import { loadLocaleMessages, useTranslation } from '@/utils/locales.js';
 
-defineProps<{ menuItems: NavMenuLocale[] }>();
+const setLandingLocale = useLandingLocale();
 
 const headerHeight = useStore(headerHeightStore);
 
 const t = useTranslation<'landing'>();
 
-const { setLocaleMessage, locale: i18nLocale } = useI18n();
-
-async function setLocale(locale: Locale) {
-  const messages = await loadLocaleMessages('landing', locale);
-
-  setLocaleMessage<any>(locale, messages);
-  i18nLocale.value = locale;
-
-  navigate(`/${locale}`, { keepScrollPosition: true });
-}
-
 const { y: windowY } = useWindowScroll();
-
-const menuState = ref<boolean>(false);
 </script>
 
 <style lang="postcss">

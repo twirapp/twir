@@ -1,7 +1,7 @@
 import type { PageContextBuiltIn } from 'vite-plugin-ssr';
 import type { Component } from 'vue';
 
-import type { Locale } from '@/types/locale';
+import type { Locale } from '@/locales';
 
 export interface PageContext extends PageContextBuiltIn {
   Page: Component;

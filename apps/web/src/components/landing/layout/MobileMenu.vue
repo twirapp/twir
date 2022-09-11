@@ -2,7 +2,7 @@
   <Transition>
     <div
       v-if="menuState"
-      class="mobile-menu bg-black-10 p-5"
+      class="mobile-menu"
       :style="{
         top: `${headerHeight}px`,
         height: `${windowHeight - headerHeight}px`,
@@ -14,7 +14,16 @@
       >
         {{ t('buttons.login') }}
       </a>
-      <LangSelect />
+      <div class="flex flex-col mt-5">
+        <NavMenu 
+          menuClass="mobile-nav-menu" 
+          menuItemClass="mobile-nav-menu-item"
+          :menuItemClickHandler="closeMenu"
+        />
+        <div class="mt-2 w-full flex justify-end">
+          <LangSelect @change="changeLangAndCloseMenu" />
+        </div>
+      </div>
     </div>
   </Transition>
 </template>
@@ -22,33 +31,60 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
 import { useWindowSize } from '@vueuse/core';
-import { watch } from 'vue';
+import { onUnmounted } from 'vue';
 
+import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import LangSelect from '@/components/LangSelect/LangSelect.vue';
-import { headerHeightStore } from '@/stores/landing/header.js';
-import { useTranslation } from '@/utils/locales.js';
+import useLandingLocale from '@/hooks/useLandingLocale.js';
+import useTranslation from '@/hooks/useTranslation.js';
+import type { Locale } from '@/locales';
+import { headerHeightStore, menuStateStore } from '@/stores/landing/header.js';
 
-const props =
-  defineProps<{
-    menuState: boolean;
-  }>();
+const menuState = useStore(menuStateStore);
+const headerHeight = useStore(headerHeightStore);
 
-watch(
-  () => props.menuState,
-  (menuState) => {
-    if (menuState) {
-      document.body.classList.add('overflow-hidden');
-    } else {
-      document.body.classList.remove('overflow-hidden');
-    }
-  },
-);
+const setLandingLocale = useLandingLocale();
+
+const closeMenu = () => {
+  menuStateStore.set(false);
+};
+
+const changeLangAndCloseMenu = (locale: Locale) => {
+  setLandingLocale(locale);
+  // ??? Do I need to close the menu when changing the language?
+  closeMenu();
+};
+
+const removeListener = menuStateStore.listen((menuState) => {
+  if (menuState) {
+    document.body.classList.add('overflow-hidden');
+  } else {
+    document.body.classList.remove('overflow-hidden');
+  }
+});
 
 const t = useTranslation<'landing'>();
 
-const headerHeight = useStore(headerHeightStore);
 const { height: windowHeight } = useWindowSize();
+
+onUnmounted(() => {
+  removeListener();
+});
 </script>
+
+<style lang="postcss">
+.mobile-nav-menu {
+  @apply flex w-full flex-col;
+
+  & > :not(:last-child) {
+    @apply border-b border-black-25;
+  }
+}
+
+.mobile-nav-menu-item {
+  @apply flex w-full py-[15px] leading-tight;
+}
+</style>
 
 <style lang="postcss" scoped>
 .mobile-menu {
@@ -59,7 +95,9 @@ const { height: windowHeight } = useWindowSize();
     right-0
     bottom-0
     max-w-[100vw]
-    z-50;
+    z-50
+    bg-black-10
+    p-5;
 }
 
 .v-enter-active,

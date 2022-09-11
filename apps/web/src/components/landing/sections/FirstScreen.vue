@@ -94,7 +94,7 @@
 <script lang="ts" setup>
 import BlurryBlob from '@/components/BlurryBlob.vue';
 import ClientOnly from '@/components/ClientOnly.vue';
-import { useTranslation } from '@/utils/locales.js';
+import useTranslation from '@/hooks/useTranslation.js';
 
 const t = useTranslation<'landing'>();
 </script>

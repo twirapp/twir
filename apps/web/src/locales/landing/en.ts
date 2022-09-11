@@ -1,5 +1,5 @@
 import { BasicPlanFeatures, PlanId, ProPlanFeatures } from '@/data/pricingPlans.js';
-import type ILandingLocale from '@/types/landingLocaleInterface.js';
+import type ILandingLocale from '@/locales/landing/interface.js';
 import { NavMenuTabs } from '@/types/navMenu';
 
 const messages: ILandingLocale = {
