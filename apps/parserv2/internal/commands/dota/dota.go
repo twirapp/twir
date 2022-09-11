@@ -29,7 +29,7 @@ var Colors = [...]string{
 	"Purple",
 	"Yellow",
 	"Orange",
-	"Ping",
+	"Pink",
 	"Gray",
 	"Light Blue",
 	"Green",

@@ -10,11 +10,6 @@ type Hero struct {
 
 var DotaHeroes = []Hero{
 	{
-		ID:            0,
-		LocalizedName: "Not Picked",
-		ShortName:     nil,
-	},
-	{
 		ID:            1,
 		LocalizedName: "Anti-Mage",
 		ShortName:     nil,
@@ -92,7 +87,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            16,
 		LocalizedName: "Sand King",
-		ShortName:     lo.ToPtr("SK"),
+		ShortName:     nil,
 	},
 	{
 		ID:            17,
@@ -112,7 +107,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            20,
 		LocalizedName: "Vengeful Spirit",
-		ShortName:     nil,
+		ShortName:     lo.ToPtr("Vengeful"),
 	},
 	{
 		ID:            21,
@@ -142,7 +137,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            27,
 		LocalizedName: "Shadow Shaman",
-		ShortName:     lo.ToPtr("Shaman"),
+		ShortName:     nil,
 	},
 	{
 		ID:            28,
@@ -152,7 +147,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            29,
 		LocalizedName: "Tidehunter",
-		ShortName:     nil,
+		ShortName:     lo.ToPtr("Tide"),
 	},
 	{
 		ID:            30,
@@ -187,7 +182,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            36,
 		LocalizedName: "Necrophos",
-		ShortName:     lo.ToPtr("Necr"),
+		ShortName:     nil,
 	},
 	{
 		ID:            37,
@@ -202,7 +197,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            39,
 		LocalizedName: "Queen of Pain",
-		ShortName:     lo.ToPtr("QoP"),
+		ShortName:     lo.ToPtr("QOP"),
 	},
 	{
 		ID:            40,
@@ -217,7 +212,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            42,
 		LocalizedName: "Wraith King",
-		ShortName:     nil,
+		ShortName:     lo.ToPtr("WK"),
 	},
 	{
 		ID:            43,
@@ -227,7 +222,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            44,
 		LocalizedName: "Phantom Assassin",
-		ShortName:     lo.ToPtr("PA"),
+		ShortName:     nil,
 	},
 	{
 		ID:            45,
@@ -237,7 +232,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            46,
 		LocalizedName: "Templar Assassin",
-		ShortName:     lo.ToPtr("TA"),
+		ShortName:     nil,
 	},
 	{
 		ID:            47,
@@ -252,7 +247,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            49,
 		LocalizedName: "Dragon Knight",
-		ShortName:     lo.ToPtr("DK"),
+		ShortName:     nil,
 	},
 	{
 		ID:            50,
@@ -307,17 +302,17 @@ var DotaHeroes = []Hero{
 	{
 		ID:            60,
 		LocalizedName: "Night Stalker",
-		ShortName:     lo.ToPtr("NS"),
+		ShortName:     nil,
 	},
 	{
 		ID:            61,
 		LocalizedName: "Broodmother",
-		ShortName:     lo.ToPtr("Brood"),
+		ShortName:     nil,
 	},
 	{
 		ID:            62,
 		LocalizedName: "Bounty Hunter",
-		ShortName:     lo.ToPtr("BH"),
+		ShortName:     nil,
 	},
 	{
 		ID:            63,
@@ -347,7 +342,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            68,
 		LocalizedName: "Ancient Apparition",
-		ShortName:     lo.ToPtr("AA"),
+		ShortName:     nil,
 	},
 	{
 		ID:            69,
@@ -362,17 +357,17 @@ var DotaHeroes = []Hero{
 	{
 		ID:            71,
 		LocalizedName: "Spirit Breaker",
-		ShortName:     nil,
+		ShortName:     lo.ToPtr("Bara"),
 	},
 	{
 		ID:            72,
 		LocalizedName: "Gyrocopter",
-		ShortName:     lo.ToPtr("Gyro"),
+		ShortName:     nil,
 	},
 	{
 		ID:            73,
 		LocalizedName: "Alchemist",
-		ShortName:     lo.ToPtr("Alch"),
+		ShortName:     nil,
 	},
 	{
 		ID:            74,
@@ -386,7 +381,7 @@ var DotaHeroes = []Hero{
 	},
 	{
 		ID:            76,
-		LocalizedName: "Outworld Devourer",
+		LocalizedName: "Outworld Destroyer",
 		ShortName:     lo.ToPtr("OD"),
 	},
 	{
@@ -412,7 +407,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            81,
 		LocalizedName: "Chaos Knight",
-		ShortName:     lo.ToPtr("CK"),
+		ShortName:     nil,
 	},
 	{
 		ID:            82,
@@ -427,7 +422,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            84,
 		LocalizedName: "Ogre Magi",
-		ShortName:     lo.ToPtr("Ogre"),
+		ShortName:     nil,
 	},
 	{
 		ID:            85,
@@ -447,7 +442,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            88,
 		LocalizedName: "Nyx Assassin",
-		ShortName:     nil,
+		ShortName:     lo.ToPtr("Nyx"),
 	},
 	{
 		ID:            89,
@@ -502,7 +497,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            99,
 		LocalizedName: "Bristleback",
-		ShortName:     nil,
+		ShortName:     lo.ToPtr("Brist"),
 	},
 	{
 		ID:            100,
@@ -512,7 +507,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            101,
 		LocalizedName: "Skywrath Mage",
-		ShortName:     lo.ToPtr("Skywrath"),
+		ShortName:     nil,
 	},
 	{
 		ID:            102,
@@ -522,7 +517,7 @@ var DotaHeroes = []Hero{
 	{
 		ID:            103,
 		LocalizedName: "Elder Titan",
-		ShortName:     lo.ToPtr("Elder"),
+		ShortName:     nil,
 	},
 	{
 		ID:            104,
@@ -567,12 +562,12 @@ var DotaHeroes = []Hero{
 	{
 		ID:            112,
 		LocalizedName: "Winter Wyvern",
-		ShortName:     lo.ToPtr("Wyvern"),
+		ShortName:     nil,
 	},
 	{
 		ID:            113,
 		LocalizedName: "Arc Warden",
-		ShortName:     lo.ToPtr("Arc"),
+		ShortName:     nil,
 	},
 	{
 		ID:            114,
@@ -600,6 +595,16 @@ var DotaHeroes = []Hero{
 		ShortName:     nil,
 	},
 	{
+		ID:            126,
+		LocalizedName: "Void Spirit",
+		ShortName:     nil,
+	},
+	{
+		ID:            128,
+		LocalizedName: "Snapfire",
+		ShortName:     nil,
+	},
+	{
 		ID:            129,
 		LocalizedName: "Mars",
 		ShortName:     nil,
@@ -610,8 +615,13 @@ var DotaHeroes = []Hero{
 		ShortName:     nil,
 	},
 	{
-		ID:            138,
+		ID:            136,
 		LocalizedName: "Marci",
+		ShortName:     nil,
+	},
+	{
+		ID:            137,
+		LocalizedName: "Primal Beast",
 		ShortName:     nil,
 	},
 }

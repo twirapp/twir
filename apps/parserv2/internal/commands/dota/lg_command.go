@@ -2,7 +2,10 @@ package dota
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 	"tsuwari/parser/internal/types"
+	"tsuwari/parser/pkg/helpers"
 
 	variables_cache "tsuwari/parser/internal/variablescache"
 
@@ -31,7 +34,7 @@ var LgCommand = types.DefaultCommand{
 			Take:     lo.ToPtr(2),
 		})
 
-		if len(*games) <= 2 {
+		if games == nil || len(*games) <= 2 {
 			return []string{GAME_NOT_FOUND}
 		}
 
@@ -41,7 +44,12 @@ var LgCommand = types.DefaultCommand{
 		result := []string{}
 
 		for idx, player := range currGame.Players {
-			prevPlayer, prevIdx, ok := lo.FindIndexOf(prevGame.Players, func(p Player) bool {
+			owner := helpers.Contains(*accounts, strconv.Itoa(player.AccountId))
+			if owner {
+				continue
+			}
+
+			prevPlayer, _, ok := lo.FindIndexOf(prevGame.Players, func(p Player) bool {
 				return player.AccountId == p.AccountId
 			})
 
@@ -49,9 +57,8 @@ var LgCommand = types.DefaultCommand{
 				continue
 			}
 
-			prevHero := GetPlayerHero(prevPlayer.HeroId, lo.ToPtr(prevIdx))
+			prevHero := GetPlayerHero(prevPlayer.HeroId, nil)
 			currHero := GetPlayerHero(player.HeroId, lo.ToPtr(idx))
-
 			result = append(result, fmt.Sprintf("%s played as %s", currHero, prevHero))
 		}
 
@@ -59,6 +66,6 @@ var LgCommand = types.DefaultCommand{
 			return []string{"Not played with anyone from last game."}
 		}
 
-		return result
+		return []string{strings.Join(result, ", ")}
 	},
 }
