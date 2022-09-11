@@ -4,7 +4,7 @@ import type { PageContext } from '@/types/pageContext.js';
 
 export { render };
 
-async function render(pageContext: PageContext) {
+async function render(_pageContext: PageContext) {
   return escapeInject`<!DOCTYPE html>
     <html>
       <head>

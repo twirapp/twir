@@ -9,7 +9,6 @@
           </div>
         </div>
         <NavMenu
-          :menuItems="menuItems"
           menuClass="inline-grid grid-flow-col gap-x-6"
           menuItemClass="leading-[130%]"
         />
@@ -34,11 +33,10 @@
 import { TswIcon } from '@tsuwari/ui-components';
 
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
-import type { NavMenuLocale } from '@/types/navMenu.js';
+import useTranslation from '@/hooks/useTranslation.js';
 import type { SocialMediaItem } from '@/types/socialMedia.js';
-import { useTranslation } from '@/utils/locales.js';
 
-defineProps<{ menuItems: NavMenuLocale[]; socials: SocialMediaItem[] }>();
+defineProps<{ socials: SocialMediaItem[] }>();
 
 const t = useTranslation<'landing'>();
 </script>

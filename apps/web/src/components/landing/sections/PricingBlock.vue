@@ -24,8 +24,8 @@ import BlurryBlob from '@/components/BlurryBlob.vue';
 import ClientOnly from '@/components/ClientOnly.vue';
 import PricingPlan from '@/components/landing/PricingPlan.vue';
 import { planColorThemes } from '@/data/pricingPlans.js';
+import useTranslation from '@/hooks/useTranslation.js';
 import type { PricePlansLocale } from '@/types/pricingPlan';
-import { useTranslation } from '@/utils/locales.js';
 
 defineProps<{
   pricePlans: PricePlansLocale;

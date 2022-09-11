@@ -1,12 +1,11 @@
 import { renderToNodeStream } from '@vue/server-renderer';
 
 import { landingPage } from '@/data/seo.js';
+import { defaultLocale, locales, setupI18n, type Locale } from '@/locales';
 import { createApp } from '@/pages/index/app';
-import type { Locale } from '@/types/locale.js';
 import type { PageContext } from '@/types/pageContext.js';
 import type { PassToClient, PrerenderFn } from '@/types/vitePluginSSR.js';
 import { htmlLayout } from '@/utils/htmlLayout.js';
-import { defaultLocale, locales, setupI18n } from '@/utils/locales.js';
 
 export async function render(pageContext: PageContext) {
   const locale = (pageContext.routeParams as { locale: Locale }).locale;

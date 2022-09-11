@@ -1,8 +1,7 @@
 import { persistentAtom } from '@nanostores/persistent';
 import { usePreferredLanguages } from '@vueuse/core';
 
-import type { Locale } from '@/types/locale.js';
-import { defaultLocale, locales } from '@/utils/locales.js';
+import { defaultLocale, Locale, locales } from '@/locales';
 
 const getUserPreferedLocale = (): Locale => {
   let { value: userLangs } = usePreferredLanguages();

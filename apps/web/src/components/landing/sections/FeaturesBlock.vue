@@ -35,8 +35,8 @@
 import { TswArrowIcon } from '@tsuwari/ui-components';
 
 import FeatureCard from '@/components/landing/FeatureCard.vue';
+import useTranslation from '@/hooks/useTranslation.js';
 import type { BotFeature } from '@/types/botFeatures';
-import { useTranslation } from '@/utils/locales.js';
 
 defineProps<{ features: BotFeature[] }>();
 

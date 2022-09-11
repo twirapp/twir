@@ -30,7 +30,7 @@
 <script lang="ts" setup>
 import { Dota2, Faceit, LastFm, Spotify, VK } from '@tsuwari/ui-icons/logos';
 
-import { useTranslation } from '@/utils/locales.js';
+import useTranslation from '@/hooks/useTranslation.js';
 
 const integrationLogos = [Dota2, Faceit, LastFm, Spotify, VK];
 
