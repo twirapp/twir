@@ -16,7 +16,7 @@
 <script lang="ts" setup>
 import { TswArrowIcon } from '@tsuwari/ui-components';
 
-import { useTranslation } from '@/utils/locales.js';
+import useTranslation from '@/hooks/useTranslation';
 
 defineProps<{
   title: string;

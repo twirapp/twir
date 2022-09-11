@@ -2,7 +2,7 @@
   <button
     :class="{
       'burger-menu-button': true,
-      active: buttonState,
+      active: menuState,
     }"
     @click.prevent="toggle"
   >
@@ -11,29 +11,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { useStore } from '@nanostores/vue';
 
-const props =
-  defineProps<{
-    menuState: boolean;
-  }>();
+import { menuStateStore } from '@/stores/landing/header.js';
 
-const emit =
-  defineEmits<{
-    (event: 'update:menuState', state: boolean): void;
-  }>();
-
-const buttonState = computed<boolean>({
-  get() {
-    return props.menuState;
-  },
-  set(value) {
-    emit('update:menuState', value);
-  },
-});
+const menuState = useStore(menuStateStore);
 
 const toggle = () => {
-  buttonState.value = !buttonState.value;
+  menuStateStore.set(!menuStateStore.get());
 };
 </script>
 

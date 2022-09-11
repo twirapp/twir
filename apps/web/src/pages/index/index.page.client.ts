@@ -1,9 +1,8 @@
 import { landingPage } from '@/data/seo.js';
+import { setupI18n, type Locale } from '@/locales/index.js';
 import { createApp } from '@/pages/index/app';
 import '@/styles/tailwind.base.css';
-import type { Locale } from '@/types/locale.js';
 import type { PageContext } from '@/types/pageContext';
-import { setupI18n } from '@/utils/locales.js';
 
 export const clientRouting = true;
 export const prefetchStaticAssets = { when: 'VIEWPORT' };

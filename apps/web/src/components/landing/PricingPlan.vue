@@ -53,8 +53,8 @@ import { TswIcon } from '@tsuwari/ui-components';
 import { computed } from 'vue';
 
 import { featureTypeIcons } from '@/data/pricingPlans.js';
+import useTranslation from '@/hooks/useTranslation.js';
 import type { PlanColorTheme, PricePlanLocale } from '@/types/pricingPlan';
-import { useTranslation } from '@/utils/locales.js';
 
 const props =
   defineProps<{

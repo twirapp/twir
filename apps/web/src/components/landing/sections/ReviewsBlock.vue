@@ -69,8 +69,8 @@ import 'swiper/css';
 import BlurryBlob from '@/components/BlurryBlob.vue';
 import ClientOnly from '@/components/ClientOnly.vue';
 import ReviewCard from '@/components/landing/ReviewCard.vue';
+import useTranslation from '@/hooks/useTranslation.js';
 import type { Review } from '@/types/review';
-import { useTranslation } from '@/utils/locales.js';
 
 defineProps<{reviews: Review[]}>();
 

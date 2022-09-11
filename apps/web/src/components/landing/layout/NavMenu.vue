@@ -19,9 +19,15 @@ import { useStore } from '@nanostores/vue';
 
 import { navMenuHrefs } from '@/data/index';
 import { headerHeightStore } from '@/stores/landing/header.js';
-import type { NavMenuLocale } from '@/types/navMenu.js';
+import { navMenuLocaleStore } from '@/stores/landing/navMenu.js';
 
-defineProps<{ menuItems: NavMenuLocale[]; menuItemClass: string; menuClass: string }>();
+const props = defineProps<{
+  menuClass: string;
+  menuItemClass: string;
+  menuItemClickHandler?: () => any;
+}>();
+
+const menuItems =  useStore(navMenuLocaleStore);
 
 const scrollToSection = (e: Event) => {
   if (typeof window === 'undefined') return;
@@ -31,15 +37,17 @@ const scrollToSection = (e: Event) => {
   const sectionId = (e.target as HTMLLinkElement).dataset.section as string;
   const section = document.getElementById(sectionId);
   if (!section) {
-    console.error('Section is not founded');
-    return;
+    return console.error(`Section "${sectionId}" is not found`);
   }
 
   const sectionY = window.scrollY - headerHeight.value + section.getBoundingClientRect().top;
-
   window.scrollTo({
     top: sectionY,
     behavior: 'smooth',
   });
+
+  if (props.menuItemClickHandler) {
+    props.menuItemClickHandler();
+  } 
 };
 </script>

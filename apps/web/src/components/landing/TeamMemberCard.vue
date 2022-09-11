@@ -46,8 +46,8 @@
 import { TswIcon } from '@tsuwari/ui-components';
 
 import UserImage from '@/assets/User.svg';
+import useTranslation from '@/hooks/useTranslation';
 import type { TeamMemberMediaLink } from '@/types/teamMember';
-import { useTranslation } from '@/utils/locales.js';
 
 withDefaults(
   defineProps<{
