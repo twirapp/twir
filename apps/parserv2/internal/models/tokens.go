@@ -6,6 +6,7 @@ import (
 
 	"github.com/guregu/null"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -41,20 +42,19 @@ type Tokens struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] accessToken                                    TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	AccessToken string `gorm:"column:accessToken;type:TEXT;" json:"access_token"`
+	AccessToken string `gorm:"column:accessToken;type:TEXT;"                   json:"access_token"`
 	//[ 2] refreshToken                                   TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	RefreshToken string `gorm:"column:refreshToken;type:TEXT;" json:"refresh_token"`
+	RefreshToken string `gorm:"column:refreshToken;type:TEXT;"                  json:"refresh_token"`
 	//[ 3] expiresIn                                      INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: []
-	ExpiresIn int32 `gorm:"column:expiresIn;type:INT4;" json:"expires_in"`
+	ExpiresIn int32 `gorm:"column:expiresIn;type:INT4;"                     json:"expires_in"`
 	//[ 4] obtainmentTimestamp                            TIMESTAMP            null: false  primary: false  isArray: false  auto: false  col: TIMESTAMP       len: -1      default: []
-	ObtainmentTimestamp time.Time `gorm:"column:obtainmentTimestamp;type:TIMESTAMP;" json:"obtainment_timestamp"`
+	ObtainmentTimestamp time.Time `gorm:"column:obtainmentTimestamp;type:TIMESTAMP;"      json:"obtainment_timestamp"`
 }
 
 var tokensTableInfo = &TableInfo{
 	Name: "tokens",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -75,7 +75,7 @@ var tokensTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "accessToken",
 			Comment:            ``,
@@ -96,7 +96,7 @@ var tokensTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "refreshToken",
 			Comment:            ``,
@@ -117,7 +117,7 @@ var tokensTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "expiresIn",
 			Comment:            ``,
@@ -138,7 +138,7 @@ var tokensTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "obtainmentTimestamp",
 			Comment:            ``,
@@ -167,7 +167,7 @@ func (t *Tokens) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (t *Tokens) BeforeSave() error {
+func (t *Tokens) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

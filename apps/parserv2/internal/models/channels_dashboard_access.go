@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -39,16 +40,15 @@ type ChannelsDashboardAccess struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] channelId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ChannelID string `gorm:"column:channelId;type:TEXT;" json:"channel_id"`
+	ChannelID string `gorm:"column:channelId;type:TEXT;"                     json:"channel_id"`
 	//[ 2] userId                                         TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	UserID string `gorm:"column:userId;type:TEXT;" json:"user_id"`
+	UserID string `gorm:"column:userId;type:TEXT;"                        json:"user_id"`
 }
 
 var channels_dashboard_accessTableInfo = &TableInfo{
 	Name: "channels_dashboard_access",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -69,7 +69,7 @@ var channels_dashboard_accessTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "channelId",
 			Comment:            ``,
@@ -90,7 +90,7 @@ var channels_dashboard_accessTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "userId",
 			Comment:            ``,
@@ -119,7 +119,7 @@ func (c *ChannelsDashboardAccess) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (c *ChannelsDashboardAccess) BeforeSave() error {
+func (c *ChannelsDashboardAccess) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

@@ -7,6 +7,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -312,7 +313,7 @@ func (d *DotaMatches) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (d *DotaMatches) BeforeSave() error {
+func (d *DotaMatches) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

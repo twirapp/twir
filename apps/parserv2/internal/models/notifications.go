@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -38,20 +39,19 @@ JSON Sample
 // Notifications struct is a row record of the notifications table in the tsuwari database
 type Notifications struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
-	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;"            json:"id"`
 	//[ 1] imageSrc                                       TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ImageSrc sql.NullString `gorm:"column:imageSrc;type:TEXT;" json:"image_src"`
+	ImageSrc sql.NullString `gorm:"column:imageSrc;type:TEXT;"                                 json:"image_src"`
 	//[ 2] createdAt                                      TIMESTAMP            null: false  primary: false  isArray: false  auto: false  col: TIMESTAMP       len: -1      default: [CURRENT_TIMESTAMP]
 	CreatedAt time.Time `gorm:"column:createdAt;type:TIMESTAMP;default:CURRENT_TIMESTAMP;" json:"created_at"`
 	//[ 3] userId                                         TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	UserID sql.NullString `gorm:"column:userId;type:TEXT;" json:"user_id"`
+	UserID sql.NullString `gorm:"column:userId;type:TEXT;"                                   json:"user_id"`
 }
 
 var notificationsTableInfo = &TableInfo{
 	Name: "notifications",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -72,7 +72,7 @@ var notificationsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "imageSrc",
 			Comment:            ``,
@@ -93,7 +93,7 @@ var notificationsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "createdAt",
 			Comment:            ``,
@@ -114,7 +114,7 @@ var notificationsTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "userId",
 			Comment:            ``,
@@ -143,7 +143,7 @@ func (n *Notifications) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (n *Notifications) BeforeSave() error {
+func (n *Notifications) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

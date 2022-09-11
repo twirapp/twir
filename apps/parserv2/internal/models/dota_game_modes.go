@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -38,14 +39,13 @@ type DotaGameModes struct {
 	//[ 0] id                                             INT4                 null: false  primary: true   isArray: false  auto: false  col: INT4            len: -1      default: []
 	ID int32 `gorm:"primary_key;column:id;type:INT4;" json:"id"`
 	//[ 1] name                                           TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Name string `gorm:"column:name;type:TEXT;" json:"name"`
+	Name string `gorm:"column:name;type:TEXT;"           json:"name"`
 }
 
 var dota_game_modesTableInfo = &TableInfo{
 	Name: "dota_game_modes",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -66,7 +66,7 @@ var dota_game_modesTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "name",
 			Comment:            ``,
@@ -95,7 +95,7 @@ func (d *DotaGameModes) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (d *DotaGameModes) BeforeSave() error {
+func (d *DotaGameModes) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

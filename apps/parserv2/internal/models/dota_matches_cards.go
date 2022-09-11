@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -41,20 +42,19 @@ type DotaMatchesCards struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] match_id                                       TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	MatchID string `gorm:"column:match_id;type:TEXT;" json:"match_id"`
+	MatchID string `gorm:"column:match_id;type:TEXT;"                      json:"match_id"`
 	//[ 2] account_id                                     TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	AccountID string `gorm:"column:account_id;type:TEXT;" json:"account_id"`
+	AccountID string `gorm:"column:account_id;type:TEXT;"                    json:"account_id"`
 	//[ 3] rank_tier                                      INT4                 null: true   primary: false  isArray: false  auto: false  col: INT4            len: -1      default: []
-	RankTier sql.NullInt64 `gorm:"column:rank_tier;type:INT4;" json:"rank_tier"`
+	RankTier sql.NullInt64 `gorm:"column:rank_tier;type:INT4;"                     json:"rank_tier"`
 	//[ 4] leaderboard_rank                               INT4                 null: true   primary: false  isArray: false  auto: false  col: INT4            len: -1      default: []
-	LeaderboardRank sql.NullInt64 `gorm:"column:leaderboard_rank;type:INT4;" json:"leaderboard_rank"`
+	LeaderboardRank sql.NullInt64 `gorm:"column:leaderboard_rank;type:INT4;"              json:"leaderboard_rank"`
 }
 
 var dota_matches_cardsTableInfo = &TableInfo{
 	Name: "dota_matches_cards",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -75,7 +75,7 @@ var dota_matches_cardsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "match_id",
 			Comment:            ``,
@@ -96,7 +96,7 @@ var dota_matches_cardsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "account_id",
 			Comment:            ``,
@@ -117,7 +117,7 @@ var dota_matches_cardsTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "rank_tier",
 			Comment:            ``,
@@ -138,7 +138,7 @@ var dota_matches_cardsTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "leaderboard_rank",
 			Comment:            ``,
@@ -167,7 +167,7 @@ func (d *DotaMatchesCards) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (d *DotaMatchesCards) BeforeSave() error {
+func (d *DotaMatchesCards) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -39,16 +40,15 @@ type ChannelsCommandsResponses struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] text                                           TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Text sql.NullString `gorm:"column:text;type:TEXT;" json:"text"`
+	Text sql.NullString `gorm:"column:text;type:TEXT;"                          json:"text"`
 	//[ 2] commandId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	CommandID string `gorm:"column:commandId;type:TEXT;" json:"command_id"`
+	CommandID string `gorm:"column:commandId;type:TEXT;"                     json:"command_id"`
 }
 
 var channels_commands_responsesTableInfo = &TableInfo{
 	Name: "channels_commands_responses",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -69,7 +69,7 @@ var channels_commands_responsesTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "text",
 			Comment:            ``,
@@ -90,7 +90,7 @@ var channels_commands_responsesTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "commandId",
 			Comment:            ``,
@@ -119,7 +119,7 @@ func (c *ChannelsCommandsResponses) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (c *ChannelsCommandsResponses) BeforeSave() error {
+func (c *ChannelsCommandsResponses) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -41,20 +42,19 @@ type UsersStats struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] userId                                         TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	UserID string `gorm:"column:userId;type:TEXT;" json:"user_id"`
+	UserID string `gorm:"column:userId;type:TEXT;"                        json:"user_id"`
 	//[ 2] channelId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ChannelID string `gorm:"column:channelId;type:TEXT;" json:"channel_id"`
+	ChannelID string `gorm:"column:channelId;type:TEXT;"                     json:"channel_id"`
 	//[ 3] messages                                       INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-	Messages int32 `gorm:"column:messages;type:INT4;default:0;" json:"messages"`
+	Messages int32 `gorm:"column:messages;type:INT4;default:0;"            json:"messages"`
 	//[ 4] watched                                        INT8                 null: false  primary: false  isArray: false  auto: false  col: INT8            len: -1      default: [0]
-	Watched int64 `gorm:"column:watched;type:INT8;default:0;" json:"watched"`
+	Watched int64 `gorm:"column:watched;type:INT8;default:0;"             json:"watched"`
 }
 
 var users_statsTableInfo = &TableInfo{
 	Name: "users_stats",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -75,7 +75,7 @@ var users_statsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "userId",
 			Comment:            ``,
@@ -96,7 +96,7 @@ var users_statsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "channelId",
 			Comment:            ``,
@@ -117,7 +117,7 @@ var users_statsTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "messages",
 			Comment:            ``,
@@ -138,7 +138,7 @@ var users_statsTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "watched",
 			Comment:            ``,
@@ -167,7 +167,7 @@ func (u *UsersStats) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (u *UsersStats) BeforeSave() error {
+func (u *UsersStats) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

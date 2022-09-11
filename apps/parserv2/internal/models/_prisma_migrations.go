@@ -42,19 +42,19 @@ JSON Sample
 // PrismaMigrations struct is a row record of the _prisma_migrations table in the tsuwari database
 type PrismaMigrations struct {
 	//[ 0] id                                             VARCHAR(36)          null: false  primary: true   isArray: false  auto: false  col: VARCHAR         len: 36      default: []
-	ID string `gorm:"primary_key;column:id;type:VARCHAR;size:36;" json:"id"`
+	ID string `gorm:"primary_key;column:id;type:VARCHAR;size:36;"     json:"id"`
 	//[ 1] checksum                                       VARCHAR(64)          null: false  primary: false  isArray: false  auto: false  col: VARCHAR         len: 64      default: []
-	Checksum string `gorm:"column:checksum;type:VARCHAR;size:64;" json:"checksum"`
+	Checksum string `gorm:"column:checksum;type:VARCHAR;size:64;"           json:"checksum"`
 	//[ 2] finished_at                                    TIMESTAMPTZ          null: true   primary: false  isArray: false  auto: false  col: TIMESTAMPTZ     len: -1      default: []
-	FinishedAt time.Time `gorm:"column:finished_at;type:TIMESTAMPTZ;" json:"finished_at"`
+	FinishedAt time.Time `gorm:"column:finished_at;type:TIMESTAMPTZ;"            json:"finished_at"`
 	//[ 3] migration_name                                 VARCHAR(255)         null: false  primary: false  isArray: false  auto: false  col: VARCHAR         len: 255     default: []
-	MigrationName string `gorm:"column:migration_name;type:VARCHAR;size:255;" json:"migration_name"`
+	MigrationName string `gorm:"column:migration_name;type:VARCHAR;size:255;"    json:"migration_name"`
 	//[ 4] logs                                           TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Logs sql.NullString `gorm:"column:logs;type:TEXT;" json:"logs"`
+	Logs sql.NullString `gorm:"column:logs;type:TEXT;"                          json:"logs"`
 	//[ 5] rolled_back_at                                 TIMESTAMPTZ          null: true   primary: false  isArray: false  auto: false  col: TIMESTAMPTZ     len: -1      default: []
-	RolledBackAt time.Time `gorm:"column:rolled_back_at;type:TIMESTAMPTZ;" json:"rolled_back_at"`
+	RolledBackAt time.Time `gorm:"column:rolled_back_at;type:TIMESTAMPTZ;"         json:"rolled_back_at"`
 	//[ 6] started_at                                     TIMESTAMPTZ          null: false  primary: false  isArray: false  auto: false  col: TIMESTAMPTZ     len: -1      default: [now()]
-	StartedAt time.Time `gorm:"column:started_at;type:TIMESTAMPTZ;" json:"started_at"`
+	StartedAt time.Time `gorm:"column:started_at;type:TIMESTAMPTZ;"             json:"started_at"`
 	//[ 7] applied_steps_count                            INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
 	AppliedStepsCount int32 `gorm:"column:applied_steps_count;type:INT4;default:0;" json:"applied_steps_count"`
 }
@@ -62,8 +62,7 @@ type PrismaMigrations struct {
 var _prisma_migrationsTableInfo = &TableInfo{
 	Name: "_prisma_migrations",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -84,7 +83,7 @@ var _prisma_migrationsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "checksum",
 			Comment:            ``,
@@ -105,7 +104,7 @@ var _prisma_migrationsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "finished_at",
 			Comment:            ``,
@@ -126,7 +125,7 @@ var _prisma_migrationsTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "migration_name",
 			Comment:            ``,
@@ -147,7 +146,7 @@ var _prisma_migrationsTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "logs",
 			Comment:            ``,
@@ -168,7 +167,7 @@ var _prisma_migrationsTableInfo = &TableInfo{
 			ProtobufPos:        5,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              5,
 			Name:               "rolled_back_at",
 			Comment:            ``,
@@ -189,7 +188,7 @@ var _prisma_migrationsTableInfo = &TableInfo{
 			ProtobufPos:        6,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              6,
 			Name:               "started_at",
 			Comment:            ``,
@@ -210,7 +209,7 @@ var _prisma_migrationsTableInfo = &TableInfo{
 			ProtobufPos:        7,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              7,
 			Name:               "applied_steps_count",
 			Comment:            ``,
@@ -239,7 +238,7 @@ func (p *PrismaMigrations) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (p *PrismaMigrations) BeforeSave() error {
+func (p *PrismaMigrations) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

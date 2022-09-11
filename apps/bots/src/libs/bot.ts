@@ -173,6 +173,7 @@ export class Bot extends ChatClient {
         if (state.userInfo.isMod) usersBadges.push('MODERATOR');
         if (state.userInfo.isSubscriber || state.userInfo.isFounder) usersBadges.push('SUBSCRIBER');
         if (state.userInfo.isVip) usersBadges.push('VIP');
+        usersBadges.push('VIEWER');
 
         const data = Parser.Request.toBinary({
           channel: {

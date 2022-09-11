@@ -6,6 +6,7 @@ import (
 
 	"github.com/guregu/null"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -38,11 +39,11 @@ JSON Sample
 // Users struct is a row record of the users table in the tsuwari database
 type Users struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ID string `gorm:"primary_key;column:id;type:TEXT;" json:"id"`
+	ID string `gorm:"primary_key;column:id;type:TEXT;"           json:"id"`
 	//[ 1] tokenId                                        TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	TokenID sql.NullString `gorm:"column:tokenId;type:TEXT;" json:"token_id"`
+	TokenID sql.NullString `gorm:"column:tokenId;type:TEXT;"                  json:"token_id"`
 	//[ 2] isTester                                       BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [false]
-	IsTester bool `gorm:"column:isTester;type:BOOL;default:false;" json:"is_tester"`
+	IsTester bool `gorm:"column:isTester;type:BOOL;default:false;"   json:"is_tester"`
 	//[ 3] isBotAdmin                                     BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [false]
 	IsBotAdmin bool `gorm:"column:isBotAdmin;type:BOOL;default:false;" json:"is_bot_admin"`
 }
@@ -50,8 +51,7 @@ type Users struct {
 var usersTableInfo = &TableInfo{
 	Name: "users",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -72,7 +72,7 @@ var usersTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "tokenId",
 			Comment:            ``,
@@ -93,7 +93,7 @@ var usersTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "isTester",
 			Comment:            ``,
@@ -114,7 +114,7 @@ var usersTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "isBotAdmin",
 			Comment:            ``,
@@ -143,7 +143,7 @@ func (u *Users) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (u *Users) BeforeSave() error {
+func (u *Users) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

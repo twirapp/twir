@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -44,26 +45,25 @@ type Integrations struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] service                                        USER_DEFINED         null: false  primary: false  isArray: false  auto: false  col: USER_DEFINED    len: -1      default: []
-	Service string `gorm:"column:service;type:VARCHAR;" json:"service"`
+	Service string `gorm:"column:service;type:VARCHAR;"                    json:"service"`
 	//[ 2] accessToken                                    TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	AccessToken sql.NullString `gorm:"column:accessToken;type:TEXT;" json:"access_token"`
+	AccessToken sql.NullString `gorm:"column:accessToken;type:TEXT;"                   json:"access_token"`
 	//[ 3] refreshToken                                   TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	RefreshToken sql.NullString `gorm:"column:refreshToken;type:TEXT;" json:"refresh_token"`
+	RefreshToken sql.NullString `gorm:"column:refreshToken;type:TEXT;"                  json:"refresh_token"`
 	//[ 4] clientId                                       TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ClientID sql.NullString `gorm:"column:clientId;type:TEXT;" json:"client_id"`
+	ClientID sql.NullString `gorm:"column:clientId;type:TEXT;"                      json:"client_id"`
 	//[ 5] clientSecret                                   TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ClientSecret sql.NullString `gorm:"column:clientSecret;type:TEXT;" json:"client_secret"`
+	ClientSecret sql.NullString `gorm:"column:clientSecret;type:TEXT;"                  json:"client_secret"`
 	//[ 6] apiKey                                         TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	APIKey sql.NullString `gorm:"column:apiKey;type:TEXT;" json:"api_key"`
+	APIKey sql.NullString `gorm:"column:apiKey;type:TEXT;"                        json:"api_key"`
 	//[ 7] redirectUrl                                    TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	RedirectURL sql.NullString `gorm:"column:redirectUrl;type:TEXT;" json:"redirect_url"`
+	RedirectURL sql.NullString `gorm:"column:redirectUrl;type:TEXT;"                   json:"redirect_url"`
 }
 
 var integrationsTableInfo = &TableInfo{
 	Name: "integrations",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -84,7 +84,7 @@ var integrationsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "service",
 			Comment:            ``,
@@ -105,7 +105,7 @@ var integrationsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "accessToken",
 			Comment:            ``,
@@ -126,7 +126,7 @@ var integrationsTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "refreshToken",
 			Comment:            ``,
@@ -147,7 +147,7 @@ var integrationsTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "clientId",
 			Comment:            ``,
@@ -168,7 +168,7 @@ var integrationsTableInfo = &TableInfo{
 			ProtobufPos:        5,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              5,
 			Name:               "clientSecret",
 			Comment:            ``,
@@ -189,7 +189,7 @@ var integrationsTableInfo = &TableInfo{
 			ProtobufPos:        6,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              6,
 			Name:               "apiKey",
 			Comment:            ``,
@@ -210,7 +210,7 @@ var integrationsTableInfo = &TableInfo{
 			ProtobufPos:        7,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              7,
 			Name:               "redirectUrl",
 			Comment:            ``,
@@ -239,7 +239,7 @@ func (i *Integrations) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (i *Integrations) BeforeSave() error {
+func (i *Integrations) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -38,14 +39,13 @@ type DotaMedals struct {
 	//[ 0] rank_tier                                      TEXT                 null: false  primary: true   isArray: false  auto: false  col: TEXT            len: -1      default: []
 	RankTier string `gorm:"primary_key;column:rank_tier;type:TEXT;" json:"rank_tier"`
 	//[ 1] name                                           TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Name string `gorm:"column:name;type:TEXT;" json:"name"`
+	Name string `gorm:"column:name;type:TEXT;"                  json:"name"`
 }
 
 var dota_medalsTableInfo = &TableInfo{
 	Name: "dota_medals",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "rank_tier",
 			Comment:            ``,
@@ -66,7 +66,7 @@ var dota_medalsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "name",
 			Comment:            ``,
@@ -95,7 +95,7 @@ func (d *DotaMedals) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (d *DotaMedals) BeforeSave() error {
+func (d *DotaMedals) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

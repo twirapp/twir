@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -43,24 +44,23 @@ type ChannelsCustomvars struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] name                                           TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Name string `gorm:"column:name;type:TEXT;" json:"name"`
+	Name string `gorm:"column:name;type:TEXT;"                          json:"name"`
 	//[ 2] description                                    TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Description sql.NullString `gorm:"column:description;type:TEXT;" json:"description"`
+	Description sql.NullString `gorm:"column:description;type:TEXT;"                   json:"description"`
 	//[ 3] type                                           USER_DEFINED         null: false  primary: false  isArray: false  auto: false  col: USER_DEFINED    len: -1      default: []
-	Type string `gorm:"column:type;type:VARCHAR;" json:"type"`
+	Type string `gorm:"column:type;type:VARCHAR;"                       json:"type"`
 	//[ 4] evalValue                                      TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	EvalValue sql.NullString `gorm:"column:evalValue;type:TEXT;" json:"eval_value"`
+	EvalValue sql.NullString `gorm:"column:evalValue;type:TEXT;"                     json:"eval_value"`
 	//[ 5] response                                       TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Response sql.NullString `gorm:"column:response;type:TEXT;" json:"response"`
+	Response sql.NullString `gorm:"column:response;type:TEXT;"                      json:"response"`
 	//[ 6] channelId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ChannelID string `gorm:"column:channelId;type:TEXT;" json:"channel_id"`
+	ChannelID string `gorm:"column:channelId;type:TEXT;"                     json:"channel_id"`
 }
 
 var channels_customvarsTableInfo = &TableInfo{
 	Name: "channels_customvars",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -81,7 +81,7 @@ var channels_customvarsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "name",
 			Comment:            ``,
@@ -102,7 +102,7 @@ var channels_customvarsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "description",
 			Comment:            ``,
@@ -123,7 +123,7 @@ var channels_customvarsTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "type",
 			Comment:            ``,
@@ -144,7 +144,7 @@ var channels_customvarsTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "evalValue",
 			Comment:            ``,
@@ -165,7 +165,7 @@ var channels_customvarsTableInfo = &TableInfo{
 			ProtobufPos:        5,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              5,
 			Name:               "response",
 			Comment:            ``,
@@ -186,7 +186,7 @@ var channels_customvarsTableInfo = &TableInfo{
 			ProtobufPos:        6,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              6,
 			Name:               "channelId",
 			Comment:            ``,
@@ -215,7 +215,7 @@ func (c *ChannelsCustomvars) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (c *ChannelsCustomvars) BeforeSave() error {
+func (c *ChannelsCustomvars) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

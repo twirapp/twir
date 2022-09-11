@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -43,21 +44,21 @@ JSON Sample
 // ChannelsTimers struct is a row record of the channels_timers table in the tsuwari database
 type ChannelsTimers struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
-	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;"      json:"id"`
 	//[ 1] channelId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ChannelID string `gorm:"column:channelId;type:TEXT;" json:"channel_id"`
+	ChannelID string `gorm:"column:channelId;type:TEXT;"                          json:"channel_id"`
 	//[ 2] name                                           VARCHAR(255)         null: false  primary: false  isArray: false  auto: false  col: VARCHAR         len: 255     default: []
-	Name string `gorm:"column:name;type:VARCHAR;size:255;" json:"name"`
+	Name string `gorm:"column:name;type:VARCHAR;size:255;"                   json:"name"`
 	//[ 3] enabled                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [true]
-	Enabled bool `gorm:"column:enabled;type:BOOL;default:true;" json:"enabled"`
+	Enabled bool `gorm:"column:enabled;type:BOOL;default:true;"               json:"enabled"`
 	//[ 4] responses                                      JSONB                null: false  primary: false  isArray: false  auto: false  col: JSONB           len: -1      default: [[]]
-	Responses string `gorm:"column:responses;type:JSONB;default:[];" json:"responses"`
+	Responses string `gorm:"column:responses;type:JSONB;default:[];"              json:"responses"`
 	//[ 5] last                                           INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-	Last int32 `gorm:"column:last;type:INT4;default:0;" json:"last"`
+	Last int32 `gorm:"column:last;type:INT4;default:0;"                     json:"last"`
 	//[ 6] timeInterval                                   INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-	TimeInterval int32 `gorm:"column:timeInterval;type:INT4;default:0;" json:"time_interval"`
+	TimeInterval int32 `gorm:"column:timeInterval;type:INT4;default:0;"             json:"time_interval"`
 	//[ 7] messageInterval                                INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-	MessageInterval int32 `gorm:"column:messageInterval;type:INT4;default:0;" json:"message_interval"`
+	MessageInterval int32 `gorm:"column:messageInterval;type:INT4;default:0;"          json:"message_interval"`
 	//[ 8] lastTriggerMessageNumber                       INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
 	LastTriggerMessageNumber int32 `gorm:"column:lastTriggerMessageNumber;type:INT4;default:0;" json:"last_trigger_message_number"`
 }
@@ -65,8 +66,7 @@ type ChannelsTimers struct {
 var channels_timersTableInfo = &TableInfo{
 	Name: "channels_timers",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -87,7 +87,7 @@ var channels_timersTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "channelId",
 			Comment:            ``,
@@ -108,7 +108,7 @@ var channels_timersTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "name",
 			Comment:            ``,
@@ -129,7 +129,7 @@ var channels_timersTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "enabled",
 			Comment:            ``,
@@ -150,7 +150,7 @@ var channels_timersTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "responses",
 			Comment:            ``,
@@ -171,7 +171,7 @@ var channels_timersTableInfo = &TableInfo{
 			ProtobufPos:        5,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              5,
 			Name:               "last",
 			Comment:            ``,
@@ -192,7 +192,7 @@ var channels_timersTableInfo = &TableInfo{
 			ProtobufPos:        6,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              6,
 			Name:               "timeInterval",
 			Comment:            ``,
@@ -213,7 +213,7 @@ var channels_timersTableInfo = &TableInfo{
 			ProtobufPos:        7,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              7,
 			Name:               "messageInterval",
 			Comment:            ``,
@@ -234,7 +234,7 @@ var channels_timersTableInfo = &TableInfo{
 			ProtobufPos:        8,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              8,
 			Name:               "lastTriggerMessageNumber",
 			Comment:            ``,
@@ -263,7 +263,7 @@ func (c *ChannelsTimers) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (c *ChannelsTimers) BeforeSave() error {
+func (c *ChannelsTimers) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -47,29 +48,29 @@ JSON Sample
 // ChannelsModerationSettings struct is a row record of the channels_moderation_settings table in the tsuwari database
 type ChannelsModerationSettings struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
-	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;"  json:"id"`
 	//[ 1] type                                           USER_DEFINED         null: false  primary: false  isArray: false  auto: false  col: USER_DEFINED    len: -1      default: []
-	Type string `gorm:"column:type;type:VARCHAR;" json:"type"`
+	Type string `gorm:"column:type;type:VARCHAR;"                        json:"type"`
 	//[ 2] channelId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ChannelID string `gorm:"column:channelId;type:TEXT;" json:"channel_id"`
+	ChannelID string `gorm:"column:channelId;type:TEXT;"                      json:"channel_id"`
 	//[ 3] enabled                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [false]
-	Enabled bool `gorm:"column:enabled;type:BOOL;default:false;" json:"enabled"`
+	Enabled bool `gorm:"column:enabled;type:BOOL;default:false;"          json:"enabled"`
 	//[ 4] subscribers                                    BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [false]
-	Subscribers bool `gorm:"column:subscribers;type:BOOL;default:false;" json:"subscribers"`
+	Subscribers bool `gorm:"column:subscribers;type:BOOL;default:false;"      json:"subscribers"`
 	//[ 5] vips                                           BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [false]
-	Vips bool `gorm:"column:vips;type:BOOL;default:false;" json:"vips"`
+	Vips bool `gorm:"column:vips;type:BOOL;default:false;"             json:"vips"`
 	//[ 6] banTime                                        INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [600]
-	BanTime int32 `gorm:"column:banTime;type:INT4;default:600;" json:"ban_time"`
+	BanTime int32 `gorm:"column:banTime;type:INT4;default:600;"            json:"ban_time"`
 	//[ 7] banMessage                                     TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	BanMessage sql.NullString `gorm:"column:banMessage;type:TEXT;" json:"ban_message"`
+	BanMessage sql.NullString `gorm:"column:banMessage;type:TEXT;"                     json:"ban_message"`
 	//[ 8] warningMessage                                 TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	WarningMessage sql.NullString `gorm:"column:warningMessage;type:TEXT;" json:"warning_message"`
+	WarningMessage sql.NullString `gorm:"column:warningMessage;type:TEXT;"                 json:"warning_message"`
 	//[ 9] checkClips                                     BOOL                 null: true   primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [false]
-	CheckClips sql.NullBool `gorm:"column:checkClips;type:BOOL;default:false;" json:"check_clips"`
+	CheckClips sql.NullBool `gorm:"column:checkClips;type:BOOL;default:false;"       json:"check_clips"`
 	//[10] triggerLength                                  INT4                 null: true   primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [300]
-	TriggerLength sql.NullInt64 `gorm:"column:triggerLength;type:INT4;default:300;" json:"trigger_length"`
+	TriggerLength sql.NullInt64 `gorm:"column:triggerLength;type:INT4;default:300;"      json:"trigger_length"`
 	//[11] maxPercentage                                  INT4                 null: true   primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [50]
-	MaxPercentage sql.NullInt64 `gorm:"column:maxPercentage;type:INT4;default:50;" json:"max_percentage"`
+	MaxPercentage sql.NullInt64 `gorm:"column:maxPercentage;type:INT4;default:50;"       json:"max_percentage"`
 	//[12] blackListSentences                             JSONB                null: true   primary: false  isArray: false  auto: false  col: JSONB           len: -1      default: [[]]
 	BlackListSentences sql.NullString `gorm:"column:blackListSentences;type:JSONB;default:[];" json:"black_list_sentences"`
 }
@@ -77,8 +78,7 @@ type ChannelsModerationSettings struct {
 var channels_moderation_settingsTableInfo = &TableInfo{
 	Name: "channels_moderation_settings",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -99,7 +99,7 @@ var channels_moderation_settingsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "type",
 			Comment:            ``,
@@ -120,7 +120,7 @@ var channels_moderation_settingsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "channelId",
 			Comment:            ``,
@@ -141,7 +141,7 @@ var channels_moderation_settingsTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "enabled",
 			Comment:            ``,
@@ -162,7 +162,7 @@ var channels_moderation_settingsTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "subscribers",
 			Comment:            ``,
@@ -183,7 +183,7 @@ var channels_moderation_settingsTableInfo = &TableInfo{
 			ProtobufPos:        5,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              5,
 			Name:               "vips",
 			Comment:            ``,
@@ -204,7 +204,7 @@ var channels_moderation_settingsTableInfo = &TableInfo{
 			ProtobufPos:        6,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              6,
 			Name:               "banTime",
 			Comment:            ``,
@@ -225,7 +225,7 @@ var channels_moderation_settingsTableInfo = &TableInfo{
 			ProtobufPos:        7,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              7,
 			Name:               "banMessage",
 			Comment:            ``,
@@ -246,7 +246,7 @@ var channels_moderation_settingsTableInfo = &TableInfo{
 			ProtobufPos:        8,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              8,
 			Name:               "warningMessage",
 			Comment:            ``,
@@ -267,7 +267,7 @@ var channels_moderation_settingsTableInfo = &TableInfo{
 			ProtobufPos:        9,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              9,
 			Name:               "checkClips",
 			Comment:            ``,
@@ -288,7 +288,7 @@ var channels_moderation_settingsTableInfo = &TableInfo{
 			ProtobufPos:        10,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              10,
 			Name:               "triggerLength",
 			Comment:            ``,
@@ -309,7 +309,7 @@ var channels_moderation_settingsTableInfo = &TableInfo{
 			ProtobufPos:        11,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              11,
 			Name:               "maxPercentage",
 			Comment:            ``,
@@ -330,7 +330,7 @@ var channels_moderation_settingsTableInfo = &TableInfo{
 			ProtobufPos:        12,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              12,
 			Name:               "blackListSentences",
 			Comment:            ``,
@@ -359,7 +359,7 @@ func (c *ChannelsModerationSettings) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (c *ChannelsModerationSettings) BeforeSave() error {
+func (c *ChannelsModerationSettings) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

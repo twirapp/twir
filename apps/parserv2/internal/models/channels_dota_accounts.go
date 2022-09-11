@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -36,7 +37,7 @@ JSON Sample
 // ChannelsDotaAccounts struct is a row record of the channels_dota_accounts table in the tsuwari database
 type ChannelsDotaAccounts struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ID string `gorm:"primary_key;column:id;type:TEXT;" json:"id"`
+	ID string `gorm:"primary_key;column:id;type:TEXT;"        json:"id"`
 	//[ 1] channelId                                      TEXT                 null: false  primary: true   isArray: false  auto: false  col: TEXT            len: -1      default: []
 	ChannelID string `gorm:"primary_key;column:channelId;type:TEXT;" json:"channel_id"`
 }
@@ -44,8 +45,7 @@ type ChannelsDotaAccounts struct {
 var channels_dota_accountsTableInfo = &TableInfo{
 	Name: "channels_dota_accounts",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -66,7 +66,7 @@ var channels_dota_accountsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "channelId",
 			Comment:            ``,
@@ -95,7 +95,7 @@ func (c *ChannelsDotaAccounts) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (c *ChannelsDotaAccounts) BeforeSave() error {
+func (c *ChannelsDotaAccounts) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

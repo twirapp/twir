@@ -6,6 +6,7 @@ import (
 
 	"github.com/guregu/null"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -161,7 +162,7 @@ func (d *DotaMatchesResults) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (d *DotaMatchesResults) BeforeSave() error {
+func (d *DotaMatchesResults) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

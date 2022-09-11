@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -39,22 +40,21 @@ JSON Sample
 // Channels struct is a row record of the channels table in the tsuwari database
 type Channels struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ID string `gorm:"primary_key;column:id;type:TEXT;" json:"id"`
+	ID string `gorm:"primary_key;column:id;type:TEXT;"               json:"id"`
 	//[ 1] isEnabled                                      BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [true]
-	IsEnabled bool `gorm:"column:isEnabled;type:BOOL;default:true;" json:"is_enabled"`
+	IsEnabled bool `gorm:"column:isEnabled;type:BOOL;default:true;"       json:"is_enabled"`
 	//[ 2] isTwitchBanned                                 BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [false]
 	IsTwitchBanned bool `gorm:"column:isTwitchBanned;type:BOOL;default:false;" json:"is_twitch_banned"`
 	//[ 3] isBanned                                       BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [false]
-	IsBanned bool `gorm:"column:isBanned;type:BOOL;default:false;" json:"is_banned"`
+	IsBanned bool `gorm:"column:isBanned;type:BOOL;default:false;"       json:"is_banned"`
 	//[ 4] botId                                          TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	BotID string `gorm:"column:botId;type:TEXT;" json:"bot_id"`
+	BotID string `gorm:"column:botId;type:TEXT;"                        json:"bot_id"`
 }
 
 var channelsTableInfo = &TableInfo{
 	Name: "channels",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -75,7 +75,7 @@ var channelsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "isEnabled",
 			Comment:            ``,
@@ -96,7 +96,7 @@ var channelsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "isTwitchBanned",
 			Comment:            ``,
@@ -117,7 +117,7 @@ var channelsTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "isBanned",
 			Comment:            ``,
@@ -138,7 +138,7 @@ var channelsTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "botId",
 			Comment:            ``,
@@ -167,7 +167,7 @@ func (c *Channels) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (c *Channels) BeforeSave() error {
+func (c *Channels) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

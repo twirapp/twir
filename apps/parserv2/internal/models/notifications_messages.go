@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -41,20 +42,19 @@ type NotificationsMessages struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] text                                           TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Text string `gorm:"column:text;type:TEXT;" json:"text"`
+	Text string `gorm:"column:text;type:TEXT;"                          json:"text"`
 	//[ 2] title                                          TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Title sql.NullString `gorm:"column:title;type:TEXT;" json:"title"`
+	Title sql.NullString `gorm:"column:title;type:TEXT;"                         json:"title"`
 	//[ 3] langCode                                       USER_DEFINED         null: false  primary: false  isArray: false  auto: false  col: USER_DEFINED    len: -1      default: []
-	LangCode string `gorm:"column:langCode;type:VARCHAR;" json:"lang_code"`
+	LangCode string `gorm:"column:langCode;type:VARCHAR;"                   json:"lang_code"`
 	//[ 4] notificationId                                 TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	NotificationID string `gorm:"column:notificationId;type:TEXT;" json:"notification_id"`
+	NotificationID string `gorm:"column:notificationId;type:TEXT;"                json:"notification_id"`
 }
 
 var notifications_messagesTableInfo = &TableInfo{
 	Name: "notifications_messages",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -75,7 +75,7 @@ var notifications_messagesTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "text",
 			Comment:            ``,
@@ -96,7 +96,7 @@ var notifications_messagesTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "title",
 			Comment:            ``,
@@ -117,7 +117,7 @@ var notifications_messagesTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "langCode",
 			Comment:            ``,
@@ -138,7 +138,7 @@ var notifications_messagesTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "notificationId",
 			Comment:            ``,
@@ -167,7 +167,7 @@ func (n *NotificationsMessages) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (n *NotificationsMessages) BeforeSave() error {
+func (n *NotificationsMessages) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

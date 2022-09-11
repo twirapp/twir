@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -46,30 +47,29 @@ type ChannelsIntegrations struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] enabled                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [false]
-	Enabled bool `gorm:"column:enabled;type:BOOL;default:false;" json:"enabled"`
+	Enabled bool `gorm:"column:enabled;type:BOOL;default:false;"         json:"enabled"`
 	//[ 2] channelId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ChannelID string `gorm:"column:channelId;type:TEXT;" json:"channel_id"`
+	ChannelID string `gorm:"column:channelId;type:TEXT;"                     json:"channel_id"`
 	//[ 3] integrationId                                  TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	IntegrationID string `gorm:"column:integrationId;type:TEXT;" json:"integration_id"`
+	IntegrationID string `gorm:"column:integrationId;type:TEXT;"                 json:"integration_id"`
 	//[ 4] accessToken                                    TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	AccessToken sql.NullString `gorm:"column:accessToken;type:TEXT;" json:"access_token"`
+	AccessToken sql.NullString `gorm:"column:accessToken;type:TEXT;"                   json:"access_token"`
 	//[ 5] refreshToken                                   TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	RefreshToken sql.NullString `gorm:"column:refreshToken;type:TEXT;" json:"refresh_token"`
+	RefreshToken sql.NullString `gorm:"column:refreshToken;type:TEXT;"                  json:"refresh_token"`
 	//[ 6] clientId                                       TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ClientID sql.NullString `gorm:"column:clientId;type:TEXT;" json:"client_id"`
+	ClientID sql.NullString `gorm:"column:clientId;type:TEXT;"                      json:"client_id"`
 	//[ 7] clientSecret                                   TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ClientSecret sql.NullString `gorm:"column:clientSecret;type:TEXT;" json:"client_secret"`
+	ClientSecret sql.NullString `gorm:"column:clientSecret;type:TEXT;"                  json:"client_secret"`
 	//[ 8] apiKey                                         TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	APIKey sql.NullString `gorm:"column:apiKey;type:TEXT;" json:"api_key"`
+	APIKey sql.NullString `gorm:"column:apiKey;type:TEXT;"                        json:"api_key"`
 	//[ 9] data                                           JSONB                null: true   primary: false  isArray: false  auto: false  col: JSONB           len: -1      default: []
-	Data sql.NullString `gorm:"column:data;type:JSONB;" json:"data"`
+	Data sql.NullString `gorm:"column:data;type:JSONB;"                         json:"data"`
 }
 
 var channels_integrationsTableInfo = &TableInfo{
 	Name: "channels_integrations",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -90,7 +90,7 @@ var channels_integrationsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "enabled",
 			Comment:            ``,
@@ -111,7 +111,7 @@ var channels_integrationsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "channelId",
 			Comment:            ``,
@@ -132,7 +132,7 @@ var channels_integrationsTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "integrationId",
 			Comment:            ``,
@@ -153,7 +153,7 @@ var channels_integrationsTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "accessToken",
 			Comment:            ``,
@@ -174,7 +174,7 @@ var channels_integrationsTableInfo = &TableInfo{
 			ProtobufPos:        5,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              5,
 			Name:               "refreshToken",
 			Comment:            ``,
@@ -195,7 +195,7 @@ var channels_integrationsTableInfo = &TableInfo{
 			ProtobufPos:        6,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              6,
 			Name:               "clientId",
 			Comment:            ``,
@@ -216,7 +216,7 @@ var channels_integrationsTableInfo = &TableInfo{
 			ProtobufPos:        7,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              7,
 			Name:               "clientSecret",
 			Comment:            ``,
@@ -237,7 +237,7 @@ var channels_integrationsTableInfo = &TableInfo{
 			ProtobufPos:        8,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              8,
 			Name:               "apiKey",
 			Comment:            ``,
@@ -258,7 +258,7 @@ var channels_integrationsTableInfo = &TableInfo{
 			ProtobufPos:        9,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              9,
 			Name:               "data",
 			Comment:            ``,
@@ -287,7 +287,7 @@ func (c *ChannelsIntegrations) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (c *ChannelsIntegrations) BeforeSave() error {
+func (c *ChannelsIntegrations) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

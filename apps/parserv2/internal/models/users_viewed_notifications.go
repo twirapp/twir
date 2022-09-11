@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -38,11 +39,11 @@ JSON Sample
 // UsersViewedNotifications struct is a row record of the users_viewed_notifications table in the tsuwari database
 type UsersViewedNotifications struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
-	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;"            json:"id"`
 	//[ 1] userId                                         TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	UserID string `gorm:"column:userId;type:TEXT;" json:"user_id"`
+	UserID string `gorm:"column:userId;type:TEXT;"                                   json:"user_id"`
 	//[ 2] notificationId                                 TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	NotificationID string `gorm:"column:notificationId;type:TEXT;" json:"notification_id"`
+	NotificationID string `gorm:"column:notificationId;type:TEXT;"                           json:"notification_id"`
 	//[ 3] createdAt                                      TIMESTAMP            null: false  primary: false  isArray: false  auto: false  col: TIMESTAMP       len: -1      default: [CURRENT_TIMESTAMP]
 	CreatedAt time.Time `gorm:"column:createdAt;type:TIMESTAMP;default:CURRENT_TIMESTAMP;" json:"created_at"`
 }
@@ -50,8 +51,7 @@ type UsersViewedNotifications struct {
 var users_viewed_notificationsTableInfo = &TableInfo{
 	Name: "users_viewed_notifications",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -72,7 +72,7 @@ var users_viewed_notificationsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "userId",
 			Comment:            ``,
@@ -93,7 +93,7 @@ var users_viewed_notificationsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "notificationId",
 			Comment:            ``,
@@ -114,7 +114,7 @@ var users_viewed_notificationsTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "createdAt",
 			Comment:            ``,
@@ -143,7 +143,7 @@ func (u *UsersViewedNotifications) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (u *UsersViewedNotifications) BeforeSave() error {
+func (u *UsersViewedNotifications) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

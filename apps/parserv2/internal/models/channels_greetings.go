@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -41,20 +42,19 @@ type ChannelsGreetings struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] channelId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ChannelID string `gorm:"column:channelId;type:TEXT;" json:"channel_id"`
+	ChannelID string `gorm:"column:channelId;type:TEXT;"                     json:"channel_id"`
 	//[ 2] userId                                         TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	UserID string `gorm:"column:userId;type:TEXT;" json:"user_id"`
+	UserID string `gorm:"column:userId;type:TEXT;"                        json:"user_id"`
 	//[ 3] enabled                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [true]
-	Enabled bool `gorm:"column:enabled;type:BOOL;default:true;" json:"enabled"`
+	Enabled bool `gorm:"column:enabled;type:BOOL;default:true;"          json:"enabled"`
 	//[ 4] text                                           TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Text string `gorm:"column:text;type:TEXT;" json:"text"`
+	Text string `gorm:"column:text;type:TEXT;"                          json:"text"`
 }
 
 var channels_greetingsTableInfo = &TableInfo{
 	Name: "channels_greetings",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -75,7 +75,7 @@ var channels_greetingsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "channelId",
 			Comment:            ``,
@@ -96,7 +96,7 @@ var channels_greetingsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "userId",
 			Comment:            ``,
@@ -117,7 +117,7 @@ var channels_greetingsTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "enabled",
 			Comment:            ``,
@@ -138,7 +138,7 @@ var channels_greetingsTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "text",
 			Comment:            ``,
@@ -167,7 +167,7 @@ func (c *ChannelsGreetings) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (c *ChannelsGreetings) BeforeSave() error {
+func (c *ChannelsGreetings) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -39,16 +40,15 @@ type Bots struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: false  col: TEXT            len: -1      default: []
 	ID string `gorm:"primary_key;column:id;type:TEXT;" json:"id"`
 	//[ 1] type                                           USER_DEFINED         null: false  primary: false  isArray: false  auto: false  col: USER_DEFINED    len: -1      default: []
-	Type string `gorm:"column:type;type:VARCHAR;" json:"type"`
+	Type string `gorm:"column:type;type:VARCHAR;"        json:"type"`
 	//[ 2] tokenId                                        TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	TokenID sql.NullString `gorm:"column:tokenId;type:TEXT;" json:"token_id"`
+	TokenID sql.NullString `gorm:"column:tokenId;type:TEXT;"        json:"token_id"`
 }
 
 var botsTableInfo = &TableInfo{
 	Name: "bots",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -69,7 +69,7 @@ var botsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "type",
 			Comment:            ``,
@@ -90,7 +90,7 @@ var botsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "tokenId",
 			Comment:            ``,
@@ -119,7 +119,7 @@ func (b *Bots) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (b *Bots) BeforeSave() error {
+func (b *Bots) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

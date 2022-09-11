@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -42,22 +43,21 @@ type ChannelsKeywords struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] channelId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ChannelID string `gorm:"column:channelId;type:TEXT;" json:"channel_id"`
+	ChannelID string `gorm:"column:channelId;type:TEXT;"                     json:"channel_id"`
 	//[ 2] text                                           TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Text string `gorm:"column:text;type:TEXT;" json:"text"`
+	Text string `gorm:"column:text;type:TEXT;"                          json:"text"`
 	//[ 3] response                                       TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Response string `gorm:"column:response;type:TEXT;" json:"response"`
+	Response string `gorm:"column:response;type:TEXT;"                      json:"response"`
 	//[ 4] enabled                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [true]
-	Enabled bool `gorm:"column:enabled;type:BOOL;default:true;" json:"enabled"`
+	Enabled bool `gorm:"column:enabled;type:BOOL;default:true;"          json:"enabled"`
 	//[ 5] cooldown                                       INT4                 null: true   primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-	Cooldown sql.NullInt64 `gorm:"column:cooldown;type:INT4;default:0;" json:"cooldown"`
+	Cooldown sql.NullInt64 `gorm:"column:cooldown;type:INT4;default:0;"            json:"cooldown"`
 }
 
 var channels_keywordsTableInfo = &TableInfo{
 	Name: "channels_keywords",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -78,7 +78,7 @@ var channels_keywordsTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "channelId",
 			Comment:            ``,
@@ -99,7 +99,7 @@ var channels_keywordsTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "text",
 			Comment:            ``,
@@ -120,7 +120,7 @@ var channels_keywordsTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "response",
 			Comment:            ``,
@@ -141,7 +141,7 @@ var channels_keywordsTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "enabled",
 			Comment:            ``,
@@ -162,7 +162,7 @@ var channels_keywordsTableInfo = &TableInfo{
 			ProtobufPos:        5,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              5,
 			Name:               "cooldown",
 			Comment:            ``,
@@ -191,7 +191,7 @@ func (c *ChannelsKeywords) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (c *ChannelsKeywords) BeforeSave() error {
+func (c *ChannelsKeywords) BeforeSave(*gorm.DB) error {
 	return nil
 }
 

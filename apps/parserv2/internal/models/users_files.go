@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 var (
@@ -41,20 +42,19 @@ type UsersFiles struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] name                                           TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Name string `gorm:"column:name;type:TEXT;" json:"name"`
+	Name string `gorm:"column:name;type:TEXT;"                          json:"name"`
 	//[ 2] size                                           INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: []
-	Size int32 `gorm:"column:size;type:INT4;" json:"size"`
+	Size int32 `gorm:"column:size;type:INT4;"                          json:"size"`
 	//[ 3] type                                           TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Type string `gorm:"column:type;type:TEXT;" json:"type"`
+	Type string `gorm:"column:type;type:TEXT;"                          json:"type"`
 	//[ 4] userId                                         TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	UserID sql.NullString `gorm:"column:userId;type:TEXT;" json:"user_id"`
+	UserID sql.NullString `gorm:"column:userId;type:TEXT;"                        json:"user_id"`
 }
 
 var users_filesTableInfo = &TableInfo{
 	Name: "users_files",
 	Columns: []*ColumnInfo{
-
-		&ColumnInfo{
+		{
 			Index:              0,
 			Name:               "id",
 			Comment:            ``,
@@ -75,7 +75,7 @@ var users_filesTableInfo = &TableInfo{
 			ProtobufPos:        1,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              1,
 			Name:               "name",
 			Comment:            ``,
@@ -96,7 +96,7 @@ var users_filesTableInfo = &TableInfo{
 			ProtobufPos:        2,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              2,
 			Name:               "size",
 			Comment:            ``,
@@ -117,7 +117,7 @@ var users_filesTableInfo = &TableInfo{
 			ProtobufPos:        3,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              3,
 			Name:               "type",
 			Comment:            ``,
@@ -138,7 +138,7 @@ var users_filesTableInfo = &TableInfo{
 			ProtobufPos:        4,
 		},
 
-		&ColumnInfo{
+		{
 			Index:              4,
 			Name:               "userId",
 			Comment:            ``,
@@ -167,7 +167,7 @@ func (u *UsersFiles) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (u *UsersFiles) BeforeSave() error {
+func (u *UsersFiles) BeforeSave(*gorm.DB) error {
 	return nil
 }
 
