@@ -8,5 +8,5 @@
     "declaration": true
   },
   "includes": ["./**/*.ts"],
-  "exclude": ["./dist"]
+  "exclude": ["./dist", "gen.ts"]
 }

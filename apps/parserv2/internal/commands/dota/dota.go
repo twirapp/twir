@@ -133,6 +133,7 @@ func GetGames(opts GetGamesOpts) *[]Game {
 		Where("ARRAY[players] && ARRAY[?]::int[]", intAccounts).
 		Order(`"startedAt" DESC`).
 		Joins("GameMode").
+		Joins("PlayersCards").
 		Find(&dbGames).Error
 	if err != nil {
 		fmt.Println("GetGames:", err)
@@ -145,6 +146,7 @@ func GetGames(opts GetGamesOpts) *[]Game {
 
 	mappedGames := lo.Map(dbGames, func(game model.DotaMatchWithRelation, _ int) Game {
 		g := Game{
+			ID:                        game.ID,
 			ActivateTime:              game.StartedAt,
 			LobbyType:                 game.LobbyType,
 			GameMode:                  game.GameModeID,
@@ -153,6 +155,7 @@ func GetGames(opts GetGamesOpts) *[]Game {
 			WeekedTourneySkillLevel:   &game.WeekendTourneySkillLevel.String,
 			MatchId:                   &game.MatchID,
 			LobbyId:                   game.LobbyID,
+			PlayersCards:              game.PlayersCards,
 		}
 
 		g.Players = lo.Map(game.Players, func(p int64, i int) Player {
@@ -174,15 +177,17 @@ type Player struct {
 }
 
 type Game struct {
-	ActivateTime              time.Time `json:"activate_time"`
-	LobbyType                 int32     `json:"lobby_type"`
-	GameMode                  int32     `json:"game_mode"`
-	AvarageMmr                int32     `json:"avarage_mmr"`
-	Players                   []Player  `json:"players"`
-	WeekedTourneyBracketRound *string   `json:"weeked_tourney_bracket_round"`
-	WeekedTourneySkillLevel   *string   `json:"weeked_tourney_skill_level"`
-	MatchId                   *string   `json:"match_id"`
-	LobbyId                   string    `json:"lobby_id"`
+	ID                        string                    `json:"id"`
+	ActivateTime              time.Time                 `json:"activate_time"`
+	LobbyType                 int32                     `json:"lobby_type"`
+	GameMode                  int32                     `json:"game_mode"`
+	AvarageMmr                int32                     `json:"avarage_mmr"`
+	Players                   []Player                  `json:"players"`
+	WeekedTourneyBracketRound *string                   `json:"weeked_tourney_bracket_round"`
+	WeekedTourneySkillLevel   *string                   `json:"weeked_tourney_skill_level"`
+	MatchId                   *string                   `json:"match_id"`
+	LobbyId                   string                    `json:"lobby_id"`
+	PlayersCards              *[]model.DotaMatchesCards `json:"playersCards"`
 }
 
 func GetAccountsByChannelId(db *gorm.DB, channelId string) *[]string {

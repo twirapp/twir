@@ -1,5 +1,6 @@
-parser/*
-!parser/go.mod
+!*/go.mod
 
+
+parser/*
 bots/*
-!bots/go.mod
+dota/*

@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { config } from '@tsuwari/config';
-import { PrismaClient, Prisma } from '@tsuwari/prisma';
+import { Prisma, PrismaClient } from '@tsuwari/prisma';
 import { DotaGame, dotaHeroes, gameModes, RedisService } from '@tsuwari/shared';
 import protobufjs from 'protobufjs';
 import SteamUser from 'steam-user';
@@ -34,21 +34,57 @@ export class AppService extends SteamUser implements OnModuleInit {
   }
 
   async onModuleInit() {
-    this.#watchRoot = await new protobufjs.Root().load(resolve(dirname(fileURLToPath(import.meta.url)), '..', 'protos', 'dota2', 'dota_gcmessages_client_watch.proto'), {
-      keepCase: true,
-    });
+    this.#watchRoot = await new protobufjs.Root().load(
+      resolve(
+        dirname(fileURLToPath(import.meta.url)),
+        '..',
+        'protos',
+        'dota2',
+        'dota_gcmessages_client_watch.proto',
+      ),
+      {
+        keepCase: true,
+      },
+    );
 
-    this.#clientHelloRoot = await new protobufjs.Root().load(resolve(dirname(fileURLToPath(import.meta.url)), '..', 'protos', 'dota2', 'gcsdk_gcmessages.proto'), {
-      keepCase: true,
-    });
+    this.#clientHelloRoot = await new protobufjs.Root().load(
+      resolve(
+        dirname(fileURLToPath(import.meta.url)),
+        '..',
+        'protos',
+        'dota2',
+        'gcsdk_gcmessages.proto',
+      ),
+      {
+        keepCase: true,
+      },
+    );
 
-    this.#gcMessagesClient = await new protobufjs.Root().load(resolve(dirname(fileURLToPath(import.meta.url)), '..', 'protos', 'dota2', 'dota_gcmessages_client.proto'), {
-      keepCase: true,
-    });
+    this.#gcMessagesClient = await new protobufjs.Root().load(
+      resolve(
+        dirname(fileURLToPath(import.meta.url)),
+        '..',
+        'protos',
+        'dota2',
+        'dota_gcmessages_client.proto',
+      ),
+      {
+        keepCase: true,
+      },
+    );
 
-    this.#gcMessagesCommon = await new protobufjs.Root().load(resolve(dirname(fileURLToPath(import.meta.url)), '..', 'protos', 'dota2', 'dota_gcmessages_common.proto'), {
-      keepCase: true,
-    });
+    this.#gcMessagesCommon = await new protobufjs.Root().load(
+      resolve(
+        dirname(fileURLToPath(import.meta.url)),
+        '..',
+        'protos',
+        'dota2',
+        'dota_gcmessages_common.proto',
+      ),
+      {
+        keepCase: true,
+      },
+    );
 
     this.logOn({
       accountName: config.STEAM_USERNAME,
@@ -101,12 +137,12 @@ export class AppService extends SteamUser implements OnModuleInit {
     }
     this.#logger.log(`Getting presences of ${accs.length} accounts.`);
 
-    const convertedAccs = accs.map(SteamID.fromIndividualAccountID).map(id => id.getSteamID64());
+    const convertedAccs = accs.map(SteamID.fromIndividualAccountID).map((id) => id.getSteamID64());
     const type = this.#watchRoot.lookupType('CMsgClientToGCFindTopSourceTVGames');
 
     await Promise.all([
-      Promise.all(accs.map(a => this.redis.del(`dotaMatches:${a}`))),
-      Promise.all(accs.map(a => this.redis.del(`dotaRps:${a}`))),
+      Promise.all(accs.map((a) => this.redis.del(`dotaMatches:${a}`))),
+      Promise.all(accs.map((a) => this.redis.del(`dotaRps:${a}`))),
     ]);
 
     this.requestRichPresence(570, convertedAccs, 'english', async (error, data) => {
@@ -115,11 +151,19 @@ export class AppService extends SteamUser implements OnModuleInit {
         return this.#logger.error(error);
       }
       if (!data.users) return;
-      const users = converUsers(data.users).filter(u => !['#DOTA_RP_INIT', '#DOTA_RP_IDLE'].includes(u.richPresence.status));
+      const users = converUsers(data.users).filter(
+        (u) => !['#DOTA_RP_INIT', '#DOTA_RP_IDLE'].includes(u.richPresence.status),
+      );
 
-      await Promise.all(users.map(u => this.redis.set(`dotaRps:${u.userId}`, JSON.stringify(u.richPresence), 'EX', 60)));
+      await Promise.all(
+        users.map((u) =>
+          this.redis.set(`dotaRps:${u.userId}`, JSON.stringify(u.richPresence), 'EX', 60),
+        ),
+      );
 
-      const lobbyIds = new Set(users.filter(u => u.richPresence.lobbyId).map(u => u.richPresence.lobbyId));
+      const lobbyIds = new Set(
+        users.filter((u) => u.richPresence.lobbyId).map((u) => u.richPresence.lobbyId),
+      );
       if (!lobbyIds.size) return;
 
       const newMsg = type.encode({
@@ -134,8 +178,7 @@ export class AppService extends SteamUser implements OnModuleInit {
     });
   }
 
-
-  getDotaProfileCard(accountId: string | number) {
+  getDotaProfileCard(accountId: string | number): Promise<any> {
     const type = this.#gcMessagesClient.lookupType('CMsgClientToGCGetProfileCard');
     const request = type.encode({
       account_id: Number(accountId),
@@ -158,20 +201,20 @@ export class AppService extends SteamUser implements OnModuleInit {
     const type = this.#watchRoot.lookupType('CMsgGCToClientFindTopSourceTVGamesResponse');
 
     const data = type.decode(payload).toJSON() as {
-      game_list?: Array<DotaGame>
+      game_list?: Array<DotaGame>;
     };
 
     if (data.game_list) {
       for (const game of data.game_list) {
         if (!game.players || !game.match_id || game.players.length < 9) continue;
 
-        const gameMode = gameModes.find(g => g.id === game.game_mode);
+        const gameMode = gameModes.find((g) => g.id === game.game_mode);
 
         if (gameMode) {
           const data = {
             lobby_type: game.lobby_type,
-            players: game.players.map(p => p.account_id),
-            players_heroes: game.players.map(p => p.hero_id),
+            players: game.players.map((p) => p.account_id),
+            players_heroes: game.players.map((p) => p.hero_id),
             startedAt: new Date(Number(`${game.activate_time}000`)),
             match_id: game.match_id,
             avarage_mmr: game.average_mmr,
@@ -202,19 +245,30 @@ export class AppService extends SteamUser implements OnModuleInit {
         }
 
         for (const player of game.players) {
-          await this.redis.set(`dotaMatches:${player.account_id}`, JSON.stringify(game), 'EX', 30 * 60);
-          const hero = dotaHeroes.find(h => h.id === player.hero_id);
+          await this.redis.set(
+            `dotaMatches:${player.account_id}`,
+            JSON.stringify(game),
+            'EX',
+            30 * 60,
+          );
+          const hero = dotaHeroes.find((h) => h.id === player.hero_id);
           if (hero) {
-            await this.prisma.dotaHero.create({
-              data: {
-                id: hero.id,
-                name: hero.localized_name,
-              },
-            }).catch((e) => {
-              if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002' && (e.meta?.target as string[]).includes('id')) {
-                null;
-              } else throw e;
-            });
+            await this.prisma.dotaHero
+              .create({
+                data: {
+                  id: hero.id,
+                  name: hero.localized_name,
+                },
+              })
+              .catch((e) => {
+                if (
+                  e instanceof Prisma.PrismaClientKnownRequestError &&
+                  e.code === 'P2002' &&
+                  (e.meta?.target as string[]).includes('id')
+                ) {
+                  null;
+                } else throw e;
+              });
           }
         }
       }

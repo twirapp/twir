@@ -16,6 +16,7 @@
     "@nestjs/core": "9.0.9",
     "@nestjs/microservices": "9.0.9",
     "@tsuwari/config": "workspace:*",
+    "@tsuwari/nats": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "nats": "2.7.1",

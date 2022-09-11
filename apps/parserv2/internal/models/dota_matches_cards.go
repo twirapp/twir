@@ -42,7 +42,7 @@ type DotaMatchesCards struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
 	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] match_id                                       TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	MatchID string `gorm:"column:match_id;type:TEXT;"                      json:"match_id"`
+	MatchID string `gorm:"column:match_id;type:TEXT;foreignKey:match_id"   json:"match_id"`
 	//[ 2] account_id                                     TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
 	AccountID string `gorm:"column:account_id;type:TEXT;"                    json:"account_id"`
 	//[ 3] rank_tier                                      INT4                 null: true   primary: false  isArray: false  auto: false  col: INT4            len: -1      default: []

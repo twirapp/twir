@@ -34,7 +34,7 @@ var LgCommand = types.DefaultCommand{
 			Take:     lo.ToPtr(2),
 		})
 
-		if games == nil || len(*games) <= 2 {
+		if games == nil || len(*games) < 2 {
 			return []string{GAME_NOT_FOUND}
 		}
 

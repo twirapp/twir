@@ -250,6 +250,7 @@ importers:
       '@nestjs/core': 9.0.9
       '@nestjs/microservices': 9.0.9
       '@tsuwari/config': workspace:*
+      '@tsuwari/nats': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
       '@types/steam-user': 4.23.0
@@ -265,6 +266,7 @@ importers:
       '@nestjs/core': 9.0.9_odjesiuzbrvjz4ycpwvaklkzo4
       '@nestjs/microservices': 9.0.9_kutvg72li44bgujfomk5swyy24
       '@tsuwari/config': link:../../libs/config
+      '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
       nats: 2.7.1

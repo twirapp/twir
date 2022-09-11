@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option go_package = "tsuwari/nats/dota";
+
+message GetPlayerCardRequest {
+  int64 accountId = 1;
+}
+
+message GetPlayerCardResponse {
+  string account_id = 1;
+  optional int64 rank_tier = 2;
+  optional int64 leaderboard_rank = 3;
+}
