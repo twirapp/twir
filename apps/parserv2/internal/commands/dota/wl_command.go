@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 	"tsuwari/parser/internal/types"
@@ -22,6 +23,9 @@ type MatchPlayer struct {
 	AccountId  int `json:"account_id"`
 	TeamNumber int `json:"team_number"`
 	HeroId     int `json:"hero_id"`
+	Kills      int `json:"kills"`
+	Deaths     int `json:"deaths"`
+	Assists    int `json:"assists"`
 }
 
 type MatchResult struct {
@@ -167,11 +171,132 @@ var WlCommand = types.DefaultCommand{
 				if err != nil {
 					fmt.Println(game.MatchID, err)
 				}
+				ctx.Services.Db.
+					Model(&model.DotaMatches{}).
+					Where("match_id = ?", game.MatchID).
+					Update("finished", true)
 			}(game)
 		}
 
 		gamesForRequestWg.Wait()
 
-		return []string{""}
+		matchesByGameMode := make(map[int32]MatchByGameMode)
+
+		for _, mode := range DotaGameModes {
+			matchesByGameMode[int32(mode.ID)] = MatchByGameMode{
+				Matches: []Match{},
+			}
+		}
+
+		for _, account := range *accounts {
+			for _, match := range matchesData {
+				dbMatch, ok := lo.Find(dbGames, func(m model.DotaMatchWithRelation) bool {
+					return m.MatchID == strconv.Itoa(match.MatchID)
+				})
+
+				if !ok {
+					continue
+				}
+
+				_, playerIndex, ok := lo.FindIndexOf(dbMatch.Players, func(p int64) bool {
+					stringedP := strconv.FormatInt(p, 10)
+					return stringedP == account
+				})
+
+				if !ok {
+					continue
+				}
+
+				player := match.Players[playerIndex]
+				isPlayerRadiant := player.TeamNumber == 0
+				isWinner := lo.
+					If(isPlayerRadiant && match.RadiantWin, true).
+					ElseIf(!isPlayerRadiant && !match.RadiantWin, true).
+					Else(false)
+				hero, _ := lo.Find(DotaHeroes, func(h Hero) bool {
+					return h.ID == player.HeroId
+				})
+
+				shortHeroName := lo.FromPtr(hero.ShortName)
+				heroName := lo.
+					If(shortHeroName != "", shortHeroName).
+					Else(hero.LocalizedName)
+
+				if entry, ok := matchesByGameMode[match.GameMode]; ok {
+					entry.Matches = append(
+						entry.Matches,
+						Match{
+							IsWinner: isWinner,
+							Hero:     heroName,
+							Kills:    player.Kills,
+							Deaths:   player.Deaths,
+							Assists:  player.Deaths,
+						},
+					)
+
+					matchesByGameMode[match.GameMode] = entry
+				}
+			}
+		}
+
+		result := []string{}
+
+		for _, entry := range lo.Entries(matchesByGameMode) {
+			if len(entry.Value.Matches) == 0 {
+				continue
+			}
+			wins := lo.Reduce(entry.Value.Matches, func(acc int, m Match, _ int) int {
+				if m.IsWinner {
+					return acc + 1
+				} else {
+					return acc
+				}
+			}, 0)
+			mode, _ := lo.Find(DotaGameModes, func(m GameMode) bool {
+				return int(entry.Key) == m.ID
+			})
+			// `${m.hero.localized_name}(${m.isWinner ? 'W' : 'L'}) [${m.kills}/${m.deaths}/${
+			// 	m.assists
+			// }]`,
+
+			heroesResult := lo.Map(entry.Value.Matches, func(m Match, _ int) string {
+				return fmt.Sprintf(
+					"%s(%s) [%v/%v/%v]",
+					m.Hero,
+					lo.If(m.IsWinner, "W").Else("L"),
+					m.Kills,
+					m.Deaths,
+					m.Assists,
+				)
+			})
+
+			msg := fmt.Sprintf(
+				"%s W %v — %v: %s",
+				mode.Name,
+				wins,
+				len(entry.Value.Matches)-wins,
+				strings.Join(heroesResult, ", "),
+			)
+
+			result = append(result, msg)
+		}
+
+		if len(result) == 0 {
+			return []string{"W 0 — L 0"}
+		}
+
+		return []string{strings.Join(result, "")}
 	},
+}
+
+type Match struct {
+	IsWinner bool
+	Hero     string
+	Kills    int
+	Deaths   int
+	Assists  int
+}
+
+type MatchByGameMode struct {
+	Matches []Match
 }
