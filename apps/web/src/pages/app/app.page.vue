@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTranslation } from '@/utils/locales.js';
+import useTranslation from '@/hooks/useTranslation';
 
 const t = useTranslation<'app'>();
 </script>

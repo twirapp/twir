@@ -1,8 +1,7 @@
 import { resolveRoute } from 'vite-plugin-ssr/routing';
 
-import type { Locale } from '@/types/locale.js';
+import { defaultLocale, locales, type Locale } from '@/locales';
 import type { PageContext } from '@/types/pageContext.js';
-import { defaultLocale, locales } from '@/utils/locales';
 
 export default (pageContext: PageContext) => {
   if (pageContext.urlPathname === '/')

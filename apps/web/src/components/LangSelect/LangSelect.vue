@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div class="relative inline-flex">
     <button ref="select" :class="`select ${isOpen ? 'open' : ''}`" @click="isOpen = !isOpen">
       {{ pageContext.locale.toUpperCase() }}
       <div class="icon">
@@ -29,8 +29,8 @@ import { ref } from 'vue';
 import LangSelectOption from './LangSelectOption.vue';
 
 import { usePageContext } from '@/hooks/usePageContext.js';
-import type { Locale } from '@/types/locale.js';
-import { languages } from '@/utils/locales.js';
+import type { Locale } from '@/locales';
+import { languages } from '@/locales';
 
 const emit = defineEmits<{ (event: 'change', locale: Locale): void }>();
 
@@ -39,7 +39,7 @@ const select = ref<HTMLElement | null>(null);
 
 const pageContext = usePageContext();
 if (!pageContext) {
-  throw new Error('Not found page context');
+  throw new Error('Page context in not found');
 }
 
 onClickOutside(dropdownRef, (event) => {

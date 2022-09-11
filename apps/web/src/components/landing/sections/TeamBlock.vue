@@ -26,8 +26,8 @@
 
 <script lang="ts" setup>
 import TeamMemberCard from '@/components/landing/TeamMemberCard.vue';
+import useTranslation from '@/hooks/useTranslation';
 import type { TeamMember } from '@/types/teamMember';
-import { useTranslation } from '@/utils/locales.js';
 
 defineProps<{ teamMembers: TeamMember[] }>();
 
