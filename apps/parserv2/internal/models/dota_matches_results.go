@@ -30,11 +30,6 @@ JSON Sample
 -------------------------------------
 {    "id": "nauQppXWcuwaltChZijFXnuGg",    "match_id": "WKFNatBXgYcFiFdYMhujxDAcZ",    "players": "PRwTsLhgZNRdFuawMUDILbgvm",    "radiant_win": false,    "game_mode": 69}
 */
-type DotaMatchesPlayer struct {
-	AccountId  int `json:"account_id"`
-	TeamNumber int `json:"team_number"`
-	HeroId     int `json:"hero_id"`
-}
 
 // DotaMatchesResults struct is a row record of the dota_matches_results table in the tsuwari database
 type DotaMatchesResults struct {
@@ -43,7 +38,7 @@ type DotaMatchesResults struct {
 	//[ 1] match_id                                       TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
 	MatchID string `gorm:"column:match_id;type:TEXT;foreignKey:match_id"   json:"match_id"`
 	//[ 2] players                                        JSONB                null: false  primary: false  isArray: false  auto: false  col: JSONB           len: -1      default: []
-	Players []DotaMatchesPlayer `gorm:"column:players;type:JSONB;"                      json:"players"`
+	Players string `gorm:"column:players;type:JSONB;"                      json:"players"`
 	//[ 3] radiant_win                                    BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: []
 	RadiantWin bool `gorm:"column:radiant_win;type:BOOL;"                   json:"radiant_win"`
 	//[ 4] game_mode                                      INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: []

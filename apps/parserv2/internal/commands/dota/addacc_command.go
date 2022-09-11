@@ -3,8 +3,10 @@ package dota
 import (
 	"fmt"
 	"strconv"
-	model "tsuwari/parser/internal/models"
 	"tsuwari/parser/internal/types"
+
+	model "tsuwari/parser/internal/models"
+
 	variables_cache "tsuwari/parser/internal/variablescache"
 
 	steamid "github.com/leighmacdonald/steamid/v2/steamid"
@@ -60,7 +62,7 @@ var AddAccCommand = types.DefaultCommand{
 
 		if err != nil {
 			fmt.Println(err)
-			return []string{"Something wen't wrong on out side when inserting account into db."}
+			return []string{"Something went wrong on out side when inserting account into db."}
 		}
 
 		return []string{"Account added."}

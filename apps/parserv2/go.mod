@@ -18,6 +18,7 @@ require (
 
 require (
 	github.com/cheekybits/genny v1.0.0 // indirect
+	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -55,6 +56,8 @@ require (
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gorm.io/datatypes v1.0.7 // indirect
+	gorm.io/driver/mysql v1.3.2 // indirect
 )
 
 require (

@@ -14,16 +14,26 @@ import (
 
 	variables_cache "tsuwari/parser/internal/variablescache"
 
+	"github.com/lib/pq"
 	"github.com/samber/lo"
 )
 
+type MatchPlayer struct {
+	AccountId  int `json:"account_id"`
+	TeamNumber int `json:"team_number"`
+	HeroId     int `json:"hero_id"`
+}
+
+type MatchResult struct {
+	Error      *string       `json:"error"`
+	MatchID    int           `json:"match_id"`
+	Players    []MatchPlayer `json:"players"`
+	RadiantWin bool          `json:"radiant_win"`
+	GameMode   int32         `json:"game_mode"`
+}
+
 type MatchResponse struct {
-	Result struct {
-		MatchId    int                       `json:"match_id"`
-		Players    []model.DotaMatchesPlayer `json:"players"`
-		RadiantWin bool                      `json:"radiant_win"`
-		GameMode   int32                     `json:"game_mode"`
-	}
+	Result MatchResult `json:"result"`
 }
 
 var WlCommand = types.DefaultCommand{
@@ -47,7 +57,7 @@ var WlCommand = types.DefaultCommand{
 
 		if err != nil {
 			fmt.Println(err)
-			return []string{"Something wen't wrong on getting stream."}
+			return []string{"Something went wrong on getting stream."}
 		}
 
 		accounts := GetAccountsByChannelId(ctx.Services.Db, ctx.ChannelId)
@@ -57,15 +67,19 @@ var WlCommand = types.DefaultCommand{
 		}
 
 		dbGames := []model.DotaMatchWithRelation{}
+		intAccounts := lo.Map(*accounts, func(a string, _ int) int {
+			acc, _ := strconv.Atoi(a)
+			return acc
+		})
 
 		err = ctx.Services.Db.
 			Table("dota_matches").
 			Where(
-				`"dota_matches"."players" && ARRAY[?]::int[] 
+				`"dota_matches"."players" && ?
 				AND "startedAt" >= ? 
 				AND "lobby_type" IN ?
 				`,
-				*accounts,
+				pq.Array(intAccounts),
 				streamData.StartedAt.Add(-time.Minute*10),
 				[2]int{0, 7},
 			).
@@ -76,7 +90,7 @@ var WlCommand = types.DefaultCommand{
 
 		if err != nil {
 			fmt.Println(err)
-			return []string{"Something wen't wrong on fetching games."}
+			return []string{"Something went wrong on fetching games."}
 		}
 
 		dbGames = lo.Filter(dbGames, func(g model.DotaMatchWithRelation, _ int) bool {
@@ -89,11 +103,21 @@ var WlCommand = types.DefaultCommand{
 			return []string{"Games not played on the stream."}
 		}
 
-		matchesData := []model.DotaMatchesResults{}
+		matchesData := []MatchResult{}
 
 		for _, match := range dbGames {
 			if match.Result != nil {
-				matchesData = append(matchesData, *match.Result)
+				matchId, _ := strconv.Atoi(match.MatchID)
+				players := []MatchPlayer{}
+				_ = json.Unmarshal([]byte(match.Result.Players), &players)
+				result := MatchResult{
+					Error:      nil,
+					MatchID:    matchId,
+					RadiantWin: match.Result.RadiantWin,
+					GameMode:   match.Result.GameMode,
+					Players:    players,
+				}
+				matchesData = append(matchesData, result)
 			}
 		}
 
@@ -110,32 +134,38 @@ var WlCommand = types.DefaultCommand{
 				data := MatchResponse{}
 				r, err := ApiInstance.
 					R().
-					SetQueryParam("match_id", game.MatchID).
-					SetQueryParam("key", "2B5C2069282D28E79B60B494489E31C5").
+					SetQueryParams(map[string]string{
+						"match_id": game.MatchID,
+						"key":      "2B5C2069282D28E79B60B494489E31C5",
+					}).
 					SetResult(&data).
 					Get("http://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/v1")
 
-				if err != nil || r.StatusCode != 200 {
-					fmt.Println(r.StatusCode, err)
+				if err != nil || r.StatusCode != 200 || data.Result.Error != nil {
+					fmt.Println(r.StatusCode, err, *data.Result.Error)
 					return
 				}
-				dataForPush := model.DotaMatchesResults{
-					MatchID:    strconv.Itoa(data.Result.MatchId),
+
+				dataForPush := MatchResult{
+					MatchID:    data.Result.MatchID,
 					Players:    data.Result.Players,
 					RadiantWin: data.Result.RadiantWin,
 					GameMode:   data.Result.GameMode,
 				}
 
 				matchesData = append(matchesData, dataForPush)
-
-				err = ctx.Services.Db.Create(&model.DotaMatchesResults{
-					MatchID:    strconv.Itoa(data.Result.MatchId),
-					Players:    []byte(data.Result.Players),
-					RadiantWin: data.Result.RadiantWin,
-					GameMode:   data.Result.GameMode,
-				}).Error
+				players, _ := json.Marshal(data.Result.Players)
+				err = ctx.Services.Db.
+					Table("dota_matches_results").
+					Create(map[string]interface{}{
+						"match_id":    strconv.Itoa(data.Result.MatchID),
+						"players":     string(players),
+						"radiant_win": data.Result.RadiantWin,
+						"game_mode":   data.Result.GameMode,
+					}).
+					Error
 				if err != nil {
-					fmt.Println(err)
+					fmt.Println(game.MatchID, err)
 				}
 			}(game)
 		}
