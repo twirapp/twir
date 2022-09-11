@@ -8,13 +8,15 @@ import (
 	"time"
 	"tsuwari/parser/internal/commands"
 	"tsuwari/parser/internal/config/cfg"
-	mynats "tsuwari/parser/internal/config/nats"
 	"tsuwari/parser/internal/config/redis"
+	"tsuwari/parser/internal/types"
+	"tsuwari/parser/internal/variables"
+
+	mynats "tsuwari/parser/internal/config/nats"
+
 	twitch "tsuwari/parser/internal/config/twitch"
 	natshandlers "tsuwari/parser/internal/handlers/nats"
 	usersauth "tsuwari/parser/internal/twitch/user"
-	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variables"
 
 	"github.com/samber/lo"
 	parserproto "github.com/satont/tsuwari/nats/parser"
@@ -48,7 +50,6 @@ func main() {
 	}
 	defer n.Close()
 	natsJson, err := nats.NewEncodedConn(n, protobuf.PROTOBUF_ENCODER)
-
 	if err != nil {
 		panic(err)
 	}
@@ -142,10 +143,6 @@ func main() {
 
 			list[i] = cmd
 		}
-
-		/* 		list = lo.Filter(list, func(i *parserproto.DefaultCommand, _ int) bool {
-			return i != nil
-		}) */
 
 		res, _ := proto.Marshal(&parserproto.GetDefaultCommandsResponse{
 			List: list,

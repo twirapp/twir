@@ -146,7 +146,7 @@ var WlCommand = types.DefaultCommand{
 					Get("http://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/v1")
 
 				if err != nil || r.StatusCode != 200 || data.Result.Error != nil {
-					fmt.Println(r.StatusCode, err, *data.Result.Error)
+					fmt.Println(r.StatusCode, err, *data.Result.Error, game)
 					return
 				}
 
@@ -230,7 +230,7 @@ var WlCommand = types.DefaultCommand{
 							Hero:     heroName,
 							Kills:    player.Kills,
 							Deaths:   player.Deaths,
-							Assists:  player.Deaths,
+							Assists:  player.Assists,
 						},
 					)
 
