@@ -18,6 +18,7 @@ import (
 	natshandlers "tsuwari/parser/internal/handlers/nats"
 	usersauth "tsuwari/parser/internal/twitch/user"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/samber/lo"
 	parserproto "github.com/satont/tsuwari/nats/parser"
 
@@ -35,6 +36,15 @@ func main() {
 	if err != nil || cfg == nil {
 		fmt.Println(err)
 		panic("Cannot load config of application")
+	}
+
+	if cfg.SentryDsn != "" {
+		sentry.Init(sentry.ClientOptions{
+			Dsn:              cfg.SentryDsn,
+			Environment:      cfg.AppEnv,
+			Debug:            true,
+			TracesSampleRate: 1.0,
+		})
 	}
 
 	var logger *zap.Logger
