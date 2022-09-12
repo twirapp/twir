@@ -1,30 +1,23 @@
-FROM node:18-slim
+FROM golang:1.19-alpine AS build_base
 
-ENV LAST_UPDATED 2022-06-19
+RUN apk add --no-cache git
 
-RUN apt-get update && apt-get install -y apt-transport-https ca-certificates curl gnupg && \
-  curl -sLf --retry 3 --tlsv1.2 --proto "=https" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' | apt-key add - && \
-  echo "deb https://packages.doppler.com/public/cli/deb/debian any-version main" | tee /etc/apt/sources.list.d/doppler-cli.list
+WORKDIR /tmp/go-sample-app
 
-RUN apt-get update && apt-get install -y git curl wget doppler
+# We want to populate the module cache based on the go.{mod,sum} files.
+COPY go.mod go.sum /apps/parser/
 
-WORKDIR /app
+RUN cd /apps/parser && go mod download
 
-RUN npm i -g pnpm@7.5.0
+COPY /apps/parser /apps/parser
+COPY /libs/nats libs/nats
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
+RUN go build -o ./out/parser /apps/parser/cmd/main.go
 
-COPY node_modules node_modules
+# Start fresh from a smaller image
+FROM alpine:3.9 
+RUN apk add ca-certificates
 
-COPY apps/parser apps/parser
-COPY libs/prisma libs/prisma
-COPY libs/redis libs/redis
-COPY libs/integrations/spotify libs/integrations/spotify
-COPY libs/config libs/config
-COPY libs/shared libs/shared
+COPY --from=build_base /tmp/go-sample-app/out/parser /app/parser
 
-RUN pnpm install --prod
-RUN pnpm prisma:generate
-
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["pnpm", "start:parser"]
+CMD ["/app/parser"]

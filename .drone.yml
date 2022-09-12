@@ -4,7 +4,7 @@ docker: &docker
     - build
 
 docker-settings: &docker-settings
-  registry: 
+  registry:
     from_secret: docker_hub
   username:
     from_secret: docker_username
@@ -25,7 +25,7 @@ trigger:
     - main
   event:
     exclude:
-    - pull_request
+      - pull_request
 
 steps:
   - name: restore-cache
@@ -40,7 +40,7 @@ steps:
 
   - name: build
     image: node:18-slim
-    commands: 
+    commands:
       - apt-get update
       - apt-get install curl wget git -y
       - npm i -g pnpm@7.5.0
