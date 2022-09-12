@@ -2,12 +2,12 @@
   <section class="bg-black-10 relative overflow-hidden z-0">
     <div class="container relative max-w-[980px] mt-20 mb-16">
       <img src="@/assets/CurveArrow.svg" class="absolute top-[30px] -left-[90px] -z-[1]" />
-      <ClientOnly>
-        <BlurryBlob
-          class="-top-[300px] -right-[140px] w-[490px] h-[276px] rotate-[27deg]"
-          color="purple"
-        />
-      </ClientOnly>
+      <div
+        :style="{
+          backgroundImage: `url('${PurpleBlob}')`,
+        }"
+        class="blurry-blob -top-[550px] -right-[500px] w-[1100px] h-[1075px]"
+      ></div>
       <img src="@/assets/MessageCircle.svg" class="absolute -z-[1] -bottom-3 right-28" />
       <h2 class="text-5xl font-semibold max-w-xl leading-[125%]">
         {{ t('sections.reviews.title') }}
@@ -66,7 +66,7 @@ import { ref } from 'vue';
 
 import 'swiper/css';
 
-import BlurryBlob from '@/components/BlurryBlob.vue';
+import PurpleBlob from '@/assets/blob-purple.png';
 import ClientOnly from '@/components/ClientOnly.vue';
 import ReviewCard from '@/components/landing/ReviewCard.vue';
 import useTranslation from '@/hooks/useTranslation.js';
