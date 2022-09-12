@@ -22,14 +22,17 @@ COPY /libs/nats /libs/nats/
 RUN pnpm --filter=@tsuwari/nats build
 RUN cd /apps/parser && go mod download
 
-RUN cd /apps/parser && go build -o /app/out/parser ./cmd/main.go
+RUN cd /apps/parser && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/out/parser ./cmd/main.go
 RUN ls /apps/parser
 
-FROM alpine:3.16 
+FROM alpine:latest
 RUN apk add ca-certificates
+RUN wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
+    echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories && \
+    apk add doppler
 
-WORKDIR /app
+COPY --from=build_base /app/out/parser /bin/parser
+RUN chmod +x /bin/parser
 
-COPY --from=build_base /app/out/parser /app/parser
-
-CMD ["/app/parser"]
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["/bin/parser"]

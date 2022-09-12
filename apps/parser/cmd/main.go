@@ -33,6 +33,7 @@ import (
 func main() {
 	cfg, err := cfg.New()
 	if err != nil || cfg == nil {
+		fmt.Println(err)
 		panic("Cannot load config of application")
 	}
 
@@ -50,6 +51,7 @@ func main() {
 		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
 	})
 	if err != nil {
+		fmt.Println(err)
 		panic("failed to connect database")
 	}
 
