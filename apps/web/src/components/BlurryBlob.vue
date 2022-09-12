@@ -8,7 +8,7 @@ import { computed, StyleValue } from 'vue';
 const blobStyles = computed<StyleValue>(() => {
   // In Firefox the blur is not the same as everywhere else and the color saturation is too high
   if (window.navigator.userAgent.includes('Firefox')) {
-    return { animation: 'fadeInFirefox 1s', opacity: '0.25' };
+    return { animation: 'fadeInFirefox 1s', opacity: '0.3' };
   }
   return { animation: 'fadeInBlob 1s', opacity: '0.8' };
 });
@@ -31,7 +31,7 @@ defineProps<{
     opacity: 0;
   }
   to {
-    opacity: 0.25;
+    opacity: 0.3;
   }
 }
 
