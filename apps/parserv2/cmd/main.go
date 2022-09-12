@@ -114,6 +114,8 @@ func main() {
 			"in", data.Message.Text,
 			"out", r,
 			"took", time.Since(start),
+			"channelId", data.Channel.Id,
+			"senderId", data.Sender.Id,
 		)
 	})
 

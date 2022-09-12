@@ -21,6 +21,7 @@ COPY libs/prisma libs/prisma
 COPY libs/redis libs/redis
 COPY libs/config/ libs/config
 COPY libs/shared/ libs/shared
+COPY libs/nats libs/nats
 
 RUN pnpm install --prod
 RUN pnpm prisma:generate
