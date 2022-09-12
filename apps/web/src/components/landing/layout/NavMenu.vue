@@ -16,23 +16,27 @@
 
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { navMenuHrefs } from '@/data/index';
 import { headerHeightStore } from '@/stores/landing/header.js';
-import { navMenuLocaleStore } from '@/stores/landing/navMenu.js';
+import type { NavMenuLocale } from '@/types/navMenu.js';
 
-const props = defineProps<{
-  menuClass: string;
-  menuItemClass: string;
-  menuItemClickHandler?: () => any;
-}>();
+const props =
+  defineProps<{
+    menuClass: string;
+    menuItemClass: string;
+    menuItemClickHandler?: () => any;
+  }>();
 
-const menuItems =  useStore(navMenuLocaleStore);
+const { tm } = useI18n();
+const headerHeight = useStore(headerHeightStore);
+
+const menuItems = computed(() => tm('navMenu') as NavMenuLocale[]);
 
 const scrollToSection = (e: Event) => {
   if (typeof window === 'undefined') return;
-
-  const headerHeight = useStore(headerHeightStore);
 
   const sectionId = (e.target as HTMLLinkElement).dataset.section as string;
   const section = document.getElementById(sectionId);
@@ -48,6 +52,6 @@ const scrollToSection = (e: Event) => {
 
   if (props.menuItemClickHandler) {
     props.menuItemClickHandler();
-  } 
+  }
 };
 </script>

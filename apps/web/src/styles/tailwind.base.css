@@ -11,6 +11,10 @@
     color: theme('colors.white.100');
   }
 
+  :root {
+    color-scheme: dark;
+  }
+
   #app {
     position: relative;
   }
