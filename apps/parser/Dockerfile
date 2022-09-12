@@ -1,23 +1,35 @@
-FROM golang:1.19-alpine AS build_base
+FROM ubuntu:latest AS build_base
 
-RUN apk add --no-cache git
+RUN apt-get update && apt-get install -y curl git protobuf-compiler wget
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt-get install nodejs
 
-WORKDIR /tmp/go-sample-app
+RUN wget https://go.dev/dl/go1.19.1.linux-amd64.tar.gz && rm -rf /usr/local/go && tar -C /usr/local -xzf go1.19.1.linux-amd64.tar.gz && export PATH=$PATH:/usr/local/go/bin
 
-# We want to populate the module cache based on the go.{mod,sum} files.
-COPY go.mod go.sum /apps/parser/
+ENV PATH="/usr/local/go/bin:${PATH}" 
 
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+
+RUN npm i -g pnpm@7
+WORKDIR /app
+
+COPY apps/parser/go.mod apps/parser/go.sum /apps/parser/
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
+
+COPY /apps/parser /apps/parser/
+COPY /libs/nats /libs/nats/
+
+RUN pnpm --filter=@tsuwari/nats build
 RUN cd /apps/parser && go mod download
 
-COPY /apps/parser /apps/parser
-COPY /libs/nats libs/nats
+RUN cd /apps/parser && go build -o /app/out/parser ./cmd/main.go
+RUN ls /apps/parser
 
-RUN go build -o ./out/parser /apps/parser/cmd/main.go
-
-# Start fresh from a smaller image
-FROM alpine:3.9 
+FROM alpine:3.16 
 RUN apk add ca-certificates
 
-COPY --from=build_base /tmp/go-sample-app/out/parser /app/parser
+WORKDIR /app
+
+COPY --from=build_base /app/out/parser /app/parser
 
 CMD ["/app/parser"]
