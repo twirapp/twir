@@ -11,19 +11,14 @@ export const nats = await connect({
 const sub = nats.subscribe('bots.deleteMessages');
 (async () => {
   for await (const m of sub) {
-    console.log('recieved');
     const data = NatsBots.DeleteMessagesRequest.fromBinary(m.data);
-    console.log(data);
     const channel = await prisma.channel.findFirst({
       where: { id: data.channelId },
     });
 
-    console.log(channel);
-
     if (!channel) continue;
 
     const bot = Bots.cache.get(channel?.botId);
-    console.log(bot);
     if (!bot) continue;
 
     for (const id of data.messageIds) {

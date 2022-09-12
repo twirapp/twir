@@ -1,27 +1,21 @@
-import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import * as Parser from '@tsuwari/nats/parser';
 import { PrismaService } from '@tsuwari/prisma';
-import { CustomVar, customVarSchema, RedisORMService, Repository } from '@tsuwari/redis';
 import { ClientProxy, RedisService } from '@tsuwari/shared';
 
 import { nats } from '../../libs/nats.js';
 import { CreateVariableDto } from './dto/create.js';
 
 @Injectable()
-export class VariablesService implements OnModuleInit {
+export class VariablesService {
   @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
   nats: ClientProxy;
-  #repository: Repository<CustomVar>;
 
   readonly #vulnerableScriptWords = ['prototype', 'contructor'];
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly redis: RedisService,
-    private readonly redisOrm: RedisORMService,
-  ) {}
+  constructor(private readonly prisma: PrismaService, private readonly redis: RedisService) {}
 
   #checkNotSecureVariable(script: string) {
     if (this.#vulnerableScriptWords.some((w) => script.includes(w))) {
@@ -32,10 +26,6 @@ export class VariablesService implements OnModuleInit {
     }
 
     return true;
-  }
-
-  onModuleInit() {
-    this.#repository = this.redisOrm.fetchRepository(customVarSchema);
   }
 
   async getBuildInVariables() {
@@ -70,8 +60,7 @@ export class VariablesService implements OnModuleInit {
       this.#checkNotSecureVariable(data.evalValue);
     }
 
-    await this.#repository.createAndSave(variable, `${channelId}:${variable.id}`);
-
+    await this.redis.set(`variables:${channelId}:${variable.name}`, JSON.stringify(variable));
     return variable;
   }
 
@@ -89,7 +78,7 @@ export class VariablesService implements OnModuleInit {
       where: { id: variableId },
     });
 
-    await this.#repository.remove(`${channelId}:${variable.id}`);
+    await this.redis.del(`variables:${channelId}:${variable.name}`);
 
     return variable;
   }
@@ -115,8 +104,7 @@ export class VariablesService implements OnModuleInit {
       data,
     });
 
-    await this.#repository.createAndSave(newVariable, `${channelId}:${variable.id}`);
-
+    await this.redis.set(`variables:${channelId}:${variable.name}`, JSON.stringify(newVariable));
     return newVariable;
   }
 }

@@ -40,7 +40,7 @@ var Variable = types.Variable{
 				Script: *v.EvalValue,
 			})
 
-			msg, err := ctx.Services.Nats.Request("eval", bytes, 1*time.Second)
+			msg, err := ctx.Services.Nats.Request("eval", bytes, 3*time.Second)
 			if err != nil {
 				return nil, errors.New(
 					"cannot evaluate variable. This is internal error, please report this bug.",

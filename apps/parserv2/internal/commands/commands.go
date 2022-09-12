@@ -11,6 +11,7 @@ import (
 	"tsuwari/parser/internal/commands/nuke"
 	"tsuwari/parser/internal/commands/permit"
 	"tsuwari/parser/internal/commands/spam"
+	"tsuwari/parser/internal/config/twitch"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
 	"tsuwari/parser/pkg/helpers"
@@ -37,6 +38,7 @@ type Commands struct {
 	Db               *gorm.DB
 	UsersAuth        *usersauth.UsersTokensService
 	Nats             *nats.Conn
+	Twitch           *twitch.Twitch
 }
 
 type CommandsOpts struct {
@@ -45,6 +47,7 @@ type CommandsOpts struct {
 	Db               *gorm.DB
 	UsersAuth        *usersauth.UsersTokensService
 	Nats             *nats.Conn
+	Twitch           *twitch.Twitch
 }
 
 func New(opts CommandsOpts) Commands {
@@ -70,6 +73,7 @@ func New(opts CommandsOpts) Commands {
 		Db:               opts.Db,
 		UsersAuth:        opts.UsersAuth,
 		Nats:             opts.Nats,
+		Twitch:           opts.Twitch,
 	}
 
 	return ctx
@@ -178,7 +182,7 @@ func (c *Commands) ParseCommandResponses(
 			Services: variables_cache.ExecutionServices{
 				Redis:     c.redis,
 				Regexp:    nil,
-				Twitch:    c.variablesService.Twitch,
+				Twitch:    c.Twitch,
 				Db:        c.Db,
 				UsersAuth: c.UsersAuth,
 				Nats:      c.Nats,
@@ -200,8 +204,9 @@ func (c *Commands) ParseCommandResponses(
 			SenderName: &data.Sender.DisplayName,
 			Redis:      c.redis,
 			Regexp:     variables.Regexp,
-			Twitch:     c.variablesService.Twitch,
+			Twitch:     c.Twitch,
 			DB:         c.Db,
+			Nats:       c.Nats,
 		})
 
 		go func(i int, r string) {

@@ -71,29 +71,20 @@ func main() {
 		ClientSecret: cfg.TwitchClientSecret,
 	})
 	twitchClient := twitch.New(*cfg)
-	variablesService := variables.New(variables.VariablesOpts{
-		Redis:     r,
-		TwitchApi: twitchClient,
-		Db:        db,
-		UsersAuth: usersAuthService,
-	})
+	variablesService := variables.New()
 	commandsService := commands.New(commands.CommandsOpts{
 		Redis:            r,
 		VariablesService: variablesService,
 		Db:               db,
 		UsersAuth:        usersAuthService,
 		Nats:             n,
+		Twitch:           twitchClient,
 	})
 	natsHandlers := natshandlers.New(r, variablesService, commandsService)
 
 	if err != nil {
 		panic(err)
 	}
-
-	/* natsJson.Subscribe("proto", func(m *nats.Msg) {
-	fmt.Println(m.Data)
-	m.Respond([]byte(m.Reply))
-	}) */
 
 	natsJson.Subscribe("parser.handleProcessCommand", func(m *nats.Msg) {
 		start := time.Now()

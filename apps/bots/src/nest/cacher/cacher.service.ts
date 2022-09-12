@@ -1,11 +1,11 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
-import { RedisORMService, greetingsSchema, keywordsSchema, customVarSchema } from '@tsuwari/redis';
+import { customVarSchema, greetingsSchema, keywordsSchema, RedisORMService } from '@tsuwari/redis';
 import { ClientProxy } from '@tsuwari/shared';
 
 import { prisma } from '../../libs/prisma.js';
-import { removeTimerFromQueue, addTimerToQueue } from '../../libs/timers.js';
+import { addTimerToQueue, removeTimerFromQueue } from '../../libs/timers.js';
 
 @Injectable()
 export class CacherService implements OnModuleInit {
@@ -13,7 +13,7 @@ export class CacherService implements OnModuleInit {
   nats: ClientProxy;
   private readonly logger = new Logger(CacherService.name);
 
-  constructor(private readonly redis: RedisORMService) { }
+  constructor(private readonly redis: RedisORMService) {}
 
   async onModuleInit() {
     const channels = await prisma.channel.findMany({
@@ -76,10 +76,13 @@ export class CacherService implements OnModuleInit {
 
     const repository = this.redis.fetchRepository(greetingsSchema);
     for (const greeting of greetings) {
-      repository.createAndSave({
-        ...greeting,
-        processed: false,
-      }, `${greeting.channelId}:${greeting.userId}`);
+      repository.createAndSave(
+        {
+          ...greeting,
+          processed: false,
+        },
+        `${greeting.channelId}:${greeting.userId}`,
+      );
     }
   }
 
@@ -104,10 +107,8 @@ export class CacherService implements OnModuleInit {
       },
     });
 
-    const repository = this.redis.fetchRepository(customVarSchema);
-
     for (const variable of variables) {
-      repository.createAndSave(variable, `${channelId}:${variable.id}`);
+      this.redis.set(`variables:${channelId}:${variable.id}`, JSON.stringify(variable));
     }
   }
 }

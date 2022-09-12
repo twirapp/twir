@@ -86,7 +86,6 @@ var GmCommand = types.DefaultCommand{
 				}
 				lock.Lock()
 
-				fmt.Println("rank", data.LeaderboardRank)
 				card := model.DotaMatchesCards{
 					ID:        uuid.NewV4().String(),
 					MatchID:   game.ID,

@@ -67,6 +67,7 @@ type VariablesCacheOpts struct {
 	Regexp      *regexp.Regexp
 	Twitch      *twitch.Twitch
 	DB          *gorm.DB
+	Nats        *nats.Conn
 }
 
 func New(opts VariablesCacheOpts) *VariablesCacheService {
@@ -82,6 +83,7 @@ func New(opts VariablesCacheOpts) *VariablesCacheService {
 				Regexp: opts.Regexp,
 				Twitch: opts.Twitch,
 				Db:     opts.DB,
+				Nats:   opts.Nats,
 			},
 		},
 		cache: variablesCache{},

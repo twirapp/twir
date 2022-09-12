@@ -191,21 +191,25 @@ export class Bot extends ChatClient {
             name: state.userInfo.userName,
           },
         });
-        nats.request('parser.handleProcessCommand', data).then(async (r) => {
-          const { responses: result } = Parser.Response.fromBinary(r.data);
-          commandsCounter.inc();
+        nats
+          .request('parser.handleProcessCommand', data, {
+            timeout: 5 * 5000,
+          })
+          .then(async (r) => {
+            const { responses: result } = Parser.Response.fromBinary(r.data);
+            commandsCounter.inc();
 
-          for (const response of result) {
-            if (!response) continue;
-            if (result.indexOf(response) > 0 && !isBotMod) break;
+            for (const response of result) {
+              if (!response) continue;
+              if (result.indexOf(response) > 0 && !isBotMod) break;
 
-            await this.say(channel, response, { replyTo: state.id });
-          }
+              await this.say(channel, response, { replyTo: state.id });
+            }
 
-          commandsResponseTime
-            .labels(channel, message.split(' ')[0] ?? '')
-            .observe(performance.now() - perfStart);
-        });
+            commandsResponseTime
+              .labels(channel, message.split(' ')[0] ?? '')
+              .observe(performance.now() - perfStart);
+          });
       }
 
       this.#greetingsParser.parse(state).then(async (response) => {

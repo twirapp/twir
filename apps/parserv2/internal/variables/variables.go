@@ -4,8 +4,6 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"tsuwari/parser/internal/config/twitch"
-	usersauth "tsuwari/parser/internal/twitch/user"
 	types "tsuwari/parser/internal/types"
 	commandsvariable "tsuwari/parser/internal/variables/commands"
 	customvar "tsuwari/parser/internal/variables/customvar"
@@ -28,29 +26,18 @@ import (
 	usermessages "tsuwari/parser/internal/variables/user/messages"
 	variables_cache "tsuwari/parser/internal/variablescache"
 
-	"github.com/go-redis/redis/v9"
 	"github.com/samber/lo"
-	"gorm.io/gorm"
 )
 
 type Variables struct {
-	Store     []types.Variable
-	Redis     *redis.Client
-	Twitch    *twitch.Twitch
-	Db        *gorm.DB
-	UsersAuth *usersauth.UsersTokensService
+	Store []types.Variable
 }
 
-var Regexp = regexp.MustCompile(`(?m)\$\((?P<all>(?P<main>[^.)|]+)(?:\.[^)|]+)?)(?:\|(?P<params>[^)]+))?\)`)
+var Regexp = regexp.MustCompile(
+	`(?m)\$\((?P<all>(?P<main>[^.)|]+)(?:\.[^)|]+)?)(?:\|(?P<params>[^)]+))?\)`,
+)
 
-type VariablesOpts struct {
-	Redis     *redis.Client
-	TwitchApi *twitch.Twitch
-	Db        *gorm.DB
-	UsersAuth *usersauth.UsersTokensService
-}
-
-func New(opts VariablesOpts) Variables {
+func New() Variables {
 	store := []types.Variable{
 		commandsvariable.Variable,
 		customvar.Variable,
@@ -74,11 +61,7 @@ func New(opts VariablesOpts) Variables {
 	}
 
 	ctx := Variables{
-		Store:     store,
-		Redis:     opts.Redis,
-		Twitch:    opts.TwitchApi,
-		Db:        opts.Db,
-		UsersAuth: opts.UsersAuth,
+		Store: store,
 	}
 
 	return ctx
