@@ -133,11 +133,20 @@ func GetGames(opts GetGamesOpts) *[]Game {
 		Where("ARRAY[players] && ARRAY[?]::int[]", intAccounts).
 		Order(`"startedAt" DESC`).
 		Joins("GameMode").
-		Joins("PlayersCards").
 		Find(&dbGames).Error
 	if err != nil {
 		fmt.Println("GetGames:", err)
 		return nil
+	}
+
+	for i, v := range dbGames {
+		players := []model.DotaMatchesCards{}
+		err := opts.Db.
+			Where("match_id = ?", v.ID).
+			Find(&players).Error
+		if err == nil {
+			dbGames[i].PlayersCards = &players
+		}
 	}
 
 	if len(dbGames) == 0 {

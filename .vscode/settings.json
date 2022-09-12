@@ -62,7 +62,8 @@
   "editor.rulers": [100],
   "go.useLanguageServer": true,
   "gopls": {
-    "formatting.gofumpt": true
+    "formatting.gofumpt": true,
+    "build.experimentalWorkspaceModule": true
   },
   "emeraldwalk.runonsave": {
     "commands": [

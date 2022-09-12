@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 	"tsuwari/parser/internal/types"
@@ -37,7 +38,7 @@ var GmCommand = types.DefaultCommand{
 			Db:       ctx.Services.Db,
 			Redis:    ctx.Services.Redis,
 			Accounts: *accounts,
-			Take:     lo.ToPtr(2),
+			Take:     lo.ToPtr(1),
 		})
 
 		if games == nil || len(*games) == 0 {
@@ -46,11 +47,15 @@ var GmCommand = types.DefaultCommand{
 
 		game := lo.FromPtr(games)[0]
 
-		fmt.Println(game.PlayersCards)
-		cards := *game.PlayersCards
+		cards := []model.DotaMatchesCards{}
+		if game.PlayersCards != nil {
+			cards = *game.PlayersCards
+		}
+
 		playersForGet := lo.Filter(game.Players, func(p Player, _ int) bool {
 			return !lo.SomeBy(cards, func(card model.DotaMatchesCards) bool {
 				id, _ := strconv.Atoi(card.AccountID)
+
 				return id == p.AccountId
 			})
 		})
@@ -80,18 +85,32 @@ var GmCommand = types.DefaultCommand{
 					return
 				}
 				lock.Lock()
+
+				fmt.Println("rank", data.LeaderboardRank)
 				card := model.DotaMatchesCards{
 					ID:        uuid.NewV4().String(),
 					MatchID:   game.ID,
 					AccountID: data.AccountId,
-					RankTier: sql.NullInt64{
+					// RankTier: lo.If(data.RankTier != nil, sql.NullInt64{
+					// 	Int64: *data.RankTier,
+					// 	Valid: true,
+					// }).Else(sql.NullInt64{}),
+					// LeaderboardRank: lo.If(data.LeaderboardRank != nil, sql.NullInt64{
+					// 	Int64: *data.LeaderboardRank,
+					// 	Valid: true,
+					// }).Else(sql.NullInt64{}),
+				}
+				if data.RankTier != nil {
+					card.RankTier = sql.NullInt64{
 						Int64: *data.RankTier,
-						Valid: data.RankTier != nil,
-					},
-					LeaderboardRank: sql.NullInt64{
+						Valid: true,
+					}
+				}
+				if data.LeaderboardRank != nil {
+					card.LeaderboardRank = sql.NullInt64{
 						Int64: *data.LeaderboardRank,
-						Valid: data.LeaderboardRank != nil,
-					},
+						Valid: true,
+					}
 				}
 				cards = append(cards, card)
 				lock.Unlock()
@@ -105,6 +124,40 @@ var GmCommand = types.DefaultCommand{
 
 		wg.Wait()
 
-		return []string{}
+		result := [10]string{}
+
+		for _, card := range cards {
+			player, idx, ok := lo.FindIndexOf(game.Players, func(p Player) bool {
+				id, _ := strconv.Atoi(card.AccountID)
+				return p.AccountId == id
+			})
+
+			if !ok {
+				continue
+			}
+
+			hero := GetPlayerHero(player.HeroId, lo.ToPtr(idx))
+			medal, ok := lo.Find(DotaMedals, func(m Medal) bool {
+				return m.Tier == int(card.RankTier.Int64)
+			})
+
+			if !ok {
+				medal = Medal{
+					Tier: 0,
+					Name: "Unknown",
+				}
+			}
+
+			rank := lo.
+				If(
+					card.LeaderboardRank.Valid,
+					fmt.Sprintf("%s#%v", medal.Name, card.LeaderboardRank.Int64),
+				).
+				Else(fmt.Sprintf("%s", medal.Name))
+
+			result[idx] = fmt.Sprintf("%s %s", hero, rank)
+		}
+
+		return []string{strings.Join(result[:], ", ")}
 	},
 }

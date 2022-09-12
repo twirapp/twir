@@ -5,7 +5,7 @@ type Medal struct {
 	Name string
 }
 
-var DotaMedals = [...]Medal{
+var DotaMedals = []Medal{
 	{
 		Tier: 0,
 		Name: "Uncalibrated",

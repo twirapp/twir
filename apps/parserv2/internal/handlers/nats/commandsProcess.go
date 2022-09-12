@@ -5,18 +5,9 @@ import (
 	"tsuwari/parser/internal/permissions"
 
 	parserproto "github.com/satont/tsuwari/nats/parser"
-
-	"github.com/nats-io/nats.go"
-	"google.golang.org/protobuf/proto"
 )
 
-func (c natsService) HandleProcessCommand(m *nats.Msg) *[]string {
-	data := parserproto.Request{}
-	err := proto.Unmarshal(m.Data, &data)
-	if err != nil {
-		panic(err)
-	}
-
+func (c natsService) HandleProcessCommand(data parserproto.Request) *[]string {
 	if !strings.HasPrefix(data.Message.Text, "!") {
 		return nil
 	}

@@ -23,10 +23,11 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/encoders/protobuf"
+	"go.uber.org/zap"
 	proto "google.golang.org/protobuf/proto"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	gormLogger "gorm.io/gorm/logger"
 )
 
 func main() {
@@ -35,8 +36,18 @@ func main() {
 		panic("Cannot load config of application")
 	}
 
+	var logger *zap.Logger
+
+	if cfg.AppEnv == "development" {
+		l, _ := zap.NewDevelopment()
+		logger = l
+	} else {
+		l, _ := zap.NewProduction()
+		logger = l
+	}
+
 	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
+		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
 	})
 	if err != nil {
 		panic("failed to connect database")
@@ -86,7 +97,13 @@ func main() {
 
 	natsJson.Subscribe("parser.handleProcessCommand", func(m *nats.Msg) {
 		start := time.Now()
-		r := natsHandlers.HandleProcessCommand(m)
+		data := parserproto.Request{}
+		err := proto.Unmarshal(m.Data, &data)
+		if err != nil {
+			panic(err)
+		}
+
+		r := natsHandlers.HandleProcessCommand(data)
 
 		if r != nil {
 			res, _ := proto.Marshal(&parserproto.Response{
@@ -102,7 +119,11 @@ func main() {
 			m.Respond([]byte{})
 		}
 
-		log.Printf("Binomial took %s", time.Since(start))
+		logger.Sugar().Infow("HandleProcessCommand ended.",
+			"in", data.Message.Text,
+			"out", r,
+			"took", time.Since(start),
+		)
 	})
 
 	natsJson.Subscribe("bots.getVariables", func(m *nats.Msg) {
