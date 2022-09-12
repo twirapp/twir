@@ -9,7 +9,8 @@
   "exports": {
     "./parser": "./dist/parser/parser.js",
     "./bots": "./dist/bots/bots.js",
-    "./dota": "./dist/dota/dota.js"
+    "./dota": "./dist/dota/dota.js",
+    "./eval": "./dist/eval/eval.js"
   },
   "typesVersions": {
     "*": {
@@ -21,6 +22,9 @@
       ],
       "dota": [
         "dist/dota/dota.d.ts"
+      ],
+      "eval": [
+        "dist/eval/eval.d.ts"
       ]
     }
   },

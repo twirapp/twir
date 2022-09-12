@@ -42,6 +42,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/satont/tsuwari/nats/bots v0.0.0-00010101000000-000000000000 // indirect
 	github.com/satont/tsuwari/nats/dota v0.0.0-00010101000000-000000000000 // indirect
+	github.com/satont/tsuwari/nats/eval v0.0.0-00010101000000-000000000000 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/cobra v1.1.3 // indirect
@@ -101,3 +102,5 @@ replace github.com/satont/tsuwari/nats/parser => ../../libs/nats/parser
 replace github.com/satont/tsuwari/nats/bots => ../../libs/nats/bots
 
 replace github.com/satont/tsuwari/nats/dota => ../../libs/nats/dota
+
+replace github.com/satont/tsuwari/nats/eval => ../../libs/nats/eval

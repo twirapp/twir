@@ -279,6 +279,18 @@ importers:
       '@types/steam-user': 4.23.0
       '@types/steamid': 2.0.1
 
+  apps/eval:
+    specifiers:
+      '@tsuwari/config': workspace:*
+      '@tsuwari/nats': workspace:*
+      nats: ^2.7.1
+      vm2: ^3.9.11
+    dependencies:
+      '@tsuwari/config': link:../../libs/config
+      '@tsuwari/nats': link:../../libs/nats
+      nats: 2.7.1
+      vm2: 3.9.11
+
   apps/eventsub:
     specifiers:
       '@nestjs/common': 9.0.9
@@ -2848,7 +2860,6 @@ packages:
     resolution: {integrity: sha512-QOxyigPVrpZ2GXT+PFyZTl6TtOFc5egxHIP9IlQ+RbupQuX4RkT/Bee4/kQuC02Xkzg84JcT7oLYtDIQxp+v7w==}
     engines: {node: '>=0.4.0'}
     hasBin: true
-    dev: true
 
   /adm-zip/0.4.16:
     resolution: {integrity: sha512-TFi4HBKSGfIKsK5YCkKaaFG2m4PEDyViZmEwof3MTIgzimHLto6muaHVpbrljdIvIrFZzEq/p4nafOeLcYegrg==}
@@ -7216,6 +7227,15 @@ packages:
     hasBin: true
     dependencies:
       acorn: 8.7.1
+      acorn-walk: 8.2.0
+    dev: false
+
+  /vm2/3.9.11:
+    resolution: {integrity: sha512-PFG8iJRSjvvBdisowQ7iVF580DXb1uCIiGaXgm7tynMR1uTBlv7UJlB1zdv5KJ+Tmq1f0Upnj3fayoEOPpCBKg==}
+    engines: {node: '>=6.0'}
+    hasBin: true
+    dependencies:
+      acorn: 8.8.0
       acorn-walk: 8.2.0
     dev: false
 

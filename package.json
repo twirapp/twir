@@ -21,6 +21,7 @@
     "build:parser": "turbo run build --filter=parser",
     "build:frontend": "turbo run build --filter=frontend",
     "build:api": "turbo run build --filter=api",
+    "build:eval": "turbo run build --filter=eval",
     "build:dota": "turbo run build --filter=dota",
     "build:scheduler": "turbo run build --filter=scheduler",
     "build:streamstatus": "turbo run build --filter=streamstatus",
@@ -36,6 +37,7 @@
     "dev:parser": "doppler run -- turbo run dev --filter=parser",
     "dev:config": "doppler run -- turbo run dev --filter=config",
     "dev:dota": "doppler run -- turbo run dev --filter=dota",
+    "dev:eval": "doppler run -- turbo run dev --filter=eval",
     "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/prisma run deploy",
     "prisma:generate": "pnpm --filter=@tsuwari/prisma generate"
   },

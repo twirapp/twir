@@ -30,5 +30,10 @@ module.exports = {
       script: "pnpm",
       args: "dev:streamstatus"
     },
+    {
+      name: "eval",
+      script: "pnpm",
+      args: "dev:eval"
+    },
   ]
 }
