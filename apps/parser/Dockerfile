@@ -26,13 +26,15 @@ RUN cd /apps/parser && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/ou
 RUN ls /apps/parser
 
 FROM alpine:latest
-RUN apk add ca-certificates
+RUN apk add --no-cache ca-certificates
 RUN wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
     echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories && \
-    apk add doppler
+    apk add --no-cache doppler
 
 COPY --from=build_base /app/out/parser /bin/parser
 RUN chmod +x /bin/parser
+
+RUN rm -rf /var/cache/apk/*
 
 ENTRYPOINT ["doppler", "run", "--"]
 CMD ["/bin/parser"]
