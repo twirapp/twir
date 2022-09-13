@@ -68,11 +68,12 @@ func main() {
 	r := redis.New(cfg.RedisUrl)
 	defer r.Close()
 	n, err := mynats.New(cfg.NatsUrl)
+	defer n.Close()
 	if err != nil {
 		panic(err)
 	}
-	defer n.Close()
 	natsJson, err := nats.NewEncodedConn(n, protobuf.PROTOBUF_ENCODER)
+	defer natsJson.Close()
 	if err != nil {
 		panic(err)
 	}
@@ -177,7 +178,7 @@ func main() {
 		m.Respond(res)
 	})
 
-	fmt.Println("Started")
+	logger.Info("Started")
 
 	// runtime.Goexit()
 	c := make(chan os.Signal, 1)

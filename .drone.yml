@@ -72,10 +72,10 @@ steps:
       repo: registry.satont.dev/tsuwari/api
       dockerfile: ./apps/api/Dockerfile
       cache_from: registry.satont.dev/tsuwari/api
-    # when:
-    #   paths:
-    #     include:
-    #       - apps/api/**/*
+    when:
+      paths:
+        include:
+          - apps/api/**/*
 
   - <<: *docker
     name: publish-bots
@@ -84,10 +84,10 @@ steps:
       repo: registry.satont.dev/tsuwari/bots
       dockerfile: ./apps/bots/Dockerfile
       cache_from: registry.satont.dev/tsuwari/bots
-    # when:
-    #   paths:
-    #     include:
-    #       - apps/bots/**/*
+    when:
+      paths:
+        include:
+          - apps/bots/**/*
 
   - <<: *docker
     name: publish-dota
@@ -96,10 +96,10 @@ steps:
       repo: registry.satont.dev/tsuwari/dota
       dockerfile: ./apps/dota/Dockerfile
       cache_from: registry.satont.dev/tsuwari/dota
-    # when:
-    #   paths:
-    #     include:
-    #       - apps/dota/**/*
+    when:
+      paths:
+        include:
+          - apps/dota/**/*
 
   - <<: *docker
     name: publish-eventsub
@@ -108,10 +108,10 @@ steps:
       repo: registry.satont.dev/tsuwari/eventsub
       dockerfile: ./apps/eventsub/Dockerfile
       cache_from: registry.satont.dev/tsuwari/eventsub
-    # when:
-    #   paths:
-    #     include:
-    #       - apps/eventsub/**/*
+    when:
+      paths:
+        include:
+          - apps/eventsub/**/*
 
   - <<: *docker
     name: publish-migrations
@@ -120,10 +120,10 @@ steps:
       repo: registry.satont.dev/tsuwari/migrations
       dockerfile: ./libs/prisma/Dockerfile
       cache_from: registry.satont.dev/tsuwari/migrations
-    # when:
-    #   paths:
-    #     include:
-    #       - libs/prisma/**/*
+    when:
+      paths:
+        include:
+          - libs/prisma/**/*
 
   - <<: *docker
     name: publish-parser
@@ -132,10 +132,10 @@ steps:
       repo: registry.satont.dev/tsuwari/parser
       dockerfile: ./apps/parser/Dockerfile
       cache_from: registry.satont.dev/tsuwari/parser
-    # when:
-    #   paths:
-    #     include:
-    #       - apps/parser/**/*
+    when:
+      paths:
+        include:
+          - apps/parser/**/*
 
   - <<: *docker
     name: publish-scheduler
@@ -144,10 +144,10 @@ steps:
       repo: registry.satont.dev/tsuwari/scheduler
       dockerfile: ./apps/scheduler/Dockerfile
       cache_from: registry.satont.dev/tsuwari/scheduler
-    # when:
-    #   paths:
-    #     include:
-    #       - apps/scheduler/**/*
+    when:
+      paths:
+        include:
+          - apps/scheduler/**/*
 
   - <<: *docker
     name: publish-streamstatus
@@ -156,10 +156,22 @@ steps:
       repo: registry.satont.dev/tsuwari/streamstatus
       dockerfile: ./apps/streamstatus/Dockerfile
       cache_from: registry.satont.dev/tsuwari/streamstatus
-    # when:
-    #   paths:
-    #     include:
-    #       - apps/streamstatus/**/*
+    when:
+      paths:
+        include:
+          - apps/streamstatus/**/*
+
+  - <<: *docker
+    name: publish-streamstatus
+    settings:
+      <<: *docker-settings
+      repo: registry.satont.dev/tsuwari/eval
+      dockerfile: ./apps/eval/Dockerfile
+      cache_from: registry.satont.dev/tsuwari/eval
+    when:
+      paths:
+        include:
+          - apps/eval/**/*
 
 volumes:
   - name: cache

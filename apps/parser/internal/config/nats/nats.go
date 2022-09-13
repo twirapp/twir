@@ -7,7 +7,7 @@ import (
 )
 
 func New(url string) (*nats.Conn, error) {
-	return nats.Connect("nats://localhost:4222",
+	return nats.Connect(url,
 		nats.RetryOnFailedConnect(true),
 		nats.MaxReconnects(10),
 		nats.ReconnectWait(time.Second),

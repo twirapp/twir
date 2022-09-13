@@ -12,7 +12,7 @@ import (
 )
 
 var Variable = types.Variable{
-	Name:        "song",
+	Name:        "currentsong",
 	Description: lo.ToPtr("Current played song"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
