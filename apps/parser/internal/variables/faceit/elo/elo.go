@@ -14,8 +14,13 @@ var Variable = types.Variable{
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		faceitData := ctx.GetFaceitUserData()
+		faceitData, err := ctx.GetFaceitUserData()
 
+		if err != nil {
+			result.Result = err.Error()
+			return result, nil
+		}
+		
 		if faceitData == nil {
 			return result, nil
 		}

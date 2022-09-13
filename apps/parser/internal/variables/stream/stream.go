@@ -5,5 +5,5 @@ import "github.com/nicklaw5/helix"
 type HelixStream struct {
 	helix.Stream
 
-	Messages int `json:"messages"`
+	Messages int `json:"parsedMessages"`
 }

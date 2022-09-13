@@ -1,6 +1,8 @@
 package variables_cache
 
-import model "tsuwari/parser/internal/models"
+import (
+	model "tsuwari/parser/internal/models"
+)
 
 func (c *VariablesCacheService) GetEnabledIntegrations() *[]model.ChannelInegrationWithRelation {
 	c.locks.integrations.Lock()

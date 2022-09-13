@@ -43,7 +43,7 @@ var Variable = types.Variable{
 		spoti := spotify.New(&spotifyIntegration, ctx.Services.Db)
 
 		vkIntegration, _ := lo.Find(integrations, func(integration model.ChannelInegrationWithRelation) bool {
-			return integration.Integration.Service == "SPOTIFY"
+			return integration.Integration.Service == "VK"
 		})
 		vk := vkIntegr.New(&vkIntegration)
 

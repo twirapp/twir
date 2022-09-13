@@ -14,7 +14,13 @@ var Variable = types.Variable{
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		matches := ctx.GetFaceitLatestMatches()
+		matches, err := ctx.GetFaceitLatestMatches()
+		
+		if err != nil {
+			result.Result = err.Error()
+			return result, nil
+		}
+
 		diff := ctx.GetFaceitTodayEloDiff(matches)
 
 		result.Result = strconv.Itoa(diff)

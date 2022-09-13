@@ -9,6 +9,7 @@ import (
 	customvar "tsuwari/parser/internal/variables/customvar"
 	emotes7tv "tsuwari/parser/internal/variables/emotes/7tv"
 	emotesbttv "tsuwari/parser/internal/variables/emotes/bttv"
+	emotesffz "tsuwari/parser/internal/variables/emotes/ffz"
 	faceitelo "tsuwari/parser/internal/variables/faceit/elo"
 	faceitelodiff "tsuwari/parser/internal/variables/faceit/elodiff"
 	faceitlvl "tsuwari/parser/internal/variables/faceit/lvl"
@@ -43,6 +44,7 @@ func New() Variables {
 		customvar.Variable,
 		emotes7tv.Variable,
 		emotesbttv.Variable,
+		emotesffz.Variable,
 		faceitelo.Variable,
 		faceitelodiff.Variable,
 		faceitlvl.Variable,

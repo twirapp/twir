@@ -2,6 +2,7 @@ package variables_cache
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -37,12 +38,12 @@ type FaceitDbData struct {
 	Username string  `json:"username"`
 }
 
-func (c *VariablesCacheService) GetFaceitUserData() *FaceitUser {
+func (c *VariablesCacheService) GetFaceitUserData() (*FaceitUser, error) {
 	c.locks.faceitIntegration.Lock()
 	defer c.locks.faceitIntegration.Unlock()
 
 	if c.cache.FaceitData != nil && c.cache.FaceitData.FaceitUser != nil {
-		return c.cache.FaceitData.FaceitUser
+		return c.cache.FaceitData.FaceitUser, nil
 	}
 
 	c.cache.FaceitData = &FaceitResult{}
@@ -50,25 +51,25 @@ func (c *VariablesCacheService) GetFaceitUserData() *FaceitUser {
 	integrations := c.GetEnabledIntegrations()
 
 	if integrations == nil {
-		return nil
+		return nil, errors.New("you have no enabled integrations")
 	}
 
 	integration, ok := lo.Find(*integrations, func(i model.ChannelInegrationWithRelation) bool {
-		return i.Integration.Service == "FACEIT"
+		return i.Integration.Service == "FACEIT" && i.Enabled
 	})
 
 	if !ok {
-		return nil
+		return nil, errors.New("faceit integration not enabled")
 	}
 
 	dbData := &FaceitDbData{}
 	err := json.Unmarshal([]byte(integration.Data.String), &dbData)
 
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	var game string
+	var game string = *dbData.Game
 
 	if dbData.Game == nil {
 		game = "csgo"
@@ -79,19 +80,23 @@ func (c *VariablesCacheService) GetFaceitUserData() *FaceitUser {
 	req.Header.Set("Authorization", "Bearer "+integration.Integration.APIKey.String)
 	res, err := client.Do(req)
 
+	if req.Response != nil && req.Response.StatusCode == 404 {
+		return nil, errors.New("user not found on faceit. Please make sure you typed correct nickname.")
+	}
+
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	data := FaceitUserResponse{}
 
 	err = json.NewDecoder(res.Body).Decode(&data)
 	if err != nil {
-		return nil
+		return nil, errors.New("internal error happend on parsing user profile.")
 	}
 
 	if data.Games[game] == nil {
-		return nil
+		return nil, errors.New(game + " game not found in faceit response.")
 	}
 
 	data.Games[game].Name = game
@@ -101,7 +106,7 @@ func (c *VariablesCacheService) GetFaceitUserData() *FaceitUser {
 		PlayerId:   data.PlayerId,
 	}
 
-	return c.cache.FaceitData.FaceitUser
+	return c.cache.FaceitData.FaceitUser, nil
 }
 
 type FaceitMatch struct {
@@ -124,19 +129,26 @@ type FaceitMatch struct {
 
 type FaceitMatchesResponse []FaceitMatch
 
-func (c *VariablesCacheService) GetFaceitLatestMatches() *[]FaceitMatch {
+func (c *VariablesCacheService) GetFaceitLatestMatches() (*[]FaceitMatch, error) {
 	c.locks.faceitMatches.Lock()
 	defer c.locks.faceitMatches.Unlock()
 
 	if c.cache.FaceitData == nil || c.cache.FaceitData.FaceitUser == nil {
-		c.cache.FaceitData.FaceitUser = c.GetFaceitUserData()
+		faceitUser, err := c.GetFaceitUserData()
+
+		if err != nil {
+			return nil, err
+		}
+
+		c.cache.FaceitData.FaceitUser = faceitUser
 	}
 
 	if c.cache.FaceitData.Matches != nil {
-		return c.cache.FaceitData.Matches
+		return c.cache.FaceitData.Matches, nil
 	}
 
 	client := &http.Client{}
+
 	req, _ := http.NewRequest(
 		"GET",
 		fmt.Sprintf("https://api.faceit.com/stats/api/v1/stats/time/users/%s/games/%s?size=30", c.cache.FaceitData.FaceitUser.PlayerId, c.cache.FaceitData.FaceitUser.FaceitGame.Name),
@@ -150,7 +162,7 @@ func (c *VariablesCacheService) GetFaceitLatestMatches() *[]FaceitMatch {
 	matches := []FaceitMatch{}
 	stream := c.GetChannelStream()
 	if stream == nil {
-		return &matches
+		return &matches, nil
 	}
 	startedDate := stream.StartedAt.UnixMilli()
 
@@ -199,7 +211,7 @@ func (c *VariablesCacheService) GetFaceitLatestMatches() *[]FaceitMatch {
 		matches = append(matches, match)
 	}
 
-	return &matches
+	return &matches, nil
 }
 
 func (c *VariablesCacheService) GetFaceitTodayEloDiff(matches *[]FaceitMatch) int {

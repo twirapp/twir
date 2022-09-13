@@ -12,24 +12,47 @@ import (
 	"github.com/samber/lo"
 )
 
+const exampleStr = "Please check example."
 var Variable = types.Variable{
 	Name:        "random",
 	Description: lo.ToPtr("Random number from N to N"),
 	Example:     lo.ToPtr("random|1-100"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		result := &types.VariableHandlerResult{}
 		rand.Seed(time.Now().UnixNano())
 
-		params := [2]int{0, 50}
+		params := [2]int{}
+		if data.Params == nil {
+			result.Result = "You have not passed params to random variable. " + exampleStr
+			return result, nil
+		}
+
+		if len(*data.Params) != 2 {
+			result.Result = "Wrong number of arguments passed to random. " + exampleStr
+			return result, nil
+		}
+
 		if data.Params != nil {
 			parsed := strings.Split(*data.Params, "-")
+
+			if len(parsed) < 2 {
+				result.Result = "you have no passed 2 params for random. " + exampleStr
+				return result, nil
+			}
 
 			first, err := strconv.Atoi(parsed[0])
 			if err == nil {
 				params[0] = first
+			} else {
+				result.Result = "cannot parse first number from arguments. " + exampleStr
+				return result, nil
 			}
 			second, err := strconv.Atoi(parsed[1])
 			if err == nil {
 				params[1] = second
+			} else {
+				result.Result = "cannot parse second number from arguments. " + exampleStr
+				return result, nil
 			}
 		}
 
@@ -42,8 +65,8 @@ var Variable = types.Variable{
 		}
 
 		random := params[0] + rand.Intn(params[1]-params[0]+1)
-		result := types.VariableHandlerResult{Result: strconv.Itoa(random)}
+		result.Result = strconv.Itoa(random)
 
-		return &result, nil
+		return result, nil
 	},
 }

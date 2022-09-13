@@ -1,4 +1,15 @@
-import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  CacheTTL,
+  CACHE_MANAGER,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import CacheManager from 'cache-manager';
 import Express from 'express';
 
@@ -13,14 +24,16 @@ export class FaceitController {
   constructor(
     private readonly service: FaceitService,
     @Inject(CACHE_MANAGER) private cacheManager: CacheManager.Cache,
-  ) { }
+  ) {}
 
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
   @CacheTTL(600)
-  @UseInterceptors(CustomCacheInterceptor(ctx => {
-    const req = ctx.switchToHttp().getRequest() as Express.Request;
-    return `nest:cache:v1/channels/${req.params.channelId}/integrations/lastfm`;
-  }))
+  @UseInterceptors(
+    CustomCacheInterceptor((ctx) => {
+      const req = ctx.switchToHttp().getRequest() as Express.Request;
+      return `nest:cache:v1/channels/${req.params.channelId}/integrations/faceit`;
+    }),
+  )
   @Get()
   getIntegration(@Param('channelId') channelId: string) {
     return this.service.getIntegration(channelId);
@@ -29,7 +42,7 @@ export class FaceitController {
   @Post()
   async updateIntegration(@Param('channelId') channelId: string, @Body() body: FaceitUpdateDto) {
     const result = await this.service.updateIntegration(channelId, body);
-    await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/integrations/lastfm`);
+    await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/integrations/faceit`);
     return result;
   }
 }

@@ -35,5 +35,10 @@ module.exports = {
       script: "pnpm",
       args: "dev:eval"
     },
+    {
+      name: "frontend",
+      script: "pnpm",
+      args: "dev:frontend"
+    },
   ]
 }

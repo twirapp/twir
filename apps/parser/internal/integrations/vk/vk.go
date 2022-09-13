@@ -18,7 +18,7 @@ type Vk struct {
 }
 
 func New(integration *model.ChannelInegrationWithRelation) *Vk {
-	if integration == nil || !integration.Data.Valid || !integration.Integration.APIKey.Valid {
+	if integration == nil || !integration.Data.Valid || !integration.Integration.AccessToken.Valid {
 		return nil
 	}
 
@@ -61,7 +61,7 @@ func (c *Vk) GetTrack() *string {
 	var response string
 
 	resp, err := req.R().
-		SetQueryParam("access_token", c.integration.Integration.APIKey.String).
+		SetQueryParam("access_token", c.integration.Integration.AccessToken.String).
 		SetQueryParam("uid", *c.UserId).
 		SetQueryParam("v", "5.131").
 		SetResult(&data).
