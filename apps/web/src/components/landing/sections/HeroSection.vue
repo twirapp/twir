@@ -58,7 +58,6 @@
           backgroundImage: `url('${WavesSvg}')`,
         }"
       ></div>
-
       <img
         :src="RhombusSvg"
         class="absolute top-[15%] right-[16%] select-none max-xl:right-[11%] max-lg:hidden"

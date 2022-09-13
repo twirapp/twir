@@ -8,15 +8,12 @@
             <span class="text-[22px] ml-3 font-medium">Tsuwari</span>
           </div>
         </div>
-        <NavMenu
-          menuClass="inline-grid grid-flow-col gap-x-6"
-          menuItemClass="leading-[130%]"
-        />
+        <NavMenu menuClass="inline-grid grid-flow-col gap-x-6" menuItemClass="leading-[130%]" />
         <div class="flex-1 flex">
           <ul class="inline-grid grid-flow-col gap-x-3 ml-auto">
             <li v-for="item in socials" :key="item.id">
               <a :href="item.href">
-                <TswIcon :name="item.media" size="24px" class="stroke-gray-70" :strokeWidth="1.4" />
+                <TswIcon :name="item.type" size="24px" class="stroke-gray-70" :strokeWidth="1.4" />
               </a>
             </li>
           </ul>
@@ -33,10 +30,8 @@
 import { TswIcon } from '@tsuwari/ui-components';
 
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
+import { socials } from '@/data/landing/socialMedia.js';
 import useTranslation from '@/hooks/useTranslation.js';
-import type { SocialMediaItem } from '@/types/socialMedia.js';
-
-defineProps<{ socials: SocialMediaItem[] }>();
 
 const t = useTranslation<'landing'>();
 </script>
