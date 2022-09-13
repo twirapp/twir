@@ -27,27 +27,21 @@ var Variable = types.Variable{
 			return result, nil
 		}
 
-		if len(*data.Params) != 2 {
+		splittedArgs := strings.Split(*data.Params, "-")
+		if len(splittedArgs) != 2 {
 			result.Result = "Wrong number of arguments passed to random. " + exampleStr
 			return result, nil
 		}
 
 		if data.Params != nil {
-			parsed := strings.Split(*data.Params, "-")
-
-			if len(parsed) < 2 {
-				result.Result = "you have no passed 2 params for random. " + exampleStr
-				return result, nil
-			}
-
-			first, err := strconv.Atoi(parsed[0])
+			first, err := strconv.Atoi(splittedArgs[0])
 			if err == nil {
 				params[0] = first
 			} else {
 				result.Result = "cannot parse first number from arguments. " + exampleStr
 				return result, nil
 			}
-			second, err := strconv.Atoi(parsed[1])
+			second, err := strconv.Atoi(splittedArgs[1])
 			if err == nil {
 				params[1] = second
 			} else {
