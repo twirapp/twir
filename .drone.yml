@@ -44,7 +44,7 @@ steps:
       - apt-get update
       - apt-get install curl wget git protobuf-compiler -y
       - wget https://go.dev/dl/go1.19.1.linux-amd64.tar.gz && rm -rf /usr/local/go && tar -C /usr/local -xzf go1.19.1.linux-amd64.tar.gz
-      - export PATH="/usr/local/go/bin:${PATH}"
+      - export PATH=$PATH:/usr/local/go/bin
       - go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
       - npm i -g pnpm@7
       - pnpm install
