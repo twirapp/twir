@@ -2,7 +2,7 @@ package variables_cache
 
 import "github.com/nicklaw5/helix"
 
-func (c *VariablesCacheService) GetFollowAge() *helix.UserFollow {
+func (c *VariablesCacheService) GetFollowAge(userId string) *helix.UserFollow {
 	c.locks.twitchFollow.Lock()
 	defer c.locks.twitchFollow.Unlock()
 
@@ -11,7 +11,7 @@ func (c *VariablesCacheService) GetFollowAge() *helix.UserFollow {
 	}
 
 	follow, err := c.Services.Twitch.Client.GetUsersFollows(&helix.UsersFollowsParams{
-		FromID: c.SenderId,
+		FromID: userId,
 		ToID:   c.ChannelId,
 	})
 
