@@ -22,10 +22,9 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-        - 5432:5432
+      - 5432:5432
     networks:
       - tsuwari
-
 
   backup:
     restart: unless-stopped
@@ -59,7 +58,13 @@ services:
       MINIO_REGION_NAME: eu-east-1
       MINIO_SERVER_URL: https://minio.tsuwari.tk
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:9000/minio/health/live"
+        ]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -219,6 +224,19 @@ services:
       - redis
       - migrations
       - postgres
+      - nats
+    networks:
+      - tsuwari
+
+  eval:
+    restart: unless-stopped
+    image: registry.satont.dev/tsuwari/eval
+    env_file:
+      - .env
+    deploy:
+      mode: replicated
+      replicas: 8
+    depends_on:
       - nats
     networks:
       - tsuwari
