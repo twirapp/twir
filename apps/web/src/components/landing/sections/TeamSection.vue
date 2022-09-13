@@ -11,10 +11,10 @@
       </div>
 
       <ul class="member-list pt-10 border-t border-t-gray-30">
-        <li v-for="member in teamMembers" :key="member.id" class="flex">
+        <li v-for="(member, memberId) in teamMembers" :key="memberId" class="flex">
           <TeamMemberCard
             :isFounder="member.isFounder"
-            :role="member.role"
+            :role="teamMembersLocale[memberId]"
             :name="member.name"
             :socials="member.socials"
           />
@@ -25,13 +25,17 @@
 </template>
 
 <script lang="ts" setup>
-import TeamMemberCard from '@/components/landing/TeamMemberCard.vue';
-import useTranslation from '@/hooks/useTranslation';
-import type { TeamMember } from '@/types/teamMember';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-defineProps<{ teamMembers: TeamMember[] }>();
+import TeamMemberCard from '@/components/landing/TeamMemberCard.vue';
+import { teamMembers, TeamMemberLocale } from '@/data/landing/team.js';
+import useTranslation from '@/hooks/useTranslation';
 
 const t = useTranslation<'landing'>();
+const { tm } = useI18n();
+
+const teamMembersLocale = computed(() => tm('sections.team.members') as TeamMemberLocale);
 </script>
 
 <style lang="postcss">

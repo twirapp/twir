@@ -15,33 +15,7 @@
     </div>
     <ClientOnly>
       <template #default>
-        <Swiper
-          :space-between="24"
-          :autoplay="{
-            delay: 1,
-            disableOnInteraction: false,
-          }"
-          :speed="2000"
-          slidesPerView="auto"
-          :centeredSlides="true"
-          :centeredSlidesBounds="true"
-          :loop="true"
-          :grabCursor="true"
-          :modules="modules"
-          class="mb-20"
-          @swiper="setSwiper"
-          @mouseenter="stopSlider"
-          @mouseleave="startSlider"
-        >
-          <SwiperSlide v-for="item in reviews" :key="item.id" style="width: 380px">
-            <ReviewCard
-              :username="item.username"
-              :comment="item.comment"
-              :rating="item.rating"
-              :avatarUrl="item.avatarUrl"
-            />
-          </SwiperSlide>
-        </Swiper>
+        <ReviewsSlider :reviews="reviews" />
       </template>
       <template #server>
         <div class="inline-grid grid-flow-col w-screen overflow-hidden mb-20 gap-x-6">
@@ -60,39 +34,12 @@
 </template>
 
 <script lang="ts" setup>
-import { Autoplay, type Swiper as ISwiper } from 'swiper';
-import { Swiper, SwiperSlide } from 'swiper/vue';
-import { ref } from 'vue';
-
-import 'swiper/css';
-
 import PurpleBlob from '@/assets/blob-purple.png';
 import ClientOnly from '@/components/ClientOnly.vue';
 import ReviewCard from '@/components/landing/ReviewCard.vue';
+import ReviewsSlider from '@/components/landing/ReviewsSlider.vue';
+import { reviews } from '@/data/landing/reviews.js';
 import useTranslation from '@/hooks/useTranslation.js';
-import type { Review } from '@/types/review';
-
-defineProps<{reviews: Review[]}>();
-
-const slider = ref<ISwiper | null>(null);
 
 const t = useTranslation<'landing'>();
-
-const setSwiper = (swiper: ISwiper) => {
-  slider.value = swiper;
-};
-
-const stopSlider = () => {
-  if (slider.value) {
-    slider.value.autoplay.stop();
-  }
-};
-
-const startSlider = () => {
-  if (slider.value) {
-    slider.value.autoplay.start();
-  }
-};
-
-const modules = [Autoplay];
 </script>

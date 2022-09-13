@@ -23,15 +23,16 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
 import CyanBlob from '@/assets/blob-cyan.png';
 import PricingPlan from '@/components/landing/PricingPlan.vue';
-import { planColorThemes } from '@/data/pricingPlans.js';
+import { planColorThemes, type PricePlansLocale } from '@/data/landing/pricingPlans.js';
 import useTranslation from '@/hooks/useTranslation.js';
-import type { PricePlansLocale } from '@/types/pricingPlan';
 
-defineProps<{
-  pricePlans: PricePlansLocale;
-}>();
-
+const { tm } = useI18n();
 const t = useTranslation<'landing'>();
+
+const pricePlans = computed(() => tm('sections.pricing.plans') as PricePlansLocale);
 </script>

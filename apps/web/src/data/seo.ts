@@ -1,4 +1,4 @@
-import type { Locale } from '@/types/locale';
+import type { Locale } from '@/locales';
 
 export interface SeoPageProps {
   title: string;

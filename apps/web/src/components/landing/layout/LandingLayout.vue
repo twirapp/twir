@@ -5,11 +5,10 @@
       <slot />
     </main>
   </div>
-  <Footer :socials="socials" />
+  <Footer />
 </template>
 
 <script lang="ts" setup>
 import Footer from '@/components/landing/layout/Footer.vue';
 import Header from '@/components/landing/layout/Header.vue';
-import { socials } from '@/data';
 </script>

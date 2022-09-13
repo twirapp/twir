@@ -1,5 +1,5 @@
 <template>
-  <div :class="`inline-flex flex-col rounded-[10px] w-full ${colorTheme}-plan`">
+  <div :class="`inline-flex flex-col rounded-[10px] w-full ${colorTheme}-pricing-plan`">
     <div class="plan-info p-6 grid gap-y-3 justify-items-start border-b">
       <h6 class="text-[21px] leading-[130%]">
         {{ plan.name }}
@@ -52,9 +52,9 @@
 import { TswIcon } from '@tsuwari/ui-components';
 import { computed } from 'vue';
 
-import { featureTypeIcons } from '@/data/pricingPlans.js';
+import { featureTypeIcons } from '@/data/landing/pricingPlans.js';
+import type { PlanColorTheme, PricePlanLocale } from '@/data/landing/pricingPlans.js';
 import useTranslation from '@/hooks/useTranslation.js';
-import type { PlanColorTheme, PricePlanLocale } from '@/types/pricingPlan';
 
 const props =
   defineProps<{
@@ -69,8 +69,8 @@ const buttonText = computed(() =>
 );
 </script>
 
-<style lang="postcss" scoped>
-.gray-plan {
+<style lang="postcss">
+.gray-pricing-plan {
   @apply bg-black-15;
 
   .price-per {
@@ -90,7 +90,7 @@ const buttonText = computed(() =>
   }
 }
 
-.purple-plan {
+.purple-pricing-plan {
   background: linear-gradient(180deg, #513ada 0%, #522cbd 100%);
 
   .price-per {

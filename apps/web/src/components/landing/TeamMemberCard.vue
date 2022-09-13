@@ -32,9 +32,9 @@
         </p>
       </div>
       <ul class="inline-grid grid-flow-col gap-x-3 mt-[16px]">
-        <li v-for="(social, index) in socials" :key="index" class="inline-flex">
-          <a :href="social.link" class="inline-block" target="_blank" rel="noopener noreferrer">
-            <TswIcon :name="social.media" size="22px" class="stroke-gray-70" />
+        <li v-for="(media, index) in socials" :key="index" class="inline-flex">
+          <a :href="media.link" class="inline-block" target="_blank" rel="noopener noreferrer">
+            <TswIcon :name="media.type" size="22px" class="stroke-gray-70" />
           </a>
         </li>
       </ul>
@@ -46,20 +46,15 @@
 import { TswIcon } from '@tsuwari/ui-components';
 
 import UserImage from '@/assets/User.svg';
+import type { TeamMemberMedia } from '@/data/landing/team.js';
 import useTranslation from '@/hooks/useTranslation';
-import type { TeamMemberMediaLink } from '@/types/teamMember';
 
-withDefaults(
-  defineProps<{
-    name: string;
-    role: string;
-    isFounder?: boolean;
-    socials: TeamMemberMediaLink[];
-  }>(),
-  {
-    isFounder: false,
-  },
-);
+defineProps<{
+  name: string;
+  role: string;
+  socials: TeamMemberMedia[];
+  isFounder?: boolean;
+}>();
 
 const t = useTranslation<'landing'>();
 </script>
