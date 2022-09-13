@@ -5,7 +5,7 @@ importers:
   .:
     specifiers:
       '@satont/eslint-config': github:satont/eslint-config
-      '@types/node': 18.6.5
+      '@types/node': 18.7.16
       '@typescript-eslint/eslint-plugin': 5.33.0
       '@typescript-eslint/parser': 5.33.0
       eslint: 8.21.0
@@ -17,13 +17,13 @@ importers:
       typescript: 4.7.4
     devDependencies:
       '@satont/eslint-config': github.com/satont/eslint-config/db55fe5f29bcd17c115b523492a98af0075033e3_qfqnhzzittf54udqwes54xx65q
-      '@types/node': 18.6.5
+      '@types/node': 18.7.16
       '@typescript-eslint/eslint-plugin': 5.33.0_njno5y7ry2l2lcmiu4tywxkwnq
       '@typescript-eslint/parser': 5.33.0_qugx7qdu5zevzvxaiqyxfiwquq
       eslint: 8.21.0
       eslint-plugin-import: 2.26.0_qfqnhzzittf54udqwes54xx65q
       nodemon: 2.0.19
-      ts-node: 10.9.1_cvilj4l3ytrlnvtlqw3tscihve
+      ts-node: 10.9.1_ssqzpbjs2sdybfr3fpuddh5sdi
       tsx: 3.8.2
       turbo: 1.4.3
       typescript: 4.7.4
@@ -41,6 +41,7 @@ importers:
       '@sentry/node': ^7.9.0
       '@sentry/tracing': ^7.9.0
       '@tsuwari/config': workspace:*
+      '@tsuwari/nats': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
@@ -92,6 +93,7 @@ importers:
       '@sentry/node': 7.9.0
       '@sentry/tracing': 7.9.0
       '@tsuwari/config': link:../../libs/config
+      '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
@@ -146,6 +148,7 @@ importers:
       '@sentry/node': ^7.9.0
       '@sentry/tracing': ^7.9.0
       '@tsuwari/config': workspace:*
+      '@tsuwari/nats': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
@@ -198,6 +201,7 @@ importers:
       '@sentry/node': 7.9.0
       '@sentry/tracing': 7.9.0
       '@tsuwari/config': link:../../libs/config
+      '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
@@ -246,6 +250,7 @@ importers:
       '@nestjs/core': 9.0.9
       '@nestjs/microservices': 9.0.9
       '@tsuwari/config': workspace:*
+      '@tsuwari/nats': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
       '@types/steam-user': 4.23.0
@@ -261,6 +266,7 @@ importers:
       '@nestjs/core': 9.0.9_odjesiuzbrvjz4ycpwvaklkzo4
       '@nestjs/microservices': 9.0.9_kutvg72li44bgujfomk5swyy24
       '@tsuwari/config': link:../../libs/config
+      '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
       nats: 2.7.1
@@ -272,6 +278,18 @@ importers:
     devDependencies:
       '@types/steam-user': 4.23.0
       '@types/steamid': 2.0.1
+
+  apps/eval:
+    specifiers:
+      '@tsuwari/config': workspace:*
+      '@tsuwari/nats': workspace:*
+      nats: ^2.7.1
+      vm2: ^3.9.11
+    dependencies:
+      '@tsuwari/config': link:../../libs/config
+      '@tsuwari/nats': link:../../libs/nats
+      nats: 2.7.1
+      vm2: 3.9.11
 
   apps/eventsub:
     specifiers:
@@ -373,7 +391,7 @@ importers:
       filepond-plugin-image-preview: 4.6.11_filepond@4.30.4
       nanostores: 0.6.0
       prismjs: 1.28.0
-      tw-elements: 1.0.0-alpha12
+      tw-elements: 1.0.0-alpha12_postcss@8.4.16
       vee-validate: 4.6.5_vue@3.2.37
       vite-svg-loader: 3.4.0
       vue: 3.2.37
@@ -394,69 +412,10 @@ importers:
       autoprefixer: 10.4.8_postcss@8.4.16
       flag-icons: 6.6.4
       postcss: 8.4.16
-      tailwindcss: 3.1.8
+      tailwindcss: 3.1.8_postcss@8.4.16
       type-fest: 2.18.0
       vite: 3.0.7
       vue-tsc: 0.40.1
-
-  apps/parser:
-    specifiers:
-      '@nestjs/common': 9.0.9
-      '@nestjs/core': 9.0.9
-      '@nestjs/microservices': 9.0.9
-      '@nestjs/platform-express': 9.0.9
-      '@node-steam/id': 1.2.0
-      '@sentry/node': 7.10.0
-      '@sentry/tracing': 7.10.0
-      '@tsuwari/config': workspace:*
-      '@tsuwari/prisma': workspace:*
-      '@tsuwari/redis': workspace:*
-      '@tsuwari/shared': workspace:*
-      '@tsuwari/spotify': workspace:^1.0.0
-      '@twurple/api': 5.2.1
-      '@twurple/auth': 5.2.1
-      '@twurple/chat': 5.2.1
-      '@twurple/common': 5.2.1
-      '@types/lodash': 4.14.182
-      axios: 0.27.2
-      axios-rate-limit: 1.3.0
-      date-fns: 2.29.1
-      lodash: 4.17.21
-      nats: 2.7.1
-      prom-client: 14.0.1
-      reflect-metadata: 0.1.13
-      rxjs: 7.5.6
-      tslib: 2.4.0
-      vm2: 3.9.10
-    dependencies:
-      '@nestjs/common': 9.0.9_j5hagqx4mwzscud4kyjdvubauy
-      '@nestjs/core': 9.0.9_uptm55tmrklpthxi4coxkuyvw4
-      '@nestjs/microservices': 9.0.9_fgirn6e6qrlfpcmhhwhp4e6d7i
-      '@nestjs/platform-express': 9.0.9_k52hpfebgtl2kt6drmxlyq3gwe
-      '@node-steam/id': 1.2.0
-      '@sentry/node': 7.10.0
-      '@sentry/tracing': 7.10.0
-      '@tsuwari/config': link:../../libs/config
-      '@tsuwari/prisma': link:../../libs/prisma
-      '@tsuwari/redis': link:../../libs/redis
-      '@tsuwari/shared': link:../../libs/shared
-      '@tsuwari/spotify': link:../../libs/integrations/spotify
-      '@twurple/api': 5.2.1_@twurple+auth@5.2.1
-      '@twurple/auth': 5.2.1
-      '@twurple/chat': 5.2.1_@twurple+auth@5.2.1
-      '@twurple/common': 5.2.1
-      axios: 0.27.2
-      axios-rate-limit: 1.3.0_axios@0.27.2
-      date-fns: 2.29.1
-      lodash: 4.17.21
-      nats: 2.7.1
-      prom-client: 14.0.1
-      reflect-metadata: 0.1.13
-      rxjs: 7.5.6
-      tslib: 2.4.0
-      vm2: 3.9.10
-    devDependencies:
-      '@types/lodash': 4.14.182
 
   apps/scheduler:
     specifiers:
@@ -467,6 +426,7 @@ importers:
       '@sentry/node': 7.10.0
       '@sentry/tracing': 7.10.0
       '@tsuwari/config': workspace:*
+      '@tsuwari/nats': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
@@ -488,6 +448,7 @@ importers:
       '@sentry/node': 7.10.0
       '@sentry/tracing': 7.10.0
       '@tsuwari/config': link:../../libs/config
+      '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
@@ -559,6 +520,15 @@ importers:
     dependencies:
       '@tsuwari/prisma': link:../../prisma
       axios: 0.27.2
+
+  libs/nats:
+    specifiers:
+      '@protobuf-ts/plugin': ^2.8.0
+      '@protobuf-ts/runtime': ^2.8.0
+    dependencies:
+      '@protobuf-ts/runtime': 2.8.0
+    devDependencies:
+      '@protobuf-ts/plugin': 2.8.0
 
   libs/prisma:
     specifiers:
@@ -821,7 +791,7 @@ packages:
     dependencies:
       ajv: 6.12.6
       debug: 4.3.4
-      espree: 9.3.3
+      espree: 9.4.0
       globals: 13.17.0
       ignore: 5.2.0
       import-fresh: 3.3.0
@@ -872,8 +842,8 @@ packages:
       vue-i18n:
         optional: true
     dependencies:
-      '@intlify/message-compiler': 9.2.0
-      '@intlify/shared': 9.2.0
+      '@intlify/message-compiler': 9.3.0-beta.3
+      '@intlify/shared': 9.3.0-beta.3
       jsonc-eslint-parser: 1.4.1
       source-map: 0.6.1
       vue-i18n: 9.2.2_vue@3.2.37
@@ -895,14 +865,6 @@ packages:
     dependencies:
       '@intlify/shared': 9.2.2
 
-  /@intlify/message-compiler/9.2.0:
-    resolution: {integrity: sha512-KGwwZsl+Nw2O26ZOKdytncxzKnMZ236KmM70u4GePgbizI+pu8yAh0apKxljSPzEJ7WECKTVc9R+laG12EJQYA==}
-    engines: {node: '>= 14'}
-    dependencies:
-      '@intlify/shared': 9.2.0
-      source-map: 0.6.1
-    dev: true
-
   /@intlify/message-compiler/9.2.2:
     resolution: {integrity: sha512-IUrQW7byAKN2fMBe8z6sK6riG1pue95e5jfokn8hA5Q3Bqy4MBJ5lJAofUsawQJYHeoPJ7svMDyBaVJ4d0GTtA==}
     engines: {node: '>= 14'}
@@ -910,14 +872,22 @@ packages:
       '@intlify/shared': 9.2.2
       source-map: 0.6.1
 
-  /@intlify/shared/9.2.0:
-    resolution: {integrity: sha512-71uObL3Sy2ZiBQBMVETbkspE4Plpy87Hvlj6FAUF3xdD+M82tuxe3MVJjaD3ucqhtHmQWBkAWEurVLdPYr8G2g==}
+  /@intlify/message-compiler/9.3.0-beta.3:
+    resolution: {integrity: sha512-j8OwToBQgs01RBMX4GCDNQfcnmw3AiDG3moKIONTrfXcf+1yt/rWznLTYH/DXbKcFMAFijFpCzMYjUmH1jVFYA==}
     engines: {node: '>= 14'}
+    dependencies:
+      '@intlify/shared': 9.3.0-beta.3
+      source-map: 0.6.1
     dev: true
 
   /@intlify/shared/9.2.2:
     resolution: {integrity: sha512-wRwTpsslgZS5HNyM7uDQYZtxnbI12aGiBZURX3BTR9RFIKKRWpllTsgzHWvj3HKm3Y2Sh5LPC1r0PDCKEhVn9Q==}
     engines: {node: '>= 14'}
+
+  /@intlify/shared/9.3.0-beta.3:
+    resolution: {integrity: sha512-Z/0TU4GhFKRxKh+0RbwJExik9zz57gXYgxSYaPn7YQdkQ/pabSioCY/SXnYxQHL6HzULF5tmqarFm6glbGqKhw==}
+    engines: {node: '>= 14'}
+    dev: true
 
   /@intlify/vite-plugin-vue-i18n/6.0.1_vite@3.0.7+vue-i18n@9.2.2:
     resolution: {integrity: sha512-FFVcxVU4bR9vdDLNbltM5mrhndnXMErO01i0RrpdyMegEt3Nu/YLoH0sFdjRun7/RY4vaEnhTnFvVf9uO0dQvg==}
@@ -935,7 +905,7 @@ packages:
         optional: true
     dependencies:
       '@intlify/bundle-utils': 3.1.0_vue-i18n@9.2.2
-      '@intlify/shared': 9.2.0
+      '@intlify/shared': 9.3.0-beta.3
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.4
       fast-glob: 3.2.11
@@ -1687,14 +1657,6 @@ packages:
       reflect-metadata: 0.1.13
     dev: false
 
-  /@node-steam/id/1.2.0:
-    resolution: {integrity: sha512-tI6QecSsVwcNaQeFTe8gLJbHVPywhBXFb5FroVOs2jpTXqBH9s9HK4n/5LtmMcO6o3Kf2o2//vzrNuufTt4kBA==}
-    engines: {node: '>=8.0.0'}
-    dependencies:
-      '@types/cuint': 0.2.1
-      cuint: 0.2.2
-    dev: false
-
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -1751,6 +1713,38 @@ packages:
     resolution: {integrity: sha512-DCw8L/SS0IXqmj5IW/fMxOXiifnsfjBzDfRhf0j3NFWqvMCh9OtfjmXQZxVgI2mwvJLc/5jzXhkiWT39qS09dA==}
     requiresBuild: true
     dev: false
+
+  /@protobuf-ts/plugin-framework/2.8.0:
+    resolution: {integrity: sha512-MjsV+gdcFUSIJ8NuogTGESbXbpp9C5ftUIMytWCWWYbkSEeWCKnl+CBrQDDHVWQ4hCwYKA2D6jdmFyOlAkrXqQ==}
+    dependencies:
+      '@protobuf-ts/runtime': 2.8.0
+      typescript: 3.9.10
+    dev: true
+
+  /@protobuf-ts/plugin/2.8.0:
+    resolution: {integrity: sha512-Jcl70WPVZdIYnLtjz7uoANzAPIN2awHUV1NfXXK2ZIkha+cPaP1IwETq38N1o1q7hvVC8uWhbJ2kqTcmvQWFPg==}
+    hasBin: true
+    dependencies:
+      '@protobuf-ts/plugin-framework': 2.8.0
+      '@protobuf-ts/protoc': 2.8.0
+      '@protobuf-ts/runtime': 2.8.0
+      '@protobuf-ts/runtime-rpc': 2.8.0
+      typescript: 3.9.10
+    dev: true
+
+  /@protobuf-ts/protoc/2.8.0:
+    resolution: {integrity: sha512-x2NMHDmeJrk+rbfqLA9uWXIYXjUgL5Qoayu7DZcV16ILSjyi+31Nh/B1WH+tIih81KgPEq/G/i6bpCEeWsK/Yw==}
+    hasBin: true
+    dev: true
+
+  /@protobuf-ts/runtime-rpc/2.8.0:
+    resolution: {integrity: sha512-B8pVorf2BvZZiCcX5paoYIKPDwkrdNP/pmJDKTIQ1D+6Yab1e6caW6vAU4RYJmb0McZBvNhSxvnkwAgPlKaFjw==}
+    dependencies:
+      '@protobuf-ts/runtime': 2.8.0
+    dev: true
+
+  /@protobuf-ts/runtime/2.8.0:
+    resolution: {integrity: sha512-70LH3oLG5E608jTP+v4nYyinvrpEgkGy0p8gJsog3fwlEuJgARldOQAk+ci5StZUOXHB7MVw0vZ/T0shqIe/pw==}
 
   /@protobufjs/aspromise/1.1.2:
     resolution: {integrity: sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ==}
@@ -2173,10 +2167,6 @@ packages:
       '@types/node': 17.0.44
     dev: true
 
-  /@types/cuint/0.2.1:
-    resolution: {integrity: sha512-yIO66K76vGSV1Y2Ovq5LklkYiHOtbJIukCfO9GRYg7hDccwoapWkDKaygxBvDgB+1uNHsgaTyK41xtbJGLCCGA==}
-    dev: false
-
   /@types/express-serve-static-core/4.17.29:
     resolution: {integrity: sha512-uMd++6dMKS32EOuw1Uli3e3BPgdLIXmezcfHv7N4c1s3gkhikBplORPpMq3fuWkxncZN1reb16d5n8yhQ80x7Q==}
     dependencies:
@@ -2295,6 +2285,10 @@ packages:
 
   /@types/node/18.6.5:
     resolution: {integrity: sha512-Xjt5ZGUa5WusGZJ4WJPbOT8QOqp6nDynVFRKcUt32bOgvXEoc6o085WNkYTMO7ifAj2isEfQQ2cseE+wT6jsRw==}
+
+  /@types/node/18.7.16:
+    resolution: {integrity: sha512-EQHhixfu+mkqHMZl1R2Ovuvn47PUw18azMJOTwSZr9/fhzHNGXAJ0ma0dayRVchprpCj0Kc1K1xKoWaATWF1qg==}
+    dev: true
 
   /@types/node/8.10.66:
     resolution: {integrity: sha512-tktOkFUA4kXx2hhhrB8bIFb5TbwzS4uOhKEmwiD+NoiL0qtP2OQ9mFldbgD4dV1djrlBYP6eBuQZiWjuHUpqFw==}
@@ -2795,7 +2789,6 @@ packages:
     resolution: {integrity: sha512-QOxyigPVrpZ2GXT+PFyZTl6TtOFc5egxHIP9IlQ+RbupQuX4RkT/Bee4/kQuC02Xkzg84JcT7oLYtDIQxp+v7w==}
     engines: {node: '>=0.4.0'}
     hasBin: true
-    dev: true
 
   /adm-zip/0.4.16:
     resolution: {integrity: sha512-TFi4HBKSGfIKsK5YCkKaaFG2m4PEDyViZmEwof3MTIgzimHLto6muaHVpbrljdIvIrFZzEq/p4nafOeLcYegrg==}
@@ -2962,14 +2955,6 @@ packages:
 
   /aws4/1.11.0:
     resolution: {integrity: sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==}
-    dev: false
-
-  /axios-rate-limit/1.3.0_axios@0.27.2:
-    resolution: {integrity: sha512-cKR5wTbU/CeeyF1xVl5hl6FlYsmzDVqxlN4rGtfO5x7J83UxKDckudsW0yW21/ZJRcO0Qrfm3fUFbhEbWTLayw==}
-    peerDependencies:
-      axios: '*'
-    dependencies:
-      axios: 0.27.2
     dev: false
 
   /axios/0.27.2:
@@ -4043,8 +4028,8 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-vue/9.3.0_eslint@8.21.0:
-    resolution: {integrity: sha512-iscKKkBZgm6fGZwFt6poRoWC0Wy2dQOlwUPW++CiPoQiw1enctV2Hj5DBzzjJZfyqs+FAXhgzL4q0Ww03AgSmQ==}
+  /eslint-plugin-vue/9.4.0_eslint@8.21.0:
+    resolution: {integrity: sha512-Nzz2QIJ8FG+rtJaqT/7/ru5ie2XgT9KCudkbN0y3uFYhQ41nuHEaboLAiqwMcK006hZPQv/rVMRhUIwEGhIvfQ==}
     engines: {node: ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: ^6.2.0 || ^7.0.0 || ^8.0.0
@@ -4055,7 +4040,7 @@ packages:
       nth-check: 2.1.1
       postcss-selector-parser: 6.0.10
       semver: 7.3.7
-      vue-eslint-parser: 9.0.3_eslint@8.21.0
+      vue-eslint-parser: 9.1.0_eslint@8.21.0
       xml-name-validator: 4.0.0
     transitivePeerDependencies:
       - supports-color
@@ -4173,6 +4158,15 @@ packages:
 
   /espree/9.3.3:
     resolution: {integrity: sha512-ORs1Rt/uQTqUKjDdGCyrtYxbazf5umATSf/K4qxjmZHORR6HJk+2s/2Pqe+Kk49HHINC/xNIrGfgh8sZcll0ng==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    dependencies:
+      acorn: 8.8.0
+      acorn-jsx: 5.3.2_acorn@8.8.0
+      eslint-visitor-keys: 3.3.0
+    dev: true
+
+  /espree/9.4.0:
+    resolution: {integrity: sha512-DQmnRpLj7f6TgN/NYb0MTzJXL+vJF9h3pHy4JhCIs3zwcgez8xmGg3sXHcEO97BrmO2OSvCwMdfdlyl+E9KjOw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
       acorn: 8.8.0
@@ -5979,7 +5973,7 @@ packages:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/long': 4.0.2
-      '@types/node': 18.6.4
+      '@types/node': 18.6.5
       long: 4.0.0
     dev: false
 
@@ -6533,10 +6527,12 @@ packages:
       stable: 0.1.8
     dev: false
 
-  /tailwindcss/3.1.8:
+  /tailwindcss/3.1.8_postcss@8.4.16:
     resolution: {integrity: sha512-YSneUCZSFDYMwk+TGq8qYFdCA3yfBRdBlS7txSq0LUmzyeqRe3a8fBQzbz9M3WS/iFT4BNf/nmw9mEzrnSaC0g==}
     engines: {node: '>=12.13.0'}
     hasBin: true
+    peerDependencies:
+      postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
       chokidar: 3.5.3
@@ -6640,7 +6636,7 @@ packages:
   /tr46/0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
-  /ts-node/10.9.1_cvilj4l3ytrlnvtlqw3tscihve:
+  /ts-node/10.9.1_ssqzpbjs2sdybfr3fpuddh5sdi:
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -6659,7 +6655,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.3
-      '@types/node': 18.6.5
+      '@types/node': 18.7.16
       acorn: 8.7.1
       acorn-walk: 8.2.0
       arg: 4.1.3
@@ -6850,7 +6846,7 @@ packages:
       turbo-windows-arm64: 1.4.3
     dev: true
 
-  /tw-elements/1.0.0-alpha12:
+  /tw-elements/1.0.0-alpha12_postcss@8.4.16:
     resolution: {integrity: sha512-AQHwXIC4kw4T0NPKAi0vD1bkHSiA4RhdXqqnXDWEHKsrN02njc/ITB3YZ92s2f2jt+wBPI2UOpeUsWL5xiMVeQ==}
     dependencies:
       '@popperjs/core': 2.11.6
@@ -6860,8 +6856,9 @@ packages:
       detect-autofill: 1.1.4
       perfect-scrollbar: 1.5.5
       popper.js: 1.16.1
-      tailwindcss: 3.1.8
+      tailwindcss: 3.1.8_postcss@8.4.16
     transitivePeerDependencies:
+      - postcss
       - ts-node
     dev: false
 
@@ -6906,6 +6903,12 @@ packages:
   /typedarray/0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
     dev: false
+
+  /typescript/3.9.10:
+    resolution: {integrity: sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
 
   /typescript/4.7.4:
     resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}
@@ -7151,6 +7154,15 @@ packages:
       acorn-walk: 8.2.0
     dev: false
 
+  /vm2/3.9.11:
+    resolution: {integrity: sha512-PFG8iJRSjvvBdisowQ7iVF580DXb1uCIiGaXgm7tynMR1uTBlv7UJlB1zdv5KJ+Tmq1f0Upnj3fayoEOPpCBKg==}
+    engines: {node: '>=6.0'}
+    hasBin: true
+    dependencies:
+      acorn: 8.8.0
+      acorn-walk: 8.2.0
+    dev: false
+
   /vue-demi/0.13.6_vue@3.2.37:
     resolution: {integrity: sha512-02NYpxgyGE2kKGegRPYlNQSL1UWfA/+JqvzhGCOYjhfbLWXU5QQX0+9pAm/R2sCOPKr5NBxVIab7fvFU0B1RxQ==}
     engines: {node: '>=12'}
@@ -7166,8 +7178,8 @@ packages:
       vue: 3.2.37
     dev: false
 
-  /vue-eslint-parser/9.0.3_eslint@8.21.0:
-    resolution: {integrity: sha512-yL+ZDb+9T0ELG4VIFo/2anAOz8SvBdlqEnQnvJ3M7Scq56DvtjY0VY88bByRZB0D4J0u8olBcfrXTVONXsh4og==}
+  /vue-eslint-parser/9.1.0_eslint@8.21.0:
+    resolution: {integrity: sha512-NGn/iQy8/Wb7RrRa4aRkokyCZfOUWk19OP5HP6JEozQFX5AoS/t+Z0ZN7FY4LlmWc4FNI922V7cvX28zctN8dQ==}
     engines: {node: ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: '>=6.0.0'
@@ -7176,7 +7188,7 @@ packages:
       eslint: 8.21.0
       eslint-scope: 7.1.1
       eslint-visitor-keys: 3.3.0
-      espree: 9.3.3
+      espree: 9.4.0
       esquery: 1.4.0
       lodash: 4.17.21
       semver: 7.3.7
@@ -7401,7 +7413,7 @@ packages:
     dependencies:
       eslint: 8.21.0
       eslint-plugin-import: 2.26.0_qfqnhzzittf54udqwes54xx65q
-      eslint-plugin-vue: 9.3.0_eslint@8.21.0
+      eslint-plugin-vue: 9.4.0_eslint@8.21.0
     transitivePeerDependencies:
       - '@typescript-eslint/parser'
       - eslint-import-resolver-typescript

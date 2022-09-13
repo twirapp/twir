@@ -1,30 +1,40 @@
-FROM node:18-slim
+FROM ubuntu:latest AS build_base
 
-ENV LAST_UPDATED 2022-06-19
+RUN apt-get update && apt-get install -y curl git protobuf-compiler wget
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt-get install nodejs
 
-RUN apt-get update && apt-get install -y apt-transport-https ca-certificates curl gnupg && \
-  curl -sLf --retry 3 --tlsv1.2 --proto "=https" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' | apt-key add - && \
-  echo "deb https://packages.doppler.com/public/cli/deb/debian any-version main" | tee /etc/apt/sources.list.d/doppler-cli.list
+RUN wget https://go.dev/dl/go1.19.1.linux-amd64.tar.gz && rm -rf /usr/local/go && tar -C /usr/local -xzf go1.19.1.linux-amd64.tar.gz
 
-RUN apt-get update && apt-get install -y git curl wget doppler
+ENV PATH="/usr/local/go/bin:${PATH}" 
 
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+
+RUN npm i -g pnpm@7
 WORKDIR /app
 
-RUN npm i -g pnpm@7.5.0
-
+COPY apps/parser/go.mod apps/parser/go.sum /apps/parser/
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
 
-COPY node_modules node_modules
+COPY /apps/parser /apps/parser/
+COPY /libs/nats /libs/nats/
 
-COPY apps/parser apps/parser
-COPY libs/prisma libs/prisma
-COPY libs/redis libs/redis
-COPY libs/integrations/spotify libs/integrations/spotify
-COPY libs/config libs/config
-COPY libs/shared libs/shared
+RUN pnpm --filter=@tsuwari/nats build
+RUN cd /apps/parser && go mod download
 
-RUN pnpm install --prod
-RUN pnpm prisma:generate
+RUN cd /apps/parser && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/out/parser ./cmd/main.go
+RUN ls /apps/parser
+
+FROM alpine:latest
+RUN apk add --no-cache ca-certificates
+RUN wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
+    echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories && \
+    apk add --no-cache doppler
+
+COPY --from=build_base /app/out/parser /bin/parser
+RUN chmod +x /bin/parser
+
+RUN rm -rf /var/cache/apk/*
 
 ENTRYPOINT ["doppler", "run", "--"]
-CMD ["pnpm", "start:parser"]
+CMD ["/bin/parser"]

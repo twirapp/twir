@@ -8,6 +8,7 @@
     "bradlc.vscode-tailwindcss",
     "rangav.vscode-thunder-client",
     "vue.volar",
-    "esbenp.prettier-vscode"
+    "esbenp.prettier-vscode",
+    "emeraldwalk.RunOnSave"
   ]
 }

@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+option go_package = "tsuwari/nats/parser";
+
+message Sender {
+  string id = 1;
+  string name = 2;
+  string displayName = 3;
+  repeated string badges = 4;
+}
+
+message Channel {
+  string id = 1;
+  string name = 2;
+}
+
+message Message {
+  string text = 1;
+  string id = 2;
+}
+
+message Request {
+  Sender sender = 1;
+  Channel channel = 2;
+  Message message = 3;
+}
+
+message Response {
+  repeated string responses = 1;
+}
+
+message GetVariablesRequest {}
+
+message Variable {
+  string name = 1;
+  string example = 2;
+  string description = 3;
+}
+
+message GetVariablesResponse {
+  repeated Variable list = 1;
+}
+
+message DefaultCommand {
+  string name = 1;
+  string description = 2;
+  bool visible = 3;
+  string permission = 4;
+  string module = 5;
+}
+
+message GetDefaultCommandsResponse {
+  repeated DefaultCommand list = 1;
+}

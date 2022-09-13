@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { config } from '@tsuwari/config';
+import * as Parser from '@tsuwari/nats/parser';
 import { ApiClient } from '@twurple/api';
 import { RefreshingAuthProvider } from '@twurple/auth';
 import { ChatClient, ChatSayMessageAttributes } from '@twurple/chat';
@@ -14,9 +15,19 @@ import { ParserService } from '../nest/parser/parser.service.js';
 import { GreetingsParser } from './greetingsParser.js';
 import { KeywordsParser } from './keywordsParser.js';
 import { ModerationParser } from './moderationParser.js';
-import { commandsCounter, commandsResponseTime, greetingsCounter, greetingsParseTime, keywordsCounter, keywordsParseTime, messageParseTime, messagesCounter, moderationParseTime } from './prometheus.js';
+import { nats } from './nats.js';
+import {
+  commandsCounter,
+  commandsResponseTime,
+  greetingsCounter,
+  greetingsParseTime,
+  keywordsCounter,
+  keywordsParseTime,
+  messageParseTime,
+  messagesCounter,
+  moderationParseTime,
+} from './prometheus.js';
 import { redis } from './redis.js';
-
 
 const strRegexp = /.{1,500}(\s|$)/;
 export class Bot extends ChatClient {
@@ -46,9 +57,13 @@ export class Bot extends ChatClient {
   }
 
   async say(channel: string, message: string, attributes?: ChatSayMessageAttributes) {
-    this.#logger.log(`${pc.bgCyan(pc.black('OUT'))} ${pc.bgGreen(pc.white(channel))}: ${pc.bgYellow(pc.white(message))}`);
+    this.#logger.log(
+      `${pc.bgCyan(pc.black('OUT'))} ${pc.bgGreen(pc.white(channel))}: ${pc.bgYellow(
+        pc.white(message),
+      )}`,
+    );
     if (config.isProd || config.SAY_IN_CHAT) {
-      for (const str of message.match(strRegexp)!.map(s => s.trim())) {
+      for (const str of message.match(strRegexp)!.map((s) => s.trim())) {
         super.say(channel, str, attributes);
       }
     }
@@ -58,10 +73,18 @@ export class Bot extends ChatClient {
     const isBotModRequest = await redis.get(`isBotMod:${channel.substring(1)}`);
     const isBotMod = isBotModRequest === 'true';
     if (isBotMod) {
-      console.log(`${format(new Date(), 'yyyy-MM-dd\'T\'HH:mm:ss.SSSxxx')} ${pc.bgCyan(pc.black('TIMEOUT'))} ${pc.bgGreen(pc.white(channel))}: ${pc.bgYellow(pc.white(user))}`);
+      console.log(
+        `${format(new Date(), `yyyy-MM-dd'T'HH:mm:ss.SSSxxx`)} ${pc.bgCyan(
+          pc.black('TIMEOUT'),
+        )} ${pc.bgGreen(pc.white(channel))}: ${pc.bgYellow(pc.white(user))}`,
+      );
       super.timeout(channel, user, duration, reason);
     } else {
-      console.log(`${format(new Date(), 'yyyy-MM-dd\'T\'HH:mm:ss.SSSxxx')} ${pc.bgCyan(pc.black('TIMEOUT'))} bot no mod on channel ${pc.bgGreen(pc.white(channel))}, so timeout skiped.`);
+      console.log(
+        `${format(new Date(), `yyyy-MM-dd'T'HH:mm:ss.SSSxxx`)} ${pc.bgCyan(
+          pc.black('TIMEOUT'),
+        )} bot no mod on channel ${pc.bgGreen(pc.white(channel))}, so timeout skiped.`,
+      );
     }
   }
 
@@ -70,13 +93,17 @@ export class Bot extends ChatClient {
 
     this.onRegister(async () => {
       console.log(
-        `${pc.bgCyan(pc.black('!'))} ${pc.magenta(me.displayName)} ${pc.green('connected to twitch servers.')}`,
+        `${pc.bgCyan(pc.black('!'))} ${pc.magenta(me.displayName)} ${pc.green(
+          'connected to twitch servers.',
+        )}`,
       );
     });
 
     this.onJoin((channel) => {
       console.log(
-        `${pc.bgCyan(pc.black('!'))} ${pc.magenta(me.displayName)} ${pc.green('joined a channel')} ${pc.cyan(channel.replace('#', ''))}`,
+        `${pc.bgCyan(pc.black('!'))} ${pc.magenta(me.displayName)} ${pc.green(
+          'joined a channel',
+        )} ${pc.cyan(channel.replace('#', ''))}`,
       );
     });
 
@@ -85,11 +112,19 @@ export class Bot extends ChatClient {
       const tag = tags.get('mod');
 
       if (tag === '0') {
-        console.info(`${pc.bgCyan(pc.black('!'))} ${tags.get('display-name')} lost mod status in ${channelName} channel`);
+        console.info(
+          `${pc.bgCyan(pc.black('!'))} ${tags.get(
+            'display-name',
+          )} lost mod status in ${channelName} channel`,
+        );
         redis.del(`isBotMod:${channelName}`);
       }
       if (tag === '1') {
-        console.info(`${pc.bgCyan(pc.black('!'))} ${tags.get('display-name')} got mod status in ${channelName} channel`);
+        console.info(
+          `${pc.bgCyan(pc.black('!'))} ${tags.get(
+            'display-name',
+          )} got mod status in ${channelName} channel`,
+        );
         redis.set(`isBotMod:${channelName}`, 'true');
       }
     });
@@ -104,7 +139,11 @@ export class Bot extends ChatClient {
         message = message.replace(`@${replyTo}`, '').trim();
       }
 
-      this.#logger.log(`IN ${pc.green(channel)} | ${pc.magenta(`${user}#${state.userInfo.userId}`)}: ${pc.white(message)}`);
+      this.#logger.log(
+        `IN ${pc.green(channel)} | ${pc.magenta(`${user}#${state.userInfo.userId}`)}: ${pc.white(
+          message,
+        )}`,
+      );
       const isBotModRequest = await redis.get(`isBotMod:${channel.substring(1)}`);
       const isBotMod = isBotModRequest === 'true';
 
@@ -129,20 +168,48 @@ export class Bot extends ChatClient {
       }
 
       if (message.startsWith('!')) {
-        this.#parserService.parseChatMessage(state.rawLine!).then(async (result) => {
-          if (!state.channelId) return;
-          if (!result?.length) return;
-          commandsCounter.inc();
+        const usersBadges: string[] = [];
+        if (state.userInfo.isBroadcaster) usersBadges.push('BROADCASTER');
+        if (state.userInfo.isMod) usersBadges.push('MODERATOR');
+        if (state.userInfo.isSubscriber || state.userInfo.isFounder) usersBadges.push('SUBSCRIBER');
+        if (state.userInfo.isVip) usersBadges.push('VIP');
+        usersBadges.push('VIEWER');
 
-          for (const response of result) {
-            if (!response) continue;
-            if (result.indexOf(response) > 0 && !isBotMod) break;
-
-            await this.say(channel, response, { replyTo: state.id });
-          }
-
-          commandsResponseTime.labels(channel, message.split(' ')[0] ?? '').observe(performance.now() - perfStart);
+        const data = Parser.Request.toBinary({
+          channel: {
+            id: state.channelId,
+            name: state.target.value.replace('#', ''),
+          },
+          message: {
+            id: state.id,
+            text: message,
+          },
+          sender: {
+            badges: usersBadges,
+            displayName: state.userInfo.displayName,
+            id: state.userInfo.userId,
+            name: state.userInfo.userName,
+          },
         });
+        nats
+          .request('parser.handleProcessCommand', data, {
+            timeout: 5 * 5000,
+          })
+          .then(async (r) => {
+            const { responses: result } = Parser.Response.fromBinary(r.data);
+            commandsCounter.inc();
+
+            for (const response of result) {
+              if (!response) continue;
+              if (result.indexOf(response) > 0 && !isBotMod) break;
+
+              await this.say(channel, response, { replyTo: state.id });
+            }
+
+            commandsResponseTime
+              .labels(channel, message.split(' ')[0] ?? '')
+              .observe(performance.now() - perfStart);
+          });
       }
 
       this.#greetingsParser.parse(state).then(async (response) => {

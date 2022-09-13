@@ -1,0 +1,37 @@
+{
+  "name": "@tsuwari/nats",
+  "type": "module",
+  "scripts": {
+    "prebuild": "rm -rf ./dist",
+    "build": "ts-node --esm --transpileOnly gen.ts",
+    "ts:build": "tsc"
+  },
+  "exports": {
+    "./parser": "./dist/parser/parser.js",
+    "./bots": "./dist/bots/bots.js",
+    "./dota": "./dist/dota/dota.js",
+    "./eval": "./dist/eval/eval.js"
+  },
+  "typesVersions": {
+    "*": {
+      "parser": [
+        "dist/parser/parser.d.ts"
+      ],
+      "bots": [
+        "dist/bots/bots.d.ts"
+      ],
+      "dota": [
+        "dist/dota/dota.d.ts"
+      ],
+      "eval": [
+        "dist/eval/eval.d.ts"
+      ]
+    }
+  },
+  "dependencies": {
+    "@protobuf-ts/runtime": "^2.8.0"
+  },
+  "devDependencies": {
+    "@protobuf-ts/plugin": "^2.8.0"
+  }
+}

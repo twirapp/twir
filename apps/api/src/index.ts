@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import Express from 'express';
 
 import { AppModule } from './app.module.js';
+import './libs/nats.js';
 
 Sentry.init({
   dsn: 'https://1c78d79f3bcb443680e4d5550005e3ac@o324161.ingest.sentry.io/6485379',

@@ -1,6 +1,6 @@
 import { Controller, Get, Res } from '@nestjs/common';
 import { Payload } from '@nestjs/microservices';
-import { type ClientProxyCommandPayload, type ClientProxyEventPayload, ClientProxyEvents, EventPattern, MessagePattern } from '@tsuwari/shared';
+import { ClientProxyEvents, EventPattern, MessagePattern, type ClientProxyCommandPayload, type ClientProxyEventPayload } from '@tsuwari/shared';
 
 import { Bots } from '../bots.js';
 import { prisma } from '../libs/prisma.js';
@@ -37,7 +37,7 @@ export class AppController {
     }
   }
 
-  @MessagePattern('bots.deleteMessages')
+  // @MessagePattern('bots.deleteMessages')
   async deleteMessages(@Payload() data: ClientProxyCommandPayload<'bots.deleteMessages'>) {
     const channel = await prisma.channel.findFirst({
       where: { id: data.channelId },

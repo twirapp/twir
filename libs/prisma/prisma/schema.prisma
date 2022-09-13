@@ -405,6 +405,7 @@ model DotaAccount {
 
   channel Channel @relation(fields: [channelId], references: [id])
 
+  @@id([id, channelId])
   @@unique([id, channelId])
   @@index(id)
   @@map("channels_dota_accounts")

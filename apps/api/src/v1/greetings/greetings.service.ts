@@ -14,9 +14,10 @@ export class GreetingsService implements OnModuleInit {
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
     private readonly redisOrm: RedisORMService,
-  ) { }
+  ) {}
 
-  onModuleInit() {
+  async onModuleInit() {
+    await this.redisOrm.onModuleInit();
     this.#repository = this.redisOrm.fetchRepository(greetingsSchema);
   }
 
@@ -25,9 +26,9 @@ export class GreetingsService implements OnModuleInit {
       where: { channelId: userId },
     });
 
-    const users = await staticApi.users.getUsersByIds(greetings.map(g => g.userId));
+    const users = await staticApi.users.getUsersByIds(greetings.map((g) => g.userId));
 
-    return greetings.map(g => ({ ...g, username: users.find(u => u.id === g.userId)?.name }));
+    return greetings.map((g) => ({ ...g, username: users.find((u) => u.id === g.userId)?.name }));
   }
 
   async create(userId: string, data: GreetingCreateDto) {
@@ -54,10 +55,13 @@ export class GreetingsService implements OnModuleInit {
       },
     });
 
-    await this.#repository.createAndSave({
-      ...greeting,
-      processed: false,
-    }, `${greeting.channelId}:${greeting.userId}`);
+    await this.#repository.createAndSave(
+      {
+        ...greeting,
+        processed: false,
+      },
+      `${greeting.channelId}:${greeting.userId}`,
+    );
 
     return {
       ...greeting,
@@ -90,10 +94,13 @@ export class GreetingsService implements OnModuleInit {
       },
     });
 
-    await this.#repository.createAndSave({
-      ...greeting,
-      processed: false,
-    }, `${greeting.channelId}:${greeting.userId}`);
+    await this.#repository.createAndSave(
+      {
+        ...greeting,
+        processed: false,
+      },
+      `${greeting.channelId}:${greeting.userId}`,
+    );
 
     return {
       ...greeting,
@@ -102,7 +109,9 @@ export class GreetingsService implements OnModuleInit {
   }
 
   async delete(userId: string, greetingId: string) {
-    const greeting = await this.prisma.greeting.findFirst({ where: { channelId: userId, id: greetingId } });
+    const greeting = await this.prisma.greeting.findFirst({
+      where: { channelId: userId, id: greetingId },
+    });
 
     if (!greeting) {
       throw new HttpException('Greeting not exists', 404);

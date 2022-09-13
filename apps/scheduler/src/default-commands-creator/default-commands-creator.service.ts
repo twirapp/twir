@@ -1,23 +1,19 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
-import { PrismaService } from '@tsuwari/prisma';
-import { commandSchema, RedisORMModule, RedisORMService } from '@tsuwari/redis';
-import { ClientProxy, RedisService } from '@tsuwari/shared';
+import * as Parser from '@tsuwari/nats/parser';
+import { CommandModule, CommandPermission, PrismaService } from '@tsuwari/prisma';
+import { RedisService } from '@tsuwari/shared';
 import * as Knex from 'knex';
-import { lastValueFrom } from 'rxjs';
+
+import { nats } from '../libs/nats.js';
 
 @Injectable()
 export class DefaultCommandsCreatorService implements OnModuleInit {
   #logger = new Logger(DefaultCommandsCreatorService.name);
   #knex: Knex.Knex;
 
-  constructor(
-    private readonly prisma: PrismaService,
-    @Inject('NATS') private nats: ClientProxy,
-    private readonly redis: RedisService,
-    private readonly redisOrm: RedisORMService,
-  ) { }
+  constructor(private readonly prisma: PrismaService, private readonly redis: RedisService) {}
 
   async onModuleInit() {
     const knex = Knex.default({
@@ -30,20 +26,27 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
 
   @Interval('defaultCommands', config.isDev ? 1000 : 1 * 60 * 1000)
   async createDefaultCommands(usersIds?: string[]) {
-    const defaultCommands = await lastValueFrom(this.nats.send('bots.getDefaultCommands', {}));
-    const defaultCommandsNames = defaultCommands.map(c => c.name);
-    const repository = this.redisOrm.fetchRepository(commandSchema);
+    const msg = await nats.request('bots.getDefaultCommands', new Uint8Array());
+    const { list: defaultCommands } = Parser.GetDefaultCommandsResponse.fromBinary(msg.data);
+
+    const defaultCommandsNames = defaultCommands.map((c) => c.name);
 
     const channels: Array<{
-      id: string,
-      commands: string[],
+      id: string;
+      commands: string[];
     }> = await this.#knex
-      .select('channels.id', this.#knex.raw('array_remove(array_agg("channels_commands"."defaultName"),null) as commands'))
+      .select(
+        'channels.id',
+        this.#knex.raw(
+          'array_remove(array_agg("channels_commands"."defaultName"),null) as commands',
+        ),
+      )
       .from('channels')
       .leftJoin('channels_commands', function () {
-        this
-          .on('channels_commands.channelId', '=', 'channels.id')
-          .andOnIn('channels_commands.defaultName', defaultCommandsNames);
+        this.on('channels_commands.channelId', '=', 'channels.id').andOnIn(
+          'channels_commands.defaultName',
+          defaultCommandsNames,
+        );
       })
       .groupBy('channels.id')
       .modify(function (b) {
@@ -53,13 +56,12 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
       })
       .having(this.#knex.raw(`count("defaultName") < ${defaultCommandsNames.length}`));
 
-
     if (channels.length) {
       this.#logger.log(`Creating default commands for ${channels.length} channels.`);
     }
 
     for (const channel of channels) {
-      const commandsForCreate = defaultCommands.filter(c => !channel.commands.includes(c.name));
+      const commandsForCreate = defaultCommands.filter((c) => !channel.commands.includes(c.name));
 
       for (const command of commandsForCreate) {
         const newCommand = await this.prisma.command.create({
@@ -70,10 +72,10 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
             description: command.description,
             visible: command.visible,
             name: command.name,
-            permission: command.permission,
+            permission: command.permission as unknown as CommandPermission,
             cooldown: 0,
             cooldownType: 'GLOBAL',
-            module: command.module,
+            module: command.module as unknown as CommandModule | undefined,
           },
         });
 
@@ -83,8 +85,10 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
           aliases: [],
         };
 
-
-        await repository.createAndSave(commandForSet, `${channel.id}:${command.name}`);
+        await this.redis.set(
+          `commands:${channel.id}:${command.name}`,
+          JSON.stringify(commandForSet),
+        );
       }
     }
 

@@ -1,0 +1,16 @@
+{
+  "name": "@tsuwari/eval",
+  "type": "module",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "dev": "nodemon",
+    "start": "node --enable-source-maps dist/index.js"
+  },
+  "dependencies": {
+    "@tsuwari/config": "workspace:*",
+    "@tsuwari/nats": "workspace:*",
+    "nats": "^2.7.1",
+    "vm2": "^3.9.11"
+  }
+}

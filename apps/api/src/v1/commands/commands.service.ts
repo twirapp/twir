@@ -1,28 +1,17 @@
-import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { Command, PrismaService, Response } from '@tsuwari/prisma';
-import { RedisORMService, Repository, Command as CommandCacheClass, commandSchema } from '@tsuwari/redis';
 import { ClientProxy, RedisService } from '@tsuwari/shared';
 
 import { UpdateOrCreateCommandDto } from './dto/create.js';
 
 @Injectable()
-export class CommandsService implements OnModuleInit {
+export class CommandsService {
   @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
   nats: ClientProxy;
-  #commandsRepository: Repository<CommandCacheClass>;
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly redis: RedisService,
-    private readonly redisOrm: RedisORMService,
-  ) { }
-
-  async onModuleInit() {
-    await this.redisOrm.open(config.REDIS_URL);
-    this.#commandsRepository = this.redisOrm.fetchRepository(commandSchema);
-  }
+  constructor(private readonly prisma: PrismaService, private readonly redis: RedisService) {}
 
   async getList(userId: string) {
     await this.nats.send('bots.createDefaultCommands', [userId]).toPromise();
@@ -39,33 +28,27 @@ export class CommandsService implements OnModuleInit {
     return commands;
   }
 
-  async setCommandCache(command: Command & { responses?: Response[] }, oldCommand?: Command & { responses?: Response[] }) {
-
+  async setCommandCache(
+    command: Command & { responses?: Response[] },
+    oldCommand?: Command & { responses?: Response[] },
+  ) {
     if (oldCommand) {
-      await this.#commandsRepository.remove(`${oldCommand.channelId}:${oldCommand.name}`);
-
-      if (oldCommand.aliases && Array.isArray(command.aliases)) {
-        for (const alias of command.aliases) {
-          await this.#commandsRepository.remove(`${oldCommand.channelId}:${alias}`);
-        }
-      }
+      await this.redis.del(`commands:${oldCommand.channelId}:${oldCommand.name}`);
     }
 
     const commandForSet = {
       ...command,
-      responses: command.responses ? command.responses.filter(r => r.text).map(r => r.text!) : [] as string[],
+      responses: command.responses
+        ? command.responses.filter((r) => r.text).map((r) => r.text!)
+        : ([] as string[]),
       aliases: command.aliases as string[],
       defaultName: command.defaultName ?? null,
     };
 
-    await this.#commandsRepository.createAndSave(commandForSet, `${command.channelId}:${command.name}`);
-
-    /* if (command.aliases && Array.isArray(command.aliases)) {
-      for (const alias of command.aliases) {
-        await this.#commandsRepository.createAndSave(commandForSet, `${command.channelId}:${alias}`);
-      }
-    } */
-
+    await this.redis.set(
+      `commands:${command.channelId}:${command.name}`,
+      JSON.stringify(commandForSet),
+    );
   }
 
   async create(userId: string, data: UpdateOrCreateCommandDto & { defaultName?: string }) {
@@ -95,7 +78,9 @@ export class CommandsService implements OnModuleInit {
         channelId: userId,
         responses: {
           createMany: {
-            data: data.responses.filter(r => r.text).map((r) => ({ text: r.text?.trim().replace(/(\r\n|\n|\r)/, '') })),
+            data: data.responses
+              .filter((r) => r.text)
+              .map((r) => ({ text: r.text?.trim().replace(/(\r\n|\n|\r)/, '') })),
           },
         },
       },
@@ -109,7 +94,9 @@ export class CommandsService implements OnModuleInit {
   }
 
   async delete(userId: string, commandId: string) {
-    const command = await this.prisma.command.findFirst({ where: { channelId: userId, id: commandId } });
+    const command = await this.prisma.command.findFirst({
+      where: { channelId: userId, id: commandId },
+    });
 
     if (!command) {
       throw new HttpException('Command not exists', 404);
@@ -149,12 +136,14 @@ export class CommandsService implements OnModuleInit {
       throw new HttpException(`You should add atleast 1 response to command.`, 400);
     }
 
-    data.responses = data.responses?.filter(r => r.text).map(r => ({ ...r, text: r.text ? r.text.trim().replace(/(\r\n|\n|\r)/, '') : null }));
+    data.responses = data.responses
+      ?.filter((r) => r.text)
+      .map((r) => ({ ...r, text: r.text ? r.text.trim().replace(/(\r\n|\n|\r)/, '') : null }));
 
     const responsesForUpdate = data.responses
-      .filter(r => command.responses.some(c => c.id === r.id && r.text && r.id))
-      .map(r => ({ id: r.id, text: r.text }))
-      .map(r => this.prisma.response.update({ where: { id: r.id }, data: { text: r.text } }));
+      .filter((r) => command.responses.some((c) => c.id === r.id && r.text && r.id))
+      .map((r) => ({ id: r.id, text: r.text }))
+      .map((r) => this.prisma.response.update({ where: { id: r.id }, data: { text: r.text } }));
 
     const [newCommand] = await this.prisma.$transaction([
       this.prisma.command.update({
@@ -163,10 +152,11 @@ export class CommandsService implements OnModuleInit {
           ...data,
           channelId: userId,
           responses: {
-            deleteMany: command.responses.filter(r => !data.responses.map(s => s.id).includes(r.id)),
+            deleteMany: command.responses.filter(
+              (r) => !data.responses.map((s) => s.id).includes(r.id),
+            ),
             createMany: {
-              data: data.responses
-                .filter((r) => !command.responses.some((c) => c.id === r.id)),
+              data: data.responses.filter((r) => !command.responses.some((c) => c.id === r.id)),
               skipDuplicates: true,
             },
           },
@@ -180,10 +170,13 @@ export class CommandsService implements OnModuleInit {
 
     const newResponses = await this.prisma.response.findMany({ where: { commandId: command.id } });
 
-    await this.setCommandCache({
-      ...newCommand,
-      responses: newResponses.flat(),
-    }, command);
+    await this.setCommandCache(
+      {
+        ...newCommand,
+        responses: newResponses.flat(),
+      },
+      command,
+    );
 
     return {
       ...newCommand,

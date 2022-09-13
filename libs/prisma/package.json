@@ -12,7 +12,8 @@
     "symlink": "ln -s ../../apps/backend/.env .env",
     "generate": "prisma generate",
     "deploy": "prisma migrate deploy",
-    "prisma": "doppler run -- prisma"
+    "prisma": "doppler run -- prisma",
+    "seed": "doppler run -- pnpm ts-node --esm --transpileOnly seed.ts"
   },
   "keywords": [],
   "author": "",

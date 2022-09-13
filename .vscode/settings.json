@@ -39,6 +39,16 @@
       "localPort": 5555,
       "name": "prisma studio",
       "remotePort": 5555
+    },
+    {
+      "localPort": 54320,
+      "name": "adminer",
+      "remotePort": 54320
+    },
+    {
+      "localPort": 8222,
+      "name": "nats",
+      "remotePort": 8222
     }
   ],
   "i18n-ally.localesPaths": ["apps/frontend/src/locales"],
@@ -49,5 +59,18 @@
   "i18n-ally.sourceLanguage": "gb",
   "prisma.fileWatcher": false,
   "typescript.format.enable": false,
-  "editor.rulers": [100]
+  "editor.rulers": [100],
+  "go.useLanguageServer": true,
+  "gopls": {
+    "formatting.gofumpt": true,
+    "build.experimentalWorkspaceModule": true
+  },
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "\\.go$",
+        "cmd": "golines ${file} -w -m 100 --base-formatter=gofumpt"
+      }
+    ]
+  }
 }

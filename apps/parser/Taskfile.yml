@@ -1,0 +1,20 @@
+version: '3'
+
+tasks:
+  dev:
+    cmds:
+      - doppler run -- gow -c run cmd/main.go
+
+  build:
+    cmds:
+      - rm main || true
+      - go build cmd/main.go
+
+  models:
+    cmds:
+      - gen --sqltype=postgres --connstr $DATABASE_URL --model=models --database tsuwari --json --gorm --out ./internal/models --json-fmt=snake --overwrite
+
+  debug:
+    cmds:
+      - go build -gcflags=all="-N -l" cmd/main.go
+      - doppler run -- ./main
