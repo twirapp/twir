@@ -14,7 +14,5 @@
 </template>
 
 <script lang="ts" setup>
-import type { StatInfo } from '@/types/statsLine.js';
-
-defineProps<{stats: StatInfo[]}>();
+import { stats } from '@/data/landing/statInfo.js';
 </script>

@@ -1,31 +1,20 @@
 <template>
-  <FirstScreen />
-  <StatsLine :stats="stats" />
-  <FeaturesBlock
-    :id="navMenuHrefs[NavMenuTabs.features]"
-    :features="tm('sections.features.content')"
-  />
-  <IntegrationsBlock />
-  <ReviewsBlock :id="navMenuHrefs[NavMenuTabs.reviews]" :reviews="reviews" />
-  <TeamBlock :id="navMenuHrefs[NavMenuTabs.team]" :teamMembers="teamMembers" />
-  <PricingBlock
-    :id="navMenuHrefs[NavMenuTabs.pricing]"
-    :pricePlans="tm('sections.pricing.plans')"
-  />
+  <HeroSection />
+  <StatInfoSection />
+  <FeaturesSection :id="navMenuHrefs[NavMenuTabs.features]" />
+  <IntegrationsSection />
+  <ReviewsSection :id="navMenuHrefs[NavMenuTabs.reviews]" />
+  <TeamSection :id="navMenuHrefs[NavMenuTabs.team]" />
+  <PricingSection :id="navMenuHrefs[NavMenuTabs.pricing]" />
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n';
-
-import FeaturesBlock from '@/components/landing/sections/FeaturesBlock.vue';
-import FirstScreen from '@/components/landing/sections/FirstScreen.vue';
-import IntegrationsBlock from '@/components/landing/sections/IntegrationsBlock.vue';
-import PricingBlock from '@/components/landing/sections/PricingBlock.vue';
-import ReviewsBlock from '@/components/landing/sections/ReviewsBlock.vue';
-import StatsLine from '@/components/landing/sections/StatsLine.vue';
-import TeamBlock from '@/components/landing/sections/TeamBlock.vue';
-import { reviews, stats, teamMembers, navMenuHrefs } from '@/data';
-import { NavMenuTabs } from '@/types/navMenu';
-
-const { tm } = useI18n();
+import FeaturesSection from '@/components/landing/sections/FeaturesSection.vue';
+import HeroSection from '@/components/landing/sections/HeroSection.vue';
+import IntegrationsSection from '@/components/landing/sections/IntegrationsSection.vue';
+import PricingSection from '@/components/landing/sections/PricingSection.vue';
+import ReviewsSection from '@/components/landing/sections/ReviewsSection.vue';
+import StatInfoSection from '@/components/landing/sections/StatInfoSection.vue';
+import TeamSection from '@/components/landing/sections/TeamSection.vue';
+import { navMenuHrefs, NavMenuTabs } from '@/data/landing/navMenu.js';
 </script>

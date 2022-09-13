@@ -13,3 +13,10 @@ export type NavMenuLocale = {
   id: NavMenuTabs;
   name: string;
 };
+
+export const navMenuHrefs: NavMenuHrefs = {
+  [NavMenuTabs.features]: 'features',
+  [NavMenuTabs.reviews]: 'reviews',
+  [NavMenuTabs.pricing]: 'pricing',
+  [NavMenuTabs.team]: 'team',
+};
