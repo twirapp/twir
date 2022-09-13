@@ -19,9 +19,8 @@ import { useStore } from '@nanostores/vue';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { navMenuHrefs } from '@/data/index';
+import { type NavMenuLocale, navMenuHrefs } from '@/data/landing/navMenu.js';
 import { headerHeightStore } from '@/stores/landing/header.js';
-import type { NavMenuLocale } from '@/types/navMenu.js';
 
 const props =
   defineProps<{

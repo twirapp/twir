@@ -2,6 +2,11 @@ export type SocialMedia = 'Twitch' | 'Telegram' | 'Github' | 'Instagram' | 'Webs
 
 export interface SocialMediaItem {
   id: number;
-  media: SocialMedia;
+  type: SocialMedia;
   href: string;
 }
+
+export const socials: SocialMediaItem[] = [
+  { id: 1, type: 'Telegram', href: '#' },
+  { id: 2, type: 'Instagram', href: '#' },
+];

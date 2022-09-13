@@ -20,11 +20,7 @@
       </div>
       <ul class="grid gap-6 grid-cols-2">
         <li v-for="(feature, i) in features" :key="i">
-          <FeatureCard
-            :title="feature.name"
-            :description="feature.description"
-            :actionHref="'#'"
-          />
+          <FeatureCard :title="feature.name" :description="feature.description" :actionHref="'#'" />
         </li>
       </ul>
     </div>
@@ -33,12 +29,16 @@
 
 <script lang="ts" setup>
 import { TswArrowIcon } from '@tsuwari/ui-components';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import FeatureCard from '@/components/landing/FeatureCard.vue';
+import type { BotFeature } from '@/data/landing/botFeatures';
 import useTranslation from '@/hooks/useTranslation.js';
-import type { BotFeature } from '@/types/botFeatures';
 
-defineProps<{ features: BotFeature[] }>();
+const { tm } = useI18n();
+
+const features = computed(() => tm('sections.features.content') as BotFeature[]);
 
 const t = useTranslation<'landing'>();
 </script>

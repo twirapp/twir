@@ -1,6 +1,7 @@
-import type { BotFeature } from '@/types/botFeatures.js';
-import type { NavMenuLocale } from '@/types/navMenu.js';
-import type { PricePlansLocale } from '@/types/pricingPlan.js';
+import type { BotFeature } from '@/data/landing/botFeatures.js';
+import type { NavMenuLocale } from '@/data/landing/navMenu.js';
+import type { PricePlansLocale } from '@/data/landing/pricingPlans.js';
+import type { TeamMemberLocale } from '@/data/landing/team.js';
 
 interface ILandingLocale {
   navMenu: NavMenuLocale[];
@@ -37,10 +38,7 @@ interface ILandingLocale {
       title: string;
       description: string;
       founder: string;
-      members: {
-        id: number;
-        role: string;
-      }[];
+      members: TeamMemberLocale;
     };
     pricing: {
       title: string;

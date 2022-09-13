@@ -1,4 +1,4 @@
-import type { BasicPlanFeatures, PlanId, ProPlanFeatures } from '@/data/pricingPlans.js';
+import type { IconName } from '@tsuwari/ui-icons';
 
 export type FeatureType = 'accessible' | 'limited';
 
@@ -25,3 +25,30 @@ export type PricePlansLocale = {
 export type PlanColorTheme = 'purple' | 'gray';
 
 export type PlanColorThemes = { [K in PlanId]: PlanColorTheme };
+
+export enum PlanId {
+  basic,
+  pro,
+}
+
+export enum BasicPlanFeatures {
+  first,
+  second,
+  last,
+}
+
+export enum ProPlanFeatures {
+  first,
+  second,
+  last,
+}
+
+export const planColorThemes: PlanColorThemes = {
+  [PlanId.basic]: 'gray',
+  [PlanId.pro]: 'purple',
+};
+
+export const featureTypeIcons: Record<FeatureType, IconName> = {
+  accessible: 'Check',
+  limited: 'Minus',
+};

@@ -20,7 +20,7 @@
 <script lang="ts" setup>
 import { TswIcon } from '@tsuwari/ui-components';
 
-import type { Locale } from '@/types/locale';
+import type { Locale } from '@/locales';
 
 defineProps<{
   name: string;

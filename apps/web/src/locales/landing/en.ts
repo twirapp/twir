@@ -1,6 +1,7 @@
-import { BasicPlanFeatures, PlanId, ProPlanFeatures } from '@/data/pricingPlans.js';
+import { NavMenuTabs } from '@/data/landing/navMenu.js';
+import { BasicPlanFeatures, PlanId, ProPlanFeatures } from '@/data/landing/pricingPlans.js';
+import { TeamMemberId } from '@/data/landing/team.js';
 import type ILandingLocale from '@/locales/landing/interface.js';
-import { NavMenuTabs } from '@/types/navMenu';
 
 const messages: ILandingLocale = {
   navMenu: [
@@ -117,20 +118,11 @@ const messages: ILandingLocale = {
       description:
         'Sed eget leo adipiscing lectus nunc laoreet. Scelerisque est justo, pellentesque ut eu sit in. Suspendisse venenatis, odio dui a. Vivamus in fames augue blandit ut non sagittis, sagittis, pretium. Mollis rhoncus, pretium, morbi',
       founder: 'Founder',
-      members: [
-        {
-          id: 1,
-          role: 'Backend developer',
-        },
-        {
-          id: 2,
-          role: 'Backend developer',
-        },
-        {
-          id: 3,
-          role: 'UI-UX Designer Frontend developer',
-        },
-      ],
+      members: {
+        [TeamMemberId.Satont]: 'Backend developer',
+        [TeamMemberId.LwGerry]: 'Backend developer',
+        [TeamMemberId.Melkam]: 'UI-UX Designer Frontend developer',
+      },
     },
   },
 };
