@@ -13,6 +13,7 @@
     "start:bots": "pnpm --filter=@tsuwari/bots start",
     "start:scheduler": "pnpm --filter=@tsuwari/scheduler start",
     "start:parser": "pnpm --filter=@tsuwari/parser start",
+    "start:eval": "pnpm --filter=@tsuwari/eval start",
     "start:streamstatus": "pnpm --filter=@tsuwari/streamstatus start",
     "start:watched": "pnpm --filter=@tsuwari/watched start",
     "build:backend": "turbo run build --filter=!@tsuwari/watched --filter=!@tsuwari/frontend --filter=!@tsuwari/parser",
