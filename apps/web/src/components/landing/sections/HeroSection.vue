@@ -102,7 +102,7 @@ const t = useTranslation<'landing'>();
     px-10
     max-sm:px-6;
 
-  @media screen and (max-width: 420px) {
+  @media screen and (max-width: 440px) {
     @apply pt-20 pb-32;
   }
 }
