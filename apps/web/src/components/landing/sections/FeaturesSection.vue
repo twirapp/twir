@@ -1,7 +1,7 @@
 <template>
-  <section class="py-[100px] bg-black-10">
-    <div class="container max-w-[1040px]">
-      <div class="flex w-full justify-between mb-14">
+  <section class="py-[100px] bg-black-10 px-10">
+    <div class="container max-w-[1200px]">
+      <div class="flex w-full justify-between mb-14 max-md:flex-col">
         <h2 class="font-semibold text-5xl leading-[130%]">
           {{ t('sections.features.title') }}
         </h2>
