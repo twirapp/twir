@@ -7,16 +7,22 @@ import (
 	"github.com/go-redis/redis/v9"
 )
 
-type natsService struct {
+type NatsServiceImpl struct {
 	redis     *redis.Client
 	variables variables.Variables
 	commands  commands.Commands
 }
 
-func New(redis *redis.Client, variables variables.Variables, commands commands.Commands) natsService {
-	return natsService{
-		redis,
-		variables,
-		commands,
+type NatsService struct {
+	Redis *redis.Client
+	Variables variables.Variables
+	Commands commands.Commands
+}
+
+func New(opts NatsService) NatsServiceImpl {
+	return NatsServiceImpl{
+		redis: opts.Redis,
+		variables: opts.Variables,
+		commands: opts.Commands,
 	}
 }

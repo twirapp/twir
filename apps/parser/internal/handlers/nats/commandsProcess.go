@@ -7,7 +7,7 @@ import (
 	parserproto "github.com/satont/tsuwari/nats/parser"
 )
 
-func (c natsService) HandleProcessCommand(data parserproto.Request) *[]string {
+func (c *NatsServiceImpl) HandleProcessCommand(data parserproto.Request) *[]string {
 	if !strings.HasPrefix(data.Message.Text, "!") {
 		return nil
 	}

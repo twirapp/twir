@@ -52,3 +52,20 @@ message DefaultCommand {
 message GetDefaultCommandsResponse {
   repeated DefaultCommand list = 1;
 }
+
+/* const result = await this.#parserService.parseResponse({
+  channelId: state.channelId!,
+  userId: state.userInfo.userId,
+  userName: state.userInfo.userName,
+  text: response,
+}); */
+
+message ParseResponseRequest {
+  Sender sender = 1;
+  Channel channel = 2;
+  Message message = 3;
+}
+
+message ParseResponseResponse {
+  repeated string responses = 1;
+}

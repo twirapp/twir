@@ -72,8 +72,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	natsJson, err := nats.NewEncodedConn(n, protobuf.PROTOBUF_ENCODER)
-	defer natsJson.Close()
+	natsProtoConn, err := nats.NewEncodedConn(n, protobuf.PROTOBUF_ENCODER)
+	defer natsProtoConn.Close()
 	if err != nil {
 		panic(err)
 	}
@@ -93,13 +93,17 @@ func main() {
 		Nats:             n,
 		Twitch:           twitchClient,
 	})
-	natsHandlers := natshandlers.New(r, variablesService, commandsService)
+	natsHandlers := natshandlers.New(natshandlers.NatsService{
+		Redis: r,
+		Variables: variablesService,
+		Commands: commandsService,
+	})
 
 	if err != nil {
 		panic(err)
 	}
 
-	natsJson.Subscribe("parser.handleProcessCommand", func(m *nats.Msg) {
+	natsProtoConn.Subscribe("parser.handleProcessCommand", func(m *nats.Msg) {
 		start := time.Now()
 		data := parserproto.Request{}
 		err := proto.Unmarshal(m.Data, &data)
@@ -132,7 +136,7 @@ func main() {
 		)
 	})
 
-	natsJson.Subscribe("bots.getVariables", func(m *nats.Msg) {
+	natsProtoConn.Subscribe("bots.getVariables", func(m *nats.Msg) {
 		vars := lo.Map(variablesService.Store, func(v types.Variable, _ int) *parserproto.Variable {
 			desc := v.Name
 			if v.Description != nil {
@@ -156,7 +160,7 @@ func main() {
 		m.Respond(res)
 	})
 
-	natsJson.Subscribe("bots.getDefaultCommands", func(m *nats.Msg) {
+	natsProtoConn.Subscribe("bots.getDefaultCommands", func(m *nats.Msg) {
 		list := make([]*parserproto.DefaultCommand, len(commandsService.DefaultCommands))
 
 		for i, v := range commandsService.DefaultCommands {
@@ -176,6 +180,26 @@ func main() {
 		})
 
 		m.Respond(res)
+	})
+
+	natsProtoConn.Subscribe("parser.parseTextResponse", func(m *nats.Msg) {
+		data := parserproto.ParseResponseRequest{}
+		err := proto.Unmarshal(m.Data, &data)
+		if err != nil {
+			logger.Error(err.Error())
+			return
+		}
+		text := natsHandlers.ParseResponse(data)
+		bytes, err := proto.Marshal(&parserproto.ParseResponseResponse{
+			Responses: []string{text},
+		})
+
+		if err != nil {
+			logger.Error(err.Error())
+			return
+		}
+
+		m.Respond(bytes)
 	})
 
 	logger.Info("Started")

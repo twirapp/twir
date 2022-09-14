@@ -10,8 +10,6 @@ import pc from 'picocolors';
 import { increaseParsedMessages } from '../functions/increaseParsedMessages.js';
 import { increaseUserMessages } from '../functions/increaseUserMessages.js';
 import { storeUserMessage } from '../functions/storeUserMessage.js';
-import { nestApp } from '../nest/index.js';
-import { ParserService } from '../nest/parser/parser.service.js';
 import { GreetingsParser } from './greetingsParser.js';
 import { KeywordsParser } from './keywordsParser.js';
 import { ModerationParser } from './moderationParser.js';
@@ -35,7 +33,6 @@ export class Bot extends ChatClient {
   #greetingsParser: GreetingsParser;
   #moderationParser: ModerationParser;
   #keywordsParser: KeywordsParser;
-  #parserService = nestApp.get(ParserService);
   #logger: Logger;
 
   constructor(authProvider: RefreshingAuthProvider, channels: string[], botId: string) {
@@ -167,14 +164,14 @@ export class Bot extends ChatClient {
         }
       }
 
-      if (message.startsWith('!')) {
-        const usersBadges: string[] = [];
-        if (state.userInfo.isBroadcaster) usersBadges.push('BROADCASTER');
-        if (state.userInfo.isMod) usersBadges.push('MODERATOR');
-        if (state.userInfo.isSubscriber || state.userInfo.isFounder) usersBadges.push('SUBSCRIBER');
-        if (state.userInfo.isVip) usersBadges.push('VIP');
-        usersBadges.push('VIEWER');
+      const usersBadges: string[] = [];
+      if (state.userInfo.isBroadcaster) usersBadges.push('BROADCASTER');
+      if (state.userInfo.isMod) usersBadges.push('MODERATOR');
+      if (state.userInfo.isSubscriber || state.userInfo.isFounder) usersBadges.push('SUBSCRIBER');
+      if (state.userInfo.isVip) usersBadges.push('VIP');
+      usersBadges.push('VIEWER');
 
+      if (message.startsWith('!')) {
         const data = Parser.Request.toBinary({
           channel: {
             id: state.channelId,
@@ -214,15 +211,28 @@ export class Bot extends ChatClient {
 
       this.#greetingsParser.parse(state).then(async (response) => {
         if (!response) return;
-        const result = await this.#parserService.parseResponse({
-          channelId: state.channelId!,
-          userId: state.userInfo.userId,
-          userName: state.userInfo.userName,
-          text: response,
+        const data = Parser.ParseResponseRequest.toBinary({
+          channel: {
+            id: state.channelId!,
+            name: state.target.value.replace('#', ''),
+          },
+          message: {
+            id: state.id,
+            text: response,
+          },
+          sender: {
+            badges: usersBadges,
+            displayName: state.userInfo.displayName,
+            id: state.userInfo.userId,
+            name: state.userInfo.userName,
+          },
         });
 
-        if (result) {
-          for (const r of result) {
+        const request = await nats.request('parser.parseTextResponse', data);
+        const responseData = Parser.ParseResponseResponse.fromBinary(request.data);
+
+        if (responseData) {
+          for (const r of responseData.responses) {
             await this.say(channel, r, { replyTo: state.id });
           }
           greetingsCounter.inc();
@@ -236,15 +246,28 @@ export class Bot extends ChatClient {
         for (const response of responses) {
           if (!response) continue;
           if (responses.indexOf(response) > 0 && !isBotMod) break;
-          const result = await this.#parserService.parseResponse({
-            channelId: state.channelId!,
-            userId: state.userInfo.userId,
-            userName: state.userInfo.userName,
-            text: response,
+          const data = Parser.ParseResponseRequest.toBinary({
+            channel: {
+              id: state.channelId!,
+              name: state.target.value.replace('#', ''),
+            },
+            message: {
+              id: state.id,
+              text: response,
+            },
+            sender: {
+              badges: usersBadges,
+              displayName: state.userInfo.displayName,
+              id: state.userInfo.userId,
+              name: state.userInfo.userName,
+            },
           });
 
-          if (result) {
-            for (const r of result) {
+          const request = await nats.request('parser.parseTextResponse', data);
+          const responseData = Parser.ParseResponseResponse.fromBinary(request.data);
+
+          if (responseData) {
+            for (const r of responseData.responses) {
               await this.say(channel, r, { replyTo: state.id });
             }
             keywordsCounter.inc();
