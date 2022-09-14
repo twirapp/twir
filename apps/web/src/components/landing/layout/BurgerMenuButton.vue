@@ -4,6 +4,7 @@
       'burger-menu-button': true,
       active: menuState,
     }"
+    aria-label="Navigation menu button"
     @click.prevent="toggle"
   >
     <span></span>

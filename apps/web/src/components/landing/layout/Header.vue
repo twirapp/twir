@@ -5,7 +5,7 @@
         <div class="flex-1 flex">
           <div class="mr-auto flex items-center justify-between max-lg:w-full">
             <a class="inline-grid items-center grid-flow-col gap-x-[10px] p-2 max-lg:p-1" href="#">
-              <img :src="Logo" alt="Tsuwari logo" />
+              <img :src="Logo" alt="Tsuwari logo" height="30px" width="30px" />
               <span class="font-medium text-xl">Tsuwari</span>
             </a>
             <BurgerMenuButton />

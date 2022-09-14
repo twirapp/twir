@@ -5,7 +5,7 @@
         <h2 class="font-semibold text-5xl leading-[130%]">
           {{ t('sections.features.title') }}
         </h2>
-        <a class="inline-flex items-center">
+        <a class="inline-flex items-center" href="#">
           <span class="text-right text-xl text-gray-70 pr-[14px] max-w-[140px]">
             {{ t('sections.features.featuresInDev') }}
           </span>

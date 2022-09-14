@@ -1,6 +1,6 @@
 <template>
   <div ref="card" class="feature-card">
-    <h6>{{ title }}</h6>
+    <h3>{{ title }}</h3>
     <p>{{ description }}</p>
     <a :href="actionHref">
       {{ t('buttons.learnMore') }}
@@ -65,7 +65,7 @@ const blobLeft = computed(() => {
 .feature-card {
   @apply p-7 rounded-[10px] inline-grid gap-y-6 relative z-10 overflow-hidden border border-black-20 bg-black-15 bg-opacity-30 hover:scale-[1.02] transition-transform duration-300;
 
-  & > h6 {
+  & > h3 {
     @apply text-[32px] font-medium leading-[120%];
   }
 

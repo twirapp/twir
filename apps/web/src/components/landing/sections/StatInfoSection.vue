@@ -5,7 +5,6 @@
         <ClientOnly :renderClient="renderClient">
           <template #default>
             <Swiper
-              tag="ul"
               :space-between="24"
               :speed="1000"
               :slidesPerView="slidesPerView"
@@ -21,9 +20,11 @@
             </Swiper>
           </template>
           <template #server>
-            <ul class="inline-flex gap-x-6 justify-between w-full max-md:opacity-0 overflow-hidden">
+            <div
+              class="inline-flex gap-x-6 justify-between w-full max-md:opacity-0 overflow-hidden"
+            >
               <StatsItem v-for="item in stats" :key="item.id" :item="item" class="w-full flex-1" />
-            </ul>
+            </div>
           </template>
         </ClientOnly>
       </div>
