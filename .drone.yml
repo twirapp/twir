@@ -27,16 +27,16 @@ trigger:
     exclude:
       - pull_request
 
-# steps:
-#   - name: restore-cache
-#     image: drillster/drone-volume-cache
-#     volumes:
-#       - name: cache
-#         path: /cache
-#     settings:
-#       restore: true
-#       mount:
-#         - ./node_modules
+steps:
+  # - name: restore-cache
+  #   image: drillster/drone-volume-cache
+  #   volumes:
+  #     - name: cache
+  #       path: /cache
+  #   settings:
+  #     restore: true
+  #     mount:
+  #       - ./node_modules
 
   - name: build
     image: node:18-slim
