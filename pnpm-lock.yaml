@@ -283,13 +283,18 @@ importers:
     specifiers:
       '@tsuwari/config': workspace:*
       '@tsuwari/nats': workspace:*
+      '@types/lodash': 4.14.182
+      lodash: 4.17.21
       nats: ^2.7.1
       vm2: ^3.9.11
     dependencies:
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/nats': link:../../libs/nats
+      lodash: 4.17.21
       nats: 2.7.1
       vm2: 3.9.11
+    devDependencies:
+      '@types/lodash': 4.14.182
 
   apps/eventsub:
     specifiers:

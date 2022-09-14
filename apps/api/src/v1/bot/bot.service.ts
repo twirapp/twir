@@ -32,7 +32,7 @@ export class BotService {
     });
 
     if (!channel?.bot || !channel.user?.token)
-      throw new Error('Missed bot or token on the channel');
+      throw new HttpException('Missed bot or broadcaster token on the channel', 400);
 
     const authProvider = new MyRefreshingProvider({
       clientId: config.TWITCH_CLIENTID,

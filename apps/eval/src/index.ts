@@ -1,7 +1,8 @@
 import { config } from '@tsuwari/config';
 import * as Eval from '@tsuwari/nats/eval';
+import _ from 'lodash';
 import { connect } from 'nats';
-import { VM, VMError } from 'vm2';
+import { VM } from 'vm2';
 
 export const nats = await connect({
   servers: [config.NATS_URL],
@@ -11,6 +12,7 @@ const vm = new VM({
   sandbox: {
     fetch,
     URLSearchParams,
+    _,
   },
   timeout: 1000,
   wasm: false,
