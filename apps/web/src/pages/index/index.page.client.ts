@@ -6,10 +6,9 @@ import type { PageContext } from '@/types/pageContext';
 
 export const clientRouting = true;
 export const prefetchStaticAssets = { when: 'VIEWPORT' };
-export { render };
 
 let app: ReturnType<typeof createApp>;
-async function render(pageContext: PageContext) {
+export async function render(pageContext: PageContext) {
   if (!app) {
     app = createApp(pageContext);
 

@@ -1,9 +1,9 @@
 <template>
   <div :class="`inline-flex flex-col rounded-[10px] w-full ${colorTheme}-pricing-plan`">
     <div class="plan-info p-6 grid gap-y-3 justify-items-start border-b">
-      <h6 class="text-[21px] leading-[130%]">
+      <h3 class="text-[21px] leading-[130%]">
         {{ plan.name }}
-      </h6>
+      </h3>
       <span class="inline-grid grid-flow-col items-baseline gap-x-2">
         <span class="text-[44px] font-medium">${{ plan.price }}</span>
         <span class="price-per">{{ t('sections.pricing.perMonth') }}</span>
