@@ -50,8 +50,8 @@ steps:
       - npm i -g pnpm@7
       - pnpm install
       - pnpm build:backend
-    depends_on:
-      - restore-cache
+    # depends_on:
+    #   - restore-cache
 
   - name: rebuild-cache
     image: drillster/drone-volume-cache
