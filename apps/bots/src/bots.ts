@@ -3,13 +3,17 @@ import { Greeting } from '@tsuwari/prisma';
 import { MyRefreshingProvider } from '@tsuwari/shared';
 import { ApiClient } from '@twurple/api';
 import { ClientCredentialsAuthProvider } from '@twurple/auth';
+import chunk from 'lodash.chunk';
 import pc from 'picocolors';
 
 import { Bot } from './libs/bot.js';
 import { prisma } from './libs/prisma.js';
 import { redis } from './libs/redis.js';
 
-const staticProvider = new ClientCredentialsAuthProvider(config.TWITCH_CLIENTID, config.TWITCH_CLIENTSECRET);
+const staticProvider = new ClientCredentialsAuthProvider(
+  config.TWITCH_CLIENTID,
+  config.TWITCH_CLIENTSECRET,
+);
 export const staticApi = new ApiClient({ authProvider: staticProvider });
 
 class BotsClass {
@@ -19,13 +23,6 @@ class BotsClass {
     const bots = await prisma.bot.findMany({
       include: {
         token: true,
-        channels: {
-          where: {
-            isEnabled: true,
-            isBanned: false,
-            isTwitchBanned: false,
-          },
-        },
       },
     });
 
@@ -38,8 +35,6 @@ class BotsClass {
         continue;
       }
 
-      const channels = await staticApi.users.getUsersByIds(bot.channels.map((c) => c.id));
-
       const authProvider = new MyRefreshingProvider({
         clientId: config.TWITCH_CLIENTID,
         clientSecret: config.TWITCH_CLIENTSECRET,
@@ -47,13 +42,32 @@ class BotsClass {
         token: bot.token,
       });
 
-      const instance = new Bot(
-        authProvider,
-        channels.map((c) => c.name),
-        bot.id,
-      );
+      const getChannels = async (): Promise<string[]> => {
+        const channelsForBot = await prisma.channel.findMany({
+          where: {
+            isEnabled: true,
+            isBanned: false,
+            isTwitchBanned: false,
+            botId: bot.id,
+          },
+        });
+        const ids = channelsForBot.map((c) => c.id);
+        const names = await Promise.all(
+          chunk(ids, 100).map(async (chunk) => {
+            const channels = await staticApi.users.getUsersByIds(chunk);
+            return channels.map((c) => c.name);
+          }),
+        );
 
-      console.log(`${pc.bgCyan(pc.black('!'))} ${pc.magenta(botInfo.name)} ${pc.bgYellow('Connecting to twitch...')}`);
+        return names.flat();
+      };
+      const instance = new Bot(authProvider, getChannels, bot.id);
+
+      console.log(
+        `${pc.bgCyan(pc.black('!'))} ${pc.magenta(botInfo.name)} ${pc.bgYellow(
+          'Connecting to twitch...',
+        )}`,
+      );
       await instance.connect();
 
       this.cache.set(bot.id, instance);

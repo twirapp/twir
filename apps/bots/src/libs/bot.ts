@@ -10,6 +10,7 @@ import pc from 'picocolors';
 import { increaseParsedMessages } from '../functions/increaseParsedMessages.js';
 import { increaseUserMessages } from '../functions/increaseUserMessages.js';
 import { storeUserMessage } from '../functions/storeUserMessage.js';
+import { type ResolvableValue } from '../typings/index.js';
 import { GreetingsParser } from './greetingsParser.js';
 import { KeywordsParser } from './keywordsParser.js';
 import { ModerationParser } from './moderationParser.js';
@@ -35,7 +36,11 @@ export class Bot extends ChatClient {
   #keywordsParser: KeywordsParser;
   #logger: Logger;
 
-  constructor(authProvider: RefreshingAuthProvider, channels: string[], botId: string) {
+  constructor(
+    authProvider: RefreshingAuthProvider,
+    channels: ResolvableValue<string[]>,
+    botId: string,
+  ) {
     super({
       authProvider,
       channels,
