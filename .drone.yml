@@ -162,7 +162,7 @@ steps:
           - apps/streamstatus/**/*
 
   - <<: *docker
-    name: publish-streamstatus
+    name: publish-eval
     settings:
       <<: *docker-settings
       repo: registry.satont.dev/tsuwari/eval
