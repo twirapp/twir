@@ -1,14 +1,21 @@
 <template>
-  <slot v-if="show" />
+  <slot v-if="isClient && renderClient" />
   <slot v-else name="server" />
 </template>
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 
-const show = ref(false);
+withDefaults(
+  defineProps<{
+    renderClient?: boolean;
+  }>(),
+  { renderClient: true },
+);
+
+const isClient = ref(false);
 
 onMounted(() => {
-  show.value = true;
+  isClient.value = true;
 });
 </script>
