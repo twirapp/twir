@@ -1,30 +1,33 @@
 <template>
   <header :ref="(h) => (headerStore.set(h as HTMLElement))">
-    <div class="flex container py-3 items-center justify-between">
-      <div class="flex-1 flex">
-        <div class="mr-auto flex items-center justify-between max-lg:w-full">
-          <a class="inline-grid items-center grid-flow-col gap-x-[10px] p-2 max-lg:p-1" href="#">
-            <img :src="Logo" alt="Tsuwari logo" />
-            <span class="font-medium text-xl">Tsuwari</span>
-          </a>
-          <BurgerMenuButton />
-          <ClientOnly>
-            <MobileMenu />
-          </ClientOnly>
+    <div class="px-6 max-lg:px-4">
+      <div class="container">
+        <div class="flex-1 flex">
+          <div class="mr-auto flex items-center justify-between max-lg:w-full">
+            <a class="inline-grid items-center grid-flow-col gap-x-[10px] p-2 max-lg:p-1" href="#">
+              <img :src="Logo" alt="Tsuwari logo" />
+              <span class="font-medium text-xl">Tsuwari</span>
+            </a>
+            <BurgerMenuButton />
+            <ClientOnly>
+              <MobileMenu />
+            </ClientOnly>
+          </div>
         </div>
-      </div>
-      <NavMenu
-        menuItemClass="header-nav-link"
-        menuClass="inline-grid grid-flow-col gap-x-2"
-        class="max-lg:hidden"
-      />
-      <div class="flex-1 flex max-lg:bg-red-60 max-lg:hidden">
-        <div class="inline-grid grid-flow-col gap-x-3 items-center ml-auto">
-          <LangSelect @change="setLandingLocale" />
-          <a href="#" class="login-btn">{{ t('buttons.login') }}</a>
+        <NavMenu
+          menuItemClass="header-nav-link"
+          menuClass="inline-grid grid-flow-col gap-x-2"
+          class="max-lg:hidden"
+        />
+        <div class="flex-1 flex max-lg:bg-red-60 max-lg:hidden">
+          <div class="inline-grid grid-flow-col gap-x-3 items-center ml-auto">
+            <LangSelect @change="setLandingLocale" />
+            <a href="#" class="login-btn">{{ t('buttons.login') }}</a>
+          </div>
         </div>
       </div>
     </div>
+
     <ClientOnly>
       <div
         :class="{
@@ -72,7 +75,7 @@ header {
     backdrop-blur-sm backdrop-saturate-[180%];
 
   .container {
-    @apply max-w-[1200px] px-6 max-lg:px-4;
+    @apply flex max-w-[1200px] py-3 items-center justify-between;
   }
 }
 
