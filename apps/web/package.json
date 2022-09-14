@@ -27,7 +27,6 @@
     "@fastify/compress": "^6.1.1",
     "@fastify/middie": "^8.0.0",
     "@fastify/static": "^6.5.0",
-    "@vue/server-renderer": "^3.2.37",
     "cross-env": "^7.0.3",
     "fastify": "^4.5.3",
     "swiper": "^8.3.2",
@@ -37,6 +36,7 @@
     "@nanostores/vue": "0.6",
     "nanostores": "0.7.0",
     "vue": "3.2.37",
+    "@vue/server-renderer": "^3.2.37",
     "@vueuse/core": "9.2.0"
   }
 }
