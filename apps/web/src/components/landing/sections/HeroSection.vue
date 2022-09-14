@@ -2,36 +2,12 @@
 <template>
   <section class="overflow-hidden">
     <div class="container max-w-[1200px] relative">
-      <div class="inline-flex flex-col items-center w-full pt-32 pb-40 min-2xl:pt-40 min-2xl:pb-48">
+      <div class="hero-wrapper">
         <h1 class="gradient-title" v-html="t('sections.firstScreen.title')"></h1>
-        <p
-          class="
-            text-center
-            leading-[145%]
-            text-gray-70 text-[22px]
-            pt-9
-            max-w-[600px]
-            animate-fadeInDown
-            animation-delay-200
-            opacity-0
-            z-10
-          "
-        >
+        <p class="hero-tagline">
           {{ t('tagline') }}
         </p>
-        <div
-          class="
-            relative
-            z-10
-            inline-grid
-            grid-flow-col
-            gap-x-4
-            mt-12
-            opacity-0
-            animate-fadeIn
-            animation-delay-500
-          "
-        >
+        <div class="hero-buttons">
           <a class="learn-more-btn">
             {{ t('buttons.learnMore') }}
           </a>
@@ -100,10 +76,10 @@ const t = useTranslation<'landing'>();
 
 <style lang="postcss">
 .gradient-title {
-  @apply font-bold text-center max-w-[690px] animate-fadeInDown opacity-0 z-10;
-  letter-spacing: -2px;
-  font-size: 86px;
-  line-height: 1.1;
+  @apply leading-[1.1] -tracking-[2px] font-bold text-center 
+    animate-fadeInDown opacity-0 z-10
+    max-w-[690px] 
+    min-lg:text-[86px] min-sm:text-[74px] min-xs:text-[62px] text-[56px];
 
   & > span {
     background: linear-gradient(258.67deg, #d34bf4 4.22%, #905bff 73.01%);
@@ -112,6 +88,52 @@ const t = useTranslation<'landing'>();
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
+}
+
+.hero-wrapper {
+  @apply inline-flex
+    flex-col
+    items-center
+    w-full
+    pt-32
+    pb-40
+    min-2xl:pt-40 min-2xl:pb-48
+    max-sm:pt-24
+    px-10
+    max-sm:px-6;
+
+  @media screen and (max-width: 420px) {
+    @apply pt-20 pb-32;
+  }
+}
+
+.hero-tagline {
+  @apply text-center
+    leading-[145%]
+    text-gray-70
+    min-sm:text-[22px]
+    text-[20px]
+    min-md:pt-9
+    pt-6
+    max-w-[600px]
+    animate-fadeInDown
+    animation-delay-200
+    opacity-0
+    z-10;
+}
+
+.hero-buttons {
+  @apply relative
+    z-10
+    inline-grid
+    grid-flow-col
+    gap-x-3
+    mt-12
+    max-sm:mt-9
+    opacity-0
+    animate-fadeIn
+    animation-delay-500
+    max-sm:w-full max-sm:grid-flow-row max-sm:gap-y-3;
 }
 
 .start-for-free-btn {
