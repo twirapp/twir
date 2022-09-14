@@ -1,8 +1,5 @@
 // eslint-disable-next-line import/no-cycle
 import { api } from '@/plugins/api';
-import { useToast } from 'vue-toastification';
-
-const toast = useToast();
 
 export const refreshAccessToken = async () => {
   const refreshToken = localStorage.getItem('refreshToken');
@@ -20,7 +17,6 @@ export const refreshAccessToken = async () => {
 
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
-  } catch (error: any) {
-    toast.error('Something wrong with your authorization. Please try to login again.');
-  }
+    // eslint-disable-next-line no-empty
+  } catch (error: any) {}
 };

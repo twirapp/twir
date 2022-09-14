@@ -44,12 +44,13 @@ api.interceptors.response.use(
       }
       const data = response.data as any;
       if (data?.message) {
-        toast.error(Array.isArray(data.message) ? data.message.join(', ') : data.message);
+        if (data.message !== 'Invalid Token!') {
+          toast.error(Array.isArray(data.message) ? data.message.join(', ') : data.message);
+        }
 
         return Promise.reject(error);
       }
     }
-
 
     return Promise.reject(error);
   },
