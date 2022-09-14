@@ -34,30 +34,60 @@
           backgroundImage: `url('${WavesSvg}')`,
         }"
       ></div>
-      <img
-        :src="RhombusSvg"
-        class="absolute top-[15%] right-[16%] select-none max-xl:right-[11%] max-lg:hidden"
-      />
-      <img
-        :src="LightingSvg"
-        class="absolute top-[41%] left-[14%] select-none max-xl:left-[13%] max-lg:hidden"
-      />
-      <img
-        :src="SmileBotSvg"
-        class="absolute right-[6%] select-none bottom-[37%] max-xl:right-[2%] max-lg:hidden"
-      />
+      <div
+        class="
+          hero-bg-image
+          h-[46px]
+          w-[45px]
+          top-[15%]
+          right-[16%]
+          max-xl:right-[11%]
+          animation-delay-300
+        "
+        :style="{
+          backgroundImage: `url('${RhombusSvg}')`,
+        }"
+      ></div>
+      <div
+        class="
+          hero-bg-image
+          top-[41%]
+          left-[14%]
+          max-xl:left-[13%]
+          animation-delay-400
+          w-[67px]
+          h-[108px]
+        "
+        :style="{
+          backgroundImage: `url('${LightingSvg}')`,
+        }"
+      ></div>
+      <div
+        :style="{
+          backgroundImage: `url('${SmileBotSvg}')`,
+        }"
+        class="
+          hero-bg-image
+          right-[6%]
+          bottom-[37%]
+          max-xl:right-[2%]
+          animation-delay-600
+          h-[219px]
+          w-[179px]
+        "
+      ></div>
       <div
         :style="{
           backgroundImage: `url('${PinkBlob}')`,
         }"
         class="blurry-blob -right-[510px] -bottom-[510px] h-[1100px] w-[1050px]"
-      />
+      ></div>
       <div
         :style="{
           backgroundImage: `url('${BlueBlob}')`,
         }"
         class="blurry-blob -left-[510px] -bottom-[510px] h-[1100px] w-[1075px]"
-      />
+      ></div>
     </div>
   </section>
 </template>
@@ -170,5 +200,14 @@ const t = useTranslation<'landing'>();
 
 .blurry-blob {
   @apply absolute blur-md animate-fadeIn select-none -z-[5] bg-no-repeat;
+}
+
+.hero-bg-image {
+  @apply absolute
+    select-none
+    max-lg:hidden
+    bg-no-repeat bg-cover
+    animate-fadeInDown
+    opacity-0;
 }
 </style>

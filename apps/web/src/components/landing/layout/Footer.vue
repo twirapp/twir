@@ -23,7 +23,7 @@
           "
         >
           <div class="inline-flex items-center min-md:mr-auto">
-            <img src="@/assets/NewLogo.svg" class="w-[28px] h-[28px]" />
+            <img src="@/assets/NewLogo.svg" class="w-[28px] h-[28px]" alt="Tsuwari logo" />
             <span class="text-[22px] ml-3 font-medium">Tsuwari</span>
           </div>
         </div>
