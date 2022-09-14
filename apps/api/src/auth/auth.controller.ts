@@ -1,6 +1,23 @@
 import Twitch from '@nestjs-hybrid-auth/twitch';
-import { BadRequestException, Body, CacheTTL, CACHE_MANAGER, Controller, ExecutionContext, Get, HttpException, HttpStatus, Inject, Post, Query, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  CacheTTL,
+  CACHE_MANAGER,
+  Controller,
+  ExecutionContext,
+  Get,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AuthGuard, IAuthModuleOptions } from '@nestjs/passport';
 import { config } from '@tsuwari/config';
 import { exchangeCode, getTokenInfo } from '@twurple/auth';
@@ -24,7 +41,9 @@ class TwitchAuthGuard extends AuthGuard('twitch') {
     );
   }
 
-  getAuthenticateOptions(context: ExecutionContext): Promise<IAuthModuleOptions> | IAuthModuleOptions | undefined {
+  getAuthenticateOptions(
+    context: ExecutionContext,
+  ): Promise<IAuthModuleOptions> | IAuthModuleOptions | undefined {
     const req = context.switchToHttp().getRequest() as Express.Request;
 
     return req.query;
@@ -41,7 +60,7 @@ export class AuthController {
     private readonly jwtAuthService: JwtAuthService,
     private readonly authService: AuthService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: CacheManager.Cache,
-  ) { }
+  ) {}
 
   @UseTwitchAuth()
   @Get('')
@@ -75,9 +94,12 @@ export class AuthController {
   @Post('token')
   async refresh(@Res() res: Express.Response, @Body() body: { refreshToken: string }) {
     if (!body.refreshToken) throw new BadRequestException('Refresh token not passed to body');
-    const newTokens = await this.jwtAuthService.refresh(body.refreshToken);
-
-    res.send(newTokens);
+    try {
+      const newTokens = await this.jwtAuthService.refresh(body.refreshToken);
+      res.send(newTokens);
+    } catch (error) {
+      res.status(400).send('Something wrong with your authorization. Please try authorize again.');
+    }
   }
 
   @Post('logout')
@@ -88,14 +110,18 @@ export class AuthController {
   }
 
   @CacheTTL(600)
-  @UseInterceptors(CustomCacheInterceptor(ctx => {
-    const req = ctx.switchToHttp().getRequest() as Express.Request;
-    return `nest:cache:auth/profile:${req.user.id}`;
-  }))
+  @UseInterceptors(
+    CustomCacheInterceptor((ctx) => {
+      const req = ctx.switchToHttp().getRequest() as Express.Request;
+      return `nest:cache:auth/profile:${req.user.id}`;
+    }),
+  )
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   async showProfile(@Req() req: Express.Request) {
-    const isHasNeededScopes = req.user.scopes ? scope.every(s => req.user.scopes.includes(s)) : false;
+    const isHasNeededScopes = req.user.scopes
+      ? scope.every((s) => req.user.scopes.includes(s))
+      : false;
 
     if (!isHasNeededScopes) {
       throw new HttpException('Missed scopes', HttpStatus.UNAUTHORIZED);
