@@ -15,6 +15,7 @@ RUN npm i -g pnpm@7
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
 
 COPY node_modules node_modules
+COPY apps/eval apps/eval
 
 COPY libs/config libs/config
 COPY libs/nats libs/nats

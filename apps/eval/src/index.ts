@@ -12,7 +12,7 @@ const vm = new VM({
   sandbox: {
     fetch,
     URLSearchParams,
-    _,
+    _: _,
   },
   timeout: 1000,
   wasm: false,
