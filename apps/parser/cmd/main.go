@@ -103,7 +103,7 @@ func main() {
 		panic(err)
 	}
 
-	natsProtoConn.Subscribe("parser.handleProcessCommand", func(m *nats.Msg) {
+	natsProtoConn.QueueSubscribe("parser.handleProcessCommand", "parser", func(m *nats.Msg) {
 		start := time.Now()
 		data := parserproto.Request{}
 		err := proto.Unmarshal(m.Data, &data)
@@ -134,9 +134,10 @@ func main() {
 			"channelId", data.Channel.Id,
 			"senderId", data.Sender.Id,
 		)
+		m.Ack()
 	})
 
-	natsProtoConn.Subscribe("bots.getVariables", func(m *nats.Msg) {
+	natsProtoConn.QueueSubscribe("bots.getVariables", "parser", func(m *nats.Msg) {
 		vars := lo.Map(variablesService.Store, func(v types.Variable, _ int) *parserproto.Variable {
 			desc := v.Name
 			if v.Description != nil {
@@ -158,9 +159,10 @@ func main() {
 		})
 
 		m.Respond(res)
+		m.Ack()
 	})
 
-	natsProtoConn.Subscribe("bots.getDefaultCommands", func(m *nats.Msg) {
+	natsProtoConn.QueueSubscribe("bots.getDefaultCommands", "parser", func(m *nats.Msg) {
 		list := make([]*parserproto.DefaultCommand, len(commandsService.DefaultCommands))
 
 		for i, v := range commandsService.DefaultCommands {
@@ -182,7 +184,7 @@ func main() {
 		m.Respond(res)
 	})
 
-	natsProtoConn.Subscribe("parser.parseTextResponse", func(m *nats.Msg) {
+	natsProtoConn.QueueSubscribe("parser.parseTextResponse", "parser", func(m *nats.Msg) {
 		data := parserproto.ParseResponseRequest{}
 		err := proto.Unmarshal(m.Data, &data)
 		if err != nil {
@@ -200,6 +202,7 @@ func main() {
 		}
 
 		m.Respond(bytes)
+		m.Ack()
 	})
 
 	logger.Info("Started")
