@@ -34,7 +34,7 @@ var Variable = types.Variable{
 			name := lo.If(ctx.Text != nil, *ctx.Text).Else(ctx.SenderName)
 			result.Result = fmt.Sprintf("Cannot find user %s on twitch.", name)
 		} else {
-			result.Result = helpers.Duration(user.CreatedAt.Time)
+			result.Result = helpers.Duration(user.CreatedAt.Time, lo.ToPtr(true))
 		}
 
 		return &result, nil

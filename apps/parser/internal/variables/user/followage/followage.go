@@ -38,7 +38,7 @@ var Variable = types.Variable{
 		if follow == nil {
 			result.Result = "not a follower"
 		} else {
-			result.Result = helpers.Duration(follow.FollowedAt)
+			result.Result = helpers.Duration(follow.FollowedAt, lo.ToPtr(true))
 		}
 
 		return result, nil

@@ -53,9 +53,17 @@ func dateDiff(a, b time.Time) (year, month, day, hour, min, sec int) {
 	return
 }
 
-func Duration(t time.Time) string {
+func Duration(t time.Time, useUtc *bool) string {
 	date := strings.Builder{}
-	y, m, d, h, mi, s := dateDiff(t, time.Now())
+	currentTime := time.Now()
+	var y, m, d, h, mi, s int
+
+	if useUtc != nil && *useUtc == true {
+		y, m, d, h, mi, s = dateDiff(t, currentTime.UTC())
+	} else {
+		y, m, d, h, mi, s = dateDiff(t, currentTime)
+	}
+
 	if y > 0 {
 		fmt.Fprintf(&date, "%dy ", y)
 	}
