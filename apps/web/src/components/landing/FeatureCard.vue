@@ -6,22 +6,16 @@
       {{ t('buttons.learnMore') }}
       <TswArrowIcon arrowName="ArrowNarrow" />
     </a>
-    <Transition>
-      <div
-        v-if="isActive"
-        class="absolute -z-[1] select-none bg-contain bg-no-repeat"
-        :style="styles"
-      />
-    </Transition>
+    <FeatureCardBgBlob v-if="windowWidth >= 768" :card="card" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { TswArrowIcon } from '@tsuwari/ui-components';
+import { useWindowSize } from '@vueuse/core';
 import { ref } from 'vue';
 
-import PinkBlob from '@/assets/blob-pink.png';
-import useFollowingBgImage from '@/hooks/useFollowingBgImage.js';
+import FeatureCardBgBlob from '@/components/landing/FeatureCardBgBlob.vue';
 import useTranslation from '@/hooks/useTranslation';
 
 defineProps<{
@@ -31,22 +25,23 @@ defineProps<{
 }>();
 
 const t = useTranslation<'landing'>();
+const { width: windowWidth } = useWindowSize();
 
 const card = ref<HTMLElement | null>(null);
-
-const { styles, isActive } = useFollowingBgImage(card, PinkBlob, 0.5);
 </script>
 
 <style lang="postcss" scoped>
 .feature-card {
-  @apply p-7 rounded-[10px] inline-grid gap-y-6 relative z-10 overflow-hidden border border-black-20 bg-black-15 bg-opacity-30 hover:scale-[1.02] transition-transform duration-300;
+  @apply min-md:p-7 py-8 min-md:rounded-[10px] inline-grid gap-y-6 relative z-10 overflow-hidden 
+  min-md:border border-b border-black-25 min-md:border-black-20 min-md:bg-black-15 min-md:bg-opacity-30 
+  min-md:hover:scale-[1.02] min-md:transition-transform min-md:duration-300;
 
   & > h3 {
-    @apply text-[32px] font-medium leading-[120%];
+    @apply min-md:text-[32px] text-[30px] font-medium leading-[120%];
   }
 
   & > p {
-    @apply text-[17px] text-gray-70 leading-normal;
+    @apply min-md:text-[17px] text-gray-70 leading-normal;
 
     max-height: 74px;
     display: -webkit-box;
@@ -71,15 +66,5 @@ const { styles, isActive } = useFollowingBgImage(card, PinkBlob, 0.5);
       }
     }
   }
-}
-
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
 }
 </style>
