@@ -1,12 +1,35 @@
 <template>
-  <section class="py-[100px] bg-black-10 px-10">
+  <section class="py-24 max-md:py-16 bg-black-10 min-md:px-10">
     <div class="container max-w-[1200px]">
-      <div class="flex w-full justify-between mb-14 max-md:flex-col">
-        <h2 class="font-semibold text-5xl leading-[130%]">
+      <div class="flex w-full justify-between mb-14 max-md:mb-7 max-md:flex-col">
+        <h2
+          class="
+            font-semibold
+            text-5xl
+            leading-[130%]
+            min-lg:px-0 min-sm:px-8
+            max-sm:px-6 max-md:mb-6
+          "
+        >
           {{ t('sections.features.title') }}
         </h2>
-        <a class="inline-flex items-center" href="#">
-          <span class="text-right text-xl text-gray-70 pr-[14px] max-w-[140px]">
+        <a
+          class="
+            inline-flex
+            items-center
+            max-md:w-full max-md:bg-purple-60 max-md:py-3 max-md:px-6 max-md:justify-end
+          "
+          href="#"
+        >
+          <span
+            class="
+              text-right text-xl
+              max-md:text-[18px] max-md:leading-[135%]
+              text-gray-70
+              pr-[14px]
+              max-w-[140px] max-md:text-white-100
+            "
+          >
             {{ t('sections.features.featuresInDev') }}
           </span>
           <TswArrowIcon
@@ -14,11 +37,21 @@
             :strokeWidth="1.5"
             size="52px"
             direction="top-right"
-            class="stroke-gray-35"
+            class="stroke-gray-35 max-md:stroke-white-100"
           />
         </a>
       </div>
-      <ul class="grid gap-6 grid-cols-2 max-md:grid-cols-1">
+      <ul
+        class="
+          grid
+          min-md:gap-6
+          max-md:gap-x-6
+          grid-cols-2
+          max-sm:grid-cols-1
+          min-lg:px-0 min-sm:px-8
+          max-sm:px-6
+        "
+      >
         <li v-for="(feature, i) in features" :key="i">
           <FeatureCard :title="feature.name" :description="feature.description" :actionHref="'#'" />
         </li>

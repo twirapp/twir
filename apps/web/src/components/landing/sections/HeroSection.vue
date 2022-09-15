@@ -53,7 +53,7 @@
           hero-bg-image
           top-[41%]
           left-[14%]
-          max-xl:left-[13%]
+          max-xl:left-[11%]
           animation-delay-400
           w-[67px]
           h-[108px]
@@ -70,7 +70,7 @@
           hero-bg-image
           right-[6%]
           bottom-[37%]
-          max-xl:right-[2%]
+          max-xl:right-[3%]
           animation-delay-600
           h-[219px]
           w-[179px]
