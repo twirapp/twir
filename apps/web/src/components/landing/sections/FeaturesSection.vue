@@ -1,5 +1,5 @@
 <template>
-  <section class="py-24 max-md:py-16 bg-black-10 min-md:px-10">
+  <section class="py-24 max-md:py-18 bg-black-10 min-md:px-10">
     <div class="container max-w-[1200px]">
       <div class="flex w-full justify-between mb-14 max-md:mb-7 max-md:flex-col">
         <h2
@@ -7,7 +7,7 @@
             font-semibold
             text-5xl
             leading-[130%]
-            min-lg:px-0 min-sm:px-8
+            min-md:px-0 min-sm:px-8
             max-sm:px-6 max-md:mb-6
           "
         >
@@ -17,7 +17,10 @@
           class="
             inline-flex
             items-center
-            max-md:w-full max-md:bg-purple-60 max-md:py-3 max-md:px-6 max-md:justify-end
+            max-md:w-full max-md:bg-purple-60 max-md:py-3
+            min-md:px-0 min-sm:px-8
+            px-6
+            max-md:justify-end
           "
           href="#"
         >
@@ -48,7 +51,7 @@
           max-md:gap-x-6
           grid-cols-2
           max-sm:grid-cols-1
-          min-lg:px-0 min-sm:px-8
+          min-md:px-0 min-sm:px-8
           max-sm:px-6
         "
       >
