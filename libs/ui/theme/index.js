@@ -84,6 +84,7 @@ module.exports = {
     animation: {
       fadeInDown: 'fadeInDown 1s forwards',
       fadeIn: 'fadeIn 1s forwards',
+      fadeInLong: 'fadeIn 2s forwards',
     },
   },
 };
