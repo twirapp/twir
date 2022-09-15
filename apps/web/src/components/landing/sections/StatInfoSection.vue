@@ -46,7 +46,7 @@ import 'swiper/css';
 
 const { width: windowWidth } = useWindowSize();
 
-const renderClient = computed(() => windowWidth.value < 768);
+const renderClient = computed(() => windowWidth.value <= 768);
 
 const slidesPerView = computed(() => {
   if (windowWidth.value < 410) {
