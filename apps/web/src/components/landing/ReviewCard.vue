@@ -4,7 +4,7 @@
       <div
         class="w-11 h-11 rounded-full mr-[14px] bg-contain"
         :style="{
-          backgroundImage: `url('${avatarUrl}')`,
+          backgroundImage: cssURL(avatarUrl),
         }"
       />
       <div class="inline-grid gap-y-[6px] justify-items-start">
@@ -34,6 +34,8 @@
 
 <script lang="ts" setup>
 import { TswIcon } from '@tsuwari/ui-components';
+
+import { cssURL } from '@/utils/css';
 
 defineProps<{ username: string; rating: number; comment: string; avatarUrl: string }>();
 </script>
