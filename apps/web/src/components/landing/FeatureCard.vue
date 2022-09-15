@@ -8,15 +8,9 @@
     </a>
     <Transition>
       <div
-        v-if="!isOutside && isReady"
+        v-if="isActive"
         class="absolute -z-[1] select-none bg-contain bg-no-repeat"
-        :style="{
-          backgroundImage: blobBgUrl,
-          top: blobTop,
-          left: blobLeft,
-          height: `${blobHeight / 2}px`,
-          width: `${blobWidth / 2}px`,
-        }"
+        :style="styles"
       />
     </Transition>
   </div>
@@ -24,10 +18,10 @@
 
 <script lang="ts" setup>
 import { TswArrowIcon } from '@tsuwari/ui-components';
-import { useImage, useMouseInElement } from '@vueuse/core';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 
 import PinkBlob from '@/assets/blob-pink.png';
+import useFollowingBgImage from '@/hooks/useFollowingBgImage.js';
 import useTranslation from '@/hooks/useTranslation';
 
 defineProps<{
@@ -40,25 +34,7 @@ const t = useTranslation<'landing'>();
 
 const card = ref<HTMLElement | null>(null);
 
-const blobBgUrl = `url('${PinkBlob}')`;
-
-const { elementX, elementY, isOutside } = useMouseInElement(card);
-
-const { state, isReady } = useImage({
-  src: PinkBlob,
-});
-
-const blobHeight = computed(() => (isReady.value && state.value ? state.value.height : 0));
-
-const blobWidth = computed(() => (isReady.value && state.value ? state.value.width : 0));
-
-const blobTop = computed(() => {
-  return `${isOutside.value ? 0 : elementY.value - blobHeight.value / 4}px`;
-});
-
-const blobLeft = computed(() => {
-  return `${isOutside.value ? 0 : elementX.value - blobWidth.value / 4}px`;
-});
+const { styles, isActive } = useFollowingBgImage(card, PinkBlob, 0.5);
 </script>
 
 <style lang="postcss" scoped>

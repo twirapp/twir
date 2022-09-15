@@ -18,7 +18,7 @@
           />
         </a>
       </div>
-      <ul class="grid gap-6 grid-cols-2">
+      <ul class="grid gap-6 grid-cols-2 max-md:grid-cols-1">
         <li v-for="(feature, i) in features" :key="i">
           <FeatureCard :title="feature.name" :description="feature.description" :actionHref="'#'" />
         </li>
