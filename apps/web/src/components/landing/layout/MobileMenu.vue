@@ -4,8 +4,8 @@
       v-if="menuState"
       class="mobile-menu"
       :style="{
-        top: `${headerHeight}px`,
-        height: `${windowHeight - headerHeight}px`,
+        top: cssPX(headerHeight),
+        height: cssPX(windowHeight - headerHeight),
       }"
     >
       <a
@@ -15,8 +15,8 @@
         {{ t('buttons.login') }}
       </a>
       <div class="flex flex-col mt-5">
-        <NavMenu 
-          menuClass="mobile-nav-menu" 
+        <NavMenu
+          menuClass="mobile-nav-menu"
           menuItemClass="mobile-nav-menu-item"
           :menuItemClickHandler="closeMenu"
         />
@@ -39,15 +39,14 @@ import useLandingLocale from '@/hooks/useLandingLocale.js';
 import useTranslation from '@/hooks/useTranslation.js';
 import type { Locale } from '@/locales';
 import { headerHeightStore, menuStateStore } from '@/stores/landing/header.js';
+import { cssPX } from '@/utils/css';
 
 const menuState = useStore(menuStateStore);
 const headerHeight = useStore(headerHeightStore);
 
 const setLandingLocale = useLandingLocale();
 
-const closeMenu = () => {
-  menuStateStore.set(false);
-};
+const closeMenu = () => menuStateStore.set(false);
 
 const changeLangAndCloseMenu = (locale: Locale) => {
   setLandingLocale(locale);

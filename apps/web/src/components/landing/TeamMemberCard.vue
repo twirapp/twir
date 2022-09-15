@@ -3,7 +3,7 @@
     <div
       :class="`w-[80px] h-[80px] inline-block bg-contain`"
       :style="{
-        backgroundImage: `url('${UserImage}')`,
+        backgroundImage: cssURL(UserImage),
       }"
     />
     <div class="inline-flex flex-col items-start w-full flex-1 ml-6">
@@ -48,6 +48,7 @@ import { TswIcon } from '@tsuwari/ui-components';
 import UserImage from '@/assets/User.svg';
 import type { TeamMemberMedia } from '@/data/landing/team.js';
 import useTranslation from '@/hooks/useTranslation';
+import { cssURL } from '@/utils/css';
 
 defineProps<{
   name: string;

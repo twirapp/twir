@@ -15,7 +15,7 @@
       <div
         class="blurry-blob w-[1102px] h-[1021px] -top-[580px] -left-[540px]"
         :style="{
-          backgroundImage: `url('${CyanBlob}')`,
+          backgroundImage: cssURL(CyanBlob),
         }"
       ></div>
     </div>
@@ -30,6 +30,7 @@ import CyanBlob from '@/assets/blob-cyan.png';
 import PricingPlan from '@/components/landing/PricingPlan.vue';
 import { planColorThemes, type PricePlansLocale } from '@/data/landing/pricingPlans.js';
 import useTranslation from '@/hooks/useTranslation.js';
+import { cssURL } from '@/utils/css';
 
 const { tm } = useI18n();
 const t = useTranslation<'landing'>();

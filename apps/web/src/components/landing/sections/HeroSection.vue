@@ -31,7 +31,7 @@
           bg-no-repeat
         "
         :style="{
-          backgroundImage: `url('${WavesSvg}')`,
+          backgroundImage: cssURL(WavesSvg),
         }"
       ></div>
       <div
@@ -45,7 +45,7 @@
           animation-delay-300
         "
         :style="{
-          backgroundImage: `url('${RhombusSvg}')`,
+          backgroundImage: cssURL(RhombusSvg),
         }"
       ></div>
       <div
@@ -59,12 +59,12 @@
           h-[108px]
         "
         :style="{
-          backgroundImage: `url('${LightingSvg}')`,
+          backgroundImage: cssURL(LightingSvg),
         }"
       ></div>
       <div
         :style="{
-          backgroundImage: `url('${SmileBotSvg}')`,
+          backgroundImage: cssURL(SmileBotSvg),
         }"
         class="
           hero-bg-image
@@ -78,13 +78,13 @@
       ></div>
       <div
         :style="{
-          backgroundImage: `url('${PinkBlob}')`,
+          backgroundImage: cssURL(PinkBlob),
         }"
         class="blurry-blob -right-[510px] -bottom-[510px] h-[1100px] w-[1050px]"
       ></div>
       <div
         :style="{
-          backgroundImage: `url('${BlueBlob}')`,
+          backgroundImage: cssURL(BlueBlob),
         }"
         class="blurry-blob -left-[510px] -bottom-[510px] h-[1100px] w-[1075px]"
       ></div>
@@ -100,6 +100,7 @@ import RhombusSvg from '@/assets/Rhombus.svg';
 import SmileBotSvg from '@/assets/SmileBot.svg';
 import WavesSvg from '@/assets/Waves.svg';
 import useTranslation from '@/hooks/useTranslation.js';
+import { cssURL } from '@/utils/css.js';
 
 const t = useTranslation<'landing'>();
 </script>
@@ -199,7 +200,7 @@ const t = useTranslation<'landing'>();
 }
 
 .blurry-blob {
-  @apply absolute blur-md animate-fadeIn select-none -z-[5] bg-no-repeat;
+  @apply absolute blur-md animate-fadeInLong select-none -z-[5] bg-no-repeat;
 }
 
 .hero-bg-image {
@@ -207,7 +208,7 @@ const t = useTranslation<'landing'>();
     select-none
     max-lg:hidden
     bg-no-repeat bg-cover
-    animate-fadeInDown
+    animate-fadeInLong
     opacity-0;
 }
 </style>

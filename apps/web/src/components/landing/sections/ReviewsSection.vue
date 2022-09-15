@@ -4,19 +4,19 @@
       <div
         class="absolute top-[30px] -left-[90px] -z-[1] w-[48px] h-[105px]"
         :style="{
-          backgroundImage: `url('${CurveArrow}')`,
+          backgroundImage: cssURL(CurveArrow),
         }"
       ></div>
       <div
         :style="{
-          backgroundImage: `url('${PurpleBlob}')`,
+          backgroundImage: cssURL(PurpleBlob),
         }"
         class="blurry-blob -top-[550px] -right-[500px] w-[1100px] h-[1075px]"
       ></div>
       <div
         class="absolute -z-[1] -bottom-3 right-28 w-[91px] h-[88px]"
         :style="{
-          backgroundImage: `url('${MessageCircle}')`,
+          backgroundImage: cssURL(MessageCircle),
         }"
       ></div>
       <h2 class="text-5xl font-semibold max-w-xl leading-[125%]">
@@ -52,6 +52,7 @@ import ReviewCard from '@/components/landing/ReviewCard.vue';
 import ReviewsSlider from '@/components/landing/ReviewsSlider.vue';
 import { reviews } from '@/data/landing/reviews.js';
 import useTranslation from '@/hooks/useTranslation.js';
+import { cssURL } from '@/utils/css';
 
 const t = useTranslation<'landing'>();
 </script>
