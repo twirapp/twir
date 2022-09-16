@@ -6,9 +6,11 @@
           class="
             font-semibold
             text-5xl
+            max-md:text-[42px]
             leading-[130%]
+            tracking-tight
             min-md:px-0 min-sm:px-8
-            max-sm:px-6 max-md:mb-6
+            max-sm:px-5 max-md:mb-8
           "
         >
           {{ t('sections.features.title') }}
@@ -52,7 +54,7 @@
           grid-cols-2
           max-sm:grid-cols-1
           min-md:px-0 min-sm:px-8
-          max-sm:px-6
+          max-sm:px-5
         "
       >
         <li v-for="(feature, i) in features" :key="i">
