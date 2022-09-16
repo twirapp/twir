@@ -1,14 +1,15 @@
 import { config } from '@tsuwari/config';
-import { Greeting } from '@tsuwari/prisma';
 import { MyRefreshingProvider } from '@tsuwari/shared';
+import { Bot as BotEntity } from '@tsuwari/typeorm/entities/Bot';
+import { Channel } from '@tsuwari/typeorm/entities/Channel';
+import { Token } from '@tsuwari/typeorm/entities/Token';
 import { ApiClient } from '@twurple/api';
 import { ClientCredentialsAuthProvider } from '@twurple/auth';
 import chunk from 'lodash.chunk';
 import pc from 'picocolors';
 
 import { Bot } from './libs/bot.js';
-import { prisma } from './libs/prisma.js';
-import { redis } from './libs/redis.js';
+import { typeorm } from './libs/typeorm.js';
 
 const staticProvider = new ClientCredentialsAuthProvider(
   config.TWITCH_CLIENTID,
@@ -20,8 +21,8 @@ class BotsClass {
   cache: Map<string, Bot> = new Map();
 
   async init() {
-    const bots = await prisma.bot.findMany({
-      include: {
+    const bots = await typeorm.getRepository(BotEntity).find({
+      relations: {
         token: true,
       },
     });
@@ -38,12 +39,12 @@ class BotsClass {
       const authProvider = new MyRefreshingProvider({
         clientId: config.TWITCH_CLIENTID,
         clientSecret: config.TWITCH_CLIENTSECRET,
-        prisma,
+        repository: typeorm.getRepository(Token),
         token: bot.token,
       });
 
       const getChannels = async (): Promise<string[]> => {
-        const channelsForBot = await prisma.channel.findMany({
+        const channelsForBot = await typeorm.getRepository(Channel).find({
           where: {
             isEnabled: true,
             isBanned: false,
@@ -51,6 +52,7 @@ class BotsClass {
             botId: bot.id,
           },
         });
+
         const ids = channelsForBot.map((c) => c.id);
         const names = await Promise.all(
           chunk(ids, 100).map(async (chunk) => {

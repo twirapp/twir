@@ -30,6 +30,7 @@
     "@tsuwari/redis": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/spotify": "workspace:*",
+    "@tsuwari/typeorm": "workspace:*",
     "@twurple/api": "^5.2.1",
     "@twurple/auth": "^5.2.1",
     "@twurple/chat": "^5.2.1",
