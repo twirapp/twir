@@ -1,57 +1,46 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { Prisma, PrismaService } from '@tsuwari/prisma';
+import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration';
+import { Integration, IntegrationService } from '@tsuwari/typeorm/entities/Integration';
 
+import { typeorm } from '../../../index.js';
 import { VkUpdateDto } from './dto/update.js';
 
 @Injectable()
 export class VkService {
-  constructor(private readonly prisma: PrismaService) { }
-
-  async getIntegration(channelId: string) {
-    const integration = await this.prisma.channelIntegration.findFirst({
-      where: {
-        channelId,
-        integration: {
-          service: 'VK',
-        },
+  getIntegration(channelId: string) {
+    return typeorm.getRepository(ChannelIntegration).findOneBy({
+      channelId,
+      integration: {
+        service: IntegrationService.VK,
       },
     });
-
-    return integration;
   }
 
   async updateIntegration(channelId: string, data: VkUpdateDto) {
-    const integrationService = await this.prisma.integration.findFirst({
-      where: {
-        service: 'VK',
-      },
+    const integrationService = await typeorm.getRepository(Integration).findOneBy({
+      service: IntegrationService.VK,
     });
 
-    if (!integrationService) throw new HttpException(`Vk not enabled on our backed. Please, make patience or contact us`, 404);
+    if (!integrationService)
+      throw new HttpException(
+        `Vk not enabled on our backed. Please, make patience or contact us`,
+        404,
+      );
 
-    let integration = await this.getIntegration(channelId);
+    const repository = typeorm.getRepository(ChannelIntegration);
+    const integration = await this.getIntegration(channelId);
 
     if (!integration) {
-      integration = await this.prisma.channelIntegration.create({
-        data: {
-          channelId,
-          enabled: data.enabled,
-          data: { ...data.data } as unknown as Prisma.InputJsonObject,
-          integrationId: integrationService.id,
-        },
+      await repository.save({
+        channelId,
+        enabled: data.enabled,
+        data: data.data as any,
+        integrationId: integrationService.id,
       });
     } else {
-      integration = await this.prisma.channelIntegration.update({
-        where: {
-          id: integration.id,
-        },
-        data: {
-          ...data,
-          data: { ...data.data } as unknown as Prisma.InputJsonObject,
-        },
-      });
+      await repository.update({ id: integration.id }, { ...data, data: data.data as any });
     }
 
-    return integration;
+    return this.getIntegration(channelId);
   }
 }
