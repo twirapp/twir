@@ -2,9 +2,10 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import * as Parser from '@tsuwari/nats/parser';
-import { PrismaService } from '@tsuwari/prisma';
 import { ClientProxy, RedisService } from '@tsuwari/shared';
+import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 
+import { typeorm } from '../../index.js';
 import { nats } from '../../libs/nats.js';
 import { CreateVariableDto } from './dto/create.js';
 
@@ -15,7 +16,7 @@ export class VariablesService {
 
   readonly #vulnerableScriptWords = ['prototype', 'contructor'];
 
-  constructor(private readonly prisma: PrismaService, private readonly redis: RedisService) {}
+  constructor(private readonly redis: RedisService) {}
 
   #checkNotSecureVariable(script: string) {
     if (this.#vulnerableScriptWords.some((w) => script.includes(w))) {
@@ -36,11 +37,12 @@ export class VariablesService {
   }
 
   getList(channelId: string) {
-    return this.prisma.customVar.findMany({ where: { channelId } });
+    return typeorm.getRepository(ChannelCustomvar).findBy({ channelId });
   }
 
   async create(channelId: string, data: CreateVariableDto) {
-    const isExists = await this.prisma.customVar.count({
+    const repository = typeorm.getRepository(ChannelCustomvar);
+    const isExists = await repository.count({
       where: {
         channelId,
         name: data.name,
@@ -49,11 +51,9 @@ export class VariablesService {
 
     if (isExists) throw new HttpException(`Variable with name ${data.name} already exists`, 400);
 
-    const variable = await this.prisma.customVar.create({
-      data: {
-        channelId,
-        ...data,
-      },
+    const variable = await repository.save({
+      channelId,
+      ...data,
     });
 
     if (data.type === 'SCRIPT' && data.evalValue) {
@@ -65,17 +65,17 @@ export class VariablesService {
   }
 
   async delete(channelId: string, variableId: string) {
-    const variable = await this.prisma.customVar.findFirst({
-      where: {
-        channelId,
-        id: variableId,
-      },
+    const repository = typeorm.getRepository(ChannelCustomvar);
+
+    const variable = await repository.findOneBy({
+      channelId,
+      id: variableId,
     });
 
     if (!variable) throw new HttpException(`Variable with id ${variableId} not exists`, 404);
 
-    await this.prisma.customVar.delete({
-      where: { id: variableId },
+    await repository.delete({
+      id: variableId,
     });
 
     await this.redis.del(`variables:${channelId}:${variable.name}`);
@@ -84,11 +84,11 @@ export class VariablesService {
   }
 
   async update(channelId: string, variableId: string, data: CreateVariableDto) {
-    const variable = await this.prisma.customVar.findFirst({
-      where: {
-        channelId,
-        id: variableId,
-      },
+    const repository = typeorm.getRepository(ChannelCustomvar);
+
+    const variable = await repository.findOneBy({
+      channelId,
+      id: variableId,
     });
 
     if (!variable) throw new HttpException(`Variable with id ${variableId} not exists`, 404);
@@ -97,14 +97,10 @@ export class VariablesService {
       this.#checkNotSecureVariable(data.evalValue);
     }
 
-    const newVariable = await this.prisma.customVar.update({
-      where: {
-        id: variable.id,
-      },
-      data,
-    });
+    await repository.update({ id: variable.id }, data);
 
-    await this.redis.set(`variables:${channelId}:${variable.name}`, JSON.stringify(newVariable));
+    const newVariable = repository.findOneBy({ id: variable.id });
+    await this.redis.set(`variables:${channelId}:${variable!.name}`, JSON.stringify(newVariable));
     return newVariable;
   }
 }
