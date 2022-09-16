@@ -4,10 +4,13 @@ import { NestFactory } from '@nestjs/core';
 import { NatsOptions, Transport } from '@nestjs/microservices';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { config } from '@tsuwari/config';
+import { AppDataSource } from '@tsuwari/typeorm';
 import Express from 'express';
 
 import { AppModule } from './app.module.js';
 import { EventSub } from './eventsub/eventsub.service.js';
+
+export const typeorm = await AppDataSource.initialize();
 
 const e = Express();
 const app = await NestFactory.create(AppModule, new ExpressAdapter(e), { bodyParser: false });

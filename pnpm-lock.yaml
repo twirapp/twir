@@ -307,6 +307,7 @@ importers:
       '@tsuwari/config': workspace:*
       '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
+      '@tsuwari/typeorm': workspace:*
       '@twurple/api': 5.2.1
       '@twurple/auth': 5.2.1
       '@twurple/common': 5.2.1
@@ -326,6 +327,7 @@ importers:
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
+      '@tsuwari/typeorm': link:../../libs/typeorm
       '@twurple/api': 5.2.1_@twurple+auth@5.2.1
       '@twurple/auth': 5.2.1
       '@twurple/common': 5.2.1
@@ -437,6 +439,7 @@ importers:
       '@tsuwari/prisma': workspace:*
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
+      '@tsuwari/typeorm': workspace:*
       '@types/cron': 2.0.0
       '@types/lodash': 4.14.182
       ioredis: 5.2.2
@@ -459,6 +462,7 @@ importers:
       '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
+      '@tsuwari/typeorm': link:../../libs/typeorm
       ioredis: 5.2.2
       knex: 2.2.0_pg@8.7.3
       lodash: 4.17.21

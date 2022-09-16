@@ -18,6 +18,7 @@
     "@tsuwari/config": "workspace:*",
     "@tsuwari/prisma": "workspace:*",
     "@tsuwari/shared": "workspace:*",
+    "@tsuwari/typeorm": "workspace:*",
     "@twurple/api": "5.2.1",
     "@twurple/auth": "5.2.1",
     "@twurple/common": "5.2.1",

@@ -22,6 +22,7 @@
     "@tsuwari/prisma": "workspace:*",
     "@tsuwari/redis": "workspace:*",
     "@tsuwari/shared": "workspace:*",
+    "@tsuwari/typeorm": "workspace:*",
     "ioredis": "5.2.2",
     "knex": "2.2.0",
     "lodash": "4.17.21",
