@@ -1,9 +1,10 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
-import { PrismaService } from '@tsuwari/prisma';
 import { ClientProxy } from '@tsuwari/shared';
+import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 
+import { typeorm } from '../../index.js';
 import { CreateTimerDto } from './dto/create.js';
 
 @Injectable()
@@ -11,27 +12,22 @@ export class TimersService {
   @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
   nats: ClientProxy;
 
-  constructor(private readonly prisma: PrismaService) { }
-
-  getList(userId: string) {
-    return this.prisma.timer.findMany({
-      where: {
-        channelId: userId,
-      },
+  getList(channelId: string) {
+    return typeorm.getRepository(ChannelTimer).findBy({
+      channelId,
     });
   }
 
-  findOne(userId: string, timerId: string) {
-    return this.prisma.timer.findFirst({
-      where: {
-        channelId: userId,
-        id: timerId,
-      },
+  findOne(channelId: string, id: string) {
+    return typeorm.getRepository(ChannelTimer).findOneBy({
+      channelId,
+      id,
     });
   }
 
   async create(userId: string, data: CreateTimerDto) {
-    const isExists = await this.prisma.timer.count({
+    const repository = typeorm.getRepository(ChannelTimer);
+    const isExists = await repository.count({
       where: {
         channelId: userId,
         name: data.name,
@@ -40,11 +36,9 @@ export class TimersService {
 
     if (isExists) throw new HttpException(`Timer with name ${data.name} already exists`, 400);
 
-    const timer = await this.prisma.timer.create({
-      data: {
-        ...data,
-        channelId: userId,
-      },
+    const timer = await repository.save({
+      ...data,
+      channelId: userId,
     });
 
     if (timer.enabled) {
@@ -55,7 +49,8 @@ export class TimersService {
   }
 
   async delete(userId: string, timerId: string) {
-    const isExists = await this.prisma.timer.count({
+    const repository = typeorm.getRepository(ChannelTimer);
+    const isExists = await repository.count({
       where: {
         channelId: userId,
         id: timerId,
@@ -64,19 +59,18 @@ export class TimersService {
 
     if (!isExists) throw new HttpException(`Timer with id ${timerId} not exists`, 404);
 
-    const timer = await this.prisma.timer.delete({
-      where: {
-        id: timerId,
-      },
+    await repository.delete({
+      id: timerId,
     });
 
-    await this.nats.emit('bots.removeTimerFromQueue', timer.id).toPromise();
+    await this.nats.emit('bots.removeTimerFromQueue', timerId).toPromise();
 
-    return timer;
+    return true;
   }
 
   async update(userId: string, timerId: string, data: CreateTimerDto) {
-    const isExists = await this.prisma.timer.count({
+    const repository = typeorm.getRepository(ChannelTimer);
+    const isExists = await repository.count({
       where: {
         channelId: userId,
         id: timerId,
@@ -85,21 +79,15 @@ export class TimersService {
 
     if (!isExists) throw new HttpException(`Timer with id ${timerId} not exists`, 404);
 
-    const updated = await this.prisma.timer.update({
-      where: {
-        id: timerId,
-      },
-      data: {
-        ...data,
-      },
-    });
+    await repository.update({ id: timerId }, data);
 
-    if (updated.enabled) {
-      await this.nats.emit('bots.addTimerToQueue', updated.id).toPromise();
+    const timer = await this.findOne(userId, timerId);
+    if (timer!.enabled) {
+      await this.nats.emit('bots.addTimerToQueue', timer!.id).toPromise();
     } else {
-      await this.nats.emit('bots.removeTimerFromQueue', updated.id).toPromise();
+      await this.nats.emit('bots.removeTimerFromQueue', timer!.id).toPromise();
     }
 
-    return updated;
+    return timer!;
   }
 }
