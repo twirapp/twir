@@ -46,4 +46,7 @@ export class ChannelIntegration {
   })
   @JoinColumn([{ name: 'integrationId', referencedColumnName: 'id' }])
   integration?: Relation<Integration>;
+
+  @Column()
+  integrationId: string;
 }
