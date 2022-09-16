@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Relation } from 'typeorm';
 
 import { type Channel } from './Channel.js';
 
@@ -8,15 +8,8 @@ import { type Channel } from './Channel.js';
 })
 @Entity('channels_keywords', { schema: 'public' })
 export class ChannelKeyword {
-  @PrimaryColumn('text', {
-    primary: true,
-    name: 'id',
-    default: 'gen_random_uuid()',
-  })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column('text', { name: 'channelId' })
-  channelId: string;
 
   @Column('text', { name: 'text' })
   text: string;
@@ -35,5 +28,8 @@ export class ChannelKeyword {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Relation<Channel>;
+  channel?: Relation<Channel>;
+
+  @Column('text', { name: 'channelId' })
+  channelId: string;
 }

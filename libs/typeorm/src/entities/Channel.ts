@@ -4,7 +4,7 @@ import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, Prim
 import { type Bot } from './Bot.js';
 import { type ChannelCommand } from './ChannelCommand.js';
 import { type ChannelCustomvar } from './ChannelCustomvar.js';
-import { type DotaAccount } from './ChannelDotaAccount.js';
+import { type ChannelDotaAccount } from './ChannelDotaAccount.js';
 import { type ChannelGreeting } from './ChannelGreeting.js';
 import { type ChannelIntegration } from './ChannelIntegration.js';
 import { type ChannelKeyword } from './ChannelKeyword.js';
@@ -31,42 +31,45 @@ export class Channel {
 
   @ManyToOne('Bot', 'channels', { onDelete: 'RESTRICT', onUpdate: 'CASCADE' })
   @JoinColumn([{ name: 'botId', referencedColumnName: 'id' }])
-  bot: Relation<Bot>;
+  bot?: Relation<Bot>;
+
+  @Column()
+  botId: string;
 
   @OneToOne('User', 'channel', { onDelete: 'RESTRICT', onUpdate: 'CASCADE' })
   @JoinColumn([{ name: 'id', referencedColumnName: 'id' }])
-  user: Relation<User>;
+  user?: Relation<User>;
 
   @OneToMany('ChannelCommand', 'channel')
-  commands: Relation<ChannelCommand[]>;
+  commands?: Relation<ChannelCommand[]>;
 
   @OneToMany('ChannelCustomvar', 'channel')
-  customVar: Relation<ChannelCustomvar[]>;
+  customVar?: Relation<ChannelCustomvar[]>;
 
   @OneToMany('DashboardAccess', 'channel')
-  dashboardAccess: Relation<DashboardAccess[]>;
+  dashboardAccess?: Relation<DashboardAccess[]>;
 
-  @OneToMany('DotaAccount', 'channel')
-  dotaAccounts: Relation<DotaAccount[]>;
+  @OneToMany('ChannelDotaAccount', 'channel')
+  dotaAccounts?: Relation<ChannelDotaAccount[]>;
 
   @OneToMany('ChannelGreeting', 'channel')
-  greetings: Relation<ChannelGreeting[]>;
+  greetings?: Relation<ChannelGreeting[]>;
 
   @OneToMany('ChannelIntegration', 'channel')
-  channelsIntegrations: Relation<ChannelIntegration[]>;
+  channelsIntegrations?: Relation<ChannelIntegration[]>;
 
   @OneToMany('ChannelKeyword', 'channel')
-  keywords: Relation<ChannelKeyword[]>;
+  keywords?: Relation<ChannelKeyword[]>;
 
   @OneToMany('ChannelModerationSetting', 'channel')
-  moderationSettings: Relation<ChannelModerationSetting[]>;
+  moderationSettings?: Relation<ChannelModerationSetting[]>;
 
   @OneToMany('ChannelPermit', 'channel')
-  permits: Relation<ChannelPermit[]>;
+  permits?: Relation<ChannelPermit[]>;
 
   @OneToMany('ChannelTimer', 'channel')
-  timers: Relation<ChannelTimer[]>;
+  timers?: Relation<ChannelTimer[]>;
 
   @OneToMany('UserStats', 'channel')
-  usersStats: Relation<UserStats[]>;
+  usersStats?: Relation<UserStats[]>;
 }

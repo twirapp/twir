@@ -1,15 +1,11 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 
 import { type Channel } from './Channel.js';
 
 @Entity('channels_timers', { schema: 'public' })
 export class ChannelTimer {
-  @PrimaryColumn('text', {
-    primary: true,
-    name: 'id',
-    default: 'gen_random_uuid()',
-  })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column('character varying', { name: 'name', length: 255 })
@@ -38,5 +34,8 @@ export class ChannelTimer {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Relation<Channel>;
+  channel?: Relation<Channel>;
+
+  @Column()
+  channelId: string;
 }

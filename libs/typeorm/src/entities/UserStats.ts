@@ -12,15 +12,9 @@ export class UserStats {
   @PrimaryColumn('text', {
     primary: true,
     name: 'id',
-    default: 'gen_random_uuid()',
+    default: () => 'gen_random_uuid()',
   })
   id: string;
-
-  @Column('text', { name: 'userId' })
-  userId: string;
-
-  @Column('text', { name: 'channelId' })
-  channelId: string;
 
   @Column('integer', { name: 'messages', default: 0 })
   messages: number;
@@ -33,12 +27,18 @@ export class UserStats {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Relation<Channel>;
+  channel?: Relation<Channel>;
+
+  @Column('text', { name: 'channelId' })
+  channelId: string;
 
   @ManyToOne('User', 'stats', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user: Relation<User>;
+  user?: Relation<User>;
+
+  @Column('text', { name: 'userId' })
+  userId: string;
 }

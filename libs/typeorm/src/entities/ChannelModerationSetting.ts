@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Relation } from 'typeorm';
 
 import { type Channel } from './Channel.js';
 
@@ -15,11 +15,7 @@ export enum SettingsType {
 @Index('channels_moderation_settings_channelId_type_key', ['channelId', 'type'], { unique: true })
 @Entity('channels_moderation_settings', { schema: 'public' })
 export class ChannelModerationSetting {
-  @PrimaryColumn('text', {
-    primary: true,
-    name: 'id',
-    default: 'gen_random_uuid()',
-  })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column('enum', {
@@ -27,9 +23,6 @@ export class ChannelModerationSetting {
     enum: SettingsType,
   })
   type: SettingsType;
-
-  @Column('text', { name: 'channelId' })
-  channelId: string;
 
   @Column('boolean', { name: 'enabled', default: false })
   enabled: boolean;
@@ -78,5 +71,8 @@ export class ChannelModerationSetting {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Relation<Channel>;
+  channel?: Relation<Channel>;
+
+  @Column('text', { name: 'channelId' })
+  channelId: string;
 }

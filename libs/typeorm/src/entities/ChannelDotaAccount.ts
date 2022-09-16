@@ -7,17 +7,18 @@ import { type Channel } from './Channel.js';
   unique: true,
 })
 @Entity('channels_dota_accounts', { schema: 'public' })
-export class DotaAccount {
+export class ChannelDotaAccount {
   @PrimaryColumn('text', { name: 'id' })
   id: string;
 
-  @Column('text', { primary: true, name: 'channelId' })
-  channelId: string;
-
+  
   @ManyToOne('Channel', 'dotaAccounts', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Relation<Channel>;
+  channel?: Relation<Channel>;
+  
+  @Column('text', { primary: true, name: 'channelId' })
+  channelId: string;
 }

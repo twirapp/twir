@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 
 import { type ChannelCommand } from './ChannelCommand.js';
 
@@ -8,7 +8,7 @@ export class CommandResponse {
   @PrimaryColumn('text', {
     primary: true,
     name: 'id',
-    default: 'gen_random_uuid()',
+    default: () => 'gen_random_uuid()',
   })
   id: string;
 
@@ -20,5 +20,8 @@ export class CommandResponse {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'commandId', referencedColumnName: 'id' }])
-  command: Relation<ChannelCommand>;
+  command?: Relation<ChannelCommand>;
+
+  @Column()
+  commandId: string;
 }

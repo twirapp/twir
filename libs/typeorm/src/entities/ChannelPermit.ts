@@ -1,16 +1,12 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Relation } from 'typeorm';
 
 import { type Channel } from './Channel.js';
 import { type User } from './User.js';
 
 @Entity('channels_permits', { schema: 'public' })
 export class ChannelPermit {
-  @PrimaryColumn('text', {
-    primary: true,
-    name: 'id',
-    default: 'gen_random_uuid()',
-  })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne('Channel', 'permits', {
@@ -18,12 +14,18 @@ export class ChannelPermit {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Relation<Channel>;
+  channel?: Relation<Channel>;
+
+  @Column()
+  channelId: string;
 
   @ManyToOne('User', 'permits', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user: Relation<User>;
+  user?: Relation<User>;
+
+  @Column()
+  userId: string;
 }

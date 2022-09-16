@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, OneToMany, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn, Relation } from 'typeorm';
 
 import { type DotaMatch } from './DotaMatch.js';
 
@@ -12,5 +12,5 @@ export class DotaGameMode {
   name: string;
 
   @OneToMany('DotaMatch', 'gameMode')
-  dotaMatches: Relation<DotaMatch[]>;
+  dotaMatches?: Relation<DotaMatch[]>;
 }

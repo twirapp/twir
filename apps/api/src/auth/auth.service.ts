@@ -1,14 +1,18 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
-import { Channel, PrismaService, Token, User } from '@tsuwari/prisma';
-import { ClientProxy, AuthUser } from '@tsuwari/shared';
-import { HelixUser } from '@twurple/api';
+import { AuthUser, ClientProxy } from '@tsuwari/shared';
+import { In, Not } from '@tsuwari/typeorm';
+import { Bot, BotType } from '@tsuwari/typeorm/entities/Bot';
+import { Channel } from '@tsuwari/typeorm/entities/Channel';
+import { DashboardAccess } from '@tsuwari/typeorm/entities/DashboardAccess';
+import { Token } from '@tsuwari/typeorm/entities/Token';
+import { User } from '@tsuwari/typeorm/entities/User';
 import { AccessToken } from '@twurple/auth';
 import { getRawData } from '@twurple/common';
 import chunk from 'lodash.chunk';
-import { lastValueFrom } from 'rxjs';
 
+import { typeorm } from '../index.js';
 import { JwtPayload } from '../jwt/jwt.strategy.js';
 import { staticApi } from '../twitchApi.js';
 
@@ -17,12 +21,10 @@ export class AuthService {
   @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
   nats: ClientProxy;
 
-  constructor(private readonly prisma: PrismaService) { }
-
   async checkUser(tokens: AccessToken, userId: string, username?: string | null) {
-    const defaultBot = await this.prisma.bot.findFirst({
+    const defaultBot = await typeorm.getRepository(Bot).findOne({
       where: {
-        type: 'DEFAULT',
+        type: BotType.DEFAULT,
       },
     });
 
@@ -31,7 +33,10 @@ export class AuthService {
     }
 
     if (!tokens.refreshToken || !tokens.expiresIn) {
-      throw new HttpException(`Something went wrong on gettings twitch tokens. Please, try again later.`, 500);
+      throw new HttpException(
+        `Something went wrong on gettings twitch tokens. Please, try again later.`,
+        500,
+      );
     }
 
     const tokenData = {
@@ -41,16 +46,11 @@ export class AuthService {
       expiresIn: tokens.expiresIn,
     };
 
-    let user: (User & {
-      channel: Channel | null;
-      token: Token | null;
-    }) | null = await this.prisma.user.findFirst({
+    let user = await typeorm.getRepository(User).findOne({
       where: { id: userId },
-      include: {
+      relations: {
         channel: {
-          include: {
-            bot: true,
-          },
+          bot: true,
         },
         token: true,
       },
@@ -58,46 +58,40 @@ export class AuthService {
 
     if (user) {
       if (!user.channel) {
-        user.channel = await this.prisma.channel.create({
-          data: { id: user.id, botId: defaultBot.id },
+        user.channel = await typeorm.getRepository(Channel).save({
+          id: user.id,
+          botId: defaultBot.id,
         });
       }
 
       if (user.tokenId) {
-        await this.prisma.token.update({
-          where: {
-            id: user.tokenId,
-          },
-          data: tokenData,
-        });
+        await typeorm.getRepository(Token).update({ id: user.tokenId }, tokenData);
       } else {
-        await this.prisma.user.update({
-          where: { id: userId },
-          data: {
-            token: { create: tokenData },
-          },
-        });
+        const token = typeorm.getRepository(Token).create(tokenData);
+        await typeorm.getRepository(User).update({ id: userId }, { token });
       }
     } else {
-      user = await this.prisma.user.create({
-        data: {
-          id: userId,
-          channel: { create: { botId: defaultBot.id } },
-          token: { create: tokenData },
-        },
-        include: {
-          channel: true,
-          token: true,
-        },
+      const newUser = typeorm.getRepository(User).create({
+        id: userId,
+        token: await typeorm.getRepository(Token).save(tokenData),
       });
+
+      user = await typeorm.manager.save(newUser);
+      newUser.channel = await typeorm.getRepository(Channel).save({
+        id: userId,
+        botId: defaultBot.id,
+      });
+      await typeorm.manager.save(newUser);
     }
 
     if (username) {
-      await this.nats.emit('bots.joinOrLeave', {
-        action: user.channel?.isEnabled ? 'join' : 'part',
-        username,
-        botId: user.channel!.botId,
-      }).toPromise();
+      await this.nats
+        .emit('bots.joinOrLeave', {
+          action: user.channel?.isEnabled ? 'join' : 'part',
+          username,
+          botId: user.channel!.botId,
+        })
+        .toPromise();
     }
 
     await Promise.all([
@@ -110,18 +104,17 @@ export class AuthService {
 
   async getProfile(userPayload: JwtPayload) {
     const [dbUser, dashboards] = await Promise.all([
-      this.prisma.user.findFirst({ where: { id: userPayload.id } }),
-      this.prisma.dashboardAccess.findMany({
-        where: { userId: userPayload.id },
+      typeorm.getRepository(User).findOneBy({ id: userPayload.id }),
+      typeorm.getRepository(DashboardAccess).find({
+        where: { user: { id: userPayload.id } },
+        relations: { channel: true },
       }),
     ]);
 
     if (dbUser?.isBotAdmin) {
-      const channels = await this.prisma.channel.findMany({
+      const channels = await typeorm.getRepository(Channel).find({
         where: {
-          id: {
-            notIn: [...dashboards.map(d => d.channelId), dbUser.id],
-          },
+          id: Not(In([...dashboards.map((d) => d.channelId), dbUser.id])),
         },
       });
 
@@ -134,26 +127,29 @@ export class AuthService {
       }
     }
 
-    const chunks = chunk([...dashboards.map(d => d.channelId), userPayload.id], 100);
-    const twitchUsers = await Promise.all(chunks.map((c) => staticApi.users.getUsersByIds(c))).then(v => v.flat());
+    const chunks = chunk([...dashboards.map((d) => d.channelId), userPayload.id], 100);
+    const twitchUsers = await Promise.all(chunks.map((c) => staticApi.users.getUsersByIds(c))).then(
+      (v) => v.flat(),
+    );
 
-    const user = twitchUsers.find(u => u.id === userPayload.id);
+    const user = twitchUsers.find((u) => u.id === userPayload.id);
 
     if (!user || !dbUser) throw new HttpException('User not found', 404);
 
     const result: AuthUser = {
       ...getRawData(user),
       isTester: dbUser.isTester,
-      dashboards: dashboards.map(d => {
-        const twitchUser = twitchUsers.find(u => u.id === d.channelId);
-        if (!twitchUser) return;
-        return {
-          ...d,
-          twitch: getRawData(twitchUser),
-        };
-      }).filter(Boolean) as AuthUser['dashboards'],
+      dashboards: dashboards
+        .map((d) => {
+          const twitchUser = twitchUsers.find((u) => u.id === d.channelId);
+          if (!twitchUser) return;
+          return {
+            ...d,
+            twitch: getRawData(twitchUser),
+          };
+        })
+        .filter(Boolean) as AuthUser['dashboards'],
     };
-
 
     if (dbUser.isBotAdmin) {
       result.isBotAdmin = dbUser.isBotAdmin;

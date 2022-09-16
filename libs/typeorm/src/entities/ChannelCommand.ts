@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, Relation } from 'typeorm';
 
 import { type Channel } from './Channel.js';
 import { type CommandResponse } from './CommandResponse.js';
@@ -29,7 +29,7 @@ export enum CommandModule {
 @Index('channels_commands_name_channelId_key', ['channelId', 'name'], { unique: true })
 @Entity('channels_commands', { schema: 'public' })
 export class ChannelCommand {
-  @PrimaryColumn('text', { name: 'id', default: 'gen_random_uuid()' })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Index()
@@ -45,8 +45,8 @@ export class ChannelCommand {
   @Column('boolean', { name: 'enabled', default: true })
   enabled: boolean;
 
-  @Column('jsonb', { name: 'aliases', nullable: true, default: [] })
-  aliases: object | null;
+  @Column('text', { name: 'aliases', nullable: true, default: [], array: true })
+  aliases: string[] | null;
 
   @Column('text', { name: 'description', nullable: true })
   description: string | null;
@@ -54,10 +54,7 @@ export class ChannelCommand {
   @Column('boolean', { name: 'visible', default: true })
   visible: boolean;
 
-  @Index()
-  @Column('text', { name: 'channelId' })
-  channelId: string;
-
+  
   @Column('enum', {
     name: 'permission',
     enum: CommandPermission,
@@ -66,27 +63,31 @@ export class ChannelCommand {
 
   @Column('boolean', { name: 'default', default: false })
   default: boolean;
-
+  
   @Column('text', { name: 'defaultName', nullable: true })
   defaultName: string | null;
-
+  
   @Column('enum', {
     name: 'module',
     enum: CommandModule,
     default: CommandModule.CUSTOM,
   })
   module: CommandModule;
-
+  
   @ManyToOne('Channel', 'commands', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Relation<Channel>;
-
+  channel?: Relation<Channel>;
+  
+  @Index()
+  @Column('text', { name: 'channelId' })
+  channelId: string;
+  
   @OneToMany('CommandResponse', 'command')
-  responses: Relation<CommandResponse[]>;
-
+  responses?: Relation<CommandResponse[]>;
+  
   @OneToMany('CommandUsage', 'command')
-  usages: Relation<CommandUsage[]>;
+  usages?: Relation<CommandUsage[]>;
 }

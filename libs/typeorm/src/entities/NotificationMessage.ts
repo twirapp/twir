@@ -13,7 +13,7 @@ export class NotificationMessage {
   @PrimaryColumn('text', {
     primary: true,
     name: 'id',
-    default: 'gen_random_uuid()',
+    default: () => 'gen_random_uuid()',
   })
   id: string;
 
@@ -31,5 +31,8 @@ export class NotificationMessage {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'notificationId', referencedColumnName: 'id' }])
-  notification: Relation<Notification>;
+  notification?: Relation<Notification>;
+
+  @Column()
+  notificationId: string;
 }

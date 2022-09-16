@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 import { type Channel } from './Channel.js';
 
@@ -10,9 +10,8 @@ export enum CustomVarType {
 
 @Entity('channels_customvars', { schema: 'public' })
 export class ChannelCustomvar {
-  @PrimaryColumn('text', {
+  @PrimaryGeneratedColumn('uuid', {
     name: 'id',
-    default: 'gen_random_uuid()',
   })
   id: string;
 
@@ -36,5 +35,8 @@ export class ChannelCustomvar {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Channel;
+  channel?: Channel;
+
+  @Column()
+  channelId?: string;
 }

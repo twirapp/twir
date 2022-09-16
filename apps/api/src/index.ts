@@ -4,6 +4,7 @@ import { NatsOptions, Transport } from '@nestjs/microservices';
 import * as Sentry from '@sentry/node';
 import '@sentry/tracing';
 import { config } from '@tsuwari/config';
+import { AppDataSource } from '@tsuwari/typeorm';
 import cookieParser from 'cookie-parser';
 import Express from 'express';
 
@@ -15,33 +16,31 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-export async function initHttp() {
-  const app = await NestFactory.create(AppModule);
-  app.connectMicroservice<NatsOptions>({
-    transport: Transport.NATS,
-    options: {
-      servers: [config.NATS_URL],
-      timeout: 100,
-    },
-  });
+export const typeorm = await AppDataSource.initialize();
 
-  const adapter = app.getHttpAdapter() as unknown as Express.Express;
-  adapter.disable('x-powered-by');
-  adapter.disable('etag');
+const app = await NestFactory.create(AppModule);
+app.connectMicroservice<NatsOptions>({
+  transport: Transport.NATS,
+  options: {
+    servers: [config.NATS_URL],
+    timeout: 100,
+  },
+});
 
-  app.use(cookieParser());
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-    }),
-  );
+const adapter = app.getHttpAdapter() as unknown as Express.Express;
+adapter.disable('x-powered-by');
+adapter.disable('etag');
 
-  await app.startAllMicroservices();
-  await app.listen(3002);
-}
+app.use(cookieParser());
+app.useGlobalPipes(
+  new ValidationPipe({
+    transform: true,
+    whitelist: true,
+  }),
+);
 
-initHttp();
+await app.startAllMicroservices();
+await app.listen(3002);
 
 process
   .on('uncaughtException', (e) => console.error(e))

@@ -9,7 +9,7 @@ export class DashboardAccess {
   @PrimaryColumn('text', {
     primary: true,
     name: 'id',
-    default: 'gen_random_uuid()',
+    default: () => 'gen_random_uuid()',
   })
   id: string;
 
@@ -18,12 +18,18 @@ export class DashboardAccess {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Relation<Channel>;
+  channel?: Relation<Channel>;
+
+  @Column()
+  channelId: string;
 
   @ManyToOne('User', 'dashboardAccess', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user: Relation<User>;
+  user?: Relation<User>;
+
+  @Column()
+  userId: string;
 }

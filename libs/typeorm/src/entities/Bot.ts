@@ -21,18 +21,18 @@ export class Bot {
   
   @Column('enum', { name: 'type', enum: BotType })
   type: BotType;
-  
-  @Index()
-  @Column('text', { name: 'tokenId', nullable: true, unique: true })
-  tokenId: string | null;
 
   @OneToOne('Token', 'bots', {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'tokenId', referencedColumnName: 'id', foreignKeyConstraintName: 'bots_tokenId_key' }])
-  token: Relation<Token>;
+  token?: Relation<Token>;
+
+  @Index()
+  @Column('text', { name: 'tokenId', nullable: true, unique: true })
+  tokenId: string | null;
 
   @OneToMany('Channel', 'bot')
-  channels: Relation<Channel[]>;
+  channels?: Relation<Channel[]>;
 }

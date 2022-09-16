@@ -1,15 +1,15 @@
 /* eslint-disable import/no-cycle */
 import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  OneToOne,
-  PrimaryColumn,
-  // eslint-disable-next-line comma-dangle
-  Relation
+    Column,
+    Entity,
+    Index,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    OneToOne,
+    PrimaryColumn,
+    // eslint-disable-next-line comma-dangle
+    Relation
 } from 'typeorm';
 
 import { type DotaGameMode } from './DotaGameMode.js';
@@ -21,7 +21,7 @@ export class DotaMatch {
   @PrimaryColumn('text', {
     primary: true,
     name: 'id',
-    default: 'gen_random_uuid()',
+    default: () => 'gen_random_uuid()',
   })
   id: string;
 
@@ -61,11 +61,14 @@ export class DotaMatch {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'gameModeId', referencedColumnName: 'id' }])
-  gameMode: Relation<DotaGameMode>;
+  gameMode?: Relation<DotaGameMode>;
+
+  @Column()
+  gameModeId: number;
 
   @OneToMany('DotaMatchCard', 'match')
-  cards: Relation<DotaMatchCard[]>;
+  cards?: Relation<DotaMatchCard[]>;
 
   @OneToOne('DotaMatchResult', 'match')
-  result: Relation<DotaMatchResult>;
+  result?: Relation<DotaMatchResult>;
 }

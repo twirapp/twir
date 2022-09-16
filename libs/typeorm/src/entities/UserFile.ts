@@ -9,7 +9,7 @@ export class UserFile {
   @PrimaryColumn('text', {
     primary: true,
     name: 'id',
-    default: 'gen_random_uuid()',
+    default: () => 'gen_random_uuid()',
   })
   id: string;
 
@@ -27,5 +27,8 @@ export class UserFile {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user: Relation<User>;
+  user?: Relation<User>;
+
+  @Column()
+  userId: string;
 }

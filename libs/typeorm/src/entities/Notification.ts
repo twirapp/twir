@@ -5,13 +5,12 @@ import { type NotificationMessage } from './NotificationMessage.js';
 import { type User } from './User.js';
 import { type UserViewedNotification } from './UserViewedNotification.js';
 
-
 @Entity('notifications', { schema: 'public' })
 export class Notification {
   @PrimaryColumn('text', {
     primary: true,
     name: 'id',
-    default: 'gen_random_uuid()',
+    default: () => 'gen_random_uuid()',
   })
   id: string;
 
@@ -28,11 +27,14 @@ export class Notification {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user: Relation<User>;
+  user?: Relation<User>;
+
+  @Column()
+  userId?: string;
 
   @OneToMany('NotificationMessage', 'notification')
-  messages: Relation<NotificationMessage[]>;
+  messages?: Relation<NotificationMessage[]>;
 
   @OneToMany('UserViewedNotification', 'notification')
-  viewedNotifications: Relation<UserViewedNotification[]>;
+  viewedNotifications?: Relation<UserViewedNotification[]>;
 }

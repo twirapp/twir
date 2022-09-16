@@ -1,5 +1,4 @@
-/* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 
 import { type ChannelCommand } from './ChannelCommand.js';
 import { type User } from './User.js';
@@ -9,7 +8,7 @@ export class CommandUsage {
   @PrimaryColumn('text', {
     primary: true,
     name: 'id',
-    default: 'gen_random_uuid()',
+    default: () => 'gen_random_uuid()',
   })
   id: string;
 
@@ -21,12 +20,18 @@ export class CommandUsage {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'commandId', referencedColumnName: 'id' }])
-  command: Relation<ChannelCommand>;
+  command?: Relation<ChannelCommand>;
+
+  @Column()
+  commandId: string;
 
   @ManyToOne('User', 'commandUsages', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user: Relation<User>;
+  user?: Relation<User>;
+
+  @Column()
+  userId: string;
 }

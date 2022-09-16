@@ -16,10 +16,6 @@ export class User {
   @PrimaryColumn('text', { primary: true, name: 'id' })
   id: string;
 
-  @Index()
-  @Column('text', { name: 'tokenId', nullable: true })
-  tokenId: string | null;
-
   @Column('boolean', { name: 'isTester', default: false })
   isTester: boolean;
 
@@ -27,30 +23,34 @@ export class User {
   isBotAdmin: boolean;
 
   @OneToOne('Channel', 'user')
-  channel: Relation<Channel>;
+  channel?: Relation<Channel>;
 
   @OneToMany('CommandUsage', 'user')
-  commandUsages: Relation<CommandUsage[]>;
+  commandUsages?: Relation<CommandUsage[]>;
 
   @OneToMany('DashboardAccess', 'user')
-  dashboardAccess: Relation<DashboardAccess[]>;
+  dashboardAccess?: Relation<DashboardAccess[]>;
 
   @OneToMany('ChannelPermit', 'user')
-  permits: Relation<ChannelPermit[]>;
+  permits?: Relation<ChannelPermit[]>;
 
   @OneToMany('Notification', 'user')
-  notifications: Relation<Notification[]>;
+  notifications?: Relation<Notification[]>;
 
   @OneToOne('Token', 'users', { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
   @JoinColumn([{ name: 'tokenId', referencedColumnName: 'id' }])
-  token: Relation<Token>;
+  token?: Relation<Token>;
+
+  @Index()
+  @Column('text', { name: 'tokenId', nullable: true })
+  tokenId: string | null;
 
   @OneToMany('UserFile', 'user')
-  files: Relation<UserFile[]>;
+  files?: Relation<UserFile[]>;
 
   @OneToMany('UserStats', 'user')
-  stats: Relation<UserStats[]>;
+  stats?: Relation<UserStats[]>;
 
   @OneToMany('UserViewedNotification', 'user')
-  viewedNotifications: Relation<UserViewedNotification[]>;
+  viewedNotifications?: Relation<UserViewedNotification[]>;
 }

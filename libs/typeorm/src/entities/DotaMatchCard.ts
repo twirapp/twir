@@ -11,12 +11,9 @@ export class DotaMatchCard {
   @PrimaryColumn('text', {
     primary: true,
     name: 'id',
-    default: 'gen_random_uuid()',
+    default: () => 'gen_random_uuid()',
   })
   id: string;
-
-  @Column('text', { name: 'match_id' })
-  matchId: string;
 
   @Column('text', { name: 'account_id' })
   accountId: string;
@@ -32,5 +29,8 @@ export class DotaMatchCard {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'match_id', referencedColumnName: 'id' }])
-  match: Relation<DotaMatch>;
+  match?: Relation<DotaMatch>;
+
+  @Column('text', { name: 'match_id' })
+  matchId: string;
 }

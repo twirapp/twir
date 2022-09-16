@@ -16,7 +16,7 @@ export class Integration {
   @PrimaryColumn('text', {
     primary: true,
     name: 'id',
-    default: 'gen_random_uuid()',
+    default: () => 'gen_random_uuid()',
   })
   id: string;
 
@@ -45,5 +45,5 @@ export class Integration {
   redirectUrl: string | null;
 
   @OneToMany('ChannelIntegration', 'integration')
-  channelsIntegrations: Relation<ChannelIntegration[]>;
+  channelsIntegrations?: Relation<ChannelIntegration[]>;
 }

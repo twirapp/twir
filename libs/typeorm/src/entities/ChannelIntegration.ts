@@ -1,16 +1,12 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Relation } from 'typeorm';
 
 import { type Channel } from './Channel.js';
 import { type Integration } from './Integration.js';
 
 @Entity('channels_integrations', { schema: 'public' })
 export class ChannelIntegration {
-  @PrimaryColumn('text', {
-    primary: true,
-    name: 'id',
-    default: 'gen_random_uuid()',
-  })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column('boolean', { name: 'enabled', default: false })
@@ -39,12 +35,15 @@ export class ChannelIntegration {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Relation<Channel>;
+  channel?: Relation<Channel>;
+
+  @Column()
+  channelId: string;
 
   @ManyToOne('Integration', 'channelsIntegrations', {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'integrationId', referencedColumnName: 'id' }])
-  integration: Relation<Integration>;
+  integration?: Relation<Integration>;
 }

@@ -46,6 +46,7 @@ importers:
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/spotify': workspace:*
+      '@tsuwari/typeorm': workspace:*
       '@twurple/api': ^5.2.1
       '@twurple/auth': ^5.2.1
       '@twurple/chat': ^5.2.1
@@ -98,6 +99,7 @@ importers:
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/spotify': link:../../libs/integrations/spotify
+      '@tsuwari/typeorm': link:../../libs/typeorm
       '@twurple/api': 5.2.1_@twurple+auth@5.2.1
       '@twurple/auth': 5.2.1
       '@twurple/chat': 5.2.1_@twurple+auth@5.2.1
@@ -578,6 +580,7 @@ importers:
       '@nestjs/microservices': 9.0.9
       '@tsuwari/config': workspace:*
       '@tsuwari/prisma': workspace:*
+      '@tsuwari/typeorm': workspace:*
       '@twurple/api': 5.2.1
       '@twurple/auth': 5.2.1
       '@twurple/common': 5.2.1
@@ -593,6 +596,7 @@ importers:
       '@nestjs/microservices': 9.0.9_rco65e6sjd6ppcxn5pylwpmxiy
       '@tsuwari/config': link:../config
       '@tsuwari/prisma': link:../prisma
+      '@tsuwari/typeorm': link:../typeorm
       '@twurple/api': 5.2.1_@twurple+auth@5.2.1
       '@twurple/auth': 5.2.1
       '@twurple/common': 5.2.1

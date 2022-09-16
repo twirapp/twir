@@ -1,9 +1,12 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
-import { Command, PrismaService, Response } from '@tsuwari/prisma';
 import { ClientProxy, RedisService } from '@tsuwari/shared';
+import { ArrayContains, In, Not } from '@tsuwari/typeorm';
+import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
+import { CommandResponse } from '@tsuwari/typeorm/entities/CommandResponse';
 
+import { typeorm } from '../../index.js';
 import { UpdateOrCreateCommandDto } from './dto/create.js';
 
 @Injectable()
@@ -11,16 +14,14 @@ export class CommandsService {
   @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
   nats: ClientProxy;
 
-  constructor(private readonly prisma: PrismaService, private readonly redis: RedisService) {}
+  constructor(private readonly redis: RedisService) {}
 
   async getList(userId: string) {
     await this.nats.send('bots.createDefaultCommands', [userId]).toPromise();
 
-    const commands: (Command & {
-      responses?: Response[];
-    })[] = await this.prisma.command.findMany({
+    const commands = await typeorm.getRepository(ChannelCommand).find({
       where: { channelId: userId },
-      include: {
+      relations: {
         responses: true,
       },
     });
@@ -28,10 +29,7 @@ export class CommandsService {
     return commands;
   }
 
-  async setCommandCache(
-    command: Command & { responses?: Response[] },
-    oldCommand?: Command & { responses?: Response[] },
-  ) {
+  async setCommandCache(command: ChannelCommand, oldCommand?: ChannelCommand) {
     if (oldCommand) {
       await this.redis.del(`commands:${oldCommand.channelId}:${oldCommand.name}`);
     }
@@ -52,51 +50,48 @@ export class CommandsService {
   }
 
   async create(userId: string, data: UpdateOrCreateCommandDto & { defaultName?: string }) {
-    const isExists = await this.prisma.command.findMany({
-      where: {
-        name: data.name,
-        OR: {
-          name: { in: data.aliases },
-          aliases: {
-            array_contains: data.aliases,
-          },
+    const isExists = await typeorm.getRepository(ChannelCommand).find({
+      where: [
+        { name: data.name },
+        {
+          aliases: ArrayContains(data.aliases ?? []),
         },
-      },
+        {
+          name: In(data.aliases ?? []),
+        },
+      ],
     });
 
     if (isExists.length) {
-      throw new HttpException(`Command already exists`, 400);
+      throw new HttpException(`Command with that name or aliase already exists`, 400);
     }
 
     if (!data.responses?.length) {
       throw new HttpException(`You should add atleast 1 response to command.`, 400);
     }
 
-    const command = await this.prisma.command.create({
-      data: {
-        ...data,
-        channelId: userId,
-        responses: {
-          createMany: {
-            data: data.responses
-              .filter((r) => r.text)
-              .map((r) => ({ text: r.text?.trim().replace(/(\r\n|\n|\r)/, '') })),
-          },
-        },
-      },
-      include: {
-        responses: true,
-      },
+    const command = await typeorm.getRepository(ChannelCommand).save({
+      ...data,
+      channelId: userId,
     });
 
+    command.responses = await typeorm.getRepository(CommandResponse).save(
+      data.responses
+        .filter((r) => r.text)
+        .map((r) => ({
+          commandId: command.id,
+          text: r.text?.trim().replace(/(\r\n|\n|\r)/, ''),
+        })),
+    );
+
     await this.setCommandCache(command);
-    return command;
+    return command as ChannelCommand;
   }
 
   async delete(userId: string, commandId: string) {
-    const command = await this.prisma.command.findFirst({
-      where: { channelId: userId, id: commandId },
-    });
+    const command = await typeorm
+      .getRepository(ChannelCommand)
+      .findOneBy({ channelId: userId, id: commandId });
 
     if (!command) {
       throw new HttpException('Command not exists', 404);
@@ -106,10 +101,8 @@ export class CommandsService {
       throw new HttpException('You cannot delete default command.', 400);
     }
 
-    const result = await this.prisma.command.delete({
-      where: {
-        id: commandId,
-      },
+    const result = await typeorm.getRepository(ChannelCommand).delete({
+      id: commandId,
     });
 
     await this.redis.del(`commands:${userId}:${command.name}`);
@@ -123,10 +116,27 @@ export class CommandsService {
   }
 
   async update(userId: string, commandId: string, data: UpdateOrCreateCommandDto) {
-    const command = await this.prisma.command.findFirst({
-      where: { channelId: userId, id: commandId },
-      include: { responses: true },
+    const isExists = await typeorm.getRepository(ChannelCommand).find({
+      where: [
+        { name: data.name, id: Not(commandId) },
+        {
+          id: Not(commandId),
+          aliases: ArrayContains(data.aliases ?? []),
+        },
+        {
+          id: Not(commandId),
+          name: In(data.aliases ?? []),
+        },
+      ],
     });
+
+    if (isExists.length) {
+      throw new HttpException(`Command with this name or aliase already exists`, 400);
+    }
+
+    const command = await typeorm
+      .getRepository(ChannelCommand)
+      .findOneBy({ channelId: userId, id: commandId });
 
     if (!command) {
       throw new HttpException('Command not exists', 404);
@@ -136,51 +146,36 @@ export class CommandsService {
       throw new HttpException(`You should add atleast 1 response to command.`, 400);
     }
 
-    data.responses = data.responses
-      ?.filter((r) => r.text)
-      .map((r) => ({ ...r, text: r.text ? r.text.trim().replace(/(\r\n|\n|\r)/, '') : null }));
+    await typeorm.getRepository(CommandResponse).delete({
+      commandId: command.id,
+    });
 
-    const responsesForUpdate = data.responses
-      .filter((r) => command.responses.some((c) => c.id === r.id && r.text && r.id))
-      .map((r) => ({ id: r.id, text: r.text }))
-      .map((r) => this.prisma.response.update({ where: { id: r.id }, data: { text: r.text } }));
-
-    const [newCommand] = await this.prisma.$transaction([
-      this.prisma.command.update({
-        where: { id: commandId },
-        data: {
-          ...data,
-          channelId: userId,
-          responses: {
-            deleteMany: command.responses.filter(
-              (r) => !data.responses.map((s) => s.id).includes(r.id),
-            ),
-            createMany: {
-              data: data.responses.filter((r) => !command.responses.some((c) => c.id === r.id)),
-              skipDuplicates: true,
-            },
-          },
-        },
-        include: {
-          responses: true,
-        },
-      }),
-      ...responsesForUpdate,
-    ]);
-
-    const newResponses = await this.prisma.response.findMany({ where: { commandId: command.id } });
-
-    await this.setCommandCache(
-      {
-        ...newCommand,
-        responses: newResponses.flat(),
-      },
-      command,
+    await typeorm.getRepository(CommandResponse).save(
+      data.responses
+        ?.filter((r) => r.text)
+        .map((r) => ({
+          commandId: command.id,
+          text: r.text ? r.text.trim().replace(/(\r\n|\n|\r)/, '') : null,
+        })),
     );
 
-    return {
-      ...newCommand,
-      responses: newResponses.flat(),
-    };
+    await typeorm.getRepository(ChannelCommand).update(
+      { id: command.id },
+      {
+        ...data,
+        responses: undefined,
+      },
+    );
+
+    const newCommand = await typeorm.getRepository(ChannelCommand).findOne({
+      where: { id: command.id },
+      relations: {
+        responses: true,
+      },
+    });
+
+    await this.setCommandCache(newCommand!, command);
+
+    return newCommand;
   }
 }
