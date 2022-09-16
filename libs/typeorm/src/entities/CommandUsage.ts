@@ -1,13 +1,12 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 
-import { ChannelCommand } from './ChannelCommand.js';
-import { User } from './User.js';
+import { type ChannelCommand } from './ChannelCommand.js';
+import { type User } from './User.js';
 
-@Index('channels_commands_usages_pkey', ['id'], { unique: true })
 @Entity('channels_commands_usages', { schema: 'public' })
 export class CommandUsage {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',
@@ -17,17 +16,17 @@ export class CommandUsage {
   @Column('text', { name: 'channelId' })
   channelId: string;
 
-  @ManyToOne(() => ChannelCommand, (command) => command.usages, {
+  @ManyToOne('ChannelCommand', 'usages', {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'commandId', referencedColumnName: 'id' }])
-  command: ChannelCommand;
+  command: Relation<ChannelCommand>;
 
-  @ManyToOne(() => User, (user) => user.commandUsages, {
+  @ManyToOne('User', 'commandUsages', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user: User;
+  user: Relation<User>;
 }

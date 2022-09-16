@@ -1,36 +1,33 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 
-import { Notification } from './Notification.js';
-import { User } from './User.js';
+import { type Notification } from './Notification.js';
+import { type User } from './User.js';
 
-@Index('users_viewed_notifications_pkey', ['id'], { unique: true })
+
 @Entity('users_viewed_notifications', { schema: 'public' })
 export class UserViewedNotification {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',
   })
   id: string;
 
-  @Column('timestamp without time zone', {
-    name: 'createdAt',
-    default: 'CURRENT_TIMESTAMP',
-  })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne(() => Notification, (notification) => notification.viewedNotifications, {
+  @ManyToOne('Notification', 'viewedNotifications', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'notificationId', referencedColumnName: 'id' }])
-  notification: Notification;
+  notification: Relation<Notification>;
 
-  @ManyToOne(() => User, (user) => user.viewedNotifications, {
+  @ManyToOne('User', 'viewedNotifications', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user: User;
+  user: Relation<User>;
 }

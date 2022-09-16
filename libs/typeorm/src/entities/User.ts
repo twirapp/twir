@@ -1,23 +1,22 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, OneToMany, OneToOne, PrimaryColumn, Relation } from 'typeorm';
 
-import { Channel } from './Channel.js';
-import { ChannelPermit } from './ChannelPermit.js';
-import { CommandUsage } from './CommandUsage.js';
-import { DashboardAccess } from './DashboardAccess.js';
-import { Notification } from './Notification.js';
-import { Token } from './Token.js';
-import { UserFile } from './UserFile.js';
-import { UserStats } from './UserStats.js';
-import { UserViewedNotification } from './UserViewedNotification.js';
+import { type Channel } from './Channel.js';
+import { type ChannelPermit } from './ChannelPermit.js';
+import { type CommandUsage } from './CommandUsage.js';
+import { type DashboardAccess } from './DashboardAccess.js';
+import { type Notification } from './Notification.js';
+import { type Token } from './Token.js';
+import { type UserFile } from './UserFile.js';
+import { type UserStats } from './UserStats.js';
+import { type UserViewedNotification } from './UserViewedNotification.js';
 
-@Index('users_pkey', ['id'], { unique: true })
-@Index('users_tokenId_key', ['tokenId'], { unique: true })
 @Entity('users', { schema: 'public' })
 export class User {
-  @Column('text', { primary: true, name: 'id' })
+  @PrimaryColumn('text', { primary: true, name: 'id' })
   id: string;
 
+  @Index()
   @Column('text', { name: 'tokenId', nullable: true })
   tokenId: string | null;
 
@@ -27,34 +26,31 @@ export class User {
   @Column('boolean', { name: 'isBotAdmin', default: false })
   isBotAdmin: boolean;
 
-  @OneToOne(() => Channel, (channel) => channel.user)
-  channel: Channel;
+  @OneToOne('Channel', 'user')
+  channel: Relation<Channel>;
 
-  @OneToMany(() => CommandUsage, (commandUsages) => commandUsages.user)
-  commandUsages: CommandUsage[];
+  @OneToMany('CommandUsage', 'user')
+  commandUsages: Relation<CommandUsage[]>;
 
-  @OneToMany(() => DashboardAccess, (dashboardAccess) => dashboardAccess.user)
-  dashboardAccess: DashboardAccess[];
+  @OneToMany('DashboardAccess', 'user')
+  dashboardAccess: Relation<DashboardAccess[]>;
 
-  @OneToMany(() => ChannelPermit, (permit) => permit.user)
-  permits: ChannelPermit[];
+  @OneToMany('ChannelPermit', 'user')
+  permits: Relation<ChannelPermit[]>;
 
-  @OneToMany(() => Notification, (notifications) => notifications.user)
-  notifications: Notification[];
+  @OneToMany('Notification', 'user')
+  notifications: Relation<Notification[]>;
 
-  @OneToOne(() => Token, (tokens) => tokens.users, { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
+  @OneToOne('Token', 'users', { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
   @JoinColumn([{ name: 'tokenId', referencedColumnName: 'id' }])
-  token: Token;
+  token: Relation<Token>;
 
-  @OneToMany(() => UserFile, (file) => file.user)
-  files: UserFile[];
+  @OneToMany('UserFile', 'user')
+  files: Relation<UserFile[]>;
 
-  @OneToMany(() => UserStats, (stats) => stats.user)
-  stats: UserStats[];
+  @OneToMany('UserStats', 'user')
+  stats: Relation<UserStats[]>;
 
-  @OneToMany(
-    () => UserViewedNotification,
-    (usersViewedNotifications) => usersViewedNotifications.user,
-  )
-  viewedNotifications: UserViewedNotification[];
+  @OneToMany('UserViewedNotification', 'user')
+  viewedNotifications: Relation<UserViewedNotification[]>;
 }

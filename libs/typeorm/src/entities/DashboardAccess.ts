@@ -1,30 +1,29 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 
-import { Channel } from './Channel.js';
-import { User } from './User.js';
+import { type Channel } from './Channel.js';
+import { type User } from './User.js';
 
-@Index('channels_dashboard_access_pkey', ['id'], { unique: true })
 @Entity('channels_dashboard_access', { schema: 'public' })
 export class DashboardAccess {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',
   })
   id: string;
 
-  @ManyToOne(() => Channel, (channels) => channels.dashboardAccess, {
+  @ManyToOne('Channel', 'dashboardAccess', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Channel;
+  channel: Relation<Channel>;
 
-  @ManyToOne(() => User, (users) => users.dashboardAccess, {
+  @ManyToOne('User', 'dashboardAccess', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user: User;
+  user: Relation<User>;
 }

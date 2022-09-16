@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import { Column, Entity, Index, OneToMany, PrimaryColumn, Relation } from 'typeorm';
 
-import { ChannelIntegration } from './ChannelIntegration.js';
+import { type ChannelIntegration } from './ChannelIntegration.js';
 
 export enum IntegrationService {
   LASTFM = 'LASTFM',
@@ -11,13 +11,12 @@ export enum IntegrationService {
   DONATIONALERTS = 'DONATIONALERTS',
 }
 
-@Index('integrations_pkey', ['id'], { unique: true })
 @Entity('integrations', { schema: 'public' })
 export class Integration {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
-    default: () => 'gen_random_uuid()',
+    default: 'gen_random_uuid()',
   })
   id: string;
 
@@ -45,6 +44,6 @@ export class Integration {
   @Column('text', { name: 'redirectUrl', nullable: true })
   redirectUrl: string | null;
 
-  @OneToMany(() => ChannelIntegration, (channelIntegration) => channelIntegration.integration)
-  channelsIntegrations: ChannelIntegration[];
+  @OneToMany('ChannelIntegration', 'integration')
+  channelsIntegrations: Relation<ChannelIntegration[]>;
 }

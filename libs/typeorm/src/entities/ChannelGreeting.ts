@@ -1,12 +1,11 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 
-import { Channel } from './Channel.js';
+import { type Channel } from './Channel.js';
 
-@Index('channels_greetings_pkey', ['id'], { unique: true })
 @Entity('channels_greetings', { schema: 'public' })
 export class ChannelGreeting {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',
@@ -22,10 +21,10 @@ export class ChannelGreeting {
   @Column('text', { name: 'text' })
   text: string;
 
-  @ManyToOne(() => Channel, (channels) => channels.greetings, {
+  @ManyToOne('Channel', 'greetings', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Channel;
+  channel: Relation<Channel>;
 }

@@ -1,16 +1,15 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 
-import { Channel } from './Channel.js';
-import { User } from './User.js';
+import { type Channel } from './Channel.js';
+import { type User } from './User.js';
 
 @Index('users_stats_userId_channelId_key', ['channelId', 'userId'], {
   unique: true,
 })
-@Index('users_stats_pkey', ['id'], { unique: true })
 @Entity('users_stats', { schema: 'public' })
 export class UserStats {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',
@@ -29,17 +28,17 @@ export class UserStats {
   @Column('bigint', { name: 'watched', default: 0 })
   watched: bigint;
 
-  @ManyToOne(() => Channel, (channel) => channel.usersStats, {
+  @ManyToOne('Channel', 'usersStats', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Channel;
+  channel: Relation<Channel>;
 
-  @ManyToOne(() => User, (user) => user.stats, {
+  @ManyToOne('User', 'stats', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user: User;
+  user: Relation<User>;
 }

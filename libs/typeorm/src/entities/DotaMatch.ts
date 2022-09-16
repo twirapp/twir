@@ -7,18 +7,18 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  Relation,
+  PrimaryColumn,
+  // eslint-disable-next-line comma-dangle
+  Relation
 } from 'typeorm';
 
-import { DotaGameMode } from './DotaGameMode.js';
-import { DotaMatchCard } from './DotaMatchCard.js';
-import { DotaMatchResult } from './DotaMatchResult.js';
+import { type DotaGameMode } from './DotaGameMode.js';
+import { type DotaMatchCard } from './DotaMatchCard.js';
+import { type DotaMatchResult } from './DotaMatchResult.js';
 
-@Index('dota_matches_pkey', ['id'], { unique: true })
-@Index('dota_matches_match_id_key', ['matchId'], { unique: true })
 @Entity('dota_matches', { schema: 'public' })
 export class DotaMatch {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',
@@ -43,7 +43,8 @@ export class DotaMatch {
   @Column('text', { name: 'weekend_tourney_skill_level', nullable: true })
   weekendTourneySkillLevel: string | null;
 
-  @Column('text', { name: 'match_id' })
+  @Index()
+  @Column('text', { name: 'match_id', unique: true })
   matchId: string;
 
   @Column('integer', { name: 'avarage_mmr' })
@@ -55,15 +56,15 @@ export class DotaMatch {
   @Column('boolean', { name: 'finished', default: false })
   finished: boolean;
 
-  @ManyToOne(() => DotaGameMode, (gameMode) => gameMode.dotaMatches, {
+  @ManyToOne('DotaGameMode', 'dotaMatches', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'gameModeId', referencedColumnName: 'id' }])
-  gameMode: DotaGameMode;
+  gameMode: Relation<DotaGameMode>;
 
-  @OneToMany(() => DotaMatchCard, (matchCard) => matchCard.match)
-  cards: DotaMatchCard[];
+  @OneToMany('DotaMatchCard', 'match')
+  cards: Relation<DotaMatchCard[]>;
 
   @OneToOne('DotaMatchResult', 'match')
   result: Relation<DotaMatchResult>;

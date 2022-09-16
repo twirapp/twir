@@ -1,18 +1,16 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
-import { Channel } from './Channel.js';
+import { type Channel } from './Channel.js';
 
 export enum CustomVarType {
   SCRIPT = 'SCRIPT',
   TEXT = 'TEXT',
 }
 
-@Index('channels_customvars_pkey', ['id'], { unique: true })
 @Entity('channels_customvars', { schema: 'public' })
 export class ChannelCustomvar {
-  @Column('text', {
-    primary: true,
+  @PrimaryColumn('text', {
     name: 'id',
     default: 'gen_random_uuid()',
   })
@@ -33,7 +31,7 @@ export class ChannelCustomvar {
   @Column('text', { name: 'response', nullable: true })
   response: string | null;
 
-  @ManyToOne(() => Channel, (channels) => channels.customVar, {
+  @ManyToOne('Channel', 'customVar', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })

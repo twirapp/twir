@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 
-import { Channel } from './Channel.js';
+import { type Channel } from './Channel.js';
 
 export enum SettingsType {
   links = 'links',
@@ -13,10 +13,9 @@ export enum SettingsType {
 }
 
 @Index('channels_moderation_settings_channelId_type_key', ['channelId', 'type'], { unique: true })
-@Index('channels_moderation_settings_pkey', ['id'], { unique: true })
 @Entity('channels_moderation_settings', { schema: 'public' })
 export class ChannelModerationSetting {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',
@@ -74,10 +73,10 @@ export class ChannelModerationSetting {
   @Column('jsonb', { name: 'blackListSentences', nullable: true, default: [] })
   blackListSentences: string[] | null;
 
-  @ManyToOne(() => Channel, (channel) => channel.moderationSettings, {
+  @ManyToOne('Channel', 'moderationSettings', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Channel;
+  channel: Relation<Channel>;
 }

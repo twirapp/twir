@@ -1,14 +1,14 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, Relation } from 'typeorm';
 
-import { NotificationMessage } from './NotificationMessage.js';
-import { User } from './User.js';
-import { UserViewedNotification } from './UserViewedNotification.js';
+import { type NotificationMessage } from './NotificationMessage.js';
+import { type User } from './User.js';
+import { type UserViewedNotification } from './UserViewedNotification.js';
 
-@Index('notifications_pkey', ['id'], { unique: true })
+
 @Entity('notifications', { schema: 'public' })
 export class Notification {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',
@@ -18,25 +18,21 @@ export class Notification {
   @Column('text', { name: 'imageSrc', nullable: true })
   imageSrc: string | null;
 
-  @Column('timestamp without time zone', {
+  @CreateDateColumn({
     name: 'createdAt',
-    default: 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
-  @ManyToOne(() => User, (users) => users.notifications, {
+  @ManyToOne('User', 'notifications', {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user: User;
+  user: Relation<User>;
 
-  @OneToMany(() => NotificationMessage, (message) => message.notification)
-  messages: NotificationMessage[];
+  @OneToMany('NotificationMessage', 'notification')
+  messages: Relation<NotificationMessage[]>;
 
-  @OneToMany(
-    () => UserViewedNotification,
-    (usersViewedNotifications) => usersViewedNotifications.notification,
-  )
-  viewedNotifications: UserViewedNotification[];
+  @OneToMany('UserViewedNotification', 'notification')
+  viewedNotifications: Relation<UserViewedNotification[]>;
 }

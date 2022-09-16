@@ -1,9 +1,9 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, Relation } from 'typeorm';
 
-import { Channel } from './Channel.js';
-import { CommandResponse } from './CommandResponse.js';
-import { CommandUsage } from './CommandUsage.js';
+import { type Channel } from './Channel.js';
+import { type CommandResponse } from './CommandResponse.js';
+import { type CommandUsage } from './CommandUsage.js';
 
 export enum CooldownType {
   GLOBAL = 'GLOBAL',
@@ -26,15 +26,13 @@ export enum CommandModule {
   MODERATION = 'MODERATION',
 }
 
-@Index('channels_commands_channelId_idx', ['channelId'], {})
 @Index('channels_commands_name_channelId_key', ['channelId', 'name'], { unique: true })
-@Index('channels_commands_pkey', ['id'], { unique: true })
-@Index('channels_commands_name_idx', ['name'], {})
 @Entity('channels_commands', { schema: 'public' })
 export class ChannelCommand {
-  @Column('text', { primary: true, name: 'id', default: () => 'gen_random_uuid()' })
+  @PrimaryColumn('text', { name: 'id', default: 'gen_random_uuid()' })
   id: string;
 
+  @Index()
   @Column('text', { name: 'name' })
   name: string;
 
@@ -56,6 +54,7 @@ export class ChannelCommand {
   @Column('boolean', { name: 'visible', default: true })
   visible: boolean;
 
+  @Index()
   @Column('text', { name: 'channelId' })
   channelId: string;
 
@@ -78,16 +77,16 @@ export class ChannelCommand {
   })
   module: CommandModule;
 
-  @ManyToOne(() => Channel, (channel) => channel.commands, {
+  @ManyToOne('Channel', 'commands', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Channel;
+  channel: Relation<Channel>;
 
-  @OneToMany(() => CommandResponse, (response) => response.command)
-  responses: CommandResponse[];
+  @OneToMany('CommandResponse', 'command')
+  responses: Relation<CommandResponse[]>;
 
-  @OneToMany(() => CommandUsage, (usage) => usage.command)
-  usages: CommandUsage[];
+  @OneToMany('CommandUsage', 'command')
+  usages: Relation<CommandUsage[]>;
 }

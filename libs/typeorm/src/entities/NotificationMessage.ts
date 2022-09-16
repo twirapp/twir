@@ -1,17 +1,16 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 
-import { Notification } from './Notification.js';
+import { type Notification } from './Notification.js';
 
 export enum LangCode {
   RU = 'RU',
   GB = 'GB',
 }
 
-@Index('notifications_messages_pkey', ['id'], { unique: true })
 @Entity('notifications_messages', { schema: 'public' })
 export class NotificationMessage {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',
@@ -27,10 +26,10 @@ export class NotificationMessage {
   @Column('enum', { name: 'langCode', enum: LangCode })
   langCode: LangCode;
 
-  @ManyToOne(() => Notification, (notifications) => notifications.messages, {
+  @ManyToOne('Notification', 'messages', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'notificationId', referencedColumnName: 'id' }])
-  notification: Notification;
+  notification: Relation<Notification>;
 }

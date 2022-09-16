@@ -1,13 +1,12 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, OneToOne } from 'typeorm';
+import { Column, Entity, Index, OneToOne, PrimaryColumn, Relation } from 'typeorm';
 
-import { Bot } from './Bot.js';
-import { User } from './User.js';
+import { type Bot } from './Bot.js';
+import { type User } from './User.js';
 
-@Index('tokens_pkey', ['id'], { unique: true })
 @Entity('tokens', { schema: 'public' })
 export class Token {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',
@@ -26,9 +25,9 @@ export class Token {
   @Column('timestamp without time zone', { name: 'obtainmentTimestamp' })
   obtainmentTimestamp: Date;
 
-  @OneToOne(() => Bot, (bot) => bot.token)
-  bots: Bot;
+  @OneToOne('Bot', 'token')
+  bots: Relation<Bot>;
 
-  @OneToOne(() => User, (user) => user.token)
-  users: User;
+  @OneToOne('User', 'token')
+  users: Relation<User>;
 }

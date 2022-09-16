@@ -1,13 +1,12 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 
-import { Channel } from './Channel.js';
-import { Integration } from './Integration.js';
+import { type Channel } from './Channel.js';
+import { type Integration } from './Integration.js';
 
-@Index('channels_integrations_pkey', ['id'], { unique: true })
 @Entity('channels_integrations', { schema: 'public' })
 export class ChannelIntegration {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',
@@ -35,17 +34,17 @@ export class ChannelIntegration {
   @Column('jsonb', { name: 'data', nullable: true })
   data: Record<string, any> | null;
 
-  @ManyToOne(() => Channel, (channels) => channels.channelsIntegrations, {
+  @ManyToOne('Channel', 'channelsIntegrations', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Channel;
+  channel: Relation<Channel>;
 
-  @ManyToOne(() => Integration, (integrations) => integrations.channelsIntegrations, {
+  @ManyToOne('Integration', 'channelsIntegrations', {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'integrationId', referencedColumnName: 'id' }])
-  integration: Integration;
+  integration: Relation<Integration>;
 }

@@ -1,15 +1,14 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, Relation } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 
 import { type DotaMatch } from './DotaMatch.js';
 
 @Index('dota_matches_cards_match_id_account_id_key', ['accountId', 'matchId'], {
   unique: true,
 })
-@Index('dota_matches_cards_pkey', ['id'], { unique: true })
 @Entity('dota_matches_cards', { schema: 'public' })
 export class DotaMatchCard {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',

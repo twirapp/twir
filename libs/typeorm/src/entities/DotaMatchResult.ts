@@ -1,13 +1,12 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, OneToOne, PrimaryColumn, Relation } from 'typeorm';
 
-import { DotaMatch } from './DotaMatch.js';
+import { type DotaMatch } from './DotaMatch.js';
 
-@Index('dota_matches_results_pkey', ['id'], { unique: true })
 @Index('dota_matches_results_match_id_key', ['matchId'], { unique: true })
 @Entity('dota_matches_results', { schema: 'public' })
 export class DotaMatchResult {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',
@@ -26,10 +25,10 @@ export class DotaMatchResult {
   @Column('integer', { name: 'game_mode' })
   gameMode: number;
 
-  @OneToOne(() => DotaMatch, (match) => match.result, {
+  @OneToOne('DotaMatch', 'result', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'match_id', referencedColumnName: 'matchId' }])
-  match: DotaMatch;
+  match: Relation<DotaMatch>;
 }

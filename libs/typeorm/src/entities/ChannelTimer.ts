@@ -1,12 +1,11 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 
-import { Channel } from './Channel.js';
+import { type Channel } from './Channel.js';
 
-@Index('channels_timers_pkey', ['id'], { unique: true })
 @Entity('channels_timers', { schema: 'public' })
 export class ChannelTimer {
-  @Column('text', {
+  @PrimaryColumn('text', {
     primary: true,
     name: 'id',
     default: 'gen_random_uuid()',
@@ -34,10 +33,10 @@ export class ChannelTimer {
   @Column('integer', { name: 'lastTriggerMessageNumber', default: 0 })
   lastTriggerMessageNumber: number;
 
-  @ManyToOne(() => Channel, (channel) => channel.timers, {
+  @ManyToOne('Channel', 'timers', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel: Channel;
+  channel: Relation<Channel>;
 }
