@@ -29,16 +29,17 @@ export class FaceitService {
     body.data.game = body.data.game ?? 'csgo';
 
     const repository = typeorm.getRepository(ChannelIntegration);
-    let integration = await this.getIntegration(channelId);
+    const integration = await this.getIntegration(channelId);
+    let integrationId = integration?.id;
+
     if (!integration) {
-      const newIntegration = repository.create({
+      const newIntegration = await repository.save({
         channelId,
         enabled: body.enabled,
         data: { ...body.data },
         integrationId: integrationService.id,
       });
-      await repository.save(newIntegration);
-      integration = newIntegration;
+      integrationId = newIntegration.id;
     } else {
       await repository.update(
         { id: integration.id },
@@ -49,6 +50,6 @@ export class FaceitService {
       );
     }
 
-    return repository.findOneBy({ id: integration.id });
+    return repository.findOneBy({ id: integrationId });
   }
 }

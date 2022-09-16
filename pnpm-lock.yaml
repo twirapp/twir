@@ -529,9 +529,11 @@ importers:
   libs/integrations/spotify:
     specifiers:
       '@tsuwari/prisma': workspace:*
+      '@tsuwari/typeorm': workspace:*
       axios: 0.27.2
     dependencies:
       '@tsuwari/prisma': link:../../prisma
+      '@tsuwari/typeorm': link:../../typeorm
       axios: 0.27.2
 
   libs/nats:

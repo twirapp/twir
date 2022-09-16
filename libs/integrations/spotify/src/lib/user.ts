@@ -1,4 +1,6 @@
-import { ChannelIntegration, PrismaClient } from '@tsuwari/prisma';
+import { Repository } from '@tsuwari/typeorm';
+import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration';
+import { IntegrationService } from '@tsuwari/typeorm/entities/Integration';
 import axios, { AxiosError } from 'axios';
 
 import { SpotifyIntegration } from './integration.js';
@@ -10,7 +12,7 @@ export class UserIntegration {
   constructor(
     private readonly userId: string,
     private readonly spotify: SpotifyIntegration,
-    private readonly prisma: PrismaClient,
+    private readonly repository: Repository<ChannelIntegration>,
   ) {
     this.#axios.interceptors.response.use(
       (response) => response,
@@ -43,12 +45,10 @@ export class UserIntegration {
       return this;
     }
 
-    const integration = await this.prisma.channelIntegration.findFirst({
-      where: {
-        channelId: this.userId,
-        integration: {
-          service: 'SPOTIFY',
-        },
+    const integration = await this.repository.findOneBy({
+      channelId: this.userId,
+      integration: {
+        service: IntegrationService.SPOTIFY,
       },
     });
 
@@ -65,20 +65,19 @@ export class UserIntegration {
     try {
       const token = Buffer.from(service.clientId + ':' + service.clientSecret).toString('base64');
 
-      const request = await this.#axios
-        .post(
-          'https://accounts.spotify.com/api/token',
-          new URLSearchParams({
-            grant_type: 'refresh_token',
-            refresh_token: this.#integration.refreshToken!,
-          }),
-          {
-            headers: {
-              Authorization: `Basic ${token}`,
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
+      const request = await this.#axios.post(
+        'https://accounts.spotify.com/api/token',
+        new URLSearchParams({
+          grant_type: 'refresh_token',
+          refresh_token: this.#integration.refreshToken!,
+        }),
+        {
+          headers: {
+            Authorization: `Basic ${token}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
-        );
+        },
+      );
 
       const { access_token: accessToken } = request.data;
 
@@ -86,12 +85,8 @@ export class UserIntegration {
         throw new Error('fail');
       }
 
-      const integration = await this.prisma.channelIntegration.update({
-        where: { id: this.#integration.id },
-        data: { accessToken },
-      });
-
-      this.#integration = integration;
+      await this.repository.update({ id: this.#integration.id }, { accessToken });
+      this.#integration = await this.repository.findOneBy({ id: this.#integration.id });
 
       return { accessToken };
     } catch (e) {
@@ -102,17 +97,20 @@ export class UserIntegration {
 
   async getCurrentSong() {
     try {
-      const request = await this.#axios.get(`https://api.spotify.com/v1/me/player/currently-playing`, {
-        headers: {
-          Authorization: `Bearer ${this.#integration.accessToken}`,
+      const request = await this.#axios.get(
+        `https://api.spotify.com/v1/me/player/currently-playing`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.#integration.accessToken}`,
+          },
         },
-      });
+      );
 
       const track = request.data?.item;
 
       if (!track) return null;
 
-      return `${track.artists.map((a: { name: string; }) => a.name).join(', ')} — ${track.name}`;
+      return `${track.artists.map((a: { name: string }) => a.name).join(', ')} — ${track.name}`;
     } catch (error) {
       console.error(error);
       return null;
