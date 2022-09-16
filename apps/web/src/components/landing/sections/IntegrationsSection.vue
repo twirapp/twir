@@ -2,7 +2,7 @@
   <section
     class="
       relative
-      min-md:py-24 min-xl:px-12 min-lg:px-16 min-lg:bg-black-15
+      min-lg:py-32 min-md:py-24 min-xl:px-12 min-lg:px-16 min-lg:bg-black-15
       pb-24
       min-md:px-10 min-sm:px-8 min-sm:pt-48
       pt-60
