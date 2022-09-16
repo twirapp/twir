@@ -5,7 +5,7 @@ import { type Channel } from './Channel.js';
 
 export enum SettingsType {
   links = 'links',
-  blacklistsb = 'blacklistsb',
+  blacklists = 'blacklists',
   symbols = 'symbols',
   longMessage = 'longMessage',
   caps = 'caps',

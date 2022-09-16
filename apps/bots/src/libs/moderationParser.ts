@@ -1,11 +1,13 @@
-import { SettingsType } from '@tsuwari/prisma';
-import { RedisORMService, Repository, ModerationSettings as ModerationCacheSettings, moderationSettingsSchema } from '@tsuwari/redis';
+
+import { ModerationSettings as ModerationCacheSettings, moderationSettingsSchema, RedisORMService, Repository } from '@tsuwari/redis';
+import { ChannelModerationSetting, SettingsType } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
+import { ChannelPermit } from '@tsuwari/typeorm/entities/ChannelPermit';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
 import tlds from 'tlds' assert { type: 'json' };
 
 import { nestApp } from '../nest/index.js';
-import { prisma } from './prisma.js';
 import { redis } from './redis.js';
+import { typeorm } from './typeorm.js';
 
 const clipsRegexps = [/.*(clips.twitch.tv\/)(\w+)/, /.*(www.twitch.tv\/\w+\/clip\/)(\w+)/];
 const urlRegexps = [
@@ -19,7 +21,6 @@ let repository: Repository<ModerationCacheSettings>;
 
 type Moderation = ReturnType<typeof ModerationCacheSettings.prototype.toRedisJson>
 
-// @TODO: update redis cache on changes from panel
 export class ModerationParser {
   async getModerationSettings(channelId: string) {
     if (!redisOrm || !repository) {
@@ -30,6 +31,7 @@ export class ModerationParser {
     const result = {} as Record<SettingsType, Moderation>;
     const settingsKeys = Object.values(SettingsType);
 
+    const moderationRepository = typeorm.getRepository(ChannelModerationSetting);
     await Promise.all(settingsKeys.map(async (key) => {
       const redisKey = `${channelId}:${key}`;
       const cachedSettings = await repository.fetch(redisKey);
@@ -37,7 +39,7 @@ export class ModerationParser {
       if (Object.keys(cachedSettings).length) {
         result[key] = cachedSettings.toRedisJson();
       } else {
-        const entity = await prisma.moderationSettings.findFirst({ where: { channelId: channelId, type: key } });
+        const entity = await moderationRepository.findOneBy({ channelId: channelId, type: key });
         if (entity) {
           const data = {
             ...entity,
@@ -97,13 +99,19 @@ export class ModerationParser {
 
     if (!settings.checkClips && clipsRegexps.some(r => r.test(message))) return;
 
-    const permit = await prisma.permit.findFirst({ where: { channelId: state.channelId!, userId: state.userInfo.userId } });
+    const repository = typeorm.getRepository(ChannelPermit);
+    const permit = await repository.findOneBy({
+      channelId: state.channelId!,
+      userId: state.userInfo.userId!,
+    });
     if (permit) {
-      await prisma.permit.delete({ where: { id: permit.id } });
+      repository.delete({
+        id: permit.id,
+      });
       return;
     }
 
-    return this.returnByWarnedState('links', state.userInfo.userId, settings);
+    return this.returnByWarnedState(SettingsType.links, state.userInfo.userId, settings);
   }
 
   async blacklistsParser(message: string, settings: Moderation, state: TwitchPrivateMessage) {
@@ -111,7 +119,7 @@ export class ModerationParser {
     const blackListed = settings.blackListSentences.some(b => message.includes(b as string));
     if (!blackListed) return;
 
-    return this.returnByWarnedState('blacklists', state.userInfo.userId, settings);
+    return this.returnByWarnedState(SettingsType.blacklists, state.userInfo.userId, settings);
   }
 
   async symbolsParser(message: string, settings: Moderation, state: TwitchPrivateMessage) {
@@ -129,14 +137,14 @@ export class ModerationParser {
     const check = Math.ceil(symbolsCount * 100 / message.length) >= settings.maxPercentage;
     if (!check) return;
 
-    return this.returnByWarnedState('symbols', state.userInfo.userId, settings);
+    return this.returnByWarnedState(SettingsType.symbols, state.userInfo.userId, settings);
   }
 
   async longMessageParser(message: string, settings: Moderation, state: TwitchPrivateMessage) {
     if (!settings.triggerLength) return;
     if (message.length <= settings.triggerLength) return;
 
-    return this.returnByWarnedState('longMessage', state.userInfo.userId, settings);
+    return this.returnByWarnedState(SettingsType.longMessage, state.userInfo.userId, settings);
   }
 
   async capsParser(message: string, settings: Moderation, state: TwitchPrivateMessage) {
@@ -160,7 +168,7 @@ export class ModerationParser {
     const check = Math.ceil(capsCount * 100 / message.length) >= settings.maxPercentage;
     if (!check) return;
 
-    return this.returnByWarnedState('caps', state.userInfo.userId, settings);
+    return this.returnByWarnedState(SettingsType.caps, state.userInfo.userId, settings);
   }
 
   async emotesParser(_message: string, settings: Moderation, state: TwitchPrivateMessage) {
@@ -169,6 +177,6 @@ export class ModerationParser {
     const emotesLength = state.parseEmotes().filter((o) => o.type === 'emote').length;
     if (emotesLength < settings.triggerLength) return;
 
-    return this.returnByWarnedState('emotes', state.userInfo.userId, settings);
+    return this.returnByWarnedState(SettingsType.emotes, state.userInfo.userId, settings);
   }
 }
