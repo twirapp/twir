@@ -17,8 +17,9 @@
     @mouseenter="stopSlider"
     @mouseleave="startSlider"
   >
-    <SwiperSlide v-for="item in reviews" :key="item.id" style="width: 380px">
+    <SwiperSlide v-for="item in reviews" :key="item.id" style="flex-shrink: 1">
       <ReviewCard
+        class="slider-review-card"
         :username="item.username"
         :comment="item.comment"
         :rating="item.rating"
@@ -62,3 +63,13 @@ const startSlider = () => {
 
 const modules = [Autoplay];
 </script>
+
+<style lang="postcss">
+.slider-review-card {
+  width: 380px;
+
+  @media screen and (max-width: 565.98px) {
+    width: calc(100vw - 24px * 2);
+  }
+}
+</style>
