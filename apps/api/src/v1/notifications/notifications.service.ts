@@ -1,55 +1,46 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@tsuwari/prisma';
+import { IsNull, Not } from '@tsuwari/typeorm';
+import { Notification } from '@tsuwari/typeorm/entities/Notification';
+import { UserViewedNotification } from '@tsuwari/typeorm/entities/UserViewedNotification';
+
+import { typeorm } from '../../index.js';
 
 @Injectable()
 export class NotificationsService {
-  constructor(private readonly prisma: PrismaService) {
-
-  }
-
   getNotViewed(channelId: string) {
-    return this.prisma.notification.findMany({
-      where: {
-        OR: [{ userId: null }, { userId: channelId }],
-        viewedNotifications: {
-          none: {
-            userId: channelId,
-          },
-        },
+    return typeorm.getRepository(Notification).find({
+      where: [
+        { userId: IsNull() },
+        { userId: channelId },
+        { viewedNotifications: { userId: Not(channelId) } },
+      ],
+      order: {
+        createdAt: 'DESC',
       },
-      include: {
+      relations: {
         messages: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
       },
     });
   }
 
   getViewed(channelId: string) {
-    return this.prisma.viewedNotification.findMany({
-      where: {
-        userId: channelId,
-      },
-      include: {
+    return typeorm.getRepository(UserViewedNotification).find({
+      where: { userId: channelId },
+      relations: {
         notification: {
-          include: {
-            messages: true,
-          },
+          messages: true,
         },
       },
-      orderBy: {
-        createdAt: 'desc',
+      order: {
+        createdAt: 'DESC',
       },
     });
   }
 
   markAsRead(channelId: string, notificationId: string) {
-    return this.prisma.viewedNotification.create({
-      data: {
-        userId: channelId,
-        notificationId,
-      },
+    return typeorm.getRepository(UserViewedNotification).save({
+      userId: channelId,
+      notificationId,
     });
   }
 }

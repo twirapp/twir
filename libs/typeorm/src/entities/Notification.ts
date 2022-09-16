@@ -30,7 +30,7 @@ export class Notification {
   user?: Relation<User>;
 
   @Column()
-  userId?: string;
+  userId?: string | null;
 
   @OneToMany('NotificationMessage', 'notification')
   messages?: Relation<NotificationMessage[]>;
