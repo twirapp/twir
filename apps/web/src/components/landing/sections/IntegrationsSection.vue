@@ -1,5 +1,5 @@
 <template>
-  <section class="min-lg:bg-black-15 py-36 min-lg:px-16 px-12 relative max-md:px-6 max-md:pt-60">
+  <section class="min-lg:bg-black-15 py-36 min-lg:px-16 px-12 relative max-md:px-5 max-md:pt-60">
     <div class="container max-w-[1040px] relative">
       <div class="flex justify-between items-center relative z-0">
         <div class="inline-flex flex-col z-[1]">
@@ -9,6 +9,7 @@
           <h2
             class="
               min-xl:text-[48px] min-lg:text-[40px]
+              tracking-tight
               text-[36px]
               font-semibold
               min-lg:max-w-xl
@@ -67,11 +68,11 @@
         -top-[80px]
         max-md:-left-[380px] max-md:-top-[100px]
         -right-[340px]
-        w-[800px]
+        w-[760px]
         h-[990px]
         bg-no-repeat bg-contain
         -z-[10]
-        opacity-70
+        opacity-80
       "
     ></div>
   </section>
