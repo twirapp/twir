@@ -1,36 +1,88 @@
 <template>
-  <section class="bg-black-15 py-36">
-    <div class="container max-w-[1040px]">
-      <div class="flex justify-between items-center">
-        <div class="inline-flex flex-col">
+  <section class="min-lg:bg-black-15 py-36 min-lg:px-16 px-12 relative max-md:px-6 max-md:pt-60">
+    <div class="container max-w-[1040px] relative">
+      <div class="flex justify-between items-center relative z-0">
+        <div class="inline-flex flex-col z-[1]">
           <span class="uppercase tracking-wider text-purple-80 text-lg mb-4">
             {{ t('sections.integrations.preTitle') }}
           </span>
-          <h2 class="text-5xl font-semibold max-w-xl leading-[125%]">
+          <h2
+            class="
+              min-xl:text-[48px] min-lg:text-[40px]
+              text-[36px]
+              font-semibold
+              min-lg:max-w-xl
+              max-w-lg
+              leading-[125%]
+            "
+          >
             {{ t('sections.integrations.title') }}
           </h2>
-          <p class="text-lg text-gray-70 max-w-xl mt-6">
+          <p class="text-lg text-gray-70 min-lg:max-w-xl max-w-lg mt-6">
             {{ t('sections.integrations.description') }}
           </p>
         </div>
-        <div class="grid grid-cols-3 content-end gap-3" style="direction: rtl">
+        <div
+          class="
+            grid grid-cols-3
+            content-end
+            gap-3
+            rotate-[5deg]
+            flex-shrink-0
+            max-lg:absolute max-xl:-z-[1]
+            min-md:right-0 min-lg:top-0 min-md:-top-[80px] min-sm:-top-[170px]
+            -right-[54px]
+            min-sm:scale-100
+            scale-90
+            -top-[240px]
+          "
+          style="direction: rtl"
+        >
           <div
             v-for="item in integrationLogos"
             :key="item.__name"
-            class="p-6 rounded-xl bg-black-20"
+            class="
+              p-[26px]
+              rounded-xl
+              min-lg:bg-black-20
+              bg-black-20 bg-opacity-60
+              hover:bg-opacity-0
+              border-2 border-opacity-0 border-black-25
+              hover:border-opacity-100
+              hover:shadow-xl
+              transition-all
+              duration-100
+              max-xl:p-6
+            "
           >
-            <component :is="item" width="64px" height="64px" />
+            <component :is="item" class="flex h-16 w-16" />
           </div>
         </div>
       </div>
     </div>
+    <div
+      :style="{ backgroundImage: cssURL(BlueBlob) }"
+      class="
+        absolute
+        -top-[80px]
+        max-md:-left-[380px] max-md:-top-[100px]
+        -right-[340px]
+        w-[800px]
+        h-[990px]
+        bg-no-repeat bg-contain
+        -z-[10]
+        opacity-70
+      "
+    ></div>
   </section>
 </template>
 
 <script lang="ts" setup>
 import { Dota2, Faceit, LastFm, Spotify, VK } from '@tsuwari/ui-icons/logos';
 
+import BlueBlob from '@/assets/blob-blue.png';
 import useTranslation from '@/hooks/useTranslation.js';
+import { cssURL } from '@/utils/css.js';
 
 const integrationLogos = [Dota2, Faceit, LastFm, Spotify, VK];
 
