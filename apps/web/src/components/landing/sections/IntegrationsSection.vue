@@ -1,12 +1,11 @@
 <template>
   <section
     class="
-      min-lg:bg-black-15
-      py-36
-      min-lg:px-16 min-xl:px-12
       relative
-      min-sm:px-8
-      max-md:pt-60 max-md:pb-20
+      min-md:py-24 min-xl:px-12 min-lg:px-16 min-lg:bg-black-15
+      pb-24
+      min-md:px-10 min-sm:px-8 min-sm:pt-48
+      pt-60
       px-5
     "
   >
@@ -75,14 +74,15 @@
       :style="{ backgroundImage: cssURL(BlueBlob) }"
       class="
         absolute
-        -top-[100px]
+        -top-[180px]
         max-md:-left-[380px] max-md:-top-[100px]
         -right-[340px]
         w-[760px]
         h-[990px]
         bg-no-repeat bg-contain
         -z-[10]
-        opacity-80
+        opacity-0
+        animate-fadeIn
       "
     ></div>
   </section>
