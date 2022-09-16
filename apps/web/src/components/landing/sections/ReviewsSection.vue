@@ -1,7 +1,7 @@
 <template>
-  <section class="bg-black-10 relative overflow-hidden z-0">
+  <section class="relative overflow-hidden z-0">
     <div class="px-8">
-      <div class="container relative max-w-[980px] mt-20 mb-16">
+      <div class="container relative max-w-[980px] mt-20 mb-16 max-lg:mt-16">
         <div
           class="
             absolute
