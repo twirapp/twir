@@ -1,5 +1,15 @@
 <template>
-  <section class="min-lg:bg-black-15 py-36 min-lg:px-16 px-12 relative max-md:px-5 max-md:pt-60">
+  <section
+    class="
+      min-lg:bg-black-15
+      py-36
+      min-lg:px-16 min-xl:px-12
+      relative
+      min-sm:px-8
+      max-md:pt-60 max-md:pb-20
+      px-5
+    "
+  >
     <div class="container max-w-[1040px] relative">
       <div class="flex justify-between items-center relative z-0">
         <div class="inline-flex flex-col z-[1]">
@@ -33,7 +43,7 @@
             max-lg:absolute max-xl:-z-[1]
             min-md:right-0 min-lg:top-0 min-md:-top-[80px] min-sm:-top-[170px]
             -right-[54px]
-            min-sm:scale-100
+            min-lg:scale-100
             scale-90
             -top-[240px]
           "
@@ -65,7 +75,7 @@
       :style="{ backgroundImage: cssURL(BlueBlob) }"
       class="
         absolute
-        -top-[80px]
+        -top-[100px]
         max-md:-left-[380px] max-md:-top-[100px]
         -right-[340px]
         w-[760px]
