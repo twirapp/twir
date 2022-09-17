@@ -8,10 +8,10 @@
           {{ t('tagline') }}
         </p>
         <div class="hero-buttons">
-          <a class="learn-more-btn">
+          <a class="learn-more-btn" href="#">
             {{ t('buttons.learnMore') }}
           </a>
-          <a class="start-for-free-btn">
+          <a class="start-for-free-btn" href="#">
             {{ t('buttons.startForFree') }}
           </a>
         </div>
@@ -178,7 +178,7 @@ const t = useTranslation<'landing'>();
     leading-tight
     text-center
     cursor-pointer
-    hover:bg-purple-55
+    hover:bg-purple-50
     transition-colors
     duration-150;
 }
