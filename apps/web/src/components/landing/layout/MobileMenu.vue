@@ -10,7 +10,18 @@
     >
       <a
         href="#"
-        class="inline-flex bg-purple-60 px-4 py-[10px] rounded-md w-full text-center justify-center"
+        class="
+          inline-flex
+          bg-purple-60
+          px-4
+          py-[10px]
+          rounded-md
+          w-full
+          text-center
+          justify-center
+          hover:bg-purple-50
+          transition-colors
+        "
       >
         {{ t('buttons.login') }}
       </a>
