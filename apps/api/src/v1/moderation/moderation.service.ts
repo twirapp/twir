@@ -34,7 +34,7 @@ export class ModerationService {
         },
         {
           skipUpdateIfNoValuesChanged: true,
-          conflictPaths: ['key'],
+          conflictPaths: ['channelId', 'type'],
         },
       );
     }

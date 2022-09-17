@@ -45,8 +45,8 @@ export class ChannelCommand {
   @Column('boolean', { name: 'enabled', default: true })
   enabled: boolean;
 
-  @Column('text', { name: 'aliases', nullable: true, default: [], array: true })
-  aliases: string[] | null;
+  @Column('jsonb', { name: 'aliases', nullable: true })
+  aliases: any;
 
   @Column('text', { name: 'description', nullable: true })
   description: string | null;

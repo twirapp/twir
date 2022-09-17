@@ -1,15 +1,15 @@
 /* eslint-disable import/no-cycle */
 import {
-    Column,
-    Entity,
-    Index,
-    JoinColumn,
-    ManyToOne,
-    OneToMany,
-    OneToOne,
-    PrimaryColumn,
-    // eslint-disable-next-line comma-dangle
-    Relation
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+  // eslint-disable-next-line comma-dangle
+  Relation
 } from 'typeorm';
 
 import { type DotaGameMode } from './DotaGameMode.js';
@@ -28,8 +28,8 @@ export class DotaMatch {
   @Column('timestamp without time zone', { name: 'startedAt' })
   startedAt: Date;
 
-  @Column('integer', { name: 'lobby_type' })
-  lobbyType: number;
+  @Column('integer', { name: 'lobby_type', nullable: true })
+  lobbyType: number | null;
 
   @Column('int4', { name: 'players', nullable: true, array: true })
   players: number[] | null;

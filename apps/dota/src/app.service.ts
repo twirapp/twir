@@ -223,14 +223,14 @@ export class AppService extends SteamUser implements OnModuleInit {
             id: game.game_mode,
           });
           const data = {
-            lobby_type: game.lobby_type,
+            lobbyType: game.lobby_type,
             players: game.players.map((p) => p.account_id),
-            players_heroes: game.players.map((p) => p.hero_id),
+            playersHeroes: game.players.map((p) => p.hero_id),
             startedAt: new Date(Number(`${game.activate_time}000`)),
-            match_id: game.match_id,
-            avarage_mmr: game.average_mmr,
-            weekend_tourney_bracket_round: game.weekend_tourney_bracket_round?.toString(),
-            weekend_tourney_skill_level: game.weekend_tourney_skill_level?.toString(),
+            matchId: game.match_id,
+            avarageMmr: game.average_mmr,
+            weekendTourneyBracketRround: game.weekend_tourney_bracket_round?.toString(),
+            weekendTourneySkillLevel: game.weekend_tourney_skill_level?.toString(),
             lobbyId: game.lobby_id,
             gameMode: gameModeEntity!,
           };
