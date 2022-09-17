@@ -1,16 +1,28 @@
 <template>
-  <section class="bg-black-15 py-24">
+  <section class="bg-black-15 min-lg:py-24 min-md:py-20 py-14 min-md:px-10 min-sm:px-8 px-5">
     <div class="relative container max-w-[1020px]">
-      <div class="flex justify-between mb-10">
-        <h2 class="text-5xl font-semibold leading-[130%] text-center">
+      <div
+        class="inline-grid w-full min-lg:grid-flow-col gap-x-12 justify-between min-md:mb-10 mb-8"
+      >
+        <h2
+          class="
+            min-lg:text-[48px] min-md:text-[44px]
+            text-[42px]
+            font-semibold
+            leading-[130%]
+            max-lg:mb-4
+            whitespace-nowrap
+            tracking-tight
+          "
+        >
           {{ t('sections.team.title') }}
         </h2>
-        <p class="text-[17px] text-gray-70 max-w-[600px]">
+        <p class="min-lg:text-[17px] text-[16px] text-gray-70 max-w-[600px]">
           {{ t('sections.team.description') }}
         </p>
       </div>
 
-      <ul class="member-list pt-10 border-t border-t-gray-30">
+      <ul class="member-list min-md:pt-10 min-md:border-t border-t-gray-30">
         <li v-for="(member, memberId) in teamMembers" :key="memberId" class="flex">
           <TeamMemberCard
             :isFounder="member.isFounder"
@@ -40,10 +52,24 @@ const teamMembersLocale = computed(() => tm('sections.team.members') as TeamMemb
 
 <style lang="postcss">
 .member-list {
-  @apply inline-grid grid-flow-col w-full;
+  @apply inline-flex grid-flow-col max-lg:grid-flow-row w-full grid-cols-1 min-md:grid-cols-2 max-lg:flex-wrap min-lg:gap-0 min-md:gap-y-6;
+
+  & > * {
+    @apply min-lg:flex-1 min-md:flex-[1_0_50%] flex-[1_0_100%] border-gray-30 max-md:py-5;
+  }
 
   & > :not(:last-child) {
-    @apply border-r border-r-gray-30;
+    @apply min-lg:border-r max-md:border-b;
+  }
+
+  @media screen and (max-width: 1200px) {
+    & > :last-child > div {
+      @apply pr-0;
+    }
+
+    & > :first-child > div {
+      @apply pl-0;
+    }
   }
 }
 </style>
