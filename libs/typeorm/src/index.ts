@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import { config } from '@tsuwari/config';
 import { DataSource } from 'typeorm';
 

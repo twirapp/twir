@@ -16,12 +16,17 @@
     "prebuild": "rm -rf dist",
     "build": "tsc",
     "cli": "doppler run -- typeorm-ts-node-esm -d ./src/index.ts",
-    "deploy": "typeorm-ts-node-esm -d ./src/index.ts migration:run",
-    "seed": "ts-node --esm --transpileOnly ./seed.ts"
+    "deploy": "pnpm typeorm-ts-node-esm -d ./src/index.ts migration:run",
+    "setup": "pnpm run deploy && pnpm run seed",
+    "seed": "pnpm ts-node --esm --transpileOnly ./seed.ts"
   },
   "dependencies": {
     "@tsuwari/config": "workspace:*",
     "pg": "8.7.3",
+    "reflect-metadata": "^0.1.13",
     "typeorm": "^0.3.9"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.2"
   }
 }

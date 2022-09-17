@@ -5,10 +5,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    env_file:
+      - .env
     volumes:
       - pnpm:/root/.local/share/pnpm/store/v3
       - ./:/app
-      - ./node_nodules:/app/node_modules
+      - ./node_modules:/app/node_modules
     networks:
       - tsuwari_dev
     depends_on:
@@ -27,8 +29,6 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    ports:
-      - 5432:5432
     networks:
       - tsuwari_dev
 
@@ -37,14 +37,12 @@ services:
     command: server --address 0.0.0.0:9000 --console-address ":9001" /data
     volumes:
       - minio-data:/data
-    ports:
-      - 9000:9000
-      - 9001:9001
     environment:
       MINIO_ROOT_USER: ${MINIO_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
       MINIO_REGION_NAME: eu-east-1
       MINIO_SERVER_URL: https://minio.tsuwari.tk
+
     healthcheck:
       test:
         [
@@ -64,8 +62,6 @@ services:
     image: redis/redis-stack:latest
     volumes:
       - redis-data:/data
-    ports:
-      - 6379:6379
     networks:
       - tsuwari_dev
 

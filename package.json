@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint --ext .ts,.vue apps/",
     "lint:fix": "eslint --fix --ext .ts,.vue apps/",
-    "dev": "doppler run -- pnpm --filter=@tsuwari/typeorm seed && pm2 start ecosystem.config.cjs",
+    "dev": "doppler run -- pnpm run --filter=@tsuwari/typeorm setup && pm2 start ecosystem.config.cjs",
     "start": "pnpm run -r start --filter=!@tsuwari/frontend",
     "start:api": "pnpm --filter=@tsuwari/api start",
     "start:eventsub": "pnpm --filter=@tsuwari/eventsub start",
