@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 
-import { Bot, BotType } from './src/entities/Bot.js';
-import { Token } from './src/entities/Token.js';
-import { AppDataSource } from './src/index.js';
+import { Bot, BotType } from './dist/entities/Bot.js';
+import { Token } from './dist/entities/Token.js';
+import { AppDataSource } from './dist/index.js';
 
 dotenv.config({ path: '../../.env' });
 
@@ -29,7 +29,12 @@ const request = await fetch('https://id.twitch.tv/oauth2/validate', {
     Authorization: `OAuth ${BOT_ACCESS_TOKEN}`,
   },
 });
-const response = (await request.json()) as Record<string, any>;
+const response = await request.json();
+
+if (!request.ok) {
+  console.error(response);
+  process.exit(1);
+}
 
 const token = await typeorm.getRepository(Token).save({
   accessToken: BOT_ACCESS_TOKEN,

@@ -8,9 +8,9 @@ services:
     env_file:
       - .env
     volumes:
-      - pnpm:/root/.local/share/pnpm/store/v3
       - ./:/app
-      - ./node_modules:/app/node_modules
+      - pnpm:/root/.local/share/pnpm/store/v3
+      - node_modules:/app/node_modules
     networks:
       - tsuwari_dev
     depends_on:
@@ -81,3 +81,4 @@ volumes:
   nats-data: null
   minio-data: null
   pnpm: null
+  node_modules: null
