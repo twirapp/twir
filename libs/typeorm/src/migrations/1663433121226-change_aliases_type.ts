@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
-export class changeAliasesType1663343974342 implements MigrationInterface {
-  name = 'changeAliasesType1663343974342';
+export class changeAliasesType1663433121226 implements MigrationInterface {
+  name = 'changeAliasesType1663433121226';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     const column = new TableColumn({
