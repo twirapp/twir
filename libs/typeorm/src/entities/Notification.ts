@@ -29,7 +29,7 @@ export class Notification {
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
   user?: Relation<User>;
 
-  @Column()
+  @Column({ nullable: true })
   userId?: string | null;
 
   @OneToMany('NotificationMessage', 'notification')

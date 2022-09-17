@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class migrateToTypeorm1663337758845 implements MigrationInterface {
-  name = 'migrateToTypeorm1663337758845';
+export class migrateToTypeorm1663426712822 implements MigrationInterface {
+  name = 'migrateToTypeorm1663426712822';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`ALTER TABLE "bots" DROP CONSTRAINT "bots_tokenId_fkey"`);
@@ -44,10 +44,10 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
       `ALTER TABLE "channels_commands_responses" DROP CONSTRAINT "channels_commands_responses_commandId_fkey"`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_commands_usages" DROP CONSTRAINT "channels_commands_usages_userId_fkey"`,
+      `ALTER TABLE "channels_commands_usages" DROP CONSTRAINT "channels_commands_usages_commandId_fkey"`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_commands_usages" DROP CONSTRAINT "channels_commands_usages_commandId_fkey"`,
+      `ALTER TABLE "channels_commands_usages" DROP CONSTRAINT "channels_commands_usages_userId_fkey"`,
     );
     await queryRunner.query(
       `ALTER TABLE "channels_dashboard_access" DROP CONSTRAINT "channels_dashboard_access_channelId_fkey"`,
@@ -88,7 +88,6 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX "public"."channels_dota_accounts_id_idx"`);
     await queryRunner.query(`DROP INDEX "public"."dota_heroes_id_key"`);
     await queryRunner.query(`DROP INDEX "public"."dota_matches_match_id_key"`);
-    await queryRunner.query(`DROP INDEX "public"."dota_medals_rank_tier_idx"`);
     await queryRunner.query(`DROP INDEX "public"."users_tokenId_key"`);
     await queryRunner.query(`ALTER TYPE "public"."BotType" RENAME TO "BotType_old"`);
     await queryRunner.query(`CREATE TYPE "public"."bots_type_enum" AS ENUM('DEFAULT', 'CUSTOM')`);
@@ -96,15 +95,29 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
       `ALTER TABLE "bots" ALTER COLUMN "type" TYPE "public"."bots_type_enum" USING "type"::"text"::"public"."bots_type_enum"`,
     );
     await queryRunner.query(`DROP TYPE "public"."BotType_old"`);
+    // await queryRunner.query(`ALTER TABLE "bots" DROP COLUMN "tokenId"`);
+    await queryRunner.query(
+      `ALTER TABLE "bots" ALTER "tokenId" TYPE uuid using (uuid_generate_v4())`,
+    );
+    // await queryRunner.query(`ALTER TABLE "bots" ADD "tokenId" uuid`);
     await queryRunner.query(
       `ALTER TABLE "bots" ADD CONSTRAINT "UQ_df4240a5d71aa6a23b829d3cee8" UNIQUE ("tokenId")`,
     );
     await queryRunner.query(
       `ALTER TABLE "channels" ADD CONSTRAINT "UQ_bc603823f3f741359c2339389f9" UNIQUE ("id")`,
     );
-    await queryRunner.query(`ALTER TABLE "channels" ALTER COLUMN "botId" DROP NOT NULL`);
     await queryRunner.query(
-      `ALTER TABLE "channels_commands" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
+      `ALTER TABLE "channels_commands" DROP CONSTRAINT "channels_commands_pkey"`,
+    );
+    //await queryRunner.query(`ALTER TABLE "channels_commands" DROP COLUMN "id"`);
+    await queryRunner.query(
+      `ALTER TABLE "channels_commands" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
+    );
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_commands" ADD "id" uuid NOT NULL DEFAULT uuid_generate_v4()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_commands" ADD CONSTRAINT "PK_6f530d7cee75abfb1ef1cc7e09b" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(`ALTER TYPE "public"."CooldownType" RENAME TO "CooldownType_old"`);
     await queryRunner.query(
@@ -120,6 +133,10 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
       `ALTER TABLE "channels_commands" ALTER COLUMN "cooldownType" SET DEFAULT 'GLOBAL'`,
     );
     await queryRunner.query(`DROP TYPE "public"."CooldownType_old"`);
+    // await queryRunner.query(`ALTER TABLE "channels_commands" DROP COLUMN "aliases"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_commands" ADD "aliases" text array DEFAULT '{}'`,
+    // );
     await queryRunner.query(
       `ALTER TYPE "public"."CommandPermission" RENAME TO "CommandPermission_old"`,
     );
@@ -143,7 +160,14 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
     );
     await queryRunner.query(`DROP TYPE "public"."CommandModule_old"`);
     await queryRunner.query(
-      `ALTER TABLE "channels_customvars" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
+      `ALTER TABLE "channels_customvars" DROP CONSTRAINT "channels_customvars_pkey"`,
+    );
+    // await queryRunner.query(`ALTER TABLE "channels_customvars" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_customvars" ADD "id" uuid NOT NULL DEFAULT uuid_generate_v4()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_customvars" ADD CONSTRAINT "PK_a6d0167a26c310ef7832c66b55d" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(`ALTER TYPE "public"."CustomVarType" RENAME TO "CustomVarType_old"`);
     await queryRunner.query(
@@ -154,31 +178,59 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
     );
     await queryRunner.query(`DROP TYPE "public"."CustomVarType_old"`);
     await queryRunner.query(
-      `ALTER TABLE "channels_customvars" ALTER COLUMN "channelId" DROP NOT NULL`,
+      `ALTER TABLE "channels_greetings" DROP CONSTRAINT "channels_greetings_pkey"`,
+    );
+    // await queryRunner.query(`ALTER TABLE "channels_greetings" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_greetings" ADD "id" uuid NOT NULL DEFAULT uuid_generate_v4()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_greetings" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_greetings" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
+      `ALTER TABLE "channels_greetings" ADD CONSTRAINT "PK_90ee111c7fefdaaff4918cab6df" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_greetings" ALTER COLUMN "channelId" DROP NOT NULL`,
+      `ALTER TABLE "channels_integrations" DROP CONSTRAINT "channels_integrations_pkey"`,
+    );
+    // await queryRunner.query(`ALTER TABLE "channels_integrations" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_integrations" ADD "id" uuid NOT NULL DEFAULT uuid_generate_v4()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_integrations" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_integrations" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
+      `ALTER TABLE "channels_integrations" ADD CONSTRAINT "PK_d5f8b2ee43dbd8f5a68d1ce71ca" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_integrations" ALTER COLUMN "channelId" DROP NOT NULL`,
+      `ALTER TABLE "channels_keywords" DROP CONSTRAINT "channels_keywords_pkey"`,
+    );
+    // await queryRunner.query(`ALTER TABLE "channels_keywords" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_keywords" ADD "id" uuid NOT NULL DEFAULT uuid_generate_v4()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_keywords" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_integrations" ALTER COLUMN "integrationId" DROP NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_keywords" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
+      `ALTER TABLE "channels_keywords" ADD CONSTRAINT "PK_6cb4cb2b8a95cc2728d1feab106" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(
       `DROP INDEX "public"."channels_moderation_settings_channelId_type_key"`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_moderation_settings" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
+      `ALTER TABLE "channels_moderation_settings" DROP CONSTRAINT "channels_moderation_settings_pkey"`,
+    );
+    // await queryRunner.query(`ALTER TABLE "channels_moderation_settings" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_moderation_settings" ADD "id" uuid NOT NULL DEFAULT uuid_generate_v4()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_moderation_settings" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "channels_moderation_settings" ADD CONSTRAINT "PK_fc3b021f2a7a5fde68b58543d93" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(`ALTER TYPE "public"."SettingsType" RENAME TO "SettingsType_old"`);
     await queryRunner.query(
@@ -189,62 +241,47 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
     );
     await queryRunner.query(`DROP TYPE "public"."SettingsType_old"`);
     await queryRunner.query(
-      `ALTER TABLE "channels_permits" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
+      `ALTER TABLE "channels_permits" DROP CONSTRAINT "channels_permits_pkey"`,
+    );
+    // await queryRunner.query(`ALTER TABLE "channels_permits" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_permits" ADD "id" uuid NOT NULL DEFAULT uuid_generate_v4()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_permits" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_permits" ALTER COLUMN "channelId" DROP NOT NULL`,
+      `ALTER TABLE "channels_permits" ADD CONSTRAINT "PK_1e24b77c350a387af97801f64ae" PRIMARY KEY ("id")`,
     );
-    await queryRunner.query(`ALTER TABLE "channels_permits" ALTER COLUMN "userId" DROP NOT NULL`);
+    await queryRunner.query(`ALTER TABLE "channels_timers" DROP CONSTRAINT "channels_timers_pkey"`);
+    // await queryRunner.query(`ALTER TABLE "channels_timers" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_timers" ADD "id" uuid NOT NULL DEFAULT uuid_generate_v4()`,
+    // );
     await queryRunner.query(
-      `ALTER TABLE "channels_timers" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
+      `ALTER TABLE "channels_timers" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "channels_timers" ADD CONSTRAINT "PK_858789b56e6e0956593768f9e05" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(
       `ALTER TABLE "channels_timers" ALTER COLUMN "enabled" SET DEFAULT false`,
     );
-    await queryRunner.query(`ALTER TABLE "channels_timers" ALTER COLUMN "channelId" DROP NOT NULL`);
+    // await queryRunner.query(`ALTER TABLE "channels_commands_responses" DROP COLUMN "commandId"`);
     await queryRunner.query(
-      `ALTER TABLE "channels_commands_responses" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
+      `ALTER TABLE "channels_commands_responses" ALTER "commandId" TYPE uuid using (uuid_generate_v4())`,
     );
+    // await queryRunner.query(`ALTER TABLE "channels_commands_usages" DROP COLUMN "commandId"`);
+    // await queryRunner.query(`ALTER TABLE "channels_commands_usages" ADD "commandId" uuid NOT NULL`);
     await queryRunner.query(
-      `ALTER TABLE "channels_commands_responses" ALTER COLUMN "commandId" DROP NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_commands_usages" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_commands_usages" ALTER COLUMN "commandId" DROP NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_commands_usages" ALTER COLUMN "userId" DROP NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_dashboard_access" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_dashboard_access" ALTER COLUMN "channelId" DROP NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_dashboard_access" ALTER COLUMN "userId" DROP NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "dota_matches" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
+      `ALTER TABLE "channels_commands_usages" ALTER "commandId" TYPE uuid using (uuid_generate_v4())`,
     );
     await queryRunner.query(`ALTER TABLE "dota_matches" ALTER COLUMN "startedAt" TYPE TIMESTAMP`);
     await queryRunner.query(
       `ALTER TABLE "dota_matches" ADD CONSTRAINT "UQ_27d39ee5a1cdb04ed78a52286a1" UNIQUE ("match_id")`,
     );
-    await queryRunner.query(`ALTER TABLE "dota_matches" ALTER COLUMN "gameModeId" DROP NOT NULL`);
-    await queryRunner.query(
-      `ALTER TABLE "dota_matches_cards" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "dota_matches_results" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
-    );
     await queryRunner.query(
       `ALTER TABLE "dota_matches_results" ADD CONSTRAINT "UQ_66717d38c93b88a283ad77736ad" UNIQUE ("match_id")`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "integrations" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
     );
     await queryRunner.query(
       `ALTER TYPE "public"."IntegrationService" RENAME TO "IntegrationService_old"`,
@@ -256,16 +293,11 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
       `ALTER TABLE "integrations" ALTER COLUMN "service" TYPE "public"."integrations_service_enum" USING "service"::"text"::"public"."integrations_service_enum"`,
     );
     await queryRunner.query(`DROP TYPE "public"."IntegrationService_old"`);
-    await queryRunner.query(
-      `ALTER TABLE "notifications" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
-    );
     await queryRunner.query(`ALTER TABLE "notifications" ALTER COLUMN "createdAt" TYPE TIMESTAMP`);
     await queryRunner.query(
       `ALTER TABLE "notifications" ALTER COLUMN "createdAt" SET DEFAULT now()`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "notifications_messages" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
-    );
+    // await queryRunner.query(`ALTER TABLE "notifications" ALTER COLUMN "userId" SET NOT NULL`);
     await queryRunner.query(`ALTER TYPE "public"."LangCode" RENAME TO "LangCode_old"`);
     await queryRunner.query(
       `CREATE TYPE "public"."notifications_messages_langcode_enum" AS ENUM('RU', 'GB')`,
@@ -274,38 +306,32 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
       `ALTER TABLE "notifications_messages" ALTER COLUMN "langCode" TYPE "public"."notifications_messages_langcode_enum" USING "langCode"::"text"::"public"."notifications_messages_langcode_enum"`,
     );
     await queryRunner.query(`DROP TYPE "public"."LangCode_old"`);
+    await queryRunner.query(`ALTER TABLE "tokens" DROP CONSTRAINT "tokens_pkey"`);
+    // await queryRunner.query(`ALTER TABLE "tokens" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "tokens" ADD "id" uuid NOT NULL DEFAULT uuid_generate_v4()`,
+    // );
+    await queryRunner.query(`ALTER TABLE "tokens" ALTER "id" TYPE uuid using (uuid_generate_v4())`);
     await queryRunner.query(
-      `ALTER TABLE "notifications_messages" ALTER COLUMN "notificationId" DROP NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "tokens" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
+      `ALTER TABLE "tokens" ADD CONSTRAINT "PK_3001e89ada36263dabf1fb6210a" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(
       `ALTER TABLE "tokens" ALTER COLUMN "obtainmentTimestamp" TYPE TIMESTAMP`,
     );
+    // await queryRunner.query(`ALTER TABLE "users" DROP COLUMN "tokenId"`);
+    // await queryRunner.query(`ALTER TABLE "users" ADD "tokenId" uuid`);
+    await queryRunner.query(
+      `ALTER TABLE "users" ALTER "tokenId" TYPE uuid using (uuid_generate_v4())`,
+    );
     await queryRunner.query(
       `ALTER TABLE "users" ADD CONSTRAINT "UQ_d98a275f8bc6cd986fcbe2eab01" UNIQUE ("tokenId")`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "users_files" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "users_stats" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "users_viewed_notifications" ALTER COLUMN "id" SET DEFAULT 'gen_random_uuid()'`,
-    );
+    await queryRunner.query(`ALTER TABLE "users_files" ALTER COLUMN "userId" SET NOT NULL`);
     await queryRunner.query(
       `ALTER TABLE "users_viewed_notifications" ALTER COLUMN "createdAt" TYPE TIMESTAMP`,
     );
     await queryRunner.query(
       `ALTER TABLE "users_viewed_notifications" ALTER COLUMN "createdAt" SET DEFAULT now()`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "users_viewed_notifications" ALTER COLUMN "notificationId" DROP NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "users_viewed_notifications" ALTER COLUMN "userId" DROP NOT NULL`,
     );
     await queryRunner.query(`CREATE INDEX "IDX_df4240a5d71aa6a23b829d3cee" ON "bots" ("tokenId") `);
     await queryRunner.query(
@@ -322,9 +348,6 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_27d39ee5a1cdb04ed78a52286a" ON "dota_matches" ("match_id") `,
-    );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_e32891d3f8e343fe1d0107fa4e" ON "dota_medals" ("name") `,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_d98a275f8bc6cd986fcbe2eab0" ON "users" ("tokenId") `,
@@ -509,7 +532,6 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
     );
     await queryRunner.query(`ALTER TABLE "bots" DROP CONSTRAINT "bots_tokenId_key"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_d98a275f8bc6cd986fcbe2eab0"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_e32891d3f8e343fe1d0107fa4e"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_27d39ee5a1cdb04ed78a52286a"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_82490264788f0b786e2ff312a5"`);
     await queryRunner.query(
@@ -519,51 +541,40 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX "public"."IDX_c340949fe9c2e1b1c636ff5ada"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_df4240a5d71aa6a23b829d3cee"`);
     await queryRunner.query(
-      `ALTER TABLE "users_viewed_notifications" ALTER COLUMN "userId" SET NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "users_viewed_notifications" ALTER COLUMN "notificationId" SET NOT NULL`,
-    );
-    await queryRunner.query(
       `ALTER TABLE "users_viewed_notifications" ALTER COLUMN "createdAt" SET DEFAULT CURRENT_TIMESTAMP`,
     );
     await queryRunner.query(
       `ALTER TABLE "users_viewed_notifications" ALTER COLUMN "createdAt" TYPE TIMESTAMP(3)`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "users_viewed_notifications" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "users_stats" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "users_files" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
-    );
+    await queryRunner.query(`ALTER TABLE "users_files" ALTER COLUMN "userId" DROP NOT NULL`);
     await queryRunner.query(`ALTER TABLE "users" DROP CONSTRAINT "UQ_d98a275f8bc6cd986fcbe2eab01"`);
+    // await queryRunner.query(`ALTER TABLE "users" DROP COLUMN "tokenId"`);
+    // await queryRunner.query(`ALTER TABLE "users" ADD "tokenId" text`);
+    await queryRunner.query(`ALTER TABLE "users" ALTER "tokenId" TYPE text`);
     await queryRunner.query(
       `ALTER TABLE "tokens" ALTER COLUMN "obtainmentTimestamp" TYPE TIMESTAMP(3)`,
     );
-    await queryRunner.query(`ALTER TABLE "tokens" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`);
     await queryRunner.query(
-      `ALTER TABLE "notifications_messages" ALTER COLUMN "notificationId" SET NOT NULL`,
+      `ALTER TABLE "tokens" DROP CONSTRAINT "PK_3001e89ada36263dabf1fb6210a"`,
     );
+    // await queryRunner.query(`ALTER TABLE "tokens" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "tokens" ADD "id" text NOT NULL DEFAULT gen_random_uuid()`,
+    // );
+    await queryRunner.query(`ALTER TABLE "tokens" ALTER "id" TYPE uuid using (uuid_generate_v4())`);
+    await queryRunner.query(`ALTER TABLE "tokens" ADD CONSTRAINT "tokens_pkey" PRIMARY KEY ("id")`);
     await queryRunner.query(`CREATE TYPE "public"."LangCode_old" AS ENUM('RU', 'GB')`);
     await queryRunner.query(
       `ALTER TABLE "notifications_messages" ALTER COLUMN "langCode" TYPE "public"."LangCode_old" USING "langCode"::"text"::"public"."LangCode_old"`,
     );
     await queryRunner.query(`DROP TYPE "public"."notifications_messages_langcode_enum"`);
     await queryRunner.query(`ALTER TYPE "public"."LangCode_old" RENAME TO "LangCode"`);
-    await queryRunner.query(
-      `ALTER TABLE "notifications_messages" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
-    );
+    await queryRunner.query(`ALTER TABLE "notifications" ALTER COLUMN "userId" DROP NOT NULL`);
     await queryRunner.query(
       `ALTER TABLE "notifications" ALTER COLUMN "createdAt" SET DEFAULT CURRENT_TIMESTAMP`,
     );
     await queryRunner.query(
       `ALTER TABLE "notifications" ALTER COLUMN "createdAt" TYPE TIMESTAMP(3)`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "notifications" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
     );
     await queryRunner.query(
       `CREATE TYPE "public"."IntegrationService_old" AS ENUM('LASTFM', 'VK', 'FACEIT', 'SPOTIFY', 'DONATIONALERTS')`,
@@ -576,62 +587,52 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
       `ALTER TYPE "public"."IntegrationService_old" RENAME TO "IntegrationService"`,
     );
     await queryRunner.query(
-      `ALTER TABLE "integrations" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
-    );
-    await queryRunner.query(
       `ALTER TABLE "dota_matches_results" DROP CONSTRAINT "UQ_66717d38c93b88a283ad77736ad"`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "dota_matches_results" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "dota_matches_cards" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
-    );
-    await queryRunner.query(`ALTER TABLE "dota_matches" ALTER COLUMN "gameModeId" SET NOT NULL`);
     await queryRunner.query(
       `ALTER TABLE "dota_matches" DROP CONSTRAINT "UQ_27d39ee5a1cdb04ed78a52286a1"`,
     );
     await queryRunner.query(
       `ALTER TABLE "dota_matches" ALTER COLUMN "startedAt" TYPE TIMESTAMP(3)`,
     );
+    // await queryRunner.query(`ALTER TABLE "channels_commands_usages" DROP COLUMN "commandId"`);
+    // await queryRunner.query(`ALTER TABLE "channels_commands_usages" ADD "commandId" text NOT NULL`);
+    await queryRunner.query(`ALTER TABLE "channels_commands_usages" ALTER "commandId" TYPE text`);
+    // await queryRunner.query(`ALTER TABLE "channels_commands_responses" DROP COLUMN "commandId"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_commands_responses" ADD "commandId" text NOT NULL`,
+    // );
     await queryRunner.query(
-      `ALTER TABLE "dota_matches" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
+      `ALTER TABLE "channels_commands_responses" ALTER "commandId" TYPE text`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "channels_dashboard_access" ALTER COLUMN "userId" SET NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_dashboard_access" ALTER COLUMN "channelId" SET NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_dashboard_access" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_commands_usages" ALTER COLUMN "userId" SET NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_commands_usages" ALTER COLUMN "commandId" SET NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_commands_usages" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_commands_responses" ALTER COLUMN "commandId" SET NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_commands_responses" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
-    );
-    await queryRunner.query(`ALTER TABLE "channels_timers" ALTER COLUMN "channelId" SET NOT NULL`);
     await queryRunner.query(
       `ALTER TABLE "channels_timers" ALTER COLUMN "enabled" SET DEFAULT true`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_timers" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
+      `ALTER TABLE "channels_timers" DROP CONSTRAINT "PK_858789b56e6e0956593768f9e05"`,
     );
-    await queryRunner.query(`ALTER TABLE "channels_permits" ALTER COLUMN "userId" SET NOT NULL`);
-    await queryRunner.query(`ALTER TABLE "channels_permits" ALTER COLUMN "channelId" SET NOT NULL`);
+    // await queryRunner.query(`ALTER TABLE "channels_timers" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_timers" ADD "id" text NOT NULL DEFAULT gen_random_uuid()`,
+    // );
     await queryRunner.query(
-      `ALTER TABLE "channels_permits" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
+      `ALTER TABLE "channels_timers" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "channels_timers" ADD CONSTRAINT "channels_timers_pkey" PRIMARY KEY ("id")`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "channels_permits" DROP CONSTRAINT "PK_1e24b77c350a387af97801f64ae"`,
+    );
+    // await queryRunner.query(`ALTER TABLE "channels_permits" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_permits" ADD "id" text NOT NULL DEFAULT gen_random_uuid()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_permits" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "channels_permits" ADD CONSTRAINT "channels_permits_pkey" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(
       `CREATE TYPE "public"."SettingsType_old" AS ENUM('links', 'blacklists', 'symbols', 'longMessage', 'caps', 'emotes')`,
@@ -642,31 +643,59 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
     await queryRunner.query(`DROP TYPE "public"."channels_moderation_settings_type_enum"`);
     await queryRunner.query(`ALTER TYPE "public"."SettingsType_old" RENAME TO "SettingsType"`);
     await queryRunner.query(
-      `ALTER TABLE "channels_moderation_settings" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
+      `ALTER TABLE "channels_moderation_settings" DROP CONSTRAINT "PK_fc3b021f2a7a5fde68b58543d93"`,
+    );
+    // await queryRunner.query(`ALTER TABLE "channels_moderation_settings" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_moderation_settings" ADD "id" text NOT NULL DEFAULT gen_random_uuid()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_moderation_settings" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "channels_moderation_settings" ADD CONSTRAINT "channels_moderation_settings_pkey" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(
       `CREATE UNIQUE INDEX "channels_moderation_settings_channelId_type_key" ON "channels_moderation_settings" ("type", "channelId") `,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_keywords" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
+      `ALTER TABLE "channels_keywords" DROP CONSTRAINT "PK_6cb4cb2b8a95cc2728d1feab106"`,
+    );
+    // await queryRunner.query(`ALTER TABLE "channels_keywords" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_keywords" ADD "id" text NOT NULL DEFAULT gen_random_uuid()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_keywords" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_integrations" ALTER COLUMN "integrationId" SET NOT NULL`,
+      `ALTER TABLE "channels_keywords" ADD CONSTRAINT "channels_keywords_pkey" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_integrations" ALTER COLUMN "channelId" SET NOT NULL`,
+      `ALTER TABLE "channels_integrations" DROP CONSTRAINT "PK_d5f8b2ee43dbd8f5a68d1ce71ca"`,
+    );
+    // await queryRunner.query(`ALTER TABLE "channels_integrations" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_integrations" ADD "id" text NOT NULL DEFAULT gen_random_uuid()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_integrations" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_integrations" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
+      `ALTER TABLE "channels_integrations" ADD CONSTRAINT "channels_integrations_pkey" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_greetings" ALTER COLUMN "channelId" SET NOT NULL`,
+      `ALTER TABLE "channels_greetings" DROP CONSTRAINT "PK_90ee111c7fefdaaff4918cab6df"`,
+    );
+    // await queryRunner.query(`ALTER TABLE "channels_greetings" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_greetings" ADD "id" text NOT NULL DEFAULT gen_random_uuid()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_greetings" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_greetings" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "channels_customvars" ALTER COLUMN "channelId" SET NOT NULL`,
+      `ALTER TABLE "channels_greetings" ADD CONSTRAINT "channels_greetings_pkey" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(`CREATE TYPE "public"."CustomVarType_old" AS ENUM('SCRIPT', 'TEXT')`);
     await queryRunner.query(
@@ -675,7 +704,17 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
     await queryRunner.query(`DROP TYPE "public"."channels_customvars_type_enum"`);
     await queryRunner.query(`ALTER TYPE "public"."CustomVarType_old" RENAME TO "CustomVarType"`);
     await queryRunner.query(
-      `ALTER TABLE "channels_customvars" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
+      `ALTER TABLE "channels_customvars" DROP CONSTRAINT "PK_a6d0167a26c310ef7832c66b55d"`,
+    );
+    // await queryRunner.query(`ALTER TABLE "channels_customvars" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_customvars" ADD "id" text NOT NULL DEFAULT gen_random_uuid()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_customvars" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "channels_customvars" ADD CONSTRAINT "channels_customvars_pkey" PRIMARY KEY ("id")`,
     );
     await queryRunner.query(
       `CREATE TYPE "public"."CommandModule_old" AS ENUM('CUSTOM', 'DOTA', 'CHANNEL', 'MODERATION')`,
@@ -699,6 +738,8 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TYPE "public"."CommandPermission_old" RENAME TO "CommandPermission"`,
     );
+    // await queryRunner.query(`ALTER TABLE "channels_commands" DROP COLUMN "aliases"`);
+    // await queryRunner.query(`ALTER TABLE "channels_commands" ADD "aliases" jsonb DEFAULT '[]'`);
     await queryRunner.query(
       `CREATE TYPE "public"."CooldownType_old" AS ENUM('GLOBAL', 'PER_USER')`,
     );
@@ -714,13 +755,25 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
     await queryRunner.query(`DROP TYPE "public"."channels_commands_cooldowntype_enum"`);
     await queryRunner.query(`ALTER TYPE "public"."CooldownType_old" RENAME TO "CooldownType"`);
     await queryRunner.query(
-      `ALTER TABLE "channels_commands" ALTER COLUMN "id" SET DEFAULT gen_random_uuid()`,
+      `ALTER TABLE "channels_commands" DROP CONSTRAINT "PK_6f530d7cee75abfb1ef1cc7e09b"`,
     );
-    await queryRunner.query(`ALTER TABLE "channels" ALTER COLUMN "botId" SET NOT NULL`);
+    // await queryRunner.query(`ALTER TABLE "channels_commands" DROP COLUMN "id"`);
+    // await queryRunner.query(
+    //   `ALTER TABLE "channels_commands" ADD "id" text NOT NULL DEFAULT gen_random_uuid()`,
+    // );
+    await queryRunner.query(
+      `ALTER TABLE "channels_commands" ALTER "id" TYPE uuid using (uuid_generate_v4())`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "channels_commands" ADD CONSTRAINT "channels_commands_pkey" PRIMARY KEY ("id")`,
+    );
     await queryRunner.query(
       `ALTER TABLE "channels" DROP CONSTRAINT "UQ_bc603823f3f741359c2339389f9"`,
     );
     await queryRunner.query(`ALTER TABLE "bots" DROP CONSTRAINT "UQ_df4240a5d71aa6a23b829d3cee8"`);
+    // await queryRunner.query(`ALTER TABLE "bots" DROP COLUMN "tokenId"`);
+    // await queryRunner.query(`ALTER TABLE "bots" ADD "tokenId" text`);
+    await queryRunner.query(`ALTER TABLE "bots" ALTER "tokenId" TYPE text`);
     await queryRunner.query(`CREATE TYPE "public"."BotType_old" AS ENUM('DEFAULT', 'CUSTOM')`);
     await queryRunner.query(
       `ALTER TABLE "bots" ALTER COLUMN "type" TYPE "public"."BotType_old" USING "type"::"text"::"public"."BotType_old"`,
@@ -728,9 +781,6 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
     await queryRunner.query(`DROP TYPE "public"."bots_type_enum"`);
     await queryRunner.query(`ALTER TYPE "public"."BotType_old" RENAME TO "BotType"`);
     await queryRunner.query(`CREATE UNIQUE INDEX "users_tokenId_key" ON "users" ("tokenId") `);
-    await queryRunner.query(
-      `CREATE INDEX "dota_medals_rank_tier_idx" ON "dota_medals" ("rank_tier") `,
-    );
     await queryRunner.query(
       `CREATE UNIQUE INDEX "dota_matches_match_id_key" ON "dota_matches" ("match_id") `,
     );
@@ -785,10 +835,10 @@ export class migrateToTypeorm1663337758845 implements MigrationInterface {
       `ALTER TABLE "channels_dashboard_access" ADD CONSTRAINT "channels_dashboard_access_channelId_fkey" FOREIGN KEY ("channelId") REFERENCES "channels"("id") ON DELETE RESTRICT ON UPDATE CASCADE`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_commands_usages" ADD CONSTRAINT "channels_commands_usages_commandId_fkey" FOREIGN KEY ("commandId") REFERENCES "channels_commands"("id") ON DELETE CASCADE ON UPDATE CASCADE`,
+      `ALTER TABLE "channels_commands_usages" ADD CONSTRAINT "channels_commands_usages_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE`,
     );
     await queryRunner.query(
-      `ALTER TABLE "channels_commands_usages" ADD CONSTRAINT "channels_commands_usages_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE`,
+      `ALTER TABLE "channels_commands_usages" ADD CONSTRAINT "channels_commands_usages_commandId_fkey" FOREIGN KEY ("commandId") REFERENCES "channels_commands"("id") ON DELETE CASCADE ON UPDATE CASCADE`,
     );
     await queryRunner.query(
       `ALTER TABLE "channels_commands_responses" ADD CONSTRAINT "channels_commands_responses_commandId_fkey" FOREIGN KEY ("commandId") REFERENCES "channels_commands"("id") ON DELETE CASCADE ON UPDATE CASCADE`,
