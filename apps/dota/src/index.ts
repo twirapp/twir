@@ -7,6 +7,7 @@ import { config } from '@tsuwari/config';
 import { AppModule } from './app.module.js';
 import './libs/nats.js';
 
+await import('./libs/typeorm.js');
 export const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
   transport: Transport.NATS,
   options: {

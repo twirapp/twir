@@ -44,7 +44,7 @@ export class ModerationService {
 
   async update(channelId: string, data: ModerationSettingsDto[]) {
     const repository = typeorm.getRepository(ChannelModerationSetting);
-    const result = await Promise.all(
+    await Promise.all(
       data.map(async (item) => {
         const updateObject = {
           ...item,

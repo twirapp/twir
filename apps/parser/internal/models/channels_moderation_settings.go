@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/guregu/null"
+	"github.com/lib/pq"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -72,7 +73,7 @@ type ChannelsModerationSettings struct {
 	//[11] maxPercentage                                  INT4                 null: true   primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [50]
 	MaxPercentage sql.NullInt64 `gorm:"column:maxPercentage;type:INT4;default:50;"       json:"max_percentage"`
 	//[12] blackListSentences                             JSONB                null: true   primary: false  isArray: false  auto: false  col: JSONB           len: -1      default: [[]]
-	BlackListSentences sql.NullString `gorm:"column:blackListSentences;type:JSONB;default:[];" json:"black_list_sentences"`
+	BlackListSentences pq.StringArray `gorm:"column:blackListSentences;type:JSONB;default:[];" json:"black_list_sentences"`
 }
 
 var channels_moderation_settingsTableInfo = &TableInfo{

@@ -42,7 +42,6 @@ importers:
       '@sentry/tracing': ^7.9.0
       '@tsuwari/config': workspace:*
       '@tsuwari/nats': workspace:*
-      '@tsuwari/prisma': workspace:*
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/spotify': workspace:*
@@ -95,7 +94,6 @@ importers:
       '@sentry/tracing': 7.9.0
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/nats': link:../../libs/nats
-      '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/spotify': link:../../libs/integrations/spotify
@@ -151,7 +149,6 @@ importers:
       '@sentry/tracing': ^7.9.0
       '@tsuwari/config': workspace:*
       '@tsuwari/nats': workspace:*
-      '@tsuwari/prisma': workspace:*
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/spotify': workspace:*
@@ -205,7 +202,6 @@ importers:
       '@sentry/tracing': 7.9.0
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/nats': link:../../libs/nats
-      '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/spotify': link:../../libs/integrations/spotify
@@ -255,8 +251,8 @@ importers:
       '@nestjs/microservices': 9.0.9
       '@tsuwari/config': workspace:*
       '@tsuwari/nats': workspace:*
-      '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
+      '@tsuwari/typeorm': workspace:*
       '@types/steam-user': 4.23.0
       '@types/steamid': 2.0.1
       nats: 2.7.1
@@ -271,8 +267,8 @@ importers:
       '@nestjs/microservices': 9.0.9_kutvg72li44bgujfomk5swyy24
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/nats': link:../../libs/nats
-      '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
+      '@tsuwari/typeorm': link:../../libs/typeorm
       nats: 2.7.1
       protobufjs: 7.0.0
       reflect-metadata: 0.1.13
@@ -307,7 +303,6 @@ importers:
       '@nestjs/microservices': 9.0.9
       '@nestjs/platform-express': 9.0.9
       '@tsuwari/config': workspace:*
-      '@tsuwari/prisma': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@twurple/api': 5.2.1
@@ -327,7 +322,6 @@ importers:
       '@nestjs/microservices': 9.0.9_fgirn6e6qrlfpcmhhwhp4e6d7i
       '@nestjs/platform-express': 9.0.9_k52hpfebgtl2kt6drmxlyq3gwe
       '@tsuwari/config': link:../../libs/config
-      '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
       '@twurple/api': 5.2.1_@twurple+auth@5.2.1
@@ -438,7 +432,6 @@ importers:
       '@sentry/tracing': 7.10.0
       '@tsuwari/config': workspace:*
       '@tsuwari/nats': workspace:*
-      '@tsuwari/prisma': workspace:*
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
@@ -461,7 +454,6 @@ importers:
       '@sentry/tracing': 7.10.0
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/nats': link:../../libs/nats
-      '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
@@ -485,7 +477,6 @@ importers:
       '@sentry/node': 7.10.0
       '@sentry/tracing': 7.10.0
       '@tsuwari/config': workspace:*
-      '@tsuwari/prisma': workspace:*
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
       '@twurple/api': 5.2.1
@@ -504,7 +495,6 @@ importers:
       '@sentry/node': 7.10.0
       '@sentry/tracing': 7.10.0
       '@tsuwari/config': link:../../libs/config
-      '@tsuwari/prisma': link:../../libs/prisma
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
       '@twurple/api': 5.2.1_@twurple+auth@5.2.1
@@ -534,11 +524,9 @@ importers:
 
   libs/integrations/spotify:
     specifiers:
-      '@tsuwari/prisma': workspace:*
       '@tsuwari/typeorm': workspace:*
       axios: 0.27.2
     dependencies:
-      '@tsuwari/prisma': link:../../prisma
       '@tsuwari/typeorm': link:../../typeorm
       axios: 0.27.2
 
@@ -587,7 +575,6 @@ importers:
       '@nestjs/common': 9.0.9
       '@nestjs/microservices': 9.0.9
       '@tsuwari/config': workspace:*
-      '@tsuwari/prisma': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@twurple/api': 5.2.1
       '@twurple/auth': 5.2.1
@@ -603,7 +590,6 @@ importers:
       '@nestjs/common': 9.0.9_lgmj4mab2zqmetcfgcrg2pdwq4
       '@nestjs/microservices': 9.0.9_rco65e6sjd6ppcxn5pylwpmxiy
       '@tsuwari/config': link:../config
-      '@tsuwari/prisma': link:../prisma
       '@tsuwari/typeorm': link:../typeorm
       '@twurple/api': 5.2.1_@twurple+auth@5.2.1
       '@twurple/auth': 5.2.1
@@ -1226,7 +1212,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.0.9_j5hagqx4mwzscud4kyjdvubauy
-      '@nestjs/microservices': 9.0.9_ghnyul67xcxtc3f3mxssx5lkym
+      '@nestjs/microservices': 9.0.9_fgirn6e6qrlfpcmhhwhp4e6d7i
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
@@ -1478,7 +1464,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.0.9_j5hagqx4mwzscud4kyjdvubauy
-      '@nestjs/core': 9.0.9_uptm55tmrklpthxi4coxkuyvw4
+      '@nestjs/core': 9.0.9_7lce46hccn55rsmd3ghpepjs3q
       iterare: 1.2.1
       nats: 2.7.1
       reflect-metadata: 0.1.13

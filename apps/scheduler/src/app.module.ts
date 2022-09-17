@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
-import { PrismaModule } from '@tsuwari/prisma';
 import { RedisORMModule } from '@tsuwari/redis';
-import { RedisService, RedisModule, TwitchApiService } from '@tsuwari/shared';
+import { RedisModule, RedisService, TwitchApiService } from '@tsuwari/shared';
 
 import { DefaultCommandsCreatorModule } from './default-commands-creator/default-commands-creator.module.js';
 import { DotaModule } from './dota/dota.module.js';
@@ -13,7 +12,6 @@ import { StreamStatusModule } from './streamstatus/streamstatus.module.js';
 @Module({
   imports: [
     RedisORMModule,
-    PrismaModule,
     RedisModule,
     ScheduleModule.forRoot(),
     StreamStatusModule,
@@ -24,4 +22,4 @@ import { StreamStatusModule } from './streamstatus/streamstatus.module.js';
   ],
   providers: [TwitchApiService, RedisService],
 })
-export class AppModule { }
+export class AppModule {}

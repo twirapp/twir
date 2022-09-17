@@ -1,4 +1,4 @@
-import { DashboardAccess } from '@tsuwari/prisma';
+import { DashboardAccess } from '@tsuwari/typeorm/entities/DashboardAccess';
 import { HelixStream, HelixUser } from '@twurple/api';
 import { rawDataSymbol } from '@twurple/common';
 

@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { ClientProxy, ClientProxyEvents, RedisService } from '@tsuwari/shared';

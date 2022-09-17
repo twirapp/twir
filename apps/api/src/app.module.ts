@@ -2,7 +2,6 @@ import { CacheModule, CacheModuleOptions, Module, Scope } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { config } from '@tsuwari/config';
-import { PrismaModule } from '@tsuwari/prisma';
 import { RedisORMModule, RedisORMService } from '@tsuwari/redis';
 import { RedisModule, TwitchApiService } from '@tsuwari/shared';
 import cacheRedisStore from 'cache-manager-ioredis';
@@ -35,7 +34,6 @@ const redis = new (class extends Redis {
       isGlobal: true,
       ttl: 60,
     }),
-    PrismaModule,
     RedisModule,
     RedisORMModule,
     BotsMicroserviceModule,
@@ -51,7 +49,6 @@ const redis = new (class extends Redis {
   ],
   controllers: [AppController],
   providers: [
-    PrismaModule,
     RedisORMService,
     AppService,
     TwitchApiService,
