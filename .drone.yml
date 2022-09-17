@@ -118,12 +118,12 @@ steps:
     settings:
       <<: *docker-settings
       repo: registry.satont.dev/tsuwari/migrations
-      dockerfile: ./libs/prisma/Dockerfile
+      dockerfile: ./libs/typeorm/Dockerfile
       cache_from: registry.satont.dev/tsuwari/migrations
     when:
       paths:
         include:
-          - libs/prisma/**/*
+          - libs/typeorm/**/*
 
   - <<: *docker
     name: publish-parser

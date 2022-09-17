@@ -1,6 +1,21 @@
-import { CommandPermission, CooldownType } from '@tsuwari/prisma';
+import { CommandPermission, CooldownType } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { Type } from 'class-transformer';
-import { ArrayMaxSize, ArrayNotEmpty, IsArray, IsBoolean, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min, ValidateIf, ValidateNested } from 'class-validator';
+import {
+  ArrayMaxSize,
+  ArrayNotEmpty,
+  IsArray,
+  IsBoolean,
+  IsIn,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  ValidateIf,
+  ValidateNested,
+} from 'class-validator';
 
 export class UpdateOrCreateCommandDto {
   id?: string;
@@ -52,7 +67,6 @@ export class UpdateOrCreateCommandDto {
   @ArrayNotEmpty()
   responses: Array<ResponseValidation>;
 }
-
 
 class ResponseValidation {
   id?: string;

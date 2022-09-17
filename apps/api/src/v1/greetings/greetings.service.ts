@@ -1,8 +1,9 @@
 import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaService } from '@tsuwari/prisma';
 import { Greetings, greetingsSchema, RedisORMService, Repository } from '@tsuwari/redis';
 import { RedisService } from '@tsuwari/shared';
+import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 
+import { typeorm } from '../../index.js';
 import { staticApi } from '../../twitchApi.js';
 import { GreetingCreateDto } from './dto/create.js';
 
@@ -10,11 +11,7 @@ import { GreetingCreateDto } from './dto/create.js';
 export class GreetingsService implements OnModuleInit {
   #repository: Repository<Greetings>;
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly redis: RedisService,
-    private readonly redisOrm: RedisORMService,
-  ) {}
+  constructor(private readonly redis: RedisService, private readonly redisOrm: RedisORMService) {}
 
   async onModuleInit() {
     await this.redisOrm.onModuleInit();
@@ -22,9 +19,7 @@ export class GreetingsService implements OnModuleInit {
   }
 
   async getList(userId: string) {
-    const greetings = await this.prisma.greeting.findMany({
-      where: { channelId: userId },
-    });
+    const greetings = await typeorm.getRepository(ChannelGreeting).findBy({ channelId: userId });
 
     const users = await staticApi.users.getUsersByIds(greetings.map((g) => g.userId));
 
@@ -36,23 +31,19 @@ export class GreetingsService implements OnModuleInit {
 
     if (!user) throw new HttpException(`User ${data.username} not found on twitch`, 404);
 
-    const isExists = await this.prisma.greeting.count({
-      where: {
-        channelId: userId,
-        userId: user.id,
-      },
+    const isExists = await typeorm.getRepository(ChannelGreeting).findOneBy({
+      channelId: userId,
+      userId: user.id,
     });
 
     if (isExists) {
       throw new HttpException(`Greeting for user ${user.name} already exists`, 400);
     }
 
-    const greeting = await this.prisma.greeting.create({
-      data: {
-        channelId: userId,
-        userId: user.id,
-        text: data.text,
-      },
+    const greeting = await typeorm.getRepository(ChannelGreeting).save({
+      channelId: userId,
+      userId: user.id,
+      text: data.text,
     });
 
     await this.#repository.createAndSave(
@@ -70,11 +61,10 @@ export class GreetingsService implements OnModuleInit {
   }
 
   async update(userId: string, greetingId: string, data: GreetingCreateDto) {
-    const currentGreeting = await this.prisma.greeting.count({
-      where: {
-        id: greetingId,
-        channelId: userId,
-      },
+    const repository = typeorm.getRepository(ChannelGreeting);
+    const currentGreeting = await repository.findOneBy({
+      id: greetingId,
+      channelId: userId,
     });
 
     if (!currentGreeting) throw new HttpException(`Greeting with id ${greetingId} not found.`, 404);
@@ -83,23 +73,19 @@ export class GreetingsService implements OnModuleInit {
 
     if (!user) throw new HttpException(`User ${data.username} not found on twitch`, 404);
 
-    const greeting = await this.prisma.greeting.update({
-      where: {
-        id: greetingId,
-      },
-      data: {
-        text: data.text,
-        userId: user.id,
-        enabled: data.enabled,
-      },
-    });
+    await repository.update(
+      { id: greetingId },
+      { text: data.text, userId: user.id, enabled: data.enabled },
+    );
+
+    const greeting = await repository.findOneBy({ id: greetingId });
 
     await this.#repository.createAndSave(
       {
-        ...greeting,
+        ...greeting!,
         processed: false,
       },
-      `${greeting.channelId}:${greeting.userId}`,
+      `${greeting!.channelId}:${greeting!.userId}`,
     );
 
     return {
@@ -109,18 +95,18 @@ export class GreetingsService implements OnModuleInit {
   }
 
   async delete(userId: string, greetingId: string) {
-    const greeting = await this.prisma.greeting.findFirst({
-      where: { channelId: userId, id: greetingId },
+    const repository = typeorm.getRepository(ChannelGreeting);
+    const greeting = await repository.findOneBy({
+      channelId: userId,
+      id: greetingId,
     });
 
     if (!greeting) {
       throw new HttpException('Greeting not exists', 404);
     }
 
-    const result = await this.prisma.greeting.delete({
-      where: {
-        id: greetingId,
-      },
+    const result = await repository.delete({
+      id: greetingId,
     });
 
     await this.#repository.remove(`${greeting.channelId}:${greeting.userId}`);

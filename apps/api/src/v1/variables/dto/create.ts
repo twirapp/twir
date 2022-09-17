@@ -1,7 +1,7 @@
-import { CustomVar, CustomVarType } from '@tsuwari/prisma';
+import { ChannelCustomvar, CustomVarType } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { IsIn, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
 
-export class CreateVariableDto implements Partial<CustomVar> {
+export class CreateVariableDto implements Partial<ChannelCustomvar> {
   @IsString()
   @IsNotEmpty()
   @MaxLength(20)

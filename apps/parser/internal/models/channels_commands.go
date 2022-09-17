@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/guregu/null"
+	"github.com/lib/pq"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -58,7 +59,7 @@ type ChannelsCommands struct {
 	//[ 4] enabled                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [true]
 	Enabled bool `gorm:"column:enabled;type:BOOL;default:true;"           json:"enabled"`
 	//[ 5] aliases                                        JSONB                null: true   primary: false  isArray: false  auto: false  col: JSONB           len: -1      default: [[]]
-	Aliases sql.NullString `gorm:"column:aliases;type:JSONB;default:[];"            json:"aliases"`
+	Aliases pq.StringArray `gorm:"column:aliases;type:JSONB;default:[];"            json:"aliases"`
 	//[ 6] description                                    TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
 	Description sql.NullString `gorm:"column:description;type:TEXT;"                    json:"description"`
 	//[ 7] visible                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [true]

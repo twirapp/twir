@@ -14,7 +14,7 @@
     "@nestjs/common": "9.0.9",
     "@nestjs/core": "9.0.9",
     "@tsuwari/config": "workspace:*",
-    "@tsuwari/prisma": "workspace:*",
+    "@tsuwari/typeorm": "workspace:*",
     "redis-om": "github:satont/redis-om-node",
     "reflect-metadata": "0.1.13",
     "rxjs": "7.5.6",

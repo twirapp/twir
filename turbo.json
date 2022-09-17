@@ -3,26 +3,16 @@
   "baseBranch": "origin/master",
   "pipeline": {
     "build": {
-      "dependsOn": [
-        "^build",
-        "@tsuwari/prisma#generate"
-      ],
-      "outputs": [
-        "dist/**"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
     },
     "generate": {
       "dependsOn": [],
       "outputs": []
     },
     "dev": {
-      "dependsOn": [
-        "^build",
-        "@tsuwari/prisma#generate"
-      ],
-      "outputs": [
-        "dist/**"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
     },
     "lint": {
       "outputs": []

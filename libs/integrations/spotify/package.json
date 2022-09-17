@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tsuwari/prisma": "workspace:*",
+    "@tsuwari/typeorm": "workspace:*",
     "axios": "0.27.2"
   }
 }

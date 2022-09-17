@@ -2,10 +2,16 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
 import * as Parser from '@tsuwari/nats/parser';
-import { CommandModule, CommandPermission, PrismaService } from '@tsuwari/prisma';
 import { RedisService } from '@tsuwari/shared';
+import {
+  ChannelCommand,
+  CommandModule,
+  CommandPermission,
+  CooldownType,
+} from '@tsuwari/typeorm/entities/ChannelCommand';
 import * as Knex from 'knex';
 
+import { typeorm } from '../index.js';
 import { nats } from '../libs/nats.js';
 
 @Injectable()
@@ -13,7 +19,7 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
   #logger = new Logger(DefaultCommandsCreatorService.name);
   #knex: Knex.Knex;
 
-  constructor(private readonly prisma: PrismaService, private readonly redis: RedisService) {}
+  constructor(private readonly redis: RedisService) {}
 
   async onModuleInit() {
     const knex = Knex.default({
@@ -60,23 +66,22 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
       this.#logger.log(`Creating default commands for ${channels.length} channels.`);
     }
 
+    const repository = typeorm.getRepository(ChannelCommand);
     for (const channel of channels) {
       const commandsForCreate = defaultCommands.filter((c) => !channel.commands.includes(c.name));
 
       for (const command of commandsForCreate) {
-        const newCommand = await this.prisma.command.create({
-          data: {
-            channelId: channel.id,
-            default: true,
-            defaultName: command.name,
-            description: command.description,
-            visible: command.visible,
-            name: command.name,
-            permission: command.permission as unknown as CommandPermission,
-            cooldown: 0,
-            cooldownType: 'GLOBAL',
-            module: command.module as unknown as CommandModule | undefined,
-          },
+        const newCommand = await repository.save({
+          channelId: channel.id,
+          default: true,
+          defaultName: command.name,
+          description: command.description,
+          visible: command.visible,
+          name: command.name,
+          permission: command.permission as unknown as CommandPermission,
+          cooldown: 0,
+          cooldownType: CooldownType.GLOBAL,
+          module: command.module as unknown as CommandModule | undefined,
         });
 
         const commandForSet = {
@@ -91,67 +96,5 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
         );
       }
     }
-
-    /* for (const command of defaultCommands) {
-      // const usersForUpdate: Channel[] = await this.prisma.$queryRaw`SELECT * FROM "channels" where id not in (select "channelId" from "channels_commands" where "channels_commands"."defaultName" = ${command.name})`;
-      const usersForUpdate = usersIds
-        ? await this.prisma.channel.findMany({
-          where: {
-            id: {
-              in: usersIds,
-            },
-            commands: {
-              none: {
-                default: true,
-                defaultName: command.name,
-              },
-            },
-          },
-          select: {
-            id: true,
-          },
-        })
-        : await this.prisma.channel.findMany({
-          where: {
-            commands: {
-              none: {
-                default: true,
-                defaultName: command.name,
-              },
-            },
-          },
-          select: {
-            id: true,
-          },
-        });
-
-      if (!usersForUpdate.length) continue;
-
-      this.#logger.log(`Creating default command ${command.name} for ${usersForUpdate.length} users.`);
-
-      for (const channel of usersForUpdate) {
-        const newCommand = await this.prisma.command.create({
-          data: {
-            channelId: channel.id,
-            default: true,
-            defaultName: command.name,
-            description: command.description,
-            visible: command.visible,
-            name: command.name,
-            permission: command.permission,
-            cooldown: 0,
-            cooldownType: 'GLOBAL',
-          },
-        });
-
-        const commandForSet = {
-          ...newCommand,
-          responses: JSON.stringify([]),
-          aliases: JSON.stringify([]),
-        };
-
-        await this.redis.hmset(`commands:${channel.id}:${command.name}`, commandForSet);
-      }
-    } */
   }
 }

@@ -21,7 +21,7 @@ COPY libs/config libs/config
 COPY libs/nats libs/nats
 
 RUN pnpm install --prod
-RUN pnpm prisma:generate
+
 
 ENTRYPOINT ["doppler", "run", "--"]
 CMD ["pnpm", "start:eval"]

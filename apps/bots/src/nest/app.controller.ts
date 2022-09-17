@@ -1,10 +1,11 @@
 import { Controller, Get, Res } from '@nestjs/common';
 import { Payload } from '@nestjs/microservices';
-import { ClientProxyEvents, EventPattern, MessagePattern, type ClientProxyCommandPayload, type ClientProxyEventPayload } from '@tsuwari/shared';
+import { EventPattern, type ClientProxyCommandPayload, type ClientProxyEventPayload } from '@tsuwari/shared';
+import { Channel } from '@tsuwari/typeorm/entities/Channel';
 
 import { Bots } from '../bots.js';
-import { prisma } from '../libs/prisma.js';
 import { prometheus } from '../libs/prometheus.js';
+import { typeorm } from '../libs/typeorm.js';
 
 @Controller()
 export class AppController {
@@ -12,7 +13,7 @@ export class AppController {
   @Get('/metrics')
   async root(@Res() res: any) {
     res.contentType(prometheus.contentType);
-    res.send(await prometheus.register.metrics() + await prisma.$metrics.prometheus());
+    res.send(await prometheus.register.metrics());
   }
 
   @EventPattern('bots.joinOrLeave')
@@ -25,8 +26,8 @@ export class AppController {
 
   @EventPattern('user.update')
   async userUpdate(@Payload() data: ClientProxyEventPayload<'user.update'>) {
-    const channel = await prisma.channel.findFirst({
-      where: { id: data.user_id },
+    const channel = await typeorm.getRepository(Channel).findOneBy({
+      id: data.user_id,
     });
 
     if (channel?.isEnabled) {
@@ -39,8 +40,8 @@ export class AppController {
 
   // @MessagePattern('bots.deleteMessages')
   async deleteMessages(@Payload() data: ClientProxyCommandPayload<'bots.deleteMessages'>) {
-    const channel = await prisma.channel.findFirst({
-      where: { id: data.channelId },
+    const channel = await typeorm.getRepository(Channel).findOneBy({
+      id: data.channelId,
     });
 
     if (!channel) return false;

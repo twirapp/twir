@@ -1,0 +1,26 @@
+{
+  "name": "@tsuwari/typeorm",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js",
+    "./entities/*": "./dist/entities/*.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*.d.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "cli": "doppler run -- typeorm-ts-node-esm -d ./src/index.ts",
+    "deploy": "typeorm-ts-node-esm -d ./src/index.ts migration:run"
+  },
+  "dependencies": {
+    "@tsuwari/config": "workspace:*",
+    "pg": "8.7.3",
+    "typeorm": "^0.3.9"
+  }
+}

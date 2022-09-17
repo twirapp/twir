@@ -3,13 +3,16 @@ import { fileURLToPath } from 'url';
 
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { config } from '@tsuwari/config';
-import { Prisma, PrismaClient } from '@tsuwari/prisma';
 import { DotaGame, dotaHeroes, gameModes, RedisService } from '@tsuwari/shared';
+import { DotaGameMode } from '@tsuwari/typeorm/entities/DotaGameMode';
+import { DotaHero } from '@tsuwari/typeorm/entities/DotaHero';
+import { DotaMatch } from '@tsuwari/typeorm/entities/DotaMatch';
 import protobufjs from 'protobufjs';
 import SteamUser from 'steam-user';
 import SteamID from 'steamid';
 
 import { converUsers } from './helpers/convertUsers.js';
+import { typeorm } from './libs/typeorm.js';
 
 @Injectable()
 export class AppService extends SteamUser implements OnModuleInit {
@@ -20,7 +23,7 @@ export class AppService extends SteamUser implements OnModuleInit {
   #logger = new Logger('Dota');
   ready = false;
 
-  constructor(private readonly redis: RedisService, private readonly prisma: PrismaClient) {
+  constructor(private readonly redis: RedisService) {
     super({
       autoRelogin: true,
     });
@@ -209,38 +212,35 @@ export class AppService extends SteamUser implements OnModuleInit {
         if (!game.players || !game.match_id || game.players.length < 9) continue;
 
         const gameMode = gameModes.find((g) => g.id === game.game_mode);
-
         if (gameMode) {
+          await typeorm
+            .getRepository(DotaGameMode)
+            .upsert(
+              { id: game.game_mode, name: gameMode.name },
+              { conflictPaths: ['id'], skipUpdateIfNoValuesChanged: true },
+            );
+          const gameModeEntity = await typeorm.getRepository(DotaGameMode).findOneBy({
+            id: game.game_mode,
+          });
           const data = {
-            lobby_type: game.lobby_type,
+            lobbyType: game.lobby_type,
             players: game.players.map((p) => p.account_id),
-            players_heroes: game.players.map((p) => p.hero_id),
+            playersHeroes: game.players.map((p) => p.hero_id),
             startedAt: new Date(Number(`${game.activate_time}000`)),
-            match_id: game.match_id,
-            avarage_mmr: game.average_mmr,
-            weekend_tourney_bracket_round: game.weekend_tourney_bracket_round?.toString(),
-            weekend_tourney_skill_level: game.weekend_tourney_skill_level?.toString(),
+            matchId: game.match_id,
+            avarageMmr: game.average_mmr,
+            weekendTourneyBracketRound: game.weekend_tourney_bracket_round?.toString(),
+            weekendTourneySkillLevel: game.weekend_tourney_skill_level?.toString(),
             lobbyId: game.lobby_id,
-            gameMode: {
-              connectOrCreate: {
-                where: {
-                  id: game.game_mode,
-                },
-                create: {
-                  id: game.game_mode,
-                  name: gameMode.name,
-                },
-              },
-            },
+            gameMode: gameModeEntity!,
           };
 
-          if (await this.prisma.dotaMatch.findFirst({ where: { match_id: game.match_id } })) {
-            await this.prisma.dotaMatch.update({
-              where: { match_id: game.match_id },
-              data,
-            });
+          const repository = typeorm.getRepository(DotaMatch);
+
+          if (await repository.findOneBy({ matchId: game.match_id })) {
+            await repository.update({ matchId: game.match_id }, data);
           } else {
-            await this.prisma.dotaMatch.create({ data });
+            await repository.save(data);
           }
         }
 
@@ -253,22 +253,12 @@ export class AppService extends SteamUser implements OnModuleInit {
           );
           const hero = dotaHeroes.find((h) => h.id === player.hero_id);
           if (hero) {
-            await this.prisma.dotaHero
-              .create({
-                data: {
-                  id: hero.id,
-                  name: hero.localized_name,
-                },
-              })
-              .catch((e) => {
-                if (
-                  e instanceof Prisma.PrismaClientKnownRequestError &&
-                  e.code === 'P2002' &&
-                  (e.meta?.target as string[]).includes('id')
-                ) {
-                  null;
-                } else throw e;
-              });
+            await typeorm
+              .getRepository(DotaHero)
+              .upsert(
+                { id: hero.id, name: hero.localized_name },
+                { conflictPaths: ['id'], skipUpdateIfNoValuesChanged: true },
+              );
           }
         }
       }

@@ -1,15 +1,13 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { PrismaService, Notification } from '@tsuwari/prisma';
 import { TwitchApiService } from '@tsuwari/shared';
+import { Notification } from '@tsuwari/typeorm/entities/Notification';
 
+import { typeorm } from '../../index.js';
 import { CreateNotificationDto } from './dto/create.js';
 
 @Injectable()
 export class NotificationsService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly twitchApi: TwitchApiService,
-  ) { }
+  constructor(private readonly twitchApi: TwitchApiService) {}
 
   async create(data: CreateNotificationDto) {
     const query = {} as Partial<Notification>;
@@ -23,22 +21,16 @@ export class NotificationsService {
 
     delete data.userName;
 
-    return this.prisma.notification.create({
-      data: {
-        ...data as Omit<CreateNotificationDto, 'userName'>,
-        ...query,
-        messages: {
-          createMany: {
-            data: data.messages,
-          },
-        },
-      },
+    return typeorm.getRepository(Notification).create({
+      ...(data as Omit<CreateNotificationDto, 'userName'>),
+      ...query,
+      messages: data.messages,
     });
   }
 
   delete(id: string) {
-    return this.prisma.notification.delete({
-      where: { id },
+    return typeorm.getRepository(Notification).delete({
+      id,
     });
   }
 }

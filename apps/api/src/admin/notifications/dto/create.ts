@@ -1,4 +1,4 @@
-import { LangCode } from '@tsuwari/prisma';
+import { LangCode } from '@tsuwari/typeorm/entities/NotificationMessage';
 import { Type } from 'class-transformer';
 import { IsArray, IsIn, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 

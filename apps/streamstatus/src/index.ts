@@ -9,8 +9,6 @@ import { config } from '@tsuwari/config';
 import '@tsuwari/config';
 import { AppModule } from './app.module.js';
 
-
-
 Sentry.init({
   dsn: 'https://1c78d79f3bcb443680e4d5550005e3ac@o324161.ingest.sentry.io/6485379',
   tracesSampleRate: 1.0,

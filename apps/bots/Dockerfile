@@ -17,7 +17,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig
 COPY node_modules node_modules
 
 COPY apps/bots apps/bots
-COPY libs/prisma libs/prisma
+COPY libs/typeorm libs/typeorm
 COPY libs/redis libs/redis
 COPY libs/integrations/spotify libs/integrations/spotify
 COPY libs/config libs/config
@@ -25,7 +25,7 @@ COPY libs/shared libs/shared
 COPY libs/nats libs/nats
 
 RUN pnpm install --prod
-RUN pnpm prisma:generate
+
 
 ENTRYPOINT ["doppler", "run", "--"]
 CMD ["pnpm", "start:bots"]

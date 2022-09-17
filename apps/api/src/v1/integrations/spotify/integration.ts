@@ -1,12 +1,12 @@
-
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@tsuwari/prisma';
 import { SpotifyIntegration } from '@tsuwari/spotify';
+import { Integration } from '@tsuwari/typeorm/entities/Integration';
 
+import { typeorm } from '../../../index.js';
 
 @Injectable()
 export class SpotifyIntegrationService extends SpotifyIntegration {
-  constructor(prisma: PrismaService) {
-    super(prisma);
+  constructor() {
+    super(typeorm.getRepository(Integration));
   }
 }

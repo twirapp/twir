@@ -1,76 +1,72 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { PrismaService } from '@tsuwari/prisma';
+import { Not } from '@tsuwari/typeorm';
+import { DashboardAccess } from '@tsuwari/typeorm/entities/DashboardAccess';
+import { User } from '@tsuwari/typeorm/entities/User';
 import { getRawData } from '@twurple/common';
 
+import { typeorm } from '../../../index.js';
 import { staticApi } from '../../../twitchApi.js';
 
 @Injectable()
 export class DashboardAccessService {
-  constructor(private readonly prisma: PrismaService) { }
-
   async #ensureUser(id: string) {
-    if (!await this.prisma.user.findFirst({ where: { id } })) {
-      await this.prisma.user.create({
-        data: { id },
+    const repository = typeorm.getRepository(User);
+
+    if (!(await repository.findOneBy({ id }))) {
+      await repository.save({
+        id,
       });
     }
   }
 
   async getMembers(channelId: string) {
-    const members = await this.prisma.dashboardAccess.findMany({
+    const members = await typeorm.getRepository(DashboardAccess).find({
       where: {
         channelId,
-        AND: {
-          userId: {
-            not: channelId,
-          },
-        },
+        userId: Not(channelId),
       },
     });
 
-    const twitchUsers = await staticApi.users.getUsersByIds(members.map(m => m.userId));
+    const twitchUsers = await staticApi.users.getUsersByIds(members.map((m) => m.userId));
 
-    return twitchUsers.map(u => getRawData(u));
+    return twitchUsers.map((u) => getRawData(u));
   }
 
   async addMember(channelId: string, username: string) {
     const twitchUser = await staticApi.users.getUserByName(username);
 
-    if (!twitchUser) throw new HttpException(`Member with username ${username} not found on twitch.`, 404);
-    if (channelId === twitchUser.id) throw new HttpException(`You cannot add youself as member`, 400);
+    if (!twitchUser)
+      throw new HttpException(`Member with username ${username} not found on twitch.`, 404);
+    if (channelId === twitchUser.id)
+      throw new HttpException(`You cannot add youself as member`, 400);
 
-    const isExists = await this.prisma.dashboardAccess.findFirst({
-      where: {
-        channelId,
-        userId: twitchUser.id,
-      },
+    const repository = typeorm.getRepository(DashboardAccess);
+
+    const isExists = await repository.findOneBy({
+      channelId,
+      userId: twitchUser.id,
     });
 
     if (isExists) throw new HttpException(`Member with name ${username} already exists.`, 400);
 
     await this.#ensureUser(twitchUser.id);
-    await this.prisma.dashboardAccess.create({
-      data: {
-        channelId,
-        userId: twitchUser.id,
-      },
+    await repository.save({
+      channelId,
+      userId: twitchUser.id,
     });
   }
 
   async deleteMember(channelId: string, userId: string) {
-    const isExists = await this.prisma.dashboardAccess.findFirst({
-      where: {
-        channelId,
-        userId: userId,
-      },
+    const repository = typeorm.getRepository(DashboardAccess);
+    const entity = await repository.findOneBy({
+      channelId,
+      userId: userId,
     });
 
-    if (!isExists) throw new HttpException(`Member with id not member of dashboard.`, 404);
+    if (!entity) throw new HttpException(`Member with id not member of dashboard.`, 404);
 
-    await this.prisma.dashboardAccess.delete({
-      where: {
-        id: isExists.id,
-      },
+    await repository.delete({
+      id: entity.id,
     });
   }
 }

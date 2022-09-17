@@ -1,58 +1,55 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { Prisma, PrismaService } from '@tsuwari/prisma';
+import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration';
+import { Integration, IntegrationService } from '@tsuwari/typeorm/entities/Integration';
 
+import { typeorm } from '../../../index.js';
 import { FaceitUpdateDto } from './dto/update.js';
 
 @Injectable()
 export class FaceitService {
-  constructor(private readonly prisma: PrismaService) { }
-
   async getIntegration(channelId: string) {
-    const integration = await this.prisma.channelIntegration.findFirst({
-      where: {
-        channelId,
-        integration: {
-          service: 'FACEIT',
-        },
-      },
+    const integration = await typeorm.getRepository(ChannelIntegration).findOne({
+      where: { channelId, integration: { service: IntegrationService.FACEIT } },
     });
 
     return integration;
   }
 
   async updateIntegration(channelId: string, body: FaceitUpdateDto) {
-    const integrationService = await this.prisma.integration.findFirst({
-      where: {
-        service: 'FACEIT',
-      },
+    const integrationService = await typeorm.getRepository(Integration).findOneBy({
+      service: IntegrationService.FACEIT,
     });
 
-    if (!integrationService) throw new HttpException(`Faceit not enabled on our backed. Please, make patience or contact us`, 404);
+    if (!integrationService)
+      throw new HttpException(
+        `Faceit not enabled on our backed. Please, make patience or contact us`,
+        404,
+      );
 
     body.data.game = body.data.game ?? 'csgo';
 
-    let integration = await this.getIntegration(channelId);
+    const repository = typeorm.getRepository(ChannelIntegration);
+    const integration = await this.getIntegration(channelId);
+    let integrationId = integration?.id;
+
     if (!integration) {
-      integration = await this.prisma.channelIntegration.create({
-        data: {
-          channelId,
-          enabled: body.enabled,
-          data: { ...body.data } as unknown as Prisma.InputJsonObject,
-          integrationId: integrationService.id,
-        },
+      const newIntegration = await repository.save({
+        channelId,
+        enabled: body.enabled,
+        data: { ...body.data },
+        integrationId: integrationService.id,
       });
+      integrationId = newIntegration.id;
     } else {
-      integration = await this.prisma.channelIntegration.update({
-        where: {
-          id: integration.id,
-        },
-        data: {
+      await repository.update(
+        { id: integration.id },
+        {
           enabled: body.enabled,
-          data: { ...body.data } as unknown as Prisma.InputJsonObject,
+          data: body.data as any,
         },
-      });
+      );
     }
 
-    return integration;
+    return repository.findOneBy({ id: integrationId });
   }
 }

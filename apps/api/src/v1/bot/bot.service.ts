@@ -1,32 +1,28 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
-import { PrismaService } from '@tsuwari/prisma';
 import { ClientProxy, MyRefreshingProvider, RedisService, TwitchApiService } from '@tsuwari/shared';
+import { Bot, BotType } from '@tsuwari/typeorm/entities/Bot';
+import { Channel } from '@tsuwari/typeorm/entities/Channel';
+import { Token } from '@tsuwari/typeorm/entities/Token';
 import { ApiClient } from '@twurple/api';
+
+import { typeorm } from '../../index.js';
 
 @Injectable()
 export class BotService {
   @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
   nats: ClientProxy;
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly redis: RedisService,
-    private readonly twitchApi: TwitchApiService,
-  ) {}
+  constructor(private readonly redis: RedisService, private readonly twitchApi: TwitchApiService) {}
 
   async isBotMod(channelId: string) {
-    const channel = await this.prisma.channel.findFirst({
-      where: {
-        id: channelId,
-      },
-      include: {
+    const channel = await typeorm.getRepository(Channel).findOne({
+      where: { id: channelId },
+      relations: {
         bot: true,
         user: {
-          include: {
-            token: true,
-          },
+          token: true,
         },
       },
     });
@@ -38,7 +34,7 @@ export class BotService {
       clientId: config.TWITCH_CLIENTID,
       clientSecret: config.TWITCH_CLIENTSECRET,
       token: channel.user.token,
-      prisma: this.prisma,
+      repository: typeorm.getRepository(Token),
     });
 
     const token = await authProvider.getAccessToken();
@@ -50,7 +46,7 @@ export class BotService {
     const api = new ApiClient({ authProvider });
 
     const mods = await api.moderation.getModerators(channelId);
-    const isMod = !!mods.data.find((m) => m.userId === channel.bot.id);
+    const isMod = !!mods.data.find((m) => m.userId === channel.botId);
 
     const redisKey = `isBotMod:${channelId}`;
     if (isMod) {
@@ -64,38 +60,30 @@ export class BotService {
 
   async botJoinOrLeave(action: 'join' | 'part', channelId: string) {
     const [channel, user] = await Promise.all([
-      this.prisma.channel.findFirst({
-        where: {
-          id: channelId,
-        },
+      typeorm.getRepository(Channel).findOneBy({
+        id: channelId,
       }),
       this.twitchApi.users.getUserByIdWithCache(channelId),
     ]);
 
     if (!user || !channel) throw new HttpException(`User not found`, 404);
     if (!channel.botId) {
-      const defaultBot = await this.prisma.bot.findFirst({
-        where: { type: 'DEFAULT' },
+      const defaultBot = await typeorm.getRepository(Bot).findOneBy({
+        type: BotType.DEFAULT,
       });
+
       if (defaultBot) {
-        await this.prisma.channel.update({
-          where: {
-            id: channel.id,
-          },
-          data: {
+        await typeorm.getRepository(Channel).update(
+          { id: channel.id },
+          {
             botId: defaultBot.id,
           },
-        });
+        );
       }
     }
 
     await Promise.all([
-      this.prisma.channel.update({
-        where: { id: channel.id },
-        data: {
-          isEnabled: action === 'join',
-        },
-      }),
+      typeorm.getRepository(Channel).update({ id: channel.id }, { isEnabled: action === 'join' }),
       this.nats
         .emit('bots.joinOrLeave', {
           action,

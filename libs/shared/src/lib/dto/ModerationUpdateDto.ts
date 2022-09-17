@@ -1,7 +1,18 @@
-import { ModerationSettings, Prisma, SettingsType } from '@tsuwari/prisma';
-import { IsArray, IsBoolean, IsIn, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  ChannelModerationSetting,
+  SettingsType,
+} from '@tsuwari/typeorm/entities/ChannelModerationSetting';
+import {
+  IsArray,
+  IsBoolean,
+  IsIn,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
-export class ModerationSettingsDto implements Omit<ModerationSettings, 'id' | 'channelId'> {
+export class ModerationSettingsDto implements Omit<ChannelModerationSetting, 'id' | 'channelId'> {
   @IsIn(Object.values(SettingsType))
   @IsString()
   type: SettingsType;
@@ -45,7 +56,7 @@ export class ModerationSettingsDto implements Omit<ModerationSettings, 'id' | 'c
   @IsArray()
   @IsOptional()
   @IsString({ each: true })
-  blackListSentences: Prisma.JsonValue;
+  blackListSentences: any[];
 }
 
 export class ModerationUpdateDto {

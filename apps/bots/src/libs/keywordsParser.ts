@@ -1,4 +1,3 @@
-import { Keyword } from '@tsuwari/prisma';
 import { keywordsSchema } from '@tsuwari/redis';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage.js';
 
@@ -12,15 +11,14 @@ export class KeywordsParser {
     const keywordsKeys = await redis.keys(`keywords:${state.channelId}:*`);
     if (!keywordsKeys?.length) return;
 
-    const keywords = (await this.#repository.search()
-      .where('channelId').equals(state.channelId)
-      .returnAll())
-      .map(k => k.toRedisJson());
+    const keywords = (
+      await this.#repository.search().where('channelId').equals(state.channelId).returnAll()
+    ).map((k) => k.toRedisJson());
 
     const responses: string[] = [];
 
     message = message.toLowerCase();
-    for (const keyword of keywords.filter(k => k.enabled)) {
+    for (const keyword of keywords.filter((k) => k.enabled)) {
       const cooldownKey = `cooldowns:keywords:${keyword.id}`;
       const isOnCooldown = await redis.get(cooldownKey);
       if (message.includes(keyword.text.toLowerCase())) {

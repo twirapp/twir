@@ -1,13 +1,14 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { config } from '@tsuwari/config';
-import { PrismaService } from '@tsuwari/prisma';
 import { TwitchApiService } from '@tsuwari/shared';
+import { Channel } from '@tsuwari/typeorm/entities/Channel';
 import { EventSubMiddleware } from '@twurple/eventsub';
 
 import { HandlerService } from '../handler/handler.service.js';
+import { typeorm } from '../index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = () => { };
+const noop = () => {};
 
 const subScriptionValues = new Map([
   ['channel.update', 'subscribeToChannelUpdateEvents'],
@@ -23,7 +24,6 @@ export class EventSub extends EventSubMiddleware {
   constructor(
     readonly twitchApi: TwitchApiService,
     @Inject('HOSTNAME') hostName: string,
-    private readonly prisma: PrismaService,
     private readonly handler: HandlerService,
   ) {
     super({
@@ -55,7 +55,7 @@ export class EventSub extends EventSubMiddleware {
   }
 
   async init(force = false) {
-    const channels = await this.prisma.channel.findMany();
+    const channels = await typeorm.getRepository(Channel).find();
     if (config.isProd || force) {
       for (const channel of channels) {
         this.subscribeToEvents(channel.id);
@@ -66,6 +66,9 @@ export class EventSub extends EventSubMiddleware {
       this.init(true);
     }
 
-    this.subscribeToUserAuthorizationRevokeEvents(config.TWITCH_CLIENTID, this.handler.subscribeToUserAuthorizationRevokeEvents).catch(noop);
+    this.subscribeToUserAuthorizationRevokeEvents(
+      config.TWITCH_CLIENTID,
+      this.handler.subscribeToUserAuthorizationRevokeEvents,
+    ).catch(noop);
   }
-} 
+}
