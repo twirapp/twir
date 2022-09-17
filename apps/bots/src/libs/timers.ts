@@ -1,12 +1,12 @@
 import { Logger } from '@nestjs/common';
 import { config } from '@tsuwari/config';
+import { ParseResponseRequest, ParseResponseResponse } from '@tsuwari/nats/parser';
 import { Queue } from '@tsuwari/shared';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { HelixStreamData } from '@twurple/api/lib/index.js';
 
 import { Bots, staticApi } from '../bots.js';
-import { nestApp } from '../nest/index.js';
-import { ParserService } from '../nest/parser/parser.service.js';
+import { nats } from './nats.js';
 import { redis } from './redis.js';
 import { typeorm } from './typeorm.js';
 
@@ -48,19 +48,30 @@ export const timersQueue = new Queue<ChannelTimer>(async function (taskId: strin
   }
 
   if (bot._authProvider) {
-    const service = nestApp.get(ParserService);
-    const parsedResponses = await service.parseResponse({
-      channelId: timer.channelId,
-      text: response,
+    const data = ParseResponseRequest.toBinary({
+      channel: {
+        id: timer.channelId,
+        name: '',
+      },
+      message: {
+        id: '',
+        text: response,
+      },
+      sender: {
+        badges: [],
+        displayName: '',
+        id: '',
+        name: '',
+      },
     });
+    const request = await nats.request('parser.parseTextResponse', data);
+    const recievedResponse = ParseResponseResponse.fromBinary(request.data);
 
-    if (parsedResponses) {
-      for (const r of parsedResponses) {
-        if (config.isProd) {
-          bot.say(user.name, r);
-        } else {
-          logger.log(`${user.name} -> ${r}`);
-        }
+    for (const r of recievedResponse.responses) {
+      if (config.isProd) {
+        bot.say(user.name, r);
+      } else {
+        logger.log(`${user.name} -> ${r}`);
       }
     }
   }

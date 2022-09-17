@@ -2,7 +2,6 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import { ClientProxy, RedisService } from '@tsuwari/shared';
-import { ArrayContains, In, Not } from '@tsuwari/typeorm';
 import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { CommandResponse } from '@tsuwari/typeorm/entities/CommandResponse';
 
@@ -49,20 +48,31 @@ export class CommandsService {
     );
   }
 
+  async #isCommandWithThatNameExists(opts: {
+    userId: string;
+    name: string;
+    aliases?: string[];
+    commandId?: string;
+  }) {
+    opts.aliases = opts.aliases ?? [];
+    const unique = [...new Set([opts.name, ...opts.aliases])];
+
+    const commands = await this.getList(opts.userId);
+    return commands
+      .filter((c) => c.id !== opts.commandId)
+      .some((c) => {
+        return unique.includes(c.name) || opts.aliases!.some((a) => c.aliases.includes(a));
+      });
+  }
+
   async create(userId: string, data: UpdateOrCreateCommandDto & { defaultName?: string }) {
-    const isExists = await typeorm.getRepository(ChannelCommand).find({
-      where: [
-        { name: data.name },
-        {
-          aliases: ArrayContains(data.aliases ?? []),
-        },
-        {
-          name: In(data.aliases ?? []),
-        },
-      ],
+    const isExists = await this.#isCommandWithThatNameExists({
+      userId,
+      name: data.name,
+      aliases: data.aliases,
     });
 
-    if (isExists.length) {
+    if (isExists) {
       throw new HttpException(`Command with that name or aliase already exists`, 400);
     }
 
@@ -116,21 +126,14 @@ export class CommandsService {
   }
 
   async update(userId: string, commandId: string, data: UpdateOrCreateCommandDto) {
-    const isExists = await typeorm.getRepository(ChannelCommand).find({
-      where: [
-        { name: data.name, id: Not(commandId) },
-        {
-          id: Not(commandId),
-          aliases: ArrayContains(data.aliases ?? []),
-        },
-        {
-          id: Not(commandId),
-          name: In(data.aliases ?? []),
-        },
-      ],
+    const isExists = await this.#isCommandWithThatNameExists({
+      userId,
+      name: data.name,
+      aliases: data.aliases,
+      commandId,
     });
 
-    if (isExists.length) {
+    if (isExists) {
       throw new HttpException(`Command with this name or aliase already exists`, 400);
     }
 

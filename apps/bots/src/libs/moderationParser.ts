@@ -21,6 +21,7 @@ let repository: Repository<ModerationCacheSettings>;
 
 type Moderation = ReturnType<typeof ModerationCacheSettings.prototype.toRedisJson>
 
+const moderationRepository = typeorm.getRepository(ChannelModerationSetting);
 export class ModerationParser {
   async getModerationSettings(channelId: string) {
     if (!redisOrm || !repository) {
@@ -31,12 +32,11 @@ export class ModerationParser {
     const result = {} as Record<SettingsType, Moderation>;
     const settingsKeys = Object.values(SettingsType);
 
-    const moderationRepository = typeorm.getRepository(ChannelModerationSetting);
     await Promise.all(settingsKeys.map(async (key) => {
       const redisKey = `${channelId}:${key}`;
       const cachedSettings = await repository.fetch(redisKey);
 
-      if (Object.keys(cachedSettings).length) {
+      if (Object.keys(cachedSettings.toRedisJson()).length) {
         result[key] = cachedSettings.toRedisJson();
       } else {
         const entity = await moderationRepository.findOneBy({ channelId: channelId, type: key });

@@ -34,7 +34,7 @@ export * from 'typeorm';
 export const AppDataSource = new DataSource({
   type: 'postgres',
   url: config.DATABASE_URL,
-  logging: config.isDev,
+  logging: false,
   entities: [
     Bot,
     Channel,

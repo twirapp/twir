@@ -67,7 +67,7 @@ export class AuthService {
       if (user.tokenId) {
         await typeorm.getRepository(Token).update({ id: user.tokenId }, tokenData);
       } else {
-        const token = typeorm.getRepository(Token).create(tokenData);
+        const token = await typeorm.getRepository(Token).save(tokenData);
         await typeorm.getRepository(User).update({ id: userId }, { token });
       }
     } else {

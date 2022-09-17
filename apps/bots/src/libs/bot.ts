@@ -24,7 +24,8 @@ import {
   keywordsParseTime,
   messageParseTime,
   messagesCounter,
-  moderationParseTime,
+  // eslint-disable-next-line comma-dangle
+  moderationParseTime
 } from './prometheus.js';
 import { redis } from './redis.js';
 
