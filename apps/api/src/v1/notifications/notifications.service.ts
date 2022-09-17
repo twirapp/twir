@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IsNull, Not } from '@tsuwari/typeorm';
+import { ArrayContains, In, IsNull, Not } from '@tsuwari/typeorm';
 import { Notification } from '@tsuwari/typeorm/entities/Notification';
 import { UserViewedNotification } from '@tsuwari/typeorm/entities/UserViewedNotification';
 
@@ -7,12 +7,19 @@ import { typeorm } from '../../index.js';
 
 @Injectable()
 export class NotificationsService {
-  getNotViewed(channelId: string) {
-    return typeorm.getRepository(Notification).find({
+  async getNotViewed(channelId: string) {
+    const viewed = await typeorm.getRepository(UserViewedNotification).find({
+      where: {
+        userId: channelId,
+      },
+    });
+
+    const mappedViewed = viewed.map((v) => v.notificationId);
+
+    const notifications = await typeorm.getRepository(Notification).find({
       where: [
-        { userId: IsNull() },
-        { userId: channelId },
-        { viewedNotifications: { userId: Not(channelId) } },
+        { id: Not(In(mappedViewed)), userId: IsNull() },
+        { id: Not(In(mappedViewed)), userId: channelId },
       ],
       order: {
         createdAt: 'DESC',
@@ -21,6 +28,8 @@ export class NotificationsService {
         messages: true,
       },
     });
+
+    return notifications;
   }
 
   getViewed(channelId: string) {
