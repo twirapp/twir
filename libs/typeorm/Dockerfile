@@ -15,9 +15,9 @@ RUN npm i -g pnpm
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
 COPY libs/typeorm/package.json libs/typeorm/
 
+COPY libs/config libs/config
 
 RUN pnpm install
-
 COPY libs/typeorm libs/typeorm
 
 CMD ["pnpm", "run", "migrate:deploy"]

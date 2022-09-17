@@ -18,12 +18,12 @@ COPY node_modules node_modules
 
 COPY apps/streamstatus apps/streamstatus
 COPY libs/config/ libs/config
-COPY libs/prisma libs/prisma
+COPY libs/typeorm libs/typeorm
 COPY libs/redis libs/redis
 COPY libs/shared/ libs/shared
 
 RUN pnpm install --prod
-RUN pnpm prisma:generate
+
 
 ENTRYPOINT ["doppler", "run", "--"]
 CMD ["pnpm", "start:streamstatus"]

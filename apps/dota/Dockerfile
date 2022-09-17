@@ -18,13 +18,13 @@ COPY node_modules node_modules
 COPY apps/dota apps/dota
 COPY apps/dota/protos apps/dota/protos
 
-COPY libs/prisma libs/prisma
+COPY libs/typeorm libs/typeorm
 COPY libs/config libs/config
 COPY libs/shared libs/shared
 COPY libs/nats libs/nats
 
 RUN pnpm install --prod
-RUN pnpm prisma:generate
+
 
 ENTRYPOINT ["doppler", "run", "--"]
 CMD ["pnpm", "start:dota"]
