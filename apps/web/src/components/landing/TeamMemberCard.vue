@@ -1,12 +1,12 @@
 <template>
-  <div class="px-6 inline-flex justify-items-center items-center w-full">
+  <div class="min-lg:px-6 inline-flex min-lg:justify-items-center min-lg:items-center w-full">
     <div
-      :class="`w-[80px] h-[80px] inline-block bg-contain`"
+      :class="`min-sm:w-[80px] min-sm:h-[80px] w-[68px] h-[68px] inline-block bg-contain bg-no-repeat`"
       :style="{
         backgroundImage: cssURL(UserImage),
       }"
     />
-    <div class="inline-flex flex-col items-start w-full flex-1 ml-6">
+    <div class="inline-flex flex-col items-start w-full flex-1 min-md:ml-6 ml-4">
       <div class="inline-flex flex-col justify-items-center">
         <div class="inline-flex items-center w-full mb-2">
           <span class="text-[21px] font-medium leading-tight">
@@ -27,7 +27,7 @@
             {{ t('sections.team.founder') }}
           </span>
         </div>
-        <p class="text-gray-70 max-w-[180px]">
+        <p class="text-gray-70 min-lg:max-w-[180px]">
           {{ role }}
         </p>
       </div>
