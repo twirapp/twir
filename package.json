@@ -36,7 +36,8 @@
     "dev:frontend": "doppler run -- turbo run dev --filter=frontend",
     "dev:config": "doppler run -- turbo run dev --filter=config",
     "dev:dota": "doppler run -- turbo run dev --filter=dota",
-    "dev:eval": "doppler run -- turbo run dev --filter=eval"
+    "dev:eval": "doppler run -- turbo run dev --filter=eval",
+    "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/typeorm run deploy"
   },
   "keywords": [],
   "author": "",
