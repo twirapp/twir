@@ -37,7 +37,6 @@
   },
   "devDependencies": {
     "@intlify/vite-plugin-vue-i18n": "6.0.1",
-    "@tsuwari/prisma": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@twurple/api": "5.2.1",
     "@twurple/common": "5.2.1",
