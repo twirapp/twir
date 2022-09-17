@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 
-import { prisma } from '../../libs/prisma.js';
+import { typeorm } from '../../libs/typeorm.js';
 
 @Injectable()
 export class TimersService {
@@ -8,14 +9,8 @@ export class TimersService {
 
   async handleStreamChange(channelId: string) {
     this.logger.log(`Updating timers for streamer: ${channelId}`);
-    await prisma.timer.updateMany({
-      where: {
-        channelId,
-      },
-      data: {
-        lastTriggerMessageNumber: 0,
-        last: 0,
-      },
-    });
+    await typeorm
+      .getRepository(ChannelTimer)
+      .update({ channelId }, { lastTriggerMessageNumber: 0, last: 0 });
   }
 }

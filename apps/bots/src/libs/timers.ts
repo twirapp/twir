@@ -1,28 +1,24 @@
 import { Logger } from '@nestjs/common';
 import { config } from '@tsuwari/config';
-import { Timer } from '@tsuwari/prisma';
 import { Queue } from '@tsuwari/shared';
+import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { HelixStreamData } from '@twurple/api/lib/index.js';
 
 import { Bots, staticApi } from '../bots.js';
 import { nestApp } from '../nest/index.js';
 import { ParserService } from '../nest/parser/parser.service.js';
-import { prisma } from './prisma.js';
-import { redis, redisOm } from './redis.js';
+import { redis } from './redis.js';
+import { typeorm } from './typeorm.js';
 
 const logger = new Logger('Timers');
-
-export const timersQueue = new Queue<Timer>(async function (taskId: string) {
-  const timer = await prisma.timer.findFirst({
-    where: {
-      id: taskId,
-    },
-    include: {
-      channel: true,
-    },
+const repository = typeorm.getRepository(ChannelTimer);
+export const timersQueue = new Queue<ChannelTimer>(async function (taskId: string) {
+  const timer = await repository.findOne({
+    where: { id: taskId },
+    relations: { channel: true },
   });
 
-  if (!timer || !timer.enabled) {
+  if (!timer || !timer.enabled || !timer.channel) {
     return;
   }
 
@@ -69,27 +65,24 @@ export const timersQueue = new Queue<Timer>(async function (taskId: string) {
     }
   }
 
-  await prisma.timer.update({
-    where: {
-      id: timer.id,
-    },
-    data: {
+  await repository.update(
+    { id: timer.id },
+    {
       last: ++timer.last % (timer.responses as string[]).length,
       lastTriggerMessageNumber: stream.parsedMessages as number,
     },
-  });
+  );
 });
 
-const getId = (t: Timer | string) => (typeof t === 'string' ? t : t.id);
-export async function addTimerToQueue(timerOrId: Timer | string) {
-  const id = getId(timerOrId);
-  let timer: Timer | null;
+const getId = (t: ChannelTimer | string) => (typeof t === 'string' ? t : t.id);
+export async function addTimerToQueue(timerOrId: ChannelTimer | string) {
+  let timer: ChannelTimer | null;
 
-  if (typeof id === 'string') {
-    timer = await prisma.timer.findFirst({ where: { id: id as string } });
+  if (typeof timerOrId === 'string') {
+    timer = await repository.findOneBy({ id: timerOrId });
     if (!timer?.enabled) return;
   } else {
-    timer = timerOrId as Timer;
+    timer = timerOrId as ChannelTimer;
   }
 
   removeTimerFromQueue(timerOrId);
@@ -100,7 +93,7 @@ export async function addTimerToQueue(timerOrId: Timer | string) {
   }
 }
 
-export function removeTimerFromQueue(timer: Timer | string) {
+export function removeTimerFromQueue(timer: ChannelTimer | string) {
   const id = getId(timer);
 
   timersQueue.removeTimerFromQueue(id);

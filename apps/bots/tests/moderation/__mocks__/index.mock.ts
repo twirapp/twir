@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+/* import { vi } from 'vitest';
 
 vi.mock('tlds', () => ({
   default: ['com'],
@@ -19,4 +19,4 @@ vi.mock('../../../src/libs/prisma.js', () => ({
       delete: vi.fn(() => null),
     },
   },
-}));
+})); */
