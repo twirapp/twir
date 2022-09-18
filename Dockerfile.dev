@@ -18,13 +18,31 @@ RUN wget https://go.dev/dl/go1.19.1.linux-amd64.tar.gz && rm -rf /usr/local/go &
 ENV GOPATH=$HOME/go
 ENV PATH=$PATH:$GOPATH/bin:/usr/local/go/bin
 
-
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 
 RUN npm i -g pnpm@7 pm2
 
-COPY . .
+COPY package.json /app/
+COPY apps/api/package.json /app/apps/api/
+COPY apps/bots/package.json /app/apps/bots/
+COPY apps/dota/package.json /app/apps/dota/
+COPY apps/eval/package.json /app/apps/eval/
+COPY apps/eventsub/package.json /app/apps/eventsub/
+COPY apps/frontend/package.json /app/apps/frontend/
+COPY apps/scheduler/package.json /app/apps/scheduler/
+COPY apps/streamstatus/package.json /app/apps/streamstatus/
+
+COPY libs/config/package.json /app/libs/config/
+COPY libs/integrations/spotify/package.json /app/libs/integrations/spotify/
+COPY libs/nats/package.json /app/libs/nats/
+COPY libs/redis/package.json /app/libs/redis/
+COPY libs/shared/package.json /app/libs/shared/
+COPY libs/typeorm/package.json /app/libs/typeorm/
+
 RUN CI=false pnpm install
+
+COPY . .
+
 RUN pnpm build:backend
 
 CMD ["pnpm", "dev"]

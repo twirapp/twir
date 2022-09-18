@@ -1,0 +1,4 @@
+{
+  "exec": "go run ./apps/parser/cmd/main.go",
+  "ext": "go"
+}
