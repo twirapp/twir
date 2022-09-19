@@ -7,3 +7,5 @@
    1. access token as `BOT_ACCESS_TOKEN`
    2. refresh token as `BOT_REFRESH_TOKEN`
    3. doppler token from (https://dashboard.doppler.com/workplace/fa99234a9a83eb6bb7e8/projects/tsuwari/configs/dev/access) as `DOPPLER_TOKEN`
+5. For build use `make build-dev`
+6. For start use `make dev`
