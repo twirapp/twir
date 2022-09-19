@@ -26,6 +26,5 @@ COPY libs/nats libs/nats
 
 RUN pnpm install --prod
 
-
 ENTRYPOINT ["doppler", "run", "--"]
 CMD ["pnpm", "start:api"]

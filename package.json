@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint --ext .ts,.vue apps/",
     "lint:fix": "eslint --fix --ext .ts,.vue apps/",
-    "dev": "doppler run -- pnpm run -r dev",
+    "dev": "doppler run -- pnpm run --filter=@tsuwari/typeorm setup && pm2-runtime ecosystem.config.cjs",
     "start": "pnpm run -r start --filter=!@tsuwari/frontend",
     "start:api": "pnpm --filter=@tsuwari/api start",
     "start:eventsub": "pnpm --filter=@tsuwari/eventsub start",
@@ -28,6 +28,7 @@
     "build:watched": "turbo run build --filter=watched",
     "dev:pm2": "pnpm build:backend && pm2 start ecosystem.config.cjs && pm2 logs all",
     "dev:bots": "doppler run -- turbo run dev --filter=bots",
+    "dev:parser": "cd apps/parser && nodemon --config ./nodemon.json",
     "dev:eventsub": "doppler run -- turbo run dev --filter=eventsub",
     "dev:api": "doppler run -- turbo run dev --filter=api",
     "dev:streamstatus": "doppler run -- turbo run dev --filter=streamstatus",

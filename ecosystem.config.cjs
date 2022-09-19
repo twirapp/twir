@@ -36,6 +36,11 @@ module.exports = {
       args: "dev:eval"
     },
     {
+      name: "parser",
+      script: "pnpm",
+      args: "dev:parser"
+    },
+    {
       name: "frontend",
       script: "pnpm",
       args: "dev:frontend"

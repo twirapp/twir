@@ -587,12 +587,17 @@ importers:
   libs/typeorm:
     specifiers:
       '@tsuwari/config': workspace:*
+      dotenv: ^16.0.2
       pg: 8.7.3
+      reflect-metadata: ^0.1.13
       typeorm: ^0.3.9
     dependencies:
       '@tsuwari/config': link:../config
       pg: 8.7.3
+      reflect-metadata: 0.1.13
       typeorm: 0.3.9_pg@8.7.3
+    devDependencies:
+      dotenv: 16.0.2
 
 packages:
 
@@ -3918,7 +3923,6 @@ packages:
   /dotenv/16.0.2:
     resolution: {integrity: sha512-JvpYKUmzQhYoIFgK2MOnF3bciIZoItIIoryihy0rIA+H4Jy0FmgyKYAHCTN98P5ybGSJcIFbh6QKeJdtZd1qhA==}
     engines: {node: '>=12'}
-    dev: false
 
   /ecc-jsbn/0.1.2:
     resolution: {integrity: sha512-eh9O+hwRHNbG4BLTjEl3nw044CkGm5X6LoaCf7LPp7UU8Qrt47JYNi6nPX8xjW97TKGKm1ouctg0QSpZe9qrnw==}
@@ -7385,7 +7389,7 @@ packages:
       cli-highlight: 2.1.11
       date-fns: 2.29.1
       debug: 4.3.4
-      dotenv: 16.0.1
+      dotenv: 16.0.2
       glob: 7.2.3
       js-yaml: 4.1.0
       mkdirp: 1.0.4
