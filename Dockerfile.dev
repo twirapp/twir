@@ -41,7 +41,6 @@ COPY libs/typeorm/package.json /app/libs/typeorm/
 
 RUN CI=false pnpm install
 
-
 COPY . .
 
 RUN cd /app/apps/parser && go mod download
