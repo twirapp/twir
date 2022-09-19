@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   backend:
-    user: "${UID}:${GID}"
+    user: 1000:1000
     build:
       context: .
       dockerfile: Dockerfile.dev

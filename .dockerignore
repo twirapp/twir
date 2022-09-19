@@ -2,5 +2,3 @@
 .env
 postgres_data
 redis_data
-node_modules
-**/*/node_modules

@@ -22,31 +22,36 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 
 RUN npm i -g pnpm@7 pm2
 
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc /app/
-COPY apps/api/package.json /app/apps/api/
-COPY apps/bots/package.json /app/apps/bots/
-COPY apps/dota/package.json /app/apps/dota/
-COPY apps/eval/package.json /app/apps/eval/
-COPY apps/eventsub/package.json /app/apps/eventsub/
-COPY apps/frontend/package.json /app/apps/frontend/
-COPY apps/scheduler/package.json /app/apps/scheduler/
-COPY apps/streamstatus/package.json /app/apps/streamstatus/
+# COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc /app/
+# COPY apps/api/package.json /app/apps/api/
+# COPY apps/bots/package.json /app/apps/bots/
+# COPY apps/dota/package.json /app/apps/dota/
+# COPY apps/eval/package.json /app/apps/eval/
+# COPY apps/eventsub/package.json /app/apps/eventsub/
+# COPY apps/frontend/package.json /app/apps/frontend/
+# COPY apps/scheduler/package.json /app/apps/scheduler/
+# COPY apps/streamstatus/package.json /app/apps/streamstatus/
 
-COPY libs/config/package.json /app/libs/config/
-COPY libs/integrations/spotify/package.json /app/libs/integrations/spotify/
-COPY libs/nats/package.json /app/libs/nats/
-COPY libs/redis/package.json /app/libs/redis/
-COPY libs/shared/package.json /app/libs/shared/
-COPY libs/typeorm/package.json /app/libs/typeorm/
+# COPY libs/config/package.json /app/libs/config/
+# COPY libs/integrations/spotify/package.json /app/libs/integrations/spotify/
+# COPY libs/nats/package.json /app/libs/nats/
+# COPY libs/redis/package.json /app/libs/redis/
+# COPY libs/shared/package.json /app/libs/shared/
+# COPY libs/typeorm/package.json /app/libs/typeorm/
 
-RUN CI=false pnpm install
+# RUN CI=false pnpm install
 
-COPY . .
+# COPY . .
 
-RUN cd /app/apps/parser && go mod download
+# RUN cd /app/apps/parser && go mod download
 
-RUN pnpm build:backend
+# RUN pnpm build:backend
 
 EXPOSE 3005
 
-CMD ["pnpm", "dev"]
+COPY start.dev.sh /
+RUN chmod +x /start.dev.sh
+
+RUN chmod 777 -R /go
+
+ENTRYPOINT ["/start.dev.sh"]
