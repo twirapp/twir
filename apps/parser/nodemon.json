@@ -1,4 +1,4 @@
 {
-  "exec": "go run ./apps/parser/cmd/main.go",
+  "exec": "doppler run -- go run ./cmd/main.go",
   "ext": "go"
 }

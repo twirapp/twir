@@ -22,7 +22,7 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 
 RUN npm i -g pnpm@7 pm2
 
-COPY package.json /app/
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc /app/
 COPY apps/api/package.json /app/apps/api/
 COPY apps/bots/package.json /app/apps/bots/
 COPY apps/dota/package.json /app/apps/dota/
@@ -41,7 +41,10 @@ COPY libs/typeorm/package.json /app/libs/typeorm/
 
 RUN CI=false pnpm install
 
+
 COPY . .
+
+RUN cd /app/apps/parser && go mod download
 
 RUN pnpm build:backend
 
