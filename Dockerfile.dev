@@ -53,5 +53,11 @@ COPY start.dev.sh /
 RUN chmod +x /start.dev.sh
 
 RUN chmod 777 -R /go
+RUN mkdir /.doppler
+RUN chmod 777 -R /.doppler
+RUN mkdir /.pm2
+RUN chmod 777 -R /.pm2
+RUN mkdir /.cache
+RUN chmod 777 -R /.cache
 
 ENTRYPOINT ["/start.dev.sh"]
