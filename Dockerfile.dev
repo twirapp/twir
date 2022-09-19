@@ -48,4 +48,6 @@ RUN cd /app/apps/parser && go mod download
 
 RUN pnpm build:backend
 
+EXPOSE 3005
+
 CMD ["pnpm", "dev"]

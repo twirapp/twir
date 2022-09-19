@@ -75,6 +75,7 @@ services:
 networks:
   tsuwari_dev:
     name: tsuwari_dev
+    external: true
 
 volumes:
   postgres-data: null
