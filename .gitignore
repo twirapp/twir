@@ -1,4 +1,5 @@
 node_modules
+# Keep environment variables out of version control
 .env
 dist
 tsconfig.tsbuildinfo
@@ -8,16 +9,13 @@ libs/grpc/go/bots
 libs/grpc/go/streamstatus
 libs/grpc/src/*.ts
 !libs/grpc/src/index.ts
-
+postgres_data
+redis-data
+tests.yml
 docker-compose*
 !docker-compose.example.yml
 !docker-compose.dev.yml
-<<<<<<< HEAD
-.devbox
-
-!*/**/.gitkeep
-=======
 minio_data
 .pnpm-store
 .DS_Store
->>>>>>> 889d1dd (feat: init uikit with storybook)
+.pnpm-store
