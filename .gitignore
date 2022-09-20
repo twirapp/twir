@@ -18,3 +18,4 @@ docker-compose*
 minio_data
 .pnpm-store
 .DS_Store
+.pnpm-store
