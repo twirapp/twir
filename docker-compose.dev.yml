@@ -45,13 +45,7 @@ services:
       MINIO_SERVER_URL: https://minio.tsuwari.tk
 
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-f",
-          "http://localhost:9000/minio/health/live"
-        ]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
       interval: 30s
       timeout: 20s
       retries: 3
@@ -75,7 +69,6 @@ services:
 networks:
   tsuwari_dev:
     name: tsuwari_dev
-    external: true
 
 volumes:
   postgres-data: null
