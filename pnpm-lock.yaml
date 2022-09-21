@@ -435,7 +435,7 @@ importers:
       '@tsuwari/typeorm': workspace:*
       '@types/cron': 2.0.0
       '@types/lodash': 4.14.182
-      ioredis: 5.2.2
+      ioredis: 5.2.3
       knex: 2.2.0
       lodash: 4.17.21
       nats: 2.7.1
@@ -446,7 +446,7 @@ importers:
     dependencies:
       '@nestjs/common': 9.0.9_j5hagqx4mwzscud4kyjdvubauy
       '@nestjs/core': 9.0.9_7lce46hccn55rsmd3ghpepjs3q
-      '@nestjs/microservices': 9.0.9_ghnyul67xcxtc3f3mxssx5lkym
+      '@nestjs/microservices': 9.0.9_6esrdf2bdx6umoloptqi362rhu
       '@nestjs/schedule': 2.1.0_ac5kpodkfjj4txbcuwlvaffele
       '@sentry/node': 7.10.0
       '@sentry/tracing': 7.10.0
@@ -455,7 +455,7 @@ importers:
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
-      ioredis: 5.2.2
+      ioredis: 5.2.3
       knex: 2.2.0_pg@8.7.3
       lodash: 4.17.21
       nats: 2.7.1
@@ -564,13 +564,13 @@ importers:
       '@twurple/eventsub': 5.2.1
       '@types/lodash': 4.14.182
       class-validator: 0.13.2
-      ioredis: 5.2.2
+      ioredis: 5.2.3
       lodash: 4.17.21
       rxjs: 7.5.6
     dependencies:
       '@d-fischer/cache-decorators': 3.0.0
       '@nestjs/common': 9.0.9_lgmj4mab2zqmetcfgcrg2pdwq4
-      '@nestjs/microservices': 9.0.9_rco65e6sjd6ppcxn5pylwpmxiy
+      '@nestjs/microservices': 9.0.9_xit6cyxfdwrv3niyneu7ygonjy
       '@tsuwari/config': link:../config
       '@tsuwari/typeorm': link:../typeorm
       '@twurple/api': 5.2.1_@twurple+auth@5.2.1
@@ -578,7 +578,7 @@ importers:
       '@twurple/common': 5.2.1
       '@twurple/eventsub': 5.2.1_@twurple+api@5.2.1
       class-validator: 0.13.2
-      ioredis: 5.2.2
+      ioredis: 5.2.3
       lodash: 4.17.21
       rxjs: 7.5.6
     devDependencies:
@@ -836,8 +836,8 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
-  /@intlify/bundle-utils/3.1.0_vue-i18n@9.2.2:
-    resolution: {integrity: sha512-ghlJ0kR2cCQ8D+poKknC0Xx0ncOt3J3os7CcIAqqIWVF7k6AtGoCDnIru+YzlZcvFRNmP9wEZ7jKliojCdAWNg==}
+  /@intlify/bundle-utils/3.1.2_vue-i18n@9.2.2:
+    resolution: {integrity: sha512-amgSo0NN5OKWYdcgFmfJqo2tcUcZ6C66Bxm5ALQnB0m3MUQtS9aJzKoIo+EU9XQiOVmlBFxRtNoZm+psHa5FNA==}
     engines: {node: '>= 12'}
     peerDependencies:
       petite-vue-i18n: '*'
@@ -910,7 +910,7 @@ packages:
       vue-i18n:
         optional: true
     dependencies:
-      '@intlify/bundle-utils': 3.1.0_vue-i18n@9.2.2
+      '@intlify/bundle-utils': 3.1.2_vue-i18n@9.2.2
       '@intlify/shared': 9.3.0-beta.3
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.4
@@ -1245,7 +1245,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.0.9_j5hagqx4mwzscud4kyjdvubauy
-      '@nestjs/microservices': 9.0.9_ghnyul67xcxtc3f3mxssx5lkym
+      '@nestjs/microservices': 9.0.9_6esrdf2bdx6umoloptqi362rhu
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
@@ -1470,6 +1470,52 @@ packages:
       tslib: 2.4.0
     dev: false
 
+  /@nestjs/microservices/9.0.9_6esrdf2bdx6umoloptqi362rhu:
+    resolution: {integrity: sha512-KLrYegReuqKprcpd1V8KWlKiy7rlnIXMgOHeIxV/305F0qbexY7NCCC4DBGJCg2+ip4YkM7siVisdmQUAWJ//Q==}
+    peerDependencies:
+      '@grpc/grpc-js': '*'
+      '@nestjs/common': ^9.0.0
+      '@nestjs/core': ^9.0.0
+      '@nestjs/websockets': ^9.0.0
+      amqp-connection-manager: '*'
+      amqplib: '*'
+      cache-manager: '*'
+      ioredis: '*'
+      kafkajs: '*'
+      mqtt: '*'
+      nats: '*'
+      reflect-metadata: ^0.1.12
+      rxjs: ^7.1.0
+    peerDependenciesMeta:
+      '@grpc/grpc-js':
+        optional: true
+      '@nestjs/websockets':
+        optional: true
+      amqp-connection-manager:
+        optional: true
+      amqplib:
+        optional: true
+      cache-manager:
+        optional: true
+      ioredis:
+        optional: true
+      kafkajs:
+        optional: true
+      mqtt:
+        optional: true
+      nats:
+        optional: true
+    dependencies:
+      '@nestjs/common': 9.0.9_j5hagqx4mwzscud4kyjdvubauy
+      '@nestjs/core': 9.0.9_7lce46hccn55rsmd3ghpepjs3q
+      ioredis: 5.2.3
+      iterare: 1.2.1
+      nats: 2.7.1
+      reflect-metadata: 0.1.13
+      rxjs: 7.5.6
+      tslib: 2.4.0
+    dev: false
+
   /@nestjs/microservices/9.0.9_fgirn6e6qrlfpcmhhwhp4e6d7i:
     resolution: {integrity: sha512-KLrYegReuqKprcpd1V8KWlKiy7rlnIXMgOHeIxV/305F0qbexY7NCCC4DBGJCg2+ip4YkM7siVisdmQUAWJ//Q==}
     peerDependencies:
@@ -1508,52 +1554,6 @@ packages:
     dependencies:
       '@nestjs/common': 9.0.9_j5hagqx4mwzscud4kyjdvubauy
       '@nestjs/core': 9.0.9_uptm55tmrklpthxi4coxkuyvw4
-      iterare: 1.2.1
-      nats: 2.7.1
-      reflect-metadata: 0.1.13
-      rxjs: 7.5.6
-      tslib: 2.4.0
-    dev: false
-
-  /@nestjs/microservices/9.0.9_ghnyul67xcxtc3f3mxssx5lkym:
-    resolution: {integrity: sha512-KLrYegReuqKprcpd1V8KWlKiy7rlnIXMgOHeIxV/305F0qbexY7NCCC4DBGJCg2+ip4YkM7siVisdmQUAWJ//Q==}
-    peerDependencies:
-      '@grpc/grpc-js': '*'
-      '@nestjs/common': ^9.0.0
-      '@nestjs/core': ^9.0.0
-      '@nestjs/websockets': ^9.0.0
-      amqp-connection-manager: '*'
-      amqplib: '*'
-      cache-manager: '*'
-      ioredis: '*'
-      kafkajs: '*'
-      mqtt: '*'
-      nats: '*'
-      reflect-metadata: ^0.1.12
-      rxjs: ^7.1.0
-    peerDependenciesMeta:
-      '@grpc/grpc-js':
-        optional: true
-      '@nestjs/websockets':
-        optional: true
-      amqp-connection-manager:
-        optional: true
-      amqplib:
-        optional: true
-      cache-manager:
-        optional: true
-      ioredis:
-        optional: true
-      kafkajs:
-        optional: true
-      mqtt:
-        optional: true
-      nats:
-        optional: true
-    dependencies:
-      '@nestjs/common': 9.0.9_j5hagqx4mwzscud4kyjdvubauy
-      '@nestjs/core': 9.0.9_7lce46hccn55rsmd3ghpepjs3q
-      ioredis: 5.2.2
       iterare: 1.2.1
       nats: 2.7.1
       reflect-metadata: 0.1.13
@@ -1605,7 +1605,7 @@ packages:
       tslib: 2.4.0
     dev: false
 
-  /@nestjs/microservices/9.0.9_rco65e6sjd6ppcxn5pylwpmxiy:
+  /@nestjs/microservices/9.0.9_xit6cyxfdwrv3niyneu7ygonjy:
     resolution: {integrity: sha512-KLrYegReuqKprcpd1V8KWlKiy7rlnIXMgOHeIxV/305F0qbexY7NCCC4DBGJCg2+ip4YkM7siVisdmQUAWJ//Q==}
     peerDependencies:
       '@grpc/grpc-js': '*'
@@ -1642,7 +1642,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.0.9_lgmj4mab2zqmetcfgcrg2pdwq4
-      ioredis: 5.2.2
+      ioredis: 5.2.3
       iterare: 1.2.1
       rxjs: 7.5.6
       tslib: 2.4.0

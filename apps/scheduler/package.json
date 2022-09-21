@@ -22,7 +22,7 @@
     "@tsuwari/redis": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
-    "ioredis": "5.2.2",
+    "ioredis": "5.2.3",
     "knex": "2.2.0",
     "lodash": "4.17.21",
     "nats": "2.7.1",
