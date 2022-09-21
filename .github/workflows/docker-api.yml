@@ -34,9 +34,9 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install Deps
-        uses: pnpm install
+        run: pnpm install
       - name: Build api
-        uses: pnpm turbo run build --filter=@tsuwari/api
+        run: pnpm turbo run build --filter=@tsuwari/api
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
