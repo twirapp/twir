@@ -37,7 +37,7 @@ jobs:
       - name: Install Deps
         run: pnpm install
       - name: Build migrations
-        run: pnpm turbo run build --filter=@tsuwari/migrations
+        run: pnpm turbo run build --filter=@tsuwari/typeorm
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
