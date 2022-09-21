@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 	"tsuwari/parser/internal/commands/dota"
+	"tsuwari/parser/internal/commands/manage"
 	"tsuwari/parser/internal/commands/nuke"
 	"tsuwari/parser/internal/commands/permit"
 	"tsuwari/parser/internal/commands/spam"
@@ -64,6 +65,9 @@ func New(opts CommandsOpts) Commands {
 		dota.WlCommand,
 		dota.LgCommand,
 		dota.GmCommand,
+		manage.AddCommand,
+		manage.DelCommand,
+		manage.EditCommand,
 	}
 
 	ctx := Commands{

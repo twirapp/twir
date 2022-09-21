@@ -19,30 +19,23 @@ var (
 /*
 DB Table Details
 -------------------------------------
-
-
 Table: channels_commands_responses
 [ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: false  col: TEXT            len: -1      default: [gen_random_uuid()]
 [ 1] text                                           TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
 [ 2] commandId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-
-
 JSON Sample
 -------------------------------------
 {    "id": "xoCOtLKlZljcUxCIOSWSiKgFM",    "text": "pQVvsAGrCrqpJPocOMomxWRFo",    "command_id": "oeNKVghqbSHRmrEKCkyiWYRBn"}
-
-
-
 */
 
 // ChannelsCommandsResponses struct is a row record of the channels_commands_responses table in the tsuwari database
 type ChannelsCommandsResponses struct {
 	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
-	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	ID string `gorm:"primaryKey;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	//[ 1] text                                           TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Text sql.NullString `gorm:"column:text;type:TEXT;"                          json:"text"`
+	Text null.String `gorm:"column:text;type:TEXT;"                          json:"text"`
 	//[ 2] commandId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	CommandID string `gorm:"column:commandId;type:TEXT;"                     json:"command_id"`
+	CommandID string `gorm:"column:commandId;type:TEXT;"                     json:"commandId"`
 }
 
 var channels_commands_responsesTableInfo = &TableInfo{
