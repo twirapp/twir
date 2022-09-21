@@ -45,7 +45,7 @@ func (c UsersTokensService) Create(userId string) (*helix.Client, error) {
 	}
 
 	refreshFunc := func(tokenData helix.RefreshTokenResponse) {
-		err := c.db.Where(`"id" = ?`, user.Token.ID).Updates(model.Tokens{
+		err := c.db.Where(`"id" = ?`, user.Token.ID).Updates(&model.Tokens{
 			AccessToken:         tokenData.Data.AccessToken,
 			RefreshToken:        tokenData.Data.RefreshToken,
 			ExpiresIn:           int32(tokenData.Data.ExpiresIn),
