@@ -80,7 +80,7 @@ importers:
       reflect-metadata: ^0.1.13
       rxjs: ^7.5.6
       tslib: ^2.4.0
-      type-fest: 2.18.0
+      type-fest: 3.0.0
     dependencies:
       '@nestjs-hybrid-auth/twitch': 1.0.0_gexuaci5ofuewzwjyeirzm5uzu
       '@nestjs/common': 9.0.11_mgy7w2bm3yhmntrbe3boyroj6m
@@ -133,7 +133,7 @@ importers:
       '@types/lodash.merge': 4.6.7
       '@types/multer': 1.4.7
       '@types/passport-jwt': 3.0.6
-      type-fest: 2.18.0
+      type-fest: 3.0.0
 
   apps/bots:
     specifiers:
@@ -186,7 +186,7 @@ importers:
       rxjs: ^7.5.6
       tlds: ^1.231.0
       tslib: ^2.4.0
-      type-fest: 2.18.0
+      type-fest: 3.0.0
       vitest: 0.21.1
       vm2: ^3.9.9
     dependencies:
@@ -241,7 +241,7 @@ importers:
       '@types/lodash.merge': 4.6.7
       '@types/lodash.omit': 4.5.7
       '@types/passport-jwt': 3.0.6
-      type-fest: 2.18.0
+      type-fest: 3.0.0
       vitest: 0.21.1
 
   apps/dota:
@@ -366,7 +366,7 @@ importers:
       prismjs: 1.28.0
       tailwindcss: 3.1.8
       tw-elements: 1.0.0-alpha12
-      type-fest: 2.18.0
+      type-fest: 3.0.0
       vee-validate: 4.6.5
       vite: 3.0.7
       vite-svg-loader: 3.4.0
@@ -416,7 +416,7 @@ importers:
       flag-icons: 6.6.4
       postcss: 8.4.16
       tailwindcss: 3.1.8_postcss@8.4.16
-      type-fest: 2.18.0
+      type-fest: 3.0.0
       vite: 3.0.7
       vue-tsc: 0.40.1
 
@@ -836,8 +836,8 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
-  /@intlify/bundle-utils/3.1.0_vue-i18n@9.2.2:
-    resolution: {integrity: sha512-ghlJ0kR2cCQ8D+poKknC0Xx0ncOt3J3os7CcIAqqIWVF7k6AtGoCDnIru+YzlZcvFRNmP9wEZ7jKliojCdAWNg==}
+  /@intlify/bundle-utils/3.1.2_vue-i18n@9.2.2:
+    resolution: {integrity: sha512-amgSo0NN5OKWYdcgFmfJqo2tcUcZ6C66Bxm5ALQnB0m3MUQtS9aJzKoIo+EU9XQiOVmlBFxRtNoZm+psHa5FNA==}
     engines: {node: '>= 12'}
     peerDependencies:
       petite-vue-i18n: '*'
@@ -910,7 +910,7 @@ packages:
       vue-i18n:
         optional: true
     dependencies:
-      '@intlify/bundle-utils': 3.1.0_vue-i18n@9.2.2
+      '@intlify/bundle-utils': 3.1.2_vue-i18n@9.2.2
       '@intlify/shared': 9.3.0-beta.3
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.4
@@ -7307,9 +7307,9 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /type-fest/2.18.0:
-    resolution: {integrity: sha512-pRS+/yrW5TjPPHNOvxhbNZexr2bS63WjrMU8a+VzEBhUi9Tz1pZeD+vQz3ut0svZ46P+SRqMEPnJmk2XnvNzTw==}
-    engines: {node: '>=12.20'}
+  /type-fest/3.0.0:
+    resolution: {integrity: sha512-MINvUN5ug9u+0hJDzSZNSnuKXI8M4F5Yvb6SQZ2CYqe7SgKXKOosEcU5R7tRgo85I6eAVBbkVF7TCvB4AUK2xQ==}
+    engines: {node: '>=14.16'}
     dev: true
 
   /type-is/1.6.18:
