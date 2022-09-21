@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - apps/scheduler/**'
+      - apps/scheduler/**
   workflow_dispatch:
 
 jobs:

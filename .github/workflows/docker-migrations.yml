@@ -1,10 +1,10 @@
-name: Docker dota
+name: Docker migrations
 
 on:
   push:
     branches: [main]
     paths:
-      - apps/dota/**
+      - apps/migrations/**
   workflow_dispatch:
 
 jobs:
@@ -36,8 +36,8 @@ jobs:
 
       - name: Install Deps
         run: pnpm install
-      - name: Build api
-        run: pnpm turbo run build --filter=@tsuwari/dota
+      - name: Build migrations
+        run: pnpm turbo run build --filter=@tsuwari/migrations
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -54,8 +54,8 @@ jobs:
         with:
           context: .
           push: true
-          file: ./apps/dota/Dockerfile
+          file: ./libs/migrations
           tags: |
-            tsuwari/dota:latest
+            tsuwari/migrations:latest
 
-          # tsuwari/dota:${{ github.sha }}
+          # tsuwari/migrations:${{ github.sha }}

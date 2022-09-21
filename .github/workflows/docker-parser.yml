@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - apps/parser/**'
+      - apps/parser/**
   workflow_dispatch:
 
 jobs:

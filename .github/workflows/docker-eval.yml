@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - apps/eval/**'
+      - apps/eval/**
   workflow_dispatch:
 
 jobs:

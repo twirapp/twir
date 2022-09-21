@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - apps/bots/**'
+      - apps/bots/**
   workflow_dispatch:
 
 jobs:
