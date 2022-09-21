@@ -1,10 +1,21 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+  Relation,
+} from 'typeorm';
 
 import { type Bot } from './Bot.js';
 import { type ChannelCommand } from './ChannelCommand.js';
 import { type ChannelCustomvar } from './ChannelCustomvar.js';
 import { type ChannelDotaAccount } from './ChannelDotaAccount.js';
+import { ChannelEvent } from './ChannelEvent.js';
 import { type ChannelGreeting } from './ChannelGreeting.js';
 import { type ChannelIntegration } from './ChannelIntegration.js';
 import { type ChannelKeyword } from './ChannelKeyword.js';
@@ -72,4 +83,7 @@ export class Channel {
 
   @OneToMany('UserStats', 'channel')
   usersStats?: Relation<UserStats[]>;
+
+  @OneToMany('ChannelEvent', 'channel')
+  events?: Relation<ChannelEvent[]>;
 }

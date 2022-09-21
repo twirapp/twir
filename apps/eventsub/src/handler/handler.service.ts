@@ -1,9 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, TwitchApiService } from '@tsuwari/shared';
 import { Channel } from '@tsuwari/typeorm/entities/Channel';
+import { ChannelEvent, EventType } from '@tsuwari/typeorm/entities/ChannelEvent';
+import { ChannelFollowEvent } from '@tsuwari/typeorm/entities/channelEvents/Follow';
 import { Token } from '@tsuwari/typeorm/entities/Token';
 import { getRawData } from '@twurple/common';
 import {
+  EventSubChannelFollowEvent,
   EventSubChannelUpdateEvent,
   EventSubStreamOfflineEvent,
   EventSubStreamOnlineEvent,
@@ -88,5 +91,20 @@ export class HandlerService {
     }
 
     return;
+  }
+
+  async subscribeToChannelFollowEvents(e: EventSubChannelFollowEvent) {
+    console.info(
+      `New follow from ${e.userName}#${e.userId} to ${e.broadcasterName}#${e.broadcasterId}`,
+    );
+    const event = await typeorm.getRepository(ChannelEvent).save({
+      type: EventType.FOLLOW,
+      channelId: e.broadcasterId,
+    });
+    await typeorm.getRepository(ChannelFollowEvent).save({
+      eventId: event.id,
+      fromUserId: e.userId,
+      toUserId: e.broadcasterId,
+    });
   }
 }

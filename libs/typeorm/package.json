@@ -17,6 +17,7 @@
     "build": "tsc",
     "cli": "doppler run -- typeorm-ts-node-esm -d ./src/index.ts",
     "deploy": "pnpm typeorm-ts-node-esm -d ./src/index.ts migration:run",
+    "migration:generate": "doppler run -- pnpm ts-node --esm --transpileOnly ./generateMigration.ts",
     "setup": "pnpm run deploy && pnpm run seed",
     "seed": "pnpm ts-node --esm --transpileOnly ./seed.ts"
   },
