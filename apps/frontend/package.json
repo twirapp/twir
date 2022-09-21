@@ -18,7 +18,7 @@
     "@vueuse/integrations": "9.1.0",
     "@yeger/vue-masonry-wall": "3.0.45",
     "axios": "0.27.2",
-    "date-fns": "2.29.1",
+    "date-fns": "2.29.3",
     "filepond": "4.30.4",
     "filepond-plugin-file-validate-type": "1.2.8",
     "filepond-plugin-image-preview": "4.6.11",
