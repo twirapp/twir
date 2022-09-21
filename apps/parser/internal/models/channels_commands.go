@@ -20,8 +20,6 @@ var (
 /*
 DB Table Details
 -------------------------------------
-
-
 Table: channels_commands
 [ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: false  col: TEXT            len: -1      default: [gen_random_uuid()]
 [ 1] name                                           TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
@@ -36,14 +34,9 @@ Table: channels_commands
 [10] default                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [false]
 [11] defaultName                                    TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
 [12] module                                         USER_DEFINED         null: false  primary: false  isArray: false  auto: false  col: USER_DEFINED    len: -1      default: [CUSTOM]
-
-
 JSON Sample
 -------------------------------------
 {    "id": "KgBDDcysaYZQqesDoXTtDnMYq",    "name": "AqCmFFUFcXbewxZltXJudmTRv",    "cooldown": 74,    "cooldown_type": "FTPPBGrueKbfSPZDEIKrpxqXT",    "enabled": true,    "aliases": "dDokZDGcWqNWOTpPvFpVKBpRd",    "description": "XJoOuXFCoEAvDouGhuhAWZNPJ",    "visible": true,    "channel_id": "adWSVvFXPchOZcXDWLelolCAE",    "permission": "JboyCeurieaMWJGuwBlFKaEYx",    "default": true,    "default_name": "VlbyNxwckpBlroYHbjnbduxVh",    "module": "aeCgoVJclnmKoOyoCIgmBXZCj"}
-
-
-
 */
 
 // ChannelsCommands struct is a row record of the channels_commands table in the tsuwari database
@@ -53,27 +46,28 @@ type ChannelsCommands struct {
 	//[ 1] name                                           TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
 	Name string `gorm:"column:name;type:TEXT;"                           json:"name"`
 	//[ 2] cooldown                                       INT4                 null: true   primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-	Cooldown sql.NullInt64 `gorm:"column:cooldown;type:INT4;default:0;"             json:"cooldown"`
+	Cooldown null.Int `gorm:"column:cooldown;type:INT4;default:0;"             json:"cooldown"`
 	//[ 3] cooldownType                                   USER_DEFINED         null: false  primary: false  isArray: false  auto: false  col: USER_DEFINED    len: -1      default: [GLOBAL]
-	CooldownType string `gorm:"column:cooldownType;type:VARCHAR;default:GLOBAL;" json:"cooldown_type"`
+	CooldownType string `gorm:"column:cooldownType;type:VARCHAR;default:GLOBAL;" json:"cooldownType"`
 	//[ 4] enabled                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [true]
 	Enabled bool `gorm:"column:enabled;type:BOOL;default:true;"           json:"enabled"`
 	//[ 5] aliases                                        JSONB                null: true   primary: false  isArray: false  auto: false  col: JSONB           len: -1      default: [[]]
-	Aliases pq.StringArray `gorm:"column:aliases;type:JSONB;default:[];"            json:"aliases"`
+	Aliases pq.StringArray `gorm:"column:aliases;type:text[];default:[];"            json:"aliases"`
 	//[ 6] description                                    TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	Description sql.NullString `gorm:"column:description;type:TEXT;"                    json:"description"`
+	Description null.String `gorm:"column:description;type:TEXT;"                    json:"description"`
 	//[ 7] visible                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [true]
 	Visible bool `gorm:"column:visible;type:BOOL;default:true;"           json:"visible"`
 	//[ 8] channelId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ChannelID string `gorm:"column:channelId;type:TEXT;"                      json:"channel_id"`
+	ChannelID string `gorm:"column:channelId;type:TEXT;"                      json:"channelId"`
 	//[ 9] permission                                     USER_DEFINED         null: false  primary: false  isArray: false  auto: false  col: USER_DEFINED    len: -1      default: []
 	Permission string `gorm:"column:permission;type:VARCHAR;"                  json:"permission"`
 	//[10] default                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [false]
 	Default bool `gorm:"column:default;type:BOOL;default:false;"          json:"default"`
 	//[11] defaultName                                    TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	DefaultName sql.NullString `gorm:"column:defaultName;type:TEXT;"                    json:"default_name"`
+	DefaultName null.String `gorm:"column:defaultName;type:TEXT;"                    json:"defaultName"`
 	//[12] module                                         USER_DEFINED         null: false  primary: false  isArray: false  auto: false  col: USER_DEFINED    len: -1      default: [CUSTOM]
 	Module string `gorm:"column:module;type:VARCHAR;default:CUSTOM;"       json:"module"`
+	Responses []*ChannelsCommandsResponses `gorm:"foreignKey:CommandID" json:"responses"`
 }
 
 var channels_commandsTableInfo = &TableInfo{

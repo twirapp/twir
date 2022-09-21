@@ -32,6 +32,8 @@ services:
       POSTGRES_DB: ${DB_NAME}
     networks:
       - tsuwari_dev
+    ports:
+      - 5432:5432
 
   minio:
     image: quay.io/minio/minio
@@ -45,7 +47,13 @@ services:
       MINIO_SERVER_URL: https://minio.tsuwari.tk
 
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      test:
+        [
+          'CMD',
+          'curl',
+          '-f',
+          'http://localhost:9000/minio/health/live'
+        ]
       interval: 30s
       timeout: 20s
       retries: 3
