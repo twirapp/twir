@@ -439,7 +439,7 @@ importers:
       knex: 2.2.0
       lodash: 4.17.21
       nats: 2.7.1
-      pg: 8.7.3
+      pg: 8.8.0
       reflect-metadata: 0.1.13
       rxjs: 7.5.6
       tslib: 2.4.0
@@ -456,10 +456,10 @@ importers:
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
       ioredis: 5.2.2
-      knex: 2.2.0_pg@8.7.3
+      knex: 2.2.0_pg@8.8.0
       lodash: 4.17.21
       nats: 2.7.1
-      pg: 8.7.3
+      pg: 8.8.0
       reflect-metadata: 0.1.13
       rxjs: 7.5.6
       tslib: 2.4.0
@@ -588,14 +588,14 @@ importers:
     specifiers:
       '@tsuwari/config': workspace:*
       dotenv: ^16.0.2
-      pg: 8.7.3
+      pg: 8.8.0
       reflect-metadata: ^0.1.13
       typeorm: ^0.3.9
     dependencies:
       '@tsuwari/config': link:../config
-      pg: 8.7.3
+      pg: 8.8.0
       reflect-metadata: 0.1.13
-      typeorm: 0.3.9_pg@8.7.3
+      typeorm: 0.3.9_pg@8.8.0
     devDependencies:
       dotenv: 16.0.2
 
@@ -836,8 +836,8 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
-  /@intlify/bundle-utils/3.1.0_vue-i18n@9.2.2:
-    resolution: {integrity: sha512-ghlJ0kR2cCQ8D+poKknC0Xx0ncOt3J3os7CcIAqqIWVF7k6AtGoCDnIru+YzlZcvFRNmP9wEZ7jKliojCdAWNg==}
+  /@intlify/bundle-utils/3.1.2_vue-i18n@9.2.2:
+    resolution: {integrity: sha512-amgSo0NN5OKWYdcgFmfJqo2tcUcZ6C66Bxm5ALQnB0m3MUQtS9aJzKoIo+EU9XQiOVmlBFxRtNoZm+psHa5FNA==}
     engines: {node: '>= 12'}
     peerDependencies:
       petite-vue-i18n: '*'
@@ -910,7 +910,7 @@ packages:
       vue-i18n:
         optional: true
     dependencies:
-      '@intlify/bundle-utils': 3.1.0_vue-i18n@9.2.2
+      '@intlify/bundle-utils': 3.1.2_vue-i18n@9.2.2
       '@intlify/shared': 9.3.0-beta.3
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.4
@@ -5453,7 +5453,7 @@ packages:
     resolution: {integrity: sha512-pJiBpiXMbt7dkzXe8Ghj/u4FfXOOa98fPW+bihOJ4SjnoijweJrNThJfd3ifXpXhREjpoF2mZVH1GfS9LV3kHQ==}
     engines: {node: '>= 8'}
 
-  /knex/2.2.0_pg@8.7.3:
+  /knex/2.2.0_pg@8.8.0:
     resolution: {integrity: sha512-yhm1Qe9Ok0TeXBq3nNHqZYJPrQ4Iw2tq9k/HxjrZ/EWec2ifOjJlkNHr26v8cQrWtk5iG3iwfUazTIWy+VKG5g==}
     engines: {node: '>=12'}
     hasBin: true
@@ -5490,7 +5490,7 @@ packages:
       getopts: 2.3.0
       interpret: 2.2.0
       lodash: 4.17.21
-      pg: 8.7.3
+      pg: 8.8.0
       pg-connection-string: 2.5.0
       rechoir: 0.8.0
       resolve-from: 5.0.0
@@ -6165,12 +6165,12 @@ packages:
     engines: {node: '>=4.0.0'}
     dev: false
 
-  /pg-pool/3.5.1_pg@8.7.3:
-    resolution: {integrity: sha512-6iCR0wVrro6OOHFsyavV+i6KYL4lVNyYAB9RD18w66xSzN+d8b66HiwuP30Gp1SH5O9T82fckkzsRjlrhD0ioQ==}
+  /pg-pool/3.5.2_pg@8.8.0:
+    resolution: {integrity: sha512-His3Fh17Z4eg7oANLob6ZvH8xIVen3phEZh2QuyrIl4dQSDVEabNducv6ysROKpDNPSD+12tONZVWfSgMvDD9w==}
     peerDependencies:
       pg: '>=8.0'
     dependencies:
-      pg: 8.7.3
+      pg: 8.8.0
     dev: false
 
   /pg-protocol/1.5.0:
@@ -6188,11 +6188,11 @@ packages:
       postgres-interval: 1.2.0
     dev: false
 
-  /pg/8.7.3:
-    resolution: {integrity: sha512-HPmH4GH4H3AOprDJOazoIcpI49XFsHCe8xlrjHkWiapdbHK+HLtbm/GQzXYAZwmPju/kzKhjaSfMACG+8cgJcw==}
+  /pg/8.8.0:
+    resolution: {integrity: sha512-UXYN0ziKj+AeNNP7VDMwrehpACThH7LUl/p8TDFpEUuSejCUIwGSfxpHsPvtM6/WXFy6SU4E5RG4IJV/TZAGjw==}
     engines: {node: '>= 8.0.0'}
     peerDependencies:
-      pg-native: '>=2.0.0'
+      pg-native: '>=3.0.1'
     peerDependenciesMeta:
       pg-native:
         optional: true
@@ -6200,7 +6200,7 @@ packages:
       buffer-writer: 2.0.0
       packet-reader: 1.0.0
       pg-connection-string: 2.5.0
-      pg-pool: 3.5.1_pg@8.7.3
+      pg-pool: 3.5.2_pg@8.8.0
       pg-protocol: 1.5.0
       pg-types: 2.2.0
       pgpass: 1.0.5
@@ -7324,7 +7324,7 @@ packages:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
     dev: false
 
-  /typeorm/0.3.9_pg@8.7.3:
+  /typeorm/0.3.9_pg@8.8.0:
     resolution: {integrity: sha512-xNcE44D4hn74n7pjuMog9hRgep+BiO3IBpjEaQZ8fb56zsDz7xHT1GAeWwmGuuU+4nDEELp2mIqgSCR+zxR7Jw==}
     engines: {node: '>= 12.9.0'}
     hasBin: true
@@ -7393,7 +7393,7 @@ packages:
       glob: 7.2.3
       js-yaml: 4.1.0
       mkdirp: 1.0.4
-      pg: 8.7.3
+      pg: 8.8.0
       reflect-metadata: 0.1.13
       sha.js: 2.4.11
       tslib: 2.4.0
