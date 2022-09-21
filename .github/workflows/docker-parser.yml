@@ -29,6 +29,6 @@ jobs:
           push: true
           file: ./apps/parser/Dockerfile
           tags: |
-            tsuwari/parser:latest
+            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/parser:latest
 
           # tsuwari/parser:${{ github.sha }}

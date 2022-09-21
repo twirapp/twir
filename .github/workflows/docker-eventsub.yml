@@ -56,6 +56,6 @@ jobs:
           push: true
           file: ./apps/eventsub/Dockerfile
           tags: |
-            tsuwari/eventsub:latest
+            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/eventsub:latest
 
           # tsuwari/eventsub:${{ github.sha }}

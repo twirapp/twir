@@ -56,6 +56,6 @@ jobs:
           push: true
           file: ./apps/streamstatus/Dockerfile
           tags: |
-            tsuwari/streamstatus:latest
+            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/streamstatus:latest
 
           # tsuwari/streamstatus:${{ github.sha }}

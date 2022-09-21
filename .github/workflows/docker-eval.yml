@@ -56,6 +56,6 @@ jobs:
           push: true
           file: ./apps/eval/Dockerfile
           tags: |
-            tsuwari/eval:latest
+            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/eval:latest
 
           # tsuwari/eval:${{ github.sha }}

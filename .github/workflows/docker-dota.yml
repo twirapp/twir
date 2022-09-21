@@ -56,6 +56,6 @@ jobs:
           push: true
           file: ./apps/dota/Dockerfile
           tags: |
-            tsuwari/dota:latest
+            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/dota:latest
 
           # tsuwari/dota:${{ github.sha }}

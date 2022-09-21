@@ -56,6 +56,6 @@ jobs:
           push: true
           file: ./apps/bots/Dockerfile
           tags: |
-            tsuwari/bots:latest
+            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/bots:latest
 
           # tsuwari/bots:${{ github.sha }}

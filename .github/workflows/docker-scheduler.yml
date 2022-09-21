@@ -56,6 +56,6 @@ jobs:
           push: true
           file: ./apps/scheduler/Dockerfile
           tags: |
-            tsuwari/scheduler:latest
+            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/scheduler:latest
 
           # tsuwari/scheduler:${{ github.sha }}

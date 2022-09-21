@@ -54,8 +54,8 @@ jobs:
         with:
           context: .
           push: true
-          file: ./libs/migrations/Dockerfile
+          file: ./libs/typeorm/Dockerfile
           tags: |
-            tsuwari/migrations:latest
+            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/migrations:latest
 
           # tsuwari/migrations:${{ github.sha }}
