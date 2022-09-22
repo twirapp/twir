@@ -1,7 +1,9 @@
-FROM ubuntu:latest AS build_base
+FROM --platform=$BUILDPLATFORM ubuntu:latest AS build_base
 
 RUN mkdir -p /app
 WORKDIR /app
+
+ARG BUILDPLATFORM
 
 RUN apt-get update \ 
     && apt-get install -y openssl -y curl git protobuf-compiler wget apt-transport-https ca-certificates gnupg
@@ -13,7 +15,11 @@ RUN apt-get update && apt-get install -y doppler
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get install nodejs
 
-RUN wget https://go.dev/dl/go1.19.1.linux-amd64.tar.gz && rm -rf /usr/local/go && tar -C /usr/local -xzf go1.19.1.linux-amd64.tar.gz && rm go1.19.1.linux-amd64.tar.gz
+RUN export OS=$(echo $BUILDPLATFORM | cut -d'/' -f1) && \
+    export ARCH=$(echo $BUILDPLATFORM | cut -d'/' -f2) && \
+    wget "https://go.dev/dl/go1.19.1.$OS-$ARCH.tar.gz" && \
+    rm -rf /usr/local/go && tar -C /usr/local -xzf "go1.19.1.$OS-$ARCH.tar.gz" && \
+    rm "go1.19.1.$OS-$ARCH.tar.gz"
 
 ENV GOPATH=$HOME/go
 ENV PATH=$PATH:$GOPATH/bin:/usr/local/go/bin

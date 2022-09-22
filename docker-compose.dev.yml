@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   backend:
-    user: 1000:1000
+    user: ${UID}:${GID}
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -54,13 +54,7 @@ services:
       MINIO_SERVER_URL: https://minio.tsuwari.tk
 
     healthcheck:
-      test:
-        [
-          'CMD',
-          'curl',
-          '-f',
-          'http://localhost:9000/minio/health/live'
-        ]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
       interval: 30s
       timeout: 20s
       retries: 3
