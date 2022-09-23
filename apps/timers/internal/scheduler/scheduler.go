@@ -63,14 +63,12 @@ func (c *Scheduler) AddTimer(timer *types.Timer) error {
 		return err
 	}
 
-	fmt.Println(
-		fmt.Sprintf(
-			"Queued timer %s#%s for %s channel.",
-			timer.Model.Name,
-			timer.Model.ID,
-			timer.Model.ChannelID,
-		),
-	)
+	c.logger.Info(fmt.Sprintf(
+		"Queued timer %s#%s for %s channel.",
+		timer.Model.Name,
+		timer.Model.ID,
+		timer.Model.ChannelID,
+	))
 
 	return nil
 }

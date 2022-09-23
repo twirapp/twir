@@ -34,16 +34,8 @@ func main() {
 		panic("Cannot load config of application")
 	}
 
-	var logger *zap.Logger
+	logger, _ := zap.NewDevelopment()
 
-	if cfg.AppEnv == "development" {
-		l, _ := zap.NewDevelopment()
-		logger = l
-	} else {
-		l, _ := zap.NewProduction()
-		logger = l
-	}
-	
 	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{
 		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
 	})
@@ -68,7 +60,10 @@ func main() {
 	scheduler := scheduler.New(cfg, r, t, n, db, logger)
 
 	timers := []model.ChannelsTimers{}
-
+	err = db.Model(&model.ChannelsTimers{}).Where("1 = 1").Update("lastTriggerMessageNumber", 0).Error
+	if err != nil {
+		logger.Sugar().Error(err)
+	}
 	err = db.Find(&timers).Error
 
 	if err != nil {
@@ -110,6 +105,8 @@ func main() {
 		bytes, _ := proto.Marshal(&natstimers.Empty{})
 		m.Respond(bytes)
 	})
+
+	logger.Sugar().Info("Started")
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
