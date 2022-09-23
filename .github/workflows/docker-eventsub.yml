@@ -40,7 +40,7 @@ jobs:
       - name: Install go protoc
         run: go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 
-      - Name: Install ubuntu deps
+      - name: Install ubuntu deps
         run: sudo apt install protobuf-compiler
 
       - name: Install Deps
