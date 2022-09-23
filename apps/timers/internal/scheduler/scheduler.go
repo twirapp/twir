@@ -28,7 +28,6 @@ func New(cfg *cfg.Config, redis *redis.Client, twitch *twitch.Twitch, nats *nats
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.StartAsync()
 
-
 	return &Scheduler{
 		internalScheduler: scheduler, 
 		cfg: cfg, 
