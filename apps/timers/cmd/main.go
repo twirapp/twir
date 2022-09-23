@@ -40,7 +40,7 @@ func main() {
 		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
 	})
 	if err != nil {
-		fmt.Println(err)
+		logger.Sugar().Error(err)
 		panic("failed to connect database")
 	}
 
@@ -79,12 +79,12 @@ func main() {
 	natsProtoConn.Subscribe("addTimerToQueue", func(m *nats.Msg) {
 		data := natstimers.AddTimerToQueue{}
 		if err := proto.Unmarshal(m.Data, &data); err != nil {
-			fmt.Println(err)
+			logger.Sugar().Error(err)
 			return
 		}
 		timer := &model.ChannelsTimers{}
 		if err = db.Where(`"id" = ?`, data.TimerId).Take(timer).Error; err != nil {
-			fmt.Println(err)
+			logger.Sugar().Error(err)
 			return
 		}
 
@@ -96,7 +96,7 @@ func main() {
 	natsProtoConn.Subscribe("removeTimerFromQueue", func(m *nats.Msg) {
 		data := natstimers.RemoveTimerFromQueue{}
 		if err := proto.Unmarshal(m.Data, &data); err != nil {
-			fmt.Println(err)
+			logger.Sugar().Error(err)
 			return
 		}
 

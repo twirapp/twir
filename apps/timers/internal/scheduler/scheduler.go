@@ -76,13 +76,11 @@ func (c *Scheduler) AddTimer(timer *types.Timer) error {
 func (c *Scheduler) RemoveTimer(id string) error {
 	err := c.internalScheduler.RemoveByTag(id)
 
-	fmt.Println(
-		fmt.Sprintf(
-			"Removed timer %s.",
-			id,
-		),
-	)
-
+	c.logger.Sugar().Info(fmt.Sprintf(
+		"Removed timer %s.",
+		id,
+	))
+	
 	if err != nil {
 		return err
 	}
