@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"time"
 
 	model "tsuwari/models"
@@ -17,6 +16,7 @@ import (
 	"github.com/nicklaw5/helix"
 	"github.com/satont/tsuwari/nats/bots"
 	"github.com/satont/tsuwari/nats/parser"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -43,24 +43,25 @@ type Handler struct {
 	twitch *twitch.Twitch
 	nats *nats.Conn
 	db *gorm.DB
+	logger *zap.Logger
 }
 
-func New(redis *redis.Client, twitch *twitch.Twitch, nats *nats.Conn, db *gorm.DB) *Handler {
-	return &Handler{redis: redis, twitch: twitch, nats: nats, db: db}
+func New(redis *redis.Client, twitch *twitch.Twitch, nats *nats.Conn, db *gorm.DB, logger *zap.Logger) *Handler {
+	return &Handler{redis: redis, twitch: twitch, nats: nats, db: db, logger: logger}
 }
 
 func (c *Handler) Handle(t *types.Timer, j gocron.Job) {
 	streamString, err := c.redis.Get(context.TODO(), "streams:" + t.Model.ChannelID).Result()
 
 	if err != nil {
-		log.Fatal(err)
+		c.logger.Sugar().Error(err)
 		return
 	}
 
 	streamData := Stream{}
 
 	if err = json.Unmarshal([]byte(streamString), &streamData); err != nil {
-		log.Fatal(err)
+		c.logger.Sugar().Error(err)
 		return
 	}
 
@@ -88,13 +89,13 @@ func (c *Handler) Handle(t *types.Timer, j gocron.Job) {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		c.logger.Sugar().Error(err)
 		return
 	}
 	
 	response, err := c.nats.Request("parser.parseTextResponse", requestBytes, 5*time.Second)
 	if err != nil {
-		log.Fatal(err)
+		c.logger.Sugar().Error(err)
 		return
 	}
 	responseData := parser.ParseResponseResponse{}
@@ -102,7 +103,7 @@ func (c *Handler) Handle(t *types.Timer, j gocron.Job) {
 	err = proto.Unmarshal(response.Data, &responseData)
 
 	if err != nil {
-		log.Fatal(err)
+		c.logger.Sugar().Error(err)
 		return
 	}
 
@@ -131,6 +132,6 @@ func (c *Handler) Handle(t *types.Timer, j gocron.Job) {
 		Error
 
 	if err != nil {
-		log.Fatal(err)
+		c.logger.Sugar().Error(err)
 	}
 }

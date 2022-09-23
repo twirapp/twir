@@ -11,6 +11,7 @@ import (
 	"github.com/go-co-op/gocron"
 	redis "github.com/go-redis/redis/v9"
 	"github.com/nats-io/nats.go"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -22,9 +23,10 @@ type Scheduler struct {
 	twitch *twitch.Twitch
 	nats *nats.Conn
 	db *gorm.DB
+	logger *zap.Logger
 }
 
-func New(cfg *cfg.Config, redis *redis.Client, twitch *twitch.Twitch, nats *nats.Conn, db *gorm.DB) *Scheduler {
+func New(cfg *cfg.Config, redis *redis.Client, twitch *twitch.Twitch, nats *nats.Conn, db *gorm.DB, logger *zap.Logger) *Scheduler {
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.StartAsync()
 
@@ -32,10 +34,11 @@ func New(cfg *cfg.Config, redis *redis.Client, twitch *twitch.Twitch, nats *nats
 		internalScheduler: scheduler, 
 		cfg: cfg, 
 		redis: redis,
-		handler: handler.New(redis, twitch, nats, db),
+		handler: handler.New(redis, twitch, nats, db, logger),
 		twitch: twitch,
 		nats: nats,
 		db: db,
+		logger: logger,
 	}
 }
 

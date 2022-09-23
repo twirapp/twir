@@ -15,6 +15,7 @@ import (
 	cfg "tsuwari/config"
 	twitch "tsuwari/twitch"
 
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -31,6 +32,16 @@ func main() {
 	if err != nil || cfg == nil {
 		fmt.Println(err)
 		panic("Cannot load config of application")
+	}
+
+	var logger *zap.Logger
+
+	if cfg.AppEnv == "development" {
+		l, _ := zap.NewDevelopment()
+		logger = l
+	} else {
+		l, _ := zap.NewProduction()
+		logger = l
 	}
 	
 	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{
@@ -54,7 +65,7 @@ func main() {
 
 	t := twitch.New(cfg.TwitchClientId, cfg.TwitchClientSecret)
 	
-	scheduler := scheduler.New(cfg, r, t, n, db)
+	scheduler := scheduler.New(cfg, r, t, n, db, logger)
 
 	timers := []model.ChannelsTimers{}
 
