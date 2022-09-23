@@ -34,6 +34,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '^1.19.1'
+      - name: Install go protoc
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+
+      - Name: Install ubuntu deps
+        run: sudo apt install protobuf-compiler
+
       - name: Install Deps
         run: pnpm install
       - name: Build api

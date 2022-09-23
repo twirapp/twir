@@ -23,6 +23,7 @@ COPY /apps/timers ./apps/timers/
 COPY /libs/nats ./libs/nats/
 COPY /libs/config ./libs/config/
 COPY /libs/gomodels ./libs/gomodels/
+COPY /libs/twitch ./libs/twitch/
 
 RUN pnpm --filter=@tsuwari/nats build
 RUN cd ./apps/timers && go mod download
