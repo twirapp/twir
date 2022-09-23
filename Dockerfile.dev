@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y doppler
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get install nodejs
 
-RUN export OS=$(echo $BUILDPLATFORM | cut -d'/' -f1) && \
-    export ARCH=$(echo $BUILDPLATFORM | cut -d'/' -f2) && \
+RUN OS=$(echo $BUILDPLATFORM | cut -d'/' -f1) && \
+    ARCH=$(echo $BUILDPLATFORM | cut -d'/' -f2) && \
     wget "https://go.dev/dl/go1.19.1.$OS-$ARCH.tar.gz" && \
     rm -rf /usr/local/go && tar -C /usr/local -xzf "go1.19.1.$OS-$ARCH.tar.gz" && \
     rm "go1.19.1.$OS-$ARCH.tar.gz"
