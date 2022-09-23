@@ -8,6 +8,6 @@ message GetPlayerCardRequest {
 
 message GetPlayerCardResponse {
   string account_id = 1;
-  optional int64 rank_tier = 2;
-  optional int64 leaderboard_rank = 3;
+  int64 rank_tier = 2;
+  int64 leaderboard_rank = 3;
 }
