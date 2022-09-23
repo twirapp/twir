@@ -59,7 +59,7 @@ func main() {
 	
 	scheduler := scheduler.New(cfg, r, t, n, db, logger)
 
-	timers := []model.ChannelsTimers{}
+	timers := []*model.ChannelsTimers{}
 	err = db.Model(&model.ChannelsTimers{}).Where("1 = 1").Update("lastTriggerMessageNumber", 0).Error
 	if err != nil {
 		logger.Sugar().Error(err)
@@ -71,7 +71,7 @@ func main() {
 	} else {
 		for _, timer := range timers {
 			if timer.Enabled {
-				AddTimerByModel(scheduler, &timer)
+				AddTimerByModel(scheduler, timer)
 			}
 		}
 	}

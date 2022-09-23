@@ -44,13 +44,16 @@ type Handler struct {
 	nats *nats.Conn
 	db *gorm.DB
 	logger *zap.Logger
+	store types.Store
 }
 
-func New(redis *redis.Client, twitch *twitch.Twitch, nats *nats.Conn, db *gorm.DB, logger *zap.Logger) *Handler {
-	return &Handler{redis: redis, twitch: twitch, nats: nats, db: db, logger: logger}
+func New(redis *redis.Client, twitch *twitch.Twitch, nats *nats.Conn, db *gorm.DB, logger *zap.Logger, store types.Store) *Handler {
+	return &Handler{redis: redis, twitch: twitch, nats: nats, db: db, logger: logger,store: store}
 }
 
-func (c *Handler) Handle(t *types.Timer, j gocron.Job) {
+func (c *Handler) Handle(j gocron.Job) {
+	t := c.store[j.Tags()[0]]
+
 	streamString, err := c.redis.Get(context.TODO(), "streams:" + t.Model.ChannelID).Result()
 
 	if err == redis.Nil {

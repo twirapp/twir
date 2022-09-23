@@ -7,3 +7,5 @@ type Timer struct {
 	
 	SendIndex int
 }
+
+type Store map[string]*Timer
