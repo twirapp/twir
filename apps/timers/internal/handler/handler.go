@@ -53,6 +53,10 @@ func New(redis *redis.Client, twitch *twitch.Twitch, nats *nats.Conn, db *gorm.D
 func (c *Handler) Handle(t *types.Timer, j gocron.Job) {
 	streamString, err := c.redis.Get(context.TODO(), "streams:" + t.Model.ChannelID).Result()
 
+	if err == redis.Nil {
+		return
+	}
+
 	if err != nil {
 		c.logger.Sugar().Error(err)
 		return
