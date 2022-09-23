@@ -64,7 +64,9 @@ func main() {
 		panic(err)
 	} else {
 		for _, timer := range timers {
-			AddTimerByModel(scheduler, &timer)
+			if timer.Enabled {
+				AddTimerByModel(scheduler, &timer)
+			}
 		}
 	}
 
