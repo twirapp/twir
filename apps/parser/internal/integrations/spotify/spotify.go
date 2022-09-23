@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	model "tsuwari/parser/internal/models"
+	model "tsuwari/models"
 
 	req "github.com/imroc/req/v3"
 	"github.com/samber/lo"

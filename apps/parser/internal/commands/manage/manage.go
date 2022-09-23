@@ -2,7 +2,7 @@ package manage
 
 import (
 	"encoding/json"
-	model "tsuwari/parser/internal/models"
+	model "tsuwari/models"
 
 	"github.com/samber/lo"
 )

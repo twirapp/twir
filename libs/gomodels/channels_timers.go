@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/guregu/null"
+	"github.com/lib/pq"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -52,14 +53,12 @@ type ChannelsTimers struct {
 	//[ 3] enabled                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [true]
 	Enabled bool `gorm:"column:enabled;type:BOOL;default:true;"               json:"enabled"`
 	//[ 4] responses                                      JSONB                null: false  primary: false  isArray: false  auto: false  col: JSONB           len: -1      default: [[]]
-	Responses string `gorm:"column:responses;type:JSONB;default:[];"              json:"responses"`
-	//[ 5] last                                           INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-	Last int32 `gorm:"column:last;type:INT4;default:0;"                     json:"last"`
-	//[ 6] timeInterval                                   INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
+	Responses pq.StringArray `gorm:"column:responses;type:text[];default:[];"              json:"responses"`
+	//[ 5] timeInterval                                   INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
 	TimeInterval int32 `gorm:"column:timeInterval;type:INT4;default:0;"             json:"time_interval"`
-	//[ 7] messageInterval                                INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
+	//[ 6] messageInterval                                INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
 	MessageInterval int32 `gorm:"column:messageInterval;type:INT4;default:0;"          json:"message_interval"`
-	//[ 8] lastTriggerMessageNumber                       INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
+	//[ 7] lastTriggerMessageNumber                       INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
 	LastTriggerMessageNumber int32 `gorm:"column:lastTriggerMessageNumber;type:INT4;default:0;" json:"last_trigger_message_number"`
 }
 

@@ -14,11 +14,8 @@ export class ChannelTimer {
   @Column('boolean', { name: 'enabled', default: false })
   enabled: boolean;
 
-  @Column('jsonb', { name: 'responses', default: [] })
+  @Column('text', { name: 'responses', default: [], array: true })
   responses: string[];
-
-  @Column('integer', { name: 'last', default: 0 })
-  last: number;
 
   @Column('integer', { name: 'timeInterval', default: 0 })
   timeInterval: number;

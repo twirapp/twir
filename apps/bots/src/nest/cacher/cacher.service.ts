@@ -10,7 +10,6 @@ import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 
-import { addTimerToQueue, removeTimerFromQueue } from '../../libs/timers.js';
 import { typeorm } from '../../libs/typeorm.js';
 
 @Injectable()
@@ -36,24 +35,9 @@ export class CacherService implements OnModuleInit {
   async updateChannel(channelId: string) {
     this.logger.log(`Updating systems cache for ${channelId}`);
     this.updateCommandsCacheByChannelId(channelId);
-    this.updateTimersCacheByChannelId(channelId);
     this.updateGreetingsCacheByChannelId(channelId);
     this.updateKeywordsCacheByChannelId(channelId);
     this.updateVariablesCacheByChannelId(channelId);
-  }
-
-  async updateTimersCacheByChannelId(channelId: string) {
-    const timers = await typeorm.getRepository(ChannelTimer).findBy({
-      channelId,
-    });
-
-    for (const timer of timers) {
-      if (timer.enabled) {
-        await addTimerToQueue(timer);
-      } else {
-        removeTimerFromQueue(timer);
-      }
-    }
   }
 
   async updateCommandsCacheByChannelId(channelId: string) {

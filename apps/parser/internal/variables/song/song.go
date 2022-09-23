@@ -1,10 +1,10 @@
 package song
 
 import (
+	model "tsuwari/models"
 	lastfm "tsuwari/parser/internal/integrations/lastfm"
 	spotify "tsuwari/parser/internal/integrations/spotify"
 	vkIntegr "tsuwari/parser/internal/integrations/vk"
-	model "tsuwari/parser/internal/models"
 	"tsuwari/parser/internal/types"
 	variables_cache "tsuwari/parser/internal/variablescache"
 

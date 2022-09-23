@@ -2,7 +2,7 @@ package twitch
 
 import (
 	"time"
-	"tsuwari/parser/internal/config/cfg"
+	"tsuwari/config"
 
 	helix "github.com/nicklaw5/helix"
 )

@@ -72,9 +72,6 @@ services:
       - tsuwari
 
   migrations:
-    build:
-      context: .
-      dockerfile: libs/prisma/Dockerfile
     restart: "no"
     image: registry.satont.dev/tsuwari/migrations
     env_file:
@@ -104,9 +101,6 @@ services:
       - tsuwari
 
   api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/api
     env_file:
@@ -125,9 +119,6 @@ services:
       - tsuwari
 
   bots:
-    build:
-      context: .
-      dockerfile: apps/bots/Dockerfile
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/bots
     env_file:
@@ -142,9 +133,6 @@ services:
       - tsuwari
 
   parser:
-    build:
-      context: .
-      dockerfile: apps/parser/Dockerfile
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/parser
     env_file:
@@ -161,10 +149,21 @@ services:
     networks:
       - tsuwari
 
+  timers:
+    restart: unless-stopped
+    image: registry.satont.dev/tsuwari/timers
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - migrations
+      - postgres
+      - nats
+      - bots
+    networks:
+      - tsuwari
+
   scheduler:
-    build:
-      context: .
-      dockerfile: apps/scheduler/Dockerfile
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/scheduler
     env_file:
@@ -179,9 +178,6 @@ services:
       - tsuwari
 
   streamstatus:
-    build:
-      context: .
-      dockerfile: apps/streamstatus/Dockerfile
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/streamstatus
     env_file:
@@ -195,9 +191,6 @@ services:
       - tsuwari
 
   eventsub:
-    build:
-      context: .
-      dockerfile: apps/eventsub/Dockerfile
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/eventsub
     env_file:
@@ -213,9 +206,6 @@ services:
       - tsuwari
 
   dota:
-    build:
-      context: .
-      dockerfile: apps/dota/Dockerfile
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/dota
     env_file:

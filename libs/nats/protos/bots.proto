@@ -7,3 +7,9 @@ message DeleteMessagesRequest {
   string channelName = 2;
   repeated string messageIds = 3;
 }
+
+message SendMessage {
+  string channelId = 1;
+  string channelName = 2;
+  string message = 3;
+}

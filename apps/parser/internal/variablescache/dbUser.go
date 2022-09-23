@@ -1,7 +1,7 @@
 package variables_cache
 
 import (
-	model "tsuwari/parser/internal/models"
+	model "tsuwari/models"
 )
 
 func (c *VariablesCacheService) GetGbUser() *model.UsersStats {

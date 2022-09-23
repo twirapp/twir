@@ -3,8 +3,8 @@ package variables_cache
 import (
 	"regexp"
 	"sync"
+	model "tsuwari/models"
 	"tsuwari/parser/internal/config/twitch"
-	model "tsuwari/parser/internal/models"
 	usersauth "tsuwari/parser/internal/twitch/user"
 	"tsuwari/parser/internal/variables/stream"
 

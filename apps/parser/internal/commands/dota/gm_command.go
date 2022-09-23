@@ -9,7 +9,7 @@ import (
 	"time"
 	"tsuwari/parser/internal/types"
 
-	model "tsuwari/parser/internal/models"
+	model "tsuwari/models"
 
 	variables_cache "tsuwari/parser/internal/variablescache"
 

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option go_package = "tsuwari/nats/timers";
+
+message Empty {}
+
+message AddTimerToQueue {
+  string timerId = 1;
+}
+
+message RemoveTimerFromQueue {
+  string timerId = 1;
+}

@@ -3,7 +3,7 @@ package usersauth
 import (
 	"fmt"
 	"time"
-	model "tsuwari/parser/internal/models"
+	model "tsuwari/models"
 
 	helix "github.com/satont/go-helix"
 	"gorm.io/gorm"

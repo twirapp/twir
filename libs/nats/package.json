@@ -10,7 +10,8 @@
     "./parser": "./dist/parser/parser.js",
     "./bots": "./dist/bots/bots.js",
     "./dota": "./dist/dota/dota.js",
-    "./eval": "./dist/eval/eval.js"
+    "./eval": "./dist/eval/eval.js",
+    "./timers": "./dist/timers/timers.js"
   },
   "typesVersions": {
     "*": {
@@ -25,6 +26,9 @@
       ],
       "eval": [
         "dist/eval/eval.d.ts"
+      ],
+      "timers": [
+        "dist/timers/timers.d.ts"
       ]
     }
   },

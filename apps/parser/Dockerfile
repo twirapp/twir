@@ -21,6 +21,8 @@ RUN pnpm install
 
 COPY /apps/parser ./apps/parser/
 COPY /libs/nats ./libs/nats/
+COPY /libs/config ./libs/config/
+COPY /libs/gomodels ./libs/gomodels/
 
 RUN pnpm --filter=@tsuwari/nats build
 RUN cd ./apps/parser && go mod download

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-	model "tsuwari/parser/internal/models"
+	model "tsuwari/models"
 
 	"github.com/samber/lo"
 )

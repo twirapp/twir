@@ -1,17 +1,13 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { Client, Transport } from '@nestjs/microservices';
-import { config } from '@tsuwari/config';
-import { ClientProxy } from '@tsuwari/shared';
+import * as TimersNats from '@tsuwari/nats/timers';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 
 import { typeorm } from '../../index.js';
+import { nats } from '../../libs/nats.js';
 import { CreateTimerDto } from './dto/create.js';
 
 @Injectable()
 export class TimersService {
-  @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
-  nats: ClientProxy;
-
   getList(channelId: string) {
     return typeorm.getRepository(ChannelTimer).findBy({
       channelId,
@@ -42,7 +38,10 @@ export class TimersService {
     });
 
     if (timer.enabled) {
-      await this.nats.emit('bots.addTimerToQueue', timer.id).toPromise();
+      const data = TimersNats.AddTimerToQueue.toBinary({
+        timerId: timer.id,
+      });
+      await nats.request('addTimerToQueue', data);
     }
 
     return timer;
@@ -63,7 +62,10 @@ export class TimersService {
       id: timerId,
     });
 
-    await this.nats.emit('bots.removeTimerFromQueue', timerId).toPromise();
+    const data = TimersNats.RemoveTimerFromQueue.toBinary({
+      timerId,
+    });
+    await nats.request('removeTimerFromQueue', data);
 
     return true;
   }
@@ -83,9 +85,15 @@ export class TimersService {
 
     const timer = await this.findOne(userId, timerId);
     if (timer!.enabled) {
-      await this.nats.emit('bots.addTimerToQueue', timer!.id).toPromise();
+      const data = TimersNats.AddTimerToQueue.toBinary({
+        timerId: timer!.id,
+      });
+      await nats.request('addTimerToQueue', data);
     } else {
-      await this.nats.emit('bots.removeTimerFromQueue', timer!.id).toPromise();
+      const data = TimersNats.RemoveTimerFromQueue.toBinary({
+        timerId: timer!.id,
+      });
+      await nats.request('removeTimerFromQueue', data);
     }
 
     return timer!;

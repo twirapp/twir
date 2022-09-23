@@ -41,6 +41,11 @@ module.exports = {
       args: "dev:parser"
     },
     {
+      name: "timers",
+      script: "pnpm",
+      args: "dev:timers"
+    },
+    {
       name: "frontend",
       script: "pnpm",
       args: "dev:frontend"

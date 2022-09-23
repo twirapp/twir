@@ -29,6 +29,7 @@
     "dev:pm2": "pnpm build:backend && pm2 start ecosystem.config.cjs && pm2 logs all",
     "dev:bots": "doppler run -- turbo run dev --filter=bots",
     "dev:parser": "cd apps/parser && nodemon --config ./nodemon.json",
+    "dev:timers": "cd apps/timers && nodemon --config ./nodemon.json",
     "dev:eventsub": "doppler run -- turbo run dev --filter=eventsub",
     "dev:api": "doppler run -- turbo run dev --filter=api",
     "dev:streamstatus": "doppler run -- turbo run dev --filter=streamstatus",

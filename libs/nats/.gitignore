@@ -2,5 +2,6 @@ parser/*
 bots/*
 dota/*
 eval/*
+timers/*
 
 !*/go.mod

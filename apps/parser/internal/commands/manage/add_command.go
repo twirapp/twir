@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	model "tsuwari/parser/internal/models"
+	model "tsuwari/models"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/pkg/helpers"
 

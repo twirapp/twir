@@ -68,6 +68,8 @@ services:
       - redis-data:/data
     networks:
       - tsuwari_dev
+    ports:
+      - 6380:6379
 
   nats:
     restart: unless-stopped
