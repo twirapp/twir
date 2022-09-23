@@ -72,5 +72,17 @@
         "cmd": "golines ${file} -w -m 100 --base-formatter=gofumpt"
       }
     ]
-  }
+  },
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "tsuwari",
+      "database": "tsuwari",
+      "username": "tsuwari",
+      "password": "tsuwari"
+    }
+  ]
 }
