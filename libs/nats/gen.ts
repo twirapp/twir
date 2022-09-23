@@ -18,10 +18,10 @@ await Promise.all(
 
     const requests = await Promise.all([
       promisedExec(
-        `protoc --proto_path=./protos --experimental_allow_proto3_optional --go_out=./${name}/ --go_opt=paths=source_relative ${name}.proto`,
+        `protoc --proto_path=./protos --protocopt=--experimental_allow_proto3_optional --go_out=./${name}/ --go_opt=paths=source_relative ${name}.proto`,
       ),
       promisedExec(
-        `protoc --plugin=./node_modules/.bin/protoc-gen-ts --ts_out ./${name}/ --ts_opt long_type_string --proto_path ./protos --experimental_allow_proto3_optional  --ts_opt generate_dependencies ${name}.proto`,
+        `protoc --plugin=./node_modules/.bin/protoc-gen-ts --ts_out ./${name}/ --ts_opt long_type_string --proto_path ./protos --protocopt=--experimental_allow_proto3_optional --ts_opt generate_dependencies ${name}.proto`,
       ),
     ]);
 
