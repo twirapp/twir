@@ -1,5 +1,6 @@
-import { landingPage } from '@/data/seo.js';
-import { setupI18n, type Locale } from '@/locales/index.js';
+import { seoLocales } from '@/data/seo.js';
+import type { Locale } from '@/locales/index.js';
+import { setupI18n } from '@/locales/index.js';
 import { createApp } from '@/pages/index/app';
 import '@/styles/tailwind.base.css';
 import type { PageContext } from '@/types/pageContext';
@@ -22,6 +23,6 @@ export async function render(pageContext: PageContext) {
   const locale = (pageContext.routeParams as { locale: Locale }).locale;
   pageContext.locale = locale;
 
-  document.title = landingPage[locale].title;
+  document.title = seoLocales[locale].title;
   app.changePage(pageContext);
 }

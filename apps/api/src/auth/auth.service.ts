@@ -8,11 +8,12 @@ import { Channel } from '@tsuwari/typeorm/entities/Channel';
 import { DashboardAccess } from '@tsuwari/typeorm/entities/DashboardAccess';
 import { Token } from '@tsuwari/typeorm/entities/Token';
 import { User } from '@tsuwari/typeorm/entities/User';
-import { AccessToken } from '@twurple/auth';
+import { AccessToken, exchangeCode, getTokenInfo } from '@twurple/auth';
 import { getRawData } from '@twurple/common';
 import chunk from 'lodash.chunk';
 
 import { typeorm } from '../index.js';
+import { Payload } from '../jwt/jwt.service.js';
 import { JwtPayload } from '../jwt/jwt.strategy.js';
 import { staticApi } from '../twitchApi.js';
 
@@ -156,5 +157,27 @@ export class AuthService {
     }
 
     return result;
+  }
+
+  async authorizeUserByTwitch(code: string, state: string): Promise<Payload> {
+    const accessToken = await exchangeCode(
+      config.TWITCH_CLIENTID,
+      config.TWITCH_CLIENTSECRET,
+      code,
+      Buffer.from(state, 'base64').toString('utf-8'),
+    );
+    const tokenInfo = await getTokenInfo(accessToken.accessToken, config.TWITCH_CLIENTID);
+
+    if (!tokenInfo.userId || !tokenInfo.userName) {
+      throw new Error('Cannot find userId or userName in your tokenInfo');
+    }
+
+    await this.checkUser(accessToken, tokenInfo.userId, tokenInfo.userName);
+
+    return {
+      id: tokenInfo.userId,
+      scopes: tokenInfo.scopes,
+      username: tokenInfo.userName,
+    };
   }
 }

@@ -513,6 +513,7 @@ importers:
       '@fastify/static': ^6.5.0
       '@nanostores/persistent': 0.7.0
       '@nanostores/vue': '0.6'
+      '@tsuwari/shared': workspace:*
       '@tsuwari/ui-components': workspace:*
       '@tsuwari/ui-fonts': workspace:*
       '@tsuwari/ui-icons': workspace:*
@@ -528,8 +529,8 @@ importers:
       swiper: ^8.3.2
       tailwindcss: ^3.1.8
       tailwindcss-animation-delay: ^1.0.7
-      vite: ^3.1.0
-      vite-plugin-ssr: ^0.4.33
+      vite: ^3.1.3
+      vite-plugin-ssr: ^0.4.38
       vue: 3.2.37
       vue-i18n: 9.2.2
       vue-router: 4.1.5
@@ -545,10 +546,11 @@ importers:
       fastify: 4.5.3
       nanostores: 0.7.0
       swiper: 8.4.2
-      vite-plugin-ssr: 0.4.36_vite@3.1.3
+      vite-plugin-ssr: 0.4.38_vite@3.1.3
       vue: 3.2.37
       vue-i18n: 9.2.2_vue@3.2.37
     devDependencies:
+      '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/ui-components': link:../../libs/ui/components
       '@tsuwari/ui-fonts': link:../../libs/ui/fonts
       '@tsuwari/ui-icons': link:../../libs/ui/icons
@@ -17149,8 +17151,8 @@ packages:
       vfile-message: 2.0.4
     dev: true
 
-  /vite-plugin-ssr/0.4.36_vite@3.1.3:
-    resolution: {integrity: sha512-FvecIDqYdsQGnP1JzWosZFJHBSGn4sdGFytJ9TOwtmZ0DP3mmCRR3+sjSjaEsmxAHgycQYaDAsX0x569+3HWAw==}
+  /vite-plugin-ssr/0.4.38_vite@3.1.3:
+    resolution: {integrity: sha512-gwbbN3AkcvkevsTCbBHzjbW2EkluCxK/0ZTirh65K9VDeoKb/bW2eB0sG65qUm3CPcSDK4mJlXa6Q0wPhmHiWA==}
     engines: {node: '>=12.19.0'}
     hasBin: true
     peerDependencies:

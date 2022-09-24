@@ -22,7 +22,9 @@
         <div class="flex-1 flex max-lg:bg-red-60 max-lg:hidden">
           <div class="inline-grid grid-flow-col gap-x-3 items-center ml-auto">
             <LangSelect @change="setLandingLocale" />
-            <a href="#" class="login-btn">{{ t('buttons.login') }}</a>
+            <ClientOnly>
+              <HeaderAuthBlock />
+            </ClientOnly>
           </div>
         </div>
       </div>
@@ -46,18 +48,16 @@ import { useWindowScroll } from '@vueuse/core';
 import Logo from '@/assets/NewLogo.svg';
 import ClientOnly from '@/components/ClientOnly.vue';
 import BurgerMenuButton from '@/components/landing/layout/BurgerMenuButton.vue';
+import HeaderAuthBlock from '@/components/landing/layout/HeaderAuthBlock.vue';
 import MobileMenu from '@/components/landing/layout/MobileMenu.vue';
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import LangSelect from '@/components/LangSelect/LangSelect.vue';
 import useLandingLocale from '@/hooks/useLandingLocale';
-import useTranslation from '@/hooks/useTranslation';
 import { headerStore, headerHeightStore } from '@/stores/landing/header.js';
 
 const setLandingLocale = useLandingLocale();
 
 const headerHeight = useStore(headerHeightStore);
-
-const t = useTranslation<'landing'>();
 
 const { y: windowY } = useWindowScroll();
 </script>

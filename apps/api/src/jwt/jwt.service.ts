@@ -4,23 +4,49 @@ import { config } from '@tsuwari/config';
 
 import { JwtPayload } from './jwt.strategy.js';
 
+export interface Payload {
+  username: string;
+  id: string;
+  scopes: string[];
+}
+
 @Injectable()
 export class JwtAuthService {
-  constructor(private jwtService: JwtService) { }
+  constructor(private jwtService: JwtService) {}
 
-  login(user: JwtPayload) {
-    const payload = { username: user.login, id: user.id, scopes: user.scopes };
-    return {
-      accessToken: this.jwtService.sign(payload, {
-        expiresIn: config.JWT_EXPIRES_IN,
-        secret: config.JWT_ACCESS_SECRET,
-      }),
-      refreshToken: this.jwtService.sign(payload, { expiresIn: '31d', secret: config.JWT_REFRESH_SECRET }),
-    };
+  private async signAccessToken(payload: Payload) {
+    return await this.jwtService.signAsync(payload, {
+      expiresIn: config.JWT_EXPIRES_IN,
+      secret: config.JWT_ACCESS_SECRET,
+    });
   }
 
-  async refresh(token: string) {
-    const user = await this.jwtService.verifyAsync<JwtPayload>(token, { secret: config.JWT_REFRESH_SECRET });
-    return this.login(user);
+  private async signRefreshToken(payload: Payload) {
+    return await this.jwtService.signAsync(payload, {
+      expiresIn: '31d',
+      secret: config.JWT_REFRESH_SECRET,
+    });
+  }
+
+  private async verifyRefreshToken(refreshToken: string) {
+    return await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
+      secret: config.JWT_REFRESH_SECRET,
+    });
+  }
+
+  async refreshAccessToken(refreshToken: string) {
+    const payload = await this.verifyRefreshToken(refreshToken);
+    return await this.signAccessToken({
+      id: payload.id,
+      scopes: payload.scopes,
+      username: payload.login,
+    });
+  }
+
+  async generateKeypair(payload: Payload) {
+    const accessToken = await this.signAccessToken(payload);
+    const refreshToken = await this.signRefreshToken(payload);
+
+    return { accessToken, refreshToken };
   }
 }

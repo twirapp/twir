@@ -1,6 +1,7 @@
 import type { WritableComputedRef } from 'vue';
 import { createI18n } from 'vue-i18n';
 
+import type IAppLocale from '@/locales/app/interface.js';
 import type ILandingLocale from '@/locales/landing/interface.js';
 
 export type Locale = 'en' | 'ru';
@@ -17,7 +18,7 @@ export const languages: Languages = [
 
 export interface LocaleTypes {
   landing: ILandingLocale;
-  app: ReturnType<() => typeof import('@/locales/app/en.json')>;
+  app: IAppLocale;
 }
 
 export type LocaleType = keyof LocaleTypes;
