@@ -1,6 +1,5 @@
 import { config } from '@tsuwari/config';
 import * as NatsBots from '@tsuwari/nats/bots';
-import { TwitchApiService } from '@tsuwari/shared';
 import { Channel } from '@tsuwari/typeorm/entities/Channel';
 import { connect } from 'nats';
 

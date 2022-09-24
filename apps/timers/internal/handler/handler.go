@@ -116,7 +116,7 @@ func (c *Handler) Handle(j gocron.Job) {
 
 	botsRequest := bots.SendMessage{
 		ChannelId: user.ID,
-		ChannelName: user.Login,
+		ChannelName: &user.Login,
 		Message: rawMessage,
 	}
 	bytes, _ := proto.Marshal(&botsRequest)
