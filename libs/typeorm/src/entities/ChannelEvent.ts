@@ -6,9 +6,11 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
 
 import { Channel } from './Channel.js';
+import { ChannelDonationEvent } from './channelEvents/Donation.js';
 import { ChannelFollowEvent } from './channelEvents/Follow.js';
 
 export enum EventType {
@@ -40,7 +42,10 @@ export class ChannelEvent {
   type: EventType;
 
   @OneToOne('ChannelFollowEvent', 'event')
-  follow?: [];
+  follow?: Relation<ChannelFollowEvent>;
+
+  @OneToOne('ChannelDonationEvent', 'event')
+  donation?: Relation<ChannelDonationEvent>;
 
   @CreateDateColumn()
   createdAt: Date;

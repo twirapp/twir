@@ -7,6 +7,7 @@ import { CommandsModule } from './commands/commands.module.js';
 import { FeedbackModule } from './feedback/feedback.module.js';
 import { FilesModule } from './files/files.module.js';
 import { GreetingsModule } from './greetings/greetings.module.js';
+import { DonationAlertsModule } from './integrations/donationalerts/donationalerts.module.js';
 import { FaceitModule } from './integrations/faceit/faceit.module.js';
 import { LastfmModule } from './integrations/lastfm/lastfm.module.js';
 import { SpotifyModule } from './integrations/spotify/spotify.module.js';
@@ -35,6 +36,7 @@ import { VariablesModule } from './variables/variables.module.js';
     GreetingsModule,
     TimersModule,
     SpotifyModule,
+    DonationAlertsModule,
     LastfmModule,
     KeywordsModule,
     VariablesModule,

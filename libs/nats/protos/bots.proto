@@ -10,6 +10,6 @@ message DeleteMessagesRequest {
 
 message SendMessage {
   string channelId = 1;
-  string channelName = 2;
+  optional string channelName = 2;
   string message = 3;
 }

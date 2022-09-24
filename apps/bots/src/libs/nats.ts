@@ -1,9 +1,11 @@
 import { config } from '@tsuwari/config';
 import * as NatsBots from '@tsuwari/nats/bots';
+import { TwitchApiService } from '@tsuwari/shared';
 import { Channel } from '@tsuwari/typeorm/entities/Channel';
 import { connect } from 'nats';
 
 import { Bots } from '../bots.js';
+import { twitchApi } from './twitchApi.js';
 import { typeorm } from './typeorm.js';
 
 export const nats = await connect({
@@ -40,11 +42,18 @@ async function sendMessagesQueue() {
     });
 
     if (!channel) continue;
+    let channelName = data.channelName;
+
+    if (!channelName) {
+      const twitchUser = await twitchApi.users.getUserById(data.channelId);
+      if (!twitchUser) return;
+      channelName = twitchUser.name;
+    }
 
     const bot = Bots.cache.get(channel.botId);
     if (!bot) continue;
 
-    bot.say(data.channelName, data.message);
+    bot.action(channelName, data.message);
 
     continue;
   }

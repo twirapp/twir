@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useTitle } from '@vueuse/core';
 
+import DonationAlerts from '@/components/integrations/DonationAlerts.vue';
 import Dota from '@/components/integrations/Dota.vue';
 import FaceIt from '@/components/integrations/FaceIt.vue';
 import Lastfm from '@/components/integrations/Lastfm.vue';
@@ -18,6 +19,7 @@ title.value = 'Tsuwari - Integrations';
     <Lastfm />
     <FaceIt />
     <Dota />
+    <DonationAlerts />
   </div>
 </template>
 
