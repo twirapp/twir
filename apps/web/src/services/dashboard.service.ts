@@ -17,6 +17,6 @@ export const createUserDashboard = (user: AuthUser): Dashboard => {
     id: '0',
     channelId: user.id,
     userId: user.id,
-    twitch: { ...userData },
+    twitch: userData,
   };
 };
