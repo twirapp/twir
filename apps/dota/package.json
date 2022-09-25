@@ -20,7 +20,7 @@
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
     "nats": "2.7.1",
-    "protobufjs": "7.0.0",
+    "protobufjs": "7.1.2",
     "reflect-metadata": "0.1.13",
     "steam-user": "4.24.6",
     "steamid": "2.0.0",
