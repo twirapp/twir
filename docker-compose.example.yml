@@ -231,6 +231,19 @@ services:
     networks:
       - tsuwari
 
+  integrations:
+    restart: unless-stopped
+    image: registry.satont.dev/integrations/dota
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - migrations
+      - postgres
+      - nats
+    networks:
+      - tsuwari
+
 networks:
   tsuwari:
     name: tsuwari
