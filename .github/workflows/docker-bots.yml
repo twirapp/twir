@@ -41,7 +41,7 @@ jobs:
         run: go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 
       - name: Install ubuntu deps
-        run: sudo apt install protobuf-compiler
+        run: sudo apt-get update && sudo apt install protobuf-compiler
 
       - name: Install Deps
         run: pnpm install
