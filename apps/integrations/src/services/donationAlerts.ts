@@ -8,7 +8,7 @@ import { typeorm } from '../index.js';
 import { sendMessage } from '../libs/sender.js';
 
 export class DonationAlerts {
-  socket: Centrifuge;
+  #socket: Centrifuge;
   constructor(
     private readonly accessToken: string,
     private readonly donationAlertsUserId: string,
@@ -17,7 +17,7 @@ export class DonationAlerts {
   ) {}
 
   async init() {
-    this.socket = new Centrifuge('wss://centrifugo.donationalerts.com/connection/websocket', {
+    this.#socket = new Centrifuge('wss://centrifugo.donationalerts.com/connection/websocket', {
       websocket: WebSocket,
       onPrivateSubscribe: async (ctx, cb) => {
         const request = await fetch('https://www.donationalerts.com/api/v1/centrifuge/subscribe', {
@@ -36,10 +36,10 @@ export class DonationAlerts {
       },
     });
 
-    this.socket.setToken(this.socketConnectionToken);
-    this.socket.connect();
+    this.#socket.setToken(this.socketConnectionToken);
+    this.#socket.connect();
 
-    const channel = this.socket.subscribe(`$alerts:donation_${this.donationAlertsUserId}`);
+    const channel = this.#socket.subscribe(`$alerts:donation_${this.donationAlertsUserId}`);
 
     channel.on('publish', async ({ data }: { data: Message }) => {
       const event = await typeorm.getRepository(ChannelEvent).save({
@@ -60,6 +60,10 @@ export class DonationAlerts {
         channelName: '',
       });
     });
+  }
+
+  async destroy() {
+    this.#socket.disconnect();
   }
 }
 

@@ -3,5 +3,6 @@ bots/*
 dota/*
 eval/*
 timers/*
+integrations/*
 
 !*/go.mod

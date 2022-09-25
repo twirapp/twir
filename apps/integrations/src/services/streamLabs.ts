@@ -42,6 +42,10 @@ export class StreamLabs {
       channelName: '',
     });
   }
+
+  async destroy() {
+    this.#conn.close();
+  }
 }
 
 export type Event = {

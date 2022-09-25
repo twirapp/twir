@@ -11,7 +11,8 @@
     "./bots": "./dist/bots/bots.js",
     "./dota": "./dist/dota/dota.js",
     "./eval": "./dist/eval/eval.js",
-    "./timers": "./dist/timers/timers.js"
+    "./timers": "./dist/timers/timers.js",
+    "./integrations": "./dist/integrations/integrations.js"
   },
   "typesVersions": {
     "*": {
@@ -29,6 +30,9 @@
       ],
       "timers": [
         "dist/timers/timers.d.ts"
+      ],
+      "integrations": [
+        "dist/integrations/integrations.d.ts"
       ]
     }
   },

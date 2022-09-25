@@ -1,8 +1,10 @@
 import { HttpException, Injectable } from '@nestjs/common';
+import * as NatsIntegration from '@tsuwari/nats/integrations';
 import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration';
 import { Integration, IntegrationService } from '@tsuwari/typeorm/entities/Integration';
 
 import { typeorm } from '../../../index.js';
+import { nats } from '../../../libs/nats.js';
 import { UpdateDonationAlertsIntegrationDto } from './dto/patch.js';
 
 @Injectable()
@@ -97,16 +99,23 @@ export class DonationAlertsService {
         avatar: profile.data.avatar,
       },
     };
+    let integrationId = currentIntegration?.id;
     if (currentIntegration) {
       await repository.update({ id: currentIntegration.id, enabled: true }, integrationData);
     } else {
-      await repository.save({
+      const { id } = await repository.save({
         ...integrationData,
         channelId: userId,
         enabled: true,
         integrationId: service.id,
       });
+      integrationId = id;
     }
+
+    nats.publish(
+      'integrations.add',
+      NatsIntegration.AddIntegration.toBinary({ id: integrationId! }),
+    );
 
     return { accessToken, refreshToken };
   }
@@ -144,6 +153,18 @@ export class DonationAlertsService {
 
     if (!integration) {
       throw new HttpException('You need to authorize first.', 404);
+    }
+
+    if (body.enabled) {
+      nats.publish(
+        'integrations.add',
+        NatsIntegration.AddIntegration.toBinary({ id: integration.id }),
+      );
+    } else {
+      nats.publish(
+        'integrations.remove',
+        NatsIntegration.RemoveIntegration.toBinary({ id: integration.id }),
+      );
     }
 
     const repository = typeorm.getRepository(ChannelIntegration);

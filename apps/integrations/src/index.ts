@@ -6,8 +6,8 @@ import { addDonationAlertsIntegration, DonationAlerts } from './services/donatio
 import { addStreamlabsIntegration, StreamLabs } from './services/streamLabs.js';
 
 export const typeorm = await AppDataSource.initialize();
-const donationAlertsStore: Map<string, DonationAlerts> = new Map();
-const streamlabsStore: Map<string, StreamLabs> = new Map();
+export const donationAlertsStore: Map<string, DonationAlerts> = new Map();
+export const streamlabsStore: Map<string, StreamLabs> = new Map();
 
 const integrations = await typeorm.getRepository(ChannelIntegration).find({
   where: {
