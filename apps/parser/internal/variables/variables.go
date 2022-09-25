@@ -13,7 +13,8 @@ import (
 	faceitelo "tsuwari/parser/internal/variables/faceit/elo"
 	faceitelodiff "tsuwari/parser/internal/variables/faceit/elodiff"
 	faceitlvl "tsuwari/parser/internal/variables/faceit/lvl"
-	"tsuwari/parser/internal/variables/random"
+	random "tsuwari/parser/internal/variables/random/number"
+	randomonlineuser "tsuwari/parser/internal/variables/random/online/user"
 	sender "tsuwari/parser/internal/variables/sender"
 	song "tsuwari/parser/internal/variables/song"
 	streamcategory "tsuwari/parser/internal/variables/stream/category"
@@ -49,6 +50,7 @@ func New() Variables {
 		faceitelodiff.Variable,
 		faceitlvl.Variable,
 		random.Variable,
+		randomonlineuser.Variable,
 		sender.Variable,
 		song.Variable,
 		streamcategory.Variable,
