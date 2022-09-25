@@ -52,7 +52,7 @@ async function sendMessagesQueue() {
     const bot = Bots.cache.get(channel.botId);
     if (!bot) continue;
 
-    bot.action(channelName, data.message);
+    bot.say(channelName, data.message);
 
     continue;
   }
