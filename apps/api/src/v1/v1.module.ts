@@ -11,6 +11,7 @@ import { DonationAlertsModule } from './integrations/donationalerts/donationaler
 import { FaceitModule } from './integrations/faceit/faceit.module.js';
 import { LastfmModule } from './integrations/lastfm/lastfm.module.js';
 import { SpotifyModule } from './integrations/spotify/spotify.module.js';
+import { StreamlabsModule } from './integrations/streamlabs/streamlabs.module.js';
 import { VkModule } from './integrations/vk/vk.module.js';
 import { KeywordsModule } from './keywords/keywords.module.js';
 import { ModerationModule } from './moderation/moderation.module.js';
@@ -37,6 +38,7 @@ import { VariablesModule } from './variables/variables.module.js';
     TimersModule,
     SpotifyModule,
     DonationAlertsModule,
+    StreamlabsModule,
     LastfmModule,
     KeywordsModule,
     VariablesModule,
