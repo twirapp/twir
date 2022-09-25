@@ -134,7 +134,7 @@ export async function addDonationAlertsIntegration(integration: ChannelIntegrati
   });
 
   if (!request.ok) {
-    console.log(await request.text(), refreshResponse);
+    console.log(await request.text());
     return;
   }
 
