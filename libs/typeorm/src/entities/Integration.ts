@@ -9,6 +9,7 @@ export enum IntegrationService {
   FACEIT = 'FACEIT',
   SPOTIFY = 'SPOTIFY',
   DONATIONALERTS = 'DONATIONALERTS',
+  STREAMLABS = 'STREAMLABS',
 }
 
 @Entity('integrations', { schema: 'public' })

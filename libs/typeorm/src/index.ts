@@ -9,6 +9,7 @@ import { ChannelCommand } from './entities/ChannelCommand.js';
 import { ChannelCustomvar } from './entities/ChannelCustomvar.js';
 import { ChannelDotaAccount } from './entities/ChannelDotaAccount.js';
 import { ChannelEvent } from './entities/ChannelEvent.js';
+import { ChannelDonationEvent } from './entities/channelEvents/Donation.js';
 import { ChannelFollowEvent } from './entities/channelEvents/Follow.js';
 import { ChannelGreeting } from './entities/ChannelGreeting.js';
 import { ChannelIntegration } from './entities/ChannelIntegration.js';
@@ -69,6 +70,7 @@ export const AppDataSource = new DataSource({
     UserViewedNotification,
     ChannelEvent,
     ChannelFollowEvent,
+    ChannelDonationEvent,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

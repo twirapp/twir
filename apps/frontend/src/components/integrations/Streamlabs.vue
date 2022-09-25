@@ -9,15 +9,15 @@ import { useToast } from 'vue-toastification';
 import Tooltip from '../Tooltip.vue';
 
 import { api } from '@/plugins/api';
-import { setSpotifyProfile, spotifyProfileStore } from '@/stores/spotifyProfile';
+import { setStreamlabsStore, streamlabsStore } from '@/stores/streamlabsProfile';
 import { selectedDashboardStore } from '@/stores/userStore';
 
 const router = useRouter();
-const spotifyIntegration = ref<Partial<ChannelIntegration>>({
+const streamlabsIntegration = ref<Partial<ChannelIntegration>>({
   enabled: true,
 });
 const selectedDashboard = useStore(selectedDashboardStore);
-const spotifyProfile = useStore(spotifyProfileStore);
+const streamlabsProfile = useStore(streamlabsStore);
 
 const { t } = useI18n({
   useScope: 'global',
@@ -25,38 +25,38 @@ const { t } = useI18n({
 const toast = useToast();
 
 selectedDashboardStore.subscribe((d) => {
-  api(`/v1/channels/${d.channelId}/integrations/spotify`).then(async (r) => {
-    spotifyIntegration.value = r.data;
+  api(`/v1/channels/${d.channelId}/integrations/streamlabs`).then(async (r) => {
+    streamlabsIntegration.value = r.data;
     if (r.data.accessToken && r.data.refreshToken) {
-      fetchSpotifyProfile();
+      fetchStreamlabsProfile();
     }
   });
 });
 
 async function auth() {
   const { data } = await api(
-    `/v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/auth`,
+    `/v1/channels/${selectedDashboard.value.channelId}/integrations/streamlabs/auth`,
   );
 
   window.location.replace(data);
 }
 
-async function fetchSpotifyProfile() {
+async function fetchStreamlabsProfile() {
   const { data } = await api(
-    `v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/profile`,
+    `v1/channels/${selectedDashboard.value.channelId}/integrations/streamlabs/profile`,
   );
-  setSpotifyProfile(data);
+  setStreamlabsStore(data);
 }
 
 async function patch() {
   const { data } = await api.patch(
-    `v1/channels/${selectedDashboard.value.channelId}/integrations/spotify`,
+    `v1/channels/${selectedDashboard.value.channelId}/integrations/streamlabs`,
     {
-      enabled: spotifyIntegration.value.enabled,
+      enabled: streamlabsIntegration.value.enabled,
     },
   );
 
-  spotifyIntegration.value = data;
+  streamlabsIntegration.value = data;
 
   toast.success('Saved');
 }
@@ -66,22 +66,22 @@ onMounted(async () => {
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
 
-  if (route.params.integration === 'spotify' && code) {
+  if (route.params.integration === 'streamlabs' && code) {
     if (code) {
       await api.post(
-        `v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/token`,
+        `v1/channels/${selectedDashboard.value.channelId}/integrations/streamlabs/token`,
         {
           code,
         },
       );
-      await fetchSpotifyProfile();
+      await fetchStreamlabsProfile();
 
       return router.push('/dashboard/integrations');
     }
   }
 
-  if (!spotifyProfile.value) {
-    fetchSpotifyProfile();
+  if (!streamlabsProfile.value) {
+    fetchStreamlabsProfile();
   }
 });
 </script>
@@ -92,14 +92,13 @@ onMounted(async () => {
     <div class="flex justify-between mb-5">
       <div>
         <h2 class="card-title flex font-bold space-x-2">
-          <p>Spotify</p>
-          <Tooltip :text="t('pages.integrations.widgets.spotify.description')" />
+          <p>Streamlabs</p>
+          <Tooltip :text="t('pages.integrations.widgets.streamlabs.description')" />
         </h2>
       </div>
       <div class="form-check form-switch">
         <input
-          id="flexSwitchCheckDefault"
-          v-model="spotifyIntegration.enabled"
+          v-model="streamlabsIntegration.enabled"
           class="-ml-10 align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
           type="checkbox"
           role="switch"
@@ -108,16 +107,16 @@ onMounted(async () => {
     </div>
 
     <div class="mb-5">
-      <div v-if="spotifyProfile">
+      <div v-if="streamlabsProfile">
         <div class="flex justify-center mb-3">
           <img
-            v-if="spotifyProfile.images"
-            :src="spotifyProfile.images[0].url"
+            v-if="streamlabsProfile.thumbnail"
+            :src="streamlabsProfile.thumbnail"
             class="ring-2 ring-white rounded-full select-none w-32"
             alt="Avatar" />
         </div>
         <p class="break-words text-center">
-          {{ spotifyProfile.display_name }}#{{ spotifyProfile.id }}
+          {{ streamlabsProfile.display_name }}
         </p>
       </div>
       <div v-else>Not logged in</div>
