@@ -14,7 +14,7 @@
     "@popperjs/core": "2.11.6",
     "@tsuwari/api": "workspace:*",
     "@vueuse/components": "9.1.0",
-    "@vueuse/core": "9.1.0",
+    "@vueuse/core": "9.3.0",
     "@vueuse/integrations": "9.1.0",
     "@yeger/vue-masonry-wall": "3.0.45",
     "axios": "0.27.2",
