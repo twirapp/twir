@@ -283,7 +283,7 @@ importers:
     specifiers:
       '@tsuwari/config': workspace:*
       '@tsuwari/nats': workspace:*
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
       lodash: 4.17.21
       nats: ^2.7.1
       vm2: ^3.9.11
@@ -294,7 +294,7 @@ importers:
       nats: 2.7.1
       vm2: 3.9.11
     devDependencies:
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
 
   apps/eventsub:
     specifiers:
@@ -459,7 +459,7 @@ importers:
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@types/cron': 2.0.0
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
       ioredis: 5.2.2
       knex: 2.2.0
       lodash: 4.17.21
@@ -490,7 +490,7 @@ importers:
       tslib: 2.4.0
     devDependencies:
       '@types/cron': 2.0.0
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
 
   apps/streamstatus:
     specifiers:
@@ -505,7 +505,7 @@ importers:
       '@twurple/api': 5.2.1
       '@twurple/auth': 5.2.1
       '@twurple/common': 5.2.1
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
       lodash: 4.17.21
       nats: 2.7.1
       reflect-metadata: 0.1.13
@@ -529,7 +529,7 @@ importers:
       rxjs: 7.5.6
       tslib: 2.4.0
     devDependencies:
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
 
   libs/config:
     specifiers:
@@ -587,7 +587,7 @@ importers:
       '@twurple/auth': 5.2.1
       '@twurple/common': 5.2.1
       '@twurple/eventsub': 5.2.1
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
       class-validator: 0.13.2
       ioredis: 5.2.2
       lodash: 4.17.21
@@ -607,7 +607,7 @@ importers:
       lodash: 4.17.21
       rxjs: 7.5.6
     devDependencies:
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
 
   libs/typeorm:
     specifiers:
@@ -861,8 +861,8 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
-  /@intlify/bundle-utils/3.1.2_vue-i18n@9.2.2:
-    resolution: {integrity: sha512-amgSo0NN5OKWYdcgFmfJqo2tcUcZ6C66Bxm5ALQnB0m3MUQtS9aJzKoIo+EU9XQiOVmlBFxRtNoZm+psHa5FNA==}
+  /@intlify/bundle-utils/3.2.1_vue-i18n@9.2.2:
+    resolution: {integrity: sha512-rf4cLBOnbqmpXVcCdcYHilZpMt1m82syh3WLBJlZvGxN2KkH9HeHVH4+bnibF/SDXCHNh6lM6wTpS/qw+PkcMg==}
     engines: {node: '>= 12'}
     peerDependencies:
       petite-vue-i18n: '*'
@@ -873,8 +873,8 @@ packages:
       vue-i18n:
         optional: true
     dependencies:
-      '@intlify/message-compiler': 9.3.0-beta.3
-      '@intlify/shared': 9.3.0-beta.3
+      '@intlify/message-compiler': 9.3.0-beta.6
+      '@intlify/shared': 9.3.0-beta.6
       jsonc-eslint-parser: 1.4.1
       source-map: 0.6.1
       vue-i18n: 9.2.2_vue@3.2.37
@@ -903,11 +903,11 @@ packages:
       '@intlify/shared': 9.2.2
       source-map: 0.6.1
 
-  /@intlify/message-compiler/9.3.0-beta.3:
-    resolution: {integrity: sha512-j8OwToBQgs01RBMX4GCDNQfcnmw3AiDG3moKIONTrfXcf+1yt/rWznLTYH/DXbKcFMAFijFpCzMYjUmH1jVFYA==}
+  /@intlify/message-compiler/9.3.0-beta.6:
+    resolution: {integrity: sha512-3PJqRJoqvFHExA9DCkf7fZYKbvYne1tYQ0fptJAhUOZsELarh8wr4aPLKWCkQSRuutdrtZ/n5CcPgJgUmVthDw==}
     engines: {node: '>= 14'}
     dependencies:
-      '@intlify/shared': 9.3.0-beta.3
+      '@intlify/shared': 9.3.0-beta.6
       source-map: 0.6.1
     dev: true
 
@@ -915,8 +915,8 @@ packages:
     resolution: {integrity: sha512-wRwTpsslgZS5HNyM7uDQYZtxnbI12aGiBZURX3BTR9RFIKKRWpllTsgzHWvj3HKm3Y2Sh5LPC1r0PDCKEhVn9Q==}
     engines: {node: '>= 14'}
 
-  /@intlify/shared/9.3.0-beta.3:
-    resolution: {integrity: sha512-Z/0TU4GhFKRxKh+0RbwJExik9zz57gXYgxSYaPn7YQdkQ/pabSioCY/SXnYxQHL6HzULF5tmqarFm6glbGqKhw==}
+  /@intlify/shared/9.3.0-beta.6:
+    resolution: {integrity: sha512-ITA1R4tvJYwZXT5x6QCSwxcwQ4dU52zrzVm/EUbgsp8oWzYS1xexBrxyNM80PSQudYvL2rvcZJKQ7yBh7b0LkQ==}
     engines: {node: '>= 14'}
     dev: true
 
@@ -935,8 +935,8 @@ packages:
       vue-i18n:
         optional: true
     dependencies:
-      '@intlify/bundle-utils': 3.1.2_vue-i18n@9.2.2
-      '@intlify/shared': 9.3.0-beta.3
+      '@intlify/bundle-utils': 3.2.1_vue-i18n@9.2.2
+      '@intlify/shared': 9.3.0-beta.6
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.4
       fast-glob: 3.2.11
@@ -1035,7 +1035,7 @@ packages:
       '@nestjs/common': 9.0.11_mgy7w2bm3yhmntrbe3boyroj6m
       '@nestjs/core': 9.0.11_kj7rymkcr5lkprk6tswpsa5dxa
       '@nestjs/passport': 9.0.0_qmmxbt2dwte7f4tgsyyoa7ob5i
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
       '@types/passport-twitch-latest': 1.0.1
       lodash: 4.17.21
       passport: 0.6.0
@@ -1056,7 +1056,7 @@ packages:
       '@nestjs/common': 9.0.8_allg6cauirbqzgqcmexy2wdnoq
       '@nestjs/core': 9.0.8_y46a3gxyzfjmwfynwm5lxhdxgm
       '@nestjs/passport': 9.0.0_lzwobzvlbs6mk2ist2cogkss2e
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
       '@types/passport-twitch-latest': 1.0.1
       lodash: 4.17.21
       passport: 0.6.0
@@ -2477,23 +2477,23 @@ packages:
   /@types/lodash.chunk/4.2.7:
     resolution: {integrity: sha512-//tmaWHiANgToom/YYYKKqiCtlNz11fwYtMUUbaemNSbWTI+2zHtYW5nt1PHNCRWHPAJHHhn4UVFD9LKUFvatA==}
     dependencies:
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
     dev: true
 
   /@types/lodash.merge/4.6.7:
     resolution: {integrity: sha512-OwxUJ9E50gw3LnAefSHJPHaBLGEKmQBQ7CZe/xflHkyy/wH2zVyEIAKReHvVrrn7zKdF58p16We9kMfh7v0RRQ==}
     dependencies:
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
     dev: true
 
   /@types/lodash.omit/4.5.7:
     resolution: {integrity: sha512-6q6cNg0tQ6oTWjSM+BcYMBhan54P/gLqBldG4AuXd3nKr0oeVekWNS4VrNEu3BhCSDXtGapi7zjhnna0s03KpA==}
     dependencies:
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
     dev: true
 
-  /@types/lodash/4.14.182:
-    resolution: {integrity: sha512-/THyiqyQAP9AfARo4pF+aCGcyiQ94tX/Is2I7HofNRqoYLgN1PBoOWu2/zTA5zMxzP5EFutMtWtGAFRKUe961Q==}
+  /@types/lodash/4.14.186:
+    resolution: {integrity: sha512-eHcVlLXP0c2FlMPm56ITode2AgLMSa6aJ05JTTbYbI+7EMkCEE5qk2E41d5g2lCVTqRe0GnnRFurmlCsDODrPw==}
 
   /@types/long/4.0.2:
     resolution: {integrity: sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==}
@@ -8166,7 +8166,7 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       '@babel/runtime': 7.18.9
-      '@types/lodash': 4.14.182
+      '@types/lodash': 4.14.186
       lodash: 4.17.21
       lodash-es: 4.17.21
       nanoclone: 0.2.1

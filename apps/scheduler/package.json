@@ -33,6 +33,6 @@
   },
   "devDependencies": {
     "@types/cron": "2.0.0",
-    "@types/lodash": "4.14.182"
+    "@types/lodash": "4.14.186"
   }
 }

@@ -26,6 +26,6 @@
     "tslib": "2.4.0"
   },
   "devDependencies": {
-    "@types/lodash": "4.14.182"
+    "@types/lodash": "4.14.186"
   }
 }
