@@ -429,7 +429,7 @@ importers:
       '@tsuwari/typeorm': workspace:*
       '@types/socket.io-client': 1.4.36
       '@types/ws': ^8.5.3
-      centrifuge: 2.8.5
+      centrifuge: 3.0.1
       nats: ^2.7.1
       socket.io-client: 2.3.1
       ws: ^8.9.0
@@ -437,7 +437,7 @@ importers:
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/typeorm': link:../../libs/typeorm
-      centrifuge: 2.8.5
+      centrifuge: 3.0.1
       nats: 2.7.1
       socket.io-client: 2.3.1
       ws: 8.9.0
@@ -767,7 +767,7 @@ packages:
   /@d-fischer/shared-utils/3.2.0:
     resolution: {integrity: sha512-YgAPpd0jxtchZlEqvVmL21A+/Ottx5759s6THiJs0o5+8pPIrshBlULhmfunbaidHmViuUhjxzZfqRkYl0MR9g==}
     dependencies:
-      '@types/node': 14.18.29
+      '@types/node': 14.18.31
       tslib: 2.4.0
 
   /@d-fischer/shared-utils/3.3.0:
@@ -1991,7 +1991,7 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/keyv': 3.1.4
-      '@types/node': 8.10.66
+      '@types/node': 18.7.23
       '@types/responselike': 1.0.0
     dev: false
 
@@ -2077,7 +2077,7 @@ packages:
   /@types/keyv/3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.7.23
     dev: false
 
   /@types/lodash.chunk/4.2.7:
@@ -2216,7 +2216,7 @@ packages:
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.7.23
     dev: false
 
   /@types/serve-static/1.15.0:
@@ -2255,7 +2255,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.7.23
     dev: false
     optional: true
 
@@ -3067,9 +3067,10 @@ packages:
     resolution: {integrity: sha512-4tYFyifaFfGacoiObjJegolkwSU4xQNGbVgUiNYVUxbQ2x2lUsFvY4hVgVzGiIe6WLOPqycWXA40l+PWsxthUw==}
     dev: false
 
-  /centrifuge/2.8.5:
-    resolution: {integrity: sha512-t06HyieeB2k7uSJSbVM4e7xMF+mfY8xvDtTJLF95ho0ba/X4MSoZcisi2PBzdCLyxG2BhkYW1Wcg6RUiPYTIlQ==}
+  /centrifuge/3.0.1:
+    resolution: {integrity: sha512-2XRhXEOup6nc9oDzx+xX9Xjo2D6bPGXf8BYZT707/geYB2yBfHuqpMveIpcrxmgjKYYrSOEDTNa5+bETi7+MqA==}
     dependencies:
+      events: 3.3.0
       protobufjs: 6.11.3
     dev: false
 
@@ -4256,6 +4257,11 @@ packages:
   /events/1.1.1:
     resolution: {integrity: sha512-kEcvvCBByWXGnZy6JUlgAp2gBIUjfCAV6P6TgT1/aaQKcmuAEC4OZTV1I4EWQLz2gxZw76atuVyvHhTxvi0Flw==}
     engines: {node: '>=0.4.x'}
+    dev: false
+
+  /events/3.3.0:
+    resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
+    engines: {node: '>=0.8.x'}
     dev: false
 
   /express/4.18.1:
