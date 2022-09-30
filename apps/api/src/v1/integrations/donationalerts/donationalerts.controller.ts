@@ -49,7 +49,7 @@ export class DonationAlertsController {
   }
 
   @Patch()
-  // @Throttle(1, 5)
+  @Throttle(1, 5)
   async updateIntegration(
     @Param('channelId') channelId: string,
     @Body() body: UpdateDonationAlertsIntegrationDto,
