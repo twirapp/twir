@@ -4,11 +4,13 @@ import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration
 import Centrifuge from 'centrifuge';
 import WebSocket from 'ws';
 
-import { typeorm } from '../index.js';
+import { donationAlertsStore, typeorm } from '../index.js';
 import { sendMessage } from '../libs/sender.js';
 
 export class DonationAlerts {
-  #socket: Centrifuge;
+  #socket: Centrifuge | null;
+  #channel: Centrifuge.Subscription | null;
+
   constructor(
     private readonly accessToken: string,
     private readonly donationAlertsUserId: string,
@@ -39,9 +41,9 @@ export class DonationAlerts {
     this.#socket.setToken(this.socketConnectionToken);
     this.#socket.connect();
 
-    const channel = this.#socket.subscribe(`$alerts:donation_${this.donationAlertsUserId}`);
+    this.#channel = this.#socket.subscribe(`$alerts:donation_${this.donationAlertsUserId}`);
 
-    channel.on('publish', async ({ data }: { data: Message }) => {
+    this.#channel.on('publish', async ({ data }: { data: Message }) => {
       const event = await typeorm.getRepository(ChannelEvent).save({
         channelId: this.twitchUserId,
         type: EventType.DONATION,
@@ -63,7 +65,11 @@ export class DonationAlerts {
   }
 
   async destroy() {
-    this.#socket.disconnect();
+    this.#channel?.removeAllListeners()?.unsubscribe();
+    this.#socket?.removeAllListeners()?.disconnect();
+
+    this.#socket = null;
+    this.#channel = null;
   }
 }
 
@@ -97,6 +103,10 @@ export async function addDonationAlertsIntegration(integration: ChannelIntegrati
     !integration.integration.clientId ||
     !integration.integration.clientSecret
   ) {
+    return;
+  }
+
+  if (donationAlertsStore.get(integration.channelId)) {
     return;
   }
 

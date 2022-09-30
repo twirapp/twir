@@ -20,12 +20,15 @@ async function subscribeToAdd() {
       relations: { integration: true },
     });
 
-    if (!integration) continue;
+    if (!integration) {
+      msg.respond(new Uint8Array());
+      continue;
+    }
     await removeIntegration(integration);
+    console.info(`Adding ${integration.id} connection`);
     if (integration.integration?.service === IntegrationService.DONATIONALERTS) {
       const instance = await addDonationAlertsIntegration(integration);
       if (instance) {
-        await instance.init();
         donationAlertsStore.set(integration.channelId, instance);
       }
     }
@@ -35,6 +38,7 @@ async function subscribeToAdd() {
         streamlabsStore.set(integration.channelId, instance);
       }
     }
+    msg.respond(new Uint8Array());
   }
 }
 async function subscribeToRemove() {
@@ -46,10 +50,13 @@ async function subscribeToRemove() {
       relations: { integration: true },
     });
 
-    if (!integration) continue;
-    if (integration.integration?.service === IntegrationService.STREAMLABS) {
-      await removeIntegration(integration);
+    if (!integration) {
+      msg.respond(new Uint8Array());
+      continue;
     }
+    console.info(`Destroying ${integration.id} connection`);
+    await removeIntegration(integration);
+    msg.respond(new Uint8Array());
   }
 }
 subscribeToAdd();
@@ -65,9 +72,8 @@ async function removeIntegration(integration: ChannelIntegration) {
 
   if (integration.integration?.service === IntegrationService.DONATIONALERTS) {
     const existed = donationAlertsStore.get(integration.channelId);
-    if (existed) {
-      await existed.destroy();
-      donationAlertsStore.delete(integration.channelId);
-    }
+    if (!existed) return;
+    await existed.destroy();
+    donationAlertsStore.delete(integration.channelId);
   }
 }

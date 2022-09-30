@@ -11,6 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import CacheManager from 'cache-manager';
 import Express from 'express';
 
@@ -48,6 +49,7 @@ export class DonationAlertsController {
   }
 
   @Patch()
+  // @Throttle(1, 5)
   async updateIntegration(
     @Param('channelId') channelId: string,
     @Body() body: UpdateDonationAlertsIntegrationDto,

@@ -156,14 +156,16 @@ export class DonationAlertsService {
     }
 
     if (body.enabled) {
-      nats.publish(
+      await nats.request(
         'integrations.add',
         NatsIntegration.AddIntegration.toBinary({ id: integration.id }),
+        { timeout: 5000 },
       );
     } else {
-      nats.publish(
+      await nats.request(
         'integrations.remove',
         NatsIntegration.RemoveIntegration.toBinary({ id: integration.id }),
+        { timeout: 5000 },
       );
     }
 

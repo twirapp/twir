@@ -9,7 +9,7 @@ import { sendMessage } from '../libs/sender.js';
 type Socket = typeof IO.Socket;
 
 export class StreamLabs {
-  #conn: Socket;
+  #conn: Socket | null;
 
   constructor(token: string, private readonly twitchUserId: string) {
     this.#conn = IO.connect(`https://sockets.streamlabs.com?token=${token}`, {
@@ -44,7 +44,8 @@ export class StreamLabs {
   }
 
   async destroy() {
-    this.#conn.close();
+    this.#conn!.close();
+    this.#conn = null;
   }
 }
 
