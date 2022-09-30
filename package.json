@@ -48,15 +48,15 @@
   "license": "ISC",
   "devDependencies": {
     "@satont/eslint-config": "github:satont/eslint-config",
-    "@types/node": "18.7.16",
-    "@typescript-eslint/eslint-plugin": "5.33.0",
-    "@typescript-eslint/parser": "5.33.0",
-    "eslint": "8.21.0",
+    "@types/node": "18.7.23",
+    "@typescript-eslint/eslint-plugin": "5.38.1",
+    "@typescript-eslint/parser": "5.38.1",
+    "eslint": "8.24.0",
     "eslint-plugin-import": "2.26.0",
-    "nodemon": "2.0.19",
+    "nodemon": "2.0.20",
     "ts-node": "10.9.1",
-    "tsx": "3.8.2",
-    "turbo": "1.4.3",
-    "typescript": "4.7.4"
+    "tsx": "3.9.0",
+    "turbo": "1.5.5",
+    "typescript": "4.8.4"
   }
 }

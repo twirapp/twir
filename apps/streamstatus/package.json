@@ -8,24 +8,24 @@
     "start": "node --enable-source-maps dist/index.js"
   },
   "dependencies": {
-    "@nestjs/common": "9.0.9",
-    "@nestjs/core": "9.0.9",
-    "@nestjs/microservices": "9.0.9",
-    "@sentry/node": "7.10.0",
-    "@sentry/tracing": "7.10.0",
+    "@nestjs/common": "9.1.2",
+    "@nestjs/core": "9.1.2",
+    "@nestjs/microservices": "9.1.2",
+    "@sentry/node": "7.14.0",
+    "@sentry/tracing": "7.14.0",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/redis": "workspace:*",
     "@tsuwari/shared": "workspace:*",
-    "@twurple/api": "5.2.1",
-    "@twurple/auth": "5.2.1",
-    "@twurple/common": "5.2.1",
+    "@twurple/api": "5.2.4",
+    "@twurple/auth": "5.2.4",
+    "@twurple/common": "5.2.4",
     "lodash": "4.17.21",
     "nats": "2.7.1",
     "reflect-metadata": "0.1.13",
-    "rxjs": "7.5.6",
+    "rxjs": "7.5.7",
     "tslib": "2.4.0"
   },
   "devDependencies": {
-    "@types/lodash": "4.14.182"
+    "@types/lodash": "4.14.186"
   }
 }

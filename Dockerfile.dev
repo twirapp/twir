@@ -65,5 +65,7 @@ RUN mkdir /.pm2
 RUN chmod 777 -R /.pm2
 RUN mkdir /.cache
 RUN chmod 777 -R /.cache
+RUN mkdir -p /app/.pnpm-store/v3
+RUN chmod 777 -R /app/.pnpm-store/v3
 
 ENTRYPOINT ["/start.dev.sh"]

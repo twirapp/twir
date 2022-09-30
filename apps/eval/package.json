@@ -15,6 +15,6 @@
     "vm2": "^3.9.11"
   },
   "devDependencies": {
-    "@types/lodash": "4.14.182"
+    "@types/lodash": "4.14.186"
   }
 }

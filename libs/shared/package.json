@@ -11,20 +11,20 @@
   },
   "dependencies": {
     "@d-fischer/cache-decorators": "3.0.0",
-    "@nestjs/common": "9.0.9",
-    "@nestjs/microservices": "9.0.9",
+    "@nestjs/common": "9.1.2",
+    "@nestjs/microservices": "9.1.2",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
-    "@twurple/api": "5.2.1",
-    "@twurple/auth": "5.2.1",
-    "@twurple/common": "5.2.1",
-    "@twurple/eventsub": "5.2.1",
+    "@twurple/api": "5.2.4",
+    "@twurple/auth": "5.2.4",
+    "@twurple/common": "5.2.4",
+    "@twurple/eventsub": "5.2.4",
     "class-validator": "0.13.2",
-    "ioredis": "5.2.2",
+    "ioredis": "5.2.3",
     "lodash": "4.17.21",
-    "rxjs": "7.5.6"
+    "rxjs": "7.5.7"
   },
   "devDependencies": {
-    "@types/lodash": "4.14.182"
+    "@types/lodash": "4.14.186"
   }
 }
