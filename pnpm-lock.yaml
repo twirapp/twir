@@ -60,7 +60,7 @@ importers:
       '@types/multer': 1.4.7
       '@types/passport-jwt': 3.0.6
       aws-sdk: ^2.1226.0
-      cache-manager: ^4.1.0
+      cache-manager: ^5.0.0
       cache-manager-ioredis: ^2.1.0
       class-transformer: ^0.5.1
       class-validator: ^0.13.2
@@ -83,10 +83,10 @@ importers:
       type-fest: 3.0.0
     dependencies:
       '@nestjs-hybrid-auth/twitch': 1.0.0_u7i4vbxhyaw2rk3aqanb5hy2rm
-      '@nestjs/common': 9.1.2_mpbqhbv3qeq77ujihdpg6d4hsy
+      '@nestjs/common': 9.1.2_sgm2gzj7to5sdywk7jhyczf4bq
       '@nestjs/core': 9.1.2_p63dclg2gy7kwtrl4ennoheh54
       '@nestjs/jwt': 9.0.0_@nestjs+common@9.1.2
-      '@nestjs/microservices': 9.1.2_jpk4vhlc3mrd6tuuabgkvhejsm
+      '@nestjs/microservices': 9.1.2_eihj7nvhdhx4vxkt4x7isb3bay
       '@nestjs/passport': 9.0.0_okkunj32hqcrg5gw7tl7a43dqq
       '@nestjs/platform-express': 9.1.2_umdjpi6fqr4wvw73r3mhthbyle
       '@nestjs/throttler': 3.0.0_yzammjd3rtddjrgcr4enkpfvhm
@@ -103,7 +103,7 @@ importers:
       '@twurple/chat': 5.2.4_@twurple+auth@5.2.4
       '@twurple/common': 5.2.4
       aws-sdk: 2.1226.0
-      cache-manager: 4.1.0
+      cache-manager: 5.0.0
       cache-manager-ioredis: 2.1.0
       class-transformer: 0.5.1
       class-validator: 0.13.2
@@ -1025,7 +1025,7 @@ packages:
       '@nestjs/core': ^8.0.0
       reflect-metadata: ^0.1.13
     dependencies:
-      '@nestjs/common': 9.1.2_mpbqhbv3qeq77ujihdpg6d4hsy
+      '@nestjs/common': 9.1.2_sgm2gzj7to5sdywk7jhyczf4bq
       '@nestjs/core': 9.1.2_p63dclg2gy7kwtrl4ennoheh54
       reflect-metadata: 0.1.13
     dev: false
@@ -1040,7 +1040,7 @@ packages:
       reflect-metadata: ^0.1.13
     dependencies:
       '@nestjs-hybrid-auth/core': 1.0.1_yzammjd3rtddjrgcr4enkpfvhm
-      '@nestjs/common': 9.1.2_mpbqhbv3qeq77ujihdpg6d4hsy
+      '@nestjs/common': 9.1.2_sgm2gzj7to5sdywk7jhyczf4bq
       '@nestjs/core': 9.1.2_p63dclg2gy7kwtrl4ennoheh54
       '@nestjs/passport': 9.0.0_okkunj32hqcrg5gw7tl7a43dqq
       '@types/lodash': 4.14.186
@@ -1049,32 +1049,6 @@ packages:
       passport: 0.6.0
       passport-twitch-latest: 1.0.0
       reflect-metadata: 0.1.13
-    dev: false
-
-  /@nestjs/common/9.1.2_mpbqhbv3qeq77ujihdpg6d4hsy:
-    resolution: {integrity: sha512-zpF4DaLvvsCVqfrf9LJfSeYP+SBCWCFbOCTOmEZ5Gs6Hralia6s2kS+CSicJKx8IpnyC6ZReuqdTbjcPl4yunA==}
-    peerDependencies:
-      cache-manager: '*'
-      class-transformer: '*'
-      class-validator: '*'
-      reflect-metadata: ^0.1.12
-      rxjs: ^7.1.0
-    peerDependenciesMeta:
-      cache-manager:
-        optional: true
-      class-transformer:
-        optional: true
-      class-validator:
-        optional: true
-    dependencies:
-      cache-manager: 4.1.0
-      class-transformer: 0.5.1
-      class-validator: 0.13.2
-      iterare: 1.2.1
-      reflect-metadata: 0.1.13
-      rxjs: 7.5.7
-      tslib: 2.4.0
-      uuid: 9.0.0
     dev: false
 
   /@nestjs/common/9.1.2_reflect-metadata@0.1.13:
@@ -1095,6 +1069,32 @@ packages:
     dependencies:
       iterare: 1.2.1
       reflect-metadata: 0.1.13
+      tslib: 2.4.0
+      uuid: 9.0.0
+    dev: false
+
+  /@nestjs/common/9.1.2_sgm2gzj7to5sdywk7jhyczf4bq:
+    resolution: {integrity: sha512-zpF4DaLvvsCVqfrf9LJfSeYP+SBCWCFbOCTOmEZ5Gs6Hralia6s2kS+CSicJKx8IpnyC6ZReuqdTbjcPl4yunA==}
+    peerDependencies:
+      cache-manager: '*'
+      class-transformer: '*'
+      class-validator: '*'
+      reflect-metadata: ^0.1.12
+      rxjs: ^7.1.0
+    peerDependenciesMeta:
+      cache-manager:
+        optional: true
+      class-transformer:
+        optional: true
+      class-validator:
+        optional: true
+    dependencies:
+      cache-manager: 5.0.0
+      class-transformer: 0.5.1
+      class-validator: 0.13.2
+      iterare: 1.2.1
+      reflect-metadata: 0.1.13
+      rxjs: 7.5.7
       tslib: 2.4.0
       uuid: 9.0.0
     dev: false
@@ -1285,8 +1285,8 @@ packages:
       '@nestjs/websockets':
         optional: true
     dependencies:
-      '@nestjs/common': 9.1.2_mpbqhbv3qeq77ujihdpg6d4hsy
-      '@nestjs/microservices': 9.1.2_jpk4vhlc3mrd6tuuabgkvhejsm
+      '@nestjs/common': 9.1.2_sgm2gzj7to5sdywk7jhyczf4bq
+      '@nestjs/microservices': 9.1.2_eihj7nvhdhx4vxkt4x7isb3bay
       '@nestjs/platform-express': 9.1.2_umdjpi6fqr4wvw73r3mhthbyle
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
@@ -1306,7 +1306,7 @@ packages:
     peerDependencies:
       '@nestjs/common': ^8.0.0 || ^9.0.0
     dependencies:
-      '@nestjs/common': 9.1.2_mpbqhbv3qeq77ujihdpg6d4hsy
+      '@nestjs/common': 9.1.2_sgm2gzj7to5sdywk7jhyczf4bq
       '@types/jsonwebtoken': 8.5.8
       jsonwebtoken: 8.5.1
     dev: false
@@ -1349,6 +1349,53 @@ packages:
     dependencies:
       '@nestjs/common': 9.1.2_x6yqyveuahcdef4z4mxykmuv6a
       '@nestjs/core': 9.1.2_p63dclg2gy7kwtrl4ennoheh54
+      ioredis: 5.2.3
+      iterare: 1.2.1
+      nats: 2.7.1
+      reflect-metadata: 0.1.13
+      rxjs: 7.5.7
+      tslib: 2.4.0
+    dev: false
+
+  /@nestjs/microservices/9.1.2_eihj7nvhdhx4vxkt4x7isb3bay:
+    resolution: {integrity: sha512-i/Vgw7CXHFBe1qNZdhJ2smf0MmluFK1P8TGV4HdT8yMdwqT6hc8Elm7Fb1ZIdm0R3Sn30CnsCpvFNm7cXTQ07A==}
+    peerDependencies:
+      '@grpc/grpc-js': '*'
+      '@nestjs/common': ^9.0.0
+      '@nestjs/core': ^9.0.0
+      '@nestjs/websockets': ^9.0.0
+      amqp-connection-manager: '*'
+      amqplib: '*'
+      cache-manager: '*'
+      ioredis: '*'
+      kafkajs: '*'
+      mqtt: '*'
+      nats: '*'
+      reflect-metadata: ^0.1.12
+      rxjs: ^7.1.0
+    peerDependenciesMeta:
+      '@grpc/grpc-js':
+        optional: true
+      '@nestjs/websockets':
+        optional: true
+      amqp-connection-manager:
+        optional: true
+      amqplib:
+        optional: true
+      cache-manager:
+        optional: true
+      ioredis:
+        optional: true
+      kafkajs:
+        optional: true
+      mqtt:
+        optional: true
+      nats:
+        optional: true
+    dependencies:
+      '@nestjs/common': 9.1.2_sgm2gzj7to5sdywk7jhyczf4bq
+      '@nestjs/core': 9.1.2_p63dclg2gy7kwtrl4ennoheh54
+      cache-manager: 5.0.0
       ioredis: 5.2.3
       iterare: 1.2.1
       nats: 2.7.1
@@ -1446,53 +1493,6 @@ packages:
       tslib: 2.4.0
     dev: false
 
-  /@nestjs/microservices/9.1.2_jpk4vhlc3mrd6tuuabgkvhejsm:
-    resolution: {integrity: sha512-i/Vgw7CXHFBe1qNZdhJ2smf0MmluFK1P8TGV4HdT8yMdwqT6hc8Elm7Fb1ZIdm0R3Sn30CnsCpvFNm7cXTQ07A==}
-    peerDependencies:
-      '@grpc/grpc-js': '*'
-      '@nestjs/common': ^9.0.0
-      '@nestjs/core': ^9.0.0
-      '@nestjs/websockets': ^9.0.0
-      amqp-connection-manager: '*'
-      amqplib: '*'
-      cache-manager: '*'
-      ioredis: '*'
-      kafkajs: '*'
-      mqtt: '*'
-      nats: '*'
-      reflect-metadata: ^0.1.12
-      rxjs: ^7.1.0
-    peerDependenciesMeta:
-      '@grpc/grpc-js':
-        optional: true
-      '@nestjs/websockets':
-        optional: true
-      amqp-connection-manager:
-        optional: true
-      amqplib:
-        optional: true
-      cache-manager:
-        optional: true
-      ioredis:
-        optional: true
-      kafkajs:
-        optional: true
-      mqtt:
-        optional: true
-      nats:
-        optional: true
-    dependencies:
-      '@nestjs/common': 9.1.2_mpbqhbv3qeq77ujihdpg6d4hsy
-      '@nestjs/core': 9.1.2_p63dclg2gy7kwtrl4ennoheh54
-      cache-manager: 4.1.0
-      ioredis: 5.2.3
-      iterare: 1.2.1
-      nats: 2.7.1
-      reflect-metadata: 0.1.13
-      rxjs: 7.5.7
-      tslib: 2.4.0
-    dev: false
-
   /@nestjs/microservices/9.1.2_qrumtbvhgsfa4idky4h7nsu6tq:
     resolution: {integrity: sha512-i/Vgw7CXHFBe1qNZdhJ2smf0MmluFK1P8TGV4HdT8yMdwqT6hc8Elm7Fb1ZIdm0R3Sn30CnsCpvFNm7cXTQ07A==}
     peerDependencies:
@@ -1542,7 +1542,7 @@ packages:
       '@nestjs/common': ^8.0.0 || ^9.0.0
       passport: ^0.4.0 || ^0.5.0 || ^0.6.0
     dependencies:
-      '@nestjs/common': 9.1.2_mpbqhbv3qeq77ujihdpg6d4hsy
+      '@nestjs/common': 9.1.2_sgm2gzj7to5sdywk7jhyczf4bq
       passport: 0.6.0
     dev: false
 
@@ -1552,7 +1552,7 @@ packages:
       '@nestjs/common': ^9.0.0
       '@nestjs/core': ^9.0.0
     dependencies:
-      '@nestjs/common': 9.1.2_mpbqhbv3qeq77ujihdpg6d4hsy
+      '@nestjs/common': 9.1.2_sgm2gzj7to5sdywk7jhyczf4bq
       '@nestjs/core': 9.1.2_p63dclg2gy7kwtrl4ennoheh54
       body-parser: 1.20.0
       cors: 2.8.5
@@ -1584,7 +1584,7 @@ packages:
       '@nestjs/core': ^7.0.0 || ^8.0.0 || ^9.0.0
       reflect-metadata: ^0.1.13
     dependencies:
-      '@nestjs/common': 9.1.2_mpbqhbv3qeq77ujihdpg6d4hsy
+      '@nestjs/common': 9.1.2_sgm2gzj7to5sdywk7jhyczf4bq
       '@nestjs/core': 9.1.2_p63dclg2gy7kwtrl4ennoheh54
       md5: 2.3.0
       reflect-metadata: 0.1.13
@@ -2800,10 +2800,6 @@ packages:
     resolution: {integrity: sha512-csOlWGAcRFJaI6m+F2WKdnMKr4HhdhFVBk0H/QbJFMCr+uO2kwohwXQPxw/9OCxp05r5ghVBFSyioixx3gfkNQ==}
     dev: false
 
-  /async/3.2.3:
-    resolution: {integrity: sha512-spZRyzKL5l5BZQrr/6m/SqFdBN0q3OCI0f9rjfBzCMBIP4p75P620rR3gTmaksNOhmzgdxcaxdNfMy6anrbM0g==}
-    dev: false
-
   /asynckit/0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
 
@@ -3018,10 +3014,9 @@ packages:
       - supports-color
     dev: false
 
-  /cache-manager/4.1.0:
-    resolution: {integrity: sha512-ZGM6dLxrP65bfOZmcviWMadUOCICqpLs92+P/S5tj8onz+k+tB7Gr+SAgOUHCQtfm2gYEQDHiKeul4+tYPOJ8A==}
+  /cache-manager/5.0.0:
+    resolution: {integrity: sha512-1qKdoeoJKmrf95Zvhr3NpBVAgBESt4TuZomBzn4N2gCFZvHjuUXBK1H8EDVsJdba6/grIgi6WGYb/ncJj+wjtg==}
     dependencies:
-      async: 3.2.3
       lodash.clonedeep: 4.5.0
       lru-cache: 7.14.0
     dev: false
@@ -5544,7 +5539,7 @@ packages:
       '@nestjs/core': '>=6.7.0'
       aws-sdk: '>=2.0.0'
     dependencies:
-      '@nestjs/common': 9.1.2_mpbqhbv3qeq77ujihdpg6d4hsy
+      '@nestjs/common': 9.1.2_sgm2gzj7to5sdywk7jhyczf4bq
       '@nestjs/core': 9.1.2_p63dclg2gy7kwtrl4ennoheh54
       aws-sdk: 2.1226.0
     dev: false
