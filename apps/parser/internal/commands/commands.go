@@ -199,7 +199,6 @@ func (c *Commands) ParseCommandResponses(
 			result.Responses = results.Result
 		}
 	} else {
-		fmt.Printf("%+v\n", cmd)
 		result.Responses = cmd.Responses
 		result.IsReply = cmd.IsReply
 	}
