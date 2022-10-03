@@ -17,7 +17,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig
 COPY node_modules node_modules
 
 COPY apps/integrations apps/integrations
-COPY libs/config libs/configd
+COPY libs/config libs/config
 COPY libs/nats libs/nats
 COPY libs/typeorm libs/typeorm
 COPY libs/shared libs/shared
