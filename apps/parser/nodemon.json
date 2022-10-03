@@ -1,5 +1,5 @@
 {
   "exec": "doppler run -- go run ./cmd/main.go",
   "ext": "go",
-  "SIGNAL": "SIGINT"
+  "signal": "SIGINT"
 }
