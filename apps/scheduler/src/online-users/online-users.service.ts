@@ -14,6 +14,8 @@ export class OnlineUsersService implements OnModuleInit {
   @Interval('onlineUsers', config.isDev ? 5000 : 1 * 60 * 1000)
   async onlineUsers() {
     const streamsKeys = await this.redis.keys('streams:*');
+    if (!streamsKeys.length) return;
+
     const streams = await this.redis.mget(streamsKeys);
 
     for (const streamData of streams.filter((v) => v != null)) {
