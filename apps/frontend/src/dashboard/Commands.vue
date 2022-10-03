@@ -3,6 +3,7 @@ export type VariablesList = Array<{ name: string; example?: string; description?
 
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/create';
+import { CommandPermission, CooldownType } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -43,7 +44,7 @@ const { t } = useI18n({
   useScope: 'global',
 });
 
-const DotaGroup = new Set(['np', 'dota addacc', 'dota delacc', 'wl', 'dota listacc', 'lg']);
+const DotaGroup = new Set(['np', 'dota addacc', 'dota delacc', 'wl', 'dota listacc', 'lg', 'gm']);
 
 watch(axiosData, (v: CommandType[]) => {
   commands.value = v;
@@ -73,7 +74,7 @@ function insertCommand() {
       name: '',
       aliases: [],
       cooldown: 5,
-      permission: 'VIEWER',
+      permission: 'VIEWER' as CommandPermission,
       description: null,
       visible: true,
       enabled: true,
@@ -82,7 +83,7 @@ function insertCommand() {
           text: '',
         },
       ],
-      cooldownType: 'GLOBAL',
+      cooldownType: 'GLOBAL' as CooldownType,
       new: true,
     };
 
@@ -105,24 +106,7 @@ function onSave(index: number) {
   <div class="block flex justify-between md:hidden mx-2 my-2 space-x-2">
     <Popover class="relative">
       <PopoverButton
-        class="
-          bg-green-600
-          duration-150
-          ease-in-out
-          focus:outline-none
-          focus:ring-0
-          font-medium
-          hover:bg-green-700
-          inline-block
-          leading-tight
-          px-6
-          py-2.5
-          rounded
-          shadow
-          text-white text-xs
-          transition
-        "
-      >
+        class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition">
         <Menu />
       </PopoverButton>
 
@@ -137,38 +121,18 @@ function onSave(index: number) {
               if (!currentEditableCommand!.id) commands.splice(commands.indexOf(currentEditableCommand!), 1)
               currentEditableCommand = command
               close()
-            }"
-          >
+            }">
             <button
               aria-current="page"
               href="/dashboard/commands"
-              class="
-                border-slate-300
-                duration-300
-                ease-in-out
-                flex
-                h-8
-                hover:bg-[#202122]
-                items-center
-                justify-between
-                mt-0
-                overflow-hidden
-                px-2
-                ripple-surface-primary
-                text-ellipsis text-sm text-white
-                transition
-                w-full
-                whitespace-nowrap
-              "
+              class="border-slate-300 duration-300 ease-in-out flex h-8 hover:bg-[#202122] items-center justify-between mt-0 overflow-hidden px-2 ripple-surface-primary text-ellipsis text-sm text-white transition w-full whitespace-nowrap"
               :class="{
                 'bg-neutral-700': filteredCommands.indexOf(currentEditableCommand!) === index
-              }"
-            >
+              }">
               <span>{{ command.name }}</span>
               <Dota2Icon
                 v-if="command.defaultName && DotaGroup.has(command.defaultName)"
-                class="h-[17px] ml-3"
-              />
+                class="h-[17px] ml-3" />
             </button>
           </li>
         </ul>
@@ -185,29 +149,8 @@ function onSave(index: number) {
   <div class="flex max-h-screen">
     <div class="border-gray-700 border-r hidden md:block rounded w-40">
       <button
-        class="
-          bg-green-600
-          duration-150
-          ease-in-out
-          focus:outline-none
-          focus:ring-0
-          font-medium
-          grid
-          hover:bg-green-700
-          inline-block
-          leading-tight
-          m-auto
-          place-items-center
-          px-6
-          py-2.5
-          shadow
-          text-white text-xs
-          transition
-          uppercase
-          w-full
-        "
-        @click="insertCommand"
-      >
+        class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium grid hover:bg-green-700 inline-block leading-tight m-auto place-items-center px-6 py-2.5 shadow text-white text-xs transition uppercase w-full"
+        @click="insertCommand">
         <Add />
       </button>
       <div class="form-floating">
@@ -215,19 +158,8 @@ function onSave(index: number) {
           id="searchCommand"
           v-model="searchFilter"
           type="text"
-          class="
-            bg-clip-padding bg-white
-            border border-gray-300 border-solid
-            ease-in-out
-            focus:outline-none
-            font-normal
-            form-control
-            text-base text-gray-700
-            transition
-            w-full
-          "
-          placeholder="command"
-        />
+          class="bg-clip-padding bg-white border border-gray-300 border-solid ease-in-out focus:outline-none font-normal form-control text-base text-gray-700 transition w-full"
+          placeholder="command" />
         <label for="searchCommand" class="text-gray-700">{{
           t('pages.commands.searchCommand')
         }}</label>
@@ -241,38 +173,18 @@ function onSave(index: number) {
           @click="() => {
             if (!currentEditableCommand!.id) commands.splice(commands.indexOf(currentEditableCommand!), 1)
             currentEditableCommand = command  
-          }"
-        >
+          }">
           <button
             aria-current="page"
             href="/dashboard/commands"
-            class="
-              border-slate-300
-              duration-300
-              ease-in-out
-              flex
-              h-8
-              hover:bg-[#202122]
-              items-center
-              justify-between
-              mt-0
-              overflow-hidden
-              px-2
-              ripple-surface-primary
-              text-ellipsis text-sm text-white
-              transition
-              w-full
-              whitespace-nowrap
-            "
+            class="border-slate-300 duration-300 ease-in-out flex h-8 hover:bg-[#202122] items-center justify-between mt-0 overflow-hidden px-2 ripple-surface-primary text-ellipsis text-sm text-white transition w-full whitespace-nowrap"
             :class="{
               'bg-neutral-700': filteredCommands.indexOf(currentEditableCommand!) === index
-            }"
-          >
+            }">
             <span>{{ command.name }}</span>
             <Dota2Icon
               v-if="command.defaultName && DotaGroup.has(command.defaultName)"
-              class="h-[17px]"
-            />
+              class="h-[17px]" />
           </button>
         </li>
       </ul>
@@ -280,15 +192,13 @@ function onSave(index: number) {
 
     <div
       v-if="currentEditableCommand"
-      class="card h-fit m-1.5 max-w-2xl md:m-3 p-1 rounded shadow sm:block text-white w-full"
-    >
+      class="card h-fit m-1.5 max-w-2xl md:m-3 p-1 rounded shadow sm:block text-white w-full">
       <Command
         :command="currentEditableCommand"
         :commands="commands"
         :variables-list="variablesList"
         @delete="deleteCommand"
-        @save="onSave"
-      />
+        @save="onSave" />
     </div>
   </div>
 </template>

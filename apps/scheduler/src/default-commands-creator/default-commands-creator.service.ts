@@ -82,6 +82,7 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
           cooldown: 0,
           cooldownType: CooldownType.GLOBAL,
           module: command.module as unknown as CommandModule | undefined,
+          isReply: command.isReply ?? true,
         });
 
         const commandForSet = {

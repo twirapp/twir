@@ -53,6 +53,7 @@ type DefaultCommand struct {
 	Command
 
 	Handler func(ctx variables_cache.ExecutionContext) *CommandsHandlerResult
+	IsReply *bool
 }
 
 type Sender struct {

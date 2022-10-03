@@ -31,8 +31,11 @@ configure({
 
 const perms = {
   Broadcaster: 'BROADCASTER',
+  // eslint-disable-next-line quotes
   "Moderator's": 'MODERATOR',
+  // eslint-disable-next-line quotes
   "Vip's": 'VIP',
+  // eslint-disable-next-line quotes
   "Subscriber's": 'SUBSCRIBER',
   Followers: 'FOLLOWER',
   Viewers: 'VIEWER',

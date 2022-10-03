@@ -48,6 +48,7 @@ message DefaultCommand {
   bool visible = 3;
   string permission = 4;
   string module = 5;
+  optional bool isReply = 6;
 }
 
 message GetDefaultCommandsResponse {

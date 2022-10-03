@@ -195,13 +195,13 @@ func (c *Commands) ParseCommandResponses(
 		if results == nil {
 			result.Responses = []string{}
 		} else {
-			result.IsReply = lo.If(results.IsReply != nil, *results.IsReply).Else(true)
 			result.Responses = results.Result
 		}
 	} else {
 		result.Responses = cmd.Responses
-		result.IsReply = cmd.IsReply
 	}
+
+	result.IsReply = cmd.IsReply
 
 	wg := sync.WaitGroup{}
 	for i, r := range result.Responses {

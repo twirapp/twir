@@ -17,10 +17,9 @@ var Command = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("CHANNEL"),
 	},
+	IsReply: lo.ToPtr(false),
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		result := &types.CommandsHandlerResult{
-			IsReply: lo.ToPtr(false),
-		}
+		result := &types.CommandsHandlerResult{}
 
 		count := 1
 		params := strings.Split(*ctx.Text, " ")
