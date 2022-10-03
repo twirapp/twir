@@ -99,8 +99,9 @@ export class VariablesService {
 
     await repository.update({ id: variable.id }, data);
 
-    const newVariable = repository.findOneBy({ id: variable.id });
+    const newVariable = await repository.findOneBy({ id: variable.id });
     await this.redis.set(`variables:${channelId}:${variable!.name}`, JSON.stringify(newVariable));
+
     return newVariable;
   }
 }
