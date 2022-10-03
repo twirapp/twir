@@ -51,6 +51,9 @@
         },
         "visible": {
           "title": "Show command in commands list"
+        },
+        "isReply": {
+          "title": "Use twitch reply feature"
         }
       },
       "searchCommand": "Search command",

@@ -64,6 +64,9 @@ export class ChannelCommand {
   @Column('boolean', { name: 'visible', default: true })
   visible: boolean;
 
+  @Column('boolean', { name: 'is_reply', default: true })
+  isReply: boolean;
+
   @Column('enum', {
     name: 'permission',
     enum: CommandPermission,

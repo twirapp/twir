@@ -199,10 +199,9 @@ func (c *Commands) ParseCommandResponses(
 			result.Responses = results.Result
 		}
 	} else {
+		fmt.Printf("%+v\n", cmd)
 		result.Responses = cmd.Responses
-
-		// TODO: add option inside of ui dashboard for toggle reply behavior for custom commands
-		result.IsReply = true
+		result.IsReply = cmd.IsReply
 	}
 
 	wg := sync.WaitGroup{}

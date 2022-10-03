@@ -46,6 +46,7 @@ type Command struct {
 	DefaultName  *string  `json:"defaultName"`
 	Cooldown     int      `json:"cooldown"`
 	CooldownType string   `json:"cooldownType"`
+	IsReply      bool     `json:"isReply"`
 }
 
 type DefaultCommand struct {

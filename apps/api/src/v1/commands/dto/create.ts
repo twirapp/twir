@@ -57,6 +57,10 @@ export class UpdateOrCreateCommandDto {
 
   @IsBoolean()
   @IsOptional()
+  isReply?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
   enabled?: boolean;
 
   @ValidateIf((o: UpdateOrCreateCommandDto) => o.default === false)
