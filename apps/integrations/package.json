@@ -1,12 +1,12 @@
 {
   "name": "@tsuwari/integrations",
-  "type": "module",
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "tsc",
     "dev": "nodemon",
     "start": "node --enable-source-maps dist/index.js"
   },
+  "type": "module",
   "dependencies": {
     "@tsuwari/config": "workspace:*",
     "@tsuwari/nats": "workspace:*",
