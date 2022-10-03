@@ -39,7 +39,7 @@ export class StreamLabs {
     sendMessage({
       channelId: this.twitchUserId,
       message: `${data.from}: ${data.amount}${data.currency} ${data.message}`,
-      channelName: '',
+      color: 'green',
     });
   }
 

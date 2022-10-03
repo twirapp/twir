@@ -16,7 +16,14 @@ async function subscribeToAdd() {
   for await (const msg of nats.subscribe('integrations.add')) {
     const data = NatsIntegration.AddIntegration.fromBinary(msg.data);
     const integration = await typeorm.getRepository(ChannelIntegration).findOne({
-      where: { id: data.id },
+      where: {
+        id: data.id,
+        channel: {
+          isBanned: false,
+          isEnabled: true,
+          isTwitchBanned: false,
+        },
+      },
       relations: { integration: true },
     });
 

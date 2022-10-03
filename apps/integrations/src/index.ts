@@ -15,6 +15,11 @@ const integrations = await typeorm.getRepository(ChannelIntegration).find({
       service: In([IntegrationService.DONATIONALERTS, IntegrationService.STREAMLABS]),
     },
     enabled: true,
+    channel: {
+      isEnabled: true,
+      isBanned: false,
+      isTwitchBanned: false,
+    },
   },
   relations: {
     integration: true,

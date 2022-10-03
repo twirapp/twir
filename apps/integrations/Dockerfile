@@ -20,9 +20,9 @@ COPY apps/integrations apps/integrations
 COPY libs/config libs/configd
 COPY libs/nats libs/nats
 COPY libs/typeorm libs/typeorm
+COPY libs/shared libs/shared
 
 RUN pnpm install --prod
-
 
 ENTRYPOINT ["doppler", "run", "--"]
 CMD ["pnpm", "start:integrations"]

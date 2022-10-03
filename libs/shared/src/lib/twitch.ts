@@ -6,7 +6,6 @@ import { Token } from '@tsuwari/typeorm/entities/Token';
 import { ApiClient, HelixUserApi, HelixUserData, UserIdResolvable } from '@twurple/api';
 import { ClientCredentialsAuthProvider, RefreshingAuthProvider } from '@twurple/auth';
 import { getRawData, UserNameResolvable } from '@twurple/common';
-import Redis from 'ioredis';
 
 import { RedisService } from './redis.js';
 import { WEEK } from './time.js';

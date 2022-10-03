@@ -59,7 +59,7 @@ export class DonationAlerts {
       sendMessage({
         channelId: this.twitchUserId,
         message: `${data.username}: ${data.amount}${data.currency} ${data.message}`,
-        channelName: '',
+        color: 'orange',
       });
     });
   }
