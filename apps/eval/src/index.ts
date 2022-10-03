@@ -24,18 +24,17 @@ const sub = nats.subscribe('eval');
 (async () => {
   for await (const m of sub) {
     const { script } = Eval.Evaluate.fromBinary(m.data);
-
     let resultOfExecution: any;
     try {
-      const toEval = `(async function () { ${script} })()`.replace(/\n/g, '');
+      const toEval = `(async function () { ${script} })()`.split(';\n').join(';');
       resultOfExecution = await vm.run(toEval);
     } catch (error) {
+      console.error(error);
       resultOfExecution = (error as any).message ?? 'unexpected error';
     }
 
     const result = Eval.EvaluateResult.toBinary({
-      result:
-        typeof resultOfExecution === 'string' ? resultOfExecution : 'unexpected internal behavior.',
+      result: String(resultOfExecution),
     });
 
     m.respond(result);
