@@ -16,15 +16,19 @@ var Command = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("CHANNEL"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		if ctx.Text == nil {
-			return []string{}
+			return nil
+		}
+		
+		twitchClient, err := ctx.Services.UsersAuth.Create(ctx.ChannelId)
+		
+		if err != nil || twitchClient == nil {
+			return nil
 		}
 
-		twitchClient, err := ctx.Services.UsersAuth.Create(ctx.ChannelId)
-
-		if err != nil || twitchClient == nil {
-			return []string{}
+		result := &types.CommandsHandlerResult{
+			Result: make([]string, 0),
 		}
 
 		req, err := twitchClient.EditChannelInformation(&helix.EditChannelInformationParams{
@@ -33,9 +37,11 @@ var Command = types.DefaultCommand{
 		})
 
 		if err != nil || req.StatusCode != 204 {
-			return []string{"❌"}
+			result.Result = append(result.Result, "❌")
+			return result
 		}
 
-		return []string{"✅ " + *ctx.Text}
+		result.Result = append(result.Result, "✅ " + *ctx.Text)
+		return result
 	},
 }

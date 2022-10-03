@@ -17,13 +17,18 @@ var Command = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("CHANNEL"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		result := &types.CommandsHandlerResult{
+			IsReply: lo.ToPtr(false),
+		}
+
 		count := 1
 		params := strings.Split(*ctx.Text, " ")
 
 		paramsLen := len(params)
 		if paramsLen < 2 {
-			return []string{"you have type count and message"}
+			result.Result = []string{"you have type count and message"}
+			return result
 		}
 
 		newCount, err := strconv.Atoi(params[0])
@@ -32,14 +37,13 @@ var Command = types.DefaultCommand{
 		}
 
 		if count > 20 || count <= 0 {
-			return []string{"count cannot be more then 20 and fewer then 1"}
+			result.Result = []string{"count cannot be more then 20 and fewer then 1"}
+			return result
 		}
 
 		message := strings.Join(params[1:], " ")
-		result := make([]string, count)
-
 		for i := 0; i < count; i++ {
-			result[i] = message
+			result.Result = append(result.Result, message)
 		}
 
 		return result

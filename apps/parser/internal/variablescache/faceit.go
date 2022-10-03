@@ -51,7 +51,7 @@ func (c *VariablesCacheService) GetFaceitUserData() (*FaceitUser, error) {
 	integrations := c.GetEnabledIntegrations()
 
 	if integrations == nil {
-		return nil, errors.New("you have no enabled integrations")
+		return nil, errors.New("no enabled integrations")
 	}
 
 	integration, ok := lo.Find(*integrations, func(i model.ChannelInegrationWithRelation) bool {
@@ -81,7 +81,7 @@ func (c *VariablesCacheService) GetFaceitUserData() (*FaceitUser, error) {
 	res, err := client.Do(req)
 
 	if req.Response != nil && req.Response.StatusCode == 404 {
-		return nil, errors.New("user not found on faceit. Please make sure you typed correct nickname.")
+		return nil, errors.New("user not found on faceit. Please make sure you typed correct nickname")
 	}
 
 	if err != nil {

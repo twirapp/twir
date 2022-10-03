@@ -21,10 +21,15 @@ var AddAccCommand = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("DOTA"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		result := &types.CommandsHandlerResult{
+			Result: make([]string, 0),
+		}
+
 		acc, err := strconv.ParseUint(*ctx.Text, 10, 64)
 		if err != nil {
-			return []string{WRONG_ACCOUNT_ID}
+			result.Result = append(result.Result, WRONG_ACCOUNT_ID)
+			return result
 		}
 
 		ok := lo.Try(func() error {
@@ -34,7 +39,8 @@ var AddAccCommand = types.DefaultCommand{
 		})
 
 		if !ok {
-			return []string{WRONG_ACCOUNT_ID}
+			result.Result = append(result.Result, WRONG_ACCOUNT_ID)
+			return result
 		}
 
 		accId := steamid.SID32(acc)
@@ -47,11 +53,13 @@ var AddAccCommand = types.DefaultCommand{
 
 		if err != nil {
 			fmt.Println(err)
-			return []string{"Error happend on our side."}
+			result.Result = append(result.Result, "Error happend on our side.")
+			return result
 		}
 
 		if count != 0 {
-			return []string{"Account already added."}
+			result.Result = append(result.Result, "Account already added.")
+			return result
 		}
 
 		err = ctx.Services.Db.
@@ -62,9 +70,14 @@ var AddAccCommand = types.DefaultCommand{
 
 		if err != nil {
 			fmt.Println(err)
-			return []string{"Something went wrong on out side when inserting account into db."}
+			result.Result = append(
+				result.Result, 
+				"Something went wrong on out side when inserting account into db.",
+			)
+			return result
 		}
 
-		return []string{"Account added."}
+		result.Result = append(result.Result, "Account added.")
+		return result
 	},
 }

@@ -48,26 +48,33 @@ var WlCommand = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("DOTA"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		result := &types.CommandsHandlerResult{
+			Result: make([]string, 0),
+		}
+
 		streamString, err := ctx.Services.Redis.Get(context.TODO(), "streams:"+ctx.ChannelId).
 			Result()
 		streamData := stream.HelixStream{}
 
 		if err != nil || streamString == "" {
-			return []string{"Stream not found"}
+			result.Result = append(result.Result, "Stream not found")
+			return result
 		}
 
 		err = json.Unmarshal([]byte(streamString), &streamData)
 
 		if err != nil {
 			fmt.Println(err)
-			return []string{"Something went wrong on getting stream."}
+			result.Result = append(result.Result, "Something went wrong on getting stream.")
+			return result
 		}
 
 		accounts := GetAccountsByChannelId(ctx.Services.Db, ctx.ChannelId)
 
 		if accounts == nil || len(*accounts) == 0 {
-			return []string{NO_ACCOUNTS}
+			result.Result = append(result.Result, NO_ACCOUNTS)
+			return result
 		}
 
 		dbGames := []model.DotaMatchWithRelation{}
@@ -94,7 +101,8 @@ var WlCommand = types.DefaultCommand{
 
 		if err != nil {
 			fmt.Println(err)
-			return []string{"Something went wrong on fetching games."}
+			result.Result = append(result.Result, "Something went wrong on fetching games.")
+			return result
 		}
 
 		dbGames = lo.Filter(dbGames, func(g model.DotaMatchWithRelation, _ int) bool {
@@ -104,7 +112,8 @@ var WlCommand = types.DefaultCommand{
 		})
 
 		if len(dbGames) == 0 {
-			return []string{"Games not played on the stream."}
+			result.Result = append(result.Result, "Games not played on the stream.")
+			return result
 		}
 
 		matchesData := []MatchResult{}
@@ -239,7 +248,7 @@ var WlCommand = types.DefaultCommand{
 			}
 		}
 
-		result := []string{}
+		resultArray := []string{}
 
 		for _, entry := range lo.Entries(matchesByGameMode) {
 			if len(entry.Value.Matches) == 0 {
@@ -275,14 +284,16 @@ var WlCommand = types.DefaultCommand{
 				strings.Join(heroesResult, ", "),
 			)
 
-			result = append(result, msg)
+			resultArray = append(resultArray, msg)
 		}
 
-		if len(result) == 0 {
-			return []string{"W 0 — L 0"}
+		if len(resultArray) == 0 {
+			result.Result = append(result.Result, "W 0 — L 0")
+			return result
 		}
 
-		return []string{strings.Join(result, "")}
+		result.Result = append(result.Result, strings.Join(resultArray, ""))
+		return result
 	},
 }
 

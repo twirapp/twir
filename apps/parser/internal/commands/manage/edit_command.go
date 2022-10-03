@@ -21,15 +21,21 @@ var EditCommand = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("MANAGE"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		result := &types.CommandsHandlerResult{
+			Result: make([]string, 0),
+		}
+
 		if ctx.Text == nil {
-			return []string{incorrectUsage}
+			result.Result = append(result.Result, incorrectUsage)
+			return result
 		}
 
 		args := strings.Split(*ctx.Text, " ")
 
 		if len(args) < 2 {
-			return []string{incorrectUsage}
+			result.Result = append(result.Result, incorrectUsage)
+			return result
 		}
 
 		name := args[0]
@@ -43,15 +49,21 @@ var EditCommand = types.DefaultCommand{
 		
 		if err != nil || &cmd == nil {
 			log.Fatalln(err)
-			return []string{"Command not found."}
+			result.Result = append(result.Result, "Command not found.")
+			return result
 		}
 
 		if cmd.Default {
-			return []string{"Cannot delete default command."}
+			result.Result = append(result.Result, "Cannot delete default command.")
+			return result
 		}
 
 		if cmd.Responses != nil && len(cmd.Responses) > 1 {
-			return []string{"Cannot update response because you have more then 1 responses in command. Please use UI."}
+			result.Result = append(
+				result.Result, 
+				"Cannot update response because you have more then 1 responses in command. Please use UI.",
+			)
+			return result
 		}
 
 		err = ctx.Services.Db.
@@ -61,14 +73,22 @@ var EditCommand = types.DefaultCommand{
 
 		if err != nil {
 			log.Fatalln(err)
-			return []string{"Cannot update command response. This is internal bug, please report it."}
+			result.Result = append(
+				result.Result, 
+				"Cannot update command response. This is internal bug, please report it.",
+			)
+			return result
 		}
 
 		bytes, err := CreateRedisBytes(cmd, text, nil)
 
 		if err != nil {
 			log.Fatalln(err)
-			return []string{"Cannot update command response. This is internal bug, please report it."}
+			result.Result = append(
+				result.Result, 
+				"Cannot update command response. This is internal bug, please report it.",
+			)
+			return result
 		}
 
 		ctx.Services.Redis.Set(
@@ -83,6 +103,7 @@ var EditCommand = types.DefaultCommand{
 			fmt.Sprintf("nest:cache:v1/channels/%s/commands", ctx.ChannelId), 
 		)
 
-		return []string{"✅ Command edited."}
+		result.Result = append(result.Result, "✅ Command edited.")
+		return result
 	},
 }

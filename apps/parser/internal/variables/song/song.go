@@ -19,7 +19,7 @@ var Variable = types.Variable{
 
 		integrations := *ctx.GetEnabledIntegrations()
 		if integrations == nil {
-			result.Result = "you haven't enabled integrations for fetching song"
+			result.Result = "Haven't enabled integrations for fetching song"
 			return result, nil
 		}
 

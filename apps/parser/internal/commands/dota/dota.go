@@ -16,7 +16,7 @@ import (
 
 const (
 	GAME_NOT_FOUND   = "Game not found"
-	NO_ACCOUNTS      = "You do not have any accounts added."
+	NO_ACCOUNTS      = "No accounts added."
 	WRONG_ACCOUNT_ID = "Wrong account id."
 )
 

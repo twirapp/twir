@@ -7,7 +7,7 @@ import (
 	parserproto "github.com/satont/tsuwari/nats/parser"
 )
 
-func (c *NatsServiceImpl) HandleProcessCommand(data parserproto.Request) *[]string {
+func (c *NatsServiceImpl) HandleProcessCommand(data parserproto.Request) *parserproto.Response {
 	if !strings.HasPrefix(data.Message.Text, "!") {
 		return nil
 	}
@@ -32,5 +32,5 @@ func (c *NatsServiceImpl) HandleProcessCommand(data parserproto.Request) *[]stri
 
 	result := c.commands.ParseCommandResponses(cmd, data)
 
-	return &result
+	return result
 }

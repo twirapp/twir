@@ -18,6 +18,11 @@ type VariableHandlerResult struct {
 	Result string
 }
 
+type CommandsHandlerResult struct {
+	Result []string
+	IsReply *bool
+}
+
 type VariableHandler func(ctx *variables_cache.VariablesCacheService, data VariableHandlerParams) (*VariableHandlerResult, error)
 type Variable struct {
 	Name        string
@@ -46,7 +51,7 @@ type Command struct {
 type DefaultCommand struct {
 	Command
 
-	Handler func(ctx variables_cache.ExecutionContext) []string
+	Handler func(ctx variables_cache.ExecutionContext) *CommandsHandlerResult
 }
 
 type Sender struct {

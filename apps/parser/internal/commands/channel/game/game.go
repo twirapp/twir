@@ -16,15 +16,19 @@ var Command = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("CHANNEL"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		result := &types.CommandsHandlerResult{
+			Result: make([]string, 0),
+		}
+
 		if ctx.Text == nil {
-			return []string{}
+			return nil
 		}
 
 		twitchClient, err := ctx.Services.UsersAuth.Create(ctx.ChannelId)
 
 		if err != nil || twitchClient == nil {
-			return []string{}
+			return nil
 		}
 
 		games, err := twitchClient.SearchCategories(&helix.SearchCategoriesParams{
@@ -32,7 +36,8 @@ var Command = types.DefaultCommand{
 		})
 
 		if err != nil || len(games.Data.Categories) == 0 || games.StatusCode != 200 {
-			return []string{"game not found on twitch"}
+			result.Result = append(result.Result, "game not found on twitch")
+			return result
 		}
 
 		req, err := twitchClient.EditChannelInformation(&helix.EditChannelInformationParams{
@@ -41,9 +46,11 @@ var Command = types.DefaultCommand{
 		})
 
 		if err != nil || req.StatusCode != 204 {
-			return []string{"❌"}
+			result.Result = append(result.Result, "❌")
+			return result
 		}
 
-		return []string{"✅ " + games.Data.Categories[0].Name}
+		result.Result = append(result.Result, "✅ " + games.Data.Categories[0].Name)
+		return result
 	},
 }

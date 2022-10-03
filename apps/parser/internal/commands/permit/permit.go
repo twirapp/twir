@@ -22,13 +22,16 @@ var Command = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("CHANNEL"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		result := &types.CommandsHandlerResult{}
+
 		count := 1
 		params := strings.Split(*ctx.Text, " ")
 
 		paramsLen := len(params)
 		if paramsLen < 1 {
-			return []string{"you have type user name to permit."}
+			result.Result = []string{"you have type user name to permit."}
+			return result
 		}
 
 		if paramsLen == 2 {
@@ -39,7 +42,8 @@ var Command = types.DefaultCommand{
 		}
 
 		if count > 100 {
-			return []string{"cannot create more then 100 permits."}
+			result.Result = []string{"cannot create more then 100 permits."}
+			return result
 		}
 
 		target, err := ctx.Services.Twitch.Client.GetUsers(&helix.UsersParams{
@@ -47,7 +51,8 @@ var Command = types.DefaultCommand{
 		})
 
 		if err != nil || target.StatusCode != 200 || len(target.Data.Users) == 0 {
-			return []string{"user not found."}
+			result.Result = []string{"user not found."}
+			return result
 		}
 
 		ctx.Services.Db.Transaction(func(tx *gorm.DB) error {
@@ -66,6 +71,9 @@ var Command = types.DefaultCommand{
 			return nil
 		})
 
-		return []string{fmt.Sprintf("✅ added %v permits to %s", count, target.Data.Users[0].DisplayName)}
+		result.Result = []string{
+			fmt.Sprintf("✅ added %v permits to %s", count, target.Data.Users[0].DisplayName),
+		}
+		return result
 	},
 }

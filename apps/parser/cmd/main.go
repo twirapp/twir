@@ -114,9 +114,7 @@ func main() {
 		r := natsHandlers.HandleProcessCommand(data)
 
 		if r != nil {
-			res, _ := proto.Marshal(&parserproto.Response{
-				Responses: *r,
-			})
+			res, _ := proto.Marshal(r)
 
 			if err == nil {
 				m.Respond(res)

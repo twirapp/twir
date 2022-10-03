@@ -20,11 +20,16 @@ var LgCommand = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("DOTA"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		result := &types.CommandsHandlerResult{
+			Result: make([]string, 0),
+		}
+
 		accounts := GetAccountsByChannelId(ctx.Services.Db, ctx.ChannelId)
 
 		if len(*accounts) == 0 {
-			return []string{NO_ACCOUNTS}
+			result.Result = append(result.Result, NO_ACCOUNTS)
+			return result
 		}
 
 		games := GetGames(GetGamesOpts{
@@ -35,13 +40,14 @@ var LgCommand = types.DefaultCommand{
 		})
 
 		if games == nil || len(*games) < 2 {
-			return []string{GAME_NOT_FOUND}
+			result.Result = append(result.Result, GAME_NOT_FOUND)
+			return result
 		}
 
 		currGame := lo.FromPtr(games)[0]
 		prevGame := lo.FromPtr(games)[1]
 
-		result := []string{}
+		resultArray := []string{}
 
 		for idx, player := range currGame.Players {
 			owner := helpers.Contains(*accounts, strconv.Itoa(player.AccountId))
@@ -59,13 +65,15 @@ var LgCommand = types.DefaultCommand{
 
 			prevHero := GetPlayerHero(prevPlayer.HeroId, nil)
 			currHero := GetPlayerHero(player.HeroId, lo.ToPtr(idx))
-			result = append(result, fmt.Sprintf("%s played as %s", currHero, prevHero))
+			resultArray = append(resultArray, fmt.Sprintf("%s played as %s", currHero, prevHero))
 		}
 
-		if len(result) == 0 {
-			return []string{"Not played with anyone from last game."}
+		if len(resultArray) == 0 {
+			result.Result = append(result.Result, "Not played with anyone from last game.")
+			return result
 		}
 
-		return []string{strings.Join(result, ", ")}
+		result.Result = append(result.Result, strings.Join(resultArray, ", "))
+		return result
 	},
 }

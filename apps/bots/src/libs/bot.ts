@@ -25,7 +25,7 @@ import {
   messageParseTime,
   messagesCounter,
   // eslint-disable-next-line comma-dangle
-  moderationParseTime
+  moderationParseTime,
 } from './prometheus.js';
 import { redis } from './redis.js';
 
@@ -199,14 +199,14 @@ export class Bot extends ChatClient {
             timeout: 5 * 5000,
           })
           .then(async (r) => {
-            const { responses: result } = Parser.Response.fromBinary(r.data);
+            const { responses: result, isReply } = Parser.Response.fromBinary(r.data);
             commandsCounter.inc();
 
             for (const response of result) {
               if (!response) continue;
               if (result.indexOf(response) > 0 && !isBotMod) break;
 
-              await this.say(channel, response, { replyTo: state.id });
+              await this.say(channel, response, { replyTo: isReply ? state.id : undefined });
             }
 
             commandsResponseTime

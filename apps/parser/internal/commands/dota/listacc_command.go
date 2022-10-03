@@ -16,13 +16,19 @@ var ListAccCommand = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("DOTA"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		result := &types.CommandsHandlerResult{
+			Result: make([]string, 0),
+		}
+
 		accounts := GetAccountsByChannelId(ctx.Services.Db, ctx.ChannelId)
 
 		if accounts == nil || len(*accounts) == 0 {
-			return []string{NO_ACCOUNTS}
+			result.Result = append(result.Result, NO_ACCOUNTS)
+			return result
 		}
 
-		return []string{strings.Join(*accounts, ", ")}
+		result.Result = append(result.Result, strings.Join(*accounts, ", "))
+		return result
 	},
 }

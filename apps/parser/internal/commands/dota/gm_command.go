@@ -27,11 +27,15 @@ var GmCommand = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("DOTA"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		result := &types.CommandsHandlerResult{
+			Result: make([]string, 0),
+		}
 		accounts := GetAccountsByChannelId(ctx.Services.Db, ctx.ChannelId)
 
 		if len(*accounts) == 0 {
-			return []string{NO_ACCOUNTS}
+			result.Result = append(result.Result,NO_ACCOUNTS)
+			return result
 		}
 
 		games := GetGames(GetGamesOpts{
@@ -42,7 +46,8 @@ var GmCommand = types.DefaultCommand{
 		})
 
 		if games == nil || len(*games) == 0 {
-			return []string{GAME_NOT_FOUND}
+			result.Result = append(result.Result,GAME_NOT_FOUND)
+			return result
 		}
 
 		game := lo.FromPtr(games)[0]
@@ -123,7 +128,7 @@ var GmCommand = types.DefaultCommand{
 
 		wg.Wait()
 
-		result := [10]string{}
+		resultArray := [10]string{}
 
 		for _, card := range cards {
 			player, idx, ok := lo.FindIndexOf(game.Players, func(p Player) bool {
@@ -154,9 +159,10 @@ var GmCommand = types.DefaultCommand{
 				).
 				Else(fmt.Sprintf("%s", medal.Name))
 
-			result[idx] = fmt.Sprintf("%s %s", hero, rank)
+				resultArray[idx] = fmt.Sprintf("%s %s", hero, rank)
 		}
 
-		return []string{strings.Join(result[:], ", ")}
+		result.Result = append(result.Result, strings.Join(resultArray[:], ", "))
+		return result
 	},
 }

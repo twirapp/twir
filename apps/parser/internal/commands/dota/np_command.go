@@ -17,11 +17,16 @@ var NpAccCommand = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("DOTA"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		result := &types.CommandsHandlerResult{
+			Result: make([]string, 0),
+		}
+
 		accounts := GetAccountsByChannelId(ctx.Services.Db, ctx.ChannelId)
 
 		if accounts == nil || len(*accounts) == 0 {
-			return []string{NO_ACCOUNTS}
+			result.Result = append(result.Result, NO_ACCOUNTS)
+			return result
 		}
 
 		games := GetGames(GetGamesOpts{
@@ -32,7 +37,8 @@ var NpAccCommand = types.DefaultCommand{
 		})
 
 		if games == nil || len(*games) == 0 {
-			return []string{"Game not found."}
+			result.Result = append(result.Result, GAME_NOT_FOUND)
+			return result
 		}
 
 		game := lo.FromPtr(games)[0]
@@ -45,6 +51,7 @@ var NpAccCommand = types.DefaultCommand{
 		gameMode := GetGameModeById(game.GameMode)
 		modeName := lo.If(gameMode == nil, "Unknown").Else(gameMode.Name)
 
-		return []string{fmt.Sprintf("%s%s", modeName, avgMmr)}
+		result.Result = append(result.Result, fmt.Sprintf("%s%s", modeName, avgMmr))
+		return result
 	},
 }

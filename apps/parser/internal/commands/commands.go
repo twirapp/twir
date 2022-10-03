@@ -155,8 +155,8 @@ func (c *Commands) FindByMessage(input string, cmds *[]types.Command) FindByMess
 func (c *Commands) ParseCommandResponses(
 	command FindByMessageResult,
 	data parserproto.Request,
-) []string {
-	responses := []string{}
+) *parserproto.Response {
+	result := &parserproto.Response{}
 
 	cmd := *command.Cmd
 	var cmdParams *string
@@ -192,13 +192,21 @@ func (c *Commands) ParseCommandResponses(
 				Nats:      c.Nats,
 			},
 		})
-		responses = results
+		if results == nil {
+			result.Responses = []string{}
+		} else {
+			result.IsReply = lo.If(results.IsReply != nil, *results.IsReply).Else(true)
+			result.Responses = results.Result
+		}
 	} else {
-		responses = cmd.Responses
+		result.Responses = cmd.Responses
+
+		// TODO: add option inside of ui dashboard for toggle reply behavior for custom commands
+		result.IsReply = true
 	}
 
 	wg := sync.WaitGroup{}
-	for i, r := range responses {
+	for i, r := range result.Responses {
 		wg.Add(1)
 		// TODO: concatenate all responses into one slice and use it for cache
 		cacheService := variables_cache.New(variables_cache.VariablesCacheOpts{
@@ -216,10 +224,10 @@ func (c *Commands) ParseCommandResponses(
 		go func(i int, r string) {
 			defer wg.Done()
 
-			responses[i] = c.variablesService.ParseInput(cacheService, r)
+			result.Responses[i] = c.variablesService.ParseInput(cacheService, r)
 		}(i, r)
 	}
 	wg.Wait()
 
-	return responses
+	return result
 }

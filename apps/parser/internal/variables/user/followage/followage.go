@@ -30,7 +30,7 @@ var Variable = types.Variable{
 		}
 
 		if ctx.ChannelId == targetId {
-			result.Result = "you cannot fetch followage of yourself because you are broadcaster."
+			result.Result = "Cannot fetch followage of yourself because you are broadcaster."
 			return result, nil
 		}
 

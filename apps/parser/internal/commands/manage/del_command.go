@@ -19,9 +19,14 @@ var DelCommand = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("MANAGE"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		result := &types.CommandsHandlerResult{
+			Result: make([]string, 0),
+		}
+
 		if ctx.Text == nil {
-			return []string{incorrectUsage}
+			result.Result = append(result.Result, incorrectUsage)
+			return result
 		}
 
 	
@@ -29,11 +34,13 @@ var DelCommand = types.DefaultCommand{
 		err := ctx.Services.Db.Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, *ctx.Text).First(&cmd).Error
 		
 		if err != nil || cmd == nil {
-			return []string{"Command not found."}
+			result.Result = append(result.Result, "Command not found.")
+			return result
 		}
 
 		if cmd.Default {
-			return []string{"Cannot delete default command."}
+			result.Result = append(result.Result, "Cannot delete default command.")
+			return result
 		}
 
 		ctx.Services.Db.
@@ -47,6 +54,7 @@ var DelCommand = types.DefaultCommand{
 
 		ctx.Services.Redis.Del(context.TODO(), fmt.Sprintf("commands:%s:%s", ctx.ChannelId, *ctx.Text))
 
-		return []string{"✅ Command removed."}
+		result.Result = append(result.Result, "✅ Command removed.")
+		return result
 	},
 }

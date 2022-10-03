@@ -28,14 +28,14 @@ var Command = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("CHANNEL"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		query := fmt.Sprintf("( (@channelId:{%v}) (@message:'%s') )", ctx.ChannelId, *ctx.Text)
 
 		cmd := createSearchCmd(ctx.Services.Redis, query)
 		result, err := cmd.Result()
 
 		if err != nil {
-			return []string{}
+			return nil
 		}
 
 		messages := []Message{}
@@ -80,7 +80,7 @@ var Command = types.DefaultCommand{
 			}
 		}()
 
-		return []string{}
+		return nil
 	},
 }
 

@@ -23,7 +23,7 @@ var Variable = types.Variable{
 
 		params := [2]int{}
 		if data.Params == nil {
-			result.Result = "You have not passed params to random variable. " + exampleStr
+			result.Result = "Have not passed params to random variable. " + exampleStr
 			return result, nil
 		}
 

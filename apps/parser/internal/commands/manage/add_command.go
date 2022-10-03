@@ -31,22 +31,29 @@ var AddCommand = types.DefaultCommand{
 		Visible:     true,
 		Module:      lo.ToPtr("MANAGE"),
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) []string {
+	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		result := &types.CommandsHandlerResult{
+			Result: make([]string, 0),
+		}
+
 		if ctx.Text == nil {
-			return []string{incorrectUsage}
+			result.Result = append(result.Result, incorrectUsage)
+			return result
 		}
 
 		args := strings.Split(*ctx.Text, " ")
 
 		if len(args) < 2 {
-			return []string{incorrectUsage}
+			result.Result = append(result.Result, incorrectUsage)
+			return result
 		}
 
 		name := args[0]
 		text := strings.Join(args[1:], " ")
 
 		if len(name) > 20 {
-			return []string{"Command name cannot be greatest then 20."}
+			result.Result = append(result.Result, "Command name cannot be greatest then 20.")
+			return result
 		}
 
 		commands := []model.ChannelsCommands{}
@@ -56,16 +63,18 @@ var AddCommand = types.DefaultCommand{
 
 		if err != nil {
 			log.Fatalln(err)
-			return []string{}
+			return nil
 		}
 
 		for _, c := range commands {
 			if c.Name == name {
-				return []string{alreadyExists}
+				result.Result = append(result.Result, alreadyExists)
+				return result
 			}
 
 			if helpers.Contains(c.Aliases, name) {
-				return []string{alreadyExists}
+				result.Result = append(result.Result, alreadyExists)
+				return result
 			}
 		}
 
@@ -96,7 +105,8 @@ var AddCommand = types.DefaultCommand{
 
 		if err != nil {
 			log.Fatalln(err)
-			return []string{wentWrong}
+			result.Result = append(result.Result, wentWrong)
+			return result
 		}
 
 
@@ -111,7 +121,8 @@ var AddCommand = types.DefaultCommand{
 
 		if err != nil {
 			log.Fatalln("cannot create command in redis", err)
-			return []string{wentWrong}
+			result.Result = append(result.Result, wentWrong)
+			return result
 		}
 
 		ctx.Services.Redis.Del(
@@ -120,6 +131,7 @@ var AddCommand = types.DefaultCommand{
 		)
 
 
-		return []string{"✅ Command added."}
+		result.Result = []string{"✅ Command added."}
+		return result
 	},
 }
