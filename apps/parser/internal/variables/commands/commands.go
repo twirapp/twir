@@ -41,17 +41,18 @@ var Variable = types.Variable{
 				continue
 			}
 
-			if parsedCmd.Enabled && parsedCmd.Visible {
-				cmds[i] = parsedCmd
-			}
+			cmds[i] = parsedCmd
 		}
 
-		mapped := helpers.Map(cmds, func(c types.Command) string {
+		mapped := lo.Filter(cmds, func(cmd types.Command, _ int) bool {
+			return cmd.Enabled && cmd.Visible
+		})
+		commandNames := helpers.Map(mapped, func(c types.Command) string {
 			return "!" + c.Name
 		})
 
 		r := types.VariableHandlerResult{
-			Result: strings.Join(mapped, ", "),
+			Result: strings.Join(commandNames, ", "),
 		}
 
 		return &r, nil
