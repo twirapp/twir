@@ -37,7 +37,11 @@ var Variable = types.Variable{
 
 			err := json.Unmarshal([]byte(cmd.(string)), &parsedCmd)
 
-			if err == nil {
+			if err != nil {
+				continue
+			}
+
+			if parsedCmd.Enabled && parsedCmd.Visible {
 				cmds[i] = parsedCmd
 			}
 		}
