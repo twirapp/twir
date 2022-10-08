@@ -77,7 +77,7 @@ export type Message = {
   id: number;
   name: string;
   username: string;
-  message: string;
+  message: string | null;
   message_type: 'text' | 'audio';
   payin_system: null | any;
   amount: number;

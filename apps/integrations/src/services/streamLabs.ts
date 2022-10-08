@@ -61,7 +61,7 @@ export type Message = {
   isTest: boolean;
   formatted_amount: string;
   amount: number;
-  message: string;
+  message: string | null;
   currency: string;
   to: { name: string };
   from: string;

@@ -9,7 +9,7 @@ import { typeorm } from '../index.js';
 
 export async function sendMessage(opts: {
   channelId: string;
-  message: string;
+  message: string | null;
   color?: HelixChatAnnoucementColor;
 }) {
   const channel = await typeorm.getRepository(Channel).findOne({
@@ -31,7 +31,7 @@ export async function sendMessage(opts: {
   });
 
   await botApi.chat.sendAnnouncement(opts.channelId, channel.botId, {
-    message: opts.message,
+    message: opts.message ?? '',
     color: opts.color,
   });
 }
