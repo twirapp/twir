@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint --ext .ts,.vue apps/",
     "lint:fix": "eslint --fix --ext .ts,.vue apps/",
-    "dev": "doppler run -- pnpm run --filter=@tsuwari/typeorm setup && pm2-runtime ecosystem.config.cjs",
+    "dev": "pnpm run -r dev",
     "start": "pnpm run -r start --filter=!@tsuwari/frontend",
     "start:integrations": "pnpm --filter=@tsuwari/integrations start",
     "start:api": "pnpm --filter=@tsuwari/api start",
@@ -43,9 +43,7 @@
     "dev:eval": "doppler run -- turbo run dev --filter=eval",
     "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/typeorm run deploy"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Satont <satontworldwide@gmail.com>",
   "devDependencies": {
     "@satont/eslint-config": "github:satont/eslint-config",
     "@types/node": "18.7.23",
@@ -58,5 +56,8 @@
     "tsx": "3.9.0",
     "turbo": "1.5.5",
     "typescript": "4.8.4"
+  },
+  "engines": {
+    "node": "18.7.0"
   }
 }

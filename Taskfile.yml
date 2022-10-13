@@ -1,0 +1,34 @@
+version: '3'
+
+tasks:
+  build-libs:
+    cmds:
+      - pnpm turbo run build --filter=./libs/*
+
+  migrations:
+    cmds:
+      - doppler run -- pnpm run --filter=@tsuwari/typeorm setup
+
+  dev-node:
+    cmds:
+      - doppler run -- pnpm dev
+
+  dev-parser:
+    cmds:
+      - doppler run -- gow -c run apps/parser/cmd/main.go
+
+  dev-timers:
+    cmds:
+      - doppler run -- gow -c run apps/timers/cmd/main.go
+
+  prepare:
+    cmds:
+      - task: build-libs
+      - task: migrations
+
+  dev:
+    deps: [prepare]
+    cmds:
+      - task: dev-parser
+      - task: dev-timers
+      - task: dev-node

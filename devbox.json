@@ -1,0 +1,6 @@
+{
+  "packages": ["nodejs-18_x", "doppler", "go_1_19", "protobuf", "go-protobuf", "go-task"],
+  "shell": {
+    "init_hook": "sh devbox-postinstall.sh"
+  }
+}
