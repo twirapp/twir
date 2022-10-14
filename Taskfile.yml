@@ -1,5 +1,13 @@
 version: '3'
 
+includes:
+  parser:
+    taskfile: ./apps/parser/Taskfile.yml
+    dir: ./apps/parser
+  timers:
+    taskfile: ./apps/timers/Taskfile.yml
+    dir: ./apps/timers
+
 tasks:
   build-libs:
     cmds:
@@ -13,14 +21,6 @@ tasks:
     cmds:
       - doppler run -- pnpm dev
 
-  dev-parser:
-    cmds:
-      - doppler run -- gow -c run apps/parser/cmd/main.go
-
-  dev-timers:
-    cmds:
-      - doppler run -- gow -c run apps/timers/cmd/main.go
-
   prepare:
     cmds:
       - task: build-libs
@@ -29,6 +29,6 @@ tasks:
   dev:
     deps: [prepare]
     cmds:
-      - task: dev-parser
-      - task: dev-timers
+      - task: parser:dev
+      - task: timers:dev
       - task: dev-node

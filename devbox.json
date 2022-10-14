@@ -14,11 +14,13 @@
   "shell": {
     "init_hook": [
       "sh devbox/post-install.sh",
+      "source devbox/pre-exit.sh",
+      "finish || true",
       "nats-server -P /tmp/tsuwari-nats.pid -c devbox/conf/nats/nats.conf &",
       "redis-server devbox/conf/redis/redis.conf &",
       "postgres -c config_file=devbox/conf/postgres/postgres.conf -k /tmp &",
       "sleep 1 && createdb -p 57453 -h /tmp tsuwari || true &",
-      "source devbox/pre-exit.sh"
+      "createuser -d -s -p 57453 -h /tmp tsuwari || true &"
     ]
   }
 }
