@@ -1,6 +1,24 @@
 {
-  "packages": ["nodejs-18_x", "doppler", "go_1_19", "protobuf", "go-protobuf", "go-task"],
+  "packages": [
+    "nodejs-18_x",
+    "doppler",
+    "go_1_19",
+    "protobuf",
+    "go-protobuf",
+    "go-task",
+    "nats-server",
+    "redis",
+    "postgresql_14",
+    "glibcLocales"
+  ],
   "shell": {
-    "init_hook": "sh devbox-postinstall.sh"
+    "init_hook": [
+      "sh devbox-postinstall.sh",
+      "nats-server -c conf/nats/nats.conf &",
+      "redis-server conf/redis/redis.conf &",
+      "postgres -c config_file=conf/postgres/postgres.conf -k /tmp &",
+      "createdb -p -h /tmp tsuwari || true &",
+      "source conf/devbox-exit.sh"
+    ]
   }
 }
