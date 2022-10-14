@@ -19,5 +19,5 @@ minio_data
 .pnpm-store
 .devbox
 
-data/*/**
+devbox/data/*/**
 !*/**/.gitkeep

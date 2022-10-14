@@ -13,12 +13,12 @@
   ],
   "shell": {
     "init_hook": [
-      "sh devbox-postinstall.sh",
-      "nats-server -c conf/nats/nats.conf &",
-      "redis-server conf/redis/redis.conf &",
-      "postgres -c config_file=conf/postgres/postgres.conf -k /tmp &",
-      "createdb -p -h /tmp tsuwari || true &",
-      "source conf/devbox-exit.sh"
+      "sh devbox/post-install.sh",
+      "nats-server -P /tmp/tsuwari-nats.pid -c devbox/conf/nats/nats.conf &",
+      "redis-server devbox/conf/redis/redis.conf &",
+      "postgres -c config_file=devbox/conf/postgres/postgres.conf -k /tmp &",
+      "sleep 1 && createdb -p 57453 -h /tmp tsuwari || true &",
+      "source devbox/pre-exit.sh"
     ]
   }
 }

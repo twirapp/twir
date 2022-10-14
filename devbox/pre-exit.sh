@@ -1,0 +1,7 @@
+finish()
+{
+  pkill -SIGINT -F /tmp/tsuwari-redis.pid
+  nats-server -sl quit=/tmp/tsuwari-nats.pid
+  pg_ctl -D devbox/data/postgres stop
+}
+trap finish EXIT SIGHUP
