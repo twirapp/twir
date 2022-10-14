@@ -187,7 +187,7 @@ importers:
       tlds: ^1.231.0
       tslib: ^2.4.0
       type-fest: 3.0.0
-      vitest: 0.23.4
+      vitest: 0.24.3
       vm2: ^3.9.11
     dependencies:
       '@nestjs-hybrid-auth/twitch': 1.0.0_u7i4vbxhyaw2rk3aqanb5hy2rm
@@ -242,7 +242,7 @@ importers:
       '@types/lodash.omit': 4.5.7
       '@types/passport-jwt': 3.0.6
       type-fest: 3.0.0
-      vitest: 0.23.4
+      vitest: 0.24.3
 
   apps/dota:
     specifiers:
@@ -2026,7 +2026,7 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/keyv': 3.1.4
-      '@types/node': 8.10.66
+      '@types/node': 18.7.23
       '@types/responselike': 1.0.0
     dev: false
 
@@ -2112,7 +2112,7 @@ packages:
   /@types/keyv/3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.7.23
     dev: false
 
   /@types/lodash.chunk/4.2.7:
@@ -2248,7 +2248,7 @@ packages:
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.7.23
     dev: false
 
   /@types/serve-static/1.15.0:
@@ -2287,7 +2287,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.7.23
     dev: false
     optional: true
 
@@ -6786,8 +6786,8 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /tinybench/2.2.1:
-    resolution: {integrity: sha512-VxB1P8DUhpCC1j2WtKgFYpv3SwU7vtnfmG29cK7hXcqyD7lLiq6SYCVpDceoAT99mvTN+V8Ay4OdtZQbB72+Sw==}
+  /tinybench/2.3.0:
+    resolution: {integrity: sha512-zs1gMVBwyyG2QbVchYIbnabRhMOCGvrwZz/q+SV+LIMa9q5YDQZi2kkI6ZRqV2Bz7ba1uvrc7ieUoE4KWnGeKg==}
     dev: true
 
   /tinypool/0.3.0:
@@ -7300,8 +7300,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitest/0.23.4:
-    resolution: {integrity: sha512-iukBNWqQAv8EKDBUNntspLp9SfpaVFbmzmM0sNcnTxASQZMzRw3PsM6DMlsHiI+I6GeO5/sYDg3ecpC+SNFLrQ==}
+  /vitest/0.24.3:
+    resolution: {integrity: sha512-aM0auuPPgMSstWvr851hB74g/LKaKBzSxcG3da7ejfZbx08Y21JpZmbmDYrMTCGhVZKqTGwzcnLMwyfz2WzkhQ==}
     engines: {node: '>=v14.16.0'}
     hasBin: true
     peerDependencies:
@@ -7329,7 +7329,7 @@ packages:
       debug: 4.3.4
       local-pkg: 0.4.2
       strip-literal: 0.4.2
-      tinybench: 2.2.1
+      tinybench: 2.3.0
       tinypool: 0.3.0
       tinyspy: 1.0.2
       vite: 3.1.4
