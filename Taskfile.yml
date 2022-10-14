@@ -1,0 +1,42 @@
+version: '3'
+
+includes:
+  parser:
+    taskfile: ./apps/parser/Taskfile.yml
+    dir: ./apps/parser
+  timers:
+    taskfile: ./apps/timers/Taskfile.yml
+    dir: ./apps/timers
+
+tasks:
+  build-libs:
+    cmds:
+      - pnpm turbo run build --filter=./libs/*
+
+  migrations:
+    cmds:
+      - doppler run -- pnpm run --filter=@tsuwari/typeorm setup
+
+  prepare:
+    run: once
+    cmds:
+      - task: build-libs
+      - task: migrations
+
+  parser-dev:
+    deps: [prepare]
+    cmds:
+      - task: parser:dev
+
+  timers-dev:
+    deps: [prepare]
+    cmds:
+      - task: timers:dev
+
+  node-dev:
+    deps: [prepare]
+    cmds:
+      - pnpm dev
+
+  dev:
+    deps: [parser-dev, timers-dev, node-dev]
