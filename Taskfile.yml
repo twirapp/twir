@@ -17,18 +17,26 @@ tasks:
     cmds:
       - doppler run -- pnpm run --filter=@tsuwari/typeorm setup
 
-  dev-node:
-    cmds:
-      - doppler run -- pnpm dev
-
   prepare:
+    run: once
     cmds:
       - task: build-libs
       - task: migrations
 
-  dev:
+  parser-dev:
     deps: [prepare]
     cmds:
       - task: parser:dev
+
+  timers-dev:
+    deps: [prepare]
+    cmds:
       - task: timers:dev
-      - task: dev-node
+
+  node-dev:
+    deps: [prepare]
+    cmds:
+      - pnpm dev
+
+  dev:
+    deps: [parser-dev, timers-dev, node-dev]

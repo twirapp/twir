@@ -3,7 +3,7 @@ version: '3'
 tasks:
   dev:
     cmds:
-      - doppler run -- gow -c run ./cmd/main.go
+      - doppler run -- pnpx nodemon --config ./nodemon.json
 
   build:
     cmds:

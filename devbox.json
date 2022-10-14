@@ -1,6 +1,5 @@
 {
   "packages": [
-    "nodejs-18_x",
     "doppler",
     "go_1_19",
     "protobuf",
@@ -17,7 +16,8 @@
       "source devbox/pre-exit.sh",
       "finish || true",
       "nats-server -P /tmp/tsuwari-nats.pid -c devbox/conf/nats/nats.conf &",
-      "redis-server devbox/conf/redis/redis.conf &",
+      "echo \"redis-server devbox/conf/redis/redis.conf\" &",
+      "docker run -d --name tsuwari-redis-stack -p 62510:6379 -v /devbox/data/redis:/data redis/redis-stack-server:latest &",
       "postgres -c config_file=devbox/conf/postgres/postgres.conf -k /tmp &",
       "sleep 1 && createdb -p 57453 -h /tmp tsuwari || true &",
       "createuser -d -s -p 57453 -h /tmp tsuwari || true &"
