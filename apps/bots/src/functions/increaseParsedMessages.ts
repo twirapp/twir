@@ -1,15 +1,22 @@
-import { HelixStreamData } from '@twurple/api';
+import { StreamRepository } from '@tsuwari/redis';
 
-import { redis } from '../libs/redis.js';
+import { redisSource, redlock } from '../libs/redis.js';
+
+const repository = redisSource.getRepository(StreamRepository);
 
 export const increaseParsedMessages = async (channelId: string) => {
-  const key = `streams:${channelId}`;
-  const rawStream = await redis.get(`streams:${channelId}`);
-  if (!rawStream) return;
+  await redlock.using(
+    [`increaseParsedMessages:${channelId}`],
+    5000,
+    { retryCount: 2 },
+    async () => {
+      console.log('increasing');
+      const stream = await repository.read(channelId);
+      if (!stream) return;
 
-  const stream = JSON.parse(rawStream) as HelixStreamData & { parsedMessages?: number };
+      stream.parsedMessages = (stream.parsedMessages ?? 0) + 1;
 
-  stream.parsedMessages = (stream.parsedMessages ?? 0) + 1;
-
-  redis.set(key, JSON.stringify(stream));
+      repository.write(channelId, stream);
+    },
+  );
 };

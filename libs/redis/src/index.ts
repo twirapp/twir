@@ -19,14 +19,22 @@ export class RedisSource {
 
   constructor(redis?: IORedis) {
     this.#redis = redis ?? new IORedis(config.REDIS_URL);
-    for (const Repo of Object.values(repositories)) {
-      this.#repositories.set(Repo.constructor.name, new Repo(this.#redis));
+    const reps = [
+      repositories.CustomVarsRepository,
+      repositories.GreetingsRepository,
+      repositories.KeywordsRepository,
+      repositories.ModerationSettingsRepository,
+      repositories.StreamRepository,
+      repositories.UsersStatsRepository,
+    ];
+    for (const Repo of reps) {
+      this.#repositories.set(Repo.name, new Repo(this.#redis));
     }
   }
 
   getRepository<T extends abstract new (...args: any) => any>(t: T) {
-    const repo = this.#repositories.get((t as any).constuctor.name) as InstanceType<T> | undefined;
-    if (!repo) throw new Error(`Seems like ${t.constructor.name} not registered in repositories.`);
+    const repo = this.#repositories.get((t as any).name) as InstanceType<T> | undefined;
+    if (!repo) throw new Error(`Seems like ${t.name} not registered in repositories.`);
     return repo;
   }
 }
