@@ -1,22 +1,20 @@
-import { greetingsSchema } from '@tsuwari/redis';
+import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import type { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
 
-import { redisOm } from './redis.js';
+import { typeorm } from './typeorm.js';
 
+const repository = typeorm.getRepository(ChannelGreeting);
 
 export class GreetingsParser {
-  #repository = redisOm.fetchRepository(greetingsSchema);
-
   async parse(state: TwitchPrivateMessage) {
-    const key = `${state.channelId}:${state.userInfo.userId}`;
-    const item = await this.#repository.fetch(key).then(i => i.toRedisJson());
+    const item = await repository.findOneBy({
+      channelId: state.channelId!,
+      userId: state.userInfo.userId!,
+    });
 
-    if (!Object.keys(item).length || item.processed !== false || !item.enabled) return;
+    if (item?.processed || !item?.enabled) return;
 
-    await this.#repository.createAndSave({
-      ...item,
-      processed: true,
-    }, key);
+    await repository.update({ id: item.id }, { processed: true });
 
     return item.text;
   }

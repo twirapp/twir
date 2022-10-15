@@ -1,33 +1,37 @@
-import { keywordsSchema } from '@tsuwari/redis';
+import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage.js';
 
-import { redis, redisOm } from './redis.js';
+import { redis } from './redis.js';
+import { typeorm } from './typeorm.js';
+
+const repository = typeorm.getRepository(ChannelKeyword);
 
 export class KeywordsParser {
-  #repository = redisOm.fetchRepository(keywordsSchema);
-
   async parse(message: string, state: TwitchPrivateMessage) {
     if (!state.channelId) return;
-    const keywordsKeys = await redis.keys(`keywords:${state.channelId}:*`);
-    if (!keywordsKeys?.length) return;
 
-    const keywords = (
-      await this.#repository.search().where('channelId').equals(state.channelId).returnAll()
-    ).map((k) => k.toRedisJson());
+    const keywords = await repository.findBy({
+      channelId: state.channelId,
+      enabled: true,
+    });
 
     const responses: string[] = [];
 
     message = message.toLowerCase();
-    for (const keyword of keywords.filter((k) => k.enabled)) {
-      const cooldownKey = `cooldowns:keywords:${keyword.id}`;
-      const isOnCooldown = await redis.get(cooldownKey);
-      if (message.includes(keyword.text.toLowerCase())) {
-        if (keyword.cooldown && isOnCooldown) continue;
-        responses.push(keyword.response);
+    for (const keyword of keywords) {
+      let isOnCooldown = false;
+      if (keyword.cooldown && keyword.cooldownExpireAt) {
+        isOnCooldown = keyword.cooldownExpireAt.getTime() >= Date.now();
+      }
 
-        if (keyword.cooldown !== null) {
-          redis.set(cooldownKey, 'true').then(() => redis.expire(cooldownKey, keyword.cooldown!));
-        }
+      if (isOnCooldown) continue;
+      responses.push(keyword.response);
+
+      if (keyword.cooldown !== null) {
+        await repository.update(
+          { id: keyword.id },
+          { cooldownExpireAt: Date.now() + 1000 * keyword.cooldown },
+        );
       }
     }
 

@@ -13,6 +13,7 @@ import {
   EventSubUserAuthorizationRevokeEvent,
   EventSubUserUpdateEvent,
 } from '@twurple/eventsub';
+import { EventSubChannelModeratorEvent } from '@twurple/eventsub/lib/events/EventSubChannelModeratorEvent.js';
 import { lastValueFrom } from 'rxjs';
 
 import { typeorm } from '../index.js';
@@ -106,5 +107,23 @@ export class HandlerService {
       fromUserId: e.userId,
       toUserId: e.broadcasterId,
     });
+  }
+
+  private async updateModStatus(e: EventSubChannelModeratorEvent, state: boolean) {
+    const repository = typeorm.getRepository(Channel);
+    const channel = await repository.findOneBy({
+      id: e.broadcasterId,
+    });
+
+    if (!channel || channel.botId !== e.userId) return;
+    await repository.update({ id: channel.id }, { isBotMod: state });
+  }
+
+  subscribeToChannelModeratorAddEvents(e: EventSubChannelModeratorEvent) {
+    this.updateModStatus(e, true);
+  }
+
+  subscribeToChannelModeratorRemoveEvents(e: EventSubChannelModeratorEvent) {
+    this.updateModStatus(e, false);
   }
 }

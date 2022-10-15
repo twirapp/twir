@@ -1,60 +1,46 @@
-
-import { ModerationSettings as ModerationCacheSettings, moderationSettingsSchema, RedisORMService, Repository } from '@tsuwari/redis';
-import { ChannelModerationSetting, SettingsType } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
+import {
+  ChannelModerationSetting,
+  SettingsType,
+} from '@tsuwari/typeorm/entities/ChannelModerationSetting';
 import { ChannelPermit } from '@tsuwari/typeorm/entities/ChannelPermit';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
 import tlds from 'tlds' assert { type: 'json' };
 
-import { nestApp } from '../nest/index.js';
 import { redis } from './redis.js';
 import { typeorm } from './typeorm.js';
 
 const clipsRegexps = [/.*(clips.twitch.tv\/)(\w+)/, /.*(www.twitch.tv\/\w+\/clip\/)(\w+)/];
 const urlRegexps = [
-  new RegExp(`(www)? ??\\.? ?[a-zA-Z0-9]+([a-zA-Z0-9-]+) ??\\. ?(${tlds.join('|')})(?=\\P{L}|$)`, 'iu'),
+  new RegExp(
+    `(www)? ??\\.? ?[a-zA-Z0-9]+([a-zA-Z0-9-]+) ??\\. ?(${tlds.join('|')})(?=\\P{L}|$)`,
+    'iu',
+  ),
   new RegExp(`[a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})(?=\\P{L}|$)`, 'iu'),
 ];
 const symbolsRegexp = /([^\s\u0500-\u052F\u0400-\u04FF\w]+)/;
 
-let redisOrm: RedisORMService;
-let repository: Repository<ModerationCacheSettings>;
+const repository = typeorm.getRepository(ChannelModerationSetting);
 
-type Moderation = ReturnType<typeof ModerationCacheSettings.prototype.toRedisJson>
-
-const moderationRepository = typeorm.getRepository(ChannelModerationSetting);
 export class ModerationParser {
   async getModerationSettings(channelId: string) {
-    if (!redisOrm || !repository) {
-      redisOrm = nestApp.get(RedisORMService);
-      repository = redisOrm.fetchRepository(moderationSettingsSchema);
+    const result = {} as Record<SettingsType, ChannelModerationSetting>;
+
+    const settings = await repository.findBy({
+      channelId,
+    });
+
+    for (const setting of settings) {
+      result[setting.type] = setting;
     }
-
-    const result = {} as Record<SettingsType, Moderation>;
-    const settingsKeys = Object.values(SettingsType);
-
-    await Promise.all(settingsKeys.map(async (key) => {
-      const redisKey = `${channelId}:${key}`;
-      const cachedSettings = await repository.fetch(redisKey);
-
-      if (Object.keys(cachedSettings.toRedisJson()).length) {
-        result[key] = cachedSettings.toRedisJson();
-      } else {
-        const entity = await moderationRepository.findOneBy({ channelId: channelId, type: key });
-        if (entity) {
-          const data = {
-            ...entity,
-            blackListSentences: entity.blackListSentences as string[] | null,
-          };
-          repository.createAndSave(data, redisKey).then(() => repository.expire(key, 5 * 60 * 60));
-          result[key] = data;
-        }
-      }
-    }));
 
     return result;
   }
 
-  async returnByWarnedState(cacheKey: SettingsType, userId: string, settings: Moderation) {
+  async returnByWarnedState(
+    cacheKey: SettingsType,
+    userId: string,
+    settings: ChannelModerationSetting,
+  ) {
     const redisKey = `moderation:warnings:${cacheKey}:${userId}`;
     const isWarned = await redis.get(redisKey);
 
@@ -77,27 +63,33 @@ export class ModerationParser {
     if (!state?.channelId) return;
     const settings = await this.getModerationSettings(state.channelId);
 
-    const results = await Promise.all(Object.keys(settings).map((k) => {
-      const key = k as SettingsType;
-      const parserSettings = settings[key];
-      if (!parserSettings) return;
+    const results = await Promise.all(
+      Object.keys(settings).map((k) => {
+        const key = k as SettingsType;
+        const parserSettings = settings[key];
+        if (!parserSettings) return;
 
-      if (state.userInfo.isMod || state.userInfo.isBroadcaster) return;
-      if (!parserSettings || !parserSettings.enabled) return;
-      if (!parserSettings.vips && state.userInfo.isVip) return;
-      if (!parserSettings.subscribers && state.userInfo.isSubscriber) return;
+        if (state.userInfo.isMod || state.userInfo.isBroadcaster) return;
+        if (!parserSettings || !parserSettings.enabled) return;
+        if (!parserSettings.vips && state.userInfo.isVip) return;
+        if (!parserSettings.subscribers && state.userInfo.isSubscriber) return;
 
-      return this[`${key}Parser`](message, parserSettings, state);
-    }));
+        return this[`${key}Parser`](message, parserSettings, state);
+      }),
+    );
 
-    return results.find(r => typeof r !== 'undefined');
+    return results.find((r) => typeof r !== 'undefined');
   }
 
-  async linksParser(message: string, settings: Moderation, state: TwitchPrivateMessage) {
-    const containLink = urlRegexps.some(r => r.test(message));
+  async linksParser(
+    message: string,
+    settings: ChannelModerationSetting,
+    state: TwitchPrivateMessage,
+  ) {
+    const containLink = urlRegexps.some((r) => r.test(message));
     if (!containLink) return;
 
-    if (!settings.checkClips && clipsRegexps.some(r => r.test(message))) return;
+    if (!settings.checkClips && clipsRegexps.some((r) => r.test(message))) return;
 
     const repository = typeorm.getRepository(ChannelPermit);
     const permit = await repository.findOneBy({
@@ -114,15 +106,23 @@ export class ModerationParser {
     return this.returnByWarnedState(SettingsType.links, state.userInfo.userId, settings);
   }
 
-  async blacklistsParser(message: string, settings: Moderation, state: TwitchPrivateMessage) {
+  async blacklistsParser(
+    message: string,
+    settings: ChannelModerationSetting,
+    state: TwitchPrivateMessage,
+  ) {
     if (!Array.isArray(settings.blackListSentences)) return;
-    const blackListed = settings.blackListSentences.some(b => message.includes(b as string));
+    const blackListed = settings.blackListSentences.some((b) => message.includes(b as string));
     if (!blackListed) return;
 
     return this.returnByWarnedState(SettingsType.blacklists, state.userInfo.userId, settings);
   }
 
-  async symbolsParser(message: string, settings: Moderation, state: TwitchPrivateMessage) {
+  async symbolsParser(
+    message: string,
+    settings: ChannelModerationSetting,
+    state: TwitchPrivateMessage,
+  ) {
     if (!settings.maxPercentage) return;
 
     const matched = message.match(symbolsRegexp);
@@ -134,20 +134,28 @@ export class ModerationParser {
       symbolsCount = symbolsCount + item.length;
     }
 
-    const check = Math.ceil(symbolsCount * 100 / message.length) >= settings.maxPercentage;
+    const check = Math.ceil((symbolsCount * 100) / message.length) >= settings.maxPercentage;
     if (!check) return;
 
     return this.returnByWarnedState(SettingsType.symbols, state.userInfo.userId, settings);
   }
 
-  async longMessageParser(message: string, settings: Moderation, state: TwitchPrivateMessage) {
+  async longMessageParser(
+    message: string,
+    settings: ChannelModerationSetting,
+    state: TwitchPrivateMessage,
+  ) {
     if (!settings.triggerLength) return;
     if (message.length <= settings.triggerLength) return;
 
     return this.returnByWarnedState(SettingsType.longMessage, state.userInfo.userId, settings);
   }
 
-  async capsParser(message: string, settings: Moderation, state: TwitchPrivateMessage) {
+  async capsParser(
+    message: string,
+    settings: ChannelModerationSetting,
+    state: TwitchPrivateMessage,
+  ) {
     if (!settings.maxPercentage) return;
 
     let capsCount = 0;
@@ -165,13 +173,17 @@ export class ModerationParser {
       }
     }
 
-    const check = Math.ceil(capsCount * 100 / message.length) >= settings.maxPercentage;
+    const check = Math.ceil((capsCount * 100) / message.length) >= settings.maxPercentage;
     if (!check) return;
 
     return this.returnByWarnedState(SettingsType.caps, state.userInfo.userId, settings);
   }
 
-  async emotesParser(_message: string, settings: Moderation, state: TwitchPrivateMessage) {
+  async emotesParser(
+    _message: string,
+    settings: ChannelModerationSetting,
+    state: TwitchPrivateMessage,
+  ) {
     if (!settings.triggerLength) return;
 
     const emotesLength = state.parseEmotes().filter((o) => o.type === 'emote').length;

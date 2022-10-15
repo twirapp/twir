@@ -16,6 +16,8 @@ const subScriptionValues = new Map([
   ['stream.offline', 'subscribeToStreamOfflineEvents'],
   ['user.update', 'subscribeToUserUpdateEvents'],
   ['channel.follow', 'subscribeToChannelFollowEvents'],
+  ['channel.moderator.add', 'subscribeToChannelModeratorAddEvents'],
+  ['channel.moderator.remove', 'subscribeToChannelModeratorRemoveEvents'],
 ]);
 
 @Injectable()
