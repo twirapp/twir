@@ -34,18 +34,18 @@ export class RedisORMService extends Client implements OnModuleInit {
 export class RedisORMModule {}
 
 export class RedisSource {
-  repositories: Map<string, BaseRepository<any>> = new Map();
-  private redis: IORedis;
+  #repositories: Map<string, BaseRepository<any>> = new Map();
+  #redis: IORedis;
 
   constructor(redis?: IORedis) {
-    this.redis = redis ?? new IORedis(config.REDIS_URL);
+    this.#redis = redis ?? new IORedis(config.REDIS_URL);
     for (const Repo of Object.values(repositories)) {
-      this.repositories.set(Repo.constructor.name, new Repo(this.redis));
+      this.#repositories.set(Repo.constructor.name, new Repo(this.#redis));
     }
   }
 
   getRepository<T extends abstract new (...args: any) => any>(t: T) {
-    const repo = this.repositories.get((t as any).constuctor.name) as InstanceType<T> | undefined;
+    const repo = this.#repositories.get((t as any).constuctor.name) as InstanceType<T> | undefined;
     if (!repo) throw new Error(`Seems like ${t.constructor.name} not registered in repositories.`);
     return repo;
   }
