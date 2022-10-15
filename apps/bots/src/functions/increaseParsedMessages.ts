@@ -1,15 +1,14 @@
-import { HelixStreamData } from '@twurple/api';
+import { ChannelStream } from '@tsuwari/typeorm/entities/ChannelStream';
 
-import { redis } from '../libs/redis.js';
+import { typeorm } from '../libs/typeorm.js';
 
-export const increaseParsedMessages = async (channelId: string) => {
-  const key = `streams:${channelId}`;
-  const rawStream = await redis.get(`streams:${channelId}`);
-  if (!rawStream) return;
+const repository = typeorm.getRepository(ChannelStream);
 
-  const stream = JSON.parse(rawStream) as HelixStreamData & { parsedMessages?: number };
+export const increaseParsedMessages = async (userId: string) => {
+  const stream = await repository.findOne({
+    where: { userId },
+  });
+  if (!stream) return;
 
-  stream.parsedMessages = (stream.parsedMessages ?? 0) + 1;
-
-  redis.set(key, JSON.stringify(stream));
+  await repository.increment({ userId }, 'parsedMessages', 1);
 };
