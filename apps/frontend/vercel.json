@@ -5,19 +5,19 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://api.tsuwari.tk/:path*"
+      "destination": "https://api.tsuwari.app/:path*"
     },
     {
       "source": "/api/:path*/",
-      "destination": "https://api.tsuwari.tk/:path*/"
+      "destination": "https://api.tsuwari.app/:path*/"
     },
     {
       "source": "/socket.io/",
-      "destination": "https://api.tsuwari.tk/socket.io/"
+      "destination": "https://api.tsuwari.app/socket.io/"
     },
     {
       "source": "/socket.io/:path*/",
-      "destination": "https://api.tsuwari.tk/socket.io/:path*/"
+      "destination": "https://api.tsuwari.app/socket.io/:path*/"
     },
     {
       "source": "/(.*)",
