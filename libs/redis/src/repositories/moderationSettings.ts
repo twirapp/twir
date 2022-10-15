@@ -7,6 +7,6 @@ export class ModerationSettingsRepository extends BaseRepository<
   Omit<ChannelModerationSetting, 'channel'>
 > {
   constructor(redis: Redis) {
-    super('v', redis);
+    super('settings:moderation', redis);
   }
 }
