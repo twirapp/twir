@@ -39,8 +39,8 @@ export class RedisSource {
 
   constructor(redis?: IORedis) {
     this.redis = redis ?? new IORedis(config.REDIS_URL);
-    for (const repo of Object.values(repositories)) {
-      this.repositories.set(repo.constructor.name, repo as any);
+    for (const Repo of Object.values(repositories)) {
+      this.repositories.set(Repo.constructor.name, new Repo(this.redis));
     }
   }
 
