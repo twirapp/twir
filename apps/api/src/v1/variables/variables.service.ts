@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
 import * as Parser from '@tsuwari/nats/parser';
-import { ClientProxy, RedisService } from '@tsuwari/shared';
+import { ClientProxy } from '@tsuwari/shared';
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 
 import { typeorm } from '../../index.js';
@@ -15,8 +15,6 @@ export class VariablesService {
   nats: ClientProxy;
 
   readonly #vulnerableScriptWords = ['prototype', 'contructor'];
-
-  constructor(private readonly redis: RedisService) {}
 
   #checkNotSecureVariable(script: string) {
     if (this.#vulnerableScriptWords.some((w) => script.includes(w))) {
@@ -60,7 +58,6 @@ export class VariablesService {
       this.#checkNotSecureVariable(data.evalValue);
     }
 
-    await this.redis.set(`variables:${channelId}:${variable.name}`, JSON.stringify(variable));
     return variable;
   }
 
@@ -78,30 +75,25 @@ export class VariablesService {
       id: variableId,
     });
 
-    await this.redis.del(`variables:${channelId}:${variable.name}`);
-
     return variable;
   }
 
-  async update(channelId: string, variableId: string, data: CreateVariableDto) {
+  async update(channelId: string, id: string, data: CreateVariableDto) {
     const repository = typeorm.getRepository(ChannelCustomvar);
 
     const variable = await repository.findOneBy({
       channelId,
-      id: variableId,
+      id,
     });
 
-    if (!variable) throw new HttpException(`Variable with id ${variableId} not exists`, 404);
+    if (!variable) throw new HttpException(`Variable with id ${id} not exists`, 404);
 
     if (data.type === 'SCRIPT' && data.evalValue) {
       this.#checkNotSecureVariable(data.evalValue);
     }
 
-    await repository.update({ id: variable.id }, data);
+    await repository.update({ id }, data);
 
-    const newVariable = await repository.findOneBy({ id: variable.id });
-    await this.redis.set(`variables:${channelId}:${variable!.name}`, JSON.stringify(newVariable));
-
-    return newVariable;
+    return await repository.findOneBy({ id });
   }
 }

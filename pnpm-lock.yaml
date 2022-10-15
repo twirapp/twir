@@ -599,6 +599,7 @@ importers:
       ioredis: 5.2.3
       lodash: 4.17.21
       rxjs: 7.5.7
+      type-fest: 3.0.0
     dependencies:
       '@d-fischer/cache-decorators': 3.0.0
       '@nestjs/common': 9.1.2_ydmmyemppmpyygljco2ovupzdi
@@ -614,6 +615,7 @@ importers:
       ioredis: 5.2.3
       lodash: 4.17.21
       rxjs: 7.5.7
+      type-fest: 3.0.0
     devDependencies:
       '@types/lodash': 4.14.186
 
@@ -7033,7 +7035,6 @@ packages:
   /type-fest/3.0.0:
     resolution: {integrity: sha512-MINvUN5ug9u+0hJDzSZNSnuKXI8M4F5Yvb6SQZ2CYqe7SgKXKOosEcU5R7tRgo85I6eAVBbkVF7TCvB4AUK2xQ==}
     engines: {node: '>=14.16'}
-    dev: true
 
   /type-is/1.6.18:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}

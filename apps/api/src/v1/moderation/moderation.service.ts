@@ -1,11 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  ModerationSettings,
-  moderationSettingsSchema,
-  RedisORMService,
-  Repository,
-} from '@tsuwari/redis';
-import { ModerationSettingsDto, RedisService } from '@tsuwari/shared';
+import { ModerationSettingsDto } from '@tsuwari/shared';
 import {
   ChannelModerationSetting,
   SettingsType,
@@ -15,14 +9,6 @@ import { typeorm } from '../../index.js';
 
 @Injectable()
 export class ModerationService {
-  #repository: Repository<ModerationSettings>;
-
-  constructor(private readonly redis: RedisService, private readonly redisOrm: RedisORMService) {}
-
-  onModuleInit() {
-    this.#repository = this.redisOrm.fetchRepository(moderationSettingsSchema);
-  }
-
   async getSettings(channelId: string) {
     const keys = Object.values(SettingsType);
     const repository = typeorm.getRepository(ChannelModerationSetting);
@@ -67,7 +53,6 @@ export class ModerationService {
       }),
     );
 
-    await Promise.all(data.map((item) => this.#repository.remove(`${channelId}:${item.type}`)));
     return repository.findBy({ channelId });
   }
 }

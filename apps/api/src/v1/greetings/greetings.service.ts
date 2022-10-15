@@ -1,6 +1,4 @@
-import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
-import { Greetings, greetingsSchema, RedisORMService, Repository } from '@tsuwari/redis';
-import { RedisService } from '@tsuwari/shared';
+import { HttpException, Injectable } from '@nestjs/common';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 
 import { typeorm } from '../../index.js';
@@ -8,16 +6,7 @@ import { staticApi } from '../../twitchApi.js';
 import { GreetingCreateDto } from './dto/create.js';
 
 @Injectable()
-export class GreetingsService implements OnModuleInit {
-  #repository: Repository<Greetings>;
-
-  constructor(private readonly redis: RedisService, private readonly redisOrm: RedisORMService) {}
-
-  async onModuleInit() {
-    await this.redisOrm.onModuleInit();
-    this.#repository = this.redisOrm.fetchRepository(greetingsSchema);
-  }
-
+export class GreetingsService {
   async getList(userId: string) {
     const greetings = await typeorm.getRepository(ChannelGreeting).findBy({ channelId: userId });
 
@@ -46,14 +35,6 @@ export class GreetingsService implements OnModuleInit {
       text: data.text,
     });
 
-    await this.#repository.createAndSave(
-      {
-        ...greeting,
-        processed: false,
-      },
-      `${greeting.channelId}:${greeting.userId}`,
-    );
-
     return {
       ...greeting,
       username: user.name,
@@ -80,14 +61,6 @@ export class GreetingsService implements OnModuleInit {
 
     const greeting = await repository.findOneBy({ id: greetingId });
 
-    await this.#repository.createAndSave(
-      {
-        ...greeting!,
-        processed: false,
-      },
-      `${greeting!.channelId}:${greeting!.userId}`,
-    );
-
     return {
       ...greeting,
       username: user.name,
@@ -108,8 +81,6 @@ export class GreetingsService implements OnModuleInit {
     const result = await repository.delete({
       id: greetingId,
     });
-
-    await this.#repository.remove(`${greeting.channelId}:${greeting.userId}`);
 
     return result;
   }

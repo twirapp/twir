@@ -16,6 +16,7 @@ import { ChannelIntegration } from './entities/ChannelIntegration.js';
 import { ChannelKeyword } from './entities/ChannelKeyword.js';
 import { ChannelModerationSetting } from './entities/ChannelModerationSetting.js';
 import { ChannelPermit } from './entities/ChannelPermit.js';
+import { ChannelStream } from './entities/ChannelStream.js';
 import { ChannelTimer } from './entities/ChannelTimer.js';
 import { CommandResponse } from './entities/CommandResponse.js';
 import { CommandUsage } from './entities/CommandUsage.js';
@@ -71,6 +72,7 @@ export const AppDataSource = new DataSource({
     ChannelEvent,
     ChannelFollowEvent,
     ChannelDonationEvent,
+    ChannelStream,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

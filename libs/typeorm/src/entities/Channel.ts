@@ -15,12 +15,13 @@ import { type Bot } from './Bot.js';
 import { type ChannelCommand } from './ChannelCommand.js';
 import { type ChannelCustomvar } from './ChannelCustomvar.js';
 import { type ChannelDotaAccount } from './ChannelDotaAccount.js';
-import { ChannelEvent } from './ChannelEvent.js';
+import { type ChannelEvent } from './ChannelEvent.js';
 import { type ChannelGreeting } from './ChannelGreeting.js';
 import { type ChannelIntegration } from './ChannelIntegration.js';
 import { type ChannelKeyword } from './ChannelKeyword.js';
 import { type ChannelModerationSetting } from './ChannelModerationSetting.js';
 import { type ChannelPermit } from './ChannelPermit.js';
+import { type ChannelStream } from './ChannelStream.js';
 import { type ChannelTimer } from './ChannelTimer.js';
 import { type DashboardAccess } from './DashboardAccess.js';
 import { type User } from './User.js';
@@ -46,6 +47,9 @@ export class Channel {
 
   @Column()
   botId: string;
+
+  @Column('bool', { default: false })
+  isBotMod: boolean;
 
   @OneToOne('User', 'channel', { onDelete: 'RESTRICT', onUpdate: 'CASCADE' })
   @JoinColumn([{ name: 'id', referencedColumnName: 'id' }])
@@ -86,4 +90,7 @@ export class Channel {
 
   @OneToMany('ChannelEvent', 'channel')
   events?: Relation<ChannelEvent[]>;
+
+  @OneToMany('ChannelStream', 'channel')
+  streams?: Relation<ChannelStream[]>;
 }
