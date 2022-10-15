@@ -3,7 +3,11 @@ import Redis from 'ioredis';
 
 import { BaseRepository } from '../base.js';
 
-export class GreetingsRepository extends BaseRepository<Omit<ChannelGreeting, 'channel'>> {
+type Greeting = Omit<ChannelGreeting, 'channel'> & {
+  processed: boolean;
+};
+
+export class GreetingsRepository extends BaseRepository<Greeting> {
   constructor(redis: Redis) {
     super('greetings', redis);
   }

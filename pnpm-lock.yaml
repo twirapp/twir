@@ -568,6 +568,7 @@ importers:
       '@nestjs/core': 9.1.2
       '@tsuwari/config': workspace:*
       '@tsuwari/typeorm': workspace:*
+      '@twurple/api': ^5.2.5
       ioredis: ^5.2.3
       redis-om: github:satont/redis-om-node
       reflect-metadata: 0.1.13
@@ -578,6 +579,7 @@ importers:
       '@nestjs/core': 9.1.2_e6ar3fodmgi6dfak6o4ayoeihe
       '@tsuwari/config': link:../config
       '@tsuwari/typeorm': link:../typeorm
+      '@twurple/api': 5.2.5
       ioredis: 5.2.3
       redis-om: github.com/satont/redis-om-node/49248deab514914a31eae07e2d006b064ba26ef1
       reflect-metadata: 0.1.13
@@ -1899,6 +1901,18 @@ packages:
     transitivePeerDependencies:
       - encoding
 
+  /@twurple/api-call/5.2.5:
+    resolution: {integrity: sha512-oPbkNnh6zT6twNFmt2FOJwK+KQjlJvWKZUcvKW/P/JGe9olIBfNIScVcmnAEr9olOvBoipnF/xLu0V0f0C/UeQ==}
+    dependencies:
+      '@d-fischer/cross-fetch': 4.1.0
+      '@d-fischer/qs': 7.0.2
+      '@twurple/common': 5.2.5
+      '@types/node-fetch': 2.6.2
+      tslib: 2.4.0
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /@twurple/api/5.2.4:
     resolution: {integrity: sha512-BT3DnbZpuy3jqxRdl2ptiGqNsR20sv/BEqiZ1vtI9NJIc2PXpQa3YfwunKfx8irpv4C13YcKPrqelaLX1dFiZA==}
     peerDependencies:
@@ -1929,6 +1943,23 @@ packages:
       '@twurple/api-call': 5.2.4
       '@twurple/auth': 5.2.4
       '@twurple/common': 5.2.4
+      tslib: 2.4.0
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /@twurple/api/5.2.5:
+    resolution: {integrity: sha512-EzIJToZOimXEaZt6uGZTj+6iyD+L2uUiHeSjfMdY+KwIbdxM99218YFSOA8l2RHRSBrNkt2rYEau45oFOP/RcA==}
+    peerDependencies:
+      '@twurple/auth': ^5.0.0
+    dependencies:
+      '@d-fischer/cache-decorators': 3.0.0
+      '@d-fischer/detect-node': 3.0.1
+      '@d-fischer/logger': 4.2.0
+      '@d-fischer/rate-limiter': 0.6.1
+      '@d-fischer/shared-utils': 3.3.0
+      '@twurple/api-call': 5.2.5
+      '@twurple/common': 5.2.5
       tslib: 2.4.0
     transitivePeerDependencies:
       - encoding
@@ -1972,6 +2003,14 @@ packages:
       '@d-fischer/shared-utils': 3.3.0
       klona: 2.0.5
       tslib: 2.4.0
+
+  /@twurple/common/5.2.5:
+    resolution: {integrity: sha512-pZe/IjdNfxiKtVw+3ntViq0gMnZrx8x+VB3aAzl/hB6bE10iUB0vV0qK7gCrvDJCnMDk0oGFLdl+nQOwkDHVpQ==}
+    dependencies:
+      '@d-fischer/shared-utils': 3.3.0
+      klona: 2.0.5
+      tslib: 2.4.0
+    dev: false
 
   /@twurple/eventsub/5.2.4_@twurple+api@5.2.4:
     resolution: {integrity: sha512-sYIqH/JgjHFBXFE/PgGONhIDv0Si7PLtd3kuHwJ/QI3fs9V5VcS/LBVz5SWz4nZNBnYGmGdfpNlbOaTM2MmwOQ==}

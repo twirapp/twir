@@ -1,15 +1,15 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
-import { greetingsSchema, keywordsSchema, RedisORMService } from '@tsuwari/redis';
+import { CustomVarsRepository, GreetingsRepository, KeywordsRepository } from '@tsuwari/redis';
 import { ClientProxy } from '@tsuwari/shared';
 import { Channel } from '@tsuwari/typeorm/entities/Channel';
 import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
-import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 
+import { redisSource } from '../../libs/redis.js';
 import { typeorm } from '../../libs/typeorm.js';
 
 @Injectable()
@@ -17,8 +17,6 @@ export class CacherService implements OnModuleInit {
   @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
   nats: ClientProxy;
   private readonly logger = new Logger(CacherService.name);
-
-  constructor(private readonly redis: RedisORMService) {}
 
   async onModuleInit() {
     const channels = await typeorm.getRepository(Channel).find({
@@ -56,15 +54,12 @@ export class CacherService implements OnModuleInit {
       channelId,
     });
 
-    const repository = this.redis.fetchRepository(greetingsSchema);
+    const repository = redisSource.getRepository(GreetingsRepository);
     for (const greeting of greetings) {
-      repository.createAndSave(
-        {
-          ...greeting,
-          processed: false,
-        },
-        `${greeting.channelId}:${greeting.userId}`,
-      );
+      repository.write(`${greeting.channelId}:${greeting.userId}`, {
+        ...greeting,
+        processed: false,
+      });
     }
   }
 
@@ -73,10 +68,10 @@ export class CacherService implements OnModuleInit {
       channelId,
     });
 
-    const repository = this.redis.fetchRepository(keywordsSchema);
+    const repository = redisSource.getRepository(KeywordsRepository);
 
     for (const keyword of keywords) {
-      repository.createAndSave(keyword, `${channelId}:${keyword.id}`);
+      repository.write(`${channelId}:${keyword.id}`, keyword);
     }
   }
 
@@ -85,8 +80,10 @@ export class CacherService implements OnModuleInit {
       channelId,
     });
 
+    const repository = redisSource.getRepository(CustomVarsRepository);
+
     for (const variable of variables) {
-      this.redis.set(`variables:${channelId}:${variable.id}`, JSON.stringify(variable));
+      repository.write(`${channelId}:${variable.id}`, variable);
     }
   }
 }

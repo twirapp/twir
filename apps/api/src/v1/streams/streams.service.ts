@@ -1,32 +1,30 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Greetings, greetingsSchema, RedisORMService, Repository } from '@tsuwari/redis';
+import { Injectable } from '@nestjs/common';
+import {
+  GreetingsRepository,
+  RedisDataSourceService,
+  StreamRepository,
+  StreamType,
+} from '@tsuwari/redis';
 import { RedisService } from '@tsuwari/shared';
 
 @Injectable()
-export class StreamsService implements OnModuleInit {
-  #greetingsRepository: Repository<Greetings>;
-
-  constructor(private readonly redis: RedisService, private readonly redisOrm: RedisORMService) {}
-
-  onModuleInit() {
-    this.#greetingsRepository = this.redisOrm.fetchRepository(greetingsSchema);
-  }
+export class StreamsService {
+  constructor(
+    private readonly redis: RedisService,
+    private readonly redisSource: RedisDataSourceService,
+  ) {}
 
   async #resetGreetings(channelId: string) {
-    const greetings = await this.#greetingsRepository
-      .search()
-      .where('channelId')
-      .equal(channelId)
-      .returnAll();
+    const repository = this.redisSource.getRepository(GreetingsRepository);
 
-    for (const greeting of greetings.map((g) => g.toRedisJson())) {
-      this.#greetingsRepository.createAndSave(
-        {
-          ...greeting,
-          processed: false,
-        },
-        `${greeting.channelId}:${greeting.userId}`,
-      );
+    const greetingsKeys = await this.redis.keys(`greetings:${channelId}:*`);
+    const greetings = await repository.readMany(greetingsKeys, true);
+
+    for (const greeting of greetings) {
+      repository.write(`${greeting.channelId}:${greeting.userId}`, {
+        ...greeting,
+        processed: false,
+      });
     }
   }
 
@@ -34,9 +32,8 @@ export class StreamsService implements OnModuleInit {
     this.#resetGreetings(channelId);
   }
 
-  async getStream(channelId: string) {
-    const stream = await this.redis.get(`streams:${channelId}`);
-    if (!stream) return null;
-    return JSON.parse(stream);
+  async getStream(channelId: string): Promise<StreamType | null> {
+    const stream = await this.redisSource.getRepository(StreamRepository).read(channelId);
+    return stream;
   }
 }

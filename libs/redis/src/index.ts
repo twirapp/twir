@@ -13,26 +13,6 @@ export { Client, Repository } from 'redis-om';
 export * from './repositories/index.js';
 export * from './schemas/index.js';
 
-@Global()
-@Injectable()
-export class RedisORMService extends Client implements OnModuleInit {
-  async onModuleInit() {
-    await this.open(config.REDIS_URL);
-
-    for (const schema of Object.values(schemas).filter((v) => v instanceof Schema)) {
-      await this.fetchRepository(schema as any).createIndex();
-    }
-  }
-}
-
-@Global()
-@Module({
-  controllers: [],
-  providers: [RedisORMService],
-  exports: [RedisORMService],
-})
-export class RedisORMModule {}
-
 export class RedisSource {
   #repositories: Map<string, BaseRepository<any>> = new Map();
   #redis: IORedis;
@@ -50,3 +30,27 @@ export class RedisSource {
     return repo;
   }
 }
+
+@Global()
+@Injectable()
+export class RedisORMService extends Client implements OnModuleInit {
+  async onModuleInit() {
+    await this.open(config.REDIS_URL);
+
+    for (const schema of Object.values(schemas).filter((v) => v instanceof Schema)) {
+      await this.fetchRepository(schema as any).createIndex();
+    }
+  }
+}
+
+@Global()
+@Injectable()
+export class RedisDataSourceService extends RedisSource {}
+
+@Global()
+@Module({
+  controllers: [],
+  providers: [RedisORMService, RedisDataSourceService],
+  exports: [RedisORMService, RedisDataSourceService],
+})
+export class RedisORMModule {}

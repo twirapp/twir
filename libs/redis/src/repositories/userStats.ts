@@ -3,7 +3,11 @@ import Redis from 'ioredis';
 
 import { BaseRepository } from '../base.js';
 
-export class UsersStatsRepository extends BaseRepository<Omit<UserStats, 'channel' | 'user'>> {
+type Stats = Omit<UserStats, 'channel' | 'user' | 'watched'> & {
+  watched: string;
+};
+
+export class UsersStatsRepository extends BaseRepository<Stats> {
   constructor(redis: Redis) {
     super('usersStats', redis);
   }

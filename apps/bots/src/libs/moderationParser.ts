@@ -1,55 +1,57 @@
-
-import { ModerationSettings as ModerationCacheSettings, moderationSettingsSchema, RedisORMService, Repository } from '@tsuwari/redis';
-import { ChannelModerationSetting, SettingsType } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
+import { ModerationSettingsRepository } from '@tsuwari/redis';
+import {
+  ChannelModerationSetting,
+  SettingsType,
+} from '@tsuwari/typeorm/entities/ChannelModerationSetting';
 import { ChannelPermit } from '@tsuwari/typeorm/entities/ChannelPermit';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
 import tlds from 'tlds' assert { type: 'json' };
 
 import { nestApp } from '../nest/index.js';
-import { redis } from './redis.js';
+import { redis, redisSource } from './redis.js';
 import { typeorm } from './typeorm.js';
 
 const clipsRegexps = [/.*(clips.twitch.tv\/)(\w+)/, /.*(www.twitch.tv\/\w+\/clip\/)(\w+)/];
 const urlRegexps = [
-  new RegExp(`(www)? ??\\.? ?[a-zA-Z0-9]+([a-zA-Z0-9-]+) ??\\. ?(${tlds.join('|')})(?=\\P{L}|$)`, 'iu'),
+  new RegExp(
+    `(www)? ??\\.? ?[a-zA-Z0-9]+([a-zA-Z0-9-]+) ??\\. ?(${tlds.join('|')})(?=\\P{L}|$)`,
+    'iu',
+  ),
   new RegExp(`[a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})(?=\\P{L}|$)`, 'iu'),
 ];
 const symbolsRegexp = /([^\s\u0500-\u052F\u0400-\u04FF\w]+)/;
 
-let redisOrm: RedisORMService;
-let repository: Repository<ModerationCacheSettings>;
+const repository = redisSource.getRepository(ModerationSettingsRepository);
 
-type Moderation = ReturnType<typeof ModerationCacheSettings.prototype.toRedisJson>
+type Moderation = NonNullable<Awaited<ReturnType<typeof repository.read>>>;
 
 const moderationRepository = typeorm.getRepository(ChannelModerationSetting);
 export class ModerationParser {
   async getModerationSettings(channelId: string) {
-    if (!redisOrm || !repository) {
-      redisOrm = nestApp.get(RedisORMService);
-      repository = redisOrm.fetchRepository(moderationSettingsSchema);
-    }
-
     const result = {} as Record<SettingsType, Moderation>;
     const settingsKeys = Object.values(SettingsType);
 
-    await Promise.all(settingsKeys.map(async (key) => {
-      const redisKey = `${channelId}:${key}`;
-      const cachedSettings = await repository.fetch(redisKey);
+    await Promise.all(
+      settingsKeys.map(async (key) => {
+        const redisKey = `${channelId}:${key}`;
+        const cachedSettings = await repository.read(redisKey);
 
-      if (Object.keys(cachedSettings.toRedisJson()).length) {
-        result[key] = cachedSettings.toRedisJson();
-      } else {
-        const entity = await moderationRepository.findOneBy({ channelId: channelId, type: key });
-        if (entity) {
-          const data = {
-            ...entity,
-            blackListSentences: entity.blackListSentences as string[] | null,
-          };
-          repository.createAndSave(data, redisKey).then(() => repository.expire(key, 5 * 60 * 60));
-          result[key] = data;
+        if (cachedSettings) {
+          result[key] = cachedSettings;
+        } else {
+          const entity = await moderationRepository.findOneBy({ channelId: channelId, type: key });
+          if (entity) {
+            const data = {
+              ...entity,
+              blackListSentences: entity.blackListSentences as string[] | null,
+            };
+            repository.write(redisKey, data, 5 * 60 * 60);
+
+            result[key] = data;
+          }
         }
-      }
-    }));
+      }),
+    );
 
     return result;
   }
@@ -77,27 +79,29 @@ export class ModerationParser {
     if (!state?.channelId) return;
     const settings = await this.getModerationSettings(state.channelId);
 
-    const results = await Promise.all(Object.keys(settings).map((k) => {
-      const key = k as SettingsType;
-      const parserSettings = settings[key];
-      if (!parserSettings) return;
+    const results = await Promise.all(
+      Object.keys(settings).map((k) => {
+        const key = k as SettingsType;
+        const parserSettings = settings[key];
+        if (!parserSettings) return;
 
-      if (state.userInfo.isMod || state.userInfo.isBroadcaster) return;
-      if (!parserSettings || !parserSettings.enabled) return;
-      if (!parserSettings.vips && state.userInfo.isVip) return;
-      if (!parserSettings.subscribers && state.userInfo.isSubscriber) return;
+        if (state.userInfo.isMod || state.userInfo.isBroadcaster) return;
+        if (!parserSettings || !parserSettings.enabled) return;
+        if (!parserSettings.vips && state.userInfo.isVip) return;
+        if (!parserSettings.subscribers && state.userInfo.isSubscriber) return;
 
-      return this[`${key}Parser`](message, parserSettings, state);
-    }));
+        return this[`${key}Parser`](message, parserSettings, state);
+      }),
+    );
 
-    return results.find(r => typeof r !== 'undefined');
+    return results.find((r) => typeof r !== 'undefined');
   }
 
   async linksParser(message: string, settings: Moderation, state: TwitchPrivateMessage) {
-    const containLink = urlRegexps.some(r => r.test(message));
+    const containLink = urlRegexps.some((r) => r.test(message));
     if (!containLink) return;
 
-    if (!settings.checkClips && clipsRegexps.some(r => r.test(message))) return;
+    if (!settings.checkClips && clipsRegexps.some((r) => r.test(message))) return;
 
     const repository = typeorm.getRepository(ChannelPermit);
     const permit = await repository.findOneBy({
@@ -116,7 +120,7 @@ export class ModerationParser {
 
   async blacklistsParser(message: string, settings: Moderation, state: TwitchPrivateMessage) {
     if (!Array.isArray(settings.blackListSentences)) return;
-    const blackListed = settings.blackListSentences.some(b => message.includes(b as string));
+    const blackListed = settings.blackListSentences.some((b) => message.includes(b as string));
     if (!blackListed) return;
 
     return this.returnByWarnedState(SettingsType.blacklists, state.userInfo.userId, settings);
@@ -134,7 +138,7 @@ export class ModerationParser {
       symbolsCount = symbolsCount + item.length;
     }
 
-    const check = Math.ceil(symbolsCount * 100 / message.length) >= settings.maxPercentage;
+    const check = Math.ceil((symbolsCount * 100) / message.length) >= settings.maxPercentage;
     if (!check) return;
 
     return this.returnByWarnedState(SettingsType.symbols, state.userInfo.userId, settings);
@@ -165,7 +169,7 @@ export class ModerationParser {
       }
     }
 
-    const check = Math.ceil(capsCount * 100 / message.length) >= settings.maxPercentage;
+    const check = Math.ceil((capsCount * 100) / message.length) >= settings.maxPercentage;
     if (!check) return;
 
     return this.returnByWarnedState(SettingsType.caps, state.userInfo.userId, settings);

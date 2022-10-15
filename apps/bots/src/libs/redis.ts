@@ -1,10 +1,10 @@
 import { config } from '@tsuwari/config';
-import { Client } from '@tsuwari/redis';
+import { Client, RedisSource } from '@tsuwari/redis';
 import Redis from 'ioredis';
 import Redlock from 'redlock';
 
-
 export const redis = new Redis(config.REDIS_URL);
+export const redisSource = new RedisSource(redis);
 export const redlock = new Redlock(
   // You should have one client for each independent redis node
   // or cluster.

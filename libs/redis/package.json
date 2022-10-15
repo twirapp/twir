@@ -15,6 +15,7 @@
     "@nestjs/core": "9.1.2",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
+    "@twurple/api": "^5.2.5",
     "ioredis": "^5.2.3",
     "redis-om": "github:satont/redis-om-node",
     "reflect-metadata": "0.1.13",

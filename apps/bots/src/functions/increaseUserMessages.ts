@@ -1,19 +1,17 @@
-import { UsersStats, usersStatsSchema } from '@tsuwari/redis';
+import { StreamRepository, UsersStatsRepository } from '@tsuwari/redis';
 import { User } from '@tsuwari/typeorm/entities/User';
 import { UserStats } from '@tsuwari/typeorm/entities/UserStats';
 
 import { USERS_STATUS_CACHE_TTL } from '../constants.js';
-import { redis, redisOm } from '../libs/redis.js';
+import { redisSource } from '../libs/redis.js';
 import { typeorm } from '../libs/typeorm.js';
-
-const repository = redisOm.fetchRepository(usersStatsSchema);
 
 const typeormRepository = typeorm.getRepository(UserStats);
 const userRepository = typeorm.getRepository(User);
 
 export async function increaseUserMessages(userId: string, channelId: string) {
-  const rawStream = await redis.get(`streams:${channelId}`);
-  if (!rawStream) return;
+  const stream = await redisSource.getRepository(StreamRepository).read(channelId);
+  if (!stream) return;
 
   let stats: UserStats;
   const currentStats = await typeormRepository.findOneBy({
@@ -38,12 +36,14 @@ export async function increaseUserMessages(userId: string, channelId: string) {
   }
 
   const key = `${channelId}:${userId}`;
-  await repository.createAndSave(
+  const repository = redisSource.getRepository(UsersStatsRepository);
+
+  await repository.write(
+    key,
     {
       ...stats,
       watched: stats.watched.toString(),
     },
-    key,
+    USERS_STATUS_CACHE_TTL,
   );
-  await repository.expire(key, USERS_STATUS_CACHE_TTL);
 }

@@ -2,7 +2,7 @@ import { CacheModule, CacheModuleOptions, Module, Scope } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { config } from '@tsuwari/config';
-import { RedisORMModule, RedisORMService } from '@tsuwari/redis';
+import { RedisDataSourceService, RedisORMModule, RedisORMService } from '@tsuwari/redis';
 import { RedisModule, TwitchApiService } from '@tsuwari/shared';
 import cacheRedisStore from 'cache-manager-ioredis';
 import Redis from 'ioredis';
@@ -50,6 +50,7 @@ const redis = new (class extends Redis {
   controllers: [AppController],
   providers: [
     RedisORMService,
+    RedisDataSourceService,
     AppService,
     TwitchApiService,
     {

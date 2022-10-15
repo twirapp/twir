@@ -1,5 +1,5 @@
-import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
-import { Greetings, greetingsSchema, RedisORMService, Repository } from '@tsuwari/redis';
+import { HttpException, Injectable } from '@nestjs/common';
+import { GreetingsRepository, RedisDataSourceService } from '@tsuwari/redis';
 import { RedisService } from '@tsuwari/shared';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 
@@ -8,15 +8,11 @@ import { staticApi } from '../../twitchApi.js';
 import { GreetingCreateDto } from './dto/create.js';
 
 @Injectable()
-export class GreetingsService implements OnModuleInit {
-  #repository: Repository<Greetings>;
-
-  constructor(private readonly redis: RedisService, private readonly redisOrm: RedisORMService) {}
-
-  async onModuleInit() {
-    await this.redisOrm.onModuleInit();
-    this.#repository = this.redisOrm.fetchRepository(greetingsSchema);
-  }
+export class GreetingsService {
+  constructor(
+    private readonly redis: RedisService,
+    private readonly redisSource: RedisDataSourceService,
+  ) {}
 
   async getList(userId: string) {
     const greetings = await typeorm.getRepository(ChannelGreeting).findBy({ channelId: userId });
@@ -46,13 +42,12 @@ export class GreetingsService implements OnModuleInit {
       text: data.text,
     });
 
-    await this.#repository.createAndSave(
-      {
+    await this.redisSource
+      .getRepository(GreetingsRepository)
+      .write(`${greeting.channelId}:${greeting.userId}`, {
         ...greeting,
         processed: false,
-      },
-      `${greeting.channelId}:${greeting.userId}`,
-    );
+      });
 
     return {
       ...greeting,
@@ -80,13 +75,12 @@ export class GreetingsService implements OnModuleInit {
 
     const greeting = await repository.findOneBy({ id: greetingId });
 
-    await this.#repository.createAndSave(
-      {
+    await this.redisSource
+      .getRepository(GreetingsRepository)
+      .write(`${greeting!.channelId}:${greeting!.userId}`, {
         ...greeting!,
         processed: false,
-      },
-      `${greeting!.channelId}:${greeting!.userId}`,
-    );
+      });
 
     return {
       ...greeting,
@@ -109,7 +103,9 @@ export class GreetingsService implements OnModuleInit {
       id: greetingId,
     });
 
-    await this.#repository.remove(`${greeting.channelId}:${greeting.userId}`);
+    await this.redisSource
+      .getRepository(GreetingsRepository)
+      .remove(`${greeting.channelId}:${greeting.userId}`);
 
     return result;
   }
