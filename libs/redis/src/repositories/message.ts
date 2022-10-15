@@ -13,6 +13,6 @@ type Message = {
 
 export class MessagesRepository extends BaseRepository<Message> {
   constructor(redis: Redis) {
-    super('variables', redis);
+    super('messages', redis);
   }
 }
