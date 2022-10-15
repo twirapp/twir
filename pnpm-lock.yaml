@@ -568,6 +568,7 @@ importers:
       '@nestjs/core': 9.1.2
       '@tsuwari/config': workspace:*
       '@tsuwari/typeorm': workspace:*
+      ioredis: ^5.2.3
       redis-om: github:satont/redis-om-node
       reflect-metadata: 0.1.13
       rxjs: 7.5.7
@@ -577,6 +578,7 @@ importers:
       '@nestjs/core': 9.1.2_e6ar3fodmgi6dfak6o4ayoeihe
       '@tsuwari/config': link:../config
       '@tsuwari/typeorm': link:../typeorm
+      ioredis: 5.2.3
       redis-om: github.com/satont/redis-om-node/49248deab514914a31eae07e2d006b064ba26ef1
       reflect-metadata: 0.1.13
       rxjs: 7.5.7
