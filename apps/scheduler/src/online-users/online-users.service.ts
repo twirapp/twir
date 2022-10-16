@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
-import { RedisService, TwitchApiService } from '@tsuwari/shared';
+import { TwitchApiService } from '@tsuwari/shared';
 import { In, IsNull, Not } from '@tsuwari/typeorm';
 import { ChannelStream } from '@tsuwari/typeorm/entities/ChannelStream';
 import { UserOnline } from '@tsuwari/typeorm/entities/UserOnline';
@@ -10,7 +10,7 @@ import { typeorm } from '../index.js';
 
 @Injectable()
 export class OnlineUsersService implements OnModuleInit {
-  constructor(private readonly twitch: TwitchApiService, private readonly redis: RedisService) {}
+  constructor(private readonly twitch: TwitchApiService) {}
 
   onModuleInit() {
     this.onlineUsers();
