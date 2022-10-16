@@ -1,5 +1,14 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, OneToMany, OneToOne, PrimaryColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+  Relation,
+} from 'typeorm';
 
 import { type Channel } from './Channel.js';
 import { type ChannelPermit } from './ChannelPermit.js';
@@ -8,6 +17,7 @@ import { type DashboardAccess } from './DashboardAccess.js';
 import { type Notification } from './Notification.js';
 import { type Token } from './Token.js';
 import { type UserFile } from './UserFile.js';
+import { type UserOnline } from './UserOnline.js';
 import { type UserStats } from './UserStats.js';
 import { type UserViewedNotification } from './UserViewedNotification.js';
 
@@ -37,7 +47,7 @@ export class User {
   @OneToMany('Notification', 'user')
   notifications?: Relation<Notification[]>;
 
-  @OneToOne('Token', 'users', { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
+  @OneToOne('Token', 'user', { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
   @JoinColumn([{ name: 'tokenId', referencedColumnName: 'id' }])
   token?: Relation<Token>;
 
@@ -50,6 +60,9 @@ export class User {
 
   @OneToMany('UserStats', 'user')
   stats?: Relation<UserStats[]>;
+
+  @OneToOne('UserOnline', 'user')
+  online?: Relation<UserOnline>;
 
   @OneToMany('UserViewedNotification', 'user')
   viewedNotifications?: Relation<UserViewedNotification[]>;

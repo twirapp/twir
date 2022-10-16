@@ -32,6 +32,7 @@ import { NotificationMessage } from './entities/NotificationMessage.js';
 import { Token } from './entities/Token.js';
 import { User } from './entities/User.js';
 import { UserFile } from './entities/UserFile.js';
+import { UserOnline } from './entities/UserOnline.js';
 import { UserStats } from './entities/UserStats.js';
 import { UserViewedNotification } from './entities/UserViewedNotification.js';
 
@@ -69,6 +70,7 @@ export const AppDataSource = new DataSource({
     UserFile,
     UserStats,
     UserViewedNotification,
+    UserOnline,
     ChannelEvent,
     ChannelFollowEvent,
     ChannelDonationEvent,

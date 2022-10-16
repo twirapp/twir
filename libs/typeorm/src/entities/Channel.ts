@@ -25,6 +25,7 @@ import { type ChannelStream } from './ChannelStream.js';
 import { type ChannelTimer } from './ChannelTimer.js';
 import { type DashboardAccess } from './DashboardAccess.js';
 import { type User } from './User.js';
+import { type UserOnline } from './UserOnline.js';
 import { type UserStats } from './UserStats.js';
 
 @Entity('channels', { schema: 'public' })
@@ -93,4 +94,7 @@ export class Channel {
 
   @OneToMany('ChannelStream', 'channel')
   streams?: Relation<ChannelStream[]>;
+
+  @OneToMany('UserOnline', 'channel')
+  onlineUsers?: Relation<UserOnline[]>;
 }
