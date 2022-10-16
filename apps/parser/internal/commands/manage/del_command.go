@@ -16,7 +16,7 @@ var DelCommand = types.DefaultCommand{
 		Name:        "commands remove",
 		Description: lo.ToPtr("Remove command"),
 		Permission:  "MODERATOR",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {

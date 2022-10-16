@@ -18,7 +18,7 @@ var AddAccCommand = types.DefaultCommand{
 		Name:        "dota addacc",
 		Description: lo.ToPtr("Add dota account for watching games"),
 		Permission:  "BROADCASTER",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {

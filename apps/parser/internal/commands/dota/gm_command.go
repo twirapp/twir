@@ -24,7 +24,7 @@ var GmCommand = types.DefaultCommand{
 		Name:        "gm",
 		Description: lo.ToPtr("Game medals from current game."),
 		Permission:  "BROADCASTER",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {

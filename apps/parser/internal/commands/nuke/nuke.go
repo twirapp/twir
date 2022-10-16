@@ -25,7 +25,7 @@ var Command = types.DefaultCommand{
 		Name:        "nuke",
 		Description: lo.ToPtr("Mass remove messages in chat by message content. Usage: <b>!nuke phrase</b>"),
 		Permission:  "MODERATOR",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("CHANNEL"),
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {

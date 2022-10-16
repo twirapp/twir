@@ -14,7 +14,7 @@ var Command = types.DefaultCommand{
 		Name:        "spam",
 		Description: lo.ToPtr("Spam into chat. Example usage: <b>!spam 5 https://tsuwari.tk</b>"),
 		Permission:  "MODERATOR",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("CHANNEL"),
 	},
 	IsReply: lo.ToPtr(false),
