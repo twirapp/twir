@@ -16,7 +16,7 @@ var Variable = types.Variable{
 
 		stream := ctx.GetChannelStream()
 		if stream != nil {
-			result.Result = strconv.Itoa(stream.Messages)
+			result.Result = strconv.Itoa(stream.ParsedMessages)
 		} else {
 			result.Result = "stream offline"
 		}
