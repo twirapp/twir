@@ -6,7 +6,6 @@ import (
 	model "tsuwari/models"
 	"tsuwari/parser/internal/config/twitch"
 	usersauth "tsuwari/parser/internal/twitch/user"
-	"tsuwari/parser/internal/variables/stream"
 
 	"github.com/go-redis/redis/v9"
 	"github.com/nats-io/nats.go"
@@ -15,7 +14,7 @@ import (
 )
 
 type variablesCache struct {
-	Stream       *stream.HelixStream
+	Stream       *model.ChannelsStreams
 	DbUserStats  *model.UsersStats
 	TwitchUser   *helix.User
 	TwitchFollow *helix.UserFollow
