@@ -23,17 +23,11 @@ const repository = typeorm.getRepository(ChannelModerationSetting);
 
 export class ModerationParser {
   private async getModerationSettings(channelId: string) {
-    const result = {} as Record<SettingsType, ChannelModerationSetting>;
-
     const settings = await repository.findBy({
       channelId,
     });
 
-    for (const setting of settings) {
-      result[setting.type] = setting;
-    }
-
-    return result;
+    return settings;
   }
 
   private async returnByWarnedState(
@@ -71,17 +65,16 @@ export class ModerationParser {
     const settings = await this.getModerationSettings(state.channelId);
 
     const results = await Promise.all(
-      Object.keys(settings).map((k) => {
-        const key = k as SettingsType;
-        const parserSettings = settings[key];
-        if (!parserSettings) return;
+      settings.map((item) => {
+        const key = item.type;
+        if (!item) return;
 
         if (state.userInfo.isMod || state.userInfo.isBroadcaster) return;
-        if (!parserSettings || !parserSettings.enabled) return;
-        if (!parserSettings.vips && state.userInfo.isVip) return;
-        if (!parserSettings.subscribers && state.userInfo.isSubscriber) return;
+        if (!item || !item.enabled) return;
+        if (!item.vips && state.userInfo.isVip) return;
+        if (!item.subscribers && state.userInfo.isSubscriber) return;
 
-        return this[`${key}Parser`](message, parserSettings, state);
+        return this[`${key}Parser`](message, item, state);
       }),
     );
 
