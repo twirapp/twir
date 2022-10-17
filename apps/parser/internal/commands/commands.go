@@ -85,6 +85,7 @@ func (c *Commands) GetChannelCommands(channelId string) (*[]model.ChannelsComman
 	cmds := []model.ChannelsCommands{}
 	err := c.Db.
 		Model(&model.ChannelsCommands{}).
+		Where(`"channelId" = ?`, channelId).
 		Preload("Responses").
 		Find(&cmds).Error
 	if err != nil {
