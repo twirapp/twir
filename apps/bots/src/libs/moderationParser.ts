@@ -2,11 +2,11 @@ import {
   ChannelModerationSetting,
   SettingsType,
 } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
+import { ChannelModerationWarn } from '@tsuwari/typeorm/entities/ChannelModerationWarn';
 import { ChannelPermit } from '@tsuwari/typeorm/entities/ChannelPermit';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
 import tlds from 'tlds' assert { type: 'json' };
 
-import { redis } from './redis.js';
 import { typeorm } from './typeorm.js';
 
 const clipsRegexps = [/.*(clips.twitch.tv\/)(\w+)/, /.*(www.twitch.tv\/\w+\/clip\/)(\w+)/];
@@ -41,17 +41,24 @@ export class ModerationParser {
     userId: string,
     settings: ChannelModerationSetting,
   ) {
-    const redisKey = `moderation:warnings:${cacheKey}:${userId}`;
-    const isWarned = await redis.get(redisKey);
+    const repository = typeorm.getRepository(ChannelModerationWarn);
 
-    if (isWarned === null) {
-      redis.set(redisKey, '', 'EX', 60 * 60);
+    const query: Partial<ChannelModerationWarn> = {
+      channelId: settings.channelId,
+      userId,
+      reason: cacheKey,
+    };
+    const existedWarning = await repository.findOneBy(query);
+
+    if (!existedWarning) {
+      repository.save(query);
       return {
         message: settings.warningMessage,
         delete: true,
       };
     } else {
-      redis.del(redisKey);
+      repository.delete({ id: existedWarning.id });
+
       return {
         time: settings.banTime,
         message: settings.banMessage,

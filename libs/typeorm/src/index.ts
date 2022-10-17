@@ -15,6 +15,7 @@ import { ChannelGreeting } from './entities/ChannelGreeting.js';
 import { ChannelIntegration } from './entities/ChannelIntegration.js';
 import { ChannelKeyword } from './entities/ChannelKeyword.js';
 import { ChannelModerationSetting } from './entities/ChannelModerationSetting.js';
+import { ChannelModerationWarn } from './entities/ChannelModerationWarn.js';
 import { ChannelPermit } from './entities/ChannelPermit.js';
 import { ChannelStream } from './entities/ChannelStream.js';
 import { ChannelTimer } from './entities/ChannelTimer.js';
@@ -52,6 +53,7 @@ export const AppDataSource = new DataSource({
     ChannelIntegration,
     ChannelKeyword,
     ChannelModerationSetting,
+    ChannelModerationWarn,
     ChannelPermit,
     ChannelTimer,
     CommandResponse,
