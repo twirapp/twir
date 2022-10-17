@@ -1,8 +1,6 @@
 package manage
 
 import (
-	"context"
-	"fmt"
 	"log"
 	"strings"
 	model "tsuwari/models"
@@ -46,7 +44,7 @@ var EditCommand = types.DefaultCommand{
 			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, name).
 			Preload(`Responses`).
 			First(&cmd).Error
-		
+
 		if err != nil || &cmd == nil {
 			log.Fatalln(err)
 			result.Result = append(result.Result, "Command not found.")
@@ -60,7 +58,7 @@ var EditCommand = types.DefaultCommand{
 
 		if cmd.Responses != nil && len(cmd.Responses) > 1 {
 			result.Result = append(
-				result.Result, 
+				result.Result,
 				"Cannot update response because you have more then 1 responses in command. Please use UI.",
 			)
 			return result
@@ -74,34 +72,11 @@ var EditCommand = types.DefaultCommand{
 		if err != nil {
 			log.Fatalln(err)
 			result.Result = append(
-				result.Result, 
+				result.Result,
 				"Cannot update command response. This is internal bug, please report it.",
 			)
 			return result
 		}
-
-		bytes, err := CreateRedisBytes(cmd, text, nil)
-
-		if err != nil {
-			log.Fatalln(err)
-			result.Result = append(
-				result.Result, 
-				"Cannot update command response. This is internal bug, please report it.",
-			)
-			return result
-		}
-
-		ctx.Services.Redis.Set(
-			context.TODO(),
-			fmt.Sprintf("commands:%s:%s", ctx.ChannelId, cmd.Name),
-			*bytes,
-			0,
-		)
-
-		ctx.Services.Redis.Del(
-			context.TODO(), 
-			fmt.Sprintf("nest:cache:v1/channels/%s/commands", ctx.ChannelId), 
-		)
 
 		result.Result = append(result.Result, "✅ Command edited.")
 		return result
