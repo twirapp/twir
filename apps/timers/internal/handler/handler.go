@@ -8,7 +8,6 @@ import (
 	model "tsuwari/models"
 
 	"github.com/go-co-op/gocron"
-	"github.com/go-redis/redis/v9"
 	"github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
 	"github.com/nicklaw5/helix"
@@ -19,7 +18,6 @@ import (
 )
 
 type Handler struct {
-	redis  *redis.Client
 	twitch *twitch.Twitch
 	nats   *nats.Conn
 	db     *gorm.DB
@@ -28,14 +26,13 @@ type Handler struct {
 }
 
 func New(
-	redis *redis.Client,
 	twitch *twitch.Twitch,
 	nats *nats.Conn,
 	db *gorm.DB,
 	logger *zap.Logger,
 	store types.Store,
 ) *Handler {
-	return &Handler{redis: redis, twitch: twitch, nats: nats, db: db, logger: logger, store: store}
+	return &Handler{twitch: twitch, nats: nats, db: db, logger: logger, store: store}
 }
 
 func (c *Handler) Handle(j gocron.Job) {

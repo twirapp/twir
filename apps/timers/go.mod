@@ -4,12 +4,12 @@ go 1.19
 
 require (
 	github.com/go-co-op/gocron v1.17.0
-	github.com/go-redis/redis/v9 v9.0.0-beta.2
 	github.com/golang/protobuf v1.5.0
 	github.com/nicklaw5/helix v1.25.0
 	github.com/satont/tsuwari/nats/bots v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/nats/parser v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/nats/timers v0.0.0-00010101000000-000000000000
+	go.uber.org/zap v1.23.0
 	gorm.io/driver/postgres v1.3.10
 	gorm.io/gorm v1.23.10
 	tsuwari/config v0.0.0
@@ -18,13 +18,11 @@ require (
 )
 
 require (
-	github.com/cespare/xxhash/v2 v2.1.2 // indirect
-	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/golang-jwt/jwt v3.2.1+incompatible // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/nats-io/nats-server/v2 v2.9.1 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.23.0 // indirect
 )
 
 require (

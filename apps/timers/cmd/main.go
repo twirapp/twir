@@ -6,11 +6,10 @@ import (
 	"os"
 	"os/signal"
 	"time"
+	"tsuwari/timers/internal/scheduler"
+	"tsuwari/timers/internal/types"
 
 	model "tsuwari/models"
-	"tsuwari/timers/internal/scheduler"
-	"tsuwari/timers/internal/services/redis"
-	"tsuwari/timers/internal/types"
 
 	cfg "tsuwari/config"
 	twitch "tsuwari/twitch"
@@ -25,7 +24,6 @@ import (
 	"github.com/nats-io/nats.go/encoders/protobuf"
 	natstimers "github.com/satont/tsuwari/nats/timers"
 )
-
 
 func main() {
 	cfg, err := cfg.New()
@@ -44,8 +42,6 @@ func main() {
 		panic("failed to connect database")
 	}
 
-	r := redis.New(cfg.RedisUrl)
-
 	n, err := nats.Connect(cfg.NatsUrl,
 		nats.RetryOnFailedConnect(true),
 		nats.MaxReconnects(10),
@@ -56,11 +52,14 @@ func main() {
 	natsProtoConn, err := nats.NewEncodedConn(n, protobuf.PROTOBUF_ENCODER)
 
 	t := twitch.New(cfg.TwitchClientId, cfg.TwitchClientSecret)
-	
-	scheduler := scheduler.New(cfg, r, t, n, db, logger)
+
+	scheduler := scheduler.New(cfg, t, n, db, logger)
 
 	timers := []*model.ChannelsTimers{}
-	err = db.Model(&model.ChannelsTimers{}).Where("1 = 1").Update("lastTriggerMessageNumber", 0).Error
+	err = db.Model(&model.ChannelsTimers{}).
+		Where("1 = 1").
+		Update("lastTriggerMessageNumber", 0).
+		Error
 	if err != nil {
 		logger.Sugar().Error(err)
 	}
@@ -111,15 +110,14 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c
-	r.Close()
 	natsProtoConn.Close()
 	n.Close()
 	log.Fatalf("Exiting")
 }
 
-func AddTimerByModel (s *scheduler.Scheduler, t *model.ChannelsTimers) {
+func AddTimerByModel(s *scheduler.Scheduler, t *model.ChannelsTimers) {
 	s.AddTimer(&types.Timer{
-		Model: t,
+		Model:     t,
 		SendIndex: 0,
 	})
 }
