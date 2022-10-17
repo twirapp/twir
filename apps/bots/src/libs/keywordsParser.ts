@@ -30,7 +30,7 @@ export class KeywordsParser {
       if (keyword.cooldown !== null) {
         await repository.update(
           { id: keyword.id },
-          { cooldownExpireAt: Date.now() + 1000 * keyword.cooldown },
+          { cooldownExpireAt: new Date(Date.now() + 1000 * keyword.cooldown) },
         );
       }
     }

@@ -42,6 +42,6 @@ export class ChannelKeyword {
   @Column('text', { name: 'channelId' })
   channelId: string;
 
-  @Column('timestamp')
-  cooldownExpireAt?: Date;
+  @Column('timestamp', { nullable: true })
+  cooldownExpireAt: Date | null;
 }
