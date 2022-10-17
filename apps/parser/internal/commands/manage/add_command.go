@@ -26,8 +26,9 @@ var AddCommand = types.DefaultCommand{
 		Name:        "commands add",
 		Description: lo.ToPtr("Add command"),
 		Permission:  "MODERATOR",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{

@@ -16,8 +16,9 @@ var EditCommand = types.DefaultCommand{
 		Name:        "commands edit",
 		Description: lo.ToPtr("Edit command response"),
 		Permission:  "MODERATOR",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{

@@ -13,8 +13,9 @@ var ListAccCommand = types.DefaultCommand{
 		Name:        "dota listacc",
 		Description: lo.ToPtr("List of added dota accounts"),
 		Permission:  "BROADCASTER",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{

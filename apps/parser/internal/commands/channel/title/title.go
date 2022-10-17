@@ -13,16 +13,17 @@ var Command = types.DefaultCommand{
 		Name:        "title set",
 		Description: lo.ToPtr("Changing title of the channel."),
 		Permission:  "MODERATOR",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("CHANNEL"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		if ctx.Text == nil {
 			return nil
 		}
-		
+
 		twitchClient, err := ctx.Services.UsersAuth.Create(ctx.ChannelId)
-		
+
 		if err != nil || twitchClient == nil {
 			return nil
 		}
@@ -41,7 +42,7 @@ var Command = types.DefaultCommand{
 			return result
 		}
 
-		result.Result = append(result.Result, "✅ " + *ctx.Text)
+		result.Result = append(result.Result, "✅ "+*ctx.Text)
 		return result
 	},
 }

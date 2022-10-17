@@ -14,8 +14,9 @@ var NpAccCommand = types.DefaultCommand{
 		Name:        "np",
 		Description: lo.ToPtr("Notable players from current dota game"),
 		Permission:  "VIEWER",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{

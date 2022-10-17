@@ -19,8 +19,9 @@ var Command = types.DefaultCommand{
 		Name:        "permit",
 		Description: lo.ToPtr("Permits user."),
 		Permission:  "MODERATOR",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("CHANNEL"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}

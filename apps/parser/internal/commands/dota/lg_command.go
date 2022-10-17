@@ -17,8 +17,9 @@ var LgCommand = types.DefaultCommand{
 		Name:        "lg",
 		Description: lo.ToPtr("Players from the latest game"),
 		Permission:  "VIEWER",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
