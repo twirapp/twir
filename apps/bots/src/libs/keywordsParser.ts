@@ -1,7 +1,6 @@
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage.js';
 
-import { redis } from './redis.js';
 import { typeorm } from './typeorm.js';
 
 const repository = typeorm.getRepository(ChannelKeyword);
