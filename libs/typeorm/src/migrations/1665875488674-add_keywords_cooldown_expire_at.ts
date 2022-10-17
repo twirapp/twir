@@ -4,9 +4,7 @@ export class addKeywordsCooldownExpireAt1665875488674 implements MigrationInterf
   name = 'addKeywordsCooldownExpireAt1665875488674';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "channels_keywords" ADD "cooldownExpireAt" TIMESTAMP NOT NULL`,
-    );
+    await queryRunner.query(`ALTER TABLE "channels_keywords" ADD "cooldownExpireAt" TIMESTAMP`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
