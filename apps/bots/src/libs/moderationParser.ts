@@ -22,7 +22,7 @@ const symbolsRegexp = /([^\s\u0500-\u052F\u0400-\u04FF\w]+)/;
 const repository = typeorm.getRepository(ChannelModerationSetting);
 
 export class ModerationParser {
-  async getModerationSettings(channelId: string) {
+  private async getModerationSettings(channelId: string) {
     const result = {} as Record<SettingsType, ChannelModerationSetting>;
 
     const settings = await repository.findBy({
