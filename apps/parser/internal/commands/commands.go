@@ -183,7 +183,7 @@ func (c *Commands) ParseCommandResponses(
 			result.Responses = results.Result
 		}
 	} else {
-		result.Responses = lo.Map(cmd.Responses, func(r *model.ChannelsCommandsResponses, _ int) string {
+		result.Responses = lo.Map(cmd.Responses, func(r model.ChannelsCommandsResponses, _ int) string {
 			if r.Text.Valid {
 				return r.Text.String
 			} else {

@@ -34,8 +34,8 @@ export class ChannelStream {
   @Column({ type: 'int' })
   viewerCount: number;
 
-  @Column('text')
-  startedAt: string;
+  @Column('timestamp')
+  startedAt: Date;
 
   @Column('text')
   language: string;

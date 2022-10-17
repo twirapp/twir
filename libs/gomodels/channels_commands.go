@@ -66,9 +66,9 @@ type ChannelsCommands struct {
 	//[11] defaultName                                    TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
 	DefaultName null.String `gorm:"column:defaultName;type:TEXT;"                    json:"defaultName"`
 	//[12] module                                         USER_DEFINED         null: false  primary: false  isArray: false  auto: false  col: USER_DEFINED    len: -1      default: [CUSTOM]
-	Module    string                       `gorm:"column:module;type:VARCHAR;default:CUSTOM;"       json:"module"`
-	Responses []*ChannelsCommandsResponses `gorm:"foreignKey:CommandID" json:"responses"`
-	IsReply   bool                         `gorm:"column:is_reply";type:BOOL;default:true;" json:"isReply"`
+	Module    string                      `gorm:"column:module;type:VARCHAR;default:CUSTOM;"       json:"module"`
+	Responses []ChannelsCommandsResponses `gorm:"foreignKey:CommandID" json:"responses"`
+	IsReply   bool                        `gorm:"column:is_reply";type:BOOL;default:true;" json:"isReply"`
 }
 
 var channels_commandsTableInfo = &TableInfo{

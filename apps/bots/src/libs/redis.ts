@@ -4,6 +4,7 @@ import Redis from 'ioredis';
 import Redlock from 'redlock';
 
 export const redis = new Redis(config.REDIS_URL);
+export const redisOm = await new Client().open(config.REDIS_URL);
 export const redlock = new Redlock(
   // You should have one client for each independent redis node
   // or cluster.

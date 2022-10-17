@@ -71,7 +71,7 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
       const commandsForCreate = defaultCommands.filter((c) => !channel.commands.includes(c.name));
 
       for (const command of commandsForCreate) {
-        await repository.save({
+        repository.save({
           channelId: channel.id,
           default: true,
           defaultName: command.name,

@@ -11,19 +11,19 @@ type ChannelsStreams struct {
 	UserId         string          `gorm:"column:userId;type:TEXT;"                    json:"userId"`
 	UserLogin      string          `gorm:"column:userLogin;type:TEXT;"                 json:"userLogin"`
 	UserName       string          `gorm:"column:userName;type:TEXT;"                  json:"userName"`
-	GameId         string          `gorm:"column:gameId;type:TEXT;default:[];"         json:"gameId"`
+	GameId         string          `gorm:"column:gameId;type:TEXT;default:TEXT;"       json:"gameId"`
 	GameName       string          `gorm:"column:gameName;type:TEXT;"                  json:"gameName"`
 	CommunityIds   pq.StringArray  `gorm:"column:communityIds;type:text[];default:[];" json:"communityIds"`
 	Type           string          `gorm:"column:type;type:TEXT;"                      json:"type"`
 	Title          string          `gorm:"column:title;type:TEXT;"                     json:"title"`
-	ViewerCount    int             `gorm:"column:viewerCount;type:INT;default:[];"     json:"viewerCount"`
+	ViewerCount    int             `gorm:"column:viewerCount;type:INT;"                json:"viewerCount"`
 	StartedAt      time.Time       `gorm:"column:startedAt;type:TIMESTAMP;"            json:"startedAt"`
 	Language       string          `gorm:"column:language;type:TEXT;"                  json:"language"`
 	ThumbnailUrl   string          `gorm:"column:thumbnailUrl;type:TEXT;"              json:"thumbnailUrl"`
 	TagIds         *pq.StringArray `gorm:"column:tagIds;type:text[];default:[];"       json:"tagIds"`
 	IsMature       bool            `gorm:"column:isMature;type:BOOL;"                  json:"isMature"`
-	ParsedMessages int             `gorm:"column:parsedMessages;type:INT;default:[];"  json:"parsedMessages"`
-	Channel        *Channels       `gorm:"foreignKey:userId"                           json:"channel"`
+	ParsedMessages int             `gorm:"column:parsedMessages;type:INT;"             json:"parsedMessages"`
+	Channel        *Channels       `gorm:"foreignKey:UserId"                           json:"channel"`
 }
 
 func (ChannelsStreams) TableName() string {

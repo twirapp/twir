@@ -35,11 +35,7 @@ export class OnlineUsersService implements OnModuleInit {
           (c) => !current.some((cur) => cur.userName! === c),
         );
 
-        await usersRepository.delete({
-          channelId: stream.userId,
-          userName: In(forDelete),
-        });
-
+        await usersRepository.remove(forDelete);
         await usersRepository.save(
           forCreate.map((item) => ({
             channelId: stream.userId,

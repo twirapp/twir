@@ -90,7 +90,7 @@ var AddCommand = types.DefaultCommand{
 			Permission:   "VIEWER",
 			Default:      false,
 			Module:       "CUSTOM",
-			Responses: []*model.ChannelsCommandsResponses{
+			Responses: []model.ChannelsCommandsResponses{
 				{
 					ID:        uuid.NewV4().String(),
 					Text:      null.StringFrom(text),

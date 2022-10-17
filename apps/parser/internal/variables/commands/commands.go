@@ -28,6 +28,9 @@ var Variable = types.Variable{
 				commandNames = append(commandNames, c.Name)
 			}
 		}
+		commandNames = lo.Filter(commandNames, func(n string, _ int) bool {
+			return n != ""
+		})
 
 		r := types.VariableHandlerResult{
 			Result: strings.Join(commandNames, ", "),

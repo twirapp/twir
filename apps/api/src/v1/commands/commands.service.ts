@@ -63,6 +63,9 @@ export class CommandsService {
       channelId: userId,
     });
 
+    const responses = data.responses.map((r) => ({ text: r.text, commandId: command.id }));
+    await typeorm.getRepository(CommandResponse).save(responses);
+
     return command;
   }
 
