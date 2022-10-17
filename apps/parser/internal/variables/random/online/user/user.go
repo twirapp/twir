@@ -1,12 +1,10 @@
 package randomonlineuser
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
-	"log"
+	"errors"
 	"math/rand"
 	"time"
+	model "tsuwari/models"
 	"tsuwari/parser/internal/types"
 
 	variables_cache "tsuwari/parser/internal/variablescache"
@@ -15,8 +13,8 @@ import (
 )
 
 type OnlineUser struct {
-	UserName string
-	UserId string
+	UserName  string
+	UserId    string
 	ChannelId string
 }
 
@@ -26,40 +24,34 @@ var Variable = types.Variable{
 	Example:     lo.ToPtr("random.online.user"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
-		
-		onlineUsersKeys, err := ctx.Services.Redis.
-			Keys(context.TODO(), fmt.Sprintf("onlineUsers:%s:*", ctx.ChannelId)).
-			Result()
 
+		onlineCount := int64(0)
+		err := ctx.Services.Db.
+			Model(&model.UsersOnline{}).
+			Where(`"channelId" = ? `, ctx.ChannelId).
+			Count(&onlineCount).Error
 		if err != nil {
-			log.Fatal(err)
-			result.Result = "cannot fetch online users"
-			return result, nil
+			return nil, err
 		}
 
-		onlineUsers, err := ctx.Services.Redis.
-			MGet(context.TODO(), onlineUsersKeys...).
-			Result()
-
-		if err != nil {
-			log.Fatal(err)
-			result.Result = "cannot fetch online users"
-			return result, nil
+		if onlineCount == 0 {
+			return nil, errors.New("no online users")
 		}
 
-		users := make([]OnlineUser, len(onlineUsersKeys))
-		for i, user := range onlineUsers {
-			parsedUser := OnlineUser{}
-	
-			err := json.Unmarshal([]byte(user.(string)), &parsedUser)
-	
-			if err == nil {
-				users[i] = parsedUser
-			}
-		}
 		rand.Seed(time.Now().Unix())
-		user := users[rand.Int() % len(users)]
-		result.Result = user.UserName
+		randCount := rand.Intn(int(onlineCount)-0) + 0
+
+		randomUser := &model.UsersOnline{}
+		err = ctx.Services.Db.
+			Model(&model.UsersOnline{}).
+			Offset(randCount).
+			First(randomUser).Error
+
+		if err != nil || randomUser == nil {
+			return nil, errors.New("cannot get online user")
+		}
+
+		result.Result = randomUser.UserName.String
 		return result, nil
 	},
 }
