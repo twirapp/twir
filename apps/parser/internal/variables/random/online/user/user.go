@@ -30,12 +30,8 @@ var Variable = types.Variable{
 			Model(&model.UsersOnline{}).
 			Where(`"channelId" = ? `, ctx.ChannelId).
 			Count(&onlineCount).Error
-		if err != nil {
-			return nil, err
-		}
-
-		if onlineCount == 0 {
-			return nil, errors.New("no online users")
+		if err != nil || onlineCount == 0 {
+			return nil, errors.New("no users online")
 		}
 
 		rand.Seed(time.Now().Unix())
