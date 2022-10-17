@@ -36,7 +36,7 @@ export class ModerationParser {
     return result;
   }
 
-  async returnByWarnedState(
+  private async returnByWarnedState(
     cacheKey: SettingsType,
     userId: string,
     settings: ChannelModerationSetting,
