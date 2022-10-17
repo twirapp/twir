@@ -16,6 +16,7 @@ var Variable = types.Variable{
 		cmds := []model.ChannelsCommands{}
 		err := ctx.Services.Db.
 			Model(&model.ChannelsCommands{}).
+			Where(`"channelId" = ?`, ctx.ChannelId).
 			Select("enabled", "visible", "name").
 			Find(&cmds).Error
 		if err != nil {
