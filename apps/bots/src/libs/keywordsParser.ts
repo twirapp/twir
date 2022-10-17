@@ -19,6 +19,9 @@ export class KeywordsParser {
 
     message = message.toLowerCase();
     for (const keyword of keywords) {
+      if (!message.includes(keyword.text.toLowerCase())) {
+        continue;
+      }
       let isOnCooldown = false;
       if (keyword.cooldown && keyword.cooldownExpireAt) {
         isOnCooldown = keyword.cooldownExpireAt.getTime() >= Date.now();
