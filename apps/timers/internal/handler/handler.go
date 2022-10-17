@@ -1,13 +1,11 @@
 package handler
 
 import (
-	"context"
-	"encoding/json"
 	"time"
-
-	model "tsuwari/models"
 	"tsuwari/timers/internal/types"
 	"tsuwari/twitch"
+
+	model "tsuwari/models"
 
 	"github.com/go-co-op/gocron"
 	"github.com/go-redis/redis/v9"
@@ -35,73 +33,76 @@ type Stream struct {
 	StartedAt    time.Time `json:"started_at"`
 	Language     string    `json:"language"`
 	ThumbnailURL string    `json:"thumbnail_url"`
-	Messages int `json:"parsedMessages"`
+	Messages     int       `json:"parsedMessages"`
 }
 
 type Handler struct {
-	redis *redis.Client
+	redis  *redis.Client
 	twitch *twitch.Twitch
-	nats *nats.Conn
-	db *gorm.DB
+	nats   *nats.Conn
+	db     *gorm.DB
 	logger *zap.Logger
-	store types.Store
+	store  types.Store
 }
 
-func New(redis *redis.Client, twitch *twitch.Twitch, nats *nats.Conn, db *gorm.DB, logger *zap.Logger, store types.Store) *Handler {
-	return &Handler{redis: redis, twitch: twitch, nats: nats, db: db, logger: logger,store: store}
+func New(
+	redis *redis.Client,
+	twitch *twitch.Twitch,
+	nats *nats.Conn,
+	db *gorm.DB,
+	logger *zap.Logger,
+	store types.Store,
+) *Handler {
+	return &Handler{redis: redis, twitch: twitch, nats: nats, db: db, logger: logger, store: store}
 }
 
 func (c *Handler) Handle(j gocron.Job) {
 	t := c.store[j.Tags()[0]]
 
-	streamString, err := c.redis.Get(context.TODO(), "streams:" + t.Model.ChannelID).Result()
+	streamData := model.ChannelsStreams{}
 
-	if err == redis.Nil {
-		return
-	}
-
+	err := c.db.Where(`"userId" = ?`, t.Model.ChannelID).First(&streamData).Error
 	if err != nil {
 		c.logger.Sugar().Error(err)
 		return
 	}
 
-	streamData := Stream{}
-
-	if err = json.Unmarshal([]byte(streamString), &streamData); err != nil {
-		c.logger.Sugar().Error(err)
+	if t.Model.MessageInterval > 0 &&
+		t.Model.LastTriggerMessageNumber-int32(
+			streamData.ParsedMessages,
+		)+t.Model.MessageInterval > 0 {
 		return
 	}
 
-	if t.Model.MessageInterval > 0 && t.Model.LastTriggerMessageNumber - int32(streamData.Messages) + t.Model.MessageInterval > 0 {
-		return
-	}
-	
-	
 	users, err := c.twitch.Client.GetUsers(&helix.UsersParams{
 		IDs: []string{t.Model.ChannelID},
 	})
-	
+
 	if err != nil || len(users.Data.Users) == 0 {
-		return;
+		return
 	}
-	
+
 	user := users.Data.Users[0]
-	
+
 	rawMessage := t.Model.Responses[t.SendIndex]
 
-	requestBytes, err := proto.Marshal(&parser.ParseResponseRequest{
-		Sender: &parser.Sender{Id: "", Name: "bot", DisplayName: "Bot", Badges: []string{"BROADCASTER"}},
+	requestBytes, protoError := proto.Marshal(&parser.ParseResponseRequest{
+		Sender: &parser.Sender{
+			Id:          "",
+			Name:        "bot",
+			DisplayName: "Bot",
+			Badges:      []string{"BROADCASTER"},
+		},
 		Channel: &parser.Channel{Id: user.ID, Name: user.Login},
 		Message: &parser.Message{Text: rawMessage},
 	})
-
-	if err != nil {
+	if protoError != nil {
 		c.logger.Sugar().Error(err)
 		return
 	}
-	
-	response, err := c.nats.Request("parser.parseTextResponse", requestBytes, 5*time.Second)
-	if err != nil {
+
+	response, natsError := c.nats.Request("parser.parseTextResponse", requestBytes, 5*time.Second)
+	if natsError != nil {
 		c.logger.Sugar().Error(err)
 		return
 	}
@@ -115,9 +116,9 @@ func (c *Handler) Handle(j gocron.Job) {
 	}
 
 	botsRequest := bots.SendMessage{
-		ChannelId: user.ID,
+		ChannelId:   user.ID,
 		ChannelName: &user.Login,
-		Message: rawMessage,
+		Message:     rawMessage,
 	}
 	bytes, _ := proto.Marshal(&botsRequest)
 	c.nats.Publish("bots.sendMessage", bytes)
@@ -130,12 +131,12 @@ func (c *Handler) Handle(j gocron.Job) {
 		t.SendIndex = 0
 	}
 
-	t.Model.LastTriggerMessageNumber = int32(streamData.Messages)
+	t.Model.LastTriggerMessageNumber = int32(streamData.ParsedMessages)
 
 	err = c.db.
 		Model(&model.ChannelsTimers{}).
 		Where(`"id" = ?`, t.Model.ID).
-		Updates(model.ChannelsTimers{LastTriggerMessageNumber: int32(streamData.Messages)}).
+		Updates(model.ChannelsTimers{LastTriggerMessageNumber: int32(streamData.ParsedMessages)}).
 		Error
 
 	if err != nil {
