@@ -28,6 +28,7 @@ message Request {
 message Response {
   repeated string responses = 1;
   bool isReply = 2;
+  optional bool keepOrder = 3;
 }
 
 message GetVariablesRequest {}

@@ -79,6 +79,9 @@ export class ChannelCommand {
   @Column('text', { name: 'defaultName', nullable: true })
   defaultName: string | null;
 
+  @Column('boolean', { default: true })
+  keepResponsesOrder: boolean;
+
   @Column('enum', {
     name: 'module',
     enum: CommandModule,

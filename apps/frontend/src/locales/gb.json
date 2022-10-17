@@ -49,6 +49,9 @@
         "status": {
           "title": "Command status"
         },
+        "keepOrder": {
+          "title": "Keep order of responses"
+        },
         "visible": {
           "title": "Show command in commands list"
         },

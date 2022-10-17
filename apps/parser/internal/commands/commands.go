@@ -2,6 +2,7 @@ package commands
 
 import (
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	model "tsuwari/models"
@@ -129,10 +130,15 @@ func (c *Commands) FindByMessage(input string, cmds *[]model.ChannelsCommands) F
 		if res.Cmd != nil {
 			break
 		} else {
-
 			splittedName = splittedName[:len(splittedName)-1]
 			continue
 		}
+	}
+
+	if res.Cmd != nil {
+		sort.Slice(res.Cmd.Responses, func(a, b int) bool {
+			return res.Cmd.Responses[a].Order > res.Cmd.Responses[b].Order
+		})
 	}
 
 	return res
@@ -142,7 +148,9 @@ func (c *Commands) ParseCommandResponses(
 	command FindByMessageResult,
 	data parserproto.Request,
 ) *parserproto.Response {
-	result := &parserproto.Response{}
+	result := &parserproto.Response{
+		KeepOrder: &command.Cmd.KeepOrder,
+	}
 
 	cmd := *command.Cmd
 	var cmdParams *string

@@ -9,10 +9,9 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import * as yup from 'yup';
 
-import Error from '../assets/icons/error.svg?component';
-
-import Add from '@/assets/buttons/add.svg';
-import Remove from '@/assets/buttons/remove.svg';
+import Add from '@/assets/buttons/add.svg?component';
+import Remove from '@/assets/buttons/remove.svg?component';
+import Error from '@/assets/icons/error.svg?component';
 import MyBtn from '@/components/elements/MyBtn.vue';
 import type { VariablesList } from '@/dashboard/Commands.vue';
 import { api } from '@/plugins/api';
@@ -236,7 +235,7 @@ function changeCommandResponse(index: number, value: string) {
               color="green"
               size="small"
               class="ml-1"
-              @click="command.responses.push({ text: '' })"
+              @click="command.responses.push({ text: '', order: command.responses.length })"
               ><Add
             /></MyBtn>
           </span>
@@ -314,6 +313,24 @@ function changeCommandResponse(index: number, value: string) {
           </Field>
         </div>
       </div>
+
+      <div class="mt-5">
+        <div class="flex form-check justify-between">
+          <label class="form-check-label inline-block" for="keepOrder">{{
+            t('pages.commands.card.keepOrder.title')
+          }}</label>
+
+          <div class="form-switch">
+            <input
+              id="keepOrder"
+              v-model="command.keepOrder"
+              class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
+              type="checkbox"
+              role="switch" />
+          </div>
+        </div>
+      </div>
+
       <div class="mt-5">
         <div class="flex form-check justify-between">
           <label class="form-check-label inline-block" for="commandVisibility">{{

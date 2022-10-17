@@ -19,17 +19,19 @@ type VariableHandlerResult struct {
 }
 
 type CommandsHandlerResult struct {
-	Result []string
+	Result  []string
 	IsReply *bool
 }
 
-type VariableHandler func(ctx *variables_cache.VariablesCacheService, data VariableHandlerParams) (*VariableHandlerResult, error)
-type Variable struct {
-	Name        string
-	Handler     VariableHandler
-	Description *string
-	Example     *string
-}
+type (
+	VariableHandler func(ctx *variables_cache.VariablesCacheService, data VariableHandlerParams) (*VariableHandlerResult, error)
+	Variable        struct {
+		Name        string
+		Handler     VariableHandler
+		Description *string
+		Example     *string
+	}
+)
 
 type Command struct {
 	Id           *string  `json:"id"`
@@ -47,6 +49,7 @@ type Command struct {
 	Cooldown     int      `json:"cooldown"`
 	CooldownType string   `json:"cooldownType"`
 	IsReply      bool     `json:"isReply"`
+	KeepOrder    *int     `json:"keepOrder"`
 }
 
 type DefaultCommand struct {

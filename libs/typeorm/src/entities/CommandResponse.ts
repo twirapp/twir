@@ -24,4 +24,7 @@ export class CommandResponse {
 
   @Column()
   commandId: string;
+
+  @Column('int', { default: 0 })
+  order: number;
 }

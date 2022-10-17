@@ -12,4 +12,5 @@ message SendMessage {
   string channelId = 1;
   optional string channelName = 2;
   string message = 3;
+  optional bool keepOrder = 4;
 }

@@ -186,14 +186,19 @@ export class Bot extends ChatClient {
             timeout: 5 * 5000,
           })
           .then(async (r) => {
-            const { responses: result, isReply } = Parser.Response.fromBinary(r.data);
+            const { responses: result, isReply, keepOrder } = Parser.Response.fromBinary(r.data);
             commandsCounter.inc();
 
             for (const response of result) {
               if (!response) continue;
               if (result.indexOf(response) > 0 && !isBotMod) break;
 
-              await this.say(channel, response, { replyTo: isReply ? state.id : undefined });
+              const args = { replyTo: isReply ? state.id : undefined };
+              if (keepOrder) {
+                await this.say(channel, response, args);
+              } else {
+                this.say(channel, response, args);
+              }
             }
 
             commandsResponseTime

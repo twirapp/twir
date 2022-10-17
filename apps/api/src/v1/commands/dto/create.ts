@@ -70,6 +70,10 @@ export class UpdateOrCreateCommandDto {
   @Type(() => ResponseValidation)
   @ArrayNotEmpty()
   responses: Array<ResponseValidation>;
+
+  @IsBoolean()
+  @IsOptional()
+  keepOrder?: boolean;
 }
 
 class ResponseValidation {
@@ -78,4 +82,7 @@ class ResponseValidation {
   @MaxLength(400, { each: true })
   @IsNotEmpty({ each: true })
   text: string | null;
+
+  @IsNumber()
+  order: number;
 }

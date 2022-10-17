@@ -125,7 +125,7 @@ func main() {
 			m.Respond([]byte{})
 		}
 
-		logger.Sugar().Infow("HandleProcessCommand ended.",
+		defer logger.Sugar().Infow("HandleProcessCommand ended.",
 			"in", data.Message.Text,
 			"out", r,
 			"took", time.Since(start),

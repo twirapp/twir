@@ -81,8 +81,11 @@ function insertCommand() {
       responses: [
         {
           text: '',
+          order: 0,
         },
       ],
+      keepOrder: true,
+      isReply: true,
       cooldownType: 'GLOBAL' as CooldownType,
       new: true,
     };
