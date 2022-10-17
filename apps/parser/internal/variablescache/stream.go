@@ -1,14 +1,14 @@
 package variables_cache
 
 import (
-	"context"
-	"encoding/json"
-	"tsuwari/parser/internal/variables/stream"
+	"fmt"
+	model "tsuwari/models"
 
+	"github.com/lib/pq"
 	"github.com/nicklaw5/helix"
 )
 
-func (c *VariablesCacheService) GetChannelStream() *stream.HelixStream {
+func (c *VariablesCacheService) GetChannelStream() *model.ChannelsStreams {
 	c.locks.stream.Lock()
 	defer c.locks.stream.Unlock()
 
@@ -16,33 +16,52 @@ func (c *VariablesCacheService) GetChannelStream() *stream.HelixStream {
 		return c.cache.Stream
 	}
 
-	rCtx := context.TODO()
-	rKey := "streams:" + c.ChannelId
-	cachedStream, _ := c.Services.Redis.Get(rCtx, rKey).Result()
+	stream := model.ChannelsStreams{}
 
-	if cachedStream != "" {
-		json.Unmarshal([]byte(cachedStream), &c.cache.Stream)
-		return c.cache.Stream
+	err := c.Services.Db.Where(`"userId" = ?`, c.ChannelId).First(&stream).Error
+
+	fmt.Printf("%+v\n", stream)
+
+	if err != nil {
+		fmt.Println(err)
+		streams, err := c.Services.Twitch.Client.GetStreams(&helix.StreamsParams{
+			UserIDs: []string{c.ChannelId},
+		})
+
+		if err != nil || len(streams.Data.Streams) == 0 {
+			return nil
+		}
+
+		helixStream := streams.Data.Streams[0]
+
+		tags := pq.StringArray{}
+		for _, t := range helixStream.TagIDs {
+			tags = append(tags, t)
+		}
+		stream = model.ChannelsStreams{
+			ID:             helixStream.ID,
+			UserId:         helixStream.UserID,
+			UserLogin:      helixStream.UserLogin,
+			UserName:       helixStream.UserName,
+			GameId:         helixStream.GameID,
+			GameName:       helixStream.GameName,
+			CommunityIds:   []string{},
+			Type:           helixStream.Type,
+			Title:          helixStream.Title,
+			ViewerCount:    helixStream.ViewerCount,
+			StartedAt:      helixStream.StartedAt,
+			Language:       helixStream.Language,
+			ThumbnailUrl:   helixStream.ThumbnailURL,
+			TagIds:         &tags,
+			IsMature:       helixStream.IsMature,
+			ParsedMessages: 0,
+		}
+
+		c.Services.Db.Save(&stream)
+		c.cache.Stream = &stream
+	} else {
+		c.cache.Stream = &stream
 	}
 
-	streams, err := c.Services.Twitch.Client.GetStreams(&helix.StreamsParams{
-		UserIDs: []string{c.ChannelId},
-	})
-
-	if err != nil || len(streams.Data.Streams) == 0 {
-		return nil
-	}
-
-	stream := stream.HelixStream{
-		Stream:   streams.Data.Streams[0],
-		Messages: 0,
-	}
-
-	rData, err := json.Marshal(stream)
-	if err == nil {
-		c.Services.Redis.Set(rCtx, rKey, rData, 0)
-	}
-
-	c.cache.Stream = &stream
 	return c.cache.Stream
 }

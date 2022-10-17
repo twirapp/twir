@@ -20,6 +20,7 @@ var AddAccCommand = types.DefaultCommand{
 		Permission:  "BROADCASTER",
 		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
@@ -71,7 +72,7 @@ var AddAccCommand = types.DefaultCommand{
 		if err != nil {
 			fmt.Println(err)
 			result.Result = append(
-				result.Result, 
+				result.Result,
 				"Something went wrong on out side when inserting account into db.",
 			)
 			return result

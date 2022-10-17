@@ -1,29 +1,24 @@
-import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, ParseArrayPipe, Post, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseArrayPipe,
+  Post,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ModerationSettingsDto } from '@tsuwari/shared';
-import CacheManager from 'cache-manager';
-import Express from 'express';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
-import { CustomCacheInterceptor } from '../../helpers/customCacheInterceptor.js';
 import { JwtAuthGuard } from '../../jwt/jwt.guard.js';
 import { ModerationService } from './moderation.service.js';
 
 @Controller('v1/channels/:channelId/moderation')
 export class ModerationController {
-  constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: CacheManager.Cache,
-    private readonly moderationService: ModerationService,
-  ) { }
+  constructor(private readonly moderationService: ModerationService) {}
 
-  async #delCache(channelId: string) {
-    await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/moderation`);
-  }
-
-  @CacheTTL(600)
-  @UseInterceptors(CustomCacheInterceptor(ctx => {
-    const req = ctx.switchToHttp().getRequest() as Express.Request;
-    return `nest:cache:v1/channels/${req.params.channelId}/moderation`;
-  }))
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
   @Get()
   root(@Param('channelId') channelId: string) {
@@ -33,9 +28,11 @@ export class ModerationController {
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
   @UsePipes(new ValidationPipe({ transform: false }))
   @Post()
-  async update(@Param('channelId') channelId: string, @Body(new ParseArrayPipe({ items: ModerationSettingsDto })) data: ModerationSettingsDto[]) {
+  async update(
+    @Param('channelId') channelId: string,
+    @Body(new ParseArrayPipe({ items: ModerationSettingsDto })) data: ModerationSettingsDto[],
+  ) {
     const result = await this.moderationService.update(channelId, data);
-    await this.#delCache(channelId);
     return result;
   }
 }

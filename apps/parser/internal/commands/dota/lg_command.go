@@ -19,6 +19,7 @@ var LgCommand = types.DefaultCommand{
 		Permission:  "VIEWER",
 		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{

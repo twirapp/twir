@@ -1,12 +1,10 @@
 package commands
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
 	"regexp"
 	"strings"
 	"sync"
+	model "tsuwari/models"
 	"tsuwari/parser/internal/commands/dota"
 	"tsuwari/parser/internal/commands/manage"
 	"tsuwari/parser/internal/commands/nuke"
@@ -83,27 +81,14 @@ func New(opts CommandsOpts) Commands {
 	return ctx
 }
 
-func (c *Commands) GetChannelCommands(channelId string) (*[]types.Command, error) {
-	rCtx := context.TODO()
-	keys, err := c.redis.Keys(rCtx, fmt.Sprintf("commands:%s:*", channelId)).Result()
+func (c *Commands) GetChannelCommands(channelId string) (*[]model.ChannelsCommands, error) {
+	cmds := []model.ChannelsCommands{}
+	err := c.Db.
+		Model(&model.ChannelsCommands{}).
+		Preload("Responses").
+		Find(&cmds).Error
 	if err != nil {
 		return nil, err
-	}
-
-	cmds := make([]types.Command, len(keys))
-	rCmds, err := c.redis.MGet(rCtx, keys...).Result()
-	if err != nil {
-		return nil, err
-	}
-
-	for i, cmd := range rCmds {
-		parsedCmd := types.Command{}
-
-		err := json.Unmarshal([]byte(cmd.(string)), &parsedCmd)
-
-		if err == nil {
-			cmds[i] = parsedCmd
-		}
 	}
 
 	return &cmds, nil
@@ -112,11 +97,11 @@ func (c *Commands) GetChannelCommands(channelId string) (*[]types.Command, error
 var splittedNameRegexp = regexp.MustCompile(`[^\s]+`)
 
 type FindByMessageResult struct {
-	Cmd     *types.Command
+	Cmd     *model.ChannelsCommands
 	FoundBy string
 }
 
-func (c *Commands) FindByMessage(input string, cmds *[]types.Command) FindByMessageResult {
+func (c *Commands) FindByMessage(input string, cmds *[]model.ChannelsCommands) FindByMessageResult {
 	msg := strings.ToLower(input)
 	splittedName := splittedNameRegexp.FindAllString(msg, -1)
 
@@ -168,8 +153,8 @@ func (c *Commands) ParseCommandResponses(
 	defaultCommand, isDefaultExists := lo.Find(
 		c.DefaultCommands,
 		func(command types.DefaultCommand) bool {
-			if cmd.DefaultName != nil {
-				return command.Name == *cmd.DefaultName
+			if cmd.DefaultName.Valid {
+				return command.Name == cmd.DefaultName.String
 			} else {
 				return false
 			}
@@ -198,7 +183,13 @@ func (c *Commands) ParseCommandResponses(
 			result.Responses = results.Result
 		}
 	} else {
-		result.Responses = cmd.Responses
+		result.Responses = lo.Map(cmd.Responses, func(r model.ChannelsCommandsResponses, _ int) string {
+			if r.Text.Valid {
+				return r.Text.String
+			} else {
+				return ""
+			}
+		})
 	}
 
 	result.IsReply = cmd.IsReply

@@ -13,8 +13,9 @@ var Command = types.DefaultCommand{
 		Name:        "game set",
 		Description: lo.ToPtr("Changing game of the channel."),
 		Permission:  "MODERATOR",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("CHANNEL"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
@@ -50,7 +51,7 @@ var Command = types.DefaultCommand{
 			return result
 		}
 
-		result.Result = append(result.Result, "✅ " + games.Data.Categories[0].Name)
+		result.Result = append(result.Result, "✅ "+games.Data.Categories[0].Name)
 		return result
 	},
 }

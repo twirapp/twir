@@ -1,11 +1,27 @@
 package natshandler
 
 import (
+	"context"
+	"fmt"
 	"strings"
+	"time"
 	"tsuwari/parser/internal/permissions"
+	"tsuwari/parser/pkg/helpers"
 
+	"github.com/go-redis/redis/v9"
 	parserproto "github.com/satont/tsuwari/nats/parser"
 )
+
+const (
+	cooldownPerUser = "PER_USER"
+	cooldownGlobal  = "GLOBAL"
+)
+
+func (c *NatsServiceImpl) shouldCheckCooldown(badges []string) bool {
+	return !helpers.Contains(badges, "BROADCASTER") &&
+		!helpers.Contains(badges, "MODERATOR") &&
+		!helpers.Contains(badges, "SUBSCRIBER")
+}
 
 func (c *NatsServiceImpl) HandleProcessCommand(data parserproto.Request) *parserproto.Response {
 	if !strings.HasPrefix(data.Message.Text, "!") {
@@ -20,8 +36,36 @@ func (c *NatsServiceImpl) HandleProcessCommand(data parserproto.Request) *parser
 
 	cmd := c.commands.FindByMessage(data.Message.Text, cmds)
 
-	if cmd.Cmd == nil {
+	if cmd.Cmd == nil || !cmd.Cmd.Enabled {
 		return nil
+	}
+
+	if cmd.Cmd.Cooldown.Valid && cmd.Cmd.CooldownType == cooldownGlobal &&
+		cmd.Cmd.Cooldown.Int64 > 0 &&
+		c.shouldCheckCooldown(data.Sender.Badges) {
+		key := fmt.Sprintf("commands:%s:cooldowns:global", cmd.Cmd.ID)
+		_, rErr := c.redis.Get(context.TODO(), key).
+			Result()
+
+		if rErr == redis.Nil {
+			c.redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
+		} else {
+			return nil
+		}
+	}
+
+	if cmd.Cmd.Cooldown.Valid && cmd.Cmd.CooldownType == cooldownPerUser &&
+		cmd.Cmd.Cooldown.Int64 > 0 &&
+		c.shouldCheckCooldown(data.Sender.Badges) {
+		key := fmt.Sprintf("commands:%s:cooldowns:user:%s", cmd.Cmd.ID, data.Sender.Id)
+		_, rErr := c.redis.Get(context.TODO(), key).
+			Result()
+
+		if rErr == redis.Nil {
+			c.redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
+		} else {
+			return nil
+		}
 	}
 
 	hasPerm := permissions.UserHasPermissionToCommand(data.Sender.Badges, cmd.Cmd.Permission)

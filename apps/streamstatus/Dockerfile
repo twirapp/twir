@@ -21,6 +21,7 @@ COPY libs/config/ libs/config
 COPY libs/typeorm libs/typeorm
 COPY libs/redis libs/redis
 COPY libs/shared/ libs/shared
+COPY libs/typeorm libs/typeorm
 
 RUN pnpm install --prod
 

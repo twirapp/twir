@@ -3,8 +3,8 @@ import { Client } from '@tsuwari/redis';
 import Redis from 'ioredis';
 import Redlock from 'redlock';
 
-
 export const redis = new Redis(config.REDIS_URL);
+export const redisOm = await new Client().open(config.REDIS_URL);
 export const redlock = new Redlock(
   // You should have one client for each independent redis node
   // or cluster.
@@ -31,22 +31,3 @@ export const redlock = new Redlock(
     automaticExtensionThreshold: 500, // time in ms
   },
 );
-export async function findOrSetObject(key: string, data: Record<any, any>) {
-  if (!(await redis.exists(key))) {
-    await redis.hmset(key, data);
-  } else {
-    const entity = await redis.hgetall(key);
-
-    return entity;
-  }
-}
-
-export async function findOrSetString(key: string, data: string) {
-  const entity = await redis.get(key);
-
-  if (entity) return entity;
-
-  await redis.set(key, data);
-}
-
-export const redisOm = await new Client().open(config.REDIS_URL);

@@ -1,7 +1,6 @@
 package dota
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -9,7 +8,6 @@ import (
 	"sync"
 	"time"
 	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variables/stream"
 
 	model "tsuwari/models"
 
@@ -45,28 +43,20 @@ var WlCommand = types.DefaultCommand{
 		Name:        "wl",
 		Description: lo.ToPtr("Score for played games on stream"),
 		Permission:  "VIEWER",
-		Visible:     true,
+		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
-		streamString, err := ctx.Services.Redis.Get(context.TODO(), "streams:"+ctx.ChannelId).
-			Result()
-		streamData := stream.HelixStream{}
+		streamData := &model.ChannelsStreams{}
+		err := ctx.Services.Db.Where(`"userId" = ?`, ctx.ChannelId).First(streamData).Error
 
-		if err != nil || streamString == "" {
+		if err != nil || streamData == nil {
 			result.Result = append(result.Result, "Stream not found")
-			return result
-		}
-
-		err = json.Unmarshal([]byte(streamString), &streamData)
-
-		if err != nil {
-			fmt.Println(err)
-			result.Result = append(result.Result, "Something went wrong on getting stream.")
 			return result
 		}
 

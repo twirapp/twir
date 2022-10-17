@@ -22,18 +22,19 @@ type Message struct {
 
 var Command = types.DefaultCommand{
 	Command: types.Command{
-		Name:        "nuke",
-		Description: lo.ToPtr("Mass remove messages in chat by message content. Usage: <b>!nuke phrase</b>"),
-		Permission:  "MODERATOR",
-		Visible:     false,
-		Module:      lo.ToPtr("CHANNEL"),
+		Name: "nuke",
+		Description: lo.ToPtr(
+			"Mass remove messages in chat by message content. Usage: <b>!nuke phrase</b>",
+		),
+		Permission: "MODERATOR",
+		Visible:    false,
+		Module:     lo.ToPtr("CHANNEL"),
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		query := fmt.Sprintf("( (@channelId:{%v}) (@message:'%s') )", ctx.ChannelId, *ctx.Text)
 
 		cmd := createSearchCmd(ctx.Services.Redis, query)
 		result, err := cmd.Result()
-
 		if err != nil {
 			return nil
 		}
@@ -76,7 +77,10 @@ var Command = types.DefaultCommand{
 
 		go func() {
 			for _, msg := range messages {
-				ctx.Services.Redis.Del(context.TODO(), fmt.Sprintf("messages:%v:%s", msg.UserId, msg.ID))
+				ctx.Services.Redis.Del(
+					context.TODO(),
+					fmt.Sprintf("messages:%v:%s", msg.UserId, msg.ID),
+				)
 			}
 		}()
 

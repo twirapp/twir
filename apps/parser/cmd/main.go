@@ -94,9 +94,9 @@ func main() {
 		Twitch:           twitchClient,
 	})
 	natsHandlers := natshandlers.New(natshandlers.NatsService{
-		Redis: r,
+		Redis:     r,
 		Variables: variablesService,
-		Commands: commandsService,
+		Commands:  commandsService,
 	})
 
 	if err != nil {
@@ -194,7 +194,6 @@ func main() {
 		bytes, err := proto.Marshal(&parserproto.ParseResponseResponse{
 			Responses: []string{text},
 		})
-
 		if err != nil {
 			logger.Error(err.Error())
 			return

@@ -1,54 +1,35 @@
 package commandslist
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
 	"strings"
+	model "tsuwari/models"
 	"tsuwari/parser/internal/types"
 	variables_cache "tsuwari/parser/internal/variablescache"
-	"tsuwari/parser/pkg/helpers"
 
 	"github.com/samber/lo"
 )
 
-const Name = "commands.list"
-const Description = "List of commands"
-
 var Variable = types.Variable{
-	Name: "commands.list",
+	Name:        "commands.list",
+	Description: lo.ToPtr("Command list"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-		rCtx := context.TODO()
-		keys, err := ctx.Services.Redis.Keys(rCtx, fmt.Sprintf("commands:%s:*", ctx.ChannelId)).Result()
-
+		cmds := []model.ChannelsCommands{}
+		err := ctx.Services.Db.
+			Model(&model.ChannelsCommands{}).
+			Select("enabled", "visible", "name").
+			Find(&cmds).Error
 		if err != nil {
 			return nil, err
 		}
 
-		var cmds = make([]types.Command, len(keys))
-		rCmds, err := ctx.Services.Redis.MGet(rCtx, keys...).Result()
-
-		if err != nil {
-			return nil, err
-		}
-
-		for i, cmd := range rCmds {
-			parsedCmd := types.Command{}
-
-			err := json.Unmarshal([]byte(cmd.(string)), &parsedCmd)
-
-			if err != nil {
-				continue
+		commandNames := make([]string, len(cmds))
+		for _, c := range cmds {
+			if c.Enabled && c.Visible {
+				commandNames = append(commandNames, c.Name)
 			}
-
-			cmds[i] = parsedCmd
 		}
-
-		mapped := lo.Filter(cmds, func(cmd types.Command, _ int) bool {
-			return cmd.Enabled && cmd.Visible
-		})
-		commandNames := helpers.Map(mapped, func(c types.Command) string {
-			return "!" + c.Name
+		commandNames = lo.Filter(commandNames, func(n string, _ int) bool {
+			return n != ""
 		})
 
 		r := types.VariableHandlerResult{
@@ -57,41 +38,4 @@ var Variable = types.Variable{
 
 		return &r, nil
 	},
-	Description: lo.ToPtr("Command list"),
 }
-
-/* func Handler(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-	rCtx := context.TODO()
-	keys, err := ctx.Services.Redis.Keys(rCtx, fmt.Sprintf("commands:%s:*", ctx.Context.ChannelId)).Result()
-
-	if err != nil {
-		return nil, err
-	}
-
-	var cmds = make([]types.Command, len(keys))
-	rCmds, err := ctx.Services.Redis.MGet(rCtx, keys...).Result()
-
-	if err != nil {
-		return nil, err
-	}
-
-	for i, cmd := range rCmds {
-		parsedCmd := types.Command{}
-
-		err := json.Unmarshal([]byte(cmd.(string)), &parsedCmd)
-
-		if err == nil {
-			cmds[i] = parsedCmd
-		}
-	}
-
-	mapped := helpers.Map(cmds, func(c types.Command) string {
-		return "!" + c.Name
-	})
-
-	r := types.VariableHandlerResult{
-		Result: strings.Join(mapped, ", "),
-	}
-
-	return &r, nil
-} */

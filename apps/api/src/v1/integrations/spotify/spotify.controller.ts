@@ -1,4 +1,16 @@
-import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, Patch, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  CacheTTL,
+  CACHE_MANAGER,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import CacheManager from 'cache-manager';
 import Express from 'express';
 
@@ -13,14 +25,9 @@ export class SpotifyController {
   constructor(
     private readonly spotifyService: SpotifyService,
     @Inject(CACHE_MANAGER) private cacheManager: CacheManager.Cache,
-  ) { }
+  ) {}
 
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
-  @CacheTTL(600)
-  @UseInterceptors(CustomCacheInterceptor(ctx => {
-    const req = ctx.switchToHttp().getRequest() as Express.Request;
-    return `nest:cache:v1/channels/${req.params.channelId}/integrations/spotify`;
-  }))
   @Get()
   getIntegration(@Param('channelId') channelId: string) {
     return this.spotifyService.getIntegration(channelId);
@@ -34,7 +41,10 @@ export class SpotifyController {
   }
 
   @Patch()
-  async updateIntegration(@Param('channelId') channelId: string, @Body() body: UpdateSpotifyIntegrationDto) {
+  async updateIntegration(
+    @Param('channelId') channelId: string,
+    @Body() body: UpdateSpotifyIntegrationDto,
+  ) {
     const result = await this.spotifyService.updateIntegration(channelId, body);
     await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/integrations/spotify/profile`);
     await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/integrations/spotify`);
@@ -51,10 +61,12 @@ export class SpotifyController {
   }
 
   @CacheTTL(600)
-  @UseInterceptors(CustomCacheInterceptor(ctx => {
-    const req = ctx.switchToHttp().getRequest() as Express.Request;
-    return `nest:cache:v1/channels/${req.params.channelId}/integrations/spotify/profile`;
-  }))
+  @UseInterceptors(
+    CustomCacheInterceptor((ctx) => {
+      const req = ctx.switchToHttp().getRequest() as Express.Request;
+      return `nest:cache:v1/channels/${req.params.channelId}/integrations/spotify/profile`;
+    }),
+  )
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
   @Get('profile')
   profile(@Param('channelId') channelId: string) {

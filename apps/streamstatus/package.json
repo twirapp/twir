@@ -16,6 +16,7 @@
     "@tsuwari/config": "workspace:*",
     "@tsuwari/redis": "workspace:*",
     "@tsuwari/shared": "workspace:*",
+    "@tsuwari/typeorm": "workspace:*",
     "@twurple/api": "5.2.4",
     "@twurple/auth": "5.2.4",
     "@twurple/common": "5.2.4",

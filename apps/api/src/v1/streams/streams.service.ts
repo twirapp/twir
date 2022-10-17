@@ -1,33 +1,13 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Greetings, greetingsSchema, RedisORMService, Repository } from '@tsuwari/redis';
-import { RedisService } from '@tsuwari/shared';
+import { Injectable } from '@nestjs/common';
+import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
+import { ChannelStream } from '@tsuwari/typeorm/entities/ChannelStream';
+
+import { typeorm } from '../../index.js';
 
 @Injectable()
-export class StreamsService implements OnModuleInit {
-  #greetingsRepository: Repository<Greetings>;
-
-  constructor(private readonly redis: RedisService, private readonly redisOrm: RedisORMService) {}
-
-  onModuleInit() {
-    this.#greetingsRepository = this.redisOrm.fetchRepository(greetingsSchema);
-  }
-
+export class StreamsService {
   async #resetGreetings(channelId: string) {
-    const greetings = await this.#greetingsRepository
-      .search()
-      .where('channelId')
-      .equal(channelId)
-      .returnAll();
-
-    for (const greeting of greetings.map((g) => g.toRedisJson())) {
-      this.#greetingsRepository.createAndSave(
-        {
-          ...greeting,
-          processed: false,
-        },
-        `${greeting.channelId}:${greeting.userId}`,
-      );
-    }
+    await typeorm.getRepository(ChannelGreeting).update({ channelId }, { processed: false });
   }
 
   async handleStreamStateChange(channelId: string) {
@@ -35,8 +15,10 @@ export class StreamsService implements OnModuleInit {
   }
 
   async getStream(channelId: string) {
-    const stream = await this.redis.get(`streams:${channelId}`);
+    const stream = await typeorm.getRepository(ChannelStream).findOneBy({
+      userId: channelId,
+    });
     if (!stream) return null;
-    return JSON.parse(stream);
+    return stream;
   }
 }

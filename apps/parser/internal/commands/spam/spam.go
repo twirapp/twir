@@ -16,6 +16,7 @@ var Command = types.DefaultCommand{
 		Permission:  "MODERATOR",
 		Visible:     false,
 		Module:      lo.ToPtr("CHANNEL"),
+		IsReply:     false,
 	},
 	IsReply: lo.ToPtr(false),
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {

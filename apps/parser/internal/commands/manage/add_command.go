@@ -1,8 +1,6 @@
 package manage
 
 import (
-	"context"
-	"fmt"
 	"log"
 	"strings"
 	model "tsuwari/models"
@@ -17,10 +15,10 @@ import (
 )
 
 const (
-	exampleUsage = "!commands add name response"
+	exampleUsage   = "!commands add name response"
 	incorrectUsage = "Incorrect usage of command. Example: " + exampleUsage
-	wentWrong = "Something went wrong on creating command"
-	alreadyExists = "Command with that name or aliase already exists."
+	wentWrong      = "Something went wrong on creating command"
+	alreadyExists  = "Command with that name or aliase already exists."
 )
 
 var AddCommand = types.DefaultCommand{
@@ -30,6 +28,7 @@ var AddCommand = types.DefaultCommand{
 		Permission:  "MODERATOR",
 		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
@@ -60,7 +59,6 @@ var AddCommand = types.DefaultCommand{
 		err := ctx.Services.Db.Model(&model.ChannelsCommands{}).
 			Where(`"channelId" = ?`, ctx.ChannelId).
 			Find(&commands).Error
-
 		if err != nil {
 			log.Fatalln(err)
 			return nil
@@ -80,23 +78,23 @@ var AddCommand = types.DefaultCommand{
 
 		commandID := uuid.NewV4().String()
 		command := model.ChannelsCommands{
-			ID: commandID,
-			Name: name,
+			ID:           commandID,
+			Name:         name,
 			CooldownType: "GLOBAL",
-			Enabled: true,
-			Cooldown: null.IntFrom(5),
-			Aliases: []string{},
-			Description: null.String{},
-			DefaultName: null.String{},
-			Visible: true,
-			ChannelID: ctx.ChannelId,
-			Permission: "VIEWER",
-			Default: false,
-			Module: "CUSTOM",
-			Responses: []*model.ChannelsCommandsResponses{
+			Enabled:      true,
+			Cooldown:     null.IntFrom(5),
+			Aliases:      []string{},
+			Description:  null.String{},
+			DefaultName:  null.String{},
+			Visible:      true,
+			ChannelID:    ctx.ChannelId,
+			Permission:   "VIEWER",
+			Default:      false,
+			Module:       "CUSTOM",
+			Responses: []model.ChannelsCommandsResponses{
 				{
-					ID: uuid.NewV4().String(),
-					Text: null.StringFrom(text),
+					ID:        uuid.NewV4().String(),
+					Text:      null.StringFrom(text),
 					CommandID: commandID,
 				},
 			},
@@ -108,28 +106,6 @@ var AddCommand = types.DefaultCommand{
 			result.Result = append(result.Result, wentWrong)
 			return result
 		}
-
-
-		bytes, err := CreateRedisBytes(command, text, lo.ToPtr(true))
-
-		_, err = ctx.Services.Redis.Set(
-			context.TODO(), 
-			fmt.Sprintf("commands:%s:%s", ctx.ChannelId, name),
-			*bytes,
-			0,
-		).Result()
-
-		if err != nil {
-			log.Fatalln("cannot create command in redis", err)
-			result.Result = append(result.Result, wentWrong)
-			return result
-		}
-
-		ctx.Services.Redis.Del(
-			context.TODO(), 
-			fmt.Sprintf("nest:cache:v1/channels/%s/commands", ctx.ChannelId), 
-		)
-
 
 		result.Result = []string{"✅ Command added."}
 		return result

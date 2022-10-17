@@ -1,8 +1,6 @@
 package manage
 
 import (
-	"context"
-	"fmt"
 	model "tsuwari/models"
 	"tsuwari/parser/internal/types"
 
@@ -18,6 +16,7 @@ var DelCommand = types.DefaultCommand{
 		Permission:  "MODERATOR",
 		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
@@ -29,10 +28,11 @@ var DelCommand = types.DefaultCommand{
 			return result
 		}
 
-	
 		var cmd *model.ChannelsCommands = nil
-		err := ctx.Services.Db.Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, *ctx.Text).First(&cmd).Error
-		
+		err := ctx.Services.Db.Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, *ctx.Text).
+			First(&cmd).
+			Error
+
 		if err != nil || cmd == nil {
 			result.Result = append(result.Result, "Command not found.")
 			return result
@@ -46,13 +46,6 @@ var DelCommand = types.DefaultCommand{
 		ctx.Services.Db.
 			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, *ctx.Text).
 			Delete(&model.ChannelsCommands{})
-
-		ctx.Services.Redis.Del(
-			context.TODO(), 
-			fmt.Sprintf("nest:cache:v1/channels/%s/commands", ctx.ChannelId), 
-		)
-
-		ctx.Services.Redis.Del(context.TODO(), fmt.Sprintf("commands:%s:%s", ctx.ChannelId, *ctx.Text))
 
 		result.Result = append(result.Result, "✅ Command removed.")
 		return result

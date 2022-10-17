@@ -1,11 +1,10 @@
 package customvar
 
 import (
-	CTX "context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
+	model "tsuwari/models"
 	"tsuwari/parser/internal/types"
 	variables_cache "tsuwari/parser/internal/variablescache"
 
@@ -31,19 +30,15 @@ var Variable = types.Variable{
 			return result, nil
 		}
 
-		if v.Type == nil {
-			return result, nil
-		}
-
-		if *v.Type == "SCRIPT" {
+		if v.Type == "SCRIPT" {
 			bytes, _ := proto.Marshal(&eval.Evaluate{
-				Script: *v.EvalValue,
+				Script: v.EvalValue.String,
 			})
 
 			msg, err := ctx.Services.Nats.Request("eval", bytes, 3*time.Second)
 			if err != nil {
 				return nil, errors.New(
-					"cannot evaluate variable. This is internal error, please report this bug.",
+					"cannot evaluate variable. This is internal error, please report this bug",
 				)
 			}
 
@@ -51,13 +46,13 @@ var Variable = types.Variable{
 
 			if err := proto.Unmarshal(msg.Data, &response); err != nil {
 				return nil, errors.New(
-					"cannot unwrap response. This is internal error, please report this bug.",
+					"cannot unwrap response. This is internal error, please report this bug",
 				)
 			}
 
 			result.Result = response.Result
 		} else {
-			result.Result = *v.Response
+			result.Result = v.Response.String
 		}
 
 		return result, nil
@@ -70,12 +65,15 @@ type CustomVar struct {
 	Response  *string `json:"response"`
 }
 
-func getVarByName(ctx *variables_cache.VariablesCacheService, name string) *CustomVar {
-	variable := &CustomVar{}
-	r, err := ctx.Services.Redis.Get(CTX.TODO(), fmt.Sprintf("variables:%s:%s", ctx.ChannelId, name)).
-		Result()
-	if err == nil {
-		json.Unmarshal([]byte(r), variable)
+func getVarByName(
+	ctx *variables_cache.VariablesCacheService,
+	name string,
+) *model.ChannelsCustomvars {
+	variable := &model.ChannelsCustomvars{}
+	err := ctx.Services.Db.Where(`"name" = ?`, name).First(variable).Error
+	if err != nil {
+		fmt.Println(err)
+		return nil
 	}
 
 	return variable

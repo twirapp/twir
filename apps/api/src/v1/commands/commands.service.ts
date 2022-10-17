@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { Client, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
-import { ClientProxy, RedisService } from '@tsuwari/shared';
+import { ClientProxy } from '@tsuwari/shared';
 import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { CommandResponse } from '@tsuwari/typeorm/entities/CommandResponse';
 
@@ -12,8 +12,6 @@ import { UpdateOrCreateCommandDto } from './dto/create.js';
 export class CommandsService {
   @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
   nats: ClientProxy;
-
-  constructor(private readonly redis: RedisService) {}
 
   async getList(userId: string) {
     await this.nats.send('bots.createDefaultCommands', [userId]).toPromise();
@@ -26,26 +24,6 @@ export class CommandsService {
     });
 
     return commands;
-  }
-
-  async setCommandCache(command: ChannelCommand, oldCommand?: ChannelCommand) {
-    if (oldCommand) {
-      await this.redis.del(`commands:${oldCommand.channelId}:${oldCommand.name}`);
-    }
-
-    const commandForSet = {
-      ...command,
-      responses: command.responses
-        ? command.responses.filter((r) => r.text).map((r) => r.text!)
-        : ([] as string[]),
-      aliases: command.aliases as string[],
-      defaultName: command.defaultName ?? null,
-    };
-
-    await this.redis.set(
-      `commands:${command.channelId}:${command.name}`,
-      JSON.stringify(commandForSet),
-    );
   }
 
   async #isCommandWithThatNameExists(opts: {
@@ -85,17 +63,10 @@ export class CommandsService {
       channelId: userId,
     });
 
-    command.responses = await typeorm.getRepository(CommandResponse).save(
-      data.responses
-        .filter((r) => r.text)
-        .map((r) => ({
-          commandId: command.id,
-          text: r.text?.trim().replace(/(\r\n|\n|\r)/, ''),
-        })),
-    );
+    const responses = data.responses.map((r) => ({ text: r.text, commandId: command.id }));
+    await typeorm.getRepository(CommandResponse).save(responses);
 
-    await this.setCommandCache(command);
-    return command as ChannelCommand;
+    return command;
   }
 
   async delete(userId: string, commandId: string) {
@@ -114,13 +85,6 @@ export class CommandsService {
     const result = await typeorm.getRepository(ChannelCommand).delete({
       id: commandId,
     });
-
-    await this.redis.del(`commands:${userId}:${command.name}`);
-    if (Array.isArray(command.aliases)) {
-      for (const aliase of command.aliases as string[]) {
-        await this.redis.del(`commands:${userId}:${aliase}`);
-      }
-    }
 
     return result;
   }
@@ -176,8 +140,6 @@ export class CommandsService {
         responses: true,
       },
     });
-
-    await this.setCommandCache(newCommand!, command);
 
     return newCommand;
   }

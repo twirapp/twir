@@ -29,13 +29,6 @@ export class StreamlabsController {
   ) {}
 
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
-  @CacheTTL(600)
-  @UseInterceptors(
-    CustomCacheInterceptor((ctx) => {
-      const req = ctx.switchToHttp().getRequest() as Express.Request;
-      return `nest:cache:v1/channels/${req.params.channelId}/integrations/streamlabs`;
-    }),
-  )
   @Get()
   getIntegration(@Param('channelId') channelId: string) {
     return this.service.getIntegration(channelId);

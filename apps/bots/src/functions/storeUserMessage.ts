@@ -26,5 +26,6 @@ export function storeUserMessage(state: TwitchPrivateMessage, message: string) {
     )
     .then(() => {
       repository.expire(key, 600);
-    });
+    })
+    .catch(console.error);
 }

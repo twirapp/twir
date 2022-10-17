@@ -26,6 +26,7 @@ var GmCommand = types.DefaultCommand{
 		Permission:  "BROADCASTER",
 		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
+		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
@@ -34,7 +35,7 @@ var GmCommand = types.DefaultCommand{
 		accounts := GetAccountsByChannelId(ctx.Services.Db, ctx.ChannelId)
 
 		if len(*accounts) == 0 {
-			result.Result = append(result.Result,NO_ACCOUNTS)
+			result.Result = append(result.Result, NO_ACCOUNTS)
 			return result
 		}
 
@@ -46,7 +47,7 @@ var GmCommand = types.DefaultCommand{
 		})
 
 		if games == nil || len(*games) == 0 {
-			result.Result = append(result.Result,GAME_NOT_FOUND)
+			result.Result = append(result.Result, GAME_NOT_FOUND)
 			return result
 		}
 
@@ -159,7 +160,7 @@ var GmCommand = types.DefaultCommand{
 				).
 				Else(fmt.Sprintf("%s", medal.Name))
 
-				resultArray[idx] = fmt.Sprintf("%s %s", hero, rank)
+			resultArray[idx] = fmt.Sprintf("%s %s", hero, rank)
 		}
 
 		result.Result = append(result.Result, strings.Join(resultArray[:], ", "))

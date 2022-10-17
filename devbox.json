@@ -18,6 +18,7 @@
       "nats-server -P /tmp/tsuwari-nats.pid -c devbox/conf/nats/nats.conf &",
       "echo \"redis-server devbox/conf/redis/redis.conf\" &",
       "docker run -d --name tsuwari-redis-stack -p 62510:6379 -v /devbox/data/redis:/data redis/redis-stack-server:latest &",
+      "docker run -d --name tsuwari-adminer --network=host -p 54320:8080 adminer &",
       "postgres -c config_file=devbox/conf/postgres/postgres.conf -k /tmp &",
       "sleep 1 && createdb -p 57453 -h /tmp tsuwari || true &",
       "createuser -d -s -p 57453 -h /tmp tsuwari || true &"

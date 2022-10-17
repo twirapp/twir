@@ -15,7 +15,9 @@ import { ChannelGreeting } from './entities/ChannelGreeting.js';
 import { ChannelIntegration } from './entities/ChannelIntegration.js';
 import { ChannelKeyword } from './entities/ChannelKeyword.js';
 import { ChannelModerationSetting } from './entities/ChannelModerationSetting.js';
+import { ChannelModerationWarn } from './entities/ChannelModerationWarn.js';
 import { ChannelPermit } from './entities/ChannelPermit.js';
+import { ChannelStream } from './entities/ChannelStream.js';
 import { ChannelTimer } from './entities/ChannelTimer.js';
 import { CommandResponse } from './entities/CommandResponse.js';
 import { CommandUsage } from './entities/CommandUsage.js';
@@ -31,6 +33,7 @@ import { NotificationMessage } from './entities/NotificationMessage.js';
 import { Token } from './entities/Token.js';
 import { User } from './entities/User.js';
 import { UserFile } from './entities/UserFile.js';
+import { UserOnline } from './entities/UserOnline.js';
 import { UserStats } from './entities/UserStats.js';
 import { UserViewedNotification } from './entities/UserViewedNotification.js';
 
@@ -50,6 +53,7 @@ export const AppDataSource = new DataSource({
     ChannelIntegration,
     ChannelKeyword,
     ChannelModerationSetting,
+    ChannelModerationWarn,
     ChannelPermit,
     ChannelTimer,
     CommandResponse,
@@ -68,9 +72,11 @@ export const AppDataSource = new DataSource({
     UserFile,
     UserStats,
     UserViewedNotification,
+    UserOnline,
     ChannelEvent,
     ChannelFollowEvent,
     ChannelDonationEvent,
+    ChannelStream,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

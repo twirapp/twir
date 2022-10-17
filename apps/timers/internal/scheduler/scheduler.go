@@ -9,7 +9,6 @@ import (
 	"tsuwari/twitch"
 
 	"github.com/go-co-op/gocron"
-	redis "github.com/go-redis/redis/v9"
 	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -17,30 +16,34 @@ import (
 
 type Scheduler struct {
 	internalScheduler *gocron.Scheduler
-	cfg *cfg.Config
-	redis *redis.Client
-	twitch *twitch.Twitch
-	nats *nats.Conn
-	db *gorm.DB
-	logger *zap.Logger
-	Timers types.Store
-	handler *handler.Handler
+	cfg               *cfg.Config
+	twitch            *twitch.Twitch
+	nats              *nats.Conn
+	db                *gorm.DB
+	logger            *zap.Logger
+	Timers            types.Store
+	handler           *handler.Handler
 }
 
-func New(cfg *cfg.Config, redis *redis.Client, twitch *twitch.Twitch, nats *nats.Conn, db *gorm.DB, logger *zap.Logger) *Scheduler {
+func New(
+	cfg *cfg.Config,
+	twitch *twitch.Twitch,
+	nats *nats.Conn,
+	db *gorm.DB,
+	logger *zap.Logger,
+) *Scheduler {
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.StartAsync()
 	store := make(types.Store)
 	return &Scheduler{
-		internalScheduler: scheduler, 
-		cfg: cfg, 
-		redis: redis,
-		twitch: twitch,
-		nats: nats,
-		db: db,
-		logger: logger,
-		Timers: store,
-		handler: handler.New(redis, twitch, nats, db, logger, store),
+		internalScheduler: scheduler,
+		cfg:               cfg,
+		twitch:            twitch,
+		nats:              nats,
+		db:                db,
+		logger:            logger,
+		Timers:            store,
+		handler:           handler.New(twitch, nats, db, logger, store),
 	}
 }
 
@@ -62,7 +65,6 @@ func (c *Scheduler) AddTimer(timer *types.Timer) error {
 		Tag(timer.Model.ID).
 		Millisecond().
 		DoWithJobDetails(c.handler.Handle)
-
 	if err != nil {
 		c.logger.Sugar().Error(err)
 		return err

@@ -23,7 +23,8 @@
     "class-validator": "0.13.2",
     "ioredis": "5.2.3",
     "lodash": "4.17.21",
-    "rxjs": "7.5.7"
+    "rxjs": "7.5.7",
+    "type-fest": "3.0.0"
   },
   "devDependencies": {
     "@types/lodash": "4.14.186"

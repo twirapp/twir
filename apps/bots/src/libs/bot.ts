@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { config } from '@tsuwari/config';
 import * as Parser from '@tsuwari/nats/parser';
+import { Channel } from '@tsuwari/typeorm/entities/Channel';
 import { ApiClient } from '@twurple/api';
 import { RefreshingAuthProvider } from '@twurple/auth';
 import { ChatClient, ChatSayMessageAttributes } from '@twurple/chat';
@@ -24,11 +25,11 @@ import {
   keywordsParseTime,
   messageParseTime,
   messagesCounter,
-  // eslint-disable-next-line comma-dangle
   moderationParseTime,
 } from './prometheus.js';
-import { redis } from './redis.js';
+import { typeorm } from './typeorm.js';
 
+const channelRepository = typeorm.getRepository(Channel);
 const strRegexp = /.{1,500}(\s|$)/;
 export class Bot extends ChatClient {
   #api: ApiClient;
@@ -72,21 +73,29 @@ export class Bot extends ChatClient {
     }
   }
 
-  async timeout(channel: string, user: string, duration?: number, reason?: string) {
-    const isBotModRequest = await redis.get(`isBotMod:${channel.substring(1)}`);
-    const isBotMod = isBotModRequest === 'true';
+  async myTimeout(
+    channelName: string,
+    channelId: string,
+    user: string,
+    duration?: number,
+    reason?: string,
+  ) {
+    const isBotModRequest = await channelRepository.findOneBy({
+      id: channelId,
+    });
+    const isBotMod = isBotModRequest?.isBotMod;
     if (isBotMod) {
       console.log(
         `${format(new Date(), `yyyy-MM-dd'T'HH:mm:ss.SSSxxx`)} ${pc.bgCyan(
           pc.black('TIMEOUT'),
-        )} ${pc.bgGreen(pc.white(channel))}: ${pc.bgYellow(pc.white(user))}`,
+        )} ${pc.bgGreen(pc.white(channelName))}: ${pc.bgYellow(pc.white(user))}`,
       );
-      super.timeout(channel, user, duration, reason);
+      this.timeout(channelName, user, duration, reason);
     } else {
       console.log(
         `${format(new Date(), `yyyy-MM-dd'T'HH:mm:ss.SSSxxx`)} ${pc.bgCyan(
           pc.black('TIMEOUT'),
-        )} bot no mod on channel ${pc.bgGreen(pc.white(channel))}, so timeout skiped.`,
+        )} bot no mod on channel ${pc.bgGreen(pc.white(channelName))}, so timeout skiped.`,
       );
     }
   }
@@ -110,28 +119,6 @@ export class Bot extends ChatClient {
       );
     });
 
-    this.onNamedMessage('USERSTATE', ({ tags, rawParamValues }) => {
-      const channelName = rawParamValues[0]?.substring(1);
-      const tag = tags.get('mod');
-
-      if (tag === '0') {
-        console.info(
-          `${pc.bgCyan(pc.black('!'))} ${tags.get(
-            'display-name',
-          )} lost mod status in ${channelName} channel`,
-        );
-        redis.del(`isBotMod:${channelName}`);
-      }
-      if (tag === '1') {
-        console.info(
-          `${pc.bgCyan(pc.black('!'))} ${tags.get(
-            'display-name',
-          )} got mod status in ${channelName} channel`,
-        );
-        redis.set(`isBotMod:${channelName}`, 'true');
-      }
-    });
-
     this.onMessage(async (channel, user, message, state) => {
       if (!state.channelId || !state.userInfo?.userId) return;
       const perfStart = performance.now();
@@ -147,8 +134,8 @@ export class Bot extends ChatClient {
           message,
         )}`,
       );
-      const isBotModRequest = await redis.get(`isBotMod:${channel.substring(1)}`);
-      const isBotMod = isBotModRequest === 'true';
+      const isBotModRequest = await channelRepository.findOneBy({ id: state.channelId });
+      const isBotMod = isBotModRequest?.isBotMod;
 
       const isModerate = !state.userInfo.isBroadcaster && !state.userInfo.isMod && isBotMod;
       if (isModerate) {

@@ -1,5 +1,14 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 
 import { type Channel } from './Channel.js';
 
@@ -32,4 +41,7 @@ export class ChannelKeyword {
 
   @Column('text', { name: 'channelId' })
   channelId: string;
+
+  @Column('timestamp', { nullable: true })
+  cooldownExpireAt: Date | null;
 }

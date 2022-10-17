@@ -71,7 +71,8 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
       const commandsForCreate = defaultCommands.filter((c) => !channel.commands.includes(c.name));
 
       for (const command of commandsForCreate) {
-        const newCommand = await repository.save({
+        console.log(command.name, command.visible);
+        repository.save({
           channelId: channel.id,
           default: true,
           defaultName: command.name,
@@ -84,17 +85,6 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
           module: command.module as unknown as CommandModule | undefined,
           isReply: command.isReply ?? true,
         });
-
-        const commandForSet = {
-          ...newCommand,
-          responses: [],
-          aliases: [],
-        };
-
-        await this.redis.set(
-          `commands:${channel.id}:${command.name}`,
-          JSON.stringify(commandForSet),
-        );
       }
     }
   }

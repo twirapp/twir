@@ -44,52 +44,10 @@ export class MyRefreshingProvider extends RefreshingAuthProvider {
   }
 }
 
-class MyUserApi extends HelixUserApi {
-  constructor(client: TwitchApiService, readonly redis?: RedisService) {
-    super(client);
-  }
-
-  async getUserByIdWithCache(userId: UserIdResolvable): Promise<HelixUserData> {
-    const redisKey = `twitchUsersCache:${userId}`;
-    let data: HelixUserData | null = null;
-
-    const cachedData = await this.redis?.get(redisKey);
-    if (cachedData) {
-      data = JSON.parse(cachedData) as HelixUserData;
-    } else {
-      const user = await super.getUserById(userId);
-      if (user) {
-        data = getRawData(user);
-        this.redis?.set(redisKey, JSON.stringify(data), 'EX', (WEEK * 2) / 1000);
-      }
-    }
-
-    return data;
-  }
-
-  async getUserByNameWithCache(userName: UserNameResolvable): Promise<HelixUserData> {
-    const redisKey = `twitchUsersCache:${userName}`;
-    let data: HelixUserData | null = null;
-
-    const cachedData = await this.redis?.get(redisKey);
-    if (cachedData) {
-      data = JSON.parse(cachedData) as HelixUserData;
-    } else {
-      const user = await super.getUserByName(userName);
-      if (user) {
-        data = getRawData(user);
-        this.redis?.set(redisKey, JSON.stringify(data), 'EX', (WEEK * 2) / 1000);
-      }
-    }
-
-    return data;
-  }
-}
-
 @Global()
 @Injectable()
 export class TwitchApiService extends ApiClient {
-  constructor(readonly redis?: RedisService) {
+  constructor() {
     const staticProvider = new ClientCredentialsAuthProvider(
       config.TWITCH_CLIENTID,
       config.TWITCH_CLIENTSECRET,
@@ -97,10 +55,5 @@ export class TwitchApiService extends ApiClient {
     super({
       authProvider: staticProvider,
     });
-  }
-
-  @CachedGetter()
-  get users() {
-    return new MyUserApi(this, this.redis);
   }
 }
