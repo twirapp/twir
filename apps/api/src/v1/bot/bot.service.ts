@@ -59,7 +59,7 @@ export class BotService {
       typeorm.getRepository(Channel).findOneBy({
         id: channelId,
       }),
-      this.twitchApi.users.getUserByIdWithCache(channelId),
+      this.twitchApi.users.getUserById(channelId),
     ]);
 
     if (!user || !channel) throw new HttpException(`User not found`, 404);
@@ -84,7 +84,7 @@ export class BotService {
         .emit('bots.joinOrLeave', {
           action,
           botId: channel.botId,
-          username: user.login,
+          username: user.name,
         })
         .toPromise(),
     ]);
