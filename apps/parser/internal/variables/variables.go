@@ -23,6 +23,7 @@ import (
 	streamuptime "tsuwari/parser/internal/variables/stream/uptime"
 	streamviewers "tsuwari/parser/internal/variables/stream/viewers"
 	topMessages "tsuwari/parser/internal/variables/top/messages"
+	"tsuwari/parser/internal/variables/touser"
 	userage "tsuwari/parser/internal/variables/user/age"
 	userfollowage "tsuwari/parser/internal/variables/user/followage"
 	usermessages "tsuwari/parser/internal/variables/user/messages"
@@ -62,6 +63,7 @@ func New() Variables {
 		userage.Variable,
 		userfollowage.Variable,
 		usermessages.Variable,
+		touser.Variable,
 	}
 
 	ctx := Variables{
