@@ -378,8 +378,6 @@ importers:
       vue-router: 4.1.5
       vue-toastification: 2.0.0-rc.5
       vue-tsc: 0.40.13
-      vue3-draggable: ^2.0.9
-      vuedraggable: ^4.1.0
       yup: 0.32.11
     dependencies:
       '@headlessui/vue': 1.7.3_vue@3.2.40
@@ -407,8 +405,6 @@ importers:
       vue-prism-editor: 2.0.0-alpha.2_vue@3.2.40
       vue-router: 4.1.5_vue@3.2.40
       vue-toastification: 2.0.0-rc.5_vue@3.2.40
-      vue3-draggable: 2.0.9_vue@3.2.40
-      vuedraggable: 4.1.0_vue@3.2.40
       yup: 0.32.11
     devDependencies:
       '@intlify/vite-plugin-vue-i18n': 6.0.3_vite@3.1.4+vue-i18n@9.2.2
@@ -6536,10 +6532,6 @@ packages:
       - supports-color
     dev: false
 
-  /sortablejs/1.14.0:
-    resolution: {integrity: sha512-pBXvQCs5/33fdN1/39pPL0NZF20LeRbLQ5jtnheIPN9JQAaufGjKdWduZn4U7wCtVuzKhmRkI0DFYHYRbB2H1w==}
-    dev: false
-
   /source-map-js/1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
     engines: {node: '>=0.10.0'}
@@ -7460,23 +7452,6 @@ packages:
       '@vue/runtime-dom': 3.2.40
       '@vue/server-renderer': 3.2.40_vue@3.2.40
       '@vue/shared': 3.2.40
-
-  /vue3-draggable/2.0.9_vue@3.2.40:
-    resolution: {integrity: sha512-OpjCSzGpkXsraBJzYrMS5LKXHThb0r+V8zItUNOZF7gZgdH0Cg2IL3XT0x4IhJdMaLvzRZCXE6UQj/459npJIw==}
-    peerDependencies:
-      vue: ^3.0.0
-    dependencies:
-      vue: 3.2.40
-    dev: false
-
-  /vuedraggable/4.1.0_vue@3.2.40:
-    resolution: {integrity: sha512-FU5HCWBmsf20GpP3eudURW3WdWTKIbEIQxh9/8GE806hydR9qZqRRxRE3RjqX7PkuLuMQG/A7n3cfj9rCEchww==}
-    peerDependencies:
-      vue: ^3.0.1
-    dependencies:
-      sortablejs: 1.14.0
-      vue: 3.2.40
-    dev: false
 
   /webidl-conversions/3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
