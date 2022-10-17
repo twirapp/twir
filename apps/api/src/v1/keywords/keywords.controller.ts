@@ -1,30 +1,14 @@
-import { Body, CacheTTL, CACHE_MANAGER, Controller, Delete, Get, Inject, Param, Patch, Post, UseGuards, UseInterceptors } from '@nestjs/common';
-import CacheManager from 'cache-manager';
-import Express from 'express';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
-import { CustomCacheInterceptor } from '../../helpers/customCacheInterceptor.js';
 import { JwtAuthGuard } from '../../jwt/jwt.guard.js';
 import { CreateKeywordDto } from './dto/create.js';
 import { KeywordsService } from './keywords.service.js';
 
-
 @Controller('v1/channels/:channelId/keywords')
 export class KeywordsController {
-  constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: CacheManager.Cache,
-    private readonly keywordsService: KeywordsService,
-  ) { }
+  constructor(private readonly keywordsService: KeywordsService) {}
 
-  async #delCache(channelId: string) {
-    await this.cacheManager.del(`nest:cache:v1/channels/${channelId}/keywords`);
-  }
-
-  @CacheTTL(600)
-  @UseInterceptors(CustomCacheInterceptor(ctx => {
-    const req = ctx.switchToHttp().getRequest() as Express.Request;
-    return `nest:cache:v1/channels/${req.params.channelId}/keywords`;
-  }))
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
   @Get()
   root(@Param('channelId') channelId: string) {
@@ -35,7 +19,6 @@ export class KeywordsController {
   @Delete(':keywordId')
   async delete(@Param('channelId') channelId: string, @Param('keywordId') keywordId: string) {
     const result = await this.keywordsService.delete(channelId, keywordId);
-    await this.#delCache(channelId);
     return result;
   }
 
@@ -43,16 +26,17 @@ export class KeywordsController {
   @Post()
   async create(@Param('channelId') channelId: string, @Body() body: CreateKeywordDto) {
     const result = await this.keywordsService.create(channelId, body);
-    await this.#delCache(channelId);
     return result;
   }
 
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
   @Patch(':keywordId')
-  async patch(@Param('channelId') channelId: string, @Param('keywordId') keywordId: string, @Body() body: CreateKeywordDto) {
+  async patch(
+    @Param('channelId') channelId: string,
+    @Param('keywordId') keywordId: string,
+    @Body() body: CreateKeywordDto,
+  ) {
     const result = await this.keywordsService.patch(channelId, keywordId, body);
-    await this.#delCache(channelId);
     return result;
   }
-
 }

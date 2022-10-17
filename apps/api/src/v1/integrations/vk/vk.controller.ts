@@ -1,4 +1,15 @@
-import { Body, CacheTTL, CACHE_MANAGER, Controller, Get, Inject, Param, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  CacheTTL,
+  CACHE_MANAGER,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import CacheManager from 'cache-manager';
 import Express from 'express';
 
@@ -13,15 +24,9 @@ export class VkController {
   constructor(
     private readonly service: VkService,
     @Inject(CACHE_MANAGER) private cacheManager: CacheManager.Cache,
-  ) { }
-
+  ) {}
 
   @UseGuards(JwtAuthGuard, DashboardAccessGuard)
-  @CacheTTL(600)
-  @UseInterceptors(CustomCacheInterceptor(ctx => {
-    const req = ctx.switchToHttp().getRequest() as Express.Request;
-    return `nest:cache:v1/channels/${req.params.channelId}/integrations/vk`;
-  }))
   @Get()
   getIntegration(@Param('channelId') channelId: string) {
     return this.service.getIntegration(channelId);
