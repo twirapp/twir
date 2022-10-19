@@ -10,7 +10,6 @@ import (
 	"github.com/go-co-op/gocron"
 	"github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
-	"github.com/nicklaw5/helix"
 	"github.com/satont/tsuwari/nats/bots"
 	"github.com/satont/tsuwari/nats/parser"
 	"go.uber.org/zap"
@@ -53,17 +52,26 @@ func (c *Handler) Handle(j gocron.Job) {
 		return
 	}
 
-	users, err := c.twitch.Client.GetUsers(&helix.UsersParams{
-		IDs: []string{t.Model.ChannelID},
-	})
+	stream := model.ChannelsStreams{}
 
-	if err != nil || len(users.Data.Users) == 0 {
+	err = c.db.Where(`"userId" = ?`, t.Model.ChannelID).First(&stream).Error
+
+	if err != nil {
+		c.logger.Sugar().Error(err)
 		return
 	}
 
-	user := users.Data.Users[0]
+	var timerResponse *model.ChannelsTimersResponses
+	for index, r := range *t.Model.Responses {
+		if index == t.SendIndex {
+			timerResponse = &r
+			break
+		}
+	}
 
-	rawMessage := t.Model.Responses[t.SendIndex]
+	if timerResponse == nil {
+		return
+	}
 
 	requestBytes, protoError := proto.Marshal(&parser.ParseResponseRequest{
 		Sender: &parser.Sender{
@@ -72,8 +80,8 @@ func (c *Handler) Handle(j gocron.Job) {
 			DisplayName: "Bot",
 			Badges:      []string{"BROADCASTER"},
 		},
-		Channel: &parser.Channel{Id: user.ID, Name: user.Login},
-		Message: &parser.Message{Text: rawMessage},
+		Channel: &parser.Channel{Id: stream.UserId, Name: stream.UserLogin},
+		Message: &parser.Message{Text: timerResponse.Text},
 	})
 	if protoError != nil {
 		c.logger.Sugar().Error(err)
@@ -82,7 +90,7 @@ func (c *Handler) Handle(j gocron.Job) {
 
 	response, natsError := c.nats.Request("parser.parseTextResponse", requestBytes, 5*time.Second)
 	if natsError != nil {
-		c.logger.Sugar().Error(err)
+		c.logger.Sugar().Error(natsError)
 		return
 	}
 	responseData := parser.ParseResponseResponse{}
@@ -94,17 +102,22 @@ func (c *Handler) Handle(j gocron.Job) {
 		return
 	}
 
-	botsRequest := bots.SendMessage{
-		ChannelId:   user.ID,
-		ChannelName: &user.Login,
-		Message:     rawMessage,
+	for i := 0; i < len(responseData.Responses); i++ {
+		message := responseData.Responses[i]
+
+		botsRequest := bots.SendMessage{
+			ChannelId:   stream.UserId,
+			ChannelName: &stream.UserLogin,
+			Message:     message,
+			IsAnnounce:  &timerResponse.IsAnnounce,
+		}
+		bytes, _ := proto.Marshal(&botsRequest)
+		c.nats.Publish("bots.sendMessage", bytes)
 	}
-	bytes, _ := proto.Marshal(&botsRequest)
-	c.nats.Publish("bots.sendMessage", bytes)
 
 	nextIndex := t.SendIndex + 1
 
-	if nextIndex+1 <= len(t.Model.Responses) {
+	if nextIndex < len(*t.Model.Responses) {
 		t.SendIndex = nextIndex
 	} else {
 		t.SendIndex = 0

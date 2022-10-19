@@ -1,4 +1,17 @@
-import { ArrayNotEmpty, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 
 export class CreateTimerDto {
   @IsString()
@@ -22,9 +35,19 @@ export class CreateTimerDto {
   messageInterval: number;
 
   @IsArray()
+  @ValidateNested()
+  @Type(() => TimerResponse)
   @ArrayNotEmpty()
-  @IsString({ each: true })
-  @IsNotEmpty({ each: true })
-  @MaxLength(400, { each: true })
-  responses: string[];
+  responses: Array<TimerResponse>;
+}
+
+class TimerResponse {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(400)
+  text: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isAnnounce?: boolean;
 }

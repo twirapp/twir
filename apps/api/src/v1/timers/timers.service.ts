@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import * as TimersNats from '@tsuwari/nats/timers';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
+import { ChannelTimerResponse } from '@tsuwari/typeorm/entities/ChannelTimerResponse';
 
 import { typeorm } from '../../index.js';
 import { nats } from '../../libs/nats.js';
@@ -9,15 +10,16 @@ import { CreateTimerDto } from './dto/create.js';
 @Injectable()
 export class TimersService {
   getList(channelId: string) {
-    return typeorm.getRepository(ChannelTimer).findBy({
-      channelId,
+    return typeorm.getRepository(ChannelTimer).find({
+      where: { channelId },
+      relations: { responses: true },
     });
   }
 
   findOne(channelId: string, id: string) {
-    return typeorm.getRepository(ChannelTimer).findOneBy({
-      channelId,
-      id,
+    return typeorm.getRepository(ChannelTimer).findOne({
+      where: { channelId, id },
+      relations: { responses: true },
     });
   }
 
@@ -32,14 +34,24 @@ export class TimersService {
 
     if (isExists) throw new HttpException(`Timer with name ${data.name} already exists`, 400);
 
-    const timer = await repository.save({
-      ...data,
+    const timer = repository.create({
       channelId: userId,
+      enabled: data.enabled,
+      messageInterval: data.messageInterval,
+      name: data.name,
+      timeInterval: data.timeInterval,
+      lastTriggerMessageNumber: 0,
     });
 
-    if (timer.enabled) {
+    const created = await repository.save(timer);
+
+    const responses = data.responses.map((r) => ({ ...r, timerId: created.id }));
+
+    await typeorm.getRepository(ChannelTimerResponse).save(responses);
+
+    if (created.enabled) {
       const data = TimersNats.AddTimerToQueue.toBinary({
-        timerId: timer.id,
+        timerId: created.id,
       });
       await nats.request('addTimerToQueue', data);
     }
@@ -58,6 +70,9 @@ export class TimersService {
 
     if (!isExists) throw new HttpException(`Timer with id ${timerId} not exists`, 404);
 
+    await typeorm.getRepository(ChannelTimerResponse).delete({
+      timerId,
+    });
     await repository.delete({
       id: timerId,
     });
@@ -81,7 +96,21 @@ export class TimersService {
 
     if (!isExists) throw new HttpException(`Timer with id ${timerId} not exists`, 404);
 
-    await repository.update({ id: timerId }, data);
+    await repository.update(
+      { id: timerId },
+      {
+        enabled: data.enabled,
+        messageInterval: data.messageInterval,
+        name: data.name,
+        timeInterval: data.timeInterval,
+        lastTriggerMessageNumber: 0,
+      },
+    );
+
+    const responsesRepository = typeorm.getRepository(ChannelTimerResponse);
+    await responsesRepository.delete({ timerId: timerId });
+    const responses = data.responses.map((r) => ({ ...r, timerId: timerId }));
+    await responsesRepository.save(responses);
 
     const timer = await this.findOne(userId, timerId);
     if (timer!.enabled) {

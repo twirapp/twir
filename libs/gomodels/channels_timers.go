@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/lib/pq"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -17,49 +16,15 @@ var (
 	_ = uuid.UUID{}
 )
 
-/*
-DB Table Details
--------------------------------------
-
-
-Table: channels_timers
-[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: false  col: TEXT            len: -1      default: [gen_random_uuid()]
-[ 1] channelId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-[ 2] name                                           VARCHAR(255)         null: false  primary: false  isArray: false  auto: false  col: VARCHAR         len: 255     default: []
-[ 3] enabled                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [true]
-[ 4] responses                                      JSONB                null: false  primary: false  isArray: false  auto: false  col: JSONB           len: -1      default: [[]]
-[ 5] last                                           INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-[ 6] timeInterval                                   INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-[ 7] messageInterval                                INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-[ 8] lastTriggerMessageNumber                       INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-
-
-JSON Sample
--------------------------------------
-{    "id": "RjvyjdZsEArPEhDOfFxpPRhDC",    "channel_id": "FhoVyuTguwZVPHFboqMhoslrX",    "name": "TNIEFQOMEdnaVhIKFroOvqnWR",    "enabled": false,    "responses": "GvXneJAfpCvooIexKlmWdNsGP",    "last": 25,    "time_interval": 86,    "message_interval": 74,    "last_trigger_message_number": 34}
-
-
-
-*/
-
-// ChannelsTimers struct is a row record of the channels_timers table in the tsuwari database
 type ChannelsTimers struct {
-	//[ 0] id                                             TEXT                 null: false  primary: true   isArray: false  auto: true   col: TEXT            len: -1      default: [gen_random_uuid()]
-	ID string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;"      json:"id"`
-	//[ 1] channelId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []
-	ChannelID string `gorm:"column:channelId;type:TEXT;"                          json:"channel_id"`
-	//[ 2] name                                           VARCHAR(255)         null: false  primary: false  isArray: false  auto: false  col: VARCHAR         len: 255     default: []
-	Name string `gorm:"column:name;type:VARCHAR;size:255;"                   json:"name"`
-	//[ 3] enabled                                        BOOL                 null: false  primary: false  isArray: false  auto: false  col: BOOL            len: -1      default: [true]
-	Enabled bool `gorm:"column:enabled;type:BOOL;default:true;"               json:"enabled"`
-	//[ 4] responses                                      JSONB                null: false  primary: false  isArray: false  auto: false  col: JSONB           len: -1      default: [[]]
-	Responses pq.StringArray `gorm:"column:responses;type:text[];default:[];"              json:"responses"`
-	//[ 5] timeInterval                                   INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-	TimeInterval int32 `gorm:"column:timeInterval;type:INT4;default:0;"             json:"time_interval"`
-	//[ 6] messageInterval                                INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-	MessageInterval int32 `gorm:"column:messageInterval;type:INT4;default:0;"          json:"message_interval"`
-	//[ 7] lastTriggerMessageNumber                       INT4                 null: false  primary: false  isArray: false  auto: false  col: INT4            len: -1      default: [0]
-	LastTriggerMessageNumber int32 `gorm:"column:lastTriggerMessageNumber;type:INT4;default:0;" json:"last_trigger_message_number"`
+	ID                       string                     `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;"      json:"id"`
+	ChannelID                string                     `gorm:"column:channelId;type:TEXT;"                          json:"channel_id"`
+	Name                     string                     `gorm:"column:name;type:VARCHAR;size:255;"                   json:"name"`
+	Enabled                  bool                       `gorm:"column:enabled;type:BOOL;default:true;"               json:"enabled"`
+	TimeInterval             int32                      `gorm:"column:timeInterval;type:INT4;default:0;"             json:"time_interval"`
+	MessageInterval          int32                      `gorm:"column:messageInterval;type:INT4;default:0;"          json:"message_interval"`
+	LastTriggerMessageNumber int32                      `gorm:"column:lastTriggerMessageNumber;type:INT4;default:0;" json:"last_trigger_message_number"`
+	Responses                *[]ChannelsTimersResponses `gorm:"foreignKey:TimerID"                                   json:"responses"`
 }
 
 var channels_timersTableInfo = &TableInfo{

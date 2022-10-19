@@ -8,5 +8,9 @@
     "declaration": true
   },
   "exclude": ["./dist"],
-  "include": ["src"]
+  "include": [
+    "src",
+    "src/migrations/1666191952221-add_channel_timers_is_announce.ts",
+    "src/migrations/1666191952221-add_channel_timers_is_announce.ts"
+  ]
 }

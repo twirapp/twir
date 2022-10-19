@@ -63,7 +63,7 @@ func main() {
 	if err != nil {
 		logger.Sugar().Error(err)
 	}
-	err = db.Find(&timers).Error
+	err = db.Preload("Responses").Find(&timers).Error
 
 	if err != nil {
 		panic(err)
@@ -82,7 +82,7 @@ func main() {
 			return
 		}
 		timer := &model.ChannelsTimers{}
-		if err = db.Where(`"id" = ?`, data.TimerId).Take(timer).Error; err != nil {
+		if err = db.Where(`"id" = ?`, data.TimerId).Preload("Responses").Take(timer).Error; err != nil {
 			logger.Sugar().Error(err)
 			return
 		}

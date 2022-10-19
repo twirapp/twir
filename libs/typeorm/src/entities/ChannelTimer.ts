@@ -1,7 +1,16 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 
 import { type Channel } from './Channel.js';
+import { ChannelTimerResponse } from './ChannelTimerResponse.js';
 
 @Entity('channels_timers', { schema: 'public' })
 export class ChannelTimer {
@@ -14,8 +23,8 @@ export class ChannelTimer {
   @Column('boolean', { name: 'enabled', default: false })
   enabled: boolean;
 
-  @Column('text', { name: 'responses', default: [], array: true })
-  responses: string[];
+  @OneToMany('ChannelTimerResponse', 'timer')
+  responses: Relation<ChannelTimerResponse>;
 
   @Column('integer', { name: 'timeInterval', default: 0 })
   timeInterval: number;

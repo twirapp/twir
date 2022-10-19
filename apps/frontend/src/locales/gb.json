@@ -211,7 +211,8 @@
         "secondsInterval": "Minutes Interval",
         "status": {
           "title": "Timer status"
-        }
+        },
+        "useAnnounce": "Use announce for that string"
       },
       "sidebarName": "Timers"
     },

@@ -211,7 +211,8 @@
         "secondsInterval": "Интервал в минутах",
         "status": {
           "title": "Статус таймера"
-        }
+        },
+        "useAnnounce": "Использовать announce для этой строчки"
       },
       "sidebarName": "Таймеры"
     },
