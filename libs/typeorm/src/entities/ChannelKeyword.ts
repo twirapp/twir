@@ -7,7 +7,7 @@ import {
   ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
-  Relation,
+  Relation
 } from 'typeorm';
 
 import { type Channel } from './Channel.js';
@@ -44,4 +44,7 @@ export class ChannelKeyword {
 
   @Column('timestamp', { nullable: true })
   cooldownExpireAt: Date | null;
+
+  @Column('bool', { default: false })
+  isReply: boolean
 }

@@ -46,6 +46,7 @@ export class KeywordsService {
   async patch(channelId: string, keywordId: string, data: CreateKeywordDto) {
     const repository = typeorm.getRepository(ChannelKeyword);
     const isExists = await repository.findOneBy({
+      channelId,
       id: keywordId,
     });
 

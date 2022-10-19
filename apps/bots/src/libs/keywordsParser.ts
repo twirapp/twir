@@ -14,7 +14,10 @@ export class KeywordsParser {
       enabled: true,
     });
 
-    const responses: string[] = [];
+    const responses: Array<{
+      isReply: boolean;
+      response: string;
+    }> = [];
 
     message = message.toLowerCase();
     for (const keyword of keywords) {
@@ -27,7 +30,10 @@ export class KeywordsParser {
       }
 
       if (isOnCooldown) continue;
-      responses.push(keyword.response);
+      responses.push({
+        isReply: keyword.isReply,
+        response: keyword.response,
+      });
 
       if (keyword.cooldown !== null) {
         await repository.update(

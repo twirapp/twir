@@ -9,9 +9,9 @@ import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
 const props = defineProps<{
-  keyword: KeywordType,
-  keywords: KeywordType[],
-  keywordsBeforeEdit: KeywordType[]
+  keyword: KeywordType;
+  keywords: KeywordType[];
+  keywordsBeforeEdit: KeywordType[];
 }>();
 
 const keyword = toRef(props, 'keyword');
@@ -20,8 +20,8 @@ const keywordsBeforeEdit = toRef(props, 'keywordsBeforeEdit');
 const selectedDashboard = useStore(selectedDashboardStore);
 const { t } = useI18n();
 const emit = defineEmits<{
-  (e: 'delete', index: number): void,
-  (e: 'cancelEdit', keyword: Ref<KeywordType>): void,
+  (e: 'delete', index: number): void;
+  (e: 'cancelEdit', keyword: Ref<KeywordType>): void;
 }>();
 
 async function saveKeyword() {
@@ -30,10 +30,16 @@ async function saveKeyword() {
   let data;
 
   if (keyword.value.id) {
-    const request = await api.patch(`/v1/channels/${selectedDashboard.value.channelId}/keywords/${keyword.value.id}`, keyword.value);  
+    const request = await api.patch(
+      `/v1/channels/${selectedDashboard.value.channelId}/keywords/${keyword.value.id}`,
+      keyword.value,
+    );
     data = request.data;
   } else {
-    const request = await api.post(`/v1/channels/${selectedDashboard.value.channelId}/keywords`, keyword.value);
+    const request = await api.post(
+      `/v1/channels/${selectedDashboard.value.channelId}/keywords`,
+      keyword.value,
+    );
     data = request.data;
   }
 
@@ -43,7 +49,9 @@ async function saveKeyword() {
 async function deletekeyword() {
   const index = keywords.value.indexOf(keyword.value);
   if (keyword.value.id) {
-    await api.delete(`/v1/channels/${selectedDashboard.value.channelId}/keywords/${keyword.value.id}`);
+    await api.delete(
+      `/v1/channels/${selectedDashboard.value.channelId}/keywords/${keyword.value.id}`,
+    );
   }
 
   emit('delete', index);
@@ -56,16 +64,12 @@ function cancelEdit() {
 
 <template>
   <div class="p-4">
-    <Form
-      v-slot="{ errors }"
-      @submit="saveKeyword"
-    >
+    <Form v-slot="{ errors }" @submit="saveKeyword">
       <div
         v-for="error of errors"
         :key="error"
         class="bg-red-600 mb-4 px-6 py-5 rounded text-base text-red-700"
-        role="alert"
-      >
+        role="alert">
         {{ error }}
       </div>
       <div class="flex justify-end">
@@ -77,13 +81,10 @@ function cancelEdit() {
             :disabled="!keyword.edit"
             class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
             type="checkbox"
-            role="switch"
-          >
+            role="switch" />
         </div>
       </div>
-      <div
-        class="gap-1 grid grid-cols-1"
-      >
+      <div class="gap-1 grid grid-cols-1">
         <div>
           <div class="label mb-1">
             <span class="label-text">{{ t('pages.keywords.card.text.title') }}</span>
@@ -91,12 +92,11 @@ function cancelEdit() {
           <Field
             v-model.lazy.trim="keyword.text"
             name="text"
-            as="input" 
+            as="input"
             type="text"
             :placeholder="t('pages.keywords.card.text.placeholder')"
             :disabled="!keyword.edit"
-            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
-          />
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full" />
         </div>
 
         <div class="mt-5">
@@ -106,12 +106,11 @@ function cancelEdit() {
           <Field
             v-model.lazy.trim="keyword.response"
             name="response"
-            as="input" 
+            as="input"
             type="text"
             :placeholder="t('pages.keywords.card.response.placeholder')"
             :disabled="!keyword.edit"
-            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
-          />
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full" />
         </div>
 
         <div class="mt-5">
@@ -121,12 +120,28 @@ function cancelEdit() {
           <Field
             v-model.number="keyword.cooldown"
             name="cooldown"
-            as="input" 
+            as="input"
             type="number"
             :placeholder="t('pages.keywords.card.cooldown.placeholder')"
             :disabled="!keyword.edit"
-            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full"
-          />
+            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full" />
+        </div>
+
+        <div class="mt-5">
+          <div class="flex form-check justify-between">
+            <label class="form-check-label inline-block" for="keepOrder">{{
+              t('pages.commands.card.isReply.title')
+            }}</label>
+
+            <div class="form-switch">
+              <input
+                id="keepOrder"
+                v-model="keyword.isReply"
+                class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
+                type="checkbox"
+                role="switch" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -136,38 +151,33 @@ function cancelEdit() {
             v-if="!keyword.edit"
             type="button"
             class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-putple-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-xs transition uppercase"
-            @click="() => {
-              keyword.edit = true;
-              if (keyword.id) keywordsBeforeEdit?.push(JSON.parse(JSON.stringify(keyword)))
-            }"
-          >
+            @click="
+              () => {
+                keyword.edit = true;
+                if (keyword.id) keywordsBeforeEdit?.push(JSON.parse(JSON.stringify(keyword)));
+              }
+            ">
             {{ t('buttons.edit') }}
           </button>
           <button
             v-else
             type="button"
             class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-purple-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
-            @click="cancelEdit"
-          >
+            @click="cancelEdit">
             {{ t('buttons.cancel') }}
           </button>
         </div>
-        <div
-          v-if="keyword.edit"
-          class="flex md:flex-none ml-1"
-        >
+        <div v-if="keyword.edit" class="flex md:flex-none ml-1">
           <button
             v-if="keyword.id"
             type="button"
             class="bg-red-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-red-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
-            @click="deletekeyword"
-          >
+            @click="deletekeyword">
             {{ t('buttons.delete') }}
           </button>
           <button
             type="submit"
-            class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight ml-1 px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
-          >
+            class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight ml-1 px-6 py-2.5 rounded shadow text-white text-xs transition uppercase">
             {{ t('buttons.save') }}
           </button>
         </div>
@@ -177,10 +187,12 @@ function cancelEdit() {
 </template>
 
 <style scoped>
-input, select {
-  @apply border-inherit
+input,
+select {
+  @apply border-inherit;
 }
-input:disabled, select:disabled {
-  @apply bg-zinc-400 opacity-100 border-transparent
+input:disabled,
+select:disabled {
+  @apply bg-zinc-400 opacity-100 border-transparent;
 }
 </style>
