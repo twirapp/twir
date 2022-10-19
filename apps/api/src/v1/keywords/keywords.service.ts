@@ -38,6 +38,7 @@ export class KeywordsService {
     const keyword = await repository.save({
       channelId,
       ...data,
+      cooldownExpireAt: null,
     });
 
     return keyword;
@@ -52,7 +53,12 @@ export class KeywordsService {
 
     if (!isExists) throw new HttpException(`Keyword with id ${keywordId} not exists`, 404);
 
-    await repository.update({ id: keywordId }, data);
+    await repository.update(
+      { id: keywordId },
+      {
+        ...data,
+      },
+    );
     const newKeyword = await repository.findOneBy({ id: keywordId });
 
     return newKeyword;
