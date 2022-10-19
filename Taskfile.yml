@@ -11,7 +11,7 @@ includes:
 tasks:
   build-libs:
     cmds:
-      - pnpm turbo run build --filter=./libs/*
+      - pnpm run build:libs
 
   migrations:
     cmds:
