@@ -31,7 +31,7 @@ export async function sendMessage(opts: {
   });
 
   await botApi.chat.sendAnnouncement(opts.channelId, channel.botId, {
-    message: !opts.message || opts.message === 'null' ? '' : opts.message,
+    message: !opts.message ? '' : opts.message,
     color: opts.color,
   });
 }
