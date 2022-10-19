@@ -148,6 +148,9 @@
         "text": {
           "placeholder": "Keyword will be triggered, when user type this in chat",
           "title": "Text of trigger"
+        },
+        "isReply": {
+          "title": "Use twitch reply feature"
         }
       },
       "sidebarName": "Keywords"
