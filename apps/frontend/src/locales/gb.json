@@ -96,6 +96,9 @@
       "card": {
         "status": {
           "title": "Greetings status"
+        },
+        "isReply": {
+          "title": "Use twitch reply feature"
         }
       },
       "message": {

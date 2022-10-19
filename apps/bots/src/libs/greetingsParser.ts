@@ -16,6 +16,9 @@ export class GreetingsParser {
 
     await repository.update({ id: item.id }, { processed: true });
 
-    return item.text;
+    return {
+      text: item.text,
+      isReply: item.isReply,
+    };
   }
 }

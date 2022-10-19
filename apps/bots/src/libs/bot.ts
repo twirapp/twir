@@ -216,7 +216,7 @@ export class Bot extends ChatClient {
           },
           message: {
             id: state.id,
-            text: response,
+            text: response.text,
           },
           sender: {
             badges: usersBadges,
@@ -231,7 +231,7 @@ export class Bot extends ChatClient {
 
         if (responseData) {
           for (const r of responseData.responses) {
-            await this.say(channel, r, { replyTo: state.id });
+            await this.say(channel, r, { replyTo: response.isReply ? state.id : undefined });
           }
           greetingsCounter.inc();
           greetingsParseTime.observe(performance.now() - perfStart);

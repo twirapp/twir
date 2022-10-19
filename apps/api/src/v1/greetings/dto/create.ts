@@ -13,4 +13,8 @@ export class GreetingCreateDto {
   @IsBoolean()
   @IsOptional()
   enabled?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  isReply: boolean;
 }

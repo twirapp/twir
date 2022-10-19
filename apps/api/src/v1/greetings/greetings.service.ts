@@ -33,6 +33,7 @@ export class GreetingsService {
       channelId: userId,
       userId: user.id,
       text: data.text,
+      isReply: data.isReply,
     });
 
     return {
@@ -56,7 +57,13 @@ export class GreetingsService {
 
     await repository.update(
       { id: greetingId },
-      { text: data.text, userId: user.id, enabled: data.enabled },
+      {
+        text: data.text,
+        userId: user.id,
+        enabled: data.enabled,
+        isReply: data.isReply,
+        processed: false,
+      },
     );
 
     const greeting = await repository.findOneBy({ id: greetingId });

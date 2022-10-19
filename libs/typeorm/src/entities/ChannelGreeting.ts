@@ -39,4 +39,7 @@ export class ChannelGreeting {
 
   @Column('bool', { default: false })
   processed: boolean;
+
+  @Column('bool', { default: true })
+  isReply: boolean;
 }
