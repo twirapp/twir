@@ -5,7 +5,7 @@ import (
 	model "tsuwari/models"
 
 	"github.com/lib/pq"
-	"github.com/nicklaw5/helix"
+	"github.com/satont/go-helix/v2"
 )
 
 func (c *VariablesCacheService) GetChannelStream() *model.ChannelsStreams {

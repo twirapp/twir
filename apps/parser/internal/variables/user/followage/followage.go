@@ -5,8 +5,8 @@ import (
 	variables_cache "tsuwari/parser/internal/variablescache"
 	"tsuwari/parser/pkg/helpers"
 
-	"github.com/nicklaw5/helix"
 	"github.com/samber/lo"
+	"github.com/satont/go-helix/v2"
 )
 
 var Variable = types.Variable{

@@ -7,8 +7,8 @@ import (
 
 	variables_cache "tsuwari/parser/internal/variablescache"
 
-	"github.com/nicklaw5/helix"
 	"github.com/samber/lo"
+	"github.com/satont/go-helix/v2"
 )
 
 var Variable = types.Variable{
@@ -22,7 +22,7 @@ var Variable = types.Variable{
 			users, err := ctx.Services.Twitch.Client.GetUsers(&helix.UsersParams{
 				Logins: []string{*ctx.Text},
 			})
-		
+
 			if err == nil && len(users.Data.Users) != 0 {
 				user = &users.Data.Users[0]
 			}

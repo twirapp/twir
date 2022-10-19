@@ -1,6 +1,6 @@
 package variables_cache
 
-import "github.com/nicklaw5/helix"
+import "github.com/satont/go-helix/v2"
 
 func (c *VariablesCacheService) GetTwitchUser() *helix.User {
 	c.locks.twitchUser.Lock()

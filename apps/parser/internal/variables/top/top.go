@@ -6,8 +6,8 @@ import (
 
 	variables_cache "tsuwari/parser/internal/variablescache"
 
-	"github.com/nicklaw5/helix"
 	"github.com/samber/lo"
+	"github.com/satont/go-helix/v2"
 )
 
 type UserStats struct {
@@ -16,7 +16,12 @@ type UserStats struct {
 	Value       int
 }
 
-func GetTop(ctx *variables_cache.VariablesCacheService, channelId string, topType string, page *int) *[]*UserStats {
+func GetTop(
+	ctx *variables_cache.VariablesCacheService,
+	channelId string,
+	topType string,
+	page *int,
+) *[]*UserStats {
 	if page == nil {
 		newPage := 1
 		page = &newPage
@@ -32,7 +37,6 @@ func GetTop(ctx *variables_cache.VariablesCacheService, channelId string, topTyp
 		Offset(offset).
 		Order(fmt.Sprintf("%s DESC", topType)).
 		Find(&records).Error
-
 	if err != nil {
 		return nil
 	}

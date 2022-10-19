@@ -8,8 +8,8 @@ import (
 	"tsuwari/parser/internal/types"
 	variables_cache "tsuwari/parser/internal/variablescache"
 
-	"github.com/nicklaw5/helix"
 	"github.com/samber/lo"
+	"github.com/satont/go-helix/v2"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )

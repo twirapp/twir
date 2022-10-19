@@ -2,9 +2,9 @@ package twitch
 
 import (
 	"time"
-	"tsuwari/config"
+	cfg "tsuwari/config"
 
-	helix "github.com/nicklaw5/helix"
+	helix "github.com/satont/go-helix/v2"
 )
 
 type Token struct {
@@ -23,7 +23,6 @@ func New(cfg cfg.Config) *Twitch {
 		ClientSecret: cfg.TwitchClientSecret,
 	}
 	client, err := helix.NewClient(options)
-
 	if err != nil {
 		panic(err)
 	}
@@ -66,7 +65,6 @@ func (c *Twitch) isTokenValid() bool {
 
 func (c *Twitch) Refresh() int {
 	token, err := c.Client.RequestAppAccessToken([]string{})
-
 	if err != nil {
 		panic(err)
 	}

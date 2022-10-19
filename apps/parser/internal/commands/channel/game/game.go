@@ -5,7 +5,7 @@ import (
 	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/samber/lo"
-	"github.com/satont/go-helix"
+	"github.com/satont/go-helix/v2"
 )
 
 var Command = types.DefaultCommand{

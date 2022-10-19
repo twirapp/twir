@@ -5,7 +5,7 @@ import (
 	"time"
 	model "tsuwari/models"
 
-	helix "github.com/satont/go-helix"
+	helix "github.com/satont/go-helix/v2"
 	"gorm.io/gorm"
 )
 
@@ -51,7 +51,6 @@ func (c UsersTokensService) Create(userId string) (*helix.Client, error) {
 			ExpiresIn:           int32(tokenData.Data.ExpiresIn),
 			ObtainmentTimestamp: time.Now(),
 		}).Error
-
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -64,7 +63,6 @@ func (c UsersTokensService) Create(userId string) (*helix.Client, error) {
 		UserRefreshToken: user.Token.RefreshToken,
 		OnRefresh:        &refreshFunc,
 	})
-
 	if err != nil {
 		return nil, err
 	}

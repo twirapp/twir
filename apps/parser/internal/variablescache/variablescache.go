@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-redis/redis/v9"
 	"github.com/nats-io/nats.go"
-	"github.com/nicklaw5/helix"
+	"github.com/satont/go-helix/v2"
 	"gorm.io/gorm"
 )
 
