@@ -1,15 +1,5 @@
 {
-  "packages": [
-    "doppler",
-    "go_1_19",
-    "protobuf",
-    "go-protobuf",
-    "go-task",
-    "nats-server",
-    "redis",
-    "postgresql_14",
-    "glibcLocales"
-  ],
+  "packages": ["doppler", "go_1_19", "protobuf", "go-protobuf", "go-task"],
   "shell": {
     "init_hook": [
       "sh devbox/post-install.sh",
