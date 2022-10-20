@@ -66,9 +66,10 @@ func main() {
 	enTranslations.RegisterDefaultTranslations(validator, transEN)
 
 	services := types.Services{
-		DB:           db,
-		RedisStorage: store,
-		Validator:    validator,
+		DB:                  db,
+		RedisStorage:        store,
+		Validator:           validator,
+		ValidatorTranslator: transEN,
 	}
 
 	apiv1.Setup(v1, services)

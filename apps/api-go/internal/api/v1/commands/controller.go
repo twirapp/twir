@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
+	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 )
 
@@ -27,33 +27,20 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 			return nil
 		})
 	middleware.Post(":channelId", func(c *fiber.Ctx) error {
-		dto := commandDto{}
-		if err := c.BodyParser(&dto); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": "wrong body",
-			})
-		}
+		dto := &commandDto{}
+		middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			&commandDto{},
+		)
 
-		if err := services.Validator.Struct(dto); err != nil {
-			validationErrors := err.(validator.ValidationErrors)
-			errors := []string{}
-			for _, e := range validationErrors {
-				fmt.Println(e.StructField(), e.Translate(services.ValidatorTranslator))
-				errors = append(
-					errors,
-					fmt.Sprintf(
-						"%s %s",
-						e.StructField(),
-						e.Translate(services.ValidatorTranslator),
-					),
-				)
-			}
-			c.Status(fiber.StatusBadRequest).JSON(errors)
+		fmt.Printf("%+v\n", dto)
+
+		cmd, err := HandlePost(c.Params("channelId"), services, dto)
+		if err != nil {
+			c.JSON(cmd)
 			return nil
-		}
-
-		if err := c.JSON(HandlePost(c.Params("channelId"), services)); err != nil {
-			return c.SendString(err.Error())
 		}
 
 		return nil
