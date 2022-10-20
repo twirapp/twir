@@ -12,8 +12,9 @@ import (
 )
 
 var Variable = types.Variable{
-	Name:        "user.age",
-	Description: lo.ToPtr("User account age"),
+	Name:         "user.age",
+	Description:  lo.ToPtr("User account age"),
+	CommandsOnly: lo.ToPtr(true),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 

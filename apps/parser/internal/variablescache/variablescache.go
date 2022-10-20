@@ -48,6 +48,7 @@ type ExecutionContext struct {
 	SenderName  string
 	Text        *string
 	Services    ExecutionServices
+	IsCommand   bool
 }
 
 type VariablesCacheService struct {
@@ -67,6 +68,7 @@ type VariablesCacheOpts struct {
 	Twitch      *twitch.Twitch
 	DB          *gorm.DB
 	Nats        *nats.Conn
+	IsCommand   bool
 }
 
 func New(opts VariablesCacheOpts) *VariablesCacheService {
@@ -84,6 +86,7 @@ func New(opts VariablesCacheOpts) *VariablesCacheService {
 				Db:     opts.DB,
 				Nats:   opts.Nats,
 			},
+			IsCommand: opts.IsCommand,
 		},
 		cache: variablesCache{},
 		locks: &variablesLocks{

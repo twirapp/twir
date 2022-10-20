@@ -26,10 +26,11 @@ type CommandsHandlerResult struct {
 type (
 	VariableHandler func(ctx *variables_cache.VariablesCacheService, data VariableHandlerParams) (*VariableHandlerResult, error)
 	Variable        struct {
-		Name        string
-		Handler     VariableHandler
-		Description *string
-		Example     *string
+		Name         string
+		Handler      VariableHandler
+		Description  *string
+		Example      *string
+		CommandsOnly *bool
 	}
 )
 

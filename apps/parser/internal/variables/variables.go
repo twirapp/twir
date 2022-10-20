@@ -1,6 +1,7 @@
 package variables
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 	"sync"
@@ -87,6 +88,12 @@ func (c Variables) ParseInput(cache *variables_cache.VariablesCacheService, inpu
 		})
 
 		if !ok {
+			defer wg.Done()
+			continue
+		}
+
+		if variable.CommandsOnly != nil && *variable.CommandsOnly && !cache.IsCommand {
+			input = strings.ReplaceAll(input, s, fmt.Sprintf("$(%s)", all))
 			wg.Done()
 			continue
 		}

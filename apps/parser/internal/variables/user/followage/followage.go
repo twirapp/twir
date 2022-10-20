@@ -10,8 +10,9 @@ import (
 )
 
 var Variable = types.Variable{
-	Name:        "user.followage",
-	Description: lo.ToPtr("User followage"),
+	Name:         "user.followage",
+	Description:  lo.ToPtr("User followage"),
+	CommandsOnly: lo.ToPtr(true),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 

@@ -185,6 +185,7 @@ func (c *Commands) ParseCommandResponses(
 				UsersAuth: c.UsersAuth,
 				Nats:      c.Nats,
 			},
+			IsCommand: true,
 		})
 		if results == nil {
 			result.Responses = []string{}
@@ -217,6 +218,7 @@ func (c *Commands) ParseCommandResponses(
 			Twitch:     c.Twitch,
 			DB:         c.Db,
 			Nats:       c.Nats,
+			IsCommand:  true,
 		})
 
 		go func(i int, r string) {

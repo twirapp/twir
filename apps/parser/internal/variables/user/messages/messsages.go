@@ -9,8 +9,9 @@ import (
 )
 
 var Variable = types.Variable{
-	Name:        "user.messages",
-	Description: lo.ToPtr("User messages"),
+	Name:         "user.messages",
+	Description:  lo.ToPtr("User messages"),
+	CommandsOnly: lo.ToPtr(true),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
