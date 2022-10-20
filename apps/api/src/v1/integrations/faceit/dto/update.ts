@@ -1,6 +1,13 @@
-
 import { Type } from 'class-transformer';
-import { IsBoolean, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  ValidateIf,
+  ValidateNested,
+} from 'class-validator';
 
 class Data {
   @IsString()
@@ -15,6 +22,7 @@ class Data {
 
 export class FaceitUpdateDto {
   @ValidateNested()
+  @ValidateIf((o: FaceitUpdateDto) => o.enabled)
   @Type(() => Data)
   data: Data;
 
