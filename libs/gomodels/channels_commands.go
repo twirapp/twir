@@ -22,7 +22,7 @@ type ChannelsCommands struct {
 	Cooldown     null.Int                    `gorm:"column:cooldown;type:INT4;default:0;"             json:"cooldown"`
 	CooldownType string                      `gorm:"column:cooldownType;type:VARCHAR;default:GLOBAL;" json:"cooldownType"`
 	Enabled      bool                        `gorm:"column:enabled;type:BOOL;default:true;"           json:"enabled"`
-	Aliases      pq.StringArray              `gorm:"column:aliases;type:text[];default:[];"            json:"aliases"`
+	Aliases      pq.StringArray              `gorm:"column:aliases;type:text[];default:[];"           json:"aliases"`
 	Description  null.String                 `gorm:"column:description;type:TEXT;"                    json:"description"`
 	Visible      bool                        `gorm:"column:visible;type:BOOL;default:true;"           json:"visible"`
 	ChannelID    string                      `gorm:"column:channelId;type:TEXT;"                      json:"channelId"`
@@ -30,9 +30,9 @@ type ChannelsCommands struct {
 	Default      bool                        `gorm:"column:default;type:BOOL;default:false;"          json:"default"`
 	DefaultName  null.String                 `gorm:"column:defaultName;type:TEXT;"                    json:"defaultName"`
 	Module       string                      `gorm:"column:module;type:VARCHAR;default:CUSTOM;"       json:"module"`
-	Responses    []ChannelsCommandsResponses `gorm:"foreignKey:CommandID" json:"responses"`
-	IsReply      bool                        `gorm:"column:is_reply";type:BOOL;default:true;" json:"isReply"`
-	KeepOrder    bool                        `gorm:"column:order;type:BOOL;default:true" json:"keepOrder"`
+	Responses    []ChannelsCommandsResponses `gorm:"foreignKey:CommandID"                             json:"responses"`
+	IsReply      bool                        `gorm:"column:is_reply;type:BOOL;default:true"           json:"isReply"`
+	KeepOrder    bool                        `gorm:"column:order;type:BOOL;default:true"              json:"keepOrder"`
 }
 
 func (c *ChannelsCommands) TableName() string {
