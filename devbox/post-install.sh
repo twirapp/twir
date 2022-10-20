@@ -6,6 +6,4 @@ go install github.com/mitranim/gow@latest
 go install mvdan.cc/gofumpt@latest
 go install github.com/segmentio/golines@latest
 
-chmod -R 700 devbox/data
-
-pg_ctl init -D devbox/data/postgres
+echo "Adminer available at http://localhost:8080/?pgsql=postgres:5432&username=tsuwari"

@@ -22,9 +22,9 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - 5432:5432
+      - 57453:5432
     networks:
-      - tsuwari
+      - tsuwari-dev
 
   backup:
     restart: unless-stopped
