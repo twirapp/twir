@@ -37,6 +37,14 @@ services:
     networks:
       - tsuwari-dev
 
+  nats:
+    restart: unless-stopped
+    image: nats:latest
+    ports:
+      - 59490:4222
+    networks:
+      - tsuwari-dev
+
 volumes:
   redis-data:
   postgres-data:
