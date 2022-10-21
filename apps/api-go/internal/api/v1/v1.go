@@ -8,7 +8,7 @@ import (
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
-	channelsGroup := router.Group("channels")
+	channelsGroup := router.Group("channels/:channelId")
 	commands.Setup(channelsGroup, services)
 
 	return router

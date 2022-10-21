@@ -12,8 +12,9 @@ import (
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("commands")
+
 	middleware.Get(
-		":channelId",
+		"",
 		cache.New(cache.Config{
 			Expiration: 10 * time.Second,
 			Storage:    services.RedisStorage,
@@ -26,24 +27,33 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 			return nil
 		})
-	middleware.Post(":channelId", func(c *fiber.Ctx) error {
+
+	middleware.Post("", func(c *fiber.Ctx) error {
 		dto := &commandDto{}
-		middlewares.ValidateBody(
+		err := middlewares.ValidateBody(
 			c,
 			services.Validator,
 			services.ValidatorTranslator,
-			&commandDto{},
+			dto,
 		)
-
-		fmt.Printf("%+v\n", dto)
+		if err != nil {
+			return err
+		}
 
 		cmd, err := HandlePost(c.Params("channelId"), services, dto)
-		if err != nil {
+		if err == nil {
 			c.JSON(cmd)
 			return nil
 		}
 
-		return nil
+		return err
+	})
+	middleware.Delete(":commandId", func(c *fiber.Ctx) error {
+		err := HandleDelete(c.Params("channelId"), c.Params("commandId"), services)
+		if err != nil {
+			return err
+		}
+		return c.SendStatus(fiber.StatusOK)
 	})
 
 	return router

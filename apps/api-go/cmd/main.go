@@ -14,6 +14,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/storage/redis"
 	apiv1 "github.com/satont/tsuwari/apps/api-go/internal/api/v1"
+	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -55,15 +56,18 @@ func main() {
 		PoolSize:  10 * runtime.GOMAXPROCS(0),
 	})
 
-	app := fiber.New()
-	app.Use(cache.New())
-	v1 := app.Group("/v1")
-
 	validator := validator.New()
 	en := en_US.New()
 	uni := ut.New(en, en)
 	transEN, _ := uni.GetTranslator("en_US")
 	enTranslations.RegisterDefaultTranslations(validator, transEN)
+	errorMiddleware := middlewares.ErrorHandler(transEN)
+
+	app := fiber.New(fiber.Config{
+		ErrorHandler: errorMiddleware,
+	})
+	app.Use(cache.New())
+	v1 := app.Group("/v1")
 
 	services := types.Services{
 		DB:                  db,

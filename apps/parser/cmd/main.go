@@ -125,13 +125,15 @@ func main() {
 			m.Respond([]byte{})
 		}
 
-		defer logger.Sugar().Infow("HandleProcessCommand ended.",
-			"in", data.Message.Text,
-			"out", r,
-			"took", time.Since(start),
-			"channelId", data.Channel.Id,
-			"senderId", data.Sender.Id,
-		)
+		defer func() {
+			logger.Sugar().Infow("HandleProcessCommand ended.",
+				"in", data.Message.Text,
+				"out", r,
+				"took", time.Since(start),
+				"channelId", data.Channel.Id,
+				"senderId", data.Sender.Id,
+			)
+		}()
 		m.Ack()
 	})
 

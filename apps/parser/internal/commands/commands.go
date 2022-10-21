@@ -149,7 +149,7 @@ func (c *Commands) ParseCommandResponses(
 	data parserproto.Request,
 ) *parserproto.Response {
 	result := &parserproto.Response{
-		KeepOrder: &command.Cmd.KeepOrder,
+		KeepOrder: &command.Cmd.KeepResponsesOrder,
 	}
 
 	cmd := *command.Cmd
