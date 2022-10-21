@@ -42,8 +42,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 		cmd, err := HandlePost(c.Params("channelId"), services, dto)
 		if err == nil {
-			c.JSON(cmd)
-			return nil
+			return c.JSON(cmd)
 		}
 
 		return err
@@ -54,6 +53,25 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 			return err
 		}
 		return c.SendStatus(fiber.StatusOK)
+	})
+	middleware.Put(":commandId", func(c *fiber.Ctx) error {
+		dto := &commandDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
+		if err != nil {
+			return err
+		}
+
+		cmd, err := HandleUpdate(c.Params("channelId"), c.Params("commandId"), dto, services)
+		if err == nil && cmd != nil {
+			return c.JSON(cmd)
+		}
+
+		return err
 	})
 
 	return router

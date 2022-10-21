@@ -16,7 +16,7 @@ type commandDto struct {
 	Aliases      []string       `validate:"dive"                  json:"aliases"`
 	Visible      *bool          `validate:"omitempty,required"    json:"visible,omitempty"`
 	Enabled      *bool          `validate:"omitempty,required"    json:"enabled,omitempty"`
-	Responses    []responsesDto `validate:"required,dive"         json:"responses"`
+	Responses    []responsesDto `validate:"required,min=1,dive"   json:"responses"`
 	KeepOrder    *bool          `validate:"omitempty,required"    json:"keepOrder,omitempty"`
 	IsReply      *bool          `validate:"omitempty,required"    json:"isReply,omitempty"`
 }
