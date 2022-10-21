@@ -30,3 +30,13 @@ func findGreetingByUser(userId string, channelId string, db *gorm.DB) *model.Cha
 
 	return greeting
 }
+
+func findGreetingById(id string, db *gorm.DB) *model.ChannelsGreetings {
+	greeting := model.ChannelsGreetings{}
+	err := db.Where("id = ?", id).First(&greeting).Error
+	if err != nil {
+		return nil
+	}
+
+	return &greeting
+}

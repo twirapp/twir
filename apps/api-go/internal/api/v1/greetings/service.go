@@ -32,7 +32,6 @@ func HandlePost(
 		return nil, errors.New("greeting for that user already exists")
 	}
 
-	fmt.Println(*dto.Enabled, *dto.IsReply)
 	greeting := &model.ChannelsGreetings{
 		ID:        uuid.NewV4().String(),
 		ChannelID: channelId,
@@ -53,17 +52,51 @@ func HandlePost(
 }
 
 func HandleDelete(greetingId string, services types.Services) error {
-	greeting := model.ChannelsGreetings{}
-	err := services.DB.Where("id = ?", greetingId).First(&greeting).Error
-	if err != nil {
-		fmt.Println(err)
+	greeting := findGreetingById(greetingId, services.DB)
+	if greeting == nil {
 		return fiber.NewError(404, "greeting not found")
 	}
-	err = services.DB.Where("id = ?", greetingId).Delete(&model.ChannelsGreetings{}).Error
-	fmt.Println(err)
+	err := services.DB.Where("id = ?", greetingId).Delete(&model.ChannelsGreetings{}).Error
 	if err != nil {
+		fmt.Println(err)
 		return errors.New("cannot delete greeting")
 	}
 
 	return nil
+}
+
+func HandleUpdate(
+	greetingId string,
+	dto *greetingsDto,
+	services types.Services,
+) (*model.ChannelsGreetings, error) {
+	greeting := findGreetingById(greetingId, services.DB)
+	if greeting == nil {
+		return nil, fiber.NewError(404, "greeting not found")
+	}
+
+	newGreeting := &model.ChannelsGreetings{
+		ID:        greeting.ID,
+		ChannelID: greeting.ChannelID,
+		UserID:    greeting.UserID,
+		Enabled:   *dto.Enabled,
+		Text:      dto.Text,
+		IsReply:   *dto.IsReply,
+		Processed: false,
+	}
+
+	twitchUser := getTwitchUserByName(dto.Username, services.Twitch)
+	if twitchUser == nil {
+		return nil, fiber.NewError(404, "cannot find twitch user")
+	}
+
+	newGreeting.UserID = twitchUser.ID
+
+	err := services.DB.Model(greeting).Updates(newGreeting).Error
+	if err != nil {
+		fmt.Println(err)
+		return nil, errors.New("cannot update greeting")
+	}
+
+	return newGreeting, nil
 }

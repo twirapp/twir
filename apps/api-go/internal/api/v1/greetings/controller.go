@@ -40,6 +40,24 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		}
 		return c.SendStatus(fiber.StatusOK)
 	})
+	middleware.Put(":greetingId", func(c *fiber.Ctx) error {
+		dto := &greetingsDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
+		if err != nil {
+			return err
+		}
+		greeting, err := HandleUpdate(c.Params("greetingId"), dto, services)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(greeting)
+	})
 
 	return middleware
 }
