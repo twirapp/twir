@@ -1,11 +1,13 @@
 package timers
 
 import (
+	"errors"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 func handleGet(channelId string, services types.Services) []model.ChannelsTimers {
@@ -67,9 +69,12 @@ func handlePost(
 func handleDelete(timerId string, services types.Services) error {
 	timer := model.ChannelsTimers{}
 	err := services.DB.Where("id = ?", timerId).First(&timer).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return fiber.NewError(404, "timer not found")
+	}
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(404, "timer not found")
+		return fiber.NewError(500, "timer not found")
 	}
 
 	err = services.DB.Delete(&timer).Error
