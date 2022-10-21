@@ -5,6 +5,7 @@ import (
 	"fmt"
 	model "tsuwari/models"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 )
 
@@ -48,12 +49,12 @@ func HandlePost(
 func HandleDelete(channelId string, commandId string, services types.Services) error {
 	command, err := getChannelCommand(services.DB, channelId, commandId)
 	if err != nil || command == nil {
-		return errors.New("command not found")
+		return fiber.NewError(404, "command not found")
 	}
 
 	err = services.DB.Delete(&command).Error
 	if err != nil {
-		return errors.New("cannot delete command")
+		return fiber.NewError(500, "cannot delete command")
 	}
 
 	return nil
@@ -67,7 +68,7 @@ func HandleUpdate(
 ) (*model.ChannelsCommands, error) {
 	command, err := getChannelCommand(services.DB, channelId, commandId)
 	if err != nil || command == nil {
-		return nil, errors.New("command not found")
+		return nil, fiber.NewError(404, "command not found")
 	}
 
 	isExists := isCommandWithThatNameExists(
@@ -78,7 +79,7 @@ func HandleUpdate(
 		&command.ID,
 	)
 	if isExists {
-		return nil, errors.New("command with that name already exists")
+		return nil, fiber.NewError(400, "command with that name already exists")
 	}
 
 	err = services.DB.Model(command).Updates(createCommandFromDto(dto, channelId)).Error
@@ -92,7 +93,7 @@ func HandleUpdate(
 	err = services.DB.Save(&responses).Error
 	if err != nil {
 		fmt.Println(err)
-		return nil, errors.New("something went wrong on creating response")
+		return nil, fiber.NewError(500, "something went wrong on creating response")
 	}
 
 	command.Responses = responses

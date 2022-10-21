@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"tsuwari/twitch"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/go-playground/locales/en_US"
@@ -74,6 +75,7 @@ func main() {
 		RedisStorage:        store,
 		Validator:           validator,
 		ValidatorTranslator: transEN,
+		Twitch:              twitch.New(cfg.TwitchClientId, cfg.TwitchClientSecret),
 	}
 
 	apiv1.Setup(v1, services)

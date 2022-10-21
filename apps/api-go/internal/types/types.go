@@ -1,6 +1,8 @@
 package types
 
 import (
+	"tsuwari/twitch"
+
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/storage/redis"
@@ -12,4 +14,5 @@ type Services struct {
 	RedisStorage        *redis.Storage
 	Validator           *validator.Validate
 	ValidatorTranslator ut.Translator
+	Twitch              *twitch.Twitch
 }
