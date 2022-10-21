@@ -1,6 +1,7 @@
 package moderation
 
-type moderationDto struct {
+type moderationItemDto struct {
+	ID                 string   `validate:"required" json:"id"`
 	Type               string   `validate:"required" json:"type"`
 	Enabled            *bool    `validate:"required" json:"enabled"`
 	Subscribers        *bool    `validate:"required" json:"subscribers"`
@@ -12,4 +13,8 @@ type moderationDto struct {
 	TriggerLength      uint64   `validate:"required" json:"triggerLength"`
 	MaxPercentage      uint64   `validate:"required" json:"maxPercentage"`
 	BlackListSentences []string `                    json:"blackListSentences"`
+}
+
+type moderationDto struct {
+	Items []moderationItemDto `validate:"required,dive"`
 }

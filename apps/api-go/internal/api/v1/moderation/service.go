@@ -1,9 +1,10 @@
 package moderation
 
 import (
-	"fmt"
 	model "tsuwari/models"
 
+	"github.com/gofiber/fiber/v2"
+	"github.com/guregu/null"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 	uuid "github.com/satori/go.uuid"
@@ -57,9 +58,36 @@ func handleGet(
 
 func handleUpdate(
 	channelId string,
-	dto []moderationDto,
+	dto *moderationDto,
 	services types.Services,
 ) ([]model.ChannelsModerationSettings, error) {
-	fmt.Printf("%+v\n", dto)
-	return nil, nil
+	settings := []model.ChannelsModerationSettings{}
+	for _, item := range dto.Items {
+		setting := model.ChannelsModerationSettings{
+			ID:                 item.ID,
+			Type:               item.Type,
+			ChannelID:          channelId,
+			Enabled:            *item.Enabled,
+			Subscribers:        *item.Subscribers,
+			Vips:               *item.Vips,
+			BanTime:            int32(item.BanTime),
+			BanMessage:         null.StringFromPtr(item.BanMessage),
+			WarningMessage:     null.StringFromPtr(item.WarningMessage),
+			CheckClips:         null.BoolFromPtr(item.CheckClips),
+			TriggerLength:      null.IntFrom(int64(item.TriggerLength)),
+			MaxPercentage:      null.IntFrom(int64(item.MaxPercentage)),
+			BlackListSentences: item.BlackListSentences,
+		}
+		err := services.DB.
+			Model(&model.ChannelsModerationSettings{}).
+			Select("*").
+			Where(`"channelId" = ? AND type = ?`, channelId, item.Type).
+			Updates(&setting).Error
+		if err != nil {
+			services.Logger.Sugar().Error(err)
+			return nil, fiber.NewError(500, "cannot update moderation settings")
+		}
+		settings = append(settings, setting)
+	}
+	return settings, nil
 }

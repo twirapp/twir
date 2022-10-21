@@ -27,7 +27,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		dto := []moderationDto{}
+		dto := moderationDto{}
 		err := middlewares.ValidateBody(
 			c,
 			services.Validator,
@@ -37,7 +37,7 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 		if err != nil {
 			return err
 		}
-		settings, err := handleUpdate(c.Params("channelId"), dto, services)
+		settings, err := handleUpdate(c.Params("channelId"), &dto, services)
 		if err != nil {
 			return err
 		}

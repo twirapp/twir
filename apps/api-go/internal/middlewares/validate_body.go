@@ -1,6 +1,8 @@
 package middlewares
 
 import (
+	"fmt"
+
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -17,6 +19,7 @@ func ValidateBody[T any](
 	}
 
 	if err := v.Struct(dto); err != nil {
+		fmt.Println(err)
 		return err
 	}
 
