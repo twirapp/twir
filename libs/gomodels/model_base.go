@@ -40,7 +40,6 @@ func init() {
 	tables["channels_integrations"] = channels_integrationsTableInfo
 	tables["channels_moderation_settings"] = channels_moderation_settingsTableInfo
 	tables["channels_permits"] = channels_permitsTableInfo
-	tables["channels_timers"] = channels_timersTableInfo
 	tables["dota_game_modes"] = dota_game_modesTableInfo
 	tables["dota_heroes"] = dota_heroesTableInfo
 	tables["dota_matches"] = dota_matchesTableInfo

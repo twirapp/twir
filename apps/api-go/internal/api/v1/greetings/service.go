@@ -1,7 +1,6 @@
 package greetings
 
 import (
-	"errors"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -23,12 +22,12 @@ func handlePost(
 ) (*model.ChannelsGreetings, error) {
 	twitchUser := getTwitchUserByName(dto.Username, services.Twitch)
 	if twitchUser == nil {
-		return nil, errors.New("cannot find twitch user")
+		return nil, fiber.NewError(404, "cannot find twitch user")
 	}
 
 	existedGreeting := findGreetingByUser(twitchUser.ID, channelId, services.DB)
 	if existedGreeting != nil {
-		return nil, errors.New("greeting for that user already exists")
+		return nil, fiber.NewError(400, "greeting for that user already exists")
 	}
 
 	greeting := &model.ChannelsGreetings{
@@ -44,7 +43,7 @@ func handlePost(
 	err := services.DB.Save(greeting).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, errors.New("cannot create greeting")
+		return nil, fiber.NewError(500, "cannot create greeting")
 	}
 
 	return greeting, nil
@@ -58,7 +57,7 @@ func handleDelete(greetingId string, services types.Services) error {
 	err := services.DB.Where("id = ?", greetingId).Delete(&model.ChannelsGreetings{}).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return errors.New("cannot delete greeting")
+		return fiber.NewError(500, "cannot delete greeting")
 	}
 
 	return nil
@@ -94,7 +93,7 @@ func handleUpdate(
 	err := services.DB.Model(greeting).Select("*").Updates(newGreeting).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, errors.New("cannot update greeting")
+		return nil, fiber.NewError(500, "cannot update greeting")
 	}
 
 	return newGreeting, nil

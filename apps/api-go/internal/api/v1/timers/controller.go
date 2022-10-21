@@ -2,6 +2,7 @@ package timers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 )
 
@@ -25,7 +26,23 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		return nil
+		dto := &timerDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
+		if err != nil {
+			return err
+		}
+
+		cmd, err := handlePost(c.Params("channelId"), dto, services)
+		if err == nil {
+			return c.JSON(cmd)
+		}
+
+		return err
 	}
 }
 

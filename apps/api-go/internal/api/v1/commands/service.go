@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"errors"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,7 +20,7 @@ func handlePost(
 ) (*model.ChannelsCommands, error) {
 	isExists := isCommandWithThatNameExists(services.DB, channelId, dto.Name, dto.Aliases, nil)
 	if isExists {
-		return nil, errors.New("command with that name already exists")
+		return nil, fiber.NewError(400, "command with that name already exists")
 	}
 
 	newCommand := createCommandFromDto(dto, channelId)
@@ -29,7 +28,7 @@ func handlePost(
 	err := services.DB.Save(newCommand).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, errors.New("cannot create command")
+		return nil, fiber.NewError(500, "cannot create command")
 	}
 
 	responses := createResponsesFromDto(dto.Responses, newCommand.ID)
@@ -37,7 +36,7 @@ func handlePost(
 	if err != nil {
 		services.DB.Where(`"id" = ?`, newCommand.ID).Delete(&model.ChannelsCommands{})
 
-		return nil, errors.New("something went wrong on creating response")
+		return nil, fiber.NewError(500, "something went wrong on creating response")
 	}
 
 	newCommand.Responses = responses
