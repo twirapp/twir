@@ -10,14 +10,14 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func HandleGet(channelId string, services types.Services) []model.ChannelsGreetings {
+func handleGet(channelId string, services types.Services) []model.ChannelsGreetings {
 	greetings := []model.ChannelsGreetings{}
 	services.DB.Where(`"channelId" = ?`, channelId).Find(&greetings)
 
 	return greetings
 }
 
-func HandlePost(
+func handlePost(
 	channelId string,
 	dto *greetingsDto,
 	services types.Services,
@@ -51,7 +51,7 @@ func HandlePost(
 	return greeting, nil
 }
 
-func HandleDelete(greetingId string, services types.Services) error {
+func handleDelete(greetingId string, services types.Services) error {
 	greeting := findGreetingById(greetingId, services.DB)
 	if greeting == nil {
 		return fiber.NewError(404, "greeting not found")
@@ -65,7 +65,7 @@ func HandleDelete(greetingId string, services types.Services) error {
 	return nil
 }
 
-func HandleUpdate(
+func handleUpdate(
 	greetingId string,
 	dto *greetingsDto,
 	services types.Services,

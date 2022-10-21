@@ -13,22 +13,32 @@ import (
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("commands")
 
-	middleware.Get(
-		"",
-		cache.New(cache.Config{
-			Expiration: 10 * time.Second,
-			Storage:    services.RedisStorage,
-			KeyGenerator: func(c *fiber.Ctx) string {
-				return fmt.Sprintf("channels:commandsList:%s", c.Params("channelId"))
-			},
-		}),
-		func(c *fiber.Ctx) error {
-			c.JSON(HandleGet(c.Params("channelId"), services))
+	commandsCache := cache.New(cache.Config{
+		Expiration: 10 * time.Second,
+		Storage:    services.RedisStorage,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return fmt.Sprintf("channels:commandsList:%s", c.Params("channelId"))
+		},
+	})
 
-			return nil
-		})
+	middleware.Get("", commandsCache, get(services))
+	middleware.Post("", post(services))
+	middleware.Delete(":commandId", delete(services))
+	middleware.Put(":commandId", update(services))
 
-	middleware.Post("", func(c *fiber.Ctx) error {
+	return router
+}
+
+func get(services types.Services) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		c.JSON(handleGet(c.Params("channelId"), services))
+
+		return nil
+	}
+}
+
+func post(services types.Services) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
 		dto := &commandDto{}
 		err := middlewares.ValidateBody(
 			c,
@@ -40,21 +50,27 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 			return err
 		}
 
-		cmd, err := HandlePost(c.Params("channelId"), services, dto)
+		cmd, err := handlePost(c.Params("channelId"), services, dto)
 		if err == nil {
 			return c.JSON(cmd)
 		}
 
 		return err
-	})
-	middleware.Delete(":commandId", func(c *fiber.Ctx) error {
-		err := HandleDelete(c.Params("channelId"), c.Params("commandId"), services)
+	}
+}
+
+func delete(services types.Services) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		err := handleDelete(c.Params("channelId"), c.Params("commandId"), services)
 		if err != nil {
 			return err
 		}
 		return c.SendStatus(fiber.StatusOK)
-	})
-	middleware.Put(":commandId", func(c *fiber.Ctx) error {
+	}
+}
+
+func update(services types.Services) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
 		dto := &commandDto{}
 		err := middlewares.ValidateBody(
 			c,
@@ -66,13 +82,11 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 			return err
 		}
 
-		cmd, err := HandleUpdate(c.Params("channelId"), c.Params("commandId"), dto, services)
+		cmd, err := handleUpdate(c.Params("channelId"), c.Params("commandId"), dto, services)
 		if err == nil && cmd != nil {
 			return c.JSON(cmd)
 		}
 
 		return err
-	})
-
-	return router
+	}
 }

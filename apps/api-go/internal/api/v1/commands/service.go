@@ -9,13 +9,13 @@ import (
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 )
 
-func HandleGet(channelId string, services types.Services) []model.ChannelsCommands {
+func handleGet(channelId string, services types.Services) []model.ChannelsCommands {
 	cmds := getChannelCommands(services.DB, channelId)
 
 	return cmds
 }
 
-func HandlePost(
+func handlePost(
 	channelId string,
 	services types.Services,
 	dto *commandDto,
@@ -46,7 +46,7 @@ func HandlePost(
 	return newCommand, nil
 }
 
-func HandleDelete(channelId string, commandId string, services types.Services) error {
+func handleDelete(channelId string, commandId string, services types.Services) error {
 	command, err := getChannelCommand(services.DB, channelId, commandId)
 	if err != nil || command == nil {
 		return fiber.NewError(404, "command not found")
@@ -60,7 +60,7 @@ func HandleDelete(channelId string, commandId string, services types.Services) e
 	return nil
 }
 
-func HandleUpdate(
+func handleUpdate(
 	channelId string,
 	commandId string,
 	dto *commandDto,
