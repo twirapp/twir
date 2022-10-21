@@ -7,9 +7,10 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"go.uber.org/zap"
 )
 
-var ErrorHandler = func(t ut.Translator) func(c *fiber.Ctx, err error) error {
+var ErrorHandler = func(t ut.Translator, logger *zap.Logger) func(c *fiber.Ctx, err error) error {
 	return func(c *fiber.Ctx, err error) error {
 		switch castedErr := err.(type) {
 		case validator.ValidationErrors:
@@ -19,6 +20,7 @@ var ErrorHandler = func(t ut.Translator) func(c *fiber.Ctx, err error) error {
 			}
 			return c.Status(fiber.StatusBadRequest).JSON(errors)
 		case *json.InvalidUnmarshalError, *json.UnmarshalFieldError, *json.UnmarshalTypeError:
+			logger.Sugar().Error(err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "bad request body"})
 		case *fiber.Error:
 			return c.Status(castedErr.Code).JSON(fiber.Map{"message": castedErr.Message})

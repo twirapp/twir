@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"runtime"
 	"tsuwari/twitch"
@@ -27,9 +26,10 @@ import (
 )
 
 func main() {
+	logger, _ := zap.NewDevelopment()
 	cfg, err := cfg.New()
 	if err != nil || cfg == nil {
-		fmt.Println(err)
+		logger.Sugar().Error(err)
 		panic("Cannot load config of application")
 	}
 
@@ -46,7 +46,7 @@ func main() {
 		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
 	})
 	if err != nil {
-		fmt.Println(err)
+		logger.Sugar().Error(err)
 		panic("failed to connect database")
 	}
 
@@ -63,15 +63,13 @@ func main() {
 	uni := ut.New(en, en)
 	transEN, _ := uni.GetTranslator("en_US")
 	enTranslations.RegisterDefaultTranslations(validator, transEN)
-	errorMiddleware := middlewares.ErrorHandler(transEN)
+	errorMiddleware := middlewares.ErrorHandler(transEN, logger)
 
 	app := fiber.New(fiber.Config{
 		ErrorHandler: errorMiddleware,
 	})
 	app.Use(cache.New())
 	v1 := app.Group("/v1")
-
-	logger, _ := zap.NewDevelopment()
 
 	services := types.Services{
 		DB:                  db,
