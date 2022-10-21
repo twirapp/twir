@@ -67,6 +67,7 @@ message ParseResponseRequest {
   Sender sender = 1;
   Channel channel = 2;
   Message message = 3;
+  optional bool parseVariables = 4;
 }
 
 message ParseResponseResponse {
