@@ -92,7 +92,7 @@ func handleUpdate(
 
 	newGreeting.UserID = twitchUser.ID
 
-	err := services.DB.Model(greeting).Updates(newGreeting).Error
+	err := services.DB.Model(greeting).Select("*").Updates(newGreeting).Error
 	if err != nil {
 		fmt.Println(err)
 		return nil, errors.New("cannot update greeting")

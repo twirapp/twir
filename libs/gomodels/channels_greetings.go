@@ -19,7 +19,7 @@ type ChannelsGreetings struct {
 	ID        string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	ChannelID string `gorm:"column:channelId;type:TEXT;"                     json:"channelId"`
 	UserID    string `gorm:"column:userId;type:TEXT;"                        json:"userId"`
-	Enabled   bool   `gorm:"column:enabled;type:BOOL;"                       json:"enabled"`
+	Enabled   bool   `gorm:"column:enabled;type:bool;"                       json:"enabled"`
 	Text      string `gorm:"column:text;type:TEXT;"                          json:"text"`
 	IsReply   bool   `gorm:"column:isReply;type:bool"                        json:"isReply"`
 	Processed bool   `gorm:"column:processed;type:bool"                      json:"processed"`

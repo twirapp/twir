@@ -38,7 +38,6 @@ func init() {
 	tables["channels_dashboard_access"] = channels_dashboard_accessTableInfo
 	tables["channels_dota_accounts"] = channels_dota_accountsTableInfo
 	tables["channels_integrations"] = channels_integrationsTableInfo
-	tables["channels_keywords"] = channels_keywordsTableInfo
 	tables["channels_moderation_settings"] = channels_moderation_settingsTableInfo
 	tables["channels_permits"] = channels_permitsTableInfo
 	tables["channels_timers"] = channels_timersTableInfo

@@ -82,7 +82,7 @@ func handleUpdate(
 		return nil, fiber.NewError(400, "command with that name already exists")
 	}
 
-	err = services.DB.Model(command).Updates(createCommandFromDto(dto, channelId)).Error
+	err = services.DB.Model(command).Select("*").Updates(createCommandFromDto(dto, channelId)).Error
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
