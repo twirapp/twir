@@ -48,7 +48,11 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 
 func delete(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		return nil
+		err := handleDelete(c.Params("timerId"), services)
+		if err != nil {
+			return err
+		}
+		return c.SendStatus(200)
 	}
 }
 

@@ -63,3 +63,20 @@ func handlePost(
 	timer.Responses = &timerResponses
 	return &timer, nil
 }
+
+func handleDelete(timerId string, services types.Services) error {
+	timer := model.ChannelsTimers{}
+	err := services.DB.Where("id = ?", timerId).First(&timer).Error
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(404, "timer not found")
+	}
+
+	err = services.DB.Delete(&timer).Error
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(500, "cannot delete timer")
+	}
+
+	return nil
+}
