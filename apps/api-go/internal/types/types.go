@@ -3,6 +3,8 @@ package types
 import (
 	"tsuwari/twitch"
 
+	cfg "tsuwari/config"
+
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/storage/redis"
@@ -17,4 +19,5 @@ type Services struct {
 	ValidatorTranslator ut.Translator
 	Twitch              *twitch.Twitch
 	Logger              *zap.Logger
+	Cfg                 *cfg.Config
 }

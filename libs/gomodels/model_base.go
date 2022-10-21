@@ -32,7 +32,6 @@ func init() {
 
 	// tables["_prisma_migrations"] = _prisma_migrationsTableInfo
 	tables["bots"] = botsTableInfo
-	tables["channels"] = channelsTableInfo
 	tables["channels_commands_usages"] = channels_commands_usagesTableInfo
 	tables["channels_customvars"] = channels_customvarsTableInfo
 	tables["channels_dashboard_access"] = channels_dashboard_accessTableInfo

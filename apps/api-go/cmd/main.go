@@ -76,8 +76,9 @@ func main() {
 		RedisStorage:        store,
 		Validator:           validator,
 		ValidatorTranslator: transEN,
-		Twitch:              twitch.New(cfg.TwitchClientId, cfg.TwitchClientSecret),
+		Twitch:              twitch.NewClient(cfg.TwitchClientId, cfg.TwitchClientSecret),
 		Logger:              logger,
+		Cfg:                 cfg,
 	}
 
 	apiv1.Setup(v1, services)

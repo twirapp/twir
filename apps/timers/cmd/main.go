@@ -51,7 +51,7 @@ func main() {
 	)
 	natsProtoConn, err := nats.NewEncodedConn(n, protobuf.PROTOBUF_ENCODER)
 
-	t := twitch.New(cfg.TwitchClientId, cfg.TwitchClientSecret)
+	t := twitch.NewClient(cfg.TwitchClientId, cfg.TwitchClientSecret)
 
 	scheduler := scheduler.New(cfg, t, n, db, logger)
 

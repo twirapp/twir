@@ -3,6 +3,7 @@ package apiv1
 import (
 	"github.com/gofiber/fiber/v2"
 
+	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/bot"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/commands"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/greetings"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/keywords"
@@ -18,6 +19,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	keywords.Setup(channelsGroup, services)
 	timers.Setup(channelsGroup, services)
 	moderation.Setup(channelsGroup, services)
+	bot.Setup(channelsGroup, services)
 
 	return router
 }
