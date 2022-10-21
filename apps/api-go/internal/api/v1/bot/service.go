@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	model "tsuwari/models"
 	"tsuwari/twitch"
 
@@ -43,4 +44,22 @@ func handleGet(channelId string, services types.Services) (*bool, error) {
 	} else {
 		return lo.ToPtr(true), nil
 	}
+}
+
+func handlePatch(channelId string, dto *connectionDto, services types.Services) error {
+	twitchUsers, err := services.Twitch.Client.GetUsers(
+		&helix.UsersParams{IDs: []string{channelId}},
+	)
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(500, "cannot get twitch user")
+	}
+
+	if len(twitchUsers.Data.Users) == 0 {
+		return fiber.NewError(404, "user not found on twitch")
+	}
+
+	user := twitchUsers.Data.Users[0]
+	fmt.Println(user)
+	return nil
 }

@@ -11,7 +11,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	enTranslations "github.com/go-playground/validator/v10/translations/en"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/storage/redis"
 	apiv1 "github.com/satont/tsuwari/apps/api-go/internal/api/v1"
 	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
@@ -68,7 +67,7 @@ func main() {
 	app := fiber.New(fiber.Config{
 		ErrorHandler: errorMiddleware,
 	})
-	app.Use(cache.New())
+
 	v1 := app.Group("/v1")
 
 	services := types.Services{

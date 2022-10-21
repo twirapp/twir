@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
+	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 )
 
@@ -20,7 +21,8 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		},
 	})
 
-	middleware.Get("/checkmod", isBotModCache, get(services))
+	middleware.Get("checkmod", isBotModCache, get(services))
+	middleware.Patch("connection", patch(services))
 
 	return middleware
 }
@@ -37,5 +39,28 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		return c.JSON(*isBotMod)
+	}
+}
+
+func patch(services types.Services) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		dto := &connectionDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
+		if err != nil {
+			return err
+		}
+
+		err = handlePatch(c.Params("channelId"), dto, services)
+
+		if err != nil {
+			return err
+		}
+
+		return c.SendStatus(200)
 	}
 }
