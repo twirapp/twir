@@ -1,7 +1,6 @@
 package keywords
 
 import (
-	"fmt"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -41,7 +40,7 @@ func handlePost(
 	}
 	err = services.DB.Save(&newKeyword).Error
 	if err != nil {
-		fmt.Println(err)
+		services.Logger.Sugar().Error(err)
 		return nil, fiber.NewError(500, "cannot create keyword")
 	}
 
@@ -56,7 +55,7 @@ func handleDelete(keywordId string, services types.Services) error {
 
 	err := services.DB.Delete(keyword).Error
 	if err != nil {
-		fmt.Println(err)
+		services.Logger.Sugar().Error(err)
 		return fiber.NewError(500, "cannot delete keyword")
 	}
 
@@ -85,7 +84,7 @@ func handleUpdate(
 
 	err := services.DB.Model(currentKeyword).Select("*").Updates(newKeyword).Error
 	if err != nil {
-		fmt.Println(err)
+		services.Logger.Sugar().Error(err)
 		return nil, fiber.NewError(500, "cannot update keyword")
 	}
 

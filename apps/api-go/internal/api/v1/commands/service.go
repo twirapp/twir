@@ -2,7 +2,6 @@ package commands
 
 import (
 	"errors"
-	"fmt"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -29,7 +28,7 @@ func handlePost(
 
 	err := services.DB.Save(newCommand).Error
 	if err != nil {
-		fmt.Println(err)
+		services.Logger.Sugar().Error(err)
 		return nil, errors.New("cannot create command")
 	}
 
@@ -84,7 +83,7 @@ func handleUpdate(
 
 	err = services.DB.Model(command).Select("*").Updates(createCommandFromDto(dto, channelId)).Error
 	if err != nil {
-		fmt.Println(err)
+		services.Logger.Sugar().Error(err)
 		return nil, err
 	}
 
@@ -92,7 +91,7 @@ func handleUpdate(
 	responses := createResponsesFromDto(dto.Responses, commandId)
 	err = services.DB.Save(&responses).Error
 	if err != nil {
-		fmt.Println(err)
+		services.Logger.Sugar().Error(err)
 		return nil, fiber.NewError(500, "something went wrong on creating response")
 	}
 

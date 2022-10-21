@@ -2,7 +2,6 @@ package greetings
 
 import (
 	"errors"
-	"fmt"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -44,7 +43,7 @@ func handlePost(
 
 	err := services.DB.Save(greeting).Error
 	if err != nil {
-		fmt.Println(err)
+		services.Logger.Sugar().Error(err)
 		return nil, errors.New("cannot create greeting")
 	}
 
@@ -58,7 +57,7 @@ func handleDelete(greetingId string, services types.Services) error {
 	}
 	err := services.DB.Where("id = ?", greetingId).Delete(&model.ChannelsGreetings{}).Error
 	if err != nil {
-		fmt.Println(err)
+		services.Logger.Sugar().Error(err)
 		return errors.New("cannot delete greeting")
 	}
 
@@ -94,7 +93,7 @@ func handleUpdate(
 
 	err := services.DB.Model(greeting).Select("*").Updates(newGreeting).Error
 	if err != nil {
-		fmt.Println(err)
+		services.Logger.Sugar().Error(err)
 		return nil, errors.New("cannot update greeting")
 	}
 

@@ -17,6 +17,7 @@ import (
 	apiv1 "github.com/satont/tsuwari/apps/api-go/internal/api/v1"
 	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
+	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -70,12 +71,15 @@ func main() {
 	app.Use(cache.New())
 	v1 := app.Group("/v1")
 
+	logger, _ := zap.NewDevelopment()
+
 	services := types.Services{
 		DB:                  db,
 		RedisStorage:        store,
 		Validator:           validator,
 		ValidatorTranslator: transEN,
 		Twitch:              twitch.New(cfg.TwitchClientId, cfg.TwitchClientSecret),
+		Logger:              logger,
 	}
 
 	apiv1.Setup(v1, services)
