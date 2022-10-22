@@ -2,6 +2,7 @@ package variables
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 )
 
@@ -34,18 +35,54 @@ func getBuiltIn(services types.Services) func(c *fiber.Ctx) error {
 
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		return nil
+		dto := &variableDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
+		if err != nil {
+			return err
+		}
+
+		variable, err := handlePost(c.Params("channelId"), dto, services)
+		if err == nil {
+			return c.JSON(variable)
+		}
+
+		return err
 	}
 }
 
 func delete(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		return nil
+		err := handleDelete(c.Params("channelId"), c.Params("variableId"), services)
+		if err != nil {
+			return err
+		}
+		return c.SendStatus(200)
 	}
 }
 
 func put(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		return nil
+		dto := &variableDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
+		if err != nil {
+			return err
+		}
+
+		variable, err := handleUpdate(c.Params("channelId"), c.Params("variableId"), dto, services)
+		if err == nil {
+			return c.JSON(variable)
+		}
+
+		return err
 	}
 }
