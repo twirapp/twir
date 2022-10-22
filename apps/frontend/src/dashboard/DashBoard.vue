@@ -47,7 +47,7 @@ selectedDashboardStore.subscribe(() => {
   isBotMod.value = false;
 });
 
-async function patchBotConnection(action: 'join' | 'part') {
+async function patchBotConnection(action: 'join' | 'leave') {
   await api.patch(`v1/channels/${dashboard.value.channelId}/bot/connection`, {
     action,
   });
@@ -114,7 +114,7 @@ async function sendForm() {
             <button
               type="button"
               class="bg-red-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-red-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
-              @click="() => patchBotConnection('part')">
+              @click="() => patchBotConnection('leave')">
               {{ t('pages.dashboard.widgets.status.buttons.leave') }}
             </button>
             <button

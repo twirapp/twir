@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"fmt"
 	model "tsuwari/models"
 	"tsuwari/twitch"
 
@@ -9,6 +8,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
+	"github.com/satont/tsuwari/libs/nats/bots"
+	"google.golang.org/protobuf/proto"
 )
 
 func handleGet(channelId string, services types.Services) (*bool, error) {
@@ -60,6 +61,20 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 	}
 
 	user := twitchUsers.Data.Users[0]
-	fmt.Println(user)
+
+	dbUser := model.Channels{}
+	err = services.DB.Where(`"channelId" = ?`, channelId).First(&dbUser).Error
+
+	if err != nil {
+		return fiber.NewError(500, "cannot get user from database")
+	}
+
+	bytes, _ := proto.Marshal(&bots.JoinOrLeaveRequest{
+		Action:   dto.Action,
+		BotId:    dbUser.BotID,
+		UserName: user.Login,
+	})
+
+	services.Nats.Publish("bots.joinOrLeave", bytes)
 	return nil
 }
