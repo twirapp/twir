@@ -12,18 +12,16 @@ import (
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
 
-	mynats "tsuwari/parser/internal/config/nats"
-
 	twitch "tsuwari/parser/internal/config/twitch"
 	natshandlers "tsuwari/parser/internal/handlers/nats"
 	usersauth "tsuwari/parser/internal/twitch/user"
 
 	"github.com/getsentry/sentry-go"
-	"github.com/samber/lo"
-	parserproto "github.com/satont/tsuwari/nats/parser"
-
 	"github.com/nats-io/nats.go"
-	"github.com/nats-io/nats.go/encoders/protobuf"
+	"github.com/samber/lo"
+	parserproto "github.com/satont/tsuwari/libs/nats/parser"
+
+	myNats "github.com/satont/tsuwari/libs/nats"
 	"go.uber.org/zap"
 	proto "google.golang.org/protobuf/proto"
 	"gorm.io/driver/postgres"
@@ -67,16 +65,11 @@ func main() {
 
 	r := redis.New(cfg.RedisUrl)
 	defer r.Close()
-	n, err := mynats.New(cfg.NatsUrl)
-	defer n.Close()
+	natsEncodedConn, natsConn, err := myNats.New(cfg.NatsUrl)
 	if err != nil {
 		panic(err)
 	}
-	natsProtoConn, err := nats.NewEncodedConn(n, protobuf.PROTOBUF_ENCODER)
-	defer natsProtoConn.Close()
-	if err != nil {
-		panic(err)
-	}
+	defer natsEncodedConn.Close()
 
 	usersAuthService := usersauth.New(usersauth.UsersServiceOpts{
 		Db:           db,
@@ -90,7 +83,7 @@ func main() {
 		VariablesService: variablesService,
 		Db:               db,
 		UsersAuth:        usersAuthService,
-		Nats:             n,
+		Nats:             natsConn,
 		Twitch:           twitchClient,
 	})
 	natsHandlers := natshandlers.New(natshandlers.NatsService{
@@ -103,7 +96,7 @@ func main() {
 		panic(err)
 	}
 
-	natsProtoConn.QueueSubscribe("parser.handleProcessCommand", "parser", func(m *nats.Msg) {
+	natsEncodedConn.QueueSubscribe("parser.handleProcessCommand", "parser", func(m *nats.Msg) {
 		start := time.Now()
 		data := parserproto.Request{}
 		err := proto.Unmarshal(m.Data, &data)
@@ -137,7 +130,7 @@ func main() {
 		m.Ack()
 	})
 
-	natsProtoConn.QueueSubscribe("bots.getVariables", "parser", func(m *nats.Msg) {
+	natsEncodedConn.QueueSubscribe("bots.getVariables", "parser", func(m *nats.Msg) {
 		vars := lo.Map(variablesService.Store, func(v types.Variable, _ int) *parserproto.Variable {
 			desc := v.Name
 			if v.Description != nil {
@@ -162,7 +155,7 @@ func main() {
 		m.Ack()
 	})
 
-	natsProtoConn.QueueSubscribe("bots.getDefaultCommands", "parser", func(m *nats.Msg) {
+	natsEncodedConn.QueueSubscribe("bots.getDefaultCommands", "parser", func(m *nats.Msg) {
 		list := make([]*parserproto.DefaultCommand, len(commandsService.DefaultCommands))
 
 		for i, v := range commandsService.DefaultCommands {
@@ -185,7 +178,7 @@ func main() {
 		m.Respond(res)
 	})
 
-	natsProtoConn.QueueSubscribe("parser.parseTextResponse", "parser", func(m *nats.Msg) {
+	natsEncodedConn.QueueSubscribe("parser.parseTextResponse", "parser", func(m *nats.Msg) {
 		data := parserproto.ParseResponseRequest{}
 		err := proto.Unmarshal(m.Data, &data)
 		if err != nil {

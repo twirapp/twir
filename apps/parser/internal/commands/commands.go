@@ -25,7 +25,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/samber/lo"
-	parserproto "github.com/satont/tsuwari/nats/parser"
+	parserproto "github.com/satont/tsuwari/libs/nats/parser"
 
 	"github.com/go-redis/redis/v9"
 	"gorm.io/gorm"

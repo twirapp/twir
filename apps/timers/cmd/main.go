@@ -22,7 +22,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/encoders/protobuf"
-	natstimers "github.com/satont/tsuwari/nats/timers"
+	natstimers "github.com/satont/tsuwari/libs/nats/timers"
 )
 
 func main() {

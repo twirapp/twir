@@ -17,6 +17,7 @@ import (
 	apiv1 "github.com/satont/tsuwari/apps/api-go/internal/api/v1"
 	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
+	myNats "github.com/satont/tsuwari/libs/nats"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -51,6 +52,12 @@ func main() {
 		panic("failed to connect database")
 	}
 
+	natsEncodedConn, natsConn, err := myNats.New(cfg.NatsUrl)
+	if err != nil {
+		panic(err)
+	}
+	defer natsEncodedConn.Close()
+
 	store := redis.New(redis.Config{
 		URL:       cfg.RedisUrl,
 		Database:  0,
@@ -82,6 +89,7 @@ func main() {
 		Twitch:              twitch.NewClient(cfg.TwitchClientId, cfg.TwitchClientSecret),
 		Logger:              logger,
 		Cfg:                 cfg,
+		Nats:                natsConn,
 	}
 
 	apiv1.Setup(v1, services)

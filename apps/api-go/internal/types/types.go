@@ -8,6 +8,7 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/storage/redis"
+	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -20,4 +21,5 @@ type Services struct {
 	Twitch              *twitch.Twitch
 	Logger              *zap.Logger
 	Cfg                 *cfg.Config
+	Nats                *nats.Conn
 }

@@ -1,11 +1,14 @@
 package variables
 
 import (
+	"time"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang/protobuf/proto"
 	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
+	"github.com/satont/tsuwari/libs/nats/parser"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -19,6 +22,25 @@ func handleGet(channelId string, services types.Services) ([]model.ChannelsCusto
 	}
 
 	return variables, nil
+}
+
+func handleGetBuiltIn(services types.Services) ([]*parser.Variable, error) {
+	response := parser.GetVariablesResponse{}
+	bytes, _ := proto.Marshal(&parser.GetVariablesRequest{})
+
+	msg, err := services.Nats.Request(
+		"bots.getVariables",
+		bytes,
+		3*time.Second,
+	)
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return nil, fiber.NewError(500, "cannot get builtin variables")
+	}
+
+	proto.Unmarshal(msg.Data, &response)
+
+	return response.List, nil
 }
 
 func handlePost(

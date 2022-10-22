@@ -10,8 +10,8 @@ import (
 	"github.com/go-co-op/gocron"
 	"github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
-	"github.com/satont/tsuwari/nats/bots"
-	"github.com/satont/tsuwari/nats/parser"
+	"github.com/satont/tsuwari/libs/nats/bots"
+	"github.com/satont/tsuwari/libs/nats/parser"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

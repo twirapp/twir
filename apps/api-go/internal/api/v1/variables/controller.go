@@ -29,7 +29,12 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 
 func getBuiltIn(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		return nil
+		variables, err := handleGetBuiltIn(services)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(variables)
 	}
 }
 

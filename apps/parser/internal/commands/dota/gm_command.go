@@ -15,7 +15,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/samber/lo"
-	dotanats "github.com/satont/tsuwari/nats/dota"
+	dotanats "github.com/satont/tsuwari/libs/nats/dota"
 	uuid "github.com/satori/go.uuid"
 )
 

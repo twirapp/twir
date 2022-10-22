@@ -5,9 +5,7 @@ go 1.19
 require (
 	github.com/go-co-op/gocron v1.17.1
 	github.com/golang/protobuf v1.5.2
-	github.com/satont/tsuwari/nats/bots v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/nats/parser v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/nats/timers v0.0.0-00010101000000-000000000000
+	github.com/satont/tsuwari/libs v0.0.0-00010101000000-000000000000
 	go.uber.org/zap v1.23.0
 	gorm.io/driver/postgres v1.4.4
 	gorm.io/gorm v1.24.0
@@ -61,10 +59,6 @@ replace tsuwari/models => ../../libs/gomodels
 
 replace tsuwari/config => ../../libs/config
 
-replace github.com/satont/tsuwari/nats/timers => ../../libs/nats/timers
-
-replace github.com/satont/tsuwari/nats/parser => ../../libs/nats/parser
-
-replace github.com/satont/tsuwari/nats/bots => ../../libs/nats/bots
+replace github.com/satont/tsuwari/libs/nats => ../../libs/nats/timers
 
 replace tsuwari/twitch => ../../libs/twitch

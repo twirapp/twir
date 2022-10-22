@@ -9,7 +9,7 @@ import (
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/go-redis/redis/v9"
-	parserproto "github.com/satont/tsuwari/nats/parser"
+	parserproto "github.com/satont/tsuwari/libs/nats/parser"
 )
 
 const (
