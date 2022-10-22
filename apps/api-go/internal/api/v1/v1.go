@@ -8,6 +8,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/greetings"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/keywords"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/moderation"
+	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/streams"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/timers"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 )
@@ -20,6 +21,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	timers.Setup(channelsGroup, services)
 	moderation.Setup(channelsGroup, services)
 	bot.Setup(channelsGroup, services)
+	streams.Setup(channelsGroup, services)
 
 	return router
 }
