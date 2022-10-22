@@ -1,4 +1,4 @@
-import type { IconName } from '@tsuwari/ui-icons';
+import type { IconName } from '@tsuwari/ui-components';
 
 export type FeatureType = 'accessible' | 'limited';
 

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import ssr from 'vite-plugin-ssr/plugin';
+import svg from 'vite-svg-loader';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -15,6 +16,10 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    svg({
+      svgo: false,
+      defaultImport: 'url',
+    }),
     ssr({
       prerender: true,
     }),

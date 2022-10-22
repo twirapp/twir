@@ -9,9 +9,9 @@
     <TswIcon
       v-if="isActive"
       name="Check"
-      size="16px"
+      :height="16"
+      :width="16"
       direction="bottom"
-      :strokeWidth="1.5"
       :class="`${isActive ? 'stroke-white-100' : 'stroke-gray-60'}`"
     />
   </button>

@@ -18,7 +18,8 @@
             v-for="i in 5"
             :key="i"
             name="Star"
-            size="18px"
+            :height="18"
+            :width="18"
             :class="i > rating ? 'fill-gray-50' : 'fill-purple-70'"
           />
         </span>
