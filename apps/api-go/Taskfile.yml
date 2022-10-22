@@ -3,7 +3,7 @@ version: '3'
 tasks:
   dev:
     cmds:
-      - doppler run -- pnpx nodemon --config ./nodemon.json
+      - doppler run -- nodemon --config ./nodemon.json
 
   build:
     cmds:
