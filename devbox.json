@@ -1,12 +1,6 @@
 {
   "packages": ["doppler", "go_1_19", "protobuf", "go-protobuf", "go-task"],
   "shell": {
-    "init_hook": [
-      "sh devbox/post-install.sh",
-      "source devbox/pre-exit.sh",
-      "finish || true",
-      "docker compose -f docker-compose.dev.yml up -d > /dev/null 2>&1",
-      "echo \"Needed services started\""
-    ]
+    "init_hook": ["sh devbox/post-install.sh"]
   }
 }
