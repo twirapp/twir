@@ -15,6 +15,9 @@ func ValidateBody[T any](
 	dto *T,
 ) error {
 	if err := c.BodyParser(dto); err != nil {
+		if err.Error() == "Unprocessable Entity" {
+			return fiber.NewError(400, "data not provided")
+		}
 		return err
 	}
 
