@@ -1,7 +1,11 @@
 package dashboardaccess
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 )
@@ -9,15 +13,15 @@ import (
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("dashboard-access")
 
-	/* dashboardAccessList := cache.New(cache.Config{
+	dashboardAccessList := cache.New(cache.Config{
 		Expiration: 15 * time.Second,
 		Storage:    services.RedisStorage,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return fmt.Sprintf("channels:dashboardAccess:%s", c.Params("channelId"))
 		},
-	}) */
+	})
 
-	middleware.Get("" /* dashboardAccessList, */, func(c *fiber.Ctx) error {
+	middleware.Get("", dashboardAccessList, func(c *fiber.Ctx) error {
 		users, err := handleGet(c.Params("channelId"), services)
 		if err != nil {
 			return nil
