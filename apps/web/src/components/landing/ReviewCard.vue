@@ -1,10 +1,12 @@
 <template>
-  <div class="inline-flex flex-col overflow-hidden rounded-[10px] bg-black-17">
+  <div
+    class="inline-flex flex-col overflow-hidden rounded-[10px] bg-black-17 text-left select-none"
+  >
     <div class="px-5 py-5 inline-flex border-b border-black-25 items-center">
       <ClientOnly>
         <template #default>
           <LazyImage
-            class="w-11 h-11 rounded-full mr-[14px] bg-contain"
+            class="w-11 h-11 rounded-full mr-[14px] bg-contain flex-shrink-0"
             :src="avatarUrl"
             renderType="bg-image"
           />

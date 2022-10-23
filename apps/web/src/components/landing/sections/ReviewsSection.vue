@@ -60,7 +60,6 @@
             w-screen
             overflow-hidden
             mb-20
-            gap-x-6
             max-md:px-6
             min-md:justify-center
           "

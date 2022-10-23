@@ -8,7 +8,6 @@
     "dev": "doppler run -- turbo run dev --filter=./apps/* --filter=!./apps/api",
     "start": "pnpm run -r start --filter=!@tsuwari/frontend",
     "start:integrations": "pnpm --filter=@tsuwari/integrations start",
-    "build:ui-icons": "pnpm --filter=ui-components build",
     "build:ui-components": "pnpm --filter=ui-icons build",
     "start:api": "pnpm --filter=@tsuwari/api start",
     "start:eventsub": "pnpm --filter=@tsuwari/eventsub start",
@@ -45,7 +44,6 @@
     "dev:dota": "doppler run -- turbo run dev --filter=dota",
     "dev:eval": "doppler run -- turbo run dev --filter=eval",
     "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/typeorm run deploy",
-    "dev:web-landing": "turbo run dev --filter=web-landing",
     "dev:web": "turbo run dev --filter=web",
     "prisma:generate": "pnpm --filter=@tsuwari/prisma generate"
   },

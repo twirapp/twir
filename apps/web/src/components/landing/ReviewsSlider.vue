@@ -1,23 +1,15 @@
 <template>
-  <Swiper
-    :space-between="24"
-    :autoplay="{
-      delay: 1,
-      disableOnInteraction: false,
-    }"
-    :speed="2000"
-    slidesPerView="auto"
-    :centeredSlides="true"
-    :centeredSlidesBounds="true"
-    :loop="true"
-    :grabCursor="true"
-    :modules="modules"
-    class="mb-20"
-    @swiper="setSwiper"
-    @mouseenter="stopSlider"
-    @mouseleave="startSlider"
+  <Carousel
+    :wrapAround="true"
+    :autoplay="2500"
+    :pauseAutoplayOnHover="true"
+    :transition="500"
+    :itemsToShow="itemsToShow"
+    class="mb-20 cursor-grab"
+    :itemsToScroll="1"
+    :mouseDrag="true"
   >
-    <SwiperSlide v-for="item in reviews" :key="item.id" style="flex-shrink: 1">
+    <Slide v-for="item in reviews" :key="item.id">
       <ReviewCard
         class="slider-review-card"
         :username="item.username"
@@ -25,48 +17,34 @@
         :rating="item.rating"
         :avatarUrl="item.avatarUrl"
       />
-    </SwiperSlide>
-  </Swiper>
+    </Slide>
+  </Carousel>
 </template>
 
 <script lang="ts" setup>
-import { Autoplay, type Swiper as ISwiper } from 'swiper';
-import { Swiper, SwiperSlide } from 'swiper/vue';
-import { ref } from 'vue';
-
-import 'swiper/css';
+import 'vue3-carousel/dist/carousel.css';
+import { useWindowSize } from '@vueuse/core';
+import { computed } from 'vue';
+import { Carousel, Slide } from 'vue3-carousel';
 
 import ReviewCard from '@/components/landing/ReviewCard.vue';
 import type { Review } from '@/data/landing/reviews.js';
 
+const { width } = useWindowSize();
+
+const itemsToShow = computed(() => {
+  return width.value / 408;
+});
+
 defineProps<{
-  reviews: Review[]
+  reviews: Review[];
 }>();
-
-const slider = ref<ISwiper | null>(null);
-
-const setSwiper = (swiper: ISwiper) => {
-  slider.value = swiper;
-};
-
-const stopSlider = () => {
-  if (slider.value) {
-    slider.value.autoplay.stop();
-  }
-};
-
-const startSlider = () => {
-  if (slider.value) {
-    slider.value.autoplay.start();
-  }
-};
-
-const modules = [Autoplay];
 </script>
 
 <style lang="postcss">
 .slider-review-card {
   width: 380px;
+  margin: 0 12px;
 
   @media screen and (max-width: 565.98px) {
     width: calc(100vw - 24px * 2);

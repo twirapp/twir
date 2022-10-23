@@ -4,20 +4,18 @@
       <div class="flex min-md:w-[740px] mx-auto py-[18px]">
         <ClientOnly :renderClient="isRenderClient">
           <template #default>
-            <Swiper
-              :space-between="24"
+            <Carousel
               :speed="1000"
-              :slidesPerView="slidesPerView"
-              :loop="true"
-              :grabCursor="true"
-              :autoplay="true"
-              :modules="modules"
-              class="w-full mx-10 max-sm:mx-0 animate-fadeIn opacity-0"
+              :autoplay="2000"
+              :pauseAutoplayOnHover="true"
+              :itemsToShow="slidesPerView"
+              snapAlign="start"
+              class="flex w-full max-sm:mx-0 animate-fadeIn opacity-0 cursor-grab select-none"
             >
-              <SwiperSlide v-for="item in stats" :key="item.id" class="flex justify-center">
-                <StatsItem :item="item" />
-              </SwiperSlide>
-            </Swiper>
+              <Slide v-for="item in stats" :key="item.id" class="flex justify-center">
+                <StatsItem :item="item" class="w-full" />
+              </Slide>
+            </Carousel>
           </template>
           <template #server>
             <div
@@ -34,15 +32,14 @@
 
 <script lang="ts" setup>
 import { isClient, useWindowSize } from '@vueuse/core';
-import { Autoplay } from 'swiper';
-import { Swiper, SwiperSlide } from 'swiper/vue';
 import { computed } from 'vue';
+import { Carousel, Slide } from 'vue3-carousel';
 
 import ClientOnly from '@/components/ClientOnly.vue';
 import StatsItem from '@/components/landing/StatsItem.vue';
 import { stats } from '@/data/landing/statInfo.js';
 
-import 'swiper/css';
+import 'vue3-carousel/dist/carousel.css';
 
 const { width: windowWidth } = useWindowSize();
 
@@ -57,6 +54,4 @@ const slidesPerView = computed(() => {
     return 3;
   }
 });
-
-const modules = [Autoplay];
 </script>
