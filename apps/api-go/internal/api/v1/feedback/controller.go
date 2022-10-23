@@ -6,11 +6,13 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("feedback")
+	middleware.Use(middlewares.CheckUserAuth(services))
 
 	limit := limiter.New(limiter.Config{
 		Max:        2,
