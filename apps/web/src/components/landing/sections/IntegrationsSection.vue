@@ -12,10 +12,7 @@
   >
     <div class="container max-w-[1040px] relative">
       <div class="flex flex-col justify-between items-center relative z-0">
-        <div
-          :style="{ backgroundImage: cssURL(Cube) }"
-          class="w-[183px] h-[185px] absolute left-0 right-0 mx-auto -z-[1] -top-[80px]"
-        ></div>
+        <Cube class="absolute left-0 right-0 mx-auto -z-[1] -top-[80px]" />
         <h2
           class="
             min-xl:text-[48px] min-sm:text-[44px]
@@ -46,7 +43,7 @@
 </template>
 
 <script lang="ts" setup>
-import Cube from '@/assets/Cube.svg';
+import Cube from '@/assets/Cube.svg?component';
 import DonationAlerts from '@/assets/logos/DonationAlerts.svg?component';
 import Dota2 from '@/assets/logos/Dota2.svg?component';
 import Faceit from '@/assets/logos/Faceit.svg?component';
@@ -57,7 +54,6 @@ import Streamlabs from '@/assets/logos/Streamlabs.svg?component';
 import TwitchSoundtrack from '@/assets/logos/TwitchSoundtrack.svg?component';
 import VK from '@/assets/logos/VK.svg?component';
 import useTranslation from '@/hooks/useTranslation.js';
-import { cssURL } from '@/utils/css.js';
 
 const integrationLogos = [
   LastFm,

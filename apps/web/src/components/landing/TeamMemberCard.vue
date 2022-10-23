@@ -1,10 +1,14 @@
 <template>
   <div class="min-lg:px-6 inline-flex min-lg:justify-items-center min-lg:items-center w-full">
-    <div
-      :class="`min-sm:w-[80px] min-sm:h-[80px] w-[68px] h-[68px] inline-block bg-contain bg-no-repeat`"
-      :style="{
-        backgroundImage: cssURL(UserImage),
-      }"
+    <UserImage
+      class="
+        min-sm:w-[80px] min-sm:h-[80px]
+        w-[68px]
+        h-[68px]
+        inline-block
+        bg-contain bg-no-repeat
+        p-1
+      "
     />
     <div class="inline-flex flex-col items-start w-full flex-1 min-md:ml-6 ml-4">
       <div class="inline-flex flex-col justify-items-center">
@@ -50,10 +54,9 @@
 <script lang="ts" setup>
 import { TswIcon } from '@tsuwari/ui-components';
 
-import UserImage from '@/assets/User.svg';
+import UserImage from '@/assets/User.svg?component';
 import type { TeamMemberMedia } from '@/data/landing/team.js';
 import useTranslation from '@/hooks/useTranslation';
-import { cssURL } from '@/utils/css';
 
 defineProps<{
   name: string;

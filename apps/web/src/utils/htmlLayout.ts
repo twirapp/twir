@@ -2,7 +2,7 @@ import type { Readable } from 'stream';
 
 import { escapeInject } from 'vite-plugin-ssr';
 
-import svgFavicon from '@/assets/NewLogo.svg';
+import svgFavicon from '@/assets/brand/TsuwariInCircle.svg';
 import { author, ogImage } from '@/data/seo.js';
 import type { Locale } from '@/locales';
 

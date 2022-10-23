@@ -23,7 +23,7 @@
           "
         >
           <div class="inline-flex items-center min-md:mr-auto">
-            <img src="@/assets/NewLogo.svg" class="w-[28px] h-[28px]" alt="Tsuwari logo" />
+            <div class="w-[28px] h-[28px]" :style="{ backgroundImage: cssURL(TsuwariLogo) }" />
             <span class="text-[22px] ml-3 font-medium">Tsuwari</span>
           </div>
         </div>
@@ -51,9 +51,11 @@
 <script lang="ts" setup>
 import { TswIcon } from '@tsuwari/ui-components';
 
+import TsuwariLogo from '@/assets/brand/TsuwariInCircle.svg';
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import { socials } from '@/data/landing/socialMedia.js';
 import useTranslation from '@/hooks/useTranslation.js';
+import { cssURL } from '@/utils/css.js';
 
 const t = useTranslation<'landing'>();
 </script>
