@@ -1,4 +1,7 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true
+  },
   "exclude": ["src/**/*.stories.ts"]
 }

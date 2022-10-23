@@ -4,15 +4,13 @@ import { fileURLToPath } from 'node:url';
 import compress from '@fastify/compress';
 import middie from '@fastify/middie';
 import { fastify } from 'fastify';
-import { PageContextBuiltIn, renderPage } from 'vite-plugin-ssr';
+import { renderPage, type PageContextBuiltIn } from 'vite-plugin-ssr';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const PORT = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === 'production' || false;
 const root = resolve(__dirname, '../..');
-
-startServer();
 
 async function startServer() {
   try {
@@ -28,14 +26,12 @@ async function startServer() {
     } else {
       const { createServer } = await import('vite');
 
-      const viteDevMiddleware = (
-        await createServer({
-          root,
-          server: { middlewareMode: true },
-        })
-      ).middlewares;
+      const { middlewares: viteMiddlewares } = await createServer({
+        root,
+        server: { middlewareMode: true },
+      });
 
-      app.use(viteDevMiddleware);
+      app.use(viteMiddlewares);
     }
 
     app.get(isProduction ? '/app/*' : '*', async (req, res) => {
@@ -63,3 +59,5 @@ async function startServer() {
     process.exit(1);
   }
 }
+
+startServer();

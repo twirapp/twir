@@ -1,7 +1,6 @@
 import Twitch from '@nestjs-hybrid-auth/twitch';
 import {
   BadRequestException,
-  Body,
   CacheTTL,
   CACHE_MANAGER,
   Controller,
@@ -19,8 +18,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard, IAuthModuleOptions } from '@nestjs/passport';
-import { config } from '@tsuwari/config';
-import { exchangeCode, getTokenInfo } from '@twurple/auth';
 import CacheManager from 'cache-manager';
 import Express from 'express';
 import merge from 'lodash.merge';
@@ -30,6 +27,9 @@ import { JwtAuthGuard } from '../jwt/jwt.guard.js';
 import { JwtAuthService } from '../jwt/jwt.service.js';
 import { scope } from './auth.module.js';
 import { AuthService } from './auth.service.js';
+
+const REFRESH_TOKEN = 'refresh_token';
+const REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 31; // 31day
 
 @Injectable()
 class TwitchAuthGuard extends AuthGuard('twitch') {
@@ -63,40 +63,37 @@ export class AuthController {
   ) {}
 
   @UseTwitchAuth()
-  @Get('')
+  @Get()
   login() {
     return 'Login with twitch...';
   }
 
   @Get('token')
-  async callback(@Res() res: Express.Response, @Query() query: { code: string; state: string }) {
-    const code = await exchangeCode(
-      config.TWITCH_CLIENTID,
-      config.TWITCH_CLIENTSECRET,
-      query.code,
-      Buffer.from(query.state, 'base64').toString('utf-8'),
-    );
-    const tokenInfo = await getTokenInfo(code.accessToken, config.TWITCH_CLIENTID);
+  async twitchCallback(
+    @Query() query: { code: string; state: string },
+    @Res() res: Express.Response,
+  ) {
+    try {
+      const jwtPayload = await this.authService.authorizeUserByTwitch(query.code, query.state);
 
-    const { accessToken, refreshToken } = this.jwtAuthService.login({
-      id: tokenInfo.userId!,
-      login: tokenInfo.userName!,
-      scopes: tokenInfo.scopes,
-    });
-    await this.authService.checkUser(code, tokenInfo.userId!, tokenInfo.userName);
+      const { accessToken, refreshToken } = await this.jwtAuthService.generateKeypair(jwtPayload);
 
-    res.send({
-      accessToken,
-      refreshToken,
-    });
+      res
+        .cookie(REFRESH_TOKEN, refreshToken, { httpOnly: true, maxAge: REFRESH_TOKEN_EXPIRE_TIME })
+        .send({ accessToken });
+    } catch (error) {
+      res.status(400).send('Something wrong with your authorization. Please try authorize again.');
+    }
   }
 
   @Post('token')
-  async refresh(@Res() res: Express.Response, @Body() body: { refreshToken: string }) {
-    if (!body.refreshToken) throw new BadRequestException('Refresh token not passed to body');
+  async refresh(@Req() req: Express.Request, @Res() res: Express.Response) {
+    const refreshToken = req.cookies[REFRESH_TOKEN] as string | undefined;
+    if (!refreshToken) throw new BadRequestException('Refresh token not passed to body');
+
     try {
-      const newTokens = await this.jwtAuthService.refresh(body.refreshToken);
-      res.send(newTokens);
+      const accessToken = await this.jwtAuthService.refreshAccessToken(refreshToken);
+      res.send({ accessToken });
     } catch (error) {
       res.status(400).send('Something wrong with your authorization. Please try authorize again.');
     }
@@ -104,9 +101,10 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
-  async logout(@Req() req: Express.Request) {
+  async logout(@Req() req: Express.Request, @Res() res: Express.Response) {
     await this.cacheManager.del(`nest:cache:auth/profile:${req.user.id}`);
-    return true;
+
+    res.clearCookie(REFRESH_TOKEN).send(true);
   }
 
   @CacheTTL(600)

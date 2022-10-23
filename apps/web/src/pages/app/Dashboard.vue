@@ -1,3 +1,3 @@
 <template>
-  <h1>Dashboard</h1>
+  <h1 class="text-5xl font-bold">Dashboard</h1>
 </template>

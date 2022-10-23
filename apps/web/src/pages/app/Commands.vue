@@ -1,3 +1,3 @@
 <template>
-  <h1>Commands</h1>
+  <h1 class="text-5xl font-bold">Commands</h1>
 </template>

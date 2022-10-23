@@ -9,7 +9,7 @@ export interface SeoPageProps {
 export const author = 'Satont, me@satont.dev';
 export const ogImage = ''; // TODO
 
-export const landingPage: { [K in Locale]: SeoPageProps } = {
+export const seoLocales: { [K in Locale]: SeoPageProps } = {
   en: {
     title: 'Tsuwari - Main page',
     description:

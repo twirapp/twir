@@ -34,48 +34,15 @@
           backgroundImage: cssURL(WavesSvg),
         }"
       ></div>
-      <div
-        class="
-          hero-bg-image
-          h-[46px]
-          w-[45px]
-          top-[15%]
-          right-[16%]
-          max-xl:right-[11%]
-          animation-delay-300
-        "
-        :style="{
-          backgroundImage: cssURL(RhombusSvg),
-        }"
-      ></div>
-      <div
-        class="
-          hero-bg-image
-          top-[41%]
-          left-[14%]
-          max-xl:left-[11%]
-          animation-delay-400
-          w-[67px]
-          h-[108px]
-        "
-        :style="{
-          backgroundImage: cssURL(LightingSvg),
-        }"
-      ></div>
-      <div
-        :style="{
-          backgroundImage: cssURL(SmileBotSvg),
-        }"
-        class="
-          hero-bg-image
-          right-[6%]
-          bottom-[37%]
-          max-xl:right-[3%]
-          animation-delay-600
-          h-[219px]
-          w-[179px]
-        "
-      ></div>
+      <RhombusSvg
+        class="hero-bg-image top-[15%] right-[16%] max-xl:right-[11%] animation-delay-300"
+      />
+      <LightingSvg
+        class="hero-bg-image top-[41%] left-[14%] max-xl:left-[11%] animation-delay-400"
+      />
+      <SmileBotSvg
+        class="hero-bg-image right-[6%] bottom-[37%] max-xl:right-[3%] animation-delay-600"
+      />
       <div
         :style="{
           backgroundImage: cssURL(PinkBlob),
@@ -95,9 +62,9 @@
 <script lang="ts" setup>
 import BlueBlob from '@/assets/blob-blue.png';
 import PinkBlob from '@/assets/blob-pink.png';
-import LightingSvg from '@/assets/Lighting.svg';
-import RhombusSvg from '@/assets/Rhombus.svg';
-import SmileBotSvg from '@/assets/SmileBot.svg';
+import LightingSvg from '@/assets/Lighting.svg?component';
+import RhombusSvg from '@/assets/Rhombus.svg?component';
+import SmileBotSvg from '@/assets/SmileBot.svg?component';
 import WavesSvg from '@/assets/Waves.svg';
 import useTranslation from '@/hooks/useTranslation.js';
 import { cssURL } from '@/utils/css.js';
@@ -128,7 +95,7 @@ const t = useTranslation<'landing'>();
     w-full
     pt-32
     pb-40
-    min-2xl:pt-40 min-2xl:pb-48
+    min-2xl:pt-36 min-2xl:pb-48
     max-sm:pt-24
     px-10
     max-sm:px-6;

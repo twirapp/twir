@@ -2,7 +2,7 @@
   <section class="bg-black-15 border-b border-b-black-25">
     <div class="container">
       <div class="flex min-md:w-[740px] mx-auto py-[18px]">
-        <ClientOnly :renderClient="renderClient">
+        <ClientOnly :renderClient="isRenderClient">
           <template #default>
             <Swiper
               :space-between="24"
@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useWindowSize } from '@vueuse/core';
+import { isClient, useWindowSize } from '@vueuse/core';
 import { Autoplay } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { computed } from 'vue';
@@ -46,18 +46,16 @@ import 'swiper/css';
 
 const { width: windowWidth } = useWindowSize();
 
-const renderClient = computed(() => windowWidth.value <= 768);
+const isRenderClient = computed(() => isClient && windowWidth.value <= 768);
 
 const slidesPerView = computed(() => {
   if (windowWidth.value < 410) {
     return 1;
-  }
-
-  if (windowWidth.value < 568) {
+  } else if (windowWidth.value < 568) {
     return 2;
+  } else {
+    return 3;
   }
-
-  return 3;
 });
 
 const modules = [Autoplay];

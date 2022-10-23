@@ -1,12 +1,18 @@
 <template>
   <div class="inline-flex flex-col overflow-hidden rounded-[10px] bg-black-17">
     <div class="px-5 py-5 inline-flex border-b border-black-25 items-center">
-      <div
-        class="w-11 h-11 rounded-full mr-[14px] bg-contain"
-        :style="{
-          backgroundImage: cssURL(avatarUrl),
-        }"
-      />
+      <ClientOnly>
+        <template #default>
+          <LazyImage
+            class="w-11 h-11 rounded-full mr-[14px] bg-contain"
+            :src="avatarUrl"
+            renderType="bg-image"
+          />
+        </template>
+        <template #server>
+          <UserImage class="w-11 h-11 mr-[14px]" />
+        </template>
+      </ClientOnly>
       <div class="inline-grid gap-y-[6px] justify-items-start">
         <span
           class="text-lg leading-[130%] whitespace-nowrap overflow-hidden text-ellipsis max-w-full"
@@ -18,7 +24,8 @@
             v-for="i in 5"
             :key="i"
             name="Star"
-            size="18px"
+            :height="18"
+            :width="18"
             :class="i > rating ? 'fill-gray-50' : 'fill-purple-70'"
           />
         </span>
@@ -35,7 +42,9 @@
 <script lang="ts" setup>
 import { TswIcon } from '@tsuwari/ui-components';
 
-import { cssURL } from '@/utils/css';
+import UserImage from '@/assets/User.svg?component';
+import ClientOnly from '@/components/ClientOnly.vue';
+import LazyImage from '@/components/LazyImage.vue';
 
 defineProps<{ username: string; rating: number; comment: string; avatarUrl: string }>();
 </script>

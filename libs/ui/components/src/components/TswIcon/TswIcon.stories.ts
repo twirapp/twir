@@ -1,5 +1,6 @@
 import { Meta, Story } from '@storybook/vue3';
-import icons, { IconName } from '@tsuwari/ui-icons';
+
+import * as icons from './icons';
 
 import TswIcon from '@/components/TswIcon/TswIcon.vue';
 
@@ -10,27 +11,23 @@ export default {
     name: {
       type: {
         name: 'enum',
-        value: Object.keys(icons) as IconName[],
+        value: Object.keys(icons),
       },
       control: 'select',
-    },
-    fill: {
-      type: 'string',
-      control: 'color',
-    },
-    stroke: {
-      type: 'string',
-      control: 'color',
     },
   },
 } as Meta;
 
 const Template: Story<{
-  name: IconName;
-  size?: string;
-  fill?: string;
-  stroke?: string;
+  name: keyof typeof icons;
+  width?: number;
+  height?: number;
+  title?: string;
+  label?: string;
   strokeWidth?: number;
+  stroke?: string;
+  fill?: string;
+  strokeStyle?: 'round' | 'butt' | 'square';
 }> = (args) => ({
   components: { TswIcon },
   setup() {
@@ -41,9 +38,6 @@ const Template: Story<{
 
 export const Icon = Template.bind({});
 Icon.args = {
-  name: 'Home',
-  size: '36px',
+  name: 'ArrowInCircle',
   stroke: 'white',
-  fill: 'none',
-  strokeWidth: 1.5,
 };
