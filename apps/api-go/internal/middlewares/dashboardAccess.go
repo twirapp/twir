@@ -18,6 +18,13 @@ var CheckHasAccessToDashboard = func(c *fiber.Ctx) error {
 	}
 
 	channelId := c.Params("channelId")
+	if channelId == "" {
+		return c.Status(500).
+			JSON(fiber.Map{"message": "channelId not passed. This is probably internal error"})
+	}
+	if dbUser.ID == channelId {
+		return c.Next()
+	}
 	_, ok := lo.Find(dbUser.DashboardAccess, func(a model.ChannelsDashboardAccess) bool {
 		return a.ChannelID == channelId
 	})

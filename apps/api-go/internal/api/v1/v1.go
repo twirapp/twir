@@ -13,6 +13,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/streams"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/timers"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/variables"
+	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 )
 
@@ -20,6 +21,9 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	feedback.Setup(router, services)
 
 	channelsGroup := router.Group("channels/:channelId")
+	channelsGroup.Use(middlewares.CheckUserAuth(services))
+	channelsGroup.Use(middlewares.CheckHasAccessToDashboard)
+
 	commands.Setup(channelsGroup, services)
 	greetings.Setup(channelsGroup, services)
 	keywords.Setup(channelsGroup, services)
