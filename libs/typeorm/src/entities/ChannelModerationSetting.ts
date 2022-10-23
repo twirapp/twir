@@ -1,5 +1,14 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 
 import { type Channel } from './Channel.js';
 
@@ -63,7 +72,7 @@ export class ChannelModerationSetting {
   })
   maxPercentage: number | null;
 
-  @Column('jsonb', { name: 'blackListSentences', nullable: true, default: [] })
+  @Column('text', { name: 'blackListSentences', array: true, nullable: true, default: [] })
   blackListSentences: string[] | null;
 
   @ManyToOne('Channel', 'moderationSettings', {

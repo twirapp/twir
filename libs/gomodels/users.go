@@ -20,6 +20,7 @@ type Users struct {
 	TokenID    sql.NullString `gorm:"column:tokenId;type:TEXT;"                  json:"tokenId"`
 	IsTester   bool           `gorm:"column:isTester;type:BOOL;default:false;"   json:"isTester"`
 	IsBotAdmin bool           `gorm:"column:isBotAdmin;type:BOOL;default:false;" json:"isBotAdmin"`
+	ApiKey     string         `gorm:"column:apiKey;type:TEXT;"                   json:"apiKey"`
 }
 
 func (u *Users) TableName() string {
