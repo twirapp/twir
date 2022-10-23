@@ -19,14 +19,21 @@ func jwtError(c *fiber.Ctx, err error) error {
 		JSON(fiber.Map{"status": "error", "message": "Invalid or expired JWT", "data": nil})
 }
 
-var ProtectRoute = func(services types.Services) func(c *fiber.Ctx) error {
+var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
+		if c.Locals("dbUser") != nil {
+			return c.Next()
+		}
+
 		headers := c.GetReqHeaders()
 		apiKey := headers["Api-Key"]
 		dbUser := model.Users{}
 
 		if apiKey != "" {
-			err := services.DB.Where(`"apiKey" = ?`, apiKey).First(&dbUser).Error
+			err := services.DB.Where(`"apiKey" = ?`, apiKey).
+				Preload("DashboardAccess").
+				First(&dbUser).
+				Error
 			if err != nil {
 				return c.JSON(fiber.Map{"message": "user with that api key not found"})
 			}
@@ -60,7 +67,10 @@ var ProtectRoute = func(services types.Services) func(c *fiber.Ctx) error {
 				return fiber.NewError(401, "invalid token")
 			}
 
-			err = services.DB.Where(`"id" = ?`, userId).First(&dbUser).Error
+			err = services.DB.Where(`"id" = ?`, userId).
+				Preload("DashboardAccess").
+				First(&dbUser).
+				Error
 			if err != nil {
 				return c.JSON(fiber.Map{"message": "user not found"})
 			}
