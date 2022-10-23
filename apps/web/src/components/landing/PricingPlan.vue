@@ -37,7 +37,8 @@
         >
           <TswIcon
             :name="featureTypeIcons[feature.status]"
-            size="22px"
+            :height="22"
+            :width="22"
             :class="`feature-icon mr-3 ${
               colorTheme === 'purple'
                 ? 'stroke-white-100'

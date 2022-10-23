@@ -5,7 +5,7 @@
         <div class="flex-1 flex">
           <div class="mr-auto flex items-center justify-between max-lg:w-full">
             <a class="inline-grid items-center grid-flow-col gap-x-[10px] p-2 max-lg:p-1" href="#">
-              <img :src="Logo" alt="Tsuwari logo" height="30px" width="30px" />
+              <div class="h-[30px] w-[30px]" :style="{ backgroundImage: cssURL(TsuwariLogo) }" />
               <span class="font-medium text-xl">Tsuwari</span>
             </a>
             <BurgerMenuButton />
@@ -22,7 +22,9 @@
         <div class="flex-1 flex max-lg:bg-red-60 max-lg:hidden">
           <div class="inline-grid grid-flow-col gap-x-3 items-center ml-auto">
             <LangSelect @change="setLandingLocale" />
-            <a href="#" class="login-btn">{{ t('buttons.login') }}</a>
+            <ClientOnly>
+              <HeaderAuthBlock />
+            </ClientOnly>
           </div>
         </div>
       </div>
@@ -43,21 +45,20 @@
 import { useStore } from '@nanostores/vue';
 import { useWindowScroll } from '@vueuse/core';
 
-import Logo from '@/assets/NewLogo.svg';
+import TsuwariLogo from '@/assets/brand/TsuwariInCircle.svg';
 import ClientOnly from '@/components/ClientOnly.vue';
 import BurgerMenuButton from '@/components/landing/layout/BurgerMenuButton.vue';
+import HeaderAuthBlock from '@/components/landing/layout/HeaderAuthBlock.vue';
 import MobileMenu from '@/components/landing/layout/MobileMenu.vue';
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import LangSelect from '@/components/LangSelect/LangSelect.vue';
 import useLandingLocale from '@/hooks/useLandingLocale';
-import useTranslation from '@/hooks/useTranslation';
 import { headerStore, headerHeightStore } from '@/stores/landing/header.js';
+import { cssURL } from '@/utils/css.js';
 
 const setLandingLocale = useLandingLocale();
 
 const headerHeight = useStore(headerHeightStore);
-
-const t = useTranslation<'landing'>();
 
 const { y: windowY } = useWindowScroll();
 </script>

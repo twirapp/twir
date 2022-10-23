@@ -1,6 +1,6 @@
 import { renderToNodeStream } from '@vue/server-renderer';
 
-import { landingPage } from '@/data/seo.js';
+import { seoLocales } from '@/data/seo.js';
 import { defaultLocale, locales, setupI18n, type Locale } from '@/locales';
 import { createApp } from '@/pages/index/app';
 import type { PageContext } from '@/types/pageContext.js';
@@ -16,7 +16,7 @@ export async function render(pageContext: PageContext) {
   const i18n = await setupI18n(locale, 'landing');
   app.use(i18n);
 
-  const seoInfo = landingPage[locale];
+  const seoInfo = seoLocales[locale];
 
   const documentHtml = htmlLayout({
     title: seoInfo.title,

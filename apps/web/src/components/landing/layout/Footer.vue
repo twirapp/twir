@@ -23,7 +23,7 @@
           "
         >
           <div class="inline-flex items-center min-md:mr-auto">
-            <img src="@/assets/NewLogo.svg" class="w-[28px] h-[28px]" alt="Tsuwari logo" />
+            <div class="w-[28px] h-[28px]" :style="{ backgroundImage: cssURL(TsuwariLogo) }" />
             <span class="text-[22px] ml-3 font-medium">Tsuwari</span>
           </div>
         </div>
@@ -31,16 +31,11 @@
           menuClass="inline-grid grid-flow-col gap-x-6 max-md:py-6 max-sm:grid-flow-row max-sm:justify-items-center max-sm:text-sm max-sm:gap-y-[18px]"
           menuItemClass="leading-[130%]"
         />
-        <div
-          class="
-            flex-1 flex
-            max-md:bg-black-15 max-md:w-full max-md:justify-center max-md:py-[10px]
-          "
-        >
-          <ul class="inline-grid grid-flow-col gap-x-3 min-md:ml-auto">
+        <div class="flex-1 flex max-md:bg-black-15 max-md:w-full max-md:justify-center max-md:py-3">
+          <ul class="inline-grid grid-flow-col gap-x-4 min-md:ml-auto">
             <li v-for="item in socials" :key="item.id">
               <a :href="item.href">
-                <TswIcon :name="item.type" size="24px" class="stroke-gray-70" :strokeWidth="1.5" />
+                <TswIcon :name="item.type" :height="20" :width="20" class="fill-gray-70" />
               </a>
             </li>
           </ul>
@@ -56,9 +51,11 @@
 <script lang="ts" setup>
 import { TswIcon } from '@tsuwari/ui-components';
 
+import TsuwariLogo from '@/assets/brand/TsuwariInCircle.svg';
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import { socials } from '@/data/landing/socialMedia.js';
 import useTranslation from '@/hooks/useTranslation.js';
+import { cssURL } from '@/utils/css.js';
 
 const t = useTranslation<'landing'>();
 </script>

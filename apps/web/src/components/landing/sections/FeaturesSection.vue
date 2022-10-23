@@ -39,8 +39,8 @@
           </span>
           <TswArrowIcon
             arrowName="ArrowInCircle"
-            :strokeWidth="1.5"
-            size="52px"
+            :width="52"
+            :height="52"
             direction="top-right"
             class="stroke-gray-35 max-md:stroke-white-100"
           />

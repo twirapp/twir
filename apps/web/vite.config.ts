@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import ssr from 'vite-plugin-ssr/plugin';
+import svg from 'vite-svg-loader';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -15,6 +16,10 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    svg({
+      svgo: false,
+      defaultImport: 'url',
+    }),
     ssr({
       prerender: true,
     }),
@@ -25,6 +30,15 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
+    host: true,
+    port: Number(process.env.VITE_PORT ?? 3005),
+    proxy: {
+      '/api': {
+        target: process.env.VITE_API_URL ?? 'http://localhost:3002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+        ws: true,
+      },
+    },
   },
 });

@@ -3,7 +3,6 @@
     "lokalise.i18n-ally",
     "dbaeumer.vscode-eslint",
     "abhijoybasak.nestjs-files",
-    "prisma.prisma",
     "dunn.redis",
     "bradlc.vscode-tailwindcss",
     "rangav.vscode-thunder-client",
@@ -12,6 +11,7 @@
     "emeraldwalk.runonsave",
     "golang.go",
     "emeraldwalk.RunOnSave",
-    "astro-build.astro-vscode"
+    "astro-build.astro-vscode",
+    "emeraldwalk.RunOnSave"
   ]
 }

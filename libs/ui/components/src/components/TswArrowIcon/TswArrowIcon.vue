@@ -1,11 +1,5 @@
 <template>
-  <TswIcon
-    :name="arrowName"
-    :size="size"
-    :class="classes"
-    :strokeWidth="strokeWidth"
-    :stroke="stroke"
-  />
+  <TswIcon :name="arrowName" :class="classes" :strokeWidth="strokeWidth" />
 </template>
 
 <script lang="ts" setup>
@@ -18,24 +12,25 @@ const props = withDefaults(
   defineProps<{
     direction: ArrowDirection;
     arrowName?: ArrowIconName;
-    stroke?: string;
     strokeWidth?: number;
     size?: string;
+    class?: string;
   }>(),
   {
     direction: 'right',
-    stroke: 'white',
     arrowName: 'ArrowTriangleMedium',
-    strokeWidth: 1.5,
+    strokeWidth: undefined,
     size: undefined,
+    class: undefined,
   },
 );
 
-const classes = computed(() => [`arrow-${props.direction}`].join(' '));
+const classes = computed(() => {
+  return props.class + ` arrow-${props.direction}`;
+});
 </script>
 
 <style lang="postcss">
-
 .arrow-bottom-right {
   transform: rotate(45deg);
 }
@@ -67,5 +62,4 @@ const classes = computed(() => [`arrow-${props.direction}`].join(' '));
 .arrow-right {
   transform: rotate(0deg);
 }
-
 </style>
