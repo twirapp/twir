@@ -130,30 +130,37 @@ func main() {
 		m.Ack()
 	})
 
-	natsEncodedConn.QueueSubscribe("bots.getVariables", "parser", func(m *nats.Msg) {
-		vars := lo.Map(variablesService.Store, func(v types.Variable, _ int) *parserproto.Variable {
-			desc := v.Name
-			if v.Description != nil {
-				desc = *v.Description
-			}
-			example := v.Name
-			if v.Example != nil {
-				example = *v.Example
-			}
-			return &parserproto.Variable{
-				Name:        v.Name,
-				Example:     example,
-				Description: desc,
-			}
-		})
+	natsEncodedConn.QueueSubscribe(
+		parserproto.SUBJECTS_GET_BUILTIT_VARIABLES,
+		"parser",
+		func(m *nats.Msg) {
+			vars := lo.Map(
+				variablesService.Store,
+				func(v types.Variable, _ int) *parserproto.Variable {
+					desc := v.Name
+					if v.Description != nil {
+						desc = *v.Description
+					}
+					example := v.Name
+					if v.Example != nil {
+						example = *v.Example
+					}
+					return &parserproto.Variable{
+						Name:        v.Name,
+						Example:     example,
+						Description: desc,
+					}
+				},
+			)
 
-		res, _ := proto.Marshal(&parserproto.GetVariablesResponse{
-			List: vars,
-		})
+			res, _ := proto.Marshal(&parserproto.GetVariablesResponse{
+				List: vars,
+			})
 
-		m.Respond(res)
-		m.Ack()
-	})
+			m.Respond(res)
+			m.Ack()
+		},
+	)
 
 	natsEncodedConn.QueueSubscribe("bots.getDefaultCommands", "parser", func(m *nats.Msg) {
 		list := make([]*parserproto.DefaultCommand, len(commandsService.DefaultCommands))

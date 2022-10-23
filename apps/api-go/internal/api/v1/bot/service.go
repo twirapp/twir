@@ -75,6 +75,6 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 		UserName: user.Login,
 	})
 
-	services.Nats.Publish("bots.joinOrLeave", bytes)
+	services.Nats.Publish(bots.SUBJECTS_JOIN_OR_LEAVE, bytes)
 	return nil
 }

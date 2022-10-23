@@ -31,24 +31,27 @@ await Promise.all(
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-for (const pkg of Object.keys(subjects)) {
-  const pkgName = pkg.toLowerCase();
-  const packageDir = resolve(__dirname, pkgName);
-  const entries = Object.entries(subjects[pkg]);
+await Promise.all(
+  Object.keys(subjects).map(async (pkg) => {
+    const pkgName = pkg.toLowerCase();
+    const packageDir = resolve(__dirname, pkgName);
+    const entries = Object.entries(subjects[pkg]);
 
-  const jsString = `export const SUBJECTS = {${entries.map((e) => `${e[0]}: "${e[1]}"`)}}`;
-  const goString = `
+    const jsString = `export const SUBJECTS = {${entries.map((e) => `${e[0]}: "${e[1]}"`)}}`;
+    const goString = `
   const (
     ${entries.map((e) => `SUBJECTS_${e[0]} = "${e[1]}"`)}
     )
     `;
 
-  console.log(resolve(packageDir, `${pkgName}.ts`));
-  await Promise.all([
-    appendFile(resolve(packageDir, `${pkgName}.ts`), jsString),
-    appendFile(resolve(packageDir, `${pkgName}.pb.go`), goString),
-  ]);
-}
+    await Promise.all([
+      appendFile(resolve(packageDir, `${pkgName}.ts`), jsString),
+      appendFile(resolve(packageDir, `${pkgName}.pb.go`), goString),
+    ]);
+
+    console.log(`✅ ${pkg} constants generated.`);
+  }),
+);
 
 await promisedExec('pnpm ts:build');
 console.info(`✅ All done.`);

@@ -29,7 +29,7 @@ func handleGetBuiltIn(services types.Services) ([]*parser.Variable, error) {
 	bytes, _ := proto.Marshal(&parser.GetVariablesRequest{})
 
 	msg, err := services.Nats.Request(
-		"bots.getVariables",
+		parser.SUBJECTS_GET_BUILTIT_VARIABLES,
 		bytes,
 		3*time.Second,
 	)
