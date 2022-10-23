@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"time"
+	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
@@ -21,7 +22,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		},
 	})
 
-	middleware.Get("", commandsCache, get(services))
+	middleware.Get("", middlewares.ProtectRoute(services), commandsCache, get(services))
 	middleware.Post("", post(services))
 	middleware.Delete(":commandId", delete(services))
 	middleware.Put(":commandId", update(services))
@@ -31,6 +32,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
+		fmt.Println("dbUserId", c.Locals("dbUser").(model.Users).ID)
 		c.JSON(handleGet(c.Params("channelId"), services))
 
 		return nil

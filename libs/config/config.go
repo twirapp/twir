@@ -15,6 +15,8 @@ type Config struct {
 	SentryDsn                string  `required:"false"                                    envconfig:"SENTRY_DSN"`
 	FeedbackTelegramBotToken *string `required:"false"                                    envconfig:"FEEDBACK_TELEGRAM_BOT_TOKEN"`
 	FeedbackTelegramUserID   *string `required:"false"                                    envconfig:"FEEDBACK_TELEGRAM_USERID"`
+	JwtAccessSecret          string  `required:"false" default:"CoolSecretForAccess"      envconfig:"JWT_ACCESS_SECRET"`
+	JwtRefreshSecret         string  `required:"false" default:"CoolSecretForRefresh"     envconfig:"JWT_REFRESH_SECRET"`
 }
 
 func New() (*Config, error) {
