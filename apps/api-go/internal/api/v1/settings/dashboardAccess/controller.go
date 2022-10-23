@@ -14,7 +14,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("dashboard-access")
 
 	dashboardAccessList := cache.New(cache.Config{
-		Expiration: 15 * time.Second,
+		Expiration: 10 * time.Minute,
 		Storage:    services.RedisStorage,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return fmt.Sprintf("channels:dashboardAccess:%s", c.Params("channelId"))
