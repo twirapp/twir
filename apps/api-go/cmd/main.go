@@ -24,6 +24,7 @@ import (
 
 	cfg "tsuwari/config"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	gormLogger "gorm.io/gorm/logger"
 )
 
@@ -90,6 +91,10 @@ func main() {
 		Logger:              logger,
 		Cfg:                 cfg,
 		Nats:                natsConn,
+	}
+
+	if cfg.FeedbackTelegramBotToken != nil {
+		services.TgBotApi, _ = tgbotapi.NewBotAPI(*cfg.FeedbackTelegramBotToken)
 	}
 
 	apiv1.Setup(v1, services)

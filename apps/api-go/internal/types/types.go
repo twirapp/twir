@@ -7,6 +7,7 @@ import (
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/gofiber/storage/redis"
 	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
@@ -22,4 +23,5 @@ type Services struct {
 	Logger              *zap.Logger
 	Cfg                 *cfg.Config
 	Nats                *nats.Conn
+	TgBotApi            *tgbotapi.BotAPI
 }

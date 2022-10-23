@@ -5,6 +5,7 @@ import (
 
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/bot"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/commands"
+	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/feedback"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/greetings"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/keywords"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/moderation"
@@ -16,6 +17,8 @@ import (
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
+	feedback.Setup(router, services)
+
 	channelsGroup := router.Group("channels/:channelId")
 	commands.Setup(channelsGroup, services)
 	greetings.Setup(channelsGroup, services)
