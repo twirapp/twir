@@ -34,7 +34,6 @@ func init() {
 	tables["bots"] = botsTableInfo
 	tables["channels_commands_usages"] = channels_commands_usagesTableInfo
 	tables["channels_dota_accounts"] = channels_dota_accountsTableInfo
-	tables["channels_integrations"] = channels_integrationsTableInfo
 	tables["channels_permits"] = channels_permitsTableInfo
 	tables["dota_game_modes"] = dota_game_modesTableInfo
 	tables["dota_heroes"] = dota_heroesTableInfo
@@ -42,7 +41,6 @@ func init() {
 	tables["dota_matches_cards"] = dota_matches_cardsTableInfo
 	tables["dota_matches_results"] = dota_matches_resultsTableInfo
 	tables["dota_medals"] = dota_medalsTableInfo
-	tables["integrations"] = integrationsTableInfo
 	tables["notifications"] = notificationsTableInfo
 	tables["notifications_messages"] = notifications_messagesTableInfo
 	tables["tokens"] = tokensTableInfo

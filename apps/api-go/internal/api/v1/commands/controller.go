@@ -1,11 +1,7 @@
 package commands
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 )
@@ -13,15 +9,7 @@ import (
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("commands")
 
-	commandsCache := cache.New(cache.Config{
-		Expiration: 10 * time.Second,
-		Storage:    services.RedisStorage,
-		KeyGenerator: func(c *fiber.Ctx) string {
-			return fmt.Sprintf("channels:commandsList:%s", c.Params("channelId"))
-		},
-	})
-
-	middleware.Get("", commandsCache, get(services))
+	middleware.Get("", get(services))
 	middleware.Post("", post(services))
 	middleware.Delete(":commandId", delete(services))
 	middleware.Put(":commandId", update(services))

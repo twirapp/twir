@@ -3,6 +3,7 @@ package feedback
 import (
 	"fmt"
 	"time"
+	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
@@ -18,11 +19,12 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		Max:        2,
 		Expiration: 1 * time.Minute,
 		KeyGenerator: func(c *fiber.Ctx) string {
-			userId := "123123"
-			return fmt.Sprintf("fiber:limiter:feedback:%s", userId)
+			dbUser := c.Locals("dbUser").(model.Users)
+			return fmt.Sprintf("fiber:limiter:feedback:%s", dbUser.ID)
 		},
 		LimitReached: func(c *fiber.Ctx) error {
-			return c.Status(429).JSON(fiber.Map{"message": "you are sending feedback to fast"})
+			header := c.GetRespHeader("Retry-After", "2")
+			return c.Status(429).JSON(fiber.Map{"message": fmt.Sprintf("wait %s seconds", header)})
 		},
 		Storage: services.RedisStorage,
 	})

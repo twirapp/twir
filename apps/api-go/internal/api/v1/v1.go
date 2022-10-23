@@ -7,6 +7,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/commands"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/feedback"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/greetings"
+	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/integrations/donationalerts"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/keywords"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/moderation"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/settings"
@@ -33,6 +34,9 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	streams.Setup(channelsGroup, services)
 	variables.Setup(channelsGroup, services)
 	settings.Setup(channelsGroup, services)
+
+	integrationsGroup := channelsGroup.Group("integrations")
+	donationalerts.Setup(integrationsGroup, services)
 
 	return router
 }

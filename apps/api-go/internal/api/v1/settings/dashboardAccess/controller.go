@@ -3,12 +3,18 @@ package dashboardaccess
 import (
 	"fmt"
 	"time"
+	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 )
+
+func getDashboardAccessCacheKey(channelId string) string {
+	return fmt.Sprintf("channels:dashboardAccess:%s", channelId)
+}
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("dashboard-access")
@@ -17,7 +23,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		Expiration: 10 * time.Minute,
 		Storage:    services.RedisStorage,
 		KeyGenerator: func(c *fiber.Ctx) string {
-			return fmt.Sprintf("channels:dashboardAccess:%s", c.Params("channelId"))
+			return getDashboardAccessCacheKey(c.Params("channelId"))
 		},
 	})
 
@@ -30,7 +36,21 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		return c.JSON(users)
 	})
 
-	middleware.Post("", func(c *fiber.Ctx) error {
+	limit := limiter.New(limiter.Config{
+		Max:        5,
+		Expiration: 30 * time.Second,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			dbUser := c.Locals("dbUser").(model.Users)
+			return fmt.Sprintf("fiber:limiter:feedback:%s", dbUser.ID)
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			header := c.GetRespHeader("Retry-After", "2")
+			return c.Status(429).JSON(fiber.Map{"message": fmt.Sprintf("wait %s seconds", header)})
+		},
+		Storage: services.RedisStorage,
+	})
+
+	middleware.Post("", limit, func(c *fiber.Ctx) error {
 		dto := &addUserDto{}
 		err := middlewares.ValidateBody(
 			c,
@@ -46,6 +66,8 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		if err != nil {
 			return err
 		}
+
+		services.RedisStorage.Delete(getDashboardAccessCacheKey(c.Params("channelId")))
 
 		return c.JSON(entity)
 	})

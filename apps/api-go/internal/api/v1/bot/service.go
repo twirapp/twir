@@ -63,9 +63,10 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 	user := twitchUsers.Data.Users[0]
 
 	dbUser := model.Channels{}
-	err = services.DB.Where(`"channelId" = ?`, channelId).First(&dbUser).Error
+	err = services.DB.Where(`"id" = ?`, channelId).First(&dbUser).Error
 
 	if err != nil {
+		services.Logger.Sugar().Error(err)
 		return fiber.NewError(500, "cannot get user from database")
 	}
 
@@ -75,6 +76,14 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 		UserName: user.Login,
 	})
 
+	if dto.Action == "part" {
+		dbUser.IsEnabled = false
+	} else {
+		dbUser.IsEnabled = true
+	}
+
+	services.DB.Where(`"id" = ?`, channelId).Select("*").Updates(&dbUser)
 	services.Nats.Publish(bots.SUBJECTS_JOIN_OR_LEAVE, bytes)
+
 	return nil
 }
