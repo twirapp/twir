@@ -85,3 +85,69 @@ func handleDelete(timerId string, services types.Services) error {
 
 	return nil
 }
+
+func handlePut(
+	channelId string,
+	timerId string,
+	dto *timerDto,
+	services types.Services,
+) (*model.ChannelsTimers, error) {
+	timer := model.ChannelsTimers{}
+
+	err := services.DB.Where(`"channelId" = ? AND "id" = ?`, channelId, timerId).
+		Preload("Responses").
+		First(&timer).
+		Error
+	if err != nil && err == gorm.ErrRecordNotFound {
+		return nil, fiber.NewError(401, "timer with that id not found")
+	}
+
+	if err != nil {
+		return nil, fiber.NewError(500, "internal error")
+	}
+
+	timer.Enabled = *dto.Enabled
+	timer.LastTriggerMessageNumber = 0
+	timer.MessageInterval = int32(dto.MessageInterval)
+	timer.Name = dto.Name
+	timer.TimeInterval = int32(dto.TimeInterval)
+
+	err = services.DB.Select("*").Updates(&timer).Error
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return nil, fiber.NewError(500, "cannot update timer")
+	}
+
+	err = services.DB.Transaction(func(tx *gorm.DB) error {
+		for _, response := range *timer.Responses {
+			err = tx.Where("id = ?", response.ID).Delete(&model.ChannelsTimersResponses{}).Error
+			if err != nil {
+				services.Logger.Sugar().Error(err)
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return nil, fiber.NewError(500, "internal error when deleting responses")
+	}
+
+	newResponses := []model.ChannelsTimersResponses{}
+	for _, response := range dto.Responses {
+		r := model.ChannelsTimersResponses{
+			ID:         uuid.NewV4().String(),
+			Text:       response.Text,
+			IsAnnounce: *response.IsAnnounce,
+			TimerID:    timer.ID,
+		}
+		services.DB.Save(&r)
+		newResponses = append(newResponses, r)
+	}
+
+	timer.Responses = &newResponses
+
+	return &timer, nil
+}

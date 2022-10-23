@@ -58,6 +58,22 @@ func delete(services types.Services) func(c *fiber.Ctx) error {
 
 func put(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		return nil
+		dto := &timerDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
+		if err != nil {
+			return err
+		}
+
+		cmd, err := handlePut(c.Params("channelId"), c.Params("timerId"), dto, services)
+		if err == nil {
+			return c.JSON(cmd)
+		}
+
+		return err
 	}
 }
