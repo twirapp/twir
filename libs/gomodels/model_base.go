@@ -33,7 +33,6 @@ func init() {
 	// tables["_prisma_migrations"] = _prisma_migrationsTableInfo
 	tables["bots"] = botsTableInfo
 	tables["channels_commands_usages"] = channels_commands_usagesTableInfo
-	tables["channels_dashboard_access"] = channels_dashboard_accessTableInfo
 	tables["channels_dota_accounts"] = channels_dota_accountsTableInfo
 	tables["channels_integrations"] = channels_integrationsTableInfo
 	tables["channels_permits"] = channels_permitsTableInfo
@@ -47,7 +46,6 @@ func init() {
 	tables["notifications"] = notificationsTableInfo
 	tables["notifications_messages"] = notifications_messagesTableInfo
 	tables["tokens"] = tokensTableInfo
-	tables["users"] = usersTableInfo
 	tables["users_files"] = users_filesTableInfo
 	tables["users_stats"] = users_statsTableInfo
 	tables["users_viewed_notifications"] = users_viewed_notificationsTableInfo
