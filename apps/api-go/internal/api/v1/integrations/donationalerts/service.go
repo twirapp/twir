@@ -51,16 +51,20 @@ func handleGet(channelId string, services types.Services) (*model.ChannelsIntegr
 	return &integration, nil
 }
 
-func handlePatch(channelId string, dto *donationAlertsDto, services types.Services) error {
+func handlePatch(
+	channelId string,
+	dto *donationAlertsDto,
+	services types.Services,
+) (*model.ChannelsIntegrations, error) {
 	integration := model.ChannelsIntegrations{}
 	err := services.DB.Where(`"channelId" = ?`, channelId).
 		First(&integration).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
-		return fiber.NewError(404, "integration not found")
+		return nil, fiber.NewError(404, "integration not found")
 	}
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "internal error")
+		return nil, fiber.NewError(500, "internal error")
 	}
 
 	integration.Enabled = *dto.Enabled
@@ -78,5 +82,5 @@ func handlePatch(channelId string, dto *donationAlertsDto, services types.Servic
 		bytes,
 	)
 
-	return nil
+	return &integration, nil
 }

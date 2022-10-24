@@ -69,11 +69,11 @@ func patch(services types.Services) func(c *fiber.Ctx) error {
 			return err
 		}
 
-		err = handlePatch(c.Params("channelId"), dto, services)
+		integration, err := handlePatch(c.Params("channelId"), dto, services)
 		if err != nil {
 			return err
 		}
 
-		return err
+		return c.JSON(integration)
 	}
 }
