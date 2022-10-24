@@ -13,7 +13,11 @@
    devbox shell
    ```
 7. Use `doppler setup` and select your dev env.
-8. Start all services:
+8. Start infrostructure:
+   ```bash
+   make up-dev
+   ```
+9. Start services:
    ```bash
    task dev
    ```
