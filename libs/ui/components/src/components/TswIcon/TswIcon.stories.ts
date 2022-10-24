@@ -27,7 +27,10 @@ const Template: Story<{
   strokeWidth?: number;
   stroke?: string;
   fill?: string;
-  strokeStyle?: 'round' | 'butt' | 'square';
+  strokeLinejoin?: 'bevel' | 'round' | 'miter';
+  strokeLinecap?: 'butt' | 'round' | 'square';
+  class?: string;
+  rotate?: number;
 }> = (args) => ({
   components: { TswIcon },
   setup() {

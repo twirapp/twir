@@ -37,11 +37,11 @@
           >
             {{ t('sections.features.featuresInDev') }}
           </span>
-          <TswArrowIcon
-            arrowName="ArrowInCircle"
+          <TswIcon
+            name="ArrowInCircle"
             :width="52"
             :height="52"
-            direction="top-right"
+            :rotate="-45"
             class="stroke-gray-35 max-md:stroke-white-100"
           />
         </a>
@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import { TswArrowIcon } from '@tsuwari/ui-components';
+import { TswIcon } from '@tsuwari/ui-components';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
