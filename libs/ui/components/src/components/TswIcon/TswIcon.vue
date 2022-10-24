@@ -1,12 +1,13 @@
 <template>
   <svg
-    v-if="icon"
     :viewBox="viewBox"
     :aria-label="label"
     :width="width"
     :height="height"
     :style="styles"
     :class="filteredClasses"
+    :stroke="isOutline ? stroke : 'none'"
+    :fill="isOutline ? 'none' : fill"
   >
     <title v-if="title">{{ title }}</title>
     <g>
@@ -14,7 +15,7 @@
         v-for="(path, index) in icon.path"
         :key="index"
         :d="path.d"
-        :vector-effect="icon.style === 'outline' ? 'non-scaling-stroke' : undefined"
+        :vector-effect="isOutline ? 'non-scaling-stroke' : undefined"
       ></path>
     </g>
   </svg>
@@ -39,9 +40,11 @@ const props = withDefaults(
     strokeLinejoin?: 'bevel' | 'round' | 'miter';
     strokeLinecap?: 'butt' | 'round' | 'square';
     class?: string;
+    rotate?: number;
   }>(),
   {
     class: undefined,
+    rotate: undefined,
     title: undefined,
     label: undefined,
     stroke: undefined,
@@ -59,27 +62,32 @@ if (!icon.value) {
   throw new Error(`Cannot find icon "${props.name}"`);
 }
 
-const iconStyleMap: Record<Icon['style'], string> = {
+const excludeStyleMap: Record<Icon['style'], string> = {
   'outline': 'fill',
   'solid': 'stroke',
 };
 
 const filteredClasses = computed(() => {
-  const property = iconStyleMap[icon.value.style];
+  if (!props.class) return undefined;
+
+  const property = excludeStyleMap[icon.value.style];
   return props.class.split(' ').filter(cl => cl.includes(property) ? false : true).join(' ');
 });
 
 const viewBox = computed(() => `0 0 ${icon.value.width} ${icon.value.height}`);
 
-const styles = computed<CSSProperties | undefined>(() =>
-  icon.value.style === 'outline'
+const transform = computed(() => props.rotate ? `rotate(${props.rotate}deg)` : undefined);
+
+const isOutline = computed(() => icon.value.style === 'outline');
+
+const styles = computed<CSSProperties>(() => {
+  return isOutline.value
     ? {
         strokeWidth: props.strokeWidth,
-        stroke: props.stroke,
-        fill: 'none',
         strokeLinecap: props.strokeLinecap,
         strokeLinejoin: props.strokeLinejoin,
+        transform: transform.value,
       }
-    : { fill: props.fill, stroke: 'none' },
-);
+    : { transform: transform.value };
+});
 </script>

@@ -3,7 +3,7 @@
     <button ref="select" :class="`select ${isOpen ? 'open' : ''}`" @click="isOpen = !isOpen">
       {{ pageContext.locale.toUpperCase() }}
       <div class="icon">
-        <TswArrowIcon arrowSize="lg" size="18px" direction="bottom" :strokeWidth="1.5" />
+        <TswIcon name="ArrowTriangleMedium" :rotate="90" />
       </div>
     </button>
     <Transition>
@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-import { TswArrowIcon } from '@tsuwari/ui-components';
+import { TswIcon } from '@tsuwari/ui-components';
 import { onClickOutside } from '@vueuse/core';
 import { ref } from 'vue';
 

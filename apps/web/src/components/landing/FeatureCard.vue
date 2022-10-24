@@ -4,14 +4,14 @@
     <p>{{ description }}</p>
     <a :href="actionHref">
       {{ t('buttons.learnMore') }}
-      <TswArrowIcon arrowName="ArrowNarrow" />
+      <TswIcon name="ArrowNarrow" />
     </a>
     <FeatureCardBgBlob v-if="windowWidth >= 768" :card="card" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { TswArrowIcon } from '@tsuwari/ui-components';
+import { TswIcon } from '@tsuwari/ui-components';
 import { useWindowSize } from '@vueuse/core';
 import { ref } from 'vue';
 
