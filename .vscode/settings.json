@@ -8,9 +8,6 @@
   "editor.codeActionsOnSave": {
     "source.sortImports": true
   },
-  "[prisma]": {
-    "editor.defaultFormatter": "Prisma.prisma"
-  },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
