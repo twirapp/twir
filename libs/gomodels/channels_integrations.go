@@ -26,7 +26,7 @@ type ChannelsIntegrations struct {
 	ClientSecret  null.String   `gorm:"column:clientSecret;type:TEXT;"          json:"clientSecret"`
 	APIKey        null.String   `gorm:"column:apiKey;type:TEXT;"                json:"apiKey"`
 	Data          null.String   `gorm:"column:data;type:JSONB;"                 json:"data"`
-	Integration   *Integrations `gorm:"foreignKey:ID"                           json:"-"`
+	Integration   *Integrations `gorm:"foreignKey:IntegrationID"                json:"-"`
 }
 
 func (c *ChannelsIntegrations) TableName() string {

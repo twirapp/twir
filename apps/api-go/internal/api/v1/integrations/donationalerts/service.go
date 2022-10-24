@@ -39,9 +39,12 @@ func handleGetAuth(services types.Services) (*string, error) {
 
 func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrations, error) {
 	integration := model.ChannelsIntegrations{}
-	err := services.DB.Where(`"channelId" = ?`, channelId).
+	err := services.DB.
 		Preload("Integration").
-		First(&integration).Error
+		Joins(`JOIN integrations i on i.id = channels_integrations."integrationId"`).
+		Where(`"channels_integrations"."channelId" = ? AND i.service = ?`, channelId, "DONATIONALERTS").
+		First(&integration).
+		Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
@@ -128,7 +131,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		return fiber.NewError(500, "cannot get tokens")
 	}
 	if !resp.IsSuccess() {
-		return fiber.NewError(500, "cannot get tokens")
+		return fiber.NewError(401, "seems like code is invalid")
 	}
 
 	profile := profileResponse{}

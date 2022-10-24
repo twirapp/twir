@@ -1,12 +1,12 @@
 package spotify
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
 	model "tsuwari/models"
 
+	"github.com/guregu/null"
 	req "github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -59,7 +59,7 @@ func (c *Spotify) refreshToken() *error {
 		Where(`"id" = ?`, c.integration.ID).
 		Updates(model.ChannelInegrationWithRelation{
 			ChannelsIntegrations: model.ChannelsIntegrations{
-				AccessToken: sql.NullString{String: data.AccessToken, Valid: true},
+				AccessToken: null.NewString(data.AccessToken, true),
 			},
 		}).
 		Clauses(clause.Returning{})

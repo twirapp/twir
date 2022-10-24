@@ -12,7 +12,6 @@ import (
 	enTranslations "github.com/go-playground/validator/v10/translations/en"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
-	fiberlogger "github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/storage/redis"
 	apiv1 "github.com/satont/tsuwari/apps/api-go/internal/api/v1"
 	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
@@ -78,7 +77,6 @@ func main() {
 		ErrorHandler: errorMiddleware,
 	})
 	app.Use(compress.New())
-	app.Use(fiberlogger.New())
 
 	v1 := app.Group("/v1")
 
