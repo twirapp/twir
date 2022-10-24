@@ -5,7 +5,10 @@ import (
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
+	"github.com/satont/tsuwari/libs/nats/integrations"
+	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 )
 
@@ -62,5 +65,18 @@ func handlePatch(channelId string, dto *donationAlertsDto, services types.Servic
 
 	integration.Enabled = *dto.Enabled
 	services.DB.Save(&integration)
+
+	bytes := []byte{}
+	if *dto.Enabled {
+		bytes, _ = proto.Marshal(&integrations.AddIntegration{Id: integration.ID})
+	} else {
+		bytes, _ = proto.Marshal(&integrations.RemoveIntegration{Id: integration.ID})
+	}
+	services.Nats.Publish(
+		lo.If(*dto.Enabled, integrations.SUBJECTS_ADD_INTEGRATION).
+			Else(integrations.SUBJECTS_REMOVE_INTEGRATION),
+		bytes,
+	)
+
 	return nil
 }

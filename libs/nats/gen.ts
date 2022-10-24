@@ -40,7 +40,7 @@ await Promise.all(
     const jsString = `export const SUBJECTS = {${entries.map((e) => `${e[0]}: "${e[1]}"`)}}`;
     const goString = `
   const (
-    ${entries.map((e) => `SUBJECTS_${e[0]} = "${e[1]}"`)}
+    ${entries.map((e) => `SUBJECTS_${e[0]} = "${e[1]}"`).join('\n')}
     )
     `;
 
