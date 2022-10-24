@@ -23,23 +23,23 @@
   },
   "devDependencies": {
     "@babel/core": "7.19.6",
-    "@storybook/addon-actions": "6.5.12",
-    "@storybook/addon-backgrounds": "6.5.12",
-    "@storybook/addon-docs": "6.5.12",
-    "@storybook/addon-essentials": "6.5.12",
-    "@storybook/addon-interactions": "6.5.12",
-    "@storybook/addon-links": "6.5.12",
-    "@storybook/addon-measure": "6.5.12",
-    "@storybook/addon-outline": "6.5.12",
-    "@storybook/addons": "6.5.12",
+    "@storybook/addon-actions": "6.5.13",
+    "@storybook/addon-backgrounds": "6.5.13",
+    "@storybook/addon-docs": "6.5.13",
+    "@storybook/addon-essentials": "6.5.13",
+    "@storybook/addon-interactions": "6.5.13",
+    "@storybook/addon-links": "6.5.13",
+    "@storybook/addon-measure": "6.5.13",
+    "@storybook/addon-outline": "6.5.13",
+    "@storybook/addons": "6.5.13",
     "@storybook/builder-vite": "0.2.4",
-    "@storybook/channel-postmessage": "6.5.12",
-    "@storybook/channel-websocket": "6.5.12",
-    "@storybook/client-api": "6.5.12",
-    "@storybook/preview-web": "6.5.12",
+    "@storybook/channel-postmessage": "6.5.13",
+    "@storybook/channel-websocket": "6.5.13",
+    "@storybook/client-api": "6.5.13",
+    "@storybook/preview-web": "6.5.13",
     "@storybook/testing-library": "0.0.13",
-    "@storybook/theming": "6.5.12",
-    "@storybook/vue3": "6.5.12",
+    "@storybook/theming": "6.5.13",
+    "@storybook/vue3": "6.5.13",
     "@tsuwari/ui-fonts": "workspace:*",
     "@tsuwari/ui-theme": "workspace:*",
     "@types/postcss-js": "4.0.0",
@@ -52,24 +52,20 @@
     "postcss-nesting": "10.2.0",
     "tailwindcss": "3.2.1",
     "tsc-alias": "1.7.0",
-    "typescript": "4.7.4",
+    "typescript": "4.8.4",
     "vee-validate": "4.7.1",
     "vite": "3.1.8",
-    "vue": "3.2.37",
-    "vue-tsc": "1.0.8"
+    "vue": "3.2.41",
+    "vue-tsc": "1.0.9"
   },
   "peerDependencies": {
-    "@tsuwari/ui-icons": "workspace:*",
     "postcss": "8.4.18",
     "tailwindcss": "3.2.1",
     "vee-validate": "4.7.1",
-    "vue": "3.2.37"
+    "vue": "3.2.41"
   },
   "peerDependenciesMeta": {
     "vee-validate": {
-      "optional": true
-    },
-    "@tsuwari/ui-icons": {
       "optional": true
     },
     "tailwindcss": {

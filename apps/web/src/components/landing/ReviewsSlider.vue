@@ -1,44 +1,39 @@
 <template>
-  <Carousel
-    :wrapAround="true"
-    :autoplay="2500"
-    :pauseAutoplayOnHover="true"
-    :transition="500"
-    :itemsToShow="itemsToShow"
+  <Flicking
+    :options="{
+      align: 'center',
+      renderOnlyVisible: true,
+      moveType: 'snap',
+      circular: true,
+      circularFallback: 'bound',
+    }"
     class="mb-20 cursor-grab"
-    :itemsToScroll="1"
-    :mouseDrag="true"
+    :plugins="plugins"
   >
-    <Slide v-for="item in reviews" :key="item.id">
-      <ReviewCard
-        class="slider-review-card"
-        :username="item.username"
-        :comment="item.comment"
-        :rating="item.rating"
-        :avatarUrl="item.avatarUrl"
-      />
-    </Slide>
-  </Carousel>
+    <ReviewCard
+      v-for="item in reviews"
+      :key="item.id"
+      class="slider-review-card"
+      :username="item.username"
+      :comment="item.comment"
+      :rating="item.rating"
+      :avatarUrl="item.avatarUrl"
+    />
+  </Flicking>
 </template>
 
 <script lang="ts" setup>
-import 'vue3-carousel/dist/carousel.css';
-import { useWindowSize } from '@vueuse/core';
-import { computed } from 'vue';
-import { Carousel, Slide } from 'vue3-carousel';
+import { AutoPlay } from '@egjs/flicking-plugins';
+import Flicking from '@egjs/vue3-flicking';
 
 import ReviewCard from '@/components/landing/ReviewCard.vue';
 import type { Review } from '@/data/landing/reviews.js';
 
-const { width } = useWindowSize();
-
-const itemsToShow = computed(() => {
-  return width.value / 408;
-});
-
 defineProps<{
   reviews: Review[];
 }>();
+
+const plugins = [new AutoPlay({ stopOnHover: true })];
 </script>
 
 <style lang="postcss">
@@ -50,4 +45,8 @@ defineProps<{
     width: calc(100vw - 24px * 2);
   }
 }
+</style>
+
+<style>
+@import '@egjs/vue3-flicking/dist/flicking.css';
 </style>
