@@ -1,16 +1,4 @@
-import {
-  Body,
-  CACHE_MANAGER,
-  Controller,
-  Delete,
-  Get,
-  Inject,
-  Param,
-  Post,
-  Put,
-  UseGuards,
-} from '@nestjs/common';
-import CacheManager from 'cache-manager';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 
 import { DashboardAccessGuard } from '../../guards/DashboardAccess.guard.js';
 import { JwtAuthGuard } from '../../jwt/jwt.guard.js';

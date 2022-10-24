@@ -8,9 +8,6 @@ require (
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/nats-io/nats.go v1.18.0
 	github.com/satont/go-helix/v2 v2.7.14
-	github.com/satont/tsuwari/nats/bots v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/nats/dota v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/nats/eval v0.0.0-00010101000000-000000000000
 	github.com/satori/go.uuid v1.2.0
 	github.com/tidwall/gjson v1.14.3
 	go.uber.org/zap v1.23.0
@@ -20,7 +17,6 @@ require (
 )
 
 require (
-	github.com/cheekybits/genny v1.0.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/golang/mock v1.6.0 // indirect
@@ -34,6 +30,8 @@ require (
 	github.com/marten-seemann/qtls-go1-17 v0.1.2 // indirect
 	github.com/marten-seemann/qtls-go1-18 v0.1.3 // indirect
 	github.com/marten-seemann/qtls-go1-19 v0.1.1 // indirect
+	github.com/minio/highwayhash v1.0.2 // indirect
+	github.com/nats-io/jwt/v2 v2.3.0 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -64,11 +62,10 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/leighmacdonald/steamid/v2 v2.2.0
 	github.com/lib/pq v1.10.7
-	github.com/nats-io/nats-server/v2 v2.8.4 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/samber/lo v1.33.0
-	github.com/satont/tsuwari/nats/parser v0.0.0
+	github.com/satont/tsuwari/libs/nats v0.0.0
 	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/exp v0.0.0-20221019170559-20944726eadf // indirect
 	golang.org/x/net v0.1.0 // indirect
@@ -78,13 +75,7 @@ require (
 	tsuwari/models v0.0.0
 )
 
-replace github.com/satont/tsuwari/nats/parser => ../../libs/nats/parser
-
-replace github.com/satont/tsuwari/nats/bots => ../../libs/nats/bots
-
-replace github.com/satont/tsuwari/nats/dota => ../../libs/nats/dota
-
-replace github.com/satont/tsuwari/nats/eval => ../../libs/nats/eval
+replace github.com/satont/tsuwari/libs/nats => ../../libs/nats
 
 replace tsuwari/config => ../../libs/config
 

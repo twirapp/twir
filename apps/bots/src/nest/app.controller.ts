@@ -1,6 +1,10 @@
 import { Controller, Get, Res } from '@nestjs/common';
 import { Payload } from '@nestjs/microservices';
-import { EventPattern, type ClientProxyCommandPayload, type ClientProxyEventPayload } from '@tsuwari/shared';
+import {
+  EventPattern,
+  type ClientProxyCommandPayload,
+  type ClientProxyEventPayload,
+} from '@tsuwari/shared';
 import { Channel } from '@tsuwari/typeorm/entities/Channel';
 
 import { Bots } from '../bots.js';
@@ -9,19 +13,10 @@ import { typeorm } from '../libs/typeorm.js';
 
 @Controller()
 export class AppController {
-
   @Get('/metrics')
   async root(@Res() res: any) {
     res.contentType(prometheus.contentType);
     res.send(await prometheus.register.metrics());
-  }
-
-  @EventPattern('bots.joinOrLeave')
-  joinOrLeave(@Payload() data: ClientProxyEventPayload<'bots.joinOrLeave'>) {
-    const bot = Bots.cache.get(data.botId);
-    if (bot) {
-      bot[data.action](data.username);
-    }
   }
 
   @EventPattern('user.update')

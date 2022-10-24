@@ -23,7 +23,9 @@ export class ChannelTimer {
   @Column('boolean', { name: 'enabled', default: false })
   enabled: boolean;
 
-  @OneToMany('ChannelTimerResponse', 'timer')
+  @OneToMany('ChannelTimerResponse', 'timer', {
+    cascade: true,
+  })
   responses: Relation<ChannelTimerResponse>;
 
   @Column('integer', { name: 'timeInterval', default: 0 })

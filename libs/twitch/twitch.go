@@ -16,7 +16,7 @@ type Twitch struct {
 	Client *helix.Client
 }
 
-func New(clientId string, clientSecret string) *Twitch {
+func NewClient(clientId string, clientSecret string) *Twitch {
 	options := &helix.Options{
 		ClientID:     clientId,
 		ClientSecret: clientSecret,

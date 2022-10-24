@@ -13,7 +13,9 @@ export class ChannelTimerResponse {
   @Column('bool', { default: true })
   isAnnounce: boolean;
 
-  @ManyToOne('ChannelTimer', 'responses')
+  @ManyToOne('ChannelTimer', 'responses', {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'timerId' })
   timer?: Relation<ChannelTimer>;
 

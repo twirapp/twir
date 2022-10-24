@@ -55,6 +55,9 @@ export class User {
   @Column('text', { name: 'tokenId', nullable: true })
   tokenId: string | null;
 
+  @Column('uuid', { default: () => 'gen_random_uuid()' })
+  apiKey: string;
+
   @OneToMany('UserFile', 'user')
   files?: Relation<UserFile[]>;
 

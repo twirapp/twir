@@ -9,7 +9,7 @@ import (
 
 	redis "github.com/go-redis/redis/v9"
 	"github.com/samber/lo"
-	natsbots "github.com/satont/tsuwari/nats/bots"
+	natsbots "github.com/satont/tsuwari/libs/nats/bots"
 	"github.com/tidwall/gjson"
 	proto "google.golang.org/protobuf/proto"
 )

@@ -59,5 +59,21 @@ async function sendMessagesQueue() {
   }
 }
 
+async function botJoinOrLeaveQueue() {
+  const sub = nats.subscribe(NatsBots.SUBJECTS.JOIN_OR_LEAVE);
+  for await (const m of sub) {
+    const data = NatsBots.JoinOrLeaveRequest.fromBinary(m.data);
+
+    const bot = Bots.cache.get(data.botId);
+    if (!bot) continue;
+
+    const action = data.action as 'join' | 'part';
+    bot[action](data.action);
+
+    continue;
+  }
+}
+
 deleteMessagesQueue();
 sendMessagesQueue();
+botJoinOrLeaveQueue();

@@ -9,7 +9,7 @@ import (
 	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/golang/protobuf/proto"
-	eval "github.com/satont/tsuwari/nats/eval"
+	eval "github.com/satont/tsuwari/libs/nats/eval"
 
 	"github.com/samber/lo"
 )

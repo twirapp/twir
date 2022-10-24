@@ -5,7 +5,7 @@ type ChannelsTimersResponses struct {
 	Text       string          `gorm:"column:text;type:TEXT;"           json:"text"`
 	IsAnnounce bool            `gorm:"column:isAnnounce;type:BOOL;"     json:"isAnnounce"`
 	TimerID    string          `gorm:"column:timerId;type:uuid;"        json:"timerId"`
-	Timer      *ChannelsTimers `gorm:"foreignKey:ID"                    json:"channel"`
+	Timer      *ChannelsTimers `gorm:"foreignKey:ID"                    json:"timer,omitempty"`
 }
 
 func (ChannelsTimersResponses) TableName() string {

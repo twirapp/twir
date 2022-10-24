@@ -9,15 +9,21 @@ import { useToast } from 'vue-toastification';
 import Tooltip from '../Tooltip.vue';
 
 import { api } from '@/plugins/api';
-import { setDonationAlertsStore, donationAlertsStore } from '@/stores/donationalertsProfile';
 import { selectedDashboardStore } from '@/stores/userStore';
 
+type Integration = ChannelIntegration & {
+  data: {
+    name: string;
+    code: string;
+    avatar: string;
+  };
+};
+
 const router = useRouter();
-const donationAlertsIntegration = ref<Partial<ChannelIntegration>>({
+const donationAlertsIntegration = ref<Partial<Integration>>({
   enabled: true,
 });
 const selectedDashboard = useStore(selectedDashboardStore);
-const donationAlertsProfile = useStore(donationAlertsStore);
 
 const { t } = useI18n({
   useScope: 'global',
@@ -27,9 +33,6 @@ const toast = useToast();
 selectedDashboardStore.subscribe((d) => {
   api(`/v1/channels/${d.channelId}/integrations/donationalerts`).then(async (r) => {
     donationAlertsIntegration.value = r.data;
-    if (r.data.accessToken && r.data.refreshToken) {
-      fetchDonationAlertsProfile();
-    }
   });
 });
 
@@ -39,13 +42,6 @@ async function auth() {
   );
 
   window.location.replace(data);
-}
-
-async function fetchDonationAlertsProfile() {
-  const { data } = await api(
-    `v1/channels/${selectedDashboard.value.channelId}/integrations/donationalerts/profile`,
-  );
-  setDonationAlertsStore(data);
 }
 
 async function patch() {
@@ -74,14 +70,9 @@ onMounted(async () => {
           code,
         },
       );
-      await fetchDonationAlertsProfile();
 
       return router.push('/dashboard/integrations');
     }
-  }
-
-  if (!donationAlertsProfile.value) {
-    fetchDonationAlertsProfile();
   }
 });
 </script>

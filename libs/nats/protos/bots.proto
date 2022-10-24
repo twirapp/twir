@@ -14,3 +14,9 @@ message SendMessage {
   string message = 3;
   optional bool isAnnounce = 4;
 }
+
+message JoinOrLeaveRequest {
+  string action = 1;
+  string botId = 2;
+  string userName = 3;
+}

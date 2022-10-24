@@ -22,7 +22,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/encoders/protobuf"
-	natstimers "github.com/satont/tsuwari/nats/timers"
+	natstimers "github.com/satont/tsuwari/libs/nats/timers"
 )
 
 func main() {
@@ -51,7 +51,7 @@ func main() {
 	)
 	natsProtoConn, err := nats.NewEncodedConn(n, protobuf.PROTOBUF_ENCODER)
 
-	t := twitch.New(cfg.TwitchClientId, cfg.TwitchClientSecret)
+	t := twitch.NewClient(cfg.TwitchClientId, cfg.TwitchClientSecret)
 
 	scheduler := scheduler.New(cfg, t, n, db, logger)
 
