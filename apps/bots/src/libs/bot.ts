@@ -224,6 +224,7 @@ export class Bot extends ChatClient {
             id: state.userInfo.userId,
             name: state.userInfo.userName,
           },
+          parseVariables: true,
         });
 
         const request = await nats.request('parser.parseTextResponse', data);
@@ -259,6 +260,7 @@ export class Bot extends ChatClient {
               id: state.userInfo.userId,
               name: state.userInfo.userName,
             },
+            parseVariables: true,
           });
 
           const request = await nats.request('parser.parseTextResponse', data);

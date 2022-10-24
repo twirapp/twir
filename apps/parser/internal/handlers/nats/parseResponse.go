@@ -4,9 +4,14 @@ import (
 	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/satont/tsuwari/libs/nats/parser"
+	"github.com/samber/lo"
 )
 
 func (c *NatsServiceImpl) ParseResponse(data parser.ParseResponseRequest) string {
+	isCommand := lo.IfF(data.ParseVariables != nil, func() bool {
+		return *data.ParseVariables
+	}).ElseF(func() bool { return false })
+
 	cacheService := variables_cache.New(variables_cache.VariablesCacheOpts{
 		Text:        &data.Message.Text,
 		SenderId:    data.Sender.Id,
@@ -18,7 +23,7 @@ func (c *NatsServiceImpl) ParseResponse(data parser.ParseResponseRequest) string
 		Twitch:      c.commands.Twitch,
 		DB:          c.commands.Db,
 		Nats:        c.commands.Nats,
-		IsCommand:   false,
+		IsCommand:   isCommand,
 	})
 
 	return c.variables.ParseInput(cacheService, data.Message.Text)
