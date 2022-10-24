@@ -28,6 +28,6 @@
     "typeorm": "^0.3.10"
   },
   "devDependencies": {
-    "dotenv": "^16.0.3"
+    "dotenv": "16.0.3"
   }
 }

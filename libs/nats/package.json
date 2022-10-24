@@ -40,6 +40,6 @@
     "@protobuf-ts/runtime": "^2.8.0"
   },
   "devDependencies": {
-    "@protobuf-ts/plugin": "^2.8.0"
+    "@protobuf-ts/plugin": "2.8.1"
   }
 }

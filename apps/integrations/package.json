@@ -12,15 +12,15 @@
     "@tsuwari/nats": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
-    "@twurple/api": "^5.2.4",
-    "@twurple/auth": "^5.2.4",
+    "@twurple/api": "5.2.5",
+    "@twurple/auth": "5.2.5",
     "centrifuge": "2.8.5",
-    "nats": "^2.7.1",
+    "nats": "2.8.0",
     "socket.io-client": "2.3.1",
-    "ws": "^8.9.0"
+    "ws": "8.10.0"
   },
   "devDependencies": {
     "@types/socket.io-client": "1.4.36",
-    "@types/ws": "^8.5.3"
+    "@types/ws": "8.5.3"
   }
 }
