@@ -8,9 +8,6 @@
   "editor.codeActionsOnSave": {
     "source.sortImports": true
   },
-  "[prisma]": {
-    "editor.defaultFormatter": "Prisma.prisma"
-  },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -73,7 +70,6 @@
       }
     ]
   },
-<<<<<<< HEAD
   "sqltools.connections": [
     {
       "previewLimit": 50,
@@ -85,12 +81,10 @@
       "username": "tsuwari",
       "password": "tsuwari"
     }
-  ]
-=======
+  ],
   "tailwindCSS.experimental.configFile": {
     "libs/ui/components/tailwind.config.js": "libs/ui/components/src/**/*.{vue,js,ts,jsx,tsx,css,postcss}",
     "apps/frontend/tailwind.config.js": "apps/frontend/src/**/*.{vue,js,ts,jsx,tsx}",
     "apps/web/tailwind.config.cjs": "apps/web/src/**/*.{vue,js,ts,jsx,tsx,css}"
   }
->>>>>>> e383dcb (feat(uikit): fonts, styles and tailwind theme)
 }

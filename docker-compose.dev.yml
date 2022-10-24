@@ -1,27 +1,6 @@
 version: "3.7"
 
 services:
-<<<<<<< HEAD
-=======
-  backend:
-    user: ${UID}:${GID}
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    env_file:
-      - .env
-    volumes:
-      - ./:/app
-    networks:
-      - tsuwari_dev
-    depends_on:
-      - postgres
-      - nats
-      - minio
-      - redis
-    ports:
-      - 3002:3002
->>>>>>> baa83ec (Dev/frontend/authorization (#207))
 
   adminer:
     image: adminer
