@@ -30,6 +30,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		Storage: services.RedisStorage,
 	})
 
+	middleware.Post("token", post((services)))
 	middleware.Patch("", limit, patch((services)))
 
 	return middleware
@@ -75,5 +76,31 @@ func patch(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		return c.JSON(integration)
+	}
+}
+
+type tokenDto struct {
+	Code string `validate:"required" json:"code"`
+}
+
+func post(services types.Services) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		dto := &tokenDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
+		if err != nil {
+			return err
+		}
+
+		err = handlePost(c.Params("channelId"), dto, services)
+		if err != nil {
+			return err
+		}
+
+		return c.SendStatus(200)
 	}
 }

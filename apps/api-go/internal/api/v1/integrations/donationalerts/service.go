@@ -5,6 +5,7 @@ import (
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
+	req "github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 	"github.com/satont/tsuwari/libs/nats/integrations"
@@ -83,4 +84,81 @@ func handlePatch(
 	)
 
 	return &integration, nil
+}
+
+type tokensResponse struct {
+	AccessToken   string `json:"access_token"`
+	RerfreshToken string `json:"rerfresh_token"`
+	TokenType     string `json:"token_type"`
+	ExpiresIn     int    `json:"expires_in"`
+}
+
+type profileResponse struct {
+	Data struct {
+		Name   string `json:"name"`
+		Code   string `json:"code"`
+		Avatar string `json:"avatar"`
+	} `json:"data"`
+}
+
+func handlePost(channelId string, dto *tokenDto, services types.Services) error {
+	integration := model.Integrations{}
+	err := services.DB.Where(`"service" = ?`, "DONATIONALERTS").First(&integration).Error
+	if err != nil && err == gorm.ErrRecordNotFound {
+		return fiber.NewError(
+			404,
+			"donationalerts not enabled on our side. Please be patient.",
+		)
+	}
+
+	data := tokensResponse{}
+	resp, err := req.R().
+		SetFormData(map[string]string{
+			"grant_type":    "authorization_code",
+			"client_id":     integration.ClientID.String,
+			"client_secret": integration.ClientSecret.String,
+			"redirect_uri":  integration.RedirectURL.String,
+			"code":          dto.Code,
+		}).
+		SetResult(&data).
+		SetContentType("application/x-www-form-urlencoded").
+		Post("https://www.donationalerts.com/oauth/token")
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(500, "cannot get tokens")
+	}
+	if !resp.IsSuccess() {
+		return fiber.NewError(500, "cannot get tokens")
+	}
+
+	profile := profileResponse{}
+	profileResp, err := req.R().
+		SetResult(&profile).
+		SetBearerAuthToken(data.AccessToken).
+		Get("https://www.donationalerts.com/api/v1/user/oauth")
+
+	if err != nil || !profileResp.IsSuccess() {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(500, "cannot get profile")
+	}
+
+	err = services.DB.
+		Model(&model.ChannelsIntegrations{}).
+		Where(`"integrationId" = ?`, integration.ID).
+		Updates(map[string]interface{}{
+			"accessToken":  data.AccessToken,
+			"refreshToken": data.RerfreshToken,
+			"data": map[string]string{
+				"name":   profile.Data.Name,
+				"code":   profile.Data.Code,
+				"avatar": profile.Data.Avatar,
+			},
+		}).Error
+
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(500, "cannot update integration")
+	}
+
+	return nil
 }
