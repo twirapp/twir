@@ -7,6 +7,9 @@ includes:
   timers:
     taskfile: ./apps/timers/Taskfile.yml
     dir: ./apps/timers
+  api:
+    taskfile: ./apps/api-go/Taskfile.yml
+    dir: ./apps/api-go
 
 tasks:
   build-libs:
@@ -33,10 +36,15 @@ tasks:
     cmds:
       - task: timers:dev
 
+  api-dev:
+    deps: [prepare]
+    cmds:
+      - task: api:dev
+
   node-dev:
     deps: [prepare]
     cmds:
       - pnpm dev
 
   dev:
-    deps: [parser-dev, timers-dev, node-dev]
+    deps: [parser-dev, timers-dev, api-dev, node-dev]
