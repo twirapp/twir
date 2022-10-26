@@ -33,11 +33,6 @@ type FaceitUserResponse struct {
 	Games    map[string]*FaceitGame `json:"games"`
 }
 
-type FaceitDbData struct {
-	Game     *string `json:"game"`
-	Username string  `json:"username"`
-}
-
 func (c *VariablesCacheService) GetFaceitUserData() (*FaceitUser, error) {
 	c.locks.faceitIntegration.Lock()
 	defer c.locks.faceitIntegration.Unlock()
@@ -62,26 +57,25 @@ func (c *VariablesCacheService) GetFaceitUserData() (*FaceitUser, error) {
 		return nil, errors.New("faceit integration not enabled")
 	}
 
-	dbData := &FaceitDbData{}
-	err := json.Unmarshal([]byte(integration.Data.String), &dbData)
+	var game string = *integration.Data.Game
 
-	if err != nil {
-		return nil, err
-	}
-
-	var game string = *dbData.Game
-
-	if dbData.Game == nil {
+	if integration.Data.Game == nil {
 		game = "csgo"
 	}
 
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "https://open.faceit.com/data/v4/players?nickname="+dbData.Username, nil)
+	req, _ := http.NewRequest(
+		"GET",
+		"https://open.faceit.com/data/v4/players?nickname="+*integration.Data.UserName,
+		nil,
+	)
 	req.Header.Set("Authorization", "Bearer "+integration.Integration.APIKey.String)
 	res, err := client.Do(req)
 
 	if req.Response != nil && req.Response.StatusCode == 404 {
-		return nil, errors.New("user not found on faceit. Please make sure you typed correct nickname")
+		return nil, errors.New(
+			"user not found on faceit. Please make sure you typed correct nickname",
+		)
 	}
 
 	if err != nil {
@@ -135,7 +129,6 @@ func (c *VariablesCacheService) GetFaceitLatestMatches() (*[]FaceitMatch, error)
 
 	if c.cache.FaceitData == nil || c.cache.FaceitData.FaceitUser == nil {
 		faceitUser, err := c.GetFaceitUserData()
-
 		if err != nil {
 			return nil, err
 		}
@@ -151,7 +144,11 @@ func (c *VariablesCacheService) GetFaceitLatestMatches() (*[]FaceitMatch, error)
 
 	req, _ := http.NewRequest(
 		"GET",
-		fmt.Sprintf("https://api.faceit.com/stats/api/v1/stats/time/users/%s/games/%s?size=30", c.cache.FaceitData.FaceitUser.PlayerId, c.cache.FaceitData.FaceitUser.FaceitGame.Name),
+		fmt.Sprintf(
+			"https://api.faceit.com/stats/api/v1/stats/time/users/%s/games/%s?size=30",
+			c.cache.FaceitData.FaceitUser.PlayerId,
+			c.cache.FaceitData.FaceitUser.FaceitGame.Name,
+		),
 		nil,
 	)
 	res, _ := client.Do(req)
