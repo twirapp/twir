@@ -35,7 +35,7 @@ var Variable = types.Variable{
 
 		integrations = lo.Filter(
 			integrations,
-			func(integration model.ChannelInegrationWithRelation, _ int) bool {
+			func(integration model.ChannelsIntegrations, _ int) bool {
 				switch integration.Integration.Service {
 				case SPOTIFY, VK, LASTFM:
 					return integration.Enabled
@@ -47,7 +47,7 @@ var Variable = types.Variable{
 
 		lastFmIntegration, _ := lo.Find(
 			integrations,
-			func(integration model.ChannelInegrationWithRelation) bool {
+			func(integration model.ChannelsIntegrations) bool {
 				return integration.Integration.Service == "LASTFM"
 			},
 		)
@@ -55,7 +55,7 @@ var Variable = types.Variable{
 
 		spotifyIntegration, _ := lo.Find(
 			integrations,
-			func(integration model.ChannelInegrationWithRelation) bool {
+			func(integration model.ChannelsIntegrations) bool {
 				return integration.Integration.Service == "SPOTIFY"
 			},
 		)
@@ -63,7 +63,7 @@ var Variable = types.Variable{
 
 		vkIntegration, _ := lo.Find(
 			integrations,
-			func(integration model.ChannelInegrationWithRelation) bool {
+			func(integration model.ChannelsIntegrations) bool {
 				return integration.Integration.Service == "VK"
 			},
 		)
@@ -71,7 +71,7 @@ var Variable = types.Variable{
 
 		integrationsForFetch := lo.Map(
 			integrations,
-			func(integration model.ChannelInegrationWithRelation, _ int) string {
+			func(integration model.ChannelsIntegrations, _ int) string {
 				return integration.Integration.Service
 			},
 		)

@@ -14,12 +14,12 @@ import (
 )
 
 type Spotify struct {
-	integration *model.ChannelInegrationWithRelation
+	integration *model.ChannelsIntegrations
 	isRetry     bool
 	db          *gorm.DB
 }
 
-func New(integration *model.ChannelInegrationWithRelation, db *gorm.DB) *Spotify {
+func New(integration *model.ChannelsIntegrations, db *gorm.DB) *Spotify {
 	if integration == nil || !integration.AccessToken.Valid || !integration.RefreshToken.Valid {
 		return nil
 	}

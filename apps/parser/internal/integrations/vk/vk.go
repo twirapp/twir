@@ -8,10 +8,10 @@ import (
 )
 
 type Vk struct {
-	integration *model.ChannelInegrationWithRelation
+	integration *model.ChannelsIntegrations
 }
 
-func New(integration *model.ChannelInegrationWithRelation) *Vk {
+func New(integration *model.ChannelsIntegrations) *Vk {
 	if integration == nil || integration.Data == nil || !integration.Integration.AccessToken.Valid {
 		return nil
 	}
