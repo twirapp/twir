@@ -16,6 +16,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("auth")
 	middleware.Get("", get(services))
 	middleware.Get("token", getTokens(services))
+	middleware.Post("logout", middlewares.CheckUserAuth(services), logout(services))
 
 	profileCache := cache.New(cache.Config{
 		Expiration: 24 * time.Hour,
@@ -88,5 +89,15 @@ func getProfile(services types.Services) func(c *fiber.Ctx) error {
 			return err
 		}
 		return c.JSON(profile)
+	}
+}
+
+func logout(services types.Services) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		services.RedisStorage.Delete(
+			fmt.Sprintf("fiber:cache:auth:profile:%s", c.Locals("dbUser").(model.Users).ID),
+		)
+
+		return c.SendStatus(200)
 	}
 }
