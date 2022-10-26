@@ -1,39 +1,45 @@
-package faceit
+package lastfm
 
 import (
-	"strings"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/integrations/helpers"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 	uuid "github.com/satori/go.uuid"
 )
 
+type Lastfm struct {
+	model.ChannelsIntegrations
+	Data map[string]any `json:"data"`
+}
+
 func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrations, error) {
-	integration, err := helpers.GetIntegration(channelId, "FACEIT", services.DB)
+	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.DB)
 	if err != nil {
+		services.Logger.Sugar().Error(err)
 		return nil, err
 	}
 
 	return integration, nil
 }
 
-func handlePost(channelId string, dto *faceitUpdateDto, services types.Services) error {
-	integration, err := helpers.GetIntegration(channelId, "FACEIT", services.DB)
+func handlePost(channelId string, dto *lastfmDto, services types.Services) error {
+	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.DB)
 	if err != nil {
+		services.Logger.Sugar().Error(err)
 		return err
 	}
 
 	if integration == nil {
 		neededIntegration := model.Integrations{}
 		err = services.DB.
-			Where("service = ?", "FACEIT").
+			Where("service = ?", "LASTFM").
 			First(&neededIntegration).
 			Error
 		if err != nil {
-			return fiber.NewError(500, "seems like faceit not enabled on our side")
+			services.Logger.Sugar().Error(err)
+			return fiber.NewError(500, "seems like lastfm not enabled on our side")
 		}
 
 		integration = &model.ChannelsIntegrations{
@@ -43,15 +49,8 @@ func handlePost(channelId string, dto *faceitUpdateDto, services types.Services)
 		}
 	}
 
-	if dto.Data.Game == nil {
-		dto.Data.Game = lo.ToPtr("csgo")
-	}
-
-	dto.Data.Game = lo.ToPtr(strings.ToLower(*dto.Data.Game))
-
 	integration.Enabled = *dto.Enabled
 	integration.Data = &model.ChannelsIntegrationsData{
-		Game:     dto.Data.Game,
 		UserName: &dto.Data.UserName,
 	}
 

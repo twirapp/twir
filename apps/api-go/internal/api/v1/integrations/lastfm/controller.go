@@ -1,4 +1,4 @@
-package faceit
+package lastfm
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -7,7 +7,7 @@ import (
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
-	middleware := router.Group("faceit")
+	middleware := router.Group("lastfm")
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
 
@@ -26,7 +26,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		dto := &faceitUpdateDto{}
+		dto := &lastfmDto{}
 		err := middlewares.ValidateBody(
 			c,
 			services.Validator,

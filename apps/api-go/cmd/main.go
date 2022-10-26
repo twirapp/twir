@@ -78,6 +78,16 @@ func main() {
 	})
 	app.Use(compress.New())
 
+	app.Use(func(c *fiber.Ctx) error {
+		defer logger.Sugar().Infow("incoming request",
+			"method", c.Method(),
+			"path", c.Path(),
+			"code", c.Context().Response.StatusCode(),
+		)
+
+		return c.Next()
+	})
+
 	v1 := app.Group("/v1")
 
 	services := types.Services{
