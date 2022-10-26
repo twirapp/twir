@@ -28,7 +28,7 @@
       </button>
     </div>
   </div>
-  <div v-if="isFetching" class="flex h-screen select-none">
+  <div v-if="isLoading" class="flex h-screen select-none">
     <div class="m-auto">
       <div class="flex items-center text-white">
         <div class="animate-spin border-4 h-8 inline-block rounded-full w-8" role="status" />
@@ -39,13 +39,7 @@
 </template>
 
 <script lang="ts" setup>
-import { redirectToDashboard, twitchLoginHook } from '@/services/auth.service.js';
+import { useTwitchAuth } from '@/services/auth';
 
-const params = new URLSearchParams(window.location.search);
-
-const { error, isError, isFetching, onSuccessLogin } = twitchLoginHook(params);
-
-onSuccessLogin(() => {
-  redirectToDashboard();
-});
+const { isLoading, isError, error } = useTwitchAuth();
 </script>

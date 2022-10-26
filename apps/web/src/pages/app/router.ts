@@ -1,9 +1,11 @@
-import type { AuthUser } from '@tsuwari/shared';
 import { createRouter, createWebHistory } from 'vue-router';
 
-import { redirectToLogin } from '@/services/auth.service.js';
-import { setUser } from '@/stores/user.js';
-import { authFetch } from '@/utils/authFetch.js';
+import {
+  createUserDashboard,
+  getProfile,
+  redirectToLogin,
+  selectedDashboardStore,
+} from '@/services/auth';
 
 export function createAppRouter() {
   const router = createRouter({
@@ -26,13 +28,16 @@ export function createAppRouter() {
 
   router.beforeEach(async (_to, from, next) => {
     if (from.path === '/') {
-      const response = await authFetch('/api/auth/profile');
+      try {
+        const user = await getProfile();
 
-      if (!response.ok) {
+        if (!selectedDashboardStore.get()) {
+          const userDashboard = createUserDashboard(user);
+          selectedDashboardStore.set(userDashboard);
+        }
+      } catch (error) {
         return redirectToLogin();
       }
-      const user = (await response.json()) as AuthUser;
-      setUser(user);
     }
     next();
   });
