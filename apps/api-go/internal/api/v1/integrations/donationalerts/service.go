@@ -5,10 +5,14 @@ import (
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofrs/uuid"
+	"github.com/guregu/null"
 	req "github.com/imroc/req/v3"
 	"github.com/samber/lo"
+	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/integrations/helpers"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 	"github.com/satont/tsuwari/libs/nats/integrations"
+	uuid "github.com/satori/go.uuid"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 )
@@ -92,10 +96,10 @@ func handlePatch(
 }
 
 type tokensResponse struct {
-	AccessToken   string `json:"access_token"`
-	RerfreshToken string `json:"rerfresh_token"`
-	TokenType     string `json:"token_type"`
-	ExpiresIn     int    `json:"expires_in"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
 }
 
 type profileResponse struct {
@@ -107,22 +111,37 @@ type profileResponse struct {
 }
 
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
-	integration := model.Integrations{}
-	err := services.DB.Where(`"service" = ?`, "DONATIONALERTS").First(&integration).Error
-	if err != nil && err == gorm.ErrRecordNotFound {
-		return fiber.NewError(
-			404,
-			"donationalerts not enabled on our side. Please be patient.",
-		)
+	channelIntegration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", services.DB)
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return err
+	}
+
+	neededIntegration := model.Integrations{}
+	err = services.DB.
+		Where("service = ?", "DONATIONALERTS").
+		First(&neededIntegration).
+		Error
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(500, "seems like donationalerts not enabled on our side")
+	}
+
+	if channelIntegration == nil {
+		channelIntegration = &model.ChannelsIntegrations{
+			ID:            uuid.NewV4().String(),
+			ChannelID:     channelId,
+			IntegrationID: neededIntegration.ID,
+		}
 	}
 
 	data := tokensResponse{}
 	resp, err := req.R().
 		SetFormData(map[string]string{
 			"grant_type":    "authorization_code",
-			"client_id":     integration.ClientID.String,
-			"client_secret": integration.ClientSecret.String,
-			"redirect_uri":  integration.RedirectURL.String,
+			"client_id":     neededIntegration.ClientID.String,
+			"client_secret": neededIntegration.ClientSecret.String,
+			"redirect_uri":  neededIntegration.RedirectURL.String,
 			"code":          dto.Code,
 		}).
 		SetResult(&data).
@@ -147,18 +166,24 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		return fiber.NewError(500, "cannot get profile")
 	}
 
-	err = services.DB.
-		Model(&model.ChannelsIntegrations{}).
-		Where(`"integrationId" = ?`, integration.ID).
-		Updates(map[string]interface{}{
-			"accessToken":  data.AccessToken,
-			"refreshToken": data.RerfreshToken,
-			"data": map[string]string{
-				"name":   profile.Data.Name,
-				"code":   profile.Data.Code,
-				"avatar": profile.Data.Avatar,
-			},
-		}).Error
+	if channelIntegration == nil {
+		channelIntegration = &model.ChannelsIntegrations{
+			ID:            uuid.NewV4().String(),
+			ChannelID:     channelId,
+			IntegrationID: neededIntegration.ID,
+		}
+	}
+
+	channelIntegration.Data = &model.ChannelsIntegrationsData{
+		Name:   &profile.Data.Name,
+		Code:   &profile.Data.Code,
+		Avatar: &profile.Data.Avatar,
+	}
+
+	channelIntegration.AccessToken = null.StringFrom(data.AccessToken)
+	channelIntegration.RefreshToken = null.StringFrom(data.RefreshToken)
+
+	err = services.DB.Save(channelIntegration).Error
 
 	if err != nil {
 		services.Logger.Sugar().Error(err)

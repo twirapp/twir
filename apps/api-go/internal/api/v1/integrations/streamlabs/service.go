@@ -109,10 +109,10 @@ func handlePatch(
 }
 
 type tokensResponse struct {
-	AccessToken   string `json:"access_token"`
-	RerfreshToken string `json:"rerfresh_token"`
-	TokenType     string `json:"token_type"`
-	ExpiresIn     int    `json:"expires_in"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
 }
 
 type profileResponse struct {
@@ -178,8 +178,8 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		return fiber.NewError(500, "cannot get profile")
 	}
 
-	channelIntegration.AccessToken = null.NewString(data.AccessToken, true)
-	channelIntegration.RefreshToken = null.NewString(data.RerfreshToken, true)
+	channelIntegration.AccessToken = null.StringFrom(data.AccessToken)
+	channelIntegration.RefreshToken = null.StringFrom(data.RefreshToken)
 	channelIntegration.Data = &model.ChannelsIntegrationsData{
 		UserId: lo.ToPtr(fmt.Sprint(profile.StreamLabs.ID)),
 		Name:   lo.ToPtr(profile.StreamLabs.DisplayName),
