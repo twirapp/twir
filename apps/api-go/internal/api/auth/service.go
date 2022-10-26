@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"sync"
 	"time"
 	model "tsuwari/models"
@@ -181,4 +182,31 @@ type DashboardAndUser struct {
 type Profile struct {
 	helix.User
 	DashBoards []DashboardAndUser `json:"dashboards"`
+}
+
+func handleRefresh(dto *refreshDto, services types.Services) (string, error) {
+	token, err := jwt.Parse(dto.RefreshToken, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte(services.Cfg.JwtAccessSecret), nil
+	})
+	if err != nil {
+		return "", fiber.NewError(401, "invalid token. Probably token is expired.")
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	newClaims := Claims{
+		ID:     claims["id"].(string),
+		Scopes: claims["scopes"].([]string),
+		Login:  claims["login"].(string),
+	}
+	newClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(31 * 24 * time.Hour))
+	newToken, err := createToken(newClaims, services.Cfg.JwtRefreshSecret)
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return "", fiber.NewError(401, "cannot create new access token")
+	}
+	return newToken, nil
 }

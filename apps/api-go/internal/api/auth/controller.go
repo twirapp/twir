@@ -16,6 +16,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("auth")
 	middleware.Get("", get(services))
 	middleware.Get("token", getTokens(services))
+	middleware.Post("token", refreshToken(services))
 	middleware.Post("logout", middlewares.CheckUserAuth(services), logout(services))
 
 	profileCache := cache.New(cache.Config{
@@ -99,5 +100,27 @@ func logout(services types.Services) func(c *fiber.Ctx) error {
 		)
 
 		return c.SendStatus(200)
+	}
+}
+
+type refreshDto struct {
+	RefreshToken string `validate:"required" json:"refreshToken"`
+}
+
+func refreshToken(services types.Services) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		dto := &refreshDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
+		if err != nil {
+			return err
+		}
+
+		newAccess, err := handleRefresh(dto, services)
+		return c.SendString(newAccess)
 	}
 }
