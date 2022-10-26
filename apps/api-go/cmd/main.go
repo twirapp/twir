@@ -13,6 +13,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/storage/redis"
+	"github.com/satont/go-helix/v2"
+	auth "github.com/satont/tsuwari/apps/api-go/internal/api/auth"
 	apiv1 "github.com/satont/tsuwari/apps/api-go/internal/api/v1"
 	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
@@ -95,10 +97,14 @@ func main() {
 		RedisStorage:        store,
 		Validator:           validator,
 		ValidatorTranslator: transEN,
-		Twitch:              twitch.NewClient(cfg.TwitchClientId, cfg.TwitchClientSecret),
-		Logger:              logger,
-		Cfg:                 cfg,
-		Nats:                natsConn,
+		Twitch: twitch.NewClient(&helix.Options{
+			ClientID:     cfg.TwitchClientId,
+			ClientSecret: cfg.TwitchClientSecret,
+			RedirectURI:  cfg.TwitchCallbackUrl,
+		}),
+		Logger: logger,
+		Cfg:    cfg,
+		Nats:   natsConn,
 	}
 
 	if cfg.FeedbackTelegramBotToken != nil {
@@ -106,6 +112,7 @@ func main() {
 	}
 
 	apiv1.Setup(v1, services)
+	auth.Setup(app, services)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Status(404).SendString("Not found")

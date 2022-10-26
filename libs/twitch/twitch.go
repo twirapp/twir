@@ -16,11 +16,7 @@ type Twitch struct {
 	Client *helix.Client
 }
 
-func NewClient(clientId string, clientSecret string) *Twitch {
-	options := &helix.Options{
-		ClientID:     clientId,
-		ClientSecret: clientSecret,
-	}
+func NewClient(options *helix.Options) *Twitch {
 	client, err := helix.NewClient(options)
 	if err != nil {
 		panic(err)
