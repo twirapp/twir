@@ -5,7 +5,6 @@ import (
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofrs/uuid"
 	"github.com/guregu/null"
 	req "github.com/imroc/req/v3"
 	"github.com/samber/lo"
