@@ -1,3 +1,4 @@
+import { VueQueryPlugin } from '@tanstack/vue-query';
 import { createApp } from 'vue';
 
 import { setupI18n } from '@/locales';
@@ -9,6 +10,8 @@ export async function render(pageContext: PageContext) {
 
   const i18n = await setupI18n('en', 'app');
   app.use(i18n);
+
+  app.use(VueQueryPlugin);
 
   app.mount('#app');
 }

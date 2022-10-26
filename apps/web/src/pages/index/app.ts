@@ -1,3 +1,4 @@
+import { VueQueryPlugin } from '@tanstack/vue-query';
 import { Component, createSSRApp, defineComponent, h, markRaw, reactive } from 'vue';
 
 import LandingLayout from '@/components/landing/layout/LandingLayout.vue';
@@ -36,6 +37,8 @@ export function createApp(pageContext: PageContext) {
 
   const pageContextReactive = reactive(pageContext);
   setPageContext(app, pageContextReactive);
+
+  app.use(VueQueryPlugin);
 
   objectAssign(app, {
     changePage: (pageContext: PageContext) => {

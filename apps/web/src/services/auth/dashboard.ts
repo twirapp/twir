@@ -1,4 +1,10 @@
+import { persistentAtom } from '@nanostores/persistent';
 import type { AuthUser, Dashboard } from '@tsuwari/shared';
+
+export const selectedDashboardStore = persistentAtom<Dashboard | null>('selected_dashboard', null, {
+  encode: JSON.stringify,
+  decode: JSON.parse,
+});
 
 /**
  * @param user

@@ -1,6 +1,8 @@
-import { refreshAccessToken } from '@/services/auth.service.js';
-import { accessTokenStore } from '@/stores/user.js';
+import { accessTokenStore, refreshAccessToken } from '@/services/auth/token.js';
 
+/**
+ * Polifill for fetch function with bearer token authorization
+ */
 export const authFetch = async (
   url: RequestInfo | URL,
   options: RequestInit = {},
@@ -10,7 +12,10 @@ export const authFetch = async (
   let accessToken = accessTokenStore.get();
   if (!accessToken) {
     const result = await refreshAccessToken();
-    if (typeof result !== 'string') return result;
+    if (typeof result !== 'string') {
+      accessTokenStore.set(undefined);
+      return result;
+    }
 
     accessToken = result;
     isTryiedFetchToken = true;
@@ -32,7 +37,10 @@ export const authFetch = async (
 
   if (response.status === 401 && !isTryiedFetchToken) {
     const result = await refreshAccessToken();
-    if (typeof result !== 'string') return result;
+    if (typeof result !== 'string') {
+      accessTokenStore.set(undefined);
+      return result;
+    }
 
     accessToken = result;
     response = await execute(accessToken);

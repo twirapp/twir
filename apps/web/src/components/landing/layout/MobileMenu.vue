@@ -1,37 +1,32 @@
 <template>
   <Transition>
-    <div
-      v-if="menuState"
-      class="mobile-menu"
-      :style="{
-        top: cssPX(headerHeight),
-        height: cssPX(windowHeight - headerHeight),
-      }"
-    >
-      <a
-        href="#"
-        class="
-          inline-flex
-          bg-purple-60
-          px-4
-          py-[10px]
-          rounded-md
-          w-full
-          text-center
-          justify-center
-          hover:bg-purple-50
-          transition-colors
-        "
-      >
-        {{ t('buttons.login') }}
-      </a>
-      <div class="flex flex-col mt-5">
+    <div v-if="menuState" class="mobile-menu" :style="menuStyles">
+      <div v-if="!user" class="px-5 mb-3">
+        <button
+          class="
+            inline-flex
+            bg-purple-60
+            px-4
+            py-[10px]
+            rounded-md
+            w-full
+            text-center
+            justify-center
+            hover:bg-purple-50
+            transition-colors
+          "
+          @click="redirectToLogin"
+        >
+          {{ t('buttons.login') }}
+        </button>
+      </div>
+      <div class="flex flex-col">
         <NavMenu
           menuClass="mobile-nav-menu"
           menuItemClass="mobile-nav-menu-item"
           :menuItemClickHandler="closeMenu"
         />
-        <div class="mt-2 w-full flex justify-end">
+        <div class="mt-2 w-full flex justify-end px-5">
           <LangSelect @change="changeLangAndCloseMenu" />
         </div>
       </div>
@@ -42,26 +37,36 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
 import { useWindowSize } from '@vueuse/core';
-import { onUnmounted } from 'vue';
+import { computed, onUnmounted, StyleValue } from 'vue';
 
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import LangSelect from '@/components/LangSelect/LangSelect.vue';
 import useLandingLocale from '@/hooks/useLandingLocale.js';
 import useTranslation from '@/hooks/useTranslation.js';
 import type { Locale } from '@/locales';
+import { redirectToLogin } from '@/services/auth';
+import { useUserProfile } from '@/services/auth';
 import { headerHeightStore, menuStateStore } from '@/stores/landing/header.js';
 import { cssPX } from '@/utils/css';
 
 const menuState = useStore(menuStateStore);
 const headerHeight = useStore(headerHeightStore);
 
+const { data: user } = useUserProfile();
+
 const setLandingLocale = useLandingLocale();
+const t = useTranslation<'landing'>();
+const { height: windowHeight } = useWindowSize();
 
 const closeMenu = () => menuStateStore.set(false);
 
+const menuStyles = computed<StyleValue>(() => ({
+  top: cssPX(headerHeight.value),
+  height: cssPX(windowHeight.value - headerHeight.value),
+}));
+
 const changeLangAndCloseMenu = (locale: Locale) => {
   setLandingLocale(locale);
-  // ??? Do I need to close the menu when changing the language?
   closeMenu();
 };
 
@@ -73,10 +78,6 @@ const removeListener = menuStateStore.listen((menuState) => {
   }
 });
 
-const t = useTranslation<'landing'>();
-
-const { height: windowHeight } = useWindowSize();
-
 onUnmounted(() => {
   removeListener();
 });
@@ -84,7 +85,7 @@ onUnmounted(() => {
 
 <style lang="postcss">
 .mobile-nav-menu {
-  @apply flex w-full flex-col;
+  @apply flex w-full flex-col rounded overflow-hidden;
 
   & > :not(:last-child) {
     @apply border-b border-black-25;
@@ -92,7 +93,7 @@ onUnmounted(() => {
 }
 
 .mobile-nav-menu-item {
-  @apply flex w-full py-[15px] leading-tight;
+  @apply flex w-full py-[15px] leading-tight hover:bg-black-15 transition-colors justify-center;
 }
 </style>
 
@@ -106,8 +107,10 @@ onUnmounted(() => {
     bottom-0
     max-w-[100vw]
     z-50
+    border-t
+    border-black-25
     bg-black-10
-    p-5;
+    pt-5;
 }
 
 .v-enter-active,
