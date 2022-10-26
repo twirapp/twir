@@ -50,7 +50,7 @@ type Command struct {
 	Cooldown     int      `json:"cooldown"`
 	CooldownType string   `json:"cooldownType"`
 	IsReply      bool     `json:"isReply"`
-	KeepOrder    *int     `json:"keepOrder"`
+	KeepOrder    *int     `json:"keepResponsesOrder"`
 }
 
 type DefaultCommand struct {

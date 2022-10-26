@@ -17,8 +17,8 @@ import (
 
 type Tokens struct {
 	UserId       string `json:"userId"`
-	RefreshToken string `json:"refresh_token,omitempty"`
-	AccessToken  string `json:"access_token,omitempty"`
+	RefreshToken string `json:"refreshToken,omitempty"`
+	AccessToken  string `json:"accessToken,omitempty"`
 }
 
 func handleGetToken(code string, services types.Services) (*Tokens, error) {

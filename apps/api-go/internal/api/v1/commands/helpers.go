@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	model "tsuwari/models"
 
 	"github.com/guregu/null"
@@ -71,8 +72,14 @@ func isCommandWithThatNameExists(
 	return false
 }
 
-func createCommandFromDto(dto *commandDto, channelId string) *model.ChannelsCommands {
+func createCommandFromDto(
+	dto *commandDto,
+	channelId string,
+	commandId *string,
+) *model.ChannelsCommands {
+	fmt.Println(*dto.KeepResponsesOrder)
 	return &model.ChannelsCommands{
+		ID:                 *commandId,
 		Name:               dto.Name,
 		Cooldown:           null.IntFrom(int64(dto.Cooldown)),
 		CooldownType:       dto.CooldownType,
@@ -86,7 +93,7 @@ func createCommandFromDto(dto *commandDto, channelId string) *model.ChannelsComm
 		DefaultName:        null.String{},
 		Module:             "CUSTOM",
 		IsReply:            *dto.IsReply,
-		KeepResponsesOrder: *dto.KeepOrder,
+		KeepResponsesOrder: *dto.KeepResponsesOrder,
 	}
 }
 

@@ -7,6 +7,7 @@ import (
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("streams")
+	middleware.Get("", get(services))
 
 	return middleware
 }

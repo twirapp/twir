@@ -1,6 +1,7 @@
 package moderation
 
 import (
+	"fmt"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -78,6 +79,7 @@ func handleUpdate(
 			MaxPercentage:      null.IntFrom(int64(item.MaxPercentage)),
 			BlackListSentences: item.BlackListSentences,
 		}
+		fmt.Printf("%+v\n", setting)
 		err := services.DB.
 			Model(&model.ChannelsModerationSettings{}).
 			Select("*").

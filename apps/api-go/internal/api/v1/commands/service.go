@@ -4,7 +4,9 @@ import (
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
+	uuid "github.com/satori/go.uuid"
 )
 
 func handleGet(channelId string, services types.Services) []model.ChannelsCommands {
@@ -23,7 +25,7 @@ func handlePost(
 		return nil, fiber.NewError(400, "command with that name already exists")
 	}
 
-	newCommand := createCommandFromDto(dto, channelId)
+	newCommand := createCommandFromDto(dto, channelId, lo.ToPtr(uuid.NewV4().String()))
 
 	err := services.DB.Save(newCommand).Error
 	if err != nil {
@@ -80,7 +82,10 @@ func handleUpdate(
 		return nil, fiber.NewError(400, "command with that name already exists")
 	}
 
-	err = services.DB.Model(command).Select("*").Updates(createCommandFromDto(dto, channelId)).Error
+	err = services.DB.Model(command).
+		Select("*").
+		Updates(createCommandFromDto(dto, channelId, lo.ToPtr(commandId))).
+		Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
 		return nil, err

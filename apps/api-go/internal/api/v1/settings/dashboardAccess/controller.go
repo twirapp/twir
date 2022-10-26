@@ -13,7 +13,7 @@ import (
 )
 
 func getDashboardAccessCacheKey(channelId string) string {
-	return fmt.Sprintf("channels:dashboardAccess:%s", channelId)
+	return fmt.Sprintf("fiber:cache:settings:dashboardAccess:%s", channelId)
 }
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
@@ -41,7 +41,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		Expiration: 30 * time.Second,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			dbUser := c.Locals("dbUser").(model.Users)
-			return fmt.Sprintf("fiber:limiter:feedback:%s", dbUser.ID)
+			return fmt.Sprintf("fiber:limiter:dashboardaccess:post:%s", dbUser.ID)
 		},
 		LimitReached: func(c *fiber.Ctx) error {
 			header := c.GetRespHeader("Retry-After", "2")
@@ -67,7 +67,12 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 			return err
 		}
 
-		services.RedisStorage.Delete(getDashboardAccessCacheKey(c.Params("channelId")))
+		services.RedisStorage.Delete(
+			fmt.Sprintf("%s_GET_body", getDashboardAccessCacheKey(c.Params("channelId"))),
+		)
+		services.RedisStorage.Delete(
+			fmt.Sprintf("%s_GET", getDashboardAccessCacheKey(c.Params("channelId"))),
+		)
 
 		return c.JSON(entity)
 	})
@@ -76,6 +81,12 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		err := handleDelete(c.Params("entityId"), services)
 		if err != nil {
 			return err
+		}
+		err = services.RedisStorage.Delete(
+			fmt.Sprintf("%s_GET_body", getDashboardAccessCacheKey(c.Params("channelId"))),
+		)
+		if err != nil {
+			services.Logger.Sugar().Error(err)
 		}
 		return c.SendStatus(200)
 	})
