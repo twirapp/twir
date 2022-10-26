@@ -10,6 +10,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/integrations/donationalerts"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/integrations/faceit"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/integrations/lastfm"
+	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/integrations/spotify"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/integrations/streamlabs"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/integrations/vk"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/keywords"
@@ -45,6 +46,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	faceit.Setup(integrationsGroup, services)
 	lastfm.Setup(integrationsGroup, services)
 	vk.Setup(integrationsGroup, services)
+	spotify.Setup(integrationsGroup, services)
 
 	return router
 }

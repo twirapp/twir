@@ -113,3 +113,50 @@ func (c *Spotify) GetTrack() *string {
 
 	return &response
 }
+
+type SpotifyProfile struct {
+	Country         string `json:"country"`
+	DisplayName     string `json:"display_name"`
+	Email           string `json:"email"`
+	ExplicitContent struct {
+		FilterEnabled bool `json:"filter_enabled"`
+		FilterLocked  bool `json:"filter_locked"`
+	} `json:"explicit_content"`
+	ExternalUrls struct {
+		Spotify string `json:"spotify"`
+	} `json:"external_urls"`
+	Followers struct {
+		Href  string `json:"href"`
+		Total int    `json:"total"`
+	} `json:"followers"`
+	Href   string `json:"href"`
+	ID     string `json:"id"`
+	Images []struct {
+		URL    string `json:"url"`
+		Height int    `json:"height"`
+		Width  int    `json:"width"`
+	} `json:"images"`
+	Product string `json:"product"`
+	Type    string `json:"type"`
+	URI     string `json:"uri"`
+}
+
+func (c *Spotify) GetProfile() (*SpotifyProfile, error) {
+	data := SpotifyProfile{}
+	req, err := req.R().
+		SetBearerAuthToken(c.integration.AccessToken.String).
+		SetResult(&data).
+		Get("https://api.spotify.com/v1/me")
+
+	if req.StatusCode == 401 && !c.isRetry {
+		c.isRetry = true
+		c.refreshToken()
+		return c.GetProfile()
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &data, nil
+}

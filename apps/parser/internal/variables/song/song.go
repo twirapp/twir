@@ -5,10 +5,11 @@ import (
 	"strings"
 	model "tsuwari/models"
 	lastfm "tsuwari/parser/internal/integrations/lastfm"
-	spotify "tsuwari/parser/internal/integrations/spotify"
 	vkIntegr "tsuwari/parser/internal/integrations/vk"
 	"tsuwari/parser/internal/types"
 	variables_cache "tsuwari/parser/internal/variablescache"
+
+	spotify "github.com/satont/tsuwari/libs/integrations/spotify"
 
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"

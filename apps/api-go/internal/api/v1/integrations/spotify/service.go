@@ -1,38 +1,38 @@
-package streamlabs
+package spotify
 
 import (
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"net/url"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	req "github.com/imroc/req/v3"
-	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api-go/internal/api/v1/integrations/helpers"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
-	"github.com/satont/tsuwari/libs/nats/integrations"
+	spotify "github.com/satont/tsuwari/libs/integrations/spotify"
 	uuid "github.com/satori/go.uuid"
-	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 )
 
 func handleGetAuth(services types.Services) (*string, error) {
 	integration := model.Integrations{}
-	err := services.DB.Where(`"service" = ?`, "STREAMLABS").First(&integration).Error
+	err := services.DB.Where(`"service" = ?`, "SPOTIFY").First(&integration).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(
 			404,
-			"streamlabs not enabled on our side. Please be patient.",
+			"spotify not enabled on our side. Please be patient.",
 		)
 	}
 
-	url, _ := url.Parse("https://www.streamlabs.com/api/v1.0/authorize")
+	url, _ := url.Parse("https://accounts.spotify.com/authorize")
 
 	q := url.Query()
 	q.Add("response_type", "code")
 	q.Add("client_id", integration.ClientID.String)
-	q.Add("scope", "socket.token donations.read")
+	q.Add("scope", "user-read-currently-playing")
 	q.Add("redirect_uri", integration.RedirectURL.String)
 	url.RawQuery = q.Encode()
 
@@ -42,29 +42,21 @@ func handleGetAuth(services types.Services) (*string, error) {
 }
 
 func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrations, error) {
-	integration := model.ChannelsIntegrations{}
-	err := services.DB.
-		Preload("Integration").
-		Joins(`JOIN integrations i on i.id = channels_integrations."integrationId"`).
-		Where(`"channels_integrations"."channelId" = ? AND i.service = ?`, channelId, "STREAMLABS").
-		First(&integration).
-		Error
-	if err != nil && err == gorm.ErrRecordNotFound {
-		return nil, nil
-	}
+	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "internal error")
+		return nil, err
 	}
-	return &integration, nil
+
+	return integration, nil
 }
 
 func handlePatch(
 	channelId string,
-	dto *streamlabsDto,
+	dto *spotifyDto,
 	services types.Services,
 ) (*model.ChannelsIntegrations, error) {
-	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
+	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
 	if err != nil {
 		services.Logger.Sugar().Error(err)
 		return nil, err
@@ -73,12 +65,12 @@ func handlePatch(
 	if integration == nil {
 		neededIntegration := model.Integrations{}
 		err = services.DB.
-			Where("service = ?", "STREAMLABS").
+			Where("service = ?", "SPOTIFY").
 			First(&neededIntegration).
 			Error
 		if err != nil {
 			services.Logger.Sugar().Error(err)
-			return nil, fiber.NewError(500, "seems like streamlabs not enabled on our side")
+			return nil, fiber.NewError(500, "seems like spotify not enabled on our side")
 		}
 
 		integration = &model.ChannelsIntegrations{
@@ -90,20 +82,6 @@ func handlePatch(
 
 	integration.Enabled = *dto.Enabled
 	services.DB.Save(&integration)
-
-	if integration.AccessToken.Valid && integration.RefreshToken.Valid {
-		bytes := []byte{}
-		if *dto.Enabled {
-			bytes, _ = proto.Marshal(&integrations.AddIntegration{Id: integration.ID})
-		} else {
-			bytes, _ = proto.Marshal(&integrations.RemoveIntegration{Id: integration.ID})
-		}
-		defer services.Nats.Publish(
-			lo.If(*dto.Enabled, integrations.SUBJECTS_ADD_INTEGRATION).
-				Else(integrations.SUBJECTS_REMOVE_INTEGRATION),
-			bytes,
-		)
-	}
 
 	return integration, nil
 }
@@ -124,7 +102,7 @@ type profileResponse struct {
 }
 
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
-	channelIntegration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
+	channelIntegration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
 	if err != nil {
 		services.Logger.Sugar().Error(err)
 		return err
@@ -132,12 +110,12 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 
 	neededIntegration := model.Integrations{}
 	err = services.DB.
-		Where("service = ?", "STREAMLABS").
+		Where("service = ?", "SPOTIFY").
 		First(&neededIntegration).
 		Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "seems like streamlabs not enabled on our side")
+		return fiber.NewError(500, "seems like spotify not enabled on our side")
 	}
 
 	if channelIntegration == nil {
@@ -150,42 +128,35 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 	}
 
 	data := tokensResponse{}
+	token := base64.StdEncoding.EncodeToString([]byte(
+		fmt.Sprintf(
+			"%s:%s",
+			neededIntegration.ClientID.String,
+			neededIntegration.ClientSecret.String,
+		),
+	))
+
 	resp, err := req.R().
 		SetFormData(map[string]string{
-			"grant_type":    "authorization_code",
-			"client_id":     neededIntegration.ClientID.String,
-			"client_secret": neededIntegration.ClientSecret.String,
-			"redirect_uri":  neededIntegration.RedirectURL.String,
-			"code":          dto.Code,
+			"grant_type":   "authorization_code",
+			"redirect_uri": neededIntegration.RedirectURL.String,
+			"code":         dto.Code,
 		}).
+		SetHeader("Authorization", fmt.Sprintf("Basic %s", token)).
 		SetResult(&data).
 		SetContentType("application/x-www-form-urlencoded").
-		Post("https://streamlabs.com/api/v1.0/token")
+		Post("https://accounts.spotify.com/api/token")
 	if err != nil {
-		services.Logger.Sugar().Error(err)
 		return fiber.NewError(500, "cannot get tokens")
 	}
 	if !resp.IsSuccess() {
+		data, _ := ioutil.ReadAll(resp.Body)
+		fmt.Println(string(data))
 		return fiber.NewError(401, "seems like code is invalid")
-	}
-
-	profile := profileResponse{}
-	profileResp, err := req.R().
-		SetResult(&profile).
-		Get(fmt.Sprintf("https://streamlabs.com/api/v1.0/user?access_token=%s", data.AccessToken))
-
-	if err != nil || !profileResp.IsSuccess() {
-		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "cannot get profile")
 	}
 
 	channelIntegration.AccessToken = null.StringFrom(data.AccessToken)
 	channelIntegration.RefreshToken = null.StringFrom(data.RefreshToken)
-	channelIntegration.Data = &model.ChannelsIntegrationsData{
-		UserId: lo.ToPtr(fmt.Sprint(profile.StreamLabs.ID)),
-		Name:   lo.ToPtr(profile.StreamLabs.DisplayName),
-		Avatar: lo.ToPtr(profile.StreamLabs.ThumbNail),
-	}
 
 	err = services.DB.
 		Save(channelIntegration).Error
@@ -196,4 +167,25 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 	}
 
 	return nil
+}
+
+func handleGetProfile(channelId string, services types.Services) (*spotify.SpotifyProfile, error) {
+	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return nil, err
+	}
+
+	if integration == nil {
+		return nil, nil
+	}
+
+	spoty := spotify.New(integration, services.DB)
+	profile, err := spoty.GetProfile()
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return nil, fiber.NewError(400, "cannot get spotify profile")
+	}
+
+	return profile, nil
 }

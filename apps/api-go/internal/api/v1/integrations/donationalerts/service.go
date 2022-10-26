@@ -131,6 +131,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 			ID:            uuid.NewV4().String(),
 			ChannelID:     channelId,
 			IntegrationID: neededIntegration.ID,
+			Enabled:       true,
 		}
 	}
 
@@ -170,6 +171,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 			ID:            uuid.NewV4().String(),
 			ChannelID:     channelId,
 			IntegrationID: neededIntegration.ID,
+			Enabled:       true,
 		}
 	}
 
