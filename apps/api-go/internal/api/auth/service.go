@@ -15,11 +15,12 @@ import (
 )
 
 type Tokens struct {
+	UserId       string `json:"userId"`
 	RefreshToken string `json:"refresh_token,omitempty"`
 	AccessToken  string `json:"access_token,omitempty"`
 }
 
-func handleGetToken(code string, services types.Services) (any, error) {
+func handleGetToken(code string, services types.Services) (*Tokens, error) {
 	resp, err := services.Twitch.Client.RequestUserAccessToken(code)
 	if err != nil {
 		services.Logger.Sugar().Error(err)
@@ -66,7 +67,8 @@ func handleGetToken(code string, services types.Services) (any, error) {
 		return nil, fiber.NewError(401, "cannot create JWT refresh token")
 	}
 
-	return Tokens{
+	return &Tokens{
+		UserId:       user.ID,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil

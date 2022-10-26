@@ -1,9 +1,12 @@
 package auth
 
 import (
+	"fmt"
+	"time"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api-go/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
@@ -12,8 +15,21 @@ import (
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("auth")
 	middleware.Get("", get(services))
-	middleware.Get("token", getToken(services))
-	middleware.Get("profile", middlewares.CheckUserAuth(services), getProfile(services))
+	middleware.Get("token", getTokens(services))
+
+	profileCache := cache.New(cache.Config{
+		Expiration: 24 * time.Hour,
+		Storage:    services.RedisStorage,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return fmt.Sprintf("fiber:cache:auth:profile:%s", c.Locals("dbUser").(model.Users).ID)
+		},
+	})
+	middleware.Get(
+		"profile",
+		middlewares.CheckUserAuth(services),
+		profileCache,
+		getProfile(services),
+	)
 
 	return middleware
 }
@@ -38,7 +54,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
-func getToken(services types.Services) func(c *fiber.Ctx) error {
+func getTokens(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		code := c.Query("code")
 		state := c.Query("state")
@@ -51,6 +67,10 @@ func getToken(services types.Services) func(c *fiber.Ctx) error {
 		if err != nil {
 			return err
 		}
+
+		services.RedisStorage.Delete(
+			fmt.Sprintf("fiber:cache:auth:profile:%s", tokens.UserId),
+		)
 
 		return c.JSON(tokens)
 	}
