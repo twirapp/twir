@@ -1,7 +1,6 @@
 package streams
 
 import (
-	"fmt"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,7 +11,6 @@ import (
 func handleGet(channelId string, services types.Services) (*model.ChannelsStreams, error) {
 	stream := model.ChannelsStreams{}
 	err := services.DB.Where(`"userId" = ?`, channelId).First(&stream).Error
-	fmt.Println(err == gorm.ErrRecordNotFound)
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
