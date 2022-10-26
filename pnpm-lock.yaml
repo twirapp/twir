@@ -51,7 +51,7 @@ importers:
       '@twurple/chat': ^5.2.4
       '@twurple/common': ^5.2.4
       '@types/cache-manager': 4.0.2
-      '@types/cache-manager-ioredis': 2.0.2
+      '@types/cache-manager-ioredis': 2.0.3
       '@types/cookie-parser': 1.4.3
       '@types/express': 4.17.14
       '@types/jsonwebtoken': 8.5.9
@@ -125,7 +125,7 @@ importers:
       tslib: 2.4.0
     devDependencies:
       '@types/cache-manager': 4.0.2
-      '@types/cache-manager-ioredis': 2.0.2
+      '@types/cache-manager-ioredis': 2.0.3
       '@types/cookie-parser': 1.4.3
       '@types/express': 4.17.14
       '@types/jsonwebtoken': 8.5.9
@@ -1259,7 +1259,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.1.2_yzt46al3aifnexifjjdb4dxxja
-      '@nestjs/microservices': 9.1.2_fzfvjbneyottbopxczunpwrha4
+      '@nestjs/microservices': 9.1.2_anrejevo4yryahwvize52sqaom
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
@@ -1476,7 +1476,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.1.2_yzt46al3aifnexifjjdb4dxxja
-      '@nestjs/core': 9.1.2_hau4knnrdwycqsd7n2f5wuciea
+      '@nestjs/core': 9.1.2_p63dclg2gy7kwtrl4ennoheh54
       iterare: 1.2.1
       nats: 2.7.1
       reflect-metadata: 0.1.13
@@ -2014,8 +2014,8 @@ packages:
       '@types/node': 18.7.23
     dev: true
 
-  /@types/cache-manager-ioredis/2.0.2:
-    resolution: {integrity: sha512-mcn1k5bCJ/iAIymLRq4d6KSvEdrdspuo8KEIIPkPEl5WP+2CC7NWtRJmgFBoNqCgNxr++B62kOmIH1HYXAiBdA==}
+  /@types/cache-manager-ioredis/2.0.3:
+    resolution: {integrity: sha512-IIwKdlUSztH0TMk1ikRes2CDr2vV4UrSMKhdZ6fBN1++PdgAl/JsxHKRzaSThGqjDUb0UzcWo7dZF4RPPMInMA==}
     dependencies:
       '@types/cache-manager': 4.0.2
       '@types/ioredis': 4.28.10
@@ -2030,7 +2030,7 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/keyv': 3.1.4
-      '@types/node': 8.10.66
+      '@types/node': 18.7.23
       '@types/responselike': 1.0.0
     dev: false
 
@@ -2116,7 +2116,7 @@ packages:
   /@types/keyv/3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.7.23
     dev: false
 
   /@types/lodash.chunk/4.2.7:
@@ -2252,7 +2252,7 @@ packages:
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.7.23
     dev: false
 
   /@types/serve-static/1.15.0:
@@ -2291,7 +2291,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.7.23
     dev: false
     optional: true
 
