@@ -54,7 +54,7 @@ func handleGetToken(code string, services types.Services) (*Tokens, error) {
 
 	accessClaims := claims
 	accessClaims.ExpiresAt = jwt.NewNumericDate(now.Add(10 * time.Minute))
-	accessToken, err := createToken(claims, services.Cfg.JwtAccessSecret)
+	accessToken, err := createToken(accessClaims, services.Cfg.JwtAccessSecret)
 	if err != nil {
 		services.Logger.Sugar().Error(err)
 		return nil, fiber.NewError(401, "cannot create JWT access token")
@@ -63,7 +63,7 @@ func handleGetToken(code string, services types.Services) (*Tokens, error) {
 	refreshClaims := claims
 	refreshClaims.ExpiresAt = jwt.NewNumericDate(now.Add(31 * 24 * time.Hour))
 
-	refreshToken, err := createToken(claims, services.Cfg.JwtRefreshSecret)
+	refreshToken, err := createToken(refreshClaims, services.Cfg.JwtRefreshSecret)
 	if err != nil {
 		services.Logger.Sugar().Error(err)
 		return nil, fiber.NewError(401, "cannot create JWT refresh token")
@@ -77,13 +77,13 @@ func handleGetToken(code string, services types.Services) (*Tokens, error) {
 }
 
 type Claims struct {
+	jwt.RegisteredClaims
 	ID     string   `json:"id"`
 	Scopes []string `json:"scopes"`
 	Login  string   `json:"login"`
-	jwt.RegisteredClaims
 }
 
-func createToken(claims Claims, secret string) (string, error) {
+func createToken(claims jwt.Claims, secret string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString([]byte(secret))
