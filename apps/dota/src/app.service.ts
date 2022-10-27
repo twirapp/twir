@@ -137,7 +137,6 @@ export class AppService extends SteamUser implements OnModuleInit {
     if (!this.ready) {
       return this.#logger.error('App not ready for getting presences.');
     }
-    this.#logger.log(`Getting presences of ${accs.length} accounts.`);
 
     const convertedAccs = accs.map(SteamID.fromIndividualAccountID).map((id) => id.getSteamID64());
     const type = this.#watchRoot.lookupType('CMsgClientToGCFindTopSourceTVGames');
