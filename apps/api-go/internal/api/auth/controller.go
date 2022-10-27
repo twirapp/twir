@@ -98,9 +98,10 @@ func getProfile(services types.Services) func(c *fiber.Ctx) error {
 
 func logout(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		services.RedisStorage.Delete(
-			fmt.Sprintf("fiber:cache:auth:profile:%s", c.Locals("dbUser").(model.Users).ID),
-		)
+		userId := c.Locals("dbUser").(model.Users).ID
+		key := fmt.Sprintf("fiber:cache:auth:profile:%s", userId)
+		services.RedisStorage.Delete(fmt.Sprintf("%s:_GET", key))
+		services.RedisStorage.Delete(fmt.Sprintf("%s:_GET_body", key))
 
 		return c.SendStatus(200)
 	}
