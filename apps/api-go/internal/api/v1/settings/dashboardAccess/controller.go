@@ -67,11 +67,9 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 			return err
 		}
 
-		services.RedisStorage.Delete(
-			fmt.Sprintf("%s_GET_body", getDashboardAccessCacheKey(c.Params("channelId"))),
-		)
-		services.RedisStorage.Delete(
-			fmt.Sprintf("%s_GET", getDashboardAccessCacheKey(c.Params("channelId"))),
+		services.RedisStorage.DeleteByMethod(
+			getDashboardAccessCacheKey(c.Params("channelId")),
+			"GET",
 		)
 
 		return c.JSON(entity)
@@ -82,12 +80,10 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		if err != nil {
 			return err
 		}
-		err = services.RedisStorage.Delete(
-			fmt.Sprintf("%s_GET_body", getDashboardAccessCacheKey(c.Params("channelId"))),
+		services.RedisStorage.DeleteByMethod(
+			getDashboardAccessCacheKey(c.Params("channelId")),
+			"GET",
 		)
-		if err != nil {
-			services.Logger.Sugar().Error(err)
-		}
 		return c.SendStatus(200)
 	})
 

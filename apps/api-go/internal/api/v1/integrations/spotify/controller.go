@@ -103,11 +103,9 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 			return err
 		}
 
-		services.RedisStorage.Delete(
+		services.RedisStorage.DeleteByMethod(
 			fmt.Sprintf("fiber:cache:integrations:spotify:profile:%s_GET", channelId),
-		)
-		services.RedisStorage.Delete(
-			fmt.Sprintf("fiber:cache:integrations:spotify:profile:%s_GET_body", channelId),
+			"GET",
 		)
 
 		return c.SendStatus(200)

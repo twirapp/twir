@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"runtime"
 	"tsuwari/twitch"
 
 	"github.com/getsentry/sentry-go"
@@ -10,9 +9,9 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	enTranslations "github.com/go-playground/validator/v10/translations/en"
+	"github.com/gofiber/contrib/fiberzap"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/gofiber/storage/redis"
 	"github.com/satont/go-helix/v2"
 	auth "github.com/satont/tsuwari/apps/api-go/internal/api/auth"
 	apiv1 "github.com/satont/tsuwari/apps/api-go/internal/api/v1"
@@ -24,6 +23,8 @@ import (
 	"gorm.io/gorm"
 
 	cfg "tsuwari/config"
+
+	"github.com/satont/tsuwari/apps/api-go/internal/services/redis"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	gormLogger "gorm.io/gorm/logger"
@@ -60,13 +61,7 @@ func main() {
 	}
 	defer natsEncodedConn.Close()
 
-	store := redis.New(redis.Config{
-		URL:       cfg.RedisUrl,
-		Database:  0,
-		Reset:     false,
-		TLSConfig: nil,
-		PoolSize:  10 * runtime.GOMAXPROCS(0),
-	})
+	storage := redis.NewCache(cfg.RedisUrl)
 
 	validator := validator.New()
 	en := en_US.New()
@@ -80,7 +75,7 @@ func main() {
 	})
 	app.Use(compress.New())
 
-	app.Use(func(c *fiber.Ctx) error {
+	/* app.Use(func(c *fiber.Ctx) error {
 		c.Next()
 		defer logger.Sugar().Infow("incoming request",
 			"method", c.Method(),
@@ -88,13 +83,16 @@ func main() {
 			"code", c.Response().StatusCode(),
 		)
 		return nil
-	})
+	}) */
+	app.Use(fiberzap.New(fiberzap.Config{
+		Logger: logger,
+	}))
 
 	v1 := app.Group("/v1")
 
 	services := types.Services{
 		DB:                  db,
-		RedisStorage:        store,
+		RedisStorage:        storage,
 		Validator:           validator,
 		ValidatorTranslator: transEN,
 		Twitch: twitch.NewClient(&helix.Options{

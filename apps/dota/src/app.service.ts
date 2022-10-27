@@ -33,7 +33,6 @@ export class AppService extends SteamUser implements OnModuleInit {
     if (!this.ready) return;
     const helloType = this.#clientHelloRoot.lookupType('CMsgClientHello');
     this.sendToGC(570, 4006, {}, Buffer.from(helloType.encode({}).finish()));
-    this.#logger.log('Sent hello event.');
   }
 
   async onModuleInit() {
