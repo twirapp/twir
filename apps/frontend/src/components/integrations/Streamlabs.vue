@@ -22,11 +22,17 @@ const { t } = useI18n({
 });
 const toast = useToast();
 
-selectedDashboardStore.subscribe((d) => {
-  api(`/v1/channels/${d.channelId}/integrations/streamlabs`).then(async (r) => {
-    streamlabsIntegration.value = r.data;
-  });
+selectedDashboardStore.subscribe(() => {
+  fetchIntegration();
 });
+
+function fetchIntegration() {
+  api(`/v1/channels/${selectedDashboardStore.get().channelId}/integrations/streamlabs`).then(
+    async (r) => {
+      streamlabsIntegration.value = r.data;
+    },
+  );
+}
 
 async function auth() {
   const { data } = await api(
@@ -62,7 +68,7 @@ onMounted(async () => {
           code,
         },
       );
-
+      fetchIntegration();
       return router.push('/dashboard/integrations');
     }
   }

@@ -31,10 +31,16 @@ const { t } = useI18n({
 const toast = useToast();
 
 selectedDashboardStore.subscribe((d) => {
-  api(`/v1/channels/${d.channelId}/integrations/donationalerts`).then(async (r) => {
-    donationAlertsIntegration.value = r.data;
-  });
+  fetchIntegration();
 });
+
+function fetchIntegration() {
+  api(`/v1/channels/${selectedDashboardStore.get().channelId}/integrations/donationalerts`).then(
+    async (r) => {
+      donationAlertsIntegration.value = r.data;
+    },
+  );
+}
 
 async function auth() {
   const { data } = await api(
@@ -70,7 +76,7 @@ onMounted(async () => {
           code,
         },
       );
-
+      fetchIntegration();
       return router.push('/dashboard/integrations');
     }
   }
