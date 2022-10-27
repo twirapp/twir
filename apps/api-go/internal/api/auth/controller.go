@@ -71,7 +71,10 @@ func getTokens(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		services.RedisStorage.Delete(
-			fmt.Sprintf("fiber:cache:auth:profile:%s", tokens.UserId),
+			fmt.Sprintf("fiber:cache:auth:profile:%s_GET", tokens.UserId),
+		)
+		services.RedisStorage.Delete(
+			fmt.Sprintf("fiber:cache:auth:profile:%s_GET_body", tokens.UserId),
 		)
 
 		return c.JSON(tokens)

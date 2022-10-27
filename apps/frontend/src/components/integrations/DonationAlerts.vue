@@ -98,16 +98,16 @@ onMounted(async () => {
     </div>
 
     <div class="mb-5">
-      <div v-if="donationAlertsProfile">
+      <div v-if="donationAlertsIntegration.data">
         <div class="flex justify-center mb-3">
           <img
-            v-if="donationAlertsProfile.avatar"
-            :src="donationAlertsProfile.avatar"
+            v-if="donationAlertsIntegration.data.avatar"
+            :src="donationAlertsIntegration.data.avatar"
             class="ring-2 ring-white rounded-full select-none w-32"
             alt="Avatar" />
         </div>
         <p class="break-words text-center">
-          {{ donationAlertsProfile.name }}#{{ donationAlertsProfile.code }}
+          {{ donationAlertsIntegration.data.name }}#{{ donationAlertsIntegration.data.code }}
         </p>
       </div>
       <div v-else>Not logged in</div>

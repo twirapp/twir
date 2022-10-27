@@ -24,14 +24,19 @@ const { t } = useI18n({
 });
 const toast = useToast();
 
-selectedDashboardStore.subscribe((d) => {
-  api(`/v1/channels/${d.channelId}/integrations/spotify`).then(async (r) => {
+selectedDashboardStore.subscribe(() => {
+  fetchIntegrationAndProfile();
+});
+
+function fetchIntegrationAndProfile() {
+  const dashboardId = selectedDashboardStore.get().channelId!;
+  api(`/v1/channels/${dashboardId}/integrations/spotify`).then(async (r) => {
     spotifyIntegration.value = r.data;
     if (r.data.accessToken && r.data.refreshToken) {
       fetchSpotifyProfile();
     }
   });
-});
+}
 
 async function auth() {
   const { data } = await api(
@@ -74,14 +79,9 @@ onMounted(async () => {
           code,
         },
       );
-      await fetchSpotifyProfile();
-
+      fetchIntegrationAndProfile();
       return router.push('/dashboard/integrations');
     }
-  }
-
-  if (!spotifyProfile.value) {
-    fetchSpotifyProfile();
   }
 });
 </script>

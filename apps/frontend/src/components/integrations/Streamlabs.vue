@@ -9,7 +9,6 @@ import { useToast } from 'vue-toastification';
 import Tooltip from '../Tooltip.vue';
 
 import { api } from '@/plugins/api';
-import { setStreamlabsStore, streamlabsStore } from '@/stores/streamlabsProfile';
 import { selectedDashboardStore } from '@/stores/userStore';
 
 const router = useRouter();
@@ -17,7 +16,6 @@ const streamlabsIntegration = ref<Partial<ChannelIntegration>>({
   enabled: true,
 });
 const selectedDashboard = useStore(selectedDashboardStore);
-const streamlabsProfile = useStore(streamlabsStore);
 
 const { t } = useI18n({
   useScope: 'global',
@@ -27,9 +25,6 @@ const toast = useToast();
 selectedDashboardStore.subscribe((d) => {
   api(`/v1/channels/${d.channelId}/integrations/streamlabs`).then(async (r) => {
     streamlabsIntegration.value = r.data;
-    if (r.data.accessToken && r.data.refreshToken) {
-      fetchStreamlabsProfile();
-    }
   });
 });
 
@@ -39,13 +34,6 @@ async function auth() {
   );
 
   window.location.replace(data);
-}
-
-async function fetchStreamlabsProfile() {
-  const { data } = await api(
-    `v1/channels/${selectedDashboard.value.channelId}/integrations/streamlabs/profile`,
-  );
-  setStreamlabsStore(data);
 }
 
 async function patch() {
@@ -74,14 +62,9 @@ onMounted(async () => {
           code,
         },
       );
-      await fetchStreamlabsProfile();
 
       return router.push('/dashboard/integrations');
     }
-  }
-
-  if (!streamlabsProfile.value) {
-    fetchStreamlabsProfile();
   }
 });
 </script>
@@ -107,16 +90,16 @@ onMounted(async () => {
     </div>
 
     <div class="mb-5">
-      <div v-if="streamlabsProfile">
+      <div v-if="streamlabsIntegration.data">
         <div class="flex justify-center mb-3">
           <img
-            v-if="streamlabsProfile.thumbnail"
-            :src="streamlabsProfile.thumbnail"
+            v-if="streamlabsIntegration.data.avatar"
+            :src="streamlabsIntegration.data.avatar"
             class="ring-2 ring-white rounded-full select-none w-32"
             alt="Avatar" />
         </div>
         <p class="break-words text-center">
-          {{ streamlabsProfile.display_name }}
+          {{ streamlabsIntegration.data.name }}
         </p>
       </div>
       <div v-else>Not logged in</div>
