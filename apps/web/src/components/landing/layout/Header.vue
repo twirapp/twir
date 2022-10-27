@@ -1,5 +1,5 @@
 <template>
-  <header :ref="(h) => (headerStore.set(h as HTMLElement))">
+  <header :ref="setHeaderRef">
     <div class="px-6 max-lg:px-4">
       <div class="container">
         <div class="flex-1 flex">
@@ -8,7 +8,12 @@
               <div class="h-[30px] w-[30px]" :style="{ backgroundImage: cssURL(TsuwariLogo) }" />
               <span class="font-medium text-xl">Tsuwari</span>
             </a>
-            <BurgerMenuButton />
+            <div class="inline-grid grid-flow-col gap-x-3">
+              <BurgerMenuButton />
+              <ClientOnly>
+                <HeaderAuthBlock v-if="!isDesktop" />
+              </ClientOnly>
+            </div>
             <ClientOnly>
               <MobileMenu />
             </ClientOnly>
@@ -42,8 +47,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useStore } from '@nanostores/vue';
-import { useWindowScroll } from '@vueuse/core';
+import { useWindowScroll, useWindowSize } from '@vueuse/core';
+import { computed } from 'vue';
 
 import TsuwariLogo from '@/assets/brand/TsuwariInCircle.svg';
 import ClientOnly from '@/components/ClientOnly.vue';
@@ -53,14 +58,19 @@ import MobileMenu from '@/components/landing/layout/MobileMenu.vue';
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import LangSelect from '@/components/LangSelect/LangSelect.vue';
 import useLandingLocale from '@/hooks/useLandingLocale';
-import { headerStore, headerHeightStore } from '@/stores/landing/header.js';
+import { useLandingHeaderHeight, setHeaderRef } from '@/services/landing-menu';
 import { cssURL } from '@/utils/css.js';
 
 const setLandingLocale = useLandingLocale();
 
-const headerHeight = useStore(headerHeightStore);
+const headerHeight = useLandingHeaderHeight();
 
 const { y: windowY } = useWindowScroll();
+
+const minDesktopWidth = 996;
+
+const isDesktop = computed(() => windowWidth.value >= minDesktopWidth);
+const { width: windowWidth } = useWindowSize();
 </script>
 
 <style lang="postcss">

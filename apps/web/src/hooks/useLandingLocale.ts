@@ -3,7 +3,10 @@ import { useI18n } from 'vue-i18n';
 
 import { loadLocaleMessages, type Locale } from '@/locales';
 
-export default function () {
+/**
+ * @returns function to set landing locale
+ */
+export default function (): (locale: Locale) => Promise<void> {
   const { setLocaleMessage, locale: i18nLocale } = useI18n();
 
   return async (locale: Locale) => {

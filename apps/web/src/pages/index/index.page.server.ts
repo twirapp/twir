@@ -18,15 +18,7 @@ export async function render(pageContext: PageContext) {
 
   const seoInfo = seoLocales[locale];
 
-  const documentHtml = htmlLayout({
-    title: seoInfo.title,
-    description: seoInfo.description,
-    keywords: seoInfo.keywords,
-    locale,
-    urlCanonical: pageContext.urlParsed.origin || undefined,
-    urlOriginal: pageContext.urlOriginal,
-    content: renderToNodeStream(app),
-  });
+  const documentHtml = htmlLayout(seoInfo, pageContext, renderToNodeStream(app));
 
   return {
     documentHtml,

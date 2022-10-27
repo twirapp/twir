@@ -14,9 +14,8 @@ export async function render(pageContext: PageContext) {
     app = createApp(pageContext);
 
     const i18n = await setupI18n(pageContext.locale, 'landing');
-    app.use(i18n);
-
-    app.mount('#app');
+    app.use(i18n).mount('#app');
+    
     return;
   }
 

@@ -3,36 +3,34 @@ import type { Readable } from 'stream';
 import { escapeInject } from 'vite-plugin-ssr';
 
 import svgFavicon from '@/assets/brand/TsuwariInCircle.svg';
-import { author, ogImage } from '@/data/seo.js';
-import type { Locale } from '@/locales';
+import { author, ogImage, SeoPageProps } from '@/data/seo.js';
+import type { PageContext } from '@/types/pageContext.js';
 
-export const htmlLayout = (data: {
-  title: string;
-  description: string;
-  keywords: string[];
-  content?: Readable;
-  urlCanonical?: string;
-  urlOriginal: string;
-  locale: Locale;
-}) => escapeInject`<!DOCTYPE html>
-    <html lang="${data.locale}">
+export const htmlLayout = (seo: SeoPageProps, pageContext: PageContext, content?: Readable) => {
+  const urlCanonical = pageContext.urlParsed.origin
+    ? escapeInject`<link rel="canonical" href="${pageContext.urlParsed.origin}">`
+    : '';
+
+  return escapeInject`<!DOCTYPE html>
+    <html lang="${pageContext.locale}">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta charset="utf-8" />
-        ${data.urlCanonical ? escapeInject`<link rel="canonical" href="${data.urlCanonical}">` : ''}
+        ${urlCanonical}
         <link rel="icon" href="${svgFavicon}" sizes="any" type="image/svg+xml">
         
-        <title>${data.title}</title>
-        <meta name="description" content="${data.description}" >
-        <meta name="keywords" content="${data.keywords.join(', ')}">
+        <title>${seo.title}</title>
+        <meta name="description" content="${seo.description}" >
+        <meta name="keywords" content="${seo.keywords.join(', ')}">
         <meta name="author" content="${author}">
 
-        <meta property="og:title" content="${data.title}" >
-        <meta property="og:url" content="${data.urlOriginal}" />
-        <meta property="og:description" content="${data.description}" />
+        <meta property="og:title" content="${seo.title}" >
+        <meta property="og:url" content="${pageContext.urlOriginal}" />
+        <meta property="og:description" content="${seo.description}" />
         <meta property="og:image" content="${ogImage}" />
       </head>
       <body> 
-        <div id="app">${data.content || ''}</div>
+        <div id="app">${content || ''}</div>
       </body>
     </html>`;
+};
