@@ -129,11 +129,6 @@ export class Bot extends ChatClient {
         message = message.replace(`@${replyTo}`, '').trim();
       }
 
-      this.#logger.log(
-        `IN ${pc.green(channel)} | ${pc.magenta(`${user}#${state.userInfo.userId}`)}: ${pc.white(
-          message,
-        )}`,
-      );
       const isBotModRequest = await channelRepository.findOneBy({ id: state.channelId });
       const isBotMod = isBotModRequest?.isBotMod;
 
