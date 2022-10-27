@@ -12,7 +12,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
 	middleware.Delete(":keywordId", delete(services))
-	middleware.Put(":keywordId", put(services))
+	middleware.Patch(":keywordId", patch(services))
 
 	return middleware
 }
@@ -60,7 +60,7 @@ func delete(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
-func put(services types.Services) func(c *fiber.Ctx) error {
+func patch(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &keywordDto{}
 		err := middlewares.ValidateBody(

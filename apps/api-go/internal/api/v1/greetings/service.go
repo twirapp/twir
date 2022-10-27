@@ -1,25 +1,62 @@
 package greetings
 
 import (
+	"sync"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/samber/lo"
+	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api-go/internal/types"
 	uuid "github.com/satori/go.uuid"
 )
 
-func handleGet(channelId string, services types.Services) []model.ChannelsGreetings {
+type Greeting struct {
+	model.ChannelsGreetings
+	UserName string `json:"username"`
+}
+
+func handleGet(channelId string, services types.Services) []Greeting {
 	greetings := []model.ChannelsGreetings{}
 	services.DB.Where(`"channelId" = ?`, channelId).Find(&greetings)
+	users := []Greeting{}
 
-	return greetings
+	chunks := lo.Chunk(greetings, 100)
+	greetingsWg := sync.WaitGroup{}
+	greetingsWg.Add(len(chunks))
+	for _, chunk := range chunks {
+		go func(c []model.ChannelsGreetings) {
+			defer greetingsWg.Done()
+			ids := lo.Map(chunk, func(g model.ChannelsGreetings, _ int) string {
+				return g.UserID
+			})
+			twitchUsers, err := services.Twitch.Client.GetUsers(&helix.UsersParams{
+				IDs: ids,
+			})
+			if err != nil {
+				return
+			}
+			for _, u := range twitchUsers.Data.Users {
+				user, ok := lo.Find(greetings, func(g model.ChannelsGreetings) bool {
+					return g.UserID == u.ID
+				})
+				if ok {
+					users = append(users, Greeting{ChannelsGreetings: user, UserName: u.Login})
+				}
+			}
+		}(chunk)
+	}
+
+	greetingsWg.Wait()
+
+	return users
 }
 
 func handlePost(
 	channelId string,
 	dto *greetingsDto,
 	services types.Services,
-) (*model.ChannelsGreetings, error) {
+) (*Greeting, error) {
 	twitchUser := getTwitchUserByName(dto.Username, services.Twitch)
 	if twitchUser == nil {
 		return nil, fiber.NewError(404, "cannot find twitch user")
@@ -46,7 +83,10 @@ func handlePost(
 		return nil, fiber.NewError(500, "cannot create greeting")
 	}
 
-	return greeting, nil
+	return &Greeting{
+		ChannelsGreetings: *greeting,
+		UserName:          twitchUser.Login,
+	}, nil
 }
 
 func handleDelete(greetingId string, services types.Services) error {
@@ -67,7 +107,7 @@ func handleUpdate(
 	greetingId string,
 	dto *greetingsDto,
 	services types.Services,
-) (*model.ChannelsGreetings, error) {
+) (*Greeting, error) {
 	greeting := findGreetingById(greetingId, services.DB)
 	if greeting == nil {
 		return nil, fiber.NewError(404, "greeting not found")
@@ -96,5 +136,8 @@ func handleUpdate(
 		return nil, fiber.NewError(500, "cannot update greeting")
 	}
 
-	return newGreeting, nil
+	return &Greeting{
+		ChannelsGreetings: *newGreeting,
+		UserName:          twitchUser.Login,
+	}, nil
 }
