@@ -108,10 +108,9 @@ export class AppService extends SteamUser implements OnModuleInit {
       this.#logger.error(e);
     });
 
-    this.on('appLaunched', async (appId) => {
+    this.on('appLaunched', async () => {
       this.sendHelloEvent();
       this.ready = true;
-      this.getDotaProfileCard(1102609846);
       setInterval(() => {
         this.sendHelloEvent();
       }, 5 * 1000);
@@ -191,6 +190,7 @@ export class AppService extends SteamUser implements OnModuleInit {
       this.sendToGC(570, 7534, {}, Buffer.from(request.finish()), (_appid, msgType, payload) => {
         if (msgType === 7535) {
           const response = responseType.decode(payload).toJSON();
+          console.log(response);
           if (!response.account_id) resolve(null);
           resolve(response);
         } else resolve(null);
