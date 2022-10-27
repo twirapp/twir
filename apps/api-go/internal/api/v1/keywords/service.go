@@ -1,6 +1,7 @@
 package keywords
 
 import (
+	"net/http"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,7 +14,7 @@ func handleGet(channelId string, services types.Services) ([]model.ChannelsKeywo
 	keywords := []model.ChannelsKeywords{}
 	err := services.DB.Find(&keywords).Error
 	if err != nil {
-		return nil, fiber.NewError(500, "cannot get keywords")
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get keywords")
 	}
 
 	return keywords, nil
@@ -41,7 +42,7 @@ func handlePost(
 	err = services.DB.Save(&newKeyword).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "cannot create keyword")
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create keyword")
 	}
 
 	return &newKeyword, nil
@@ -50,13 +51,13 @@ func handlePost(
 func handleDelete(keywordId string, services types.Services) error {
 	keyword := getById(services.DB, keywordId)
 	if keyword == nil {
-		return fiber.NewError(404, "keyword not found")
+		return fiber.NewError(http.StatusNotFound, "keyword not found")
 	}
 
 	err := services.DB.Delete(keyword).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "cannot delete keyword")
+		return fiber.NewError(http.StatusInternalServerError, "cannot delete keyword")
 	}
 
 	return nil
@@ -69,7 +70,7 @@ func handleUpdate(
 ) (*model.ChannelsKeywords, error) {
 	currentKeyword := getById(services.DB, keywordId)
 	if currentKeyword == nil {
-		return nil, fiber.NewError(404, "keyword not found")
+		return nil, fiber.NewError(http.StatusNotFound, "keyword not found")
 	}
 
 	newKeyword := model.ChannelsKeywords{
@@ -85,7 +86,7 @@ func handleUpdate(
 	err := services.DB.Model(currentKeyword).Select("*").Updates(newKeyword).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "cannot update keyword")
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update keyword")
 	}
 
 	return &newKeyword, nil

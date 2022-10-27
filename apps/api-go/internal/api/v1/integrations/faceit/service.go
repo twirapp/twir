@@ -1,6 +1,7 @@
 package faceit
 
 import (
+	"net/http"
 	"strings"
 	model "tsuwari/models"
 
@@ -33,7 +34,10 @@ func handlePost(channelId string, dto *faceitUpdateDto, services types.Services)
 			First(&neededIntegration).
 			Error
 		if err != nil {
-			return fiber.NewError(500, "seems like faceit not enabled on our side")
+			return fiber.NewError(
+				http.StatusInternalServerError,
+				"seems like faceit not enabled on our side",
+			)
 		}
 
 		integration = &model.ChannelsIntegrations{
@@ -57,7 +61,7 @@ func handlePost(channelId string, dto *faceitUpdateDto, services types.Services)
 
 	if err = services.DB.Save(integration).Error; err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "cannot update faceit data")
+		return fiber.NewError(http.StatusInternalServerError, "cannot update faceit data")
 	}
 
 	return nil

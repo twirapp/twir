@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"net/http"
 	model "tsuwari/models"
 	"tsuwari/twitch"
 
@@ -20,7 +21,7 @@ func handleGet(channelId string, services types.Services) (*bool, error) {
 	}).Create(channelId)
 	if client == nil || err != nil {
 		return nil, fiber.NewError(
-			500,
+			http.StatusInternalServerError,
 			"cannot create twitch client from your tokens. Please try to reauthorize",
 		)
 	}
@@ -28,7 +29,7 @@ func handleGet(channelId string, services types.Services) (*bool, error) {
 	channel := &model.Channels{}
 	err = services.DB.Where("id = ?", channelId).First(channel).Error
 	if err != nil || channel == nil {
-		return nil, fiber.NewError(404, "cannot find channel in db")
+		return nil, fiber.NewError(http.StatusNotFound, "cannot find channel in db")
 	}
 
 	mods, err := client.GetChannelMods(&helix.GetChannelModsParams{
@@ -37,7 +38,7 @@ func handleGet(channelId string, services types.Services) (*bool, error) {
 	})
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "cannot get mods of channel")
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get mods of channel")
 	}
 
 	if len(mods.Data.Mods) == 0 {
@@ -53,11 +54,11 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 	)
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "cannot get twitch user")
+		return fiber.NewError(http.StatusInternalServerError, "cannot get twitch user")
 	}
 
 	if len(twitchUsers.Data.Users) == 0 {
-		return fiber.NewError(404, "user not found on twitch")
+		return fiber.NewError(http.StatusNotFound, "user not found on twitch")
 	}
 
 	user := twitchUsers.Data.Users[0]
@@ -67,7 +68,7 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "cannot get user from database")
+		return fiber.NewError(http.StatusInternalServerError, "cannot get user from database")
 	}
 
 	bytes, _ := proto.Marshal(&bots.JoinOrLeaveRequest{

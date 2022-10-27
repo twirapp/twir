@@ -1,6 +1,7 @@
 package lastfm
 
 import (
+	"net/http"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -39,7 +40,10 @@ func handlePost(channelId string, dto *lastfmDto, services types.Services) error
 			Error
 		if err != nil {
 			services.Logger.Sugar().Error(err)
-			return fiber.NewError(500, "seems like lastfm not enabled on our side")
+			return fiber.NewError(
+				http.StatusInternalServerError,
+				"seems like lastfm not enabled on our side",
+			)
 		}
 
 		integration = &model.ChannelsIntegrations{
@@ -56,7 +60,7 @@ func handlePost(channelId string, dto *lastfmDto, services types.Services) error
 
 	if err = services.DB.Save(integration).Error; err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "cannot update faceit data")
+		return fiber.NewError(http.StatusInternalServerError, "cannot update faceit data")
 	}
 
 	return nil

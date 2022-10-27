@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"net/http"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,7 +20,7 @@ var CheckHasAccessToDashboard = func(c *fiber.Ctx) error {
 
 	channelId := c.Params("channelId")
 	if channelId == "" {
-		return c.Status(500).
+		return c.Status(http.StatusInternalServerError).
 			JSON(fiber.Map{"message": "channelId not passed. This is probably internal error"})
 	}
 	if dbUser.ID == channelId {

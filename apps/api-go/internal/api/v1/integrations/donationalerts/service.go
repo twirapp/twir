@@ -1,6 +1,7 @@
 package donationalerts
 
 import (
+	"net/http"
 	"net/url"
 	model "tsuwari/models"
 
@@ -53,7 +54,7 @@ func handleGet(channelId string, services types.Services) (*model.ChannelsIntegr
 	}
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "internal error")
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 	return &integration, nil
 }
@@ -67,11 +68,11 @@ func handlePatch(
 	err := services.DB.Where(`"channelId" = ?`, channelId).
 		First(&integration).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
-		return nil, fiber.NewError(404, "integration not found")
+		return nil, fiber.NewError(http.StatusNotFound, "integration not found")
 	}
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "internal error")
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	integration.Enabled = *dto.Enabled
@@ -123,7 +124,10 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "seems like donationalerts not enabled on our side")
+		return fiber.NewError(
+			http.StatusInternalServerError,
+			"seems like donationalerts not enabled on our side",
+		)
 	}
 
 	if channelIntegration == nil {
@@ -149,7 +153,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		Post("https://www.donationalerts.com/oauth/token")
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "cannot get tokens")
+		return fiber.NewError(http.StatusInternalServerError, "cannot get tokens")
 	}
 	if !resp.IsSuccess() {
 		return fiber.NewError(401, "seems like code is invalid")
@@ -163,7 +167,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 
 	if err != nil || !profileResp.IsSuccess() {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "cannot get profile")
+		return fiber.NewError(http.StatusInternalServerError, "cannot get profile")
 	}
 
 	if channelIntegration == nil {
@@ -188,7 +192,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "cannot update integration")
+		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
 	return nil

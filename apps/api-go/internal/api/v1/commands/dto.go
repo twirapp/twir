@@ -1,8 +1,8 @@
 package commands
 
 type responsesDto struct {
-	Text  string `validate:"required,min=1,max=500" json:"text"`
-	Order uint   `validate:"gte=0"                  json:"order"`
+	Text  string `validate:"required,min=1,max=http.StatusInternalServerError" json:"text"`
+	Order uint   `validate:"gte=0"                                             json:"order"`
 }
 
 type commandDto struct {

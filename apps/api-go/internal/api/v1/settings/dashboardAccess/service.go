@@ -2,6 +2,7 @@ package dashboardaccess
 
 import (
 	"fmt"
+	"net/http"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,7 +23,10 @@ func handleGet(channelId string, services types.Services) ([]Entity, error) {
 	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&dbEntities).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "cannot get dashboard users from db")
+		return nil, fiber.NewError(
+			http.StatusInternalServerError,
+			"cannot get dashboard users from db",
+		)
 	}
 
 	usersIds := make([]string, 0, len(dbEntities))
@@ -36,7 +40,10 @@ func handleGet(channelId string, services types.Services) ([]Entity, error) {
 	})
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "error when getting users from twitch")
+		return nil, fiber.NewError(
+			http.StatusInternalServerError,
+			"error when getting users from twitch",
+		)
 	}
 
 	if len(twitchUsers.Data.Users) == 0 {
@@ -65,11 +72,11 @@ func handlePost(channelId string, dto *addUserDto, services types.Services) (*En
 	})
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "cannot get user from twitch")
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get user from twitch")
 	}
 
 	if len(twitchUsers.Data.Users) == 0 {
-		return nil, fiber.NewError(404, "cannot find user on twitch")
+		return nil, fiber.NewError(http.StatusNotFound, "cannot find user on twitch")
 	}
 
 	err = services.DB.
@@ -95,7 +102,7 @@ func handlePost(channelId string, dto *addUserDto, services types.Services) (*En
 	err = services.DB.Save(&newAccess).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "cannot save user in db")
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot save user in db")
 	}
 
 	return &Entity{
@@ -110,15 +117,21 @@ func handleDelete(entityId string, services types.Services) error {
 		First(&access).
 		Error
 	if err != nil && err == gorm.ErrRecordNotFound {
-		return fiber.NewError(404, "that entity not found in database")
+		return fiber.NewError(http.StatusNotFound, "that entity not found in database")
 	}
 	if err != nil {
-		return fiber.NewError(500, "something unexpected happend on our side")
+		return fiber.NewError(
+			http.StatusInternalServerError,
+			"something unexpected happend on our side",
+		)
 	}
 
 	err = services.DB.Delete(&access).Error
 	if err != nil {
-		return fiber.NewError(500, "something unexpected happend on our side")
+		return fiber.NewError(
+			http.StatusInternalServerError,
+			"something unexpected happend on our side",
+		)
 	}
 
 	return nil

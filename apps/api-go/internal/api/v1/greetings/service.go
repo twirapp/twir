@@ -1,6 +1,7 @@
 package greetings
 
 import (
+	"net/http"
 	"sync"
 	model "tsuwari/models"
 
@@ -59,7 +60,7 @@ func handlePost(
 ) (*Greeting, error) {
 	twitchUser := getTwitchUserByName(dto.Username, services.Twitch)
 	if twitchUser == nil {
-		return nil, fiber.NewError(404, "cannot find twitch user")
+		return nil, fiber.NewError(http.StatusNotFound, "cannot find twitch user")
 	}
 
 	existedGreeting := findGreetingByUser(twitchUser.ID, channelId, services.DB)
@@ -80,7 +81,7 @@ func handlePost(
 	err := services.DB.Save(greeting).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "cannot create greeting")
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create greeting")
 	}
 
 	return &Greeting{
@@ -92,12 +93,12 @@ func handlePost(
 func handleDelete(greetingId string, services types.Services) error {
 	greeting := findGreetingById(greetingId, services.DB)
 	if greeting == nil {
-		return fiber.NewError(404, "greeting not found")
+		return fiber.NewError(http.StatusNotFound, "greeting not found")
 	}
 	err := services.DB.Where("id = ?", greetingId).Delete(&model.ChannelsGreetings{}).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "cannot delete greeting")
+		return fiber.NewError(http.StatusInternalServerError, "cannot delete greeting")
 	}
 
 	return nil
@@ -110,7 +111,7 @@ func handleUpdate(
 ) (*Greeting, error) {
 	greeting := findGreetingById(greetingId, services.DB)
 	if greeting == nil {
-		return nil, fiber.NewError(404, "greeting not found")
+		return nil, fiber.NewError(http.StatusNotFound, "greeting not found")
 	}
 
 	newGreeting := &model.ChannelsGreetings{
@@ -125,7 +126,7 @@ func handleUpdate(
 
 	twitchUser := getTwitchUserByName(dto.Username, services.Twitch)
 	if twitchUser == nil {
-		return nil, fiber.NewError(404, "cannot find twitch user")
+		return nil, fiber.NewError(http.StatusNotFound, "cannot find twitch user")
 	}
 
 	newGreeting.UserID = twitchUser.ID
@@ -133,7 +134,7 @@ func handleUpdate(
 	err := services.DB.Model(greeting).Select("*").Updates(newGreeting).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "cannot update greeting")
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update greeting")
 	}
 
 	return &Greeting{

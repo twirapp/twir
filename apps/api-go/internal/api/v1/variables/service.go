@@ -1,6 +1,7 @@
 package variables
 
 import (
+	"net/http"
 	"time"
 	model "tsuwari/models"
 
@@ -18,7 +19,7 @@ func handleGet(channelId string, services types.Services) ([]model.ChannelsCusto
 	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&variables).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "cannot get variables")
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get variables")
 	}
 
 	return variables, nil
@@ -35,7 +36,7 @@ func handleGetBuiltIn(services types.Services) ([]*parser.Variable, error) {
 	)
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "cannot get builtin variables")
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get builtin variables")
 	}
 
 	proto.Unmarshal(msg.Data, &response)
@@ -67,7 +68,7 @@ func handlePost(
 	}
 	err = services.DB.Save(&newVariable).Error
 	if err != nil {
-		return nil, fiber.NewError(500, "cannot create variable")
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create variable")
 	}
 
 	return &newVariable, nil
@@ -79,13 +80,13 @@ func handleDelete(channelId string, variableId string, services types.Services) 
 		First(variable).
 		Error
 	if err == gorm.ErrRecordNotFound {
-		return fiber.NewError(404, "variable not found")
+		return fiber.NewError(http.StatusNotFound, "variable not found")
 	}
 
 	err = services.DB.Delete(variable).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "cannot delete variable")
+		return fiber.NewError(http.StatusInternalServerError, "cannot delete variable")
 	}
 
 	return nil
@@ -99,7 +100,7 @@ func handleUpdate(
 ) (*model.ChannelsCustomvars, error) {
 	err := services.DB.Where("id = ?", variableId).First(&model.ChannelsCustomvars{}).Error
 	if err == gorm.ErrRecordNotFound {
-		return nil, fiber.NewError(404, "variable not found")
+		return nil, fiber.NewError(http.StatusNotFound, "variable not found")
 	}
 
 	newData := model.ChannelsCustomvars{
@@ -115,7 +116,10 @@ func handleUpdate(
 	err = services.DB.Select("*").Updates(&newData).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "something happend on our side, cannot update variable")
+		return nil, fiber.NewError(
+			http.StatusInternalServerError,
+			"something happend on our side, cannot update variable",
+		)
 	}
 
 	return &newData, nil

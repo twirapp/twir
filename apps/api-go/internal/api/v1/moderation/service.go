@@ -2,6 +2,7 @@ package moderation
 
 import (
 	"fmt"
+	"net/http"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -87,7 +88,10 @@ func handleUpdate(
 			Updates(&setting).Error
 		if err != nil {
 			services.Logger.Sugar().Error(err)
-			return nil, fiber.NewError(500, "cannot update moderation settings")
+			return nil, fiber.NewError(
+				http.StatusInternalServerError,
+				"cannot update moderation settings",
+			)
 		}
 		settings = append(settings, setting)
 	}

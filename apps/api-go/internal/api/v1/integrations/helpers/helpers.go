@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"fmt"
+	"net/http"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,7 +29,7 @@ func GetIntegration(
 
 	if err != nil {
 		fmt.Println(err)
-		return nil, fiber.NewError(404, "internal error")
+		return nil, fiber.NewError(http.StatusNotFound, "internal error")
 	}
 
 	return &integration, nil

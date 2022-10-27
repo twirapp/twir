@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -13,7 +14,7 @@ import (
 )
 
 var cannotSendFeedbackError = fiber.NewError(
-	500,
+	http.StatusInternalServerError,
 	"cannot send feedback. Please contact developers.",
 )
 
@@ -49,7 +50,7 @@ func handlePost(
 			defer file.Close()
 			buf := bytes.NewBuffer(nil)
 			if _, err := io.Copy(buf, file); err != nil {
-				return fiber.NewError(500, "cannot read file")
+				return fiber.NewError(http.StatusInternalServerError, "cannot read file")
 			}
 			newMedia := tgbotapi.NewInputMediaPhoto(tgbotapi.FileBytes{Name: f.Filename, Bytes: buf.Bytes()})
 			media = append(media, newMedia)
@@ -58,7 +59,7 @@ func handlePost(
 		mediaGroup := tgbotapi.NewMediaGroup(int64(userId), media)
 		_, err := services.TgBotApi.SendMediaGroup(mediaGroup)
 		if err != nil {
-			return fiber.NewError(500, "cannot send feedback due internal error")
+			return fiber.NewError(http.StatusInternalServerError, "cannot send feedback due internal error")
 		}
 		services.TgBotApi.Send(tgbotapi.NewMessage(int64(userId), myText))
 	}

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"net/http"
 	"sync"
 	"time"
 	model "tsuwari/models"
@@ -98,7 +99,7 @@ func handleGetProfile(user model.Users, services types.Services) (*Profile, erro
 	err := services.DB.Where(`"userId" = ?`, user.ID).Find(&dbDashboards).Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(500, "internal error")
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	if user.IsBotAdmin {
@@ -110,7 +111,7 @@ func handleGetProfile(user model.Users, services types.Services) (*Profile, erro
 		err := services.DB.Not(channelsIds).Find(&channels).Error
 		if err != nil {
 			services.Logger.Sugar().Error(err)
-			return nil, fiber.NewError(500, "cannot get channels")
+			return nil, fiber.NewError(http.StatusInternalServerError, "cannot get channels")
 		}
 
 		for _, c := range channels {

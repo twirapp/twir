@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 	model "tsuwari/models"
 
@@ -70,7 +71,10 @@ func handlePatch(
 			Error
 		if err != nil {
 			services.Logger.Sugar().Error(err)
-			return nil, fiber.NewError(500, "seems like spotify not enabled on our side")
+			return nil, fiber.NewError(
+				http.StatusInternalServerError,
+				"seems like spotify not enabled on our side",
+			)
 		}
 
 		integration = &model.ChannelsIntegrations{
@@ -115,7 +119,10 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		Error
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "seems like spotify not enabled on our side")
+		return fiber.NewError(
+			http.StatusInternalServerError,
+			"seems like spotify not enabled on our side",
+		)
 	}
 
 	if channelIntegration == nil {
@@ -147,7 +154,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		SetContentType("application/x-www-form-urlencoded").
 		Post("https://accounts.spotify.com/api/token")
 	if err != nil {
-		return fiber.NewError(500, "cannot get tokens")
+		return fiber.NewError(http.StatusInternalServerError, "cannot get tokens")
 	}
 	if !resp.IsSuccess() {
 		data, _ := ioutil.ReadAll(resp.Body)
@@ -163,7 +170,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return fiber.NewError(500, "cannot update integration")
+		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
 	return nil

@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"net/http"
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,7 +16,7 @@ func handleGet(channelId string, services types.Services) (*model.ChannelsStream
 		return nil, nil
 	}
 	if err != nil {
-		return nil, fiber.NewError(404, "stream not found")
+		return nil, fiber.NewError(http.StatusNotFound, "stream not found")
 	}
 	return &stream, nil
 }
