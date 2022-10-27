@@ -46,19 +46,17 @@ import useTranslation from '@/hooks/useTranslation.js';
 import type { Locale } from '@/locales';
 import { redirectToLogin } from '@/services/auth';
 import { useUserProfile } from '@/services/auth';
-import { headerHeightStore, menuStateStore } from '@/stores/landing/header.js';
+import { useLandingHeaderHeight, useLandingMenuState } from '@/services/landing-menu';
 import { cssPX } from '@/utils/css';
-
-const menuState = useStore(menuStateStore);
-const headerHeight = useStore(headerHeightStore);
 
 const { data: user } = useUserProfile();
 
 const setLandingLocale = useLandingLocale();
 const t = useTranslation<'landing'>();
-const { height: windowHeight } = useWindowSize();
 
-const closeMenu = () => menuStateStore.set(false);
+const { menuState, closeMenu } = useLandingMenuState();
+const headerHeight = useLandingHeaderHeight();
+const { height: windowHeight } = useWindowSize();
 
 const menuStyles = computed<StyleValue>(() => ({
   top: cssPX(headerHeight.value),
@@ -69,18 +67,6 @@ const changeLangAndCloseMenu = (locale: Locale) => {
   setLandingLocale(locale);
   closeMenu();
 };
-
-const removeListener = menuStateStore.listen((menuState) => {
-  if (menuState) {
-    document.body.classList.add('overflow-hidden');
-  } else {
-    document.body.classList.remove('overflow-hidden');
-  }
-});
-
-onUnmounted(() => {
-  removeListener();
-});
 </script>
 
 <style lang="postcss">

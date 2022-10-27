@@ -8,15 +8,7 @@ export async function render(pageContext: PageContext) {
   const locale: Locale = defaultLocale;
 
   const seoInfo = seoLocales[locale];
-
-  const documentHtml = htmlLayout({
-    title: seoInfo.title,
-    description: seoInfo.description,
-    keywords: seoInfo.keywords,
-    locale,
-    urlCanonical: pageContext.urlParsed.origin || undefined,
-    urlOriginal: pageContext.urlOriginal,
-  });
+  const documentHtml = htmlLayout(seoInfo, pageContext);
 
   return {
     documentHtml,

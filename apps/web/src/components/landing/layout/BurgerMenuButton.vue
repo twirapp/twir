@@ -5,22 +5,16 @@
       active: menuState,
     }"
     aria-label="Navigation menu button"
-    @click.prevent="toggle"
+    @click.prevent="toggleMenuState"
   >
     <span></span>
   </button>
 </template>
 
 <script lang="ts" setup>
-import { useStore } from '@nanostores/vue';
+import { useLandingMenuState } from '@/services/landing-menu/menuState.js';
 
-import { menuStateStore } from '@/stores/landing/header.js';
-
-const menuState = useStore(menuStateStore);
-
-const toggle = () => {
-  menuStateStore.set(!menuStateStore.get());
-};
+const { menuState, toggleMenuState } = useLandingMenuState();
 </script>
 
 <style lang="postcss">

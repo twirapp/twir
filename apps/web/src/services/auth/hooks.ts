@@ -8,6 +8,7 @@ import { handleTwitchLoginCallback } from './twitch.js';
 export const useUserProfile = () =>
   useQuery(['profile'], getProfile, {
     retry: false,
+    refetchOnReconnect: 'always',
   });
 
 export const useTwitchAuth = () =>

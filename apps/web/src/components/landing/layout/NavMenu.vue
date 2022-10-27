@@ -15,12 +15,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useStore } from '@nanostores/vue';
+import { isClient } from '@vueuse/core';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { type NavMenuLocale, navMenuHrefs } from '@/data/landing/navMenu.js';
-import { headerHeightStore } from '@/stores/landing/header.js';
+import { useLandingHeaderHeight } from '@/services/landing-menu/header.js';
 
 const props =
   defineProps<{
@@ -30,12 +30,12 @@ const props =
   }>();
 
 const { tm } = useI18n();
-const headerHeight = useStore(headerHeightStore);
+const headerHeight = useLandingHeaderHeight();
 
 const menuItems = computed(() => tm('navMenu') as NavMenuLocale[]);
 
 const scrollToSection = (e: Event) => {
-  if (typeof window === 'undefined') return;
+  if (!isClient) return;
 
   const sectionId = (e.target as HTMLLinkElement).dataset.section as string;
   const section = document.getElementById(sectionId);
