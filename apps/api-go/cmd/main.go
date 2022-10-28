@@ -84,8 +84,9 @@ func main() {
 		)
 		return nil
 	}) */
+	appLogger, _ := zap.NewDevelopment()
 	app.Use(fiberzap.New(fiberzap.Config{
-		Logger: logger,
+		Logger: appLogger,
 	}))
 
 	v1 := app.Group("/v1")

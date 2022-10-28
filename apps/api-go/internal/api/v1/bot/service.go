@@ -41,11 +41,7 @@ func handleGet(channelId string, services types.Services) (*bool, error) {
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get mods of channel")
 	}
 
-	if len(mods.Data.Mods) == 0 {
-		return lo.ToPtr(false), nil
-	} else {
-		return lo.ToPtr(true), nil
-	}
+	return lo.ToPtr(lo.If(len(mods.Data.Mods) == 0, true).Else(false)), nil
 }
 
 func handlePatch(channelId string, dto *connectionDto, services types.Services) error {
