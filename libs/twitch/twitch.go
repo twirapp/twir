@@ -16,8 +16,31 @@ type Twitch struct {
 	Client *helix.Client
 }
 
+func rateLimitCallback(lastResponse *helix.Response) error {
+	if lastResponse.GetRateLimitRemaining() > 0 {
+		return nil
+	}
+
+	var reset64 int64
+	reset64 = int64(lastResponse.GetRateLimitReset())
+
+	currentTime := time.Now().Unix()
+
+	if currentTime < reset64 {
+		timeDiff := time.Duration(reset64 - currentTime)
+		if timeDiff > 0 {
+			time.Sleep(timeDiff * time.Second)
+		}
+	}
+
+	return nil
+}
+
 func NewClient(options *helix.Options) *Twitch {
-	client, err := helix.NewClient(options)
+	opts := options
+	opts.RateLimitFunc = rateLimitCallback
+
+	client, err := helix.NewClient(opts)
 	if err != nil {
 		panic(err)
 	}

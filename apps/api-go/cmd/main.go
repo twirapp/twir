@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 	"tsuwari/twitch"
 
 	"github.com/getsentry/sentry-go"
@@ -54,6 +55,9 @@ func main() {
 		logger.Sugar().Error(err)
 		panic("failed to connect database")
 	}
+	d, _ := db.DB()
+	d.SetMaxOpenConns(20)
+	d.SetConnMaxIdleTime(1 * time.Minute)
 
 	natsEncodedConn, natsConn, err := myNats.New(cfg.NatsUrl)
 	if err != nil {
