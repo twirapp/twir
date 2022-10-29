@@ -70,7 +70,6 @@ if (firstregexResult == null) {
   process.exit(1);
 }
 const secondRegexResult = regex.exec(result.stderr);
-console.log(result.stderr);
 const accessToken = firstregexResult[2];
 const refreshToken = secondRegexResult![2];
 
@@ -89,7 +88,7 @@ try {
 } catch {
   await writeToFile(data);
 }
-
+console.info('✅ Done');
 function writeToFile(content: string, exists = false) {
   return writeFile(envPath, content, { flag: !exists ? 'wx' : undefined });
 }
