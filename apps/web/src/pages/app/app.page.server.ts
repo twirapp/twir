@@ -6,6 +6,7 @@ import type { PageContext } from '@/utils/pageContext.js';
 
 export async function render(pageContext: PageContext) {
   const locale: Locale = defaultLocale;
+  pageContext.locale = locale;
 
   const seoInfo = seoLocales[locale];
   const documentHtml = htmlLayout(seoInfo, pageContext);
