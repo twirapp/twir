@@ -16,7 +16,7 @@ import { useWindowSize } from '@vueuse/core';
 import { ref } from 'vue';
 
 import FeatureCardBgBlob from '@/components/landing/FeatureCardBgBlob.vue';
-import useTranslation from '@/hooks/useTranslation';
+import { useTranslation } from '@/services/locale';
 
 defineProps<{
   title: string;
@@ -24,7 +24,7 @@ defineProps<{
   actionHref: string;
 }>();
 
-const t = useTranslation<'landing'>();
+const { t } = useTranslation<'landing'>();
 const { width: windowWidth } = useWindowSize();
 
 const card = ref<HTMLElement | null>(null);

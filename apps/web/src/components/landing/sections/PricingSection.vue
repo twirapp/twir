@@ -50,10 +50,13 @@
         }"
       ></div>
       <ClientOnly>
-        <LazyImage
+        <TswImage
           :src="CyanBlob"
           renderType="bg-image"
-          class="blurry-blob w-[1102px] h-[1021px] -top-[580px] -left-[540px]"
+          class="blurry-blob -top-[580px] -left-[540px]"
+          :height="1021"
+          :width="1102"
+          :lazy="true"
         />
       </ClientOnly>
     </div>
@@ -61,20 +64,17 @@
 </template>
 
 <script lang="ts" setup>
+import { cssURL, TswImage } from '@tsuwari/ui-components';
 import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
 
 import CyanBlob from '@/assets/blob-cyan.png';
 import WavesSvg from '@/assets/Waves.svg';
 import ClientOnly from '@/components/ClientOnly.vue';
 import PricingPlan from '@/components/landing/PricingPlan.vue';
-import LazyImage from '@/components/LazyImage.vue';
 import { planColorThemes, type PricePlansLocale } from '@/data/landing/pricingPlans.js';
-import useTranslation from '@/hooks/useTranslation.js';
-import { cssURL } from '@/utils/css.js';
+import { useTranslation } from '@/services/locale';
 
-const { tm } = useI18n();
-const t = useTranslation<'landing'>();
+const { t, tm } = useTranslation<'landing'>();
 
 const pricePlans = computed(() => tm('sections.pricing.plans') as PricePlansLocale);
 </script>

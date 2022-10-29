@@ -68,15 +68,12 @@
 <script lang="ts" setup>
 import { TswIcon } from '@tsuwari/ui-components';
 import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
 
 import FeatureCard from '@/components/landing/FeatureCard.vue';
 import type { BotFeature } from '@/data/landing/botFeatures';
-import useTranslation from '@/hooks/useTranslation.js';
+import { useTranslation } from '@/services/locale';
 
-const { tm } = useI18n();
+const { t, tm } = useTranslation<'landing'>();
 
 const features = computed(() => tm('sections.features.content') as BotFeature[]);
-
-const t = useTranslation<'landing'>();
 </script>

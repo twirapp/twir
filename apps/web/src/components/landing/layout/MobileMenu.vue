@@ -2,23 +2,11 @@
   <Transition>
     <div v-if="menuState" class="mobile-menu" :style="menuStyles">
       <div v-if="!user" class="px-5 mb-3">
-        <button
-          class="
-            inline-flex
-            bg-purple-60
-            px-4
-            py-[10px]
-            rounded-md
-            w-full
-            text-center
-            justify-center
-            hover:bg-purple-50
-            transition-colors
-          "
+        <TswButton
+          class="w-full text-center justify-center"
+          :text="t('buttons.login')"
           @click="redirectToLogin"
-        >
-          {{ t('buttons.login') }}
-        </button>
+        />
       </div>
       <div class="flex flex-col">
         <NavMenu
@@ -35,24 +23,22 @@
 </template>
 
 <script lang="ts" setup>
-import { useStore } from '@nanostores/vue';
+import { cssPX, TswButton } from '@tsuwari/ui-components';
 import { useWindowSize } from '@vueuse/core';
-import { computed, onUnmounted, StyleValue } from 'vue';
+import { computed, StyleValue } from 'vue';
 
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import LangSelect from '@/components/LangSelect/LangSelect.vue';
-import useLandingLocale from '@/hooks/useLandingLocale.js';
-import useTranslation from '@/hooks/useTranslation.js';
 import type { Locale } from '@/locales';
 import { redirectToLogin } from '@/services/auth';
 import { useUserProfile } from '@/services/auth';
 import { useLandingHeaderHeight, useLandingMenuState } from '@/services/landing-menu';
-import { cssPX } from '@/utils/css';
+import { useLandingLocale, useTranslation } from '@/services/locale';
 
 const { data: user } = useUserProfile();
 
-const setLandingLocale = useLandingLocale();
-const t = useTranslation<'landing'>();
+const { setLandingLocale } = useLandingLocale();
+const { t } = useTranslation<'landing'>();
 
 const { menuState, closeMenu } = useLandingMenuState();
 const headerHeight = useLandingHeaderHeight();

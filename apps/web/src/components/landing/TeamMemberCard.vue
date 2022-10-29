@@ -56,7 +56,7 @@ import { TswIcon } from '@tsuwari/ui-components';
 
 import UserImage from '@/assets/User.svg?component';
 import type { TeamMemberMedia } from '@/data/landing/team.js';
-import useTranslation from '@/hooks/useTranslation';
+import { useTranslation } from '@/services/locale/hooks.js';
 
 defineProps<{
   name: string;
@@ -65,5 +65,5 @@ defineProps<{
   isFounder?: boolean;
 }>();
 
-const t = useTranslation<'landing'>();
+const { t } = useTranslation<'landing'>();
 </script>

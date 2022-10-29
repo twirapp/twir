@@ -8,12 +8,22 @@
           {{ t('tagline') }}
         </p>
         <div class="hero-buttons">
-          <a class="learn-more-btn" href="#">
-            {{ t('buttons.learnMore') }}
-          </a>
-          <a class="start-for-free-btn" href="#">
-            {{ t('buttons.startForFree') }}
-          </a>
+          <TswButton
+            :text="t('buttons.learnMore')"
+            :isRounded="true"
+            href="#"
+            size="lg"
+            class="justify-center"
+            variant="solid-gray"
+          />
+          <TswButton
+            :text="t('buttons.startForFree')"
+            :isRounded="true"
+            href="#"
+            size="lg"
+            class="justify-center"
+            variant="solid-purple"
+          />
         </div>
       </div>
       <div
@@ -60,16 +70,17 @@
 </template>
 
 <script lang="ts" setup>
+import { cssURL, TswButton } from '@tsuwari/ui-components';
+
 import BlueBlob from '@/assets/blob-blue.png';
 import PinkBlob from '@/assets/blob-pink.png';
 import LightingSvg from '@/assets/Lighting.svg?component';
 import RhombusSvg from '@/assets/Rhombus.svg?component';
 import SmileBotSvg from '@/assets/SmileBot.svg?component';
 import WavesSvg from '@/assets/Waves.svg';
-import useTranslation from '@/hooks/useTranslation.js';
-import { cssURL } from '@/utils/css.js';
+import { useTranslation } from '@/services/locale';
 
-const t = useTranslation<'landing'>();
+const { t } = useTranslation<'landing'>();
 </script>
 
 <style lang="postcss">
@@ -132,38 +143,6 @@ const t = useTranslation<'landing'>();
     animate-fadeIn
     animation-delay-500
     max-sm:w-full max-sm:grid-flow-row max-sm:gap-y-3;
-}
-
-.start-for-free-btn {
-  @apply inline-flex
-    bg-purple-60 
-    px-6
-    py-3
-    rounded-full
-    justify-center
-    items-center
-    leading-tight
-    text-center
-    cursor-pointer
-    hover:bg-purple-50
-    transition-colors
-    duration-150;
-}
-
-.learn-more-btn {
-  @apply inline-flex
-    text-white-95
-    bg-black-10
-    border border-black-25
-    px-6
-    py-3
-    rounded-full
-    justify-center
-    leading-tight
-    text-center
-    cursor-pointer
-    transition-colors
-    hover:bg-black-15;
 }
 
 .blurry-blob {

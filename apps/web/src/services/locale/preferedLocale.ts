@@ -3,7 +3,7 @@ import { usePreferredLanguages } from '@vueuse/core';
 
 import { defaultLocale, Locale, locales } from '@/locales';
 
-const getUserPreferedLocale = (): Locale => {
+export const getUserPreferedLocale = (): Locale => {
   let { value: userLangs } = usePreferredLanguages();
 
   // normaliza lang format from 'ru-RU' to just 'ru'
@@ -21,4 +21,4 @@ const getUserPreferedLocale = (): Locale => {
   return preferedLocale;
 };
 
-export const localeStore = persistentAtom<Locale>('locale', getUserPreferedLocale());
+export const preferedLocaleStore = persistentAtom<Locale>('locale');

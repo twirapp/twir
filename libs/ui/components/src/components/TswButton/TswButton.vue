@@ -9,9 +9,9 @@
     :tabindex="href ? 1 : undefined"
     @click.prevent="emitClickEvent"
   >
-    <slot name="left" :innerClass="btnInnerClass" />
+    <TswIcon v-if="leftIcon" :name="leftIcon" :class="btnInnerClass" />
     {{ text }}
-    <slot name="right" :innerClass="btnInnerClass" />
+    <TswIcon v-if="rightIcon" :name="rightIcon" :class="btnInnerClass" />
   </component>
 </template>
 
@@ -19,6 +19,9 @@
 import { computed } from 'vue';
 
 import { ButtonSize, ButtonVariant, ButtonType } from './props.types.js';
+
+import TswIcon from '@/components/TswIcon/TswIcon.vue';
+import { IconName } from '@/components/TswIcon/types.js';
 
 const props = withDefaults(
   defineProps<{
@@ -30,8 +33,14 @@ const props = withDefaults(
     href?: string;
     disabled?: boolean;
     targetBlank?: true;
+    leftIcon?: IconName;
+    rightIcon?: IconName;
+    // align?: 'center' | 'right' | 'left';
   }>(),
   {
+    // align: 'center',
+    leftIcon: undefined,
+    rightIcon: undefined,
     size: 'md',
     type: 'button',
     variant: 'solid-purple',
@@ -65,18 +74,14 @@ const btnInnerClass = 'btn-inner-el';
 </script>
 
 <style lang="postcss">
-button.btn {
+.btn {
   @apply inline-grid grid-flow-col items-center leading-tight cursor-pointer select-none;
 
-  transition: box-shadow 150ms theme('transitionTimingFunction.in-out');
-
-  &:focus {
-    outline: none;
-  }
+  transition: box-shadow 150ms theme('transitionTimingFunction.DEFAULT');
 }
 
-button.btn-lg {
-  @apply text-lg px-5 py-3 rounded-md gap-x-2.5;
+.btn.btn-lg {
+  @apply px-[20px] py-[12px] rounded-md gap-x-2.5;
 
   &.btn-round {
     @apply px-6 rounded-full;
@@ -87,11 +92,11 @@ button.btn-lg {
   }
 }
 
-button.btn-md {
-  @apply px-3 py-2.5 rounded gap-x-2;
+.btn.btn-md {
+  @apply px-[14px] py-[10px] rounded-md gap-x-2;
 
   &.btn-round {
-    @apply px-4 rounded-full;
+    @apply px-6 rounded-full;
   }
 
   & > .btn-inner-el {
@@ -99,11 +104,11 @@ button.btn-md {
   }
 }
 
-button.btn-sm {
-  @apply text-sm px-2 py-1.5 rounded gap-x-1.5;
+.btn.btn-sm {
+  @apply text-sm px-[10px] py-[7px] rounded gap-x-1.5;
 
   &.btn-round {
-    @apply px-3 rounded-full;
+    @apply px-4 rounded-full;
   }
 
   & > .btn-inner-el {
@@ -111,43 +116,35 @@ button.btn-sm {
   }
 }
 
-button.btn-outline-gray {
-  @apply border border-gray-35 text-white-95;
-
-  &:hover {
-    @apply bg-black-15;
-  }
-
-  &:focus {
-    box-shadow: 0 0 0 3px theme('colors.black.15');
-  }
-}
-
-button.btn-solid-purple {
+.btn.btn-solid-purple {
   @apply text-white-100 bg-purple-60;
 
   &:hover {
-    @apply bg-purple-55;
+    @apply bg-purple-50;
   }
 
   &:focus {
     box-shadow: 0 0 0 3px rgba(theme('colors.purple.55'), 0.5);
   }
+
+  & > .btn-inner-el {
+    @apply stroke-white-100;
+  }
 }
 
-button.btn-solid-gray {
-  @apply bg-black-15 text-white-95;
+.btn.btn-solid-gray {
+  @apply bg-black-10 text-white-95 outline outline-1 outline-offset-0 outline-black-25;
 
   &:hover {
     @apply bg-black-20;
   }
 
-  &:focus {
-    box-shadow: 0 0 0 3px rgba(theme('colors.black.20'), 0.55);
+  & > .btn-inner-el {
+    @apply stroke-gray-70;
   }
 }
 
-button.btn-disabled {
+.btn.btn-disabled {
   @apply opacity-50 pointer-events-none;
 }
 </style>

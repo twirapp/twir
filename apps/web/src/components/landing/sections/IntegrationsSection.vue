@@ -53,7 +53,7 @@ import StreamElements from '@/assets/logos/StreamElements.svg?component';
 import Streamlabs from '@/assets/logos/Streamlabs.svg?component';
 import TwitchSoundtrack from '@/assets/logos/TwitchSoundtrack.svg?component';
 import VK from '@/assets/logos/VK.svg?component';
-import useTranslation from '@/hooks/useTranslation.js';
+import { useTranslation } from '@/services/locale';
 
 const integrationLogos = [
   LastFm,
@@ -67,5 +67,5 @@ const integrationLogos = [
   Faceit,
 ];
 
-const t = useTranslation<'landing'>();
+const { t } = useTranslation<'landing'>();
 </script>

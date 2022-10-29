@@ -50,12 +50,12 @@
 
 <script lang="ts" setup>
 import { TswIcon } from '@tsuwari/ui-components';
+import { cssURL } from '@tsuwari/ui-components';
 
 import TsuwariLogo from '@/assets/brand/TsuwariInCircle.svg';
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import { socials } from '@/data/landing/socialMedia.js';
-import useTranslation from '@/hooks/useTranslation.js';
-import { cssURL } from '@/utils/css.js';
+import { useTranslation } from '@/services/locale';
 
-const t = useTranslation<'landing'>();
+const { t } = useTranslation<'landing'>();
 </script>

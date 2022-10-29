@@ -60,7 +60,7 @@ import { computed } from 'vue';
 
 import { featureTypeIcons } from '@/data/landing/pricingPlans.js';
 import type { PlanColorTheme, PricePlanLocale } from '@/data/landing/pricingPlans.js';
-import useTranslation from '@/hooks/useTranslation.js';
+import { useTranslation } from '@/services/locale';
 
 const props =
   defineProps<{
@@ -68,7 +68,7 @@ const props =
     colorTheme: PlanColorTheme;
   }>();
 
-const t = useTranslation<'landing'>();
+const { t } = useTranslation<'landing'>();
 
 const buttonText = computed(() =>
   props.plan.price > 0 ? t('buttons.buyPlan') : t('buttons.getStarted'),

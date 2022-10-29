@@ -13,7 +13,7 @@ import type { MaybeElement } from '@vueuse/core';
 import { toRef } from 'vue';
 
 import PinkBlob from '@/assets/blob-pink.png';
-import useFollowingBgImage from '@/hooks/useFollowingBgImage.js';
+import useFollowingBgImage from '@/utils/useFollowingBgImage.js';
 
 const props =
   defineProps<{

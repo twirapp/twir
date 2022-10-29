@@ -2,9 +2,8 @@ import { VueQueryPlugin } from '@tanstack/vue-query';
 import { Component, createSSRApp, defineComponent, h, markRaw, reactive } from 'vue';
 
 import LandingLayout from '@/components/landing/layout/LandingLayout.vue';
-import { setPageContext } from '@/hooks/usePageContext.js';
-import type { PageContext } from '@/types/pageContext.js';
 import { objectAssign } from '@/utils/objectAssign.js';
+import { PageContext, setPageContext } from '@/utils/pageContext.js';
 
 export function createApp(pageContext: PageContext) {
   const { Page } = pageContext;
