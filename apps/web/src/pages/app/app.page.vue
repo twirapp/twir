@@ -4,6 +4,15 @@
       <component :is="Component" />
     </Suspense>
   </router-view>
-  <router-link to="/dashboard"> Dashboard </router-link>
-  <router-link to="/commands"> Commands </router-link>
+  <ul>
+    <li v-for="(item, key) in appMenu" :key="key">
+      <router-link :to="item.path">
+        {{ AppMenu[key] }}
+      </router-link>
+    </li>
+  </ul>
 </template>
+
+<script lang="ts" setup>
+import { appMenu, AppMenu } from './router.js';
+</script>

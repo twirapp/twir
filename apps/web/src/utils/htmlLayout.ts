@@ -4,7 +4,7 @@ import { escapeInject } from 'vite-plugin-ssr';
 
 import svgFavicon from '@/assets/brand/TsuwariInCircle.svg';
 import { author, ogImage, SeoPageProps } from '@/data/seo.js';
-import type { PageContext } from '@/types/pageContext.js';
+import type { PageContext } from '@/utils/pageContext.js';
 
 export const htmlLayout = (seo: SeoPageProps, pageContext: PageContext, content?: Readable) => {
   const urlCanonical = pageContext.urlParsed.origin
