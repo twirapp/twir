@@ -13,6 +13,10 @@ tasks:
     cmds:
       - pnpm run build:libs
 
+  gen-tokens:
+    cmds:
+      - doppler run -- pnpm ts-node --esm --transpileOnly tools/tokens.ts
+
   migrations:
     cmds:
       - doppler run -- pnpm run --filter=@tsuwari/typeorm setup
