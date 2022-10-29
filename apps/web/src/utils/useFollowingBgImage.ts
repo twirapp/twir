@@ -1,7 +1,6 @@
+import { cssPX, cssURL } from '@tsuwari/ui-components';
 import { useImage, useMouseInElement, type MaybeElementRef } from '@vueuse/core';
 import { computed, ComputedRef, StyleValue } from 'vue';
-
-import { cssPX, cssURL } from '@/utils/css.js';
 
 export default function (
   cardRef: MaybeElementRef,

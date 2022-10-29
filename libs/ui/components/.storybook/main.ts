@@ -23,7 +23,6 @@ const config: StorybookViteConfig = {
   typescript: {
     check: false,
   },
-  staticDirs: ['../static'],
   async viteFinal(config) {
     return mergeConfig(config, {
       resolve: {

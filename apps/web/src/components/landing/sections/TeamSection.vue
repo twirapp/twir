@@ -38,14 +38,12 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
 
 import TeamMemberCard from '@/components/landing/TeamMemberCard.vue';
 import { teamMembers, TeamMemberLocale } from '@/data/landing/team.js';
-import useTranslation from '@/hooks/useTranslation';
+import { useTranslation } from '@/services/locale/index.js';
 
-const t = useTranslation<'landing'>();
-const { tm } = useI18n();
+const { t, tm } = useTranslation<'landing'>();
 
 const teamMembersLocale = computed(() => tm('sections.team.members') as TeamMemberLocale);
 </script>

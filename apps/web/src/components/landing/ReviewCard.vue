@@ -5,11 +5,7 @@
     <div class="px-5 py-5 inline-flex border-b border-black-25 items-center">
       <ClientOnly>
         <template #default>
-          <LazyImage
-            class="w-11 h-11 rounded-full mr-[14px] bg-contain flex-shrink-0"
-            :src="avatarUrl"
-            renderType="bg-image"
-          />
+          <TswAvatar :src="avatarUrl" :size="44" :lazy="true" class="mr-[14px]" />
         </template>
         <template #server>
           <UserImage class="w-11 h-11 mr-[14px]" />
@@ -42,11 +38,10 @@
 </template>
 
 <script lang="ts" setup>
-import { TswIcon } from '@tsuwari/ui-components';
+import { TswIcon, TswAvatar } from '@tsuwari/ui-components';
 
 import UserImage from '@/assets/User.svg?component';
 import ClientOnly from '@/components/ClientOnly.vue';
-import LazyImage from '@/components/LazyImage.vue';
 
 defineProps<{ username: string; rating: number; comment: string; avatarUrl: string }>();
 </script>

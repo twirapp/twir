@@ -24,11 +24,15 @@
           menuClass="inline-grid grid-flow-col gap-x-2"
           class="max-lg:hidden"
         />
-        <div class="flex-1 flex max-lg:bg-red-60 max-lg:hidden">
+        <div class="flex-1 flex max-lg:hidden">
           <div class="inline-grid grid-flow-col gap-x-3 items-center ml-auto">
             <LangSelect @change="setLandingLocale" />
             <ClientOnly>
-              <HeaderAuthBlock />
+              <HeaderAuthBlock>
+                <template #error>
+                  <TswButton :text="t('buttons.login')" @click="redirectToLogin" />
+                </template>
+              </HeaderAuthBlock>
             </ClientOnly>
           </div>
         </div>
@@ -47,7 +51,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useWindowScroll, useWindowSize } from '@vueuse/core';
+import { cssURL, TswButton } from '@tsuwari/ui-components';
+import { isClient, useWindowScroll, useWindowSize } from '@vueuse/core';
 import { computed } from 'vue';
 
 import TsuwariLogo from '@/assets/brand/TsuwariInCircle.svg';
@@ -57,20 +62,20 @@ import HeaderAuthBlock from '@/components/landing/layout/HeaderAuthBlock.vue';
 import MobileMenu from '@/components/landing/layout/MobileMenu.vue';
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import LangSelect from '@/components/LangSelect/LangSelect.vue';
-import useLandingLocale from '@/hooks/useLandingLocale';
+import { redirectToLogin } from '@/services/auth';
 import { useLandingHeaderHeight, setHeaderRef } from '@/services/landing-menu';
-import { cssURL } from '@/utils/css.js';
+import { useLandingLocale, useTranslation } from '@/services/locale';
 
-const setLandingLocale = useLandingLocale();
+const { setLandingLocale } = useLandingLocale();
 
 const headerHeight = useLandingHeaderHeight();
 
 const { y: windowY } = useWindowScroll();
-
-const minDesktopWidth = 996;
-
-const isDesktop = computed(() => windowWidth.value >= minDesktopWidth);
 const { width: windowWidth } = useWindowSize();
+const { t } = useTranslation();
+
+const MIN_DESKTOP_WIDTH = 996;
+const isDesktop = computed(() => windowWidth.value >= MIN_DESKTOP_WIDTH);
 </script>
 
 <style lang="postcss">

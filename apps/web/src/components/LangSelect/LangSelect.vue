@@ -28,9 +28,9 @@ import { ref } from 'vue';
 
 import LangSelectOption from './LangSelectOption.vue';
 
-import { usePageContext } from '@/hooks/usePageContext.js';
 import type { Locale } from '@/locales';
 import { languages } from '@/locales';
+import { usePageContext } from '@/utils/pageContext.js';
 
 const emit = defineEmits<{ (event: 'change', locale: Locale): void }>();
 
@@ -38,9 +38,6 @@ const dropdownRef = ref<HTMLElement | null>(null);
 const select = ref<HTMLElement | null>(null);
 
 const pageContext = usePageContext();
-if (!pageContext) {
-  throw new Error('Page context in not found');
-}
 
 onClickOutside(dropdownRef, (event) => {
   if (!select.value) return;

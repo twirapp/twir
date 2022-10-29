@@ -1,9 +1,9 @@
 import { createApp } from 'vue';
 
-import { setupI18n } from '@/locales';
 import { createAppRouter } from '@/pages/app/router';
 import '@/styles/tailwind.base.css';
-import type { PageContext } from '@/types/pageContext';
+import { setupI18n } from '@/services/locale';
+import type { PageContext } from '@/utils/pageContext.js';
 
 export async function render(pageContext: PageContext) {
   const app = createApp(pageContext.Page);
