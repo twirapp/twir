@@ -15,7 +15,7 @@
     "@tsuwari/api": "workspace:*",
     "@vueuse/components": "9.3.0",
     "@vueuse/core": "9.3.0",
-    "@vueuse/integrations": "9.3.0",
+    "@vueuse/integrations": "9.4.0",
     "@yeger/vue-masonry-wall": "3.2.5",
     "axios": "0.27.2",
     "date-fns": "2.29.3",
