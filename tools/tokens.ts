@@ -59,6 +59,9 @@ const scopes = [
   'whispers:edit',
 ].join(' ');
 
+await promisedExec(
+  'doppler run -- twitch-cli configure -i $TWITCH_CLIENTID -s $TWITCH_CLIENTSECRET',
+);
 const result = await promisedExec(
   `doppler run --command='twitch-cli token --user-token --scopes "${scopes}" --client-id $TWITCH_CLIENTID'`,
 );

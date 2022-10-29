@@ -15,7 +15,7 @@ tasks:
 
   gen-tokens:
     cmds:
-      - doppler run -- pnpm ts-node --esm --transpileOnly tools/tokens.ts
+      - pnpm ts-node --esm --transpileOnly tools/tokens.ts
 
   migrations:
     cmds:
