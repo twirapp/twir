@@ -70,9 +70,9 @@ if (firstregexResult == null) {
   process.exit(1);
 }
 const secondRegexResult = regex.exec(result.stderr);
-
-const refreshToken = firstregexResult[2];
-const accessToken = secondRegexResult![2];
+console.log(result.stderr);
+const accessToken = firstregexResult[2];
+const refreshToken = secondRegexResult![2];
 
 const envPath = resolve(process.cwd(), '.env');
 
