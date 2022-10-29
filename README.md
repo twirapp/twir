@@ -6,8 +6,8 @@
    devbox shell
    ```
 3. Install deps: `pnpm i`
-4. Generate tokens: `task gen-tokens`
-5. Use `doppler setup` and select your dev env.
+4. Use `doppler setup` and select your dev env.
+5. Generate tokens: `task gen-tokens`
 6. Start all services:
    ```bash
    task dev
