@@ -52,7 +52,7 @@
 
 <script lang="ts" setup>
 import { cssURL, TswButton } from '@tsuwari/ui-components';
-import { isClient, useWindowScroll, useWindowSize } from '@vueuse/core';
+import { useWindowScroll, useWindowSize } from '@vueuse/core';
 import { computed } from 'vue';
 
 import TsuwariLogo from '@/assets/brand/TsuwariInCircle.svg';

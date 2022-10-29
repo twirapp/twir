@@ -8,7 +8,7 @@
     "build:app": "vite build",
     "build:server": "tsc -p tsconfig.server.json",
     "serve:dev": "cross-env NODE_ENV=development PORT=3005 tsx ./src/server/index.ts",
-    "serve:prod": "cross-env NODE_ENV=production PORT=3077 node ./dist/server/index.js"
+    "serve:prod": "cross-env NODE_ENV=production PORT=3005 node ./dist/server/index.js"
   },
   "devDependencies": {
     "@tsuwari/shared": "workspace:*",
