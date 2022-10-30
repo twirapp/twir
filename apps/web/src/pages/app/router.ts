@@ -1,4 +1,4 @@
-import type { Component } from 'vue';
+import type { IconName } from '@tsuwari/ui-components';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 import {
@@ -20,6 +20,18 @@ export enum AppMenu {
 }
 
 type AppMenuItems = Record<AppMenu, RouteRecordRaw>;
+type AppMenuIcons = Record<AppMenu, IconName>;
+
+export const appMenuIcons: AppMenuIcons = {
+  [AppMenu.dashboard]: 'Home',
+  [AppMenu.commands]: 'CommandLine',
+  [AppMenu.greetings]: 'SmileChat',
+  [AppMenu.keywords]: 'Key',
+  [AppMenu.moderation]: 'Sword',
+  [AppMenu.settings]: 'Settings',
+  [AppMenu.timers]: 'Timer',
+  [AppMenu.variables]: 'Variable',
+};
 
 export const appMenu: AppMenuItems = {
   [AppMenu.dashboard]: {

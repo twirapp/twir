@@ -3,7 +3,7 @@ import { LocaleMessages, useI18n } from 'vue-i18n';
 
 import { loadLocaleMessages } from './i18n.js';
 
-import type { Locale, LocaleType, LocaleTypes } from '@/locales';
+import type { Locale, LocaleTypes } from '@/locales';
 
 /**
  * @returns function to set landing locale
@@ -19,10 +19,11 @@ export function useLandingLocale() {
       i18nLocale.value = locale;
 
       navigate(`/${locale}`, { keepScrollPosition: true });
+      document.documentElement.setAttribute('lang', locale);
     },
   };
 }
 
-export function useTranslation<L extends LocaleType>() {
+export function useTranslation<L extends keyof LocaleTypes>() {
   return useI18n<LocaleMessages<{ en: LocaleTypes[L] }>>();
 }
