@@ -14,7 +14,14 @@ export const refreshAccessToken = async () => {
     }>('/auth/token', { refreshToken });
     const data = request.data;
 
-    localStorage.setItem('accessToken', data.accessToken);
-    // eslint-disable-next-line no-empty
-  } catch (error: any) {}
+    if (request.status === 401) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    } else {
+      localStorage.setItem('accessToken', data.accessToken);
+    }
+  } catch (e) {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+  }
 };
