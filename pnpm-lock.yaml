@@ -437,6 +437,7 @@ importers:
       '@egjs/flicking-plugins': 4.4.0
       '@egjs/vue3-flicking': 4.10.1
       '@fastify/compress': 6.1.1
+      '@fastify/http-proxy': 8.2.3
       '@fastify/middie': 8.0.0
       '@fastify/static': 6.5.0
       '@nanostores/persistent': 0.7.0
@@ -467,6 +468,7 @@ importers:
       '@egjs/flicking-plugins': 4.4.0
       '@egjs/vue3-flicking': 4.10.1_vue@3.2.41
       '@fastify/compress': 6.1.1
+      '@fastify/http-proxy': 8.2.3
       '@fastify/middie': 8.0.0
       '@fastify/static': 6.5.0
       '@nanostores/persistent': 0.7.0_nanostores@0.7.0
@@ -614,11 +616,11 @@ importers:
       '@storybook/vue3': 6.5.13
       '@tsuwari/ui-fonts': workspace:*
       '@tsuwari/ui-theme': workspace:*
-      '@types/postcss-js': 4.0.0
       '@vitejs/plugin-vue': 3.2.0
       '@vueuse/core': 9.4.0
       autoprefixer: 10.4.13
       babel-loader: 9.0.0
+      cross-env: 7.0.3
       postcss: 8.4.18
       postcss-hexrgba: 2.1.0
       postcss-nesting: 10.2.0
@@ -650,11 +652,11 @@ importers:
       '@storybook/vue3': 6.5.13_qrikc6qo4ml5udkckqnpsm6ts4
       '@tsuwari/ui-fonts': link:../fonts
       '@tsuwari/ui-theme': link:../theme
-      '@types/postcss-js': 4.0.0
       '@vitejs/plugin-vue': 3.2.0_vite@3.2.1+vue@3.2.41
       '@vueuse/core': 9.4.0_vue@3.2.41
       autoprefixer: 10.4.13_postcss@8.4.18
       babel-loader: 9.0.0_@babel+core@7.19.6
+      cross-env: 7.0.3
       postcss: 8.4.18
       postcss-hexrgba: 2.1.0_postcss@8.4.18
       postcss-nesting: 10.2.0_postcss@8.4.18
@@ -2534,12 +2536,34 @@ packages:
       fast-json-stringify: 5.4.0
     dev: false
 
+  /@fastify/http-proxy/8.2.3:
+    resolution: {integrity: sha512-Dnc7qn72ldGCQJabwTxyPK0aW6Ai2WurQZntjA8DUeI5kPKPshodx4Aio7btSoH7yHtxCc/ObQODpd0ap3HLcw==}
+    dependencies:
+      '@fastify/reply-from': 8.3.0
+      ws: 8.9.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
+
   /@fastify/middie/8.0.0:
     resolution: {integrity: sha512-SsZUzJwRV2IBhko8TNI5gGzUdUp2Xd0XCrU+pBTfsMN8LYGsksDI/Hb3qcUZ2/Kfg6ecbFEeRO4nZmHeFCDpHQ==}
     dependencies:
       fastify-plugin: 3.0.1
       path-to-regexp: 6.2.1
       reusify: 1.0.4
+    dev: false
+
+  /@fastify/reply-from/8.3.0:
+    resolution: {integrity: sha512-2XerzI2gNAMAmHcpAtwCiO3jP8Uh931R6zhngPKdA1NdRskfcm8DmoADaVUMLtApEUFTE/k7WCSVEzqdYHGBgw==}
+    dependencies:
+      '@fastify/error': 3.0.0
+      end-of-stream: 1.4.4
+      fast-querystring: 1.0.0
+      fastify-plugin: 4.3.0
+      pump: 3.0.0
+      tiny-lru: 8.0.2
+      undici: 5.12.0
     dev: false
 
   /@fastify/static/6.5.0:
@@ -5950,12 +5974,6 @@ packages:
     dependencies:
       '@types/express': 4.17.14
 
-  /@types/postcss-js/4.0.0:
-    resolution: {integrity: sha512-ieu0u7T7jnUCFmXcf8JzoJ3/1U5NI3ZYpfX5zW2td0x/BqVQrpCQ6uOY9Ef/0WJuIjc9OCtdfYF/JE7MGax2TA==}
-    dependencies:
-      postcss: 8.4.18
-    dev: true
-
   /@types/pretty-hrtime/1.0.1:
     resolution: {integrity: sha512-VjID5MJb1eGKthz2qUerWT8+R4b9N+CHvGCzg9fn4kWZgaF9AhdYikQio3R7wV8YY1NsQKPaCwKz1Yff+aHNUQ==}
     dev: true
@@ -8547,7 +8565,6 @@ packages:
     hasBin: true
     dependencies:
       cross-spawn: 7.0.3
-    dev: false
 
   /cross-spawn/6.0.5:
     resolution: {integrity: sha512-eTVLrBSt7fjbDygz805pMnstIs2VTBNkRm0qxZd+M7A5XDdxVRWO5MxGBXZhjY4cqLYLdtrGqRf8mBPmzwSpWQ==}
@@ -16200,6 +16217,11 @@ packages:
       setimmediate: 1.0.5
     dev: true
 
+  /tiny-lru/8.0.2:
+    resolution: {integrity: sha512-ApGvZ6vVvTNdsmt676grvCkUCGwzG9IqXma5Z07xJgiC5L7akUMof5U8G2JTI9Rz/ovtVhJBlY6mNhEvtjzOIg==}
+    engines: {node: '>=6'}
+    dev: false
+
   /tiny-lru/9.0.3:
     resolution: {integrity: sha512-/i9GruRjXsnDgehxvy6iZ4AFNVxngEFbwzirhdulomMNPGPVV3ECMZOWSw0w4sRMZ9Al9m4jy08GPvRxRUGYlw==}
     engines: {node: '>=6'}
@@ -16711,6 +16733,13 @@ packages:
   /undefsafe/2.0.5:
     resolution: {integrity: sha512-WxONCrssBM8TSPRqN5EmsjVrsv4A8X12J4ArBiiayv3DyyG3ZlIg6yysuuSYdZsVz3TKcTg2fd//Ujd4CHV1iA==}
     dev: true
+
+  /undici/5.12.0:
+    resolution: {integrity: sha512-zMLamCG62PGjd9HHMpo05bSLvvwWOZgGeiWlN/vlqu3+lRo3elxktVGEyLMX+IO7c2eflLjcW74AlkhEZm15mg==}
+    engines: {node: '>=12.18'}
+    dependencies:
+      busboy: 1.6.0
+    dev: false
 
   /unfetch/4.2.0:
     resolution: {integrity: sha512-F9p7yYCn6cIW9El1zi0HI6vqpeIvBsr3dSuRO6Xuppb1u5rXpCPmMvLSyECLhybr9isec8Ohl0hPekMVrEinDA==}

@@ -8,7 +8,8 @@
     "build:app": "vite build",
     "build:server": "tsc -p tsconfig.server.json",
     "serve:dev": "cross-env NODE_ENV=development PORT=3005 tsx ./src/server/index.ts",
-    "serve:prod": "cross-env NODE_ENV=production PORT=3005 node ./dist/server/index.js"
+    "serve:prod": "cross-env NODE_ENV=production PORT=3005 node ./dist/server/index.js",
+    "serve:prod:proxy": "cross-env NODE_ENV=production PORT=3005 API_PROXY=http://localhost:3002 node ./dist/server/index.js"
   },
   "devDependencies": {
     "@tsuwari/shared": "workspace:*",
@@ -26,14 +27,15 @@
     "vue-router": "4.1.6"
   },
   "dependencies": {
-    "@tanstack/vue-query": "4.13.4",
     "@egjs/flicking-plugins": "4.4.0",
     "@egjs/vue3-flicking": "4.10.1",
     "@fastify/compress": "6.1.1",
     "@fastify/middie": "8.0.0",
     "@fastify/static": "6.5.0",
+    "@fastify/http-proxy": "8.2.3",
     "@nanostores/persistent": "0.7.0",
     "@nanostores/vue": "0.6",
+    "@tanstack/vue-query": "4.13.4",
     "@vue/server-renderer": "3.2.41",
     "@vueuse/core": "9.4.0",
     "cross-env": "7.0.3",

@@ -5,10 +5,9 @@
   "scripts": {
     "lint": "eslint --ext .ts,.vue apps/",
     "lint:fix": "eslint --fix --ext .ts,.vue apps/",
-    "dev": "doppler run -- turbo run dev --filter=./apps/* --filter=!./apps/api",
+    "dev": "doppler run -- turbo run dev --filter=./apps/* --filter=!@tsuwari/web",
     "start": "pnpm run -r start --filter=!@tsuwari/frontend",
     "start:integrations": "pnpm --filter=@tsuwari/integrations start",
-    "build:ui-components": "pnpm --filter=ui-icons build",
     "start:api": "pnpm --filter=@tsuwari/api start",
     "start:eventsub": "pnpm --filter=@tsuwari/eventsub start",
     "start:dota": "pnpm --filter=@tsuwari/dota start",
