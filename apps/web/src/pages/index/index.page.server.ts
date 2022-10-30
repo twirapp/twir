@@ -31,7 +31,7 @@ export async function render(pageContext: PageContext) {
   };
 }
 
-export const passToClient: PassToClient = ['pageProps', 'documentProps', 'locale'];
+export const passToClient: PassToClient = ['pageProps', 'locale'];
 
 export const prerender: PrerenderFn = () => [
   {

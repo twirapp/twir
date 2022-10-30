@@ -1,32 +1,78 @@
 <template>
-  <router-view v-slot="{ Component }">
-    <Suspense>
-      <component :is="Component" />
-    </Suspense>
-  </router-view>
-  <ul class="inline-flex flex-col min-w-[200px]">
-    <li v-for="(item, key) in appMenu" :key="key">
-      <router-link :to="item.path" class="nav-menu-item" activeClass="active">
-        <TswIcon :name="appMenuIcons[key]" :width="20" :height="20" />
-        {{ menuTranslation[key] }}
-      </router-link>
-    </li>
-  </ul>
+  <div
+    v-if="user"
+    class="grid grid-flow-col grid-cols-[220px_1fr] h-screen max-h-screen overflow-hidden"
+  >
+    <aside class="flex flex-col border-r border-black-25 p-2 justify-between overflow-hidden">
+      <ul class="inline-flex flex-col w-full">
+        <li v-for="(item, key) in appMenu" :key="key">
+          <router-link :to="item.path" class="nav-menu-item" activeClass="active">
+            <TswIcon :name="appMenuIcons[key]" :width="20" :height="20" />
+            {{ menuTranslation[key] }}
+          </router-link>
+        </li>
+      </ul>
+      <div class="inline-grid gap-y-[2px] py-[6px]">
+        <a class="text-xs text-gray-70 flex items-center">
+          <TswIcon
+            name="ArrowInCircle"
+            class="stroke-gray-60 m-1"
+            :rotate="-90"
+            :width="20"
+            :height="20"
+            :strokeWidth="1.25"
+          />
+          Upgrade plan
+        </a>
+        <a class="text-xs text-gray-70 flex items-center">
+          <TswIcon
+            name="Message"
+            class="stroke-gray-60 m-1"
+            :width="20"
+            :height="20"
+            :strokeWidth="1.25"
+          />
+          Leave feedback
+        </a>
+      </div>
+    </aside>
+    <main class="relative">
+      <header
+        class="bg-black-10 grid grid-flow-col gap-x-2 backdrop-blur-xl w-full py-2 px-3 justify-end"
+      >
+        <button class="p-[6px]">
+          <TswIcon name="Bell" class="stroke-gray-70" />
+        </button>
+        <TswAvatar :src="user.profile_image_url" />
+      </header>
+      <router-view v-slot="{ Component }">
+        <Suspense>
+          <component :is="Component" />
+        </Suspense>
+      </router-view>
+    </main>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { TswIcon } from '@tsuwari/ui-components';
+import { TswIcon, TswAvatar } from '@tsuwari/ui-components';
 
 import { appMenu, appMenuIcons } from './router.js';
 
+import { useUserProfile } from '@/services/auth';
 import { useTranslation } from '@/services/locale';
 
 const { tm } = useTranslation<'app'>();
+const { data: user } = useUserProfile();
 
 const menuTranslation = tm('pages');
 </script>
 
 <style lang="postcss">
+body {
+  @apply overflow-hidden;
+}
+
 .nav-menu-item {
   @apply inline-grid
     grid-flow-col

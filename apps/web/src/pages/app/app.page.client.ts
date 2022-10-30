@@ -1,3 +1,4 @@
+import { VueQueryPlugin } from '@tanstack/vue-query';
 import { createApp } from 'vue';
 
 import { createAppRouter } from '@/pages/app/router';
@@ -12,6 +13,8 @@ export async function render(pageContext: PageContext) {
 
   const i18n = await setupI18n('en', 'app');
   app.use(i18n);
+
+  app.use(VueQueryPlugin);
 
   const router = createAppRouter();
   app.use(router);
