@@ -191,20 +191,26 @@ func handleRefresh(dto *refreshDto, services types.Services) (string, error) {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return []byte(services.Cfg.JwtAccessSecret), nil
+		return []byte(services.Cfg.JwtRefreshSecret), nil
 	})
 	if err != nil {
 		return "", fiber.NewError(401, "invalid token. Probably token is expired.")
 	}
 
 	claims := token.Claims.(jwt.MapClaims)
+	scopes := []string{}
+	for _, item := range claims["scopes"].([]interface{}) {
+		scopes = append(scopes, item.(string))
+	}
+
 	newClaims := Claims{
 		ID:     claims["id"].(string),
-		Scopes: claims["scopes"].([]string),
+		Scopes: scopes,
 		Login:  claims["login"].(string),
 	}
-	newClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(31 * 24 * time.Hour))
-	newToken, err := createToken(newClaims, services.Cfg.JwtRefreshSecret)
+
+	newClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(10 * time.Minute))
+	newToken, err := createToken(newClaims, services.Cfg.JwtAccessSecret)
 	if err != nil {
 		services.Logger.Sugar().Error(err)
 		return "", fiber.NewError(401, "cannot create new access token")

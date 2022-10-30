@@ -125,6 +125,10 @@ func refreshToken(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		newAccess, err := handleRefresh(dto, services)
-		return c.SendString(newAccess)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(fiber.Map{"accessToken": newAccess})
 	}
 }

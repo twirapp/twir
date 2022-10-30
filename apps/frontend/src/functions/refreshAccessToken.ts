@@ -11,14 +11,10 @@ export const refreshAccessToken = async () => {
   try {
     const request = await api.post<{
       accessToken: string;
-      refreshToken: string;
     }>('/auth/token', { refreshToken });
     const data = request.data;
 
-    console.log('data', data);
-
     localStorage.setItem('accessToken', data.accessToken);
-    localStorage.setItem('refreshToken', data.refreshToken);
     // eslint-disable-next-line no-empty
   } catch (error: any) {}
 };
