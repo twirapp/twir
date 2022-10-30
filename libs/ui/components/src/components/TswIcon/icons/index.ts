@@ -22,6 +22,7 @@ export { Minus } from './Minus.js';
 export { QuestionMark } from './QuestionMark.js';
 export { Selector } from './Selector.js';
 export { Settings } from './Settings.js';
+export { SmileChat } from './SmileChat.js';
 export { Star } from './Star.js';
 export { SuccessCircle } from './SuccessCircle.js';
 export { Sword } from './Sword.js';
