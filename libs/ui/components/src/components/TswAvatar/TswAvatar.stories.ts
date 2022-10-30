@@ -1,6 +1,5 @@
 import { Meta, Story } from '@storybook/vue3';
 
-// import AvatarPng from '@/assets/avatar.png?url';
 import TswAvatar from '@/components/TswAvatar/TswAvatar.vue';
 
 export default {
