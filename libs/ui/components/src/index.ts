@@ -2,6 +2,7 @@ import '@/styles/index.postcss';
 
 export { default as TswAvatar } from '@/components/TswAvatar/TswAvatar.vue';
 export { default as TswButton } from '@/components/TswButton/TswButton.vue';
+export { default as TswDropdown } from '@/components/TswDropdown/TswDropdown.vue';
 export { default as TswIcon } from '@/components/TswIcon/TswIcon.vue';
 export type { IconName } from '@/components/TswIcon/types';
 export { default as TswImage } from '@/components/TswImage/TswImage.vue';

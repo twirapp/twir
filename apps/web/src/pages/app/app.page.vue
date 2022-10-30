@@ -6,14 +6,17 @@
     <aside class="flex flex-col border-r border-black-25 p-2 justify-between overflow-hidden">
       <ul class="inline-flex flex-col w-full">
         <li v-for="(item, key) in appMenu" :key="key">
-          <router-link :to="item.path" class="nav-menu-item" activeClass="active">
+          <router-link :to="item.path" class="app__nav-menu-item" activeClass="active">
             <TswIcon :name="appMenuIcons[key]" :width="20" :height="20" />
             {{ menuTranslation[key] }}
           </router-link>
         </li>
       </ul>
-      <div class="inline-grid gap-y-[2px] py-[6px]">
-        <a class="text-xs text-gray-70 flex items-center">
+      <div class="inline-grid gap-y-[2px] py-1">
+        <a
+          class="text-xs text-gray-70 flex items-center hover:text-white-95 transition-colors"
+          href="/"
+        >
           <TswIcon
             name="ArrowInCircle"
             class="stroke-gray-60 m-1"
@@ -24,7 +27,10 @@
           />
           Upgrade plan
         </a>
-        <a class="text-xs text-gray-70 flex items-center">
+        <a
+          class="text-xs text-gray-70 flex items-center hover:text-white-95 transition-colors"
+          href="#"
+        >
           <TswIcon
             name="Message"
             class="stroke-gray-60 m-1"
@@ -36,21 +42,33 @@
         </a>
       </div>
     </aside>
-    <main class="relative">
+    <div class="relative bg-black-15">
       <header
-        class="bg-black-10 grid grid-flow-col gap-x-2 backdrop-blur-xl w-full py-2 px-3 justify-end"
+        class="
+          bg-black-15
+          grid grid-flow-col
+          gap-x-2
+          backdrop-blur-xl
+          w-full
+          py-[10px]
+          px-[14px]
+          justify-end
+          border-b border-b-black-25
+        "
       >
         <button class="p-[6px]">
           <TswIcon name="Bell" class="stroke-gray-70" />
         </button>
         <TswAvatar :src="user.profile_image_url" />
       </header>
-      <router-view v-slot="{ Component }">
-        <Suspense>
-          <component :is="Component" />
-        </Suspense>
-      </router-view>
-    </main>
+      <main class="relative px-9">
+        <router-view v-slot="{ Component }">
+          <Suspense>
+            <component :is="Component" />
+          </Suspense>
+        </router-view>
+      </main>
+    </div>
   </div>
 </template>
 
@@ -68,12 +86,8 @@ const { data: user } = useUserProfile();
 const menuTranslation = tm('pages');
 </script>
 
-<style lang="postcss">
-body {
-  @apply overflow-hidden;
-}
-
-.nav-menu-item {
+<style lang="postcss" scoped>
+.app__nav-menu-item {
   @apply inline-grid
     grid-flow-col
     items-center
