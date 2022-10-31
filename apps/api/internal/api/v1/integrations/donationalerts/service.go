@@ -1,7 +1,6 @@
 package donationalerts
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	model "tsuwari/models"
@@ -48,7 +47,6 @@ func handleGet(channelId string, services types.Services) (*model.ChannelsIntegr
 		services.Logger.Sugar().Error(err)
 		return nil, nil
 	}
-	fmt.Println(integration.Enabled)
 	return integration, nil
 }
 
