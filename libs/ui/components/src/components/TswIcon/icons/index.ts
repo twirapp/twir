@@ -20,6 +20,7 @@ export { Menu } from './Menu.js';
 export { Message } from './Message.js';
 export { Minus } from './Minus.js';
 export { QuestionMark } from './QuestionMark.js';
+export { Reload } from './Reload.js';
 export { Selector } from './Selector.js';
 export { Settings } from './Settings.js';
 export { SmileChat } from './SmileChat.js';
