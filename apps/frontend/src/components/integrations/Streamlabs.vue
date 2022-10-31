@@ -29,7 +29,9 @@ selectedDashboardStore.subscribe(() => {
 function fetchIntegration() {
   api(`/v1/channels/${selectedDashboardStore.get().channelId}/integrations/streamlabs`).then(
     async (r) => {
-      streamlabsIntegration.value = r.data;
+      if (r.data) {
+        streamlabsIntegration.value = r.data;
+      }
     },
   );
 }

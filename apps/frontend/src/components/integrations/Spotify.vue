@@ -50,7 +50,9 @@ async function fetchSpotifyProfile() {
   const { data } = await api(
     `v1/channels/${selectedDashboard.value.channelId}/integrations/spotify/profile`,
   );
-  setSpotifyProfile(data);
+  if (data) {
+    setSpotifyProfile(data);
+  }
 }
 
 async function patch() {

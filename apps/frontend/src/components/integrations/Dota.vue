@@ -13,9 +13,9 @@ import Remove from '@/assets/buttons/remove.svg';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
-type Faceit = Omit<ChannelIntegration, 'data'> & { data: { username: string, game?: string }}
+type Faceit = Omit<ChannelIntegration, 'data'> & { data: { username: string; game?: string } };
 
-const faceitIntegration = ref<Partial<Faceit>>({
+const dota = ref<Partial<Faceit>>({
   enabled: true,
   data: {
     username: '',
@@ -28,12 +28,12 @@ const { t } = useI18n({
 });
 const toast = useToast();
 
-selectedDashboardStore.subscribe(d => {
+selectedDashboardStore.subscribe((d) => {
   api(`/v1/channels/${d.channelId}/integrations/faceit`).then(async (r) => {
     if (r.data) {
-      faceitIntegration.value = r.data;
+      dota.value = r.data;
     } else {
-      faceitIntegration.value = {
+      dota.value = {
         enabled: true,
         data: {
           username: '',
@@ -45,41 +45,41 @@ selectedDashboardStore.subscribe(d => {
 });
 
 async function post() {
-  const { data } = await api.post(`v1/channels/${selectedDashboard.value.channelId}/integrations/dota2`, {
-    enabled: faceitIntegration.value.enabled,
-    data: faceitIntegration.value.data,
-  });
+  const { data } = await api.post(
+    `v1/channels/${selectedDashboard.value.channelId}/integrations/dota2`,
+    {
+      enabled: dota.value.enabled,
+      data: dota.value.data,
+    },
+  );
 
-  faceitIntegration.value = data;
+  dota.value = data;
   toast.success('Saved');
 }
 </script>
 
 <template>
-  <div class="bg-base-200 break-inside card card-compact drop-shadow flex flex-col mb-[0.5rem] rounded">
+  <div
+    class="bg-base-200 break-inside card card-compact drop-shadow flex flex-col mb-[0.5rem] rounded">
     <div class="flex justify-between mb-5 p-2">
       <div>
         <h2 class="card-title flex font-bold space-x-2">
           <p>Dota 2</p>
-          <Tooltip
-            :text="t('pages.integrations.widgets.dota2.description')"
-          />
+          <Tooltip :text="t('pages.integrations.widgets.dota2.description')" />
         </h2>
       </div>
       <div class="form-check form-switch">
         <input
           id="flexSwitchCheckDefault"
-          v-model="faceitIntegration.enabled"
+          v-model="dota.enabled"
           class="-ml-10 align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
           type="checkbox"
-          role="switch"
-        >
+          role="switch" />
       </div>
     </div>
 
-
     <Soon :button="false" />
-    
+
     <!-- <div>
       <div
         class="my-4 rounded text-base"

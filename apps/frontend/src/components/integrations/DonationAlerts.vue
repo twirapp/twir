@@ -37,7 +37,9 @@ selectedDashboardStore.subscribe((d) => {
 function fetchIntegration() {
   api(`/v1/channels/${selectedDashboardStore.get().channelId}/integrations/donationalerts`).then(
     async (r) => {
-      donationAlertsIntegration.value = r.data;
+      if (r.data) {
+        donationAlertsIntegration.value = r.data;
+      }
     },
   );
 }
