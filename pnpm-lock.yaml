@@ -56,7 +56,7 @@ importers:
       '@types/lodash.chunk': 4.2.7
       '@types/lodash.merge': 4.6.7
       '@types/lodash.omit': 4.5.7
-      '@types/passport-jwt': 3.0.6
+      '@types/passport-jwt': 3.0.7
       axios: ^0.27.2
       class-transformer: ^0.5.1
       class-validator: ^0.13.2
@@ -133,7 +133,7 @@ importers:
       '@types/lodash.chunk': 4.2.7
       '@types/lodash.merge': 4.6.7
       '@types/lodash.omit': 4.5.7
-      '@types/passport-jwt': 3.0.6
+      '@types/passport-jwt': 3.0.7
       type-fest: 3.0.0
       vitest: 0.23.4
 
@@ -1899,7 +1899,7 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/keyv': 3.1.4
-      '@types/node': 8.10.66
+      '@types/node': 18.11.7
       '@types/responselike': 1.0.0
     dev: false
 
@@ -1979,13 +1979,13 @@ packages:
   /@types/jsonwebtoken/8.5.9:
     resolution: {integrity: sha512-272FMnFGzAVMGtu9tkr29hRL6bZj4Zs1KZNeHLnKqAvp06tAIcarTMwOh8/8bz4FmKRcMxZhZNeUAQsNLoiPhg==}
     dependencies:
-      '@types/node': 18.7.18
+      '@types/node': 18.11.7
     dev: true
 
   /@types/keyv/3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.11.7
     dev: false
 
   /@types/lodash.chunk/4.2.7:
@@ -2050,10 +2050,6 @@ packages:
     resolution: {integrity: sha512-I4BD3L+6AWiUobfxZ49DlU43gtI+FTHSv9pE2Zekg6KjMpre4ByusaljW3vYSLJrvQ1ck1hUaeVu8HVlY3vzHg==}
     dev: true
 
-  /@types/node/18.7.18:
-    resolution: {integrity: sha512-m+6nTEOadJZuTPkKR/SYK3A2d7FZrgElol9UP1Kae90VVU4a6mxnPuLiIW1m4Cq4gZ/nWb9GrdVXJCoCazDAbg==}
-    dev: true
-
   /@types/node/18.7.23:
     resolution: {integrity: sha512-DWNcCHolDq0ZKGizjx2DZjR/PqsYwAcYUJmfMWqtVU2MBMG5Mo+xFZrhGId5r/O5HOuMPyQEcM6KUBp5lBZZBg==}
 
@@ -2064,11 +2060,11 @@ packages:
   /@types/oauth/0.9.1:
     resolution: {integrity: sha512-a1iY62/a3yhZ7qH7cNUsxoI3U/0Fe9+RnuFrpTKr+0WVOzbKlSLojShCKe20aOD1Sppv+i8Zlq0pLDuTJnwS4A==}
     dependencies:
-      '@types/node': 18.7.23
+      '@types/node': 18.11.7
     dev: false
 
-  /@types/passport-jwt/3.0.6:
-    resolution: {integrity: sha512-cmAAMIRTaEwpqxlrZyiEY9kdibk94gP5KTF8AT1Ra4rWNZYHNMreqhKUEeC5WJtuN5SJZjPQmV+XO2P5PlnvNQ==}
+  /@types/passport-jwt/3.0.7:
+    resolution: {integrity: sha512-qRQ4qlww1Yhs3IaioDKrsDNmKy6gLDLgFsGwpCnc2YqWovO2Oxu9yCQdWHMJafQ7UIuOba4C4/TNXcGkQfEjlQ==}
     dependencies:
       '@types/express': 4.17.14
       '@types/jsonwebtoken': 8.5.9
@@ -2122,7 +2118,7 @@ packages:
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.11.7
     dev: false
 
   /@types/serve-static/1.15.0:
@@ -2161,7 +2157,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.11.7
     dev: false
     optional: true
 
@@ -6202,7 +6198,7 @@ packages:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/long': 4.0.2
-      '@types/node': 18.7.23
+      '@types/node': 18.11.7
       long: 4.0.0
     dev: false
 
