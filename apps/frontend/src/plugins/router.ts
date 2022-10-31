@@ -86,7 +86,7 @@ export const router = createRouter({
 
 router.beforeResolve(async (to, _from, next) => {
   if (to.fullPath.startsWith('/admin')) {
-    const user = userStore.get() || await fetchAndSetUser().then(() => userStore.get());
+    const user = userStore.get() || (await fetchAndSetUser().then(() => userStore.get()));
 
     if (user?.isBotAdmin) {
       return next();
@@ -108,20 +108,13 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   if (to.path.startsWith('/dashboard')) {
-    userStore.get() || await fetchAndSetUser().then(() => userStore.get());
+    await fetchAndSetUser();
 
     if (!userStore.get()) {
       return redirectToLogin();
     }
 
     next();
-    /* if (!user?.isTester) {
-      alert('We are sorry, but currently bot access only via invites.');
-      next('/');
-    } else {
-      next();
-    } */
-
   } else {
     next();
   }

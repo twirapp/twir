@@ -1,35 +1,22 @@
 package lastfm
 
 import (
-	"encoding/json"
 	"fmt"
 	model "tsuwari/models"
 
 	req "github.com/imroc/req/v3"
 )
 
-type DbData struct {
-	UserName *string `json:"username"`
-}
-
 type LastFm struct {
-	DbData
-	integration *model.ChannelInegrationWithRelation
+	integration *model.ChannelsIntegrations
 }
 
-func New(integration *model.ChannelInegrationWithRelation) *LastFm {
-	if integration == nil || !integration.Data.Valid || !integration.Integration.APIKey.Valid {
-		return nil
-	}
-
-	dbData := DbData{}
-	err := json.Unmarshal([]byte(integration.Data.String), &dbData)
-	if err != nil {
+func New(integration *model.ChannelsIntegrations) *LastFm {
+	if integration == nil || integration.Data == nil || !integration.Integration.APIKey.Valid {
 		return nil
 	}
 
 	service := LastFm{
-		DbData:      dbData,
 		integration: integration,
 	}
 
@@ -64,7 +51,7 @@ func (c *LastFm) GetTrack() *string {
 
 	resp, err := req.R().
 		SetQueryParam("method", "user.getrecenttracks").
-		SetQueryParam("user", *c.DbData.UserName).
+		SetQueryParam("user", *c.integration.Data.UserName).
 		SetQueryParam("api_key", c.integration.Integration.APIKey.String).
 		SetQueryParam("format", "json").
 		SetQueryParam("limit", "1").

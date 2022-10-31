@@ -25,7 +25,6 @@ export class DotaService {
       accounts.map((a) => a.id),
       50,
     );
-    this.#logger.log(`Getting information about ${accounts.length} accs.`);
 
     for (const chunk of chunks) {
       await this.nats.emit('dota.cacheAccountsMatches', chunk).toPromise();

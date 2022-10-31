@@ -3,8 +3,8 @@ package natshandler
 import (
 	variables_cache "tsuwari/parser/internal/variablescache"
 
-	"github.com/satont/tsuwari/libs/nats/parser"
 	"github.com/samber/lo"
+	"github.com/satont/tsuwari/libs/nats/parser"
 )
 
 func (c *NatsServiceImpl) ParseResponse(data parser.ParseResponseRequest) string {

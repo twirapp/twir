@@ -33,7 +33,6 @@ export class AppService extends SteamUser implements OnModuleInit {
     if (!this.ready) return;
     const helloType = this.#clientHelloRoot.lookupType('CMsgClientHello');
     this.sendToGC(570, 4006, {}, Buffer.from(helloType.encode({}).finish()));
-    this.#logger.log('Sent hello event.');
   }
 
   async onModuleInit() {
@@ -109,10 +108,9 @@ export class AppService extends SteamUser implements OnModuleInit {
       this.#logger.error(e);
     });
 
-    this.on('appLaunched', async (appId) => {
+    this.on('appLaunched', async () => {
       this.sendHelloEvent();
       this.ready = true;
-      this.getDotaProfileCard(1102609846);
       setInterval(() => {
         this.sendHelloEvent();
       }, 5 * 1000);
@@ -138,7 +136,6 @@ export class AppService extends SteamUser implements OnModuleInit {
     if (!this.ready) {
       return this.#logger.error('App not ready for getting presences.');
     }
-    this.#logger.log(`Getting presences of ${accs.length} accounts.`);
 
     const convertedAccs = accs.map(SteamID.fromIndividualAccountID).map((id) => id.getSteamID64());
     const type = this.#watchRoot.lookupType('CMsgClientToGCFindTopSourceTVGames');
@@ -193,6 +190,7 @@ export class AppService extends SteamUser implements OnModuleInit {
       this.sendToGC(570, 7534, {}, Buffer.from(request.finish()), (_appid, msgType, payload) => {
         if (msgType === 7535) {
           const response = responseType.decode(payload).toJSON();
+          console.log(response);
           if (!response.account_id) resolve(null);
           resolve(response);
         } else resolve(null);

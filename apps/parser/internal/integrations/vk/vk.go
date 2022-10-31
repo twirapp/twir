@@ -1,35 +1,22 @@
 package vk
 
 import (
-	"encoding/json"
 	"fmt"
 	model "tsuwari/models"
 
 	req "github.com/imroc/req/v3"
 )
 
-type DbData struct {
-	UserId *string `json:"userId"`
-}
-
 type Vk struct {
-	DbData
-	integration *model.ChannelInegrationWithRelation
+	integration *model.ChannelsIntegrations
 }
 
-func New(integration *model.ChannelInegrationWithRelation) *Vk {
-	if integration == nil || !integration.Data.Valid || !integration.Integration.AccessToken.Valid {
-		return nil
-	}
-
-	dbData := DbData{}
-	err := json.Unmarshal([]byte(integration.Data.String), &dbData)
-	if err != nil || dbData.UserId == nil {
+func New(integration *model.ChannelsIntegrations) *Vk {
+	if integration == nil || integration.Data == nil || !integration.Integration.AccessToken.Valid {
 		return nil
 	}
 
 	service := Vk{
-		DbData:      dbData,
 		integration: integration,
 	}
 
@@ -62,7 +49,7 @@ func (c *Vk) GetTrack() *string {
 
 	resp, err := req.R().
 		SetQueryParam("access_token", c.integration.Integration.AccessToken.String).
-		SetQueryParam("uid", *c.UserId).
+		SetQueryParam("uid", *c.integration.Data.UserId).
 		SetQueryParam("v", "5.131").
 		SetResult(&data).
 		SetContentType("application/json").

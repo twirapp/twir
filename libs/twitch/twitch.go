@@ -16,12 +16,31 @@ type Twitch struct {
 	Client *helix.Client
 }
 
-func NewClient(clientId string, clientSecret string) *Twitch {
-	options := &helix.Options{
-		ClientID:     clientId,
-		ClientSecret: clientSecret,
+func rateLimitCallback(lastResponse *helix.Response) error {
+	if lastResponse.GetRateLimitRemaining() > 0 {
+		return nil
 	}
-	client, err := helix.NewClient(options)
+
+	var reset64 int64
+	reset64 = int64(lastResponse.GetRateLimitReset())
+
+	currentTime := time.Now().Unix()
+
+	if currentTime < reset64 {
+		timeDiff := time.Duration(reset64 - currentTime)
+		if timeDiff > 0 {
+			time.Sleep(timeDiff * time.Second)
+		}
+	}
+
+	return nil
+}
+
+func NewClient(options *helix.Options) *Twitch {
+	opts := options
+	opts.RateLimitFunc = rateLimitCallback
+
+	client, err := helix.NewClient(opts)
 	if err != nil {
 		panic(err)
 	}

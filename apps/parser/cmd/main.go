@@ -62,6 +62,9 @@ func main() {
 		fmt.Println(err)
 		panic("failed to connect database")
 	}
+	d, _ := db.DB()
+	d.SetMaxOpenConns(20)
+	d.SetConnMaxIdleTime(1 * time.Minute)
 
 	r := redis.New(cfg.RedisUrl)
 	defer r.Close()

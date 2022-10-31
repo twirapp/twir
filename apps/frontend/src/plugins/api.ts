@@ -1,6 +1,8 @@
 import Axios, { AxiosError } from 'axios';
 import { useToast } from 'vue-toastification';
 
+import { router } from './router';
+
 import { refreshAccessToken } from '@/functions/refreshAccessToken';
 
 // eslint-disable-next-line import/no-cycle
@@ -36,12 +38,18 @@ api.interceptors.response.use(
         try {
           await refreshAccessToken();
         } catch (authError) {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          if (router.currentRoute.value.fullPath.startsWith('/dashboard')) {
+            router.push('/');
+          }
           return Promise.reject(error);
         }
 
         error.config.__isRetryRequest = true;
         return api(error.config);
       }
+
       const data = response.data as any;
       if (data?.message) {
         if (data.message !== 'Invalid Token!') {

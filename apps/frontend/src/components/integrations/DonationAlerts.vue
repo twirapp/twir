@@ -31,10 +31,16 @@ const { t } = useI18n({
 const toast = useToast();
 
 selectedDashboardStore.subscribe((d) => {
-  api(`/v1/channels/${d.channelId}/integrations/donationalerts`).then(async (r) => {
-    donationAlertsIntegration.value = r.data;
-  });
+  fetchIntegration();
 });
+
+function fetchIntegration() {
+  api(`/v1/channels/${selectedDashboardStore.get().channelId}/integrations/donationalerts`).then(
+    async (r) => {
+      donationAlertsIntegration.value = r.data;
+    },
+  );
+}
 
 async function auth() {
   const { data } = await api(
@@ -70,7 +76,7 @@ onMounted(async () => {
           code,
         },
       );
-
+      fetchIntegration();
       return router.push('/dashboard/integrations');
     }
   }
@@ -98,16 +104,16 @@ onMounted(async () => {
     </div>
 
     <div class="mb-5">
-      <div v-if="donationAlertsProfile">
+      <div v-if="donationAlertsIntegration.data">
         <div class="flex justify-center mb-3">
           <img
-            v-if="donationAlertsProfile.avatar"
-            :src="donationAlertsProfile.avatar"
+            v-if="donationAlertsIntegration.data.avatar"
+            :src="donationAlertsIntegration.data.avatar"
             class="ring-2 ring-white rounded-full select-none w-32"
             alt="Avatar" />
         </div>
         <p class="break-words text-center">
-          {{ donationAlertsProfile.name }}#{{ donationAlertsProfile.code }}
+          {{ donationAlertsIntegration.data.name }}#{{ donationAlertsIntegration.data.code }}
         </p>
       </div>
       <div v-else>Not logged in</div>

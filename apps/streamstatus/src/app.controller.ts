@@ -1,6 +1,12 @@
 import { Controller, Logger } from '@nestjs/common';
 import { Payload } from '@nestjs/microservices';
-import { ClientProxyResult, MessagePattern, type ClientProxyCommandPayload, EventPattern, type ClientProxyEventPayload } from '@tsuwari/shared';
+import {
+  ClientProxyResult,
+  EventPattern,
+  MessagePattern,
+  type ClientProxyCommandPayload,
+  type ClientProxyEventPayload,
+} from '@tsuwari/shared';
 import { of } from 'rxjs';
 
 import { AppService } from './app.service.js';
@@ -9,11 +15,12 @@ import { AppService } from './app.service.js';
 export class AppController {
   private readonly logger = new Logger('StreamStatus');
 
-  constructor(private readonly appService: AppService) { }
+  constructor(private readonly appService: AppService) {}
 
   @MessagePattern('streamstatuses.process')
-  async cacheStreams(@Payload() data: ClientProxyCommandPayload<'streamstatuses.process'>): Promise<ClientProxyResult<'streamstatuses.process'>> {
-    this.logger.log(`Starting to process ${data.length} streams`);
+  async cacheStreams(
+    @Payload() data: ClientProxyCommandPayload<'streamstatuses.process'>,
+  ): Promise<ClientProxyResult<'streamstatuses.process'>> {
     return of(await this.appService.handleChannels(data));
   }
 

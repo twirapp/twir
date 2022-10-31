@@ -15,6 +15,7 @@ export const nats = await connect({
 async function subscribeToAdd() {
   for await (const msg of nats.subscribe('integrations.add')) {
     const data = NatsIntegration.AddIntegration.fromBinary(msg.data);
+    console.log(data);
     const integration = await typeorm.getRepository(ChannelIntegration).findOne({
       where: {
         id: data.id,
@@ -51,7 +52,7 @@ async function subscribeToAdd() {
 async function subscribeToRemove() {
   for await (const msg of nats.subscribe('integrations.remove')) {
     const data = NatsIntegration.RemoveIntegration.fromBinary(msg.data);
-
+    console.log(data);
     const integration = await typeorm.getRepository(ChannelIntegration).findOne({
       where: { id: data.id },
       relations: { integration: true },

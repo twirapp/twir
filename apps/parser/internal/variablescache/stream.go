@@ -20,8 +20,6 @@ func (c *VariablesCacheService) GetChannelStream() *model.ChannelsStreams {
 
 	err := c.Services.Db.Where(`"userId" = ?`, c.ChannelId).First(&stream).Error
 
-	fmt.Printf("%+v\n", stream)
-
 	if err != nil {
 		fmt.Println(err)
 		streams, err := c.Services.Twitch.Client.GetStreams(&helix.StreamsParams{

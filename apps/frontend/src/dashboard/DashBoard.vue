@@ -30,21 +30,26 @@ const isBotMod = ref(false);
 
 const dashboard = useStore(selectedDashboardStore);
 
+async function checkMod() {
+  const dash = get(dashboard);
+  if (!dash) return;
+
+  const { data } = await api(`v1/channels/${dashboard.value.channelId}/bot/checkmod`);
+
+  isBotMod.value = data;
+}
+
 useIntervalFn(
   async () => {
-    const dash = get(dashboard);
-    if (!dash) return;
-
-    const { data } = await api(`v1/channels/${dashboard.value.channelId}/bot/checkmod`);
-
-    isBotMod.value = data;
+    await checkMod();
   },
-  1000,
+  5000,
   { immediate: true },
 );
 
 selectedDashboardStore.subscribe(() => {
   isBotMod.value = false;
+  checkMod();
 });
 
 async function patchBotConnection(action: 'join' | 'leave') {

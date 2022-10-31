@@ -62,6 +62,7 @@ func (c UsersTokensService) Create(userId string) (*helix.Client, error) {
 		UserAccessToken:  user.Token.AccessToken,
 		UserRefreshToken: user.Token.RefreshToken,
 		OnRefresh:        &refreshFunc,
+		RateLimitFunc:    rateLimitCallback,
 	})
 	if err != nil {
 		return nil, err

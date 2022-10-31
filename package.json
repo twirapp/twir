@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint --ext .ts,.vue apps/",
     "lint:fix": "eslint --fix --ext .ts,.vue apps/",
-    "dev": "doppler run -- turbo run dev --filter=./apps/*",
+    "dev": "doppler run -- turbo run dev --filter=./apps/* --filter=!./apps/api",
     "start": "pnpm run -r start --filter=!@tsuwari/frontend",
     "start:integrations": "pnpm --filter=@tsuwari/integrations start",
     "start:api": "pnpm --filter=@tsuwari/api start",
@@ -18,7 +18,7 @@
     "start:streamstatus": "pnpm --filter=@tsuwari/streamstatus start",
     "start:watched": "pnpm --filter=@tsuwari/watched start",
     "build:libs": "turbo run build --filter=./libs/**",
-    "build:backend": "turbo run build --filter=!@tsuwari/watched --filter=!@tsuwari/frontend --filter=!@tsuwari/parser",
+    "build:backend": "turbo run build --filter=!@tsuwari/watched --filter=!@tsuwari/frontend",
     "build:bots": "turbo run build --filter=bots",
     "build:eventsub": "turbo run build --filter=eventsub",
     "build:frontend": "turbo run build --filter=frontend",

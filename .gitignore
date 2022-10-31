@@ -12,6 +12,7 @@ libs/grpc/src/*.ts
 docker-compose*
 !docker-compose.example.yml
 !docker-compose.dev.yml
+!docker-compose.build.yml
 .devbox
 
 !*/**/.gitkeep

@@ -2,7 +2,7 @@ import { persistentAtom } from '@nanostores/persistent';
 import { AuthUser } from '@tsuwari/shared';
 import { atom } from 'nanostores';
 
-type Dashboard = AuthUser['dashboards'][0]
+type Dashboard = AuthUser['dashboards'][0];
 
 export const userStore = atom<AuthUser | null | undefined>(null);
 export const selectedDashboardStore = persistentAtom<Dashboard>('selectedDashboard', null as any, {
@@ -12,7 +12,12 @@ export const selectedDashboardStore = persistentAtom<Dashboard>('selectedDashboa
 
 export function setUser(data: AuthUser | null) {
   if (data?.id) {
-    const dashboard = { id: '0', channelId: data.id, userId: data.id, twitch: { ...data, dashboards: undefined } };
+    const dashboard = {
+      id: '0',
+      channelId: data.id,
+      userId: data.id,
+      twitchUser: { ...data, dashboards: undefined },
+    };
     data.dashboards?.push(dashboard);
 
     if (!selectedDashboardStore.get()) {

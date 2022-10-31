@@ -18,7 +18,7 @@ type variablesCache struct {
 	DbUserStats  *model.UsersStats
 	TwitchUser   *helix.User
 	TwitchFollow *helix.UserFollow
-	Integrations *[]model.ChannelInegrationWithRelation
+	Integrations []model.ChannelsIntegrations
 	FaceitData   *FaceitResult
 }
 
