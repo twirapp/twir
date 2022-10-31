@@ -35,7 +35,7 @@ const classes = computed(() => ['tsw-loader', `tsw-loader-${props.size}`].join('
   @apply w-9 h-9;
 
   &::before {
-    @apply w-6 h-6 border-[2.5px];
+    @apply w-6 h-6 border-2;
   }
 }
 
@@ -43,7 +43,7 @@ const classes = computed(() => ['tsw-loader', `tsw-loader-${props.size}`].join('
   @apply w-12 h-12;
 
   &::before {
-    @apply w-8 h-8 border-[2.5px];
+    @apply w-8 h-8 border-[3px];
   }
 }
 </style>

@@ -13,9 +13,28 @@ export const useUserProfile = () =>
   });
 
 export const useTwitchAuth = () =>
-  useQuery(['twitchAuth'], handleTwitchLoginCallback, {
-    onSuccess: (data) => {
-      accessTokenStore.set(data.accessToken);
-      redirectToDashboard();
+  useQuery(
+    ['twitchAuth'],
+    async () => {
+      const accessToken = accessTokenStore.get();
+
+      if (accessToken) {
+        try {
+          await getProfile();
+          return { accessToken };
+          // eslint-disable-next-line no-empty
+        } catch (e) {}
+      }
+
+      return await handleTwitchLoginCallback();
     },
-  });
+    {
+      onSuccess: (data) => {
+        accessTokenStore.set(data.accessToken);
+        redirectToDashboard();
+      },
+      retry: false,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: false,
+    },
+  );

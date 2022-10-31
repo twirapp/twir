@@ -1,5 +1,7 @@
 <template>
-  <TswLoader v-if="isLoading" size="lg" />
+  <div v-if="isLoading" class="w-9 h-9 inline-flex items-center justify-center">
+    <TswLoader size="md" />
+  </div>
   <slot v-else-if="isError" name="error"></slot>
   <TswAvatar v-else-if="user" :href="'/app/dashboard'" :src="user.profile_image_url" :lazy="true" />
 </template>
