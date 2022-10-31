@@ -7,7 +7,6 @@
     :href="href"
     :target="href && targetBlank ? '_black' : undefined"
     :tabindex="href ? 1 : undefined"
-    @click.prevent="emitClickEvent"
   >
     <TswIcon v-if="leftIcon" :name="leftIcon" :class="btnInnerClass" />
     {{ text }}
@@ -51,11 +50,6 @@ const props = withDefaults(
   },
 );
 
-const emit = defineEmits({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  click: (e: MouseEvent) => true,
-});
-
 const classes = computed(() =>
   [
     'btn',
@@ -65,10 +59,6 @@ const classes = computed(() =>
     props.disabled ? 'btn-disabled' : '',
   ].join(' '),
 );
-
-const emitClickEvent = (e: MouseEvent) => {
-  emit('click', e);
-};
 
 const btnInnerClass = 'btn-inner-el';
 </script>

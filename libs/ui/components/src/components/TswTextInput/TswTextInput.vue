@@ -35,10 +35,10 @@ const props = withDefaults(
   },
 );
 
-const emit = defineEmits({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  'update:value': (value: string) => true,
-});
+const emit =
+  defineEmits<{
+    (event: 'update:value', value: string): void;
+  }>();
 
 const inputValue = computed({
   get() {
