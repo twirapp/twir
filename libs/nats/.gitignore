@@ -5,6 +5,7 @@ eval/*
 timers/*
 integrations/*
 scheduler/*
+eventsub/*
 
 !*/go.mod
 !.gitkeep
