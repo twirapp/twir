@@ -141,7 +141,7 @@ async function saveCommand() {
       `/v1/channels/${selectedDashboard.value.channelId}/commands/${command.value.id}`,
       {
         ...command.value,
-        responses: command.value.responses.filter((r) => r.text),
+        responses: command.value.responses?.filter((r) => r.text),
       },
     );
     data = request.data;
@@ -149,7 +149,7 @@ async function saveCommand() {
   } else {
     const request = await api.post(`/v1/channels/${selectedDashboard.value.channelId}/commands`, {
       ...command.value,
-      responses: command.value.responses.filter((r) => r.text),
+      responses: command.value.responses?.filter((r) => r.text),
     });
     data = request.data;
     toast.success('Command created');
@@ -316,13 +316,13 @@ function changeCommandResponse(index: number, value: string) {
 
       <div class="mt-5">
         <div class="flex form-check justify-between">
-          <label class="form-check-label inline-block" for="keepOrder">{{
+          <label class="form-check-label inline-block" for="keepResponsesOrder">{{
             t('pages.commands.card.keepOrder.title')
           }}</label>
 
           <div class="form-switch">
             <input
-              id="keepOrder"
+              id="keepResponsesOrder"
               v-model="command.keepResponsesOrder"
               class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
               type="checkbox"

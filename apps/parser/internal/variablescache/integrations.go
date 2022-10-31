@@ -4,7 +4,7 @@ import (
 	model "tsuwari/models"
 )
 
-func (c *VariablesCacheService) GetEnabledIntegrations() *[]model.ChannelsIntegrations {
+func (c *VariablesCacheService) GetEnabledIntegrations() []model.ChannelsIntegrations {
 	c.locks.integrations.Lock()
 	defer c.locks.integrations.Unlock()
 
@@ -12,10 +12,10 @@ func (c *VariablesCacheService) GetEnabledIntegrations() *[]model.ChannelsIntegr
 		return c.cache.Integrations
 	}
 
-	result := &[]model.ChannelsIntegrations{}
+	result := []model.ChannelsIntegrations{}
 	err := c.Services.Db.Where(`"channelId" = ? AND enabled = ?`, c.ChannelId, true).
-		Preload("Integrations").
-		Find(result).
+		Preload("Integration").
+		Find(&result).
 		Error
 
 	if err == nil {

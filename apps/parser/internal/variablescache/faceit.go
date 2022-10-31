@@ -49,7 +49,7 @@ func (c *VariablesCacheService) GetFaceitUserData() (*FaceitUser, error) {
 		return nil, errors.New("no enabled integrations")
 	}
 
-	integration, ok := lo.Find(*integrations, func(i model.ChannelsIntegrations) bool {
+	integration, ok := lo.Find(integrations, func(i model.ChannelsIntegrations) bool {
 		return i.Integration.Service == "FACEIT" && i.Enabled
 	})
 

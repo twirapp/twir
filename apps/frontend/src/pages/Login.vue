@@ -29,6 +29,7 @@ onMounted(async () => {
     }
 
     const response = await request.json();
+    console.log(response);
     localStorage.setItem('accessToken', response.accessToken);
     localStorage.setItem('refreshToken', response.refreshToken);
 

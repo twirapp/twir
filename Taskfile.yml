@@ -8,8 +8,8 @@ includes:
     taskfile: ./apps/timers/Taskfile.yml
     dir: ./apps/timers
   api:
-    taskfile: ./apps/api-go/Taskfile.yml
-    dir: ./apps/api-go
+    taskfile: ./apps/api/Taskfile.yml
+    dir: ./apps/api
 
 tasks:
   build-libs:

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { HelixStreamData } from '@twurple/api';
 import { useIntervalFn, useTitle } from '@vueuse/core';
 import { intervalToDuration, formatDuration } from 'date-fns';
 import { ref } from 'vue';
@@ -15,7 +14,7 @@ import { publicRoutes, adminRoutes } from './sidebarLinks';
 import { useUpdatingData } from '@/functions/useUpdatingData';
 
 const { data: stream, execute } = useUpdatingData<
-  (HelixStreamData & { parsedMessages: number }) | null
+  (Record<string, any> & { parsedMessages: number }) | null
 >(`/v1/channels/{dashboardId}/streams`);
 
 const uptime = ref('');
@@ -31,7 +30,7 @@ useIntervalFn(
   () => {
     if (stream.value) {
       uptime.value = formatDuration(
-        intervalToDuration({ start: new Date(stream.value.started_at), end: Date.now() }),
+        intervalToDuration({ start: new Date(stream.value.startedAt), end: Date.now() }),
       );
     }
   },
@@ -77,10 +76,10 @@ useIntervalFn(
         </div>
         <div v-if="stream && Object.keys(stream).length" class="flex space-x-2">
           <p>
-            Viewers: <span class="font-bold">{{ stream.viewer_count }}</span>
+            Viewers: <span class="font-bold">{{ stream.viewerCount }}</span>
           </p>
           <p class="hidden lg:block">
-            Category: <span class="font-bold">{{ stream.game_name }}</span>
+            Category: <span class="font-bold">{{ stream.gameName }}</span>
           </p>
           <p class="hidden md:block">
             Title:

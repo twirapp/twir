@@ -2,7 +2,6 @@
 export type VariablesList = Array<{ name: string; example?: string; description?: string }>;
 
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
-import { UpdateOrCreateCommandDto } from '@tsuwari/api/src/v1/commands/dto/create';
 import { CommandPermission, CooldownType } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -18,7 +17,7 @@ import { useUpdatingData } from '@/functions/useUpdatingData';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
-type CommandType = UpdateOrCreateCommandDto & {
+type CommandType = Record<string, any> & {
   new?: boolean;
   default?: boolean;
   defaultName?: string;
@@ -84,7 +83,7 @@ function insertCommand() {
           order: 0,
         },
       ],
-      keepOrder: true,
+      keepResponsesOrder: true,
       isReply: true,
       cooldownType: 'GLOBAL' as CooldownType,
       new: true,

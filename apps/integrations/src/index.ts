@@ -9,6 +9,8 @@ export const typeorm = await AppDataSource.initialize();
 export const donationAlertsStore: Map<string, DonationAlerts> = new Map();
 export const streamlabsStore: Map<string, StreamLabs> = new Map();
 
+import './libs/nats.js';
+
 const integrations = await typeorm.getRepository(ChannelIntegration).find({
   where: {
     integration: {
@@ -43,3 +45,6 @@ for (const integration of integrations) {
     });
   }
 }
+
+process.on('uncaughtException', console.error);
+process.on('unhandledRejection', console.error);

@@ -25,7 +25,7 @@ export const fetchAndSetUser = async () => {
     ) {
       redirectToLogin();
     } else {
-      console.error(e);
+      throw e;
     }
   }
 };

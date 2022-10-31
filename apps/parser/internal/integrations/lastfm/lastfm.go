@@ -12,7 +12,7 @@ type LastFm struct {
 }
 
 func New(integration *model.ChannelsIntegrations) *LastFm {
-	if integration == nil || integration.Data != nil || !integration.Integration.APIKey.Valid {
+	if integration == nil || integration.Data == nil || !integration.Integration.APIKey.Valid {
 		return nil
 	}
 

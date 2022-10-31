@@ -28,12 +28,7 @@ var Variable = types.Variable{
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		integrations := *ctx.GetEnabledIntegrations()
-		if integrations == nil {
-			result.Result = "Haven't enabled integrations for fetching song"
-			return result, nil
-		}
-
+		integrations := ctx.GetEnabledIntegrations()
 		integrations = lo.Filter(
 			integrations,
 			func(integration model.ChannelsIntegrations, _ int) bool {
@@ -46,29 +41,38 @@ var Variable = types.Variable{
 			},
 		)
 
-		lastFmIntegration, _ := lo.Find(
+		lastFmIntegration, ok := lo.Find(
 			integrations,
 			func(integration model.ChannelsIntegrations) bool {
 				return integration.Integration.Service == "LASTFM"
 			},
 		)
-		lfm := lastfm.New(&lastFmIntegration)
+		var lfm *lastfm.LastFm
+		if ok {
+			lfm = lastfm.New(&lastFmIntegration)
+		}
 
-		spotifyIntegration, _ := lo.Find(
+		spotifyIntegration, ok := lo.Find(
 			integrations,
 			func(integration model.ChannelsIntegrations) bool {
 				return integration.Integration.Service == "SPOTIFY"
 			},
 		)
-		spoti := spotify.New(&spotifyIntegration, ctx.Services.Db)
+		var spoti *spotify.Spotify
+		if ok {
+			spoti = spotify.New(&spotifyIntegration, ctx.Services.Db)
+		}
 
-		vkIntegration, _ := lo.Find(
+		vkIntegration, ok := lo.Find(
 			integrations,
 			func(integration model.ChannelsIntegrations) bool {
 				return integration.Integration.Service == "VK"
 			},
 		)
-		vk := vkIntegr.New(&vkIntegration)
+		var vk *vkIntegr.Vk
+		if ok {
+			vk = vkIntegr.New(&vkIntegration)
+		}
 
 		integrationsForFetch := lo.Map(
 			integrations,
@@ -97,6 +101,7 @@ var Variable = types.Variable{
 				}
 
 				track := lfm.GetTrack()
+				fmt.Println(track, integration)
 				if track != nil {
 					result.Result = *track
 					break checkServices
