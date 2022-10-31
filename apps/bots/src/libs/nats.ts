@@ -68,7 +68,7 @@ async function botJoinOrLeaveQueue() {
     if (!bot) continue;
 
     const action = data.action as 'join' | 'part';
-    bot[action](data.action);
+    bot[action](data.userName);
 
     continue;
   }

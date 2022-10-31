@@ -9,6 +9,7 @@ import { AppDataSource } from '@tsuwari/typeorm';
 
 import { AppModule } from './app.module.js';
 import './libs/nats.js';
+import { listenForDefaultCommands } from './libs/nats.js';
 
 Sentry.init({
   dsn: 'https://1c78d79f3bcb443680e4d5550005e3ac@o324161.ingest.sentry.io/6485379',
@@ -17,7 +18,7 @@ Sentry.init({
 
 export const typeorm = await AppDataSource.initialize();
 
-const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+export const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
   transport: Transport.NATS,
   options: {
     servers: [config.NATS_URL],
@@ -26,6 +27,7 @@ const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule,
 });
 
 await app.listen();
+listenForDefaultCommands();
 
 process.on('unhandledRejection', (e) => {
   console.error(e);

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option go_package = "tsuwari/nats/eventsub";
+
+message SubscribeToEvents {
+  string channelId = 1;
+}
+
+message SubscribeToEventsResponse {
+  
+}

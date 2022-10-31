@@ -14,4 +14,4 @@ import { DefaultCommandsCreatorService } from './default-commands-creator.servic
   ],
   providers: [DefaultCommandsCreatorService],
 })
-export class DefaultCommandsCreatorModule { }
+export class DefaultCommandsCreatorModule {}

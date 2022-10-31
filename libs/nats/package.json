@@ -12,7 +12,9 @@
     "./dota": "./dist/dota/dota.js",
     "./eval": "./dist/eval/eval.js",
     "./timers": "./dist/timers/timers.js",
-    "./integrations": "./dist/integrations/integrations.js"
+    "./integrations": "./dist/integrations/integrations.js",
+    "./scheduler": "./dist/scheduler/scheduler.js",
+    "./eventsub": "./dist/eventsub/eventsub.js"
   },
   "typesVersions": {
     "*": {
@@ -33,6 +35,12 @@
       ],
       "integrations": [
         "dist/integrations/integrations.d.ts"
+      ],
+      "scheduler": [
+        "dist/scheduler/scheduler.d.ts"
+      ],
+      "eventsub": [
+        "dist/eventsub/eventsub.d.ts"
       ]
     }
   },
