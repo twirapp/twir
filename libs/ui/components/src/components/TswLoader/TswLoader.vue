@@ -9,23 +9,41 @@ import { LoaderSize } from '@/components/TswLoader/props.types';
 
 const props = withDefaults(defineProps<{ size?: LoaderSize }>(), { size: 'md' });
 
-const classes = computed(() => ['loader', `loader-${props.size}`].join(' '));
+const classes = computed(() => ['tsw-loader', `tsw-loader-${props.size}`].join(' '));
 </script>
 
 <style lang="postcss">
-.loader {
-  @apply inline-flex animate-spin border-b-purple-70 rounded-full border-white-95;
+.tsw-loader {
+  @apply inline-block relative;
+
+  &::before {
+    content: '';
+
+    @apply border-white-95 border-b-purple-70 rounded-full animate-spin absolute m-auto top-0 bottom-0 left-0 right-0;
+  }
 }
 
-.loader-sm {
-  @apply border w-[13px] h-[13px] m-[1px];
+.tsw-loader-sm {
+  @apply w-6 h-6;
+
+  &::before {
+    @apply w-5 h-5 border-2;
+  }
 }
 
-.loader-md {
-  @apply border-[1.5px] w-[15px] h-[15px] m-[2px];
+.tsw-loader-md {
+  @apply w-9 h-9;
+
+  &::before {
+    @apply w-6 h-6 border-[2.5px];
+  }
 }
 
-.loader-lg {
-  @apply border-2 w-[21px] h-[21px] m-[2.5px];
+.tsw-loader-lg {
+  @apply w-12 h-12;
+
+  &::before {
+    @apply w-8 h-8 border-[2.5px];
+  }
 }
 </style>
