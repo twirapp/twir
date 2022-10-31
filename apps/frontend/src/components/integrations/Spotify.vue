@@ -31,8 +31,8 @@ selectedDashboardStore.subscribe(() => {
 function fetchIntegrationAndProfile() {
   const dashboardId = selectedDashboardStore.get().channelId!;
   api(`/v1/channels/${dashboardId}/integrations/spotify`).then(async (r) => {
-    spotifyIntegration.value = r.data;
-    if (r.data.accessToken && r.data.refreshToken) {
+    if (r.data?.accessToken && r.data?.refreshToken) {
+      spotifyIntegration.value = r.data;
       fetchSpotifyProfile();
     }
   });
