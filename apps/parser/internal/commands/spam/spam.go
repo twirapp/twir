@@ -11,14 +11,16 @@ import (
 
 var Command = types.DefaultCommand{
 	Command: types.Command{
-		Name:        "spam",
-		Description: lo.ToPtr("Spam into chat. Example usage: <b>!spam 5 https://tsuwari.tk</b>"),
-		Permission:  "MODERATOR",
-		Visible:     false,
-		Module:      lo.ToPtr("CHANNEL"),
-		IsReply:     false,
+		Name: "spam",
+		Description: lo.ToPtr(
+			"Spam into chat. Example usage: <b>!spam 5 https://tsuwari.tk</b>",
+		),
+		Permission:         "MODERATOR",
+		Visible:            false,
+		Module:             lo.ToPtr("CHANNEL"),
+		IsReply:            false,
+		KeepResponsesOrder: lo.ToPtr(false),
 	},
-	IsReply: lo.ToPtr(false),
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 

@@ -84,6 +84,7 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
           cooldownType: CooldownType.GLOBAL,
           module: command.module as unknown as CommandModule | undefined,
           isReply: command.isReply ?? true,
+          keepResponsesOrder: command.keepResponsesOrder ?? true,
         });
       }
     }

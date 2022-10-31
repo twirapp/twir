@@ -170,12 +170,13 @@ func main() {
 
 		for i, v := range commandsService.DefaultCommands {
 			cmd := &parserproto.DefaultCommand{
-				Name:        v.Name,
-				Description: *v.Description,
-				Visible:     v.Visible,
-				Permission:  v.Permission,
-				Module:      *v.Module,
-				IsReply:     v.IsReply,
+				Name:               v.Name,
+				Description:        *v.Description,
+				Visible:            v.Visible,
+				Permission:         v.Permission,
+				Module:             *v.Module,
+				IsReply:            v.IsReply,
+				KeepResponsesOrder: v.KeepResponsesOrder,
 			}
 
 			list[i] = cmd
