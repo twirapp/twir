@@ -4,6 +4,7 @@ dota/*
 eval/*
 timers/*
 integrations/*
+scheduler/*
 
 !*/go.mod
 !.gitkeep

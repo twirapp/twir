@@ -4,14 +4,11 @@ import { TwitchApiService } from '@tsuwari/shared';
 import * as ngrok from 'ngrok';
 
 import { HandlerModule } from '../handler/handler.module.js';
-import { EventSubController } from './eventsub.controller.js';
 import { EventSub } from './eventsub.service.js';
 
 @Module({
-  controllers: [EventSubController],
-  imports: [
-    HandlerModule,
-  ],
+  controllers: [],
+  imports: [HandlerModule],
   providers: [TwitchApiService],
 })
 export class EventSubModule {

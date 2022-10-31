@@ -78,6 +78,11 @@ func handleGetToken(code string, services types.Services) (*Tokens, error) {
 		return nil, fiber.NewError(401, "cannot create JWT refresh token")
 	}
 
+	err = checkUser(user.Login, user.ID, resp.Data, services)
+	if err != nil {
+		return nil, fiber.NewError(500, "internal error")
+	}
+
 	return &Tokens{
 		UserId:       user.ID,
 		AccessToken:  accessToken,

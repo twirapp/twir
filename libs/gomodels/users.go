@@ -22,6 +22,8 @@ type Users struct {
 	IsBotAdmin      bool                      `gorm:"column:isBotAdmin;type:BOOL;default:false;" json:"isBotAdmin"`
 	ApiKey          string                    `gorm:"column:apiKey;type:TEXT;"                   json:"apiKey"`
 	DashboardAccess []ChannelsDashboardAccess `gorm:"foreignKey:UserID"                          json:"dashboardAccess"`
+	Channel         *Channels                 `gorm:"foreignKey:ID"                              json:"channel"`
+	Token           *Tokens                   `gorm:"foreignKey:TokenID"                         json:"token"`
 }
 
 func (u *Users) TableName() string {
