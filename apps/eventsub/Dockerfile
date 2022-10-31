@@ -20,6 +20,7 @@ COPY apps/eventsub apps/eventsub
 COPY libs/typeorm libs/typeorm
 COPY libs/config libs/config
 COPY libs/shared libs/shared
+COPY libs/nats libs/nats
 
 RUN pnpm install --prod
 
