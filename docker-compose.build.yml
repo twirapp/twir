@@ -51,8 +51,8 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: timers
-  # migrations:
-  #   build:
-  #     context: .
-  #     dockerfile: ./Dockerfile
-  #     target: migrations
+  migrations:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: migrations
