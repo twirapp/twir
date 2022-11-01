@@ -2,6 +2,8 @@ name: Build and push docker images
 
 on:
   push:
+    branches:
+      - main
   pull_request:
 
 jobs:
@@ -27,6 +29,7 @@ jobs:
           target: base
 
   build-matrix:
+    needs: build
     runs-on: ubuntu-latest
     strategy:
       matrix:
