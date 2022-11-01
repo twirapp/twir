@@ -132,6 +132,16 @@ COPY --from=streamstatus_deps /app/ /app/
 ENTRYPOINT ["doppler", "run", "--"]
 CMD ["pnpm", "start:streamstatus"]
 
+FROM node_deps_base as migrations_deps
+COPY --from=base /app/libs/typeorm libs/typeorm/
+COPY --from=base /app/libs/config libs/config/
+RUN pnpm install --prod
+
+FROM node_prod_base as migrations
+WORKDIR /app
+COPY --from=migrations_deps /app/ /app/
+CMD ["pnpm", "run", "migrate:deploy"]
+
 
 FROM alpine:latest as go_prod_base
 RUN apk add wget
