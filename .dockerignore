@@ -4,3 +4,7 @@ postgres_data
 redis_data
 devbox
 .devbox
+node_modules
+*/**/node_modules
+.git
+.vscode

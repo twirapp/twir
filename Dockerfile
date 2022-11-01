@@ -1,0 +1,183 @@
+FROM node:18-alpine as base
+
+COPY --from=golang:1.19.2-alpine /usr/local/go/ /usr/local/go/
+ENV PATH="$PATH:/usr/local/go/bin"
+ENV PATH="$PATH:/root/go/bin"
+
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+RUN apk add --no-cache protoc git curl
+
+WORKDIR /app
+RUN npm i -g pnpm@7
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
+
+COPY libs libs
+COPY apps apps
+
+RUN pnpm install --filter=!ngrok
+RUN pnpm build:backend
+
+FROM node:18-alpine as node_prod_base
+RUN npm i -g pnpm
+RUN apk add wget
+RUN wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub
+RUN echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories
+RUN apk add doppler
+RUN rm -rf /var/cache/apk/*
+
+FROM node:18-alpine as node_deps_base
+WORKDIR /app
+RUN npm i -g pnpm
+RUN apk add git
+COPY --from=base /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/turbo.json /app/.npmrc ./
+
+FROM node_deps_base as bots_deps
+COPY --from=base /app/apps/bots apps/bots/
+COPY --from=base /app/libs/typeorm libs/typeorm/
+COPY --from=base /app/libs/redis libs/redis/
+COPY --from=base /app/libs/integrations/spotify libs/integrations/spotify/
+COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/libs/shared libs/shared/
+COPY --from=base /app/libs/nats libs/nats/
+RUN pnpm install --prod
+
+FROM node_prod_base as bots
+WORKDIR /app
+COPY --from=bots_deps /app/ /app/
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["pnpm", "start:bots"]
+
+FROM node_deps_base as dota_deps
+COPY --from=base /app/apps/dota apps/dota/
+COPY --from=base /app/libs/typeorm libs/typeorm/
+COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/libs/shared libs/shared/
+COPY --from=base /app/libs/nats libs/nats/
+RUN pnpm install --prod
+
+FROM node_prod_base as dota
+WORKDIR /app
+COPY --from=dota_deps /app/ /app/
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["pnpm", "start:dota"]
+
+FROM node_deps_base as eval_deps
+COPY --from=base /app/apps/eval apps/eval/
+COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/libs/nats libs/nats/
+RUN pnpm install --prod
+
+FROM node_prod_base as eval
+WORKDIR /app
+COPY --from=eval_deps /app/ /app/
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["pnpm", "start:eval"]
+
+FROM node_deps_base as eventsub_deps
+COPY --from=base /app/apps/eventsub apps/eventsub/
+COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/shared libs/shared/
+COPY --from=base /app/libs/typeorm libs/typeorm/
+RUN pnpm install --prod
+
+FROM node_prod_base as eventsub
+WORKDIR /app
+COPY --from=eventsub_deps /app/ /app/
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["pnpm", "start:eventsub"]
+
+FROM node_deps_base as integrations_deps
+COPY --from=base /app/apps/integrations apps/integrations/
+COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/typeorm libs/typeorm/
+COPY --from=base /app/libs/shared libs/shared/
+RUN pnpm install --prod
+
+FROM node_prod_base as integrations
+WORKDIR /app
+COPY --from=integrations_deps /app/ /app/
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["pnpm", "start:integrations"]
+
+FROM node_deps_base as scheduler_deps
+COPY --from=base /app/apps/scheduler apps/scheduler/
+COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/typeorm libs/typeorm/
+COPY --from=base /app/libs/shared libs/shared/
+COPY --from=base /app/libs/redis libs/redis/
+RUN pnpm install --prod
+
+FROM node_prod_base as scheduler
+WORKDIR /app
+COPY --from=scheduler_deps /app/ /app/
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["pnpm", "start:scheduler"]
+
+FROM node_deps_base as streamstatus_deps
+COPY --from=base /app/apps/scheduler apps/scheduler/
+COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/libs/typeorm libs/typeorm/
+COPY --from=base /app/libs/redis libs/redis/
+COPY --from=base /app/libs/shared libs/shared/
+COPY --from=base /app/libs/nats libs/nats/
+RUN pnpm install --prod
+
+FROM node_prod_base as streamstatus
+WORKDIR /app
+COPY --from=streamstatus_deps /app/ /app/
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["pnpm", "start:streamstatus"]
+
+
+FROM alpine:latest as go_prod_base
+RUN apk add wget
+RUN wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub
+RUN echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories
+RUN apk add doppler
+RUN rm -rf /var/cache/apk/*
+
+FROM golang:1.19.2-alpine as golang_deps_base
+WORKDIR /app
+RUN apk add git curl wget
+COPY --from=base /app/apps/parser apps/parser/
+COPY --from=base /app/apps/timers apps/timers/
+COPY --from=base /app/apps/api apps/api/
+COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/twitch libs/twitch/
+COPY --from=base /app/libs/gomodels libs/gomodels/
+COPY --from=base /app/libs/integrations/spotify libs/integrations/spotify/
+
+FROM golang_deps_base as parser_deps
+RUN cd apps/parser && go mod download
+RUN cd apps/parser && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./out ./cmd/main.go
+
+FROM go_prod_base as parser
+COPY --from=parser_deps /app/apps/parser/out /bin/parser
+RUN chmod +x /bin/parser
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["/bin/parser"]
+
+FROM golang_deps_base as timers_deps
+RUN cd apps/timers && go mod download
+RUN cd apps/timers && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./out ./cmd/main.go
+
+FROM go_prod_base as timers
+COPY --from=timers_deps /app/apps/timers/out /bin/timers
+RUN chmod +x /bin/timers
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["/bin/timers"]
+
+FROM golang_deps_base as api_deps
+RUN cd apps/api && go mod download
+RUN cd apps/api && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./out ./cmd/main.go
+
+FROM go_prod_base as api
+COPY --from=api_deps /app/apps/api/out /bin/api
+RUN chmod +x /bin/api
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["/bin/api"]

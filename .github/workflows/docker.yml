@@ -1,0 +1,54 @@
+name: Build and push docker images
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    name: Build base
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v1.14.1
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build base
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: false
+          file: ./Dockerfile
+          target: base
+
+  build-matrix:
+    strategy:
+      matrix:
+        application:
+          [api, bots, dota, eval, eventsub, integrations, parser, scheduler, streamstatus, timers]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v1.14.1
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build ${{ matrix.application }}
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: false
+          file: ./Dockerfile
+          target: ${{ matrix.application }}
+          tags: |
+            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}:latest

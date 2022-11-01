@@ -4,55 +4,55 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./apps/api/Dockerfile
-    image: registry.satont.dev/tsuwari/api
+      dockerfile: ./Dockerfile
+      target: api
   bots:
     build:
       context: .
-      dockerfile: ./apps/bots/Dockerfile
-    image: registry.satont.dev/tsuwari/bots
+      dockerfile: ./Dockerfile
+      target: bots
   dota:
     build:
       context: .
-      dockerfile: ./apps/dota/Dockerfile
-    image: registry.satont.dev/tsuwari/dota
+      dockerfile: ./Dockerfile
+      target: dota
   eval:
     build:
       context: .
-      dockerfile: ./apps/eval/Dockerfile
-    image: registry.satont.dev/tsuwari/eval
+      dockerfile: ./Dockerfile
+      target: eval
   eventsub:
     build:
       context: .
-      dockerfile: ./apps/eventsub/Dockerfile
-    image: registry.satont.dev/tsuwari/eventsub
+      dockerfile: ./Dockerfile
+      target: eventsub
   integrations:
     build:
       context: .
-      dockerfile: ./apps/integrations/Dockerfile
-    image: registry.satont.dev/tsuwari/integrations
+      dockerfile: ./Dockerfile
+      target: integrations
   parser:
     build:
       context: .
-      dockerfile: ./apps/parser/Dockerfile
-    image: registry.satont.dev/tsuwari/parser
+      dockerfile: ./Dockerfile
+      target: parser
   scheduler:
     build:
       context: .
-      dockerfile: ./apps/scheduler/Dockerfile
-    image: registry.satont.dev/tsuwari/scheduler
+      dockerfile: ./Dockerfile
+      target: scheduler
   streamstatus:
     build:
       context: .
-      dockerfile: ./apps/streamstatus/Dockerfile
-    image: registry.satont.dev/tsuwari/streamstatus
+      dockerfile: ./Dockerfile
+      target: streamstatus
   timers:
     build:
       context: .
-      dockerfile: ./apps/timers/Dockerfile
-    image: registry.satont.dev/tsuwari/timers
-  migrations:
-    build:
-      context: .
-      dockerfile: ./libs/typeorm/Dockerfile
-    image: registry.satont.dev/tsuwari/migrations
+      dockerfile: ./Dockerfile
+      target: timers
+  # migrations:
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #     target: migrations
