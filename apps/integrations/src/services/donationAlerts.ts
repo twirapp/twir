@@ -60,7 +60,7 @@ export class DonationAlerts {
       const msg = !data.message || data.message === 'null' ? '' : data.message;
       sendMessage({
         channelId: this.twitchUserId,
-        message: `${data.username}: ${data.amount}${data.currency} ${msg}`,
+        message: `${data.username ?? 'Anonymous'}: ${data.amount}${data.currency} ${msg}`,
         color: 'orange',
       });
     });
@@ -78,7 +78,7 @@ export class DonationAlerts {
 export type Message = {
   id: number;
   name: string;
-  username: string;
+  username?: string | null;
   message: string | null;
   message_type: 'text' | 'audio';
   payin_system: null | any;
