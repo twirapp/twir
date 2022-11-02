@@ -24,6 +24,7 @@ type Users struct {
 	DashboardAccess []ChannelsDashboardAccess `gorm:"foreignKey:UserID"                          json:"dashboardAccess"`
 	Channel         *Channels                 `gorm:"foreignKey:ID"                              json:"channel"`
 	Token           *Tokens                   `gorm:"foreignKey:TokenID"                         json:"token"`
+	Stats           *UsersStats               `gorm:"foreignKey:UserID"                          json:"stats"`
 }
 
 func (u *Users) TableName() string {
