@@ -16,6 +16,7 @@ import (
 	faceitlvl "tsuwari/parser/internal/variables/faceit/lvl"
 	random "tsuwari/parser/internal/variables/random/number"
 	randomonlineuser "tsuwari/parser/internal/variables/random/online/user"
+	phrase "tsuwari/parser/internal/variables/random/phrase"
 	sender "tsuwari/parser/internal/variables/sender"
 	song "tsuwari/parser/internal/variables/song"
 	streamcategory "tsuwari/parser/internal/variables/stream/category"
@@ -65,6 +66,7 @@ func New() Variables {
 		userfollowage.Variable,
 		usermessages.Variable,
 		touser.Variable,
+		phrase.Variable,
 	}
 
 	ctx := Variables{
