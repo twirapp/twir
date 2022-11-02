@@ -82,6 +82,8 @@ func New() Variables {
 func (c Variables) ParseInput(cache *variables_cache.VariablesCacheService, input string) string {
 	wg := sync.WaitGroup{}
 
+	mu := sync.Mutex{}
+
 	for _, s := range Regexp.FindAllString(input, len(input)) {
 		wg.Add(1)
 		v := Regexp.FindStringSubmatch(s)
@@ -98,7 +100,9 @@ func (c Variables) ParseInput(cache *variables_cache.VariablesCacheService, inpu
 		}
 
 		if variable.CommandsOnly != nil && *variable.CommandsOnly && !cache.IsCommand {
+			mu.Lock()
 			input = strings.ReplaceAll(input, s, fmt.Sprintf("$(%s)", all))
+			mu.Unlock()
 			wg.Done()
 			continue
 		}
@@ -111,7 +115,9 @@ func (c Variables) ParseInput(cache *variables_cache.VariablesCacheService, inpu
 			})
 
 			if err == nil {
+				mu.Lock()
 				input = strings.ReplaceAll(input, s, res.Result)
+				mu.Unlock()
 			}
 		}(s)
 	}
