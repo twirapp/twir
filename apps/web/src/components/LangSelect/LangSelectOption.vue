@@ -1,19 +1,18 @@
 <template>
   <button
-    :class="`flex text-sm justify-between py-[6px] px-[8px] rounded items-center ${
+    :class="`flex text-sm justify-between py-[6px] px-[7px] rounded-md items-center ${
       isActive ? 'bg-purple-60 text-white-100' : 'text-white-95 hover:bg-black-20'
     }`"
     @click="emit('change', locale)"
   >
-    <span class="pr-2">{{ name }}</span>
     <TswIcon
       v-if="isActive"
       name="Check"
       :height="16"
       :width="16"
-      direction="bottom"
-      :class="`${isActive ? 'stroke-white-100' : 'stroke-gray-60'}`"
+      class="stroke-white-100 absolute"
     />
+    <span class="pl-[22px] pr-2 text-sm">{{ name }}</span>
   </button>
 </template>
 

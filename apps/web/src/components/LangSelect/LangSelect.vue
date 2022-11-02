@@ -1,30 +1,30 @@
 <template>
-  <div class="relative inline-flex">
-    <button ref="select" :class="`select ${isOpen ? 'open' : ''}`" @click="isOpen = !isOpen">
-      {{ pageContext.locale.toUpperCase() }}
-      <div class="icon">
-        <TswIcon name="ArrowTriangleMedium" :rotate="90" />
-      </div>
-    </button>
-    <Transition>
-      <div v-if="isOpen" ref="dropdownRef" class="dropdown">
+  <TswDropdown>
+    <template #button="{ isOpen, onClick }">
+      <button :class="`select ${isOpen ? 'open' : ''}`" @click="onClick">
+        {{ pageContext.locale.toUpperCase() }}
+        <div class="icon">
+          <TswIcon name="ArrowTriangleMedium" :rotate="90" />
+        </div>
+      </button>
+    </template>
+    <template #menu>
+      <div class="dropdown">
         <LangSelectOption
           v-for="lang in languages"
           :key="lang.locale"
-          :isActive="lang.locale === pageContext.locale"
           :locale="lang.locale"
           :name="lang.name"
+          :isActive="pageContext.locale === lang.locale"
           @change="(l) => emit('change', l)"
         />
       </div>
-    </Transition>
-  </div>
+    </template>
+  </TswDropdown>
 </template>
 
 <script lang="ts" setup>
-import { TswIcon } from '@tsuwari/ui-components';
-import { onClickOutside } from '@vueuse/core';
-import { ref } from 'vue';
+import { TswIcon, TswDropdown } from '@tsuwari/ui-components';
 
 import LangSelectOption from './LangSelectOption.vue';
 
@@ -34,35 +34,10 @@ import { usePageContext } from '@/utils/pageContext.js';
 
 const emit = defineEmits<{ (event: 'change', locale: Locale): void }>();
 
-const dropdownRef = ref<HTMLElement | null>(null);
-const select = ref<HTMLElement | null>(null);
-
 const pageContext = usePageContext();
-
-onClickOutside(dropdownRef, (event) => {
-  if (!select.value) return;
-
-  if (!select.value.contains(event.target as HTMLElement)) {
-    isOpen.value = false;
-  }
-});
-
-const isOpen = ref(false);
 </script>
 
 <style scoped lang="postcss">
-.v-enter-active,
-.v-leave-active {
-  transition: transform 0.25s theme('transitionTimingFunction.DEFAULT'),
-    opacity 0.25s theme('transitionTimingFunction.DEFAULT');
-}
-
-.v-enter-from,
-.v-leave-to {
-  transform: translateY(10px);
-  opacity: 0;
-}
-
 .select {
   @apply inline-grid
     grid-flow-col
@@ -88,14 +63,12 @@ const isOpen = ref(false);
 .dropdown {
   @apply inline-flex
     flex-col
-    p-[5px]
+    p-1
     bg-black-15
     border border-black-25
-    rounded-md
+    rounded-[8px]
     min-w-[100px]
-    absolute
-    right-0
-    top-10
-    z-10;
+    z-10
+    top-0;
 }
 </style>
