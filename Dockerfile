@@ -119,7 +119,7 @@ ENTRYPOINT ["doppler", "run", "--"]
 CMD ["pnpm", "start:scheduler"]
 
 FROM node_deps_base as streamstatus_deps
-COPY --from=base /app/apps/scheduler apps/scheduler/
+COPY --from=base /app/apps/streamstatus apps/streamstatus/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/redis libs/redis/
