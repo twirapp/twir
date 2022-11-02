@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip-docker]')"
     name: Build base
     runs-on: ubuntu-latest
     steps:
