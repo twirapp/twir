@@ -49,6 +49,7 @@ type ExecutionContext struct {
 	Text        *string
 	Services    ExecutionServices
 	IsCommand   bool
+	Command     *model.ChannelsCommands
 }
 
 type VariablesCacheService struct {
@@ -69,6 +70,7 @@ type VariablesCacheOpts struct {
 	DB          *gorm.DB
 	Nats        *nats.Conn
 	IsCommand   bool
+	Command     *model.ChannelsCommands
 }
 
 func New(opts VariablesCacheOpts) *VariablesCacheService {
@@ -87,6 +89,7 @@ func New(opts VariablesCacheOpts) *VariablesCacheService {
 				Nats:   opts.Nats,
 			},
 			IsCommand: opts.IsCommand,
+			Command:   opts.Command,
 		},
 		cache: variablesCache{},
 		locks: &variablesLocks{

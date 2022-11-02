@@ -7,6 +7,7 @@ import (
 	"sync"
 	types "tsuwari/parser/internal/types"
 	commandsvariable "tsuwari/parser/internal/variables/commands"
+	command_counter "tsuwari/parser/internal/variables/commands/counter"
 	customvar "tsuwari/parser/internal/variables/customvar"
 	emotes7tv "tsuwari/parser/internal/variables/emotes/7tv"
 	emotesbttv "tsuwari/parser/internal/variables/emotes/bttv"
@@ -67,6 +68,8 @@ func New() Variables {
 		usermessages.Variable,
 		touser.Variable,
 		phrase.Variable,
+		command_counter.CommandVariable,
+		command_counter.UserVariable,
 	}
 
 	ctx := Variables{

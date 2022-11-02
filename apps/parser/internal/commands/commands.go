@@ -186,6 +186,7 @@ func (c *Commands) ParseCommandResponses(
 				Nats:      c.Nats,
 			},
 			IsCommand: true,
+			Command:   command.Cmd,
 		})
 		if results == nil {
 			result.Responses = []string{}
@@ -219,6 +220,7 @@ func (c *Commands) ParseCommandResponses(
 			DB:         c.Db,
 			Nats:       c.Nats,
 			IsCommand:  true,
+			Command:    command.Cmd,
 		})
 
 		go func(i int, r string) {
