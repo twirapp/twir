@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	model "tsuwari/models"
 	"tsuwari/parser/internal/permissions"
 	"tsuwari/parser/pkg/helpers"
 
 	"github.com/go-redis/redis/v9"
 	parserproto "github.com/satont/tsuwari/libs/nats/parser"
-	uuid "github.com/satori/go.uuid"
 )
 
 const (
@@ -41,15 +39,6 @@ func (c *NatsServiceImpl) HandleProcessCommand(data parserproto.Request) *parser
 	if cmd.Cmd == nil || !cmd.Cmd.Enabled {
 		return nil
 	}
-
-	// go func() {
-	c.commands.Db.Create(&model.ChannelsCommandsUsages{
-		ID:        uuid.NewV4().String(),
-		UserID:    data.Sender.Id,
-		ChannelID: data.Channel.Id,
-		CommandID: cmd.Cmd.ID,
-	})
-	// }()
 
 	if cmd.Cmd.Cooldown.Valid && cmd.Cmd.CooldownType == cooldownGlobal &&
 		cmd.Cmd.Cooldown.Int64 > 0 &&

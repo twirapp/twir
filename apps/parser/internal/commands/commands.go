@@ -16,6 +16,8 @@ import (
 	"tsuwari/parser/internal/variables"
 	"tsuwari/parser/pkg/helpers"
 
+	uuid "github.com/satori/go.uuid"
+
 	channel_game "tsuwari/parser/internal/commands/channel/game"
 	channel_title "tsuwari/parser/internal/commands/channel/title"
 
@@ -170,6 +172,13 @@ func (c *Commands) ParseCommandResponses(
 		},
 	)
 
+	c.Db.Create(&model.ChannelsCommandsUsages{
+		ID:        uuid.NewV4().String(),
+		UserID:    data.Sender.Id,
+		ChannelID: data.Channel.Id,
+		CommandID: cmd.ID,
+	})
+
 	if cmd.Default && isDefaultExists {
 		results := defaultCommand.Handler(variables_cache.ExecutionContext{
 			ChannelName: data.Channel.Name,
@@ -212,8 +221,8 @@ func (c *Commands) ParseCommandResponses(
 		cacheService := variables_cache.New(variables_cache.VariablesCacheOpts{
 			Text:       cmdParams,
 			SenderId:   data.Sender.Id,
-			ChannelId:  data.Channel.Id,
 			SenderName: &data.Sender.DisplayName,
+			ChannelId:  data.Channel.Id,
 			Redis:      c.redis,
 			Regexp:     variables.Regexp,
 			Twitch:     c.Twitch,
