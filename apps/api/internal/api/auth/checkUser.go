@@ -6,6 +6,7 @@ import (
 	model "tsuwari/models"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	"github.com/satont/tsuwari/libs/nats/bots"
@@ -76,6 +77,7 @@ func checkUser(
 				services.Logger.Sugar().Error(err)
 				return err
 			}
+			user.Channel = &channel
 		}
 
 		if user.TokenID.Valid {
@@ -94,8 +96,8 @@ func checkUser(
 	}
 
 	bytes, _ := proto.Marshal(&bots.JoinOrLeaveRequest{
-		Action:   "join",
-		BotId:    defaultBot.ID,
+		Action:   lo.If(user.Channel.IsEnabled, "join").Else("part"),
+		BotId:    user.Channel.BotID,
 		UserName: username,
 	})
 	services.Nats.Publish(bots.SUBJECTS_JOIN_OR_LEAVE, bytes)
