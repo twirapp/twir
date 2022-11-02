@@ -2,7 +2,6 @@ import { ChannelStream } from '@tsuwari/typeorm/entities/ChannelStream';
 import { User } from '@tsuwari/typeorm/entities/User';
 import { UserStats } from '@tsuwari/typeorm/entities/UserStats';
 
-import { USERS_STATUS_CACHE_TTL } from '../constants.js';
 import { typeorm } from '../libs/typeorm.js';
 
 const statsRepository = typeorm.getRepository(UserStats);
@@ -18,7 +17,7 @@ export async function increaseUserMessages(userId: string, channelId: string) {
     channelId,
   });
   if (currentStats) {
-    await statsRepository.increment({ userId, channelId }, 'messages', 1);
+    statsRepository.increment({ userId, channelId }, 'messages', 1);
   } else {
     const user = await userRepository.findOneBy({
       id: userId,

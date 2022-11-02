@@ -159,6 +159,8 @@ export class Bot extends ChatClient {
       if (state.userInfo.isVip) usersBadges.push('VIP');
       usersBadges.push('VIEWER');
 
+      await increaseUserMessages(state.userInfo.userId, state.channelId);
+
       if (message.startsWith('!')) {
         const data = Parser.Request.toBinary({
           channel: {
@@ -271,7 +273,6 @@ export class Bot extends ChatClient {
         }
       });
 
-      increaseUserMessages(state.userInfo.userId, state.channelId);
       increaseParsedMessages(state.channelId);
       storeUserMessage(state, message);
       messageParseTime.observe(performance.now() - perfStart);
