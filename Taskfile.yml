@@ -52,3 +52,7 @@ tasks:
 
   dev:
     deps: [parser-dev, timers-dev, api-dev, node-dev]
+
+  docker-local-build:
+    cmds:
+      - docker compose -f docker-compose.build.yml build --progress=plain
