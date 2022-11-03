@@ -15,6 +15,7 @@ import { type ChannelPermit } from './ChannelPermit.js';
 import { type CommandUsage } from './CommandUsage.js';
 import { type DashboardAccess } from './DashboardAccess.js';
 import { type Notification } from './Notification.js';
+import { type RequestedSong } from './RequestedSong.js';
 import { type Token } from './Token.js';
 import { type UserFile } from './UserFile.js';
 import { type UserOnline } from './UserOnline.js';
@@ -69,4 +70,7 @@ export class User {
 
   @OneToMany('UserViewedNotification', 'user')
   viewedNotifications?: Relation<UserViewedNotification[]>;
+
+  @OneToMany('RequestedSong', 'orderedBy')
+  requestedSongs?: Relation<RequestedSong[]>;
 }

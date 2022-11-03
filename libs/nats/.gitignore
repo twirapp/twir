@@ -6,6 +6,7 @@ timers/*
 integrations/*
 scheduler/*
 eventsub/*
+youtube/*
 
 !*/go.mod
 !.gitkeep

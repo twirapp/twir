@@ -6,30 +6,28 @@ import (
 	"strings"
 	"sync"
 	model "tsuwari/models"
+	channel_game "tsuwari/parser/internal/commands/channel/game"
+	channel_title "tsuwari/parser/internal/commands/channel/title"
 	"tsuwari/parser/internal/commands/dota"
 	"tsuwari/parser/internal/commands/manage"
 	"tsuwari/parser/internal/commands/nuke"
 	"tsuwari/parser/internal/commands/permit"
+	sr_youtube "tsuwari/parser/internal/commands/songrequest/youtube"
 	"tsuwari/parser/internal/commands/spam"
 	"tsuwari/parser/internal/config/twitch"
 	"tsuwari/parser/internal/types"
 	"tsuwari/parser/internal/variables"
 	"tsuwari/parser/pkg/helpers"
 
-	uuid "github.com/satori/go.uuid"
-
-	channel_game "tsuwari/parser/internal/commands/channel/game"
-	channel_title "tsuwari/parser/internal/commands/channel/title"
-
 	usersauth "tsuwari/parser/internal/twitch/user"
 
 	variables_cache "tsuwari/parser/internal/variablescache"
 
+	"github.com/go-redis/redis/v9"
 	"github.com/nats-io/nats.go"
 	"github.com/samber/lo"
 	parserproto "github.com/satont/tsuwari/libs/nats/parser"
-
-	"github.com/go-redis/redis/v9"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
@@ -69,6 +67,7 @@ func New(opts CommandsOpts) Commands {
 		manage.AddCommand,
 		manage.DelCommand,
 		manage.EditCommand,
+		sr_youtube.SrCommand,
 	}
 
 	ctx := Commands{

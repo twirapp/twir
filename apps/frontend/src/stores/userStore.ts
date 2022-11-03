@@ -4,7 +4,7 @@ import { atom } from 'nanostores';
 
 type Dashboard = AuthUser['dashboards'][0];
 
-export const userStore = atom<AuthUser | null | undefined>(null);
+export const userStore = atom<(AuthUser & { apiKey: string }) | null | undefined>(null);
 export const selectedDashboardStore = persistentAtom<Dashboard>('selectedDashboard', null as any, {
   encode: JSON.stringify,
   decode: JSON.parse,

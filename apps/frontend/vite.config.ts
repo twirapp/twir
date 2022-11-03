@@ -18,6 +18,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      'xmlhttprequest-ssl': './node_modules/engine.io-client/lib/xmlhttprequest.js',
       '@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src'),
       '@elements': path.resolve(
         path.dirname(fileURLToPath(import.meta.url)),
@@ -49,6 +50,16 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ''),
         ws: true,
       },
+      '/socket.io': {
+        target: process.env.VITE_API_URL ?? 'http://localhost:3004',
+        changeOrigin: true,
+        ws: true,
+      },
+      // '/socket.io/:path*/': {
+      //   target: process.env.VITE_API_URL ?? 'http://localhost:3003',
+      //   changeOrigin: true,
+      //   ws: true,
+      // },
     },
   },
 });

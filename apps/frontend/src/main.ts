@@ -4,13 +4,13 @@ import Toast, { PluginOptions, POSITION, TYPE } from 'vue-toastification';
 
 import 'tw-elements';
 
+import 'flag-icons/css/flag-icons.css';
+import 'vue-toastification/dist/index.css';
 import App from './App.vue';
+import './main.css';
 import { i18n } from './plugins/i18n';
 import { router } from './plugins/router';
-
-import './main.css';
-import 'vue-toastification/dist/index.css';
-import 'flag-icons/css/flag-icons.css';
+import './plugins/socket';
 
 const app = createApp(App).use(MasonryWall).use(i18n).use(router);
 

@@ -31,6 +31,7 @@ import { DotaMatchResult } from './entities/DotaMatchResult.js';
 import { Integration } from './entities/Integration.js';
 import { Notification } from './entities/Notification.js';
 import { NotificationMessage } from './entities/NotificationMessage.js';
+import { RequestedSong } from './entities/RequestedSong.js';
 import { Token } from './entities/Token.js';
 import { User } from './entities/User.js';
 import { UserFile } from './entities/UserFile.js';
@@ -78,6 +79,7 @@ export const AppDataSource = new DataSource({
     ChannelFollowEvent,
     ChannelDonationEvent,
     ChannelStream,
+    RequestedSong,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

@@ -1,0 +1,48 @@
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  Relation,
+} from 'typeorm';
+
+import { type Channel } from './Channel.js';
+import { type User } from './User.js';
+
+@Entity('channels_requested_songs')
+export class RequestedSong {
+  @PrimaryColumn('uuid', {
+    primary: true,
+    name: 'id',
+    default: () => 'gen_random_uuid()',
+  })
+  id: string;
+
+  @Column('varchar')
+  videoId: string;
+
+  @Column('text')
+  title: string;
+
+  @Column('int4')
+  duration: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column()
+  orderedById: string;
+
+  @ManyToOne('User', 'requestedSongs')
+  @JoinColumn({ name: 'orderedById' })
+  orderedBy?: Relation<User>;
+
+  @Column()
+  channelId: string;
+
+  @ManyToOne('Channel', 'requestedSongs')
+  @JoinColumn({ name: 'channelId' })
+  channel?: Relation<Channel>;
+}

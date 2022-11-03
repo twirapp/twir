@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "tsuwari/nats/timers";
+
+message Empty {}
+
+message AddSongToQueue {
+  string channelId = 1;
+  string entityId = 2;
+}
+
+message RemoveSongFromQueue {
+  string channelId = 1;
+  string entityId = 2;
+}

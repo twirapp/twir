@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+import { socket } from './socket';
+
 import { fetchAndSetUser } from '@/functions/fetchAndSetUser';
-import { redirectToLogin } from '@/functions/redirectToLogin.js';
+import { redirectToLogin } from '@/functions/redirectToLogin';
 import { userStore } from '@/stores/userStore';
 
 export const router = createRouter({
@@ -113,6 +115,8 @@ router.beforeEach(async (to, _from, next) => {
     if (!userStore.get()) {
       return redirectToLogin();
     }
+
+    // socket.connect();
 
     next();
   } else {

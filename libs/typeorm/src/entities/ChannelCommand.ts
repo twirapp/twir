@@ -34,6 +34,7 @@ export enum CommandModule {
   CHANNEL = 'CHANNEL',
   MODERATION = 'MODERATION',
   MANAGE = 'MANAGE',
+  SONGREQUEST = 'SONGREQUEST',
 }
 
 @Index('channels_commands_name_channelId_key', ['channelId', 'name'], { unique: true })

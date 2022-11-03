@@ -24,6 +24,7 @@ import { type ChannelPermit } from './ChannelPermit.js';
 import { type ChannelStream } from './ChannelStream.js';
 import { type ChannelTimer } from './ChannelTimer.js';
 import { type DashboardAccess } from './DashboardAccess.js';
+import { type RequestedSong } from './RequestedSong.js';
 import { type User } from './User.js';
 import { type UserOnline } from './UserOnline.js';
 import { type UserStats } from './UserStats.js';
@@ -97,4 +98,7 @@ export class Channel {
 
   @OneToMany('UserOnline', 'channel')
   onlineUsers?: Relation<UserOnline[]>;
+
+  @OneToMany('RequestedSong', 'channel')
+  requestedSongs?: Relation<RequestedSong[]>;
 }
