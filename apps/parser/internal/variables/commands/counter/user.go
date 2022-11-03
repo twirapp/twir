@@ -8,7 +8,7 @@ import (
 )
 
 var UserVariable = types.Variable{
-	Name:         "command.user.counter",
+	Name:         "command.counter.user",
 	Description:  lo.ToPtr("Counter saying how many times command was used by sender user"),
 	CommandsOnly: lo.ToPtr(true),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
