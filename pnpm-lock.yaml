@@ -435,14 +435,14 @@ importers:
   apps/web:
     specifiers:
       '@egjs/flicking-plugins': 4.4.0
-      '@egjs/vue3-flicking': 4.10.1
+      '@egjs/vue3-flicking': 4.10.2
       '@fastify/compress': 6.1.1
       '@fastify/http-proxy': 8.2.3
       '@fastify/middie': 8.0.0
       '@fastify/static': 6.5.0
       '@nanostores/persistent': 0.7.0
       '@nanostores/vue': '0.6'
-      '@tanstack/vue-query': 4.13.4
+      '@tanstack/vue-query': 4.14.1
       '@tsuwari/shared': workspace:*
       '@tsuwari/ui-components': workspace:*
       '@tsuwari/ui-fonts': workspace:*
@@ -466,14 +466,14 @@ importers:
       vue-router: 4.1.6
     dependencies:
       '@egjs/flicking-plugins': 4.4.0
-      '@egjs/vue3-flicking': 4.10.1_vue@3.2.41
+      '@egjs/vue3-flicking': 4.10.2_vue@3.2.41
       '@fastify/compress': 6.1.1
       '@fastify/http-proxy': 8.2.3
       '@fastify/middie': 8.0.0
       '@fastify/static': 6.5.0
       '@nanostores/persistent': 0.7.0_nanostores@0.7.0
       '@nanostores/vue': 0.6.0_r627q4dwpmfpioilrlqhfzrl3q
-      '@tanstack/vue-query': 4.13.4_vue@3.2.41
+      '@tanstack/vue-query': 4.14.1_vue@3.2.41
       '@vue/server-renderer': 3.2.41_vue@3.2.41
       '@vueuse/core': 9.4.0_vue@3.2.41
       cross-env: 7.0.3
@@ -2405,8 +2405,8 @@ packages:
       '@egjs/flicking': ^4.1.0
     dev: false
 
-  /@egjs/flicking/4.10.1:
-    resolution: {integrity: sha512-SSh7jBixPT6zWr19yGr5Ru49OBB5V03xvXmeaBonbA6iwPAWe/SeBVE5cirlc+Keq6jB8JQG5bviDN63QA0cRg==}
+  /@egjs/flicking/4.10.2:
+    resolution: {integrity: sha512-zGPohW8Q2LzXajSqra0A+2DmXOb9igVF47Ap1nn+IZz7Ahau+vLdZ16QasV31fUbItUSCx8NmQYN38mcqYieoA==}
     dependencies:
       '@egjs/axes': 3.8.1
       '@egjs/component': 3.0.2
@@ -2424,12 +2424,13 @@ packages:
     resolution: {integrity: sha512-HsbMKc0ZAQH+EUeCmI/2PvTYSybmkaWwakU8QGDYYgMVIg9BQ5sM0A0Nnombjxo2+JzXHxmH+jw//yGX+y6GYw==}
     dev: false
 
-  /@egjs/vue3-flicking/4.10.1_vue@3.2.41:
-    resolution: {integrity: sha512-bWrQb0TpCAQtA0RUModGq1RrGX7k/x1ssdnXzM2pOiQlM52a5CFemF8Csvx4XHHVS2k39RU3zmG6pVhQhNI03g==}
+  /@egjs/vue3-flicking/4.10.2_vue@3.2.41:
+    resolution: {integrity: sha512-COkR8ptnOGnsLNyynzFeFlaw9IkEQfX2Y/3/RYcLCPYG7cUKGMjSwrEfTB5+biowJ/wFWfAxtaRi3Jc66SdhJA==}
     peerDependencies:
       vue: ^3.0.0
     dependencies:
-      '@egjs/flicking': 4.10.1
+      '@egjs/component': 3.0.2
+      '@egjs/flicking': 4.10.2
       vue: 3.2.41
     dev: false
 
@@ -5466,12 +5467,12 @@ packages:
       remove-accents: 0.4.2
     dev: false
 
-  /@tanstack/query-core/4.13.4:
-    resolution: {integrity: sha512-DMIy6tgGehYoRUFyoR186+pQspOicyZNSGvBWxPc2CinHjWOQ7DPnGr9zmn/kE9xK4Zd3GXd25Nj3X20+TF6Lw==}
+  /@tanstack/query-core/4.14.1:
+    resolution: {integrity: sha512-mUejKoFDe4NZB8jQJR1uuAl6IwvkUpOD2m8NcuTVPOu0pcxeeFPdrnHaljwOEFPtlqXoiiIIQGYy6whjCMN+iQ==}
     dev: false
 
-  /@tanstack/vue-query/4.13.4_vue@3.2.41:
-    resolution: {integrity: sha512-Snxmkwo9xugYfF5PxTIJ8VBiOQgsjq2b56zIXRfdqX+WaANFnkPJECeckynswh75G3mm9Ue1YIeCkRMY4CyjCA==}
+  /@tanstack/vue-query/4.14.1_vue@3.2.41:
+    resolution: {integrity: sha512-bxvlb0ItJCLhrmme6JQzsGmTivccEi4r2umN5mfqofprYmkfInsGvLwgUfqpKN553pg8dBPXkda3+R8yohm5VA==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.5.0 || ^3.0.0
@@ -5480,7 +5481,7 @@ packages:
         optional: true
     dependencies:
       '@tanstack/match-sorter-utils': 8.5.14
-      '@tanstack/query-core': 4.13.4
+      '@tanstack/query-core': 4.14.1
       '@vue/devtools-api': 6.4.5
       vue: 3.2.41
       vue-demi: 0.13.11_vue@3.2.41
