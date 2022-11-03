@@ -13,7 +13,7 @@ const exampleStr = "Please check example."
 var Variable = types.Variable{
 	Name:        "random.phrase",
 	Description: lo.ToPtr("Random phrase from list"),
-	Example:     lo.ToPtr("random.phrase|Hi there,Kappa,Another Phrase"),
+	Example:     lo.ToPtr("random.phrase|Hi there|Kappa|Another Phrase"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
@@ -22,7 +22,7 @@ var Variable = types.Variable{
 			return result, nil
 		}
 
-		params := strings.Split(*data.Params, ",")
+		params := strings.Split(*data.Params, "|")
 		if params == nil {
 			result.Result = "Something is wrong with your params"
 			return result, nil
