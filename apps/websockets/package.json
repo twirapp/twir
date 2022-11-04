@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "@tsuwari/config": "workspace:*",
+    "@tsuwari/nats": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
+    "nats": "^2.9.0",
     "socket.io": "^4.5.3"
   }
 }

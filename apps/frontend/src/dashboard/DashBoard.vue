@@ -15,6 +15,7 @@ import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
 
 import MyBtn from '@/components/elements/MyBtn.vue';
+import YoutubePlayer from '@/components/widgets/YoutubePlayer.vue';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
@@ -97,6 +98,8 @@ async function sendForm() {
 <template>
   <div class="m-1.5 md:m-3">
     <div class="masonry md:masonry-md sm:masonry-sm space-y-2">
+      <YoutubePlayer />
+
       <div class="block break-inside card rounded shadow text-white">
         <h2
           class="border-b border-gray-700 card-title flex font-bold justify-center outline-none p-2">

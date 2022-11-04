@@ -2,7 +2,6 @@
 import {
   Column,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -20,6 +19,7 @@ import { type ChannelGreeting } from './ChannelGreeting.js';
 import { type ChannelIntegration } from './ChannelIntegration.js';
 import { type ChannelKeyword } from './ChannelKeyword.js';
 import { type ChannelModerationSetting } from './ChannelModerationSetting.js';
+import { type ChannelModuleSettings } from './ChannelModuleSettings.js';
 import { type ChannelPermit } from './ChannelPermit.js';
 import { type ChannelStream } from './ChannelStream.js';
 import { type ChannelTimer } from './ChannelTimer.js';
@@ -101,4 +101,7 @@ export class Channel {
 
   @OneToMany('RequestedSong', 'channel')
   requestedSongs?: Relation<RequestedSong[]>;
+
+  @OneToMany('ChannelModuleSettings', 'channel')
+  modules?: Relation<ChannelModuleSettings[]>;
 }

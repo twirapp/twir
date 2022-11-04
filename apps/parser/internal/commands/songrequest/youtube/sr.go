@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/url"
 	"regexp"
 	"time"
 	model "tsuwari/models"
 	"tsuwari/parser/internal/types"
 	variables_cache "tsuwari/parser/internal/variablescache"
+
+	youtubenats "github.com/satont/tsuwari/libs/nats/youtube"
+	"google.golang.org/protobuf/proto"
 
 	ytsr "github.com/SherlockYigit/youtube-go"
 	ytdl "github.com/kkdai/youtube/v2"
@@ -23,7 +25,7 @@ var (
 	ytContext  = context.Background()
 	YtDlClient = ytdl.Client{}
 	linkRegexp = regexp.MustCompile(
-		`(?m)^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$`,
+		`(?m)^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)(?P<id>[\w\-]+)(\S+)?$`,
 	)
 )
 
@@ -47,15 +49,9 @@ var SrCommand = types.DefaultCommand{
 
 		var songId string
 
-		findByRegexp := linkRegexp.Find([]byte(*ctx.Text))
+		findByRegexp := linkRegexp.FindStringSubmatch(*ctx.Text)
 		if len(findByRegexp) > 0 {
-			songUrl, err := url.Parse(string(findByRegexp))
-			if err != nil {
-				log.Fatal(err)
-				result.Result = append(result.Result, "internal error")
-				return result
-			}
-			songId = songUrl.Query().Get("v")
+			songId = findByRegexp[6]
 		} else {
 			res := ytsr.Search(*ctx.Text, ytsr.SearchOptions{
 				Type:  "video",
@@ -100,13 +96,14 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		entity := model.RequestedSong{
-			ID:          uuid.NewV4().String(),
-			ChannelID:   ctx.ChannelId,
-			OrderedById: ctx.SenderId,
-			VideoID:     ytdlSongInfo.ID,
-			Title:       ytdlSongInfo.Title,
-			Duration:    int32(ytdlSongInfo.Duration / time.Millisecond),
-			CreatedAt:   time.Now(),
+			ID:            uuid.NewV4().String(),
+			ChannelID:     ctx.ChannelId,
+			OrderedById:   ctx.SenderId,
+			OrderedByName: ctx.SenderName,
+			VideoID:       ytdlSongInfo.ID,
+			Title:         ytdlSongInfo.Title,
+			Duration:      int32(ytdlSongInfo.Duration / time.Millisecond),
+			CreatedAt:     time.Now(),
 		}
 
 		err = ctx.Services.Db.Create(&entity).Error
@@ -138,6 +135,13 @@ var SrCommand = types.DefaultCommand{
 				timeForWait.String(),
 			),
 		)
+
+		natsData, err := proto.Marshal(
+			&youtubenats.AddSongToQueue{ChannelId: ctx.ChannelId, EntityId: entity.ID},
+		)
+		if err == nil {
+			ctx.Services.Nats.Publish(youtubenats.SUBJECTS_ADD_SONG_TO_QUEUE, natsData)
+		}
 
 		return result
 	},

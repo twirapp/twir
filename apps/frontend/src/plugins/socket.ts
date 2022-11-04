@@ -1,4 +1,4 @@
-import io, { ManagerOptions, SocketOptions } from 'socket.io-client';
+import io, { ManagerOptions, Socket, SocketOptions } from 'socket.io-client';
 
 import { selectedDashboardStore, userStore } from '@/stores/userStore';
 
@@ -23,14 +23,19 @@ const options: Partial<ManagerOptions & SocketOptions> = {
   auth: authCb,
 };
 
+export const NAMESPACES = {
+  YOUTUBE: 'youtube',
+};
+
 export const socket = io(baseUrl, options);
-const youtube = io(`${baseUrl}/youtube`, options);
+export const nameSpaces: Map<string, Socket> = new Map();
+
+nameSpaces.set(NAMESPACES.YOUTUBE, io(`${baseUrl}/youtube`, options));
 
 function connect() {
   socket.removeAllListeners().disconnect().connect();
 
-  youtube.removeAllListeners().disconnect().connect();
-  youtube.on('currentQueue', (d) => console.log('getting', d));
+  nameSpaces.get(NAMESPACES.YOUTUBE)?.removeAllListeners().disconnect().connect();
 }
 
 selectedDashboardStore.subscribe(() => {

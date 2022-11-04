@@ -12,6 +12,7 @@
     "@nanostores/persistent": "0.7.0",
     "@nanostores/vue": "0.6.0",
     "@popperjs/core": "2.11.6",
+    "@skjnldsv/vue-plyr": "^7.3.0",
     "@vueuse/components": "9.4.0",
     "@vueuse/core": "9.4.0",
     "@vueuse/integrations": "9.4.0",

@@ -239,6 +239,7 @@ importers:
       '@nanostores/persistent': 0.7.0
       '@nanostores/vue': 0.6.0
       '@popperjs/core': 2.11.6
+      '@skjnldsv/vue-plyr': ^7.3.0
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@twurple/api': 5.2.5
@@ -279,6 +280,7 @@ importers:
       '@nanostores/persistent': 0.7.0_nanostores@0.7.0
       '@nanostores/vue': 0.6.0_r627q4dwpmfpioilrlqhfzrl3q
       '@popperjs/core': 2.11.6
+      '@skjnldsv/vue-plyr': 7.3.0
       '@vueuse/components': 9.4.0_vue@3.2.41
       '@vueuse/core': 9.4.0_vue@3.2.41
       '@vueuse/integrations': 9.4.0_axios@1.1.3+vue@3.2.41
@@ -437,11 +439,15 @@ importers:
   apps/websockets:
     specifiers:
       '@tsuwari/config': workspace:*
+      '@tsuwari/nats': workspace:*
       '@tsuwari/typeorm': workspace:*
+      nats: ^2.9.0
       socket.io: ^4.5.3
     dependencies:
       '@tsuwari/config': link:../../libs/config
+      '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/typeorm': link:../../libs/typeorm
+      nats: 2.9.0
       socket.io: 4.5.3
 
   libs/config:
@@ -1847,6 +1853,14 @@ packages:
   /@sindresorhus/is/4.6.0:
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
     engines: {node: '>=10'}
+    dev: false
+
+  /@skjnldsv/vue-plyr/7.3.0:
+    resolution: {integrity: sha512-zWw6/EaQJxrvBKm6DL5SahdNxZxZ6kQ88zMnr+6iGH6GKY12IuxN86jBRIBc/O+j4SKPyzvAA2pYXPgfZtwdtg==}
+    engines: {node: ^16.0.0, npm: ^7.0.0 || ^8.0.0}
+    dependencies:
+      plyr: 3.7.2
+      vue: 3.2.41
     dev: false
 
   /@socket.io/component-emitter/3.1.0:
@@ -3367,6 +3381,11 @@ packages:
   /cookie/0.5.0:
     resolution: {integrity: sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==}
     engines: {node: '>= 0.6'}
+    dev: false
+
+  /core-js/3.26.0:
+    resolution: {integrity: sha512-+DkDrhoR4Y0PxDz6rurahuB+I45OsEUv8E1maPTB6OuHRohMMcznBq9TMpdpDMm/hUPob/mJJS3PqgbHpMTQgw==}
+    requiresBuild: true
     dev: false
 
   /core-util-is/1.0.2:
@@ -5544,6 +5563,10 @@ packages:
     resolution: {integrity: sha512-9JROoBW7pobfsx+Sq2JsASvCo6Pfo6WWoUW79HuB1BCoBXD4PLWJPqDF6fNj67pqBYTbAHkE57M1kS/+L1neOg==}
     engines: {node: '>=10'}
 
+  /loadjs/4.2.0:
+    resolution: {integrity: sha512-AgQGZisAlTPbTEzrHPb6q+NYBMD+DP9uvGSIjSUM5uG+0jG15cb8axWpxuOIqrmQjn6scaaH8JwloiP27b2KXA==}
+    dev: false
+
   /local-pkg/0.4.2:
     resolution: {integrity: sha512-mlERgSPrbxU3BP4qBqAvvwlgW4MTg78iwJdGGnv7kibKjWcJksrG3t6LB5lXI93wXRDvG4NpUgJFmTG4T6rdrg==}
     engines: {node: '>=14'}
@@ -5827,6 +5850,14 @@ packages:
     engines: {node: '>= 10.0.0'}
     dependencies:
       nkeys.js: 1.0.3
+    dev: false
+
+  /nats/2.9.0:
+    resolution: {integrity: sha512-UBZg0ydCVs4vTp7sFWkmXWmV4oebt6vVRpFUgp+HUMhzjWyvcrBHq0t6hogIHnT5BYilIo0/koDH5FWzhBtSOQ==}
+    engines: {node: '>= 14.0.0'}
+    dependencies:
+      nkeys.js: 1.0.3
+      web-streams-polyfill: 3.2.1
     dev: false
 
   /natural-compare/1.4.0:
@@ -6252,6 +6283,16 @@ packages:
     engines: {node: '>= 0.4.0'}
     dev: false
 
+  /plyr/3.7.2:
+    resolution: {integrity: sha512-I0ZC/OI4oJ0iWG9s2rrnO0YFO6aLyrPiQBq9kum0FqITYljwTPBbYL3TZZu8UJQJUq7tUWN18Q7ACwNCkGKABQ==}
+    dependencies:
+      core-js: 3.26.0
+      custom-event-polyfill: 1.0.7
+      loadjs: 4.2.0
+      rangetouch: 2.0.1
+      url-polyfill: 1.1.12
+    dev: false
+
   /popper.js/1.16.1:
     resolution: {integrity: sha512-Wb4p1J4zyFTbM+u6WuO4XstYx4Ky9Cewe4DWrel7B0w6VVICvPwdOpotjzcf6eD8TsckVnIMNONQyPIUFOUbCQ==}
     deprecated: You can find the new Popper v2 at @popperjs/core, this package is dedicated to the legacy v1
@@ -6468,6 +6509,10 @@ packages:
   /range-parser/1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
+    dev: false
+
+  /rangetouch/2.0.1:
+    resolution: {integrity: sha512-sln+pNSc8NGaHoLzwNBssFSf/rSYkqeBXzX1AtJlkJiUaVSJSbRAWJk+4omsXkN+EJalzkZhWQ3th1m0FpR5xA==}
     dev: false
 
   /raw-body/2.5.1:
@@ -7516,6 +7561,10 @@ packages:
     dependencies:
       punycode: 2.1.1
 
+  /url-polyfill/1.1.12:
+    resolution: {integrity: sha512-mYFmBHCapZjtcNHW0MDq9967t+z4Dmg5CJ0KqysK3+ZbyoNOWQHksGCTWwDhxGXllkWlOc10Xfko6v4a3ucM6A==}
+    dev: false
+
   /util-deprecate/1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -7809,6 +7858,11 @@ packages:
       '@vue/runtime-dom': 3.2.41
       '@vue/server-renderer': 3.2.41_vue@3.2.41
       '@vue/shared': 3.2.41
+
+  /web-streams-polyfill/3.2.1:
+    resolution: {integrity: sha512-e0MO3wdXWKrLbL0DgGnUV7WHVuw9OUvL4hjgnPkIeEvESk74gAITi5G606JtZPp39cd8HA9VQzCIvA49LpPN5Q==}
+    engines: {node: '>= 8'}
+    dev: false
 
   /webidl-conversions/3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}

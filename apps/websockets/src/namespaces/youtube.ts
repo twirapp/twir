@@ -1,12 +1,15 @@
+import * as Youtube from '@tsuwari/nats/youtube';
 import { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
 import SocketIo from 'socket.io';
 
+import { nats } from '../libs/nats.js';
 import { typeorm } from '../libs/typeorm.js';
 import { authMiddleware } from '../middlewares/auth.js';
 
 const sockets: Map<string, SocketIo.Socket> = new Map();
+const repository = typeorm.getRepository(RequestedSong);
 
-export const createYoutubeNameSpace = (io: SocketIo.Server) => {
+export const createYoutubeNameSpace = async (io: SocketIo.Server) => {
   const nameSpace = io.of('youtube');
   nameSpace.use(authMiddleware);
   nameSpace.on('connection', async (socket) => {
@@ -16,15 +19,34 @@ export const createYoutubeNameSpace = (io: SocketIo.Server) => {
       sockets.delete(channelId);
     });
 
-    const songs = await typeorm.getRepository(RequestedSong).findBy({
+    const songs = await repository.findBy({
       channelId,
     });
     socket.emit('currentQueue', songs);
+
+    socket.on('skip', async (id) => {
+      const entity = await repository.findOneBy({ id });
+      if (entity) {
+        await repository.delete({ id });
+      }
+    });
   });
+
+  for await (const event of nats.subscribe(Youtube.SUBJECTS.ADD_SONG_TO_QUEUE)) {
+    const data = Youtube.AddSongToQueue.fromBinary(event.data);
+
+    const socket = sockets.get(data.channelId);
+    if (!socket) return;
+
+    const entity = await repository.findOneBy({
+      id: data.entityId,
+    });
+    socket.emit('newTrack', entity);
+  }
 };
 
 export async function addSongToQueue(channelId: string, entityId: string) {
-  const entity = await typeorm.getRepository(RequestedSong).findOneBy({
+  const entity = await repository.findOneBy({
     channelId,
     id: entityId,
   });
