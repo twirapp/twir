@@ -72,7 +72,7 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		err := ctx.Services.Db.
-			Where(`"videoId" = ?`, songId).
+			Where(`"videoId" = ? AND "deletedAt" = null`, songId).
 			First(&model.RequestedSong{}).
 			Error
 

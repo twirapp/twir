@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -48,4 +49,7 @@ export class RequestedSong {
   @ManyToOne('Channel', 'requestedSongs')
   @JoinColumn({ name: 'channelId' })
   channel?: Relation<Channel>;
+
+  @DeleteDateColumn({ nullable: true })
+  deletedAt: Date | null;
 }

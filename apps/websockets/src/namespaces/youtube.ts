@@ -1,4 +1,5 @@
 import * as Youtube from '@tsuwari/nats/youtube';
+import { IsNull } from '@tsuwari/typeorm';
 import { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
 import SocketIo from 'socket.io';
 
@@ -21,13 +22,14 @@ export const createYoutubeNameSpace = async (io: SocketIo.Server) => {
 
     const songs = await repository.findBy({
       channelId,
+      deletedAt: IsNull(),
     });
     socket.emit('currentQueue', songs);
 
     socket.on('skip', async (id) => {
       const entity = await repository.findOneBy({ id });
       if (entity) {
-        await repository.delete({ id });
+        await repository.softDelete({ id });
       }
     });
   });
