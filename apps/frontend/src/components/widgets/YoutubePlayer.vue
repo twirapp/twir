@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/vue';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import VuePlyr from '@skjnldsv/vue-plyr';
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import '@skjnldsv/vue-plyr/dist/vue-plyr.css';
 
 import { youtubeAutoPlay } from './YoutubePlayerStore';
@@ -23,7 +23,6 @@ const paused = ref(true);
 const youtube = nameSpaces.get(NAMESPACES.YOUTUBE)!;
 onMounted(() => {
   youtube.on('currentQueue', (d) => {
-    console.log(d);
     queue.value = d;
     if (d.length) {
       setTrack(d[0]);
@@ -177,7 +176,10 @@ function stop() {
           ><span>{{ queue[0].title }}</span></span
         >
         <span
-          >Requested by <span>{{ queue[0].orderedByName }}</span></span
+          >Requested by
+          <span
+            ><b>{{ queue[0].orderedByName }}</b></span
+          ></span
         >
       </div>
     </div>
