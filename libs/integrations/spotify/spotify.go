@@ -55,13 +55,10 @@ func (c *Spotify) refreshToken() *error {
 		return &res
 	}
 
-	c.db.Model(&c.integration).
-		Where(`"id" = ?`, c.integration.ID).
-		Updates(model.ChannelInegrationWithRelation{
-			ChannelsIntegrations: model.ChannelsIntegrations{
-				AccessToken: null.NewString(data.AccessToken, true),
-			},
-		}).
+	c.integration.AccessToken = null.StringFrom(data.AccessToken)
+	c.db.Where(`"id" = ?`, c.integration.ID).
+		Select("*").
+		Updates(c.integration).
 		Clauses(clause.Returning{})
 
 	return nil
