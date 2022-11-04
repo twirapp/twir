@@ -69,9 +69,9 @@ function next() {
 }
 
 function playHelper() {
-  const settings = JSON.parse(localStorage.getItem('plyr')!);
-  plyr.value.player.currentTime = 0;
-  plyr.value.player.volume = settings.volume;
+  if (!paused.value) {
+    plyr.value.player.currentTime = 0;
+  }
   plyr.value.player.muted = false;
   plyr.value.player.play();
   paused.value = false;
