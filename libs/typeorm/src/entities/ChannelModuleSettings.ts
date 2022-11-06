@@ -31,6 +31,7 @@ export class ChannelModuleSettings {
 
 export type YoutubeSettings = {
   acceptOnlyWhenOnline?: boolean;
+  channelPointsRewardName?: string;
   user?: {
     maxRequests?: number;
     minWatchTime?: number;

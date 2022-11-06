@@ -39,6 +39,13 @@ onMounted(() => {
     }
   });
 
+  youtube.on('removeTrack', (track) => {
+    if (queue.value.length == 1 && queue.value[0].id == track.id) {
+      return;
+    }
+    queue.value = queue.value.filter((t) => t.id != track.id);
+  });
+
   plyr.value.player.on('ended', () => next());
 });
 

@@ -68,6 +68,7 @@ func New(opts CommandsOpts) Commands {
 		manage.DelCommand,
 		manage.EditCommand,
 		sr_youtube.SrCommand,
+		sr_youtube.WrongCommand,
 	}
 
 	ctx := Commands{

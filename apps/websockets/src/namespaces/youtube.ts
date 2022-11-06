@@ -1,5 +1,5 @@
 import * as Youtube from '@tsuwari/nats/youtube';
-import { IsNull } from '@tsuwari/typeorm';
+import { IsNull, Not } from '@tsuwari/typeorm';
 import { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
 import SocketIo from 'socket.io';
 
@@ -16,9 +16,6 @@ export const createYoutubeNameSpace = async (io: SocketIo.Server) => {
   nameSpace.on('connection', async (socket) => {
     const channelId = socket.handshake.auth.channelId;
     sockets.set(channelId, socket);
-    socket.on('disconnect', () => {
-      sockets.delete(channelId);
-    });
 
     const songs = await repository.findBy({
       channelId,
@@ -32,43 +29,42 @@ export const createYoutubeNameSpace = async (io: SocketIo.Server) => {
         await repository.softDelete({ id });
       }
     });
-  });
 
-  for await (const event of nats.subscribe(Youtube.SUBJECTS.ADD_SONG_TO_QUEUE)) {
-    const data = Youtube.AddSongToQueue.fromBinary(event.data);
-
-    const socket = sockets.get(data.channelId);
-    if (!socket) return;
-
-    const entity = await repository.findOneBy({
-      id: data.entityId,
+    socket.on('disconnect', () => {
+      sockets.delete(channelId);
     });
-    socket.emit('newTrack', entity);
-  }
+  });
+
+  const addSubscription = nats.subscribe(Youtube.SUBJECTS.ADD_SONG_TO_QUEUE);
+  const removeSubscription = nats.subscribe(Youtube.SUBJECTS.REMOVE_SONG_FROM_QUEUE);
+
+  (async () => {
+    for await (const event of nats.subscribe(Youtube.SUBJECTS.ADD_SONG_TO_QUEUE)) {
+      const data = Youtube.AddSongToQueue.fromBinary(event.data);
+
+      const socket = sockets.get(data.channelId);
+      if (!socket) return;
+
+      const entity = await repository.findOneBy({
+        id: data.entityId,
+      });
+      socket.emit('newTrack', entity);
+    }
+  })();
+
+  (async () => {
+    for await (const event of nats.subscribe(Youtube.SUBJECTS.REMOVE_SONG_FROM_QUEUE)) {
+      const data = Youtube.RemoveSongFromQueue.fromBinary(event.data);
+      console.log(data);
+
+      const socket = sockets.get(data.channelId);
+      if (!socket) return;
+
+      const entity = await repository.findOne({
+        where: { id: data.entityId },
+        withDeleted: true,
+      });
+      socket.emit('removeTrack', entity);
+    }
+  })();
 };
-
-export async function addSongToQueue(channelId: string, entityId: string) {
-  const entity = await repository.findOneBy({
-    channelId,
-    id: entityId,
-  });
-  if (!entity) return;
-
-  const socket = sockets.get(channelId);
-  if (!socket) return;
-
-  socket.emit('addSong', entity);
-}
-
-export async function removeSongFromQueue(channelId: string, entityId: string) {
-  const entity = await typeorm.getRepository(RequestedSong).findOneBy({
-    channelId,
-    id: entityId,
-  });
-  if (!entity) return;
-
-  const socket = sockets.get(channelId);
-  if (!socket) return;
-
-  socket.emit('removeSong', entity);
-}
