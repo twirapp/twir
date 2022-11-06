@@ -72,7 +72,7 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		err := ctx.Services.Db.
-			Where(`"videoId" = ? AND "deletedAt" = null`, songId).
+			Where(`"videoId" = ? AND "deletedAt" IS NULL`, songId).
 			First(&model.RequestedSong{}).
 			Error
 
@@ -116,7 +116,11 @@ var SrCommand = types.DefaultCommand{
 
 		songsInQueue := []model.RequestedSong{}
 		ctx.Services.Db.
-			Where(`"channelId" = ? AND "id" != ?`, ctx.ChannelId, entity.ID).
+			Where(
+				`"channelId" = ? AND "id" != ? AND "deletedAt" IS NULL`,
+				ctx.ChannelId,
+				entity.ID,
+			).
 			Select("duration").
 			Order(`"createdAt" desc`).
 			Find(&songsInQueue)
