@@ -4,6 +4,7 @@ import { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
 import SocketIo from 'socket.io';
 
 import { nats } from '../libs/nats.js';
+import { redis } from '../libs/redis.js';
 import { typeorm } from '../libs/typeorm.js';
 import { authMiddleware } from '../middlewares/auth.js';
 
@@ -33,13 +34,18 @@ export const createYoutubeNameSpace = async (io: SocketIo.Server) => {
     socket.on('disconnect', () => {
       sockets.delete(channelId);
     });
+
+    socket.on('play', (data) => {
+      redis.set(`songrequests:youtube:${channelId}:currentPlaying`, data.id);
+      console.log('play', data);
+    });
   });
 
   const addSubscription = nats.subscribe(Youtube.SUBJECTS.ADD_SONG_TO_QUEUE);
   const removeSubscription = nats.subscribe(Youtube.SUBJECTS.REMOVE_SONG_FROM_QUEUE);
 
   (async () => {
-    for await (const event of nats.subscribe(Youtube.SUBJECTS.ADD_SONG_TO_QUEUE)) {
+    for await (const event of addSubscription) {
       const data = Youtube.AddSongToQueue.fromBinary(event.data);
 
       const socket = sockets.get(data.channelId);
@@ -53,7 +59,7 @@ export const createYoutubeNameSpace = async (io: SocketIo.Server) => {
   })();
 
   (async () => {
-    for await (const event of nats.subscribe(Youtube.SUBJECTS.REMOVE_SONG_FROM_QUEUE)) {
+    for await (const event of removeSubscription) {
       const data = Youtube.RemoveSongFromQueue.fromBinary(event.data);
       console.log(data);
 
