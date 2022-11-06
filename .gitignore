@@ -14,5 +14,6 @@ docker-compose*
 !docker-compose.dev.yml
 !docker-compose.build.yml
 .devbox
+devbox/go
 
 !*/**/.gitkeep

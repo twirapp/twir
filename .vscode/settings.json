@@ -60,10 +60,9 @@
   "prisma.fileWatcher": false,
   "typescript.format.enable": false,
   // "editor.rulers": [100],
-  "go.useLanguageServer": true,
+  // "go.useLanguageServer": true,
   "gopls": {
-    "formatting.gofumpt": true,
-    "build.experimentalWorkspaceModule": true
+    "formatting.gofumpt": true
   },
   "emeraldwalk.runonsave": {
     "commands": [
@@ -73,16 +72,6 @@
       }
     ]
   },
-  "sqltools.connections": [
-    {
-      "previewLimit": 50,
-      "server": "localhost",
-      "port": 5432,
-      "driver": "PostgreSQL",
-      "name": "tsuwari",
-      "database": "tsuwari",
-      "username": "tsuwari",
-      "password": "tsuwari"
-    }
-  ]
+  "go.gopath": "${workspaceFolder}/.devbox/nix/profile",
+  "go.toolsGopath": "${workspaceFolder}/devbox/go"
 }

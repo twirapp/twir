@@ -1,5 +1,5 @@
 #!/bin/bash
-export GOPATH=$HOME/go
+export GOPATH=/home/satont/Projects/tsuwari/devbox/go
 export PATH=$PATH:$GOPATH/bin
 
 which gow || go install github.com/mitranim/gow@latest

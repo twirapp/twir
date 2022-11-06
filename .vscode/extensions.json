@@ -9,6 +9,7 @@
     "rangav.vscode-thunder-client",
     "vue.volar",
     "esbenp.prettier-vscode",
-    "emeraldwalk.RunOnSave"
+    "emeraldwalk.runonsave",
+    "golang.go"
   ]
 }
