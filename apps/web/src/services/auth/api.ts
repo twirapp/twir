@@ -28,3 +28,8 @@ export const authorizeByTwitchCode = async (code: string): Promise<{ accessToken
 
   return res.json();
 };
+
+export const logout = async () => {
+  const res = await authFetch('/api/auth/logout', { method: 'POST' });
+  return res.ok;
+};

@@ -1,6 +1,6 @@
 <template>
   <div class="relative inline-block">
-    <div ref="button" class="inline-block">
+    <div ref="button" class="flex">
       <slot name="button" :isOpen="isOpen" :onClick="toggleMenu" />
     </div>
     <Transition name="tsw-dropdown">

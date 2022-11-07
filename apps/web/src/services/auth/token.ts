@@ -1,6 +1,6 @@
 import { persistentAtom } from '@nanostores/persistent';
 
-import { postRefreshToken } from './api.js';
+import { logout, postRefreshToken } from './api.js';
 
 export const accessTokenStore = persistentAtom('access_token');
 
@@ -16,4 +16,12 @@ export const refreshAccessToken = async (): Promise<Response | string> => {
   if (!accessToken) return res;
   accessTokenStore.set(accessToken);
   return accessToken;
+};
+
+export const logoutAndRemoveToken = async () => {
+  const isLoggedOut = await logout();
+  if (isLoggedOut) {
+    accessTokenStore.set(undefined);
+  }
+  return isLoggedOut;
 };

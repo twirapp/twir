@@ -110,6 +110,13 @@ func logout(services types.Services) func(c *fiber.Ctx) error {
 			"GET",
 		)
 
+		c.Cookie(&fiber.Cookie{
+			Name:     "refresh_token",
+			Value:    "",
+			HTTPOnly: true,
+			Expires:  time.Now(),
+			SameSite: "lax",
+		})
 		return c.SendStatus(200)
 	}
 }
