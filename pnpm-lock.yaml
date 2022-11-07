@@ -401,7 +401,6 @@ importers:
       '@sentry/node': 7.14.0
       '@sentry/tracing': 7.14.0
       '@tsuwari/config': workspace:*
-      '@tsuwari/nats': workspace:*
       '@tsuwari/redis': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
@@ -421,7 +420,6 @@ importers:
       '@sentry/node': 7.14.0
       '@sentry/tracing': 7.14.0
       '@tsuwari/config': link:../../libs/config
-      '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/redis': link:../../libs/redis
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
@@ -1193,7 +1191,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.1.2_yzt46al3aifnexifjjdb4dxxja
-      '@nestjs/microservices': 9.1.2_fzfvjbneyottbopxczunpwrha4
+      '@nestjs/microservices': 9.1.2_anrejevo4yryahwvize52sqaom
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
