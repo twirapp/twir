@@ -12,7 +12,7 @@ import (
 
 func handleGet(channelId string, services types.Services) ([]model.ChannelsKeywords, error) {
 	keywords := []model.ChannelsKeywords{}
-	err := services.DB.Where(`channelId = ?`, channelId).Find(&keywords).Error
+	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&keywords).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get keywords")
 	}
