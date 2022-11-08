@@ -18,11 +18,14 @@ export const createYoutubeNameSpace = async (io: SocketIo.Server) => {
     const channelId = socket.handshake.auth.channelId;
     sockets.set(channelId, socket);
 
-    const songs = await repository.findBy({
-      channelId,
-      deletedAt: IsNull(),
+    socket.on('currentQueue', async (cb) => {
+      const songs = await repository.findBy({
+        channelId,
+        deletedAt: IsNull(),
+      });
+
+      cb(songs);
     });
-    socket.emit('currentQueue', songs);
 
     socket.on('skip', async (id) => {
       const entity = await repository.findOneBy({ id });
