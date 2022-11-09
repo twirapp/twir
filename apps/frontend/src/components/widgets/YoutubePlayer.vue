@@ -33,9 +33,6 @@ onMounted(() => {
     paused.value = true;
   });
 
-  // вы можете имитировать добавление/удаление треков через
-  //socket.emit('newTrack', { id: '321', videId: 'c6mpoprhv70' })
-  //socket.emit('removeTrack', { id: '321', videId: 'c6mpoprhv70' })
   plyr.value.player.on('ended', () => {
     isReady.value = false;
     paused.value = false;
@@ -106,7 +103,12 @@ function pause() {
   plyr.value.player.pause();
 }
 
-function skip() {}
+// TODO: CALL SKIP SOMEWHERE
+function skip() {
+  if (currentTrack.value) {
+    socket.emit('skip', currentTrack.value.id);
+  }
+}
 
 function playHelper() {
   if (!paused.value || !isAlreadyPlayed.value) {

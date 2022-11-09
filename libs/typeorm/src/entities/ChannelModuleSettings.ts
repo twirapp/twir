@@ -30,21 +30,26 @@ export class ChannelModuleSettings {
 }
 
 export type YoutubeSettings = {
+  maxRequests?: number;
   acceptOnlyWhenOnline?: boolean;
   channelPointsRewardName?: string;
-  user?: {
-    maxRequests?: number;
-    minWatchTime?: number;
-    minMessages?: number;
-    minFollowTime?: number;
-  };
-  song?: {
-    maxLength?: number;
-    minViews?: number;
+  filters?: {
+    user?: {
+      maxRequests?: number;
+      minWatchTime?: number;
+      minMessages?: number;
+      minFollowTime?: number;
+    };
+    song?: {
+      maxLength?: number;
+      minViews?: number;
+      acceptedCategories?: string[];
+    };
   };
   blackList?: {
-    usersIds?: string[];
+    usersIds?: string[]; // it will be converted via twitch api. We'll get user by name and store id
     songsIds?: string[];
     channelsIds?: string[];
+    aristsNames?: string[];
   };
 };
