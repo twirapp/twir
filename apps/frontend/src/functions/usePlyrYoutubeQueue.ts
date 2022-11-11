@@ -16,6 +16,7 @@ export const usePlyrYoutubeQueue = (
   const isActive = computed<boolean>(() => queueLength.value > 0);
   const playVideoEvent = createEventHook<Video>();
   const removeVideoEvent = createEventHook<Video>();
+  const videoPauseEvent = createEventHook<Video>();
   const currentVideo = computed<Video | undefined>(() => queue.value[0]);
   const queueWithoutFirst = computed(() => {
     if (queueLength.value <= 1) {
@@ -72,6 +73,7 @@ export const usePlyrYoutubeQueue = (
 
     player.value.on('pause', () => {
       isPaused.value = true;
+      videoPauseEvent.trigger(currentVideo.value!);
     });
     player.value.on('play', () => {
       isPaused.value = false;
@@ -143,6 +145,7 @@ export const usePlyrYoutubeQueue = (
     queue: readonly(queue),
     onPlayVideo: playVideoEvent.on,
     onRemoveVideo: removeVideoEvent.on,
+    onPause: videoPauseEvent.on,
     currentVideo: readonly(currentVideo),
     queueWithoutFirst: readonly(queueWithoutFirst),
   };
