@@ -19,7 +19,7 @@ export type RequestedSong = {
 };
 
 export const useYoutubeSocketPlayer = () => {
-  const player = usePlyrYoutubeQueue([], {});
+  const player = usePlyrYoutubeQueue([], { autoplay: false });
 
   interface SocketEvents {
     play: (video: { id: string }) => void;
@@ -35,8 +35,8 @@ export const useYoutubeSocketPlayer = () => {
     throw new Error('Cannot get youtube socket');
   }
 
-  player.onPlayVideo((video) => {
-    console.log('play: ', video);
+  player.onPlayVideo(({ video, timeToEnd }) => {
+    console.log('play: ', video, timeToEnd);
     socket.emit('play', { id: video.id });
   });
 

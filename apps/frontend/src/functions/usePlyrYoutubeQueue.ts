@@ -14,7 +14,7 @@ export const usePlyrYoutubeQueue = (
   const isPaused = ref(true);
   const queueLength = computed(() => queue.value.length);
   const isActive = computed<boolean>(() => queueLength.value > 0);
-  const playVideoEvent = createEventHook<Video>();
+  const playVideoEvent = createEventHook<{ video: Video; timeToEnd: number }>();
   const removeVideoEvent = createEventHook<Video>();
   const videoPauseEvent = createEventHook<Video>();
   const currentVideo = computed<Video | undefined>(() => queue.value[0]);
@@ -28,7 +28,7 @@ export const usePlyrYoutubeQueue = (
 
   const addVideo = (...videos: Video[]) => {
     if (queue.value.length === 0) {
-      setVideo(videos[0]);
+      setVideo(videos[0], false);
     }
     queue.value.push(...videos);
   };
@@ -77,8 +77,15 @@ export const usePlyrYoutubeQueue = (
     });
     player.value.on('play', () => {
       isPaused.value = false;
+      playVideoEvent.trigger({
+        video: currentVideo.value!,
+        timeToEnd: getTimeToEnd(),
+      });
     });
   };
+
+  const getTimeToEnd = () =>
+    currentVideo.value!.duration - Math.floor(player.value!.currentTime * 1000);
 
   const setVideo = (video: Video, playImmediately?: boolean) => {
     if (player.value === null) {
@@ -94,18 +101,15 @@ export const usePlyrYoutubeQueue = (
       ],
     };
 
-    if (typeof playImmediately === 'undefined' ? autoplay.value : playImmediately) {
+    playImmediately = typeof playImmediately === 'undefined' ? autoplay.value : playImmediately;
+
+    if (playImmediately) {
       player.value.once('ready', () => {
         if (player.value === null) {
           return console.error('Cannot play video, because player is null');
         }
         player.value.currentTime = 0;
         player.value.play();
-        playVideoEvent.trigger(video);
-      });
-    } else {
-      player.value.once('playing', () => {
-        playVideoEvent.trigger(video);
       });
     }
   };

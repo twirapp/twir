@@ -1,9 +1,7 @@
 <template>
   <div class="block break-inside card overflow-hidden rounded shadow text-white">
     <div class="border-b border-gray-700 px-5 py-3">
-      <p class="font-bold">
-        Youtube song request
-      </p>
+      <p class="font-bold">Youtube song request</p>
     </div>
     <VuePlyr
       :options="{
@@ -19,7 +17,6 @@
           'fullscreen',
         ],
         ratio: '16:9',
-        clickToPlay: false,
         hideControls: true,
         keyboard: { focused: false, global: false },
         invertTime: false,
@@ -28,12 +25,10 @@
       :style="{
         '--plyr-color-main': '#644EE8',
       }"
-      @init="initQueue"
-    />
+      @init="initQueue" />
     <div
       v-if="!isActive"
-      class="aspect-video bg-[#2C2C2C] flex h-full items-center justify-center text-[#AFAFAF] w-full"
-    >
+      class="aspect-video bg-[#2C2C2C] flex h-full items-center justify-center text-[#AFAFAF] w-full">
       <span>There is no videos in queue</span>
     </div>
     <!-- <ul>
@@ -50,27 +45,22 @@
         </button>
       </li>
     </ul>  -->
-    <div
-      v-if="isActive"
-      class="border-[#403D3A] border-t flex items-start p-5"
-    >
+    <div v-if="isActive" class="border-[#403D3A] border-t flex items-start p-5">
       <div class="flex-1 gap-y-2 inline-grid mr-5">
         <p class="font-medium">
           {{ currentVideo!.title }}
         </p>
         <span class="text-[#AFAFAF] text-xs">Ordered by: {{ currentVideo!.orderedByName }}</span>
       </div>
-      
+
       <div class="gap-x-3 grid-flow-col inline-grid">
         <component
           :is="isPaused ? Play : Pause"
           class="h-5 hover:cursor-pointer hover:stroke-[#D0D0D0] stroke-[#AFAFAF] w-5"
-          @click="isPaused = !isPaused"
-        />
+          @click="isPaused = !isPaused" />
         <Next
           class="h-5 hover:cursor-pointer hover:stroke-[#D0D0D0] stroke-[#AFAFAF] w-5"
-          @click="skipCurrentVideo"
-        />
+          @click="skipCurrentVideo" />
       </div>
     </div>
   </div>
@@ -86,8 +76,15 @@ import Pause from '@/assets/icons/pause.svg?component';
 import Play from '@/assets/icons/play.svg?component';
 import { useYoutubeSocketPlayer } from '@/functions/useYoutubeSocketPlayer.js';
 
-const { initQueue, currentVideo, isPaused, isActive, skipCurrentVideo, removeVideo, queueWithoutFirst: queue } =
-  useYoutubeSocketPlayer();
+const {
+  initQueue,
+  currentVideo,
+  isPaused,
+  isActive,
+  skipCurrentVideo,
+  removeVideo,
+  queueWithoutFirst: queue,
+} = useYoutubeSocketPlayer();
 
 const isAcitveStyle = computed(() => (isActive.value ? 'block' : 'none'));
 </script>
