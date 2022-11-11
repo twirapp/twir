@@ -72,6 +72,6 @@
       }
     ]
   },
-  "go.gopath": "${workspaceFolder}/.devbox/nix/profile",
+  "go.goroot": "${workspaceFolder}/.devbox/nix/profile/default/share/go",
   "go.toolsGopath": "${workspaceFolder}/devbox/go"
 }

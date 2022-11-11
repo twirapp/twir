@@ -1,11 +1,6 @@
-version: "3.7"
+version: '3.7'
 
 services:
-  bots:
-    build:
-      context: .
-      dockerfile: ./apps/bots/Dockerfile
-
   adminer:
     image: adminer
     restart: always
@@ -52,7 +47,6 @@ services:
 volumes:
   redis-data:
   postgres-data:
-
 
 networks:
   tsuwari-dev:
