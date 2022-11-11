@@ -22,7 +22,7 @@ export const useYoutubeSocketPlayer = () => {
   const player = usePlyrYoutubeQueue([], { autoplay: false });
 
   interface SocketEvents {
-    play: (video: { id: string }) => void;
+    play: (video: { id: string; timeToEnd: number }) => void;
     skip: (id: string) => void;
     newTrack: (video: RequestedSong) => void;
     currentQueue: (callback: (videos: RequestedSong[]) => void) => void;
@@ -37,7 +37,7 @@ export const useYoutubeSocketPlayer = () => {
 
   player.onPlayVideo(({ video, timeToEnd }) => {
     console.log('play: ', video, timeToEnd);
-    socket.emit('play', { id: video.id });
+    socket.emit('play', { id: video.id, timeToEnd: timeToEnd });
   });
 
   player.onRemoveVideo((video) => {

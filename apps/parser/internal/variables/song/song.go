@@ -1,6 +1,7 @@
 package song
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	model "tsuwari/models"
@@ -9,6 +10,7 @@ import (
 	"tsuwari/parser/internal/types"
 	variables_cache "tsuwari/parser/internal/variablescache"
 
+	"github.com/go-redis/redis/v9"
 	spotify "github.com/satont/tsuwari/libs/integrations/spotify"
 
 	"github.com/samber/lo"
@@ -20,6 +22,7 @@ const (
 	VK         = "VK"
 	SPOTIFY    = "SPOTIFY"
 	LASTFM     = "LASTFM"
+	YOUTUBE_SR = "YOUTUBE_SR"
 )
 
 var Variable = types.Variable{
@@ -82,6 +85,7 @@ var Variable = types.Variable{
 		)
 
 		integrationsForFetch = append(integrationsForFetch, SOUNDTRACK)
+		integrationsForFetch = append(integrationsForFetch, YOUTUBE_SR)
 
 	checkServices:
 		for _, integration := range integrationsForFetch {
@@ -115,6 +119,22 @@ var Variable = types.Variable{
 					result.Result = *track
 					break checkServices
 				}
+			case YOUTUBE_SR:
+				redisData, err := ctx.Services.Redis.Get(context.Background(), fmt.Sprintf("songrequests:youtube:%s:currentPlaying", ctx.ChannelId)).Result()
+				if err == redis.Nil {
+					continue
+				}
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				song := model.RequestedSong{}
+				if err = ctx.Services.Db.Where("id = ?", redisData).First(&song).Error; err != nil {
+					fmt.Println("song nog found", err)
+					continue
+				}
+				result.Result = fmt.Sprintf(`"%s" requested by @%s`, song.Title, song.OrderedByName)
+				break checkServices
 			case SOUNDTRACK:
 				tracks, err := ctx.Services.Twitch.Client.GetSoundTrackCurrentTrack(&helix.SoundtrackCurrentTrackParams{
 					BroadcasterID: ctx.ChannelId,

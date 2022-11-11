@@ -38,9 +38,20 @@ export const createYoutubeNameSpace = async (io: SocketIo.Server) => {
       sockets.delete(channelId);
     });
 
-    socket.on('play', (data) => {
-      redis.set(`songrequests:youtube:${channelId}:currentPlaying`, data.id);
+    socket.on('play', async (data) => {
+      console.log(`songrequests:youtube:${channelId}:currentPlaying`);
+      const result = await redis.set(
+        `songrequests:youtube:${channelId}:currentPlaying`,
+        data.id,
+        'EX',
+        data.timeToEnd / 1000,
+      );
+      console.log(result);
       console.log('play', data);
+    });
+
+    socket.on('pause', () => {
+      redis.del(`songrequests:youtube:${channelId}:currentPlaying`);
     });
   });
 

@@ -15,6 +15,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/vk"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/keywords"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/moderation"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/modules/youtube_sr"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/settings"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/streams"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/timers"
@@ -47,6 +48,9 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	lastfm.Setup(integrationsGroup, services)
 	vk.Setup(integrationsGroup, services)
 	spotify.Setup(integrationsGroup, services)
+
+	modulesGroup := channelsGroup.Group("modules")
+	youtube_sr.Setup(modulesGroup, services)
 
 	return router
 }
