@@ -54,6 +54,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	youtube_sr.Setup(modulesGroup, services)
 
 	twitchGroup := router.Group("twitch")
+	twitchGroup.Use(middlewares.CheckUserAuth(services))
 	users.Setup(twitchGroup, services)
 
 	return router
