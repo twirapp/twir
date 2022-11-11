@@ -1,5 +1,5 @@
 import * as Youtube from '@tsuwari/nats/youtube';
-import { IsNull, Not } from '@tsuwari/typeorm';
+import { IsNull } from '@tsuwari/typeorm';
 import { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
 import SocketIo from 'socket.io';
 
@@ -43,8 +43,8 @@ export const createYoutubeNameSpace = async (io: SocketIo.Server) => {
       const result = await redis.set(
         `songrequests:youtube:${channelId}:currentPlaying`,
         data.id,
-        'EX',
-        data.timeToEnd / 1000,
+        'PX',
+        data.timeToEnd,
       );
       console.log(result);
       console.log('play', data);

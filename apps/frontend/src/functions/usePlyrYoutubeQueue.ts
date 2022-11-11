@@ -72,24 +72,25 @@ export const usePlyrYoutubeQueue = (
     onBeforeUnmount(unwatchIsPaused);
 
     player.value.on('pause', () => {
+      if (currentVideo.value === undefined) return;
+
       isPaused.value = true;
-      videoPauseEvent.trigger(currentVideo.value!);
+      videoPauseEvent.trigger(currentVideo.value);
     });
     player.value.on('play', () => {
+      if (!player.value || !currentVideo.value) return;
+
       isPaused.value = false;
       playVideoEvent.trigger({
-        video: currentVideo.value!,
-        timeToEnd: getTimeToEnd(),
+        video: currentVideo.value,
+        timeToEnd: Math.floor(currentVideo.value.duration - player.value.currentTime * 1000),
       });
     });
   };
 
-  const getTimeToEnd = () =>
-    currentVideo.value!.duration - Math.floor(player.value!.currentTime * 1000);
-
   const setVideo = (video: Video, playImmediately?: boolean) => {
     if (player.value === null) {
-      return console.error('Cannot set video, because player in null');
+      return console.error('Cannot set video, because player is null');
     }
     player.value.source = {
       type: 'video',

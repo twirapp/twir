@@ -1,4 +1,5 @@
 import { Socket } from 'socket.io-client';
+import { ref } from 'vue';
 
 import { usePlyrYoutubeQueue } from './usePlyrYoutubeQueue.js';
 
@@ -19,7 +20,8 @@ export type RequestedSong = {
 };
 
 export const useYoutubeSocketPlayer = () => {
-  const player = usePlyrYoutubeQueue([], { autoplay: false });
+  const player = usePlyrYoutubeQueue([], { autoplay: true });
+  const isLoadingQueue = ref<boolean>(true);
 
   interface SocketEvents {
     play: (video: { id: string; timeToEnd: number }) => void;
@@ -56,9 +58,9 @@ export const useYoutubeSocketPlayer = () => {
   });
 
   socket.emit('currentQueue', (videos: RequestedSong[]) => {
-    if (videos.length === 0) return;
-    player.addVideo(...videos);
+    if (videos.length !== 0) player.addVideo(...videos);
+    isLoadingQueue.value = false;
   });
 
-  return { ...player };
+  return { ...player, isLoadingQueue };
 };
