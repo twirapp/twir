@@ -270,7 +270,6 @@ importers:
       vue: 3.2.41
       vue-filepond: 7.0.3
       vue-i18n: 9.2.2
-      vue-lazytube: ^1.1.1
       vue-prism-editor: 2.0.0-alpha.2
       vue-router: 4.1.6
       vue-toastification: 2.0.0-rc.5
@@ -300,7 +299,6 @@ importers:
       vue: 3.2.41
       vue-filepond: 7.0.3_filepond@4.30.4+vue@3.2.41
       vue-i18n: 9.2.2_vue@3.2.41
-      vue-lazytube: 1.1.1_vue@3.2.41
       vue-prism-editor: 2.0.0-alpha.2_vue@3.2.41
       vue-router: 4.1.6_vue@3.2.41
       vue-toastification: 2.0.0-rc.5_vue@3.2.41
@@ -1462,7 +1460,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.1.2_yzt46al3aifnexifjjdb4dxxja
-      '@nestjs/core': 9.1.2_p63dclg2gy7kwtrl4ennoheh54
+      '@nestjs/core': 9.1.2_hau4knnrdwycqsd7n2f5wuciea
       iterare: 1.2.1
       nats: 2.7.1
       reflect-metadata: 0.1.13
@@ -7820,16 +7818,6 @@ packages:
       '@vue/devtools-api': 6.2.1
       vue: 3.2.41
 
-  /vue-lazytube/1.1.1_vue@3.2.41:
-    resolution: {integrity: sha512-BvEFdFgCJ9i38VTgEyyj+NH5jqd/gJJ5HoZabXXni/OPoLJg1rrFXU7bHSXRNkFsmacTKD9ZhD6m/XR/c3Zg6Q==}
-    peerDependencies:
-      vue: ^2.6.11
-    dependencies:
-      core-js: 3.26.0
-      vue: 3.2.41
-      whatwg-fetch: 3.6.2
-    dev: false
-
   /vue-prism-editor/2.0.0-alpha.2_vue@3.2.41:
     resolution: {integrity: sha512-Gu42ba9nosrE+gJpnAEuEkDMqG9zSUysIR8SdXUw8MQKDjBnnNR9lHC18uOr/ICz7yrA/5c7jHJr9lpElODC7w==}
     engines: {node: '>=10'}
@@ -7903,10 +7891,6 @@ packages:
       bytebuffer: 5.0.1
       permessage-deflate: 0.1.7
       websocket-extensions: 0.1.4
-    dev: false
-
-  /whatwg-fetch/3.6.2:
-    resolution: {integrity: sha512-bJlen0FcuU/0EMLrdbJ7zOnW6ITZLrZMIarMUVmdKtsGvZna8vxKYaexICWPfZ8qwf9fzNq+UEIZrnSaApt6RA==}
     dev: false
 
   /whatwg-url/5.0.0:
