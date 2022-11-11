@@ -26,6 +26,7 @@ export const useYoutubeSocketPlayer = () => {
     skip: (id: string) => void;
     newTrack: (video: RequestedSong) => void;
     currentQueue: (callback: (videos: RequestedSong[]) => void) => void;
+    pause: (video: RequestedSong) => void;
   }
 
   const socket: Socket<SocketEvents> | undefined = nameSpaces.get(NAMESPACES.YOUTUBE);
@@ -35,12 +36,18 @@ export const useYoutubeSocketPlayer = () => {
   }
 
   player.onPlayVideo((video) => {
-    console.log('play: ', video.id);
+    console.log('play: ', video);
     socket.emit('play', { id: video.id });
   });
+
   player.onRemoveVideo((video) => {
     console.log('remove: ', video.id);
     socket.emit('skip', video.id);
+  });
+
+  player.onPause((video) => {
+    console.log('pause');
+    socket.emit('pause', video);
   });
 
   socket.on('newTrack', (video: RequestedSong) => {
