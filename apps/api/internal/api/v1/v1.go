@@ -19,6 +19,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/settings"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/streams"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/timers"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/twitch/users"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/variables"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
@@ -51,6 +52,9 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 	modulesGroup := channelsGroup.Group("modules")
 	youtube_sr.Setup(modulesGroup, services)
+
+	twitchGroup := router.Group("twitch")
+	users.Setup(twitchGroup, services)
 
 	return router
 }
