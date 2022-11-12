@@ -1,10 +1,19 @@
 <template>
   <div class="block break-inside card overflow-hidden rounded shadow text-white">
     <div class="border-b border-gray-700 flex items-center justify-between px-4 py-3">
-      <p class="font-bold ml-1">Youtube song request</p>
+      <p class="font-bold ml-1">
+        Youtube song request
+      </p>
       <div class="gap-x-1 grid-flow-col inline-grid">
-        <Popover v-if="queueLength > 1" as="div" class="inline-block relative">
-          <PopoverButton class="youtube-player-btn-icon" as="button">
+        <Popover
+          v-if="queueLength > 1"
+          as="div"
+          class="inline-block relative"
+        >
+          <PopoverButton
+            class="youtube-player-btn-icon"
+            as="button"
+          >
             <Playlist class="stroke-icon" />
           </PopoverButton>
           <Transition
@@ -13,38 +22,41 @@
             enter-to-class="transform scale-100 opacity-100"
             leave-active-class="transition duration-75 ease-in"
             leave-from-class="transform scale-100 opacity-100"
-            leave-to-class="transform scale-95 opacity-0">
+            leave-to-class="transform scale-95 opacity-0"
+          >
             <PopoverPanel
               as="ul"
               class="absolute bg-[#2C2C2C] focus:outline-none mt-2 origin-top-right right-0 ring-1 ring-black ring-opacity-5 rounded shadow-lg w-72 z-50"
               :class="{
                 'tsw-dropdown-menu divide-[#525252] divide-y': queueLength > 1,
-              }">
+              }"
+            >
               <li
                 v-for="(video, index) in queue"
                 :key="video.id"
-                class="flex gap-x-3 hover:bg-[#383838] items-start px-4 py-3">
+                class="flex gap-x-3 hover:bg-[#383838] items-start px-4 py-3"
+              >
                 <span class="text-sm">{{ index + 2 }}</span>
                 <div class="flex-1 gap-y-2 inline-grid">
                   <a
                     :href="`https://youtube.com/watch?v=${video.videoId}`"
                     class="hover:underline leading-tight text-sm two-lines-max"
                     target="_blank"
-                    >{{ video.title }}</a
-                  >
+                  >{{ video.title }}</a>
                   <span class="text-[#AFAFAF] text-xs">Ordered by: {{ video.orderedByName }}</span>
                 </div>
 
                 <button @click="() => removeVideo(video.id)">
                   <Remove
-                    class="h-5 hover:cursor-pointer hover:stroke-[#D0D0D0] stroke-[#858585] stroke-[1.5] w-5" />
+                    class="h-5 hover:cursor-pointer hover:stroke-[#D0D0D0] stroke-[#858585] stroke-[1.5] w-5"
+                  />
                 </button>
               </li>
             </PopoverPanel>
           </Transition>
         </Popover>
         <button class="youtube-player-btn-icon">
-          <DotsHorizontal class="fill-icon" />
+          <Settings class="stroke-icon" />
         </button>
       </div>
     </div>
@@ -71,14 +83,20 @@
       :style="{
         '--plyr-color-main': '#644EE8',
       }"
-      @init="initQueue" />
+      @init="initQueue"
+    />
     <div
       v-if="!isActive"
-      class="aspect-video bg-[#2C2C2C] flex flex-col h-full items-center justify-center text-[#AFAFAF] w-full">
-      <div v-if="isLoadingQueue" class="inline-flex items-center">
+      class="aspect-video bg-[#2C2C2C] flex flex-col h-full items-center justify-center text-[#AFAFAF] w-full"
+    >
+      <div
+        v-if="isLoadingQueue"
+        class="inline-flex items-center"
+      >
         <div
           class="animate-spin border-2 h-6 inline-block mr-3 rounded-full spinner-border w-6"
-          role="status" />
+          role="status"
+        />
         <span>Loading...</span>
       </div>
       <template v-else>
@@ -86,7 +104,10 @@
         <span>There is no videos in queue</span>
       </template>
     </div>
-    <div v-if="isActive" class="border-[#403D3A] border-t flex items-start p-5">
+    <div
+      v-if="isActive"
+      class="border-[#403D3A] border-t flex items-start p-5"
+    >
       <div class="flex-1 gap-y-2 inline-grid mr-5">
         <p class="font-medium">
           {{ currentVideo!.title }}
@@ -98,10 +119,12 @@
         <component
           :is="isPaused ? Play : Pause"
           class="h-5 hover:cursor-pointer hover:stroke-[#D0D0D0] stroke-[#AFAFAF] w-5"
-          @click="isPaused = !isPaused" />
+          @click="isPaused = !isPaused"
+        />
         <Next
           class="h-5 hover:cursor-pointer hover:stroke-[#D0D0D0] stroke-[#AFAFAF] w-5"
-          @click="skipCurrentVideo" />
+          @click="skipCurrentVideo"
+        />
       </div>
     </div>
   </div>
@@ -113,13 +136,14 @@ import { computed } from 'vue';
 
 import VuePlyr from './VuePlyr.vue';
 
-import DotsHorizontal from '@/assets/icons/dots-horizontal.svg?component';
+// import DotsHorizontal from '@/assets/icons/dots-horizontal.svg?component';
 import Next from '@/assets/icons/next.svg?component';
 import OffVideo from '@/assets/icons/off-video.svg?component';
 import Pause from '@/assets/icons/pause.svg?component';
 import Play from '@/assets/icons/play.svg?component';
 import Playlist from '@/assets/icons/playlist.svg?component';
 import Remove from '@/assets/icons/remove.svg?component';
+import Settings from '@/assets/icons/settings.svg?component';
 import { useYoutubeSocketPlayer } from '@/functions/useYoutubeSocketPlayer.js';
 
 const {
@@ -173,11 +197,11 @@ const isAcitveStyle = computed(() => (isActive.value ? 'block' : 'none'));
 
   &:hover {
     & > svg.fill-icon {
-      @apply hover:fill-[#D0D0D0];
+      @apply fill-[#D0D0D0];
     }
 
     & > svg.stroke-icon {
-      @apply hover:stroke-[#D0D0D0];
+      @apply stroke-[#D0D0D0];
     }
   }
 }

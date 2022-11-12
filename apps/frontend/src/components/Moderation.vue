@@ -3,8 +3,8 @@ import { ModerationSettingsDto } from '@tsuwari/shared';
 import { toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import Add from '@/assets/buttons/add.svg';
-import Remove from '@/assets/buttons/remove.svg';
+import Add from '@/assets/buttons/add.svg?component';
+import Remove from '@/assets/buttons/remove.svg?component';
 
 type Settings = ModerationSettingsDto & {
   checkClips: boolean;
@@ -27,8 +27,12 @@ const settings = toRef(props, 'settings', {
 </script>
 
 <template>
-  <h2 class="border-b border-gray-700 card-title flex font-bold form-switch justify-between outline-none p-2">
-    <p>{{ settings.type.charAt(0).toUpperCase() + settings.type.substring(1, settings.type.length) }}</p>
+  <h2
+    class="border-b border-gray-700 card-title flex font-bold form-switch justify-between outline-none p-2"
+  >
+    <p>
+      {{ settings.type.charAt(0).toUpperCase() + settings.type.substring(1, settings.type.length) }}
+    </p>
     <input
       :id="'enabledState' + settings.type"
       v-model="settings.enabled"
@@ -96,7 +100,9 @@ const settings = toRef(props, 'settings', {
         <label
           class="form-check-label inline-block"
           for="flexSwitchModClips"
-        >{{ t('pages.moderation.clips') }}</label>
+        >{{
+          t('pages.moderation.clips')
+        }}</label>
 
         <div class="form-switch">
           <input
@@ -254,4 +260,5 @@ const settings = toRef(props, 'settings', {
       </div>
     </div>
   </div>
-</template>0
+</template>
+0
