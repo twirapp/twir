@@ -20,7 +20,7 @@ export type RequestedSong = {
 };
 
 export const useYoutubeSocketPlayer = () => {
-  const player = usePlyrYoutubeQueue([], { autoplay: true });
+  const player = usePlyrYoutubeQueue([], { autoplay: false });
   const isLoadingQueue = ref<boolean>(true);
 
   interface SocketEvents {

@@ -105,7 +105,7 @@ export const usePlyrYoutubeQueue = (
     playImmediately = typeof playImmediately === 'undefined' ? autoplay.value : playImmediately;
 
     if (playImmediately) {
-      player.value.once('ready', () => {
+      return player.value.once('ready', () => {
         if (player.value === null) {
           return console.error('Cannot play video, because player is null');
         }
@@ -113,6 +113,8 @@ export const usePlyrYoutubeQueue = (
         player.value.play();
       });
     }
+
+    isPaused.value = true;
   };
 
   const skipCurrentVideo = () => {
