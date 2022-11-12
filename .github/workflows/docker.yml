@@ -100,7 +100,7 @@ jobs:
         with:
           builder: ${{ steps.buildx.outputs.name }}
           cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.application }}
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new-${{ matrix.application }}
+          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-${{ matrix.application }}-new
           context: .
           push: true
           file: ./Dockerfile
