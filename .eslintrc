@@ -1,4 +1,7 @@
 {
   "extends": "@satont/eslint-config",
-  "ignorePatterns": ["./libs/nats/**/*.ts", "ecosystem.config.cjs"]
+  "ignorePatterns": ["./libs/nats/**/*.ts", "ecosystem.config.cjs"],
+  "rules": {
+    "vue/attribute-hyphenation": "off"
+  }
 }
