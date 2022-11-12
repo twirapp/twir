@@ -111,7 +111,7 @@ jobs:
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache-${{ matrix.application }}
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache-${{ matrix.application }}
+          mv /tmp/.buildx-cache-${{ matrix.application }}-new /tmp/.buildx-cache-${{ matrix.application }}
 
   migrations:
     needs: build
