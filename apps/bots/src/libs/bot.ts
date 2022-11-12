@@ -103,6 +103,13 @@ export class Bot extends ChatClient {
   async #registerListeners() {
     const me = await this.#api.users.getMe();
 
+    this.onNamedMessage('USERSTATE', async ({ tags, rawParamValues: [channelName] }) => {
+      if (!channelName) return;
+      const channel = await this.#api.users.getUserByName(channelName.slice(1));
+      if (!channel) return;
+      channelRepository.update({ id: channel.id }, { isBotMod: tags.get('mod') == '1' });
+    });
+
     this.onRegister(async () => {
       console.log(
         `${pc.bgCyan(pc.black('!'))} ${pc.magenta(me.displayName)} ${pc.green(
