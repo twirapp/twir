@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/nats/timers"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
@@ -67,6 +69,11 @@ func handlePost(
 		timerResponses = append(timerResponses, response)
 	}
 
+	bytes, _ := proto.Marshal(&timers.AddTimerToQueue{
+		TimerId: timer.ID,
+	})
+	services.Nats.Publish("addTimerToQueue", bytes)
+
 	timer.Responses = &timerResponses
 	return &timer, nil
 }
@@ -86,6 +93,13 @@ func handleDelete(timerId string, services types.Services) error {
 	if err != nil {
 		services.Logger.Sugar().Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot delete timer")
+	}
+
+	if timer.Enabled {
+		bytes, _ := proto.Marshal(&timers.RemoveTimerFromQueue{
+			TimerId: timer.ID,
+		})
+		services.Nats.Publish("removeTimerFromQueue", bytes)
 	}
 
 	return nil
@@ -156,6 +170,18 @@ func handlePut(
 	}
 
 	timer.Responses = &newResponses
+
+	if timer.Enabled {
+		bytes, _ := proto.Marshal(&timers.AddTimerToQueue{
+			TimerId: timer.ID,
+		})
+		services.Nats.Publish("addTimerToQueue", bytes)
+	} else {
+		bytes, _ := proto.Marshal(&timers.RemoveTimerFromQueue{
+			TimerId: timer.ID,
+		})
+		services.Nats.Publish("removeTimerToQueue", bytes)
+	}
 
 	return &timer, nil
 }

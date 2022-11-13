@@ -19,5 +19,9 @@ type NatsHandlersOpts struct {
 }
 
 func NewNatsHandlers(opts *NatsHandlersOpts) *NatsHandlers {
-	return &NatsHandlers{}
+	return &NatsHandlers{
+		db:          opts.Db,
+		botsService: opts.BotsService,
+		logger:      opts.Logger,
+	}
 }

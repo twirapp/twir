@@ -28,7 +28,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 	limit := limiter.New(limiter.Config{
 		Max:        2,
-		Expiration: 1 * time.Minute,
+		Expiration: 1 * time.Second,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			dbUser := c.Locals("dbUser").(model.Users)
 			return fmt.Sprintf("fiber:limiter:bot:connection:%s", dbUser.ID)

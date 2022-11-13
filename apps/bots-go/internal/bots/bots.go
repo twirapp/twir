@@ -29,7 +29,9 @@ type BotsService struct {
 }
 
 func NewBotsService(opts *NewBotsOpts) *BotsService {
-	service := BotsService{}
+	service := BotsService{
+		Instances: make(map[string]*types.BotClient),
+	}
 	mu := sync.Mutex{}
 
 	bots := []model.Bots{}
