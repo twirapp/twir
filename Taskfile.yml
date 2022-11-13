@@ -10,6 +10,9 @@ includes:
   api:
     taskfile: ./apps/api/Taskfile.yml
     dir: ./apps/api
+  bots:
+    taskfile: ./apps/bots-go/Taskfile.yml
+    dir: ./apps/bots-go
 
 tasks:
   build-libs:
@@ -45,13 +48,18 @@ tasks:
     cmds:
       - task: api:dev
 
+  bots-dev:
+    deps: [prepare]
+    cmds:
+      - task: bots:dev
+
   node-dev:
     deps: [prepare]
     cmds:
       - pnpm dev
 
   dev:
-    deps: [parser-dev, timers-dev, api-dev, node-dev]
+    deps: [parser-dev, timers-dev, api-dev, bots-dev, node-dev]
 
   docker-local-build:
     cmds:
