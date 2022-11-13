@@ -10,7 +10,7 @@ RUN apk add --no-cache protoc git curl
 WORKDIR /app
 RUN npm i -g pnpm@7
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc go.mod go.work go.work.sum ./
 
 COPY libs libs
 COPY apps apps
