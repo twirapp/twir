@@ -2,7 +2,7 @@ go 1.19
 
 use (
 	./apps/api
-	./apps/bots-go
+	./apps/bots
 	./apps/parser
 	./apps/timers
 	./libs/config

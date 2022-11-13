@@ -11,8 +11,8 @@ includes:
     taskfile: ./apps/api/Taskfile.yml
     dir: ./apps/api
   bots:
-    taskfile: ./apps/bots-go/Taskfile.yml
-    dir: ./apps/bots-go
+    taskfile: ./apps/bots/Taskfile.yml
+    dir: ./apps/bots
 
 tasks:
   build-libs:
