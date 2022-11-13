@@ -19,7 +19,6 @@
     "@sentry/tracing": "7.14.0",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/nats": "workspace:*",
-    "@tsuwari/redis": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
     "ioredis": "5.2.3",

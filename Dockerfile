@@ -94,7 +94,6 @@ COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/nats libs/nats/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/libs/redis libs/redis/
 RUN pnpm install --prod
 
 FROM node_prod_base as scheduler
@@ -107,7 +106,6 @@ FROM node_deps_base as streamstatus_deps
 COPY --from=base /app/apps/streamstatus apps/streamstatus/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/typeorm libs/typeorm/
-COPY --from=base /app/libs/redis libs/redis/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/nats libs/nats/
 RUN pnpm install --prod
