@@ -9,9 +9,9 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/nats-io/nats.go v1.19.0
 	github.com/samber/lo v1.34.0
-	github.com/satont/go-helix/v2 v2.7.17
+	github.com/satont/go-helix/v2 v2.7.18
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
+	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221112130747-e34f337ae946
 	github.com/satont/tsuwari/libs/nats v0.0.0-20221112130747-e34f337ae946
 	github.com/satont/tsuwari/libs/twitch v0.0.0-00010101000000-000000000000
 	github.com/satori/go.uuid v1.2.0

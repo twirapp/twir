@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/go-co-op/gocron v1.17.1
 	github.com/golang/protobuf v1.5.2
-	github.com/satont/go-helix/v2 v2.7.17
+	github.com/satont/go-helix/v2 v2.7.18
 	github.com/satont/tsuwari/libs/config v0.0.0
 	github.com/satont/tsuwari/libs/gomodels v0.0.0
 	github.com/satont/tsuwari/libs/nats v0.0.0
@@ -22,7 +22,6 @@ require (
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/nats-io/jwt/v2 v2.3.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/goleak v1.1.12 // indirect
