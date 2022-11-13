@@ -78,6 +78,7 @@ func main() {
 	natsConn.Subscribe("bots.deleteMessages", natsHandlers.DeleteMessages)
 	natsConn.Subscribe("bots.sendMessage", natsHandlers.SendMessage)
 	natsConn.Subscribe(botsProto.SUBJECTS_JOIN_OR_LEAVE, natsHandlers.JoinOrLeave)
+	natsConn.Subscribe("user.update", natsHandlers.UserUpdate)
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
