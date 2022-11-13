@@ -117,7 +117,7 @@ ENTRYPOINT ["doppler", "run", "--"]
 CMD ["pnpm", "start:streamstatus"]
 
 FROM node_deps_base as migrations_deps
-COPY --from=base /app/libs/tsconfig.json /app/libs/tsconfig.base.json ./
+COPY --from=base /app/tsconfig.json /app/tsconfig.base.json ./
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/config libs/config/
 RUN pnpm install --prod
