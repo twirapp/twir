@@ -69,8 +69,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 		Client: irc.NewClient(me.Login, token),
 		Api:    api,
 		RateLimiters: types.RateLimiters{
-			Global:   globalRateLimiter,
-			Channels: make(map[string]ratelimiting.SlidingWindow),
+			Global: globalRateLimiter,
 		},
 		Model: opts.Model,
 	}

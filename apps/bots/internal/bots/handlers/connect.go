@@ -13,11 +13,22 @@ import (
 
 func (c *Handlers) OnConnect() {
 	c.logger.Sugar().Infow("Bot connected to twitch")
+	c.BotClient.RateLimiters.Channels = make(map[string]ratelimiting.SlidingWindow)
 
 	twitchUsers := []helix.User{}
 	twitchUsersMU := sync.Mutex{}
 
-	channelsChunks := lo.Chunk(c.BotClient.Model.Channels, 100)
+	botChannels := []model.Channels{}
+	c.db.
+		Where(
+			`"botId" = ? AND "isEnabled" = ? AND "isBanned" = ? AND "isTwitchBanned" = ?`,
+			c.BotClient.Model.ID,
+			true,
+			false,
+			false,
+		).Find(&botChannels)
+
+	channelsChunks := lo.Chunk(botChannels, 100)
 	wg := sync.WaitGroup{}
 	wg.Add(len(channelsChunks))
 
