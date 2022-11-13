@@ -6,15 +6,17 @@ import (
 	"os"
 	"os/signal"
 	"time"
-	cfg "tsuwari/config"
-	"tsuwari/parser/internal/commands"
-	"tsuwari/parser/internal/config/redis"
-	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variables"
 
-	twitch "tsuwari/parser/internal/config/twitch"
-	natshandlers "tsuwari/parser/internal/handlers/nats"
-	usersauth "tsuwari/parser/internal/twitch/user"
+	"github.com/satont/tsuwari/apps/parser/internal/commands"
+	"github.com/satont/tsuwari/apps/parser/internal/config/redis"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/tsuwari/apps/parser/internal/variables"
+
+	cfg "github.com/satont/tsuwari/libs/config"
+
+	twitch "github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	natshandlers "github.com/satont/tsuwari/apps/parser/internal/handlers/nats"
+	usersauth "github.com/satont/tsuwari/apps/parser/internal/twitch/user"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/nats-io/nats.go"

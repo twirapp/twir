@@ -2,12 +2,15 @@ package bots
 
 import (
 	"sync"
-	cfg "tsuwari/config"
-	model "tsuwari/models"
-	"tsuwari/twitch"
 
-	irc "github.com/gempir/go-twitch-irc/v3"
+	cfg "github.com/satont/tsuwari/libs/config"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+
+	"github.com/satont/tsuwari/libs/twitch"
+
 	"github.com/nats-io/nats.go"
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/bots/types"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -21,16 +24,11 @@ type NewBotsOpts struct {
 	Nats   *nats.Conn
 }
 
-type botInstance struct {
-	bot *irc.Client
-	api *twitch.Twitch
-}
-
 type BotsService struct {
-	Instances []*types.BotClient
+	Instances map[string]*types.BotClient
 }
 
-func NewBotsService(opts *NewBotsOpts) {
+func NewBotsService(opts *NewBotsOpts) *BotsService {
 	service := BotsService{}
 	mu := sync.Mutex{}
 
@@ -53,9 +51,25 @@ func NewBotsService(opts *NewBotsOpts) {
 				Bot:    &bot,
 				Nats:   opts.Nats,
 			})
+
+			channels := []model.Channels{}
+			opts.DB.Where(`"botId" = ?`, bot.ID).Select("ID", "BotID").Find(&channels)
+
+			if len(channels) > 0 {
+				ids := lo.Map(channels, func(i model.Channels, _ int) string {
+					return i.ID
+				})
+
+				opts.DB.Model(&model.ChannelsGreetings{}).
+					Where(`"channelId" IN ?`, ids).
+					Update("processed", false)
+			}
+
 			mu.Lock()
-			service.Instances = append(service.Instances, instance)
+			service.Instances[bot.ID] = instance
 			mu.Unlock()
 		}(bot)
 	}
+
+	return &service
 }

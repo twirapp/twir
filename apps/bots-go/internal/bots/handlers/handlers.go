@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	cfg "tsuwari/config"
-	model "tsuwari/models"
+	cfg "github.com/satont/tsuwari/libs/config"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/nats-io/nats.go"
 	"github.com/satont/tsuwari/apps/bots/types"

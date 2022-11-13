@@ -1,5 +1,14 @@
 /* eslint-disable import/no-cycle */
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, Relation } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+  type Relation,
+} from 'typeorm';
 
 import { type NotificationMessage } from './NotificationMessage.js';
 import { type User } from './User.js';

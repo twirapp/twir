@@ -6,13 +6,17 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	cfg "tsuwari/config"
-	"tsuwari/twitch"
+
+	cfg "github.com/satont/tsuwari/libs/config"
+
+	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/getsentry/sentry-go"
 	helix "github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/bots/internal/bots"
+	nats_handlers "github.com/satont/tsuwari/apps/bots/internal/nats"
 	myNats "github.com/satont/tsuwari/libs/nats"
+	botsProto "github.com/satont/tsuwari/libs/nats/bots"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -58,13 +62,22 @@ func main() {
 		RedirectURI:  cfg.TwitchCallbackUrl,
 	})
 
-	bots.NewBotsService(&bots.NewBotsOpts{
+	botsService := bots.NewBotsService(&bots.NewBotsOpts{
 		Twitch: twitchClient,
 		DB:     db,
 		Logger: logger,
 		Cfg:    cfg,
 		Nats:   natsConn,
 	})
+	natsHandlers := nats_handlers.NewNatsHandlers(&nats_handlers.NatsHandlersOpts{
+		Db:          db,
+		BotsService: botsService,
+		Logger:      logger,
+	})
+
+	natsConn.Subscribe("bots.deleteMessages", natsHandlers.DeleteMessages)
+	natsConn.Subscribe("bots.sendMessage", natsHandlers.SendMessage)
+	natsConn.Subscribe(botsProto.SUBJECTS_JOIN_OR_LEAVE, natsHandlers.JoinOrLeave)
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)

@@ -2,7 +2,8 @@ package variables_cache
 
 import (
 	"fmt"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/lib/pq"
 	"github.com/satont/go-helix/v2"

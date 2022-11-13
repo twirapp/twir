@@ -1,7 +1,7 @@
 package permissions
 
 import (
-	"tsuwari/parser/pkg/helpers"
+	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
 )
 
 var CommandPerms = []string{"BROADCASTER", "MODERATOR", "SUBSCRIBER", "VIP", "FOLLOWER", "VIEWER"}

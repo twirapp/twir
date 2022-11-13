@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variables/top"
-	variables_cache "tsuwari/parser/internal/variablescache"
+
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/tsuwari/apps/parser/internal/variables/top"
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )

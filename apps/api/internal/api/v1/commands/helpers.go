@@ -1,7 +1,7 @@
 package commands
 
 import (
-	model "tsuwari/models"
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/guregu/null"
 	"github.com/samber/lo"

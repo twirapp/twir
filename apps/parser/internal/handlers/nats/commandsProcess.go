@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	"tsuwari/parser/internal/permissions"
-	"tsuwari/parser/pkg/helpers"
+
+	"github.com/satont/tsuwari/apps/parser/internal/permissions"
+	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
 
 	"github.com/go-redis/redis/v9"
 	parserproto "github.com/satont/tsuwari/libs/nats/parser"

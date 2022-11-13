@@ -6,13 +6,15 @@ import (
 	"os"
 	"os/signal"
 	"time"
-	"tsuwari/timers/internal/scheduler"
-	"tsuwari/timers/internal/types"
 
-	model "tsuwari/models"
+	"github.com/satont/tsuwari/apps/timers/internal/scheduler"
+	"github.com/satont/tsuwari/apps/timers/internal/types"
 
-	cfg "tsuwari/config"
-	twitch "tsuwari/twitch"
+	model "github.com/satont/tsuwari/libs/gomodels"
+
+	cfg "github.com/satont/tsuwari/libs/config"
+
+	twitch "github.com/satont/tsuwari/libs/twitch"
 
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"

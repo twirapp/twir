@@ -3,7 +3,8 @@ package handlers
 import (
 	"sync"
 	"time"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	"github.com/samber/lo"

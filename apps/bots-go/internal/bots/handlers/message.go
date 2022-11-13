@@ -5,12 +5,14 @@ import (
 	"strings"
 	"sync"
 	"time"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
 	"github.com/samber/lo"
+	"github.com/satont/tsuwari/apps/bots/internal/bots/handlers/messages"
 	"github.com/satont/tsuwari/libs/nats/parser"
 	"gorm.io/gorm"
 )
@@ -24,6 +26,21 @@ func (c *Handlers) OnPrivateMessage(msg irc.PrivateMessage) {
 
 	go c.handleGreetings(c.nats, c.db, msg, userBadges)
 	go c.handleKeywords(c.nats, c.db, msg, userBadges)
+
+	go messages.StoreMessage(
+		c.db,
+		msg.ID,
+		msg.RoomID,
+		msg.User.ID,
+		msg.User.Name,
+		msg.Message,
+		!lo.Some(
+			userBadges,
+			[]string{"BROADCASTER", "MODERATOR", "SUBSCRIBER", "VIP"},
+		),
+	)
+	go messages.IncrementUserMessages(c.db, msg.User.ID, msg.RoomID)
+	go messages.IncrementStreamParsedMessages(c.db, msg.RoomID)
 }
 
 func (c *Handlers) handleCommand(nats *nats.Conn, msg irc.PrivateMessage, userBadges []string) {

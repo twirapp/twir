@@ -3,7 +3,8 @@ package timers
 import (
 	"errors"
 	"net/http"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"

@@ -3,10 +3,13 @@ package scheduler
 import (
 	"fmt"
 	"time"
-	cfg "tsuwari/config"
-	"tsuwari/timers/internal/handler"
-	"tsuwari/timers/internal/types"
-	"tsuwari/twitch"
+
+	"github.com/satont/tsuwari/apps/timers/internal/handler"
+	"github.com/satont/tsuwari/apps/timers/internal/types"
+
+	cfg "github.com/satont/tsuwari/libs/config"
+
+	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/go-co-op/gocron"
 	"github.com/nats-io/nats.go"

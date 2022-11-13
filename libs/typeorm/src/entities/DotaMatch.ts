@@ -1,4 +1,3 @@
-/* eslint-disable import/no-cycle */
 import {
   Column,
   Entity,
@@ -8,8 +7,7 @@ import {
   OneToMany,
   OneToOne,
   PrimaryColumn,
-  // eslint-disable-next-line comma-dangle
-  Relation
+  type Relation,
 } from 'typeorm';
 
 import { type DotaGameMode } from './DotaGameMode.js';

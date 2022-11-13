@@ -1,9 +1,9 @@
 package types
 
 import (
-	"tsuwari/twitch"
+	"github.com/satont/tsuwari/libs/twitch"
 
-	cfg "tsuwari/config"
+	cfg "github.com/satont/tsuwari/libs/config"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"

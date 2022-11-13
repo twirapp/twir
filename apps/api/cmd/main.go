@@ -3,7 +3,8 @@ package main
 import (
 	"log"
 	"time"
-	"tsuwari/twitch"
+
+	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/go-playground/locales/en_US"
@@ -23,7 +24,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	cfg "tsuwari/config"
+	cfg "github.com/satont/tsuwari/libs/config"
 
 	"github.com/satont/tsuwari/apps/api/internal/services/redis"
 

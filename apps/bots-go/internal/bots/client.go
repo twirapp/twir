@@ -3,15 +3,18 @@ package bots
 import (
 	"fmt"
 	"time"
-	cfg "tsuwari/config"
-	model "tsuwari/models"
-	"tsuwari/twitch"
+
+	cfg "github.com/satont/tsuwari/libs/config"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+
+	"github.com/satont/tsuwari/libs/twitch"
 
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/nats-io/nats.go"
 	"github.com/satont/go-helix/v2"
-	"github.com/satont/tsuwari/apps/bots/internal/handlers"
+	"github.com/satont/tsuwari/apps/bots/internal/bots/handlers"
 	"github.com/satont/tsuwari/apps/bots/types"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -84,10 +87,6 @@ func newBot(opts *ClientOpts) *types.BotClient {
 	client.OnUserStateMessage(botHandlers.OnUserStateMessage)
 	client.OnPrivateMessage(botHandlers.OnPrivateMessage)
 
-	err = client.Connect()
-	if err != nil {
-		panic(err)
-	}
-
+	go client.Connect()
 	return &client
 }

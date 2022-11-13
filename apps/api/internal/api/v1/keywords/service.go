@@ -2,7 +2,8 @@ package keywords
 
 import (
 	"net/http"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"

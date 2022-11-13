@@ -3,7 +3,8 @@ package types
 import (
 	"context"
 	"strings"
-	"tsuwari/twitch"
+
+	"github.com/satont/tsuwari/libs/twitch"
 
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	irc "github.com/gempir/go-twitch-irc/v3"

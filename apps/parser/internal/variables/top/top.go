@@ -2,9 +2,10 @@ package top
 
 import (
 	"fmt"
-	model "tsuwari/models"
 
-	variables_cache "tsuwari/parser/internal/variablescache"
+	model "github.com/satont/tsuwari/libs/gomodels"
+
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"

@@ -1,9 +1,9 @@
 package userfollowage
 
 import (
-	types "tsuwari/parser/internal/types"
-	variables_cache "tsuwari/parser/internal/variablescache"
-	"tsuwari/parser/pkg/helpers"
+	types "github.com/satont/tsuwari/apps/parser/internal/types"
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
 
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"

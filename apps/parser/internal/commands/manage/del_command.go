@@ -1,10 +1,11 @@
 package manage
 
 import (
-	model "tsuwari/models"
-	"tsuwari/parser/internal/types"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
 
-	variables_cache "tsuwari/parser/internal/variablescache"
+	model "github.com/satont/tsuwari/libs/gomodels"
+
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )

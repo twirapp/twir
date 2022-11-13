@@ -3,7 +3,8 @@ package helpers
 import (
 	"fmt"
 	"net/http"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
