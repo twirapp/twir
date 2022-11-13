@@ -32,21 +32,6 @@ RUN npm i -g pnpm
 RUN apk add git
 COPY --from=base /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/turbo.json /app/.npmrc ./
 
-FROM node_deps_base as bots_deps
-COPY --from=base /app/apps/bots apps/bots/
-COPY --from=base /app/libs/typeorm libs/typeorm/
-COPY --from=base /app/libs/redis libs/redis/
-COPY --from=base /app/libs/integrations/spotify libs/integrations/spotify/
-COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/libs/nats libs/nats/
-RUN pnpm install --prod
-
-FROM node_prod_base as bots
-WORKDIR /app
-COPY --from=bots_deps /app/ /app/
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["pnpm", "start:bots"]
 
 FROM node_deps_base as dota_deps
 RUN apk add openssh
@@ -154,6 +139,7 @@ RUN apk add wget && \
 FROM golang:1.19.2-alpine as golang_deps_base
 WORKDIR /app
 RUN apk add git curl wget upx
+COPY --from=base go.mod go.work go.work.sum ./
 COPY --from=base /app/apps/parser apps/parser/
 COPY --from=base /app/apps/timers apps/timers/
 COPY --from=base /app/apps/api apps/api/
@@ -190,3 +176,12 @@ FROM go_prod_base as api
 COPY --from=api_deps /app/apps/api/out /bin/api
 ENTRYPOINT ["doppler", "run", "--"]
 CMD ["/bin/api"]
+
+FROM golang_deps_base as bots_deps
+RUN cd apps/bots && go mod download
+RUN cd apps/bots && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as bots
+COPY --from=bots_deps /app/apps/bots/out /bin/bots
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["/bin/bots"]
