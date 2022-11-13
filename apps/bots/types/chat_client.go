@@ -3,6 +3,7 @@ package types
 import (
 	"context"
 	"strings"
+	"sync"
 
 	"github.com/satont/go-helix/v2"
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -12,9 +13,14 @@ import (
 	irc "github.com/gempir/go-twitch-irc/v3"
 )
 
+type ChannelsMap struct {
+	sync.Mutex
+	Items map[string]ratelimiting.SlidingWindow
+}
+
 type RateLimiters struct {
 	Global   ratelimiting.SlidingWindow
-	Channels map[string]ratelimiting.SlidingWindow
+	Channels ChannelsMap
 }
 
 type BotClient struct {
@@ -27,7 +33,7 @@ type BotClient struct {
 }
 
 func (c *BotClient) SayWithRateLimiting(channel, text string, replyTo *string) {
-	channelLimiter, ok := c.RateLimiters.Channels[strings.ToLower(channel)]
+	channelLimiter, ok := c.RateLimiters.Channels.Items[strings.ToLower(channel)]
 	if !ok {
 		return
 	}

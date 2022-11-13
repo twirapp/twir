@@ -19,6 +19,8 @@ func (c *Handlers) OnUserStateMessage(msg irc.UserStateMessage) {
 			limiter = l
 		}
 
-		c.BotClient.RateLimiters.Channels[msg.Channel] = limiter
+		c.BotClient.RateLimiters.Channels.Lock()
+		c.BotClient.RateLimiters.Channels.Items[msg.Channel] = limiter
+		c.BotClient.RateLimiters.Channels.Unlock()
 	}
 }

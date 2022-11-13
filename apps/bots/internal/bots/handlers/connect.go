@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/satont/tsuwari/apps/bots/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/twitch"
 
@@ -21,7 +22,10 @@ func (c *Handlers) OnConnect() {
 
 	c.logger.Sugar().
 		Infow("Bot connected to twitch", "botId", c.BotClient.Model.ID, "botName", c.BotClient.TwitchUser.Login)
-	c.BotClient.RateLimiters.Channels = make(map[string]ratelimiting.SlidingWindow)
+
+	c.BotClient.RateLimiters.Channels = types.ChannelsMap{
+		Items: make(map[string]ratelimiting.SlidingWindow),
+	}
 
 	twitchUsers := []helix.User{}
 	twitchUsersMU := sync.Mutex{}
@@ -103,7 +107,10 @@ func (c *Handlers) OnConnect() {
 				l, _ := ratelimiting.NewSlidingWindow(1, 2*time.Second)
 				limiter = l
 			}
-			c.BotClient.RateLimiters.Channels[u.Login] = limiter
+
+			c.BotClient.RateLimiters.Channels.Lock()
+			c.BotClient.RateLimiters.Channels.Items[u.Login] = limiter
+			c.BotClient.RateLimiters.Channels.Unlock()
 
 			c.BotClient.Join(u.Login)
 		}(u)
