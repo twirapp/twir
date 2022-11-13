@@ -45,32 +45,31 @@ func NewBotsService(opts *NewBotsOpts) *BotsService {
 	}
 
 	for _, bot := range bots {
-		go func(bot model.Bots) {
-			instance := newBot(&ClientOpts{
-				DB:     opts.DB,
-				Cfg:    opts.Cfg,
-				Logger: opts.Logger,
-				Bot:    &bot,
-				Nats:   opts.Nats,
+		b := bot
+		instance := newBot(&ClientOpts{
+			DB:     opts.DB,
+			Cfg:    opts.Cfg,
+			Logger: opts.Logger,
+			Bot:    &b,
+			Nats:   opts.Nats,
+		})
+
+		channels := []model.Channels{}
+		opts.DB.Where(`"botId" = ?`, b.ID).Select("ID", "BotID").Find(&channels)
+
+		if len(channels) > 0 {
+			ids := lo.Map(channels, func(i model.Channels, _ int) string {
+				return i.ID
 			})
 
-			channels := []model.Channels{}
-			opts.DB.Where(`"botId" = ?`, bot.ID).Select("ID", "BotID").Find(&channels)
+			opts.DB.Model(&model.ChannelsGreetings{}).
+				Where(`"channelId" IN ?`, ids).
+				Update("processed", false)
+		}
 
-			if len(channels) > 0 {
-				ids := lo.Map(channels, func(i model.Channels, _ int) string {
-					return i.ID
-				})
-
-				opts.DB.Model(&model.ChannelsGreetings{}).
-					Where(`"channelId" IN ?`, ids).
-					Update("processed", false)
-			}
-
-			mu.Lock()
-			service.Instances[bot.ID] = instance
-			mu.Unlock()
-		}(bot)
+		mu.Lock()
+		service.Instances[b.ID] = instance
+		mu.Unlock()
 	}
 
 	return &service
