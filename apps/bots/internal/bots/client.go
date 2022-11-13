@@ -71,7 +71,8 @@ func newBot(opts *ClientOpts) *types.BotClient {
 		RateLimiters: types.RateLimiters{
 			Global: globalRateLimiter,
 		},
-		Model: opts.Model,
+		Model:      opts.Model,
+		TwitchUser: &me,
 	}
 
 	botHandlers := handlers.CreateHandlers(&handlers.HandlersOpts{

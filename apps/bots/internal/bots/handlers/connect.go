@@ -12,7 +12,8 @@ import (
 )
 
 func (c *Handlers) OnConnect() {
-	c.logger.Sugar().Infow("Bot connected to twitch")
+	c.logger.Sugar().
+		Infow("Bot connected to twitch", "botId", c.BotClient.Model.ID, "botName", c.BotClient.TwitchUser.Login)
 	c.BotClient.RateLimiters.Channels = make(map[string]ratelimiting.SlidingWindow)
 
 	twitchUsers := []helix.User{}

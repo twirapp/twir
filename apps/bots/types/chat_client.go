@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/satont/go-helix/v2"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/twitch"
 
@@ -22,6 +23,7 @@ type BotClient struct {
 	Api          *twitch.Twitch
 	RateLimiters RateLimiters
 	Model        *model.Bots
+	TwitchUser   *helix.User
 }
 
 func (c *BotClient) SayWithRateLimiting(channel, text string, replyTo *string) {
