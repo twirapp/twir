@@ -24,7 +24,7 @@ type ClientOpts struct {
 	DB     *gorm.DB
 	Cfg    *cfg.Config
 	Logger *zap.Logger
-	Bot    *model.Bots
+	Model  *model.Bots
 	Twitch *twitch.Twitch
 	Nats   *nats.Conn
 }
@@ -32,7 +32,7 @@ type ClientOpts struct {
 func newBot(opts *ClientOpts) *types.BotClient {
 	onRefresh := func(newToken helix.RefreshTokenResponse) {
 		opts.DB.Model(&model.Tokens{}).
-			Where(`id = ?`, opts.Bot.ID).
+			Where(`id = ?`, opts.Model.ID).
 			Select("*").
 			Updates(map[string]any{
 				"accessToken":         newToken.Data.AccessToken,
@@ -44,20 +44,20 @@ func newBot(opts *ClientOpts) *types.BotClient {
 	api := twitch.NewClient(&helix.Options{
 		ClientID:         opts.Cfg.TwitchClientId,
 		ClientSecret:     opts.Cfg.TwitchClientSecret,
-		UserAccessToken:  opts.Bot.Token.AccessToken,
-		UserRefreshToken: opts.Bot.Token.RefreshToken,
+		UserAccessToken:  opts.Model.Token.AccessToken,
+		UserRefreshToken: opts.Model.Token.RefreshToken,
 		OnRefresh:        &onRefresh,
 	})
 
 	meReq, err := api.Client.GetUsers(&helix.UsersParams{
-		IDs: []string{opts.Bot.ID},
+		IDs: []string{opts.Model.ID},
 	})
 	if err != nil {
 		panic(err)
 	}
 
 	if len(meReq.Data.Users) == 0 {
-		panic("No user found for bot " + opts.Bot.ID)
+		panic("No user found for bot " + opts.Model.ID)
 	}
 
 	me := meReq.Data.Users[0]
@@ -72,6 +72,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 			Global:   globalRateLimiter,
 			Channels: make(map[string]ratelimiting.SlidingWindow),
 		},
+		Model: opts.Model,
 	}
 
 	botHandlers := handlers.CreateHandlers(&handlers.HandlersOpts{

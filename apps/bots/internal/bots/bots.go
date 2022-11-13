@@ -50,15 +50,12 @@ func NewBotsService(opts *NewBotsOpts) *BotsService {
 			DB:     opts.DB,
 			Cfg:    opts.Cfg,
 			Logger: opts.Logger,
-			Bot:    &b,
+			Model:  &b,
 			Nats:   opts.Nats,
 		})
 
-		channels := []model.Channels{}
-		opts.DB.Where(`"botId" = ?`, b.ID).Select("ID", "BotID").Find(&channels)
-
-		if len(channels) > 0 {
-			ids := lo.Map(channels, func(i model.Channels, _ int) string {
+		if len(b.Channels) > 0 {
+			ids := lo.Map(b.Channels, func(i model.Channels, _ int) string {
 				return i.ID
 			})
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/twitch"
 
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
@@ -20,6 +21,7 @@ type BotClient struct {
 
 	Api          *twitch.Twitch
 	RateLimiters RateLimiters
+	Model        *model.Bots
 }
 
 func (c *BotClient) SayWithRateLimiting(channel, text string, replyTo *string) {

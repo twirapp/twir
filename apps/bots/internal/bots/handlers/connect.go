@@ -14,20 +14,10 @@ import (
 func (c *Handlers) OnConnect() {
 	c.logger.Sugar().Infow("Bot connected to twitch")
 
-	dbBot := model.Bots{}
-	err := c.db.
-		Preload("Token").
-		Preload("Channels").
-		First(&dbBot).
-		Error
-	if err != nil {
-		panic(err)
-	}
-
 	twitchUsers := []helix.User{}
 	twitchUsersMU := sync.Mutex{}
 
-	channelsChunks := lo.Chunk(dbBot.Channels, 100)
+	channelsChunks := lo.Chunk(c.BotClient.Model.Channels, 100)
 	wg := sync.WaitGroup{}
 	wg.Add(len(channelsChunks))
 
@@ -55,7 +45,7 @@ func (c *Handlers) OnConnect() {
 	for _, u := range twitchUsers {
 		botModRequest, err := c.BotClient.Api.Client.GetChannelMods(&helix.GetChannelModsParams{
 			BroadcasterID: u.ID,
-			UserID:        dbBot.ID,
+			UserID:        c.BotClient.Model.ID,
 		})
 
 		var limiter ratelimiting.SlidingWindow
