@@ -2,16 +2,16 @@
 import {
   Column,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryColumn,
-  Relation,
+  type Relation,
 } from 'typeorm';
 
 import { type Bot } from './Bot.js';
+import { type ChannelChatMessage } from './ChannelChatMessage.js';
 import { type ChannelCommand } from './ChannelCommand.js';
 import { type ChannelCustomvar } from './ChannelCustomvar.js';
 import { type ChannelDotaAccount } from './ChannelDotaAccount.js';
@@ -97,4 +97,7 @@ export class Channel {
 
   @OneToMany('UserOnline', 'channel')
   onlineUsers?: Relation<UserOnline[]>;
+
+  @OneToMany('ChannelChatMessage', 'channel')
+  messages?: Relation<ChannelChatMessage[]>;
 }

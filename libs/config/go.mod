@@ -1,4 +1,4 @@
-module tsuwari/config
+module github.com/satont/tsuwari/libs/config
 
 go 1.19
 

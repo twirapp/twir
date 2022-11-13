@@ -5,6 +5,7 @@ import { DataSource } from 'typeorm';
 
 import { Bot } from './entities/Bot.js';
 import { Channel } from './entities/Channel.js';
+import { ChannelChatMessage } from './entities/ChannelChatMessage.js';
 import { ChannelCommand } from './entities/ChannelCommand.js';
 import { ChannelCustomvar } from './entities/ChannelCustomvar.js';
 import { ChannelDotaAccount } from './entities/ChannelDotaAccount.js';
@@ -78,6 +79,7 @@ export const AppDataSource = new DataSource({
     ChannelFollowEvent,
     ChannelDonationEvent,
     ChannelStream,
+    ChannelChatMessage,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

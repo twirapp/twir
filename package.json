@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint --ext .ts,.vue apps/",
     "lint:fix": "eslint --fix --ext .ts,.vue apps/",
-    "dev": "doppler run -- turbo run dev --filter=./apps/* --filter=!./apps/api",
+    "dev": "doppler run -- turbo run dev --filter=./apps/*",
     "start": "pnpm run -r start --filter=!@tsuwari/frontend",
     "start:integrations": "pnpm --filter=@tsuwari/integrations start",
     "start:api": "pnpm --filter=@tsuwari/api start",

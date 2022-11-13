@@ -2,10 +2,11 @@ package userage
 
 import (
 	"fmt"
-	types "tsuwari/parser/internal/types"
-	"tsuwari/parser/pkg/helpers"
 
-	variables_cache "tsuwari/parser/internal/variablescache"
+	types "github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
+
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"

@@ -6,13 +6,15 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	types "tsuwari/parser/internal/types"
-	variables_cache "tsuwari/parser/internal/variablescache"
+
+	types "github.com/satont/tsuwari/apps/parser/internal/types"
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
 
 const exampleStr = "Please check example."
+
 var Variable = types.Variable{
 	Name:        "random",
 	Description: lo.ToPtr("Random number from N to N"),

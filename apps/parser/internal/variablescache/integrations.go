@@ -1,7 +1,7 @@
 package variables_cache
 
 import (
-	model "tsuwari/models"
+	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
 func (c *VariablesCacheService) GetEnabledIntegrations() []model.ChannelsIntegrations {

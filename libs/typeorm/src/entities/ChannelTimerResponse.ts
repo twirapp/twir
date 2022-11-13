@@ -1,6 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  type Relation,
+} from 'typeorm';
 
-import { ChannelTimer } from './ChannelTimer.js';
+import { type ChannelTimer } from './ChannelTimer.js';
 
 @Entity('channels_timers_responses', { schema: 'public' })
 export class ChannelTimerResponse {

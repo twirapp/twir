@@ -2,8 +2,10 @@ package bot
 
 import (
 	"net/http"
-	model "tsuwari/models"
-	"tsuwari/twitch"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+
+	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"

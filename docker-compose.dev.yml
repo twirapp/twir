@@ -41,6 +41,7 @@ services:
     image: nats:latest
     ports:
       - 59490:4222
+      - 8222:8222
     networks:
       - tsuwari-dev
 

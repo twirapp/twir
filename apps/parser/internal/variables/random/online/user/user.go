@@ -4,10 +4,12 @@ import (
 	"errors"
 	"math/rand"
 	"time"
-	model "tsuwari/models"
-	"tsuwari/parser/internal/types"
 
-	variables_cache "tsuwari/parser/internal/variablescache"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )

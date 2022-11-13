@@ -41,9 +41,9 @@
       "remotePort": 5555
     },
     {
-      "localPort": 54320,
+      "localPort": 8080,
       "name": "adminer",
-      "remotePort": 54320
+      "remotePort": 8080
     },
     {
       "localPort": 8222,

@@ -3,7 +3,8 @@ package auth
 import (
 	"database/sql"
 	"time"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"

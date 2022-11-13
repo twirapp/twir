@@ -1,8 +1,9 @@
 package greetings
 
 import (
-	model "tsuwari/models"
-	"tsuwari/twitch"
+	model "github.com/satont/tsuwari/libs/gomodels"
+
+	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/satont/go-helix/v2"
 	"gorm.io/gorm"

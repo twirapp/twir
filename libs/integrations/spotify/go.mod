@@ -7,7 +7,6 @@ require (
 	github.com/imroc/req/v3 v3.25.0
 	github.com/samber/lo v1.33.0
 	gorm.io/gorm v1.24.0
-	tsuwari/models v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -40,5 +39,3 @@ require (
 	golang.org/x/tools v0.2.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 )
-
-replace tsuwari/models => ../../gomodels

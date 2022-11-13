@@ -2,6 +2,12 @@ go 1.19
 
 use (
 	./apps/api
+	./apps/bots
 	./apps/parser
 	./apps/timers
+	./libs/config
+	./libs/gomodels
+	./libs/integrations/spotify
+	./libs/nats
+	./libs/twitch
 )

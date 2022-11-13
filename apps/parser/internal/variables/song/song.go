@@ -3,11 +3,13 @@ package song
 import (
 	"fmt"
 	"strings"
-	model "tsuwari/models"
-	lastfm "tsuwari/parser/internal/integrations/lastfm"
-	vkIntegr "tsuwari/parser/internal/integrations/vk"
-	"tsuwari/parser/internal/types"
-	variables_cache "tsuwari/parser/internal/variablescache"
+
+	lastfm "github.com/satont/tsuwari/apps/parser/internal/integrations/lastfm"
+	vkIntegr "github.com/satont/tsuwari/apps/parser/internal/integrations/vk"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	spotify "github.com/satont/tsuwari/libs/integrations/spotify"
 

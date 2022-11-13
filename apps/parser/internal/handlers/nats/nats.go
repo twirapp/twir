@@ -1,8 +1,8 @@
 package natshandler
 
 import (
-	"tsuwari/parser/internal/commands"
-	"tsuwari/parser/internal/variables"
+	"github.com/satont/tsuwari/apps/parser/internal/commands"
+	"github.com/satont/tsuwari/apps/parser/internal/variables"
 
 	"github.com/go-redis/redis/v9"
 )
@@ -14,15 +14,15 @@ type NatsServiceImpl struct {
 }
 
 type NatsService struct {
-	Redis *redis.Client
+	Redis     *redis.Client
 	Variables variables.Variables
-	Commands commands.Commands
+	Commands  commands.Commands
 }
 
 func New(opts NatsService) NatsServiceImpl {
 	return NatsServiceImpl{
-		redis: opts.Redis,
+		redis:     opts.Redis,
 		variables: opts.Variables,
-		commands: opts.Commands,
+		commands:  opts.Commands,
 	}
 }

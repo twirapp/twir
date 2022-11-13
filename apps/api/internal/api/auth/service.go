@@ -5,8 +5,10 @@ import (
 	"net/http"
 	"sync"
 	"time"
-	model "tsuwari/models"
-	"tsuwari/twitch"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+
+	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"

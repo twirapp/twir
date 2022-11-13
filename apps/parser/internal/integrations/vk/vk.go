@@ -2,7 +2,8 @@ package vk
 
 import (
 	"fmt"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	req "github.com/imroc/req/v3"
 )

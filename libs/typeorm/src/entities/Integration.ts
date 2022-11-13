@@ -1,5 +1,4 @@
-/* eslint-disable import/no-cycle */
-import { Column, Entity, Index, OneToMany, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn, type Relation } from 'typeorm';
 
 import { type ChannelIntegration } from './ChannelIntegration.js';
 
