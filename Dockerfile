@@ -139,7 +139,6 @@ RUN apk add wget && \
 FROM golang:1.19.2-alpine as golang_deps_base
 WORKDIR /app
 RUN apk add git curl wget upx
-COPY --from=base go.mod go.work go.work.sum ./
 COPY --from=base /app/apps/parser apps/parser/
 COPY --from=base /app/apps/timers apps/timers/
 COPY --from=base /app/apps/api apps/api/

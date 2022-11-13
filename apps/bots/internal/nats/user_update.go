@@ -8,7 +8,7 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
-type user struct {
+type userUpdateUser struct {
 	UserID        string `json:"user_id"`
 	UserLogin     string `json:"user_login"`
 	UserName      string `json:"user_name"`
@@ -17,13 +17,13 @@ type user struct {
 	Description   string `json:"description"`
 }
 
-type incoming struct {
-	Pattern string `json:"pattern"`
-	User    user   `json:"data"`
+type userUpdateIncoming struct {
+	Pattern string         `json:"pattern"`
+	User    userUpdateUser `json:"data"`
 }
 
 func (c *NatsHandlers) UserUpdate(m *nats.Msg) {
-	data := incoming{}
+	data := userUpdateIncoming{}
 	if err := json.Unmarshal(m.Data, &data); err != nil {
 		c.logger.Sugar().Error(err)
 		return
