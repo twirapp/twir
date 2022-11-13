@@ -5,6 +5,7 @@ import (
 	"time"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/twitch"
 
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	"github.com/samber/lo"
@@ -12,6 +13,12 @@ import (
 )
 
 func (c *Handlers) OnConnect() {
+	usersApiService := twitch.NewUserClient(twitch.UsersServiceOpts{
+		Db:           c.db,
+		ClientId:     c.cfg.TwitchClientId,
+		ClientSecret: c.cfg.TwitchClientSecret,
+	})
+
 	c.logger.Sugar().
 		Infow("Bot connected to twitch", "botId", c.BotClient.Model.ID, "botName", c.BotClient.TwitchUser.Login)
 	c.BotClient.RateLimiters.Channels = make(map[string]ratelimiting.SlidingWindow)
@@ -54,22 +61,53 @@ func (c *Handlers) OnConnect() {
 
 	wg.Wait()
 
+	wg = sync.WaitGroup{}
+
 	for _, u := range twitchUsers {
-		botModRequest, err := c.BotClient.Api.Client.GetChannelMods(&helix.GetChannelModsParams{
-			BroadcasterID: u.ID,
-			UserID:        c.BotClient.Model.ID,
-		})
+		wg.Add(1)
+		go func(u helix.User) {
+			defer wg.Done()
 
-		var limiter ratelimiting.SlidingWindow
-		if err != nil && len(botModRequest.Data.Mods) == 1 {
-			l, _ := ratelimiting.NewSlidingWindow(20, 30*time.Second)
-			limiter = l
-		} else {
-			l, _ := ratelimiting.NewSlidingWindow(1, 2*time.Second)
-			limiter = l
-		}
+			dbUser := model.Users{}
+			err := c.db.Where("id = ?", u.ID).Preload("Token").Find(&dbUser).Error
+			if err != nil {
+				return
+			}
+			isMod := false
 
-		c.BotClient.RateLimiters.Channels[u.Login] = limiter
-		c.BotClient.Join(u.Login)
+			if dbUser.ID != "" && dbUser.Token != nil {
+				api, err := usersApiService.Create(u.ID)
+				if err != nil {
+					return
+				}
+
+				botModRequest, err := api.GetChannelMods(&helix.GetChannelModsParams{
+					BroadcasterID: u.ID,
+					UserID:        c.BotClient.Model.ID,
+				})
+
+				if err != nil || botModRequest.ResponseCommon.StatusCode != 200 {
+					isMod = false
+				}
+
+				if len(botModRequest.Data.Mods) == 1 {
+					isMod = true
+				}
+			}
+
+			var limiter ratelimiting.SlidingWindow
+			if isMod {
+				l, _ := ratelimiting.NewSlidingWindow(20, 30*time.Second)
+				limiter = l
+			} else {
+				l, _ := ratelimiting.NewSlidingWindow(1, 2*time.Second)
+				limiter = l
+			}
+			c.BotClient.RateLimiters.Channels[u.Login] = limiter
+
+			c.BotClient.Join(u.Login)
+		}(u)
 	}
+
+	wg.Wait()
 }

@@ -29,6 +29,7 @@ type Handlers struct {
 	logger    *zap.Logger
 	BotClient *types.BotClient
 	nats      *nats.Conn
+	cfg       *cfg.Config
 }
 
 func CreateHandlers(opts *HandlersOpts) *Handlers {
@@ -37,5 +38,6 @@ func CreateHandlers(opts *HandlersOpts) *Handlers {
 		logger:    opts.Logger,
 		BotClient: opts.BotClient,
 		nats:      opts.Nats,
+		cfg:       opts.Cfg,
 	}
 }
