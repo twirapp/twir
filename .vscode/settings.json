@@ -51,16 +51,8 @@
       "remotePort": 8222
     }
   ],
-  "i18n-ally.localesPaths": ["apps/frontend/src/locales"],
-  "i18n-ally.editor.preferEditor": true,
-  "i18n-ally.sortKeys": true,
-  "i18n-ally.keepFulfilled": true,
-  "i18n-ally.keystyle": "nested",
-  "i18n-ally.sourceLanguage": "gb",
   "prisma.fileWatcher": false,
   "typescript.format.enable": false,
-  // "editor.rulers": [100],
-  // "go.useLanguageServer": true,
   "gopls": {
     "formatting.gofumpt": true
   },
