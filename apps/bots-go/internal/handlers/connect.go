@@ -11,7 +11,6 @@ import (
 )
 
 func (c *Handlers) OnConnect() {
-	c.BotClient.Join("rusty")
 	c.logger.Sugar().Infow("Bot connected to twitch")
 
 	dbBot := model.Bots{}
