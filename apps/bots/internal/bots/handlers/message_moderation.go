@@ -56,7 +56,6 @@ func (c *Handlers) moderateMessage(msg irc.PrivateMessage, badges []string) bool
 		if !s.Subscribers && lo.Contains(badges, "SUBSCRIBER") {
 			continue
 		}
-
 		function, ok := functionsMapping[s.Type]
 		if !ok {
 			continue
@@ -259,7 +258,13 @@ func (c *parsers) emotesParser(
 		return nil
 	}
 
-	if len(ircMsg.Emotes) < int(settings.TriggerLength.Int64) {
+	length := 0
+
+	for _, e := range ircMsg.Emotes {
+		length += len(e.Positions)
+	}
+
+	if length < int(settings.TriggerLength.Int64) {
 		return nil
 	}
 
