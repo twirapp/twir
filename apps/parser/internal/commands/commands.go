@@ -88,9 +88,10 @@ func New(opts CommandsOpts) Commands {
 
 func (c *Commands) GetChannelCommands(channelId string) (*[]model.ChannelsCommands, error) {
 	cmds := []model.ChannelsCommands{}
+
 	err := c.Db.
 		Model(&model.ChannelsCommands{}).
-		Where(`"channelId" = ? AND "enabled" IS ?`, channelId, true).
+		Where(`"channelId" = ? AND "enabled" = ?`, channelId, true).
 		Preload("Responses").
 		Find(&cmds).Error
 	if err != nil {

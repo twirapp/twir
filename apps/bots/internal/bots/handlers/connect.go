@@ -31,9 +31,10 @@ func (c *Handlers) OnConnect() {
 	twitchUsersMU := sync.Mutex{}
 
 	botChannels := []model.Channels{}
+
 	c.db.
 		Where(
-			`"botId" = ? AND "isEnabled" IS ? AND "isBanned" IS ? AND "isTwitchBanned" IS ?`,
+			`"botId" = ? AND "isEnabled" = ? AND "isBanned" = ? AND "isTwitchBanned" = ?`,
 			c.BotClient.Model.ID,
 			true,
 			false,
