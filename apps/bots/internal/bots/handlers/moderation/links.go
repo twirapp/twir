@@ -1,10 +1,36 @@
 package moderation
 
-import "mvdan.cc/xurls/v2"
+import (
+	"fmt"
+	"regexp"
+	"strings"
 
-var linksMatcher = xurls.Relaxed()
+	"github.com/satont/tsuwari/apps/bots/pkg/tlds"
+)
 
-func HasLink(msg string) bool {
-	res := linksMatcher.FindAllString(msg, -1)
-	return len(res) > 0
+// [a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})
+var linksWithSpaces = regexp.MustCompile(
+	fmt.Sprintf(
+		`(www)? ??\.? ?[a-zA-Z0-9]+([a-zA-Z0-9-]+) ??\. ?(%s)\b`,
+		strings.Join(tlds.TLDS, "|"),
+	),
+)
+
+var linksWithoutSpaces = regexp.MustCompile(
+	fmt.Sprintf(
+		`[a-zA-Z0-9]+([a-zA-Z0-9-]+)?\.(%s)\b`,
+		strings.Join(tlds.TLDS, "|"),
+	),
+)
+
+func HasLink(msg string, withSpaces bool) bool {
+	var matches []string
+
+	if withSpaces {
+		matches = linksWithSpaces.FindAllString(msg, -1)
+	} else {
+		matches = linksWithoutSpaces.FindAllString(msg, -1)
+	}
+
+	return len(matches) > 0
 }

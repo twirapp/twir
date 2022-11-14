@@ -33,11 +33,13 @@ type Handlers struct {
 }
 
 func CreateHandlers(opts *HandlersOpts) *Handlers {
-	return &Handlers{
+	handlersService := &Handlers{
 		db:        opts.DB,
 		logger:    opts.Logger,
 		BotClient: opts.BotClient,
 		nats:      opts.Nats,
 		cfg:       opts.Cfg,
 	}
+
+	return handlersService
 }

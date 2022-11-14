@@ -1,7 +1,6 @@
 package moderation
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"unicode/utf8"
@@ -18,10 +17,5 @@ func IsToMuchSymbols(msg string, maxPercentage int) bool {
 		matchesCount += utf8.RuneCountInString(v)
 	}
 
-	fmt.Println(
-		matchesCount*100,
-		maxPercentage*utf8.RuneCountInString(msg),
-		utf8.RuneCountInString(msg),
-	)
 	return matchesCount*100 >= maxPercentage*utf8.RuneCountInString(msg)
 }

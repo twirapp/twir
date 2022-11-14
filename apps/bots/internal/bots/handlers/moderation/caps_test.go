@@ -3,15 +3,17 @@ package moderation
 import "testing"
 
 func TestIsTooMuchCaps(t *testing.T) {
-	for _, test := range []struct {
+	cases := []struct {
 		name          string
 		msg           string
 		maxPercentage int
 		expected      bool
 	}{
-		{name: "false case", msg: "QWERTyuiop", maxPercentage: 60, expected: false},
 		{name: "true case", msg: "QWERTyuiop", maxPercentage: 50, expected: true},
-	} {
+		{name: "false case", msg: "QWERTyuiop", maxPercentage: 60, expected: false},
+	}
+
+	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
 			got := IsTooMuchCaps(test.msg, test.maxPercentage)
 			if got != test.expected {
