@@ -1,0 +1,283 @@
+<template>
+  <button
+    class="youtube-player-btn-icon"
+    @click="openModal"
+  >
+    <div
+      v-if="isSettingsFetching"
+      class="animate-spin border-2 border-[#AFAFAF] border-r-transparent border-solid h-5 inline-block rounded-full w-5"
+      role="status"
+    />
+    <Settings
+      v-else
+      class="stroke-icon"
+    />
+  </button>
+  <TransitionRoot
+    appear
+    :show="isModalOpen"
+    as="template"
+  >
+    <Dialog
+      as="div"
+      class="relative z-10"
+      @close="closeModal"
+    >
+      <TransitionChild
+        as="template"
+        enter="duration-300 ease-out"
+        enter-from="opacity-0"
+        enter-to="opacity-100"
+        leave="duration-200 ease-in"
+        leave-from="opacity-100"
+        leave-to="opacity-0"
+      >
+        <div class="bg-black bg-opacity-40 fixed inset-0" />
+      </TransitionChild>
+
+      <div class="fixed inset-0 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-full p-4 text-center">
+          <TransitionChild
+            as="template"
+            enter="duration-300 ease-out"
+            enter-from="opacity-0 scale-95"
+            enter-to="opacity-100 scale-100"
+            leave="duration-200 ease-in"
+            leave-from="opacity-100 scale-100"
+            leave-to="opacity-0 scale-95"
+          >
+            <DialogPanel
+              class="align-middle bg-[#2C2C2C] max-w-2xl overflow-hidden rounded-lg shadow-xl text-left transform transition-all w-full"
+            >
+              <div class="border-[#525252] border-b md:p-6 p-5">
+                <DialogTitle
+                  as="h3"
+                  class="font-semibold leading-6 text-white text-xl"
+                >
+                  Youtube song request settings
+                </DialogTitle>
+              </div>
+              
+              <form
+                v-if="isDataFetched"
+                class=""
+                @submit.prevent="submitForm"
+              >
+                <span
+                  v-for="(err, key) in errors"
+                  :key="key"
+                  class="text-red-500"
+                >
+                  {{ err }}
+                </span>
+                <div class="divide-[#525252] divide-y grid md:px-6 px-5">
+                  <div class="py-5">
+                    <span class="inline-block leading-tight mb-4 text-white">General</span>
+                    <div class="flex flex-col gap-5 justify-between sm:flex-row w-full">
+                      <TswSwitch
+                        id="accept-only-when-online"
+                        name="acceptOnlyWhenOnline"
+                        label="Accept only when online"
+                        direction="col"
+                      />
+                      <TswTextInput
+                        id="channel-points-reward-name"
+                        name="channelPointsRewardName"
+                        direction="col"
+                        class="flex-1"
+                        label="Channel points reward name"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div class="py-5">
+                    <span class="inline-block leading-tight mb-4 text-white">User</span>
+                    <div class="gap-3 grid grid-flow-col grid-rows-2 md:grid-rows-1">
+                      <TswNumberInput
+                        id="user.max-requests"
+                        name="user.maxRequests"
+                        label="Max requests"
+                        direction="col"
+                      />
+                      <TswNumberInput
+                        id="user.min-watch-time"
+                        name="user.minWatchTime"
+                        label="Min watch time"
+                        direction="col"
+                      />
+                      <TswNumberInput
+                        id="user.min-follow-time"
+                        name="user.minFollowTime"
+                        label="Min follow time"
+                        direction="col"
+                      />
+                      <TswNumberInput
+                        id="user.min-messages"
+                        name="user.minMessages"
+                        label="Min messages"
+                        direction="col"
+                      />
+                    </div>
+                  </div>
+                
+                  <div class="py-5">
+                    <span class="inline-block leading-tight mb-4 text-white">Song</span>
+                    <div class="gap-3 grid grid-flow-col">
+                      <TswNumberInput
+                        id="song.max-length"
+                        name="song.maxLength"
+                        label="Max length"
+                        direction="col"
+                      />
+                      <TswNumberInput
+                        id="song.min-views"
+                        name="song.minViews"
+                        label="Min views"
+                        direction="col"
+                      />
+                    </div>
+                    <TswArrayInput
+                      name="song.acceptedCategories"
+                      label="Accepted categories"
+                      class="mt-2"
+                    />
+                  </div>
+                  <div class="py-5">
+                    <span class="inline-block leading-tight mb-4 text-white">Black list</span>
+                    <div class="gap-y-2 grid">
+                      <TswArrayInput
+                        name="blacklist.usersIds"
+                        label="User ids list"
+                      />
+                      <TswArrayInput
+                        name="blacklist.songsIds"
+                        label="Song ids list"
+                      />
+                      <TswArrayInput
+                        name="blacklist.channelsIds"
+                        label="Channel ids list"
+                      />
+                      <TswArrayInput
+                        name="blacklist.artistsNames"
+                        label="Artists names"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+
+                <div class="border-[#525252] border-t gap-2 grid-flow-col inline-grid justify-end md:px-6 md:py-5 p-5 w-full">
+                  <button
+                    type="submit"
+                    class="bg-[#644EE8] focus:outline-none font-medium inline-flex justify-center px-4 py-2 rounded text-sm text-white"
+                  >
+                    {{ isPostingData ? 'Loading...' : 'Save settings' }}
+                  </button>
+                </div>
+              </form>
+            </DialogPanel>
+          </TransitionChild>
+        </div>
+      </div>
+    </Dialog>
+  </TransitionRoot>
+</template>
+
+<script lang="ts" setup>
+import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue';
+import type { YoutubeSettings } from '@tsuwari/typeorm';
+import { AxiosError } from 'axios';
+import { useForm, configure } from 'vee-validate';
+import { computed, ref } from 'vue';
+import { object, string, boolean, number, array } from 'yup';
+
+import Settings from '@/assets/icons/settings.svg?component';
+import TswArrayInput from '@/components/elements/TswArrayInput.vue';
+import TswNumberInput from '@/components/elements/TswNumberInput.vue';
+import TswSwitch from '@/components/elements/TswSwitch.vue';
+import TswTextInput from '@/components/elements/TswTextInput.vue';
+import { api } from '@/plugins/api';
+import { selectedDashboardStore } from '@/stores/userStore.js';
+
+configure({
+  validateOnBlur: true,
+});
+
+const isModalOpen = ref(false);
+const isDataFetched = ref(false);
+const isSettingsFetching = ref(false);
+const error = ref<string | null>(null);
+const isPostingData = ref<boolean>(false);
+
+const schema = computed(() =>
+  object({
+    user: object({
+      maxRequests: number().positive().required(),
+      minWatchTime: number().positive().integer(),
+      minMessages: number().positive().integer(),
+      minFollowTime: number().positive().integer(),
+    }),
+    maxRequests: number().positive().required(),
+    acceptOnlyWhenOnline: boolean().required(),
+    channelPointsRewardName: string().required(),
+    song: object({
+      maxLength: number().positive().required().integer(),
+      minViews: number().positive().required().integer(),
+      acceptedCategories: array().of(string()),
+    }),
+    blackList: object({
+      usersIds: array().of(string()),
+      songsIds: array().of(string()),
+      channelsIds: array().of(string()),
+      artistsNames: array().of(string()),
+    }),
+  }),
+);
+
+function closeModal() {
+  isModalOpen.value = false;
+}
+
+const { values, validate, setValues, errors } = useForm<Required<YoutubeSettings>>({
+  validationSchema: schema,
+  keepValuesOnUnmount: true,
+});
+
+const submitForm = async () => {
+  const validationResult = await validate();
+  if (validationResult.valid) {
+    try {
+      isPostingData.value = true;
+      await api.post(
+        `/v1/channels/${selectedDashboardStore.get().channelId}/modules/youtube-sr`,
+        values,
+      );
+    } catch (err) {
+      error.value = (err as AxiosError).message;
+    } finally {
+      isPostingData.value = false;
+    }
+  }
+};
+
+async function openModal() {
+  if (!isDataFetched.value) {
+    isSettingsFetching.value = true;
+    try {
+      const response = await api.get<YoutubeSettings>(
+        `/v1/channels/${selectedDashboardStore.get().channelId}/modules/youtube-sr`,
+      );
+      setValues(response.data);
+      isDataFetched.value = true;
+      isModalOpen.value = true;
+    } catch (err) {
+      error.value = (err as AxiosError).message;
+      console.error(err);
+    } finally {
+      isSettingsFetching.value = false;
+    }
+  } else {
+    isModalOpen.value = true;
+  }
+}
+</script>

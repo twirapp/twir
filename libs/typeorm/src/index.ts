@@ -41,6 +41,7 @@ import { UserStats } from './entities/UserStats.js';
 import { UserViewedNotification } from './entities/UserViewedNotification.js';
 
 export * from 'typeorm';
+export type { YoutubeSettings } from './entities/ChannelModuleSettings.js';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',

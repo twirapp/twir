@@ -10,9 +10,7 @@
           :playlistQueue="playlistQueue"
           :removeVideo="removeVideo"
         />
-        <button class="youtube-player-btn-icon">
-          <Settings class="stroke-icon" />
-        </button>
+        <YoutubeSettingsModal />
       </div>
     </div>
     <VuePlyr
@@ -89,12 +87,12 @@ import { computed } from 'vue';
 
 import VuePlyr from './VuePlyr.vue';
 import YoutubePlaylistQueue from './YoutubePlaylistQueue.vue';
+import YoutubeSettingsModal from './YoutubeSettingsModal.vue';
 
 import Next from '@/assets/icons/next.svg?component';
 import OffVideo from '@/assets/icons/off-video.svg?component';
 import Pause from '@/assets/icons/pause.svg?component';
 import Play from '@/assets/icons/play.svg?component';
-import Settings from '@/assets/icons/settings.svg?component';
 import { useYoutubeSocketPlayer } from '@/functions/useYoutubeSocketPlayer.js';
 
 const {
@@ -109,12 +107,12 @@ const {
   isLoadingQueue,
 } = useYoutubeSocketPlayer();
 
-const isAcitveStyle = computed(() => (isActive.value ? 'block' : 'none'));
+const isActiveStyle = computed(() => (isActive.value ? 'block' : 'none'));
 </script>
 
 <style lang="postcss">
 .plyr {
-  display: v-bind(isAcitveStyle);
+  display: v-bind(isActiveStyle);
 }
 
 .youtube-player-btn-icon {
@@ -122,7 +120,7 @@ const isAcitveStyle = computed(() => (isActive.value ? 'block' : 'none'));
 
   &[aria-expanded='true'] {
     @apply bg-[#2C2C2C];
-    
+
     & > svg.fill-icon {
       @apply fill-[#D0D0D0];
     }
