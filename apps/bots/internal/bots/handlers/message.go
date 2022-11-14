@@ -27,19 +27,21 @@ func (c *Handlers) OnPrivateMessage(msg irc.PrivateMessage) {
 	go c.handleGreetings(c.nats, c.db, msg, userBadges)
 	go c.handleKeywords(c.nats, c.db, msg, userBadges)
 
-	go messages.StoreMessage(
-		c.db,
-		msg.ID,
-		msg.RoomID,
-		msg.User.ID,
-		msg.User.Name,
-		msg.Message,
-		!lo.Some(
-			userBadges,
-			[]string{"BROADCASTER", "MODERATOR", "SUBSCRIBER", "VIP"},
-		),
-	)
-	go messages.IncrementUserMessages(c.db, msg.User.ID, msg.RoomID)
+	go func() {
+		messages.IncrementUserMessages(c.db, msg.User.ID, msg.RoomID)
+		messages.StoreMessage(
+			c.db,
+			msg.ID,
+			msg.RoomID,
+			msg.User.ID,
+			msg.User.Name,
+			msg.Message,
+			!lo.Some(
+				userBadges,
+				[]string{"BROADCASTER", "MODERATOR", "SUBSCRIBER", "VIP"},
+			),
+		)
+	}()
 	go messages.IncrementStreamParsedMessages(c.db, msg.RoomID)
 }
 
