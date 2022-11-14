@@ -41,7 +41,7 @@ func (c *Handlers) handleKeywords(
 		go func(k model.ChannelsKeywords) {
 			defer wg.Done()
 
-			regx, err := regexp.Compile(fmt.Sprintf("%s", strings.ToLower(k.Text)))
+			regx, err := regexp.Compile(strings.ToLower(k.Text))
 			if err != nil {
 				c.BotClient.SayWithRateLimiting(
 					msg.Channel,
