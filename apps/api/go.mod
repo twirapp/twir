@@ -18,7 +18,7 @@ require (
 	github.com/nats-io/nats.go v1.19.0
 	github.com/samber/lo v1.34.0
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221112130747-e34f337ae946
+	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
 	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/nats v0.0.0-20221029011616-11c714aa94c1
 	github.com/satont/tsuwari/libs/twitch v0.0.0-00010101000000-000000000000
@@ -79,7 +79,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/klauspost/compress v1.15.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
-	github.com/satont/go-helix/v2 v2.7.18
+	github.com/satont/go-helix/v2 v2.7.21
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.41.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
