@@ -23,7 +23,7 @@ func (c *Handlers) handleKeywords(
 	userBadges []string,
 ) {
 	keywords := []model.ChannelsKeywords{}
-	err := db.Where(`"channelId" = ?`, msg.RoomID).Find(&keywords).Error
+	err := db.Where(`"channelId" = ? AND "enabled" = ?`, msg.RoomID, true).Find(&keywords).Error
 	if err != nil {
 		fmt.Println(err)
 		return
