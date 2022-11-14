@@ -7,6 +7,7 @@ import (
 
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
+	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/bots/internal/bots/handlers/moderation"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
@@ -15,7 +16,7 @@ import (
 
 type handleResult struct {
 	IsDelete bool
-	Time     *int32
+	Time     *int
 	Message  string
 }
 
@@ -38,7 +39,7 @@ func (c *Handlers) moderateMessage(msg irc.PrivateMessage, badges []string) bool
 	}
 
 	settings := []model.ChannelsModerationSettings{}
-	if err := c.db.Where(`"channelId" = ? AND enabled = ?`, msg.RoomID, true).Find(&settings).Error; err != nil {
+	if err := c.db.Where(`"channelId" = ? AND "enabled" = ?`, msg.RoomID, true).Find(&settings).Error; err != nil {
 		c.logger.Sugar().Error(err)
 		return false
 	}
@@ -62,7 +63,43 @@ func (c *Handlers) moderateMessage(msg irc.PrivateMessage, badges []string) bool
 		}
 
 		res := function(&prsrs, &s, msg, badges)
+
 		if res != nil {
+			if res.IsDelete {
+				res, err := c.BotClient.Api.Client.DeleteMessage(&helix.DeleteMessageParams{
+					BroadcasterID: msg.RoomID,
+					ModeratorID:   c.BotClient.Model.ID,
+					MessageID:     msg.ID,
+				})
+
+				if res.StatusCode != 200 {
+					c.logger.Sugar().Info(res.ErrorMessage)
+				}
+				if err != nil {
+					c.logger.Sugar().Error(err)
+				}
+			} else {
+				if res.Time != nil {
+					fmt.Println(*res.Time)
+					res, err := c.BotClient.Api.Client.BanUser(&helix.BanUserParams{
+						BroadcasterID: msg.RoomID,
+						ModeratorId:   c.BotClient.Model.ID,
+						Body: helix.BanUserRequestBody{
+							Duration: int(*res.Time),
+							Reason:   res.Message,
+							UserId:   msg.User.ID,
+						},
+					})
+
+					if res.StatusCode != 200 {
+						c.logger.Sugar().Info(res.ErrorMessage)
+					}
+					if err != nil {
+						c.logger.Sugar().Error(err)
+					}
+				}
+			}
+
 			return true
 		}
 	}
@@ -77,7 +114,12 @@ func (c *parsers) returnByWarnedState(
 ) *handleResult {
 	warning := model.ChannelModerationWarn{}
 	err := c.db.
-		Where(`"channelId" = ? AND "userId" = ? AND reason = ?`, reason).
+		Where(
+			`"channelId" = ? AND "userId" = ? AND "reason" = ?`,
+			settings.ChannelID,
+			userID,
+			reason,
+		).
 		First(&warning).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		fmt.Println(err)
@@ -96,10 +138,12 @@ func (c *parsers) returnByWarnedState(
 			Message:  lo.If(settings.WarningMessage.Valid, settings.WarningMessage.String).Else(""),
 		}
 	} else {
+		duration := time.Duration(settings.BanTime) * time.Second
 		c.db.Delete(&warning)
 		return &handleResult{
 			IsDelete: false,
-			Time:     lo.ToPtr(settings.BanTime * int32(time.Second)),
+			Time:     lo.ToPtr(int(duration.Seconds())),
+			Message:  lo.If(settings.BanMessage.Valid, settings.BanMessage.String).Else(""),
 		}
 	}
 }
