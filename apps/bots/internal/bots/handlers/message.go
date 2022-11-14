@@ -11,6 +11,11 @@ import (
 func (c *Handlers) OnPrivateMessage(msg irc.PrivateMessage) {
 	userBadges := createUserBadges(msg.User.Badges)
 
+	moderationResult := c.moderateMessage(msg, userBadges)
+	if moderationResult {
+		return
+	}
+
 	if strings.HasPrefix(msg.Message, "!") {
 		go c.handleCommand(c.nats, msg, userBadges)
 	}
