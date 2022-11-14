@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -39,7 +40,18 @@ func (c *Handlers) handleKeywords(
 	for _, k := range keywords {
 		go func(k model.ChannelsKeywords) {
 			defer wg.Done()
-			if !strings.Contains(message, strings.ToLower(k.Text)) {
+
+			regx, err := regexp.Compile(fmt.Sprintf("%s", strings.ToLower(k.Text)))
+			if err != nil {
+				c.BotClient.SayWithRateLimiting(
+					msg.Channel,
+					fmt.Sprintf("regular expression is wrong for keyword %s", k.Text),
+					nil,
+				)
+				return
+			}
+
+			if !regx.MatchString(message) {
 				return
 			}
 
