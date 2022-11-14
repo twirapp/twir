@@ -80,7 +80,6 @@ func (c *Handlers) moderateMessage(msg irc.PrivateMessage, badges []string) bool
 				}
 			} else {
 				if res.Time != nil {
-					fmt.Println(*res.Time)
 					res, err := c.BotClient.Api.Client.BanUser(&helix.BanUserParams{
 						BroadcasterID: msg.RoomID,
 						ModeratorId:   c.BotClient.Model.ID,

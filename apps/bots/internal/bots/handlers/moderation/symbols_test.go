@@ -10,7 +10,29 @@ func TestIsToMuchSymbols(t *testing.T) {
 		expected      bool
 	}{
 		{name: "true case", msg: "♣♦•◘♠ qwerty", maxPercentage: 30, expected: true},
+		{name: "true case", msg: "♣♦•◘♠ qwerty", maxPercentage: 70, expected: false},
 		{name: "false case", msg: "♣♦•◘♠ qwerty", maxPercentage: 51, expected: false},
+
+		{
+			name:          "false case",
+			msg:           "qweqweqweqweqweqweqweqweqweqweqwerty",
+			maxPercentage: 51,
+			expected:      false,
+		},
+
+		{
+			name:          "false case",
+			msg:           "qweqweqweqweqweqweqweqweqweqweqwerty",
+			maxPercentage: 10,
+			expected:      false,
+		},
+
+		{
+			name:          "false case",
+			msg:           "чел в доту играл",
+			maxPercentage: 10,
+			expected:      false,
+		},
 	}
 
 	for _, test := range cases {

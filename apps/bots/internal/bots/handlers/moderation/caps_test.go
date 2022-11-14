@@ -10,6 +10,7 @@ func TestIsTooMuchCaps(t *testing.T) {
 		expected      bool
 	}{
 		{name: "true case", msg: "QWERTyuiop", maxPercentage: 50, expected: true},
+		{name: "true case", msg: "QWERtyuiop", maxPercentage: 50, expected: false},
 		{name: "false case", msg: "QWERTyuiop", maxPercentage: 60, expected: false},
 	}
 

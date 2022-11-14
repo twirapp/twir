@@ -6,7 +6,7 @@ import (
 	"unicode/utf8"
 )
 
-var symbolsRegexp = regexp.MustCompile(`[^\s\\u0500-\\u052F\\u0400-\\u04FF\w]+`)
+var symbolsRegexp = regexp.MustCompile(`[^\p{L}0-9\s]+`)
 
 func IsToMuchSymbols(msg string, maxPercentage int) bool {
 	msg = strings.ReplaceAll(msg, " ", "")
