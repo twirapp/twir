@@ -9,7 +9,7 @@ type commandDto struct {
 	ID *string `json:"id,omitempty"`
 
 	Name               string         `validate:"required,min=1,max=50" json:"name"`
-	Cooldown           uint32         `validate:"gte=5,lte=86400"       json:"cooldown"`
+	Cooldown           uint32         `validate:"lte=86400"             json:"cooldown"`
 	CooldownType       string         `validate:"required"              json:"cooldownType"`
 	Description        *string        `validate:"omitempty,max=400"     json:"description,omitempty"`
 	Permission         string         `validate:"required"              json:"permission"`

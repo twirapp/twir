@@ -94,7 +94,7 @@ const schema = computed(() =>
           if (typeof v === 'undefined' || !isNumber(v)) return false;
           if (command.value.default) return true;
 
-          return v >= 5;
+          return v >= 0;
         },
       ),
     permission: yup.mixed().oneOf(Object.values(perms)),
