@@ -20,7 +20,15 @@ import (
 func (c *Handlers) OnPrivateMessage(msg irc.PrivateMessage) {
 	userBadges := createUserBadges(msg.User.Badges)
 
-	if strings.HasPrefix(msg.Message, "!") {
+	splittedMsg := strings.Split(msg.Message, " ")
+	isReplyCommand := len(splittedMsg) >= 2 && strings.HasPrefix(splittedMsg[0], "@") &&
+		strings.HasPrefix(splittedMsg[1], "!")
+
+	if strings.HasPrefix(msg.Message, "!") || isReplyCommand {
+		if isReplyCommand {
+			msg.Message = strings.Join(splittedMsg[1:], " ")
+		}
+
 		go c.handleCommand(c.nats, msg, userBadges)
 	}
 
