@@ -24,6 +24,7 @@ type ChannelsKeywords struct {
 	Cooldown         null.Int  `gorm:"column:cooldown;type:INT4;default:0;"            json:"cooldown"`
 	CooldownExpireAt null.Time `gorm:"column:cooldownExpireAt;type:timestamp;"         json:"cooldownExpireAt"`
 	IsReply          bool      `gorm:"column:isReply;type:BOOL"                        json:"isReply"`
+	IsRegular        bool      `gorm:"column:isRegular;type:bool"                      json:"isRegular"`
 }
 
 func (c *ChannelsKeywords) TableName() string {

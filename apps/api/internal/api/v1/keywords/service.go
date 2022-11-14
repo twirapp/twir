@@ -39,6 +39,8 @@ func handlePost(
 		Response:  dto.Response,
 		Enabled:   *dto.Enabled,
 		Cooldown:  null.IntFrom(int64(dto.Cooldown)),
+		IsRegular: *dto.IsRegular,
+		IsReply:   *dto.IsReply,
 	}
 	err = services.DB.Save(&newKeyword).Error
 	if err != nil {
@@ -82,6 +84,7 @@ func handleUpdate(
 		Enabled:   *dto.Enabled,
 		Cooldown:  null.IntFrom(int64(dto.Cooldown)),
 		IsReply:   *dto.IsReply,
+		IsRegular: *dto.IsRegular,
 	}
 
 	err := services.DB.Model(currentKeyword).Select("*").Updates(newKeyword).Error

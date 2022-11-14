@@ -41,18 +41,24 @@ func (c *Handlers) handleKeywords(
 		go func(k model.ChannelsKeywords) {
 			defer wg.Done()
 
-			regx, err := regexp.Compile(strings.ToLower(k.Text))
-			if err != nil {
-				c.BotClient.SayWithRateLimiting(
-					msg.Channel,
-					fmt.Sprintf("regular expression is wrong for keyword %s", k.Text),
-					nil,
-				)
-				return
-			}
+			if k.IsRegular {
+				regx, err := regexp.Compile(strings.ToLower(k.Text))
+				if err != nil {
+					c.BotClient.SayWithRateLimiting(
+						msg.Channel,
+						fmt.Sprintf("regular expression is wrong for keyword %s", k.Text),
+						nil,
+					)
+					return
+				}
 
-			if !regx.MatchString(message) {
-				return
+				if !regx.MatchString(message) {
+					return
+				}
+			} else {
+				if !strings.Contains(message, strings.ToLower(k.Text)) {
+					return
+				}
 			}
 
 			isOnCooldown := false

@@ -1,4 +1,3 @@
-/* eslint-disable import/no-cycle */
 import {
   Column,
   Entity,
@@ -6,7 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  type Relation,
+  type Relation
 } from 'typeorm';
 
 import { type Channel } from './Channel.js';
@@ -46,4 +45,7 @@ export class ChannelKeyword {
 
   @Column('bool', { default: false })
   isReply: boolean;
+
+  @Column('bool', { default: false })
+  isRegular: boolean;
 }
