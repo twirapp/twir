@@ -3,6 +3,7 @@ package moderation
 import "testing"
 
 func TestIsTooMuchCaps(t *testing.T) {
+
 	res := IsTooMuchCaps("QWERTyuiop", 60)
 	if res {
 		t.Errorf(`IsTooMuchCaps("QWERTyuiop", 60) = true; want false`)
