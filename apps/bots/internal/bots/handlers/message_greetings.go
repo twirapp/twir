@@ -21,7 +21,13 @@ func (c *Handlers) handleGreetings(
 ) {
 	entity := model.ChannelsGreetings{}
 	err := db.
-		Where(`"channelId" = ? AND "userId" = ? AND processed = ?`, msg.RoomID, msg.User.ID, false).
+		Where(
+			`"channelId" = ? AND "userId" = ? AND "processed" = ? AND "enabled" = ?`,
+			msg.RoomID,
+			msg.User.ID,
+			false,
+			false,
+		).
 		First(&entity).
 		Error
 
