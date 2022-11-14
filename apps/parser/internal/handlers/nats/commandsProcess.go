@@ -37,7 +37,7 @@ func (c *NatsServiceImpl) HandleProcessCommand(data parserproto.Request) *parser
 
 	cmd := c.commands.FindByMessage(data.Message.Text, cmds)
 
-	if cmd.Cmd == nil || !cmd.Cmd.Enabled {
+	if cmd.Cmd == nil {
 		return nil
 	}
 
