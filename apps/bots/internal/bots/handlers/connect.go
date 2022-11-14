@@ -33,7 +33,7 @@ func (c *Handlers) OnConnect() {
 	botChannels := []model.Channels{}
 	c.db.
 		Where(
-			`"botId" = ? AND "isEnabled" = ? AND "isBanned" = ? AND "isTwitchBanned" = ?`,
+			`"botId" = ? AND "isEnabled" IS ? AND "isBanned" IS ? AND "isTwitchBanned" IS ?`,
 			c.BotClient.Model.ID,
 			true,
 			false,

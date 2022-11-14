@@ -33,7 +33,7 @@ var Command = types.DefaultCommand{
 
 		err := ctx.Services.Db.
 			Where(
-				`"canBeDeleted" = ? AND text LIKE ?`,
+				`"canBeDeleted" IS ? AND text LIKE ?`,
 				true,
 				"%"+strings.ToLower(*ctx.Text)+"%",
 			).
