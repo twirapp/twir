@@ -49,13 +49,18 @@
             <DialogPanel
               class="align-middle bg-[#2C2C2C] max-w-2xl overflow-hidden rounded-lg shadow-xl text-left transform transition-all w-full"
             >
-              <div class="border-[#525252] border-b md:p-6 p-5">
+              <div class="border-[#525252] border-b flex items-center justify-between md:p-6 p-5">
                 <DialogTitle
                   as="h3"
                   class="font-semibold leading-6 text-white text-xl"
                 >
                   Youtube song request settings
                 </DialogTitle>
+                <button
+                  @click="closeModal"
+                >
+                  <Cross class="h-6 hover:stroke-[#D0D0D0] stroke-[#AFAFAF] w-6" />
+                </button>
               </div>
               
               <form
@@ -63,13 +68,6 @@
                 class=""
                 @submit.prevent="submitForm"
               >
-                <span
-                  v-for="(err, key) in errors"
-                  :key="key"
-                  class="text-red-500"
-                >
-                  {{ err }}
-                </span>
                 <div class="divide-[#525252] divide-y grid md:px-6 px-5">
                   <div class="py-5">
                     <span class="inline-block leading-tight mb-4 text-white">General</span>
@@ -92,7 +90,7 @@
                   
                   <div class="py-5">
                     <span class="inline-block leading-tight mb-4 text-white">User</span>
-                    <div class="gap-3 grid grid-flow-col grid-rows-2 md:grid-rows-1">
+                    <div class="gap-3 grid grid-cols-1 md:grid-cols-4">
                       <TswNumberInput
                         id="user.max-requests"
                         name="user.maxRequests"
@@ -165,13 +163,23 @@
                   </div>
                 </div>
                 
-
+                
+                
                 <div class="border-[#525252] border-t gap-2 grid-flow-col inline-grid justify-end md:px-6 md:py-5 p-5 w-full">
                   <button
                     type="submit"
-                    class="bg-[#644EE8] focus:outline-none font-medium inline-flex justify-center px-4 py-2 rounded text-sm text-white"
+                    class="bg-[#644EE8] focus:outline-none font-medium inline-flex items-center justify-center px-4 py-2 rounded text-sm text-white"
                   >
-                    {{ isPostingData ? 'Loading...' : 'Save settings' }}
+                    <template v-if="isPostingData">
+                      Saving
+                      <div
+                        class="animate-spin border-[1.5px] border-r-transparent border-solid border-white h-[14px] inline-block ml-[6px] rounded-full w-[14px]"
+                        role="status"
+                      />
+                    </template>
+                    <template v-else>
+                      Save
+                    </template>
                   </button>
                 </div>
               </form>
@@ -191,6 +199,7 @@ import { useForm, configure } from 'vee-validate';
 import { computed, ref } from 'vue';
 import { object, string, boolean, number, array } from 'yup';
 
+import Cross from '@/assets/icons/cross.svg?component';
 import Settings from '@/assets/icons/settings.svg?component';
 import TswArrayInput from '@/components/elements/TswArrayInput.vue';
 import TswNumberInput from '@/components/elements/TswNumberInput.vue';
@@ -212,14 +221,14 @@ const isPostingData = ref<boolean>(false);
 const schema = computed(() =>
   object({
     user: object({
-      maxRequests: number().positive().required(),
+      maxRequests: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
       minWatchTime: number().positive().integer(),
       minMessages: number().positive().integer(),
       minFollowTime: number().positive().integer(),
     }),
     maxRequests: number().positive().required(),
     acceptOnlyWhenOnline: boolean().required(),
-    channelPointsRewardName: string().required(),
+    channelPointsRewardName: string().optional(),
     song: object({
       maxLength: number().positive().required().integer(),
       minViews: number().positive().required().integer(),
@@ -238,12 +247,15 @@ function closeModal() {
   isModalOpen.value = false;
 }
 
-const { values, validate, setValues, errors } = useForm<Required<YoutubeSettings>>({
+const { values, validate, setValues, meta } = useForm<Required<YoutubeSettings>>({
   validationSchema: schema,
   keepValuesOnUnmount: true,
 });
 
 const submitForm = async () => {
+  if (!meta.value.touched) {
+    return console.log('change form to send it');
+  }
   const validationResult = await validate();
   if (validationResult.valid) {
     try {
@@ -257,7 +269,10 @@ const submitForm = async () => {
     } finally {
       isPostingData.value = false;
     }
+  } else {
+    console.log('For not valid');
   }
+  meta.value.touched = false;
 };
 
 async function openModal() {
@@ -270,6 +285,7 @@ async function openModal() {
       setValues(response.data);
       isDataFetched.value = true;
       isModalOpen.value = true;
+      meta.value.touched = false;
     } catch (err) {
       error.value = (err as AxiosError).message;
       console.error(err);

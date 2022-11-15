@@ -15,17 +15,27 @@
     >{{ label ?? fieldLabel }}</label>
     <input
       :id="id"
-      v-model.number="value"
       :name="nameRef"
       type="number"
-      class="bg-[#202020] form-control input input-bordered input-sm px-3 py-1.5 rounded text-[#F5F5F5] w-full"
+      class="bg-[#202020] form-control input input-sm px-3 py-1.5 rounded text-[#F5F5F5] w-full"
+      :class="{
+        'border border-[#C83B2B]': isError
+      }"
+      :value="value"
+      @change="change"
+      @blur="handleBlur"
+      @reset="handleReset"
     >
+    <span
+      v-if="isError"
+      class="mt-2 text-red-500 text-xs"
+    >{{ errorMessage }}</span>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useField } from 'vee-validate';
-import { toRef } from 'vue';
+import { computed, toRef } from 'vue';
 
 const props = withDefaults(defineProps<{
   id: string,
@@ -34,6 +44,14 @@ const props = withDefaults(defineProps<{
   direction?: 'row' | 'col'
 }>(), { direction: 'row' });
 
+const change = (e: Event) => {
+  handleChange(+(e.target as HTMLInputElement).value);
+};
+
 const nameRef = toRef(props, 'name');
-const { value, label: fieldLabel } = useField<number>(nameRef, {});
+const {  label: fieldLabel, errorMessage, errors, handleChange, handleBlur, handleReset, setValue, value } = useField<number>(nameRef, {});
+
+setValue(value.value);
+
+const isError = computed(() => errors.value.length > 0);
 </script>

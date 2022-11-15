@@ -20,10 +20,11 @@
     >
       <input
         :id="id"
-        v-model="value"
+        :v-model="value"
         :name="nameRef"
         class="align-top appearance-none bg-[#595959] bg-contain bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
         type="checkbox"
+        @change="() => setTouched(true)"
       >
     </div>
   </div>
@@ -41,5 +42,5 @@ const props = withDefaults(defineProps<{
 }>(), { direction: 'row' });
 
 const nameRef = toRef(props, 'name');
-const { value, label: fieldLabel } = useField<boolean>(nameRef);
+const { value, label: fieldLabel, setTouched } = useField<boolean>(nameRef);
 </script>

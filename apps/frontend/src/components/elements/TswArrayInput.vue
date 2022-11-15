@@ -21,6 +21,7 @@
           :name="`${nameRef}[${index}]`"
           type="text"
           class="bg-[#202020] border border-[#3E3E3E] flex-auto flex-grow flex-shrink leading-normal px-3 py-1.5 relative rounded rounded-r-none text-[#F5F5F5] w-px"
+          @change="() => setTouched(true)"
         >
         <div
           class="-mr-px cursor-pointer flex"
@@ -50,5 +51,5 @@ const props = defineProps<{
 }>();
 
 const nameRef = toRef(props, 'name');
-const { value, label: fieldLabel } = useField<string[]>(nameRef, {});
+const { value, label: fieldLabel, setTouched } = useField<string[]>(nameRef, {});
 </script>
