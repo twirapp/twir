@@ -49,9 +49,7 @@ const change = (e: Event) => {
 };
 
 const nameRef = toRef(props, 'name');
-const {  label: fieldLabel, errorMessage, errors, handleChange, handleBlur, handleReset, setValue, value } = useField<number>(nameRef, {});
-
-setValue(value.value);
+const {  label: fieldLabel, errorMessage, errors, handleChange, handleBlur, handleReset, value } = useField<number>(nameRef, {});
 
 const isError = computed(() => errors.value.length > 0);
 </script>
