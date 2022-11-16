@@ -119,6 +119,13 @@ enum ESystemFanControlMode {
 	k_SystemFanControlMode_Default = 2;
 }
 
+enum EColorProfile {
+	k_EColorProfile_Invalid = 0;
+	k_EColorProfile_Native = 1;
+	k_EColorProfile_Standard = 2;
+	k_EColorProfile_Vivid = 3;
+}
+
 enum EBluetoothDeviceType {
 	k_BluetoothDeviceType_Invalid = 0;
 	k_BluetoothDeviceType_Unknown = 1;
@@ -132,6 +139,39 @@ enum EBluetoothDeviceType {
 	k_BluetoothDeviceType_Joystick = 9;
 	k_BluetoothDeviceType_Gamepad = 10;
 	k_BluetoothDeviceType_Keyboard = 11;
+}
+
+enum ESystemAudioDirection {
+	k_SystemAudioDirection_Invalid = 0;
+	k_SystemAudioDirection_Input = 1;
+	k_SystemAudioDirection_Output = 2;
+}
+
+enum ESystemAudioChannel {
+	k_SystemAudioChannel_Invalid = 0;
+	k_SystemAudioChannel_Aggregated = 1;
+	k_SystemAudioChannel_FrontLeft = 2;
+	k_SystemAudioChannel_FrontRight = 3;
+	k_SystemAudioChannel_LFE = 4;
+	k_SystemAudioChannel_BackLeft = 5;
+	k_SystemAudioChannel_BackRight = 6;
+	k_SystemAudioChannel_FrontCenter = 7;
+	k_SystemAudioChannel_Unknown = 8;
+	k_SystemAudioChannel_Mono = 9;
+}
+
+enum ESystemAudioPortType {
+	k_SystemAudioPortType_Invalid = 0;
+	k_SystemAudioPortType_Unknown = 1;
+	k_SystemAudioPortType_Audio32f = 2;
+	k_SystemAudioPortType_Midi8b = 3;
+	k_SystemAudioPortType_Video32RGBA = 4;
+}
+
+enum ESystemAudioPortDirection {
+	k_SystemAudioPortDirection_Invalid = 0;
+	k_SystemAudioPortDirection_Input = 1;
+	k_SystemAudioPortDirection_Output = 2;
 }
 
 enum ESystemServiceState {
@@ -209,6 +249,20 @@ enum EStorageBlockFileSystemType {
 	k_EStorageBlockFileSystemType_Ext4 = 3;
 }
 
+enum EStorageDriveMediaType {
+	k_EStorageDriveMediaType_Invalid = 0;
+	k_EStorageDriveMediaType_Unknown = 1;
+	k_EStorageDriveMediaType_HDD = 2;
+	k_EStorageDriveMediaType_SSD = 3;
+	k_EStorageDriveMediaType_Removable = 4;
+}
+
+enum ESystemDisplayCompatibilityMode {
+	k_ESystemDisplayCompatibilityMode_Invalid = 0;
+	k_ESystemDisplayCompatibilityMode_None = 1;
+	k_ESystemDisplayCompatibilityMode_MinimalBandwith = 2;
+}
+
 enum ESteamDeckCompatibilityCategory {
 	k_ESteamDeckCompatibilityCategory_Unknown = 0;
 	k_ESteamDeckCompatibilityCategory_Unsupported = 1;
@@ -245,6 +299,7 @@ enum EOSBranch {
 	k_EOSBranch_Beta = 3;
 	k_EOSBranch_BetaCandidate = 4;
 	k_EOSBranch_Main = 5;
+	k_EOSBranch_Staging = 6;
 }
 
 enum ECommunityItemClass {
@@ -265,6 +320,7 @@ enum ECommunityItemClass {
 	k_ECommunityItemClass_AvatarFrame = 14;
 	k_ECommunityItemClass_AnimatedAvatar = 15;
 	k_ECommunityItemClass_SteamDeckKeyboardSkin = 16;
+	k_ECommunityItemClass_SteamDeckStartupMovie = 17;
 }
 
 enum ESteamDeckCompatibilityFeedback {
@@ -295,4 +351,10 @@ enum ETouchGesture {
 	k_ETouchGesturePinchEnd = 11;
 	k_ETouchGestureFlingStart = 12;
 	k_ETouchGestureFlingCancelled = 13;
+}
+
+enum ESessionPersistence {
+	k_ESessionPersistence_Invalid = -1;
+	k_ESessionPersistence_Ephemeral = 0;
+	k_ESessionPersistence_Persistent = 1;
 }

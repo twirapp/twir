@@ -7,7 +7,7 @@ require (
 	github.com/go-redis/redis/v9 v9.0.0-rc.1
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/nats-io/nats.go v1.19.0
-	github.com/satont/go-helix/v2 v2.7.17
+	github.com/satont/go-helix/v2 v2.7.21
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
 	github.com/satori/go.uuid v1.2.0
