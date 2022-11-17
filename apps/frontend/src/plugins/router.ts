@@ -8,71 +8,63 @@ export const router = createRouter({
   routes: [
     {
       path: '/',
-      component: () => import('../pages/Landing.vue'),
-    },
-    {
-      path: '/login',
-      component: () => import('../pages/Login.vue'),
-    },
-    {
-      path: '/dashboard',
       component: () => import('../dashboard/DashBoard.vue'),
     },
     {
-      path: '/dashboard/integrations',
+      path: '/integrations',
       component: () => import('../dashboard/Integrations.vue'),
     },
     {
-      path: '/dashboard/integrations/:integration',
+      path: '/integrations/:integration',
       component: () => import('../dashboard/Integrations.vue'),
     },
     {
-      path: '/dashboard/events',
+      path: '/events',
       component: () => import('../components/Soon.vue'),
     },
     {
       name: 'Commands',
-      path: '/dashboard/commands',
+      path: '/commands',
       component: () => import('../dashboard/Commands.vue'),
     },
     {
-      path: '/dashboard/greetings',
+      path: '/greetings',
       component: () => import('../dashboard/Greetings.vue'),
     },
     {
-      path: '/dashboard/timers',
+      path: '/timers',
       component: () => import('../dashboard/Timers.vue'),
     },
     {
-      path: '/dashboard/keywords',
+      path: '/keywords',
       component: () => import('../dashboard/Keywords.vue'),
     },
     {
-      path: '/dashboard/variables',
+      path: '/variables',
       component: () => import('../dashboard/Variables.vue'),
     },
     {
-      path: '/dashboard/moderation',
+      path: '/moderation',
       component: () => import('../dashboard/Moderation.vue'),
     },
     {
-      path: '/dashboard/settings',
+      path: '/settings',
       component: () => import('../dashboard/Settings.vue'),
     },
     {
-      path: '/dashboard/users',
+      path: '/users',
       component: () => import('../components/Soon.vue'),
     },
     {
-      path: '/dashboard/overlays',
+      path: '/overlays',
       component: () => import('../components/Soon.vue'),
     },
     {
-      path: '/dashboard/files',
+      path: '/files',
       component: () => import('../components/Soon.vue'),
     },
     {
-      path: '/dashboard/quotes',
+      path: '/quotes',
       component: () => import('../components/Soon.vue'),
     },
     {
