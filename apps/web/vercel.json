@@ -1,22 +1,5 @@
 {
   "github": {
     "silent": true
-  },
-  "builds": [
-    {
-      "src": "dist/server/index.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "dist/**"
-        ]
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "dist/server/index.js"
-    }
-  ]
+  }
 }

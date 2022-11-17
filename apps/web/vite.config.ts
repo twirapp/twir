@@ -1,9 +1,12 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import vercelSsr from '@magne4000/vite-plugin-vercel-ssr';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import ssr from 'vite-plugin-ssr/plugin';
+// @ts-ignore
+import vercel from 'vite-plugin-vercel';
 import svg from 'vite-svg-loader';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -23,6 +26,8 @@ export default defineConfig({
     ssr({
       prerender: true,
     }),
+    vercel(), 
+    vercelSsr()
   ],
   resolve: {
     alias: {
