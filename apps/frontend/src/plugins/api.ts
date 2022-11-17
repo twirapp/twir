@@ -39,7 +39,7 @@ api.interceptors.response.use(
           await refreshAccessToken();
         } catch (authError) {
           localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
+
           if (router.currentRoute.value.fullPath.startsWith('/dashboard')) {
             router.push('/');
           }

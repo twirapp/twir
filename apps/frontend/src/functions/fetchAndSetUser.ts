@@ -12,7 +12,7 @@ export const fetchAndSetUser = async () => {
   if (!accessToken) {
     return;
   }
-
+ 
   try {
     const profile = await api.get<AuthUser>('/auth/profile');
     setUser(profile.data);
