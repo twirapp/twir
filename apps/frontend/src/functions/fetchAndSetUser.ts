@@ -12,19 +12,6 @@ export const fetchAndSetUser = async () => {
   if (!accessToken) {
     return;
   }
- 
-  try {
-    const profile = await api.get<AuthUser>('/auth/profile');
-    setUser(profile.data);
-  } catch (e) {
-    if (
-      axios.isAxiosError(e) &&
-      e.response?.status === 401 &&
-      (e.response.data as Record<string, any>).message === 'Missed scopes'
-    ) {
-      redirectToLogin();
-    } else {
-      throw e;
-    }
-  }
+  const profile = await api.get<AuthUser>('/auth/profile');
+  setUser(profile.data);
 };

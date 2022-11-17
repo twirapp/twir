@@ -16,6 +16,9 @@ export default defineConfig({
       include: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src/locales/**'),
     }),
   ],
+  build: {
+    sourcemap: true,
+  },
   resolve: {
     alias: {
       '@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src'),

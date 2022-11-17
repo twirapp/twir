@@ -5,11 +5,14 @@ import Toast, { PluginOptions, POSITION, TYPE } from 'vue-toastification';
 import 'tw-elements';
 
 import App from './App.vue';
+import { fetchAndSetUser } from './functions/fetchAndSetUser';
+import { redirectToLogin } from './functions/redirectToLogin';
 import { i18n } from './plugins/i18n';
 import { router } from './plugins/router';
 
 import 'flag-icons/css/flag-icons.css';
 import 'vue-toastification/dist/index.css';
+
 import './main.css';
 
 const app = createApp(App).use(MasonryWall).use(i18n).use(router);
@@ -31,8 +34,13 @@ app.use(Toast, {
   },
 } as PluginOptions);
 
-app.mount('#app');
-
+fetchAndSetUser()
+  .catch(() => {
+    redirectToLogin();
+  })
+  .then(() => {
+    app.mount('#app');
+  });
 /* async function checkIfUpdateAvailable() {
   if (!import.meta.env.PROD) return;
 

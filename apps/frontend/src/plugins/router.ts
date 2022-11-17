@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import { fetchAndSetUser } from '@/functions/fetchAndSetUser';
-import { redirectToLogin } from '@/functions/redirectToLogin.js';
 import { userStore } from '@/stores/userStore';
 
 export const router = createRouter({
@@ -88,26 +87,3 @@ router.beforeResolve(async (to, _from, next) => {
   }
 });
 
-router.beforeEach(async (to, _from, next) => {
-  if (to.path === '/') {
-    const accessToken = localStorage.getItem('accessToken');
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (accessToken && refreshToken) {
-      fetchAndSetUser();
-    }
-
-    return next();
-  }
-
-  if (to.path.startsWith('/dashboard')) {
-    await fetchAndSetUser();
-
-    if (!userStore.get()) {
-      return redirectToLogin();
-    }
-
-    next();
-  } else {
-    next();
-  }
-});
