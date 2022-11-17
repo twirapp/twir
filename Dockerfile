@@ -127,15 +127,15 @@ WORKDIR /app
 COPY --from=migrations_deps /app/ /app/
 CMD ["pnpm", "run", "migrate:deploy"]
 
-FROM node_deps_base as landing_deps
+FROM node_deps_base as web_deps
 COPY --from=base /app/apps/web apps/web/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/ui libs/ui/
 RUN pnpm install --prod
 
-FROM node_prod_base as landing
+FROM node_prod_base as web
 WORKDIR /app
-COPY --from=landing_deps /app/ /app/
+COPY --from=web_deps /app/ /app/
 EXPOSE 3000
 ENTRYPOINT ["doppler", "run", "--"]
 CMD ["pnpm", "start:web"]

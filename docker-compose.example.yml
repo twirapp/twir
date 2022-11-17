@@ -233,7 +233,7 @@ services:
 
   integrations:
     restart: unless-stopped
-    image: registry.satont.dev/integrations/dota
+    image: registry.satont.dev/tsuwari/dota
     env_file:
       - .env
     depends_on:
@@ -243,6 +243,30 @@ services:
       - nats
     networks:
       - tsuwari
+
+  web:
+    restart: unless-stopped
+    image: registry.satont.dev/tsuwari/web
+    env_file:
+      - .env
+    depends_on:
+      - api
+    ports:
+      - 3001:3000
+    networks:
+      - tsuwari 
+
+  dashboard:
+    restart: unless-stopped
+    image: registry.satont.dev/tsuwari/dashboard
+    env_file:
+      - .env
+    depends_on:
+      - api
+    ports:
+      - 3002:80
+    networks:
+      - tsuwari 
 
 networks:
   tsuwari:
