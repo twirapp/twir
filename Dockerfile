@@ -129,6 +129,7 @@ CMD ["pnpm", "run", "migrate:deploy"]
 
 FROM node_deps_base as web_deps
 COPY --from=base /app/apps/web apps/web/
+COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/ui libs/ui/
 COPY --from=base /app/libs/config libs/config/
