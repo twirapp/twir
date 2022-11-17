@@ -39,7 +39,7 @@ import ClientOnly from '@/components/ClientOnly.vue';
 import StatsItem from '@/components/landing/StatsItem.vue';
 import { useStats } from '@/services/stats/hooks.js';
 
-const { data: stats, isError, isLoading } = useStats()
+const { data: stats } = useStats();
 
 const { width: windowWidth } = useWindowSize();
 

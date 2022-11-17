@@ -4,13 +4,13 @@
       {{ item.count }}
     </span>
     <span class="text-gray-60 leading-normal whitespace-nowrap">
-      {{ item.name }}
+      {{ item.name.toUpperCase() + item.name.slice(1) }}
     </span>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { StatInfo } from '@/data/landing/statInfo.js';
+import type { StatInfo } from '@/services/stats/api.js';
 
 defineProps<{
   item: StatInfo;
