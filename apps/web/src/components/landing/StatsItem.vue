@@ -1,10 +1,10 @@
 <template>
   <div class="inline-flex flex-col items-center justify-center">
     <span class="text-4xl font-medium leading-[130%]">
-      {{ item.stat }}
+      {{ item.count }}
     </span>
     <span class="text-gray-60 leading-normal whitespace-nowrap">
-      {{ item.description }}
+      {{ item.name }}
     </span>
   </div>
 </template>

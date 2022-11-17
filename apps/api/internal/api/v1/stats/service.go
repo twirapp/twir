@@ -13,19 +13,14 @@ type nResult struct {
 }
 
 type statsItem struct {
-	Count int64 `json:"count"`
+	Count int64  `json:"count"`
+	Name  string `json:"name"`
 }
 
-type stats struct {
-	Users     statsItem `json:"users"`
-	Streamers statsItem `json:"streamers"`
-	Commands  statsItem `json:"commands"`
-	Messages  statsItem `json:"messages"`
-}
-
-func handleGet(services types.Services) (*stats, error) {
+func handleGet(services types.Services) ([]statsItem, error) {
 	wg := sync.WaitGroup{}
-	statistic := stats{}
+	statistic := []statsItem{}
+	mu := sync.Mutex{}
 	wg.Add(4)
 
 	go func() {
@@ -35,7 +30,9 @@ func handleGet(services types.Services) (*stats, error) {
 		if err != nil {
 			services.Logger.Sugar().Error(err)
 		} else {
-			statistic.Users = statsItem{Count: count}
+			mu.Lock()
+			defer mu.Unlock()
+			statistic = append(statistic, statsItem{Count: count, Name: "users"})
 		}
 	}()
 
@@ -46,7 +43,9 @@ func handleGet(services types.Services) (*stats, error) {
 		if err != nil {
 			services.Logger.Sugar().Error(err)
 		} else {
-			statistic.Streamers = statsItem{Count: count}
+			mu.Lock()
+			defer mu.Unlock()
+			statistic = append(statistic, statsItem{Count: count, Name: "channels"})
 		}
 	}()
 
@@ -57,7 +56,9 @@ func handleGet(services types.Services) (*stats, error) {
 		if err != nil {
 			services.Logger.Sugar().Error(err)
 		} else {
-			statistic.Commands = statsItem{Count: count}
+			mu.Lock()
+			defer mu.Unlock()
+			statistic = append(statistic, statsItem{Name: "commands", Count: count})
 		}
 	}()
 
@@ -71,11 +72,13 @@ func handleGet(services types.Services) (*stats, error) {
 		if err != nil {
 			services.Logger.Sugar().Error(err)
 		} else {
-			statistic.Messages = statsItem{Count: result.N}
+			mu.Lock()
+			defer mu.Unlock()
+			statistic = append(statistic, statsItem{Name: "messages", Count: result.N})
 		}
 	}()
 
 	wg.Wait()
 
-	return &statistic, nil
+	return statistic, nil
 }

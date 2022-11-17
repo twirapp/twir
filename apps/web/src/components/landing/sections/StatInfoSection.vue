@@ -13,14 +13,14 @@
               }"
               class="flex w-full max-sm:mx-0 animate-fadeIn opacity-0 cursor-grab select-none"
             >
-              <StatsItem v-for="item in stats" :key="item.id" :item="item" class="w-full" />
+              <StatsItem v-for="item in stats" :key="item.name" :item="item" class="w-full" />
             </Flicking>
           </template>
           <template #server>
             <div
               class="inline-flex gap-x-6 justify-between w-full max-md:opacity-0 overflow-hidden"
             >
-              <StatsItem v-for="item in stats" :key="item.id" :item="item" class="w-full flex-1" />
+              <StatsItem v-for="item in stats" :key="item.name" :item="item" class="w-full flex-1" />
             </div>
           </template>
         </ClientOnly>
@@ -37,7 +37,9 @@ import { computed } from 'vue';
 
 import ClientOnly from '@/components/ClientOnly.vue';
 import StatsItem from '@/components/landing/StatsItem.vue';
-import { stats } from '@/data/landing/statInfo.js';
+import { useStats } from '@/services/stats/hooks.js';
+
+const { data: stats, isError, isLoading } = useStats()
 
 const { width: windowWidth } = useWindowSize();
 
