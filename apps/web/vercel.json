@@ -10,14 +10,6 @@
     {
       "source": "/api/:path*/",
       "destination": "https://api.tsuwari.app/:path*/"
-    },
-    {
-      "source": "/dashboard/:path*",
-      "destination": "https://dashboard.tsuwari.app/:path*"
-    },
-    {
-      "source": "/api/:path*/",
-      "destination": "https://dashboard.tsuwari.app/:path*/"
     }
   ]
 }
