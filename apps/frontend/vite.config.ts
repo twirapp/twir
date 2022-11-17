@@ -16,7 +16,7 @@ export default defineConfig({
       include: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src/locales/**'),
     }),
   ],
-  base: '',
+  base: 'dashboard',
   resolve: {
     alias: {
       '@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src'),
