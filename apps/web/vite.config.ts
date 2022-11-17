@@ -39,6 +39,11 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ''),
         ws: true,
       },
+      '/dashboard': {
+        target: process.env.VITE_API_URL ?? 'http://localhost:3006/dashboard',
+        changeOrigin: false,
+        rewrite: (path) => path.replace(/^\/dashboard/, ''),
+      },
     },
   },
 });
