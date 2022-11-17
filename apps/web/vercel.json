@@ -10,6 +10,6 @@
     {
       "source": "/api/:path*/",
       "destination": "https://api.tsuwari.app/:path*/"
-    },
+    }
   ]
 }
