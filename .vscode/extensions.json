@@ -4,6 +4,9 @@
     "bradlc.vscode-tailwindcss",
     "vue.volar",
     "emeraldwalk.runonsave",
-    "golang.go"
+    "golang.go",
+    "emeraldwalk.RunOnSave",
+    "astro-build.astro-vscode",
+    "emeraldwalk.RunOnSave"
   ]
 }

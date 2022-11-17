@@ -8,9 +8,6 @@
   "editor.codeActionsOnSave": {
     "source.sortImports": true
   },
-  "[prisma]": {
-    "editor.defaultFormatter": "Prisma.prisma"
-  },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -65,5 +62,25 @@
     ]
   },
   "go.goroot": "${workspaceFolder}/.devbox/nix/profile/default/share/go",
-  "go.toolsGopath": "${workspaceFolder}/devbox/go"
+  "go.toolsGopath": "${workspaceFolder}/devbox/go",
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "tsuwari",
+      "database": "tsuwari",
+      "username": "tsuwari",
+      "password": "tsuwari"
+    }
+  ],
+  "tailwindCSS.experimental.configFile": {
+    "libs/ui/components/tailwind.config.js": "libs/ui/components/src/**/*.{vue,js,ts,jsx,tsx,css,postcss}",
+    "apps/frontend/tailwind.config.js": "apps/frontend/src/**/*.{vue,js,ts,jsx,tsx}",
+    "apps/web/tailwind.config.cjs": "apps/web/src/**/*.{vue,js,ts,jsx,tsx,css}"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  }
 }
