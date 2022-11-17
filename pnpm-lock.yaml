@@ -440,7 +440,7 @@ importers:
       '@fastify/http-proxy': 8.2.3
       '@fastify/middie': 8.0.0
       '@fastify/static': 6.5.0
-      '@magne4000/vite-plugin-vercel-ssr': ^0.0.1
+      '@magne4000/vite-plugin-vercel-ssr': 0.1.3
       '@nanostores/persistent': 0.7.0
       '@nanostores/vue': '0.6'
       '@tanstack/vue-query': 4.14.1
@@ -485,7 +485,7 @@ importers:
       vue: 3.2.41
       vue-i18n: 9.2.2_vue@3.2.41
     devDependencies:
-      '@magne4000/vite-plugin-vercel-ssr': 0.0.1
+      '@magne4000/vite-plugin-vercel-ssr': 0.1.3
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/ui-components': link:../../libs/ui/components
       '@tsuwari/ui-fonts': link:../../libs/ui/fonts
@@ -2871,8 +2871,8 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
-  /@magne4000/vite-plugin-vercel-ssr/0.0.1:
-    resolution: {integrity: sha512-AXEprcHcuM1M59eC5AYzT689JwVBdlyPTT/ytSMzKRtkRlTQnL9g8QpWzXeCCEVHP7sDt3xfEr6u1QJPLTGxRg==}
+  /@magne4000/vite-plugin-vercel-ssr/0.1.3:
+    resolution: {integrity: sha512-7gS8KS85GoSV3qS+Mg0BOQMVKXxmoje7q8evB/EB21HbyEaRz389Rr/6mpYp1Y/j0z2tVUA0po6rNdLQoyuuYw==}
     dev: true
 
   /@mdx-js/mdx/1.6.22:
@@ -6910,6 +6910,7 @@ packages:
 
   /ajv/6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
+    requiresBuild: true
     dependencies:
       fast-deep-equal: 3.1.3
       fast-json-stable-stringify: 2.1.0
