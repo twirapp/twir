@@ -8,9 +8,8 @@ import { setUser } from '@/stores/userStore';
 
 export const fetchAndSetUser = async () => {
   const accessToken = localStorage.getItem('accessToken');
-  const refreshToken = localStorage.getItem('refreshToken');
 
-  if (!accessToken || !refreshToken) {
+  if (!accessToken) {
     return;
   }
 

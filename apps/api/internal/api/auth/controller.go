@@ -122,19 +122,14 @@ func logout(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
-type refreshDto struct {
-	RefreshToken string `validate:"required" json:"refreshToken"`
-}
-
 func refreshToken(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		refreshToken := c.Cookies("refresh_token")
 		if refreshToken == "" {
 			return fiber.NewError(401, "unauthorized")
 		}
-		dto := &refreshDto{RefreshToken: refreshToken}
 
-		newAccess, err := handleRefresh(dto, services)
+		newAccess, err := handleRefresh(refreshToken, services)
 		if err != nil {
 			return err
 		}

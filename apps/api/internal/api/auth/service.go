@@ -203,8 +203,8 @@ type Profile struct {
 	DashBoards []DashboardAndUser `json:"dashboards"`
 }
 
-func handleRefresh(dto *refreshDto, services types.Services) (string, error) {
-	token, err := jwt.Parse(dto.RefreshToken, func(token *jwt.Token) (interface{}, error) {
+func handleRefresh(refreshToken string, services types.Services) (string, error) {
+	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
