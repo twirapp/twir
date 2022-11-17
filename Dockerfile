@@ -131,6 +131,7 @@ FROM node_deps_base as web_deps
 COPY --from=base /app/apps/web apps/web/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/ui libs/ui/
+COPY --from=base /app/libs/config libs/config/
 RUN pnpm install --prod
 
 FROM node_prod_base as web
