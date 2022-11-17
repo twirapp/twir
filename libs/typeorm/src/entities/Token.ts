@@ -1,5 +1,4 @@
-/* eslint-disable import/no-cycle */
-import { Column, Entity, OneToOne, PrimaryColumn, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn, type Relation } from 'typeorm';
 
 import { type Bot } from './Bot.js';
 import { type User } from './User.js';

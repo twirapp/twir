@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	model "tsuwari/models"
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/go-redis/redis/v9"
 	req "github.com/imroc/req/v3"

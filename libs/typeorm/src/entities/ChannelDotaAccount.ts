@@ -1,5 +1,13 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  type Relation,
+} from 'typeorm';
 
 import { type Channel } from './Channel.js';
 
@@ -11,14 +19,13 @@ export class ChannelDotaAccount {
   @PrimaryColumn('text', { name: 'id' })
   id: string;
 
-  
   @ManyToOne('Channel', 'dotaAccounts', {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
   channel?: Relation<Channel>;
-  
+
   @Column('text', { primary: true, name: 'channelId' })
   channelId: string;
 }

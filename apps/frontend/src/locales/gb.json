@@ -154,6 +154,9 @@
         },
         "isReply": {
           "title": "Use twitch reply feature"
+        },
+        "isRegular": {
+          "title": "Variable is regular expression"
         }
       },
       "sidebarName": "Keywords"

@@ -2,7 +2,8 @@ package keywords
 
 import (
 	"net/http"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
@@ -12,7 +13,7 @@ import (
 
 func handleGet(channelId string, services types.Services) ([]model.ChannelsKeywords, error) {
 	keywords := []model.ChannelsKeywords{}
-	err := services.DB.Where(`channelId = ?`, channelId).Find(&keywords).Error
+	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&keywords).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get keywords")
 	}
@@ -38,6 +39,8 @@ func handlePost(
 		Response:  dto.Response,
 		Enabled:   *dto.Enabled,
 		Cooldown:  null.IntFrom(int64(dto.Cooldown)),
+		IsRegular: *dto.IsRegular,
+		IsReply:   *dto.IsReply,
 	}
 	err = services.DB.Save(&newKeyword).Error
 	if err != nil {
@@ -81,6 +84,7 @@ func handleUpdate(
 		Enabled:   *dto.Enabled,
 		Cooldown:  null.IntFrom(int64(dto.Cooldown)),
 		IsReply:   *dto.IsReply,
+		IsRegular: *dto.IsRegular,
 	}
 
 	err := services.DB.Model(currentKeyword).Select("*").Updates(newKeyword).Error

@@ -2,10 +2,12 @@ package handler
 
 import (
 	"time"
-	"tsuwari/timers/internal/types"
-	"tsuwari/twitch"
 
-	model "tsuwari/models"
+	"github.com/satont/tsuwari/apps/timers/internal/types"
+
+	"github.com/satont/tsuwari/libs/twitch"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/go-co-op/gocron"
 	"github.com/golang/protobuf/proto"

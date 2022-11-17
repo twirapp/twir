@@ -14,7 +14,6 @@
     "@sentry/node": "7.14.0",
     "@sentry/tracing": "7.14.0",
     "@tsuwari/config": "workspace:*",
-    "@tsuwari/redis": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
     "@twurple/api": "5.2.4",

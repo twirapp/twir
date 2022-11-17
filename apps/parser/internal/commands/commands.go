@@ -5,25 +5,27 @@ import (
 	"sort"
 	"strings"
 	"sync"
-	model "tsuwari/models"
-	"tsuwari/parser/internal/commands/dota"
-	"tsuwari/parser/internal/commands/manage"
-	"tsuwari/parser/internal/commands/nuke"
-	"tsuwari/parser/internal/commands/permit"
-	"tsuwari/parser/internal/commands/spam"
-	"tsuwari/parser/internal/config/twitch"
-	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variables"
-	"tsuwari/parser/pkg/helpers"
+
+	"github.com/satont/tsuwari/apps/parser/internal/commands/dota"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/manage"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/nuke"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/permit"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/spam"
+	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/tsuwari/apps/parser/internal/variables"
+	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	uuid "github.com/satori/go.uuid"
 
-	channel_game "tsuwari/parser/internal/commands/channel/game"
-	channel_title "tsuwari/parser/internal/commands/channel/title"
+	channel_game "github.com/satont/tsuwari/apps/parser/internal/commands/channel/game"
+	channel_title "github.com/satont/tsuwari/apps/parser/internal/commands/channel/title"
 
-	usersauth "tsuwari/parser/internal/twitch/user"
+	usersauth "github.com/satont/tsuwari/apps/parser/internal/twitch/user"
 
-	variables_cache "tsuwari/parser/internal/variablescache"
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/nats-io/nats.go"
 	"github.com/samber/lo"
@@ -86,9 +88,10 @@ func New(opts CommandsOpts) Commands {
 
 func (c *Commands) GetChannelCommands(channelId string) (*[]model.ChannelsCommands, error) {
 	cmds := []model.ChannelsCommands{}
+
 	err := c.Db.
 		Model(&model.ChannelsCommands{}).
-		Where(`"channelId" = ?`, channelId).
+		Where(`"channelId" = ? AND "enabled" = ?`, channelId, true).
 		Preload("Responses").
 		Find(&cmds).Error
 	if err != nil {

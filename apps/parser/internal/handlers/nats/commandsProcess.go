@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	"tsuwari/parser/internal/permissions"
-	"tsuwari/parser/pkg/helpers"
+
+	"github.com/satont/tsuwari/apps/parser/internal/permissions"
+	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
 
 	"github.com/go-redis/redis/v9"
 	parserproto "github.com/satont/tsuwari/libs/nats/parser"
@@ -36,7 +37,7 @@ func (c *NatsServiceImpl) HandleProcessCommand(data parserproto.Request) *parser
 
 	cmd := c.commands.FindByMessage(data.Message.Text, cmds)
 
-	if cmd.Cmd == nil || !cmd.Cmd.Enabled {
+	if cmd.Cmd == nil {
 		return nil
 	}
 

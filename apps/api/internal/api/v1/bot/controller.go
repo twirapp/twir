@@ -3,7 +3,8 @@ package bot
 import (
 	"fmt"
 	"time"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
@@ -27,7 +28,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 	limit := limiter.New(limiter.Config{
 		Max:        2,
-		Expiration: 1 * time.Minute,
+		Expiration: 1 * time.Second,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			dbUser := c.Locals("dbUser").(model.Users)
 			return fmt.Sprintf("fiber:limiter:bot:connection:%s", dbUser.ID)

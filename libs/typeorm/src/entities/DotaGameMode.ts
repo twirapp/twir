@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, OneToMany, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn, type Relation } from 'typeorm';
 
 import { type DotaMatch } from './DotaMatch.js';
 

@@ -3,9 +3,11 @@ package variables_cache
 import (
 	"regexp"
 	"sync"
-	model "tsuwari/models"
-	"tsuwari/parser/internal/config/twitch"
-	usersauth "tsuwari/parser/internal/twitch/user"
+
+	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	usersauth "github.com/satont/tsuwari/apps/parser/internal/twitch/user"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/go-redis/redis/v9"
 	"github.com/nats-io/nats.go"

@@ -2,7 +2,8 @@ package twitch
 
 import (
 	"time"
-	cfg "tsuwari/config"
+
+	cfg "github.com/satont/tsuwari/libs/config"
 
 	helix "github.com/satont/go-helix/v2"
 )

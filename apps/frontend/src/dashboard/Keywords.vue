@@ -28,6 +28,7 @@ function insert() {
       enabled: true,
       edit: true,
       isReply: false,
+      isRegular: false,
     },
     ...keywords.value,
   ];

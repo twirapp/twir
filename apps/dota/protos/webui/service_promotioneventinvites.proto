@@ -1,5 +1,4 @@
-import "steammessages_unified_base.steamclient.proto";
-import "common.proto";
+import "common_base.proto";
 
 message CPromotionEventInvitation {
 	optional fixed64 inviteid = 1;
@@ -7,7 +6,7 @@ message CPromotionEventInvitation {
 	optional uint32 invite_account = 3;
 	optional uint32 rtinvitetime = 4;
 	optional uint32 rtexpiretime = 5;
-	optional int32 type = 6 [(description) = "enum"];
+	optional int32 type = 6 [(.description) = "enum"];
 	optional uint32 accept_account = 7;
 	optional uint32 rtaccepttime = 8;
 	optional uint32 rtdatechosen = 9;
@@ -21,8 +20,34 @@ message CPromotionEventInvitation {
 	optional string promotion_id = 17;
 }
 
+message CPromotionEventInviteReceive {
+	optional uint32 accountid = 1;
+	optional uint32 partnerid = 2;
+	optional string email_address = 3;
+}
+
 message CPromotionEventInvites_GetAllActiveInvites_Response {
 	repeated .CPromotionEventInvitation invites = 1;
+}
+
+message CPromotionEventInvites_GetEmailTargets_Request {
+	optional fixed64 inviteid = 1;
+}
+
+message CPromotionEventInvites_GetEmailTargets_Response {
+	repeated .CPromotionEventInviteReceive targets = 1;
+	repeated string additional_email_address = 2;
+	repeated uint32 valve_account_ids = 3;
+	optional string operation_email = 4;
+}
+
+message CPromotionEventInvites_GetInvite_Request {
+	optional fixed64 inviteid = 1;
+	optional uint32 appid = 2;
+	optional uint32 packageid = 3;
+	optional uint32 bundleid = 4;
+	optional uint32 partnerid = 5;
+	optional string promotion_id = 6;
 }
 
 message CPromotionEventInvites_GetInvite_Response {
@@ -30,6 +55,11 @@ message CPromotionEventInvites_GetInvite_Response {
 }
 
 message CPromotionEventInvites_ResendEmailInvite_Response {
+}
+
+message CPromotionEventInvites_SetInvite_Request {
+	optional .CPromotionEventInvitation invite = 1;
+	optional bool queue_email_to_send = 2;
 }
 
 message CPromotionEventInvites_SetInvite_Response {
@@ -44,8 +74,9 @@ message CPromotionRequirements {
 
 service PromotionEventInvites {
 	rpc GetAllActiveInvites (.NotImplemented) returns (.CPromotionEventInvites_GetAllActiveInvites_Response);
-	rpc GetInvite (.NotImplemented) returns (.CPromotionEventInvites_GetInvite_Response);
+	rpc GetEmailTargets (.CPromotionEventInvites_GetEmailTargets_Request) returns (.CPromotionEventInvites_GetEmailTargets_Response);
+	rpc GetInvite (.CPromotionEventInvites_GetInvite_Request) returns (.CPromotionEventInvites_GetInvite_Response);
 	rpc ResendEmailInvite (.NotImplemented) returns (.CPromotionEventInvites_ResendEmailInvite_Response);
-	rpc SetInvite (.NotImplemented) returns (.CPromotionEventInvites_SetInvite_Response);
+	rpc SetInvite (.CPromotionEventInvites_SetInvite_Request) returns (.CPromotionEventInvites_SetInvite_Response);
 }
 

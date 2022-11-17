@@ -7,11 +7,12 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"tsuwari/parser/internal/types"
 
-	model "tsuwari/models"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
 
-	variables_cache "tsuwari/parser/internal/variablescache"
+	model "github.com/satont/tsuwari/libs/gomodels"
+
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/lib/pq"
 	"github.com/samber/lo"

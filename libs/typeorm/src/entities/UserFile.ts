@@ -1,8 +1,6 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, type Relation } from 'typeorm';
 
-// eslint-disable-next-line import/no-cycle
 import { type User } from './User.js';
-
 
 @Entity('users_files', { schema: 'public' })
 export class UserFile {

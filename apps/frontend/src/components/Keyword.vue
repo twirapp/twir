@@ -129,14 +129,31 @@ function cancelEdit() {
 
         <div class="mt-5">
           <div class="flex form-check justify-between">
-            <label class="form-check-label inline-block" for="keepOrder">{{
-              t('pages.commands.card.isReply.title')
+            <label class="form-check-label inline-block" for="isReply">{{
+              t('pages.keywords.card.isReply.title')
             }}</label>
 
             <div class="form-switch">
               <input
-                id="keepOrder"
+                id="isReply"
                 v-model="keyword.isReply"
+                class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
+                type="checkbox"
+                role="switch" />
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5">
+          <div class="flex form-check justify-between">
+            <label class="form-check-label inline-block" for="isRegular">{{
+              t('pages.keywords.card.isRegular.title')
+            }}</label>
+
+            <div class="form-switch">
+              <input
+                id="isRegular"
+                v-model="keyword.isRegular"
                 class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
                 type="checkbox"
                 role="switch" />

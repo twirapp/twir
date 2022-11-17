@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/samber/lo"
 )

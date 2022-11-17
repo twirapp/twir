@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 
-import { Bot, BotType } from './dist/entities/Bot.js';
-import { Token } from './dist/entities/Token.js';
-import { AppDataSource } from './dist/index.js';
+import { Bot, BotType } from './src/entities/Bot.js';
+import { Token } from './src/entities/Token.js';
+import { AppDataSource } from './src/index.js';
 
 dotenv.config({ path: '../../.env' });
 

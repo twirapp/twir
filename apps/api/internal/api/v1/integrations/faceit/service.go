@@ -3,7 +3,8 @@ package faceit
 import (
 	"net/http"
 	"strings"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"

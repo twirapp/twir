@@ -1,13 +1,8 @@
 {
   "recommendations": [
-    "lokalise.i18n-ally",
     "dbaeumer.vscode-eslint",
-    "abhijoybasak.nestjs-files",
-    "dunn.redis",
     "bradlc.vscode-tailwindcss",
-    "rangav.vscode-thunder-client",
     "vue.volar",
-    "esbenp.prettier-vscode",
     "emeraldwalk.runonsave",
     "golang.go",
     "emeraldwalk.RunOnSave",

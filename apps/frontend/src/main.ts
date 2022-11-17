@@ -1,6 +1,7 @@
 import MasonryWall from '@yeger/vue-masonry-wall';
 import { createApp } from 'vue';
 import Toast, { PluginOptions, POSITION, TYPE } from 'vue-toastification';
+import { inject } from '@vercel/analytics';
 
 import 'tw-elements';
 
@@ -47,3 +48,4 @@ app.mount('#app');
 
 setInterval(checkIfUpdateAvailable, 20 * 1000);
 checkIfUpdateAvailable(); */
+inject();

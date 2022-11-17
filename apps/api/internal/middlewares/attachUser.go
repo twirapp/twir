@@ -3,7 +3,8 @@ package middlewares
 import (
 	"fmt"
 	"strings"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"

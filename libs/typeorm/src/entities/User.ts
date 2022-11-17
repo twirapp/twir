@@ -7,7 +7,7 @@ import {
   OneToMany,
   OneToOne,
   PrimaryColumn,
-  Relation,
+  type Relation,
 } from 'typeorm';
 
 import { type Channel } from './Channel.js';

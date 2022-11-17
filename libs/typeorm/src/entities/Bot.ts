@@ -1,5 +1,14 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, OneToMany, OneToOne, PrimaryColumn, Relation, Unique } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+  type Relation,
+} from 'typeorm';
 
 import { type Channel } from './Channel.js';
 import { type Token } from './Token.js';
@@ -11,14 +20,14 @@ export enum BotType {
 
 @Entity('bots', { schema: 'public' })
 export class Bot {
-  @PrimaryColumn('text', { 
-    primary: true, 
+  @PrimaryColumn('text', {
+    primary: true,
     name: 'id',
     unique: true,
     primaryKeyConstraintName: 'bots_pkey',
   })
   id: string;
-  
+
   @Column('enum', { name: 'type', enum: BotType })
   type: BotType;
 
@@ -26,7 +35,9 @@ export class Bot {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  @JoinColumn([{ name: 'tokenId', referencedColumnName: 'id', foreignKeyConstraintName: 'bots_tokenId_key' }])
+  @JoinColumn([
+    { name: 'tokenId', referencedColumnName: 'id', foreignKeyConstraintName: 'bots_tokenId_key' },
+  ])
   token?: Relation<Token>;
 
   @Index()

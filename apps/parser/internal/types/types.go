@@ -1,8 +1,8 @@
 package types
 
 import (
-	usersauth "tsuwari/parser/internal/twitch/user"
-	variables_cache "tsuwari/parser/internal/variablescache"
+	usersauth "github.com/satont/tsuwari/apps/parser/internal/twitch/user"
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 )
 
 type VariableHandlerParamsServices struct {

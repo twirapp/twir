@@ -16,13 +16,15 @@ var (
 )
 
 type ChannelsKeywords struct {
-	ID        string   `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
-	ChannelID string   `gorm:"column:channelId;type:TEXT;"                     json:"channelId"`
-	Text      string   `gorm:"column:text;type:TEXT;"                          json:"text"`
-	Response  string   `gorm:"column:response;type:TEXT;"                      json:"response"`
-	Enabled   bool     `gorm:"column:enabled;type:BOOL"                        json:"enabled"`
-	Cooldown  null.Int `gorm:"column:cooldown;type:INT4;default:0;"            json:"cooldown"`
-	IsReply   bool     `gorm:"column:isReply;type:BOOL"                        json:"isReply"`
+	ID               string    `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	ChannelID        string    `gorm:"column:channelId;type:TEXT;"                     json:"channelId"`
+	Text             string    `gorm:"column:text;type:TEXT;"                          json:"text"`
+	Response         string    `gorm:"column:response;type:TEXT;"                      json:"response"`
+	Enabled          bool      `gorm:"column:enabled;type:BOOL"                        json:"enabled"`
+	Cooldown         null.Int  `gorm:"column:cooldown;type:INT4;default:0;"            json:"cooldown"`
+	CooldownExpireAt null.Time `gorm:"column:cooldownExpireAt;type:timestamp;"         json:"cooldownExpireAt"`
+	IsReply          bool      `gorm:"column:isReply;type:BOOL"                        json:"isReply"`
+	IsRegular        bool      `gorm:"column:isRegular;type:bool"                      json:"isRegular"`
 }
 
 func (c *ChannelsKeywords) TableName() string {

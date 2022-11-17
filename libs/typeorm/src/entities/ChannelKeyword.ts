@@ -1,13 +1,11 @@
-/* eslint-disable import/no-cycle */
 import {
   Column,
   Entity,
   Index,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
-  Relation
+  type Relation
 } from 'typeorm';
 
 import { type Channel } from './Channel.js';
@@ -46,5 +44,8 @@ export class ChannelKeyword {
   cooldownExpireAt: Date | null;
 
   @Column('bool', { default: false })
-  isReply: boolean
+  isReply: boolean;
+
+  @Column('bool', { default: false })
+  isRegular: boolean;
 }
