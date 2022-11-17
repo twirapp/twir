@@ -2,6 +2,18 @@
   "github": {
     "silent": true
   },
+  "builds": [
+    {
+      "src": "./dist/server/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/"
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/:path*",
