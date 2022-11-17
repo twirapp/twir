@@ -473,7 +473,6 @@ importers:
       '@fastify/http-proxy': 8.2.3
       '@fastify/middie': 8.0.0
       '@fastify/static': 6.5.0
-      '@magne4000/vite-plugin-vercel-ssr': 0.0.1
       '@nanostores/persistent': 0.7.0_nanostores@0.7.0
       '@nanostores/vue': 0.6.0_r627q4dwpmfpioilrlqhfzrl3q
       '@tanstack/vue-query': 4.14.1_vue@3.2.41
@@ -483,10 +482,10 @@ importers:
       fastify: 4.9.2
       nanostores: 0.7.0
       vite-plugin-ssr: 0.4.43_vite@3.2.2
-      vite-plugin-vercel: 0.0.0-alpha.0
       vue: 3.2.41
       vue-i18n: 9.2.2_vue@3.2.41
     devDependencies:
+      '@magne4000/vite-plugin-vercel-ssr': 0.0.1
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/ui-components': link:../../libs/ui/components
       '@tsuwari/ui-fonts': link:../../libs/ui/fonts
@@ -498,6 +497,7 @@ importers:
       tailwindcss-animation-delay: 1.0.7_tailwindcss@3.2.1
       typescript: 4.8.4
       vite: 3.2.2
+      vite-plugin-vercel: 0.0.0-alpha.0
       vite-svg-loader: 3.6.0
       vue-router: 4.1.6_vue@3.2.41
 
@@ -2860,7 +2860,7 @@ packages:
 
   /@magne4000/vite-plugin-vercel-ssr/0.0.1:
     resolution: {integrity: sha512-AXEprcHcuM1M59eC5AYzT689JwVBdlyPTT/ytSMzKRtkRlTQnL9g8QpWzXeCCEVHP7sDt3xfEr6u1QJPLTGxRg==}
-    dev: false
+    dev: true
 
   /@mdx-js/mdx/1.6.22:
     resolution: {integrity: sha512-AMxuLxPz2j5/6TpF/XSdKpQP1NlG0z11dFOlq+2IP/lSgl11GY8ji6S/rgsViN/L0BDvHvUMruRb7ub+24LUYA==}
@@ -17108,7 +17108,7 @@ packages:
 
   /vite-plugin-vercel/0.0.0-alpha.0:
     resolution: {integrity: sha512-79a9NUSq6FPOk+kRdqhod5/c/mMB0NTEbLl3Wmk5KHAiCCr59Y//A/sdTbLy7ZxBv9lhyjBXlcbCP3aTA/KihQ==}
-    dev: false
+    dev: true
 
   /vite-svg-loader/3.6.0:
     resolution: {integrity: sha512-bZJffcgCREW57kNkgMhuNqeDznWXyQwJ3wKrRhHLMMzwDnP5jr3vXW3cqsmquRR7VTP5mLdKj1/zzPPooGUuPw==}
