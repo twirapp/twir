@@ -7,5 +7,5 @@ export const useStats = () =>
     retry: false,
     refetchOnReconnect: true,
     refetchOnWindowFocus: true,
-    refetchInterval: 1000,
+    refetchInterval: 2500,
   });
