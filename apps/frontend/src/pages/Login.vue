@@ -25,7 +25,7 @@ onMounted(async () => {
     );
 
     if (!request.ok) {
-      return router.push('/');
+      return window.location.assign('/');
     }
 
     const response = await request.json();
@@ -40,6 +40,10 @@ onMounted(async () => {
     error.value = isError;
   }
 });
+
+const redirectToHome = () => {
+  window.location.assign('/');
+};
 </script>
 
 <template>
@@ -52,8 +56,25 @@ onMounted(async () => {
       </p>
 
       <button
-        class="bg-[#9146FF] duration-150 ease-in-out focus:outline-none focus:ring-0 hover:bg-[#772CE8] inline-block leading-tight px-10 py-2.5 rounded shadow text-lg text-white transition uppercase"
-        @click="router.push('/')">
+        class="
+          bg-[#9146FF]
+          duration-150
+          ease-in-out
+          focus:outline-none
+          focus:ring-0
+          hover:bg-[#772CE8]
+          inline-block
+          leading-tight
+          px-10
+          py-2.5
+          rounded
+          shadow
+          text-lg text-white
+          transition
+          uppercase
+        "
+        @click="redirectToHome"
+      >
         Home
       </button>
     </div>
@@ -64,7 +85,8 @@ onMounted(async () => {
       <div class="flex items-center text-white">
         <div
           class="animate-spin border-4 h-8 inline-block rounded-full spinner-border w-8"
-          role="status" />
+          role="status"
+        />
         <span class="ml-2 text-lg">Loading...</span>
       </div>
     </div>

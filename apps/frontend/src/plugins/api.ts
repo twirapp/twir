@@ -41,7 +41,7 @@ api.interceptors.response.use(
           localStorage.removeItem('accessToken');
 
           if (router.currentRoute.value.fullPath.startsWith('/dashboard')) {
-            router.push('/');
+            window.location.assign('/');
           }
           return Promise.reject(error);
         }
