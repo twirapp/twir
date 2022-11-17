@@ -3,7 +3,7 @@
     <TswLoader size="md" />
   </div>
   <slot v-else-if="isError" name="error"></slot>
-  <TswAvatar v-else-if="user" :href="'/app/dashboard'" :src="user.profile_image_url" :lazy="true" />
+  <TswAvatar v-else-if="user" :href="'/dashboard'" :src="user.profile_image_url" :lazy="true" />
 </template>
 
 <script lang="ts" setup>
