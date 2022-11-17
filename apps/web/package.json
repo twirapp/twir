@@ -7,6 +7,7 @@
     "build": "pnpm build:app && pnpm build:server",
     "build:app": "vite build",
     "build:server": "tsc -p tsconfig.server.json",
+    "start": "pnpm serve:prod",
     "serve:dev": "cross-env NODE_ENV=development PORT=3005 tsx ./src/server/index.ts",
     "serve:prod": "cross-env NODE_ENV=production PORT=3005 node ./dist/server/index.js",
     "serve:prod:proxy": "cross-env NODE_ENV=production PORT=3005 API_PROXY=http://localhost:3002 node ./dist/server/index.js"
