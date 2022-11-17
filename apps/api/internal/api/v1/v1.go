@@ -16,6 +16,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/keywords"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/moderation"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/settings"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/stats"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/streams"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/timers"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/variables"
@@ -25,6 +26,7 @@ import (
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	feedback.Setup(router, services)
+	stats.Setup(router, services)
 
 	channelsGroup := router.Group("channels/:channelId")
 	channelsGroup.Use(middlewares.CheckUserAuth(services))
