@@ -29,6 +29,7 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  // base: 'dashboard',
   server: {
     host: true,
     port: Number(process.env.VITE_PORT ?? 3005),

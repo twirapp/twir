@@ -7,68 +7,68 @@ import { userStore } from '@/stores/userStore';
 export const router = createRouter({
   routes: [
     {
-      path: '/',
+      path: '/dashboard',
       component: () => import('../dashboard/DashBoard.vue'),
     },
     {
-      path: '/integrations',
+      path: '/dashboard/integrations',
       component: () => import('../dashboard/Integrations.vue'),
     },
     {
-      path: '/integrations/:integration',
+      path: '/dashboard/integrations/:integration',
       component: () => import('../dashboard/Integrations.vue'),
     },
     {
-      path: '/events',
+      path: '/dashboard/events',
       component: () => import('../components/Soon.vue'),
     },
     {
       name: 'Commands',
-      path: '/commands',
+      path: '/dashboard/commands',
       component: () => import('../dashboard/Commands.vue'),
     },
     {
-      path: '/greetings',
+      path: '/dashboard/greetings',
       component: () => import('../dashboard/Greetings.vue'),
     },
     {
-      path: '/timers',
+      path: '/dashboard/timers',
       component: () => import('../dashboard/Timers.vue'),
     },
     {
-      path: '/keywords',
+      path: '/dashboard/keywords',
       component: () => import('../dashboard/Keywords.vue'),
     },
     {
-      path: '/variables',
+      path: '/dashboard/variables',
       component: () => import('../dashboard/Variables.vue'),
     },
     {
-      path: '/moderation',
+      path: '/dashboard/moderation',
       component: () => import('../dashboard/Moderation.vue'),
     },
     {
-      path: '/settings',
+      path: '/dashboard/settings',
       component: () => import('../dashboard/Settings.vue'),
     },
     {
-      path: '/users',
+      path: '/dashboard/users',
       component: () => import('../components/Soon.vue'),
     },
     {
-      path: '/overlays',
+      path: '/dashboard/overlays',
       component: () => import('../components/Soon.vue'),
     },
     {
-      path: '/files',
+      path: '/dashboard/files',
       component: () => import('../components/Soon.vue'),
     },
     {
-      path: '/quotes',
+      path: '/dashboard/quotes',
       component: () => import('../components/Soon.vue'),
     },
     {
-      path: '/admin',
+      path: '/dashboard/admin',
       component: () => import('../admin/Main.vue'),
     },
     { name: '404', path: '/:pathMatch(.*)*', component: () => import('../pages/NotFound.vue') },

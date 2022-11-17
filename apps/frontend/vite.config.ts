@@ -6,7 +6,7 @@ import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import svgLoader from 'vite-svg-loader';
 
-
+//
 export default defineConfig({
   clearScreen: false,
   plugins: [
@@ -16,7 +16,6 @@ export default defineConfig({
       include: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src/locales/**'),
     }),
   ],
-  base: 'dashboard',
   resolve: {
     alias: {
       '@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src'),
@@ -40,7 +39,9 @@ export default defineConfig({
       '@nestjs/websockets/socket-module',
     ],
   },
+  base: 'dashboard',
   server: {
+    base: '/',
     host: true,
     port: Number(process.env.VITE_PORT ?? 3006),
     proxy: {

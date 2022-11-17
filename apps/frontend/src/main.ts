@@ -1,7 +1,6 @@
 import MasonryWall from '@yeger/vue-masonry-wall';
 import { createApp } from 'vue';
 import Toast, { PluginOptions, POSITION, TYPE } from 'vue-toastification';
-import { inject } from '@vercel/analytics';
 
 import 'tw-elements';
 
@@ -9,9 +8,9 @@ import App from './App.vue';
 import { i18n } from './plugins/i18n';
 import { router } from './plugins/router';
 
-import './main.css';
-import 'vue-toastification/dist/index.css';
 import 'flag-icons/css/flag-icons.css';
+import 'vue-toastification/dist/index.css';
+import './main.css';
 
 const app = createApp(App).use(MasonryWall).use(i18n).use(router);
 
@@ -48,4 +47,3 @@ app.mount('#app');
 
 setInterval(checkIfUpdateAvailable, 20 * 1000);
 checkIfUpdateAvailable(); */
-inject();
