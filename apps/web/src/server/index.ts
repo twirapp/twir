@@ -59,7 +59,7 @@ async function startServer() {
       res.status(statusCode).type(contentType).send(body);
     });
 
-    app.listen({ port: PORT });
+    app.listen({ port: PORT, host: '0.0.0.0' });
     await app.ready();
 
     console.log(`Server running at http://localhost:${PORT}`);
