@@ -2,17 +2,22 @@
   "github": {
     "silent": true
   },
-  "buildCommand": "npx turbo run build --filter=web --cwd=../..",
+  "buildCommand": "pnpm turbo run build --filter=web",
   "builds": [
     {
-      "src": "./dist/server/index.js",
-      "use": "@vercel/node"
+      "src": "dist/server/index.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "dist/**"
+        ]
+      }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/"
+      "dest": "dist/server/index.js"
     }
   ]
 }
