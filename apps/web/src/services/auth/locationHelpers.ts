@@ -15,7 +15,7 @@ export const redirectToLogin = () => {
 
 export const redirectToDashboard = () => {
   // window.location.replace('/app/dashboard');
-  window.location.replace(`${window.location.protocol}://dashboard.${window.location.host}`);
+  window.location.replace(`/dashboard`);
 };
 
 export const redirectToLanding = (locale?: Locale) => {
