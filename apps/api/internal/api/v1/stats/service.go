@@ -2,7 +2,8 @@ package stats
 
 import (
 	"sync"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
