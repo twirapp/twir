@@ -2,6 +2,7 @@
   "github": {
     "silent": true
   },
+  "buildCommand": "npx turbo run build --filter=web --cwd=../..",
   "builds": [
     {
       "src": "./dist/server/index.js",
