@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/vue-query';
+
 import { getStats } from './api.js';
 
 export const useStats = () =>

@@ -62,7 +62,7 @@ jobs:
     strategy:
       matrix:
         application:
-          [api, bots, dota, eval, eventsub, integrations, parser, scheduler, streamstatus, timers]
+          [api, bots, dota, eval, eventsub, integrations, parser, scheduler, streamstatus, timers, web, dashboard]
     steps:
       - uses: actions/checkout@v2
 

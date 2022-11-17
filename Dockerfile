@@ -16,7 +16,7 @@ COPY libs libs
 COPY apps apps
 
 RUN pnpm install --filter=!ngrok
-RUN pnpm build:backend
+RUN pnpm build
 
 FROM node:18-alpine as node_prod_base
 RUN npm i -g pnpm
@@ -127,6 +127,29 @@ WORKDIR /app
 COPY --from=migrations_deps /app/ /app/
 CMD ["pnpm", "run", "migrate:deploy"]
 
+FROM node_deps_base as landing_deps
+COPY --from=base /app/apps/web apps/web/
+COPY --from=base /app/libs/shared libs/shared/
+COPY --from=base /app/libs/ui libs/ui/
+RUN pnpm install --prod
+
+FROM node_prod_base as landing
+WORKDIR /app
+COPY --from=landing_deps /app/ /app/
+EXPOSE 3000
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["pnpm", "start:web"]
+
+FROM node_deps_base as dashboard_deps
+COPY --from=base /app/apps/frontend apps/frontend/
+COPY --from=base /app/libs/shared libs/shared/
+COPY --from=base /app/libs/typeorm libs/typeorm/
+RUN pnpm install --prod
+
+FROM nginx as dashboard
+WORKDIR /app
+COPY --from=dashboard_deps /app/apps/frontend/dist /usr/share/nginx/html
+EXPOSE 80
 
 FROM alpine:latest as go_prod_base
 RUN apk add wget && \

@@ -8,13 +8,12 @@
     "build:app": "vite build",
     "vercel-build": "pnpm turbo run build --filter=web",
     "build:server": "tsc -p tsconfig.server.json",
-    "start": "cross-env NODE_ENV=production PORT=3005 node ./server/index.js",
+    "start": "node ./dist/server/index.js",
     "serve:dev": "cross-env NODE_ENV=development PORT=3005 tsx ./src/server/index.ts",
     "serve:prod": "cross-env NODE_ENV=production PORT=3005 node ./dist/server/index.js",
     "serve:prod:proxy": "cross-env NODE_ENV=production PORT=3005 API_PROXY=http://localhost:3002 node ./dist/server/index.js"
   },
   "devDependencies": {
-    "@magne4000/vite-plugin-vercel-ssr": "0.1.3",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/ui-components": "workspace:*",
     "@tsuwari/ui-fonts": "workspace:*",
@@ -26,7 +25,6 @@
     "tailwindcss-animation-delay": "1.0.7",
     "typescript": "4.8.4",
     "vite": "3.2.2",
-    "vite-plugin-vercel": "0.1.5",
     "vite-svg-loader": "3.6.0",
     "vue-router": "4.1.6"
   },

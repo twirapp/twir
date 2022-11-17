@@ -17,6 +17,8 @@
     "start:eval": "pnpm --filter=@tsuwari/eval start",
     "start:streamstatus": "pnpm --filter=@tsuwari/streamstatus start",
     "start:watched": "pnpm --filter=@tsuwari/watched start",
+    "start:web": "pnpm --filter=@tsuwari/web start",
+    "build": "turbo run build",
     "build:libs": "turbo run build --filter=./libs/**",
     "build:backend": "turbo run build --filter=!@tsuwari/watched --filter=!@tsuwari/frontend",
     "build:bots": "turbo run build --filter=bots",
