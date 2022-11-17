@@ -264,7 +264,7 @@ services:
     depends_on:
       - api
     ports:
-      - 3002:80
+      - 3002:8080
     networks:
       - tsuwari 
 

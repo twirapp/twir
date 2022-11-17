@@ -149,10 +149,10 @@ COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/config libs/config/
 RUN pnpm install --prod
 
-FROM nginx as dashboard
+FROM devforth/spa-to-http:latest as dashboard
 WORKDIR /app
-COPY --from=dashboard_deps /app/apps/frontend/dist /usr/share/nginx/html
-EXPOSE 80
+COPY --from=dashboard_deps /app/apps/frontend/dist .
+EXPOSE 8080
 
 FROM alpine:latest as go_prod_base
 RUN apk add wget && \
