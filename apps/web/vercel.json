@@ -2,7 +2,6 @@
   "github": {
     "silent": true
   },
-  "buildCommand": "pnpm turbo run build --filter=web",
   "builds": [
     {
       "src": "dist/server/index.js",

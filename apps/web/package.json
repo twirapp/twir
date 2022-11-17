@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "pnpm build:app && pnpm build:server",
     "build:app": "vite build",
+    "vercel-build": "pnpm turbo run build --filter=web",
     "build:server": "tsc -p tsconfig.server.json",
     "start": "cross-env NODE_ENV=production PORT=3005 node ./server/index.js",
     "serve:dev": "cross-env NODE_ENV=development PORT=3005 tsx ./src/server/index.ts",
