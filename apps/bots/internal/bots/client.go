@@ -2,8 +2,10 @@ package bots
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
+	"github.com/samber/lo"
 	cfg "github.com/satont/tsuwari/libs/config"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -30,6 +32,23 @@ type ClientOpts struct {
 }
 
 func newBot(opts *ClientOpts) *types.BotClient {
+	globalRateLimiter, _ := ratelimiting.NewSlidingWindow(100, 30*time.Second)
+
+	client := types.BotClient{
+		RateLimiters: types.RateLimiters{
+			Global: globalRateLimiter,
+		},
+		Model: opts.Model,
+	}
+
+	botHandlers := handlers.CreateHandlers(&handlers.HandlersOpts{
+		DB:        opts.DB,
+		Logger:    opts.Logger,
+		Cfg:       opts.Cfg,
+		BotClient: &client,
+		Nats:      opts.Nats,
+	})
+
 	onRefresh := func(newToken helix.RefreshTokenResponse) {
 		opts.DB.Model(&model.Tokens{}).
 			Where(`id = ?`, opts.Model.ID).
@@ -49,45 +68,156 @@ func newBot(opts *ClientOpts) *types.BotClient {
 		OnRefresh:        &onRefresh,
 	})
 
-	meReq, err := api.Client.GetUsers(&helix.UsersParams{
-		IDs: []string{opts.Model.ID},
-	})
-	if err != nil {
-		panic(err)
-	}
+	client.Api = api
 
-	if len(meReq.Data.Users) == 0 {
-		panic("No user found for bot " + opts.Model.ID)
-	}
+	go func() {
+		for {
+			token := fmt.Sprintf("oauth:%s", api.Client.GetUserAccessToken())
+			if client.Client == nil {
+				meReq, err := api.Client.GetUsers(&helix.UsersParams{
+					IDs: []string{opts.Model.ID},
+				})
+				if err != nil {
+					panic(err)
+				}
 
-	me := meReq.Data.Users[0]
+				if len(meReq.Data.Users) == 0 {
+					panic("No user found for bot " + opts.Model.ID)
+				}
 
-	token := fmt.Sprintf("oauth:%s", api.Client.GetUserAccessToken())
-	globalRateLimiter, _ := ratelimiting.NewSlidingWindow(100, 30*time.Second)
+				me := meReq.Data.Users[0]
+				client.TwitchUser = &me
+				client.Client = irc.NewClient(me.Login, token)
+				joinChannels(opts.DB, opts.Cfg, opts.Logger, &client)
+			} else {
+				client.Client.SetIRCToken(token)
+			}
+			meReq, err := api.Client.GetUsers(&helix.UsersParams{
+				IDs: []string{opts.Model.ID},
+			})
+			if err != nil {
+				panic(err)
+			}
 
-	client := types.BotClient{
-		Client: irc.NewClient(me.Login, token),
-		Api:    api,
-		RateLimiters: types.RateLimiters{
-			Global: globalRateLimiter,
-		},
-		Model:      opts.Model,
-		TwitchUser: &me,
-	}
+			if len(meReq.Data.Users) == 0 {
+				panic("No user found for bot " + opts.Model.ID)
+			}
 
-	botHandlers := handlers.CreateHandlers(&handlers.HandlersOpts{
-		DB:        opts.DB,
-		Logger:    opts.Logger,
-		Cfg:       opts.Cfg,
-		BotClient: &client,
-		Nats:      opts.Nats,
-	})
+			client.OnConnect(botHandlers.OnConnect)
+			client.OnSelfJoinMessage(botHandlers.OnSelfJoin)
+			client.OnUserStateMessage(botHandlers.OnUserStateMessage)
+			client.OnPrivateMessage(botHandlers.OnPrivateMessage)
 
-	client.OnConnect(botHandlers.OnConnect)
-	client.OnSelfJoinMessage(botHandlers.OnSelfJoin)
-	client.OnUserStateMessage(botHandlers.OnUserStateMessage)
-	client.OnPrivateMessage(botHandlers.OnPrivateMessage)
+			err = client.Connect()
+			if err != nil {
+				opts.Logger.Sugar().Error(err)
+			}
+		}
+	}()
 
-	go client.Connect()
 	return &client
+}
+
+func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *types.BotClient) {
+	usersApiService := twitch.NewUserClient(twitch.UsersServiceOpts{
+		Db:           db,
+		ClientId:     cfg.TwitchClientId,
+		ClientSecret: cfg.TwitchClientSecret,
+	})
+
+	botClient.RateLimiters.Channels = types.ChannelsMap{
+		Items: make(map[string]ratelimiting.SlidingWindow),
+	}
+
+	twitchUsers := []helix.User{}
+	twitchUsersMU := sync.Mutex{}
+
+	botChannels := []model.Channels{}
+
+	db.
+		Where(
+			`"botId" = ? AND "isEnabled" = ? AND "isBanned" = ? AND "isTwitchBanned" = ?`,
+			botClient.Model.ID,
+			true,
+			false,
+			false,
+		).Find(&botChannels)
+
+	channelsChunks := lo.Chunk(botChannels, 100)
+	wg := sync.WaitGroup{}
+	wg.Add(len(channelsChunks))
+
+	for _, chunk := range channelsChunks {
+		go func(chunk []model.Channels) {
+			defer wg.Done()
+			usersIds := lo.Map(chunk, func(item model.Channels, _ int) string {
+				return item.ID
+			})
+
+			twitchUsersReq, err := botClient.Api.Client.GetUsers(&helix.UsersParams{
+				IDs: usersIds,
+			})
+			if err != nil {
+				panic(err)
+			}
+			twitchUsersMU.Lock()
+			twitchUsers = append(twitchUsers, twitchUsersReq.Data.Users...)
+			twitchUsersMU.Unlock()
+		}(chunk)
+	}
+
+	wg.Wait()
+
+	wg = sync.WaitGroup{}
+
+	for _, u := range twitchUsers {
+		wg.Add(1)
+		go func(u helix.User) {
+			defer wg.Done()
+
+			dbUser := model.Users{}
+			err := db.Where("id = ?", u.ID).Preload("Token").Find(&dbUser).Error
+			if err != nil {
+				return
+			}
+			isMod := false
+
+			if dbUser.ID != "" && dbUser.Token != nil {
+				api, err := usersApiService.Create(u.ID)
+				if err != nil {
+					return
+				}
+
+				botModRequest, err := api.GetChannelMods(&helix.GetChannelModsParams{
+					BroadcasterID: u.ID,
+					UserID:        botClient.Model.ID,
+				})
+
+				if err != nil || botModRequest.ResponseCommon.StatusCode != 200 {
+					isMod = false
+				}
+
+				if len(botModRequest.Data.Mods) == 1 {
+					isMod = true
+				}
+			}
+
+			var limiter ratelimiting.SlidingWindow
+			if isMod {
+				l, _ := ratelimiting.NewSlidingWindow(20, 30*time.Second)
+				limiter = l
+			} else {
+				l, _ := ratelimiting.NewSlidingWindow(1, 2*time.Second)
+				limiter = l
+			}
+
+			botClient.RateLimiters.Channels.Lock()
+			botClient.RateLimiters.Channels.Items[u.Login] = limiter
+			botClient.RateLimiters.Channels.Unlock()
+
+			botClient.Join(u.Login)
+		}(u)
+	}
+
+	wg.Wait()
 }
