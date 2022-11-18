@@ -31,7 +31,7 @@ export const teamMembers: TeamMembers = {
     socials: [
       { type: 'Github', link: 'https://github.com/satont' },
       { type: 'Telegram', link: 'https://t.me/satont' },
-      { type: 'Twitch', link: 'https://www.twitch.tv/sadisnamenya' },
+      { type: 'Twitch', link: 'https://www.twitch.tv/s4tont' },
       { type: 'Website', link: 'https://satont.dev/' },
     ],
   },
