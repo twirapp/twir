@@ -9,3 +9,10 @@ export const useStats = () =>
     refetchOnWindowFocus: true,
     refetchInterval: 2500,
   });
+
+const formatter = new Intl.NumberFormat(undefined, { notation: 'compact' });
+export const useStatsFormatter = () => {
+  return {
+    format: formatter.format.bind(formatter),
+  };
+};

@@ -1,7 +1,7 @@
 <template>
   <div class="inline-flex flex-col items-center justify-center">
     <span class="text-4xl font-medium leading-[130%]">
-      {{ item.count }}
+      {{ useStatsFormatter().format(item.count) }}
     </span>
     <span class="text-gray-60 leading-normal whitespace-nowrap">
       {{ item.name.at(0)?.toUpperCase() + item.name.slice(1) }}
@@ -11,6 +11,7 @@
 
 <script lang="ts" setup>
 import type { StatInfo } from '@/services/stats/api.js';
+import { useStatsFormatter } from '@/services/stats/hooks.js';
 
 defineProps<{
   item: StatInfo;
