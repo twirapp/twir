@@ -58,6 +58,8 @@ func (c *Handlers) handleGreetings(
 	}
 	bytes, err := proto.Marshal(&requestStruct)
 	if err != nil {
+		fmt.Println("Parser not answered on request greetings.")
+		fmt.Printf("%+v\n", &requestStruct)
 		fmt.Println(err)
 		return
 	}

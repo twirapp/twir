@@ -89,6 +89,8 @@ func (c *Handlers) handleKeywords(
 
 			bytes, err := proto.Marshal(&requestStruct)
 			if err != nil {
+				fmt.Println("Parser not answered on request keywords.")
+				fmt.Printf("%+v\n", &requestStruct)
 				fmt.Println(err)
 				return
 			}

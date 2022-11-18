@@ -36,6 +36,8 @@ func (c *Handlers) handleCommand(nats *nats.Conn, msg irc.PrivateMessage, userBa
 
 	res, err := nats.Request("parser.handleProcessCommand", bytes, 5*time.Second)
 	if err != nil {
+		fmt.Println("Parser not answered on request commands.")
+		fmt.Printf("%+v\n", &requestStruct)
 		fmt.Println(err)
 		return
 	}
