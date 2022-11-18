@@ -42,7 +42,7 @@ func (c *Handlers) handleKeywords(
 			defer wg.Done()
 
 			if k.IsRegular {
-				regx, err := regexp.Compile(strings.ToLower(k.Text))
+				regx, err := regexp.Compile(k.Text)
 				if err != nil {
 					c.BotClient.SayWithRateLimiting(
 						msg.Channel,
