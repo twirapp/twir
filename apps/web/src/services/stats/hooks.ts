@@ -10,7 +10,7 @@ export const useStats = () =>
     refetchInterval: 2500,
   });
 
-const formatter = new Intl.NumberFormat(undefined, { notation: 'compact' });
+const formatter = new Intl.NumberFormat(undefined, { notation: 'standard' });
 export const useStatsFormatter = () => {
   return {
     format: formatter.format.bind(formatter),
