@@ -2,7 +2,6 @@ import type { SocialMedia } from '@/data/landing/socialMedia';
 
 export enum TeamMemberId {
   'Satont',
-  'LwGerry',
   'Melkam',
 }
 
@@ -34,15 +33,6 @@ export const teamMembers: TeamMembers = {
       { type: 'Telegram', link: 'https://t.me/satont' },
       { type: 'Twitch', link: 'https://www.twitch.tv/sadisnamenya' },
       { type: 'Website', link: 'https://satont.dev/' },
-    ],
-  },
-  [TeamMemberId.LwGerry]: {
-    name: 'LwGerry',
-    socials: [
-      { type: 'Telegram', link: 'https://t.me/LWJerri' },
-      { type: 'Website', link: 'https://lwjerri.js.org/' },
-      { type: 'Github', link: 'https://github.com/LWJerri' },
-      { type: 'Twitch', link: 'https://www.twitch.tv/lwgerry' },
     ],
   },
   [TeamMemberId.Melkam]: {
