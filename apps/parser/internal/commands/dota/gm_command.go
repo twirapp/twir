@@ -157,7 +157,7 @@ var GmCommand = types.DefaultCommand{
 			rank := lo.
 				If(
 					card.LeaderboardRank.Valid,
-					fmt.Sprintf("%s#%v", medal.Name, card.LeaderboardRank.Int64),
+					fmt.Sprintf("#%v", card.LeaderboardRank.Int64),
 				).
 				Else(fmt.Sprintf("%s", medal.Name))
 
