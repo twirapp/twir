@@ -222,16 +222,16 @@ const schema = computed(() =>
   object({
     user: object({
       maxRequests: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
-      minWatchTime: number().positive().integer(),
-      minMessages: number().positive().integer(),
-      minFollowTime: number().positive().integer(),
+      minWatchTime: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
+      minMessages: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
+      minFollowTime: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
     }),
-    maxRequests: number().positive().required(),
+    maxRequests: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
     acceptOnlyWhenOnline: boolean().required(),
     channelPointsRewardName: string().optional(),
     song: object({
-      maxLength: number().positive().required().integer(),
-      minViews: number().positive().required().integer(),
+      maxLength: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
+      minViews: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
       acceptedCategories: array().of(string()),
     }),
     blackList: object({

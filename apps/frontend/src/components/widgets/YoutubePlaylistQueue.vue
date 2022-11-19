@@ -33,7 +33,7 @@
           <div class="flex-1 gap-y-2 inline-grid">
             <a
               :href="getYoutubeVideoLink(video.videoId)"
-              class="playlist-item-title"
+              class="hover:underline leading-tight text-sm two-lines-max"
               target="_blank"
             >
               {{ video.title }}
@@ -68,9 +68,8 @@ const getYoutubeVideoLink = (videoId: string) => `https://youtube.com/watch?v=${
 </script>
 
 <style lang="postcss">
-.playlist-item-title {
-  @apply hover:underline leading-tight text-sm overflow-hidden text-ellipsis;
-
+.two-lines-max {
+  @apply overflow-hidden text-ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

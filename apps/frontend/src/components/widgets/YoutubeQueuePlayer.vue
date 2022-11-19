@@ -61,7 +61,7 @@
       class="border-[#403D3A] border-t flex items-start p-5"
     >
       <div class="flex-1 gap-y-2 inline-grid mr-5">
-        <p class="font-medium">
+        <p class="font-medium two-lines-max">
           {{ currentVideo!.title }}
         </p>
         <span class="text-[#AFAFAF] text-xs">Ordered by: {{ currentVideo!.orderedByName }}</span>
