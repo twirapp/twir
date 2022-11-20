@@ -45,9 +45,9 @@ export type YoutubeSettings = {
     acceptedCategories?: string[];
   };
   blackList?: {
-    usersIds?: string[]; // it will be converted via twitch api. We'll get user by name and store id
-    songsIds?: string[];
-    channelsIds?: string[];
+    users?: Array<{ userId: string, userName: string }>;
+    songs?: Array<{ id: string, title: string, thumbnail: string }>;
+    channels?: Array<{ id: string, title: string, thumbnail: string }>;
     artistsNames?: string[];
   };
 };

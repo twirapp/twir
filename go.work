@@ -4,4 +4,5 @@ use (
 	./apps/api
 	./apps/parser
 	./apps/timers
+	./libs/types
 )

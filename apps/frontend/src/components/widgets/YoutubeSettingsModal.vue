@@ -193,7 +193,7 @@
 
 <script lang="ts" setup>
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue';
-import type { YoutubeSettings } from '@tsuwari/typeorm';
+import { YoutubeSettings } from '@tsuwari/types/generated';
 import { AxiosError } from 'axios';
 import { useForm, configure } from 'vee-validate';
 import { computed, ref } from 'vue';

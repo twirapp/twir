@@ -1,0 +1,17 @@
+{
+  "name": "@tsuwari/types",
+  "type": "module",
+  "scripts": {
+    "build": "go run gen.go && tsc"
+  },
+  "exports": {
+    "./generated": "./dist/generated.js"
+  },
+  "typesVersions": {
+    "*": {
+      "generated": [
+        "dist/generated.d.ts"
+      ]
+    }
+  }
+}
