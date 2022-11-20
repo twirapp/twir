@@ -54,6 +54,9 @@ require (
 	github.com/onsi/ginkgo/v2 v2.4.0 // indirect
 	github.com/rivo/uniseg v0.4.2 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
+	github.com/satont/tsuwari/libs/types v0.0.0-00010101000000-000000000000 // indirect
+	github.com/tkrajina/go-reflector v0.5.5 // indirect
+	github.com/tkrajina/typescriptify-golang-structs v0.1.8 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/exp v0.0.0-20221028150844-83b7d23a625f // indirect
@@ -103,3 +106,5 @@ replace tsuwari/twitch => ../../libs/twitch
 replace github.com/satont/tsuwari/libs/nats => ../../libs/nats
 
 replace github.com/satont/tsuwari/libs/integrations/spotify => ../../libs/integrations/spotify
+
+replace github.com/satont/tsuwari/libs/types => ../../libs/types
