@@ -118,3 +118,93 @@ func handlePost(channelId string, dto *sharedtypes.YoutubeSettings, services typ
 		return nil
 	}
 }
+
+func handlePatch(
+	channelId string,
+	blackListType string,
+	data any,
+	services types.Services,
+) error {
+	settings := model.ChannelModulesSettings{}
+	err := services.DB.Where(`"channelId" = ? AND type = ?`, channelId, "youtube_song_requests").
+		First(&settings).
+		Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	if settings.ID == "" {
+		bytes, err := json.Marshal(&sharedtypes.YoutubeSettings{})
+		if err != nil {
+			services.Logger.Sugar().Error(err)
+			return fiber.NewError(http.StatusInternalServerError, "internal error")
+		}
+
+		newSettings := model.ChannelModulesSettings{
+			ID:        uuid.NewV4().String(),
+			Type:      "youtube_song_requests",
+			ChannelId: channelId,
+			Settings:  bytes,
+		}
+		err = services.DB.Save(&newSettings).Error
+		if err != nil {
+			services.Logger.Sugar().Error(err)
+			return fiber.NewError(http.StatusInternalServerError, "internal error")
+		}
+		settings = newSettings
+	}
+
+	originalSettings := sharedtypes.YoutubeSettings{}
+	err = json.Unmarshal(settings.Settings, &originalSettings)
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	if blackListType == "users" {
+		user := data.(sharedtypes.YoutubeBlacklistSettingsUsers)
+		userReq, err := services.Twitch.Client.GetUsers(&helix.UsersParams{
+			Logins: []string{strings.ToLower(user.UserName)},
+		})
+
+		if err != nil || len(userReq.Data.Users) == 0 {
+			return fiber.NewError(http.StatusNotFound, "twitch user not found")
+		}
+
+		originalSettings.BlackList.Users = append(
+			originalSettings.BlackList.Users,
+			sharedtypes.YoutubeBlacklistSettingsUsers{
+				UserID:   userReq.Data.Users[0].ID,
+				UserName: userReq.Data.Users[0].Login,
+			},
+		)
+	}
+	if blackListType == "channels" {
+		originalSettings.BlackList.Channels = append(
+			originalSettings.BlackList.Channels,
+			data.(sharedtypes.YoutubeBlacklistSettingsChannels),
+		)
+	}
+	if blackListType == "songs" {
+		originalSettings.BlackList.Songs = append(
+			originalSettings.BlackList.Songs,
+			data.(sharedtypes.YoutubeBlacklistSettingsSongs),
+		)
+	}
+
+	newSettingsBytes, err := json.Marshal(originalSettings)
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+	settings.Settings = newSettingsBytes
+	err = services.DB.Save(&settings).Error
+
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	return nil
+}

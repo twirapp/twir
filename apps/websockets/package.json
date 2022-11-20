@@ -14,5 +14,8 @@
     "ioredis": "^5.2.4",
     "nats": "^2.9.0",
     "socket.io": "^4.5.3"
+  },
+  "devDependencies": {
+    "@tsuwari/types": "workspace:*"
   }
 }

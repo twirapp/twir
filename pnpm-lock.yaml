@@ -441,6 +441,7 @@ importers:
       '@tsuwari/config': workspace:*
       '@tsuwari/nats': workspace:*
       '@tsuwari/typeorm': workspace:*
+      '@tsuwari/types': workspace:*
       ioredis: ^5.2.4
       nats: ^2.9.0
       socket.io: ^4.5.3
@@ -451,6 +452,8 @@ importers:
       ioredis: 5.2.4
       nats: 2.9.0
       socket.io: 4.5.3
+    devDependencies:
+      '@tsuwari/types': link:../../libs/types
 
   libs/config:
     specifiers:

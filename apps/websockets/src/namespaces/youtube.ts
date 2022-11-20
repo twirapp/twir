@@ -1,6 +1,8 @@
 import * as Youtube from '@tsuwari/nats/youtube';
 import { IsNull } from '@tsuwari/typeorm';
+import { ChannelModuleSettings, ModuleType } from '@tsuwari/typeorm/entities/ChannelModuleSettings';
 import { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
+import { YoutubeSettings } from '@tsuwari/types/generated';
 import SocketIo from 'socket.io';
 
 import { nats } from '../libs/nats.js';
@@ -10,6 +12,35 @@ import { authMiddleware } from '../middlewares/auth.js';
 
 const sockets: Map<string, SocketIo.Socket> = new Map();
 const repository = typeorm.getRepository(RequestedSong);
+const settingsRepository = typeorm.getRepository(ChannelModuleSettings);
+
+const defaultSettings: YoutubeSettings = {
+  acceptOnlyWhenOnline: true,
+  channelPointsRewardName: '',
+  maxRequests: 200,
+  blacklist: {
+    artistsNames: [],
+    channels: [],
+    songs: [],
+    users: [],
+  },
+  song: { acceptedCategories: [] },
+  user: {},
+};
+
+const findOrCreateSettings = async (channelId: string): Promise<ChannelModuleSettings & { settings: YoutubeSettings }> => {
+  const settings = await settingsRepository.findOneBy({
+    channelId,
+    type: ModuleType.YOUTUBE_SONG_REQUESTS,
+  });
+  if (settings) return settings ;
+
+  return settingsRepository.save({
+    channelId,
+    type: ModuleType.YOUTUBE_SONG_REQUESTS,
+    settings: defaultSettings,
+  });
+};
 
 export const createYoutubeNameSpace = async (io: SocketIo.Server) => {
   const nameSpace = io.of('youtube');
@@ -39,15 +70,43 @@ export const createYoutubeNameSpace = async (io: SocketIo.Server) => {
     });
 
     socket.on('play', async (data) => {
-      console.log(`songrequests:youtube:${channelId}:currentPlaying`);
-      const result = await redis.set(
+      await redis.set(
         `songrequests:youtube:${channelId}:currentPlaying`,
         data.id,
         'PX',
         data.timeToEnd,
       );
-      console.log(result);
-      console.log('play', data);
+    });
+
+
+    socket.on('blacklist.user', async (data) => {
+      const { userId, userName } = data;
+      if (!userId || !userName) {
+        return;
+      }
+      const settings = await findOrCreateSettings(channelId);
+      settings.settings.blacklist?.users.push({ userId, userName });
+      await settingsRepository.save(settings);
+    });
+
+    socket.on('blacklist.song', async (data) => {
+      const { id, title, thumbNail } = data;
+      if (!id || !title || !thumbNail) {
+        return;
+      }
+      const settings = await findOrCreateSettings(channelId);
+      settings.settings.blacklist?.songs.push({ id, title, thumbNail });
+      await settingsRepository.save(settings);
+    });
+
+    socket.on('blacklist.channel', async (data) => {
+      const { id, title, thumbNail } = data;
+      if (!id || !title || !thumbNail) {
+        return;
+      }
+      const settings = await findOrCreateSettings(channelId);
+      settings.settings.blacklist?.channels.push({ id, title, thumbNail });
+      await settingsRepository.save(settings);
     });
 
     socket.on('pause', () => {

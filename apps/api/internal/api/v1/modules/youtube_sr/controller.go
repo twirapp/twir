@@ -1,7 +1,13 @@
 package youtube_sr
 
 import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gofiber/fiber/v2"
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	sharedtypes "github.com/satont/tsuwari/libs/types/types"
@@ -11,6 +17,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("youtube-sr")
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
+	middleware.Post("/blacklist/:type", postBlacklist(services))
 
 	return middleware
 }
@@ -46,4 +53,68 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 
 		return c.SendStatus(204)
 	}
+}
+
+var invalidPatchBodyError = fiber.Map{
+	"message": "invalid incoming body",
+}
+
+var blackListTypes = []string{"users", "channels", "songs"}
+
+func postBlacklist(services types.Services) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		blacklistType := c.Params("type")
+		_, ok := lo.Find(blackListTypes, func(i string) bool {
+			return i == blacklistType
+		})
+
+		if !ok {
+			return c.Status(http.StatusNotFound).JSON(fiber.Map{
+				"message": "unknown type",
+			})
+		}
+
+		var data any
+
+		body := c.Body()
+
+		switch blacklistType {
+		case "users":
+			d, err := parseBlackListBody(body, sharedtypes.YoutubeBlacklistSettingsUsers{})
+			if err != nil {
+				return c.JSON(invalidPatchBodyError)
+			}
+			data = *d
+		case "channels":
+			d, err := parseBlackListBody(body, sharedtypes.YoutubeBlacklistSettingsChannels{})
+			if err != nil {
+				return c.JSON(invalidPatchBodyError)
+			}
+			data = *d
+		case "songs":
+			d, err := parseBlackListBody(body, sharedtypes.YoutubeBlacklistSettingsSongs{})
+			if err != nil {
+				return c.JSON(invalidPatchBodyError)
+			}
+			data = *d
+		}
+
+		err := handlePatch(c.Params("channelId"), blacklistType, data, services)
+		if err != nil {
+			return nil
+		}
+
+		return c.JSON(201)
+	}
+}
+
+func parseBlackListBody[T any](body []byte, v T) (*T, error) {
+	spew.Dump(v)
+
+	if err := json.Unmarshal(body, &v); err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return &v, nil
 }

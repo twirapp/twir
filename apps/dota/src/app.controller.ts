@@ -4,7 +4,7 @@ import {
   EventPattern,
   MessagePattern,
   type ClientProxyCommandPayload,
-  type ClientProxyEventPayload,
+  type ClientProxyEventPayload
 } from '@tsuwari/shared';
 
 import { AppService } from './app.service.js';
