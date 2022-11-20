@@ -12,19 +12,19 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	sharedtypes "github.com/satont/tsuwari/libs/types/types"
+	youtube "github.com/satont/tsuwari/libs/types/types/api/modules"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
-func handleGet(channelId string, services types.Services) (*sharedtypes.YoutubeSettings, error) {
+func handleGet(channelId string, services types.Services) (*youtube.YoutubeSettings, error) {
 	settings := model.ChannelModulesSettings{}
 	err := services.DB.Where(`"channelId" = ?`, channelId).First(&settings).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusNotFound, "settings not found")
 	}
 
-	data := sharedtypes.YoutubeSettings{}
+	data := youtube.YoutubeSettings{}
 	err = json.Unmarshal(settings.Settings, &data)
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
@@ -33,7 +33,7 @@ func handleGet(channelId string, services types.Services) (*sharedtypes.YoutubeS
 	return &data, nil
 }
 
-func handlePost(channelId string, dto *sharedtypes.YoutubeSettings, services types.Services) error {
+func handlePost(channelId string, dto *youtube.YoutubeSettings, services types.Services) error {
 	var existedSettings *model.ChannelModulesSettings
 	err := services.DB.Where(`"channelId" = ?`, channelId).First(&existedSettings).Error
 
@@ -50,12 +50,12 @@ func handlePost(channelId string, dto *sharedtypes.YoutubeSettings, services typ
 		wg.Add(len(twitchUsersChunks))
 
 		for _, chunk := range twitchUsersChunks {
-			go func(chunk []sharedtypes.YoutubeBlacklistSettingsUsers) {
+			go func(chunk []youtube.YoutubeBlacklistSettingsUsers) {
 				defer wg.Done()
 				req, _ := services.Twitch.Client.GetUsers(&helix.UsersParams{
 					Logins: lo.Map(
 						chunk,
-						func(item sharedtypes.YoutubeBlacklistSettingsUsers, _ int) string {
+						func(item youtube.YoutubeBlacklistSettingsUsers, _ int) string {
 							return item.UserName
 						},
 					),
@@ -135,7 +135,7 @@ func handlePatch(
 	}
 
 	if settings.ID == "" {
-		bytes, err := json.Marshal(&sharedtypes.YoutubeSettings{})
+		bytes, err := json.Marshal(&youtube.YoutubeSettings{})
 		if err != nil {
 			services.Logger.Sugar().Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
@@ -155,7 +155,7 @@ func handlePatch(
 		settings = newSettings
 	}
 
-	originalSettings := sharedtypes.YoutubeSettings{}
+	originalSettings := youtube.YoutubeSettings{}
 	err = json.Unmarshal(settings.Settings, &originalSettings)
 	if err != nil {
 		services.Logger.Sugar().Error(err)
@@ -163,7 +163,7 @@ func handlePatch(
 	}
 
 	if blackListType == "users" {
-		user := data.(sharedtypes.YoutubeBlacklistSettingsUsers)
+		user := data.(youtube.YoutubeBlacklistSettingsUsers)
 		userReq, err := services.Twitch.Client.GetUsers(&helix.UsersParams{
 			Logins: []string{strings.ToLower(user.UserName)},
 		})
@@ -174,7 +174,7 @@ func handlePatch(
 
 		originalSettings.BlackList.Users = append(
 			originalSettings.BlackList.Users,
-			sharedtypes.YoutubeBlacklistSettingsUsers{
+			youtube.YoutubeBlacklistSettingsUsers{
 				UserID:   userReq.Data.Users[0].ID,
 				UserName: userReq.Data.Users[0].Login,
 			},
@@ -183,13 +183,13 @@ func handlePatch(
 	if blackListType == "channels" {
 		originalSettings.BlackList.Channels = append(
 			originalSettings.BlackList.Channels,
-			data.(sharedtypes.YoutubeBlacklistSettingsChannels),
+			data.(youtube.YoutubeBlacklistSettingsChannels),
 		)
 	}
 	if blackListType == "songs" {
 		originalSettings.BlackList.Songs = append(
 			originalSettings.BlackList.Songs,
-			data.(sharedtypes.YoutubeBlacklistSettingsSongs),
+			data.(youtube.YoutubeBlacklistSettingsSongs),
 		)
 	}
 

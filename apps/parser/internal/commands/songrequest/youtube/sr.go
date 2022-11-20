@@ -14,7 +14,6 @@ import (
 	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/satont/go-helix/v2"
-	sharedtypes "github.com/satont/tsuwari/libs/types/types"
 
 	youtubenats "github.com/satont/tsuwari/libs/nats/youtube"
 	"google.golang.org/protobuf/proto"
@@ -23,6 +22,8 @@ import (
 	ytdl "github.com/kkdai/youtube/v2"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
+
+	youtube "github.com/satont/tsuwari/libs/types/types/api/modules"
 
 	"github.com/samber/lo"
 )
@@ -108,7 +109,7 @@ var SrCommand = types.DefaultCommand{
 			return result
 		}
 		if moduleSettings.ID != "" {
-			parsedSettings := &sharedtypes.YoutubeSettings{}
+			parsedSettings := &youtube.YoutubeSettings{}
 			err = json.Unmarshal(moduleSettings.Settings, parsedSettings)
 			if err != nil {
 				fmt.Println(err)
@@ -189,7 +190,7 @@ func validate(
 	channelId, userId string,
 	db *gorm.DB,
 	tw *twitch.Twitch,
-	settings *sharedtypes.YoutubeSettings,
+	settings *youtube.YoutubeSettings,
 	song *ytdl.Video,
 ) error {
 	if userId != channelId {
@@ -200,7 +201,7 @@ func validate(
 		if settings.BlackList.Users != nil {
 			_, isUserBlackListed := lo.Find(
 				settings.BlackList.Users,
-				func(u sharedtypes.YoutubeBlacklistSettingsUsers) bool {
+				func(u youtube.YoutubeBlacklistSettingsUsers) bool {
 					return u.UserID == userId
 				},
 			)
@@ -213,7 +214,7 @@ func validate(
 		if settings.BlackList.Channels != nil {
 			_, isChannelBlacklisted := lo.Find(
 				settings.BlackList.Channels,
-				func(u sharedtypes.YoutubeBlacklistSettingsChannels) bool {
+				func(u youtube.YoutubeBlacklistSettingsChannels) bool {
 					return u.ID == song.ChannelID
 				},
 			)

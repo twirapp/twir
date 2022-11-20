@@ -10,7 +10,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	sharedtypes "github.com/satont/tsuwari/libs/types/types"
+	youtube "github.com/satont/tsuwari/libs/types/types/api/modules"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
@@ -35,7 +35,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		dto := sharedtypes.YoutubeSettings{}
+		dto := youtube.YoutubeSettings{}
 		err := middlewares.ValidateBody(
 			c,
 			services.Validator,
@@ -80,19 +80,19 @@ func postBlacklist(services types.Services) fiber.Handler {
 
 		switch blacklistType {
 		case "users":
-			d, err := parseBlackListBody(body, sharedtypes.YoutubeBlacklistSettingsUsers{})
+			d, err := parseBlackListBody(body, youtube.YoutubeBlacklistSettingsUsers{})
 			if err != nil {
 				return c.JSON(invalidPatchBodyError)
 			}
 			data = *d
 		case "channels":
-			d, err := parseBlackListBody(body, sharedtypes.YoutubeBlacklistSettingsChannels{})
+			d, err := parseBlackListBody(body, youtube.YoutubeBlacklistSettingsChannels{})
 			if err != nil {
 				return c.JSON(invalidPatchBodyError)
 			}
 			data = *d
 		case "songs":
-			d, err := parseBlackListBody(body, sharedtypes.YoutubeBlacklistSettingsSongs{})
+			d, err := parseBlackListBody(body, youtube.YoutubeBlacklistSettingsSongs{})
 			if err != nil {
 				return c.JSON(invalidPatchBodyError)
 			}
