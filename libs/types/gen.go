@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	files := []string{"generated", "api"}
+	files := []string{"api"}
 	for _, f := range files {
 		os.Remove(fmt.Sprintf("src/%s.d.ts", f))
 	}

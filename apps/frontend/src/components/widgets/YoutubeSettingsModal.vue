@@ -193,7 +193,7 @@
 
 <script lang="ts" setup>
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue';
-import { YoutubeSettings } from '@tsuwari/types/generated';
+import { V1 } from '@tsuwari/types/api';
 import { AxiosError } from 'axios';
 import { useForm, configure } from 'vee-validate';
 import { computed, ref } from 'vue';
@@ -247,7 +247,7 @@ function closeModal() {
   isModalOpen.value = false;
 }
 
-const { values, validate, setValues, meta } = useForm<Required<YoutubeSettings>>({
+const { values, validate, setValues, meta } = useForm<Required<V1['MODULES']['YouTube']['POST']>>({
   validationSchema: schema,
   keepValuesOnUnmount: true,
 });
@@ -279,7 +279,7 @@ async function openModal() {
   if (!isDataFetched.value) {
     isSettingsFetching.value = true;
     try {
-      const response = await api.get<YoutubeSettings>(
+      const response = await api.get<V1['MODULES']['YouTube']['GET']>(
         `/v1/channels/${selectedDashboardStore.get().channelId}/modules/youtube-sr`,
       );
       setValues(response.data);

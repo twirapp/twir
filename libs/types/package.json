@@ -4,17 +4,10 @@
   "scripts": {
     "build": "go run gen.go"
   },
-  "exports": {
-    "./generated": "./src/generated.d.ts",
-    "./api": "./src/api.d.ts"
-  },
   "typesVersions": {
     "*": {
-      "generated": [
-        "dist/generated.d.ts"
-      ],
       "api": [
-        "dist/api.d.ts"
+        "./src/api.d.ts"
       ]
     }
   }
