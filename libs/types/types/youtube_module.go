@@ -24,10 +24,10 @@ package types
 // };
 
 type YoutubeUserSettings struct {
-	MaxRequests   *int `json:"maxRequests"`
-	MinWatchTime  *int `json:"minWatchTime"`
-	MinMessages   *int `json:"minMessages"`
-	MinFollowTime *int `json:"minFollowTime"`
+	MaxRequests   *int   `json:"maxRequests"`
+	MinWatchTime  *int64 `json:"minWatchTime"`
+	MinMessages   *int   `json:"minMessages"`
+	MinFollowTime *int   `json:"minFollowTime"`
 }
 
 type YotubeSongSettings struct {

@@ -3,12 +3,14 @@ module tsuwari/parser
 go 1.18
 
 require (
+	github.com/SherlockYigit/youtube-go v1.0.0
 	github.com/getsentry/sentry-go v0.14.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.1
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/nats-io/nats.go v1.18.0
 	github.com/satont/go-helix/v2 v2.7.14
 	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
+	github.com/satont/tsuwari/libs/types v0.0.0-00010101000000-000000000000
 	github.com/satori/go.uuid v1.2.0
 	github.com/tidwall/gjson v1.14.3
 	go.uber.org/zap v1.23.0
@@ -18,16 +20,12 @@ require (
 )
 
 require (
-	github.com/SherlockYigit/youtube-go v1.0.0 // indirect
-	github.com/antchfx/jsonquery v1.1.4 // indirect
-	github.com/antchfx/xpath v1.1.7 // indirect
 	github.com/bitly/go-simplejson v0.5.0 // indirect
 	github.com/dlclark/regexp2 v1.7.0 // indirect
-	github.com/dop251/goja v0.0.0-20220719153422-38a3647bcce0 // indirect
+	github.com/dop251/goja v0.0.0-20221118162653-d4bf6fde1b86 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
-	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/pprof v0.0.0-20221010195024-131d412537ea // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -44,7 +42,6 @@ require (
 	github.com/nats-io/jwt/v2 v2.3.0 // indirect
 	github.com/onsi/ginkgo/v2 v2.4.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/rs/zerolog v1.25.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
@@ -54,8 +51,6 @@ require (
 )
 
 require (
-	github.com/Andreychik32/ytdl v1.0.4
-	github.com/Cyb3r-Jak3/ytdl v0.6.5
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/golang/protobuf v1.5.2
@@ -70,7 +65,7 @@ require (
 	github.com/jackc/pgx/v4 v4.17.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/kkdai/youtube/v2 v2.7.16
+	github.com/kkdai/youtube/v2 v2.7.18
 	github.com/leighmacdonald/steamid/v2 v2.2.0
 	github.com/lib/pq v1.10.7
 	github.com/nats-io/nkeys v0.3.0 // indirect
@@ -79,8 +74,8 @@ require (
 	github.com/satont/tsuwari/libs/nats v0.0.0
 	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/exp v0.0.0-20221026153819-32f3d567a233 // indirect
-	golang.org/x/net v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/net v0.2.0 // indirect
+	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	tsuwari/config v0.0.0
 	tsuwari/models v0.0.0
@@ -93,3 +88,7 @@ replace github.com/satont/tsuwari/libs/integrations/spotify => ../../libs/integr
 replace tsuwari/config => ../../libs/config
 
 replace tsuwari/models => ../../libs/gomodels
+
+replace github.com/satont/tsuwari/libs/types => ../../libs/types
+
+replace github.com/kkdai/youtube/v2 v2.7.18 => ../../libs/youtube

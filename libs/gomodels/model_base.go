@@ -44,7 +44,6 @@ func init() {
 	tables["notifications_messages"] = notifications_messagesTableInfo
 	tables["tokens"] = tokensTableInfo
 	tables["users_files"] = users_filesTableInfo
-	tables["users_stats"] = users_statsTableInfo
 	tables["users_viewed_notifications"] = users_viewed_notificationsTableInfo
 }
 
