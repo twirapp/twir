@@ -1,11 +1,10 @@
 package youtube_sr
 
 import (
-	model "tsuwari/models"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
+	sharedtypes "github.com/satont/tsuwari/libs/types/types"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
@@ -29,7 +28,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		dto := model.YoutubeSettings{}
+		dto := sharedtypes.YoutubeSettings{}
 		err := middlewares.ValidateBody(
 			c,
 			services.Validator,
@@ -39,6 +38,7 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 		if err != nil {
 			return err
 		}
+
 		err = handlePost(c.Params("channelId"), &dto, services)
 		if err != nil {
 			return err
