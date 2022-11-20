@@ -1,19 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
-	"github.com/satont/tsuwari/libs/types/types"
+	"github.com/satont/tsuwari/libs/types/types/api"
 	"github.com/tkrajina/typescriptify-golang-structs/typescriptify"
 )
 
 func main() {
-	converter := typescriptify.New().Add(types.YoutubeSettings{})
-	converter.CreateInterface = true
-	converter.CreateConstructor = false
-	converter.CreateFromMethod = false
-	os.Remove("src/generated.ts")
-	err := converter.ConvertToFile("src/generated.ts")
+	files := []string{"generated", "api"}
+	for _, f := range files {
+		os.Remove(fmt.Sprintf("src/%s.d.ts", f))
+	}
+
+	apiConverter := typescriptify.New().Add(api.V1{})
+	apiConverter.CreateInterface = true
+	apiConverter.CreateConstructor = false
+	apiConverter.CreateFromMethod = false
+
+	err := apiConverter.ConvertToFile("src/api.d.ts")
 	if err != nil {
 		panic(err.Error())
 	}
