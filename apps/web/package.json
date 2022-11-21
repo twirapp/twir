@@ -41,7 +41,7 @@
     "@vue/server-renderer": "3.2.41",
     "@vueuse/core": "9.4.0",
     "cross-env": "7.0.3",
-    "fastify": "4.9.2",
+    "fastify": "4.10.2",
     "nanostores": "0.7.0",
     "vite-plugin-ssr": "0.4.43",
     "vue": "3.2.41",
