@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/davecgh/go-spew/spew"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
@@ -108,11 +108,15 @@ func postBlacklist(services types.Services) fiber.Handler {
 	}
 }
 
-func parseBlackListBody[T any](body []byte, v T) (*T, error) {
-	spew.Dump(v)
+var blackListValidator = validator.New()
 
+func parseBlackListBody[T any](body []byte, v T) (*T, error) {
 	if err := json.Unmarshal(body, &v); err != nil {
 		fmt.Println(err)
+		return nil, err
+	}
+
+	if err := blackListValidator.Struct(v); err != nil {
 		return nil, err
 	}
 
