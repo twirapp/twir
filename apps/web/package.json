@@ -29,7 +29,7 @@
     "vue-router": "4.1.6"
   },
   "dependencies": {
-    "@egjs/flicking-plugins": "4.4.0",
+    "@egjs/flicking-plugins": "4.5.0",
     "@egjs/vue3-flicking": "4.10.2",
     "@fastify/compress": "6.1.1",
     "@fastify/http-proxy": "8.2.3",
