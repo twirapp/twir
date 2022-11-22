@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/satont/tsuwari/libs/twitch"
@@ -74,6 +76,15 @@ func main() {
 	transEN, _ := uni.GetTranslator("en_US")
 	enTranslations.RegisterDefaultTranslations(validator, transEN)
 	errorMiddleware := middlewares.ErrorHandler(transEN, logger)
+	validator.RegisterTagNameFunc(func(fld reflect.StructField) string {
+		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+
+		if name == "-" {
+			return ""
+		}
+
+		return name
+	})
 
 	app := fiber.New(fiber.Config{
 		ErrorHandler: errorMiddleware,

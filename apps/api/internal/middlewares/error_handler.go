@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"encoding/json"
-	"fmt"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
@@ -16,10 +15,10 @@ var ErrorHandler = func(t ut.Translator, logger *zap.Logger) func(c *fiber.Ctx, 
 		case validator.ValidationErrors:
 			errors := []string{}
 			for _, e := range castedErr {
-				errors = append(errors, fmt.Sprintf("%s", e.Translate(t)))
+				errors = append(errors, e.Translate(t))
 			}
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": errors})
-		case *json.InvalidUnmarshalError, *json.UnmarshalFieldError, *json.UnmarshalTypeError:
+		case *json.InvalidUnmarshalError:
 			logger.Sugar().Error(err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "bad request body"})
 		case *fiber.Error:
