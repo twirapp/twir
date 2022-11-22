@@ -27,7 +27,7 @@ type YoutubeBlacklistSettingsSongs struct {
 type YoutubeBlacklistSettingsChannels struct {
 	ID        string `validate:"required,min=1"          json:"id"`
 	Title     string `validate:"required,min=1,max=300"  json:"title"`
-	ThumbNail string `validate:"required,min=1=,max=300" json:"thumbNail"`
+	ThumbNail string `validate:"required,min=1,max=300" json:"thumbNail"`
 }
 
 type YoutubeBlacklistSettings struct {

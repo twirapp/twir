@@ -101,6 +101,11 @@ var SrCommand = types.DefaultCommand{
 			return result
 		}
 
+		if ytdlSongInfo.Duration.Seconds() == 0 {
+			result.Result = append(result.Result, "seems like that song is live, which is disallowed.")
+			return result
+		}
+
 		moduleSettings := &model.ChannelModulesSettings{}
 		err = ctx.Services.Db.Where(`"channelId" = ?`, ctx.ChannelId).First(moduleSettings).Error
 		if err != nil && err != gorm.ErrRecordNotFound {
