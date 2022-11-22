@@ -326,7 +326,7 @@ importers:
       '@fastify/compress': 6.1.1
       '@fastify/http-proxy': 8.2.3
       '@fastify/middie': 8.0.0
-      '@fastify/static': 6.5.0
+      '@fastify/static': 6.5.1
       '@nanostores/persistent': 0.7.0
       '@nanostores/vue': '0.6'
       '@tanstack/vue-query': 4.14.1
@@ -357,7 +357,7 @@ importers:
       '@fastify/compress': 6.1.1
       '@fastify/http-proxy': 8.2.3
       '@fastify/middie': 8.0.0
-      '@fastify/static': 6.5.0
+      '@fastify/static': 6.5.1
       '@nanostores/persistent': 0.7.0_nanostores@0.7.0
       '@nanostores/vue': 0.6.0_r627q4dwpmfpioilrlqhfzrl3q
       '@tanstack/vue-query': 4.14.1_vue@3.2.41
@@ -2404,8 +2404,8 @@ packages:
       undici: 5.12.0
     dev: false
 
-  /@fastify/static/6.5.0:
-    resolution: {integrity: sha512-WEk6iqgejA6ivjkvbJ47A+uMci225z5lZwLXCXZS3ZYR/kYje1gzzarkKKGL6TWpBw6smkOzxA7dfEoY0347Nw==}
+  /@fastify/static/6.5.1:
+    resolution: {integrity: sha512-v3XFHTiL51UenZMaFjE1oKJ8od/x3UH4rQ3+U2HWf8KJjnmjy0/ePC92ug+vc3QO6Vf548zaUsdcKeZ1LddRbg==}
     dependencies:
       '@fastify/accept-negotiator': 1.0.0
       content-disposition: 0.5.4

@@ -34,7 +34,7 @@
     "@fastify/compress": "6.1.1",
     "@fastify/http-proxy": "8.2.3",
     "@fastify/middie": "8.0.0",
-    "@fastify/static": "6.5.0",
+    "@fastify/static": "6.5.1",
     "@nanostores/persistent": "0.7.0",
     "@nanostores/vue": "0.6",
     "@tanstack/vue-query": "4.14.1",
