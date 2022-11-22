@@ -49,7 +49,7 @@ export default defineConfig({
     port: Number(process.env.VITE_PORT ?? 3006),
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL ?? 'http://localhost:3002',
+        target: 'http://127.0.0.1:3002',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
         ws: true,

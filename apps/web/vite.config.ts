@@ -22,7 +22,7 @@ export default defineConfig({
     }),
     ssr({
       prerender: true,
-    })
+    }),
   ],
   resolve: {
     alias: {
@@ -35,13 +35,13 @@ export default defineConfig({
     port: Number(process.env.VITE_PORT ?? 3005),
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL ?? 'http://localhost:3002',
+        target: 'http://127.0.0.1:3002',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
         ws: true,
       },
       '/dashboard': {
-        target: process.env.VITE_API_URL ?? 'http://localhost:3006/dashboard',
+        target: 'http://127.0.0.1:3006/dashboard',
         changeOrigin: false,
         rewrite: (path) => path.replace(/^\/dashboard/, ''),
       },
