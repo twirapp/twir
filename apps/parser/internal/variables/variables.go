@@ -71,6 +71,7 @@ func New() Variables {
 		phrase.Variable,
 		command_counter.CommandVariable,
 		command_counter.UserVariable,
+		command_counter.CommandVariableFromOther,
 	}
 
 	ctx := Variables{
