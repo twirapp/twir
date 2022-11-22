@@ -10,6 +10,8 @@ func ValidateResponseSlashes(response string) error {
 		return nil
 	} else if strings.HasPrefix(response, "/") {
 		return errors.New("Slash commands except /me and /announce is disallowed. This response wont be ever sended.")
+	} else if strings.HasPrefix(response, ".") {
+		return errors.New(`Message cannot start from "." symbol.`)
 	} else {
 		return nil
 	}
