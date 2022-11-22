@@ -72,6 +72,7 @@ func New(opts CommandsOpts) Commands {
 		manage.DelCommand,
 		manage.EditCommand,
 		manage.AddAliaseCommand,
+		manage.RemoveAliaseCommand,
 	}
 
 	ctx := Commands{

@@ -1,7 +1,6 @@
 package manage
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -14,10 +13,10 @@ import (
 	"github.com/samber/lo"
 )
 
-var AddAliaseCommand = types.DefaultCommand{
+var RemoveAliaseCommand = types.DefaultCommand{
 	Command: types.Command{
-		Name:        "commands aliases add",
-		Description: lo.ToPtr("Add aliase to command"),
+		Name:        "commands aliases remove",
+		Description: lo.ToPtr("Remove aliase from command"),
 		Permission:  "MODERATOR",
 		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
@@ -43,31 +42,9 @@ var AddAliaseCommand = types.DefaultCommand{
 		commandName := strings.ReplaceAll(args[0], "!", "")
 		aliase := strings.ReplaceAll(strings.Join(args[1:], " "), "!", "")
 
-		existedCommands := []model.ChannelsCommands{}
-		err := ctx.Services.Db.Where(`"channelId" = ?`, ctx.ChannelId).Select(`"channelId"`, "name", "aliases").Find(&existedCommands).Error
-		if err != nil {
-			fmt.Println("cannot get count", err)
-			result.Result = append(result.Result, "internal error")
-			return result
-		}
-
-		existsError := fmt.Sprintf(`command with "%s" name or aliase already exists`, aliase)
-		for _, c := range existedCommands {
-			if c.Name == aliase {
-				result.Result = append(result.Result, existsError)
-				return result
-			}
-
-			if lo.Contains(c.Aliases, aliase) {
-				result.Result = append(result.Result, existsError)
-				return result
-			}
-		}
-
 		cmd := model.ChannelsCommands{}
-		err = ctx.Services.Db.
+		err := ctx.Services.Db.
 			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, commandName).
-			Preload(`Responses`).
 			First(&cmd).Error
 
 		if err != nil || cmd.ID == "" {
@@ -75,7 +52,13 @@ var AddAliaseCommand = types.DefaultCommand{
 			return result
 		}
 
-		cmd.Aliases = append(cmd.Aliases, aliase)
+		if !lo.Contains(cmd.Aliases, aliase) {
+			result.Result = append(result.Result, "That aliase not in the command")
+			return result
+		}
+
+		index := lo.IndexOf(cmd.Aliases, aliase)
+		cmd.Aliases = append(cmd.Aliases[:index], cmd.Aliases[index+1:]...)
 
 		err = ctx.Services.Db.
 			Save(&cmd).Error
@@ -89,7 +72,7 @@ var AddAliaseCommand = types.DefaultCommand{
 			return result
 		}
 
-		result.Result = append(result.Result, "✅ Aliase added.")
+		result.Result = append(result.Result, "✅ Aliase removed.")
 		return result
 	},
 }
