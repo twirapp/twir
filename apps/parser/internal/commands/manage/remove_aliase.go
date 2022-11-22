@@ -13,10 +13,10 @@ import (
 	"github.com/samber/lo"
 )
 
-var EditCommand = types.DefaultCommand{
+var RemoveAliaseCommand = types.DefaultCommand{
 	Command: types.Command{
-		Name:        "commands edit",
-		Description: lo.ToPtr("Edit command response"),
+		Name:        "commands aliases remove",
+		Description: lo.ToPtr("Remove aliase from command"),
 		Permission:  "MODERATOR",
 		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
@@ -39,49 +39,40 @@ var EditCommand = types.DefaultCommand{
 			return result
 		}
 
-		name := strings.ReplaceAll(args[0], "!", "")
-		text := strings.Join(args[1:], " ")
+		commandName := strings.ReplaceAll(args[0], "!", "")
+		aliase := strings.ReplaceAll(strings.Join(args[1:], " "), "!", "")
 
 		cmd := model.ChannelsCommands{}
 		err := ctx.Services.Db.
-			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, name).
-			Preload(`Responses`).
+			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, commandName).
 			First(&cmd).Error
 
 		if err != nil || cmd.ID == "" {
-			log.Fatalln(err)
 			result.Result = append(result.Result, "Command not found.")
 			return result
 		}
 
-		if cmd.Default {
-			result.Result = append(result.Result, "Cannot delete default command.")
+		if !lo.Contains(cmd.Aliases, aliase) {
+			result.Result = append(result.Result, "That aliase not in the command")
 			return result
 		}
 
-		if cmd.Responses != nil && len(cmd.Responses) > 1 {
-			result.Result = append(
-				result.Result,
-				"Cannot update response because you have more then 1 responses in command. Please use UI.",
-			)
-			return result
-		}
+		index := lo.IndexOf(cmd.Aliases, aliase)
+		cmd.Aliases = append(cmd.Aliases[:index], cmd.Aliases[index+1:]...)
 
 		err = ctx.Services.Db.
-			Model(&model.ChannelsCommandsResponses{}).
-			Where(`"commandId" = ?`, cmd.ID).
-			Update(`text`, text).Error
+			Save(&cmd).Error
 
 		if err != nil {
 			log.Fatalln(err)
 			result.Result = append(
 				result.Result,
-				"Cannot update command response. This is internal bug, please report it.",
+				"Cannot update command aliases. This is internal bug, please report it.",
 			)
 			return result
 		}
 
-		result.Result = append(result.Result, "✅ Command edited.")
+		result.Result = append(result.Result, "✅ Aliase removed.")
 		return result
 	},
 }
