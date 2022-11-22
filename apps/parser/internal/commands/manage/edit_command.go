@@ -39,7 +39,7 @@ var EditCommand = types.DefaultCommand{
 			return result
 		}
 
-		name := args[0]
+		name := strings.ReplaceAll(args[0], "!", "")
 		text := strings.Join(args[1:], " ")
 
 		cmd := model.ChannelsCommands{}

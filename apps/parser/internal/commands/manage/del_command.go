@@ -1,6 +1,8 @@
 package manage
 
 import (
+	"strings"
+
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -29,8 +31,10 @@ var DelCommand = types.DefaultCommand{
 			return result
 		}
 
+		name := strings.ReplaceAll(*ctx.Text, "!", "")
+
 		var cmd *model.ChannelsCommands = nil
-		err := ctx.Services.Db.Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, *ctx.Text).
+		err := ctx.Services.Db.Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, name).
 			First(&cmd).
 			Error
 
@@ -45,7 +49,7 @@ var DelCommand = types.DefaultCommand{
 		}
 
 		ctx.Services.Db.
-			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, *ctx.Text).
+			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, name).
 			Delete(&model.ChannelsCommands{})
 
 		result.Result = append(result.Result, "✅ Command removed.")
