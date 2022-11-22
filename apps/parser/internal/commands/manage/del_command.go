@@ -31,7 +31,7 @@ var DelCommand = types.DefaultCommand{
 			return result
 		}
 
-		name := strings.ReplaceAll(*ctx.Text, "!", "")
+		name := strings.ToLower(strings.ReplaceAll(*ctx.Text, "!", ""))
 
 		var cmd *model.ChannelsCommands = nil
 		err := ctx.Services.Db.Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, name).

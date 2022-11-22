@@ -39,8 +39,8 @@ var RemoveAliaseCommand = types.DefaultCommand{
 			return result
 		}
 
-		commandName := strings.ReplaceAll(args[0], "!", "")
-		aliase := strings.ReplaceAll(strings.Join(args[1:], " "), "!", "")
+		commandName := strings.ToLower(strings.ReplaceAll(args[0], "!", ""))
+		aliase := strings.ToLower(strings.ReplaceAll(strings.Join(args[1:], " "), "!", ""))
 
 		cmd := model.ChannelsCommands{}
 		err := ctx.Services.Db.

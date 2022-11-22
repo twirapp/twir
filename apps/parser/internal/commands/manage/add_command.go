@@ -49,7 +49,7 @@ var AddCommand = types.DefaultCommand{
 			return result
 		}
 
-		name := strings.ReplaceAll(args[0], "!", "")
+		name := strings.ToLower(strings.ReplaceAll(args[0], "!", ""))
 		text := strings.Join(args[1:], " ")
 
 		if len(name) > 20 {
