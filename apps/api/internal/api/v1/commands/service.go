@@ -2,6 +2,7 @@ package commands
 
 import (
 	"net/http"
+	"strings"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
@@ -23,6 +24,11 @@ func handlePost(
 	services types.Services,
 	dto *commandDto,
 ) (*model.ChannelsCommands, error) {
+	dto.Name = strings.ToLower(dto.Name)
+	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
+		return strings.ToLower(a)
+	})
+
 	isExists := isCommandWithThatNameExists(services.DB, channelId, dto.Name, dto.Aliases, nil)
 	if isExists {
 		return nil, fiber.NewError(400, "command with that name already exists")
@@ -76,6 +82,11 @@ func handleUpdate(
 	dto *commandDto,
 	services types.Services,
 ) (*model.ChannelsCommands, error) {
+	dto.Name = strings.ToLower(dto.Name)
+	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
+		return strings.ToLower(a)
+	})
+
 	command, err := getChannelCommand(services.DB, channelId, commandId)
 	if err != nil || command == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "command not found")
