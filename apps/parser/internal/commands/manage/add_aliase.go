@@ -40,8 +40,8 @@ var AddAliaseCommand = types.DefaultCommand{
 			return result
 		}
 
-		commandName := strings.ReplaceAll(args[0], "!", "")
-		aliase := strings.ReplaceAll(strings.Join(args[1:], " "), "!", "")
+		commandName := strings.ToLower(strings.ReplaceAll(args[0], "!", ""))
+		aliase := strings.ToLower(strings.ReplaceAll(strings.Join(args[1:], " "), "!", ""))
 
 		existedCommands := []model.ChannelsCommands{}
 		err := ctx.Services.Db.Where(`"channelId" = ?`, ctx.ChannelId).Select(`"channelId"`, "name", "aliases").Find(&existedCommands).Error
