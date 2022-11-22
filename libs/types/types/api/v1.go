@@ -6,6 +6,10 @@ type Modules struct {
 	YouTube modules.YouTube
 }
 
-type V1 struct {
+type Channels struct {
 	MODULES Modules
+}
+
+type V1 struct {
+	CHANNELS Channels
 }

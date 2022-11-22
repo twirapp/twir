@@ -247,7 +247,7 @@ function closeModal() {
   isModalOpen.value = false;
 }
 
-const { values, validate, setValues, meta } = useForm<Required<V1['MODULES']['YouTube']['POST']>>({
+const { values, validate, setValues, meta } = useForm<Required<V1['CHANNELS']['MODULES']['YouTube']['POST']>>({
   validationSchema: schema,
   keepValuesOnUnmount: true,
 });
@@ -279,7 +279,7 @@ async function openModal() {
   if (!isDataFetched.value) {
     isSettingsFetching.value = true;
     try {
-      const response = await api.get<V1['MODULES']['YouTube']['GET']>(
+      const response = await api.get<V1['CHANNELS']['MODULES']['YouTube']['GET']>(
         `/v1/channels/${selectedDashboardStore.get().channelId}/modules/youtube-sr`,
       );
       setValues(response.data);
