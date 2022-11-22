@@ -45,6 +45,13 @@ var Command = types.DefaultCommand{
 		}
 
 		message := strings.Join(params[1:], " ")
+
+		validateErr := validateResponseSlashes(message)
+		if validateErr != nil {
+			result.Result = append(result.Result, validateErr.Error())
+			return result
+		}
+
 		for i := 0; i < count; i++ {
 			result.Result = append(result.Result, message)
 		}
