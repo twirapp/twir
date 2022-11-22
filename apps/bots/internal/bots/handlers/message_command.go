@@ -58,13 +58,20 @@ func (c *Handlers) handleCommand(nats *nats.Conn, msg irc.PrivateMessage, userBa
 		}
 	} else {
 		for _, r := range responseStruct.Responses {
-			c.BotClient.SayWithRateLimiting(
-				msg.Channel,
-				r,
-				lo.If(responseStruct.IsReply, lo.ToPtr(msg.ID)).Else(nil),
-			)
+			validateResposeErr := ValidateResponseSlashes(r)
+			if validateResposeErr != nil {
+				c.BotClient.SayWithRateLimiting(
+					msg.Channel,
+					validateResposeErr.Error(),
+					nil,
+				)
+			} else {
+				c.BotClient.SayWithRateLimiting(
+					msg.Channel,
+					r,
+					lo.If(responseStruct.IsReply, &msg.ID).Else(nil),
+				)
+			}
 		}
 	}
-
-	return
 }

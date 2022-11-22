@@ -82,5 +82,8 @@
   },
   "[jsonc]": {
     "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
   }
 }

@@ -108,11 +108,20 @@ func (c *Handlers) handleKeywords(
 			}
 
 			for _, r := range responseStruct.Responses {
-				c.BotClient.SayWithRateLimiting(
-					msg.Channel,
-					r,
-					lo.If(k.IsReply, &msg.ID).Else(nil),
-				)
+				validateResposeErr := ValidateResponseSlashes(r)
+				if validateResposeErr != nil {
+					c.BotClient.SayWithRateLimiting(
+						msg.Channel,
+						validateResposeErr.Error(),
+						nil,
+					)
+				} else {
+					c.BotClient.SayWithRateLimiting(
+						msg.Channel,
+						r,
+						lo.If(k.IsReply, &msg.ID).Else(nil),
+					)
+				}
 			}
 
 			db.Model(&k).Where("id = ?", k.ID).Select("*").Updates(map[string]any{
