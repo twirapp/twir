@@ -23,7 +23,7 @@ func (c *Handlers) handleGreetings(
 			msg.RoomID,
 			msg.User.ID,
 			false,
-			false,
+			true,
 		).
 		First(&entity).
 		Error

@@ -34,7 +34,10 @@ func (c *NatsHandlers) StreamOnline(m *nats.Msg) {
 		return
 	}
 
-	c.db.Model(&model.ChannelsGreetings{}).
+	err := c.db.Model(&model.ChannelsGreetings{}).
 		Where(`"channelId" = ?`, channel.ID).
-		Update("processed", false)
+		Update("processed", false).Error
+	if err != nil {
+		c.logger.Sugar().Error(err)
+	}
 }
