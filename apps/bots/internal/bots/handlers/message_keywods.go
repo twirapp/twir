@@ -9,21 +9,17 @@ import (
 
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/golang/protobuf/proto"
-	"github.com/nats-io/nats.go"
 	"github.com/samber/lo"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/nats/parser"
-	"gorm.io/gorm"
 )
 
 func (c *Handlers) handleKeywords(
-	nats *nats.Conn,
-	db *gorm.DB,
 	msg irc.PrivateMessage,
 	userBadges []string,
 ) {
 	keywords := []model.ChannelsKeywords{}
-	err := db.Where(`"channelId" = ? AND "enabled" = ?`, msg.RoomID, true).Find(&keywords).Error
+	err := c.db.Where(`"channelId" = ? AND "enabled" = ?`, msg.RoomID, true).Find(&keywords).Error
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -95,7 +91,7 @@ func (c *Handlers) handleKeywords(
 				return
 			}
 
-			req, err := nats.Request("parser.parseTextResponse", bytes, 5*time.Second)
+			req, err := c.nats.Request("parser.parseTextResponse", bytes, 5*time.Second)
 			if err != nil {
 				fmt.Println(err)
 				return
@@ -124,7 +120,7 @@ func (c *Handlers) handleKeywords(
 				}
 			}
 
-			db.Model(&k).Where("id = ?", k.ID).Select("*").Updates(map[string]any{
+			c.db.Model(&k).Where("id = ?", k.ID).Select("*").Updates(map[string]any{
 				"cooldownExpireAt": time.Now().Add(time.Duration(k.Cooldown.Int64) * time.Second),
 			})
 		}(k)

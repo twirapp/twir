@@ -39,6 +39,10 @@ export const router = createRouter({
       component: () => import('../dashboard/Keywords.vue'),
     },
     {
+      path: '/dashboard/wordscounters',
+      component: () => import('../dashboard/WordsCounters.vue'),
+    },
+    {
       path: '/dashboard/variables',
       component: () => import('../dashboard/Variables.vue'),
     },

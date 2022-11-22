@@ -1,4 +1,3 @@
-/* eslint-disable import/no-cycle */
 import {
   Column,
   Entity,
@@ -7,7 +6,7 @@ import {
   OneToMany,
   OneToOne,
   PrimaryColumn,
-  type Relation,
+  type Relation
 } from 'typeorm';
 
 import { type Bot } from './Bot.js';
@@ -23,6 +22,7 @@ import { type ChannelModerationSetting } from './ChannelModerationSetting.js';
 import { type ChannelPermit } from './ChannelPermit.js';
 import { type ChannelStream } from './ChannelStream.js';
 import { type ChannelTimer } from './ChannelTimer.js';
+import { type ChannelWordCounter } from './ChannelWordCouner.js';
 import { type DashboardAccess } from './DashboardAccess.js';
 import { type User } from './User.js';
 import { type UserOnline } from './UserOnline.js';
@@ -100,4 +100,7 @@ export class Channel {
 
   @OneToMany('ChannelChatMessage', 'channel')
   messages?: Relation<ChannelChatMessage[]>;
+
+  @OneToMany('ChannelWordCounter', 'channel')
+  wordsCounters: Relation<ChannelWordCounter>;
 }

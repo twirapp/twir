@@ -6,7 +6,6 @@ import (
 
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/golang/protobuf/proto"
-	"github.com/nats-io/nats.go"
 	"github.com/samber/lo"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/nats/parser"
@@ -14,13 +13,11 @@ import (
 )
 
 func (c *Handlers) handleGreetings(
-	nats *nats.Conn,
-	db *gorm.DB,
 	msg irc.PrivateMessage,
 	userBadges []string,
 ) {
 	entity := model.ChannelsGreetings{}
-	err := db.
+	err := c.db.
 		Where(
 			`"channelId" = ? AND "userId" = ? AND "processed" = ? AND "enabled" = ?`,
 			msg.RoomID,
@@ -65,7 +62,7 @@ func (c *Handlers) handleGreetings(
 	}
 
 	responseStruct := parser.ParseResponseResponse{}
-	res, err := nats.Request("parser.parseTextResponse", bytes, 5*time.Second)
+	res, err := c.nats.Request("parser.parseTextResponse", bytes, 5*time.Second)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -78,22 +75,22 @@ func (c *Handlers) handleGreetings(
 
 	for _, r := range responseStruct.Responses {
 		validateResposeErr := ValidateResponseSlashes(r)
-			if validateResposeErr != nil {
-				c.BotClient.SayWithRateLimiting(
-					msg.Channel,
-					validateResposeErr.Error(),
-					nil,
-				)
-			} else {
-				c.BotClient.SayWithRateLimiting(
-					msg.Channel,
-					r,
-					lo.If(entity.IsReply, &msg.ID).Else(nil),
-				)
-			}
+		if validateResposeErr != nil {
+			c.BotClient.SayWithRateLimiting(
+				msg.Channel,
+				validateResposeErr.Error(),
+				nil,
+			)
+		} else {
+			c.BotClient.SayWithRateLimiting(
+				msg.Channel,
+				r,
+				lo.If(entity.IsReply, &msg.ID).Else(nil),
+			)
+		}
 	}
 
-	db.Model(&entity).Where("id = ?", entity.ID).Select("*").Updates(map[string]any{
+	c.db.Model(&entity).Where("id = ?", entity.ID).Select("*").Updates(map[string]any{
 		"processed": true,
 	})
 }

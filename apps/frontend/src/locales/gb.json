@@ -18,6 +18,9 @@
     "offline": "Stream Offline"
   },
   "pages": {
+    "wordscounters": {
+      "sidebarName": "Words Counters"
+    },
     "commands": {
       "card": {
         "aliases": {

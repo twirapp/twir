@@ -139,8 +139,15 @@ func main() {
 		parserproto.SUBJECTS_GET_BUILTIT_VARIABLES,
 		"parser",
 		func(m *nats.Msg) {
+			filteredVars := lo.Filter(variablesService.Store, func(i types.Variable, _i int) bool {
+				if i.Visible != nil {
+					return *i.Visible
+				}
+				return true
+			})
+
 			vars := lo.Map(
-				variablesService.Store,
+				filteredVars,
 				func(v types.Variable, _ int) *parserproto.Variable {
 					desc := v.Name
 					if v.Description != nil {

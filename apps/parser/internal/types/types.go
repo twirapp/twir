@@ -31,6 +31,7 @@ type (
 		Description  *string
 		Example      *string
 		CommandsOnly *bool
+		Visible      *bool
 	}
 )
 

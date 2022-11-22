@@ -18,6 +18,9 @@
     "offline": "Стрим оффлайн"
   },
   "pages": {
+    "wordscounters": {
+      "sidebarName": "Счётчики слов"
+    },
     "commands": {
       "card": {
         "aliases": {

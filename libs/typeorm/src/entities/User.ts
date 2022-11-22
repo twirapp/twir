@@ -7,7 +7,7 @@ import {
   OneToMany,
   OneToOne,
   PrimaryColumn,
-  type Relation,
+  type Relation
 } from 'typeorm';
 
 import { type Channel } from './Channel.js';
@@ -55,7 +55,7 @@ export class User {
   @Column('text', { name: 'tokenId', nullable: true })
   tokenId: string | null;
 
-  @Column('uuid', { default: () => 'gen_random_uuid()' })
+  @Column('uuid', { generated: 'uuid' })
   apiKey: string;
 
   @OneToMany('UserFile', 'user')

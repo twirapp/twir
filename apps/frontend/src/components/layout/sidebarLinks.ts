@@ -60,6 +60,11 @@ export const publicRoutes = [
     path: '/dashboard/keywords',
   },
   {
+    name: 'wordscounters',
+    icon: Keywords,
+    path: '/dashboard/wordscounters',
+  },
+  {
     name: 'variables',
     icon: Variables,
     path: '/dashboard/variables',

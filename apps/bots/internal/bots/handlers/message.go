@@ -20,11 +20,12 @@ func (c *Handlers) OnPrivateMessage(msg irc.PrivateMessage) {
 			msg.Message = strings.Join(splittedMsg[1:], " ")
 		}
 
-		go c.handleCommand(c.nats, msg, userBadges)
+		go c.handleCommand(msg, userBadges)
 	}
 
-	go c.handleGreetings(c.nats, c.db, msg, userBadges)
-	go c.handleKeywords(c.nats, c.db, msg, userBadges)
+	go c.handleGreetings(msg, userBadges)
+	go c.handleKeywords(msg, userBadges)
+	go c.handleWordsCounter(msg)
 
 	go func() {
 		messages.IncrementUserMessages(c.db, msg.User.ID, msg.RoomID)

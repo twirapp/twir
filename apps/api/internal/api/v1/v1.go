@@ -20,6 +20,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/streams"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/timers"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/variables"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/words_counters"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
@@ -41,6 +42,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	streams.Setup(channelsGroup, services)
 	variables.Setup(channelsGroup, services)
 	settings.Setup(channelsGroup, services)
+	words_counters.Setup(channelsGroup, services)
 
 	integrationsGroup := channelsGroup.Group("integrations")
 	donationalerts.Setup(integrationsGroup, services)

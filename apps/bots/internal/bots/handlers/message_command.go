@@ -6,12 +6,11 @@ import (
 
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/golang/protobuf/proto"
-	"github.com/nats-io/nats.go"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/libs/nats/parser"
 )
 
-func (c *Handlers) handleCommand(nats *nats.Conn, msg irc.PrivateMessage, userBadges []string) {
+func (c *Handlers) handleCommand(msg irc.PrivateMessage, userBadges []string) {
 	requestStruct := parser.Request{
 		Sender: &parser.Sender{
 			Id:          msg.User.ID,
@@ -34,7 +33,7 @@ func (c *Handlers) handleCommand(nats *nats.Conn, msg irc.PrivateMessage, userBa
 		return
 	}
 
-	res, err := nats.Request("parser.handleProcessCommand", bytes, 5*time.Second)
+	res, err := c.nats.Request("parser.handleProcessCommand", bytes, 5*time.Second)
 	if err != nil {
 		fmt.Println("Parser not answered on request commands.")
 		fmt.Printf("%+v\n", &requestStruct)

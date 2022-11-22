@@ -31,6 +31,7 @@ import (
 	userage "github.com/satont/tsuwari/apps/parser/internal/variables/user/age"
 	userfollowage "github.com/satont/tsuwari/apps/parser/internal/variables/user/followage"
 	usermessages "github.com/satont/tsuwari/apps/parser/internal/variables/user/messages"
+	words "github.com/satont/tsuwari/apps/parser/internal/variables/words"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
@@ -72,6 +73,7 @@ func New() Variables {
 		command_counter.CommandVariable,
 		command_counter.UserVariable,
 		command_counter.CommandVariableFromOther,
+		words.Counter,
 	}
 
 	ctx := Variables{

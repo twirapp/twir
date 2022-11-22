@@ -37,6 +37,7 @@ message Variable {
   string name = 1;
   string example = 2;
   string description = 3;
+  optional bool visible = 4;
 }
 
 message GetVariablesResponse {
