@@ -1,10 +1,12 @@
 package manage
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"gorm.io/gorm"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
@@ -13,10 +15,10 @@ import (
 	"github.com/samber/lo"
 )
 
-var EditCommand = types.DefaultCommand{
+var AddAliaseCommand = types.DefaultCommand{
 	Command: types.Command{
-		Name:        "commands edit",
-		Description: lo.ToPtr("Edit command response"),
+		Name:        "commands aliases add",
+		Description: lo.ToPtr("Add aliase to command"),
 		Permission:  "MODERATOR",
 		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
@@ -39,12 +41,34 @@ var EditCommand = types.DefaultCommand{
 			return result
 		}
 
-		name := strings.ReplaceAll(args[0], "!", "")
-		text := strings.Join(args[1:], " ")
+		commandName := strings.ReplaceAll(args[0], "!", "")
+		aliase := strings.ReplaceAll(args[1], "!", "")
+
+		var existedCommandCount int64
+		fmt.Println(ctx.Services.Db.ToSQL(func(tx *gorm.DB) *gorm.DB {
+			return tx.
+				Model(&model.ChannelsCommands{}).
+				Where(`"channelId" = ? AND "aliases" @> ?`, ctx.ChannelId, []string{aliase}).
+				Count(&existedCommandCount)
+		}))
+		err := ctx.Services.Db.
+			Model(&model.ChannelsCommands{}).
+			Where(`"channelId" = ? AND "aliases" @> ?`, ctx.ChannelId, []string{aliase}).
+			Count(&existedCommandCount).Error
+		if err != nil {
+			fmt.Println("cannot get count", err)
+			result.Result = append(result.Result, "internal error")
+			return result
+		}
+
+		if existedCommandCount > 0 {
+			result.Result = append(result.Result, "command with that aliase already exists")
+			return result
+		}
 
 		cmd := model.ChannelsCommands{}
-		err := ctx.Services.Db.
-			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, name).
+		err = ctx.Services.Db.
+			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, commandName).
 			Preload(`Responses`).
 			First(&cmd).Error
 
@@ -59,29 +83,21 @@ var EditCommand = types.DefaultCommand{
 			return result
 		}
 
-		if cmd.Responses != nil && len(cmd.Responses) > 1 {
-			result.Result = append(
-				result.Result,
-				"Cannot update response because you have more then 1 responses in command. Please use UI.",
-			)
-			return result
-		}
+		cmd.Aliases = append(cmd.Aliases, aliase)
 
 		err = ctx.Services.Db.
-			Model(&model.ChannelsCommandsResponses{}).
-			Where(`"commandId" = ?`, cmd.ID).
-			Update(`text`, text).Error
+			Save(&cmd).Error
 
 		if err != nil {
 			log.Fatalln(err)
 			result.Result = append(
 				result.Result,
-				"Cannot update command response. This is internal bug, please report it.",
+				"Cannot update command aliases. This is internal bug, please report it.",
 			)
 			return result
 		}
 
-		result.Result = append(result.Result, "✅ Command edited.")
+		result.Result = append(result.Result, "✅ Aliase added.")
 		return result
 	},
 }
