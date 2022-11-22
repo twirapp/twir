@@ -496,7 +496,7 @@ importers:
       postcss-hexrgba: 2.1.0
       postcss-nesting: 10.2.0
       tailwindcss: 3.2.1
-      tsc-alias: 1.7.0
+      tsc-alias: 1.7.1
       typescript: 4.8.4
       vee-validate: 4.7.1
       vite: 3.2.2
@@ -532,7 +532,7 @@ importers:
       postcss-hexrgba: 2.1.0_postcss@8.4.18
       postcss-nesting: 10.2.0_postcss@8.4.18
       tailwindcss: 3.2.1_postcss@8.4.18
-      tsc-alias: 1.7.0
+      tsc-alias: 1.7.1
       typescript: 4.8.4
       vee-validate: 4.7.1_vue@3.2.41
       vite: 3.2.2
@@ -15340,8 +15340,8 @@ packages:
       typescript: 4.8.4
     dev: true
 
-  /tsc-alias/1.7.0:
-    resolution: {integrity: sha512-n/K6g8S7Ec7Y/A2Z77Ikp2Uv1S1ERtT63ni69XV4W1YPT4rnNmz8ItgIiJYvKfFnKfqcZQ81UPjoKpMTxaC/rg==}
+  /tsc-alias/1.7.1:
+    resolution: {integrity: sha512-P4+0i+OB0hX17Ca+U6EJ4WZZ+OSupqW32VJ34N7g7+Ch+bwSx1AqYOvDdIVYEKymBh3dfG0t1qxbxPlBbtB1lQ==}
     hasBin: true
     dependencies:
       chokidar: 3.5.3
