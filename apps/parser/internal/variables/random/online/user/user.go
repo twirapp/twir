@@ -41,7 +41,7 @@ var Variable = types.Variable{
 
 		randomUser := &model.UsersOnline{}
 		err = ctx.Services.Db.
-			Model(&model.UsersOnline{}).
+			Where(`"channelId" = ? `, ctx.ChannelId).
 			Offset(randCount).
 			First(randomUser).Error
 
