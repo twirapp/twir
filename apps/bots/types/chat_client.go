@@ -1,7 +1,6 @@
 package types
 
 import (
-	"context"
 	"strings"
 	"sync"
 
@@ -13,9 +12,14 @@ import (
 	irc "github.com/gempir/go-twitch-irc/v3"
 )
 
+type Channel struct {
+	IsMod   bool
+	Limiter ratelimiting.SlidingWindow
+}
+
 type ChannelsMap struct {
 	sync.Mutex
-	Items map[string]ratelimiting.SlidingWindow
+	Items map[string]*Channel
 }
 
 type RateLimiters struct {
@@ -38,9 +42,21 @@ func (c *BotClient) SayWithRateLimiting(channel, text string, replyTo *string) {
 		return
 	}
 
-	ctx := context.Background()
+	if !c.RateLimiters.Global.TryTake() {
+		return
+	}
 
-	c.RateLimiters.Global.WaitFunc(ctx, func() {
+	// it should be separately
+	if !channelLimiter.Limiter.TryTake() {
+		return
+	}
+
+	if replyTo != nil {
+		c.Reply(channel, *replyTo, text)
+	} else {
+		c.Say(channel, text)
+	}
+	/* c.RateLimiters.Global.WaitFunc(ctx, func() {
 		channelLimiter.WaitFunc(ctx, func() {
 			if replyTo != nil {
 				c.Reply(channel, *replyTo, text)
@@ -48,5 +64,5 @@ func (c *BotClient) SayWithRateLimiting(channel, text string, replyTo *string) {
 				c.Say(channel, text)
 			}
 		})
-	})
+	}) */
 }

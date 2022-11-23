@@ -10,8 +10,26 @@ import (
 func (c *Handlers) OnUserStateMessage(msg irc.UserStateMessage) {
 	badge, botModBadge := msg.User.Badges["moderator"]
 	if botModBadge {
+		channel := c.BotClient.RateLimiters.Channels.Items[msg.Channel]
+
+		c.BotClient.RateLimiters.Channels.Lock()
+		defer c.BotClient.RateLimiters.Channels.Unlock()
+
+		isMod := badge == 1
+
+		if channel.IsMod && isMod {
+			return
+		}
+
+		if !channel.IsMod && !isMod {
+			return
+		}
+
+		channel.IsMod = isMod
+
 		var limiter ratelimiting.SlidingWindow
-		if badge == 1 {
+
+		if isMod {
 			l, _ := ratelimiting.NewSlidingWindow(20, 30*time.Second)
 			limiter = l
 		} else {
@@ -19,8 +37,6 @@ func (c *Handlers) OnUserStateMessage(msg irc.UserStateMessage) {
 			limiter = l
 		}
 
-		c.BotClient.RateLimiters.Channels.Lock()
-		c.BotClient.RateLimiters.Channels.Items[msg.Channel] = limiter
-		c.BotClient.RateLimiters.Channels.Unlock()
+		c.BotClient.RateLimiters.Channels.Items[msg.Channel].Limiter = limiter
 	}
 }

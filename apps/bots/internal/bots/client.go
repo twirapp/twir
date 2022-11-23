@@ -126,7 +126,7 @@ func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *t
 	})
 
 	botClient.RateLimiters.Channels = types.ChannelsMap{
-		Items: make(map[string]ratelimiting.SlidingWindow),
+		Items: make(map[string]*types.Channel),
 	}
 
 	twitchUsers := []helix.User{}
@@ -212,7 +212,10 @@ func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *t
 			}
 
 			botClient.RateLimiters.Channels.Lock()
-			botClient.RateLimiters.Channels.Items[u.Login] = limiter
+			botClient.RateLimiters.Channels.Items[u.Login] = &types.Channel{
+				IsMod:   isMod,
+				Limiter: limiter,
+			}
 			botClient.RateLimiters.Channels.Unlock()
 
 			botClient.Join(u.Login)
