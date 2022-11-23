@@ -28,22 +28,21 @@ const messages: ILandingLocale = {
         {
           name: 'Команды',
           description:
-            'Facilisi eget laoreet quam fringilla pulvinar diam. Risus massa ut pellentesque mi. Facilisi lobortis erat nibh diam nunc nunc. Sit natoque risus, ut malesuada',
+            'Мощная система команд с алиасами, счётчиками, всевозможными переменными на все случаи жизни.',
         },
         {
           name: 'Модерация',
           description:
-            'Facilisi eget laoreet quam fringilla pulvinar diam. Risus massa ut pellentesque mi. Facilisi lobortis erat nibh diam nunc nunc. Sit natoque risus, ut malesuada',
+            'Не хватает помощников, чтобы модерировать чат? Не беда. В нашей системе вы найдёте всё что вам нужно, включая быстрое удаление сообщений через nuke',
         },
         {
           name: 'Таймеры',
           description:
-            'Facilisi eget laoreet quam fringilla pulvinar diam. Risus massa ut pellentesque mi. Facilisi lobortis erat nibh diam nunc nunc. Sit natoque risus, ut malesuada',
+            'Простая система, но с воодушевлением стала популярной системой анонсов от Twitch',
         },
         {
           name: 'Приветствия',
-          description:
-            'Facilisi eget laoreet quam fringilla pulvinar diam. Risus massa ut pellentesque mi. Facilisi lobortis erat nibh diam nunc nunc. Sit natoque risus, ut malesuada',
+          description: 'Хотите как-то выделить ваших любимчиков? Добавьте приветствие!',
         },
       ],
     },
@@ -117,11 +116,10 @@ const messages: ILandingLocale = {
     team: {
       title: 'Наша команда',
       description:
-        'Sed eget leo adipiscing lectus nunc laoreet. Scelerisque est justo, pellentesque ut eu sit in. Suspendisse venenatis, odio dui a. Vivamus in fames augue blandit ut non sagittis, sagittis, pretium. Mollis rhoncus, pretium, morbi',
+        'Backend часть была полностью написана Satont, ранние версии сайта тоже. Позже к нам присоединился Melkam и нарисовал новый, великолепный дизайн, и воплотил наши задумки в жизнь.',
       founder: 'Основатель',
       members: {
         [TeamMemberId.Satont]: 'Backend разработчик',
-        [TeamMemberId.LwGerry]: 'Backend разработчик',
         [TeamMemberId.Melkam]: 'UI-UX дизайнер Frontend разработчик',
       },
     },

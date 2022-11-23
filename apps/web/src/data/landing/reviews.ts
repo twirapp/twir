@@ -1,4 +1,4 @@
-import TextAvatarUrl from '@/assets/avatar.png';
+// import TextAvatarUrl from '@/assets/avatar.png';
 
 export interface Review {
   id: number;
@@ -11,50 +11,10 @@ export interface Review {
 export const reviews: Review[] = [
   {
     id: 1,
-    username: 'random_usergsdagdsagsadgsda',
-    comment:
-      'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
-    avatarUrl: TextAvatarUrl,
-    rating: 4,
-  },
-  {
-    id: 2,
-    username: 'random_user',
-    comment:
-      'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
-    avatarUrl: TextAvatarUrl,
-    rating: 4,
-  },
-  {
-    id: 3,
-    username: 'random_user',
-    comment:
-      'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
-    avatarUrl: TextAvatarUrl,
-    rating: 2,
-  },
-  {
-    id: 4,
-    username: 'random_user',
-    comment:
-      'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
-    avatarUrl: TextAvatarUrl,
-    rating: 1,
-  },
-  {
-    id: 5,
-    username: 'random_user',
-    comment:
-      'Lorem luctus tincidunt elementum dolor. Id morbi tortor mauris, viverra eu quis et id egestas.',
-    avatarUrl: TextAvatarUrl,
-    rating: 4,
-  },
-  {
-    id: 6,
-    username: 'random_user',
-    comment:
-      'Praesent dolor quis aliquam nulla id in orci. Mi sit pulvinar nunc blandit egestas cras. Sed habitant amet ultrices vitae. At volutpat enim vel quam dignissim ut justo.',
-    avatarUrl: TextAvatarUrl,
-    rating: 4,
+    username: '7ssk7',
+    comment: `I've been using the bot for a few years now, and I'm happy with it. There are convenient integrations with Volaroant, Spotify. It's easy to add and remove commands from the chat. I am pleased with its stability and functionality.`,
+    avatarUrl:
+      'https://static-cdn.jtvnw.net/jtv_user_pictures/66cb7060-1a8a-4fca-9ccd-f760b70af636-profile_image-70x70.png',
+    rating: 5,
   },
 ];

@@ -27,22 +27,20 @@ const messages: ILandingLocale = {
         {
           name: 'Commands',
           description:
-            'Facilisi eget laoreet quam fringilla pulvinar diam. Risus massa ut pellentesque mi. Facilisi lobortis erat nibh diam nunc nunc. Sit natoque risus, ut malesuada',
+            'A powerful command system with aliases, counters, and all sorts of variables for all occasions',
         },
         {
           name: 'Moderation',
-          description:
-            'Facilisi eget laoreet quam fringilla pulvinar diam. Risus massa ut pellentesque mi. Facilisi lobortis erat nibh diam nunc nunc. Sit natoque risus, ut malesuada',
+          description: `Not enough helpers to moderate the chat room? No problem. You'll find everything you need in our system, including quick nuke message deletion`,
         },
         {
           name: 'Timers',
           description:
-            'Facilisi eget laoreet quam fringilla pulvinar diam. Risus massa ut pellentesque mi. Facilisi lobortis erat nibh diam nunc nunc. Sit natoque risus, ut malesuada',
+            'A simple system, but with verve, has become a popular announcement system from Twitch',
         },
         {
           name: 'Greatings',
-          description:
-            'Facilisi eget laoreet quam fringilla pulvinar diam. Risus massa ut pellentesque mi. Facilisi lobortis erat nibh diam nunc nunc. Sit natoque risus, ut malesuada',
+          description: 'Do you want to somehow highlight your favorite viewers? Add a greeting!',
         },
       ],
     },
@@ -116,11 +114,10 @@ const messages: ILandingLocale = {
     team: {
       title: 'Our team',
       description:
-        'Sed eget leo adipiscing lectus nunc laoreet. Scelerisque est justo, pellentesque ut eu sit in. Suspendisse venenatis, odio dui a. Vivamus in fames augue blandit ut non sagittis, sagittis, pretium. Mollis rhoncus, pretium, morbi',
+        'The backend part was written entirely by Satont, early versions of the site too. Later Melkam joined us and drew a new, gorgeous design, and then brought our ideas to life.',
       founder: 'Founder',
       members: {
         [TeamMemberId.Satont]: 'Backend developer',
-        [TeamMemberId.LwGerry]: 'Backend developer',
         [TeamMemberId.Melkam]: 'UI-UX Designer Frontend developer',
       },
     },

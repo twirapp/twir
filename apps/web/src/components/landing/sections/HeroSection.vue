@@ -19,7 +19,7 @@
           <TswButton
             :text="t('buttons.startForFree')"
             :isRounded="true"
-            href="#"
+            href="/login"
             size="lg"
             class="justify-center"
             variant="solid-purple"
