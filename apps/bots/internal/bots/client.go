@@ -17,6 +17,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/bots/internal/bots/handlers"
+	"github.com/satont/tsuwari/apps/bots/pkg/utils"
 	"github.com/satont/tsuwari/apps/bots/types"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -202,14 +203,7 @@ func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *t
 				}
 			}
 
-			var limiter ratelimiting.SlidingWindow
-			if isMod {
-				l, _ := ratelimiting.NewSlidingWindow(20, 30*time.Second)
-				limiter = l
-			} else {
-				l, _ := ratelimiting.NewSlidingWindow(1, 2*time.Second)
-				limiter = l
-			}
+			limiter := utils.CreateBotLimiter(isMod)
 
 			botClient.RateLimiters.Channels.Lock()
 			botClient.RateLimiters.Channels.Items[u.Login] = &types.Channel{

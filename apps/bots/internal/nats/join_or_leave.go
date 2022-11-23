@@ -1,11 +1,9 @@
 package nats_handlers
 
 import (
-	"time"
-
-	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	"github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
+	"github.com/satont/tsuwari/apps/bots/pkg/utils"
 	"github.com/satont/tsuwari/apps/bots/types"
 	"github.com/satont/tsuwari/libs/nats/bots"
 )
@@ -30,9 +28,9 @@ func (c *NatsHandlers) JoinOrLeave(m *nats.Msg) {
 		if rateLimitedChannel == nil {
 			bot.RateLimiters.Channels.Lock()
 			defer bot.RateLimiters.Channels.Unlock()
-			l, _ := ratelimiting.NewSlidingWindow(2, 30*time.Second)
+			limiter := utils.CreateBotLimiter(false)
 			bot.RateLimiters.Channels.Items[data.UserName] = &types.Channel{
-				Limiter: l,
+				Limiter: limiter,
 			}
 		}
 		bot.Join(data.UserName)
