@@ -17,4 +17,12 @@ export const reviews: Review[] = [
       'https://static-cdn.jtvnw.net/jtv_user_pictures/66cb7060-1a8a-4fca-9ccd-f760b70af636-profile_image-70x70.png',
     rating: 5,
   },
+  {
+    id: 2,
+    username: 'qrushcsgo',
+    comment: `Good, handy bot for streaming. Easy to set all the settings and everything works clearly. Recommended 👍`,
+    avatarUrl:
+      'https://static-cdn.jtvnw.net/jtv_user_pictures/a477bccc-9b23-44d7-a379-fe64f67898c3-profile_image-70x70.png',
+    rating: 5,
+  },
 ];
