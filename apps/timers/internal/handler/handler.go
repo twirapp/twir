@@ -42,7 +42,7 @@ func (c *Handler) Handle(j gocron.Job) {
 	streamData := model.ChannelsStreams{}
 
 	err := c.db.Where(`"userId" = ?`, t.Model.ChannelID).First(&streamData).Error
-	if err != nil {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		c.logger.Sugar().Error(err)
 		return
 	}
