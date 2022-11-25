@@ -47,6 +47,11 @@ var CheckAliasesCommand = types.DefaultCommand{
 			return result
 		}
 
+		if len(cmd.Aliases) == 0 {
+			result.Result = append(result.Result, "command have no aliases")
+			return result
+		}
+
 		result.Result = append(result.Result, strings.Join(cmd.Aliases, ", "))
 		return result
 	},
