@@ -25,7 +25,6 @@ func (c *Handlers) OnPrivateMessage(msg irc.PrivateMessage) {
 
 	go c.handleGreetings(msg, userBadges)
 	go c.handleKeywords(msg, userBadges)
-	go c.handleWordsCounter(msg)
 
 	go func() {
 		messages.IncrementUserMessages(c.db, msg.User.ID, msg.RoomID)

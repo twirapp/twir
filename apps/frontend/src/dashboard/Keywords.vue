@@ -29,6 +29,7 @@ function insert() {
       edit: true,
       isReply: false,
       isRegular: false,
+      usages: 0,
     },
     ...keywords.value,
   ];
@@ -63,8 +64,26 @@ function cancelEdit(keyword: Ref<KeywordType>) {
     <div class="flow-root">
       <div class="btn btn-primary btn-sm float-left mb-5 md:w-auto rounded w-full">
         <button
-          class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-purple-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
-          @click="insert">
+          class="
+            bg-purple-600
+            duration-150
+            ease-in-out
+            focus:outline-none
+            focus:ring-0
+            font-medium
+            hover:bg-purple-700
+            inline-block
+            leading-tight
+            px-6
+            py-2.5
+            rounded
+            shadow
+            text-white text-xs
+            transition
+            uppercase
+          "
+          @click="insert"
+        >
           {{ t('buttons.addNew') }}
         </button>
       </div>
@@ -78,7 +97,8 @@ function cancelEdit(keyword: Ref<KeywordType>) {
             :keywords="keywords"
             :keywords-before-edit="keywordsBeforeEdit"
             @delete="deletekeyword"
-            @cancel-edit="cancelEdit" />
+            @cancel-edit="cancelEdit"
+          />
         </div>
       </template>
     </masonry-wall>

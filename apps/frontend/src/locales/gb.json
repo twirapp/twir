@@ -18,9 +18,6 @@
     "offline": "Stream Offline"
   },
   "pages": {
-    "wordscounters": {
-      "sidebarName": "Words Counters"
-    },
     "commands": {
       "card": {
         "aliases": {
@@ -146,7 +143,10 @@
         },
         "response": {
           "placeholder": "This response will be sended in chat",
-          "title": "Response"
+          "title": "Response (not required)"
+        },
+        "usages": {
+          "title": "Использований"
         },
         "status": {
           "title": "Keywords status"

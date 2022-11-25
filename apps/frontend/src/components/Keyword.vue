@@ -8,21 +8,23 @@ import { KeywordType } from '@/dashboard/Keywords.vue';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
-const props = defineProps<{
-  keyword: KeywordType;
-  keywords: KeywordType[];
-  keywordsBeforeEdit: KeywordType[];
-}>();
+const props =
+  defineProps<{
+    keyword: KeywordType;
+    keywords: KeywordType[];
+    keywordsBeforeEdit: KeywordType[];
+  }>();
 
 const keyword = toRef(props, 'keyword');
 const keywords = toRef(props, 'keywords');
 const keywordsBeforeEdit = toRef(props, 'keywordsBeforeEdit');
 const selectedDashboard = useStore(selectedDashboardStore);
 const { t } = useI18n();
-const emit = defineEmits<{
-  (e: 'delete', index: number): void;
-  (e: 'cancelEdit', keyword: Ref<KeywordType>): void;
-}>();
+const emit =
+  defineEmits<{
+    (e: 'delete', index: number): void;
+    (e: 'cancelEdit', keyword: Ref<KeywordType>): void;
+  }>();
 
 async function saveKeyword() {
   const index = keywords.value.indexOf(keyword.value);
@@ -69,7 +71,8 @@ function cancelEdit() {
         v-for="error of errors"
         :key="error"
         class="bg-red-600 mb-4 px-6 py-5 rounded text-base text-red-700"
-        role="alert">
+        role="alert"
+      >
         {{ error }}
       </div>
       <div class="flex justify-end">
@@ -79,9 +82,22 @@ function cancelEdit() {
             id="commandVisibility"
             v-model="keyword.enabled"
             :disabled="!keyword.edit"
-            class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
+            class="
+              align-top
+              appearance-none
+              bg-contain bg-gray-300 bg-no-repeat
+              cursor-pointer
+              float-left
+              focus:outline-none
+              form-check-input
+              h-5
+              rounded-full
+              shadow
+              w-9
+            "
             type="checkbox"
-            role="switch" />
+            role="switch"
+          />
         </div>
       </div>
       <div class="gap-1 grid grid-cols-1">
@@ -96,7 +112,16 @@ function cancelEdit() {
             type="text"
             :placeholder="t('pages.keywords.card.text.placeholder')"
             :disabled="!keyword.edit"
-            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full" />
+            class="
+              form-control
+              input input-bordered input-sm
+              px-3
+              py-1.5
+              rounded
+              text-gray-700
+              w-full
+            "
+          />
         </div>
 
         <div class="mt-5">
@@ -110,7 +135,16 @@ function cancelEdit() {
             type="text"
             :placeholder="t('pages.keywords.card.response.placeholder')"
             :disabled="!keyword.edit"
-            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full" />
+            class="
+              form-control
+              input input-bordered input-sm
+              px-3
+              py-1.5
+              rounded
+              text-gray-700
+              w-full
+            "
+          />
         </div>
 
         <div class="mt-5">
@@ -124,7 +158,46 @@ function cancelEdit() {
             type="number"
             :placeholder="t('pages.keywords.card.cooldown.placeholder')"
             :disabled="!keyword.edit"
-            class="form-control input input-bordered input-sm px-3 py-1.5 rounded text-gray-700 w-full" />
+            class="
+              form-control
+              input input-bordered input-sm
+              px-3
+              py-1.5
+              rounded
+              text-gray-700
+              w-full
+            "
+          />
+        </div>
+
+        <div class="mt-5">
+          <div class="label mb-1">
+            <span class="label-text">{{ t('pages.keywords.card.usages.title') }}</span>
+          </div>
+          <div
+            v-if="keyword.id"
+            class="bg-neutral-500 rounded-lg py-2 px-3 text-sm text-slate-300 mb-3"
+            role="alert"
+          >
+            You can access that counter in your commands via
+            <b>{{ `$(keywords.counter|${keyword.id})` }}</b> variable
+          </div>
+          <Field
+            v-model.number="keyword.usages"
+            name="usages"
+            as="input"
+            type="number"
+            :disabled="!keyword.edit"
+            class="
+              form-control
+              input input-bordered input-sm
+              px-3
+              py-1.5
+              rounded
+              text-gray-700
+              w-full
+            "
+          />
         </div>
 
         <div class="mt-5">
@@ -137,9 +210,22 @@ function cancelEdit() {
               <input
                 id="isReply"
                 v-model="keyword.isReply"
-                class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
+                class="
+                  align-top
+                  appearance-none
+                  bg-contain bg-gray-300 bg-no-repeat
+                  cursor-pointer
+                  float-left
+                  focus:outline-none
+                  form-check-input
+                  h-5
+                  rounded-full
+                  shadow
+                  w-9
+                "
                 type="checkbox"
-                role="switch" />
+                role="switch"
+              />
             </div>
           </div>
         </div>
@@ -154,9 +240,22 @@ function cancelEdit() {
               <input
                 id="isRegular"
                 v-model="keyword.isRegular"
-                class="align-top appearance-none bg-contain bg-gray-300 bg-no-repeat cursor-pointer float-left focus:outline-none form-check-input h-5 rounded-full shadow w-9"
+                class="
+                  align-top
+                  appearance-none
+                  bg-contain bg-gray-300 bg-no-repeat
+                  cursor-pointer
+                  float-left
+                  focus:outline-none
+                  form-check-input
+                  h-5
+                  rounded-full
+                  shadow
+                  w-9
+                "
                 type="checkbox"
-                role="switch" />
+                role="switch"
+              />
             </div>
           </div>
         </div>
@@ -167,20 +266,56 @@ function cancelEdit() {
           <button
             v-if="!keyword.edit"
             type="button"
-            class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-putple-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-xs transition uppercase"
+            class="
+              bg-purple-600
+              duration-150
+              ease-in-out
+              focus:outline-none
+              focus:ring-0
+              font-medium
+              hover:bg-putple-700
+              inline-block
+              leading-tight
+              px-6
+              py-2.5
+              rounded
+              shadow
+              text-xs
+              transition
+              uppercase
+            "
             @click="
               () => {
                 keyword.edit = true;
                 if (keyword.id) keywordsBeforeEdit?.push(JSON.parse(JSON.stringify(keyword)));
               }
-            ">
+            "
+          >
             {{ t('buttons.edit') }}
           </button>
           <button
             v-else
             type="button"
-            class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-purple-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
-            @click="cancelEdit">
+            class="
+              bg-purple-600
+              duration-150
+              ease-in-out
+              focus:outline-none
+              focus:ring-0
+              font-medium
+              hover:bg-purple-700
+              inline-block
+              leading-tight
+              px-6
+              py-2.5
+              rounded
+              shadow
+              text-white text-xs
+              transition
+              uppercase
+            "
+            @click="cancelEdit"
+          >
             {{ t('buttons.cancel') }}
           </button>
         </div>
@@ -188,13 +323,50 @@ function cancelEdit() {
           <button
             v-if="keyword.id"
             type="button"
-            class="bg-red-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-red-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
-            @click="deletekeyword">
+            class="
+              bg-red-600
+              duration-150
+              ease-in-out
+              focus:outline-none
+              focus:ring-0
+              font-medium
+              hover:bg-red-700
+              inline-block
+              leading-tight
+              px-6
+              py-2.5
+              rounded
+              shadow
+              text-white text-xs
+              transition
+              uppercase
+            "
+            @click="deletekeyword"
+          >
             {{ t('buttons.delete') }}
           </button>
           <button
             type="submit"
-            class="bg-green-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-green-700 inline-block leading-tight ml-1 px-6 py-2.5 rounded shadow text-white text-xs transition uppercase">
+            class="
+              bg-green-600
+              duration-150
+              ease-in-out
+              focus:outline-none
+              focus:ring-0
+              font-medium
+              hover:bg-green-700
+              inline-block
+              leading-tight
+              ml-1
+              px-6
+              py-2.5
+              rounded
+              shadow
+              text-white text-xs
+              transition
+              uppercase
+            "
+          >
             {{ t('buttons.save') }}
           </button>
         </div>

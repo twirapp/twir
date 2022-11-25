@@ -21,8 +21,8 @@ export class ChannelKeyword {
   @Column('text', { name: 'text' })
   text: string;
 
-  @Column('text', { name: 'response' })
-  response: string;
+  @Column('text', { name: 'response', nullable: true })
+  response?: string;
 
   @Column('boolean', { name: 'enabled', default: true })
   enabled: boolean;
@@ -48,4 +48,7 @@ export class ChannelKeyword {
 
   @Column('bool', { default: false })
   isRegular: boolean;
+
+  @Column('int4', { default: 0 })
+  usages: number;
 }

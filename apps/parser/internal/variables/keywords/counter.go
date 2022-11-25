@@ -1,4 +1,4 @@
-package words
+package keywords
 
 import (
 	"fmt"
@@ -11,8 +11,8 @@ import (
 )
 
 var Counter = types.Variable{
-	Name:         "words.counter",
-	Description:  lo.ToPtr("Mention user"),
+	Name:         "keywords.counter",
+	Description:  lo.ToPtr("Show how many times keyword was used"),
 	CommandsOnly: lo.ToPtr(true),
 	Visible:      lo.ToPtr(false),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
@@ -23,22 +23,22 @@ var Counter = types.Variable{
 			return result, nil
 		}
 
-		counter := model.ChannelWordCounter{}
+		keyword := model.ChannelsKeywords{}
 		err := ctx.Services.Db.
 			Where(`"channelId" = ? AND "id" = ?`, ctx.ChannelId, data.Params).
-			Find(&counter).Error
+			Find(&keyword).Error
 		if err != nil {
 			fmt.Println(err)
 			result.Result = "internal error"
 			return result, nil
 		}
 
-		if counter.ID == "" {
-			result.Result = "counter not found"
+		if keyword.ID == "" {
+			result.Result = "keyword not found"
 			return result, nil
 		}
 
-		count := strconv.Itoa(int(counter.Counter))
+		count := strconv.Itoa(int(keyword.Usages))
 		result.Result = count
 
 		return result, nil

@@ -16,6 +16,7 @@ import (
 	faceitelo "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/elo"
 	faceitelodiff "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/elodiff"
 	faceitlvl "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/lvl"
+	keywords "github.com/satont/tsuwari/apps/parser/internal/variables/keywords"
 	random "github.com/satont/tsuwari/apps/parser/internal/variables/random/number"
 	randomonlineuser "github.com/satont/tsuwari/apps/parser/internal/variables/random/online/user"
 	phrase "github.com/satont/tsuwari/apps/parser/internal/variables/random/phrase"
@@ -31,7 +32,6 @@ import (
 	userage "github.com/satont/tsuwari/apps/parser/internal/variables/user/age"
 	userfollowage "github.com/satont/tsuwari/apps/parser/internal/variables/user/followage"
 	usermessages "github.com/satont/tsuwari/apps/parser/internal/variables/user/messages"
-	words "github.com/satont/tsuwari/apps/parser/internal/variables/words"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
@@ -73,7 +73,7 @@ func New() Variables {
 		command_counter.CommandVariable,
 		command_counter.UserVariable,
 		command_counter.CommandVariableFromOther,
-		words.Counter,
+		keywords.Counter,
 	}
 
 	ctx := Variables{

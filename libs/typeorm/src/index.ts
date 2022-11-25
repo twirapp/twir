@@ -21,7 +21,6 @@ import { ChannelPermit } from './entities/ChannelPermit.js';
 import { ChannelStream } from './entities/ChannelStream.js';
 import { ChannelTimer } from './entities/ChannelTimer.js';
 import { ChannelTimerResponse } from './entities/ChannelTimerResponse.js';
-import { ChannelWordCounter } from './entities/ChannelWordCouner.js';
 import { CommandResponse } from './entities/CommandResponse.js';
 import { CommandUsage } from './entities/CommandUsage.js';
 import { DashboardAccess } from './entities/DashboardAccess.js';
@@ -81,7 +80,6 @@ export const AppDataSource = new DataSource({
     ChannelDonationEvent,
     ChannelStream,
     ChannelChatMessage,
-    ChannelWordCounter,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],
