@@ -7,6 +7,6 @@ export interface SocialMediaItem {
 }
 
 export const socials: SocialMediaItem[] = [
-  { id: 1, type: 'Telegram', href: '#' },
+  { id: 1, type: 'Telegram', href: 'https://t.me/tsuwari_app' },
   { id: 2, type: 'Instagram', href: '#' },
 ];
