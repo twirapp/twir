@@ -35,7 +35,7 @@ var CheckAliasesCommand = types.DefaultCommand{
 		commandName := strings.ReplaceAll(strings.ToLower(*ctx.Text), "!", "")
 
 		cmd := model.ChannelsCommands{}
-		err := ctx.Services.Db.Where(`"channelId" = ? AND "name" = ?`, ctx.ChannelId, commandName).Error
+		err := ctx.Services.Db.Where(`"channelId" = ? AND "name" = ?`, ctx.ChannelId, commandName).Find(&cmd).Error
 		if err != nil {
 			fmt.Println(err)
 			result.Result = append(result.Result, "internal error")
