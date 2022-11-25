@@ -323,7 +323,7 @@ importers:
     specifiers:
       '@egjs/flicking-plugins': 4.4.0
       '@egjs/vue3-flicking': 4.10.2
-      '@fastify/compress': 6.1.1
+      '@fastify/compress': 6.2.0
       '@fastify/http-proxy': 8.2.3
       '@fastify/middie': 8.0.0
       '@fastify/static': 6.5.0
@@ -354,7 +354,7 @@ importers:
     dependencies:
       '@egjs/flicking-plugins': 4.4.0
       '@egjs/vue3-flicking': 4.10.2_vue@3.2.41
-      '@fastify/compress': 6.1.1
+      '@fastify/compress': 6.2.0
       '@fastify/http-proxy': 8.2.3
       '@fastify/middie': 8.0.0
       '@fastify/static': 6.5.0
@@ -2347,8 +2347,8 @@ packages:
       fast-uri: 2.1.0
     dev: false
 
-  /@fastify/compress/6.1.1:
-    resolution: {integrity: sha512-uwgomk59nAWKR2WqXugyn3tXzRJqlBaGCzXHb4ZnKA3sxA9G/JWZSAd6GEF29mJucTLi32iZaFZRAwf7O8bJMg==}
+  /@fastify/compress/6.2.0:
+    resolution: {integrity: sha512-ldFaNHurMNpypkt1AlI3HDXcdIVqkuhPeYHvlVsfIzM+1YHM0qrdWgrBESuwUCxohSCJNZmyXp4FBCxVJX8zaA==}
     dependencies:
       '@fastify/accept-negotiator': 1.0.0
       fastify-plugin: 4.3.0
@@ -7196,7 +7196,7 @@ packages:
       mississippi: 3.0.0
       mkdirp: 0.5.6
       move-concurrently: 1.0.1
-      promise-inflight: 1.0.1
+      promise-inflight: 1.0.1_bluebird@3.7.2
       rimraf: 2.7.1
       ssri: 6.0.2
       unique-filename: 1.1.1
@@ -13211,6 +13211,17 @@ packages:
     peerDependenciesMeta:
       bluebird:
         optional: true
+    dev: true
+
+  /promise-inflight/1.0.1_bluebird@3.7.2:
+    resolution: {integrity: sha512-6zWPyEOFaQBJYcGMHBKTKJ3u6TBsnMFOIZSa6ce1e/ZrrsOlnHRHbabMjLiBYKp+n44X9eUI6VUPaukCXHuG4g==}
+    peerDependencies:
+      bluebird: '*'
+    peerDependenciesMeta:
+      bluebird:
+        optional: true
+    dependencies:
+      bluebird: 3.7.2
     dev: true
 
   /promise.allsettled/1.0.5:

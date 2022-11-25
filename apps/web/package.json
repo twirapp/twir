@@ -31,7 +31,7 @@
   "dependencies": {
     "@egjs/flicking-plugins": "4.4.0",
     "@egjs/vue3-flicking": "4.10.2",
-    "@fastify/compress": "6.1.1",
+    "@fastify/compress": "6.2.0",
     "@fastify/http-proxy": "8.2.3",
     "@fastify/middie": "8.0.0",
     "@fastify/static": "6.5.0",
