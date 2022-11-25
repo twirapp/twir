@@ -146,7 +146,7 @@
           "title": "Response (not required)"
         },
         "usages": {
-          "title": "Использований"
+          "title": "Used times"
         },
         "status": {
           "title": "Keywords status"
