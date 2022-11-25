@@ -70,7 +70,7 @@ func (c *Handlers) handleKeywords(
 
 			query := make(map[string]any)
 
-			if !isOnCooldown {
+			if !isOnCooldown && k.Response != "" {
 				requestStruct := parser.ParseResponseRequest{
 					Channel: &parser.Channel{
 						Id:   msg.RoomID,
