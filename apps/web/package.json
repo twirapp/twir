@@ -43,7 +43,7 @@
     "cross-env": "7.0.3",
     "fastify": "4.9.2",
     "nanostores": "0.7.0",
-    "vite-plugin-ssr": "0.4.43",
+    "vite-plugin-ssr": "0.4.54",
     "vue": "3.2.41",
     "vue-i18n": "9.2.2"
   }

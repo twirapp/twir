@@ -346,7 +346,7 @@ importers:
       tailwindcss-animation-delay: 1.0.7
       typescript: 4.8.4
       vite: 3.2.2
-      vite-plugin-ssr: 0.4.43
+      vite-plugin-ssr: 0.4.54
       vite-svg-loader: 3.6.0
       vue: 3.2.41
       vue-i18n: 9.2.2
@@ -366,7 +366,7 @@ importers:
       cross-env: 7.0.3
       fastify: 4.9.2
       nanostores: 0.7.0
-      vite-plugin-ssr: 0.4.43_vite@3.2.2
+      vite-plugin-ssr: 0.4.54_vite@3.2.2
       vue: 3.2.41
       vue-i18n: 9.2.2_vue@3.2.41
     devDependencies:
@@ -2028,8 +2028,12 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@brillout/json-serializer/0.5.1:
-    resolution: {integrity: sha512-wTTbuWmrNBlF9WYq/YJ91UZvEi27uYdV12dOeKBujUojPihs5EhMi8uItugF8iJ797o3la8A9oWfy52OwCIs+Q==}
+  /@brillout/import/0.2.1:
+    resolution: {integrity: sha512-4qA9sNtQZCY02MeLjTP+O9LfY9T6d2ajYS7whyvgBklJzWzLUNbJp940ClxK64hbDPqag9AQZt45beEAGcSYYA==}
+    dev: false
+
+  /@brillout/json-serializer/0.5.3:
+    resolution: {integrity: sha512-IxlOMD5gOM0WfFGdeR98jHKiC82Ad1tUnSjvLS5jnRkfMEKBI+YzHA32Umw8W3Ccp5N4fNEX229BW6RaRpxRWQ==}
     dev: false
 
   /@brillout/vite-plugin-import-build/0.1.0:
@@ -15969,8 +15973,8 @@ packages:
       vfile-message: 2.0.4
     dev: true
 
-  /vite-plugin-ssr/0.4.43_vite@3.2.2:
-    resolution: {integrity: sha512-Z1BiredAJh3oKc67D8m269VzA5ysu1kkc3F3VFqsUxUWrSPf6h3qD7BeWwdH1Pj8Csqzdcu/LBJQBzsT5Mf9Qw==}
+  /vite-plugin-ssr/0.4.54_vite@3.2.2:
+    resolution: {integrity: sha512-6OQSIRPqREc/z6NJyVCm0zHp58370/3O585nYgJQSOhEWwkY5JBR50hilucsUoQJU3Z2U3X83w6pFn9SKc7lpA==}
     engines: {node: '>=12.19.0'}
     hasBin: true
     peerDependencies:
@@ -15980,7 +15984,8 @@ packages:
       react-streaming:
         optional: true
     dependencies:
-      '@brillout/json-serializer': 0.5.1
+      '@brillout/import': 0.2.1
+      '@brillout/json-serializer': 0.5.3
       '@brillout/vite-plugin-import-build': 0.1.0
       cac: 6.7.14
       es-module-lexer: 0.10.5
