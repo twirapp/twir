@@ -329,7 +329,7 @@ importers:
       '@fastify/static': 6.5.0
       '@nanostores/persistent': 0.7.0
       '@nanostores/vue': '0.6'
-      '@tanstack/vue-query': 4.14.1
+      '@tanstack/vue-query': 4.18.0
       '@tsuwari/shared': workspace:*
       '@tsuwari/ui-components': workspace:*
       '@tsuwari/ui-fonts': workspace:*
@@ -360,7 +360,7 @@ importers:
       '@fastify/static': 6.5.0
       '@nanostores/persistent': 0.7.0_nanostores@0.7.0
       '@nanostores/vue': 0.6.0_r627q4dwpmfpioilrlqhfzrl3q
-      '@tanstack/vue-query': 4.14.1_vue@3.2.41
+      '@tanstack/vue-query': 4.18.0_vue@3.2.41
       '@vue/server-renderer': 3.2.41_vue@3.2.41
       '@vueuse/core': 9.4.0_vue@3.2.41
       cross-env: 7.0.3
@@ -4985,12 +4985,12 @@ packages:
       remove-accents: 0.4.2
     dev: false
 
-  /@tanstack/query-core/4.14.1:
-    resolution: {integrity: sha512-mUejKoFDe4NZB8jQJR1uuAl6IwvkUpOD2m8NcuTVPOu0pcxeeFPdrnHaljwOEFPtlqXoiiIIQGYy6whjCMN+iQ==}
+  /@tanstack/query-core/4.18.0:
+    resolution: {integrity: sha512-PP4mG8MD08sq64RZCqMfXMYfaj7+Oulwg7xZ/fJoEOdTZNcPIgaOkHajZvUBsNLbi/0ViMvJB4cFkL2Jg2WPbw==}
     dev: false
 
-  /@tanstack/vue-query/4.14.1_vue@3.2.41:
-    resolution: {integrity: sha512-bxvlb0ItJCLhrmme6JQzsGmTivccEi4r2umN5mfqofprYmkfInsGvLwgUfqpKN553pg8dBPXkda3+R8yohm5VA==}
+  /@tanstack/vue-query/4.18.0_vue@3.2.41:
+    resolution: {integrity: sha512-OC4RLIMOOeWGgKr8SIKsV0p6B9YVRv7pHovHFZZN2vE6F84yQH1SZ1rrqlAvNQ1nvpYwDhUZF4i5XbSyXqg40g==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.5.0 || ^3.0.0
@@ -4999,7 +4999,7 @@ packages:
         optional: true
     dependencies:
       '@tanstack/match-sorter-utils': 8.5.14
-      '@tanstack/query-core': 4.14.1
+      '@tanstack/query-core': 4.18.0
       '@vue/devtools-api': 6.4.5
       vue: 3.2.41
       vue-demi: 0.13.11_vue@3.2.41

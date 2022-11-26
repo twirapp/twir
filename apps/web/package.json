@@ -37,7 +37,7 @@
     "@fastify/static": "6.5.0",
     "@nanostores/persistent": "0.7.0",
     "@nanostores/vue": "0.6",
-    "@tanstack/vue-query": "4.14.1",
+    "@tanstack/vue-query": "4.18.0",
     "@vue/server-renderer": "3.2.41",
     "@vueuse/core": "9.4.0",
     "cross-env": "7.0.3",
