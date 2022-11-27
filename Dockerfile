@@ -219,4 +219,4 @@ RUN cd apps/watched && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="
 FROM go_prod_base as watched
 COPY --from=watched_deps /app/apps/watched/out /bin/watched
 ENTRYPOINT ["doppler", "run", "--"]
-CMD ["/bin/parser"]
+CMD ["/bin/watched"]
