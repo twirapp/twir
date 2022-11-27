@@ -32,7 +32,7 @@ import LangSelect from '@/components/LangSelect/LangSelect.vue';
 import type { Locale } from '@/locales';
 import { redirectToLogin } from '@/services/auth';
 import { useUserProfile } from '@/services/auth';
-import { useLandingHeaderHeight, useLandingMenuState } from '@/services/landing-menu';
+import { useLandingHeaderHeight, useLandingMenuState } from '@/services/landing';
 import { useLandingLocale, useTranslation } from '@/services/locale';
 
 const { data: user } = useUserProfile();

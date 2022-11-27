@@ -5,8 +5,8 @@ import { logout, postRefreshToken } from './api.js';
 export const accessTokenStore = persistentAtom('access_token');
 
 /**
- * @returns If error - returns Reponse
- *          If success - returns token
+ * @returns 
+ * Access token on success and Reponse object on error
  */
 export const refreshAccessToken = async (): Promise<Response | string> => {
   const res = await postRefreshToken();

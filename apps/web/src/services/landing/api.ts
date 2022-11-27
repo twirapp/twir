@@ -4,6 +4,6 @@ export interface StatInfo {
 }
 
 export const getStats = async (): Promise<StatInfo[]> => {
-  const res = await fetch('/api/v1/stats');
+  const res = await fetch('/api/v1/stats', { method: 'GET' });
   return res.json();
 };

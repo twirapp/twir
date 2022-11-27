@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useLandingMenuState } from '@/services/landing-menu/menuState.js';
+import { useLandingMenuState } from '@/services/landing/menuState.js';
 
 const { menuState, toggleMenuState } = useLandingMenuState();
 </script>

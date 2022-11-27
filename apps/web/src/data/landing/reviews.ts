@@ -1,5 +1,3 @@
-// import TextAvatarUrl from '@/assets/avatar.png';
-
 export interface Review {
   id: number;
   username: string;

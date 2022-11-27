@@ -17,12 +17,12 @@
             variant="solid-gray"
           />
           <TswButton
-            :text="t('buttons.startForFree')"
+            :text="isUserLoggedIn ? 'Go to dashboard' : t('buttons.startForFree')"
             :isRounded="true"
-            href="/login"
             size="lg"
             class="justify-center"
             variant="solid-purple"
+            @click="() => (isUserLoggedIn ? redirectToDashboard() : redirectToLogin())"
           />
         </div>
       </div>
@@ -71,6 +71,8 @@
 
 <script lang="ts" setup>
 import { cssURL, TswButton } from '@tsuwari/ui-components';
+import { isClient } from '@vueuse/core';
+import { ref, watch } from 'vue';
 
 import BlueBlob from '@/assets/blob-blue.png';
 import PinkBlob from '@/assets/blob-pink.png';
@@ -78,9 +80,35 @@ import LightingSvg from '@/assets/Lighting.svg?component';
 import RhombusSvg from '@/assets/Rhombus.svg?component';
 import SmileBotSvg from '@/assets/SmileBot.svg?component';
 import WavesSvg from '@/assets/Waves.svg';
+import { redirectToDashboard, redirectToLogin, useUserProfile } from '@/services/auth';
 import { useTranslation } from '@/services/locale';
 
 const { t } = useTranslation<'landing'>();
+
+const useUserStatus = () => {
+  const isUserLoggedIn = ref<boolean>(false);
+  if (!isClient) return isUserLoggedIn;
+
+  const { isFetching, data } = useUserProfile();
+
+  if (!isFetching && data.value !== undefined) {
+    isUserLoggedIn.value = true;
+    return isUserLoggedIn;
+  }
+  const stopWatch = watch(
+    () => isFetching.value,
+    (isFetching) => {
+      if (isFetching === false) {
+        stopWatch();
+        isUserLoggedIn.value = data.value === undefined ? false : true;
+      }
+    },
+  );
+
+  return isUserLoggedIn;
+};
+
+const isUserLoggedIn = useUserStatus();
 </script>
 
 <style lang="postcss">
