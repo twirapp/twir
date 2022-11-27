@@ -14,6 +14,9 @@ export const getProfile = async (): Promise<AuthUser> => {
 
 export const API_LOGIN_ROUTE = `/api/auth?state=${ORIGIN_STATE}`;
 
+/**
+ * @returns Response object with new access token
+ */
 export const postRefreshToken = async () => {
   return await fetch('/api/auth/token', { method: 'post' });
 };

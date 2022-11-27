@@ -1,4 +1,11 @@
-export type SocialMedia = 'Twitch' | 'Telegram' | 'Github' | 'Instagram' | 'Website';
+import type { IconName } from '@tsuwari/ui-components';
+
+type Extract<T, U extends T> = T extends U ? T : never;
+
+export type SocialMedia = Extract<
+  IconName,
+  'Twitch' | 'Instagram' | 'Website' | 'Github' | 'Telegram'
+>;
 
 export interface SocialMediaItem {
   id: number;

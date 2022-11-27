@@ -17,12 +17,12 @@ import { cssPX, cssURL } from '@/utils/css.js';
 const props = withDefaults(
   defineProps<{
     src: string;
-    width?: number;
-    height?: number;
+    width: number;
+    height: number;
     lazy?: boolean;
     renderType?: 'bg-image' | 'image';
   }>(),
-  { lazy: false, renderType: 'image', width: undefined, height: undefined, alt: undefined },
+  { lazy: false, renderType: 'image', alt: undefined },
 );
 const placeholder = ref<HTMLElement | undefined>();
 const { isImageReady, execute } = useLazyImage(props.src, placeholder, false);

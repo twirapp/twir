@@ -1,11 +1,11 @@
 <template>
-  <HeroSection />
+  <HeroSection :id="LandingSection[LandingSection.hero]" />
   <StatInfoSection />
-  <FeaturesSection :id="navMenuHrefs[NavMenuTabs.features]" />
+  <FeaturesSection :id="LandingSection[LandingSection.features]" />
   <IntegrationsSection />
-  <ReviewsSection :id="navMenuHrefs[NavMenuTabs.reviews]" />
-  <TeamSection :id="navMenuHrefs[NavMenuTabs.team]" />
-  <PricingSection :id="navMenuHrefs[NavMenuTabs.pricing]" />
+  <ReviewsSection :id="LandingSection[LandingSection.reviews]" />
+  <TeamSection :id="LandingSection[LandingSection.team]" />
+  <PricingSection :id="LandingSection[LandingSection.pricing]" />
 </template>
 
 <script lang="ts" setup>
@@ -16,5 +16,5 @@ import PricingSection from '@/components/landing/sections/PricingSection.vue';
 import ReviewsSection from '@/components/landing/sections/ReviewsSection.vue';
 import StatInfoSection from '@/components/landing/sections/StatInfoSection.vue';
 import TeamSection from '@/components/landing/sections/TeamSection.vue';
-import { navMenuHrefs, NavMenuTabs } from '@/data/landing/navMenu.js';
+import { LandingSection } from '@/data/landing/sections.js';
 </script>

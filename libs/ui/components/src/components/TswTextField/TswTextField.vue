@@ -40,7 +40,7 @@ const props = withDefaults(
   defineProps<{
     inputVariant?: InputVariantType;
     value?: string;
-    initialErrors?: string[];
+    initialErrors: string[];
     label?: string;
     name: string;
     disabled?: boolean;
@@ -51,7 +51,7 @@ const props = withDefaults(
   }>(),
   {
     infoMessage: undefined,
-    initialErrors: undefined,
+    initialErrors: () => [],
     placeholder: undefined,
     id: undefined,
     disabled: false,

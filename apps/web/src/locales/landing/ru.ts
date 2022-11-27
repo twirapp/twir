@@ -1,14 +1,14 @@
-import { NavMenuTabs } from '@/data/landing/navMenu.js';
 import { BasicPlanFeatures, PlanId, ProPlanFeatures } from '@/data/landing/pricingPlans.js';
+import { LandingSection } from '@/data/landing/sections.js';
 import { TeamMemberId } from '@/data/landing/team.js';
 import type ILandingLocale from '@/locales/landing/interface.js';
 
 const messages: ILandingLocale = {
   navMenu: [
-    { id: NavMenuTabs.features, name: 'Функции' },
-    { id: NavMenuTabs.reviews, name: 'Отзывы' },
-    { id: NavMenuTabs.team, name: 'Команда' },
-    { id: NavMenuTabs.pricing, name: 'Прайсинг' },
+    { id: LandingSection.features, name: 'Функции' },
+    { id: LandingSection.reviews, name: 'Отзывы' },
+    { id: LandingSection.team, name: 'Команда' },
+    { id: LandingSection.pricing, name: 'Прайсинг' },
   ],
   buttons: {
     buyPlan: 'Купить план',

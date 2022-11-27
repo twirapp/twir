@@ -1,6 +1,6 @@
 import type { BotFeature } from '@/data/landing/botFeatures.js';
-import type { NavMenuLocale } from '@/data/landing/navMenu.js';
 import type { PricePlansLocale } from '@/data/landing/pricingPlans.js';
+import type { NavMenuLocale } from '@/data/landing/sections.js';
 import type { TeamMemberLocale } from '@/data/landing/team.js';
 
 interface ILandingLocale {

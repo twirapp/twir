@@ -42,7 +42,7 @@ export default defineConfig({
       '@nestjs/websockets/socket-module',
     ],
   },
-  base: 'dashboard',
+  base: '/dashboard/',
   server: {
     base: '/',
     host: true,

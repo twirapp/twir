@@ -10,8 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { StatInfo } from '@/services/stats/api.js';
-import { useStatsFormatter } from '@/services/stats/hooks.js';
+import { useStatsFormatter, StatInfo } from '@/services/landing';
 
 defineProps<{
   item: StatInfo;

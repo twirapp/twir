@@ -4,10 +4,17 @@
       <div class="container">
         <div class="flex-1 flex">
           <div class="mr-auto flex items-center justify-between max-lg:w-full">
-            <a class="inline-grid items-center grid-flow-col gap-x-[10px] p-2 max-lg:p-1" href="#">
-              <div class="h-[30px] w-[30px]" :style="{ backgroundImage: cssURL(TsuwariLogo) }" />
-              <span class="font-medium text-xl">Tsuwari</span>
-            </a>
+            <button
+              class="inline-grid items-center grid-flow-col gap-x-[10px] p-2 max-lg:p-1"
+              :data-section="LandingSection[LandingSection.hero]"
+              @click="(e) => scrollToLandingSection(e.target as HTMLElement)"
+            >
+              <div
+                class="h-[30px] w-[30px] pointer-events-none"
+                :style="{ backgroundImage: cssURL(TsuwariLogo) }"
+              />
+              <span class="font-medium text-xl pointer-events-none">Tsuwari</span>
+            </button>
             <div class="inline-grid grid-flow-col gap-x-3">
               <BurgerMenuButton />
               <ClientOnly>
@@ -62,8 +69,10 @@ import HeaderAuthBlock from '@/components/landing/layout/HeaderAuthBlock.vue';
 import MobileMenu from '@/components/landing/layout/MobileMenu.vue';
 import NavMenu from '@/components/landing/layout/NavMenu.vue';
 import LangSelect from '@/components/LangSelect/LangSelect.vue';
+import { LandingSection } from '@/data/landing/sections.js';
 import { redirectToLogin } from '@/services/auth';
-import { useLandingHeaderHeight, setHeaderRef } from '@/services/landing-menu';
+import { useLandingHeaderHeight, setHeaderRef } from '@/services/landing';
+import { scrollToLandingSection } from '@/services/landing';
 import { useLandingLocale, useTranslation } from '@/services/locale';
 
 const { setLandingLocale } = useLandingLocale();
