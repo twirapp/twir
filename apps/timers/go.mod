@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/go-co-op/gocron v1.17.1
 	github.com/golang/protobuf v1.5.2
-	github.com/satont/go-helix/v2 v2.7.21
+	github.com/satont/go-helix/v2 v2.7.22
 	github.com/satont/tsuwari/libs/config v0.0.0
 	github.com/satont/tsuwari/libs/gomodels v0.0.0
 	github.com/satont/tsuwari/libs/nats v0.0.0

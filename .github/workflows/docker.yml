@@ -97,10 +97,10 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v2
         with:
-          path: /tmp/.buildx-cache-${{ matrix.application }}
-          key: ${{ runner.os }}-multi-buildx-${{ github.sha }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-single-buildx-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-multi-buildx
+            ${{ runner.os }}-single-buildx
 
       - name: Login to Container Registry
         uses: docker/login-action@v1.14.1
@@ -113,19 +113,13 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.application }}
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-${{ matrix.application }}-new
+          cache-from: type=local,src=/tmp/.buildx-cache
           context: .
           push: true
           file: ./Dockerfile
           target: ${{ matrix.application }}
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}:latest
-
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache-${{ matrix.application }}
-          mv /tmp/.buildx-cache-${{ matrix.application }}-new /tmp/.buildx-cache-${{ matrix.application }}
 
   migrations:
     needs: build
@@ -169,15 +163,9 @@ jobs:
         with:
           builder: ${{ steps.buildx.outputs.name }}
           cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
           context: .
           push: true
           file: ./Dockerfile
           target: migrations
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/tsuwari/migrations:latest
-
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache

@@ -10,7 +10,7 @@ require (
 	github.com/imroc/req/v3 v3.25.0
 	github.com/nats-io/nats.go v1.19.0
 	github.com/samber/lo v1.34.0
-	github.com/satont/go-helix/v2 v2.7.21
+	github.com/satont/go-helix/v2 v2.7.22
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
 	github.com/satont/tsuwari/libs/nats v0.0.0-20221112130747-e34f337ae946
