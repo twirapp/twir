@@ -5,6 +5,7 @@ use (
 	./apps/bots
 	./apps/parser
 	./apps/timers
+	./apps/watched
 	./libs/config
 	./libs/gomodels
 	./libs/integrations/spotify

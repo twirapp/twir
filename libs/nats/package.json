@@ -14,7 +14,8 @@
     "./timers": "./dist/timers/timers.js",
     "./integrations": "./dist/integrations/integrations.js",
     "./scheduler": "./dist/scheduler/scheduler.js",
-    "./eventsub": "./dist/eventsub/eventsub.js"
+    "./eventsub": "./dist/eventsub/eventsub.js",
+    "./watched": "./dist/watched/watched.js"
   },
   "typesVersions": {
     "*": {
@@ -41,6 +42,9 @@
       ],
       "eventsub": [
         "dist/eventsub/eventsub.d.ts"
+      ],
+      "watched": [
+        "dist/watched/watched.d.ts"
       ]
     }
   },

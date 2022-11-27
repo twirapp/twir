@@ -32,6 +32,7 @@ import (
 	userage "github.com/satont/tsuwari/apps/parser/internal/variables/user/age"
 	userfollowage "github.com/satont/tsuwari/apps/parser/internal/variables/user/followage"
 	usermessages "github.com/satont/tsuwari/apps/parser/internal/variables/user/messages"
+	userwatched "github.com/satont/tsuwari/apps/parser/internal/variables/user/watched"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
@@ -68,6 +69,7 @@ func New() Variables {
 		userage.Variable,
 		userfollowage.Variable,
 		usermessages.Variable,
+		userwatched.Variable,
 		touser.Variable,
 		phrase.Variable,
 		command_counter.CommandVariable,

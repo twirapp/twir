@@ -28,7 +28,6 @@ import (
 	proto "google.golang.org/protobuf/proto"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	gormLogger "gorm.io/gorm/logger"
 )
 
 func main() {
@@ -57,9 +56,7 @@ func main() {
 		logger = l
 	}
 
-	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{
-		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
-	})
+	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl))
 	if err != nil {
 		fmt.Println(err)
 		panic("failed to connect database")

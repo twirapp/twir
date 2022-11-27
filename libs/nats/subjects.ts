@@ -18,3 +18,7 @@ export const SCHEDULER = {
 export const EVENTSUB = {
   SUBSCTUBE_TO_EVENTS_BY_CHANNEL_ID: 'subscribeToEventsByChannelId',
 };
+
+export const WATCHED = {
+  PROCESS_WATCHED_STREAMS: 'processWatchedStreams',
+};

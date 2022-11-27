@@ -13,6 +13,9 @@ includes:
   bots:
     taskfile: ./apps/bots/Taskfile.yml
     dir: ./apps/bots
+  watched:
+    taskfile: ./apps/watched/Taskfile.yml
+    dir: ./apps/watched
 
 tasks:
   build-libs:
@@ -53,13 +56,18 @@ tasks:
     cmds:
       - task: bots:dev
 
+  watched-dev:
+    deps: [prepare]
+    cmds:
+      - task: watched:dev
+
   node-dev:
     deps: [prepare]
     cmds:
       - pnpm dev
 
   dev:
-    deps: [parser-dev, timers-dev, api-dev, bots-dev, node-dev]
+    deps: [parser-dev, timers-dev, api-dev, bots-dev, watched-dev, node-dev]
 
   docker-local-build:
     cmds:

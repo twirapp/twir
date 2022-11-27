@@ -248,7 +248,7 @@ importers:
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@types/cron': 2.0.0
-      '@types/lodash': 4.14.186
+      '@types/lodash': 4.14.190
       ioredis: 5.2.3
       knex: 2.3.0
       lodash: 4.17.21
@@ -278,7 +278,7 @@ importers:
       tslib: 2.4.0
     devDependencies:
       '@types/cron': 2.0.0
-      '@types/lodash': 4.14.186
+      '@types/lodash': 4.14.190
 
   apps/streamstatus:
     specifiers:
@@ -5301,6 +5301,10 @@ packages:
 
   /@types/lodash/4.14.186:
     resolution: {integrity: sha512-eHcVlLXP0c2FlMPm56ITode2AgLMSa6aJ05JTTbYbI+7EMkCEE5qk2E41d5g2lCVTqRe0GnnRFurmlCsDODrPw==}
+
+  /@types/lodash/4.14.190:
+    resolution: {integrity: sha512-5iJ3FBJBvQHQ8sFhEhJfjUP+G+LalhavTkYyrAYqz5MEJG+erSv0k9KJLb6q7++17Lafk1scaTIFXcMJlwK8Mw==}
+    dev: true
 
   /@types/long/4.0.2:
     resolution: {integrity: sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==}

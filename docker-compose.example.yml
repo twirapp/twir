@@ -132,6 +132,22 @@ services:
     networks:
       - tsuwari
 
+  watched:
+    restart: unless-stopped
+    image: registry.satont.dev/tsuwari/watched
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - migrations
+      - postgres
+      - nats
+    networks:
+      - tsuwari
+    deploy:
+      mode: replicated
+      replicas: 8
+
   parser:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/parser
@@ -254,7 +270,7 @@ services:
     ports:
       - 3001:3000
     networks:
-      - tsuwari 
+      - tsuwari
 
   dashboard:
     restart: unless-stopped
@@ -266,7 +282,7 @@ services:
     ports:
       - 3002:8080
     networks:
-      - tsuwari 
+      - tsuwari
 
 networks:
   tsuwari:

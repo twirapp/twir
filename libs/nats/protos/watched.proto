@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option go_package = "tsuwari/nats/watched";
+
+message ParseRequest {
+  repeated string channelsId = 1;
+  string botId = 2;
+}

@@ -3,7 +3,7 @@ module github.com/satont/tsuwari/libs/twitch
 go 1.19
 
 require (
-	github.com/satont/go-helix/v2 v2.7.21
+	github.com/satont/go-helix/v2 v2.7.22
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
 	gorm.io/gorm v1.24.1
 )

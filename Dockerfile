@@ -210,3 +210,12 @@ FROM go_prod_base as bots
 COPY --from=bots_deps /app/apps/bots/out /bin/bots
 ENTRYPOINT ["doppler", "run", "--"]
 CMD ["/bin/bots"]
+
+FROM golang_deps_base as watched_deps
+RUN cd apps/watched && go mod download
+RUN cd apps/watched && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as watched
+COPY --from=watched_deps /app/apps/watched/out /bin/watched
+ENTRYPOINT ["doppler", "run", "--"]
+CMD ["/bin/parser"]

@@ -8,6 +8,7 @@ import { DotaModule } from './dota/dota.module.js';
 import { MicroservicesModule } from './microservices/microservices.module.js';
 import { OnlineUsersModule } from './online-users/online-users.module.js';
 import { StreamStatusModule } from './streamstatus/streamstatus.module.js';
+import { WatchedModule } from './watched/watched.module.js';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { StreamStatusModule } from './streamstatus/streamstatus.module.js';
     DefaultCommandsCreatorModule,
     OnlineUsersModule,
     DeleteOldMessagesModule,
+    WatchedModule,
   ],
   providers: [TwitchApiService, RedisService],
 })
