@@ -168,6 +168,7 @@ COPY --from=base /app/apps/parser apps/parser/
 COPY --from=base /app/apps/timers apps/timers/
 COPY --from=base /app/apps/bots apps/bots/
 COPY --from=base /app/apps/api apps/api/
+COPY --from=base /app/apps/watched apps/watched/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/nats libs/nats/
 COPY --from=base /app/libs/twitch libs/twitch/
