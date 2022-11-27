@@ -7,9 +7,12 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+    secrets:
+      - doppler_token
     networks:
       - tsuwari
     deploy:
@@ -25,6 +28,7 @@ services:
     restart: unless-stopped
     image: satont/postgresql-backup-s3
     environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
       POSTGRES_DATABASE: ${DB_NAME}
       POSTGRES_HOST: ${DB_HOST}
       POSTGRES_USER: ${DB_USER}
@@ -36,6 +40,8 @@ services:
       SCHEDULE: ${S3_SCHEDULE}
       S3_REGION: ${S3_REGION}
       S3_ENDPOINT: ${S3_ENDPOINT}
+    secrets:
+      - doppler_token
     networks:
       - tsuwari
     deploy:
@@ -53,10 +59,13 @@ services:
       - 9000:9000
       - 9001:9001
     environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
       MINIO_ROOT_USER: ${MINIO_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
       MINIO_REGION_NAME: eu-east-1
-      MINIO_SERVER_URL: https://minio.tsuwari.tk
+      MINIO_SERVER_URL: https://minio.tsuwari.app
+    secrets:
+      - doppler_token
     healthcheck:
       test:
         [
@@ -78,8 +87,10 @@ services:
 
   migrations:
     image: registry.satont.dev/tsuwari/migrations
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     networks:
       - tsuwari
     deploy:
@@ -96,7 +107,10 @@ services:
     ports:
       - 6379:6379
     environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
       REDIS_ARGS: --requirepass ${DB_PASSWORD}
+    secrets:
+      - doppler_token
     networks:
       - tsuwari
     deploy:
@@ -111,6 +125,10 @@ services:
   nats:
     restart: unless-stopped
     image: nats:latest
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     networks:
       - tsuwari
     deploy:
@@ -122,8 +140,10 @@ services:
   api:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/api
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     ports:
       - "3004-3008:3002"
     networks:
@@ -142,8 +162,10 @@ services:
   bots:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/bots
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     networks:
       - tsuwari
     deploy:
@@ -155,8 +177,10 @@ services:
   watched:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/watched
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     networks:
       - tsuwari
     deploy:
@@ -170,8 +194,10 @@ services:
   parser:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/parser
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     deploy:
       restart_policy:
         condition: any
@@ -185,8 +211,10 @@ services:
   timers:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/timers
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     networks:
       - tsuwari
     deploy:
@@ -198,8 +226,10 @@ services:
   scheduler:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/scheduler
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     networks:
       - tsuwari
     deploy:
@@ -211,8 +241,10 @@ services:
   streamstatus:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/streamstatus
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     networks:
       - tsuwari
     deploy:
@@ -224,8 +256,10 @@ services:
   eventsub:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/eventsub
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     ports:
       - "3003:3003"
     networks:
@@ -242,8 +276,10 @@ services:
   dota:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/dota
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     networks:
       - tsuwari
     deploy:
@@ -255,8 +291,10 @@ services:
   eval:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/eval
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     deploy:
       mode: replicated
       replicas: 16
@@ -270,8 +308,10 @@ services:
   integrations:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/dota
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     networks:
       - tsuwari
     deploy:
@@ -283,8 +323,10 @@ services:
   web:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/web
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     ports:
       - 3001:3000
     networks:
@@ -301,8 +343,10 @@ services:
   dashboard:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/dashboard
-    env_file:
-      - .env
+    environment:
+      DOPPLER_TOKEN: /run/secrets/doppler_token
+    secrets:
+      - doppler_token
     ports:
       - 3002:8080
     networks:
@@ -327,3 +371,7 @@ networks:
     name: tsuwari
     driver: overlay
     attachable: true
+
+secrets:
+  doppler_token:
+    external: true
