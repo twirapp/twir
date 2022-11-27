@@ -1,30 +1,25 @@
-version: "3.7"
+version: "3.9"
 
 services:
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 54320:8080
-    environment:
-      - ADMINER_PLUGINS=enum-types
-    networks:
-      - tsuwari
-
   postgres:
     restart: unless-stopped
     image: postgres:14-alpine
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
-    #command: postgres -c 'max_connections=100000'
+      - postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    ports:
-      - 57453:5432
     networks:
-      - tsuwari-dev
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
+      placement:
+        constraints:
+          - node.role == manager
 
   backup:
     restart: unless-stopped
@@ -43,12 +38,17 @@ services:
       S3_ENDPOINT: ${S3_ENDPOINT}
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
 
   minio:
     image: quay.io/minio/minio
     command: server --address 0.0.0.0:9000 --console-address ":9001" /data
     volumes:
-      - ./minio_data:/data
+      - minio-data:/data
     ports:
       - 9000:9000
       - 9001:9001
@@ -70,80 +70,100 @@ services:
       retries: 3
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
 
   migrations:
-    restart: "no"
     image: registry.satont.dev/tsuwari/migrations
     env_file:
       - .env
-    depends_on:
-      - postgres
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
 
   redis:
     restart: unless-stopped
     image: redis/redis-stack:latest
     volumes:
-      - ./redis-data:/data
+      - redis-data:/data
     ports:
       - 6379:6379
     environment:
-      REDIS_ARGS: --requirepass 12345
+      REDIS_ARGS: --requirepass ${DB_PASSWORD}
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
+      placement:
+        constraints:
+          - node.role == manager
 
   nats:
     restart: unless-stopped
     image: nats:latest
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
 
   api:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/api
     env_file:
       - .env
-    deploy:
-      mode: replicated
-      replicas: 4
     ports:
       - "3004-3008:3002"
-    depends_on:
-      - redis
-      - migrations
-      - postgres
-      - nats
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
+      mode: replicated
+      replicas: 4
+      placement:
+        constraints:
+          - node.role == manager
 
   bots:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/bots
     env_file:
       - .env
-    depends_on:
-      - redis
-      - migrations
-      - postgres
-      - nats
-      - api
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
 
   watched:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/watched
     env_file:
       - .env
-    depends_on:
-      - redis
-      - migrations
-      - postgres
-      - nats
     networks:
       - tsuwari
     deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
       mode: replicated
       replicas: 8
 
@@ -153,14 +173,12 @@ services:
     env_file:
       - .env
     deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
       mode: replicated
-      replicas: 8
-    depends_on:
-      - redis
-      - migrations
-      - postgres
-      - nats
-      - bots
+      replicas: 16
     networks:
       - tsuwari
 
@@ -169,41 +187,39 @@ services:
     image: registry.satont.dev/tsuwari/timers
     env_file:
       - .env
-    depends_on:
-      - redis
-      - migrations
-      - postgres
-      - nats
-      - bots
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
 
   scheduler:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/scheduler
     env_file:
       - .env
-    depends_on:
-      - redis
-      - migrations
-      - streamstatus
-      - postgres
-      - nats
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
 
   streamstatus:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/streamstatus
     env_file:
       - .env
-    depends_on:
-      - redis
-      - migrations
-      - postgres
-      - nats
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
 
   eventsub:
     restart: unless-stopped
@@ -212,26 +228,29 @@ services:
       - .env
     ports:
       - "3003:3003"
-    depends_on:
-      - redis
-      - migrations
-      - postgres
-      - nats
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
+      placement:
+        constraints:
+          - node.role == manager
 
   dota:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/dota
     env_file:
       - .env
-    depends_on:
-      - redis
-      - migrations
-      - postgres
-      - nats
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
 
   eval:
     restart: unless-stopped
@@ -240,9 +259,11 @@ services:
       - .env
     deploy:
       mode: replicated
-      replicas: 8
-    depends_on:
-      - nats
+      replicas: 16
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
     networks:
       - tsuwari
 
@@ -251,38 +272,58 @@ services:
     image: registry.satont.dev/tsuwari/dota
     env_file:
       - .env
-    depends_on:
-      - redis
-      - migrations
-      - postgres
-      - nats
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
 
   web:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/web
     env_file:
       - .env
-    depends_on:
-      - api
     ports:
       - 3001:3000
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
+      placement:
+        constraints:
+          - node.role == manager
 
   dashboard:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/dashboard
     env_file:
       - .env
-    depends_on:
-      - api
     ports:
       - 3002:8080
     networks:
       - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 5
+      placement:
+        constraints:
+          - node.role == manager
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:
+
 
 networks:
   tsuwari:
     name: tsuwari
+    driver: overlay
+    attachable: true

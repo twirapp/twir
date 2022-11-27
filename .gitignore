@@ -13,6 +13,7 @@ docker-compose*
 !docker-compose.example.yml
 !docker-compose.dev.yml
 !docker-compose.build.yml
+!docker-compose.stack.yml
 .devbox
 devbox/go
 
