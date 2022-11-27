@@ -109,6 +109,8 @@ func main() {
 			panic(err)
 		}
 
+		go fmt.Println("Processing msg " + data.Message.Id)
+
 		r := natsHandlers.HandleProcessCommand(data)
 
 		if r != nil {
