@@ -27,7 +27,7 @@ func handlePost(
 	services types.Services,
 ) (*model.ChannelsKeywords, error) {
 	existedKeyword := model.ChannelsKeywords{}
-	err := services.DB.Where(`"text" = ?`, dto.Text).First(&existedKeyword).Error
+	err := services.DB.Where(`"channelId" = ? AND "text" = ?`, channelId, dto.Text).First(&existedKeyword).Error
 	if err == nil {
 		return nil, fiber.NewError(400, "keyword with that text already exists")
 	}
