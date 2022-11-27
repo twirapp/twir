@@ -54,7 +54,7 @@
     "@types/node": "18.7.23",
     "@typescript-eslint/eslint-plugin": "5.38.1",
     "@typescript-eslint/parser": "5.38.1",
-    "eslint": "8.24.0",
+    "eslint": "8.28.0",
     "eslint-plugin-import": "2.26.0",
     "nodemon": "2.0.20",
     "ts-node": "10.9.1",
