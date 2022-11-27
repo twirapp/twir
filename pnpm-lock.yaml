@@ -147,7 +147,7 @@ importers:
       filepond-plugin-file-validate-type: 1.2.8
       filepond-plugin-image-preview: 4.6.11
       flag-icons: 6.6.6
-      nanostores: 0.7.0
+      nanostores: 0.7.1
       postcss: 8.4.18
       prismjs: 1.29.0
       tailwindcss: 3.2.1
@@ -166,8 +166,8 @@ importers:
       yup: 0.32.11
     dependencies:
       '@headlessui/vue': 1.7.3_vue@3.2.41
-      '@nanostores/persistent': 0.7.0_nanostores@0.7.0
-      '@nanostores/vue': 0.6.0_r627q4dwpmfpioilrlqhfzrl3q
+      '@nanostores/persistent': 0.7.0_nanostores@0.7.1
+      '@nanostores/vue': 0.6.0_jk34uo2ankiycdtmw46ipynpdy
       '@popperjs/core': 2.11.6
       '@vueuse/components': 9.4.0_vue@3.2.41
       '@vueuse/core': 9.4.0_vue@3.2.41
@@ -178,7 +178,7 @@ importers:
       filepond: 4.30.4
       filepond-plugin-file-validate-type: 1.2.8_filepond@4.30.4
       filepond-plugin-image-preview: 4.6.11_filepond@4.30.4
-      nanostores: 0.7.0
+      nanostores: 0.7.1
       prismjs: 1.29.0
       tw-elements: 1.0.0-alpha12_postcss@8.4.18
       vee-validate: 4.7.1_vue@3.2.41
@@ -2741,15 +2741,6 @@ packages:
       glob-to-regexp: 0.3.0
     dev: true
 
-  /@nanostores/persistent/0.7.0_nanostores@0.7.0:
-    resolution: {integrity: sha512-4PAInL/T1hbftZUJ0cmgdFHBMalUoq7BUXFBy7QfyMv/8X3LPTYNh/yxspL7+J+XM3UNvVI7IFRMMs6FBasjhQ==}
-    engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
-    peerDependencies:
-      nanostores: ^0.7.0
-    dependencies:
-      nanostores: 0.7.0
-    dev: false
-
   /@nanostores/persistent/0.7.0_nanostores@0.7.1:
     resolution: {integrity: sha512-4PAInL/T1hbftZUJ0cmgdFHBMalUoq7BUXFBy7QfyMv/8X3LPTYNh/yxspL7+J+XM3UNvVI7IFRMMs6FBasjhQ==}
     engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
@@ -2759,7 +2750,7 @@ packages:
       nanostores: 0.7.1
     dev: false
 
-  /@nanostores/vue/0.6.0_r627q4dwpmfpioilrlqhfzrl3q:
+  /@nanostores/vue/0.6.0_jk34uo2ankiycdtmw46ipynpdy:
     resolution: {integrity: sha512-Co53bCDAA2hkBqpeYN975kchX/cTHMdS9qt6inqPGm8QAoB+wCoecxjmde8GSo/Arc6/JmQC5AFJGALYz0QMhw==}
     engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -2770,7 +2761,7 @@ packages:
       '@vue/devtools-api':
         optional: true
     dependencies:
-      nanostores: 0.7.0
+      nanostores: 0.7.1
       vue: 3.2.41
     dev: false
 
@@ -12194,11 +12185,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /nanostores/0.7.0:
-    resolution: {integrity: sha512-y+ma9MVXuPzXKEXaRYW/iL/xG/HtMwB8fmFcMfUqt5fCNR/na2kDubbZGV4furUMTgmxfySJs0cQjORWhaPDyA==}
-    engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
-    dev: false
 
   /nanostores/0.7.1:
     resolution: {integrity: sha512-7HenoVpZOjRudHCmAVWKloBTk3+Ozw49KuRWq/pNlEIIVS3x9dID+I5z3Rhjxl1muhHwv4dFhpT+0FebT9jvaA==}
