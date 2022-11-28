@@ -1,3 +1,3 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-DOPPLER_TOKEN="$(cat /run/secrets/doppler_token)" doppler run -- $@
+exec DOPPLER_TOKEN="$(cat /run/secrets/doppler_token)" doppler run -- "$@"
