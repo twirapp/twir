@@ -21,7 +21,7 @@
     "build": "vite build && vue-tsc --declaration --emitDeclarationOnly -p ./tsconfig.build.json && tsc-alias"
   },
   "devDependencies": {
-    "@babel/core": "7.20.2",
+    "@babel/core": "7.20.5",
     "@storybook/addon-actions": "^6.5.13",
     "@storybook/addon-backgrounds": "^6.5.13",
     "@storybook/addon-docs": "^6.5.13",
