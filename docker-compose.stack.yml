@@ -6,14 +6,19 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER_FILE: /run/secrets/tsuwari_postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/tsuwari_postgres_password
+      POSTGRES_DB_FILE: /run/secrets/tsuwari_postgres_db
     secrets:
-      - doppler_token
+      - tsuwari_postgres_user
+      - tsuwari_postgres_password
+      - tsuwari_postgres_db
     networks:
       - tsuwari
+    ports:
+      - target: 5432
+        published: 54322
+        mode: host
     deploy:
       restart_policy:
         condition: any
@@ -23,72 +28,72 @@ services:
         constraints:
           - node.role == manager
 
-  backup:
-    image: satont/postgresql-backup-s3
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
-      POSTGRES_DATABASE: ${DB_NAME}
-      POSTGRES_HOST: ${DB_HOST}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
-      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
-      S3_BUCKET: ${S3_BUCKET}
-      S3_PREFIX: ${S3_PREFIX}
-      SCHEDULE: ${S3_SCHEDULE}
-      S3_REGION: ${S3_REGION}
-      S3_ENDPOINT: ${S3_ENDPOINT}
-    secrets:
-      - doppler_token
-    networks:
-      - tsuwari
-    deploy:
-      restart_policy:
-        condition: any
-        delay: 3s
-        max_attempts: 5
+  # backup:
+  #   image: satont/postgresql-backup-s3
+  #   environment:
+  #     POSTGRES_DATABASE: ${DB_NAME}
+  #     POSTGRES_HOST: ${DB_HOST}
+  #     POSTGRES_USER: ${DB_USER}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #     S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+  #     S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+  #     S3_BUCKET: ${S3_BUCKET}
+  #     S3_PREFIX: ${S3_PREFIX}
+  #     SCHEDULE: ${S3_SCHEDULE}
+  #     S3_REGION: ${S3_REGION}
+  #     S3_ENDPOINT: ${S3_ENDPOINT}
+  #   secrets:
+  #     - tsuwari_doppler_token
+  #   networks:
+  #     - tsuwari
+  #   deploy:
+  #     restart_policy:
+  #       condition: any
+  #       delay: 3s
+  #       max_attempts: 5
 
-  minio:
-    image: quay.io/minio/minio
-    command: server --address 0.0.0.0:9000 --console-address ":9001" /data
-    volumes:
-      - minio-data:/data
-    ports:
-      - 9000:9000
-      - 9001:9001
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
-      MINIO_ROOT_USER: ${MINIO_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
-      MINIO_REGION_NAME: eu-east-1
-      MINIO_SERVER_URL: https://minio.tsuwari.app
-    secrets:
-      - doppler_token
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-f",
-          "http://localhost:9000/minio/health/live"
-        ]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-    networks:
-      - tsuwari
-    deploy:
-      restart_policy:
-        condition: any
-        delay: 3s
-        max_attempts: 5
+  # minio:
+  #   image: quay.io/minio/minio
+  #   command: server --address 0.0.0.0:9000 --console-address ":9001" /data
+  #   volumes:
+  #     - minio-data:/data
+  #   ports:
+  #     - 9000:9000
+  #     - 9001:9001
+  #   environment:
+  #     MINIO_ROOT_USER: ${MINIO_USER}
+  #     MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+  #     MINIO_REGION_NAME: eu-east-1
+  #     MINIO_SERVER_URL: https://minio.tsuwari.app
+  #   secrets:
+  #     - tsuwari_doppler_token
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD",
+  #         "curl",
+  #         "-f",
+  #         "http://localhost:9000/minio/health/live"
+  #       ]
+  #     interval: 30s
+  #     timeout: 20s
+  #     retries: 3
+  #   networks:
+  #     - tsuwari
+  #   deploy:
+  #     restart_policy:
+  #       condition: any
+  #       delay: 3s
+  #       max_attempts: 5
 
   migrations:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: migrations
     image: registry.satont.dev/tsuwari/migrations
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     networks:
       - tsuwari
     deploy:
@@ -101,13 +106,11 @@ services:
     image: redis/redis-stack:latest
     volumes:
       - redis-data:/data
-    ports:
-      - 6379:6379
     environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
-      REDIS_ARGS: --requirepass ${DB_PASSWORD}
+      REDIS_PASS_FILE: /run/secrets/tsuwari_redis_password
+      REDIS_ARGS: --requirepass "$$(cat $$REDIS_PASS_FILE)"
     secrets:
-      - doppler_token
+      - tsuwari_redis_password
     networks:
       - tsuwari
     deploy:
@@ -121,10 +124,8 @@ services:
 
   nats:
     image: nats:latest
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     networks:
       - tsuwari
     deploy:
@@ -134,13 +135,17 @@ services:
         max_attempts: 5
 
   api:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: api
     image: registry.satont.dev/tsuwari/api
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     ports:
-      - "3004-3008:3002"
+      - target: 3002
+        published: 3002
+        mode: host
     networks:
       - tsuwari
     deploy:
@@ -148,18 +153,20 @@ services:
         condition: any
         delay: 3s
         max_attempts: 5
-      mode: replicated
-      replicas: 4
+      # mode: replicated
+      # replicas: 1
       placement:
         constraints:
           - node.role == manager
 
   bots:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: bots
     image: registry.satont.dev/tsuwari/bots
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     networks:
       - tsuwari
     deploy:
@@ -170,10 +177,8 @@ services:
 
   watched:
     image: registry.satont.dev/tsuwari/watched
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     networks:
       - tsuwari
     deploy:
@@ -185,27 +190,31 @@ services:
       replicas: 8
 
   parser:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: parser
     image: registry.satont.dev/tsuwari/parser
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     deploy:
       restart_policy:
         condition: any
         delay: 3s
         max_attempts: 5
       mode: replicated
-      replicas: 16
+      replicas: 50
     networks:
       - tsuwari
 
   timers:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: timers
     image: registry.satont.dev/tsuwari/timers
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     networks:
       - tsuwari
     deploy:
@@ -215,11 +224,13 @@ services:
         max_attempts: 5
 
   scheduler:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: scheduler
     image: registry.satont.dev/tsuwari/scheduler
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     networks:
       - tsuwari
     deploy:
@@ -229,11 +240,13 @@ services:
         max_attempts: 5
 
   streamstatus:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: streamstatus
     image: registry.satont.dev/tsuwari/streamstatus
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     networks:
       - tsuwari
     deploy:
@@ -243,13 +256,17 @@ services:
         max_attempts: 5
 
   eventsub:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: eventsub
     image: registry.satont.dev/tsuwari/eventsub
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     ports:
-      - "3003:3003"
+      - target: 3003
+        published: 3003
+        mode: host
     networks:
       - tsuwari
     deploy:
@@ -262,11 +279,13 @@ services:
           - node.role == manager
 
   dota:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: dota
     image: registry.satont.dev/tsuwari/dota
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     networks:
       - tsuwari
     deploy:
@@ -276,14 +295,16 @@ services:
         max_attempts: 5
 
   eval:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: eval
     image: registry.satont.dev/tsuwari/eval
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     deploy:
       mode: replicated
-      replicas: 16
+      replicas: 50
       restart_policy:
         condition: any
         delay: 3s
@@ -292,11 +313,13 @@ services:
       - tsuwari
 
   integrations:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: integrations
     image: registry.satont.dev/tsuwari/dota
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     networks:
       - tsuwari
     deploy:
@@ -306,13 +329,17 @@ services:
         max_attempts: 5
 
   web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: web
     image: registry.satont.dev/tsuwari/web
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     ports:
-      - 3001:3000
+      - target: 3000
+        published: 3001
+        mode: host
     networks:
       - tsuwari
     deploy:
@@ -325,13 +352,17 @@ services:
           - node.role == manager
 
   dashboard:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: dashboard
     image: registry.satont.dev/tsuwari/dashboard
-    environment:
-      DOPPLER_TOKEN: /run/secrets/doppler_token
     secrets:
-      - doppler_token
+      - tsuwari_doppler_token
     ports:
-      - 3002:8080
+      - target: 8080
+        published: 3002
+        mode: host
     networks:
       - tsuwari
     deploy:
@@ -342,12 +373,6 @@ services:
       placement:
         constraints:
           - node.role == manager
-
-  ubuntu:
-    image: ubuntu
-    command: export DOPPLER_TOKEN=$(cat /run/secrets/doppler_token) sleep 1d
-    secrets:
-      - doppler_token
 
 volumes:
   postgres-data:
@@ -362,5 +387,13 @@ networks:
     attachable: true
 
 secrets:
-  doppler_token:
+  tsuwari_doppler_token:
+    external: true
+  tsuwari_redis_password:
+    external: true
+  tsuwari_postgres_user:
+    external: true
+  tsuwari_postgres_db:
+    external: true
+  tsuwari_postgres_password:
     external: true
