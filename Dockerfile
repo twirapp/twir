@@ -10,7 +10,8 @@ RUN apk add --no-cache protoc git curl
 WORKDIR /app
 RUN npm i -g pnpm@7
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc go.mod go.work go.work.sum ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc go.mod go.work go.work.sum docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 
 COPY libs libs
 COPY apps apps
@@ -30,8 +31,7 @@ FROM node:18-alpine as node_deps_base
 WORKDIR /app
 RUN npm i -g pnpm
 RUN apk add git
-COPY --from=base /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/turbo.json /app/.npmrc /app/docker-entrypoint.sh ./
-RUN chmod +x docker-entrypoint.sh
+COPY --from=base /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/turbo.json /app/.npmrc ./
 
 FROM node_deps_base as dota_deps
 RUN apk add openssh
