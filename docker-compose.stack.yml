@@ -106,11 +106,6 @@ services:
     image: redis/redis-stack:latest
     volumes:
       - redis-data:/data
-    environment:
-      REDIS_PASS_FILE: /run/secrets/tsuwari_redis_password
-      REDIS_ARGS: --requirepass "$$(cat $$REDIS_PASS_FILE)"
-    secrets:
-      - tsuwari_redis_password
     networks:
       - tsuwari
     deploy:
