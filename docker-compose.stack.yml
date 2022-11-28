@@ -317,7 +317,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: integrations
-    image: registry.satont.dev/tsuwari/dota
+    image: registry.satont.dev/tsuwari/integrations
     secrets:
       - tsuwari_doppler_token
     networks:
