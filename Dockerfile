@@ -47,7 +47,7 @@ WORKDIR /app
 COPY --from=dota_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh ./
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD "pnpm start:dota"
+CMD ["pnpm start:dota"]
 
 FROM node_deps_base as eval_deps
 COPY --from=base /app/apps/eval apps/eval/
@@ -60,7 +60,7 @@ WORKDIR /app
 COPY --from=eval_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh ./
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD "pnpm start:eval"
+CMD ["pnpm start:eval"]
 
 FROM node_deps_base as eventsub_deps
 COPY --from=base /app/apps/eventsub apps/eventsub/
@@ -75,7 +75,7 @@ WORKDIR /app
 COPY --from=eventsub_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh ./
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD "pnpm start:eventsub"
+CMD ["pnpm start:eventsub"]
 
 FROM node_deps_base as integrations_deps
 COPY --from=base /app/apps/integrations apps/integrations/
@@ -90,7 +90,7 @@ WORKDIR /app
 COPY --from=integrations_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh ./
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD "pnpm start:integrations"
+CMD ["pnpm start:integrations"]
 
 FROM node_deps_base as scheduler_deps
 COPY --from=base /app/apps/scheduler apps/scheduler/
@@ -105,7 +105,7 @@ WORKDIR /app
 COPY --from=scheduler_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh ./
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD "pnpm start:scheduler"
+CMD ["pnpm start:scheduler"]
 
 FROM node_deps_base as streamstatus_deps
 COPY --from=base /app/apps/streamstatus apps/streamstatus/
@@ -120,7 +120,7 @@ WORKDIR /app
 COPY --from=streamstatus_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh ./
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD "pnpm start:streamstatus"
+CMD ["pnpm start:streamstatus"]
 
 FROM node_deps_base as migrations_deps
 COPY --from=base /app/tsconfig.json /app/tsconfig.base.json ./
@@ -133,7 +133,7 @@ WORKDIR /app
 COPY --from=migrations_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh ./
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD "pnpm run migrate:deploy"
+CMD ["pnpm run migrate:deploy"]
 
 FROM node_deps_base as web_deps
 COPY --from=base /app/apps/web apps/web/
@@ -149,7 +149,7 @@ COPY --from=web_deps /app/ /app/
 EXPOSE 3000
 COPY --from=base /app/docker-entrypoint.sh ./
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD "pnpm start:web"
+CMD ["pnpm start:web"]
 
 FROM node_deps_base as dashboard_deps
 COPY --from=base /app/apps/frontend apps/frontend/
@@ -193,7 +193,7 @@ FROM go_prod_base as parser
 COPY --from=parser_deps /app/apps/parser/out /bin/parser
 COPY --from=base /app/docker-entrypoint.sh ./
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD "/bin/parser"
+CMD ["/bin/parser"]
 
 FROM golang_deps_base as timers_deps
 RUN cd apps/timers && go mod download
@@ -203,7 +203,7 @@ FROM go_prod_base as timers
 COPY --from=timers_deps /app/apps/timers/out /bin/timers
 COPY --from=base /app/docker-entrypoint.sh ./
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD "/bin/timers"
+CMD ["/bin/timers"]
 
 FROM golang_deps_base as api_deps
 RUN cd apps/api && go mod download
@@ -213,7 +213,7 @@ FROM go_prod_base as api
 COPY --from=api_deps /app/apps/api/out /bin/api
 COPY --from=base /app/docker-entrypoint.sh ./
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD "/bin/api"
+CMD ["/bin/api"]
 
 FROM golang_deps_base as bots_deps
 RUN cd apps/bots && go mod download
@@ -223,7 +223,7 @@ FROM go_prod_base as bots
 COPY --from=bots_deps /app/apps/bots/out /bin/bots
 COPY --from=base /app/docker-entrypoint.sh ./
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD "/bin/bots"
+CMD ["/bin/bots"]
 
 FROM golang_deps_base as watched_deps
 RUN cd apps/watched && go mod download
@@ -233,4 +233,4 @@ FROM go_prod_base as watched
 COPY --from=watched_deps /app/apps/watched/out /bin/watched
 COPY --from=base /app/docker-entrypoint.sh ./
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD "/bin/watched"
+CMD ["/bin/watched"]
