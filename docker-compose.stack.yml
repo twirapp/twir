@@ -23,7 +23,7 @@ services:
       restart_policy:
         condition: any
         delay: 3s
-        max_attempts: 5
+        max_attempts: 10
       placement:
         constraints:
           - node.role == manager
@@ -50,7 +50,7 @@ services:
   #     restart_policy:
   #       condition: any
   #       delay: 3s
-  #       max_attempts: 5
+  #       max_attempts: 10
 
   # minio:
   #   image: quay.io/minio/minio
@@ -84,7 +84,7 @@ services:
   #     restart_policy:
   #       condition: any
   #       delay: 3s
-  #       max_attempts: 5
+  #       max_attempts: 10
 
   migrations:
     build:
@@ -100,7 +100,7 @@ services:
       restart_policy:
         condition: on-failure
         delay: 3s
-        max_attempts: 5
+        max_attempts: 10
 
   redis:
     image: redis/redis-stack:latest
@@ -117,7 +117,7 @@ services:
       restart_policy:
         condition: any
         delay: 3s
-        max_attempts: 5
+        max_attempts: 10
       placement:
         constraints:
           - node.role == manager
@@ -132,7 +132,7 @@ services:
       restart_policy:
         condition: any
         delay: 3s
-        max_attempts: 5
+        max_attempts: 10
 
   api:
     build:
@@ -152,7 +152,7 @@ services:
       restart_policy:
         condition: any
         delay: 3s
-        max_attempts: 5
+        max_attempts: 10
       # mode: replicated
       # replicas: 1
       placement:
@@ -172,8 +172,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 3s
-        max_attempts: 5
+        delay: 20s
+        max_attempts: 10
 
   watched:
     image: registry.satont.dev/tsuwari/watched
@@ -184,8 +184,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 3s
-        max_attempts: 5
+        delay: 20s
+        max_attempts: 10
       mode: replicated
       replicas: 8
 
@@ -200,8 +200,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 3s
-        max_attempts: 5
+        delay: 20s
+        max_attempts: 10
       mode: replicated
       replicas: 50
     networks:
@@ -220,8 +220,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 3s
-        max_attempts: 5
+        delay: 20s
+        max_attempts: 10
 
   scheduler:
     build:
@@ -236,8 +236,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 3s
-        max_attempts: 5
+        delay: 20s
+        max_attempts: 10
 
   streamstatus:
     build:
@@ -252,8 +252,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 3s
-        max_attempts: 5
+        delay: 20s
+        max_attempts: 10
 
   eventsub:
     build:
@@ -272,8 +272,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 3s
-        max_attempts: 5
+        delay: 20s
+        max_attempts: 10
       placement:
         constraints:
           - node.role == manager
@@ -291,8 +291,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 3s
-        max_attempts: 5
+        delay: 20s
+        max_attempts: 10
 
   eval:
     build:
@@ -307,8 +307,8 @@ services:
       replicas: 50
       restart_policy:
         condition: any
-        delay: 3s
-        max_attempts: 5
+        delay: 20s
+        max_attempts: 10
     networks:
       - tsuwari
 
@@ -325,8 +325,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 3s
-        max_attempts: 5
+        delay: 20s
+        max_attempts: 10
 
   web:
     build:
@@ -345,8 +345,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 3s
-        max_attempts: 5
+        delay: 20s
+        max_attempts: 10
       placement:
         constraints:
           - node.role == manager
@@ -368,8 +368,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 3s
-        max_attempts: 5
+        delay: 20s
+        max_attempts: 10
       placement:
         constraints:
           - node.role == manager
