@@ -30,8 +30,8 @@ FROM node:18-alpine as node_deps_base
 WORKDIR /app
 RUN npm i -g pnpm
 RUN apk add git
-COPY --from=base /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/turbo.json /app/.npmrc ./
-
+COPY --from=base /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/turbo.json /app/.npmrc /app/docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 
 FROM node_deps_base as dota_deps
 RUN apk add openssh
@@ -45,8 +45,9 @@ RUN pnpm install --prod
 FROM node_prod_base as dota
 WORKDIR /app
 COPY --from=dota_deps /app/ /app/
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["pnpm", "start:dota"]
+COPY --from=base /app/docker-entrypoint.sh ./
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD "pnpm start:dota"
 
 FROM node_deps_base as eval_deps
 COPY --from=base /app/apps/eval apps/eval/
@@ -57,8 +58,9 @@ RUN pnpm install --prod
 FROM node_prod_base as eval
 WORKDIR /app
 COPY --from=eval_deps /app/ /app/
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["pnpm", "start:eval"]
+COPY --from=base /app/docker-entrypoint.sh ./
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD "pnpm start:eval"
 
 FROM node_deps_base as eventsub_deps
 COPY --from=base /app/apps/eventsub apps/eventsub/
@@ -71,8 +73,9 @@ RUN pnpm install --prod
 FROM node_prod_base as eventsub
 WORKDIR /app
 COPY --from=eventsub_deps /app/ /app/
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["pnpm", "start:eventsub"]
+COPY --from=base /app/docker-entrypoint.sh ./
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD "pnpm start:eventsub"
 
 FROM node_deps_base as integrations_deps
 COPY --from=base /app/apps/integrations apps/integrations/
@@ -85,8 +88,9 @@ RUN pnpm install --prod
 FROM node_prod_base as integrations
 WORKDIR /app
 COPY --from=integrations_deps /app/ /app/
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["pnpm", "start:integrations"]
+COPY --from=base /app/docker-entrypoint.sh ./
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD "pnpm start:integrations"
 
 FROM node_deps_base as scheduler_deps
 COPY --from=base /app/apps/scheduler apps/scheduler/
@@ -99,8 +103,9 @@ RUN pnpm install --prod
 FROM node_prod_base as scheduler
 WORKDIR /app
 COPY --from=scheduler_deps /app/ /app/
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["pnpm", "start:scheduler"]
+COPY --from=base /app/docker-entrypoint.sh ./
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD "pnpm start:scheduler"
 
 FROM node_deps_base as streamstatus_deps
 COPY --from=base /app/apps/streamstatus apps/streamstatus/
@@ -113,8 +118,9 @@ RUN pnpm install --prod
 FROM node_prod_base as streamstatus
 WORKDIR /app
 COPY --from=streamstatus_deps /app/ /app/
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["pnpm", "start:streamstatus"]
+COPY --from=base /app/docker-entrypoint.sh ./
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD "pnpm start:streamstatus"
 
 FROM node_deps_base as migrations_deps
 COPY --from=base /app/tsconfig.json /app/tsconfig.base.json ./
@@ -125,7 +131,9 @@ RUN pnpm install --prod
 FROM node_prod_base as migrations
 WORKDIR /app
 COPY --from=migrations_deps /app/ /app/
-CMD ["pnpm", "run", "migrate:deploy"]
+COPY --from=base /app/docker-entrypoint.sh ./
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD "pnpm run migrate:deploy"
 
 FROM node_deps_base as web_deps
 COPY --from=base /app/apps/web apps/web/
@@ -139,8 +147,9 @@ FROM node_prod_base as web
 WORKDIR /app
 COPY --from=web_deps /app/ /app/
 EXPOSE 3000
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["pnpm", "start:web"]
+COPY --from=base /app/docker-entrypoint.sh ./
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD "pnpm start:web"
 
 FROM node_deps_base as dashboard_deps
 COPY --from=base /app/apps/frontend apps/frontend/
@@ -182,8 +191,9 @@ RUN cd apps/parser && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-
 
 FROM go_prod_base as parser
 COPY --from=parser_deps /app/apps/parser/out /bin/parser
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["/bin/parser"]
+COPY --from=base /app/docker-entrypoint.sh ./
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD "/bin/parser"
 
 FROM golang_deps_base as timers_deps
 RUN cd apps/timers && go mod download
@@ -191,8 +201,9 @@ RUN cd apps/timers && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-
 
 FROM go_prod_base as timers
 COPY --from=timers_deps /app/apps/timers/out /bin/timers
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["/bin/timers"]
+COPY --from=base /app/docker-entrypoint.sh ./
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD "/bin/timers"
 
 FROM golang_deps_base as api_deps
 RUN cd apps/api && go mod download
@@ -200,8 +211,9 @@ RUN cd apps/api && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -
 
 FROM go_prod_base as api
 COPY --from=api_deps /app/apps/api/out /bin/api
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["/bin/api"]
+COPY --from=base /app/docker-entrypoint.sh ./
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD "/bin/api"
 
 FROM golang_deps_base as bots_deps
 RUN cd apps/bots && go mod download
@@ -209,8 +221,9 @@ RUN cd apps/bots && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s 
 
 FROM go_prod_base as bots
 COPY --from=bots_deps /app/apps/bots/out /bin/bots
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["/bin/bots"]
+COPY --from=base /app/docker-entrypoint.sh ./
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD "/bin/bots"
 
 FROM golang_deps_base as watched_deps
 RUN cd apps/watched && go mod download
@@ -218,5 +231,6 @@ RUN cd apps/watched && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="
 
 FROM go_prod_base as watched
 COPY --from=watched_deps /app/apps/watched/out /bin/watched
-ENTRYPOINT ["doppler", "run", "--"]
-CMD ["/bin/watched"]
+COPY --from=base /app/docker-entrypoint.sh ./
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD "/bin/watched"

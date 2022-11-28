@@ -2,7 +2,6 @@ version: "3.9"
 
 services:
   postgres:
-    restart: unless-stopped
     image: postgres:14-alpine
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -25,7 +24,6 @@ services:
           - node.role == manager
 
   backup:
-    restart: unless-stopped
     image: satont/postgresql-backup-s3
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -100,7 +98,6 @@ services:
         max_attempts: 5
 
   redis:
-    restart: unless-stopped
     image: redis/redis-stack:latest
     volumes:
       - redis-data:/data
@@ -123,7 +120,6 @@ services:
           - node.role == manager
 
   nats:
-    restart: unless-stopped
     image: nats:latest
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -138,7 +134,6 @@ services:
         max_attempts: 5
 
   api:
-    restart: unless-stopped
     image: registry.satont.dev/tsuwari/api
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -160,7 +155,6 @@ services:
           - node.role == manager
 
   bots:
-    restart: unless-stopped
     image: registry.satont.dev/tsuwari/bots
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -175,7 +169,6 @@ services:
         max_attempts: 5
 
   watched:
-    restart: unless-stopped
     image: registry.satont.dev/tsuwari/watched
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -192,7 +185,6 @@ services:
       replicas: 8
 
   parser:
-    restart: unless-stopped
     image: registry.satont.dev/tsuwari/parser
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -209,7 +201,6 @@ services:
       - tsuwari
 
   timers:
-    restart: unless-stopped
     image: registry.satont.dev/tsuwari/timers
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -224,7 +215,6 @@ services:
         max_attempts: 5
 
   scheduler:
-    restart: unless-stopped
     image: registry.satont.dev/tsuwari/scheduler
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -239,7 +229,6 @@ services:
         max_attempts: 5
 
   streamstatus:
-    restart: unless-stopped
     image: registry.satont.dev/tsuwari/streamstatus
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -254,7 +243,6 @@ services:
         max_attempts: 5
 
   eventsub:
-    restart: unless-stopped
     image: registry.satont.dev/tsuwari/eventsub
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -274,7 +262,6 @@ services:
           - node.role == manager
 
   dota:
-    restart: unless-stopped
     image: registry.satont.dev/tsuwari/dota
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -289,7 +276,6 @@ services:
         max_attempts: 5
 
   eval:
-    restart: unless-stopped
     image: registry.satont.dev/tsuwari/eval
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -306,7 +292,6 @@ services:
       - tsuwari
 
   integrations:
-    restart: unless-stopped
     image: registry.satont.dev/tsuwari/dota
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -321,7 +306,6 @@ services:
         max_attempts: 5
 
   web:
-    restart: unless-stopped
     image: registry.satont.dev/tsuwari/web
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -341,7 +325,6 @@ services:
           - node.role == manager
 
   dashboard:
-    restart: unless-stopped
     image: registry.satont.dev/tsuwari/dashboard
     environment:
       DOPPLER_TOKEN: /run/secrets/doppler_token
@@ -359,6 +342,12 @@ services:
       placement:
         constraints:
           - node.role == manager
+
+  ubuntu:
+    image: ubuntu
+    command: export DOPPLER_TOKEN=$(cat /run/secrets/doppler_token) sleep 1d
+    secrets:
+      - doppler_token
 
 volumes:
   postgres-data:
