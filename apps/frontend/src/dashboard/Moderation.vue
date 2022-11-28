@@ -9,7 +9,7 @@ import { useUpdatingData } from '@/functions/useUpdatingData';
 import { api } from '@/plugins/api';
 import { selectedDashboardStore } from '@/stores/userStore';
 
-const settings = ref<ModerationSettingsDto[]>();
+const settings = ref<ModerationSettingsDto[]>([]);
 const { t } = useI18n({
   useScope: 'global',
 });
@@ -34,8 +34,26 @@ async function save() {
     <div class="flow-root">
       <div class="btn btn-primary btn-sm float-left mb-5 md:w-auto rounded w-full">
         <button
-          class="bg-purple-600 duration-150 ease-in-out focus:outline-none focus:ring-0 font-medium hover:bg-purple-700 inline-block leading-tight px-6 py-2.5 rounded shadow text-white text-xs transition uppercase"
-          @click="save">
+          class="
+            bg-purple-600
+            duration-150
+            ease-in-out
+            focus:outline-none
+            focus:ring-0
+            font-medium
+            hover:bg-purple-700
+            inline-block
+            leading-tight
+            px-6
+            py-2.5
+            rounded
+            shadow
+            text-white text-xs
+            transition
+            uppercase
+          "
+          @click="save"
+        >
           {{ t('buttons.save') }}
         </button>
       </div>

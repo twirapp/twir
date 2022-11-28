@@ -9,7 +9,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { MaybeElement } from '@vueuse/core';
 import { toRef } from 'vue';
 
 import PinkBlob from '@/assets/blob-pink.png';
@@ -17,7 +16,7 @@ import useFollowingBgImage from '@/utils/useFollowingBgImage.js';
 
 const props =
   defineProps<{
-    card: MaybeElement;
+    card: HTMLElement | null;
   }>();
 
 const cardRef = toRef(props, 'card');

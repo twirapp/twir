@@ -1,5 +1,5 @@
 import type { BotFeature } from '@/data/landing/botFeatures.js';
-import type { PricePlansLocale } from '@/data/landing/pricingPlans.js';
+import type { PricingPlansLocale } from '@/data/landing/pricingPlans.js';
 import type { NavMenuLocale } from '@/data/landing/sections.js';
 import type { TeamMemberLocale } from '@/data/landing/team.js';
 
@@ -44,7 +44,7 @@ interface ILandingLocale {
       title: string;
       features: string;
       perMonth: string;
-      plans: PricePlansLocale;
+      plans: PricingPlansLocale;
     };
     subscribeForUpdates: {
       title: string;
