@@ -82,6 +82,11 @@ func newBot(opts *ClientOpts) *types.BotClient {
 					panic(err)
 				}
 
+				if meReq.Error != "" {
+					fmt.Println(meReq.ErrorMessage)
+					panic(meReq.Error)
+				}
+
 				if len(meReq.Data.Users) == 0 {
 					panic("No user found for bot " + opts.Model.ID)
 				}

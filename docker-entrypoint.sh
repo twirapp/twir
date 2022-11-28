@@ -1,3 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-DOPPLER_TOKEN="$(cat /run/secrets/doppler_token)" doppler run -- $@
+cat /run/secrets/tsuwari_doppler_token | doppler configure set token --scope / > /dev/null
+
+exec doppler run -- "$@"
