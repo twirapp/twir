@@ -1,15 +1,15 @@
 package modules
 
 type YoutubeUserSettings struct {
-	MaxRequests   *int   `json:"maxRequests"`
-	MinWatchTime  *int64 `json:"minWatchTime"`
-	MinMessages   *int   `json:"minMessages"`
-	MinFollowTime *int   `json:"minFollowTime"`
+	MaxRequests   int   ` json:"maxRequests"`
+	MinWatchTime  int64 ` json:"minWatchTime"`
+	MinMessages   int   `json:"minMessages"`
+	MinFollowTime int   ` json:"minFollowTime"`
 }
 
 type YotubeSongSettings struct {
-	MaxLength          *int     `validate:"lte=86400"          json:"maxLength"`
-	MinViews           *int     `validate:"lte=10000000000000" json:"minViews"`
+	MaxLength          int      `validate:"lte=86400"          json:"maxLength"`
+	MinViews           int      `validate:"lte=10000000000000" json:"minViews"`
 	AcceptedCategories []string `validate:"dive,max=300"       json:"acceptedCategories"`
 }
 
@@ -31,19 +31,20 @@ type YoutubeBlacklistSettingsChannels struct {
 }
 
 type YoutubeBlacklistSettings struct {
-	Users        []YoutubeBlacklistSettingsUsers    `validate:"dive"         json:"users"`
-	Songs        []YoutubeBlacklistSettingsSongs    `validate:"dive"         json:"songs"`
-	Channels     []YoutubeBlacklistSettingsChannels `validate:"dive"         json:"channels"`
-	ArtistsNames []string                           `validate:"dive,max=300" json:"artistsNames"`
+	Users        []YoutubeBlacklistSettingsUsers    `validate:"required,dive"         json:"users"`
+	Songs        []YoutubeBlacklistSettingsSongs    `validate:"required,dive"         json:"songs"`
+	Channels     []YoutubeBlacklistSettingsChannels `validate:"required,dive"         json:"channels"`
+	ArtistsNames []string                           `validate:"required,dive,max=300" json:"artistsNames"`
 }
 
 type YoutubeSettings struct {
-	MaxRequests             *int                      `validate:"lte=500" json:"maxRequests"`
-	AcceptOnlyWhenOnline    *bool                     `                   json:"acceptOnlyWhenOnline"`
-	ChannelPointsRewardName *string                   `validate:"max=100" json:"channelPointsRewardName"`
-	User                    *YoutubeUserSettings      `validate:"dive"    json:"user"`
-	Song                    *YotubeSongSettings       `validate:"dive"    json:"song"`
-	BlackList               *YoutubeBlacklistSettings `validate:"dive"    json:"blacklist"`
+	Enabled                 *bool                    `validate:"required" json:"enabled"`
+	MaxRequests             int                      `validate:"lte=500" json:"maxRequests"`
+	AcceptOnlyWhenOnline    *bool                    `validate:"required"                   json:"acceptOnlyWhenOnline"`
+	ChannelPointsRewardName string                   `validate:"max=100" json:"channelPointsRewardName"`
+	User                    YoutubeUserSettings      `validate:"required"    json:"user"`
+	Song                    YotubeSongSettings       `validate:"required"    json:"song"`
+	BlackList               YoutubeBlacklistSettings `validate:"required"    json:"blackList"`
 }
 
 type YouTube struct {

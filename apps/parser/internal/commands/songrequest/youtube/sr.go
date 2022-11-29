@@ -8,6 +8,7 @@ import (
 	"log"
 	"regexp"
 	"time"
+
 	model "tsuwari/models"
 	"tsuwari/parser/internal/config/twitch"
 	"tsuwari/parser/internal/types"
@@ -121,6 +122,11 @@ var SrCommand = types.DefaultCommand{
 				result.Result = append(result.Result, "internal error")
 				return result
 			}
+
+			if !*parsedSettings.Enabled {
+				result.Result = append(result.Result, "songrequests not enabled")
+			}
+
 			err = validate(
 				ctx.ChannelId,
 				ctx.SenderId,
@@ -202,36 +208,33 @@ func validate(
 		return nil
 	}
 
-	if settings.BlackList != nil {
-		if settings.BlackList.Users != nil {
-			_, isUserBlackListed := lo.Find(
-				settings.BlackList.Users,
-				func(u youtube.YoutubeBlacklistSettingsUsers) bool {
-					return u.UserID == userId
-				},
-			)
+	if len(settings.BlackList.Users) > 0 {
+		_, isUserBlackListed := lo.Find(
+			settings.BlackList.Users,
+			func(u youtube.YoutubeBlacklistSettingsUsers) bool {
+				return u.UserID == userId
+			},
+		)
 
-			if isUserBlackListed {
-				return errors.New("you cannot request song because you are blacklisted")
-			}
+		if isUserBlackListed {
+			return errors.New("you cannot request song because you are blacklisted")
 		}
-
-		if settings.BlackList.Channels != nil {
-			_, isChannelBlacklisted := lo.Find(
-				settings.BlackList.Channels,
-				func(u youtube.YoutubeBlacklistSettingsChannels) bool {
-					return u.ID == song.ChannelID
-				},
-			)
-
-			if isChannelBlacklisted {
-				return errors.New("you cannot request that song because channel is blacklisted")
-			}
-		}
-
 	}
 
-	if settings.AcceptOnlyWhenOnline != nil && *settings.AcceptOnlyWhenOnline {
+	if len(settings.BlackList.Channels) > 0 {
+		_, isChannelBlacklisted := lo.Find(
+			settings.BlackList.Channels,
+			func(u youtube.YoutubeBlacklistSettingsChannels) bool {
+				return u.ID == song.ChannelID
+			},
+		)
+
+		if isChannelBlacklisted {
+			return errors.New("you cannot request that song because channel is blacklisted")
+		}
+	}
+
+	if *settings.AcceptOnlyWhenOnline {
 		stream := &model.ChannelsStreams{}
 		db.Where(`"userId" = ?`, channelId).First(stream)
 		if stream.ID == "" {
@@ -239,94 +242,90 @@ func validate(
 		}
 	}
 
-	if settings.MaxRequests != nil {
+	if settings.MaxRequests != 0 {
 		var count int64
 		db.Model(&model.RequestedSong{}).
 			Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelId).
 			Count(&count)
-		if count >= int64(*settings.MaxRequests) {
+		if count >= int64(settings.MaxRequests) {
 			return errors.New("maximum number of tracks ordered now, try later")
 		}
 	}
 
-	if settings.Song != nil {
-		if settings.Song.MinViews != nil && song.Views < *settings.Song.MinViews {
+	if settings.Song.MinViews != 0 && song.Views < settings.Song.MinViews {
+		return errors.New(
+			fmt.Sprintf("song haven't %v views for request", settings.Song.MinViews),
+		)
+	}
+
+	if settings.Song.MaxLength != 0 &&
+		song.Duration > time.Minute*time.Duration(settings.Song.MaxLength) {
+		return errors.New("that song is to long for request")
+	}
+
+	// TODO: check categories
+
+	if settings.User.MaxRequests != 0 {
+		var count int64
+		db.
+			Model(&model.RequestedSong{}).
+			Where(`"orderedById" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, userId, channelId).
+			Count(&count)
+		if count >= int64(settings.User.MaxRequests) {
+			return errors.New("maximum number of tracks ordered now, try later")
+		}
+	}
+
+	if settings.User.MinMessages != 0 || settings.User.MinWatchTime != 0 {
+		user := &model.Users{}
+		db.Where("id = ?", userId).Preload("Stats").First(&user)
+		if user.ID == "" {
 			return errors.New(
-				fmt.Sprintf("song haven't %v views for request", *settings.Song.MinViews),
+				"there is restrictions on user, but i cannot find you in db, sorry. :(",
 			)
 		}
 
-		if settings.Song.MaxLength != nil &&
-			song.Duration > time.Minute*time.Duration(*settings.Song.MaxLength) {
-			return errors.New("that song is to long for request")
+		if settings.User.MinMessages != 0 &&
+			user.Stats.Messages < settings.User.MinMessages {
+			return errors.New(
+				fmt.Sprintf("you haven't %v messages for request song", user.Stats.Messages),
+			)
 		}
 
-		// TODO: check categories
+		watchedInMinutes := time.Duration(user.Stats.Watched) * time.Millisecond
+		if settings.User.MinWatchTime != 0 &&
+			int64(watchedInMinutes.Minutes()) < settings.User.MinWatchTime {
+
+			return errors.New(
+				fmt.Sprintf(
+					"you haven't watched stream for %v minutes for request song",
+					time.Minute*time.Duration(settings.User.MinWatchTime),
+				),
+			)
+		}
 	}
 
-	if settings.User != nil {
-		if settings.User.MaxRequests != nil {
-			var count int64
-			db.
-				Model(&model.RequestedSong{}).
-				Where(`"orderedById" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, userId, channelId).
-				Count(&count)
-			if count >= int64(*settings.User.MaxRequests) {
-				return errors.New("maximum number of tracks ordered now, try later")
-			}
+	if settings.User.MinFollowTime != 0 {
+		neededDuration := time.Minute * time.Duration(settings.User.MinFollowTime)
+		followReq, err := tw.Client.GetUsersFollows(&helix.UsersFollowsParams{
+			FromID: userId,
+			ToID:   channelId,
+		})
+		if err != nil {
+			return errors.New("internal error when checking follow")
+		}
+		if followReq.Data.Total == 0 {
+			return errors.New("for request song you need to be a followed")
 		}
 
-		if settings.User.MinMessages != nil || settings.User.MinWatchTime != nil {
-			user := &model.Users{}
-			db.Where("id = ?", userId).Preload("Stats").First(&user)
-			if user.ID == "" {
-				return errors.New(
-					"there is restrictions on user, but i cannot find you in db, sorry. :(",
-				)
-			}
-
-			if settings.User.MinMessages != nil &&
-				user.Stats.Messages < *settings.User.MinMessages {
-				return errors.New(
-					fmt.Sprintf("you haven't %v messages for request song", user.Stats.Messages),
-				)
-			}
-
-			watchedInMinutes := time.Duration(user.Stats.Watched) * time.Millisecond
-			if settings.User.MinWatchTime != nil &&
-				int64(watchedInMinutes.Minutes()) < *settings.User.MinWatchTime {
-
-				return errors.New(
-					fmt.Sprintf(
-						"you haven't watched stream for %v minutes for request song",
-						time.Minute*time.Duration(*settings.User.MinWatchTime),
-					),
-				)
-			}
-		}
-
-		if settings.User.MinFollowTime != nil {
-			neededDuration := time.Minute * time.Duration(*settings.User.MinFollowTime)
-			followReq, err := tw.Client.GetUsersFollows(&helix.UsersFollowsParams{
-				FromID: userId,
-				ToID:   channelId,
-			})
-			if err != nil {
-				return errors.New("internal error when checking follow")
-			}
-			if followReq.Data.Total == 0 {
-				return errors.New("for request song you need to be a followed")
-			}
-
-			followDuration := time.Since(followReq.Data.Follows[0].FollowedAt)
-			if followDuration.Minutes() < neededDuration.Minutes() {
-				return errors.New(
-					fmt.Sprintf(
-						"you need to be follower at least %v minutes for request song",
-						neededDuration.Minutes(),
-					),
-				)
-			}
+		followDuration := time.Since(followReq.Data.Follows[0].FollowedAt)
+		if followDuration.Minutes() < neededDuration.Minutes() {
+			return errors.New(
+				fmt.Sprintf(
+					"you need to be follower at least %v minutes for request song",
+					neededDuration.Minutes(),
+				),
+			)
 		}
 	}
 

@@ -42,7 +42,7 @@ func handlePost(channelId string, dto *youtube.YoutubeSettings, services types.S
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	if dto.BlackList != nil && dto.BlackList.Users != nil {
+	if len(dto.BlackList.Users) > 0 {
 		twitchUsers := []helix.User{}
 		twitchUsersChunks := lo.Chunk(dto.BlackList.Users, 100)
 		mu := sync.Mutex{}

@@ -73,5 +73,8 @@
     ]
   },
   "go.goroot": "${workspaceFolder}/.devbox/nix/profile/default/share/go",
-  "go.toolsGopath": "${workspaceFolder}/devbox/go"
+  "go.toolsGopath": "${workspaceFolder}/devbox/go",
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  }
 }
