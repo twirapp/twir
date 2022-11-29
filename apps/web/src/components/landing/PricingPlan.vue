@@ -36,13 +36,13 @@
           class="inline-grid grid-flow-col justify-start"
         >
           <TswIcon
-            :name="featureTypeIcons[feature.status]"
+            :name="planGeneral[featureId].isAvaible === true ? 'Check' : 'Minus'"
             :height="22"
             :width="22"
             :class="`feature-icon mr-3 ${
               colorTheme === 'purple'
                 ? 'stroke-white-100'
-                : feature.status === 'accessible'
+                : planGeneral[featureId].isAvaible === true
                 ? 'stroke-purple-80'
                 : 'stroke-gray-70'
             }`"
@@ -58,13 +58,18 @@
 import { TswIcon } from '@tsuwari/ui-components';
 import { computed } from 'vue';
 
-import { featureTypeIcons } from '@/data/landing/pricingPlans.js';
-import type { PlanColorTheme, PricePlanLocale } from '@/data/landing/pricingPlans.js';
+import type {
+  PlanColorTheme,
+  PricingPlanLocale,
+  PricingPlans,
+  PlanGeneral,
+} from '@/data/landing/pricingPlans.js';
 import { useTranslation } from '@/services/locale';
 
 const props =
   defineProps<{
-    plan: PricePlanLocale;
+    plan: PricingPlanLocale<PricingPlans>;
+    planGeneral: PlanGeneral<PricingPlans>;
     colorTheme: PlanColorTheme;
   }>();
 

@@ -1,6 +1,6 @@
 <template>
   <section class="py-24 max-md:py-18 min-md:px-10">
-    <div class="container max-w-[1200px]">
+    <div class="container max-w-[1080px]">
       <div class="flex w-full justify-between mb-14 max-md:mb-7 max-md:flex-col">
         <h2
           class="

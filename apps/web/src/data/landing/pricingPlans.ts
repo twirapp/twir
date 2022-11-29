@@ -1,36 +1,13 @@
-import type { IconName } from '@tsuwari/ui-components';
-
-export type FeatureType = 'accessible' | 'limited';
-
-interface PlanFeatures {
-  [PlanId.basic]: BasicPlanFeatures;
-  [PlanId.pro]: ProPlanFeatures;
-}
-
-export type PricePlanLocale = PricePlansLocale[keyof PricePlansLocale];
-
-export type PricePlansLocale = {
-  [P in PlanId]: {
-    name: string;
-    price: number;
-    features: {
-      [F in PlanFeatures[P]]: {
-        name: string;
-        status: FeatureType;
-      };
-    };
-  };
-};
-
-export type PlanColorTheme = 'purple' | 'gray';
-
-export type PlanColorThemes = { [K in PlanId]: PlanColorTheme };
-
-export enum PlanId {
+// List of pricing plans
+export enum PricingPlans {
   basic,
   pro,
 }
 
+/**
+ * Enums for plan features are created to index a unique key for each
+ * feature. We need it for mapping translations with right feature.
+ */
 export enum BasicPlanFeatures {
   first,
   second,
@@ -43,12 +20,64 @@ export enum ProPlanFeatures {
   last,
 }
 
-export const planColorThemes: PlanColorThemes = {
-  [PlanId.basic]: 'gray',
-  [PlanId.pro]: 'purple',
+// Mapping of plan enum with plan features
+interface PlanFeatures {
+  [PricingPlans.basic]: BasicPlanFeatures;
+  [PricingPlans.pro]: ProPlanFeatures;
+}
+
+type PlanFeature = { name: string; isAvaible: boolean };
+
+// General info it's information that will not change depends on translation
+export type PlanGeneral<Plan extends PricingPlans> = {
+  [Feature in PlanFeatures[Plan]]: Pick<PlanFeature, 'isAvaible'>;
 };
 
-export const featureTypeIcons: Record<FeatureType, IconName> = {
-  accessible: 'Check',
-  limited: 'Minus',
+type PlanFeaturesGeneral = {
+  [Plan in PricingPlans]: PlanGeneral<Plan>;
+};
+
+export const planFeaturesGeneral: PlanFeaturesGeneral = {
+  [PricingPlans.basic]: {
+    [BasicPlanFeatures.first]: {
+      isAvaible: true,
+    },
+    [BasicPlanFeatures.second]: {
+      isAvaible: true,
+    },
+    [BasicPlanFeatures.last]: {
+      isAvaible: false,
+    },
+  },
+  [PricingPlans.pro]: {
+    [ProPlanFeatures.first]: {
+      isAvaible: true,
+    },
+    [ProPlanFeatures.second]: {
+      isAvaible: true,
+    },
+    [ProPlanFeatures.last]: {
+      isAvaible: true,
+    },
+  },
+};
+
+// Represents a single plan type for translation
+export type PricingPlanLocale<Plan extends PricingPlans> = {
+  name: string;
+  price: number;
+  features: Record<PlanFeatures[Plan], Pick<PlanFeature, 'name'>>;
+};
+
+// Translate object of all plans.
+export type PricingPlansLocale = {
+  [Plan in PricingPlans]: PricingPlanLocale<Plan>;
+};
+
+// Every plan has own color theme
+export type PlanColorTheme = 'purple' | 'gray';
+
+export const planColorThemes: Record<PricingPlans, PlanColorTheme> = {
+  [PricingPlans.basic]: 'gray',
+  [PricingPlans.pro]: 'purple',
 };

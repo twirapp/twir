@@ -29,7 +29,11 @@
           "
         >
           <li v-for="(plan, planId) in pricePlans" :key="planId" class="flex w-full">
-            <PricingPlan :plan="plan" :colorTheme="planColorThemes[planId]" />
+            <PricingPlan
+              :plan="plan"
+              :colorTheme="planColorThemes[planId]"
+              :planGeneral="planFeaturesGeneral[planId]"
+            />
           </li>
         </ul>
       </div>
@@ -71,10 +75,10 @@ import CyanBlob from '@/assets/blob-cyan.png';
 import WavesSvg from '@/assets/Waves.svg';
 import ClientOnly from '@/components/ClientOnly.vue';
 import PricingPlan from '@/components/landing/PricingPlan.vue';
-import { planColorThemes, type PricePlansLocale } from '@/data/landing/pricingPlans.js';
+import { planColorThemes, planFeaturesGeneral } from '@/data/landing/pricingPlans.js';
 import { useTranslation } from '@/services/locale';
 
 const { t, tm } = useTranslation<'landing'>();
 
-const pricePlans = computed(() => tm('sections.pricing.plans') as PricePlansLocale);
+const pricePlans = computed(() => tm('sections.pricing.plans'));
 </script>

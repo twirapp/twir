@@ -1,4 +1,4 @@
-import { BasicPlanFeatures, PlanId, ProPlanFeatures } from '@/data/landing/pricingPlans.js';
+import { BasicPlanFeatures, PricingPlans, ProPlanFeatures } from '@/data/landing/pricingPlans.js';
 import { LandingSection } from '@/data/landing/sections.js';
 import { TeamMemberId } from '@/data/landing/team.js';
 import type ILandingLocale from '@/locales/landing/interface.js';
@@ -61,39 +61,33 @@ const messages: ILandingLocale = {
       features: 'Features',
       perMonth: 'per month',
       plans: {
-        [PlanId.basic]: {
+        [PricingPlans.basic]: {
           name: 'Basic plan',
           price: 0,
           features: {
             [BasicPlanFeatures.first]: {
               name: 'Unlimited commands',
-              status: 'accessible',
             },
             [BasicPlanFeatures.second]: {
               name: 'Unlimited commands',
-              status: 'accessible',
             },
             [BasicPlanFeatures.last]: {
               name: 'Unlimited commands',
-              status: 'limited',
             },
           },
         },
-        [PlanId.pro]: {
+        [PricingPlans.pro]: {
           name: 'Pro plan',
           price: 10,
           features: {
             [ProPlanFeatures.first]: {
               name: 'Unlimited commands',
-              status: 'accessible',
             },
             [ProPlanFeatures.second]: {
               name: 'Unlimited commands',
-              status: 'accessible',
             },
             [ProPlanFeatures.last]: {
               name: 'Unlimited commands',
-              status: 'accessible',
             },
           },
         },
