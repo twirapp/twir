@@ -1,6 +1,19 @@
 version: "3.9"
 
 services:
+  adminer:
+    image: adminer
+    ports:
+      - 54323:8080
+    environment:
+      - ADMINER_PLUGINS=enum-types
+    networks:
+      - tsuwari
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
   postgres:
     image: postgres:14-alpine
     volumes:
