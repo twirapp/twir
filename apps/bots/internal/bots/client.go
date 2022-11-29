@@ -52,7 +52,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 
 	onRefresh := func(newToken helix.RefreshTokenResponse) {
 		opts.DB.Model(&model.Tokens{}).
-			Where(`id = ?`, opts.Model.ID).
+			Where(`id = ?`, opts.Model.TokenID.String).
 			Select("*").
 			Updates(map[string]any{
 				"accessToken":         newToken.Data.AccessToken,
