@@ -75,7 +75,11 @@ func (c *Handlers) ProcessWatchedStreams(m *nats.Msg) {
 				go func(chatter helix.ChatChatter) {
 					defer chattersWg.Done()
 					user := model.Users{}
-					if err := c.db.Where("id = ?", chatter.UserID).Preload("Stats").Find(&user).Error; err != nil {
+					err := c.db.
+						Where(`"users"."id" = ? AND "Stats"."channelId" = ?`, chatter.UserID, channel).
+						Joins("Stats").
+						Find(&user).Error
+					if err != nil {
 						c.logger.Sugar().Error(err)
 						return
 					}

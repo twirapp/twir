@@ -1,7 +1,6 @@
 package messages
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"go.uber.org/zap"
 
@@ -21,13 +20,16 @@ func IncrementUserMessages(db *gorm.DB, userId, channelId string) {
 	}
 
 	user := model.Users{}
-	if err := db.Where("id = ?", userId).Preload("Stats").Find(&user).Error; err != nil {
+	err := db.
+		Where(`"users"."id" = ? AND "Stats"."channelId" = ?`, userId, channelId).
+		Joins("Stats").
+		Find(&user).Error
+	if err != nil {
 		zap.S().Error(err)
 		return
 	}
 
 	// no user found
-	spew.Dump(user)
 	if user.ID == "" {
 		user.ID = userId
 		user.ApiKey = uuid.NewV4().String()
