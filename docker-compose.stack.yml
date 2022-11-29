@@ -119,8 +119,6 @@ services:
 
   nats:
     image: nats:2.9.8-scratch
-    secrets:
-      - tsuwari_doppler_token
     networks:
       - tsuwari
     deploy:
