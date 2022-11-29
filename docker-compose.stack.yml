@@ -389,8 +389,7 @@ volumes:
 networks:
   tsuwari:
     name: tsuwari
-    driver: overlay
-    attachable: true
+    external: true
 
 secrets:
   tsuwari_doppler_token:
