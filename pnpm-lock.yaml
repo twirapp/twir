@@ -151,7 +151,7 @@ importers:
       postcss: 8.4.18
       prismjs: 1.29.0
       tailwindcss: 3.2.1
-      tw-elements: 1.0.0-alpha12
+      tw-elements: 1.0.0-alpha13
       type-fest: 3.1.0
       vee-validate: 4.7.1
       vite: 3.2.0
@@ -180,7 +180,7 @@ importers:
       filepond-plugin-image-preview: 4.6.11_filepond@4.30.4
       nanostores: 0.7.0
       prismjs: 1.29.0
-      tw-elements: 1.0.0-alpha12_postcss@8.4.18
+      tw-elements: 1.0.0-alpha13_postcss@8.4.18
       vee-validate: 4.7.1_vue@3.2.41
       vite-svg-loader: 3.6.0
       vue: 3.2.41
@@ -7332,7 +7332,7 @@ packages:
       mississippi: 3.0.0
       mkdirp: 0.5.6
       move-concurrently: 1.0.1
-      promise-inflight: 1.0.1
+      promise-inflight: 1.0.1_bluebird@3.7.2
       rimraf: 2.7.1
       ssri: 6.0.2
       unique-filename: 1.1.1
@@ -12959,6 +12959,7 @@ packages:
   /pify/2.3.0:
     resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}
     engines: {node: '>=0.10.0'}
+    dev: true
 
   /pify/3.0.0:
     resolution: {integrity: sha512-C3FsVNH1udSEX48gGX1xfvwTWfsYWj5U+8/uK15BGzIGrKoUpghX8hWZwa/OFnakBiiVNmBvemTJR5mcy7iPcg==}
@@ -13106,6 +13107,7 @@ packages:
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
       resolve: 1.22.1
+    dev: true
 
   /postcss-import/14.1.0_postcss@8.4.19:
     resolution: {integrity: sha512-flwI+Vgm4SElObFVPpTIT7SU7R3qk2L7PyduMcokiaVKuWv9d/U+Gm/QAd8NDLuykTWTkcrjOeD2Pp1rMeBTGw==}
@@ -13410,6 +13412,17 @@ packages:
     peerDependenciesMeta:
       bluebird:
         optional: true
+    dev: true
+
+  /promise-inflight/1.0.1_bluebird@3.7.2:
+    resolution: {integrity: sha512-6zWPyEOFaQBJYcGMHBKTKJ3u6TBsnMFOIZSa6ce1e/ZrrsOlnHRHbabMjLiBYKp+n44X9eUI6VUPaukCXHuG4g==}
+    peerDependencies:
+      bluebird: '*'
+    peerDependenciesMeta:
+      bluebird:
+        optional: true
+    dependencies:
+      bluebird: 3.7.2
     dev: true
 
   /promise.allsettled/1.0.5:
@@ -13835,6 +13848,7 @@ packages:
     resolution: {integrity: sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA==}
     dependencies:
       pify: 2.3.0
+    dev: true
 
   /read-pkg-up/1.0.1:
     resolution: {integrity: sha512-WD9MTlNtI55IwYUS27iHh9tK3YoIVhxis8yKhLpTqWtml739uXc9NWTpxoHkfZf3+DkCCsXox94/VWZniuZm6A==}
@@ -15057,8 +15071,8 @@ packages:
       tailwindcss: 3.2.4_postcss@8.4.19
     dev: true
 
-  /tailwindcss/3.1.8_postcss@8.4.18:
-    resolution: {integrity: sha512-YSneUCZSFDYMwk+TGq8qYFdCA3yfBRdBlS7txSq0LUmzyeqRe3a8fBQzbz9M3WS/iFT4BNf/nmw9mEzrnSaC0g==}
+  /tailwindcss/3.0.24_postcss@8.4.18:
+    resolution: {integrity: sha512-H3uMmZNWzG6aqmg9q07ZIRNIawoiEcNFKDfL+YzOPuPsXuDXxJxB9icqzLgdzKNwjG3SAro2h9SYav8ewXNgig==}
     engines: {node: '>=12.13.0'}
     hasBin: true
     peerDependencies:
@@ -15078,7 +15092,6 @@ packages:
       object-hash: 3.0.0
       picocolors: 1.0.0
       postcss: 8.4.18
-      postcss-import: 14.1.0_postcss@8.4.18
       postcss-js: 4.0.0_postcss@8.4.18
       postcss-load-config: 3.1.4_postcss@8.4.18
       postcss-nested: 5.0.6_postcss@8.4.18
@@ -15690,8 +15703,8 @@ packages:
       turbo-windows-arm64: 1.5.5
     dev: true
 
-  /tw-elements/1.0.0-alpha12_postcss@8.4.18:
-    resolution: {integrity: sha512-AQHwXIC4kw4T0NPKAi0vD1bkHSiA4RhdXqqnXDWEHKsrN02njc/ITB3YZ92s2f2jt+wBPI2UOpeUsWL5xiMVeQ==}
+  /tw-elements/1.0.0-alpha13_postcss@8.4.18:
+    resolution: {integrity: sha512-lz1D583ZGDF4s8e89dmXkhfD8m2abgAlaK8/J6cAEm3DLxz7RtqKdunzja6xcKxDZO3bXEd6oGNdQ5QHpyCqrg==}
     dependencies:
       '@popperjs/core': 2.11.6
       chart.js: 2.9.4
@@ -15700,7 +15713,7 @@ packages:
       detect-autofill: 1.1.4
       perfect-scrollbar: 1.5.5
       popper.js: 1.16.1
-      tailwindcss: 3.1.8_postcss@8.4.18
+      tailwindcss: 3.0.24_postcss@8.4.18
     transitivePeerDependencies:
       - postcss
       - ts-node
