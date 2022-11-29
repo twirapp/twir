@@ -22,7 +22,7 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 3s
+        delay: 20s
         max_attempts: 10
       placement:
         constraints:
@@ -139,14 +139,14 @@ services:
       - tsuwari_doppler_token
     ports:
       - target: 3002
-        published: 3002
+        published: 3004
         mode: host
     networks:
       - tsuwari
     deploy:
       restart_policy:
         condition: any
-        delay: 3s
+        delay: 20s
         max_attempts: 10
       # mode: replicated
       # replicas: 1
