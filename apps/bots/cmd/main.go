@@ -24,12 +24,21 @@ import (
 )
 
 func main() {
-	logger, _ := zap.NewDevelopment()
+	var logger *zap.Logger
 	cfg, err := cfg.New()
+
 	if err != nil || cfg == nil {
-		logger.Sugar().Error(err)
 		panic("Cannot load config of application")
 	}
+
+	if cfg.AppEnv == "development" {
+		l, _ := zap.NewDevelopment()
+		logger = l
+	} else {
+		l, _ := zap.NewProduction()
+		logger = l
+	}
+	zap.ReplaceGlobals(logger)
 
 	if cfg.SentryDsn != "" {
 		sentry.Init(sentry.ClientOptions{
