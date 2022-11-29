@@ -56,16 +56,13 @@
                 >
                   Youtube song request settings
                 </DialogTitle>
-                <button
-                  @click="closeModal"
-                >
+                <button @click="closeModal">
                   <Cross class="h-6 hover:stroke-[#D0D0D0] stroke-[#AFAFAF] w-6" />
                 </button>
               </div>
-              
+
               <form
                 v-if="isDataFetched"
-                class=""
                 @submit.prevent="submitForm"
               >
                 <div class="divide-[#525252] divide-y grid md:px-6 px-5">
@@ -87,7 +84,7 @@
                       />
                     </div>
                   </div>
-                  
+
                   <div class="py-5">
                     <span class="inline-block leading-tight mb-4 text-white">User</span>
                     <div class="gap-3 grid grid-cols-1 md:grid-cols-4">
@@ -117,7 +114,7 @@
                       />
                     </div>
                   </div>
-                
+
                   <div class="py-5">
                     <span class="inline-block leading-tight mb-4 text-white">Song</span>
                     <div class="gap-3 grid grid-flow-col">
@@ -144,15 +141,15 @@
                     <span class="inline-block leading-tight mb-4 text-white">Black list</span>
                     <div class="gap-y-2 grid">
                       <TswArrayInput
-                        name="blacklist.usersIds"
+                        name="blacklist.users"
                         label="User ids list"
                       />
                       <TswArrayInput
-                        name="blacklist.songsIds"
+                        name="blacklist.songs"
                         label="Song ids list"
                       />
                       <TswArrayInput
-                        name="blacklist.channelsIds"
+                        name="blacklist.channels"
                         label="Channel ids list"
                       />
                       <TswArrayInput
@@ -162,10 +159,10 @@
                     </div>
                   </div>
                 </div>
-                
-                
-                
-                <div class="border-[#525252] border-t gap-2 grid-flow-col inline-grid justify-end md:px-6 md:py-5 p-5 w-full">
+
+                <div
+                  class="border-[#525252] border-t gap-2 grid-flow-col inline-grid justify-end md:px-6 md:py-5 p-5 w-full"
+                >
                   <button
                     type="submit"
                     class="bg-[#644EE8] focus:outline-none font-medium inline-flex items-center justify-center px-4 py-2 rounded text-sm text-white"
@@ -221,10 +218,18 @@ const isPostingData = ref<boolean>(false);
 const schema = computed(() =>
   object({
     user: object({
-      maxRequests: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
-      minWatchTime: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
-      minMessages: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
-      minFollowTime: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
+      maxRequests: number()
+        .typeError('Must be a nubmer')
+        .min(0, 'Must be greater or equal to zero'),
+      minWatchTime: number()
+        .typeError('Must be a nubmer')
+        .min(0, 'Must be greater or equal to zero'),
+      minMessages: number()
+        .typeError('Must be a nubmer')
+        .min(0, 'Must be greater or equal to zero'),
+      minFollowTime: number()
+        .typeError('Must be a nubmer')
+        .min(0, 'Must be greater or equal to zero'),
     }),
     maxRequests: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
     acceptOnlyWhenOnline: boolean().required(),
@@ -234,10 +239,10 @@ const schema = computed(() =>
       minViews: number().typeError('Must be a nubmer').min(0, 'Must be greater or equal to zero'),
       acceptedCategories: array().of(string()),
     }),
-    blackList: object({
-      usersIds: array().of(string()),
-      songsIds: array().of(string()),
-      channelsIds: array().of(string()),
+    blacklist: object({
+      users: array().of(string()),
+      songs: array().of(string()),
+      channels: array().of(string()),
       artistsNames: array().of(string()),
     }),
   }),
@@ -247,7 +252,32 @@ function closeModal() {
   isModalOpen.value = false;
 }
 
-const { values, validate, setValues, meta } = useForm<Required<V1['CHANNELS']['MODULES']['YouTube']['POST']>>({
+const defaultValue: Required<V1['CHANNELS']['MODULES']['YouTube']['POST']> = {
+  acceptOnlyWhenOnline: true,
+  blacklist: {
+    artistsNames: [],
+    channels: [],
+    songs: [],
+    users: [],
+  },
+  channelPointsRewardName: '',
+  maxRequests: 0,
+  song: {
+    acceptedCategories: [],
+    maxLength: 0,
+    minViews: 0,
+  },
+  user: {
+    maxRequests: 0,
+    minFollowTime: 0,
+    minMessages: 0,
+    minWatchTime: 0,
+  },
+};
+
+const { values, validate, setValues, meta } = useForm<
+  Required<V1['CHANNELS']['MODULES']['YouTube']['POST']>
+>({
   validationSchema: schema,
   keepValuesOnUnmount: true,
 });
@@ -287,8 +317,14 @@ async function openModal() {
       isModalOpen.value = true;
       meta.value.touched = false;
     } catch (err) {
-      error.value = (err as AxiosError).message;
-      console.error(err);
+      if ((err as AxiosError).response?.status === 404) {
+        setValues(defaultValue);
+        isDataFetched.value = true;
+        isModalOpen.value = true;
+      } else {
+        console.error(err);
+        error.value = (err as AxiosError).message;
+      }
     } finally {
       isSettingsFetching.value = false;
     }
