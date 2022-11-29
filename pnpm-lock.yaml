@@ -141,7 +141,7 @@ importers:
       '@vueuse/integrations': 9.4.0
       '@yeger/vue-masonry-wall': 3.2.14
       autoprefixer: 10.4.12
-      axios: 1.1.3
+      axios: 1.2.0
       date-fns: 2.29.3
       filepond: 4.30.4
       filepond-plugin-file-validate-type: 1.2.8
@@ -171,9 +171,9 @@ importers:
       '@popperjs/core': 2.11.6
       '@vueuse/components': 9.4.0_vue@3.2.41
       '@vueuse/core': 9.4.0_vue@3.2.41
-      '@vueuse/integrations': 9.4.0_axios@1.1.3+vue@3.2.41
+      '@vueuse/integrations': 9.4.0_axios@1.2.0+vue@3.2.41
       '@yeger/vue-masonry-wall': 3.2.14_vue@3.2.41
-      axios: 1.1.3
+      axios: 1.2.0
       date-fns: 2.29.3
       filepond: 4.30.4
       filepond-plugin-file-validate-type: 1.2.8_filepond@4.30.4
@@ -395,10 +395,10 @@ importers:
   libs/integrations/spotify:
     specifiers:
       '@tsuwari/typeorm': workspace:*
-      axios: 0.27.2
+      axios: 1.2.0
     dependencies:
       '@tsuwari/typeorm': link:../../typeorm
-      axios: 0.27.2
+      axios: 1.2.0
 
   libs/nats:
     specifiers:
@@ -5914,7 +5914,7 @@ packages:
       - '@vue/composition-api'
       - vue
 
-  /@vueuse/integrations/9.4.0_axios@1.1.3+vue@3.2.41:
+  /@vueuse/integrations/9.4.0_axios@1.2.0+vue@3.2.41:
     resolution: {integrity: sha512-r4M/HNU+v5qylh6x3bCS76IhEYHlWiQU7ezvVfC5uhwdTb0Ub0Xg4J0Vo/qUQVNYtDBn5NXMlxHhWhx1Wxi3KQ==}
     peerDependencies:
       async-validator: '*'
@@ -5951,7 +5951,7 @@ packages:
     dependencies:
       '@vueuse/core': 9.4.0_vue@3.2.41
       '@vueuse/shared': 9.4.0_vue@3.2.41
-      axios: 1.1.3
+      axios: 1.2.0
       vue-demi: 0.13.11_vue@3.2.41
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -6793,17 +6793,8 @@ packages:
       - supports-color
     dev: false
 
-  /axios/0.27.2:
-    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
-    dependencies:
-      follow-redirects: 1.15.1
-      form-data: 4.0.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios/1.1.3:
-    resolution: {integrity: sha512-00tXVRwKx/FZr/IDVFt4C+f9FYairX517WoGCL6dpOntqLkZofjhu43F/Xl44UOpqa+9sLFDrG/XAnFsUYgkDA==}
+  /axios/1.2.0:
+    resolution: {integrity: sha512-zT7wZyNYu3N5Bu0wuZ6QccIf93Qk1eV8LOewxgjOZFd2DenOs98cJ7+Y6703d0wkaXGY6/nZd4EweJaHz9uzQw==}
     dependencies:
       follow-redirects: 1.15.1
       form-data: 4.0.0
