@@ -18,6 +18,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
 	middleware.Post("/blacklist/:type", postBlacklist(services))
+	middleware.Get("search", getSearch(services))
 
 	return middleware
 }
@@ -30,6 +31,17 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		return c.JSON(settings)
+	}
+}
+
+func getSearch(service types.Services) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		results, err := handleSearch(c.Query("query"), c.Query("type"))
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(results)
 	}
 }
 

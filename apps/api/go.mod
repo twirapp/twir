@@ -3,7 +3,7 @@ module github.com/satont/tsuwari/apps/api
 go 1.19
 
 require (
-	github.com/davecgh/go-spew v1.1.1
+	github.com/SherlockYigit/youtube-go v1.0.0
 	github.com/getsentry/sentry-go v0.15.0
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
@@ -102,3 +102,5 @@ replace github.com/satont/tsuwari/libs/nats => ../../libs/nats
 replace github.com/satont/tsuwari/libs/integrations/spotify => ../../libs/integrations/spotify
 
 replace github.com/satont/tsuwari/libs/types => ../../libs/types
+
+replace github.com/SherlockYigit/youtube-go => ../../libs/ytsr

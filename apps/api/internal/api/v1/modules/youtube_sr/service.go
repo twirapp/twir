@@ -8,6 +8,7 @@ import (
 	"sync"
 	model "tsuwari/models"
 
+	ytsr "github.com/SherlockYigit/youtube-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
@@ -31,6 +32,57 @@ func handleGet(channelId string, services types.Services) (*youtube.YoutubeSetti
 	}
 
 	return &data, nil
+}
+
+type SearchResult struct {
+	ID        string `     json:"id"`
+	Title     string ` json:"title"`
+	ThumbNail string `json:"thumbNail"`
+}
+
+func handleSearch(query string, searchType string) ([]SearchResult, error) {
+	if query == "" {
+		return []SearchResult{}, nil
+	}
+
+	if searchType != "video" && searchType != "channel" {
+		return nil, fiber.NewError(400, "searchType can be only video or channel")
+	}
+
+	fmt.Println(searchType)
+	search := ytsr.Search(query, ytsr.SearchOptions{
+		Limit: 5,
+		Type:  searchType,
+	})
+
+	result := make([]SearchResult, 0)
+
+	if len(search) == 0 {
+		return result, nil
+	}
+
+	for _, item := range search {
+		var res SearchResult
+		if searchType == "video" {
+			res = SearchResult{
+				ID:        item.Video.Id,
+				Title:     item.Video.Title,
+				ThumbNail: item.Video.Thumbnail.Url,
+			}
+		}
+		if searchType == "channel" {
+			res = SearchResult{
+				ID:        item.Channel.Id,
+				Title:     item.Channel.Name,
+				ThumbNail: item.Channel.Icon.Url,
+			}
+		}
+		if res.ID != "" {
+			result = append(result, res)
+		}
+	}
+
+	return result, nil
 }
 
 func handlePost(channelId string, dto *youtube.YoutubeSettings, services types.Services) error {
