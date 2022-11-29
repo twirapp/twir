@@ -12,6 +12,7 @@ import (
 	"github.com/satont/tsuwari/libs/nats/watched"
 	"github.com/satont/tsuwari/libs/twitch"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 func (c *Handlers) ProcessWatchedStreams(m *nats.Msg) {
@@ -75,36 +76,58 @@ func (c *Handlers) ProcessWatchedStreams(m *nats.Msg) {
 					defer chattersWg.Done()
 					user := model.Users{}
 					if err := c.db.Where("id = ?", chatter.UserID).Preload("Stats").Find(&user).Error; err != nil {
+						c.logger.Sugar().Error(err)
 						return
 					}
 
 					if user.ID == "" {
-						c.db.Create(&model.Users{
-							ID:     chatter.UserID,
-							ApiKey: uuid.NewV4().String(),
+						err = c.db.Transaction(func(tx *gorm.DB) error {
+							user := &model.Users{
+								ID:     chatter.UserID,
+								ApiKey: uuid.NewV4().String(),
+							}
+							if err := tx.Create(user).Error; err != nil {
+								return err
+							}
+
+							stats := &model.UsersStats{
+								ID:        uuid.NewV4().String(),
+								UserID:    chatter.UserID,
+								ChannelID: channel,
+								Messages:  0,
+								Watched:   0,
+							}
+							if err := tx.Create(stats).Error; err != nil {
+								return err
+							}
+
+							return nil
 						})
-						c.db.Create(&model.UsersStats{
-							ID:        uuid.NewV4().String(),
-							UserID:    chatter.UserID,
-							ChannelID: channel,
-							Messages:  0,
-							Watched:   0,
-						})
+
+						if err != nil {
+							c.logger.Sugar().Error(err)
+						}
 					} else if user.Stats == nil {
-						c.db.Create(&model.UsersStats{
+						err := c.db.Create(&model.UsersStats{
 							ID:        uuid.NewV4().String(),
 							UserID:    chatter.UserID,
 							ChannelID: channel,
 							Messages:  0,
 							Watched:   0,
-						})
+						}).Error
+						if err != nil {
+							c.logger.Sugar().Error(err)
+						}
 					} else {
 						time := 5 * time.Minute
-						c.db.Model(&model.UsersStats{}).
+						err := c.db.Model(&model.UsersStats{}).
 							Where("id = ?", user.Stats.ID).Select("*").
 							Updates(map[string]any{
 								"watched": user.Stats.Watched + time.Milliseconds(),
-							})
+							}).Error
+						if err != nil {
+							c.logger.Sugar().Error(err)
+						}
 					}
 				}(chatter)
 			}
