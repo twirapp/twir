@@ -103,7 +103,7 @@ services:
         max_attempts: 10
 
   redis:
-    image: redis/redis-stack:latest
+    image: redis/redis-stack:7.0.6-RC2
     volumes:
       - redis-data:/data
     networks:
@@ -118,7 +118,7 @@ services:
           - node.role == manager
 
   nats:
-    image: nats:latest
+    image: nats:2.9.8-scratch
     secrets:
       - tsuwari_doppler_token
     networks:
