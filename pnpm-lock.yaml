@@ -138,7 +138,7 @@ importers:
       '@vitejs/plugin-vue': 3.2.0
       '@vueuse/components': 9.4.0
       '@vueuse/core': 9.4.0
-      '@vueuse/integrations': 9.4.0
+      '@vueuse/integrations': 9.6.0
       '@yeger/vue-masonry-wall': 3.2.14
       autoprefixer: 10.4.12
       axios: 1.1.3
@@ -171,7 +171,7 @@ importers:
       '@popperjs/core': 2.11.6
       '@vueuse/components': 9.4.0_vue@3.2.41
       '@vueuse/core': 9.4.0_vue@3.2.41
-      '@vueuse/integrations': 9.4.0_axios@1.1.3+vue@3.2.41
+      '@vueuse/integrations': 9.6.0_axios@1.1.3+vue@3.2.41
       '@yeger/vue-masonry-wall': 3.2.14_vue@3.2.41
       axios: 1.1.3
       date-fns: 2.29.3
@@ -5903,6 +5903,18 @@ packages:
       - vue
     dev: false
 
+  /@vueuse/core/9.6.0_vue@3.2.41:
+    resolution: {integrity: sha512-qGUcjKQXHgN+jqXEgpeZGoxdCbIDCdVPz3QiF1uyecVGbMuM63o96I1GjYx5zskKgRI0FKSNsVWM7rwrRMTf6A==}
+    dependencies:
+      '@types/web-bluetooth': 0.0.16
+      '@vueuse/metadata': 9.6.0
+      '@vueuse/shared': 9.6.0_vue@3.2.41
+      vue-demi: 0.13.11_vue@3.2.41
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
+
   /@vueuse/core/9.6.0_vue@3.2.45:
     resolution: {integrity: sha512-qGUcjKQXHgN+jqXEgpeZGoxdCbIDCdVPz3QiF1uyecVGbMuM63o96I1GjYx5zskKgRI0FKSNsVWM7rwrRMTf6A==}
     dependencies:
@@ -5914,8 +5926,8 @@ packages:
       - '@vue/composition-api'
       - vue
 
-  /@vueuse/integrations/9.4.0_axios@1.1.3+vue@3.2.41:
-    resolution: {integrity: sha512-r4M/HNU+v5qylh6x3bCS76IhEYHlWiQU7ezvVfC5uhwdTb0Ub0Xg4J0Vo/qUQVNYtDBn5NXMlxHhWhx1Wxi3KQ==}
+  /@vueuse/integrations/9.6.0_axios@1.1.3+vue@3.2.41:
+    resolution: {integrity: sha512-+rs2OWY/3spxoAGQMnlHQpxf8ErAYf4D1bT0aXaPnxphmtYgexm6KIjTFpBbcQnHwVi1g2ET1SJoQL16yDrgWA==}
     peerDependencies:
       async-validator: '*'
       axios: '*'
@@ -5923,6 +5935,7 @@ packages:
       drauu: '*'
       focus-trap: '*'
       fuse.js: '*'
+      idb-keyval: '*'
       jwt-decode: '*'
       nprogress: '*'
       qrcode: '*'
@@ -5940,6 +5953,8 @@ packages:
         optional: true
       fuse.js:
         optional: true
+      idb-keyval:
+        optional: true
       jwt-decode:
         optional: true
       nprogress:
@@ -5949,8 +5964,8 @@ packages:
       universal-cookie:
         optional: true
     dependencies:
-      '@vueuse/core': 9.4.0_vue@3.2.41
-      '@vueuse/shared': 9.4.0_vue@3.2.41
+      '@vueuse/core': 9.6.0_vue@3.2.41
+      '@vueuse/shared': 9.6.0_vue@3.2.41
       axios: 1.1.3
       vue-demi: 0.13.11_vue@3.2.41
     transitivePeerDependencies:
@@ -5967,6 +5982,15 @@ packages:
 
   /@vueuse/shared/9.4.0_vue@3.2.41:
     resolution: {integrity: sha512-fTuem51KwMCnqUKkI8B57qAIMcFovtGgsCtAeqxIzH3i6nE9VYge+gVfneNHAAy7lj8twbkNfqQSygOPJTm4tQ==}
+    dependencies:
+      vue-demi: 0.13.11_vue@3.2.41
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
+
+  /@vueuse/shared/9.6.0_vue@3.2.41:
+    resolution: {integrity: sha512-/eDchxYYhkHnFyrb00t90UfjCx94kRHxc7J1GtBCqCG4HyPMX+krV9XJgVtWIsAMaxKVU4fC8NSUviG1JkwhUQ==}
     dependencies:
       vue-demi: 0.13.11_vue@3.2.41
     transitivePeerDependencies:
