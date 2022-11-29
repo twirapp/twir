@@ -40,14 +40,14 @@ func IncrementUserMessages(db *gorm.DB, userId, channelId string) {
 	} else {
 		if user.Stats == nil {
 			newStats := createStats(userId, channelId)
-			err := db.Create(newStats)
+			err := db.Create(newStats).Error
 			if err != nil {
 				zap.S().Error(err)
 			}
 		} else {
 			err := db.Model(&model.UsersStats{}).
 				Where("id = ?", user.Stats.ID).
-				Update("messages", user.Stats.Messages+1)
+				Update("messages", user.Stats.Messages+1).Error
 			if err != nil {
 				zap.S().Error(err)
 			}
