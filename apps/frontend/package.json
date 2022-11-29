@@ -15,7 +15,7 @@
     "@vueuse/components": "9.4.0",
     "@vueuse/core": "9.4.0",
     "@vueuse/integrations": "9.4.0",
-    "@yeger/vue-masonry-wall": "3.2.14",
+    "@yeger/vue-masonry-wall": "3.4.2",
     "axios": "1.1.3",
     "date-fns": "2.29.3",
     "filepond": "4.30.4",
