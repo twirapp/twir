@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/aidenwallis/go-ratelimiting v0.0.1
+	github.com/davecgh/go-spew v1.1.1
 	github.com/gempir/go-twitch-irc/v3 v3.2.0
 	github.com/getsentry/sentry-go v0.15.0
 	github.com/golang/protobuf v1.5.2
