@@ -384,8 +384,6 @@ networks:
 secrets:
   tsuwari_doppler_token:
     external: true
-  tsuwari_redis_password:
-    external: true
   tsuwari_postgres_user:
     external: true
   tsuwari_postgres_db:
