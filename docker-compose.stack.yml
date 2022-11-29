@@ -22,8 +22,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
       placement:
         constraints:
           - node.role == manager
@@ -50,7 +50,7 @@ services:
   #     restart_policy:
   #       condition: any
   #       delay: 3s
-  #       max_attempts: 10
+  #       max_attempts: 30
 
   # minio:
   #   image: quay.io/minio/minio
@@ -84,7 +84,7 @@ services:
   #     restart_policy:
   #       condition: any
   #       delay: 3s
-  #       max_attempts: 10
+  #       max_attempts: 30
 
   migrations:
     build:
@@ -99,8 +99,8 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-        delay: 3s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
 
   redis:
     image: redis/redis-stack:7.0.6-RC2
@@ -112,7 +112,7 @@ services:
       restart_policy:
         condition: any
         delay: 3s
-        max_attempts: 10
+        max_attempts: 30
       placement:
         constraints:
           - node.role == manager
@@ -125,7 +125,7 @@ services:
       restart_policy:
         condition: any
         delay: 3s
-        max_attempts: 10
+        max_attempts: 30
 
   api:
     build:
@@ -144,8 +144,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
       # mode: replicated
       # replicas: 1
       placement:
@@ -165,8 +165,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30
+        max_attempts: 30
 
   watched:
     image: registry.satont.dev/tsuwari/watched
@@ -177,8 +177,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
       mode: replicated
       replicas: 8
 
@@ -193,8 +193,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
       mode: replicated
       replicas: 50
     networks:
@@ -213,8 +213,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
 
   scheduler:
     build:
@@ -229,8 +229,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
 
   streamstatus:
     build:
@@ -245,8 +245,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
 
   eventsub:
     build:
@@ -265,8 +265,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
       placement:
         constraints:
           - node.role == manager
@@ -284,8 +284,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
 
   eval:
     build:
@@ -300,8 +300,8 @@ services:
       replicas: 50
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
     networks:
       - tsuwari
 
@@ -318,8 +318,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
 
   web:
     build:
@@ -338,8 +338,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
       placement:
         constraints:
           - node.role == manager
@@ -361,8 +361,8 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 20s
-        max_attempts: 10
+        delay: 30s
+        max_attempts: 30
       placement:
         constraints:
           - node.role == manager
