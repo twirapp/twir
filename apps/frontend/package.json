@@ -13,7 +13,7 @@
     "@nanostores/vue": "0.6.0",
     "@popperjs/core": "2.11.6",
     "@vueuse/components": "9.4.0",
-    "@vueuse/core": "9.4.0",
+    "@vueuse/core": "9.6.0",
     "@vueuse/integrations": "9.4.0",
     "@yeger/vue-masonry-wall": "3.2.14",
     "axios": "1.1.3",
