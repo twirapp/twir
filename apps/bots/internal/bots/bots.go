@@ -10,7 +10,6 @@ import (
 	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/nats-io/nats.go"
-	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/bots/types"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -54,7 +53,7 @@ func NewBotsService(opts *NewBotsOpts) *BotsService {
 			Nats:   opts.Nats,
 		})
 
-		if len(b.Channels) > 0 {
+		/* if len(b.Channels) > 0 {
 			ids := lo.Map(b.Channels, func(i model.Channels, _ int) string {
 				return i.ID
 			})
@@ -62,7 +61,7 @@ func NewBotsService(opts *NewBotsOpts) *BotsService {
 			opts.DB.Model(&model.ChannelsGreetings{}).
 				Where(`"channelId" IN ?`, ids).
 				Update("processed", false)
-		}
+		} */
 
 		mu.Lock()
 		service.Instances[b.ID] = instance
