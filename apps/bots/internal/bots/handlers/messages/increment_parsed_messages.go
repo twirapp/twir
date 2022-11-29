@@ -16,7 +16,7 @@ func IncrementStreamParsedMessages(db *gorm.DB, channelId string) {
 	if stream.ID != "" {
 		stream.ParsedMessages += 1
 
-		if err := db.Model(&stream).Where("id = ?", stream.ID).Update("parsedMessages", stream.ParsedMessages+1).Error; err != nil {
+		if err := db.Model(&stream).Update("parsedMessages", stream.ParsedMessages+1).Error; err != nil {
 			fmt.Println(err)
 		}
 	}
