@@ -120,7 +120,6 @@ func (c *parserGrpcServer) ParseTextResponse(
 		Regexp:      nil,
 		Twitch:      c.commands.Twitch,
 		DB:          c.commands.Db,
-		Nats:        c.commands.Nats,
 		IsCommand:   isCommand,
 	})
 

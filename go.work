@@ -10,6 +10,6 @@ use (
 	./libs/gomodels
 	./libs/grpc
 	./libs/integrations/spotify
-	./libs/nats
+	./libs/pubsub
 	./libs/twitch
 )

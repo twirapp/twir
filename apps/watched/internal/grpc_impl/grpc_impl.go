@@ -1,41 +1,64 @@
-package handlers
+package grpc_impl
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/nats-io/nats.go"
+	"github.com/gofrs/uuid"
 	"github.com/satont/go-helix/v2"
+	cfg "github.com/satont/tsuwari/libs/config"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/nats/watched"
+	"github.com/satont/tsuwari/libs/grpc/generated/watched"
 	"github.com/satont/tsuwari/libs/twitch"
-	uuid "github.com/satori/go.uuid"
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
 
-func (c *Handlers) ProcessWatchedStreams(m *nats.Msg) {
+type WatchedGrpcServerOpts struct {
+	Db     *gorm.DB
+	Cfg    *cfg.Config
+	Logger *zap.Logger
+}
+
+type WatchedGrpcServer struct {
+	watched.UnimplementedWatchedServer
+
+	db     *gorm.DB
+	cfg    *cfg.Config
+	logger *zap.Logger
+}
+
+func New(opts *WatchedGrpcServerOpts) *WatchedGrpcServer {
+	return &WatchedGrpcServer{
+		db:     opts.Db,
+		cfg:    opts.Cfg,
+		logger: opts.Logger,
+	}
+}
+
+func (c *WatchedGrpcServer) IncrementByChannelId(
+	ctx context.Context,
+	data *watched.Request,
+) (*emptypb.Empty, error) {
 	twitch := twitch.NewUserClient(twitch.UsersServiceOpts{
 		Db:           c.db,
 		ClientId:     c.cfg.TwitchClientId,
 		ClientSecret: c.cfg.TwitchClientSecret,
 	})
 
-	requestData := watched.ParseRequest{}
-	if err := proto.Unmarshal(m.Data, &requestData); err != nil {
-		fmt.Println(err)
-		return
-	}
-	api, err := twitch.CreateBot(requestData.BotId)
+	api, err := twitch.CreateBot(data.BotId)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return nil, errors.New("cannot create api for bot")
 	}
 
 	wg := sync.WaitGroup{}
 
-	for _, channel := range requestData.ChannelsId {
+	for _, channel := range data.ChannelsId {
 		wg.Add(1)
 
 		go func(channel string) {
@@ -46,7 +69,7 @@ func (c *Handlers) ProcessWatchedStreams(m *nats.Msg) {
 			for {
 				reqParams := &helix.GetChatChattersParams{
 					BroadcasterID: channel,
-					ModeratorID:   requestData.BotId,
+					ModeratorID:   data.BotId,
 					First:         "1000",
 				}
 
@@ -86,16 +109,18 @@ func (c *Handlers) ProcessWatchedStreams(m *nats.Msg) {
 
 					if user.ID == "" {
 						err = c.db.Transaction(func(tx *gorm.DB) error {
+							apiKey, _ := uuid.NewV4()
 							user := &model.Users{
 								ID:     chatter.UserID,
-								ApiKey: uuid.NewV4().String(),
+								ApiKey: apiKey.String(),
 							}
 							if err := tx.Create(user).Error; err != nil {
 								return err
 							}
 
+							statsId, _ := uuid.NewV4()
 							stats := &model.UsersStats{
-								ID:        uuid.NewV4().String(),
+								ID:        statsId.String(),
 								UserID:    chatter.UserID,
 								ChannelID: channel,
 								Messages:  0,
@@ -112,8 +137,9 @@ func (c *Handlers) ProcessWatchedStreams(m *nats.Msg) {
 							c.logger.Sugar().Error(err)
 						}
 					} else if user.Stats == nil {
+						statsId, _ := uuid.NewV4()
 						err := c.db.Create(&model.UsersStats{
-							ID:        uuid.NewV4().String(),
+							ID:        statsId.String(),
 							UserID:    chatter.UserID,
 							ChannelID: channel,
 							Messages:  0,
@@ -141,5 +167,6 @@ func (c *Handlers) ProcessWatchedStreams(m *nats.Msg) {
 	}
 
 	wg.Wait()
-	m.Ack()
+
+	return &emptypb.Empty{}, nil
 }

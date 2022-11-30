@@ -17,6 +17,8 @@ import (
 	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"github.com/satont/tsuwari/libs/grpc/generated/eval"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 
 	uuid "github.com/satori/go.uuid"
@@ -28,10 +30,10 @@ import (
 
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
-	"github.com/nats-io/nats.go"
 	"github.com/samber/lo"
 
 	"github.com/go-redis/redis/v9"
+	dotaGrpc "github.com/satont/tsuwari/libs/grpc/generated/dota"
 	"gorm.io/gorm"
 )
 
@@ -41,8 +43,10 @@ type Commands struct {
 	variablesService variables.Variables
 	Db               *gorm.DB
 	UsersAuth        *usersauth.UsersTokensService
-	Nats             *nats.Conn
 	Twitch           *twitch.Twitch
+	DotaGrpc         dotaGrpc.DotaClient
+	BotsGrpc         bots.BotsClient
+	EvalGrpc         eval.EvalClient
 }
 
 type CommandsOpts struct {
@@ -50,8 +54,10 @@ type CommandsOpts struct {
 	VariablesService variables.Variables
 	Db               *gorm.DB
 	UsersAuth        *usersauth.UsersTokensService
-	Nats             *nats.Conn
 	Twitch           *twitch.Twitch
+	DotaGrpc         dotaGrpc.DotaClient
+	BotsGrpc         bots.BotsClient
+	EvalGrpc         eval.EvalClient
 }
 
 func New(opts CommandsOpts) Commands {
@@ -82,8 +88,10 @@ func New(opts CommandsOpts) Commands {
 		variablesService: opts.VariablesService,
 		Db:               opts.Db,
 		UsersAuth:        opts.UsersAuth,
-		Nats:             opts.Nats,
 		Twitch:           opts.Twitch,
+		BotsGrpc:         opts.BotsGrpc,
+		DotaGrpc:         opts.DotaGrpc,
+		EvalGrpc:         opts.EvalGrpc,
 	}
 
 	return ctx
@@ -198,7 +206,9 @@ func (c *Commands) ParseCommandResponses(
 				Twitch:    c.Twitch,
 				Db:        c.Db,
 				UsersAuth: c.UsersAuth,
-				Nats:      c.Nats,
+				DotaGrpc:  c.DotaGrpc,
+				BotsGrpc:  c.BotsGrpc,
+				EvalGrpc:  c.EvalGrpc,
 			},
 			IsCommand: true,
 			Command:   command.Cmd,
@@ -233,7 +243,8 @@ func (c *Commands) ParseCommandResponses(
 			Regexp:     variables.Regexp,
 			Twitch:     c.Twitch,
 			DB:         c.Db,
-			Nats:       c.Nats,
+			BotsGrpc:   c.BotsGrpc,
+			DotaGrpc:   c.DotaGrpc,
 			IsCommand:  true,
 			Command:    command.Cmd,
 		})

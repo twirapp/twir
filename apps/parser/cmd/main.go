@@ -20,9 +20,9 @@ import (
 	"github.com/getsentry/sentry-go"
 
 	"github.com/satont/tsuwari/apps/parser/internal/grpc_impl"
+	"github.com/satont/tsuwari/libs/grpc/clients"
 	parser "github.com/satont/tsuwari/libs/grpc/generated/parser"
 	"github.com/satont/tsuwari/libs/grpc/servers"
-	myNats "github.com/satont/tsuwari/libs/nats"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
@@ -66,11 +66,10 @@ func main() {
 
 	r := redis.New(cfg.RedisUrl)
 	defer r.Close()
-	natsEncodedConn, natsConn, err := myNats.New(cfg.NatsUrl)
-	if err != nil {
-		panic(err)
-	}
-	defer natsEncodedConn.Close()
+
+	botsGrpcClient := clients.NewBots(cfg.AppEnv)
+	dotaGrpcClient := clients.NewDota(cfg.AppEnv)
+	evalGrpcClient := clients.NewEval(cfg.AppEnv)
 
 	usersAuthService := usersauth.New(usersauth.UsersServiceOpts{
 		Db:           db,
@@ -84,8 +83,10 @@ func main() {
 		VariablesService: variablesService,
 		Db:               db,
 		UsersAuth:        usersAuthService,
-		Nats:             natsConn,
 		Twitch:           twitchClient,
+		BotsGrpc:         botsGrpcClient,
+		DotaGrpc:         dotaGrpcClient,
+		EvalGrpc:         evalGrpcClient,
 	})
 
 	if err != nil {

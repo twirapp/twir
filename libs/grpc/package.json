@@ -2,11 +2,24 @@
   "name": "@tsuwari/grpc",
   "type": "module",
   "scripts": {
-    "build": "ts-node --esm --transpileOnly gen.ts"
+    "build": "rm -rf dist && ts-node --esm --transpileOnly gen.ts && tsc"
+  },
+  "exports": {
+    "./clients/*": "./dist/clients/*.js",
+    "./generated/*": "./dist/generated/**/*.js",
+    "./servers/*": "./dist/servers/**/*.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*.d.ts"
+      ]
+    }
   },
   "dependencies": {
     "long": "^5.2.1",
     "nice-grpc": "^2.0.1",
+    "nice-grpc-common": "^2.0.0",
     "protobufjs": "7.1.2"
   },
   "devDependencies": {

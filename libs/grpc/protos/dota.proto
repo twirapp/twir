@@ -1,6 +1,10 @@
 syntax = "proto3";
 
-option go_package = "tsuwari/nats/dota";
+option go_package = "tsuwari/grpc/dota";
+
+service Dota {
+  rpc GetPlayerCard(GetPlayerCardRequest) returns (GetPlayerCardResponse) {}
+}
 
 message GetPlayerCardRequest {
   int64 accountId = 1;

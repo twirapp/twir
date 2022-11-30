@@ -34,7 +34,6 @@ importers:
       '@nestjs/core': 9.1.2
       '@nestjs/microservices': 9.1.2
       '@tsuwari/config': workspace:*
-      '@tsuwari/nats': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@types/steam-user': 4.23.2
@@ -50,7 +49,6 @@ importers:
       '@nestjs/core': 9.1.2_6p6nflbsfav6mrlrxjjveqvwia
       '@nestjs/microservices': 9.1.2_gu7utdtoeoxlxpry3bp5kz6yrm
       '@tsuwari/config': link:../../libs/config
-      '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
       nats: 2.7.1
@@ -66,14 +64,12 @@ importers:
   apps/eval:
     specifiers:
       '@tsuwari/config': workspace:*
-      '@tsuwari/nats': workspace:*
       '@types/lodash': 4.14.186
       lodash: 4.17.21
       nats: ^2.7.1
       vm2: ^3.9.11
     dependencies:
       '@tsuwari/config': link:../../libs/config
-      '@tsuwari/nats': link:../../libs/nats
       lodash: 4.17.21
       nats: 2.7.1
       vm2: 3.9.11
@@ -87,7 +83,6 @@ importers:
       '@nestjs/microservices': ^9.1.6
       '@nestjs/platform-express': ^9.1.2
       '@tsuwari/config': workspace:*
-      '@tsuwari/nats': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@twurple/api': 5.2.4
@@ -107,7 +102,6 @@ importers:
       '@nestjs/microservices': 9.1.6_pvsgfishxj4ryddufezlrwbyfi
       '@nestjs/platform-express': 9.1.5_6whalgrsvisgjemghedgkfq7dm
       '@tsuwari/config': link:../../libs/config
-      '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
       '@twurple/api': 5.2.4_@twurple+auth@5.2.4
@@ -209,7 +203,6 @@ importers:
   apps/integrations:
     specifiers:
       '@tsuwari/config': workspace:*
-      '@tsuwari/nats': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@twurple/api': ^5.2.4
@@ -222,7 +215,6 @@ importers:
       ws: ^8.9.0
     dependencies:
       '@tsuwari/config': link:../../libs/config
-      '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
       '@twurple/api': 5.2.4_@twurple+auth@5.2.4
@@ -244,7 +236,6 @@ importers:
       '@sentry/node': 7.14.0
       '@sentry/tracing': 7.14.0
       '@tsuwari/config': workspace:*
-      '@tsuwari/nats': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@types/cron': 2.0.0
@@ -265,7 +256,6 @@ importers:
       '@sentry/node': 7.14.0
       '@sentry/tracing': 7.14.0
       '@tsuwari/config': link:../../libs/config
-      '@tsuwari/nats': link:../../libs/nats
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
       ioredis: 5.2.3
@@ -288,6 +278,7 @@ importers:
       '@sentry/node': 7.14.0
       '@sentry/tracing': 7.14.0
       '@tsuwari/config': workspace:*
+      '@tsuwari/grpc': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@twurple/api': 5.2.4
@@ -306,6 +297,7 @@ importers:
       '@sentry/node': 7.14.0
       '@sentry/tracing': 7.14.0
       '@tsuwari/config': link:../../libs/config
+      '@tsuwari/grpc': link:../../libs/grpc
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
       '@twurple/api': 5.2.4_@twurple+auth@5.2.4
@@ -397,11 +389,13 @@ importers:
       grpc-tools: ^1.11.3
       long: ^5.2.1
       nice-grpc: ^2.0.1
+      nice-grpc-common: ^2.0.0
       protobufjs: 7.1.2
       ts-proto: ^1.135.0
     dependencies:
       long: 5.2.1
       nice-grpc: 2.0.1
+      nice-grpc-common: 2.0.0
       protobufjs: 7.1.2
     devDependencies:
       grpc-tools: 1.11.3
@@ -415,14 +409,13 @@ importers:
       '@tsuwari/typeorm': link:../../typeorm
       axios: 0.27.2
 
-  libs/nats:
+  libs/pubsub:
     specifiers:
-      '@protobuf-ts/plugin': ^2.8.0
-      '@protobuf-ts/runtime': ^2.8.0
+      '@tsuwari/config': workspace:*
+      redis: ^4.5.1
     dependencies:
-      '@protobuf-ts/runtime': 2.8.1
-    devDependencies:
-      '@protobuf-ts/plugin': 2.8.1
+      '@tsuwari/config': link:../config
+      redis: 4.5.1
 
   libs/shared:
     specifiers:
@@ -2984,7 +2977,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.1.2_yzt46al3aifnexifjjdb4dxxja
-      '@nestjs/microservices': 9.1.2_anrejevo4yryahwvize52sqaom
+      '@nestjs/microservices': 9.1.2_fzfvjbneyottbopxczunpwrha4
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
@@ -3374,38 +3367,6 @@ packages:
     resolution: {integrity: sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==}
     dev: false
 
-  /@protobuf-ts/plugin-framework/2.8.1:
-    resolution: {integrity: sha512-hfLoYIyxCI6Ro6LY1BltNBDcXWL+36SwnWR/hcF4ttPHLE3rMIpYbz4IwQsfeU2SKbBeGFhZv9rcnDJB22cXog==}
-    dependencies:
-      '@protobuf-ts/runtime': 2.8.1
-      typescript: 3.9.10
-    dev: true
-
-  /@protobuf-ts/plugin/2.8.1:
-    resolution: {integrity: sha512-lacRdXJ9TkTbI28U0KApsnVqnxeq1aZftOdq6LNPQJaIzBrVRxrMkqnnGWGQFYe0Tr93OKeW4A2lLjTkn32CuA==}
-    hasBin: true
-    dependencies:
-      '@protobuf-ts/plugin-framework': 2.8.1
-      '@protobuf-ts/protoc': 2.8.1
-      '@protobuf-ts/runtime': 2.8.1
-      '@protobuf-ts/runtime-rpc': 2.8.1
-      typescript: 3.9.10
-    dev: true
-
-  /@protobuf-ts/protoc/2.8.1:
-    resolution: {integrity: sha512-6fehuL9bS22zCgPBBlESZjnoA4fxAUkOjMcaFMJSlVpN6CDN2O+c/Mo1pCXaNDO7FAidMPj5yhz48Kws4kOXEA==}
-    hasBin: true
-    dev: true
-
-  /@protobuf-ts/runtime-rpc/2.8.1:
-    resolution: {integrity: sha512-hc+HJpoAu50by8aBS55UygcrzD8jAvRKWZMCRJ9XY3h9Gl2tciYysfzSH1SWtF6XOT/4b5CKnnmdMR3ad7uU5g==}
-    dependencies:
-      '@protobuf-ts/runtime': 2.8.1
-    dev: true
-
-  /@protobuf-ts/runtime/2.8.1:
-    resolution: {integrity: sha512-D9M5hSumYCovIfNllt7N6ODh4q+LrjiMWtNETvooaf+a2XheZJ7kgjFlsFghti0CFWwtA//of4JXQfw9hU+cCw==}
-
   /@protobufjs/aspromise/1.1.2:
     resolution: {integrity: sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ==}
 
@@ -3438,6 +3399,55 @@ packages:
 
   /@protobufjs/utf8/1.1.0:
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
+
+  /@redis/bloom/1.1.0_@redis+client@1.4.2:
+    resolution: {integrity: sha512-9QovlxmpRtvxVbN0UBcv8WfdSMudNZZTFqCsnBszcQXqaZb/TVe30ScgGEO7u1EAIacTPAo7/oCYjYAxiHLanQ==}
+    peerDependencies:
+      '@redis/client': ^1.0.0
+    dependencies:
+      '@redis/client': 1.4.2
+    dev: false
+
+  /@redis/client/1.4.2:
+    resolution: {integrity: sha512-oUdEjE0I7JS5AyaAjkD3aOXn9NhO7XKyPyXEyrgFDu++VrVBHUPnV6dgEya9TcMuj5nIJRuCzCm8ZP+c9zCHPw==}
+    engines: {node: '>=14'}
+    dependencies:
+      cluster-key-slot: 1.1.1
+      generic-pool: 3.9.0
+      yallist: 4.0.0
+    dev: false
+
+  /@redis/graph/1.1.0_@redis+client@1.4.2:
+    resolution: {integrity: sha512-16yZWngxyXPd+MJxeSr0dqh2AIOi8j9yXKcKCwVaKDbH3HTuETpDVPcLujhFYVPtYrngSco31BUcSa9TH31Gqg==}
+    peerDependencies:
+      '@redis/client': ^1.0.0
+    dependencies:
+      '@redis/client': 1.4.2
+    dev: false
+
+  /@redis/json/1.0.4_@redis+client@1.4.2:
+    resolution: {integrity: sha512-LUZE2Gdrhg0Rx7AN+cZkb1e6HjoSKaeeW8rYnt89Tly13GBI5eP4CwDVr+MY8BAYfCg4/N15OUrtLoona9uSgw==}
+    peerDependencies:
+      '@redis/client': ^1.0.0
+    dependencies:
+      '@redis/client': 1.4.2
+    dev: false
+
+  /@redis/search/1.1.0_@redis+client@1.4.2:
+    resolution: {integrity: sha512-NyFZEVnxIJEybpy+YskjgOJRNsfTYqaPbK/Buv6W2kmFNaRk85JiqjJZA5QkRmWvGbyQYwoO5QfDi2wHskKrQQ==}
+    peerDependencies:
+      '@redis/client': ^1.0.0
+    dependencies:
+      '@redis/client': 1.4.2
+    dev: false
+
+  /@redis/time-series/1.0.4_@redis+client@1.4.2:
+    resolution: {integrity: sha512-ThUIgo2U/g7cCuZavucQTQzA9g9JbDDY2f64u3AbAoz/8vE2lt2U37LamDUVChhaDA3IRT9R6VvJwqnUfTJzng==}
+    peerDependencies:
+      '@redis/client': ^1.0.0
+    dependencies:
+      '@redis/client': 1.4.2
+    dev: false
 
   /@rollup/pluginutils/4.2.1:
     resolution: {integrity: sha512-iKnFXr7NkdZAIHiIWE+BX5ULi/ucVFYWD6TbAV+rZctiRTY2PL6tsIKhoIOaoskiWAkgu+VsbXgUVDNLHf+InQ==}
@@ -7741,6 +7751,11 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: false
 
+  /cluster-key-slot/1.1.1:
+    resolution: {integrity: sha512-rwHwUfXL40Chm1r08yrhU3qpUvdVlgkKNeyeGPOxnW8/SyVDvgRaed/Uz54AqWNaTCAThlj6QAs3TZcKI0xDEw==}
+    engines: {node: '>=0.10.0'}
+    dev: false
+
   /collapse-white-space/1.0.6:
     resolution: {integrity: sha512-jEovNnrhMuqyCcjfEJA56v0Xq8SkIoPKDyaHahwo3POf4qcSXqMYuwNcOTzp74vTsR9Tn08z4MxWqAhcekogkQ==}
     dev: true
@@ -10196,6 +10211,11 @@ packages:
       strip-ansi: 6.0.1
       wide-align: 1.1.5
     dev: true
+
+  /generic-pool/3.9.0:
+    resolution: {integrity: sha512-hymDOu5B53XvN4QT9dBmZxPX4CWhBPPLguTZ9MMFeFa/Kg0xWVfylOVNlJji/E7yTZWFd/q9GO5TxDLq156D7g==}
+    engines: {node: '>= 4'}
+    dev: false
 
   /gensync/1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
@@ -14084,6 +14104,17 @@ packages:
       redis-errors: 1.2.0
     dev: false
 
+  /redis/4.5.1:
+    resolution: {integrity: sha512-oxXSoIqMJCQVBTfxP6BNTCtDMyh9G6Vi5wjdPdV/sRKkufyZslDqCScSGcOr6XGR/reAWZefz7E4leM31RgdBA==}
+    dependencies:
+      '@redis/bloom': 1.1.0_@redis+client@1.4.2
+      '@redis/client': 1.4.2
+      '@redis/graph': 1.1.0_@redis+client@1.4.2
+      '@redis/json': 1.0.4_@redis+client@1.4.2
+      '@redis/search': 1.1.0_@redis+client@1.4.2
+      '@redis/time-series': 1.0.4_@redis+client@1.4.2
+    dev: false
+
   /reflect-metadata/0.1.13:
     resolution: {integrity: sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==}
     dev: false
@@ -15977,12 +16008,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: false
-
-  /typescript/3.9.10:
-    resolution: {integrity: sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
-    dev: true
 
   /typescript/4.8.4:
     resolution: {integrity: sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ==}

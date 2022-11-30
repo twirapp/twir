@@ -97,7 +97,7 @@ func handlePatch(
 	services.DB.Save(&integration)
 
 	if integration.AccessToken.Valid && integration.RefreshToken.Valid {
-		sendNatsEvent(integration.ID, *dto.Enabled, services)
+		sendGrpcEvent(integration.ID, *dto.Enabled, services)
 	}
 
 	return integration, nil
@@ -193,12 +193,12 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
-	sendNatsEvent(channelIntegration.ID, channelIntegration.Enabled, services)
+	sendGrpcEvent(channelIntegration.ID, channelIntegration.Enabled, services)
 
 	return nil
 }
 
-func sendNatsEvent(integrationId string, isAdd bool, services types.Services) {
+func sendGrpcEvent(integrationId string, isAdd bool, services types.Services) {
 	if isAdd {
 		services.IntegrationsGrpc.AddIntegration(context.Background(), &integrations.Request{
 			Id: integrationId,

@@ -8,6 +8,8 @@ import (
 	"github.com/satont/tsuwari/apps/timers/internal/types"
 
 	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 
 	"github.com/satont/tsuwari/libs/twitch"
 
@@ -31,9 +33,10 @@ type Scheduler struct {
 func New(
 	cfg *cfg.Config,
 	twitch *twitch.Twitch,
-	nats *nats.Conn,
 	db *gorm.DB,
 	logger *zap.Logger,
+	parserGrpc parser.ParserClient,
+	botsGrpcClient bots.BotsClient,
 ) *Scheduler {
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.StartAsync()
@@ -42,11 +45,10 @@ func New(
 		internalScheduler: scheduler,
 		cfg:               cfg,
 		twitch:            twitch,
-		nats:              nats,
 		db:                db,
 		logger:            logger,
 		Timers:            store,
-		handler:           handler.New(twitch, nats, db, logger, store),
+		handler:           handler.New(twitch, db, logger, store, parserGrpc, botsGrpcClient),
 	}
 }
 

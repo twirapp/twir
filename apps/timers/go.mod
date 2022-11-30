@@ -8,7 +8,6 @@ require (
 	github.com/satont/go-helix/v2 v2.7.22
 	github.com/satont/tsuwari/libs/config v0.0.0
 	github.com/satont/tsuwari/libs/gomodels v0.0.0
-	github.com/satont/tsuwari/libs/nats v0.0.0
 	github.com/satont/tsuwari/libs/twitch v0.0.0
 	go.uber.org/zap v1.23.0
 	gorm.io/driver/postgres v1.4.5
@@ -55,8 +54,8 @@ require (
 
 replace github.com/satont/tsuwari/libs/config => ../../libs/config
 
-replace github.com/satont/tsuwari/libs/nats => ../../libs/nats
-
 replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 
 replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
+
+replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
