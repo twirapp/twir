@@ -16,7 +16,6 @@
     "@nestjs/microservices": "^9.1.6",
     "@nestjs/platform-express": "^9.1.2",
     "@tsuwari/config": "workspace:*",
-    "@tsuwari/nats": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
     "@twurple/api": "5.2.4",

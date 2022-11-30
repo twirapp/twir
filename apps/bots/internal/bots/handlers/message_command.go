@@ -1,17 +1,15 @@
 package handlers
 
 import (
-	"fmt"
-	"time"
+	"context"
 
 	irc "github.com/gempir/go-twitch-irc/v3"
-	"github.com/golang/protobuf/proto"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/libs/nats/parser"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 )
 
 func (c *Handlers) handleCommand(msg irc.PrivateMessage, userBadges []string) {
-	requestStruct := parser.Request{
+	requestStruct := &parser.ProcessCommandRequest{
 		Sender: &parser.Sender{
 			Id:          msg.User.ID,
 			Name:        msg.User.Name,
@@ -27,36 +25,23 @@ func (c *Handlers) handleCommand(msg irc.PrivateMessage, userBadges []string) {
 			Text: msg.Message,
 		},
 	}
-	bytes, err := proto.Marshal(&requestStruct)
+
+	res, err := c.parserGrpc.ProcessCommand(context.Background(), requestStruct)
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 
-	res, err := c.nats.Request("parser.handleProcessCommand", bytes, 5*time.Second)
-	if err != nil {
-		fmt.Println("Parser not answered on request commands.")
-		fmt.Printf("%+v\n", &requestStruct)
-		fmt.Println(err)
-		return
-	}
-
-	responseStruct := parser.Response{}
-	if err = proto.Unmarshal(res.Data, &responseStruct); err != nil {
-		return
-	}
-
-	if responseStruct.KeepOrder != nil && *responseStruct.KeepOrder {
-		for _, v := range responseStruct.Responses {
+	if res.KeepOrder != nil && *res.KeepOrder {
+		for _, v := range res.Responses {
 			r := v
 			go c.BotClient.SayWithRateLimiting(
 				msg.Channel,
 				r,
-				lo.If(responseStruct.IsReply, lo.ToPtr(msg.ID)).Else(nil),
+				lo.If(res.IsReply, lo.ToPtr(msg.ID)).Else(nil),
 			)
 		}
 	} else {
-		for _, r := range responseStruct.Responses {
+		for _, r := range res.Responses {
 			validateResposeErr := ValidateResponseSlashes(r)
 			if validateResposeErr != nil {
 				c.BotClient.SayWithRateLimiting(
@@ -68,7 +53,7 @@ func (c *Handlers) handleCommand(msg irc.PrivateMessage, userBadges []string) {
 				c.BotClient.SayWithRateLimiting(
 					msg.Channel,
 					r,
-					lo.If(responseStruct.IsReply, &msg.ID).Else(nil),
+					lo.If(res.IsReply, &msg.ID).Else(nil),
 				)
 			}
 		}

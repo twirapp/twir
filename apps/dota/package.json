@@ -16,7 +16,6 @@
     "@nestjs/core": "9.1.2",
     "@nestjs/microservices": "9.1.2",
     "@tsuwari/config": "workspace:*",
-    "@tsuwari/nats": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
     "nats": "2.7.1",

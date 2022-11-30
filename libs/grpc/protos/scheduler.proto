@@ -1,0 +1,11 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto"; 
+option go_package = "tsuwari/grpc/scheduler";
+
+service Scheduler {
+  rpc CreateDefaultCommands(CreateDefaultCommandsRequest) returns (google.protobuf.Empty) {}
+}
+
+message CreateDefaultCommandsRequest {
+  string userId = 1;
+}

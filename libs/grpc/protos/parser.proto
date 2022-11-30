@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+option go_package = "tsuwari/grpc/parser";
+
+import "google/protobuf/empty.proto"; 
+
+service Parser {
+  rpc ProcessCommand (ProcessCommandRequest) returns (ProcessCommandResponse) {}
+  rpc ParseTextResponse (ParseTextRequestData) returns (ParseTextResponseData) {}
+  rpc GetDefaultCommands (google.protobuf.Empty) returns (GetDefaultCommandsResponse) {}
+  rpc GetDefaultVariables (google.protobuf.Empty) returns (GetVariablesResponse) {}
+}
+
+message Sender {
+  string id = 1;
+  string name = 2;
+  string displayName = 3;
+  repeated string badges = 4;
+}
+
+message Channel {
+  string id = 1;
+  string name = 2;
+}
+
+message Message {
+  string text = 1;
+  string id = 2;
+}
+
+message ProcessCommandRequest {
+  Sender sender = 1;
+  Channel channel = 2;
+  Message message = 3;
+}
+
+message ProcessCommandResponse {
+  repeated string responses = 1;
+  bool isReply = 2;
+  optional bool keepOrder = 3;
+}
+
+message GetVariablesResponse {
+  message Variable {
+    string name = 1;
+    string example = 2;
+    string description = 3;
+    optional bool visible = 4;
+  }
+  repeated Variable list = 1;
+}
+
+message GetDefaultCommandsResponse {
+  message DefaultCommand {
+    string name = 1;
+    string description = 2;
+    bool visible = 3;
+    string permission = 4;
+    string module = 5;
+    optional bool isReply = 6;
+    optional bool keepResponsesOrder = 7;
+  }
+  repeated DefaultCommand list = 1;
+}
+
+message ParseTextRequestData {
+  Sender sender = 1;
+  Channel channel = 2;
+  Message message = 3;
+  optional bool parseVariables = 4;
+}
+
+message ParseTextResponseData {
+  repeated string responses = 1;
+}

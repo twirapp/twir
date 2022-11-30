@@ -4,23 +4,23 @@ import (
 	"sync"
 
 	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/satont/tsuwari/libs/twitch"
 
-	"github.com/nats-io/nats.go"
 	"github.com/satont/tsuwari/apps/bots/types"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type NewBotsOpts struct {
-	Twitch *twitch.Twitch
-	DB     *gorm.DB
-	Logger *zap.Logger
-	Cfg    *cfg.Config
-	Nats   *nats.Conn
+	Twitch     *twitch.Twitch
+	DB         *gorm.DB
+	Logger     *zap.Logger
+	Cfg        *cfg.Config
+	ParserGrpc parser.ParserClient
 }
 
 type BotsService struct {
@@ -46,11 +46,11 @@ func NewBotsService(opts *NewBotsOpts) *BotsService {
 	for _, bot := range bots {
 		b := bot
 		instance := newBot(&ClientOpts{
-			DB:     opts.DB,
-			Cfg:    opts.Cfg,
-			Logger: opts.Logger,
-			Model:  &b,
-			Nats:   opts.Nats,
+			DB:         opts.DB,
+			Cfg:        opts.Cfg,
+			Logger:     opts.Logger,
+			Model:      &b,
+			ParserGrpc: opts.ParserGrpc,
 		})
 
 		/* if len(b.Channels) > 0 {

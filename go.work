@@ -8,6 +8,7 @@ use (
 	./apps/watched
 	./libs/config
 	./libs/gomodels
+	./libs/grpc
 	./libs/integrations/spotify
 	./libs/nats
 	./libs/twitch

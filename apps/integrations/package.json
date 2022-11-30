@@ -9,7 +9,6 @@
   "type": "module",
   "dependencies": {
     "@tsuwari/config": "workspace:*",
-    "@tsuwari/nats": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
     "@twurple/api": "^5.2.4",

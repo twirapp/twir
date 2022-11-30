@@ -37,11 +37,14 @@ require (
 	github.com/nats-io/jwt/v2 v2.3.0 // indirect
 	github.com/onsi/ginkgo/v2 v2.4.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/goleak v1.1.12 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/mod v0.6.0 // indirect
 	golang.org/x/tools v0.2.0 // indirect
+	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
+	google.golang.org/grpc v1.51.0 // indirect
 )
 
 require (
@@ -82,3 +85,5 @@ replace github.com/satont/tsuwari/libs/nats => ../../libs/nats
 replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 
 replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
+
+replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc

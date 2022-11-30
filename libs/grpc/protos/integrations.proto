@@ -1,0 +1,12 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto"; 
+option go_package = "tsuwari/grpc/integrations";
+
+service Integrations {
+  rpc AddIntegration(Request) returns (google.protobuf.Empty) {}
+  rpc RemoveIntegration(Request) returns (google.protobuf.Empty) {}
+}
+
+message Request {
+  string id = 1;
+}

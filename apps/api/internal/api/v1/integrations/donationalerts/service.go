@@ -1,20 +1,19 @@
 package donationalerts
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	req "github.com/imroc/req/v3"
-	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	"github.com/satont/tsuwari/libs/nats/integrations"
 	uuid "github.com/satori/go.uuid"
-	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 )
 
@@ -73,7 +72,7 @@ func handlePatch(
 	services.DB.Save(&integration)
 
 	if integration.AccessToken.Valid && integration.RefreshToken.Valid {
-		sendNatsEvent(integration.ID, *dto.Enabled, services)
+		sendGrpcEvent(integration.ID, *dto.Enabled, services)
 	}
 
 	return integration, nil
@@ -179,21 +178,19 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
-	sendNatsEvent(channelIntegration.ID, channelIntegration.Enabled, services)
+	sendGrpcEvent(channelIntegration.ID, channelIntegration.Enabled, services)
 
 	return nil
 }
 
-func sendNatsEvent(integrationId string, isAdd bool, services types.Services) {
-	bytes := []byte{}
+func sendGrpcEvent(integrationId string, isAdd bool, services types.Services) {
 	if isAdd {
-		bytes, _ = proto.Marshal(&integrations.AddIntegration{Id: integrationId})
+		services.IntegrationsGrpc.AddIntegration(context.Background(), &integrations.Request{
+			Id: integrationId,
+		})
 	} else {
-		bytes, _ = proto.Marshal(&integrations.RemoveIntegration{Id: integrationId})
+		services.IntegrationsGrpc.RemoveIntegration(context.Background(), &integrations.Request{
+			Id: integrationId,
+		})
 	}
-	defer services.Nats.Publish(
-		lo.If(isAdd, integrations.SUBJECTS_ADD_INTEGRATION).
-			Else(integrations.SUBJECTS_REMOVE_INTEGRATION),
-		bytes,
-	)
 }

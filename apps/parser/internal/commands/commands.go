@@ -17,6 +17,7 @@ import (
 	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 
 	uuid "github.com/satori/go.uuid"
 
@@ -29,7 +30,6 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/samber/lo"
-	parserproto "github.com/satont/tsuwari/libs/nats/parser"
 
 	"github.com/go-redis/redis/v9"
 	"gorm.io/gorm"
@@ -154,9 +154,9 @@ func (c *Commands) FindByMessage(input string, cmds *[]model.ChannelsCommands) F
 
 func (c *Commands) ParseCommandResponses(
 	command FindByMessageResult,
-	data parserproto.Request,
-) *parserproto.Response {
-	result := &parserproto.Response{
+	data *parser.ProcessCommandRequest,
+) *parser.ProcessCommandResponse {
+	result := &parser.ProcessCommandResponse{
 		KeepOrder: &command.Cmd.KeepResponsesOrder,
 	}
 

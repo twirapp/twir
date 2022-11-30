@@ -1,0 +1,16 @@
+{
+  "name": "@tsuwari/grpc",
+  "type": "module",
+  "scripts": {
+    "build": "ts-node --esm --transpileOnly gen.ts"
+  },
+  "dependencies": {
+    "long": "^5.2.1",
+    "nice-grpc": "^2.0.1",
+    "protobufjs": "7.1.2"
+  },
+  "devDependencies": {
+    "grpc-tools": "^1.11.3",
+    "ts-proto": "^1.135.0"
+  }
+}
