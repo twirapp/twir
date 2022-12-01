@@ -1,8 +1,12 @@
 import Redis from 'redis';
 
-export const createPubSub = async () => {
-  const subscriber = Redis.createClient();
-  const publisher = Redis.createClient();
+export const createPubSub = async (url: string) => {
+  const subscriber = Redis.createClient({
+    url,
+  });
+  const publisher = Redis.createClient({
+    url,
+  });
 
   return {
     publish: (topic: string, data: Record<any, any> | any[]) => {

@@ -5,7 +5,10 @@
     "target": "esnext",
     "module": "ESNext",
     "moduleResolution": "node",
-    "declaration": true
+    "declaration": true,
+    "declarationMap": true,
+    "preserveSymlinks": true,
+    "composite": false
   },
   "includes": [
     "./**/*.ts"

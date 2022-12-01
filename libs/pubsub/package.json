@@ -1,14 +1,10 @@
 {
-  "name": "pubsub",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "@tsuwari/pubsub",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@tsuwari/config": "workspace:*",
     "redis": "^4.5.1"

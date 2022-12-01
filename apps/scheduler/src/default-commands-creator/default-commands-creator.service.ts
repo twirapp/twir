@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
-import * as Parser from '@tsuwari/nats/parser';
+import * as Parser from '@tsuwari/grpc/generated/parser/parser';
 import { RedisService } from '@tsuwari/shared';
 import {
   ChannelCommand,
@@ -13,6 +13,7 @@ import * as Knex from 'knex';
 
 import { typeorm } from '../index.js';
 import { nats } from '../libs/nats.js';
+import { parserGrpcClient } from '../libs/parser.grpc.js';
 
 @Injectable()
 export class DefaultCommandsCreatorService implements OnModuleInit {
@@ -32,8 +33,7 @@ export class DefaultCommandsCreatorService implements OnModuleInit {
 
   @Interval('defaultCommands', config.isDev ? 1000 : 1 * 60 * 1000)
   async createDefaultCommands(usersIds?: string[]) {
-    const msg = await nats.request('bots.getDefaultCommands', new Uint8Array());
-    const { list: defaultCommands } = Parser.GetDefaultCommandsResponse.fromBinary(msg.data);
+    const { list: defaultCommands } = await parserGrpcClient.getDefaultCommands({});
 
     const defaultCommandsNames = defaultCommands.map((c) => c.name);
 

@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Client, Transport } from '@nestjs/microservices';
+import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
-import { ClientProxy, ClientProxyEvents, convertSnakeToCamel } from '@tsuwari/shared';
+import { convertSnakeToCamel } from '@tsuwari/shared';
+import { Channel } from '@tsuwari/typeorm/entities/Channel';
 import { ChannelStream } from '@tsuwari/typeorm/entities/ChannelStream';
 import { ApiClient } from '@twurple/api';
 import { ClientCredentialsAuthProvider } from '@twurple/auth';
 import { getRawData } from '@twurple/common';
+import _ from 'lodash';
 
+import { pubSub } from './pubsub.js';
 import { typeorm } from './typeorm.js';
 
 const authProvider = new ClientCredentialsAuthProvider(
@@ -17,16 +20,13 @@ const api = new ApiClient({ authProvider });
 
 @Injectable()
 export class AppService {
-  @Client({ transport: Transport.NATS, options: { servers: [config.NATS_URL] } })
-  nats: ClientProxy;
-
   async delStream(userId: string) {
     await typeorm.getRepository(ChannelStream).delete({
       userId,
     });
   }
 
-  async handleUpdate(e: ClientProxyEvents['stream.update']['input']) {
+  async handleUpdate(e: Record<string, any>) {
     const stream = await api.streams.getStreamByUserId(e.broadcaster_user_id);
     if (!stream) return;
 
@@ -47,7 +47,7 @@ export class AppService {
     }
   }
 
-  async handleOnline(e: ClientProxyEvents['streams.online']['input']) {
+  async handleOnline(e: Record<string, any>) {
     const stream = await api.streams.getStreamByUserId(e.channelId);
     if (!stream) return;
     const repository = typeorm.getRepository(ChannelStream);
@@ -57,43 +57,55 @@ export class AppService {
     await repository.save(convertSnakeToCamel(getRawData(stream)));
   }
 
-  async handleOffline(e: ClientProxyEvents['streams.offline']['input']) {
+  async handleOffline(e: Record<string, any>) {
     await typeorm.getRepository(ChannelStream).delete({
       userId: e.channelId,
     });
   }
 
-  async handleChannels(channelsIds: string[]) {
-    const { data: streams } = await api.streams.getStreams({
-      userId: channelsIds,
+  @Interval(config.isDev ? 5000 : 5 * 60 * 1000)
+  async handleChannels() {
+    const channels = await typeorm.getRepository(Channel).find({
+      where: { isEnabled: true },
+      select: { id: true },
     });
 
-    const repository = typeorm.getRepository(ChannelStream);
+    const chunks = _.chunk(
+      channels.map((c) => c.id),
+      100,
+    );
 
-    for (const channel of channelsIds) {
-      const stream = streams.find((s) => s.userId === channel);
-
-      const storedStream = await repository.findOneBy({
-        userId: channel,
+    for (const chunk of chunks) {
+      const { data: streams } = await api.streams.getStreams({
+        userId: chunk,
       });
 
-      if (stream) {
-        if (!storedStream) {
-          await repository.save(convertSnakeToCamel(getRawData(stream)));
-          await this.nats
-            .emit('streams.online', { streamId: stream.id, channelId: channel })
-            .toPromise();
+      const repository = typeorm.getRepository(ChannelStream);
+
+      for (const channel of chunk) {
+        const stream = streams.find((s) => s.userId === channel);
+
+        const storedStream = await repository.findOneBy({
+          userId: channel,
+        });
+
+        if (stream) {
+          if (!storedStream) {
+            await repository.save(convertSnakeToCamel(getRawData(stream)));
+            pubSub.publish('stream.online', { streamId: stream.id, channelId: channel });
+          } else {
+            await repository.update(
+              { id: storedStream.id },
+              convertSnakeToCamel(getRawData(stream)),
+            );
+          }
         } else {
-          await repository.update({ id: storedStream.id }, convertSnakeToCamel(getRawData(stream)));
-        }
-      } else {
-        if (storedStream) {
-          await repository.delete({ id: storedStream.id });
-          await this.nats.emit('streams.offline', { channelId: channel }).toPromise();
+          if (storedStream) {
+            await repository.delete({ id: storedStream.id });
+            pubSub.publish('streams.offline', { channelId: channel });
+          }
         }
       }
     }
-
-    return true;
   }
 }

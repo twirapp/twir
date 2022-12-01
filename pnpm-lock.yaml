@@ -64,14 +64,18 @@ importers:
   apps/eval:
     specifiers:
       '@tsuwari/config': workspace:*
+      '@tsuwari/grpc': workspace:*
       '@types/lodash': 4.14.186
       lodash: 4.17.21
       nats: ^2.7.1
+      nice-grpc: ^2.0.1
       vm2: ^3.9.11
     dependencies:
       '@tsuwari/config': link:../../libs/config
+      '@tsuwari/grpc': link:../../libs/grpc
       lodash: 4.17.21
       nats: 2.7.1
+      nice-grpc: 2.0.1
       vm2: 3.9.11
     devDependencies:
       '@types/lodash': 4.14.186
@@ -236,6 +240,7 @@ importers:
       '@sentry/node': 7.14.0
       '@sentry/tracing': 7.14.0
       '@tsuwari/config': workspace:*
+      '@tsuwari/grpc': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@types/cron': 2.0.0
@@ -256,6 +261,7 @@ importers:
       '@sentry/node': 7.14.0
       '@sentry/tracing': 7.14.0
       '@tsuwari/config': link:../../libs/config
+      '@tsuwari/grpc': link:../../libs/grpc
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
       ioredis: 5.2.3
@@ -275,10 +281,11 @@ importers:
       '@nestjs/common': 9.1.2
       '@nestjs/core': 9.1.2
       '@nestjs/microservices': 9.1.2
+      '@nestjs/schedule': 2.1.0
       '@sentry/node': 7.14.0
       '@sentry/tracing': 7.14.0
       '@tsuwari/config': workspace:*
-      '@tsuwari/grpc': workspace:*
+      '@tsuwari/pubsub': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@twurple/api': 5.2.4
@@ -294,10 +301,11 @@ importers:
       '@nestjs/common': 9.1.2_yzt46al3aifnexifjjdb4dxxja
       '@nestjs/core': 9.1.2_hau4knnrdwycqsd7n2f5wuciea
       '@nestjs/microservices': 9.1.2_fzfvjbneyottbopxczunpwrha4
+      '@nestjs/schedule': 2.1.0_yzammjd3rtddjrgcr4enkpfvhm
       '@sentry/node': 7.14.0
       '@sentry/tracing': 7.14.0
       '@tsuwari/config': link:../../libs/config
-      '@tsuwari/grpc': link:../../libs/grpc
+      '@tsuwari/pubsub': link:../../libs/pubsub
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
       '@twurple/api': 5.2.4_@twurple+auth@5.2.4
