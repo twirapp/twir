@@ -1,9 +1,8 @@
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { config } from '@tsuwari/config';
-import { DotaGame, dotaHeroes, gameModes, RedisService } from '@tsuwari/shared';
+import { DotaGame, dotaHeroes, gameModes } from '@tsuwari/shared';
 import { DotaGameMode } from '@tsuwari/typeorm/entities/DotaGameMode';
 import { DotaHero } from '@tsuwari/typeorm/entities/DotaHero';
 import { DotaMatch } from '@tsuwari/typeorm/entities/DotaMatch';
@@ -11,23 +10,16 @@ import protobufjs from 'protobufjs';
 import SteamUser from 'steam-user';
 import SteamID from 'steamid';
 
-import { converUsers } from './helpers/convertUsers.js';
-import { typeorm } from './libs/typeorm.js';
+import { converUsers } from '../helpers/convertUsers.js';
+import { redis } from './redis.js';
+import { typeorm } from './typeorm.js';
 
-@Injectable()
-export class AppService extends SteamUser implements OnModuleInit {
+export class Dota extends SteamUser {
   #watchRoot: protobufjs.Root;
   #clientHelloRoot: protobufjs.Root;
   #gcMessagesClient: protobufjs.Root;
   #gcMessagesCommon: protobufjs.Root;
-  #logger = new Logger('Dota');
   ready = false;
-
-  constructor(private readonly redis: RedisService) {
-    super({
-      autoRelogin: true,
-    });
-  }
 
   sendHelloEvent() {
     if (!this.ready) return;
@@ -35,10 +27,11 @@ export class AppService extends SteamUser implements OnModuleInit {
     this.sendToGC(570, 4006, {}, Buffer.from(helloType.encode({}).finish()));
   }
 
-  async onModuleInit() {
+  async init() {
     this.#watchRoot = await new protobufjs.Root().load(
       resolve(
         dirname(fileURLToPath(import.meta.url)),
+        '..',
         '..',
         'protos',
         'dota2',
@@ -53,6 +46,7 @@ export class AppService extends SteamUser implements OnModuleInit {
       resolve(
         dirname(fileURLToPath(import.meta.url)),
         '..',
+        '..',
         'protos',
         'dota2',
         'gcsdk_gcmessages.proto',
@@ -66,6 +60,7 @@ export class AppService extends SteamUser implements OnModuleInit {
       resolve(
         dirname(fileURLToPath(import.meta.url)),
         '..',
+        '..',
         'protos',
         'dota2',
         'dota_gcmessages_client.proto',
@@ -78,6 +73,7 @@ export class AppService extends SteamUser implements OnModuleInit {
     this.#gcMessagesCommon = await new protobufjs.Root().load(
       resolve(
         dirname(fileURLToPath(import.meta.url)),
+        '..',
         '..',
         'protos',
         'dota2',
@@ -94,18 +90,18 @@ export class AppService extends SteamUser implements OnModuleInit {
     });
 
     this.on('disconnected', (e) => {
-      this.#logger.log(`Disconnected, ${e}`);
+      console.log(`Disconnected, ${e}`);
     });
 
     this.on('loggedOn', (e) => {
-      this.#logger.log(`Logged into Steam as ${e.client_supplied_steamid} ${e.vanity_url}`);
+      console.log(`Logged into Steam as ${e.client_supplied_steamid} ${e.vanity_url}`);
       this.setPersona(1);
       this.gamesPlayed([570], true);
     });
 
     this.on('error', (e) => {
       console.log(e);
-      this.#logger.error(e);
+      console.error(e);
     });
 
     this.on('appLaunched', async () => {
@@ -119,6 +115,8 @@ export class AppService extends SteamUser implements OnModuleInit {
     this.on('receivedFromGC', (_appId, msgId, payload) => {
       if (msgId === 8010) this.recievedFromGcCallback(payload);
     });
+
+    return this;
   }
 
   async testMatchResults() {
@@ -134,21 +132,21 @@ export class AppService extends SteamUser implements OnModuleInit {
 
   async getPresences(accs: string[]) {
     if (!this.ready) {
-      return this.#logger.error('App not ready for getting presences.');
+      return console.error('App not ready for getting presences.');
     }
 
     const convertedAccs = accs.map(SteamID.fromIndividualAccountID).map((id) => id.getSteamID64());
     const type = this.#watchRoot.lookupType('CMsgClientToGCFindTopSourceTVGames');
 
     await Promise.all([
-      Promise.all(accs.map((a) => this.redis.del(`dotaMatches:${a}`))),
-      Promise.all(accs.map((a) => this.redis.del(`dotaRps:${a}`))),
+      Promise.all(accs.map((a) => redis.del(`dotaMatches:${a}`))),
+      Promise.all(accs.map((a) => redis.del(`dotaRps:${a}`))),
     ]);
 
     this.requestRichPresence(570, convertedAccs, 'english', async (error, data) => {
       if (error) {
         console.log(error);
-        return this.#logger.error(error);
+        return console.error(error);
       }
       if (!data.users) return;
       const users = converUsers(data.users).filter(
@@ -157,7 +155,7 @@ export class AppService extends SteamUser implements OnModuleInit {
 
       await Promise.all(
         users.map((u) =>
-          this.redis.set(`dotaRps:${u.userId}`, JSON.stringify(u.richPresence), 'EX', 60),
+          redis.set(`dotaRps:${u.userId}`, JSON.stringify(u.richPresence), 'EX', 60),
         ),
       );
 
@@ -243,12 +241,7 @@ export class AppService extends SteamUser implements OnModuleInit {
         }
 
         for (const player of game.players) {
-          await this.redis.set(
-            `dotaMatches:${player.account_id}`,
-            JSON.stringify(game),
-            'EX',
-            30 * 60,
-          );
+          await redis.set(`dotaMatches:${player.account_id}`, JSON.stringify(game), 'EX', 30 * 60);
           const hero = dotaHeroes.find((h) => h.id === player.hero_id);
           if (hero) {
             await typeorm
