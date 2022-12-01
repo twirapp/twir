@@ -38,7 +38,7 @@
     "@intlify/vite-plugin-vue-i18n": "6.0.3",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
-    "@twurple/api": "5.2.5",
+    "@twurple/api": "5.2.7",
     "@twurple/common": "5.2.5",
     "@types/prismjs": "1.26.0",
     "@vitejs/plugin-vue": "3.2.0",
