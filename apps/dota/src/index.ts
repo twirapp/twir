@@ -1,19 +1,46 @@
 import 'reflect-metadata';
 
-import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { config } from '@tsuwari/config';
+import * as DotaServer from '@tsuwari/grpc/generated/dota/dota';
+import { PORTS } from '@tsuwari/grpc/servers/constants';
+import { ChannelDotaAccount } from '@tsuwari/typeorm/entities/ChannelDotaAccount';
+import _ from 'lodash';
+import { createServer } from 'nice-grpc';
 
-import { AppModule } from './app.module.js';
-import './libs/nats.js';
+import { Dota } from './libs/dota.js';
+import { typeorm } from './libs/typeorm.js';
 
-await import('./libs/typeorm.js');
-export const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
-  transport: Transport.NATS,
-  options: {
-    servers: [config.NATS_URL],
-    reconnectTimeWait: 100,
+const dota = await new Dota().init();
+
+const dotaServer: DotaServer.DotaServiceImplementation = {
+  async getPlayerCard(request: DotaServer.GetPlayerCardRequest) {
+    const result = await dota.getDotaProfileCard(request.accountId);
+    return result;
   },
-});
+};
 
-await app.listen();
+const server = createServer();
+
+server.add(DotaServer.DotaDefinition, dotaServer);
+
+await server.listen(`0.0.0.0:${PORTS.DOTA_SERVER_PORT}`);
+
+setInterval(
+  async () => {
+    const accounts = await typeorm.getRepository(ChannelDotaAccount).findBy({
+      channel: {
+        isEnabled: true,
+      },
+    });
+
+    const chunks = _.chunk(
+      accounts.map((a) => a.id),
+      50,
+    );
+
+    for (const chunk of chunks) {
+      dota.getPresences(chunk);
+    }
+  },
+  config.isDev ? 5000 : 1 * 60 * 1000,
+);

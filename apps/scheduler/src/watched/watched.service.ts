@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
-import * as Watched from '@tsuwari/nats/watched';
 import { ChannelStream } from '@tsuwari/typeorm/entities/ChannelStream';
 import _ from 'lodash';
 
 import { typeorm } from '../index.js';
-import { nats } from '../libs/nats.js';
+import { watchedGrpcClient } from '../libs/watched.grpc.js';
 
 @Injectable()
 export class WatchedService {
@@ -35,12 +34,10 @@ export class WatchedService {
 
       for (const ch of chunks) {
         const mapped = ch.map((c) => c.userId);
-        const data = Watched.ParseRequest.toBinary({
+        watchedGrpcClient.incrementByChannelId({
           botId: botId,
           channelsId: mapped,
         });
-
-        nats.publish(Watched.SUBJECTS.PROCESS_WATCHED_STREAMS, data);
       }
     }
   }

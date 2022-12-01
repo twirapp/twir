@@ -1,11 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"os/signal"
 	"reflect"
 	"strings"
+	"syscall"
 	"time"
 
+	"github.com/satont/tsuwari/libs/grpc/clients"
 	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/getsentry/sentry-go"
@@ -21,7 +26,6 @@ import (
 	apiv1 "github.com/satont/tsuwari/apps/api/internal/api/v1"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	myNats "github.com/satont/tsuwari/libs/nats"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -62,12 +66,6 @@ func main() {
 	d.SetMaxOpenConns(20)
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
-	natsEncodedConn, natsConn, err := myNats.New(cfg.NatsUrl)
-	if err != nil {
-		panic(err)
-	}
-	defer natsEncodedConn.Close()
-
 	storage := redis.NewCache(cfg.RedisUrl)
 
 	validator := validator.New()
@@ -91,19 +89,17 @@ func main() {
 	})
 	app.Use(compress.New())
 
-	/* app.Use(func(c *fiber.Ctx) error {
-		c.Next()
-		defer logger.Sugar().Infow("incoming request",
-			"method", c.Method(),
-			"path", c.Path(),
-			"code", c.Response().StatusCode(),
-		)
-		return nil
-	}) */
 	appLogger, _ := zap.NewDevelopment()
 	app.Use(fiberzap.New(fiberzap.Config{
 		Logger: appLogger,
 	}))
+
+	botsGrpcClient := clients.NewBots(cfg.AppEnv)
+	timersGrpcClient := clients.NewTimers(cfg.AppEnv)
+	schedulerGrpcClient := clients.NewScheduler(cfg.AppEnv)
+	parserGrpcClient := clients.NewParser(cfg.AppEnv)
+	eventSubGrpcClient := clients.NewEventSub(cfg.AppEnv)
+	integrationsGrpcClient := clients.NewIntegrations(cfg.AppEnv)
 
 	v1 := app.Group("/v1")
 
@@ -117,9 +113,14 @@ func main() {
 			ClientSecret: cfg.TwitchClientSecret,
 			RedirectURI:  cfg.TwitchCallbackUrl,
 		}),
-		Logger: logger,
-		Cfg:    cfg,
-		Nats:   natsConn,
+		Logger:           logger,
+		Cfg:              cfg,
+		BotsGrpc:         botsGrpcClient,
+		TimersGrpc:       timersGrpcClient,
+		SchedulerGrpc:    schedulerGrpcClient,
+		ParserGrpc:       parserGrpcClient,
+		EventSubGrpc:     eventSubGrpcClient,
+		IntegrationsGrpc: integrationsGrpcClient,
 	}
 
 	if cfg.FeedbackTelegramBotToken != nil {
@@ -134,4 +135,12 @@ func main() {
 	})
 
 	log.Fatal(app.Listen(":3002"))
+
+	exitSignal := make(chan os.Signal, 1)
+	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
+	<-exitSignal
+	fmt.Println("Closing...")
+
+	d, _ = db.DB()
+	d.Close()
 }

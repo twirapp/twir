@@ -3,29 +3,28 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"os/signal"
 	"time"
 
 	"github.com/satont/tsuwari/apps/parser/internal/commands"
 	"github.com/satont/tsuwari/apps/parser/internal/config/redis"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
 	"github.com/satont/tsuwari/apps/parser/internal/variables"
 
 	cfg "github.com/satont/tsuwari/libs/config"
 
 	twitch "github.com/satont/tsuwari/apps/parser/internal/config/twitch"
-	natshandlers "github.com/satont/tsuwari/apps/parser/internal/handlers/nats"
 	usersauth "github.com/satont/tsuwari/apps/parser/internal/twitch/user"
 
 	"github.com/getsentry/sentry-go"
-	"github.com/nats-io/nats.go"
-	"github.com/samber/lo"
-	parserproto "github.com/satont/tsuwari/libs/nats/parser"
 
-	myNats "github.com/satont/tsuwari/libs/nats"
+	"github.com/satont/tsuwari/apps/parser/internal/grpc_impl"
+	"github.com/satont/tsuwari/libs/grpc/clients"
+	parser "github.com/satont/tsuwari/libs/grpc/generated/parser"
+	"github.com/satont/tsuwari/libs/grpc/servers"
 	"go.uber.org/zap"
-	proto "google.golang.org/protobuf/proto"
+	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -67,11 +66,10 @@ func main() {
 
 	r := redis.New(cfg.RedisUrl)
 	defer r.Close()
-	natsEncodedConn, natsConn, err := myNats.New(cfg.NatsUrl)
-	if err != nil {
-		panic(err)
-	}
-	defer natsEncodedConn.Close()
+
+	botsGrpcClient := clients.NewBots(cfg.AppEnv)
+	dotaGrpcClient := clients.NewDota(cfg.AppEnv)
+	evalGrpcClient := clients.NewEval(cfg.AppEnv)
 
 	usersAuthService := usersauth.New(usersauth.UsersServiceOpts{
 		Db:           db,
@@ -85,137 +83,27 @@ func main() {
 		VariablesService: variablesService,
 		Db:               db,
 		UsersAuth:        usersAuthService,
-		Nats:             natsConn,
 		Twitch:           twitchClient,
-	})
-	natsHandlers := natshandlers.New(natshandlers.NatsService{
-		Redis:     r,
-		Variables: variablesService,
-		Commands:  commandsService,
+		BotsGrpc:         botsGrpcClient,
+		DotaGrpc:         dotaGrpcClient,
+		EvalGrpc:         evalGrpcClient,
 	})
 
 	if err != nil {
 		panic(err)
 	}
 
-	natsEncodedConn.QueueSubscribe("parser.handleProcessCommand", "parser", func(m *nats.Msg) {
-		start := time.Now()
-		data := parserproto.Request{}
-		err := proto.Unmarshal(m.Data, &data)
-		if err != nil {
-			panic(err)
-		}
-
-		go fmt.Println("Processing msg " + data.Message.Id)
-
-		r := natsHandlers.HandleProcessCommand(data)
-
-		if r != nil {
-			res, _ := proto.Marshal(r)
-
-			if err == nil {
-				m.Respond(res)
-			} else {
-				fmt.Println(err)
-			}
-		} else {
-			m.Respond([]byte{})
-		}
-
-		defer func() {
-			logger.Sugar().Infow("HandleProcessCommand ended.",
-				"in", data.Message.Text,
-				"out", r,
-				"took", time.Since(start),
-				"channelId", data.Channel.Id,
-				"senderId", data.Sender.Id,
-			)
-		}()
-		m.Ack()
-	})
-
-	natsEncodedConn.QueueSubscribe(
-		parserproto.SUBJECTS_GET_BUILTIT_VARIABLES,
-		"parser",
-		func(m *nats.Msg) {
-			filteredVars := lo.Filter(variablesService.Store, func(i types.Variable, _i int) bool {
-				if i.Visible != nil {
-					return *i.Visible
-				}
-				return true
-			})
-
-			vars := lo.Map(
-				filteredVars,
-				func(v types.Variable, _ int) *parserproto.Variable {
-					desc := v.Name
-					if v.Description != nil {
-						desc = *v.Description
-					}
-					example := v.Name
-					if v.Example != nil {
-						example = *v.Example
-					}
-					return &parserproto.Variable{
-						Name:        v.Name,
-						Example:     example,
-						Description: desc,
-					}
-				},
-			)
-
-			res, _ := proto.Marshal(&parserproto.GetVariablesResponse{
-				List: vars,
-			})
-
-			m.Respond(res)
-			m.Ack()
-		},
-	)
-
-	natsEncodedConn.QueueSubscribe("bots.getDefaultCommands", "parser", func(m *nats.Msg) {
-		list := make([]*parserproto.DefaultCommand, len(commandsService.DefaultCommands))
-
-		for i, v := range commandsService.DefaultCommands {
-			cmd := &parserproto.DefaultCommand{
-				Name:               v.Name,
-				Description:        *v.Description,
-				Visible:            v.Visible,
-				Permission:         v.Permission,
-				Module:             *v.Module,
-				IsReply:            v.IsReply,
-				KeepResponsesOrder: v.KeepResponsesOrder,
-			}
-
-			list[i] = cmd
-		}
-
-		res, _ := proto.Marshal(&parserproto.GetDefaultCommandsResponse{
-			List: list,
-		})
-
-		m.Respond(res)
-	})
-
-	natsEncodedConn.QueueSubscribe("parser.parseTextResponse", "parser", func(m *nats.Msg) {
-		data := parserproto.ParseResponseRequest{}
-		err := proto.Unmarshal(m.Data, &data)
-		if err != nil {
-			logger.Error(err.Error())
-			return
-		}
-		text := natsHandlers.ParseResponse(data)
-		bytes, err := proto.Marshal(&parserproto.ParseResponseResponse{
-			Responses: []string{text},
-		})
-		if err != nil {
-			logger.Error(err.Error())
-			return
-		}
-
-		m.Respond(bytes)
-		m.Ack()
-	})
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.PARSER_SERVER_PORT))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	grpcServer := grpc.NewServer()
+	parser.RegisterParserServer(grpcServer, grpc_impl.NewServer(&grpc_impl.GrpcImplOpts{
+		Redis:     r,
+		Variables: &variablesService,
+		Commands:  &commandsService,
+	}))
+	go grpcServer.Serve(lis)
 
 	logger.Info("Started")
 
@@ -224,4 +112,6 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 	<-c
 	log.Fatalf("Exiting")
+	grpcServer.Stop()
+	d.Close()
 }

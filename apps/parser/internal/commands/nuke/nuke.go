@@ -1,6 +1,7 @@
 package nuke
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -8,10 +9,9 @@ import (
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 
 	"github.com/samber/lo"
-	natsbots "github.com/satont/tsuwari/libs/nats/bots"
-	proto "google.golang.org/protobuf/proto"
 )
 
 var Command = types.DefaultCommand{
@@ -55,17 +55,11 @@ var Command = types.DefaultCommand{
 			return m.MessageId
 		})
 
-		request := natsbots.DeleteMessagesRequest{
+		ctx.Services.BotsGrpc.DeleteMessage(context.Background(), &bots.DeleteMessagesRequest{
 			ChannelId:   ctx.ChannelId,
 			MessageIds:  mappedMessages,
 			ChannelName: ctx.ChannelName,
-		}
-
-		marshaled, err := proto.Marshal(&request)
-
-		if err == nil {
-			ctx.Services.Nats.Publish("bots.deleteMessages", marshaled)
-		}
+		})
 
 		ctx.Services.Db.Where(`"messageId" IN ?`, mappedMessages).
 			Delete(&model.ChannelChatMessage{})

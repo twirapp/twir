@@ -1,0 +1,13 @@
+{
+  "name": "@tsuwari/pubsub",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@tsuwari/config": "workspace:*",
+    "redis": "^4.5.1"
+  }
+}

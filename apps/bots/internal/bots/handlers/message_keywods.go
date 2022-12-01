@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
@@ -8,10 +9,9 @@ import (
 	"time"
 
 	irc "github.com/gempir/go-twitch-irc/v3"
-	"github.com/golang/protobuf/proto"
 	"github.com/samber/lo"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/nats/parser"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 )
 
 func (c *Handlers) handleKeywords(
@@ -71,7 +71,7 @@ func (c *Handlers) handleKeywords(
 			query := make(map[string]any)
 
 			if !isOnCooldown && k.Response != "" {
-				requestStruct := parser.ParseResponseRequest{
+				requestStruct := &parser.ParseTextRequestData{
 					Channel: &parser.Channel{
 						Id:   msg.RoomID,
 						Name: msg.Channel,
@@ -89,27 +89,12 @@ func (c *Handlers) handleKeywords(
 					ParseVariables: lo.ToPtr(true),
 				}
 
-				bytes, err := proto.Marshal(&requestStruct)
+				res, err := c.parserGrpc.ParseTextResponse(context.Background(), requestStruct)
 				if err != nil {
-					fmt.Println("Parser not answered on request keywords.")
-					fmt.Printf("%+v\n", &requestStruct)
-					fmt.Println(err)
 					return
 				}
 
-				req, err := c.nats.Request("parser.parseTextResponse", bytes, 5*time.Second)
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-
-				responseStruct := parser.ParseResponseResponse{}
-				if err := proto.Unmarshal(req.Data, &responseStruct); err != nil {
-					fmt.Println(err)
-					return
-				}
-
-				for _, r := range responseStruct.Responses {
+				for _, r := range res.Responses {
 					validateResposeErr := ValidateResponseSlashes(r)
 					if validateResposeErr != nil {
 						c.BotClient.SayWithRateLimiting(

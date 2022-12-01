@@ -1,40 +1,28 @@
-import 'reflect-metadata';
-
-import { NestFactory } from '@nestjs/core';
-import { NatsOptions, Transport } from '@nestjs/microservices';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import { config } from '@tsuwari/config';
-import { AppDataSource } from '@tsuwari/typeorm';
+import * as EventSub from '@tsuwari/grpc/generated/eventsub/eventsub';
+import { PORTS } from '@tsuwari/grpc/servers/constants';
 import Express from 'express';
-import { connect } from 'nats';
+import { createServer } from 'nice-grpc';
 
-import { AppModule } from './app.module.js';
-import { EventSub } from './eventsub/eventsub.service.js';
-import { listenForDefaultCommands } from './libs/nats.js';
+import { initChannels } from './libs/initChannels.js';
+import { eventSubMiddleware, subscribeToEvents } from './libs/middleware.js';
 
-export const typeorm = await AppDataSource.initialize();
-const nats = await connect({
-  servers: [config.NATS_URL],
+const app = Express();
+await eventSubMiddleware.apply(app);
+
+app.listen(3003, async () => {
+  await eventSubMiddleware.markAsReady();
+  await initChannels();
 });
 
-const e = Express();
-export const app = await NestFactory.create(AppModule, new ExpressAdapter(e), {
-  bodyParser: false,
-});
-app.connectMicroservice<NatsOptions>({
-  transport: Transport.NATS,
-  options: {
-    servers: [config.NATS_URL],
-    timeout: 100,
+const eventSubService: EventSub.EventSubServiceImplementation = {
+  async subscribeToEvents(request: EventSub.SubscribeToEventsRequest) {
+    subscribeToEvents(request.channelId);
+    return {};
   },
-});
+};
 
-const eventSub = await app.resolve(EventSub);
-await eventSub.apply(e);
+const server = createServer();
 
-await app.startAllMicroservices();
-e.listen(3003, async () => {
-  await eventSub.markAsReady();
-  await eventSub.init();
-  listenForDefaultCommands(nats);
-});
+server.add(EventSub.EventSubDefinition, eventSubService);
+
+await server.listen(`0.0.0.0:${PORTS.EVENTSUB_SERVER_PORT}`);

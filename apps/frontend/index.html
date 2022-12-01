@@ -1,36 +1,40 @@
 <!DOCTYPE html>
 <html class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tsuwari</title>
+    <meta name="keywords" content="tsuwari, twitch bot, tsuwari bot" />
+    <meta
+      name="description"
+      content="Very powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love."
+    />
+    <meta name="author" content="Satont, me@satont.dev" />
+    <meta name="url" content="https://tsuwari.bot" />
+    <meta name="identifier-URL" content="https://tsuwari.bot" />
+    <link rel="icon" href="src/assets/logo.svg" />
 
-  <title>Tsuwari</title>
-  <meta name="keywords" content="tsuwari, twitch bot, tsuwari bot" />
-  <meta name="description" content="Very powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love." />
-  <meta name="author" content="Satont, me@satont.dev" />
-  <meta name="url" content="https://tsuwari.bot" />
-  <meta name="identifier-URL" content="https://tsuwari.bot" />
-  <link rel="icon" href="src/assets/logo.svg">
+    <meta name="og:title" content="Tsuwari" />
+    <meta name="og:url" content="https://tsuwari.bot" />
+    <meta
+      name="og:description"
+      content="Very powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love."
+    />
 
-  <meta name="og:title" content="Tsuwari" />
-  <meta name="og:url" content="https://tsuwari.bot" />
-  <meta name="og:description" content="Very powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love." />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        outline-offset: 0px;
+        outline: none;
+      }
+    </style>
+  </head>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      outline-offset: 0px;
-      outline: none;
-    }
-  </style>
-</head>
+  <body class="bg-[#121212]" style="scrollbar-width: thin">
+    <div id="app"></div>
 
-<body class="bg-[#121212]" style="scrollbar-width: thin;">
-  <div id="app"></div>
-
-  <script type="module" src="src/main.ts"></script>
-</body>
-
+    <script type="module" src="src/main.ts"></script>
+  </body>
 </html>

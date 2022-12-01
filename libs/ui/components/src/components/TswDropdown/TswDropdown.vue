@@ -19,7 +19,7 @@ const isOpen = ref(false);
 const menu = ref<HTMLElement | null>(null);
 const button = ref<HTMLElement | null>(null);
 
-onClickOutside(menu, (event) => {
+onClickOutside(menu as any, (event) => {
   if (!button.value || !event.target) return;
 
   if (!button.value.contains(event.target as Node)) {

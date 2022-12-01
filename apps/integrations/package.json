@@ -9,13 +9,13 @@
   "type": "module",
   "dependencies": {
     "@tsuwari/config": "workspace:*",
-    "@tsuwari/nats": "workspace:*",
+    "@tsuwari/grpc": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
     "@twurple/api": "^5.2.4",
     "@twurple/auth": "^5.2.4",
     "centrifuge": "2.8.5",
-    "nats": "^2.7.1",
+    "nice-grpc": "^2.0.1",
     "socket.io-client": "2.3.1",
     "ws": "^8.9.0"
   },

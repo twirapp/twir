@@ -1,16 +1,16 @@
 package variables
 
 import (
+	"context"
 	"net/http"
-	"time"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang/protobuf/proto"
 	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	"github.com/satont/tsuwari/libs/nats/parser"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -26,23 +26,14 @@ func handleGet(channelId string, services types.Services) ([]model.ChannelsCusto
 	return variables, nil
 }
 
-func handleGetBuiltIn(services types.Services) ([]*parser.Variable, error) {
-	response := parser.GetVariablesResponse{}
-	bytes, _ := proto.Marshal(&parser.GetVariablesRequest{})
-
-	msg, err := services.Nats.Request(
-		parser.SUBJECTS_GET_BUILTIT_VARIABLES,
-		bytes,
-		3*time.Second,
-	)
+func handleGetBuiltIn(services types.Services) ([]*parser.GetVariablesResponse_Variable, error) {
+	req, err := services.ParserGrpc.GetDefaultVariables(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		services.Logger.Sugar().Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get builtin variables")
 	}
 
-	proto.Unmarshal(msg.Data, &response)
-
-	return response.List, nil
+	return req.List, nil
 }
 
 func handlePost(

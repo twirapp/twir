@@ -1,20 +1,19 @@
 package auth
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"github.com/satont/tsuwari/libs/grpc/generated/eventsub"
+	"github.com/satont/tsuwari/libs/grpc/generated/scheduler"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	"github.com/satont/tsuwari/libs/nats/bots"
-	"github.com/satont/tsuwari/libs/nats/eventsub"
-	"github.com/satont/tsuwari/libs/nats/scheduler"
 	uuid "github.com/satori/go.uuid"
-	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 )
 
@@ -96,22 +95,24 @@ func checkUser(
 		}
 	}
 
-	bytes, _ := proto.Marshal(&bots.JoinOrLeaveRequest{
-		Action:   lo.If(user.Channel.IsEnabled, "join").Else("part"),
-		BotId:    user.Channel.BotID,
-		UserName: username,
-	})
-	services.Nats.Publish(bots.SUBJECTS_JOIN_OR_LEAVE, bytes)
+	if user.Channel.IsEnabled {
+		services.BotsGrpc.Join(context.Background(), &bots.JoinOrLeaveRequest{
+			BotId:    user.Channel.BotID,
+			UserName: username,
+		})
+	} else {
+		services.BotsGrpc.Leave(context.Background(), &bots.JoinOrLeaveRequest{
+			BotId:    user.Channel.BotID,
+			UserName: username,
+		})
+	}
 
-	bytes, _ = proto.Marshal(&scheduler.CreateDefaultCommandsRequest{
+	services.SchedulerGrpc.CreateDefaultCommands(context.Background(), &scheduler.CreateDefaultCommandsRequest{
 		UserId: userId,
 	})
-	services.Nats.Publish(scheduler.SUBJECTS_CREATE_DEFAULT_COMMANDS, bytes)
-
-	bytes, _ = proto.Marshal(&eventsub.SubscribeToEvents{
+	services.EventSubGrpc.SubscribeToEvents(context.Background(), &eventsub.SubscribeToEventsRequest{
 		ChannelId: userId,
 	})
-	services.Nats.Publish(eventsub.SUBJECTS_SUBSCTUBE_TO_EVENTS_BY_CHANNEL_ID, bytes)
 
 	return nil
 }

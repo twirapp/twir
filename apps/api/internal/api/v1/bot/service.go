@@ -1,9 +1,11 @@
 package bot
 
 import (
+	"context"
 	"net/http"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 
 	"github.com/satont/tsuwari/libs/twitch"
 
@@ -11,8 +13,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	"github.com/satont/tsuwari/libs/nats/bots"
-	"google.golang.org/protobuf/proto"
 )
 
 func handleGet(channelId string, services types.Services) (*bool, error) {
@@ -69,12 +69,6 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 		return fiber.NewError(http.StatusInternalServerError, "cannot get user from database")
 	}
 
-	bytes, _ := proto.Marshal(&bots.JoinOrLeaveRequest{
-		Action:   dto.Action,
-		BotId:    dbUser.BotID,
-		UserName: user.Login,
-	})
-
 	if dto.Action == "part" {
 		dbUser.IsEnabled = false
 	} else {
@@ -82,7 +76,18 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 	}
 
 	services.DB.Where(`"id" = ?`, channelId).Select("*").Updates(&dbUser)
-	services.Nats.Publish(bots.SUBJECTS_JOIN_OR_LEAVE, bytes)
+
+	if dbUser.IsEnabled {
+		services.BotsGrpc.Join(context.Background(), &bots.JoinOrLeaveRequest{
+			BotId:    dbUser.BotID,
+			UserName: user.Login,
+		})
+	} else {
+		services.BotsGrpc.Leave(context.Background(), &bots.JoinOrLeaveRequest{
+			BotId:    dbUser.BotID,
+			UserName: user.Login,
+		})
+	}
 
 	return nil
 }

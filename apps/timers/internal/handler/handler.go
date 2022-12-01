@@ -1,39 +1,39 @@
 package handler
 
 import (
-	"time"
+	"context"
 
 	"github.com/satont/tsuwari/apps/timers/internal/types"
 
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 	"github.com/satont/tsuwari/libs/twitch"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/go-co-op/gocron"
-	"github.com/golang/protobuf/proto"
-	"github.com/nats-io/nats.go"
-	"github.com/satont/tsuwari/libs/nats/bots"
-	"github.com/satont/tsuwari/libs/nats/parser"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type Handler struct {
-	twitch *twitch.Twitch
-	nats   *nats.Conn
-	db     *gorm.DB
-	logger *zap.Logger
-	store  types.Store
+	twitch     *twitch.Twitch
+	db         *gorm.DB
+	logger     *zap.Logger
+	store      types.Store
+	parserGrpc parser.ParserClient
+	botsGrpc   bots.BotsClient
 }
 
 func New(
 	twitch *twitch.Twitch,
-	nats *nats.Conn,
 	db *gorm.DB,
 	logger *zap.Logger,
 	store types.Store,
+	parserGrpc parser.ParserClient,
+	botsGrpc bots.BotsClient,
 ) *Handler {
-	return &Handler{twitch: twitch, nats: nats, db: db, logger: logger, store: store}
+	return &Handler{twitch: twitch, db: db, logger: logger, store: store, parserGrpc: parserGrpc, botsGrpc: botsGrpc}
 }
 
 func (c *Handler) Handle(j gocron.Job) {
@@ -75,7 +75,7 @@ func (c *Handler) Handle(j gocron.Job) {
 		return
 	}
 
-	requestBytes, protoError := proto.Marshal(&parser.ParseResponseRequest{
+	req, err := c.parserGrpc.ParseTextResponse(context.Background(), &parser.ParseTextRequestData{
 		Sender: &parser.Sender{
 			Id:          "",
 			Name:        "bot",
@@ -85,36 +85,19 @@ func (c *Handler) Handle(j gocron.Job) {
 		Channel: &parser.Channel{Id: stream.UserId, Name: stream.UserLogin},
 		Message: &parser.Message{Text: timerResponse.Text},
 	})
-	if protoError != nil {
-		c.logger.Sugar().Error(err)
-		return
-	}
-
-	response, natsError := c.nats.Request("parser.parseTextResponse", requestBytes, 5*time.Second)
-	if natsError != nil {
-		c.logger.Sugar().Error(natsError)
-		return
-	}
-	responseData := parser.ParseResponseResponse{}
-
-	err = proto.Unmarshal(response.Data, &responseData)
-
 	if err != nil {
-		c.logger.Sugar().Error(err)
 		return
 	}
 
-	for i := 0; i < len(responseData.Responses); i++ {
-		message := responseData.Responses[i]
+	for i := 0; i < len(req.Responses); i++ {
+		message := req.Responses[i]
 
-		botsRequest := bots.SendMessage{
+		c.botsGrpc.SendMessage(context.Background(), &bots.SendMessageRequest{
 			ChannelId:   stream.UserId,
 			ChannelName: &stream.UserLogin,
 			Message:     message,
 			IsAnnounce:  &timerResponse.IsAnnounce,
-		}
-		bytes, _ := proto.Marshal(&botsRequest)
-		c.nats.Publish("bots.sendMessage", bytes)
+		})
 	}
 
 	nextIndex := t.SendIndex + 1

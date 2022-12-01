@@ -7,6 +7,7 @@ import (
 
 	"github.com/samber/lo"
 	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
@@ -14,7 +15,6 @@ import (
 
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	irc "github.com/gempir/go-twitch-irc/v3"
-	"github.com/nats-io/nats.go"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/bots/internal/bots/handlers"
 	"github.com/satont/tsuwari/apps/bots/pkg/utils"
@@ -24,12 +24,12 @@ import (
 )
 
 type ClientOpts struct {
-	DB     *gorm.DB
-	Cfg    *cfg.Config
-	Logger *zap.Logger
-	Model  *model.Bots
-	Twitch *twitch.Twitch
-	Nats   *nats.Conn
+	DB         *gorm.DB
+	Cfg        *cfg.Config
+	Logger     *zap.Logger
+	Model      *model.Bots
+	Twitch     *twitch.Twitch
+	ParserGrpc parser.ParserClient
 }
 
 func newBot(opts *ClientOpts) *types.BotClient {
@@ -43,11 +43,11 @@ func newBot(opts *ClientOpts) *types.BotClient {
 	}
 
 	botHandlers := handlers.CreateHandlers(&handlers.HandlersOpts{
-		DB:        opts.DB,
-		Logger:    opts.Logger,
-		Cfg:       opts.Cfg,
-		BotClient: &client,
-		Nats:      opts.Nats,
+		DB:         opts.DB,
+		Logger:     opts.Logger,
+		Cfg:        opts.Cfg,
+		BotClient:  &client,
+		ParserGrpc: opts.ParserGrpc,
 	})
 
 	onRefresh := func(newToken helix.RefreshTokenResponse) {

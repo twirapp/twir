@@ -3,15 +3,17 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"os/signal"
 	"time"
 
-	"github.com/satont/tsuwari/apps/watched/internal/handlers"
+	"github.com/satont/tsuwari/apps/watched/internal/grpc_impl"
 	cfg "github.com/satont/tsuwari/libs/config"
-	myNats "github.com/satont/tsuwari/libs/nats"
-	"github.com/satont/tsuwari/libs/nats/watched"
+	"github.com/satont/tsuwari/libs/grpc/generated/watched"
+	"github.com/satont/tsuwari/libs/grpc/servers"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
@@ -44,18 +46,19 @@ func main() {
 	d.SetMaxOpenConns(20)
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
-	natsEncodedConn, _, err := myNats.New(cfg.NatsUrl)
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.WATCHED_SERVER_PORT))
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to listen: %v", err)
 	}
-
-	h := handlers.NewHandlers(handlers.HandlersOpts{
-		DB:     db,
+	grpcServer := grpc.NewServer()
+	watched.RegisterWatchedServer(grpcServer, grpc_impl.New(&grpc_impl.WatchedGrpcServerOpts{
+		Db:     db,
 		Cfg:    cfg,
 		Logger: logger,
-	})
+	}))
+	go grpcServer.Serve(lis)
 
-	natsEncodedConn.QueueSubscribe(watched.SUBJECTS_PROCESS_WATCHED_STREAMS, "watched", h.ProcessWatchedStreams)
+	log.Println("Started")
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)

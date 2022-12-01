@@ -1,0 +1,3 @@
+import { AppDataSource } from '@tsuwari/typeorm';
+
+export const typeorm = await AppDataSource.initialize();

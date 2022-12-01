@@ -130,16 +130,6 @@ services:
         constraints:
           - node.role == manager
 
-  nats:
-    image: nats:2.9.8-scratch
-    networks:
-      - tsuwari
-    deploy:
-      restart_policy:
-        condition: any
-        delay: 3s
-        max_attempts: 30
-
   api:
     build:
       context: .

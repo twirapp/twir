@@ -7,16 +7,20 @@ ENV PATH="$PATH:/root/go/bin"
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 RUN apk add --no-cache protoc git curl
 
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
 WORKDIR /app
 RUN npm i -g pnpm@7
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc go.mod go.work go.work.sum docker-entrypoint.sh ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc go.work go.work.sum docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 
 COPY libs libs
 COPY apps apps
 
-RUN pnpm install --filter=!ngrok
+RUN pnpm fetch --filter !ngrok
+RUN pnpm install --filter !ngrok
+RUN ls /app/node_modules/.pnpm/grpc-tools@1.11.3/node_modules/grpc-tools/bin
 RUN pnpm build
 
 FROM node:18-alpine as node_prod_base
@@ -39,7 +43,8 @@ COPY --from=base /app/apps/dota apps/dota/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
+COPY --from=base /app/libs/pubsub libs/pubsub/
 RUN pnpm install --prod
 
 FROM node_prod_base as dota
@@ -52,7 +57,7 @@ CMD ["pnpm", "start:dota"]
 FROM node_deps_base as eval_deps
 COPY --from=base /app/apps/eval apps/eval/
 COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
 RUN pnpm install --prod
 
 FROM node_prod_base as eval
@@ -65,9 +70,10 @@ CMD ["pnpm", "start:eval"]
 FROM node_deps_base as eventsub_deps
 COPY --from=base /app/apps/eventsub apps/eventsub/
 COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/typeorm libs/typeorm/
+COPY --from=base /app/libs/pubsub libs/pubsub/
 RUN pnpm install --prod
 
 FROM node_prod_base as eventsub
@@ -80,7 +86,7 @@ CMD ["pnpm", "start:eventsub"]
 FROM node_deps_base as integrations_deps
 COPY --from=base /app/apps/integrations apps/integrations/
 COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
 RUN pnpm install --prod
@@ -95,7 +101,7 @@ CMD ["pnpm", "start:integrations"]
 FROM node_deps_base as scheduler_deps
 COPY --from=base /app/apps/scheduler apps/scheduler/
 COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
 RUN pnpm install --prod
@@ -112,7 +118,8 @@ COPY --from=base /app/apps/streamstatus apps/streamstatus/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
+COPY --from=base /app/libs/pubsub libs/pubsub/
 RUN pnpm install --prod
 
 FROM node_prod_base as streamstatus
@@ -179,7 +186,7 @@ COPY --from=base /app/apps/bots apps/bots/
 COPY --from=base /app/apps/api apps/api/
 COPY --from=base /app/apps/watched apps/watched/
 COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/twitch libs/twitch/
 COPY --from=base /app/libs/gomodels libs/gomodels/
 COPY --from=base /app/libs/integrations/spotify libs/integrations/spotify/

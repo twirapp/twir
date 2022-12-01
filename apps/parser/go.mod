@@ -4,14 +4,15 @@ go 1.18
 
 require (
 	github.com/getsentry/sentry-go v0.15.0
-	github.com/go-redis/redis/v9 v9.0.0-rc.1
+	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/guregu/null v4.0.0+incompatible
-	github.com/nats-io/nats.go v1.19.0
-	github.com/satont/go-helix/v2 v2.7.21
+	github.com/satont/go-helix/v2 v2.7.22
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
+	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
 	github.com/satori/go.uuid v1.2.0
 	go.uber.org/zap v1.23.0
+	google.golang.org/grpc v1.51.0
 	google.golang.org/protobuf v1.28.1
 	gorm.io/driver/postgres v1.4.5
 	gorm.io/gorm v1.24.1
@@ -33,21 +34,20 @@ require (
 	github.com/marten-seemann/qtls-go1-17 v0.1.2 // indirect
 	github.com/marten-seemann/qtls-go1-18 v0.1.3 // indirect
 	github.com/marten-seemann/qtls-go1-19 v0.1.1 // indirect
-	github.com/minio/highwayhash v1.0.2 // indirect
-	github.com/nats-io/jwt/v2 v2.3.0 // indirect
-	github.com/onsi/ginkgo/v2 v2.4.0 // indirect
+	github.com/onsi/ginkgo/v2 v2.5.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/goleak v1.1.12 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/mod v0.6.0 // indirect
 	golang.org/x/tools v0.2.0 // indirect
+	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 )
 
 require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/golang/protobuf v1.5.2
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/imroc/req/v3 v3.25.0
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.13.0 // indirect
@@ -61,15 +61,12 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/leighmacdonald/steamid/v2 v2.2.0
 	github.com/lib/pq v1.10.7
-	github.com/nats-io/nkeys v0.3.0 // indirect
-	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/samber/lo v1.34.0
+	github.com/samber/lo v1.36.0
 	github.com/satont/tsuwari/libs/config v0.0.0
-	github.com/satont/tsuwari/libs/nats v0.0.0
 	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/exp v0.0.0-20221028150844-83b7d23a625f // indirect
-	golang.org/x/net v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/net v0.2.0 // indirect
+	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 )
 
@@ -77,8 +74,8 @@ replace github.com/satont/tsuwari/libs/integrations/spotify => ../../libs/integr
 
 replace github.com/satont/tsuwari/libs/config => ../../libs/config
 
-replace github.com/satont/tsuwari/libs/nats => ../../libs/nats
-
 replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 
 replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
+
+replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc

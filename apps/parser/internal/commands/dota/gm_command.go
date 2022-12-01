@@ -1,22 +1,21 @@
 package dota
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/dota"
 
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/samber/lo"
-	dotanats "github.com/satont/tsuwari/libs/nats/dota"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -74,29 +73,19 @@ var GmCommand = types.DefaultCommand{
 			go func(player Player) {
 				defer wg.Done()
 
-				bytes, _ := proto.Marshal(&dotanats.GetPlayerCardRequest{
+				req, err := ctx.Services.DotaGrpc.GetPlayerCard(context.Background(), &dota.GetPlayerCardRequest{
 					AccountId: int64(player.AccountId),
 				})
-
-				response, err := ctx.Services.Nats.Request(
-					"dota.getProfileCard",
-					bytes,
-					5*time.Second,
-				)
 				if err != nil {
 					return
 				}
 
-				data := dotanats.GetPlayerCardResponse{}
-				if err = proto.Unmarshal(response.Data, &data); err != nil {
-					return
-				}
 				lock.Lock()
 
 				card := model.DotaMatchesCards{
 					ID:        uuid.NewV4().String(),
 					MatchID:   game.ID,
-					AccountID: data.AccountId,
+					AccountID: req.AccountId,
 					// RankTier: lo.If(data.RankTier != nil, sql.NullInt64{
 					// 	Int64: *data.RankTier,
 					// 	Valid: true,
@@ -106,15 +95,15 @@ var GmCommand = types.DefaultCommand{
 					// 	Valid: true,
 					// }).Else(sql.NullInt64{}),
 				}
-				if data.RankTier != nil {
+				if req.RankTier != nil {
 					card.RankTier = sql.NullInt64{
-						Int64: *data.RankTier,
+						Int64: *req.RankTier,
 						Valid: true,
 					}
 				}
-				if data.LeaderboardRank != nil {
+				if req.LeaderboardRank != nil {
 					card.LeaderboardRank = sql.NullInt64{
-						Int64: *data.LeaderboardRank,
+						Int64: *req.LeaderboardRank,
 						Valid: true,
 					}
 				}

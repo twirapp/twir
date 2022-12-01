@@ -1,0 +1,13 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+package watched;
+option go_package = "tsuwari/nats/watched";
+
+service Watched {
+  rpc IncrementByChannelId(Request) returns (google.protobuf.Empty) {}
+}
+
+message Request {
+  repeated string channelsId = 1;
+  string botId = 2;
+}

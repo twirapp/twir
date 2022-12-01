@@ -1,17 +1,15 @@
 package customvar
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
-
-	"github.com/golang/protobuf/proto"
-	eval "github.com/satont/tsuwari/libs/nats/eval"
+	"github.com/satont/tsuwari/libs/grpc/generated/eval"
 
 	"github.com/samber/lo"
 )
@@ -33,26 +31,16 @@ var Variable = types.Variable{
 		}
 
 		if v.Type == "SCRIPT" {
-			bytes, _ := proto.Marshal(&eval.Evaluate{
+			req, err := ctx.Services.EvalGrpc.Process(context.Background(), &eval.Evaluate{
 				Script: v.EvalValue.String,
 			})
-
-			msg, err := ctx.Services.Nats.Request("eval", bytes, 3*time.Second)
 			if err != nil {
 				return nil, errors.New(
 					"cannot evaluate variable. This is internal error, please report this bug",
 				)
 			}
 
-			response := eval.EvaluateResult{}
-
-			if err := proto.Unmarshal(msg.Data, &response); err != nil {
-				return nil, errors.New(
-					"cannot unwrap response. This is internal error, please report this bug",
-				)
-			}
-
-			result.Result = response.Result
+			result.Result = req.Result
 		} else {
 			result.Result = v.Response.String
 		}
