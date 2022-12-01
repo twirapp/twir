@@ -32,6 +32,7 @@ services:
       - 9090
     networks:
       - monitor-net
+      - tsuwari
     labels:
       org.label-schema.group: "monitoring"
 
@@ -48,6 +49,7 @@ services:
       - 9093
     networks:
       - monitor-net
+      - tsuwari
     labels:
       org.label-schema.group: "monitoring"
 
@@ -68,6 +70,7 @@ services:
       - 9100
     networks:
       - monitor-net
+      - tsuwari
     labels:
       org.label-schema.group: "monitoring"
 
@@ -88,6 +91,7 @@ services:
       - 8080
     networks:
       - monitor-net
+      - tsuwari
     labels:
       org.label-schema.group: "monitoring"
 
@@ -107,6 +111,7 @@ services:
       - 3000
     networks:
       - monitor-net
+      - tsuwari
     labels:
       org.label-schema.group: "monitoring"
 
@@ -118,6 +123,7 @@ services:
       - 9091
     networks:
       - monitor-net
+      - tsuwari
     labels:
       org.label-schema.group: "monitoring"
 
@@ -136,5 +142,6 @@ services:
     restart: unless-stopped
     networks:
       - monitor-net
+      - tsuwari
     labels:
       org.label-schema.group: "monitoring"
