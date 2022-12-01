@@ -32,7 +32,7 @@ func (c *Handlers) handleKeywords(
 	wg := sync.WaitGroup{}
 	wg.Add(len(keywords))
 
-	message := strings.ToLower(msg.Message)
+	message := msg.Message
 	var timesInMessage int
 
 	for _, k := range keywords {
@@ -56,10 +56,10 @@ func (c *Handlers) handleKeywords(
 					timesInMessage = len(regx.FindAllStringSubmatch(message, -1))
 				}
 			} else {
-				if !strings.Contains(message, strings.ToLower(k.Text)) {
+				if !strings.Contains(strings.ToLower(message), strings.ToLower(k.Text)) {
 					return
 				} else {
-					timesInMessage = strings.Count(message, strings.ToLower(k.Text))
+					timesInMessage = strings.Count(strings.ToLower(message), strings.ToLower(k.Text))
 				}
 			}
 
@@ -91,6 +91,7 @@ func (c *Handlers) handleKeywords(
 
 				res, err := c.parserGrpc.ParseTextResponse(context.Background(), requestStruct)
 				if err != nil {
+					fmt.Println(err)
 					return
 				}
 
