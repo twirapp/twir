@@ -18,9 +18,7 @@ RUN chmod +x docker-entrypoint.sh
 COPY libs libs
 COPY apps apps
 
-RUN pnpm fetch --filter !ngrok
-RUN pnpm install --filter !ngrok
-RUN ls /app/node_modules/.pnpm/grpc-tools@1.11.3/node_modules/grpc-tools/bin
+RUN pnpm install --filter=!ngrok
 RUN pnpm build
 
 FROM node:18-alpine as node_prod_base
@@ -187,6 +185,7 @@ COPY --from=base /app/apps/api apps/api/
 COPY --from=base /app/apps/watched apps/watched/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/grpc libs/grpc/
+COPY --from=base /app/libs/pubsub libs/pubsub/
 COPY --from=base /app/libs/twitch libs/twitch/
 COPY --from=base /app/libs/gomodels libs/gomodels/
 COPY --from=base /app/libs/integrations/spotify libs/integrations/spotify/
