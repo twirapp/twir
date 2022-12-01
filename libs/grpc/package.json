@@ -4,9 +4,7 @@
     "build": "rm -rf dist && ts-node --transpileOnly gen.ts && tsc"
   },
   "exports": {
-    "./clients/*": "./dist/clients/*.js",
-    "./generated/*": "./dist/generated/**/*.js",
-    "./servers/*": "./dist/servers/**/*.js"
+    "./*": "./dist/*.js"
   },
   "typesVersions": {
     "*": {

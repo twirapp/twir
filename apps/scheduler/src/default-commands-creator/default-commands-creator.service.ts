@@ -12,7 +12,6 @@ import {
 import * as Knex from 'knex';
 
 import { typeorm } from '../index.js';
-import { nats } from '../libs/nats.js';
 import { parserGrpcClient } from '../libs/parser.grpc.js';
 
 @Injectable()

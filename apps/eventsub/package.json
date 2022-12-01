@@ -19,6 +19,7 @@
     "@twurple/eventsub": "5.2.4",
     "express": "4.18.1",
     "ngrok": "4.3.3",
+    "nice-grpc": "^2.0.1",
     "reflect-metadata": "0.1.13",
     "tslib": "^2.4.0"
   },
