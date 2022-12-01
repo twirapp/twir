@@ -17,7 +17,7 @@
     "@tsuwari/config": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
     "@twurple/api": "5.2.4",
-    "@twurple/auth": "5.2.4",
+    "@twurple/auth": "5.2.7",
     "@twurple/common": "5.2.4",
     "@twurple/eventsub": "5.2.4",
     "class-validator": "0.13.2",
