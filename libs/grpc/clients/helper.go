@@ -3,7 +3,7 @@ package clients
 import "fmt"
 
 func createClientAddr(env, service string, port int) string {
-	ip := service
+	ip := fmt.Sprintf("dns:///%s", service)
 	if env != "production" {
 		ip = "127.0.0.1"
 	}

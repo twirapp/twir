@@ -8,12 +8,9 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/servers"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
-	"google.golang.org/grpc/resolver"
 )
 
 func NewDota(env string) dota.DotaClient {
-	resolver.SetDefaultScheme("dns")
-
 	serverAddress := createClientAddr(env, "dota", servers.DOTA_SERVER_PORT)
 
 	conn, err := grpc.Dial(

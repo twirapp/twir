@@ -8,12 +8,9 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/servers"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
-	"google.golang.org/grpc/resolver"
 )
 
 func NewScheduler(env string) scheduler.SchedulerClient {
-	resolver.SetDefaultScheme("dns")
-
 	serverAddress := createClientAddr(env, "scheduler", servers.SCHEDULER_SERVER_PORT)
 
 	conn, err := grpc.Dial(
