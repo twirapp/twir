@@ -34,9 +34,11 @@ importers:
       '@tsuwari/grpc': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
+      '@types/lodash': ^4.14.191
       '@types/steam-user': 4.23.2
       '@types/steamid': 2.0.1
       ioredis: 5.2.3
+      lodash: 4.17.21
       nats: 2.7.1
       nice-grpc: ^2.0.1
       protobufjs: 7.1.2
@@ -49,7 +51,9 @@ importers:
       '@tsuwari/grpc': link:../../libs/grpc
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
+      '@types/lodash': 4.14.191
       ioredis: 5.2.3
+      lodash: 4.17.21
       nats: 2.7.1
       nice-grpc: 2.0.1
       protobufjs: 7.1.2
@@ -245,6 +249,7 @@ importers:
       knex: 2.3.0
       lodash: 4.17.21
       nats: 2.7.1
+      nice-grpc: ^2.0.1
       pg: 8.8.0
       reflect-metadata: 0.1.13
       rxjs: 7.5.7
@@ -264,6 +269,7 @@ importers:
       knex: 2.3.0_pg@8.8.0
       lodash: 4.17.21
       nats: 2.7.1
+      nice-grpc: 2.0.1
       pg: 8.8.0
       reflect-metadata: 0.1.13
       rxjs: 7.5.7
@@ -2903,7 +2909,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.1.2_yzt46al3aifnexifjjdb4dxxja
-      '@nestjs/microservices': 9.1.2_fzfvjbneyottbopxczunpwrha4
+      '@nestjs/microservices': 9.1.2_anrejevo4yryahwvize52sqaom
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
@@ -5189,6 +5195,10 @@ packages:
     resolution: {integrity: sha512-5iJ3FBJBvQHQ8sFhEhJfjUP+G+LalhavTkYyrAYqz5MEJG+erSv0k9KJLb6q7++17Lafk1scaTIFXcMJlwK8Mw==}
     dev: true
 
+  /@types/lodash/4.14.191:
+    resolution: {integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==}
+    dev: false
+
   /@types/long/4.0.2:
     resolution: {integrity: sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==}
 
@@ -5247,6 +5257,7 @@ packages:
 
   /@types/object-hash/1.3.4:
     resolution: {integrity: sha512-xFdpkAkikBgqBdG9vIlsqffDV8GpvnPEzs0IUtr1v3BEB97ijsFQ4RXVbUZwjFThhB4MDSTUfvmxUD5PGx0wXA==}
+    dev: false
 
   /@types/parse-json/4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
@@ -7955,6 +7966,7 @@ packages:
 
   /dataloader/1.4.0:
     resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
+    dev: false
 
   /date-fns/2.29.3:
     resolution: {integrity: sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA==}
@@ -8148,6 +8160,7 @@ packages:
     resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
     engines: {node: '>=0.10'}
     hasBin: true
+    dev: false
 
   /detect-libc/2.0.1:
     resolution: {integrity: sha512-463v3ZeIrcWtdgIg6vI6XUncguvr2TnGl4SzDXinkt9mSLpBJKXT3mW6xT3VQdDN11+WVs29pgvivTc4Lp8v+w==}
@@ -8307,6 +8320,7 @@ packages:
     resolution: {integrity: sha512-NTZOW9A7ipb0n7z7nC3wftvsbceircwVHSgzobJsEQa+7RnOMbhrfX5IflA6CtC4GA63DSAiHYXa4JKEy9F7cA==}
     dependencies:
       detect-libc: 1.0.3
+    dev: false
 
   /duplexify/3.7.1:
     resolution: {integrity: sha512-07z8uv2wMyS51kKhD1KsdXJg5WQ6t93RneqRxUHnskXVtlYYkLqM0gqStQZ3pj073g687jPCHrqNfCzawLYh5g==}
@@ -12302,6 +12316,7 @@ packages:
   /object-hash/1.3.1:
     resolution: {integrity: sha512-OSuu/pU4ENM9kmREg0BdNrUDIl1heYa4mBZacJc+vVWz4GtAwu7jO8s4AIt2aGRUTqxykpWzI3Oqnsm13tTMDA==}
     engines: {node: '>= 0.10.0'}
+    dev: false
 
   /object-hash/3.0.0:
     resolution: {integrity: sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==}
@@ -15475,12 +15490,14 @@ packages:
     resolution: {integrity: sha512-RjS37SnXMa9En8xvQf//+rvNNNCB7x2TKP/ZfsiQFidtfN3A6FYgPDESe4r7YA3F663XO2ozx+2buQItGOLMxg==}
     dependencies:
       dprint-node: 1.0.7
+    dev: false
 
   /ts-proto-descriptors/1.7.1:
     resolution: {integrity: sha512-oIKUh3K4Xts4v29USGLfUG+2mEk32MsqpgZAOUyUlkrcIdv34yE+k2oZ2Nzngm6cV/JgFdOxRCqeyvmWHuYAyw==}
     dependencies:
       long: 4.0.0
       protobufjs: 6.11.3
+    dev: false
 
   /ts-proto/1.135.0:
     resolution: {integrity: sha512-NwK+PcSiWZBzO8GFVID2Ig71vIZRCApTG8XDZIlQ3WabbJlbUx9zsrHcYNojcUENtqkiYywTp3uTP6dketiCpw==}
