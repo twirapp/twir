@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
-import * as Parser from '@tsuwari/grpc/generated/parser/parser';
 import { RedisService } from '@tsuwari/shared';
 import {
   ChannelCommand,

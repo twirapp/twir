@@ -58,6 +58,8 @@ func main() {
 	}))
 	go grpcServer.Serve(lis)
 
+	log.Println("Started")
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c

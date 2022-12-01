@@ -1,7 +1,6 @@
 syntax = "proto3";
-
 import "google/protobuf/empty.proto"; 
-
+package timers;
 option go_package = "tsuwari/grpc/timers";
 
 service Timers {

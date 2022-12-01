@@ -1,5 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto"; 
+package integrations;
 option go_package = "tsuwari/grpc/integrations";
 
 service Integrations {

@@ -1,5 +1,5 @@
 syntax = "proto3";
-
+package dota;
 option go_package = "tsuwari/grpc/dota";
 
 service Dota {

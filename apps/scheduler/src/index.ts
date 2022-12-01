@@ -20,15 +20,9 @@ Sentry.init({
 
 export const typeorm = await AppDataSource.initialize();
 
-export const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
-  transport: Transport.NATS,
-  options: {
-    servers: [config.NATS_URL],
-    reconnectTimeWait: 100,
-  },
-});
+export const app = await NestFactory.createApplicationContext(AppModule);
 
-await app.listen();
+await app.init();
 
 const schedulerService: Scheduler.SchedulerServiceImplementation = {
   async createDefaultCommands(request: Scheduler.CreateDefaultCommandsRequest) {
@@ -42,7 +36,7 @@ const server = createServer();
 
 server.add(Scheduler.SchedulerDefinition, schedulerService);
 
-await server.listen(`0.0.0.0:${PORTS.EVENTSUB_SERVER_PORT}`);
+await server.listen(`0.0.0.0:${PORTS.SCHEDULER_SERVER_PORT}`);
 
 process.on('unhandledRejection', (e) => {
   console.error(e);

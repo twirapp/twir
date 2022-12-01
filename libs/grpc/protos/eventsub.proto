@@ -1,7 +1,6 @@
 syntax = "proto3";
-
 option go_package = "tsuwari/grpc/eventsub";
-
+package eventsub;
 import "google/protobuf/empty.proto"; 
 
 service EventSub {

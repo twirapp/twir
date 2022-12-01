@@ -1,10 +1,8 @@
 import 'reflect-metadata';
 
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import * as Sentry from '@sentry/node';
 import '@sentry/tracing';
-import { config } from '@tsuwari/config';
 
 import '@tsuwari/config';
 import { AppModule } from './app.module.js';
@@ -14,12 +12,6 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
-  transport: Transport.NATS,
-  options: {
-    servers: [config.NATS_URL],
-    timeout: 100,
-  },
-});
+const app = await NestFactory.createApplicationContext(AppModule);
 
-await app.listen();
+await app.init();

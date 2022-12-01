@@ -1,5 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto"; 
+package scheduler;
 option go_package = "tsuwari/grpc/scheduler";
 
 service Scheduler {

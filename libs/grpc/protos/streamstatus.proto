@@ -1,6 +1,6 @@
 syntax = "proto3";
-package eval;
-option go_package = "tsuwari/grpc/eval";
+package streamstatus;
+option go_package = "tsuwari/grpc/streamstatus";
 
 service Eval {
   rpc Process(Evaluate) returns (EvaluateResult) {}

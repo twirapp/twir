@@ -1,7 +1,6 @@
 syntax = "proto3";
-
 option go_package = "tsuwari/grpc/parser";
-
+package parser;
 import "google/protobuf/empty.proto"; 
 
 service Parser {

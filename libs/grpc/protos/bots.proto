@@ -1,7 +1,6 @@
 syntax = "proto3";
-
 option go_package = "tsuwari/grpc/bots";
-
+package bots;
 import "google/protobuf/empty.proto"; 
 
 service Bots {
