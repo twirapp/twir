@@ -59,7 +59,7 @@ func (c *parserGrpcServer) ProcessCommand(
 	data *parser.ProcessCommandRequest,
 ) (*parser.ProcessCommandResponse, error) {
 	defer commandsCounter.Inc()
-	defer fmt.Println(fmt.Sprintf("Proceed %s msg", data.Message.Id))
+	defer fmt.Printf("Proceed %s msg\n", data.Message.Id)
 
 	if !strings.HasPrefix(data.Message.Text, "!") {
 		return nil, nil
