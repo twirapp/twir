@@ -19,7 +19,7 @@
     "@types/lodash": "^4.14.191",
     "ioredis": "5.2.3",
     "lodash": "4.17.21",
-    "nats": "2.7.1",
+    "nats": "2.9.1",
     "nice-grpc": "^2.0.1",
     "protobufjs": "7.1.2",
     "reflect-metadata": "0.1.13",

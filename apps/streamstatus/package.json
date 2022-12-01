@@ -22,7 +22,7 @@
     "@twurple/auth": "5.2.4",
     "@twurple/common": "5.2.4",
     "lodash": "4.17.21",
-    "nats": "2.7.1",
+    "nats": "2.9.1",
     "reflect-metadata": "0.1.13",
     "rxjs": "7.5.7",
     "tslib": "2.4.0"
