@@ -245,6 +245,7 @@ func (c *Commands) ParseCommandResponses(
 			DB:         c.Db,
 			BotsGrpc:   c.BotsGrpc,
 			DotaGrpc:   c.DotaGrpc,
+			EvalGrpc:   c.EvalGrpc,
 			IsCommand:  true,
 			Command:    command.Cmd,
 		})
