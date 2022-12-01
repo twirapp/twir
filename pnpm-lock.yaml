@@ -208,7 +208,7 @@ importers:
       '@twurple/auth': ^5.2.7
       '@types/socket.io-client': 1.4.36
       '@types/ws': ^8.5.3
-      centrifuge: 3.0.1
+      centrifuge: 2.8.5
       nice-grpc: ^2.0.1
       socket.io-client: 2.3.1
       ws: ^8.11.0
@@ -219,7 +219,7 @@ importers:
       '@tsuwari/typeorm': link:../../libs/typeorm
       '@twurple/api': 5.2.7_@twurple+auth@5.2.7
       '@twurple/auth': 5.2.7
-      centrifuge: 3.0.1
+      centrifuge: 2.8.5
       nice-grpc: 2.0.1
       socket.io-client: 2.3.1
       ws: 8.11.0
@@ -4937,7 +4937,7 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/keyv': 3.1.4
-      '@types/node': 8.10.66
+      '@types/node': 18.11.10
       '@types/responselike': 1.0.0
     dev: false
 
@@ -5005,7 +5005,7 @@ packages:
     resolution: {integrity: sha512-l6NQsDDyQUVeoTynNpC9uRvCUint/gSUXQA2euwmTuWGvPY5LSDUu6tkCtJB2SvGQlJQzLaKqcGZP4//7EDveA==}
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 16.18.4
+      '@types/node': 18.11.10
     dev: true
 
   /@types/graceful-fs/4.1.5:
@@ -5059,7 +5059,7 @@ packages:
   /@types/keyv/3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.11.10
     dev: false
 
   /@types/lodash/4.14.191:
@@ -5163,7 +5163,7 @@ packages:
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.11.10
     dev: false
 
   /@types/scheduler/0.16.2:
@@ -5226,7 +5226,7 @@ packages:
   /@types/webpack-sources/3.2.0:
     resolution: {integrity: sha512-Ft7YH3lEVRQ6ls8k4Ff1oB4jN6oy/XmU6tQISKdhfh+1mR+viZFphS6WL0IrtDOzvefmJg5a0s7ZQoRXwqTEFg==}
     dependencies:
-      '@types/node': 16.18.4
+      '@types/node': 18.11.10
       '@types/source-list-map': 0.1.2
       source-map: 0.7.4
     dev: true
@@ -5234,7 +5234,7 @@ packages:
   /@types/webpack/4.41.33:
     resolution: {integrity: sha512-PPajH64Ft2vWevkerISMtnZ8rTs4YmRbs+23c402J0INmxDKCrhZNvwZYtzx96gY2wAtXdrK1BS2fiC8MlLr3g==}
     dependencies:
-      '@types/node': 16.18.4
+      '@types/node': 18.11.10
       '@types/tapable': 1.0.8
       '@types/uglify-js': 3.17.1
       '@types/webpack-sources': 3.2.0
@@ -5268,7 +5268,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 8.10.66
+      '@types/node': 18.11.10
     dev: false
     optional: true
 
@@ -7062,10 +7062,9 @@ packages:
     resolution: {integrity: sha512-vlNK021QdI7PNeiUh/lKkC/mNHHfV0m/Ad5JoI0TYtlBnJAslM/JIkm/tGC88bkLIwO6OQ5uV6ztS6kVAtCDlg==}
     dev: true
 
-  /centrifuge/3.0.1:
-    resolution: {integrity: sha512-2XRhXEOup6nc9oDzx+xX9Xjo2D6bPGXf8BYZT707/geYB2yBfHuqpMveIpcrxmgjKYYrSOEDTNa5+bETi7+MqA==}
+  /centrifuge/2.8.5:
+    resolution: {integrity: sha512-t06HyieeB2k7uSJSbVM4e7xMF+mfY8xvDtTJLF95ho0ba/X4MSoZcisi2PBzdCLyxG2BhkYW1Wcg6RUiPYTIlQ==}
     dependencies:
-      events: 3.3.0
       protobufjs: 6.11.3
     dev: false
 
@@ -10717,7 +10716,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 16.18.4
+      '@types/node': 18.11.10
       merge-stream: 2.0.0
       supports-color: 8.1.1
     dev: true
