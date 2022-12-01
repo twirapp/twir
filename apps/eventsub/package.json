@@ -16,7 +16,7 @@
     "@twurple/api": "5.2.4",
     "@twurple/auth": "5.2.4",
     "@twurple/common": "5.2.4",
-    "@twurple/eventsub": "5.2.4",
+    "@twurple/eventsub": "5.2.7",
     "express": "4.18.1",
     "ngrok": "4.3.3",
     "nice-grpc": "^2.0.1",
