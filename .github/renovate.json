@@ -4,7 +4,8 @@
   ],
   "extends": [
     "config:base",
-    ":disableRateLimiting"
+    ":disableRateLimiting",
+    "group:all"
   ],
   "rebaseWhen": "conflicted",
   "commitBody": "[CI SKIP]",
