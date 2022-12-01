@@ -18,7 +18,6 @@
     "@twurple/common": "5.2.4",
     "@twurple/eventsub": "5.2.4",
     "express": "4.18.1",
-    "nats": "2.7.1",
     "ngrok": "4.3.3",
     "reflect-metadata": "0.1.13",
     "tslib": "^2.4.0"

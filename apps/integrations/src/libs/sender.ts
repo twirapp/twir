@@ -1,5 +1,4 @@
 import { config } from '@tsuwari/config';
-import * as Bots from '@tsuwari/nats/bots';
 import { MyRefreshingProvider } from '@tsuwari/shared';
 import { Channel } from '@tsuwari/typeorm/entities/Channel';
 import { Token } from '@tsuwari/typeorm/entities/Token';

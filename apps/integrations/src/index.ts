@@ -1,6 +1,9 @@
+import * as Integrations from '@tsuwari/grpc/generated/integrations/integrations';
+import { PORTS } from '@tsuwari/grpc/servers/constants';
 import { AppDataSource, In } from '@tsuwari/typeorm';
 import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration';
 import { IntegrationService } from '@tsuwari/typeorm/entities/Integration';
+import { createServer } from 'nice-grpc';
 
 import { addDonationAlertsIntegration, DonationAlerts } from './services/donationAlerts.js';
 import { addStreamlabsIntegration, StreamLabs } from './services/streamLabs.js';
@@ -8,8 +11,6 @@ import { addStreamlabsIntegration, StreamLabs } from './services/streamLabs.js';
 export const typeorm = await AppDataSource.initialize();
 export const donationAlertsStore: Map<string, DonationAlerts> = new Map();
 export const streamlabsStore: Map<string, StreamLabs> = new Map();
-
-import './libs/nats.js';
 
 const integrations = await typeorm.getRepository(ChannelIntegration).find({
   where: {
@@ -43,6 +44,77 @@ for (const integration of integrations) {
         streamlabsStore.set(integration.channelId, r);
       }
     });
+  }
+}
+
+const integrationsServer: Integrations.IntegrationsServiceImplementation = {
+  async addIntegration(data: Integrations.Request) {
+    const integration = await typeorm.getRepository(ChannelIntegration).findOne({
+      where: {
+        id: data.id,
+        channel: {
+          isBanned: false,
+          isEnabled: true,
+          isTwitchBanned: false,
+        },
+      },
+      relations: { integration: true },
+    });
+
+    if (!integration) {
+      return {};
+    }
+    await removeIntegration(integration);
+    console.info(`Adding ${integration.id} connection`);
+    if (integration.integration?.service === IntegrationService.DONATIONALERTS) {
+      const instance = await addDonationAlertsIntegration(integration);
+      if (instance) {
+        donationAlertsStore.set(integration.channelId, instance);
+      }
+    }
+    if (integration.integration?.service === IntegrationService.STREAMLABS) {
+      const instance = await addStreamlabsIntegration(integration);
+      if (instance) {
+        streamlabsStore.set(integration.channelId, instance);
+      }
+    }
+
+    return {};
+  },
+  async removeIntegration(data: Integrations.Request) {
+    const integration = await typeorm.getRepository(ChannelIntegration).findOne({
+      where: { id: data.id },
+      relations: { integration: true },
+    });
+
+    if (!integration) {
+      return {};
+    }
+    console.info(`Destroying ${integration.id} connection`);
+    await removeIntegration(integration);
+    return {};
+  },
+};
+
+const server = createServer();
+
+server.add(Integrations.IntegrationsDefinition, integrationsServer);
+
+await server.listen(`0.0.0.0:${PORTS.INTEGRATIONS_SERVER_PORT}`);
+
+async function removeIntegration(integration: ChannelIntegration) {
+  if (integration.integration?.service === IntegrationService.STREAMLABS) {
+    const existed = streamlabsStore.get(integration.channelId);
+    if (!existed) return;
+    await existed.destroy();
+    streamlabsStore.delete(integration.channelId);
+  }
+
+  if (integration.integration?.service === IntegrationService.DONATIONALERTS) {
+    const existed = donationAlertsStore.get(integration.channelId);
+    if (!existed) return;
+    await existed.destroy();
+    donationAlertsStore.delete(integration.channelId);
   }
 }
 
