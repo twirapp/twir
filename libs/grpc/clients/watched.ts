@@ -13,5 +13,5 @@ export const createWatched = (env: string): WatchedClient => {
 
   const client = createClient(WatchedDefinition, channel);
 
-  return client;
+  return client as any;
 };

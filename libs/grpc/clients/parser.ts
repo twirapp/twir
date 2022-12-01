@@ -13,5 +13,5 @@ export const createParser = (env: string): ParserClient => {
 
   const client = createClient(ParserDefinition, channel);
 
-  return client;
+  return client as any;
 };

@@ -14,13 +14,11 @@
     }
   },
   "dependencies": {
+    "grpc-tools": "^1.11.3",
     "long": "^5.2.1",
     "nice-grpc": "^2.0.1",
     "nice-grpc-common": "^2.0.0",
-    "protobufjs": "7.1.2"
-  },
-  "devDependencies": {
-    "grpc-tools": "^1.11.3",
+    "protobufjs": "7.1.2",
     "ts-proto": "^1.135.0"
   }
 }

@@ -13,5 +13,5 @@ export const createBots = (env: string): BotsClient => {
 
   const client = createClient(BotsDefinition, channel);
 
-  return client;
+  return client as any;
 };
