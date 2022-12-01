@@ -5,7 +5,7 @@ ENV PATH="$PATH:/usr/local/go/bin"
 ENV PATH="$PATH:/root/go/bin"
 
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
-RUN apk add --no-cache protoc git curl
+RUN apk add --no-cache protoc git curl libc6-compat
 
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
@@ -36,7 +36,7 @@ RUN apk add git
 COPY --from=base /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/turbo.json /app/.npmrc ./
 
 FROM node_deps_base as dota_deps
-RUN apk add openssh
+RUN apk add openssh libc6-compat
 COPY --from=base /app/apps/dota apps/dota/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/config libs/config/
