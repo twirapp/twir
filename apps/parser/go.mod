@@ -6,6 +6,7 @@ require (
 	github.com/getsentry/sentry-go v0.15.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/guregu/null v4.0.0+incompatible
+	github.com/prometheus/client_golang v1.14.0
 	github.com/satont/go-helix/v2 v2.7.22
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
@@ -38,7 +39,6 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/onsi/ginkgo/v2 v2.5.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
