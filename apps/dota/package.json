@@ -8,7 +8,7 @@
     "start": "node --enable-source-maps dist/index.js"
   },
   "devDependencies": {
-    "@types/steam-user": "4.23.2",
+    "@types/steam-user": "4.26.0",
     "@types/steamid": "2.0.1"
   },
   "dependencies": {
@@ -17,14 +17,13 @@
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
     "@types/lodash": "^4.14.191",
-    "ioredis": "5.2.3",
+    "ioredis": "5.2.4",
     "lodash": "4.17.21",
-    "nats": "2.7.1",
     "nice-grpc": "^2.0.1",
     "protobufjs": "7.1.2",
     "reflect-metadata": "0.1.13",
-    "steam-user": "4.25.0",
+    "steam-user": "4.26.0",
     "steamid": "2.0.0",
-    "tslib": "2.4.0"
+    "tslib": "2.4.1"
   }
 }

@@ -11,28 +11,27 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nestjs/common": "9.1.2",
-    "@nestjs/core": "9.1.2",
-    "@nestjs/microservices": "9.1.2",
+    "@nestjs/common": "9.2.1",
+    "@nestjs/core": "9.2.1",
+    "@nestjs/microservices": "9.2.1",
     "@nestjs/schedule": "2.1.0",
-    "@sentry/node": "7.14.0",
-    "@sentry/tracing": "7.14.0",
+    "@sentry/node": "7.22.0",
+    "@sentry/tracing": "7.22.0",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/grpc": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
-    "ioredis": "5.2.3",
+    "ioredis": "5.2.4",
     "knex": "2.3.0",
     "lodash": "4.17.21",
-    "nats": "2.7.1",
     "nice-grpc": "^2.0.1",
     "pg": "8.8.0",
     "reflect-metadata": "0.1.13",
     "rxjs": "7.5.7",
-    "tslib": "2.4.0"
+    "tslib": "2.4.1"
   },
   "devDependencies": {
     "@types/cron": "2.0.0",
-    "@types/lodash": "4.14.190"
+    "@types/lodash": "4.14.191"
   }
 }
