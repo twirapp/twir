@@ -8,7 +8,7 @@
     "start": "node --enable-source-maps dist/index.js"
   },
   "devDependencies": {
-    "@types/steam-user": "4.23.2",
+    "@types/steam-user": "4.26.0",
     "@types/steamid": "2.0.1"
   },
   "dependencies": {
@@ -23,7 +23,7 @@
     "nice-grpc": "^2.0.1",
     "protobufjs": "7.1.2",
     "reflect-metadata": "0.1.13",
-    "steam-user": "4.25.0",
+    "steam-user": "4.26.0",
     "steamid": "2.0.0",
     "tslib": "2.4.0"
   }
