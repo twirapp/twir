@@ -82,11 +82,9 @@ importers:
 
   apps/eventsub:
     specifiers:
-      '@nestjs/common': ^9.1.6
-      '@nestjs/core': ^9.1.6
-      '@nestjs/microservices': ^9.1.6
-      '@nestjs/platform-express': ^9.1.2
       '@tsuwari/config': workspace:*
+      '@tsuwari/grpc': workspace:*
+      '@tsuwari/pubsub': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@twurple/api': 5.2.4
@@ -98,14 +96,11 @@ importers:
       nats: 2.7.1
       ngrok: 4.3.3
       reflect-metadata: 0.1.13
-      rxjs: ^7.5.7
       tslib: ^2.4.0
     dependencies:
-      '@nestjs/common': 9.1.6_yzt46al3aifnexifjjdb4dxxja
-      '@nestjs/core': 9.1.6_cqapyx727c2a2m4g6vftidyhba
-      '@nestjs/microservices': 9.1.6_pvsgfishxj4ryddufezlrwbyfi
-      '@nestjs/platform-express': 9.1.5_6whalgrsvisgjemghedgkfq7dm
       '@tsuwari/config': link:../../libs/config
+      '@tsuwari/grpc': link:../../libs/grpc
+      '@tsuwari/pubsub': link:../../libs/pubsub
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
       '@twurple/api': 5.2.4_@twurple+auth@5.2.4
@@ -116,7 +111,6 @@ importers:
       nats: 2.7.1
       ngrok: 4.3.3
       reflect-metadata: 0.1.13
-      rxjs: 7.5.7
       tslib: 2.4.0
     devDependencies:
       '@types/express': 4.17.14
@@ -2911,29 +2905,6 @@ packages:
       uuid: 9.0.0
     dev: false
 
-  /@nestjs/common/9.1.6_yzt46al3aifnexifjjdb4dxxja:
-    resolution: {integrity: sha512-9Ttk9va/BwEab36RSXLZdRoPUX3DZHUpzseKEfqHVhnaUIsIMt7lVd79GQ1FroQ2FZqoCwcLyBowevXhrE1Wnw==}
-    peerDependencies:
-      cache-manager: <=5
-      class-transformer: '*'
-      class-validator: '*'
-      reflect-metadata: ^0.1.12
-      rxjs: ^7.1.0
-    peerDependenciesMeta:
-      cache-manager:
-        optional: true
-      class-transformer:
-        optional: true
-      class-validator:
-        optional: true
-    dependencies:
-      iterare: 1.2.1
-      reflect-metadata: 0.1.13
-      rxjs: 7.5.7
-      tslib: 2.4.0
-      uuid: 9.0.0
-    dev: false
-
   /@nestjs/core/9.1.2_6p6nflbsfav6mrlrxjjveqvwia:
     resolution: {integrity: sha512-wrb/U8PN50K9wEHOLifR9bFKDH8+Dr37rXBB5J+9v3tSWEHkT4o2OiJ8qFmfX5B9GwGE/YRKaJqxw/ScvYvPFw==}
     requiresBuild: true
@@ -3024,40 +2995,6 @@ packages:
       iterare: 1.2.1
       object-hash: 3.0.0
       path-to-regexp: 3.2.0
-      rxjs: 7.5.7
-      tslib: 2.4.0
-      uuid: 9.0.0
-    transitivePeerDependencies:
-      - encoding
-    dev: false
-
-  /@nestjs/core/9.1.6_cqapyx727c2a2m4g6vftidyhba:
-    resolution: {integrity: sha512-B52nYYTDSH72f1DU0G14NQSPCviXRE9fCp2/gUHuWIfVfBwcmVBAxVgyB/jAIUAhhj1f5/2odwUiw194xYtRRA==}
-    requiresBuild: true
-    peerDependencies:
-      '@nestjs/common': ^9.0.0
-      '@nestjs/microservices': ^9.0.0
-      '@nestjs/platform-express': ^9.0.0
-      '@nestjs/websockets': ^9.0.0
-      reflect-metadata: ^0.1.12
-      rxjs: ^7.1.0
-    peerDependenciesMeta:
-      '@nestjs/microservices':
-        optional: true
-      '@nestjs/platform-express':
-        optional: true
-      '@nestjs/websockets':
-        optional: true
-    dependencies:
-      '@nestjs/common': 9.1.6_yzt46al3aifnexifjjdb4dxxja
-      '@nestjs/microservices': 9.1.6_pvsgfishxj4ryddufezlrwbyfi
-      '@nestjs/platform-express': 9.1.5_6whalgrsvisgjemghedgkfq7dm
-      '@nuxtjs/opencollective': 0.3.2
-      fast-safe-stringify: 2.1.1
-      iterare: 1.2.1
-      object-hash: 3.0.0
-      path-to-regexp: 3.2.0
-      reflect-metadata: 0.1.13
       rxjs: 7.5.7
       tslib: 2.4.0
       uuid: 9.0.0
@@ -3242,68 +3179,6 @@ packages:
       iterare: 1.2.1
       rxjs: 7.5.7
       tslib: 2.4.0
-    dev: false
-
-  /@nestjs/microservices/9.1.6_pvsgfishxj4ryddufezlrwbyfi:
-    resolution: {integrity: sha512-ppcA+ihIEJRvjpGc/ognlWwpp3Kra6wyH66BvqWJiNQa8T44V4Jrgn4mhQkd91TuVlGVS2vhG2KGeColLb70Sw==}
-    peerDependencies:
-      '@grpc/grpc-js': '*'
-      '@nestjs/common': ^9.0.0
-      '@nestjs/core': ^9.0.0
-      '@nestjs/websockets': ^9.0.0
-      amqp-connection-manager: '*'
-      amqplib: '*'
-      cache-manager: '*'
-      ioredis: '*'
-      kafkajs: '*'
-      mqtt: '*'
-      nats: '*'
-      reflect-metadata: ^0.1.12
-      rxjs: ^7.1.0
-    peerDependenciesMeta:
-      '@grpc/grpc-js':
-        optional: true
-      '@nestjs/websockets':
-        optional: true
-      amqp-connection-manager:
-        optional: true
-      amqplib:
-        optional: true
-      cache-manager:
-        optional: true
-      ioredis:
-        optional: true
-      kafkajs:
-        optional: true
-      mqtt:
-        optional: true
-      nats:
-        optional: true
-    dependencies:
-      '@nestjs/common': 9.1.6_yzt46al3aifnexifjjdb4dxxja
-      '@nestjs/core': 9.1.6_cqapyx727c2a2m4g6vftidyhba
-      iterare: 1.2.1
-      nats: 2.7.1
-      reflect-metadata: 0.1.13
-      rxjs: 7.5.7
-      tslib: 2.4.0
-    dev: false
-
-  /@nestjs/platform-express/9.1.5_6whalgrsvisgjemghedgkfq7dm:
-    resolution: {integrity: sha512-ITgdTmwkm5ZeoTPPAkAZmE3hBSxIOskCNonECN6LNPjLTAi3+KV25rwD+oHvzuEg51eFXYct42XOeCakKSaY+A==}
-    peerDependencies:
-      '@nestjs/common': ^9.0.0
-      '@nestjs/core': ^9.0.0
-    dependencies:
-      '@nestjs/common': 9.1.6_yzt46al3aifnexifjjdb4dxxja
-      '@nestjs/core': 9.1.6_cqapyx727c2a2m4g6vftidyhba
-      body-parser: 1.20.1
-      cors: 2.8.5
-      express: 4.18.2
-      multer: 1.4.4-lts.1
-      tslib: 2.4.0
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /@nestjs/schedule/2.1.0_yzammjd3rtddjrgcr4enkpfvhm:
@@ -6579,10 +6454,6 @@ packages:
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     dev: false
 
-  /append-field/1.0.0:
-    resolution: {integrity: sha512-klpgFSWLW1ZEs8svjfb7g4qWY0YS5imI82dTg+QahUvJ8YqAY0P10Uk8tTyh9ZGuYEZEMaeJYCF5BFuX552hsw==}
-    dev: false
-
   /aproba/1.2.0:
     resolution: {integrity: sha512-Y9J6ZjXtoYh8RnXVCMOU/ttDmk1aBjunq9vO0ta5x85WDQiQfUF9sIPBITdbiiIVcBo03Hi3jMxigBtsddlXRw==}
     dev: true
@@ -7164,6 +7035,7 @@ packages:
       unpipe: 1.0.0
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /boolbase/1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
@@ -7891,6 +7763,7 @@ packages:
       inherits: 2.0.4
       readable-stream: 2.3.7
       typedarray: 0.0.6
+    dev: true
 
   /consola/2.15.3:
     resolution: {integrity: sha512-9vAdYbHj6x2fLKC4+oPH0kFzY/orMZyG2Aj+kNylHxKGJ/Ed4dpNyAQYwJOdqO4zdM7XpVHmyejQDcQHrnuXbw==}
@@ -7973,14 +7846,6 @@ packages:
 
   /core-util-is/1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
-
-  /cors/2.8.5:
-    resolution: {integrity: sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==}
-    engines: {node: '>= 0.10'}
-    dependencies:
-      object-assign: 4.1.1
-      vary: 1.1.2
-    dev: false
 
   /cosmiconfig/6.0.0:
     resolution: {integrity: sha512-xb3ZL6+L8b9JLLCx3ZdoZy4+2ECphCMo2PwqgP1tlfVq6M6YReyzBJtvWWtbDSpNr9hn96pkCiZqUcFEc+54Qg==}
@@ -9633,6 +9498,7 @@ packages:
       vary: 1.1.2
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /extend-shallow/2.0.1:
     resolution: {integrity: sha512-zCnTtlxNoAiDc3gqY2aYAWFx7XWWiasuF2K8Me5WbN8otHKTUKBwjPtNpRs/rbUZm7KxWAaNj7P1a/p52GbVug==}
@@ -12209,6 +12075,7 @@ packages:
     hasBin: true
     dependencies:
       minimist: 1.2.6
+    dev: true
 
   /mkdirp/1.0.4:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
@@ -12246,19 +12113,6 @@ packages:
   /muggle-string/0.1.0:
     resolution: {integrity: sha512-Tr1knR3d2mKvvWthlk7202rywKbiOm4rVFLsfAaSIhJ6dt9o47W4S+JMtWhd/PW9Wrdew2/S2fSvhz3E2gkfEg==}
     dev: true
-
-  /multer/1.4.4-lts.1:
-    resolution: {integrity: sha512-WeSGziVj6+Z2/MwQo3GvqzgR+9Uc+qt8SwHKh3gvNPiISKfsMfG4SvCOFYlxxgkXt7yIV2i1yczehm0EOKIxIg==}
-    engines: {node: '>= 6.0.0'}
-    dependencies:
-      append-field: 1.0.0
-      busboy: 1.6.0
-      concat-stream: 1.6.2
-      mkdirp: 0.5.6
-      object-assign: 4.1.1
-      type-is: 1.6.18
-      xtend: 4.0.2
-    dev: false
 
   /mylas/2.1.13:
     resolution: {integrity: sha512-+MrqnJRtxdF+xngFfUUkIMQrUUL0KsxbADUkn23Z/4ibGg192Q+z+CQyiYwvWTsYjJygmMR8+w3ZDa98Zh6ESg==}
@@ -13820,6 +13674,7 @@ packages:
     engines: {node: '>=0.6'}
     dependencies:
       side-channel: 1.0.4
+    dev: true
 
   /querystring-es3/0.2.1:
     resolution: {integrity: sha512-773xhDQnZBMFobEiztv8LIl70ch5MSF/jUQVlhwFyBILqq96anmoctVIYz+ZRp0qbCKATTn6ev02M3r7Ga5vqA==}
@@ -15935,6 +15790,7 @@ packages:
 
   /typedarray/0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
+    dev: true
 
   /typeorm/0.3.10_pg@8.8.0+ts-node@10.9.1:
     resolution: {integrity: sha512-VMKiM84EpJQ+Mz9xDIPqnfplWhyUy1d8ccaKdMY9obifxJOTFnv8GYVyPsGwG8Lk7Nb8MlttHyHWENGAhBA3WA==}
