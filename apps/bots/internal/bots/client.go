@@ -44,14 +44,6 @@ func newBot(opts *ClientOpts) *types.BotClient {
 		Model: opts.Model,
 	}
 
-	botHandlers := handlers.CreateHandlers(&handlers.HandlersOpts{
-		DB:         opts.DB,
-		Logger:     opts.Logger,
-		Cfg:        opts.Cfg,
-		BotClient:  &client,
-		ParserGrpc: opts.ParserGrpc,
-	})
-
 	onRefresh := func(newToken helix.RefreshTokenResponse) {
 		opts.DB.Model(&model.Tokens{}).
 			Where(`id = ?`, opts.Model.TokenID.String).
@@ -122,6 +114,13 @@ func newBot(opts *ClientOpts) *types.BotClient {
 
 			prometheus.Register(messagesCounter)
 
+			botHandlers := handlers.CreateHandlers(&handlers.HandlersOpts{
+				DB:         opts.DB,
+				Logger:     opts.Logger,
+				Cfg:        opts.Cfg,
+				BotClient:  &client,
+				ParserGrpc: opts.ParserGrpc,
+			})
 			client.OnConnect(botHandlers.OnConnect)
 			client.OnSelfJoinMessage(botHandlers.OnSelfJoin)
 			client.OnUserStateMessage(func(message irc.UserStateMessage) {
