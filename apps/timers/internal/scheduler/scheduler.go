@@ -14,7 +14,6 @@ import (
 	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/go-co-op/gocron"
-	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -23,7 +22,6 @@ type Scheduler struct {
 	internalScheduler *gocron.Scheduler
 	cfg               *cfg.Config
 	twitch            *twitch.Twitch
-	nats              *nats.Conn
 	db                *gorm.DB
 	logger            *zap.Logger
 	Timers            types.Store
