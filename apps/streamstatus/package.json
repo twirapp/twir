@@ -25,7 +25,7 @@
     "nats": "2.7.1",
     "reflect-metadata": "0.1.13",
     "rxjs": "7.5.7",
-    "tslib": "2.4.0"
+    "tslib": "2.4.1"
   },
   "devDependencies": {
     "@types/lodash": "4.14.186"
