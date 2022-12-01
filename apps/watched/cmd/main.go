@@ -14,6 +14,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/servers"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
@@ -50,7 +51,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.KeepaliveParams(keepalive.ServerParameters{
+		MaxConnectionAge: 1 * time.Minute,
+	}))
 	watched.RegisterWatchedServer(grpcServer, grpc_impl.New(&grpc_impl.WatchedGrpcServerOpts{
 		Db:     db,
 		Cfg:    cfg,

@@ -8,6 +8,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/servers"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func NewIntegrations(env string) integrations.IntegrationsClient {
@@ -15,7 +16,7 @@ func NewIntegrations(env string) integrations.IntegrationsClient {
 
 	conn, err := grpc.Dial(
 		serverAddress,
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"loadBalancingConfig": [{"%s":{}}]}`, roundrobin.Name)),
 	)
 	if err != nil {

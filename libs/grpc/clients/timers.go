@@ -8,6 +8,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/servers"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func NewTimers(env string) timers.TimersClient {
@@ -15,7 +16,7 @@ func NewTimers(env string) timers.TimersClient {
 
 	conn, err := grpc.Dial(
 		serverAddress,
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"loadBalancingConfig": [{"%s":{}}]}`, roundrobin.Name)),
 	)
 	if err != nil {

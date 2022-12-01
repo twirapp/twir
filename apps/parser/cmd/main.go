@@ -27,6 +27,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/servers"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -104,7 +105,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.KeepaliveParams(keepalive.ServerParameters{
+		MaxConnectionAge: 1 * time.Minute,
+	}))
 	parser.RegisterParserServer(grpcServer, grpc_impl.NewServer(&grpc_impl.GrpcImplOpts{
 		Redis:     r,
 		Variables: &variablesService,

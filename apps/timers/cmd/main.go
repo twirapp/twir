@@ -6,10 +6,12 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/satont/tsuwari/apps/timers/internal/scheduler"
 	"github.com/satont/tsuwari/apps/timers/internal/types"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/clients"
@@ -60,7 +62,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.KeepaliveParams(keepalive.ServerParameters{
+		MaxConnectionAge: 1 * time.Minute,
+	}))
 	timersgrpc.RegisterTimersServer(grpcServer, grpc_impl.New(&grpc_impl.TimersGrpcServerOpts{
 		Db:        db,
 		Logger:    logger,

@@ -8,6 +8,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/servers"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func NewDota(env string) dota.DotaClient {
@@ -15,7 +16,7 @@ func NewDota(env string) dota.DotaClient {
 
 	conn, err := grpc.Dial(
 		serverAddress,
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"loadBalancingConfig": [{"%s":{}}]}`, roundrobin.Name)),
 	)
 	if err != nil {

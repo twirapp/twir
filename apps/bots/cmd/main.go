@@ -16,6 +16,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/servers"
 	"github.com/satont/tsuwari/libs/pubsub"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 
 	"github.com/satont/tsuwari/libs/twitch"
 
@@ -96,7 +97,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.KeepaliveParams(keepalive.ServerParameters{
+		MaxConnectionAge: 1 * time.Minute,
+	}))
 	botsgrpc.RegisterBotsServer(grpcServer, grpc_impl.NewServer(&grpc_impl.GrpcImplOpts{
 		Db:          db,
 		BotsService: botsService,

@@ -21,7 +21,9 @@ const eventSubService: EventSub.EventSubServiceImplementation = {
   },
 };
 
-const server = createServer();
+const server = createServer({
+  'grpc.keepalive_time_ms': 1 * 60 * 1000,
+});
 
 server.add(EventSub.EventSubDefinition, eventSubService);
 
