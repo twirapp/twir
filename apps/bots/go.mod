@@ -75,3 +75,5 @@ replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
 
 replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+
+replace github.com/satont/tsuwari/libs/pubsub => ../../libs/pubsub

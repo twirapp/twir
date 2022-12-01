@@ -12,6 +12,7 @@ import (
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/clients"
 	"github.com/satont/tsuwari/libs/grpc/servers"
+	"github.com/satont/tsuwari/libs/pubsub"
 	"google.golang.org/grpc"
 
 	"github.com/satont/tsuwari/libs/twitch"
@@ -20,6 +21,7 @@ import (
 	helix "github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/bots/internal/bots"
 	"github.com/satont/tsuwari/apps/bots/internal/grpc_impl"
+	"github.com/satont/tsuwari/apps/bots/internal/handlers"
 	botsgrpc "github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
@@ -64,6 +66,11 @@ func main() {
 	d.SetMaxOpenConns(20)
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
+	pb, err := pubsub.NewPubSub(cfg.RedisUrl)
+	if err != nil {
+		panic(err)
+	}
+
 	twitchClient := twitch.NewClient(&helix.Options{
 		ClientID:     cfg.TwitchClientId,
 		ClientSecret: cfg.TwitchClientSecret,
@@ -90,9 +97,15 @@ func main() {
 	}))
 	go grpcServer.Serve(grpcNetListener)
 
-	// natsConn.Subscribe("user.update", natsHandlers.UserUpdate)
-	// natsConn.Subscribe("streams.online", natsHandlers.StreamOnline)
-	// natsConn.Subscribe("streams.offline", natsHandlers.StreamOffline)
+	pb.Subscribe("user.update", func(data string) {
+		handlers.UserUpdate(db, botsService, data)
+	})
+	pb.Subscribe("streams.online", func(data string) {
+		handlers.StreamsOnline(db, data)
+	})
+	pb.Subscribe("streams.offline", func(data string) {
+		handlers.StreamsOffline(db, data)
+	})
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
