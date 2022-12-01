@@ -168,7 +168,7 @@ services:
     deploy:
       restart_policy:
         condition: any
-        delay: 30
+        delay: 30s
         max_attempts: 30
 
   watched:
