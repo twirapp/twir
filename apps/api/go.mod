@@ -7,14 +7,14 @@ require (
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.11.1
-	github.com/go-redis/redis/v9 v9.0.0-rc.1
+	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/gofiber/contrib/fiberzap v0.0.0-20221024221520-cac581acacd3
 	github.com/gofiber/fiber/v2 v2.39.0
 	github.com/gofiber/storage/redis v0.0.0-20221027071415-dca8f183e44b
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/imroc/req/v3 v3.25.0
-	github.com/samber/lo v1.34.0
+	github.com/samber/lo v1.36.0
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
@@ -44,16 +44,16 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
-	github.com/onsi/ginkgo/v2 v2.4.0 // indirect
+	github.com/onsi/ginkgo/v2 v2.5.0 // indirect
 	github.com/rivo/uniseg v0.4.2 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/exp v0.0.0-20221028150844-83b7d23a625f // indirect
 	golang.org/x/mod v0.6.0 // indirect
-	golang.org/x/net v0.1.0 // indirect
+	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/tools v0.2.0 // indirect
-	google.golang.org/genproto v0.0.0-20190306203927-b5d61aea6440 // indirect
-	google.golang.org/grpc v1.19.0 // indirect
+	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
+	google.golang.org/grpc v1.51.0 // indirect
 )
 
 require (
@@ -81,7 +81,7 @@ require (
 	github.com/valyala/fasthttp v1.41.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/crypto v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 )
 

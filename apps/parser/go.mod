@@ -4,9 +4,9 @@ go 1.18
 
 require (
 	github.com/getsentry/sentry-go v0.15.0
-	github.com/go-redis/redis/v9 v9.0.0-rc.1
+	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/guregu/null v4.0.0+incompatible
-	github.com/satont/go-helix/v2 v2.7.21
+	github.com/satont/go-helix/v2 v2.7.22
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
@@ -34,7 +34,7 @@ require (
 	github.com/marten-seemann/qtls-go1-17 v0.1.2 // indirect
 	github.com/marten-seemann/qtls-go1-18 v0.1.3 // indirect
 	github.com/marten-seemann/qtls-go1-19 v0.1.1 // indirect
-	github.com/onsi/ginkgo/v2 v2.4.0 // indirect
+	github.com/onsi/ginkgo/v2 v2.5.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/goleak v1.1.12 // indirect
@@ -61,12 +61,12 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/leighmacdonald/steamid/v2 v2.2.0
 	github.com/lib/pq v1.10.7
-	github.com/samber/lo v1.34.0
+	github.com/samber/lo v1.36.0
 	github.com/satont/tsuwari/libs/config v0.0.0
 	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/exp v0.0.0-20221028150844-83b7d23a625f // indirect
-	golang.org/x/net v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/net v0.2.0 // indirect
+	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 )
 

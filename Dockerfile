@@ -7,10 +7,12 @@ ENV PATH="$PATH:/root/go/bin"
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 RUN apk add --no-cache protoc git curl
 
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
 WORKDIR /app
 RUN npm i -g pnpm@7
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc go.mod go.work go.work.sum docker-entrypoint.sh ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc go.work go.work.sum docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 
 COPY libs libs
