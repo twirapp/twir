@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "@d-fischer/cache-decorators": "3.0.0",
-    "@nestjs/common": "9.1.2",
+    "@nestjs/common": "9.2.1",
     "@nestjs/core": "^9.1.2",
-    "@nestjs/microservices": "9.1.2",
+    "@nestjs/microservices": "9.2.1",
     "@tsuwari/config": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
     "@twurple/api": "5.2.4",

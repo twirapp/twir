@@ -8,9 +8,9 @@
     "start": "node --enable-source-maps dist/index.js"
   },
   "dependencies": {
-    "@nestjs/common": "9.1.2",
-    "@nestjs/core": "9.1.2",
-    "@nestjs/microservices": "9.1.2",
+    "@nestjs/common": "9.2.1",
+    "@nestjs/core": "9.2.1",
+    "@nestjs/microservices": "9.2.1",
     "@nestjs/schedule": "2.1.0",
     "@sentry/node": "7.14.0",
     "@sentry/tracing": "7.14.0",
