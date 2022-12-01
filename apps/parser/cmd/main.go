@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"time"
@@ -19,6 +20,7 @@ import (
 
 	"github.com/getsentry/sentry-go"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/satont/tsuwari/apps/parser/internal/grpc_impl"
 	"github.com/satont/tsuwari/libs/grpc/clients"
 	parser "github.com/satont/tsuwari/libs/grpc/generated/parser"
@@ -34,6 +36,11 @@ func main() {
 	if err != nil || cfg == nil {
 		fmt.Println(err)
 		panic("Cannot load config of application")
+	}
+
+	if cfg.AppEnv != "development" {
+		http.Handle("/metrics", promhttp.Handler())
+		go http.ListenAndServe("0.0.0.0:3000", nil)
 	}
 
 	if cfg.SentryDsn != "" {

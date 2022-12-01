@@ -49,3 +49,9 @@ docker stack deploy -c docker-compose.yml --with-registry-auth --prune tsuwari
 ### Update
 
 Same command as deploy
+
+# Monitoring
+
+```bash
+docker compose -f docker-compose.dockprom.yml up -d
+```
