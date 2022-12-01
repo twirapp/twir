@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/clients"
 	"github.com/satont/tsuwari/libs/grpc/servers"
@@ -45,6 +47,11 @@ func main() {
 		logger = l
 	}
 	zap.ReplaceGlobals(logger)
+
+	if cfg.AppEnv != "development" {
+		http.Handle("/metrics", promhttp.Handler())
+		go http.ListenAndServe("0.0.0.0:3000", nil)
+	}
 
 	if cfg.SentryDsn != "" {
 		sentry.Init(sentry.ClientOptions{

@@ -42,6 +42,14 @@ scrape_configs:
         port: 3000
     metrics_path: '/metrics'
 
+  - job_name: 'tsuwari-bots'
+    dns_sd_configs:
+      - names:
+          - 'tasks.tsuwari_bots'
+        type: 'A'
+        port: 3000
+    metrics_path: '/metrics'
+
 alerting:
   alertmanagers:
     - scheme: http

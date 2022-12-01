@@ -5,6 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/samber/lo"
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
@@ -109,10 +111,27 @@ func newBot(opts *ClientOpts) *types.BotClient {
 				panic("No user found for bot " + opts.Model.ID)
 			}
 
+			messagesCounter := promauto.NewCounter(prometheus.CounterOpts{
+				Name: "bots_messages_counter",
+				Help: "The total number of processed messages",
+				ConstLabels: prometheus.Labels{
+					"botName": meReq.Data.Users[0].Login,
+					"botId":   meReq.Data.Users[0].ID,
+				},
+			})
+
+			prometheus.Register(messagesCounter)
+
 			client.OnConnect(botHandlers.OnConnect)
 			client.OnSelfJoinMessage(botHandlers.OnSelfJoin)
-			client.OnUserStateMessage(botHandlers.OnUserStateMessage)
-			client.OnPrivateMessage(botHandlers.OnPrivateMessage)
+			client.OnUserStateMessage(func(message irc.UserStateMessage) {
+				defer messagesCounter.Inc()
+				botHandlers.OnUserStateMessage(message)
+			})
+			client.OnPrivateMessage(func(message irc.PrivateMessage) {
+				defer messagesCounter.Inc()
+				botHandlers.OnPrivateMessage(message)
+			})
 
 			err = client.Connect()
 			if err != nil {

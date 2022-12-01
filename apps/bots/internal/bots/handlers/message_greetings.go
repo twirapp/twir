@@ -35,6 +35,8 @@ func (c *Handlers) handleGreetings(
 		return
 	}
 
+	defer c.greetingsCounter.Inc()
+
 	requestStruct := &parser.ParseTextRequestData{
 		Channel: &parser.Channel{
 			Id:   msg.RoomID,

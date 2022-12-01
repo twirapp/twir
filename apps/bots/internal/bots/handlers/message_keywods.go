@@ -63,6 +63,8 @@ func (c *Handlers) handleKeywords(
 				}
 			}
 
+			defer c.keywordsCounter.Inc()
+
 			isOnCooldown := false
 			if k.Cooldown.Valid && k.CooldownExpireAt.Valid {
 				isOnCooldown = k.CooldownExpireAt.Time.After(time.Now().UTC())

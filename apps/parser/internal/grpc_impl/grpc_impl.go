@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v9"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/commands"
 	"github.com/satont/tsuwari/apps/parser/internal/permissions"
@@ -17,6 +19,17 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+)
+
+var (
+	commandsCounter = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "parser_commands_processed",
+		Help: "The total number of processed commands",
+	})
+	textParseCounter = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "parser_text_processed",
+		Help: "The total number of processed commands",
+	})
 )
 
 type GrpcImplOpts struct {
@@ -45,6 +58,8 @@ func (c *parserGrpcServer) ProcessCommand(
 	ctx context.Context,
 	data *parser.ProcessCommandRequest,
 ) (*parser.ProcessCommandResponse, error) {
+	defer commandsCounter.Inc()
+
 	if !strings.HasPrefix(data.Message.Text, "!") {
 		return nil, nil
 	}
@@ -106,6 +121,8 @@ func (c *parserGrpcServer) ParseTextResponse(
 	ctx context.Context,
 	data *parser.ParseTextRequestData,
 ) (*parser.ParseTextResponseData, error) {
+	defer textParseCounter.Inc()
+
 	isCommand := lo.IfF(data.ParseVariables != nil, func() bool {
 		return *data.ParseVariables
 	}).ElseF(func() bool { return false })
