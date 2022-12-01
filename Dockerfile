@@ -39,7 +39,8 @@ COPY --from=base /app/apps/dota apps/dota/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
+COPY --from=base /app/libs/pubsub libs/pubsub/
 RUN pnpm install --prod
 
 FROM node_prod_base as dota
@@ -52,7 +53,7 @@ CMD ["pnpm", "start:dota"]
 FROM node_deps_base as eval_deps
 COPY --from=base /app/apps/eval apps/eval/
 COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
 RUN pnpm install --prod
 
 FROM node_prod_base as eval
@@ -65,9 +66,10 @@ CMD ["pnpm", "start:eval"]
 FROM node_deps_base as eventsub_deps
 COPY --from=base /app/apps/eventsub apps/eventsub/
 COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/typeorm libs/typeorm/
+COPY --from=base /app/libs/pubsub libs/pubsub/
 RUN pnpm install --prod
 
 FROM node_prod_base as eventsub
@@ -80,7 +82,7 @@ CMD ["pnpm", "start:eventsub"]
 FROM node_deps_base as integrations_deps
 COPY --from=base /app/apps/integrations apps/integrations/
 COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
 RUN pnpm install --prod
@@ -95,7 +97,7 @@ CMD ["pnpm", "start:integrations"]
 FROM node_deps_base as scheduler_deps
 COPY --from=base /app/apps/scheduler apps/scheduler/
 COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
 RUN pnpm install --prod
@@ -112,7 +114,8 @@ COPY --from=base /app/apps/streamstatus apps/streamstatus/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
+COPY --from=base /app/libs/pubsub libs/pubsub/
 RUN pnpm install --prod
 
 FROM node_prod_base as streamstatus
@@ -179,7 +182,7 @@ COPY --from=base /app/apps/bots apps/bots/
 COPY --from=base /app/apps/api apps/api/
 COPY --from=base /app/apps/watched apps/watched/
 COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/nats libs/nats/
+COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/twitch libs/twitch/
 COPY --from=base /app/libs/gomodels libs/gomodels/
 COPY --from=base /app/libs/integrations/spotify libs/integrations/spotify/
