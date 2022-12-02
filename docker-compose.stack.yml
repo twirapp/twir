@@ -182,6 +182,7 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      endpoint_mode: dnsrr
       mode: replicated
       replicas: 8
 
@@ -200,6 +201,7 @@ services:
         max_attempts: 30
       mode: replicated
       replicas: 50
+      endpoint_mode: dnsrr
     networks:
       - tsuwari
 
@@ -301,6 +303,7 @@ services:
     deploy:
       mode: replicated
       replicas: 50
+      endpoint_mode: dnsrr
       restart_policy:
         condition: any
         delay: 30s
