@@ -3,6 +3,10 @@
 	"dockerComposeFile": "../docker-compose.dev.yml",
 	"service": "tsuwari",
 	"workspaceFolder": "/workspace",
+	"forwardPorts": [
+		3005,
+		8085
+	],
 	"customizations": {
 		"vscode": {
 			"extensions": [
