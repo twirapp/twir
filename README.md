@@ -23,7 +23,7 @@ Well, now we are almost ready for developing project, just few steps.
 - Create twitch application https://dev.twitch.tv/console/apps
 - Set `http://localhost:3005/login` and `https://twitchtokengenerator.com` as your redirect url's for twitch application
 - Go to https://twitchtokengenerator.com, set clientID and clientSecret from your app and generate initial token WITH ALL SCOPES
-- Read `.env`, i'm tryed to describe important parts.
+- Read `.env`, i'm tried to describe important parts.
     ```bash
     cp .env.example .env
     ```
