@@ -1,14 +1,8 @@
 {
 	"name": "tsuwari-dev",
-	"build": {
-		"dockerfile": "./Dockerfile",
-		"context": "..",
-		"args": {
-			"GO_VERSION": "2:1.19.3",
-			"NODE_VERSION": "18.12.1",
-			"PNPM_VERSION": "7.17.1"
-		}
-	},
+	"dockerComposeFile": "../docker-compose.dev.yml",
+	"service": "tsuwari",
+	"workspaceFolder": "/workspace",
 	"customizations": {
 		"vscode": {
 			"extensions": [

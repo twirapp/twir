@@ -1,6 +1,28 @@
 version: '3.7'
 
 services:
+  tsuwari:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        GO_VERSION: "2:1.19.3"
+        NODE_VERSION: "18.12.1"
+        PNPM_VERSION: "7.17.1"
+    command: sleep infinity
+    user: tsuwari
+    volumes:
+      - .:/workspace:cached
+    ports:
+        - 3005:3005
+    depends_on:
+        - postgres
+        - redis
+    links: 
+      - postgres
+      - redis
+      - adminer
+
   adminer:
     image: adminer
     restart: always
@@ -9,8 +31,6 @@ services:
     environment:
       - ADMINER_DEFAULT_SERVER=postgres:5432
       - ADMINER_PLUGINS=enum-types enum-option json-column
-    networks:
-      - tsuwari-dev
 
   postgres:
     restart: unless-stopped
@@ -23,8 +43,6 @@ services:
       POSTGRES_DB: tsuwari
     ports:
       - 57453:5432
-    networks:
-      - tsuwari-dev
 
   redis:
     restart: unless-stopped
@@ -33,13 +51,7 @@ services:
       - redis-data:/data
     ports:
       - 62510:6379
-    networks:
-      - tsuwari-dev
 
 volumes:
   redis-data:
   postgres-data:
-
-networks:
-  tsuwari-dev:
-    name: tsuwari-dev

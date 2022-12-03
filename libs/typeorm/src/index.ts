@@ -1,6 +1,10 @@
+import { resolve } from 'node:path';
 import 'reflect-metadata';
 
+import dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
+
+dotenv.config({ path: resolve(process.cwd(), '../../.env') });
 
 import { Bot } from './entities/Bot.js';
 import { Channel } from './entities/Channel.js';
