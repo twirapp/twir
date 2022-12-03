@@ -39,7 +39,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 // Integrations godoc
 // @Security ApiKeyAuth
-// @Summary      Get donationalerts integration
+// @Summary      Get DonationAlerts integration
 // @Tags         Integrations
 // @Accept       json
 // @Produce      json
@@ -59,7 +59,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 
 // Integrations godoc
 // @Security ApiKeyAuth
-// @Summary      Get donationalerts auth link
+// @Summary      Get DonationAlerts auth link
 // @Tags         Integrations
 // @Accept       json
 // @Produce      plain
@@ -78,6 +78,18 @@ func getAuth(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      UpdateDonationAlerts status
+// @Tags         Integrations
+// @Accept       json
+// @Produce      json
+// @Param data body donationAlertsDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200  {object} model.ChannelsIntegrations
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/donationalerts [patch]
 func patch(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &donationAlertsDto{}
@@ -104,6 +116,18 @@ type tokenDto struct {
 	Code string `validate:"required" json:"code"`
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Update auth of DonationAlerts
+// @Tags         Integrations
+// @Accept       json
+// @Produce      json
+// @Param data body tokenDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/donationalerts/token [post]
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &tokenDto{}
