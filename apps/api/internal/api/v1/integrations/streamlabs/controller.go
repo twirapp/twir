@@ -57,6 +57,16 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Get DonationAlerts auth link
+// @Tags         Integrations|Streamlabs
+// @Accept       json
+// @Produce      plain
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success 200 {string} string	"Auth link"
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/streamlabs/auth [get]
 func getAuth(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		authLink, err := handleGetAuth(services)
@@ -70,14 +80,16 @@ func getAuth(services types.Services) func(c *fiber.Ctx) error {
 
 // Integrations godoc
 // @Security ApiKeyAuth
-// @Summary      Get Streamlabs auth link
+// @Summary      Update Streamlabs status
 // @Tags         Integrations|Streamlabs
 // @Accept       json
-// @Produce      plain
-// @Param        channelId   path      string  true  "ChannelId"
-// @Success 200 {string} string	"Auth link"
+// @Produce      json
+// @Param data body streamlabsDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200  {object} model.ChannelsIntegrations
+// @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
-// @Router       /v1/channels/{channelId}/integrations/streamlabs/auth [get]
+// @Router       /v1/channels/{channelId}/integrations/streamlabs [patch]
 func patch(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &streamlabsDto{}

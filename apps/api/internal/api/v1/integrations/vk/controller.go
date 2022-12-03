@@ -45,7 +45,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Success      200
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
-// @Router       /v1/channels/{channelId}/integrations/vk/token [post]
+// @Router       /v1/channels/{channelId}/integrations/vk [post]
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &vkDto{}
