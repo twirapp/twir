@@ -37,6 +37,16 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Get donationalerts integration
+// @Tags         Integrations
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {object}  model.ChannelsIntegrations
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/donationalerts [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		integration, err := handleGet(c.Params("channelId"), services)
@@ -47,6 +57,16 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Get donationalerts auth link
+// @Tags         Integrations
+// @Accept       json
+// @Produce      plain
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success 200 {string} string	"Auth link"
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/donationalerts/auth [get]
 func getAuth(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		authLink, err := handleGetAuth(services)

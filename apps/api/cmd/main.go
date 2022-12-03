@@ -107,7 +107,7 @@ func main() {
 		app.Get("/swagger/*", swagger.New(swagger.Config{
 			URL:                  "http://localhost:3002/swagger/doc.json",
 			DeepLinking:          false,
-			DocExpansion:         "none",
+			DocExpansion:         "list",
 			PersistAuthorization: true,
 			Title:                "Tsuwari api",
 			TryItOutEnabled:      true,
