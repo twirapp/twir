@@ -46,7 +46,7 @@ async function deleteEntity(id: string) {
 async function addMember() {
   const response = await api.post(
     `/v1/channels/${selectedDashboard.value.channelId}/settings/dashboard-access`,
-    { username: newMember.value },
+    { userName: newMember.value },
   );
 
   if (response.status === 200) {
