@@ -14,6 +14,16 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
+// Moderation godoc
+// @Security ApiKeyAuth
+// @Summary      Get moderation settings
+// @Tags         Moderation
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {array}  model.ChannelsModerationSettings
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/moderation [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		settings, err := handleGet(c.Params("channelId"), services)
@@ -25,6 +35,18 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Moderation godoc
+// @Security ApiKeyAuth
+// @Summary      Create command
+// @Tags         Moderation
+// @Accept       json
+// @Produce      json
+// @Param data body moderationDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200  {array}  model.ChannelsModerationSettings
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/moderation [post]
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := moderationDto{}
