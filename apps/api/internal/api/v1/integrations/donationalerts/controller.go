@@ -80,7 +80,7 @@ func getAuth(services types.Services) func(c *fiber.Ctx) error {
 
 // Integrations godoc
 // @Security ApiKeyAuth
-// @Summary      UpdateDonationAlerts status
+// @Summary      Update DonationAlerts status
 // @Tags         Integrations
 // @Accept       json
 // @Produce      json
