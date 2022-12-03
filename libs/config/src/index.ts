@@ -25,7 +25,6 @@ export const config = cleanEnv(process.env, {
   STEAM_USERNAME: str(),
   STEAM_PASSWORD: str(),
   STEAM_API_KEY: str(),
-  GITHUB_TOKEN: str(),
   MINIO_USER: str({ devDefault: '' }),
   MINIO_PASSWORD: str({ devDefault: '' }),
   MINIO_URL: str({ devDefault: '' }),

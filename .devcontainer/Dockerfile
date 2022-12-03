@@ -10,8 +10,8 @@ ARG USER_GID=$USER_UID
 RUN groupadd --gid $USER_GID $USERNAME && \
     useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
 
-RUN pacman -Sy --noconfirm gcc git sudo task nodejs=$NODE_VERSION go=$GO_VERSION npm protobuf=21.10-1 && \
-    npm i -g pnpm@7.17.1
+RUN pacman -Sy --noconfirm gcc git sudo nodejs=$NODE_VERSION go=$GO_VERSION npm protobuf=21.10-1 && \
+    npm i -g pnpm@7.17.1 @go-task/cli
 
 RUN echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers
     
