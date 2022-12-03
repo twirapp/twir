@@ -96,7 +96,7 @@ func delete(services types.Services) func(c *fiber.Ctx) error {
 
 // Keywords godoc
 // @Security ApiKeyAuth
-// @Summary      Update command
+// @Summary      Update keyword
 // @Tags         Keywords
 // @Accept       json
 // @Produce      json
