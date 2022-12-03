@@ -29,8 +29,9 @@ Well, now we are almost ready for developing project, just few steps.
     ```
     Then fill that with values.
 - Open project folder in devcontainer. Execute "Dev Containers: open folder in container" via vscode commands, or via another ways. Doesn't metter.
+- Execute `pnpm install`
 
-Now you are read to run project.
+Now you are read to run project:
 ```bash
 task dev
 ```
