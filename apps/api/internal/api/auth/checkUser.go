@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -46,7 +47,9 @@ func checkUser(
 		newToken := tokenData
 		newToken.ID = uuid.NewV4().String()
 
-		if err = services.DB.Create(&newToken).Error; err != nil {
+		fmt.Printf("%+v\n", newToken)
+
+		if err = services.DB.Save(&newToken).Error; err != nil {
 			services.Logger.Sugar().Error(err)
 			return err
 		}
@@ -55,7 +58,7 @@ func checkUser(
 		user.TokenID = sql.NullString{String: newToken.ID, Valid: true}
 		user.ApiKey = uuid.NewV4().String()
 
-		if err = services.DB.Create(&user).Error; err != nil {
+		if err = services.DB.Save(&user).Error; err != nil {
 			services.Logger.Sugar().Error(err)
 			return err
 		}
@@ -82,15 +85,19 @@ func checkUser(
 
 		if user.TokenID.Valid {
 			tokenData.ID = user.TokenID.String
-			if err = services.DB.Select("*").Updates(&tokenData).Error; err != nil {
+			if err = services.DB.Select("*").Save(&tokenData).Error; err != nil {
 				services.Logger.Sugar().Error(err)
 				return err
 			}
 		} else {
 			tokenData.ID = uuid.NewV4().String()
-			if err = services.DB.Select("*").Create(&tokenData).Error; err != nil {
+			if err = services.DB.Save(&tokenData).Error; err != nil {
 				services.Logger.Sugar().Error(err)
 				return err
+			}
+			user.TokenID = sql.NullString{String: tokenData.ID, Valid: true}
+			if err := services.DB.Save(&user).Error; err != nil {
+				services.Logger.Sugar().Error(err)
 			}
 		}
 	}
@@ -107,12 +114,18 @@ func checkUser(
 		})
 	}
 
-	services.SchedulerGrpc.CreateDefaultCommands(context.Background(), &scheduler.CreateDefaultCommandsRequest{
-		UserId: userId,
-	})
-	services.EventSubGrpc.SubscribeToEvents(context.Background(), &eventsub.SubscribeToEventsRequest{
-		ChannelId: userId,
-	})
+	services.SchedulerGrpc.CreateDefaultCommands(
+		context.Background(),
+		&scheduler.CreateDefaultCommandsRequest{
+			UserId: userId,
+		},
+	)
+	services.EventSubGrpc.SubscribeToEvents(
+		context.Background(),
+		&eventsub.SubscribeToEventsRequest{
+			ChannelId: userId,
+		},
+	)
 
 	return nil
 }

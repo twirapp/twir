@@ -22,6 +22,7 @@ func handleGet(channelId string, services types.Services) (*bool, error) {
 		ClientSecret: services.Cfg.TwitchClientSecret,
 	}).Create(channelId)
 	if client == nil || err != nil {
+		services.Logger.Sugar().Error(err)
 		return nil, fiber.NewError(
 			http.StatusInternalServerError,
 			"cannot create twitch client from your tokens. Please try to reauthorize",

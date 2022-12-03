@@ -37,7 +37,7 @@ func main() {
 	}
 
 	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{
-		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
+		Logger: gormLogger.Default.LogMode(gormLogger.Error),
 	})
 	if err != nil {
 		fmt.Println(err)

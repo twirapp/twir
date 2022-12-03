@@ -3,7 +3,6 @@ package grpc_impl
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
@@ -52,7 +51,7 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 
 	api, err := twitch.CreateBot(data.BotId)
 	if err != nil {
-		fmt.Println(err)
+		c.logger.Sugar().Error(err)
 		return nil, errors.New("cannot create api for bot")
 	}
 
@@ -99,8 +98,8 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 					defer chattersWg.Done()
 					user := model.Users{}
 					err := c.db.
-						Where(`"users"."id" = ? AND "Stats"."channelId" = ?`, chatter.UserID, channel).
-						Joins("Stats").
+						Where(`"users"."id" = ?`, chatter.UserID).
+						Preload("Stats", `"channelId" = ?`, channel).
 						Find(&user).Error
 					if err != nil {
 						c.logger.Sugar().Error(err)
@@ -108,32 +107,21 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 					}
 
 					if user.ID == "" {
-						err = c.db.Transaction(func(tx *gorm.DB) error {
-							apiKey, _ := uuid.NewV4()
-							user := &model.Users{
-								ID:     chatter.UserID,
-								ApiKey: apiKey.String(),
-							}
-							if err := tx.Create(user).Error; err != nil {
-								return err
-							}
-
-							statsId, _ := uuid.NewV4()
-							stats := &model.UsersStats{
+						apiKey, _ := uuid.NewV4()
+						statsId, _ := uuid.NewV4()
+						user := &model.Users{
+							ID:     chatter.UserID,
+							ApiKey: apiKey.String(),
+							Stats: &model.UsersStats{
 								ID:        statsId.String(),
 								UserID:    chatter.UserID,
 								ChannelID: channel,
 								Messages:  0,
 								Watched:   0,
-							}
-							if err := tx.Create(stats).Error; err != nil {
-								return err
-							}
+							},
+						}
 
-							return nil
-						})
-
-						if err != nil {
+						if err := c.db.Create(&user).Error; err != nil {
 							c.logger.Sugar().Error(err)
 						}
 					} else if user.Stats == nil {
@@ -150,8 +138,10 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 						}
 					} else {
 						time := 5 * time.Minute
-						err := c.db.Model(&model.UsersStats{}).
-							Where("id = ?", user.Stats.ID).Select("*").
+
+						err := c.db.
+							Model(&model.UsersStats{}).
+							Where("id = ?", user.Stats.ID).
 							Updates(map[string]any{
 								"watched": user.Stats.Watched + time.Milliseconds(),
 							}).Error
@@ -159,6 +149,45 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 							c.logger.Sugar().Error(err)
 						}
 					}
+
+					/* if user.ID == "" {
+						apiKey, _ := uuid.NewV4()
+						statsId, _ := uuid.NewV4()
+						user := &model.Users{
+							ID:     chatter.UserID,
+							ApiKey: apiKey.String(),
+							Stats: &model.UsersStats{
+								ID:        statsId.String(),
+								UserID:    chatter.UserID,
+								ChannelID: channel,
+								Messages:  0,
+								Watched:   0,
+							},
+						}
+						if err := c.db.Save(user).Error; err != nil {
+							c.logger.Sugar().Error(err)
+						}
+					} else if user.Stats == nil {
+						statsId, _ := uuid.NewV4()
+						err := c.db.Create(&model.UsersStats{
+							ID:        statsId.String(),
+							UserID:    chatter.UserID,
+							ChannelID: channel,
+							Messages:  0,
+							Watched:   0,
+						}).Error
+						if err != nil {
+							c.logger.Sugar().Error(err)
+						}
+					} else {
+						time := 5 * time.Minute
+
+						user.Stats.Watched += time.Milliseconds()
+						err := c.db.Save(&user).Error
+						if err != nil {
+							c.logger.Sugar().Error(err)
+						}
+					} */
 				}(chatter)
 			}
 
