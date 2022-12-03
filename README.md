@@ -41,15 +41,16 @@ And when everything starts open https://localhost:3005
 Migrations done via `typeorm`. So at first you always need to change `nodejs` entities, generate migrations, then describe `go` models
 
 
-##### Write `nodejs` entities
+##### Write `nodejs` models
+If you not familar with nodejs, you can check existed entities.
+
 1. Describe entity into `libs/typeorm/src/entities` folder. Also there is some example how i'm doing that
 2. Add entity classname to `libs/typeorm/src/index.ts` into `entities` array. Thats how `typeorm` working in ESM mode 
 3. For generate migrations go to the typeorm folder `cd libs/typeorm` and run `pnpm migration:generate -n NameForMigration`
-If you not familar with nodejs, you can check existed entities.
 
-##### As next step you need to write model for `go`.
+##### Write `go` models
+If you not familar with the go, you can check existed models.
+
 1. Go to `libs/gomodels`
 2. Create new file and describe the go schema
 3. Do not forget about `TableName()` for struct
-
-If you not familar with the go, you can check existed models.
