@@ -15,7 +15,7 @@ import (
 
 type Greeting struct {
 	model.ChannelsGreetings
-	UserName string `json:"username"`
+	UserName string `json:"userName"`
 }
 
 func handleGet(channelId string, services types.Services) []Greeting {

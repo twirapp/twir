@@ -105,6 +105,7 @@ func delete(services types.Services) func(c *fiber.Ctx) error {
 // @Success      200  {object}  model.ChannelsCommands
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
+// @Failute 404
 // @Router       /v1/channels/{channelId}/commands/{commandId} [put]
 func update(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {

@@ -89,6 +89,20 @@ func delete(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Greetings godoc
+// @Security ApiKeyAuth
+// @Summary      Update greeting
+// @Tags         Greetings
+// @Accept       json
+// @Produce      json
+// @Param data body greetingsDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Param        channelId   path      string  true  "ID of greeting"
+// @Success      200  {object}  Greeting
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failute 404
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/greetings/{greetingId} [put]
 func put(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &greetingsDto{}

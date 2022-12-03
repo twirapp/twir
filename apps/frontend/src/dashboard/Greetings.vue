@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 export type GreeTingType = SetOptional<
-  Omit<Greeting, 'channelId'> & { username: string; edit?: boolean },
+  Omit<Greeting, 'channelId'> & { userName: string; edit?: boolean },
   'id'
 >;
 
@@ -28,7 +28,7 @@ watch(data, (v: any[]) => {
 function insert() {
   greetings.value = [
     {
-      username: '',
+      userName: '',
       userId: '',
       text: '',
       edit: true,
