@@ -1,6 +1,10 @@
 import { execSync } from 'node:child_process';
 import { parseArgs } from 'node:util';
 
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '../../.env' });
+
 const {
   values: { name },
 } = parseArgs({
@@ -16,12 +20,13 @@ if (!name) {
   console.error('🚨 Name not provided.');
 }
 
-const { DATABASE_URL } = process.env;
-
-const localDbUrl = DATABASE_URL?.replace('@postgres', '@localhost');
+if (!process.env.DATABASE_URL) {
+  console.error('🚨 Database url not provded');
+  process.exit(1);
+}
 
 execSync(
-  `DATABASE_URL=${localDbUrl} pnpm typeorm-ts-node-esm -d ./src/index.ts migration:generate ./src/migrations/${name}`,
+  `DATABASE_URL=${process.env.DATABASE_URL} pnpm typeorm-ts-node-esm -d ./src/index.ts migration:generate ./src/migrations/${name}`,
 );
 
 console.info(`✅ Migration with name ${name} created`);

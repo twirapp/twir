@@ -28,7 +28,7 @@ tasks:
 
   migrations:
     cmds:
-      - doppler run -- pnpm run --filter=@tsuwari/typeorm setup
+      - pnpm run --filter=@tsuwari/typeorm setup
 
   prepare:
     run: once

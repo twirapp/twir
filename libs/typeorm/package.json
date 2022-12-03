@@ -15,9 +15,9 @@
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "tsc",
-    "cli": "doppler run -- typeorm-ts-node-esm -d ./src/index.ts",
+    "cli": "typeorm-ts-node-esm -d ./src/index.ts",
     "deploy": "pnpm typeorm-ts-node-esm -d ./src/index.ts migration:run",
-    "migration:generate": "doppler run -- pnpm ts-node --esm --transpileOnly ./generateMigration.ts",
+    "migration:generate": "pnpm ts-node --esm --transpileOnly ./generateMigration.ts",
     "setup": "pnpm run deploy && pnpm run seed",
     "seed": "pnpm ts-node --esm --transpileOnly ./seed.ts"
   },

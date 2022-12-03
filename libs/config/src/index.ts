@@ -10,7 +10,7 @@ try {
 
 export const config = cleanEnv(process.env, {
   DATABASE_URL: str({
-    default: 'postgresql://tsuwari:tsuwari@localhost:5432/tsuwari?schema=public',
+    default: 'postgresql://tsuwari:tsuwari@postgres:5432/tsuwari?schema=public',
   }),
   NODE_ENV: str({ choices: ['development', 'production'], default: 'development' }),
   TWITCH_CLIENTID: str(),

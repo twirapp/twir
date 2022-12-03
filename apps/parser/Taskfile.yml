@@ -3,7 +3,7 @@ version: '3'
 tasks:
   dev:
     cmds:
-      - doppler run -- pnpx nodemon --config ./nodemon.json
+      -pnpx nodemon --config ./nodemon.json
 
   build:
     cmds:
@@ -17,4 +17,4 @@ tasks:
   debug:
     cmds:
       - go build -gcflags=all="-N -l" ./cmd/main.go
-      - doppler run -- ./main
+      - ./main

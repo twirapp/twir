@@ -13,4 +13,4 @@ tasks:
   debug:
     cmds:
       - go build -gcflags=all="-N -l" ./cmd/main.go
-      - doppler run -- ./main
+      - ./main
