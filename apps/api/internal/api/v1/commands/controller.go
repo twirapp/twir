@@ -12,7 +12,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
 	middleware.Delete(":commandId", delete(services))
-	middleware.Put(":commandId", update(services))
+	middleware.Put(":commandId", put(services))
 
 	return router
 }
@@ -101,13 +101,13 @@ func delete(services types.Services) func(c *fiber.Ctx) error {
 // @Produce      json
 // @Param data body commandDto true "Data"
 // @Param        channelId   path      string  true  "ID of channel"
-// @Param        channelId   path      string  true  "ID of command"
+// @Param        commandId   path      string  true  "ID of command"
 // @Success      200  {object}  model.ChannelsCommands
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Failute 404
 // @Router       /v1/channels/{channelId}/commands/{commandId} [put]
-func update(services types.Services) func(c *fiber.Ctx) error {
+func put(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &commandDto{}
 		err := middlewares.ValidateBody(
