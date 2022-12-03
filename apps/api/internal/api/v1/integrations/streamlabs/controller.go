@@ -37,6 +37,16 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Get Streamlabs integration
+// @Tags         Integrations|Streamlabs
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {object}  model.ChannelsIntegrations
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/streamlabs [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		integration, err := handleGet(c.Params("channelId"), services)
@@ -58,6 +68,16 @@ func getAuth(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Get Streamlabs auth link
+// @Tags         Integrations|Streamlabs
+// @Accept       json
+// @Produce      plain
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success 200 {string} string	"Auth link"
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/streamlabs/auth [get]
 func patch(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &streamlabsDto{}
@@ -84,6 +104,18 @@ type tokenDto struct {
 	Code string `validate:"required" json:"code"`
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Update auth of Streamlabs
+// @Tags         Integrations|Streamlabs
+// @Accept       json
+// @Produce      json
+// @Param data body tokenDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/streamlabs/token [post]
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &tokenDto{}

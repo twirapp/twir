@@ -40,7 +40,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // Integrations godoc
 // @Security ApiKeyAuth
 // @Summary      Get DonationAlerts integration
-// @Tags         Integrations
+// @Tags         Integrations|DonationAlerts
 // @Accept       json
 // @Produce      json
 // @Param        channelId   path      string  true  "ChannelId"
@@ -60,7 +60,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // Integrations godoc
 // @Security ApiKeyAuth
 // @Summary      Get DonationAlerts auth link
-// @Tags         Integrations
+// @Tags         Integrations|DonationAlerts
 // @Accept       json
 // @Produce      plain
 // @Param        channelId   path      string  true  "ChannelId"
@@ -81,7 +81,7 @@ func getAuth(services types.Services) func(c *fiber.Ctx) error {
 // Integrations godoc
 // @Security ApiKeyAuth
 // @Summary      Update DonationAlerts status
-// @Tags         Integrations
+// @Tags         Integrations|DonationAlerts
 // @Accept       json
 // @Produce      json
 // @Param data body donationAlertsDto true "Data"
@@ -119,7 +119,7 @@ type tokenDto struct {
 // Integrations godoc
 // @Security ApiKeyAuth
 // @Summary      Update auth of DonationAlerts
-// @Tags         Integrations
+// @Tags         Integrations|DonationAlerts
 // @Accept       json
 // @Produce      json
 // @Param data body tokenDto true "Data"

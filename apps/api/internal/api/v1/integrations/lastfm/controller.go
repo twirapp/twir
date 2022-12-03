@@ -17,7 +17,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // Integrations godoc
 // @Security ApiKeyAuth
 // @Summary      Get LastFm integration
-// @Tags         Integrations
+// @Tags         Integrations|Lastfm
 // @Accept       json
 // @Produce      json
 // @Param        channelId   path      string  true  "ChannelId"
@@ -37,7 +37,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // Integrations godoc
 // @Security ApiKeyAuth
 // @Summary      Update LastFM
-// @Tags         Integrations
+// @Tags         Integrations|Lastfm
 // @Accept       json
 // @Produce      json
 // @Param data body lastfmDto true "Data"

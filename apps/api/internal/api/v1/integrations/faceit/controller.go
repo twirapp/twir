@@ -17,7 +17,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // Integrations godoc
 // @Security ApiKeyAuth
 // @Summary      Get Faceit integration
-// @Tags         Integrations
+// @Tags         Integrations|Faceit
 // @Accept       json
 // @Produce      json
 // @Param        channelId   path      string  true  "ChannelId"
@@ -37,7 +37,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // Integrations godoc
 // @Security ApiKeyAuth
 // @Summary      Update Faceit
-// @Tags         Integrations
+// @Tags         Integrations|Faceit
 // @Accept       json
 // @Produce      json
 // @Param data body faceitUpdateDto true "Data"

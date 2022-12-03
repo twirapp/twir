@@ -31,6 +31,16 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Get Spotify integration
+// @Tags         Integrations|Spotify
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {object}  model.ChannelsIntegrations
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/spotify [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		integration, err := handleGet(c.Params("channelId"), services)
@@ -41,6 +51,16 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Get Spotify profile
+// @Tags         Integrations|Spotify
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {object}  spotify.SpotifyProfile
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/spotify/profile [get]
 func getProfile(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		profile, err := handleGetProfile(c.Params("channelId"), services)
@@ -51,6 +71,16 @@ func getProfile(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Get Spotify auth link
+// @Tags         Integrations|Spotify
+// @Accept       json
+// @Produce      plain
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success 200 {string} string	"Auth link"
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/spotify/auth [get]
 func getAuth(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		authLink, err := handleGetAuth(services)
@@ -62,6 +92,18 @@ func getAuth(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Update Spotify status
+// @Tags         Integrations|Spotify
+// @Accept       json
+// @Produce      json
+// @Param data body spotifyDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200  {object} model.ChannelsIntegrations
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/spotify [patch]
 func patch(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &spotifyDto{}
@@ -84,6 +126,19 @@ func patch(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Integrations godoc
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Update auth of Spotify
+// @Tags         Integrations|Spotify
+// @Accept       json
+// @Produce      json
+// @Param data body tokenDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/spotify/token [post]
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &tokenDto{}
