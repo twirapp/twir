@@ -1,6 +1,9 @@
 package cfg
 
 import (
+	"os"
+	"path"
+
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -24,7 +27,13 @@ func New() (*Config, error) {
 
 	var err error
 
-	_ = godotenv.Load(".env")
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	envPath := path.Join(wd, ".env")
+	_ = godotenv.Load(envPath)
 
 	if err = envconfig.Process("", &newCfg); err != nil {
 		return nil, err
