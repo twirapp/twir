@@ -14,7 +14,7 @@ type nResult struct {
 
 type statsItem struct {
 	Count int64  `json:"count"`
-	Name  string `json:"name"`
+	Name  string `json:"name"  enums:"users,channels,commands,messages"`
 }
 
 func handleGet(services types.Services) ([]statsItem, error) {
