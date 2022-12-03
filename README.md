@@ -54,3 +54,6 @@ If you not familar with the go, you can check existed models.
 1. Go to `libs/gomodels`
 2. Create new file and describe the go schema
 3. Do not forget about `TableName()` for struct
+
+##### How to run migrations
+Migration runned automatically when you execute `task dev`, or you can run them manually via `

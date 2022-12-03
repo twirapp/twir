@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 
-import { config } from '@tsuwari/config';
 import { DataSource } from 'typeorm';
 
 import { Bot } from './entities/Bot.js';
@@ -43,7 +42,7 @@ export * from 'typeorm';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  url: config.DATABASE_URL,
+  url: process.env.DATABASE_URL,
   entities: [
     Bot,
     Channel,
