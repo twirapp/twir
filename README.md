@@ -12,7 +12,7 @@ You can easy setup dependencies for project via installation of this deps:
 
 #### If you not using vscode
 
-Oh, dear... You need to check `.devcontainer/Dockerfile` file and check what i'm installed via `pacman` package manager with versions from `.devcontainer/devcontainer.json`. Also you need to check other tools installed in container (for example via go install).
+Oh, dear... You need to check `.devcontainer/Dockerfile` file and check what i'm installed via `pacman` package manager with versions from `docker-compose.dev.yml`. Also you need to check other tools installed in container (for example via go install).
 
 Sorry, i wont describe how to do that, because there is few deps, and they can be changed in anytime. I'm lazy update readme, but Dockerfile must be always up-to-date.
 
