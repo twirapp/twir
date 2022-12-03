@@ -1,7 +1,10 @@
+import { resolve } from 'node:path';
 import 'reflect-metadata';
 
-import { config } from '@tsuwari/config';
+import dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
+
+dotenv.config({ path: resolve(process.cwd(), '../../.env') });
 
 import { Bot } from './entities/Bot.js';
 import { Channel } from './entities/Channel.js';
@@ -43,7 +46,7 @@ export * from 'typeorm';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  url: config.DATABASE_URL,
+  url: process.env.DATABASE_URL,
   entities: [
     Bot,
     Channel,

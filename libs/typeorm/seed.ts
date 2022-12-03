@@ -1,10 +1,12 @@
+import { resolve } from 'node:path';
+
 import dotenv from 'dotenv';
 
 import { Bot, BotType } from './src/entities/Bot.js';
 import { Token } from './src/entities/Token.js';
 import { AppDataSource } from './src/index.js';
 
-dotenv.config({ path: '../../.env' });
+dotenv.config({ path: resolve(process.cwd(), '../../.env') });
 
 const typeorm = await AppDataSource.initialize();
 

@@ -10,6 +10,10 @@ import { createServer } from 'nice-grpc';
 import { Dota } from './libs/dota.js';
 import { typeorm } from './libs/typeorm.js';
 
+if (!config.STEAM_USERNAME || !config.STEAM_PASSWORD) {
+  process.exit(0);
+}
+
 const dota = await new Dota().init();
 
 const dotaServer: DotaServer.DotaServiceImplementation = {
