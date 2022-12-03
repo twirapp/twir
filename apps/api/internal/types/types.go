@@ -35,3 +35,17 @@ type Services struct {
 	EventSubGrpc        eventsub.EventSubClient
 	IntegrationsGrpc    integrations.IntegrationsClient
 }
+
+type JSONResult struct{}
+
+type DOCApiBadRequest struct {
+	Messages string
+}
+
+type DOCApiValidationError struct {
+	Messages []string
+}
+
+type DOCApiInternalError struct {
+	Messages []string
+}

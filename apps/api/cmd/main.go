@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gofiber/swagger"
 	"github.com/satont/tsuwari/libs/grpc/clients"
 	"github.com/satont/tsuwari/libs/twitch"
 
@@ -35,9 +36,24 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/services/redis"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	_ "github.com/satont/tsuwari/apps/api/docs"
 	gormLogger "gorm.io/gorm/logger"
 )
 
+// @title Fiber Example API
+// @version 1.0
+// @description This is a sample swagger for Fiber
+// @termsOfService http://swagger.io/terms/
+// @contact.name API Support
+// @contact.email fiber@swagger.io
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:3002
+// @BasePath /
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name api-key
+// @description "apiKey" from /v1/profile response
 func main() {
 	logger, _ := zap.NewDevelopment()
 	cfg, err := cfg.New()
@@ -87,6 +103,18 @@ func main() {
 	app := fiber.New(fiber.Config{
 		ErrorHandler: errorMiddleware,
 	})
+	if cfg.AppEnv == "development" {
+		app.Get("/swagger/*", swagger.New(swagger.Config{
+			URL:                  "http://localhost:3002/swagger/doc.json",
+			DeepLinking:          false,
+			DocExpansion:         "none",
+			PersistAuthorization: true,
+			Title:                "Tsuwari api",
+			TryItOutEnabled:      true,
+		}))
+		app.Get("/swagger/*", swagger.HandlerDefault)
+	}
+
 	app.Use(compress.New())
 
 	appLogger, _ := zap.NewDevelopment()
