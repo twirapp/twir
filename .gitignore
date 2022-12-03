@@ -17,5 +17,6 @@ docker-compose*
 !docker-compose.dockprom.yml
 .devbox
 devbox/go
+.pnpm-store
 
 !*/**/.gitkeep

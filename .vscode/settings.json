@@ -16,39 +16,38 @@
   },
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib",
-  "remote.SSH.defaultForwardedPorts": [
-    {
-      "localPort": 3002,
-      "name": "api",
-      "remotePort": 3002
-    },
-    {
-      "localPort": 3003,
-      "name": "eventsub",
-      "remotePort": 3003
-    },
-    {
-      "localPort": 3005,
-      "name": "frontend",
-      "remotePort": 3005
-    },
-    {
-      "localPort": 5555,
-      "name": "prisma studio",
-      "remotePort": 5555
-    },
-    {
-      "localPort": 8080,
-      "name": "adminer",
-      "remotePort": 8080
-    },
-    {
-      "localPort": 8222,
-      "name": "nats",
-      "remotePort": 8222
-    }
-  ],
-  "prisma.fileWatcher": false,
+  // "remote.SSH.defaultForwardedPorts": [
+  //   {
+  //     "localPort": 3002,
+  //     "name": "api",
+  //     "remotePort": 3002
+  //   },
+  //   {
+  //     "localPort": 3003,
+  //     "name": "eventsub",
+  //     "remotePort": 3003
+  //   },
+  //   {
+  //     "localPort": 3005,
+  //     "name": "frontend",
+  //     "remotePort": 3005
+  //   },
+  //   {
+  //     "localPort": 5555,
+  //     "name": "prisma studio",
+  //     "remotePort": 5555
+  //   },
+  //   {
+  //     "localPort": 8080,
+  //     "name": "adminer",
+  //     "remotePort": 8080
+  //   },
+  //   {
+  //     "localPort": 8222,
+  //     "name": "nats",
+  //     "remotePort": 8222
+  //   }
+  // ],
   "typescript.format.enable": false,
   "gopls": {
     "formatting.gofumpt": true
@@ -61,20 +60,8 @@
       }
     ]
   },
-  "go.goroot": "${workspaceFolder}/.devbox/nix/profile/default/share/go",
-  "go.toolsGopath": "${workspaceFolder}/devbox/go",
-  "sqltools.connections": [
-    {
-      "previewLimit": 50,
-      "server": "localhost",
-      "port": 5432,
-      "driver": "PostgreSQL",
-      "name": "tsuwari",
-      "database": "tsuwari",
-      "username": "tsuwari",
-      "password": "tsuwari"
-    }
-  ],
+  // "go.goroot": "${workspaceFolder}/.devbox/nix/profile/default/share/go",
+  // "go.toolsGopath": "${workspaceFolder}/devbox/go",
   "tailwindCSS.experimental.configFile": {
     "libs/ui/components/tailwind.config.js": "libs/ui/components/src/**/*.{vue,js,ts,jsx,tsx,css,postcss}",
     "apps/frontend/tailwind.config.js": "apps/frontend/src/**/*.{vue,js,ts,jsx,tsx}",
