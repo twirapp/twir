@@ -3,7 +3,7 @@ version: '3'
 tasks:
   dev:
     cmds:
-      - pnpm nodemon --config ./nodemon.json
+      - pnpx nodemon --config ./nodemon.json
 
   build:
     cmds:
