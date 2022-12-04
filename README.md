@@ -37,6 +37,8 @@ task dev
 ```
 And when everything starts open https://localhost:3005
 
+Swagger available at http://localhost:3005/api/swagger or http://localhost:3002/swagger
+
 #### Adding new entities, models (migrations)
 Migrations done via `typeorm`. So at first you always need to change `nodejs` entities, generate migrations, then describe `go` models
 
