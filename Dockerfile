@@ -213,11 +213,6 @@ ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["/bin/timers"]
 
 FROM golang_deps_base as api_deps
-ENV PATH="$PATH:/usr/local/go/bin"
-ENV PATH="$PATH:/root/go/bin"
-RUN go install github.com/swaggo/swag/cmd/swag@3fe9ca22de310099640d9c96cafb2b787a5820f8 && \
-    cd apps/api && \
-    swag init --parseDependency --parseInternal -q -g ./cmd/main.go
 RUN cd apps/api && go mod download
 RUN cd apps/api && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
