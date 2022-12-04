@@ -12,6 +12,15 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
+// Streams godoc
+// @Security ApiKeyAuth
+// @Summary      Get channel stream
+// @Tags         Streams
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {object}  model.ChannelsStreams
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/streams [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		stream, err := handleGet(c.Params("channelId"), services)

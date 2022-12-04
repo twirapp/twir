@@ -81,6 +81,7 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 // @Param        commandId   path      string  true  "ID of command"
 // @Success      200  {object}  model.ChannelsCommands
 // @Failure 400 {object} types.DOCApiValidationError
+// @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands/{commandId} [delete]
 func delete(services types.Services) func(c *fiber.Ctx) error {
@@ -104,8 +105,8 @@ func delete(services types.Services) func(c *fiber.Ctx) error {
 // @Param        commandId   path      string  true  "ID of command"
 // @Success      200  {object}  model.ChannelsCommands
 // @Failure 400 {object} types.DOCApiValidationError
-// @Failure 500 {object} types.DOCApiInternalError
 // @Failute 404
+// @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands/{commandId} [put]
 func put(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
