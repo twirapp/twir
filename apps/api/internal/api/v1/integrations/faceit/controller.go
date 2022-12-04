@@ -14,6 +14,16 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Get Faceit integration
+// @Tags         Integrations|Faceit
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {object}  model.ChannelsIntegrations
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/faceit [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		integration, err := handleGet(c.Params("channelId"), services)
@@ -24,6 +34,18 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Update Faceit
+// @Tags         Integrations|Faceit
+// @Accept       json
+// @Produce      json
+// @Param data body faceitUpdateDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200  {object} model.ChannelsIntegrations
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/faceit [post]
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &faceitUpdateDto{}

@@ -32,7 +32,7 @@ async function saveKeyword() {
   let data;
 
   if (keyword.value.id) {
-    const request = await api.patch(
+    const request = await api.put(
       `/v1/channels/${selectedDashboard.value.channelId}/keywords/${keyword.value.id}`,
       keyword.value,
     );

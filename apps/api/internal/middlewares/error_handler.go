@@ -17,14 +17,14 @@ var ErrorHandler = func(t ut.Translator, logger *zap.Logger) func(c *fiber.Ctx, 
 			for _, e := range castedErr {
 				errors = append(errors, e.Translate(t))
 			}
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": errors})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"messages": errors})
 		case *json.InvalidUnmarshalError:
 			logger.Sugar().Error(err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "bad request body"})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"messages": []string{"bad request body"}})
 		case *fiber.Error:
-			return c.Status(castedErr.Code).JSON(fiber.Map{"message": castedErr.Message})
+			return c.Status(castedErr.Code).JSON(fiber.Map{"messages": []string{castedErr.Message}})
 		default:
-			return c.Status(fiber.StatusBadGateway).JSON(fiber.Map{"message": err.Error()})
+			return c.Status(fiber.StatusBadGateway).JSON(fiber.Map{"messages": []string{err.Error()}})
 		}
 	}
 }

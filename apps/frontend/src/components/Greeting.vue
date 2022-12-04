@@ -31,7 +31,7 @@ const emit = defineEmits<{
 
 const schema = computed(() =>
   yup.object({
-    username: yup.string().required(),
+    userName: yup.string().required(),
     text: yup.string().required(),
   }),
 );
@@ -101,8 +101,8 @@ function cancelEdit() {
             <span class="label-text">{{ t('pages.greetings.username.title') }}</span>
           </div>
           <Field
-            v-model.trim="greeting.username"
-            name="username"
+            v-model.trim="greeting.userName"
+            name="userName"
             as="input"
             type="text"
             :placeholder="t('pages.greetings.username.placeholder')"

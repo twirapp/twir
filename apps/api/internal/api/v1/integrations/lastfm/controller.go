@@ -14,6 +14,16 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Get LastFm integration
+// @Tags         Integrations|Lastfm
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {array}  model.ChannelsIntegrations
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/lastfm [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		integration, err := handleGet(c.Params("channelId"), services)
@@ -24,6 +34,18 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Update LastFM
+// @Tags         Integrations|Lastfm
+// @Accept       json
+// @Produce      json
+// @Param data body lastfmDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200  {object} model.ChannelsIntegrations
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/lastfm [post]
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &lastfmDto{}

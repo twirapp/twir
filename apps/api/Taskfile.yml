@@ -10,6 +10,10 @@ tasks:
       - rm main || true
       - go build cmd/main.go
 
+  docs:
+    cmds:
+      - swag init --parseDependency --parseInternal -g ./cmd/main.go
+
   debug:
     cmds:
       - go build -gcflags=all="-N -l" ./cmd/main.go

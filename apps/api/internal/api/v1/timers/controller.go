@@ -16,6 +16,16 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
+// Timers godoc
+// @Security ApiKeyAuth
+// @Summary      Get channel timers list
+// @Tags         Timers
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {array}  model.ChannelsTimers
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/timers [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		timers := handleGet(c.Params("channelId"), services)
@@ -24,6 +34,18 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Timers godoc
+// @Security ApiKeyAuth
+// @Summary      Create timer
+// @Tags         Timers
+// @Accept       json
+// @Produce      json
+// @Param data body timerDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200  {object}  model.ChannelsTimers
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/timers [post]
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &timerDto{}
@@ -46,6 +68,19 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Timers godoc
+// @Security ApiKeyAuth
+// @Summary      Delete timer
+// @Tags         Timers
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ID of channel"
+// @Param        timerId   path      string  true  "ID of timer"
+// @Success      200
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 404
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/timers/{timerId} [delete]
 func delete(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		err := handleDelete(c.Params("timerId"), services)
@@ -56,6 +91,20 @@ func delete(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Timers godoc
+// @Security ApiKeyAuth
+// @Summary      Update timer
+// @Tags         Timers
+// @Accept       json
+// @Produce      json
+// @Param data body timerDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Param        timerId   path      string  true  "ID of timer"
+// @Success      200  {object}  model.ChannelsTimers
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 404
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/timers/{timerId} [put]
 func put(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &timerDto{}

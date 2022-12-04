@@ -12,6 +12,14 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
+// Stats godoc
+// @Security ApiKeyAuth
+// @Summary      Get some bot statistic
+// @Tags         Stats
+// @Produce      json
+// @Success      200  {array}  statsItem
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/stats [get]
 func get(services types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		stats, err := handleGet(services)
