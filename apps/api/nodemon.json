@@ -1,5 +1,5 @@
 {
-  "exec": "task docs; go run ./cmd/main.go",
+  "exec": "go run ./cmd/main.go",
   "ext": "go",
   "ignore": [
     "docs/**"
