@@ -7,7 +7,8 @@ ENV PATH="$PATH:/root/go/bin"
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 RUN apk add --no-cache protoc git curl libc6-compat
 
-RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 WORKDIR /app
 RUN npm i -g pnpm@7
@@ -212,6 +213,9 @@ ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["/bin/timers"]
 
 FROM golang_deps_base as api_deps
+RUN go install github.com/swaggo/swag/cmd/swag@3fe9ca22de310099640d9c96cafb2b787a5820f8 && \
+    cd apps/api && \
+    swag init --parseDependency --parseInternal -g ./cmd/main.go
 RUN cd apps/api && go mod download
 RUN cd apps/api && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
