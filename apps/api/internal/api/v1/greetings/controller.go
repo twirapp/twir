@@ -100,7 +100,7 @@ func delete(services types.Services) func(c *fiber.Ctx) error {
 // @Param        channelId   path      string  true  "ID of greeting"
 // @Success      200  {object}  Greeting
 // @Failure 400 {object} types.DOCApiValidationError
-// @Failute 404
+// @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/greetings/{greetingId} [put]
 func put(services types.Services) func(c *fiber.Ctx) error {

@@ -17,6 +17,16 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
+// Variables godoc
+// @Security ApiKeyAuth
+// @Summary      Get channel variables list
+// @Tags         Variables
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {array}  model.ChannelsCustomvars
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/variables [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		variables, err := handleGet(c.Params("channelId"), services)
@@ -27,6 +37,16 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Variables godoc
+// @Security ApiKeyAuth
+// @Summary      Get built-in variables
+// @Tags         Variables
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {array}  parser.GetVariablesResponse_Variable
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/variables/built-in [get]
 func getBuiltIn(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		variables, err := handleGetBuiltIn(services)
@@ -38,6 +58,18 @@ func getBuiltIn(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Variables godoc
+// @Security ApiKeyAuth
+// @Summary      Create variable
+// @Tags         Variables
+// @Accept       json
+// @Produce      json
+// @Param data body variableDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200  {object}  model.ChannelsCustomvars
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/variables [post]
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &variableDto{}
@@ -60,6 +92,19 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Variables godoc
+// @Security ApiKeyAuth
+// @Summary      Delete variable
+// @Tags         Variables
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ID of channel"
+// @Param        variableId   path      string  true  "ID of variable"
+// @Success      200  {object}  model.ChannelsCustomvars
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 404
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/variables/{variableId} [delete]
 func delete(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		err := handleDelete(c.Params("channelId"), c.Params("variableId"), services)
@@ -70,6 +115,20 @@ func delete(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Variables godoc
+// @Security ApiKeyAuth
+// @Summary      Update variable
+// @Tags         Variables
+// @Accept       json
+// @Produce      json
+// @Param data body variableDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Param        variableId   path      string  true  "ID of variable"
+// @Success      200  {object}  model.ChannelsCustomvars
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 404
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/variables/{variableId} [put]
 func put(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &variableDto{}
