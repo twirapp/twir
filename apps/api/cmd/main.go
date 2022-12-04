@@ -36,6 +36,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/services/redis"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	_ "github.com/satont/tsuwari/apps/api/docs"
 	gormLogger "gorm.io/gorm/logger"
 )
@@ -103,6 +104,7 @@ func main() {
 	app := fiber.New(fiber.Config{
 		ErrorHandler: errorMiddleware,
 	})
+	app.Use(cors.New())
 	if cfg.AppEnv == "development" {
 		app.Get("/swagger/*", swagger.New(swagger.Config{
 			URL:                  "http://localhost:3002/swagger/doc.json",

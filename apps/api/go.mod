@@ -21,6 +21,7 @@ require (
 	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/twitch v0.0.0-00010101000000-000000000000
 	github.com/satori/go.uuid v1.2.0
+	github.com/swaggo/swag v1.8.8
 	go.uber.org/zap v1.23.0
 	google.golang.org/protobuf v1.28.1
 	gorm.io/driver/postgres v1.4.5
@@ -56,7 +57,6 @@ require (
 	github.com/onsi/ginkgo/v2 v2.5.0 // indirect
 	github.com/rivo/uniseg v0.4.2 // indirect
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a // indirect
-	github.com/swaggo/swag v1.8.8 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/exp v0.0.0-20221028150844-83b7d23a625f // indirect
