@@ -12,7 +12,7 @@ tasks:
 
   docs:
     cmds:
-      - swag init --parseDependency --parseInternal -g ./cmd/main.go
+      - swag init --parseDependency --parseInternal -q -g ./cmd/main.go
 
   debug:
     cmds:
