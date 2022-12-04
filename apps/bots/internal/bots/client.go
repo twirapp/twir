@@ -65,27 +65,40 @@ func newBot(opts *ClientOpts) *types.BotClient {
 
 	client.Api = api
 
+	meReq, err := api.Client.GetUsers(&helix.UsersParams{
+		IDs: []string{opts.Model.ID},
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	if meReq.Error != "" {
+		fmt.Println(meReq.ErrorMessage)
+		panic(meReq.Error)
+	}
+
+	if len(meReq.Data.Users) == 0 {
+		panic("No user found for bot " + opts.Model.ID)
+	}
+
+	me := meReq.Data.Users[0]
+
+	messagesCounter := promauto.NewCounter(prometheus.CounterOpts{
+		Name: "bots_messages_counter",
+		Help: "The total number of processed messages",
+		ConstLabels: prometheus.Labels{
+			"botName": meReq.Data.Users[0].Login,
+			"botId":   meReq.Data.Users[0].ID,
+		},
+	})
+
+	prometheus.Register(messagesCounter)
+
 	go func() {
 		for {
 			token := fmt.Sprintf("oauth:%s", api.Client.GetUserAccessToken())
 			if client.Client == nil {
-				meReq, err := api.Client.GetUsers(&helix.UsersParams{
-					IDs: []string{opts.Model.ID},
-				})
-				if err != nil {
-					panic(err)
-				}
 
-				if meReq.Error != "" {
-					fmt.Println(meReq.ErrorMessage)
-					panic(meReq.Error)
-				}
-
-				if len(meReq.Data.Users) == 0 {
-					panic("No user found for bot " + opts.Model.ID)
-				}
-
-				me := meReq.Data.Users[0]
 				client.TwitchUser = &me
 				client.Client = irc.NewClient(me.Login, token)
 				joinChannels(opts.DB, opts.Cfg, opts.Logger, &client)
@@ -102,17 +115,6 @@ func newBot(opts *ClientOpts) *types.BotClient {
 			if len(meReq.Data.Users) == 0 {
 				panic("No user found for bot " + opts.Model.ID)
 			}
-
-			messagesCounter := promauto.NewCounter(prometheus.CounterOpts{
-				Name: "bots_messages_counter",
-				Help: "The total number of processed messages",
-				ConstLabels: prometheus.Labels{
-					"botName": meReq.Data.Users[0].Login,
-					"botId":   meReq.Data.Users[0].ID,
-				},
-			})
-
-			prometheus.Register(messagesCounter)
 
 			botHandlers := handlers.CreateHandlers(&handlers.HandlersOpts{
 				DB:         opts.DB,
