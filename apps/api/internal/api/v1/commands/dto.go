@@ -11,7 +11,7 @@ type restrictionsDto struct {
 }
 
 type commandDto struct {
-	ID *string `json:"id,omitempty"`
+	ID *string `json:"-"`
 
 	Name               string            `validate:"required,min=1,max=50"       json:"name"`
 	Cooldown           uint32            `validate:"lte=86400"                   json:"cooldown"`

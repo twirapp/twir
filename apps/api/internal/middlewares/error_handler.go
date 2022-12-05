@@ -19,7 +19,6 @@ var ErrorHandler = func(t ut.Translator, logger *zap.Logger) func(c *fiber.Ctx, 
 			}
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"messages": errors})
 		case *json.InvalidUnmarshalError:
-			logger.Sugar().Error(err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"messages": []string{"bad request body"}})
 		case *fiber.Error:
 			return c.Status(castedErr.Code).JSON(fiber.Map{"messages": []string{castedErr.Message}})

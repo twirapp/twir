@@ -47,12 +47,14 @@ func handlePost(
 	}
 
 	for _, r := range dto.Restrictions {
-		services.DB.Save(&model.CommandRestriction{
+		restriction := &model.CommandRestriction{
 			ID:        uuid.NewV4().String(),
 			CommandID: newCommand.ID,
 			Type:      r.Type,
 			Value:     r.Value,
-		})
+		}
+		services.DB.Save(restriction)
+		newCommand.Restrictions = append(newCommand.Restrictions, *restriction)
 	}
 
 	responses := createResponsesFromDto(dto.Responses, newCommand.ID)
