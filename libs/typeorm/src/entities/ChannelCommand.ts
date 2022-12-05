@@ -12,6 +12,7 @@ import {
 
 import { type Channel } from './Channel.js';
 import { type CommandResponse } from './CommandResponse.js';
+import { type CommandRestriction } from './CommandRestriction.js';
 import { type CommandUsage } from './CommandUsage.js';
 
 export enum CooldownType {
@@ -105,4 +106,7 @@ export class ChannelCommand {
 
   @OneToMany('CommandUsage', 'command')
   usages?: Relation<CommandUsage[]>;
+
+  @OneToMany('CommandRestriction', 'command')
+  restrictions?: Relation<CommandRestriction[]>;
 }

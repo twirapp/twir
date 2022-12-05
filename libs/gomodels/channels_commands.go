@@ -33,6 +33,7 @@ type ChannelsCommands struct {
 	Responses          []ChannelsCommandsResponses `gorm:"foreignKey:CommandID"                             json:"responses"`
 	IsReply            bool                        `gorm:"column:is_reply;type:BOOL;default:true"           json:"isReply"`
 	KeepResponsesOrder bool                        `gorm:"column:keepResponsesOrder;type:BOOL;default:true" json:"keepResponsesOrder"`
+	Restrictions       []CommandRestriction        `gorm:"foreignKey:CommandID"                             json:"restrictions"`
 }
 
 func (c *ChannelsCommands) TableName() string {

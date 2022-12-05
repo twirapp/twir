@@ -43,6 +43,10 @@ definitions:
         items:
           $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.responsesDto'
         type: array
+      restrictions:
+        items:
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.restrictionsDto'
+        type: array
       visible:
         type: boolean
     required:
@@ -65,6 +69,17 @@ definitions:
         type: string
     required:
     - text
+    type: object
+  github_com_satont_tsuwari_apps_api_internal_api_v1_commands.restrictionsDto:
+    properties:
+      type:
+        enum:
+        - WATCHED
+        - MESSAGES
+        type: string
+      value:
+        maxLength: 50
+        type: string
     type: object
   github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting:
     properties:
@@ -438,6 +453,10 @@ definitions:
         items:
           $ref: '#/definitions/internal_api_v1_commands.responsesDto'
         type: array
+      restrictions:
+        items:
+          $ref: '#/definitions/internal_api_v1_commands.restrictionsDto'
+        type: array
       visible:
         type: boolean
     required:
@@ -460,6 +479,17 @@ definitions:
         type: string
     required:
     - text
+    type: object
+  internal_api_v1_commands.restrictionsDto:
+    properties:
+      type:
+        enum:
+        - WATCHED
+        - MESSAGES
+        type: string
+      value:
+        maxLength: 50
+        type: string
     type: object
   internal_api_v1_greetings.Greeting:
     properties:
@@ -800,6 +830,10 @@ definitions:
         items:
           $ref: '#/definitions/model.ChannelsCommandsResponses'
         type: array
+      restrictions:
+        items:
+          $ref: '#/definitions/model.CommandRestriction'
+        type: array
       visible:
         type: boolean
     type: object
@@ -1010,6 +1044,17 @@ definitions:
       timerId:
         type: string
     type: object
+  model.CommandRestriction:
+    properties:
+      commandId:
+        type: string
+      id:
+        type: string
+      type:
+        type: string
+      value:
+        type: string
+    type: object
   parser.GetVariablesResponse_Variable:
     properties:
       description:
@@ -1180,7 +1225,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1252,7 +1297,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1519,7 +1564,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.donationAlertsDto'
+          $ref: '#/definitions/internal_api_v1_integrations_donationalerts.donationAlertsDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1581,7 +1626,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_donationalerts.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1640,7 +1685,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.faceitUpdateDto'
+          $ref: '#/definitions/internal_api_v1_integrations_faceit.faceitUpdateDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1703,7 +1748,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto'
+          $ref: '#/definitions/internal_api_v1_integrations_lastfm.lastfmDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1764,7 +1809,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.spotifyDto'
+          $ref: '#/definitions/internal_api_v1_integrations_spotify.spotifyDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1852,7 +1897,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_spotify.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1911,7 +1956,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.streamlabsDto'
+          $ref: '#/definitions/internal_api_v1_integrations_streamlabs.streamlabsDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1973,7 +2018,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_streamlabs.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2032,7 +2077,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto'
+          $ref: '#/definitions/internal_api_v1_integrations_vk.vkDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2093,7 +2138,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_keywords.keywordDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2165,7 +2210,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_keywords.keywordDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2235,7 +2280,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto'
+          $ref: '#/definitions/internal_api_v1_moderation.moderationDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2464,7 +2509,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto'
+          $ref: '#/definitions/internal_api_v1_variables.variableDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2536,7 +2581,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto'
+          $ref: '#/definitions/internal_api_v1_variables.variableDto'
       - description: ID of channel
         in: path
         name: channelId

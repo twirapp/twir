@@ -152,7 +152,10 @@ func (c *parserGrpcServer) GetDefaultCommands(
 	ctx context.Context,
 	data *emptypb.Empty,
 ) (*parser.GetDefaultCommandsResponse, error) {
-	list := make([]*parser.GetDefaultCommandsResponse_DefaultCommand, len(c.commands.DefaultCommands))
+	list := make(
+		[]*parser.GetDefaultCommandsResponse_DefaultCommand,
+		len(c.commands.DefaultCommands),
+	)
 
 	for i, v := range c.commands.DefaultCommands {
 		cmd := &parser.GetDefaultCommandsResponse_DefaultCommand{

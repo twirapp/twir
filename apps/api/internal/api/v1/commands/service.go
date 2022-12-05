@@ -46,6 +46,15 @@ func handlePost(
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create command")
 	}
 
+	for _, r := range dto.Restrictions {
+		services.DB.Save(&model.CommandRestriction{
+			ID:        uuid.NewV4().String(),
+			CommandID: newCommand.ID,
+			Type:      r.Type,
+			Value:     r.Value,
+		})
+	}
+
 	responses := createResponsesFromDto(dto.Responses, newCommand.ID)
 	err = services.DB.Save(&responses).Error
 	if err != nil {

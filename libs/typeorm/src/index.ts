@@ -25,6 +25,7 @@ import { ChannelStream } from './entities/ChannelStream.js';
 import { ChannelTimer } from './entities/ChannelTimer.js';
 import { ChannelTimerResponse } from './entities/ChannelTimerResponse.js';
 import { CommandResponse } from './entities/CommandResponse.js';
+import { CommandRestriction } from './entities/CommandRestriction.js';
 import { CommandUsage } from './entities/CommandUsage.js';
 import { DashboardAccess } from './entities/DashboardAccess.js';
 import { DotaGameMode } from './entities/DotaGameMode.js';
@@ -63,6 +64,7 @@ export const AppDataSource = new DataSource({
     ChannelTimerResponse,
     CommandResponse,
     CommandUsage,
+    CommandRestriction,
     DashboardAccess,
     DotaGameMode,
     DotaHero,

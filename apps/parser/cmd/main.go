@@ -63,6 +63,8 @@ func main() {
 		logger = l
 	}
 
+	zap.ReplaceGlobals(logger)
+
 	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl))
 	if err != nil {
 		fmt.Println(err)
