@@ -5,13 +5,20 @@
   "editor.detectIndentation": true,
   "editor.tabSize": 2,
   "editor.codeActionsOnSave": {
-    "source.sortImports": true
+    "source.sortImports": false,
+    "source.fixAll.eslint": true
   },
   "[typescript]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "[vue]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
   },
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib",
@@ -65,11 +72,5 @@
     "libs/ui/components/tailwind.config.js": "libs/ui/components/src/**/*.{vue,js,ts,jsx,tsx,css,postcss}",
     "apps/frontend/tailwind.config.js": "apps/frontend/src/**/*.{vue,js,ts,jsx,tsx}",
     "apps/web/tailwind.config.cjs": "apps/web/src/**/*.{vue,js,ts,jsx,tsx,css}"
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "vscode.json-language-features"
-  },
-  "[go]": {
-    "editor.defaultFormatter": "golang.go"
   }
 }
