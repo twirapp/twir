@@ -6,10 +6,9 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
-  type Relation,
 } from 'typeorm';
 
-import { type Channel } from './Channel.js';
+import { Channel } from './Channel';
 
 @Index('channels_dota_accounts_id_channelId_key', ['channelId', 'id'], {
   unique: true,
@@ -19,12 +18,12 @@ export class ChannelDotaAccount {
   @PrimaryColumn('text', { name: 'id' })
   id: string;
 
-  @ManyToOne('Channel', 'dotaAccounts', {
+  @ManyToOne(() => Channel, _ => _.dotaAccounts, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel?: Relation<Channel>;
+  channel?: Channel;
 
   @Column('text', { primary: true, name: 'channelId' })
   channelId: string;

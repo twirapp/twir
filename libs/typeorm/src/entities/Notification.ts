@@ -7,12 +7,11 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryColumn,
-  type Relation,
 } from 'typeorm';
 
-import { type NotificationMessage } from './NotificationMessage.js';
-import { type User } from './User.js';
-import { type UserViewedNotification } from './UserViewedNotification.js';
+import { NotificationMessage } from './NotificationMessage';
+import { User } from './User';
+import { UserViewedNotification } from './UserViewedNotification';
 
 @Entity('notifications', { schema: 'public' })
 export class Notification {
@@ -36,14 +35,14 @@ export class Notification {
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user?: Relation<User>;
+  user?: User;
 
   @Column({ nullable: true })
   userId?: string | null;
 
-  @OneToMany('NotificationMessage', 'notification')
-  messages?: Relation<NotificationMessage[]>;
+  @OneToMany(() => NotificationMessage, _ => _.notification)
+  messages?: NotificationMessage[];
 
-  @OneToMany('UserViewedNotification', 'notification')
-  viewedNotifications?: Relation<UserViewedNotification[]>;
+  @OneToMany(() => UserViewedNotification, _ => _.notification)
+  viewedNotifications?: UserViewedNotification[];
 }

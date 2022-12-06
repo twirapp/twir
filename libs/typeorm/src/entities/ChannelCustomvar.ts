@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-import { type Channel } from './Channel.js';
+import { Channel } from './Channel';
 
 export enum CustomVarType {
   SCRIPT = 'SCRIPT',
@@ -30,7 +30,7 @@ export class ChannelCustomvar {
   @Column('text', { name: 'response', nullable: true })
   response: string | null;
 
-  @ManyToOne('Channel', 'customVar', {
+  @ManyToOne(() => Channel, _ => _.customVar, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })

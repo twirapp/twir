@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import {
   Column,
   Entity,
@@ -5,10 +6,9 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  type Relation
 } from 'typeorm';
 
-import { type Channel } from './Channel.js';
+import { Channel } from './Channel';
 
 @Index('channels_keywords_channelId_text_key', ['channelId', 'text'], {
   unique: true,
@@ -30,12 +30,12 @@ export class ChannelKeyword {
   @Column('integer', { name: 'cooldown', nullable: true, default: 0 })
   cooldown: number | null;
 
-  @ManyToOne('Channel', 'keywords', {
+  @ManyToOne(() => Channel, _ => _.keywords, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel?: Relation<Channel>;
+  channel?: Channel;
 
   @Column('text', { name: 'channelId' })
   channelId: string;

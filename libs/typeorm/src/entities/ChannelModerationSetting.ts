@@ -6,10 +6,9 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  type Relation,
 } from 'typeorm';
 
-import { type Channel } from './Channel.js';
+import { Channel } from './Channel';
 
 export enum SettingsType {
   links = 'links',
@@ -74,12 +73,12 @@ export class ChannelModerationSetting {
   @Column('text', { name: 'blackListSentences', array: true, nullable: true, default: [] })
   blackListSentences: string[] | null;
 
-  @ManyToOne('Channel', 'moderationSettings', {
+  @ManyToOne(() => Channel, _ => _.moderationSettings, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel?: Relation<Channel>;
+  channel?: Channel;
 
   @Column('text', { name: 'channelId' })
   channelId: string;

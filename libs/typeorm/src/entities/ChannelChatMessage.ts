@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import {
   Column,
   CreateDateColumn,
@@ -6,11 +7,10 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
-  type Relation,
 } from 'typeorm';
 
-import { type Channel } from './Channel.js';
-import { type User } from './User.js';
+import { Channel } from './Channel';
+import { User } from './User';
 
 @Entity('channels_messages')
 export class ChannelChatMessage {
@@ -21,17 +21,17 @@ export class ChannelChatMessage {
   @Index()
   channelId: string;
 
-  @ManyToOne('Channel', 'messages')
+  @ManyToOne(() => Channel, _ => _.messages)
   @JoinColumn({ name: 'channelId' })
-  channel?: Relation<Channel>;
+  channel?: Channel;
 
   @Column('text')
   @Index()
   userId: string;
 
-  @ManyToOne('User', 'messages')
+  @ManyToOne(() => User, _ => _.messages)
   @JoinColumn({ name: 'userId' })
-  user?: Relation<User>;
+  user?: User;
 
   @Column('text')
   userName: string;

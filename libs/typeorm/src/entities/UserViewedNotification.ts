@@ -1,7 +1,15 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, type Relation } from 'typeorm';
+/* eslint-disable import/no-cycle */
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
-import { type Notification } from './Notification.js';
-import { type User } from './User.js';
+import { Notification } from './Notification';
+import { User } from './User';
 
 @Entity('users_viewed_notifications', { schema: 'public' })
 export class UserViewedNotification {
@@ -15,22 +23,22 @@ export class UserViewedNotification {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne('Notification', 'viewedNotifications', {
+  @ManyToOne(() => Notification, _ => _.viewedNotifications, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'notificationId', referencedColumnName: 'id' }])
-  notification?: Relation<Notification>;
+  notification?: Notification;
 
   @Column()
   notificationId: string;
 
-  @ManyToOne('User', 'viewedNotifications', {
+  @ManyToOne(() => User, _ => _.viewedNotifications, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user?: Relation<User>;
+  user?: User;
 
   @Column()
   userId: string;

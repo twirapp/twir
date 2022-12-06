@@ -1,4 +1,8 @@
-import { AppDataSource } from './src/index.js';
+import { AppDataSource } from './src';
 
-await AppDataSource.initialize();
-await AppDataSource.runMigrations();
+async function bootstrap() {
+  await AppDataSource.initialize();
+  await AppDataSource.runMigrations();
+}
+
+bootstrap();

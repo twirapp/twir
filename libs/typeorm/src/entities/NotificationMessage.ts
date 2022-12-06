@@ -1,6 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, type Relation } from 'typeorm';
+/* eslint-disable import/no-cycle */
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
-import { type Notification } from './Notification.js';
+import { Notification } from './Notification';
 
 export enum LangCode {
   RU = 'RU',
@@ -25,12 +32,12 @@ export class NotificationMessage {
   @Column('enum', { name: 'langCode', enum: LangCode })
   langCode: LangCode;
 
-  @ManyToOne('Notification', 'messages', {
+  @ManyToOne(() => Notification, _ => _.messages, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'notificationId', referencedColumnName: 'id' }])
-  notification?: Relation<Notification>;
+  notification?: Notification;
 
   @Column()
   notificationId: string;

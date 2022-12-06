@@ -1,7 +1,13 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn, type Relation } from 'typeorm';
+/* eslint-disable import/no-cycle */
+import {
+  Column,
+  Entity,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-import { type Bot } from './Bot.js';
-import { type User } from './User.js';
+import { Bot } from './Bot';
+import { User } from './User';
 
 @Entity('tokens', { schema: 'public' })
 export class Token {
@@ -22,9 +28,9 @@ export class Token {
   @Column('timestamp without time zone', { name: 'obtainmentTimestamp' })
   obtainmentTimestamp: Date;
 
-  @OneToOne('Bot', 'token')
-  bot?: Relation<Bot>;
+  @OneToOne(() => Bot, _ => _.token)
+  bot?: Bot;
 
-  @OneToOne('User', 'token')
-  user?: Relation<User>;
+  @OneToOne(() => User, _ => _.token)
+  user?: User;
 }

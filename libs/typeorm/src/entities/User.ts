@@ -7,19 +7,19 @@ import {
   OneToMany,
   OneToOne,
   PrimaryColumn,
-  type Relation
 } from 'typeorm';
 
-import { type Channel } from './Channel.js';
-import { type ChannelPermit } from './ChannelPermit.js';
-import { type CommandUsage } from './CommandUsage.js';
-import { type DashboardAccess } from './DashboardAccess.js';
-import { type Notification } from './Notification.js';
-import { type Token } from './Token.js';
-import { type UserFile } from './UserFile.js';
-import { type UserOnline } from './UserOnline.js';
-import { type UserStats } from './UserStats.js';
-import { type UserViewedNotification } from './UserViewedNotification.js';
+import { Channel } from './Channel';
+import { ChannelChatMessage } from './ChannelChatMessage';
+import { ChannelPermit } from './ChannelPermit';
+import { CommandUsage } from './CommandUsage';
+import { DashboardAccess } from './DashboardAccess';
+import { Notification } from './Notification';
+import { Token } from './Token';
+import { UserFile } from './UserFile';
+import { UserOnline } from './UserOnline';
+import { UserStats } from './UserStats';
+import { UserViewedNotification } from './UserViewedNotification';
 
 @Entity('users', { schema: 'public' })
 export class User {
@@ -32,24 +32,27 @@ export class User {
   @Column('boolean', { name: 'isBotAdmin', default: false })
   isBotAdmin: boolean;
 
-  @OneToOne('Channel', 'user')
-  channel?: Relation<Channel>;
+  @OneToOne(() => Channel, _ => _.user)
+  channel?: Channel;
 
-  @OneToMany('CommandUsage', 'user')
-  commandUsages?: Relation<CommandUsage[]>;
+  @OneToMany(() => CommandUsage, _ => _.user)
+  commandUsages?: CommandUsage[];
 
-  @OneToMany('DashboardAccess', 'user')
-  dashboardAccess?: Relation<DashboardAccess[]>;
+  @OneToMany(() => DashboardAccess, _ => _.user)
+  dashboardAccess?: DashboardAccess[];
 
-  @OneToMany('ChannelPermit', 'user')
-  permits?: Relation<ChannelPermit[]>;
+  @OneToMany(() => ChannelPermit, _ => _.user)
+  permits?: ChannelPermit[];
 
-  @OneToMany('Notification', 'user')
-  notifications?: Relation<Notification[]>;
+  @OneToMany(() => Notification, _ => _.user)
+  notifications?: Notification[];
 
-  @OneToOne('Token', 'user', { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
+  @OneToOne(() => Token, _ => _.user, {
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn([{ name: 'tokenId', referencedColumnName: 'id' }])
-  token?: Relation<Token>;
+  token?: Token;
 
   @Index()
   @Column('text', { name: 'tokenId', nullable: true })
@@ -58,15 +61,18 @@ export class User {
   @Column('uuid', { generated: 'uuid' })
   apiKey: string;
 
-  @OneToMany('UserFile', 'user')
-  files?: Relation<UserFile[]>;
+  @OneToMany(() => UserFile, _ => _.user)
+  files?: UserFile[];
 
-  @OneToMany('UserStats', 'user')
-  stats?: Relation<UserStats[]>;
+  @OneToMany(() => UserStats, _ => _.user)
+  stats?: UserStats[];
 
-  @OneToOne('UserOnline', 'user')
-  online?: Relation<UserOnline>;
+  @OneToOne(() => UserOnline, _ => _.user)
+  online?: UserOnline;
 
-  @OneToMany('UserViewedNotification', 'user')
-  viewedNotifications?: Relation<UserViewedNotification[]>;
+  @OneToMany(() => UserViewedNotification, _ => _.user)
+  viewedNotifications?: UserViewedNotification[];
+
+  @OneToMany(() => ChannelChatMessage, _ => _.user)
+  messages?: ChannelChatMessage[];
 }

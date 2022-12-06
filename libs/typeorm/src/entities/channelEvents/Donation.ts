@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import {
   Column,
   CreateDateColumn,
@@ -7,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { ChannelEvent } from '../ChannelEvent.js';
+import { ChannelEvent } from '../ChannelEvent';
 
 @Entity({
   name: 'channel_events_donations',
@@ -16,7 +17,7 @@ export class ChannelDonationEvent {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne('ChannelEvent', 'donation')
+  @OneToOne(() => ChannelEvent, _ => _.donation)
   @JoinColumn({ name: 'eventId' })
   event?: ChannelEvent;
 
