@@ -53,7 +53,10 @@ func handleGet(services types.Services) ([]statsItem, error) {
 	go func() {
 		defer wg.Done()
 		var count int64
-		err := services.DB.Model(&model.ChannelsCommands{}).Count(&count).Error
+		err := services.DB.Model(&model.ChannelsCommands{}).
+			Where("module = ?", "CUSTOM").
+			Count(&count).
+			Error
 		if err != nil {
 			services.Logger.Sugar().Error(err)
 		} else {
