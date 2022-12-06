@@ -7,12 +7,11 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  type Relation,
 } from 'typeorm';
 
-import { type Channel } from './Channel.js';
-import { type CommandResponse } from './CommandResponse.js';
-import { type CommandUsage } from './CommandUsage.js';
+import { Channel } from './Channel';
+import { CommandResponse } from './CommandResponse';
+import { CommandUsage } from './CommandUsage';
 
 export enum CooldownType {
   GLOBAL = 'GLOBAL',
@@ -89,20 +88,20 @@ export class ChannelCommand {
   })
   module: CommandModule;
 
-  @ManyToOne('Channel', 'commands', {
+  @ManyToOne(() => Channel, _ => _.commands, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel?: Relation<Channel>;
+  channel?: Channel;
 
   @Index()
   @Column('text', { name: 'channelId' })
   channelId: string;
 
-  @OneToMany('CommandResponse', 'command')
-  responses?: Relation<CommandResponse[]>;
+  @OneToMany(() => CommandResponse, _ => _.command)
+  responses?: CommandResponse[];
 
-  @OneToMany('CommandUsage', 'command')
-  usages?: Relation<CommandUsage[]>;
+  @OneToMany(() => CommandUsage, _ => _.command)
+  usages?: CommandUsage[];
 }

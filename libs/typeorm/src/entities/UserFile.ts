@@ -1,6 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, type Relation } from 'typeorm';
+/* eslint-disable import/no-cycle */
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
-import { type User } from './User.js';
+import { User } from './User';
 
 @Entity('users_files', { schema: 'public' })
 export class UserFile {
@@ -20,12 +27,12 @@ export class UserFile {
   @Column('text', { name: 'type' })
   type: string;
 
-  @ManyToOne('User', 'files', {
+  @ManyToOne(() => User, _ => _.files, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user?: Relation<User>;
+  user?: User;
 
   @Column()
   userId: string;

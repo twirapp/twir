@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import {
   Column,
   Entity,
@@ -6,26 +7,25 @@ import {
   OneToMany,
   OneToOne,
   PrimaryColumn,
-  type Relation
 } from 'typeorm';
 
-import { type Bot } from './Bot.js';
-import { type ChannelChatMessage } from './ChannelChatMessage.js';
-import { type ChannelCommand } from './ChannelCommand.js';
-import { type ChannelCustomvar } from './ChannelCustomvar.js';
-import { type ChannelDotaAccount } from './ChannelDotaAccount.js';
-import { type ChannelEvent } from './ChannelEvent.js';
-import { type ChannelGreeting } from './ChannelGreeting.js';
-import { type ChannelIntegration } from './ChannelIntegration.js';
-import { type ChannelKeyword } from './ChannelKeyword.js';
-import { type ChannelModerationSetting } from './ChannelModerationSetting.js';
-import { type ChannelPermit } from './ChannelPermit.js';
-import { type ChannelStream } from './ChannelStream.js';
-import { type ChannelTimer } from './ChannelTimer.js';
-import { type DashboardAccess } from './DashboardAccess.js';
-import { type User } from './User.js';
-import { type UserOnline } from './UserOnline.js';
-import { type UserStats } from './UserStats.js';
+import { Bot } from './Bot';
+import { ChannelChatMessage } from './ChannelChatMessage';
+import { ChannelCommand } from './ChannelCommand';
+import { ChannelCustomvar } from './ChannelCustomvar';
+import { ChannelDotaAccount } from './ChannelDotaAccount';
+import { ChannelEvent } from './ChannelEvent';
+import { ChannelGreeting } from './ChannelGreeting';
+import { ChannelIntegration } from './ChannelIntegration';
+import { ChannelKeyword } from './ChannelKeyword';
+import { ChannelModerationSetting } from './ChannelModerationSetting';
+import { ChannelPermit } from './ChannelPermit';
+import { ChannelStream } from './ChannelStream';
+import { ChannelTimer } from './ChannelTimer';
+import { DashboardAccess } from './DashboardAccess';
+import { User } from './User';
+import { UserOnline } from './UserOnline';
+import { UserStats } from './UserStats';
 
 @Entity('channels', { schema: 'public' })
 export class Channel {
@@ -41,9 +41,12 @@ export class Channel {
   @Column('boolean', { name: 'isBanned', default: false })
   isBanned: boolean;
 
-  @ManyToOne('Bot', 'channels', { onDelete: 'RESTRICT', onUpdate: 'CASCADE' })
+  @ManyToOne(() => Bot, _ => _.channels, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn([{ name: 'botId', referencedColumnName: 'id' }])
-  bot?: Relation<Bot>;
+  bot?: Bot;
 
   @Column()
   botId: string;
@@ -51,52 +54,55 @@ export class Channel {
   @Column('bool', { default: false })
   isBotMod: boolean;
 
-  @OneToOne('User', 'channel', { onDelete: 'RESTRICT', onUpdate: 'CASCADE' })
+  @OneToOne(() => User, _ => _.channel, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn([{ name: 'id', referencedColumnName: 'id' }])
-  user?: Relation<User>;
+  user?: User;
 
-  @OneToMany('ChannelCommand', 'channel')
-  commands?: Relation<ChannelCommand[]>;
+  @OneToMany(() => ChannelCommand, _ => _.channel)
+  commands?: ChannelCommand[];
 
-  @OneToMany('ChannelCustomvar', 'channel')
-  customVar?: Relation<ChannelCustomvar[]>;
+  @OneToMany(() => ChannelCustomvar, _ => _.channel)
+  customVar?: ChannelCustomvar[];
 
-  @OneToMany('DashboardAccess', 'channel')
-  dashboardAccess?: Relation<DashboardAccess[]>;
+  @OneToMany(() => DashboardAccess, _ => _.channel)
+  dashboardAccess?: DashboardAccess[];
 
-  @OneToMany('ChannelDotaAccount', 'channel')
-  dotaAccounts?: Relation<ChannelDotaAccount[]>;
+  @OneToMany(() => ChannelDotaAccount, _ => _.channel)
+  dotaAccounts?: ChannelDotaAccount[];
 
-  @OneToMany('ChannelGreeting', 'channel')
-  greetings?: Relation<ChannelGreeting[]>;
+  @OneToMany(() => ChannelGreeting, _ => _.channel)
+  greetings?: ChannelGreeting[];
 
-  @OneToMany('ChannelIntegration', 'channel')
-  channelsIntegrations?: Relation<ChannelIntegration[]>;
+  @OneToMany(() => ChannelIntegration, _ => _.channel)
+  channelsIntegrations?: ChannelIntegration[];
 
-  @OneToMany('ChannelKeyword', 'channel')
-  keywords?: Relation<ChannelKeyword[]>;
+  @OneToMany(() => ChannelKeyword, _ => _.channel)
+  keywords?: ChannelKeyword[];
 
-  @OneToMany('ChannelModerationSetting', 'channel')
-  moderationSettings?: Relation<ChannelModerationSetting[]>;
+  @OneToMany(() => ChannelModerationSetting, _ => _.channel)
+  moderationSettings?: ChannelModerationSetting[];
 
-  @OneToMany('ChannelPermit', 'channel')
-  permits?: Relation<ChannelPermit[]>;
+  @OneToMany(() => ChannelPermit, _ => _.channel)
+  permits?: ChannelPermit[];
 
-  @OneToMany('ChannelTimer', 'channel')
-  timers?: Relation<ChannelTimer[]>;
+  @OneToMany(() => ChannelTimer, _ => _.channel)
+  timers?: ChannelTimer[];
 
-  @OneToMany('UserStats', 'channel')
-  usersStats?: Relation<UserStats[]>;
+  @OneToMany(() => UserStats, _ => _.channel)
+  usersStats?: UserStats[];
 
-  @OneToMany('ChannelEvent', 'channel')
-  events?: Relation<ChannelEvent[]>;
+  @OneToMany(() => ChannelEvent, _ => _.channel)
+  events?: ChannelEvent[];
 
-  @OneToMany('ChannelStream', 'channel')
-  streams?: Relation<ChannelStream[]>;
+  @OneToMany(() => ChannelStream, _ => _.channel)
+  streams?: ChannelStream[];
 
-  @OneToMany('UserOnline', 'channel')
-  onlineUsers?: Relation<UserOnline[]>;
+  @OneToMany(() => UserOnline, _ => _.channel)
+  onlineUsers?: UserOnline[];
 
-  @OneToMany('ChannelChatMessage', 'channel')
-  messages?: Relation<ChannelChatMessage[]>;
+  @OneToMany(() => ChannelChatMessage, _ => _.channel)
+  messages?: ChannelChatMessage[];
 }

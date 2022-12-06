@@ -1,6 +1,12 @@
-import { Column, Entity, OneToMany, PrimaryColumn, type Relation } from 'typeorm';
+/* eslint-disable import/no-cycle */
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
 
-import { type ChannelIntegration } from './ChannelIntegration.js';
+import { ChannelIntegration } from './ChannelIntegration';
 
 export enum IntegrationService {
   LASTFM = 'LASTFM',
@@ -44,6 +50,6 @@ export class Integration {
   @Column('text', { name: 'redirectUrl', nullable: true })
   redirectUrl: string | null;
 
-  @OneToMany('ChannelIntegration', 'integration')
-  channelsIntegrations?: Relation<ChannelIntegration[]>;
+  @OneToMany(() => ChannelIntegration, _ => _.integration)
+  channelsIntegrations?: ChannelIntegration[];
 }

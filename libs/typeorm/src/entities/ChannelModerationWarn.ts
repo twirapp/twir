@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-import { type SettingsType } from './ChannelModerationSetting.js';
+import { type SettingsType } from './ChannelModerationSetting';
 
 @Entity('channels_moderation_warnings', { schema: 'public' })
 export class ChannelModerationWarn {
