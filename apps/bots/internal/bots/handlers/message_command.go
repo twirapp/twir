@@ -31,7 +31,7 @@ func (c *Handlers) handleCommand(msg irc.PrivateMessage, userBadges []string) {
 		return
 	}
 
-	if res.KeepOrder != nil && *res.KeepOrder {
+	if res.KeepOrder != nil && !*res.KeepOrder {
 		for _, v := range res.Responses {
 			r := v
 			go c.BotClient.SayWithRateLimiting(
