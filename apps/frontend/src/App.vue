@@ -1,32 +1,42 @@
-<script setup lang="ts">
-import { useTitle } from '@vueuse/core';
-import { RouterView, useRouter } from 'vue-router';
+<script lang="ts" setup>
+import { computed, onMounted, ref, watch } from 'vue';
+import { RouterView } from 'vue-router';
+import { useDisplay } from 'vuetify';
 
-import Layout from '@/components/layout/Layout.vue';
+import Sidebar from './components/sidebar/menu.vue';
+import Profile from './components/sidebar/profile.vue';
 
-const router = useRouter();
+const drawer = ref(false);
+const display = useDisplay();
 
-const title = useTitle();
-title.value = 'Tsuwari - Main page';
+const isMobile = computed(() => {
+  return display.xs.value || display.sm.value;
+});
+
+onMounted(() => {
+  if (!isMobile.value) drawer.value = true;
+});
+
+watch(isMobile, (_, v) => {
+  console.log(isMobile);
+  drawer.value = !v;
+});
 </script>
 
 <template>
-  <Layout v-if="!['/', '/login'].includes(router.currentRoute.value.path)">
-    <RouterView v-slot="{ Component }">
-      <component :is="Component" />
-    </RouterView>
-  </Layout>
-  <RouterView v-else />
+  <v-layout>
+    <v-navigation-drawer v-model="drawer" color="grey-darken-5" :expand-on-hover="!isMobile" :rail="!isMobile"> 
+      <Profile />
+      <v-divider></v-divider>
+      <Sidebar />
+    </v-navigation-drawer>
+    <v-app-bar color="grey-darken-5">
+      <v-app-bar-nav-icon v-if="isMobile" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+    </v-app-bar>
+    <v-main>
+      <div style="padding: 8px;">
+        <RouterView />
+      </div>
+    </v-main>
+  </v-layout>
 </template>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

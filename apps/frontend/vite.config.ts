@@ -31,17 +31,6 @@ export default defineConfig({
       'vue-i18n': 'vue-i18n/dist/vue-i18n.runtime.esm-bundler.js',
     },
   },
-  optimizeDeps: {
-    exclude: [
-      'amqplib',
-      'mqtt',
-      'kafkajs',
-      '@grpc/grpc-js',
-      'amqp-connection-manager',
-      '@grpc/proto-loader',
-      '@nestjs/websockets/socket-module',
-    ],
-  },
   base: '/dashboard/',
   server: {
     base: '/',
