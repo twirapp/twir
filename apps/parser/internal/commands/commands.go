@@ -153,7 +153,7 @@ func (c *Commands) FindByMessage(input string, cmds *[]model.ChannelsCommands) F
 
 	if res.Cmd != nil {
 		sort.Slice(res.Cmd.Responses, func(a, b int) bool {
-			return res.Cmd.Responses[a].Order > res.Cmd.Responses[b].Order
+			return res.Cmd.Responses[a].Order < res.Cmd.Responses[b].Order
 		})
 	}
 
