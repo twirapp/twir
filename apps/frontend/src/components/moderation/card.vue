@@ -6,6 +6,15 @@ defineProps<{
   icon: string,
   iconColor: string,
 }>();
+
+const descriptions = {
+  'links': `Remove messages containing any links you haven't whitelisted.`,
+  'caps': `Remove messages containing excessive amounts of capital letters.`,
+  'symbols': `Remove messages containing disruptive or excessive use of symbols.`,
+  'longMessage': `Remove lengthy messages.`,
+  'emotes': 'Remove messages containing an excessive amount of emotes.',
+  'blacklists': 'Remove blacklisted words.',
+} as { [x: string]: string };
 </script>
 
 <template>
@@ -24,19 +33,7 @@ defineProps<{
     <v-divider />
     <v-card-text>
       <v-row align="center" no-gutters>
-        <v-col
-          class="text-h4"
-          cols="6"
-        >
-          Satont WorldWide
-        </v-col>
-
-        <v-col cols="6" class="text-right">
-          <v-avatar 
-            image="https://randomuser.me/api/portraits/women/85.jpg"
-            size="100"
-          />
-        </v-col>
+        {{ descriptions[type as string] ?? 'q' }}
       </v-row>
     </v-card-text>
   </v-card>
