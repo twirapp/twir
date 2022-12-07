@@ -18,6 +18,10 @@ export const router = createRouter({
       path: '/dashboard/timers',
       component: () => import('../pages/Timers.vue'),
     },
+    {
+      path: '/dashboard/moderation',
+      component: () => import('../pages/Moderation.vue'),
+    },
   ],
   history: createWebHistory(),
 });

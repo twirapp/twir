@@ -17,7 +17,7 @@ const { t } = useI18n();
         <v-text-field label="Username" variant="underlined"></v-text-field>
         <v-select
           label="Select"
-          :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
+          :items="['CSGO']"
         ></v-select>
       </v-form>
     </v-card-text>

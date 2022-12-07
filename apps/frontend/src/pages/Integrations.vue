@@ -9,12 +9,12 @@ import VK from '@/components/integrations/vk.vue';
 
 <template>
   <div>
-    <div class="d-flex justify-center flex-column flex-md-row flex-lg-row flex-xl-row">
+    <div class="d-flex justify-center flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row">
       <Spotify />
       <VK />
       <Lastfm />
     </div>
-    <div class="d-flex justify-center flex-column flex-md-row flex-lg-row flex-xl-row">
+    <div class="d-flex justify-center flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row">
       <Faceit />
       <Streamlabs />
       <DonationAlerts />

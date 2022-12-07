@@ -16,6 +16,10 @@ const isMobile = computed(() => {
   return display.xs.value || display.sm.value;
 });
 
+const commandsList = computed(() => {
+  return commands.value.filter(c => c.module === selectedTab.value);
+});
+
 const isCommandEdit = ref(false);
 const editableCommand = ref<ChannelCommand | undefined>();
 
@@ -37,6 +41,8 @@ function cancelEdit() {
   isCommandEdit.value = false;
   editableCommand.value = undefined;
 }
+
+function deleteCommand(id: string) {}
 </script>
 
 <template>
@@ -78,7 +84,7 @@ function cancelEdit() {
       </thead>
       <tbody>
         <tr
-          v-for="command in commands.filter(c => c.module === selectedTab)"
+          v-for="command in commandsList"
           :key="command.name"
         >
           <td :width="(!isMobile && selectedTab === 'CUSTOM') ? '10%' : '100%'">
@@ -96,7 +102,7 @@ function cancelEdit() {
           <td>
             <div class="d-flex flex-row">
               <v-btn :icon="mdiPencil" size="x-small" color="purple" @click="setEditCommand(command)" />
-              <confirmDeletion @on-confirmed="() => c.log('deleted')">
+              <confirmDeletion @on-confirmed="() => deleteCommand(command.id)">
                 <v-btn :icon="mdiTrashCan" size="x-small" color="red" class="ml-2" @click="$emit('click')" />
               </confirmDeletion>
             </div>

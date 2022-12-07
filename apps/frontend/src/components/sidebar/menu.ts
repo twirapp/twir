@@ -50,11 +50,11 @@ export const publicRoutes = [
     path: '/dashboard/moderation',
     icon: mdiSword,
   },
-  {
-    name: 'users',
-    path: '/dashboard/users',
-    icon: mdiAccountSupervisor,
-  },
+  // {
+  //   name: 'users',
+  //   path: '/dashboard/users',
+  //   icon: mdiAccountSupervisor,
+  // },
   {
     name: 'keywords',
     path: '/dashboard/keywords',

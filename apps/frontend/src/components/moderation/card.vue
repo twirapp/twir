@@ -1,16 +1,25 @@
 <script lang="ts" setup>
-import { mdiSpotify } from '@mdi/js';
-import { ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { type SettingsType } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
 
-const isBotMod = ref(false);
-const { t } = useI18n();
+defineProps<{
+  type: keyof typeof SettingsType,
+  icon: string,
+  iconColor: string,
+}>();
 </script>
 
 <template>
   <v-card class="ma-2 d-flex flex-column">
     <v-card-title>
-      Streamlabs
+      <div class="d-flex justify-space-between">
+        <div>
+          <v-icon :icon="icon" :color="iconColor"></v-icon>
+          {{ type.charAt(0).toUpperCase() + type.substring(1) }}
+        </div>
+        <div style="height: 10px;">
+          <v-switch style="margin-top:-10px" color="indigo"></v-switch>
+        </div>
+      </div>
     </v-card-title>
     <v-divider />
     <v-card-text>
@@ -30,13 +39,5 @@ const { t } = useI18n();
         </v-col>
       </v-row>
     </v-card-text>
-    <v-spacer></v-spacer>
-    <v-divider></v-divider>
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn variant="outlined" color="primary">
-        Login
-      </v-btn>
-    </v-card-actions>
   </v-card>
 </template>
