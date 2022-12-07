@@ -87,7 +87,7 @@ function addAliase() {
         <v-divider class="mt-2"></v-divider>
 
         <div class="d-flex justify-space-between mt-2">
-          <div>Responses</div>
+          <h4>Responses</h4>
           <div>
             <v-btn 
               variant="outlined" 
@@ -118,7 +118,7 @@ function addAliase() {
         />
 
         <div>
-          <div>Cooldown</div>
+          <h4>Cooldown</h4>
           <div class="d-flex justify-space-between mt-2">
             <v-text-field 
               v-model="command.cooldown"
