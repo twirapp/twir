@@ -42,7 +42,7 @@ const timer = ref(props.timer);
         >
           <v-text-field 
             v-model="timer.name" 
-            prefix="!" label="Name" 
+            label="Name" 
             :rules="[
               v => !!v || 'Field is required'
             ]"

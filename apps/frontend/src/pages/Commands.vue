@@ -11,10 +11,7 @@ import { tabs } from '@/data/commandsTabs';
 
 const selectedTab = ref<keyof typeof CommandModule>('CUSTOM');
 
-const display = useDisplay();
-const isMobile = computed(() => {
-  return display.xs.value || display.sm.value;
-});
+const { smAndDown } = useDisplay();
 
 const commandsList = computed(() => {
   return commands.value.filter(c => c.module === selectedTab.value);
@@ -71,7 +68,7 @@ function deleteCommand(id: string) {}
           <th class="text-left">
             Name
           </th>
-          <th v-if="!isMobile && selectedTab === 'CUSTOM'" class="text-left">
+          <th v-if="!smAndDown && selectedTab === 'CUSTOM'" class="text-left">
             Responses
           </th>
           <th class="text-left">
@@ -87,10 +84,10 @@ function deleteCommand(id: string) {}
           v-for="command in commandsList"
           :key="command.name"
         >
-          <td :width="(!isMobile && selectedTab === 'CUSTOM') ? '10%' : '100%'">
+          <td :width="(!smAndDown && selectedTab === 'CUSTOM') ? '10%' : '100%'">
             {{ command.name }}
           </td>
-          <td v-if="!isMobile && selectedTab === 'CUSTOM'">
+          <td v-if="!smAndDown && selectedTab === 'CUSTOM'">
             <p v-if="command.responses!.length > 1" v-html="command.responses?.map((t, i) => `${command.responses!.length > 1 ? `${i+1}. ` : ''}${t.text}`).join('<br>')"></p>
             <p v-else>
               {{ command.responses![0]?.text ?? '' }}
@@ -117,7 +114,7 @@ function deleteCommand(id: string) {}
       v-model="isCommandEdit"
       temporary
       location="right"
-      :class="[isMobile ? 'w-100' : 'w-50']"
+      :class="[smAndDown ? 'w-100' : 'w-50']"
     >
       <CommandDrawer :command="editableCommand!" @cancel="cancelEdit" />
     </v-navigation-drawer>
