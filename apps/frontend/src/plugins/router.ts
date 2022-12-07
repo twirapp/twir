@@ -22,6 +22,10 @@ export const router = createRouter({
       path: '/dashboard/moderation',
       component: () => import('../pages/Moderation.vue'),
     },
+    {
+      path: '/dashboard/keywords',
+      component: () => import('../pages/Keywords.vue'),
+    },
   ],
   history: createWebHistory(),
 });

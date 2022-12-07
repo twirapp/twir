@@ -39,7 +39,9 @@ function cancelEdit() {
   editableCommand.value = undefined;
 }
 
-function deleteCommand(id: string) {}
+function deleteCommand(id: string) {
+  return null;
+}
 </script>
 
 <template>
@@ -88,7 +90,7 @@ function deleteCommand(id: string) {}
             {{ command.name }}
           </td>
           <td v-if="!smAndDown && selectedTab === 'CUSTOM'">
-            <p v-if="command.responses!.length > 1" v-html="command.responses?.map((t, i) => `${command.responses!.length > 1 ? `${i+1}. ` : ''}${t.text}`).join('<br>')"></p>
+            <p v-if="command.responses!.length > 1" v-html="command.responses?.map((t) => t.text).join('<br>')"></p>
             <p v-else>
               {{ command.responses![0]?.text ?? '' }}
             </p>
