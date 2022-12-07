@@ -3,15 +3,22 @@ import { mdiPlus, mdiClose } from '@mdi/js';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { ref } from 'vue';
 
+import confirmDeletion from '@/components/confirmDeletion.vue';
+
 const props = defineProps<{
   timer: ChannelTimer
 }>();
 
-defineEmits<{
+const emits = defineEmits<{
   (event: 'cancel'): () => void
 }>();
 
 const timer = ref(props.timer);
+
+function onDelete() {
+  console.log(timer);
+  emits('cancel');
+}
 </script>
 
 <template>
@@ -19,13 +26,15 @@ const timer = ref(props.timer);
     <v-list-item>
       <div class="d-flex justify-space-between">
         <h1>Edit timer</h1>
-        <div>
+        <div class="d-flex d-inline">
           <v-btn size="small" class="mt-1 mr-2" @click="$emit('cancel')">
             Cancel
           </v-btn>
-          <v-btn color="red" size="small" class="mt-1 mr-2">
-            Delete
-          </v-btn>
+          <confirmDeletion :cb="() => onDelete()">
+            <v-btn color="red" size="small" class="mt-1 mr-2">
+              Delete
+            </v-btn>
+          </confirmDeletion>
           <v-btn color="green" size="small" class="mt-1">
             Save
           </v-btn>

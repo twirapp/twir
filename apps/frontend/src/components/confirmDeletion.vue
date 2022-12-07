@@ -9,7 +9,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="text-center">
+  <div>
     <span @click="modalState = true"><slot></slot></span>
 
     <v-dialog

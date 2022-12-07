@@ -3,11 +3,13 @@ import { mdiPlus, mdiClose } from '@mdi/js';
 import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { ref } from 'vue';
 
+import confirmDeletion from '@/components/confirmDeletion.vue';
+
 const props = defineProps<{
   command: ChannelCommand
 }>();
 
-defineEmits<{
+const emits = defineEmits<{
   (event: 'cancel'): () => void
 }>();
 
@@ -25,19 +27,26 @@ function addAliase() {
   command.value!.aliases.push(addAliaseInput.value);
   addAliaseInput.value = '';
 }
+
+function onDelete() {
+  console.log(command.value);
+  emits('cancel');
+}
 </script>
 
 <template>
   <v-list-item>
     <div class="d-flex justify-space-between">
       <h1>Edit command</h1>
-      <div>
+      <div class="d-flex d-inline">
         <v-btn size="small" class="mt-1 mr-2" @click="$emit('cancel')">
           Cancel
         </v-btn>
-        <v-btn color="red" size="small" class="mt-1 mr-2">
-          Delete
-        </v-btn>
+        <confirmDeletion :cb="() => onDelete()">
+          <v-btn color="red" size="small" class="mt-1 mr-2">
+            Delete
+          </v-btn>
+        </confirmDeletion>
         <v-btn color="green" size="small" class="mt-1">
           Save
         </v-btn>

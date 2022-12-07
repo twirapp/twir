@@ -1,17 +1,23 @@
 <script lang="ts" setup>
-import { mdiPlus, mdiClose } from '@mdi/js';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import { ref } from 'vue';
+
+import confirmDeletion from '../confirmDeletion.vue';
 
 const props = defineProps<{
   keyword: ChannelKeyword
 }>();
 
-defineEmits<{
+const emits = defineEmits<{
   (event: 'cancel'): () => void
 }>();
 
 const keyword = ref(props.keyword);
+
+function onDelete() {
+  console.log(keyword);
+  emits('cancel');
+}
 </script>
 
 <template>
@@ -19,13 +25,16 @@ const keyword = ref(props.keyword);
     <v-list-item>
       <div class="d-flex justify-space-between">
         <h1>Edit keyword</h1>
-        <div>
+        <div class="d-flex d-inline">
           <v-btn size="small" class="mt-1 mr-2" @click="$emit('cancel')">
             Cancel
           </v-btn>
-          <v-btn color="red" size="small" class="mt-1 mr-2">
-            Delete
-          </v-btn>
+          <confirmDeletion :cb="() => onDelete()">
+            <v-btn color="red" size="small" class="mt-1 mr-2">
+              Delete
+            </v-btn>
+          </confirmDeletion>
+    
           <v-btn color="green" size="small" class="mt-1">
             Save
           </v-btn>

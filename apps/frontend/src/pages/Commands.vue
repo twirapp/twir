@@ -32,15 +32,13 @@ function preventSymbolsInCommandName(e: KeyboardEvent) {
   // }
 }
 
-const c = console;
-
 function cancelEdit() {
   isCommandEdit.value = false;
   editableCommand.value = undefined;
 }
 
-function deleteCommand(id: string) {
-  return null;
+function deleteCommand(command: ChannelCommand) {
+  console.log(command);
 }
 </script>
 
@@ -101,7 +99,7 @@ function deleteCommand(id: string) {
           <td>
             <div class="d-flex flex-row">
               <v-btn :icon="mdiPencil" size="x-small" color="purple" @click="setEditCommand(command)" />
-              <confirmDeletion @on-confirmed="() => deleteCommand(command.id)">
+              <confirmDeletion :cb="() => deleteCommand(command)">
                 <v-btn :icon="mdiTrashCan" size="x-small" color="red" class="ml-2" @click="$emit('click')" />
               </confirmDeletion>
             </div>

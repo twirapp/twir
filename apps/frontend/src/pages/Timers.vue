@@ -4,6 +4,7 @@ import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { computed, ref } from 'vue';
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 
+import confirmDeletion from '@/components/confirmDeletion.vue';
 import TimersDrawer from '@/components/drawers/timerEdit.vue';
 import { timers } from '@/data/timers';
 
@@ -23,6 +24,10 @@ function setEditTimer(c: ChannelTimer) {
 function cancelEdit() {
   isTimerEdit.value = false;
   editableTimer.value = undefined;
+}
+
+function onDelete(t: ChannelTimer) {
+  console.log(t);
 }
 </script>
 
@@ -75,7 +80,7 @@ function cancelEdit() {
           <td>
             <div class="d-flex flex-row">
               <v-btn :icon="mdiPencil" size="x-small" color="purple" @click="setEditTimer(timer)" />
-              <confirmDeletion @on-confirmed="() => {}">
+              <confirmDeletion :cb="() => onDelete(timer)">
                 <v-btn :icon="mdiTrashCan" size="x-small" color="red" class="ml-2" @click="$emit('click')" />
               </confirmDeletion>
             </div>
