@@ -35,7 +35,7 @@ const descriptions = {
     <v-divider />
     <v-card-text>
       <v-row align="center" no-gutters>
-        {{ descriptions[type as string] ?? 'q' }}
+        {{ descriptions[type as string] ?? '' }}
       </v-row>
     </v-card-text>
   </v-card>
