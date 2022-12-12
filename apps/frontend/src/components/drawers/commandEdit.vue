@@ -1,9 +1,12 @@
 <script lang="ts" setup>
-import { mdiPlus, mdiClose } from '@mdi/js';
+import { mdiPlus, mdiClose, mdiApplicationVariable } from '@mdi/js';
+import { useStore } from '@nanostores/vue';
 import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { ref } from 'vue';
+import { useDisplay } from 'vuetify';
 
 import confirmDeletion from '@/components/confirmDeletion.vue';
+import { variablesStore } from '@/stores/variables';
 
 const props = defineProps<{
   command: ChannelCommand
@@ -15,6 +18,9 @@ const emits = defineEmits<{
 
 const command = ref(props.command);
 const addAliaseInput = ref('');
+const variables = useStore(variablesStore);
+const responsesRef = ref<HTMLTextAreaElement[]>([]);
+const { smAndDown } = useDisplay();
 
 const symbolsRegexp = /^\W$|_|/;
 function preventSymbolsInCommandName(e: KeyboardEvent) {
@@ -63,7 +69,8 @@ function onDelete() {
       >
         <v-text-field 
           v-model="command.name" 
-          prefix="!" label="Name" 
+          prefix="!" 
+          label="Name" 
           :rules="[
             v => !!v || 'Field is required'
           ]"
@@ -72,7 +79,7 @@ function onDelete() {
         <v-text-field 
           v-model="addAliaseInput" 
           prefix="!"
-          label="Add aliase"
+          label="New aliase"
           :append-icon="mdiPlus"
           :rules="[
             (v) => (!command.aliases.includes(v) && command.name != v) || 'Aliase already exists'
@@ -112,19 +119,51 @@ function onDelete() {
         </div>
 
         <v-textarea
-          v-for="(response, index) of command!.responses" 
-          :key="index"
-          v-model="command!.responses![index].text"
+          v-for="(response, responseIndex) of command!.responses" 
+          :key="responseIndex"
+          ref="responsesRef"
+          v-model="command!.responses![responseIndex].text"
           auto-grow
-          :append-icon="mdiClose"
           rows="1"
           row-height="5"
           class="mt-2"
           :rules="[
             v => !!v || 'Field is required'
           ]"
-          @click:append="command.responses!.splice(index, 1)"
-        />
+        >
+          <!-- :append-icon="mdiClose" -->
+          <!-- @click:append="command.responses!.splice(index, 1)" -->
+          <template #append-inner>
+            <v-menu max-height="200">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  :icon="mdiApplicationVariable" variant="tonal" size="small" style="margin-top: -8px;"
+                />
+              </template>
+              <v-list>
+                <v-list-item
+                  v-for="(variable, variableIndex) in variables"
+                  :key="variableIndex"
+                  :value="variableIndex"
+                  @click="response.text += ` $(${variable.example ?? variable.name})`"
+                >
+                  <b>{{ `$(${variable.name})` }}</b>
+                  <v-list-item-title>{{ variable.description }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
+          <template #append>
+            <v-btn 
+              style="margin-top: -8px" 
+              variant="tonal" 
+              :icon="mdiClose"
+              size="small" 
+              @click="command.responses!.splice(responseIndex, 1)"
+            />
+          </template>
+        </v-textarea>
 
         <div>
           <h4>Cooldown</h4>
@@ -156,13 +195,31 @@ function onDelete() {
           ></v-select>
         </div>
 
-        <div>
-          <v-checkbox v-model="command.visible" label="Show command in list of commands" />
-          <v-checkbox v-model="command.keepResponsesOrder" label="Keep order of commands responses" />
-          <v-checkbox v-model="command.isReply" label="Use twitch reply feature" />
-        </div>
+        <v-row>
+          <v-col :cols="smAndDown ? 12 : 6">
+            <v-checkbox 
+              v-model="command.visible" 
+              label="Show command in list of commands" 
+              density="compact"
+            />
+          </v-col>
+          <v-col :cols="smAndDown ? 12 : 6">
+            <v-checkbox 
+              v-model="command.keepResponsesOrder" 
+              label="Keep order of commands responses" 
+              density="compact"
+            />
+          </v-col>
+          <v-col :cols="smAndDown ? 12 : 6">
+            <v-checkbox 
+              v-model="command.isReply" 
+              label="Use twitch reply feature" 
+              density="compact"
+            />
+          </v-col>
+        </v-row>
 
-        <div>
+        <div class="mt-4">
           <v-textarea
             v-model="command.description"
             auto-grow
@@ -176,3 +233,9 @@ function onDelete() {
     </v-form>
   </v-list-item>
 </template>
+
+<style>
+.v-checkbox {
+  height: 20px;
+}
+</style>
