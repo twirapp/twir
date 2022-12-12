@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { mdiPencil } from '@mdi/js';
 import { type SettingsType } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
 
 defineProps<{
@@ -25,8 +26,9 @@ const descriptions = {
           <v-icon :icon="icon" :color="iconColor"></v-icon>
           {{ type.charAt(0).toUpperCase() + type.substring(1) }}
         </div>
-        <div style="height: 10px;">
-          <v-switch style="margin-top:-10px" color="indigo"></v-switch>
+        <div style="height: 10px;" class="d-flex justify-space-between">
+          <v-btn class="mr-2" :icon="mdiPencil" variant="tonal" size="x-small" />
+          <v-switch style="margin-top:-10px" color="indigo" />
         </div>
       </div>
     </v-card-title>
