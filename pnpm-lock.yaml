@@ -125,11 +125,13 @@ importers:
       '@tsuwari/typeorm': workspace:*
       '@twurple/api': 5.2.7
       '@twurple/common': 5.2.7
+      '@types/lodash.chunk': ^4.2.7
       '@types/prismjs': 1.26.0
       '@vitejs/plugin-vue': 3.2.0
       '@vueuse/core': ^9.6.0
       flag-icons: 6.6.6
       got: ^12.5.3
+      lodash.chunk: ^4.2.0
       nanostores: ^0.7.1
       vite: 3.2.5
       vite-svg-loader: ^3.6.0
@@ -141,8 +143,10 @@ importers:
     dependencies:
       '@nanostores/persistent': 0.7.0_nanostores@0.7.1
       '@nanostores/vue': 0.6.1_tnmprsfnlyw4kcmtay2p7ledhm
+      '@types/lodash.chunk': 4.2.7
       '@vueuse/core': 9.6.0_vue@3.2.45
       got: 12.5.3
+      lodash.chunk: 4.2.0
       nanostores: 0.7.1
       vue: 3.2.45
       vue-i18n: 9.3.0-beta.10_vue@3.2.45
@@ -5072,6 +5076,12 @@ packages:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
       '@types/node': 18.11.10
+    dev: false
+
+  /@types/lodash.chunk/4.2.7:
+    resolution: {integrity: sha512-//tmaWHiANgToom/YYYKKqiCtlNz11fwYtMUUbaemNSbWTI+2zHtYW5nt1PHNCRWHPAJHHhn4UVFD9LKUFvatA==}
+    dependencies:
+      '@types/lodash': 4.14.191
     dev: false
 
   /@types/lodash/4.14.191:
@@ -11234,6 +11244,10 @@ packages:
 
   /lodash.camelcase/4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
+    dev: false
+
+  /lodash.chunk/4.2.0:
+    resolution: {integrity: sha512-ZzydJKfUHJwHa+hF5X66zLFCBrWn5GeF28OHEr4WVWtNDXlQ/IjWKPBiikqKo2ne0+v6JgCgJ0GzJp8k8bHC7w==}
     dev: false
 
   /lodash.clonedeep/4.5.0:

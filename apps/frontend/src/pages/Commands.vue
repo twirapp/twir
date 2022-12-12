@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { mdiPencil, mdiTrashCan } from '@mdi/js';
 import { ChannelCommand, type CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
-import { computed, ref } from 'vue';
-import { useDisplay } from 'vuetify/lib/framework.mjs';
+import { computed, ref, unref } from 'vue';
+import { useDisplay } from 'vuetify';
 
 import confirmDeletion from '@/components/confirmDeletion.vue';
 import CommandDrawer from '@/components/drawers/commandEdit.vue';
-import { commands } from '@/data/commands';
 import { tabs } from '@/data/commandsTabs';
+import { commands, editableCommand } from '@/stores/commands';
 
 const selectedTab = ref<keyof typeof CommandModule>('CUSTOM');
 
@@ -18,11 +18,10 @@ const commandsList = computed(() => {
 });
 
 const isCommandEdit = ref(false);
-const editableCommand = ref<ChannelCommand | undefined>();
 
 function setEditCommand(c: ChannelCommand) {
   isCommandEdit.value = true;
-  editableCommand.value = c;
+  editableCommand.value = JSON.parse(JSON.stringify(c));
 }
 
 const symbolsRegexp = /^\W$|_|/;
@@ -116,7 +115,7 @@ function deleteCommand(command: ChannelCommand) {
       location="right"
       :class="[smAndDown ? 'w-100' : 'w-50']"
     >
-      <CommandDrawer :command="editableCommand!" @cancel="cancelEdit" />
+      <CommandDrawer @cancel="cancelEdit" />
     </v-navigation-drawer>
   </div>
 </template>

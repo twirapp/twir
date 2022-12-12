@@ -1,22 +1,17 @@
 <script lang="ts" setup>
 import { mdiPlus, mdiClose, mdiApplicationVariable } from '@mdi/js';
 import { useStore } from '@nanostores/vue';
-import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { ref } from 'vue';
 import { useDisplay } from 'vuetify';
 
 import confirmDeletion from '@/components/confirmDeletion.vue';
+import { editableCommand } from '@/stores/commands';
 import { variablesStore } from '@/stores/variables';
-
-const props = defineProps<{
-  command: ChannelCommand
-}>();
 
 const emits = defineEmits<{
   (event: 'cancel'): () => void
 }>();
 
-const command = ref(props.command);
 const addAliaseInput = ref('');
 const variables = useStore(variablesStore);
 const responsesRef = ref<HTMLTextAreaElement[]>([]);
@@ -30,12 +25,12 @@ function preventSymbolsInCommandName(e: KeyboardEvent) {
 }
 
 function addAliase() {
-  command.value!.aliases.push(addAliaseInput.value);
+  editableCommand.value!.aliases.push(addAliaseInput.value);
   addAliaseInput.value = '';
 }
 
 function onDelete() {
-  console.log(command.value);
+  console.log(editableCommand.value);
   emits('cancel');
 }
 </script>
@@ -68,7 +63,7 @@ function onDelete() {
         class="d-flex flex-column"
       >
         <v-text-field 
-          v-model="command.name" 
+          v-model="editableCommand!.name" 
           prefix="!" 
           label="Name" 
           :rules="[
@@ -82,7 +77,7 @@ function onDelete() {
           label="New aliase"
           :append-icon="mdiPlus"
           :rules="[
-            (v) => (!command.aliases.includes(v) && command.name != v) || 'Aliase already exists'
+            (v) => (!editableCommand!.aliases.includes(v) && editableCommand!.name != v) || 'Aliase already exists'
           ]"
           @click:append="addAliase"
           @keydown="preventSymbolsInCommandName" 
@@ -90,11 +85,11 @@ function onDelete() {
         />
         <div class="d-flex flex-wrap">
           <v-chip
-            v-for="(aliase, index) of command!.aliases"
+            v-for="(aliase, index) of editableCommand!.aliases"
             :key="aliase"
             closable
             class="mr-2 mt-2"
-            @click:close="command!.aliases.splice(index, 1)"
+            @click:close="editableCommand!.aliases.splice(index, 1)"
           >
             !{{ aliase }}
           </v-chip>
@@ -108,8 +103,8 @@ function onDelete() {
             <v-btn 
               variant="outlined" 
               size="x-small" 
-              @click="command!.responses!.push({
-                order: command!.responses?.length ? command!.responses?.length - 1 : 0,
+              @click="editableCommand!.responses!.push({
+                order: editableCommand!.responses?.length ? editableCommand!.responses?.length - 1 : 0,
                 text: '',
               } as any)"
             >
@@ -119,10 +114,10 @@ function onDelete() {
         </div>
 
         <v-textarea
-          v-for="(response, responseIndex) of command!.responses" 
+          v-for="(response, responseIndex) of editableCommand!.responses" 
           :key="responseIndex"
           ref="responsesRef"
-          v-model="command!.responses![responseIndex].text"
+          v-model="editableCommand!.responses![responseIndex].text"
           auto-grow
           rows="1"
           row-height="5"
@@ -160,7 +155,7 @@ function onDelete() {
               variant="tonal" 
               :icon="mdiClose"
               size="small" 
-              @click="command.responses!.splice(responseIndex, 1)"
+              @click="editableCommand!.responses!.splice(responseIndex, 1)"
             />
           </template>
         </v-textarea>
@@ -169,7 +164,7 @@ function onDelete() {
           <h4>Cooldown</h4>
           <div class="d-flex justify-space-between mt-2">
             <v-text-field 
-              v-model="command.cooldown"
+              v-model="editableCommand!.cooldown"
               style="width: 45%"
               type="number"
               label="Seconds"
@@ -178,7 +173,7 @@ function onDelete() {
               ]"
             />
             <v-select
-              v-model="command.cooldownType"
+              v-model="editableCommand!.cooldownType"
               style="width: 45%"
               class="ml-4"
               label="Cooldown Type"
@@ -189,7 +184,7 @@ function onDelete() {
     
         <div>
           <v-select
-            v-model="command.permission"
+            v-model="editableCommand!.permission"
             label="Permission"
             :items="['BROADCASTER', 'MODERATOR', 'SUBSCRIBER', 'VIP', 'VIEWER', 'FOLLOWER']"
           ></v-select>
@@ -198,21 +193,21 @@ function onDelete() {
         <v-row>
           <v-col :cols="smAndDown ? 12 : 6">
             <v-checkbox 
-              v-model="command.visible" 
+              v-model="editableCommand!.visible" 
               label="Show command in list of commands" 
               density="compact"
             />
           </v-col>
           <v-col :cols="smAndDown ? 12 : 6">
             <v-checkbox 
-              v-model="command.keepResponsesOrder" 
+              v-model="editableCommand!.keepResponsesOrder" 
               label="Keep order of commands responses" 
               density="compact"
             />
           </v-col>
           <v-col :cols="smAndDown ? 12 : 6">
             <v-checkbox 
-              v-model="command.isReply" 
+              v-model="editableCommand!.isReply" 
               label="Use twitch reply feature" 
               density="compact"
             />
@@ -221,7 +216,7 @@ function onDelete() {
 
         <div class="mt-4">
           <v-textarea
-            v-model="command.description"
+            v-model="editableCommand!.description"
             auto-grow
             label="Description"
             rows="1"
