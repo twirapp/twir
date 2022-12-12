@@ -27,8 +27,8 @@ const descriptions = {
           {{ type.charAt(0).toUpperCase() + type.substring(1) }}
         </div>
         <div style="height: 10px;" class="d-flex justify-space-between">
-          <v-btn class="mr-2" :icon="mdiPencil" variant="tonal" size="x-small" />
-          <v-switch style="margin-top:-10px" color="indigo" />
+          <v-btn :icon="mdiPencil" variant="flat" size="x-small" />
+          <!-- <v-switch style="margin-top:-10px" color="indigo" /> -->
         </div>
       </div>
     </v-card-title>
