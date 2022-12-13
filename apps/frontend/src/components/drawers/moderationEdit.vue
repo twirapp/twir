@@ -97,6 +97,15 @@ function onDelete() {
           </div>
         </div>
 
+        <v-sheet
+          v-if="!settings.blackListSentences?.length"
+          rounded
+          class="mx-auto mt-2 pa-4"
+          color="#484749"
+        >
+          No blacklisted words added
+        </v-sheet>
+
         <v-textarea
           v-for="(response, responseIndex) of settings.blackListSentences!" 
           :key="responseIndex"
@@ -104,7 +113,7 @@ function onDelete() {
           label="Word"
           auto-grow
           rows="1"
-          row-height="5"
+          row-height="5"  
           class="mt-2"
           :rules="[
             v => !!v || 'Field is required'
