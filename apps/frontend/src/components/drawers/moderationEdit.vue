@@ -25,7 +25,7 @@ function onDelete() {
   <div>
     <v-list-item>
       <div class="d-flex justify-space-between">
-        <h1>Settings of {{ settings.type }}</h1>
+        <h1>{{ settings.type.charAt(0).toUpperCase() + settings.type.substring(1) }}</h1>
         <div class="d-flex d-inline">
           <v-btn size="small" class="mt-1 mr-2" @click="$emit('cancel')">
             Cancel

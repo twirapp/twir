@@ -8,12 +8,17 @@ import {
   mdiWrapDisabled, 
   mdiPencil, 
 } from '@mdi/js';
+import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
 import chunk from 'lodash.chunk';
+import { ref } from 'vue';
 import { useDisplay } from 'vuetify';
 
+import ModerationEdit from '@/components/drawers/moderationEdit.vue';
 import { moderationSettings } from '@/data/moderationSettings';
 
 const { smAndDown } = useDisplay();
+const editableSettings = ref<ChannelModerationSetting | undefined>();
+const isEditDrawerOpened = ref(false);
 
 const types = chunk([
   { key: 'links', icon: mdiLinkBoxVariant, iconColor: 'blue' }, 
@@ -32,6 +37,19 @@ const descriptions = {
   'emotes': 'Remove messages containing an excessive amount of emotes.',
   'blacklists': 'Remove blacklisted words.',
 } as { [x: string]: string };
+
+function cancelEdit() {
+  isEditDrawerOpened.value = false;
+  editableSettings.value = undefined;
+}
+
+function setEditSettings(key: string) {
+  const settings = moderationSettings.value.find(s => s.type === key);
+  if (!settings) return;
+
+  isEditDrawerOpened.value = true;
+  editableSettings.value = JSON.parse(JSON.stringify(settings));
+}
 </script>
 
 <template>
@@ -50,8 +68,12 @@ const descriptions = {
                 {{ item.key.charAt(0).toUpperCase() + item.key.substring(1) }}
               </div>
               <div style="height: 10px;" class="d-flex justify-space-between">
-                <v-btn :icon="mdiPencil" variant="flat" size="x-small" />
-                <!-- <v-switch style="margin-top:-10px" color="indigo" /> -->
+                <v-btn 
+                  :icon="mdiPencil" 
+                  variant="flat" 
+                  size="x-small" 
+                  @click="setEditSettings(item.key)" 
+                />
               </div>
             </div>
           </v-card-title>
@@ -64,5 +86,15 @@ const descriptions = {
         </v-card>
       </v-col>
     </v-row>
+
+    <v-navigation-drawer
+      v-if="isEditDrawerOpened"
+      v-model="isEditDrawerOpened"
+      temporary
+      location="right"
+      :class="[smAndDown ? 'w-100' : 'w-50']"
+    >
+      <ModerationEdit :settings="editableSettings!" @cancel="cancelEdit" />
+    </v-navigation-drawer>
   </div>
 </template>
