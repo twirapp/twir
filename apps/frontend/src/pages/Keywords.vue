@@ -6,7 +6,7 @@ import { useDisplay } from 'vuetify';
 
 import confirmDeletion from '@/components/confirmDeletion.vue';
 import KeywordDrawer from '@/components/drawers/keywordEdit.vue';
-import { keywords } from '@/data/keywords';
+import { keywords } from '@/stores/keywords';
 
 const display = useDisplay();
 const isMobile = computed(() => {

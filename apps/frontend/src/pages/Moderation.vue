@@ -14,7 +14,7 @@ import { ref } from 'vue';
 import { useDisplay } from 'vuetify';
 
 import ModerationEdit from '@/components/drawers/moderationEdit.vue';
-import { moderationSettings } from '@/data/moderationSettings';
+import { moderationSettings } from '@/stores/moderationSettings';
 
 const { smAndDown } = useDisplay();
 const editableSettings = ref<ChannelModerationSetting | undefined>();

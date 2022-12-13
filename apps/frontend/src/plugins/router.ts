@@ -30,6 +30,10 @@ export const router = createRouter({
       path: '/dashboard/variables',
       component: () => import('../pages/Variables.vue'),
     },
+    {
+      path: '/dashboard/greetings',
+      component: () => import('../pages/Greetings.vue'),
+    },
   ],
   history: createWebHistory(),
 });

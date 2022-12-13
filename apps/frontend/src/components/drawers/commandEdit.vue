@@ -6,14 +6,13 @@ import { useDisplay } from 'vuetify';
 
 import confirmDeletion from '@/components/confirmDeletion.vue';
 import { editableCommand } from '@/stores/commands';
-import { variablesStore } from '@/stores/variables';
+import { variables } from '@/stores/variables';
 
 const emits = defineEmits<{
   (event: 'cancel'): () => void
 }>();
 
 const addAliaseInput = ref('');
-const variables = useStore(variablesStore);
 const responsesRef = ref<HTMLTextAreaElement[]>([]);
 const { smAndDown } = useDisplay();
 

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { mdiPencil, mdiTrashCan } from '@mdi/js';
 import { ChannelCommand, type CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
-import { computed, ref, unref } from 'vue';
+import { computed, ref } from 'vue';
 import { useDisplay } from 'vuetify';
 
 import confirmDeletion from '@/components/confirmDeletion.vue';

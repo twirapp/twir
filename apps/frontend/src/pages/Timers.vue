@@ -6,7 +6,7 @@ import { useDisplay } from 'vuetify/lib/framework.mjs';
 
 import confirmDeletion from '@/components/confirmDeletion.vue';
 import TimersDrawer from '@/components/drawers/timerEdit.vue';
-import { timers } from '@/data/timers';
+import { timers } from '@/stores/timers';
 
 const display = useDisplay();
 const isMobile = computed(() => {

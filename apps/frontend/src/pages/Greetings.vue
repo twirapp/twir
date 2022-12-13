@@ -1,31 +1,30 @@
 <script lang="ts" setup>
 import { mdiPencil, mdiTrashCan } from '@mdi/js';
-import { type ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { ref } from 'vue';
 import { useDisplay } from 'vuetify';
 
 import confirmDeletion from '@/components/confirmDeletion.vue';
 import VariableDrawer from '@/components/drawers/variableEdit.vue';
-import { variables } from '@/stores/variables';
+import { greetings, type Greeting } from '@/stores/greetings';
 
 const { mobile } = useDisplay();
-const isVariableEdit = ref(false);
-const editableVariable = ref<ChannelCustomvar | undefined>();
+const isGreetingEdit = ref(false);
+const editableGreeting = ref<Greeting | undefined>();
 
-function setEditKeyword(c: ChannelCustomvar) {
-  isVariableEdit.value = true;
-  editableVariable.value = JSON.parse(JSON.stringify(c));
+function setEditKeyword(c: Greeting) {
+  isGreetingEdit.value = true;
+  editableGreeting.value = JSON.parse(JSON.stringify(c));
 }
 
 function cancelEdit() {
-  isVariableEdit.value = false;
-  editableVariable.value = undefined;
+  isGreetingEdit.value = false;
+  editableGreeting.value = undefined;
 }
 
-function deleteVariable(v: ChannelCustomvar) {}
+function deleteVariable(g: Greeting) {}
 
-function onDelete(v: ChannelCustomvar) {
-  console.log(v);
+function onDelete(g: Greeting) {
+  console.log(g);
 }
 </script>
 
@@ -38,13 +37,10 @@ function onDelete(v: ChannelCustomvar) {
             Name
           </th>
           <th class="text-left">
-            Response
+            Text
           </th>
           <th class="text-left">
-            Type
-          </th>
-          <th class="text-left">
-            Response
+            Status
           </th>
           <th class="text-left">
             Actions
@@ -53,25 +49,16 @@ function onDelete(v: ChannelCustomvar) {
       </thead>
       <tbody>
         <tr
-          v-for="variable in variables"
-          :key="variable.id"
+          v-for="greeting in greetings"
+          :key="greeting.id"
         >
-          <td>{{ variable.name }}</td>
-          <td>{{ variable.response }}</td>
-          <td>
-            <v-chip size="small">
-              {{ variable.type }}
-            </v-chip>
-          </td>
-          <td>
-            <p v-if="variable.type === 'TEXT'">
-              {{ variable.response }}
-            </p>
-          </td>
+          <td>{{ greeting.userName }}</td>
+          <td>{{ greeting.text }}</td>
+          <td><v-switch v-model="greeting.enabled" class="d-flex justify-center" color="green"></v-switch></td>
           <td>
             <div class="d-flex flex-row">
-              <v-btn :icon="mdiPencil" size="x-small" color="purple" @click="setEditKeyword(variable)" />
-              <confirmDeletion :cb="() => deleteVariable(variable)">
+              <v-btn :icon="mdiPencil" size="x-small" color="purple" @click="setEditKeyword(greeting)" />
+              <confirmDeletion :cb="() => deleteVariable(greeting)">
                 <v-btn :icon="mdiTrashCan" size="x-small" color="red" class="ml-2" @click="$emit('click')" />
               </confirmDeletion>
             </div>
