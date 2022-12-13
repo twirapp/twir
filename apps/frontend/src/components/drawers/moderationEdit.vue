@@ -84,6 +84,18 @@ function onDelete() {
           />
         </div>
 
+        <v-row>
+          <v-col v-if="settings.type === 'links'" :cols="smAndDown ? 12 : 4">
+            <v-checkbox v-model="settings.checkClips" label="Moderate clips" density="compact" />
+          </v-col>
+          <v-col :cols="smAndDown ? 12 : 4">
+            <v-checkbox v-model="settings.subscribers" label="Moderate subscribers" density="compact" />
+          </v-col>
+          <v-col :cols="smAndDown ? 12 : 4">
+            <v-checkbox v-model="settings.vips" label="Moderate vips" density="compact" />
+          </v-col>
+        </v-row>
+        
         <div v-if="settings.type === 'blacklists'" class="d-flex justify-space-between mt-2">
           <h4>Blacklisted words</h4>
           <div>
@@ -96,9 +108,9 @@ function onDelete() {
             </v-btn>
           </div>
         </div>
-
+        
         <v-sheet
-          v-if="!settings.blackListSentences?.length"
+          v-if="!settings.blackListSentences?.length && (settings.type as string) === 'blacklists'"
           rounded
           class="mt-2 pa-4"
           color="#484749"
@@ -150,19 +162,6 @@ function onDelete() {
           v-model.number="settings.triggerLength"
           label="Max emotes in message"
         />
-
-        
-        <v-row>
-          <v-col v-if="settings.type === 'links'" :cols="smAndDown ? 12 : 4">
-            <v-checkbox v-model="settings.checkClips" label="Moderate clips" density="compact" />
-          </v-col>
-          <v-col :cols="smAndDown ? 12 : 4">
-            <v-checkbox v-model="settings.subscribers" label="Moderate subscribers" density="compact" />
-          </v-col>
-          <v-col :cols="smAndDown ? 12 : 4">
-            <v-checkbox v-model="settings.vips" label="Moderate vips" density="compact" />
-          </v-col>
-        </v-row>
       </v-form>
     </v-list-item>
   </div>

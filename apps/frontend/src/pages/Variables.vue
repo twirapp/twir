@@ -5,11 +5,10 @@ import { ref } from 'vue';
 import { useDisplay } from 'vuetify';
 
 import confirmDeletion from '@/components/confirmDeletion.vue';
-import KeywordDrawer from '@/components/drawers/keywordEdit.vue';
+import VariableDrawer from '@/components/drawers/variableEdit.vue';
 import { variables } from '@/data/variables';
 
 const { mobile } = useDisplay();
-
 const isVariableEdit = ref(false);
 const editableVariable = ref<ChannelCustomvar | undefined>();
 
@@ -23,9 +22,7 @@ function cancelEdit() {
   editableVariable.value = undefined;
 }
 
-function deleteVariable(v: ChannelCustomvar) {
-
-}
+function deleteVariable(v: ChannelCustomvar) {}
 
 function onDelete(v: ChannelCustomvar) {
   console.log(v);
@@ -96,7 +93,7 @@ function onDelete(v: ChannelCustomvar) {
       location="right"
       :class="[mobile ? 'w-100' : 'w-50']"
     >
-      <KeywordDrawer :keyword="editableVariable!" @cancel="cancelEdit" />
+      <VariableDrawer :keyword="editableVariable!" @cancel="cancelEdit" />
     </v-navigation-drawer>
   </div>
 </template>
