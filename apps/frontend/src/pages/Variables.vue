@@ -64,13 +64,8 @@ function onDelete(v: ChannelCustomvar) {
             </v-chip>
           </td>
           <td>
-            <p v-if="variable.response">
+            <p v-if="variable.type === 'TEXT'">
               {{ variable.response }}
-            </p>
-            <p v-else>
-              <v-chip size="small" color="secondary">
-                Cannot display script
-              </v-chip>
             </p>
           </td>
           <td>

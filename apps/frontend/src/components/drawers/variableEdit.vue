@@ -78,6 +78,7 @@ function onDelete() {
 
         <Editor 
           v-if="variable.type === 'SCRIPT'"
+          v-model:value="variable.evalValue"
           height="60vh"
           theme="vs-dark"
           defaultLanguage="javascript"
