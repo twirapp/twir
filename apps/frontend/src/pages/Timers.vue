@@ -18,7 +18,7 @@ const editableTimer = ref<ChannelTimer | undefined>();
 
 function setEditTimer(c: ChannelTimer) {
   isTimerEdit.value = true;
-  editableTimer.value = c;
+  editableTimer.value = JSON.parse(JSON.stringify(c));
 }
 
 function cancelEdit() {

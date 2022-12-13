@@ -113,6 +113,15 @@ function onDelete() {
           </div>
         </div>
 
+        <v-sheet
+          v-if="!editableCommand!.responses?.length"
+          rounded
+          class="mt-2 pa-4"
+          color="#484749"
+        >
+          No responses added
+        </v-sheet>
+
         <v-textarea
           v-for="(response, responseIndex) of editableCommand!.responses" 
           :key="responseIndex"

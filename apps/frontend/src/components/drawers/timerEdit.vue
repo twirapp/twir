@@ -122,6 +122,15 @@ function onDelete() {
             </div>
           </div>
 
+          <v-sheet
+            v-if="!timer.responses?.length"
+            rounded
+            class="mt-2 pa-4"
+            color="#484749"
+          >
+            No responses added
+          </v-sheet>
+
           <v-textarea
             v-for="(response, index) of timer!.responses" 
             :key="index"

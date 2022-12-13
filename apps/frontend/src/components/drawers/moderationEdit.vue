@@ -100,7 +100,7 @@ function onDelete() {
         <v-sheet
           v-if="!settings.blackListSentences?.length"
           rounded
-          class="mx-auto mt-2 pa-4"
+          class="mt-2 pa-4"
           color="#484749"
         >
           No blacklisted words added
