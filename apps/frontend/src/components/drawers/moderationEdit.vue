@@ -84,8 +84,45 @@ function onDelete() {
           />
         </div>
 
+        <div v-if="settings.type === 'blacklists'" class="d-flex justify-space-between mt-2">
+          <h4>Blacklisted words</h4>
+          <div>
+            <v-btn 
+              variant="outlined" 
+              size="x-small" 
+              @click="settings.blackListSentences!.push('')"
+            >
+              <v-icon>{{ mdiPlus }}</v-icon>
+            </v-btn>
+          </div>
+        </div>
+
+        <v-textarea
+          v-for="(response, responseIndex) of settings.blackListSentences!" 
+          :key="responseIndex"
+          v-model="settings.blackListSentences![responseIndex]"
+          label="Word"
+          auto-grow
+          rows="1"
+          row-height="5"
+          class="mt-2"
+          :rules="[
+            v => !!v || 'Field is required'
+          ]"
+        >
+          <template #append>
+            <v-btn 
+              style="margin-top: -8px" 
+              variant="tonal" 
+              :icon="mdiClose"
+              size="small" 
+              @click="settings.blackListSentences!.splice(responseIndex, 1)"
+            />
+          </template>
+        </v-textarea>
+
         <v-text-field 
-          v-if="settings.type === 'blacklists'"
+          v-if="settings.type === 'symbols'"
           v-model.number="settings.maxPercentage"
           label="Max percent of symbols in message"
         />
