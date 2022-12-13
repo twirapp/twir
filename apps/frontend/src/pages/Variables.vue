@@ -37,7 +37,13 @@ function onDelete(k: ChannelCustomvar) {
             Name
           </th>
           <th class="text-left">
+            Response
+          </th>
+          <th class="text-left">
             Type
+          </th>
+          <th class="text-left">
+            Response
           </th>
         </tr>
       </thead>
@@ -46,11 +52,22 @@ function onDelete(k: ChannelCustomvar) {
           v-for="variable in variables"
           :key="variable.id"
         >
+          <td>{{ variable.name }}</td>
           <td>{{ variable.response }}</td>
           <td>
             <v-chip size="small">
               {{ variable.type }}
             </v-chip>
+          </td>
+          <td>
+            <p v-if="variable.response">
+              {{ variable.response }}
+            </p>
+            <p v-else>
+              <v-chip size="small">
+                Cannot display script
+              </v-chip>
+            </p>
           </td>
         </tr>
       </tbody>
