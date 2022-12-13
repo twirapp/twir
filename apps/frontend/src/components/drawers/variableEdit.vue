@@ -25,7 +25,7 @@ function onDelete() {
   <div>
     <v-list-item>
       <div class="d-flex justify-space-between">
-        <h1>Edit timer</h1>
+        <h1>Edit variable</h1>
         <div class="d-flex d-inline">
           <v-btn size="small" class="mt-1 mr-2" @click="$emit('cancel')">
             Cancel
@@ -55,6 +55,22 @@ function onDelete() {
             :rules="[
               v => !!v || 'Field is required'
             ]"
+          />
+
+          <v-select
+            v-model="variable.type"
+            label="Variable type"
+            :items="['SCRIPT', 'TEXT']"
+          ></v-select>
+
+          <v-textarea
+            v-if="variable.type === 'TEXT'"
+            v-model="variable.response"
+            auto-grow
+            label="Variable response"
+            rows="1"
+            row-height="5"
+            class="mt-2"
           />
         </div>
       </v-form>

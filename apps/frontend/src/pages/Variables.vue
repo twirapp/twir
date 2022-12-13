@@ -93,7 +93,7 @@ function onDelete(v: ChannelCustomvar) {
       location="right"
       :class="[mobile ? 'w-100' : 'w-50']"
     >
-      <VariableDrawer :keyword="editableVariable!" @cancel="cancelEdit" />
+      <VariableDrawer :variable="editableVariable!" @cancel="cancelEdit" />
     </v-navigation-drawer>
   </div>
 </template>
