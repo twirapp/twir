@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { mdiPencil, mdiTrashCan } from '@mdi/js';
 import { type ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useDisplay } from 'vuetify';
 
 import confirmDeletion from '@/components/confirmDeletion.vue';
@@ -23,8 +23,12 @@ function cancelEdit() {
   editableVariable.value = undefined;
 }
 
-function onDelete(k: ChannelCustomvar) {
-  console.log(k);
+function deleteVariable(v: ChannelCustomvar) {
+
+}
+
+function onDelete(v: ChannelCustomvar) {
+  console.log(v);
 }
 </script>
 
@@ -45,6 +49,9 @@ function onDelete(k: ChannelCustomvar) {
           <th class="text-left">
             Response
           </th>
+          <th class="text-left">
+            Actions
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -64,10 +71,18 @@ function onDelete(k: ChannelCustomvar) {
               {{ variable.response }}
             </p>
             <p v-else>
-              <v-chip size="small">
+              <v-chip size="small" color="secondary">
                 Cannot display script
               </v-chip>
             </p>
+          </td>
+          <td>
+            <div class="d-flex flex-row">
+              <v-btn :icon="mdiPencil" size="x-small" color="purple" @click="setEditKeyword(variable)" />
+              <confirmDeletion :cb="() => deleteVariable(variable)">
+                <v-btn :icon="mdiTrashCan" size="x-small" color="red" class="ml-2" @click="$emit('click')" />
+              </confirmDeletion>
+            </div>
           </td>
         </tr>
       </tbody>
