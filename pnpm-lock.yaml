@@ -117,6 +117,7 @@ importers:
 
   apps/frontend:
     specifiers:
+      '@guolao/vue-monaco-editor': ^0.0.5
       '@intlify/vite-plugin-vue-i18n': 6.0.3
       '@mdi/js': ^7.0.96
       '@nanostores/persistent': ^0.7.0
@@ -141,6 +142,7 @@ importers:
       vue-router: 4.1.6
       vuetify: ^3.0.3
     dependencies:
+      '@guolao/vue-monaco-editor': 0.0.5_qchiutzdgbsxn4czkaqkjgy2ji
       '@nanostores/persistent': 0.7.0_nanostores@0.7.1
       '@nanostores/vue': 0.6.1_tnmprsfnlyw4kcmtay2p7ledhm
       '@types/lodash.chunk': 4.2.7
@@ -2439,6 +2441,17 @@ packages:
       yargs: 16.2.0
     dev: false
 
+  /@guolao/vue-monaco-editor/0.0.5_qchiutzdgbsxn4czkaqkjgy2ji:
+    resolution: {integrity: sha512-PBrIWpxpzTvOy432IhjH8N+esPDTqV4d8LHb1utdgYbkSxlmpUf/SN4rX5Z3Vz0vbLJHCC0+Pf8gkVIC90e5ag==}
+    peerDependencies:
+      monaco-editor: ^0.33.0
+      vue: ^3.2.33
+    dependencies:
+      '@monaco-editor/loader': 1.3.2_monaco-editor@0.33.0
+      monaco-editor: 0.33.0
+      vue: 3.2.45
+    dev: false
+
   /@humanwhocodes/config-array/0.11.7:
     resolution: {integrity: sha512-kBbPWzN8oVMLb0hOUYXhmxggL/1cJE6ydvjDIGi9EnAGUyA7cLVKQg+d/Dsm+KZwx2czGHrCmMVLiyg8s5JPKw==}
     engines: {node: '>=10.10.0'}
@@ -2776,6 +2789,15 @@ packages:
   /@mdx-js/util/1.6.22:
     resolution: {integrity: sha512-H1rQc1ZOHANWBvPcW+JpGwr+juXSxM8Q8YCkm3GhZd8REu1fHR3z99CErO1p9pkcfcxZnMdIZdIsXkOHY0NilA==}
     dev: true
+
+  /@monaco-editor/loader/1.3.2_monaco-editor@0.33.0:
+    resolution: {integrity: sha512-BTDbpHl3e47r3AAtpfVFTlAi7WXv4UQ/xZmz8atKl4q7epQV5e7+JbigFDViWF71VBi4IIBdcWP57Hj+OWuc9g==}
+    peerDependencies:
+      monaco-editor: '>= 0.21.0 < 1'
+    dependencies:
+      monaco-editor: 0.33.0
+      state-local: 1.0.7
+    dev: false
 
   /@mrmlnc/readdir-enhanced/2.2.1:
     resolution: {integrity: sha512-bPHp6Ji8b41szTOcaP63VlnbbO5Ny6dwAATtY6JTjh5N2OLrb5Qk/Th5cRkRQhkWCt+EJsYrNB0MiL+Gpn6e3g==}
@@ -11714,6 +11736,10 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  /monaco-editor/0.33.0:
+    resolution: {integrity: sha512-VcRWPSLIUEgQJQIE0pVT8FcGBIgFoxz7jtqctE+IiCxWugD0DwgyQBcZBhdSrdMC84eumoqMZsGl2GTreOzwqw==}
+    dev: false
+
   /move-concurrently/1.0.1:
     resolution: {integrity: sha512-hdrFxZOycD/g6A6SoI2bB5NA/5NEqD0569+S47WZhPvm46sD50ZHdYaFmnua5lndde9rCHGjmfK7Z8BuCt/PcQ==}
     dependencies:
@@ -14281,6 +14307,10 @@ packages:
 
   /standard-as-callback/2.1.0:
     resolution: {integrity: sha512-qoRRSyROncaz1z0mvYqIE4lCd9p2R90i6GxW3uZv5ucSu8tU7B5HXUP1gG8pVZsYNVaXjk8ClXHPttLyxAL48A==}
+    dev: false
+
+  /state-local/1.0.7:
+    resolution: {integrity: sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==}
     dev: false
 
   /state-toggle/1.0.3:

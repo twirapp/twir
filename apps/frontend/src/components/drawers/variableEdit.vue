@@ -1,19 +1,21 @@
 <script lang="ts" setup>
+import Editor, { useMonaco } from '@guolao/vue-monaco-editor';
 import { mdiPlus, mdiClose } from '@mdi/js';
 import { type ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
-import { ref } from 'vue';
+import { onUnmounted, ref } from 'vue';
 
 import confirmDeletion from '@/components/confirmDeletion.vue';
 
 const props = defineProps<{
   variable: ChannelCustomvar
 }>();
-
 const emits = defineEmits<{
   (event: 'cancel'): () => void
 }>();
-
 const variable = ref(props.variable);
+const { monacoRef, unload } = useMonaco();
+
+onUnmounted(() => !monacoRef.value && unload());
 
 function onDelete() {
   console.log(variable);
@@ -73,6 +75,15 @@ function onDelete() {
             class="mt-2"
           />
         </div>
+
+        <Editor 
+          v-if="variable.type === 'SCRIPT'"
+          height="60vh"
+          theme="vs-dark"
+          defaultLanguage="javascript"
+          defaultValue="// write code here"
+          :options="{}"
+        />
       </v-form>
     </v-list-item>
   </div>
