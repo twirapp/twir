@@ -3,8 +3,9 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { RouterView } from 'vue-router';
 import { useDisplay } from 'vuetify';
 
+import Profile from './components/layout/profile.vue';
+import Channel from './components/sidebar/channel.vue';
 import Sidebar from './components/sidebar/menu.vue';
-import Profile from './components/sidebar/profile.vue';
 
 const drawer = ref(false);
 
@@ -22,12 +23,18 @@ watch(mobile, (_, v) => {
 <template>
   <v-layout>
     <v-navigation-drawer v-model="drawer" color="grey-darken-5" :expand-on-hover="!mobile" :rail="!mobile"> 
-      <Profile />
+      <Channel />
       <v-divider></v-divider>
       <Sidebar />
     </v-navigation-drawer>
     <v-app-bar color="grey-darken-5">
-      <v-app-bar-nav-icon v-if="mobile" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <template #prepend>
+        <v-app-bar-nav-icon v-if="mobile" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      </template>
+
+      <template #append>
+        <Profile />
+      </template>
     </v-app-bar>
     <v-main>
       <div style="padding: 8px;">

@@ -76,14 +76,10 @@ function onDelete() {
           />
         </div>
 
-        <v-sheet
-          v-if="variable.type === 'SCRIPT'"
-          rounded
-          class="mt-2 pa-4"
-          color="#484749"
-        >
+        <v-alert v-if="variable.type === 'SCRIPT'" type="info" class="mt-2 pa-4" density="compact" color="indigo">
           Do not forget about semicolons when writing scripts. It's important.
-        </v-sheet>
+        </v-alert>
+
         <Editor 
           v-if="variable.type === 'SCRIPT'"
           v-model:value="variable.evalValue"

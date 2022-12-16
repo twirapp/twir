@@ -9,7 +9,7 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <v-card class="ma-2 w-25 d-flex flex-column">
+  <v-card class="ma-2 d-flex flex-column fill-height">
     <v-card-title>Faceit</v-card-title>
     <v-divider />
     <v-card-text>

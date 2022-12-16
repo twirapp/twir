@@ -24,7 +24,7 @@ const { smAndDown } = useDisplay();
         <Lastfm />
       </v-col>
     </v-row>
-    <v-row justify="center">
+    <v-row justify="center" align="stretch">
       <v-col :cols="smAndDown ? 12 : 3">
         <Faceit />
       </v-col>

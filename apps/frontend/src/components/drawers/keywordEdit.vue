@@ -76,7 +76,7 @@ function onDelete() {
             <div class="d-flex justify-space-between mt-2">
               <v-slider
                 v-model="keyword.cooldown"
-                :min="1"
+                :min="0"
                 :max="120"
                 :step="1"
               >

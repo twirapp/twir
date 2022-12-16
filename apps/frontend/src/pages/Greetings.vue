@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { useDisplay } from 'vuetify';
 
 import confirmDeletion from '@/components/confirmDeletion.vue';
-import VariableDrawer from '@/components/drawers/variableEdit.vue';
+import GreetingsDrawer from '@/components/drawers/greetingEdit.vue';
 import { greetings, type Greeting } from '@/stores/greetings';
 
 const { mobile } = useDisplay();
@@ -69,13 +69,13 @@ function onDelete(g: Greeting) {
 
 
     <v-navigation-drawer
-      v-if="isVariableEdit"
-      v-model="isVariableEdit"
+      v-if="isGreetingEdit"
+      v-model="isGreetingEdit"
       temporary
       location="right"
       :class="[mobile ? 'w-100' : 'w-50']"
     >
-      <VariableDrawer :variable="editableVariable!" @cancel="cancelEdit" />
+      <GreetingsDrawer :greeting="editableGreeting!" @cancel="cancelEdit" />
     </v-navigation-drawer>
   </div>
 </template>
