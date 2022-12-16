@@ -42,14 +42,11 @@ function deleteCommand(command: ChannelCommand) {
 </script>
 
 <template>
-  <div class="d-flex flex-column">
-    <div>
+  <div class="d-flex align-center flex-column">
+    <v-col cols="12">
       <v-tabs
         v-model="selectedTab"
-        centered
-        stacked
-        fixed-tabs
-        class="d-flex justify-center"
+        class="d-flex justify-start`"
       >
         <v-tab v-for="tab of tabs" :key="tab.value" :value="tab.value">
           <v-icon v-if="tab.icon">
@@ -58,54 +55,56 @@ function deleteCommand(command: ChannelCommand) {
           {{ tab.name }}
         </v-tab>
       </v-tabs>
-    </div>
+    </v-col>
     
+    <v-col cols="12">
+      <v-table>
+        <thead>
+          <tr>
+            <th class="text-left">
+              Name
+            </th>
+            <th v-if="!smAndDown && selectedTab === 'CUSTOM'" class="text-left">
+              Responses
+            </th>
+            <th class="text-left">
+              Status
+            </th>
+            <th class="text-left">
+              Actions
+            </th>
+          </tr>
+        </thead>
 
-    <v-table class="mt-2">
-      <thead>
-        <tr>
-          <th class="text-left">
-            Name
-          </th>
-          <th v-if="!smAndDown && selectedTab === 'CUSTOM'" class="text-left">
-            Responses
-          </th>
-          <th class="text-left">
-            Status
-          </th>
-          <th class="text-left">
-            Actions
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="command in commandsList"
-          :key="command.name"
-        >
-          <td :width="(!smAndDown && selectedTab === 'CUSTOM') ? '10%' : '100%'">
-            {{ command.name }}
-          </td>
-          <td v-if="!smAndDown && selectedTab === 'CUSTOM'">
-            <p v-if="command.responses!.length > 1" v-html="command.responses?.map((t) => t.text).join('<br>')"></p>
-            <p v-else>
-              {{ command.responses![0]?.text ?? '' }}
-            </p>
-          </td>
-          <td>
-            <v-switch v-model="command.enabled" class="d-flex justify-center" color="green"></v-switch>
-          </td>
-          <td>
-            <div class="d-flex flex-row">
-              <v-btn :icon="mdiPencil" size="x-small" color="purple" @click="setEditCommand(command)" />
-              <confirmDeletion :cb="() => deleteCommand(command)">
-                <v-btn :icon="mdiTrashCan" size="x-small" color="red" class="ml-2" @click="$emit('click')" />
-              </confirmDeletion>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
+        <tbody>
+          <tr
+            v-for="command in commandsList"
+            :key="command.name"
+          >
+            <td :width="(!smAndDown && selectedTab === 'CUSTOM') ? '10%' : '100%'">
+              {{ command.name }}
+            </td>
+            <td v-if="!smAndDown && selectedTab === 'CUSTOM'">
+              <p v-if="command.responses!.length > 1" v-html="command.responses?.map((t) => t.text).join('<br>')"></p>
+              <p v-else>
+                {{ command.responses![0]?.text ?? '' }}
+              </p>
+            </td>
+            <td>
+              <v-switch v-model="command.enabled" class="d-flex justify-center" color="green"></v-switch>
+            </td>
+            <td>
+              <div class="d-flex flex-row">
+                <v-btn :icon="mdiPencil" size="x-small" color="purple" @click="setEditCommand(command)" />
+                <confirmDeletion :cb="() => deleteCommand(command)">
+                  <v-btn :icon="mdiTrashCan" size="x-small" color="red" class="ml-2" @click="$emit('click')" />
+                </confirmDeletion>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
+    </v-col>
 
 
     <v-navigation-drawer

@@ -22,12 +22,12 @@ watch(mobile, (_, v) => {
 
 <template>
   <v-layout>
-    <v-navigation-drawer v-model="drawer" color="grey-darken-5" :expand-on-hover="!mobile" :rail="!mobile"> 
+    <v-navigation-drawer v-model="drawer" color="#202020" :expand-on-hover="!mobile" :rail="!mobile"> 
       <Channel />
       <v-divider></v-divider>
       <Sidebar />
     </v-navigation-drawer>
-    <v-app-bar color="grey-darken-5">
+    <v-app-bar color="#202020">
       <template #prepend>
         <v-app-bar-nav-icon v-if="mobile" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       </template>
@@ -37,9 +37,17 @@ watch(mobile, (_, v) => {
       </template>
     </v-app-bar>
     <v-main>
-      <div style="padding: 8px;">
+      <div class="main">
         <RouterView />
       </div>
     </v-main>
   </v-layout>
 </template>
+
+<style>
+.main {
+  width: 80%;
+  margin: 0 auto;
+  padding:8px;
+}
+</style>
