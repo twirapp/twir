@@ -2,7 +2,7 @@ import { execSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 
 dotenv.config({ path: resolve(process.cwd(), '../../.env') });
 

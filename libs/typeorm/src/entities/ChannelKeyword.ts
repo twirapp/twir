@@ -27,8 +27,8 @@ export class ChannelKeyword {
   @Column('boolean', { name: 'enabled', default: true })
   enabled: boolean;
 
-  @Column('integer', { name: 'cooldown', nullable: true, default: 0 })
-  cooldown: number | null;
+  @Column('integer', { name: 'cooldown', nullable: false, default: 0 })
+  cooldown: number;
 
   @ManyToOne(() => Channel, _ => _.keywords, {
     onDelete: 'RESTRICT',

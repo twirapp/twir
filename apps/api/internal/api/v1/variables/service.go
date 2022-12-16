@@ -54,8 +54,8 @@ func handlePost(
 		Name:        dto.Name,
 		Description: null.StringFromPtr(dto.Description),
 		Type:        dto.Type,
-		EvalValue:   null.StringFromPtr(dto.EvalValue),
-		Response:    null.StringFromPtr(dto.Response),
+		EvalValue:   dto.EvalValue,
+		Response:    dto.Response,
 		ChannelID:   channelId,
 	}
 	err = services.DB.Save(&newVariable).Error
@@ -100,8 +100,8 @@ func handleUpdate(
 		Name:        dto.Name,
 		Description: null.StringFromPtr(dto.Description),
 		Type:        dto.Type,
-		EvalValue:   null.StringFromPtr(dto.EvalValue),
-		Response:    null.StringFromPtr(dto.Response),
+		EvalValue:   dto.EvalValue,
+		Response:    dto.Response,
 		ChannelID:   channelId,
 	}
 

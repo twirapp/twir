@@ -9,7 +9,7 @@ const { t } = useI18n();
 <template>
   <v-card class="ma-2 w-25">
     <v-card-text>
-      <v-alert density="compact" :type="isBotMod ? 'success' : 'red'">
+      <v-alert density="compact" :type="isBotMod ? 'success' : 'info'">
         <span v-html="t(isBotMod ? 'pages.dashboard.widgets.status.mod' : 'pages.dashboard.widgets.status.notMod')"></span>
       </v-alert>
     </v-card-text>

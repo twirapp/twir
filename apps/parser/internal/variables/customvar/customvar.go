@@ -26,13 +26,13 @@ var Variable = types.Variable{
 
 		v := getVarByName(ctx, *data.Params)
 
-		if v == nil {
+		if v == nil || v.Response == "" || v.EvalValue == "" {
 			return result, nil
 		}
 
 		if v.Type == "SCRIPT" {
 			req, err := ctx.Services.EvalGrpc.Process(context.Background(), &eval.Evaluate{
-				Script: v.EvalValue.String,
+				Script: v.EvalValue,
 			})
 			if err != nil {
 				return nil, errors.New(
@@ -42,7 +42,7 @@ var Variable = types.Variable{
 
 			result.Result = req.Result
 		} else {
-			result.Result = v.Response.String
+			result.Result = v.Response
 		}
 
 		return result, nil

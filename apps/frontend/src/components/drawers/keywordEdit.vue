@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { mdiRegex } from '@mdi/js';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import { ref } from 'vue';
 
@@ -49,13 +50,26 @@ function onDelete() {
         <div
           class="d-flex flex-column"
         >
-          <v-text-field 
-            v-model="keyword.text" 
-            label="Text" 
-            :rules="[
-              v => !!v || 'Field is required'
-            ]"
-          />
+          <div
+            class="d-flex flex-row"
+          >
+            <div class="w-75">
+              <v-text-field 
+                v-model="keyword.text" 
+                label="Text" 
+                :rules="[
+                  v => !!v || 'Field is required'
+                ]"
+              />
+            </div>
+            <div class="w-25 ml-2">
+              <v-checkbox v-model="keyword.isRegular" label="Use RegExp" />
+            </div>
+          </div>
+
+          <v-alert v-if="keyword.isRegular" type="info" class="mb-2" density="compact" color="indigo" :icon="mdiRegex">
+            We use <b>Golang</b> on our backend. So your variables must be for this language. Regular expressions written for <b>JavaScript</b> will not work.
+          </v-alert>
 
           <div>
             <h4>Cooldown (seconds)</h4>
@@ -96,6 +110,10 @@ function onDelete() {
             label="Usages"
             type="number"
           ></v-text-field>
+
+          <v-alert v-if="keyword.isRegular" type="info" class="mb-2" density="compact" color="indigo">
+            You can print usages count in bot responses with <code class="text-red-lighten-3">$(keywords.counter|{{ keyword.id }})</code> variable.
+          </v-alert>
         </div>
       </v-form>
     </v-list-item>

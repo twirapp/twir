@@ -6,7 +6,6 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 )
@@ -27,7 +26,9 @@ func handlePost(
 	services types.Services,
 ) (*model.ChannelsKeywords, error) {
 	existedKeyword := model.ChannelsKeywords{}
-	err := services.DB.Where(`"channelId" = ? AND "text" = ?`, channelId, dto.Text).First(&existedKeyword).Error
+	err := services.DB.Where(`"channelId" = ? AND "text" = ?`, channelId, dto.Text).
+		First(&existedKeyword).
+		Error
 	if err == nil {
 		return nil, fiber.NewError(400, "keyword with that text already exists")
 	}
@@ -38,7 +39,7 @@ func handlePost(
 		Text:      dto.Text,
 		Response:  dto.Response,
 		Enabled:   *dto.Enabled,
-		Cooldown:  null.IntFrom(int64(dto.Cooldown)),
+		Cooldown:  int(dto.Cooldown),
 		IsRegular: *dto.IsRegular,
 		IsReply:   *dto.IsReply,
 		Usages:    *dto.Usages,
@@ -83,7 +84,7 @@ func handleUpdate(
 		Text:      dto.Text,
 		Response:  dto.Response,
 		Enabled:   *dto.Enabled,
-		Cooldown:  null.IntFrom(int64(dto.Cooldown)),
+		Cooldown:  int(dto.Cooldown),
 		IsReply:   *dto.IsReply,
 		IsRegular: *dto.IsRegular,
 		Usages:    *dto.Usages,
