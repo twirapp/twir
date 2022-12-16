@@ -26,7 +26,13 @@ const navigationLinks: Array<{ label: string; icon: TablerIcon; path: string }> 
   { label: 'Greetings', icon: IconSpeakerphone, path: '/greetings' },
 ];
 
-export function SideBar({ opened, ref }: { opened: boolean; ref: MutableRefObject<any> }) {
+export function SideBar({
+  opened,
+  reference,
+}: {
+  opened: boolean;
+  reference: MutableRefObject<any>;
+}) {
   const router = useRouter();
 
   const items = navigationLinks.map((item, index) => (
@@ -43,7 +49,7 @@ export function SideBar({ opened, ref }: { opened: boolean; ref: MutableRefObjec
   ));
 
   return (
-    <Navbar ref={ref} hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 150, lg: 150 }}>
+    <Navbar ref={reference} hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 150, lg: 150 }}>
       <Box component={ScrollArea}>{items}</Box>
     </Navbar>
   );

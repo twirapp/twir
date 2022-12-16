@@ -1541,7 +1541,10 @@ export function Profile() {
           {dashboards
             .filter((d) => (searchState !== '' ? d.twitchUser.login.includes(searchState) : true))
             .map((d) => (
-              <Menu.Item icon={<Image src={d.twitchUser.profile_image_url} height={20} />}>
+              <Menu.Item
+                icon={<Image src={d.twitchUser.profile_image_url} height={20} />}
+                key={d.userId + d.id}
+              >
                 {d.twitchUser.login}
               </Menu.Item>
             ))}

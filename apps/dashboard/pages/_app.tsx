@@ -10,8 +10,8 @@ import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useState } from 'react';
 
-import { NavBar } from './layout/navbar';
-import { SideBar } from './layout/sidebar';
+import { NavBar } from '../components/layout/navbar';
+import { SideBar } from '../components/layout/sidebar';
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
@@ -48,7 +48,7 @@ export default function App(props: AppProps) {
             }}
             navbarOffsetBreakpoint="sm"
             asideOffsetBreakpoint="sm"
-            navbar={<SideBar ref={ref} opened={opened} />}
+            navbar={<SideBar reference={ref} opened={opened} />}
             header={<NavBar setOpened={setOpened} opened={opened} />}
           >
             <Component

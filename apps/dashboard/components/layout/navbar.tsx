@@ -54,7 +54,7 @@ export function NavBar({
         </Flex>
         <Group position="center">
           <ActionIcon
-            variant="outline"
+            variant="subtle"
             color={theme.colorScheme === 'dark' ? 'yellow' : 'blue'}
             onClick={() => toggleColorScheme()}
             title="Toggle color scheme"
