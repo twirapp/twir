@@ -53,6 +53,9 @@ export class ChannelStream {
   @Column('text', { nullable: true, array: true, default: [] })
   tagIds: string[] | null;
 
+  @Column('text', { nullable: true, array: true, default: [] })
+  tags: string[] | null;
+
   @Column('bool')
   isMature: boolean;
 
