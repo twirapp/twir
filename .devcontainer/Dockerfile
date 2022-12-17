@@ -18,7 +18,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt install -y nodejs
 RUN wget https://go.dev/dl/go1.19.4.linux-$TARGETARCH.tar.gz && \
     tar -C /usr/local -xzf go1.19.4.linux-$TARGETARCH.tar.gz && \
-    rm go1.19.4.linux-amd64.tar.gz
+    rm go1.19.4.linux-$TARGETARCH.tar.gz
 
 RUN npm i -g pnpm@7.17.1 @go-task/cli
 
