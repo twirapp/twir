@@ -39,6 +39,7 @@ importers:
       '@mantine/next': ^5.9.4
       '@mantine/notifications': ^5.9.4
       '@mantine/spotlight': ^5.9.5
+      '@monaco-editor/react': ^4.4.6
       '@tabler/icons': ^1.117.0
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
@@ -62,6 +63,7 @@ importers:
       '@mantine/next': 5.9.4_odc7g525exkk54a4anpochw4ci
       '@mantine/notifications': 5.9.4_akxvflpdc4qclfp7ngtfppkada
       '@mantine/spotlight': 5.9.5_akxvflpdc4qclfp7ngtfppkada
+      '@monaco-editor/react': 4.4.6_6vrjaj6ridxbohi43n7zt4gn7q
       '@tabler/icons': 1.117.0_biqbaboplfbrettd7655fr4n2y
       next: 13.0.7_672uxklweod7ene3nqtsh262ca
       react: 18.2.0
@@ -2948,6 +2950,29 @@ packages:
   /@mdx-js/util/1.6.22:
     resolution: {integrity: sha512-H1rQc1ZOHANWBvPcW+JpGwr+juXSxM8Q8YCkm3GhZd8REu1fHR3z99CErO1p9pkcfcxZnMdIZdIsXkOHY0NilA==}
     dev: true
+
+  /@monaco-editor/loader/1.3.2_monaco-editor@0.34.1:
+    resolution: {integrity: sha512-BTDbpHl3e47r3AAtpfVFTlAi7WXv4UQ/xZmz8atKl4q7epQV5e7+JbigFDViWF71VBi4IIBdcWP57Hj+OWuc9g==}
+    peerDependencies:
+      monaco-editor: '>= 0.21.0 < 1'
+    dependencies:
+      monaco-editor: 0.34.1
+      state-local: 1.0.7
+    dev: false
+
+  /@monaco-editor/react/4.4.6_6vrjaj6ridxbohi43n7zt4gn7q:
+    resolution: {integrity: sha512-Gr3uz3LYf33wlFE3eRnta4RxP5FSNxiIV9ENn2D2/rN8KgGAD8ecvcITRtsbbyuOuNkwbuHYxfeaz2Vr+CtyFA==}
+    peerDependencies:
+      monaco-editor: '>= 0.25.0 < 1'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@monaco-editor/loader': 1.3.2_monaco-editor@0.34.1
+      monaco-editor: 0.34.1
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
 
   /@mrmlnc/readdir-enhanced/2.2.1:
     resolution: {integrity: sha512-bPHp6Ji8b41szTOcaP63VlnbbO5Ny6dwAATtY6JTjh5N2OLrb5Qk/Th5cRkRQhkWCt+EJsYrNB0MiL+Gpn6e3g==}
@@ -11903,6 +11928,10 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  /monaco-editor/0.34.1:
+    resolution: {integrity: sha512-FKc80TyiMaruhJKKPz5SpJPIjL+dflGvz4CpuThaPMc94AyN7SeC9HQ8hrvaxX7EyHdJcUY5i4D0gNyJj1vSZQ==}
+    dev: false
+
   /move-concurrently/1.0.1:
     resolution: {integrity: sha512-hdrFxZOycD/g6A6SoI2bB5NA/5NEqD0569+S47WZhPvm46sD50ZHdYaFmnua5lndde9rCHGjmfK7Z8BuCt/PcQ==}
     dependencies:
@@ -14615,6 +14644,10 @@ packages:
 
   /standard-as-callback/2.1.0:
     resolution: {integrity: sha512-qoRRSyROncaz1z0mvYqIE4lCd9p2R90i6GxW3uZv5ucSu8tU7B5HXUP1gG8pVZsYNVaXjk8ClXHPttLyxAL48A==}
+    dev: false
+
+  /state-local/1.0.7:
+    resolution: {integrity: sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==}
     dev: false
 
   /state-toggle/1.0.3:
