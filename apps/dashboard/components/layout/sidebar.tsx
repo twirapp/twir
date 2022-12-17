@@ -125,6 +125,7 @@ export function SideBar({ opened }: { opened: boolean }) {
         e.preventDefault();
         router.push(item.path ? item.path : item.label.toLowerCase());
       }}
+      sx={{ width: '100%' }}
     />
   ));
 
@@ -132,7 +133,9 @@ export function SideBar({ opened }: { opened: boolean }) {
     <Navbar hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 150, lg: 250 }}>
       <Navbar.Section grow>
         <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
-          <Box component={ScrollArea}>{links}</Box>
+          <Box component={ScrollArea} sx={{ width: '100%' }}>
+            {links}
+          </Box>
         </ScrollArea.Autosize>
       </Navbar.Section>
       <Navbar.Section>
