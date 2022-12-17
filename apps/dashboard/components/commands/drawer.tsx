@@ -190,6 +190,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                   />
                 </ActionIcon>
               </Flex>
+              {!form.getInputProps('responses').value?.length && <Alert>No responses added</Alert>}
               <DragDropContext
                 onDragEnd={({ destination, source }) =>
                   form.reorderListItem('responses', {
