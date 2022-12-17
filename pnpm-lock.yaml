@@ -38,6 +38,7 @@ importers:
       '@mantine/modals': ^5.9.4
       '@mantine/next': ^5.9.4
       '@mantine/notifications': ^5.9.4
+      '@mantine/spotlight': ^5.9.5
       '@tabler/icons': ^1.117.0
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
@@ -60,6 +61,7 @@ importers:
       '@mantine/modals': 5.9.4_akxvflpdc4qclfp7ngtfppkada
       '@mantine/next': 5.9.4_odc7g525exkk54a4anpochw4ci
       '@mantine/notifications': 5.9.4_akxvflpdc4qclfp7ngtfppkada
+      '@mantine/spotlight': 5.9.5_akxvflpdc4qclfp7ngtfppkada
       '@tabler/icons': 1.117.0_biqbaboplfbrettd7655fr4n2y
       next: 13.0.7_672uxklweod7ene3nqtsh262ca
       react: 18.2.0
@@ -2830,6 +2832,21 @@ packages:
       react-transition-group: 4.4.2_biqbaboplfbrettd7655fr4n2y
     dev: false
 
+  /@mantine/spotlight/5.9.5_akxvflpdc4qclfp7ngtfppkada:
+    resolution: {integrity: sha512-JFk9UKaagwMJjljySYpWq2QR3yHrFcxgWltY2ebjtFsPIKllzXxHAy/+VetytyNl9LtKnF8q0A93OctlGamq4A==}
+    peerDependencies:
+      '@mantine/core': 5.9.5
+      '@mantine/hooks': 5.9.5
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      '@mantine/core': 5.9.4_pgo6dehjvjnehz6jphknhqbkyi
+      '@mantine/hooks': 5.9.4_react@18.2.0
+      '@mantine/utils': 5.9.5_react@18.2.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
   /@mantine/ssr/5.9.4_vavbdtuajfyku5chqvt5ands7q:
     resolution: {integrity: sha512-c7zlKxp6kb6FpN9xWlEpOAZgmS+LKwz6h2K6JUCjYOEtemMo+E28G1twoSg++xFxlTjnqcQohtXkddbKo0B0fw==}
     peerDependencies:
@@ -2862,6 +2879,14 @@ packages:
 
   /@mantine/utils/5.9.4_react@18.2.0:
     resolution: {integrity: sha512-NZAn30jjF52X+MFnkO3oaVgo2LPx3o/QxYlcuMkRBUTZALEXvQgrD0OyGDRgEXnfMdmkBP6rk3Pol6yXXEwU6w==}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+    dev: false
+
+  /@mantine/utils/5.9.5_react@18.2.0:
+    resolution: {integrity: sha512-OtMOvXMyqpZ+Tz25DYRwRkvERvmF4L0RJiq+JnXk+1yKDvG+JZQuMMLnt0nZ81T6q7uzDSA29cJ45syHL2BXmQ==}
     peerDependencies:
       react: '>=16.8.0'
     dependencies:
