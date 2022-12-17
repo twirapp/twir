@@ -1,4 +1,3 @@
-import { jsx } from '@emotion/react';
 import {
   Drawer,
   Flex,
@@ -15,9 +14,11 @@ import {
   Group,
   Center,
   Textarea,
+  Box,
+  Menu,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconGripVertical, IconInfoCircle, IconMinus, IconPlus } from '@tabler/icons';
+import { IconGripVertical, IconInfoCircle, IconMinus, IconPlus, IconVariable } from '@tabler/icons';
 import type { ChannelCommand, CommandPermission } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -85,46 +86,6 @@ export const CommandDrawer: React.FC<Props> = (props) => {
             />
           </div>
 
-          {/* <div>
-            <Flex direction="row" gap="xs">
-              <Text>Responses</Text>
-              <ActionIcon variant="light" color="green" size="xs">
-                <IconPlus
-                  size={18}
-                  onClick={() => {
-                    form.insertListItem('responses', { text: '' });
-                  }}
-                />
-              </ActionIcon>
-            </Flex>
-            <ScrollArea mah={200} type="auto">
-              {!form.values.responses?.length && (
-                <Alert icon={<IconInfoCircle size={16} />} color="cyan">
-                  There is no responses
-                </Alert>
-              )}
-                {form.values.responses?.map((_, i) => (
-                   <Input
-                   key={i}
-                      component="textarea"
-                      autosize="true"
-                      placeholder="response"
-                      {...form.getInputProps(`responses.${i}.text`)}
-                      rightSection={
-                        <ActionIcon
-                          variant="filled"
-                          onClick={() => {
-                            form.removeListItem('responses', i);
-                          }}
-                        >
-                          <IconMinus size={18} />
-                        </ActionIcon>
-                      }
-                    />
-                ))}
-              
-            </ScrollArea>
-          </div> */}
           <div style={{ width: 450 }}>
             <Flex direction="row" gap="xs">
               <Text>Responses</Text>
@@ -137,18 +98,18 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                 />
               </ActionIcon>
             </Flex>
-            <ScrollArea mah={200} type="auto">
-              <DragDropContext
-                onDragEnd={({ destination, source }) =>
-                  form.reorderListItem('responses', {
-                    from: source.index,
-                    to: destination!.index,
-                  })
-                }
-              >
-                <Droppable droppableId="responses" direction="vertical">
-                  {(provided) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef}>
+            <DragDropContext
+              onDragEnd={({ destination, source }) =>
+                form.reorderListItem('responses', {
+                  from: source.index,
+                  to: destination!.index,
+                })
+              }
+            >
+              <Droppable droppableId="responses" direction="vertical">
+                {(provided) => (
+                  <div {...provided.droppableProps} ref={provided.innerRef}>
+                    <ScrollArea.Autosize maxHeight={250} mx="auto" type="auto">
                       {form.values.responses?.map((_, index) => (
                         <Draggable key={index} index={index} draggableId={index.toString()}>
                           {(provided) => (
@@ -163,6 +124,18 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                                 placeholder="response"
                                 autosize={true}
                                 minRows={1}
+                                rightSection={
+                                  <Menu zIndex={999} position="bottom-end" shadow="md" width={200}>
+                                    <Menu.Target>
+                                      <ActionIcon variant="filled">
+                                        <IconVariable size={18} />
+                                      </ActionIcon>
+                                    </Menu.Target>
+                                    <Menu.Dropdown>
+                                      <Menu.Item>qwe</Menu.Item>
+                                    </Menu.Dropdown>
+                                  </Menu>
+                                }
                                 {...form.getInputProps(`responses.${index}.text`)}
                               />
                               <Center {...provided.dragHandleProps}>
@@ -182,11 +155,11 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                       ))}
 
                       {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            </ScrollArea>
+                    </ScrollArea.Autosize>
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           </div>
 
           <div>
@@ -201,12 +174,12 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                 />
               </ActionIcon>
             </Flex>
-            <ScrollArea mah={100} type="auto">
-              {!form.values.aliases?.length && (
-                <Alert icon={<IconInfoCircle size={16} />} color="cyan">
-                  There is no aliases
-                </Alert>
-              )}
+            {!form.values.aliases?.length && (
+              <Alert icon={<IconInfoCircle size={16} />} color="cyan">
+                There is no aliases
+              </Alert>
+            )}
+            <ScrollArea.Autosize maxHeight={100} mx="auto" type="auto">
               <Grid grow gutter="xs" style={{ margin: 0, gap: 8 }}>
                 {form.values.aliases?.map((_, i) => (
                   <Grid.Col style={{ padding: 0 }} key={i} xs={4} sm={4} md={4} lg={4} xl={4}>
@@ -227,7 +200,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                   </Grid.Col>
                 ))}
               </Grid>
-            </ScrollArea>
+            </ScrollArea.Autosize>
           </div>
 
           <div>
