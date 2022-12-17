@@ -28,6 +28,7 @@ export default function () {
         <thead>
           <tr>
             <th>Name</th>
+            <th>Type</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -37,6 +38,9 @@ export default function () {
               <tr key={element.id}>
                 <td>
                   <Badge>{element.name}</Badge>
+                </td>
+                <td>
+                  <Badge color="cyan">{element.type}</Badge>
                 </td>
                 <td>
                   <Button
