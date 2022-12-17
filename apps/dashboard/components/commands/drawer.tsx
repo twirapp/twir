@@ -16,6 +16,7 @@ import {
   Textarea,
   Box,
   Menu,
+  Badge,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
@@ -71,7 +72,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
     <Drawer
       opened={props.opened}
       onClose={() => props.setOpened(false)}
-      title={`Edit !${props.command.name}`}
+      title={<Badge size="xl">{props.command.name}</Badge>}
       padding="xl"
       size="xl"
       position="right"

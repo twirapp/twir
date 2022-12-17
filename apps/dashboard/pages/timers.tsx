@@ -1,4 +1,8 @@
 import { Badge, Button, Switch, Table } from '@mantine/core';
+import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
+import { useState } from 'react';
+
+import { TimerDrawer } from '../components/timers/drawer';
 
 const timers = [
   {
@@ -37,6 +41,9 @@ const timers = [
   },
 ];
 export default function () {
+  const [editDrawerOpened, setEditDrawerOpened] = useState(false);
+  const [editableTimer, setEditableTimer] = useState<ChannelTimer>({} as any);
+
   return (
     <div>
       <Table>
@@ -66,12 +73,25 @@ export default function () {
                 />
               </td>
               <td>
-                <Button>Edit</Button>
+                <Button
+                  onClick={() => {
+                    setEditableTimer(timers[idx] as any);
+                    setEditDrawerOpened(true);
+                  }}
+                >
+                  Edit
+                </Button>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
+
+      <TimerDrawer
+        opened={editDrawerOpened}
+        setOpened={setEditDrawerOpened}
+        timer={editableTimer}
+      />
     </div>
   );
 }
