@@ -1,3 +1,4 @@
+import { jsx } from '@emotion/react';
 import {
   Drawer,
   Flex,
@@ -11,11 +12,15 @@ import {
   Alert,
   NumberInput,
   Switch,
+  Group,
+  Center,
+  Textarea,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconInfoCircle, IconMinus, IconPlus } from '@tabler/icons';
-import { ChannelCommand, type CommandPermission } from '@tsuwari/typeorm/entities/ChannelCommand';
+import { IconGripVertical, IconInfoCircle, IconMinus, IconPlus } from '@tabler/icons';
+import type { ChannelCommand, CommandPermission } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useEffect } from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 type Props = {
   opened: boolean;
@@ -23,16 +28,27 @@ type Props = {
   command: ChannelCommand;
 };
 
-const COMMAND_PERMS: Array<keyof typeof CommandPermission> = ['BROADCASTER', 'MODERATOR', 'VIP', 'SUBSCRIBER', 'FOLLOWER', 'VIEWER'];
+const COMMAND_PERMS: Array<keyof typeof CommandPermission> = [
+  'BROADCASTER',
+  'MODERATOR',
+  'VIP',
+  'SUBSCRIBER',
+  'FOLLOWER',
+  'VIEWER',
+];
 
 const switches: Array<{
-  label: string,
-  description: string,
-  prop: keyof ChannelCommand
+  label: string;
+  description: string;
+  prop: keyof ChannelCommand;
 }> = [
   { label: 'Reply', description: 'Bot will send command response as reply', prop: 'isReply' },
   { label: 'Visible', description: 'Bot will send command response as reply', prop: 'visible' },
-  { label: 'Keep Order', description: 'Bot will send command response as reply', prop: 'keepResponsesOrder' },
+  {
+    label: 'Keep Order',
+    description: 'Bot will send command response as reply',
+    prop: 'keepResponsesOrder',
+  },
 ];
 
 export const CommandDrawer: React.FC<Props> = (props) => {
@@ -44,7 +60,6 @@ export const CommandDrawer: React.FC<Props> = (props) => {
   });
 
   useEffect(() => {
-    console.log(props.command);
     form.setValues(props.command);
   }, [props.command]);
 
@@ -57,6 +72,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       size="xl"
       position="right"
       transition="slide-left"
+      style={{ minWidth: 250, maxWidth: 500 }}
     >
       <form onSubmit={form.onSubmit((values) => console.log(values))}>
         <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
@@ -69,14 +85,14 @@ export const CommandDrawer: React.FC<Props> = (props) => {
             />
           </div>
 
-          <div>
+          {/* <div>
             <Flex direction="row" gap="xs">
               <Text>Responses</Text>
               <ActionIcon variant="light" color="green" size="xs">
                 <IconPlus
                   size={18}
                   onClick={() => {
-                    form.insertListItem('aliases', '');
+                    form.insertListItem('responses', { text: '' });
                   }}
                 />
               </ActionIcon>
@@ -87,11 +103,11 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                   There is no responses
                 </Alert>
               )}
-             
                 {form.values.responses?.map((_, i) => (
-                    <Input
+                   <Input
+                   key={i}
                       component="textarea"
-                      autosize
+                      autosize="true"
                       placeholder="response"
                       {...form.getInputProps(`responses.${i}.text`)}
                       rightSection={
@@ -108,8 +124,70 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                 ))}
               
             </ScrollArea>
-          </div>
+          </div> */}
+          <div style={{ width: 450 }}>
+            <Flex direction="row" gap="xs">
+              <Text>Responses</Text>
+              <ActionIcon variant="light" color="green" size="xs">
+                <IconPlus
+                  size={18}
+                  onClick={() => {
+                    form.insertListItem('responses', { text: '' });
+                  }}
+                />
+              </ActionIcon>
+            </Flex>
+            <ScrollArea mah={200} type="auto">
+              <DragDropContext
+                onDragEnd={({ destination, source }) =>
+                  form.reorderListItem('responses', {
+                    from: source.index,
+                    to: destination!.index,
+                  })
+                }
+              >
+                <Droppable droppableId="responses" direction="vertical">
+                  {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                      {form.values.responses?.map((_, index) => (
+                        <Draggable key={index} index={index} draggableId={index.toString()}>
+                          {(provided) => (
+                            <Group
+                              style={{ width: '100%' }}
+                              ref={provided.innerRef}
+                              mt="xs"
+                              {...provided.draggableProps}
+                            >
+                              <Textarea
+                                w={'80%'}
+                                placeholder="response"
+                                autosize={true}
+                                minRows={1}
+                                {...form.getInputProps(`responses.${index}.text`)}
+                              />
+                              <Center {...provided.dragHandleProps}>
+                                <IconGripVertical size={18} />
+                              </Center>
+                              <ActionIcon>
+                                <IconMinus
+                                  size={18}
+                                  onClick={() => {
+                                    form.removeListItem('responses', index);
+                                  }}
+                                />
+                              </ActionIcon>
+                            </Group>
+                          )}
+                        </Draggable>
+                      ))}
 
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </ScrollArea>
+          </div>
 
           <div>
             <Flex direction="row" gap="xs">
@@ -157,7 +235,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
               <NumberInput
                 defaultValue={0}
                 placeholder="0"
-                label="Cooldown time"
+                label="Cooldown time (seconds)"
                 withAsterisk
                 {...form.getInputProps('cooldown')}
               />
@@ -187,12 +265,14 @@ export const CommandDrawer: React.FC<Props> = (props) => {
 
           <div>
             <Flex direction="row" gap={5} wrap="wrap">
-              {switches.map(({ prop, ...rest }, i) => <Switch
-                key={i}
-                labelPosition="left"
-                {...rest}
-                {...form.getInputProps(prop, { type: 'checkbox' })}
-              />)}
+              {switches.map(({ prop, ...rest }, i) => (
+                <Switch
+                  key={i}
+                  labelPosition="left"
+                  {...rest}
+                  {...form.getInputProps(prop, { type: 'checkbox' })}
+                />
+              ))}
             </Flex>
           </div>
         </Flex>
