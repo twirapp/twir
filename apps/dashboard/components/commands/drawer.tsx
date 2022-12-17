@@ -104,11 +104,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                   />
                 </ActionIcon>
               </Flex>
-              {!form.values.aliases?.length && (
-                <Alert icon={<IconInfoCircle size={16} />} color="cyan">
-                  There is no aliases
-                </Alert>
-              )}
+              {!form.values.aliases?.length && <Alert>There is no aliases</Alert>}
               <ScrollArea.Autosize maxHeight={100} mx="auto" type="auto" offsetScrollbars={true}>
                 <Grid grow gutter="xs" style={{ margin: 0, gap: 8 }}>
                   {form.values.aliases?.map((_, i) => (
