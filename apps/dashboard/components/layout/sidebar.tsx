@@ -129,50 +129,50 @@ export function SideBar({ opened }: { opened: boolean }) {
   ));
 
   return (
-    <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
-      <Navbar hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 150, lg: 250 }}>
-        <Navbar.Section grow>
+    <Navbar hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 150, lg: 250 }}>
+      <Navbar.Section grow>
+        <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
           <Box component={ScrollArea}>{links}</Box>
-        </Navbar.Section>
-        <Navbar.Section>
-          <Box
+        </ScrollArea.Autosize>
+      </Navbar.Section>
+      <Navbar.Section>
+        <Box
+          sx={{
+            padding: theme.spacing.sm,
+            borderTop: `1px solid ${
+              theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]
+            }`,
+          }}
+        >
+          <UnstyledButton
             sx={{
-              padding: theme.spacing.sm,
-              borderTop: `1px solid ${
-                theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]
-              }`,
-            }}
-          >
-            <UnstyledButton
-              sx={{
-                display: 'block',
-                width: '100%',
-                padding: theme.spacing.xs,
-                borderRadius: theme.radius.sm,
-                color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
+              display: 'block',
+              width: '100%',
+              padding: theme.spacing.xs,
+              borderRadius: theme.radius.sm,
+              color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
 
-                '&:hover': {
-                  backgroundColor:
-                    theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-                },
-              }}
-              onClick={openSpotlight}
-            >
-              <Group>
-                <Avatar src={selectedDashboard?.twitchUser.profile_image_url} radius="xl" />
-                <Box sx={{ flex: 1 }}>
-                  <Text size="xs" weight={500}>
-                    Managing channel
-                  </Text>
-                  <Text color="dimmed" size="xs">
-                    {selectedDashboard?.twitchUser.display_name}
-                  </Text>
-                </Box>
-              </Group>
-            </UnstyledButton>
-          </Box>
-        </Navbar.Section>
-      </Navbar>
-    </ScrollArea.Autosize>
+              '&:hover': {
+                backgroundColor:
+                  theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+              },
+            }}
+            onClick={openSpotlight}
+          >
+            <Group>
+              <Avatar src={selectedDashboard?.twitchUser.profile_image_url} radius="xl" />
+              <Box sx={{ flex: 1 }}>
+                <Text size="xs" weight={500}>
+                  Managing channel
+                </Text>
+                <Text color="dimmed" size="xs">
+                  {selectedDashboard?.twitchUser.display_name}
+                </Text>
+              </Box>
+            </Group>
+          </UnstyledButton>
+        </Box>
+      </Navbar.Section>
+    </Navbar>
   );
 }
