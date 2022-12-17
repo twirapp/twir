@@ -65,6 +65,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
   const viewPort = useViewportSize();
 
   useEffect(() => {
+    console.log('render');
     form.setValues(props.command);
   }, [props.command]);
 

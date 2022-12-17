@@ -94,6 +94,7 @@ export class AppService {
             await repository.save(convertSnakeToCamel(getRawData(stream)));
             pubSub.publish('stream.online', { streamId: stream.id, channelId: channel });
           } else {
+            console.log(convertSnakeToCamel(getRawData(stream)));
             await repository.update(
               { id: storedStream.id },
               convertSnakeToCamel(getRawData(stream)),

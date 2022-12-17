@@ -9,12 +9,14 @@ import { useClickOutside, useColorScheme, useHotkeys, useLocalStorage } from '@m
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useState } from 'react';
+import { SWRConfig } from 'swr';
 
 import { NavBar } from '../components/layout/navbar';
 import { SideBar } from '../components/layout/sidebar';
+import { swrFetcher } from '../services/swrFetcher';
 
 export default function App(props: AppProps) {
-  const { Component, pageProps } = props;
+  const { Component } = props;
 
   const preferredColorScheme = useColorScheme();
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -40,25 +42,28 @@ export default function App(props: AppProps) {
       </Head>
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
-          <AppShell
-            styles={{
-              main: {
-                background: colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
-              },
-            }}
-            navbarOffsetBreakpoint="sm"
-            asideOffsetBreakpoint="sm"
-            navbar={<SideBar reference={ref} opened={opened} />}
-            header={<NavBar setOpened={setOpened} opened={opened} />}
-          >
-            <Component
+          <SWRConfig value={{ fetcher: swrFetcher }}>
+            <AppShell
               styles={{
                 main: {
                   background: colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
                 },
               }}
-            />
-          </AppShell>
+              navbarOffsetBreakpoint="sm"
+              asideOffsetBreakpoint="sm"
+              navbar={<SideBar reference={ref} opened={opened} />}
+              header={<NavBar setOpened={setOpened} opened={opened} />}
+            >
+              <Component
+                styles={{
+                  main: {
+                    background:
+                      colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+                  },
+                }}
+              />
+            </AppShell>
+          </SWRConfig>
         </MantineProvider>
       </ColorSchemeProvider>
     </>

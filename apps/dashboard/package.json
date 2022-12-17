@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3006",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -21,9 +21,11 @@
     "next": "13.0.7",
     "react": "18.2.0",
     "react-beautiful-dnd": "^13.1.1",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "swr": "^2.0.0"
   },
   "devDependencies": {
+    "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
     "@types/node": "18.11.10",
     "@types/react": "18.0.26",

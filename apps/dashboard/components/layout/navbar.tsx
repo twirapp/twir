@@ -9,11 +9,15 @@ import {
   useMantineTheme,
   Flex,
   Group,
+  Loader,
 } from '@mantine/core';
 import { useLocalStorage, useHotkeys, useMediaQuery } from '@mantine/hooks';
 import { IconSun, IconMoonStars } from '@tabler/icons';
+import { AuthUser } from '@tsuwari/shared';
 import { Dispatch, SetStateAction } from 'react';
+import useSWR from 'swr';
 
+import { swrFetcher } from '../../services/swrFetcher';
 import { Profile } from './profile';
 
 export function NavBar({
@@ -35,6 +39,11 @@ export function NavBar({
   useHotkeys([['mod+J', () => toggleColorScheme()]]);
 
   const largeScreen = useMediaQuery('(min-width: 250px)');
+
+  const { data: userData, isLoading: isLoadingProfile } = useSWR<AuthUser>(
+    '/api/auth/profile',
+    swrFetcher,
+  );
 
   return (
     <Header height={{ base: 50, md: 50 }} p="md">
@@ -62,7 +71,8 @@ export function NavBar({
             {theme.colorScheme === 'dark' ? <IconSun size={18} /> : <IconMoonStars size={18} />}
           </ActionIcon>
 
-          <Profile />
+          {isLoadingProfile && <Loader />}
+          {!isLoadingProfile && userData && <Profile user={userData} />}
         </Group>
       </Grid>
     </Header>

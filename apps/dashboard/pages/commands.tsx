@@ -1254,7 +1254,7 @@ const commands = [
     responses: [
       {
         id: '5904096f-9192-490f-b949-5a7c8f17df11',
-        text: "vahui 'ели $(keywords.counter|41f46feb-d4d9-475f-9be5-d51eabef6d2b) раз",
+        text: `vahui 'ели $(keywords.counter|41f46feb-d4d9-475f-9be5-d51eabef6d2b) раз`,
         commandId: '8854a58d-63ad-4d7c-813c-0c6a986728d0',
         order: 0,
       },
@@ -1554,7 +1554,11 @@ export default function Commands() {
                 <td>
                   {element.module != 'CUSTOM' && <Badge>This is built-in command</Badge>}
                   {element.module === 'CUSTOM' &&
-                    (element.responses.map((r) => `${r.text}\n`) || <Badge>No Response</Badge>)}
+                    (element.responses.map((r, i) => (
+                      <p key={i} style={{ margin: 0 }}>
+                        {r.text}
+                      </p>
+                    )) || <Badge>No Response</Badge>)}
                 </td>
                 <td>
                   <Switch

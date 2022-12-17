@@ -1,8 +1,0 @@
-import { type ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
-import { ref } from 'vue';
-
-export type Greeting = ChannelGreeting & {
-  userName: string
-}
-
-export const greetings = ref<Greeting[]>([{ 'id':'9c67f4fc-ee06-4a05-adb6-f251375efe79', 'channelId':'128644134', 'userId':'38019880', 'enabled':true, 'text':'Privet', 'isReply':true, 'processed':true, 'userName':'bot_stop' }, { 'id':'b0d60089-700f-431a-a36a-fabcf1ae8c78', 'channelId':'128644134', 'userId':'70930005', 'enabled':true, 'text':'vahui', 'isReply':true, 'processed':true, 'userName':'rprtr258' }, { 'id':'3bc84321-65a8-4226-8863-c922a41298b3', 'channelId':'128644134', 'userId':'100233760', 'enabled':true, 'text':'привет када фонк? monkaSTEER', 'isReply':true, 'processed':true, 'userName':'fonchik' }, { 'id':'c0b68225-9273-458a-8687-2abaf2e6f1f2', 'channelId':'128644134', 'userId':'52703474', 'enabled':true, 'text':'здароваспасибо папаша. wideflushed', 'isReply':true, 'processed':true, 'userName':'sygeman' }, { 'id':'8284985e-1b25-4dfc-9663-a208fb8ab2f2', 'channelId':'128644134', 'userId':'99517251', 'enabled':true, 'text':'Coopert1n0', 'isReply':true, 'processed':true, 'userName':'coopert1n0' }, { 'id':'21999bdc-4a6b-48bb-8b18-4a022a5da7d0', 'channelId':'128644134', 'userId':'180851298', 'enabled':true, 'text':'stena', 'isReply':true, 'processed':false, 'userName':'dankybat' }, { 'id':'58a2fc8e-cae6-48a9-b087-8eba6f1e1479', 'channelId':'128644134', 'userId':'665562197', 'enabled':true, 'text':'q', 'isReply':true, 'processed':false, 'userName':'lwgerry' }, { 'id':'0a8dd866-b862-45d7-b230-0d1c3f1f62fa', 'channelId':'128644134', 'userId':'117474239', 'enabled':false, 'text':'Dushno', 'isReply':true, 'processed':false, 'userName':'alexwayfer' }] as any);

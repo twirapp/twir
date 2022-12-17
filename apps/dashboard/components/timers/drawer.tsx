@@ -70,7 +70,7 @@ export const TimerDrawer: React.FC<Props> = (props) => {
                   value={form.getInputProps('timeInterval').value}
                   onChange={(v) => form.setFieldValue('timeInterval', v)}
                 />
-                <TextInput w={'20%'} {...form.getInputProps('timeInterval')}></TextInput>
+                <NumberInput w={'20%'} {...form.getInputProps('timeInterval')} />
               </Flex>
             </div>
 
