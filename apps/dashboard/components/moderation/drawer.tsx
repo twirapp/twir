@@ -70,6 +70,18 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
                 <Switch label="Moderate vips" labelPosition="left" />
                 <Switch label="Moderate subscribers" labelPosition="left" />
               </Group>
+              {props.settings.type === 'emotes' && (
+                <NumberInput label="Max emotes in message" required />
+              )}
+              {props.settings.type === 'symbols' && (
+                <NumberInput label="Max symbols in message (percent)" required />
+              )}
+              {props.settings.type === 'caps' && (
+                <NumberInput label="Max caps in message (percent)" required />
+              )}
+              {props.settings.type === 'longMessage' && (
+                <NumberInput label="Max message length" required />
+              )}
             </Flex>
           </form>
         </ScrollArea.Autosize>
