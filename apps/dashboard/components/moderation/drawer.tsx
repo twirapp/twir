@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Badge,
   Drawer,
   Flex,
@@ -9,9 +10,13 @@ import {
   Switch,
   TextInput,
   useMantineTheme,
+  Text,
+  Textarea,
+  Input,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
+import { IconMinus, IconPlus } from '@tabler/icons';
 import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
 import { useEffect, useState } from 'react';
 
@@ -56,32 +61,92 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
             <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
               <Grid>
                 <Grid.Col xs={12} sm={8} md={4} lg={4} xl={4}>
-                  <TextInput label="Timeout message" />
+                  <TextInput label="Timeout message" {...form.getInputProps('banMessage')} />
                 </Grid.Col>
                 <Grid.Col xs={12} sm={3} md={4} lg={4} xl={4}>
-                  <NumberInput label="Timeout time" />
+                  <NumberInput label="Timeout time" {...form.getInputProps('banTime')} />
                 </Grid.Col>
               </Grid>
-              <NumberInput label="Warning message" />
+              <NumberInput label="Warning message" {...form.getInputProps('warningMessage')} />
               <Group grow>
                 {props.settings.type === 'links' && (
-                  <Switch label="Moderate clips" labelPosition="left" />
+                  <Switch
+                    label="Moderate clips"
+                    labelPosition="left"
+                    {...form.getInputProps('checkClips', { type: 'checkbox' })}
+                  />
                 )}
-                <Switch label="Moderate vips" labelPosition="left" />
-                <Switch label="Moderate subscribers" labelPosition="left" />
+                <Switch
+                  label="Moderate vips"
+                  labelPosition="left"
+                  {...form.getInputProps('vips', { type: 'checkbox' })}
+                />
+                <Switch
+                  label="Moderate subscribers"
+                  labelPosition="left"
+                  {...form.getInputProps('subscribers', { type: 'checkbox' })}
+                />
               </Group>
               {props.settings.type === 'emotes' && (
-                <NumberInput label="Max emotes in message" required />
+                <NumberInput
+                  label="Max emotes in message"
+                  required
+                  {...form.getInputProps('triggerLength')}
+                />
               )}
               {props.settings.type === 'symbols' && (
-                <NumberInput label="Max symbols in message (percent)" required />
+                <NumberInput
+                  label="Max symbols in message (percent)"
+                  required
+                  {...form.getInputProps('maxPercentage')}
+                />
               )}
               {props.settings.type === 'caps' && (
-                <NumberInput label="Max caps in message (percent)" required />
+                <NumberInput
+                  label="Max caps in message (percent)"
+                  required
+                  {...form.getInputProps('maxPercentage')}
+                />
               )}
               {props.settings.type === 'longMessage' && (
-                <NumberInput label="Max message length" required />
+                <NumberInput
+                  label="Max message length"
+                  required
+                  {...form.getInputProps('triggerLength')}
+                />
               )}
+              <div>
+                <Flex direction="row" gap="xs">
+                  <Text>Deny list words</Text>
+                  <ActionIcon variant="light" color="green" size="xs">
+                    <IconPlus
+                      size={18}
+                      onClick={() => {
+                        form.insertListItem('blackListSentences', '');
+                      }}
+                    />
+                  </ActionIcon>
+                </Flex>
+
+                <Grid grow gutter="xs" style={{ margin: 0, gap: 8 }}>
+                  {form.values.blackListSentences?.map((_, i) => (
+                    <Input
+                      placeholder="word"
+                      {...form.getInputProps(`blackListSentences.${i}`)}
+                      rightSection={
+                        <ActionIcon
+                          variant="filled"
+                          onClick={() => {
+                            form.removeListItem('blackListSentences', i);
+                          }}
+                        >
+                          <IconMinus size={18} />
+                        </ActionIcon>
+                      }
+                    />
+                  ))}
+                </Grid>
+              </div>
             </Flex>
           </form>
         </ScrollArea.Autosize>
