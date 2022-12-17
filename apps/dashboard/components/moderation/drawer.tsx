@@ -131,6 +131,7 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
                 <Grid grow gutter="xs" style={{ margin: 0, gap: 8 }}>
                   {form.values.blackListSentences?.map((_, i) => (
                     <Input
+                      key={i}
                       placeholder="word"
                       {...form.getInputProps(`blackListSentences.${i}`)}
                       rightSection={
