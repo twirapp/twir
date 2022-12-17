@@ -34,7 +34,6 @@ export default function App(props: AppProps) {
 
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
-  const ref = useClickOutside(() => setOpened(false));
 
   return (
     <>
@@ -61,7 +60,7 @@ export default function App(props: AppProps) {
                 }}
                 navbarOffsetBreakpoint="sm"
                 asideOffsetBreakpoint="sm"
-                navbar={<SideBar reference={ref} opened={opened} />}
+                navbar={<SideBar opened={opened} />}
                 header={<NavBar setOpened={setOpened} opened={opened} />}
               >
                 <Component

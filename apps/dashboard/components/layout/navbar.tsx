@@ -52,7 +52,7 @@ export function NavBar({
           <MediaQuery largerThan="sm" styles={{ display: 'none' }} aria-label="Open navigation">
             <Burger
               opened={opened}
-              onClick={() => setOpened((o) => !o)}
+              onClick={() => setOpened(!opened)}
               size="sm"
               color={theme.colors.gray[6]}
               mr="xl"
