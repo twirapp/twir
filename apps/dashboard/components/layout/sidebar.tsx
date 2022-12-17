@@ -22,12 +22,10 @@ import {
   IconActivity,
   IconSpeakerphone,
   TablerIcon,
-  IconChevronRight,
-  IconChevronLeft,
 } from '@tabler/icons';
 import { AuthUser, Dashboard } from '@tsuwari/shared';
 import { useRouter } from 'next/router';
-import { MutableRefObject, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import useSWR from 'swr';
 
 import { swrFetcher } from '../../services/swrFetcher';
