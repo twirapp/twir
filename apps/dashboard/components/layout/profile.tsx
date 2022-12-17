@@ -36,25 +36,27 @@ export function Profile(props: Props) {
       .map((d) => ({
         title: d.twitchUser.display_name,
         description: d.twitchUser.login,
-        onTrigger: () => setSelectedDashboard(d),
+        onTrigger: () => {
+          setSelectedDashboard(d);
+        },
         icon: <Avatar src={d.twitchUser.profile_image_url} style={{ borderRadius: 111 }} />,
+        id: d.id,
       }));
 
-    console.log(selectedDashboard);
-    if (selectedDashboard?.channelId !== props.user.id) {
-      actions.push({
-        title: props.user.display_name,
-        description: props.user.login,
-        onTrigger: () =>
-          setSelectedDashboard({
-            channelId: props.user.id,
-            id: props.user.id,
-            twitchUser: props.user,
-            userId: props.user.id,
-          }),
-        icon: <Avatar src={props.user.profile_image_url} style={{ borderRadius: 111 }} />,
-      });
-    }
+    actions.unshift({
+      title: props.user.display_name,
+      description: props.user.login,
+      onTrigger: () => {
+        setSelectedDashboard({
+          channelId: props.user.id,
+          id: props.user.id,
+          twitchUser: props.user,
+          userId: props.user.id,
+        });
+      },
+      icon: <Avatar src={props.user.profile_image_url} style={{ borderRadius: 111 }} />,
+      id: props.user.id,
+    });
 
     spotlight.registerActions(actions);
 
