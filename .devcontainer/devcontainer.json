@@ -14,7 +14,8 @@
 				"bradlc.vscode-tailwindcss",
 				"vue.volar",
 				"golang.go",
-				"emeraldwalk.runonsave"
+				"emeraldwalk.runonsave",
+				"esbenp.prettier-vscode"
 			]
 		}
 	},
