@@ -1,6 +1,6 @@
 import { Badge, Button, Switch, Table, Tabs } from '@mantine/core';
 import { IconClipboardCopy, IconPencilPlus, IconSword, IconUser } from '@tabler/icons';
-import { type ChannelCommand, type CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
+import type { ChannelCommand, CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useState } from 'react';
 
 import { CommandDrawer } from '../components/commands/drawer';
@@ -1254,7 +1254,7 @@ const commands = [
     responses: [
       {
         id: '5904096f-9192-490f-b949-5a7c8f17df11',
-        text: 'vahui \'ели $(keywords.counter|41f46feb-d4d9-475f-9be5-d51eabef6d2b) раз',
+        text: "vahui 'ели $(keywords.counter|41f46feb-d4d9-475f-9be5-d51eabef6d2b) раз",
         commandId: '8854a58d-63ad-4d7c-813c-0c6a986728d0',
         order: 0,
       },
@@ -1507,62 +1507,81 @@ const commands = [
   },
 ];
 
-type Module = keyof typeof CommandModule
+type Module = keyof typeof CommandModule;
 
 export default function Commands() {
   const [activeTab, setActiveTab] = useState<Module | null>('CUSTOM');
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableCommand, setEditableCommand] = useState<ChannelCommand>({} as any);
-  
+
   return (
     <div>
-    <Tabs onTabChange={(n) => setActiveTab(n as Module)}>
-      <Tabs.List>
-        <Tabs.Tab value="CUSTOM" icon={<IconPencilPlus size={14} />}>
-          Custom
-        </Tabs.Tab>
-        <Tabs.Tab value="CHANNEL" icon={<IconUser size={14} />}>
-          Channel
-        </Tabs.Tab>
-        
-        <Tabs.Tab value="MODERATION" icon={<IconSword size={14} />}>
-          Moderation
-        </Tabs.Tab>
-        <Tabs.Tab value="MANAGE" icon={<IconClipboardCopy size={14} />}>
-          Manage
-        </Tabs.Tab>
-        <Tabs.Tab value="DOTA">
-          Dota
-        </Tabs.Tab>
-      </Tabs.List>
-    </Tabs>
-    <Table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Response</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>{commands.filter(c => c.module === activeTab).map((element, idx) => (
-          <tr key={element.id}>
-            <td>{element.name}</td>
-            <td>
-              {element.module != 'CUSTOM' && <Badge>This is built-in command</Badge>}
-              {element.module === 'CUSTOM' && (element.responses.map((r) => `${r.text}\n`)
-              || <Badge>No Response</Badge>)}
-            </td>
-            <td><Switch checked={element.enabled} onChange={(event) => element.enabled = event.currentTarget.checked}/></td>
-            <td><Button onClick={() => {
-              setEditableCommand(commands[idx] as any);
-              setEditDrawerOpened(true);
-            }}>Edit</Button></td>
-          </tr>
-        ))}</tbody>
-    </Table>
+      <Tabs onTabChange={(n) => setActiveTab(n as Module)}>
+        <Tabs.List>
+          <Tabs.Tab value="CUSTOM" icon={<IconPencilPlus size={14} />}>
+            Custom
+          </Tabs.Tab>
+          <Tabs.Tab value="CHANNEL" icon={<IconUser size={14} />}>
+            Channel
+          </Tabs.Tab>
 
-    <CommandDrawer opened={editDrawerOpened} setOpened={setEditDrawerOpened} command={editableCommand}/>
-  </div>
+          <Tabs.Tab value="MODERATION" icon={<IconSword size={14} />}>
+            Moderation
+          </Tabs.Tab>
+          <Tabs.Tab value="MANAGE" icon={<IconClipboardCopy size={14} />}>
+            Manage
+          </Tabs.Tab>
+          <Tabs.Tab value="DOTA">Dota</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+      <Table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Response</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {commands
+            .filter((c) => c.module === activeTab)
+            .map((element, idx) => (
+              <tr key={element.id}>
+                <td>
+                  <Badge>{element.name}</Badge>
+                </td>
+                <td>
+                  {element.module != 'CUSTOM' && <Badge>This is built-in command</Badge>}
+                  {element.module === 'CUSTOM' &&
+                    (element.responses.map((r) => `${r.text}\n`) || <Badge>No Response</Badge>)}
+                </td>
+                <td>
+                  <Switch
+                    checked={element.enabled}
+                    onChange={(event) => (element.enabled = event.currentTarget.checked)}
+                  />
+                </td>
+                <td>
+                  <Button
+                    onClick={() => {
+                      setEditableCommand(commands[idx] as any);
+                      setEditDrawerOpened(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </Table>
+
+      <CommandDrawer
+        opened={editDrawerOpened}
+        setOpened={setEditDrawerOpened}
+        command={editableCommand}
+      />
+    </div>
   );
 }
