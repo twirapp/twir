@@ -6,12 +6,11 @@ import {
   Select,
   Textarea,
   TextInput,
-  useMantineColorScheme,
   useMantineTheme,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
-import Editor, { Monaco, useMonaco } from '@monaco-editor/react';
+import Editor from '@monaco-editor/react';
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { useEffect, useRef } from 'react';
 
