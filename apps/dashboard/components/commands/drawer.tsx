@@ -18,6 +18,7 @@ import {
   Menu,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useViewportSize } from '@mantine/hooks';
 import { IconGripVertical, IconInfoCircle, IconMinus, IconPlus, IconVariable } from '@tabler/icons';
 import type { ChannelCommand, CommandPermission } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useEffect } from 'react';
@@ -60,6 +61,8 @@ export const CommandDrawer: React.FC<Props> = (props) => {
     },
   });
 
+  const viewPort = useViewportSize();
+
   useEffect(() => {
     form.setValues(props.command);
   }, [props.command]);
@@ -75,41 +78,128 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       transition="slide-left"
       style={{ minWidth: 250, maxWidth: 500 }}
     >
-      <form onSubmit={form.onSubmit((values) => console.log(values))}>
-        <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
-          <div>
-            <TextInput
-              label="Name"
-              placeholder="coolcommand"
-              withAsterisk
-              {...form.getInputProps('name')}
-            />
-          </div>
+      <ScrollArea.Autosize maxHeight={viewPort.height - 100} type="auto" offsetScrollbars={true}>
+        <form onSubmit={form.onSubmit((values) => console.log(values))}>
+          <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
+            <div>
+              <TextInput
+                label="Name"
+                placeholder="coolcommand"
+                withAsterisk
+                {...form.getInputProps('name')}
+              />
+            </div>
 
-          <div style={{ width: 450 }}>
-            <Flex direction="row" gap="xs">
-              <Text>Responses</Text>
-              <ActionIcon variant="light" color="green" size="xs">
-                <IconPlus
-                  size={18}
-                  onClick={() => {
-                    form.insertListItem('responses', { text: '' });
-                  }}
+            <div>
+              <Flex direction="row" gap="xs">
+                <Text>Aliases</Text>
+                <ActionIcon variant="light" color="green" size="xs">
+                  <IconPlus
+                    size={18}
+                    onClick={() => {
+                      form.insertListItem('aliases', '');
+                    }}
+                  />
+                </ActionIcon>
+              </Flex>
+              {!form.values.aliases?.length && (
+                <Alert icon={<IconInfoCircle size={16} />} color="cyan">
+                  There is no aliases
+                </Alert>
+              )}
+              <ScrollArea.Autosize maxHeight={100} mx="auto" type="auto" offsetScrollbars={true}>
+                <Grid grow gutter="xs" style={{ margin: 0, gap: 8 }}>
+                  {form.values.aliases?.map((_, i) => (
+                    <Grid.Col style={{ padding: 0 }} key={i} xs={4} sm={4} md={4} lg={4} xl={4}>
+                      <Input
+                        placeholder="aliase"
+                        {...form.getInputProps(`aliases.${i}`)}
+                        rightSection={
+                          <ActionIcon
+                            variant="filled"
+                            onClick={() => {
+                              form.removeListItem('aliases', i);
+                            }}
+                          >
+                            <IconMinus size={18} />
+                          </ActionIcon>
+                        }
+                      />
+                    </Grid.Col>
+                  ))}
+                </Grid>
+              </ScrollArea.Autosize>
+            </div>
+
+            <div>
+              <Flex direction="row" gap={5} wrap="wrap">
+                <NumberInput
+                  defaultValue={0}
+                  placeholder="0"
+                  label="Cooldown time (seconds)"
+                  withAsterisk
+                  {...form.getInputProps('cooldown')}
                 />
-              </ActionIcon>
-            </Flex>
-            <DragDropContext
-              onDragEnd={({ destination, source }) =>
-                form.reorderListItem('responses', {
-                  from: source.index,
-                  to: destination!.index,
-                })
-              }
-            >
-              <Droppable droppableId="responses" direction="vertical">
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef}>
-                    <ScrollArea.Autosize maxHeight={250} mx="auto" type="auto">
+
+                <Select
+                  label="Cooldown Type"
+                  defaultValue="GLOBAL"
+                  {...form.getInputProps('cooldownType')}
+                  data={[
+                    { value: 'GLOBAL', label: 'Global' },
+                    { value: 'PER_USER', label: 'Per User' },
+                  ]}
+                />
+              </Flex>
+            </div>
+
+            <div>
+              <Select
+                label="Permission"
+                {...form.getInputProps('permission')}
+                data={COMMAND_PERMS.map((value) => ({
+                  value,
+                  label: value,
+                }))}
+              />
+            </div>
+
+            <div>
+              <Flex direction="row" gap={5} wrap="wrap">
+                {switches.map(({ prop, ...rest }, i) => (
+                  <Switch
+                    key={i}
+                    labelPosition="left"
+                    {...rest}
+                    {...form.getInputProps(prop, { type: 'checkbox' })}
+                  />
+                ))}
+              </Flex>
+            </div>
+
+            <div style={{ width: 450 }}>
+              <Flex direction="row" gap="xs">
+                <Text>Responses</Text>
+                <ActionIcon variant="light" color="green" size="xs">
+                  <IconPlus
+                    size={18}
+                    onClick={() => {
+                      form.insertListItem('responses', { text: '' });
+                    }}
+                  />
+                </ActionIcon>
+              </Flex>
+              <DragDropContext
+                onDragEnd={({ destination, source }) =>
+                  form.reorderListItem('responses', {
+                    from: source.index,
+                    to: destination!.index,
+                  })
+                }
+              >
+                <Droppable droppableId="responses" direction="vertical">
+                  {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
                       {form.values.responses?.map((_, index) => (
                         <Draggable key={index} index={index} draggableId={index.toString()}>
                           {(provided) => (
@@ -125,7 +215,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                                 autosize={true}
                                 minRows={1}
                                 rightSection={
-                                  <Menu zIndex={999} position="bottom-end" shadow="md" width={200}>
+                                  <Menu position="bottom-end" shadow="md" width={200}>
                                     <Menu.Target>
                                       <ActionIcon variant="filled">
                                         <IconVariable size={18} />
@@ -155,101 +245,14 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                       ))}
 
                       {provided.placeholder}
-                    </ScrollArea.Autosize>
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          </div>
-
-          <div>
-            <Flex direction="row" gap="xs">
-              <Text>Aliases</Text>
-              <ActionIcon variant="light" color="green" size="xs">
-                <IconPlus
-                  size={18}
-                  onClick={() => {
-                    form.insertListItem('aliases', '');
-                  }}
-                />
-              </ActionIcon>
-            </Flex>
-            {!form.values.aliases?.length && (
-              <Alert icon={<IconInfoCircle size={16} />} color="cyan">
-                There is no aliases
-              </Alert>
-            )}
-            <ScrollArea.Autosize maxHeight={100} mx="auto" type="auto">
-              <Grid grow gutter="xs" style={{ margin: 0, gap: 8 }}>
-                {form.values.aliases?.map((_, i) => (
-                  <Grid.Col style={{ padding: 0 }} key={i} xs={4} sm={4} md={4} lg={4} xl={4}>
-                    <Input
-                      placeholder="aliase"
-                      {...form.getInputProps(`aliases.${i}`)}
-                      rightSection={
-                        <ActionIcon
-                          variant="filled"
-                          onClick={() => {
-                            form.removeListItem('aliases', i);
-                          }}
-                        >
-                          <IconMinus size={18} />
-                        </ActionIcon>
-                      }
-                    />
-                  </Grid.Col>
-                ))}
-              </Grid>
-            </ScrollArea.Autosize>
-          </div>
-
-          <div>
-            <Flex direction="row" gap={5} wrap="wrap">
-              <NumberInput
-                defaultValue={0}
-                placeholder="0"
-                label="Cooldown time (seconds)"
-                withAsterisk
-                {...form.getInputProps('cooldown')}
-              />
-
-              <Select
-                label="Cooldown Type"
-                defaultValue="GLOBAL"
-                {...form.getInputProps('cooldownType')}
-                data={[
-                  { value: 'GLOBAL', label: 'Global' },
-                  { value: 'PER_USER', label: 'Per User' },
-                ]}
-              />
-            </Flex>
-          </div>
-
-          <div>
-            <Select
-              label="Permission"
-              {...form.getInputProps('permission')}
-              data={COMMAND_PERMS.map((value) => ({
-                value,
-                label: value,
-              }))}
-            />
-          </div>
-
-          <div>
-            <Flex direction="row" gap={5} wrap="wrap">
-              {switches.map(({ prop, ...rest }, i) => (
-                <Switch
-                  key={i}
-                  labelPosition="left"
-                  {...rest}
-                  {...form.getInputProps(prop, { type: 'checkbox' })}
-                />
-              ))}
-            </Flex>
-          </div>
-        </Flex>
-      </form>
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </div>
+          </Flex>
+        </form>
+      </ScrollArea.Autosize>
     </Drawer>
   );
 };
