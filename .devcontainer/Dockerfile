@@ -13,7 +13,7 @@ RUN groupadd --gid $USER_GID $USERNAME && \
     usermod -s /bin/bash $USERNAME
 
 RUN apt update && \
-    apt install -y build-essential git protobuf-compiler curl wget
+    apt install -y build-essential git protobuf-compiler curl wget sudo
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt install -y nodejs
 RUN wget https://go.dev/dl/go1.19.4.linux-$TARGETARCH.tar.gz && \
