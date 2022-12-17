@@ -1,28 +1,17 @@
 import {
-  ActionIcon,
-  Alert,
   Badge,
-  Center,
   Drawer,
   Flex,
-  Group,
-  Menu,
-  NumberInput,
   ScrollArea,
-  Slider,
   Switch,
-  Text,
   Textarea,
   TextInput,
   useMantineTheme,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
-import { IconGripVertical, IconMinus, IconPlus, IconVariable } from '@tabler/icons';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
-import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { useEffect } from 'react';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 export type Greeting = ChannelGreeting & { userName: string };
 
