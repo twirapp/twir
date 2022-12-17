@@ -24,8 +24,8 @@ type ChannelsModerationSettings struct {
 	Subscribers        bool           `gorm:"column:subscribers;type:BOOL;default:false;"      json:"subscribers"`
 	Vips               bool           `gorm:"column:vips;type:BOOL;default:false;"             json:"vips"`
 	BanTime            int32          `gorm:"column:banTime;type:INT4;default:600;"            json:"banTime"`
-	BanMessage         null.String    `gorm:"column:banMessage;type:TEXT;"                     json:"banMessage"         swaggertype:"string"`
-	WarningMessage     null.String    `gorm:"column:warningMessage;type:TEXT;"                 json:"warningMessage"     swaggertype:"string"`
+	BanMessage         string         `gorm:"column:banMessage;type:TEXT;"                     json:"banMessage"         swaggertype:"string"`
+	WarningMessage     string         `gorm:"column:warningMessage;type:TEXT;"                 json:"warningMessage"     swaggertype:"string"`
 	CheckClips         null.Bool      `gorm:"column:checkClips;type:BOOL;default:false;"       json:"checkClips"         swaggertype:"boolean"`
 	TriggerLength      null.Int       `gorm:"column:triggerLength;type:INT4;default:300;"      json:"triggerLength"      swaggertype:"integer"`
 	MaxPercentage      null.Int       `gorm:"column:maxPercentage;type:INT4;default:50;"       json:"maxPercentage"      swaggertype:"integer"`
