@@ -1,26 +1,18 @@
 import {
-  ActionIcon,
   Alert,
   Badge,
-  Center,
   Drawer,
   Flex,
-  Group,
-  Menu,
   NumberInput,
   ScrollArea,
-  Slider,
   Switch,
-  Text,
   Textarea,
   TextInput,
   useMantineTheme,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
-import { IconGripVertical, IconInfoCircle, IconMinus, IconPlus, IconVariable } from '@tabler/icons';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
-import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { useEffect } from 'react';
 
 type Props = {
@@ -71,6 +63,16 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
             <NumberInput label="Used times" {...form.getInputProps('usages')} />
 
             <Switch label="Use twitch reply feature" {...form.getInputProps('isReply')} />
+            {props.keyword.id && (
+              <Alert>
+                You can access that counter in your commands via{' '}
+                <b>
+                  $(keywords.counter|
+                  {props.keyword.id})
+                </b>{' '}
+                variable.
+              </Alert>
+            )}
           </Flex>
         </form>
       </ScrollArea.Autosize>
