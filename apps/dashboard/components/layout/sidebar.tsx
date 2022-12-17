@@ -20,7 +20,7 @@ const navigationLinks: Array<{ label: string; icon: TablerIcon; path: string }> 
   { label: 'Settings', icon: IconSettings, path: '/settings' },
   { label: 'Commands', icon: IconCommand, path: '/commands' },
   { label: 'Timers', icon: IconClockHour7, path: '/timers' },
-  { label: 'Moderation', icon: IconSword, path: '/settings/moderation' },
+  { label: 'Moderation', icon: IconSword, path: '/moderation' },
   { label: 'Keywords', icon: IconKey, path: 'keywords' },
   { label: 'Variables', icon: IconActivity, path: '/variables' },
   { label: 'Greetings', icon: IconSpeakerphone, path: '/greetings' },
