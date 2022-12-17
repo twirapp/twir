@@ -1,5 +1,5 @@
 import { Badge, Button, Switch, Table, Tabs } from '@mantine/core';
-import { useLocalStorage } from '@mantine/hooks';
+import { useLocalStorage, useViewportSize } from '@mantine/hooks';
 import { IconClipboardCopy, IconPencilPlus, IconSword, IconUser } from '@tabler/icons';
 import { Dashboard } from '@tsuwari/shared';
 import type { ChannelCommand, CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
@@ -20,6 +20,7 @@ export default function Commands() {
     serialize: (v) => JSON.stringify(v),
     deserialize: (v) => JSON.parse(v),
   });
+  const viewPort = useViewportSize();
 
   const { data: commands } = useSWR<ChannelCommand[]>(
     selectedDashboard ? `/api/v1/channels/${selectedDashboard.channelId}/commands` : null,
@@ -50,8 +51,12 @@ export default function Commands() {
         <thead>
           <tr>
             <th>Name</th>
-            <th>Response</th>
-            <th>Status</th>
+            {viewPort.width > 550 && (
+              <>
+                <th>Response</th>
+                <th>Status</th>
+              </>
+            )}
             <th>Actions</th>
           </tr>
         </thead>
@@ -65,21 +70,25 @@ export default function Commands() {
                   <td>
                     <Badge>{element.name}</Badge>
                   </td>
-                  <td>
-                    {element.module != 'CUSTOM' && <Badge>This is built-in command</Badge>}
-                    {element.module === 'CUSTOM' &&
-                      (element.responses?.map((r, i) => (
-                        <p key={i} style={{ margin: 0 }}>
-                          {r.text}
-                        </p>
-                      )) || <Badge>No Response</Badge>)}
-                  </td>
-                  <td>
-                    <Switch
-                      checked={element.enabled}
-                      onChange={(event) => (element.enabled = event.currentTarget.checked)}
-                    />
-                  </td>
+                  {viewPort.width > 550 && (
+                    <>
+                      <td>
+                        {element.module != 'CUSTOM' && <Badge>This is built-in command</Badge>}
+                        {element.module === 'CUSTOM' &&
+                          (element.responses?.map((r, i) => (
+                            <p key={i} style={{ margin: 0 }}>
+                              {r.text}
+                            </p>
+                          )) || <Badge>No Response</Badge>)}
+                      </td>
+                      <td>
+                        <Switch
+                          checked={element.enabled}
+                          onChange={(event) => (element.enabled = event.currentTarget.checked)}
+                        />
+                      </td>
+                    </>
+                  )}
                   <td>
                     <Button
                       onClick={() => {

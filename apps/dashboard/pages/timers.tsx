@@ -1,5 +1,5 @@
 import { Badge, Button, Switch, Table } from '@mantine/core';
-import { useLocalStorage } from '@mantine/hooks';
+import { useLocalStorage, useViewportSize } from '@mantine/hooks';
 import { Dashboard } from '@tsuwari/shared';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { useState } from 'react';
@@ -16,6 +16,7 @@ export default function () {
     serialize: (v) => JSON.stringify(v),
     deserialize: (v) => JSON.parse(v),
   });
+  const viewPort = useViewportSize();
 
   const { data: timers } = useSWR<ChannelTimer[]>(
     selectedDashboard ? `/api/v1/channels/${selectedDashboard.channelId}/timers` : null,
@@ -28,10 +29,10 @@ export default function () {
         <thead>
           <tr>
             <th>Name</th>
-            <th>Responses</th>
+            {viewPort.width > 550 && <th>Responses</th>}
             <th>Time Interval</th>
             <th>Messages Interval</th>
-            <th>Status</th>
+            {viewPort.width > 550 && <th>Status</th>}
             <th>Actions</th>
           </tr>
         </thead>
@@ -42,21 +43,26 @@ export default function () {
                 <td>
                   <Badge>{element.name}</Badge>
                 </td>
-                <td>
-                  {element.responses.map((r, i) => (
-                    <p key={i} style={{ margin: 0 }}>
-                      {r.text}
-                    </p>
-                  ))}
-                </td>
+                {viewPort.width > 550 && (
+                  <td>
+                    {element.responses.map((r, i) => (
+                      <p key={i} style={{ margin: 0 }}>
+                        {r.text}
+                      </p>
+                    ))}
+                  </td>
+                )}
+
                 <td>{element.timeInterval} seconds</td>
                 <td>{element.messageInterval}</td>
-                <td>
-                  <Switch
-                    checked={element.enabled}
-                    onChange={(event) => (element.enabled = event.currentTarget.checked)}
-                  />
-                </td>
+                {viewPort.width > 550 && (
+                  <td>
+                    <Switch
+                      checked={element.enabled}
+                      onChange={(event) => (element.enabled = event.currentTarget.checked)}
+                    />
+                  </td>
+                )}
                 <td>
                   <Button
                     onClick={() => {
