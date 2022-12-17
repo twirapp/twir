@@ -17,6 +17,7 @@ import type {
 type Props = React.PropsWithChildren<{
   settings: ChannelModerationSetting;
   setEditableSettings: React.Dispatch<React.SetStateAction<ChannelModerationSetting>>;
+  setEditDrawerOpened: React.Dispatch<React.SetStateAction<boolean>>;
 }>;
 
 const typesMapping: Record<
@@ -77,7 +78,7 @@ export const ModerationCard: React.FC<Props> = (props) => {
                     props.settings.type.charAt(0).toUpperCase() + props.settings.type.slice(1)}
                 </Text>
               </Group>
-              <ActionIcon>
+              <ActionIcon onClick={() => props.setEditDrawerOpened(true)}>
                 <IconPencil size={18}></IconPencil>
               </ActionIcon>
             </Flex>

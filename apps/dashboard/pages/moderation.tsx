@@ -113,9 +113,13 @@ export default function () {
   return (
     <div>
       <Grid justify="center">
-        {settings.map((s) => (
-          <Grid.Col xs={12} sm={12} md={5} lg={5} xl={5}>
-            <ModerationCard settings={s as any} setEditableSettings={setEditableSettings} />
+        {settings.map((s, i) => (
+          <Grid.Col key={i} xs={12} sm={12} md={5} lg={5} xl={5}>
+            <ModerationCard
+              settings={s as any}
+              setEditableSettings={setEditableSettings}
+              setEditDrawerOpened={setEditDrawerOpened}
+            />
           </Grid.Col>
         ))}
       </Grid>
