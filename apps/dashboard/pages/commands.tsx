@@ -65,7 +65,7 @@ export default function Commands() {
           {commands &&
             commands
               .filter((c) => c.module === activeTab)
-              .map((element, idx) => (
+              .map((element) => (
                 <tr key={element.id}>
                   <td>
                     <Badge>{element.name}</Badge>
@@ -92,7 +92,7 @@ export default function Commands() {
                   <td>
                     <Button
                       onClick={() => {
-                        setEditableCommand(commands[idx] as any);
+                        setEditableCommand(commands.find((c) => c.id === element.id)!);
                         setEditDrawerOpened(true);
                       }}
                     >

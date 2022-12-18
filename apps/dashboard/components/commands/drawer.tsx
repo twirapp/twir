@@ -14,16 +14,19 @@ import {
   Group,
   Center,
   Textarea,
-  Box,
   Menu,
-  Badge,
+  Button,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useViewportSize } from '@mantine/hooks';
-import { IconGripVertical, IconInfoCircle, IconMinus, IconPlus, IconVariable } from '@tabler/icons';
+import { useLocalStorage, useViewportSize } from '@mantine/hooks';
+import { IconGripVertical, IconMinus, IconPlus, IconVariable } from '@tabler/icons';
+import { Dashboard } from '@tsuwari/shared';
 import type { ChannelCommand, CommandPermission } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { useSWRConfig } from 'swr';
+
+import { swrFetcher } from '../../services/swrFetcher';
 
 type Props = {
   opened: boolean;
@@ -58,22 +61,55 @@ export const CommandDrawer: React.FC<Props> = (props) => {
   const form = useForm<ChannelCommand>({
     validate: {
       name: (value) => (!value.length ? 'Name cannot be empty' : null),
-      aliases: (value) => (value.some((s) => !s.length) ? 'Aliase cannot be empty' : null),
+      aliases: (values) => (values.some((s) => !s.length) ? 'Aliase cannot be empty' : null),
+      cooldown: (value) => (value && value < 0 ? 'Cooldown cannot be lower then 0' : null),
+      permission: (v) => (!COMMAND_PERMS.includes(v as any) ? 'Unknown permission' : null),
+      responses: {
+        text: (value) => (value && !value.length ? 'Response cannot be empty' : null),
+      },
     },
   });
+  const [selectedDashboard] = useLocalStorage<Dashboard>({
+    key: 'selectedDashboard',
+    serialize: (v) => JSON.stringify(v),
+    deserialize: (v) => JSON.parse(v),
+  });
+
+  const { mutate } = useSWRConfig();
 
   const viewPort = useViewportSize();
 
   useEffect(() => {
-    console.log('render');
+    console.log(props.command);
     form.setValues(props.command);
   }, [props.command]);
+
+  function onSubmit() {
+    const validate = form.validate();
+    if (validate.hasErrors) {
+      console.log(validate.errors);
+      return;
+    }
+    const url = `/api/v1/channels/${selectedDashboard.channelId}/commands`;
+
+    mutate(
+      url,
+      swrFetcher(url, {
+        method: 'POST',
+        body: JSON.stringify(form.values),
+      }),
+    );
+  }
 
   return (
     <Drawer
       opened={props.opened}
       onClose={() => props.setOpened(false)}
-      title={<Badge size="xl">{props.command.name}</Badge>}
+      title={
+        <Button size="xs" color="green" onClick={onSubmit}>
+          Save
+        </Button>
+      }
       padding="xl"
       size="xl"
       position="right"
@@ -81,7 +117,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       style={{ minWidth: 250, maxWidth: 500 }}
     >
       <ScrollArea.Autosize maxHeight={viewPort.height - 100} type="auto" offsetScrollbars={true}>
-        <form onSubmit={form.onSubmit((values) => console.log(values))}>
+        <form>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
             <div>
               <TextInput
