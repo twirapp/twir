@@ -13,12 +13,11 @@ import {
 } from '@mantine/core';
 import { useLocalStorage, useHotkeys, useMediaQuery } from '@mantine/hooks';
 import { IconSun, IconMoonStars } from '@tabler/icons';
-import { AuthUser } from '@tsuwari/shared';
 import { Dispatch, SetStateAction } from 'react';
-import useSWR from 'swr';
 
-import { swrFetcher } from '../../services/swrFetcher';
 import { Profile } from './profile';
+
+import { useProfile } from '@/services/api';
 
 export function NavBar({
   opened,
@@ -40,10 +39,7 @@ export function NavBar({
 
   const largeScreen = useMediaQuery('(min-width: 250px)');
 
-  const { data: userData, isLoading: isLoadingProfile } = useSWR<AuthUser>(
-    '/api/auth/profile',
-    swrFetcher,
-  );
+  const { data: userData, isLoading: isLoadingProfile } = useProfile();
 
   return (
     <Header height={{ base: 50, md: 50 }} p="md">

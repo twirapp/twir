@@ -5,7 +5,7 @@ import {
   MantineProvider,
   useMantineTheme,
 } from '@mantine/core';
-import { useClickOutside, useColorScheme, useHotkeys, useLocalStorage } from '@mantine/hooks';
+import { useColorScheme, useHotkeys, useLocalStorage } from '@mantine/hooks';
 import { SpotlightProvider } from '@mantine/spotlight';
 import { IconSearch } from '@tabler/icons';
 import { AppProps } from 'next/app';
@@ -15,7 +15,8 @@ import { SWRConfig } from 'swr';
 
 import { NavBar } from '../components/layout/navbar';
 import { SideBar } from '../components/layout/sidebar';
-import { swrFetcher } from '../services/swrFetcher';
+
+import { swrAuthFetcher } from '@/services/api';
 
 export default function App(props: AppProps) {
   const { Component } = props;
@@ -50,7 +51,7 @@ export default function App(props: AppProps) {
             shortcut={['mod+k']}
             nothingFoundMessage="Nothing found..."
           >
-            <SWRConfig value={{ fetcher: swrFetcher }}>
+            <SWRConfig value={{ fetcher: swrAuthFetcher }}>
               <AppShell
                 styles={{
                   main: {

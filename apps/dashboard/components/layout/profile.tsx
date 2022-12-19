@@ -1,24 +1,15 @@
-import { Avatar, Menu, Indicator } from '@mantine/core';
-import { useLocalStorage } from '@mantine/hooks';
-import { useSpotlight } from '@mantine/spotlight';
+import { Avatar, Menu } from '@mantine/core';
 import { IconLogout } from '@tabler/icons';
-import { AuthUser, Dashboard } from '@tsuwari/shared';
-import { useEffect } from 'react';
-import useSWRMutation from 'swr/mutation';
+import { AuthUser } from '@tsuwari/shared';
 
-import { swrFetcher } from '../../services/swrFetcher';
+import { useLogoutMutation } from '@/services/api';
 
 type Props = {
   user: AuthUser;
 };
 
 export function Profile(props: Props) {
-  const { trigger: logout } = useSWRMutation('/api/user', async () => {
-    const req = await swrFetcher('/api/auth/logout', { method: 'POST' });
-    if (req === 'OK') {
-      localStorage.removeItem('accessToken');
-    }
-  });
+  const { trigger: logout } = useLogoutMutation();
 
   return (
     <div>

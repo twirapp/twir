@@ -11,7 +11,6 @@ import {
   TextInput,
   useMantineTheme,
   Text,
-  Textarea,
   Input,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';

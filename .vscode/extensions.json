@@ -5,7 +5,6 @@
     "vue.volar",
     "emeraldwalk.runonsave",
     "golang.go",
-    "astro-build.astro-vscode",
     "esbenp.prettier-vscode"
   ]
 }

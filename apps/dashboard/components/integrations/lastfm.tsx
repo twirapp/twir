@@ -1,5 +1,5 @@
 import { Group, Avatar, Text } from '@mantine/core';
-import { IconBrandLastfm, IconBrandSpotify } from '@tabler/icons';
+import { IconBrandLastfm } from '@tabler/icons';
 
 import { IntegrationCard } from './card';
 

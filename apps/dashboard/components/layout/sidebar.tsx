@@ -9,7 +9,7 @@ import {
   Text,
   Avatar,
 } from '@mantine/core';
-import { useLocalStorage, useViewportSize } from '@mantine/hooks';
+import { useViewportSize } from '@mantine/hooks';
 import { useSpotlight } from '@mantine/spotlight';
 import {
   IconDashboard,
@@ -23,12 +23,13 @@ import {
   IconSpeakerphone,
   TablerIcon,
 } from '@tabler/icons';
-import { AuthUser, Dashboard } from '@tsuwari/shared';
+import { AuthUser } from '@tsuwari/shared';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import useSWR from 'swr';
 
-import { swrFetcher } from '../../services/swrFetcher';
+import { useProfile } from '@/services/api';
+import { createDefaultDashboard, useSelectedDashboard } from '@/services/dashboard';
+
 
 const navigationLinks: Array<{ label: string; icon: TablerIcon; path: string }> = [
   { label: 'Dashboard', icon: IconDashboard, path: '/' },
@@ -47,28 +48,18 @@ export function SideBar({ opened }: { opened: boolean }) {
   const router = useRouter();
   const theme = useMantineTheme();
 
-  const { data: userData } = useSWR<AuthUser>('/api/auth/profile', swrFetcher);
+  const { data: user } = useProfile();
 
   const spotlight = useSpotlight();
-  const [selectedDashboard, setSelectedDashboard] = useLocalStorage<Dashboard>({
-    key: 'selectedDashboard',
-    serialize: (v) => JSON.stringify(v),
-    deserialize: (v) => JSON.parse(v),
-  });
+  const [selectedDashboard, setSelectedDashboard] = useSelectedDashboard();
 
-  function setDefaultDashboard() {
-    setSelectedDashboard({
-      channelId: userData!.id,
-      id: userData!.id,
-      twitchUser: userData!,
-      userId: userData!.id,
-    });
-  }
+  const setDefaultDashboard = (user: AuthUser) =>
+    setSelectedDashboard(createDefaultDashboard(user));
 
   function openSpotlight() {
-    if (userData) {
+    if (user && selectedDashboard) {
       spotlight.removeActions(spotlight.actions.map((a) => a.id!));
-      const actions = userData.dashboards
+      const actions = user.dashboards
         .filter((d) => d.id != selectedDashboard?.id)
         .map((d) => ({
           title: d.twitchUser.display_name,
@@ -80,20 +71,20 @@ export function SideBar({ opened }: { opened: boolean }) {
           id: d.id,
         }));
 
-      if (selectedDashboard.channelId != userData.id) {
+      if (selectedDashboard.channelId != user.id) {
         actions.unshift({
-          title: userData.display_name,
-          description: userData.login,
+          title: user.display_name,
+          description: user.login,
           onTrigger: () => {
             setSelectedDashboard({
-              channelId: userData.id,
-              id: userData.id,
-              twitchUser: userData,
-              userId: userData.id,
+              channelId: user.id,
+              id: user.id,
+              twitchUser: user,
+              userId: user.id,
             });
           },
-          icon: <Avatar src={userData.profile_image_url} style={{ borderRadius: 111 }} />,
-          id: userData.id,
+          icon: <Avatar src={user.profile_image_url} style={{ borderRadius: 111 }} />,
+          id: user.id,
         });
       }
 
@@ -103,19 +94,19 @@ export function SideBar({ opened }: { opened: boolean }) {
   }
 
   useEffect(() => {
-    if (userData) {
-      if (!selectedDashboard) {
-        setDefaultDashboard();
-      } else if (!userData.dashboards.some((d) => d.id === selectedDashboard.id)) {
-        // set default dashboard if user no more have access to selected dashbaord
-        setDefaultDashboard();
-      } else {
-        null;
-      }
-    }
-  }, [userData]);
+    if (!user) return console.log('cannot get user');
 
-  const links = navigationLinks.map((item, index) => (
+    if (!selectedDashboard) {
+      return setDefaultDashboard(user);
+    }
+
+    if (user.dashboards.some((d) => d.id === selectedDashboard.id)) {
+      // set default dashboard if user no more have access to selected dashbaord
+      // setDefaultDashboard();
+    }
+  }, [user]);
+
+  const links = navigationLinks.map((item) => (
     <NavLink
       key={item.label}
       active={item.path === router.asPath}

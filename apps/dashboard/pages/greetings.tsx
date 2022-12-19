@@ -1,26 +1,15 @@
 import { Badge, Button, Table } from '@mantine/core';
-import { useLocalStorage } from '@mantine/hooks';
-import { Dashboard } from '@tsuwari/shared';
 import { useState } from 'react';
-import useSWR from 'swr';
 
-import { GreetingDrawer, type Greeting } from '../components/greetings/drawer';
-import { swrFetcher } from '../services/swrFetcher';
+import { GreetingDrawer } from '../components/greetings/drawer';
+import { type Greeting, useGreetings } from '../services/api/greetings';
 
 
 export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableGreeting, setEditableGreeting] = useState<Greeting>({} as any);
-  const [selectedDashboard] = useLocalStorage<Dashboard>({
-    key: 'selectedDashboard',
-    serialize: (v) => JSON.stringify(v),
-    deserialize: (v) => JSON.parse(v),
-  });
 
-  const { data: greetings } = useSWR<Greeting[]>(
-    selectedDashboard ? `/api/v1/channels/${selectedDashboard.channelId}/greetings` : null,
-    swrFetcher,
-  );
+  const { data: greetings } = useGreetings();
 
   return (
     <div>

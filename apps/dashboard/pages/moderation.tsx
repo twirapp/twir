@@ -1,27 +1,17 @@
 import { Grid } from '@mantine/core';
-import { useLocalStorage } from '@mantine/hooks';
-import { Dashboard } from '@tsuwari/shared';
 import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
 import { useState } from 'react';
-import useSWR from 'swr';
 
 import { ModerationCard } from '../components/moderation/card';
 import { ModerationDrawer } from '../components/moderation/drawer';
-import { swrFetcher } from '../services/swrFetcher';
+
+import { useModerationSettings } from '@/services/api';
 
 export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableSettings, setEditableSettings] = useState<ChannelModerationSetting>({} as any);
-  const [selectedDashboard] = useLocalStorage<Dashboard>({
-    key: 'selectedDashboard',
-    serialize: (v) => JSON.stringify(v),
-    deserialize: (v) => JSON.parse(v),
-  });
 
-  const { data: settings } = useSWR<ChannelModerationSetting[]>(
-    selectedDashboard ? `/api/v1/channels/${selectedDashboard.channelId}/moderation` : null,
-    swrFetcher,
-  );
+  const { data: settings } = useModerationSettings();
 
   return (
     <div>

@@ -13,7 +13,7 @@ import { useViewportSize } from '@mantine/hooks';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import { useEffect } from 'react';
 
-export type Greeting = ChannelGreeting & { userName: string };
+import { type Greeting } from '@/services/api';
 
 type Props = {
   opened: boolean;

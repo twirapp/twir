@@ -1,26 +1,15 @@
 import { Badge, Button, Switch, Table } from '@mantine/core';
-import { useLocalStorage } from '@mantine/hooks';
-import { Dashboard } from '@tsuwari/shared';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import { useState } from 'react';
-import useSWR from 'swr';
 
-import { KeywordDrawer } from '../components/keywords/drawer';
-import { swrFetcher } from '../services/swrFetcher';
+import { KeywordDrawer } from '@/components/keywords/drawer';
+import { useKeywords } from '@/services/api';
 
 export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableKeyword, setEditableKeyword] = useState<ChannelKeyword>({} as any);
-  const [selectedDashboard] = useLocalStorage<Dashboard>({
-    key: 'selectedDashboard',
-    serialize: (v) => JSON.stringify(v),
-    deserialize: (v) => JSON.parse(v),
-  });
 
-  const { data: keywords } = useSWR<ChannelKeyword[]>(
-    selectedDashboard ? `/api/v1/channels/${selectedDashboard.channelId}/keywords` : null,
-    swrFetcher,
-  );
+  const { data: keywords } = useKeywords();
 
   return (
     <div>

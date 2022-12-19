@@ -18,15 +18,13 @@ import {
   Button,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useLocalStorage, useViewportSize } from '@mantine/hooks';
+import { useViewportSize } from '@mantine/hooks';
 import { IconGripVertical, IconMinus, IconPlus, IconVariable } from '@tabler/icons';
-import { Dashboard } from '@tsuwari/shared';
 import type { ChannelCommand, CommandPermission } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { useSWRConfig } from 'swr';
 
-import { swrFetcher } from '../../services/swrFetcher';
+import { useUpdateCommand } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -69,36 +67,23 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       },
     },
   });
-  const [selectedDashboard] = useLocalStorage<Dashboard>({
-    key: 'selectedDashboard',
-    serialize: (v) => JSON.stringify(v),
-    deserialize: (v) => JSON.parse(v),
-  });
-
-  const { mutate } = useSWRConfig();
 
   const viewPort = useViewportSize();
+  const updateCommand = useUpdateCommand();
 
   useEffect(() => {
     console.log(props.command);
     form.setValues(props.command);
   }, [props.command]);
 
-  function onSubmit() {
+  async function onSubmit() {
     const validate = form.validate();
     if (validate.hasErrors) {
       console.log(validate.errors);
       return;
     }
-    const url = `/api/v1/channels/${selectedDashboard.channelId}/commands`;
-
-    mutate(
-      url,
-      swrFetcher(url, {
-        method: 'POST',
-        body: JSON.stringify(form.values),
-      }),
-    );
+    
+    await updateCommand(form.values);
   }
 
   return (

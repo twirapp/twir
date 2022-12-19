@@ -1,13 +1,12 @@
 import { Badge, Button, Switch, Table, Tabs } from '@mantine/core';
-import { useLocalStorage, useViewportSize } from '@mantine/hooks';
+import { useViewportSize } from '@mantine/hooks';
 import { IconClipboardCopy, IconPencilPlus, IconSword, IconUser } from '@tabler/icons';
-import { Dashboard } from '@tsuwari/shared';
 import type { ChannelCommand, CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useState } from 'react';
-import useSWR from 'swr';
 
 import { CommandDrawer } from '../components/commands/drawer';
-import { swrFetcher } from '../services/swrFetcher';
+
+import { useCommands } from '@/services/api';
 
 type Module = keyof typeof CommandModule;
 
@@ -15,17 +14,9 @@ export default function Commands() {
   const [activeTab, setActiveTab] = useState<Module | null>('CUSTOM');
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableCommand, setEditableCommand] = useState<ChannelCommand>({} as any);
-  const [selectedDashboard] = useLocalStorage<Dashboard>({
-    key: 'selectedDashboard',
-    serialize: (v) => JSON.stringify(v),
-    deserialize: (v) => JSON.parse(v),
-  });
   const viewPort = useViewportSize();
 
-  const { data: commands } = useSWR<ChannelCommand[]>(
-    selectedDashboard ? `/api/v1/channels/${selectedDashboard.channelId}/commands` : null,
-    swrFetcher,
-  );
+  const { data: commands } = useCommands();
 
   return (
     <div>
@@ -62,7 +53,7 @@ export default function Commands() {
         </thead>
 
         <tbody>
-          {commands &&
+          {commands && commands.length &&
             commands
               .filter((c) => c.module === activeTab)
               .map((element) => (
