@@ -82,8 +82,9 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       console.log(validate.errors);
       return;
     }
-    
+
     await updateCommand(form.values);
+    props.setOpened(false);
   }
 
   return (

@@ -21,19 +21,27 @@ export const useUpdateCommand = () => {
     throw new Error('Selected dashboard is null, unable to post command.');
   }
 
-  return (command: ChannelCommand) => {
-    const { data: commands } = useCommands();
-
-    // TODO: make it optimistic
-    return mutate(
+  return (command: ChannelCommand) =>
+    mutate<ChannelCommand[]>(
       `/api/v1/channels/${selectedDashboard.channelId}/commands`,
-      swrAuthFetcher(`/api/v1/channels/${selectedDashboard.channelId}/commands/${command.id}`, {
-        method: 'PUT',
-        body: JSON.stringify(command),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }),
+      async (commands) => {
+        const data = await swrAuthFetcher(
+          `/api/v1/channels/${selectedDashboard.channelId}/commands/${command.id}`,
+          {
+            body: JSON.stringify(command),
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+
+        const index = commands!.findIndex((c) => c.id === data.id);
+        commands![index] = data;
+        return commands;
+      },
+      {
+        revalidate: false,
+      },
     );
-  };
 };
