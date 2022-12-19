@@ -13,6 +13,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Post("", post(services))
 	middleware.Delete(":commandId", delete(services))
 	middleware.Put(":commandId", put(services))
+	middleware.Patch(":commandId", patch(services))
 
 	return router
 }
@@ -122,6 +123,42 @@ func put(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		cmd, err := handleUpdate(c.Params("channelId"), c.Params("commandId"), dto, services)
+		if err == nil && cmd != nil {
+			return c.JSON(cmd)
+		}
+
+		return err
+	}
+}
+
+// Commands godoc
+// @Security ApiKeyAuth
+// @Summary      Partialy update command
+// @Tags         Commands
+// @Accept       json
+// @Produce      json
+// @Param data body commandPatchDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Param        commandId   path      string  true  "ID of command"
+// @Success      200  {object}  model.ChannelsCommands
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 404
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/commands/{commandId} [patch]
+func patch(services types.Services) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		dto := &commandPatchDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
+		if err != nil {
+			return err
+		}
+
+		cmd, err := handlePatch(c.Params("channelId"), c.Params("commandId"), dto, services)
 		if err == nil && cmd != nil {
 			return c.JSON(cmd)
 		}

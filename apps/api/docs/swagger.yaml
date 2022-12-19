@@ -55,6 +55,13 @@ definitions:
     - permission
     - visible
     type: object
+  github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto:
+    properties:
+      enabled:
+        type: boolean
+    required:
+    - enabled
+    type: object
   github_com_satont_tsuwari_apps_api_internal_api_v1_commands.responsesDto:
     properties:
       order:
@@ -449,6 +456,13 @@ definitions:
     - name
     - permission
     - visible
+    type: object
+  internal_api_v1_commands.commandPatchDto:
+    properties:
+      enabled:
+        type: boolean
+    required:
+    - enabled
     type: object
   internal_api_v1_commands.responsesDto:
     properties:
@@ -961,6 +975,10 @@ definitions:
         items:
           type: string
         type: array
+      tags:
+        items:
+          type: string
+        type: array
       thumbnailUrl:
         type: string
       title:
@@ -1124,7 +1142,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_bot.connectionDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_bot.connectionDto'
       produces:
       - application/json
       responses:
@@ -1243,6 +1261,48 @@ paths:
       summary: Delete command
       tags:
       - Commands
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_v1_commands.commandPatchDto'
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      - description: ID of command
+        in: path
+        name: commandId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChannelsCommands'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Partialy update command
+      tags:
+      - Commands
     put:
       consumes:
       - application/json
@@ -1302,7 +1362,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.Entity'
+              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
             type: array
         "500":
           description: Internal Server Error
@@ -1322,7 +1382,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.addUserDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1334,7 +1394,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.Entity'
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
         "400":
           description: Bad Request
           schema:
@@ -1703,7 +1763,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto'
+          $ref: '#/definitions/internal_api_v1_integrations_lastfm.lastfmDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2032,7 +2092,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto'
+          $ref: '#/definitions/internal_api_v1_integrations_vk.vkDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2235,7 +2295,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto'
+          $ref: '#/definitions/internal_api_v1_moderation.moderationDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2324,7 +2384,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2394,7 +2454,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2606,7 +2666,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_api_v1_stats.statsItem'
+              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_stats.statsItem'
             type: array
         "500":
           description: Internal Server Error

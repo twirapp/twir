@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { CommandDrawer } from '../components/commands/drawer';
 
 import { confirmDelete } from '@/components/confirmDelete';
-import { useCommands, useDeleteCommand } from '@/services/api';
+import { useCommands, useDeleteCommand, usePatchCommand } from '@/services/api';
 
 type Module = keyof typeof CommandModule;
 
@@ -26,6 +26,7 @@ export default function Commands() {
 
   const { data: commands } = useCommands();
   const deleteCommand = useDeleteCommand();
+  const patchCommand = usePatchCommand();
 
   return (
     <div>
@@ -97,7 +98,9 @@ export default function Commands() {
                       <td>
                         <Switch
                           checked={command.enabled}
-                          onChange={(event) => (command.enabled = event.currentTarget.checked)}
+                          onChange={(event) => {
+                            patchCommand(command.id, { enabled: event.currentTarget.checked });
+                          }}
                         />
                       </td>
                     </>

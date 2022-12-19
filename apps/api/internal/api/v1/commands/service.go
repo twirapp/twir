@@ -144,3 +144,27 @@ func handleUpdate(
 
 	return command, nil
 }
+
+func handlePatch(
+	channelId, commandId string,
+	dto *commandPatchDto,
+	services types.Services,
+) (*model.ChannelsCommands, error) {
+	command, err := getChannelCommand(services.DB, channelId, commandId)
+	if err != nil || command == nil {
+		return nil, fiber.NewError(http.StatusNotFound, "command not found")
+	}
+
+	command.Enabled = *dto.Enabled
+
+	err = services.DB.
+		Select("*").
+		Updates(command).
+		Error
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return nil, err
+	}
+
+	return command, nil
+}

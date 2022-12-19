@@ -18,7 +18,7 @@ export const useDeleteCommand = () => {
   const [selectedDashboard] = useSelectedDashboard();
 
   if (selectedDashboard === null) {
-    throw new Error('Selected dashboard is null, unable to post command.');
+    throw new Error('Selected dashboard is null, unable to delete command.');
   }
 
   return (id: string) =>
@@ -34,7 +34,40 @@ export const useDeleteCommand = () => {
 
         const index = commands?.findIndex((c) => c.id === id);
         commands?.splice(index!, 1);
-        console.log(commands);
+        return commands;
+      },
+      {
+        revalidate: false,
+      },
+    );
+};
+
+export const usePatchCommand = () => {
+  const { mutate } = useSWRConfig();
+  const [selectedDashboard] = useSelectedDashboard();
+
+  if (selectedDashboard === null) {
+    throw new Error('Selected dashboard is null, unable to patch command.');
+  }
+
+  return (commandId: string, commandData: Partial<ChannelCommand>) =>
+    mutate<ChannelCommand[]>(
+      `/api/v1/channels/${selectedDashboard.channelId}/commands`,
+      async (commands) => {
+        const data = await swrAuthFetcher(
+          `/api/v1/channels/${selectedDashboard.channelId}/commands/${commandId}`,
+          {
+            body: JSON.stringify(commandData),
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+
+        const index = commands!.findIndex((c) => c.id === commandId);
+        commands![index] = data;
+
         return commands;
       },
       {
@@ -48,7 +81,7 @@ export const useManageCommand = () => {
   const [selectedDashboard] = useSelectedDashboard();
 
   if (selectedDashboard === null) {
-    throw new Error('Selected dashboard is null, unable to post command.');
+    throw new Error('Selected dashboard is null, unable to post/put command.');
   }
 
   return (command: ChannelCommand) =>
