@@ -6,29 +6,21 @@ import { swrAuthFetcher } from '../fetchWrappers';
 
 import { useSelectedDashboard } from '@/services/dashboard';
 
-export type SpotifyProfile = {
-  id: string;
-  display_name: string;
-  images?: Array<{ url: string }>;
+export type LastfmProfile = {
+  name: string;
+  image: string;
+  playCount: string;
 };
 
-export const useSpotifyIntegration = () => {
+export const useLastfmIntegration = () => {
   const [selectedDashboard] = useSelectedDashboard();
   const { mutate } = useSWRConfig();
 
   return {
-    getIntegration() {
-      return useSWR<ChannelIntegration>(
-        selectedDashboard
-          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify`
-          : null,
-        swrAuthFetcher,
-      );
-    },
     getProfile() {
-      return useSWR<SpotifyProfile>(
+      return useSWR<LastfmProfile>(
         selectedDashboard
-          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
+          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/lastfm/profile`
           : null,
         swrAuthFetcher,
       );
@@ -39,28 +31,25 @@ export const useSpotifyIntegration = () => {
       }
 
       return swrAuthFetcher(
-        `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/auth`,
+        `/api/v1/channels/${selectedDashboard.channelId}/integrations/lastfm/auth`,
       );
     },
-    async postCode(code: string) {
+    async postToken(token: string) {
       if (!selectedDashboard) {
         throw new Error('Cannot post code because dashboard not slected');
       }
 
-      await swrAuthFetcher(
-        `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/token`,
-        {
-          body: JSON.stringify({ code }),
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+      await swrAuthFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/lastfm`, {
+        body: JSON.stringify({ token }),
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+      });
 
       mutate(
         selectedDashboard
-          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
+          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/lastfm/profile`
           : null, // which cache keys are updated
         undefined, // update cache data to `undefined`
         { revalidate: true }, // do not revalidate
@@ -72,7 +61,7 @@ export const useSpotifyIntegration = () => {
       }
 
       await swrAuthFetcher(
-        `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/logout`,
+        `/api/v1/channels/${selectedDashboard.channelId}/integrations/lastfm/logout`,
         {
           method: 'POST',
           headers: {
@@ -83,7 +72,7 @@ export const useSpotifyIntegration = () => {
 
       mutate(
         selectedDashboard
-          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
+          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/lastfm/profile`
           : null, // which cache keys are updated
         undefined, // update cache data to `undefined`
         { revalidate: true }, // do not revalidate

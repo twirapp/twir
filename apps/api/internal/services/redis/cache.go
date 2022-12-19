@@ -34,8 +34,6 @@ func (c *RedisStorage) DeleteByMethod(key string, method string) {
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
-	fmt.Println(baseKey)
-
 	go func() {
 		defer wg.Done()
 		c.Delete(baseKey)

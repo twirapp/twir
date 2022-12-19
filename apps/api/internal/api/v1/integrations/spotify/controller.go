@@ -169,7 +169,6 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 }
 
 // Integrations godoc
-// Integrations godoc
 // @Security ApiKeyAuth
 // @Summary      Logout
 // @Tags         Integrations|Spotify

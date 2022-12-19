@@ -338,6 +338,8 @@ github.com/satont/go-helix/v2 v2.7.22/go.mod h1:j+PWsRYZGj3r6SyoXO7jvmLcuxHc54jt
 github.com/satori/go.uuid v1.2.0 h1:0uYX9dsZ2yD7q2RtLRtPSdGDWzjeM3TbMJP9utgA0ww=
 github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdhQKdks0=
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
+github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0 h1:cgqwZtnR+IQfUYDLJ3Kiy4aE+O/wExTzEIg8xwC4Qfs=
+github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0/go.mod h1:n3nudMl178cEvD44PaopxH9jhJaQzthSxUzLO5iKMy4=
 github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24/go.mod h1:M+9NzErvs504Cn4c5DxATwIqPbtswREoFCre64PpcG4=
 github.com/shopspring/decimal v1.2.0 h1:abSATXmQEYyShuxI4/vyW3tV1MrKAJzCZ/0zLUXYbsQ=
 github.com/shopspring/decimal v1.2.0/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=

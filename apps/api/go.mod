@@ -32,6 +32,7 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/spec v0.20.4 // indirect
@@ -56,6 +57,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/onsi/ginkgo/v2 v2.5.0 // indirect
 	github.com/rivo/uniseg v0.4.2 // indirect
+	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0 // indirect
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
