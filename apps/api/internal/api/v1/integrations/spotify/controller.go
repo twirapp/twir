@@ -17,6 +17,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Get("", get(services))
 	middleware.Post("token", post((services)))
 	middleware.Patch("", patch((services)))
+	middleware.Post("logout", logout(services))
 
 	profileCache := cache.New(cache.Config{
 		Expiration: 31 * 24 * time.Hour,
@@ -159,7 +160,37 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		services.RedisStorage.DeleteByMethod(
-			fmt.Sprintf("fiber:cache:integrations:spotify:profile:%s_GET", channelId),
+			fmt.Sprintf("fiber:cache:integrations:spotify:profile:%s", channelId),
+			"GET",
+		)
+
+		return c.SendStatus(200)
+	}
+}
+
+// Integrations godoc
+// Integrations godoc
+// @Security ApiKeyAuth
+// @Summary      Logout
+// @Tags         Integrations|Spotify
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 404 {object} types.DOCApiBadRequest
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/integrations/spotify/logout [post]
+func logout(services types.Services) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		channelId := c.Params("channelId")
+		err := handleLogout(channelId, services)
+		if err != nil {
+			return err
+		}
+
+		services.RedisStorage.DeleteByMethod(
+			fmt.Sprintf("fiber:cache:integrations:spotify:profile:%s", channelId),
 			"GET",
 		)
 

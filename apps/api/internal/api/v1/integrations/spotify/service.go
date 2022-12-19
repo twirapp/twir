@@ -197,3 +197,22 @@ func handleGetProfile(channelId string, services types.Services) (*spotify.Spoti
 
 	return profile, nil
 }
+
+func handleLogout(channelId string, services types.Services) error {
+	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return err
+	}
+	if integration == nil {
+		return fiber.NewError(http.StatusNotFound, "integration not found")
+	}
+
+	err = services.DB.Delete(&integration).Error
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	return nil
+}

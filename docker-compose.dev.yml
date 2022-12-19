@@ -51,6 +51,8 @@ services:
   redis:
     restart: unless-stopped
     image: redis/redis-stack:latest
+    ports:
+      - 6385:6379
     volumes:
       - redis-data:/data
     networks:
