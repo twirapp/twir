@@ -2,8 +2,10 @@ package vk
 
 import (
 	"net/http"
+	"net/url"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
@@ -14,6 +16,31 @@ import (
 type VK struct {
 	model.ChannelsIntegrations
 	Data map[string]any `json:"data"`
+}
+
+func handleGetAuth(services types.Services) (*string, error) {
+	integration := model.Integrations{}
+	err := services.DB.Where(`"service" = ?`, "VK").First(&integration).Error
+	if err != nil && err == gorm.ErrRecordNotFound {
+		return nil, fiber.NewError(
+			404,
+			"donationalerts not enabled on our side. Please be patient.",
+		)
+	}
+
+	url, _ := url.Parse("https://oauth.vk.com/authorize")
+
+	q := url.Query()
+	q.Add("client_id", integration.ClientID.String)
+	q.Add("display", "page")
+	q.Add("response_type", "code")
+	q.Add("scope", "status offline")
+	q.Add("redirect_uri", integration.RedirectURL.String)
+	url.RawQuery = q.Encode()
+
+	str := url.String()
+
+	return &str, nil
 }
 
 func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrations, error) {

@@ -1135,7 +1135,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_bot.connectionDto'
+          $ref: '#/definitions/internal_api_v1_bot.connectionDto'
       produces:
       - application/json
       responses:
@@ -1191,7 +1191,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1263,7 +1263,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_commands.commandPatchDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1305,7 +1305,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1355,7 +1355,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.Entity'
+              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
             type: array
         "500":
           description: Internal Server Error
@@ -1375,7 +1375,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.addUserDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1387,7 +1387,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.Entity'
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
         "400":
           description: Bad Request
           schema:
@@ -1418,7 +1418,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_api_v1_greetings.Greeting'
+              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting'
             type: array
         "500":
           description: Internal Server Error
@@ -1438,7 +1438,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_greetings.greetingsDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1450,7 +1450,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_api_v1_greetings.Greeting'
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting'
         "400":
           description: Bad Request
           schema:
@@ -1504,7 +1504,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_greetings.greetingsPatchDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1521,7 +1521,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_api_v1_greetings.Greeting'
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting'
         "400":
           description: Bad Request
           schema:
@@ -1631,7 +1631,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_donationalerts.tokenDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2134,6 +2134,32 @@ paths:
       summary: Update VK data
       tags:
       - Integrations|VK
+  /v1/channels/{channelId}/integrations/vk/auth:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ChannelId
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChannelsIntegrations'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get VK auth linl
+      tags:
+      - Integrations|VK
   /v1/channels/{channelId}/keywords:
     get:
       consumes:
@@ -2171,7 +2197,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto'
+          $ref: '#/definitions/internal_api_v1_keywords.keywordDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2243,7 +2269,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto'
+          $ref: '#/definitions/internal_api_v1_keywords.keywordDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2313,7 +2339,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto'
+          $ref: '#/definitions/internal_api_v1_moderation.moderationDto'
       - description: ID of channel
         in: path
         name: channelId
