@@ -116,13 +116,6 @@ definitions:
       enabled:
         type: boolean
     type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.donationAlertsDto:
-    properties:
-      enabled:
-        type: boolean
-    required:
-    - enabled
-    type: object
   github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto:
     properties:
       code:
@@ -148,29 +141,25 @@ definitions:
     required:
     - enabled
     type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDataDto:
+  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile:
     properties:
-      username:
+      albumCount:
         type: string
-    required:
-    - username
+      image:
+        type: string
+      name:
+        type: string
+      playCount:
+        type: string
+      trackCount:
+        type: string
     type: object
   github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto:
     properties:
-      data:
-        $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDataDto'
-      enabled:
-        type: boolean
+      token:
+        type: string
     required:
-    - data
-    - enabled
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.spotifyDto:
-    properties:
-      enabled:
-        type: boolean
-    required:
-    - enabled
+    - token
     type: object
   github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.tokenDto:
     properties:
@@ -178,13 +167,6 @@ definitions:
         type: string
     required:
     - code
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.streamlabsDto:
-    properties:
-      enabled:
-        type: boolean
-    required:
-    - enabled
     type: object
   github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto:
     properties:
@@ -535,13 +517,6 @@ definitions:
       enabled:
         type: boolean
     type: object
-  internal_api_v1_integrations_donationalerts.donationAlertsDto:
-    properties:
-      enabled:
-        type: boolean
-    required:
-    - enabled
-    type: object
   internal_api_v1_integrations_donationalerts.tokenDto:
     properties:
       code:
@@ -567,29 +542,25 @@ definitions:
     required:
     - enabled
     type: object
-  internal_api_v1_integrations_lastfm.lastfmDataDto:
+  internal_api_v1_integrations_lastfm.LastfmProfile:
     properties:
-      username:
+      albumCount:
         type: string
-    required:
-    - username
+      image:
+        type: string
+      name:
+        type: string
+      playCount:
+        type: string
+      trackCount:
+        type: string
     type: object
   internal_api_v1_integrations_lastfm.lastfmDto:
     properties:
-      data:
-        $ref: '#/definitions/internal_api_v1_integrations_lastfm.lastfmDataDto'
-      enabled:
-        type: boolean
+      token:
+        type: string
     required:
-    - data
-    - enabled
-    type: object
-  internal_api_v1_integrations_spotify.spotifyDto:
-    properties:
-      enabled:
-        type: boolean
-    required:
-    - enabled
+    - token
     type: object
   internal_api_v1_integrations_spotify.tokenDto:
     properties:
@@ -597,13 +568,6 @@ definitions:
         type: string
     required:
     - code
-    type: object
-  internal_api_v1_integrations_streamlabs.streamlabsDto:
-    properties:
-      enabled:
-        type: boolean
-    required:
-    - enabled
     type: object
   internal_api_v1_integrations_streamlabs.tokenDto:
     properties:
@@ -1454,7 +1418,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting'
+              $ref: '#/definitions/internal_api_v1_greetings.Greeting'
             type: array
         "500":
           description: Internal Server Error
@@ -1474,7 +1438,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsDto'
+          $ref: '#/definitions/internal_api_v1_greetings.greetingsDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1486,7 +1450,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting'
+            $ref: '#/definitions/internal_api_v1_greetings.Greeting'
         "400":
           description: Bad Request
           schema:
@@ -1540,7 +1504,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsPatchDto'
+          $ref: '#/definitions/internal_api_v1_greetings.greetingsPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1557,7 +1521,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting'
+            $ref: '#/definitions/internal_api_v1_greetings.Greeting'
         "400":
           description: Bad Request
           schema:
@@ -1589,7 +1553,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.ChannelsIntegrations'
+            $ref: '#/definitions/model.ChannelsIntegrationsData'
         "500":
           description: Internal Server Error
           schema:
@@ -1597,41 +1561,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get DonationAlerts integration
-      tags:
-      - Integrations|DonationAlerts
-    patch:
-      consumes:
-      - application/json
-      parameters:
-      - description: Data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.donationAlertsDto'
-      - description: ID of channel
-        in: path
-        name: channelId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.ChannelsIntegrations'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
-      security:
-      - ApiKeyAuth: []
-      summary: Update DonationAlerts status
       tags:
       - Integrations|DonationAlerts
   /v1/channels/{channelId}/integrations/donationalerts/auth:
@@ -1660,6 +1589,38 @@ paths:
       summary: Get DonationAlerts auth link
       tags:
       - Integrations|DonationAlerts
+  /v1/channels/{channelId}/integrations/donationalerts/logout:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiBadRequest'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Logout
+      tags:
+      - Integrations|DonationAlerts
   /v1/channels/{channelId}/integrations/donationalerts/token:
     post:
       consumes:
@@ -1670,7 +1631,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_donationalerts.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1729,7 +1690,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_faceit.faceitUpdateDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.faceitUpdateDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1772,7 +1733,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.ChannelsIntegrations'
+              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile'
             type: array
         "500":
           description: Internal Server Error
@@ -1780,7 +1741,7 @@ paths:
             $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
       security:
       - ApiKeyAuth: []
-      summary: Get LastFm integration
+      summary: Get LastFm profile
       tags:
       - Integrations|Lastfm
     post:
@@ -1818,7 +1779,7 @@ paths:
       summary: Update LastFM
       tags:
       - Integrations|Lastfm
-  /v1/channels/{channelId}/integrations/spotify:
+  /v1/channels/{channelId}/integrations/lastfm/auth:
     get:
       consumes:
       - application/json
@@ -1834,26 +1795,21 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.ChannelsIntegrations'
+            type: string
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
       security:
       - ApiKeyAuth: []
-      summary: Get Spotify integration
+      summary: Get LastFm auth link
       tags:
-      - Integrations|Spotify
-    patch:
+      - Integrations|Lastfm
+  /v1/channels/{channelId}/integrations/lastfm/logout:
+    post:
       consumes:
       - application/json
       parameters:
-      - description: Data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.spotifyDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1864,21 +1820,23 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/model.ChannelsIntegrations'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiBadRequest'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
       security:
       - ApiKeyAuth: []
-      summary: Update Spotify status
+      summary: Logout
       tags:
-      - Integrations|Spotify
+      - Integrations|Lastfm
   /v1/channels/{channelId}/integrations/spotify/auth:
     get:
       consumes:
@@ -2023,41 +1981,6 @@ paths:
       summary: Get Streamlabs integration
       tags:
       - Integrations|Streamlabs
-    patch:
-      consumes:
-      - application/json
-      parameters:
-      - description: Data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/internal_api_v1_integrations_streamlabs.streamlabsDto'
-      - description: ID of channel
-        in: path
-        name: channelId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.ChannelsIntegrations'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
-      security:
-      - ApiKeyAuth: []
-      summary: Update Streamlabs status
-      tags:
-      - Integrations|Streamlabs
   /v1/channels/{channelId}/integrations/streamlabs/auth:
     get:
       consumes:
@@ -2084,6 +2007,40 @@ paths:
       summary: Get DonationAlerts auth link
       tags:
       - Integrations|Streamlabs
+  /v1/channels/{channelId}/integrations/streamlabs/logout:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto'
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Logout
+      tags:
+      - Integrations|Streamlabs
   /v1/channels/{channelId}/integrations/streamlabs/token:
     post:
       consumes:
@@ -2094,7 +2051,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_streamlabs.tokenDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2445,7 +2402,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2515,7 +2472,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerPatchDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2555,7 +2512,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerDto'
       - description: ID of channel
         in: path
         name: channelId

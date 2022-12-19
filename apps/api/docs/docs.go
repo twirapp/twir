@@ -540,7 +540,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
+                                "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
                             }
                         }
                     },
@@ -575,7 +575,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsDto"
+                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsDto"
                         }
                     },
                     {
@@ -590,7 +590,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
+                            "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
                         }
                     },
                     "400": {
@@ -632,7 +632,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsPatchDto"
                         }
                     },
                     {
@@ -654,7 +654,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
+                            "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
                         }
                     },
                     "400": {
@@ -752,62 +752,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.ChannelsIntegrations"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Integrations|DonationAlerts"
-                ],
-                "summary": "Update DonationAlerts status",
-                "parameters": [
-                    {
-                        "description": "Data",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.donationAlertsDto"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "ID of channel",
-                        "name": "channelId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.ChannelsIntegrations"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                            "$ref": "#/definitions/model.ChannelsIntegrationsData"
                         }
                     },
                     "500": {
@@ -861,6 +806,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/channels/{channelId}/integrations/donationalerts/logout": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations|DonationAlerts"
+                ],
+                "summary": "Logout",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiBadRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/channels/{channelId}/integrations/donationalerts/token": {
             "post": {
                 "security": [
@@ -885,7 +881,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_donationalerts.tokenDto"
                         }
                     },
                     {
@@ -979,7 +975,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_faceit.faceitUpdateDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.faceitUpdateDto"
                         }
                     },
                     {
@@ -1028,7 +1024,7 @@ const docTemplate = `{
                 "tags": [
                     "Integrations|Lastfm"
                 ],
-                "summary": "Get LastFm integration",
+                "summary": "Get LastFm profile",
                 "parameters": [
                     {
                         "type": "string",
@@ -1044,7 +1040,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.ChannelsIntegrations"
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile"
                             }
                         }
                     },
@@ -1112,7 +1108,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/channels/{channelId}/integrations/spotify": {
+        "/v1/channels/{channelId}/integrations/lastfm/auth": {
             "get": {
                 "security": [
                     {
@@ -1126,9 +1122,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Integrations|Spotify"
+                    "Integrations|Lastfm"
                 ],
-                "summary": "Get Spotify integration",
+                "summary": "Get LastFm auth link",
                 "parameters": [
                     {
                         "type": "string",
@@ -1142,7 +1138,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.ChannelsIntegrations"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -1152,8 +1148,10 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
+            }
+        },
+        "/v1/channels/{channelId}/integrations/lastfm/logout": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -1166,19 +1164,10 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Integrations|Spotify"
+                    "Integrations|Lastfm"
                 ],
-                "summary": "Update Spotify status",
+                "summary": "Logout",
                 "parameters": [
-                    {
-                        "description": "Data",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.spotifyDto"
-                        }
-                    },
                     {
                         "type": "string",
                         "description": "ID of channel",
@@ -1189,15 +1178,18 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.ChannelsIntegrations"
-                        }
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiBadRequest"
                         }
                     },
                     "500": {
@@ -1438,61 +1430,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Integrations|Streamlabs"
-                ],
-                "summary": "Update Streamlabs status",
-                "parameters": [
-                    {
-                        "description": "Data",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_streamlabs.streamlabsDto"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "ID of channel",
-                        "name": "channelId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.ChannelsIntegrations"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
-                        }
-                    }
-                }
             }
         },
         "/v1/channels/{channelId}/integrations/streamlabs/auth": {
@@ -1537,6 +1474,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/channels/{channelId}/integrations/streamlabs/logout": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations|Streamlabs"
+                ],
+                "summary": "Logout",
+                "parameters": [
+                    {
+                        "description": "Data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/channels/{channelId}/integrations/streamlabs/token": {
             "post": {
                 "security": [
@@ -1561,7 +1552,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_streamlabs.tokenDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto"
                         }
                     },
                     {
@@ -2117,7 +2108,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto"
+                            "$ref": "#/definitions/internal_api_v1_timers.timerDto"
                         }
                     },
                     {
@@ -2174,7 +2165,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto"
+                            "$ref": "#/definitions/internal_api_v1_timers.timerDto"
                         }
                     },
                     {
@@ -2239,7 +2230,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_timers.timerPatchDto"
                         }
                     },
                     {
@@ -2803,17 +2794,6 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.donationAlertsDto": {
-            "type": "object",
-            "required": [
-                "enabled"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                }
-            }
-        },
         "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto": {
             "type": "object",
             "required": [
@@ -2853,13 +2833,22 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDataDto": {
+        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile": {
             "type": "object",
-            "required": [
-                "username"
-            ],
             "properties": {
-                "username": {
+                "albumCount": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "playCount": {
+                    "type": "string"
+                },
+                "trackCount": {
                     "type": "string"
                 }
             }
@@ -2867,26 +2856,11 @@ const docTemplate = `{
         "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto": {
             "type": "object",
             "required": [
-                "data",
-                "enabled"
+                "token"
             ],
             "properties": {
-                "data": {
-                    "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDataDto"
-                },
-                "enabled": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.spotifyDto": {
-            "type": "object",
-            "required": [
-                "enabled"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
+                "token": {
+                    "type": "string"
                 }
             }
         },
@@ -2898,17 +2872,6 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.streamlabsDto": {
-            "type": "object",
-            "required": [
-                "enabled"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
                 }
             }
         },
@@ -3423,17 +3386,6 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_api_v1_integrations_donationalerts.donationAlertsDto": {
-            "type": "object",
-            "required": [
-                "enabled"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                }
-            }
-        },
         "internal_api_v1_integrations_donationalerts.tokenDto": {
             "type": "object",
             "required": [
@@ -3473,13 +3425,22 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_api_v1_integrations_lastfm.lastfmDataDto": {
+        "internal_api_v1_integrations_lastfm.LastfmProfile": {
             "type": "object",
-            "required": [
-                "username"
-            ],
             "properties": {
-                "username": {
+                "albumCount": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "playCount": {
+                    "type": "string"
+                },
+                "trackCount": {
                     "type": "string"
                 }
             }
@@ -3487,26 +3448,11 @@ const docTemplate = `{
         "internal_api_v1_integrations_lastfm.lastfmDto": {
             "type": "object",
             "required": [
-                "data",
-                "enabled"
+                "token"
             ],
             "properties": {
-                "data": {
-                    "$ref": "#/definitions/internal_api_v1_integrations_lastfm.lastfmDataDto"
-                },
-                "enabled": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "internal_api_v1_integrations_spotify.spotifyDto": {
-            "type": "object",
-            "required": [
-                "enabled"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
+                "token": {
+                    "type": "string"
                 }
             }
         },
@@ -3518,17 +3464,6 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "type": "string"
-                }
-            }
-        },
-        "internal_api_v1_integrations_streamlabs.streamlabsDto": {
-            "type": "object",
-            "required": [
-                "enabled"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
                 }
             }
         },

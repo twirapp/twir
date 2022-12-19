@@ -43,54 +43,6 @@ func handleGetAuth(services types.Services) (*string, error) {
 	return &str, nil
 }
 
-func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrations, error) {
-	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
-	if err != nil {
-		services.Logger.Sugar().Error(err)
-		return nil, err
-	}
-
-	return integration, nil
-}
-
-func handlePatch(
-	channelId string,
-	dto *spotifyDto,
-	services types.Services,
-) (*model.ChannelsIntegrations, error) {
-	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
-	if err != nil {
-		services.Logger.Sugar().Error(err)
-		return nil, err
-	}
-
-	if integration == nil {
-		neededIntegration := model.Integrations{}
-		err = services.DB.
-			Where("service = ?", "SPOTIFY").
-			First(&neededIntegration).
-			Error
-		if err != nil {
-			services.Logger.Sugar().Error(err)
-			return nil, fiber.NewError(
-				http.StatusInternalServerError,
-				"seems like spotify not enabled on our side",
-			)
-		}
-
-		integration = &model.ChannelsIntegrations{
-			ID:            uuid.NewV4().String(),
-			ChannelID:     channelId,
-			IntegrationID: neededIntegration.ID,
-		}
-	}
-
-	integration.Enabled = *dto.Enabled
-	services.DB.Save(&integration)
-
-	return integration, nil
-}
-
 type tokensResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`

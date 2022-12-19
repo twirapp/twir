@@ -6,21 +6,20 @@ import { swrAuthFetcher } from '../fetchWrappers';
 
 import { useSelectedDashboard } from '@/services/dashboard';
 
-export type SpotifyProfile = {
-  id: string;
-  display_name: string;
-  images?: Array<{ url: string }>;
+export type DAPRofile = {
+  avatar: string;
+  name: string;
 };
 
-export const useSpotifyIntegration = () => {
+export const useDonationAlertsIntegration = () => {
   const [selectedDashboard] = useSelectedDashboard();
   const { mutate } = useSWRConfig();
 
   return {
-    getProfile() {
-      return useSWR<SpotifyProfile>(
+    getIntegration() {
+      return useSWR<DAPRofile>(
         selectedDashboard
-          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
+          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/donationalerts`
           : null,
         swrAuthFetcher,
       );
@@ -31,7 +30,7 @@ export const useSpotifyIntegration = () => {
       }
 
       return swrAuthFetcher(
-        `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/auth`,
+        `/api/v1/channels/${selectedDashboard.channelId}/integrations/donationalerts/auth`,
       );
     },
     async postCode(code: string) {
@@ -40,7 +39,7 @@ export const useSpotifyIntegration = () => {
       }
 
       await swrAuthFetcher(
-        `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/token`,
+        `/api/v1/channels/${selectedDashboard.channelId}/integrations/donationalerts/token`,
         {
           body: JSON.stringify({ code }),
           method: 'POST',
@@ -52,7 +51,7 @@ export const useSpotifyIntegration = () => {
 
       mutate(
         selectedDashboard
-          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
+          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/donationalerts`
           : null, // which cache keys are updated
         undefined, // update cache data to `undefined`
         { revalidate: true }, // do not revalidate
@@ -64,7 +63,7 @@ export const useSpotifyIntegration = () => {
       }
 
       await swrAuthFetcher(
-        `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/logout`,
+        `/api/v1/channels/${selectedDashboard.channelId}/integrations/donationalerts/logout`,
         {
           method: 'POST',
           headers: {
@@ -75,7 +74,7 @@ export const useSpotifyIntegration = () => {
 
       mutate(
         selectedDashboard
-          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
+          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/donationalerts`
           : null, // which cache keys are updated
         undefined, // update cache data to `undefined`
         { revalidate: true }, // do not revalidate

@@ -1,11 +1,11 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-import { useSpotifyIntegration } from '@/services/api/integrations';
+import { useStreamLabsIntegration } from '@/services/api/integrations';
 
-export default function SpotifyLogin() {
+export default function DonationAlertsLogin() {
   const router = useRouter();
-  const manager = useSpotifyIntegration();
+  const manager = useStreamLabsIntegration();
 
   useEffect(() => {
     const code = router.query.code;

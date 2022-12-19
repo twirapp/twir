@@ -1,23 +1,52 @@
-import { Group, Avatar, Text } from '@mantine/core';
+import { Group, Avatar, Text, Flex, Button, Alert } from '@mantine/core';
+import { IconLogout, IconLogin } from '@tabler/icons';
 
 import { IntegrationCard } from './card';
 
+import { useDonationAlertsIntegration } from '@/services/api/integrations';
+
 export const DonationAlertsIntegration: React.FC = () => {
+  const manager = useDonationAlertsIntegration();
+  const { data } = manager.getIntegration();
+
+  async function login() {
+    const link = await manager.getAuthLink();
+    if (link) {
+      window.location.replace(link);
+    }
+  }
+
   return (
-    <IntegrationCard title="DonationAlerts">
-      <Group position="apart" mt={10}>
-        <Text weight={500} size={30}>
-          Satont WorldWide
-        </Text>
-        <Avatar
-          src={
-            'https://images.unsplash.com/photo-1527004013197-933c4bb611b3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=720&q=80'
-          }
-          h={150}
-          w={150}
-          style={{ borderRadius: 900 }}
-        />
-      </Group>
+    <IntegrationCard
+      title="DonationAlerts"
+      header={
+        <Flex direction="row" gap="sm">
+          {data && (
+            <Button
+              compact
+              leftIcon={<IconLogout />}
+              variant="outline"
+              color="red"
+              onClick={manager.logout}
+            >
+              Logout
+            </Button>
+          )}
+          <Button compact leftIcon={<IconLogin />} variant="outline" color="green" onClick={login}>
+            Login
+          </Button>
+        </Flex>
+      }
+    >
+      {!data && <Alert>Not logged in</Alert>}
+      {data && (
+        <Group position="apart" mt={10}>
+          <Text weight={500} size={30}>
+            {data.name}
+          </Text>
+          <Avatar src={data.avatar} h={150} w={150} style={{ borderRadius: 900 }} />
+        </Group>
+      )}
     </IntegrationCard>
   );
 };

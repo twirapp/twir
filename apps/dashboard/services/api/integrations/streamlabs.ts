@@ -1,4 +1,3 @@
-import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration';
 import { useSWRConfig } from 'swr';
 import useSWR from 'swr';
 
@@ -6,21 +5,20 @@ import { swrAuthFetcher } from '../fetchWrappers';
 
 import { useSelectedDashboard } from '@/services/dashboard';
 
-export type SpotifyProfile = {
-  id: string;
-  display_name: string;
-  images?: Array<{ url: string }>;
+export type StreamLabsProfile = {
+  avatar: string;
+  name: string;
 };
 
-export const useSpotifyIntegration = () => {
+export const useStreamLabsIntegration = () => {
   const [selectedDashboard] = useSelectedDashboard();
   const { mutate } = useSWRConfig();
 
   return {
-    getProfile() {
-      return useSWR<SpotifyProfile>(
+    getIntegration() {
+      return useSWR<StreamLabsProfile>(
         selectedDashboard
-          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
+          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/streamlabs`
           : null,
         swrAuthFetcher,
       );
@@ -31,7 +29,7 @@ export const useSpotifyIntegration = () => {
       }
 
       return swrAuthFetcher(
-        `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/auth`,
+        `/api/v1/channels/${selectedDashboard.channelId}/integrations/streamlabs/auth`,
       );
     },
     async postCode(code: string) {
@@ -40,7 +38,7 @@ export const useSpotifyIntegration = () => {
       }
 
       await swrAuthFetcher(
-        `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/token`,
+        `/api/v1/channels/${selectedDashboard.channelId}/integrations/streamlabs/token`,
         {
           body: JSON.stringify({ code }),
           method: 'POST',
@@ -52,7 +50,7 @@ export const useSpotifyIntegration = () => {
 
       mutate(
         selectedDashboard
-          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
+          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/streamlabs`
           : null, // which cache keys are updated
         undefined, // update cache data to `undefined`
         { revalidate: true }, // do not revalidate
@@ -64,7 +62,7 @@ export const useSpotifyIntegration = () => {
       }
 
       await swrAuthFetcher(
-        `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/logout`,
+        `/api/v1/channels/${selectedDashboard.channelId}/integrations/streamlabs/logout`,
         {
           method: 'POST',
           headers: {
@@ -75,7 +73,7 @@ export const useSpotifyIntegration = () => {
 
       mutate(
         selectedDashboard
-          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
+          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/streamlabs`
           : null, // which cache keys are updated
         undefined, // update cache data to `undefined`
         { revalidate: true }, // do not revalidate

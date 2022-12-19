@@ -41,41 +41,13 @@ func handleGetAuth(services types.Services) (*string, error) {
 	return &str, nil
 }
 
-func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrations, error) {
+func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrationsData, error) {
 	integration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", services.DB)
 	if err != nil {
 		services.Logger.Sugar().Error(err)
 		return nil, nil
 	}
-	return integration, nil
-}
-
-func handlePatch(
-	channelId string,
-	dto *donationAlertsDto,
-	services types.Services,
-) (*model.ChannelsIntegrations, error) {
-	integration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", services.DB)
-	if err != nil {
-		services.Logger.Sugar().Error(err)
-		return nil, err
-	}
-	if err != nil && err == gorm.ErrRecordNotFound {
-		return nil, fiber.NewError(http.StatusNotFound, "integration not found")
-	}
-	if err != nil {
-		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
-	}
-
-	integration.Enabled = *dto.Enabled
-	services.DB.Save(&integration)
-
-	if integration.AccessToken.Valid && integration.RefreshToken.Valid {
-		sendGrpcEvent(integration.ID, *dto.Enabled, services)
-	}
-
-	return integration, nil
+	return integration.Data, nil
 }
 
 type tokensResponse struct {
@@ -193,4 +165,23 @@ func sendGrpcEvent(integrationId string, isAdd bool, services types.Services) {
 			Id: integrationId,
 		})
 	}
+}
+
+func handleLogout(channelId string, services types.Services) error {
+	integration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", services.DB)
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return err
+	}
+	if integration == nil {
+		return fiber.NewError(http.StatusNotFound, "integration not found")
+	}
+
+	err = services.DB.Delete(&integration).Error
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	return nil
 }

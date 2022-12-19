@@ -9,7 +9,7 @@ export default function LastfmLogin() {
 
   useEffect(() => {
     const token = router.query.token;
-    console.log(router.pathname, router.query);
+
     if (typeof token !== 'string') {
       router.push('/integrations');
     } else {
