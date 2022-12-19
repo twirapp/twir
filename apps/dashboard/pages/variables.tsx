@@ -1,5 +1,5 @@
-import { ActionIcon, Badge, Button, Flex, Table, Text } from '@mantine/core';
-import { IconPencil, IconTrash } from '@tabler/icons';
+import { ActionIcon, Badge, Button, CopyButton, Flex, Table, Text, Tooltip } from '@mantine/core';
+import { IconCopy, IconPencil, IconTrash } from '@tabler/icons';
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { useState } from 'react';
 
@@ -55,6 +55,23 @@ export default function () {
                 </td>
                 <td>
                   <Flex direction="row" gap="xs">
+                    <CopyButton value={`$(customvar|${variable.name})`}>
+                      {({ copied, copy }) => (
+                        <Tooltip
+                          label="Copy variable for use in commands"
+                          withArrow
+                          position="bottom"
+                        >
+                          <ActionIcon
+                            color={copied ? 'teal' : 'blue'}
+                            variant="filled"
+                            onClick={copy}
+                          >
+                            <IconCopy size={14} />
+                          </ActionIcon>
+                        </Tooltip>
+                      )}
+                    </CopyButton>
                     <ActionIcon
                       onClick={() => {
                         setEditableVariable(variables[idx] as any);

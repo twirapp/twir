@@ -65,7 +65,9 @@ export default function () {
                   <td>
                     <Switch
                       checked={timer.enabled}
-                      onChange={(event) => (timer.enabled = event.currentTarget.checked)}
+                      onChange={(event) => {
+                        manager.patch(timer.id, { enabled: event.currentTarget.checked });
+                      }}
                     />
                   </td>
                 )}

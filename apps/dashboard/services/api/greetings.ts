@@ -7,49 +7,103 @@ import { swrAuthFetcher } from '@/services/api';
 
 export type Greeting = ChannelGreeting & { userName: string };
 
-export const useGreetings = () => {
+export const useGreetingsManager = () => {
   const [selectedDashboard] = useSelectedDashboard();
-
-  return useSWR<Greeting[]>(
-    selectedDashboard ? `/api/v1/channels/${selectedDashboard.channelId}/greetings` : null,
-    swrAuthFetcher,
-  );
-};
-
-export const useManageGreeting = () => {
   const { mutate } = useSWRConfig();
-  const [selectedDashboard] = useSelectedDashboard();
 
-  if (selectedDashboard === null) {
-    throw new Error('Selected dashboard is null, unable to post command.');
-  }
+  return {
+    getAll() {
+      return useSWR<Greeting[]>(
+        selectedDashboard ? `/api/v1/channels/${selectedDashboard.channelId}/greetings` : null,
+        swrAuthFetcher,
+      );
+    },
+    createOrUpdate(greeting: ChannelGreeting) {
+      if (selectedDashboard === null) {
+        throw new Error('Selected dashboard is null, unable to delete greeting.');
+      }
 
-  return (greeting: ChannelGreeting) =>
-    mutate<ChannelGreeting[]>(
-      `/api/v1/channels/${selectedDashboard.channelId}/greetings`,
-      async (greetings) => {
-        const data = await swrAuthFetcher(
-          `/api/v1/channels/${selectedDashboard.channelId}/greetings/${greeting.id ?? ''}`,
-          {
-            body: JSON.stringify(greeting),
-            method: greeting.id ? 'PUT' : 'POST',
-            headers: {
-              'Content-Type': 'application/json',
+      return mutate<ChannelGreeting[]>(
+        `/api/v1/channels/${selectedDashboard.channelId}/greetings`,
+        async (greetings) => {
+          const data = await swrAuthFetcher(
+            `/api/v1/channels/${selectedDashboard.channelId}/greetings/${greeting.id ?? ''}`,
+            {
+              body: JSON.stringify(greeting),
+              method: greeting.id ? 'PUT' : 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
             },
-          },
-        );
+          );
 
-        if (greeting.id) {
-          const index = greetings!.findIndex((c) => c.id === data.id);
+          if (greeting.id) {
+            const index = greetings!.findIndex((c) => c.id === data.id);
+            greetings![index] = data;
+          } else {
+            greetings?.push(data);
+          }
+
+          return greetings;
+        },
+        {
+          revalidate: false,
+        },
+      );
+    },
+    async patch(greetingId: string, greetingData: Partial<ChannelGreeting>) {
+      if (selectedDashboard === null) {
+        throw new Error('Selected dashboard is null, unable to delete keyword.');
+      }
+
+      return mutate<ChannelGreeting[]>(
+        `/api/v1/channels/${selectedDashboard.channelId}/greetings`,
+        async (greetings) => {
+          const data = await swrAuthFetcher(
+            `/api/v1/channels/${selectedDashboard.channelId}/greetings/${greetingId}`,
+            {
+              body: JSON.stringify(greetingData),
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
+          );
+
+          const index = greetings!.findIndex((c) => c.id === greetingId);
           greetings![index] = data;
-        } else {
-          greetings?.push(data);
-        }
 
-        return greetings;
-      },
-      {
-        revalidate: false,
-      },
-    );
+          return greetings;
+        },
+        {
+          revalidate: false,
+        },
+      );
+    },
+    async delete(greetingId: string) {
+      if (selectedDashboard === null) {
+        throw new Error('Selected dashboard is null, unable to delete greeting.');
+      }
+
+      return mutate<ChannelGreeting[]>(
+        `/api/v1/channels/${selectedDashboard.channelId}/greetings`,
+        async (greetings) => {
+          await swrAuthFetcher(
+            `/api/v1/channels/${selectedDashboard.channelId}/greetings/${greetingId}`,
+            {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
+          );
+
+          return greetings?.filter((c) => c.id != greetingId);
+        },
+        {
+          revalidate: false,
+        },
+      );
+    },
+  };
 };

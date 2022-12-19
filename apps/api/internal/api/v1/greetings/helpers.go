@@ -22,6 +22,19 @@ func getTwitchUserByName(userName string, twitch *twitch.Twitch) *helix.User {
 	return &twitchUser
 }
 
+func getTwitchUserById(id string, twitch *twitch.Twitch) *helix.User {
+	twitchUsers, err := twitch.Client.GetUsers(&helix.UsersParams{
+		IDs: []string{id},
+	})
+
+	if err != nil || len(twitchUsers.Data.Users) == 0 {
+		return nil
+	}
+
+	twitchUser := twitchUsers.Data.Users[0]
+	return &twitchUser
+}
+
 func findGreetingByUser(userId string, channelId string, db *gorm.DB) *model.ChannelsGreetings {
 	greeting := &model.ChannelsGreetings{}
 	err := db.Where(`"channelId" = ? AND "userId" = ?`, channelId, userId).First(greeting).Error

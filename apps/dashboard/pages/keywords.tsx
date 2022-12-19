@@ -60,7 +60,9 @@ export default function () {
                 <td>
                   <Switch
                     checked={keyword.enabled}
-                    onChange={(event) => (keyword.enabled = event.currentTarget.checked)}
+                    onChange={(event) => {
+                      manager.patch(keyword.id, { enabled: event.currentTarget.checked });
+                    }}
                   />
                 </td>
                 <td>

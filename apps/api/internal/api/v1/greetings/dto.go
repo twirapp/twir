@@ -8,3 +8,7 @@ type greetingsDto struct {
 	Enabled  *bool  `validate:"required"       json:"enabled"`
 	IsReply  *bool  `validate:"required"       json:"isReply"`
 }
+
+type greetingsPatchDto struct {
+	Enabled *bool `validate:"omitempty" json:"enabled,omitempty"`
+}

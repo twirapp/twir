@@ -14,7 +14,7 @@ import { useViewportSize } from '@mantine/hooks';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import { useEffect } from 'react';
 
-import { useManageGreeting, type Greeting } from '@/services/api';
+import { useGreetingsManager, type Greeting } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -38,7 +38,7 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
   });
   const viewPort = useViewportSize();
 
-  const manageGreeting = useManageGreeting();
+  const manager = useGreetingsManager();
 
   useEffect(() => {
     form.reset();
@@ -54,7 +54,7 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    await manageGreeting(form.values);
+    await manager.createOrUpdate(form.values);
     props.setOpened(false);
   }
 
