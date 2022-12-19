@@ -1,5 +1,6 @@
 import {
   Badge,
+  Button,
   Drawer,
   Flex,
   ScrollArea,
@@ -13,28 +14,59 @@ import { useViewportSize } from '@mantine/hooks';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import { useEffect } from 'react';
 
-import { type Greeting } from '@/services/api';
+import { useManageGreeting, type Greeting } from '@/services/api';
 
 type Props = {
   opened: boolean;
-  greeting: ChannelGreeting & { userName: string };
+  greeting?: ChannelGreeting & { userName: string };
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const GreetingDrawer: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
-  const form = useForm<Greeting>({});
+  const form = useForm<Greeting>({
+    initialValues: {
+      id: '',
+      channelId: '',
+      processed: false,
+      isReply: true,
+      userId: '',
+      userName: '',
+      text: '',
+      enabled: true,
+    },
+  });
   const viewPort = useViewportSize();
 
+  const manageGreeting = useManageGreeting();
+
   useEffect(() => {
-    form.setValues(props.greeting);
+    form.reset();
+    if (props.greeting) {
+      form.setValues(props.greeting);
+    }
   }, [props.greeting]);
+
+  async function onSubmit() {
+    const validate = form.validate();
+    if (validate.hasErrors) {
+      console.log(validate.errors);
+      return;
+    }
+
+    await manageGreeting(form.values);
+    props.setOpened(false);
+  }
 
   return (
     <Drawer
       opened={props.opened}
       onClose={() => props.setOpened(false)}
-      title={<Badge size="xl">{props.greeting.userName}</Badge>}
+      title={
+        <Button size="xs" color="green" onClick={onSubmit}>
+          Save
+        </Button>
+      }
       padding="xl"
       size="xl"
       position="right"

@@ -1,4 +1,4 @@
-import { Badge, Button, Table } from '@mantine/core';
+import { Badge, Button, Flex, Table, Text } from '@mantine/core';
 import { useState } from 'react';
 
 import { GreetingDrawer } from '../components/greetings/drawer';
@@ -7,12 +7,24 @@ import { type Greeting, useGreetings } from '../services/api/greetings';
 
 export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
-  const [editableGreeting, setEditableGreeting] = useState<Greeting>({} as any);
+  const [editableGreeting, setEditableGreeting] = useState<Greeting | undefined>();
 
   const { data: greetings } = useGreetings();
 
   return (
     <div>
+      <Flex direction="row" justify="space-between">
+        <Text size="lg">Greetings</Text>
+        <Button
+          color="green"
+          onClick={() => {
+            setEditableGreeting(undefined);
+            setEditDrawerOpened(true);
+          }}
+        >
+          Create
+        </Button>
+      </Flex>
       <Table>
         <thead>
           <tr>
