@@ -17,7 +17,7 @@ export const useTimersManager = () => {
     },
     async createOrUpdate(timer: ChannelTimer) {
       if (selectedDashboard === null) {
-        throw new Error('Selected dashboard is null, unable to delete command.');
+        throw new Error('Selected dashboard is null, unable to delete timer.');
       }
 
       return mutate<ChannelTimer[]>(
@@ -50,7 +50,7 @@ export const useTimersManager = () => {
     },
     async delete(timerID: string) {
       if (selectedDashboard === null) {
-        throw new Error('Selected dashboard is null, unable to delete command.');
+        throw new Error('Selected dashboard is null, unable to delete timer.');
       }
 
       return mutate<ChannelTimer[]>(
@@ -73,16 +73,16 @@ export const useTimersManager = () => {
         },
       );
     },
-    async patch(commandId: string, timerData: Partial<ChannelTimer>) {
+    async patch(timerId: string, timerData: Partial<ChannelTimer>) {
       if (selectedDashboard === null) {
-        throw new Error('Selected dashboard is null, unable to delete command.');
+        throw new Error('Selected dashboard is null, unable to delete timer.');
       }
 
       return mutate<ChannelTimer[]>(
         `/api/v1/channels/${selectedDashboard.channelId}/timers`,
         async (timers) => {
           const data = await swrAuthFetcher(
-            `/api/v1/channels/${selectedDashboard.channelId}/timers/${commandId}`,
+            `/api/v1/channels/${selectedDashboard.channelId}/timers/${timerId}`,
             {
               body: JSON.stringify(timerData),
               method: 'PATCH',
@@ -92,7 +92,7 @@ export const useTimersManager = () => {
             },
           );
 
-          const index = timers!.findIndex((c) => c.id === commandId);
+          const index = timers!.findIndex((c) => c.id === timerId);
           timers![index] = data;
 
           return timers;

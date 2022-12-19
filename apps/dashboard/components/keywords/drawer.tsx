@@ -1,6 +1,7 @@
 import {
   Alert,
   Badge,
+  Button,
   Drawer,
   Flex,
   NumberInput,
@@ -15,26 +16,64 @@ import { useViewportSize } from '@mantine/hooks';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import { useEffect } from 'react';
 
+import { useKeywordsManager } from '@/services/api';
+
 type Props = {
   opened: boolean;
-  keyword: ChannelKeyword;
+  keyword?: ChannelKeyword;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const KeywordDrawer: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
-  const form = useForm<ChannelKeyword>({});
+  const form = useForm<ChannelKeyword>({
+    validate: {
+      cooldown: (v) => v < 5 && 'Cooldown cannot be lower then 5.',
+      text: (v) => !v?.length && 'Text cannot be empty',
+    },
+    initialValues: {
+      channelId: '',
+      id: '',
+      cooldown: 5,
+      cooldownExpireAt: null,
+      enabled: true,
+      isRegular: false,
+      isReply: true,
+      text: '',
+      usages: 0,
+    },
+  });
   const viewPort = useViewportSize();
 
   useEffect(() => {
-    form.setValues(props.keyword);
+    form.reset();
+    if (props.keyword) {
+      form.setValues(props.keyword);
+    }
   }, [props.keyword]);
+
+  const manager = useKeywordsManager();
+
+  async function onSubmit() {
+    const validate = form.validate();
+    if (validate.hasErrors) {
+      console.log(validate.errors);
+      return;
+    }
+
+    await manager.createOrUpdate(form.values);
+    props.setOpened(false);
+  }
 
   return (
     <Drawer
       opened={props.opened}
       onClose={() => props.setOpened(false)}
-      title={<Badge size="xl">{props.keyword.text}</Badge>}
+      title={
+        <Button size="xs" color="green" onClick={onSubmit}>
+          Save
+        </Button>
+      }
       padding="xl"
       size="xl"
       position="right"
@@ -59,16 +98,16 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
               autosize={true}
               w="100%"
             />
-            <NumberInput label="Cooldown" {...form.getInputProps('cooldown')} />
+            <NumberInput label="Cooldown" required {...form.getInputProps('cooldown')} />
             <NumberInput label="Used times" {...form.getInputProps('usages')} />
 
             <Switch label="Use twitch reply feature" {...form.getInputProps('isReply')} />
-            {props.keyword.id && (
+            {props.keyword?.id && (
               <Alert>
                 You can access that counter in your commands via{' '}
                 <b>
                   $(keywords.counter|
-                  {props.keyword.id})
+                  {props.keyword?.id})
                 </b>{' '}
                 variable.
               </Alert>

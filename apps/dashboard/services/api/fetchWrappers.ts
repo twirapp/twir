@@ -1,5 +1,5 @@
 // Local storage key
-const ACCESS_TOKEN_KEY = 'accessToken';
+const ACCESS_TOKEN_KEY = 'access_token';
 
 /**
  * Polifill for fetch function with bearer token authorization

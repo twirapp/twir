@@ -45,15 +45,15 @@ export default function App(props: AppProps) {
       </Head>
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
-          <ModalsProvider>
-            <SpotlightProvider
-              actions={[]}
-              searchIcon={<IconSearch size={18} />}
-              searchPlaceholder="Search..."
-              shortcut={['mod+k']}
-              nothingFoundMessage="Nothing found..."
-            >
-              <SWRConfig value={{ fetcher: swrAuthFetcher }}>
+          <SpotlightProvider
+            actions={[]}
+            searchIcon={<IconSearch size={18} />}
+            searchPlaceholder="Search..."
+            shortcut={['mod+k']}
+            nothingFoundMessage="Nothing found..."
+          >
+            <SWRConfig value={{ fetcher: swrAuthFetcher }}>
+              <ModalsProvider>
                 <AppShell
                   styles={{
                     main: {
@@ -75,9 +75,9 @@ export default function App(props: AppProps) {
                     }}
                   />
                 </AppShell>
-              </SWRConfig>
-            </SpotlightProvider>
-          </ModalsProvider>
+              </ModalsProvider>
+            </SWRConfig>
+          </SpotlightProvider>
         </MantineProvider>
       </ColorSchemeProvider>
     </>
