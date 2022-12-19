@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 import { CommandDrawer } from '../components/commands/drawer';
 
+import { confirmDelete } from '@/components/confirmDelete';
 import { useCommands } from '@/services/api';
 
 type Module = keyof typeof CommandModule;
@@ -101,6 +102,15 @@ export default function Commands() {
                       }}
                     >
                       Edit
+                    </Button>
+                    <Button
+                      onClick={() =>
+                        confirmDelete({
+                          onConfirm: () => console.log('cmd confirmed'),
+                        })
+                      }
+                    >
+                      d
                     </Button>
                   </td>
                 </tr>

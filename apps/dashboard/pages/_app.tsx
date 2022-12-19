@@ -6,6 +6,7 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import { useColorScheme, useHotkeys, useLocalStorage } from '@mantine/hooks';
+import { ModalsProvider } from '@mantine/modals';
 import { SpotlightProvider } from '@mantine/spotlight';
 import { IconSearch } from '@tabler/icons';
 import { AppProps } from 'next/app';
@@ -44,37 +45,39 @@ export default function App(props: AppProps) {
       </Head>
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
-          <SpotlightProvider
-            actions={[]}
-            searchIcon={<IconSearch size={18} />}
-            searchPlaceholder="Search..."
-            shortcut={['mod+k']}
-            nothingFoundMessage="Nothing found..."
-          >
-            <SWRConfig value={{ fetcher: swrAuthFetcher }}>
-              <AppShell
-                styles={{
-                  main: {
-                    background:
-                      colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
-                  },
-                }}
-                navbarOffsetBreakpoint="sm"
-                asideOffsetBreakpoint="sm"
-                navbar={<SideBar opened={opened} />}
-                header={<NavBar setOpened={setOpened} opened={opened} />}
-              >
-                <Component
+          <ModalsProvider>
+            <SpotlightProvider
+              actions={[]}
+              searchIcon={<IconSearch size={18} />}
+              searchPlaceholder="Search..."
+              shortcut={['mod+k']}
+              nothingFoundMessage="Nothing found..."
+            >
+              <SWRConfig value={{ fetcher: swrAuthFetcher }}>
+                <AppShell
                   styles={{
                     main: {
                       background:
                         colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
                     },
                   }}
-                />
-              </AppShell>
-            </SWRConfig>
-          </SpotlightProvider>
+                  navbarOffsetBreakpoint="sm"
+                  asideOffsetBreakpoint="sm"
+                  navbar={<SideBar opened={opened} />}
+                  header={<NavBar setOpened={setOpened} opened={opened} />}
+                >
+                  <Component
+                    styles={{
+                      main: {
+                        background:
+                          colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+                      },
+                    }}
+                  />
+                </AppShell>
+              </SWRConfig>
+            </SpotlightProvider>
+          </ModalsProvider>
         </MantineProvider>
       </ColorSchemeProvider>
     </>

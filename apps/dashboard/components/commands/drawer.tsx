@@ -16,6 +16,7 @@ import {
   Textarea,
   Menu,
   Button,
+  useMantineTheme,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
@@ -56,6 +57,7 @@ const switches: Array<{
 ];
 
 export const CommandDrawer: React.FC<Props> = (props) => {
+  const theme = useMantineTheme();
   const form = useForm<ChannelCommand>({
     validate: {
       name: (value) => (!value.length ? 'Name cannot be empty' : null),
@@ -102,7 +104,9 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       size="xl"
       position="right"
       transition="slide-left"
-      style={{ minWidth: 250, maxWidth: 500 }}
+      overlayColor={theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2]}
+      overlayOpacity={0.55}
+      overlayBlur={3}
     >
       <ScrollArea.Autosize maxHeight={viewPort.height - 100} type="auto" offsetScrollbars={true}>
         <form>
