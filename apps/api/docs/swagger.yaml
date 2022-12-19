@@ -344,6 +344,13 @@ definitions:
     - name
     - responses
     type: object
+  github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerPatchDto:
+    properties:
+      enabled:
+        type: boolean
+    required:
+    - enabled
+    type: object
   github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto:
     properties:
       description:
@@ -745,6 +752,13 @@ definitions:
     - enabled
     - name
     - responses
+    type: object
+  internal_api_v1_timers.timerPatchDto:
+    properties:
+      enabled:
+        type: boolean
+    required:
+    - enabled
     type: object
   internal_api_v1_variables.variableDto:
     properties:
@@ -1579,7 +1593,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.donationAlertsDto'
+          $ref: '#/definitions/internal_api_v1_integrations_donationalerts.donationAlertsDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1641,7 +1655,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_donationalerts.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1824,7 +1838,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.spotifyDto'
+          $ref: '#/definitions/internal_api_v1_integrations_spotify.spotifyDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1912,7 +1926,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_spotify.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1971,7 +1985,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.streamlabsDto'
+          $ref: '#/definitions/internal_api_v1_integrations_streamlabs.streamlabsDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2033,7 +2047,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_streamlabs.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2092,7 +2106,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_vk.vkDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2445,6 +2459,46 @@ paths:
       summary: Delete timer
       tags:
       - Timers
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_v1_timers.timerPatchDto'
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      - description: ID of timer
+        in: path
+        name: timerId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChannelsTimers'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Partially update timer
+      tags:
+      - Timers
     put:
       consumes:
       - application/json
@@ -2524,7 +2578,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto'
+          $ref: '#/definitions/internal_api_v1_variables.variableDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2596,7 +2650,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto'
+          $ref: '#/definitions/internal_api_v1_variables.variableDto'
       - description: ID of channel
         in: path
         name: channelId

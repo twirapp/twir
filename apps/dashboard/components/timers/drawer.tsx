@@ -2,6 +2,7 @@ import {
   ActionIcon,
   Alert,
   Badge,
+  Button,
   Center,
   Drawer,
   Flex,
@@ -22,9 +23,11 @@ import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { useEffect } from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
+import { useTimersManager } from '@/services/api';
+
 type Props = {
   opened: boolean;
-  timer: ChannelTimer;
+  timer?: ChannelTimer;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -35,18 +38,49 @@ const sliderSteps = new Array(6).fill(1).map((_, index) => {
 
 export const TimerDrawer: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
-  const form = useForm<ChannelTimer>({});
+  const form = useForm<ChannelTimer>({
+    initialValues: {
+      id: '',
+      enabled: true,
+      name: '',
+      responses: [],
+      lastTriggerMessageNumber: 0,
+      messageInterval: 0,
+      channelId: '',
+      timeInterval: 5,
+    },
+  });
   const viewPort = useViewportSize();
 
+  const manager = useTimersManager();
+
   useEffect(() => {
-    form.setValues(props.timer);
+    form.reset();
+    if (props.timer) {
+      form.setValues(props.timer);
+    }
   }, [props.timer]);
+
+  async function onSubmit() {
+    const validate = form.validate();
+    if (validate.hasErrors) {
+      console.log(validate.errors);
+      return;
+    }
+
+    await manager.createOrUpdate(form.values);
+    props.setOpened(false);
+  }
 
   return (
     <Drawer
       opened={props.opened}
       onClose={() => props.setOpened(false)}
-      title={<Badge size="xl">{props.timer.name}</Badge>}
+      title={
+        <Button size="xs" color="green" onClick={onSubmit}>
+          Save
+        </Button>
+      }
       padding="xl"
       size="xl"
       position="right"
@@ -56,7 +90,7 @@ export const TimerDrawer: React.FC<Props> = (props) => {
       overlayBlur={3}
     >
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
-        <form onSubmit={form.onSubmit((values) => console.log(values))}>
+        <form>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
             <TextInput {...form.getInputProps('name')} label="Name" required></TextInput>
             <div style={{ width: '100%' }}>

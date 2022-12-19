@@ -1,21 +1,36 @@
-import { Badge, Button, Switch, Table } from '@mantine/core';
+import { ActionIcon, Badge, Button, Flex, Switch, Table, Text } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
+import { IconPencil, IconTrash } from '@tabler/icons';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { useState } from 'react';
 
 import { TimerDrawer } from '../components/timers/drawer';
 
-import { useTimers } from '@/services/api';
+import { confirmDelete } from '@/components/confirmDelete';
+import { useTimersManager } from '@/services/api';
 
 export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
-  const [editableTimer, setEditableTimer] = useState<ChannelTimer>({} as any);
+  const [editableTimer, setEditableTimer] = useState<ChannelTimer | undefined>();
   const viewPort = useViewportSize();
 
-  const { data: timers } = useTimers();
+  const manager = useTimersManager();
+  const { data: timers } = manager.getAll();
 
   return (
     <div>
+      <Flex direction="row" justify="space-between">
+        <Text size="lg">Timers</Text>
+        <Button
+          color="green"
+          onClick={() => {
+            setEditableTimer(undefined);
+            setEditDrawerOpened(true);
+          }}
+        >
+          Create
+        </Button>
+      </Flex>
       <Table>
         <thead>
           <tr>
@@ -29,14 +44,14 @@ export default function () {
         </thead>
         <tbody>
           {timers &&
-            timers.map((element, idx) => (
-              <tr key={element.id}>
+            timers.map((timer, idx) => (
+              <tr key={timer.id}>
                 <td>
-                  <Badge>{element.name}</Badge>
+                  <Badge>{timer.name}</Badge>
                 </td>
                 {viewPort.width > 550 && (
                   <td>
-                    {element.responses.map((r, i) => (
+                    {timer.responses.map((r, i) => (
                       <p key={i} style={{ margin: 0 }}>
                         {r.text}
                       </p>
@@ -44,25 +59,41 @@ export default function () {
                   </td>
                 )}
 
-                <td>{element.timeInterval} seconds</td>
-                <td>{element.messageInterval}</td>
+                <td>{timer.timeInterval} seconds</td>
+                <td>{timer.messageInterval}</td>
                 {viewPort.width > 550 && (
                   <td>
                     <Switch
-                      checked={element.enabled}
-                      onChange={(event) => (element.enabled = event.currentTarget.checked)}
+                      checked={timer.enabled}
+                      onChange={(event) => (timer.enabled = event.currentTarget.checked)}
                     />
                   </td>
                 )}
                 <td>
-                  <Button
-                    onClick={() => {
-                      setEditableTimer(timers[idx] as any);
-                      setEditDrawerOpened(true);
-                    }}
-                  >
-                    Edit
-                  </Button>
+                  <Flex direction="row" gap="xs">
+                    <ActionIcon
+                      onClick={() => {
+                        setEditableTimer(timers[idx] as any);
+                        setEditDrawerOpened(true);
+                      }}
+                      variant="filled"
+                      color="blue"
+                    >
+                      <IconPencil size={14} />
+                    </ActionIcon>
+
+                    <ActionIcon
+                      onClick={() =>
+                        confirmDelete({
+                          onConfirm: () => manager.delete(timer.id),
+                        })
+                      }
+                      variant="filled"
+                      color="red"
+                    >
+                      <IconTrash size={14} />
+                    </ActionIcon>
+                  </Flex>
                 </td>
               </tr>
             ))}
