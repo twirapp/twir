@@ -30,7 +30,7 @@ import type {
 import { useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-import { useCommandManager } from '@/services/api/index.js';
+import { useCommandManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
