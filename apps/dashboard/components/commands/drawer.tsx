@@ -24,12 +24,12 @@ import type { ChannelCommand, CommandPermission } from '@tsuwari/typeorm/entitie
 import { useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-import { useUpdateCommand } from '@/services/api';
+import { useManageCommand } from '@/services/api';
 
 type Props = {
   opened: boolean;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
-  command: ChannelCommand;
+  command?: ChannelCommand;
 };
 
 const COMMAND_PERMS: Array<keyof typeof CommandPermission> = [
@@ -69,11 +69,13 @@ export const CommandDrawer: React.FC<Props> = (props) => {
   });
 
   const viewPort = useViewportSize();
-  const updateCommand = useUpdateCommand();
+  const manageCommand = useManageCommand();
 
   useEffect(() => {
-    console.log(props.command);
-    form.setValues(props.command);
+    form.reset();
+    if (props.command) {
+      form.setValues(props.command);
+    }
   }, [props.command]);
 
   async function onSubmit() {
@@ -83,7 +85,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    await updateCommand(form.values);
+    await manageCommand(form.values);
     props.setOpened(false);
   }
 
@@ -157,7 +159,6 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                   defaultValue={0}
                   placeholder="0"
                   label="Cooldown time (seconds)"
-                  withAsterisk
                   {...form.getInputProps('cooldown')}
                 />
 

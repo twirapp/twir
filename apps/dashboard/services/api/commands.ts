@@ -13,7 +13,7 @@ export const useCommands = () => {
   );
 };
 
-export const useUpdateCommand = () => {
+export const useManageCommand = () => {
   const { mutate } = useSWRConfig();
   const [selectedDashboard] = useSelectedDashboard();
 
@@ -26,18 +26,23 @@ export const useUpdateCommand = () => {
       `/api/v1/channels/${selectedDashboard.channelId}/commands`,
       async (commands) => {
         const data = await swrAuthFetcher(
-          `/api/v1/channels/${selectedDashboard.channelId}/commands/${command.id}`,
+          `/api/v1/channels/${selectedDashboard.channelId}/commands/${command.id ?? ''}`,
           {
             body: JSON.stringify(command),
-            method: 'PUT',
+            method: command.id ? 'PUT' : 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
           },
         );
 
-        const index = commands!.findIndex((c) => c.id === data.id);
-        commands![index] = data;
+        if (command.id) {
+          const index = commands!.findIndex((c) => c.id === data.id);
+          commands![index] = data;
+        } else {
+          commands?.push(data);
+        }
+
         return commands;
       },
       {

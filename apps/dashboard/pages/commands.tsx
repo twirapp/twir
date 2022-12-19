@@ -1,4 +1,4 @@
-import { Badge, Button, Switch, Table, Tabs } from '@mantine/core';
+import { Badge, Button, Flex, Switch, Table, Tabs, Text } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import { IconClipboardCopy, IconPencilPlus, IconSword, IconUser } from '@tabler/icons';
 import type { ChannelCommand, CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
@@ -13,13 +13,25 @@ type Module = keyof typeof CommandModule;
 export default function Commands() {
   const [activeTab, setActiveTab] = useState<Module | null>('CUSTOM');
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
-  const [editableCommand, setEditableCommand] = useState<ChannelCommand>({} as any);
+  const [editableCommand, setEditableCommand] = useState<ChannelCommand | undefined>();
   const viewPort = useViewportSize();
 
   const { data: commands } = useCommands();
 
   return (
     <div>
+      <Flex direction="row" justify="space-between">
+        <Text size="lg">Commands</Text>
+        <Button
+          color="green"
+          onClick={() => {
+            setEditableCommand(undefined);
+            setEditDrawerOpened(true);
+          }}
+        >
+          Create
+        </Button>
+      </Flex>
       <Tabs onTabChange={(n) => setActiveTab(n as Module)}>
         <Tabs.List>
           <Tabs.Tab value="CUSTOM" icon={<IconPencilPlus size={14} />}>
@@ -53,7 +65,8 @@ export default function Commands() {
         </thead>
 
         <tbody>
-          {commands && commands.length &&
+          {commands &&
+            commands.length &&
             commands
               .filter((c) => c.module === activeTab)
               .map((element) => (
