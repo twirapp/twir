@@ -1,5 +1,6 @@
 import {
   Badge,
+  Button,
   Drawer,
   Flex,
   ScrollArea,
@@ -11,18 +12,29 @@ import {
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import Editor from '@monaco-editor/react';
-import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
+import { ChannelCustomvar, CustomVarType } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { useEffect, useRef } from 'react';
+
+import { useVariablesManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
-  variable: ChannelCustomvar;
+  variable?: ChannelCustomvar;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const VariableDrawer: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
-  const form = useForm<ChannelCustomvar>({});
+  const form = useForm<ChannelCustomvar>({
+    initialValues: {
+      id: '',
+      description: '',
+      evalValue: '',
+      name: '',
+      response: '',
+      type: 'TEXT' as CustomVarType,
+    },
+  });
   const viewPort = useViewportSize();
   const editorRef = useRef(null);
 
@@ -31,14 +43,33 @@ export const VariableDrawer: React.FC<Props> = (props) => {
   }
 
   useEffect(() => {
-    form.setValues(props.variable);
+    form.reset();
+    if (props.variable) {
+      form.setValues(props.variable);
+    }
   }, [props.variable]);
+
+  const manager = useVariablesManager();
+  async function onSubmit() {
+    const validate = form.validate();
+    if (validate.hasErrors) {
+      console.log(validate.errors);
+      return;
+    }
+
+    await manager.createOrUpdate(form.values);
+    props.setOpened(false);
+  }
 
   return (
     <Drawer
       opened={props.opened}
       onClose={() => props.setOpened(false)}
-      title={<Badge size="xl">{props.variable.name}</Badge>}
+      title={
+        <Button size="xs" color="green" onClick={onSubmit}>
+          Save
+        </Button>
+      }
       padding="xl"
       size="xl"
       position="right"
