@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { CommandDrawer } from '../components/commands/drawer';
 
 import { confirmDelete } from '@/components/confirmDelete';
-import { useCommands, useDeleteCommand, usePatchCommand } from '@/services/api';
+import { useCommandManager } from '@/services/api';
 
 type Module = keyof typeof CommandModule;
 
@@ -24,9 +24,8 @@ export default function Commands() {
   const [editableCommand, setEditableCommand] = useState<ChannelCommand | undefined>();
   const viewPort = useViewportSize();
 
-  const { data: commands } = useCommands();
-  const deleteCommand = useDeleteCommand();
-  const patchCommand = usePatchCommand();
+  const manager = useCommandManager();
+  const { data: commands } = manager.getAll();
 
   return (
     <div>
@@ -99,7 +98,7 @@ export default function Commands() {
                         <Switch
                           checked={command.enabled}
                           onChange={(event) => {
-                            patchCommand(command.id, { enabled: event.currentTarget.checked });
+                            manager.patch(command.id, { enabled: event.currentTarget.checked });
                           }}
                         />
                       </td>
@@ -121,7 +120,7 @@ export default function Commands() {
                         <ActionIcon
                           onClick={() =>
                             confirmDelete({
-                              onConfirm: () => deleteCommand(command.id),
+                              onConfirm: () => manager.delete(command.id),
                             })
                           }
                           variant="filled"

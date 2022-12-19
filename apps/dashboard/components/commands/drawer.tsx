@@ -30,7 +30,7 @@ import type {
 import { useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-import { useManageCommand } from '@/services/api';
+import { useCommandManager } from '@/services/api/index.js';
 
 type Props = {
   opened: boolean;
@@ -94,7 +94,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
   });
 
   const viewPort = useViewportSize();
-  const manageCommand = useManageCommand();
+  const manager = useCommandManager();
 
   useEffect(() => {
     form.reset();
@@ -110,7 +110,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    await manageCommand(form.values);
+    await manager.createOrUpdate(form.values);
     props.setOpened(false);
   }
 
