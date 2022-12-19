@@ -21,7 +21,12 @@ import {
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import { IconGripVertical, IconMinus, IconPlus, IconVariable } from '@tabler/icons';
-import type { ChannelCommand, CommandPermission } from '@tsuwari/typeorm/entities/ChannelCommand';
+import type {
+  ChannelCommand,
+  CommandModule,
+  CommandPermission,
+  CooldownType,
+} from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
@@ -67,6 +72,24 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       responses: {
         text: (value) => (value && !value.length ? 'Response cannot be empty' : null),
       },
+    },
+    initialValues: {
+      aliases: [],
+      name: '',
+      cooldown: 0,
+      cooldownType: 'GLOBAL' as CooldownType,
+      default: false,
+      defaultName: null,
+      description: '',
+      enabled: true,
+      isReply: true,
+      keepResponsesOrder: true,
+      module: 'CUSTOM' as CommandModule,
+      permission: 'VIEWER' as CommandPermission,
+      visible: true,
+      responses: [],
+      channelId: '',
+      id: '',
     },
   });
 
@@ -202,80 +225,84 @@ export const CommandDrawer: React.FC<Props> = (props) => {
               </Flex>
             </div>
 
-            <div style={{ width: 450 }}>
-              <Flex direction="row" gap="xs">
-                <Text>Responses</Text>
-                <ActionIcon variant="light" color="green" size="xs">
-                  <IconPlus
-                    size={18}
-                    onClick={() => {
-                      form.insertListItem('responses', { text: '' });
-                    }}
-                  />
-                </ActionIcon>
-              </Flex>
-              {!form.getInputProps('responses').value?.length && <Alert>No responses added</Alert>}
-              <DragDropContext
-                onDragEnd={({ destination, source }) =>
-                  form.reorderListItem('responses', {
-                    from: source.index,
-                    to: destination!.index,
-                  })
-                }
-              >
-                <Droppable droppableId="responses" direction="vertical">
-                  {(provided) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef}>
-                      {form.values.responses?.map((_, index) => (
-                        <Draggable key={index} index={index} draggableId={index.toString()}>
-                          {(provided) => (
-                            <Group
-                              style={{ width: '100%' }}
-                              ref={provided.innerRef}
-                              mt="xs"
-                              {...provided.draggableProps}
-                            >
-                              <Textarea
-                                w={'80%'}
-                                placeholder="response"
-                                autosize={true}
-                                minRows={1}
-                                rightSection={
-                                  <Menu position="bottom-end" shadow="md" width={200}>
-                                    <Menu.Target>
-                                      <ActionIcon variant="filled">
-                                        <IconVariable size={18} />
-                                      </ActionIcon>
-                                    </Menu.Target>
-                                    <Menu.Dropdown>
-                                      <Menu.Item>qwe</Menu.Item>
-                                    </Menu.Dropdown>
-                                  </Menu>
-                                }
-                                {...form.getInputProps(`responses.${index}.text`)}
-                              />
-                              <Center {...provided.dragHandleProps}>
-                                <IconGripVertical size={18} />
-                              </Center>
-                              <ActionIcon>
-                                <IconMinus
-                                  size={18}
-                                  onClick={() => {
-                                    form.removeListItem('responses', index);
-                                  }}
+            {form.values.module === 'CUSTOM' && (
+              <div style={{ width: 450 }}>
+                <Flex direction="row" gap="xs">
+                  <Text>Responses</Text>
+                  <ActionIcon variant="light" color="green" size="xs">
+                    <IconPlus
+                      size={18}
+                      onClick={() => {
+                        form.insertListItem('responses', { text: '' });
+                      }}
+                    />
+                  </ActionIcon>
+                </Flex>
+                {!form.getInputProps('responses').value?.length && (
+                  <Alert>No responses added</Alert>
+                )}
+                <DragDropContext
+                  onDragEnd={({ destination, source }) =>
+                    form.reorderListItem('responses', {
+                      from: source.index,
+                      to: destination!.index,
+                    })
+                  }
+                >
+                  <Droppable droppableId="responses" direction="vertical">
+                    {(provided) => (
+                      <div {...provided.droppableProps} ref={provided.innerRef}>
+                        {form.values.responses?.map((_, index) => (
+                          <Draggable key={index} index={index} draggableId={index.toString()}>
+                            {(provided) => (
+                              <Group
+                                style={{ width: '100%' }}
+                                ref={provided.innerRef}
+                                mt="xs"
+                                {...provided.draggableProps}
+                              >
+                                <Textarea
+                                  w={'80%'}
+                                  placeholder="response"
+                                  autosize={true}
+                                  minRows={1}
+                                  rightSection={
+                                    <Menu position="bottom-end" shadow="md" width={200}>
+                                      <Menu.Target>
+                                        <ActionIcon variant="filled">
+                                          <IconVariable size={18} />
+                                        </ActionIcon>
+                                      </Menu.Target>
+                                      <Menu.Dropdown>
+                                        <Menu.Item>qwe</Menu.Item>
+                                      </Menu.Dropdown>
+                                    </Menu>
+                                  }
+                                  {...form.getInputProps(`responses.${index}.text`)}
                                 />
-                              </ActionIcon>
-                            </Group>
-                          )}
-                        </Draggable>
-                      ))}
+                                <Center {...provided.dragHandleProps}>
+                                  <IconGripVertical size={18} />
+                                </Center>
+                                <ActionIcon>
+                                  <IconMinus
+                                    size={18}
+                                    onClick={() => {
+                                      form.removeListItem('responses', index);
+                                    }}
+                                  />
+                                </ActionIcon>
+                              </Group>
+                            )}
+                          </Draggable>
+                        ))}
 
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            </div>
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              </div>
+            )}
           </Flex>
         </form>
       </ScrollArea.Autosize>

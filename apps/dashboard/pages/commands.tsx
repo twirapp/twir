@@ -1,13 +1,20 @@
-import { Badge, Button, Flex, Switch, Table, Tabs, Text } from '@mantine/core';
+import { ActionIcon, Badge, Button, Flex, Switch, Table, Tabs, Text } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
-import { IconClipboardCopy, IconPencilPlus, IconSword, IconUser } from '@tabler/icons';
+import {
+  IconClipboardCopy,
+  IconPencilPlus,
+  IconSword,
+  IconUser,
+  IconTrash,
+  IconPencil,
+} from '@tabler/icons';
 import type { ChannelCommand, CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useState } from 'react';
 
 import { CommandDrawer } from '../components/commands/drawer';
 
 import { confirmDelete } from '@/components/confirmDelete';
-import { useCommands } from '@/services/api';
+import { useCommands, useDeleteCommand } from '@/services/api';
 
 type Module = keyof typeof CommandModule;
 
@@ -18,6 +25,7 @@ export default function Commands() {
   const viewPort = useViewportSize();
 
   const { data: commands } = useCommands();
+  const deleteCommand = useDeleteCommand();
 
   return (
     <div>
@@ -57,7 +65,7 @@ export default function Commands() {
             <th>Name</th>
             {viewPort.width > 550 && (
               <>
-                <th>Response</th>
+                <th>Responses</th>
                 <th>Status</th>
               </>
             )}
@@ -70,17 +78,17 @@ export default function Commands() {
             commands.length &&
             commands
               .filter((c) => c.module === activeTab)
-              .map((element) => (
-                <tr key={element.id}>
+              .map((command) => (
+                <tr key={command.id}>
                   <td>
-                    <Badge>{element.name}</Badge>
+                    <Badge>{command.name}</Badge>
                   </td>
                   {viewPort.width > 550 && (
                     <>
                       <td>
-                        {element.module != 'CUSTOM' && <Badge>This is built-in command</Badge>}
-                        {element.module === 'CUSTOM' &&
-                          (element.responses?.map((r, i) => (
+                        {command.module != 'CUSTOM' && <Badge>This is built-in command</Badge>}
+                        {command.module === 'CUSTOM' &&
+                          (command.responses?.map((r, i) => (
                             <p key={i} style={{ margin: 0 }}>
                               {r.text}
                             </p>
@@ -88,30 +96,38 @@ export default function Commands() {
                       </td>
                       <td>
                         <Switch
-                          checked={element.enabled}
-                          onChange={(event) => (element.enabled = event.currentTarget.checked)}
+                          checked={command.enabled}
+                          onChange={(event) => (command.enabled = event.currentTarget.checked)}
                         />
                       </td>
                     </>
                   )}
                   <td>
-                    <Button
-                      onClick={() => {
-                        setEditableCommand(commands.find((c) => c.id === element.id)!);
-                        setEditDrawerOpened(true);
-                      }}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      onClick={() =>
-                        confirmDelete({
-                          onConfirm: () => console.log('cmd confirmed'),
-                        })
-                      }
-                    >
-                      d
-                    </Button>
+                    <Flex direction="row" gap="xs">
+                      <ActionIcon
+                        onClick={() => {
+                          setEditableCommand(commands.find((c) => c.id === command.id)!);
+                          setEditDrawerOpened(true);
+                        }}
+                        variant="filled"
+                        color="blue"
+                      >
+                        <IconPencil size={14} />
+                      </ActionIcon>
+                      {command.module === 'CUSTOM' && (
+                        <ActionIcon
+                          onClick={() =>
+                            confirmDelete({
+                              onConfirm: () => deleteCommand(command.id),
+                            })
+                          }
+                          variant="filled"
+                          color="red"
+                        >
+                          <IconTrash size={14} />
+                        </ActionIcon>
+                      )}
+                    </Flex>
                   </td>
                 </tr>
               ))}

@@ -61,9 +61,21 @@ const refreshAccessToken = async (): Promise<Response | string> => {
 };
 
 export const swrAuthFetcher = async (url: RequestInfo | URL, options?: RequestInit) => {
-  return (await authFetch(url, options)).json();
+  const req = await authFetch(url, options);
+
+  if (req.headers.get('content-type') === 'application/json') {
+    return req.json();
+  } else {
+    return req.text();
+  }
 };
 
 export const swrFetcher = async (url: RequestInfo | URL, options?: RequestInit) => {
-  return (await fetch(url, options)).json();
+  const req = await fetch(url, options);
+
+  if (req.headers.get('content-type') === 'application/json') {
+    return req.json();
+  } else {
+    return req.text();
+  }
 };
