@@ -64,10 +64,6 @@ export default function App(props: AppProps) {
             >
               <SWRConfig
                 value={{
-                  onError: (error, key) => {
-                    console.log('here');
-                    console.log(error, key);
-                  },
                   fetcher: swrAuthFetcher,
                 }}
               >

@@ -2,7 +2,7 @@ import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration
 import { useSWRConfig } from 'swr';
 import useSWR from 'swr';
 
-import { swrAuthFetcher } from '../fetchWrappers';
+import { mutationOptions, swrAuthFetcher } from '../fetchWrappers';
 
 import { useSelectedDashboard } from '@/services/dashboard';
 
@@ -55,7 +55,7 @@ export const useSpotifyIntegration = () => {
           ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
           : null, // which cache keys are updated
         undefined, // update cache data to `undefined`
-        { revalidate: true }, // do not revalidate
+        { ...mutationOptions, revalidate: true }, // do not revalidate
       );
     },
     async logout() {
@@ -78,7 +78,7 @@ export const useSpotifyIntegration = () => {
           ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
           : null, // which cache keys are updated
         undefined, // update cache data to `undefined`
-        { revalidate: true }, // do not revalidate
+        { ...mutationOptions, revalidate: true }, // do not revalidate
       );
     },
   };

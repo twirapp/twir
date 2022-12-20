@@ -1,7 +1,7 @@
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import useSWR, { useSWRConfig } from 'swr';
 
-import { swrAuthFetcher } from '@/services/api';
+import { mutationOptions, swrAuthFetcher } from '@/services/api';
 import { useSelectedDashboard } from '@/services/dashboard';
 
 export const useTimersManager = () => {
@@ -43,9 +43,7 @@ export const useTimersManager = () => {
 
           return timers;
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
     async delete(timerID: string) {
@@ -68,9 +66,7 @@ export const useTimersManager = () => {
 
           return timers?.filter((c) => c.id != timerID);
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
     async patch(timerId: string, timerData: Partial<ChannelTimer>) {
@@ -97,9 +93,7 @@ export const useTimersManager = () => {
 
           return timers;
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
   };

@@ -3,7 +3,7 @@ import useSWR, { useSWRConfig } from 'swr';
 
 import { useSelectedDashboard } from '../dashboard/useSelectedDashboard';
 
-import { swrAuthFetcher } from '@/services/api';
+import { mutationOptions, swrAuthFetcher } from '@/services/api';
 
 export type Greeting = ChannelGreeting & { userName: string };
 
@@ -46,9 +46,7 @@ export const useGreetingsManager = () => {
 
           return greetings;
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
     async patch(greetingId: string, greetingData: Partial<ChannelGreeting>) {
@@ -75,9 +73,7 @@ export const useGreetingsManager = () => {
 
           return greetings;
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
     async delete(greetingId: string) {
@@ -100,9 +96,7 @@ export const useGreetingsManager = () => {
 
           return greetings?.filter((c) => c.id != greetingId);
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
   };

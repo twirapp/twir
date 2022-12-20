@@ -1,7 +1,7 @@
 import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
 import useSWR, { useSWRConfig } from 'swr';
 
-import { swrAuthFetcher } from '@/services/api';
+import { mutationOptions, swrAuthFetcher } from '@/services/api';
 import { useSelectedDashboard } from '@/services/dashboard';
 
 export const useCommandManager = () => {
@@ -35,9 +35,7 @@ export const useCommandManager = () => {
 
           return commands?.filter((c) => c.id != commandId);
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
     async patch(commandId: string, commandData: Partial<ChannelCommand>) {
@@ -64,9 +62,7 @@ export const useCommandManager = () => {
 
           return commands;
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
     async createOrUpdate(command: ChannelCommand) {
@@ -97,9 +93,7 @@ export const useCommandManager = () => {
 
           return commands;
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
   };

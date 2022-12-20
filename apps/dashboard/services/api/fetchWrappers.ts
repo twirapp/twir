@@ -1,5 +1,12 @@
+import { printError } from './error';
+
 // Local storage key
 const ACCESS_TOKEN_KEY = 'access_token';
+
+export const mutationOptions = {
+  revalidate: false,
+  throwOnError: false,
+};
 
 /**
  * Polifill for fetch function with bearer token authorization
@@ -66,6 +73,7 @@ export const swrAuthFetcher = async (url: RequestInfo | URL, options?: RequestIn
   const isJson = req.headers.get('content-type') === 'application/json';
   const response = isJson ? await req.json() : await req.text();
   if (!req.ok) {
+    printError(response.messages || response.message);
     throw new Error(response);
   }
 
@@ -78,6 +86,7 @@ export const swrFetcher = async (url: RequestInfo | URL, options?: RequestInit) 
   const isJson = req.headers.get('content-type') === 'application/json';
   const response = isJson ? await req.json() : await req.text();
   if (!req.ok) {
+    printError(response.messages || response.message);
     throw new Error(response);
   }
 

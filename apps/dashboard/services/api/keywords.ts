@@ -1,7 +1,7 @@
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import useSWR, { useSWRConfig } from 'swr';
 
-import { swrAuthFetcher } from '@/services/api';
+import { mutationOptions, swrAuthFetcher } from '@/services/api';
 import { useSelectedDashboard } from '@/services/dashboard';
 
 export const useKeywordsManager = () => {
@@ -35,9 +35,7 @@ export const useKeywordsManager = () => {
 
           return keywords?.filter((c) => c.id != keywordId);
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
     async patch(keywordId: string, keywordData: Partial<ChannelKeyword>) {
@@ -64,9 +62,7 @@ export const useKeywordsManager = () => {
 
           return keywords;
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
     async createOrUpdate(keyword: ChannelKeyword) {
@@ -97,9 +93,7 @@ export const useKeywordsManager = () => {
 
           return keywords;
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
   };

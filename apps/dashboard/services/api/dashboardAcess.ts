@@ -3,7 +3,7 @@ import useSWR, { useSWRConfig } from 'swr';
 
 import { useSelectedDashboard } from '../dashboard/useSelectedDashboard';
 
-import { swrAuthFetcher } from '@/services/api';
+import { mutationOptions, swrAuthFetcher } from '@/services/api';
 
 export const useDashboardAccess = () => {
   const [selectedDashboard] = useSelectedDashboard();
@@ -39,9 +39,7 @@ export const useDashboardAccess = () => {
 
           return dashboards?.filter((c) => c.id != dashboardId);
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
     create(userName: string) {
@@ -67,9 +65,7 @@ export const useDashboardAccess = () => {
 
           return dashboards;
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
   };

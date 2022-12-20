@@ -1,7 +1,7 @@
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import useSWR, { useSWRConfig } from 'swr';
 
-import { swrAuthFetcher } from '@/services/api';
+import { mutationOptions, swrAuthFetcher } from '@/services/api';
 import { useSelectedDashboard } from '@/services/dashboard';
 
 export const useVariablesManager = () => {
@@ -43,9 +43,7 @@ export const useVariablesManager = () => {
 
           return variables?.filter((c) => c.id != variableId);
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
     async patch(variableId: string, variableData: Partial<ChannelCustomvar>) {
@@ -72,9 +70,7 @@ export const useVariablesManager = () => {
 
           return variables;
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
     async createOrUpdate(variable: ChannelCustomvar) {
@@ -105,9 +101,7 @@ export const useVariablesManager = () => {
 
           return variables;
         },
-        {
-          revalidate: false,
-        },
+        mutationOptions,
       );
     },
   };
