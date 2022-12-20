@@ -5,10 +5,11 @@ import { swrAuthFetcher } from '../fetchWrappers';
 
 import { useSelectedDashboard } from '@/services/dashboard';
 
-export type vkprofile = {
-  name: string;
-  image: string;
-  playCount: string;
+export type VKProfile = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  photo_max_orig: string;
 };
 
 export const useVkIntegration = () => {
@@ -17,7 +18,7 @@ export const useVkIntegration = () => {
 
   return {
     getProfile() {
-      return useSWR<vkprofile>(
+      return useSWR<VKProfile>(
         selectedDashboard
           ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/vk`
           : null,
@@ -31,13 +32,13 @@ export const useVkIntegration = () => {
 
       return swrAuthFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/vk/auth`);
     },
-    async postToken(token: string) {
+    async postCode(code: string) {
       if (!selectedDashboard) {
         throw new Error('Cannot post code because dashboard not slected');
       }
 
       await swrAuthFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/vk`, {
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ code }),
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

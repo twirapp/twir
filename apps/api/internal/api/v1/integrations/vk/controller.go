@@ -8,8 +8,8 @@ import (
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("vk")
-	middleware.Get("auth", getAuth(services))
 	middleware.Get("", get(services))
+	middleware.Get("auth", getAuth(services))
 	middleware.Post("", post(services))
 
 	return middleware
@@ -17,12 +17,12 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 // Integrations godoc
 // @Security ApiKeyAuth
-// @Summary      Get VK integration
+// @Summary      Get VK profile
 // @Tags         Integrations|VK
 // @Accept       json
 // @Produce      json
 // @Param        channelId   path      string  true  "ChannelId"
-// @Success      200  {object}  model.ChannelsIntegrations
+// @Success      200  {object}  profile
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/vk [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
@@ -37,7 +37,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 
 // Integrations godoc
 // @Security ApiKeyAuth
-// @Summary      Get VK auth linl
+// @Summary      Get VK auth link
 // @Tags         Integrations|VK
 // @Accept       json
 // @Produce      json
@@ -57,7 +57,7 @@ func getAuth(services types.Services) func(c *fiber.Ctx) error {
 
 // Integrations godoc
 // @Security ApiKeyAuth
-// @Summary      Update VK data
+// @Summary      Login via vk
 // @Tags         Integrations|VK
 // @Accept       json
 // @Produce      json
