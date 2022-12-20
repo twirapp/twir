@@ -12,16 +12,24 @@ import { SpotlightProvider } from '@mantine/spotlight';
 import { IconSearch } from '@tabler/icons';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SWRConfig } from 'swr';
 
 import { NavBar } from '../components/layout/navbar';
 import { SideBar } from '../components/layout/sidebar';
 
-import { swrAuthFetcher } from '@/services/api';
+import { swrAuthFetcher, useProfile } from '@/services/api';
 
 export default function App(props: AppProps) {
   const { Component } = props;
+
+  const { error } = useProfile();
+
+  useEffect(() => {
+    if (error) {
+      window.location.replace(`${window.location.origin}`);
+    }
+  }, [error]);
 
   const preferredColorScheme = useColorScheme();
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
