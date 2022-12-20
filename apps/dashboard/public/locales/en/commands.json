@@ -1,0 +1,11 @@
+{
+  "title": "Commands",
+  "create": "Create",
+  "tabs": {
+    "custom": "Custom",
+    "channel": "Channel",
+    "moderation": "Moderation",
+    "manage": "Manage",
+    "dota": "Dota 2"
+  }
+}

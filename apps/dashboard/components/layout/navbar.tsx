@@ -10,14 +10,23 @@ import {
   Flex,
   Group,
   Loader,
+  Menu,
 } from '@mantine/core';
 import { useLocalStorage, useHotkeys, useMediaQuery } from '@mantine/hooks';
 import { IconSun, IconMoonStars } from '@tabler/icons';
+import { US, RU } from 'country-flag-icons/react/3x2';
+import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction } from 'react';
 
 import { Profile } from './profile';
 
 import { useProfile } from '@/services/api';
+import { useLocale } from '@/services/dashboard';
+
+const flags = {
+  en: <US style={{ height: 14 }} />,
+  ru: <RU style={{ height: 14 }} />,
+};
 
 export function NavBar({
   opened,
@@ -31,6 +40,11 @@ export function NavBar({
     key: 'theme',
     getInitialValueInEffect: true,
   });
+  const [locale, setLocale] = useLocale();
+
+  const toggleLanguage = (newLocale: 'en' | 'ru') => {
+    setLocale(newLocale);
+  };
 
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
@@ -66,6 +80,18 @@ export function NavBar({
           >
             {theme.colorScheme === 'dark' ? <IconSun size={18} /> : <IconMoonStars size={18} />}
           </ActionIcon>
+          <Menu shadow="md" width={200}>
+            <Menu.Target>
+              <ActionIcon title="Toggle language" variant="subtle">
+                {flags[locale]}
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Label>Change language</Menu.Label>
+              <Menu.Item onClick={() => toggleLanguage('en')}>{flags['en']} English</Menu.Item>
+              <Menu.Item onClick={() => toggleLanguage('ru')}>{flags['ru']} Russian</Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
 
           {isLoadingProfile && <Loader />}
           {!isLoadingProfile && userData && <Profile user={userData} />}

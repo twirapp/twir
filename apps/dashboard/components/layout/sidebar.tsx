@@ -24,12 +24,12 @@ import {
   TablerIcon,
 } from '@tabler/icons';
 import { AuthUser } from '@tsuwari/shared';
+import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
 import { useProfile } from '@/services/api';
 import { createDefaultDashboard, useSelectedDashboard } from '@/services/dashboard';
-
 
 const navigationLinks: Array<{ label: string; icon: TablerIcon; path: string }> = [
   { label: 'Dashboard', icon: IconDashboard, path: '/' },
@@ -47,6 +47,7 @@ export function SideBar({ opened }: { opened: boolean }) {
   const viewPort = useViewportSize();
   const router = useRouter();
   const theme = useMantineTheme();
+  const { t } = useTranslation('common');
 
   const { data: user } = useProfile();
 

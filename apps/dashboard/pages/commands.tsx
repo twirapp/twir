@@ -9,6 +9,8 @@ import {
   IconPencil,
 } from '@tabler/icons';
 import type { ChannelCommand, CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
 
 import { CommandDrawer } from '../components/commands/drawer';
@@ -18,11 +20,18 @@ import { useCommandManager } from '@/services/api';
 
 type Module = keyof typeof CommandModule;
 
+export const getServerSideProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['commands'])),
+  },
+});
+
 export default function Commands() {
   const [activeTab, setActiveTab] = useState<Module | null>('CUSTOM');
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableCommand, setEditableCommand] = useState<ChannelCommand | undefined>();
   const viewPort = useViewportSize();
+  const { t } = useTranslation('commands');
 
   const manager = useCommandManager();
   const { data: commands } = manager.getAll();
@@ -30,7 +39,7 @@ export default function Commands() {
   return (
     <div>
       <Flex direction="row" justify="space-between">
-        <Text size="lg">Commands</Text>
+        <Text size="lg">{t('title')}</Text>
         <Button
           color="green"
           onClick={() => {
@@ -38,25 +47,25 @@ export default function Commands() {
             setEditDrawerOpened(true);
           }}
         >
-          Create
+          {t('create')}
         </Button>
       </Flex>
       <Tabs onTabChange={(n) => setActiveTab(n as Module)}>
         <Tabs.List>
           <Tabs.Tab value="CUSTOM" icon={<IconPencilPlus size={14} />}>
-            Custom
+            {t('tabs.custom')}
           </Tabs.Tab>
           <Tabs.Tab value="CHANNEL" icon={<IconUser size={14} />}>
-            Channel
+            {t('tabs.channel')}
           </Tabs.Tab>
 
           <Tabs.Tab value="MODERATION" icon={<IconSword size={14} />}>
-            Moderation
+            {t('tabs.moderation')}
           </Tabs.Tab>
           <Tabs.Tab value="MANAGE" icon={<IconClipboardCopy size={14} />}>
-            Manage
+            {t('tabs.manage')}
           </Tabs.Tab>
-          <Tabs.Tab value="DOTA">Dota</Tabs.Tab>
+          <Tabs.Tab value="DOTA">{t('tabs.dota')}</Tabs.Tab>
         </Tabs.List>
       </Tabs>
       <Table>

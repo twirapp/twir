@@ -10,20 +10,33 @@ import { ModalsProvider } from '@mantine/modals';
 import { NotificationsProvider } from '@mantine/notifications';
 import { SpotlightProvider } from '@mantine/spotlight';
 import { IconSearch } from '@tabler/icons';
+import { appWithTranslation } from 'next-i18next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { SWRConfig } from 'swr';
 
 import { NavBar } from '../components/layout/navbar';
 import { SideBar } from '../components/layout/sidebar';
+import i18nconfig from '../next-i18next.config.js';
 
 import { swrAuthFetcher, useProfile } from '@/services/api';
+import { useLocale } from '@/services/dashboard/useLocale';
 
-export default function App(props: AppProps) {
-  const { Component } = props;
+const app = function App(props: AppProps) {
+  const { Component, pageProps } = props;
 
+  const router = useRouter();
   const { error } = useProfile();
+  const [locale] = useLocale();
+
+  useEffect(() => {
+    if (locale) {
+      const { pathname, asPath, query } = router;
+      router.push({ pathname, query }, asPath, { locale });
+    }
+  }, [locale]);
 
   useEffect(() => {
     if (error) {
@@ -87,6 +100,7 @@ export default function App(props: AppProps) {
                             colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
                         },
                       }}
+                      {...pageProps}
                     />
                   </AppShell>
                 </ModalsProvider>
@@ -97,4 +111,6 @@ export default function App(props: AppProps) {
       </ColorSchemeProvider>
     </>
   );
-}
+};
+
+export default appWithTranslation(app, i18nconfig);
