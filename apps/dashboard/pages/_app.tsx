@@ -11,6 +11,7 @@ import { NotificationsProvider } from '@mantine/notifications';
 import { SpotlightProvider } from '@mantine/spotlight';
 import { IconSearch } from '@tabler/icons';
 import { appWithTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -23,6 +24,12 @@ import i18nconfig from '../next-i18next.config.js';
 
 import { swrAuthFetcher, useProfile } from '@/services/api';
 import { useLocale } from '@/services/dashboard/useLocale';
+
+export const getServerSideProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['common', 'layout'])),
+  },
+});
 
 const app = function App(props: AppProps) {
   const { Component, pageProps } = props;

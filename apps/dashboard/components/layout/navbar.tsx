@@ -15,6 +15,7 @@ import {
 import { useLocalStorage, useHotkeys, useMediaQuery } from '@mantine/hooks';
 import { IconSun, IconMoonStars } from '@tabler/icons';
 import { US, RU } from 'country-flag-icons/react/3x2';
+import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction } from 'react';
 

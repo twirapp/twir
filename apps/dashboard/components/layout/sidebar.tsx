@@ -47,7 +47,7 @@ export function SideBar({ opened }: { opened: boolean }) {
   const viewPort = useViewportSize();
   const router = useRouter();
   const theme = useMantineTheme();
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('layout');
 
   const { data: user } = useProfile();
 
@@ -158,7 +158,7 @@ export function SideBar({ opened }: { opened: boolean }) {
               <Avatar src={selectedDashboard?.twitchUser.profile_image_url} radius="xl" />
               <Box sx={{ flex: 1 }}>
                 <Text size="xs" weight={500}>
-                  Managing channel
+                  {t('manage')}
                 </Text>
                 <Text color="dimmed" size="xs">
                   {selectedDashboard?.twitchUser.display_name}
