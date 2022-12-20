@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/guregu/null"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"gorm.io/gorm"
@@ -77,7 +76,6 @@ func handleGet(channelId string, services types.Services) (*profile, error) {
 		}).
 		SetResult(&data).
 		Get("https://api.vk.com/method/users.get")
-	spew.Dump(data)
 
 	if err != nil {
 		services.Logger.Sugar().Error(err)
