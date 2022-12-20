@@ -125,11 +125,6 @@ func handlePost(channelId string, dto *vkDto, services types.Services) error {
 		}
 	}
 
-	// integration.Enabled = *dto.Enabled
-	// integration.Data = &model.ChannelsIntegrationsData{
-	// 	UserId: &dto.Data.UserId,
-	// }
-
 	data := tokensResponse{}
 	_, err = req.R().
 		SetQueryParams(map[string]string{
@@ -149,8 +144,6 @@ func handlePost(channelId string, dto *vkDto, services types.Services) error {
 
 	integration.Enabled = true
 	integration.AccessToken = null.StringFrom(data.AccessToken)
-
-	spew.Dump(data)
 
 	if err = services.DB.Save(integration).Error; err != nil {
 		services.Logger.Sugar().Error(err)
