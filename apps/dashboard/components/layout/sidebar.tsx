@@ -94,7 +94,7 @@ export function SideBar({ opened }: { opened: boolean }) {
   }
 
   useEffect(() => {
-    if (!user) return console.log('cannot get user');
+    if (!user) return;
 
     if (!selectedDashboard) {
       return setDefaultDashboard(user);

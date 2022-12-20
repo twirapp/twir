@@ -6,3 +6,4 @@ export * from './greetings';
 export * from './profile';
 export * from './fetchWrappers';
 export * from './keywords';
+export * from './dashboardAcess';
