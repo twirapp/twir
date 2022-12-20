@@ -63,27 +63,23 @@ const refreshAccessToken = async (): Promise<Response | string> => {
 export const swrAuthFetcher = async (url: RequestInfo | URL, options?: RequestInit) => {
   const req = await authFetch(url, options);
 
+  const isJson = req.headers.get('content-type') === 'application/json';
+  const response = isJson ? await req.json() : await req.text();
   if (!req.ok) {
-    throw new Error(await req.json());
+    throw new Error(response);
   }
 
-  if (req.headers.get('content-type') === 'application/json') {
-    return req.json();
-  } else {
-    return req.text();
-  }
+  return response;
 };
 
 export const swrFetcher = async (url: RequestInfo | URL, options?: RequestInit) => {
   const req = await fetch(url, options);
 
+  const isJson = req.headers.get('content-type') === 'application/json';
+  const response = isJson ? await req.json() : await req.text();
   if (!req.ok) {
-    throw new Error(await req.json());
+    throw new Error(response);
   }
 
-  if (req.headers.get('content-type') === 'application/json') {
-    return req.json();
-  } else {
-    return req.text();
-  }
+  return response;
 };
