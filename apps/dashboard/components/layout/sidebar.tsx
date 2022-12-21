@@ -128,8 +128,10 @@ export function SideBar({ opened }: { opened: boolean }) {
           maxHeight={viewPort.height - 120}
           type="auto"
           offsetScrollbars={true}
-          style={{
-            padding: 0
+          styles={{
+            viewport: {
+              padding: 0,
+            },
           }}
         >
           <Box component={ScrollArea} sx={{ width: '100%' }}>
