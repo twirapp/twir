@@ -15,6 +15,7 @@ import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import { useEffect } from 'react';
 
 import { useGreetingsManager, type Greeting } from '@/services/api';
+import {useTranslation} from "next-i18next";
 
 type Props = {
   opened: boolean;
@@ -37,6 +38,7 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
     },
   });
   const viewPort = useViewportSize();
+  const { t } = useTranslation("greetings")
 
   const manager = useGreetingsManager();
 
@@ -64,7 +66,7 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
       onClose={() => props.setOpened(false)}
       title={
         <Button size="xs" color="green" onClick={onSubmit}>
-          Save
+          {t("drawer.save")}
         </Button>
       }
       padding="xl"
@@ -78,15 +80,15 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
-            <TextInput label="Username" required {...form.getInputProps('userName')} />
+            <TextInput label={t("userName")} required {...form.getInputProps('userName')} />
             <Textarea
-              label="Message for sending"
+              label={t("message")}
               required
               w="100%"
               {...form.getInputProps('text')}
             />
             <Switch
-              label="Use twitch reply feature"
+              label={t("drawer.useReply")}
               {...form.getInputProps('isReply', { type: 'checkbox' })}
             />
           </Flex>

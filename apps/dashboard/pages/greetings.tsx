@@ -7,17 +7,19 @@ import { type Greeting, useGreetingsManager } from '../services/api';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import {useTranslation} from "next-i18next";
 
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale, ['common', 'layout'])),
+        ...(await serverSideTranslations(locale, ['greetings', 'layout'])),
     },
 });
 
 export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableGreeting, setEditableGreeting] = useState<Greeting | undefined>();
+  const { t } = useTranslation("greetings")
 
   const manager = useGreetingsManager();
   const { data: greetings } = manager.getAll();
@@ -25,7 +27,7 @@ export default function () {
   return (
     <div>
       <Flex direction="row" justify="space-between">
-        <Text size="lg">Greetings</Text>
+        <Text size="lg">{t("title")}</Text>
         <Button
           color="green"
           onClick={() => {
@@ -33,16 +35,16 @@ export default function () {
             setEditDrawerOpened(true);
           }}
         >
-          Create
+            {t("create")}
         </Button>
       </Flex>
       <Table>
         <thead>
           <tr>
-            <th>Username</th>
-            <th>Message</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th>{t("userName")}</th>
+            <th>{t("message")}</th>
+            <th>{t("table.head.status")}</th>
+            <th>{t("table.head.actions")}</th>
           </tr>
         </thead>
         <tbody>
