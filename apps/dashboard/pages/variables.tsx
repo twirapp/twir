@@ -7,17 +7,19 @@ import { confirmDelete } from '@/components/confirmDelete';
 import { VariableDrawer } from '@/components/variables/drawer';
 import { useVariablesManager } from '@/services/api';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import {useTranslation} from "next-i18next";
 
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale, ['common', 'layout'])),
+        ...(await serverSideTranslations(locale, ['variables', 'layout'])),
     },
 });
 
 export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableVariable, setEditableVariable] = useState<ChannelCustomvar | undefined>();
+  const { t } = useTranslation("variables")
 
   const manager = useVariablesManager();
   const { data: variables } = manager.getCreated();
@@ -25,7 +27,7 @@ export default function () {
   return (
     <div>
       <Flex direction="row" justify="space-between">
-        <Text size="lg">Variables</Text>
+        <Text size="lg">{t("title")}</Text>
         <Button
           color="green"
           onClick={() => {
@@ -33,16 +35,16 @@ export default function () {
             setEditDrawerOpened(true);
           }}
         >
-          Create
+            {t("create")}
         </Button>
       </Flex>
       <Table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Response</th>
-            <th>Actions</th>
+            <th>{t("name")}</th>
+            <th>{t("type")}</th>
+            <th>{t("response")}</th>
+            <th>{t("table.head.actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -58,7 +60,7 @@ export default function () {
                 <td>
                   {variable.type === 'TEXT' && <Badge>{variable.response}</Badge>}
                   {variable.type !== 'TEXT' && (
-                    <Badge color="red">Script cannot be displayed</Badge>
+                    <Badge color="red">{t("table.scriptAlert")}</Badge>
                   )}
                 </td>
                 <td>
@@ -66,7 +68,7 @@ export default function () {
                     <CopyButton value={`$(customvar|${variable.name})`}>
                       {({ copied, copy }) => (
                         <Tooltip
-                          label="Copy variable for use in commands"
+                          label={t("table.copy")}
                           withArrow
                           position="bottom"
                         >

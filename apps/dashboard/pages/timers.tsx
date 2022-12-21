@@ -44,7 +44,7 @@ export default function () {
       <Table>
         <thead>
           <tr>
-            <th>{t("table.head.name")}</th>
+            <th>{t("name")}</th>
             {viewPort.width > 550 && <th>{t("responses")}</th>}
             <th>{t("intervalTime")}</th>
             <th>{t("intervalMessages")}</th>

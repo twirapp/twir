@@ -16,6 +16,7 @@ import { ChannelCustomvar, CustomVarType } from '@tsuwari/typeorm/entities/Chann
 import { useEffect, useRef } from 'react';
 
 import { useVariablesManager } from '@/services/api';
+import {useTranslation} from "next-i18next";
 
 type Props = {
   opened: boolean;
@@ -37,6 +38,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
   });
   const viewPort = useViewportSize();
   const editorRef = useRef(null);
+  const { t } = useTranslation("variables")
 
   function handleEditorDidMount(editor: any) {
     editorRef.current = editor;
@@ -67,7 +69,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
       onClose={() => props.setOpened(false)}
       title={
         <Button size="xs" color="green" onClick={onSubmit}>
-          Save
+          {t("drawer.save")}
         </Button>
       }
       padding="xl"
@@ -81,9 +83,9 @@ export const VariableDrawer: React.FC<Props> = (props) => {
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
-            <TextInput label="Name" required {...form.getInputProps('name')} />
+            <TextInput label={t("name")} required {...form.getInputProps('name')} />
             <Select
-              label="Variable type"
+              label={t("type")}
               data={[
                 { value: 'SCRIPT', label: 'Script' },
                 { value: 'TEXT', label: 'Text' },
@@ -95,7 +97,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
                 height="50vh"
                 defaultLanguage="javascript"
                 theme={theme.colorScheme === 'dark' ? 'vs-dark' : 'light'}
-                defaultValue="// some comment"
+                defaultValue="//"
                 onMount={handleEditorDidMount}
                 value={form.values.evalValue}
                 onChange={(v) => {
@@ -104,7 +106,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
               />
             )}
             {form.values.type === 'TEXT' && (
-              <Textarea label="Response" autosize={true} {...form.getInputProps('response')} />
+              <Textarea label={t("response")} autosize={true} {...form.getInputProps('response')} />
             )}
           </Flex>
         </form>
