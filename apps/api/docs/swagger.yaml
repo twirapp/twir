@@ -1193,7 +1193,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1265,7 +1265,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1307,7 +1307,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1629,7 +1629,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.faceitUpdateDto'
+          $ref: '#/definitions/internal_api_v1_integrations_faceit.faceitUpdateDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1951,12 +1951,6 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: Data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/internal_api_v1_integrations_streamlabs.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2097,6 +2091,34 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get VK auth link
+      tags:
+      - Integrations|VK
+  /v1/channels/{channelId}/integrations/vk/logout:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Logout
       tags:
       - Integrations|VK
   /v1/channels/{channelId}/keywords:
@@ -2278,7 +2300,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto'
+          $ref: '#/definitions/internal_api_v1_moderation.moderationDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2430,7 +2452,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2500,7 +2522,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerPatchDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2540,7 +2562,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerDto'
       - description: ID of channel
         in: path
         name: channelId

@@ -187,7 +187,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -244,7 +244,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -365,7 +365,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandPatchDto"
                         }
                     },
                     {
@@ -875,7 +875,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.faceitUpdateDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_faceit.faceitUpdateDto"
                         }
                     },
                     {
@@ -1393,15 +1393,6 @@ const docTemplate = `{
                 "summary": "Logout",
                 "parameters": [
                     {
-                        "description": "Data",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_streamlabs.tokenDto"
-                        }
-                    },
-                    {
                         "type": "string",
                         "description": "ID of channel",
                         "name": "channelId",
@@ -1607,6 +1598,51 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.ChannelsIntegrations"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/integrations/vk/logout": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations|VK"
+                ],
+                "summary": "Logout",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
                         }
                     },
                     "500": {
@@ -1908,7 +1944,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto"
+                            "$ref": "#/definitions/internal_api_v1_moderation.moderationDto"
                         }
                     },
                     {
@@ -2150,7 +2186,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto"
+                            "$ref": "#/definitions/internal_api_v1_timers.timerDto"
                         }
                     },
                     {
@@ -2207,7 +2243,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto"
+                            "$ref": "#/definitions/internal_api_v1_timers.timerDto"
                         }
                     },
                     {
@@ -2272,7 +2308,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_timers.timerPatchDto"
                         }
                     },
                     {

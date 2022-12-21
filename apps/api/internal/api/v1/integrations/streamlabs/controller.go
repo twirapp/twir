@@ -101,7 +101,6 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 // @Tags         Integrations|Streamlabs
 // @Accept       json
 // @Produce      json
-// @Param data body tokenDto true "Data"
 // @Param        channelId   path      string  true  "ID of channel"
 // @Success      200
 // @Failure 400 {object} types.DOCApiValidationError
