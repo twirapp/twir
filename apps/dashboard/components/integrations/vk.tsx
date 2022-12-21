@@ -4,10 +4,12 @@ import { IconBrandVk, IconLogin, IconLogout } from '@tabler/icons';
 import { IntegrationCard } from './card';
 
 import { useVkIntegration } from '@/services/api/integrations';
+import {useTranslation} from "next-i18next";
 
 export const VKIntegration: React.FC = () => {
   const manager = useVkIntegration();
   const { data: profile } = manager.getProfile();
+  const { t } = useTranslation("integrations")
 
   async function login() {
     const link = await manager.getAuthLink();
@@ -31,16 +33,16 @@ export const VKIntegration: React.FC = () => {
               color="red"
               onClick={manager.logout}
             >
-              Logout
+              {t("logout")}
             </Button>
           )}
           <Button compact leftIcon={<IconLogin />} variant="outline" color="green" onClick={login}>
-            Login
+            {t("login")}
           </Button>
         </Flex>
       }
     >
-      {!profile && <Alert>Not logged in</Alert>}
+      {!profile && <Alert>{t("notLoggedIn")}</Alert>}
       {profile && (
         <Group position="apart" mt={10}>
           <Text weight={500} size={30}>

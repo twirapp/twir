@@ -3,21 +3,23 @@ import { IconPlus, IconShieldCheck, IconX } from '@tabler/icons';
 import { useState } from 'react';
 
 import { confirmDelete } from '../confirmDelete';
-import { DashboardAccessDrawer } from '../settings/dashboardAcessDrawer';
+import { DashboardAccessDrawer } from './drawer';
 import { SettingsCard } from './card';
 
 import { useDashboardAccess } from '@/services/api/dashboardAcess';
+import {useTranslation} from "next-i18next";
 
 export const DashboardAccess: React.FC = () => {
   const manager = useDashboardAccess();
   const [createDrawerOpened, setCreateDrawerOpened] = useState(false);
+  const { t } = useTranslation("settings")
 
   const { data } = manager.getAll();
 
   return (
     <div>
       <SettingsCard
-        title="Dashboard Access"
+        title={t("dashboardAccess.title")}
         icon={IconShieldCheck}
         header={
           <ActionIcon onClick={() => setCreateDrawerOpened(true)}>
@@ -26,7 +28,7 @@ export const DashboardAccess: React.FC = () => {
         }
       >
         <Box component={ScrollArea} sx={{ width: '100%' }}>
-          {!data?.length && <Alert>No users added</Alert>}
+          {!data?.length && <Alert>{t("dashboardAccess.emptyAlert")}</Alert>}
           {!!data?.length &&
             data.map((d) => (
               <NavLink

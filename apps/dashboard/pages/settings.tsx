@@ -1,12 +1,12 @@
 import { Grid } from '@mantine/core';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
-import { DashboardAccess } from '../components/settings.tsx/dashboardAccess';
+import { DashboardAccess } from '../components/settings/dashboardAccess';
 
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale, ['common', 'layout'])),
+        ...(await serverSideTranslations(locale, ['settings', 'layout'])),
     },
 });
 

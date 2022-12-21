@@ -4,10 +4,12 @@ import { IconLogout, IconLogin } from '@tabler/icons';
 import { IntegrationCard } from './card';
 
 import { useStreamLabsIntegration } from '@/services/api/integrations';
+import {useTranslation} from "next-i18next";
 
 export const StreamlabsIntegration: React.FC = () => {
   const manager = useStreamLabsIntegration();
   const { data } = manager.getIntegration();
+  const { t } = useTranslation("integrations")
 
   async function login() {
     const link = await manager.getAuthLink();
@@ -29,16 +31,16 @@ export const StreamlabsIntegration: React.FC = () => {
               color="red"
               onClick={manager.logout}
             >
-              Logout
+              {t("logout")}
             </Button>
           )}
           <Button compact leftIcon={<IconLogin />} variant="outline" color="green" onClick={login}>
-            Login
+            {t("login")}
           </Button>
         </Flex>
       }
     >
-      {!data && <Alert>Not logged in</Alert>}
+      {!data && <Alert>{t("notLoggedIn")}</Alert>}
       {data && (
         <Group position="apart" mt={10}>
           <Text weight={500} size={30}>

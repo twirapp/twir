@@ -3,6 +3,7 @@ import { useForm } from '@mantine/form';
 import { useEffect } from 'react';
 
 import { useDashboardAccess } from '@/services/api';
+import {useTranslation} from "next-i18next";
 
 type Props = {
   opened: boolean;
@@ -17,6 +18,7 @@ export const DashboardAccessDrawer: React.FC<Props> = (props) => {
     },
   });
 
+  const { t } = useTranslation("settings")
   const manager = useDashboardAccess();
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export const DashboardAccessDrawer: React.FC<Props> = (props) => {
       onClose={() => props.setOpened(false)}
       title={
         <Button size="xs" color="green" onClick={onSubmit}>
-          Save
+          {t("dashboardAccess.drawer.save")}
         </Button>
       }
       padding="xl"
@@ -53,7 +55,7 @@ export const DashboardAccessDrawer: React.FC<Props> = (props) => {
     >
       <form>
         <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
-          <TextInput {...form.getInputProps('userName')} label="User name" required></TextInput>
+          <TextInput {...form.getInputProps('userName')} label={t("dashboardAccess.drawer.userName")} required></TextInput>
         </Flex>
       </form>
     </Drawer>
