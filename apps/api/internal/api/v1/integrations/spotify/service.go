@@ -3,7 +3,7 @@ package spotify
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -84,6 +84,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 			ChannelID:     channelId,
 			IntegrationID: neededIntegration.ID,
 			Enabled:       true,
+			Integration:   &neededIntegration,
 		}
 	}
 
@@ -110,7 +111,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		return fiber.NewError(http.StatusInternalServerError, "cannot get tokens")
 	}
 	if !resp.IsSuccess() {
-		data, _ := ioutil.ReadAll(resp.Body)
+		data, _ := io.ReadAll(resp.Body)
 		fmt.Println(string(data))
 		return fiber.NewError(401, "seems like code is invalid")
 	}

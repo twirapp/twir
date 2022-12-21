@@ -2,14 +2,19 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
 import { useDonationAlertsIntegration } from '@/services/api/integrations';
+import { useSelectedDashboard } from '@/services/dashboard';
 
 export default function DonationAlertsLogin() {
   const router = useRouter();
   const manager = useDonationAlertsIntegration();
+  const [dashboard] = useSelectedDashboard();
 
   useEffect(() => {
-    const code = router.query.code;
+    if (!dashboard) {
+      return;
+    }
 
+    const code = router.query.code;
     if (typeof code !== 'string') {
       router.push('/integrations');
     } else {
@@ -17,5 +22,5 @@ export default function DonationAlertsLogin() {
         router.push('/integrations');
       });
     }
-  }, [router.query]);
+  }, [dashboard]);
 }

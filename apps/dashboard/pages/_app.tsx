@@ -18,10 +18,10 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { SWRConfig } from 'swr';
 
-import { NavBar } from '@/components/layout/navbar';
-import { SideBar } from '@/components/layout/sidebar';
 import i18nconfig from '../next-i18next.config.js';
 
+import { NavBar } from '@/components/layout/navbar';
+import { SideBar } from '@/components/layout/sidebar';
 import { swrAuthFetcher, useProfile } from '@/services/api';
 import { useLocale } from '@/services/dashboard/useLocale';
 
@@ -29,21 +29,24 @@ const app = function App(props: AppProps) {
   const { Component, pageProps } = props;
 
   const router = useRouter();
-  const { error } = useProfile();
+  const { error: profileError } = useProfile();
   const [locale] = useLocale();
 
   useEffect(() => {
     if (locale) {
       const { pathname, asPath, query } = router;
+      if (query.code || query.token) {
+        return;
+      }
       router.push({ pathname, query }, asPath, { locale });
     }
   }, [locale]);
 
   useEffect(() => {
-    if (error) {
+    if (profileError) {
       window.location.replace(`${window.location.origin}`);
     }
-  }, [error]);
+  }, [profileError]);
 
   const preferredColorScheme = useColorScheme();
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({

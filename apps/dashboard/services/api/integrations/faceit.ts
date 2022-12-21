@@ -1,4 +1,3 @@
-import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration';
 import { useSWRConfig } from 'swr';
 import useSWR from 'swr';
 
@@ -6,21 +5,16 @@ import { mutationOptions, swrAuthFetcher } from '../fetchWrappers';
 
 import { useSelectedDashboard } from '@/services/dashboard';
 
-export type SpotifyProfile = {
-  id: string;
-  display_name: string;
-  images?: Array<{ url: string }>;
-};
 
-export const useSpotifyIntegration = () => {
+export const useFaceitIntegration = () => {
   const [selectedDashboard] = useSelectedDashboard();
   const { mutate } = useSWRConfig();
 
   return {
     getProfile() {
-      return useSWR<SpotifyProfile>(
+      return useSWR(
         selectedDashboard
-          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
+          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/faceit`
           : null,
         swrAuthFetcher,
       );
@@ -31,9 +25,7 @@ export const useSpotifyIntegration = () => {
       }
 
       try {
-        const data = await swrAuthFetcher(
-          `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/auth`,
-        );
+        const data = await swrAuthFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/faceit/auth`);
         return data;
       } catch {
         return;
@@ -44,24 +36,21 @@ export const useSpotifyIntegration = () => {
         throw new Error('Cannot post code because dashboard not selected');
       }
 
-      await swrAuthFetcher(
-        `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/token`,
-        {
-          body: JSON.stringify({ code }),
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+      await swrAuthFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/faceit`, {
+        body: JSON.stringify({ code }),
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+      });
 
-      mutate(
-        selectedDashboard
-          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
-          : null, // which cache keys are updated
-        undefined, // update cache data to `undefined`
-        { ...mutationOptions, revalidate: true }, // do not revalidate
-      );
+      // mutate(
+      //   selectedDashboard
+      //     ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/faceit`
+      //     : null, // which cache keys are updated
+      //   undefined, // update cache data to `undefined`
+      //   { ...mutationOptions, revalidate: true }, // do not revalidate
+      // );
     },
     async logout() {
       if (!selectedDashboard) {
@@ -69,7 +58,7 @@ export const useSpotifyIntegration = () => {
       }
 
       await swrAuthFetcher(
-        `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/logout`,
+        `/api/v1/channels/${selectedDashboard.channelId}/integrations/faceit/logout`,
         {
           method: 'POST',
           headers: {
@@ -80,7 +69,7 @@ export const useSpotifyIntegration = () => {
 
       mutate(
         selectedDashboard
-          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
+          ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/faceit`
           : null, // which cache keys are updated
         undefined, // update cache data to `undefined`
         { ...mutationOptions, revalidate: true }, // do not revalidate
