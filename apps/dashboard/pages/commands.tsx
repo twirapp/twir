@@ -11,7 +11,7 @@ import {
 import type { ChannelCommand, CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useState } from 'react';
+import { useReducer, useState } from 'react';
 
 import { CommandDrawer } from '../components/commands/drawer';
 
@@ -20,6 +20,7 @@ import { useCommandManager } from '@/services/api';
 
 type Module = keyof typeof CommandModule;
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
   props: {
@@ -28,6 +29,8 @@ export const getServerSideProps = async ({ locale }) => ({
 });
 
 export default function Commands() {
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
+
   const [activeTab, setActiveTab] = useState<Module | null>('CUSTOM');
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableCommand, setEditableCommand] = useState<ChannelCommand | undefined>();
@@ -35,7 +38,13 @@ export default function Commands() {
   const { t } = useTranslation('commands');
 
   const manager = useCommandManager();
-  const { data: commands } = manager.getAll();
+  const { data: commands  } = manager.getAll();
+
+  function updateCommand(commandId: string, data: Partial<ChannelCommand>) {
+    manager.patch(commandId, data).then(() => {
+      // forceUpdate();
+    });
+  }
 
   return (
     <div>
@@ -88,7 +97,7 @@ export default function Commands() {
             commands.length &&
             commands
               .filter((c) => c.module === activeTab)
-              .map((command) => (
+              .map((command, commandIndex) => (
                 <tr key={command.id}>
                   <td>
                     <Badge>{command.name}</Badge>
@@ -96,7 +105,7 @@ export default function Commands() {
                   {viewPort.width > 550 && (
                     <>
                       <td>
-                        {command.module != 'CUSTOM' && <Badge>{t("builtInBadge")}</Badge>}
+                        {command.module != 'CUSTOM' && <Badge>{t('builtInBadge')}</Badge>}
                         {command.module === 'CUSTOM' &&
                           (command.responses?.map((r, i) => (
                             <p key={i} style={{ margin: 0 }}>
@@ -107,9 +116,7 @@ export default function Commands() {
                       <td>
                         <Switch
                           checked={command.enabled}
-                          onChange={(event) => {
-                            manager.patch(command.id, { enabled: event.currentTarget.checked });
-                          }}
+                          onChange={() => updateCommand(command.id, { enabled: !command.enabled })}
                         />
                       </td>
                     </>

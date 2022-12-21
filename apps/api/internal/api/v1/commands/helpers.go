@@ -25,6 +25,7 @@ func getChannelCommand(
 ) (*model.ChannelsCommands, error) {
 	command := &model.ChannelsCommands{}
 	err := db.Where(`"channelId" = ? AND "id" = ?`, channelId, commandId).
+		Preload("Responses").
 		First(&command).
 		Error
 	if err != nil {

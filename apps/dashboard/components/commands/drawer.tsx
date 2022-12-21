@@ -27,11 +27,11 @@ import type {
   CommandPermission,
   CooldownType,
 } from '@tsuwari/typeorm/entities/ChannelCommand';
+import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { useCommandManager } from '@/services/api';
-import {useTranslation} from "next-i18next";
 
 type Props = {
   opened: boolean;
@@ -88,7 +88,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
     },
   });
 
-  const { t } = useTranslation('commands')
+  const { t } = useTranslation('commands');
   const viewPort = useViewportSize();
   const manager = useCommandManager();
 
@@ -116,7 +116,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       onClose={() => props.setOpened(false)}
       title={
         <Button size="xs" color="green" onClick={onSubmit}>
-          {t("drawer.save")}
+          {t('drawer.save')}
         </Button>
       }
       padding="xl"
@@ -132,7 +132,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
             <div>
               <TextInput
-                label={t("name")}
+                label={t('name')}
                 placeholder="coolcommand"
                 withAsterisk
                 {...form.getInputProps('name')}
@@ -141,7 +141,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
 
             <div>
               <Flex direction="row" gap="xs">
-                <Text>{t("drawer.aliases.name")}</Text>
+                <Text>{t('drawer.aliases.name')}</Text>
                 <ActionIcon variant="light" color="green" size="xs">
                   <IconPlus
                     size={18}
@@ -151,7 +151,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                   />
                 </ActionIcon>
               </Flex>
-              {!form.values.aliases?.length && <Alert>{t("drawer.aliases.emptyAlert")}</Alert>}
+              {!form.values.aliases?.length && <Alert>{t('drawer.aliases.emptyAlert')}</Alert>}
               <ScrollArea.Autosize maxHeight={100} mx="auto" type="auto" offsetScrollbars={true}>
                 <Grid grow gutter="xs" style={{ margin: 0, gap: 8 }}>
                   {form.values.aliases?.map((_, i) => (
@@ -181,12 +181,12 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                 <NumberInput
                   defaultValue={0}
                   placeholder="0"
-                  label={t("drawer.cooldown.time")}
+                  label={t('drawer.cooldown.time')}
                   {...form.getInputProps('cooldown')}
                 />
 
                 <Select
-                  label={t("drawer.cooldown.type")}
+                  label={t('drawer.cooldown.type')}
                   defaultValue="GLOBAL"
                   {...form.getInputProps('cooldownType')}
                   data={[
@@ -199,7 +199,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
 
             <div>
               <Select
-                label={t("drawer.permission")}
+                label={t('drawer.permission')}
                 {...form.getInputProps('permission')}
                 data={COMMAND_PERMS.map((value) => ({
                   value,
@@ -211,7 +211,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
             <div>
               <Grid>
                 {switches.map(({ prop }, i) => (
-                  <Grid.Col span={12}>
+                  <Grid.Col key={i} span={12}>
                     <Switch
                       key={i}
                       labelPosition="left"
@@ -227,7 +227,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
             {form.values.module === 'CUSTOM' && (
               <div style={{ width: 450 }}>
                 <Flex direction="row" gap="xs">
-                  <Text>{t("name")}</Text>
+                  <Text>{t('name')}</Text>
                   <ActionIcon variant="light" color="green" size="xs">
                     <IconPlus
                       size={18}
@@ -238,7 +238,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                   </ActionIcon>
                 </Flex>
                 {!form.getInputProps('responses').value?.length && (
-                  <Alert>{t("drawer.responses.emptyAlert")}</Alert>
+                  <Alert>{t('drawer.responses.emptyAlert')}</Alert>
                 )}
                 <DragDropContext
                   onDragEnd={({ destination, source }) =>

@@ -57,6 +57,7 @@ export const useCommandManager = () => {
             },
           );
 
+
           const index = commands!.findIndex((c) => c.id === commandId);
           commands![index] = data;
 

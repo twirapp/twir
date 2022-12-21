@@ -166,5 +166,6 @@ func handlePatch(
 		return nil, err
 	}
 
-	return command, nil
+	newCommand, _ := getChannelCommand(services.DB, channelId, commandId)
+	return newCommand, nil
 }
