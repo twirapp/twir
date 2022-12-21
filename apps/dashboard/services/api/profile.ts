@@ -14,6 +14,7 @@ export const useLogoutMutation = () =>
     const res = await authFetch('/api/auth/logout', { method: 'POST' });
 
     if (res.ok) {
-      localStorage.removeItem('accessToken');
+      localStorage.removeItem('access_token');
+      window.location.replace(window.location.origin);
     }
   });
