@@ -132,7 +132,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
             <div>
               <TextInput
-                label={t("drawer.name")}
+                label={t("name")}
                 placeholder="coolcommand"
                 withAsterisk
                 {...form.getInputProps('name')}
@@ -227,7 +227,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
             {form.values.module === 'CUSTOM' && (
               <div style={{ width: 450 }}>
                 <Flex direction="row" gap="xs">
-                  <Text>{t("drawer.responses.name")}</Text>
+                  <Text>{t("name")}</Text>
                   <ActionIcon variant="light" color="green" size="xs">
                     <IconPlus
                       size={18}

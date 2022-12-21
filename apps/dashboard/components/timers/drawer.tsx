@@ -24,6 +24,7 @@ import { useEffect } from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 import { useTimersManager } from '@/services/api';
+import {useTranslation} from "next-i18next";
 
 type Props = {
   opened: boolean;
@@ -51,6 +52,7 @@ export const TimerDrawer: React.FC<Props> = (props) => {
     },
   });
   const viewPort = useViewportSize();
+  const { t } = useTranslation("timers")
 
   const manager = useTimersManager();
 
@@ -78,7 +80,7 @@ export const TimerDrawer: React.FC<Props> = (props) => {
       onClose={() => props.setOpened(false)}
       title={
         <Button size="xs" color="green" onClick={onSubmit}>
-          Save
+          {t("drawer.save")}
         </Button>
       }
       padding="xl"
@@ -92,9 +94,9 @@ export const TimerDrawer: React.FC<Props> = (props) => {
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
         <form>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
-            <TextInput {...form.getInputProps('name')} label="Name" required></TextInput>
+            <TextInput {...form.getInputProps('name')} label={t("name")} required></TextInput>
             <div style={{ width: '100%' }}>
-              <Text>Time interval (seconds)</Text>
+              <Text>{t("intervalTime")}</Text>
               <Flex direction="row" wrap="wrap" gap="md" justify="flex-start" align="flex-start">
                 <Slider
                   w={'70%'}
@@ -108,11 +110,11 @@ export const TimerDrawer: React.FC<Props> = (props) => {
               </Flex>
             </div>
 
-            <NumberInput label="Messages Interval" {...form.getInputProps('messageInterval')} />
+            <NumberInput label={t("intervalMessages")} {...form.getInputProps('messageInterval')} />
 
             <div style={{ width: 450 }}>
               <Flex direction="row" gap="xs">
-                <Text>Responses</Text>
+                <Text>{t("responses")}</Text>
                 <ActionIcon variant="light" color="green" size="xs">
                   <IconPlus
                     size={18}
@@ -122,7 +124,7 @@ export const TimerDrawer: React.FC<Props> = (props) => {
                   />
                 </ActionIcon>
               </Flex>
-              {!form.getInputProps('responses').value?.length && <Alert>No responses added</Alert>}
+              {!form.getInputProps('responses').value?.length && <Alert>{t("drawer.emptyAlert")}</Alert>}
               <DragDropContext
                 onDragEnd={({ destination, source }) =>
                   form.reorderListItem('responses', {

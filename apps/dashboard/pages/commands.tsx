@@ -72,10 +72,10 @@ export default function Commands() {
       <Table>
         <thead>
           <tr>
-            <th>{t('table.head.name')}</th>
+            <th>{t('name')}</th>
             {viewPort.width > 550 && (
               <>
-                <th>{t('table.head.responses')}</th>
+                <th>{t('responses')}</th>
                 <th>{t('table.head.status')}</th>
               </>
             )}

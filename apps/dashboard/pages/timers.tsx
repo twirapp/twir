@@ -4,16 +4,17 @@ import { IconPencil, IconTrash } from '@tabler/icons';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { useState } from 'react';
 
-import { TimerDrawer } from '../components/timers/drawer';
+import { TimerDrawer } from '@/components/timers/drawer';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { useTimersManager } from '@/services/api';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import {useTranslation} from "next-i18next";
 
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale, ['common', 'layout'])),
+        ...(await serverSideTranslations(locale, ['timers', 'layout'])),
     },
 });
 
@@ -21,6 +22,7 @@ export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableTimer, setEditableTimer] = useState<ChannelTimer | undefined>();
   const viewPort = useViewportSize();
+  const { t } = useTranslation('timers')
 
   const manager = useTimersManager();
   const { data: timers } = manager.getAll();
@@ -28,7 +30,7 @@ export default function () {
   return (
     <div>
       <Flex direction="row" justify="space-between">
-        <Text size="lg">Timers</Text>
+        <Text size="lg">{t("title")}</Text>
         <Button
           color="green"
           onClick={() => {
@@ -36,18 +38,18 @@ export default function () {
             setEditDrawerOpened(true);
           }}
         >
-          Create
+            {t("create")}
         </Button>
       </Flex>
       <Table>
         <thead>
           <tr>
-            <th>Name</th>
-            {viewPort.width > 550 && <th>Responses</th>}
-            <th>Time Interval</th>
-            <th>Messages Interval</th>
-            {viewPort.width > 550 && <th>Status</th>}
-            <th>Actions</th>
+            <th>{t("table.head.name")}</th>
+            {viewPort.width > 550 && <th>{t("responses")}</th>}
+            <th>{t("intervalTime")}</th>
+            <th>{t("intervalMessages")}</th>
+            {viewPort.width > 550 && <th>{t("table.head.status")}</th>}
+            <th>{t("table.head.actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -67,7 +69,7 @@ export default function () {
                   </td>
                 )}
 
-                <td>{timer.timeInterval} seconds</td>
+                <td>{timer.timeInterval} s.</td>
                 <td>{timer.messageInterval}</td>
                 {viewPort.width > 550 && (
                   <td>

@@ -8,17 +8,16 @@
     "manage": "Manage",
     "dota": "Dota 2"
   },
+  "name": "Name",
+  "responses": "Responses",
   "table": {
     "head": {
-      "name": "Name",
-      "responses": "Responses",
       "status": "Status",
       "actions": "Actions"
     }
   },
   "drawer": {
     "save": "Save",
-    "name": "Name",
     "aliases": {
       "name": "Aliases",
       "emptyAlert": "No aliases added"
@@ -29,7 +28,6 @@
     },
     "permission": "Permission",
     "responses": {
-      "name": "Responses",
       "emptyAlert": "No responses added"
     },
     "switches": {

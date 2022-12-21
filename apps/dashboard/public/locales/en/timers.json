@@ -1,0 +1,18 @@
+{
+  "title": "Timers",
+  "create": "Create",
+  "intervalTime": "Interval in seconds",
+  "intervalMessages": "Interval in messages",
+  "name": "Name",
+  "responses": "Responses",
+  "table": {
+    "head": {
+      "status": "Stats",
+      "actions": "Actions"
+    }
+  },
+  "drawer": {
+    "save": "Save",
+    "emptyAlert": "Ответов не добавлено"
+  }
+}

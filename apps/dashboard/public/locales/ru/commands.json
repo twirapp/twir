@@ -8,17 +8,16 @@
     "manage": "Управление",
     "dota": "Дота 2"
   },
+  "name": "Имя",
+  "responses": "Ответы",
   "table": {
     "head": {
-      "name": "Имя",
-      "responses": "Ответы",
       "status": "Статус",
       "actions": "Действия"
     }
   },
   "drawer": {
     "save": "Сохранить",
-    "name": "Имя",
     "aliases": {
       "name": "Алиасы",
       "emptyAlert": "Ещё ничего не добавлено"
@@ -29,7 +28,6 @@
     },
     "permission": "Право на использование",
     "responses": {
-      "name": "Ответы",
       "emptyAlert": "Ещё ничего не добавлено"
     },
     "switches": {
