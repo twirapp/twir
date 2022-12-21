@@ -42,7 +42,7 @@ export default function Commands() {
 
   function updateCommand(commandId: string, data: Partial<ChannelCommand>) {
     manager.patch(commandId, data).then(() => {
-      // forceUpdate();
+      forceUpdate();
     });
   }
 

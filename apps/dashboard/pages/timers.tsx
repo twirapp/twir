@@ -2,14 +2,13 @@ import { ActionIcon, Badge, Button, Flex, Switch, Table, Text } from '@mantine/c
 import { useViewportSize } from '@mantine/hooks';
 import { IconPencil, IconTrash } from '@tabler/icons';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
-import { useState } from 'react';
-
-import { TimerDrawer } from '@/components/timers/drawer';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useReducer, useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
+import { TimerDrawer } from '@/components/timers/drawer';
 import { useTimersManager } from '@/services/api';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import {useTranslation} from "next-i18next";
 
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
@@ -19,10 +18,11 @@ export const getServerSideProps = async ({ locale }) => ({
 });
 
 export default function () {
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableTimer, setEditableTimer] = useState<ChannelTimer | undefined>();
   const viewPort = useViewportSize();
-  const { t } = useTranslation('timers')
+  const { t } = useTranslation('timers');
 
   const manager = useTimersManager();
   const { data: timers } = manager.getAll();
@@ -30,7 +30,7 @@ export default function () {
   return (
     <div>
       <Flex direction="row" justify="space-between">
-        <Text size="lg">{t("title")}</Text>
+        <Text size="lg">{t('title')}</Text>
         <Button
           color="green"
           onClick={() => {
@@ -38,18 +38,18 @@ export default function () {
             setEditDrawerOpened(true);
           }}
         >
-            {t("create")}
+            {t('create')}
         </Button>
       </Flex>
       <Table>
         <thead>
           <tr>
-            <th>{t("name")}</th>
-            {viewPort.width > 550 && <th>{t("responses")}</th>}
-            <th>{t("intervalTime")}</th>
-            <th>{t("intervalMessages")}</th>
-            {viewPort.width > 550 && <th>{t("table.head.status")}</th>}
-            <th>{t("table.head.actions")}</th>
+            <th>{t('name')}</th>
+            {viewPort.width > 550 && <th>{t('responses')}</th>}
+            <th>{t('intervalTime')}</th>
+            <th>{t('intervalMessages')}</th>
+            {viewPort.width > 550 && <th>{t('table.head.status')}</th>}
+            <th>{t('table.head.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -76,7 +76,8 @@ export default function () {
                     <Switch
                       checked={timer.enabled}
                       onChange={(event) => {
-                        manager.patch(timer.id, { enabled: event.currentTarget.checked });
+                        manager.patch(timer.id, { enabled: event.currentTarget.checked })
+                          .then(() => forceUpdate());
                       }}
                     />
                   </td>

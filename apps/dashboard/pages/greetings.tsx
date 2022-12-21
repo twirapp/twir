@@ -1,14 +1,15 @@
 import { ActionIcon, Badge, Button, Flex, Switch, Table, Text } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons';
-import { useState } from 'react';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useReducer, useState } from 'react';
 
 import { GreetingDrawer } from '../components/greetings/drawer';
 import { type Greeting, useGreetingsManager } from '../services/api';
 
 import { confirmDelete } from '@/components/confirmDelete';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import {useTranslation} from "next-i18next";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
     props: {
@@ -17,9 +18,10 @@ export const getServerSideProps = async ({ locale }) => ({
 });
 
 export default function () {
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableGreeting, setEditableGreeting] = useState<Greeting | undefined>();
-  const { t } = useTranslation("greetings")
+  const { t } = useTranslation('greetings');
 
   const manager = useGreetingsManager();
   const { data: greetings } = manager.getAll();
@@ -27,7 +29,7 @@ export default function () {
   return (
     <div>
       <Flex direction="row" justify="space-between">
-        <Text size="lg">{t("title")}</Text>
+        <Text size="lg">{t('title')}</Text>
         <Button
           color="green"
           onClick={() => {
@@ -35,16 +37,16 @@ export default function () {
             setEditDrawerOpened(true);
           }}
         >
-            {t("create")}
+            {t('create')}
         </Button>
       </Flex>
       <Table>
         <thead>
           <tr>
-            <th>{t("userName")}</th>
-            <th>{t("message")}</th>
-            <th>{t("table.head.status")}</th>
-            <th>{t("table.head.actions")}</th>
+            <th>{t('userName')}</th>
+            <th>{t('message')}</th>
+            <th>{t('table.head.status')}</th>
+            <th>{t('table.head.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -61,7 +63,8 @@ export default function () {
                   <Switch
                     checked={greeting.enabled}
                     onChange={(event) => {
-                      manager.patch(greeting.id, { enabled: event.currentTarget.checked });
+                      manager.patch(greeting.id, { enabled: event.currentTarget.checked })
+                          .then(() => forceUpdate());
                     }}
                   />
                 </td>

@@ -11,13 +11,13 @@ import {
 } from '@mantine/core';
 import { IconCopy, IconPencil, IconTrash } from '@tabler/icons';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
-import { useState } from 'react';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useReducer, useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { KeywordDrawer } from '@/components/keywords/drawer';
 import { useKeywordsManager } from '@/services/api';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import {useTranslation} from "next-i18next";
 
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
@@ -27,9 +27,10 @@ export const getServerSideProps = async ({ locale }) => ({
 });
 
 export default function () {
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableKeyword, setEditableKeyword] = useState<ChannelKeyword | undefined>();
-  const { t } = useTranslation("keywords")
+  const { t } = useTranslation('keywords');
 
   const manager = useKeywordsManager();
   const { data: keywords } = manager.getAll();
@@ -37,7 +38,7 @@ export default function () {
   return (
     <div>
       <Flex direction="row" justify="space-between">
-        <Text size="lg">{t("title")}</Text>
+        <Text size="lg">{t('title')}</Text>
         <Button
           color="green"
           onClick={() => {
@@ -45,17 +46,17 @@ export default function () {
             setEditDrawerOpened(true);
           }}
         >
-            {t("create")}
+            {t('create')}
         </Button>
       </Flex>
       <Table>
         <thead>
           <tr>
-            <th>{t("trigger")}</th>
-            <th>{t("response")}</th>
-            <th>{t("usages")}</th>
-            <th>{t("table.head.status")}</th>
-            <th>{t("table.head.actions")}</th>
+            <th>{t('trigger')}</th>
+            <th>{t('response')}</th>
+            <th>{t('usages')}</th>
+            <th>{t('table.head.status')}</th>
+            <th>{t('table.head.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -73,7 +74,8 @@ export default function () {
                   <Switch
                     checked={keyword.enabled}
                     onChange={(event) => {
-                      manager.patch(keyword.id, { enabled: event.currentTarget.checked });
+                      manager.patch(keyword.id, { enabled: event.currentTarget.checked })
+                        .then(() => forceUpdate());
                     }}
                   />
                 </td>
@@ -82,7 +84,7 @@ export default function () {
                     <CopyButton value={`$(keywords.counter|${keyword.id})`}>
                       {({ copied, copy }) => (
                         <Tooltip
-                          label={t("copy")}
+                          label={t('copy')}
                           withArrow
                           position="bottom"
                         >
