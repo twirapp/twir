@@ -3,6 +3,7 @@ import { IconPencil } from '@tabler/icons';
 import type { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
 
 import { typesMapping } from './mapping';
+import {useTranslation} from "next-i18next";
 
 type Props = React.PropsWithChildren<{
   settings: ChannelModerationSetting;
@@ -11,6 +12,8 @@ type Props = React.PropsWithChildren<{
 }>;
 
 export const ModerationCard: React.FC<Props> = (props) => {
+  const { t } = useTranslation("moderation")
+
   return (
     <Grid grow>
       <Grid.Col span={4}>
@@ -18,7 +21,6 @@ export const ModerationCard: React.FC<Props> = (props) => {
           <Card.Section p="">
             <Flex gap="xs" direction="row" justify="space-between">
               <Group position="left">
-                {/* <props.icon color={props.iconColor} /> */}
                 {typesMapping[props.settings.type]['icon']({
                   color: typesMapping[props.settings.type].iconColor,
                 })}
@@ -38,7 +40,7 @@ export const ModerationCard: React.FC<Props> = (props) => {
             </Flex>
           </Card.Section>
           <Divider />
-          <Card.Section p="lg">{typesMapping[props.settings.type].description}</Card.Section>
+          <Card.Section p="lg">{t(`descriptions.${props.settings.type}`)}</Card.Section>
         </Card>
       </Grid.Col>
     </Grid>

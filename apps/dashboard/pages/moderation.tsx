@@ -11,7 +11,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale, ['common', 'layout'])),
+        ...(await serverSideTranslations(locale, ['moderation', 'layout'])),
     },
 });
 
