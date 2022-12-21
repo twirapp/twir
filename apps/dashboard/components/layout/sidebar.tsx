@@ -128,7 +128,7 @@ export function SideBar({ opened }: { opened: boolean }) {
           maxHeight={viewPort.height - 120}
           type="auto"
           offsetScrollbars={true}
-          styles={{
+          style={{
             padding: 0
           }}
         >
