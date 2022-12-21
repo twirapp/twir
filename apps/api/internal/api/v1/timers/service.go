@@ -204,5 +204,10 @@ func handlePatch(
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update timer")
 	}
 
+	if err = services.DB.Select("*").Preload("Responses").Find(&timer).Error; err != nil {
+		services.Logger.Sugar().Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
 	return &timer, nil
 }
