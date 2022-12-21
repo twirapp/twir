@@ -124,7 +124,14 @@ export function SideBar({ opened }: { opened: boolean }) {
   return (
     <Navbar hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 150, lg: 250 }}>
       <Navbar.Section grow>
-        <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
+        <ScrollArea.Autosize
+          maxHeight={viewPort.height - 120}
+          type="auto"
+          offsetScrollbars={true}
+          styles={{
+            padding: 0
+          }}
+        >
           <Box component={ScrollArea} sx={{ width: '100%' }}>
             {links}
           </Box>
