@@ -18,18 +18,12 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { SWRConfig } from 'swr';
 
-import { NavBar } from '../components/layout/navbar';
-import { SideBar } from '../components/layout/sidebar';
+import { NavBar } from '@/components/layout/navbar';
+import { SideBar } from '@/components/layout/sidebar';
 import i18nconfig from '../next-i18next.config.js';
 
 import { swrAuthFetcher, useProfile } from '@/services/api';
 import { useLocale } from '@/services/dashboard/useLocale';
-
-export const getServerSideProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale, ['common', 'layout'])),
-  },
-});
 
 const app = function App(props: AppProps) {
   const { Component, pageProps } = props;

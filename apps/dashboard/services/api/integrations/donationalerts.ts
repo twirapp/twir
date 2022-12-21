@@ -24,14 +24,19 @@ export const useDonationAlertsIntegration = () => {
         swrAuthFetcher,
       );
     },
-    getAuthLink(): Promise<string> {
+    async getAuthLink(): Promise<string | undefined> {
       if (!selectedDashboard) {
         throw new Error('Cannot get link because dashboard not selected');
       }
 
-      return swrAuthFetcher(
-        `/api/v1/channels/${selectedDashboard.channelId}/integrations/donationalerts/auth`,
-      );
+      try {
+        const res = await swrAuthFetcher(
+            `/api/v1/channels/${selectedDashboard.channelId}/integrations/donationalerts/auth`,
+        )
+        return res
+      } catch {
+        return
+      }
     },
     async postCode(code: string) {
       if (!selectedDashboard) {

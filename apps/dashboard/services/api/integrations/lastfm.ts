@@ -1,8 +1,7 @@
-import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration';
 import { useSWRConfig } from 'swr';
 import useSWR from 'swr';
 
-import { mutationOptions, swrAuthFetcher } from '../fetchWrappers';
+import { mutationOptions, swrAuthFetcher } from '@/services/api';
 
 import { useSelectedDashboard } from '@/services/dashboard';
 
@@ -25,14 +24,19 @@ export const useLastfmIntegration = () => {
         swrAuthFetcher,
       );
     },
-    getAuthLink(): Promise<string> {
+    async getAuthLink(): Promise<string | undefined> {
       if (!selectedDashboard) {
         throw new Error('Cannot get link because dashboard not selected');
       }
 
-      return swrAuthFetcher(
-        `/api/v1/channels/${selectedDashboard.channelId}/integrations/lastfm/auth`,
-      );
+      try {
+        const data = await swrAuthFetcher(
+          `/api/v1/channels/${selectedDashboard.channelId}/integrations/lastfm/auth`,
+        );
+        return data
+      } catch {
+        return
+      }
     },
     async postToken(token: string) {
       if (!selectedDashboard) {

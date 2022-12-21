@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"reflect"
@@ -164,7 +163,7 @@ func main() {
 		return c.Status(404).SendString("Not found")
 	})
 
-	log.Fatal(app.Listen(":3002"))
+	go app.Listen(":3002")
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)

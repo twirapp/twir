@@ -6,6 +6,14 @@ import { useState } from 'react';
 import { confirmDelete } from '@/components/confirmDelete';
 import { VariableDrawer } from '@/components/variables/drawer';
 import { useVariablesManager } from '@/services/api';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+
+// @ts-ignore
+export const getServerSideProps = async ({ locale }) => ({
+    props: {
+        ...(await serverSideTranslations(locale, ['common', 'layout'])),
+    },
+});
 
 export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);

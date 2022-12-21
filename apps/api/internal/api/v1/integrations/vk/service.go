@@ -26,7 +26,7 @@ func handleGetAuth(services types.Services) (*string, error) {
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(
 			404,
-			"donationalerts not enabled on our side. Please be patient.",
+			"vk not enabled on our side. Please be patient.",
 		)
 	}
 
@@ -65,6 +65,10 @@ func handleGet(channelId string, services types.Services) (*profile, error) {
 	if err != nil {
 		services.Logger.Sugar().Error(err)
 		return nil, err
+	}
+
+	if integration == nil {
+		return nil, nil
 	}
 
 	data := profileResponse{}

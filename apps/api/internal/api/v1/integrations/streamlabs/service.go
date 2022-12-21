@@ -45,10 +45,15 @@ func handleGetAuth(services types.Services) (*string, error) {
 
 func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrationsData, error) {
 	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
-	if err != nil || integration == nil {
+	if err != nil {
 		services.Logger.Sugar().Error(err)
 		return nil, nil
 	}
+
+	if integration == nil {
+		return nil, nil
+	}
+
 	return integration.Data, nil
 }
 

@@ -19,6 +19,10 @@ func handleGet(channelId string, services types.Services) (*model.ChannelsIntegr
 		return nil, err
 	}
 
+	if integration == nil {
+		return nil, nil
+	}
+
 	return integration, nil
 }
 

@@ -8,6 +8,14 @@ import { TimerDrawer } from '../components/timers/drawer';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { useTimersManager } from '@/services/api';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+
+// @ts-ignore
+export const getServerSideProps = async ({ locale }) => ({
+    props: {
+        ...(await serverSideTranslations(locale, ['common', 'layout'])),
+    },
+});
 
 export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);

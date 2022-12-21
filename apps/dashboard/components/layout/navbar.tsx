@@ -84,7 +84,7 @@ export function NavBar({
           <Menu shadow="md" width={200}>
             <Menu.Target>
               <ActionIcon title="Toggle language" variant="subtle">
-                {flags[locale]}
+                {flags[locale ?? 'en']}
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>

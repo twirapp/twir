@@ -6,6 +6,14 @@ import { ModerationCard } from '../components/moderation/card';
 import { ModerationDrawer } from '../components/moderation/drawer';
 
 import { useModerationSettings } from '@/services/api';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+
+// @ts-ignore
+export const getServerSideProps = async ({ locale }) => ({
+    props: {
+        ...(await serverSideTranslations(locale, ['common', 'layout'])),
+    },
+});
 
 export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);

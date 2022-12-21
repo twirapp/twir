@@ -1,3 +1,5 @@
 {
-  "manage": "Manage channel"
+  "sidebar": {
+    "manage": "Управление каналом"
+  }
 }

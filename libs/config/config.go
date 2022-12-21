@@ -37,7 +37,7 @@ func New() (*Config, error) {
 		wd = "/workspace"
 	}
 
-	envPath := path.Join(wd, ".env")
+	envPath := path.Join(wd, "../..", ".env")
 	_ = godotenv.Load(envPath)
 
 	if err = envconfig.Process("", &newCfg); err != nil {

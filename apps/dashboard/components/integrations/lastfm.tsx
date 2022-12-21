@@ -4,10 +4,12 @@ import { IconBrandLastfm, IconLogin, IconLogout } from '@tabler/icons';
 import { IntegrationCard } from './card';
 
 import { useLastfmIntegration } from '@/services/api/integrations/lastfm';
+import {useTranslation} from "next-i18next";
 
 export const LastfmIntegration: React.FC = () => {
   const manager = useLastfmIntegration();
   const { data: profile } = manager.getProfile();
+  const { t} = useTranslation('integrations')
 
   async function login() {
     const link = await manager.getAuthLink();
@@ -31,16 +33,16 @@ export const LastfmIntegration: React.FC = () => {
               color="red"
               onClick={manager.logout}
             >
-              Logout
+              {t("login")}
             </Button>
           )}
           <Button compact leftIcon={<IconLogin />} variant="outline" color="green" onClick={login}>
-            Login
+            {t("logout")}
           </Button>
         </Flex>
       }
     >
-      {!profile && <Alert>Not logged in</Alert>}
+      {!profile && <Alert>{t("notLoggedIn")}</Alert>}
       {profile && (
         <Group position="apart" mt={10}>
           <Text weight={500} size={30}>

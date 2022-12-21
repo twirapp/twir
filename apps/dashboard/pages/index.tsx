@@ -1,6 +1,14 @@
 import { useMantineTheme } from '@mantine/core';
 import type { NextPage } from 'next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
+
+// @ts-ignore
+export const getServerSideProps = async ({ locale }) => ({
+    props: {
+        ...(await serverSideTranslations(locale, ['layout'])),
+    },
+});
 
 const Home: NextPage = () => {
   const theme = useMantineTheme();

@@ -47,6 +47,11 @@ func handleGet(channelId string, services types.Services) (*model.ChannelsIntegr
 		services.Logger.Sugar().Error(err)
 		return nil, nil
 	}
+
+	if integration == nil {
+		return nil, nil
+	}
+
 	return integration.Data, nil
 }
 

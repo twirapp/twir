@@ -7,5 +7,44 @@
     "moderation": "Модерация",
     "manage": "Управление",
     "dota": "Дота 2"
+  },
+  "table": {
+    "head": {
+      "name": "Имя",
+      "responses": "Ответы",
+      "status": "Статус",
+      "actions": "Действия"
+    }
+  },
+  "drawer": {
+    "save": "Сохранить",
+    "name": "Имя",
+    "aliases": {
+      "name": "Алиасы",
+      "emptyAlert": "Ещё ничего не добавлено"
+    },
+    "cooldown": {
+      "time": "Время перезарядки (seconds)",
+      "type": "Тип перезарядки"
+    },
+    "permission": "Право на использование",
+    "responses": {
+      "name": "Ответы",
+      "emptyAlert": "Ещё ничего не добавлено"
+    },
+    "switches": {
+      "isReply": {
+        "name": "Ответ",
+        "description": "Использовать Twitch \"reply\" фукнцию при отправки ответа"
+      },
+      "visible": {
+        "name": "Видимость",
+        "description": "Видимость команды в списке команд"
+      },
+      "keepResponsesOrder": {
+        "name": "Порядок ответа",
+        "description": "Сохранять порядок ответов при отправки их в чат"
+      }
+    }
   }
 }

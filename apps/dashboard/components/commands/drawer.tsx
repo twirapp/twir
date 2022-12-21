@@ -31,6 +31,7 @@ import { useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { useCommandManager } from '@/services/api';
+import {useTranslation} from "next-i18next";
 
 type Props = {
   opened: boolean;
@@ -48,17 +49,11 @@ const COMMAND_PERMS: Array<keyof typeof CommandPermission> = [
 ];
 
 const switches: Array<{
-  label: string;
-  description: string;
   prop: keyof ChannelCommand;
 }> = [
-  { label: 'Reply', description: 'Bot will send command response as reply', prop: 'isReply' },
-  { label: 'Visible', description: 'Bot will send command response as reply', prop: 'visible' },
-  {
-    label: 'Keep Order',
-    description: 'Bot will send command response as reply',
-    prop: 'keepResponsesOrder',
-  },
+  { prop: 'isReply' },
+  { prop: 'visible' },
+  { prop: 'keepResponsesOrder' },
 ];
 
 export const CommandDrawer: React.FC<Props> = (props) => {
@@ -93,6 +88,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
     },
   });
 
+  const { t } = useTranslation('commands')
   const viewPort = useViewportSize();
   const manager = useCommandManager();
 
@@ -120,7 +116,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       onClose={() => props.setOpened(false)}
       title={
         <Button size="xs" color="green" onClick={onSubmit}>
-          Save
+          {t("drawer.save")}
         </Button>
       }
       padding="xl"
@@ -136,7 +132,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
             <div>
               <TextInput
-                label="Name"
+                label={t("drawer.name")}
                 placeholder="coolcommand"
                 withAsterisk
                 {...form.getInputProps('name')}
@@ -145,7 +141,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
 
             <div>
               <Flex direction="row" gap="xs">
-                <Text>Aliases</Text>
+                <Text>{t("drawer.aliases.name")}</Text>
                 <ActionIcon variant="light" color="green" size="xs">
                   <IconPlus
                     size={18}
@@ -155,7 +151,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                   />
                 </ActionIcon>
               </Flex>
-              {!form.values.aliases?.length && <Alert>There is no aliases</Alert>}
+              {!form.values.aliases?.length && <Alert>{t("drawer.aliases.emptyAlert")}</Alert>}
               <ScrollArea.Autosize maxHeight={100} mx="auto" type="auto" offsetScrollbars={true}>
                 <Grid grow gutter="xs" style={{ margin: 0, gap: 8 }}>
                   {form.values.aliases?.map((_, i) => (
@@ -185,12 +181,12 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                 <NumberInput
                   defaultValue={0}
                   placeholder="0"
-                  label="Cooldown time (seconds)"
+                  label={t("drawer.cooldown.time")}
                   {...form.getInputProps('cooldown')}
                 />
 
                 <Select
-                  label="Cooldown Type"
+                  label={t("drawer.cooldown.type")}
                   defaultValue="GLOBAL"
                   {...form.getInputProps('cooldownType')}
                   data={[
@@ -203,7 +199,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
 
             <div>
               <Select
-                label="Permission"
+                label={t("drawer.permission")}
                 {...form.getInputProps('permission')}
                 data={COMMAND_PERMS.map((value) => ({
                   value,
@@ -213,22 +209,25 @@ export const CommandDrawer: React.FC<Props> = (props) => {
             </div>
 
             <div>
-              <Flex direction="row" gap={5} wrap="wrap">
-                {switches.map(({ prop, ...rest }, i) => (
-                  <Switch
-                    key={i}
-                    labelPosition="left"
-                    {...rest}
-                    {...form.getInputProps(prop, { type: 'checkbox' })}
-                  />
+              <Grid>
+                {switches.map(({ prop }, i) => (
+                  <Grid.Col span={12}>
+                    <Switch
+                      key={i}
+                      labelPosition="left"
+                      label={t(`drawer.switches.${prop}.name`)}
+                      description={t(`drawer.switches.${prop}.description`)}
+                      {...form.getInputProps(prop, { type: 'checkbox' })}
+                    />
+                  </Grid.Col>
                 ))}
-              </Flex>
+              </Grid>
             </div>
 
             {form.values.module === 'CUSTOM' && (
               <div style={{ width: 450 }}>
                 <Flex direction="row" gap="xs">
-                  <Text>Responses</Text>
+                  <Text>{t("drawer.responses.name")}</Text>
                   <ActionIcon variant="light" color="green" size="xs">
                     <IconPlus
                       size={18}
@@ -239,7 +238,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                   </ActionIcon>
                 </Flex>
                 {!form.getInputProps('responses').value?.length && (
-                  <Alert>No responses added</Alert>
+                  <Alert>{t("drawer.responses.emptyAlert")}</Alert>
                 )}
                 <DragDropContext
                   onDragEnd={({ destination, source }) =>

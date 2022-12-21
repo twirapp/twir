@@ -2,6 +2,7 @@ package lastfm
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"net/http"
 
 	"github.com/davecgh/go-spew/spew"
@@ -75,8 +76,11 @@ func handleAuth(services types.Services) (string, error) {
 		Where("service = ?", "LASTFM").
 		First(&neededIntegration).
 		Error
-	if err != nil || neededIntegration.ID == "" {
-		return "", fiber.NewError(http.StatusNotFound, "integration not found")
+	if err != nil && err == gorm.ErrRecordNotFound {
+		return "", fiber.NewError(
+			404,
+			"lastfm not enabled on our side. Please be patient.",
+		)
 	}
 
 	return fmt.Sprintf(
@@ -94,7 +98,7 @@ func handleProfile(channelId string, services types.Services) (*LastfmProfile, e
 	}
 
 	if integration == nil {
-		return nil, fiber.NewError(http.StatusNotFound, "integration not found")
+		return nil, nil
 	}
 
 	api := lfm.New(

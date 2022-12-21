@@ -6,7 +6,14 @@ import { GreetingDrawer } from '../components/greetings/drawer';
 import { type Greeting, useGreetingsManager } from '../services/api';
 
 import { confirmDelete } from '@/components/confirmDelete';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
+// @ts-ignore
+export const getServerSideProps = async ({ locale }) => ({
+    props: {
+        ...(await serverSideTranslations(locale, ['common', 'layout'])),
+    },
+});
 
 export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);

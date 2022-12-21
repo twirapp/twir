@@ -158,7 +158,7 @@ export function SideBar({ opened }: { opened: boolean }) {
               <Avatar src={selectedDashboard?.twitchUser.profile_image_url} radius="xl" />
               <Box sx={{ flex: 1 }}>
                 <Text size="xs" weight={500}>
-                  {t('manage')}
+                  {t('sidebar.manage')}
                 </Text>
                 <Text color="dimmed" size="xs">
                   {selectedDashboard?.twitchUser.display_name}

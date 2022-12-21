@@ -20,9 +20,10 @@ import { useCommandManager } from '@/services/api';
 
 type Module = keyof typeof CommandModule;
 
+// @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale, ['commands'])),
+    ...(await serverSideTranslations(locale, ['commands', 'layout'])),
   },
 });
 
@@ -71,14 +72,14 @@ export default function Commands() {
       <Table>
         <thead>
           <tr>
-            <th>Name</th>
+            <th>{t('table.head.name')}</th>
             {viewPort.width > 550 && (
               <>
-                <th>Responses</th>
-                <th>Status</th>
+                <th>{t('table.head.responses')}</th>
+                <th>{t('table.head.status')}</th>
               </>
             )}
-            <th>Actions</th>
+            <th>{t('table.head.actions')}</th>
           </tr>
         </thead>
 
