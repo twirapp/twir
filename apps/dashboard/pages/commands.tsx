@@ -96,7 +96,7 @@ export default function Commands() {
                   {viewPort.width > 550 && (
                     <>
                       <td>
-                        {command.module != 'CUSTOM' && <Badge>This is built-in command</Badge>}
+                        {command.module != 'CUSTOM' && <Badge>{t("builtInBadge")}</Badge>}
                         {command.module === 'CUSTOM' &&
                           (command.responses?.map((r, i) => (
                             <p key={i} style={{ margin: 0 }}>

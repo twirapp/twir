@@ -10,6 +10,7 @@
   },
   "name": "Имя",
   "responses": "Ответы",
+  "builtInBadge": "Это встроенная команда",
   "table": {
     "head": {
       "status": "Статус",

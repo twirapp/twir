@@ -10,6 +10,7 @@
   },
   "name": "Name",
   "responses": "Responses",
+  "builtInBadge": "This is built-in command",
   "table": {
     "head": {
       "status": "Status",

@@ -17,6 +17,7 @@ import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import { useEffect } from 'react';
 
 import { useKeywordsManager } from '@/services/api';
+import {useTranslation} from "next-i18next";
 
 type Props = {
   opened: boolean;
@@ -44,6 +45,7 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
     },
   });
   const viewPort = useViewportSize();
+  const { t } = useTranslation("keywords")
 
   useEffect(() => {
     form.reset();
@@ -71,7 +73,7 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
       onClose={() => props.setOpened(false)}
       title={
         <Button size="xs" color="green" onClick={onSubmit}>
-          Save
+          {t("drawer.save")}
         </Button>
       }
       padding="xl"
@@ -85,33 +87,23 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
-            <TextInput {...form.getInputProps('text')} label="Trigger" required w="100%" />
-            <Switch label="Regular expression" {...form.getInputProps('isRegular')} />
+            <TextInput {...form.getInputProps('text')} label={t("trigger")} required w="100%" />
+            <Switch label={t("drawer.isRegular")} {...form.getInputProps('isRegular')} />
             {form.values.isRegular && (
               <Alert>
-                We use <b>Golang</b> as backend. So your expressions also should be for golang.
+                {t("drawer.expressionAlert")}
               </Alert>
             )}
             <Textarea
               {...form.getInputProps('response')}
-              label="Response"
+              label={t("response")}
               autosize={true}
               w="100%"
             />
-            <NumberInput label="Cooldown" required {...form.getInputProps('cooldown')} />
-            <NumberInput label="Used times" {...form.getInputProps('usages')} />
+            <NumberInput label={t("cooldown")} required {...form.getInputProps('cooldown')} />
+            <NumberInput label={t("usages")} {...form.getInputProps('usages')} />
 
-            <Switch label="Use twitch reply feature" {...form.getInputProps('isReply')} />
-            {props.keyword?.id && (
-              <Alert>
-                You can access that counter in your commands via{' '}
-                <b>
-                  $(keywords.counter|
-                  {props.keyword?.id})
-                </b>{' '}
-                variable.
-              </Alert>
-            )}
+            <Switch label={t("drawer.useReply")} {...form.getInputProps('isReply')} />
           </Flex>
         </form>
       </ScrollArea.Autosize>

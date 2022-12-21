@@ -17,17 +17,19 @@ import { confirmDelete } from '@/components/confirmDelete';
 import { KeywordDrawer } from '@/components/keywords/drawer';
 import { useKeywordsManager } from '@/services/api';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import {useTranslation} from "next-i18next";
 
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale, ['common', 'layout'])),
+        ...(await serverSideTranslations(locale, ['keywords', 'layout'])),
     },
 });
 
 export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableKeyword, setEditableKeyword] = useState<ChannelKeyword | undefined>();
+  const { t } = useTranslation("keywords")
 
   const manager = useKeywordsManager();
   const { data: keywords } = manager.getAll();
@@ -35,7 +37,7 @@ export default function () {
   return (
     <div>
       <Flex direction="row" justify="space-between">
-        <Text size="lg">Keywords</Text>
+        <Text size="lg">{t("title")}</Text>
         <Button
           color="green"
           onClick={() => {
@@ -43,16 +45,17 @@ export default function () {
             setEditDrawerOpened(true);
           }}
         >
-          Create
+            {t("create")}
         </Button>
       </Flex>
       <Table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Usages</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th>{t("trigger")}</th>
+            <th>{t("response")}</th>
+            <th>{t("usages")}</th>
+            <th>{t("table.head.status")}</th>
+            <th>{t("table.head.actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -62,6 +65,7 @@ export default function () {
                 <td>
                   <Badge>{keyword.text}</Badge>
                 </td>
+                <td>{keyword.response}</td>
                 <td>
                   <Badge>{keyword.usages}</Badge>
                 </td>
@@ -78,7 +82,7 @@ export default function () {
                     <CopyButton value={`$(keywords.counter|${keyword.id})`}>
                       {({ copied, copy }) => (
                         <Tooltip
-                          label="Copy variable id for use in commands"
+                          label={t("copy")}
                           withArrow
                           position="bottom"
                         >
