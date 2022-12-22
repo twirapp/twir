@@ -60,7 +60,7 @@ export default function Commands() {
           {t('create')}
         </Button>
       </Flex>
-      <Tabs onTabChange={(n) => setActiveTab(n as Module)}>
+      <Tabs defaultValue={activeTab} onTabChange={(n) => setActiveTab(n as Module)}>
         <Tabs.List>
           <Tabs.Tab value="CUSTOM" icon={<IconPencilPlus size={14} />}>
             {t('tabs.custom')}
