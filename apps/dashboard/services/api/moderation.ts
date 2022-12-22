@@ -1,14 +1,17 @@
+import { useQuery } from '@tanstack/react-query';
 import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
-import useSWR from 'swr';
+import { getCookie } from 'cookies-next';
 
-import { swrAuthFetcher } from '@/services/api';
-import { useSelectedDashboard } from '@/services/dashboard';
+import { authFetcher } from '@/services/api';
+import { SELECTED_DASHBOARD_KEY, useSelectedDashboard } from '@/services/dashboard';
 
 export const useModerationSettings = () => {
-  const [selectedDashboard] = useSelectedDashboard();
+  const getUrl = () => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/moderation`;
 
-  return useSWR<ChannelModerationSetting[]>(
-    selectedDashboard ? `/api/v1/channels/${selectedDashboard.channelId}/moderation` : null,
-    swrAuthFetcher,
-  );
+  return {
+    getAll: useQuery<ChannelModerationSetting[]>({
+      queryKey: [getUrl()],
+      queryFn: () => authFetcher(getUrl()),
+    }),
+  };
 };

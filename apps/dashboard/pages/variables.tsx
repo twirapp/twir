@@ -1,14 +1,15 @@
 import { ActionIcon, Badge, Button, CopyButton, Flex, Table, Text, Tooltip } from '@mantine/core';
 import { IconCopy, IconPencil, IconTrash } from '@tabler/icons';
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { VariableDrawer } from '@/components/variables/drawer';
-import { useVariablesManager } from '@/services/api';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import {useTranslation} from "next-i18next";
+import { variablesManager } from '@/services/api';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
     props: {
@@ -19,15 +20,14 @@ export const getServerSideProps = async ({ locale }) => ({
 export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableVariable, setEditableVariable] = useState<ChannelCustomvar | undefined>();
-  const { t } = useTranslation("variables")
+  const { t } = useTranslation('variables');
 
-  const manager = useVariablesManager();
-  const { data: variables } = manager.getCreated();
+  const { data: variables } = variablesManager.getAll;
 
   return (
     <div>
       <Flex direction="row" justify="space-between">
-        <Text size="lg">{t("title")}</Text>
+        <Text size="lg">{t('title')}</Text>
         <Button
           color="green"
           onClick={() => {
@@ -35,16 +35,16 @@ export default function () {
             setEditDrawerOpened(true);
           }}
         >
-            {t("create")}
+            {t('create')}
         </Button>
       </Flex>
       <Table>
         <thead>
           <tr>
-            <th>{t("name")}</th>
-            <th>{t("type")}</th>
-            <th>{t("response")}</th>
-            <th>{t("table.head.actions")}</th>
+            <th>{t('name')}</th>
+            <th>{t('type')}</th>
+            <th>{t('response')}</th>
+            <th>{t('table.head.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -60,7 +60,7 @@ export default function () {
                 <td>
                   {variable.type === 'TEXT' && <Badge>{variable.response}</Badge>}
                   {variable.type !== 'TEXT' && (
-                    <Badge color="red">{t("table.scriptAlert")}</Badge>
+                    <Badge color="red">{t('table.scriptAlert')}</Badge>
                   )}
                 </td>
                 <td>
@@ -68,7 +68,7 @@ export default function () {
                     <CopyButton value={`$(customvar|${variable.name})`}>
                       {({ copied, copy }) => (
                         <Tooltip
-                          label={t("table.copy")}
+                          label={t('table.copy')}
                           withArrow
                           position="bottom"
                         >
@@ -96,7 +96,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => manager.delete(variable.id),
+                          onConfirm: () => variablesManager.delete.mutate(variable.id),
                         })
                       }
                       variant="filled"

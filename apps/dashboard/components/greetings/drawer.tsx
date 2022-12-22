@@ -12,10 +12,10 @@ import {
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
+import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 
-import { useGreetingsManager, type Greeting } from '@/services/api';
-import {useTranslation} from "next-i18next";
+import { greetingsManager, type Greeting } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -38,9 +38,9 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
     },
   });
   const viewPort = useViewportSize();
-  const { t } = useTranslation("greetings")
+  const { t } = useTranslation('greetings');
 
-  const manager = useGreetingsManager();
+  const manager = greetingsManager();
 
   useEffect(() => {
     form.reset();
@@ -66,7 +66,7 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
       onClose={() => props.setOpened(false)}
       title={
         <Button size="xs" color="green" onClick={onSubmit}>
-          {t("drawer.save")}
+          {t('drawer.save')}
         </Button>
       }
       padding="xl"
@@ -80,15 +80,15 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
-            <TextInput label={t("userName")} required {...form.getInputProps('userName')} />
+            <TextInput label={t('userName')} required {...form.getInputProps('userName')} />
             <Textarea
-              label={t("message")}
+              label={t('message')}
               required
               w="100%"
               {...form.getInputProps('text')}
             />
             <Switch
-              label={t("drawer.useReply")}
+              label={t('drawer.useReply')}
               {...form.getInputProps('isReply', { type: 'checkbox' })}
             />
           </Flex>

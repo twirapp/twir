@@ -1,20 +1,24 @@
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { AuthUser } from '@tsuwari/shared';
-import useSWR from 'swr';
-import useSWRMutation from 'swr/mutation';
+import { getCookie } from 'cookies-next';
 
-import { swrAuthFetcher } from '@/services/api';
+import { authFetcher } from '@/services/api';
 import { authFetch } from '@/services/api';
+import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
 
-export const useProfile = () => {
-  return useSWR<AuthUser>('/api/auth/profile', swrAuthFetcher);
-};
+const getUrl = () => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/moderation`;
 
-export const useLogoutMutation = () =>
-  useSWRMutation('/api/user', async () => {
-    const res = await authFetch('/api/auth/logout', { method: 'POST' });
+export const useProfile = () => useQuery<AuthUser>({
+  queryKey: [getUrl()],
+  queryFn: () => authFetcher(getUrl()),
+});
 
-    if (res.ok) {
-      localStorage.removeItem('access_token');
-      window.location.replace(window.location.origin);
-    }
-  });
+export const useLogoutMutation = () => useMutation({
+  mutationFn: () => {
+    return authFetch('/api/auth/logout', { method: 'POST' });
+  },
+  onSuccess() {
+    localStorage.removeItem('access_token');
+    window.location.replace(window.location.origin);
+  },
+});

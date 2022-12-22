@@ -1,7 +1,7 @@
 import { useSWRConfig } from 'swr';
 import useSWR from 'swr';
 
-import { mutationOptions, swrAuthFetcher } from '../fetchWrappers';
+import { mutationOptions, authFetcher } from '../fetchWrappers';
 
 import { useSelectedDashboard } from '@/services/dashboard';
 
@@ -16,7 +16,7 @@ export const useFaceitIntegration = () => {
         selectedDashboard
           ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/faceit`
           : null,
-        swrAuthFetcher,
+        authFetcher,
       );
     },
     async getAuthLink(): Promise<string | undefined> {
@@ -25,7 +25,7 @@ export const useFaceitIntegration = () => {
       }
 
       try {
-        const data = await swrAuthFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/faceit/auth`);
+        const data = await authFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/faceit/auth`);
         return data;
       } catch {
         return;
@@ -36,7 +36,7 @@ export const useFaceitIntegration = () => {
         throw new Error('Cannot post code because dashboard not selected');
       }
 
-      await swrAuthFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/faceit`, {
+      await authFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/faceit`, {
         body: JSON.stringify({ code }),
         method: 'POST',
         headers: {
@@ -57,7 +57,7 @@ export const useFaceitIntegration = () => {
         throw new Error('Cannot post code because dashboard not selected');
       }
 
-      await swrAuthFetcher(
+      await authFetcher(
         `/api/v1/channels/${selectedDashboard.channelId}/integrations/faceit/logout`,
         {
           method: 'POST',

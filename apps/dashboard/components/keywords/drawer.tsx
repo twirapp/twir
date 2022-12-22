@@ -14,10 +14,10 @@ import {
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
+import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 
-import { useKeywordsManager } from '@/services/api';
-import {useTranslation} from "next-i18next";
+import { keywordsManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -45,7 +45,7 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
     },
   });
   const viewPort = useViewportSize();
-  const { t } = useTranslation("keywords")
+  const { t } = useTranslation('keywords');
 
   useEffect(() => {
     form.reset();
@@ -54,7 +54,7 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
     }
   }, [props.keyword]);
 
-  const manager = useKeywordsManager();
+  const manager = keywordsManager();
 
   async function onSubmit() {
     const validate = form.validate();
@@ -73,7 +73,7 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
       onClose={() => props.setOpened(false)}
       title={
         <Button size="xs" color="green" onClick={onSubmit}>
-          {t("drawer.save")}
+          {t('drawer.save')}
         </Button>
       }
       padding="xl"
@@ -87,23 +87,23 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
-            <TextInput {...form.getInputProps('text')} label={t("trigger")} required w="100%" />
-            <Switch label={t("drawer.isRegular")} {...form.getInputProps('isRegular')} />
+            <TextInput {...form.getInputProps('text')} label={t('trigger')} required w="100%" />
+            <Switch label={t('drawer.isRegular')} {...form.getInputProps('isRegular')} />
             {form.values.isRegular && (
               <Alert>
-                {t("drawer.expressionAlert")}
+                {t('drawer.expressionAlert')}
               </Alert>
             )}
             <Textarea
               {...form.getInputProps('response')}
-              label={t("response")}
+              label={t('response')}
               autosize={true}
               w="100%"
             />
-            <NumberInput label={t("cooldown")} required {...form.getInputProps('cooldown')} />
-            <NumberInput label={t("usages")} {...form.getInputProps('usages')} />
+            <NumberInput label={t('cooldown')} required {...form.getInputProps('cooldown')} />
+            <NumberInput label={t('usages')} {...form.getInputProps('usages')} />
 
-            <Switch label={t("drawer.useReply")} {...form.getInputProps('isReply')} />
+            <Switch label={t('drawer.useReply')} {...form.getInputProps('isReply')} />
           </Flex>
         </form>
       </ScrollArea.Autosize>

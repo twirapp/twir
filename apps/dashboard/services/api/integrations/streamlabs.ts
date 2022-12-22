@@ -1,7 +1,7 @@
 import { useSWRConfig } from 'swr';
 import useSWR from 'swr';
 
-import { mutationOptions, swrAuthFetcher } from '../fetchWrappers';
+import { mutationOptions, authFetcher } from '../fetchWrappers';
 
 import { useSelectedDashboard } from '@/services/dashboard';
 
@@ -20,7 +20,7 @@ export const useStreamLabsIntegration = () => {
         selectedDashboard
           ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/streamlabs`
           : null,
-        swrAuthFetcher,
+        authFetcher,
       );
     },
     async getAuthLink(): Promise<string | undefined> {
@@ -29,12 +29,12 @@ export const useStreamLabsIntegration = () => {
       }
 
       try {
-        const data = await swrAuthFetcher(
+        const data = await authFetcher(
           `/api/v1/channels/${selectedDashboard.channelId}/integrations/streamlabs/auth`,
         );
-        return data
+        return data;
       } catch {
-        return
+        return;
       }
     },
     async postCode(code: string) {
@@ -42,7 +42,7 @@ export const useStreamLabsIntegration = () => {
         throw new Error('Cannot post code because dashboard not slected');
       }
 
-      await swrAuthFetcher(
+      await authFetcher(
         `/api/v1/channels/${selectedDashboard.channelId}/integrations/streamlabs/token`,
         {
           body: JSON.stringify({ code }),
@@ -66,7 +66,7 @@ export const useStreamLabsIntegration = () => {
         throw new Error('Cannot post code because dashboard not slected');
       }
 
-      await swrAuthFetcher(
+      await authFetcher(
         `/api/v1/channels/${selectedDashboard.channelId}/integrations/streamlabs/logout`,
         {
           method: 'POST',

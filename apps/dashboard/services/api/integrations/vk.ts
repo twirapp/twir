@@ -1,7 +1,7 @@
 import { useSWRConfig } from 'swr';
 import useSWR from 'swr';
 
-import { mutationOptions, swrAuthFetcher } from '../fetchWrappers';
+import { mutationOptions, authFetcher } from '../fetchWrappers';
 
 import { useSelectedDashboard } from '@/services/dashboard';
 
@@ -22,7 +22,7 @@ export const useVkIntegration = () => {
         selectedDashboard
           ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/vk`
           : null,
-        swrAuthFetcher,
+        authFetcher,
       );
     },
     async getAuthLink(): Promise<string | undefined> {
@@ -31,10 +31,10 @@ export const useVkIntegration = () => {
       }
 
       try {
-        const data = await swrAuthFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/vk/auth`);
-        return data
+        const data = await authFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/vk/auth`);
+        return data;
       } catch {
-        return
+        return;
       }
     },
     async postCode(code: string) {
@@ -42,7 +42,7 @@ export const useVkIntegration = () => {
         throw new Error('Cannot post code because dashboard not slected');
       }
 
-      await swrAuthFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/vk`, {
+      await authFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/vk`, {
         body: JSON.stringify({ code }),
         method: 'POST',
         headers: {
@@ -63,7 +63,7 @@ export const useVkIntegration = () => {
         throw new Error('Cannot post code because dashboard not slected');
       }
 
-      await swrAuthFetcher(
+      await authFetcher(
         `/api/v1/channels/${selectedDashboard.channelId}/integrations/vk/logout`,
         {
           method: 'POST',

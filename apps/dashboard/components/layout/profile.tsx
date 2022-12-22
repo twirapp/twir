@@ -9,7 +9,7 @@ type Props = {
 };
 
 export function Profile(props: Props) {
-  const { trigger: logout } = useLogoutMutation();
+  const logout = useLogoutMutation();
 
   return (
     <div>
@@ -28,7 +28,7 @@ export function Profile(props: Props) {
           <Menu.Item
             color="red"
             icon={<IconLogout size={14} />}
-            onClick={() => logout('/api/auth/logout')}
+            onClick={() => logout.mutate()}
           >
             Logout
           </Menu.Item>

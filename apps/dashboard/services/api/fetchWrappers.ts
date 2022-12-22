@@ -3,11 +3,6 @@ import { printError } from './error';
 // Local storage key
 const ACCESS_TOKEN_KEY = 'access_token';
 
-export const mutationOptions = {
-  revalidate: false,
-  throwOnError: false,
-};
-
 /**
  * Wrapper for fetch function with bearer token authorization
  */
@@ -51,6 +46,17 @@ export const authFetch = async (
   return response;
 };
 
+export class FetcherError extends Error {
+  messages?: string;
+
+  constructor(data: string | Record<string, any>) {
+    super(typeof data === 'string' ? data : 'Query error');
+    if (typeof data === 'object') {
+      this.messages = data.messages;
+    }
+  }
+}
+
 /**
  * @returns Access token on success or Reponse object on error
  */
@@ -71,20 +77,16 @@ const createFetcher = (fetchFn = fetch) => {
   return async <T = any>(url: RequestInfo | URL, options?: RequestInit) => {
     const res = await fetchFn(url, options);
 
-    if (res.headers.get('content-type') !== 'application/json') {
-      throw new Error('Invalid data format, expected application/json');
-    }
-
-    const data = (await res.json()) as T;
+    const isJson = res.headers.get('content-type') == 'application/json';
+    const data = isJson ? await res.json() : await res.text();
 
     if (!res.ok) {
-      printError((data as any).messages || (data as any).message);
-      throw new Error(JSON.stringify(data));
+      throw new FetcherError(data);
     }
 
-    return data;
+    return data as T;
   };
 };
 
-export const swrFetcher = createFetcher();
-export const swrAuthFetcher = createFetcher(authFetch);
+export const fetcher = createFetcher();
+export const authFetcher = createFetcher(authFetch);

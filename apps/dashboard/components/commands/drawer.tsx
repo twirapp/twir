@@ -99,16 +99,21 @@ export const CommandDrawer: React.FC<Props> = (props) => {
     }
   }, [props.command]);
 
-  async function onSubmit() {
+  function onSubmit() {
     const validate = form.validate();
     if (validate.hasErrors) {
-      console.log(validate.errors);
       return;
     }
 
-    await manager.createOrUpdate(form.values);
-    props.setOpened(false);
+    manager.createOrUpdate.mutateAsync({
+      id: form.values.id,
+      data: form.values,
+    }).then(() => {
+      props.setOpened(false);
+      form.reset();
+    }).catch(() => {});
   }
+
 
   return (
     <Drawer

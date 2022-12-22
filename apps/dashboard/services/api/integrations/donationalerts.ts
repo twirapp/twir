@@ -2,7 +2,7 @@ import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration
 import { useSWRConfig } from 'swr';
 import useSWR from 'swr';
 
-import { mutationOptions, swrAuthFetcher } from '../fetchWrappers';
+import { mutationOptions, authFetcher } from '../fetchWrappers';
 
 import { useSelectedDashboard } from '@/services/dashboard';
 
@@ -21,7 +21,7 @@ export const useDonationAlertsIntegration = () => {
         selectedDashboard
           ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/donationalerts`
           : null,
-        swrAuthFetcher,
+        authFetcher,
       );
     },
     async getAuthLink(): Promise<string | undefined> {
@@ -30,12 +30,12 @@ export const useDonationAlertsIntegration = () => {
       }
 
       try {
-        const res = await swrAuthFetcher(
+        const res = await authFetcher(
             `/api/v1/channels/${selectedDashboard.channelId}/integrations/donationalerts/auth`,
-        )
-        return res
+        );
+        return res;
       } catch {
-        return
+        return;
       }
     },
     async postCode(code: string) {
@@ -43,7 +43,7 @@ export const useDonationAlertsIntegration = () => {
         throw new Error('Cannot post code because dashboard not slected');
       }
 
-      await swrAuthFetcher(
+      await authFetcher(
         `/api/v1/channels/${selectedDashboard.channelId}/integrations/donationalerts/token`,
         {
           body: JSON.stringify({ code }),
@@ -67,7 +67,7 @@ export const useDonationAlertsIntegration = () => {
         throw new Error('Cannot post code because dashboard not slected');
       }
 
-      await swrAuthFetcher(
+      await authFetcher(
         `/api/v1/channels/${selectedDashboard.channelId}/integrations/donationalerts/logout`,
         {
           method: 'POST',

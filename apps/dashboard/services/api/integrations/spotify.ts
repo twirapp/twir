@@ -2,7 +2,7 @@ import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration
 import { useSWRConfig } from 'swr';
 import useSWR from 'swr';
 
-import { mutationOptions, swrAuthFetcher } from '../fetchWrappers';
+import { mutationOptions, authFetcher } from '../fetchWrappers';
 
 import { useSelectedDashboard } from '@/services/dashboard';
 
@@ -22,7 +22,7 @@ export const useSpotifyIntegration = () => {
         selectedDashboard
           ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/profile`
           : null,
-        swrAuthFetcher,
+        authFetcher,
       );
     },
     async getAuthLink(): Promise<string | undefined> {
@@ -31,7 +31,7 @@ export const useSpotifyIntegration = () => {
       }
 
       try {
-        const data = await swrAuthFetcher(
+        const data = await authFetcher(
           `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/auth`,
         );
         return data;
@@ -44,7 +44,7 @@ export const useSpotifyIntegration = () => {
         throw new Error('Cannot post code because dashboard not selected');
       }
 
-      await swrAuthFetcher(
+      await authFetcher(
         `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/token`,
         {
           body: JSON.stringify({ code }),
@@ -68,7 +68,7 @@ export const useSpotifyIntegration = () => {
         throw new Error('Cannot post code because dashboard not selected');
       }
 
-      await swrAuthFetcher(
+      await authFetcher(
         `/api/v1/channels/${selectedDashboard.channelId}/integrations/spotify/logout`,
         {
           method: 'POST',

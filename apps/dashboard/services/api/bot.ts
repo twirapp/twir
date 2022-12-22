@@ -1,18 +1,17 @@
-import useSWR, { useSWRConfig } from 'swr';
+import { useQuery } from '@tanstack/react-query';
+import { getCookie } from 'cookies-next';
 
-import { swrAuthFetcher } from '@/services/api/fetchWrappers';
-import { useSelectedDashboard } from '@/services/dashboard';
+import { authFetcher } from '@/services/api/fetchWrappers';
+import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
 
 export const useBotApi = () => {
-  const [selectedDashboard] = useSelectedDashboard();
-  const { mutate } = useSWRConfig();
+  const getUrl = () => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/bot/checkmod`;
 
   return {
-    isMod() {
-      return useSWR<boolean>(
-        selectedDashboard ? `/api/v1/channels/${selectedDashboard.channelId}/bot/checkmod` : null,
-        swrAuthFetcher,
-      );
-    },
+    isMod: useQuery<boolean>({
+      queryKey: [getUrl()],
+      queryFn: () => authFetcher(getUrl()),
+      refetchInterval: 1000,
+    }),
   };
 };

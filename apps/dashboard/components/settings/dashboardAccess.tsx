@@ -1,25 +1,24 @@
 import { ActionIcon, Alert, Avatar, Box, NavLink, Popover, ScrollArea, Text } from '@mantine/core';
 import { IconPlus, IconShieldCheck, IconX } from '@tabler/icons';
+import { useTranslation } from 'next-i18next';
 import { useState } from 'react';
 
 import { confirmDelete } from '../confirmDelete';
-import { DashboardAccessDrawer } from './drawer';
 import { SettingsCard } from './card';
+import { DashboardAccessDrawer } from './drawer';
 
-import { useDashboardAccess } from '@/services/api/dashboardAcess';
-import {useTranslation} from "next-i18next";
+import { dashboardAccessManager } from '@/services/api';
 
 export const DashboardAccess: React.FC = () => {
-  const manager = useDashboardAccess();
   const [createDrawerOpened, setCreateDrawerOpened] = useState(false);
-  const { t } = useTranslation("settings")
+  const { t } = useTranslation('settings');
 
-  const { data } = manager.getAll();
+  const { data } = dashboardAccessManager.getAll;
 
   return (
     <div>
       <SettingsCard
-        title={t("dashboardAccess.title")}
+        title={t('dashboardAccess.title')}
         icon={IconShieldCheck}
         header={
           <ActionIcon onClick={() => setCreateDrawerOpened(true)}>
@@ -28,7 +27,7 @@ export const DashboardAccess: React.FC = () => {
         }
       >
         <Box component={ScrollArea} sx={{ width: '100%' }}>
-          {!data?.length && <Alert>{t("dashboardAccess.emptyAlert")}</Alert>}
+          {!data?.length && <Alert>{t('dashboardAccess.emptyAlert')}</Alert>}
           {!!data?.length &&
             data.map((d) => (
               <NavLink
@@ -39,7 +38,7 @@ export const DashboardAccess: React.FC = () => {
                 rightSection={<IconX size={20} stroke={1.5} />}
                 onClick={() => {
                   confirmDelete({
-                    onConfirm: () => manager.delete(d.id),
+                    onConfirm: () => dashboardAccessManager.delete.mutate(d.id),
                   });
                 }}
                 sx={{ width: '100%' }}

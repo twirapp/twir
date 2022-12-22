@@ -1,8 +1,7 @@
 import { useSWRConfig } from 'swr';
 import useSWR from 'swr';
 
-import { mutationOptions, swrAuthFetcher } from '@/services/api';
-
+import { mutationOptions, authFetcher } from '@/services/api';
 import { useSelectedDashboard } from '@/services/dashboard';
 
 export type LastfmProfile = {
@@ -21,7 +20,7 @@ export const useLastfmIntegration = () => {
         selectedDashboard
           ? `/api/v1/channels/${selectedDashboard.channelId}/integrations/lastfm/profile`
           : null,
-        swrAuthFetcher,
+        authFetcher,
       );
     },
     async getAuthLink(): Promise<string | undefined> {
@@ -30,12 +29,12 @@ export const useLastfmIntegration = () => {
       }
 
       try {
-        const data = await swrAuthFetcher(
+        const data = await authFetcher(
           `/api/v1/channels/${selectedDashboard.channelId}/integrations/lastfm/auth`,
         );
-        return data
+        return data;
       } catch {
-        return
+        return;
       }
     },
     async postToken(token: string) {
@@ -43,7 +42,7 @@ export const useLastfmIntegration = () => {
         throw new Error('Cannot post code because dashboard not slected');
       }
 
-      await swrAuthFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/lastfm`, {
+      await authFetcher(`/api/v1/channels/${selectedDashboard.channelId}/integrations/lastfm`, {
         body: JSON.stringify({ token }),
         method: 'POST',
         headers: {
@@ -64,7 +63,7 @@ export const useLastfmIntegration = () => {
         throw new Error('Cannot post code because dashboard not slected');
       }
 
-      await swrAuthFetcher(
+      await authFetcher(
         `/api/v1/channels/${selectedDashboard.channelId}/integrations/lastfm/logout`,
         {
           method: 'POST',

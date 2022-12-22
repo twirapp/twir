@@ -16,7 +16,7 @@ import { useReducer, useState } from 'react';
 import { CommandDrawer } from '../components/commands/drawer';
 
 import { confirmDelete } from '@/components/confirmDelete';
-import { useCommandManager } from '@/services/api';
+import { commandsManager } from '@/services/api';
 
 type Module = keyof typeof CommandModule;
 
@@ -37,14 +37,7 @@ export default function Commands() {
   const viewPort = useViewportSize();
   const { t } = useTranslation('commands');
 
-  const manager = useCommandManager();
-  const { data: commands  } = manager.getAll();
-
-  function updateCommand(commandId: string, data: Partial<ChannelCommand>) {
-    manager.patch(commandId, data).then(() => {
-      forceUpdate();
-    });
-  }
+  const { data: commands } = commandsManager().getAll;
 
   return (
     <div>
@@ -60,7 +53,7 @@ export default function Commands() {
           {t('create')}
         </Button>
       </Flex>
-      <Tabs defaultValue={activeTab} onTabChange={(n) => setActiveTab(n as Module)}>
+      <Tabs onTabChange={(n) => setActiveTab(n as Module)}>
         <Tabs.List>
           <Tabs.Tab value="CUSTOM" icon={<IconPencilPlus size={14} />}>
             {t('tabs.custom')}
@@ -116,7 +109,7 @@ export default function Commands() {
                       <td>
                         <Switch
                           checked={command.enabled}
-                          onChange={() => updateCommand(command.id, { enabled: !command.enabled })}
+                          onChange={() => commandsManager().patch.mutate({ id: command.id, data: { enabled: !command.enabled } })}
                         />
                       </td>
                     </>
@@ -137,7 +130,7 @@ export default function Commands() {
                         <ActionIcon
                           onClick={() =>
                             confirmDelete({
-                              onConfirm: () => manager.delete(command.id),
+                              onConfirm: () => commandsManager().delete.mutate(command.id),
                             })
                           }
                           variant="filled"

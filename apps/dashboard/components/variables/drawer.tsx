@@ -13,10 +13,10 @@ import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import Editor from '@monaco-editor/react';
 import { ChannelCustomvar, CustomVarType } from '@tsuwari/typeorm/entities/ChannelCustomvar';
+import { useTranslation } from 'next-i18next';
 import { useEffect, useRef } from 'react';
 
-import { useVariablesManager } from '@/services/api';
-import {useTranslation} from "next-i18next";
+import { variablesManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -38,7 +38,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
   });
   const viewPort = useViewportSize();
   const editorRef = useRef(null);
-  const { t } = useTranslation("variables")
+  const { t } = useTranslation('variables');
 
   function handleEditorDidMount(editor: any) {
     editorRef.current = editor;
@@ -51,7 +51,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
     }
   }, [props.variable]);
 
-  const manager = useVariablesManager();
+  const manager = variablesManager();
   async function onSubmit() {
     const validate = form.validate();
     if (validate.hasErrors) {
@@ -69,7 +69,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
       onClose={() => props.setOpened(false)}
       title={
         <Button size="xs" color="green" onClick={onSubmit}>
-          {t("drawer.save")}
+          {t('drawer.save')}
         </Button>
       }
       padding="xl"
@@ -83,9 +83,9 @@ export const VariableDrawer: React.FC<Props> = (props) => {
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
-            <TextInput label={t("name")} required {...form.getInputProps('name')} />
+            <TextInput label={t('name')} required {...form.getInputProps('name')} />
             <Select
-              label={t("type")}
+              label={t('type')}
               data={[
                 { value: 'SCRIPT', label: 'Script' },
                 { value: 'TEXT', label: 'Text' },
@@ -106,7 +106,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
               />
             )}
             {form.values.type === 'TEXT' && (
-              <Textarea label={t("response")} autosize={true} {...form.getInputProps('response')} />
+              <Textarea label={t('response')} autosize={true} {...form.getInputProps('response')} />
             )}
           </Flex>
         </form>

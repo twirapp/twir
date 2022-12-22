@@ -8,7 +8,7 @@ import { useBotApi } from '@/services/api/bot';
 export const BotWidget: React.FC = () => {
   const { t } = useTranslation('dashboard');
   const botApi = useBotApi();
-  const { data: isBotMod } = botApi.isMod();
+  const { data: isBotMod } = botApi.isMod;
 
   return <Grid grow>
     <Grid.Col span={4}>

@@ -8,8 +8,9 @@ import { useReducer, useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { TimerDrawer } from '@/components/timers/drawer';
-import { useTimersManager } from '@/services/api';
+import { timersManager } from '@/services/api';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
     props: {
@@ -24,8 +25,7 @@ export default function () {
   const viewPort = useViewportSize();
   const { t } = useTranslation('timers');
 
-  const manager = useTimersManager();
-  const { data: timers } = manager.getAll();
+  const { data: timers } = timersManager.getAll;
 
   return (
     <div>
@@ -76,8 +76,8 @@ export default function () {
                     <Switch
                       checked={timer.enabled}
                       onChange={(event) => {
-                        manager.patch(timer.id, { enabled: event.currentTarget.checked })
-                          .then(() => forceUpdate());
+                        timersManager.patch.mutate({ id: timer.id, data: { enabled: event.currentTarget.checked } });
+                          // .then(() => forceUpdate());
                       }}
                     />
                   </td>
@@ -98,7 +98,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => manager.delete(timer.id),
+                          onConfirm: () => timersManager.delete.mutate(timer.id),
                         })
                       }
                       variant="filled"

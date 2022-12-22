@@ -17,8 +17,9 @@ import { useReducer, useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { KeywordDrawer } from '@/components/keywords/drawer';
-import { useKeywordsManager } from '@/services/api';
+import { keywordsManager } from '@/services/api';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
     props: {
@@ -32,8 +33,7 @@ export default function () {
   const [editableKeyword, setEditableKeyword] = useState<ChannelKeyword | undefined>();
   const { t } = useTranslation('keywords');
 
-  const manager = useKeywordsManager();
-  const { data: keywords } = manager.getAll();
+  const { data: keywords } = keywordsManager.getAll;
 
   return (
     <div>
@@ -74,8 +74,8 @@ export default function () {
                   <Switch
                     checked={keyword.enabled}
                     onChange={(event) => {
-                      manager.patch(keyword.id, { enabled: event.currentTarget.checked })
-                        .then(() => forceUpdate());
+                      keywordsManager.patch.mutate({ id: keyword.id, data: { enabled: event.currentTarget.checked } });
+                        // .then(() => forceUpdate());
                     }}
                   />
                 </td>
@@ -112,7 +112,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => manager.delete(keyword.id),
+                          onConfirm: () => keywordsManager.delete.mutate(keyword.id),
                         })
                       }
                       variant="filled"

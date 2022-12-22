@@ -4,10 +4,10 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useReducer, useState } from 'react';
 
-import { GreetingDrawer } from '../components/greetings/drawer';
-import { type Greeting, useGreetingsManager } from '../services/api';
-
 import { confirmDelete } from '@/components/confirmDelete';
+import { GreetingDrawer } from '@/components/greetings/drawer';
+import { type Greeting, greetingsManager } from '@/services/api';
+
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -23,8 +23,7 @@ export default function () {
   const [editableGreeting, setEditableGreeting] = useState<Greeting | undefined>();
   const { t } = useTranslation('greetings');
 
-  const manager = useGreetingsManager();
-  const { data: greetings } = manager.getAll();
+  const { data: greetings } = greetingsManager.getAll;
 
   return (
     <div>
@@ -63,8 +62,8 @@ export default function () {
                   <Switch
                     checked={greeting.enabled}
                     onChange={(event) => {
-                      manager.patch(greeting.id, { enabled: event.currentTarget.checked })
-                          .then(() => forceUpdate());
+                      greetingsManager.patch.mutate({ id: greeting.id, data: { enabled: event.currentTarget.checked } });
+                          // .then(() => forceUpdate());
                     }}
                   />
                 </td>
@@ -84,7 +83,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => manager.delete(greeting.id),
+                          onConfirm: () => greetingsManager.delete.mutate(greeting.id),
                         })
                       }
                       variant="filled"
