@@ -9,7 +9,7 @@ export const mutationOptions = {
 };
 
 /**
- * Polifill for fetch function with bearer token authorization
+ * Wrapper for fetch function with bearer token authorization
  */
 export const authFetch = async (
   url: RequestInfo | URL,
@@ -67,28 +67,24 @@ const refreshAccessToken = async (): Promise<Response | string> => {
   return accessToken;
 };
 
-export const swrAuthFetcher = async (url: RequestInfo | URL, options?: RequestInit) => {
-  const req = await authFetch(url, options);
+const createFetcher = (fetchFn = fetch) => {
+  return async <T = any>(url: RequestInfo | URL, options?: RequestInit) => {
+    const res = await fetchFn(url, options);
 
-  const isJson = req.headers.get('content-type') === 'application/json';
-  const response = isJson ? await req.json() : await req.text();
-  if (!req.ok) {
-    printError(response.messages || response.message);
-    throw new Error(response);
-  }
+    if (res.headers.get('content-type') !== 'application/json') {
+      throw new Error('Invalid data format, expected application/json');
+    }
 
-  return response;
+    const data = (await res.json()) as T;
+
+    if (!res.ok) {
+      printError((data as any).messages || (data as any).message);
+      throw new Error(JSON.stringify(data));
+    }
+
+    return data;
+  };
 };
 
-export const swrFetcher = async (url: RequestInfo | URL, options?: RequestInit) => {
-  const req = await fetch(url, options);
-
-  const isJson = req.headers.get('content-type') === 'application/json';
-  const response = isJson ? await req.json() : await req.text();
-  if (!req.ok) {
-    printError(response.messages || response.message);
-    throw new Error(response);
-  }
-
-  return response;
-};
+export const swrFetcher = createFetcher();
+export const swrAuthFetcher = createFetcher(authFetch);
