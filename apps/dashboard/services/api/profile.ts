@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AuthUser } from '@tsuwari/shared';
-import { getCookie } from 'cookies-next';
+import { deleteCookie, getCookie } from 'cookies-next';
 
 import { authFetcher } from '@/services/api';
 import { authFetch } from '@/services/api';
@@ -17,6 +17,7 @@ export const useLogoutMutation = () => useMutation({
   },
   onSuccess() {
     localStorage.removeItem('access_token');
+    deleteCookie(SELECTED_DASHBOARD_KEY);
     window.location.replace(window.location.origin);
   },
 });
