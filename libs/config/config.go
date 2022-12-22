@@ -35,9 +35,11 @@ func New() (*Config, error) {
 
 	if strings.HasPrefix(wd, "/workspace") {
 		wd = "/workspace"
+	} else {
+		wd = path.Join(wd, "../..")
 	}
 
-	envPath := path.Join(wd, "../..", ".env")
+	envPath := path.Join(wd, ".env")
 	_ = godotenv.Load(envPath)
 
 	if err = envconfig.Process("", &newCfg); err != nil {
