@@ -13,7 +13,8 @@ export const DashboardAccess: React.FC = () => {
   const [createDrawerOpened, setCreateDrawerOpened] = useState(false);
   const { t } = useTranslation('settings');
 
-  const { data } = dashboardAccessManager.getAll;
+  const manager = dashboardAccessManager();
+  const { data } = manager.getAll;
 
   return (
     <div>
@@ -38,7 +39,7 @@ export const DashboardAccess: React.FC = () => {
                 rightSection={<IconX size={20} stroke={1.5} />}
                 onClick={() => {
                   confirmDelete({
-                    onConfirm: () => dashboardAccessManager.delete.mutate(d.id),
+                    onConfirm: () => manager.delete.mutate(d.id),
                   });
                 }}
                 sx={{ width: '100%' }}

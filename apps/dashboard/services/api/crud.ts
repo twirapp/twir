@@ -17,19 +17,20 @@ export type Greeting = ChannelGreeting & { userName: string };
 const getUrl = (system: string) => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/${system}`;
 
 interface Crud<T> {
-  getAll:  UseQueryResult<T[], unknown>
+  getAll: UseQueryResult<T[], unknown>
   delete: UseMutationResult<any, unknown, string, unknown>
   patch: UseMutationResult<any, unknown, {id: string, data: Partial<T>}, unknown>
   createOrUpdate: UseMutationResult<any, unknown, {id?: string | undefined, data: T}, unknown>
 }
 
-const cachedCruds: Map<string, Crud<any>> = new Map();
+// const cachedCruds: Map<string, Crud<any>> = new Map();
 
 const createCrudManager = <T extends { id: string }>(system: string): Crud<T> => {
-  if (cachedCruds.has(system)) {
-    return cachedCruds.get(system) as Crud<T>;
-  }
-  
+  // console.log(system, cachedCruds.has(system));
+  // if (cachedCruds.has(system)) {
+  //   return cachedCruds.get(system) as Crud<T>;
+  // }
+  //
   return {
     getAll: useQuery<T[]>({
       queryKey: [getUrl(system)],
@@ -98,7 +99,12 @@ const createCrudManager = <T extends { id: string }>(system: string): Crud<T> =>
             return [result];
           }
           const index = old?.findIndex(o => o.id === data.id);
-          old[index!] = result;
+          if (index && index != -1) {
+            old[index!] = result;
+          } else {
+            old.push(result);
+          }
+          console.log(old);
           return old;
         });
       },
@@ -112,4 +118,4 @@ export const greetingsManager = () => createCrudManager<Greeting>('greetings');
 export const keywordsManager =  () => createCrudManager<ChannelKeyword>('keywords');
 export const timersManager =  () => createCrudManager<ChannelTimer>('timers');
 export const variablesManager = () => createCrudManager<ChannelCustomvar>('variables');
-export const dashboardAccessManager = () => createCrudManager<Dashboard>('dashboard-access');
+export const dashboardAccessManager = () => createCrudManager<Dashboard>('settings/dashboard-access');

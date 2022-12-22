@@ -1,9 +1,10 @@
 import { Button, Drawer, Flex, TextInput, useMantineTheme } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { Dashboard } from '@tsuwari/shared';
+import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 
-import { useDashboardAccess } from '@/services/api';
-import {useTranslation} from "next-i18next";
+import { dashboardAccessManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -12,14 +13,15 @@ type Props = {
 
 export const DashboardAccessDrawer: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
-  const form = useForm<{ userName: string }>({
+  const form = useForm<{ userName: string, id?: string }>({
     initialValues: {
+      id: '',
       userName: '',
     },
   });
 
-  const { t } = useTranslation("settings")
-  const manager = useDashboardAccess();
+  const { t } = useTranslation('settings');
+  const manager = dashboardAccessManager();
 
   useEffect(() => {
     form.reset();
@@ -32,8 +34,13 @@ export const DashboardAccessDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    await manager.create(form.values.userName);
-    props.setOpened(false);
+    manager.createOrUpdate.mutateAsync({
+      id: form.values.id,
+      data: form.values as any,
+    }).then(() => {
+      props.setOpened(false);
+      form.reset();
+    }).catch(() => {});
   }
 
   return (
@@ -42,7 +49,7 @@ export const DashboardAccessDrawer: React.FC<Props> = (props) => {
       onClose={() => props.setOpened(false)}
       title={
         <Button size="xs" color="green" onClick={onSubmit}>
-          {t("dashboardAccess.drawer.save")}
+          {t('dashboardAccess.drawer.save')}
         </Button>
       }
       padding="xl"
@@ -55,7 +62,7 @@ export const DashboardAccessDrawer: React.FC<Props> = (props) => {
     >
       <form>
         <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
-          <TextInput {...form.getInputProps('userName')} label={t("dashboardAccess.drawer.userName")} required></TextInput>
+          <TextInput {...form.getInputProps('userName')} label={t('dashboardAccess.drawer.userName')} required></TextInput>
         </Flex>
       </form>
     </Drawer>

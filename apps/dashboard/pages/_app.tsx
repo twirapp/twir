@@ -44,7 +44,7 @@ const app = function App(props: AppProps) {
       <QueryClientProvider client={queryClient}>
         <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
           <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
-            <NotificationsProvider>
+            <NotificationsProvider position={'top-center'} limit={5}>
               <SpotlightProvider
                 actions={[]}
                 searchIcon={<IconSearch size={18} />}

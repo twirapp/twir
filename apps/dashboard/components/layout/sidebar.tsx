@@ -102,8 +102,6 @@ export function SideBar(props: Props) {
   useEffect(() => {
     if (!user) return;
 
-    console.log('user from sidebar', user);
-
     if (!selectedDashboard) {
       return setDefaultDashboard(user);
     }
