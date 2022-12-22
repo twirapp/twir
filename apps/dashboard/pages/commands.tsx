@@ -13,8 +13,7 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useReducer, useState } from 'react';
 
-import { CommandDrawer } from '../components/commands/drawer';
-
+import { CommandDrawer } from '@/components/commands/drawer';
 import { confirmDelete } from '@/components/confirmDelete';
 import { commandsManager } from '@/services/api';
 
@@ -29,15 +28,14 @@ export const getServerSideProps = async ({ locale }) => ({
 });
 
 export default function Commands() {
-  const [, forceUpdate] = useReducer(x => x + 1, 0);
-
   const [activeTab, setActiveTab] = useState<Module | null>('CUSTOM');
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableCommand, setEditableCommand] = useState<ChannelCommand | undefined>();
   const viewPort = useViewportSize();
   const { t } = useTranslation('commands');
 
-  const { data: commands } = commandsManager().getAll;
+  const manager = commandsManager();
+  const { data: commands } = manager.getAll;
 
   return (
     <div>
@@ -53,7 +51,7 @@ export default function Commands() {
           {t('create')}
         </Button>
       </Flex>
-      <Tabs onTabChange={(n) => setActiveTab(n as Module)}>
+      <Tabs defaultValue={'CUSTOM'} onTabChange={(n) => setActiveTab(n as Module)}>
         <Tabs.List>
           <Tabs.Tab value="CUSTOM" icon={<IconPencilPlus size={14} />}>
             {t('tabs.custom')}
@@ -109,7 +107,7 @@ export default function Commands() {
                       <td>
                         <Switch
                           checked={command.enabled}
-                          onChange={() => commandsManager().patch.mutate({ id: command.id, data: { enabled: !command.enabled } })}
+                          onChange={() => manager.patch.mutate({ id: command.id, data: { enabled: !command.enabled } })}
                         />
                       </td>
                     </>
@@ -130,7 +128,7 @@ export default function Commands() {
                         <ActionIcon
                           onClick={() =>
                             confirmDelete({
-                              onConfirm: () => commandsManager().delete.mutate(command.id),
+                              onConfirm: () => manager.delete.mutate(command.id),
                             })
                           }
                           variant="filled"

@@ -6,11 +6,9 @@ import { authFetcher } from '@/services/api';
 import { authFetch } from '@/services/api';
 import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
 
-const getUrl = () => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/moderation`;
-
 export const useProfile = () => useQuery<AuthUser>({
-  queryKey: [getUrl()],
-  queryFn: () => authFetcher(getUrl()),
+  queryKey: [`/api/auth/profile`],
+  queryFn: () => authFetcher(`/api/auth/profile`),
 });
 
 export const useLogoutMutation = () => useMutation({

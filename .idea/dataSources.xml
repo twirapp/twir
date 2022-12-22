@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:postgresql://localhost:54321/tsuwari</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="tsuwari@localhost" uuid="921810c3-8b83-4947-9e11-5ecdc4aab543">
+      <driver-ref>redis</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>jdbc.RedisDriver</jdbc-driver>
+      <jdbc-url>jdbc:redis://localhost:6385/0</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

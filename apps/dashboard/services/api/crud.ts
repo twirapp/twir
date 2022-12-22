@@ -1,5 +1,5 @@
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
 import { Dashboard } from '@tsuwari/shared';
 import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
@@ -16,7 +16,20 @@ export type Greeting = ChannelGreeting & { userName: string };
 
 const getUrl = (system: string) => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/${system}`;
 
-const createCrudManager = <T>(system: string) => {
+interface Crud<T> {
+  getAll:  UseQueryResult<T[], unknown>
+  delete: UseMutationResult<any, unknown, string, unknown>
+  patch: UseMutationResult<any, unknown, {id: string, data: Partial<T>}, unknown>
+  createOrUpdate: UseMutationResult<any, unknown, {id?: string | undefined, data: T}, unknown>
+}
+
+const cachedCruds: Map<string, Crud<any>> = new Map();
+
+const createCrudManager = <T extends { id: string }>(system: string): Crud<T> => {
+  if (cachedCruds.has(system)) {
+    return cachedCruds.get(system) as Crud<T>;
+  }
+  
   return {
     getAll: useQuery<T[]>({
       queryKey: [getUrl(system)],
@@ -54,9 +67,14 @@ const createCrudManager = <T>(system: string) => {
           },
         );
       },
-      onSuccess: (result) => {
+      onSuccess: (result, data) => {
         queryClient.setQueryData<T[]>([getUrl(system)], old => {
-          return [...old ?? [], result];
+          if (!old) {
+            return [result];
+          }
+          const index = old?.findIndex(o => o.id === data.id);
+          old[index!] = result;
+          return old;
         });
       },
       mutationKey: [getUrl(system)],
@@ -74,9 +92,14 @@ const createCrudManager = <T>(system: string) => {
           },
         );
       },
-      onSuccess: (result) => {
+      onSuccess: (result, data) => {
         queryClient.setQueryData<T[]>([getUrl(system)], old => {
-          return [...old ?? [], result];
+          if (!old) {
+            return [result];
+          }
+          const index = old?.findIndex(o => o.id === data.id);
+          old[index!] = result;
+          return old;
         });
       },
       mutationKey: [getUrl(system)],
@@ -84,9 +107,9 @@ const createCrudManager = <T>(system: string) => {
   };
 };
 
-export const commandsManager = createCrudManager<ChannelCommand>('commands');
-export const greetingsManager = createCrudManager<Greeting>('greetings');
-export const keywordsManager =  createCrudManager<ChannelKeyword>('keywords');
-export const timersManager =  createCrudManager<ChannelTimer>('timers');
-export const variablesManager = createCrudManager<ChannelCustomvar>('variables');
-export const dashboardAccessManager = createCrudManager<Dashboard>('dashboard-access');
+export const commandsManager = () => createCrudManager<ChannelCommand>('commands');
+export const greetingsManager = () => createCrudManager<Greeting>('greetings');
+export const keywordsManager =  () => createCrudManager<ChannelKeyword>('keywords');
+export const timersManager =  () => createCrudManager<ChannelTimer>('timers');
+export const variablesManager = () => createCrudManager<ChannelCustomvar>('variables');
+export const dashboardAccessManager = () => createCrudManager<Dashboard>('dashboard-access');

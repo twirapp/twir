@@ -1,31 +1,21 @@
-import {
-  AppShell,
-  ColorScheme,
-  ColorSchemeProvider,
-  MantineProvider,
-  useMantineTheme,
-} from '@mantine/core';
+import { AppShell, ColorScheme, ColorSchemeProvider, MantineProvider, useMantineTheme } from '@mantine/core';
 import { useColorScheme, useHotkeys, useLocalStorage } from '@mantine/hooks';
 import { ModalsProvider } from '@mantine/modals';
 import { NotificationsProvider } from '@mantine/notifications';
 import { SpotlightProvider } from '@mantine/spotlight';
 import { IconSearch } from '@tabler/icons';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { setCookie } from 'cookies-next';
 import { appWithTranslation } from 'next-i18next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import i18nconfig from '../next-i18next.config.js';
 
 import { AppProvider } from '@/components/appProvider';
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
-import { useProfile, queryClient } from '@/services/api';
-import { SELECTED_DASHBOARD_KEY, useSelectedDashboard } from '@/services/dashboard';
-import { useLocale } from '@/services/dashboard/useLocale';
+import { queryClient } from '@/services/api';
 
 const app = function App(props: AppProps) {
   const { Component, pageProps } = props;
@@ -43,6 +33,7 @@ const app = function App(props: AppProps) {
   useHotkeys([['mod+J', () => toggleColorScheme()]]);
 
   const theme = useMantineTheme();
+  const [sidebarOpened, setSidebarOpened] = useState(false);
 
   return (
     <>
@@ -50,16 +41,45 @@ const app = function App(props: AppProps) {
         <title>Tsuwari</title>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
       </Head>
-      <QueryClientProvider client={queryClient} contextSharing={true}>
-      <AppProvider><Component
-        styles={{
-          main: {
-            background:
-              colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
-          },
-        }}
-        {...pageProps}
-      /></AppProvider>
+      <QueryClientProvider client={queryClient}>
+        <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+          <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
+            <NotificationsProvider>
+              <SpotlightProvider
+                actions={[]}
+                searchIcon={<IconSearch size={18} />}
+                searchPlaceholder="Search..."
+                shortcut={['mod+k']}
+                nothingFoundMessage="Nothing found..."
+              >
+                <ModalsProvider>
+                  <AppShell
+                    styles={{
+                      main: {
+                        background:
+                          colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+                        padding: 0,
+                      },
+                    }}
+                    navbarOffsetBreakpoint="sm"
+                    asideOffsetBreakpoint="sm"
+                    navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened} />}
+                    header={<NavBar setOpened={setSidebarOpened} opened={sidebarOpened} />}
+                  >
+                    <AppProvider colorScheme={colorScheme}><Component
+                      styles={{
+                        main: {
+                          background:
+                            colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+                        },
+                      }}
+                    /></AppProvider>
+                  </AppShell>
+                </ModalsProvider>
+              </SpotlightProvider>
+            </NotificationsProvider>
+          </MantineProvider>
+        </ColorSchemeProvider>
       </QueryClientProvider>
     </>
   );

@@ -18,12 +18,12 @@ export const getServerSideProps = async ({ locale }) => ({
 });
 
 export default function () {
-  const [, forceUpdate] = useReducer(x => x + 1, 0);
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableGreeting, setEditableGreeting] = useState<Greeting | undefined>();
   const { t } = useTranslation('greetings');
 
-  const { data: greetings } = greetingsManager.getAll;
+  const manager = greetingsManager();
+  const { data: greetings } = manager.getAll;
 
   return (
     <div>
@@ -62,8 +62,7 @@ export default function () {
                   <Switch
                     checked={greeting.enabled}
                     onChange={(event) => {
-                      greetingsManager.patch.mutate({ id: greeting.id, data: { enabled: event.currentTarget.checked } });
-                          // .then(() => forceUpdate());
+                      manager.patch.mutate({ id: greeting.id, data: { enabled: event.currentTarget.checked } });
                     }}
                   />
                 </td>
@@ -83,7 +82,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => greetingsManager.delete.mutate(greeting.id),
+                          onConfirm: () => manager.delete.mutate(greeting.id),
                         })
                       }
                       variant="filled"

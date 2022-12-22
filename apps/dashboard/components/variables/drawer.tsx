@@ -59,8 +59,14 @@ export const VariableDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    await manager.createOrUpdate(form.values);
-    props.setOpened(false);
+    await manager.createOrUpdate.mutateAsync({
+      id: form.values.id,
+      data: form.values,
+    })
+      .then(() => {
+        props.setOpened(false);
+        form.reset();
+      }).catch(() => {});
   }
 
   return (

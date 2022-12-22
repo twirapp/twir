@@ -3,7 +3,7 @@ import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModer
 import { getCookie } from 'cookies-next';
 
 import { authFetcher } from '@/services/api';
-import { SELECTED_DASHBOARD_KEY, useSelectedDashboard } from '@/services/dashboard';
+import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
 
 export const useModerationSettings = () => {
   const getUrl = () => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/moderation`;

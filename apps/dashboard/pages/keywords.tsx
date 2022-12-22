@@ -28,12 +28,12 @@ export const getServerSideProps = async ({ locale }) => ({
 });
 
 export default function () {
-  const [, forceUpdate] = useReducer(x => x + 1, 0);
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableKeyword, setEditableKeyword] = useState<ChannelKeyword | undefined>();
   const { t } = useTranslation('keywords');
 
-  const { data: keywords } = keywordsManager.getAll;
+  const manager = keywordsManager();
+  const { data: keywords } = manager.getAll;
 
   return (
     <div>
@@ -74,8 +74,7 @@ export default function () {
                   <Switch
                     checked={keyword.enabled}
                     onChange={(event) => {
-                      keywordsManager.patch.mutate({ id: keyword.id, data: { enabled: event.currentTarget.checked } });
-                        // .then(() => forceUpdate());
+                      manager.patch.mutate({ id: keyword.id, data: { enabled: event.currentTarget.checked } });
                     }}
                   />
                 </td>
@@ -112,7 +111,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => keywordsManager.delete.mutate(keyword.id),
+                          onConfirm: () => manager.delete.mutate(keyword.id),
                         })
                       }
                       variant="filled"

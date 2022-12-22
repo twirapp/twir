@@ -19,13 +19,13 @@ export const getServerSideProps = async ({ locale }) => ({
 });
 
 export default function () {
-  const [, forceUpdate] = useReducer(x => x + 1, 0);
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableTimer, setEditableTimer] = useState<ChannelTimer | undefined>();
   const viewPort = useViewportSize();
   const { t } = useTranslation('timers');
 
-  const { data: timers } = timersManager.getAll;
+  const manager = timersManager();
+  const { data: timers } = manager.getAll;
 
   return (
     <div>
@@ -76,8 +76,7 @@ export default function () {
                     <Switch
                       checked={timer.enabled}
                       onChange={(event) => {
-                        timersManager.patch.mutate({ id: timer.id, data: { enabled: event.currentTarget.checked } });
-                          // .then(() => forceUpdate());
+                        manager.patch.mutate({ id: timer.id, data: { enabled: event.currentTarget.checked } });
                       }}
                     />
                   </td>
@@ -98,7 +97,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => timersManager.delete.mutate(timer.id),
+                          onConfirm: () => manager.delete.mutate(timer.id),
                         })
                       }
                       variant="filled"

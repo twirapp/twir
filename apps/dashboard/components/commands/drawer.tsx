@@ -31,7 +31,7 @@ import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-import { useCommandManager } from '@/services/api';
+import { commandsManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -90,7 +90,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
 
   const { t } = useTranslation('commands');
   const viewPort = useViewportSize();
-  const manager = useCommandManager();
+  const manager = commandsManager();
 
   useEffect(() => {
     form.reset();
