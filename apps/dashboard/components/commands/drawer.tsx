@@ -227,7 +227,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
             {form.values.module === 'CUSTOM' && (
               <div style={{ width: 450 }}>
                 <Flex direction="row" gap="xs">
-                  <Text>{t('name')}</Text>
+                  <Text>{t('responses')}</Text>
                   <ActionIcon variant="light" color="green" size="xs">
                     <IconPlus
                       size={18}
