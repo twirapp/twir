@@ -22,8 +22,6 @@ const cols = {
 };
 
 const Home: NextPage = () => {
-
-
   return (
     <Grid>
       <Grid.Col {...cols}><BotWidget /></Grid.Col>

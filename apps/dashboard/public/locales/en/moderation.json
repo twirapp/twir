@@ -5,7 +5,7 @@
     "symbols": "Remove messages containing disruptive or excessive use of symbols.",
     "longMessage": "Remove lengthy messages.",
     "caps": "Remove messages containing excessive amounts of capital letters.",
-    "emotes": "Remove messages containing an excessive amount of emotes.",
+    "emotes": "Remove messages containing an excessive amount of emotes."
   },
   "drawer": {
     "timeout": {

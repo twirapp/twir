@@ -1,9 +1,9 @@
 import { ActionIcon, Card, Divider, Flex, Grid, Group, Text } from '@mantine/core';
 import { IconPencil } from '@tabler/icons';
 import type { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
+import { useTranslation } from 'next-i18next';
 
 import { typesMapping } from './mapping';
-import {useTranslation} from "next-i18next";
 
 type Props = React.PropsWithChildren<{
   settings: ChannelModerationSetting;
@@ -12,7 +12,7 @@ type Props = React.PropsWithChildren<{
 }>;
 
 export const ModerationCard: React.FC<Props> = (props) => {
-  const { t } = useTranslation("moderation")
+  const { t } = useTranslation('moderation');
 
   return (
     <Grid grow>

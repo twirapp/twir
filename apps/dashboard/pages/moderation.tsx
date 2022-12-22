@@ -1,13 +1,14 @@
 import { Grid } from '@mantine/core';
 import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
 
 import { ModerationCard } from '../components/moderation/card';
 import { ModerationDrawer } from '../components/moderation/drawer';
 
 import { useModerationSettings } from '@/services/api';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
     props: {
