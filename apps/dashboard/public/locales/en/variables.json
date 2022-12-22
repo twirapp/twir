@@ -1,0 +1,17 @@
+{
+  "title": "Variables",
+  "create": "Create",
+  "name": "Name",
+  "type": "Type",
+  "response": "Response",
+  "table": {
+    "head": {
+      "actions": "Actions"
+    },
+    "scriptAlert": "Script cannot be displayed",
+    "copy": "Copy variable for usage in commands"
+  },
+  "drawer": {
+    "save": "Save"
+  }
+}

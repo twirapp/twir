@@ -17,6 +17,7 @@ export const useLogoutMutation = () => useMutation({
   },
   onSuccess() {
     localStorage.removeItem('access_token');
+    localStorage.removeItem(SELECTED_DASHBOARD_KEY);
     deleteCookie(SELECTED_DASHBOARD_KEY);
     window.location.replace(window.location.origin);
   },
