@@ -61,7 +61,7 @@ const app = function App(props: AppProps) {
   useHotkeys([['mod+J', () => toggleColorScheme()]]);
 
   const theme = useMantineTheme();
-  const [opened, setOpened] = useState(false);
+  const [sidebarOpened, setSidebarOpened] = useState(false);
 
   return (
     <>
@@ -94,8 +94,8 @@ const app = function App(props: AppProps) {
                     }}
                     navbarOffsetBreakpoint="sm"
                     asideOffsetBreakpoint="sm"
-                    navbar={<SideBar opened={opened} />}
-                    header={<NavBar setOpened={setOpened} opened={opened} />}
+                    navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened} />}
+                    header={<NavBar setOpened={setSidebarOpened} opened={sidebarOpened} />}
                   >
                     <Component
                       styles={{

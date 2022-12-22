@@ -43,7 +43,12 @@ const navigationLinks: Array<{ label: string; icon: TablerIcon; path: string }> 
   { label: 'Greetings', icon: IconSpeakerphone, path: '/greetings' },
 ];
 
-export function SideBar({ opened }: { opened: boolean }) {
+type Props = {
+  opened: boolean,
+  setOpened: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export function SideBar(props: Props) {
   const viewPort = useViewportSize();
   const router = useRouter();
   const theme = useMantineTheme();
@@ -100,11 +105,6 @@ export function SideBar({ opened }: { opened: boolean }) {
     if (!selectedDashboard) {
       return setDefaultDashboard(user);
     }
-
-    if (user.dashboards.some((d) => d.id === selectedDashboard.id)) {
-      // set default dashboard if user no more have access to selected dashbaord
-      // setDefaultDashboard();
-    }
   }, [user]);
 
   const links = navigationLinks.map((item) => (
@@ -116,13 +116,14 @@ export function SideBar({ opened }: { opened: boolean }) {
       onClick={(e) => {
         e.preventDefault();
         router.push(item.path ? item.path : item.label.toLowerCase());
+        props.setOpened(false);
       }}
       sx={{ width: '100%' }}
     />
   ));
 
   return (
-    <Navbar hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 150, lg: 250 }}>
+    <Navbar hiddenBreakpoint="sm" hidden={!props.opened} width={{ sm: 150, lg: 250 }}>
       <Navbar.Section grow>
         <ScrollArea.Autosize
           maxHeight={viewPort.height - 120}
