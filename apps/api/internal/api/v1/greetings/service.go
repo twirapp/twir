@@ -93,6 +93,7 @@ func handlePost(
 	return &Greeting{
 		ChannelsGreetings: *greeting,
 		UserName:          twitchUser.Login,
+		Avatar:            twitchUser.ProfileImageURL,
 	}, nil
 }
 
