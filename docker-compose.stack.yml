@@ -10,7 +10,6 @@ services:
     networks:
       - tsuwari
     deploy:
-      endpoint_mode: dnsrr
       placement:
         constraints:
           - node.role == manager
@@ -29,10 +28,6 @@ services:
       - tsuwari_postgres_db
     networks:
       - tsuwari
-    ports:
-      - target: 5432
-        published: 54322
-        mode: host
     deploy:
       restart_policy:
         condition: any
@@ -112,7 +107,6 @@ services:
     networks:
       - tsuwari
     deploy:
-      endpoint_mode: dnsrr
       restart_policy:
         condition: on-failure
         delay: 30s
