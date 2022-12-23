@@ -6,6 +6,16 @@ export class nonNullableVarResponseAndEval1671194276298 implements MigrationInte
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TABLE "channels_customvars" ALTER COLUMN "evalValue" SET DEFAULT ''`);
         await queryRunner.query(`ALTER TABLE "channels_customvars" ALTER COLUMN "response" SET DEFAULT ''`);
+
+        await queryRunner.query(
+          `UPDATE "channels_customvars" SET "evalValue"=$1 WHERE "evalValue" IS NULL`,
+          [''],
+        );
+        await queryRunner.query(
+          `UPDATE "channels_customvars" SET "response"=$1 WHERE "response" IS NULL`,
+          [''],
+        );
+
         await queryRunner.query(`ALTER TABLE "channels_customvars" ALTER COLUMN "evalValue" SET NOT NULL`);
         await queryRunner.query(`ALTER TABLE "channels_customvars" ALTER COLUMN "response" SET NOT NULL`);
     }
