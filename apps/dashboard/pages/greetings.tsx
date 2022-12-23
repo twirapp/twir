@@ -22,8 +22,10 @@ export default function () {
   const [editableGreeting, setEditableGreeting] = useState<Greeting | undefined>();
   const { t } = useTranslation('greetings');
 
-  const manager = greetingsManager();
-  const { data: greetings } = manager.getAll;
+  const { useGetAll, useDelete, usePatch } = greetingsManager();
+  const { data: greetings } = useGetAll();
+  const patcher = usePatch();
+  const deleter = useDelete();
 
   return (
     <div>
@@ -66,7 +68,7 @@ export default function () {
                   <Switch
                     checked={greeting.enabled}
                     onChange={(event) => {
-                      manager.patch.mutate({ id: greeting.id, data: { enabled: event.currentTarget.checked } });
+                      patcher.mutate({ id: greeting.id, data: { enabled: event.currentTarget.checked } });
                     }}
                   />
                 </td>
@@ -86,7 +88,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => manager.delete.mutate(greeting.id),
+                          onConfirm: () => deleter.mutate(greeting.id),
                         })
                       }
                       variant="filled"

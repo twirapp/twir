@@ -22,8 +22,9 @@ export default function () {
   const [editableVariable, setEditableVariable] = useState<ChannelCustomvar | undefined>();
   const { t } = useTranslation('variables');
 
-  const manager = variablesManager();
-  const { data: variables } = manager.getAll;
+  const { useGetAll, useDelete } = variablesManager();
+  const { data: variables } = useGetAll();
+  const deleter = useDelete();
 
   return (
     <div>
@@ -97,7 +98,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => manager.delete.mutate(variable.id),
+                          onConfirm: () => deleter.mutate(variable.id),
                         })
                       }
                       variant="filled"

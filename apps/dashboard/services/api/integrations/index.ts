@@ -7,23 +7,23 @@ import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
 const getUrl = (system: string) => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/integrations/${system}`;
 
 export interface Integration<T> {
-  getIntegration: UseQueryResult<T, unknown>,
-  getAuthLink: UseQueryResult<string, unknown>,
-  postCode: UseMutationResult<any, unknown, { code: string }, unknown>,
-  logout: UseMutationResult<any, unknown, void, unknown>,
+  useData: () => UseQueryResult<T, unknown>,
+  useGetAuthLink: () => UseQueryResult<string, unknown>,
+  usePostCode: () => UseMutationResult<any, unknown, { code: string }, unknown>,
+  useLogout: () => UseMutationResult<any, unknown, void, unknown>,
 }
 
 const createIntegrationManager = <T>(system: string): Integration<T> => {
   return {
-    getIntegration: useQuery<T>({
+    useData: () => useQuery<T>({
       queryKey: [getUrl(system)],
       queryFn: () => authFetcher(getUrl(system)),
     }),
-    getAuthLink: useQuery<string>({
+    useGetAuthLink: () => useQuery<string>({
       queryKey: [`${getUrl(system)}/auth`],
       queryFn: () => authFetcher(`${getUrl(system)}/auth`),
     }),
-    postCode: useMutation({
+    usePostCode: () => useMutation({
       mutationFn: ({ code }) => {
         return authFetcher(
           getUrl(system),
@@ -41,7 +41,7 @@ const createIntegrationManager = <T>(system: string): Integration<T> => {
       },
       mutationKey: [getUrl(system)],
     }),
-    logout: useMutation({
+    useLogout: () => useMutation({
       mutationFn: () => {
         return authFetcher(
           `${getUrl(system)}/logout`,

@@ -8,7 +8,8 @@ import { useBotApi } from '@/services/api/bot';
 export const BotWidget: React.FC = () => {
   const { t } = useTranslation('dashboard');
   const botApi = useBotApi();
-  const { data: isBotMod } = botApi.isMod;
+  const { data: isBotMod } = botApi.isMod();
+  const manager = botApi.useChangeState();
 
   return <Grid grow>
     <Grid.Col span={4}>
@@ -27,10 +28,14 @@ export const BotWidget: React.FC = () => {
         <Card.Section p={'lg'} pt={0}>
           <Grid grow style={{ marginTop: 5 }}>
             <Grid.Col span={4}>
-              <Button variant="subtle" size="lg" w={'100%'} color={'red'} leftIcon={<IconLogin />}>Leave</Button>
+              <Button variant="subtle" size="lg" w={'100%'} color={'red'} leftIcon={<IconLogin />} onClick={() => {
+                manager.mutate('part');
+              }}>Leave</Button>
             </Grid.Col>
             <Grid.Col span={4}>
-              <Button variant="subtle" size="lg" w={'100%'} color={'teal'} leftIcon={<IconLogout />}>Join</Button>
+              <Button variant="subtle" size="lg" w={'100%'} color={'teal'} leftIcon={<IconLogout />} onClick={() => {
+                manager.mutate('join');
+              }}>Join</Button>
             </Grid.Col>
           </Grid>
         </Card.Section>

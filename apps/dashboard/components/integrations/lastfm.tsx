@@ -9,11 +9,12 @@ import { useLastfm } from '@/services/api/integrations';
 
 export const LastfmIntegration: React.FC = () => {
   const manager = useLastfm();
-  const { data: profile } = manager.getIntegration;
+  const { data: profile } = manager.useData();
   const { t } = useTranslation('integrations');
+  const logout = manager.useLogout();
 
   async function login() {
-    const { data } = manager.getAuthLink;
+    const { data } = manager.useGetAuthLink();
     if (data) {
       window.location.replace(data);
     }
@@ -32,7 +33,7 @@ export const LastfmIntegration: React.FC = () => {
               leftIcon={<IconLogout />}
               variant="outline"
               color="red"
-              onClick={() => manager.logout.mutate()}
+              onClick={() => logout.mutate()}
             >
               {t('logout')}
             </Button>

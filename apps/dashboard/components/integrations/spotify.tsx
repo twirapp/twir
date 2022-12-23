@@ -9,13 +9,14 @@ import { useSpotify } from '@/services/api/integrations';
 
 export const SpotifyIntegration: React.FC = () => {
   const manager = useSpotify();
+  const logout = manager.useLogout();
   const { t } = useTranslation('integrations');
 
   // const { data: integration } = manager.getIntegration();
-  const { data: profile } = manager.getIntegration;
+  const { data: profile } = manager.useData();
 
   async function login() {
-    const { data } = manager.getAuthLink;
+    const { data } = manager.useGetAuthLink();
     if (data) {
       window.location.replace(data);
     }
@@ -34,7 +35,7 @@ export const SpotifyIntegration: React.FC = () => {
               leftIcon={<IconLogout />}
               variant="outline"
               color="red"
-              onClick={() => manager.logout.mutate()}
+              onClick={() => logout.mutate()}
             >
               {t('logout')}
             </Button>

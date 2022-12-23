@@ -53,6 +53,7 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
   const viewPort = useViewportSize();
 
   const manager = useModerationSettings();
+  const updater = manager.update();
 
   function onSubmit() {
     const validate = form.validate();
@@ -68,7 +69,7 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
     }
     current![currentIndex!] = form.values;
 
-    manager.update.mutateAsync(current).then(() => {
+    updater.mutateAsync(current).then(() => {
       props.setOpened(false);
       form.reset();
     }).catch(noop);

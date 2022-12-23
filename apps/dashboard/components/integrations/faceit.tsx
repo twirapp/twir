@@ -10,9 +10,10 @@ const noAvatar = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAEBAQE
 
 export const FaceitIntegration: React.FC = () => {
   const manager = useFaceit();
-  const { data: profile } = manager.getIntegration;
+  const { data: profile } = manager.useData();
   const { t } = useTranslation('integrations');
-  const { data: authLink } = manager.getAuthLink;
+  const { data: authLink } = manager.useGetAuthLink();
+  const logout = manager.useLogout();
 
   async function login() {
     if (authLink) {
@@ -31,7 +32,7 @@ export const FaceitIntegration: React.FC = () => {
               leftIcon={<IconLogout />}
               variant="outline"
               color="red"
-              onClick={() => manager.logout.mutate()}
+              onClick={() => logout.mutate()}
             >
               {t('logout')}
             </Button>

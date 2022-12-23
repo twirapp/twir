@@ -9,11 +9,12 @@ import { useStreamlabs } from '@/services/api/integrations';
 
 export const StreamlabsIntegration: React.FC = () => {
   const manager = useStreamlabs();
-  const { data } = manager.getIntegration;
+  const logout = manager.useLogout();
+  const { data } = manager.useData();
   const { t } = useTranslation('integrations');
 
   async function login() {
-    const { data } = manager.getAuthLink;
+    const { data } = manager.useGetAuthLink();
     if (data) {
       window.location.replace(data);
     }
@@ -30,7 +31,7 @@ export const StreamlabsIntegration: React.FC = () => {
               leftIcon={<IconLogout />}
               variant="outline"
               color="red"
-              onClick={() => manager.logout.mutate()}
+              onClick={() => logout.mutate()}
             >
               {t('logout')}
             </Button>

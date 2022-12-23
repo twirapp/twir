@@ -98,3 +98,33 @@ func handleUpdate(
 
 	return &newKeyword, nil
 }
+
+func handlePatch(
+	channelId,
+	keywordId string,
+	dto *keywordPatchDto,
+	services types.Services,
+) (*model.ChannelsKeywords, error) {
+	keyword := model.ChannelsKeywords{}
+	err := services.DB.Where(`"channelId" = ? AND "id" = ?`, channelId, keywordId).
+		Find(&keyword).
+		Error
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	if keyword.ID == "" {
+		return nil, fiber.NewError(http.StatusNotFound, "keyword not found")
+	}
+
+	keyword.Enabled = *dto.Enabled
+
+	err = services.DB.Save(&keyword).Error
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update keyword")
+	}
+
+	return &keyword, nil
+}

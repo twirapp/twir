@@ -17,19 +17,19 @@ export type Greeting = ChannelGreeting & { userName: string, avatar?: string };
 const getUrl = (system: string) => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/${system}`;
 
 interface Crud<T> {
-  getAll: UseQueryResult<T[], unknown>
-  delete: UseMutationResult<any, unknown, string, unknown>
-  patch: UseMutationResult<any, unknown, {id: string, data: Partial<T>}, unknown>
-  createOrUpdate: UseMutationResult<any, unknown, {id?: string | undefined, data: T}, unknown>,
+  useGetAll: () => UseQueryResult<T[], unknown>
+  useDelete: () => UseMutationResult<any, unknown, string, unknown>
+  usePatch: () => UseMutationResult<any, unknown, {id: string, data: Partial<T>}, unknown>
+  useCreateOrUpdate: () => UseMutationResult<any, unknown, {id?: string | undefined, data: T}, unknown>,
 }
 
 const createCrudManager = <T extends { id: string }>(system: string): Crud<T> => {
   return {
-    getAll: useQuery<T[]>({
+    useGetAll: () => useQuery<T[]>({
       queryKey: [getUrl(system)],
       queryFn: () => authFetcher(getUrl(system)),
     }),
-    delete: useMutation({
+    useDelete: () => useMutation({
       mutationFn: (id: string) => {
         return authFetcher(
           `${getUrl(system)}/${id}`,
@@ -48,7 +48,7 @@ const createCrudManager = <T extends { id: string }>(system: string): Crud<T> =>
       },
       mutationKey: [getUrl(system)],
     }),
-    patch: useMutation({
+    usePatch: () => useMutation({
       mutationFn: ({ id, data }: { id: string, data:  Partial<T> }) => {
         return authFetcher(
           `${getUrl(system)}/${id}`,
@@ -73,7 +73,7 @@ const createCrudManager = <T extends { id: string }>(system: string): Crud<T> =>
       },
       mutationKey: [getUrl(system)],
     }),
-    createOrUpdate: useMutation({
+    useCreateOrUpdate: () => useMutation({
       mutationFn: ({ id, data }: { id?: string, data: T }) => {
         return authFetcher(
           `${getUrl(system)}/${id ?? ''}`,

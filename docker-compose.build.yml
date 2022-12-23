@@ -56,3 +56,9 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: migrations
+  dashboard:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: dashboard
+

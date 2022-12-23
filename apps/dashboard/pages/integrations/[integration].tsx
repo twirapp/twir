@@ -41,8 +41,9 @@ export default function Integration() {
       return;
     }
 
-    const manager = managers[integration];
-    manager.postCode.mutateAsync({ code: incomingCode }).finally(() => {
+    const { usePostCode } = managers[integration];
+    const poster = usePostCode();
+    poster.mutateAsync({ code: incomingCode }).finally(() => {
       router.push('/integrations');
     });
   }, [dashboard]);

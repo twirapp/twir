@@ -34,8 +34,10 @@ export default function Commands() {
   const viewPort = useViewportSize();
   const { t } = useTranslation('commands');
 
-  const manager = commandsManager();
-  const { data: commands } = manager.getAll;
+  const { useGetAll, usePatch, useDelete } = commandsManager();
+  const patcher = usePatch();
+  const deleter = useDelete();
+  const { data: commands } = useGetAll();
 
   return (
     <div>
@@ -107,7 +109,7 @@ export default function Commands() {
                       <td>
                         <Switch
                           checked={command.enabled}
-                          onChange={() => manager.patch.mutate({ id: command.id, data: { enabled: !command.enabled } })}
+                          onChange={() => patcher.mutate({ id: command.id, data: { enabled: !command.enabled } })}
                         />
                       </td>
                     </>
@@ -128,7 +130,7 @@ export default function Commands() {
                         <ActionIcon
                           onClick={() =>
                             confirmDelete({
-                              onConfirm: () => manager.delete.mutate(command.id),
+                              onConfirm: () => deleter.mutate(command.id),
                             })
                           }
                           variant="filled"

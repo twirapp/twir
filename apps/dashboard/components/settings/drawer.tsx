@@ -23,6 +23,7 @@ export const DashboardAccessDrawer: React.FC<Props> = (props) => {
 
   const { t } = useTranslation('settings');
   const manager = dashboardAccessManager();
+  const updater = manager.useCreateOrUpdate();
 
   useEffect(() => {
     form.reset();
@@ -35,7 +36,7 @@ export const DashboardAccessDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    manager.createOrUpdate.mutateAsync({
+    updater.mutateAsync({
       id: form.values.id,
       data: form.values as any,
     }).then(() => {

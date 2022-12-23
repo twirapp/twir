@@ -44,7 +44,9 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
   const viewPort = useViewportSize();
   const { t } = useTranslation('greetings');
 
-  const manager = greetingsManager();
+  const { useCreateOrUpdate } = greetingsManager();
+  const updater = useCreateOrUpdate();
+
   const variables = useVariables();
 
   useEffect(() => {
@@ -61,7 +63,7 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    await manager.createOrUpdate.mutateAsync({
+    await updater.mutateAsync({
       id: form.values.id,
       data: form.values,
     }).then(() => {

@@ -22,8 +22,10 @@ export default function () {
   const [editableKeyword, setEditableKeyword] = useState<ChannelKeyword | undefined>();
   const { t } = useTranslation('keywords');
 
-  const manager = keywordsManager();
-  const { data: keywords } = manager.getAll;
+  const { useGetAll, usePatch, useCreateOrUpdate, useDelete } = keywordsManager();
+  const { data: keywords } = useGetAll();
+  const patcher = usePatch();
+  const deleter = useDelete();
 
   return (
     <div>
@@ -64,7 +66,7 @@ export default function () {
                   <Switch
                     checked={keyword.enabled}
                     onChange={(event) => {
-                      manager.patch.mutate({ id: keyword.id, data: { enabled: event.currentTarget.checked } });
+                      patcher.mutate({ id: keyword.id, data: { enabled: event.currentTarget.checked } });
                     }}
                   />
                 </td>
@@ -101,7 +103,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => manager.delete.mutate(keyword.id),
+                          onConfirm: () => deleter.mutate(keyword.id),
                         })
                       }
                       variant="filled"

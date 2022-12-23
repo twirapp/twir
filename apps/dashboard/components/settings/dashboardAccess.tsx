@@ -14,7 +14,8 @@ export const DashboardAccess: React.FC = () => {
   const { t } = useTranslation('settings');
 
   const manager = dashboardAccessManager();
-  const { data } = manager.getAll;
+  const deleter = manager.useDelete();
+  const { data } = manager.useGetAll();
 
   return (
     <div>
@@ -40,7 +41,7 @@ export const DashboardAccess: React.FC = () => {
                   rightSection={<IconX size={20} stroke={1.5} />}
                   onClick={() => {
                     confirmDelete({
-                      onConfirm: () => manager.delete.mutate(d.id),
+                      onConfirm: () => deleter.mutate(d.id),
                     });
                   }}
                   sx={{ width: '100%' }}

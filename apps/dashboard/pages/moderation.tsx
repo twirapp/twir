@@ -20,7 +20,8 @@ export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableSettings, setEditableSettings] = useState<ChannelModerationSetting>({} as any);
 
-  const { data: settings } = useModerationSettings().getAll;
+  const manager = useModerationSettings();
+  const { data: settings } = manager.getAll();
 
   return (
     <div>

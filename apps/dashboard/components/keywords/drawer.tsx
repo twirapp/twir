@@ -55,7 +55,8 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
     }
   }, [props.keyword]);
 
-  const manager = keywordsManager();
+  const { useCreateOrUpdate } = keywordsManager();
+  const updater = useCreateOrUpdate();
 
   async function onSubmit() {
     const validate = form.validate();
@@ -64,7 +65,7 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    await manager.createOrUpdate.mutateAsync({
+    await updater.mutateAsync({
       id: form.values.id,
       data: form.values,
     })

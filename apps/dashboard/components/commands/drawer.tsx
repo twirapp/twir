@@ -92,7 +92,9 @@ export const CommandDrawer: React.FC<Props> = (props) => {
 
   const { t } = useTranslation('commands');
   const viewPort = useViewportSize();
-  const manager = commandsManager();
+  const { useCreateOrUpdate } = commandsManager();
+  const updater = useCreateOrUpdate();
+
   const variables = useVariables();
 
   useEffect(() => {
@@ -108,7 +110,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    manager.createOrUpdate.mutateAsync({
+    updater.mutateAsync({
       id: form.values.id,
       data: form.values,
     }).then(() => {

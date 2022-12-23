@@ -24,8 +24,10 @@ export default function () {
   const viewPort = useViewportSize();
   const { t } = useTranslation('timers');
 
-  const manager = timersManager();
-  const { data: timers } = manager.getAll;
+  const { useGetAll, usePatch, useDelete } = timersManager();
+  const { data: timers } = useGetAll();
+  const patcher = usePatch();
+  const deleter = useDelete();
 
   return (
     <div>
@@ -76,7 +78,7 @@ export default function () {
                     <Switch
                       checked={timer.enabled}
                       onChange={(event) => {
-                        manager.patch.mutate({ id: timer.id, data: { enabled: event.currentTarget.checked } });
+                        patcher.mutate({ id: timer.id, data: { enabled: event.currentTarget.checked } });
                       }}
                     />
                   </td>
@@ -97,7 +99,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => manager.delete.mutate(timer.id),
+                          onConfirm: () => deleter.mutate(timer.id),
                         })
                       }
                       variant="filled"
