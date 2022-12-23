@@ -43,8 +43,8 @@ export const VariableDrawer: React.FC<Props> = (props) => {
     }
   }, [props.variable, props.opened]);
 
-  const {  usePatch } = variablesManager();
-  const patcher = usePatch();
+  const {  useCreateOrUpdate } = variablesManager();
+  const updater = useCreateOrUpdate();
 
   async function onSubmit() {
     const validate = form.validate();
@@ -53,7 +53,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    await patcher.mutateAsync({
+    await updater.mutateAsync({
       id: form.values.id,
       data: form.values,
     })
