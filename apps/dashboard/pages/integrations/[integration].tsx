@@ -32,15 +32,17 @@ export default function Integration() {
       return;
     }
 
-    const { integration, code } = router.query;
+    const { integration, code, token } = router.query;
 
-    if (typeof code !== 'string' || !(code in managers)) {
+    const incomingCode = code ?? token;
+
+    if (typeof incomingCode !== 'string' || typeof integration !== 'string' || !(integration in managers)) {
       router.push('/integrations');
       return;
     }
 
-    const manager = managers[code];
-    manager.postCode.mutateAsync({ code }).finally(() => {
+    const manager = managers[integration];
+    manager.postCode.mutateAsync({ code: incomingCode }).finally(() => {
       router.push('/integrations');
     });
   }, [dashboard]);
