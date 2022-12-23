@@ -12,7 +12,9 @@ export default class _Document extends Document {
 
     return (
       <Html lang={currentLocale}>
-        <Head />
+        <Head>
+          <link rel="shortcut icon" href="/dashboard/TsuwariInCircle.svg" sizes="any" type="image/svg+xml" />
+        </Head>
         <body>
           <Main />
           <NextScript />

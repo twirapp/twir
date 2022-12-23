@@ -122,7 +122,7 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
                 {...form.getInputProps('warningMessage')}
                 w={'100%'}
               />
-              <NumberInput label={t('drawer.timeout.time')} {...form.getInputProps('banTime')} />
+              <NumberInput label={t('drawer.timeout.time')} {...form.getInputProps('banTime')} max={7890000} />
               <Grid>
                 {props.settings.type === 'links' && (
                   <Grid.Col>
@@ -153,6 +153,7 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
                   label={t('drawer.maxEmotes')}
                   required
                   {...form.getInputProps('triggerLength')}
+                  max={500}
                 />
               )}
               {props.settings.type === 'symbols' && (
@@ -160,6 +161,7 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
                   label={t('drawer.maxSymbols')}
                   required
                   {...form.getInputProps('maxPercentage')}
+                  max={100}
                 />
               )}
               {props.settings.type === 'caps' && (
@@ -167,6 +169,7 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
                   label={t('drawer.maxCaps')}
                   required
                   {...form.getInputProps('maxPercentage')}
+                  max={100}
                 />
               )}
               {props.settings.type === 'longMessage' && (
@@ -174,6 +177,7 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
                   label={t('drawer.maxLength')}
                   required
                   {...form.getInputProps('triggerLength')}
+                  max={100}
                 />
               )}
               {props.settings.type === 'blacklists' && <div>
