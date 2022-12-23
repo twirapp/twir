@@ -71,7 +71,7 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    const current = queryClient.getQueryData<ChannelCommand[]>([`/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/moderation`]);
+    const current = queryClient.getQueryData<ChannelModerationSetting[]>([`/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/moderation`]);
     const currentIndex = current?.findIndex(t => t.id === props.settings.id);
 
     if (!current) {
