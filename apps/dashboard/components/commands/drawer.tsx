@@ -33,7 +33,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { noop } from '../../util/chore';
 
-import { commandsManager } from '@/services/api';
+import { commandsManager, useVariables } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -93,6 +93,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
   const { t } = useTranslation('commands');
   const viewPort = useViewportSize();
   const manager = commandsManager();
+  const variables = useVariables();
 
   useEffect(() => {
     form.reset();
@@ -273,15 +274,33 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                                   autosize={true}
                                   minRows={1}
                                   rightSection={
-                                    <Menu position="bottom-end" shadow="md" width={200}>
+                                    <Menu position="bottom-end" shadow="md" width={250}>
                                       <Menu.Target>
                                         <ActionIcon variant="filled">
                                           <IconVariable size={18} />
                                         </ActionIcon>
                                       </Menu.Target>
+
                                       <Menu.Dropdown>
-                                        <Menu.Item>qwe</Menu.Item>
+                                        <ScrollArea h={200} type={'always'} offsetScrollbars>
+                                        {variables.data?.length && variables.data.map(v => (
+                                          <Menu.Item key={v.name} onClick={() => {
+                                            const insertValue = `${v.example ? v.example : v.name}`;
+                                            form.setFieldValue(
+                                              `responses.${index}.text`,
+                                              `${form.values.responses![index]!.text} $(${insertValue})`,
+                                            );
+                                          }}>
+                                            <Flex direction={'column'}>
+                                              <Text>{v.name}</Text>
+                                              <Text size={'xs'}>{v.description}</Text>
+                                            </Flex>
+                                          </Menu.Item>
+                                        ))}
+
+                                        </ScrollArea>
                                       </Menu.Dropdown>
+
                                     </Menu>
                                   }
                                   {...form.getInputProps(`responses.${index}.text`)}

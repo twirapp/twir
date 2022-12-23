@@ -195,10 +195,17 @@ func (c *parserGrpcServer) GetDefaultVariables(
 			if v.Example != nil {
 				example = *v.Example
 			}
+
+			visible := true
+			if v.Visible != nil {
+				visible = *v.Visible
+			}
+
 			return &parser.GetVariablesResponse_Variable{
 				Name:        v.Name,
 				Example:     example,
 				Description: desc,
+				Visible:     visible,
 			}
 		},
 	)

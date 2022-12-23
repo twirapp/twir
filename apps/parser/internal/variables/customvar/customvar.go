@@ -17,6 +17,7 @@ import (
 var Variable = types.Variable{
 	Name:        "customvar",
 	Description: lo.ToPtr("Custom variable"),
+	Visible:     lo.ToPtr(false),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 

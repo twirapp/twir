@@ -1,13 +1,25 @@
-import { Button, Drawer, Flex, ScrollArea, Switch, Textarea, TextInput, useMantineTheme } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Drawer,
+  Flex,
+  Menu,
+  ScrollArea,
+  Switch, Text,
+  Textarea,
+  TextInput,
+  useMantineTheme,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
+import { IconVariable } from '@tabler/icons';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 
 import { noop } from '../../util/chore';
 
-import { type Greeting, greetingsManager } from '@/services/api';
+import { type Greeting, greetingsManager, useVariables } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -33,6 +45,7 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
   const { t } = useTranslation('greetings');
 
   const manager = greetingsManager();
+  const variables = useVariables();
 
   useEffect(() => {
     form.reset();
@@ -82,6 +95,38 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
               label={t('message')}
               required
               w="100%"
+              autosize={true}
+              minRows={1}
+              rightSection={
+                <Menu position="right-end" shadow="md" width={250}>
+                  <Menu.Target>
+                    <ActionIcon variant="filled">
+                      <IconVariable size={18} />
+                    </ActionIcon>
+                  </Menu.Target>
+
+                  <Menu.Dropdown>
+                    <ScrollArea h={200} type={'always'} offsetScrollbars>
+                      {variables.data?.length && variables.data.map(v => (
+                        <Menu.Item key={v.name} onClick={() => {
+                          const insertValue = `${v.example ? v.example : v.name}`;
+                          form.setFieldValue(
+                            `text`,
+                            `${form.values.text} $(${insertValue})`,
+                          );
+                        }}>
+                          <Flex direction={'column'}>
+                            <Text>{v.name}</Text>
+                            <Text size={'xs'}>{v.description}</Text>
+                          </Flex>
+                        </Menu.Item>
+                      ))}
+
+                    </ScrollArea>
+                  </Menu.Dropdown>
+
+                </Menu>
+              }
               {...form.getInputProps('text')}
             />
             <Switch
