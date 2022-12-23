@@ -27,25 +27,28 @@ export const DashboardAccess: React.FC = () => {
           </ActionIcon>
         }
       >
-        <Box component={ScrollArea} sx={{ width: '100%' }}>
-          {!data?.length && <Alert>{t('dashboardAccess.emptyAlert')}</Alert>}
-          {!!data?.length &&
-            data.map((d) => (
-              <NavLink
-                key={d.id}
-                label={d.twitchUser.login}
-                description={d.twitchUser.display_name}
-                icon={<Avatar size={35} src={d.twitchUser.profile_image_url} />}
-                rightSection={<IconX size={20} stroke={1.5} />}
-                onClick={() => {
-                  confirmDelete({
-                    onConfirm: () => manager.delete.mutate(d.id),
-                  });
-                }}
-                sx={{ width: '100%' }}
-              />
-            ))}
-        </Box>
+        <ScrollArea type={'always'}>
+          <Box sx={{ width: '100%', height: 400 }}>
+            {!data?.length && <Alert>{t('dashboardAccess.emptyAlert')}</Alert>}
+            {!!data?.length &&
+              data.map((d) => (
+                <NavLink
+                  key={d.id}
+                  label={d.twitchUser.login}
+                  description={d.twitchUser.display_name}
+                  icon={<Avatar size={35} src={d.twitchUser.profile_image_url} />}
+                  rightSection={<IconX size={20} stroke={1.5} />}
+                  onClick={() => {
+                    confirmDelete({
+                      onConfirm: () => manager.delete.mutate(d.id),
+                    });
+                  }}
+                  sx={{ width: '100%' }}
+                />
+              ))}
+          </Box>
+        </ScrollArea>
+
       </SettingsCard>
 
       <DashboardAccessDrawer opened={createDrawerOpened} setOpened={setCreateDrawerOpened} />

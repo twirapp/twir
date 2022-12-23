@@ -12,7 +12,7 @@ type Props = React.PropsWithChildren<{
 export const IntegrationCard: React.FC<Props> = (props) => {
   return (
     <Grid grow>
-      <Grid.Col span={4}>
+      <Grid.Col span={4} >
         <Card>
           <Card.Section p="">
             <Flex gap="xs" direction="row" justify="space-between">
