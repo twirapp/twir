@@ -54,11 +54,14 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
   const viewPort = useViewportSize();
 
   const manager = useModerationSettings();
-  const updater = manager.update();
+  const updater = manager.useUpdate();
 
   useEffect(() => {
     form.reset();
-  }, [props.opened]);
+    if (props.settings) {
+      form.setValues(props.settings);
+    }
+  }, [props.opened, props.settings]);
 
   function onSubmit() {
     const validate = form.validate();

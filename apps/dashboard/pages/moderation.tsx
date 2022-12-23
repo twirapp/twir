@@ -21,7 +21,7 @@ export default function () {
   const [editableSettings, setEditableSettings] = useState<ChannelModerationSetting>({} as any);
 
   const manager = useModerationSettings();
-  const { data: settings } = manager.getAll();
+  const { data: settings } = manager.useGet();
 
   return (
     <div>

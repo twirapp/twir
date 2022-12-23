@@ -9,11 +9,11 @@ export const useModerationSettings = () => {
   const getUrl = () => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/moderation`;
 
   return {
-    getAll: () => useQuery<ChannelModerationSetting[]>({
+    useGet: () => useQuery<ChannelModerationSetting[]>({
       queryKey: [getUrl()],
       queryFn: () => authFetcher(getUrl()),
     }),
-    update: () => useMutation({
+    useUpdate: () => useMutation({
       mutationKey: [getUrl()],
       mutationFn: (data: ChannelModerationSetting[]) => {
         return authFetcher(
@@ -27,7 +27,7 @@ export const useModerationSettings = () => {
           },
         );
       },
-      onSuccess: (result, id, context) => {
+      onSuccess: (result) => {
         queryClient.setQueryData<ChannelModerationSetting[]>([getUrl()], old => {
           return result;
         });
