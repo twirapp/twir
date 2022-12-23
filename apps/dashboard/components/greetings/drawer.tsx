@@ -54,7 +54,7 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
     if (props.greeting) {
       form.setValues(props.greeting);
     }
-  }, [props.greeting]);
+  }, [props.greeting, props.opened]);
 
   async function onSubmit() {
     const validate = form.validate();

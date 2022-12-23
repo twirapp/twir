@@ -18,6 +18,7 @@ import { IconMinus, IconPlus } from '@tabler/icons';
 import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
 import { getCookie } from 'cookies-next';
 import { useTranslation } from 'next-i18next';
+import { useEffect } from 'react';
 
 import { noop } from '../../util/chore';
 
@@ -54,6 +55,10 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
 
   const manager = useModerationSettings();
   const updater = manager.update();
+
+  useEffect(() => {
+    form.reset();
+  }, [props.opened]);
 
   function onSubmit() {
     const validate = form.validate();

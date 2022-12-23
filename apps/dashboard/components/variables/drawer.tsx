@@ -41,7 +41,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
     if (props.variable) {
       form.setValues(props.variable);
     }
-  }, [props.variable]);
+  }, [props.variable, props.opened]);
 
   const {  usePatch } = variablesManager();
   const patcher = usePatch();

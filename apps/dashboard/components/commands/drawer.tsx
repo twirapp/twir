@@ -102,7 +102,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
     if (props.command) {
       form.setValues(props.command);
     }
-  }, [props.command]);
+  }, [props.command, props.opened]);
 
   function onSubmit() {
     const validate = form.validate();

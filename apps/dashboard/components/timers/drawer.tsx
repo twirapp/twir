@@ -64,7 +64,7 @@ export const TimerDrawer: React.FC<Props> = (props) => {
     if (props.timer) {
       form.setValues(props.timer);
     }
-  }, [props.timer]);
+  }, [props.timer, props.opened]);
 
   async function onSubmit() {
     const validate = form.validate();

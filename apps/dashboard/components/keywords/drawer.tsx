@@ -53,7 +53,7 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
     if (props.keyword) {
       form.setValues(props.keyword);
     }
-  }, [props.keyword]);
+  }, [props.keyword, props.opened]);
 
   const { useCreateOrUpdate } = keywordsManager();
   const updater = useCreateOrUpdate();
