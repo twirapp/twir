@@ -1,7 +1,6 @@
 import {
   ActionIcon,
   Alert,
-  Badge,
   Button,
   Center,
   Checkbox,
@@ -24,6 +23,8 @@ import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+
+import { noop } from '../../util/chore';
 
 import { timersManager } from '@/services/api';
 
@@ -77,7 +78,7 @@ export const TimerDrawer: React.FC<Props> = (props) => {
     }).then(() => {
       props.setOpened(false);
       form.reset();
-    }).catch(() => {});
+    }).catch(noop);
   }
 
   return (

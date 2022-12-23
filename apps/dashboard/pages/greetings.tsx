@@ -2,7 +2,7 @@ import { ActionIcon, Avatar, Badge, Button, Flex, Switch, Table, Text } from '@m
 import { IconPencil, IconTrash } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useReducer, useState } from 'react';
+import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { GreetingDrawer } from '@/components/greetings/drawer';

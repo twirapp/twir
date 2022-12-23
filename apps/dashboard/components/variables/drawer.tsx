@@ -1,20 +1,12 @@
-import {
-  Badge,
-  Button,
-  Drawer,
-  Flex,
-  ScrollArea,
-  Select,
-  Textarea,
-  TextInput,
-  useMantineTheme,
-} from '@mantine/core';
+import { Button, Drawer, Flex, ScrollArea, Select, Textarea, TextInput, useMantineTheme } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import Editor from '@monaco-editor/react';
 import { ChannelCustomvar, CustomVarType } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { useTranslation } from 'next-i18next';
 import { useEffect, useRef } from 'react';
+
+import { noop } from '../../util/chore';
 
 import { variablesManager } from '@/services/api';
 
@@ -67,7 +59,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
       .then(() => {
         props.setOpened(false);
         form.reset();
-      }).catch(() => {});
+      }).catch(noop);
   }
 
   return (

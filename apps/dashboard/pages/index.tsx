@@ -1,7 +1,6 @@
-import { Grid, useMantineTheme } from '@mantine/core';
+import { Grid } from '@mantine/core';
 import type { NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import Head from 'next/head';
 
 import { BotWidget } from '@/components/dashboard/bot';
 

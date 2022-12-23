@@ -1,21 +1,13 @@
-import {
-  Badge,
-  Button,
-  Drawer,
-  Flex,
-  ScrollArea,
-  Switch,
-  Textarea,
-  TextInput,
-  useMantineTheme,
-} from '@mantine/core';
+import { Button, Drawer, Flex, ScrollArea, Switch, Textarea, TextInput, useMantineTheme } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 
-import { greetingsManager, type Greeting } from '@/services/api';
+import { noop } from '../../util/chore';
+
+import { type Greeting, greetingsManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -62,7 +54,7 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
     }).then(() => {
       props.setOpened(false);
       form.reset();
-    }).catch(() => {});
+    }).catch(noop);
   }
 
   return (

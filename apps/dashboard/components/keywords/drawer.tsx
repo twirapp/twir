@@ -1,6 +1,5 @@
 import {
   Alert,
-  Badge,
   Button,
   Drawer,
   Flex,
@@ -16,6 +15,8 @@ import { useViewportSize } from '@mantine/hooks';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
+
+import { noop } from '../../util/chore';
 
 import { keywordsManager } from '@/services/api';
 
@@ -70,7 +71,7 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
       .then(() => {
         props.setOpened(false);
         form.reset();
-      }).catch(() => {});
+      }).catch(noop);
   }
 
   return (

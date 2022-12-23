@@ -12,7 +12,7 @@ import { authFetcher } from '@/services/api';
 import { queryClient } from '@/services/api';
 import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
 
-export type Greeting = ChannelGreeting & { userName: string, avatar: string };
+export type Greeting = ChannelGreeting & { userName: string, avatar?: string };
 
 const getUrl = (system: string) => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/${system}`;
 

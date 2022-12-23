@@ -18,6 +18,7 @@
     "start:streamstatus": "pnpm --filter=@tsuwari/streamstatus start",
     "start:watched": "pnpm --filter=@tsuwari/watched start",
     "start:web": "pnpm --filter=@tsuwari/web start",
+    "start:dashboard": "pnpm --filter=@tsuwari/dashboard start",
     "build": "turbo run build",
     "build:libs": "turbo run build --filter=./libs/**",
     "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/typeorm run deploy",

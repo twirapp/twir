@@ -158,16 +158,18 @@ ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["pnpm", "start:web"]
 
 FROM node_deps_base as dashboard_deps
-COPY --from=base /app/apps/frontend apps/frontend/
+COPY --from=base /app/apps/dashboard apps/dashboard/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/typeorm libs/typeorm/
-COPY --from=base /app/libs/config libs/config/
 RUN pnpm install --prod
 
-FROM devforth/spa-to-http:latest as dashboard
+FROM node_prod_base as dashboard
 WORKDIR /app
-COPY --from=dashboard_deps /app/apps/frontend/dist .
-EXPOSE 8080
+COPY --from=dashboard_deps /app/ /app/
+EXPOSE 3000
+COPY --from=base /app/docker-entrypoint.sh /app/
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["pnpm", "start:dashboard"]
 
 FROM alpine:latest as go_prod_base
 RUN apk add wget && \

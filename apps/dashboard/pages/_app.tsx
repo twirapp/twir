@@ -18,7 +18,7 @@ import { SideBar } from '@/components/layout/sidebar';
 import { queryClient } from '@/services/api';
 
 const app = function App(props: AppProps) {
-  const { Component, pageProps } = props;
+  const { Component } = props;
 
   const preferredColorScheme = useColorScheme();
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({

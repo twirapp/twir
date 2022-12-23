@@ -31,6 +31,8 @@ import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
+import { noop } from '../../util/chore';
+
 import { commandsManager } from '@/services/api';
 
 type Props = {
@@ -111,7 +113,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
     }).then(() => {
       props.setOpened(false);
       form.reset();
-    }).catch(() => {});
+    }).catch(noop);
   }
 
 

@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Divider, Flex, Grid, Group, Text } from '@mantine/core';
+import { Alert, Button, Card, Divider, Flex, Grid, Text } from '@mantine/core';
 import { IconLogin, IconLogout } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 import React from 'react';

@@ -1,17 +1,16 @@
 import {
   ActionIcon,
-  Badge,
+  Button,
   Drawer,
   Flex,
   Grid,
-  Group,
+  Input,
   NumberInput,
   ScrollArea,
   Switch,
+  Text,
   TextInput,
   useMantineTheme,
-  Text,
-  Input, Button,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
@@ -19,9 +18,8 @@ import { IconMinus, IconPlus } from '@tabler/icons';
 import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
 import { getCookie } from 'cookies-next';
 import { useTranslation } from 'next-i18next';
-import { useEffect, useState } from 'react';
 
-import { typesMapping } from './mapping';
+import { noop } from '../../util/chore';
 
 import { queryClient, useModerationSettings } from '@/services/api';
 import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
@@ -53,15 +51,6 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
     },
   });
   const viewPort = useViewportSize();
-  const [title, setTitle] = useState('');
-
-  useEffect(() => {
-    form.setValues(props.settings);
-    const titleValue = props.settings.type
-      ? typesMapping[props.settings.type]?.name ?? props.settings.type
-      : '';
-    setTitle(titleValue);
-  }, [props.settings]);
 
   const manager = useModerationSettings();
 
@@ -82,7 +71,7 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
     manager.update.mutateAsync(current).then(() => {
       props.setOpened(false);
       form.reset();
-    }).catch(() => {});
+    }).catch(noop);
   }
 
   return (

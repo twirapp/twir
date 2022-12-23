@@ -4,7 +4,7 @@ import { IconPencil, IconTrash } from '@tabler/icons';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useReducer, useState } from 'react';
+import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { TimerDrawer } from '@/components/timers/drawer';

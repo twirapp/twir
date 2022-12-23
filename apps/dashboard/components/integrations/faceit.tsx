@@ -1,5 +1,5 @@
-import { Group, Avatar, Text, Button, Flex, Alert } from '@mantine/core';
-import { IconBrandVk, IconLogin, IconLogout } from '@tabler/icons';
+import { Alert, Avatar, Button, Flex, Group, Text } from '@mantine/core';
+import { IconLogin, IconLogout } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 
 import { IntegrationCard } from './card';

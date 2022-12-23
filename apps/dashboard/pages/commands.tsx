@@ -11,7 +11,7 @@ import {
 import type { ChannelCommand, CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useReducer, useState } from 'react';
+import { useState } from 'react';
 
 import { CommandDrawer } from '@/components/commands/drawer';
 import { confirmDelete } from '@/components/confirmDelete';
@@ -88,7 +88,7 @@ export default function Commands() {
             commands.length &&
             commands
               .filter((c) => c.module === activeTab)
-              .map((command, commandIndex) => (
+              .map((command) => (
                 <tr key={command.id}>
                   <td>
                     <Badge>{command.name}</Badge>

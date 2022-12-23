@@ -1,22 +1,20 @@
 import {
-  Header,
-  Grid,
-  MediaQuery,
-  Burger,
   ActionIcon,
-  Text,
+  Burger,
   ColorScheme,
-  useMantineTheme,
   Flex,
+  Grid,
   Group,
+  Header,
   Loader,
+  MediaQuery,
   Menu,
+  Text,
+  useMantineTheme,
 } from '@mantine/core';
-import { useLocalStorage, useHotkeys, useMediaQuery } from '@mantine/hooks';
-import { IconSun, IconMoonStars } from '@tabler/icons';
-import { US, RU } from 'country-flag-icons/react/3x2';
-import { useTranslation } from 'next-i18next';
-import { useRouter } from 'next/router';
+import { useHotkeys, useLocalStorage, useMediaQuery } from '@mantine/hooks';
+import { IconMoonStars, IconSun } from '@tabler/icons';
+import { RU, US } from 'country-flag-icons/react/3x2';
 import { Dispatch, SetStateAction } from 'react';
 
 import { Profile } from './profile';

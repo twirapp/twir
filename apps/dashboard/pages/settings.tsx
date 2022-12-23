@@ -3,6 +3,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 import { DashboardAccess } from '../components/settings/dashboardAccess';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
     props: {

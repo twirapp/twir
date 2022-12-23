@@ -1,8 +1,9 @@
 import { Button, Drawer, Flex, TextInput, useMantineTheme } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { Dashboard } from '@tsuwari/shared';
 import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
+
+import { noop } from '../../util/chore';
 
 import { dashboardAccessManager } from '@/services/api';
 
@@ -40,7 +41,7 @@ export const DashboardAccessDrawer: React.FC<Props> = (props) => {
     }).then(() => {
       props.setOpened(false);
       form.reset();
-    }).catch(() => {});
+    }).catch(noop);
   }
 
   return (

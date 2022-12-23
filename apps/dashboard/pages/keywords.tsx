@@ -1,19 +1,9 @@
-import {
-  ActionIcon,
-  Badge,
-  Button,
-  CopyButton,
-  Flex,
-  Switch,
-  Table,
-  Text,
-  Tooltip,
-} from '@mantine/core';
+import { ActionIcon, Badge, Button, CopyButton, Flex, Switch, Table, Text, Tooltip } from '@mantine/core';
 import { IconCopy, IconPencil, IconTrash } from '@tabler/icons';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useReducer, useState } from 'react';
+import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { KeywordDrawer } from '@/components/keywords/drawer';

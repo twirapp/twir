@@ -1,4 +1,4 @@
-import { ActionIcon, Alert, Avatar, Box, NavLink, Popover, ScrollArea, Text } from '@mantine/core';
+import { ActionIcon, Alert, Avatar, Box, NavLink, ScrollArea } from '@mantine/core';
 import { IconPlus, IconShieldCheck, IconX } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 import { useState } from 'react';
