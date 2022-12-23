@@ -8,7 +8,7 @@ import {
   NumberInput,
   ScrollArea,
   Switch,
-  Text,
+  Text, Textarea,
   TextInput,
   useMantineTheme,
 } from '@mantine/core';
@@ -104,12 +104,18 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
             <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
               <Grid>
                 <Grid.Col xs={12} sm={8} md={4} lg={4} xl={4}>
-                  <TextInput label={t('drawer.timeout.message')} {...form.getInputProps('banMessage')} />
                 </Grid.Col>
                 <Grid.Col xs={12} sm={3} md={4} lg={4} xl={4}>
-                  <NumberInput label={t('drawer.timeout.time')} {...form.getInputProps('banTime')} />
                 </Grid.Col>
               </Grid>
+              <Textarea
+                autosize={true}
+                minRows={1}
+                label={t('drawer.timeout.message')}
+                {...form.getInputProps('banMessage')}
+                w={'100%'}
+              />
+              <NumberInput label={t('drawer.timeout.time')} {...form.getInputProps('banTime')} />
               <NumberInput label={t('drawer.warning.message')} {...form.getInputProps('warningMessage')} />
               <Grid>
                 {props.settings.type === 'links' && (
