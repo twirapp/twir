@@ -10,6 +10,7 @@ services:
     networks:
       - tsuwari
     deploy:
+      endpoint_mode: dnsrr
       placement:
         constraints:
           - node.role == manager
@@ -37,6 +38,7 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      endpoint_mode: dnsrr
       placement:
         constraints:
           - node.role == manager
@@ -110,6 +112,7 @@ services:
     networks:
       - tsuwari
     deploy:
+      endpoint_mode: dnsrr
       restart_policy:
         condition: on-failure
         delay: 30s
@@ -126,6 +129,7 @@ services:
         condition: any
         delay: 3s
         max_attempts: 30
+      endpoint_mode: dnsrr
       placement:
         constraints:
           - node.role == manager
@@ -151,6 +155,7 @@ services:
         max_attempts: 30
       # mode: replicated
       # replicas: 1
+      endpoint_mode: dnsrr
       placement:
         constraints:
           - node.role == manager
@@ -170,6 +175,7 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      endpoint_mode: dnsrr
 
   watched:
     image: registry.satont.dev/tsuwari/watched
@@ -220,6 +226,7 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      endpoint_mode: dnsrr
 
   scheduler:
     build:
@@ -236,6 +243,7 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      endpoint_mode: dnsrr
 
   streamstatus:
     build:
@@ -252,6 +260,7 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      endpoint_mode: dnsrr
 
   eventsub:
     build:
@@ -272,6 +281,7 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      endpoint_mode: dnsrr
       placement:
         constraints:
           - node.role == manager
@@ -291,6 +301,7 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      endpoint_mode: dnsrr
 
   eval:
     build:
@@ -326,6 +337,7 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      endpoint_mode: dnsrr
 
   web:
     build:
@@ -346,6 +358,7 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      endpoint_mode: dnsrr
       placement:
         constraints:
           - node.role == manager
@@ -369,6 +382,7 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      endpoint_mode: dnsrr
       placement:
         constraints:
           - node.role == manager
