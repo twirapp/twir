@@ -75,12 +75,8 @@ export default function Commands() {
         <thead>
           <tr>
             <th>{t('name')}</th>
-            {viewPort.width > 550 && (
-              <>
-                <th>{t('responses')}</th>
-                <th>{t('table.head.status')}</th>
-              </>
-            )}
+            {viewPort.width > 550 && <th>{t('responses')}</th>}
+            <th>{t('table.head.status')}</th>
             <th>{t('table.head.actions')}</th>
           </tr>
         </thead>
@@ -95,25 +91,21 @@ export default function Commands() {
                   <td>
                     <Badge>{command.name}</Badge>
                   </td>
-                  {viewPort.width > 550 && (
-                    <>
-                      <td>
-                        {command.module != 'CUSTOM' && <Badge>{t('builtInBadge')}</Badge>}
-                        {command.module === 'CUSTOM' &&
-                          (command.responses?.map((r, i) => (
-                            <p key={i} style={{ margin: 0 }}>
-                              {r.text}
-                            </p>
-                          )) || <Badge>No Response</Badge>)}
-                      </td>
-                      <td>
-                        <Switch
-                          checked={command.enabled}
-                          onChange={() => patcher.mutate({ id: command.id, data: { enabled: !command.enabled } })}
-                        />
-                      </td>
-                    </>
-                  )}
+                  {viewPort.width > 550 && <td>
+                    {command.module != 'CUSTOM' && <Badge>{t('builtInBadge')}</Badge>}
+                    {command.module === 'CUSTOM' &&
+                      (command.responses?.map((r, i) => (
+                        <p key={i} style={{ margin: 0 }}>
+                          {r.text}
+                        </p>
+                      )) || <Badge>No Response</Badge>)}
+                  </td>}
+                  <td>
+                    <Switch
+                      checked={command.enabled}
+                      onChange={() => patcher.mutate({ id: command.id, data: { enabled: !command.enabled } })}
+                    />
+                  </td>
                   <td>
                     <Flex direction="row" gap="xs">
                       <ActionIcon

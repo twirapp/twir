@@ -158,18 +158,18 @@ export const TimerDrawer: React.FC<Props> = (props) => {
                                 placeholder="response"
                                 autosize={true}
                                 minRows={1}
-                                rightSection={
-                                  <Menu position="bottom-end" shadow="md" width={200}>
-                                    <Menu.Target>
-                                      <ActionIcon variant="filled">
-                                        <IconVariable size={18} />
-                                      </ActionIcon>
-                                    </Menu.Target>
-                                    <Menu.Dropdown>
-                                      <Menu.Item>qwe</Menu.Item>
-                                    </Menu.Dropdown>
-                                  </Menu>
-                                }
+                                // rightSection={
+                                //   <Menu position="bottom-end" shadow="md" width={200}>
+                                //     <Menu.Target>
+                                //       <ActionIcon variant="filled">
+                                //         <IconVariable size={18} />
+                                //       </ActionIcon>
+                                //     </Menu.Target>
+                                //     <Menu.Dropdown>
+                                //       <Menu.Item>qwe</Menu.Item>
+                                //     </Menu.Dropdown>
+                                //   </Menu>
+                                // }
                                 {...form.getInputProps(`responses.${index}.text`)}
                               />
                               <Center {...provided.dragHandleProps}>

@@ -47,9 +47,11 @@ export default function () {
         <thead>
           <tr>
             <th>{t('name')}</th>
-            {viewPort.width > 550 && <th>{t('responses')}</th>}
-            <th>{t('intervalTime')}</th>
-            <th>{t('intervalMessages')}</th>
+            {viewPort.width > 550 && (<>
+              <th>{t('responses')}</th>
+              <th>{t('intervalTime')}</th>
+              <th>{t('intervalMessages')}</th>
+            </>)}
             {viewPort.width > 550 && <th>{t('table.head.status')}</th>}
             <th>{t('table.head.actions')}</th>
           </tr>
@@ -61,28 +63,27 @@ export default function () {
                 <td>
                   <Badge>{timer.name}</Badge>
                 </td>
-                {viewPort.width > 550 && (
-                  <td>
-                    {timer.responses.map((r, i) => (
-                      <p key={i} style={{ margin: 0 }}>
-                        {r.text}
-                      </p>
-                    ))}
-                  </td>
+                {viewPort.width > 550 && (<>
+                    <td>
+                      {timer.responses.map((r, i) => (
+                        <p key={i} style={{ margin: 0 }}>
+                          {r.text}
+                        </p>
+                      ))}
+                    </td>
+                    <td>{timer.timeInterval} s.</td>
+                    <td>{timer.messageInterval}</td>
+                  </>
                 )}
 
-                <td>{timer.timeInterval} s.</td>
-                <td>{timer.messageInterval}</td>
-                {viewPort.width > 550 && (
-                  <td>
-                    <Switch
-                      checked={timer.enabled}
-                      onChange={(event) => {
-                        patcher.mutate({ id: timer.id, data: { enabled: event.currentTarget.checked } });
-                      }}
-                    />
-                  </td>
-                )}
+                <td>
+                  <Switch
+                    checked={timer.enabled}
+                    onChange={(event) => {
+                      patcher.mutate({ id: timer.id, data: { enabled: event.currentTarget.checked } });
+                    }}
+                  />
+                </td>
                 <td>
                   <Flex direction="row" gap="xs">
                     <ActionIcon
