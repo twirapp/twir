@@ -11,12 +11,12 @@ export const VKIntegration: React.FC = () => {
   const manager = useVK();
   const logout = manager.useLogout();
   const { data: profile } = manager.useData();
+  const auth = manager.useGetAuthLink();
   const { t } = useTranslation('integrations');
 
   async function login() {
-    const { data } = manager.useGetAuthLink();
-    if (data) {
-      window.location.replace(data);
+    if (auth.data) {
+      window.location.replace(auth.data);
     }
   }
 

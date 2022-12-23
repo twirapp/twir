@@ -12,11 +12,11 @@ export const LastfmIntegration: React.FC = () => {
   const { data: profile } = manager.useData();
   const { t } = useTranslation('integrations');
   const logout = manager.useLogout();
+  const auth = manager.useGetAuthLink();
 
   async function login() {
-    const { data } = manager.useGetAuthLink();
-    if (data) {
-      window.location.replace(data);
+    if (auth.data) {
+      window.location.replace(auth.data);
     }
   }
 

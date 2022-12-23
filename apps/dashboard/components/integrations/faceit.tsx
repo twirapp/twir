@@ -12,12 +12,12 @@ export const FaceitIntegration: React.FC = () => {
   const manager = useFaceit();
   const { data: profile } = manager.useData();
   const { t } = useTranslation('integrations');
-  const { data: authLink } = manager.useGetAuthLink();
+  const auth = manager.useGetAuthLink();
   const logout = manager.useLogout();
 
   async function login() {
-    if (authLink) {
-      window.location.replace(authLink);
+    if (auth.data) {
+      window.location.replace(auth.data);
     }
   }
 

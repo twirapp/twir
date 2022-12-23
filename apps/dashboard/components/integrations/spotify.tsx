@@ -11,14 +11,14 @@ export const SpotifyIntegration: React.FC = () => {
   const manager = useSpotify();
   const logout = manager.useLogout();
   const { t } = useTranslation('integrations');
+  const auth = manager.useGetAuthLink();
 
   // const { data: integration } = manager.getIntegration();
   const { data: profile } = manager.useData();
 
   async function login() {
-    const { data } = manager.useGetAuthLink();
-    if (data) {
-      window.location.replace(data);
+    if (auth.data) {
+      window.location.replace(auth.data);
     }
   }
 

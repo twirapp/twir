@@ -10,12 +10,12 @@ export const DonationAlertsIntegration: React.FC = () => {
   const manager = useDonationAlerts();
   const logout = manager.useLogout();
   const { data } = manager.useData();
+  const auth = manager.useGetAuthLink();
   const { t } = useTranslation('integrations');
 
   async function login() {
-    const { data } = manager.useGetAuthLink();
-    if (data) {
-      window.location.replace(data);
+    if (auth.data) {
+      window.location.replace(auth.data);
     }
   }
 

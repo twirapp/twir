@@ -26,13 +26,16 @@ export default function Integration() {
     'vk': useVK(),
   };
   const [dashboard] = useSelectedDashboard();
+  const { integration } = router.query;
+  const { usePostCode } = managers[integration as string];
+  const poster = usePostCode();
 
   useEffect(() => {
     if (!dashboard) {
       return;
     }
 
-    const { integration, code, token } = router.query;
+    const { code, token } = router.query;
 
     const incomingCode = code ?? token;
 
@@ -41,8 +44,6 @@ export default function Integration() {
       return;
     }
 
-    const { usePostCode } = managers[integration];
-    const poster = usePostCode();
     poster.mutateAsync({ code: incomingCode }).finally(() => {
       router.push('/integrations');
     });
