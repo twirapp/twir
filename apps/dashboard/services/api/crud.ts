@@ -23,7 +23,14 @@ interface Crud<T> {
   createOrUpdate: UseMutationResult<any, unknown, {id?: string | undefined, data: T}, unknown>,
 }
 
-const createCrudManager = <T extends { id: string }>(system: string): Crud<T> => {
+interface Options {
+  additionalQueries?: Record<string, UseQueryResult<any, any>>;
+  additionalMutations?: Record<string, UseMutationResult<any, any, any, any>>;
+}
+
+const createCrudManager =
+  <T extends { id: string }, M extends Options = Options>(system: string, options?: M):
+    Crud<T & M['additionalQueries'] & M['additionalMutations']> => {
   return {
     getAll: useQuery<T[]>({
       queryKey: [getUrl(system)],
@@ -103,6 +110,8 @@ const createCrudManager = <T extends { id: string }>(system: string): Crud<T> =>
       },
       mutationKey: [getUrl(system)],
     }),
+    ...options?.additionalQueries,
+    ...options?.additionalMutations,
   };
 };
 
