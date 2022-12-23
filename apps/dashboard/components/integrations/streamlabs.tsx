@@ -1,20 +1,21 @@
 import { Group, Avatar, Text, Button, Flex, Alert } from '@mantine/core';
 import { IconLogout, IconLogin } from '@tabler/icons';
+import { useTranslation } from 'next-i18next';
 
 import { IntegrationCard } from './card';
 
-import { useStreamLabsIntegration } from '@/services/api/integrations';
-import {useTranslation} from "next-i18next";
+
+import { useStreamlabs } from '@/services/api/integrations';
 
 export const StreamlabsIntegration: React.FC = () => {
-  const manager = useStreamLabsIntegration();
-  const { data } = manager.getIntegration();
-  const { t } = useTranslation("integrations")
+  const manager = useStreamlabs();
+  const { data } = manager.getIntegration;
+  const { t } = useTranslation('integrations');
 
   async function login() {
-    const link = await manager.getAuthLink();
-    if (link) {
-      window.location.replace(link);
+    const { data } = manager.getAuthLink;
+    if (data) {
+      window.location.replace(data);
     }
   }
 
@@ -29,18 +30,18 @@ export const StreamlabsIntegration: React.FC = () => {
               leftIcon={<IconLogout />}
               variant="outline"
               color="red"
-              onClick={manager.logout}
+              onClick={() => manager.logout.mutate()}
             >
-              {t("logout")}
+              {t('logout')}
             </Button>
           )}
           <Button compact leftIcon={<IconLogin />} variant="outline" color="green" onClick={login}>
-            {t("login")}
+            {t('login')}
           </Button>
         </Flex>
       }
     >
-      {!data && <Alert>{t("notLoggedIn")}</Alert>}
+      {!data && <Alert>{t('notLoggedIn')}</Alert>}
       {data && (
         <Group position="apart" mt={10}>
           <Text weight={500} size={30}>

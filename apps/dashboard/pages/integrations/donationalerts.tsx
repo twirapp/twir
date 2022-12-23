@@ -1,12 +1,21 @@
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-import { useDonationAlertsIntegration } from '@/services/api/integrations';
+import { useDonationAlerts } from '@/services/api/integrations';
 import { useSelectedDashboard } from '@/services/dashboard';
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+export const getServerSideProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['integrations', 'layout'])),
+  },
+});
 
 export default function DonationAlertsLogin() {
   const router = useRouter();
-  const manager = useDonationAlertsIntegration();
+  const manager = useDonationAlerts();
   const [dashboard] = useSelectedDashboard();
 
   useEffect(() => {
@@ -18,7 +27,7 @@ export default function DonationAlertsLogin() {
     if (typeof code !== 'string') {
       router.push('/integrations');
     } else {
-      manager.postCode(code).finally(() => {
+      manager.postCode.mutateAsync({ code }).finally(() => {
         router.push('/integrations');
       });
     }

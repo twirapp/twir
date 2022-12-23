@@ -38,7 +38,7 @@ func checkUser(
 	err = services.DB.
 		Where(`"users"."id" = ?`, userId).
 		Joins("Channel").
-		Joins("Token").
+		Joins("Code").
 		First(&user).Error
 
 	if err != nil && err == gorm.ErrRecordNotFound {

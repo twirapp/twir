@@ -1,22 +1,23 @@
 import { Group, Avatar, Text, Button, Flex, Alert } from '@mantine/core';
 import { IconBrandSpotify, IconLogin, IconLogout } from '@tabler/icons';
+import { useTranslation } from 'next-i18next';
 
 import { IntegrationCard } from './card';
 
-import { useSpotifyIntegration } from '@/services/api/integrations';
-import {useTranslation} from "next-i18next";
+
+import { useSpotify } from '@/services/api/integrations';
 
 export const SpotifyIntegration: React.FC = () => {
-  const manager = useSpotifyIntegration();
-  const { t } = useTranslation("integrations")
+  const manager = useSpotify();
+  const { t } = useTranslation('integrations');
 
   // const { data: integration } = manager.getIntegration();
-  const { data: profile } = manager.getProfile();
+  const { data: profile } = manager.getIntegration;
 
   async function login() {
-    const link = await manager.getAuthLink();
-    if (link) {
-      window.location.replace(link);
+    const { data } = manager.getAuthLink;
+    if (data) {
+      window.location.replace(data);
     }
   }
 
@@ -33,18 +34,18 @@ export const SpotifyIntegration: React.FC = () => {
               leftIcon={<IconLogout />}
               variant="outline"
               color="red"
-              onClick={manager.logout}
+              onClick={() => manager.logout.mutate()}
             >
-              {t("logout")}
+              {t('logout')}
             </Button>
           )}
           <Button compact leftIcon={<IconLogin />} variant="outline" color="green" onClick={login}>
-            {t("login")}
+            {t('login')}
           </Button>
         </Flex>
       }
     >
-      {!profile && <Alert>{t("notLoggedIn")}</Alert>}
+      {!profile && <Alert>{t('notLoggedIn')}</Alert>}
       {profile && (
         <Group position="apart" mt={10}>
           <Text weight={500} size={30}>

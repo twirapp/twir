@@ -56,7 +56,7 @@ func handlePost(channelId string, dto *lastfmDto, services types.Services) error
 		integration.Integration.APIKey.String,
 		integration.Integration.ClientSecret.String,
 	)
-	err = api.LoginWithToken(dto.Token)
+	err = api.LoginWithToken(dto.Code)
 	sessionKey := api.GetSessionKey()
 
 	integration.APIKey = null.StringFrom(sessionKey)

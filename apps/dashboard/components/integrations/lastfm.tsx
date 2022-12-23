@@ -1,20 +1,21 @@
 import { Group, Avatar, Text, Flex, Button, Alert } from '@mantine/core';
 import { IconBrandLastfm, IconLogin, IconLogout } from '@tabler/icons';
+import { useTranslation } from 'next-i18next';
 
 import { IntegrationCard } from './card';
 
-import { useLastfmIntegration } from '@/services/api/integrations/lastfm';
-import {useTranslation} from "next-i18next";
+
+import { useLastfm } from '@/services/api/integrations';
 
 export const LastfmIntegration: React.FC = () => {
-  const manager = useLastfmIntegration();
-  const { data: profile } = manager.getProfile();
-  const { t} = useTranslation('integrations')
+  const manager = useLastfm();
+  const { data: profile } = manager.getIntegration;
+  const { t } = useTranslation('integrations');
 
   async function login() {
-    const link = await manager.getAuthLink();
-    if (link) {
-      window.location.replace(link);
+    const { data } = manager.getAuthLink;
+    if (data) {
+      window.location.replace(data);
     }
   }
 
@@ -31,18 +32,18 @@ export const LastfmIntegration: React.FC = () => {
               leftIcon={<IconLogout />}
               variant="outline"
               color="red"
-              onClick={manager.logout}
+              onClick={() => manager.logout.mutate()}
             >
-              {t("login")}
+              {t('logout')}
             </Button>
           )}
           <Button compact leftIcon={<IconLogin />} variant="outline" color="green" onClick={login}>
-            {t("logout")}
+            {t('login')}
           </Button>
         </Flex>
       }
     >
-      {!profile && <Alert>{t("notLoggedIn")}</Alert>}
+      {!profile && <Alert>{t('notLoggedIn')}</Alert>}
       {profile && (
         <Group position="apart" mt={10}>
           <Text weight={500} size={30}>

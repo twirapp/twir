@@ -11,7 +11,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Get("auth", getAuth(services))
 	middleware.Get("", get(services))
 	middleware.Post("logout", logout(services))
-	middleware.Post("token", post((services)))
+	middleware.Post("", post((services)))
 
 	return middleware
 }
@@ -72,7 +72,7 @@ type tokenDto struct {
 // @Success      200
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
-// @Router       /v1/channels/{channelId}/integrations/donationalerts/token [post]
+// @Router       /v1/channels/{channelId}/integrations/donationalerts [post]
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &tokenDto{}

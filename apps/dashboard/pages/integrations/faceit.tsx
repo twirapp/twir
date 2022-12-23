@@ -2,7 +2,8 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-import { useFaceitIntegration } from '@/services/api/integrations';
+
+import { useFaceit } from '@/services/api/integrations';
 import { useSelectedDashboard } from '@/services/dashboard';
 
 
@@ -14,10 +15,9 @@ export const getServerSideProps = async ({ locale }) => ({
   },
 });
 
-
 export default function FaceitLogin() {
   const router = useRouter();
-  const manager = useFaceitIntegration();
+  const manager = useFaceit();
   const [dashboard] = useSelectedDashboard();
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function FaceitLogin() {
     if (typeof code !== 'string') {
       router.push('/integrations');
     } else {
-      manager.postCode(code).finally(() => {
+      manager.postCode.mutateAsync({ code }).finally(() => {
         router.push('/integrations');
       });
     }

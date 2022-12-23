@@ -21,9 +21,9 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Summary      Get Faceit profile
 // @Tags         Integrations|Faceit
 // @Accept       json
-// @Produce      plain
+// @Produce      json
 // @Param        channelId   path      string  true  "ChannelId"
-// @Success 200 {string} string	"Auth link"
+// @Success 200 {object} model.ChannelsIntegrationsData
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/faceit [get]
 func get(services types.Services) func(c *fiber.Ctx) error {

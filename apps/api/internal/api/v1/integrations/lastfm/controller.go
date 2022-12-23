@@ -24,7 +24,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		},
 	})
 
-	middleware.Get("profile", profileCache, get(services))
+	middleware.Get("", profileCache, get(services))
 
 	return middleware
 }
@@ -102,7 +102,7 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		services.RedisStorage.DeleteByMethod(
-			fmt.Sprintf("fiber:cache:integrations:spotify:profile:%s", channelId),
+			fmt.Sprintf("fiber:cache:integrations:lastfm:profile:%s", channelId),
 			"GET",
 		)
 

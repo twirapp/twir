@@ -20,17 +20,11 @@ interface Crud<T> {
   getAll: UseQueryResult<T[], unknown>
   delete: UseMutationResult<any, unknown, string, unknown>
   patch: UseMutationResult<any, unknown, {id: string, data: Partial<T>}, unknown>
-  createOrUpdate: UseMutationResult<any, unknown, {id?: string | undefined, data: T}, unknown>
+  createOrUpdate: UseMutationResult<any, unknown, {id?: string | undefined, data: T}, unknown>,
 }
 
-// const cachedCruds: Map<string, Crud<any>> = new Map();
 
 const createCrudManager = <T extends { id: string }>(system: string): Crud<T> => {
-  // console.log(system, cachedCruds.has(system));
-  // if (cachedCruds.has(system)) {
-  //   return cachedCruds.get(system) as Crud<T>;
-  // }
-  //
   return {
     getAll: useQuery<T[]>({
       queryKey: [getUrl(system)],

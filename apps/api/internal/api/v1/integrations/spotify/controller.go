@@ -14,7 +14,7 @@ import (
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("spotify")
 	middleware.Get("auth", getAuth(services))
-	middleware.Post("token", post((services)))
+	middleware.Post("", post((services)))
 	middleware.Post("logout", logout(services))
 
 	profileCache := cache.New(cache.Config{
@@ -25,7 +25,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		},
 	})
 
-	middleware.Get("profile", profileCache, getProfile((services)))
+	middleware.Get("", profileCache, getProfile((services)))
 
 	return middleware
 }
@@ -39,7 +39,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Param        channelId   path      string  true  "ChannelId"
 // @Success      200  {object}  spotify.SpotifyProfile
 // @Failure 500 {object} types.DOCApiInternalError
-// @Router       /v1/channels/{channelId}/integrations/spotify/profile [get]
+// @Router       /v1/channels/{channelId}/integrations/spotify [get]
 func getProfile(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		profile, err := handleGetProfile(c.Params("channelId"), services)
@@ -82,7 +82,7 @@ func getAuth(services types.Services) func(c *fiber.Ctx) error {
 // @Success      200
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
-// @Router       /v1/channels/{channelId}/integrations/spotify/token [post]
+// @Router       /v1/channels/{channelId}/integrations/spotify [post]
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &tokenDto{}
