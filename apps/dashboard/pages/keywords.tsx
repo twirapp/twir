@@ -1,4 +1,5 @@
 import { ActionIcon, Badge, Button, CopyButton, Flex, Switch, Table, Text, Tooltip } from '@mantine/core';
+import { useViewportSize } from '@mantine/hooks';
 import { IconCopy, IconPencil, IconTrash } from '@tabler/icons';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import { useTranslation } from 'next-i18next';
@@ -21,6 +22,7 @@ export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableKeyword, setEditableKeyword] = useState<ChannelKeyword | undefined>();
   const { t } = useTranslation('keywords');
+  const viewPort = useViewportSize();
 
   const { useGetAll, usePatch, useCreateOrUpdate, useDelete } = keywordsManager();
   const { data: keywords } = useGetAll();
@@ -45,8 +47,11 @@ export default function () {
         <thead>
           <tr>
             <th>{t('trigger')}</th>
-            <th>{t('response')}</th>
-            <th>{t('usages')}</th>
+            {viewPort.width > 550 && (<>
+                <th>{t('response')}</th>
+                <th>{t('usages')}</th>
+              </>)
+            }
             <th>{t('table.head.status')}</th>
             <th>{t('table.head.actions')}</th>
           </tr>
@@ -58,10 +63,12 @@ export default function () {
                 <td>
                   <Badge>{keyword.text}</Badge>
                 </td>
-                <td>{keyword.response}</td>
-                <td>
-                  <Badge>{keyword.usages}</Badge>
-                </td>
+                {viewPort.width > 550 && (<>
+                  <td>{keyword.response}</td>
+                  <td>
+                    <Badge>{keyword.usages}</Badge>
+                  </td>
+                </>)}
                 <td>
                   <Switch
                     checked={keyword.enabled}

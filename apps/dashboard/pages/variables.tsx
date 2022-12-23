@@ -1,4 +1,5 @@
 import { ActionIcon, Badge, Button, CopyButton, Flex, Table, Text, Tooltip } from '@mantine/core';
+import { useViewportSize } from '@mantine/hooks';
 import { IconCopy, IconPencil, IconTrash } from '@tabler/icons';
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { useTranslation } from 'next-i18next';
@@ -21,6 +22,7 @@ export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableVariable, setEditableVariable] = useState<ChannelCustomvar | undefined>();
   const { t } = useTranslation('variables');
+  const viewPort = useViewportSize();
 
   const { useGetAll, useDelete } = variablesManager();
   const { data: variables } = useGetAll();
@@ -45,7 +47,7 @@ export default function () {
           <tr>
             <th>{t('name')}</th>
             <th>{t('type')}</th>
-            <th>{t('response')}</th>
+            {viewPort.width > 550 && <th>{t('response')}</th>}
             <th>{t('table.head.actions')}</th>
           </tr>
         </thead>
@@ -59,12 +61,12 @@ export default function () {
                 <td>
                   <Badge color="cyan">{variable.type}</Badge>
                 </td>
-                <td>
+                {viewPort.width > 550 && <td>
                   {variable.type === 'TEXT' && <Badge>{variable.response}</Badge>}
                   {variable.type !== 'TEXT' && (
                     <Badge color="red">{t('table.scriptAlert')}</Badge>
                   )}
-                </td>
+                </td>}
                 <td>
                   <Flex direction="row" gap="xs">
                     <CopyButton value={`$(customvar|${variable.name})`}>

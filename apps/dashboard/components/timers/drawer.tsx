@@ -56,8 +56,8 @@ export const TimerDrawer: React.FC<Props> = (props) => {
   const viewPort = useViewportSize();
   const { t } = useTranslation('timers');
 
-  const { usePatch } = timersManager();
-  const patcher = usePatch();
+  const { useCreateOrUpdate } = timersManager();
+  const updater = useCreateOrUpdate();
 
   useEffect(() => {
     form.reset();
@@ -73,7 +73,7 @@ export const TimerDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    patcher.mutateAsync({
+    updater.mutateAsync({
       id: form.values.id,
       data: form.values,
     }).then(() => {

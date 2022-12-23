@@ -1,4 +1,5 @@
 import { ActionIcon, Avatar, Badge, Button, Flex, Switch, Table, Text } from '@mantine/core';
+import { useViewportSize } from '@mantine/hooks';
 import { IconPencil, IconTrash } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -21,6 +22,7 @@ export default function () {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableGreeting, setEditableGreeting] = useState<Greeting | undefined>();
   const { t } = useTranslation('greetings');
+  const viewPort = useViewportSize();
 
   const { useGetAll, useDelete, usePatch } = greetingsManager();
   const { data: greetings } = useGetAll();
@@ -46,7 +48,7 @@ export default function () {
           <tr>
             <th style={{ width:50 }}></th>
             <th>{t('userName')}</th>
-            <th>{t('message')}</th>
+            {viewPort.width > 550 && <th>{t('message')}</th>}
             <th>{t('table.head.status')}</th>
             <th>{t('table.head.actions')}</th>
           </tr>
@@ -61,9 +63,9 @@ export default function () {
                 <td>
                   <Badge>{greeting.userName}</Badge>
                 </td>
-                <td>
-                  <Badge color="cyan">{greeting.text}</Badge>
-                </td>
+                {viewPort.width > 550 && <td>
+                    <Badge color="cyan">{greeting.text}</Badge>
+                </td>}
                 <td>
                   <Switch
                     checked={greeting.enabled}
