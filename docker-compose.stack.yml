@@ -359,7 +359,7 @@ services:
     secrets:
       - tsuwari_doppler_token
     ports:
-      - target: 8080
+      - target: 3000
         published: 3002
         mode: host
     networks:
