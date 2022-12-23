@@ -12,7 +12,7 @@ import { authFetcher } from '@/services/api';
 import { queryClient } from '@/services/api';
 import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
 
-export type Greeting = ChannelGreeting & { userName: string };
+export type Greeting = ChannelGreeting & { userName: string, avatar: string };
 
 const getUrl = (system: string) => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/${system}`;
 
@@ -22,7 +22,6 @@ interface Crud<T> {
   patch: UseMutationResult<any, unknown, {id: string, data: Partial<T>}, unknown>
   createOrUpdate: UseMutationResult<any, unknown, {id?: string | undefined, data: T}, unknown>,
 }
-
 
 const createCrudManager = <T extends { id: string }>(system: string): Crud<T> => {
   return {
@@ -93,7 +92,7 @@ const createCrudManager = <T extends { id: string }>(system: string): Crud<T> =>
             return [result];
           }
           const index = old?.findIndex(o => o.id === data.id);
-          if (index && index != -1) {
+          if (index != -1) {
             old[index!] = result;
           } else {
             old.push(result);

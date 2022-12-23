@@ -16,7 +16,6 @@ import {
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import { IconMinus, IconPlus } from '@tabler/icons';
-import { ChannelCommand } from '@tsuwari/typeorm/dist/entities/ChannelCommand';
 import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
 import { getCookie } from 'cookies-next';
 import { useTranslation } from 'next-i18next';
@@ -114,25 +113,31 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
                 </Grid.Col>
               </Grid>
               <NumberInput label={t('drawer.warning.message')} {...form.getInputProps('warningMessage')} />
-              <Group grow>
+              <Grid>
                 {props.settings.type === 'links' && (
-                  <Switch
-                    label={t('drawer.filters.clips')}
-                    labelPosition="left"
-                    {...form.getInputProps('checkClips', { type: 'checkbox' })}
-                  />
+                  <Grid.Col>
+                    <Switch
+                      label={t('drawer.filters.clips')}
+                      labelPosition="left"
+                      {...form.getInputProps('checkClips', { type: 'checkbox' })}
+                    />
+                  </Grid.Col>
                 )}
-                <Switch
-                  label={t('drawer.filters.vips')}
-                  labelPosition="left"
-                  {...form.getInputProps('vips', { type: 'checkbox' })}
-                />
-                <Switch
-                  label={t('drawer.filters.subs')}
-                  labelPosition="left"
-                  {...form.getInputProps('subscribers', { type: 'checkbox' })}
-                />
-              </Group>
+                <Grid.Col>
+                  <Switch
+                    label={t('drawer.filters.vips')}
+                    labelPosition="left"
+                    {...form.getInputProps('vips', { type: 'checkbox' })}
+                  />
+                </Grid.Col>
+                <Grid.Col>
+                  <Switch
+                    label={t('drawer.filters.subs')}
+                    labelPosition="left"
+                    {...form.getInputProps('subscribers', { type: 'checkbox' })}
+                  />
+                </Grid.Col>
+              </Grid>
               {props.settings.type === 'emotes' && (
                 <NumberInput
                   label={t('drawer.maxEmotes')}

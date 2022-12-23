@@ -1,7 +1,7 @@
 package commands
 
 type responsesDto struct {
-	Text  string `validate:"required,min=1,max=http.StatusInternalServerError" json:"text"`
+	Text  string `validate:"required,min=1,max=400" json:"text"`
 	Order uint8  `validate:"gte=0"                                             json:"order"`
 }
 
@@ -16,7 +16,7 @@ type commandDto struct {
 	Aliases            []string       `validate:"max=20,dive,required,max=50" json:"aliases"`
 	Visible            *bool          `validate:"omitempty,required"          json:"visible,omitempty"`
 	Enabled            *bool          `validate:"omitempty,required"          json:"enabled,omitempty"`
-	Responses          []responsesDto `                                       json:"responses"`
+	Responses          []responsesDto `validate:"dive"                        json:"responses"`
 	KeepResponsesOrder *bool          `validate:"required"                    json:"keepResponsesOrder"`
 	IsReply            *bool          `validate:"omitempty,required"          json:"isReply,omitempty"`
 }

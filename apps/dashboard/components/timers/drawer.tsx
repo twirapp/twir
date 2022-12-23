@@ -4,6 +4,7 @@ import {
   Badge,
   Button,
   Center,
+  Checkbox,
   Drawer,
   Flex,
   Group,
@@ -70,8 +71,13 @@ export const TimerDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    await manager.createOrUpdate(form.values);
-    props.setOpened(false);
+    manager.createOrUpdate.mutateAsync({
+      id: form.values.id,
+      data: form.values,
+    }).then(() => {
+      props.setOpened(false);
+      form.reset();
+    }).catch(() => {});
   }
 
   return (
@@ -119,7 +125,7 @@ export const TimerDrawer: React.FC<Props> = (props) => {
                   <IconPlus
                     size={18}
                     onClick={() => {
-                      form.insertListItem('responses', { text: '' });
+                      form.insertListItem('responses', { text: '', isAnnounce: true });
                     }}
                   />
                 </ActionIcon>
@@ -175,6 +181,11 @@ export const TimerDrawer: React.FC<Props> = (props) => {
                                   }}
                                 />
                               </ActionIcon>
+                              <Checkbox
+                                label={t('drawer.useAnnounce')}
+                                labelPosition={'left'}
+                                {...form.getInputProps(`responses.${index}.isAnnounce`, { type: 'checkbox' })}
+                              />
                             </Group>
                           )}
                         </Draggable>

@@ -7,12 +7,13 @@
   "responses": "Responses",
   "table": {
     "head": {
-      "status": "Stats",
+      "status": "Status",
       "actions": "Actions"
     }
   },
   "drawer": {
     "save": "Save",
-    "emptyAlert": "Ответов не добавлено"
+    "emptyAlert": "Responses not added",
+    "useAnnounce": "Send message as announcement"
   }
 }

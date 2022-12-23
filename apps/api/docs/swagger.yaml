@@ -68,6 +68,7 @@ definitions:
         minimum: 0
         type: integer
       text:
+        maxLength: 400
         minLength: 1
         type: string
     required:
@@ -75,6 +76,8 @@ definitions:
     type: object
   github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting:
     properties:
+      avatar:
+        type: string
       channelId:
         type: string
       enabled:
@@ -459,6 +462,7 @@ definitions:
         minimum: 0
         type: integer
       text:
+        maxLength: 400
         minLength: 1
         type: string
     required:
@@ -466,6 +470,8 @@ definitions:
     type: object
   internal_api_v1_greetings.Greeting:
     properties:
+      avatar:
+        type: string
       channelId:
         type: string
       enabled:
@@ -1171,7 +1177,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1243,7 +1249,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1285,7 +1291,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1606,7 +1612,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_faceit.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1705,7 +1711,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_api_v1_integrations_lastfm.LastfmProfile'
+              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile'
             type: array
         "500":
           description: Internal Server Error
@@ -1725,7 +1731,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_lastfm.lastfmDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1810,6 +1816,31 @@ paths:
       tags:
       - Integrations|Lastfm
   /v1/channels/{channelId}/integrations/spotify:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ChannelId
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/spotify.SpotifyProfile'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Spotify profile
+      tags:
+      - Integrations|Spotify
     post:
       consumes:
       - application/json
@@ -1899,32 +1930,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Logout
-      tags:
-      - Integrations|Spotify
-  /v1/channels/{channelId}/integrations/spotify/profile:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: ChannelId
-        in: path
-        name: channelId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/spotify.SpotifyProfile'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
-      security:
-      - ApiKeyAuth: []
-      summary: Get Spotify profile
       tags:
       - Integrations|Spotify
   /v1/channels/{channelId}/integrations/streamlabs:
@@ -2190,7 +2195,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_keywords.keywordDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2262,7 +2267,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_keywords.keywordDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2484,7 +2489,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2554,7 +2559,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerPatchDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2594,7 +2599,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerDto'
       - description: ID of channel
         in: path
         name: channelId

@@ -1,4 +1,4 @@
-import { ActionIcon, Badge, Button, Flex, Switch, Table, Text } from '@mantine/core';
+import { ActionIcon, Avatar, Badge, Button, Flex, Switch, Table, Text } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -42,6 +42,7 @@ export default function () {
       <Table>
         <thead>
           <tr>
+            <th style={{ width:50 }}></th>
             <th>{t('userName')}</th>
             <th>{t('message')}</th>
             <th>{t('table.head.status')}</th>
@@ -52,6 +53,9 @@ export default function () {
           {greetings &&
             greetings.map((greeting, idx) => (
               <tr key={greeting.id}>
+                <td>
+                  <Avatar src={greeting.avatar} style={{ borderRadius:111 }} />
+                </td>
                 <td>
                   <Badge>{greeting.userName}</Badge>
                 </td>

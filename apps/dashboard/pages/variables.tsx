@@ -1,4 +1,4 @@
-import { ActionIcon, Badge, Button, CopyButton, Flex, Table, Text, Tooltip } from '@mantine/core';
+import { ActionIcon, Avatar, Badge, Button, CopyButton, Flex, Table, Text, Tooltip } from '@mantine/core';
 import { IconCopy, IconPencil, IconTrash } from '@tabler/icons';
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { useTranslation } from 'next-i18next';
@@ -97,7 +97,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => variablesManager().delete.mutate(variable.id),
+                          onConfirm: () => manager.delete.mutate(variable.id),
                         })
                       }
                       variant="filled"

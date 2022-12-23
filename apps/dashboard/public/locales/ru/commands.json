@@ -34,7 +34,7 @@
     "switches": {
       "isReply": {
         "name": "Ответ",
-        "description": "Использовать Twitch \"reply\" фукнцию при отправки ответа"
+        "description": "Использовать Twitch ветки при отправки ответа"
       },
       "visible": {
         "name": "Видимость",

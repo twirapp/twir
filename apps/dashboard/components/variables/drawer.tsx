@@ -52,6 +52,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
   }, [props.variable]);
 
   const manager = variablesManager();
+
   async function onSubmit() {
     const validate = form.validate();
     if (validate.hasErrors) {

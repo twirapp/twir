@@ -15,7 +15,7 @@
   },
   "drawer": {
     "save": "Сохранить",
-    "useReply": "Использовать Twitch ответы",
+    "useReply": "Использовать Twitch ветки при сообщении",
     "isRegular": "Regular expression",
     "expressionAlert": "Мы используем Golang в наших сервисах, поэтому регулярное выражение должно быть написано под Golang."
   }
