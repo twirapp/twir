@@ -111,7 +111,7 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
             <NumberInput label={t('cooldown')} required {...form.getInputProps('cooldown')} />
             <NumberInput label={t('usages')} {...form.getInputProps('usages')} />
 
-            <Switch label={t('drawer.useReply')} {...form.getInputProps('isReply')} />
+            <Switch label={t('drawer.useReply')} {...form.getInputProps('isReply', { type: 'checkbox' })} />
           </Flex>
         </form>
       </ScrollArea.Autosize>
