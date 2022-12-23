@@ -116,7 +116,7 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
                 w={'100%'}
               />
               <NumberInput label={t('drawer.timeout.time')} {...form.getInputProps('banTime')} />
-              <NumberInput label={t('drawer.warning.message')} {...form.getInputProps('warningMessage')} />
+              <TextInput label={t('drawer.warning.message')} {...form.getInputProps('warningMessage')} />
               <Grid>
                 {props.settings.type === 'links' && (
                   <Grid.Col>
