@@ -181,3 +181,33 @@ func handlePut(
 
 	return &timer, nil
 }
+
+func handlePatch(
+	channelId, timerId string,
+	dto *timerPatchDto,
+	services types.Services,
+) (*model.ChannelsTimers, error) {
+	timer := model.ChannelsTimers{}
+	err := services.DB.Where("id = ?", timerId).First(&timer).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, fiber.NewError(http.StatusNotFound, "timer not found")
+	}
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "timer not found")
+	}
+
+	timer.Enabled = *dto.Enabled
+	err = services.DB.Select("*").Updates(&timer).Error
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update timer")
+	}
+
+	if err = services.DB.Select("*").Preload("Responses").Find(&timer).Error; err != nil {
+		services.Logger.Sugar().Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	return &timer, nil
+}

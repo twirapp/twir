@@ -1,0 +1,22 @@
+{
+  "title": "Keywords",
+  "create": "Create",
+  "trigger": "Trigger",
+  "usages": "Usages",
+  "response": "Response",
+  "noResponse": "No response",
+  "cooldown": "Cooldown",
+  "copy": "Copy variable (prints number of usages) for usage in commands",
+  "table": {
+    "head": {
+      "status": "Status",
+      "actions": "Actions"
+    }
+  },
+  "drawer": {
+    "save": "Save",
+    "useReply": "Use twitch reply",
+    "isRegular": "Regular expression",
+    "expressionAlert": "We use Golang in our services, so regular expression also should be written in Golang."
+  }
+}

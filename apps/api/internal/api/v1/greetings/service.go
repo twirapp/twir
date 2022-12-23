@@ -16,6 +16,7 @@ import (
 type Greeting struct {
 	model.ChannelsGreetings
 	UserName string `json:"userName"`
+	Avatar   string `json:"avatar"`
 }
 
 func handleGet(channelId string, services types.Services) []Greeting {
@@ -43,7 +44,11 @@ func handleGet(channelId string, services types.Services) []Greeting {
 					return g.UserID == u.ID
 				})
 				if ok {
-					users = append(users, Greeting{ChannelsGreetings: user, UserName: u.Login})
+					users = append(users, Greeting{
+						ChannelsGreetings: user,
+						UserName:          u.Login,
+						Avatar:            u.ProfileImageURL,
+					})
 				}
 			}
 		}(chunk)
@@ -88,6 +93,7 @@ func handlePost(
 	return &Greeting{
 		ChannelsGreetings: *greeting,
 		UserName:          twitchUser.Login,
+		Avatar:            twitchUser.ProfileImageURL,
 	}, nil
 }
 
@@ -141,5 +147,35 @@ func handleUpdate(
 	return &Greeting{
 		ChannelsGreetings: *newGreeting,
 		UserName:          twitchUser.Login,
+		Avatar:            twitchUser.ProfileImageURL,
+	}, nil
+}
+
+func handlePatch(
+	channelId, greetingId string,
+	dto *greetingsPatchDto,
+	services types.Services,
+) (*Greeting, error) {
+	greeting := findGreetingById(greetingId, services.DB)
+	if greeting == nil {
+		return nil, fiber.NewError(http.StatusNotFound, "greeting not found")
+	}
+
+	twitchUser := getTwitchUserById(greeting.UserID, services.Twitch)
+	if twitchUser == nil {
+		return nil, fiber.NewError(http.StatusNotFound, "cannot find twitch user")
+	}
+
+	greeting.Enabled = *dto.Enabled
+	err := services.DB.Model(greeting).Select("*").Updates(greeting).Error
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update greeting")
+	}
+
+	return &Greeting{
+		ChannelsGreetings: *greeting,
+		UserName:          twitchUser.Login,
+		Avatar:            twitchUser.ProfileImageURL,
 	}, nil
 }

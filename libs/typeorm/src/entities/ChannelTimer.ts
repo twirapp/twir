@@ -25,7 +25,7 @@ export class ChannelTimer {
   @OneToMany(() => ChannelTimerResponse, _ => _.timer, {
     cascade: true,
   })
-  responses: ChannelTimerResponse;
+  responses: ChannelTimerResponse[];
 
   @Column('integer', { name: 'timeInterval', default: 0 })
   timeInterval: number;

@@ -24,11 +24,11 @@ export class ChannelCustomvar {
   @Column('enum', { name: 'type', enum: CustomVarType })
   type: CustomVarType;
 
-  @Column('text', { name: 'evalValue', nullable: true })
-  evalValue: string | null;
+  @Column('text', { name: 'evalValue', nullable: false, default: '' })
+  evalValue: string;
 
-  @Column('text', { name: 'response', nullable: true })
-  response: string | null;
+  @Column('text', { name: 'response', nullable: false, default: '' })
+  response: string;
 
   @ManyToOne(() => Channel, _ => _.customVar, {
     onDelete: 'RESTRICT',

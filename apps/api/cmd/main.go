@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"reflect"
@@ -19,7 +18,6 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	enTranslations "github.com/go-playground/validator/v10/translations/en"
-	"github.com/gofiber/contrib/fiberzap"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/satont/go-helix/v2"
@@ -73,7 +71,7 @@ func main() {
 	}
 
 	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{
-		Logger: gormLogger.Default.LogMode(gormLogger.Error),
+		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
 	})
 	if err != nil {
 		logger.Sugar().Error(err)
@@ -119,10 +117,11 @@ func main() {
 
 	app.Use(compress.New())
 
-	appLogger, _ := zap.NewDevelopment()
-	app.Use(fiberzap.New(fiberzap.Config{
-		Logger: appLogger,
-	}))
+	// appLogger, _ := zap.NewDevelopment()
+	// app.Use(fiberzap.New(fiberzap.Config{
+	// 	Logger: appLogger,
+
+	// }))
 
 	botsGrpcClient := clients.NewBots(cfg.AppEnv)
 	timersGrpcClient := clients.NewTimers(cfg.AppEnv)
@@ -164,7 +163,7 @@ func main() {
 		return c.Status(404).SendString("Not found")
 	})
 
-	log.Fatal(app.Listen(":3002"))
+	go app.Listen(":3002")
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)

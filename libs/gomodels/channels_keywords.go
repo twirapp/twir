@@ -21,7 +21,7 @@ type ChannelsKeywords struct {
 	Text             string    `gorm:"column:text;type:TEXT;"                          json:"text"`
 	Response         string    `gorm:"column:response;type:TEXT;"                      json:"response"`
 	Enabled          bool      `gorm:"column:enabled;type:BOOL"                        json:"enabled"`
-	Cooldown         null.Int  `gorm:"column:cooldown;type:INT4;default:0;"            json:"cooldown"         swaggertype:"integer"`
+	Cooldown         int       `gorm:"column:cooldown;type:INT4;default:0;"            json:"cooldown"         swaggertype:"integer"`
 	CooldownExpireAt null.Time `gorm:"column:cooldownExpireAt;type:timestamp;"         json:"cooldownExpireAt" swaggertype:"string"`
 	IsReply          bool      `gorm:"column:isReply;type:BOOL"                        json:"isReply"`
 	IsRegular        bool      `gorm:"column:isRegular;type:bool"                      json:"isRegular"`

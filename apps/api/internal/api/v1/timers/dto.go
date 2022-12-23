@@ -12,3 +12,7 @@ type timerDto struct {
 	MessageInterval uint64        `validate:"gte=0,lte=10000"  json:"messageInterval"`
 	Responses       []responseDto `validate:"required,dive"    json:"responses"`
 }
+
+type timerPatchDto struct {
+	Enabled *bool `validate:"required,omitempty" json:"enabled,omitempty"`
+}

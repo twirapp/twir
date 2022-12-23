@@ -35,6 +35,8 @@ func New() (*Config, error) {
 
 	if strings.HasPrefix(wd, "/workspace") {
 		wd = "/workspace"
+	} else {
+		wd = path.Join(wd, "../..")
 	}
 
 	envPath := path.Join(wd, ".env")

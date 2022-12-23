@@ -9,3 +9,7 @@ type keywordDto struct {
 	IsRegular *bool  `validate:"required"         json:"isRegular"`
 	Usages    *int   `validate:"required" json:"usages"`
 }
+
+type keywordPatchDto struct {
+	Enabled *bool `validate:"omitempty,required" json:"enabled,omitempty"`
+}

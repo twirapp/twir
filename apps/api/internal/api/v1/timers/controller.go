@@ -12,6 +12,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Post("", post(services))
 	middleware.Delete(":timerId", delete(services))
 	middleware.Put(":timerId", put(services))
+	middleware.Patch(":timerId", patch(services))
 
 	return middleware
 }
@@ -119,6 +120,41 @@ func put(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		cmd, err := handlePut(c.Params("channelId"), c.Params("timerId"), dto, services)
+		if err == nil {
+			return c.JSON(cmd)
+		}
+
+		return err
+	}
+}
+
+// Timers godoc
+// @Security ApiKeyAuth
+// @Summary      Partially update timer
+// @Tags         Timers
+// @Accept       json
+// @Produce      json
+// @Param data body timerPatchDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Param        timerId   path      string  true  "ID of timer"
+// @Success      200  {object}  model.ChannelsTimers
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/timers/{timerId} [post]
+func patch(services types.Services) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		dto := &timerPatchDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
+		if err != nil {
+			return err
+		}
+
+		cmd, err := handlePatch(c.Params("channelId"), c.Params("timerId"), dto, services)
 		if err == nil {
 			return c.JSON(cmd)
 		}

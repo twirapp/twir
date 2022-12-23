@@ -3,11 +3,9 @@ package auth
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/eventsub"
 	"github.com/satont/tsuwari/libs/grpc/generated/scheduler"
 
@@ -46,8 +44,6 @@ func checkUser(
 	if err != nil && err == gorm.ErrRecordNotFound {
 		newToken := tokenData
 		newToken.ID = uuid.NewV4().String()
-
-		fmt.Printf("%+v\n", newToken)
 
 		if err = services.DB.Save(&newToken).Error; err != nil {
 			services.Logger.Sugar().Error(err)
@@ -102,17 +98,17 @@ func checkUser(
 		}
 	}
 
-	if user.Channel.IsEnabled {
-		services.BotsGrpc.Join(context.Background(), &bots.JoinOrLeaveRequest{
-			BotId:    user.Channel.BotID,
-			UserName: username,
-		})
-	} else {
-		services.BotsGrpc.Leave(context.Background(), &bots.JoinOrLeaveRequest{
-			BotId:    user.Channel.BotID,
-			UserName: username,
-		})
-	}
+	//if user.Channel.IsEnabled {
+	//	services.BotsGrpc.Join(context.Background(), &bots.JoinOrLeaveRequest{
+	//		BotId:    user.Channel.BotID,
+	//		UserName: username,
+	//	})
+	//} else {
+	//	services.BotsGrpc.Leave(context.Background(), &bots.JoinOrLeaveRequest{
+	//		BotId:    user.Channel.BotID,
+	//		UserName: username,
+	//	})
+	//}
 
 	services.SchedulerGrpc.CreateDefaultCommands(
 		context.Background(),

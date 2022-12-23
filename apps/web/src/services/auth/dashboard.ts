@@ -17,12 +17,12 @@ export const selectedDashboardStore = persistentAtom<Dashboard | null>('selected
  */
 export const createUserDashboard = (user: AuthUser): Dashboard => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { dashboards: _dashboards, ...userData } = user;
+  const { dashboards: _, ...userData } = user;
 
   return {
     id: '0',
     channelId: user.id,
     userId: user.id,
-    twitch: userData,
+    twitchUser: userData,
   };
 };

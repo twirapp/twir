@@ -43,6 +43,7 @@ export default defineConfig({
       '/dashboard': {
         target: 'http://127.0.0.1:3006/dashboard',
         changeOrigin: false,
+        ws: true,
         rewrite: (path) => path.replace(/^\/dashboard/, ''),
       },
     },

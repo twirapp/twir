@@ -66,7 +66,7 @@ func (c *Handlers) handleKeywords(
 			defer c.keywordsCounter.Inc()
 
 			isOnCooldown := false
-			if k.Cooldown.Valid && k.CooldownExpireAt.Valid {
+			if k.Cooldown != 0 && k.CooldownExpireAt.Valid {
 				isOnCooldown = k.CooldownExpireAt.Time.After(time.Now().UTC())
 			}
 
@@ -114,7 +114,9 @@ func (c *Handlers) handleKeywords(
 					}
 				}
 
-				query["cooldownExpireAt"] = time.Now().Add(time.Duration(k.Cooldown.Int64) * time.Second).UTC()
+				query["cooldownExpireAt"] = time.Now().
+					Add(time.Duration(k.Cooldown) * time.Second).
+					UTC()
 			}
 
 			query["usages"] = k.Usages + timesInMessage

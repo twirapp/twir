@@ -13,6 +13,7 @@ import {
   EventSubMiddleware,
   EventSubStreamOfflineEvent,
   EventSubStreamOnlineEvent,
+  EventSubSubscription,
   EventSubUserAuthorizationRevokeEvent,
   EventSubUserUpdateEvent,
 } from '@twurple/eventsub';
@@ -49,7 +50,14 @@ export const eventSubMiddleware = new EventSubMiddleware({
   strictHostCheck: true,
 });
 
+const subscriptions: Map<string, EventSubSubscription[]> = new Map();
+
 export const subscribeToEvents = (channelId: string) => {
+  if (!subscriptions.has(channelId)) {
+    subscriptions.set(channelId, []);
+  }
+  const cachedChannel = subscriptions.get(channelId);
+
   for (const type of subScriptionValues.keys()) {
     const typeValue = subScriptionValues.get(type);
     if (!typeValue) continue;
@@ -60,9 +68,27 @@ export const subscribeToEvents = (channelId: string) => {
       // @ts-ignore
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       eventSubHandlers[typeValue](e);
-    });
+    })
+      .then((s: EventSubSubscription) => {
+        subscriptions.set(channelId, [
+          ...cachedChannel!,
+          s,
+        ]);
+      })
+      .catch((e: any) => {
+        console.log(`${typeValue}#${channelId}`,  e);
+      });
 
     console.log(`Subscribed to ${type}#${channelId} event.`);
+  }
+};
+
+export const unSubscribeFromEvents = (channelId: string) => {
+  const cachedChannel = subscriptions.get(channelId);
+  if (!cachedChannel) return;
+
+  for (const sub of cachedChannel) {
+    sub.stop().catch(e => console.error(e));
   }
 };
 
@@ -115,6 +141,7 @@ export const eventSubHandlers = {
           id: token.id,
         });
       }
+      unSubscribeFromEvents(e.userId);
     }
   },
   subscribeToChannelFollowEvents: async (e: EventSubChannelFollowEvent) => {

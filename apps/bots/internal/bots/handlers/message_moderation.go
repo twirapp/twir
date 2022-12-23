@@ -133,7 +133,7 @@ func (c *parsers) returnByWarnedState(
 		})
 		return &handleResult{
 			IsDelete: true,
-			Message:  lo.If(settings.WarningMessage.Valid, settings.WarningMessage.String).Else(""),
+			Message:  settings.WarningMessage,
 		}
 	} else {
 		duration := time.Duration(settings.BanTime) * time.Second
@@ -141,7 +141,7 @@ func (c *parsers) returnByWarnedState(
 		return &handleResult{
 			IsDelete: false,
 			Time:     lo.ToPtr(int(duration.Seconds())),
-			Message:  lo.If(settings.BanMessage.Valid, settings.BanMessage.String).Else(""),
+			Message:  settings.BanMessage,
 		}
 	}
 }

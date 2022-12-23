@@ -12,6 +12,7 @@ require (
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
 	github.com/satori/go.uuid v1.2.0
+	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	go.uber.org/zap v1.23.0
 	google.golang.org/grpc v1.51.0
 	google.golang.org/protobuf v1.28.1

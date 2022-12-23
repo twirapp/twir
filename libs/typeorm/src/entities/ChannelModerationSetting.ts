@@ -43,11 +43,11 @@ export class ChannelModerationSetting {
   @Column('integer', { name: 'banTime', default: 600 })
   banTime: number;
 
-  @Column('text', { name: 'banMessage', nullable: true })
-  banMessage: string | null;
+  @Column('text', { name: 'banMessage', nullable: false, default: '' })
+  banMessage: string;
 
-  @Column('text', { name: 'warningMessage', nullable: true })
-  warningMessage: string | null;
+  @Column('text', { name: 'warningMessage', nullable: false, default: '' })
+  warningMessage: string;
 
   @Column('boolean', {
     name: 'checkClips',

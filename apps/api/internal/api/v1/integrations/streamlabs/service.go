@@ -43,64 +43,18 @@ func handleGetAuth(services types.Services) (*string, error) {
 	return &str, nil
 }
 
-func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrations, error) {
-	integration := model.ChannelsIntegrations{}
-	err := services.DB.
-		Preload("Integration").
-		Joins(`JOIN integrations i on i.id = channels_integrations."integrationId"`).
-		Where(`"channels_integrations"."channelId" = ? AND i.service = ?`, channelId, "STREAMLABS").
-		First(&integration).
-		Error
-	if err != nil && err == gorm.ErrRecordNotFound {
-		return nil, nil
-	}
-	if err != nil {
-		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
-	}
-	return &integration, nil
-}
-
-func handlePatch(
-	channelId string,
-	dto *streamlabsDto,
-	services types.Services,
-) (*model.ChannelsIntegrations, error) {
+func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrationsData, error) {
 	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
 	if err != nil {
 		services.Logger.Sugar().Error(err)
-		return nil, err
+		return nil, nil
 	}
 
 	if integration == nil {
-		neededIntegration := model.Integrations{}
-		err = services.DB.
-			Where("service = ?", "STREAMLABS").
-			First(&neededIntegration).
-			Error
-		if err != nil {
-			services.Logger.Sugar().Error(err)
-			return nil, fiber.NewError(
-				http.StatusInternalServerError,
-				"seems like streamlabs not enabled on our side",
-			)
-		}
-
-		integration = &model.ChannelsIntegrations{
-			ID:            uuid.NewV4().String(),
-			ChannelID:     channelId,
-			IntegrationID: neededIntegration.ID,
-		}
+		return nil, nil
 	}
 
-	integration.Enabled = *dto.Enabled
-	services.DB.Save(&integration)
-
-	if integration.AccessToken.Valid && integration.RefreshToken.Valid {
-		sendGrpcEvent(integration.ID, *dto.Enabled, services)
-	}
-
-	return integration, nil
+	return integration.Data, nil
 }
 
 type tokensResponse struct {
@@ -208,4 +162,23 @@ func sendGrpcEvent(integrationId string, isAdd bool, services types.Services) {
 			Id: integrationId,
 		})
 	}
+}
+
+func handleLogout(channelId string, services types.Services) error {
+	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return err
+	}
+	if integration == nil {
+		return fiber.NewError(http.StatusNotFound, "integration not found")
+	}
+
+	err = services.DB.Delete(&integration).Error
+	if err != nil {
+		services.Logger.Sugar().Error(err)
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	return nil
 }

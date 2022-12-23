@@ -44,7 +44,7 @@ message GetVariablesResponse {
     string name = 1;
     string example = 2;
     string description = 3;
-    optional bool visible = 4;
+    bool visible = 4;
   }
   repeated Variable list = 1;
 }

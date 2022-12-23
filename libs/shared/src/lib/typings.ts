@@ -4,7 +4,7 @@ import { rawDataSymbol } from '@twurple/common';
 
 export type CachedStream = HelixStream[typeof rawDataSymbol] & { parsedMessages?: number };
 
-export type Dashboard = DashboardAccess & { twitch: HelixUser[typeof rawDataSymbol] };
+export type Dashboard = DashboardAccess & { twitchUser: HelixUser[typeof rawDataSymbol] };
 
 export type AuthUser = HelixUser[typeof rawDataSymbol] & {
   dashboards: Dashboard[];

@@ -46,7 +46,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Param        channelId   path      string  true  "ChannelId"
 // @Success      200  {array}  parser.GetVariablesResponse_Variable
 // @Failure 500 {object} types.DOCApiInternalError
-// @Router       /v1/channels/{channelId}/variables/built-in [get]
+// @Router       /v1/channels/{channelId}/variables/builtin [get]
 func getBuiltIn(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		variables, err := handleGetBuiltIn(services)

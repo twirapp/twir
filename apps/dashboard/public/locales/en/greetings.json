@@ -1,0 +1,16 @@
+{
+  "title": "Greetings",
+  "create": "Create",
+  "userName": "User name",
+  "message": "Message",
+  "table": {
+    "head": {
+      "status": "Status",
+      "actions": "Actions"
+    }
+  },
+  "drawer": {
+    "save": "Save",
+    "useReply": "Use twitch reply for message"
+  }
+}

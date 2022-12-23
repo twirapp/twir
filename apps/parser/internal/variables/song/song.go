@@ -31,6 +31,7 @@ var Variable = types.Variable{
 		result := &types.VariableHandlerResult{}
 
 		integrations := ctx.GetEnabledIntegrations()
+
 		integrations = lo.Filter(
 			integrations,
 			func(integration model.ChannelsIntegrations, _ int) bool {
@@ -49,6 +50,7 @@ var Variable = types.Variable{
 				return integration.Integration.Service == "LASTFM"
 			},
 		)
+
 		var lfm *lastfm.LastFm
 		if ok {
 			lfm = lastfm.New(&lastFmIntegration)
@@ -103,7 +105,7 @@ var Variable = types.Variable{
 				}
 
 				track := lfm.GetTrack()
-				fmt.Println(track, integration)
+
 				if track != nil {
 					result.Result = *track
 					break checkServices

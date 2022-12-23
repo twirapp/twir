@@ -70,7 +70,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Param        channelId   path      string  true  "ChannelId"
 // @Success      200  {array}  Entity
 // @Failure 500 {object} types.DOCApiInternalError
-// @Router       /v1/channels/{channelId}/dashboard-access [get]
+// @Router       /v1/channels/{channelId}/settings/dashboard-access [get]
 func get(services types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		users, err := handleGet(c.Params("channelId"), services)
@@ -93,7 +93,7 @@ func get(services types.Services) fiber.Handler {
 // @Success      200  {object}  Entity
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
-// @Router       /v1/channels/{channelId}/dashboard-access [post]
+// @Router       /v1/channels/{channelId}/settings/dashboard-access [post]
 func post(services types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		dto := &addUserDto{}

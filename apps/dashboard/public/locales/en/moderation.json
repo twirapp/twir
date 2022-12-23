@@ -1,0 +1,29 @@
+{
+  "descriptions": {
+    "links": "Remove messages containing any links you haven't whitelisted.",
+    "blacklists": "Remove denied words from chat.",
+    "symbols": "Remove messages containing disruptive or excessive use of symbols.",
+    "longMessage": "Remove lengthy messages.",
+    "caps": "Remove messages containing excessive amounts of capital letters.",
+    "emotes": "Remove messages containing an excessive amount of emotes."
+  },
+  "drawer": {
+    "timeout": {
+      "message": "Timeout message",
+      "time": "Timeout time"
+    },
+    "warning": {
+      "message": "Warning message"
+    },
+    "filters": {
+      "vips": "Moderate vips",
+      "clips": "Moderate clips",
+      "subs": "Moderate subscribers"
+    },
+    "maxEmotes": "Max emotes in message",
+    "maxSymbols": "Max symbols in message (percent)",
+    "maxCaps": "Max caps in message (percent)",
+    "maxLength": "Max message length",
+    "denyListWords": "Deny list words"
+  }
+}
