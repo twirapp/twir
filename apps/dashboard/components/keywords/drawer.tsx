@@ -96,7 +96,7 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
             <TextInput {...form.getInputProps('text')} label={t('trigger')} required w="100%" />
-            <Switch label={t('drawer.isRegular')} {...form.getInputProps('isRegular')} />
+            <Switch label={t('drawer.isRegular')} {...form.getInputProps('isRegular', { type: 'checkbox' })} />
             {form.values.isRegular && (
               <Alert>
                 {t('drawer.expressionAlert')}
