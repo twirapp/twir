@@ -34,6 +34,7 @@ const (
 
 func handleGetToken(code string, services types.Services) (*Tokens, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	resp, err := services.Twitch.Client.RequestUserAccessToken(code)
 	if err != nil {
 		logger.Error(err)

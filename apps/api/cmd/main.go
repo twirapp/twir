@@ -93,7 +93,7 @@ func main() {
 	uni := ut.New(en, en)
 	transEN, _ := uni.GetTranslator("en_US")
 	enTranslations.RegisterDefaultTranslations(validator, transEN)
-	errorMiddleware := middlewares.ErrorHandler(transEN, logger)
+	errorMiddleware := middlewares.ErrorHandler(transEN)
 	validator.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
 
