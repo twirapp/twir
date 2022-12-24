@@ -1,4 +1,4 @@
-import { ActionIcon, Badge, Button, Flex, Switch, Table, Tabs, Text } from '@mantine/core';
+import { ActionIcon, Badge, Button, Flex, Group, Switch, Table, Tabs, Text, TextInput } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import {
   IconClipboardCopy,
@@ -6,7 +6,7 @@ import {
   IconSword,
   IconUser,
   IconTrash,
-  IconPencil,
+  IconPencil, IconSearch,
 } from '@tabler/icons';
 import type { ChannelCommand, CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useTranslation } from 'next-i18next';
@@ -39,10 +39,19 @@ export default function Commands() {
   const deleter = useDelete();
   const { data: commands } = useGetAll();
 
+  const [searchInput, setSearchInput] = useState('');
+
   return (
     <div>
       <Flex direction="row" justify="space-between">
-        <Text size="lg">{t('title')}</Text>
+        <Group>
+          <Text size="lg">{t('title')}</Text>
+          <TextInput
+            placeholder={'search...'}
+            rightSection={<IconSearch size={18} />}
+            onChange={event => setSearchInput(event.target.value)}
+          />
+        </Group>
         <Button
           color="green"
           onClick={() => {
@@ -85,7 +94,12 @@ export default function Commands() {
           {commands &&
             commands.length &&
             commands
-              .filter((c) => c.module === activeTab)
+              .filter((c) => {
+                const isActiveTab = c.module === activeTab;
+                const nameIncludes = c.name.includes(searchInput);
+                const aliasesIncludes = c.aliases.some(a => a.includes(searchInput));
+                return isActiveTab && (nameIncludes || aliasesIncludes);
+              })
               .map((command) => (
                 <tr key={command.id}>
                   <td>
