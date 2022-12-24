@@ -1,4 +1,11 @@
-import { AppShell, ColorScheme, ColorSchemeProvider, MantineProvider, useMantineTheme } from '@mantine/core';
+import {
+  AppShell,
+  ColorScheme,
+  ColorSchemeProvider,
+  MantineProvider,
+  ScrollArea,
+  useMantineTheme,
+} from '@mantine/core';
 import { useColorScheme, useHotkeys, useLocalStorage } from '@mantine/hooks';
 import { ModalsProvider } from '@mantine/modals';
 import { NotificationsProvider } from '@mantine/notifications';
@@ -51,6 +58,13 @@ const app = function App(props: AppProps) {
                 searchPlaceholder="Search..."
                 shortcut={['mod+k']}
                 nothingFoundMessage="Nothing found..."
+                limit={Number.MAX_SAFE_INTEGER}
+                centered={true}
+                styles={{
+                  spotlight: {
+                    marginBottom: 20,
+                  },
+                }}
               >
                 <ModalsProvider>
                   <AppShell
