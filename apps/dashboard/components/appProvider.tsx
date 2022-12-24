@@ -7,16 +7,19 @@ import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { useProfile } from '@/services/api';
 import { SELECTED_DASHBOARD_KEY, useLocale, useSelectedDashboard } from '@/services/dashboard';
+import i18nconfig from '../next-i18next.config'
 
 type Props = React.PropsWithChildren<{
   colorScheme: ColorScheme
 }>
 
+const supportedLocales = i18nconfig.i18n.locales
+
 export const AppProvider: React.FC<Props> = (props) => {
   const [selectedDashboard] = useSelectedDashboard();
   const router = useRouter();
   const { error: profileError } = useProfile();
-  const [locale] = useLocale();
+  const [locale, setLocale] = useLocale();
 
   useEffect(() => {
     if (selectedDashboard) {
@@ -29,12 +32,18 @@ export const AppProvider: React.FC<Props> = (props) => {
   }, [selectedDashboard]);
 
   useEffect(() => {
-    if (locale) {
+    // redirect to route with setted locale
+    if (locale && supportedLocales.includes(locale)) {
       const { pathname, asPath, query } = router;
       if (query.code || query.token) {
         return;
       }
       router.push({ pathname, query }, asPath, { locale });
+    }
+
+    // set locale if unsupported is setted
+    if (!supportedLocales.includes(locale)) {
+      setLocale('en');
     }
   }, [locale]);
 
