@@ -1,5 +1,5 @@
 import { ActionIcon, Badge, Button, Flex, Group, Switch, Table, Tabs, Text, TextInput } from '@mantine/core';
-import { useViewportSize } from '@mantine/hooks';
+import { useDebouncedValue, useViewportSize } from '@mantine/hooks';
 import {
   IconClipboardCopy,
   IconPencilPlus,
@@ -40,6 +40,7 @@ export default function Commands() {
   const { data: commands } = useGetAll();
 
   const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearchInput] = useDebouncedValue(searchInput, 200);
 
   return (
     <div>
@@ -96,8 +97,8 @@ export default function Commands() {
             commands
               .filter((c) => {
                 const isActiveTab = c.module === activeTab;
-                const nameIncludes = c.name.includes(searchInput);
-                const aliasesIncludes = c.aliases.some(a => a.includes(searchInput));
+                const nameIncludes = c.name.includes(debouncedSearchInput);
+                const aliasesIncludes = c.aliases.some(a => a.includes(debouncedSearchInput));
                 return isActiveTab && (nameIncludes || aliasesIncludes);
               })
               .map((command) => (
