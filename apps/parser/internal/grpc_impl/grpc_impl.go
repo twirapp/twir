@@ -88,7 +88,7 @@ func (c *parserGrpcServer) ProcessCommand(
 			c.redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
 		} else {
 			fmt.Println(err)
-			return nil, errors.New("error while setting redis cooldown for command")
+			return nil, errors.New("error while setting redis_storage cooldown for command")
 		}
 	}
 
@@ -103,7 +103,7 @@ func (c *parserGrpcServer) ProcessCommand(
 			c.redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
 		} else {
 			fmt.Println(err)
-			return nil, errors.New("error while setting redis cooldown for command")
+			return nil, errors.New("error while setting redis_storage cooldown for command")
 		}
 	}
 

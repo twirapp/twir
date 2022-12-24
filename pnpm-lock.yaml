@@ -14056,12 +14056,12 @@ packages:
   /redis/4.5.1:
     resolution: {integrity: sha512-oxXSoIqMJCQVBTfxP6BNTCtDMyh9G6Vi5wjdPdV/sRKkufyZslDqCScSGcOr6XGR/reAWZefz7E4leM31RgdBA==}
     dependencies:
-      '@redis/bloom': 1.1.0_@redis+client@1.4.2
+      '@redis/bloom': 1.1.0_@redis_storage+client@1.4.2
       '@redis/client': 1.4.2
-      '@redis/graph': 1.1.0_@redis+client@1.4.2
-      '@redis/json': 1.0.4_@redis+client@1.4.2
-      '@redis/search': 1.1.0_@redis+client@1.4.2
-      '@redis/time-series': 1.0.4_@redis+client@1.4.2
+      '@redis/graph': 1.1.0_@redis_storage+client@1.4.2
+      '@redis/json': 1.0.4_@redis_storage+client@1.4.2
+      '@redis/search': 1.1.0_@redis_storage+client@1.4.2
+      '@redis/time-series': 1.0.4_@redis_storage+client@1.4.2
     dev: false
 
   /redux/4.2.0:

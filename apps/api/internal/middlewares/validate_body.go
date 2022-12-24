@@ -1,17 +1,19 @@
 package middlewares
 
 import (
-	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
 )
 
 func ValidateBody[T any](
 	c *fiber.Ctx,
-	v *validator.Validate,
-	translator ut.Translator,
 	dto *T,
 ) error {
+	v := do.MustInvoke[*validator.Validate](di.Injector)
+	//translator := do.MustInvoke[ut.Translator](di.Injector)
+
 	if err := c.BodyParser(dto); err != nil {
 		if err.Error() == "Unprocessable Entity" {
 			return fiber.NewError(400, "data not provided")

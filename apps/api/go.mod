@@ -58,6 +58,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/onsi/ginkgo/v2 v2.5.0 // indirect
 	github.com/rivo/uniseg v0.4.2 // indirect
+	github.com/samber/do v1.5.1 // indirect
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/goleak v1.1.12 // indirect

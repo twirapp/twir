@@ -8,7 +8,7 @@ func New(redisUrl string) *redis.Client {
 	url, err := redis.ParseURL(redisUrl)
 
 	if err != nil {
-		panic("Wrong redis url")
+		panic("Wrong redis_storage url")
 	}
 
 	client := redis.NewClient(&redis.Options{

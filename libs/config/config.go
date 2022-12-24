@@ -10,7 +10,7 @@ import (
 )
 
 type Config struct {
-	RedisUrl                 string  `required:"true"  default:"redis://localhost:6379/0"    envconfig:"REDIS_URL"`
+	RedisUrl                 string  `required:"true"  default:"redis_storage://localhost:6379/0"    envconfig:"REDIS_URL"`
 	TwitchClientId           string  `required:"true"                                        envconfig:"TWITCH_CLIENTID"`
 	TwitchClientSecret       string  `required:"true"                                        envconfig:"TWITCH_CLIENTSECRET"`
 	TwitchCallbackUrl        string  `required:"true"  default:"http://localhost:3005/login" envconfig:"TWITCH_CALLBACKURL"`

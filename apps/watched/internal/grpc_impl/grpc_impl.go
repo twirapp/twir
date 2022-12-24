@@ -165,7 +165,7 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 							},
 						}
 						if err := c.db.Save(user).Error; err != nil {
-							c.logger.Sugar().Error(err)
+							c.interfaces.Sugar().Error(err)
 						}
 					} else if user.Stats == nil {
 						statsId, _ := uuid.NewV4()
@@ -177,7 +177,7 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 							Watched:   0,
 						}).Error
 						if err != nil {
-							c.logger.Sugar().Error(err)
+							c.interfaces.Sugar().Error(err)
 						}
 					} else {
 						time := 5 * time.Minute
@@ -185,7 +185,7 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 						user.Stats.Watched += time.Milliseconds()
 						err := c.db.Save(&user).Error
 						if err != nil {
-							c.logger.Sugar().Error(err)
+							c.interfaces.Sugar().Error(err)
 						}
 					} */
 				}(chatter)

@@ -14,14 +14,14 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/satont/tsuwari/apps/api/internal/services/redis"
+	"github.com/satont/tsuwari/apps/api/internal/services/redis_storage"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type Services struct {
 	DB                  *gorm.DB
-	RedisStorage        *redis.RedisStorage
+	RedisStorage        *redis_storage.RedisStorage
 	Validator           *validator.Validate
 	ValidatorTranslator ut.Translator
 	Twitch              *twitch.Twitch

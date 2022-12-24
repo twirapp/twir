@@ -21,34 +21,33 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/timers"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/variables"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
-	feedback.Setup(router, services)
-	stats.Setup(router, services)
+func Setup(router fiber.Router) fiber.Router {
+	feedback.Setup(router)
+	stats.Setup(router)
 
 	channelsGroup := router.Group("channels/:channelId")
-	channelsGroup.Use(middlewares.CheckUserAuth(services))
+	channelsGroup.Use(middlewares.CheckUserAuth)
 	channelsGroup.Use(middlewares.CheckHasAccessToDashboard)
 
-	commands.Setup(channelsGroup, services)
-	greetings.Setup(channelsGroup, services)
-	keywords.Setup(channelsGroup, services)
-	timers.Setup(channelsGroup, services)
-	moderation.Setup(channelsGroup, services)
-	bot.Setup(channelsGroup, services)
-	streams.Setup(channelsGroup, services)
-	variables.Setup(channelsGroup, services)
-	settings.Setup(channelsGroup, services)
+	commands.Setup(channelsGroup)
+	greetings.Setup(channelsGroup)
+	keywords.Setup(channelsGroup)
+	timers.Setup(channelsGroup)
+	moderation.Setup(channelsGroup)
+	bot.Setup(channelsGroup)
+	streams.Setup(channelsGroup)
+	variables.Setup(channelsGroup)
+	settings.Setup(channelsGroup)
 
 	integrationsGroup := channelsGroup.Group("integrations")
-	donationalerts.Setup(integrationsGroup, services)
-	streamlabs.Setup(integrationsGroup, services)
-	faceit.Setup(integrationsGroup, services)
-	lastfm.Setup(integrationsGroup, services)
-	vk.Setup(integrationsGroup, services)
-	spotify.Setup(integrationsGroup, services)
+	donationalerts.Setup(integrationsGroup)
+	streamlabs.Setup(integrationsGroup)
+	faceit.Setup(integrationsGroup)
+	lastfm.Setup(integrationsGroup)
+	vk.Setup(integrationsGroup)
+	spotify.Setup(integrationsGroup)
 
 	return router
 }

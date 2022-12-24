@@ -115,7 +115,7 @@ services:
   redis:
     image: redis/redis-stack:7.0.6-RC2
     volumes:
-      - redis-data:/data
+      - redis_storage-data:/data
     networks:
       - tsuwari
     deploy:

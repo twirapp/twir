@@ -56,7 +56,7 @@ services:
     ports:
       - "6385:6379"
     volumes:
-      - redis-data:/data
+      - redis_storage-data:/data
     networks:
       - tsuwari-dev
 

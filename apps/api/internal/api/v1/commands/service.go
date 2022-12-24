@@ -1,6 +1,10 @@
 package commands
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"gorm.io/gorm"
 	"net/http"
 	"strings"
 
@@ -9,27 +13,28 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 )
 
-func handleGet(channelId string, services types.Services) []model.ChannelsCommands {
-	cmds := getChannelCommands(services.DB, channelId)
+func handleGet(channelId string) []model.ChannelsCommands {
+	cmds := getChannelCommands(channelId)
 
 	return cmds
 }
 
 func handlePost(
 	channelId string,
-	services types.Services,
 	dto *commandDto,
 ) (*model.ChannelsCommands, error) {
+	db := do.MustInvoke[*gorm.DB](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	dto.Name = strings.ToLower(dto.Name)
 	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
 		return strings.ToLower(a)
 	})
 
-	isExists := isCommandWithThatNameExists(services.DB, channelId, dto.Name, dto.Aliases, nil)
+	isExists := isCommandWithThatNameExists(channelId, dto.Name, dto.Aliases, nil)
 	if isExists {
 		return nil, fiber.NewError(400, "command with that name already exists")
 	}
@@ -40,16 +45,16 @@ func handlePost(
 
 	newCommand := createCommandFromDto(dto, channelId, lo.ToPtr(uuid.NewV4().String()))
 
-	err := services.DB.Save(newCommand).Error
+	err := db.Save(newCommand).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create command")
 	}
 
 	responses := createResponsesFromDto(dto.Responses, newCommand.ID)
-	err = services.DB.Save(&responses).Error
+	err = db.Save(&responses).Error
 	if err != nil {
-		services.DB.Where(`"id" = ?`, newCommand.ID).Delete(&model.ChannelsCommands{})
+		db.Where(`"id" = ?`, newCommand.ID).Delete(&model.ChannelsCommands{})
 
 		return nil, fiber.NewError(
 			http.StatusInternalServerError,
@@ -62,14 +67,18 @@ func handlePost(
 	return newCommand, nil
 }
 
-func handleDelete(channelId string, commandId string, services types.Services) error {
-	command, err := getChannelCommand(services.DB, channelId, commandId)
+func handleDelete(channelId string, commandId string) error {
+	db := do.MustInvoke[*gorm.DB](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
+	command, err := getChannelCommand(channelId, commandId)
 	if err != nil || command == nil {
 		return fiber.NewError(http.StatusNotFound, "command not found")
 	}
 
-	err = services.DB.Delete(&command).Error
+	err = db.Delete(&command).Error
 	if err != nil {
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot delete command")
 	}
 
@@ -80,14 +89,16 @@ func handleUpdate(
 	channelId string,
 	commandId string,
 	dto *commandDto,
-	services types.Services,
 ) (*model.ChannelsCommands, error) {
+	db := do.MustInvoke[*gorm.DB](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	dto.Name = strings.ToLower(dto.Name)
 	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
 		return strings.ToLower(a)
 	})
 
-	command, err := getChannelCommand(services.DB, channelId, commandId)
+	command, err := getChannelCommand(channelId, commandId)
 	if err != nil || command == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "command not found")
 	}
@@ -97,7 +108,6 @@ func handleUpdate(
 	}
 
 	isExists := isCommandWithThatNameExists(
-		services.DB,
 		channelId,
 		dto.Name,
 		dto.Aliases,
@@ -118,21 +128,21 @@ func handleUpdate(
 	command.Permission = dto.Permission
 	command.Visible = *dto.Visible
 
-	err = services.DB.
+	err = db.
 		Select("*").
 		Updates(command).
 		Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, err
 	}
 
 	if !command.Default {
-		services.DB.Where(`"commandId" = ?`, command.ID).Delete(&model.ChannelsCommandsResponses{})
+		db.Where(`"commandId" = ?`, command.ID).Delete(&model.ChannelsCommandsResponses{})
 		responses := createResponsesFromDto(dto.Responses, commandId)
-		err = services.DB.Save(&responses).Error
+		err = db.Save(&responses).Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return nil, fiber.NewError(
 				http.StatusInternalServerError,
 				"something went wrong on creating response",
@@ -148,24 +158,26 @@ func handleUpdate(
 func handlePatch(
 	channelId, commandId string,
 	dto *commandPatchDto,
-	services types.Services,
 ) (*model.ChannelsCommands, error) {
-	command, err := getChannelCommand(services.DB, channelId, commandId)
+	db := do.MustInvoke[*gorm.DB](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
+	command, err := getChannelCommand(channelId, commandId)
 	if err != nil || command == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "command not found")
 	}
 
 	command.Enabled = *dto.Enabled
 
-	err = services.DB.
+	err = db.
 		Select("*").
 		Updates(command).
 		Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, err
 	}
 
-	newCommand, _ := getChannelCommand(services.DB, channelId, commandId)
+	newCommand, _ := getChannelCommand(channelId, commandId)
 	return newCommand, nil
 }

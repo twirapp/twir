@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/guregu/null"
@@ -9,7 +11,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func getChannelCommands(db *gorm.DB, channelId string) []model.ChannelsCommands {
+func getChannelCommands(channelId string) []model.ChannelsCommands {
+	db := do.MustInvoke[*gorm.DB](di.Injector)
+
 	cmds := []model.ChannelsCommands{}
 	db.Preload("Responses").
 		Where(`"channelId" = ?`, channelId).
@@ -19,10 +23,11 @@ func getChannelCommands(db *gorm.DB, channelId string) []model.ChannelsCommands 
 }
 
 func getChannelCommand(
-	db *gorm.DB,
 	channelId string,
 	commandId string,
 ) (*model.ChannelsCommands, error) {
+	db := do.MustInvoke[*gorm.DB](di.Injector)
+
 	command := &model.ChannelsCommands{}
 	err := db.Where(`"channelId" = ? AND "id" = ?`, channelId, commandId).
 		Preload("Responses").
@@ -35,13 +40,12 @@ func getChannelCommand(
 }
 
 func isCommandWithThatNameExists(
-	db *gorm.DB,
 	channelId string,
 	name string,
 	aliases []string,
 	exceptCommandId *string,
 ) bool {
-	cmds := getChannelCommands(db, channelId)
+	cmds := getChannelCommands(channelId)
 
 	if len(cmds) == 0 {
 		return false
