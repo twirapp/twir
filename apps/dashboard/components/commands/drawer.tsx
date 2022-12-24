@@ -20,7 +20,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
-import { IconGripVertical, IconMinus, IconPlus, IconVariable } from '@tabler/icons';
+import { IconGripVertical, IconMinus, IconPlus, IconSearch, IconVariable } from '@tabler/icons';
 import type {
   ChannelCommand,
   CommandModule,
@@ -28,7 +28,7 @@ import type {
   CooldownType,
 } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useTranslation } from 'next-i18next';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { noop } from '../../util/chore';
@@ -118,6 +118,8 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       form.reset();
     }).catch(noop);
   }
+
+  const [variablesSearchInput, setVariablesSearchInput] = useState('');
 
 
   return (
@@ -284,8 +286,16 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                                       </Menu.Target>
 
                                       <Menu.Dropdown>
-                                        <ScrollArea h={200} type={'always'} offsetScrollbars>
-                                        {variables.data?.length && variables.data.map(v => (
+                                        <TextInput
+                                          placeholder={'search...'}
+                                          size={'sm'}
+                                          rightSection={<IconSearch size={12} />}
+                                          onChange={event => setVariablesSearchInput(event.target.value)}
+                                        />
+                                        <ScrollArea h={200} type={'always'} offsetScrollbars style={{ marginTop: 5 }}>
+                                        {variables.data?.length && variables.data
+                                          .filter(v => v.name.includes(variablesSearchInput) || v.description?.includes(variablesSearchInput))
+                                          .map(v => (
                                           <Menu.Item key={v.name} onClick={() => {
                                             const insertValue = `${v.example ? v.example : v.name}`;
                                             form.setFieldValue(
@@ -299,7 +309,6 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                                             </Flex>
                                           </Menu.Item>
                                         ))}
-
                                         </ScrollArea>
                                       </Menu.Dropdown>
 
