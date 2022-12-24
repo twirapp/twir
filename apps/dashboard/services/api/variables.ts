@@ -30,7 +30,7 @@ export const useVariables = () => {
           description: `Your created variable ${v.name.toUpperCase()}`,
           visible: true,
         })),
-        ...builtIn.filter(v => v.visible),
+        ...builtIn.filter(v => v.visible).sort((a, b) => a.name < b.name ? -1 : 1),
       ];
 
       return list;
