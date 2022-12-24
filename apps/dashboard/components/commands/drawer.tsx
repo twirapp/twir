@@ -19,7 +19,7 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useDebouncedValue, useViewportSize } from '@mantine/hooks';
+import { useDebouncedState, useDebouncedValue, useViewportSize } from '@mantine/hooks';
 import { IconGripVertical, IconMinus, IconPlus, IconSearch, IconVariable } from '@tabler/icons';
 import type {
   ChannelCommand,
@@ -119,8 +119,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
     }).catch(noop);
   }
 
-  const [variablesSearchInput, setVariablesSearchInput] = useState('');
-  const [debouncedVariablesSearchInput] = useDebouncedValue(variablesSearchInput, 200);
+  const [variablesSearchInput, setVariablesSearchInput] = useDebouncedState('', 200);
 
   return (
     <Drawer
@@ -294,8 +293,8 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                                         />
                                         <ScrollArea h={200} type={'always'} offsetScrollbars style={{ marginTop: 5 }}>
                                         {variables.data?.length && variables.data
-                                          .filter(v => v.name.includes(debouncedVariablesSearchInput)
-                                            || v.description?.includes(debouncedVariablesSearchInput))
+                                          .filter(v => v.name.includes(variablesSearchInput)
+                                            || v.description?.includes(variablesSearchInput))
                                           .map(v => (
                                           <Menu.Item key={v.name} onClick={() => {
                                             const insertValue = `${v.example ? v.example : v.name}`;
