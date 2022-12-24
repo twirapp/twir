@@ -1,7 +1,7 @@
 package interfaces
 
 type Logger interface {
+	Infow(msg string, keysAndValues ...any)
 	Error(args ...any)
-	Infow(msg string, keysAndValues ...interface{})
-	Info(args ...interface{})
+	Info(args ...any)
 }

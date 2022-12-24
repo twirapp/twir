@@ -1,6 +1,9 @@
 package vk
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 	"net/url"
 
@@ -61,9 +64,11 @@ type profileResponse struct {
 }
 
 func handleGet(channelId string, services types.Services) (*profile, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "VK", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -82,7 +87,7 @@ func handleGet(channelId string, services types.Services) (*profile, error) {
 		Get("https://api.vk.com/method/users.get")
 
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -98,9 +103,11 @@ type tokensResponse struct {
 }
 
 func handlePost(channelId string, dto *vkDto, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "VK", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return err
 	}
 
@@ -111,7 +118,7 @@ func handlePost(channelId string, dto *vkDto, services types.Services) error {
 			First(&neededIntegration).
 			Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return fiber.NewError(
 				http.StatusInternalServerError,
 				"seems like VK not enabled on our side",
@@ -140,7 +147,7 @@ func handlePost(channelId string, dto *vkDto, services types.Services) error {
 		Get("https://oauth.vk.com/access_token")
 
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -148,7 +155,7 @@ func handlePost(channelId string, dto *vkDto, services types.Services) error {
 	integration.AccessToken = null.StringFrom(data.AccessToken)
 
 	if err = services.DB.Save(integration).Error; err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update faceit data")
 	}
 
@@ -156,9 +163,11 @@ func handlePost(channelId string, dto *vkDto, services types.Services) error {
 }
 
 func handleLogout(channelId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "VK", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return err
 	}
 	if integration == nil {
@@ -167,7 +176,7 @@ func handleLogout(channelId string, services types.Services) error {
 
 	err = services.DB.Delete(&integration).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 

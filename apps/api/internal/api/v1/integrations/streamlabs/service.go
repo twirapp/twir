@@ -3,6 +3,9 @@ package streamlabs
 import (
 	"context"
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 	"net/url"
 
@@ -44,9 +47,11 @@ func handleGetAuth(services types.Services) (*string, error) {
 }
 
 func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrationsData, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, nil
 	}
 
@@ -73,9 +78,11 @@ type profileResponse struct {
 }
 
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	channelIntegration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return err
 	}
 
@@ -85,7 +92,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		First(&neededIntegration).
 		Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(
 			http.StatusInternalServerError,
 			"seems like streamlabs not enabled on our side",
@@ -114,7 +121,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		SetContentType("application/x-www-form-urlencoded").
 		Post("https://streamlabs.com/api/v1.0/token")
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get tokens")
 	}
 	if !resp.IsSuccess() {
@@ -127,7 +134,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		Get(fmt.Sprintf("https://streamlabs.com/api/v1.0/user?access_token=%s", data.AccessToken))
 
 	if err != nil || !profileResp.IsSuccess() {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get profile")
 	}
 
@@ -143,7 +150,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		Save(channelIntegration).Error
 
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
@@ -165,9 +172,11 @@ func sendGrpcEvent(integrationId string, isAdd bool, services types.Services) {
 }
 
 func handleLogout(channelId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return err
 	}
 	if integration == nil {
@@ -176,7 +185,7 @@ func handleLogout(channelId string, services types.Services) error {
 
 	err = services.DB.Delete(&integration).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 

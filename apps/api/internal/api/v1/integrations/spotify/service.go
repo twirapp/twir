@@ -3,6 +3,9 @@ package spotify
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"io"
 	"net/http"
 	"net/url"
@@ -59,9 +62,11 @@ type profileResponse struct {
 }
 
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	channelIntegration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return err
 	}
 
@@ -71,7 +76,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		First(&neededIntegration).
 		Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(
 			http.StatusInternalServerError,
 			"seems like spotify not enabled on our side",
@@ -123,7 +128,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		Save(channelIntegration).Error
 
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
@@ -131,9 +136,11 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 }
 
 func handleGetProfile(channelId string, services types.Services) (*spotify.SpotifyProfile, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -144,7 +151,7 @@ func handleGetProfile(channelId string, services types.Services) (*spotify.Spoti
 	spoty := spotify.New(integration, services.DB)
 	profile, err := spoty.GetProfile()
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(400, "cannot get spotify profile")
 	}
 
@@ -152,9 +159,11 @@ func handleGetProfile(channelId string, services types.Services) (*spotify.Spoti
 }
 
 func handleLogout(channelId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return err
 	}
 	if integration == nil {
@@ -163,7 +172,7 @@ func handleLogout(channelId string, services types.Services) error {
 
 	err = services.DB.Delete(&integration).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 

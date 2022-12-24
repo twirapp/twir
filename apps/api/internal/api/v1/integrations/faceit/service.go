@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
+	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -19,9 +22,11 @@ import (
 )
 
 func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrationsData, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "FACEIT", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, nil
 	}
 
@@ -57,9 +62,10 @@ func handleGetAuth(services types.Services) (*string, error) {
 
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
 	channelIntegration, err := helpers.GetIntegration(channelId, "FACEIT", services.DB)
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
 
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return err
 	}
 
@@ -69,7 +75,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		First(&neededIntegration).
 		Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(
 			http.StatusInternalServerError,
 			"seems like faceit not enabled on our side",
@@ -159,7 +165,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 	channelIntegration.Data = &integrationData
 
 	if err = services.DB.Save(channelIntegration).Error; err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
@@ -167,9 +173,11 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 }
 
 func handleLogout(channelId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "FACEIT", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return err
 	}
 	if integration == nil {
@@ -178,7 +186,7 @@ func handleLogout(channelId string, services types.Services) error {
 
 	err = services.DB.Delete(&integration).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 

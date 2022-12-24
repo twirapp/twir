@@ -6,7 +6,6 @@ import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	cfg "github.com/satont/tsuwari/libs/config"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/gofiber/fiber/v2"
+	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
 var cannotSendFeedbackError = fiber.NewError(
@@ -25,26 +25,23 @@ func handlePost(
 	fromId string,
 	text string,
 	files []*multipart.FileHeader,
+	services types.Services,
 ) error {
-	botApi, err := do.Invoke[*tgbotapi.BotAPI](di.Injector)
-
-	if err != nil {
+	if services.TgBotApi == nil {
 		return fiber.NewError(
 			400,
 			"cannot send feedback because we are not currently configured this feature. Please contact bot developers",
 		)
 	}
 
-	config := do.MustInvoke[*cfg.Config](di.Injector)
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-
 	myText := fmt.Sprintf("New feedback from %s\n%s", fromId, text)
 
-	userId, _ := strconv.Atoi(*config.FeedbackTelegramUserID)
+	userId, _ := strconv.Atoi(*services.Cfg.FeedbackTelegramUserID)
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
 
 	if len(files) == 0 {
 		msg := tgbotapi.NewMessage(int64(userId), myText)
-		_, err := botApi.Send(msg)
+		_, err := services.TgBotApi.Send(msg)
 		if err != nil {
 			logger.Error(err)
 			return cannotSendFeedbackError
@@ -64,11 +61,11 @@ func handlePost(
 		}
 
 		mediaGroup := tgbotapi.NewMediaGroup(int64(userId), media)
-		_, err := botApi.SendMediaGroup(mediaGroup)
+		_, err := services.TgBotApi.SendMediaGroup(mediaGroup)
 		if err != nil {
 			return fiber.NewError(http.StatusInternalServerError, "cannot send feedback due internal error")
 		}
-		botApi.Send(tgbotapi.NewMessage(int64(userId), myText))
+		services.TgBotApi.Send(tgbotapi.NewMessage(int64(userId), myText))
 	}
 
 	return nil

@@ -5,8 +5,6 @@ import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"gorm.io/gorm"
 	"net/http"
 	"sync"
 	"time"
@@ -19,6 +17,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
+	"github.com/satont/tsuwari/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -33,20 +32,17 @@ const (
 	refreshLifeTime = 31 * 24 * time.Hour
 )
 
-func handleGetToken(code string) (*Tokens, error) {
-	twitchInstance := do.MustInvoke[*twitch.Twitch](di.Injector)
+func handleGetToken(code string, services types.Services) (*Tokens, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	config := do.MustInvoke[*cfg.Config](di.Injector)
-
-	resp, err := twitchInstance.Client.RequestUserAccessToken(code)
+	resp, err := services.Twitch.Client.RequestUserAccessToken(code)
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(401, "cannot get user tokens")
 	}
 
 	newClient := twitch.NewClient(&helix.Options{
-		ClientID:         config.TwitchClientId,
-		ClientSecret:     config.TwitchClientSecret,
+		ClientID:         services.Cfg.TwitchClientId,
+		ClientSecret:     services.Cfg.TwitchClientSecret,
 		UserAccessToken:  resp.Data.AccessToken,
 		UserRefreshToken: resp.Data.RefreshToken,
 	})
@@ -73,7 +69,7 @@ func handleGetToken(code string) (*Tokens, error) {
 
 	accessClaims := claims
 	accessClaims.ExpiresAt = jwt.NewNumericDate(now.Add(accessLifeTime))
-	accessToken, err := createToken(accessClaims, config.JwtAccessSecret)
+	accessToken, err := createToken(accessClaims, services.Cfg.JwtAccessSecret)
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(401, "cannot create JWT access token")
@@ -82,13 +78,13 @@ func handleGetToken(code string) (*Tokens, error) {
 	refreshClaims := claims
 	refreshClaims.ExpiresAt = jwt.NewNumericDate(now.Add(refreshLifeTime))
 
-	refreshToken, err := createToken(refreshClaims, config.JwtRefreshSecret)
+	refreshToken, err := createToken(refreshClaims, services.Cfg.JwtRefreshSecret)
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(401, "cannot create JWT refresh token")
 	}
 
-	err = checkUser(user.Login, user.ID, resp.Data)
+	err = checkUser(user.Login, user.ID, resp.Data, services)
 	if err != nil {
 		return nil, fiber.NewError(500, "internal error")
 	}
@@ -118,13 +114,11 @@ func createToken(claims jwt.Claims, secret string) (string, error) {
 	return tokenString, nil
 }
 
-func handleGetProfile(user model.Users) (*Profile, error) {
-	db := do.MustInvoke[*gorm.DB](di.Injector)
+func handleGetProfile(user model.Users, services types.Services) (*Profile, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	twitchInstance := do.MustInvoke[*twitch.Twitch](di.Injector)
 
 	dbDashboards := []model.ChannelsDashboardAccess{}
-	err := db.Where(`"userId" = ?`, user.ID).Find(&dbDashboards).Error
+	err := services.DB.Where(`"userId" = ?`, user.ID).Find(&dbDashboards).Error
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
@@ -136,7 +130,7 @@ func handleGetProfile(user model.Users) (*Profile, error) {
 		})
 		channelsIds = append(channelsIds, user.ID)
 		channels := []model.Channels{}
-		err := db.Not(channelsIds).Find(&channels).Error
+		err := services.DB.Not(channelsIds).Find(&channels).Error
 		if err != nil {
 			logger.Error(err)
 			return nil, fiber.NewError(http.StatusInternalServerError, "cannot get channels")
@@ -167,7 +161,7 @@ func handleGetProfile(user model.Users) (*Profile, error) {
 	for _, chunk := range chunks {
 		go func(c []string) {
 			defer twitchUsersWg.Done()
-			users, err := twitchInstance.Client.GetUsers(&helix.UsersParams{IDs: c})
+			users, err := services.Twitch.Client.GetUsers(&helix.UsersParams{IDs: c})
 			if err != nil {
 				return
 			}
@@ -215,8 +209,7 @@ type Profile struct {
 	DashBoards []DashboardAndUser `json:"dashboards"`
 }
 
-func handleRefresh(refreshToken string) (string, error) {
-	config := do.MustInvoke[*cfg.Config](di.Injector)
+func handleRefresh(refreshToken string, services types.Services) (string, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
 
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
@@ -224,7 +217,7 @@ func handleRefresh(refreshToken string) (string, error) {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return []byte(config.JwtRefreshSecret), nil
+		return []byte(services.Cfg.JwtRefreshSecret), nil
 	})
 	if err != nil {
 		return "", fiber.NewError(401, "invalid token. Probably token is expired.")
@@ -243,7 +236,7 @@ func handleRefresh(refreshToken string) (string, error) {
 	}
 
 	newClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(accessLifeTime))
-	newToken, err := createToken(newClaims, config.JwtAccessSecret)
+	newToken, err := createToken(newClaims, services.Cfg.JwtAccessSecret)
 	if err != nil {
 		logger.Error(err)
 		return "", fiber.NewError(401, "cannot create new access token")

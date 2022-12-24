@@ -2,6 +2,9 @@ package variables
 
 import (
 	"context"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -16,10 +19,12 @@ import (
 )
 
 func handleGet(channelId string, services types.Services) ([]model.ChannelsCustomvars, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	variables := []model.ChannelsCustomvars{}
 	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&variables).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get variables")
 	}
 
@@ -27,9 +32,11 @@ func handleGet(channelId string, services types.Services) ([]model.ChannelsCusto
 }
 
 func handleGetBuiltIn(services types.Services) ([]*parser.GetVariablesResponse_Variable, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	req, err := services.ParserGrpc.GetDefaultVariables(context.Background(), &emptypb.Empty{})
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get builtin variables")
 	}
 
@@ -67,6 +74,8 @@ func handlePost(
 }
 
 func handleDelete(channelId string, variableId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	variable := &model.ChannelsCustomvars{}
 	err := services.DB.Where(`"channelId" = ? AND "id" = ?`, channelId, variableId).
 		First(variable).
@@ -77,7 +86,7 @@ func handleDelete(channelId string, variableId string, services types.Services) 
 
 	err = services.DB.Delete(variable).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot delete variable")
 	}
 
@@ -90,6 +99,8 @@ func handleUpdate(
 	dto *variableDto,
 	services types.Services,
 ) (*model.ChannelsCustomvars, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	err := services.DB.Where("id = ?", variableId).First(&model.ChannelsCustomvars{}).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(http.StatusNotFound, "variable not found")
@@ -107,7 +118,7 @@ func handleUpdate(
 
 	err = services.DB.Select("*").Updates(&newData).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(
 			http.StatusInternalServerError,
 			"something happend on our side, cannot update variable",

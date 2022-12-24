@@ -14,6 +14,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/satont/go-helix/v2"
+	"github.com/satont/tsuwari/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -21,12 +22,12 @@ import (
 func checkUser(
 	username, userId string,
 	tokens helix.AccessCredentials,
+	services types.Services,
 ) error {
-	db := do.MustInvoke[*gorm.DB](di.Injector)
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
 
 	defaultBot := model.Bots{}
-	err := db.Where("type = ?", "DEFAULT").First(&defaultBot).Error
+	err := services.DB.Where("type = ?", "DEFAULT").First(&defaultBot).Error
 	if err != nil {
 		return fiber.NewError(500, "bot not created, cannot create user")
 	}
@@ -39,7 +40,7 @@ func checkUser(
 	}
 
 	user := model.Users{}
-	err = db.
+	err = services.DB.
 		Where(`"users"."id" = ?`, userId).
 		Joins("Channel").
 		Joins("Token").
@@ -49,7 +50,7 @@ func checkUser(
 		newToken := tokenData
 		newToken.ID = uuid.NewV4().String()
 
-		if err = db.Save(&newToken).Error; err != nil {
+		if err = services.DB.Save(&newToken).Error; err != nil {
 			logger.Error(err)
 			return err
 		}
@@ -58,13 +59,13 @@ func checkUser(
 		user.TokenID = sql.NullString{String: newToken.ID, Valid: true}
 		user.ApiKey = uuid.NewV4().String()
 
-		if err = db.Save(&user).Error; err != nil {
+		if err = services.DB.Save(&user).Error; err != nil {
 			logger.Error(err)
 			return err
 		}
 
 		channel := createChannelModel(user.ID, defaultBot.ID)
-		if err = db.Create(&channel).Error; err != nil {
+		if err = services.DB.Create(&channel).Error; err != nil {
 			logger.Error(err)
 			return err
 		}
@@ -76,7 +77,7 @@ func checkUser(
 	} else {
 		if user.Channel == nil {
 			channel := createChannelModel(user.ID, defaultBot.ID)
-			if err = db.Create(&channel).Error; err != nil {
+			if err = services.DB.Create(&channel).Error; err != nil {
 				logger.Error(err)
 				return err
 			}
@@ -85,18 +86,18 @@ func checkUser(
 
 		if user.TokenID.Valid {
 			tokenData.ID = user.TokenID.String
-			if err = db.Select("*").Save(&tokenData).Error; err != nil {
+			if err = services.DB.Select("*").Save(&tokenData).Error; err != nil {
 				logger.Error(err)
 				return err
 			}
 		} else {
 			tokenData.ID = uuid.NewV4().String()
-			if err = db.Save(&tokenData).Error; err != nil {
+			if err = services.DB.Save(&tokenData).Error; err != nil {
 				logger.Error(err)
 				return err
 			}
 			user.TokenID = sql.NullString{String: tokenData.ID, Valid: true}
-			if err := db.Save(&user).Error; err != nil {
+			if err := services.DB.Save(&user).Error; err != nil {
 				logger.Error(err)
 			}
 		}
@@ -114,16 +115,13 @@ func checkUser(
 	//	})
 	//}
 
-	schedulerGrpc := do.MustInvoke[scheduler.SchedulerClient](di.Injector)
-	eventSubGrpc := do.MustInvoke[eventsub.EventSubClient](di.Injector)
-
-	schedulerGrpc.CreateDefaultCommands(
+	services.SchedulerGrpc.CreateDefaultCommands(
 		context.Background(),
 		&scheduler.CreateDefaultCommandsRequest{
 			UserId: userId,
 		},
 	)
-	eventSubGrpc.SubscribeToEvents(
+	services.EventSubGrpc.SubscribeToEvents(
 		context.Background(),
 		&eventsub.SubscribeToEventsRequest{
 			ChannelId: userId,

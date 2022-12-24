@@ -4,10 +4,11 @@ import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"gorm.io/gorm"
 	"sync"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
+
+	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
 type nResult struct {
@@ -19,9 +20,8 @@ type statsItem struct {
 	Name  string `json:"name"  enums:"users,channels,commands,messages"`
 }
 
-func handleGet() ([]statsItem, error) {
+func handleGet(services types.Services) ([]statsItem, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	db := do.MustInvoke[*gorm.DB](di.Injector)
 
 	wg := sync.WaitGroup{}
 	statistic := []statsItem{
@@ -36,7 +36,7 @@ func handleGet() ([]statsItem, error) {
 	go func() {
 		defer wg.Done()
 		var count int64
-		err := db.Model(&model.Users{}).Count(&count).Error
+		err := services.DB.Model(&model.Users{}).Count(&count).Error
 		if err != nil {
 			logger.Error(err)
 		} else {
@@ -47,7 +47,7 @@ func handleGet() ([]statsItem, error) {
 	go func() {
 		defer wg.Done()
 		var count int64
-		err := db.Model(&model.Channels{}).Count(&count).Error
+		err := services.DB.Model(&model.Channels{}).Count(&count).Error
 		if err != nil {
 			logger.Error(err)
 		} else {
@@ -58,7 +58,7 @@ func handleGet() ([]statsItem, error) {
 	go func() {
 		defer wg.Done()
 		var count int64
-		err := db.Model(&model.ChannelsCommands{}).
+		err := services.DB.Model(&model.ChannelsCommands{}).
 			Where("module = ?", "CUSTOM").
 			Count(&count).
 			Error
@@ -72,7 +72,7 @@ func handleGet() ([]statsItem, error) {
 	go func() {
 		defer wg.Done()
 		result := nResult{}
-		err := db.Model(&model.UsersStats{}).
+		err := services.DB.Model(&model.UsersStats{}).
 			Select("sum(messages) as n").
 			Scan(&result).
 			Error

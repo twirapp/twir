@@ -24,21 +24,21 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/satont/go-helix/v2"
-	"github.com/satont/tsuwari/apps/api/internal/api/auth"
+	auth "github.com/satont/tsuwari/apps/api/internal/api/auth"
 	apiv1 "github.com/satont/tsuwari/apps/api/internal/api/v1"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
+	"github.com/satont/tsuwari/apps/api/internal/types"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	config "github.com/satont/tsuwari/libs/config"
+	cfg "github.com/satont/tsuwari/libs/config"
 
-	"github.com/satont/tsuwari/apps/api/internal/services/redis_storage"
+	"github.com/satont/tsuwari/apps/api/internal/services/redis"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	_ "github.com/satont/tsuwari/apps/api/docs"
-	_ "github.com/satont/tsuwari/apps/api/internal/di"
 	gormLogger "gorm.io/gorm/logger"
 )
 
@@ -58,14 +58,13 @@ import (
 // @description "apiKey" from /v1/profile response
 func main() {
 	logger, _ := zap.NewDevelopment()
-	cfg, err := config.New()
+	cfg, err := cfg.New()
 	if err != nil || cfg == nil {
 		logger.Sugar().Error(err)
 		panic("Cannot load config of application")
 	}
 
 	do.ProvideValue[interfaces.Logger](di.Injector, logger.Sugar())
-	do.ProvideValue(di.Injector, cfg)
 
 	if cfg.SentryDsn != "" {
 		sentry.Init(sentry.ClientOptions{
@@ -87,17 +86,12 @@ func main() {
 	d.SetMaxOpenConns(20)
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
-	do.ProvideValue(di.Injector, db)
-	do.ProvideValue(di.Injector, redis_storage.NewCache(cfg.RedisUrl))
+	storage := redis.NewCache(cfg.RedisUrl)
 
 	validator := validator.New()
-	do.ProvideValue(di.Injector, validator)
-
 	en := en_US.New()
 	uni := ut.New(en, en)
 	transEN, _ := uni.GetTranslator("en_US")
-	do.ProvideValue(di.Injector, transEN)
-
 	enTranslations.RegisterDefaultTranslations(validator, transEN)
 	errorMiddleware := middlewares.ErrorHandler(transEN, logger)
 	validator.RegisterTagNameFunc(func(fld reflect.StructField) string {
@@ -134,28 +128,40 @@ func main() {
 
 	// }))
 
-	do.ProvideValue(di.Injector, clients.NewBots(cfg.AppEnv))
-	do.ProvideValue(di.Injector, clients.NewTimers(cfg.AppEnv))
-	do.ProvideValue(di.Injector, clients.NewScheduler(cfg.AppEnv))
-	do.ProvideValue(di.Injector, clients.NewParser(cfg.AppEnv))
-	do.ProvideValue(di.Injector, clients.NewEventSub(cfg.AppEnv))
-	do.ProvideValue(di.Injector, clients.NewIntegrations(cfg.AppEnv))
+	botsGrpcClient := clients.NewBots(cfg.AppEnv)
+	timersGrpcClient := clients.NewTimers(cfg.AppEnv)
+	schedulerGrpcClient := clients.NewScheduler(cfg.AppEnv)
+	parserGrpcClient := clients.NewParser(cfg.AppEnv)
+	eventSubGrpcClient := clients.NewEventSub(cfg.AppEnv)
+	integrationsGrpcClient := clients.NewIntegrations(cfg.AppEnv)
 
 	v1 := app.Group("/v1")
 
-	do.ProvideValue(di.Injector, twitch.NewClient(&helix.Options{
-		ClientID:     cfg.TwitchClientId,
-		ClientSecret: cfg.TwitchClientSecret,
-		RedirectURI:  cfg.TwitchCallbackUrl,
-	}))
-
-	if cfg.FeedbackTelegramBotToken != nil {
-		bot, _ := tgbotapi.NewBotAPI(*cfg.FeedbackTelegramBotToken)
-		do.ProvideValue(di.Injector, bot)
+	services := types.Services{
+		DB:                  db,
+		RedisStorage:        storage,
+		Validator:           validator,
+		ValidatorTranslator: transEN,
+		Twitch: twitch.NewClient(&helix.Options{
+			ClientID:     cfg.TwitchClientId,
+			ClientSecret: cfg.TwitchClientSecret,
+			RedirectURI:  cfg.TwitchCallbackUrl,
+		}),
+		Cfg:              cfg,
+		BotsGrpc:         botsGrpcClient,
+		TimersGrpc:       timersGrpcClient,
+		SchedulerGrpc:    schedulerGrpcClient,
+		ParserGrpc:       parserGrpcClient,
+		EventSubGrpc:     eventSubGrpcClient,
+		IntegrationsGrpc: integrationsGrpcClient,
 	}
 
-	apiv1.Setup(v1)
-	auth.Setup(app)
+	if cfg.FeedbackTelegramBotToken != nil {
+		services.TgBotApi, _ = tgbotapi.NewBotAPI(*cfg.FeedbackTelegramBotToken)
+	}
+
+	apiv1.Setup(v1, services)
+	auth.Setup(app, services)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Status(404).SendString("Not found")
@@ -167,7 +173,6 @@ func main() {
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal
 	fmt.Println("Closing...")
-	di.Injector.Shutdown()
 
 	d, _ = db.DB()
 	d.Close()

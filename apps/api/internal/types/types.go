@@ -14,18 +14,16 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/satont/tsuwari/apps/api/internal/services/redis_storage"
-	"go.uber.org/zap"
+	"github.com/satont/tsuwari/apps/api/internal/services/redis"
 	"gorm.io/gorm"
 )
 
 type Services struct {
 	DB                  *gorm.DB
-	RedisStorage        *redis_storage.RedisStorage
+	RedisStorage        *redis.RedisStorage
 	Validator           *validator.Validate
 	ValidatorTranslator ut.Translator
 	Twitch              *twitch.Twitch
-	Logger              *zap.Logger
 	Cfg                 *cfg.Config
 	TgBotApi            *tgbotapi.BotAPI
 	BotsGrpc            bots.BotsClient
