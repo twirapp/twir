@@ -64,7 +64,7 @@ func (c *Handler) Handle(j gocron.Job) {
 	}
 
 	var timerResponse *model.ChannelsTimersResponses
-	for index, r := range *t.Model.Responses {
+	for index, r := range t.Model.Responses {
 		if index == t.SendIndex {
 			timerResponse = &r
 			break
@@ -102,7 +102,7 @@ func (c *Handler) Handle(j gocron.Job) {
 
 	nextIndex := t.SendIndex + 1
 
-	if nextIndex < len(*t.Model.Responses) {
+	if nextIndex < len(t.Model.Responses) {
 		t.SendIndex = nextIndex
 	} else {
 		t.SendIndex = 0
