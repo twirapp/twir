@@ -3,6 +3,7 @@ import { Channel } from '@tsuwari/typeorm/entities/Channel';
 import { ChannelEvent, EventType } from '@tsuwari/typeorm/entities/ChannelEvent';
 import { ChannelFollowEvent } from '@tsuwari/typeorm/entities/channelEvents/Follow';
 import { Token } from '@tsuwari/typeorm/entities/Token';
+import { ApiClient } from '@twurple/api';
 import { ClientCredentialsAuthProvider } from '@twurple/auth';
 import { getRawData } from '@twurple/common';
 import {
