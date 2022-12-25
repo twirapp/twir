@@ -25,6 +25,7 @@ import {
 import Plyr, { APITypes, PlyrOptions } from 'plyr-react';
 import React, { useEffect, useRef, useState } from 'react';
 import 'plyr-react/plyr.css';
+import { useRouter } from 'next/router';
 
 const plyrOptions: PlyrOptions = {
   controls: [
@@ -51,6 +52,7 @@ type Track = Plyr.Source & {
 }
 
 export const YoutubePlayer: React.FC = () => {
+  const router = useRouter();
   const plyrRef = useRef<APITypes>(null) as React.MutableRefObject<APITypes>;
 
   const [currentTrack, setCurrentTrack] = useState<Track>();
@@ -132,7 +134,7 @@ export const YoutubePlayer: React.FC = () => {
                   </ScrollArea>
                 </Menu.Dropdown>
               </Menu>
-              <ActionIcon><IconAdjustmentsHorizontal /></ActionIcon>
+              <ActionIcon onClick={() => router.push('/settings/youtube')}><IconAdjustmentsHorizontal /></ActionIcon>
             </Group>
           </Flex>
         </Card.Section>
