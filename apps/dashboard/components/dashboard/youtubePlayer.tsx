@@ -1,6 +1,27 @@
-import { ActionIcon, Box, Button, Card, Center, Divider, Flex, Grid, Group, Text, Transition } from '@mantine/core';
+import {
+  ActionIcon,
+  Box,
+  Button,
+  Card,
+  Center,
+  Divider,
+  Flex,
+  Grid,
+  Group,
+  Menu,
+  ScrollArea,
+  Text,
+  Transition,
+} from '@mantine/core';
 import { useListState } from '@mantine/hooks';
-import { IconPlayerPlay, IconPlayerSkipForward, IconVideoOff } from '@tabler/icons';
+import {
+  IconAdjustmentsHorizontal,
+  IconCircleMinus,
+  IconPlayerPlay,
+  IconPlayerSkipForward,
+  IconPlaylist,
+  IconVideoOff,
+} from '@tabler/icons';
 import Plyr, { APITypes, PlyrOptions } from 'plyr-react';
 import React, { useEffect, useRef, useState } from 'react';
 import 'plyr-react/plyr.css';
@@ -45,6 +66,31 @@ export const YoutubePlayer: React.FC = () => {
       provider: 'youtube',
       title: 'Test 2',
       orderedBy: 'mellkam',
+    }, {
+      src: 'FCtasDPQ9e8',
+      provider: 'youtube',
+      title: 'Test 2',
+      orderedBy: 'mellkam',
+    }, {
+      src: 'FCtasDPQ9e8',
+      provider: 'youtube',
+      title: 'Test 2',
+      orderedBy: 'mellkam',
+    }, {
+      src: 'FCtasDPQ9e8',
+      provider: 'youtube',
+      title: 'Test 2',
+      orderedBy: 'mellkam',
+    }, {
+      src: 'FCtasDPQ9e8',
+      provider: 'youtube',
+      title: 'Test 2',
+      orderedBy: 'mellkam',
+    }, {
+      src: 'FCtasDPQ9e8',
+      provider: 'youtube',
+      title: 'Test 2',
+      orderedBy: 'mellkam',
     },
   ]);
 
@@ -56,7 +102,7 @@ export const YoutubePlayer: React.FC = () => {
     }
   }, [songs]);
 
-  const setVideo = () => {
+  const nextVideo = () => {
     songsHandlers.shift();
   };
 
@@ -66,7 +112,28 @@ export const YoutubePlayer: React.FC = () => {
         <Card.Section p={'xs'}>
           <Flex gap="xs" direction="row" justify="space-between">
             <Text size="md">YouTube</Text>
-            {/*<Button onClick={setVideo} size={'xs'}>test change source</Button>*/}
+
+            <Group>
+              <Menu shadow="md" width={400} styles={{ dropdown: { backgroundColor: '#2C2C2C' } }}>
+                <Menu.Target>
+                  <ActionIcon><IconPlaylist /></ActionIcon>
+                </Menu.Target>
+
+                <Menu.Dropdown h={200}>
+                  <ScrollArea h={190} type={'auto'}>
+                    {songs.map(s => <Menu.Item key={s.src} rightSection={
+                      <ActionIcon><IconCircleMinus /></ActionIcon>
+                    }>
+                      <Flex direction={'column'}>
+                        <Text size={'lg'}>{s.title}</Text>
+                        <Text size={'xs'}>Ordered by: {s.orderedBy}</Text>
+                      </Flex>
+                    </Menu.Item>)}
+                  </ScrollArea>
+                </Menu.Dropdown>
+              </Menu>
+              <ActionIcon><IconAdjustmentsHorizontal /></ActionIcon>
+            </Group>
           </Flex>
         </Card.Section>
         <Divider />
@@ -99,7 +166,7 @@ export const YoutubePlayer: React.FC = () => {
               </Flex>
               <Group>
                 <ActionIcon><IconPlayerPlay /></ActionIcon>
-                <ActionIcon><IconPlayerSkipForward /></ActionIcon>
+                <ActionIcon><IconPlayerSkipForward onClick={nextVideo} /></ActionIcon>
               </Group>
             </Flex>
           </Card.Section>}
