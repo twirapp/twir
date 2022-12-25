@@ -1,8 +1,10 @@
 import { User } from '@tsuwari/typeorm/entities/User';
-import { Socket } from 'socket.io';
-import { ExtendedError } from 'socket.io/dist/namespace.js';
+import { Server, Socket } from 'socket.io';
+import { ExtendedError } from 'socket.io/dist/namespace';
 
-import { typeorm } from '../libs/typeorm.js';
+import { typeorm } from './typeorm';
+
+export const io = new Server();
 
 export const authMiddleware = (socket: Socket, next: (err?: ExtendedError) => void) => {
   const handshake = socket.handshake;
@@ -22,3 +24,6 @@ export const authMiddleware = (socket: Socket, next: (err?: ExtendedError) => vo
 
   return next();
 };
+
+
+io.use(authMiddleware);

@@ -25,10 +25,12 @@
     "i18next": "^22.4.6",
     "next": "13.0.7",
     "next-i18next": "^13.0.2",
+    "plyr-react": "^5.1.2",
     "react": "18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "18.2.0",
-    "react-i18next": "^12.1.1"
+    "react-i18next": "^12.1.1",
+    "socket.io-client": "2.3.1"
   },
   "devDependencies": {
     "@tsuwari/shared": "workspace:*",

@@ -9,10 +9,11 @@
   },
   "dependencies": {
     "@tsuwari/config": "workspace:*",
-    "@tsuwari/nats": "workspace:*",
+    "@tsuwari/grpc": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
     "ioredis": "^5.2.4",
     "nats": "^2.9.0",
+    "nice-grpc": "^2.0.1",
     "socket.io": "^4.5.3"
   },
   "devDependencies": {

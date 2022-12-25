@@ -1,14 +1,10 @@
-import { Server } from 'socket.io';
-
+import { listen } from './libs/grpc.js';
+import { io } from './libs/io.js';
+import './namespaces/youtube.js';
 import { typeorm } from './libs/typeorm.js';
-import { authMiddleware } from './middlewares/auth.js';
-import { createYoutubeNameSpace } from './namespaces/youtube.js';
 
-const io = new Server();
 await typeorm.initialize();
-
-io.use(authMiddleware);
-createYoutubeNameSpace(io);
+await listen();
 
 console.info('✅ Started');
 

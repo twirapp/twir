@@ -1,6 +1,9 @@
 package users
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 	"strings"
 	"sync"
@@ -17,6 +20,8 @@ type RequestUser struct {
 }
 
 func handleGet(ids string, names string, services types.Services) ([]helix.User, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	usersForReq := []*RequestUser{}
 	for _, v := range strings.Split(ids, ",") {
 		if v == "" {
@@ -80,7 +85,7 @@ func handleGet(ids string, names string, services types.Services) ([]helix.User,
 	select {
 	case err := <-errCH:
 		close(errCH)
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get users")
 	default:
 		return users, nil

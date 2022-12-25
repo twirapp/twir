@@ -12,4 +12,5 @@ use (
 	./libs/integrations/spotify
 	./libs/pubsub
 	./libs/twitch
+	./libs/types
 )

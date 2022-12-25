@@ -3,10 +3,13 @@ package youtube_sr
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"net/http"
 	"strings"
 	"sync"
-	model "tsuwari/models"
 
 	ytsr "github.com/SherlockYigit/youtube-go"
 	"github.com/gofiber/fiber/v2"
@@ -86,11 +89,13 @@ func handleSearch(query string, searchType string) ([]SearchResult, error) {
 }
 
 func handlePost(channelId string, dto *youtube.YoutubeSettings, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	var existedSettings *model.ChannelModulesSettings
 	err := services.DB.Where(`"channelId" = ?`, channelId).First(&existedSettings).Error
 
 	if err != nil && err != gorm.ErrRecordNotFound {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -141,7 +146,7 @@ func handlePost(channelId string, dto *youtube.YoutubeSettings, services types.S
 
 	bytes, err := json.Marshal(dto)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -155,7 +160,7 @@ func handlePost(channelId string, dto *youtube.YoutubeSettings, services types.S
 
 		err = services.DB.Create(&newSettings).Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 
@@ -163,7 +168,7 @@ func handlePost(channelId string, dto *youtube.YoutubeSettings, services types.S
 	} else {
 		err = services.DB.Model(existedSettings).Updates(map[string]interface{}{"settings": bytes}).Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 
@@ -177,19 +182,21 @@ func handlePatch(
 	data any,
 	services types.Services,
 ) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	settings := model.ChannelModulesSettings{}
 	err := services.DB.Where(`"channelId" = ? AND type = ?`, channelId, "youtube_song_requests").
 		First(&settings).
 		Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	if settings.ID == "" {
 		bytes, err := json.Marshal(&youtube.YoutubeSettings{})
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 
@@ -201,7 +208,7 @@ func handlePatch(
 		}
 		err = services.DB.Save(&newSettings).Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 		settings = newSettings
@@ -210,7 +217,7 @@ func handlePatch(
 	originalSettings := youtube.YoutubeSettings{}
 	err = json.Unmarshal(settings.Settings, &originalSettings)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -247,14 +254,14 @@ func handlePatch(
 
 	newSettingsBytes, err := json.Marshal(originalSettings)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 	settings.Settings = newSettingsBytes
 	err = services.DB.Save(&settings).Error
 
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 

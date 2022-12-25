@@ -3,6 +3,7 @@ module github.com/satont/tsuwari/apps/api
 go 1.19
 
 require (
+	github.com/SherlockYigit/youtube-go v1.0.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/getsentry/sentry-go v0.15.0
 	github.com/go-playground/locales v0.14.0
@@ -14,12 +15,14 @@ require (
 	github.com/gofiber/storage/redis v0.0.0-20221027071415-dca8f183e44b
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/imroc/req/v3 v3.25.0
+	github.com/samber/do v1.5.1
 	github.com/samber/lo v1.36.0
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/twitch v0.0.0-00010101000000-000000000000
+	github.com/satont/tsuwari/libs/types v0.0.0-00010101000000-000000000000
 	github.com/satori/go.uuid v1.2.0
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/swaggo/swag v1.8.8
@@ -42,7 +45,6 @@ require (
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/pprof v0.0.0-20221010195024-131d412537ea // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -59,7 +61,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/onsi/ginkgo/v2 v2.5.0 // indirect
 	github.com/rivo/uniseg v0.4.2 // indirect
-	github.com/samber/do v1.5.1 // indirect
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/goleak v1.1.12 // indirect
@@ -112,3 +113,5 @@ replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
 
 replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+
+replace github.com/satont/tsuwari/libs/types => ../../libs/types
