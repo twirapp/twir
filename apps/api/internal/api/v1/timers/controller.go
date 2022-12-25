@@ -29,7 +29,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Router       /v1/channels/{channelId}/timers [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		timers := handleGet(c.Params("channelId"), services)
+		timers := handleGet(c.Params("channelId"))
 
 		return c.JSON(timers)
 	}
@@ -119,7 +119,7 @@ func put(services types.Services) func(c *fiber.Ctx) error {
 			return err
 		}
 
-		cmd, err := handlePut(c.Params("channelId"), c.Params("timerId"), dto, services)
+		cmd, err := handlePut(c.Params("timerId"), dto, services)
 		if err == nil {
 			return c.JSON(cmd)
 		}
@@ -140,7 +140,7 @@ func put(services types.Services) func(c *fiber.Ctx) error {
 // @Success      200  {object}  model.ChannelsTimers
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
-// @Router       /v1/channels/{channelId}/timers/{timerId} [post]
+// @Router       /v1/channels/{channelId}/timers/{timerId} [patch]
 func patch(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &timerPatchDto{}
@@ -154,7 +154,7 @@ func patch(services types.Services) func(c *fiber.Ctx) error {
 			return err
 		}
 
-		cmd, err := handlePatch(c.Params("channelId"), c.Params("timerId"), dto, services)
+		cmd, err := handlePatch(c.Params("timerId"), dto, services)
 		if err == nil {
 			return c.JSON(cmd)
 		}

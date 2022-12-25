@@ -5,6 +5,7 @@ import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/tsuwari/apps/api/internal/services"
 	"os"
 	"os/signal"
 	"reflect"
@@ -86,6 +87,9 @@ func main() {
 	d.SetMaxOpenConns(20)
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
+	do.ProvideValue[*gorm.DB](di.Injector, db)
+	do.ProvideValue[interfaces.TimersService](di.Injector, services.NewTimersService())
+
 	storage := redis.NewCache(cfg.RedisUrl)
 
 	validator := validator.New()
@@ -137,7 +141,7 @@ func main() {
 
 	v1 := app.Group("/v1")
 
-	services := types.Services{
+	neededServices := types.Services{
 		DB:                  db,
 		RedisStorage:        storage,
 		Validator:           validator,
@@ -157,11 +161,11 @@ func main() {
 	}
 
 	if cfg.FeedbackTelegramBotToken != nil {
-		services.TgBotApi, _ = tgbotapi.NewBotAPI(*cfg.FeedbackTelegramBotToken)
+		neededServices.TgBotApi, _ = tgbotapi.NewBotAPI(*cfg.FeedbackTelegramBotToken)
 	}
 
-	apiv1.Setup(v1, services)
-	auth.Setup(app, services)
+	apiv1.Setup(v1, neededServices)
+	auth.Setup(app, neededServices)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Status(404).SendString("Not found")
