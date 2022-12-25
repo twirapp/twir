@@ -1,51 +1,52 @@
+import { resolve } from 'path';
 import 'reflect-metadata';
 
-import { config } from '@tsuwari/config';
+import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
 
-import { Bot } from './entities/Bot.js';
-import { Channel } from './entities/Channel.js';
-import { ChannelCommand } from './entities/ChannelCommand.js';
-import { ChannelCustomvar } from './entities/ChannelCustomvar.js';
-import { ChannelDotaAccount } from './entities/ChannelDotaAccount.js';
-import { ChannelEvent } from './entities/ChannelEvent.js';
-import { ChannelDonationEvent } from './entities/channelEvents/Donation.js';
-import { ChannelFollowEvent } from './entities/channelEvents/Follow.js';
-import { ChannelGreeting } from './entities/ChannelGreeting.js';
-import { ChannelIntegration } from './entities/ChannelIntegration.js';
-import { ChannelKeyword } from './entities/ChannelKeyword.js';
-import { ChannelModerationSetting } from './entities/ChannelModerationSetting.js';
-import { ChannelModerationWarn } from './entities/ChannelModerationWarn.js';
-import { ChannelModuleSettings } from './entities/ChannelModuleSettings.js';
-import { ChannelPermit } from './entities/ChannelPermit.js';
-import { ChannelStream } from './entities/ChannelStream.js';
-import { ChannelTimer } from './entities/ChannelTimer.js';
-import { ChannelTimerResponse } from './entities/ChannelTimerResponse.js';
-import { CommandResponse } from './entities/CommandResponse.js';
-import { CommandUsage } from './entities/CommandUsage.js';
-import { DashboardAccess } from './entities/DashboardAccess.js';
-import { DotaGameMode } from './entities/DotaGameMode.js';
-import { DotaHero } from './entities/DotaHero.js';
-import { DotaMatch } from './entities/DotaMatch.js';
-import { DotaMatchCard } from './entities/DotaMatchCard.js';
-import { DotaMatchResult } from './entities/DotaMatchResult.js';
-import { Integration } from './entities/Integration.js';
-import { Notification } from './entities/Notification.js';
-import { NotificationMessage } from './entities/NotificationMessage.js';
-import { RequestedSong } from './entities/RequestedSong.js';
-import { Token } from './entities/Token.js';
-import { User } from './entities/User.js';
-import { UserFile } from './entities/UserFile.js';
-import { UserOnline } from './entities/UserOnline.js';
-import { UserStats } from './entities/UserStats.js';
-import { UserViewedNotification } from './entities/UserViewedNotification.js';
+dotenv.config({ path: resolve(process.cwd(), '../../.env') });
+
+import { Bot } from './entities/Bot';
+import { Channel } from './entities/Channel';
+import { ChannelChatMessage } from './entities/ChannelChatMessage';
+import { ChannelCommand } from './entities/ChannelCommand';
+import { ChannelCustomvar } from './entities/ChannelCustomvar';
+import { ChannelDotaAccount } from './entities/ChannelDotaAccount';
+import { ChannelEvent } from './entities/ChannelEvent';
+import { ChannelDonationEvent } from './entities/channelEvents/Donation';
+import { ChannelFollowEvent } from './entities/channelEvents/Follow';
+import { ChannelGreeting } from './entities/ChannelGreeting';
+import { ChannelIntegration } from './entities/ChannelIntegration';
+import { ChannelKeyword } from './entities/ChannelKeyword';
+import { ChannelModerationSetting } from './entities/ChannelModerationSetting';
+import { ChannelModerationWarn } from './entities/ChannelModerationWarn';
+import { ChannelPermit } from './entities/ChannelPermit';
+import { ChannelStream } from './entities/ChannelStream';
+import { ChannelTimer } from './entities/ChannelTimer';
+import { ChannelTimerResponse } from './entities/ChannelTimerResponse';
+import { CommandResponse } from './entities/CommandResponse';
+import { CommandUsage } from './entities/CommandUsage';
+import { DashboardAccess } from './entities/DashboardAccess';
+import { DotaGameMode } from './entities/DotaGameMode';
+import { DotaHero } from './entities/DotaHero';
+import { DotaMatch } from './entities/DotaMatch';
+import { DotaMatchCard } from './entities/DotaMatchCard';
+import { DotaMatchResult } from './entities/DotaMatchResult';
+import { Integration } from './entities/Integration';
+import { Notification } from './entities/Notification';
+import { NotificationMessage } from './entities/NotificationMessage';
+import { Token } from './entities/Token';
+import { User } from './entities/User';
+import { UserFile } from './entities/UserFile';
+import { UserOnline } from './entities/UserOnline';
+import { UserStats } from './entities/UserStats';
+import { UserViewedNotification } from './entities/UserViewedNotification';
 
 export * from 'typeorm';
-export type { YoutubeSettings } from './entities/ChannelModuleSettings.js';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  url: config.DATABASE_URL,
+  url: process.env.DATABASE_URL,
   entities: [
     Bot,
     Channel,
@@ -81,8 +82,7 @@ export const AppDataSource = new DataSource({
     ChannelFollowEvent,
     ChannelDonationEvent,
     ChannelStream,
-    ChannelModuleSettings,
-    RequestedSong,
+    ChannelChatMessage,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

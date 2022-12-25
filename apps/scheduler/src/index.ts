@@ -5,11 +5,13 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import * as Sentry from '@sentry/node';
 import '@sentry/tracing';
 import { config } from '@tsuwari/config';
+import * as Scheduler from '@tsuwari/grpc/generated/scheduler/scheduler';
+import { PORTS } from '@tsuwari/grpc/servers/constants';
 import { AppDataSource } from '@tsuwari/typeorm';
+import { createServer } from 'nice-grpc';
 
 import { AppModule } from './app.module.js';
-import './libs/nats.js';
-import { listenForDefaultCommands } from './libs/nats.js';
+import { DefaultCommandsCreatorService } from './default-commands-creator/default-commands-creator.service.js';
 
 Sentry.init({
   dsn: 'https://1c78d79f3bcb443680e4d5550005e3ac@o324161.ingest.sentry.io/6485379',
@@ -18,16 +20,25 @@ Sentry.init({
 
 export const typeorm = await AppDataSource.initialize();
 
-export const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
-  transport: Transport.NATS,
-  options: {
-    servers: [config.NATS_URL],
-    reconnectTimeWait: 100,
+export const app = await NestFactory.createApplicationContext(AppModule);
+
+await app.init();
+
+const schedulerService: Scheduler.SchedulerServiceImplementation = {
+  async createDefaultCommands(request: Scheduler.CreateDefaultCommandsRequest) {
+    const service = await app.resolve(DefaultCommandsCreatorService);
+    service.createDefaultCommands([request.userId]);
+    return {};
   },
+};
+
+const server = createServer({
+  'grpc.keepalive_time_ms': 1 * 60 * 1000,
 });
 
-await app.listen();
-listenForDefaultCommands();
+server.add(Scheduler.SchedulerDefinition, schedulerService);
+
+await server.listen(`0.0.0.0:${PORTS.SCHEDULER_SERVER_PORT}`);
 
 process.on('unhandledRejection', (e) => {
   console.error(e);

@@ -4,7 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/guregu/null"
 	req "github.com/imroc/req/v3"

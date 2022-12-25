@@ -1,18 +1,21 @@
 package keywords
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 )
 
 func handleGet(channelId string, services types.Services) ([]model.ChannelsKeywords, error) {
 	keywords := []model.ChannelsKeywords{}
-	err := services.DB.Where(`channelId = ?`, channelId).Find(&keywords).Error
+	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&keywords).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get keywords")
 	}
@@ -25,8 +28,12 @@ func handlePost(
 	dto *keywordDto,
 	services types.Services,
 ) (*model.ChannelsKeywords, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	existedKeyword := model.ChannelsKeywords{}
-	err := services.DB.Where(`"text" = ?`, dto.Text).First(&existedKeyword).Error
+	err := services.DB.Where(`"channelId" = ? AND "text" = ?`, channelId, dto.Text).
+		First(&existedKeyword).
+		Error
 	if err == nil {
 		return nil, fiber.NewError(400, "keyword with that text already exists")
 	}
@@ -37,11 +44,14 @@ func handlePost(
 		Text:      dto.Text,
 		Response:  dto.Response,
 		Enabled:   *dto.Enabled,
-		Cooldown:  null.IntFrom(int64(dto.Cooldown)),
+		Cooldown:  int(dto.Cooldown),
+		IsRegular: *dto.IsRegular,
+		IsReply:   *dto.IsReply,
+		Usages:    *dto.Usages,
 	}
 	err = services.DB.Save(&newKeyword).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create keyword")
 	}
 
@@ -49,6 +59,8 @@ func handlePost(
 }
 
 func handleDelete(keywordId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	keyword := getById(services.DB, keywordId)
 	if keyword == nil {
 		return fiber.NewError(http.StatusNotFound, "keyword not found")
@@ -56,7 +68,7 @@ func handleDelete(keywordId string, services types.Services) error {
 
 	err := services.DB.Delete(keyword).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot delete keyword")
 	}
 
@@ -68,6 +80,8 @@ func handleUpdate(
 	dto *keywordDto,
 	services types.Services,
 ) (*model.ChannelsKeywords, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	currentKeyword := getById(services.DB, keywordId)
 	if currentKeyword == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "keyword not found")
@@ -79,15 +93,49 @@ func handleUpdate(
 		Text:      dto.Text,
 		Response:  dto.Response,
 		Enabled:   *dto.Enabled,
-		Cooldown:  null.IntFrom(int64(dto.Cooldown)),
+		Cooldown:  int(dto.Cooldown),
 		IsReply:   *dto.IsReply,
+		IsRegular: *dto.IsRegular,
+		Usages:    *dto.Usages,
 	}
 
 	err := services.DB.Model(currentKeyword).Select("*").Updates(newKeyword).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update keyword")
 	}
 
 	return &newKeyword, nil
+}
+
+func handlePatch(
+	channelId,
+	keywordId string,
+	dto *keywordPatchDto,
+	services types.Services,
+) (*model.ChannelsKeywords, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
+	keyword := model.ChannelsKeywords{}
+	err := services.DB.Where(`"channelId" = ? AND "id" = ?`, channelId, keywordId).
+		Find(&keyword).
+		Error
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	if keyword.ID == "" {
+		return nil, fiber.NewError(http.StatusNotFound, "keyword not found")
+	}
+
+	keyword.Enabled = *dto.Enabled
+
+	err = services.DB.Save(&keyword).Error
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update keyword")
+	}
+
+	return &keyword, nil
 }

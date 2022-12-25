@@ -1,8 +1,12 @@
 package moderation
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
@@ -26,10 +30,12 @@ func handleGet(
 	channelId string,
 	services types.Services,
 ) ([]model.ChannelsModerationSettings, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	settings := []model.ChannelsModerationSettings{}
 	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&settings).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -48,7 +54,7 @@ func handleGet(
 
 		err := services.DB.Create(&newSetting).Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return nil, err
 		}
 		settings = append(settings, newSetting)
@@ -62,6 +68,8 @@ func handleUpdate(
 	dto *moderationDto,
 	services types.Services,
 ) ([]model.ChannelsModerationSettings, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	settings := []model.ChannelsModerationSettings{}
 	for _, item := range dto.Items {
 		setting := model.ChannelsModerationSettings{
@@ -72,8 +80,8 @@ func handleUpdate(
 			Subscribers:        *item.Subscribers,
 			Vips:               *item.Vips,
 			BanTime:            int32(item.BanTime),
-			BanMessage:         null.StringFromPtr(item.BanMessage),
-			WarningMessage:     null.StringFromPtr(item.WarningMessage),
+			BanMessage:         *item.BanMessage,
+			WarningMessage:     *item.WarningMessage,
 			CheckClips:         null.BoolFromPtr(item.CheckClips),
 			TriggerLength:      null.IntFrom(int64(item.TriggerLength)),
 			MaxPercentage:      null.IntFrom(int64(item.MaxPercentage)),
@@ -86,7 +94,7 @@ func handleUpdate(
 			Where(`"channelId" = ? AND type = ?`, channelId, item.Type).
 			Updates(&setting).Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return nil, fiber.NewError(
 				http.StatusInternalServerError,
 				"cannot update moderation settings",

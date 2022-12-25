@@ -1,0 +1,23 @@
+{
+	"name": "tsuwari-dev",
+	"dockerComposeFile": "../docker-compose.dev.yml",
+	"service": "tsuwari",
+	"workspaceFolder": "/workspace",
+	"forwardPorts": [
+		3005,
+		8085
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"dbaeumer.vscode-eslint",
+				"bradlc.vscode-tailwindcss",
+				"vue.volar",
+				"golang.go",
+				"emeraldwalk.runonsave",
+				"esbenp.prettier-vscode"
+			]
+		}
+	},
+	"remoteUser": "tsuwari"
+}

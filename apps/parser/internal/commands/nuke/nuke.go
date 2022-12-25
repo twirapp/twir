@@ -2,23 +2,17 @@ package nuke
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"tsuwari/parser/internal/types"
-	variables_cache "tsuwari/parser/internal/variablescache"
+	"strings"
 
-	redis "github.com/go-redis/redis/v9"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+
 	"github.com/samber/lo"
-	natsbots "github.com/satont/tsuwari/libs/nats/bots"
-	"github.com/tidwall/gjson"
-	proto "google.golang.org/protobuf/proto"
 )
-
-type Message struct {
-	ID           string `json:"messageId"`
-	CanBeDeleted bool   `json:"canBeDeleted"`
-	UserId       string `json:"userId"`
-}
 
 var Command = types.DefaultCommand{
 	Command: types.Command{
@@ -31,66 +25,45 @@ var Command = types.DefaultCommand{
 		Module:     lo.ToPtr("CHANNEL"),
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		query := fmt.Sprintf("( (@channelId:{%v}) (@message:'%s') )", ctx.ChannelId, *ctx.Text)
+		messages := []model.ChannelChatMessage{}
 
-		cmd := createSearchCmd(ctx.Services.Redis, query)
-		result, err := cmd.Result()
-		if err != nil {
+		if ctx.Text == nil {
 			return nil
 		}
 
-		messages := []Message{}
-
-		for _, m := range result {
-			arr := fmt.Sprintf("%v", m)
-			parsed := gjson.Parse(arr)
-			if parsed.Type.String() != "JSON" {
-				continue
-			}
-			v := Message{}
-			el := parsed.Array()[0]
-
-			err := json.Unmarshal([]byte(el.String()), &v)
-			if err == nil {
-				messages = append(messages, v)
-			}
+		err := ctx.Services.Db.
+			Where(
+				`"canBeDeleted" = ? AND text LIKE ?`,
+				true,
+				"%"+strings.ToLower(*ctx.Text)+"%",
+			).
+			Find(&messages).
+			Error
+		if err != nil {
+			fmt.Println(err)
+			return nil
 		}
 
-		messages = lo.Filter(messages, func(m Message, _ int) bool {
+		if len(messages) == 0 {
+			return nil
+		}
+
+		messages = lo.Filter(messages, func(m model.ChannelChatMessage, _ int) bool {
 			return m.CanBeDeleted
 		})
-		mappedMessages := lo.Map(messages, func(m Message, _ int) string {
-			return m.ID
+		mappedMessages := lo.Map(messages, func(m model.ChannelChatMessage, _ int) string {
+			return m.MessageId
 		})
 
-		request := natsbots.DeleteMessagesRequest{
+		ctx.Services.BotsGrpc.DeleteMessage(context.Background(), &bots.DeleteMessagesRequest{
 			ChannelId:   ctx.ChannelId,
 			MessageIds:  mappedMessages,
 			ChannelName: ctx.ChannelName,
-		}
+		})
 
-		marshaled, err := proto.Marshal(&request)
-
-		if err == nil {
-			ctx.Services.Nats.Publish("bots.deleteMessages", marshaled)
-		}
-
-		go func() {
-			for _, msg := range messages {
-				ctx.Services.Redis.Del(
-					context.TODO(),
-					fmt.Sprintf("messages:%v:%s", msg.UserId, msg.ID),
-				)
-			}
-		}()
+		ctx.Services.Db.Where(`"messageId" IN ?`, mappedMessages).
+			Delete(&model.ChannelChatMessage{})
 
 		return nil
 	},
-}
-
-func createSearchCmd(redisdb *redis.Client, query string) *redis.SliceCmd {
-	c := context.TODO()
-	n := redis.NewSliceCmd(c, "ft.search", "messages:index", query)
-	redisdb.Process(c, n)
-	return n
 }

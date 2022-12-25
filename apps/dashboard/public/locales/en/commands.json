@@ -1,0 +1,49 @@
+{
+  "title": "Commands",
+  "create": "Create",
+  "tabs": {
+    "custom": "Custom",
+    "channel": "Channel",
+    "moderation": "Moderation",
+    "manage": "Manage",
+    "dota": "Dota 2"
+  },
+  "name": "Name",
+  "responses": "Responses",
+  "builtInBadge": "This is built-in command",
+  "table": {
+    "head": {
+      "status": "Status",
+      "actions": "Actions"
+    }
+  },
+  "drawer": {
+    "save": "Save",
+    "aliases": {
+      "name": "Aliases",
+      "emptyAlert": "No aliases added"
+    },
+    "cooldown": {
+      "time": "Cooldown time (seconds)",
+      "type": "Cooldown type"
+    },
+    "permission": "Permission",
+    "responses": {
+      "emptyAlert": "No responses added"
+    },
+    "switches": {
+      "isReply": {
+        "name": "Reply",
+        "description": "Bot will send command response as reply"
+      },
+      "visible": {
+        "name": "Visible",
+        "description": "Is command visible"
+      },
+      "keepResponsesOrder": {
+        "name": "Keep order",
+        "description": "Keep order of responses when sending them in chat"
+      }
+    }
+  }
+}

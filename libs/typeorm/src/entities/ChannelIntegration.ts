@@ -1,8 +1,14 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-import { type Channel } from './Channel.js';
-import { type Integration } from './Integration.js';
+import { Channel } from './Channel';
+import { Integration } from './Integration';
 
 @Entity('channels_integrations', { schema: 'public' })
 export class ChannelIntegration {
@@ -30,22 +36,22 @@ export class ChannelIntegration {
   @Column('jsonb', { name: 'data', nullable: true })
   data: Record<string, any> | null;
 
-  @ManyToOne('Channel', 'channelsIntegrations', {
+  @ManyToOne(() => Channel, _ => _.channelsIntegrations, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel?: Relation<Channel>;
+  channel?: Channel;
 
   @Column()
   channelId: string;
 
-  @ManyToOne('Integration', 'channelsIntegrations', {
+  @ManyToOne(() => Integration, _ => _.channelsIntegrations, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'integrationId', referencedColumnName: 'id' }])
-  integration?: Relation<Integration>;
+  integration?: Integration;
 
   @Column()
   integrationId: string;

@@ -3,8 +3,9 @@ package spam
 import (
 	"strconv"
 	"strings"
-	"tsuwari/parser/internal/types"
-	variables_cache "tsuwari/parser/internal/variablescache"
+
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
@@ -44,6 +45,13 @@ var Command = types.DefaultCommand{
 		}
 
 		message := strings.Join(params[1:], " ")
+
+		validateErr := validateResponseSlashes(message)
+		if validateErr != nil {
+			result.Result = append(result.Result, validateErr.Error())
+			return result
+		}
+
 		for i := 0; i < count; i++ {
 			result.Result = append(result.Result, message)
 		}

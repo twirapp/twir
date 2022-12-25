@@ -3,7 +3,8 @@ package auth
 import (
 	"fmt"
 	"time"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
@@ -75,7 +76,14 @@ func getTokens(services types.Services) func(c *fiber.Ctx) error {
 			"GET",
 		)
 
-		return c.JSON(tokens)
+		c.Cookie(&fiber.Cookie{
+			Name:     "refresh_token",
+			Value:    tokens.RefreshToken,
+			HTTPOnly: true,
+			Expires:  time.Now().Add(refreshLifeTime),
+			SameSite: "lax",
+		})
+		return c.JSON(fiber.Map{"accessToken": tokens.AccessToken})
 	}
 }
 
@@ -103,28 +111,25 @@ func logout(services types.Services) func(c *fiber.Ctx) error {
 			"GET",
 		)
 
+		c.Cookie(&fiber.Cookie{
+			Name:     "refresh_token",
+			Value:    "",
+			HTTPOnly: true,
+			Expires:  time.Now(),
+			SameSite: "lax",
+		})
 		return c.SendStatus(200)
 	}
 }
 
-type refreshDto struct {
-	RefreshToken string `validate:"required" json:"refreshToken"`
-}
-
 func refreshToken(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		dto := &refreshDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
+		refreshToken := c.Cookies("refresh_token")
+		if refreshToken == "" {
+			return fiber.NewError(401, "unauthorized")
 		}
 
-		newAccess, err := handleRefresh(dto, services)
+		newAccess, err := handleRefresh(refreshToken, services)
 		if err != nil {
 			return err
 		}

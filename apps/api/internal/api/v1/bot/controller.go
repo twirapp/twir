@@ -3,7 +3,8 @@ package bot
 import (
 	"fmt"
 	"time"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
@@ -27,7 +28,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 	limit := limiter.New(limiter.Config{
 		Max:        2,
-		Expiration: 1 * time.Minute,
+		Expiration: 1 * time.Second,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			dbUser := c.Locals("dbUser").(model.Users)
 			return fmt.Sprintf("fiber:limiter:bot:connection:%s", dbUser.ID)
@@ -44,6 +45,16 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
+// Bot godoc
+// @Security ApiKeyAuth
+// @Summary      Check does bot moderator on the channel
+// @Tags         Bot
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {boolean}  boolean
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/bot/checkmod [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		isBotMod, err := handleGet(c.Params("channelId"), services)
@@ -59,6 +70,18 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Bot godoc
+// @Security ApiKeyAuth
+// @Summary      Check does bot moderator on the channel
+// @Tags         Bot
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Param data body connectionDto true "Data"
+// @Success      200  {boolean}  boolean
+// @Failure 404
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/bot/connection [patch]
 func patch(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &connectionDto{}

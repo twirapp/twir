@@ -1,6 +1,6 @@
 {
   "name": "@tsuwari/typeorm",
-  "type": "module",
+  "type": "commonjs",
   "exports": {
     ".": "./dist/index.js",
     "./entities/*": "./dist/entities/*.js"
@@ -15,17 +15,19 @@
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "tsc",
-    "cli": "doppler run -- typeorm-ts-node-esm -d ./src/index.ts",
-    "deploy": "doppler run -- pnpm typeorm-ts-node-esm -d ./src/index.ts migration:run",
-    "migration:generate": "doppler run -- pnpm ts-node --esm --transpileOnly ./generateMigration.ts",
+    "cli": "typeorm-ts-node-commonjs -d ./src/index.ts",
+    "deploy": "pnpm ts-node --transpileOnly ./runMigrations.ts",
+    "migration:generate": "pnpm ts-node --transpileOnly ./generateMigration.ts",
     "setup": "pnpm run deploy && pnpm run seed",
-    "seed": "pnpm ts-node --esm --transpileOnly ./seed.ts"
+    "seed": "pnpm ts-node --transpileOnly ./seed.ts"
   },
   "dependencies": {
     "@tsuwari/config": "workspace:*",
     "pg": "8.8.0",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.3.10"
+    "ts-node": "10.9.1",
+    "typeorm": "^0.3.10",
+    "typescript": "4.9.3"
   },
   "devDependencies": {
     "dotenv": "^16.0.3"

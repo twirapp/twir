@@ -1,10 +1,10 @@
 package types
 
-import model "tsuwari/models"
+import model "github.com/satont/tsuwari/libs/gomodels"
 
 type Timer struct {
 	Model *model.ChannelsTimers
-	
+
 	SendIndex int
 }
 

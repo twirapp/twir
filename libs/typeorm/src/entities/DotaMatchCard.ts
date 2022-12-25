@@ -1,7 +1,14 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
-import { type DotaMatch } from './DotaMatch.js';
+import { DotaMatch } from './DotaMatch';
 
 @Index('dota_matches_cards_match_id_account_id_key', ['accountId', 'matchId'], {
   unique: true,
@@ -24,12 +31,12 @@ export class DotaMatchCard {
   @Column('integer', { name: 'leaderboard_rank', nullable: true })
   leaderboardRank: number | null;
 
-  @ManyToOne('DotaMatch', 'cards', {
+  @ManyToOne(() => DotaMatch, _ => _.cards, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'match_id', referencedColumnName: 'id' }])
-  match?: Relation<DotaMatch>;
+  match?: DotaMatch;
 
   @Column('text', { name: 'match_id' })
   matchId: string;

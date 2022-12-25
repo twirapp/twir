@@ -1,25 +1,33 @@
 package bot
 
 import (
+	"context"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
-	model "tsuwari/models"
-	"tsuwari/twitch"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+
+	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	"github.com/satont/tsuwari/libs/nats/bots"
-	"google.golang.org/protobuf/proto"
 )
 
 func handleGet(channelId string, services types.Services) (*bool, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	client, err := twitch.NewUserClient(twitch.UsersServiceOpts{
 		Db:           services.DB,
 		ClientId:     services.Cfg.TwitchClientId,
 		ClientSecret: services.Cfg.TwitchClientSecret,
 	}).Create(channelId)
 	if client == nil || err != nil {
+		logger.Error(err)
 		return nil, fiber.NewError(
 			http.StatusInternalServerError,
 			"cannot create twitch client from your tokens. Please try to reauthorize",
@@ -37,7 +45,7 @@ func handleGet(channelId string, services types.Services) (*bool, error) {
 		UserID:        channel.BotID,
 	})
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get mods of channel")
 	}
 
@@ -45,11 +53,13 @@ func handleGet(channelId string, services types.Services) (*bool, error) {
 }
 
 func handlePatch(channelId string, dto *connectionDto, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	twitchUsers, err := services.Twitch.Client.GetUsers(
 		&helix.UsersParams{IDs: []string{channelId}},
 	)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get twitch user")
 	}
 
@@ -63,15 +73,9 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 	err = services.DB.Where(`"id" = ?`, channelId).First(&dbUser).Error
 
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get user from database")
 	}
-
-	bytes, _ := proto.Marshal(&bots.JoinOrLeaveRequest{
-		Action:   dto.Action,
-		BotId:    dbUser.BotID,
-		UserName: user.Login,
-	})
 
 	if dto.Action == "part" {
 		dbUser.IsEnabled = false
@@ -80,7 +84,18 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 	}
 
 	services.DB.Where(`"id" = ?`, channelId).Select("*").Updates(&dbUser)
-	services.Nats.Publish(bots.SUBJECTS_JOIN_OR_LEAVE, bytes)
+
+	if dbUser.IsEnabled {
+		services.BotsGrpc.Join(context.Background(), &bots.JoinOrLeaveRequest{
+			BotId:    dbUser.BotID,
+			UserName: user.Login,
+		})
+	} else {
+		services.BotsGrpc.Leave(context.Background(), &bots.JoinOrLeaveRequest{
+			BotId:    dbUser.BotID,
+			UserName: user.Login,
+		})
+	}
 
 	return nil
 }

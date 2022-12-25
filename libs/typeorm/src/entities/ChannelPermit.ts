@@ -1,30 +1,36 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-import { type Channel } from './Channel.js';
-import { type User } from './User.js';
+import { Channel } from './Channel';
+import { User } from './User';
 
 @Entity('channels_permits', { schema: 'public' })
 export class ChannelPermit {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne('Channel', 'permits', {
+  @ManyToOne(() => Channel, _ => _.permits, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel?: Relation<Channel>;
+  channel?: Channel;
 
   @Column()
   channelId: string;
 
-  @ManyToOne('User', 'permits', {
+  @ManyToOne(() => User, _ => _.permits, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user?: Relation<User>;
+  user?: User;
 
   @Column()
   userId: string;

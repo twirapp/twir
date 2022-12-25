@@ -2,7 +2,8 @@ package vk
 
 import (
 	"fmt"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	req "github.com/imroc/req/v3"
 )
@@ -12,7 +13,7 @@ type Vk struct {
 }
 
 func New(integration *model.ChannelsIntegrations) *Vk {
-	if integration == nil || integration.Data == nil || !integration.Integration.AccessToken.Valid {
+	if integration == nil || !integration.AccessToken.Valid {
 		return nil
 	}
 
@@ -48,8 +49,7 @@ func (c *Vk) GetTrack() *string {
 	var response string
 
 	resp, err := req.R().
-		SetQueryParam("access_token", c.integration.Integration.AccessToken.String).
-		SetQueryParam("uid", *c.integration.Data.UserId).
+		SetQueryParam("access_token", c.integration.AccessToken.String).
 		SetQueryParam("v", "5.131").
 		SetResult(&data).
 		SetContentType("application/json").

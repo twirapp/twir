@@ -3,27 +3,32 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"os/signal"
 	"time"
-	"tsuwari/timers/internal/scheduler"
-	"tsuwari/timers/internal/types"
 
-	model "tsuwari/models"
+	"github.com/satont/tsuwari/apps/timers/internal/scheduler"
+	"github.com/satont/tsuwari/apps/timers/internal/types"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 
-	cfg "tsuwari/config"
-	twitch "tsuwari/twitch"
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/clients"
+	"github.com/satont/tsuwari/libs/grpc/servers"
+
+	cfg "github.com/satont/tsuwari/libs/config"
+
+	twitch "github.com/satont/tsuwari/libs/twitch"
 
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/proto"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 
-	"github.com/nats-io/nats.go"
-	"github.com/nats-io/nats.go/encoders/protobuf"
 	"github.com/satont/go-helix/v2"
-	natstimers "github.com/satont/tsuwari/libs/nats/timers"
+	"github.com/satont/tsuwari/apps/timers/internal/grpc_impl"
+	timersgrpc "github.com/satont/tsuwari/libs/grpc/generated/timers"
 )
 
 func main() {
@@ -43,21 +48,29 @@ func main() {
 		panic("failed to connect database")
 	}
 
-	n, err := nats.Connect(cfg.NatsUrl,
-		nats.RetryOnFailedConnect(true),
-		nats.MaxReconnects(10),
-		nats.ReconnectWait(time.Second),
-		nats.Name("Parser-go"),
-		nats.Timeout(5*time.Second),
-	)
-	natsProtoConn, err := nats.NewEncodedConn(n, protobuf.PROTOBUF_ENCODER)
-
 	t := twitch.NewClient(&helix.Options{
 		ClientID:     cfg.TwitchClientId,
 		ClientSecret: cfg.TwitchClientSecret,
 	})
 
-	scheduler := scheduler.New(cfg, t, n, db, logger)
+	parserGrpcClient := clients.NewParser(cfg.AppEnv)
+	botsGrpcClient := clients.NewBots(cfg.AppEnv)
+
+	scheduler := scheduler.New(cfg, t, db, logger, parserGrpcClient, botsGrpcClient)
+
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.TIMERS_SERVER_PORT))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	grpcServer := grpc.NewServer(grpc.KeepaliveParams(keepalive.ServerParameters{
+		MaxConnectionAge: 1 * time.Minute,
+	}))
+	timersgrpc.RegisterTimersServer(grpcServer, grpc_impl.New(&grpc_impl.TimersGrpcServerOpts{
+		Db:        db,
+		Logger:    logger,
+		Scheduler: scheduler,
+	}))
+	go grpcServer.Serve(lis)
 
 	timers := []*model.ChannelsTimers{}
 	err = db.Model(&model.ChannelsTimers{}).
@@ -74,54 +87,19 @@ func main() {
 	} else {
 		for _, timer := range timers {
 			if timer.Enabled {
-				AddTimerByModel(scheduler, timer)
+				scheduler.AddTimer(&types.Timer{
+					Model:     timer,
+					SendIndex: 0,
+				})
 			}
 		}
 	}
-
-	natsProtoConn.Subscribe("addTimerToQueue", func(m *nats.Msg) {
-		data := natstimers.AddTimerToQueue{}
-		if err := proto.Unmarshal(m.Data, &data); err != nil {
-			logger.Sugar().Error(err)
-			return
-		}
-		timer := &model.ChannelsTimers{}
-		if err = db.Where(`"id" = ?`, data.TimerId).Preload("Responses").Take(timer).Error; err != nil {
-			logger.Sugar().Error(err)
-			return
-		}
-
-		AddTimerByModel(scheduler, timer)
-		bytes, _ := proto.Marshal(&natstimers.Empty{})
-		m.Respond(bytes)
-	})
-
-	natsProtoConn.Subscribe("removeTimerFromQueue", func(m *nats.Msg) {
-		data := natstimers.RemoveTimerFromQueue{}
-		if err := proto.Unmarshal(m.Data, &data); err != nil {
-			logger.Sugar().Error(err)
-			return
-		}
-
-		scheduler.RemoveTimer(data.TimerId)
-
-		bytes, _ := proto.Marshal(&natstimers.Empty{})
-		m.Respond(bytes)
-	})
 
 	logger.Sugar().Info("Started")
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c
-	natsProtoConn.Close()
-	n.Close()
+	grpcServer.Stop()
 	log.Fatalf("Exiting")
-}
-
-func AddTimerByModel(s *scheduler.Scheduler, t *model.ChannelsTimers) {
-	s.AddTimer(&types.Timer{
-		Model:     t,
-		SendIndex: 0,
-	})
 }

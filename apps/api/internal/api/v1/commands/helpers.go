@@ -1,7 +1,7 @@
 package commands
 
 import (
-	model "tsuwari/models"
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/guregu/null"
 	"github.com/samber/lo"
@@ -25,6 +25,7 @@ func getChannelCommand(
 ) (*model.ChannelsCommands, error) {
 	command := &model.ChannelsCommands{}
 	err := db.Where(`"channelId" = ? AND "id" = ?`, channelId, commandId).
+		Preload("Responses").
 		First(&command).
 		Error
 	if err != nil {

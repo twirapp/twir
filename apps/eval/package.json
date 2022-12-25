@@ -9,12 +9,12 @@
   },
   "dependencies": {
     "@tsuwari/config": "workspace:*",
-    "@tsuwari/nats": "workspace:*",
+    "@tsuwari/grpc": "workspace:*",
     "lodash": "4.17.21",
-    "nats": "^2.7.1",
-    "vm2": "^3.9.11"
+    "nice-grpc": "^2.0.1",
+    "vm2": "^3.9.12"
   },
   "devDependencies": {
-    "@types/lodash": "4.14.186"
+    "@types/lodash": "4.14.191"
   }
 }

@@ -1,0 +1,10 @@
+{
+  "dashboardAccess": {
+    "title": "Dashboard Access",
+    "emptyAlert": "No users added",
+    "drawer": {
+      "save": "Save",
+      "userName": "User name"
+    }
+  }
+}

@@ -1,6 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+/* eslint-disable import/no-cycle */
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-import { ChannelTimer } from './ChannelTimer.js';
+import { ChannelTimer } from './ChannelTimer';
 
 @Entity('channels_timers_responses', { schema: 'public' })
 export class ChannelTimerResponse {
@@ -13,11 +20,11 @@ export class ChannelTimerResponse {
   @Column('bool', { default: true })
   isAnnounce: boolean;
 
-  @ManyToOne('ChannelTimer', 'responses', {
+  @ManyToOne(() => ChannelTimer, _ => _.responses, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'timerId' })
-  timer?: Relation<ChannelTimer>;
+  timer?: ChannelTimer;
 
   @Column()
   timerId: string;

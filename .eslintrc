@@ -2,6 +2,20 @@
   "extends": "@satont/eslint-config",
   "ignorePatterns": ["./libs/nats/**/*.ts", "ecosystem.config.cjs"],
   "rules": {
-    "vue/attribute-hyphenation": "off"
-  }
+    "vue/max-attributes-per-line": "off",
+    "vue/static-class-names-order": "off",
+    "vue/attribute-hyphenation": "off",
+    "vue/html-self-closing": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.config.js", "*.config.cjs"],
+      "env": {
+        "node": true
+      },
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off"
+      }
+    }
+  ]
 }

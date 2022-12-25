@@ -21,6 +21,7 @@ type ChannelsStreams struct {
 	Language       string          `gorm:"column:language;type:TEXT;"                  json:"language"`
 	ThumbnailUrl   string          `gorm:"column:thumbnailUrl;type:TEXT;"              json:"thumbnailUrl"`
 	TagIds         *pq.StringArray `gorm:"column:tagIds;type:text[];default:[];"       json:"tagIds"`
+	Tags           *pq.StringArray `gorm:"column:tags;type:text[];default:[];"         json:"tags"`
 	IsMature       bool            `gorm:"column:isMature;type:BOOL;"                  json:"isMature"`
 	ParsedMessages int             `gorm:"column:parsedMessages;type:INT;"             json:"parsedMessages"`
 	Channel        *Channels       `gorm:"foreignKey:UserId"                           json:"channel"`

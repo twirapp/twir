@@ -1,9 +1,13 @@
 package greetings
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 	"sync"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
@@ -14,7 +18,8 @@ import (
 
 type Greeting struct {
 	model.ChannelsGreetings
-	UserName string `json:"username"`
+	UserName string `json:"userName"`
+	Avatar   string `json:"avatar"`
 }
 
 func handleGet(channelId string, services types.Services) []Greeting {
@@ -42,7 +47,11 @@ func handleGet(channelId string, services types.Services) []Greeting {
 					return g.UserID == u.ID
 				})
 				if ok {
-					users = append(users, Greeting{ChannelsGreetings: user, UserName: u.Login})
+					users = append(users, Greeting{
+						ChannelsGreetings: user,
+						UserName:          u.Login,
+						Avatar:            u.ProfileImageURL,
+					})
 				}
 			}
 		}(chunk)
@@ -58,6 +67,8 @@ func handlePost(
 	dto *greetingsDto,
 	services types.Services,
 ) (*Greeting, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	twitchUser := getTwitchUserByName(dto.Username, services.Twitch)
 	if twitchUser == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "cannot find twitch user")
@@ -80,24 +91,27 @@ func handlePost(
 
 	err := services.DB.Save(greeting).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create greeting")
 	}
 
 	return &Greeting{
 		ChannelsGreetings: *greeting,
 		UserName:          twitchUser.Login,
+		Avatar:            twitchUser.ProfileImageURL,
 	}, nil
 }
 
 func handleDelete(greetingId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	greeting := findGreetingById(greetingId, services.DB)
 	if greeting == nil {
 		return fiber.NewError(http.StatusNotFound, "greeting not found")
 	}
 	err := services.DB.Where("id = ?", greetingId).Delete(&model.ChannelsGreetings{}).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot delete greeting")
 	}
 
@@ -109,6 +123,8 @@ func handleUpdate(
 	dto *greetingsDto,
 	services types.Services,
 ) (*Greeting, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	greeting := findGreetingById(greetingId, services.DB)
 	if greeting == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "greeting not found")
@@ -133,12 +149,44 @@ func handleUpdate(
 
 	err := services.DB.Model(greeting).Select("*").Updates(newGreeting).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update greeting")
 	}
 
 	return &Greeting{
 		ChannelsGreetings: *newGreeting,
 		UserName:          twitchUser.Login,
+		Avatar:            twitchUser.ProfileImageURL,
+	}, nil
+}
+
+func handlePatch(
+	channelId, greetingId string,
+	dto *greetingsPatchDto,
+	services types.Services,
+) (*Greeting, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
+	greeting := findGreetingById(greetingId, services.DB)
+	if greeting == nil {
+		return nil, fiber.NewError(http.StatusNotFound, "greeting not found")
+	}
+
+	twitchUser := getTwitchUserById(greeting.UserID, services.Twitch)
+	if twitchUser == nil {
+		return nil, fiber.NewError(http.StatusNotFound, "cannot find twitch user")
+	}
+
+	greeting.Enabled = *dto.Enabled
+	err := services.DB.Model(greeting).Select("*").Updates(greeting).Error
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update greeting")
+	}
+
+	return &Greeting{
+		ChannelsGreetings: *greeting,
+		UserName:          twitchUser.Login,
+		Avatar:            twitchUser.ProfileImageURL,
 	}, nil
 }

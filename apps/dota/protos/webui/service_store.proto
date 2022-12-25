@@ -1,9 +1,9 @@
-import "steammessages_unified_base.steamclient.proto";
+import "common_base.proto";
 import "common.proto";
 
 message CSteamDeckCompatibility_SetFeedback_Request {
 	optional uint32 appid = 1;
-	optional int32 feedback = 2 [(description) = "enum"];
+	optional int32 feedback = 2 [(.description) = "enum"];
 }
 
 message CSteamDeckCompatibility_SetFeedback_Response {
@@ -16,11 +16,11 @@ message CSteamDeckCompatibility_ShouldPrompt_Request {
 message CSteamDeckCompatibility_ShouldPrompt_Response {
 	optional bool prompt = 1;
 	optional bool feedback_eligible = 2;
-	optional int32 existing_feedback = 3 [(description) = "enum"];
+	optional int32 existing_feedback = 3 [(.description) = "enum"];
 }
 
 message CStore_GetDiscoveryQueue_Request {
-	optional int32 queue_type = 1 [(description) = "enum"];
+	optional int32 queue_type = 1 [(.description) = "enum"];
 	optional string country_code = 2;
 	optional bool rebuild_queue = 3;
 	optional bool settings_changed = 4;
@@ -30,6 +30,7 @@ message CStore_GetDiscoveryQueue_Request {
 	optional bool no_experimental_results = 9;
 	optional uint32 experimental_cohort = 10;
 	optional bool debug_get_solr_query = 11;
+	optional .CStorePageFilter store_page_filter = 12;
 }
 
 message CStore_GetDiscoveryQueue_Response {
@@ -47,6 +48,16 @@ message CStore_GetDiscoveryQueueSettings_Response {
 	optional .CStoreDiscoveryQueueSettings settings = 2;
 }
 
+message CStore_GetDiscoveryQueueSkippedApps_Request {
+	optional fixed64 steamid = 1;
+	optional int32 queue_type = 2 [(.description) = "enum"];
+	optional .CStorePageFilter store_page_filter = 3;
+}
+
+message CStore_GetDiscoveryQueueSkippedApps_Response {
+	repeated uint32 appids = 1;
+}
+
 message CStore_GetLocalizedNameForTags_Request {
 	optional string language = 1;
 	repeated uint32 tagids = 2;
@@ -61,6 +72,10 @@ message CStore_GetLocalizedNameForTags_Response_Tag {
 	optional string english_name = 2;
 	optional string name = 3;
 	optional string normalized_name = 4;
+}
+
+message CStore_GetMostPopularTags_Request {
+	optional string language = 1;
 }
 
 message CStore_GetMostPopularTags_Response {
@@ -101,18 +116,18 @@ message CStore_GetUserGameInterestState_Response {
 	optional bool wishlist = 2;
 	optional bool ignored = 3;
 	optional bool following = 4;
-	repeated int32 in_queues = 5 [(description) = "enum"];
-	repeated int32 queues_with_skip = 6 [(description) = "enum"];
+	repeated int32 in_queues = 5 [(.description) = "enum"];
+	repeated int32 queues_with_skip = 6 [(.description) = "enum"];
 	repeated int32 queue_items_remaining = 7;
 	repeated uint32 queue_items_next_appid = 8;
 	optional bool temporarily_owned = 9;
 	repeated .CStore_GetUserGameInterestState_Response_InQueue queues = 10;
 	optional int32 ignored_reason = 11;
-	optional int32 beta_status = 12 [(description) = "enum"];
+	optional int32 beta_status = 12 [(.description) = "enum"];
 }
 
 message CStore_GetUserGameInterestState_Response_InQueue {
-	optional int32 type = 1 [(description) = "enum"];
+	optional int32 type = 1 [(.description) = "enum"];
 	optional bool skipped = 2;
 	optional int32 items_remaining = 3;
 	optional uint32 next_appid = 4;
@@ -158,8 +173,9 @@ message CStore_RegisterCDKey_Response {
 }
 
 message CStore_SkipDiscoveryQueueItem_Request {
-	optional int32 queue_type = 1 [(description) = "enum"];
+	optional int32 queue_type = 1 [(.description) = "enum"];
 	optional uint32 appid = 2;
+	optional .CStorePageFilter store_page_filter = 3;
 }
 
 message CStore_SkipDiscoveryQueueItem_Response {
@@ -182,6 +198,7 @@ message CStore_UserContentDescriptorPreferences_ContentDescriptor {
 
 message CStore_UserPreferences {
 	optional int32 primary_language = 1;
+	//optional uint32 primary_language = 1;
 	optional uint32 secondary_languages = 2;
 	optional bool platform_windows = 3;
 	optional bool platform_mac = 4;
@@ -190,9 +207,10 @@ message CStore_UserPreferences {
 	optional bool hide_adult_content_sex = 7;
 	optional uint32 timestamp_updated = 8;
 	optional bool hide_store_broadcast = 9;
-	optional int32 review_score_preference = 10 [(description) = "enum"];
+	optional int32 review_score_preference = 10 [(.description) = "enum"];
 	optional int32 timestamp_content_descriptor_preferences_updated = 11;
-	optional int32 provide_deck_feedback = 12 [(description) = "enum"];
+	optional int32 provide_deck_feedback = 12 [(.description) = "enum"];
+	optional string additional_languages = 13;
 }
 
 message CStore_UserTagPreferences {
@@ -224,8 +242,9 @@ message CStoreDiscoveryQueueSettings {
 service Store {
 	rpc GetDiscoveryQueue (.CStore_GetDiscoveryQueue_Request) returns (.CStore_GetDiscoveryQueue_Response);
 	rpc GetDiscoveryQueueSettings (.NotImplemented) returns (.CStore_GetDiscoveryQueueSettings_Response);
+	rpc GetDiscoveryQueueSkippedApps (.CStore_GetDiscoveryQueueSkippedApps_Request) returns (.CStore_GetDiscoveryQueueSkippedApps_Response);
 	rpc GetLocalizedNameForTags (.CStore_GetLocalizedNameForTags_Request) returns (.CStore_GetLocalizedNameForTags_Response);
-	rpc GetMostPopularTags (.NotImplemented) returns (.CStore_GetMostPopularTags_Response);
+	rpc GetMostPopularTags (.CStore_GetMostPopularTags_Request) returns (.CStore_GetMostPopularTags_Response);
 	rpc GetStorePreferences (.CStore_GetStorePreferences_Request) returns (.CStore_GetStorePreferences_Response);
 	rpc GetTrendingAppsAmongFriends (.CStore_GetTrendingAppsAmongFriends_Request) returns (.CStore_GetTrendingAppsAmongFriends_Response);
 	rpc GetUserGameInterestState (.NotImplemented) returns (.CStore_GetUserGameInterestState_Response);

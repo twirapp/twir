@@ -3,13 +3,17 @@ package scheduler
 import (
 	"fmt"
 	"time"
-	cfg "tsuwari/config"
-	"tsuwari/timers/internal/handler"
-	"tsuwari/timers/internal/types"
-	"tsuwari/twitch"
+
+	"github.com/satont/tsuwari/apps/timers/internal/handler"
+	"github.com/satont/tsuwari/apps/timers/internal/types"
+
+	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+
+	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/go-co-op/gocron"
-	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -18,7 +22,6 @@ type Scheduler struct {
 	internalScheduler *gocron.Scheduler
 	cfg               *cfg.Config
 	twitch            *twitch.Twitch
-	nats              *nats.Conn
 	db                *gorm.DB
 	logger            *zap.Logger
 	Timers            types.Store
@@ -28,9 +31,10 @@ type Scheduler struct {
 func New(
 	cfg *cfg.Config,
 	twitch *twitch.Twitch,
-	nats *nats.Conn,
 	db *gorm.DB,
 	logger *zap.Logger,
+	parserGrpc parser.ParserClient,
+	botsGrpcClient bots.BotsClient,
 ) *Scheduler {
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.StartAsync()
@@ -39,11 +43,10 @@ func New(
 		internalScheduler: scheduler,
 		cfg:               cfg,
 		twitch:            twitch,
-		nats:              nats,
 		db:                db,
 		logger:            logger,
 		Timers:            store,
-		handler:           handler.New(twitch, nats, db, logger, store),
+		handler:           handler.New(twitch, db, logger, store, parserGrpc, botsGrpcClient),
 	}
 }
 

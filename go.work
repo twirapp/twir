@@ -2,7 +2,14 @@ go 1.19
 
 use (
 	./apps/api
+	./apps/bots
 	./apps/parser
 	./apps/timers
-	./libs/types
+	./apps/watched
+	./libs/config
+	./libs/gomodels
+	./libs/grpc
+	./libs/integrations/spotify
+	./libs/pubsub
+	./libs/twitch
 )

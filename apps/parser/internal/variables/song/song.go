@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	model "tsuwari/models"
-	lastfm "tsuwari/parser/internal/integrations/lastfm"
-	vkIntegr "tsuwari/parser/internal/integrations/vk"
-	"tsuwari/parser/internal/types"
-	variables_cache "tsuwari/parser/internal/variablescache"
+
+	lastfm "github.com/satont/tsuwari/apps/parser/internal/integrations/lastfm"
+	vkIntegr "github.com/satont/tsuwari/apps/parser/internal/integrations/vk"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/go-redis/redis/v9"
 	spotify "github.com/satont/tsuwari/libs/integrations/spotify"
@@ -32,6 +34,7 @@ var Variable = types.Variable{
 		result := &types.VariableHandlerResult{}
 
 		integrations := ctx.GetEnabledIntegrations()
+
 		integrations = lo.Filter(
 			integrations,
 			func(integration model.ChannelsIntegrations, _ int) bool {
@@ -50,6 +53,7 @@ var Variable = types.Variable{
 				return integration.Integration.Service == "LASTFM"
 			},
 		)
+
 		var lfm *lastfm.LastFm
 		if ok {
 			lfm = lastfm.New(&lastFmIntegration)
@@ -105,7 +109,7 @@ var Variable = types.Variable{
 				}
 
 				track := lfm.GetTrack()
-				fmt.Println(track, integration)
+
 				if track != nil {
 					result.Result = *track
 					break checkServices

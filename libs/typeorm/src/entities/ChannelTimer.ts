@@ -6,11 +6,10 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  Relation,
 } from 'typeorm';
 
-import { type Channel } from './Channel.js';
-import { ChannelTimerResponse } from './ChannelTimerResponse.js';
+import { Channel } from './Channel';
+import { ChannelTimerResponse } from './ChannelTimerResponse';
 
 @Entity('channels_timers', { schema: 'public' })
 export class ChannelTimer {
@@ -23,10 +22,10 @@ export class ChannelTimer {
   @Column('boolean', { name: 'enabled', default: false })
   enabled: boolean;
 
-  @OneToMany('ChannelTimerResponse', 'timer', {
+  @OneToMany(() => ChannelTimerResponse, _ => _.timer, {
     cascade: true,
   })
-  responses: Relation<ChannelTimerResponse>;
+  responses: ChannelTimerResponse[];
 
   @Column('integer', { name: 'timeInterval', default: 0 })
   timeInterval: number;
@@ -37,12 +36,12 @@ export class ChannelTimer {
   @Column('integer', { name: 'lastTriggerMessageNumber', default: 0 })
   lastTriggerMessageNumber: number;
 
-  @ManyToOne('Channel', 'timers', {
+  @ManyToOne(() => Channel, _ => _.timers, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel?: Relation<Channel>;
+  channel?: Channel;
 
   @Column()
   channelId: string;

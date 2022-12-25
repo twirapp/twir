@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "ES2016",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "declaration": true,
+    "declarationMap": true,
+    "preserveSymlinks": true,
+    "composite": false,
+    "esModuleInterop": true
+  },
+  "includes": [
+    "./**/*.ts"
+  ],
+  "exclude": [
+    "./dist",
+    "gen.ts"
+  ]
+}

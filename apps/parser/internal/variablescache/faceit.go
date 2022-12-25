@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/samber/lo"
 )
@@ -66,7 +67,7 @@ func (c *VariablesCacheService) GetFaceitUserData() (*FaceitUser, error) {
 	client := &http.Client{}
 	req, _ := http.NewRequest(
 		"GET",
-		"https://open.faceit.com/data/v4/players?nickname="+*integration.Data.UserName,
+		"https://open.faceit.com/data/v4/players/"+*integration.Data.UserId,
 		nil,
 	)
 	req.Header.Set("Authorization", "Bearer "+integration.Integration.APIKey.String)

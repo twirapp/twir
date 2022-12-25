@@ -1,8 +1,14 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
-import { type Channel } from './Channel.js';
-import { type User } from './User.js';
+import { Channel } from './Channel';
+import { User } from './User';
 
 @Entity('channels_dashboard_access', { schema: 'public' })
 export class DashboardAccess {
@@ -13,22 +19,22 @@ export class DashboardAccess {
   })
   id: string;
 
-  @ManyToOne('Channel', 'dashboardAccess', {
+  @ManyToOne(() => Channel, _ => _.dashboardAccess, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel?: Relation<Channel>;
+  channel?: Channel;
 
   @Column()
   channelId: string;
 
-  @ManyToOne('User', 'dashboardAccess', {
+  @ManyToOne(() => User, _ => _.dashboardAccess, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user?: Relation<User>;
+  user?: User;
 
   @Column()
   userId: string;

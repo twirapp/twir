@@ -1,4 +1,9 @@
-import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  PrimaryColumn,
+} from 'typeorm';
 
 @Entity('dota_heroes', { schema: 'public' })
 export class DotaHero {

@@ -2,8 +2,12 @@ package dashboardaccess
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
@@ -19,10 +23,12 @@ type Entity struct {
 }
 
 func handleGet(channelId string, services types.Services) ([]Entity, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	dbEntities := []model.ChannelsDashboardAccess{}
 	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&dbEntities).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(
 			http.StatusInternalServerError,
 			"cannot get dashboard users from db",
@@ -39,7 +45,7 @@ func handleGet(channelId string, services types.Services) ([]Entity, error) {
 		IDs: usersIds,
 	})
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(
 			http.StatusInternalServerError,
 			"error when getting users from twitch",
@@ -67,11 +73,13 @@ func handleGet(channelId string, services types.Services) ([]Entity, error) {
 }
 
 func handlePost(channelId string, dto *addUserDto, services types.Services) (*Entity, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	twitchUsers, err := services.Twitch.Client.GetUsers(&helix.UsersParams{
 		Logins: []string{dto.UserName},
 	})
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get user from twitch")
 	}
 
@@ -98,7 +106,7 @@ func handlePost(channelId string, dto *addUserDto, services types.Services) (*En
 			return tx.Create(&user)
 		}))
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return nil, fiber.NewError(http.StatusInternalServerError, "cannot save user in db")
 		}
 	}
@@ -110,7 +118,7 @@ func handlePost(channelId string, dto *addUserDto, services types.Services) (*En
 	}
 	err = services.DB.Save(&newAccess).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot save user in db")
 	}
 

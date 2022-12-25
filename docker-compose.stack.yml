@@ -1,0 +1,403 @@
+version: "3.9"
+
+services:
+  adminer:
+    image: adminer
+    ports:
+      - 54323:8080
+    environment:
+      - ADMINER_PLUGINS=enum-types
+    networks:
+      - tsuwari
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  postgres:
+    image: postgres:14-alpine
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER_FILE: /run/secrets/tsuwari_postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/tsuwari_postgres_password
+      POSTGRES_DB_FILE: /run/secrets/tsuwari_postgres_db
+    secrets:
+      - tsuwari_postgres_user
+      - tsuwari_postgres_password
+      - tsuwari_postgres_db
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
+  # backup:
+  #   image: satont/postgresql-backup-s3
+  #   environment:
+  #     POSTGRES_DATABASE: ${DB_NAME}
+  #     POSTGRES_HOST: ${DB_HOST}
+  #     POSTGRES_USER: ${DB_USER}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #     S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+  #     S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+  #     S3_BUCKET: ${S3_BUCKET}
+  #     S3_PREFIX: ${S3_PREFIX}
+  #     SCHEDULE: ${S3_SCHEDULE}
+  #     S3_REGION: ${S3_REGION}
+  #     S3_ENDPOINT: ${S3_ENDPOINT}
+  #   secrets:
+  #     - tsuwari_doppler_token
+  #   networks:
+  #     - tsuwari
+  #   deploy:
+  #     restart_policy:
+  #       condition: any
+  #       delay: 3s
+  #       max_attempts: 30
+
+  # minio:
+  #   image: quay.io/minio/minio
+  #   command: server --address 0.0.0.0:9000 --console-address ":9001" /data
+  #   volumes:
+  #     - minio-data:/data
+  #   ports:
+  #     - 9000:9000
+  #     - 9001:9001
+  #   environment:
+  #     MINIO_ROOT_USER: ${MINIO_USER}
+  #     MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+  #     MINIO_REGION_NAME: eu-east-1
+  #     MINIO_SERVER_URL: https://minio.tsuwari.app
+  #   secrets:
+  #     - tsuwari_doppler_token
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD",
+  #         "curl",
+  #         "-f",
+  #         "http://localhost:9000/minio/health/live"
+  #       ]
+  #     interval: 30s
+  #     timeout: 20s
+  #     retries: 3
+  #   networks:
+  #     - tsuwari
+  #   deploy:
+  #     restart_policy:
+  #       condition: any
+  #       delay: 3s
+  #       max_attempts: 30
+
+  migrations:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: migrations
+    image: registry.satont.dev/tsuwari/migrations
+    secrets:
+      - tsuwari_doppler_token
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 30
+
+  redis:
+    image: redis/redis-stack:7.0.6-RC2
+    volumes:
+      - redis-data:/data
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
+  api:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: api
+    image: registry.satont.dev/tsuwari/api
+    secrets:
+      - tsuwari_doppler_token
+    ports:
+      - target: 3002
+        published: 3004
+        mode: host
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      # mode: replicated
+      # replicas: 1
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
+  bots:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: bots
+    image: registry.satont.dev/tsuwari/bots
+    secrets:
+      - tsuwari_doppler_token
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+
+  watched:
+    image: registry.satont.dev/tsuwari/watched
+    secrets:
+      - tsuwari_doppler_token
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      mode: replicated
+      replicas: 8
+
+  parser:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: parser
+    image: registry.satont.dev/tsuwari/parser
+    secrets:
+      - tsuwari_doppler_token
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      mode: replicated
+      replicas: 50
+      endpoint_mode: dnsrr
+    networks:
+      - tsuwari
+
+  timers:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: timers
+    image: registry.satont.dev/tsuwari/timers
+    secrets:
+      - tsuwari_doppler_token
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: scheduler
+    image: registry.satont.dev/tsuwari/scheduler
+    secrets:
+      - tsuwari_doppler_token
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+
+  streamstatus:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: streamstatus
+    image: registry.satont.dev/tsuwari/streamstatus
+    secrets:
+      - tsuwari_doppler_token
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+
+  eventsub:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: eventsub
+    image: registry.satont.dev/tsuwari/eventsub
+    secrets:
+      - tsuwari_doppler_token
+    ports:
+      - target: 3003
+        published: 3003
+        mode: host
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
+  dota:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: dota
+    image: registry.satont.dev/tsuwari/dota
+    secrets:
+      - tsuwari_doppler_token
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+
+  eval:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: eval
+    image: registry.satont.dev/tsuwari/eval
+    secrets:
+      - tsuwari_doppler_token
+    deploy:
+      mode: replicated
+      replicas: 50
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+    networks:
+      - tsuwari
+
+  integrations:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: integrations
+    image: registry.satont.dev/tsuwari/integrations
+    secrets:
+      - tsuwari_doppler_token
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: web
+    image: registry.satont.dev/tsuwari/web
+    secrets:
+      - tsuwari_doppler_token
+    ports:
+      - target: 3000
+        published: 3001
+        mode: host
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: dashboard
+    image: registry.satont.dev/tsuwari/dashboard
+    secrets:
+      - tsuwari_doppler_token
+    ports:
+      - target: 3000
+        published: 3002
+        mode: host
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:
+
+
+networks:
+  tsuwari:
+    name: tsuwari
+    external: true
+
+secrets:
+  tsuwari_doppler_token:
+    external: true
+  tsuwari_postgres_user:
+    external: true
+  tsuwari_postgres_db:
+    external: true
+  tsuwari_postgres_password:
+    external: true

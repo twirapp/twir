@@ -4,12 +4,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
-  Relation,
 } from 'typeorm';
 
-import { type Channel } from './Channel.js';
+import { Channel } from './Channel';
 
 @Entity('channels_greetings', { schema: 'public' })
 export class ChannelGreeting {
@@ -27,12 +25,12 @@ export class ChannelGreeting {
   @Column('text', { name: 'text' })
   text: string;
 
-  @ManyToOne('Channel', 'greetings', {
+  @ManyToOne(() => Channel, _ => _.greetings, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel?: Relation<Channel>;
+  channel?: Channel;
 
   @Column()
   channelId: string;

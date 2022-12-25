@@ -3,10 +3,12 @@ package manage
 import (
 	"log"
 	"strings"
-	model "tsuwari/models"
-	"tsuwari/parser/internal/types"
 
-	variables_cache "tsuwari/parser/internal/variablescache"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
@@ -37,7 +39,7 @@ var EditCommand = types.DefaultCommand{
 			return result
 		}
 
-		name := args[0]
+		name := strings.ToLower(strings.ReplaceAll(args[0], "!", ""))
 		text := strings.Join(args[1:], " ")
 
 		cmd := model.ChannelsCommands{}
@@ -46,7 +48,7 @@ var EditCommand = types.DefaultCommand{
 			Preload(`Responses`).
 			First(&cmd).Error
 
-		if err != nil || &cmd == nil {
+		if err != nil || cmd.ID == "" {
 			log.Fatalln(err)
 			result.Result = append(result.Result, "Command not found.")
 			return result

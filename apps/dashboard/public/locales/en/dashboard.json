@@ -1,0 +1,11 @@
+{
+  "widgets": {
+    "bot": {
+      "title": "Bot manage",
+      "alert": {
+        "true": "Bot is moderator on the channel.",
+        "false": "We detect bot is not moderator on the channel. Please, use <b>/mod tsuwaribot</b>, or some of functionality may work incorrectly."
+      }
+    }
+  }
+}

@@ -10,6 +10,12 @@ includes:
   api:
     taskfile: ./apps/api/Taskfile.yml
     dir: ./apps/api
+  bots:
+    taskfile: ./apps/bots/Taskfile.yml
+    dir: ./apps/bots
+  watched:
+    taskfile: ./apps/watched/Taskfile.yml
+    dir: ./apps/watched
 
 tasks:
   build-libs:
@@ -22,7 +28,7 @@ tasks:
 
   migrations:
     cmds:
-      - doppler run -- pnpm run --filter=@tsuwari/typeorm setup
+      - pnpm run --filter=@tsuwari/typeorm setup
 
   prepare:
     run: once
@@ -45,13 +51,23 @@ tasks:
     cmds:
       - task: api:dev
 
+  bots-dev:
+    deps: [prepare]
+    cmds:
+      - task: bots:dev
+
+  watched-dev:
+    deps: [prepare]
+    cmds:
+      - task: watched:dev
+
   node-dev:
     deps: [prepare]
     cmds:
       - pnpm dev
 
   dev:
-    deps: [parser-dev, timers-dev, api-dev, node-dev]
+    deps: [parser-dev, timers-dev, api-dev, bots-dev, watched-dev, node-dev]
 
   docker-local-build:
     cmds:

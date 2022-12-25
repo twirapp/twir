@@ -3,11 +3,13 @@ package manage
 import (
 	"log"
 	"strings"
-	model "tsuwari/models"
-	"tsuwari/parser/internal/types"
-	"tsuwari/parser/pkg/helpers"
 
-	variables_cache "tsuwari/parser/internal/variablescache"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/guregu/null"
 	"github.com/samber/lo"
@@ -47,7 +49,7 @@ var AddCommand = types.DefaultCommand{
 			return result
 		}
 
-		name := args[0]
+		name := strings.ToLower(strings.ReplaceAll(args[0], "!", ""))
 		text := strings.Join(args[1:], " ")
 
 		if len(name) > 20 {

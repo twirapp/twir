@@ -1,6 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+/* eslint-disable import/no-cycle */
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
-import type { Channel } from './Channel.js';
+import { Channel } from './Channel';
 
 @Entity('channels_streams')
 export class ChannelStream {
@@ -46,13 +53,16 @@ export class ChannelStream {
   @Column('text', { nullable: true, array: true, default: [] })
   tagIds: string[] | null;
 
+  @Column('text', { nullable: true, array: true, default: [] })
+  tags: string[] | null;
+
   @Column('bool')
   isMature: boolean;
 
   @Column({ default: 0, type: 'int' })
   parsedMessages: number;
 
-  @ManyToOne('Channel', 'streams')
+  @ManyToOne(() => Channel, _ => _.streams)
   @JoinColumn({ name: 'userId' })
-  channel?: Relation<Channel>;
+  channel?: Channel;
 }

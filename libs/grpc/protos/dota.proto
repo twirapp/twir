@@ -1,0 +1,17 @@
+syntax = "proto3";
+package dota;
+option go_package = "tsuwari/grpc/dota";
+
+service Dota {
+  rpc GetPlayerCard(GetPlayerCardRequest) returns (GetPlayerCardResponse) {}
+}
+
+message GetPlayerCardRequest {
+  int64 accountId = 1;
+}
+
+message GetPlayerCardResponse {
+  string account_id = 1;
+  optional int64 rank_tier = 2;
+  optional int64 leaderboard_rank = 3;
+}

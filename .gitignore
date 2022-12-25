@@ -13,7 +13,10 @@ docker-compose*
 !docker-compose.example.yml
 !docker-compose.dev.yml
 !docker-compose.build.yml
+!docker-compose.stack.yml
+!docker-compose.dockprom.yml
 .devbox
 devbox/go
+.pnpm-store
 
 !*/**/.gitkeep

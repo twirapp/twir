@@ -8,13 +8,11 @@ import {
   OneToMany,
   OneToOne,
   PrimaryColumn,
-  // eslint-disable-next-line comma-dangle
-  Relation
 } from 'typeorm';
 
-import { type DotaGameMode } from './DotaGameMode.js';
-import { type DotaMatchCard } from './DotaMatchCard.js';
-import { type DotaMatchResult } from './DotaMatchResult.js';
+import { DotaGameMode } from './DotaGameMode';
+import { DotaMatchCard } from './DotaMatchCard';
+import { DotaMatchResult } from './DotaMatchResult';
 
 @Entity('dota_matches', { schema: 'public' })
 export class DotaMatch {
@@ -56,19 +54,19 @@ export class DotaMatch {
   @Column('boolean', { name: 'finished', default: false })
   finished: boolean;
 
-  @ManyToOne('DotaGameMode', 'dotaMatches', {
+  @ManyToOne(() => DotaGameMode, _ => _.dotaMatches, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'gameModeId', referencedColumnName: 'id' }])
-  gameMode?: Relation<DotaGameMode>;
+  gameMode?: DotaGameMode;
 
   @Column()
   gameModeId: number;
 
-  @OneToMany('DotaMatchCard', 'match')
-  cards?: Relation<DotaMatchCard[]>;
+  @OneToMany(() => DotaMatchCard, _ => _.match)
+  cards?: DotaMatchCard[];
 
-  @OneToOne('DotaMatchResult', 'match')
-  result?: Relation<DotaMatchResult>;
+  @OneToOne(() => DotaMatchResult, _ => _.match)
+  result?: DotaMatchResult;
 }

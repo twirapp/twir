@@ -1,7 +1,13 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
-import { type ChannelCommand } from './ChannelCommand.js';
+import { ChannelCommand } from './ChannelCommand';
 
 @Entity('channels_commands_responses', { schema: 'public' })
 export class CommandResponse {
@@ -15,12 +21,12 @@ export class CommandResponse {
   @Column('text', { name: 'text', nullable: true })
   text: string | null;
 
-  @ManyToOne('ChannelCommand', 'responses', {
+  @ManyToOne(() => ChannelCommand, _ => _.responses, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'commandId', referencedColumnName: 'id' }])
-  command?: Relation<ChannelCommand>;
+  command?: ChannelCommand;
 
   @Column()
   commandId: string;

@@ -4,8 +4,10 @@ import { rawDataSymbol } from '@twurple/common';
 
 export type CachedStream = HelixStream[typeof rawDataSymbol] & { parsedMessages?: number };
 
+export type Dashboard = DashboardAccess & { twitchUser: HelixUser[typeof rawDataSymbol] };
+
 export type AuthUser = HelixUser[typeof rawDataSymbol] & {
-  dashboards: Array<DashboardAccess & { twitchUser: HelixUser[typeof rawDataSymbol] }>;
+  dashboards: Dashboard[];
   isTester: boolean;
   isBotAdmin?: boolean;
 };

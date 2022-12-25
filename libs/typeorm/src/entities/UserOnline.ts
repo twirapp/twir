@@ -1,8 +1,14 @@
 /* eslint-disable import/no-cycle */
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
-import { type Channel } from './Channel.js';
-import { type User } from './User.js';
+import { Channel } from './Channel';
+import { User } from './User';
 
 @Entity('users_online', { schema: 'public' })
 export class UserOnline {
@@ -13,22 +19,22 @@ export class UserOnline {
   })
   id: string;
 
-  @ManyToOne('Channel', 'onlineUsers', {
+  @ManyToOne(() => Channel, _ => _.onlineUsers, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'channelId', referencedColumnName: 'id' }])
-  channel?: Relation<Channel>;
+  channel?: Channel;
 
   @Column('text', { name: 'channelId' })
   channelId: string;
 
-  @ManyToOne('User', 'online', {
+  @ManyToOne(() => User, _ => _.online, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  user?: Relation<User>;
+  user?: User;
 
   @Column('text', { nullable: true })
   userId: string | null;

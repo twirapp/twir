@@ -1,19 +1,22 @@
 package donationalerts
 
 import (
+	"context"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 	"net/url"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
-	req "github.com/imroc/req/v3"
-	"github.com/samber/lo"
+	"github.com/imroc/req/v3"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	"github.com/satont/tsuwari/libs/nats/integrations"
 	uuid "github.com/satori/go.uuid"
-	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 )
 
@@ -41,41 +44,20 @@ func handleGetAuth(services types.Services) (*string, error) {
 	return &str, nil
 }
 
-func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrations, error) {
+func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrationsData, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, nil
 	}
-	return integration, nil
-}
 
-func handlePatch(
-	channelId string,
-	dto *donationAlertsDto,
-	services types.Services,
-) (*model.ChannelsIntegrations, error) {
-	integration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", services.DB)
-	if err != nil {
-		services.Logger.Sugar().Error(err)
-		return nil, err
-	}
-	if err != nil && err == gorm.ErrRecordNotFound {
-		return nil, fiber.NewError(http.StatusNotFound, "integration not found")
-	}
-	if err != nil {
-		services.Logger.Sugar().Error(err)
-		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	if integration == nil {
+		return nil, nil
 	}
 
-	integration.Enabled = *dto.Enabled
-	services.DB.Save(&integration)
-
-	if integration.AccessToken.Valid && integration.RefreshToken.Valid {
-		sendNatsEvent(integration.ID, *dto.Enabled, services)
-	}
-
-	return integration, nil
+	return integration.Data, nil
 }
 
 type tokensResponse struct {
@@ -94,9 +76,11 @@ type profileResponse struct {
 }
 
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	channelIntegration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return err
 	}
 
@@ -106,7 +90,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		First(&neededIntegration).
 		Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(
 			http.StatusInternalServerError,
 			"seems like donationalerts not enabled on our side",
@@ -135,7 +119,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		SetContentType("application/x-www-form-urlencoded").
 		Post("https://www.donationalerts.com/oauth/token")
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get tokens")
 	}
 	if !resp.IsSuccess() {
@@ -149,7 +133,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		Get("https://www.donationalerts.com/api/v1/user/oauth")
 
 	if err != nil || !profileResp.IsSuccess() {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get profile")
 	}
 
@@ -174,25 +158,44 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 	err = services.DB.Save(channelIntegration).Error
 
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
-	sendNatsEvent(channelIntegration.ID, channelIntegration.Enabled, services)
+	sendGrpcEvent(channelIntegration.ID, channelIntegration.Enabled, services)
 
 	return nil
 }
 
-func sendNatsEvent(integrationId string, isAdd bool, services types.Services) {
-	bytes := []byte{}
+func sendGrpcEvent(integrationId string, isAdd bool, services types.Services) {
 	if isAdd {
-		bytes, _ = proto.Marshal(&integrations.AddIntegration{Id: integrationId})
+		services.IntegrationsGrpc.AddIntegration(context.Background(), &integrations.Request{
+			Id: integrationId,
+		})
 	} else {
-		bytes, _ = proto.Marshal(&integrations.RemoveIntegration{Id: integrationId})
+		services.IntegrationsGrpc.RemoveIntegration(context.Background(), &integrations.Request{
+			Id: integrationId,
+		})
 	}
-	defer services.Nats.Publish(
-		lo.If(isAdd, integrations.SUBJECTS_ADD_INTEGRATION).
-			Else(integrations.SUBJECTS_REMOVE_INTEGRATION),
-		bytes,
-	)
+}
+
+func handleLogout(channelId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
+	integration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", services.DB)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+	if integration == nil {
+		return fiber.NewError(http.StatusNotFound, "integration not found")
+	}
+
+	err = services.DB.Delete(&integration).Error
+	if err != nil {
+		logger.Error(err)
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	return nil
 }

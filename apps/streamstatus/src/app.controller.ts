@@ -1,44 +1,24 @@
-import { Controller, Logger } from '@nestjs/common';
-import { Payload } from '@nestjs/microservices';
-import {
-  ClientProxyResult,
-  EventPattern,
-  MessagePattern,
-  type ClientProxyCommandPayload,
-  type ClientProxyEventPayload,
-} from '@tsuwari/shared';
-import { of } from 'rxjs';
+import { Controller, Logger, OnModuleInit } from '@nestjs/common';
 
 import { AppService } from './app.service.js';
+import { pubSub } from './pubsub.js';
 
 @Controller()
-export class AppController {
-  private readonly logger = new Logger('StreamStatus');
-
+export class AppController implements OnModuleInit {
   constructor(private readonly appService: AppService) {}
 
-  @MessagePattern('streamstatuses.process')
-  async cacheStreams(
-    @Payload() data: ClientProxyCommandPayload<'streamstatuses.process'>,
-  ): Promise<ClientProxyResult<'streamstatuses.process'>> {
-    return of(await this.appService.handleChannels(data));
-  }
-
-  @EventPattern('streams.online')
-  streamOnline(@Payload() data: ClientProxyEventPayload<'streams.online'>) {
-    this.logger.log(`Starting to process ${data.channelId} online`);
-    this.appService.handleOnline(data);
-  }
-
-  @EventPattern('streams.offline')
-  streamOffline(@Payload() data: ClientProxyEventPayload<'streams.offline'>) {
-    this.logger.log(`Starting to process ${data.channelId} offline`);
-    this.appService.handleOffline(data);
-  }
-
-  @EventPattern('stream.update')
-  streamUpdate(@Payload() data: ClientProxyEventPayload<'stream.update'>) {
-    this.logger.log(`Starting to process ${data.broadcaster_user_id} update`);
-    this.appService.handleUpdate(data);
+  async onModuleInit() {
+    pubSub.subscribe('streams.online', (data) => {
+      const parsedData = JSON.parse(data);
+      this.appService.handleOnline(parsedData);
+    });
+    pubSub.subscribe('streams.offline', (data) => {
+      const parsedData = JSON.parse(data);
+      this.appService.handleOffline(parsedData);
+    });
+    pubSub.subscribe('stream.update', (data) => {
+      const parsedData = JSON.parse(data);
+      this.appService.handleUpdate(parsedData);
+    });
   }
 }

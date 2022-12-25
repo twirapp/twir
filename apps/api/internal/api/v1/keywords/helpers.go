@@ -1,7 +1,7 @@
 package keywords
 
 import (
-	model "tsuwari/models"
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"gorm.io/gorm"
 )

@@ -3,12 +3,16 @@ package variables_cache
 import (
 	"regexp"
 	"sync"
-	model "tsuwari/models"
-	"tsuwari/parser/internal/config/twitch"
-	usersauth "tsuwari/parser/internal/twitch/user"
+
+	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	usersauth "github.com/satont/tsuwari/apps/parser/internal/twitch/user"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"github.com/satont/tsuwari/libs/grpc/generated/dota"
+	"github.com/satont/tsuwari/libs/grpc/generated/eval"
 
 	"github.com/go-redis/redis/v9"
-	"github.com/nats-io/nats.go"
 	"github.com/satont/go-helix/v2"
 	"gorm.io/gorm"
 )
@@ -38,7 +42,9 @@ type ExecutionServices struct {
 	Twitch    *twitch.Twitch
 	Db        *gorm.DB
 	UsersAuth *usersauth.UsersTokensService
-	Nats      *nats.Conn
+	BotsGrpc  bots.BotsClient
+	DotaGrpc  dota.DotaClient
+	EvalGrpc  eval.EvalClient
 }
 
 type ExecutionContext struct {
@@ -68,9 +74,11 @@ type VariablesCacheOpts struct {
 	Regexp      *regexp.Regexp
 	Twitch      *twitch.Twitch
 	DB          *gorm.DB
-	Nats        *nats.Conn
 	IsCommand   bool
 	Command     *model.ChannelsCommands
+	BotsGrpc    bots.BotsClient
+	DotaGrpc    dota.DotaClient
+	EvalGrpc    eval.EvalClient
 }
 
 func New(opts VariablesCacheOpts) *VariablesCacheService {
@@ -82,11 +90,13 @@ func New(opts VariablesCacheOpts) *VariablesCacheService {
 			SenderName:  *opts.SenderName,
 			Text:        opts.Text,
 			Services: ExecutionServices{
-				Redis:  opts.Redis,
-				Regexp: opts.Regexp,
-				Twitch: opts.Twitch,
-				Db:     opts.DB,
-				Nats:   opts.Nats,
+				Redis:    opts.Redis,
+				Regexp:   opts.Regexp,
+				Twitch:   opts.Twitch,
+				Db:       opts.DB,
+				BotsGrpc: opts.BotsGrpc,
+				DotaGrpc: opts.DotaGrpc,
+				EvalGrpc: opts.EvalGrpc,
 			},
 			IsCommand: opts.IsCommand,
 			Command:   opts.Command,

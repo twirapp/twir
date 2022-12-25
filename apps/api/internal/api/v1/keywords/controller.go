@@ -12,11 +12,22 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
 	middleware.Delete(":keywordId", delete(services))
+	middleware.Put(":keywordId", put(services))
 	middleware.Patch(":keywordId", patch(services))
 
 	return middleware
 }
 
+// Keywords godoc
+// @Security ApiKeyAuth
+// @Summary      Get channel keywords list
+// @Tags         Keywords
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {array}  model.ChannelsKeywords
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/keywords [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		keywords, err := handleGet(c.Params("channelId"), services)
@@ -27,6 +38,18 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Keywords godoc
+// @Security ApiKeyAuth
+// @Summary      Create keyword
+// @Tags         Keywords
+// @Accept       json
+// @Produce      json
+// @Param data body keywordDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200  {object}  model.ChannelsKeywords
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/keywords [post]
 func post(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &keywordDto{}
@@ -49,6 +72,19 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Keywords godoc
+// @Security ApiKeyAuth
+// @Summary      Delete keyword
+// @Tags         Keywords
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ID of channel"
+// @Param        keywordId   path      string  true  "ID of keyword"
+// @Success      200  {object}  model.ChannelsKeywords
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 404
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/keywords/{keywordId} [delete]
 func delete(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		err := handleDelete(c.Params("keywordId"), services)
@@ -60,7 +96,21 @@ func delete(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
-func patch(services types.Services) func(c *fiber.Ctx) error {
+// Keywords godoc
+// @Security ApiKeyAuth
+// @Summary      Update keyword
+// @Tags         Keywords
+// @Accept       json
+// @Produce      json
+// @Param data body keywordDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Param        keywordId   path      string  true  "ID of keyword"
+// @Success      200  {object}  model.ChannelsKeywords
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 404
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/keywords/{keywordId} [put]
+func put(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &keywordDto{}
 		err := middlewares.ValidateBody(
@@ -79,5 +129,41 @@ func patch(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		return c.JSON(keyword)
+	}
+}
+
+// Keywords godoc
+// @Security ApiKeyAuth
+// @Summary      Partially update keyword
+// @Tags         Commands
+// @Accept       json
+// @Produce      json
+// @Param data body keywordPatchDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Param        keywordId   path      string  true  "ID of keyword"
+// @Success      200  {object}  model.ChannelsKeywords
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 404
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/keywords/{keywordId} [patch]
+func patch(services types.Services) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		dto := &keywordPatchDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
+		if err != nil {
+			return err
+		}
+
+		cmd, err := handlePatch(c.Params("channelId"), c.Params("keywordId"), dto, services)
+		if err == nil && cmd != nil {
+			return c.JSON(cmd)
+		}
+
+		return err
 	}
 }

@@ -1,47 +1,46 @@
 package variables
 
 import (
+	"context"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
-	"time"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang/protobuf/proto"
 	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	"github.com/satont/tsuwari/libs/nats/parser"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
 func handleGet(channelId string, services types.Services) ([]model.ChannelsCustomvars, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	variables := []model.ChannelsCustomvars{}
 	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&variables).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get variables")
 	}
 
 	return variables, nil
 }
 
-func handleGetBuiltIn(services types.Services) ([]*parser.Variable, error) {
-	response := parser.GetVariablesResponse{}
-	bytes, _ := proto.Marshal(&parser.GetVariablesRequest{})
+func handleGetBuiltIn(services types.Services) ([]*parser.GetVariablesResponse_Variable, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
 
-	msg, err := services.Nats.Request(
-		parser.SUBJECTS_GET_BUILTIT_VARIABLES,
-		bytes,
-		3*time.Second,
-	)
+	req, err := services.ParserGrpc.GetDefaultVariables(context.Background(), &emptypb.Empty{})
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get builtin variables")
 	}
 
-	proto.Unmarshal(msg.Data, &response)
-
-	return response.List, nil
+	return req.List, nil
 }
 
 func handlePost(
@@ -62,8 +61,8 @@ func handlePost(
 		Name:        dto.Name,
 		Description: null.StringFromPtr(dto.Description),
 		Type:        dto.Type,
-		EvalValue:   null.StringFromPtr(dto.EvalValue),
-		Response:    null.StringFromPtr(dto.Response),
+		EvalValue:   dto.EvalValue,
+		Response:    dto.Response,
 		ChannelID:   channelId,
 	}
 	err = services.DB.Save(&newVariable).Error
@@ -75,6 +74,8 @@ func handlePost(
 }
 
 func handleDelete(channelId string, variableId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	variable := &model.ChannelsCustomvars{}
 	err := services.DB.Where(`"channelId" = ? AND "id" = ?`, channelId, variableId).
 		First(variable).
@@ -85,7 +86,7 @@ func handleDelete(channelId string, variableId string, services types.Services) 
 
 	err = services.DB.Delete(variable).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot delete variable")
 	}
 
@@ -98,6 +99,8 @@ func handleUpdate(
 	dto *variableDto,
 	services types.Services,
 ) (*model.ChannelsCustomvars, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	err := services.DB.Where("id = ?", variableId).First(&model.ChannelsCustomvars{}).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(http.StatusNotFound, "variable not found")
@@ -108,14 +111,14 @@ func handleUpdate(
 		Name:        dto.Name,
 		Description: null.StringFromPtr(dto.Description),
 		Type:        dto.Type,
-		EvalValue:   null.StringFromPtr(dto.EvalValue),
-		Response:    null.StringFromPtr(dto.Response),
+		EvalValue:   dto.EvalValue,
+		Response:    dto.Response,
 		ChannelID:   channelId,
 	}
 
 	err = services.DB.Select("*").Updates(&newData).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(
 			http.StatusInternalServerError,
 			"something happend on our side, cannot update variable",

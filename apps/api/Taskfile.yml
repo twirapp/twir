@@ -3,14 +3,18 @@ version: '3'
 tasks:
   dev:
     cmds:
-      - doppler run -- nodemon --config ./nodemon.json
+      - pnpx nodemon --config ./nodemon.json
 
   build:
     cmds:
       - rm main || true
       - go build cmd/main.go
 
+  docs:
+    cmds:
+      - swag init --parseDependency --parseInternal -q -g ./cmd/main.go
+
   debug:
     cmds:
       - go build -gcflags=all="-N -l" ./cmd/main.go
-      - doppler run -- ./main
+      - ./main

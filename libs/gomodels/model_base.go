@@ -31,7 +31,6 @@ func init() {
 	tables = make(map[string]*TableInfo)
 
 	// tables["_prisma_migrations"] = _prisma_migrationsTableInfo
-	tables["bots"] = botsTableInfo
 	tables["channels_dota_accounts"] = channels_dota_accountsTableInfo
 	tables["channels_permits"] = channels_permitsTableInfo
 	tables["dota_game_modes"] = dota_game_modesTableInfo

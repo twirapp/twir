@@ -3,10 +3,10 @@ package dota
 import (
 	"context"
 	"fmt"
-	"strconv"
+	"strings"
 	"time"
 
-	model "tsuwari/models"
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/go-redis/redis/v9"
 	req "github.com/imroc/req/v3"
@@ -123,14 +123,9 @@ func GetGames(opts GetGamesOpts) *[]Game {
 		opts.Take = lo.ToPtr(1)
 	}
 
-	intAccounts := lo.Map(opts.Accounts, func(a string, _ int) int {
-		n, _ := strconv.Atoi(a)
-		return n
-	})
-
 	err := opts.Db.
 		Table("dota_matches").
-		Where("ARRAY[players] && ARRAY[?]::int[]", intAccounts).
+		Where(`players && ?`, fmt.Sprintf("{%s}", strings.Join(opts.Accounts, ","))).
 		Order(`"startedAt" DESC`).
 		Joins("GameMode").
 		Find(&dbGames).Error

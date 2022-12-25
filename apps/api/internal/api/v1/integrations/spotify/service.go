@@ -3,17 +3,21 @@ package spotify
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"io"
 	"net/http"
 	"net/url"
-	model "tsuwari/models"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
-	req "github.com/imroc/req/v3"
+	"github.com/imroc/req/v3"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	spotify "github.com/satont/tsuwari/libs/integrations/spotify"
+	"github.com/satont/tsuwari/libs/integrations/spotify"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -42,54 +46,6 @@ func handleGetAuth(services types.Services) (*string, error) {
 	return &str, nil
 }
 
-func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrations, error) {
-	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
-	if err != nil {
-		services.Logger.Sugar().Error(err)
-		return nil, err
-	}
-
-	return integration, nil
-}
-
-func handlePatch(
-	channelId string,
-	dto *spotifyDto,
-	services types.Services,
-) (*model.ChannelsIntegrations, error) {
-	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
-	if err != nil {
-		services.Logger.Sugar().Error(err)
-		return nil, err
-	}
-
-	if integration == nil {
-		neededIntegration := model.Integrations{}
-		err = services.DB.
-			Where("service = ?", "SPOTIFY").
-			First(&neededIntegration).
-			Error
-		if err != nil {
-			services.Logger.Sugar().Error(err)
-			return nil, fiber.NewError(
-				http.StatusInternalServerError,
-				"seems like spotify not enabled on our side",
-			)
-		}
-
-		integration = &model.ChannelsIntegrations{
-			ID:            uuid.NewV4().String(),
-			ChannelID:     channelId,
-			IntegrationID: neededIntegration.ID,
-		}
-	}
-
-	integration.Enabled = *dto.Enabled
-	services.DB.Save(&integration)
-
-	return integration, nil
-}
-
 type tokensResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
@@ -106,9 +62,11 @@ type profileResponse struct {
 }
 
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	channelIntegration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return err
 	}
 
@@ -118,7 +76,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		First(&neededIntegration).
 		Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(
 			http.StatusInternalServerError,
 			"seems like spotify not enabled on our side",
@@ -131,6 +89,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 			ChannelID:     channelId,
 			IntegrationID: neededIntegration.ID,
 			Enabled:       true,
+			Integration:   &neededIntegration,
 		}
 	}
 
@@ -157,7 +116,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		return fiber.NewError(http.StatusInternalServerError, "cannot get tokens")
 	}
 	if !resp.IsSuccess() {
-		data, _ := ioutil.ReadAll(resp.Body)
+		data, _ := io.ReadAll(resp.Body)
 		fmt.Println(string(data))
 		return fiber.NewError(401, "seems like code is invalid")
 	}
@@ -169,7 +128,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		Save(channelIntegration).Error
 
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
@@ -177,9 +136,11 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 }
 
 func handleGetProfile(channelId string, services types.Services) (*spotify.SpotifyProfile, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -190,9 +151,30 @@ func handleGetProfile(channelId string, services types.Services) (*spotify.Spoti
 	spoty := spotify.New(integration, services.DB)
 	profile, err := spoty.GetProfile()
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(400, "cannot get spotify profile")
 	}
 
 	return profile, nil
+}
+
+func handleLogout(channelId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
+	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+	if integration == nil {
+		return fiber.NewError(http.StatusNotFound, "integration not found")
+	}
+
+	err = services.DB.Delete(&integration).Error
+	if err != nil {
+		logger.Error(err)
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	return nil
 }

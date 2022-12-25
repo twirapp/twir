@@ -5,32 +5,35 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	types "tsuwari/parser/internal/types"
-	commandsvariable "tsuwari/parser/internal/variables/commands"
-	command_counter "tsuwari/parser/internal/variables/commands/counter"
-	customvar "tsuwari/parser/internal/variables/customvar"
-	emotes7tv "tsuwari/parser/internal/variables/emotes/7tv"
-	emotesbttv "tsuwari/parser/internal/variables/emotes/bttv"
-	emotesffz "tsuwari/parser/internal/variables/emotes/ffz"
-	faceitelo "tsuwari/parser/internal/variables/faceit/elo"
-	faceitelodiff "tsuwari/parser/internal/variables/faceit/elodiff"
-	faceitlvl "tsuwari/parser/internal/variables/faceit/lvl"
-	random "tsuwari/parser/internal/variables/random/number"
-	randomonlineuser "tsuwari/parser/internal/variables/random/online/user"
-	phrase "tsuwari/parser/internal/variables/random/phrase"
-	sender "tsuwari/parser/internal/variables/sender"
-	song "tsuwari/parser/internal/variables/song"
-	streamcategory "tsuwari/parser/internal/variables/stream/category"
-	streammessages "tsuwari/parser/internal/variables/stream/messages"
-	streamtitle "tsuwari/parser/internal/variables/stream/title"
-	streamuptime "tsuwari/parser/internal/variables/stream/uptime"
-	streamviewers "tsuwari/parser/internal/variables/stream/viewers"
-	topMessages "tsuwari/parser/internal/variables/top/messages"
-	"tsuwari/parser/internal/variables/touser"
-	userage "tsuwari/parser/internal/variables/user/age"
-	userfollowage "tsuwari/parser/internal/variables/user/followage"
-	usermessages "tsuwari/parser/internal/variables/user/messages"
-	variables_cache "tsuwari/parser/internal/variablescache"
+
+	types "github.com/satont/tsuwari/apps/parser/internal/types"
+	commandsvariable "github.com/satont/tsuwari/apps/parser/internal/variables/commands"
+	command_counter "github.com/satont/tsuwari/apps/parser/internal/variables/commands/counter"
+	customvar "github.com/satont/tsuwari/apps/parser/internal/variables/customvar"
+	emotes7tv "github.com/satont/tsuwari/apps/parser/internal/variables/emotes/7tv"
+	emotesbttv "github.com/satont/tsuwari/apps/parser/internal/variables/emotes/bttv"
+	emotesffz "github.com/satont/tsuwari/apps/parser/internal/variables/emotes/ffz"
+	faceitelo "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/elo"
+	faceitelodiff "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/elodiff"
+	faceitlvl "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/lvl"
+	keywords "github.com/satont/tsuwari/apps/parser/internal/variables/keywords"
+	random "github.com/satont/tsuwari/apps/parser/internal/variables/random/number"
+	randomonlineuser "github.com/satont/tsuwari/apps/parser/internal/variables/random/online/user"
+	phrase "github.com/satont/tsuwari/apps/parser/internal/variables/random/phrase"
+	sender "github.com/satont/tsuwari/apps/parser/internal/variables/sender"
+	song "github.com/satont/tsuwari/apps/parser/internal/variables/song"
+	streamcategory "github.com/satont/tsuwari/apps/parser/internal/variables/stream/category"
+	streammessages "github.com/satont/tsuwari/apps/parser/internal/variables/stream/messages"
+	streamtitle "github.com/satont/tsuwari/apps/parser/internal/variables/stream/title"
+	streamuptime "github.com/satont/tsuwari/apps/parser/internal/variables/stream/uptime"
+	streamviewers "github.com/satont/tsuwari/apps/parser/internal/variables/stream/viewers"
+	topMessages "github.com/satont/tsuwari/apps/parser/internal/variables/top/messages"
+	"github.com/satont/tsuwari/apps/parser/internal/variables/touser"
+	userage "github.com/satont/tsuwari/apps/parser/internal/variables/user/age"
+	userfollowage "github.com/satont/tsuwari/apps/parser/internal/variables/user/followage"
+	usermessages "github.com/satont/tsuwari/apps/parser/internal/variables/user/messages"
+	userwatched "github.com/satont/tsuwari/apps/parser/internal/variables/user/watched"
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
@@ -66,10 +69,13 @@ func New() Variables {
 		userage.Variable,
 		userfollowage.Variable,
 		usermessages.Variable,
+		userwatched.Variable,
 		touser.Variable,
 		phrase.Variable,
 		command_counter.CommandVariable,
 		command_counter.UserVariable,
+		command_counter.CommandVariableFromOther,
+		keywords.Counter,
 	}
 
 	ctx := Variables{

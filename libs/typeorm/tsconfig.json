@@ -2,12 +2,14 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "target": "esnext",
-    "module": "esnext",
+    "target": "es2020",
+    "module": "commonjs",
     "moduleResolution": "node",
     "declaration": true
   },
-  "exclude": ["./dist"],
+  "exclude": [
+    "./dist"
+  ],
   "include": [
     "src",
     "src/migrations/1666191952221-add_channel_timers_is_announce.ts",

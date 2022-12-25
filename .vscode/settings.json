@@ -3,13 +3,10 @@
   "editor.formatOnSave": true,
   "editor.insertSpaces": true,
   "editor.detectIndentation": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.tabSize": 2,
   "editor.codeActionsOnSave": {
-    "source.sortImports": true
-  },
-  "[prisma]": {
-    "editor.defaultFormatter": "Prisma.prisma"
+    "source.sortImports": false,
+    "source.fixAll.eslint": true
   },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -17,50 +14,47 @@
   "[vue]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  },
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.tsdk": "node_modules/typescript/lib",
-  "remote.SSH.defaultForwardedPorts": [
-    {
-      "localPort": 3002,
-      "name": "api",
-      "remotePort": 3002
-    },
-    {
-      "localPort": 3003,
-      "name": "eventsub",
-      "remotePort": 3003
-    },
-    {
-      "localPort": 3005,
-      "name": "frontend",
-      "remotePort": 3005
-    },
-    {
-      "localPort": 5555,
-      "name": "prisma studio",
-      "remotePort": 5555
-    },
-    {
-      "localPort": 54320,
-      "name": "adminer",
-      "remotePort": 54320
-    },
-    {
-      "localPort": 8222,
-      "name": "nats",
-      "remotePort": 8222
-    }
-  ],
-  "i18n-ally.localesPaths": ["apps/frontend/src/locales"],
-  "i18n-ally.editor.preferEditor": true,
-  "i18n-ally.sortKeys": true,
-  "i18n-ally.keepFulfilled": true,
-  "i18n-ally.keystyle": "nested",
-  "i18n-ally.sourceLanguage": "gb",
-  "prisma.fileWatcher": false,
+  // "remote.SSH.defaultForwardedPorts": [
+  //   {
+  //     "localPort": 3002,
+  //     "name": "api",
+  //     "remotePort": 3002
+  //   },
+  //   {
+  //     "localPort": 3003,
+  //     "name": "eventsub",
+  //     "remotePort": 3003
+  //   },
+  //   {
+  //     "localPort": 3005,
+  //     "name": "frontend",
+  //     "remotePort": 3005
+  //   },
+  //   {
+  //     "localPort": 5555,
+  //     "name": "prisma studio",
+  //     "remotePort": 5555
+  //   },
+  //   {
+  //     "localPort": 8080,
+  //     "name": "adminer",
+  //     "remotePort": 8080
+  //   },
+  //   {
+  //     "localPort": 8222,
+  //     "name": "nats",
+  //     "remotePort": 8222
+  //   }
+  // ],
   "typescript.format.enable": false,
-  // "editor.rulers": [100],
-  // "go.useLanguageServer": true,
   "gopls": {
     "formatting.gofumpt": true
   },
@@ -72,9 +66,11 @@
       }
     ]
   },
-  "go.goroot": "${workspaceFolder}/.devbox/nix/profile/default/share/go",
-  "go.toolsGopath": "${workspaceFolder}/devbox/go",
-  "[go]": {
-    "editor.defaultFormatter": "golang.go"
+  // "go.goroot": "${workspaceFolder}/.devbox/nix/profile/default/share/go",
+  // "go.toolsGopath": "${workspaceFolder}/devbox/go",
+  "tailwindCSS.experimental.configFile": {
+    "libs/ui/components/tailwind.config.js": "libs/ui/components/src/**/*.{vue,js,ts,jsx,tsx,css,postcss}",
+    "apps/frontend/tailwind.config.js": "apps/frontend/src/**/*.{vue,js,ts,jsx,tsx}",
+    "apps/web/tailwind.config.cjs": "apps/web/src/**/*.{vue,js,ts,jsx,tsx,css}"
   }
 }

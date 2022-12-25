@@ -1,9 +1,6 @@
-/* eslint-disable import/no-cycle */
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-import { type Channel } from './Channel.js';
-import { SettingsType } from './ChannelModerationSetting.js';
-import { type User } from './User.js';
+import { type SettingsType } from './ChannelModerationSetting';
 
 @Entity('channels_moderation_warnings', { schema: 'public' })
 export class ChannelModerationWarn {

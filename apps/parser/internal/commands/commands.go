@@ -5,29 +5,35 @@ import (
 	"sort"
 	"strings"
 	"sync"
-	model "tsuwari/models"
-	channel_game "tsuwari/parser/internal/commands/channel/game"
-	channel_title "tsuwari/parser/internal/commands/channel/title"
-	"tsuwari/parser/internal/commands/dota"
-	"tsuwari/parser/internal/commands/manage"
-	"tsuwari/parser/internal/commands/nuke"
-	"tsuwari/parser/internal/commands/permit"
-	sr_youtube "tsuwari/parser/internal/commands/songrequest/youtube"
-	"tsuwari/parser/internal/commands/spam"
-	"tsuwari/parser/internal/config/twitch"
-	"tsuwari/parser/internal/types"
-	"tsuwari/parser/internal/variables"
-	"tsuwari/parser/pkg/helpers"
 
-	usersauth "tsuwari/parser/internal/twitch/user"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/dota"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/manage"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/nuke"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/permit"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/spam"
+	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/tsuwari/apps/parser/internal/variables"
+	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
 
-	variables_cache "tsuwari/parser/internal/variablescache"
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"github.com/satont/tsuwari/libs/grpc/generated/eval"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+
+	uuid "github.com/satori/go.uuid"
+
+	channel_game "github.com/satont/tsuwari/apps/parser/internal/commands/channel/game"
+	channel_title "github.com/satont/tsuwari/apps/parser/internal/commands/channel/title"
+
+	usersauth "github.com/satont/tsuwari/apps/parser/internal/twitch/user"
+
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+
+	"github.com/samber/lo"
 
 	"github.com/go-redis/redis/v9"
-	"github.com/nats-io/nats.go"
-	"github.com/samber/lo"
-	parserproto "github.com/satont/tsuwari/libs/nats/parser"
-	uuid "github.com/satori/go.uuid"
+	dotaGrpc "github.com/satont/tsuwari/libs/grpc/generated/dota"
 	"gorm.io/gorm"
 )
 
@@ -37,8 +43,10 @@ type Commands struct {
 	variablesService variables.Variables
 	Db               *gorm.DB
 	UsersAuth        *usersauth.UsersTokensService
-	Nats             *nats.Conn
 	Twitch           *twitch.Twitch
+	DotaGrpc         dotaGrpc.DotaClient
+	BotsGrpc         bots.BotsClient
+	EvalGrpc         eval.EvalClient
 }
 
 type CommandsOpts struct {
@@ -46,8 +54,10 @@ type CommandsOpts struct {
 	VariablesService variables.Variables
 	Db               *gorm.DB
 	UsersAuth        *usersauth.UsersTokensService
-	Nats             *nats.Conn
 	Twitch           *twitch.Twitch
+	DotaGrpc         dotaGrpc.DotaClient
+	BotsGrpc         bots.BotsClient
+	EvalGrpc         eval.EvalClient
 }
 
 func New(opts CommandsOpts) Commands {
@@ -67,8 +77,9 @@ func New(opts CommandsOpts) Commands {
 		manage.AddCommand,
 		manage.DelCommand,
 		manage.EditCommand,
-		sr_youtube.SrCommand,
-		sr_youtube.WrongCommand,
+		manage.AddAliaseCommand,
+		manage.RemoveAliaseCommand,
+		manage.CheckAliasesCommand,
 	}
 
 	ctx := Commands{
@@ -77,8 +88,10 @@ func New(opts CommandsOpts) Commands {
 		variablesService: opts.VariablesService,
 		Db:               opts.Db,
 		UsersAuth:        opts.UsersAuth,
-		Nats:             opts.Nats,
 		Twitch:           opts.Twitch,
+		BotsGrpc:         opts.BotsGrpc,
+		DotaGrpc:         opts.DotaGrpc,
+		EvalGrpc:         opts.EvalGrpc,
 	}
 
 	return ctx
@@ -86,9 +99,10 @@ func New(opts CommandsOpts) Commands {
 
 func (c *Commands) GetChannelCommands(channelId string) (*[]model.ChannelsCommands, error) {
 	cmds := []model.ChannelsCommands{}
+
 	err := c.Db.
 		Model(&model.ChannelsCommands{}).
-		Where(`"channelId" = ?`, channelId).
+		Where(`"channelId" = ? AND "enabled" = ?`, channelId, true).
 		Preload("Responses").
 		Find(&cmds).Error
 	if err != nil {
@@ -139,7 +153,7 @@ func (c *Commands) FindByMessage(input string, cmds *[]model.ChannelsCommands) F
 
 	if res.Cmd != nil {
 		sort.Slice(res.Cmd.Responses, func(a, b int) bool {
-			return res.Cmd.Responses[a].Order > res.Cmd.Responses[b].Order
+			return res.Cmd.Responses[a].Order < res.Cmd.Responses[b].Order
 		})
 	}
 
@@ -148,9 +162,9 @@ func (c *Commands) FindByMessage(input string, cmds *[]model.ChannelsCommands) F
 
 func (c *Commands) ParseCommandResponses(
 	command FindByMessageResult,
-	data parserproto.Request,
-) *parserproto.Response {
-	result := &parserproto.Response{
+	data *parser.ProcessCommandRequest,
+) *parser.ProcessCommandResponse {
+	result := &parser.ProcessCommandResponse{
 		KeepOrder: &command.Cmd.KeepResponsesOrder,
 	}
 
@@ -192,7 +206,9 @@ func (c *Commands) ParseCommandResponses(
 				Twitch:    c.Twitch,
 				Db:        c.Db,
 				UsersAuth: c.UsersAuth,
-				Nats:      c.Nats,
+				DotaGrpc:  c.DotaGrpc,
+				BotsGrpc:  c.BotsGrpc,
+				EvalGrpc:  c.EvalGrpc,
 			},
 			IsCommand: true,
 			Command:   command.Cmd,
@@ -227,7 +243,9 @@ func (c *Commands) ParseCommandResponses(
 			Regexp:     variables.Regexp,
 			Twitch:     c.Twitch,
 			DB:         c.Db,
-			Nats:       c.Nats,
+			BotsGrpc:   c.BotsGrpc,
+			DotaGrpc:   c.DotaGrpc,
+			EvalGrpc:   c.EvalGrpc,
 			IsCommand:  true,
 			Command:    command.Cmd,
 		})

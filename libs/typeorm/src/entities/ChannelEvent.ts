@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import {
   Column,
   CreateDateColumn,
@@ -6,12 +7,11 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
-  Relation,
 } from 'typeorm';
 
-import { Channel } from './Channel.js';
-import { ChannelDonationEvent } from './channelEvents/Donation.js';
-import { ChannelFollowEvent } from './channelEvents/Follow.js';
+import { Channel } from './Channel';
+import { ChannelDonationEvent } from './channelEvents/Donation';
+import { ChannelFollowEvent } from './channelEvents/Follow';
 
 export enum EventType {
   FOLLOW = 'follow',
@@ -31,7 +31,7 @@ export class ChannelEvent {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Channel, (c) => c.events)
+  @ManyToOne(() => Channel, _ => _.events)
   @JoinColumn({ name: 'channelId' })
   channel: Channel;
 
@@ -41,11 +41,11 @@ export class ChannelEvent {
   @Column('enum', { enum: EventType })
   type: EventType;
 
-  @OneToOne('ChannelFollowEvent', 'event')
-  follow?: Relation<ChannelFollowEvent>;
+  @OneToOne(() => ChannelFollowEvent, _ => _.event)
+  follow?: ChannelFollowEvent;
 
-  @OneToOne('ChannelDonationEvent', 'event')
-  donation?: Relation<ChannelDonationEvent>;
+  @OneToOne(() => ChannelDonationEvent, _ => _.event)
+  donation?: ChannelDonationEvent;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,10 +1,13 @@
 package manage
 
 import (
-	model "tsuwari/models"
-	"tsuwari/parser/internal/types"
+	"strings"
 
-	variables_cache "tsuwari/parser/internal/variablescache"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
@@ -28,8 +31,10 @@ var DelCommand = types.DefaultCommand{
 			return result
 		}
 
+		name := strings.ToLower(strings.ReplaceAll(*ctx.Text, "!", ""))
+
 		var cmd *model.ChannelsCommands = nil
-		err := ctx.Services.Db.Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, *ctx.Text).
+		err := ctx.Services.Db.Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, name).
 			First(&cmd).
 			Error
 
@@ -44,7 +49,7 @@ var DelCommand = types.DefaultCommand{
 		}
 
 		ctx.Services.Db.
-			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, *ctx.Text).
+			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, name).
 			Delete(&model.ChannelsCommands{})
 
 		result.Result = append(result.Result, "✅ Command removed.")

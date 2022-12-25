@@ -8,22 +8,22 @@
     "start": "node --enable-source-maps dist/index.js"
   },
   "devDependencies": {
-    "@types/steam-user": "4.23.2",
+    "@types/steam-user": "4.26.0",
     "@types/steamid": "2.0.1"
   },
   "dependencies": {
-    "@nestjs/common": "9.1.2",
-    "@nestjs/core": "9.1.2",
-    "@nestjs/microservices": "9.1.2",
     "@tsuwari/config": "workspace:*",
-    "@tsuwari/nats": "workspace:*",
+    "@tsuwari/grpc": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
-    "nats": "2.7.1",
+    "@types/lodash": "^4.14.191",
+    "ioredis": "5.2.4",
+    "lodash": "4.17.21",
+    "nice-grpc": "^2.0.1",
     "protobufjs": "7.1.2",
     "reflect-metadata": "0.1.13",
-    "steam-user": "4.25.0",
+    "steam-user": "4.26.0",
     "steamid": "2.0.0",
-    "tslib": "2.4.0"
+    "tslib": "2.4.1"
   }
 }
