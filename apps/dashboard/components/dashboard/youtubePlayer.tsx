@@ -81,7 +81,6 @@ export const YoutubePlayer: React.FC = () => {
             options={plyrOptions}
             hidden={!songs.length}
           />
-          {/*<video ref={ref} className="plyr-react plyr" {...rest} />*/}
         </Card.Section>
         <Transition mounted={!!currentTrack} transition="slide-down" duration={1500} timingFunction="ease">
           {(styles) => <Card.Section p={'xs'} style={styles}>
