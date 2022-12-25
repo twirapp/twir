@@ -1,3 +1,5 @@
+'use client';
+
 import {
   ActionIcon,
   Box,
@@ -22,10 +24,13 @@ import {
   IconPlaylist,
   IconVideoOff,
 } from '@tabler/icons';
-import Plyr, { APITypes, PlyrOptions } from 'plyr-react';
-import React, { useEffect, useRef, useState } from 'react';
-import 'plyr-react/plyr.css';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import { APITypes, PlyrInstance, PlyrOptions, PlyrProps, usePlyr } from 'plyr-react';
+import React, { useEffect, useRef, useState } from 'react';
+
+import 'plyr-react/plyr.css';
+import { CustomPlyrInstance } from '@/components/dashboard/player';
 
 const plyrOptions: PlyrOptions = {
   controls: [
@@ -54,8 +59,8 @@ type Track = Plyr.Source & {
 export const YoutubePlayer: React.FC = () => {
   const router = useRouter();
   const plyrRef = useRef<APITypes>(null) as React.MutableRefObject<APITypes>;
-
   const [currentTrack, setCurrentTrack] = useState<Track>();
+
   const [songs, songsHandlers] = useListState<Track>([
     {
       src: 'WLcHVVS90zQ',
@@ -97,8 +102,9 @@ export const YoutubePlayer: React.FC = () => {
   ]);
 
   useEffect(() => {
-    if (songs.at(0)) {
-      setCurrentTrack(songs.at(0));
+    const nextSong = songs.at(0);
+    if (nextSong) {
+      setCurrentTrack(nextSong);
     } else {
       setCurrentTrack(undefined);
     }
@@ -107,6 +113,26 @@ export const YoutubePlayer: React.FC = () => {
   const nextVideo = () => {
     songsHandlers.shift();
   };
+
+  const [isPaused, setIsPaused] = useState(true);
+
+  useEffect(() => {
+    if (!plyrRef.current?.plyr || !plyrRef.current.plyr.source) return;
+
+    if (isPaused) {
+      plyrRef.current.plyr.pause();
+    } else {
+      plyrRef.current.plyr.play();
+    }
+  }, [isPaused]);
+
+  function onReady() {
+    console.log('really ready');
+  }
+
+  function onCanPlay() {
+    console.log('on can play');
+  }
 
   return <Grid grow>
     <Grid.Col span={4}>
@@ -118,7 +144,7 @@ export const YoutubePlayer: React.FC = () => {
             <Group>
               <Menu shadow="md" width={400} styles={{ dropdown: { backgroundColor: '#2C2C2C' } }}>
                 <Menu.Target>
-                  <ActionIcon><IconPlaylist /></ActionIcon>
+                  <ActionIcon hidden={!songs.length}><IconPlaylist /></ActionIcon>
                 </Menu.Target>
 
                 <Menu.Dropdown h={200}>
@@ -149,13 +175,15 @@ export const YoutubePlayer: React.FC = () => {
             </Center>
           </Box>
           <div hidden={!songs.length}>
-            <Plyr
-              ref={plyrRef as any}
+            <CustomPlyrInstance
+              ref={plyrRef}
+              options={plyrOptions}
               source={{
                 type: 'video',
                 sources: currentTrack ? [currentTrack] : [],
               }}
-              options={plyrOptions}
+              onReady={onReady}
+              onCanPlay={onCanPlay}
             />
           </div>
         </Card.Section>
@@ -167,7 +195,7 @@ export const YoutubePlayer: React.FC = () => {
                 <Text size={'xs'} color={'lime'}>Ordered by: {currentTrack?.orderedBy}</Text>
               </Flex>
               <Group>
-                <ActionIcon><IconPlayerPlay /></ActionIcon>
+                <ActionIcon onClick={() => setIsPaused(!isPaused)}><IconPlayerPlay /></ActionIcon>
                 <ActionIcon><IconPlayerSkipForward onClick={nextVideo} /></ActionIcon>
               </Group>
             </Flex>
