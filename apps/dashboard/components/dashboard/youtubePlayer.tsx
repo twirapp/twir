@@ -24,9 +24,8 @@ import {
   IconPlaylist,
   IconVideoOff,
 } from '@tabler/icons';
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { APITypes, PlyrInstance, PlyrOptions, PlyrProps, usePlyr } from 'plyr-react';
+import Plyr, { APITypes, PlyrInstance, PlyrOptions, PlyrProps, usePlyr } from 'plyr-react';
 import React, { useEffect, useRef, useState } from 'react';
 
 import 'plyr-react/plyr.css';
@@ -58,7 +57,8 @@ type Track = Plyr.Source & {
 
 export const YoutubePlayer: React.FC = () => {
   const router = useRouter();
-  const plyrRef = useRef<APITypes>(null) as React.MutableRefObject<APITypes>;
+  // const plyrRef = useRef<APITypes>(null) as React.MutableRefObject<APITypes>;
+  const plyrRef = useRef<APITypes>(null);
   const [currentTrack, setCurrentTrack] = useState<Track>();
 
   const [songs, songsHandlers] = useListState<Track>([
