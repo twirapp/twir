@@ -66,7 +66,7 @@ export const YoutubePlayer: React.FC = () => {
         <Card.Section p={'xs'}>
           <Flex gap="xs" direction="row" justify="space-between">
             <Text size="md">YouTube</Text>
-            <Button onClick={setVideo} size={'xs'}>test change source</Button>
+            {/*<Button onClick={setVideo} size={'xs'}>test change source</Button>*/}
           </Flex>
         </Card.Section>
         <Divider />
