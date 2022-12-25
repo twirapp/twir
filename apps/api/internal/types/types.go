@@ -15,7 +15,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/satont/tsuwari/apps/api/internal/services/redis"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -25,7 +24,6 @@ type Services struct {
 	Validator           *validator.Validate
 	ValidatorTranslator ut.Translator
 	Twitch              *twitch.Twitch
-	Logger              *zap.Logger
 	Cfg                 *cfg.Config
 	TgBotApi            *tgbotapi.BotAPI
 	BotsGrpc            bots.BotsClient

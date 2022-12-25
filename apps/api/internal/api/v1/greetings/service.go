@@ -1,6 +1,9 @@
 package greetings
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 	"sync"
 
@@ -64,6 +67,8 @@ func handlePost(
 	dto *greetingsDto,
 	services types.Services,
 ) (*Greeting, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	twitchUser := getTwitchUserByName(dto.Username, services.Twitch)
 	if twitchUser == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "cannot find twitch user")
@@ -86,7 +91,7 @@ func handlePost(
 
 	err := services.DB.Save(greeting).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create greeting")
 	}
 
@@ -98,13 +103,15 @@ func handlePost(
 }
 
 func handleDelete(greetingId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	greeting := findGreetingById(greetingId, services.DB)
 	if greeting == nil {
 		return fiber.NewError(http.StatusNotFound, "greeting not found")
 	}
 	err := services.DB.Where("id = ?", greetingId).Delete(&model.ChannelsGreetings{}).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot delete greeting")
 	}
 
@@ -116,6 +123,8 @@ func handleUpdate(
 	dto *greetingsDto,
 	services types.Services,
 ) (*Greeting, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	greeting := findGreetingById(greetingId, services.DB)
 	if greeting == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "greeting not found")
@@ -140,7 +149,7 @@ func handleUpdate(
 
 	err := services.DB.Model(greeting).Select("*").Updates(newGreeting).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update greeting")
 	}
 
@@ -156,6 +165,8 @@ func handlePatch(
 	dto *greetingsPatchDto,
 	services types.Services,
 ) (*Greeting, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	greeting := findGreetingById(greetingId, services.DB)
 	if greeting == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "greeting not found")
@@ -169,7 +180,7 @@ func handlePatch(
 	greeting.Enabled = *dto.Enabled
 	err := services.DB.Model(greeting).Select("*").Updates(greeting).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update greeting")
 	}
 

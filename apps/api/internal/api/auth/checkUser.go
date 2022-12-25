@@ -3,6 +3,9 @@ package auth
 import (
 	"context"
 	"database/sql"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"time"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -21,6 +24,8 @@ func checkUser(
 	tokens helix.AccessCredentials,
 	services types.Services,
 ) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	defaultBot := model.Bots{}
 	err := services.DB.Where("type = ?", "DEFAULT").First(&defaultBot).Error
 	if err != nil {
@@ -46,7 +51,7 @@ func checkUser(
 		newToken.ID = uuid.NewV4().String()
 
 		if err = services.DB.Save(&newToken).Error; err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return err
 		}
 
@@ -55,25 +60,25 @@ func checkUser(
 		user.ApiKey = uuid.NewV4().String()
 
 		if err = services.DB.Save(&user).Error; err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return err
 		}
 
 		channel := createChannelModel(user.ID, defaultBot.ID)
 		if err = services.DB.Create(&channel).Error; err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return err
 		}
 		user.Channel = &channel
 	}
 	if err != nil && err != gorm.ErrRecordNotFound {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(500, "internal error")
 	} else {
 		if user.Channel == nil {
 			channel := createChannelModel(user.ID, defaultBot.ID)
 			if err = services.DB.Create(&channel).Error; err != nil {
-				services.Logger.Sugar().Error(err)
+				logger.Error(err)
 				return err
 			}
 			user.Channel = &channel
@@ -82,18 +87,18 @@ func checkUser(
 		if user.TokenID.Valid {
 			tokenData.ID = user.TokenID.String
 			if err = services.DB.Select("*").Save(&tokenData).Error; err != nil {
-				services.Logger.Sugar().Error(err)
+				logger.Error(err)
 				return err
 			}
 		} else {
 			tokenData.ID = uuid.NewV4().String()
 			if err = services.DB.Save(&tokenData).Error; err != nil {
-				services.Logger.Sugar().Error(err)
+				logger.Error(err)
 				return err
 			}
 			user.TokenID = sql.NullString{String: tokenData.ID, Valid: true}
 			if err := services.DB.Save(&user).Error; err != nil {
-				services.Logger.Sugar().Error(err)
+				logger.Error(err)
 			}
 		}
 	}

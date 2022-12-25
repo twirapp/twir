@@ -1,6 +1,9 @@
 package stats
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"sync"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -18,6 +21,8 @@ type statsItem struct {
 }
 
 func handleGet(services types.Services) ([]statsItem, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	wg := sync.WaitGroup{}
 	statistic := []statsItem{
 		{Name: "users"},
@@ -33,7 +38,7 @@ func handleGet(services types.Services) ([]statsItem, error) {
 		var count int64
 		err := services.DB.Model(&model.Users{}).Count(&count).Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 		} else {
 			statistic[0].Count = count
 		}
@@ -44,7 +49,7 @@ func handleGet(services types.Services) ([]statsItem, error) {
 		var count int64
 		err := services.DB.Model(&model.Channels{}).Count(&count).Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 		} else {
 			statistic[1].Count = count
 		}
@@ -58,7 +63,7 @@ func handleGet(services types.Services) ([]statsItem, error) {
 			Count(&count).
 			Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 		} else {
 			statistic[2].Count = count
 		}
@@ -72,7 +77,7 @@ func handleGet(services types.Services) ([]statsItem, error) {
 			Scan(&result).
 			Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 		} else {
 			statistic[3].Count = result.N
 		}

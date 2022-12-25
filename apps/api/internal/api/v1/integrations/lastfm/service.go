@@ -2,6 +2,9 @@ package lastfm
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"gorm.io/gorm"
 	"net/http"
 
@@ -22,9 +25,11 @@ type Lastfm struct {
 }
 
 func handlePost(channelId string, dto *lastfmDto, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return err
 	}
 
@@ -35,7 +40,7 @@ func handlePost(channelId string, dto *lastfmDto, services types.Services) error
 			First(&neededIntegration).
 			Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return fiber.NewError(
 				http.StatusInternalServerError,
 				"seems like lastfm not enabled on our side",
@@ -62,7 +67,7 @@ func handlePost(channelId string, dto *lastfmDto, services types.Services) error
 	integration.APIKey = null.StringFrom(sessionKey)
 
 	if err = services.DB.Save(integration).Error; err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update faceit data")
 	}
 
@@ -91,9 +96,11 @@ func handleAuth(services types.Services) (string, error) {
 }
 
 func handleProfile(channelId string, services types.Services) (*LastfmProfile, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -112,7 +119,7 @@ func handleProfile(channelId string, services types.Services) (*LastfmProfile, e
 	}
 	info, err := api.User.GetInfo(make(map[string]interface{}))
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -124,9 +131,11 @@ func handleProfile(channelId string, services types.Services) (*LastfmProfile, e
 }
 
 func handleLogout(channelId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.DB)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return err
 	}
 	if integration == nil {
@@ -135,7 +144,7 @@ func handleLogout(channelId string, services types.Services) error {
 
 	err = services.DB.Delete(&integration).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 

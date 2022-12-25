@@ -1,6 +1,9 @@
 package commands
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 	"strings"
 
@@ -24,6 +27,8 @@ func handlePost(
 	services types.Services,
 	dto *commandDto,
 ) (*model.ChannelsCommands, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	dto.Name = strings.ToLower(dto.Name)
 	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
 		return strings.ToLower(a)
@@ -42,7 +47,7 @@ func handlePost(
 
 	err := services.DB.Save(newCommand).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create command")
 	}
 
@@ -82,6 +87,8 @@ func handleUpdate(
 	dto *commandDto,
 	services types.Services,
 ) (*model.ChannelsCommands, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	dto.Name = strings.ToLower(dto.Name)
 	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
 		return strings.ToLower(a)
@@ -123,7 +130,7 @@ func handleUpdate(
 		Updates(command).
 		Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -132,7 +139,7 @@ func handleUpdate(
 		responses := createResponsesFromDto(dto.Responses, commandId)
 		err = services.DB.Save(&responses).Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return nil, fiber.NewError(
 				http.StatusInternalServerError,
 				"something went wrong on creating response",
@@ -150,6 +157,8 @@ func handlePatch(
 	dto *commandPatchDto,
 	services types.Services,
 ) (*model.ChannelsCommands, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	command, err := getChannelCommand(services.DB, channelId, commandId)
 	if err != nil || command == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "command not found")
@@ -162,7 +171,7 @@ func handlePatch(
 		Updates(command).
 		Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, err
 	}
 

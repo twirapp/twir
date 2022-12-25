@@ -1,6 +1,9 @@
 package keywords
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -25,6 +28,8 @@ func handlePost(
 	dto *keywordDto,
 	services types.Services,
 ) (*model.ChannelsKeywords, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	existedKeyword := model.ChannelsKeywords{}
 	err := services.DB.Where(`"channelId" = ? AND "text" = ?`, channelId, dto.Text).
 		First(&existedKeyword).
@@ -46,7 +51,7 @@ func handlePost(
 	}
 	err = services.DB.Save(&newKeyword).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create keyword")
 	}
 
@@ -54,6 +59,8 @@ func handlePost(
 }
 
 func handleDelete(keywordId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	keyword := getById(services.DB, keywordId)
 	if keyword == nil {
 		return fiber.NewError(http.StatusNotFound, "keyword not found")
@@ -61,7 +68,7 @@ func handleDelete(keywordId string, services types.Services) error {
 
 	err := services.DB.Delete(keyword).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot delete keyword")
 	}
 
@@ -73,6 +80,8 @@ func handleUpdate(
 	dto *keywordDto,
 	services types.Services,
 ) (*model.ChannelsKeywords, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	currentKeyword := getById(services.DB, keywordId)
 	if currentKeyword == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "keyword not found")
@@ -92,7 +101,7 @@ func handleUpdate(
 
 	err := services.DB.Model(currentKeyword).Select("*").Updates(newKeyword).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update keyword")
 	}
 
@@ -105,12 +114,14 @@ func handlePatch(
 	dto *keywordPatchDto,
 	services types.Services,
 ) (*model.ChannelsKeywords, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	keyword := model.ChannelsKeywords{}
 	err := services.DB.Where(`"channelId" = ? AND "id" = ?`, channelId, keywordId).
 		Find(&keyword).
 		Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -122,7 +133,7 @@ func handlePatch(
 
 	err = services.DB.Save(&keyword).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update keyword")
 	}
 

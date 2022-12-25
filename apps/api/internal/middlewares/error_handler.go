@@ -2,14 +2,18 @@ package middlewares
 
 import (
 	"encoding/json"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-	"go.uber.org/zap"
 )
 
-var ErrorHandler = func(t ut.Translator, logger *zap.Logger) func(c *fiber.Ctx, err error) error {
+var ErrorHandler = func(t ut.Translator) func(c *fiber.Ctx, err error) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	return func(c *fiber.Ctx, err error) error {
 		switch castedErr := err.(type) {
 		case validator.ValidationErrors:
@@ -19,7 +23,7 @@ var ErrorHandler = func(t ut.Translator, logger *zap.Logger) func(c *fiber.Ctx, 
 			}
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"messages": errors})
 		case *json.InvalidUnmarshalError:
-			logger.Sugar().Error(err)
+			logger.Error(err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"messages": []string{"bad request body"}})
 		case *fiber.Error:
 			return c.Status(castedErr.Code).JSON(fiber.Map{"messages": []string{castedErr.Message}})

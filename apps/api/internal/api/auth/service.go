@@ -2,6 +2,9 @@ package auth
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 	"sync"
 	"time"
@@ -30,9 +33,11 @@ const (
 )
 
 func handleGetToken(code string, services types.Services) (*Tokens, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	resp, err := services.Twitch.Client.RequestUserAccessToken(code)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(401, "cannot get user tokens")
 	}
 
@@ -45,7 +50,7 @@ func handleGetToken(code string, services types.Services) (*Tokens, error) {
 
 	users, err := newClient.Client.GetUsers(&helix.UsersParams{})
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(401, "cannot get user tokens")
 	}
 
@@ -67,7 +72,7 @@ func handleGetToken(code string, services types.Services) (*Tokens, error) {
 	accessClaims.ExpiresAt = jwt.NewNumericDate(now.Add(accessLifeTime))
 	accessToken, err := createToken(accessClaims, services.Cfg.JwtAccessSecret)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(401, "cannot create JWT access token")
 	}
 
@@ -76,7 +81,7 @@ func handleGetToken(code string, services types.Services) (*Tokens, error) {
 
 	refreshToken, err := createToken(refreshClaims, services.Cfg.JwtRefreshSecret)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(401, "cannot create JWT refresh token")
 	}
 
@@ -111,10 +116,12 @@ func createToken(claims jwt.Claims, secret string) (string, error) {
 }
 
 func handleGetProfile(user model.Users, services types.Services) (*Profile, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	dbDashboards := []model.ChannelsDashboardAccess{}
 	err := services.DB.Where(`"userId" = ?`, user.ID).Find(&dbDashboards).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -126,7 +133,7 @@ func handleGetProfile(user model.Users, services types.Services) (*Profile, erro
 		channels := []model.Channels{}
 		err := services.DB.Not(channelsIds).Find(&channels).Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			return nil, fiber.NewError(http.StatusInternalServerError, "cannot get channels")
 		}
 
@@ -204,6 +211,8 @@ type Profile struct {
 }
 
 func handleRefresh(refreshToken string, services types.Services) (string, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -230,7 +239,7 @@ func handleRefresh(refreshToken string, services types.Services) (string, error)
 	newClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(accessLifeTime))
 	newToken, err := createToken(newClaims, services.Cfg.JwtAccessSecret)
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return "", fiber.NewError(401, "cannot create new access token")
 	}
 	return newToken, nil

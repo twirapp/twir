@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"os"
 	"os/signal"
 	"reflect"
@@ -21,7 +24,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/satont/go-helix/v2"
-	auth "github.com/satont/tsuwari/apps/api/internal/api/auth"
+	"github.com/satont/tsuwari/apps/api/internal/api/auth"
 	apiv1 "github.com/satont/tsuwari/apps/api/internal/api/v1"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
@@ -61,6 +64,8 @@ func main() {
 		panic("Cannot load config of application")
 	}
 
+	do.ProvideValue[interfaces.Logger](di.Injector, logger.Sugar())
+
 	if cfg.SentryDsn != "" {
 		sentry.Init(sentry.ClientOptions{
 			Dsn:              cfg.SentryDsn,
@@ -88,7 +93,7 @@ func main() {
 	uni := ut.New(en, en)
 	transEN, _ := uni.GetTranslator("en_US")
 	enTranslations.RegisterDefaultTranslations(validator, transEN)
-	errorMiddleware := middlewares.ErrorHandler(transEN, logger)
+	errorMiddleware := middlewares.ErrorHandler(transEN)
 	validator.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
 
@@ -142,7 +147,6 @@ func main() {
 			ClientSecret: cfg.TwitchClientSecret,
 			RedirectURI:  cfg.TwitchCallbackUrl,
 		}),
-		Logger:           logger,
 		Cfg:              cfg,
 		BotsGrpc:         botsGrpcClient,
 		TimersGrpc:       timersGrpcClient,

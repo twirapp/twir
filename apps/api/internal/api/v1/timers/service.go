@@ -3,6 +3,9 @@ package timers
 import (
 	"context"
 	"errors"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -15,10 +18,12 @@ import (
 )
 
 func handleGet(channelId string, services types.Services) []model.ChannelsTimers {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	timers := []model.ChannelsTimers{}
 	err := services.DB.Where(`"channelId" = ?`, channelId).Preload("Responses").Find(&timers).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil
 	}
 	return timers
@@ -29,6 +34,8 @@ func handlePost(
 	dto *timerDto,
 	services types.Services,
 ) (*model.ChannelsTimers, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	timer := model.ChannelsTimers{
 		ID:                       uuid.NewV4().String(),
 		ChannelID:                channelId,
@@ -41,7 +48,7 @@ func handlePost(
 
 	err := services.DB.Save(&timer).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create timer")
 	}
 
@@ -57,7 +64,7 @@ func handlePost(
 
 		err := services.DB.Save(&response).Error
 		if err != nil {
-			services.Logger.Sugar().Error(err)
+			logger.Error(err)
 			services.DB.Where(`"id" = ?`, timer.ID).Delete(&model.ChannelsTimers{})
 
 			return nil, fiber.NewError(
@@ -78,19 +85,21 @@ func handlePost(
 }
 
 func handleDelete(timerId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	timer := model.ChannelsTimers{}
 	err := services.DB.Where("id = ?", timerId).First(&timer).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return fiber.NewError(http.StatusNotFound, "timer not found")
 	}
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "timer not found")
 	}
 
 	err = services.DB.Delete(&timer).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot delete timer")
 	}
 
@@ -109,6 +118,8 @@ func handlePut(
 	dto *timerDto,
 	services types.Services,
 ) (*model.ChannelsTimers, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	timer := model.ChannelsTimers{}
 
 	err := services.DB.Where(`"channelId" = ? AND "id" = ?`, channelId, timerId).
@@ -131,7 +142,7 @@ func handlePut(
 
 	err = services.DB.Select("*").Updates(&timer).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update timer")
 	}
 
@@ -139,7 +150,7 @@ func handlePut(
 		for _, response := range *timer.Responses {
 			err = tx.Where("id = ?", response.ID).Delete(&model.ChannelsTimersResponses{}).Error
 			if err != nil {
-				services.Logger.Sugar().Error(err)
+				logger.Error(err)
 				return err
 			}
 		}
@@ -148,7 +159,7 @@ func handlePut(
 	})
 
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(
 			http.StatusInternalServerError,
 			"internal error when deleting responses",
@@ -187,25 +198,27 @@ func handlePatch(
 	dto *timerPatchDto,
 	services types.Services,
 ) (*model.ChannelsTimers, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	timer := model.ChannelsTimers{}
 	err := services.DB.Where("id = ?", timerId).First(&timer).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fiber.NewError(http.StatusNotFound, "timer not found")
 	}
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "timer not found")
 	}
 
 	timer.Enabled = *dto.Enabled
 	err = services.DB.Select("*").Updates(&timer).Error
 	if err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update timer")
 	}
 
 	if err = services.DB.Select("*").Preload("Responses").Find(&timer).Error; err != nil {
-		services.Logger.Sugar().Error(err)
+		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 

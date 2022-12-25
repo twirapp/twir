@@ -2,6 +2,9 @@ package middlewares
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"strings"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -21,6 +24,8 @@ func jwtError(c *fiber.Ctx, err error) error {
 }
 
 var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+
 	return func(c *fiber.Ctx) error {
 		if c.Locals("dbUser") != nil {
 			return c.Next()
@@ -64,7 +69,7 @@ var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
 			userId := claims["id"]
 
 			if userId == "" {
-				services.Logger.Sugar().Error("no userId in request")
+				logger.Error("no userId in request")
 				return fiber.NewError(401, "invalid token")
 			}
 
