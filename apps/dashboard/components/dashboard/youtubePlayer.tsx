@@ -1,6 +1,6 @@
-import { ActionIcon, Button, Card, Divider, Flex, Grid, Group, Text, Transition } from '@mantine/core';
+import { ActionIcon, Box, Button, Card, Center, Divider, Flex, Grid, Group, Text, Transition } from '@mantine/core';
 import { useListState } from '@mantine/hooks';
-import { IconPlayerPlay, IconPlayerSkipForward } from '@tabler/icons';
+import { IconPlayerPlay, IconPlayerSkipForward, IconVideoOff } from '@tabler/icons';
 import Plyr, { APITypes, PlyrOptions } from 'plyr-react';
 import React, { useEffect, useRef, useState } from 'react';
 import 'plyr-react/plyr.css';
@@ -66,23 +66,31 @@ export const YoutubePlayer: React.FC = () => {
         <Card.Section p={'xs'}>
           <Flex gap="xs" direction="row" justify="space-between">
             <Text size="md">YouTube</Text>
-            <Button onClick={setVideo}>test change source</Button>
+            <Button onClick={setVideo} size={'xs'}>test change source</Button>
           </Flex>
         </Card.Section>
         <Divider />
         <Card.Section>
-          <Text hidden={!!songs.length}>no songs</Text>
-          <Plyr
-            ref={plyrRef as any}
-            source={{
-              type: 'video',
-              sources: currentTrack ? [currentTrack] : [],
-            }}
-            options={plyrOptions}
-            hidden={!songs.length}
-          />
+          <Box sx={{ height: 287 }} hidden={!!songs.length}>
+            <Center style={{ height: 287 }}>
+              <Flex direction={'column'} align={'center'}>
+                <IconVideoOff size={130} />
+                <Text>there is no video in queue</Text>
+              </Flex>
+            </Center>
+          </Box>
+          <div hidden={!songs.length}>
+            <Plyr
+              ref={plyrRef as any}
+              source={{
+                type: 'video',
+                sources: currentTrack ? [currentTrack] : [],
+              }}
+              options={plyrOptions}
+            />
+          </div>
         </Card.Section>
-        <Transition mounted={!!currentTrack} transition="slide-down" duration={1500} timingFunction="ease">
+        <Transition mounted={!!currentTrack} transition="slide-down" duration={200} timingFunction="ease">
           {(styles) => <Card.Section p={'xs'} style={styles}>
             <Flex direction={'row'} justify={'space-between'}>
               <Flex direction={'column'}>
