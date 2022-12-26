@@ -38,9 +38,9 @@ type YoutubeBlacklistSettings struct {
 }
 
 type YoutubeSettings struct {
-	Enabled                 *bool                    `validate:"required" json:"enabled"`
+	Enabled                 bool                     `validate:"required" json:"enabled"`
 	MaxRequests             int                      `validate:"lte=500" json:"maxRequests"`
-	AcceptOnlyWhenOnline    *bool                    `validate:"required"                   json:"acceptOnlyWhenOnline"`
+	AcceptOnlyWhenOnline    bool                     `validate:"required"                   json:"acceptOnlyWhenOnline"`
 	ChannelPointsRewardName string                   `validate:"max=100" json:"channelPointsRewardName"`
 	User                    YoutubeUserSettings      `validate:"required"    json:"user"`
 	Song                    YotubeSongSettings       `validate:"required"    json:"song"`

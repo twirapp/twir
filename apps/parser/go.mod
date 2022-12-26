@@ -3,6 +3,7 @@ module github.com/satont/tsuwari/apps/parser
 go 1.18
 
 require (
+	github.com/SherlockYigit/youtube-go v1.0.0
 	github.com/getsentry/sentry-go v0.15.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/guregu/null v4.0.0+incompatible
