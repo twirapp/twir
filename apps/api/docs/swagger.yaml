@@ -266,6 +266,15 @@ definitions:
     - type
     - vips
     type: object
+  github_com_satont_tsuwari_apps_api_internal_api_v1_modules_youtube_sr.SearchResult:
+    properties:
+      id:
+        type: string
+      thumbNail:
+        type: string
+      title:
+        type: string
+    type: object
   github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity:
     properties:
       channelId:
@@ -375,6 +384,77 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  helix.ChannelCustomReward:
+    properties:
+      broadcaster_id:
+        type: string
+      broadcaster_login:
+        type: string
+      broadcaster_name:
+        type: string
+      cooldown_expires_at:
+        type: string
+      cost:
+        type: integer
+      default_image:
+        $ref: '#/definitions/helix.RewardImage'
+      global_cooldown_setting:
+        $ref: '#/definitions/helix.GlobalCooldownSettings'
+      id:
+        type: string
+      image:
+        $ref: '#/definitions/helix.RewardImage'
+      is_enabled:
+        type: boolean
+      is_in_stock:
+        type: boolean
+      is_paused:
+        type: boolean
+      is_user_input_required:
+        type: boolean
+      max_per_stream_setting:
+        $ref: '#/definitions/helix.MaxPerStreamSettings'
+      max_per_user_per_stream_setting:
+        $ref: '#/definitions/helix.MaxPerUserPerStreamSettings'
+      prompt:
+        type: string
+      redemptions_redeemed_current_stream:
+        type: integer
+      should_redemptions_skip_request_queue:
+        type: boolean
+      title:
+        type: string
+    type: object
+  helix.GlobalCooldownSettings:
+    properties:
+      global_cooldown_seconds:
+        type: integer
+      is_enabled:
+        type: boolean
+    type: object
+  helix.MaxPerStreamSettings:
+    properties:
+      is_enabled:
+        type: boolean
+      max_per_stream:
+        type: integer
+    type: object
+  helix.MaxPerUserPerStreamSettings:
+    properties:
+      is_enabled:
+        type: boolean
+      max_per_user_per_stream:
+        type: integer
+    type: object
+  helix.RewardImage:
+    properties:
+      url_1x:
+        type: string
+      url_2x:
+        type: string
+      url_4x:
+        type: string
     type: object
   helix.User:
     properties:
@@ -666,6 +746,15 @@ definitions:
     - triggerLength
     - type
     - vips
+    type: object
+  internal_api_v1_modules_youtube_sr.SearchResult:
+    properties:
+      id:
+        type: string
+      thumbNail:
+        type: string
+      title:
+        type: string
     type: object
   internal_api_v1_settings_dashboardAccess.Entity:
     properties:
@@ -989,14 +1078,10 @@ definitions:
     type: object
   model.ChannelsTimers:
     properties:
-      channelId:
-        type: string
       enabled:
         type: boolean
       id:
         type: string
-      lastTriggerMessageNumber:
-        type: integer
       messageInterval:
         type: integer
       name:
@@ -1014,6 +1099,126 @@ definitions:
         type: boolean
       text:
         type: string
+    type: object
+  modules.YotubeSongSettings:
+    properties:
+      acceptedCategories:
+        items:
+          type: string
+        type: array
+      maxLength:
+        maximum: 86400
+        type: integer
+      minViews:
+        maximum: 10000000000000
+        type: integer
+    type: object
+  modules.YoutubeBlacklistSettings:
+    properties:
+      artistsNames:
+        items:
+          type: string
+        type: array
+      channels:
+        items:
+          $ref: '#/definitions/modules.YoutubeBlacklistSettingsChannels'
+        type: array
+      songs:
+        items:
+          $ref: '#/definitions/modules.YoutubeBlacklistSettingsSongs'
+        type: array
+      users:
+        items:
+          $ref: '#/definitions/modules.YoutubeBlacklistSettingsUsers'
+        type: array
+    required:
+    - artistsNames
+    - channels
+    - songs
+    - users
+    type: object
+  modules.YoutubeBlacklistSettingsChannels:
+    properties:
+      id:
+        minLength: 1
+        type: string
+      thumbNail:
+        maxLength: 300
+        minLength: 1
+        type: string
+      title:
+        maxLength: 300
+        minLength: 1
+        type: string
+    required:
+    - id
+    - thumbNail
+    - title
+    type: object
+  modules.YoutubeBlacklistSettingsSongs:
+    properties:
+      id:
+        maxLength: 300
+        minLength: 1
+        type: string
+      thumbNail:
+        maxLength: 300
+        minLength: 1
+        type: string
+      title:
+        maxLength: 300
+        minLength: 1
+        type: string
+    required:
+    - id
+    - thumbNail
+    - title
+    type: object
+  modules.YoutubeBlacklistSettingsUsers:
+    properties:
+      userId:
+        maxLength: 50
+        type: string
+      userName:
+        type: string
+    required:
+    - userName
+    type: object
+  modules.YoutubeSettings:
+    properties:
+      acceptOnlyWhenOnline:
+        type: boolean
+      blackList:
+        $ref: '#/definitions/modules.YoutubeBlacklistSettings'
+      channelPointsRewardId:
+        maxLength: 100
+        type: string
+      enabled:
+        type: boolean
+      maxRequests:
+        maximum: 500
+        type: integer
+      song:
+        $ref: '#/definitions/modules.YotubeSongSettings'
+      user:
+        $ref: '#/definitions/modules.YoutubeUserSettings'
+    required:
+    - acceptOnlyWhenOnline
+    - blackList
+    - enabled
+    - song
+    - user
+    type: object
+  modules.YoutubeUserSettings:
+    properties:
+      maxRequests:
+        type: integer
+      minFollowTime:
+        type: integer
+      minMessages:
+        type: integer
+      minWatchTime:
+        type: integer
     type: object
   parser.GetVariablesResponse_Variable:
     properties:
@@ -1129,7 +1334,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_bot.connectionDto'
+          $ref: '#/definitions/internal_api_v1_bot.connectionDto'
       produces:
       - application/json
       responses:
@@ -1503,7 +1708,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_donationalerts.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1620,7 +1825,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_faceit.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1719,7 +1924,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile'
+              $ref: '#/definitions/internal_api_v1_integrations_lastfm.LastfmProfile'
             type: array
         "500":
           description: Internal Server Error
@@ -1739,7 +1944,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto'
+          $ref: '#/definitions/internal_api_v1_integrations_lastfm.lastfmDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2069,7 +2274,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile'
+            $ref: '#/definitions/internal_api_v1_integrations_vk.profile'
         "500":
           description: Internal Server Error
           schema:
@@ -2088,7 +2293,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto'
+          $ref: '#/definitions/internal_api_v1_integrations_vk.vkDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2203,7 +2408,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto'
+          $ref: '#/definitions/internal_api_v1_keywords.keywordDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2275,7 +2480,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordPatchDto'
+          $ref: '#/definitions/internal_api_v1_keywords.keywordPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2317,7 +2522,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto'
+          $ref: '#/definitions/internal_api_v1_keywords.keywordDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2387,7 +2592,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_moderation.moderationDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2415,6 +2620,98 @@ paths:
       summary: Create command
       tags:
       - Moderation
+  /v1/channels/{channelId}/modules/youtube-sr:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ChannelId
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/modules.YoutubeSettings'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get YouTube settings
+      tags:
+      - Modules|YouTube
+  /v1/channels/{channelId}/modules/youtube-sr/search:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ChannelId
+        in: path
+        name: channelId
+        required: true
+        type: string
+      - description: Input string
+        in: query
+        name: query
+        required: true
+        type: string
+      - description: channel or video
+        in: query
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_modules_youtube_sr.SearchResult'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get YouTube settings
+      tags:
+      - Modules|YouTube
+  /v1/channels/{channelId}/rewards:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ChannelId
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/helix.ChannelCustomReward'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get channel rewards list
+      tags:
+      - Rewards
   /v1/channels/{channelId}/settings/dashboard-access:
     get:
       consumes:
@@ -2432,7 +2729,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
+              $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.Entity'
             type: array
         "500":
           description: Internal Server Error
@@ -2452,7 +2749,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto'
+          $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.addUserDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2464,7 +2761,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
+            $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.Entity'
         "400":
           description: Bad Request
           schema:
@@ -2861,7 +3158,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_stats.statsItem'
+              $ref: '#/definitions/internal_api_v1_stats.statsItem'
             type: array
         "500":
           description: Internal Server Error

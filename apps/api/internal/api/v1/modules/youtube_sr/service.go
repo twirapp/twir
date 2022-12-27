@@ -49,10 +49,9 @@ func handleSearch(query string, searchType string) ([]SearchResult, error) {
 	}
 
 	if searchType != "video" && searchType != "channel" {
-		return nil, fiber.NewError(400, "searchType can be only video or channel")
+		return nil, fiber.NewError(400, "type can be only video or channel")
 	}
 
-	fmt.Println(searchType)
 	search := ytsr.Search(query, ytsr.SearchOptions{
 		Limit: 5,
 		Type:  searchType,

@@ -1,12 +1,10 @@
-package youtube_test
+package ytdl_test
 
 import (
 	"fmt"
 	"io"
 	"os"
 	"strings"
-
-	"github.com/kkdai/youtube/v2"
 )
 
 // ExampleDownload : Example code for how to use this package for download video.

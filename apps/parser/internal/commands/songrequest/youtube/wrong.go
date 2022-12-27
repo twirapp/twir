@@ -1,18 +1,20 @@
 package sr_youtube
 
 import (
+	"context"
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/websocket"
 	"log"
 	"strconv"
 	"strings"
 	"time"
-	model "tsuwari/models"
-	"tsuwari/parser/internal/types"
-	variables_cache "tsuwari/parser/internal/variablescache"
 
 	"github.com/samber/lo"
-	youtubenats "github.com/satont/tsuwari/libs/nats/youtube"
-	"google.golang.org/protobuf/proto"
 )
 
 var WrongCommand = types.DefaultCommand{
@@ -26,6 +28,8 @@ var WrongCommand = types.DefaultCommand{
 		KeepResponsesOrder: lo.ToPtr(false),
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		websocketGrpc := do.MustInvoke[websocket.WebsocketClient](di.Provider)
+
 		result := &types.CommandsHandlerResult{}
 
 		songs := []model.RequestedSong{}
@@ -83,16 +87,19 @@ var WrongCommand = types.DefaultCommand{
 			return result
 		}
 
-		natsData, err := proto.Marshal(
-			&youtubenats.RemoveSongFromQueue{ChannelId: ctx.ChannelId, EntityId: choosedSong.ID},
+		_, err = websocketGrpc.YoutubeRemoveSongToQueue(
+			context.Background(),
+			&websocket.YoutubeRemoveSongFromQueueRequest{
+				ChannelId: ctx.ChannelId,
+				EntityId:  choosedSong.ID,
+			},
 		)
-		if err == nil {
-			ctx.Services.Nats.Publish(youtubenats.SUBJECTS_REMOVE_SONG_FROM_QUEUE, natsData)
-		} else {
+		if err != nil {
 			log.Fatal(err)
 			result.Result = append(result.Result, "internal error happend when we removing song from queue")
 			return result
 		}
+
 		result.Result = append(
 			result.Result,
 			fmt.Sprintf("Song %s deleted from queue", choosedSong.Title),

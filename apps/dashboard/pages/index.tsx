@@ -3,7 +3,7 @@ import type { NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 import { BotWidget } from '@/components/dashboard/bot';
-import { YoutubePlayer } from '@/components/dashboard/youtubePlayer';
+import { YoutubePlayer } from '@/components/dashboard/youtubePlayerWidget';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore

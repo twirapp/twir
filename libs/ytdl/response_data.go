@@ -1,4 +1,4 @@
-package youtube
+package ytdl
 
 type playerResponseData struct {
 	PlayabilityStatus struct {

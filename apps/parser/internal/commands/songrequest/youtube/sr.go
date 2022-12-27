@@ -5,19 +5,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"github.com/satont/tsuwari/libs/grpc/generated/websocket"
 	"log"
 	"regexp"
 	"time"
 
-	model "tsuwari/models"
-	"tsuwari/parser/internal/config/twitch"
-	"tsuwari/parser/internal/types"
-	variables_cache "tsuwari/parser/internal/variablescache"
+	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/satont/go-helix/v2"
-
-	youtubenats "github.com/satont/tsuwari/libs/nats/youtube"
-	"google.golang.org/protobuf/proto"
 
 	ytsr "github.com/SherlockYigit/youtube-go"
 	ytdl "github.com/kkdai/youtube/v2"
@@ -49,6 +49,7 @@ var SrCommand = types.DefaultCommand{
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
+		websocketGrpc := do.MustInvoke[websocket.WebsocketClient](di.Provider)
 
 		if ctx.Text == nil {
 			result.Result = append(result.Result, "You should provide text for song request")
@@ -186,12 +187,13 @@ var SrCommand = types.DefaultCommand{
 			),
 		)
 
-		natsData, err := proto.Marshal(
-			&youtubenats.AddSongToQueue{ChannelId: ctx.ChannelId, EntityId: entity.ID},
+		websocketGrpc.YoutubeAddSongToQueue(
+			context.Background(),
+			&websocket.YoutubeAddSongToQueueRequest{
+				ChannelId: ctx.ChannelId,
+				EntityId:  entity.ID,
+			},
 		)
-		if err == nil {
-			ctx.Services.Nats.Publish(youtubenats.SUBJECTS_ADD_SONG_TO_QUEUE, natsData)
-		}
 
 		return result
 	},
@@ -286,7 +288,7 @@ func validate(
 		}
 
 		if settings.User.MinMessages != 0 &&
-			user.Stats.Messages < settings.User.MinMessages {
+			user.Stats.Messages < int32(settings.User.MinMessages) {
 			return errors.New(
 				fmt.Sprintf("you haven't %v messages for request song", user.Stats.Messages),
 			)

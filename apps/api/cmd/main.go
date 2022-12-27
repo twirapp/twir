@@ -33,7 +33,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	cfg "github.com/satont/tsuwari/libs/config"
+	config "github.com/satont/tsuwari/libs/config"
 
 	"github.com/satont/tsuwari/apps/api/internal/services/redis"
 
@@ -59,7 +59,7 @@ import (
 // @description "apiKey" from /v1/profile response
 func main() {
 	logger, _ := zap.NewDevelopment()
-	cfg, err := cfg.New()
+	cfg, err := config.New()
 	if err != nil || cfg == nil {
 		logger.Sugar().Error(err)
 		panic("Cannot load config of application")
@@ -89,6 +89,7 @@ func main() {
 
 	do.ProvideValue[*gorm.DB](di.Injector, db)
 	do.ProvideValue[interfaces.TimersService](di.Injector, services.NewTimersService())
+	do.ProvideValue[*config.Config](di.Injector, cfg)
 
 	storage := redis.NewCache(cfg.RedisUrl)
 
@@ -125,12 +126,6 @@ func main() {
 	}
 
 	app.Use(compress.New())
-
-	// appLogger, _ := zap.NewDevelopment()
-	// app.Use(fiberzap.New(fiberzap.Config{
-	// 	Logger: appLogger,
-
-	// }))
 
 	botsGrpcClient := clients.NewBots(cfg.AppEnv)
 	timersGrpcClient := clients.NewTimers(cfg.AppEnv)

@@ -87,3 +87,9 @@ replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
 
 replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+
+replace github.com/kkdai/youtube/v2 => ../../libs/ytdl
+
+replace github.com/satont/tsuwari/libs/types => ../../libs/types
+
+replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc

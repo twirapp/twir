@@ -3,9 +3,13 @@ package auth
 import (
 	"context"
 	"database/sql"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/samber/do"
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/tsuwari/apps/api/internal/middlewares"
+	"net/http"
 	"time"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -18,6 +22,43 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
+
+var checkScopes = func(ctx *fiber.Ctx) error {
+	headers := ctx.GetReqHeaders()
+	header, ok := headers["Authorization"]
+
+	if !ok {
+		return fiber.NewError(http.StatusUnauthorized, "no token provided")
+	}
+	token, err := middlewares.ExtractTokenFromHeader(header)
+	if err != nil {
+		return err
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	reqScopes, ok := claims["scopes"]
+	if !ok {
+		return ctx.SendStatus(http.StatusForbidden)
+	}
+
+	parsedScopes := lo.Map(reqScopes.([]any), func(item any, _ int) string {
+		scope, ok := item.(string)
+		if !ok {
+			return ""
+		}
+		return scope
+	})
+
+	for _, scope := range scopes {
+		_, ok := lo.Find(parsedScopes, func(s string) bool {
+			return s == scope
+		})
+
+		if !ok {
+			return ctx.SendStatus(http.StatusForbidden)
+		}
+	}
+	return ctx.Next()
+}
 
 func checkUser(
 	username, userId string,

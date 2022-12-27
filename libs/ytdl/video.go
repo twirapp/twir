@@ -1,4 +1,4 @@
-package youtube
+package ytdl
 
 import (
 	"encoding/json"

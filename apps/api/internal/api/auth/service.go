@@ -86,6 +86,7 @@ func handleGetToken(code string, services types.Services) (*Tokens, error) {
 	}
 
 	err = checkUser(user.Login, user.ID, resp.Data, services)
+
 	if err != nil {
 		return nil, fiber.NewError(500, "internal error")
 	}

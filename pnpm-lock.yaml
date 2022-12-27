@@ -45,6 +45,7 @@ importers:
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
       '@tsuwari/types': workspace:*
+      '@twurple/api': ^5.3.0
       '@types/node': 18.11.17
       '@types/react': 18.0.26
       '@types/react-beautiful-dnd': ^13.1.3
@@ -89,6 +90,7 @@ importers:
     devDependencies:
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
+      '@twurple/api': 5.3.0_@twurple+auth@5.3.0
       '@types/node': 18.11.17
       '@types/react': 18.0.26
       '@types/react-beautiful-dnd': 13.1.3
@@ -2080,7 +2082,6 @@ packages:
       '@d-fischer/shared-utils': 3.4.0
       '@types/node': 14.18.34
       tslib: 2.4.1
-    dev: false
 
   /@d-fischer/cross-fetch/4.1.0:
     resolution: {integrity: sha512-HH87JacceXOANr5XuBuSIQmPRPOvOUPwU1JR0DLUT6A8jGcP0jq2YUAiFCyZ8VGwDbTjsD3CZFpWIp5o7mIFWQ==}
@@ -2088,11 +2089,9 @@ packages:
       node-fetch: 2.6.7
     transitivePeerDependencies:
       - encoding
-    dev: false
 
   /@d-fischer/detect-node/3.0.1:
     resolution: {integrity: sha512-0Rf3XwTzuTh8+oPZW9SfxTIiL+26RRJ0BRPwj5oVjZFyFKmsj9RGfN2zuTRjOuA3FCK/jYm06HOhwNK+8Pfv8w==}
-    dev: false
 
   /@d-fischer/logger/4.2.0:
     resolution: {integrity: sha512-Hgm/GfeZfv2UPcRY4uF4S7OtCCv6Xxx++q7FAXc1qMrInaowKrmpo6YdFwRfZ8z53gzXFhc6H8j1Ttm0046uTw==}
@@ -2100,7 +2099,6 @@ packages:
       '@d-fischer/shared-utils': 3.4.0
       detect-node: 2.1.0
       tslib: 2.4.1
-    dev: false
 
   /@d-fischer/promise.allsettled/2.0.2:
     resolution: {integrity: sha512-xY0vYDwJYFe22MS5ccQ50N4Mcc2nQ8J4eWE5Y354IxZwW32O5uTT6mmhFSuVF6ZrKvzHOCIrK+9WqOR6TI3tcA==}
@@ -2112,12 +2110,10 @@ packages:
       es-abstract: 1.20.4
       get-intrinsic: 1.1.3
       iterate-value: 1.0.2
-    dev: false
 
   /@d-fischer/qs/7.0.2:
     resolution: {integrity: sha512-yAu3xDooiL+ef84Jo8nLjDjWBRk7RXk163Y6aTvRB7FauYd3spQD/dWvgT7R4CrN54Juhrrc3dMY7mc+jZGurQ==}
     engines: {node: '>=0.6'}
-    dev: false
 
   /@d-fischer/rate-limiter/0.6.1:
     resolution: {integrity: sha512-SqsMxs77c/W9knmcX9ccy12ASq+E5UXzxU/ZIDAhZyll+2IqyikhgLQUu5n7bdxb3kox+TOSCIEFxDSSaGhcTA==}
@@ -2127,7 +2123,6 @@ packages:
       '@d-fischer/shared-utils': 3.4.0
       '@types/node': 12.20.55
       tslib: 2.4.1
-    dev: false
 
   /@d-fischer/raw-body/2.4.3:
     resolution: {integrity: sha512-rtPTezQLROnTDdRij0Vo5OJ41aGvfKj9pQ7CkzFssQy+Jyc9BUVLV/DXLIGgvEGUaWt09Jq3im4WgvvPYqTomw==}
@@ -2144,7 +2139,6 @@ packages:
     dependencies:
       '@types/node': 14.18.34
       tslib: 2.4.1
-    dev: false
 
   /@d-fischer/typed-event-emitter/3.3.0:
     resolution: {integrity: sha512-A8cFoHtzUgk4JHIsyEB+7SegBjyOmNxeTl2BwU+VVcbnyNCXfbFdC0fUYZTls7bdEpqH1GSBw9nlo2zk8ttQNw==}
@@ -5505,6 +5499,19 @@ packages:
       - encoding
     dev: false
 
+  /@twurple/api-call/5.3.0:
+    resolution: {integrity: sha512-v2gK0Zm9E/t4a46aFM9eMfCXcmtQh+09eSwZs+BlCWJNTJPWhFNz25uv4FD4D5ZPfmHW+Ih3Pe8jGhjyfSLBsA==}
+    dependencies:
+      '@d-fischer/cross-fetch': 4.1.0
+      '@d-fischer/qs': 7.0.2
+      '@d-fischer/shared-utils': 3.4.0
+      '@twurple/common': 5.3.0
+      '@types/node-fetch': 2.6.2
+      tslib: 2.4.1
+    transitivePeerDependencies:
+      - encoding
+    dev: true
+
   /@twurple/api/5.2.7_@twurple+auth@5.2.7:
     resolution: {integrity: sha512-OuvnLdCMhtp0N9QqY9twRkiP5pJ4+ap2584x3RmQhxoSFwhZjg2vpSlspAnwYyrfFb+zr1gZEGypeAw8xwDE2w==}
     peerDependencies:
@@ -5523,6 +5530,24 @@ packages:
       - encoding
     dev: false
 
+  /@twurple/api/5.3.0_@twurple+auth@5.3.0:
+    resolution: {integrity: sha512-kleiR/3m7vSy063NTnSL/yO9XsRVlloZpgeB10dJZhare6B6CPDeTRQDdY1j3MnKp1lfKLynIsxd+6V+00wghw==}
+    peerDependencies:
+      '@twurple/auth': 5.3.0
+    dependencies:
+      '@d-fischer/cache-decorators': 3.0.0
+      '@d-fischer/detect-node': 3.0.1
+      '@d-fischer/logger': 4.2.0
+      '@d-fischer/rate-limiter': 0.6.1
+      '@d-fischer/shared-utils': 3.4.0
+      '@twurple/api-call': 5.3.0
+      '@twurple/auth': 5.3.0
+      '@twurple/common': 5.3.0
+      tslib: 2.4.1
+    transitivePeerDependencies:
+      - encoding
+    dev: true
+
   /@twurple/auth/5.2.7:
     resolution: {integrity: sha512-HBRhrdrNqhUfBx0zK/ju2mx6GcG4RfRFh7mnK4o45ftuSp9fIvtOs1ucNZ3VkkhOuNuB7yUfLWjBhGSgz175+g==}
     dependencies:
@@ -5535,6 +5560,18 @@ packages:
       - encoding
     dev: false
 
+  /@twurple/auth/5.3.0:
+    resolution: {integrity: sha512-N2Z9F27J9ly97Dt5yisPFxlMqtAuJPCA8q8LLmwvE4M1zTq8Aaq5Npizq/a8GI39LhTteyvksoyhz2QesHNX0Q==}
+    dependencies:
+      '@d-fischer/logger': 4.2.0
+      '@d-fischer/shared-utils': 3.4.0
+      '@twurple/api-call': 5.3.0
+      '@twurple/common': 5.3.0
+      tslib: 2.4.1
+    transitivePeerDependencies:
+      - encoding
+    dev: true
+
   /@twurple/common/5.2.7:
     resolution: {integrity: sha512-d/z/JinTUiG1a3ycNHs7TLQm2QU5iJ+uMMzN6rWhZ3BBktDloYTktH1W1cYK/rhYISyApMLmxCZYmDbtuJ99TA==}
     dependencies:
@@ -5542,6 +5579,14 @@ packages:
       klona: 2.0.5
       tslib: 2.4.1
     dev: false
+
+  /@twurple/common/5.3.0:
+    resolution: {integrity: sha512-r1UUTRVcz+qMJdpNrhmIRNnQgafrEXj4h/7+xEni1JulKJy4SlAhh+37oQb4UNNNYkS5GLHWVAJSEWal6vF0Kg==}
+    dependencies:
+      '@d-fischer/shared-utils': 3.4.0
+      klona: 2.0.5
+      tslib: 2.4.1
+    dev: true
 
   /@twurple/eventsub/5.2.7_@twurple+api@5.2.7:
     resolution: {integrity: sha512-4tdxbBZhk60gF7NDWkiMPCz1JP1y0UE72A2qnKMXw8no4Po+GdjJdPBepzR2bX1kClJBaAvweeegpBtiIYuv7A==}
@@ -5764,11 +5809,9 @@ packages:
 
   /@types/node/12.20.55:
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
-    dev: false
 
   /@types/node/14.18.34:
     resolution: {integrity: sha512-hcU9AIQVHmPnmjRK+XUUYlILlr9pQrsqSrwov/JK1pnf3GTQowVBhx54FbvM0AU/VXGH4i3+vgXS5EguR7fysA==}
-    dev: false
 
   /@types/node/16.18.4:
     resolution: {integrity: sha512-9qGjJ5GyShZjUfx2ArBIGM+xExdfLvvaCyQR0t6yRXKPcWCVYF/WemtX/uIU3r7FYECXRXkIiw2Vnhn6y8d+pw==}
@@ -8558,7 +8601,6 @@ packages:
 
   /detect-node/2.1.0:
     resolution: {integrity: sha512-T0NIuQpnTvFDATNuHN5roPwSBG83rFsuO+MXXH9/3N1eFbn4wcPjttvjMLEPWJ0RGUYgQE7cGgS3tNxbqCGM7g==}
-    dev: false
 
   /detect-package-manager/2.0.1:
     resolution: {integrity: sha512-j/lJHyoLlWi6G1LDdLgvUtz60Zo5GEj+sVYtTVXnYLDPuzgC3llMxonXym9zIwhhUII8vjdw0LXxavpLqTbl1A==}

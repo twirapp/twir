@@ -23,6 +23,16 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
+// YouTube godoc
+// @Security ApiKeyAuth
+// @Summary      Get YouTube settings
+// @Tags         Modules|YouTube
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Success      200  {object}  youtube.YoutubeSettings
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/modules/youtube-sr [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		settings, err := handleGet(c.Params("channelId"), services)
@@ -34,6 +44,18 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// YouTube godoc
+// @Security ApiKeyAuth
+// @Summary      Search channel or video
+// @Tags         Modules|YouTube
+// @Accept       json
+// @Produce      json
+// @Param        channelId   path      string  true  "ChannelId"
+// @Param        query   query      string  true  "Input string"
+// @Param        type   query      string  true  "channel or video"
+// @Success      200  {array}  SearchResult
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/modules/youtube-sr/search [get]
 func getSearch(service types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		results, err := handleSearch(c.Query("query"), c.Query("type"))

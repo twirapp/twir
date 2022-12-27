@@ -29,6 +29,8 @@ import Plyr, { APITypes, PlyrInstance, PlyrOptions, PlyrProps, usePlyr } from 'p
 import React, { useEffect, useRef, useState } from 'react';
 
 import 'plyr-react/plyr.css';
+import { PlayerSettings } from './youtube/playerSettings';
+
 import { CustomPlyrInstance } from '@/components/dashboard/player';
 
 const plyrOptions: PlyrOptions = {
@@ -160,7 +162,7 @@ export const YoutubePlayer: React.FC = () => {
                   </ScrollArea>
                 </Menu.Dropdown>
               </Menu>
-              <ActionIcon onClick={() => router.push('/settings/youtube')}><IconAdjustmentsHorizontal /></ActionIcon>
+              <PlayerSettings />
             </Group>
           </Flex>
         </Card.Section>

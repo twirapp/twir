@@ -1,6 +1,9 @@
 package youtubego
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func ParsePlaylist(data interface{}) PlaylistParser {
 	if data != nil {
@@ -19,13 +22,14 @@ func ParseChannel(data interface{}) ChannelParser {
 		thumbnails := data.(map[string]interface{})["thumbnail"].(map[string]interface{})["thumbnails"]
 		thumbnail := thumbnails.([]interface{})[len(thumbnails.([]interface{}))-1]
 
+		fmt.Println(thumbnail.(map[string]interface{})["url"].(string))
 		var out ChannelParser
 		out = ChannelParser{
 			Channel: Channel{
 				Id:   data.(map[string]interface{})["channelId"].(string),
 				Name: data.(map[string]interface{})["title"].(map[string]interface{})["simpleText"].(string),
 				Icon: Thumbnail{
-					Url:    thumbnail.(map[string]interface{})["url"].(string),
+					Url:    strings.Replace(thumbnail.(map[string]interface{})["url"].(string), "//", "https://", 1),
 					Width:  thumbnail.(map[string]interface{})["width"].(float64),
 					Height: thumbnail.(map[string]interface{})["height"].(float64),
 				},
@@ -54,7 +58,7 @@ func ParseVideo(data interface{}) VideoParser {
 				Url:   fmt.Sprintf("https://www.youtube.com/watch?v=%s", data.(map[string]interface{})["videoId"].(string)),
 				Thumbnail: Thumbnail{
 					Id:     data.(map[string]interface{})["videoId"].(string),
-					Url:    thumbnail[len(thumbnail)-1].(map[string]interface{})["url"].(string),
+					Url:    strings.Replace(thumbnail[len(thumbnail)-1].(map[string]interface{})["url"].(string), "url://", "https://", 1),
 					Width:  thumbnail[len(thumbnail)-1].(map[string]interface{})["width"].(float64),
 					Height: thumbnail[len(thumbnail)-1].(map[string]interface{})["height"].(float64),
 				},

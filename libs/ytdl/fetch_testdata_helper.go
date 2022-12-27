@@ -1,6 +1,7 @@
+//go:build fetch
 // +build fetch
 
-package youtube
+package ytdl
 
 import (
 	"fmt"

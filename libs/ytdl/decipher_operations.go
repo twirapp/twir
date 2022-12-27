@@ -1,4 +1,4 @@
-package youtube
+package ytdl
 
 type DecipherOperation func([]byte) []byte
 

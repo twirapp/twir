@@ -13,4 +13,6 @@ use (
 	./libs/pubsub
 	./libs/twitch
 	./libs/types
+	./libs/ytdl
+	./libs/ytsr
 )

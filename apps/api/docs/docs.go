@@ -97,7 +97,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_bot.connectionDto"
+                            "$ref": "#/definitions/internal_api_v1_bot.connectionDto"
                         }
                     }
                 ],
@@ -686,7 +686,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_donationalerts.tokenDto"
                         }
                     },
                     {
@@ -873,7 +873,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.tokenDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_faceit.tokenDto"
                         }
                     },
                     {
@@ -1028,7 +1028,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile"
+                                "$ref": "#/definitions/internal_api_v1_integrations_lastfm.LastfmProfile"
                             }
                         }
                     },
@@ -1063,7 +1063,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_lastfm.lastfmDto"
                         }
                     },
                     {
@@ -1587,7 +1587,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile"
+                            "$ref": "#/definitions/internal_api_v1_integrations_vk.profile"
                         }
                     },
                     "500": {
@@ -1621,7 +1621,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_vk.vkDto"
                         }
                     },
                     {
@@ -1805,7 +1805,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto"
+                            "$ref": "#/definitions/internal_api_v1_keywords.keywordDto"
                         }
                     },
                     {
@@ -1862,7 +1862,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto"
+                            "$ref": "#/definitions/internal_api_v1_keywords.keywordDto"
                         }
                     },
                     {
@@ -1983,7 +1983,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_keywords.keywordPatchDto"
                         }
                     },
                     {
@@ -2093,7 +2093,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_moderation.moderationDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto"
                         }
                     },
                     {
@@ -2118,6 +2118,152 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/modules/youtube-sr": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Modules|YouTube"
+                ],
+                "summary": "Get YouTube settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ChannelId",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/modules.YoutubeSettings"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/modules/youtube-sr/search": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Modules|YouTube"
+                ],
+                "summary": "Get YouTube settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ChannelId",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Input string",
+                        "name": "query",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "channel or video",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_modules_youtube_sr.SearchResult"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/rewards": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rewards"
+                ],
+                "summary": "Get channel rewards list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ChannelId",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/helix.ChannelCustomReward"
+                            }
                         }
                     },
                     "500": {
@@ -2161,7 +2307,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity"
+                                "$ref": "#/definitions/internal_api_v1_settings_dashboardAccess.Entity"
                             }
                         }
                     },
@@ -2196,7 +2342,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto"
+                            "$ref": "#/definitions/internal_api_v1_settings_dashboardAccess.addUserDto"
                         }
                     },
                     {
@@ -2211,7 +2357,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity"
+                            "$ref": "#/definitions/internal_api_v1_settings_dashboardAccess.Entity"
                         }
                     },
                     "400": {
@@ -2838,7 +2984,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_stats.statsItem"
+                                "$ref": "#/definitions/internal_api_v1_stats.statsItem"
                             }
                         }
                     },
@@ -3244,6 +3390,20 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_satont_tsuwari_apps_api_internal_api_v1_modules_youtube_sr.SearchResult": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "thumbNail": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity": {
             "type": "object",
             "properties": {
@@ -3404,6 +3564,115 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "helix.ChannelCustomReward": {
+            "type": "object",
+            "properties": {
+                "broadcaster_id": {
+                    "type": "string"
+                },
+                "broadcaster_login": {
+                    "type": "string"
+                },
+                "broadcaster_name": {
+                    "type": "string"
+                },
+                "cooldown_expires_at": {
+                    "type": "string"
+                },
+                "cost": {
+                    "type": "integer"
+                },
+                "default_image": {
+                    "$ref": "#/definitions/helix.RewardImage"
+                },
+                "global_cooldown_setting": {
+                    "$ref": "#/definitions/helix.GlobalCooldownSettings"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image": {
+                    "$ref": "#/definitions/helix.RewardImage"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "is_in_stock": {
+                    "type": "boolean"
+                },
+                "is_paused": {
+                    "type": "boolean"
+                },
+                "is_user_input_required": {
+                    "type": "boolean"
+                },
+                "max_per_stream_setting": {
+                    "$ref": "#/definitions/helix.MaxPerStreamSettings"
+                },
+                "max_per_user_per_stream_setting": {
+                    "$ref": "#/definitions/helix.MaxPerUserPerStreamSettings"
+                },
+                "prompt": {
+                    "type": "string"
+                },
+                "redemptions_redeemed_current_stream": {
+                    "type": "integer"
+                },
+                "should_redemptions_skip_request_queue": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "helix.GlobalCooldownSettings": {
+            "type": "object",
+            "properties": {
+                "global_cooldown_seconds": {
+                    "type": "integer"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "helix.MaxPerStreamSettings": {
+            "type": "object",
+            "properties": {
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "max_per_stream": {
+                    "type": "integer"
+                }
+            }
+        },
+        "helix.MaxPerUserPerStreamSettings": {
+            "type": "object",
+            "properties": {
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "max_per_user_per_stream": {
+                    "type": "integer"
+                }
+            }
+        },
+        "helix.RewardImage": {
+            "type": "object",
+            "properties": {
+                "url_1x": {
+                    "type": "string"
+                },
+                "url_2x": {
+                    "type": "string"
+                },
+                "url_4x": {
+                    "type": "string"
                 }
             }
         },
@@ -3832,6 +4101,20 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "warningMessage": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_api_v1_modules_youtube_sr.SearchResult": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "thumbNail": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 }
             }
@@ -4306,17 +4589,11 @@ const docTemplate = `{
         "model.ChannelsTimers": {
             "type": "object",
             "properties": {
-                "channelId": {
-                    "type": "string"
-                },
                 "enabled": {
                     "type": "boolean"
                 },
                 "id": {
                     "type": "string"
-                },
-                "lastTriggerMessageNumber": {
-                    "type": "integer"
                 },
                 "messageInterval": {
                     "type": "integer"
@@ -4343,6 +4620,176 @@ const docTemplate = `{
                 },
                 "text": {
                     "type": "string"
+                }
+            }
+        },
+        "modules.YotubeSongSettings": {
+            "type": "object",
+            "properties": {
+                "acceptedCategories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "maxLength": {
+                    "type": "integer",
+                    "maximum": 86400
+                },
+                "minViews": {
+                    "type": "integer",
+                    "maximum": 10000000000000
+                }
+            }
+        },
+        "modules.YoutubeBlacklistSettings": {
+            "type": "object",
+            "required": [
+                "artistsNames",
+                "channels",
+                "songs",
+                "users"
+            ],
+            "properties": {
+                "artistsNames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "channels": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/modules.YoutubeBlacklistSettingsChannels"
+                    }
+                },
+                "songs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/modules.YoutubeBlacklistSettingsSongs"
+                    }
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/modules.YoutubeBlacklistSettingsUsers"
+                    }
+                }
+            }
+        },
+        "modules.YoutubeBlacklistSettingsChannels": {
+            "type": "object",
+            "required": [
+                "id",
+                "thumbNail",
+                "title"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "thumbNail": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "minLength": 1
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "minLength": 1
+                }
+            }
+        },
+        "modules.YoutubeBlacklistSettingsSongs": {
+            "type": "object",
+            "required": [
+                "id",
+                "thumbNail",
+                "title"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "minLength": 1
+                },
+                "thumbNail": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "minLength": 1
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "minLength": 1
+                }
+            }
+        },
+        "modules.YoutubeBlacklistSettingsUsers": {
+            "type": "object",
+            "required": [
+                "userName"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules.YoutubeSettings": {
+            "type": "object",
+            "required": [
+                "acceptOnlyWhenOnline",
+                "blackList",
+                "enabled",
+                "song",
+                "user"
+            ],
+            "properties": {
+                "acceptOnlyWhenOnline": {
+                    "type": "boolean"
+                },
+                "blackList": {
+                    "$ref": "#/definitions/modules.YoutubeBlacklistSettings"
+                },
+                "channelPointsRewardId": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "maxRequests": {
+                    "type": "integer",
+                    "maximum": 500
+                },
+                "song": {
+                    "$ref": "#/definitions/modules.YotubeSongSettings"
+                },
+                "user": {
+                    "$ref": "#/definitions/modules.YoutubeUserSettings"
+                }
+            }
+        },
+        "modules.YoutubeUserSettings": {
+            "type": "object",
+            "properties": {
+                "maxRequests": {
+                    "type": "integer"
+                },
+                "minFollowTime": {
+                    "type": "integer"
+                },
+                "minMessages": {
+                    "type": "integer"
+                },
+                "minWatchTime": {
+                    "type": "integer"
                 }
             }
         },
