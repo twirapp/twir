@@ -187,7 +187,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -244,7 +244,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -365,7 +365,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandPatchDto"
                         }
                     },
                     {
@@ -440,7 +440,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
                             }
                         }
                     },
@@ -475,7 +475,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsDto"
                         }
                     },
                     {
@@ -490,7 +490,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
                         }
                     },
                     "400": {
@@ -532,7 +532,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsPatchDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsPatchDto"
                         }
                     },
                     {
@@ -554,7 +554,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
                         }
                     },
                     "400": {
@@ -873,7 +873,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_faceit.tokenDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.tokenDto"
                         }
                     },
                     {
@@ -1253,7 +1253,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_spotify.tokenDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.tokenDto"
                         }
                     },
                     {
@@ -1440,7 +1440,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_streamlabs.tokenDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto"
                         }
                     },
                     {
@@ -2093,7 +2093,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto"
+                            "$ref": "#/definitions/internal_api_v1_moderation.moderationDto"
                         }
                     },
                     {
@@ -2159,7 +2159,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/modules.YoutubeSettings"
+                            "$ref": "#/definitions/modules.YouTubeSettings"
                         }
                     },
                     "500": {
@@ -2187,7 +2187,7 @@ const docTemplate = `{
                 "tags": [
                     "Modules|YouTube"
                 ],
-                "summary": "Get YouTube settings",
+                "summary": "Search channel or video",
                 "parameters": [
                     {
                         "type": "string",
@@ -2217,7 +2217,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_modules_youtube_sr.SearchResult"
+                                "$ref": "#/definitions/modules.SearchResult"
                             }
                         }
                     },
@@ -2763,7 +2763,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_variables.variableDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto"
                         }
                     },
                     {
@@ -2865,7 +2865,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_variables.variableDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto"
                         }
                     },
                     {
@@ -2984,7 +2984,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/internal_api_v1_stats.statsItem"
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_stats.statsItem"
                             }
                         }
                     },
@@ -3386,20 +3386,6 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "warningMessage": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_modules_youtube_sr.SearchResult": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "thumbNail": {
-                    "type": "string"
-                },
-                "title": {
                     "type": "string"
                 }
             }
@@ -4105,20 +4091,6 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_api_v1_modules_youtube_sr.SearchResult": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "thumbNail": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
         "internal_api_v1_settings_dashboardAccess.Entity": {
             "type": "object",
             "properties": {
@@ -4623,7 +4595,155 @@ const docTemplate = `{
                 }
             }
         },
-        "modules.YotubeSongSettings": {
+        "modules.SearchResult": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "thumbNail": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules.YouTubeDenyList": {
+            "type": "object",
+            "required": [
+                "artistsNames",
+                "channels",
+                "songs",
+                "users"
+            ],
+            "properties": {
+                "artistsNames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "channels": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/modules.YouTubeDenySettingsChannels"
+                    }
+                },
+                "songs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/modules.YouTubeDenySettingsSongs"
+                    }
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/modules.YouTubeDenySettingsUsers"
+                    }
+                }
+            }
+        },
+        "modules.YouTubeDenySettingsChannels": {
+            "type": "object",
+            "required": [
+                "id",
+                "thumbNail",
+                "title"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "thumbNail": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "minLength": 1
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "minLength": 1
+                }
+            }
+        },
+        "modules.YouTubeDenySettingsSongs": {
+            "type": "object",
+            "required": [
+                "id",
+                "thumbNail",
+                "title"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "minLength": 1
+                },
+                "thumbNail": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "minLength": 1
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "minLength": 1
+                }
+            }
+        },
+        "modules.YouTubeDenySettingsUsers": {
+            "type": "object",
+            "required": [
+                "userName"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules.YouTubeSettings": {
+            "type": "object",
+            "required": [
+                "acceptOnlyWhenOnline",
+                "denyList",
+                "enabled",
+                "song",
+                "user"
+            ],
+            "properties": {
+                "acceptOnlyWhenOnline": {
+                    "type": "boolean"
+                },
+                "channelPointsRewardId": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "denyList": {
+                    "$ref": "#/definitions/modules.YouTubeDenyList"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "maxRequests": {
+                    "type": "integer",
+                    "maximum": 500
+                },
+                "song": {
+                    "$ref": "#/definitions/modules.YouTubeSongSettings"
+                },
+                "user": {
+                    "$ref": "#/definitions/modules.YouTubeUserSettings"
+                }
+            }
+        },
+        "modules.YouTubeSongSettings": {
             "type": "object",
             "properties": {
                 "acceptedCategories": {
@@ -4642,141 +4762,7 @@ const docTemplate = `{
                 }
             }
         },
-        "modules.YoutubeBlacklistSettings": {
-            "type": "object",
-            "required": [
-                "artistsNames",
-                "channels",
-                "songs",
-                "users"
-            ],
-            "properties": {
-                "artistsNames": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "channels": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/modules.YoutubeBlacklistSettingsChannels"
-                    }
-                },
-                "songs": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/modules.YoutubeBlacklistSettingsSongs"
-                    }
-                },
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/modules.YoutubeBlacklistSettingsUsers"
-                    }
-                }
-            }
-        },
-        "modules.YoutubeBlacklistSettingsChannels": {
-            "type": "object",
-            "required": [
-                "id",
-                "thumbNail",
-                "title"
-            ],
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "minLength": 1
-                },
-                "thumbNail": {
-                    "type": "string",
-                    "maxLength": 300,
-                    "minLength": 1
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 300,
-                    "minLength": 1
-                }
-            }
-        },
-        "modules.YoutubeBlacklistSettingsSongs": {
-            "type": "object",
-            "required": [
-                "id",
-                "thumbNail",
-                "title"
-            ],
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "maxLength": 300,
-                    "minLength": 1
-                },
-                "thumbNail": {
-                    "type": "string",
-                    "maxLength": 300,
-                    "minLength": 1
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 300,
-                    "minLength": 1
-                }
-            }
-        },
-        "modules.YoutubeBlacklistSettingsUsers": {
-            "type": "object",
-            "required": [
-                "userName"
-            ],
-            "properties": {
-                "userId": {
-                    "type": "string",
-                    "maxLength": 50
-                },
-                "userName": {
-                    "type": "string"
-                }
-            }
-        },
-        "modules.YoutubeSettings": {
-            "type": "object",
-            "required": [
-                "acceptOnlyWhenOnline",
-                "blackList",
-                "enabled",
-                "song",
-                "user"
-            ],
-            "properties": {
-                "acceptOnlyWhenOnline": {
-                    "type": "boolean"
-                },
-                "blackList": {
-                    "$ref": "#/definitions/modules.YoutubeBlacklistSettings"
-                },
-                "channelPointsRewardId": {
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "maxRequests": {
-                    "type": "integer",
-                    "maximum": 500
-                },
-                "song": {
-                    "$ref": "#/definitions/modules.YotubeSongSettings"
-                },
-                "user": {
-                    "$ref": "#/definitions/modules.YoutubeUserSettings"
-                }
-            }
-        },
-        "modules.YoutubeUserSettings": {
+        "modules.YouTubeUserSettings": {
             "type": "object",
             "properties": {
                 "maxRequests": {

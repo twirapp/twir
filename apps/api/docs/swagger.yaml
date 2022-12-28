@@ -266,15 +266,6 @@ definitions:
     - type
     - vips
     type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_modules_youtube_sr.SearchResult:
-    properties:
-      id:
-        type: string
-      thumbNail:
-        type: string
-      title:
-        type: string
-    type: object
   github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity:
     properties:
       channelId:
@@ -747,15 +738,6 @@ definitions:
     - type
     - vips
     type: object
-  internal_api_v1_modules_youtube_sr.SearchResult:
-    properties:
-      id:
-        type: string
-      thumbNail:
-        type: string
-      title:
-        type: string
-    type: object
   internal_api_v1_settings_dashboardAccess.Entity:
     properties:
       channelId:
@@ -1100,7 +1082,112 @@ definitions:
       text:
         type: string
     type: object
-  modules.YotubeSongSettings:
+  modules.SearchResult:
+    properties:
+      id:
+        type: string
+      thumbNail:
+        type: string
+      title:
+        type: string
+    type: object
+  modules.YouTubeDenyList:
+    properties:
+      artistsNames:
+        items:
+          type: string
+        type: array
+      channels:
+        items:
+          $ref: '#/definitions/modules.YouTubeDenySettingsChannels'
+        type: array
+      songs:
+        items:
+          $ref: '#/definitions/modules.YouTubeDenySettingsSongs'
+        type: array
+      users:
+        items:
+          $ref: '#/definitions/modules.YouTubeDenySettingsUsers'
+        type: array
+    required:
+    - artistsNames
+    - channels
+    - songs
+    - users
+    type: object
+  modules.YouTubeDenySettingsChannels:
+    properties:
+      id:
+        minLength: 1
+        type: string
+      thumbNail:
+        maxLength: 300
+        minLength: 1
+        type: string
+      title:
+        maxLength: 300
+        minLength: 1
+        type: string
+    required:
+    - id
+    - thumbNail
+    - title
+    type: object
+  modules.YouTubeDenySettingsSongs:
+    properties:
+      id:
+        maxLength: 300
+        minLength: 1
+        type: string
+      thumbNail:
+        maxLength: 300
+        minLength: 1
+        type: string
+      title:
+        maxLength: 300
+        minLength: 1
+        type: string
+    required:
+    - id
+    - thumbNail
+    - title
+    type: object
+  modules.YouTubeDenySettingsUsers:
+    properties:
+      userId:
+        maxLength: 50
+        type: string
+      userName:
+        type: string
+    required:
+    - userName
+    type: object
+  modules.YouTubeSettings:
+    properties:
+      acceptOnlyWhenOnline:
+        type: boolean
+      channelPointsRewardId:
+        maxLength: 100
+        type: string
+      denyList:
+        $ref: '#/definitions/modules.YouTubeDenyList'
+      enabled:
+        type: boolean
+      maxRequests:
+        maximum: 500
+        type: integer
+      song:
+        $ref: '#/definitions/modules.YouTubeSongSettings'
+      user:
+        $ref: '#/definitions/modules.YouTubeUserSettings'
+    required:
+    - acceptOnlyWhenOnline
+    - denyList
+    - enabled
+    - song
+    - user
+    type: object
+  modules.YouTubeSongSettings:
     properties:
       acceptedCategories:
         items:
@@ -1113,103 +1200,7 @@ definitions:
         maximum: 10000000000000
         type: integer
     type: object
-  modules.YoutubeBlacklistSettings:
-    properties:
-      artistsNames:
-        items:
-          type: string
-        type: array
-      channels:
-        items:
-          $ref: '#/definitions/modules.YoutubeBlacklistSettingsChannels'
-        type: array
-      songs:
-        items:
-          $ref: '#/definitions/modules.YoutubeBlacklistSettingsSongs'
-        type: array
-      users:
-        items:
-          $ref: '#/definitions/modules.YoutubeBlacklistSettingsUsers'
-        type: array
-    required:
-    - artistsNames
-    - channels
-    - songs
-    - users
-    type: object
-  modules.YoutubeBlacklistSettingsChannels:
-    properties:
-      id:
-        minLength: 1
-        type: string
-      thumbNail:
-        maxLength: 300
-        minLength: 1
-        type: string
-      title:
-        maxLength: 300
-        minLength: 1
-        type: string
-    required:
-    - id
-    - thumbNail
-    - title
-    type: object
-  modules.YoutubeBlacklistSettingsSongs:
-    properties:
-      id:
-        maxLength: 300
-        minLength: 1
-        type: string
-      thumbNail:
-        maxLength: 300
-        minLength: 1
-        type: string
-      title:
-        maxLength: 300
-        minLength: 1
-        type: string
-    required:
-    - id
-    - thumbNail
-    - title
-    type: object
-  modules.YoutubeBlacklistSettingsUsers:
-    properties:
-      userId:
-        maxLength: 50
-        type: string
-      userName:
-        type: string
-    required:
-    - userName
-    type: object
-  modules.YoutubeSettings:
-    properties:
-      acceptOnlyWhenOnline:
-        type: boolean
-      blackList:
-        $ref: '#/definitions/modules.YoutubeBlacklistSettings'
-      channelPointsRewardId:
-        maxLength: 100
-        type: string
-      enabled:
-        type: boolean
-      maxRequests:
-        maximum: 500
-        type: integer
-      song:
-        $ref: '#/definitions/modules.YotubeSongSettings'
-      user:
-        $ref: '#/definitions/modules.YoutubeUserSettings'
-    required:
-    - acceptOnlyWhenOnline
-    - blackList
-    - enabled
-    - song
-    - user
-    type: object
-  modules.YoutubeUserSettings:
+  modules.YouTubeUserSettings:
     properties:
       maxRequests:
         type: integer
@@ -1390,7 +1381,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1462,7 +1453,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1504,7 +1495,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1554,7 +1545,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_api_v1_greetings.Greeting'
+              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting'
             type: array
         "500":
           description: Internal Server Error
@@ -1574,7 +1565,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_greetings.greetingsDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1586,7 +1577,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_api_v1_greetings.Greeting'
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting'
         "400":
           description: Bad Request
           schema:
@@ -1640,7 +1631,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_greetings.greetingsPatchDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1657,7 +1648,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_api_v1_greetings.Greeting'
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting'
         "400":
           description: Bad Request
           schema:
@@ -1825,7 +1816,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_faceit.tokenDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2063,7 +2054,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_spotify.tokenDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2180,7 +2171,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_streamlabs.tokenDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2592,7 +2583,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto'
+          $ref: '#/definitions/internal_api_v1_moderation.moderationDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2636,7 +2627,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/modules.YoutubeSettings'
+            $ref: '#/definitions/modules.YouTubeSettings'
         "500":
           description: Internal Server Error
           schema:
@@ -2673,7 +2664,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_modules_youtube_sr.SearchResult'
+              $ref: '#/definitions/modules.SearchResult'
             type: array
         "500":
           description: Internal Server Error
@@ -2681,7 +2672,7 @@ paths:
             $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
       security:
       - ApiKeyAuth: []
-      summary: Get YouTube settings
+      summary: Search channel or video
       tags:
       - Modules|YouTube
   /v1/channels/{channelId}/rewards:
@@ -3016,7 +3007,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_variables.variableDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3088,7 +3079,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_variables.variableDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3158,7 +3149,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_api_v1_stats.statsItem'
+              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_stats.statsItem'
             type: array
         "500":
           description: Internal Server Error
