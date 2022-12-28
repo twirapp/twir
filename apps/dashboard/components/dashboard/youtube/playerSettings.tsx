@@ -1,26 +1,28 @@
 import {
-  ActionIcon, Avatar,
+  ActionIcon,
+  Avatar,
   Button,
   Divider,
   Flex,
   Group,
+  Modal,
   NumberInput,
+  Popover,
+  ScrollArea,
   Select,
-  SelectItem,
   Switch,
   Tabs,
   Text,
   TextInput,
-  Autocomplete,
-  MultiSelect, ScrollArea, Menu, Modal, UnstyledButton, Popover,
+  UnstyledButton,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useDebouncedState, useDebouncedValue } from '@mantine/hooks';
-import { openModal, closeAllModals } from '@mantine/modals';
+import { useDebouncedState } from '@mantine/hooks';
+import { closeAllModals, openModal } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
-import { IconAdjustmentsHorizontal, IconCheck, IconPlus, IconTrash, IconUsers, IconX } from '@tabler/icons';
-import { YouTubeSettings, SearchResult } from '@tsuwari/types/api';
-import React, {  useEffect, useState } from 'react';
+import { IconAdjustmentsHorizontal, IconCheck, IconPlus, IconUsers, IconX } from '@tabler/icons';
+import { SearchResult, YouTubeSettings } from '@tsuwari/types/api';
+import React, { useEffect, useState } from 'react';
 
 import { noop } from '../../../util/chore';
 import { RewardItem, RewardItemProps } from './reward';
