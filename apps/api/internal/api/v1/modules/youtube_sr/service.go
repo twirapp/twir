@@ -37,15 +37,9 @@ func handleGet(channelId string, services types.Services) (*youtube.YoutubeSetti
 	return &data, nil
 }
 
-type SearchResult struct {
-	ID        string `     json:"id"`
-	Title     string ` json:"title"`
-	ThumbNail string `json:"thumbNail"`
-}
-
-func handleSearch(query string, searchType string) ([]SearchResult, error) {
+func handleSearch(query string, searchType string) ([]youtube.SearchResult, error) {
 	if query == "" {
-		return []SearchResult{}, nil
+		return []youtube.SearchResult{}, nil
 	}
 
 	if searchType != "video" && searchType != "channel" {
@@ -57,23 +51,23 @@ func handleSearch(query string, searchType string) ([]SearchResult, error) {
 		Type:  searchType,
 	})
 
-	result := make([]SearchResult, 0)
+	result := make([]youtube.SearchResult, 0)
 
 	if len(search) == 0 {
 		return result, nil
 	}
 
 	for _, item := range search {
-		var res SearchResult
+		var res youtube.SearchResult
 		if searchType == "video" {
-			res = SearchResult{
+			res = youtube.SearchResult{
 				ID:        item.Video.Id,
 				Title:     item.Video.Title,
 				ThumbNail: item.Video.Thumbnail.Url,
 			}
 		}
 		if searchType == "channel" {
-			res = SearchResult{
+			res = youtube.SearchResult{
 				ID:        item.Channel.Id,
 				Title:     item.Channel.Name,
 				ThumbNail: item.Channel.Icon.Url,
@@ -173,96 +167,4 @@ func handlePost(channelId string, dto *youtube.YoutubeSettings, services types.S
 
 		return nil
 	}
-}
-
-func handlePatch(
-	channelId string,
-	blackListType string,
-	data any,
-	services types.Services,
-) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-
-	settings := model.ChannelModulesSettings{}
-	err := services.DB.Where(`"channelId" = ? AND type = ?`, channelId, "youtube_song_requests").
-		First(&settings).
-		Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		logger.Error(err)
-		return fiber.NewError(http.StatusInternalServerError, "internal error")
-	}
-
-	if settings.ID == "" {
-		bytes, err := json.Marshal(&youtube.YoutubeSettings{})
-		if err != nil {
-			logger.Error(err)
-			return fiber.NewError(http.StatusInternalServerError, "internal error")
-		}
-
-		newSettings := model.ChannelModulesSettings{
-			ID:        uuid.NewV4().String(),
-			Type:      "youtube_song_requests",
-			ChannelId: channelId,
-			Settings:  bytes,
-		}
-		err = services.DB.Save(&newSettings).Error
-		if err != nil {
-			logger.Error(err)
-			return fiber.NewError(http.StatusInternalServerError, "internal error")
-		}
-		settings = newSettings
-	}
-
-	originalSettings := youtube.YoutubeSettings{}
-	err = json.Unmarshal(settings.Settings, &originalSettings)
-	if err != nil {
-		logger.Error(err)
-		return fiber.NewError(http.StatusInternalServerError, "internal error")
-	}
-
-	if blackListType == "users" {
-		user := data.(youtube.YoutubeBlacklistSettingsUsers)
-		userReq, err := services.Twitch.Client.GetUsers(&helix.UsersParams{
-			Logins: []string{strings.ToLower(user.UserName)},
-		})
-
-		if err != nil || len(userReq.Data.Users) == 0 {
-			return fiber.NewError(http.StatusNotFound, "twitch user not found")
-		}
-
-		originalSettings.BlackList.Users = append(
-			originalSettings.BlackList.Users,
-			youtube.YoutubeBlacklistSettingsUsers{
-				UserID:   userReq.Data.Users[0].ID,
-				UserName: userReq.Data.Users[0].Login,
-			},
-		)
-	}
-	if blackListType == "channels" {
-		originalSettings.BlackList.Channels = append(
-			originalSettings.BlackList.Channels,
-			data.(youtube.YoutubeBlacklistSettingsChannels),
-		)
-	}
-	if blackListType == "songs" {
-		originalSettings.BlackList.Songs = append(
-			originalSettings.BlackList.Songs,
-			data.(youtube.YoutubeBlacklistSettingsSongs),
-		)
-	}
-
-	newSettingsBytes, err := json.Marshal(originalSettings)
-	if err != nil {
-		logger.Error(err)
-		return fiber.NewError(http.StatusInternalServerError, "internal error")
-	}
-	settings.Settings = newSettingsBytes
-	err = services.DB.Save(&settings).Error
-
-	if err != nil {
-		logger.Error(err)
-		return fiber.NewError(http.StatusInternalServerError, "internal error")
-	}
-
-	return nil
 }

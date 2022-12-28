@@ -18,7 +18,7 @@ export const useYoutubeModule = () => {
     }),
     useSearch: () => useMutation({
       mutationFn: ({ query, type }: {query: string, type: 'channel' | 'video'}) => {
-        return authFetcher(`${getUrl()}/search?type=${type}&query=${query}`);
+        return authFetcher(`${getUrl()}/search?type=${type}&query=${query}`) as Promise<Youtube['SEARCH']>;
       },
       mutationKey: [`${getUrl()}/search`],
     }),

@@ -47,10 +47,17 @@ type YoutubeSettings struct {
 	BlackList             YoutubeBlacklistSettings `validate:"required"    json:"blackList"`
 }
 
+type SearchResult struct {
+	ID        string `     json:"id"`
+	Title     string ` json:"title"`
+	ThumbNail string `json:"thumbNail"`
+}
+
 type YouTube struct {
 	POST                    YoutubeSettings
 	GET                     YoutubeSettings
 	POST_BLACKLIST_SONGS    YoutubeBlacklistSettingsSongs
 	POST_BLACKLIST_CHANNELS YoutubeBlacklistSettingsChannels
 	POST_BLACKLIST_USERS    YoutubeBlacklistSettingsUsers
+	SEARCH                  []SearchResult
 }
