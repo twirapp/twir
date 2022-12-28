@@ -116,7 +116,7 @@ var SrCommand = types.DefaultCommand{
 			return result
 		}
 		if moduleSettings.ID != "" {
-			parsedSettings := &youtube.YoutubeSettings{}
+			parsedSettings := &youtube.YouTubeSettings{}
 			err = json.Unmarshal(moduleSettings.Settings, parsedSettings)
 			if err != nil {
 				fmt.Println(err)
@@ -203,17 +203,17 @@ func validate(
 	channelId, userId string,
 	db *gorm.DB,
 	tw *twitch.Twitch,
-	settings *youtube.YoutubeSettings,
+	settings *youtube.YouTubeSettings,
 	song *ytdl.Video,
 ) error {
 	if userId != channelId {
 		return nil
 	}
 
-	if len(settings.BlackList.Users) > 0 {
+	if len(settings.DenyList.Users) > 0 {
 		_, isUserBlackListed := lo.Find(
-			settings.BlackList.Users,
-			func(u youtube.YoutubeBlacklistSettingsUsers) bool {
+			settings.DenyList.Users,
+			func(u youtube.YouTubeDenySettingsUsers) bool {
 				return u.UserID == userId
 			},
 		)
@@ -223,10 +223,10 @@ func validate(
 		}
 	}
 
-	if len(settings.BlackList.Channels) > 0 {
+	if len(settings.DenyList.Channels) > 0 {
 		_, isChannelBlacklisted := lo.Find(
-			settings.BlackList.Channels,
-			func(u youtube.YoutubeBlacklistSettingsChannels) bool {
+			settings.DenyList.Channels,
+			func(u youtube.YouTubeDenySettingsChannels) bool {
 				return u.ID == song.ChannelID
 			},
 		)

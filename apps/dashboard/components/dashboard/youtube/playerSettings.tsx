@@ -12,15 +12,15 @@ import {
   Text,
   TextInput,
   Autocomplete,
-  MultiSelect, ScrollArea, Menu, Modal, UnstyledButton,
+  MultiSelect, ScrollArea, Menu, Modal, UnstyledButton, Popover,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDebouncedState, useDebouncedValue } from '@mantine/hooks';
 import { openModal, closeAllModals } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
-import { IconAdjustmentsHorizontal, IconPlus, IconTrash, IconUsers, IconX } from '@tabler/icons';
-import { YoutubeSettings, SearchResult } from '@tsuwari/types/api';
-import React, { useContext, useEffect, useState } from 'react';
+import { IconAdjustmentsHorizontal, IconCheck, IconPlus, IconTrash, IconUsers, IconX } from '@tabler/icons';
+import { YouTubeSettings, SearchResult } from '@tsuwari/types/api';
+import React, {  useEffect, useState } from 'react';
 
 import { noop } from '../../../util/chore';
 import { RewardItem, RewardItemProps } from './reward';
@@ -41,13 +41,13 @@ export const PlayerSettings: React.FC  = () => {
 };
 
 const SettingsModal: React.FC = () => {
-  const form = useForm<YoutubeSettings>({
+  const form = useForm<YouTubeSettings>({
     initialValues: {
       enabled: true,
       acceptOnlyWhenOnline: true,
       channelPointsRewardId: '',
       maxRequests: 500,
-      blackList: {
+      denyList: {
         artistsNames: [],
         songs: [],
         users: [],
@@ -132,6 +132,8 @@ const SettingsModal: React.FC = () => {
   const [searchValue, setSearchValue] = useDebouncedState('', 200);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [filterSongs, setFilterSongs] = useState('');
+  const [filterChannels, setFilterChannels] = useState('');
+  const [filterUsers, setFilterUsers] = useState('');
 
   useEffect(() => {
     if (searchValue) {
@@ -144,6 +146,7 @@ const SettingsModal: React.FC = () => {
   }, [searchValue]);
 
   const [searchModalOpened, setSearchModalOpened] = useState(false);
+
   function insertBySearch(r: SearchResult) {
     const notificationOpts = {
       title: 'Already exists',
@@ -152,7 +155,7 @@ const SettingsModal: React.FC = () => {
     };
 
     if (searchType === 'video') {
-      if (form.values.blackList.songs.some(s => s.id === r.id)) {
+      if (form.values.denyList.songs.some(s => s.id === r.id)) {
         showNotification(notificationOpts);
       } else {
         form.insertListItem('blackList.songs', r);
@@ -161,14 +164,19 @@ const SettingsModal: React.FC = () => {
     }
 
     if (searchType === 'channel') {
-      if (form.values.blackList.channels.some(s => s.id === r.id)) {
+      if (form.values.denyList.channels.some(s => s.id === r.id)) {
         showNotification(notificationOpts);
       } else {
-        form.insertListItem('blackList.channels', r);
+        form.insertListItem('denyList.channels', r);
         setSearchModalOpened(false);
       }
     }
+  }
 
+  const [newDenyUser, setNewDenyUser] = useState('');
+  function insertDenyUser() {
+    form.insertListItem('denyList.users', { userName: newDenyUser, id: '' });
+    setNewDenyUser('');
   }
 
   return <form>
@@ -208,13 +216,62 @@ const SettingsModal: React.FC = () => {
 
       <Tabs.Panel value="users" pt="xs">
         <NumberInput label="Maximum songs by user in queue" {...form.getInputProps('user.maxRequests')} />
-        <NumberInput label="Minimal watch time of user for request song" {...form.getInputProps('user.minWatchTime')} />
+        <NumberInput label="Minimal watch time of user for request song (minutes)" {...form.getInputProps('user.minWatchTime')} />
         <NumberInput label="Minimal messages by user for request song" {...form.getInputProps('user.minMessages')} />
-        <NumberInput label="Minimal follow time for request song" {...form.getInputProps('user.minFollowTime')} />
+        <NumberInput label="Minimal follow time for request song (minutes)" {...form.getInputProps('user.minFollowTime')} />
 
+        <Divider style={{ marginTop: 10 }} />
+
+        <Flex direction='row' justify='space-between' style={{ marginTop: 10 }}>
+          <Text size='sm'>Denied users for request</Text>
+          <Popover width={200} position="bottom" withArrow shadow="md">
+            <Popover.Target>
+              <ActionIcon
+                color='green'
+                variant={'filled'}
+                size={'sm'}
+              ><IconPlus /></ActionIcon>
+            </Popover.Target>
+            <Popover.Dropdown>
+              <Flex direction={'row'} gap={'sm'}>
+                <TextInput placeholder='enter username' onChange={(v) => setNewDenyUser(v.currentTarget.value)} />
+                <ActionIcon onClick={() => insertDenyUser()}><IconCheck /></ActionIcon>
+              </Flex>
+            </Popover.Dropdown>
+          </Popover>
+
+        </Flex>
+
+        {form.values.denyList.songs.length
+          ? <TextInput style={{ marginTop: 10 }} placeholder='filter...' onChange={(v) => setFilterUsers(v.target.value)} />
+          : ''
+        }
+
+        <ScrollArea type={'always'}>
+          <div style={{ maxHeight: 300 }}>
+            {form.values.denyList.users.length ?
+              form.values.denyList.users
+                .filter(s => s.userName.toLowerCase().includes(filterUsers.toLowerCase()))
+                .map((u, i) => <Group style={{ maxHeight: 280 }}>
+                  <Flex
+                    key={i}
+                    direction='row'
+                    justify='space-between'
+                    style={{ width: '95%', marginTop: 10 }}
+                    gap='sm'
+                  >
+                    <Text size={'sm'} lineClamp={4}>{u.userName}</Text>
+                    <ActionIcon onClick={() => form.removeListItem('denyList.users', i)}>
+                      <IconX />
+                    </ActionIcon>
+                  </Flex>
+                </Group>)
+              : ''}
+          </div>
+        </ScrollArea>
       </Tabs.Panel>
       <Tabs.Panel value="songs" pt="xs">
-        <NumberInput label="Max length of song for request" {...form.getInputProps('song.maxLength')} />
+        <NumberInput label="Max length of song for request (minutes)" {...form.getInputProps('song.maxLength')} />
         <NumberInput label="Minimal views on song for request" {...form.getInputProps('song.minViews')} />
 
         <Divider style={{ marginTop: 10 }} />
@@ -232,15 +289,15 @@ const SettingsModal: React.FC = () => {
           ><IconPlus /></ActionIcon>
         </Flex>
 
-        {form.values.blackList.songs.length
+        {form.values.denyList.songs.length
           ? <TextInput style={{ marginTop: 10 }} placeholder='filter...' onChange={(v) => setFilterSongs(v.target.value)} />
           : ''
         }
 
         <ScrollArea type={'always'}>
           <div style={{ maxHeight: 300 }}>
-            {form.values.blackList.songs.length ?
-              form.values.blackList.songs
+            {form.values.denyList.songs.length ?
+              form.values.denyList.songs
                 .filter(s => s.title.toLowerCase().includes(filterSongs.toLowerCase()))
                 .map((s, i) => <Group style={{ maxHeight: 280 }}>
                 <Flex
@@ -252,7 +309,7 @@ const SettingsModal: React.FC = () => {
                 >
                   <Avatar size={40} src={s.thumbNail} />
                   <Text size={'sm'} lineClamp={4}>{s.title}</Text>
-                  <ActionIcon onClick={() => form.removeListItem('blackList.songs', i)}>
+                  <ActionIcon onClick={() => form.removeListItem('denyList.songs', i)}>
                     <IconX />
                   </ActionIcon>
                 </Flex>
@@ -276,11 +333,16 @@ const SettingsModal: React.FC = () => {
           ><IconPlus /></ActionIcon>
         </Flex>
 
+        {form.values.denyList.channels.length
+          ? <TextInput style={{ marginTop: 10 }} placeholder='filter...' onChange={(v) => setFilterChannels(v.target.value)} />
+          : ''
+        }
+
         <ScrollArea type={'always'}>
           <div style={{ maxHeight: 300 }}>
-            {form.values.blackList.channels.length ?
-              form.values.blackList.channels
-                .filter(s => s.title.toLowerCase().includes(filterSongs.toLowerCase()))
+            {form.values.denyList.channels.length ?
+              form.values.denyList.channels
+                .filter(s => s.title.toLowerCase().includes(filterChannels.toLowerCase()))
                 .map((s, i) => <Group style={{ maxHeight: 280 }}>
                   <Flex
                     key={s.id}
@@ -291,7 +353,7 @@ const SettingsModal: React.FC = () => {
                   >
                     <Avatar size={40} src={s.thumbNail} />
                     <Text size={'sm'} lineClamp={4}>{s.title}</Text>
-                    <ActionIcon onClick={() => form.removeListItem('blackList.channels', i)}>
+                    <ActionIcon onClick={() => form.removeListItem('denyList.channels', i)}>
                       <IconX />
                     </ActionIcon>
                   </Flex>
