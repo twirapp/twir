@@ -21,14 +21,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func handleGet(channelId string, services types.Services) (*youtube.YoutubeSettings, error) {
+func handleGet(channelId string, services types.Services) (*youtube.YouTubeSettings, error) {
 	settings := model.ChannelModulesSettings{}
 	err := services.DB.Where(`"channelId" = ?`, channelId).First(&settings).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusNotFound, "settings not found")
 	}
 
-	data := youtube.YoutubeSettings{}
+	data := youtube.YouTubeSettings{}
 	err = json.Unmarshal(settings.Settings, &data)
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
@@ -81,7 +81,7 @@ func handleSearch(query string, searchType string) ([]youtube.SearchResult, erro
 	return result, nil
 }
 
-func handlePost(channelId string, dto *youtube.YoutubeSettings, services types.Services) error {
+func handlePost(channelId string, dto *youtube.YouTubeSettings, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
 
 	var existedSettings *model.ChannelModulesSettings
@@ -92,20 +92,20 @@ func handlePost(channelId string, dto *youtube.YoutubeSettings, services types.S
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	if len(dto.BlackList.Users) > 0 {
+	if len(dto.DenyList.Users) > 0 {
 		twitchUsers := []helix.User{}
-		twitchUsersChunks := lo.Chunk(dto.BlackList.Users, 100)
+		twitchUsersChunks := lo.Chunk(dto.DenyList.Users, 100)
 		mu := sync.Mutex{}
 		wg := sync.WaitGroup{}
 		wg.Add(len(twitchUsersChunks))
 
 		for _, chunk := range twitchUsersChunks {
-			go func(chunk []youtube.YoutubeBlacklistSettingsUsers) {
+			go func(chunk []youtube.YouTubeDenySettingsUsers) {
 				defer wg.Done()
 				req, _ := services.Twitch.Client.GetUsers(&helix.UsersParams{
 					Logins: lo.Map(
 						chunk,
-						func(item youtube.YoutubeBlacklistSettingsUsers, _ int) string {
+						func(item youtube.YouTubeDenySettingsUsers, _ int) string {
 							return item.UserName
 						},
 					),
@@ -119,7 +119,7 @@ func handlePost(channelId string, dto *youtube.YoutubeSettings, services types.S
 		wg.Wait()
 
 		errors := []string{}
-		for i, u := range dto.BlackList.Users {
+		for i, u := range dto.DenyList.Users {
 			userInSlice, ok := lo.Find(twitchUsers, func(item helix.User) bool {
 				return item.Login == strings.ToLower(u.UserName)
 			})
@@ -127,8 +127,8 @@ func handlePost(channelId string, dto *youtube.YoutubeSettings, services types.S
 			if !ok {
 				errors = append(errors, fmt.Sprintf("user %s not found on twitch", u.UserName))
 			} else {
-				dto.BlackList.Users[i].UserName = userInSlice.Login
-				dto.BlackList.Users[i].UserID = userInSlice.ID
+				dto.DenyList.Users[i].UserName = userInSlice.Login
+				dto.DenyList.Users[i].UserID = userInSlice.ID
 			}
 		}
 
