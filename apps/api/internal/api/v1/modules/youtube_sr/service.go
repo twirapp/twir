@@ -47,7 +47,7 @@ func handleSearch(query string, searchType string) ([]youtube.SearchResult, erro
 	}
 
 	search := ytsr.Search(query, ytsr.SearchOptions{
-		Limit: 5,
+		Limit: 20,
 		Type:  searchType,
 	})
 

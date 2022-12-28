@@ -12,7 +12,7 @@ import {
   Text,
   TextInput,
   Autocomplete,
-  MultiSelect, ScrollArea, Menu,
+  MultiSelect, ScrollArea, Menu, Modal, UnstyledButton,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDebouncedState, useDebouncedValue } from '@mantine/hooks';
@@ -138,6 +138,8 @@ const SettingsModal: React.FC = () => {
     }
   }, [searchValue]);
 
+  const [searchVideoOpened, setSearchVideoOpened] = useState(false);
+
   return <form>
     <Group>
       <Switch
@@ -166,11 +168,11 @@ const SettingsModal: React.FC = () => {
     <Divider style={{ marginTop: 10, marginBottom: 10 }} />
 
     <Text size='lg'>Restrictions</Text>
-    <Tabs defaultValue="users" onTabChange={(t) => {
+    <Tabs defaultValue="users"  onTabChange={(t) => {
       if (t === 'songs') setSearchType('video');
       if (t === 'channels') setSearchType('channel');
     }}>
-      <Tabs.List position='center'>
+      <Tabs.List position='center' grow>
         <Tabs.Tab color='pink' value="users" icon={<IconUsers size={14} />}>Users</Tabs.Tab>
         <Tabs.Tab color='grape' value="songs" icon={<IconUsers size={14} />}>Songs</Tabs.Tab>
         <Tabs.Tab color='violet' value="channels" icon={<IconUsers size={14} />}>Channels</Tabs.Tab>
@@ -189,53 +191,66 @@ const SettingsModal: React.FC = () => {
 
         <Divider style={{ marginTop: 10 }} />
 
-        <Menu shadow="md" width={400} position={'top'}>
-          <Menu.Target>
-            <Flex direction='row' justify='space-between' style={{ marginTop: 10 }}>
-              <Text size='sm'>Denied songs for request</Text>
-              <ActionIcon color='green' variant={'filled'} size={'sm'}><IconPlus /></ActionIcon>
-            </Flex>
-          </Menu.Target>
+        <Modal
+          opened={searchVideoOpened}
+          onClose={() => setSearchVideoOpened(false)}
+          title="Search songs"
+          zIndex={300}
+        >
+          <TextInput
+            placeholder={'filter...'}
+            onChange={(v) => setSearchValue(v.target.value)}
+            style={{ marginBottom: 10 }}
+          />
 
-          <Menu.Dropdown>
-            {searchResults.length ? searchResults.map(r =>
-              <Menu.Item 
-                icon={<Avatar size={40} src={r.thumbNail} />}
-                onClick={() => {
-                  if (form.values.blackList.songs.some(s => s.id === r.id)) {
-                    showNotification({
-                      title: 'Song exists',
-                      color: 'red',
-                      message: `Song ${r.title} already added to the ignore list!`,
-                    });
-                  } else {
-                    form.insertListItem('blackList.songs', r);
-                  }
-                }}
-              >
-                {r.title}
-              </Menu.Item>)
-              : ''}
+          {searchResults.length
+            ? searchResults.map(r => <UnstyledButton
+              onClick={() => {
+                if (form.values.blackList.songs.some(s => s.id === r.id)) {
+                  showNotification({
+                    title: 'Song already exists',
+                    color: 'red',
+                    message: `Song ${r.title} already in list`,
+                  });
+                } else {
+                  form.insertListItem('blackList.songs', r);
+                  setSearchVideoOpened(false);
+                }
+              }}
+             >
+              <Flex key={r.id} direction={'row'} gap={'md'}>
+                <Avatar size={40} src={r.thumbNail} />
+                <Text size={'sm'}>{r.title}</Text>
+              </Flex>
+            </UnstyledButton>)
+            : ''
+          }
+        </Modal>
 
-            <TextInput
-              placeholder={'filter...'}
-              onChange={(v) => setSearchValue(v.target.value)}
-            />
+        <Flex direction='row' justify='space-between' style={{ marginTop: 10 }}>
+          <Text size='sm'>Denied songs for request</Text>
+          <ActionIcon
+            color='green'
+            variant={'filled'}
+            size={'sm'}
+            onClick={() => setSearchVideoOpened(true)}
+          ><IconPlus /></ActionIcon>
+        </Flex>
 
-          </Menu.Dropdown>
-        </Menu>
 
         {form.values.blackList.songs.length
           ? <TextInput style={{ marginTop: 10 }} placeholder='search...' onChange={(v) => setFilterSongs(v.target.value)} />
           : ''
         }
 
-        <ScrollArea type={'auto'}>
+        <ScrollArea type={'always'}>
+          <div style={{ maxHeight: 300 }}>
           {form.values.blackList.songs.length ?
             form.values.blackList.songs
-              .filter(s => s.title.includes(filterSongs))
+              .filter(s => s.title.toLowerCase().includes(filterSongs.toLowerCase()))
               .map((s, i) => <Group style={{ maxHeight: 280 }}>
               <Flex
+                key={s.id}
                 direction='row'
                 justify='space-between'
                 style={{ width: '95%', marginTop: 10 }}
@@ -249,6 +264,7 @@ const SettingsModal: React.FC = () => {
               </Flex>
             </Group>)
             : ''}
+          </div>
         </ScrollArea>
 
       </Tabs.Panel>
