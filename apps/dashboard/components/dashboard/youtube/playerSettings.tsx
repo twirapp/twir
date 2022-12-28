@@ -103,7 +103,6 @@ const SettingsModal: React.FC = () => {
 
   async function submit() {
     const validation = form.validate();
-    console.log(validation.errors);
     if (validation.hasErrors) {
       for (const error of Object.values(validation.errors).flat(10) as string[]) {
         showNotification({
@@ -118,7 +117,13 @@ const SettingsModal: React.FC = () => {
     }
 
     updateSettings(form.values)
-      .then(() => closeAllModals())
+      .then(() => {
+        closeAllModals();
+        showNotification({
+          message: 'Settings updated',
+          color: 'green',
+        });
+      })
       .catch(noop);
   }
 
@@ -138,7 +143,33 @@ const SettingsModal: React.FC = () => {
     }
   }, [searchValue]);
 
-  const [searchVideoOpened, setSearchVideoOpened] = useState(false);
+  const [searchModalOpened, setSearchModalOpened] = useState(false);
+  function insertBySearch(r: SearchResult) {
+    const notificationOpts = {
+      title: 'Already exists',
+      color: 'red',
+      message: `${r.title} already in list`,
+    };
+
+    if (searchType === 'video') {
+      if (form.values.blackList.songs.some(s => s.id === r.id)) {
+        showNotification(notificationOpts);
+      } else {
+        form.insertListItem('blackList.songs', r);
+        setSearchModalOpened(false);
+      }
+    }
+
+    if (searchType === 'channel') {
+      if (form.values.blackList.channels.some(s => s.id === r.id)) {
+        showNotification(notificationOpts);
+      } else {
+        form.insertListItem('blackList.channels', r);
+        setSearchModalOpened(false);
+      }
+    }
+
+  }
 
   return <form>
     <Group>
@@ -168,10 +199,7 @@ const SettingsModal: React.FC = () => {
     <Divider style={{ marginTop: 10, marginBottom: 10 }} />
 
     <Text size='lg'>Restrictions</Text>
-    <Tabs defaultValue="users"  onTabChange={(t) => {
-      if (t === 'songs') setSearchType('video');
-      if (t === 'channels') setSearchType('channel');
-    }}>
+    <Tabs defaultValue="users">
       <Tabs.List position='center' grow>
         <Tabs.Tab color='pink' value="users" icon={<IconUsers size={14} />}>Users</Tabs.Tab>
         <Tabs.Tab color='grape' value="songs" icon={<IconUsers size={14} />}>Songs</Tabs.Tab>
@@ -191,89 +219,117 @@ const SettingsModal: React.FC = () => {
 
         <Divider style={{ marginTop: 10 }} />
 
-        <Modal
-          opened={searchVideoOpened}
-          onClose={() => setSearchVideoOpened(false)}
-          title="Search songs"
-          zIndex={300}
-        >
-          <TextInput
-            placeholder={'filter...'}
-            onChange={(v) => setSearchValue(v.target.value)}
-            style={{ marginBottom: 10 }}
-          />
-
-          {searchResults.length
-            ? searchResults.map(r => <UnstyledButton
-              onClick={() => {
-                if (form.values.blackList.songs.some(s => s.id === r.id)) {
-                  showNotification({
-                    title: 'Song already exists',
-                    color: 'red',
-                    message: `Song ${r.title} already in list`,
-                  });
-                } else {
-                  form.insertListItem('blackList.songs', r);
-                  setSearchVideoOpened(false);
-                }
-              }}
-             >
-              <Flex key={r.id} direction={'row'} gap={'md'}>
-                <Avatar size={40} src={r.thumbNail} />
-                <Text size={'sm'}>{r.title}</Text>
-              </Flex>
-            </UnstyledButton>)
-            : ''
-          }
-        </Modal>
-
         <Flex direction='row' justify='space-between' style={{ marginTop: 10 }}>
           <Text size='sm'>Denied songs for request</Text>
           <ActionIcon
             color='green'
             variant={'filled'}
             size={'sm'}
-            onClick={() => setSearchVideoOpened(true)}
+            onClick={() => {
+              setSearchType('video');
+              setSearchModalOpened(true);
+            }}
           ><IconPlus /></ActionIcon>
         </Flex>
 
-
         {form.values.blackList.songs.length
-          ? <TextInput style={{ marginTop: 10 }} placeholder='search...' onChange={(v) => setFilterSongs(v.target.value)} />
+          ? <TextInput style={{ marginTop: 10 }} placeholder='filter...' onChange={(v) => setFilterSongs(v.target.value)} />
           : ''
         }
 
         <ScrollArea type={'always'}>
           <div style={{ maxHeight: 300 }}>
-          {form.values.blackList.songs.length ?
-            form.values.blackList.songs
-              .filter(s => s.title.toLowerCase().includes(filterSongs.toLowerCase()))
-              .map((s, i) => <Group style={{ maxHeight: 280 }}>
-              <Flex
-                key={s.id}
-                direction='row'
-                justify='space-between'
-                style={{ width: '95%', marginTop: 10 }}
-                gap='sm'
-              >
-                <Avatar size={40} color="blue" src={s.thumbNail} />
-                <Text size={'sm'} lineClamp={4}>{s.title}</Text>
-                <ActionIcon onClick={() => form.removeListItem('blackList.songs', i)}>
-                  <IconX />
-                </ActionIcon>
-              </Flex>
-            </Group>)
-            : ''}
+            {form.values.blackList.songs.length ?
+              form.values.blackList.songs
+                .filter(s => s.title.toLowerCase().includes(filterSongs.toLowerCase()))
+                .map((s, i) => <Group style={{ maxHeight: 280 }}>
+                <Flex
+                  key={s.id}
+                  direction='row'
+                  justify='space-between'
+                  style={{ width: '95%', marginTop: 10 }}
+                  gap='sm'
+                >
+                  <Avatar size={40} src={s.thumbNail} />
+                  <Text size={'sm'} lineClamp={4}>{s.title}</Text>
+                  <ActionIcon onClick={() => form.removeListItem('blackList.songs', i)}>
+                    <IconX />
+                  </ActionIcon>
+                </Flex>
+              </Group>)
+              : ''}
           </div>
         </ScrollArea>
 
       </Tabs.Panel>
       <Tabs.Panel value="channels" pt="xs">
-        Channels
+        <Flex direction='row' justify='space-between' style={{ marginTop: 10 }}>
+          <Text size='sm'>Denied channels for request</Text>
+          <ActionIcon
+            color='green'
+            variant={'filled'}
+            size={'sm'}
+            onClick={() => {
+              setSearchType('channel');
+              setSearchModalOpened(true);
+            }}
+          ><IconPlus /></ActionIcon>
+        </Flex>
+
+        <ScrollArea type={'always'}>
+          <div style={{ maxHeight: 300 }}>
+            {form.values.blackList.channels.length ?
+              form.values.blackList.channels
+                .filter(s => s.title.toLowerCase().includes(filterSongs.toLowerCase()))
+                .map((s, i) => <Group style={{ maxHeight: 280 }}>
+                  <Flex
+                    key={s.id}
+                    direction='row'
+                    justify='space-between'
+                    style={{ width: '95%', marginTop: 10 }}
+                    gap='sm'
+                  >
+                    <Avatar size={40} src={s.thumbNail} />
+                    <Text size={'sm'} lineClamp={4}>{s.title}</Text>
+                    <ActionIcon onClick={() => form.removeListItem('blackList.channels', i)}>
+                      <IconX />
+                    </ActionIcon>
+                  </Flex>
+                </Group>)
+              : ''}
+          </div>
+        </ScrollArea>
       </Tabs.Panel>
     </Tabs>
 
     <Divider style={{ marginTop: 10, marginBottom: 10 }} />
     <Button color='green' onClick={submit}>Save</Button>
+
+    <Modal
+      opened={searchModalOpened}
+      onClose={() => setSearchModalOpened(false)}
+      title="Search"
+      zIndex={300}
+    >
+      <TextInput
+        placeholder={'search...'}
+        onChange={(v) => setSearchValue(v.target.value)}
+        style={{ marginBottom: 10 }}
+      />
+
+      {searchResults.length
+        ? searchResults.map(r => <UnstyledButton
+          onClick={() => {
+            insertBySearch(r);
+          }}
+        >
+          <Flex key={r.id} direction={'row'} gap={'md'}>
+            <Avatar size={40} src={r.thumbNail} />
+            <Text size={'sm'}>{r.title}</Text>
+          </Flex>
+        </UnstyledButton>)
+        : ''
+      }
+    </Modal>
   </form>;
 };
