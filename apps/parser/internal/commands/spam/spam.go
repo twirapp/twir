@@ -18,7 +18,7 @@ var Command = types.DefaultCommand{
 		),
 		Permission:         "MODERATOR",
 		Visible:            false,
-		Module:             lo.ToPtr("CHANNEL"),
+		Module:             lo.ToPtr("MODERATION"),
 		IsReply:            false,
 		KeepResponsesOrder: lo.ToPtr(false),
 	},

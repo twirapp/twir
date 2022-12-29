@@ -30,7 +30,6 @@ export enum CommandPermission {
 export enum CommandModule {
   CUSTOM = 'CUSTOM',
   DOTA = 'DOTA',
-  CHANNEL = 'CHANNEL',
   MODERATION = 'MODERATION',
   MANAGE = 'MANAGE',
   SONGREQUEST = 'SONGREQUEST',

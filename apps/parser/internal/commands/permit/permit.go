@@ -22,7 +22,7 @@ var Command = types.DefaultCommand{
 		Description: lo.ToPtr("Permits user."),
 		Permission:  "MODERATOR",
 		Visible:     false,
-		Module:      lo.ToPtr("CHANNEL"),
+		Module:      lo.ToPtr("MODERATION"),
 		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {

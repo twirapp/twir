@@ -14,7 +14,7 @@ var Command = types.DefaultCommand{
 		Description: lo.ToPtr("Changing title of the channel."),
 		Permission:  "MODERATOR",
 		Visible:     false,
-		Module:      lo.ToPtr("CHANNEL"),
+		Module:      lo.ToPtr("MODERATION"),
 		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {

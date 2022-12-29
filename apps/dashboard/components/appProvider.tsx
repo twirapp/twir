@@ -3,18 +3,17 @@ import { setCookie } from 'cookies-next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-import i18nconfig from '../next-i18next.config';
-
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { FetcherError, useProfile } from '@/services/api';
 import { SELECTED_DASHBOARD_KEY, useLocale, useSelectedDashboard } from '@/services/dashboard';
+import i18nconfig from '../next-i18next.config'
 
 type Props = React.PropsWithChildren<{
   colorScheme: ColorScheme
 }>
 
-const supportedLocales = i18nconfig.i18n.locales;
+const supportedLocales = i18nconfig.i18n.locales
 
 export const AppProvider: React.FC<Props> = (props) => {
   const [selectedDashboard] = useSelectedDashboard();
