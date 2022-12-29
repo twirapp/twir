@@ -30,15 +30,16 @@ import { RewardItem, RewardItemProps } from './reward';
 import { useRewards } from '@/services/api';
 import { useYoutubeModule } from '@/services/api/modules';
 
-export const PlayerSettings: React.FC  = () => {
+export const PlayerSettings: React.FC = () => {
   return <ActionIcon
     onClick={() => {
       openModal({
-          title: 'YouTube',
-          children: <SettingsModal />,
+        title: 'YouTube',
+        children: <SettingsModal/>,
       });
-    }}>
-    <IconAdjustmentsHorizontal />
+    }}
+  >
+    <IconAdjustmentsHorizontal/>
   </ActionIcon>;
 };
 
@@ -176,6 +177,7 @@ const SettingsModal: React.FC = () => {
   }
 
   const [newDenyUser, setNewDenyUser] = useState('');
+
   function insertDenyUser() {
     form.insertListItem('denyList.users', { userName: newDenyUser, id: '' });
     setNewDenyUser('');
@@ -185,12 +187,12 @@ const SettingsModal: React.FC = () => {
     <Group>
       <Switch
         label="Enabled"
-        labelPosition='left'
+        labelPosition="left"
         {...form.getInputProps('enabled', { type: 'checkbox' })}
       />
       <Switch
         label="Accept requests only when stream online"
-        labelPosition='left'
+        labelPosition="left"
         {...form.getInputProps('acceptOnlyWhenOnline', { type: 'checkbox' })}
       />
       <Select
@@ -206,46 +208,49 @@ const SettingsModal: React.FC = () => {
       <NumberInput label="Maximum number of songs in queue" {...form.getInputProps('maxRequests')} />
     </Group>
 
-    <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+    <Divider style={{ marginTop: 10, marginBottom: 10 }}/>
 
-    <Text size='lg'>Restrictions</Text>
+    <Text size="lg">Restrictions</Text>
     <Tabs defaultValue="users">
-      <Tabs.List position='center' grow>
-        <Tabs.Tab color='pink' value="users" icon={<IconUsers size={14} />}>Users</Tabs.Tab>
-        <Tabs.Tab color='grape' value="songs" icon={<IconUsers size={14} />}>Songs</Tabs.Tab>
-        <Tabs.Tab color='violet' value="channels" icon={<IconUsers size={14} />}>Channels</Tabs.Tab>
+      <Tabs.List position="center" grow>
+        <Tabs.Tab color="pink" value="users" icon={<IconUsers size={14}/>}>Users</Tabs.Tab>
+        <Tabs.Tab color="grape" value="songs" icon={<IconUsers size={14}/>}>Songs</Tabs.Tab>
+        <Tabs.Tab color="violet" value="channels" icon={<IconUsers size={14}/>}>Channels</Tabs.Tab>
       </Tabs.List>
 
       <Tabs.Panel value="users" pt="xs">
         <NumberInput label="Maximum songs by user in queue" {...form.getInputProps('user.maxRequests')} />
-        <NumberInput label="Minimal watch time of user for request song (minutes)" {...form.getInputProps('user.minWatchTime')} />
+        <NumberInput
+          label="Minimal watch time of user for request song (minutes)" {...form.getInputProps('user.minWatchTime')} />
         <NumberInput label="Minimal messages by user for request song" {...form.getInputProps('user.minMessages')} />
-        <NumberInput label="Minimal follow time for request song (minutes)" {...form.getInputProps('user.minFollowTime')} />
+        <NumberInput
+          label="Minimal follow time for request song (minutes)" {...form.getInputProps('user.minFollowTime')} />
 
-        <Divider style={{ marginTop: 10 }} />
+        <Divider style={{ marginTop: 10 }}/>
 
-        <Flex direction='row' justify='space-between' style={{ marginTop: 10 }}>
-          <Text size='sm'>Denied users for request</Text>
+        <Flex direction="row" justify="space-between" style={{ marginTop: 10 }}>
+          <Text size="sm">Denied users for request</Text>
           <Popover width={200} position="bottom" withArrow shadow="md">
             <Popover.Target>
               <ActionIcon
-                color='green'
+                color="green"
                 variant={'filled'}
                 size={'sm'}
-              ><IconPlus /></ActionIcon>
+              ><IconPlus/></ActionIcon>
             </Popover.Target>
             <Popover.Dropdown>
               <Flex direction={'row'} gap={'sm'}>
-                <TextInput placeholder='enter username' onChange={(v) => setNewDenyUser(v.currentTarget.value)} />
-                <ActionIcon onClick={() => insertDenyUser()}><IconCheck /></ActionIcon>
+                <TextInput placeholder="enter username" onChange={(v) => setNewDenyUser(v.currentTarget.value)}/>
+                <ActionIcon onClick={() => insertDenyUser()}><IconCheck/></ActionIcon>
               </Flex>
             </Popover.Dropdown>
           </Popover>
-
         </Flex>
 
-        {form.values.denyList.songs.length
-          ? <TextInput style={{ marginTop: 10 }} placeholder='filter...' onChange={(v) => setFilterUsers(v.target.value)} />
+        {form.values.denyList.songs?.length
+          ? <TextInput style={{ marginTop: 10 }} placeholder="filter..."
+                       onChange={(v) => setFilterUsers(v.target.value)}
+          />
           : ''
         }
 
@@ -257,14 +262,14 @@ const SettingsModal: React.FC = () => {
                 .map((u, i) => <Group style={{ maxHeight: 280 }}>
                   <Flex
                     key={i}
-                    direction='row'
-                    justify='space-between'
+                    direction="row"
+                    justify="space-between"
                     style={{ width: '95%', marginTop: 10 }}
-                    gap='sm'
+                    gap="sm"
                   >
                     <Text size={'sm'} lineClamp={4}>{u.userName}</Text>
                     <ActionIcon onClick={() => form.removeListItem('denyList.users', i)}>
-                      <IconX />
+                      <IconX/>
                     </ActionIcon>
                   </Flex>
                 </Group>)
@@ -276,23 +281,25 @@ const SettingsModal: React.FC = () => {
         <NumberInput label="Max length of song for request (minutes)" {...form.getInputProps('song.maxLength')} />
         <NumberInput label="Minimal views on song for request" {...form.getInputProps('song.minViews')} />
 
-        <Divider style={{ marginTop: 10 }} />
+        <Divider style={{ marginTop: 10 }}/>
 
-        <Flex direction='row' justify='space-between' style={{ marginTop: 10 }}>
-          <Text size='sm'>Denied songs for request</Text>
+        <Flex direction="row" justify="space-between" style={{ marginTop: 10 }}>
+          <Text size="sm">Denied songs for request</Text>
           <ActionIcon
-            color='green'
+            color="green"
             variant={'filled'}
             size={'sm'}
             onClick={() => {
               setSearchType('video');
               setSearchModalOpened(true);
             }}
-          ><IconPlus /></ActionIcon>
+          ><IconPlus/></ActionIcon>
         </Flex>
 
         {form.values.denyList.songs.length
-          ? <TextInput style={{ marginTop: 10 }} placeholder='filter...' onChange={(v) => setFilterSongs(v.target.value)} />
+          ? <TextInput style={{ marginTop: 10 }} placeholder="filter..."
+                       onChange={(v) => setFilterSongs(v.target.value)}
+          />
           : ''
         }
 
@@ -302,41 +309,43 @@ const SettingsModal: React.FC = () => {
               form.values.denyList.songs
                 .filter(s => s.title.toLowerCase().includes(filterSongs.toLowerCase()))
                 .map((s, i) => <Group style={{ maxHeight: 280 }}>
-                <Flex
-                  key={s.id}
-                  direction='row'
-                  justify='space-between'
-                  style={{ width: '95%', marginTop: 10 }}
-                  gap='sm'
-                >
-                  <Avatar size={40} src={s.thumbNail} />
-                  <Text size={'sm'} lineClamp={4}>{s.title}</Text>
-                  <ActionIcon onClick={() => form.removeListItem('denyList.songs', i)}>
-                    <IconX />
-                  </ActionIcon>
-                </Flex>
-              </Group>)
+                  <Flex
+                    key={s.id}
+                    direction="row"
+                    justify="space-between"
+                    style={{ width: '95%', marginTop: 10 }}
+                    gap="sm"
+                  >
+                    <Avatar size={40} src={s.thumbNail}/>
+                    <Text size={'sm'} lineClamp={4}>{s.title}</Text>
+                    <ActionIcon onClick={() => form.removeListItem('denyList.songs', i)}>
+                      <IconX/>
+                    </ActionIcon>
+                  </Flex>
+                </Group>)
               : ''}
           </div>
         </ScrollArea>
 
       </Tabs.Panel>
       <Tabs.Panel value="channels" pt="xs">
-        <Flex direction='row' justify='space-between' style={{ marginTop: 10 }}>
-          <Text size='sm'>Denied channels for request</Text>
+        <Flex direction="row" justify="space-between" style={{ marginTop: 10 }}>
+          <Text size="sm">Denied channels for request</Text>
           <ActionIcon
-            color='green'
+            color="green"
             variant={'filled'}
             size={'sm'}
             onClick={() => {
               setSearchType('channel');
               setSearchModalOpened(true);
             }}
-          ><IconPlus /></ActionIcon>
+          ><IconPlus/></ActionIcon>
         </Flex>
 
         {form.values.denyList.channels.length
-          ? <TextInput style={{ marginTop: 10 }} placeholder='filter...' onChange={(v) => setFilterChannels(v.target.value)} />
+          ? <TextInput style={{ marginTop: 10 }} placeholder="filter..."
+                       onChange={(v) => setFilterChannels(v.target.value)}
+          />
           : ''
         }
 
@@ -348,15 +357,15 @@ const SettingsModal: React.FC = () => {
                 .map((s, i) => <Group style={{ maxHeight: 280 }}>
                   <Flex
                     key={s.id}
-                    direction='row'
-                    justify='space-between'
+                    direction="row"
+                    justify="space-between"
                     style={{ width: '95%', marginTop: 10 }}
-                    gap='sm'
+                    gap="sm"
                   >
-                    <Avatar size={40} src={s.thumbNail} />
+                    <Avatar size={40} src={s.thumbNail}/>
                     <Text size={'sm'} lineClamp={4}>{s.title}</Text>
                     <ActionIcon onClick={() => form.removeListItem('denyList.channels', i)}>
-                      <IconX />
+                      <IconX/>
                     </ActionIcon>
                   </Flex>
                 </Group>)
@@ -366,8 +375,8 @@ const SettingsModal: React.FC = () => {
       </Tabs.Panel>
     </Tabs>
 
-    <Divider style={{ marginTop: 10, marginBottom: 10 }} />
-    <Button color='green' onClick={submit}>Save</Button>
+    <Divider style={{ marginTop: 10, marginBottom: 10 }}/>
+    <Button color="green" onClick={submit}>Save</Button>
 
     <Modal
       opened={searchModalOpened}
@@ -388,7 +397,7 @@ const SettingsModal: React.FC = () => {
           }}
         >
           <Flex key={r.id} direction={'row'} gap={'md'}>
-            <Avatar size={40} src={r.thumbNail} />
+            <Avatar size={40} src={r.thumbNail}/>
             <Text size={'sm'}>{r.title}</Text>
           </Flex>
         </UnstyledButton>)
