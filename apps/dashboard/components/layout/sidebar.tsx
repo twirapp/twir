@@ -22,20 +22,39 @@ import {
   IconActivity,
   IconSpeakerphone,
   TablerIcon,
+  IconPencilPlus,
+  IconUser, IconClipboardCopy,
 } from '@tabler/icons';
 import { AuthUser } from '@tsuwari/shared';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, MouseEvent } from 'react';
 
 import { useProfile } from '@/services/api';
 import { createDefaultDashboard, useSelectedDashboard } from '@/services/dashboard';
 
-const navigationLinks: Array<{ label: string; icon: TablerIcon; path: string }> = [
+type Page = {
+  label: string;
+  icon?: TablerIcon;
+  path: string,
+  subPages?: Page[]
+}
+
+const navigationLinks: Array<Page> = [
   { label: 'Dashboard', icon: IconDashboard, path: '/' },
   { label: 'Integrations', icon: IconBox, path: '/integrations' },
   { label: 'Settings', icon: IconSettings, path: '/settings' },
-  { label: 'Commands', icon: IconCommand, path: '/commands' },
+  {
+    label: 'Commands',
+    icon: IconCommand,
+    path: 'commands',
+    subPages: [
+      { label: 'Custom', icon: IconPencilPlus, path: '/commands/custom' },
+      { label: 'Moderation', icon: IconSword, path: '/commands/moderation' },
+      { label: 'Manage', icon: IconClipboardCopy, path: '/commands/manage' },
+      { label: 'Dota', path: '/commands/dota' },
+    ],
+  },
   { label: 'Timers', icon: IconClockHour7, path: '/timers' },
   { label: 'Moderation', icon: IconSword, path: '/moderation' },
   { label: 'Keywords', icon: IconKey, path: '/keywords' },
@@ -107,20 +126,31 @@ export function SideBar(props: Props) {
     }
   }, [user]);
 
-  const links = navigationLinks.map((item) => (
-    <NavLink
-      key={item.label}
-      active={item.path === router.asPath}
-      label={item.label}
-      icon={<item.icon size={16} stroke={1.5} />}
-      onClick={(e) => {
-        e.preventDefault();
-        router.push(item.path ? item.path : item.label.toLowerCase());
-        props.setOpened(false);
-      }}
-      sx={{ width: '100%' }}
-    />
-  ));
+  function goToPageByItem(e: MouseEvent, item: Page) {
+    if (item.subPages) return;
+
+    router.push(item.path ? item.path : item.label.toLowerCase());
+    props.setOpened(false);
+  }
+
+  const computeActive = (item: Page) => {
+    if (item.subPages) {
+      return router.asPath.startsWith(`/${item.path}`);
+    } else {
+      return item.path === router.asPath;
+    }
+  };
+  const createNavLink = (item: Page) => <NavLink
+    key={item.label}
+    active={computeActive(item)}
+    label={item.label}
+    defaultOpened={item.subPages && router.asPath.startsWith(`/${item.path}`)}
+    icon={item.icon ? <item.icon size={16} stroke={1.5} /> : ''}
+    onClick={(e) => goToPageByItem(e, item)}
+    sx={{ width: '100%' }}
+  >{item.subPages && item.subPages.map(p => createNavLink(p))}</NavLink>;
+
+  const links = navigationLinks.map((item) => createNavLink(item));
 
   return (
     <Navbar hiddenBreakpoint="sm" hidden={!props.opened} width={{ sm: 150, lg: 250 }}>
