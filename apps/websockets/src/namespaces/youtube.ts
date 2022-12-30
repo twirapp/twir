@@ -33,6 +33,7 @@ youtubeNamespace.on('connection', async (socket) => {
   });
 
   socket.on('skip', async (id) => {
+    console.log('recieve', id);
     const entity = await repository.findOneBy({ id });
     if (entity) {
       await repository.softDelete({ id });

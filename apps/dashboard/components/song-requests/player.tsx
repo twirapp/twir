@@ -11,13 +11,28 @@ import { useProfile } from '@/services/api';
 
 const baseWsUrl = `${window.location.protocol == 'https:' ? 'wss' : 'ws'}://${window.location.host}`;
 
-export function usePlayer() {
+type UsePlayerProps = {
+  onSkip: (track: RequestedSong) => void
+}
+
+export function usePlayer(props: UsePlayerProps) {
   const { videos, setVideos } = useContext(PlayerContext);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [player, setPlayer] = useState<YouTubePlayer | null>(null);
 
+  const emitSkip = () => {
+    console.log(videos);
+    const current = videos[0];
+    console.log(current);
+    if (current) {
+      props.onSkip(current);
+    }
+  };
+
   const next = useCallback(() => {
+    emitSkip();
+
     setVideos(videos => videos.slice(1));
 
     if (videos.length) {
@@ -32,10 +47,6 @@ export function usePlayer() {
       player?.playVideo();
     }
   }, [isPlaying, player]);
-
-  const onNext = useCallback(() => {
-    return 'qwe';
-  }, []);
 
   const setPlayerVideos = (data: RequestedSong[]) => {
     setVideos(videos => [...videos, ...data]);
@@ -68,7 +79,7 @@ export function usePlayer() {
     (event: YouTubeEvent<any>) => {
       switch (event.data) {
         case 0:
-          console.log('ended');
+          emitSkip();
           setIsPlaying(false);
           break;
         case 1:
@@ -91,7 +102,6 @@ export function usePlayer() {
     onStateChange,
     onVideoEnded,
     setPlayerVideos,
-    onNext,
     opts: {
       playerVars: {
         controls: 1,
@@ -107,13 +117,19 @@ export function usePlayer() {
 }
 
 const YoutubePlayer: React.FC = () => {
-  const { toggle, next, isPlaying, setPlayerVideos, onNext, onVideoEnded, ...options } = usePlayer();
+  const { toggle, next, isPlaying, setPlayerVideos, onVideoEnded, ...options } = usePlayer({
+    onSkip,
+  });
   const profile = useProfile();
   const socketRef = useRef<Socket | null>(null);
 
-  useEffect(() => {
-    socketRef.current?.disconnect();
+  function onSkip(track: RequestedSong) {
+    console.log('skiping');
+    socketRef.current?.emit('skip', track.id);
+    return;
+  }
 
+  useEffect(() => {
     if (!socketRef.current) {
       socketRef.current = io(`${baseWsUrl}/youtube`, {
         transports: ['websocket'],
@@ -133,6 +149,7 @@ const YoutubePlayer: React.FC = () => {
 
     // TODO: unsubscribe from events
     return () => {
+      socketRef.current?.disconnect();
     };
   }, [profile.data]);
 

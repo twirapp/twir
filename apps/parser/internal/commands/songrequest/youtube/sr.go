@@ -75,7 +75,7 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		if songId == "" {
-			result.Result = append(result.Result, "song not found")
+			result.Result = append(result.Result, "Song not found")
 			return result
 		}
 
@@ -99,12 +99,16 @@ var SrCommand = types.DefaultCommand{
 			fmt.Sprintf("https://www.youtube.com/watch?v=%s", songId),
 		)
 		if err != nil {
-			result.Result = append(result.Result, "cannot get information about song.")
+			if err.Error() == "can't bypass age restriction: embedding of this video has been disabled" {
+				result.Result = append(result.Result, "Age restriction on that track.")
+			} else {
+				result.Result = append(result.Result, "Cannot get information about song.")
+			}
 			return result
 		}
 
 		if ytdlSongInfo.Duration.Seconds() == 0 {
-			result.Result = append(result.Result, "seems like that song is live, which is disallowed.")
+			result.Result = append(result.Result, "Seems like that song is live, which is disallowed.")
 			return result
 		}
 
@@ -125,7 +129,7 @@ var SrCommand = types.DefaultCommand{
 			}
 
 			if !*parsedSettings.Enabled {
-				result.Result = append(result.Result, "songrequests not enabled")
+				result.Result = append(result.Result, "Song requests not enabled")
 			}
 
 			err = validate(
@@ -219,7 +223,7 @@ func validate(
 		)
 
 		if isUserBlackListed {
-			return errors.New("you cannot request song because you are blacklisted")
+			return errors.New("You cannot request any songs.")
 		}
 	}
 
@@ -232,7 +236,20 @@ func validate(
 		)
 
 		if isChannelBlacklisted {
-			return errors.New("you cannot request that song because channel is blacklisted")
+			return errors.New("This channel is denied for requests.")
+		}
+	}
+
+	if len(settings.DenyList.Songs) > 0 {
+		_, isSongBlackListed := lo.Find(
+			settings.DenyList.Songs,
+			func(u youtube.YouTubeDenySettingsSongs) bool {
+				return u.ID == song.ID
+			},
+		)
+
+		if isSongBlackListed {
+			return errors.New("This song is denied to request.")
 		}
 	}
 
@@ -240,7 +257,7 @@ func validate(
 		stream := &model.ChannelsStreams{}
 		db.Where(`"userId" = ?`, channelId).First(stream)
 		if stream.ID == "" {
-			return errors.New("requests accepted only on online streams")
+			return errors.New("Requests accepted only on online streams")
 		}
 	}
 
@@ -250,19 +267,19 @@ func validate(
 			Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelId).
 			Count(&count)
 		if count >= int64(settings.MaxRequests) {
-			return errors.New("maximum number of tracks ordered now, try later")
+			return errors.New("Maximum number of tracks ordered now, try later")
 		}
 	}
 
 	if settings.Song.MinViews != 0 && song.Views < settings.Song.MinViews {
 		return errors.New(
-			fmt.Sprintf("song haven't %v views for request", settings.Song.MinViews),
+			fmt.Sprintf("Song haven't %v views for request", settings.Song.MinViews),
 		)
 	}
 
 	if settings.Song.MaxLength != 0 &&
 		song.Duration > time.Minute*time.Duration(settings.Song.MaxLength) {
-		return errors.New("that song is to long for request")
+		return errors.New("That song is to long for request")
 	}
 
 	// TODO: check categories
@@ -274,7 +291,7 @@ func validate(
 			Where(`"orderedById" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, userId, channelId).
 			Count(&count)
 		if count >= int64(settings.User.MaxRequests) {
-			return errors.New("maximum number of tracks ordered now, try later")
+			return errors.New("Maximum number of tracks ordered now, try later")
 		}
 	}
 
@@ -283,14 +300,14 @@ func validate(
 		db.Where("id = ?", userId).Preload("Stats").First(&user)
 		if user.ID == "" {
 			return errors.New(
-				"there is restrictions on user, but i cannot find you in db, sorry. :(",
+				"There is restrictions on user, but i cannot find you in db, sorry. :(",
 			)
 		}
 
 		if settings.User.MinMessages != 0 &&
 			user.Stats.Messages < int32(settings.User.MinMessages) {
 			return errors.New(
-				fmt.Sprintf("you haven't %v messages for request song", user.Stats.Messages),
+				fmt.Sprintf("You haven't %v messages for request song", user.Stats.Messages),
 			)
 		}
 
@@ -300,7 +317,7 @@ func validate(
 
 			return errors.New(
 				fmt.Sprintf(
-					"you haven't watched stream for %v minutes for request song",
+					"You haven't watched stream for %v minutes for request song",
 					time.Minute*time.Duration(settings.User.MinWatchTime),
 				),
 			)
@@ -314,17 +331,17 @@ func validate(
 			ToID:   channelId,
 		})
 		if err != nil {
-			return errors.New("internal error when checking follow")
+			return errors.New("Internal error when checking follow")
 		}
 		if followReq.Data.Total == 0 {
-			return errors.New("for request song you need to be a followed")
+			return errors.New("For request song you need to be a followed")
 		}
 
 		followDuration := time.Since(followReq.Data.Follows[0].FollowedAt)
 		if followDuration.Minutes() < neededDuration.Minutes() {
 			return errors.New(
 				fmt.Sprintf(
-					"you need to be follower at least %v minutes for request song",
+					"You need to be follower at least %v minutes for request song",
 					neededDuration.Minutes(),
 				),
 			)
