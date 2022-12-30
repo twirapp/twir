@@ -59,12 +59,6 @@ export function usePlayer(props: UsePlayerProps) {
     [player, videos],
   );
 
-  useEffect(() => {
-    if (player && videos.length) {
-      //player?.seekTo(1, true);
-    }
-  }, [player]);
-
   // -1 (воспроизведение видео не начато)
   // 0 (воспроизведение видео завершено)
   // 1 (воспроизведение)
