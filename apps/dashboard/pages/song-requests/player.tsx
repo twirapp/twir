@@ -70,8 +70,20 @@ const Player: NextPage = () => {
       addVideos(data);
     });
 
-    // TODO: unsubscribe from events
+    socketRef.current.on('newTrack', (track: RequestedSong) => {
+      addVideos([track]);
+    });
+
+    socketRef.current.on('removeTrack', (track: RequestedSong) => {
+      const index = videos.findIndex(v => v.id === track.id);
+      if (index) {
+        skipVideo(index);
+      }
+    });
+
     return () => {
+      socketRef.current?.off('newTrack');
+      socketRef.current?.off('removeTrack');
       socketRef.current?.disconnect();
     };
   }, [profile.data]);
@@ -89,15 +101,36 @@ const Player: NextPage = () => {
     }
   }, [isPlaying]);
 
-  return <PlayerContext.Provider
-    value={{
-      videos,
-      skipVideo,
-      addVideos,
-      isPlaying,
-      setIsPlaying,
-    }}
-  ><PlayerComponent/></PlayerContext.Provider>;
+  return (
+    <div>
+      <PlayerContext.Provider
+        value={{
+          videos,
+          skipVideo,
+          addVideos,
+          isPlaying,
+          setIsPlaying,
+        }}
+      ><PlayerComponent/></PlayerContext.Provider>
+
+      <table>
+        <thead>
+        <tr>
+          <th>id</th>
+          <th>title</th>
+        </tr>
+        </thead>
+        <tbody>
+        {videos?.map((video) => (
+          <tr key={video.id}>
+            <th>{video.id}</th>
+            <th>{video.title}</th>
+          </tr>
+        ))}
+        </tbody>
+      </table>
+    </div>
+  );
 };
 
 export default Player;
