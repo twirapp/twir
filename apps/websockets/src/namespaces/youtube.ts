@@ -21,8 +21,6 @@ youtubeNamespace.on('connection', async (socket) => {
   const channelId = socket.handshake.auth.channelId;
   sockets.set(channelId, socket);
 
-  console.log('connected');
-
   socket.on('currentQueue', async (cb) => {
     const songs = await repository.findBy({
       channelId,

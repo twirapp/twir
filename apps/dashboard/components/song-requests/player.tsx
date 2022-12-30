@@ -37,7 +37,6 @@ export function usePlayer(props: UsePlayerProps) {
 
     if (videos.length) {
       player?.seekTo(0, false);
-      player?.playVideo();
     }
   }, [videos]);
 
@@ -75,8 +74,8 @@ export function usePlayer(props: UsePlayerProps) {
   const onStateChange = useCallback(
     (event: YouTubeEvent<any>) => {
       if (event.data === 0) {
-        emitSkip();
         setIsPlaying(false);
+        next();
       } else if (event.data === 1) {
         setIsPlaying(true);
         const currentTime = player?.getCurrentTime() as unknown as number;
@@ -126,7 +125,7 @@ const YoutubePlayer: React.FC = () => {
 
   function onSkip(track: RequestedSong) {
     console.log('skiping');
-    socketRef.current?.emit('skip', track.id);
+    // socketRef.current?.emit('skip', track.id);
     return;
   }
 
