@@ -32,7 +32,7 @@ var checkScopes = func(ctx *fiber.Ctx) error {
 	}
 	token, err := middlewares.ExtractTokenFromHeader(header)
 	if err != nil {
-		return err
+		return ctx.Next()
 	}
 	claims := token.Claims.(jwt.MapClaims)
 	reqScopes, ok := claims["scopes"]

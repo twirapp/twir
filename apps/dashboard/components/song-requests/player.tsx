@@ -21,19 +21,18 @@ export function usePlayer(props: UsePlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [player, setPlayer] = useState<YouTubePlayer | null>(null);
 
-  const emitSkip = () => {
-    console.log(videos);
+  const emitSkip = useCallback(() => {
     const current = videos[0];
-    console.log(current);
     if (current) {
       props.onSkip(current);
     }
-  };
+  }, []);
 
   const next = useCallback(() => {
     emitSkip();
 
     setVideos(videos => videos.slice(1));
+    console.log(videos);
 
     if (videos.length) {
       player?.seekTo(0, false);
@@ -155,7 +154,8 @@ const YoutubePlayer: React.FC = () => {
 
   return <div>
     <Button onClick={toggle}>{JSON.stringify(isPlaying)}</Button>
-    <Button onClick={next}>next</Button>
+    <Button onClick={next}
+    >next</Button>
     <YouTube {...options} />
   </div>;
 };
