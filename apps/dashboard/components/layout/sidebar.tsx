@@ -137,11 +137,11 @@ export function SideBar(props: Props) {
   };
 
   const createNavLink = (item: Page) => <Link
+    key={item.label}
     className={'side-link'}
     style={{ textDecoration: 'none' }}
     href={item.path ? item.path : item.label.toLowerCase()}
   ><NavLink
-    key={item.label}
     active={computeActive(item)}
     label={item.label}
     defaultOpened={item.subPages && router.asPath.startsWith(item.path)}
