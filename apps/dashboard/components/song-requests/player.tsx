@@ -37,6 +37,7 @@ export function usePlayer(props: UsePlayerProps) {
 
     if (videos.length) {
       player?.seekTo(0, false);
+      player?.playVideo();
     }
   }, [videos]);
 
