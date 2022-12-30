@@ -1,11 +1,4 @@
-import {
-  AppShell,
-  ColorScheme,
-  ColorSchemeProvider,
-  MantineProvider,
-  ScrollArea,
-  useMantineTheme,
-} from '@mantine/core';
+import { AppShell, ColorScheme, ColorSchemeProvider, MantineProvider, useMantineTheme } from '@mantine/core';
 import { useColorScheme, useHotkeys, useLocalStorage } from '@mantine/hooks';
 import { ModalsProvider } from '@mantine/modals';
 import { NotificationsProvider } from '@mantine/notifications';
@@ -23,6 +16,7 @@ import { AppProvider } from '@/components/appProvider';
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { queryClient } from '@/services/api';
+
 
 const app = function App(props: AppProps) {
   const { Component } = props;
@@ -46,7 +40,7 @@ const app = function App(props: AppProps) {
     <>
       <Head>
         <title>Tsuwari</title>
-        <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
+        <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width"/>
       </Head>
       <QueryClientProvider client={queryClient}>
         <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
@@ -54,7 +48,7 @@ const app = function App(props: AppProps) {
             <NotificationsProvider position={'top-center'} limit={5}>
               <SpotlightProvider
                 actions={[]}
-                searchIcon={<IconSearch size={18} />}
+                searchIcon={<IconSearch size={18}/>}
                 searchPlaceholder="Search..."
                 shortcut={['mod+k']}
                 nothingFoundMessage="Nothing found..."
@@ -77,8 +71,8 @@ const app = function App(props: AppProps) {
                     }}
                     navbarOffsetBreakpoint="sm"
                     asideOffsetBreakpoint="sm"
-                    navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened} />}
-                    header={<NavBar setOpened={setSidebarOpened} opened={sidebarOpened} />}
+                    navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened}/>}
+                    header={<NavBar setOpened={setSidebarOpened} opened={sidebarOpened}/>}
                   >
                     <AppProvider colorScheme={colorScheme}><Component
                       styles={{
