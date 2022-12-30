@@ -18,16 +18,19 @@ export const YouTubeUsersSettings: React.FC = () => {
   const [filterUsers, setFilterUsers] = useState('');
 
   return (
-    <Card>
+    <Card style={{ minHeight: 500 }}>
       <Card.Section p={'xs'}><Text>Users</Text></Card.Section>
       <Divider/>
       <Card.Section p={'md'}>
-        <NumberInput label="Maximum songs by user in queue" {...form.getInputProps('user.maxRequests')} />
-        <NumberInput
-          label="Minimal watch time of user for request song (minutes)" {...form.getInputProps('user.minWatchTime')} />
-        <NumberInput label="Minimal messages by user for request song" {...form.getInputProps('user.minMessages')} />
-        <NumberInput
-          label="Minimal follow time for request song (minutes)" {...form.getInputProps('user.minFollowTime')} />
+        <Flex direction={'column'} gap={'xs'}>
+          <NumberInput label="Maximum songs by user in queue" {...form.getInputProps('user.maxRequests')} />
+          <NumberInput
+            label="Minimal watch time of user for request song (minutes)" {...form.getInputProps('user.minWatchTime')} />
+          <NumberInput label="Minimal messages by user for request song" {...form.getInputProps('user.minMessages')} />
+          <NumberInput
+            label="Minimal follow time for request song (minutes)" {...form.getInputProps('user.minFollowTime')} />
+
+        </Flex>
 
         <Divider style={{ marginTop: 10 }}/>
 

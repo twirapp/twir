@@ -63,29 +63,33 @@ export const YouTubeGeneralSettings: React.FC = () => {
   }, [newIgnoreChannelSearch]);
 
   return (
-    <Card>
+    <Card style={{ minHeight: 500 }}>
       <Card.Section p={'xs'}><Text>General</Text></Card.Section>
       <Divider/>
       <Card.Section p={'md'}>
-        <Switch
-          label="Enabled"
-          labelPosition="left"
-          {...form.getInputProps('enabled', { type: 'checkbox' })}
-        />
-        <Switch
-          label="Accept requests only when stream online"
-          labelPosition="left"
-          {...form.getInputProps('acceptOnlyWhenOnline', { type: 'checkbox' })}
-        />
-        <Select
-          label="Channel points reward for requesting songs"
-          placeholder="..."
-          searchable
-          itemComponent={RewardItem}
-          allowDeselect
-          data={rewards}
-          {...form.getInputProps('channelPointsRewardId')}
-        />
+        <Flex direction={'column'} gap={'xs'}>
+          <Switch
+            label="Enabled"
+            labelPosition="left"
+            {...form.getInputProps('enabled', { type: 'checkbox' })}
+          />
+          <Switch
+            label="Accept requests only when stream online"
+            labelPosition="left"
+            {...form.getInputProps('acceptOnlyWhenOnline', { type: 'checkbox' })}
+          />
+          <Select
+            label="Channel reward for requesting songs"
+            placeholder="..."
+            searchable
+            itemComponent={RewardItem}
+            dropdownPosition={'bottom'}
+            allowDeselect
+            data={rewards}
+            {...form.getInputProps('channelPointsRewardId')}
+          />
+
+        </Flex>
 
         <Divider style={{ marginTop: 10 }}/>
 

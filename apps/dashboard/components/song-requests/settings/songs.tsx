@@ -7,7 +7,7 @@ export const YouTubeSongsSettings: React.FC = () => {
   const form = useYouTubeSettingsFormContext();
 
   return (
-    <Card>
+    <Card style={{ minHeight: 500 }}>
       <Card.Section p={'xs'}><Text>Songs</Text></Card.Section>
       <Divider/>
       <Card.Section p={'md'}>
