@@ -62,7 +62,7 @@ importers:
       react-dom: 18.2.0
       react-i18next: ^12.1.1
       react-youtube: ^10.1.0
-      socket.io-client: 2.3.1
+      socket.io-client: 4.5.4
       typescript: 4.9.4
     dependencies:
       '@emotion/react': 11.10.5_xl5my4wapvq2ctl7qwehtbgorq
@@ -89,7 +89,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       react-i18next: 12.1.1_6vygckh2jgtx4nucc3no6lnm3y
       react-youtube: 10.1.0_react@18.2.0
-      socket.io-client: 2.3.1
+      socket.io-client: 4.5.4
     devDependencies:
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
@@ -8849,6 +8849,20 @@ packages:
       - utf-8-validate
     dev: false
 
+  /engine.io-client/6.2.3:
+    resolution: {integrity: sha512-aXPtgF1JS3RuuKcpSrBtimSjYvrbhKW9froICH4s0F3XQWLxsKNxqzG39nnvQZQnva4CMvUK63T7shevxRyYHw==}
+    dependencies:
+      '@socket.io/component-emitter': 3.1.0
+      debug: 4.3.4
+      engine.io-parser: 5.0.4
+      ws: 8.2.3
+      xmlhttprequest-ssl: 2.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /engine.io-parser/2.2.1:
     resolution: {integrity: sha512-x+dN/fBH8Ro8TFwJ+rkB2AmuVw9Yu2mockR/p3W8f8YtExwFgDvBDi0GWyb4ZLkpahtDGZgtr3zLovanJghPqg==}
     dependencies:
@@ -14938,6 +14952,20 @@ packages:
       - utf-8-validate
     dev: false
 
+  /socket.io-client/4.5.4:
+    resolution: {integrity: sha512-ZpKteoA06RzkD32IbqILZ+Cnst4xewU7ZYK12aS1mzHftFFjpoMz69IuhP/nL25pJfao/amoPI527KnuhFm01g==}
+    engines: {node: '>=10.0.0'}
+    dependencies:
+      '@socket.io/component-emitter': 3.1.0
+      debug: 4.3.4
+      engine.io-client: 6.2.3
+      socket.io-parser: 4.2.1
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /socket.io-parser/3.3.3:
     resolution: {integrity: sha512-qOg87q1PMWWTeO01768Yh9ogn7chB9zkKtQnya41Y355S0UmpXgpcrFwAgjYJxu9BdKug5r5e9YtVSeWhKBUZg==}
     dependencies:
@@ -17190,6 +17218,11 @@ packages:
 
   /xmlhttprequest-ssl/1.5.5:
     resolution: {integrity: sha512-/bFPLUgJrfGUL10AIv4Y7/CUt6so9CLtB/oFxQSHseSDNNCdC6vwwKEqwLN6wNPBg9YWXAiMu8jkf6RPRS/75Q==}
+    engines: {node: '>=0.4.0'}
+    dev: false
+
+  /xmlhttprequest-ssl/2.0.0:
+    resolution: {integrity: sha512-QKxVRxiRACQcVuQEYFsI1hhkrMlrXHPegbbd1yn9UHOmRxY+si12nQYzri3vbzt8VdTTRviqcKxcyllFas5z2A==}
     engines: {node: '>=0.4.0'}
     dev: false
 

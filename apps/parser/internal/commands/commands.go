@@ -10,6 +10,7 @@ import (
 	"github.com/satont/tsuwari/apps/parser/internal/commands/manage"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/nuke"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/permit"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/songrequest/youtube"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/spam"
 	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -80,6 +81,8 @@ func New(opts CommandsOpts) Commands {
 		manage.AddAliaseCommand,
 		manage.RemoveAliaseCommand,
 		manage.CheckAliasesCommand,
+		sr_youtube.SrCommand,
+		sr_youtube.WrongCommand,
 	}
 
 	ctx := Commands{

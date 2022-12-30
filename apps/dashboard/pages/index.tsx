@@ -3,14 +3,13 @@ import type { NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 import { BotWidget } from '@/components/dashboard/bot';
-import { YoutubePlayer } from '@/components/dashboard/youtubePlayerWidget';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
-    props: {
-        ...(await serverSideTranslations(locale, ['dashboard', 'layout'])),
-    },
+  props: {
+    ...(await serverSideTranslations(locale, ['dashboard', 'layout'])),
+  },
 });
 
 const cols = {
@@ -24,8 +23,7 @@ const cols = {
 const Home: NextPage = () => {
   return (
     <Grid>
-      <Grid.Col {...cols}><YoutubePlayer /></Grid.Col>
-      <Grid.Col {...cols}><BotWidget /></Grid.Col>
+      <Grid.Col {...cols}><BotWidget/></Grid.Col>
     </Grid>
   );
 };

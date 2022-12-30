@@ -1,8 +1,12 @@
+'use client';
+
+import type { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
 import { GetServerSideProps, NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useEffect, useState } from 'react';
-import YouTube, { YouTubeProps } from 'react-youtube';
-import type { YouTubePlayer } from 'youtube-player/dist/types';
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
+
+import { PlayerContext } from '@/components/song-requests/context';
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
   props: {
@@ -10,32 +14,19 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
   },
 });
 
+const PlayerComponent = dynamic(
+  () => import('../../components/song-requests/player'),
+  { ssr: false },
+);
+
 const Player: NextPage = () => {
-  const [player, setPlayer] = useState<YouTubePlayer>();
+  const [videos, setVideos] = useState<RequestedSong[]>([]);
 
-  const onPlayerReady: YouTubeProps['onReady'] = (event) => {
-    console.log('player ready');
-    setPlayer(event.target);
-  };
-
-  const onStateChange: YouTubeProps['onStateChange'] = (event) => {
-    console.log(event);
-  };
-
-  useEffect(() => {
-    if (!player) return;
-
-    for (const song of ['FhwsDelZPV8', 'Bu9fAfD5YKk']) {
-      player.cueVideoById(song, 0);
-    }
-
-    setTimeout(() => {
-      player!.playVideoAt(0);
-    }, 5000);
-  }, [player]);
-
-  return <YouTube onReady={onPlayerReady} onStateChange={onStateChange}/>;
-
+  return <PlayerContext.Provider value={{
+    videos,
+    setVideos,
+  }}
+  ><PlayerComponent/></PlayerContext.Provider>;
 };
 
 export default Player;

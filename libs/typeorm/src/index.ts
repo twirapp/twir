@@ -4,8 +4,6 @@ import 'reflect-metadata';
 import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
 
-dotenv.config({ path: resolve(process.cwd(), '../../.env') });
-
 import { Bot } from './entities/Bot';
 import { Channel } from './entities/Channel';
 import { ChannelChatMessage } from './entities/ChannelChatMessage';
@@ -35,12 +33,15 @@ import { DotaMatchResult } from './entities/DotaMatchResult';
 import { Integration } from './entities/Integration';
 import { Notification } from './entities/Notification';
 import { NotificationMessage } from './entities/NotificationMessage';
+import { RequestedSong } from './entities/RequestedSong';
 import { Token } from './entities/Token';
 import { User } from './entities/User';
 import { UserFile } from './entities/UserFile';
 import { UserOnline } from './entities/UserOnline';
 import { UserStats } from './entities/UserStats';
 import { UserViewedNotification } from './entities/UserViewedNotification';
+
+dotenv.config({ path: resolve(process.cwd(), '../../.env') });
 
 export * from 'typeorm';
 
@@ -83,6 +84,7 @@ export const AppDataSource = new DataSource({
     ChannelDonationEvent,
     ChannelStream,
     ChannelChatMessage,
+    RequestedSong,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],
