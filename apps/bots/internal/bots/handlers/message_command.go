@@ -3,12 +3,11 @@ package handlers
 import (
 	"context"
 
-	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 )
 
-func (c *Handlers) handleCommand(msg irc.PrivateMessage, userBadges []string) {
+func (c *Handlers) handleCommand(msg Message, userBadges []string) {
 	requestStruct := &parser.ProcessCommandRequest{
 		Sender: &parser.Sender{
 			Id:          msg.User.ID,
@@ -17,8 +16,8 @@ func (c *Handlers) handleCommand(msg irc.PrivateMessage, userBadges []string) {
 			Badges:      userBadges,
 		},
 		Channel: &parser.Channel{
-			Id:   msg.RoomID,
-			Name: msg.Channel,
+			Id:   msg.Channel.ID,
+			Name: msg.Channel.Name,
 		},
 		Message: &parser.Message{
 			Id:   msg.ID,
@@ -35,7 +34,7 @@ func (c *Handlers) handleCommand(msg irc.PrivateMessage, userBadges []string) {
 		for _, v := range res.Responses {
 			r := v
 			go c.BotClient.SayWithRateLimiting(
-				msg.Channel,
+				msg.Channel.Name,
 				r,
 				lo.If(res.IsReply, lo.ToPtr(msg.ID)).Else(nil),
 			)
@@ -45,13 +44,13 @@ func (c *Handlers) handleCommand(msg irc.PrivateMessage, userBadges []string) {
 			validateResposeErr := ValidateResponseSlashes(r)
 			if validateResposeErr != nil {
 				c.BotClient.SayWithRateLimiting(
-					msg.Channel,
+					msg.Channel.Name,
 					validateResposeErr.Error(),
 					nil,
 				)
 			} else {
 				c.BotClient.SayWithRateLimiting(
-					msg.Channel,
+					msg.Channel.Name,
 					r,
 					lo.If(res.IsReply, &msg.ID).Else(nil),
 				)

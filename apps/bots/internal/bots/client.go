@@ -129,9 +129,40 @@ func newBot(opts *ClientOpts) *types.BotClient {
 				defer messagesCounter.Inc()
 				botHandlers.OnUserStateMessage(message)
 			})
+			client.OnUserNoticeMessage(func(message irc.UserNoticeMessage) {
+				botHandlers.OnMessage(handlers.Message{
+					ID: message.ID,
+					Channel: handlers.MessageChannel{
+						ID:   message.RoomID,
+						Name: message.Channel,
+					},
+					User: handlers.MessageUser{
+						ID:          message.User.ID,
+						Name:        message.User.Name,
+						DisplayName: message.User.DisplayName,
+						Badges:      message.User.Badges,
+					},
+					Message: message.Message,
+					Emotes:  message.Emotes,
+				})
+			})
 			client.OnPrivateMessage(func(message irc.PrivateMessage) {
 				defer messagesCounter.Inc()
-				botHandlers.OnPrivateMessage(message)
+				botHandlers.OnMessage(handlers.Message{
+					ID: message.ID,
+					Channel: handlers.MessageChannel{
+						ID:   message.RoomID,
+						Name: message.Channel,
+					},
+					User: handlers.MessageUser{
+						ID:          message.User.ID,
+						Name:        message.User.Name,
+						DisplayName: message.User.DisplayName,
+						Badges:      message.User.Badges,
+					},
+					Message: message.Message,
+					Emotes:  message.Emotes,
+				})
 			})
 
 			err = client.Connect()

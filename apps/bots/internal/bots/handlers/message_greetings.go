@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
@@ -12,14 +11,14 @@ import (
 )
 
 func (c *Handlers) handleGreetings(
-	msg irc.PrivateMessage,
+	msg Message,
 	userBadges []string,
 ) {
 	entity := model.ChannelsGreetings{}
 	err := c.db.
 		Where(
 			`"channelId" = ? AND "userId" = ? AND "processed" = ? AND "enabled" = ?`,
-			msg.RoomID,
+			msg.Channel.ID,
 			msg.User.ID,
 			false,
 			true,
@@ -39,8 +38,8 @@ func (c *Handlers) handleGreetings(
 
 	requestStruct := &parser.ParseTextRequestData{
 		Channel: &parser.Channel{
-			Id:   msg.RoomID,
-			Name: msg.Channel,
+			Id:   msg.Channel.ID,
+			Name: msg.Channel.Name,
 		},
 		Message: &parser.Message{
 			Text: entity.Text,
@@ -65,13 +64,13 @@ func (c *Handlers) handleGreetings(
 		validateResposeErr := ValidateResponseSlashes(r)
 		if validateResposeErr != nil {
 			c.BotClient.SayWithRateLimiting(
-				msg.Channel,
+				msg.Channel.Name,
 				validateResposeErr.Error(),
 				nil,
 			)
 		} else {
 			c.BotClient.SayWithRateLimiting(
-				msg.Channel,
+				msg.Channel.Name,
 				r,
 				lo.If(entity.IsReply, &msg.ID).Else(nil),
 			)
