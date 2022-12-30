@@ -1,5 +1,6 @@
 'use client';
 
+import { Table } from '@mantine/core';
 import type { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
 import { getCookie } from 'cookies-next';
 import { GetServerSideProps, NextPage } from 'next';
@@ -54,6 +55,7 @@ const Player: NextPage = () => {
 
   useEffect(() => {
     if (!profile.data) return;
+
     if (!socketRef.current) {
       socketRef.current = io(`${`${window.location.protocol == 'https:' ? 'wss' : 'ws'}://${window.location.host}`}/youtube`, {
         transports: ['websocket'],
@@ -113,22 +115,26 @@ const Player: NextPage = () => {
         }}
       ><PlayerComponent/></PlayerContext.Provider>
 
-      <table>
-        <thead>
-        <tr>
-          <th>id</th>
-          <th>title</th>
-        </tr>
-        </thead>
-        <tbody>
-        {videos?.map((video) => (
-          <tr key={video.id}>
-            <th>{video.id}</th>
-            <th>{video.title}</th>
+      <Table>
+        <table>
+          <thead>
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Requested by</th>
           </tr>
-        ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+          {videos?.map((video, index) => (
+            <tr key={video.id}>
+              <th>{index + 1}</th>
+              <th><a href={'https://youtu.be/' + video.videoId}>{video.title}</a></th>
+              <th>{video.orderedByName}</th>
+            </tr>
+          ))}
+          </tbody>
+        </table>
+      </Table>
     </div>
   );
 };
