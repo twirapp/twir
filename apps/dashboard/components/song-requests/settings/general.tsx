@@ -1,15 +1,4 @@
-import {
-  ActionIcon,
-  Card,
-  Divider,
-  Flex,
-  ScrollArea,
-  Select,
-  Switch,
-  Text,
-  TextInput,
-  useMantineTheme,
-} from '@mantine/core';
+import { ActionIcon, Card, Divider, Flex, ScrollArea, Select, Switch, Text, TextInput } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import { IconPlus, IconX } from '@tabler/icons';
 import { SearchResult } from '@tsuwari/types/api';
@@ -22,7 +11,6 @@ import { useRewards } from '@/services/api';
 import { useYoutubeModule } from '@/services/api/modules';
 
 export const YouTubeGeneralSettings: React.FC = () => {
-  const theme = useMantineTheme();
   const form = useYouTubeSettingsFormContext();
   const rewardsManager = useRewards();
   const { data: rewardsData } = rewardsManager();
@@ -121,6 +109,7 @@ export const YouTubeGeneralSettings: React.FC = () => {
                   onClick={() => {
                     form.insertListItem('denyList.channels', r);
                     setAddingNewIgnoreChannel(false);
+                    setSearchResults([]);
                   }}
                 />)
                 : ''
@@ -139,10 +128,10 @@ export const YouTubeGeneralSettings: React.FC = () => {
           }
 
           <ScrollArea type={'always'} style={{ marginTop: 10 }}>
-            <Flex direction={'column'} style={{ maxHeight: 300 }}>
+            <Flex direction={'column'} style={{ maxHeight: 300 }} gap={'sm'}>
               {form.values.denyList.channels.length
                 ? form.values.denyList.channels
-                  .filter(c => c.title.includes(filterChannels))
+                  .filter(c => c.title.toLowerCase().includes(filterChannels))
                   .map((c, i) => <YouTubeSettingsListButtonButton
                     key={c.id}
                     image={c.thumbNail}

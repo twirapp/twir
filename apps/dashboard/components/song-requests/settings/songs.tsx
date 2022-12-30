@@ -70,6 +70,7 @@ export const YouTubeSongsSettings: React.FC = () => {
                   onClick={() => {
                     form.insertListItem('denyList.songs', r);
                     setAddingNewIgnoreSong(false);
+                    setSearchResults([]);
                   }}
                 />)
                 : ''
@@ -91,7 +92,7 @@ export const YouTubeSongsSettings: React.FC = () => {
             <Flex direction={'column'} style={{ maxHeight: 300 }} gap={'sm'}>
               {form.values.denyList.songs.length
                 ? form.values.denyList.songs
-                  .filter(c => c.title.includes(filterSongs))
+                  .filter(c => c.title.toLowerCase().includes(filterSongs))
                   .map((c, i) => <YouTubeSettingsListButtonButton
                     key={c.id}
                     image={c.thumbNail}

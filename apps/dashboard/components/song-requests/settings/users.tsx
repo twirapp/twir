@@ -65,12 +65,14 @@ export const YouTubeUsersSettings: React.FC = () => {
         <ScrollArea type={'always'} style={{ marginTop: 10 }}>
           <Flex direction={'column'} style={{ maxHeight: 300 }}>
             {form.values.denyList.users.length
-              ? form.values.denyList.users.map((u, i) => <YouTubeSettingsListButtonButton
-                key={i}
-                text={u.userName}
-                onClick={() => form.removeListItem('denyList.users', i)}
-                icon={IconX}
-              />)
+              ? form.values.denyList.users
+                .filter(u => u.userName.toLowerCase().includes(filterUsers))
+                .map((u, i) => <YouTubeSettingsListButtonButton
+                  key={i}
+                  text={u.userName}
+                  onClick={() => form.removeListItem('denyList.users', i)}
+                  icon={IconX}
+                />)
               : ''
             }
           </Flex>
