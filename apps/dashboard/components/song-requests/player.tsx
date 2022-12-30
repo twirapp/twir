@@ -13,6 +13,8 @@ const baseWsUrl = `${window.location.protocol == 'https:' ? 'wss' : 'ws'}://${wi
 
 type UsePlayerProps = {
   onSkip: (track: RequestedSong) => void
+  onPlay: (id: string, timeToEnd: number) => void
+  onPause: () => void
 }
 
 export function usePlayer(props: UsePlayerProps) {
@@ -26,18 +28,18 @@ export function usePlayer(props: UsePlayerProps) {
     if (current) {
       props.onSkip(current);
     }
-  }, []);
+  }, [videos]);
 
   const next = useCallback(() => {
     emitSkip();
 
     setVideos(videos => videos.slice(1));
-    console.log(videos);
 
     if (videos.length) {
       player?.seekTo(0, false);
+      player?.playVideo();
     }
-  }, []);
+  }, [videos]);
 
   const toggle = useCallback(() => {
     if (isPlaying) {
@@ -48,7 +50,7 @@ export function usePlayer(props: UsePlayerProps) {
   }, [isPlaying, player]);
 
   const setPlayerVideos = (data: RequestedSong[]) => {
-    setVideos(videos => [...videos, ...data]);
+    setVideos(videos => data);
   };
 
   const onReady = useCallback(
@@ -64,10 +66,6 @@ export function usePlayer(props: UsePlayerProps) {
     }
   }, [player]);
 
-  const onVideoEnded = useCallback(() => {
-    return videos[0];
-  }, []);
-
   // -1 (воспроизведение видео не начато)
   // 0 (воспроизведение видео завершено)
   // 1 (воспроизведение)
@@ -76,17 +74,18 @@ export function usePlayer(props: UsePlayerProps) {
   // 5 (видео подают реплики).
   const onStateChange = useCallback(
     (event: YouTubeEvent<any>) => {
-      switch (event.data) {
-        case 0:
-          emitSkip();
-          setIsPlaying(false);
-          break;
-        case 1:
-          setIsPlaying(true);
-          break;
-        case 2:
-          setIsPlaying(false);
-          break;
+      if (event.data === 0) {
+        emitSkip();
+        setIsPlaying(false);
+      } else if (event.data === 1) {
+        setIsPlaying(true);
+        const currentTime = player?.getCurrentTime() as unknown as number;
+        const video = videos[0]!;
+        const timeToEnd = video.duration - (Math.round(currentTime) * 1000);
+        props.onPlay(videos[0]!.id, timeToEnd);
+      } else if (event.data === 2) {
+        setIsPlaying(false);
+        props.onPause();
       }
     },
     [player],
@@ -99,7 +98,6 @@ export function usePlayer(props: UsePlayerProps) {
     videoId: videos[0]?.videoId ?? '',
     onReady,
     onStateChange,
-    onVideoEnded,
     setPlayerVideos,
     opts: {
       playerVars: {
@@ -116,8 +114,12 @@ export function usePlayer(props: UsePlayerProps) {
 }
 
 const YoutubePlayer: React.FC = () => {
-  const { toggle, next, isPlaying, setPlayerVideos, onVideoEnded, ...options } = usePlayer({
+  const { videos } = useContext(PlayerContext);
+
+  const { toggle, next, isPlaying, setPlayerVideos, ...options } = usePlayer({
     onSkip,
+    onPlay,
+    onPause,
   });
   const profile = useProfile();
   const socketRef = useRef<Socket | null>(null);
@@ -126,6 +128,14 @@ const YoutubePlayer: React.FC = () => {
     console.log('skiping');
     socketRef.current?.emit('skip', track.id);
     return;
+  }
+
+  function onPlay(id: string, timeToEnd: number) {
+    socketRef.current?.emit('play', { id, timeToEnd });
+  }
+
+  function onPause() {
+    socketRef.current?.emit('pause');
   }
 
   useEffect(() => {
@@ -142,7 +152,6 @@ const YoutubePlayer: React.FC = () => {
     socketRef.current.connect();
 
     socketRef.current.emit('currentQueue', (data: RequestedSong[]) => {
-      console.log(data);
       setPlayerVideos(data);
     });
 
@@ -154,8 +163,7 @@ const YoutubePlayer: React.FC = () => {
 
   return <div>
     <Button onClick={toggle}>{JSON.stringify(isPlaying)}</Button>
-    <Button onClick={next}
-    >next</Button>
+    <Button onClick={next} disabled={videos.length === 0}>next</Button>
     <YouTube {...options} />
   </div>;
 };

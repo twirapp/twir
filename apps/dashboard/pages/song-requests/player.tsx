@@ -22,11 +22,7 @@ const PlayerComponent = dynamic(
 const Player: NextPage = () => {
   const [videos, setVideos] = useState<RequestedSong[]>([]);
 
-  return <PlayerContext.Provider value={{
-    videos,
-    setVideos,
-  }}
-  ><PlayerComponent/></PlayerContext.Provider>;
+  return <PlayerContext.Provider value={{ videos, setVideos }}><PlayerComponent/></PlayerContext.Provider>;
 };
 
 export default Player;

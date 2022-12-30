@@ -9,12 +9,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/resolver"
 )
 
 func NewBots(env string) bots.BotsClient {
-	resolver.SetDefaultScheme("dns")
-
 	serverAddress := createClientAddr(env, "bots", servers.BOTS_SERVER_PORT)
 
 	conn, err := grpc.Dial(

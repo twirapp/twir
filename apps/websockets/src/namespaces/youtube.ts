@@ -38,6 +38,7 @@ youtubeNamespace.on('connection', async (socket) => {
     if (entity) {
       await repository.softDelete({ id });
     }
+    redis.del(`songrequests:youtube:${channelId}:currentPlaying`);
   });
 
   socket.on('disconnect', () => {
