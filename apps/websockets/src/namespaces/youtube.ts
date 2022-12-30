@@ -48,7 +48,7 @@ youtubeNamespace.on('connection', async (socket) => {
       `songrequests:youtube:${channelId}:currentPlaying`,
       data.id,
       'PX',
-      data.timeToEnd,
+      data.duration,
     );
   });
 
