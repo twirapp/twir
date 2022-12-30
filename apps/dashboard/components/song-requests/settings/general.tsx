@@ -111,18 +111,23 @@ export const YouTubeGeneralSettings: React.FC = () => {
             style={{ marginBottom: 10 }}
           />
 
-          {searchResults.length
-            ? searchResults.map((r) => <YouTubeSettingsListButtonButton
-              key={r.id}
-              text={r.title}
-              image={r.thumbNail}
-              onClick={() => {
-                form.insertListItem('denyList.channels', r);
-                setAddingNewIgnoreChannel(false);
-              }}
-            />)
-            : ''
-          }
+          <ScrollArea type={'always'} style={{ marginTop: 10 }}>
+            <Flex direction={'column'} style={{ maxHeight: 300 }} gap={'sm'}>
+              {searchResults.length
+                ? searchResults.map((r) => <YouTubeSettingsListButtonButton
+                  key={r.id}
+                  text={r.title}
+                  image={r.thumbNail}
+                  onClick={() => {
+                    form.insertListItem('denyList.channels', r);
+                    setAddingNewIgnoreChannel(false);
+                  }}
+                />)
+                : ''
+              }
+
+            </Flex>
+          </ScrollArea>
         </Flex>
 
         <Flex hidden={addingNewIgnoreChannel} direction={'column'}>
@@ -136,13 +141,15 @@ export const YouTubeGeneralSettings: React.FC = () => {
           <ScrollArea type={'always'} style={{ marginTop: 10 }}>
             <Flex direction={'column'} style={{ maxHeight: 300 }}>
               {form.values.denyList.channels.length
-                ? form.values.denyList.channels.map((c, i) => <YouTubeSettingsListButtonButton
-                  key={c.id}
-                  image={c.thumbNail}
-                  text={c.title}
-                  onClick={() => form.removeListItem('denyList.channels', i)}
-                  icon={IconX}
-                />)
+                ? form.values.denyList.channels
+                  .filter(c => c.title.includes(filterChannels))
+                  .map((c, i) => <YouTubeSettingsListButtonButton
+                    key={c.id}
+                    image={c.thumbNail}
+                    text={c.title}
+                    onClick={() => form.removeListItem('denyList.channels', i)}
+                    icon={IconX}
+                  />)
                 : ''
               }
             </Flex>
