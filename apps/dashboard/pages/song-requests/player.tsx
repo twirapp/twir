@@ -70,6 +70,7 @@ const Player: NextPage = () => {
     socketRef.current.connect();
 
     socketRef.current.emit('currentQueue', (data: RequestedSong[]) => {
+      setVideos([]);
       addVideos(data);
     });
 
@@ -118,7 +119,6 @@ const Player: NextPage = () => {
         ><PlayerComponent/></PlayerContext.Provider>
       </Grid.Col>
       <Grid.Col span={8}>
-
         <VideosList videos={videos}/>
       </Grid.Col>
     </Grid>

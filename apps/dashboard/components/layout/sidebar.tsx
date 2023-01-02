@@ -143,7 +143,7 @@ export function SideBar(props: Props) {
     icon={item.icon ? <item.icon size={16} stroke={1.5}/> : ''}
     sx={{ width: '100%' }}
     component="a"
-    href={item.path ? item.path : item.label.toLowerCase()}
+    href={`/dashboard${item.path ? item.path : item.label.toLowerCase()}`}
   >{item.subPages && item.subPages.map(p => createNavLink(p))}</NavLink>;
 
   const [links, setLinks] = useState<JSX.Element[]>([]);

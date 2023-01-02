@@ -6,6 +6,7 @@ import YouTube, { YouTubeEvent, YouTubePlayer } from 'react-youtube';
 import { Options as YouTubeOptions } from 'youtube-player/dist/types';
 
 import { PlayerContext } from '@/components/song-requests/context';
+import { formatDuration } from '@/components/song-requests/helpers';
 
 function usePlayer() {
   const { width } = useViewportSize();
@@ -79,14 +80,6 @@ function usePlayer() {
   };
 }
 
-
-function formatDuration(seconds: number) {
-  const format = (val: number) => `0${Math.floor(val)}`.slice(-2);
-  const minutes = (seconds % 3600) / 60;
-
-  return [minutes, seconds % 60].map(format).join(':');
-}
-
 const YoutubePlayer: React.FC = () => {
   const {
     videos,
@@ -131,7 +124,6 @@ const YoutubePlayer: React.FC = () => {
             <Card.Section p={'md'}>
               <Flex direction={'column'} gap={'sm'}>
                 <Grid align={'center'}>
-                  {/*<Grid.Col span={1}><Text>{formatDuration(currentTime)}</Text></Grid.Col>*/}
                   <Grid.Col span={12}>
                     <Slider
                       value={parseInt(currentTime.toFixed(0), 10)}
