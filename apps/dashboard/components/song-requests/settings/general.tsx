@@ -1,7 +1,18 @@
-import { ActionIcon, Card, Divider, Flex, ScrollArea, Select, Switch, Text, TextInput } from '@mantine/core';
+import {
+  ActionIcon,
+  Card,
+  Divider,
+  Flex,
+  ScrollArea,
+  Select,
+  Switch,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import { IconPlus, IconX } from '@tabler/icons';
 import { SearchResult } from '@tsuwari/types/api';
+import { useTranslation } from 'next-i18next';
 import React, { useEffect, useState } from 'react';
 
 import { useYouTubeSettingsFormContext } from '@/components/song-requests/settings/form';
@@ -15,18 +26,24 @@ export const YouTubeGeneralSettings: React.FC = () => {
   const rewardsManager = useRewards();
   const { data: rewardsData } = rewardsManager();
   const [rewards, setRewards] = useState<RewardItemProps[]>([]);
+  const [t] = useTranslation('song-requests-settings');
 
   useEffect(() => {
     if (rewardsData) {
       const data = rewardsData
-        .sort((a, b) => a.is_user_input_required === b.is_user_input_required ? 1 : -1)
-        .map(r => ({
-          value: r.id,
-          label: r.title,
-          description: r.is_user_input_required ? '' : 'Cannot be picked because have no no require input',
-          image: r.image?.url_4x || r.default_image?.url_4x,
-          disabled: !r.is_user_input_required,
-        } as RewardItemProps));
+        .sort((a, b) => (a.is_user_input_required === b.is_user_input_required ? 1 : -1))
+        .map(
+          (r) =>
+            ({
+              value: r.id,
+              label: r.title,
+              description: r.is_user_input_required
+                ? ''
+                : 'Cannot be picked because have no no require input',
+              image: r.image?.url_4x || r.default_image?.url_4x,
+              disabled: !r.is_user_input_required,
+            } as RewardItemProps),
+        );
 
       setRewards(data);
     }
@@ -42,7 +59,7 @@ export const YouTubeGeneralSettings: React.FC = () => {
 
   useEffect(() => {
     if (newIgnoreChannelSearch) {
-      search.mutateAsync({ query: newIgnoreChannelSearch, type: 'channel' }).then(data => {
+      search.mutateAsync({ query: newIgnoreChannelSearch, type: 'channel' }).then((data) => {
         setSearchResults(data);
       });
     } else {
@@ -52,22 +69,24 @@ export const YouTubeGeneralSettings: React.FC = () => {
 
   return (
     <Card style={{ minHeight: 500 }}>
-      <Card.Section p={'xs'}><Text>General</Text></Card.Section>
-      <Divider/>
+      <Card.Section p={'xs'}>
+        <Text>{t('general.title')}</Text>
+      </Card.Section>
+      <Divider />
       <Card.Section p={'md'}>
         <Flex direction={'column'} gap={'xs'}>
           <Switch
-            label="Enabled"
+            label={t('general.enabled')}
             labelPosition="left"
             {...form.getInputProps('enabled', { type: 'checkbox' })}
           />
           <Switch
-            label="Accept requests only when stream online"
+            label={t('general.acceptOnlyWhenOnline')}
             labelPosition="left"
             {...form.getInputProps('acceptOnlyWhenOnline', { type: 'checkbox' })}
           />
           <Select
-            label="Channel reward for requesting songs"
+            label={t('general.reward')}
             placeholder="..."
             searchable
             itemComponent={RewardItem}
@@ -76,19 +95,18 @@ export const YouTubeGeneralSettings: React.FC = () => {
             data={rewards}
             {...form.getInputProps('channelPointsRewardId')}
           />
-
         </Flex>
 
-        <Divider style={{ marginTop: 10 }}/>
+        <Divider style={{ marginTop: 10 }} />
 
         <Flex direction="row" justify="space-between" style={{ marginTop: 10 }}>
-          <Text size="sm">Denied channels for request</Text>
+          <Text size="sm">{t('general.denied')}</Text>
           <ActionIcon
             onClick={() => setAddingNewIgnoreChannel(!addingNewIgnoreChannel)}
             color={'green'}
             size={'sm'}
           >
-            <IconPlus/>
+            <IconPlus />
           </ActionIcon>
         </Flex>
 
@@ -102,49 +120,52 @@ export const YouTubeGeneralSettings: React.FC = () => {
           <ScrollArea type={'always'} style={{ marginTop: 10 }}>
             <Flex direction={'column'} style={{ maxHeight: 300 }} gap={'sm'}>
               {searchResults.length
-                ? searchResults.map((r) => <YouTubeSettingsListButtonButton
-                  key={r.id}
-                  text={r.title}
-                  image={r.thumbNail}
-                  onClick={() => {
-                    form.insertListItem('denyList.channels', r);
-                    setAddingNewIgnoreChannel(false);
-                    setSearchResults([]);
-                  }}
-                />)
-                : ''
-              }
-
+                ? searchResults.map((r) => (
+                    <YouTubeSettingsListButtonButton
+                      key={r.id}
+                      text={r.title}
+                      image={r.thumbNail}
+                      onClick={() => {
+                        form.insertListItem('denyList.channels', r);
+                        setAddingNewIgnoreChannel(false);
+                        setSearchResults([]);
+                      }}
+                    />
+                  ))
+                : ''}
             </Flex>
           </ScrollArea>
         </Flex>
 
         <Flex hidden={addingNewIgnoreChannel} direction={'column'}>
-          {form.values.denyList.channels.length
-            ? <TextInput style={{ marginTop: 10 }} placeholder="filter..."
-                         onChange={(v) => setFilterChannels(v.target.value)}
+          {form.values.denyList.channels.length ? (
+            <TextInput
+              style={{ marginTop: 10 }}
+              placeholder="filter..."
+              onChange={(v) => setFilterChannels(v.target.value)}
             />
-            : ''
-          }
+          ) : (
+            ''
+          )}
 
           <ScrollArea type={'always'} style={{ marginTop: 10 }}>
             <Flex direction={'column'} style={{ maxHeight: 300 }} gap={'sm'}>
               {form.values.denyList.channels.length
                 ? form.values.denyList.channels
-                  .filter(c => c.title.toLowerCase().includes(filterChannels))
-                  .map((c, i) => <YouTubeSettingsListButtonButton
-                    key={c.id}
-                    image={c.thumbNail}
-                    text={c.title}
-                    onClick={() => form.removeListItem('denyList.channels', i)}
-                    icon={IconX}
-                  />)
-                : ''
-              }
+                    .filter((c) => c.title.toLowerCase().includes(filterChannels))
+                    .map((c, i) => (
+                      <YouTubeSettingsListButtonButton
+                        key={c.id}
+                        image={c.thumbNail}
+                        text={c.title}
+                        onClick={() => form.removeListItem('denyList.channels', i)}
+                        icon={IconX}
+                      />
+                    ))
+                : ''}
             </Flex>
           </ScrollArea>
         </Flex>
-
       </Card.Section>
     </Card>
   );

@@ -7,7 +7,10 @@ import React, { useEffect } from 'react';
 
 import { noop } from '../../util/chore';
 
-import { useYouTubeSettingsForm, YouTubeSettingsFormProvider } from '@/components/song-requests/settings/form';
+import {
+  useYouTubeSettingsForm,
+  YouTubeSettingsFormProvider,
+} from '@/components/song-requests/settings/form';
 import { YouTubeGeneralSettings } from '@/components/song-requests/settings/general';
 import { YouTubeSongsSettings } from '@/components/song-requests/settings/songs';
 import { YouTubeUsersSettings } from '@/components/song-requests/settings/users';
@@ -23,10 +26,9 @@ const cols = {
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale!, ['layout'])),
+    ...(await serverSideTranslations(locale!, ['song-requests-settings', 'layout'])),
   },
 });
-
 
 const Settings: NextPage = () => {
   const form = useYouTubeSettingsForm({
@@ -108,7 +110,6 @@ const Settings: NextPage = () => {
       return;
     }
 
-
     updateSettings(form.values)
       .then(() => {
         closeAllModals();
@@ -125,12 +126,20 @@ const Settings: NextPage = () => {
       <form>
         <Flex justify={'space-between'}>
           <Text size={'lg'}>Song Requests settings</Text>
-          <Button color={'green'} onClick={submit}>Save</Button>
+          <Button color={'green'} onClick={submit}>
+            Save
+          </Button>
         </Flex>
         <Grid justify={'center'} style={{ marginTop: 10 }}>
-          <Grid.Col {...cols}><YouTubeGeneralSettings/></Grid.Col>
-          <Grid.Col {...cols}><YouTubeUsersSettings/></Grid.Col>
-          <Grid.Col {...cols}><YouTubeSongsSettings/></Grid.Col>
+          <Grid.Col {...cols}>
+            <YouTubeGeneralSettings />
+          </Grid.Col>
+          <Grid.Col {...cols}>
+            <YouTubeUsersSettings />
+          </Grid.Col>
+          <Grid.Col {...cols}>
+            <YouTubeSongsSettings />
+          </Grid.Col>
         </Grid>
       </form>
     </YouTubeSettingsFormProvider>
