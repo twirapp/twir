@@ -18,7 +18,7 @@ import { ChannelIntegration } from './entities/ChannelIntegration';
 import { ChannelKeyword } from './entities/ChannelKeyword';
 import { ChannelModerationSetting } from './entities/ChannelModerationSetting';
 import { ChannelModerationWarn } from './entities/ChannelModerationWarn';
-import { ChannelModuleSettings } from './entities/ChannelModuleSettings.js';
+import { ChannelModuleSettings } from './entities/ChannelModuleSettings';
 import { ChannelPermit } from './entities/ChannelPermit';
 import { ChannelStream } from './entities/ChannelStream';
 import { ChannelTimer } from './entities/ChannelTimer';
