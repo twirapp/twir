@@ -1273,16 +1273,9 @@ definitions:
     type: object
 host: localhost:3002
 info:
-  contact:
-    email: fiber@swagger.io
-    name: API Support
-  description: This is a sample swagger for Fiber
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Fiber Example API
-  version: "1.0"
+  contact: {}
+  description: Non-public api for tsuwari
+  title: Tsuwari api
 paths:
   /v1/channels/{channelId}/bot/checkmod:
     get:
@@ -2583,7 +2576,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_moderation.moderationDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3162,7 +3155,6 @@ paths:
       - Stats
 securityDefinitions:
   ApiKeyAuth:
-    description: '"apiKey" from /v1/profile response'
     in: header
     name: api-key
     type: apiKey

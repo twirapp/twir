@@ -2,6 +2,16 @@ package main
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/tsuwari/apps/api/internal/services"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"github.com/satont/tsuwari/libs/grpc/generated/eventsub"
+	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	"github.com/satont/tsuwari/libs/grpc/generated/scheduler"
+	"github.com/satont/tsuwari/libs/grpc/generated/timers"
 	"os"
 	"os/signal"
 	"reflect"
@@ -44,20 +54,13 @@ import (
 	gormLogger "gorm.io/gorm/logger"
 )
 
-// @title Fiber Example API
-// @version 1.0
-// @description This is a sample swagger for Fiber
-// @termsOfService http://swagger.io/terms/
-// @contact.name API Support
-// @contact.email fiber@swagger.io
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @title Tsuwari api
+// @description Non-public api for tsuwari
 // @host localhost:3002
 // @BasePath /
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name api-key
-// @description "apiKey" from /v1/profile response
 func main() {
 	logger, _ := zap.NewDevelopment()
 	cfg, err := config.New()
@@ -128,12 +131,12 @@ func main() {
 
 	app.Use(compress.New())
 
-	botsGrpcClient := clients.NewBots(cfg.AppEnv)
-	timersGrpcClient := clients.NewTimers(cfg.AppEnv)
-	schedulerGrpcClient := clients.NewScheduler(cfg.AppEnv)
-	parserGrpcClient := clients.NewParser(cfg.AppEnv)
-	eventSubGrpcClient := clients.NewEventSub(cfg.AppEnv)
-	integrationsGrpcClient := clients.NewIntegrations(cfg.AppEnv)
+	do.ProvideValue[integrations.IntegrationsClient](di.Injector, clients.NewIntegrations(cfg.AppEnv))
+	do.ProvideValue[parser.ParserClient](di.Injector, clients.NewParser(cfg.AppEnv))
+	do.ProvideValue[eventsub.EventSubClient](di.Injector, clients.NewEventSub(cfg.AppEnv))
+	do.ProvideValue[scheduler.SchedulerClient](di.Injector, clients.NewScheduler(cfg.AppEnv))
+	do.ProvideValue[timers.TimersClient](di.Injector, clients.NewTimers(cfg.AppEnv))
+	do.ProvideValue[bots.BotsClient](di.Injector, clients.NewBots(cfg.AppEnv))
 
 	v1 := app.Group("/v1")
 
@@ -147,13 +150,7 @@ func main() {
 			ClientSecret: cfg.TwitchClientSecret,
 			RedirectURI:  cfg.TwitchCallbackUrl,
 		}),
-		Cfg:              cfg,
-		BotsGrpc:         botsGrpcClient,
-		TimersGrpc:       timersGrpcClient,
-		SchedulerGrpc:    schedulerGrpcClient,
-		ParserGrpc:       parserGrpcClient,
-		EventSubGrpc:     eventSubGrpcClient,
-		IntegrationsGrpc: integrationsGrpcClient,
+		Cfg: cfg,
 	}
 
 	if cfg.FeedbackTelegramBotToken != nil {

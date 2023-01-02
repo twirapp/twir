@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/bots/internal/bots/handlers/moderation"
@@ -24,7 +23,7 @@ type parsers struct {
 	db *gorm.DB
 }
 
-var functionsMapping = map[string]func(c *parsers, settings *model.ChannelsModerationSettings, ircMsg irc.PrivateMessage, badges []string) *handleResult{
+var functionsMapping = map[string]func(c *parsers, settings *model.ChannelsModerationSettings, ircMsg Message, badges []string) *handleResult{
 	"links":       (*parsers).linksParser,
 	"blacklists":  (*parsers).blacklistsParser,
 	"symbols":     (*parsers).symbolsParser,
@@ -33,13 +32,13 @@ var functionsMapping = map[string]func(c *parsers, settings *model.ChannelsModer
 	"emotes":      (*parsers).emotesParser,
 }
 
-func (c *Handlers) moderateMessage(msg irc.PrivateMessage, badges []string) bool {
+func (c *Handlers) moderateMessage(msg Message, badges []string) bool {
 	if lo.Some(badges, []string{"BROADCASTER", "MODERATOR"}) {
 		return false
 	}
 
 	settings := []model.ChannelsModerationSettings{}
-	if err := c.db.Where(`"channelId" = ? AND "enabled" = ?`, msg.RoomID, true).Find(&settings).Error; err != nil {
+	if err := c.db.Where(`"channelId" = ? AND "enabled" = ?`, msg.Channel.ID, true).Find(&settings).Error; err != nil {
 		c.logger.Sugar().Error(err)
 		return false
 	}
@@ -66,7 +65,7 @@ func (c *Handlers) moderateMessage(msg irc.PrivateMessage, badges []string) bool
 		if res != nil {
 			if res.IsDelete {
 				res, err := c.BotClient.Api.Client.DeleteMessage(&helix.DeleteMessageParams{
-					BroadcasterID: msg.RoomID,
+					BroadcasterID: msg.Channel.ID,
 					ModeratorID:   c.BotClient.Model.ID,
 					MessageID:     msg.ID,
 				})
@@ -80,7 +79,7 @@ func (c *Handlers) moderateMessage(msg irc.PrivateMessage, badges []string) bool
 			} else {
 				if res.Time != nil {
 					res, err := c.BotClient.Api.Client.BanUser(&helix.BanUserParams{
-						BroadcasterID: msg.RoomID,
+						BroadcasterID: msg.Channel.ID,
 						ModeratorId:   c.BotClient.Model.ID,
 						Body: helix.BanUserRequestBody{
 							Duration: int(*res.Time),
@@ -148,7 +147,7 @@ func (c *parsers) returnByWarnedState(
 
 func (c *parsers) linksParser(
 	settings *model.ChannelsModerationSettings,
-	ircMsg irc.PrivateMessage,
+	ircMsg Message,
 	badges []string,
 ) *handleResult {
 	containLink := moderation.HasLink(ircMsg.Message, true)
@@ -175,7 +174,7 @@ func (c *parsers) linksParser(
 
 func (c *parsers) blacklistsParser(
 	settings *model.ChannelsModerationSettings,
-	ircMsg irc.PrivateMessage,
+	ircMsg Message,
 	badges []string,
 ) *handleResult {
 	hasBlackListedWord := moderation.HasBlackListedWord(ircMsg.Message, settings.BlackListSentences)
@@ -189,7 +188,7 @@ func (c *parsers) blacklistsParser(
 
 func (c *parsers) symbolsParser(
 	settings *model.ChannelsModerationSettings,
-	ircMsg irc.PrivateMessage,
+	ircMsg Message,
 	badges []string,
 ) *handleResult {
 	if !settings.MaxPercentage.Valid {
@@ -210,7 +209,7 @@ func (c *parsers) symbolsParser(
 
 func (c *parsers) longMessageParser(
 	settings *model.ChannelsModerationSettings,
-	ircMsg irc.PrivateMessage,
+	ircMsg Message,
 	badges []string,
 ) *handleResult {
 	if !settings.TriggerLength.Valid {
@@ -228,7 +227,7 @@ func (c *parsers) longMessageParser(
 
 func (c *parsers) capsParser(
 	settings *model.ChannelsModerationSettings,
-	ircMsg irc.PrivateMessage,
+	ircMsg Message,
 	badges []string,
 ) *handleResult {
 	if !settings.MaxPercentage.Valid {
@@ -251,7 +250,7 @@ func (c *parsers) capsParser(
 
 func (c *parsers) emotesParser(
 	settings *model.ChannelsModerationSettings,
-	ircMsg irc.PrivateMessage,
+	ircMsg Message,
 	badges []string,
 ) *handleResult {
 	if !settings.TriggerLength.Valid {

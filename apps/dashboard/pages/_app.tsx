@@ -67,6 +67,7 @@ const app = function App(props: AppProps) {
                         background:
                           colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
                         padding: 0,
+                        width: '100%',
                       },
                     }}
                     navbarOffsetBreakpoint="sm"

@@ -29,6 +29,7 @@ func handlePost(
 	services types.Services,
 ) (*model.ChannelsTimers, error) {
 	timersService := do.MustInvoke[interfaces.TimersService](di.Injector)
+	timersGrpc := do.MustInvoke[timers.TimersClient](di.Injector)
 
 	responses := lo.Map(dto.Responses, func(r responseDto, _ int) model.ChannelsTimersResponses {
 		return model.ChannelsTimersResponses{
@@ -50,7 +51,7 @@ func handlePost(
 		return nil, err
 	}
 
-	services.TimersGrpc.AddTimerToQueue(context.Background(), &timers.Request{
+	timersGrpc.AddTimerToQueue(context.Background(), &timers.Request{
 		TimerId: timer.ID,
 	})
 
@@ -59,6 +60,7 @@ func handlePost(
 
 func handleDelete(timerId string, services types.Services) error {
 	timersService := do.MustInvoke[interfaces.TimersService](di.Injector)
+	timersGrpc := do.MustInvoke[timers.TimersClient](di.Injector)
 
 	err := timersService.Delete(timerId)
 
@@ -66,7 +68,7 @@ func handleDelete(timerId string, services types.Services) error {
 		return err
 	}
 
-	services.TimersGrpc.RemoveTimerFromQueue(context.Background(), &timers.Request{
+	timersGrpc.RemoveTimerFromQueue(context.Background(), &timers.Request{
 		TimerId: timerId,
 	})
 
@@ -79,6 +81,7 @@ func handlePut(
 	services types.Services,
 ) (*model.ChannelsTimers, error) {
 	timersService := do.MustInvoke[interfaces.TimersService](di.Injector)
+	timersGrpc := do.MustInvoke[timers.TimersClient](di.Injector)
 
 	responses := lo.Map(dto.Responses, func(r responseDto, _ int) model.ChannelsTimersResponses {
 		return model.ChannelsTimersResponses{
@@ -103,11 +106,11 @@ func handlePut(
 	}
 
 	if timer.Enabled {
-		services.TimersGrpc.AddTimerToQueue(context.Background(), &timers.Request{
+		timersGrpc.AddTimerToQueue(context.Background(), &timers.Request{
 			TimerId: timer.ID,
 		})
 	} else {
-		services.TimersGrpc.RemoveTimerFromQueue(context.Background(), &timers.Request{
+		timersGrpc.RemoveTimerFromQueue(context.Background(), &timers.Request{
 			TimerId: timer.ID,
 		})
 	}
@@ -121,6 +124,7 @@ func handlePatch(
 	services types.Services,
 ) (*model.ChannelsTimers, error) {
 	timersService := do.MustInvoke[interfaces.TimersService](di.Injector)
+	timersGrpc := do.MustInvoke[timers.TimersClient](di.Injector)
 
 	updatedTimer, err := timersService.SetEnabled(timerId, *dto.Enabled)
 	if err != nil {
@@ -128,11 +132,11 @@ func handlePatch(
 	}
 
 	if updatedTimer.Enabled {
-		services.TimersGrpc.AddTimerToQueue(context.Background(), &timers.Request{
+		timersGrpc.AddTimerToQueue(context.Background(), &timers.Request{
 			TimerId: timerId,
 		})
 	} else {
-		services.TimersGrpc.RemoveTimerFromQueue(context.Background(), &timers.Request{
+		timersGrpc.RemoveTimerFromQueue(context.Background(), &timers.Request{
 			TimerId: timerId,
 		})
 	}

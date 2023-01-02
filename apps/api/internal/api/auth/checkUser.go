@@ -66,6 +66,8 @@ func checkUser(
 	services types.Services,
 ) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	eventSubGrpc := do.MustInvoke[eventsub.EventSubClient](di.Injector)
+	schedulerGrpc := do.MustInvoke[scheduler.SchedulerClient](di.Injector)
 
 	defaultBot := model.Bots{}
 	err := services.DB.Where("type = ?", "DEFAULT").First(&defaultBot).Error
@@ -156,13 +158,13 @@ func checkUser(
 	//	})
 	//}
 
-	services.SchedulerGrpc.CreateDefaultCommands(
+	schedulerGrpc.CreateDefaultCommands(
 		context.Background(),
 		&scheduler.CreateDefaultCommandsRequest{
 			UserId: userId,
 		},
 	)
-	services.EventSubGrpc.SubscribeToEvents(
+	eventSubGrpc.SubscribeToEvents(
 		context.Background(),
 		&eventsub.SubscribeToEventsRequest{
 			ChannelId: userId,

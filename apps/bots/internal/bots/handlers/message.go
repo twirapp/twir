@@ -3,12 +3,11 @@ package handlers
 import (
 	"strings"
 
-	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/bots/internal/bots/handlers/messages"
 )
 
-func (c *Handlers) OnPrivateMessage(msg irc.PrivateMessage) {
+func (c *Handlers) OnMessage(msg Message) {
 	userBadges := createUserBadges(msg.User.Badges)
 
 	splittedMsg := strings.Split(msg.Message, " ")
@@ -27,11 +26,11 @@ func (c *Handlers) OnPrivateMessage(msg irc.PrivateMessage) {
 	go c.handleKeywords(msg, userBadges)
 
 	go func() {
-		messages.IncrementUserMessages(c.db, msg.User.ID, msg.RoomID)
+		messages.IncrementUserMessages(c.db, msg.User.ID, msg.Channel.ID)
 		messages.StoreMessage(
 			c.db,
 			msg.ID,
-			msg.RoomID,
+			msg.Channel.ID,
 			msg.User.ID,
 			msg.User.Name,
 			msg.Message,
@@ -41,7 +40,7 @@ func (c *Handlers) OnPrivateMessage(msg irc.PrivateMessage) {
 			),
 		)
 	}()
-	go messages.IncrementStreamParsedMessages(c.db, msg.RoomID)
+	go messages.IncrementStreamParsedMessages(c.db, msg.Channel.ID)
 }
 
 func createUserBadges(badges map[string]int) []string {

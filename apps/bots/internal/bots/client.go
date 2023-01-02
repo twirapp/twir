@@ -127,11 +127,52 @@ func newBot(opts *ClientOpts) *types.BotClient {
 			client.OnSelfJoinMessage(botHandlers.OnSelfJoin)
 			client.OnUserStateMessage(func(message irc.UserStateMessage) {
 				defer messagesCounter.Inc()
+				if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
+					return
+				}
 				botHandlers.OnUserStateMessage(message)
+			})
+			client.OnUserNoticeMessage(func(message irc.UserNoticeMessage) {
+				defer messagesCounter.Inc()
+				if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
+					return
+				}
+				botHandlers.OnMessage(handlers.Message{
+					ID: message.ID,
+					Channel: handlers.MessageChannel{
+						ID:   message.RoomID,
+						Name: message.Channel,
+					},
+					User: handlers.MessageUser{
+						ID:          message.User.ID,
+						Name:        message.User.Name,
+						DisplayName: message.User.DisplayName,
+						Badges:      message.User.Badges,
+					},
+					Message: message.Message,
+					Emotes:  message.Emotes,
+				})
 			})
 			client.OnPrivateMessage(func(message irc.PrivateMessage) {
 				defer messagesCounter.Inc()
-				botHandlers.OnPrivateMessage(message)
+				if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
+					return
+				}
+				botHandlers.OnMessage(handlers.Message{
+					ID: message.ID,
+					Channel: handlers.MessageChannel{
+						ID:   message.RoomID,
+						Name: message.Channel,
+					},
+					User: handlers.MessageUser{
+						ID:          message.User.ID,
+						Name:        message.User.Name,
+						DisplayName: message.User.DisplayName,
+						Badges:      message.User.Badges,
+					},
+					Message: message.Message,
+					Emotes:  message.Emotes,
+				})
 			})
 
 			err = client.Connect()

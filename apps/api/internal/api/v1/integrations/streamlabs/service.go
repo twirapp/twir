@@ -154,18 +154,19 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
-	sendGrpcEvent(channelIntegration.ID, channelIntegration.Enabled, services)
+	sendGrpcEvent(channelIntegration.ID, channelIntegration.Enabled)
 
 	return nil
 }
 
-func sendGrpcEvent(integrationId string, isAdd bool, services types.Services) {
+func sendGrpcEvent(integrationId string, isAdd bool) {
+	grpc := do.MustInvoke[integrations.IntegrationsClient](di.Injector)
 	if isAdd {
-		services.IntegrationsGrpc.AddIntegration(context.Background(), &integrations.Request{
+		grpc.AddIntegration(context.Background(), &integrations.Request{
 			Id: integrationId,
 		})
 	} else {
-		services.IntegrationsGrpc.RemoveIntegration(context.Background(), &integrations.Request{
+		grpc.RemoveIntegration(context.Background(), &integrations.Request{
 			Id: integrationId,
 		})
 	}

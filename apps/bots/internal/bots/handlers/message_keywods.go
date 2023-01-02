@@ -8,18 +8,17 @@ import (
 	"sync"
 	"time"
 
-	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 )
 
 func (c *Handlers) handleKeywords(
-	msg irc.PrivateMessage,
+	msg Message,
 	userBadges []string,
 ) {
 	keywords := []model.ChannelsKeywords{}
-	err := c.db.Where(`"channelId" = ? AND "enabled" = ?`, msg.RoomID, true).Find(&keywords).Error
+	err := c.db.Where(`"channelId" = ? AND "enabled" = ?`, msg.Channel.ID, true).Find(&keywords).Error
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -43,7 +42,7 @@ func (c *Handlers) handleKeywords(
 				regx, err := regexp.Compile(k.Text)
 				if err != nil {
 					c.BotClient.SayWithRateLimiting(
-						msg.Channel,
+						msg.Channel.Name,
 						fmt.Sprintf("regular expression is wrong for keyword %s", k.Text),
 						nil,
 					)
@@ -75,8 +74,8 @@ func (c *Handlers) handleKeywords(
 			if !isOnCooldown && k.Response != "" {
 				requestStruct := &parser.ParseTextRequestData{
 					Channel: &parser.Channel{
-						Id:   msg.RoomID,
-						Name: msg.Channel,
+						Id:   msg.Channel.ID,
+						Name: msg.Channel.Name,
 					},
 					Sender: &parser.Sender{
 						Id:          msg.User.ID,
@@ -101,13 +100,13 @@ func (c *Handlers) handleKeywords(
 					validateResposeErr := ValidateResponseSlashes(r)
 					if validateResposeErr != nil {
 						c.BotClient.SayWithRateLimiting(
-							msg.Channel,
+							msg.Channel.Name,
 							validateResposeErr.Error(),
 							nil,
 						)
 					} else {
 						c.BotClient.SayWithRateLimiting(
-							msg.Channel,
+							msg.Channel.Name,
 							r,
 							lo.If(k.IsReply, &msg.ID).Else(nil),
 						)

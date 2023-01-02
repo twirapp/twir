@@ -33,8 +33,9 @@ func handleGet(channelId string, services types.Services) ([]model.ChannelsCusto
 
 func handleGetBuiltIn(services types.Services) ([]*parser.GetVariablesResponse_Variable, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	grpc := do.MustInvoke[parser.ParserClient](di.Injector)
 
-	req, err := services.ParserGrpc.GetDefaultVariables(context.Background(), &emptypb.Empty{})
+	req, err := grpc.GetDefaultVariables(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get builtin variables")
