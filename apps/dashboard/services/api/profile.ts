@@ -1,14 +1,14 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AuthUser } from '@tsuwari/shared';
-import { deleteCookie, getCookie } from 'cookies-next';
+import { deleteCookie } from 'cookies-next';
 
-import { authFetcher } from '@/services/api';
-import { authFetch } from '@/services/api';
+import { authFetch, authFetcher } from '@/services/api';
 import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
 
-export const useProfile = () => useQuery<AuthUser>({
+export const useProfile = () => useQuery<AuthUser & { apiKey: string }>({
   queryKey: [`/api/auth/profile`],
   queryFn: () => authFetcher(`/api/auth/profile`),
+  retry: false,
 });
 
 export const useLogoutMutation = () => useMutation({

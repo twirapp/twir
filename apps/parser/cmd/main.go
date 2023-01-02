@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"github.com/satont/tsuwari/libs/grpc/generated/websocket"
 	"log"
 	"net"
 	"net/http"
@@ -78,6 +81,9 @@ func main() {
 	botsGrpcClient := clients.NewBots(cfg.AppEnv)
 	dotaGrpcClient := clients.NewDota(cfg.AppEnv)
 	evalGrpcClient := clients.NewEval(cfg.AppEnv)
+	websocketGrpcClient := clients.NewWebsocket(cfg.AppEnv)
+
+	do.ProvideValue[websocket.WebsocketClient](di.Provider, websocketGrpcClient)
 
 	usersAuthService := usersauth.New(usersauth.UsersServiceOpts{
 		Db:           db,

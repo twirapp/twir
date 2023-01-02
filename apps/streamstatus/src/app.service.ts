@@ -5,7 +5,7 @@ import { convertSnakeToCamel } from '@tsuwari/shared';
 import { Channel } from '@tsuwari/typeorm/entities/Channel';
 import { ChannelStream } from '@tsuwari/typeorm/entities/ChannelStream';
 import { ApiClient } from '@twurple/api';
-import { ClientCredentialsAuthProvider } from '@twurple/auth';
+import { ClientCredentialsAuthProvider, RefreshingAuthProvider } from '@twurple/auth';
 import { getRawData } from '@twurple/common';
 import _ from 'lodash';
 

@@ -5,6 +5,7 @@ import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	config "github.com/satont/tsuwari/libs/config"
 	"strings"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -49,18 +50,7 @@ var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
 
 		authorizationToken := headers["Authorization"]
 		if authorizationToken != "" {
-			tokenSlice := strings.Split(authorizationToken, "Bearer ")
-			if len(tokenSlice) < 2 {
-				return fiber.NewError(401, "invalid token format")
-			}
-
-			token, err := jwt.Parse(tokenSlice[1], func(token *jwt.Token) (interface{}, error) {
-				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-					return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-				}
-
-				return []byte(services.Cfg.JwtAccessSecret), nil
-			})
+			token, err := ExtractTokenFromHeader(authorizationToken)
 			if err != nil {
 				return fiber.NewError(401, "invalid token. Probably token is expired.")
 			}
@@ -89,4 +79,23 @@ var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
 
 		return c.Next()
 	}
+}
+
+func ExtractTokenFromHeader(t string) (*jwt.Token, error) {
+	tokenSlice := strings.Split(t, "Bearer ")
+	if len(tokenSlice) < 2 {
+		return nil, fiber.NewError(401, "invalid token format")
+	}
+
+	cfg := do.MustInvoke[*config.Config](di.Injector)
+
+	token, err := jwt.Parse(tokenSlice[1], func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte(cfg.JwtAccessSecret), nil
+	})
+
+	return token, err
 }

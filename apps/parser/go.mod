@@ -3,10 +3,13 @@ module github.com/satont/tsuwari/apps/parser
 go 1.18
 
 require (
+	github.com/SherlockYigit/youtube-go v1.0.0
 	github.com/getsentry/sentry-go v0.15.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/guregu/null v4.0.0+incompatible
+	github.com/kkdai/youtube/v2 v2.7.18
 	github.com/prometheus/client_golang v1.14.0
+	github.com/samber/do v1.5.1
 	github.com/satont/go-helix/v2 v2.7.22
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
@@ -23,6 +26,10 @@ require (
 require (
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/bitly/go-simplejson v0.5.0 // indirect
+	github.com/dlclark/regexp2 v1.7.0 // indirect
+	github.com/dop251/goja v0.0.0-20221115122301-6c0d9883792e // indirect
+	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/golang/mock v1.6.0 // indirect
@@ -48,7 +55,7 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/mod v0.6.0 // indirect
 	golang.org/x/tools v0.2.0 // indirect
-	google.golang.org/genproto v0.0.0-20200825200019-8632dd797987 // indirect
+	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e // indirect
 )
 
 require (
@@ -84,5 +91,9 @@ replace github.com/satont/tsuwari/libs/config => ../../libs/config
 replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 
 replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
+
+replace github.com/kkdai/youtube/v2 => ../../libs/ytdl
+
+replace github.com/satont/tsuwari/libs/types => ../../libs/types
 
 replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc

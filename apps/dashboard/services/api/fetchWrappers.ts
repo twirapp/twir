@@ -48,12 +48,14 @@ export const authFetch = async (
 
 export class FetcherError extends Error {
   messages?: string;
+  status: number;
 
-  constructor(data: string | Record<string, any>) {
+  constructor(data: string | Record<string, any>, status: number) {
     super(typeof data === 'string' ? data : 'Query error');
     if (typeof data === 'object') {
       this.messages = data.messages;
     }
+    this.status = status;
   }
 }
 
@@ -81,7 +83,7 @@ const createFetcher = (fetchFn = fetch) => {
     const data = isJson ? await res.json() : await res.text();
 
     if (!res.ok) {
-      throw new FetcherError(data);
+      throw new FetcherError(data, res.status);
     }
 
     return data as T;

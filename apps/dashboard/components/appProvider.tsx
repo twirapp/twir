@@ -3,19 +3,18 @@ import { setCookie } from 'cookies-next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-import i18nConfig from '../next-i18next.config';
+import i18nconfig from '../next-i18next.config';
 
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
-import { useProfile } from '@/services/api';
+import { FetcherError, useProfile } from '@/services/api';
 import { SELECTED_DASHBOARD_KEY, useLocale, useSelectedDashboard } from '@/services/dashboard';
 
-
 type Props = React.PropsWithChildren<{
-  colorScheme: ColorScheme
-}>
+  colorScheme: ColorScheme;
+}>;
 
-const supportedLocales = i18nConfig.i18n.locales;
+const supportedLocales = i18nconfig.i18n.locales;
 
 export const AppProvider: React.FC<Props> = (props) => {
   const [selectedDashboard] = useSelectedDashboard();
@@ -51,7 +50,11 @@ export const AppProvider: React.FC<Props> = (props) => {
 
   useEffect(() => {
     if (profileError) {
-      window.location.replace(`${window.location.origin}`);
+      if (profileError instanceof FetcherError && profileError.status === 403) {
+        window.location.replace(`/api/auth?state=${window.btoa(window.location.origin)}`);
+      } else {
+        window.location.replace(`${window.location.origin}`);
+      }
     }
   }, [profileError]);
 
@@ -62,14 +65,13 @@ export const AppProvider: React.FC<Props> = (props) => {
     <AppShell
       styles={{
         main: {
-          background:
-            props.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+          background: props.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
         },
       }}
       navbarOffsetBreakpoint="sm"
       asideOffsetBreakpoint="sm"
-      navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened}/>}
-      header={<NavBar setOpened={setSidebarOpened} opened={sidebarOpened}/>}
+      navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened} />}
+      header={<NavBar setOpened={setSidebarOpened} opened={sidebarOpened} />}
     >
       {props.children}
     </AppShell>

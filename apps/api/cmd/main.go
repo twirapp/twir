@@ -19,6 +19,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/tsuwari/apps/api/internal/services"
+
 	"github.com/gofiber/swagger"
 	"github.com/satont/tsuwari/libs/grpc/clients"
 	"github.com/satont/tsuwari/libs/twitch"
@@ -39,7 +44,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	cfg "github.com/satont/tsuwari/libs/config"
+	config "github.com/satont/tsuwari/libs/config"
 
 	"github.com/satont/tsuwari/apps/api/internal/services/redis"
 
@@ -58,7 +63,7 @@ import (
 // @name api-key
 func main() {
 	logger, _ := zap.NewDevelopment()
-	cfg, err := cfg.New()
+	cfg, err := config.New()
 	if err != nil || cfg == nil {
 		logger.Sugar().Error(err)
 		panic("Cannot load config of application")
@@ -88,6 +93,7 @@ func main() {
 
 	do.ProvideValue[*gorm.DB](di.Injector, db)
 	do.ProvideValue[interfaces.TimersService](di.Injector, services.NewTimersService())
+	do.ProvideValue[*config.Config](di.Injector, cfg)
 
 	storage := redis.NewCache(cfg.RedisUrl)
 

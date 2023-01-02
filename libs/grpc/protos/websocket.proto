@@ -1,0 +1,19 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+package websocket;
+option go_package = "tsuwari/websocket";
+
+service Websocket {
+  rpc YoutubeAddSongToQueue(YoutubeAddSongToQueueRequest) returns (google.protobuf.Empty) {}
+  rpc YoutubeRemoveSongToQueue(YoutubeRemoveSongFromQueueRequest) returns (google.protobuf.Empty) {}
+}
+
+message YoutubeAddSongToQueueRequest {
+  string channelId = 1;
+  string entityId = 2;
+}
+
+message YoutubeRemoveSongFromQueueRequest {
+  string channelId = 1;
+  string entityId = 2;
+}

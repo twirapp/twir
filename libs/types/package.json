@@ -1,0 +1,14 @@
+{
+  "name": "@tsuwari/types",
+  "type": "module",
+  "scripts": {
+    "build": "go run gen.go"
+  },
+  "typesVersions": {
+    "*": {
+      "api": [
+        "./src/api.d.ts"
+      ]
+    }
+  }
+}

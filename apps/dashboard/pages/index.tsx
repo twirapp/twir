@@ -7,9 +7,9 @@ import { BotWidget } from '@/components/dashboard/bot';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
-    props: {
-        ...(await serverSideTranslations(locale, ['dashboard', 'layout'])),
-    },
+  props: {
+    ...(await serverSideTranslations(locale, ['dashboard', 'layout'])),
+  },
 });
 
 const cols = {
@@ -23,7 +23,7 @@ const cols = {
 const Home: NextPage = () => {
   return (
     <Grid>
-      <Grid.Col {...cols}><BotWidget /></Grid.Col>
+      <Grid.Col {...cols}><BotWidget/></Grid.Col>
     </Grid>
   );
 };

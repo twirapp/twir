@@ -1,0 +1,22 @@
+{
+  "name": "@tsuwari/websockets",
+  "type": "module",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc -b tsconfig.json",
+    "dev": "tsx watch --clear-screen=false src/index.ts",
+    "start": "node --enable-source-maps dist/index.js"
+  },
+  "dependencies": {
+    "@tsuwari/config": "workspace:*",
+    "@tsuwari/grpc": "workspace:*",
+    "@tsuwari/typeorm": "workspace:*",
+    "ioredis": "^5.2.4",
+    "nats": "^2.9.0",
+    "nice-grpc": "^2.0.1",
+    "socket.io": "^4.5.3"
+  },
+  "devDependencies": {
+    "@tsuwari/types": "workspace:*"
+  }
+}

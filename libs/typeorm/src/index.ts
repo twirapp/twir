@@ -4,8 +4,6 @@ import 'reflect-metadata';
 import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
 
-dotenv.config({ path: resolve(process.cwd(), '../../.env') });
-
 import { Bot } from './entities/Bot';
 import { Channel } from './entities/Channel';
 import { ChannelChatMessage } from './entities/ChannelChatMessage';
@@ -20,6 +18,7 @@ import { ChannelIntegration } from './entities/ChannelIntegration';
 import { ChannelKeyword } from './entities/ChannelKeyword';
 import { ChannelModerationSetting } from './entities/ChannelModerationSetting';
 import { ChannelModerationWarn } from './entities/ChannelModerationWarn';
+import { ChannelModuleSettings } from './entities/ChannelModuleSettings';
 import { ChannelPermit } from './entities/ChannelPermit';
 import { ChannelStream } from './entities/ChannelStream';
 import { ChannelTimer } from './entities/ChannelTimer';
@@ -35,12 +34,15 @@ import { DotaMatchResult } from './entities/DotaMatchResult';
 import { Integration } from './entities/Integration';
 import { Notification } from './entities/Notification';
 import { NotificationMessage } from './entities/NotificationMessage';
+import { RequestedSong } from './entities/RequestedSong';
 import { Token } from './entities/Token';
 import { User } from './entities/User';
 import { UserFile } from './entities/UserFile';
 import { UserOnline } from './entities/UserOnline';
 import { UserStats } from './entities/UserStats';
 import { UserViewedNotification } from './entities/UserViewedNotification';
+
+dotenv.config({ path: resolve(process.cwd(), '../../.env') });
 
 export * from 'typeorm';
 
@@ -58,6 +60,7 @@ export const AppDataSource = new DataSource({
     ChannelKeyword,
     ChannelModerationSetting,
     ChannelModerationWarn,
+    ChannelModuleSettings,
     ChannelPermit,
     ChannelTimer,
     ChannelTimerResponse,
@@ -83,6 +86,7 @@ export const AppDataSource = new DataSource({
     ChannelDonationEvent,
     ChannelStream,
     ChannelChatMessage,
+    RequestedSong,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

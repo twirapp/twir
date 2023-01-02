@@ -29,6 +29,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	})
 	middleware.Get(
 		"profile",
+		checkScopes,
 		middlewares.CheckUserAuth(services),
 		profileCache,
 		getProfile(services),
@@ -37,7 +38,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
-var scopes = []string{"moderation:read", "channel:manage:broadcast"}
+var scopes = []string{"moderation:read", "channel:manage:broadcast", "channel:read:redemptions"}
 
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {

@@ -2,6 +2,7 @@ package apiv1
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/rewards"
 
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/bot"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/commands"
@@ -15,10 +16,12 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/vk"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/keywords"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/moderation"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/modules/youtube_sr"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/settings"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/stats"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/streams"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/timers"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/twitch/users"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/variables"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
@@ -41,6 +44,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	streams.Setup(channelsGroup, services)
 	variables.Setup(channelsGroup, services)
 	settings.Setup(channelsGroup, services)
+	rewards.Setup(channelsGroup, services)
 
 	integrationsGroup := channelsGroup.Group("integrations")
 	donationalerts.Setup(integrationsGroup, services)
@@ -49,6 +53,13 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	lastfm.Setup(integrationsGroup, services)
 	vk.Setup(integrationsGroup, services)
 	spotify.Setup(integrationsGroup, services)
+
+	modulesGroup := channelsGroup.Group("modules")
+	youtube_sr.Setup(modulesGroup, services)
+
+	twitchGroup := router.Group("twitch")
+	twitchGroup.Use(middlewares.CheckUserAuth(services))
+	users.Setup(twitchGroup, services)
 
 	return router
 }

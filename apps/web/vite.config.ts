@@ -46,6 +46,11 @@ export default defineConfig({
         ws: true,
         rewrite: (path) => path.replace(/^\/dashboard/, ''),
       },
+      '/socket.io': {
+        target: 'http://127.0.0.1:3004',
+        changeOrigin: true,
+        ws: true,
+      },
     },
   },
 });

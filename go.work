@@ -12,4 +12,7 @@ use (
 	./libs/integrations/spotify
 	./libs/pubsub
 	./libs/twitch
+	./libs/types
+	./libs/ytdl
+	./libs/ytsr
 )

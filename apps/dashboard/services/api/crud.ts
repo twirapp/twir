@@ -49,7 +49,7 @@ const createCrudManager = <T extends { id: string }>(system: string): Crud<T> =>
       mutationKey: [getUrl(system)],
     }),
     usePatch: () => useMutation({
-      mutationFn: ({ id, data }: { id: string, data:  Partial<T> }) => {
+      mutationFn: ({ id, data }: { id: string, data: Partial<T> }) => {
         return authFetcher(
           `${getUrl(system)}/${id}`,
           {

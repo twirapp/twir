@@ -17,6 +17,7 @@ import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { queryClient } from '@/services/api';
 
+
 const app = function App(props: AppProps) {
   const { Component } = props;
 
