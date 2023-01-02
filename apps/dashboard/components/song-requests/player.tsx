@@ -1,4 +1,5 @@
-import { Button, Card, Flex, Grid, Slider, Text } from '@mantine/core';
+import { Button, Card, Flex, Grid, Loader, Slider, Text } from '@mantine/core';
+import { useViewportSize } from '@mantine/hooks';
 import { IconPlayerPause, IconPlayerPlay, IconPlayerTrackNext } from '@tabler/icons';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import YouTube, { YouTubeEvent, YouTubePlayer } from 'react-youtube';
@@ -7,6 +8,7 @@ import { Options as YouTubeOptions } from 'youtube-player/dist/types';
 import { PlayerContext } from '@/components/song-requests/context';
 
 function usePlayer() {
+  const { width } = useViewportSize();
   const [player, setPlayer] = useState<YouTubePlayer | null>(null);
   const { videos, skipVideo, addVideos, isPlaying, setIsPlaying } = useContext(PlayerContext);
 
@@ -71,7 +73,7 @@ function usePlayer() {
         autoplay: 0,
         rel: 0,
       },
-      width: 450,
+      width: width < 450 ? 330 : 450,
       height: 250,
     } as YouTubeOptions,
   };
@@ -120,9 +122,12 @@ const YoutubePlayer: React.FC = () => {
 
   return (
     <Flex direction={'row'} w={options.opts.width}>
-      <Card style={{ paddingTop: 0 }}>
+      <Card shadow="sm" p="lg" withBorder>
         {options.videoId
-          ? (<><Card.Section><YouTube {...options} onEnd={() => skipVideo()}/></Card.Section>
+          ? (<>
+            <Card.Section style={{ marginTop: -20, marginLeft: -30, marginRight: -30 }}>
+              <YouTube {...options} onEnd={() => skipVideo()}/>
+            </Card.Section>
             <Card.Section p={'md'}>
               <Flex direction={'column'} gap={'sm'}>
                 <Grid align={'center'}>
@@ -165,7 +170,18 @@ const YoutubePlayer: React.FC = () => {
                 <Text>Requested by {videos[0].orderedByName}</Text>
               </Flex>
             </Card.Section></>)
-          : <Card.Section p={'md'}><Text>Waiting for requests</Text></Card.Section>
+          : <Card.Section>
+            <Flex
+              style={{ width: options.opts.width, height: 300 }}
+              direction={'column'}
+              align={'center'}
+              justify={'center'}
+              gap={'sm'}
+            >
+              <Loader/>
+              <Text>Waiting for requests</Text>
+            </Flex>
+          </Card.Section>
         }
 
       </Card>

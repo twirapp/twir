@@ -1,6 +1,6 @@
 'use client';
 
-import { Flex } from '@mantine/core';
+import { Grid } from '@mantine/core';
 import type { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
 import { getCookie } from 'cookies-next';
 import { GetServerSideProps, NextPage } from 'next';
@@ -105,19 +105,23 @@ const Player: NextPage = () => {
   }, [isPlaying]);
 
   return (
-    <Flex direction={'row'} gap={'lg'}>
-      <PlayerContext.Provider
-        value={{
-          videos,
-          skipVideo,
-          addVideos,
-          isPlaying,
-          setIsPlaying,
-        }}
-      ><PlayerComponent/></PlayerContext.Provider>
+    <Grid>
+      <Grid.Col span={'auto'}>
+        <PlayerContext.Provider
+          value={{
+            videos,
+            skipVideo,
+            addVideos,
+            isPlaying,
+            setIsPlaying,
+          }}
+        ><PlayerComponent/></PlayerContext.Provider>
+      </Grid.Col>
+      <Grid.Col span={8}>
 
-      <VideosList videos={videos}/>
-    </Flex>
+        <VideosList videos={videos}/>
+      </Grid.Col>
+    </Grid>
   );
 };
 
