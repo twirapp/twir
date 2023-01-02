@@ -2,7 +2,6 @@ package types
 
 import (
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
-	"github.com/satont/tsuwari/libs/grpc/generated/scheduler"
 	"github.com/satont/tsuwari/libs/grpc/generated/timers"
 	"github.com/satont/tsuwari/libs/twitch"
 
@@ -25,7 +24,6 @@ type Services struct {
 	TgBotApi            *tgbotapi.BotAPI
 	BotsGrpc            bots.BotsClient
 	TimersGrpc          timers.TimersClient
-	SchedulerGrpc       scheduler.SchedulerClient
 }
 
 type JSONResult struct{}

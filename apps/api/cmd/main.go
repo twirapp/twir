@@ -9,6 +9,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/eventsub"
 	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	"github.com/satont/tsuwari/libs/grpc/generated/scheduler"
 	"os"
 	"os/signal"
 	"reflect"
@@ -130,11 +131,11 @@ func main() {
 
 	botsGrpcClient := clients.NewBots(cfg.AppEnv)
 	timersGrpcClient := clients.NewTimers(cfg.AppEnv)
-	schedulerGrpcClient := clients.NewScheduler(cfg.AppEnv)
 
 	do.ProvideValue[integrations.IntegrationsClient](di.Injector, clients.NewIntegrations(cfg.AppEnv))
 	do.ProvideValue[parser.ParserClient](di.Injector, clients.NewParser(cfg.AppEnv))
 	do.ProvideValue[eventsub.EventSubClient](di.Injector, clients.NewEventSub(cfg.AppEnv))
+	do.ProvideValue[scheduler.SchedulerClient](di.Injector, clients.NewScheduler(cfg.AppEnv))
 
 	v1 := app.Group("/v1")
 
@@ -148,10 +149,9 @@ func main() {
 			ClientSecret: cfg.TwitchClientSecret,
 			RedirectURI:  cfg.TwitchCallbackUrl,
 		}),
-		Cfg:           cfg,
-		BotsGrpc:      botsGrpcClient,
-		TimersGrpc:    timersGrpcClient,
-		SchedulerGrpc: schedulerGrpcClient,
+		Cfg:        cfg,
+		BotsGrpc:   botsGrpcClient,
+		TimersGrpc: timersGrpcClient,
 	}
 
 	if cfg.FeedbackTelegramBotToken != nil {
