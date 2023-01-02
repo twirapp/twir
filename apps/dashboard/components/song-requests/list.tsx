@@ -2,7 +2,7 @@ import { ActionIcon, createStyles, Flex, Table } from '@mantine/core';
 import { useListState } from '@mantine/hooks';
 import { IconGripVertical, IconTrash } from '@tabler/icons';
 import { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { DragDropContext, Draggable, DraggableLocation, Droppable } from 'react-beautiful-dnd';
 
 import { millisToMinutesAndSeconds } from './helpers';
@@ -26,32 +26,20 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export const VideosList: React.FC = () => {
-  const { videos, skipVideo, setVideos } = useContext(PlayerContext);
+  const { videos, videosHandlers, skipVideo } = useContext(PlayerContext);
 
   const [isBrowser, setIsBrowser] = useState(false);
-  const [state, handlers] = useListState<RequestedSong>([]);
   const { classes } = useStyles();
-
-  useEffect(() => {
-    handlers.setState(videos);
-  }, [videos]);
 
   useEffect(() => {
     setIsBrowser(process.browser);
   }, []);
 
-  useEffect(() => {
-    if (!state.length) return;
-    setVideos(current => {
-      return [state[0], ...state.slice(1)];
-    });
-  }, [state]);
-
   function handleDrag(from: DraggableLocation, to: DraggableLocation) {
-    handlers.reorder({ from: from.index, to: to?.index || 0 });
+    videosHandlers.reorder({ from: from.index, to: to?.index || 0 });
   }
 
-  const items = state.map((video, index) => (
+  const items = videos.map((video, index) => (
     <Draggable key={video.id} index={index} draggableId={video.id}>
       {(provided) => (
         <tr className={classes.item} ref={provided.innerRef} {...provided.draggableProps} hidden={index === 0}>

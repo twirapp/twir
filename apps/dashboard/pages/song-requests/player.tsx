@@ -1,6 +1,7 @@
 'use client';
 
 import { Grid } from '@mantine/core';
+import { useListState } from '@mantine/hooks';
 import type { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
 import { getCookie } from 'cookies-next';
 import { GetServerSideProps, NextPage } from 'next';
@@ -26,7 +27,7 @@ const PlayerComponent = dynamic(
 
 const Player: NextPage = () => {
   const profile = useProfile();
-  const [videos, setVideos] = useState<RequestedSong[]>([]);
+  const [videos, videosHandlers] = useListState<RequestedSong>([]);
   const socketRef = useRef<Socket | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -39,11 +40,11 @@ const Player: NextPage = () => {
       const length = videos.length;
       if (index === 0) {
         setIsPlaying(false);
-        setVideos(videos.slice(1));
+        videosHandlers.setState(videos.slice(1));
       } else if (index === length - 1) {
-        setVideos(videos.slice(0, length - 1));
+        videosHandlers.setState(videos.slice(0, length - 1));
       } else {
-        setVideos([...videos.slice(0, index), ...videos.slice(index + 1)]);
+        videosHandlers.setState([...videos.slice(0, index), ...videos.slice(index + 1)]);
       }
     },
     [videos],
@@ -51,7 +52,7 @@ const Player: NextPage = () => {
 
   const addVideos = useCallback(
     (v: RequestedSong[]) => {
-      setVideos(existedVideos => [...existedVideos, ...v]);
+      videosHandlers.setState(existedVideos => [...existedVideos, ...v]);
     },
     [videos],
   );
@@ -72,7 +73,7 @@ const Player: NextPage = () => {
     socketRef.current.connect();
 
     socketRef.current.emit('currentQueue', (data: RequestedSong[]) => {
-      setVideos([]);
+      videosHandlers.setState([]);
       addVideos(data);
     });
 
@@ -120,11 +121,11 @@ const Player: NextPage = () => {
       <PlayerContext.Provider
         value={{
           videos,
+          videosHandlers,
           skipVideo,
           addVideos,
           isPlaying,
           setIsPlaying,
-          setVideos,
         }}
       >
         <Grid.Col span={'auto'}>

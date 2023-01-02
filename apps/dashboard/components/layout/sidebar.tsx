@@ -144,6 +144,12 @@ export function SideBar(props: Props) {
     sx={{ width: '100%' }}
     component="a"
     href={`/dashboard${item.path ? item.path : item.label.toLowerCase()}`}
+    onClick={(e) => {
+      e.preventDefault();
+      if (item.subPages) return;
+      router.push(item.path ? item.path : item.label.toLowerCase());
+    }
+    }
   >{item.subPages && item.subPages.map(p => createNavLink(p))}</NavLink>;
 
   const [links, setLinks] = useState<JSX.Element[]>([]);
