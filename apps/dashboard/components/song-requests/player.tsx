@@ -1,6 +1,6 @@
-import { Button, Flex, Text } from '@mantine/core';
+import { Button, Flex, Grid, Slider, Text } from '@mantine/core';
 import { IconPlayerPause, IconPlayerPlay, IconPlayerTrackNext } from '@tabler/icons';
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import YouTube, { YouTubeEvent, YouTubePlayer } from 'react-youtube';
 import { Options as YouTubeOptions } from 'youtube-player/dist/types';
 
@@ -10,7 +10,7 @@ function usePlayer() {
   const [player, setPlayer] = useState<YouTubePlayer | null>(null);
   const { videos, skipVideo, addVideos, isPlaying, setIsPlaying } = useContext(PlayerContext);
 
-  const toggleVideo = useCallback(() => {
+  const togglePlayState = useCallback(() => {
     if (isPlaying) {
       player?.pauseVideo();
     } else {
@@ -39,15 +39,32 @@ function usePlayer() {
     [player],
   );
 
+  const getSongDuration = useCallback(() => {
+    if (!player) return 0;
+    return player?.getDuration() as unknown as number;
+  }, [player]);
+
+  const getSongCurrentTime = useCallback(() => {
+    if (!player) return 0;
+    return player?.getCurrentTime() as unknown as number;
+  }, [player]);
+
+  const setTime = useCallback((t: number) => {
+    player?.seekTo(t, true);
+  }, [player]);
+
   return {
     videos,
-    toggleVideo,
+    togglePlayState,
     skipVideo,
     addVideos,
     isPlaying,
     videoId: videos[0]?.videoId ?? '',
     onReady,
     onStateChange,
+    getSongDuration,
+    getSongCurrentTime,
+    setTime,
     opts: {
       playerVars: {
         controls: 1,
@@ -60,37 +77,90 @@ function usePlayer() {
   };
 }
 
+
+function formatDuration(seconds: number) {
+  const format = (val: number) => `0${Math.floor(val)}`.slice(-2);
+  const minutes = (seconds % 3600) / 60;
+
+  return [minutes, seconds % 60].map(format).join(':');
+}
+
 const YoutubePlayer: React.FC = () => {
-  const { videos, skipVideo, isPlaying, ...options } = usePlayer();
+  const {
+    videos,
+    skipVideo,
+    togglePlayState,
+    isPlaying,
+    getSongCurrentTime,
+    getSongDuration,
+    setTime,
+    ...options
+  } = usePlayer();
+  const [currentTime, setCurrentTime] = useState(0);
+  const [songDuration, setSongDuration] = useState(0);
+
+  // const progressPercentage = useMemo(() => {
+  //   const result = currentTime / songDuration * 100;
+  //   return Number.isNaN(result) ? 0 : result;
+  // }, [currentTime, songDuration]);
+
+  useEffect(() => {
+    const currentTimeInterval = setInterval(() => {
+      setCurrentTime(getSongCurrentTime());
+    }, 500);
+    const durationInterval = setInterval(() => {
+      setSongDuration(getSongDuration());
+    }, 500);
+
+    return () => {
+      clearInterval(currentTimeInterval);
+      clearInterval(durationInterval);
+    };
+  }, [isPlaying]);
 
   return (
-    <Flex direction={'column'} gap={'md'} w={options.opts.width}>
-      {options.videoId
-        ? <YouTube {...options} onEnd={() => skipVideo()}/>
-        : <Text size={'xl'}>Waiting for songs...</Text>
-      }
-      <Flex
-        direction={'row'}
-        gap={'sm'}
-        align={'center'}
-        justify={'center'}
-      >
-        <Button
-          variant={'outline'}
-          disabled={videos.length === 0}
-          leftIcon={isPlaying ? <IconPlayerPause/> : <IconPlayerPlay/>}
+    <Flex direction={'row'}>
+      <Flex direction={'column'} gap={'sm'} w={options.opts.width}>
+        {options.videoId
+          ? <YouTube {...options} onEnd={() => skipVideo()}/>
+          : <Text size={'xl'}>Waiting for songs...</Text>
+        }
+        <Grid align={'center'}>
+          <Grid.Col span={1}><Text>{formatDuration(currentTime)}</Text></Grid.Col>
+          <Grid.Col span={10}>
+            <Slider
+              value={parseInt(currentTime.toFixed(0), 10)}
+              style={{ marginLeft: 10, marginRight: 10 }}
+              label={(v) => formatDuration(v)}
+              onChange={(v) => setTime(v)}
+              max={songDuration}
+            />
+          </Grid.Col>
+          <Grid.Col span={1}><Text>{formatDuration(songDuration)}</Text></Grid.Col>
+        </Grid>
+        <Flex
+          direction={'row'}
+          gap={'sm'}
+          align={'center'}
+          justify={'center'}
         >
-          {isPlaying ? 'Pause' : 'Play'}
-        </Button>
-        <Button
-          variant={'outline'}
-          disabled={videos.length === 0}
-          onClick={() => skipVideo()}
-          leftIcon={<IconPlayerTrackNext/>}
-        >
-          Next
-        </Button>
-
+          <Button
+            variant={'outline'}
+            disabled={videos.length === 0}
+            leftIcon={isPlaying ? <IconPlayerPause/> : <IconPlayerPlay/>}
+            onClick={() => togglePlayState()}
+          >
+            {isPlaying ? 'Pause' : 'Play'}
+          </Button>
+          <Button
+            variant={'outline'}
+            disabled={videos.length === 0}
+            onClick={() => skipVideo()}
+            leftIcon={<IconPlayerTrackNext/>}
+          >
+            Next
+          </Button>
+        </Flex>
       </Flex>
     </Flex>
   );
