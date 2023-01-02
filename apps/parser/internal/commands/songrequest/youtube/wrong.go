@@ -50,7 +50,7 @@ var WrongCommand = types.DefaultCommand{
 		}
 
 		if len(songs) == 0 {
-			result.Result = append(result.Result, `you haven't requested any song`)
+			result.Result = append(result.Result, `You haven't requested any song`)
 			return result
 		}
 
@@ -67,7 +67,7 @@ var WrongCommand = types.DefaultCommand{
 
 		number, err := strconv.Atoi(*ctx.Text)
 		if err != nil {
-			result.Result = append(result.Result, "seems like you provided not a number.")
+			result.Result = append(result.Result, "Seems like you provided not a number.")
 			return result
 		}
 
@@ -83,7 +83,7 @@ var WrongCommand = types.DefaultCommand{
 		choosedSong.DeletedAt = lo.ToPtr(time.Now())
 		err = ctx.Services.Db.Updates(&choosedSong).Error
 		if err != nil {
-			result.Result = append(result.Result, "cannot delete song")
+			result.Result = append(result.Result, "Cannot delete song")
 			return result
 		}
 
@@ -96,7 +96,7 @@ var WrongCommand = types.DefaultCommand{
 		)
 		if err != nil {
 			log.Fatal(err)
-			result.Result = append(result.Result, "internal error happend when we removing song from queue")
+			result.Result = append(result.Result, "Internal error happened when we removing song from queue")
 			return result
 		}
 

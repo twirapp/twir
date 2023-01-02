@@ -31,8 +31,10 @@ const Player: NextPage = () => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const skipVideo = useCallback(
-    (index = 0) => {
-      callWsSkip(videos[index]!);
+    (index = 0, callWs = true) => {
+      if (videos[index] && callWs) {
+        callWsSkip(videos[index]!);
+      }
 
       const length = videos.length;
       if (index === 0) {
@@ -78,19 +80,27 @@ const Player: NextPage = () => {
       addVideos([track]);
     });
 
+    return () => {
+      socketRef.current?.off('newTrack');
+      socketRef.current?.disconnect();
+    };
+  }, [profile.data]);
+
+  // it's in another useEffect because we need videos as dependency for correctly find index for skip
+  useEffect(() => {
+    if (!socketRef.current) return;
+
     socketRef.current.on('removeTrack', (track: RequestedSong) => {
       const index = videos.findIndex(v => v.id === track.id);
-      if (index) {
-        skipVideo(index);
+      if (index > 0) {
+        skipVideo(index, false);
       }
     });
 
     return () => {
-      socketRef.current?.off('newTrack');
       socketRef.current?.off('removeTrack');
-      socketRef.current?.disconnect();
     };
-  }, [profile.data]);
+  }, [videos, socketRef.current]);
 
   function callWsSkip(video: RequestedSong) {
     socketRef.current?.emit('skip', video.id);
@@ -114,13 +124,14 @@ const Player: NextPage = () => {
           addVideos,
           isPlaying,
           setIsPlaying,
+          setVideos,
         }}
       >
         <Grid.Col span={'auto'}>
           <PlayerComponent/>
         </Grid.Col>
         <Grid.Col span={8}>
-          <VideosList videos={videos}/>
+          <VideosList/>
         </Grid.Col>
       </PlayerContext.Provider>
     </Grid>

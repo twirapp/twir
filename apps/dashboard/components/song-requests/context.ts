@@ -9,4 +9,5 @@ export const PlayerContext = createContext({
   skipVideo: (index?: number) => void,
   isPlaying: boolean,
   setIsPlaying: Dispatch<SetStateAction<boolean>>
+  setVideos: Dispatch<SetStateAction<RequestedSong[]>>
 });
