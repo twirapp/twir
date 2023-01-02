@@ -160,6 +160,7 @@ importers:
       '@tsuwari/pubsub': workspace:*
       '@tsuwari/shared': workspace:*
       '@tsuwari/typeorm': workspace:*
+      '@tsuwari/types': workspace:*
       '@twurple/api': 5.2.7
       '@twurple/auth': 5.2.7
       '@twurple/common': 5.2.7
@@ -176,6 +177,7 @@ importers:
       '@tsuwari/pubsub': link:../../libs/pubsub
       '@tsuwari/shared': link:../../libs/shared
       '@tsuwari/typeorm': link:../../libs/typeorm
+      '@tsuwari/types': link:../../libs/types
       '@twurple/api': 5.2.7_@twurple+auth@5.2.7
       '@twurple/auth': 5.2.7
       '@twurple/common': 5.2.7

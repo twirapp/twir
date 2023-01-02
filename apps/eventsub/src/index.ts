@@ -1,6 +1,7 @@
 import * as EventSub from '@tsuwari/grpc/generated/eventsub/eventsub';
 import { PORTS } from '@tsuwari/grpc/servers/constants';
 import Express from 'express';
+import Ngrok from 'ngrok';
 import { createServer } from 'nice-grpc';
 
 import { initChannels } from './libs/initChannels.js';
@@ -28,3 +29,10 @@ const server = createServer({
 server.add(EventSub.EventSubDefinition, eventSubService);
 
 await server.listen(`0.0.0.0:${PORTS.EVENTSUB_SERVER_PORT}`);
+
+async function close() {
+  server.forceShutdown();
+  await Ngrok.disconnect();
+}
+
+process.on('SIGTERM', close).on('SIGINT', close);
