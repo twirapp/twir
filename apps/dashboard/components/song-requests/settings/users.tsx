@@ -42,7 +42,7 @@ export const YouTubeUsersSettings: React.FC = () => {
             label={t('users.minWatchTime')}
             {...form.getInputProps('user.minWatchTime')}
           />
-          <NumberInput label={t('users.minMessaegs')} {...form.getInputProps('user.minMessages')} />
+          <NumberInput label={t('users.minMessages')} {...form.getInputProps('user.minMessages')} />
           <NumberInput
             label={t('users.minFollowTime')}
             {...form.getInputProps('user.minFollowTime')}
