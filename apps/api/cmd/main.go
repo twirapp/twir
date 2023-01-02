@@ -125,12 +125,6 @@ func main() {
 
 	app.Use(compress.New())
 
-	// appLogger, _ := zap.NewDevelopment()
-	// app.Use(fiberzap.New(fiberzap.Config{
-	// 	Logger: appLogger,
-
-	// }))
-
 	do.ProvideValue[integrations.IntegrationsClient](di.Injector, clients.NewIntegrations(cfg.AppEnv))
 	do.ProvideValue[parser.ParserClient](di.Injector, clients.NewParser(cfg.AppEnv))
 	do.ProvideValue[eventsub.EventSubClient](di.Injector, clients.NewEventSub(cfg.AppEnv))
