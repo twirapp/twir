@@ -10,3 +10,10 @@ export function millisToMinutesAndSeconds(millis: number) {
   const seconds = ((millis % 60000) / 1000);
   return minutes + ':' + (seconds < 10 ? '0' : '') + seconds.toFixed(0);
 }
+
+
+export const moveItem = <T>(items: T[], from: number, to: number) => {
+  const values = [...items];
+  values.splice(to, 0, values.splice(from, 1)[0]);
+  return values;
+};

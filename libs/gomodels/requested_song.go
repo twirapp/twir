@@ -25,6 +25,7 @@ type RequestedSong struct {
 	Duration      int32      `gorm:"column:duration;type:int4"                       json:"duration"`
 	CreatedAt     time.Time  `gorm:"column:createdAt;type:TIMESTAMP;"                json:"createdAt"`
 	DeletedAt     *time.Time `gorm:"column:deletedAt;type:TIMESTAMP;"                json:"deletedAt"`
+	QueuePosition int        `gorm:"column:queuePosition;type:int4" 				 json:"queuePosition"`
 }
 
 func (c *RequestedSong) TableName() string {

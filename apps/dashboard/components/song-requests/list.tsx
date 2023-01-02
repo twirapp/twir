@@ -26,7 +26,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export const VideosList: React.FC = () => {
-  const { videos, videosHandlers, skipVideo } = useContext(PlayerContext);
+  const { videos, reorderVideos, skipVideo } = useContext(PlayerContext);
 
   const [isBrowser, setIsBrowser] = useState(false);
   const { classes } = useStyles();
@@ -35,9 +35,6 @@ export const VideosList: React.FC = () => {
     setIsBrowser(process.browser);
   }, []);
 
-  function handleDrag(from: DraggableLocation, to: DraggableLocation) {
-    videosHandlers.reorder({ from: from.index, to: to?.index || 0 });
-  }
 
   const items = videos.map((video, index) => (
     <Draggable key={video.id} index={index} draggableId={video.id}>
@@ -67,9 +64,8 @@ export const VideosList: React.FC = () => {
     <>{isBrowser
       ? <DragDropContext
         onDragEnd={({ destination, source }) => {
-          handleDrag(destination!, source);
-        }
-        }
+          reorderVideos(destination!, source);
+        }}
       >
         <Table>
           <thead>

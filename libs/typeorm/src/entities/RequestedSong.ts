@@ -39,6 +39,9 @@ export class RequestedSong {
   @Column()
   orderedByName: string;
 
+  @Column()
+  queuePosition: number;
+
   @ManyToOne('User', 'requestedSongs')
   @JoinColumn({ name: 'orderedById' })
   orderedBy?: Relation<User>;

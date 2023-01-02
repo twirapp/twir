@@ -8,9 +8,11 @@ import { GetServerSideProps, NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { DraggableLocation } from 'react-beautiful-dnd';
 import { io, Socket } from 'socket.io-client';
 
 import { PlayerContext } from '@/components/song-requests/context';
+import { moveItem } from '@/components/song-requests/helpers';
 import { VideosList } from '@/components/song-requests/list';
 import { useProfile } from '@/services/api';
 
@@ -20,10 +22,9 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
   },
 });
 
-const PlayerComponent = dynamic(
-  () => import('../../components/song-requests/player'),
-  { ssr: false },
-);
+const PlayerComponent = dynamic(() => import('../../components/song-requests/player'), {
+  ssr: false,
+});
 
 const Player: NextPage = () => {
   const profile = useProfile();
@@ -52,22 +53,42 @@ const Player: NextPage = () => {
 
   const addVideos = useCallback(
     (v: RequestedSong[]) => {
-      videosHandlers.setState(existedVideos => [...existedVideos, ...v]);
+      videosHandlers.setState((existedVideos) => [...existedVideos, ...v]);
     },
     [videos],
+  );
+
+  const reorderVideos = useCallback(
+    (destination: DraggableLocation, source: DraggableLocation) => {
+      const from = source.index;
+      const to = destination?.index || 0;
+      videosHandlers.reorder({ from, to });
+
+      const newVideos = moveItem(videos, from, to)
+        .map((v, i) => ({ ...v, queuePosition: i + 1 }))
+        .slice(1);
+
+      socketRef.current?.emit('newOrder', newVideos);
+    },
+    [videos, socketRef.current],
   );
 
   useEffect(() => {
     if (!profile.data) return;
 
     if (!socketRef.current) {
-      socketRef.current = io(`${`${window.location.protocol == 'https:' ? 'wss' : 'ws'}://${window.location.host}`}/youtube`, {
-        transports: ['websocket'],
-        autoConnect: false,
-        auth: (cb) => {
-          cb({ apiKey: profile.data?.apiKey, channelId: getCookie('selectedDashboard') });
+      socketRef.current = io(
+        `${`${window.location.protocol == 'https:' ? 'wss' : 'ws'}://${
+          window.location.host
+        }`}/youtube`,
+        {
+          transports: ['websocket'],
+          autoConnect: false,
+          auth: (cb) => {
+            cb({ apiKey: profile.data?.apiKey, channelId: getCookie('selectedDashboard') });
+          },
         },
-      });
+      );
     }
 
     socketRef.current.connect();
@@ -92,7 +113,7 @@ const Player: NextPage = () => {
     if (!socketRef.current) return;
 
     socketRef.current.on('removeTrack', (track: RequestedSong) => {
-      const index = videos.findIndex(v => v.id === track.id);
+      const index = videos.findIndex((v) => v.id === track.id);
       if (index > 0) {
         skipVideo(index, false);
       }
@@ -126,13 +147,14 @@ const Player: NextPage = () => {
           addVideos,
           isPlaying,
           setIsPlaying,
+          reorderVideos,
         }}
       >
         <Grid.Col span={'auto'}>
-          <PlayerComponent/>
+          <PlayerComponent />
         </Grid.Col>
         <Grid.Col span={8}>
-          <VideosList/>
+          <VideosList />
         </Grid.Col>
       </PlayerContext.Provider>
     </Grid>

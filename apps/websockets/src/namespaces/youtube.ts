@@ -55,6 +55,12 @@ youtubeNamespace.on('connection', async (socket) => {
   socket.on('pause', () => {
     redis.del(`songrequests:youtube:${channelId}:currentPlaying`);
   });
+
+  socket.on('newOrder', async (videos: RequestedSong[]) => {
+    for (const video of videos) {
+      await repository.update({ id: video.id }, { queuePosition: video.queuePosition });
+    }
+  });
 });
 
 export const onAddRequest = async (data: YoutubeAddSongToQueueRequest): Promise<Empty> => {
@@ -81,5 +87,3 @@ export const onRemoveRequest = async (data: YoutubeRemoveSongFromQueueRequest): 
 
   return {};
 };
-
-

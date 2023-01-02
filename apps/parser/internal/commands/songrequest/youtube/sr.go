@@ -157,14 +157,6 @@ var SrCommand = types.DefaultCommand{
 			CreatedAt:     time.Now(),
 		}
 
-		err = ctx.Services.Db.Create(&entity).Error
-
-		if err != nil {
-			log.Fatal(err)
-			result.Result = append(result.Result, "internal error")
-			return result
-		}
-
 		songsInQueue := []model.RequestedSong{}
 		ctx.Services.Db.
 			Where(
@@ -175,6 +167,16 @@ var SrCommand = types.DefaultCommand{
 			Select("duration").
 			Order(`"createdAt" desc`).
 			Find(&songsInQueue)
+
+		entity.QueuePosition = len(songsInQueue) + 1
+
+		err = ctx.Services.Db.Create(&entity).Error
+
+		if err != nil {
+			log.Fatal(err)
+			result.Result = append(result.Result, "internal error")
+			return result
+		}
 
 		timeForWait := 0 * time.Minute
 		for _, s := range songsInQueue {
