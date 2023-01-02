@@ -1,12 +1,33 @@
+import dynamic from 'next/dynamic';
 import { ActionIcon, createStyles, Flex, Table } from '@mantine/core';
 import { IconGripVertical, IconTrash } from '@tabler/icons';
-import { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { DragDropContext, Draggable, DraggableLocation, Droppable } from 'react-beautiful-dnd';
-
+import { useContext } from 'react';
 import { convertMillisToTime } from './helpers';
-
 import { PlayerContext } from '@/components/song-requests/context';
+
+const DragDropContext = dynamic(
+  async () => {
+    const mod = await import('react-beautiful-dnd');
+    return mod.DragDropContext;
+  },
+  { ssr: false },
+);
+
+const Droppable = dynamic(
+  async () => {
+    const mod = await import('react-beautiful-dnd');
+    return mod.Droppable;
+  },
+  { ssr: false },
+);
+
+const Draggable = dynamic(
+  async () => {
+    const mod = await import('react-beautiful-dnd');
+    return mod.Draggable;
+  },
+  { ssr: false },
+);
 
 const useStyles = createStyles((theme) => ({
   item: {
@@ -25,13 +46,7 @@ const useStyles = createStyles((theme) => ({
 
 export const VideosList: React.FC = () => {
   const { videos, reorderVideos, skipVideo } = useContext(PlayerContext);
-
-  const [isBrowser, setIsBrowser] = useState(false);
   const { classes } = useStyles();
-
-  useEffect(() => {
-    setIsBrowser(process.browser);
-  }, []);
 
   const items = videos.map((video, index) => (
     <Draggable key={video.id} index={index} draggableId={video.id}>
@@ -66,37 +81,31 @@ export const VideosList: React.FC = () => {
   ));
 
   return (
-    <>
-      {isBrowser ? (
-        <DragDropContext
-          onDragEnd={({ destination, source }) => {
-            reorderVideos(destination!, source);
-          }}
-        >
-          <Table>
-            <thead>
-              <tr>
-                <th style={{ width: 40 }}></th>
-                <th>#</th>
-                <th>Title</th>
-                <th>Requested by</th>
-                <th>Duration</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <Droppable droppableId="dnd-list" direction="vertical">
-              {(provided) => (
-                <tbody {...provided.droppableProps} ref={provided.innerRef}>
-                  {items}
-                  {provided.placeholder}
-                </tbody>
-              )}
-            </Droppable>
-          </Table>
-        </DragDropContext>
-      ) : (
-        <div></div>
-      )}
-    </>
+    <DragDropContext
+      onDragEnd={({ destination, source }) => {
+        reorderVideos(destination!, source);
+      }}
+    >
+      <Table>
+        <thead>
+          <tr>
+            <th style={{ width: 40 }}></th>
+            <th>#</th>
+            <th>Title</th>
+            <th>Requested by</th>
+            <th>Duration</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <Droppable droppableId="dnd-list" direction="vertical">
+          {(provided) => (
+            <tbody {...provided.droppableProps} ref={provided.innerRef}>
+              {items}
+              {provided.placeholder}
+            </tbody>
+          )}
+        </Droppable>
+      </Table>
+    </DragDropContext>
   );
 };
