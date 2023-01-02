@@ -25,6 +25,7 @@ func checkUser(
 	services types.Services,
 ) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	eventSubGrpc := do.MustInvoke[eventsub.EventSubClient](di.Injector)
 
 	defaultBot := model.Bots{}
 	err := services.DB.Where("type = ?", "DEFAULT").First(&defaultBot).Error
@@ -121,7 +122,7 @@ func checkUser(
 			UserId: userId,
 		},
 	)
-	services.EventSubGrpc.SubscribeToEvents(
+	eventSubGrpc.SubscribeToEvents(
 		context.Background(),
 		&eventsub.SubscribeToEventsRequest{
 			ChannelId: userId,
