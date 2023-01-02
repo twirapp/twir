@@ -127,14 +127,14 @@ func newBot(opts *ClientOpts) *types.BotClient {
 			client.OnSelfJoinMessage(botHandlers.OnSelfJoin)
 			client.OnUserStateMessage(func(message irc.UserStateMessage) {
 				defer messagesCounter.Inc()
-				if message.User.ID == me.ID {
+				if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
 					return
 				}
 				botHandlers.OnUserStateMessage(message)
 			})
 			client.OnUserNoticeMessage(func(message irc.UserNoticeMessage) {
 				defer messagesCounter.Inc()
-				if message.User.ID == me.ID {
+				if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
 					return
 				}
 				botHandlers.OnMessage(handlers.Message{
@@ -155,7 +155,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 			})
 			client.OnPrivateMessage(func(message irc.PrivateMessage) {
 				defer messagesCounter.Inc()
-				if message.User.ID == me.ID {
+				if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
 					return
 				}
 				botHandlers.OnMessage(handlers.Message{
