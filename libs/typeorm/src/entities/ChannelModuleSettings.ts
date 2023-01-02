@@ -28,26 +28,3 @@ export class ChannelModuleSettings {
   @JoinColumn({ name: 'channelId' })
   channel?: Relation<Channel>;
 }
-
-export type YoutubeSettings = {
-  maxRequests?: number;
-  acceptOnlyWhenOnline?: boolean;
-  channelPointsRewardName?: string;
-  user?: {
-    maxRequests?: number;
-    minWatchTime?: number;
-    minMessages?: number;
-    minFollowTime?: number;
-  };
-  song?: {
-    maxLength?: number;
-    minViews?: number;
-    acceptedCategories?: string[];
-  };
-  blackList?: {
-    users?: Array<{ userId: string, userName: string }>;
-    songs?: Array<{ id: string, title: string, thumbnail: string }>;
-    channels?: Array<{ id: string, title: string, thumbnail: string }>;
-    artistsNames?: string[];
-  };
-};
