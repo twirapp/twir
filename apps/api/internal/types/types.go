@@ -2,7 +2,6 @@ package types
 
 import (
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
-	"github.com/satont/tsuwari/libs/grpc/generated/timers"
 	"github.com/satont/tsuwari/libs/twitch"
 
 	cfg "github.com/satont/tsuwari/libs/config"
@@ -23,7 +22,6 @@ type Services struct {
 	Cfg                 *cfg.Config
 	TgBotApi            *tgbotapi.BotAPI
 	BotsGrpc            bots.BotsClient
-	TimersGrpc          timers.TimersClient
 }
 
 type JSONResult struct{}
