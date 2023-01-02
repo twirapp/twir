@@ -31,7 +31,6 @@ youtubeNamespace.on('connection', async (socket) => {
   });
 
   socket.on('skip', async (id) => {
-    console.log('recieve', id);
     const entity = await repository.findOneBy({ id });
     if (entity) {
       await repository.softDelete({ id });
@@ -57,7 +56,17 @@ youtubeNamespace.on('connection', async (socket) => {
   });
 
   socket.on('newOrder', async (videos: RequestedSong[]) => {
-    for (const video of videos) {
+    const currentVideosCount = await repository.count({
+      where: { channelId },
+    });
+
+    const filteredVideos = videos.filter((v) => v.queuePosition > 1);
+
+    if (filteredVideos.some((v) => v.queuePosition > currentVideosCount + 2)) {
+      return;
+    }
+
+    for (const video of filteredVideos) {
       await repository.update({ id: video.id }, { queuePosition: video.queuePosition });
     }
   });
