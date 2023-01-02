@@ -19,7 +19,6 @@ import {
 } from '@tabler/icons';
 import { AuthUser } from '@tsuwari/shared';
 import { useTranslation } from 'next-i18next';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -136,18 +135,16 @@ export function SideBar(props: Props) {
     }
   };
 
-  const createNavLink = (item: Page) => <Link
+  const createNavLink = (item: Page) => <NavLink
     key={item.label}
-    className={'side-link'}
-    style={{ textDecoration: 'none' }}
-    href={item.path ? item.path : item.label.toLowerCase()}
-  ><NavLink
     active={computeActive(item)}
     label={item.label}
     defaultOpened={item.subPages && router.asPath.startsWith(item.path)}
     icon={item.icon ? <item.icon size={16} stroke={1.5}/> : ''}
     sx={{ width: '100%' }}
-  >{item.subPages && item.subPages.map(p => createNavLink(p))}</NavLink></Link>;
+    component="a"
+    href={item.path ? item.path : item.label.toLowerCase()}
+  >{item.subPages && item.subPages.map(p => createNavLink(p))}</NavLink>;
 
   const [links, setLinks] = useState<JSX.Element[]>([]);
   useEffect(() => {

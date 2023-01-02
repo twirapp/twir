@@ -1,6 +1,5 @@
 'use client';
 
-import { Table } from '@mantine/core';
 import type { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
 import { getCookie } from 'cookies-next';
 import { GetServerSideProps, NextPage } from 'next';
@@ -10,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 import { PlayerContext } from '@/components/song-requests/context';
+import { VideosList } from '@/components/song-requests/list';
 import { useProfile } from '@/services/api';
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
@@ -115,26 +115,7 @@ const Player: NextPage = () => {
         }}
       ><PlayerComponent/></PlayerContext.Provider>
 
-      <Table>
-        <table>
-          <thead>
-          <tr>
-            <th>#</th>
-            <th>Title</th>
-            <th>Requested by</th>
-          </tr>
-          </thead>
-          <tbody>
-          {videos?.map((video, index) => (
-            <tr key={video.id}>
-              <th>{index + 1}</th>
-              <th><a href={'https://youtu.be/' + video.videoId}>{video.title}</a></th>
-              <th>{video.orderedByName}</th>
-            </tr>
-          ))}
-          </tbody>
-        </table>
-      </Table>
+      <VideosList videos={videos}/>
     </div>
   );
 };
