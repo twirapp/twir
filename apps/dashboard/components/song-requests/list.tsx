@@ -1,14 +1,19 @@
 import { ActionIcon, Flex, Table } from '@mantine/core';
 import { IconTrash } from '@tabler/icons';
 import { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
+import { useContext } from 'react';
 
 import { millisToMinutesAndSeconds } from './helpers';
+
+import { PlayerContext } from '@/components/song-requests/context';
 
 type Props = {
   videos: RequestedSong[]
 }
 
 export const VideosList: React.FC<Props> = (props) => {
+  const { skipVideo } = useContext(PlayerContext);
+
   return (
     <Table>
       <thead>
@@ -29,7 +34,8 @@ export const VideosList: React.FC<Props> = (props) => {
           <td>{millisToMinutesAndSeconds(video.duration)}</td>
           <td>
             <Flex>
-              <ActionIcon variant={'filled'} color={'red'}><IconTrash size={14}/></ActionIcon>
+              <ActionIcon variant={'filled'} color={'red'} onClick={() => skipVideo(index + 1)}><IconTrash size={14}
+              /></ActionIcon>
             </Flex>
           </td>
         </tr>

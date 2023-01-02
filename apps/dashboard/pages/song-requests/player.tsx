@@ -32,11 +32,11 @@ const Player: NextPage = () => {
 
   const skipVideo = useCallback(
     (index = 0) => {
-      setIsPlaying(false);
-      callWsSkip(videos[0]!);
+      callWsSkip(videos[index]!);
 
       const length = videos.length;
       if (index === 0) {
+        setIsPlaying(false);
         setVideos(videos.slice(1));
       } else if (index === length - 1) {
         setVideos(videos.slice(0, length - 1));
@@ -107,20 +107,22 @@ const Player: NextPage = () => {
 
   return (
     <Grid>
-      <Grid.Col span={'auto'}>
-        <PlayerContext.Provider
-          value={{
-            videos,
-            skipVideo,
-            addVideos,
-            isPlaying,
-            setIsPlaying,
-          }}
-        ><PlayerComponent/></PlayerContext.Provider>
-      </Grid.Col>
-      <Grid.Col span={8}>
-        <VideosList videos={videos}/>
-      </Grid.Col>
+      <PlayerContext.Provider
+        value={{
+          videos,
+          skipVideo,
+          addVideos,
+          isPlaying,
+          setIsPlaying,
+        }}
+      >
+        <Grid.Col span={'auto'}>
+          <PlayerComponent/>
+        </Grid.Col>
+        <Grid.Col span={8}>
+          <VideosList videos={videos}/>
+        </Grid.Col>
+      </PlayerContext.Provider>
     </Grid>
   );
 };
