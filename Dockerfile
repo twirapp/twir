@@ -72,6 +72,7 @@ COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/typeorm libs/typeorm/
+COPY --from=base /app/libs/types libs/types/
 COPY --from=base /app/libs/pubsub libs/pubsub/
 RUN pnpm install --prod
 
@@ -193,6 +194,9 @@ COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/pubsub libs/pubsub/
 COPY --from=base /app/libs/twitch libs/twitch/
 COPY --from=base /app/libs/gomodels libs/gomodels/
+COPY --from=base /app/libs/ytdl libs/ytdl/
+COPY --from=base /app/libs/ytsr libs/ytsr/
+COPY --from=base /app/libs/types libs/types/
 COPY --from=base /app/libs/integrations/spotify libs/integrations/spotify/
 RUN rm -r `find . -name node_modules -type d`
 
@@ -245,3 +249,20 @@ COPY --from=watched_deps /app/apps/watched/out /bin/watched
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["/bin/watched"]
+
+FROM node_deps_base as websocket_deps
+RUN apk add openssh libc6-compat
+COPY --from=base /app/apps/websockets apps/websockets/
+COPY --from=base /app/libs/typeorm libs/typeorm/
+COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/libs/shared libs/shared/
+COPY --from=base /app/libs/grpc libs/grpc/
+COPY --from=base /app/libs/types libs/types/
+RUN pnpm install --prod
+
+FROM node_prod_base as websockets
+WORKDIR /app
+COPY --from=websocket_deps /app/ /app/
+COPY --from=base /app/docker-entrypoint.sh /app
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["pnpm", "start:websockets"]

@@ -11,7 +11,7 @@ import (
 
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"github.com/satont/tsuwari/libs/grpc/generated/websocket"
+	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 
 	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -50,7 +50,7 @@ var SrCommand = types.DefaultCommand{
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
-		websocketGrpc := do.MustInvoke[websocket.WebsocketClient](di.Provider)
+		websocketGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
 
 		if ctx.Text == nil {
 			result.Result = append(result.Result, "You should provide text for song request")
@@ -201,7 +201,7 @@ var SrCommand = types.DefaultCommand{
 
 		websocketGrpc.YoutubeAddSongToQueue(
 			context.Background(),
-			&websocket.YoutubeAddSongToQueueRequest{
+			&websockets.YoutubeAddSongToQueueRequest{
 				ChannelId: ctx.ChannelId,
 				EntityId:  entity.ID,
 			},

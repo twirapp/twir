@@ -381,6 +381,23 @@ services:
         constraints:
           - node.role == manager
 
+  websockets:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: websockets
+    image: registry.satont.dev/tsuwari/websockets
+    secrets:
+      - tsuwari_doppler_token
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+
 volumes:
   postgres-data:
   redis-data:

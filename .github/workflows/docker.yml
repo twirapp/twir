@@ -76,6 +76,7 @@ jobs:
             web,
             dashboard,
             watched,
+            websockets,
           ]
     steps:
       - uses: actions/checkout@v2

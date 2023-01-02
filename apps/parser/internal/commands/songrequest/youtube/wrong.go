@@ -3,16 +3,17 @@ package sr_youtube
 import (
 	"context"
 	"fmt"
+	"log"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/websocket"
-	"log"
-	"strconv"
-	"strings"
-	"time"
+	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 
 	"github.com/samber/lo"
 )
@@ -28,7 +29,7 @@ var WrongCommand = types.DefaultCommand{
 		KeepResponsesOrder: lo.ToPtr(false),
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		websocketGrpc := do.MustInvoke[websocket.WebsocketClient](di.Provider)
+		websocketGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
 
 		result := &types.CommandsHandlerResult{}
 
@@ -89,7 +90,7 @@ var WrongCommand = types.DefaultCommand{
 
 		_, err = websocketGrpc.YoutubeRemoveSongToQueue(
 			context.Background(),
-			&websocket.YoutubeRemoveSongFromQueueRequest{
+			&websockets.YoutubeRemoveSongFromQueueRequest{
 				ChannelId: ctx.ChannelId,
 				EntityId:  choosedSong.ID,
 			},
