@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"github.com/satont/tsuwari/libs/grpc/generated/websocket"
 	"log"
 	"regexp"
 	"time"
+
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"github.com/satont/tsuwari/libs/grpc/generated/websocket"
 
 	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -164,9 +165,14 @@ var SrCommand = types.DefaultCommand{
 				ctx.ChannelId,
 				entity.ID,
 			).
-			Select("duration").
-			Order(`"createdAt" desc`).
+			Order(`"createdAt" asc`).
 			Find(&songsInQueue)
+
+		for i, s := range songsInQueue {
+			s.QueuePosition = i + 1
+			// ctx.Services.Db.Model(&model.RequestedSong{}).Where("id = ?", s.ID).Update("queuePosition", i+1)
+			ctx.Services.Db.Save(&s)
+		}
 
 		entity.QueuePosition = len(songsInQueue) + 1
 
