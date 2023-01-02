@@ -1,3 +1,5 @@
+import { Button, Flex, Text } from '@mantine/core';
+import { IconPlayerPause, IconPlayerPlay, IconPlayerTrackNext } from '@tabler/icons';
 import { useCallback, useContext, useState } from 'react';
 import YouTube, { YouTubeEvent, YouTubePlayer } from 'react-youtube';
 import { Options as YouTubeOptions } from 'youtube-player/dist/types';
@@ -52,24 +54,45 @@ function usePlayer() {
         autoplay: 0,
         rel: 0,
       },
+      width: 450,
+      height: 250,
     } as YouTubeOptions,
   };
 }
 
 const YoutubePlayer: React.FC = () => {
-  const { videos, toggleVideo, skipVideo, addVideos, isPlaying, ...options } = usePlayer();
+  const { videos, skipVideo, isPlaying, ...options } = usePlayer();
 
   return (
-    <div>
-      {options.videoId ? <YouTube {...options} onEnd={() => skipVideo()}
-      /> : <h1>Queue is empty</h1>}
-      <button type="button" onClick={() => toggleVideo()}>
-        {isPlaying ? 'Pause' : 'Play'}
-      </button>
-      <button type="button" onClick={() => skipVideo()}>
-        Next
-      </button>
-    </div>
+    <Flex direction={'column'} gap={'md'} w={options.opts.width}>
+      {options.videoId
+        ? <YouTube {...options} onEnd={() => skipVideo()}/>
+        : <Text size={'xl'}>Waiting for songs...</Text>
+      }
+      <Flex
+        direction={'row'}
+        gap={'sm'}
+        align={'center'}
+        justify={'center'}
+      >
+        <Button
+          variant={'outline'}
+          disabled={videos.length === 0}
+          leftIcon={isPlaying ? <IconPlayerPause/> : <IconPlayerPlay/>}
+        >
+          {isPlaying ? 'Pause' : 'Play'}
+        </Button>
+        <Button
+          variant={'outline'}
+          disabled={videos.length === 0}
+          onClick={() => skipVideo()}
+          leftIcon={<IconPlayerTrackNext/>}
+        >
+          Next
+        </Button>
+
+      </Flex>
+    </Flex>
   );
 };
 
