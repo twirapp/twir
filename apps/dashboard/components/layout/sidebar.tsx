@@ -1,4 +1,14 @@
-import { Avatar, Box, Group, Navbar, NavLink, ScrollArea, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
+import {
+  Avatar,
+  Box,
+  Group,
+  Navbar,
+  NavLink,
+  ScrollArea,
+  Text,
+  UnstyledButton,
+  useMantineTheme,
+} from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import { useSpotlight } from '@mantine/spotlight';
 import {
@@ -23,14 +33,14 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 import { useProfile } from '@/services/api';
-import { createDefaultDashboard, useSelectedDashboard } from '@/services/dashboard';
+import { createDefaultDashboard, useLocale, useSelectedDashboard } from '@/services/dashboard';
 
 type Page = {
   label: string;
   icon?: TablerIcon;
-  path: string,
-  subPages?: Page[]
-}
+  path: string;
+  subPages?: Page[];
+};
 
 const navigationLinks: Array<Page> = [
   { label: 'Dashboard', icon: IconDashboard, path: '/' },
@@ -64,11 +74,12 @@ const navigationLinks: Array<Page> = [
 ];
 
 type Props = {
-  opened: boolean,
-  setOpened: React.Dispatch<React.SetStateAction<boolean>>
-}
+  opened: boolean;
+  setOpened: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
 export function SideBar(props: Props) {
+  const [locale] = useLocale();
   const viewPort = useViewportSize();
   const router = useRouter();
   const theme = useMantineTheme();
@@ -93,7 +104,7 @@ export function SideBar(props: Props) {
           onTrigger: () => {
             setSelectedDashboard(d);
           },
-          icon: <Avatar src={d.twitchUser.profile_image_url} style={{ borderRadius: 111 }}/>,
+          icon: <Avatar src={d.twitchUser.profile_image_url} style={{ borderRadius: 111 }} />,
           id: d.id,
         }));
 
@@ -109,7 +120,7 @@ export function SideBar(props: Props) {
               userId: user.id,
             });
           },
-          icon: <Avatar src={user.profile_image_url} style={{ borderRadius: 111 }}/>,
+          icon: <Avatar src={user.profile_image_url} style={{ borderRadius: 111 }} />,
           id: user.id,
         });
       }
@@ -135,22 +146,25 @@ export function SideBar(props: Props) {
     }
   };
 
-  const createNavLink = (item: Page) => <NavLink
-    key={item.label}
-    active={computeActive(item)}
-    label={item.label}
-    defaultOpened={item.subPages && router.asPath.startsWith(item.path)}
-    icon={item.icon ? <item.icon size={16} stroke={1.5}/> : ''}
-    sx={{ width: '100%' }}
-    component="a"
-    href={`/dashboard${item.path ? item.path : item.label.toLowerCase()}`}
-    onClick={(e) => {
-      e.preventDefault();
-      if (item.subPages) return;
-      router.push(item.path ? item.path : item.label.toLowerCase());
-    }
-    }
-  >{item.subPages && item.subPages.map(p => createNavLink(p))}</NavLink>;
+  const createNavLink = (item: Page) => (
+    <NavLink
+      key={item.label}
+      active={computeActive(item)}
+      label={item.label}
+      defaultOpened={item.subPages && router.asPath.startsWith(item.path)}
+      icon={item.icon ? <item.icon size={16} stroke={1.5} /> : ''}
+      sx={{ width: '100%' }}
+      component="a"
+      href={`/dashboard/${locale}${item.path ? item.path : item.label.toLowerCase()}`}
+      onClick={(e) => {
+        e.preventDefault();
+        if (item.subPages) return;
+        router.push(item.path ? item.path : item.label.toLowerCase(), undefined, { locale });
+      }}
+    >
+      {item.subPages && item.subPages.map((p) => createNavLink(p))}
+    </NavLink>
+  );
 
   const [links, setLinks] = useState<JSX.Element[]>([]);
   useEffect(() => {
@@ -200,7 +214,7 @@ export function SideBar(props: Props) {
             onClick={openSpotlight}
           >
             <Group>
-              <Avatar src={selectedDashboard?.twitchUser.profile_image_url} radius="xl"/>
+              <Avatar src={selectedDashboard?.twitchUser.profile_image_url} radius="xl" />
               <Box sx={{ flex: 1 }}>
                 <Text size="xs" weight={500}>
                   {t('sidebar.manage')}
