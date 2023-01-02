@@ -1,18 +1,9 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is a sample swagger for Fiber",
-        "title": "Fiber Example API",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "email": "fiber@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
-        "version": "1.0"
+        "description": "Non-public api for tsuwari",
+        "title": "Tsuwari api",
+        "contact": {}
     },
     "host": "localhost:3002",
     "basePath": "/",
@@ -180,7 +171,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -237,7 +228,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -358,7 +349,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandPatchDto"
                         }
                     },
                     {
@@ -433,7 +424,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
                             }
                         }
                     },
@@ -468,7 +459,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsDto"
                         }
                     },
                     {
@@ -483,7 +474,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
                         }
                     },
                     "400": {
@@ -525,7 +516,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsPatchDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsPatchDto"
                         }
                     },
                     {
@@ -547,7 +538,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
                         }
                     },
                     "400": {
@@ -1021,7 +1012,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile"
+                                "$ref": "#/definitions/internal_api_v1_integrations_lastfm.LastfmProfile"
                             }
                         }
                     },
@@ -1056,7 +1047,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_lastfm.lastfmDto"
                         }
                     },
                     {
@@ -1246,7 +1237,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_spotify.tokenDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.tokenDto"
                         }
                     },
                     {
@@ -1433,7 +1424,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_streamlabs.tokenDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto"
                         }
                     },
                     {
@@ -1580,7 +1571,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile"
+                            "$ref": "#/definitions/internal_api_v1_integrations_vk.profile"
                         }
                     },
                     "500": {
@@ -1614,7 +1605,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_vk.vkDto"
                         }
                     },
                     {
@@ -1798,7 +1789,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto"
+                            "$ref": "#/definitions/internal_api_v1_keywords.keywordDto"
                         }
                     },
                     {
@@ -1855,7 +1846,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto"
+                            "$ref": "#/definitions/internal_api_v1_keywords.keywordDto"
                         }
                     },
                     {
@@ -1976,7 +1967,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_keywords.keywordPatchDto"
                         }
                     },
                     {
@@ -2086,7 +2077,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_moderation.moderationDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto"
                         }
                     },
                     {
@@ -2154,7 +2145,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity"
+                                "$ref": "#/definitions/internal_api_v1_settings_dashboardAccess.Entity"
                             }
                         }
                     },
@@ -2189,7 +2180,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto"
+                            "$ref": "#/definitions/internal_api_v1_settings_dashboardAccess.addUserDto"
                         }
                     },
                     {
@@ -2204,7 +2195,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity"
+                            "$ref": "#/definitions/internal_api_v1_settings_dashboardAccess.Entity"
                         }
                     },
                     "400": {
@@ -4299,17 +4290,11 @@
         "model.ChannelsTimers": {
             "type": "object",
             "properties": {
-                "channelId": {
-                    "type": "string"
-                },
                 "enabled": {
                     "type": "boolean"
                 },
                 "id": {
                     "type": "string"
-                },
-                "lastTriggerMessageNumber": {
-                    "type": "integer"
                 },
                 "messageInterval": {
                     "type": "integer"
@@ -4435,7 +4420,6 @@
     },
     "securityDefinitions": {
         "ApiKeyAuth": {
-            "description": "\"apiKey\" from /v1/profile response",
             "type": "apiKey",
             "name": "api-key",
             "in": "header"

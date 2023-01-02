@@ -989,14 +989,10 @@ definitions:
     type: object
   model.ChannelsTimers:
     properties:
-      channelId:
-        type: string
       enabled:
         type: boolean
       id:
         type: string
-      lastTriggerMessageNumber:
-        type: integer
       messageInterval:
         type: integer
       name:
@@ -1077,16 +1073,9 @@ definitions:
     type: object
 host: localhost:3002
 info:
-  contact:
-    email: fiber@swagger.io
-    name: API Support
-  description: This is a sample swagger for Fiber
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Fiber Example API
-  version: "1.0"
+  contact: {}
+  description: Non-public api for tsuwari
+  title: Tsuwari api
 paths:
   /v1/channels/{channelId}/bot/checkmod:
     get:
@@ -1185,7 +1174,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1257,7 +1246,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1299,7 +1288,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1349,7 +1338,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_api_v1_greetings.Greeting'
+              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting'
             type: array
         "500":
           description: Internal Server Error
@@ -1369,7 +1358,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_greetings.greetingsDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1381,7 +1370,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_api_v1_greetings.Greeting'
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting'
         "400":
           description: Bad Request
           schema:
@@ -1435,7 +1424,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_greetings.greetingsPatchDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1452,7 +1441,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_api_v1_greetings.Greeting'
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting'
         "400":
           description: Bad Request
           schema:
@@ -1719,7 +1708,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile'
+              $ref: '#/definitions/internal_api_v1_integrations_lastfm.LastfmProfile'
             type: array
         "500":
           description: Internal Server Error
@@ -1739,7 +1728,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto'
+          $ref: '#/definitions/internal_api_v1_integrations_lastfm.lastfmDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1858,7 +1847,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_spotify.tokenDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1975,7 +1964,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_streamlabs.tokenDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2069,7 +2058,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile'
+            $ref: '#/definitions/internal_api_v1_integrations_vk.profile'
         "500":
           description: Internal Server Error
           schema:
@@ -2088,7 +2077,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto'
+          $ref: '#/definitions/internal_api_v1_integrations_vk.vkDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2203,7 +2192,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto'
+          $ref: '#/definitions/internal_api_v1_keywords.keywordDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2275,7 +2264,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordPatchDto'
+          $ref: '#/definitions/internal_api_v1_keywords.keywordPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2317,7 +2306,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto'
+          $ref: '#/definitions/internal_api_v1_keywords.keywordDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2387,7 +2376,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_moderation.moderationDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2432,7 +2421,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
+              $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.Entity'
             type: array
         "500":
           description: Internal Server Error
@@ -2452,7 +2441,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto'
+          $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.addUserDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2464,7 +2453,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
+            $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.Entity'
         "400":
           description: Bad Request
           schema:
@@ -2874,7 +2863,6 @@ paths:
       - Stats
 securityDefinitions:
   ApiKeyAuth:
-    description: '"apiKey" from /v1/profile response'
     in: header
     name: api-key
     type: apiKey

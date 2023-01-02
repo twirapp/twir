@@ -3,7 +3,6 @@ package types
 import (
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/eventsub"
-	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 	"github.com/satont/tsuwari/libs/grpc/generated/scheduler"
 	"github.com/satont/tsuwari/libs/grpc/generated/timers"
@@ -31,7 +30,6 @@ type Services struct {
 	SchedulerGrpc       scheduler.SchedulerClient
 	ParserGrpc          parser.ParserClient
 	EventSubGrpc        eventsub.EventSubClient
-	IntegrationsGrpc    integrations.IntegrationsClient
 }
 
 type JSONResult struct{}
