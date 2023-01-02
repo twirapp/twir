@@ -22,6 +22,7 @@ import {
   IconKey,
   IconPencilPlus,
   IconPlayerPlay,
+  IconPlaylist,
   IconSettings,
   IconSpeakerphone,
   IconSword,
@@ -62,6 +63,7 @@ const navigationLinks: Array<Page> = [
     subPages: [
       { label: 'Custom', icon: IconPencilPlus, path: '/commands/custom' },
       { label: 'Moderation', icon: IconSword, path: '/commands/moderation' },
+      { label: 'Song Requests', icon: IconPlaylist, path: '/commands/songrequest' },
       { label: 'Manage', icon: IconClipboardCopy, path: '/commands/manage' },
       { label: 'Dota', path: '/commands/dota' },
     ],
