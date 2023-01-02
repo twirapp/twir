@@ -2,16 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"github.com/satont/tsuwari/apps/api/internal/services"
 	"os"
 	"os/signal"
 	"reflect"
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/tsuwari/apps/api/internal/services"
 
 	"github.com/gofiber/swagger"
 	"github.com/satont/tsuwari/libs/grpc/clients"

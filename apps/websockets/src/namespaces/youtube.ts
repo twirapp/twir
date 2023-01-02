@@ -22,9 +22,14 @@ youtubeNamespace.on('connection', async (socket) => {
   sockets.set(channelId, socket);
 
   socket.on('currentQueue', async (cb) => {
-    const songs = await repository.findBy({
-      channelId,
-      deletedAt: IsNull(),
+    const songs = await repository.find({
+      where: {
+        channelId,
+        deletedAt: IsNull(),
+      },
+      order: {
+        queuePosition: 'asc',
+      },
     });
 
     cb(songs);
