@@ -54,6 +54,7 @@ func handleGet(channelId string, services types.Services) (*bool, error) {
 
 func handlePatch(channelId string, dto *connectionDto, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	grpc := do.MustInvoke[bots.BotsClient](di.Injector)
 
 	twitchUsers, err := services.Twitch.Client.GetUsers(
 		&helix.UsersParams{IDs: []string{channelId}},
@@ -86,12 +87,12 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 	services.DB.Where(`"id" = ?`, channelId).Select("*").Updates(&dbUser)
 
 	if dbUser.IsEnabled {
-		services.BotsGrpc.Join(context.Background(), &bots.JoinOrLeaveRequest{
+		grpc.Join(context.Background(), &bots.JoinOrLeaveRequest{
 			BotId:    dbUser.BotID,
 			UserName: user.Login,
 		})
 	} else {
-		services.BotsGrpc.Leave(context.Background(), &bots.JoinOrLeaveRequest{
+		grpc.Leave(context.Background(), &bots.JoinOrLeaveRequest{
 			BotId:    dbUser.BotID,
 			UserName: user.Login,
 		})
