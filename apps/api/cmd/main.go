@@ -7,6 +7,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"github.com/satont/tsuwari/apps/api/internal/services"
 	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 	"os"
 	"os/signal"
 	"reflect"
@@ -129,10 +130,10 @@ func main() {
 	botsGrpcClient := clients.NewBots(cfg.AppEnv)
 	timersGrpcClient := clients.NewTimers(cfg.AppEnv)
 	schedulerGrpcClient := clients.NewScheduler(cfg.AppEnv)
-	parserGrpcClient := clients.NewParser(cfg.AppEnv)
 	eventSubGrpcClient := clients.NewEventSub(cfg.AppEnv)
 
 	do.ProvideValue[integrations.IntegrationsClient](di.Injector, clients.NewIntegrations(cfg.AppEnv))
+	do.ProvideValue[parser.ParserClient](di.Injector, clients.NewParser(cfg.AppEnv))
 
 	v1 := app.Group("/v1")
 
@@ -150,7 +151,6 @@ func main() {
 		BotsGrpc:      botsGrpcClient,
 		TimersGrpc:    timersGrpcClient,
 		SchedulerGrpc: schedulerGrpcClient,
-		ParserGrpc:    parserGrpcClient,
 		EventSubGrpc:  eventSubGrpcClient,
 	}
 
