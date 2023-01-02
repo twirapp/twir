@@ -8,6 +8,9 @@
     "source.sortImports": false,
     "source.fixAll.eslint": true
   },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
