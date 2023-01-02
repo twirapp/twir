@@ -1,4 +1,4 @@
-import { Button, Flex, Grid, Slider, Text } from '@mantine/core';
+import { Button, Card, Flex, Grid, Slider, Text } from '@mantine/core';
 import { IconPlayerPause, IconPlayerPlay, IconPlayerTrackNext } from '@tabler/icons';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import YouTube, { YouTubeEvent, YouTubePlayer } from 'react-youtube';
@@ -119,49 +119,56 @@ const YoutubePlayer: React.FC = () => {
   }, [isPlaying]);
 
   return (
-    <Flex direction={'row'}>
-      <Flex direction={'column'} gap={'sm'} w={options.opts.width}>
+    <Flex direction={'row'} w={options.opts.width}>
+      <Card style={{ paddingTop: 0 }}>
         {options.videoId
-          ? <YouTube {...options} onEnd={() => skipVideo()}/>
-          : <Text size={'xl'}>Waiting for songs...</Text>
+          ? (<><Card.Section><YouTube {...options} onEnd={() => skipVideo()}/></Card.Section>
+            <Card.Section p={'md'}>
+              <Flex direction={'column'} gap={'sm'}>
+                <Grid align={'center'}>
+                  {/*<Grid.Col span={1}><Text>{formatDuration(currentTime)}</Text></Grid.Col>*/}
+                  <Grid.Col span={12}>
+                    <Slider
+                      value={parseInt(currentTime.toFixed(0), 10)}
+                      style={{ marginLeft: 10, marginRight: 10 }}
+                      label={(v) => formatDuration(v)}
+                      onChange={(v) => setTime(v)}
+                      max={songDuration}
+                      labelAlwaysOn
+                    />
+                  </Grid.Col>
+                  {/*<Grid.Col span={1}><Text>{formatDuration(songDuration)}</Text></Grid.Col>*/}
+                </Grid>
+                <Flex
+                  direction={'row'}
+                  gap={'sm'}
+                  align={'center'}
+                  justify={'center'}
+                >
+                  <Button
+                    variant={'outline'}
+                    disabled={videos.length === 0}
+                    leftIcon={isPlaying ? <IconPlayerPause/> : <IconPlayerPlay/>}
+                    onClick={() => togglePlayState()}
+                  >
+                    {isPlaying ? 'Pause' : 'Play'}
+                  </Button>
+                  <Button
+                    variant={'outline'}
+                    disabled={videos.length === 0}
+                    onClick={() => skipVideo()}
+                    leftIcon={<IconPlayerTrackNext/>}
+                  >
+                    Next
+                  </Button>
+                </Flex>
+                <Text>Requested by {videos[0].orderedByName}</Text>
+              </Flex>
+            </Card.Section></>)
+          : <Card.Section p={'md'}><Text>Waiting for requests</Text></Card.Section>
         }
-        <Grid align={'center'}>
-          <Grid.Col span={1}><Text>{formatDuration(currentTime)}</Text></Grid.Col>
-          <Grid.Col span={10}>
-            <Slider
-              value={parseInt(currentTime.toFixed(0), 10)}
-              style={{ marginLeft: 10, marginRight: 10 }}
-              label={(v) => formatDuration(v)}
-              onChange={(v) => setTime(v)}
-              max={songDuration}
-            />
-          </Grid.Col>
-          <Grid.Col span={1}><Text>{formatDuration(songDuration)}</Text></Grid.Col>
-        </Grid>
-        <Flex
-          direction={'row'}
-          gap={'sm'}
-          align={'center'}
-          justify={'center'}
-        >
-          <Button
-            variant={'outline'}
-            disabled={videos.length === 0}
-            leftIcon={isPlaying ? <IconPlayerPause/> : <IconPlayerPlay/>}
-            onClick={() => togglePlayState()}
-          >
-            {isPlaying ? 'Pause' : 'Play'}
-          </Button>
-          <Button
-            variant={'outline'}
-            disabled={videos.length === 0}
-            onClick={() => skipVideo()}
-            leftIcon={<IconPlayerTrackNext/>}
-          >
-            Next
-          </Button>
-        </Flex>
-      </Flex>
+
+      </Card>
     </Flex>
   );
 };

@@ -1,5 +1,6 @@
 'use client';
 
+import { Flex } from '@mantine/core';
 import type { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
 import { getCookie } from 'cookies-next';
 import { GetServerSideProps, NextPage } from 'next';
@@ -104,7 +105,7 @@ const Player: NextPage = () => {
   }, [isPlaying]);
 
   return (
-    <div>
+    <Flex direction={'row'} gap={'lg'}>
       <PlayerContext.Provider
         value={{
           videos,
@@ -116,7 +117,7 @@ const Player: NextPage = () => {
       ><PlayerComponent/></PlayerContext.Provider>
 
       <VideosList videos={videos}/>
-    </div>
+    </Flex>
   );
 };
 
