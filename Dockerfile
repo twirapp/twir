@@ -8,7 +8,7 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 RUN apk add --no-cache protoc git curl libc6-compat
 
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+  go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 WORKDIR /app
 RUN npm i -g pnpm@7
@@ -162,6 +162,7 @@ COPY --from=base /app/apps/dashboard apps/dashboard/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/libs/types libs/types/
 RUN pnpm install --prod
 
 FROM node_prod_base as dashboard
