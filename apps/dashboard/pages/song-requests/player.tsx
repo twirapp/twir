@@ -48,7 +48,7 @@ const Player: NextPage = () => {
 
   const addVideos = useCallback(
     (v: RequestedSong[]) => {
-      setVideos([...videos, ...v]);
+      setVideos(existedVideos => [...existedVideos, ...v]);
     },
     [videos],
   );
