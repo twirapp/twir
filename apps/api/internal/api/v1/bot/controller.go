@@ -11,20 +11,22 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
+
+	_ "github.com/satont/tsuwari/libs/types/types/api/bot"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("bot")
 
-	isBotModCache := cache.New(cache.Config{
-		Expiration: 15 * time.Second,
+	botInfoCache := cache.New(cache.Config{
+		Expiration: 20 * time.Second,
 		Storage:    services.RedisStorage,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return fmt.Sprintf("channels:isBotMod:%s", c.Params("channelId"))
 		},
 	})
 
-	middleware.Get("checkmod", isBotModCache, get(services))
+	middleware.Get("", botInfoCache, get(services))
 
 	limit := limiter.New(limiter.Config{
 		Max:        2,
@@ -52,7 +54,8 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Accept       json
 // @Produce      json
 // @Param        channelId   path      string  true  "ChannelId"
-// @Success      200  {boolean}  boolean
+// @Success      200  {object}  BotInfo
+// @Failure 404 {object} types.DOCApiInternalError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/bot/checkmod [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
@@ -95,11 +98,17 @@ func patch(services types.Services) func(c *fiber.Ctx) error {
 			return err
 		}
 
-		err = handlePatch(c.Params("channelId"), dto, services)
+		channelId := c.Params("channelId")
+		err = handlePatch(channelId, dto, services)
 
 		if err != nil {
 			return err
 		}
+
+		services.RedisStorage.DeleteByMethod(
+			fmt.Sprintf("channels:isBotMod:%s", channelId),
+			"GET",
+		)
 
 		return c.SendStatus(200)
 	}

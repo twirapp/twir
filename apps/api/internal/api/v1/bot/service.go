@@ -2,10 +2,12 @@ package bot
 
 import (
 	"context"
+	"net/http"
+	"sync"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"net/http"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
@@ -16,9 +18,11 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
+
+	apiTypes "github.com/satont/tsuwari/libs/types/types/api/bot"
 )
 
-func handleGet(channelId string, services types.Services) (*bool, error) {
+func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
 
 	client, err := twitch.NewUserClient(twitch.UsersServiceOpts{
@@ -40,16 +44,52 @@ func handleGet(channelId string, services types.Services) (*bool, error) {
 		return nil, fiber.NewError(http.StatusNotFound, "cannot find channel in db")
 	}
 
-	mods, err := client.GetChannelMods(&helix.GetChannelModsParams{
-		BroadcasterID: channelId,
-		UserID:        channel.BotID,
-	})
-	if err != nil {
-		logger.Error(err)
-		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get mods of channel")
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
+	result := apiTypes.BotInfo{
+		Enabled: channel.IsEnabled,
 	}
 
-	return lo.ToPtr(lo.If(len(mods.Data.Mods) == 0, false).Else(true)), nil
+	go func() {
+		defer wg.Done()
+		mods, err := client.GetChannelMods(&helix.GetChannelModsParams{
+			BroadcasterID: channelId,
+			UserID:        channel.BotID,
+		})
+		if err != nil {
+			logger.Error(err)
+			return
+		}
+
+		result.IsMod = lo.If(len(mods.Data.Mods) == 0, false).Else(true)
+	}()
+
+	go func() {
+		defer wg.Done()
+		infoReq, err := client.GetUsers(&helix.UsersParams{
+			IDs: []string{channel.BotID},
+		})
+		if err != nil {
+			logger.Error(err)
+			return
+		}
+
+		if len(infoReq.Data.Users) == 0 {
+			return
+		}
+
+		result.BotID = channel.BotID
+		result.BotName = infoReq.Data.Users[0].Login
+	}()
+
+	wg.Wait()
+
+	if result.BotName == "" {
+		return nil, fiber.NewError(404, "cannot find bot info on twitch")
+	}
+
+	return &result, nil
 }
 
 func handlePatch(channelId string, dto *connectionDto, services types.Services) error {
