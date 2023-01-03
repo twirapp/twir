@@ -1,8 +1,8 @@
-import { Empty } from '@tsuwari/grpc/generated/websocket/google/protobuf/empty';
+import { Empty } from '@tsuwari/grpc/generated/websockets/google/protobuf/empty';
 import {
   YoutubeAddSongToQueueRequest,
   YoutubeRemoveSongFromQueueRequest,
-} from '@tsuwari/grpc/generated/websocket/websocket';
+} from '@tsuwari/grpc/generated/websockets/websockets';
 import { IsNull } from '@tsuwari/typeorm';
 import { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
 import SocketIo from 'socket.io';

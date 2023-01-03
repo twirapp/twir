@@ -1,4 +1,4 @@
-import * as Websocket from '@tsuwari/grpc/generated/websocket/websocket';
+import * as Websocket from '@tsuwari/grpc/generated/websockets/websockets';
 import { PORTS } from '@tsuwari/grpc/servers/constants';
 import { createServer } from 'nice-grpc';
 
@@ -13,8 +13,6 @@ const websocketService: Websocket.WebsocketServiceImplementation = {
   youtubeRemoveSongToQueue: onRemoveRequest,
 };
 
-
 grpcServer.add(Websocket.WebsocketDefinition, websocketService);
 
 export const listen = () => grpcServer.listen(`0.0.0.0:${PORTS.WEBSOCKET_SERVER_PORT}`);
-
