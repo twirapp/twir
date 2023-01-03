@@ -109,7 +109,10 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		if ytdlSongInfo.Duration.Seconds() == 0 {
-			result.Result = append(result.Result, "Seems like that song is live, which is disallowed.")
+			result.Result = append(
+				result.Result,
+				"Seems like that song is live, which is disallowed.",
+			)
 			return result
 		}
 
@@ -285,8 +288,8 @@ func validate(
 		)
 	}
 
-	if settings.Song.MaxLength != 0 &&
-		song.Duration > time.Minute*time.Duration(settings.Song.MaxLength) {
+	songDuration := int(song.Duration.Minutes())
+	if settings.Song.MaxLength != 0 && songDuration > settings.Song.MaxLength {
 		return errors.New("That song is to long for request")
 	}
 
