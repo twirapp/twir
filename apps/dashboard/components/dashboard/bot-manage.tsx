@@ -36,7 +36,7 @@ export const BotManage = () => {
             <Alert icon={<IconAlertCircle size={16} />} color="red" variant="outline">
               <span
                 dangerouslySetInnerHTML={{
-                  __html: t('widgets.bot.alert.false').replace('BOT_USERNAME', botInfo?.botName ?? ''),
+                  __html: t('widgets.bot.alert.false', { botName: botInfo?.botName ?? '' }),
                 }}
               />
             </Alert>

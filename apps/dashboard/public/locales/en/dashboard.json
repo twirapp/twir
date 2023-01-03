@@ -8,7 +8,7 @@
       },
       "alert": {
         "true": "Bot is moderator on the channel",
-        "false": "We detect bot is not moderator on the channel. Please, use <b>/mod BOT_USERNAME</b>, or some of functionality may work incorrectly."
+        "false": "We detect bot is not moderator on the channel. Please, use <b>/mod {{botName}}</b>, or some of functionality may work incorrectly."
       }
     }
   }
