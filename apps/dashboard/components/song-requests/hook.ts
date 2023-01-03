@@ -8,7 +8,8 @@ import { PlayerContext } from '@/components/song-requests/context';
 export function usePlayer() {
   const { width } = useViewportSize();
   const [player, setPlayer] = useState<YouTubePlayer | null>(null);
-  const { videos, skipVideo, addVideos, isPlaying, setIsPlaying } = useContext(PlayerContext);
+  const { videos, skipVideo, addVideos, isPlaying, setIsPlaying, autoPlay } =
+    useContext(PlayerContext);
 
   const togglePlayState = useCallback(() => {
     if (isPlaying) {
@@ -49,9 +50,12 @@ export function usePlayer() {
     return player?.getCurrentTime() as unknown as number;
   }, [player]);
 
-  const setTime = useCallback((t: number) => {
-    player?.seekTo(t, true);
-  }, [player]);
+  const setTime = useCallback(
+    (t: number) => {
+      player?.seekTo(t, true);
+    },
+    [player],
+  );
 
   return {
     videos,
@@ -68,7 +72,7 @@ export function usePlayer() {
     opts: {
       playerVars: {
         controls: 1,
-        autoplay: 0,
+        autoplay: autoPlay,
         rel: 0,
       },
       width: width < 450 ? 330 : 450,

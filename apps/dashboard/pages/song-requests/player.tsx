@@ -30,6 +30,7 @@ const Player: NextPage = () => {
   const profile = useProfile();
   const [videos, videosHandlers] = useListState<RequestedSong>([]);
   const socketRef = useRef<Socket | null>(null);
+  const [autoPlay, setAutoPlay] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const skipVideo = useCallback(
@@ -99,6 +100,7 @@ const Player: NextPage = () => {
     });
 
     socketRef.current.on('newTrack', (track: RequestedSong) => {
+      if (autoPlay === 0) setAutoPlay(1);
       addVideos([track]);
     });
 
@@ -148,6 +150,8 @@ const Player: NextPage = () => {
           isPlaying,
           setIsPlaying,
           reorderVideos,
+          autoPlay,
+          setAutoPlay,
         }}
       >
         <Grid.Col span={'auto'}>
