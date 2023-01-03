@@ -14,6 +14,7 @@ require (
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
+	github.com/satont/tsuwari/libs/types v0.0.0-20230103005447-f8437299a3a0
 	github.com/satori/go.uuid v1.2.0
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	go.uber.org/zap v1.23.0
@@ -27,6 +28,7 @@ require (
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bitly/go-simplejson v0.5.0 // indirect
+	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
 	github.com/dlclark/regexp2 v1.7.0 // indirect
 	github.com/dop251/goja v0.0.0-20221115122301-6c0d9883792e // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
@@ -93,6 +95,8 @@ replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
 
 replace github.com/kkdai/youtube/v2 => ../../libs/ytdl
+
+replace github.com/SherlockYigit/youtube-go => ../../libs/ytsr
 
 replace github.com/satont/tsuwari/libs/types => ../../libs/types
 
