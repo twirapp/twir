@@ -1,11 +1,16 @@
-import { Button, Card, Flex, Grid, Loader, Slider, Text } from '@mantine/core';
-import { IconPlayerPause, IconPlayerPlay, IconPlayerTrackNext } from '@tabler/icons';
+import { Badge, Button, Card, Flex, Grid, Loader, Slider, Text } from '@mantine/core';
+import {
+  IconPlayerPause,
+  IconPlayerPlay,
+  IconPlayerTrackNext,
+  IconPlaylist,
+  IconUser,
+} from '@tabler/icons';
 import { useEffect, useState } from 'react';
 import YouTube from 'react-youtube';
 
-import { formatDuration } from '@/components/song-requests/helpers';
+import { convertMillisToTime, formatDuration } from '@/components/song-requests/helpers';
 import { usePlayer } from '@/components/song-requests/hook';
-
 
 const YoutubePlayer: React.FC = () => {
   const {
@@ -43,10 +48,10 @@ const YoutubePlayer: React.FC = () => {
   return (
     <Flex direction={'row'} w={options.opts.width}>
       <Card shadow="sm" p="lg" withBorder>
-        {options.videoId
-          ? (<>
+        {options.videoId ? (
+          <>
             <Card.Section style={{ marginTop: -20, marginLeft: -30, marginRight: -30 }}>
-              <YouTube {...options} onEnd={() => skipVideo()}/>
+              <YouTube {...options} onEnd={() => skipVideo()} />
             </Card.Section>
             <Card.Section p={'md'}>
               <Flex direction={'column'} gap={'sm'}>
@@ -63,16 +68,11 @@ const YoutubePlayer: React.FC = () => {
                   </Grid.Col>
                   {/*<Grid.Col span={1}><Text>{formatDuration(songDuration)}</Text></Grid.Col>*/}
                 </Grid>
-                <Flex
-                  direction={'row'}
-                  gap={'sm'}
-                  align={'center'}
-                  justify={'center'}
-                >
+                <Flex direction={'row'} gap={'sm'} align={'center'} justify={'center'}>
                   <Button
                     variant={'outline'}
                     disabled={videos.length === 0}
-                    leftIcon={isPlaying ? <IconPlayerPause/> : <IconPlayerPlay/>}
+                    leftIcon={isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
                     onClick={() => togglePlayState()}
                   >
                     {isPlaying ? 'Pause' : 'Play'}
@@ -81,15 +81,25 @@ const YoutubePlayer: React.FC = () => {
                     variant={'outline'}
                     disabled={videos.length === 0}
                     onClick={() => skipVideo()}
-                    leftIcon={<IconPlayerTrackNext/>}
+                    leftIcon={<IconPlayerTrackNext />}
                   >
                     Next
                   </Button>
                 </Flex>
-                <Text>Requested by {videos[0].orderedByName}</Text>
+                <Flex direction={'column'} gap={'sm'} justify={'flex-start'}>
+                  <Text>
+                    <IconPlaylist size={16} /> {videos[0].title}{' '}
+                    <Badge>{convertMillisToTime(videos[0].duration)}</Badge>
+                  </Text>
+                  <Text>
+                    <IconUser size={16} /> Requested by <Badge>{videos[0].orderedByName}</Badge>
+                  </Text>
+                </Flex>
               </Flex>
-            </Card.Section></>)
-          : <Card.Section>
+            </Card.Section>
+          </>
+        ) : (
+          <Card.Section>
             <Flex
               style={{ width: options.opts.width, height: 300 }}
               direction={'column'}
@@ -97,12 +107,11 @@ const YoutubePlayer: React.FC = () => {
               justify={'center'}
               gap={'sm'}
             >
-              <Loader/>
+              <Loader />
               <Text>Waiting for requests</Text>
             </Flex>
           </Card.Section>
-        }
-
+        )}
       </Card>
     </Flex>
   );
