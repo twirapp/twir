@@ -8,6 +8,7 @@ importers:
       '@types/node': 18.11.10
       '@typescript-eslint/eslint-plugin': 5.45.0
       '@typescript-eslint/parser': 5.45.0
+      cross-env: ^7.0.3
       eslint: 8.28.0
       eslint-plugin-import: 2.26.0
       nodemon: 2.0.20
@@ -20,6 +21,7 @@ importers:
       '@types/node': 18.11.10
       '@typescript-eslint/eslint-plugin': 5.45.0_czs5uoqkd3podpy6vgtsxfc7au
       '@typescript-eslint/parser': 5.45.0_hsf322ms6xhhd4b5ne6lb74y4a
+      cross-env: 7.0.3
       eslint: 8.28.0
       eslint-plugin-import: 2.26.0_vbnhqcxlbs7ynbxw44hu2vq7eq
       nodemon: 2.0.20

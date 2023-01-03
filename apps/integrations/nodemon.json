@@ -3,6 +3,6 @@
     "src",
     ".env"
   ],
-  "exec": "TS_NODE_TRANSPILE_ONLY=true node --loader ts-node/esm --enable-source-maps --trace-warnings --inspect=0.0.0.0:9232 --nolazy src/index.ts",
+  "exec": "cross-env TS_NODE_TRANSPILE_ONLY=true node --loader ts-node/esm --enable-source-maps --trace-warnings --inspect=0.0.0.0:9232 --nolazy src/index.ts",
   "ext": "ts"
 }
