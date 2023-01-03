@@ -393,7 +393,7 @@ services:
       - tsuwari
     ports:
       - target: 3004
-        published: 3004
+        published: 3005
         mode: host
     deploy:
       restart_policy:
