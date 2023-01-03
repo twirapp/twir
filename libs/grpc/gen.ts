@@ -1,5 +1,5 @@
 import { exec } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { platform } from 'node:os';
 import { resolve } from 'node:path';
@@ -32,14 +32,14 @@ rmSync('generated', { recursive: true, force: true });
         );
 
         const requests = await Promise.all([
-          promisedExec(`
-        protoc --go_out=./generated/${name} --go_opt=paths=source_relative --go-grpc_out=./generated/${name} --go-grpc_opt=paths=source_relative --experimental_allow_proto3_optional --proto_path=./protos ${name}.proto`),
+          promisedExec(
+            `protoc --go_out=./generated/${name} --go_opt=paths=source_relative --go-grpc_out=./generated/${name} --go-grpc_opt=paths=source_relative --experimental_allow_proto3_optional --proto_path=./protos ${name}.proto`),
           promisedExec(
             `protoc --plugin=protoc-gen-ts_proto=${protocPath} --ts_proto_out=./generated/${name} --ts_proto_opt=outputServices=nice-grpc,outputServices=generic-definitions,useExactTypes=false,esModuleInterop=true --experimental_allow_proto3_optional --proto_path=./protos ${name}.proto`,
           ),
         ]);
 
-        console.info(`✅ Genered ${name} proto definitions for go and ts.`);
+        console.info(`✅ Generated ${name} proto definitions for go and ts.`);
 
         return requests;
       }),
