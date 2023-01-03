@@ -1,7 +1,8 @@
-import { useBotApi } from '@/services/api/bot';
 import { Alert, Button, Card, createStyles, Skeleton, Text } from '@mantine/core';
 import { IconAlertCircle, IconCheck, IconLogin, IconLogout } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
+
+import { useBotApi } from '@/services/api/bot';
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -27,7 +28,7 @@ export const BotManage = () => {
         </Text>
 
         <Card.Section pt="lg" p="lg">
-          {!botInfo?.isMod ? (
+          {botInfo?.isMod ? (
             <Alert icon={<IconCheck size={16} />} color="teal" variant="outline">
               <span dangerouslySetInnerHTML={{ __html: t('widgets.bot.alert.true') }} />
             </Alert>
