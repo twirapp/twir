@@ -1,8 +1,8 @@
 import { User } from '@tsuwari/typeorm/entities/User';
 import { Server, Socket } from 'socket.io';
-import { ExtendedError } from 'socket.io/dist/namespace';
+import { type ExtendedError } from 'socket.io/dist/namespace';
 
-import { typeorm } from './typeorm';
+import { typeorm } from './typeorm.js';
 
 export const io = new Server();
 
