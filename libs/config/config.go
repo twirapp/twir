@@ -2,7 +2,7 @@ package cfg
 
 import (
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/joho/godotenv"
@@ -36,10 +36,10 @@ func New() (*Config, error) {
 	if strings.HasPrefix(wd, "/workspace") {
 		wd = "/workspace"
 	} else {
-		wd = path.Join(wd, "../..")
+		wd = filepath.Join(wd, "..", "..")
 	}
 
-	envPath := path.Join(wd, ".env")
+	envPath := filepath.Join(wd, ".env")
 	_ = godotenv.Load(envPath)
 
 	if err = envconfig.Process("", &newCfg); err != nil {
