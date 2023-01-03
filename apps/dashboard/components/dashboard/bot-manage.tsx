@@ -1,5 +1,5 @@
 import { useBotApi } from '@/services/api/bot';
-import { Alert, Button, Card, createStyles, Grid, Skeleton, Text } from '@mantine/core';
+import { Alert, Button, Card, createStyles, Skeleton, Text } from '@mantine/core';
 import { IconAlertCircle, IconCheck, IconLogin, IconLogout } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 
@@ -16,55 +16,44 @@ export const BotManage = () => {
   const { classes } = useStyles();
   const { t } = useTranslation('dashboard');
   const botApi = useBotApi();
-  const { data: isBotMod } = botApi.isMod();
+  const { data: botInfo } = botApi.botInfo();
   const manager = botApi.useChangeState();
 
   return (
-    <Skeleton visible={isBotMod === undefined}>
+    <Skeleton visible={botInfo?.isMod === undefined}>
       <Card withBorder radius="md" p="xl" className={classes.card}>
         <Text size="lg" className={classes.title} weight={500}>
           {t('widgets.bot.title')}
         </Text>
 
         <Card.Section pt="lg" p="lg">
-          {isBotMod ? (
+          {!botInfo?.isMod ? (
             <Alert icon={<IconCheck size={16} />} color="teal" variant="outline">
               <span dangerouslySetInnerHTML={{ __html: t('widgets.bot.alert.true') }} />
             </Alert>
           ) : (
             <Alert icon={<IconAlertCircle size={16} />} color="red" variant="outline">
-              <span dangerouslySetInnerHTML={{ __html: t('widgets.bot.alert.false') }} />
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: t('widgets.bot.alert.false').replace('BOT_USERNAME', botInfo?.botName),
+                }}
+              />
             </Alert>
           )}
 
-          <Grid grow mt="xs">
-            <Grid.Col span={4}>
-              <Button
-                size="md"
-                w="100%"
-                color="red"
-                leftIcon={<IconLogin />}
-                onClick={() => {
-                  manager.mutate('part');
-                }}
-              >
-                {t('widgets.bot.actions.leave')}
-              </Button>
-            </Grid.Col>
-            <Grid.Col span={4}>
-              <Button
-                size="md"
-                w="100%"
-                color="teal"
-                leftIcon={<IconLogout />}
-                onClick={() => {
-                  manager.mutate('join');
-                }}
-              >
-                {t('widgets.bot.actions.join')}
-              </Button>
-            </Grid.Col>
-          </Grid>
+          <Button
+            loading={manager.isLoading}
+            mt="lg"
+            size="md"
+            w="100%"
+            color={botInfo?.enabled ? 'red' : 'teal'}
+            leftIcon={botInfo?.enabled ? <IconLogout size={20} /> : <IconLogin size={20} />}
+            onClick={() => {
+              manager.mutate(botInfo?.enabled ? 'part' : 'join');
+            }}
+          >
+            {botInfo?.enabled ? t('widgets.bot.actions.leave') : t('widgets.bot.actions.join')}
+          </Button>
         </Card.Section>
       </Card>
     </Skeleton>

@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { V1 } from '@tsuwari/types/api';
 import { getCookie } from 'cookies-next';
-
 import { authFetcher } from '@/services/api/fetchWrappers';
 import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
 
