@@ -4,9 +4,13 @@ import {
   YoutubeRemoveSongFromQueueRequest,
 } from '@tsuwari/grpc/generated/websockets/websockets';
 import { IsNull } from '@tsuwari/typeorm';
+import { ChannelModuleSettings } from '@tsuwari/typeorm/entities/ChannelModuleSettings';
 import { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
+import { type YouTubeSettings } from '@tsuwari/types/api';
 import SocketIo from 'socket.io';
 
+
+import { botsGrpcClient } from '../libs/botsGrpc.js';
 import { authMiddleware, io } from '../libs/io.js';
 import { redis } from '../libs/redis.js';
 import { typeorm } from '../libs/typeorm.js';
@@ -48,16 +52,34 @@ youtubeNamespace.on('connection', async (socket) => {
   });
 
   socket.on('play', async (data) => {
-    await redis.set(
-      `songrequests:youtube:${channelId}:currentPlaying`,
-      data.id,
-      'PX',
-      data.duration,
-    );
+    const key = `songrequests:youtube:${channelId}:currentPlaying`;
+    const current = await redis.get(key);
+    const song = await repository.findOneBy({
+      id: data.id,
+    });
+    const settingsEntity = await typeorm.getRepository(ChannelModuleSettings).findOneBy({
+      channelId: song?.channelId,
+    });
+
+    const announcePlay = (settingsEntity && (settingsEntity.settings as YouTubeSettings).announcePlay) ?? true;
+
+    console.log(current);
+    if (!current && song && announcePlay) {
+      await botsGrpcClient.sendMessage({
+        channelId: song.channelId,
+        isAnnounce: true,
+        message: `Now playing ${song.title} from @${song.orderedByName}`,
+      });
+    }
+
+    await redis.set(key, data.id);
+    await redis.expire(key, data.duration);
   });
 
-  socket.on('pause', () => {
-    redis.del(`songrequests:youtube:${channelId}:currentPlaying`);
+  socket.on('pause', async () => {
+    // await redis.set(`songrequests:youtube:${channelId}:currentPlaying`, {
+    //   paused: true,
+    // });
   });
 
   socket.on('newOrder', async (videos: RequestedSong[]) => {

@@ -85,6 +85,11 @@ export const YouTubeGeneralSettings: React.FC = () => {
             labelPosition="left"
             {...form.getInputProps('acceptOnlyWhenOnline', { type: 'checkbox' })}
           />
+          <Switch
+            label={t('general.announcePlay')}
+            labelPosition="left"
+            {...form.getInputProps('announcePlay', { type: 'checkbox' })}
+          />
           <Select
             label={t('general.reward')}
             placeholder="..."

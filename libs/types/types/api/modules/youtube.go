@@ -1,10 +1,10 @@
 package modules
 
 type YouTubeUserSettings struct {
-	MaxRequests   int   ` json:"maxRequests"`
-	MinWatchTime  int64 ` json:"minWatchTime"`
+	MaxRequests   int   `json:"maxRequests"`
+	MinWatchTime  int64 `json:"minWatchTime"`
 	MinMessages   int   `json:"minMessages"`
-	MinFollowTime int   ` json:"minFollowTime"`
+	MinFollowTime int   `json:"minFollowTime"`
 }
 
 type YouTubeSongSettings struct {
@@ -25,8 +25,8 @@ type YouTubeDenySettingsSongs struct {
 }
 
 type YouTubeDenySettingsChannels struct {
-	ID        string `validate:"required,min=1"          json:"id"`
-	Title     string `validate:"required,min=1,max=300"  json:"title"`
+	ID        string `validate:"required,min=1"         json:"id"`
+	Title     string `validate:"required,min=1,max=300" json:"title"`
 	ThumbNail string `validate:"required,min=1,max=300" json:"thumbNail"`
 }
 
@@ -39,17 +39,18 @@ type YouTubeDenyList struct {
 
 type YouTubeSettings struct {
 	Enabled               *bool               `validate:"required" json:"enabled"`
-	AcceptOnlyWhenOnline  *bool               `validate:"required"                   json:"acceptOnlyWhenOnline"`
-	MaxRequests           int                 `validate:"lte=500" json:"maxRequests"`
-	ChannelPointsRewardId string              `validate:"max=100" json:"channelPointsRewardId"`
-	User                  YouTubeUserSettings `validate:"required"    json:"user"`
-	Song                  YouTubeSongSettings `validate:"required"    json:"song"`
-	DenyList              YouTubeDenyList     `validate:"required"    json:"denyList"`
+	AcceptOnlyWhenOnline  *bool               `validate:"required" json:"acceptOnlyWhenOnline"`
+	MaxRequests           int                 `validate:"lte=500"  json:"maxRequests"`
+	ChannelPointsRewardId string              `validate:"max=100"  json:"channelPointsRewardId"`
+	AnnouncePlay          *bool               `validate:"required" json:"announcePlay"`
+	User                  YouTubeUserSettings `validate:"required" json:"user"`
+	Song                  YouTubeSongSettings `validate:"required" json:"song"`
+	DenyList              YouTubeDenyList     `validate:"required" json:"denyList"`
 }
 
 type SearchResult struct {
-	ID        string `     json:"id"`
-	Title     string ` json:"title"`
+	ID        string `json:"id"`
+	Title     string `json:"title"`
 	ThumbNail string `json:"thumbNail"`
 }
 

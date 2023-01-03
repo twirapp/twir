@@ -4,7 +4,8 @@
     "enabled": "Enabled",
     "acceptOnlyWhenOnline": "Accept requests only when stream online",
     "reward": "Channel reward for requesting songs",
-    "denied": "Denied channels for requests"
+    "denied": "Denied channels for requests",
+    "announcePlay": "Announce track play"
   },
   "users": {
     "title": "Users",

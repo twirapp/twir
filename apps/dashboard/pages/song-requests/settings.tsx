@@ -37,6 +37,7 @@ const Settings: NextPage = () => {
       acceptOnlyWhenOnline: true,
       channelPointsRewardId: '',
       maxRequests: 500,
+      announcePlay: true,
       denyList: {
         artistsNames: [],
         songs: [],
