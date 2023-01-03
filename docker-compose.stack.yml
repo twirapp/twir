@@ -391,12 +391,19 @@ services:
       - tsuwari_doppler_token
     networks:
       - tsuwari
+    ports:
+      - target: 3004
+        published: 3004
+        mode: host
     deploy:
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
 
 volumes:
   postgres-data:
