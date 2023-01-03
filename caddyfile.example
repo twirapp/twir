@@ -1,0 +1,26 @@
+tsuwari.app {
+        reverse_proxy localhost:3001
+
+        handle_path /dashboard* {
+                rewrite * /dashboard{path}
+                reverse_proxy localhost:3002
+        }
+
+        handle_path /api* {
+                rewrite * {path}
+                reverse_proxy localhost:3004
+        }
+
+        handle_path /socket.io* {
+            rewrite * /socket.io{path}
+            reverse_proxy localhost:3005
+        }
+}
+
+grafana.tsuwari.app {
+        reverse_proxy localhost:35648
+}
+
+prom.tsuwari.app {
+        reverse_proxy localhost:21394
+}
