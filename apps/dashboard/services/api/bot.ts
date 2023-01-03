@@ -1,9 +1,9 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { V1 } from '@tsuwari/types/api';
 import { getCookie } from 'cookies-next';
-
 import { authFetcher } from '@/services/api/fetchWrappers';
 import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
+import { queryClient } from './queryClient';
 
 export const useBotApi = () => {
   const getUrl = () => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/bot`;
@@ -17,6 +17,9 @@ export const useBotApi = () => {
       }),
     useChangeState: () =>
       useMutation({
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({ queryKey: [getUrl()] });
+        },
         mutationKey: [getUrl()],
         mutationFn: (action: 'part' | 'join') => {
           return authFetcher(`${getUrl()}/connection`, {
