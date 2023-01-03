@@ -1,7 +1,7 @@
 {
   "title": "Timers",
   "create": "Create",
-  "intervalTime": "Interval in seconds",
+  "intervalTime": "Interval in minutes",
   "intervalMessages": "Interval in messages",
   "name": "Name",
   "responses": "Responses",

@@ -1,7 +1,7 @@
 {
   "title": "Таймеры",
   "create": "Создать",
-  "intervalTime": "Интервал в секундах",
+  "intervalTime": "Интервал в минутах",
   "intervalMessages": "Интервал в сообщениях",
   "name": "Имя",
   "responses": "Ответы",

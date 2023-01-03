@@ -13,9 +13,9 @@ import { timersManager } from '@/services/api';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
-    props: {
-        ...(await serverSideTranslations(locale, ['timers', 'layout'])),
-    },
+  props: {
+    ...(await serverSideTranslations(locale, ['timers', 'layout'])),
+  },
 });
 
 export default function () {
@@ -40,18 +40,20 @@ export default function () {
             setEditDrawerOpened(true);
           }}
         >
-            {t('create')}
+          {t('create')}
         </Button>
       </Flex>
       <Table>
         <thead>
           <tr>
             <th>{t('name')}</th>
-            {viewPort.width > 550 && (<>
-              <th>{t('responses')}</th>
-              <th>{t('intervalTime')}</th>
-              <th>{t('intervalMessages')}</th>
-            </>)}
+            {viewPort.width > 550 && (
+              <>
+                <th>{t('responses')}</th>
+                <th>{t('intervalTime')}</th>
+                <th>{t('intervalMessages')}</th>
+              </>
+            )}
             {viewPort.width > 550 && <th>{t('table.head.status')}</th>}
             <th>{t('table.head.actions')}</th>
           </tr>
@@ -63,7 +65,8 @@ export default function () {
                 <td>
                   <Badge>{timer.name}</Badge>
                 </td>
-                {viewPort.width > 550 && (<>
+                {viewPort.width > 550 && (
+                  <>
                     <td>
                       {timer.responses.map((r, i) => (
                         <p key={i} style={{ margin: 0 }}>
@@ -71,7 +74,7 @@ export default function () {
                         </p>
                       ))}
                     </td>
-                    <td>{timer.timeInterval} s.</td>
+                    <td>{timer.timeInterval} m.</td>
                     <td>{timer.messageInterval}</td>
                   </>
                 )}
@@ -80,7 +83,10 @@ export default function () {
                   <Switch
                     checked={timer.enabled}
                     onChange={(event) => {
-                      patcher.mutate({ id: timer.id, data: { enabled: event.currentTarget.checked } });
+                      patcher.mutate({
+                        id: timer.id,
+                        data: { enabled: event.currentTarget.checked },
+                      });
                     }}
                   />
                 </td>
