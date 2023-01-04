@@ -137,7 +137,12 @@ var Variable = types.Variable{
 					fmt.Println("song nog found", err)
 					continue
 				}
-				result.Result = fmt.Sprintf(`"%s" requested by @%s`, song.Title, song.OrderedByName)
+				result.Result = fmt.Sprintf(
+					`"%s youtu.be/%s" requested by @%s`,
+					song.Title,
+					song.VideoID,
+					song.OrderedByName,
+				)
 				break checkServices
 			case SOUNDTRACK:
 				tracks, err := ctx.Services.Twitch.Client.GetSoundTrackCurrentTrack(&helix.SoundtrackCurrentTrackParams{
