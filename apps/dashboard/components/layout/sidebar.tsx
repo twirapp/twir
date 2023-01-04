@@ -1,6 +1,7 @@
 import {
   Avatar,
   Box,
+  createStyles,
   Group,
   Navbar,
   NavLink,
@@ -81,7 +82,16 @@ type Props = {
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
+const useStyles = createStyles((theme) => ({
+  link: {
+    borderLeft: `1px solid ${
+      theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]
+    }`,
+  },
+}));
+
 export function SideBar(props: Props) {
+  const { classes } = useStyles();
   const { locale } = useLocale();
   const viewPort = useViewportSize();
   const router = useRouter();
@@ -124,7 +134,7 @@ export function SideBar(props: Props) {
           onTrigger: () => {
             dashboardContext.setId(d.channelId);
           },
-          icon: <Avatar src={d.twitchUser.profile_image_url} style={{ borderRadius: 111 }} />,
+          icon: <Avatar radius="xs" src={d.twitchUser.profile_image_url} />,
           id: d.id,
         }));
 
@@ -135,7 +145,7 @@ export function SideBar(props: Props) {
           onTrigger: () => {
             dashboardContext.setId(user.id);
           },
-          icon: <Avatar src={user.profile_image_url} style={{ borderRadius: 111 }} />,
+          icon: <Avatar radius="xs" src={user.profile_image_url} />,
           id: user.id,
         });
       }
@@ -153,11 +163,12 @@ export function SideBar(props: Props) {
     }
   };
 
-  const createNavLink = (item: Page) => (
+  const createNavLink = (item: Page, isSubPage = false) => (
     <NavLink
       key={item.label}
       active={computeActive(item)}
       label={item.label}
+      className={isSubPage ? classes.link : ''}
       defaultOpened={item.subPages && router.asPath.startsWith(item.path)}
       icon={item.icon ? <item.icon size={16} stroke={1.5} /> : ''}
       sx={{ width: '100%' }}
@@ -169,7 +180,7 @@ export function SideBar(props: Props) {
         router.push(item.path ? item.path : item.label.toLowerCase(), undefined, { locale });
       }}
     >
-      {item.subPages && item.subPages.map((p) => createNavLink(p))}
+      {item.subPages && item.subPages.map((p) => createNavLink(p, true))}
     </NavLink>
   );
 
@@ -179,7 +190,7 @@ export function SideBar(props: Props) {
   }, [router]);
 
   return (
-    <Navbar zIndex={99} hiddenBreakpoint="sm" hidden={!props.opened} width={{ sm: 150, lg: 250 }}>
+    <Navbar zIndex={99} hiddenBreakpoint="sm" hidden={!props.opened} width={{ sm: 250 }}>
       <Navbar.Section grow>
         <ScrollArea.Autosize
           maxHeight={viewPort.height - 120}
