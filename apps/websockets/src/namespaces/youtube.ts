@@ -68,7 +68,7 @@ youtubeNamespace.on('connection', async (socket) => {
       await botsGrpcClient.sendMessage({
         channelId: song.channelId,
         isAnnounce: true,
-        message: `Now playing ${song.title} from @${song.orderedByName}`,
+        message: `Now playing "${song.title}" requested from @${song.orderedByName}`,
       });
     }
 
