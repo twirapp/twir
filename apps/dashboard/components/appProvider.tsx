@@ -1,9 +1,6 @@
 import { AppShell, ColorScheme, useMantineTheme } from '@mantine/core';
-import { setCookie } from 'cookies-next';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
-
-import i18nconfig from '../next-i18next.config';
 
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
@@ -15,14 +12,12 @@ type Props = React.PropsWithChildren<{
   colorScheme: ColorScheme;
 }>;
 
-const supportedLocales = i18nconfig.i18n.locales;
-
 export const AppProvider: React.FC<Props> = (props) => {
   const dashboardContext = useContext(SelectedDashboardContext);
 
   const router = useRouter();
   const { error: profileError, data: profileData } = useProfile();
-  const [locale, setLocale] = useLocale();
+  const { locale, toggleLocale, isSupportedLocale } = useLocale();
 
   useEffect(() => {
     if (!dashboardContext.id && profileData) {
@@ -32,17 +27,14 @@ export const AppProvider: React.FC<Props> = (props) => {
 
   useEffect(() => {
     // redirect to route with setted locale
-    if (locale && supportedLocales.includes(locale)) {
+    if (isSupportedLocale()) {
       const { pathname, asPath, query } = router;
       if (query.code || query.token) {
         return;
       }
       router.push({ pathname, query }, asPath, { locale });
-    }
-
-    // set locale if unsupported is setted
-    if (!supportedLocales.includes(locale)) {
-      setLocale('en');
+    } else {
+      toggleLocale();
     }
   }, [locale]);
 
@@ -66,8 +58,6 @@ export const AppProvider: React.FC<Props> = (props) => {
           background: props.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
         },
       }}
-      navbarOffsetBreakpoint="sm"
-      asideOffsetBreakpoint="sm"
       navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened} />}
       header={<NavBar setOpened={setSidebarOpened} opened={sidebarOpened} />}
     >

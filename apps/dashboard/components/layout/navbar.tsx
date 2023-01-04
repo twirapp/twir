@@ -1,31 +1,43 @@
 import {
   ActionIcon,
   Burger,
-  ColorScheme,
+  Container,
+  createStyles,
   Flex,
-  Grid,
   Group,
   Header,
   Loader,
-  MediaQuery,
   Menu,
   Text,
-  useMantineTheme,
 } from '@mantine/core';
-import { useHotkeys, useLocalStorage, useMediaQuery } from '@mantine/hooks';
-import { IconMoonStars, IconSun } from '@tabler/icons';
-import { RU, US } from 'country-flag-icons/react/3x2';
+import { IconMoonStars, IconSun, IconLanguage } from '@tabler/icons';
 import { Dispatch, SetStateAction } from 'react';
 
 import { Profile } from './profile';
 
 import { useProfile } from '@/services/api';
-import { useLocale } from '@/services/dashboard';
+import { useTheme, useLocale, LOCALES } from '@/services/dashboard';
 
-const flags = {
-  en: <US style={{ height: 14 }} />,
-  ru: <RU style={{ height: 14 }} />,
-};
+const useStyles = createStyles((theme) => ({
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    height: '100%',
+  },
+
+  hiddenMobile: {
+    [theme.fn.smallerThan('sm')]: {
+      display: 'none',
+    },
+  },
+
+  hiddenDesktop: {
+    [theme.fn.largerThan('sm')]: {
+      display: 'none',
+    },
+  },
+}));
 
 export function NavBar({
   opened,
@@ -34,68 +46,62 @@ export function NavBar({
   setOpened: Dispatch<SetStateAction<boolean>>;
   opened: boolean;
 }) {
-  const theme = useMantineTheme();
-  const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
-    key: 'theme',
-    getInitialValueInEffect: true,
-  });
-  const [locale, setLocale] = useLocale();
-
-  const toggleLanguage = (newLocale: 'en' | 'ru') => {
-    setLocale(newLocale);
-  };
-
-  const toggleColorScheme = (value?: ColorScheme) =>
-    setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
-
-  useHotkeys([['mod+J', () => toggleColorScheme()]]);
-
-  const largeScreen = useMediaQuery('(min-width: 250px)');
-
+  const { classes } = useStyles();
+  const { theme, toggleTheme } = useTheme();
+  const { locale, toggleLocale } = useLocale();
   const { data: userData, isLoading: isLoadingProfile } = useProfile();
 
   return (
-    <Header height={{ base: 50, md: 50 }} p="md">
-      <Grid justify="space-between" align="center">
+    <Header height={60}>
+      <Container maw="unset" className={classes.header}>
         <Flex gap="sm" justify="flex-start" align="center" direction="row">
-          <MediaQuery largerThan="sm" styles={{ display: 'none' }} aria-label="Open navigation">
-            <Burger
-              opened={opened}
-              onClick={() => setOpened(!opened)}
-              size="sm"
-              color={theme.colors.gray[6]}
-              mr="xl"
-            />
-          </MediaQuery>
-
-          <Text hidden={!largeScreen}>Tsuwari</Text>
+          <Burger
+            className={classes.hiddenDesktop}
+            opened={opened}
+            onClick={() => setOpened(!opened)}
+            size="sm"
+            color={theme.colors.gray[6]}
+            mr="xl"
+          />
+          <Text fz="lg" className={classes.hiddenMobile}>
+            Tsuwari
+          </Text>
         </Flex>
         <Group position="center">
           <ActionIcon
-            variant="subtle"
+            size="lg"
+            variant="default"
             color={theme.colorScheme === 'dark' ? 'yellow' : 'blue'}
-            onClick={() => toggleColorScheme()}
+            onClick={() => toggleTheme()}
             title="Toggle color scheme"
           >
             {theme.colorScheme === 'dark' ? <IconSun size={18} /> : <IconMoonStars size={18} />}
           </ActionIcon>
-          <Menu shadow="md" width={200}>
+          <Menu transition="pop" shadow="md" withArrow width={200}>
             <Menu.Target>
-              <ActionIcon title="Toggle language" variant="subtle">
-                {flags[locale ?? 'en']}
+              <ActionIcon size="lg" title="Toggle language" variant="default">
+                <IconLanguage size={18} />
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Label>Change language</Menu.Label>
-              <Menu.Item onClick={() => toggleLanguage('en')}>{flags['en']} English</Menu.Item>
-              <Menu.Item onClick={() => toggleLanguage('ru')}>{flags['ru']} Russian</Menu.Item>
+              <Menu.Divider />
+              {Array.from(LOCALES.entries()).map(([lang, { icon, name }]) => (
+                <Menu.Item
+                  style={{ fontWeight: lang === locale ? 'bold' : 'initial' }}
+                  icon={icon}
+                  key={lang}
+                  onClick={() => toggleLocale(lang)}
+                >
+                  {name}
+                </Menu.Item>
+              ))}
             </Menu.Dropdown>
           </Menu>
-
           {isLoadingProfile && <Loader />}
           {!isLoadingProfile && userData && <Profile user={userData} />}
         </Group>
-      </Grid>
+      </Container>
     </Header>
   );
 }

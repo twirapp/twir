@@ -13,23 +13,20 @@ export function Profile(props: Props) {
 
   return (
     <div>
-      <Menu transition="skew-down" shadow="md" width={200}>
+      <Menu transition="pop" shadow="md" withArrow width={200}>
         <Menu.Target>
           <Avatar
+            size={34}
+            radius="xs"
+            style={{ cursor: 'pointer' }}
             src={props.user.profile_image_url}
             alt={props.user.display_name}
-            style={{ borderRadius: 111, cursor: 'pointer' }}
           />
         </Menu.Target>
         <Menu.Dropdown>
           <Menu.Label>Logged in as {props.user.display_name}</Menu.Label>
-
           <Menu.Divider />
-          <Menu.Item
-            color="red"
-            icon={<IconLogout size={14} />}
-            onClick={() => logout.mutate()}
-          >
+          <Menu.Item color="red" icon={<IconLogout size={14} />} onClick={() => logout.mutate()}>
             Logout
           </Menu.Item>
         </Menu.Dropdown>
