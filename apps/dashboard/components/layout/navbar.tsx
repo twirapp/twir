@@ -14,18 +14,12 @@ import {
 } from '@mantine/core';
 import { useHotkeys, useLocalStorage, useMediaQuery } from '@mantine/hooks';
 import { IconMoonStars, IconSun } from '@tabler/icons';
-import { RU, US } from 'country-flag-icons/react/3x2';
 import { Dispatch, SetStateAction } from 'react';
 
 import { Profile } from './profile';
 
 import { useProfile } from '@/services/api';
-import { useLocale } from '@/services/dashboard';
-
-const flags = {
-  en: <US style={{ height: 14 }} />,
-  ru: <RU style={{ height: 14 }} />,
-};
+import { useLocale, LOCALES } from '@/services/dashboard';
 
 export function NavBar({
   opened,
@@ -39,18 +33,14 @@ export function NavBar({
     key: 'theme',
     getInitialValueInEffect: true,
   });
-  const [locale, setLocale] = useLocale();
-
-  const toggleLanguage = (newLocale: 'en' | 'ru') => {
-    setLocale(newLocale);
-  };
+  const { locale, toggleLocale } = useLocale();
 
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
 
   useHotkeys([['mod+J', () => toggleColorScheme()]]);
 
-  const largeScreen = useMediaQuery('(min-width: 250px)');
+  const largeScreen = useMediaQuery('(min-width: 300px)');
 
   const { data: userData, isLoading: isLoadingProfile } = useProfile();
 
@@ -82,16 +72,18 @@ export function NavBar({
           <Menu shadow="md" width={200}>
             <Menu.Target>
               <ActionIcon title="Toggle language" variant="subtle">
-                {flags[locale ?? 'en']}
+                {LOCALES.get(locale)?.icon}
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Label>Change language</Menu.Label>
-              <Menu.Item onClick={() => toggleLanguage('en')}>{flags['en']} English</Menu.Item>
-              <Menu.Item onClick={() => toggleLanguage('ru')}>{flags['ru']} Russian</Menu.Item>
+              {Array.from(LOCALES.entries()).map(([locale, { icon, name }]) => (
+                <Menu.Item key={locale} onClick={() => toggleLocale(locale)}>
+                  {icon} {name}
+                </Menu.Item>
+              ))}
             </Menu.Dropdown>
           </Menu>
-
           {isLoadingProfile && <Loader />}
           {!isLoadingProfile && userData && <Profile user={userData} />}
         </Group>

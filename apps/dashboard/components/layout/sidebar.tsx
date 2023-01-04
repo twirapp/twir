@@ -28,7 +28,7 @@ import {
   IconSword,
   TablerIcon,
 } from '@tabler/icons';
-import { AuthUser, Dashboard } from '@tsuwari/shared';
+import { Dashboard } from '@tsuwari/shared';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
@@ -82,7 +82,7 @@ type Props = {
 };
 
 export function SideBar(props: Props) {
-  const [locale] = useLocale();
+  const { locale } = useLocale();
   const viewPort = useViewportSize();
   const router = useRouter();
   const theme = useMantineTheme();
@@ -105,7 +105,7 @@ export function SideBar(props: Props) {
           twitchUser: user,
         });
       } else {
-        const dashboard = user.dashboards.find(d => d.channelId === dashboardContext.id);
+        const dashboard = user.dashboards.find((d) => d.channelId === dashboardContext.id);
         if (dashboard) {
           setSelectedDashboard(dashboard);
         }
