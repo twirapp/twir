@@ -108,6 +108,7 @@ func checkUser(
 		}
 
 		channel := createChannelModel(user.ID, defaultBot.ID)
+		channel.IsEnabled = false
 		if err = services.DB.Create(&channel).Error; err != nil {
 			logger.Error(err)
 			return err
