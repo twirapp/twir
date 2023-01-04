@@ -1,7 +1,6 @@
 import {
   ActionIcon,
   Burger,
-  ColorScheme,
   Container,
   createStyles,
   Flex,
@@ -10,16 +9,14 @@ import {
   Loader,
   Menu,
   Text,
-  useMantineTheme,
 } from '@mantine/core';
-import { useHotkeys, useLocalStorage } from '@mantine/hooks';
 import { IconMoonStars, IconSun, IconLanguage } from '@tabler/icons';
 import { Dispatch, SetStateAction } from 'react';
 
 import { Profile } from './profile';
 
 import { useProfile } from '@/services/api';
-import { useLocale, LOCALES } from '@/services/dashboard';
+import { useTheme, useLocale, LOCALES } from '@/services/dashboard';
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -50,18 +47,8 @@ export function NavBar({
   opened: boolean;
 }) {
   const { classes } = useStyles();
-  const theme = useMantineTheme();
-  const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
-    key: 'theme',
-    getInitialValueInEffect: true,
-  });
+  const { theme, toggleTheme } = useTheme();
   const { locale, toggleLocale } = useLocale();
-
-  const toggleColorScheme = (value?: ColorScheme) =>
-    setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
-
-  useHotkeys([['mod+J', () => toggleColorScheme()]]);
-
   const { data: userData, isLoading: isLoadingProfile } = useProfile();
 
   return (
@@ -85,7 +72,7 @@ export function NavBar({
             size="lg"
             variant="default"
             color={theme.colorScheme === 'dark' ? 'yellow' : 'blue'}
-            onClick={() => toggleColorScheme()}
+            onClick={() => toggleTheme()}
             title="Toggle color scheme"
           >
             {theme.colorScheme === 'dark' ? <IconSun size={18} /> : <IconMoonStars size={18} />}
