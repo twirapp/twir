@@ -16,7 +16,8 @@ import { Dispatch, SetStateAction } from 'react';
 import { Profile } from './profile';
 
 import { useProfile } from '@/services/api';
-import { useTheme, useLocale, LOCALES } from '@/services/dashboard';
+import { useLocale, LOCALES } from '@/services/dashboard';
+import { useTheme } from '@/services/dashboard';
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -47,7 +48,7 @@ export function NavBar({
   opened: boolean;
 }) {
   const { classes } = useStyles();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, colorScheme, toggleColorScheme } = useTheme();
   const { locale, toggleLocale } = useLocale();
   const { data: userData, isLoading: isLoadingProfile } = useProfile();
 
@@ -71,11 +72,11 @@ export function NavBar({
           <ActionIcon
             size="lg"
             variant="default"
-            color={theme.colorScheme === 'dark' ? 'yellow' : 'blue'}
-            onClick={() => toggleTheme()}
+            color={colorScheme === 'dark' ? 'yellow' : 'blue'}
+            onClick={() => toggleColorScheme()}
             title="Toggle color scheme"
           >
-            {theme.colorScheme === 'dark' ? <IconSun size={18} /> : <IconMoonStars size={18} />}
+            {colorScheme === 'dark' ? <IconSun size={18} /> : <IconMoonStars size={18} />}
           </ActionIcon>
           <Menu transition="pop" shadow="md" withArrow width={200}>
             <Menu.Target>

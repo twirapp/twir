@@ -1,23 +1,15 @@
-import { useMantineTheme, type ColorScheme } from '@mantine/core';
-import { useHotkeys, useLocalStorage } from '@mantine/hooks';
-import { useCallback } from 'react';
+import { useMantineTheme, useMantineColorScheme } from '@mantine/core';
+import { useHotkeys } from '@mantine/hooks';
 
 export const useTheme = () => {
   const theme = useMantineTheme();
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
-  const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
-    key: 'theme',
-    getInitialValueInEffect: true,
-  });
-
-  const toggleTheme = useCallback((value?: ColorScheme) => {
-    setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
-  }, [colorScheme]);
-
-  useHotkeys([['mod+J', () => toggleTheme()]]);
+  useHotkeys([['mod+J', () => toggleColorScheme()]]);
 
   return {
     theme,
-    toggleTheme,
+    colorScheme,
+    toggleColorScheme,
   };
 };
