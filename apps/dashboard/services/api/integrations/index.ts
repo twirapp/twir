@@ -1,10 +1,9 @@
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
-import { getCookie } from 'cookies-next';
+import { useContext } from 'react';
 
 import { authFetcher, queryClient } from '@/services/api';
-import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
+import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
-const getUrl = (system: string) => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/integrations/${system}`;
 
 export interface Integration<T> {
   useData: () => UseQueryResult<T, unknown>,
@@ -14,6 +13,9 @@ export interface Integration<T> {
 }
 
 const createIntegrationManager = <T>(system: string): Integration<T> => {
+  const dashboard = useContext(SelectedDashboardContext);
+  const getUrl = (system: string) => `/api/v1/channels/${dashboard.id}/integrations/${system}`;
+
   return {
     useData: () => useQuery<T>({
       queryKey: [getUrl(system)],

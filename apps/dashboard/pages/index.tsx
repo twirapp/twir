@@ -1,5 +1,6 @@
 import type { NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+
 import { DashboardWidgets } from '@/components/dashboard';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

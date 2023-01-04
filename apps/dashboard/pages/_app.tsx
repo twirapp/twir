@@ -5,10 +5,11 @@ import { NotificationsProvider } from '@mantine/notifications';
 import { SpotlightProvider } from '@mantine/spotlight';
 import { IconSearch } from '@tabler/icons';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { getCookie, setCookie } from 'cookies-next';
 import { appWithTranslation } from 'next-i18next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import i18nconfig from '../next-i18next.config.js';
 
@@ -16,10 +17,23 @@ import { AppProvider } from '@/components/appProvider';
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { queryClient } from '@/services/api';
-
+import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 const app = function App(props: AppProps) {
   const { Component } = props;
+
+  const cookieSelectedDashboard = getCookie('selectedDashboard') as string | null | undefined;
+
+  const [selectedDashboard, setSelectedDashboard] = useState<string>(cookieSelectedDashboard || '');
+
+  useEffect(() => {
+    if (selectedDashboard) {
+      setCookie('selectedDashboard', selectedDashboard, {
+        // 1 month
+        expires: new Date(Date.now() + 2_629_700_000),
+      });
+    }
+  }, [selectedDashboard]);
 
   const preferredColorScheme = useColorScheme();
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -42,6 +56,7 @@ const app = function App(props: AppProps) {
         <title>Tsuwari</title>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width"/>
       </Head>
+      <SelectedDashboardContext.Provider value={{ id: selectedDashboard, setId: setSelectedDashboard }}>
       <QueryClientProvider client={queryClient}>
         <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
           <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
@@ -90,6 +105,7 @@ const app = function App(props: AppProps) {
           </MantineProvider>
         </ColorSchemeProvider>
       </QueryClientProvider>
+      </SelectedDashboardContext.Provider>
     </>
   );
 };

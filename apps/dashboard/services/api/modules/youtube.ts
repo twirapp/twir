@@ -1,14 +1,16 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { V1 } from '@tsuwari/types/api';
 import { getCookie } from 'cookies-next';
+import { useContext } from 'react';
 
 import { authFetcher } from '@/services/api';
-import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
+import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 type Youtube = V1['CHANNELS']['MODULES']['YouTube']
 
 export const useYoutubeModule = () => {
-  const getUrl = () => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/modules/youtube-sr`;
+  const dashboard = useContext(SelectedDashboardContext);
+  const getUrl = () => `/api/v1/channels/${dashboard.id}/modules/youtube-sr`;
   
   return {
     useSettings: () => useQuery<Youtube['GET']>({

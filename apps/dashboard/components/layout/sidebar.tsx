@@ -28,13 +28,14 @@ import {
   IconSword,
   TablerIcon,
 } from '@tabler/icons';
-import { AuthUser } from '@tsuwari/shared';
+import { AuthUser, Dashboard } from '@tsuwari/shared';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import { useProfile } from '@/services/api';
-import { createDefaultDashboard, useLocale, useSelectedDashboard } from '@/services/dashboard';
+import { useLocale } from '@/services/dashboard';
+import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 type Page = {
   label: string;
@@ -90,37 +91,49 @@ export function SideBar(props: Props) {
   const { data: user } = useProfile();
 
   const spotlight = useSpotlight();
-  const [selectedDashboard, setSelectedDashboard] = useSelectedDashboard();
+  const dashboardContext = useContext(SelectedDashboardContext);
 
-  const setDefaultDashboard = (user: AuthUser) =>
-    setSelectedDashboard(createDefaultDashboard(user));
+  const [selectedDashboard, setSelectedDashboard] = useState<Dashboard>();
+
+  useEffect(() => {
+    if (dashboardContext.id && user) {
+      if (dashboardContext.id === user.id) {
+        setSelectedDashboard({
+          id: user.id,
+          channelId: user.id,
+          userId: user.id,
+          twitchUser: user,
+        });
+      } else {
+        const dashboard = user.dashboards.find(d => d.channelId === dashboardContext.id);
+        if (dashboard) {
+          setSelectedDashboard(dashboard);
+        }
+      }
+    }
+  }, [user, dashboardContext.id]);
 
   function openSpotlight() {
-    if (user && selectedDashboard) {
+    if (user && dashboardContext.id) {
       spotlight.removeActions(spotlight.actions.map((a) => a.id!));
       const actions = user.dashboards
-        .filter((d) => d.id != selectedDashboard?.id)
+        .filter((d) => d.channelId != dashboardContext.id)
         .map((d) => ({
           title: d.twitchUser.display_name,
           description: d.twitchUser.login,
           onTrigger: () => {
-            setSelectedDashboard(d);
+            dashboardContext.setId(d.channelId);
           },
           icon: <Avatar src={d.twitchUser.profile_image_url} style={{ borderRadius: 111 }} />,
           id: d.id,
         }));
 
-      if (selectedDashboard.channelId != user.id) {
+      if (dashboardContext.id != user.id) {
         actions.unshift({
           title: user.display_name,
           description: user.login,
           onTrigger: () => {
-            setSelectedDashboard({
-              channelId: user.id,
-              id: user.id,
-              twitchUser: user,
-              userId: user.id,
-            });
+            dashboardContext.setId(user.id);
           },
           icon: <Avatar src={user.profile_image_url} style={{ borderRadius: 111 }} />,
           id: user.id,
@@ -131,14 +144,6 @@ export function SideBar(props: Props) {
       spotlight.openSpotlight();
     }
   }
-
-  useEffect(() => {
-    if (!user) return;
-
-    if (!selectedDashboard) {
-      return setDefaultDashboard(user);
-    }
-  }, [user]);
 
   const computeActive = (item: Page) => {
     if (item.subPages) {

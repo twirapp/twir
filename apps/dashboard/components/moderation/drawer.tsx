@@ -18,12 +18,12 @@ import { IconMinus, IconPlus } from '@tabler/icons';
 import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
 import { getCookie } from 'cookies-next';
 import { useTranslation } from 'next-i18next';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 
 import { noop } from '../../util/chore';
 
 import { queryClient, useModerationSettings } from '@/services/api';
-import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
+import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 type Props = {
   opened: boolean;
@@ -32,6 +32,8 @@ type Props = {
 };
 
 export const ModerationDrawer: React.FC<Props> = (props) => {
+  const dashboard = useContext(SelectedDashboardContext);
+
   const { t } = useTranslation('moderation');
   const theme = useMantineTheme();
   const form = useForm<ChannelModerationSetting>({
@@ -69,7 +71,9 @@ export const ModerationDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    const current = queryClient.getQueryData<ChannelModerationSetting[]>([`/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/moderation`]);
+    const current = queryClient.getQueryData<ChannelModerationSetting[]>([
+      `/api/v1/channels/${dashboard.id}/moderation`,
+    ]);
     const currentIndex = current?.findIndex(t => t.id === props.settings.id);
 
     if (!current) {

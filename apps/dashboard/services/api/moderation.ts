@@ -1,12 +1,14 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
 import { getCookie } from 'cookies-next';
+import { useContext } from 'react';
 
 import { authFetcher, queryClient } from '@/services/api';
-import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
+import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 export const useModerationSettings = () => {
-  const getUrl = () => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/moderation`;
+  const dashboard = useContext(SelectedDashboardContext);
+  const getUrl = () => `/api/v1/channels/${dashboard.id}/moderation`;
 
   return {
     useGet: () => useQuery<ChannelModerationSetting[]>({

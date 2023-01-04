@@ -6,15 +6,13 @@ import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
-import { getCookie } from 'cookies-next';
+import { useContext } from 'react';
 
 import { authFetcher } from '@/services/api';
 import { queryClient } from '@/services/api';
-import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
+import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 export type Greeting = ChannelGreeting & { userName: string, avatar?: string };
-
-const getUrl = (system: string) => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/${system}`;
 
 interface Crud<T> {
   useGetAll: () => UseQueryResult<T[], unknown>
@@ -24,6 +22,10 @@ interface Crud<T> {
 }
 
 const createCrudManager = <T extends { id: string }>(system: string): Crud<T> => {
+  const dashboard = useContext(SelectedDashboardContext);
+
+  const getUrl = (system: string) => `/api/v1/channels/${dashboard.id}/${system}`;
+
   return {
     useGetAll: () => useQuery<T[]>({
       queryKey: [getUrl(system)],

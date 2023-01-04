@@ -1,14 +1,15 @@
 import { AppShell, ColorScheme, useMantineTheme } from '@mantine/core';
 import { setCookie } from 'cookies-next';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import i18nconfig from '../next-i18next.config';
 
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { FetcherError, useProfile } from '@/services/api';
-import { SELECTED_DASHBOARD_KEY, useLocale, useSelectedDashboard } from '@/services/dashboard';
+import { useLocale } from '@/services/dashboard';
+import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 type Props = React.PropsWithChildren<{
   colorScheme: ColorScheme;
@@ -17,20 +18,17 @@ type Props = React.PropsWithChildren<{
 const supportedLocales = i18nconfig.i18n.locales;
 
 export const AppProvider: React.FC<Props> = (props) => {
-  const [selectedDashboard] = useSelectedDashboard();
+  const dashboardContext = useContext(SelectedDashboardContext);
+
   const router = useRouter();
-  const { error: profileError } = useProfile();
+  const { error: profileError, data: profileData } = useProfile();
   const [locale, setLocale] = useLocale();
 
   useEffect(() => {
-    if (selectedDashboard) {
-      console.log(JSON.stringify(selectedDashboard));
-      setCookie(SELECTED_DASHBOARD_KEY, selectedDashboard.channelId, {
-        // 1 month
-        expires: new Date(Date.now() + 2_629_700_000),
-      });
+    if (!dashboardContext.id && profileData) {
+      dashboardContext.setId(profileData.id);
     }
-  }, [selectedDashboard]);
+  }, [profileData]);
 
   useEffect(() => {
     // redirect to route with setted locale

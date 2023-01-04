@@ -1,12 +1,16 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { V1 } from '@tsuwari/types/api';
-import { getCookie } from 'cookies-next';
-import { authFetcher } from '@/services/api/fetchWrappers';
-import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
+import { useContext } from 'react';
+
 import { queryClient } from './queryClient';
 
+import { authFetcher } from '@/services/api/fetchWrappers';
+import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
+
 export const useBotApi = () => {
-  const getUrl = () => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/bot`;
+  const dashboard = useContext(SelectedDashboardContext);
+
+  const getUrl = () => `/api/v1/channels/${dashboard.id}/bot`;
 
   return {
     botInfo: () =>

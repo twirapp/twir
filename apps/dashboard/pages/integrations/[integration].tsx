@@ -1,10 +1,10 @@
 import { LoadingOverlay } from '@mantine/core';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 
 import { useDonationAlerts, useFaceit, useLastfm, useSpotify, useStreamlabs, useVK, type Integration as IntegrationType } from '@/services/api/integrations';
-import { useSelectedDashboard } from '@/services/dashboard';
+import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -25,16 +25,11 @@ export default function Integration() {
     'streamlabs': useStreamlabs(),
     'vk': useVK(),
   };
-  const [dashboard] = useSelectedDashboard();
   const { integration } = router.query;
   const { usePostCode } = managers[integration as string];
   const poster = usePostCode();
 
   useEffect(() => {
-    if (!dashboard) {
-      return;
-    }
-
     const { code, token } = router.query;
 
     const incomingCode = code ?? token;
@@ -47,7 +42,7 @@ export default function Integration() {
     poster.mutateAsync({ code: incomingCode }).finally(() => {
       router.push('/integrations');
     });
-  }, [dashboard]);
+  }, []);
 
   return <LoadingOverlay visible={true} overlayBlur={2} />;
 }

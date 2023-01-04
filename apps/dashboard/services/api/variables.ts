@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { getCookie } from 'cookies-next';
+import { useContext } from 'react';
 
 import { authFetcher } from '@/services/api/fetchWrappers';
-import { SELECTED_DASHBOARD_KEY } from '@/services/dashboard';
+import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
+
 
 type Variable = {
   name: string;
@@ -13,7 +15,8 @@ type Variable = {
 }
 
 export const useVariables = () => {
-  const getUrl = () => `/api/v1/channels/${getCookie(SELECTED_DASHBOARD_KEY)}/variables`;
+  const dashboard = useContext(SelectedDashboardContext);
+  const getUrl = () => `/api/v1/channels/${dashboard.id}/variables`;
 
   return useQuery<Variable[]>({
     queryKey: ['variablesList'],
