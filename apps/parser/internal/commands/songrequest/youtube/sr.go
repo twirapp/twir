@@ -117,7 +117,9 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		moduleSettings := &model.ChannelModulesSettings{}
-		err = ctx.Services.Db.Where(`"channelId" = ?`, ctx.ChannelId).First(moduleSettings).Error
+		err = ctx.Services.Db.
+			Where(`"channelId" = ? AND "type" = ?`, ctx.ChannelId, "youtube_song_requests").
+			First(moduleSettings).Error
 		if err != nil && err != gorm.ErrRecordNotFound {
 			fmt.Println(err)
 			result.Result = append(result.Result, "internal error")
@@ -134,6 +136,7 @@ var SrCommand = types.DefaultCommand{
 
 			if !*parsedSettings.Enabled {
 				result.Result = append(result.Result, "Song requests not enabled")
+				return result
 			}
 
 			err = validate(
