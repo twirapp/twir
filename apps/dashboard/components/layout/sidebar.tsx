@@ -179,7 +179,7 @@ export function SideBar(props: Props) {
   }, [router]);
 
   return (
-    <Navbar hiddenBreakpoint="sm" hidden={!props.opened} width={{ sm: 150, lg: 250 }}>
+    <Navbar zIndex={99} hiddenBreakpoint="sm" hidden={!props.opened} width={{ sm: 150, lg: 250 }}>
       <Navbar.Section grow>
         <ScrollArea.Autosize
           maxHeight={viewPort.height - 120}
