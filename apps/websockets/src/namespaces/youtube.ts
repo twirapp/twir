@@ -63,7 +63,6 @@ youtubeNamespace.on('connection', async (socket) => {
 
     const announcePlay = (settingsEntity && (settingsEntity.settings as YouTubeSettings).announcePlay) ?? true;
 
-    console.log(current);
     if (!current && song && announcePlay) {
       await botsGrpcClient.sendMessage({
         channelId: song.channelId,
