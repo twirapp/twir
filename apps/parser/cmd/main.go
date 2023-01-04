@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"github.com/satont/tsuwari/libs/grpc/generated/dota"
+	"github.com/satont/tsuwari/libs/grpc/generated/eval"
 	"log"
 	"net"
 	"net/http"
@@ -15,34 +18,37 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 
 	"github.com/satont/tsuwari/apps/parser/internal/commands"
-	"github.com/satont/tsuwari/apps/parser/internal/config/redis"
+	myRedis "github.com/satont/tsuwari/apps/parser/internal/config/redis"
 	"github.com/satont/tsuwari/apps/parser/internal/variables"
 
-	cfg "github.com/satont/tsuwari/libs/config"
+	config "github.com/satont/tsuwari/libs/config"
 
 	twitch "github.com/satont/tsuwari/apps/parser/internal/config/twitch"
-	usersauth "github.com/satont/tsuwari/apps/parser/internal/twitch/user"
+	"github.com/satont/tsuwari/apps/parser/internal/twitch/user"
 
 	"github.com/getsentry/sentry-go"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/satont/tsuwari/apps/parser/internal/grpc_impl"
 	"github.com/satont/tsuwari/libs/grpc/clients"
-	parser "github.com/satont/tsuwari/libs/grpc/generated/parser"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 	"github.com/satont/tsuwari/libs/grpc/servers"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/go-redis/redis/v9"
 )
 
 func main() {
-	cfg, err := cfg.New()
+	cfg, err := config.New()
 	if err != nil || cfg == nil {
 		fmt.Println(err)
 		panic("Cannot load config of application")
 	}
+
+	do.ProvideValue[config.Config](di.Provider, *cfg)
 
 	if cfg.AppEnv != "development" {
 		http.Handle("/metrics", promhttp.Handler())
@@ -77,33 +83,24 @@ func main() {
 	d.SetMaxOpenConns(20)
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
-	r := redis.New(cfg.RedisUrl)
+	do.ProvideValue[gorm.DB](di.Provider, *db)
+
+	r := myRedis.New(cfg.RedisUrl)
 	defer r.Close()
 
-	botsGrpcClient := clients.NewBots(cfg.AppEnv)
-	dotaGrpcClient := clients.NewDota(cfg.AppEnv)
-	evalGrpcClient := clients.NewEval(cfg.AppEnv)
-	websocketGrpcClient := clients.NewWebsocket(cfg.AppEnv)
+	do.ProvideValue[redis.Client](di.Provider, *r)
 
-	do.ProvideValue[websockets.WebsocketClient](di.Provider, websocketGrpcClient)
+	do.ProvideValue[websockets.WebsocketClient](di.Provider, clients.NewWebsocket(cfg.AppEnv))
+	do.ProvideValue[bots.BotsClient](di.Provider, clients.NewBots(cfg.AppEnv))
+	do.ProvideValue[dota.DotaClient](di.Provider, clients.NewDota(cfg.AppEnv))
+	do.ProvideValue[eval.EvalClient](di.Provider, clients.NewEval(cfg.AppEnv))
 
-	usersAuthService := usersauth.New(usersauth.UsersServiceOpts{
-		Db:           db,
-		ClientId:     cfg.TwitchClientId,
-		ClientSecret: cfg.TwitchClientSecret,
-	})
-	twitchClient := twitch.New(*cfg)
-	variablesService := variables.New()
-	commandsService := commands.New(commands.CommandsOpts{
-		Redis:            r,
-		VariablesService: variablesService,
-		Db:               db,
-		UsersAuth:        usersAuthService,
-		Twitch:           twitchClient,
-		BotsGrpc:         botsGrpcClient,
-		DotaGrpc:         dotaGrpcClient,
-		EvalGrpc:         evalGrpcClient,
-	})
+	do.ProvideValue[users_twitch_auth.UsersTokensService](di.Provider, *users_twitch_auth.New())
+	do.ProvideValue[twitch.Twitch](di.Provider, *twitch.New(*cfg))
+
+	do.ProvideValue[variables.Variables](di.Provider, variables.New())
+
+	do.ProvideValue[commands.Commands](di.Provider, commands.New())
 
 	if err != nil {
 		panic(err)
@@ -113,19 +110,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	grpcServer := grpc.NewServer(grpc.KeepaliveParams(keepalive.ServerParameters{
-		MaxConnectionAge: 1 * time.Minute,
-	}))
-	parser.RegisterParserServer(grpcServer, grpc_impl.NewServer(&grpc_impl.GrpcImplOpts{
-		Redis:     r,
-		Variables: &variablesService,
-		Commands:  &commandsService,
-	}))
+	grpcServer := grpc.NewServer()
+	parser.RegisterParserServer(grpcServer, grpc_impl.NewServer())
 	go grpcServer.Serve(lis)
 
 	logger.Info("Started")
 
-	// runtime.Goexit()
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal

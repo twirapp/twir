@@ -2,6 +2,9 @@ package manage
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"log"
 	"strings"
 
@@ -24,6 +27,8 @@ var AddAliaseCommand = types.DefaultCommand{
 		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		db := do.MustInvoke[gorm.DB](di.Provider)
+
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
@@ -44,7 +49,7 @@ var AddAliaseCommand = types.DefaultCommand{
 		aliase := strings.ToLower(strings.ReplaceAll(strings.Join(args[1:], " "), "!", ""))
 
 		existedCommands := []model.ChannelsCommands{}
-		err := ctx.Services.Db.Where(`"channelId" = ?`, ctx.ChannelId).Select(`"channelId"`, "name", "aliases").Find(&existedCommands).Error
+		err := db.Where(`"channelId" = ?`, ctx.ChannelId).Select(`"channelId"`, "name", "aliases").Find(&existedCommands).Error
 		if err != nil {
 			fmt.Println("cannot get count", err)
 			result.Result = append(result.Result, "internal error")
@@ -65,7 +70,7 @@ var AddAliaseCommand = types.DefaultCommand{
 		}
 
 		cmd := model.ChannelsCommands{}
-		err = ctx.Services.Db.
+		err = db.
 			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, commandName).
 			Preload(`Responses`).
 			First(&cmd).Error
@@ -77,7 +82,7 @@ var AddAliaseCommand = types.DefaultCommand{
 
 		cmd.Aliases = append(cmd.Aliases, aliase)
 
-		err = ctx.Services.Db.
+		err = db.
 			Save(&cmd).Error
 
 		if err != nil {

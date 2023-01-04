@@ -1,6 +1,9 @@
 package manage
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"log"
 	"strings"
 
@@ -23,6 +26,8 @@ var EditCommand = types.DefaultCommand{
 		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		db := do.MustInvoke[gorm.DB](di.Provider)
+
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
@@ -43,7 +48,7 @@ var EditCommand = types.DefaultCommand{
 		text := strings.Join(args[1:], " ")
 
 		cmd := model.ChannelsCommands{}
-		err := ctx.Services.Db.
+		err := db.
 			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, name).
 			Preload(`Responses`).
 			First(&cmd).Error
@@ -67,7 +72,7 @@ var EditCommand = types.DefaultCommand{
 			return result
 		}
 
-		err = ctx.Services.Db.
+		err = db.
 			Model(&model.ChannelsCommandsResponses{}).
 			Where(`"commandId" = ?`, cmd.ID).
 			Update(`text`, text).Error

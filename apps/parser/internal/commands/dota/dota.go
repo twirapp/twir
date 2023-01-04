@@ -3,12 +3,14 @@ package dota
 import (
 	"context"
 	"fmt"
+	"github.com/go-redis/redis/v9"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"strings"
 	"time"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
-	"github.com/go-redis/redis/v9"
 	req "github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -73,18 +75,19 @@ func GetPlayerHero(heroId int, index *int) string {
 }
 
 type GetGamesOpts struct {
-	Db       *gorm.DB
 	Accounts []string
 	Take     *int
-	Redis    *redis.Client
 }
 
 func GetGames(opts GetGamesOpts) *[]Game {
+	db := do.MustInvoke[gorm.DB](di.Provider)
+	redisClient := do.MustInvoke[redis.Client](di.Provider)
+
 	ctx := context.TODO()
 	rpsCount := 0
 
 	for _, acc := range opts.Accounts {
-		rps, err := opts.Redis.MGet(ctx, fmt.Sprintf("dotaRps:%v", acc)).Result()
+		rps, err := redisClient.MGet(ctx, fmt.Sprintf("dotaRps:%v", acc)).Result()
 		if err != nil {
 			continue
 		}
@@ -102,7 +105,7 @@ func GetGames(opts GetGamesOpts) *[]Game {
 	cachedGamesCount := 0
 
 	for _, acc := range opts.Accounts {
-		games, err := opts.Redis.MGet(ctx, fmt.Sprintf("dotaMatches:%v", acc)).Result()
+		games, err := redisClient.MGet(ctx, fmt.Sprintf("dotaMatches:%v", acc)).Result()
 		if err != nil {
 			continue
 		}
@@ -123,7 +126,7 @@ func GetGames(opts GetGamesOpts) *[]Game {
 		opts.Take = lo.ToPtr(1)
 	}
 
-	err := opts.Db.
+	err := db.
 		Table("dota_matches").
 		Where(`players && ?`, fmt.Sprintf("{%s}", strings.Join(opts.Accounts, ","))).
 		Order(`"startedAt" DESC`).
@@ -136,7 +139,7 @@ func GetGames(opts GetGamesOpts) *[]Game {
 
 	for i, v := range dbGames {
 		players := []model.DotaMatchesCards{}
-		err := opts.Db.
+		err := db.
 			Where("match_id = ?", v.ID).
 			Find(&players).Error
 		if err == nil {
@@ -194,7 +197,9 @@ type Game struct {
 	PlayersCards              *[]model.DotaMatchesCards `json:"playersCards"`
 }
 
-func GetAccountsByChannelId(db *gorm.DB, channelId string) *[]string {
+func GetAccountsByChannelId(channelId string) *[]string {
+	db := do.MustInvoke[gorm.DB](di.Provider)
+
 	accounts := []model.ChannelsDotaAccounts{}
 	err := db.
 		Table("channels_dota_accounts").

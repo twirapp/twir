@@ -1,6 +1,9 @@
 package manage
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"log"
 	"strings"
 
@@ -33,6 +36,8 @@ var AddCommand = types.DefaultCommand{
 		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		db := do.MustInvoke[gorm.DB](di.Provider)
+
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
@@ -58,7 +63,7 @@ var AddCommand = types.DefaultCommand{
 		}
 
 		commands := []model.ChannelsCommands{}
-		err := ctx.Services.Db.Model(&model.ChannelsCommands{}).
+		err := db.Model(&model.ChannelsCommands{}).
 			Where(`"channelId" = ?`, ctx.ChannelId).
 			Find(&commands).Error
 		if err != nil {
@@ -101,7 +106,7 @@ var AddCommand = types.DefaultCommand{
 				},
 			},
 		}
-		err = ctx.Services.Db.Create(&command).Error
+		err = db.Create(&command).Error
 
 		if err != nil {
 			log.Fatalln(err)

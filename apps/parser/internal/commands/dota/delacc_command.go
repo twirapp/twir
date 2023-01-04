@@ -2,6 +2,9 @@ package dota
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"strconv"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -27,6 +30,7 @@ var DelAccCommand = types.DefaultCommand{
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
+		db := do.MustInvoke[gorm.DB](di.Provider)
 
 		acc, err := strconv.ParseUint(*ctx.Text, 10, 64)
 		if err != nil {
@@ -48,7 +52,7 @@ var DelAccCommand = types.DefaultCommand{
 		accId := steamid.SID32(acc)
 
 		var count int64 = 0
-		err = ctx.Services.Db.
+		err = db.
 			Table("channels_dota_accounts").
 			Where(`"channelId" = ? AND "id" = ?`, ctx.ChannelId, strconv.Itoa(int(accId))).
 			Count(&count).Error
@@ -64,7 +68,7 @@ var DelAccCommand = types.DefaultCommand{
 			return result
 		}
 
-		err = ctx.Services.Db.
+		err = db.
 			Delete(&model.ChannelsDotaAccounts{
 				ID:        strconv.Itoa(int(accId)),
 				ChannelID: ctx.ChannelId,

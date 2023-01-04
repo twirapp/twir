@@ -2,6 +2,9 @@ package randomonlineuser
 
 import (
 	"errors"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"math/rand"
 	"time"
 
@@ -26,9 +29,10 @@ var Variable = types.Variable{
 	Example:     lo.ToPtr("random.online.user"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
+		db := do.MustInvoke[gorm.DB](di.Provider)
 
 		onlineCount := int64(0)
-		err := ctx.Services.Db.
+		err := db.
 			Model(&model.UsersOnline{}).
 			Where(`"channelId" = ? `, ctx.ChannelId).
 			Count(&onlineCount).Error
@@ -40,7 +44,7 @@ var Variable = types.Variable{
 		randCount := rand.Intn(int(onlineCount)-0) + 0
 
 		randomUser := &model.UsersOnline{}
-		err = ctx.Services.Db.
+		err = db.
 			Where(`"channelId" = ? `, ctx.ChannelId).
 			Offset(randCount).
 			First(randomUser).Error

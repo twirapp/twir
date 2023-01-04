@@ -27,7 +27,7 @@ var LgCommand = types.DefaultCommand{
 			Result: make([]string, 0),
 		}
 
-		accounts := GetAccountsByChannelId(ctx.Services.Db, ctx.ChannelId)
+		accounts := GetAccountsByChannelId(ctx.ChannelId)
 
 		if len(*accounts) == 0 {
 			result.Result = append(result.Result, NO_ACCOUNTS)
@@ -35,8 +35,6 @@ var LgCommand = types.DefaultCommand{
 		}
 
 		games := GetGames(GetGamesOpts{
-			Db:       ctx.Services.Db,
-			Redis:    ctx.Services.Redis,
 			Accounts: *accounts,
 			Take:     lo.ToPtr(2),
 		})

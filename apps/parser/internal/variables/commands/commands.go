@@ -1,6 +1,9 @@
 package commandslist
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"strings"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -15,8 +18,10 @@ var Variable = types.Variable{
 	Name:        "commands.list",
 	Description: lo.ToPtr("Command list"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		db := do.MustInvoke[gorm.DB](di.Provider)
+
 		cmds := []model.ChannelsCommands{}
-		err := ctx.Services.Db.
+		err := db.
 			Model(&model.ChannelsCommands{}).
 			Where(`"channelId" = ?`, ctx.ChannelId).
 			Select("enabled", "visible", "name").

@@ -3,6 +3,10 @@ package song
 import (
 	"context"
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"strings"
 
 	lastfm "github.com/satont/tsuwari/apps/parser/internal/integrations/lastfm"
@@ -31,6 +35,9 @@ var Variable = types.Variable{
 	Name:        "currentsong",
 	Description: lo.ToPtr("Current played song"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		db := do.MustInvoke[gorm.DB](di.Provider)
+		redisClient := do.MustInvoke[redis.Client](di.Provider)
+
 		result := &types.VariableHandlerResult{}
 
 		integrations := ctx.GetEnabledIntegrations()
@@ -67,7 +74,7 @@ var Variable = types.Variable{
 		)
 		var spoti *spotify.Spotify
 		if ok {
-			spoti = spotify.New(&spotifyIntegration, ctx.Services.Db)
+			spoti = spotify.New(&spotifyIntegration, &db)
 		}
 
 		vkIntegration, ok := lo.Find(
@@ -124,7 +131,10 @@ var Variable = types.Variable{
 					break checkServices
 				}
 			case YOUTUBE_SR:
-				redisData, err := ctx.Services.Redis.Get(context.Background(), fmt.Sprintf("songrequests:youtube:%s:currentPlaying", ctx.ChannelId)).Result()
+				redisData, err := redisClient.Get(
+					context.Background(),
+					fmt.Sprintf("songrequests:youtube:%s:currentPlaying", ctx.ChannelId),
+				).Result()
 				if err == redis.Nil {
 					continue
 				}
@@ -133,7 +143,7 @@ var Variable = types.Variable{
 					continue
 				}
 				song := model.RequestedSong{}
-				if err = ctx.Services.Db.Where("id = ?", redisData).First(&song).Error; err != nil {
+				if err = db.Where("id = ?", redisData).First(&song).Error; err != nil {
 					fmt.Println("song nog found", err)
 					continue
 				}
@@ -145,7 +155,8 @@ var Variable = types.Variable{
 				)
 				break checkServices
 			case SOUNDTRACK:
-				tracks, err := ctx.Services.Twitch.Client.GetSoundTrackCurrentTrack(&helix.SoundtrackCurrentTrackParams{
+				twitchClient := do.MustInvoke[twitch.Twitch](di.Provider)
+				tracks, err := twitchClient.Client.GetSoundTrackCurrentTrack(&helix.SoundtrackCurrentTrackParams{
 					BroadcasterID: ctx.ChannelId,
 				})
 				if err != nil {

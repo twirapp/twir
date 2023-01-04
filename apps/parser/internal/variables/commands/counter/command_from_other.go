@@ -2,6 +2,9 @@ package command_counter
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
@@ -17,6 +20,7 @@ var CommandVariableFromOther = types.Variable{
 	Example:      lo.ToPtr("command.counter.fromother|commandName"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
+		db := do.MustInvoke[gorm.DB](di.Provider)
 
 		if data.Params == nil {
 			result.Result = "Have not passed params to variable. "
@@ -24,7 +28,7 @@ var CommandVariableFromOther = types.Variable{
 		}
 
 		cmd := model.ChannelsCommands{}
-		err := ctx.Services.Db.
+		err := db.
 			Where(`"channelId" = ? AND "name" = ?`, ctx.ChannelId, *data.Params).
 			First(&cmd).Error
 
@@ -33,7 +37,7 @@ var CommandVariableFromOther = types.Variable{
 			return result, nil
 		}
 
-		count, err := getCount(ctx.Services.Db, cmd.ID, nil)
+		count, err := getCount(cmd.ID, nil)
 		if err != nil {
 			result.Result = "cannot get count"
 			return result, nil

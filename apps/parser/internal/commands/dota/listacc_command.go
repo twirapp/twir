@@ -23,7 +23,7 @@ var ListAccCommand = types.DefaultCommand{
 			Result: make([]string, 0),
 		}
 
-		accounts := GetAccountsByChannelId(ctx.Services.Db, ctx.ChannelId)
+		accounts := GetAccountsByChannelId(ctx.ChannelId)
 
 		if accounts == nil || len(*accounts) == 0 {
 			result.Result = append(result.Result, NO_ACCOUNTS)

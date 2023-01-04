@@ -2,6 +2,9 @@ package keywords
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"strconv"
 
 	"github.com/samber/lo"
@@ -17,6 +20,7 @@ var Counter = types.Variable{
 	Visible:      lo.ToPtr(false),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
+		db := do.MustInvoke[gorm.DB](di.Provider)
 
 		if data.Params == nil {
 			result.Result = "id is not provided"
@@ -24,7 +28,7 @@ var Counter = types.Variable{
 		}
 
 		keyword := model.ChannelsKeywords{}
-		err := ctx.Services.Db.
+		err := db.
 			Where(`"channelId" = ? AND "id" = ?`, ctx.ChannelId, data.Params).
 			Find(&keyword).Error
 		if err != nil {

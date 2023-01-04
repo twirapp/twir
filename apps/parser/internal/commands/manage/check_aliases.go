@@ -2,6 +2,9 @@ package manage
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"strings"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -23,6 +26,8 @@ var CheckAliasesCommand = types.DefaultCommand{
 		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		db := do.MustInvoke[gorm.DB](di.Provider)
+
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
@@ -35,7 +40,7 @@ var CheckAliasesCommand = types.DefaultCommand{
 		commandName := strings.ReplaceAll(strings.ToLower(*ctx.Text), "!", "")
 
 		cmd := model.ChannelsCommands{}
-		err := ctx.Services.Db.Where(`"channelId" = ? AND "name" = ?`, ctx.ChannelId, commandName).Find(&cmd).Error
+		err := db.Where(`"channelId" = ? AND "name" = ?`, ctx.ChannelId, commandName).Find(&cmd).Error
 		if err != nil {
 			fmt.Println(err)
 			result.Result = append(result.Result, "internal error")

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
 	"log"
 	"regexp"
 	"time"
@@ -13,7 +14,6 @@ import (
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 
-	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -49,6 +49,7 @@ var SrCommand = types.DefaultCommand{
 		KeepResponsesOrder: lo.ToPtr(false),
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		db := do.MustInvoke[gorm.DB](di.Provider)
 		result := &types.CommandsHandlerResult{}
 		websocketGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
 
@@ -80,7 +81,7 @@ var SrCommand = types.DefaultCommand{
 			return result
 		}
 
-		err := ctx.Services.Db.
+		err := db.
 			Where(`"videoId" = ? AND "deletedAt" IS NULL`, songId).
 			First(&model.RequestedSong{}).
 			Error
@@ -117,7 +118,7 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		moduleSettings := &model.ChannelModulesSettings{}
-		err = ctx.Services.Db.
+		err = db.
 			Where(`"channelId" = ? AND "type" = ?`, ctx.ChannelId, "youtube_song_requests").
 			First(moduleSettings).Error
 		if err != nil && err != gorm.ErrRecordNotFound {
@@ -142,8 +143,6 @@ var SrCommand = types.DefaultCommand{
 			err = validate(
 				ctx.ChannelId,
 				ctx.SenderId,
-				ctx.Services.Db,
-				ctx.Services.Twitch,
 				parsedSettings,
 				ytdlSongInfo,
 			)
@@ -165,7 +164,7 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		songsInQueue := []model.RequestedSong{}
-		ctx.Services.Db.
+		db.
 			Where(
 				`"channelId" = ? AND "id" != ? AND "deletedAt" IS NULL`,
 				ctx.ChannelId,
@@ -176,13 +175,13 @@ var SrCommand = types.DefaultCommand{
 
 		for i, s := range songsInQueue {
 			s.QueuePosition = i + 1
-			// ctx.Services.Db.Model(&model.RequestedSong{}).Where("id = ?", s.ID).Update("queuePosition", i+1)
-			ctx.Services.Db.Save(&s)
+			// db.Model(&model.RequestedSong{}).Where("id = ?", s.ID).Update("queuePosition", i+1)
+			db.Save(&s)
 		}
 
 		entity.QueuePosition = len(songsInQueue) + 1
 
-		err = ctx.Services.Db.Create(&entity).Error
+		err = db.Create(&entity).Error
 
 		if err != nil {
 			log.Fatal(err)
@@ -219,11 +218,12 @@ var SrCommand = types.DefaultCommand{
 
 func validate(
 	channelId, userId string,
-	db *gorm.DB,
-	tw *twitch.Twitch,
 	settings *youtube.YouTubeSettings,
 	song *ytdl.Video,
 ) error {
+	db := do.MustInvoke[gorm.DB](di.Provider)
+	twitchClient := do.MustInvoke[twitch.Twitch](di.Provider)
+
 	if userId != channelId {
 		return nil
 	}
@@ -344,7 +344,7 @@ func validate(
 
 	if settings.User.MinFollowTime != 0 {
 		neededDuration := time.Minute * time.Duration(settings.User.MinFollowTime)
-		followReq, err := tw.Client.GetUsersFollows(&helix.UsersFollowsParams{
+		followReq, err := twitchClient.Client.GetUsersFollows(&helix.UsersFollowsParams{
 			FromID: userId,
 			ToID:   channelId,
 		})

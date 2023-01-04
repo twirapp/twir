@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"regexp"
 	"sort"
 	"strings"
@@ -12,14 +14,11 @@ import (
 	"github.com/satont/tsuwari/apps/parser/internal/commands/permit"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/songrequest/youtube"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/spam"
-	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	"github.com/satont/tsuwari/apps/parser/internal/variables"
 	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
-	"github.com/satont/tsuwari/libs/grpc/generated/eval"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 
 	uuid "github.com/satori/go.uuid"
@@ -27,41 +26,18 @@ import (
 	channel_game "github.com/satont/tsuwari/apps/parser/internal/commands/channel/game"
 	channel_title "github.com/satont/tsuwari/apps/parser/internal/commands/channel/title"
 
-	usersauth "github.com/satont/tsuwari/apps/parser/internal/twitch/user"
-
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 
-	"github.com/go-redis/redis/v9"
-	dotaGrpc "github.com/satont/tsuwari/libs/grpc/generated/dota"
 	"gorm.io/gorm"
 )
 
 type Commands struct {
-	DefaultCommands  []types.DefaultCommand
-	redis            *redis.Client
-	variablesService variables.Variables
-	Db               *gorm.DB
-	UsersAuth        *usersauth.UsersTokensService
-	Twitch           *twitch.Twitch
-	DotaGrpc         dotaGrpc.DotaClient
-	BotsGrpc         bots.BotsClient
-	EvalGrpc         eval.EvalClient
+	DefaultCommands []types.DefaultCommand
 }
 
-type CommandsOpts struct {
-	Redis            *redis.Client
-	VariablesService variables.Variables
-	Db               *gorm.DB
-	UsersAuth        *usersauth.UsersTokensService
-	Twitch           *twitch.Twitch
-	DotaGrpc         dotaGrpc.DotaClient
-	BotsGrpc         bots.BotsClient
-	EvalGrpc         eval.EvalClient
-}
-
-func New(opts CommandsOpts) Commands {
+func New() Commands {
 	commands := []types.DefaultCommand{
 		channel_title.Command,
 		channel_game.Command,
@@ -86,24 +62,18 @@ func New(opts CommandsOpts) Commands {
 	}
 
 	ctx := Commands{
-		redis:            opts.Redis,
-		DefaultCommands:  commands,
-		variablesService: opts.VariablesService,
-		Db:               opts.Db,
-		UsersAuth:        opts.UsersAuth,
-		Twitch:           opts.Twitch,
-		BotsGrpc:         opts.BotsGrpc,
-		DotaGrpc:         opts.DotaGrpc,
-		EvalGrpc:         opts.EvalGrpc,
+		DefaultCommands: commands,
 	}
 
 	return ctx
 }
 
 func (c *Commands) GetChannelCommands(channelId string) (*[]model.ChannelsCommands, error) {
+	db := do.MustInvoke[gorm.DB](di.Provider)
+
 	cmds := []model.ChannelsCommands{}
 
-	err := c.Db.
+	err := db.
 		Model(&model.ChannelsCommands{}).
 		Where(`"channelId" = ? AND "enabled" = ?`, channelId, true).
 		Preload("Responses").
@@ -167,6 +137,9 @@ func (c *Commands) ParseCommandResponses(
 	command FindByMessageResult,
 	data *parser.ProcessCommandRequest,
 ) *parser.ProcessCommandResponse {
+	db := do.MustInvoke[gorm.DB](di.Provider)
+	variablesService := do.MustInvoke[variables.Variables](di.Provider)
+
 	result := &parser.ProcessCommandResponse{
 		KeepOrder: &command.Cmd.KeepResponsesOrder,
 	}
@@ -189,7 +162,7 @@ func (c *Commands) ParseCommandResponses(
 		},
 	)
 
-	c.Db.Create(&model.ChannelsCommandsUsages{
+	db.Create(&model.ChannelsCommandsUsages{
 		ID:        uuid.NewV4().String(),
 		UserID:    data.Sender.Id,
 		ChannelID: data.Channel.Id,
@@ -203,18 +176,8 @@ func (c *Commands) ParseCommandResponses(
 			SenderId:    data.Sender.Id,
 			SenderName:  data.Sender.Name,
 			Text:        cmdParams,
-			Services: variables_cache.ExecutionServices{
-				Redis:     c.redis,
-				Regexp:    nil,
-				Twitch:    c.Twitch,
-				Db:        c.Db,
-				UsersAuth: c.UsersAuth,
-				DotaGrpc:  c.DotaGrpc,
-				BotsGrpc:  c.BotsGrpc,
-				EvalGrpc:  c.EvalGrpc,
-			},
-			IsCommand: true,
-			Command:   command.Cmd,
+			IsCommand:   true,
+			Command:     command.Cmd,
 		})
 		if results == nil {
 			result.Responses = []string{}
@@ -242,13 +205,6 @@ func (c *Commands) ParseCommandResponses(
 			SenderId:   data.Sender.Id,
 			SenderName: &data.Sender.DisplayName,
 			ChannelId:  data.Channel.Id,
-			Redis:      c.redis,
-			Regexp:     variables.Regexp,
-			Twitch:     c.Twitch,
-			DB:         c.Db,
-			BotsGrpc:   c.BotsGrpc,
-			DotaGrpc:   c.DotaGrpc,
-			EvalGrpc:   c.EvalGrpc,
 			IsCommand:  true,
 			Command:    command.Cmd,
 		})
@@ -256,7 +212,7 @@ func (c *Commands) ParseCommandResponses(
 		go func(i int, r string) {
 			defer wg.Done()
 
-			result.Responses[i] = c.variablesService.ParseInput(cacheService, r)
+			result.Responses[i] = variablesService.ParseInput(cacheService, r)
 		}(i, r)
 	}
 	wg.Wait()
