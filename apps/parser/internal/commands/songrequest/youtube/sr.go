@@ -290,7 +290,11 @@ func validate(
 
 	songDuration := int(song.Duration.Minutes())
 	if settings.Song.MaxLength != 0 && songDuration > settings.Song.MaxLength {
-		return errors.New("That song is to long for request")
+		return errors.New(fmt.Sprintf("Maximum length of song is %v", settings.Song.MaxLength))
+	}
+
+	if settings.Song.MinLength != 0 && songDuration < settings.Song.MinLength {
+		return errors.New(fmt.Sprintf("Minimum length of song is %v", settings.Song.MinLength))
 	}
 
 	// TODO: check categories

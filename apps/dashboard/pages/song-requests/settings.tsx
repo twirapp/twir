@@ -46,6 +46,7 @@ const Settings: NextPage = () => {
       },
       song: {
         maxLength: 10,
+        minLength: 0,
         minViews: 50000,
         acceptedCategories: [],
       },

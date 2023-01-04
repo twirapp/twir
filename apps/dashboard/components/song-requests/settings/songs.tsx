@@ -48,6 +48,7 @@ export const YouTubeSongsSettings: React.FC = () => {
       <Card.Section p={'md'}>
         <Flex direction={'column'} gap={'xs'}>
           <NumberInput label={t('songs.maxRequests')} {...form.getInputProps('maxRequests')} />
+          <NumberInput label={t('songs.minLength')} {...form.getInputProps('song.minLength')} />
           <NumberInput label={t('songs.maxLength')} {...form.getInputProps('song.maxLength')} />
           <NumberInput label={t('songs.minViews')} {...form.getInputProps('song.minViews')} />
         </Flex>

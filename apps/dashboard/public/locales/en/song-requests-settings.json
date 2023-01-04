@@ -19,6 +19,7 @@
     "title": "Songs",
     "maxRequests": "Maximum number of songs in queue",
     "maxLength": "Max length of song for request (minutes)",
+    "minLength": "Min length of song for request (minutes)",
     "minViews": "Minimal views on song for request",
     "denied": "Denied songs for request"
   }

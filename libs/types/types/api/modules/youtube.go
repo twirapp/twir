@@ -8,6 +8,7 @@ type YouTubeUserSettings struct {
 }
 
 type YouTubeSongSettings struct {
+	MinLength          int      `validate:"gte=0" json:"minLength"`
 	MaxLength          int      `validate:"lte=86400"          json:"maxLength"`
 	MinViews           int      `validate:"lte=10000000000000" json:"minViews"`
 	AcceptedCategories []string `validate:"dive,max=300"       json:"acceptedCategories"`

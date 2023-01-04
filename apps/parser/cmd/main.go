@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/samber/do"
@@ -125,9 +126,9 @@ func main() {
 	logger.Info("Started")
 
 	// runtime.Goexit()
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	<-c
+	exitSignal := make(chan os.Signal, 1)
+	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
+	<-exitSignal
 	log.Fatalf("Exiting")
 	grpcServer.Stop()
 	d.Close()
