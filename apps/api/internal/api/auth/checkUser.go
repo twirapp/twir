@@ -3,6 +3,8 @@ package auth
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/samber/do"
 	"github.com/samber/lo"
@@ -108,7 +110,8 @@ func checkUser(
 		}
 
 		channel := createChannelModel(user.ID, defaultBot.ID)
-		channel.IsEnabled = false
+		fmt.Println("here")
+		spew.Dump(channel)
 		if err = services.DB.Create(&channel).Error; err != nil {
 			logger.Error(err)
 			return err
@@ -121,6 +124,8 @@ func checkUser(
 	} else {
 		if user.Channel == nil {
 			channel := createChannelModel(user.ID, defaultBot.ID)
+			fmt.Println("here2")
+			spew.Dump(channel)
 			if err = services.DB.Create(&channel).Error; err != nil {
 				logger.Error(err)
 				return err
@@ -147,18 +152,6 @@ func checkUser(
 		}
 	}
 
-	//if user.Channel.IsEnabled {
-	//	services.BotsGrpc.Join(context.Background(), &bots.JoinOrLeaveRequest{
-	//		BotId:    user.Channel.BotID,
-	//		UserName: username,
-	//	})
-	//} else {
-	//	services.BotsGrpc.Leave(context.Background(), &bots.JoinOrLeaveRequest{
-	//		BotId:    user.Channel.BotID,
-	//		UserName: username,
-	//	})
-	//}
-
 	schedulerGrpc.CreateDefaultCommands(
 		context.Background(),
 		&scheduler.CreateDefaultCommandsRequest{
@@ -178,7 +171,7 @@ func checkUser(
 func createChannelModel(userId, botId string) model.Channels {
 	return model.Channels{
 		ID:             userId,
-		IsEnabled:      true,
+		IsEnabled:      false,
 		IsTwitchBanned: false,
 		IsBanned:       false,
 		BotID:          botId,
