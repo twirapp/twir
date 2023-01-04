@@ -9,8 +9,10 @@ import {
   Loader,
   Menu,
   Text,
+  Box,
 } from '@mantine/core';
 import { IconMoonStars, IconSun, IconLanguage } from '@tabler/icons';
+import Image from 'next/image';
 import { Dispatch, SetStateAction } from 'react';
 
 import { Profile } from './profile';
@@ -28,6 +30,9 @@ const useStyles = createStyles((theme) => ({
   },
 
   hiddenMobile: {
+    pointerEvents: 'none',
+    userSelect: 'none',
+
     [theme.fn.smallerThan('sm')]: {
       display: 'none',
     },
@@ -64,9 +69,21 @@ export function NavBar({
             color={theme.colors.gray[6]}
             mr="xl"
           />
-          <Text fz="lg" className={classes.hiddenMobile}>
-            Tsuwari
-          </Text>
+          <Box display="flex" className={classes.hiddenMobile}>
+            <Image src="/dashboard/TsuwariInCircle.svg" width={30} height={30} alt="Tsuwari Logo" />
+            <Text
+              component="span"
+              ml="sm"
+              sx={{
+                color: 'white',
+                fontFamily: 'Golos Text, sans-serif',
+              }}
+              fz="xl"
+              fw={500}
+            >
+              Tsuwari
+            </Text>
+          </Box>
         </Flex>
         <Group position="center">
           <ActionIcon
