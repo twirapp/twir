@@ -35,7 +35,7 @@ const (
 
 func handleGetToken(code string, services types.Services) (*Tokens, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	config := do.MustInvoke[*cfg.Config](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
 
 	resp, err := services.Twitch.Client.RequestUserAccessToken(code)
 	if err != nil {
@@ -215,7 +215,7 @@ type Profile struct {
 
 func handleRefresh(refreshToken string) (string, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	config := do.MustInvoke[*cfg.Config](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
 
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

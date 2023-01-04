@@ -29,7 +29,7 @@ func handlePost(
 	services types.Services,
 ) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	config := do.MustInvoke[*cfg.Config](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
 
 	if services.TgBotApi == nil {
 		return fiber.NewError(

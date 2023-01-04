@@ -89,7 +89,7 @@ func main() {
 
 	do.ProvideValue[*gorm.DB](di.Injector, db)
 	do.ProvideValue[interfaces.TimersService](di.Injector, services.NewTimersService())
-	do.ProvideValue[*config.Config](di.Injector, cfg)
+	do.ProvideValue[config.Config](di.Injector, *cfg)
 
 	storage := redis.NewCache(cfg.RedisUrl)
 

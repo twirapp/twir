@@ -87,7 +87,7 @@ func ExtractTokenFromHeader(t string) (*jwt.Token, error) {
 		return nil, fiber.NewError(401, "invalid token format")
 	}
 
-	cfg := do.MustInvoke[*config.Config](di.Injector)
+	cfg := do.MustInvoke[config.Config](di.Injector)
 
 	token, err := jwt.Parse(tokenSlice[1], func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

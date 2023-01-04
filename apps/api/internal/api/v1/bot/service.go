@@ -25,7 +25,7 @@ import (
 
 func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	config := do.MustInvoke[*cfg.Config](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
 
 	client, err := twitch.NewUserClient(twitch.UsersServiceOpts{
 		Db:           services.DB,
