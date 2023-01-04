@@ -95,7 +95,10 @@ export const VideosList: React.FC = () => {
             <th>#</th>
             <th>Title</th>
             <th>Requested by</th>
-            <th>Duration</th>
+            <th>Duration ({convertMillisToTime(videos
+              .slice(1)
+              .reduce((acc, curr) => acc + curr.duration, 0)
+            ?? 0)})</th>
             <th>Actions</th>
           </tr>
         </thead>
