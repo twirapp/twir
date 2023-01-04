@@ -130,7 +130,7 @@ func refreshToken(services types.Services) func(c *fiber.Ctx) error {
 			return fiber.NewError(401, "unauthorized")
 		}
 
-		newAccess, err := handleRefresh(refreshToken, services)
+		newAccess, err := handleRefresh(refreshToken)
 		if err != nil {
 			return err
 		}

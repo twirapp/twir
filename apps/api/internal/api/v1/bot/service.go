@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	cfg "github.com/satont/tsuwari/libs/config"
 	"net/http"
 	"sync"
 
@@ -24,11 +25,12 @@ import (
 
 func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	config := do.MustInvoke[*cfg.Config](di.Injector)
 
 	client, err := twitch.NewUserClient(twitch.UsersServiceOpts{
 		Db:           services.DB,
-		ClientId:     services.Cfg.TwitchClientId,
-		ClientSecret: services.Cfg.TwitchClientSecret,
+		ClientId:     config.TwitchClientId,
+		ClientSecret: config.TwitchClientSecret,
 	}).Create(channelId)
 	if client == nil || err != nil {
 		logger.Error(err)

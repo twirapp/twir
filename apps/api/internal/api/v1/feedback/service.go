@@ -6,6 +6,7 @@ import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	cfg "github.com/satont/tsuwari/libs/config"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -28,6 +29,7 @@ func handlePost(
 	services types.Services,
 ) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	config := do.MustInvoke[*cfg.Config](di.Injector)
 
 	if services.TgBotApi == nil {
 		return fiber.NewError(
@@ -38,7 +40,7 @@ func handlePost(
 
 	myText := fmt.Sprintf("New feedback from %s\n%s", fromId, text)
 
-	userId, _ := strconv.Atoi(*services.Cfg.FeedbackTelegramUserID)
+	userId, _ := strconv.Atoi(*config.FeedbackTelegramUserID)
 
 	if len(files) == 0 {
 		msg := tgbotapi.NewMessage(int64(userId), myText)

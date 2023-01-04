@@ -146,7 +146,6 @@ func main() {
 			ClientSecret: cfg.TwitchClientSecret,
 			RedirectURI:  cfg.TwitchCallbackUrl,
 		}),
-		Cfg: cfg,
 	}
 
 	if cfg.FeedbackTelegramBotToken != nil {

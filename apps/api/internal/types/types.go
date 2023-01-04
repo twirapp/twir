@@ -3,8 +3,6 @@ package types
 import (
 	"github.com/satont/tsuwari/libs/twitch"
 
-	cfg "github.com/satont/tsuwari/libs/config"
-
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -18,7 +16,6 @@ type Services struct {
 	Validator           *validator.Validate
 	ValidatorTranslator ut.Translator
 	Twitch              *twitch.Twitch
-	Cfg                 *cfg.Config
 	TgBotApi            *tgbotapi.BotAPI
 }
 

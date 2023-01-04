@@ -2,8 +2,11 @@ package rewards
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/samber/do"
 	"github.com/satont/go-helix/v2"
+	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/types"
+	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/twitch"
 	"net/http"
 )
@@ -11,10 +14,12 @@ import (
 var cannotGetRewards = fiber.NewError(http.StatusInternalServerError, "cannot get custom rewards of channel")
 
 func handleGet(channelId string, services types.Services) ([]helix.ChannelCustomReward, error) {
+	config := do.MustInvoke[*cfg.Config](di.Injector)
+
 	api, err := twitch.NewUserClient(twitch.UsersServiceOpts{
 		Db:           services.DB,
-		ClientId:     services.Cfg.TwitchClientId,
-		ClientSecret: services.Cfg.TwitchClientSecret,
+		ClientId:     config.TwitchClientId,
+		ClientSecret: config.TwitchClientSecret,
 	}).Create(channelId)
 
 	if err != nil {
