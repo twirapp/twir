@@ -229,14 +229,14 @@ func validate(
 	}
 
 	if len(settings.DenyList.Users) > 0 {
-		_, isUserBlackListed := lo.Find(
+		_, isUserDenied := lo.Find(
 			settings.DenyList.Users,
 			func(u youtube.YouTubeDenySettingsUsers) bool {
 				return u.UserID == userId
 			},
 		)
 
-		if isUserBlackListed {
+		if isUserDenied {
 			return errors.New("You cannot request any songs.")
 		}
 	}

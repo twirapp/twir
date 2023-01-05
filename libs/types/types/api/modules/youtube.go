@@ -38,6 +38,35 @@ type YouTubeDenyList struct {
 	ArtistsNames []string                      `validate:"required,dive,max=300" json:"artistsNames"`
 }
 
+type YouTubeTranslations struct {
+	NowPlaying             string `json:"nowPlaying"`
+	NotEnabled             string `json:"notEnabled"`
+	NoText                 string `json:"noText"`
+	AcceptOnlineWhenOnline string `json:"acceptOnlyWhenOnline"`
+	User                   struct {
+		Denied            string `json:"denied"`
+		MaxRequests       string `json:"maxRequests"`
+		NotEnoughMessages string `json:"notEnoughMessages"`
+		NotEnoughWatched  string `json:"notEnoughWatched"`
+		NotEnoughFollow   string `json:"notEnoughFollow"`
+	} `json:"user"`
+	Song struct {
+		Denied               string `json:"denied"`
+		NotFound             string `json:"notFound"`
+		AlreadyInQueue       string `json:"alreadyInQueue"`
+		AgeRestrictions      string `json:"ageRestrictions"`
+		CannotGetInformation string `json:"cannotGetInformation"`
+		Live                 string `json:"live"`
+		MaxNumberRequested   string `json:"maxNumberRequested"`
+		NotEnoughViews       string `json:"notEnoughViews"`
+		MaxLength            string `json:"maxLength"`
+		MinLength            string `json:"minLength"`
+	} `json:"song"`
+	Channel struct {
+		Denied string `json:"denied"`
+	}
+}
+
 type YouTubeSettings struct {
 	Enabled               *bool               `validate:"required" json:"enabled"`
 	AcceptOnlyWhenOnline  *bool               `validate:"required" json:"acceptOnlyWhenOnline"`
@@ -47,6 +76,7 @@ type YouTubeSettings struct {
 	User                  YouTubeUserSettings `validate:"required" json:"user"`
 	Song                  YouTubeSongSettings `validate:"required" json:"song"`
 	DenyList              YouTubeDenyList     `validate:"required" json:"denyList"`
+	Translations          YouTubeTranslations `validate:"required" json:"translations"`
 }
 
 type SearchResult struct {
