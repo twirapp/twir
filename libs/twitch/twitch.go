@@ -24,7 +24,7 @@ func rateLimitCallback(lastResponse *helix.Response) error {
 	var reset64 int64
 	reset64 = int64(lastResponse.GetRateLimitReset())
 
-	currentTime := time.Now().Unix()
+	currentTime := time.Now().UTC().Unix()
 
 	if currentTime < reset64 {
 		timeDiff := time.Duration(reset64 - currentTime)
@@ -66,7 +66,7 @@ func NewClient(options *helix.Options) *Twitch {
 func (c *Twitch) setExpiresAndCreated(expiresIn int) {
 	exp := expiresIn
 	c.Token.tokenExpiresIn = &exp
-	t := time.Now().UnixMilli()
+	t := time.Now().UTC().UnixMilli()
 	c.Token.tokenCreatedAt = &t
 }
 
@@ -75,7 +75,7 @@ func (c *Twitch) isTokenValid() bool {
 		return false
 	}
 
-	curr := time.Now().UnixMilli()
+	curr := time.Now().UTC().UnixMilli()
 	isExpired := curr > (*c.Token.tokenCreatedAt + int64(*c.Token.tokenExpiresIn))
 
 	return isExpired

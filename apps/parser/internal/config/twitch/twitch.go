@@ -49,7 +49,7 @@ func New(cfg cfg.Config) *Twitch {
 func (c *Twitch) setExpiresAndCreated(expiresIn int) {
 	exp := expiresIn
 	c.Token.tokenExpiresIn = &exp
-	t := time.Now().UnixMilli()
+	t := time.Now().UTC().UnixMilli()
 	c.Token.tokenCreatedAt = &t
 }
 
@@ -58,7 +58,7 @@ func (c *Twitch) isTokenValid() bool {
 		return false
 	}
 
-	curr := time.Now().UnixMilli()
+	curr := time.Now().UTC().UnixMilli()
 	isExpired := curr > (*c.Token.tokenCreatedAt + int64(*c.Token.tokenExpiresIn))
 
 	return isExpired

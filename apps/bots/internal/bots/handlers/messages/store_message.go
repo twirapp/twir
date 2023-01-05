@@ -22,7 +22,7 @@ func StoreMessage(
 		UserName:     userName,
 		Text:         strings.ToLower(text),
 		CanBeDeleted: canBeDeleted,
-		CreatedAt:    time.Now(),
+		CreatedAt:    time.Now().UTC(),
 	}
 
 	err := db.Create(&entity).Error

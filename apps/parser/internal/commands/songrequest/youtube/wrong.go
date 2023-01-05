@@ -83,7 +83,7 @@ var WrongCommand = types.DefaultCommand{
 		}
 
 		choosedSong := songs[number-1]
-		choosedSong.DeletedAt = lo.ToPtr(time.Now())
+		choosedSong.DeletedAt = lo.ToPtr(time.Now().UTC())
 		err = db.Updates(&choosedSong).Error
 		if err != nil {
 			result.Result = append(result.Result, "Cannot delete song")

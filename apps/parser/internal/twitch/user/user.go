@@ -45,7 +45,7 @@ func (c UsersTokensService) Create(userId string) (*helix.Client, error) {
 			AccessToken:         tokenData.Data.AccessToken,
 			RefreshToken:        tokenData.Data.RefreshToken,
 			ExpiresIn:           int32(tokenData.Data.ExpiresIn),
-			ObtainmentTimestamp: time.Now(),
+			ObtainmentTimestamp: time.Now().UTC(),
 		}).Error
 		if err != nil {
 			fmt.Println(err)

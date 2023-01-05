@@ -68,7 +68,7 @@ func handleGetToken(code string, services types.Services) (*Tokens, error) {
 		Login:  user.Login,
 	}
 
-	now := time.Now()
+	now := time.Now().UTC()
 
 	accessClaims := claims
 	accessClaims.ExpiresAt = jwt.NewNumericDate(now.Add(accessLifeTime))

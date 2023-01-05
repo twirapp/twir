@@ -81,7 +81,7 @@ func checkUser(
 		AccessToken:         tokens.AccessToken,
 		RefreshToken:        tokens.RefreshToken,
 		ExpiresIn:           int32(tokens.ExpiresIn),
-		ObtainmentTimestamp: time.Now(),
+		ObtainmentTimestamp: time.Now().UTC(),
 	}
 
 	user := model.Users{}

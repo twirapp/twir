@@ -52,7 +52,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 				"accessToken":         newToken.Data.AccessToken,
 				"refreshToken":        newToken.Data.RefreshToken,
 				"expiresIn":           int32(newToken.Data.ExpiresIn),
-				"obtainmentTimestamp": time.Now(),
+				"obtainmentTimestamp": time.Now().UTC(),
 			})
 	}
 	api := twitch.NewClient(&helix.Options{

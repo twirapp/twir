@@ -160,7 +160,7 @@ var SrCommand = types.DefaultCommand{
 			VideoID:       ytdlSongInfo.ID,
 			Title:         ytdlSongInfo.Title,
 			Duration:      int32(ytdlSongInfo.Duration / time.Millisecond),
-			CreatedAt:     time.Now(),
+			CreatedAt:     time.Now().UTC(),
 		}
 
 		songsInQueue := []model.RequestedSong{}

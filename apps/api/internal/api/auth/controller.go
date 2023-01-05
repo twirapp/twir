@@ -81,7 +81,7 @@ func getTokens(services types.Services) func(c *fiber.Ctx) error {
 			Name:     "refresh_token",
 			Value:    tokens.RefreshToken,
 			HTTPOnly: true,
-			Expires:  time.Now().Add(refreshLifeTime),
+			Expires:  time.Now().UTC().Add(refreshLifeTime),
 			SameSite: "lax",
 		})
 		return c.JSON(fiber.Map{"accessToken": tokens.AccessToken})
@@ -116,7 +116,7 @@ func logout(services types.Services) func(c *fiber.Ctx) error {
 			Name:     "refresh_token",
 			Value:    "",
 			HTTPOnly: true,
-			Expires:  time.Now(),
+			Expires:  time.Now().UTC(),
 			SameSite: "lax",
 		})
 		return c.SendStatus(200)
