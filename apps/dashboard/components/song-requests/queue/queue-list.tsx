@@ -1,9 +1,9 @@
-import { ActionIcon, Badge, Card, Flex, Group, Table, Text } from '@mantine/core';
+import { ActionIcon, Badge, Card, Center, Flex, Group, Loader, Table, Text } from '@mantine/core';
 import { IconGripVertical, IconTrash } from '@tabler/icons';
 import dynamic from 'next/dynamic';
 import { useContext } from 'react';
 
-import { convertMillisToTime } from './helpers';
+import { convertMillisToTime } from '../helpers';
 
 import { PlayerContext } from '@/components/song-requests/context';
 import { useCardStyles } from '@/styles/card';
@@ -61,7 +61,7 @@ export const QueueList: React.FC = () => {
           <td>
             <a href={'https://youtu.be/' + video.videoId}>{video.title}</a>
           </td>
-          <td>{video.orderedByName}</td>
+          <td>{video.orderedByDisplayName}</td>
           <td>{convertMillisToTime(video.duration)}</td>
           <td>
             <Flex>
@@ -83,38 +83,44 @@ export const QueueList: React.FC = () => {
         </Group>
       </Card.Section>
       <Card.Section className={cardClasses.card}>
-        <DragDropContext
-          onDragEnd={({ destination, source }) => {
-            reorderVideos(destination!, source);
-          }}
-        >
-          <Table>
-            <thead>
-              <tr>
-                <th></th>
-                <th>#</th>
-                <th>Title</th>
-                <th>Requested by</th>
-                <th>
-                  Duration (
-                  {convertMillisToTime(
-                    videos.slice(1).reduce((acc, curr) => acc + curr.duration, 0) ?? 0,
-                  )}
-                  )
-                </th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <Droppable droppableId="dnd-list" direction="vertical">
-              {(provided) => (
-                <tbody {...provided.droppableProps} ref={provided.innerRef}>
-                  {items}
-                  {provided.placeholder}
-                </tbody>
-              )}
-            </Droppable>
-          </Table>
-        </DragDropContext>
+        {items.length ? (
+          <DragDropContext
+            onDragEnd={({ destination, source }) => {
+              reorderVideos(destination!, source);
+            }}
+          >
+            <Table>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>#</th>
+                  <th>Title</th>
+                  <th>Requested by</th>
+                  <th>
+                    Duration (
+                    {convertMillisToTime(
+                      videos.slice(1).reduce((acc, curr) => acc + curr.duration, 0) ?? 0,
+                    )}
+                    )
+                  </th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <Droppable droppableId="dnd-list" direction="vertical">
+                {(provided) => (
+                  <tbody {...provided.droppableProps} ref={provided.innerRef}>
+                    {items}
+                    {provided.placeholder}
+                  </tbody>
+                )}
+              </Droppable>
+            </Table>
+          </DragDropContext>
+        ) : (
+          <Center py="lg">
+            <Loader variant="dots" />
+          </Center>
+        )}
       </Card.Section>
     </Card>
   );

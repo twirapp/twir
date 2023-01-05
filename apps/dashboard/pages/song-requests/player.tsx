@@ -11,7 +11,7 @@ import { io, Socket } from 'socket.io-client';
 
 import { PlayerContext } from '@/components/song-requests/context';
 import { moveItem } from '@/components/song-requests/helpers';
-import { QueueList } from '@/components/song-requests/queue';
+import { QueueList } from '@/components/song-requests/queue/queue-list';
 import { useProfile } from '@/services/api';
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
@@ -20,9 +20,12 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
   },
 });
 
-const PlayerComponent = dynamic(() => import('../../components/song-requests/player'), {
-  ssr: false,
-});
+const PlayerComponent = dynamic(
+  () => import('../../components/song-requests/player/youtube-player'),
+  {
+    ssr: false,
+  },
+);
 
 const Player: NextPage = () => {
   const profile = useProfile();

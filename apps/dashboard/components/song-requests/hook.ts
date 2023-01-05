@@ -44,37 +44,19 @@ export function usePlayer() {
     [player],
   );
 
-  const getSongDuration = useCallback(() => {
-    if (!player) return 0;
-    return player?.getDuration() as unknown as number;
-  }, [player]);
-
-  const getSongCurrentTime = useCallback(() => {
-    if (!player) return 0;
-    return player?.getCurrentTime() as unknown as number;
-  }, [player]);
-
-  const setTime = useCallback(
-    (t: number) => {
-      player?.seekTo(t, true);
-    },
-    [player],
-  );
-
   return {
+    player,
     playerRef,
     videos,
+    isPlaying,
+    videoId: videos[0]?.videoId ?? '',
     togglePlayState,
     skipVideo,
     addVideos,
-    isPlaying,
-    videoId: videos[0]?.videoId ?? '',
+    // ...options
     onReady,
     onEnd,
     onStateChange,
-    getSongDuration,
-    getSongCurrentTime,
-    setTime,
     opts: {
       playerVars: {
         controls: 1,
