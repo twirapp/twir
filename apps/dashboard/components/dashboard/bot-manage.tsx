@@ -1,33 +1,26 @@
-import { Alert, Button, Card, createStyles, Skeleton, Text } from '@mantine/core';
+import { Alert, Button, Card, Group, Skeleton, Text } from '@mantine/core';
 import { IconAlertCircle, IconCheck, IconLogin, IconLogout } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 
 import { useBotApi } from '@/services/api/bot';
-
-const useStyles = createStyles((theme) => ({
-  card: {
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-  },
-  title: {
-    lineHeight: 1,
-  },
-}));
+import { useCardStyles } from '@/styles/card';
 
 export const BotManage = () => {
-  const { classes } = useStyles();
   const { t } = useTranslation('dashboard');
   const botApi = useBotApi();
   const { data: botInfo } = botApi.botInfo();
   const manager = botApi.useChangeState();
+  const { classes } = useCardStyles();
 
   return (
-    <Skeleton visible={botInfo?.isMod === undefined}>
-      <Card withBorder radius="md" p="xl" className={classes.card}>
-        <Text size="lg" className={classes.title} weight={500}>
-          {t('widgets.bot.title')}
-        </Text>
-
-        <Card.Section pt="lg" p="lg">
+    <Skeleton radius="md" visible={botInfo?.isMod === undefined}>
+      <Card withBorder radius="md">
+        <Card.Section withBorder inheritPadding py="sm">
+          <Group position="apart">
+            <Text weight={500}>{t('widgets.bot.title')}</Text>
+          </Group>
+        </Card.Section>
+        <Card.Section p="md" className={classes.card}>
           {botInfo?.isMod ? (
             <Alert icon={<IconCheck size={16} />} color="teal" variant="outline">
               <span dangerouslySetInnerHTML={{ __html: t('widgets.bot.alert.true') }} />
@@ -41,10 +34,9 @@ export const BotManage = () => {
               />
             </Alert>
           )}
-
           <Button
             loading={manager.isLoading}
-            mt="lg"
+            mt="md"
             size="md"
             w="100%"
             color={botInfo?.enabled ? 'red' : 'teal'}

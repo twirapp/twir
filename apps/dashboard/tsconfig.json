@@ -20,6 +20,9 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
+      "@/styles/*": [
+        "./styles/*"
+      ],
       "@/services/*": [
         "./services/*"
       ],

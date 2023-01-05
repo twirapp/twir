@@ -1,5 +1,3 @@
-'use client';
-
 import { Grid } from '@mantine/core';
 import { useListState } from '@mantine/hooks';
 import type { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
@@ -13,7 +11,7 @@ import { io, Socket } from 'socket.io-client';
 
 import { PlayerContext } from '@/components/song-requests/context';
 import { moveItem } from '@/components/song-requests/helpers';
-import { VideosList } from '@/components/song-requests/list';
+import { QueueList } from '@/components/song-requests/queue';
 import { useProfile } from '@/services/api';
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
@@ -140,7 +138,7 @@ const Player: NextPage = () => {
   }, [isPlaying]);
 
   return (
-    <Grid>
+    <Grid grow>
       <PlayerContext.Provider
         value={{
           videos,
@@ -154,11 +152,11 @@ const Player: NextPage = () => {
           setAutoPlay,
         }}
       >
-        <Grid.Col span={'auto'}>
+        <Grid.Col xs={4} md={4}>
           <PlayerComponent />
         </Grid.Col>
-        <Grid.Col span={8}>
-          <VideosList />
+        <Grid.Col xs={8} md={6}>
+          <QueueList />
         </Grid.Col>
       </PlayerContext.Provider>
     </Grid>

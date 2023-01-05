@@ -1,4 +1,4 @@
-import { useViewportSize } from '@mantine/hooks';
+import { useResizeObserver } from '@mantine/hooks';
 import { useCallback, useContext, useState } from 'react';
 import { YouTubeEvent, YouTubePlayer } from 'react-youtube';
 import { Options as YouTubeOptions } from 'youtube-player/dist/types';
@@ -6,7 +6,7 @@ import { Options as YouTubeOptions } from 'youtube-player/dist/types';
 import { PlayerContext } from '@/components/song-requests/context';
 
 export function usePlayer() {
-  const { width } = useViewportSize();
+  const [playerRef, rect] = useResizeObserver();
   const [player, setPlayer] = useState<YouTubePlayer | null>(null);
   const { videos, skipVideo, addVideos, isPlaying, setIsPlaying, autoPlay } =
     useContext(PlayerContext);
@@ -22,6 +22,10 @@ export function usePlayer() {
   const onReady = useCallback((event: YouTubeEvent) => {
     setPlayer(event.target);
   }, []);
+
+  const onEnd = useCallback(() => {
+    skipVideo();
+  }, [videos]);
 
   const onStateChange = useCallback(
     (event: YouTubeEvent<number>) => {
@@ -58,6 +62,7 @@ export function usePlayer() {
   );
 
   return {
+    playerRef,
     videos,
     togglePlayState,
     skipVideo,
@@ -65,6 +70,7 @@ export function usePlayer() {
     isPlaying,
     videoId: videos[0]?.videoId ?? '',
     onReady,
+    onEnd,
     onStateChange,
     getSongDuration,
     getSongCurrentTime,
@@ -75,8 +81,8 @@ export function usePlayer() {
         autoplay: autoPlay,
         rel: 0,
       },
-      width: width < 450 ? 330 : 450,
-      height: 250,
+      width: rect.width + 31,
+      height: 300,
     } as YouTubeOptions,
   };
 }

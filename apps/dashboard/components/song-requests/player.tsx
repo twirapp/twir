@@ -1,4 +1,4 @@
-import { Badge, Button, Card, Flex, Grid, Loader, Slider, Text } from '@mantine/core';
+import { Badge, Button, Card, Flex, Group, Loader, Slider, Text } from '@mantine/core';
 import {
   IconPlayerPause,
   IconPlayerPlay,
@@ -9,11 +9,14 @@ import {
 import { useEffect, useState } from 'react';
 import YouTube from 'react-youtube';
 
-import { convertMillisToTime, formatDuration } from '@/components/song-requests/helpers';
+import { convertMillisToTime } from '@/components/song-requests/helpers';
 import { usePlayer } from '@/components/song-requests/hook';
+import { useCardStyles } from '@/styles/card';
 
 const YoutubePlayer: React.FC = () => {
+  const { classes: cardClasses } = useCardStyles();
   const {
+    playerRef,
     videos,
     skipVideo,
     togglePlayState,
@@ -25,11 +28,6 @@ const YoutubePlayer: React.FC = () => {
   } = usePlayer();
   const [currentTime, setCurrentTime] = useState(0);
   const [songDuration, setSongDuration] = useState(0);
-
-  // const progressPercentage = useMemo(() => {
-  //   const result = currentTime / songDuration * 100;
-  //   return Number.isNaN(result) ? 0 : result;
-  // }, [currentTime, songDuration]);
 
   useEffect(() => {
     const currentTimeInterval = setInterval(() => {
@@ -46,74 +44,73 @@ const YoutubePlayer: React.FC = () => {
   }, [isPlaying]);
 
   return (
-    <Flex direction={'row'} w={options.opts.width}>
-      <Card shadow="sm" p="lg" withBorder>
-        {options.videoId ? (
-          <>
-            <Card.Section style={{ marginTop: -20, marginLeft: -30, marginRight: -30 }}>
-              <YouTube {...options} onEnd={() => skipVideo()} />
-            </Card.Section>
-            <Card.Section p={'md'}>
-              <Flex direction={'column'} gap={'sm'}>
-                <Grid align={'center'}>
-                  <Grid.Col span={12}>
-                    <Slider
-                      value={parseInt(currentTime.toFixed(0), 10)}
-                      style={{ marginLeft: 10, marginRight: 10 }}
-                      label={(v) => formatDuration(v)}
-                      onChange={(v) => setTime(v)}
-                      max={songDuration}
-                      labelAlwaysOn
-                    />
-                  </Grid.Col>
-                  {/*<Grid.Col span={1}><Text>{formatDuration(songDuration)}</Text></Grid.Col>*/}
-                </Grid>
-                <Flex direction={'row'} gap={'sm'} align={'center'} justify={'center'}>
-                  <Button
-                    variant={'outline'}
-                    disabled={videos.length === 0}
-                    leftIcon={isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
-                    onClick={() => togglePlayState()}
-                  >
-                    {isPlaying ? 'Pause' : 'Play'}
-                  </Button>
-                  <Button
-                    variant={'outline'}
-                    disabled={videos.length === 0}
-                    onClick={() => skipVideo()}
-                    leftIcon={<IconPlayerTrackNext />}
-                  >
-                    Next
-                  </Button>
-                </Flex>
-                <Flex direction={'column'} gap={'sm'} justify={'flex-start'}>
-                  <Text>
-                    <IconPlaylist size={16} /> {videos[0].title}{' '}
-                    <Badge>{convertMillisToTime(videos[0].duration)}</Badge>
-                  </Text>
-                  <Text>
-                    <IconUser size={16} /> Requested by <Badge>{videos[0].orderedByName}</Badge>
-                  </Text>
-                </Flex>
-              </Flex>
-            </Card.Section>
-          </>
-        ) : (
+    <Card withBorder radius="md" p="md" ref={playerRef}>
+      <Card.Section withBorder inheritPadding py="xs" className={cardClasses.card}>
+        <Group position="apart">
+          <Text weight={500}>Current Song</Text>
+        </Group>
+      </Card.Section>
+      {options.videoId ? (
+        <>
           <Card.Section>
-            <Flex
-              style={{ width: options.opts.width, height: 300 }}
-              direction={'column'}
-              align={'center'}
-              justify={'center'}
-              gap={'sm'}
-            >
-              <Loader />
-              <Text>Waiting for requests</Text>
+            <YouTube {...options} />
+          </Card.Section>
+          <Card.Section p="md">
+            <Flex direction="column" gap="sm">
+              <Group position="apart">
+                <Text size="md">00:00</Text>
+                <Text size="md">{convertMillisToTime(songDuration * 1000)}</Text>
+              </Group>
+              <Slider
+                value={parseInt(currentTime.toFixed(0), 10)}
+                label={(v) => convertMillisToTime(v * 1000)}
+                onChange={(v) => setTime(v)}
+                max={songDuration}
+              />
+              <Flex direction={'row'} gap={'sm'} align={'center'} justify={'center'}>
+                <Button
+                  variant={'outline'}
+                  disabled={videos.length === 0}
+                  leftIcon={isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
+                  onClick={() => togglePlayState()}
+                >
+                  {isPlaying ? 'Pause' : 'Play'}
+                </Button>
+                <Button
+                  variant={'outline'}
+                  disabled={videos.length === 0}
+                  onClick={() => skipVideo()}
+                  leftIcon={<IconPlayerTrackNext />}
+                >
+                  Next
+                </Button>
+              </Flex>
+              <Flex direction={'column'} gap={'sm'} justify={'flex-start'}>
+                <Text>
+                  <IconPlaylist size={16} /> {videos[0].title}{' '}
+                  <Badge>{convertMillisToTime(videos[0].duration)}</Badge>
+                </Text>
+                <Text>
+                  <IconUser size={16} /> Requested by <Badge>{videos[0].orderedByName}</Badge>
+                </Text>
+              </Flex>
             </Flex>
           </Card.Section>
-        )}
-      </Card>
-    </Flex>
+        </>
+      ) : (
+        <Card.Section>
+          <Flex
+            style={{ width: options.opts.width, height: 300 }}
+            direction={'column'}
+            align={'center'}
+            justify={'center'}
+            gap={'sm'}
+          >
+            <Loader variant="dots" />
+          </Flex>
+        </Card.Section>
+      )}
+    </Card>
   );
 };
 
