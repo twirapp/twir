@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"strings"
 	"time"
 
@@ -32,25 +34,19 @@ var (
 	})
 )
 
-type GrpcImplOpts struct {
-	Redis     *redis.Client
-	Variables *variables.Variables
-	Commands  *commands.Commands
-}
-
 type parserGrpcServer struct {
 	parser.UnimplementedParserServer
 
-	redis     *redis.Client
-	variables *variables.Variables
-	commands  *commands.Commands
+	redis     redis.Client
+	variables variables.Variables
+	commands  commands.Commands
 }
 
-func NewServer(opts *GrpcImplOpts) *parserGrpcServer {
+func NewServer() *parserGrpcServer {
 	return &parserGrpcServer{
-		redis:     opts.Redis,
-		variables: opts.Variables,
-		commands:  opts.Commands,
+		redis:     do.MustInvoke[redis.Client](di.Provider),
+		variables: do.MustInvoke[variables.Variables](di.Provider),
+		commands:  do.MustInvoke[commands.Commands](di.Provider),
 	}
 }
 
@@ -134,10 +130,6 @@ func (c *parserGrpcServer) ParseTextResponse(
 		ChannelName: data.Channel.Name,
 		ChannelId:   data.Channel.Id,
 		SenderName:  &data.Sender.DisplayName,
-		Redis:       c.redis,
-		Regexp:      nil,
-		Twitch:      c.commands.Twitch,
-		DB:          c.commands.Db,
 		IsCommand:   isCommand,
 	})
 

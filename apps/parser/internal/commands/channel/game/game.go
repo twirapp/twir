@@ -1,6 +1,9 @@
 package channel_game
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	users_twitch_auth "github.com/satont/tsuwari/apps/parser/internal/twitch/user"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
@@ -26,7 +29,8 @@ var Command = types.DefaultCommand{
 			return nil
 		}
 
-		twitchClient, err := ctx.Services.UsersAuth.Create(ctx.ChannelId)
+		users := do.MustInvoke[users_twitch_auth.UsersTokensService](di.Provider)
+		twitchClient, err := users.Create(ctx.ChannelId)
 
 		if err != nil || twitchClient == nil {
 			return nil

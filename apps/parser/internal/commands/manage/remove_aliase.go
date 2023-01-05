@@ -1,6 +1,9 @@
 package manage
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"log"
 	"strings"
 
@@ -23,6 +26,8 @@ var RemoveAliaseCommand = types.DefaultCommand{
 		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		db := do.MustInvoke[gorm.DB](di.Provider)
+
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
@@ -43,7 +48,7 @@ var RemoveAliaseCommand = types.DefaultCommand{
 		aliase := strings.ToLower(strings.ReplaceAll(strings.Join(args[1:], " "), "!", ""))
 
 		cmd := model.ChannelsCommands{}
-		err := ctx.Services.Db.
+		err := db.
 			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, commandName).
 			First(&cmd).Error
 
@@ -60,7 +65,7 @@ var RemoveAliaseCommand = types.DefaultCommand{
 		index := lo.IndexOf(cmd.Aliases, aliase)
 		cmd.Aliases = append(cmd.Aliases[:index], cmd.Aliases[index+1:]...)
 
-		err = ctx.Services.Db.
+		err = db.
 			Save(&cmd).Error
 
 		if err != nil {

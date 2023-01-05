@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
@@ -19,20 +22,21 @@ var Variable = types.Variable{
 	Description: lo.ToPtr("Custom variable"),
 	Visible:     lo.ToPtr(false),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		evalGrpc := do.MustInvoke[eval.EvalClient](di.Provider)
 		result := &types.VariableHandlerResult{}
 
 		if data.Params == nil {
 			return result, nil
 		}
 
-		v := getVarByName(ctx, *data.Params)
+		v := getVarByName(*data.Params)
 
 		if v == nil || v.Response == "" || v.EvalValue == "" {
 			return result, nil
 		}
 
 		if v.Type == "SCRIPT" {
-			req, err := ctx.Services.EvalGrpc.Process(context.Background(), &eval.Evaluate{
+			req, err := evalGrpc.Process(context.Background(), &eval.Evaluate{
 				Script: v.EvalValue,
 			})
 			if err != nil {
@@ -56,12 +60,11 @@ type CustomVar struct {
 	Response  *string `json:"response"`
 }
 
-func getVarByName(
-	ctx *variables_cache.VariablesCacheService,
-	name string,
-) *model.ChannelsCustomvars {
+func getVarByName(name string) *model.ChannelsCustomvars {
+	db := do.MustInvoke[gorm.DB](di.Provider)
+
 	variable := &model.ChannelsCustomvars{}
-	err := ctx.Services.Db.Where(`"name" = ?`, name).First(variable).Error
+	err := db.Where(`"name" = ?`, name).First(variable).Error
 	if err != nil {
 		fmt.Println(err)
 		return nil

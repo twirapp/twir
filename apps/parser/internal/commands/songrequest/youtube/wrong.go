@@ -3,6 +3,7 @@ package sr_youtube
 import (
 	"context"
 	"fmt"
+	"gorm.io/gorm"
 	"log"
 	"strconv"
 	"strings"
@@ -29,12 +30,13 @@ var WrongCommand = types.DefaultCommand{
 		KeepResponsesOrder: lo.ToPtr(false),
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		db := do.MustInvoke[gorm.DB](di.Provider)
 		websocketGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
 
 		result := &types.CommandsHandlerResult{}
 
 		songs := []model.RequestedSong{}
-		err := ctx.Services.Db.
+		err := db.
 			Where(
 				`"channelId" = ? AND "orderedById" = ? AND "deletedAt" IS NULL`,
 				ctx.ChannelId,
@@ -82,7 +84,7 @@ var WrongCommand = types.DefaultCommand{
 
 		choosedSong := songs[number-1]
 		choosedSong.DeletedAt = lo.ToPtr(time.Now())
-		err = ctx.Services.Db.Updates(&choosedSong).Error
+		err = db.Updates(&choosedSong).Error
 		if err != nil {
 			result.Result = append(result.Result, "Cannot delete song")
 			return result

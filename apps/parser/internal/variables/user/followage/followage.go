@@ -1,6 +1,9 @@
 package userfollowage
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
 	types "github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
@@ -14,11 +17,13 @@ var Variable = types.Variable{
 	Description:  lo.ToPtr("User followage"),
 	CommandsOnly: lo.ToPtr(true),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+		twitchClient := do.MustInvoke[twitch.Twitch](di.Provider)
+
 		result := &types.VariableHandlerResult{}
 
 		targetId := ctx.SenderId
 		if ctx.Text != nil {
-			users, err := ctx.Services.Twitch.Client.GetUsers(&helix.UsersParams{
+			users, err := twitchClient.Client.GetUsers(&helix.UsersParams{
 				Logins: []string{*ctx.Text},
 			})
 

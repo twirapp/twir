@@ -2,6 +2,10 @@ package variables_cache
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
@@ -10,6 +14,8 @@ import (
 )
 
 func (c *VariablesCacheService) GetChannelStream() *model.ChannelsStreams {
+	twitchClient := do.MustInvoke[twitch.Twitch](di.Provider)
+
 	c.locks.stream.Lock()
 	defer c.locks.stream.Unlock()
 
@@ -17,13 +23,14 @@ func (c *VariablesCacheService) GetChannelStream() *model.ChannelsStreams {
 		return c.cache.Stream
 	}
 
+	db := do.MustInvoke[gorm.DB](di.Provider)
 	stream := model.ChannelsStreams{}
 
-	err := c.Services.Db.Where(`"userId" = ?`, c.ChannelId).First(&stream).Error
+	err := db.Where(`"userId" = ?`, c.ChannelId).First(&stream).Error
 
 	if err != nil {
 		fmt.Println(err)
-		streams, err := c.Services.Twitch.Client.GetStreams(&helix.StreamsParams{
+		streams, err := twitchClient.Client.GetStreams(&helix.StreamsParams{
 			UserIDs: []string{c.ChannelId},
 		})
 
@@ -56,7 +63,7 @@ func (c *VariablesCacheService) GetChannelStream() *model.ChannelsStreams {
 			ParsedMessages: 0,
 		}
 
-		c.Services.Db.Save(&stream)
+		db.Save(&stream)
 		c.cache.Stream = &stream
 	} else {
 		c.cache.Stream = &stream

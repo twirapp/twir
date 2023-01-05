@@ -2,6 +2,9 @@ package permit
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"strconv"
 	"strings"
 
@@ -26,6 +29,9 @@ var Command = types.DefaultCommand{
 		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		db := do.MustInvoke[gorm.DB](di.Provider)
+		twitchClient := do.MustInvoke[twitch.Twitch](di.Provider)
+
 		result := &types.CommandsHandlerResult{}
 
 		count := 1
@@ -49,7 +55,7 @@ var Command = types.DefaultCommand{
 			return result
 		}
 
-		target, err := ctx.Services.Twitch.Client.GetUsers(&helix.UsersParams{
+		target, err := twitchClient.Client.GetUsers(&helix.UsersParams{
 			Logins: []string{params[0]},
 		})
 
@@ -58,7 +64,7 @@ var Command = types.DefaultCommand{
 			return result
 		}
 
-		ctx.Services.Db.Transaction(func(tx *gorm.DB) error {
+		db.Transaction(func(tx *gorm.DB) error {
 			for i := 0; i < count; i++ {
 				permit := model.ChannelsPermits{
 					ID:        uuid.NewV4().String(),

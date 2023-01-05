@@ -3,6 +3,9 @@ package dota
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"strconv"
 	"strings"
 	"sync"
@@ -49,19 +52,21 @@ var WlCommand = types.DefaultCommand{
 		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		db := do.MustInvoke[gorm.DB](di.Provider)
+
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
 		streamData := &model.ChannelsStreams{}
-		err := ctx.Services.Db.Where(`"userId" = ?`, ctx.ChannelId).First(streamData).Error
+		err := db.Where(`"userId" = ?`, ctx.ChannelId).First(streamData).Error
 
 		if err != nil || streamData == nil {
 			result.Result = append(result.Result, "Stream not found")
 			return result
 		}
 
-		accounts := GetAccountsByChannelId(ctx.Services.Db, ctx.ChannelId)
+		accounts := GetAccountsByChannelId(ctx.ChannelId)
 
 		if accounts == nil || len(*accounts) == 0 {
 			result.Result = append(result.Result, NO_ACCOUNTS)
@@ -74,7 +79,7 @@ var WlCommand = types.DefaultCommand{
 			return acc
 		})
 
-		err = ctx.Services.Db.
+		err = db.
 			Table("dota_matches").
 			Where(
 				`"dota_matches"."players" && ?
@@ -159,7 +164,7 @@ var WlCommand = types.DefaultCommand{
 
 				matchesData = append(matchesData, dataForPush)
 				players, _ := json.Marshal(data.Result.Players)
-				err = ctx.Services.Db.
+				err = db.
 					Table("dota_matches_results").
 					Create(map[string]interface{}{
 						"match_id":    strconv.Itoa(data.Result.MatchID),
@@ -171,7 +176,7 @@ var WlCommand = types.DefaultCommand{
 				if err != nil {
 					fmt.Println(game.MatchID, err)
 				}
-				ctx.Services.Db.
+				db.
 					Model(&model.DotaMatches{}).
 					Where("match_id = ?", game.MatchID).
 					Update("finished", true)

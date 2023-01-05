@@ -3,6 +3,9 @@ package nuke
 import (
 	"context"
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"strings"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -25,13 +28,16 @@ var Command = types.DefaultCommand{
 		Module:     lo.ToPtr("MODERATION"),
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		botsGrpc := do.MustInvoke[bots.BotsClient](di.Provider)
+		db := do.MustInvoke[gorm.DB](di.Provider)
+
 		messages := []model.ChannelChatMessage{}
 
 		if ctx.Text == nil {
 			return nil
 		}
 
-		err := ctx.Services.Db.
+		err := db.
 			Where(
 				`"canBeDeleted" = ? AND text LIKE ?`,
 				true,
@@ -55,13 +61,13 @@ var Command = types.DefaultCommand{
 			return m.MessageId
 		})
 
-		ctx.Services.BotsGrpc.DeleteMessage(context.Background(), &bots.DeleteMessagesRequest{
+		botsGrpc.DeleteMessage(context.Background(), &bots.DeleteMessagesRequest{
 			ChannelId:   ctx.ChannelId,
 			MessageIds:  mappedMessages,
 			ChannelName: ctx.ChannelName,
 		})
 
-		ctx.Services.Db.Where(`"messageId" IN ?`, mappedMessages).
+		db.Where(`"messageId" IN ?`, mappedMessages).
 			Delete(&model.ChannelChatMessage{})
 
 		return nil

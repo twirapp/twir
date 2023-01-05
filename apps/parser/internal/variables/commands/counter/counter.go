@@ -2,6 +2,8 @@ package command_counter
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"strconv"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -9,7 +11,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func getCount(db *gorm.DB, commandId string, userId *string) (string, error) {
+func getCount(commandId string, userId *string) (string, error) {
+	db := do.MustInvoke[gorm.DB](di.Provider)
+
 	var count int64
 
 	tx := db.Model(&model.ChannelsCommandsUsages{}).Where(`"commandId" = ?`, commandId)

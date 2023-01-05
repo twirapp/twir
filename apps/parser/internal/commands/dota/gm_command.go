@@ -4,6 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"strconv"
 	"strings"
 	"sync"
@@ -29,10 +32,13 @@ var GmCommand = types.DefaultCommand{
 		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		dotaGrpc := do.MustInvoke[dota.DotaClient](di.Provider)
+		db := do.MustInvoke[gorm.DB](di.Provider)
+
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
-		accounts := GetAccountsByChannelId(ctx.Services.Db, ctx.ChannelId)
+		accounts := GetAccountsByChannelId(ctx.ChannelId)
 
 		if len(*accounts) == 0 {
 			result.Result = append(result.Result, NO_ACCOUNTS)
@@ -40,8 +46,6 @@ var GmCommand = types.DefaultCommand{
 		}
 
 		games := GetGames(GetGamesOpts{
-			Db:       ctx.Services.Db,
-			Redis:    ctx.Services.Redis,
 			Accounts: *accounts,
 			Take:     lo.ToPtr(1),
 		})
@@ -73,7 +77,7 @@ var GmCommand = types.DefaultCommand{
 			go func(player Player) {
 				defer wg.Done()
 
-				req, err := ctx.Services.DotaGrpc.GetPlayerCard(context.Background(), &dota.GetPlayerCardRequest{
+				req, err := dotaGrpc.GetPlayerCard(context.Background(), &dota.GetPlayerCardRequest{
 					AccountId: int64(player.AccountId),
 				})
 				if err != nil {
@@ -110,7 +114,7 @@ var GmCommand = types.DefaultCommand{
 				cards = append(cards, card)
 				lock.Unlock()
 
-				err = ctx.Services.Db.Create(&card).Error
+				err = db.Create(&card).Error
 				if err != nil {
 					fmt.Println(err)
 				}

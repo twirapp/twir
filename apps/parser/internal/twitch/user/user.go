@@ -1,7 +1,10 @@
-package usersauth
+package users_twitch_auth
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	cfg "github.com/satont/tsuwari/libs/config"
 	"time"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -10,28 +13,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type Opts struct {
-	ClientId     string
-	ClientSecret string
-}
-
-type UsersServiceOpts struct {
-	Db           *gorm.DB
-	ClientId     string
-	ClientSecret string
-}
-
 type UsersTokensService struct {
-	db           *gorm.DB
+	db           gorm.DB
 	clientId     string
 	clientSecret string
 }
 
-func New(opts UsersServiceOpts) *UsersTokensService {
+func New() *UsersTokensService {
+	config := do.MustInvoke[cfg.Config](di.Provider)
+	db := do.MustInvoke[gorm.DB](di.Provider)
+
 	service := &UsersTokensService{
-		db:           opts.Db,
-		clientId:     opts.ClientId,
-		clientSecret: opts.ClientSecret,
+		db:           db,
+		clientId:     config.TwitchClientId,
+		clientSecret: config.TwitchClientSecret,
 	}
 
 	return service

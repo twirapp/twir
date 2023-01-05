@@ -1,7 +1,10 @@
 package variables_cache
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"gorm.io/gorm"
 )
 
 func (c *VariablesCacheService) GetGbUser() *model.UsersStats {
@@ -12,9 +15,11 @@ func (c *VariablesCacheService) GetGbUser() *model.UsersStats {
 		return c.cache.DbUserStats
 	}
 
+	db := do.MustInvoke[gorm.DB](di.Provider)
+
 	result := &model.UsersStats{}
 
-	err := c.Services.Db.
+	err := db.
 		Where(`"userId" = ? AND "channelId" = ?`, c.SenderId, c.ChannelId).
 		Find(result).
 		Error

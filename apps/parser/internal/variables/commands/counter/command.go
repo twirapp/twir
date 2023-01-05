@@ -1,10 +1,9 @@
 package command_counter
 
 import (
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
-
-	"github.com/samber/lo"
 )
 
 var CommandVariable = types.Variable{
@@ -13,8 +12,7 @@ var CommandVariable = types.Variable{
 	CommandsOnly: lo.ToPtr(true),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
-
-		count, err := getCount(ctx.Services.Db, ctx.Command.ID, nil)
+		count, err := getCount(ctx.Command.ID, nil)
 		if err != nil {
 			result.Result = "cannot get count"
 			return result, nil

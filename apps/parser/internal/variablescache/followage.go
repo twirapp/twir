@@ -1,8 +1,15 @@
 package variables_cache
 
-import "github.com/satont/go-helix/v2"
+import (
+	"github.com/samber/do"
+	"github.com/satont/go-helix/v2"
+	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+)
 
 func (c *VariablesCacheService) GetFollowAge(userId string) *helix.UserFollow {
+	twitchClient := do.MustInvoke[twitch.Twitch](di.Provider)
+
 	c.locks.twitchFollow.Lock()
 	defer c.locks.twitchFollow.Unlock()
 
@@ -10,7 +17,7 @@ func (c *VariablesCacheService) GetFollowAge(userId string) *helix.UserFollow {
 		return c.cache.TwitchFollow
 	}
 
-	follow, err := c.Services.Twitch.Client.GetUsersFollows(&helix.UsersFollowsParams{
+	follow, err := twitchClient.Client.GetUsersFollows(&helix.UsersFollowsParams{
 		FromID: userId,
 		ToID:   c.ChannelId,
 	})

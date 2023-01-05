@@ -1,6 +1,9 @@
 package manage
 
 import (
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"gorm.io/gorm"
 	"strings"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -22,6 +25,8 @@ var DelCommand = types.DefaultCommand{
 		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		db := do.MustInvoke[gorm.DB](di.Provider)
+
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
@@ -34,7 +39,7 @@ var DelCommand = types.DefaultCommand{
 		name := strings.ToLower(strings.ReplaceAll(*ctx.Text, "!", ""))
 
 		var cmd *model.ChannelsCommands = nil
-		err := ctx.Services.Db.Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, name).
+		err := db.Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, name).
 			First(&cmd).
 			Error
 
@@ -48,7 +53,7 @@ var DelCommand = types.DefaultCommand{
 			return result
 		}
 
-		ctx.Services.Db.
+		db.
 			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, name).
 			Delete(&model.ChannelsCommands{})
 

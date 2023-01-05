@@ -24,7 +24,7 @@ var NpAccCommand = types.DefaultCommand{
 			Result: make([]string, 0),
 		}
 
-		accounts := GetAccountsByChannelId(ctx.Services.Db, ctx.ChannelId)
+		accounts := GetAccountsByChannelId(ctx.ChannelId)
 
 		if accounts == nil || len(*accounts) == 0 {
 			result.Result = append(result.Result, NO_ACCOUNTS)
@@ -32,10 +32,8 @@ var NpAccCommand = types.DefaultCommand{
 		}
 
 		games := GetGames(GetGamesOpts{
-			Db:       ctx.Services.Db,
 			Accounts: *accounts,
 			Take:     lo.ToPtr(1),
-			Redis:    ctx.Services.Redis,
 		})
 
 		if games == nil || len(*games) == 0 {
