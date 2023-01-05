@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
 	"log"
 	"regexp"
@@ -153,14 +154,15 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		entity := model.RequestedSong{
-			ID:            uuid.NewV4().String(),
-			ChannelID:     ctx.ChannelId,
-			OrderedById:   ctx.SenderId,
-			OrderedByName: ctx.SenderName,
-			VideoID:       ytdlSongInfo.ID,
-			Title:         ytdlSongInfo.Title,
-			Duration:      int32(ytdlSongInfo.Duration / time.Millisecond),
-			CreatedAt:     time.Now().UTC(),
+			ID:                   uuid.NewV4().String(),
+			ChannelID:            ctx.ChannelId,
+			OrderedById:          ctx.SenderId,
+			OrderedByName:        ctx.SenderName,
+			OrderedByDisplayName: null.StringFrom(ctx.SenderDisplayName),
+			VideoID:              ytdlSongInfo.ID,
+			Title:                ytdlSongInfo.Title,
+			Duration:             int32(ytdlSongInfo.Duration / time.Millisecond),
+			CreatedAt:            time.Now().UTC(),
 		}
 
 		songsInQueue := []model.RequestedSong{}

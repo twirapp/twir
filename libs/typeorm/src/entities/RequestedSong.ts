@@ -39,6 +39,9 @@ export class RequestedSong {
   @Column()
   orderedByName: string;
 
+  @Column({ nullable: true })
+  orderedByDisplayName: string | null;
+
   @Column()
   queuePosition: number;
 
