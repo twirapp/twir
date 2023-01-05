@@ -28,13 +28,14 @@ type variablesLocks struct {
 }
 
 type ExecutionContext struct {
-	ChannelName string
-	ChannelId   string
-	SenderId    string
-	SenderName  string
-	Text        *string
-	IsCommand   bool
-	Command     *model.ChannelsCommands
+	ChannelName       string
+	ChannelId         string
+	SenderId          string
+	SenderName        string
+	SenderDisplayName string
+	Text              *string
+	IsCommand         bool
+	Command           *model.ChannelsCommands
 }
 
 type VariablesCacheService struct {

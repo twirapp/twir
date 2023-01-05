@@ -171,13 +171,14 @@ func (c *Commands) ParseCommandResponses(
 
 	if cmd.Default && isDefaultExists {
 		results := defaultCommand.Handler(variables_cache.ExecutionContext{
-			ChannelName: data.Channel.Name,
-			ChannelId:   data.Channel.Id,
-			SenderId:    data.Sender.Id,
-			SenderName:  data.Sender.Name,
-			Text:        cmdParams,
-			IsCommand:   true,
-			Command:     command.Cmd,
+			ChannelName:       data.Channel.Name,
+			ChannelId:         data.Channel.Id,
+			SenderId:          data.Sender.Id,
+			SenderName:        data.Sender.Name,
+			SenderDisplayName: data.Sender.DisplayName,
+			Text:              cmdParams,
+			IsCommand:         true,
+			Command:           command.Cmd,
 		})
 		if results == nil {
 			result.Responses = []string{}
