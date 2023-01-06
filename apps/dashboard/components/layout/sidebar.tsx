@@ -32,7 +32,7 @@ import {
 import { Dashboard } from '@tsuwari/shared';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
 import { useProfile } from '@/services/api';
 import { useLocale } from '@/services/dashboard';
@@ -105,19 +105,27 @@ export function SideBar(props: Props) {
 
   const [selectedDashboard, setSelectedDashboard] = useState<Dashboard>();
 
+  const setDefaultDashboard = useCallback(() => {
+    if (!user) return;
+    dashboardContext.setId(user.id);
+    setSelectedDashboard({
+      id: user.id,
+      channelId: user.id,
+      userId: user.id,
+      twitchUser: user,
+    });
+  }, [user]);
+
   useEffect(() => {
     if (dashboardContext.id && user) {
       if (dashboardContext.id === user.id) {
-        setSelectedDashboard({
-          id: user.id,
-          channelId: user.id,
-          userId: user.id,
-          twitchUser: user,
-        });
+       setDefaultDashboard();
       } else {
         const dashboard = user.dashboards.find((d) => d.channelId === dashboardContext.id);
         if (dashboard) {
           setSelectedDashboard(dashboard);
+        } else {
+          setDefaultDashboard();
         }
       }
     }
