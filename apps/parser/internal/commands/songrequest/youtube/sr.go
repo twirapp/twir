@@ -7,8 +7,11 @@ import (
 	"fmt"
 	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	"github.com/valyala/fasttemplate"
+	"go.uber.org/zap"
 	"log"
 	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/samber/do"
@@ -26,9 +29,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 
-	youtube "github.com/satont/tsuwari/libs/types/types/api/modules"
-
 	"github.com/samber/lo"
+	youtube "github.com/satont/tsuwari/libs/types/types/api/modules"
 )
 
 var (
@@ -51,14 +53,43 @@ var SrCommand = types.DefaultCommand{
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)
-		result := &types.CommandsHandlerResult{}
 		websocketGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
+		logger := do.MustInvoke[zap.Logger](di.Provider)
+
+		result := &types.CommandsHandlerResult{}
 
 		if ctx.Text == nil {
 			result.Result = append(result.Result, "You should provide text for song request")
 			return result
 		}
 		var songId string
+
+		moduleSettings := &model.ChannelModulesSettings{}
+		parsedSettings := &youtube.YouTubeSettings{}
+		err := db.
+			Where(`"channelId" = ? AND "type" = ?`, ctx.ChannelId, "youtube_song_requests").
+			First(moduleSettings).Error
+		if err != nil && err != gorm.ErrRecordNotFound {
+			logger.Sugar().Error(err)
+			result.Result = append(result.Result, "internal error")
+			return result
+		}
+		if moduleSettings.ID != "" {
+			err = json.Unmarshal(moduleSettings.Settings, parsedSettings)
+			if err != nil {
+				fmt.Println(err)
+				result.Result = append(result.Result, "internal error")
+				return result
+			}
+
+			if !*parsedSettings.Enabled {
+				result.Result = append(result.Result, parsedSettings.Translations.NotEnabled)
+				return result
+			}
+		} else {
+			result.Result = append(result.Result, parsedSettings.Translations.NotEnabled)
+			return result
+		}
 
 		findByRegexp := linkRegexp.FindStringSubmatch(*ctx.Text)
 		if len(findByRegexp) > 0 {
@@ -70,7 +101,7 @@ var SrCommand = types.DefaultCommand{
 			})
 
 			if len(res) == 0 {
-				result.Result = append(result.Result, "Song not found.")
+				result.Result = append(result.Result, parsedSettings.Translations.Song.NotFound)
 				return result
 			}
 
@@ -78,11 +109,11 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		if songId == "" {
-			result.Result = append(result.Result, "Song not found")
+			result.Result = append(result.Result, parsedSettings.Translations.Song.NotFound)
 			return result
 		}
 
-		err := db.
+		err = db.
 			Where(`"videoId" = ? AND "deletedAt" IS NULL`, songId).
 			First(&model.RequestedSong{}).
 			Error
@@ -94,7 +125,7 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		if err == nil {
-			result.Result = append(result.Result, "That song already in queue")
+			result.Result = append(result.Result, parsedSettings.Translations.Song.AlreadyInQueue)
 			return result
 		}
 
@@ -103,9 +134,9 @@ var SrCommand = types.DefaultCommand{
 		)
 		if err != nil {
 			if err.Error() == "can't bypass age restriction: embedding of this video has been disabled" {
-				result.Result = append(result.Result, "Age restriction on that track.")
+				result.Result = append(result.Result, parsedSettings.Translations.Song.AgeRestrictions)
 			} else {
-				result.Result = append(result.Result, "Cannot get information about song.")
+				result.Result = append(result.Result, parsedSettings.Translations.Song.CannotGetInformation)
 			}
 			return result
 		}
@@ -113,44 +144,20 @@ var SrCommand = types.DefaultCommand{
 		if ytdlSongInfo.Duration.Seconds() == 0 {
 			result.Result = append(
 				result.Result,
-				"Seems like that song is live, which is disallowed.",
+				parsedSettings.Translations.Song.Live,
 			)
 			return result
 		}
 
-		moduleSettings := &model.ChannelModulesSettings{}
-		err = db.
-			Where(`"channelId" = ? AND "type" = ?`, ctx.ChannelId, "youtube_song_requests").
-			First(moduleSettings).Error
-		if err != nil && err != gorm.ErrRecordNotFound {
-			fmt.Println(err)
-			result.Result = append(result.Result, "internal error")
+		err = validate(
+			ctx.ChannelId,
+			ctx.SenderId,
+			parsedSettings,
+			ytdlSongInfo,
+		)
+		if err != nil {
+			result.Result = append(result.Result, err.Error())
 			return result
-		}
-		if moduleSettings.ID != "" {
-			parsedSettings := &youtube.YouTubeSettings{}
-			err = json.Unmarshal(moduleSettings.Settings, parsedSettings)
-			if err != nil {
-				fmt.Println(err)
-				result.Result = append(result.Result, "internal error")
-				return result
-			}
-
-			if !*parsedSettings.Enabled {
-				result.Result = append(result.Result, "Song requests not enabled")
-				return result
-			}
-
-			err = validate(
-				ctx.ChannelId,
-				ctx.SenderId,
-				parsedSettings,
-				ytdlSongInfo,
-			)
-			if err != nil {
-				result.Result = append(result.Result, err.Error())
-				return result
-			}
 		}
 
 		entity := model.RequestedSong{
@@ -196,15 +203,17 @@ var SrCommand = types.DefaultCommand{
 			timeForWait = time.Duration(s.Duration)*time.Millisecond + timeForWait
 		}
 
-		result.Result = append(
-			result.Result,
-			fmt.Sprintf(
-				`Song "%s" requested, your position #%d. Estimated wait time before your track will be played is %s.`,
-				ytdlSongInfo.Title,
-				len(songsInQueue)+1,
-				timeForWait.String(),
-			),
+		message := fasttemplate.ExecuteString(
+			parsedSettings.Translations.Song.RequestedMessage,
+			"{{", "}}",
+			map[string]interface{}{
+				"songId":    entity.VideoID,
+				"songTitle": ytdlSongInfo.Title,
+				"position":  string(len(songsInQueue) + 1),
+				"waitTime":  timeForWait.String(),
+			},
 		)
+		result.Result = append(result.Result, message)
 
 		websocketGrpc.YoutubeAddSongToQueue(
 			context.Background(),
@@ -231,15 +240,15 @@ func validate(
 	}
 
 	if len(settings.DenyList.Users) > 0 {
-		_, isUserBlackListed := lo.Find(
+		_, isUserDenied := lo.Find(
 			settings.DenyList.Users,
 			func(u youtube.YouTubeDenySettingsUsers) bool {
 				return u.UserID == userId
 			},
 		)
 
-		if isUserBlackListed {
-			return errors.New("You cannot request any songs.")
+		if isUserDenied {
+			return errors.New(settings.Translations.User.Denied)
 		}
 	}
 
@@ -252,7 +261,7 @@ func validate(
 		)
 
 		if isChannelBlacklisted {
-			return errors.New("This channel is denied for requests.")
+			return errors.New(settings.Translations.Channel.Denied)
 		}
 	}
 
@@ -265,7 +274,7 @@ func validate(
 		)
 
 		if isSongBlackListed {
-			return errors.New("This song is denied to request.")
+			return errors.New(settings.Translations.Song.Denied)
 		}
 	}
 
@@ -273,7 +282,7 @@ func validate(
 		stream := &model.ChannelsStreams{}
 		db.Where(`"userId" = ?`, channelId).First(stream)
 		if stream.ID == "" {
-			return errors.New("Requests accepted only on online streams")
+			return errors.New(settings.Translations.AcceptOnlineWhenOnline)
 		}
 	}
 
@@ -283,23 +292,58 @@ func validate(
 			Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelId).
 			Count(&count)
 		if count >= int64(settings.MaxRequests) {
-			return errors.New("Maximum number of tracks ordered now, try later")
+			message := fasttemplate.ExecuteString(
+				settings.Translations.Song.MaximumOrdered,
+				"{{", "}}",
+				map[string]interface{}{
+					"maximum": string(rune(settings.MaxRequests)),
+				},
+			)
+			return errors.New(message)
 		}
 	}
 
 	if settings.Song.MinViews != 0 && song.Views < settings.Song.MinViews {
-		return errors.New(
-			fmt.Sprintf("Song haven't %v views for request", settings.Song.MinViews),
+		message := fasttemplate.ExecuteString(
+			settings.Translations.Song.MinLength,
+			"{{", "}}",
+			map[string]interface{}{
+				"songTitle":   song.Title,
+				"songId":      song.ID,
+				"songViews":   string(rune(song.Views)),
+				"neededViews": string(rune(settings.Song.MinViews)),
+			},
 		)
+		return errors.New(message)
 	}
 
 	songDuration := int(song.Duration.Minutes())
 	if settings.Song.MaxLength != 0 && songDuration > settings.Song.MaxLength {
-		return errors.New(fmt.Sprintf("Maximum length of song is %v", settings.Song.MaxLength))
+		message := fasttemplate.ExecuteString(
+			settings.Translations.Song.MaxLength,
+			"{{", "}}",
+			map[string]interface{}{
+				"songTitle": song.Title,
+				"songId":    song.ID,
+				"songViews": strconv.Itoa(song.Views),
+				"maxLength": strconv.Itoa(settings.Song.MaxLength),
+			},
+		)
+		return errors.New(message)
 	}
 
 	if settings.Song.MinLength != 0 && songDuration < settings.Song.MinLength {
-		return errors.New(fmt.Sprintf("Minimum length of song is %v", settings.Song.MinLength))
+		message := fasttemplate.ExecuteString(
+			settings.Translations.Song.MinLength,
+			"{{", "}}",
+			map[string]interface{}{
+				"songTitle": song.Title,
+				"songId":    song.ID,
+				"songViews": strconv.Itoa(song.Views),
+				"minLength": strconv.Itoa(settings.Song.MinLength),
+			},
+		)
+		return errors.New(message)
 	}
 
 	// TODO: check categories
@@ -311,7 +355,14 @@ func validate(
 			Where(`"orderedById" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, userId, channelId).
 			Count(&count)
 		if count >= int64(settings.User.MaxRequests) {
-			return errors.New("Maximum number of tracks ordered now, try later")
+			message := fasttemplate.ExecuteString(
+				settings.Translations.Song.MaximumOrdered,
+				"{{", "}}",
+				map[string]interface{}{
+					"count": strconv.Itoa(settings.User.MaxRequests),
+				},
+			)
+			return errors.New(message)
 		}
 	}
 
@@ -320,27 +371,35 @@ func validate(
 		db.Where("id = ?", userId).Preload("Stats").First(&user)
 		if user.ID == "" {
 			return errors.New(
-				"There is restrictions on user, but i cannot find you in db, sorry. :(",
+				"there is restrictions on user, but i cannot find you in db, sorry. :(",
 			)
 		}
 
 		if settings.User.MinMessages != 0 &&
 			user.Stats.Messages < int32(settings.User.MinMessages) {
-			return errors.New(
-				fmt.Sprintf("You haven't %v messages for request song", user.Stats.Messages),
+			message := fasttemplate.ExecuteString(
+				settings.Translations.User.MinMessages,
+				"{{", "}}",
+				map[string]interface{}{
+					"minMessages":  strconv.Itoa(settings.User.MinMessages),
+					"userMessages": strconv.Itoa(int(user.Stats.Messages)),
+				},
 			)
+			return errors.New(message)
 		}
 
 		watchedInMinutes := time.Duration(user.Stats.Watched) * time.Millisecond
 		if settings.User.MinWatchTime != 0 &&
 			int64(watchedInMinutes.Minutes()) < settings.User.MinWatchTime {
-
-			return errors.New(
-				fmt.Sprintf(
-					"You haven't watched stream for %v minutes for request song",
-					time.Minute*time.Duration(settings.User.MinWatchTime),
-				),
+			message := fasttemplate.ExecuteString(
+				settings.Translations.User.MinWatched,
+				"{{", "}}",
+				map[string]interface{}{
+					"minWatched":  strconv.Itoa(int(settings.User.MinWatchTime)),
+					"userWatched": strconv.Itoa(int(watchedInMinutes)),
+				},
 			)
+			return errors.New(message)
 		}
 	}
 
@@ -359,12 +418,15 @@ func validate(
 
 		followDuration := time.Since(followReq.Data.Follows[0].FollowedAt)
 		if followDuration.Minutes() < neededDuration.Minutes() {
-			return errors.New(
-				fmt.Sprintf(
-					"You need to be follower at least %v minutes for request song",
-					neededDuration.Minutes(),
-				),
+			message := fasttemplate.ExecuteString(
+				settings.Translations.User.MinFollow,
+				"{{", "}}",
+				map[string]interface{}{
+					"minFollow":  strconv.Itoa(settings.User.MinFollowTime),
+					"userFollow": strconv.Itoa(int(followDuration.Minutes())),
+				},
 			)
+			return errors.New(message)
 		}
 	}
 

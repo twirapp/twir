@@ -61,15 +61,24 @@ youtubeNamespace.on('connection', async (socket) => {
       channelId: song?.channelId,
     });
 
-    const announcePlay = (settingsEntity && (settingsEntity.settings as YouTubeSettings).announcePlay) ?? true;
+    if (settingsEntity && song) {
+      const settings = settingsEntity.settings as YouTubeSettings;
+      const announcePlay = settings.announcePlay ?? true;
+      const message = settings.translations.nowPlaying
+        .replace('{{songTitle}}', song.title)
+        .replace('{{songId}}', song.videoId)
+        .replace('{{orderedByName}}', song.orderedByName)
+        .replace('{{orderedByDisplayName}}', song.orderedByDisplayName);
 
-    if (!current && song && announcePlay) {
-      await botsGrpcClient.sendMessage({
-        channelId: song.channelId,
-        isAnnounce: true,
-        message: `Now playing "${song.title} youtu.be/${song.videoId}" requested from @${song.orderedByName}`,
-      });
+      if (!current && song && announcePlay) {
+        await botsGrpcClient.sendMessage({
+          channelId: song.channelId,
+          isAnnounce: true,
+          message,
+        });
+      }
     }
+
 
     await redis.set(key, data.id);
     await redis.expire(key, data.duration);

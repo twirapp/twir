@@ -74,6 +74,8 @@ func main() {
 		logger = l
 	}
 
+	do.ProvideValue[zap.Logger](di.Provider, *logger)
+
 	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl))
 	if err != nil {
 		fmt.Println(err)
