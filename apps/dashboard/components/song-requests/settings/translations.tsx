@@ -29,7 +29,7 @@ export const YouTubeTranslationSettings: React.FC = () => {
           {createKeys(form.values.translations as any)
               .flat()
               .map(k =>
-                <Grid.Col span={4}>
+                <Grid.Col key={k} span={4}>
                   <Textarea
                     autosize
                     minRows={2}
