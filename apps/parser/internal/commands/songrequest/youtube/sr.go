@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 	"log"
 	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/samber/do"
@@ -99,7 +100,7 @@ var SrCommand = types.DefaultCommand{
 			})
 
 			if len(res) == 0 {
-				result.Result = append(result.Result, "Song not found.")
+				result.Result = append(result.Result, parsedSettings.Translations.Song.NotFound)
 				return result
 			}
 
@@ -107,7 +108,7 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		if songId == "" {
-			result.Result = append(result.Result, "Song not found")
+			result.Result = append(result.Result, parsedSettings.Translations.Song.NotFound)
 			return result
 		}
 
@@ -206,7 +207,7 @@ var SrCommand = types.DefaultCommand{
 			map[string]interface{}{
 				"songId":    entity.VideoID,
 				"songTitle": ytdlSongInfo.Title,
-				"position":  len(songsInQueue) + 1,
+				"position":  string(len(songsInQueue) + 1),
 				"waitTime":  timeForWait.String(),
 			},
 		)
@@ -293,7 +294,7 @@ func validate(
 				settings.Translations.Song.MaximumOrdered,
 				"{{", "}}",
 				map[string]interface{}{
-					"maximum": settings.MaxRequests,
+					"maximum": string(rune(settings.MaxRequests)),
 				},
 			)
 			return errors.New(message)
@@ -307,8 +308,8 @@ func validate(
 			map[string]interface{}{
 				"songTitle":   song.Title,
 				"songId":      song.ID,
-				"songViews":   song.Views,
-				"neededViews": settings.Song.MinViews,
+				"songViews":   string(rune(song.Views)),
+				"neededViews": string(rune(settings.Song.MinViews)),
 			},
 		)
 		return errors.New(message)
@@ -322,8 +323,8 @@ func validate(
 			map[string]interface{}{
 				"songTitle": song.Title,
 				"songId":    song.ID,
-				"songViews": song.Views,
-				"maxLength": settings.Song.MaxLength,
+				"songViews": strconv.Itoa(song.Views),
+				"maxLength": strconv.Itoa(settings.Song.MaxLength),
 			},
 		)
 		return errors.New(message)
@@ -336,8 +337,8 @@ func validate(
 			map[string]interface{}{
 				"songTitle": song.Title,
 				"songId":    song.ID,
-				"songViews": song.Views,
-				"minLength": settings.Song.MinLength,
+				"songViews": strconv.Itoa(song.Views),
+				"minLength": strconv.Itoa(settings.Song.MinLength),
 			},
 		)
 		return errors.New(message)
@@ -356,7 +357,7 @@ func validate(
 				settings.Translations.Song.MaximumOrdered,
 				"{{", "}}",
 				map[string]interface{}{
-					"count": settings.User.MaxRequests,
+					"count": strconv.Itoa(settings.User.MaxRequests),
 				},
 			)
 			return errors.New(message)
@@ -378,8 +379,8 @@ func validate(
 				settings.Translations.User.MinMessages,
 				"{{", "}}",
 				map[string]interface{}{
-					"minMessages":  settings.User.MinMessages,
-					"userMessages": user.Stats.Messages,
+					"minMessages":  strconv.Itoa(settings.User.MinMessages),
+					"userMessages": strconv.Itoa(int(user.Stats.Messages)),
 				},
 			)
 			return errors.New(message)
@@ -392,8 +393,8 @@ func validate(
 				settings.Translations.User.MinWatched,
 				"{{", "}}",
 				map[string]interface{}{
-					"minWatched":  settings.User.MinWatchTime,
-					"userWatched": watchedInMinutes,
+					"minWatched":  strconv.Itoa(int(settings.User.MinWatchTime)),
+					"userWatched": strconv.Itoa(int(watchedInMinutes)),
 				},
 			)
 			return errors.New(message)
@@ -419,8 +420,8 @@ func validate(
 				settings.Translations.User.MinFollow,
 				"{{", "}}",
 				map[string]interface{}{
-					"minFollow":  settings.User.MinFollowTime,
-					"userFollow": followDuration.Minutes(),
+					"minFollow":  strconv.Itoa(settings.User.MinFollowTime),
+					"userFollow": strconv.Itoa(int(followDuration.Minutes())),
 				},
 			)
 			return errors.New(message)

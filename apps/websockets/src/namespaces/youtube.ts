@@ -66,7 +66,7 @@ youtubeNamespace.on('connection', async (socket) => {
       const announcePlay = settings.announcePlay ?? true;
       const message = settings.translations.nowPlaying
         .replace('{{songTitle}}', song.title)
-        .replace('{{songId}}', song.id)
+        .replace('{{songId}}', song.videoId)
         .replace('{{orderedByName}}', song.orderedByName)
         .replace('{{orderedByDisplayName}}', song.orderedByDisplayName);
 
