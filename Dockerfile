@@ -18,8 +18,9 @@ RUN chmod +x docker-entrypoint.sh
 
 COPY libs libs
 COPY apps apps
+COPY patches patches
 
-RUN pnpm install --filter=!ngrok
+RUN pnpm install
 RUN pnpm build
 
 FROM node:18-alpine as node_prod_base
