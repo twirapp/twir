@@ -68,7 +68,7 @@ youtubeNamespace.on('connection', async (socket) => {
         .replace('{{songTitle}}', song.title)
         .replace('{{songId}}', song.videoId)
         .replace('{{orderedByName}}', song.orderedByName)
-        .replace('{{orderedByDisplayName}}', song.orderedByDisplayName);
+        .replace('{{orderedByDisplayName}}', song.orderedByDisplayName ?? song.orderedByName);
 
       if (!current && song && announcePlay) {
         await botsGrpcClient.sendMessage({
