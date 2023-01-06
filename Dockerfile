@@ -45,6 +45,8 @@ COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/pubsub libs/pubsub/
+COPY --from=base /app/patches patches/
+COPY --from=base /app/patches patches/
 RUN pnpm install --prod
 
 FROM node_prod_base as dota
@@ -58,6 +60,7 @@ FROM node_deps_base as eval_deps
 COPY --from=base /app/apps/eval apps/eval/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/grpc libs/grpc/
+COPY --from=base /app/patches patches/
 RUN pnpm install --prod
 
 FROM node_prod_base as eval
@@ -75,6 +78,7 @@ COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/types libs/types/
 COPY --from=base /app/libs/pubsub libs/pubsub/
+COPY --from=base /app/patches patches/
 RUN pnpm install --prod
 
 FROM node_prod_base as eventsub
@@ -90,6 +94,7 @@ COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
+COPY --from=base /app/patches patches/
 RUN pnpm install --prod
 
 FROM node_prod_base as integrations
@@ -105,6 +110,7 @@ COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
+COPY --from=base /app/patches patches/
 RUN pnpm install --prod
 
 FROM node_prod_base as scheduler
@@ -121,6 +127,7 @@ COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/pubsub libs/pubsub/
+COPY --from=base /app/patches patches/
 RUN pnpm install --prod
 
 FROM node_prod_base as streamstatus
@@ -134,6 +141,7 @@ FROM node_deps_base as migrations_deps
 COPY --from=base /app/tsconfig.json /app/tsconfig.base.json ./
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/patches patches/
 RUN pnpm install --prod
 
 FROM node_prod_base as migrations
@@ -149,6 +157,7 @@ COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/ui libs/ui/
 COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/patches patches/
 RUN pnpm install --prod
 
 FROM node_prod_base as web
@@ -165,6 +174,7 @@ COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/types libs/types/
+COPY --from=base /app/patches patches/
 RUN pnpm install --prod
 
 FROM node_prod_base as dashboard
@@ -259,6 +269,7 @@ COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/types libs/types/
+COPY --from=base /app/patches patches/
 RUN pnpm install --prod
 
 FROM node_prod_base as websockets
