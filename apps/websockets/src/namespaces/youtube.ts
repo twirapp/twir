@@ -39,11 +39,15 @@ youtubeNamespace.on('connection', async (socket) => {
     cb(songs);
   });
 
-  socket.on('skip', async (id) => {
-    const entity = await repository.findOneBy({ id });
-    if (entity) {
-      await repository.softDelete({ id });
+  socket.on('skip', async (id: string | string[]) => {
+    const ids = Array.isArray(id) ? id : [id];
+    for (const video of ids) {
+      const entity = await repository.findOneBy({ id: video });
+      if (entity) {
+        await repository.softDelete({ id: video });
+      }
     }
+
     redis.del(`songrequests:youtube:${channelId}:currentPlaying`);
   });
 
