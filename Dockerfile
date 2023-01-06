@@ -20,7 +20,7 @@ COPY libs libs
 COPY apps apps
 COPY patches patches
 
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 RUN pnpm build
 
 FROM node:18-alpine as node_prod_base
@@ -47,7 +47,7 @@ COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/pubsub libs/pubsub/
 COPY --from=base /app/patches patches/
 COPY --from=base /app/patches patches/
-RUN pnpm install --prod
+RUN pnpm install --prod --frozen-lockfile
 
 FROM node_prod_base as dota
 WORKDIR /app
@@ -61,7 +61,7 @@ COPY --from=base /app/apps/eval apps/eval/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/patches patches/
-RUN pnpm install --prod
+RUN pnpm install --prod --frozen-lockfile
 
 FROM node_prod_base as eval
 WORKDIR /app
@@ -79,7 +79,7 @@ COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/types libs/types/
 COPY --from=base /app/libs/pubsub libs/pubsub/
 COPY --from=base /app/patches patches/
-RUN pnpm install --prod
+RUN pnpm install --prod --frozen-lockfile
 
 FROM node_prod_base as eventsub
 WORKDIR /app
@@ -95,7 +95,7 @@ COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/patches patches/
-RUN pnpm install --prod
+RUN pnpm install --prod --frozen-lockfile
 
 FROM node_prod_base as integrations
 WORKDIR /app
@@ -111,7 +111,7 @@ COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/patches patches/
-RUN pnpm install --prod
+RUN pnpm install --prod --frozen-lockfile
 
 FROM node_prod_base as scheduler
 WORKDIR /app
@@ -128,7 +128,7 @@ COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/pubsub libs/pubsub/
 COPY --from=base /app/patches patches/
-RUN pnpm install --prod
+RUN pnpm install --prod --frozen-lockfile
 
 FROM node_prod_base as streamstatus
 WORKDIR /app
@@ -142,7 +142,7 @@ COPY --from=base /app/tsconfig.json /app/tsconfig.base.json ./
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/patches patches/
-RUN pnpm install --prod
+RUN pnpm install --prod --frozen-lockfile
 
 FROM node_prod_base as migrations
 WORKDIR /app
@@ -158,7 +158,7 @@ COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/ui libs/ui/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/patches patches/
-RUN pnpm install --prod
+RUN pnpm install --prod --frozen-lockfile
 
 FROM node_prod_base as web
 WORKDIR /app
@@ -175,7 +175,7 @@ COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/types libs/types/
 COPY --from=base /app/patches patches/
-RUN pnpm install --prod
+RUN pnpm install --prod --frozen-lockfile
 
 FROM node_prod_base as dashboard
 WORKDIR /app
@@ -270,7 +270,7 @@ COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/types libs/types/
 COPY --from=base /app/patches patches/
-RUN pnpm install --prod
+RUN pnpm install --prod --frozen-lockfile
 
 FROM node_prod_base as websockets
 WORKDIR /app
