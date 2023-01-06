@@ -46,12 +46,15 @@ func handleSearch(query string, searchType string) ([]youtube.SearchResult, erro
 		return nil, fiber.NewError(400, "type can be only video or channel")
 	}
 
-	search := ytsr.Search(query, ytsr.SearchOptions{
+	search, err := ytsr.Search(query, ytsr.SearchOptions{
 		Limit: 20,
 		Type:  searchType,
 	})
 
 	result := make([]youtube.SearchResult, 0)
+	if err != nil {
+		return result, nil
+	}
 
 	if len(search) == 0 {
 		return result, nil

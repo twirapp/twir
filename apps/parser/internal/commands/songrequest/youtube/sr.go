@@ -95,10 +95,16 @@ var SrCommand = types.DefaultCommand{
 		if len(findByRegexp) > 0 {
 			songId = findByRegexp[6]
 		} else {
-			res := ytsr.Search(*ctx.Text, ytsr.SearchOptions{
+			res, err := ytsr.Search(*ctx.Text, ytsr.SearchOptions{
 				Type:  "video",
 				Limit: 1,
 			})
+
+			if err != nil {
+				logger.Sugar().Error(err)
+				result.Result = append(result.Result, parsedSettings.Translations.Song.NotFound)
+				return result
+			}
 
 			if len(res) == 0 {
 				result.Result = append(result.Result, parsedSettings.Translations.Song.NotFound)

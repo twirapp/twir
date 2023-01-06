@@ -2,6 +2,7 @@ package youtubego
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -9,10 +10,10 @@ import (
 	"strings"
 )
 
-func CreateRequest(searchWord string, options SearchOptions) []SearchResult {
+func CreateRequest(searchWord string, options SearchOptions) ([]SearchResult, error) {
 	Url, err := url.Parse("http://youtube.com/results")
 	if err != nil {
-		panic("The URL is incorrect!")
+		return nil, errors.New("The URL is incorrect!")
 	}
 
 	query := url.Values{}
@@ -34,7 +35,7 @@ func CreateRequest(searchWord string, options SearchOptions) []SearchResult {
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		panic("Something went wrong, the request cannot be sent to the URL!")
+		return nil, errors.New("Something went wrong, the request cannot be sent to the URL!")
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
@@ -48,7 +49,7 @@ func CreateRequest(searchWord string, options SearchOptions) []SearchResult {
 	return ParseHTML(string(bodyResp), options.Limit)
 }
 
-func ParseHTML(html string, limit int) []SearchResult {
+func ParseHTML(html string, limit int) ([]SearchResult, error) {
 	index := len(strings.Split(html, `{"itemSectionRenderer":`)) - 1
 	items := strings.Split(html, `{"itemSectionRenderer":`)[index]
 	parsed := strings.Split(items, `},{"continuationItemRenderer":{`)[0]
@@ -56,7 +57,7 @@ func ParseHTML(html string, limit int) []SearchResult {
 	var out map[string]interface{}
 	err := json.Unmarshal([]byte(string(parsed)), &out)
 	if err != nil {
-		panic("Something went wrong, the problem was encountered while analyzing JSON!")
+		return nil, errors.New("Something went wrong, the problem was encountered while analyzing JSON!")
 	}
 	arr := out["contents"].([]interface{})
 	output := []SearchResult{}
@@ -95,5 +96,5 @@ func ParseHTML(html string, limit int) []SearchResult {
 		}
 	}
 
-	return output
+	return output, nil
 }
