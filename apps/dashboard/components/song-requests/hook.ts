@@ -18,7 +18,7 @@ export function usePlayer() {
   }, [player, isPlaying]);
 
   const onReady = useCallback((event: YouTubeEvent) => {
-    const playerIframe = event.target.getIframe() as unknown as HTMLIFrameElement;
+    const playerIframe = event.target.getIframe();
     playerIframe.width = `100%`;
     setPlayer(event.target);
   }, []);

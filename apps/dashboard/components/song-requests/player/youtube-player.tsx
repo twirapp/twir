@@ -24,23 +24,15 @@ import { useState } from 'react';
 import YouTube from 'react-youtube';
 
 import { resolveUserName } from '../../../util/resolveUserName';
-import { PlayerDurationSlider } from './duration-slider';
+import { PlayerSliders } from './player-sliders';
 
 import { usePlayer } from '@/components/song-requests/hook';
 import { useCardStyles } from '@/styles/card';
 
 const YoutubePlayer: React.FC = () => {
   const { classes: cardClasses } = useCardStyles();
-  const {
-    player,
-    // playerRef,
-    videos,
-    currentVideo,
-    isPlaying,
-    skipVideo,
-    togglePlayState,
-    ...options
-  } = usePlayer();
+  const { player, videos, currentVideo, isPlaying, skipVideo, togglePlayState, ...options } =
+    usePlayer();
 
   const [isVisiblePlayer, toggleVisiblePlayer] = useState(true);
 
@@ -71,7 +63,7 @@ const YoutubePlayer: React.FC = () => {
           </Card.Section>
           <Card.Section p="md" className={cardClasses.card}>
             <Flex direction="column" gap="sm">
-              <PlayerDurationSlider isPlaying={isPlaying} player={player} />
+              <PlayerSliders isPlaying={isPlaying} player={player} />
               <Button.Group>
                 <Button
                   fullWidth={true}

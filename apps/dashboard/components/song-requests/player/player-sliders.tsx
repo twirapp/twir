@@ -3,38 +3,56 @@ import { useInterval } from '@mantine/hooks';
 import { useState, useCallback, useEffect } from 'react';
 import { YouTubePlayer } from 'react-youtube';
 
-import { convertMillisToTime } from '../helpers';
+import { convertMillisToTime, toFixedNum } from '../helpers';
 
-export function PlayerDurationSlider({
+export function PlayerSliders({
   isPlaying,
   player,
 }: {
   isPlaying: boolean;
   player: YouTubePlayer | null;
 }) {
+  const [currentVolume, setCurrentVolume] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [songDuration, setSongDuration] = useState(0);
 
   const interval = useInterval(() => {
     getSongCurrentTime();
     getSongDuration();
+    getSongVolume();
   }, 1000);
 
   const getSongCurrentTime = useCallback(() => {
     if (!player) return setCurrentTime(0);
-    setCurrentTime(player?.getCurrentTime() as unknown as number);
+    setCurrentTime(player?.getCurrentTime());
   }, [player]);
 
   const getSongDuration = useCallback(() => {
     if (!player) return setSongDuration(0);
-    setSongDuration(player?.getDuration() as unknown as number);
+    setSongDuration(player?.getDuration());
   }, [player]);
 
-  const setTime = useCallback(
+  const getSongVolume = useCallback(() => {
+    if (!player || player?.isMuted()) return setCurrentVolume(0);
+    setCurrentVolume(toFixedNum(player?.getVolume()));
+  }, [currentVolume, player]);
+
+  const updatePlayerVolume = useCallback(
+    (volume: number) => {
+      if (player?.isMuted()) {
+        player.unMute();
+      }
+
+      player?.setVolume(volume);
+    },
+    [player],
+  );
+
+  const updatePlayerTime = useCallback(
     (time: number) => {
       player?.seekTo(time, true);
     },
-    [currentTime, player],
+    [player],
   );
 
   useEffect(() => {
@@ -42,6 +60,7 @@ export function PlayerDurationSlider({
 
     getSongDuration();
     getSongCurrentTime();
+    getSongVolume();
 
     return () => {
       interval.stop();
@@ -56,10 +75,11 @@ export function PlayerDurationSlider({
       </Group>
       <Slider
         step={1}
+        size="sm"
         labelTransition="pop"
         labelTransitionDuration={200}
         labelTransitionTimingFunction="ease"
-        value={parseInt(currentTime.toFixed(0), 10)}
+        value={toFixedNum(currentTime)}
         label={(v) => convertMillisToTime(v * 1000)}
         onChange={(v) => {
           if (interval.active) {
@@ -70,9 +90,34 @@ export function PlayerDurationSlider({
         }}
         onChangeEnd={(v) => {
           interval.start();
-          setTime(v);
+          updatePlayerTime(v);
         }}
         max={songDuration}
+      />
+      <Group position="apart">
+        <Text size="sm">{currentVolume}</Text>
+        <Text size="sm">100</Text>
+      </Group>
+      <Slider
+        step={1}
+        max={100}
+        size="sm"
+        labelTransition="pop"
+        labelTransitionDuration={200}
+        labelTransitionTimingFunction="ease"
+        value={currentVolume}
+        label={(v) => v}
+        onChange={(v) => {
+          if (interval.active) {
+            interval.stop();
+          }
+
+          setCurrentVolume(toFixedNum(v));
+        }}
+        onChangeEnd={(v) => {
+          interval.start();
+          updatePlayerVolume(toFixedNum(v));
+        }}
       />
     </>
   );
