@@ -179,9 +179,13 @@ func handleGetProfile(user model.Users, services types.Services) (*Profile, erro
 	dashboards := []DashboardAndUser{}
 
 	for _, d := range dbDashboards {
-		twitchUser, _ := lo.Find(twitchUsers, func(user helix.User) bool {
+		twitchUser, ok := lo.Find(twitchUsers, func(user helix.User) bool {
 			return user.ID == d.ChannelID
 		})
+
+		if !ok {
+			continue
+		}
 
 		newDash := DashboardAndUser{
 			ChannelsDashboardAccess: d,
