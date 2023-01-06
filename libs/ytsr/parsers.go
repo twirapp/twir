@@ -22,7 +22,6 @@ func ParseChannel(data interface{}) ChannelParser {
 		thumbnails := data.(map[string]interface{})["thumbnail"].(map[string]interface{})["thumbnails"]
 		thumbnail := thumbnails.([]interface{})[len(thumbnails.([]interface{}))-1]
 
-		fmt.Println(thumbnail.(map[string]interface{})["url"].(string))
 		var out ChannelParser
 		out = ChannelParser{
 			Channel: Channel{
