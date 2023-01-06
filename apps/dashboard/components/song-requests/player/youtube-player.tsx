@@ -1,58 +1,99 @@
-import { Anchor, Button, Card, Flex, Group, List, Loader, Text } from '@mantine/core';
 import {
-  IconLink,
+  ActionIcon,
+  Anchor,
+  Button,
+  Card,
+  Flex,
+  Group,
+  List,
+  Loader,
+  Text,
+  Tooltip,
+} from '@mantine/core';
+import {
   IconPlayerPause,
   IconPlayerPlay,
   IconPlayerTrackNext,
   IconPlaylist,
+  IconEyeOff,
   IconUser,
+  IconEye,
+  IconLink,
 } from '@tabler/icons';
+import { useState } from 'react';
 import YouTube from 'react-youtube';
 
 import { resolveUserName } from '../../../util/resolveUserName';
-import { PlayerSlider } from './slider';
+import { PlayerDurationSlider } from './duration-slider';
 
 import { usePlayer } from '@/components/song-requests/hook';
 import { useCardStyles } from '@/styles/card';
 
 const YoutubePlayer: React.FC = () => {
   const { classes: cardClasses } = useCardStyles();
-  const { player, playerRef, videos, currentVideo, isPlaying, skipVideo, togglePlayState, ...options } =
-    usePlayer();
+  const {
+    player,
+    // playerRef,
+    videos,
+    currentVideo,
+    isPlaying,
+    skipVideo,
+    togglePlayState,
+    ...options
+  } = usePlayer();
+
+  const [isVisiblePlayer, toggleVisiblePlayer] = useState(true);
 
   return (
-    <Card withBorder radius="md" p="md" ref={playerRef}>
+    <Card withBorder radius="md" p="md" style={{ paddingBottom: 'initial' }}>
       <Card.Section withBorder inheritPadding py="xs">
         <Group position="apart">
           <Text weight={500}>Current Song</Text>
+
+          <Tooltip
+            withinPortal
+            position="top"
+            label={isVisiblePlayer ? 'Hide video player' : 'Show video player'}
+          >
+            <ActionIcon onClick={() => toggleVisiblePlayer((v) => !v)}>
+              {isVisiblePlayer ? <IconEyeOff size={14} /> : <IconEye size={14} />}
+            </ActionIcon>
+          </Tooltip>
         </Group>
       </Card.Section>
-      {options.videoId ? (
+      {currentVideo?.videoId ? (
         <>
-          <Card.Section className={cardClasses.card}>
+          <Card.Section
+            style={{ display: isVisiblePlayer ? 'block' : 'none' }}
+            className={cardClasses.card}
+          >
             <YouTube {...options} videoId={currentVideo.videoId} />
           </Card.Section>
           <Card.Section p="md" className={cardClasses.card}>
             <Flex direction="column" gap="sm">
-              <PlayerSlider isPlaying={isPlaying} player={player} />
-              <Flex direction="row" gap="sm" align="center" justify="center">
+              <PlayerDurationSlider isPlaying={isPlaying} player={player} />
+              <Button.Group>
                 <Button
-                  variant="outline"
+                  fullWidth={true}
+                  variant="default"
                   disabled={videos.length === 0}
-                  leftIcon={isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
                   onClick={() => togglePlayState()}
+                  leftIcon={
+                    isPlaying ? <IconPlayerPause size={16} /> : <IconPlayerPlay size={16} />
+                  }
                 >
                   {isPlaying ? 'Pause' : 'Play'}
                 </Button>
                 <Button
-                  variant="outline"
+                  fullWidth={true}
+                  variant="default"
                   disabled={videos.length === 0}
                   onClick={() => skipVideo()}
-                  leftIcon={<IconPlayerTrackNext />}
+                  leftIcon={<IconPlayerTrackNext size={16} />}
                 >
                   Next
                 </Button>
-              </Flex>
+              </Button.Group>
               <List spacing="xs" size="sm" center>
                 <List.Item icon={<IconPlaylist size={16} />}>{currentVideo.title}</List.Item>
                 <List.Item icon={<IconUser size={16} />}>
@@ -60,7 +101,7 @@ const YoutubePlayer: React.FC = () => {
                 </List.Item>
                 <List.Item icon={<IconLink size={16} />}>
                   <Anchor href={`https://youtu.be/${currentVideo.videoId}`} target="_blank">
-                    https://youtu.be/{currentVideo.videoId}
+                    youtu.be/{currentVideo.videoId}
                   </Anchor>
                 </List.Item>
               </List>

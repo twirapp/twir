@@ -5,7 +5,7 @@ import { YouTubePlayer } from 'react-youtube';
 
 import { convertMillisToTime } from '../helpers';
 
-export function PlayerSlider({
+export function PlayerDurationSlider({
   isPlaying,
   player,
 }: {
@@ -13,14 +13,18 @@ export function PlayerSlider({
   player: YouTubePlayer | null;
 }) {
   const [currentTime, setCurrentTime] = useState(0);
-  const currentTimeInterval = useInterval(() => getSongCurrentTime(), 1000);
+  const [songDuration, setSongDuration] = useState(0);
+
+  const interval = useInterval(() => {
+    getSongCurrentTime();
+    getSongDuration();
+  }, 1000);
+
   const getSongCurrentTime = useCallback(() => {
     if (!player) return setCurrentTime(0);
     setCurrentTime(player?.getCurrentTime() as unknown as number);
   }, [player]);
 
-  const [songDuration, setSongDuration] = useState(0);
-  const songDurationInterval = useInterval(() => getSongDuration(), 1000);
   const getSongDuration = useCallback(() => {
     if (!player) return setSongDuration(0);
     setSongDuration(player?.getDuration() as unknown as number);
@@ -34,15 +38,13 @@ export function PlayerSlider({
   );
 
   useEffect(() => {
-    currentTimeInterval.start();
-    songDurationInterval.start();
+    interval.start();
 
     getSongDuration();
     getSongCurrentTime();
 
     return () => {
-      currentTimeInterval.stop();
-      songDurationInterval.stop();
+      interval.stop();
     };
   }, [isPlaying]);
 
@@ -60,14 +62,14 @@ export function PlayerSlider({
         value={parseInt(currentTime.toFixed(0), 10)}
         label={(v) => convertMillisToTime(v * 1000)}
         onChange={(v) => {
-          if (currentTimeInterval.active) {
-            currentTimeInterval.stop();
+          if (interval.active) {
+            interval.stop();
           }
 
           setCurrentTime(v);
         }}
         onChangeEnd={(v) => {
-          currentTimeInterval.start();
+          interval.start();
           setTime(v);
         }}
         max={songDuration}
