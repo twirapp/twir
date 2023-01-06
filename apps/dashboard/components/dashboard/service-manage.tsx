@@ -1,18 +1,12 @@
-import { createStyles, Card, Group, Switch, Text } from '@mantine/core';
+import { createStyles, Group, Switch, Text } from '@mantine/core';
 
-const useStyles = createStyles((theme) => ({
-  card: {
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-  },
+import { DashboardCard } from '@/components/common';
 
+const useStyles = createStyles(() => ({
   switch: {
     '& *': {
       cursor: 'pointer',
     },
-  },
-
-  title: {
-    lineHeight: 1,
   },
 }));
 
@@ -20,10 +14,7 @@ export function ServiceManage() {
   const { classes } = useStyles();
 
   return (
-    <Card withBorder radius="md" p="xl" className={classes.card}>
-      <Text size="lg" pb="lg" className={classes.title} weight={500}>
-        Services
-      </Text>
+    <DashboardCard title="Services">
       <Group position="apart" noWrap spacing="xl">
         <div>
           <Text>Foo</Text>
@@ -42,6 +33,6 @@ export function ServiceManage() {
         </div>
         <Switch onLabel="ON" offLabel="OFF" className={classes.switch} size="lg" />
       </Group>
-    </Card>
+    </DashboardCard>
   );
 }

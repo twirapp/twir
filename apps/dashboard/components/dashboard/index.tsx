@@ -2,6 +2,7 @@ import { SimpleGrid } from '@mantine/core';
 import React from 'react';
 
 import { BotManage } from './bot-manage';
+// import { ServiceManage } from './service-manage';
 
 export const DashboardWidgets = () => {
   return (
