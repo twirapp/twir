@@ -209,7 +209,7 @@ var SrCommand = types.DefaultCommand{
 			map[string]interface{}{
 				"songId":    entity.VideoID,
 				"songTitle": ytdlSongInfo.Title,
-				"position":  string(len(songsInQueue) + 1),
+				"position":  strconv.Itoa(len(songsInQueue) + 1),
 				"waitTime":  timeForWait.String(),
 			},
 		)
@@ -296,7 +296,7 @@ func validate(
 				settings.Translations.Song.MaximumOrdered,
 				"{{", "}}",
 				map[string]interface{}{
-					"maximum": string(rune(settings.MaxRequests)),
+					"maximum": strconv.Itoa(settings.MaxRequests),
 				},
 			)
 			return errors.New(message)
@@ -310,8 +310,8 @@ func validate(
 			map[string]interface{}{
 				"songTitle":   song.Title,
 				"songId":      song.ID,
-				"songViews":   string(rune(song.Views)),
-				"neededViews": string(rune(settings.Song.MinViews)),
+				"songViews":   strconv.Itoa(song.Views),
+				"neededViews": strconv.Itoa(settings.Song.MinViews),
 			},
 		)
 		return errors.New(message)

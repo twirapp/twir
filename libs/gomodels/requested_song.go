@@ -20,7 +20,7 @@ type RequestedSong struct {
 	ChannelID            string      `gorm:"column:channelId;type:TEXT;"                     json:"channelId"`
 	OrderedById          string      `gorm:"column:orderedById;type:TEXT;"                   json:"orderedById"`
 	OrderedByName        string      `gorm:"column:orderedByName;type:TEXT;"                 json:"orderedByName"`
-	OrderedByDisplayName null.String `gorm:"column:orderedByName;type:TEXT;"                 json:"orderedByDisplayName"`
+	OrderedByDisplayName null.String `gorm:"column:orderedByDisplayName;type:TEXT;"                 json:"orderedByDisplayName"`
 	VideoID              string      `gorm:"column:videoId;type:varchar;"                    json:"videoId"`
 	Title                string      `gorm:"column:title;type:text;"                         json:"title"`
 	Duration             int32       `gorm:"column:duration;type:int4"                       json:"duration"`
