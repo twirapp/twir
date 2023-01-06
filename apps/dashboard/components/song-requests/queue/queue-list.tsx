@@ -3,6 +3,7 @@ import { IconGripVertical, IconTrash } from '@tabler/icons';
 import dynamic from 'next/dynamic';
 import { useContext } from 'react';
 
+import { resolveUserName } from '../../../util/resolveUserName';
 import { convertMillisToTime } from '../helpers';
 
 import { PlayerContext } from '@/components/song-requests/context';
@@ -61,7 +62,7 @@ export const QueueList: React.FC = () => {
           <td>
             <a href={'https://youtu.be/' + video.videoId}>{video.title}</a>
           </td>
-          <td>{video.orderedByDisplayName}</td>
+          <td>{resolveUserName(video.orderedByName, video.orderedByDisplayName)}</td>
           <td>{convertMillisToTime(video.duration)}</td>
           <td>
             <Flex>

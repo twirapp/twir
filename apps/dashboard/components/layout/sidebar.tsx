@@ -34,6 +34,8 @@ import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useCallback, useContext, useEffect, useState } from 'react';
 
+import { resolveUserName } from '../../util/resolveUserName';
+
 import { useProfile } from '@/services/api';
 import { useLocale } from '@/services/dashboard';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
@@ -137,8 +139,8 @@ export function SideBar(props: Props) {
       const actions = user.dashboards
         .filter((d) => d.channelId != dashboardContext.id)
         .map((d) => ({
-          title: d.twitchUser.display_name,
-          description: d.twitchUser.login,
+          title: resolveUserName(d.twitchUser.login, d.twitchUser.display_name),
+          description: d.twitchUser.id,
           onTrigger: () => {
             dashboardContext.setId(d.channelId);
           },
@@ -148,8 +150,8 @@ export function SideBar(props: Props) {
 
       if (dashboardContext.id != user.id) {
         actions.unshift({
-          title: user.display_name,
-          description: user.login,
+          title: resolveUserName(user.login, user.display_name),
+          description: user.id,
           onTrigger: () => {
             dashboardContext.setId(user.id);
           },
@@ -246,7 +248,10 @@ export function SideBar(props: Props) {
                   {t('sidebar.manage')}
                 </Text>
                 <Text color="dimmed" size="xs">
-                  {selectedDashboard?.twitchUser.display_name}
+                  {selectedDashboard
+                    ? resolveUserName(selectedDashboard.twitchUser.login, selectedDashboard.twitchUser.display_name)
+                    : ''
+                  }
                 </Text>
               </Box>
             </Group>

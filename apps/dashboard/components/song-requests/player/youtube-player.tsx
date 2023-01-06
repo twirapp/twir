@@ -9,6 +9,7 @@ import {
 } from '@tabler/icons';
 import YouTube from 'react-youtube';
 
+import { resolveUserName } from '../../../util/resolveUserName';
 import { PlayerSlider } from './slider';
 
 import { usePlayer } from '@/components/song-requests/hook';
@@ -16,7 +17,7 @@ import { useCardStyles } from '@/styles/card';
 
 const YoutubePlayer: React.FC = () => {
   const { classes: cardClasses } = useCardStyles();
-  const { player, playerRef, videos, isPlaying, skipVideo, togglePlayState, ...options } =
+  const { player, playerRef, videos, currentVideo, isPlaying, skipVideo, togglePlayState, ...options } =
     usePlayer();
 
   return (
@@ -29,7 +30,7 @@ const YoutubePlayer: React.FC = () => {
       {options.videoId ? (
         <>
           <Card.Section className={cardClasses.card}>
-            <YouTube {...options} />
+            <YouTube {...options} videoId={currentVideo.videoId} />
           </Card.Section>
           <Card.Section p="md" className={cardClasses.card}>
             <Flex direction="column" gap="sm">
@@ -53,13 +54,13 @@ const YoutubePlayer: React.FC = () => {
                 </Button>
               </Flex>
               <List spacing="xs" size="sm" center>
-                <List.Item icon={<IconPlaylist size={16} />}>{videos[0].title}</List.Item>
+                <List.Item icon={<IconPlaylist size={16} />}>{currentVideo.title}</List.Item>
                 <List.Item icon={<IconUser size={16} />}>
-                  {videos[0].orderedByDisplayName ?? videos[0].orderedByName}
+                  {resolveUserName(currentVideo.orderedByName, currentVideo.orderedByDisplayName)}
                 </List.Item>
                 <List.Item icon={<IconLink size={16} />}>
-                  <Anchor href={`https://youtu.be/${videos[0].videoId}`} target="_blank">
-                    https://youtu.be/{videos[0].videoId}
+                  <Anchor href={`https://youtu.be/${currentVideo.videoId}`} target="_blank">
+                    https://youtu.be/{currentVideo.videoId}
                   </Anchor>
                 </List.Item>
               </List>

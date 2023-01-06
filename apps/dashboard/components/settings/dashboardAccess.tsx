@@ -3,6 +3,7 @@ import { IconPlus, IconShieldCheck, IconX } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 import { useState } from 'react';
 
+import { resolveUserName } from '../../util/resolveUserName';
 import { confirmDelete } from '../confirmDelete';
 import { SettingsCard } from './card';
 import { DashboardAccessDrawer } from './drawer';
@@ -35,8 +36,7 @@ export const DashboardAccess: React.FC = () => {
               data.map((d) => (
                 <NavLink
                   key={d.id}
-                  label={d.twitchUser.login}
-                  description={d.twitchUser.display_name}
+                  label={resolveUserName(d.twitchUser.login, d.twitchUser.display_name)}
                   icon={<Avatar size={35} src={d.twitchUser.profile_image_url} />}
                   rightSection={<IconX size={20} stroke={1.5} />}
                   onClick={() => {

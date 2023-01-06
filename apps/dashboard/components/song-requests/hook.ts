@@ -48,6 +48,7 @@ export function usePlayer() {
     player,
     playerRef,
     videos,
+    currentVideo: videos[0],
     isPlaying,
     videoId: videos[0]?.videoId ?? '',
     togglePlayState,
