@@ -38,33 +38,40 @@ type YouTubeDenyList struct {
 	ArtistsNames []string                      `validate:"required,dive,max=300" json:"artistsNames"`
 }
 
+type YouTubeUserTranslations struct {
+	Denied      string `json:"denied"`
+	MaxRequests string `json:"maxRequests"`
+	MinMessages string `json:"minMessages"`
+	MinWatched  string `json:"minWatched"`
+	MinFollow   string `json:"minFollow"`
+}
+
+type YouTubeSongTranslations struct {
+	Denied               string `json:"denied"`
+	NotFound             string `json:"notFound"`
+	AlreadyInQueue       string `json:"alreadyInQueue"`
+	AgeRestrictions      string `json:"ageRestrictions"`
+	CannotGetInformation string `json:"cannotGetInformation"`
+	Live                 string `json:"live"`
+	MaxLength            string `json:"maxLength"`
+	MinLength            string `json:"minLength"`
+	RequestedMessage     string `json:"requestedMessage"`
+	MaximumOrdered       string `json:"maximumOrdered"`
+	MinViews             string `json:"minViews"`
+}
+
+type YouTubeChannelTranslations struct {
+	Denied string `json:"denied"`
+}
+
 type YouTubeTranslations struct {
-	NowPlaying             string `json:"nowPlaying"`
-	NotEnabled             string `json:"notEnabled"`
-	NoText                 string `json:"noText"`
-	AcceptOnlineWhenOnline string `json:"acceptOnlyWhenOnline"`
-	User                   struct {
-		Denied            string `json:"denied"`
-		MaxRequests       string `json:"maxRequests"`
-		NotEnoughMessages string `json:"notEnoughMessages"`
-		NotEnoughWatched  string `json:"notEnoughWatched"`
-		NotEnoughFollow   string `json:"notEnoughFollow"`
-	} `json:"user"`
-	Song struct {
-		Denied               string `json:"denied"`
-		NotFound             string `json:"notFound"`
-		AlreadyInQueue       string `json:"alreadyInQueue"`
-		AgeRestrictions      string `json:"ageRestrictions"`
-		CannotGetInformation string `json:"cannotGetInformation"`
-		Live                 string `json:"live"`
-		MaxNumberRequested   string `json:"maxNumberRequested"`
-		NotEnoughViews       string `json:"notEnoughViews"`
-		MaxLength            string `json:"maxLength"`
-		MinLength            string `json:"minLength"`
-	} `json:"song"`
-	Channel struct {
-		Denied string `json:"denied"`
-	}
+	NowPlaying             string                     `json:"nowPlaying"`
+	NotEnabled             string                     `json:"notEnabled"`
+	NoText                 string                     `json:"noText"`
+	AcceptOnlineWhenOnline string                     `json:"acceptOnlyWhenOnline"`
+	User                   YouTubeUserTranslations    `json:"user"`
+	Song                   YouTubeSongTranslations    `json:"song"`
+	Channel                YouTubeChannelTranslations `json:"channel"`
 }
 
 type YouTubeSettings struct {

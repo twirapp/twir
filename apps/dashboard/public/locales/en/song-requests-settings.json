@@ -22,5 +22,8 @@
     "minLength": "Min length of song for request (minutes)",
     "minViews": "Minimal views on song for request",
     "denied": "Denied songs for request"
+  },
+  "translations": {
+    "title": "Translations"
   }
 }
