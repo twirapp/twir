@@ -151,7 +151,7 @@ COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["pnpm", "run", "migrate:deploy"]
 
-FROM node_deps_base as web_deps
+FROM node_deps_base as landing_deps
 COPY --from=base /app/frontend/landing frontend/landing/
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/shared libs/shared/
@@ -160,7 +160,7 @@ COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/patches patches/
 RUN pnpm install --prod --frozen-lockfile
 
-FROM node_prod_base as web
+FROM node_prod_base as landing
 WORKDIR /app
 COPY --from=web_deps /app/ /app/
 EXPOSE 3000
