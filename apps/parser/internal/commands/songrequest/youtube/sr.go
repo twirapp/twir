@@ -87,7 +87,7 @@ var SrCommand = types.DefaultCommand{
 				return result
 			}
 		} else {
-			result.Result = append(result.Result, parsedSettings.Translations.NotEnabled)
+			result.Result = append(result.Result, "Song requests not enabled")
 			return result
 		}
 

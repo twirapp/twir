@@ -17,6 +17,7 @@ import { useContext } from 'react';
 import { resolveUserName } from '../../../util/resolveUserName';
 import { convertMillisToTime } from '../helpers';
 
+import { confirmDelete } from '@/components/confirmDelete';
 import { PlayerContext } from '@/components/song-requests/context';
 import { useCardStyles } from '@/styles/card';
 import { useDraggableStyles } from '@/styles/draggable';
@@ -46,7 +47,7 @@ const Draggable = dynamic(
 );
 
 export const QueueList: React.FC = () => {
-  const { videos, reorderVideos, skipVideo } = useContext(PlayerContext);
+  const { videos, reorderVideos, skipVideo, clearQueue } = useContext(PlayerContext);
   const { classes: draggableClasses } = useDraggableStyles();
   const { classes: cardClasses } = useCardStyles();
 
@@ -93,7 +94,13 @@ export const QueueList: React.FC = () => {
         <Group position="apart">
           <Text weight={500}>Queue</Text>
           <Tooltip withinPortal position="top" label="Clear queue">
-            <ActionIcon>
+            <ActionIcon
+              onClick={() => confirmDelete({
+                onConfirm: () => clearQueue(),
+                text: 'Are you sure you wanna clear song list?',
+                title: 'Song requests',
+              })}
+            >
               <IconTrash size={14} />
             </ActionIcon>
           </Tooltip>
@@ -134,7 +141,7 @@ export const QueueList: React.FC = () => {
                     <th />
                     <th>
                       {convertMillisToTime(
-                        videos.slice(1).reduce((acc, curr) => acc + curr.duration, 0) ?? 0,
+                        videos.reduce((acc, curr) => acc + curr.duration, 0) ?? 0,
                       )}
                     </th>
                     <th />
