@@ -54,7 +54,7 @@ WORKDIR /app
 COPY --from=dota_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh /app
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "start:dota"]
+CMD ["pnpm", "-filter=@tsuwari/dota", "start"]
 
 FROM node_deps_base as eval_deps
 COPY --from=base /app/apps/eval apps/eval/
@@ -68,7 +68,7 @@ WORKDIR /app
 COPY --from=eval_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh /app
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "start:eval"]
+CMD ["pnpm", "-filter=@tsuwari/eval", "start"]
 
 FROM node_deps_base as eventsub_deps
 COPY --from=base /app/apps/eventsub apps/eventsub/
@@ -86,7 +86,7 @@ WORKDIR /app
 COPY --from=eventsub_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "start:eventsub"]
+CMD ["pnpm", "-filter=@tsuwari/eventsub", "start"]
 
 FROM node_deps_base as integrations_deps
 COPY --from=base /app/apps/integrations apps/integrations/
@@ -102,7 +102,7 @@ WORKDIR /app
 COPY --from=integrations_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "start:integrations"]
+CMD ["pnpm", "-filter=@tsuwari/integrations", "start"]
 
 FROM node_deps_base as scheduler_deps
 COPY --from=base /app/apps/scheduler apps/scheduler/
@@ -118,7 +118,7 @@ WORKDIR /app
 COPY --from=scheduler_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "start:scheduler"]
+CMD ["pnpm", "-filter=@tsuwari/scheduler", "start"]
 
 FROM node_deps_base as streamstatus_deps
 COPY --from=base /app/apps/streamstatus apps/streamstatus/
@@ -135,7 +135,7 @@ WORKDIR /app
 COPY --from=streamstatus_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "start:streamstatus"]
+CMD ["pnpm", "-filter=@tsuwari/streamstatus", "start"]
 
 FROM node_deps_base as migrations_deps
 COPY --from=base /app/tsconfig.json /app/tsconfig.base.json ./
@@ -166,7 +166,7 @@ COPY --from=web_deps /app/ /app/
 EXPOSE 3000
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "start:landing"]
+CMD ["pnpm", "-filter=@tsuwari/landing", "start"]
 
 FROM node_deps_base as dashboard_deps
 COPY --from=base /app/frontend/dashboard frontend/dashboard/
@@ -183,7 +183,7 @@ COPY --from=dashboard_deps /app/ /app/
 EXPOSE 3000
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "start:dashboard"]
+CMD ["pnpm", "-filter=@tsuwari/dashboard", "start"]
 
 FROM alpine:latest as go_prod_base
 RUN apk add wget && \
@@ -277,4 +277,4 @@ WORKDIR /app
 COPY --from=websocket_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh /app
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "start:websockets"]
+CMD ["pnpm", "-filter=@tsuwari/websockets", "start"]
