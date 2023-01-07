@@ -162,7 +162,7 @@ RUN pnpm install --prod --frozen-lockfile
 
 FROM node_prod_base as landing
 WORKDIR /app
-COPY --from=web_deps /app/ /app/
+COPY --from=landing_deps /app/ /app/
 EXPOSE 3000
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
