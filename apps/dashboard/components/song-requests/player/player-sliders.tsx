@@ -19,7 +19,7 @@ export function PlayerSliders({
   const interval = useInterval(() => {
     getSongCurrentTime();
     getSongDuration();
-    getSongVolume();
+    // getSongVolume();
   }, 1000);
 
   const getSongCurrentTime = useCallback(() => {
@@ -94,31 +94,31 @@ export function PlayerSliders({
         }}
         max={songDuration}
       />
-      <Group position="apart">
-        <Text size="sm">{currentVolume}</Text>
-        <Text size="sm">100</Text>
-      </Group>
-      <Slider
-        step={1}
-        max={100}
-        size="sm"
-        labelTransition="pop"
-        labelTransitionDuration={200}
-        labelTransitionTimingFunction="ease"
-        value={currentVolume}
-        label={(v) => v}
-        onChange={(v) => {
-          if (interval.active) {
-            interval.stop();
-          }
+      {/*<Group position="apart">*/}
+      {/*  <Text size="sm">{currentVolume}</Text>*/}
+      {/*  <Text size="sm">100</Text>*/}
+      {/*</Group>*/}
+      {/*<Slider*/}
+      {/*  step={1}*/}
+      {/*  max={100}*/}
+      {/*  size="sm"*/}
+      {/*  labelTransition="pop"*/}
+      {/*  labelTransitionDuration={200}*/}
+      {/*  labelTransitionTimingFunction="ease"*/}
+      {/*  value={currentVolume}*/}
+      {/*  label={(v) => v}*/}
+      {/*  onChange={(v) => {*/}
+      {/*    if (interval.active) {*/}
+      {/*      interval.stop();*/}
+      {/*    }*/}
 
-          setCurrentVolume(toFixedNum(v));
-        }}
-        onChangeEnd={(v) => {
-          interval.start();
-          updatePlayerVolume(toFixedNum(v));
-        }}
-      />
+      {/*    setCurrentVolume(toFixedNum(v));*/}
+      {/*  }}*/}
+      {/*  onChangeEnd={(v) => {*/}
+      {/*    interval.start();*/}
+      {/*    updatePlayerVolume(toFixedNum(v));*/}
+      {/*  }}*/}
+      {/*/>*/}
     </>
   );
 }
