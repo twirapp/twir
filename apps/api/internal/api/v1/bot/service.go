@@ -55,6 +55,12 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 
 	go func() {
 		defer wg.Done()
+
+		if channelId == channel.BotID {
+			result.IsMod = true
+			return
+		}
+
 		mods, err := client.GetChannelMods(&helix.GetChannelModsParams{
 			BroadcasterID: channelId,
 			UserID:        channel.BotID,
