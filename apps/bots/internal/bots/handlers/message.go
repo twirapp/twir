@@ -8,6 +8,9 @@ import (
 )
 
 func (c *Handlers) OnMessage(msg Message) {
+	// this need to be first because if we have no user in db it will produce many bugs
+	messages.IncrementUserMessages(c.db, msg.User.ID, msg.Channel.ID)
+
 	userBadges := createUserBadges(msg.User.Badges)
 
 	splittedMsg := strings.Split(msg.Message, " ")
@@ -26,7 +29,6 @@ func (c *Handlers) OnMessage(msg Message) {
 	go c.handleKeywords(msg, userBadges)
 
 	go func() {
-		messages.IncrementUserMessages(c.db, msg.User.ID, msg.Channel.ID)
 		messages.StoreMessage(
 			c.db,
 			msg.ID,
