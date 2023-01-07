@@ -20,3 +20,7 @@ export const moveItem = <T>(items: T[], from: number, to: number) => {
   values.splice(to, 0, values.splice(from, 1)[0]);
   return values;
 };
+
+export const toFixedNum = (num: number) => {
+  return parseInt(num.toFixed(0), 10);
+};

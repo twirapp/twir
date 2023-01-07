@@ -11,6 +11,7 @@ export const PlayerContext = createContext({
   reorderVideos: (destination: DraggableLocation, source: DraggableLocation) => void;
   addVideos: (v: RequestedSong[]) => void;
   skipVideo: (index?: number) => void;
+  clearQueue: () => void;
   isPlaying: boolean;
   setIsPlaying: Dispatch<SetStateAction<boolean>>;
   autoPlay: number;

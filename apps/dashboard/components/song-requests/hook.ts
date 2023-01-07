@@ -1,4 +1,3 @@
-import { useResizeObserver } from '@mantine/hooks';
 import { useCallback, useContext, useState } from 'react';
 import { YouTubeEvent, YouTubePlayer } from 'react-youtube';
 import { Options as YouTubeOptions } from 'youtube-player/dist/types';
@@ -6,7 +5,6 @@ import { Options as YouTubeOptions } from 'youtube-player/dist/types';
 import { PlayerContext } from '@/components/song-requests/context';
 
 export function usePlayer() {
-  const [playerRef, rect] = useResizeObserver();
   const [player, setPlayer] = useState<YouTubePlayer | null>(null);
   const { videos, skipVideo, addVideos, isPlaying, setIsPlaying, autoPlay } =
     useContext(PlayerContext);
@@ -20,6 +18,8 @@ export function usePlayer() {
   }, [player, isPlaying]);
 
   const onReady = useCallback((event: YouTubeEvent) => {
+    const playerIframe = event.target.getIframe();
+    playerIframe.width = `100%`;
     setPlayer(event.target);
   }, []);
 
@@ -46,11 +46,9 @@ export function usePlayer() {
 
   return {
     player,
-    playerRef,
     videos,
     currentVideo: videos[0],
     isPlaying,
-    videoId: videos[0]?.videoId ?? '',
     togglePlayState,
     skipVideo,
     addVideos,
@@ -64,7 +62,6 @@ export function usePlayer() {
         autoplay: autoPlay,
         rel: 0,
       },
-      width: rect.width + 31,
       height: 300,
     } as YouTubeOptions,
   };

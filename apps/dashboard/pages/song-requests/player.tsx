@@ -53,6 +53,10 @@ const Player: NextPage = () => {
     [videos],
   );
 
+  const clearQueue = useCallback(() => {
+    callWsSkip(videos);
+  }, [videos]);
+
   const addVideos = useCallback(
     (v: RequestedSong[]) => {
       videosHandlers.setState((existedVideos) => [...existedVideos, ...v]);
@@ -127,8 +131,9 @@ const Player: NextPage = () => {
     };
   }, [videos, socketRef.current]);
 
-  function callWsSkip(video: RequestedSong) {
-    socketRef.current?.emit('skip', video.id);
+  function callWsSkip(videos: RequestedSong | RequestedSong[]) {
+    const ids = (Array.isArray(videos) ? videos : [videos]).map(v => v.id);
+    socketRef.current?.emit('skip', ids);
   }
 
   useEffect(() => {
@@ -147,6 +152,7 @@ const Player: NextPage = () => {
           videos,
           videosHandlers,
           skipVideo,
+          clearQueue,
           addVideos,
           isPlaying,
           setIsPlaying,

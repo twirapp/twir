@@ -1,4 +1,15 @@
-import { ActionIcon, Badge, Card, Center, Flex, Group, Loader, Table, Text } from '@mantine/core';
+import {
+  ActionIcon,
+  Anchor,
+  Card,
+  Center,
+  Group,
+  Loader,
+  ScrollArea,
+  Table,
+  Text,
+  Tooltip,
+} from '@mantine/core';
 import { IconGripVertical, IconTrash } from '@tabler/icons';
 import dynamic from 'next/dynamic';
 import { useContext } from 'react';
@@ -6,6 +17,7 @@ import { useContext } from 'react';
 import { resolveUserName } from '../../../util/resolveUserName';
 import { convertMillisToTime } from '../helpers';
 
+import { confirmDelete } from '@/components/confirmDelete';
 import { PlayerContext } from '@/components/song-requests/context';
 import { useCardStyles } from '@/styles/card';
 import { useDraggableStyles } from '@/styles/draggable';
@@ -35,7 +47,7 @@ const Draggable = dynamic(
 );
 
 export const QueueList: React.FC = () => {
-  const { videos, reorderVideos, skipVideo } = useContext(PlayerContext);
+  const { videos, reorderVideos, skipVideo, clearQueue } = useContext(PlayerContext);
   const { classes: draggableClasses } = useDraggableStyles();
   const { classes: cardClasses } = useCardStyles();
 
@@ -54,22 +66,22 @@ export const QueueList: React.FC = () => {
               <IconGripVertical size={18} stroke={1.5} />
             </div>
           </td>
+          <td>{index + 1}</td>
           <td>
-            <Badge color={index === 0 ? 'green' : 'gray'} radius="md" variant="filled">
-              {index === 0 ? 'Playing' : index}
-            </Badge>
+            <Anchor target="_blank" href={'https://youtu.be/' + video.videoId}>
+              {video.title}
+            </Anchor>
           </td>
           <td>
-            <a href={'https://youtu.be/' + video.videoId}>{video.title}</a>
+            <Center>{resolveUserName(video.orderedByName, video.orderedByDisplayName)}</Center>
           </td>
-          <td>{resolveUserName(video.orderedByName, video.orderedByDisplayName)}</td>
-          <td>{convertMillisToTime(video.duration)}</td>
           <td>
-            <Flex>
-              <ActionIcon variant={'filled'} color={'red'} onClick={() => skipVideo(index)}>
-                <IconTrash size={14} />
-              </ActionIcon>
-            </Flex>
+            <Center>{convertMillisToTime(video.duration)}</Center>
+          </td>
+          <td>
+            <ActionIcon mx="sm" variant="transparent" color="red" onClick={() => skipVideo(index)}>
+              <IconTrash size={14} />
+            </ActionIcon>
           </td>
         </tr>
       )}
@@ -81,6 +93,17 @@ export const QueueList: React.FC = () => {
       <Card.Section withBorder inheritPadding py="xs">
         <Group position="apart">
           <Text weight={500}>Queue</Text>
+          <Tooltip withinPortal position="top" label="Clear queue">
+            <ActionIcon
+              onClick={() => confirmDelete({
+                onConfirm: () => clearQueue(),
+                text: 'Are you sure you wanna clear song list?',
+                title: 'Song requests',
+              })}
+            >
+              <IconTrash size={14} />
+            </ActionIcon>
+          </Tooltip>
         </Group>
       </Card.Section>
       <Card.Section className={cardClasses.card}>
@@ -90,32 +113,42 @@ export const QueueList: React.FC = () => {
               reorderVideos(destination!, source);
             }}
           >
-            <Table>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>#</th>
-                  <th>Title</th>
-                  <th>Requested by</th>
-                  <th>
-                    Duration (
-                    {convertMillisToTime(
-                      videos.slice(1).reduce((acc, curr) => acc + curr.duration, 0) ?? 0,
-                    )}
-                    )
-                  </th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <Droppable droppableId="dnd-list" direction="vertical">
-                {(provided) => (
-                  <tbody {...provided.droppableProps} ref={provided.innerRef}>
-                    {items}
-                    {provided.placeholder}
-                  </tbody>
-                )}
-              </Droppable>
-            </Table>
+            <ScrollArea.Autosize maxHeight={600} mx="auto">
+              <Table highlightOnHover>
+                <thead className={draggableClasses.thead}>
+                  <tr>
+                    <th></th>
+                    <th style={{ textAlign: 'center' }}>#</th>
+                    <th style={{ textAlign: 'center' }}>Title</th>
+                    <th style={{ textAlign: 'center' }}>Author</th>
+                    <th style={{ textAlign: 'center' }}>Duration</th>
+                    <th />
+                  </tr>
+                </thead>
+                <Droppable droppableId="dnd-list" direction="vertical">
+                  {(provided) => (
+                    <tbody {...provided.droppableProps} ref={provided.innerRef}>
+                      {items}
+                      {provided.placeholder}
+                    </tbody>
+                  )}
+                </Droppable>
+                <tfoot className={draggableClasses.tfoot}>
+                  <tr>
+                    <th />
+                    <th>{videos.length}</th>
+                    <th />
+                    <th />
+                    <th>
+                      {convertMillisToTime(
+                        videos.reduce((acc, curr) => acc + curr.duration, 0) ?? 0,
+                      )}
+                    </th>
+                    <th />
+                  </tr>
+                </tfoot>
+              </Table>
+            </ScrollArea.Autosize>
           </DragDropContext>
         ) : (
           <Center py="lg">
