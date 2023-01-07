@@ -73,7 +73,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
         </Button>
       }
       padding="xl"
-      size="xl"
+      size={form.values.type === 'SCRIPT' ? '80%' : 'xl'}
       position="right"
       transition="slide-left"
       overlayColor={theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2]}
