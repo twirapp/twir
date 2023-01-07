@@ -45,14 +45,15 @@ type VariablesCacheService struct {
 }
 
 type VariablesCacheOpts struct {
-	Text        *string
-	SenderId    string
-	ChannelName string
-	ChannelId   string
-	SenderName  *string
-	DB          *gorm.DB
-	IsCommand   bool
-	Command     *model.ChannelsCommands
+	Text              *string
+	SenderId          string
+	ChannelName       string
+	ChannelId         string
+	SenderName        *string
+	SenderDisplayName *string
+	DB                *gorm.DB
+	IsCommand         bool
+	Command           *model.ChannelsCommands
 }
 
 func New(opts VariablesCacheOpts) *VariablesCacheService {

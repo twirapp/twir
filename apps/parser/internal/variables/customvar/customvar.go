@@ -31,7 +31,7 @@ var Variable = types.Variable{
 
 		v := getVarByName(*data.Params)
 
-		if v == nil || v.Response == "" || v.EvalValue == "" {
+		if v == nil || (v.Response == "" && v.EvalValue == "") {
 			return result, nil
 		}
 
@@ -39,6 +39,7 @@ var Variable = types.Variable{
 			req, err := evalGrpc.Process(context.Background(), &eval.Evaluate{
 				Script: v.EvalValue,
 			})
+
 			if err != nil {
 				return nil, errors.New(
 					"cannot evaluate variable. This is internal error, please report this bug",

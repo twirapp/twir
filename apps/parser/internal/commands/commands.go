@@ -202,12 +202,13 @@ func (c *Commands) ParseCommandResponses(
 		wg.Add(1)
 		// TODO: concatenate all responses into one slice and use it for cache
 		cacheService := variables_cache.New(variables_cache.VariablesCacheOpts{
-			Text:       cmdParams,
-			SenderId:   data.Sender.Id,
-			SenderName: &data.Sender.DisplayName,
-			ChannelId:  data.Channel.Id,
-			IsCommand:  true,
-			Command:    command.Cmd,
+			Text:              cmdParams,
+			SenderId:          data.Sender.Id,
+			SenderName:        &data.Sender.DisplayName,
+			SenderDisplayName: &data.Sender.DisplayName,
+			ChannelId:         data.Channel.Id,
+			IsCommand:         true,
+			Command:           command.Cmd,
 		})
 
 		go func(i int, r string) {

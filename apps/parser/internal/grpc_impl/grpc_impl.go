@@ -125,12 +125,13 @@ func (c *parserGrpcServer) ParseTextResponse(
 	}).ElseF(func() bool { return false })
 
 	cacheService := variables_cache.New(variables_cache.VariablesCacheOpts{
-		Text:        &data.Message.Text,
-		SenderId:    data.Sender.Id,
-		ChannelName: data.Channel.Name,
-		ChannelId:   data.Channel.Id,
-		SenderName:  &data.Sender.DisplayName,
-		IsCommand:   isCommand,
+		Text:              &data.Message.Text,
+		SenderId:          data.Sender.Id,
+		ChannelName:       data.Channel.Name,
+		ChannelId:         data.Channel.Id,
+		SenderName:        &data.Sender.Name,
+		SenderDisplayName: &data.Sender.DisplayName,
+		IsCommand:         isCommand,
 	})
 
 	res := c.variables.ParseInput(cacheService, data.Message.Text)
