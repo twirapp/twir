@@ -23,8 +23,7 @@
     "build": "turbo run build",
     "build:libs": "turbo run build --filter=./libs/**",
     "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/typeorm run deploy",
-    "dev:web": "turbo run dev --filter=web",
-    "prisma:generate": "pnpm --filter=@tsuwari/prisma generate"
+    "dev:web": "turbo run dev --filter=web"
   },
   "author": "Satont <satontworldwide@gmail.com>",
   "devDependencies": {
