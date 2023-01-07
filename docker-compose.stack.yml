@@ -333,12 +333,12 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
 
-  web:
+  landing:
     build:
       context: .
       dockerfile: ./Dockerfile
       target: web
-    image: registry.satont.dev/tsuwari/web
+    image: registry.satont.dev/tsuwari/landing
     secrets:
       - tsuwari_doppler_token
     ports:

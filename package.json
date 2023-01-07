@@ -17,7 +17,7 @@
     "start:eval": "pnpm --filter=@tsuwari/eval start",
     "start:streamstatus": "pnpm --filter=@tsuwari/streamstatus start",
     "start:watched": "pnpm --filter=@tsuwari/watched start",
-    "start:web": "pnpm --filter=@tsuwari/web start",
+    "start:landing": "pnpm --filter=@tsuwari/landing start",
     "start:dashboard": "pnpm --filter=@tsuwari/dashboard start",
     "start:websockets": "pnpm --filter=@tsuwari/websockets start",
     "build": "turbo run build",

@@ -73,10 +73,10 @@ jobs:
             scheduler,
             streamstatus,
             timers,
-            web,
-            dashboard,
             watched,
             websockets,
+            landing,
+            dashboard,
           ]
     steps:
       - uses: actions/checkout@v2
