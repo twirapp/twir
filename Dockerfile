@@ -18,6 +18,7 @@ RUN chmod +x docker-entrypoint.sh
 
 COPY libs libs
 COPY apps apps
+COPY frontend frontend
 COPY patches patches
 
 RUN pnpm install --frozen-lockfile
