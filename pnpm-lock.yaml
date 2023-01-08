@@ -441,6 +441,7 @@ importers:
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.9
       typescript: 4.9.4
+
   libs/config:
     specifiers:
       dotenv: 16.0.3
@@ -3155,7 +3156,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.2.1_yzt46al3aifnexifjjdb4dxxja
-      '@nestjs/microservices': 9.2.1_4lvhvnmmva5aaajgnpoz6utxby
+      '@nestjs/microservices': 9.2.1_gihheipkjph2ynlt75jhaon5z4
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1
