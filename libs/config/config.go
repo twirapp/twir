@@ -21,6 +21,7 @@ type Config struct {
 	FeedbackTelegramUserID   *string `required:"false"                                       envconfig:"FEEDBACK_TELEGRAM_USERID"`
 	JwtAccessSecret          string  `required:"false" default:"CoolSecretForAccess"         envconfig:"JWT_ACCESS_SECRET"`
 	JwtRefreshSecret         string  `required:"false" default:"CoolSecretForRefresh"        envconfig:"JWT_REFRESH_SECRET"`
+	HostName                 string  `required:"false" default:"localhost:3005" envconfig:"HOSTNAME"`
 }
 
 func New() (*Config, error) {
