@@ -66,7 +66,9 @@ export const QueueList: React.FC = () => {
               <IconGripVertical size={18} stroke={1.5} />
             </div>
           </td>
-          <td>{index + 1}</td>
+          <td>
+            <Center>{index + 1}</Center>
+          </td>
           <td>
             <Anchor target="_blank" href={'https://youtu.be/' + video.videoId}>
               {video.title}
@@ -95,33 +97,41 @@ export const QueueList: React.FC = () => {
           <Text weight={500}>Queue</Text>
           <Tooltip withinPortal position="top" label="Clear queue">
             <ActionIcon
-              onClick={() => confirmDelete({
-                onConfirm: () => clearQueue(),
-                text: 'Are you sure you wanna clear song list?',
-                title: 'Song requests',
-              })}
+              onClick={() =>
+                confirmDelete({
+                  onConfirm: () => clearQueue(),
+                  text: 'Are you sure you wanna clear song list?',
+                  title: 'Song requests',
+                })
+              }
             >
               <IconTrash size={14} />
             </ActionIcon>
           </Tooltip>
         </Group>
       </Card.Section>
-      <Card.Section className={cardClasses.card}>
+      <Card.Section className={cardClasses.card} style={{ overflow: 'auto' }}>
         {items.length ? (
           <DragDropContext
             onDragEnd={({ destination, source }) => {
               reorderVideos(destination!, source);
             }}
           >
-            <ScrollArea.Autosize maxHeight={600} mx="auto">
+            <ScrollArea.Autosize maxHeight="80vh">
               <Table highlightOnHover>
                 <thead className={draggableClasses.thead}>
                   <tr>
-                    <th></th>
-                    <th style={{ textAlign: 'center' }}>#</th>
-                    <th style={{ textAlign: 'center' }}>Title</th>
-                    <th style={{ textAlign: 'center' }}>Author</th>
-                    <th style={{ textAlign: 'center' }}>Duration</th>
+                    <th />
+                    <th>
+                      <Center>#</Center>
+                    </th>
+                    <th>Title</th>
+                    <th>
+                      <Center>Author</Center>
+                    </th>
+                    <th>
+                      <Center>Duration</Center>
+                    </th>
                     <th />
                   </tr>
                 </thead>
@@ -136,13 +146,17 @@ export const QueueList: React.FC = () => {
                 <tfoot className={draggableClasses.tfoot}>
                   <tr>
                     <th />
-                    <th>{videos.length}</th>
+                    <th>
+                      <Center>{videos.length}</Center>
+                    </th>
                     <th />
                     <th />
                     <th>
-                      {convertMillisToTime(
-                        videos.reduce((acc, curr) => acc + curr.duration, 0) ?? 0,
-                      )}
+                      <Center>
+                        {convertMillisToTime(
+                          videos.reduce((acc, curr) => acc + curr.duration, 0) ?? 0,
+                        )}
+                      </Center>
                     </th>
                     <th />
                   </tr>

@@ -20,7 +20,7 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
   },
 });
 
-const PlayerComponent = dynamic(
+const YoutubePlayer = dynamic(
   () => import('../../components/song-requests/player/youtube-player'),
   {
     ssr: false,
@@ -132,7 +132,7 @@ const Player: NextPage = () => {
   }, [videos, socketRef.current]);
 
   function callWsSkip(videos: RequestedSong | RequestedSong[]) {
-    const ids = (Array.isArray(videos) ? videos : [videos]).map(v => v.id);
+    const ids = (Array.isArray(videos) ? videos : [videos]).map((v) => v.id);
     socketRef.current?.emit('skip', ids);
   }
 
@@ -146,7 +146,7 @@ const Player: NextPage = () => {
   }, [isPlaying]);
 
   return (
-    <Grid grow>
+    <Grid>
       <PlayerContext.Provider
         value={{
           videos,
@@ -161,10 +161,10 @@ const Player: NextPage = () => {
           setAutoPlay,
         }}
       >
-        <Grid.Col xs={4} md={4}>
-          <PlayerComponent />
+        <Grid.Col md={4} lg={4}>
+          <YoutubePlayer />
         </Grid.Col>
-        <Grid.Col xs={8} md={6}>
+        <Grid.Col md={8} lg={8}>
           <QueueList />
         </Grid.Col>
       </PlayerContext.Provider>
