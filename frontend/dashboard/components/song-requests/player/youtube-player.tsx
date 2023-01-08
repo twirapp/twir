@@ -21,7 +21,6 @@ import {
   IconEye,
   IconLink,
 } from '@tabler/icons';
-import { useState } from 'react';
 import YouTube from 'react-youtube';
 
 import { resolveUserName } from '../../../util/resolveUserName';
@@ -41,7 +40,7 @@ const YoutubePlayer: React.FC = () => {
   });
 
   return (
-    <Card withBorder radius="md" p="md" style={{ paddingBottom: 'initial' }}>
+    <Card withBorder radius="md" p="md" pb="initial">
       <Card.Section withBorder inheritPadding py="xs">
         <Group position="apart">
           <Text weight={500}>Current Song</Text>
@@ -107,11 +106,11 @@ const YoutubePlayer: React.FC = () => {
       ) : (
         <Card.Section className={cardClasses.card}>
           <Flex
-            style={{ width: options.opts.width, height: 300 }}
-            direction={'column'}
-            align={'center'}
-            justify={'center'}
-            gap={'sm'}
+            style={{ height: options.opts.height }}
+            direction="column"
+            align="center"
+            justify="center"
+            gap="sm"
           >
             <Loader variant="dots" />
           </Flex>
