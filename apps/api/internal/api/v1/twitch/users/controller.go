@@ -12,7 +12,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
-func get(services types.Services) func(c *fiber.Ctx) error {
+func get(services types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ids := c.Query("ids", "")
 		names := c.Query("names", "")

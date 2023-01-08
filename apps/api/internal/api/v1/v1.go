@@ -2,7 +2,11 @@ package apiv1
 
 import (
 	"github.com/gofiber/fiber/v2"
+	public_commands "github.com/satont/tsuwari/apps/api/internal/api/v1/public/commands"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/public/song_requests"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/rewards"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/twitch/users"
+	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/bot"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/commands"
@@ -21,15 +25,16 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/stats"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/streams"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/timers"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/twitch/users"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/variables"
-	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	feedback.Setup(router, services)
 	stats.Setup(router, services)
+
+	twitchGroup := router.Group("twitch")
+	users.Setup(twitchGroup, services)
 
 	channelsGroup := router.Group("channels/:channelId")
 	channelsGroup.Use(middlewares.CheckUserAuth(services))
@@ -57,9 +62,9 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	modulesGroup := channelsGroup.Group("modules")
 	youtube_sr.Setup(modulesGroup, services)
 
-	twitchGroup := router.Group("twitch")
-	twitchGroup.Use(middlewares.CheckUserAuth(services))
-	users.Setup(twitchGroup, services)
+	publicGroup := router.Group("p")
+	public_commands.Setup(publicGroup, services)
+	song_requests.Setup(publicGroup, services)
 
 	return router
 }

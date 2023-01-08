@@ -59,6 +59,7 @@ func New() Commands {
 		manage.CheckAliasesCommand,
 		sr_youtube.SrCommand,
 		sr_youtube.WrongCommand,
+		sr_youtube.SrListCommand,
 	}
 
 	ctx := Commands{

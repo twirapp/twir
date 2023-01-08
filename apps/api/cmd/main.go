@@ -123,6 +123,7 @@ func main() {
 			TryItOutEnabled:      true,
 		}))
 		app.Get("/swagger/*", swagger.HandlerDefault)
+
 	}
 
 	app.Use(compress.New())
@@ -165,7 +166,4 @@ func main() {
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal
 	fmt.Println("Closing...")
-
-	d, _ = db.DB()
-	d.Close()
 }

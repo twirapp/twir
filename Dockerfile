@@ -279,3 +279,20 @@ COPY --from=websocket_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh /app
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["pnpm", "--filter=@tsuwari/websockets", "start"]
+
+FROM node_deps_base as public_deps
+COPY --from=base /app/frontend/public frontend/public/
+COPY --from=base /app/libs/shared libs/shared/
+COPY --from=base /app/libs/typeorm libs/typeorm/
+COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/libs/types libs/types/
+COPY --from=base /app/patches patches/
+RUN pnpm install --prod --frozen-lockfile
+
+FROM node_prod_base as public
+WORKDIR /app
+COPY --from=public_deps /app/ /app/
+EXPOSE 3000
+COPY --from=base /app/docker-entrypoint.sh /app/
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["pnpm", "--filter=@tsuwari/public", "start"]

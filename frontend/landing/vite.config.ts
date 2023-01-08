@@ -51,6 +51,12 @@ export default defineConfig({
         changeOrigin: true,
         ws: true,
       },
+      '/p': {
+        target: 'http://127.0.0.1:3007/p',
+        changeOrigin: true,
+        ws: true,
+        rewrite: (path) => path.replace(/^\/p/, ''),
+      },
     },
   },
 });
