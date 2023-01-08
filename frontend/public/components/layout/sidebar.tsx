@@ -1,17 +1,48 @@
-import { Box, Navbar, NavLink, ScrollArea, useMantineTheme } from '@mantine/core';
-import { useViewportSize } from '@mantine/hooks';
-import { IconCommand, IconPlaylist } from '@tabler/icons';
+import {
+  ActionIcon,
+  Avatar,
+  Box,
+  Flex,
+  Group,
+  Navbar,
+  NavLink,
+  ScrollArea,
+  Text,
+  UnstyledButton, useMantineColorScheme,
+  useMantineTheme,
+} from '@mantine/core';
+import { useHotkeys, useViewportSize } from '@mantine/hooks';
+import { IconCommand, IconMoonStars, IconPlaylist, IconSun } from '@tabler/icons';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
+
+import { useUsersByNames } from '@/services/users';
 
 type Props = {
   opened: boolean;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
+export const useTheme = () => {
+  const theme = useMantineTheme();
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+
+  useHotkeys([['mod+J', () => toggleColorScheme()]]);
+
+  return {
+    theme,
+    colorScheme,
+    toggleColorScheme,
+  };
+};
+
+
 export const SideBar = (props: Props) => {
   const viewPort = useViewportSize();
   const router = useRouter();
-  const theme = useMantineTheme();
+  const { theme, colorScheme, toggleColorScheme } = useTheme();
+
+  const users = useUsersByNames([router.query.channelName as string]);
 
   const links = [
     { name: 'Commands', path: 'commands', icon: IconCommand },
@@ -26,12 +57,35 @@ export const SideBar = (props: Props) => {
       onClick={(e) => {
         e.preventDefault();
         props.setOpened(false);
-        router.push(l.path, { query: { channelName: router.query.channelName } });
+        router.push(`/${router.query.channelName}/${l.path}`);
       }}
     />;
   });
 
   return <Navbar zIndex={99} hiddenBreakpoint="sm" hidden={!props.opened} width={{ sm: 250 }}>
+    {users.data && users.data.length && <Navbar.Section>
+        <Box
+            sx={{
+              padding: theme.spacing.sm,
+              borderBottom: `1px solid ${
+                theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]
+              }`,
+
+              display: 'block',
+              width: '100%',
+              color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
+            }}
+        >
+                <Group>
+                    <Avatar src={users.data.at(0)!.profile_image_url} radius="xl" />
+                    <Box sx={{ flex: 1 }}>
+                        <Text size="xs">
+                          {users.data.at(0)!.display_name}
+                        </Text>
+                    </Box>
+                </Group>
+        </Box>
+    </Navbar.Section>}
     <Navbar.Section grow>
       <ScrollArea.Autosize
         maxHeight={viewPort.height - 120}
@@ -47,6 +101,40 @@ export const SideBar = (props: Props) => {
           {links}
         </Box>
       </ScrollArea.Autosize>
+    </Navbar.Section>
+    <Navbar.Section>
+      <Box
+        sx={{
+          padding: theme.spacing.sm,
+          borderTop: `1px solid ${
+            theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]
+          }`,
+
+          display: 'block',
+          width: '100%',
+          color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
+        }}
+      >
+        <Flex align={'center'} justify={'space-between'}>
+          <Group>
+            <Image src="/p/TsuwariInCircle.svg" width={30} height={30} alt="Tsuwari Logo" />
+            <Text
+              component="span"
+            >
+              Tsuwari
+            </Text>
+          </Group>
+          <ActionIcon
+            size="lg"
+            variant="default"
+            color={colorScheme === 'dark' ? 'yellow' : 'blue'}
+            onClick={() => toggleColorScheme()}
+            title="Toggle color scheme"
+          >
+            {colorScheme === 'dark' ? <IconSun size={18} /> : <IconMoonStars size={18} />}
+          </ActionIcon>
+        </Flex>
+      </Box>
     </Navbar.Section>
   </Navbar>;
 };
