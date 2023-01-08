@@ -398,9 +398,6 @@ importers:
       vite-svg-loader: 3.6.0
       vue-router: 4.1.6_vue@3.2.45
 
-  frontend/landing/dist/server:
-    specifiers: {}
-
   libs/config:
     specifiers:
       dotenv: 16.0.3
@@ -3115,7 +3112,7 @@ packages:
         optional: true
     dependencies:
       '@nestjs/common': 9.2.1_yzt46al3aifnexifjjdb4dxxja
-      '@nestjs/microservices': 9.2.1_gihheipkjph2ynlt75jhaon5z4
+      '@nestjs/microservices': 9.2.1_4lvhvnmmva5aaajgnpoz6utxby
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
       iterare: 1.2.1

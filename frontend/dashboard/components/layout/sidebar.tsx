@@ -121,7 +121,7 @@ export function SideBar(props: Props) {
   useEffect(() => {
     if (dashboardContext.id && user) {
       if (dashboardContext.id === user.id) {
-       setDefaultDashboard();
+        setDefaultDashboard();
       } else {
         const dashboard = user.dashboards.find((d) => d.channelId === dashboardContext.id);
         if (dashboard) {
@@ -187,6 +187,7 @@ export function SideBar(props: Props) {
       onClick={(e) => {
         e.preventDefault();
         if (item.subPages) return;
+        props.setOpened(false);
         router.push(item.path ? item.path : item.label.toLowerCase(), undefined, { locale });
       }}
     >
@@ -249,9 +250,11 @@ export function SideBar(props: Props) {
                 </Text>
                 <Text color="dimmed" size="xs">
                   {selectedDashboard
-                    ? resolveUserName(selectedDashboard.twitchUser.login, selectedDashboard.twitchUser.display_name)
-                    : ''
-                  }
+                    ? resolveUserName(
+                        selectedDashboard.twitchUser.login,
+                        selectedDashboard.twitchUser.display_name,
+                      )
+                    : ''}
                 </Text>
               </Box>
             </Group>
