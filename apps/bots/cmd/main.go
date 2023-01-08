@@ -121,8 +121,5 @@ func main() {
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal
 	fmt.Println("Closing...")
-
-	d, _ = db.DB()
-	d.Close()
 	grpcServer.Stop()
 }

@@ -51,18 +51,23 @@ func (c *BotClient) SayWithRateLimiting(channel, text string, replyTo *string) {
 		return
 	}
 
+	text = validateResponseSlashes(text)
+
 	if replyTo != nil {
 		c.Reply(channel, *replyTo, text)
 	} else {
 		c.Say(channel, text)
 	}
-	/* c.RateLimiters.Global.WaitFunc(ctx, func() {
-		channelLimiter.WaitFunc(ctx, func() {
-			if replyTo != nil {
-				c.Reply(channel, *replyTo, text)
-			} else {
-				c.Say(channel, text)
-			}
-		})
-	}) */
+}
+
+func validateResponseSlashes(response string) string {
+	if strings.HasPrefix(response, "/me") || strings.HasPrefix(response, "/announce") {
+		return response
+	} else if strings.HasPrefix(response, "/") {
+		return "Slash commands except /me and /announce is disallowed. This response wont be ever sended."
+	} else if strings.HasPrefix(response, ".") {
+		return `Message cannot start with "." symbol.`
+	} else {
+		return response
+	}
 }
