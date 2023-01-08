@@ -95,17 +95,16 @@ youtubeNamespace.on('connection', async (socket) => {
   });
 
   socket.on('newOrder', async (videos: RequestedSong[]) => {
+    console.log(videos);
     const currentVideosCount = await repository.count({
       where: { channelId },
     });
 
-    const filteredVideos = videos.filter((v) => v.queuePosition > 1);
-
-    if (filteredVideos.some((v) => v.queuePosition > currentVideosCount + 2)) {
+    if (videos.some((v) => v.queuePosition > currentVideosCount + 2)) {
       return;
     }
 
-    for (const video of filteredVideos) {
+    for (const video of videos) {
       await repository.update({ id: video.id }, { queuePosition: video.queuePosition });
     }
   });

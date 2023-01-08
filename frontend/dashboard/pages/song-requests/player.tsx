@@ -71,8 +71,7 @@ const Player: NextPage = () => {
       videosHandlers.reorder({ from, to });
 
       const newVideos = moveItem(videos, from, to)
-        .map((v, i) => ({ ...v, queuePosition: i + 1 }))
-        .slice(1);
+        .map((v, i) => ({ ...v, queuePosition: i + 1 }));
 
       socketRef.current?.emit('newOrder', newVideos);
     },
