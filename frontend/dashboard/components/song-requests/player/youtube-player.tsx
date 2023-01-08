@@ -10,6 +10,7 @@ import {
   Text,
   Tooltip,
 } from '@mantine/core';
+import { useLocalStorage } from '@mantine/hooks';
 import {
   IconPlayerPause,
   IconPlayerPlay,
@@ -34,7 +35,10 @@ const YoutubePlayer: React.FC = () => {
   const { player, videos, currentVideo, isPlaying, skipVideo, togglePlayState, ...options } =
     usePlayer();
 
-  const [isVisiblePlayer, toggleVisiblePlayer] = useState(true);
+  const [isVisiblePlayer, toggleVisiblePlayer] = useLocalStorage({
+    key: 'yt-player-visible',
+    defaultValue: true,
+  });
 
   return (
     <Card withBorder radius="md" p="md" style={{ paddingBottom: 'initial' }}>
