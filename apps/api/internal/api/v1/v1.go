@@ -2,6 +2,7 @@ package apiv1
 
 import (
 	"github.com/gofiber/fiber/v2"
+	public_commands "github.com/satont/tsuwari/apps/api/internal/api/v1/public/commands"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/rewards"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/twitch/users"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
@@ -59,6 +60,9 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 	modulesGroup := channelsGroup.Group("modules")
 	youtube_sr.Setup(modulesGroup, services)
+
+	publicGroup := router.Group("p")
+	public_commands.Setup(publicGroup, services)
 
 	return router
 }

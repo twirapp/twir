@@ -2,13 +2,15 @@ import {
   ActionIcon,
   Avatar,
   Box,
+  Center,
   Flex,
   Group,
+  Loader,
   Navbar,
   NavLink,
   ScrollArea,
   Text,
-  UnstyledButton, useMantineColorScheme,
+  useMantineColorScheme,
   useMantineTheme,
 } from '@mantine/core';
 import { useHotkeys, useViewportSize } from '@mantine/hooks';
@@ -36,13 +38,12 @@ export const useTheme = () => {
   };
 };
 
-
 export const SideBar = (props: Props) => {
   const viewPort = useViewportSize();
   const router = useRouter();
   const { theme, colorScheme, toggleColorScheme } = useTheme();
 
-  const users = useUsersByNames([router.query.channelName as string]);
+  const { data: users, isLoading } = useUsersByNames([router.query.channelName as string]);
 
   const links = [
     { name: 'Commands', path: 'commands', icon: IconCommand },
@@ -63,7 +64,7 @@ export const SideBar = (props: Props) => {
   });
 
   return <Navbar zIndex={99} hiddenBreakpoint="sm" hidden={!props.opened} width={{ sm: 250 }}>
-    {users.data && users.data.length && <Navbar.Section>
+    <Navbar.Section>
         <Box
             sx={{
               padding: theme.spacing.sm,
@@ -76,16 +77,21 @@ export const SideBar = (props: Props) => {
               color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
             }}
         >
-                <Group>
-                    <Avatar src={users.data.at(0)!.profile_image_url} radius="xl" />
-                    <Box sx={{ flex: 1 }}>
-                        <Text size="xs">
-                          {users.data.at(0)!.display_name}
-                        </Text>
-                    </Box>
-                </Group>
+          {users && users.at(0) &&
+            <Group>
+                <Avatar src={users.at(0)!.profile_image_url} radius="xl"/>
+                <Box sx={{ flex: 1 }}>
+                    <Text component="span">
+                      {users.at(0)!.display_name}
+                    </Text>
+                </Box>
+            </Group>
+          }
+          {isLoading || !users?.at(0) && <Center py={'lg'}>
+              <Loader variant="dots" />
+          </Center>}
         </Box>
-    </Navbar.Section>}
+    </Navbar.Section>
     <Navbar.Section grow>
       <ScrollArea.Autosize
         maxHeight={viewPort.height - 120}
@@ -117,7 +123,7 @@ export const SideBar = (props: Props) => {
       >
         <Flex align={'center'} justify={'space-between'}>
           <Group>
-            <Image src="/p/TsuwariInCircle.svg" width={30} height={30} alt="Tsuwari Logo" />
+            <Image src="/p/TsuwariInCircle.svg" width={30} height={30} alt="Tsuwari Logo"/>
             <Text
               component="span"
             >
@@ -131,7 +137,7 @@ export const SideBar = (props: Props) => {
             onClick={() => toggleColorScheme()}
             title="Toggle color scheme"
           >
-            {colorScheme === 'dark' ? <IconSun size={18} /> : <IconMoonStars size={18} />}
+            {colorScheme === 'dark' ? <IconSun size={18}/> : <IconMoonStars size={18}/>}
           </ActionIcon>
         </Flex>
       </Box>
