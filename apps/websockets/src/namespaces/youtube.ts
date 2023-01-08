@@ -95,7 +95,6 @@ youtubeNamespace.on('connection', async (socket) => {
   });
 
   socket.on('newOrder', async (videos: RequestedSong[]) => {
-    console.log(videos);
     const currentVideosCount = await repository.count({
       where: { channelId },
     });
