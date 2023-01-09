@@ -21,11 +21,20 @@ import { queryClient } from '@/services/api';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 import '../styles/global.css';
 
-function App(props: AppProps & { colorScheme: ColorScheme }) {
+// put in constants.ts
+const ONE_MONTH = 2_629_700_000;
+
+interface Props {
+  dashboardId: string | null | undefined;
+  locale: string;
+  colorScheme: ColorScheme;
+}
+
+function App(props: AppProps & Props) {
   const { Component } = props;
-  const cookieSelectedDashboard = getCookie('selectedDashboard') as string | null | undefined;
-  const [selectedDashboard, setSelectedDashboard] = useState<string>(cookieSelectedDashboard || '');
+  const [selectedDashboard, setSelectedDashboard] = useState<string>(props.dashboardId || '');
   const [sidebarOpened, setSidebarOpened] = useState(false);
+
   const preferenceColorScheme = useColorScheme(undefined, {
     getInitialValueInEffect: true,
   });
@@ -37,7 +46,9 @@ function App(props: AppProps & { colorScheme: ColorScheme }) {
   const toggleColorScheme = (value?: ColorScheme) => {
     const newColorScheme = value || (colorScheme === 'dark' ? 'light' : 'dark');
     setColorScheme(newColorScheme);
-    setCookie('color-scheme', newColorScheme, { maxAge: 86400000 * 365 });
+    setCookie('color_scheme', newColorScheme, {
+      expires: new Date(Date.now() + ONE_MONTH * 12),
+    });
   };
 
   useEffect(() => {
@@ -48,9 +59,8 @@ function App(props: AppProps & { colorScheme: ColorScheme }) {
 
   useEffect(() => {
     if (selectedDashboard) {
-      setCookie('selectedDashboard', selectedDashboard, {
-        // 1 month
-        expires: new Date(Date.now() + 2_629_700_000),
+      setCookie('dashboard_id', selectedDashboard, {
+        expires: new Date(Date.now() + ONE_MONTH),
       });
     }
   }, [selectedDashboard]);
@@ -116,7 +126,9 @@ function App(props: AppProps & { colorScheme: ColorScheme }) {
 }
 
 App.getInitialProps = ({ ctx }: { ctx: GetServerSidePropsContext }) => ({
-  colorScheme: getCookie('color-scheme', ctx),
+  locale: getCookie('locale', ctx),
+  colorScheme: getCookie('color_scheme', ctx),
+  dashboardId: getCookie('dashboard_id', ctx),
 });
 
 export default appWithTranslation(App, i18nconfig);

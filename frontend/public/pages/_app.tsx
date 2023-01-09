@@ -1,4 +1,10 @@
-import { AppShell, ColorScheme, ColorSchemeProvider, MantineProvider, useMantineTheme } from '@mantine/core';
+import {
+  AppShell,
+  ColorScheme,
+  ColorSchemeProvider,
+  MantineProvider,
+  useMantineTheme,
+} from '@mantine/core';
 import { useColorScheme } from '@mantine/hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { getCookie, setCookie } from 'cookies-next';
@@ -26,7 +32,7 @@ function App(props: AppProps & { colorScheme: ColorScheme }) {
   const toggleColorScheme = (value?: ColorScheme) => {
     const newColorScheme = value || (colorScheme === 'dark' ? 'light' : 'dark');
     setColorScheme(newColorScheme);
-    setCookie('color-scheme', newColorScheme, { maxAge: 86400000 * 365 });
+    setCookie('color_scheme', newColorScheme, { maxAge: 86400000 * 365 });
   };
 
   useEffect(() => {
@@ -39,7 +45,7 @@ function App(props: AppProps & { colorScheme: ColorScheme }) {
     <>
       <Head>
         <title>Tsuwari</title>
-        <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width"/>
+        <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
       </Head>
 
       <QueryClientProvider client={queryClient}>
@@ -56,16 +62,19 @@ function App(props: AppProps & { colorScheme: ColorScheme }) {
               navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened} />}
               // header={<NavBar setOpened={setSidebarOpened} opened={sidebarOpened} />}
             >
-              <AppShell styles={{
-                main: {
-                  background: props.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
-                },
-              }}
+              <AppShell
+                styles={{
+                  main: {
+                    background:
+                      props.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+                  },
+                }}
               >
                 <Component
                   styles={{
                     main: {
-                      background: colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+                      background:
+                        colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
                     },
                   }}
                 />
