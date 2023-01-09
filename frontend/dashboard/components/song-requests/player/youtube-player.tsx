@@ -24,7 +24,7 @@ import {
 import YouTube from 'react-youtube';
 
 import { resolveUserName } from '../../../util/resolveUserName';
-import { PlayerSliders } from './player-sliders';
+import { DurationSlider } from './duration-slider';
 
 import { usePlayer } from '@/components/song-requests/hook';
 import { useCardStyles } from '@/styles/card';
@@ -47,10 +47,14 @@ const YoutubePlayer: React.FC = () => {
 
           <Tooltip
             withinPortal
-            position="top"
+            position="left"
             label={isVisiblePlayer ? 'Hide video player' : 'Show video player'}
           >
-            <ActionIcon onClick={() => toggleVisiblePlayer((v) => !v)}>
+            <ActionIcon
+              disabled={!videos.length}
+              variant="default"
+              onClick={() => toggleVisiblePlayer((v) => !v)}
+            >
               {isVisiblePlayer ? <IconEyeOff size={14} /> : <IconEye size={14} />}
             </ActionIcon>
           </Tooltip>
@@ -66,7 +70,7 @@ const YoutubePlayer: React.FC = () => {
           </Card.Section>
           <Card.Section p="md" className={cardClasses.card}>
             <Flex direction="column" gap="sm">
-              <PlayerSliders isPlaying={isPlaying} player={player} />
+              <DurationSlider isPlaying={isPlaying} player={player} />
               <Button.Group>
                 <Button
                   fullWidth={true}

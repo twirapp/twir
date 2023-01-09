@@ -19,6 +19,7 @@ import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { queryClient } from '@/services/api';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
+import '../styles/global.css';
 
 function App(props: AppProps & { colorScheme: ColorScheme }) {
   const { Component } = props;
