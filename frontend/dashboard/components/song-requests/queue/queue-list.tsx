@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { IconGripVertical, IconTrash } from '@tabler/icons';
+import { getCookie } from 'cookies-next';
 import dynamic from 'next/dynamic';
 import { useContext } from 'react';
 
@@ -47,6 +48,7 @@ const Draggable = dynamic(
 );
 
 export const QueueList: React.FC = () => {
+  const locale = getCookie('locale') as string;
   const { videos, reorderVideos, skipVideo, clearQueue } = useContext(PlayerContext);
   const { classes: draggableClasses } = useDraggableStyles();
   const { classes: cardClasses } = useCardStyles();
@@ -79,7 +81,7 @@ export const QueueList: React.FC = () => {
             </Anchor>
           </td>
           <td title={new Date(video.createdAt).toUTCString()}>
-            <Center w="120px">{createdAtTime(video.createdAt)}</Center>
+            <Center w="120px">{createdAtTime(video.createdAt, locale)}</Center>
           </td>
           <td>
             <Center>{resolveUserName(video.orderedByName, video.orderedByDisplayName)}</Center>

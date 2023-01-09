@@ -25,9 +25,9 @@ export const toFixedNum = (num: number) => {
   return parseInt(num.toFixed(0), 10);
 };
 
-export function createdAtTime(createdAt: string | Date) {
+export function createdAtTime(createdAt: string | Date, locale: string) {
   const date = createdAt instanceof Date ? createdAt : new Date(createdAt);
-  const formatter = new Intl.RelativeTimeFormat();
+  const formatter = new Intl.RelativeTimeFormat(locale);
   const ranges = {
     years: 3600 * 24 * 365,
     months: 3600 * 24 * 30,
