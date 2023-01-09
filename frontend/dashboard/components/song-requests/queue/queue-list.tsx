@@ -95,8 +95,10 @@ export const QueueList: React.FC = () => {
       <Card.Section withBorder inheritPadding py="xs">
         <Group position="apart">
           <Text weight={500}>Queue</Text>
-          <Tooltip withinPortal position="top" label="Clear queue">
+          <Tooltip withinPortal position="left" label="Clear queue">
             <ActionIcon
+              disabled={!videos.length}
+              variant="default"
               onClick={() =>
                 confirmDelete({
                   onConfirm: () => clearQueue(),

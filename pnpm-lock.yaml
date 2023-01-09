@@ -398,9 +398,6 @@ importers:
       vite-svg-loader: 3.6.0
       vue-router: 4.1.6_vue@3.2.45
 
-  frontend/landing/dist/server:
-    specifiers: {}
-
   frontend/public:
     specifiers:
       '@emotion/react': ^11.10.5

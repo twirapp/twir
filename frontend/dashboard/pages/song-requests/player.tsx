@@ -11,8 +11,10 @@ import { io, Socket } from 'socket.io-client';
 
 import { PlayerContext } from '@/components/song-requests/context';
 import { moveItem } from '@/components/song-requests/helpers';
+import { AlertPlayerDisabled, AlertQueueEmpty } from '@/components/song-requests/player/alerts';
 import { QueueList } from '@/components/song-requests/queue/queue-list';
 import { useProfile } from '@/services/api';
+import { useYoutubeModule } from '@/services/api/modules';
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
   props: {
@@ -28,6 +30,8 @@ const YoutubePlayer = dynamic(
 );
 
 const Player: NextPage = () => {
+  const youtube = useYoutubeModule();
+  const { data: youtubeSettings } = youtube.useSettings();
   const profile = useProfile();
   const [videos, videosHandlers] = useListState<RequestedSong>([]);
   const socketRef = useRef<Socket | null>(null);
@@ -55,6 +59,7 @@ const Player: NextPage = () => {
 
   const clearQueue = useCallback(() => {
     callWsSkip(videos);
+    videosHandlers.setState([]);
   }, [videos]);
 
   const addVideos = useCallback(
@@ -70,8 +75,7 @@ const Player: NextPage = () => {
       const to = destination?.index || 0;
       videosHandlers.reorder({ from, to });
 
-      const newVideos = moveItem(videos, from, to)
-        .map((v, i) => ({ ...v, queuePosition: i + 1 }));
+      const newVideos = moveItem(videos, from, to).map((v, i) => ({ ...v, queuePosition: i + 1 }));
 
       socketRef.current?.emit('newOrder', newVideos);
     },
@@ -145,29 +149,31 @@ const Player: NextPage = () => {
   }, [isPlaying]);
 
   return (
-    <Grid>
-      <PlayerContext.Provider
-        value={{
-          videos,
-          videosHandlers,
-          skipVideo,
-          clearQueue,
-          addVideos,
-          isPlaying,
-          setIsPlaying,
-          reorderVideos,
-          autoPlay,
-          setAutoPlay,
-        }}
-      >
+    <PlayerContext.Provider
+      value={{
+        videos,
+        videosHandlers,
+        skipVideo,
+        clearQueue,
+        addVideos,
+        isPlaying,
+        setIsPlaying,
+        reorderVideos,
+        autoPlay,
+        setAutoPlay,
+      }}
+    >
+      <Grid>
+        {!youtubeSettings?.enabled && <AlertPlayerDisabled />}
+        {videos.length === 0 && <AlertQueueEmpty />}
         <Grid.Col md={4} lg={4}>
           <YoutubePlayer />
         </Grid.Col>
         <Grid.Col md={8} lg={8}>
           <QueueList />
         </Grid.Col>
-      </PlayerContext.Provider>
-    </Grid>
+      </Grid>
+    </PlayerContext.Provider>
   );
 };
 
