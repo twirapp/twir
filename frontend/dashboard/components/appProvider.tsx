@@ -1,11 +1,9 @@
 import { AppShell, ColorScheme, useMantineTheme } from '@mantine/core';
-import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { FetcherError, useProfile } from '@/services/api';
-import { useLocale } from '@/services/dashboard';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 type Props = React.PropsWithChildren<{
@@ -14,29 +12,13 @@ type Props = React.PropsWithChildren<{
 
 export const AppProvider: React.FC<Props> = (props) => {
   const dashboardContext = useContext(SelectedDashboardContext);
-
-  const router = useRouter();
   const { error: profileError, data: profileData } = useProfile();
-  const { locale, toggleLocale, isSupportedLocale } = useLocale();
 
   useEffect(() => {
     if (!dashboardContext.id && profileData) {
       dashboardContext.setId(profileData.id);
     }
   }, [profileData]);
-
-  useEffect(() => {
-    // redirect to route with setted locale
-    if (isSupportedLocale()) {
-      const { pathname, asPath, query } = router;
-      if (query.code || query.token) {
-        return;
-      }
-      router.push({ pathname, query }, asPath, { locale });
-    } else {
-      toggleLocale();
-    }
-  }, [locale]);
 
   useEffect(() => {
     if (profileError) {

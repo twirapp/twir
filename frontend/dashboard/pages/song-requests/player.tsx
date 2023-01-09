@@ -94,7 +94,7 @@ const Player: NextPage = () => {
           transports: ['websocket'],
           autoConnect: false,
           auth: (cb) => {
-            cb({ apiKey: profile.data?.apiKey, channelId: getCookie('selectedDashboard') });
+            cb({ apiKey: profile.data?.apiKey, channelId: getCookie('dashboard_id') });
           },
         },
       );
