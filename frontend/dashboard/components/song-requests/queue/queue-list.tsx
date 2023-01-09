@@ -15,7 +15,7 @@ import dynamic from 'next/dynamic';
 import { useContext } from 'react';
 
 import { resolveUserName } from '../../../util/resolveUserName';
-import { convertMillisToTime } from '../helpers';
+import { convertMillisToTime, createdAtTime } from '../helpers';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { PlayerContext } from '@/components/song-requests/context';
@@ -62,17 +62,24 @@ export const QueueList: React.FC = () => {
       {(provided) => (
         <tr className={draggableClasses.item} ref={provided.innerRef} {...provided.draggableProps}>
           <td>
-            <div className={draggableClasses.dragHandle} {...provided.dragHandleProps}>
+            <div
+              style={{ cursor: index === 0 ? 'not-allowed' : 'grab' }}
+              className={draggableClasses.dragHandle}
+              {...provided.dragHandleProps}
+            >
               <IconGripVertical size={18} stroke={1.5} />
             </div>
           </td>
           <td>
             <Center>{index + 1}</Center>
           </td>
-          <td>
+          <td style={{ width: '100%' }}>
             <Anchor target="_blank" href={'https://youtu.be/' + video.videoId}>
               {video.title}
             </Anchor>
+          </td>
+          <td title={new Date(video.createdAt).toUTCString()}>
+            <Center w="120px">{createdAtTime(video.createdAt)}</Center>
           </td>
           <td>
             <Center>{resolveUserName(video.orderedByName, video.orderedByDisplayName)}</Center>
@@ -81,7 +88,7 @@ export const QueueList: React.FC = () => {
             <Center>{convertMillisToTime(video.duration)}</Center>
           </td>
           <td>
-            <ActionIcon mx="sm" variant="transparent" color="red" onClick={() => skipVideo(index)}>
+            <ActionIcon mr="sm" variant="transparent" color="red" onClick={() => skipVideo(index)}>
               <IconTrash size={14} />
             </ActionIcon>
           </td>
@@ -129,6 +136,9 @@ export const QueueList: React.FC = () => {
                     </th>
                     <th>Title</th>
                     <th>
+                      <Center>Created At</Center>
+                    </th>
+                    <th>
                       <Center>Author</Center>
                     </th>
                     <th>
@@ -151,6 +161,7 @@ export const QueueList: React.FC = () => {
                     <th>
                       <Center>{videos.length}</Center>
                     </th>
+                    <th />
                     <th />
                     <th />
                     <th>

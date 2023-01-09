@@ -60,7 +60,6 @@ function App(props: AppProps & { colorScheme: ColorScheme }) {
                 },
               }}
               navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened} />}
-              // header={<NavBar setOpened={setSidebarOpened} opened={sidebarOpened} />}
             >
               <AppShell
                 styles={{
@@ -88,7 +87,7 @@ function App(props: AppProps & { colorScheme: ColorScheme }) {
 }
 
 App.getInitialProps = ({ ctx }: { ctx: GetServerSidePropsContext }) => ({
-  colorScheme: getCookie('color-scheme', ctx),
+  colorScheme: getCookie('color_scheme', ctx),
 });
 
 export default App;

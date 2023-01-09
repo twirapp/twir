@@ -6,7 +6,7 @@ export const useDraggableStyles = createStyles((theme) => ({
   },
   dragHandle: {
     ...theme.fn.focusStyles(),
-    width: 40,
+    width: '30px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
