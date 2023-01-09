@@ -24,3 +24,28 @@ export const moveItem = <T>(items: T[], from: number, to: number) => {
 export const toFixedNum = (num: number) => {
   return parseInt(num.toFixed(0), 10);
 };
+
+export function createdAtTime(createdAt: string | Date, locale: string) {
+  const date = createdAt instanceof Date ? createdAt : new Date(createdAt);
+  const formatter = new Intl.RelativeTimeFormat(locale);
+  const ranges = {
+    years: 3600 * 24 * 365,
+    months: 3600 * 24 * 30,
+    weeks: 3600 * 24 * 7,
+    days: 3600 * 24,
+    hours: 3600,
+    minutes: 60,
+    seconds: 1,
+  } as Record<string, number>;
+
+  const secondsElapsed = (date.getTime() - Date.now()) / 1000;
+
+  for (const range in ranges) {
+    if (ranges[range] < Math.abs(secondsElapsed)) {
+      const delta = secondsElapsed / ranges[range];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return formatter.format(Math.round(delta), range);
+    }
+  }
+}
