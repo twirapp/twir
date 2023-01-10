@@ -14,6 +14,7 @@
     "@mantine/form": "^5.9.5",
     "@mantine/hooks": "^5.9.5",
     "@mantine/next": "^5.9.5",
+    "@mantine/utils": "^5.10.0",
     "@tabler/icons": "^1.117.0",
     "@tanstack/react-query": "^4.20.4",
     "cookies-next": "^2.1.1",

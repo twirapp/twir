@@ -406,6 +406,7 @@ importers:
       '@mantine/form': ^5.9.5
       '@mantine/hooks': ^5.9.5
       '@mantine/next': ^5.9.5
+      '@mantine/utils': ^5.10.0
       '@tabler/icons': ^1.117.0
       '@tanstack/react-query': ^4.20.4
       '@twurple/api': ^5.3.0
@@ -425,6 +426,7 @@ importers:
       '@mantine/form': 5.9.5_react@18.2.0
       '@mantine/hooks': 5.9.5_react@18.2.0
       '@mantine/next': 5.9.5_odc7g525exkk54a4anpochw4ci
+      '@mantine/utils': 5.10.0_react@18.2.0
       '@tabler/icons': 1.117.0_biqbaboplfbrettd7655fr4n2y
       '@tanstack/react-query': 4.20.4_biqbaboplfbrettd7655fr4n2y
       cookies-next: 2.1.1
@@ -2966,6 +2968,14 @@ packages:
       csstype: 3.0.9
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+    dev: false
+
+  /@mantine/utils/5.10.0_react@18.2.0:
+    resolution: {integrity: sha512-mHnNm0ajIa8qLAIEwv82N6+7YKecynOA3I8vzgBHXS2x4HwGsHITFYGmMh2LNpx5dRL034tObfEFYZXqncyEDw==}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /@mantine/utils/5.9.5_react@18.2.0:
