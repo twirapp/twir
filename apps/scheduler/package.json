@@ -22,7 +22,7 @@
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
     "ioredis": "5.2.4",
-    "knex": "2.3.0",
+    "knex": "2.4.0",
     "lodash": "4.17.21",
     "nice-grpc": "^2.0.1",
     "pg": "8.8.0",
