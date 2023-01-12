@@ -94,8 +94,6 @@ replace github.com/satont/tsuwari/libs/config => ../../libs/config
 
 replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 
-replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
-
 replace github.com/kkdai/youtube/v2 => ../../libs/ytdl
 
 replace github.com/SherlockYigit/youtube-go => ../../libs/ytsr

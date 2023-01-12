@@ -1,7 +1,11 @@
 package bots
 
 import (
+	"context"
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/bots/internal/di"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"sync"
 	"time"
 
@@ -30,11 +34,12 @@ type ClientOpts struct {
 	Cfg        *cfg.Config
 	Logger     *zap.Logger
 	Model      *model.Bots
-	Twitch     *twitch.Twitch
 	ParserGrpc parser.ParserClient
 }
 
 func newBot(opts *ClientOpts) *types.BotClient {
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+
 	globalRateLimiter, _ := ratelimiting.NewSlidingWindow(100, 30*time.Second)
 
 	client := types.BotClient{
@@ -44,28 +49,9 @@ func newBot(opts *ClientOpts) *types.BotClient {
 		Model: opts.Model,
 	}
 
-	onRefresh := func(newToken helix.RefreshTokenResponse) {
-		opts.DB.Model(&model.Tokens{}).
-			Where(`id = ?`, opts.Model.TokenID.String).
-			Select("*").
-			Updates(map[string]any{
-				"accessToken":         newToken.Data.AccessToken,
-				"refreshToken":        newToken.Data.RefreshToken,
-				"expiresIn":           int32(newToken.Data.ExpiresIn),
-				"obtainmentTimestamp": time.Now().UTC(),
-			})
-	}
-	api := twitch.NewClient(&helix.Options{
-		ClientID:         opts.Cfg.TwitchClientId,
-		ClientSecret:     opts.Cfg.TwitchClientSecret,
-		UserAccessToken:  opts.Model.Token.AccessToken,
-		UserRefreshToken: opts.Model.Token.RefreshToken,
-		OnRefresh:        &onRefresh,
-	})
+	twitchClient, err := twitch.NewBotClient(opts.Model.ID, *opts.Cfg, tokensGrpc)
 
-	client.Api = api
-
-	meReq, err := api.Client.GetUsers(&helix.UsersParams{
+	meReq, err := twitchClient.GetUsers(&helix.UsersParams{
 		IDs: []string{opts.Model.ID},
 	})
 	if err != nil {
@@ -94,35 +80,41 @@ func newBot(opts *ClientOpts) *types.BotClient {
 
 	prometheus.Register(messagesCounter)
 
+	client.Client = irc.NewClient(me.Login, "")
+	client.TwitchUser = &me
+	botHandlers := handlers.CreateHandlers(&handlers.HandlersOpts{
+		DB:         opts.DB,
+		Logger:     opts.Logger,
+		Cfg:        opts.Cfg,
+		BotClient:  &client,
+		ParserGrpc: opts.ParserGrpc,
+	})
+
 	go func() {
 		for {
-			token := fmt.Sprintf("oauth:%s", api.Client.GetUserAccessToken())
-			if client.Client == nil {
+			token, err := tokensGrpc.RequestBotToken(context.Background(), &tokens.GetBotTokenRequest{
+				BotId: opts.Model.ID,
+			})
 
-				client.TwitchUser = &me
-				client.Client = irc.NewClient(me.Login, token)
-				joinChannels(opts.DB, opts.Cfg, opts.Logger, &client)
-			} else {
-				client.Client.SetIRCToken(token)
+			twitchClient.SetUserAccessToken(token.AccessToken)
+
+			if err != nil {
+				panic(err)
 			}
-			meReq, err := api.Client.GetUsers(&helix.UsersParams{
+
+			joinChannels(opts.DB, opts.Cfg, opts.Logger, &client)
+			client.Client.SetIRCToken(fmt.Sprintf("oauth:%s", token.AccessToken))
+			meReq, err := twitchClient.GetUsers(&helix.UsersParams{
 				IDs: []string{opts.Model.ID},
 			})
 			if err != nil {
-				panic(err)
+				return
 			}
 
 			if len(meReq.Data.Users) == 0 {
 				panic("No user found for bot " + opts.Model.ID)
 			}
 
-			botHandlers := handlers.CreateHandlers(&handlers.HandlersOpts{
-				DB:         opts.DB,
-				Logger:     opts.Logger,
-				Cfg:        opts.Cfg,
-				BotClient:  &client,
-				ParserGrpc: opts.ParserGrpc,
-			})
 			client.OnConnect(botHandlers.OnConnect)
 			client.OnSelfJoinMessage(botHandlers.OnSelfJoin)
 			client.OnUserStateMessage(func(message irc.UserStateMessage) {
@@ -186,11 +178,13 @@ func newBot(opts *ClientOpts) *types.BotClient {
 }
 
 func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *types.BotClient) {
-	usersApiService := twitch.NewUserClient(twitch.UsersServiceOpts{
-		Db:           db,
-		ClientId:     cfg.TwitchClientId,
-		ClientSecret: cfg.TwitchClientSecret,
-	})
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+
+	twitchClient, err := twitch.NewBotClient(botClient.Model.ID, *cfg, tokensGrpc)
+
+	if err != nil {
+		panic(err)
+	}
 
 	botClient.RateLimiters.Channels = types.ChannelsMap{
 		Items: make(map[string]*types.Channel),
@@ -221,7 +215,7 @@ func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *t
 				return item.ID
 			})
 
-			twitchUsersReq, err := botClient.Api.Client.GetUsers(&helix.UsersParams{
+			twitchUsersReq, err := twitchClient.GetUsers(&helix.UsersParams{
 				IDs: usersIds,
 			})
 			if err != nil {
@@ -250,12 +244,7 @@ func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *t
 			isMod := false
 
 			if dbUser.ID != "" && dbUser.Token != nil {
-				api, err := usersApiService.Create(u.ID)
-				if err != nil {
-					return
-				}
-
-				botModRequest, err := api.GetChannelMods(&helix.GetChannelModsParams{
+				botModRequest, err := twitchClient.GetChannelMods(&helix.GetChannelModsParams{
 					BroadcasterID: u.ID,
 					UserID:        botClient.Model.ID,
 				})

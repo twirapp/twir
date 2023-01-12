@@ -4,12 +4,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/satont/go-helix/v2"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/twitch"
-
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	irc "github.com/gempir/go-twitch-irc/v3"
+	"github.com/satont/go-helix/v2"
+	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
 type Channel struct {
@@ -30,7 +28,6 @@ type RateLimiters struct {
 type BotClient struct {
 	*irc.Client
 
-	Api          *twitch.Twitch
 	RateLimiters RateLimiters
 	Model        *model.Bots
 	TwitchUser   *helix.User

@@ -4,6 +4,9 @@ import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 	"net/http"
 	"strings"
 	"sync"
@@ -21,6 +24,14 @@ type RequestUser struct {
 
 func handleGet(ids string, names string, services types.Services) ([]helix.User, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
+
+	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
 
 	usersForReq := []*RequestUser{}
 	for _, v := range strings.Split(ids, ",") {
@@ -62,7 +73,7 @@ func handleGet(ids string, names string, services types.Services) ([]helix.User,
 				return item.Name != nil
 			})
 
-			req, err := services.Twitch.Client.GetUsers(&helix.UsersParams{
+			req, err := twitchClient.GetUsers(&helix.UsersParams{
 				IDs: lo.Map(usersByIds, func(item *RequestUser, _ int) string {
 					return *item.ID
 				}),

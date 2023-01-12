@@ -3,8 +3,10 @@ package variables_cache
 import (
 	"fmt"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	config "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 	"gorm.io/gorm"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -14,7 +16,13 @@ import (
 )
 
 func (c *VariablesCacheService) GetChannelStream() *model.ChannelsStreams {
-	twitchClient := do.MustInvoke[twitch.Twitch](di.Provider)
+	cfg := do.MustInvoke[config.Config](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+
+	twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
+	if err != nil {
+		return nil
+	}
 
 	c.locks.stream.Lock()
 	defer c.locks.stream.Unlock()
@@ -26,11 +34,11 @@ func (c *VariablesCacheService) GetChannelStream() *model.ChannelsStreams {
 	db := do.MustInvoke[gorm.DB](di.Provider)
 	stream := model.ChannelsStreams{}
 
-	err := db.Where(`"userId" = ?`, c.ChannelId).First(&stream).Error
+	err = db.Where(`"userId" = ?`, c.ChannelId).First(&stream).Error
 
 	if err != nil {
 		fmt.Println(err)
-		streams, err := twitchClient.Client.GetStreams(&helix.StreamsParams{
+		streams, err := twitchClient.GetStreams(&helix.StreamsParams{
 			UserIDs: []string{c.ChannelId},
 		})
 

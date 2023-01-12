@@ -2,6 +2,10 @@ package auth
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	cfg "github.com/satont/tsuwari/libs/config"
+	"net/http"
 	"time"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -15,7 +19,7 @@ import (
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("auth")
-	middleware.Get("", get(services))
+	middleware.Get("", get())
 	middleware.Get("token", getTokens(services))
 	middleware.Post("token", refreshToken(services))
 	middleware.Post("logout", middlewares.CheckUserAuth(services), logout(services))
@@ -40,14 +44,25 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 var scopes = []string{"moderation:read", "channel:manage:broadcast", "channel:read:redemptions"}
 
-func get(services types.Services) func(c *fiber.Ctx) error {
+func get() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
+		config := do.MustInvoke[cfg.Config](di.Injector)
+
+		twitchClient, err := helix.NewClient(&helix.Options{
+			ClientID:    config.TwitchClientId,
+			RedirectURI: config.TwitchCallbackUrl,
+		})
+
+		if err != nil {
+			return fiber.NewError(http.StatusInternalServerError, "internal error")
+		}
+
 		state := c.Query("state")
 		if state == "" {
 			return c.JSON(fiber.Map{"message": "state is missed"})
 		}
 
-		url := services.Twitch.Client.GetAuthorizationURL(&helix.AuthorizationURLParams{
+		url := twitchClient.GetAuthorizationURL(&helix.AuthorizationURLParams{
 			ResponseType: "code",
 			Scopes:       scopes,
 			State:        state,

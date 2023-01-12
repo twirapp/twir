@@ -20,5 +20,8 @@
     "nice-grpc-common": "^2.0.0",
     "protobufjs": "7.1.2",
     "ts-proto": "^1.135.0"
+  },
+  "devDependencies": {
+    "@grpc/grpc-js": "^1.8.3"
   }
 }

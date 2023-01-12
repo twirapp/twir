@@ -5,6 +5,9 @@ import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 	"net/http"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -24,9 +27,17 @@ type Entity struct {
 
 func handleGet(channelId string, services types.Services) ([]Entity, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
+
+	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
 
 	dbEntities := []model.ChannelsDashboardAccess{}
-	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&dbEntities).Error
+	err = services.DB.Where(`"channelId" = ?`, channelId).Find(&dbEntities).Error
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(
@@ -41,7 +52,7 @@ func handleGet(channelId string, services types.Services) ([]Entity, error) {
 		usersIds = append(usersIds, u.UserID)
 	}
 
-	twitchUsers, err := services.Twitch.Client.GetUsers(&helix.UsersParams{
+	twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
 		IDs: usersIds,
 	})
 	if err != nil {
@@ -74,8 +85,16 @@ func handleGet(channelId string, services types.Services) ([]Entity, error) {
 
 func handlePost(channelId string, dto *addUserDto, services types.Services) (*Entity, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
 
-	twitchUsers, err := services.Twitch.Client.GetUsers(&helix.UsersParams{
+	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
 		Logins: []string{dto.UserName},
 	})
 	if err != nil {

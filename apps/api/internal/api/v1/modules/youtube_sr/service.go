@@ -6,7 +6,10 @@ import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	cfg "github.com/satont/tsuwari/libs/config"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 	"net/http"
 	"strings"
 	"sync"
@@ -86,9 +89,16 @@ func handleSearch(query string, searchType string) ([]youtube.SearchResult, erro
 
 func handlePost(channelId string, dto *youtube.YouTubeSettings, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
+
+	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+	if err != nil {
+		return nil
+	}
 
 	var existedSettings *model.ChannelModulesSettings
-	err := services.DB.Where(`"channelId" = ?`, channelId).First(&existedSettings).Error
+	err = services.DB.Where(`"channelId" = ?`, channelId).First(&existedSettings).Error
 
 	if err != nil && err != gorm.ErrRecordNotFound {
 		logger.Error(err)
@@ -105,7 +115,7 @@ func handlePost(channelId string, dto *youtube.YouTubeSettings, services types.S
 		for _, chunk := range twitchUsersChunks {
 			go func(chunk []youtube.YouTubeDenySettingsUsers) {
 				defer wg.Done()
-				req, _ := services.Twitch.Client.GetUsers(&helix.UsersParams{
+				req, _ := twitchClient.GetUsers(&helix.UsersParams{
 					Logins: lo.Map(
 						chunk,
 						func(item youtube.YouTubeDenySettingsUsers, _ int) string {

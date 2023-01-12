@@ -3,12 +3,19 @@ package variables_cache
 import (
 	"github.com/samber/do"
 	"github.com/satont/go-helix/v2"
-	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	config "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 )
 
 func (c *VariablesCacheService) GetTwitchUser() *helix.User {
-	twitchClient := do.MustInvoke[twitch.Twitch](di.Provider)
+	cfg := do.MustInvoke[config.Config](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
+	if err != nil {
+		return nil
+	}
 
 	c.locks.twitchUser.Lock()
 	defer c.locks.twitchUser.Unlock()
@@ -17,7 +24,7 @@ func (c *VariablesCacheService) GetTwitchUser() *helix.User {
 		return c.cache.TwitchUser
 	}
 
-	users, err := twitchClient.Client.GetUsers(&helix.UsersParams{
+	users, err := twitchClient.GetUsers(&helix.UsersParams{
 		IDs: []string{c.SenderId},
 	})
 

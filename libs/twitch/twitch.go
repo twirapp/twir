@@ -1,20 +1,15 @@
 package twitch
 
 import (
+	"context"
+	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"time"
 
 	helix "github.com/satont/go-helix/v2"
 )
-
-type Token struct {
-	tokenExpiresIn *int
-	tokenCreatedAt *int64
-}
-
-type Twitch struct {
-	Token
-	Client *helix.Client
-}
 
 func rateLimitCallback(lastResponse *helix.Response) error {
 	if lastResponse.GetRateLimitRemaining() > 0 {
@@ -36,57 +31,74 @@ func rateLimitCallback(lastResponse *helix.Response) error {
 	return nil
 }
 
-func NewClient(options *helix.Options) *Twitch {
-	opts := options
-	opts.RateLimitFunc = rateLimitCallback
-
-	client, err := helix.NewClient(opts)
+func NewAppClient(config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
+	appToken, err := tokensGrpc.RequestAppToken(
+		context.Background(),
+		&emptypb.Empty{},
+		grpc.WaitForReady(true),
+	)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	twitch := Twitch{
-		Client: client,
-		Token:  Token{},
-	}
-
-	go func() {
-		for {
-			if !twitch.isTokenValid() {
-				exp := twitch.Refresh()
-				twitch.setExpiresAndCreated(exp)
-			}
-			time.Sleep(time.Duration(*twitch.Token.tokenExpiresIn) * time.Second)
-		}
-	}()
-
-	return &twitch
-}
-
-func (c *Twitch) setExpiresAndCreated(expiresIn int) {
-	exp := expiresIn
-	c.Token.tokenExpiresIn = &exp
-	t := time.Now().UTC().UnixMilli()
-	c.Token.tokenCreatedAt = &t
-}
-
-func (c *Twitch) isTokenValid() bool {
-	if c.tokenCreatedAt == nil || c.tokenExpiresIn == nil {
-		return false
-	}
-
-	curr := time.Now().UTC().UnixMilli()
-	isExpired := curr > (*c.Token.tokenCreatedAt + int64(*c.Token.tokenExpiresIn))
-
-	return isExpired
-}
-
-func (c *Twitch) Refresh() int {
-	token, err := c.Client.RequestAppAccessToken([]string{})
+	client, err := helix.NewClient(&helix.Options{
+		ClientID:       config.TwitchClientId,
+		ClientSecret:   config.TwitchClientSecret,
+		RedirectURI:    config.TwitchCallbackUrl,
+		RateLimitFunc:  rateLimitCallback,
+		AppAccessToken: appToken.AccessToken,
+	})
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	c.Client.SetAppAccessToken(token.Data.AccessToken)
-	return token.Data.ExpiresIn
+	return client, nil
+}
+
+func NewUserClient(userID string, config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
+	userToken, err := tokensGrpc.RequestUserToken(
+		context.Background(),
+		&tokens.GetUserTokenRequest{UserId: userID},
+		grpc.WaitForReady(true),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := helix.NewClient(&helix.Options{
+		ClientID:        config.TwitchClientId,
+		ClientSecret:    config.TwitchClientSecret,
+		RedirectURI:     config.TwitchCallbackUrl,
+		RateLimitFunc:   rateLimitCallback,
+		UserAccessToken: userToken.AccessToken,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}
+
+func NewBotClient(botID string, config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
+	botToken, err := tokensGrpc.RequestBotToken(
+		context.Background(),
+		&tokens.GetBotTokenRequest{BotId: botID},
+		grpc.WaitForReady(true),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := helix.NewClient(&helix.Options{
+		ClientID:        config.TwitchClientId,
+		ClientSecret:    config.TwitchClientSecret,
+		RedirectURI:     config.TwitchCallbackUrl,
+		RateLimitFunc:   rateLimitCallback,
+		UserAccessToken: botToken.AccessToken,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }

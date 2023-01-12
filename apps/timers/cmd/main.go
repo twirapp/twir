@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/timers/internal/di"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"log"
 	"net"
 	"os"
@@ -19,14 +22,11 @@ import (
 
 	cfg "github.com/satont/tsuwari/libs/config"
 
-	twitch "github.com/satont/tsuwari/libs/twitch"
-
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/timers/internal/grpc_impl"
 	timersgrpc "github.com/satont/tsuwari/libs/grpc/generated/timers"
 )
@@ -48,15 +48,11 @@ func main() {
 		panic("failed to connect database")
 	}
 
-	t := twitch.NewClient(&helix.Options{
-		ClientID:     cfg.TwitchClientId,
-		ClientSecret: cfg.TwitchClientSecret,
-	})
-
 	parserGrpcClient := clients.NewParser(cfg.AppEnv)
 	botsGrpcClient := clients.NewBots(cfg.AppEnv)
+	do.ProvideValue[tokens.TokensClient](di.Provider, clients.NewTokens(cfg.AppEnv))
 
-	scheduler := scheduler.New(cfg, t, db, logger, parserGrpcClient, botsGrpcClient)
+	scheduler := scheduler.New(cfg, db, logger, parserGrpcClient, botsGrpcClient)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.TIMERS_SERVER_PORT))
 	if err != nil {
@@ -95,7 +91,7 @@ func main() {
 		}
 	}
 
-	logger.Sugar().Info("Started")
+	logger.Sugar().Info("Timers microservice started")
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)

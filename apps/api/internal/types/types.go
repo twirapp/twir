@@ -1,8 +1,6 @@
 package types
 
 import (
-	"github.com/satont/tsuwari/libs/twitch"
-
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -15,7 +13,6 @@ type Services struct {
 	RedisStorage        *redis.RedisStorage
 	Validator           *validator.Validate
 	ValidatorTranslator ut.Translator
-	Twitch              *twitch.Twitch
 	TgBotApi            *tgbotapi.BotAPI
 }
 

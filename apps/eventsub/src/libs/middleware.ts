@@ -168,7 +168,6 @@ export const eventSubHandlers = {
     updateBotModStatus(e, false);
   },
   subscribeToChannelRedemptionAddEvents: async (e: EventSubChannelRedemptionAddEvent) => {
-    console.dir(e, { depth: null });
     if (!e.input) return;
 
     const repository = typeorm.getRepository(ChannelModuleSettings);

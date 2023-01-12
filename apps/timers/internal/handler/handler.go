@@ -5,11 +5,9 @@ import (
 
 	"github.com/satont/tsuwari/apps/timers/internal/types"
 
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
-	"github.com/satont/tsuwari/libs/twitch"
-
-	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/go-co-op/gocron"
 	"go.uber.org/zap"
@@ -17,7 +15,6 @@ import (
 )
 
 type Handler struct {
-	twitch     *twitch.Twitch
 	db         *gorm.DB
 	logger     *zap.Logger
 	store      types.Store
@@ -26,14 +23,13 @@ type Handler struct {
 }
 
 func New(
-	twitch *twitch.Twitch,
 	db *gorm.DB,
 	logger *zap.Logger,
 	store types.Store,
 	parserGrpc parser.ParserClient,
 	botsGrpc bots.BotsClient,
 ) *Handler {
-	return &Handler{twitch: twitch, db: db, logger: logger, store: store, parserGrpc: parserGrpc, botsGrpc: botsGrpc}
+	return &Handler{db: db, logger: logger, store: store, parserGrpc: parserGrpc, botsGrpc: botsGrpc}
 }
 
 func (c *Handler) Handle(j gocron.Job) {

@@ -41,7 +41,6 @@ func init() {
 	tables["dota_medals"] = dota_medalsTableInfo
 	tables["notifications"] = notificationsTableInfo
 	tables["notifications_messages"] = notifications_messagesTableInfo
-	tables["tokens"] = tokensTableInfo
 	tables["users_files"] = users_filesTableInfo
 	tables["users_viewed_notifications"] = users_viewed_notificationsTableInfo
 }

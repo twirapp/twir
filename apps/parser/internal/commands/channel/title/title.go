@@ -3,9 +3,11 @@ package channel_title
 import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
-	users_twitch_auth "github.com/satont/tsuwari/apps/parser/internal/twitch/user"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+	config "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
@@ -24,10 +26,12 @@ var Command = types.DefaultCommand{
 		if ctx.Text == nil {
 			return nil
 		}
-		users := do.MustInvoke[users_twitch_auth.UsersTokensService](di.Provider)
-		twitchClient, err := users.Create(ctx.ChannelId)
 
-		if err != nil || twitchClient == nil {
+		cfg := do.MustInvoke[config.Config](di.Provider)
+		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+
+		twitchClient, err := twitch.NewUserClient(ctx.ChannelId, cfg, tokensGrpc)
+		if err != nil {
 			return nil
 		}
 

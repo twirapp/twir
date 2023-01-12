@@ -8,15 +8,12 @@ import (
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
-	"github.com/satont/tsuwari/libs/twitch"
-
 	"github.com/satont/tsuwari/apps/bots/types"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type NewBotsOpts struct {
-	Twitch     *twitch.Twitch
 	DB         *gorm.DB
 	Logger     *zap.Logger
 	Cfg        *cfg.Config
@@ -52,16 +49,6 @@ func NewBotsService(opts *NewBotsOpts) *BotsService {
 			Model:      &b,
 			ParserGrpc: opts.ParserGrpc,
 		})
-
-		/* if len(b.Channels) > 0 {
-			ids := lo.Map(b.Channels, func(i model.Channels, _ int) string {
-				return i.ID
-			})
-
-			opts.DB.Model(&model.ChannelsGreetings{}).
-				Where(`"channelId" IN ?`, ids).
-				Update("processed", false)
-		} */
 
 		mu.Lock()
 		service.Instances[b.ID] = instance

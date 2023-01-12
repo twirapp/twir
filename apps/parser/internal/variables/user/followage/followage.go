@@ -2,11 +2,14 @@ package userfollowage
 
 import (
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	"github.com/satont/tsuwari/libs/twitch"
+
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	types "github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
+	config "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
@@ -17,13 +20,20 @@ var Variable = types.Variable{
 	Description:  lo.ToPtr("User followage"),
 	CommandsOnly: lo.ToPtr(true),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-		twitchClient := do.MustInvoke[twitch.Twitch](di.Provider)
+		cfg := do.MustInvoke[config.Config](di.Provider)
+		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+
+		twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
+		
+		if err != nil {
+			return nil, err
+		}
 
 		result := &types.VariableHandlerResult{}
 
 		targetId := ctx.SenderId
 		if ctx.Text != nil {
-			users, err := twitchClient.Client.GetUsers(&helix.UsersParams{
+			users, err := twitchClient.GetUsers(&helix.UsersParams{
 				Logins: []string{*ctx.Text},
 			})
 

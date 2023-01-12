@@ -6,6 +6,7 @@ use (
 	./apps/parser
 	./apps/timers
 	./apps/watched
+	./apps/tokens
 	./libs/config
 	./libs/gomodels
 	./libs/grpc

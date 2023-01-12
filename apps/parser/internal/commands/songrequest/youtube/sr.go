@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/guregu/null"
-	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	config "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 	"github.com/valyala/fasttemplate"
 	"go.uber.org/zap"
 	"log"
@@ -232,7 +234,14 @@ func validate(
 	song *ytdl.Video,
 ) error {
 	db := do.MustInvoke[gorm.DB](di.Provider)
-	twitchClient := do.MustInvoke[twitch.Twitch](di.Provider)
+	cfg := do.MustInvoke[config.Config](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+
+	twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
+
+	if err != nil {
+		return err
+	}
 
 	if userId != channelId {
 		return nil
@@ -404,7 +413,7 @@ func validate(
 
 	if settings.User.MinFollowTime != 0 {
 		neededDuration := time.Minute * time.Duration(settings.User.MinFollowTime)
-		followReq, err := twitchClient.Client.GetUsersFollows(&helix.UsersFollowsParams{
+		followReq, err := twitchClient.GetUsersFollows(&helix.UsersFollowsParams{
 			FromID: userId,
 			ToID:   channelId,
 		})

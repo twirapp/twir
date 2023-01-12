@@ -3,8 +3,10 @@ package top
 import (
 	"fmt"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	config "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 	"gorm.io/gorm"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -27,7 +29,16 @@ func GetTop(
 	topType string,
 	page *int,
 ) *[]*UserStats {
-	twitchClient := do.MustInvoke[twitch.Twitch](di.Provider)
+	cfg := do.MustInvoke[config.Config](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+
+	twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
 	db := do.MustInvoke[gorm.DB](di.Provider)
 
 	if page == nil {
@@ -39,7 +50,7 @@ func GetTop(
 
 	var records []model.UsersStats
 
-	err := db.
+	err = db.
 		Where(`"channelId" = ?`, channelId).
 		Limit(10).
 		Offset(offset).
@@ -53,7 +64,7 @@ func GetTop(
 		return record.UserID
 	})
 
-	twitchUsers, err := twitchClient.Client.GetUsers(&helix.UsersParams{
+	twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
 		IDs: ids,
 	})
 

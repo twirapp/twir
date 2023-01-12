@@ -2,6 +2,11 @@ package grpc_impl
 
 import (
 	"context"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/bots/internal/di"
+	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/satont/go-helix/v2"
 	internalBots "github.com/satont/tsuwari/apps/bots/internal/bots"
@@ -18,6 +23,7 @@ type GrpcImplOpts struct {
 	Db          *gorm.DB
 	BotsService *internalBots.BotsService
 	Logger      *zap.Logger
+	Cfg         *cfg.Config
 }
 
 type botsGrpcServer struct {
@@ -26,6 +32,7 @@ type botsGrpcServer struct {
 	db          *gorm.DB
 	botsService *internalBots.BotsService
 	logger      *zap.Logger
+	cfg         *cfg.Config
 }
 
 func NewServer(opts *GrpcImplOpts) *botsGrpcServer {
@@ -33,6 +40,7 @@ func NewServer(opts *GrpcImplOpts) *botsGrpcServer {
 		db:          opts.Db,
 		botsService: opts.BotsService,
 		logger:      opts.Logger,
+		cfg:         opts.Cfg,
 	}
 }
 
@@ -53,8 +61,15 @@ func (c *botsGrpcServer) DeleteMessage(ctx context.Context, data *bots.DeleteMes
 		return &emptypb.Empty{}, nil
 	}
 
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	twitchClient, err := twitch.NewBotClient(bot.Model.ID, *c.cfg, tokensGrpc)
+
+	if err != nil {
+		return nil, err
+	}
+
 	for _, m := range data.MessageIds {
-		go bot.Api.Client.DeleteMessage(&helix.DeleteMessageParams{
+		go twitchClient.DeleteMessage(&helix.DeleteMessageParams{
 			BroadcasterID: channel.ID,
 			ModeratorID:   channel.BotID,
 			MessageID:     m,
@@ -80,10 +95,17 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 		return &emptypb.Empty{}, nil
 	}
 
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	twitchClient, err := twitch.NewBotClient(bot.Model.ID, *c.cfg, tokensGrpc)
+
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
+
 	channelName := data.ChannelName
 
 	if channelName == nil {
-		usersReq, err := bot.Api.Client.GetUsers(&helix.UsersParams{
+		usersReq, err := twitchClient.GetUsers(&helix.UsersParams{
 			IDs: []string{data.ChannelId},
 		})
 		if err != nil {
@@ -97,7 +119,7 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 	}
 
 	if data.IsAnnounce != nil && *data.IsAnnounce == true {
-		bot.Api.Client.SendChatAnnouncement(&helix.SendChatAnnouncementParams{
+		twitchClient.SendChatAnnouncement(&helix.SendChatAnnouncementParams{
 			BroadcasterID: channel.ID,
 			ModeratorID:   channel.BotID,
 			Message:       data.Message,
