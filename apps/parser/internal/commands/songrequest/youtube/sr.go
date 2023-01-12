@@ -119,18 +119,11 @@ var SrCommand = types.DefaultCommand{
 			return result
 		}
 
-		err = db.
-			Where(`"videoId" = ? AND "deletedAt" IS NULL`, songId).
-			First(&model.RequestedSong{}).
-			Error
+		alreadyRequestedSong := &model.RequestedSong{}
+		db.Where(`"videoId" = ? AND "deletedAt" IS NULL AND "channelId" = ?`, songId, ctx.ChannelId).
+			First(&alreadyRequestedSong)
 
-		if err != nil && err != gorm.ErrRecordNotFound {
-			log.Fatal(err)
-			result.Result = append(result.Result, "internal error")
-			return result
-		}
-
-		if err == nil {
+		if alreadyRequestedSong.ID != "" {
 			result.Result = append(result.Result, parsedSettings.Translations.Song.AlreadyInQueue)
 			return result
 		}
