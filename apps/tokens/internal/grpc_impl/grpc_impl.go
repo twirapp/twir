@@ -3,6 +3,7 @@ package grpc_impl
 import (
 	"context"
 	"errors"
+	"github.com/go-redsync/redsync/v4"
 	"github.com/samber/do"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/tokens/internal/di"
@@ -27,6 +28,10 @@ type TokensGrpcImpl struct {
 
 	globalClient   *helix.Client
 	appAccessToken *appToken
+
+	appLock   *redsync.Mutex
+	usersLock *redsync.Mutex
+	botsLock  *redsync.Mutex
 }
 
 func NewTokens() *TokensGrpcImpl {
@@ -48,15 +53,20 @@ func NewTokens() *TokensGrpcImpl {
 		panic(err)
 	}
 
+	redisSync := do.MustInvoke[redsync.Redsync](di.Provider)
+
 	return &TokensGrpcImpl{
 		UnimplementedTokensServer: tokens.UnimplementedTokensServer{},
-
-		globalClient: helixClient,
+		globalClient:              helixClient,
 		appAccessToken: &appToken{
 			AccessToken:    appAccessToken.Data.AccessToken,
 			ObtainmentTime: time.Now().UTC(),
 			ExpiresIn:      appAccessToken.Data.ExpiresIn,
 		},
+
+		botsLock:  redisSync.NewMutex("tokens-bots-lock"),
+		usersLock: redisSync.NewMutex("tokens-users-lock"),
+		appLock:   redisSync.NewMutex("tokens-app-lock"),
 	}
 }
 
@@ -64,6 +74,9 @@ func (c *TokensGrpcImpl) RequestAppToken(
 	_ context.Context,
 	_ *emptypb.Empty,
 ) (*tokens.Token, error) {
+	c.appLock.Lock()
+	defer c.appLock.Unlock()
+
 	if isTokenExpired(c.appAccessToken.ExpiresIn, c.appAccessToken.ObtainmentTime) {
 		appAccessToken, err := c.globalClient.RequestAppAccessToken(appTokenScopes)
 
@@ -88,6 +101,9 @@ func (c *TokensGrpcImpl) RequestUserToken(
 	_ context.Context,
 	data *tokens.GetUserTokenRequest,
 ) (*tokens.Token, error) {
+	c.usersLock.Lock()
+	defer c.usersLock.Unlock()
+
 	db := do.MustInvoke[gorm.DB](di.Provider)
 
 	user := model.Users{}
@@ -126,6 +142,9 @@ func (c *TokensGrpcImpl) RequestBotToken(
 	_ context.Context,
 	data *tokens.GetBotTokenRequest,
 ) (*tokens.Token, error) {
+	c.botsLock.Lock()
+	defer c.botsLock.Unlock()
+
 	db := do.MustInvoke[gorm.DB](di.Provider)
 
 	bot := model.Bots{}

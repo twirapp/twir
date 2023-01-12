@@ -10,6 +10,8 @@ replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
 
 require (
 	github.com/getsentry/sentry-go v0.17.0
+	github.com/go-redis/redis/v9 v9.0.0-rc.2
+	github.com/go-redsync/redsync/v4 v4.7.1
 	github.com/samber/do v1.5.1
 	github.com/satont/go-helix/v2 v2.7.23
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
@@ -23,9 +25,14 @@ require (
 )
 
 require (
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
+	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/golang-jwt/jwt/v4 v4.0.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/guregu/null v4.0.0+incompatible // indirect
+	github.com/hashicorp/errwrap v1.0.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.2.0 // indirect

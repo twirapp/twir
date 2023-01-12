@@ -440,6 +440,8 @@ services:
     networks:
       - tsuwari
     deploy:
+      mode: replicated
+      replicas: 10
       restart_policy:
         condition: any
         delay: 30s

@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/getsentry/sentry-go"
+	goredislib "github.com/go-redis/redis/v9"
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/tokens/internal/di"
 	"github.com/satont/tsuwari/apps/tokens/internal/grpc_impl"
@@ -61,6 +64,16 @@ func main() {
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
 	do.ProvideValue[gorm.DB](di.Provider, *db)
+
+	// redis lock
+	redisUrl, err := goredislib.ParseURL(cfg.RedisUrl)
+	if err != nil {
+		panic(err)
+	}
+	redisClient := goredislib.NewClient(redisUrl)
+	pool := goredis.NewPool(redisClient)
+	do.ProvideValue[redsync.Redsync](di.Provider, *redsync.New(pool))
+	//
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.TOKENS_SERVER_PORT))
 	if err != nil {
