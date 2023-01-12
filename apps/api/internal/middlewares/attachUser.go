@@ -6,6 +6,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	config "github.com/satont/tsuwari/libs/config"
+	"net/http"
 	"strings"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -68,7 +69,7 @@ var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
 				First(&dbUser).
 				Error
 			if err != nil {
-				return c.JSON(fiber.Map{"message": "user not found"})
+				return c.Status(http.StatusNotFound).JSON(fiber.Map{"message": "user not found"})
 			}
 			c.Locals("dbUser", dbUser)
 		}
