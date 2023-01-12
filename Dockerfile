@@ -252,6 +252,16 @@ COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["/bin/bots"]
 
+FROM golang_deps_base as tokens_deps
+RUN cd apps/tokens && go mod download
+RUN cd apps/tokens && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as tokens
+COPY --from=tokens_deps /app/apps/parser/out /bin/parser
+COPY --from=base /app/docker-entrypoint.sh /app/
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["/bin/tokens"]
+
 FROM golang_deps_base as watched_deps
 RUN cd apps/watched && go mod download
 RUN cd apps/watched && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out

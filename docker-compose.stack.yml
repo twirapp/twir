@@ -429,6 +429,23 @@ services:
         constraints:
           - node.role == manager
 
+  tokens:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: tokens
+    image: registry.satont.dev/tsuwari/tokens
+    secrets:
+      - tsuwari_doppler_token
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+
 volumes:
   postgres-data:
   redis-data:
