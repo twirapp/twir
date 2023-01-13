@@ -48,6 +48,8 @@ func handleGetToken(code string, services types.Services) (*Tokens, error) {
 		return nil, fiber.NewError(http.StatusUnauthorized, "cannot get user tokens")
 	}
 
+	twitchClient.SetUserAccessToken(resp.Data.AccessToken)
+
 	users, err := twitchClient.GetUsers(&helix.UsersParams{})
 	if err != nil {
 		logger.Error(err)
