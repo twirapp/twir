@@ -28,6 +28,9 @@ export class Token {
   @Column('timestamp without time zone', { name: 'obtainmentTimestamp' })
   obtainmentTimestamp: Date;
 
+  @Column('text', { array: true, default: [], nullable: true })
+  scopes: string[];
+
   @OneToOne(() => Bot, _ => _.token)
   bot?: Bot;
 

@@ -2,6 +2,10 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/bots/internal/di"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 	"strings"
 	"time"
 
@@ -63,8 +67,15 @@ func (c *Handlers) moderateMessage(msg Message, badges []string) bool {
 		res := function(&prsrs, &s, msg, badges)
 
 		if res != nil {
+			tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+			twitchClient, err := twitch.NewBotClient(c.BotClient.Model.ID, *c.cfg, tokensGrpc)
+
+			if err != nil {
+				return false
+			}
+
 			if res.IsDelete {
-				res, err := c.BotClient.Api.Client.DeleteMessage(&helix.DeleteMessageParams{
+				res, err := twitchClient.DeleteMessage(&helix.DeleteMessageParams{
 					BroadcasterID: msg.Channel.ID,
 					ModeratorID:   c.BotClient.Model.ID,
 					MessageID:     msg.ID,
@@ -78,7 +89,7 @@ func (c *Handlers) moderateMessage(msg Message, badges []string) bool {
 				}
 			} else {
 				if res.Time != nil {
-					res, err := c.BotClient.Api.Client.BanUser(&helix.BanUserParams{
+					res, err := twitchClient.BanUser(&helix.BanUserParams{
 						BroadcasterID: msg.Channel.ID,
 						ModeratorId:   c.BotClient.Model.ID,
 						Body: helix.BanUserRequestBody{

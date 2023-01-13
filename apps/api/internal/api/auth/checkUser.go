@@ -3,8 +3,6 @@ package auth
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/samber/do"
 	"github.com/samber/lo"
@@ -82,6 +80,7 @@ func checkUser(
 		RefreshToken:        tokens.RefreshToken,
 		ExpiresIn:           int32(tokens.ExpiresIn),
 		ObtainmentTimestamp: time.Now().UTC(),
+		Scopes:              tokens.Scopes,
 	}
 
 	user := model.Users{}
@@ -110,8 +109,7 @@ func checkUser(
 		}
 
 		channel := createChannelModel(user.ID, defaultBot.ID)
-		fmt.Println("here")
-		spew.Dump(channel)
+
 		if err = services.DB.Create(&channel).Error; err != nil {
 			logger.Error(err)
 			return err
@@ -124,8 +122,7 @@ func checkUser(
 	} else {
 		if user.Channel == nil {
 			channel := createChannelModel(user.ID, defaultBot.ID)
-			fmt.Println("here2")
-			spew.Dump(channel)
+
 			if err = services.DB.Create(&channel).Error; err != nil {
 				logger.Error(err)
 				return err

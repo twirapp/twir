@@ -11,8 +11,6 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 
-	"github.com/satont/tsuwari/libs/twitch"
-
 	"github.com/go-co-op/gocron"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -21,7 +19,6 @@ import (
 type Scheduler struct {
 	internalScheduler *gocron.Scheduler
 	cfg               *cfg.Config
-	twitch            *twitch.Twitch
 	db                *gorm.DB
 	logger            *zap.Logger
 	Timers            types.Store
@@ -30,7 +27,6 @@ type Scheduler struct {
 
 func New(
 	cfg *cfg.Config,
-	twitch *twitch.Twitch,
 	db *gorm.DB,
 	logger *zap.Logger,
 	parserGrpc parser.ParserClient,
@@ -42,11 +38,10 @@ func New(
 	return &Scheduler{
 		internalScheduler: scheduler,
 		cfg:               cfg,
-		twitch:            twitch,
 		db:                db,
 		logger:            logger,
 		Timers:            store,
-		handler:           handler.New(twitch, db, logger, store, parserGrpc, botsGrpcClient),
+		handler:           handler.New(db, logger, store, parserGrpc, botsGrpcClient),
 	}
 }
 

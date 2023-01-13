@@ -6,13 +6,12 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	cfg "github.com/satont/tsuwari/libs/config"
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 	"net/http"
 	"sync"
 	"time"
-
-	model "github.com/satont/tsuwari/libs/gomodels"
-
-	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
@@ -36,21 +35,20 @@ const (
 func handleGetToken(code string, services types.Services) (*Tokens, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
 	config := do.MustInvoke[cfg.Config](di.Injector)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
 
-	resp, err := services.Twitch.Client.RequestUserAccessToken(code)
+	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
 	if err != nil {
-		logger.Error(err)
-		return nil, fiber.NewError(401, "cannot get user tokens")
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	newClient := twitch.NewClient(&helix.Options{
-		ClientID:         config.TwitchClientId,
-		ClientSecret:     config.TwitchClientSecret,
-		UserAccessToken:  resp.Data.AccessToken,
-		UserRefreshToken: resp.Data.RefreshToken,
-	})
+	resp, err := twitchClient.RequestUserAccessToken(code)
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusUnauthorized, "cannot get user tokens")
+	}
 
-	users, err := newClient.Client.GetUsers(&helix.UsersParams{})
+	users, err := twitchClient.GetUsers(&helix.UsersParams{})
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(401, "cannot get user tokens")
@@ -120,9 +118,16 @@ func createToken(claims jwt.Claims, secret string) (string, error) {
 
 func handleGetProfile(user model.Users, services types.Services) (*Profile, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
+
+	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+	if err != nil {
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
 
 	dbDashboards := []model.ChannelsDashboardAccess{}
-	err := services.DB.Where(`"userId" = ?`, user.ID).Find(&dbDashboards).Error
+	err = services.DB.Where(`"userId" = ?`, user.ID).Find(&dbDashboards).Error
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
@@ -165,7 +170,7 @@ func handleGetProfile(user model.Users, services types.Services) (*Profile, erro
 	for _, chunk := range chunks {
 		go func(c []string) {
 			defer twitchUsersWg.Done()
-			users, err := services.Twitch.Client.GetUsers(&helix.UsersParams{IDs: c})
+			users, err := twitchClient.GetUsers(&helix.UsersParams{IDs: c})
 			if err != nil {
 				return
 			}

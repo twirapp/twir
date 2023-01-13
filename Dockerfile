@@ -200,6 +200,7 @@ COPY --from=base /app/apps/parser apps/parser/
 COPY --from=base /app/apps/timers apps/timers/
 COPY --from=base /app/apps/bots apps/bots/
 COPY --from=base /app/apps/api apps/api/
+COPY --from=base /app/apps/tokens apps/tokens/
 COPY --from=base /app/apps/watched apps/watched/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/grpc libs/grpc/
@@ -251,6 +252,16 @@ COPY --from=bots_deps /app/apps/bots/out /bin/bots
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["/bin/bots"]
+
+FROM golang_deps_base as tokens_deps
+RUN cd apps/tokens && go mod download
+RUN cd apps/tokens && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as tokens
+COPY --from=tokens_deps /app/apps/tokens/out /bin/tokens
+COPY --from=base /app/docker-entrypoint.sh /app/
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["/bin/tokens"]
 
 FROM golang_deps_base as watched_deps
 RUN cd apps/watched && go mod download

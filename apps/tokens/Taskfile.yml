@@ -1,0 +1,16 @@
+version: '3'
+
+tasks:
+  dev:
+    cmds:
+      - pnpx nodemon --config ./nodemon.json
+
+  build:
+    cmds:
+      - rm main || true
+      - go build cmd/main.go
+
+  debug:
+    cmds:
+      - go build -gcflags=all="-N -l" ./cmd/main.go
+      - ./main

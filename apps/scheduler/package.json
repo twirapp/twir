@@ -21,6 +21,8 @@
     "@tsuwari/grpc": "workspace:*",
     "@tsuwari/shared": "workspace:*",
     "@tsuwari/typeorm": "workspace:*",
+    "@twurple/api": "^5.3.1",
+    "@twurple/auth": "^5.3.1",
     "ioredis": "5.2.4",
     "knex": "2.3.0",
     "lodash": "4.17.21",

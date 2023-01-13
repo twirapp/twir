@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	config "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 	"gorm.io/gorm"
 	"strings"
 
@@ -156,8 +158,14 @@ var Variable = types.Variable{
 				)
 				break checkServices
 			case SOUNDTRACK:
-				twitchClient := do.MustInvoke[twitch.Twitch](di.Provider)
-				tracks, err := twitchClient.Client.GetSoundTrackCurrentTrack(&helix.SoundtrackCurrentTrackParams{
+				cfg := do.MustInvoke[config.Config](di.Provider)
+				tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+
+				twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
+				if err != nil {
+					continue
+				}
+				tracks, err := twitchClient.GetSoundTrackCurrentTrack(&helix.SoundtrackCurrentTrackParams{
 					BroadcasterID: ctx.ChannelId,
 				})
 				if err != nil {

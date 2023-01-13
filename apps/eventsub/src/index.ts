@@ -32,7 +32,7 @@ await server.listen(`0.0.0.0:${PORTS.EVENTSUB_SERVER_PORT}`);
 
 async function close() {
   server.forceShutdown();
-  await Ngrok.disconnect();
+  Ngrok.disconnect().catch();
 }
 
 process.on('SIGTERM', close).on('SIGINT', close);

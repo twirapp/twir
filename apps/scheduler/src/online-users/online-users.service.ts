@@ -1,17 +1,17 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
-import { TwitchApiService } from '@tsuwari/shared';
-import { In, IsNull, Not } from '@tsuwari/typeorm';
+import { IsNull, Not } from '@tsuwari/typeorm';
 import { ChannelStream } from '@tsuwari/typeorm/entities/ChannelStream';
 import { UserOnline } from '@tsuwari/typeorm/entities/UserOnline';
+import { ApiClient } from '@twurple/api';
+import { StaticAuthProvider } from '@twurple/auth';
 
 import { typeorm } from '../index.js';
+import { tokensGrpcClient } from '../libs/tokens.grpc.js';
 
 @Injectable()
 export class OnlineUsersService implements OnModuleInit {
-  constructor(private readonly twitch: TwitchApiService) {}
-
   onModuleInit() {
     this.onlineUsers();
   }
@@ -21,9 +21,15 @@ export class OnlineUsersService implements OnModuleInit {
     const streams = await typeorm.getRepository(ChannelStream).find();
     const usersRepository = typeorm.getRepository(UserOnline);
 
+    const appToken = await tokensGrpcClient.requestAppToken({});
+
+    const apiClient = new ApiClient({
+      authProvider: new StaticAuthProvider(config.TWITCH_CLIENTID, appToken.accessToken),
+    });
+
     await Promise.all(
       streams.map(async (stream) => {
-        const users = await this.twitch.unsupported.getChatters(stream.userLogin);
+        const users = await apiClient.unsupported.getChatters(stream.userLogin);
         const chatters = new Set(users.allChatters);
 
         const current = await usersRepository.findBy({

@@ -3,7 +3,10 @@ package permit
 import (
 	"fmt"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/config/twitch"
+	config "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
+
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"strconv"
 	"strings"
@@ -30,7 +33,10 @@ var Command = types.DefaultCommand{
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)
-		twitchClient := do.MustInvoke[twitch.Twitch](di.Provider)
+		cfg := do.MustInvoke[config.Config](di.Provider)
+		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+
+		twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
 
 		result := &types.CommandsHandlerResult{}
 
@@ -55,7 +61,7 @@ var Command = types.DefaultCommand{
 			return result
 		}
 
-		target, err := twitchClient.Client.GetUsers(&helix.UsersParams{
+		target, err := twitchClient.GetUsers(&helix.UsersParams{
 			Logins: []string{params[0]},
 		})
 

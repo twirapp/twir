@@ -3,6 +3,7 @@ package bot
 import (
 	"context"
 	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"net/http"
 	"sync"
 
@@ -26,18 +27,11 @@ import (
 func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
 	config := do.MustInvoke[cfg.Config](di.Injector)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
 
-	client, err := twitch.NewUserClient(twitch.UsersServiceOpts{
-		Db:           services.DB,
-		ClientId:     config.TwitchClientId,
-		ClientSecret: config.TwitchClientSecret,
-	}).Create(channelId)
-	if client == nil || err != nil {
-		logger.Error(err)
-		return nil, fiber.NewError(
-			http.StatusInternalServerError,
-			"cannot create twitch client from your tokens. Please try to reauthorize",
-		)
+	twitchClient, err := twitch.NewUserClient(channelId, config, tokensGrpc)
+	if err != nil {
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create twitch client from your tokens. Please try to reauthorize")
 	}
 
 	channel := &model.Channels{}
@@ -61,7 +55,7 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 			return
 		}
 
-		mods, err := client.GetChannelMods(&helix.GetChannelModsParams{
+		mods, err := twitchClient.GetChannelMods(&helix.GetChannelModsParams{
 			BroadcasterID: channelId,
 			UserID:        channel.BotID,
 		})
@@ -75,9 +69,10 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 
 	go func() {
 		defer wg.Done()
-		infoReq, err := client.GetUsers(&helix.UsersParams{
+		infoReq, err := twitchClient.GetUsers(&helix.UsersParams{
 			IDs: []string{channel.BotID},
 		})
+
 		if err != nil {
 			logger.Error(err)
 			return
@@ -103,8 +98,15 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 func handlePatch(channelId string, dto *connectionDto, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
 	grpc := do.MustInvoke[bots.BotsClient](di.Injector)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
 
-	twitchUsers, err := services.Twitch.Client.GetUsers(
+	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+	if err != nil {
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	twitchUsers, err := twitchClient.GetUsers(
 		&helix.UsersParams{IDs: []string{channelId}},
 	)
 	if err != nil {

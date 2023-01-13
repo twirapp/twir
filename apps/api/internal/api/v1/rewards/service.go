@@ -5,28 +5,25 @@ import (
 	"github.com/samber/do"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
 	"net/http"
 )
 
 var cannotGetRewards = fiber.NewError(http.StatusInternalServerError, "cannot get custom rewards of channel")
 
-func handleGet(channelId string, services types.Services) ([]helix.ChannelCustomReward, error) {
+func handleGet(channelId string) ([]helix.ChannelCustomReward, error) {
 	config := do.MustInvoke[cfg.Config](di.Injector)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
 
-	api, err := twitch.NewUserClient(twitch.UsersServiceOpts{
-		Db:           services.DB,
-		ClientId:     config.TwitchClientId,
-		ClientSecret: config.TwitchClientSecret,
-	}).Create(channelId)
+	twitchClient, err := twitch.NewUserClient(channelId, config, tokensGrpc)
 
 	if err != nil {
 		return nil, cannotGetRewards
 	}
 
-	request, err := api.GetCustomRewards(&helix.GetCustomRewardsParams{
+	request, err := twitchClient.GetCustomRewards(&helix.GetCustomRewardsParams{
 		BroadcasterID:         channelId,
 		ID:                    "",
 		OnlyManageableRewards: false,

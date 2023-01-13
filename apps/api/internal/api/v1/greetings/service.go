@@ -4,6 +4,9 @@ import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 	"net/http"
 	"sync"
 
@@ -23,6 +26,14 @@ type Greeting struct {
 }
 
 func handleGet(channelId string, services types.Services) []Greeting {
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
+
+	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+	if err != nil {
+		return nil
+	}
+
 	greetings := []model.ChannelsGreetings{}
 	services.DB.Where(`"channelId" = ?`, channelId).Find(&greetings)
 	users := []Greeting{}
@@ -36,7 +47,7 @@ func handleGet(channelId string, services types.Services) []Greeting {
 			ids := lo.Map(chunk, func(g model.ChannelsGreetings, _ int) string {
 				return g.UserID
 			})
-			twitchUsers, err := services.Twitch.Client.GetUsers(&helix.UsersParams{
+			twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
 				IDs: ids,
 			})
 			if err != nil {
@@ -69,7 +80,7 @@ func handlePost(
 ) (*Greeting, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
 
-	twitchUser := getTwitchUserByName(dto.Username, services.Twitch)
+	twitchUser := getTwitchUserByName(dto.Username)
 	if twitchUser == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "cannot find twitch user")
 	}
@@ -140,7 +151,7 @@ func handleUpdate(
 		Processed: false,
 	}
 
-	twitchUser := getTwitchUserByName(dto.Username, services.Twitch)
+	twitchUser := getTwitchUserByName(dto.Username)
 	if twitchUser == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "cannot find twitch user")
 	}
@@ -172,7 +183,7 @@ func handlePatch(
 		return nil, fiber.NewError(http.StatusNotFound, "greeting not found")
 	}
 
-	twitchUser := getTwitchUserById(greeting.UserID, services.Twitch)
+	twitchUser := getTwitchUserById(greeting.UserID)
 	if twitchUser == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "cannot find twitch user")
 	}

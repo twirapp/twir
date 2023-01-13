@@ -5,6 +5,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/dota"
 	"github.com/satont/tsuwari/libs/grpc/generated/eval"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"log"
 	"net"
 	"net/http"
@@ -22,9 +23,6 @@ import (
 	"github.com/satont/tsuwari/apps/parser/internal/variables"
 
 	config "github.com/satont/tsuwari/libs/config"
-
-	twitch "github.com/satont/tsuwari/apps/parser/internal/config/twitch"
-	"github.com/satont/tsuwari/apps/parser/internal/twitch/user"
 
 	"github.com/getsentry/sentry-go"
 
@@ -96,9 +94,7 @@ func main() {
 	do.ProvideValue[bots.BotsClient](di.Provider, clients.NewBots(cfg.AppEnv))
 	do.ProvideValue[dota.DotaClient](di.Provider, clients.NewDota(cfg.AppEnv))
 	do.ProvideValue[eval.EvalClient](di.Provider, clients.NewEval(cfg.AppEnv))
-
-	do.ProvideValue[users_twitch_auth.UsersTokensService](di.Provider, *users_twitch_auth.New())
-	do.ProvideValue[twitch.Twitch](di.Provider, *twitch.New(*cfg))
+	do.ProvideValue[tokens.TokensClient](di.Provider, clients.NewTokens(cfg.AppEnv))
 
 	do.ProvideValue[variables.Variables](di.Provider, variables.New())
 
@@ -116,7 +112,7 @@ func main() {
 	parser.RegisterParserServer(grpcServer, grpc_impl.NewServer())
 	go grpcServer.Serve(lis)
 
-	logger.Info("Started")
+	logger.Info("Parser microservice started")
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)

@@ -3,6 +3,8 @@ package grpc_impl
 import (
 	"context"
 	"errors"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 	"sync"
 	"time"
 
@@ -11,31 +13,33 @@ import (
 	cfg "github.com/satont/tsuwari/libs/config"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/watched"
-	"github.com/satont/tsuwari/libs/twitch"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
 
 type WatchedGrpcServerOpts struct {
-	Db     *gorm.DB
-	Cfg    *cfg.Config
-	Logger *zap.Logger
+	Db         *gorm.DB
+	Cfg        *cfg.Config
+	Logger     *zap.Logger
+	TokensGrpc tokens.TokensClient
 }
 
 type WatchedGrpcServer struct {
 	watched.UnimplementedWatchedServer
 
-	db     *gorm.DB
-	cfg    *cfg.Config
-	logger *zap.Logger
+	db         *gorm.DB
+	cfg        *cfg.Config
+	logger     *zap.Logger
+	tokensGrpc tokens.TokensClient
 }
 
 func New(opts *WatchedGrpcServerOpts) *WatchedGrpcServer {
 	return &WatchedGrpcServer{
-		db:     opts.Db,
-		cfg:    opts.Cfg,
-		logger: opts.Logger,
+		db:         opts.Db,
+		cfg:        opts.Cfg,
+		logger:     opts.Logger,
+		tokensGrpc: opts.TokensGrpc,
 	}
 }
 
@@ -43,13 +47,8 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 	ctx context.Context,
 	data *watched.Request,
 ) (*emptypb.Empty, error) {
-	twitch := twitch.NewUserClient(twitch.UsersServiceOpts{
-		Db:           c.db,
-		ClientId:     c.cfg.TwitchClientId,
-		ClientSecret: c.cfg.TwitchClientSecret,
-	})
+	twitchClient, err := twitch.NewBotClient(data.BotId, *c.cfg, c.tokensGrpc)
 
-	api, err := twitch.CreateBot(data.BotId)
 	if err != nil {
 		c.logger.Sugar().Error(err)
 		return nil, errors.New("cannot create api for bot")
@@ -76,7 +75,7 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 					reqParams.After = cursor
 				}
 
-				req, err := api.GetChannelChatChatters(reqParams)
+				req, err := twitchClient.GetChannelChatChatters(reqParams)
 				if err != nil {
 					break
 				}

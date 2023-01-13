@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/satont/tsuwari/libs/grpc/clients"
 	"log"
 	"net"
 	"os"
@@ -47,6 +48,8 @@ func main() {
 	d.SetMaxOpenConns(20)
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
+	tokensGrpc := clients.NewTokens(cfg.AppEnv)
+
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.WATCHED_SERVER_PORT))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -55,13 +58,14 @@ func main() {
 		MaxConnectionAge: 1 * time.Minute,
 	}))
 	watched.RegisterWatchedServer(grpcServer, grpc_impl.New(&grpc_impl.WatchedGrpcServerOpts{
-		Db:     db,
-		Cfg:    cfg,
-		Logger: logger,
+		Db:         db,
+		Cfg:        cfg,
+		Logger:     logger,
+		TokensGrpc: tokensGrpc,
 	}))
 	go grpcServer.Serve(lis)
 
-	log.Println("Started")
+	log.Println("Watched microservice started")
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)

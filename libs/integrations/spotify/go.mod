@@ -7,7 +7,7 @@ require (
 	github.com/imroc/req/v3 v3.25.0
 	github.com/samber/lo v1.36.0
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
-	gorm.io/gorm v1.24.1
+	gorm.io/gorm v1.24.3
 )
 
 require (
@@ -31,12 +31,12 @@ require (
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/stretchr/testify v1.8.1 // indirect
-	golang.org/x/crypto v0.1.0 // indirect
+	golang.org/x/crypto v0.4.0 // indirect
 	golang.org/x/exp v0.0.0-20221028150844-83b7d23a625f // indirect
 	golang.org/x/mod v0.6.0 // indirect
-	golang.org/x/net v0.2.0 // indirect
-	golang.org/x/sys v0.2.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/net v0.4.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
 	golang.org/x/tools v0.2.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )

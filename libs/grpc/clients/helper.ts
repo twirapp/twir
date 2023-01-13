@@ -1,3 +1,6 @@
+import { Channel } from '@grpc/grpc-js';
+import { waitForChannelReady } from 'nice-grpc';
+
 export const createClientAddr = (env: string, service: string, port: number): string => {
   let ip = service;
   if (env != 'production') {
@@ -10,4 +13,10 @@ export const createClientAddr = (env: string, service: string, port: number): st
 export const CLIENT_OPTIONS = {
   'grpc.lb_policy_name': 'round_robin',
   'grpc.service_config': JSON.stringify({ loadBalancingConfig: [{ round_robin: {} }] }),
+};
+
+export const waitReady = async (channel: Channel) => {
+  const deadline = new Date();
+  deadline.setSeconds(deadline.getSeconds() + 15);
+  await waitForChannelReady(channel, deadline);
 };

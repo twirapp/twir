@@ -75,6 +75,7 @@ jobs:
             timers,
             watched,
             websockets,
+            tokens,
             landing,
             dashboard,
             public,

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"os"
 	"os/signal"
 	"reflect"
@@ -20,10 +21,6 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/scheduler"
 	"github.com/satont/tsuwari/libs/grpc/generated/timers"
 
-	"github.com/gofiber/swagger"
-	"github.com/satont/tsuwari/libs/grpc/clients"
-	"github.com/satont/tsuwari/libs/twitch"
-
 	"github.com/getsentry/sentry-go"
 	"github.com/go-playground/locales/en_US"
 	ut "github.com/go-playground/universal-translator"
@@ -31,11 +28,12 @@ import (
 	enTranslations "github.com/go-playground/validator/v10/translations/en"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/satont/go-helix/v2"
+	"github.com/gofiber/swagger"
 	"github.com/satont/tsuwari/apps/api/internal/api/auth"
 	apiv1 "github.com/satont/tsuwari/apps/api/internal/api/v1"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/tsuwari/libs/grpc/clients"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -134,6 +132,7 @@ func main() {
 	do.ProvideValue[scheduler.SchedulerClient](di.Injector, clients.NewScheduler(cfg.AppEnv))
 	do.ProvideValue[timers.TimersClient](di.Injector, clients.NewTimers(cfg.AppEnv))
 	do.ProvideValue[bots.BotsClient](di.Injector, clients.NewBots(cfg.AppEnv))
+	do.ProvideValue[tokens.TokensClient](di.Injector, clients.NewTokens(cfg.AppEnv))
 
 	v1 := app.Group("/v1")
 
@@ -142,11 +141,6 @@ func main() {
 		RedisStorage:        storage,
 		Validator:           validator,
 		ValidatorTranslator: transEN,
-		Twitch: twitch.NewClient(&helix.Options{
-			ClientID:     cfg.TwitchClientId,
-			ClientSecret: cfg.TwitchClientSecret,
-			RedirectURI:  cfg.TwitchCallbackUrl,
-		}),
 	}
 
 	if cfg.FeedbackTelegramBotToken != nil {

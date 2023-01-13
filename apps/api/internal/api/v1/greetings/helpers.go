@@ -1,16 +1,26 @@
 package greetings
 
 import (
-	model "github.com/satont/tsuwari/libs/gomodels"
-
-	"github.com/satont/tsuwari/libs/twitch"
-
+	"github.com/samber/do"
 	"github.com/satont/go-helix/v2"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	cfg "github.com/satont/tsuwari/libs/config"
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 	"gorm.io/gorm"
 )
 
-func getTwitchUserByName(userName string, twitch *twitch.Twitch) *helix.User {
-	twitchUsers, err := twitch.Client.GetUsers(&helix.UsersParams{
+func getTwitchUserByName(userName string) *helix.User {
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
+
+	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+	if err != nil {
+		return nil
+	}
+
+	twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
 		Logins: []string{userName},
 	})
 
@@ -22,8 +32,16 @@ func getTwitchUserByName(userName string, twitch *twitch.Twitch) *helix.User {
 	return &twitchUser
 }
 
-func getTwitchUserById(id string, twitch *twitch.Twitch) *helix.User {
-	twitchUsers, err := twitch.Client.GetUsers(&helix.UsersParams{
+func getTwitchUserById(id string) *helix.User {
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
+
+	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+	if err != nil {
+		return nil
+	}
+
+	twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
 		IDs: []string{id},
 	})
 

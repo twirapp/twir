@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/bots/internal/di"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"log"
 	"net"
 	"net/http"
@@ -18,10 +21,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 
-	"github.com/satont/tsuwari/libs/twitch"
-
 	"github.com/getsentry/sentry-go"
-	helix "github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/bots/internal/bots"
 	"github.com/satont/tsuwari/apps/bots/internal/grpc_impl"
 	"github.com/satont/tsuwari/apps/bots/internal/handlers"
@@ -79,14 +79,9 @@ func main() {
 		panic(err)
 	}
 
-	twitchClient := twitch.NewClient(&helix.Options{
-		ClientID:     cfg.TwitchClientId,
-		ClientSecret: cfg.TwitchClientSecret,
-		RedirectURI:  cfg.TwitchCallbackUrl,
-	})
-
+	do.ProvideValue[tokens.TokensClient](di.Provider, clients.NewTokens(cfg.AppEnv))
+	
 	botsService := bots.NewBotsService(&bots.NewBotsOpts{
-		Twitch:     twitchClient,
 		DB:         db,
 		Logger:     logger,
 		Cfg:        cfg,
@@ -104,6 +99,7 @@ func main() {
 		Db:          db,
 		BotsService: botsService,
 		Logger:      logger,
+		Cfg:         cfg,
 	}))
 	go grpcServer.Serve(grpcNetListener)
 
