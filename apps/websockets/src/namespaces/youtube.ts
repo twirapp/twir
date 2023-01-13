@@ -9,7 +9,6 @@ import { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
 import { type YouTubeSettings } from '@tsuwari/types/api';
 import SocketIo from 'socket.io';
 
-
 import { botsGrpcClient } from '../libs/botsGrpc.js';
 import { authMiddleware, io } from '../libs/io.js';
 import { redis } from '../libs/redis.js';

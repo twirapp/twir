@@ -1,4 +1,4 @@
 import { config } from '@tsuwari/config';
 import { createBots } from '@tsuwari/grpc/clients/bots';
 
-export const botsGrpcClient = createBots(config.NODE_ENV);
+export const botsGrpcClient = await createBots(config.NODE_ENV);

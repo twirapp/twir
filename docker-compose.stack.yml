@@ -337,7 +337,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      target: web
+      target: landing
     image: registry.satont.dev/tsuwari/landing
     secrets:
       - tsuwari_doppler_token

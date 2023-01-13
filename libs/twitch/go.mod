@@ -3,20 +3,18 @@ module github.com/satont/tsuwari/libs/twitch
 go 1.19
 
 require (
-	github.com/satont/go-helix/v2 v2.7.22
-	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
-	gorm.io/gorm v1.24.1
+	github.com/satont/go-helix/v2 v2.7.23
+	google.golang.org/grpc v1.52.0
+	google.golang.org/protobuf v1.28.1
 )
 
 require (
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
-	github.com/guregu/null v4.0.0+incompatible // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/kr/text v0.2.0 // indirect
-	github.com/lib/pq v1.10.7 // indirect
-	github.com/rogpeppe/go-internal v1.9.0 // indirect
-	github.com/satori/go.uuid v1.2.0 // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
+	golang.org/x/net v0.4.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
+	google.golang.org/genproto v0.0.0-20221118155620-16455021b5e6 // indirect
 )
 
 replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels

@@ -5,8 +5,8 @@ use (
 	./apps/bots
 	./apps/parser
 	./apps/timers
-	./apps/watched
 	./apps/tokens
+	./apps/watched
 	./libs/config
 	./libs/gomodels
 	./libs/grpc
