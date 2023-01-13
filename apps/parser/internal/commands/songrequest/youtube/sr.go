@@ -243,10 +243,6 @@ func validate(
 		return err
 	}
 
-	if userId != channelId {
-		return nil
-	}
-
 	if len(settings.DenyList.Users) > 0 {
 		_, isUserDenied := lo.Find(
 			settings.DenyList.Users,
@@ -313,7 +309,7 @@ func validate(
 
 	if settings.Song.MinViews != 0 && song.Views < settings.Song.MinViews {
 		message := fasttemplate.ExecuteString(
-			settings.Translations.Song.MinLength,
+			settings.Translations.Song.MinViews,
 			"{{", "}}",
 			map[string]interface{}{
 				"songTitle":   song.Title,
