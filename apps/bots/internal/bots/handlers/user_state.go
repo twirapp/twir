@@ -6,14 +6,15 @@ import (
 )
 
 func (c *Handlers) OnUserStateMessage(msg irc.UserStateMessage) {
-	badge, botModBadge := msg.User.Badges["moderator"]
-	if botModBadge {
+	moderatorBadge, isModeratorBadge := msg.User.Badges["moderator"]
+	broadcasterBadge, isBroadcasterBadge := msg.User.Badges["broadcaster"]
+	if isModeratorBadge || isBroadcasterBadge {
 		channel := c.BotClient.RateLimiters.Channels.Items[msg.Channel]
 
 		c.BotClient.RateLimiters.Channels.Lock()
 		defer c.BotClient.RateLimiters.Channels.Unlock()
 
-		isMod := badge == 1
+		isMod := moderatorBadge == 1 || broadcasterBadge == 1
 
 		if channel.IsMod && isMod {
 			return
