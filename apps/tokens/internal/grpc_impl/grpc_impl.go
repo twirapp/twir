@@ -8,6 +8,7 @@ import (
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/tokens/internal/di"
 	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/crypto"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -105,6 +106,7 @@ func (c *TokensGrpcImpl) RequestUserToken(
 	defer c.usersLock.Unlock()
 
 	db := do.MustInvoke[gorm.DB](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	user := model.Users{}
 	err := db.Where("id = ?", data.UserId).Preload("Token").Find(&user).Error
@@ -117,23 +119,43 @@ func (c *TokensGrpcImpl) RequestUserToken(
 		return nil, errors.New("cannot find user token in db")
 	}
 
+	encryptedRefreshToken, err := crypto.Decrypt(user.Token.RefreshToken, config.TokensCipherKey)
+	if err != nil {
+		return nil, err
+	}
+
 	if isTokenExpired(int(user.Token.ExpiresIn), user.Token.ObtainmentTimestamp) {
-		newToken, err := c.globalClient.RefreshUserAccessToken(user.Token.RefreshToken)
+		newToken, err := c.globalClient.RefreshUserAccessToken(encryptedRefreshToken)
 
 		if err != nil {
 			return nil, err
 		}
 
-		user.Token.RefreshToken = newToken.Data.RefreshToken
-		user.Token.AccessToken = newToken.Data.AccessToken
+		newRefreshToken, err := crypto.Encrypt(newToken.Data.RefreshToken, config.TokensCipherKey)
+		if err != nil {
+			return nil, err
+		}
+		user.Token.RefreshToken = newRefreshToken
+
+		newAccessToken, err := crypto.Encrypt(newToken.Data.AccessToken, config.TokensCipherKey)
+		if err != nil {
+			return nil, err
+		}
+		user.Token.AccessToken = newAccessToken
+
 		user.Token.ExpiresIn = int32(newToken.Data.ExpiresIn)
 		user.Token.Scopes = newToken.Data.Scopes
 		user.Token.ObtainmentTimestamp = time.Now().UTC()
 		db.Save(&user.Token)
 	}
 
+	encryptedAccessToken, err := crypto.Decrypt(user.Token.AccessToken, config.TokensCipherKey)
+	if err != nil {
+		return nil, err
+	}
+
 	return &tokens.Token{
-		AccessToken: user.Token.AccessToken,
+		AccessToken: encryptedAccessToken,
 		Scopes:      user.Token.Scopes,
 	}, nil
 }
@@ -146,6 +168,7 @@ func (c *TokensGrpcImpl) RequestBotToken(
 	defer c.botsLock.Unlock()
 
 	db := do.MustInvoke[gorm.DB](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	bot := model.Bots{}
 	err := db.Where("id = ?", data.BotId).Preload("Token").Find(&bot).Error
@@ -158,23 +181,43 @@ func (c *TokensGrpcImpl) RequestBotToken(
 		return nil, errors.New("cannot find bot token in db")
 	}
 
+	encryptedRefreshToken, err := crypto.Decrypt(bot.Token.RefreshToken, config.TokensCipherKey)
+	if err != nil {
+		return nil, err
+	}
+
 	if isTokenExpired(int(bot.Token.ExpiresIn), bot.Token.ObtainmentTimestamp) {
-		newToken, err := c.globalClient.RefreshUserAccessToken(bot.Token.RefreshToken)
+		newToken, err := c.globalClient.RefreshUserAccessToken(encryptedRefreshToken)
 
 		if err != nil {
 			return nil, err
 		}
 
-		bot.Token.RefreshToken = newToken.Data.RefreshToken
-		bot.Token.AccessToken = newToken.Data.AccessToken
+		newRefreshToken, err := crypto.Encrypt(newToken.Data.RefreshToken, config.TokensCipherKey)
+		if err != nil {
+			return nil, err
+		}
+		bot.Token.RefreshToken = newRefreshToken
+
+		newAccessToken, err := crypto.Encrypt(newToken.Data.AccessToken, config.TokensCipherKey)
+		if err != nil {
+			return nil, err
+		}
+		bot.Token.AccessToken = newAccessToken
+
 		bot.Token.ExpiresIn = int32(newToken.Data.ExpiresIn)
 		bot.Token.Scopes = newToken.Data.Scopes
 		bot.Token.ObtainmentTimestamp = time.Now().UTC()
 		db.Save(&bot.Token)
 	}
 
+	encryptedAccessToken, err := crypto.Decrypt(bot.Token.AccessToken, config.TokensCipherKey)
+	if err != nil {
+		return nil, err
+	}
+
 	return &tokens.Token{
-		AccessToken: bot.Token.AccessToken,
+		AccessToken: encryptedAccessToken,
 		Scopes:      bot.Token.Scopes,
 	}, nil
 }

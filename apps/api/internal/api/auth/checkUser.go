@@ -9,6 +9,8 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
+	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/crypto"
 	"net/http"
 	"time"
 
@@ -68,6 +70,7 @@ func checkUser(
 	logger := do.MustInvoke[interfaces.Logger](di.Injector)
 	eventSubGrpc := do.MustInvoke[eventsub.EventSubClient](di.Injector)
 	schedulerGrpc := do.MustInvoke[scheduler.SchedulerClient](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Injector)
 
 	defaultBot := model.Bots{}
 	err := services.DB.Where("type = ?", "DEFAULT").First(&defaultBot).Error
@@ -75,9 +78,21 @@ func checkUser(
 		return fiber.NewError(500, "bot not created, cannot create user")
 	}
 
+	accessToken, err := crypto.Encrypt(tokens.AccessToken, config.TokensCipherKey)
+	if err != nil {
+		logger.Error(err)
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	refreshToken, err := crypto.Encrypt(tokens.RefreshToken, config.TokensCipherKey)
+	if err != nil {
+		logger.Error(err)
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
 	tokenData := model.Tokens{
-		AccessToken:         tokens.AccessToken,
-		RefreshToken:        tokens.RefreshToken,
+		AccessToken:         accessToken,
+		RefreshToken:        refreshToken,
 		ExpiresIn:           int32(tokens.ExpiresIn),
 		ObtainmentTimestamp: time.Now().UTC(),
 		Scopes:              tokens.Scopes,

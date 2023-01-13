@@ -8,6 +8,8 @@ replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 
 replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
 
+replace github.com/satont/tsuwari/libs/crypto => ../../libs/crypto
+
 require (
 	github.com/getsentry/sentry-go v0.17.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
@@ -44,6 +46,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/lib/pq v1.10.7 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
+	github.com/satont/tsuwari/libs/crypto v0.0.0-00010101000000-000000000000 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/goleak v1.1.12 // indirect
