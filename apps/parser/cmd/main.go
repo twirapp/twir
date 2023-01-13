@@ -112,7 +112,7 @@ func main() {
 	parser.RegisterParserServer(grpcServer, grpc_impl.NewServer())
 	go grpcServer.Serve(lis)
 
-	logger.Info("Started")
+	logger.Info("Parser microservice started")
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
