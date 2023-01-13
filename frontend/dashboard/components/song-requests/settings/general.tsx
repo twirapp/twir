@@ -2,7 +2,7 @@ import {
   ActionIcon,
   Card,
   Divider,
-  Flex,
+  Flex, NumberInput,
   ScrollArea,
   Select,
   Switch,
@@ -89,6 +89,11 @@ export const YouTubeGeneralSettings: React.FC = () => {
             label={t('general.announcePlay')}
             labelPosition="left"
             {...form.getInputProps('announcePlay', { type: 'checkbox' })}
+          />
+          <NumberInput
+            label={t('general.neededVotesVorSkip')}
+            labelPosition={'left'}
+            {...form.getInputProps('neededVotesVorSkip')}
           />
           <Select
             label={t('general.reward')}

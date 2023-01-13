@@ -39,6 +39,7 @@ const Settings: NextPage = () => {
       channelPointsRewardId: '',
       maxRequests: 500,
       announcePlay: true,
+      neededVotesVorSkip: 30,
       denyList: {
         artistsNames: [],
         songs: [],
@@ -130,15 +131,6 @@ const Settings: NextPage = () => {
   async function submit() {
     const validation = form.validate();
     if (validation.hasErrors) {
-      // for (const error of Object.values(validation.errors).flat(10) as string[]) {
-      //   showNotification({
-      //     title: 'Validation error',
-      //     color: 'red',
-      //     message: error,
-      //   });
-      //   console.log(error);
-      // }
-
       return;
     }
 

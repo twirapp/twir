@@ -80,6 +80,7 @@ type YouTubeSettings struct {
 	MaxRequests           int                 `validate:"lte=500"  json:"maxRequests"`
 	ChannelPointsRewardId string              `validate:"max=100"  json:"channelPointsRewardId"`
 	AnnouncePlay          *bool               `validate:"required" json:"announcePlay"`
+	NeededVotesVorSkip    float64             `validate:"max=100,min=1" json:"neededVotesVorSkip"`
 	User                  YouTubeUserSettings `validate:"required" json:"user"`
 	Song                  YouTubeSongSettings `validate:"required" json:"song"`
 	DenyList              YouTubeDenyList     `validate:"required" json:"denyList"`

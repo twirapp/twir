@@ -5,7 +5,8 @@
     "acceptOnlyWhenOnline": "Accept requests only when stream online",
     "reward": "Channel reward for requesting songs",
     "denied": "Denied channels for requests",
-    "announcePlay": "Announce track play"
+    "announcePlay": "Announce track play",
+    "neededVotesVorSkip": "Needed percentage of votes for skip song"
   },
   "users": {
     "title": "Users",

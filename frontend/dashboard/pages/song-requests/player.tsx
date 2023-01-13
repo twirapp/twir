@@ -124,7 +124,7 @@ const Player: NextPage = () => {
 
     socketRef.current.on('removeTrack', (track: RequestedSong) => {
       const index = videos.findIndex((v) => v.id === track.id);
-      if (index > 0) {
+      if (index >= 0) {
         skipVideo(index, false);
       }
     });

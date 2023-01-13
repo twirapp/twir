@@ -60,6 +60,7 @@ func New() Commands {
 		sr_youtube.SrCommand,
 		sr_youtube.WrongCommand,
 		sr_youtube.SrListCommand,
+		sr_youtube.SkipCommand,
 	}
 
 	ctx := Commands{
