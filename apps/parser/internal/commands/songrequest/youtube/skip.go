@@ -68,7 +68,7 @@ var SkipCommand = types.DefaultCommand{
 		currentSong := &model.RequestedSong{}
 		err = db.
 			Where(`"channelId" = ? AND "deletedAt" IS NULL`, ctx.ChannelId).
-			Order(`"createdAt" desc`).
+			Order(`"createdAt" asc`).
 			Limit(1).
 			Find(&currentSong).
 			Error
