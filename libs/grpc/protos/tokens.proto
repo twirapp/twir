@@ -7,6 +7,8 @@ service Tokens {
   rpc RequestAppToken(google.protobuf.Empty) returns (Token) {}
   rpc RequestUserToken(GetUserTokenRequest) returns (Token) {}
   rpc RequestBotToken(GetBotTokenRequest) returns (Token) {}
+  rpc UpdateBotToken(UpdateToken) returns (google.protobuf.Empty) {}
+  rpc UpdateUserToken(UpdateToken) returns (google.protobuf.Empty) {}
 }
 
 message Token {
@@ -20,4 +22,11 @@ message GetUserTokenRequest {
 
 message GetBotTokenRequest {
   string botId = 1;
+}
+
+message UpdateToken {
+  string accessToken = 1;
+  string refreshToken = 2;
+  int64 expiresIn = 3;
+  repeated string scopes = 4;
 }

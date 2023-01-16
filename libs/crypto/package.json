@@ -1,0 +1,12 @@
+{
+  "name": "@tsuwari/crypto",
+  "private": true,
+  "module": "./dist/src/index.js",
+  "main": "./dist/src/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.18"
+  }
+}

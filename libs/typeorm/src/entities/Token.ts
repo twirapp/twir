@@ -25,7 +25,7 @@ export class Token {
   @Column('integer', { name: 'expiresIn' })
   expiresIn: number;
 
-  @Column('timestamp without time zone', { name: 'obtainmentTimestamp' })
+  @Column('timestamp with time zone', { name: 'obtainmentTimestamp' })
   obtainmentTimestamp: Date;
 
   @Column('text', { array: true, default: [], nullable: true })

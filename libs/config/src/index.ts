@@ -1,6 +1,6 @@
 import { resolve } from 'path';
 
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 import { bool, cleanEnv, str } from 'envalid';
 
 try {
@@ -25,7 +25,8 @@ export const config = cleanEnv(process.env, {
   STEAM_USERNAME: str({ default: '' }),
   STEAM_PASSWORD: str({ default: '' }),
   STEAM_API_KEY: str({ default: '' }),
-  MINIO_USER: str({ devDefault: '' }),
-  MINIO_PASSWORD: str({ devDefault: '' }),
-  MINIO_URL: str({ devDefault: '' }),
+  MINIO_USER: str({ default: '' }),
+  MINIO_PASSWORD: str({ default: '' }),
+  MINIO_URL: str({ default: '' }),
+  TOKENS_CIPHER_KEY: str({ default: 'pnyfwfiulmnqlhkvixaeligpprcnlyke' }),
 });

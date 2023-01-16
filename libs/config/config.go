@@ -22,6 +22,7 @@ type Config struct {
 	JwtAccessSecret          string  `required:"false" default:"CoolSecretForAccess"         envconfig:"JWT_ACCESS_SECRET"`
 	JwtRefreshSecret         string  `required:"false" default:"CoolSecretForRefresh"        envconfig:"JWT_REFRESH_SECRET"`
 	HostName                 string  `required:"false" default:"localhost:3005" envconfig:"HOSTNAME"`
+	TokensCipherKey          string  `required:"false" default:"pnyfwfiulmnqlhkvixaeligpprcnlyke" envconfig:"TOKENS_CIPHER_KEY"`
 }
 
 func New() (*Config, error) {

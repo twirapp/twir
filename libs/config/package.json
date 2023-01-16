@@ -1,8 +1,6 @@
 {
   "name": "@tsuwari/config",
   "private": true,
-  "type": "module",
-  "module": "./dist/src/index.js",
   "main": "./dist/src/index.js",
   "scripts": {
     "prebuild": "rm -rf .dist",

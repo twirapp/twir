@@ -46,7 +46,7 @@ COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/shared libs/shared/
 COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/pubsub libs/pubsub/
-COPY --from=base /app/patches patches/
+COPY --from=base /app/libs/crypto libs/crypto/
 COPY --from=base /app/patches patches/
 RUN pnpm install --prod --frozen-lockfile
 
@@ -142,6 +142,7 @@ FROM node_deps_base as migrations_deps
 COPY --from=base /app/tsconfig.json /app/tsconfig.base.json ./
 COPY --from=base /app/libs/typeorm libs/typeorm/
 COPY --from=base /app/libs/config libs/config/
+COPY --from=base /app/libs/crypto libs/crypto/
 COPY --from=base /app/patches patches/
 RUN pnpm install --prod --frozen-lockfile
 
@@ -210,6 +211,7 @@ COPY --from=base /app/libs/gomodels libs/gomodels/
 COPY --from=base /app/libs/ytdl libs/ytdl/
 COPY --from=base /app/libs/ytsr libs/ytsr/
 COPY --from=base /app/libs/types libs/types/
+COPY --from=base /app/libs/crypto libs/crypto/
 COPY --from=base /app/libs/integrations/spotify libs/integrations/spotify/
 RUN rm -r `find . -name node_modules -type d`
 
