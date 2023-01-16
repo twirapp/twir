@@ -2,6 +2,7 @@ package apiv1
 
 import (
 	"github.com/gofiber/fiber/v2"
+	admin_users "github.com/satont/tsuwari/apps/api/internal/api/v1/admin/users"
 	public_commands "github.com/satont/tsuwari/apps/api/internal/api/v1/public/commands"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/public/song_requests"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/rewards"
@@ -32,6 +33,11 @@ import (
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	feedback.Setup(router, services)
 	stats.Setup(router, services)
+
+	adminGroup := router.Group("admin")
+	adminGroup.Use(middlewares.CheckUserAuth(services))
+	adminGroup.Use(middlewares.IsAdmin)
+	admin_users.Setup(adminGroup, services)
 
 	twitchGroup := router.Group("twitch")
 	users.Setup(twitchGroup, services)

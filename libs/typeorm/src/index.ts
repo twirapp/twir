@@ -31,6 +31,7 @@ import { DotaHero } from './entities/DotaHero';
 import { DotaMatch } from './entities/DotaMatch';
 import { DotaMatchCard } from './entities/DotaMatchCard';
 import { DotaMatchResult } from './entities/DotaMatchResult';
+import { IgnoredUser } from './entities/IgnoredUser';
 import { Integration } from './entities/Integration';
 import { Notification } from './entities/Notification';
 import { NotificationMessage } from './entities/NotificationMessage';
@@ -87,6 +88,7 @@ export const AppDataSource = new DataSource({
     ChannelStream,
     ChannelChatMessage,
     RequestedSong,
+    IgnoredUser,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

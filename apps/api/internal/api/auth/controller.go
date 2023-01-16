@@ -42,7 +42,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
-var scopes = []string{"moderation:read", "channel:manage:broadcast", "channel:read:redemptions"}
+var scopes = []string{"moderation:read", "channel:manage:broadcast", "channel:read:redemptions", "moderator:read:chatters"}
 
 func get() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
