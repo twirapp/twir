@@ -76,6 +76,7 @@ jobs:
             watched,
             websockets,
             tokens,
+            postgres-backup,
             landing,
             dashboard,
             public,

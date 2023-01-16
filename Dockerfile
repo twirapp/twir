@@ -309,3 +309,8 @@ EXPOSE 3000
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["pnpm", "--filter=@tsuwari/public", "start"]
+
+FROM satont/postgresql-backup-s3 as postgres-backup
+WORKDIR /app
+COPY --from=base /app/docker-entrypoint.sh /app/
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

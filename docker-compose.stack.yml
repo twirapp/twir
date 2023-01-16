@@ -38,6 +38,24 @@ services:
         constraints:
           - node.role == manager
 
+  postgres-backup:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: postgres-backup
+    image: registry.satont.dev/tsuwari/postgres-backup
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
   # backup:
   #   image: satont/postgresql-backup-s3
   #   environment:
