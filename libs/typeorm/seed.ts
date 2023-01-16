@@ -1,12 +1,15 @@
 import { resolve } from 'path';
 
+import { encrypt } from '@tsuwari/crypto';
 import * as dotenv from 'dotenv';
+
+dotenv.config({ path: resolve(process.cwd(), '../../.env') });
 
 import { AppDataSource } from './src';
 import { Bot, BotType } from './src/entities/Bot';
 import { Token } from './src/entities/Token';
 
-dotenv.config({ path: resolve(process.cwd(), '../../.env') });
+import { config } from '@tsuwari/config';
 
 async function bootstrap() {
   const typeorm = await AppDataSource.initialize();
@@ -40,10 +43,11 @@ async function bootstrap() {
   }
 
   const token = await typeorm.getRepository(Token).save({
-    accessToken: BOT_ACCESS_TOKEN,
-    refreshToken: BOT_REFRESH_TOKEN,
+    accessToken: encrypt(BOT_ACCESS_TOKEN, config.TOKENS_CIPHER_KEY!),
+    refreshToken: encrypt(BOT_REFRESH_TOKEN, config.TOKENS_CIPHER_KEY!),
     expiresIn: response.expires_in,
     obtainmentTimestamp: new Date(),
+    scopes: response.scopes,
   });
 
   await typeorm.getRepository(Bot).save({

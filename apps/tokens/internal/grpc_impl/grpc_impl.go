@@ -119,13 +119,13 @@ func (c *TokensGrpcImpl) RequestUserToken(
 		return nil, errors.New("cannot find user token in db")
 	}
 
-	encryptedRefreshToken, err := crypto.Decrypt(user.Token.RefreshToken, config.TokensCipherKey)
+	decryptedRefreshToken, err := crypto.Decrypt(user.Token.RefreshToken, config.TokensCipherKey)
 	if err != nil {
 		return nil, err
 	}
 
 	if isTokenExpired(int(user.Token.ExpiresIn), user.Token.ObtainmentTimestamp) {
-		newToken, err := c.globalClient.RefreshUserAccessToken(encryptedRefreshToken)
+		newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
 
 		if err != nil {
 			return nil, err
@@ -149,13 +149,13 @@ func (c *TokensGrpcImpl) RequestUserToken(
 		db.Save(&user.Token)
 	}
 
-	encryptedAccessToken, err := crypto.Decrypt(user.Token.AccessToken, config.TokensCipherKey)
+	decryptedAccessToken, err := crypto.Decrypt(user.Token.AccessToken, config.TokensCipherKey)
 	if err != nil {
 		return nil, err
 	}
 
 	return &tokens.Token{
-		AccessToken: encryptedAccessToken,
+		AccessToken: decryptedAccessToken,
 		Scopes:      user.Token.Scopes,
 	}, nil
 }
@@ -181,13 +181,13 @@ func (c *TokensGrpcImpl) RequestBotToken(
 		return nil, errors.New("cannot find bot token in db")
 	}
 
-	encryptedRefreshToken, err := crypto.Decrypt(bot.Token.RefreshToken, config.TokensCipherKey)
+	decryptedRefreshToken, err := crypto.Decrypt(bot.Token.RefreshToken, config.TokensCipherKey)
 	if err != nil {
 		return nil, err
 	}
 
 	if isTokenExpired(int(bot.Token.ExpiresIn), bot.Token.ObtainmentTimestamp) {
-		newToken, err := c.globalClient.RefreshUserAccessToken(encryptedRefreshToken)
+		newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
 
 		if err != nil {
 			return nil, err
@@ -211,13 +211,13 @@ func (c *TokensGrpcImpl) RequestBotToken(
 		db.Save(&bot.Token)
 	}
 
-	encryptedAccessToken, err := crypto.Decrypt(bot.Token.AccessToken, config.TokensCipherKey)
+	decryptedAcessToken, err := crypto.Decrypt(bot.Token.AccessToken, config.TokensCipherKey)
 	if err != nil {
 		return nil, err
 	}
 
 	return &tokens.Token{
-		AccessToken: encryptedAccessToken,
+		AccessToken: decryptedAcessToken,
 		Scopes:      bot.Token.Scopes,
 	}, nil
 }
