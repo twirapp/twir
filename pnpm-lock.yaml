@@ -138,6 +138,7 @@ importers:
       nice-grpc: ^2.0.1
       socket.io-client: 2.3.1
       ws: ^8.11.0
+      xmlhttprequest: ^1.8.0
     dependencies:
       '@tsuwari/config': link:../../libs/config
       '@tsuwari/grpc': link:../../libs/grpc
@@ -149,6 +150,7 @@ importers:
       nice-grpc: 2.0.1
       socket.io-client: 2.3.1
       ws: 8.11.0
+      xmlhttprequest: 1.8.0
     devDependencies:
       '@types/socket.io-client': 1.4.36
       '@types/ws': 8.5.3
@@ -17327,6 +17329,11 @@ packages:
 
   /xmlhttprequest-ssl/2.0.0:
     resolution: {integrity: sha512-QKxVRxiRACQcVuQEYFsI1hhkrMlrXHPegbbd1yn9UHOmRxY+si12nQYzri3vbzt8VdTTRviqcKxcyllFas5z2A==}
+    engines: {node: '>=0.4.0'}
+    dev: false
+
+  /xmlhttprequest/1.8.0:
+    resolution: {integrity: sha512-58Im/U0mlVBLM38NdZjHyhuMtCqa61469k2YP/AaPbvCoV9aQGUpbJBj1QRm2ytRiVQBD/fsw7L2bJGDVQswBA==}
     engines: {node: '>=0.4.0'}
     dev: false
 

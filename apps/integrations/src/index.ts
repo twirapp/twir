@@ -5,17 +5,19 @@ import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration
 import { IntegrationService } from '@tsuwari/typeorm/entities/Integration';
 import { createServer } from 'nice-grpc';
 
+import { addDonatePayIntegration, DonatePay } from './services/donatepay.js';
 import { addDonationAlertsIntegration, DonationAlerts } from './services/donationAlerts.js';
 import { addStreamlabsIntegration, StreamLabs } from './services/streamLabs.js';
 
 export const typeorm = await AppDataSource.initialize();
 export const donationAlertsStore: Map<string, DonationAlerts> = new Map();
 export const streamlabsStore: Map<string, StreamLabs> = new Map();
+export const donatePayStore: Map<string, DonatePay> = new Map();
 
 const integrations = await typeorm.getRepository(ChannelIntegration).find({
   where: {
     integration: {
-      service: In([IntegrationService.DONATIONALERTS, IntegrationService.STREAMLABS]),
+      service: In([IntegrationService.DONATIONALERTS, IntegrationService.STREAMLABS, IntegrationService.DONATEPAY]),
     },
     enabled: true,
     channel: {
@@ -42,6 +44,14 @@ for (const integration of integrations) {
     addStreamlabsIntegration(integration).then((r) => {
       if (r) {
         streamlabsStore.set(integration.channelId, r);
+      }
+    });
+  }
+
+  if (integration.integration?.service === IntegrationService.DONATEPAY) {
+    addDonatePayIntegration(integration).then((r) => {
+      if (r) {
+        donatePayStore.set(integration.channelId, r);
       }
     });
   }
@@ -76,6 +86,12 @@ const integrationsServer: Integrations.IntegrationsServiceImplementation = {
       const instance = await addStreamlabsIntegration(integration);
       if (instance) {
         streamlabsStore.set(integration.channelId, instance);
+      }
+    }
+    if (integration.integration?.service === IntegrationService.DONATEPAY) {
+      const instance = await addDonatePayIntegration(integration);
+      if (instance) {
+        donatePayStore.set(integration.channelId, instance);
       }
     }
 
@@ -117,6 +133,13 @@ async function removeIntegration(integration: ChannelIntegration) {
     if (!existed) return;
     await existed.destroy();
     donationAlertsStore.delete(integration.channelId);
+  }
+
+  if (integration.integration?.service === IntegrationService.DONATEPAY) {
+    const existed = donatePayStore.get(integration.channelId);
+    if (!existed) return;
+    await existed.disconnect();
+    donatePayStore.delete(integration.channelId);
   }
 }
 
