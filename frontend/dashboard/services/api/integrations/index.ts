@@ -26,7 +26,7 @@ const createIntegrationManager = <T>(system: string): Integration<T> => {
       queryKey: [`${getUrl(system)}/auth`],
       queryFn: () => authFetcher(`${getUrl(system)}/auth`),
     }),
-    usePost: () => useMutation({
+    usePostCode: () => useMutation({
       mutationFn: ({ code }) => {
         return authFetcher(
           getUrl(system),
