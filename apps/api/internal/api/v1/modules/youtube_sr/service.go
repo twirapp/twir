@@ -150,21 +150,19 @@ func handlePost(channelId string, dto *youtube.YouTubeSettings, services types.S
 		}
 	}
 
-	bytes, err := json.Marshal(dto)
+	bytes, err := json.Marshal(*dto)
 	if err != nil {
 		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	if existedSettings.ID == "" {
-		newSettings := model.ChannelModulesSettings{
-			ID:        uuid.NewV4().String(),
-			Type:      "youtube_song_requests",
-			Settings:  bytes,
-			ChannelId: channelId,
-		}
-
-		err = services.DB.Create(&newSettings).Error
+		err = services.DB.Model(&model.ChannelModulesSettings{}).Create(map[string]interface{}{
+			"id":        uuid.NewV4().String(),
+			"type":      "youtube_song_requests",
+			"settings":  bytes,
+			"channelId": channelId,
+		}).Error
 		if err != nil {
 			logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
