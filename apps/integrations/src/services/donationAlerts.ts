@@ -4,7 +4,7 @@ import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration
 import Centrifuge from 'centrifuge';
 import WebSocket from 'ws';
 
-import { donationAlertsStore, typeorm } from '../index.js';
+import { donationAlertsStore, removeIntegration, typeorm } from '../index.js';
 import { sendMessage } from '../libs/sender.js';
 
 export class DonationAlerts {
@@ -109,7 +109,7 @@ export async function addDonationAlertsIntegration(integration: ChannelIntegrati
   }
 
   if (donationAlertsStore.get(integration.channelId)) {
-    return;
+    await removeIntegration(integration);
   }
 
   const refresh = await fetch('https://www.donationalerts.com/oauth/token', {

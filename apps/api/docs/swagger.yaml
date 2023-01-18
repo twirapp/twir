@@ -130,6 +130,13 @@ definitions:
       enabled:
         type: boolean
     type: object
+  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO:
+    properties:
+      apiKey:
+        type: string
+    required:
+    - apiKey
+    type: object
   github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto:
     properties:
       code:
@@ -601,6 +608,13 @@ definitions:
     properties:
       enabled:
         type: boolean
+    type: object
+  internal_api_v1_integrations_donatepay.createOrUpdateDTO:
+    properties:
+      apiKey:
+        type: string
+    required:
+    - apiKey
     type: object
   internal_api_v1_integrations_donationalerts.tokenDto:
     properties:
@@ -1102,6 +1116,11 @@ definitions:
       title:
         type: string
     type: object
+  modules.YouTubeChannelTranslations:
+    properties:
+      denied:
+        type: string
+    type: object
   modules.YouTubeDenyList:
     properties:
       artistsNames:
@@ -1189,8 +1208,14 @@ definitions:
       maxRequests:
         maximum: 500
         type: integer
+      neededVotesVorSkip:
+        maximum: 100
+        minimum: 1
+        type: number
       song:
         $ref: '#/definitions/modules.YouTubeSongSettings'
+      translations:
+        $ref: '#/definitions/modules.YouTubeTranslations'
       user:
         $ref: '#/definitions/modules.YouTubeUserSettings'
     required:
@@ -1199,6 +1224,7 @@ definitions:
     - denyList
     - enabled
     - song
+    - translations
     - user
     type: object
   modules.YouTubeSongSettings:
@@ -1210,9 +1236,55 @@ definitions:
       maxLength:
         maximum: 86400
         type: integer
+      minLength:
+        maximum: 86399
+        minimum: 0
+        type: integer
       minViews:
         maximum: 10000000000000
         type: integer
+    type: object
+  modules.YouTubeSongTranslations:
+    properties:
+      ageRestrictions:
+        type: string
+      alreadyInQueue:
+        type: string
+      cannotGetInformation:
+        type: string
+      denied:
+        type: string
+      live:
+        type: string
+      maxLength:
+        type: string
+      maximumOrdered:
+        type: string
+      minLength:
+        type: string
+      minViews:
+        type: string
+      notFound:
+        type: string
+      requestedMessage:
+        type: string
+    type: object
+  modules.YouTubeTranslations:
+    properties:
+      acceptOnlyWhenOnline:
+        type: string
+      channel:
+        $ref: '#/definitions/modules.YouTubeChannelTranslations'
+      noText:
+        type: string
+      notEnabled:
+        type: string
+      nowPlaying:
+        type: string
+      song:
+        $ref: '#/definitions/modules.YouTubeSongTranslations'
+      user:
+        $ref: '#/definitions/modules.YouTubeUserTranslations'
     type: object
   modules.YouTubeUserSettings:
     properties:
@@ -1224,6 +1296,19 @@ definitions:
         type: integer
       minWatchTime:
         type: integer
+    type: object
+  modules.YouTubeUserTranslations:
+    properties:
+      denied:
+        type: string
+      maxRequests:
+        type: string
+      minFollow:
+        type: string
+      minMessages:
+        type: string
+      minWatched:
+        type: string
     type: object
   parser.GetVariablesResponse_Variable:
     properties:
@@ -1392,7 +1477,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1464,7 +1549,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1506,7 +1591,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1675,6 +1760,63 @@ paths:
       summary: Update greeting
       tags:
       - Greetings
+  /v1/channels/{channelId}/integrations/donatepay:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ChannelId
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get DonatePay token
+      tags:
+      - Integrations|DonatePay
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_v1_integrations_donatepay.createOrUpdateDTO'
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Authorize DonatePay
+      tags:
+      - Integrations|DonatePay
   /v1/channels/{channelId}/integrations/donationalerts:
     get:
       consumes:
@@ -1827,7 +1969,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_faceit.tokenDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1926,7 +2068,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_api_v1_integrations_lastfm.LastfmProfile'
+              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile'
             type: array
         "500":
           description: Internal Server Error
@@ -1946,7 +2088,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_lastfm.lastfmDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2276,7 +2418,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile'
+            $ref: '#/definitions/internal_api_v1_integrations_vk.profile'
         "500":
           description: Internal Server Error
           schema:
@@ -2295,7 +2437,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto'
+          $ref: '#/definitions/internal_api_v1_integrations_vk.vkDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2594,7 +2736,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_moderation.moderationDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2731,7 +2873,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
+              $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.Entity'
             type: array
         "500":
           description: Internal Server Error
@@ -2751,7 +2893,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto'
+          $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.addUserDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2763,7 +2905,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
+            $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.Entity'
         "400":
           description: Bad Request
           schema:
@@ -3018,7 +3160,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_variables.variableDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3090,7 +3232,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_variables.variableDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto'
       - description: ID of channel
         in: path
         name: channelId

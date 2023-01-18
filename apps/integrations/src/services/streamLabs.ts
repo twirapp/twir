@@ -3,7 +3,7 @@ import { ChannelDonationEvent } from '@tsuwari/typeorm/entities/channelEvents/Do
 import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration';
 import * as IO from 'socket.io-client';
 
-import { typeorm } from '../index.js';
+import { removeIntegration, typeorm } from '../index.js';
 import { sendMessage } from '../libs/sender.js';
 
 type Socket = typeof IO.Socket;
@@ -81,6 +81,8 @@ export async function addStreamlabsIntegration(integration: ChannelIntegration) 
   ) {
     return;
   }
+
+  await removeIntegration(integration);
 
   const refresh = await fetch('https://www.twitchalerts.com/api/v1.0/token', {
     method: 'POST',

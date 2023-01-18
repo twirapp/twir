@@ -185,7 +185,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -242,7 +242,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -363,7 +363,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandPatchDto"
                         }
                     },
                     {
@@ -620,6 +620,97 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/channels/{channelId}/integrations/donatepay": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Integrations|DonatePay"
+                ],
+                "summary": "Get DonatePay token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ChannelId",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations|DonatePay"
+                ],
+                "summary": "Authorize DonatePay",
+                "parameters": [
+                    {
+                        "description": "Data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_api_v1_integrations_donatepay.createOrUpdateDTO"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/channels/{channelId}/integrations/donationalerts": {
             "get": {
                 "security": [
@@ -871,7 +962,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_faceit.tokenDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.tokenDto"
                         }
                     },
                     {
@@ -1026,7 +1117,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/internal_api_v1_integrations_lastfm.LastfmProfile"
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile"
                             }
                         }
                     },
@@ -1061,7 +1152,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_lastfm.lastfmDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto"
                         }
                     },
                     {
@@ -1585,7 +1676,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile"
+                            "$ref": "#/definitions/internal_api_v1_integrations_vk.profile"
                         }
                     },
                     "500": {
@@ -1619,7 +1710,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_vk.vkDto"
                         }
                     },
                     {
@@ -2091,7 +2182,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_moderation.moderationDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto"
                         }
                     },
                     {
@@ -2305,7 +2396,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity"
+                                "$ref": "#/definitions/internal_api_v1_settings_dashboardAccess.Entity"
                             }
                         }
                     },
@@ -2340,7 +2431,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto"
+                            "$ref": "#/definitions/internal_api_v1_settings_dashboardAccess.addUserDto"
                         }
                     },
                     {
@@ -2355,7 +2446,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity"
+                            "$ref": "#/definitions/internal_api_v1_settings_dashboardAccess.Entity"
                         }
                     },
                     "400": {
@@ -2761,7 +2852,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_variables.variableDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto"
                         }
                     },
                     {
@@ -2863,7 +2954,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_variables.variableDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto"
                         }
                     },
                     {
@@ -3183,6 +3274,17 @@ const docTemplate = `{
             "properties": {
                 "enabled": {
                     "type": "boolean"
+                }
+            }
+        },
+        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO": {
+            "type": "object",
+            "required": [
+                "apiKey"
+            ],
+            "properties": {
+                "apiKey": {
+                    "type": "string"
                 }
             }
         },
@@ -3884,6 +3986,17 @@ const docTemplate = `{
             "properties": {
                 "enabled": {
                     "type": "boolean"
+                }
+            }
+        },
+        "internal_api_v1_integrations_donatepay.createOrUpdateDTO": {
+            "type": "object",
+            "required": [
+                "apiKey"
+            ],
+            "properties": {
+                "apiKey": {
+                    "type": "string"
                 }
             }
         },
@@ -4624,6 +4737,14 @@ const docTemplate = `{
                 }
             }
         },
+        "modules.YouTubeChannelTranslations": {
+            "type": "object",
+            "properties": {
+                "denied": {
+                    "type": "string"
+                }
+            }
+        },
         "modules.YouTubeDenyList": {
             "type": "object",
             "required": [
@@ -4731,6 +4852,7 @@ const docTemplate = `{
                 "denyList",
                 "enabled",
                 "song",
+                "translations",
                 "user"
             ],
             "properties": {
@@ -4754,8 +4876,16 @@ const docTemplate = `{
                     "type": "integer",
                     "maximum": 500
                 },
+                "neededVotesVorSkip": {
+                    "type": "number",
+                    "maximum": 100,
+                    "minimum": 1
+                },
                 "song": {
                     "$ref": "#/definitions/modules.YouTubeSongSettings"
+                },
+                "translations": {
+                    "$ref": "#/definitions/modules.YouTubeTranslations"
                 },
                 "user": {
                     "$ref": "#/definitions/modules.YouTubeUserSettings"
@@ -4775,9 +4905,78 @@ const docTemplate = `{
                     "type": "integer",
                     "maximum": 86400
                 },
+                "minLength": {
+                    "type": "integer",
+                    "maximum": 86399,
+                    "minimum": 0
+                },
                 "minViews": {
                     "type": "integer",
                     "maximum": 10000000000000
+                }
+            }
+        },
+        "modules.YouTubeSongTranslations": {
+            "type": "object",
+            "properties": {
+                "ageRestrictions": {
+                    "type": "string"
+                },
+                "alreadyInQueue": {
+                    "type": "string"
+                },
+                "cannotGetInformation": {
+                    "type": "string"
+                },
+                "denied": {
+                    "type": "string"
+                },
+                "live": {
+                    "type": "string"
+                },
+                "maxLength": {
+                    "type": "string"
+                },
+                "maximumOrdered": {
+                    "type": "string"
+                },
+                "minLength": {
+                    "type": "string"
+                },
+                "minViews": {
+                    "type": "string"
+                },
+                "notFound": {
+                    "type": "string"
+                },
+                "requestedMessage": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules.YouTubeTranslations": {
+            "type": "object",
+            "properties": {
+                "acceptOnlyWhenOnline": {
+                    "type": "string"
+                },
+                "channel": {
+                    "$ref": "#/definitions/modules.YouTubeChannelTranslations"
+                },
+                "noText": {
+                    "type": "string"
+                },
+                "notEnabled": {
+                    "type": "string"
+                },
+                "nowPlaying": {
+                    "type": "string"
+                },
+                "song": {
+                    "$ref": "#/definitions/modules.YouTubeSongTranslations"
+                },
+                "user": {
+                    "$ref": "#/definitions/modules.YouTubeUserTranslations"
                 }
             }
         },
@@ -4795,6 +4994,26 @@ const docTemplate = `{
                 },
                 "minWatchTime": {
                     "type": "integer"
+                }
+            }
+        },
+        "modules.YouTubeUserTranslations": {
+            "type": "object",
+            "properties": {
+                "denied": {
+                    "type": "string"
+                },
+                "maxRequests": {
+                    "type": "string"
+                },
+                "minFollow": {
+                    "type": "string"
+                },
+                "minMessages": {
+                    "type": "string"
+                },
+                "minWatched": {
+                    "type": "string"
                 }
             }
         },

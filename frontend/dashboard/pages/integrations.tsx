@@ -7,13 +7,14 @@ import { SpotifyIntegration } from '../components/integrations/spotify';
 import { StreamlabsIntegration } from '../components/integrations/streamlabs';
 import { VKIntegration } from '../components/integrations/vk';
 
+import { DonatePayIntegration } from '@/components/integrations/donatepay';
 import { FaceitIntegration } from '@/components/integrations/faceit';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale, ['integrations', 'layout'])),
+        ...(await serverSideTranslations(locale, ['integrations', 'layout', 'common'])),
     },
 });
 
@@ -45,6 +46,9 @@ export default function Integrations() {
       </Grid.Col>
       <Grid.Col {...cols}>
         <FaceitIntegration />
+      </Grid.Col>
+      <Grid.Col {...cols}>
+        <DonatePayIntegration />
       </Grid.Col>
     </Grid>
   );

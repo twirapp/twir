@@ -1,10 +1,10 @@
 import { config } from '@tsuwari/config';
-import { MyRefreshingProvider } from '@tsuwari/shared';
 import { Channel } from '@tsuwari/typeorm/entities/Channel';
-import { Token } from '@tsuwari/typeorm/entities/Token';
 import { ApiClient, HelixChatAnnoucementColor } from '@twurple/api';
+import { StaticAuthProvider } from '@twurple/auth';
 
 import { typeorm } from '../index.js';
+import { tokensGrpcClient } from './tokensGrpc.js';
 
 export async function sendMessage(opts: {
   channelId: string;
@@ -13,20 +13,18 @@ export async function sendMessage(opts: {
 }) {
   const channel = await typeorm.getRepository(Channel).findOne({
     where: { id: opts.channelId },
-    relations: {
-      bot: { token: true },
-    },
   });
 
-  if (!channel || !channel?.bot?.token) return;
+  if (!channel) return;
+
+  const token = await tokensGrpcClient.requestBotToken({
+    botId: channel.botId,
+  }).catch(() => null);
+
+  if (!token) return;
 
   const botApi = new ApiClient({
-    authProvider: new MyRefreshingProvider({
-      clientId: config.TWITCH_CLIENTID,
-      clientSecret: config.TWITCH_CLIENTSECRET,
-      repository: typeorm.getRepository(Token),
-      token: channel.bot.token,
-    }),
+    authProvider: new StaticAuthProvider(config.TWITCH_CLIENTID, token.accessToken, token.scopes),
   });
 
   await botApi.chat.sendAnnouncement(opts.channelId, channel.botId, {

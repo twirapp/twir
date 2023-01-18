@@ -4,6 +4,7 @@ import { useContext } from 'react';
 import { authFetcher, queryClient } from '@/services/api';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
+export * from './donatepay';
 
 export interface Integration<T> {
   useData: () => UseQueryResult<T, unknown>,
@@ -25,7 +26,7 @@ const createIntegrationManager = <T>(system: string): Integration<T> => {
       queryKey: [`${getUrl(system)}/auth`],
       queryFn: () => authFetcher(`${getUrl(system)}/auth`),
     }),
-    usePostCode: () => useMutation({
+    usePost: () => useMutation({
       mutationFn: ({ code }) => {
         return authFetcher(
           getUrl(system),
