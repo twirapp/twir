@@ -120,7 +120,7 @@ server.add(Integrations.IntegrationsDefinition, integrationsServer);
 
 await server.listen(`0.0.0.0:${PORTS.INTEGRATIONS_SERVER_PORT}`);
 
-async function removeIntegration(integration: ChannelIntegration) {
+export async function removeIntegration(integration: ChannelIntegration) {
   if (integration.integration?.service === IntegrationService.STREAMLABS) {
     const existed = streamlabsStore.get(integration.channelId);
     if (!existed) return;

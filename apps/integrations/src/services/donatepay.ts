@@ -7,9 +7,8 @@ import ws from 'ws';
 // @ts-ignore
 import { XMLHttpRequest } from 'xmlhttprequest';
 
-import { donatePayStore, typeorm } from '../index.js';
+import { donatePayStore, removeIntegration, typeorm } from '../index.js';
 import { sendMessage } from '../libs/sender.js';
-import { DonationAlerts } from './donationAlerts';
 
 global.XMLHttpRequest = XMLHttpRequest;
 
@@ -84,6 +83,7 @@ export class DonatePay {
   async disconnect() {
     await this.#subscription.unsubscribe();
     this.#centrifuge.disconnect();
+    console.info(`DonatePay: disconnected from channel ${this.twitchUserId}`);
   }
 
   async #getUserId() {
@@ -139,7 +139,7 @@ export async function addDonatePayIntegration(integration: ChannelIntegration) {
   }
 
   if (donatePayStore.get(integration.channelId)) {
-    return;
+    await removeIntegration(integration);
   }
 
   const instance = new DonatePay(integration.channelId, integration.apiKey);
