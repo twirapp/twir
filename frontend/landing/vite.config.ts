@@ -29,11 +29,6 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
-  build: {
-    rollupOptions: {
-      external: ['@egjs/list-differ'],
-    },
-  },
   // base: 'dashboard',
   server: {
     host: true,
