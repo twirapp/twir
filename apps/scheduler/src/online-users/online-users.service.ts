@@ -1,9 +1,10 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { config } from '@tsuwari/config';
-import { In, IsNull, Not } from '@tsuwari/typeorm';
+import { In } from '@tsuwari/typeorm';
 import { ChannelStream } from '@tsuwari/typeorm/entities/ChannelStream';
 import { IgnoredUser } from '@tsuwari/typeorm/entities/IgnoredUser';
+import { User } from '@tsuwari/typeorm/entities/User';
 import { UserOnline } from '@tsuwari/typeorm/entities/UserOnline';
 import { ApiClient } from '@twurple/api';
 import { StaticAuthProvider } from '@twurple/auth';
@@ -107,8 +108,21 @@ export class OnlineUsersService implements OnModuleInit {
           (c) => !current.some((cur) => cur.userId === c.userId),
         );
 
-        await usersRepository.remove(forDelete);
-        await usersRepository.save(forCreate);
+        const forCreateChunks = _.chunk(forCreate, 1000);
+
+        await typeorm.transaction(async (manager) => {
+          await manager.remove(forDelete);
+          for (const chunk of forCreateChunks) {
+            const repository = typeorm.getRepository(User);
+            const existedUsers = await repository.findBy({
+              id: In(chunk.map(u => u.userId)),
+            });
+
+            const usersForCreate = chunk.filter(u => !existedUsers.some(e => e.id === u.userId));
+            await manager.save(usersForCreate.map(u => repository.create({ id: u.userId })));
+            await manager.save(chunk.map(u => usersRepository.create(u)));
+          }
+        });
       }),
     );
   }
