@@ -103,7 +103,12 @@ func (c *parserGrpcServer) ProcessCommand(
 		}
 	}
 
-	hasPerm := permissions.UserHasPermissionToCommand(data.Sender.Badges, cmd.Cmd.Permission)
+	hasPerm := permissions.IsUserHasPermissionToCommand(
+		data.Sender.Id,
+		data.Channel.Id,
+		data.Sender.Badges,
+		cmd.Cmd.Permission,
+	)
 
 	if !hasPerm {
 		return nil, errors.New("have no permissions")
