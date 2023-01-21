@@ -9,6 +9,7 @@ import {
   Text,
   UnstyledButton,
   useMantineTheme,
+  Button,
 } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import { useSpotlight } from '@mantine/spotlight';
@@ -18,7 +19,7 @@ import {
   IconClipboardCopy,
   IconClockHour7,
   IconCommand,
-  IconDashboard,
+  IconDashboard, IconExternalLink,
   IconHeadphones,
   IconKey,
   IconPencilPlus,
@@ -259,6 +260,21 @@ export function SideBar(props: Props) {
               </Box>
             </Group>
           </UnstyledButton>
+          <Button
+              size={'xs'}
+              compact
+              color="grape"
+              style={{ marginTop: 5 }}
+              variant={'light'}
+              component="a"
+              href={'window' in globalThis ? `${window.location.origin}/p/${selectedDashboard?.twitchUser.login}/commands` : ''}
+              target={'_blank'}
+              leftIcon={<IconExternalLink size={14} />}
+              w={'100%'}
+          >
+              Public page
+          </Button>
+
         </Box>
       </Navbar.Section>
     </Navbar>
