@@ -56,7 +56,7 @@ const SongRequests: NextPage = () => {
     </tr>
     </thead>
     <tbody>
-    {songs?.map((c, i) => <tr>
+    {songs?.map((c, i) => <tr key={i}>
       <td>{i + 1}</td>
       <td><Anchor href={'https://youtu.be/' + c.videoId} target={'_blank'}>{c.title}</Anchor></td>
       <td>{c.orderedByDisplayName ?? c.orderedByName}</td>

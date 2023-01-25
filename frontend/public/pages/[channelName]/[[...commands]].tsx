@@ -2,11 +2,11 @@ import { Badge, Table, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
 
 import { useUsersByNames } from '@/services/users';
 
 type Command = {
+  id: string
   name: string
   responses: string[]
   permission: string
@@ -41,17 +41,18 @@ const Commands: NextPage = () => {
     </tr>
     </thead>
     <tbody>
-    {commands?.map(c => <tr>
-      <td>{c.name}</td>
-      <td>{c.responses.map(r => <Text
+    {commands?.map((c, commandIndex) => <tr key={commandIndex}>
+      <td>{c?.name}</td>
+      <td>{c?.responses?.map((r, responseIndex) => <Text
+        key={responseIndex}
         title={r}
         lineClamp={1}
         style={{ textOverflow: 'ellipsis', overflow: 'hidden' }}
       >
         {r}
       </Text>)}</td>
-      <td><Badge>{c.permission}</Badge></td>
-      <td>{c.cooldown} ({c.cooldownType.toLowerCase().replace('_', ' ')})</td>
+      <td><Badge>{c?.permission}</Badge></td>
+      <td>{c?.cooldown} ({c?.cooldownType?.toLowerCase().replace('_', ' ')})</td>
     </tr>)}
     </tbody>
   </Table>);

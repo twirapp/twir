@@ -1,9 +1,13 @@
 import {
-  AppShell,
+  AppShell, Avatar,
   ColorScheme,
-  ColorSchemeProvider,
+  ColorSchemeProvider, Container,
+  Flex,
+  Grid,
+  Center,
   MantineProvider,
   useMantineTheme,
+  Text,
 } from '@mantine/core';
 import { useColorScheme } from '@mantine/hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -11,15 +15,17 @@ import { getCookie, setCookie } from 'cookies-next';
 import { GetServerSidePropsContext } from 'next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
+import { Header } from '@/components/layout/header';
 import { SideBar } from '@/components/layout/sidebar';
 import { queryClient } from '@/services/queryClient';
+import { useUsersByNames } from '@/services/users';
 
 function App(props: AppProps & { colorScheme: ColorScheme }) {
   const { Component } = props;
   const theme = useMantineTheme();
-  const [sidebarOpened, setSidebarOpened] = useState(false);
 
   const preferenceColorScheme = useColorScheme(undefined, {
     getInitialValueInEffect: true,
@@ -51,34 +57,12 @@ function App(props: AppProps & { colorScheme: ColorScheme }) {
       <QueryClientProvider client={queryClient}>
         <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
           <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
-            <AppShell
-              styles={{
-                main: {
-                  background: colorScheme === 'dark' ? 'dark.8' : 'gray.0',
-                  padding: 0,
-                  width: '100%',
-                },
-              }}
-              navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened} />}
-            >
-              <AppShell
-                styles={{
-                  main: {
-                    background:
-                      props.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
-                  },
-                }}
-              >
-                <Component
-                  styles={{
-                    main: {
-                      background:
-                        colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
-                    },
-                  }}
-                />
+            <Container py="xl">
+              <AppShell>
+                <Header />
+                <Component />
               </AppShell>
-            </AppShell>
+              </Container>
           </MantineProvider>
         </ColorSchemeProvider>
       </QueryClientProvider>
