@@ -36,7 +36,9 @@ export const Header: React.FC = () => {
       />
       <Flex direction={'column'}>
         <Text size={'xl'}>{users?.at(0) && users.at(0)!.display_name}</Text>
-        <Anchor>{users?.at(0) && `twitch.tv/${users.at(0)!.login}`}</Anchor>
+        <Anchor href={`https://twitch.tv/${users?.at(0)!.login ?? ''}`}>
+          {users?.at(0) && `twitch.tv/${users.at(0)!.login}`}
+        </Anchor>
       </Flex>
 
       </Group>
