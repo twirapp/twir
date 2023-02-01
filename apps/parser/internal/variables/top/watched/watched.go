@@ -1,20 +1,19 @@
-package messages
+package watched
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
-
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	"github.com/satont/tsuwari/apps/parser/internal/variables/top"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
-
-	"github.com/samber/lo"
+	"strconv"
+	"strings"
+	"time"
 )
 
 var Variable = types.Variable{
-	Name:        "top.messages",
-	Description: lo.ToPtr("Top users by messages"),
+	Name:        "top.watched",
+	Description: lo.ToPtr("Top users by watch time"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 		var page = 1
@@ -30,18 +29,19 @@ var Variable = types.Variable{
 			}
 		}
 
-		topUsers := top.GetTop(ctx, ctx.ChannelId, "messages", &page)
+		topUsers := top.GetTop(ctx, ctx.ChannelId, "watched", &page)
 
 		if topUsers == nil || len(topUsers) == 0 {
 			return result, nil
 		}
 
 		mappedTop := lo.Map(topUsers, func(user *top.UserStats, idx int) string {
+			duration := time.Duration(user.Value) * time.Millisecond
 			return fmt.Sprintf(
-				"%v. %s — %v",
+				"%v. %s — %.1fh",
 				(idx+1)+(page-1)*10,
 				user.UserName,
-				user.Value,
+				duration.Hours(),
 			)
 		})
 

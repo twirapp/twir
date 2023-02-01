@@ -6,28 +6,29 @@ import (
 	"strings"
 	"sync"
 
-	types "github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
 	commandsvariable "github.com/satont/tsuwari/apps/parser/internal/variables/commands"
 	command_counter "github.com/satont/tsuwari/apps/parser/internal/variables/commands/counter"
-	customvar "github.com/satont/tsuwari/apps/parser/internal/variables/customvar"
+	"github.com/satont/tsuwari/apps/parser/internal/variables/customvar"
 	emotes7tv "github.com/satont/tsuwari/apps/parser/internal/variables/emotes/7tv"
 	emotesbttv "github.com/satont/tsuwari/apps/parser/internal/variables/emotes/bttv"
 	emotesffz "github.com/satont/tsuwari/apps/parser/internal/variables/emotes/ffz"
 	faceitelo "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/elo"
 	faceitelodiff "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/elodiff"
 	faceitlvl "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/lvl"
-	keywords "github.com/satont/tsuwari/apps/parser/internal/variables/keywords"
+	"github.com/satont/tsuwari/apps/parser/internal/variables/keywords"
 	random "github.com/satont/tsuwari/apps/parser/internal/variables/random/number"
 	randomonlineuser "github.com/satont/tsuwari/apps/parser/internal/variables/random/online/user"
 	phrase "github.com/satont/tsuwari/apps/parser/internal/variables/random/phrase"
-	sender "github.com/satont/tsuwari/apps/parser/internal/variables/sender"
-	song "github.com/satont/tsuwari/apps/parser/internal/variables/song"
+	"github.com/satont/tsuwari/apps/parser/internal/variables/sender"
+	"github.com/satont/tsuwari/apps/parser/internal/variables/song"
 	streamcategory "github.com/satont/tsuwari/apps/parser/internal/variables/stream/category"
 	streammessages "github.com/satont/tsuwari/apps/parser/internal/variables/stream/messages"
 	streamtitle "github.com/satont/tsuwari/apps/parser/internal/variables/stream/title"
 	streamuptime "github.com/satont/tsuwari/apps/parser/internal/variables/stream/uptime"
 	streamviewers "github.com/satont/tsuwari/apps/parser/internal/variables/stream/viewers"
-	topMessages "github.com/satont/tsuwari/apps/parser/internal/variables/top/messages"
+	top_messages "github.com/satont/tsuwari/apps/parser/internal/variables/top/messages"
+	top_watched "github.com/satont/tsuwari/apps/parser/internal/variables/top/watched"
 	"github.com/satont/tsuwari/apps/parser/internal/variables/touser"
 	userage "github.com/satont/tsuwari/apps/parser/internal/variables/user/age"
 	userfollowage "github.com/satont/tsuwari/apps/parser/internal/variables/user/followage"
@@ -65,7 +66,8 @@ func New() Variables {
 		streamtitle.Variable,
 		streamuptime.Variable,
 		streamviewers.Variable,
-		topMessages.Variable,
+		top_messages.Variable,
+		top_watched.Variable,
 		userage.Variable,
 		userfollowage.Variable,
 		usermessages.Variable,

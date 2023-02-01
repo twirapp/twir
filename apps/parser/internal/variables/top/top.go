@@ -28,7 +28,7 @@ func GetTop(
 	channelId string,
 	topType string,
 	page *int,
-) *[]*UserStats {
+) []*UserStats {
 	cfg := do.MustInvoke[config.Config](di.Provider)
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
@@ -90,8 +90,12 @@ func GetTop(
 			res.Value = int(record.Messages)
 		}
 
+		if topType == "watched" {
+			res.Value = int(record.Watched)
+		}
+
 		return res
 	})
 
-	return &stats
+	return stats
 }
