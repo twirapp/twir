@@ -244,16 +244,16 @@ func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *t
 			isMod := false
 
 			if dbUser.ID != "" && dbUser.Token != nil {
-				botModRequest, err := twitchClient.GetChannelMods(&helix.GetChannelModsParams{
+				botModRequest, err := twitchClient.GetModerators(&helix.GetModeratorsParams{
 					BroadcasterID: u.ID,
-					UserID:        botClient.Model.ID,
+					UserIDs:       []string{botClient.Model.ID},
 				})
 
 				if err != nil || botModRequest.ResponseCommon.StatusCode != 200 {
 					isMod = false
 				}
 
-				if len(botModRequest.Data.Mods) == 1 {
+				if len(botModRequest.Data.Moderators) == 1 {
 					isMod = true
 				}
 			}

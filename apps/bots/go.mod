@@ -10,7 +10,7 @@ require (
 	github.com/prometheus/client_golang v1.14.0
 	github.com/samber/do v1.5.1
 	github.com/samber/lo v1.36.0
-	github.com/satont/go-helix/v2 v2.7.23
+	github.com/satont/go-helix/v2 v2.7.25
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000

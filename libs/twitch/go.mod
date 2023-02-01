@@ -3,7 +3,7 @@ module github.com/satont/tsuwari/libs/twitch
 go 1.19
 
 require (
-	github.com/satont/go-helix/v2 v2.7.23
+	github.com/satont/go-helix/v2 v2.7.25
 	google.golang.org/grpc v1.52.0
 	google.golang.org/protobuf v1.28.1
 )

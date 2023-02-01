@@ -69,7 +69,7 @@ func (c *botsGrpcServer) DeleteMessage(ctx context.Context, data *bots.DeleteMes
 	}
 
 	for _, m := range data.MessageIds {
-		go twitchClient.DeleteMessage(&helix.DeleteMessageParams{
+		go twitchClient.DeleteChatMessage(&helix.DeleteChatMessageParams{
 			BroadcasterID: channel.ID,
 			ModeratorID:   channel.BotID,
 			MessageID:     m,

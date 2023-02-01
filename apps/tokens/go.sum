@@ -119,8 +119,7 @@ github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZV
 github.com/rogpeppe/go-internal v1.9.0/go.mod h1:WtVeX8xhTBvf0smdhujwtBcq4Qrzq/fJaraNFVN+nFs=
 github.com/samber/do v1.5.1 h1:32/S8RgoKYa2wpf8TrakzyOFj0C/QQV4df09x1nza7I=
 github.com/samber/do v1.5.1/go.mod h1:DWqBvumy8dyb2vEnYZE7D7zaVEB64J45B0NjTlY/M4k=
-github.com/satont/go-helix/v2 v2.7.23 h1:sttEZxXdAurJfkC7Y5MH2jNCfvWQdWQ7omKxDSOGMCU=
-github.com/satont/go-helix/v2 v2.7.23/go.mod h1:j+PWsRYZGj3r6SyoXO7jvmLcuxHc54jt82Z5XxbsHyQ=
+github.com/satont/go-helix/v2 v2.7.25 h1:YbmU6pNO1qFLeYxZySVonXviCc3fvN1T2AGkh1M1WuA=
 github.com/satori/go.uuid v1.2.0 h1:0uYX9dsZ2yD7q2RtLRtPSdGDWzjeM3TbMJP9utgA0ww=
 github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdhQKdks0=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

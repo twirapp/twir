@@ -55,16 +55,16 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 			return
 		}
 
-		mods, err := twitchClient.GetChannelMods(&helix.GetChannelModsParams{
+		mods, err := twitchClient.GetModerators(&helix.GetModeratorsParams{
 			BroadcasterID: channelId,
-			UserID:        channel.BotID,
+			UserIDs:       []string{channel.BotID},
 		})
 		if err != nil {
 			logger.Error(err)
 			return
 		}
 
-		result.IsMod = lo.If(len(mods.Data.Mods) == 0, false).Else(true)
+		result.IsMod = lo.If(len(mods.Data.Moderators) == 0, false).Else(true)
 	}()
 
 	go func() {

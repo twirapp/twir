@@ -17,6 +17,14 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
+var scopes = []string{
+	"moderation:read",
+	"channel:manage:broadcast",
+	"channel:read:redemptions",
+	"moderator:read:chatters",
+	"moderator:manage:shoutouts",
+}
+
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("auth")
 	middleware.Get("", get())
@@ -41,8 +49,6 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 	return middleware
 }
-
-var scopes = []string{"moderation:read", "channel:manage:broadcast", "channel:read:redemptions", "moderator:read:chatters"}
 
 func get() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {

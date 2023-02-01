@@ -75,7 +75,7 @@ func (c *Handlers) moderateMessage(msg Message, badges []string) bool {
 			}
 
 			if res.IsDelete {
-				res, err := twitchClient.DeleteMessage(&helix.DeleteMessageParams{
+				res, err := twitchClient.DeleteChatMessage(&helix.DeleteChatMessageParams{
 					BroadcasterID: msg.Channel.ID,
 					ModeratorID:   c.BotClient.Model.ID,
 					MessageID:     msg.ID,

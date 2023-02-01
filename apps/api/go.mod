@@ -18,6 +18,7 @@ require (
 	github.com/samber/do v1.5.1
 	github.com/samber/lo v1.36.0
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
+	github.com/satont/tsuwari/libs/crypto v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
@@ -62,7 +63,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/onsi/ginkgo/v2 v2.5.0 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
-	github.com/satont/tsuwari/libs/crypto v0.0.0-00010101000000-000000000000 // indirect
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/goleak v1.1.12 // indirect
@@ -91,7 +91,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/klauspost/compress v1.15.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
-	github.com/satont/go-helix/v2 v2.7.23
+	github.com/satont/go-helix/v2 v2.7.25
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.43.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect

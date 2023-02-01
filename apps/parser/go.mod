@@ -10,10 +10,11 @@ require (
 	github.com/kkdai/youtube/v2 v2.7.18
 	github.com/prometheus/client_golang v1.14.0
 	github.com/samber/do v1.5.1
-	github.com/satont/go-helix/v2 v2.7.23
+	github.com/satont/go-helix/v2 v2.7.25
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
+	github.com/satont/tsuwari/libs/twitch v0.0.0-20230112134844-218713e75233
 	github.com/satont/tsuwari/libs/types v0.0.0-20230103005447-f8437299a3a0
 	github.com/satori/go.uuid v1.2.0
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
@@ -54,7 +55,6 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
-	github.com/satont/tsuwari/libs/twitch v0.0.0-20230112134844-218713e75233 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/goleak v1.1.12 // indirect
