@@ -1,6 +1,6 @@
-import { ActionIcon, Avatar, Badge, Button, Flex, Switch, Table, Text } from '@mantine/core';
-import { useViewportSize } from '@mantine/hooks';
-import { IconPencil, IconTrash } from '@tabler/icons';
+import { ActionIcon, Avatar, Badge, Button, Flex, Group, Switch, Table, Text, TextInput } from '@mantine/core';
+import { useDebouncedState, useViewportSize } from '@mantine/hooks';
+import { IconPencil, IconSearch, IconTrash } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
@@ -29,10 +29,20 @@ export default function () {
   const patcher = usePatch();
   const deleter = useDelete();
 
+  const [searchInput, setSearchInput] = useDebouncedState('', 200);
+
   return (
     <div>
       <Flex direction="row" justify="space-between">
-        <Text size="lg">{t('title')}</Text>
+        <Group>
+          <Text size="lg">{t('title')}</Text>
+          <TextInput
+            placeholder={'search...'}
+            rightSection={<IconSearch size={18} />}
+            onChange={(event) => setSearchInput(event.target.value)}
+          />
+        </Group>
+
         <Button
           color="green"
           onClick={() => {
@@ -55,7 +65,9 @@ export default function () {
         </thead>
         <tbody>
           {greetings &&
-            greetings.map((greeting, idx) => (
+            greetings
+              .filter((g) => g.userName.includes(searchInput))
+              .map((greeting, idx) => (
               <tr key={greeting.id}>
                 <td>
                   <Avatar src={greeting.avatar} style={{ borderRadius:111 }} />
