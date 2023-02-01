@@ -37,11 +37,13 @@ export class DonatePay {
 
     this.#centrifuge = new Centrifuge('wss://centrifugo.donatepay.ru:43002/connection/websocket', {
       subscribeEndpoint: 'https://donatepay.ru/api/v2/socket/token',
-      subscribeParams:   {
+      subscribeParams: {
         access_token: this.apiKey,
       },
       disableWithCredentials: true,
       websocket: ws,
+      ping: true,
+      pingInterval: 5000,
     });
 
     this.#centrifuge.setToken(userData.token);
@@ -72,6 +74,11 @@ export class DonatePay {
         color: 'orange',
       });
     });
+
+    const logDisconnect = (args: any[]) => console.info(`DonatePay(${this.twitchUserId}): disconnected`, ...args);
+
+    this.#centrifuge.on('disconnect', logDisconnect);
+    this.#subscription.on('disconnect', logDisconnect);
 
     this.#centrifuge.on('connect', () => {
       console.info(`DonatePay: connected to channel ${this.twitchUserId}`);
