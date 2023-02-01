@@ -7,6 +7,7 @@ import { SpotifyIntegration } from '../components/integrations/spotify';
 import { StreamlabsIntegration } from '../components/integrations/streamlabs';
 import { VKIntegration } from '../components/integrations/vk';
 
+import { DonatelloIntegration } from '@/components/integrations/donatello';
 import { DonatePayIntegration } from '@/components/integrations/donatepay';
 import { FaceitIntegration } from '@/components/integrations/faceit';
 
@@ -49,6 +50,9 @@ export default function Integrations() {
       </Grid.Col>
       <Grid.Col {...cols}>
         <DonatePayIntegration />
+      </Grid.Col>
+      <Grid.Col {...cols}>
+        <DonatelloIntegration />
       </Grid.Col>
     </Grid>
   );

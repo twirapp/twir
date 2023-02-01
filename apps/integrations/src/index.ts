@@ -5,6 +5,7 @@ import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration
 import { IntegrationService } from '@tsuwari/typeorm/entities/Integration';
 import { createServer } from 'nice-grpc';
 
+import { addDonatelloIntegration, Donatello } from './services/donatello.js';
 import { addDonatePayIntegration, DonatePay } from './services/donatepay.js';
 import { addDonationAlertsIntegration, DonationAlerts } from './services/donationAlerts.js';
 import { addStreamlabsIntegration, StreamLabs } from './services/streamLabs.js';
@@ -13,11 +14,17 @@ export const typeorm = await AppDataSource.initialize();
 export const donationAlertsStore: Map<string, DonationAlerts> = new Map();
 export const streamlabsStore: Map<string, StreamLabs> = new Map();
 export const donatePayStore: Map<string, DonatePay> = new Map();
+export const donatelloStore: Map<string, Donatello> = new Map();
 
 const integrations = await typeorm.getRepository(ChannelIntegration).find({
   where: {
     integration: {
-      service: In([IntegrationService.DONATIONALERTS, IntegrationService.STREAMLABS, IntegrationService.DONATEPAY]),
+      service: In([
+        IntegrationService.DONATIONALERTS,
+        IntegrationService.STREAMLABS,
+        IntegrationService.DONATEPAY,
+        IntegrationService.DONATELLO,
+      ]),
     },
     enabled: true,
     channel: {
@@ -52,6 +59,14 @@ for (const integration of integrations) {
     addDonatePayIntegration(integration).then((r) => {
       if (r) {
         donatePayStore.set(integration.channelId, r);
+      }
+    });
+  }
+
+  if (integration.integration?.service === IntegrationService.DONATELLO) {
+    addDonatelloIntegration(integration).then((r) => {
+      if (r) {
+        donatelloStore.set(integration.channelId, r);
       }
     });
   }
@@ -92,6 +107,13 @@ const integrationsServer: Integrations.IntegrationsServiceImplementation = {
       const instance = await addDonatePayIntegration(integration);
       if (instance) {
         donatePayStore.set(integration.channelId, instance);
+      }
+    }
+
+    if (integration.integration?.service === IntegrationService.DONATELLO) {
+      const instance = await addDonatelloIntegration(integration);
+      if (instance) {
+        donatelloStore.set(integration.channelId, instance);
       }
     }
 
@@ -140,6 +162,13 @@ export async function removeIntegration(integration: ChannelIntegration) {
     if (!existed) return;
     await existed.disconnect();
     donatePayStore.delete(integration.channelId);
+  }
+
+  if (integration.integration?.service === IntegrationService.DONATELLO) {
+    const existed = donatelloStore.get(integration.channelId);
+    if (!existed) return;
+    await existed.destroy();
+    donatelloStore.delete(integration.channelId);
   }
 }
 

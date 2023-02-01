@@ -44,4 +44,8 @@ export class ChannelDonationEvent {
 
   @CreateDateColumn()
   createdAt: Date;
+
+
+  @Column({ nullable: true, unique: true })
+  donateId: string | null;
 }

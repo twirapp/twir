@@ -3,6 +3,7 @@ package apiv1
 import (
 	"github.com/gofiber/fiber/v2"
 	admin_users "github.com/satont/tsuwari/apps/api/internal/api/v1/admin/users"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatello"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatepay"
 	public_commands "github.com/satont/tsuwari/apps/api/internal/api/v1/public/commands"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/public/song_requests"
@@ -66,6 +67,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	vk.Setup(integrationsGroup, services)
 	spotify.Setup(integrationsGroup, services)
 	donatepay.Setup(integrationsGroup, services)
+	donatello.Setup(integrationsGroup, services)
 
 	modulesGroup := channelsGroup.Group("modules")
 	youtube_sr.Setup(modulesGroup, services)
