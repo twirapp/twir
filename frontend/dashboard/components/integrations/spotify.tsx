@@ -4,7 +4,6 @@ import { useTranslation } from 'next-i18next';
 
 import { IntegrationCard } from './card';
 
-
 import { useSpotify } from '@/services/api/integrations';
 
 export const SpotifyIntegration: React.FC = () => {
@@ -30,13 +29,7 @@ export const SpotifyIntegration: React.FC = () => {
       header={
         <Flex direction="row" gap="sm">
           {profile && (
-            <Button
-              compact
-              leftIcon={<IconLogout />}
-              variant="outline"
-              color="red"
-              onClick={() => logout.mutate()}
-            >
+            <Button compact leftIcon={<IconLogout />} variant="outline" color="red" onClick={() => logout.mutate()}>
               {t('logout')}
             </Button>
           )}
@@ -50,11 +43,9 @@ export const SpotifyIntegration: React.FC = () => {
       {profile && (
         <Group position="apart" mt={10}>
           <Text weight={500} size={30}>
-            Satont WorldWide
+            {profile.display_name}
           </Text>
-          {profile.images && (
-            <Avatar src={profile.images[0].url} h={150} w={150} style={{ borderRadius: 900 }} />
-          )}
+          {profile.images && <Avatar src={profile.images[0].url} h={150} w={150} style={{ borderRadius: 900 }} />}
         </Group>
       )}
     </IntegrationCard>
