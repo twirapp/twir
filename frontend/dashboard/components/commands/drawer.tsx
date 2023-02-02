@@ -19,7 +19,7 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useDebouncedState, useDebouncedValue, useViewportSize } from '@mantine/hooks';
+import { useDebouncedState, useViewportSize } from '@mantine/hooks';
 import { IconGripVertical, IconMinus, IconPlus, IconSearch, IconVariable } from '@tabler/icons';
 import type {
   ChannelCommand,
@@ -28,7 +28,7 @@ import type {
   CooldownType,
 } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useTranslation } from 'next-i18next';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { noop } from '../../util/chore';
@@ -302,6 +302,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                                               `responses.${index}.text`,
                                               `${form.values.responses![index]!.text} $(${insertValue})`,
                                             );
+                                            setVariablesSearchInput('');
                                           }}>
                                             <Flex direction={'column'}>
                                               <Text>{v.name}</Text>
