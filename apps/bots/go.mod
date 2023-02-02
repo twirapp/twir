@@ -8,6 +8,7 @@ require (
 	github.com/getsentry/sentry-go v0.17.0
 	github.com/imroc/req/v3 v3.25.0
 	github.com/prometheus/client_golang v1.14.0
+	github.com/redis/go-redis/v9 v9.0.2
 	github.com/samber/do v1.6.0
 	github.com/samber/lo v1.37.0
 	github.com/satont/go-helix/v2 v2.7.25
