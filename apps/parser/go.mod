@@ -3,10 +3,13 @@ module github.com/satont/tsuwari/apps/parser
 go 1.18
 
 require (
+	github.com/Masterminds/squirrel v1.5.3
 	github.com/SherlockYigit/youtube-go v1.0.0
+	github.com/davecgh/go-spew v1.1.1
 	github.com/getsentry/sentry-go v0.17.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/guregu/null v4.0.0+incompatible
+	github.com/jmoiron/sqlx v1.3.5
 	github.com/kkdai/youtube/v2 v2.7.18
 	github.com/prometheus/client_golang v1.14.0
 	github.com/samber/do v1.6.0
@@ -43,6 +46,8 @@ require (
 	github.com/jackc/pgx/v5 v5.2.0 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
+	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
+	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/lucas-clemente/quic-go v0.30.0 // indirect
 	github.com/marten-seemann/qpack v0.3.0 // indirect
 	github.com/marten-seemann/qtls-go1-16 v0.1.5 // indirect

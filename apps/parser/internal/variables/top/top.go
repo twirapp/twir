@@ -2,17 +2,17 @@ package top
 
 import (
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	config "github.com/satont/tsuwari/libs/config"
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
-	"gorm.io/gorm"
-
-	model "github.com/satont/tsuwari/libs/gomodels"
 
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 )
@@ -31,6 +31,7 @@ func GetTop(
 ) []*UserStats {
 	cfg := do.MustInvoke[config.Config](di.Provider)
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	sqlxDb := do.MustInvoke[sqlx.DB](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
 
@@ -39,8 +40,6 @@ func GetTop(
 		return nil
 	}
 
-	db := do.MustInvoke[gorm.DB](di.Provider)
-
 	if page == nil {
 		newPage := 1
 		page = &newPage
@@ -48,18 +47,31 @@ func GetTop(
 
 	offset := (*page - 1) * 10
 
-	var records []model.UsersStats
-
-	err = db.
-		Model(&model.UsersStats{}).
-		Where(`"channelId" = ?`, channelId).
-		Joins(`RIGHT JOIN "users_ignored" ON "users_ignored"."id" != "users_stats"."userId"`).
+	// another approach how to filter is via joins, but i decided to leave it with sub query
+	//LEFT JOIN "users_ignored" ON "users_ignored"."id" = "users_stats"."userId"
+	//WHERE
+	//"users_stats"."channelId" = '869882828' AND "users_ignored"."id" is null
+	query, args, err := squirrel.
+		Select("users_stats.*").
+		From("users_stats").
+		Where(squirrel.Eq{`"channelId"`: channelId}).
+		Where(`NOT EXISTS (select 1 from users_ignored where "id" = "users_stats"."userId")`).
 		Limit(10).
-		Offset(offset).
-		Order(fmt.Sprintf("%s DESC", topType)).
-		Scan(&records).Error
+		Offset(uint64(offset)).
+		OrderBy(fmt.Sprintf("%s DESC", topType)).
+		ToSql()
+	query = sqlxDb.Rebind(query)
 
 	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	records := []model.UsersStats{}
+
+	err = sqlxDb.Select(&records, query, args...)
+	if err != nil {
+		fmt.Println(err)
 		return nil
 	}
 

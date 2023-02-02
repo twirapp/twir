@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/dota"
 	"github.com/satont/tsuwari/libs/grpc/generated/eval"
@@ -84,6 +86,17 @@ func main() {
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
 	do.ProvideValue[gorm.DB](di.Provider, *db)
+
+	dbConnOpts, err := pq.ParseURL(cfg.DatabaseUrl)
+	if err != nil {
+		panic(fmt.Errorf("cannot parse postgres url connection: %w", err))
+	}
+	pgConn, err := sqlx.Connect("postgres", dbConnOpts)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	do.ProvideValue[sqlx.DB](di.Provider, *pgConn)
 
 	r := myRedis.New(cfg.RedisUrl)
 	defer r.Close()
