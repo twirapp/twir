@@ -51,11 +51,14 @@ func GetTop(
 	var records []model.UsersStats
 
 	err = db.
+		Model(&model.UsersStats{}).
 		Where(`"channelId" = ?`, channelId).
+		Joins(`RIGHT JOIN "users_ignored" ON "users_ignored"."id" != "users_stats"."userId"`).
 		Limit(10).
 		Offset(offset).
 		Order(fmt.Sprintf("%s DESC", topType)).
-		Find(&records).Error
+		Scan(&records).Error
+
 	if err != nil {
 		return nil
 	}
