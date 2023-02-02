@@ -3,6 +3,7 @@ go 1.19
 use (
 	./apps/api
 	./apps/bots
+	./apps/emotes-cacher
 	./apps/parser
 	./apps/timers
 	./apps/tokens

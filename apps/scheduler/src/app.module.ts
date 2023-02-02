@@ -4,6 +4,7 @@ import { RedisModule, RedisService, TwitchApiService } from '@tsuwari/shared';
 
 import { DefaultCommandsCreatorModule } from './default-commands-creator/default-commands-creator.module.js';
 import { DeleteOldMessagesModule } from './delete-old-messages/deleteoldmessages.module.js';
+import { EmotesModule } from './emotes/emotes.module.js';
 import { MicroservicesModule } from './microservices/microservices.module.js';
 import { OnlineUsersModule } from './online-users/online-users.module.js';
 import { WatchedModule } from './watched/watched.module.js';
@@ -17,6 +18,7 @@ import { WatchedModule } from './watched/watched.module.js';
     OnlineUsersModule,
     DeleteOldMessagesModule,
     WatchedModule,
+    EmotesModule,
   ],
   providers: [TwitchApiService, RedisService],
 })

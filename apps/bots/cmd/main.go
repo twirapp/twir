@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/bots/internal/di"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
@@ -80,7 +81,14 @@ func main() {
 	}
 
 	do.ProvideValue[tokens.TokensClient](di.Provider, clients.NewTokens(cfg.AppEnv))
-	
+
+	redisUrl, err := redis.ParseURL(cfg.RedisUrl)
+	if err != nil {
+		panic(err)
+	}
+	redisClient := redis.NewClient(redisUrl)
+	do.ProvideValue[redis.Client](di.Provider, *redisClient)
+
 	botsService := bots.NewBotsService(&bots.NewBotsOpts{
 		DB:         db,
 		Logger:     logger,

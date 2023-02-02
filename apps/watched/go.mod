@@ -16,7 +16,7 @@ require (
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/twitch v0.0.0-20221125194658-5cb70dbdbf2a
 	go.uber.org/zap v1.24.0
-	google.golang.org/grpc v1.52.0
+	google.golang.org/grpc v1.52.3
 	google.golang.org/protobuf v1.28.1
 	gorm.io/driver/postgres v1.4.6
 	gorm.io/gorm v1.24.3

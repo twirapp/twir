@@ -27,6 +27,7 @@ func (c *Handlers) OnMessage(msg Message) {
 
 	go c.handleGreetings(msg, userBadges)
 	go c.handleKeywords(msg, userBadges)
+	go c.handleEmotes(msg)
 
 	go func() {
 		messages.StoreMessage(

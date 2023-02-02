@@ -19,6 +19,9 @@ includes:
   tokens:
     taskfile: ./apps/tokens/Taskfile.yml
     dir: ./apps/tokens
+  emotes-cacher:
+    taskfile: ./apps/emotes-cacher/Taskfile.yml
+    dir: ./apps/emotes-cacher
 
 tasks:
   build-libs:
@@ -69,13 +72,18 @@ tasks:
     cmds:
       - task: tokens:dev
 
+  emotes-cacher-dev:
+    deps: [ prepare ]
+    cmds:
+      - task: emotes-cacher:dev
+
   node-dev:
     deps: [prepare]
     cmds:
       - pnpm dev
 
   dev:
-    deps: [tokens-dev, parser-dev, timers-dev, api-dev, bots-dev, watched-dev, node-dev]
+    deps: [tokens-dev, parser-dev, timers-dev, api-dev, bots-dev, watched-dev, emotes-cacher-dev, node-dev]
 
   docker-local-build:
     cmds:

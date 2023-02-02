@@ -4,12 +4,12 @@ go 1.19
 
 require (
 	github.com/go-co-op/gocron v1.17.1
-	github.com/samber/do v1.5.1
+	github.com/samber/do v1.6.0
 	github.com/satont/tsuwari/libs/config v0.0.0
 	github.com/satont/tsuwari/libs/gomodels v0.0.0
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	go.uber.org/zap v1.24.0
-	google.golang.org/grpc v1.52.0
+	google.golang.org/grpc v1.52.3
 	gorm.io/driver/postgres v1.4.6
 	gorm.io/gorm v1.24.3
 )

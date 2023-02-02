@@ -10,6 +10,7 @@ import { ChannelChatMessage } from './entities/ChannelChatMessage';
 import { ChannelCommand } from './entities/ChannelCommand';
 import { ChannelCustomvar } from './entities/ChannelCustomvar';
 import { ChannelDotaAccount } from './entities/ChannelDotaAccount';
+import { ChannelEmoteUsage } from './entities/ChannelEmoteUsage';
 import { ChannelEvent } from './entities/ChannelEvent';
 import { ChannelDonationEvent } from './entities/channelEvents/Donation';
 import { ChannelFollowEvent } from './entities/channelEvents/Follow';
@@ -89,6 +90,7 @@ export const AppDataSource = new DataSource({
     ChannelChatMessage,
     RequestedSong,
     IgnoredUser,
+    ChannelEmoteUsage,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

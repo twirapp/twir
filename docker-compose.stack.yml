@@ -466,6 +466,21 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
 
+  emotes-cacher:
+    image: registry.satont.dev/tsuwari/emotes-cacher
+    secrets:
+      - tsuwari_doppler_token
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      mode: replicated
+      replicas: 15
+
 volumes:
   postgres-data:
   redis-data:

@@ -14,6 +14,7 @@ import { ChannelChatMessage } from './ChannelChatMessage';
 import { ChannelCommand } from './ChannelCommand';
 import { ChannelCustomvar } from './ChannelCustomvar';
 import { ChannelDotaAccount } from './ChannelDotaAccount';
+import { ChannelEmoteUsage } from './ChannelEmoteUsage';
 import { ChannelEvent } from './ChannelEvent';
 import { ChannelGreeting } from './ChannelGreeting';
 import { ChannelIntegration } from './ChannelIntegration';
@@ -105,4 +106,7 @@ export class Channel {
 
   @OneToMany(() => ChannelChatMessage, _ => _.channel)
   messages?: ChannelChatMessage[];
+
+  @OneToMany(() => ChannelEmoteUsage, _ => _.channel)
+  emotesUsages?: ChannelEmoteUsage[];
 }

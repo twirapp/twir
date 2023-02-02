@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/imroc/req/v3 v3.25.0
-	github.com/samber/lo v1.36.0
+	github.com/samber/lo v1.37.0
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
 	gorm.io/gorm v1.24.3
 )
@@ -19,6 +19,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.10.7 // indirect
 	github.com/lucas-clemente/quic-go v0.30.0 // indirect
 	github.com/marten-seemann/qpack v0.3.0 // indirect

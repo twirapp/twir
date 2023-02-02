@@ -27,6 +27,7 @@ import (
 	streamtitle "github.com/satont/tsuwari/apps/parser/internal/variables/stream/title"
 	streamuptime "github.com/satont/tsuwari/apps/parser/internal/variables/stream/uptime"
 	streamviewers "github.com/satont/tsuwari/apps/parser/internal/variables/stream/viewers"
+	top_emotes "github.com/satont/tsuwari/apps/parser/internal/variables/top/emotes"
 	top_messages "github.com/satont/tsuwari/apps/parser/internal/variables/top/messages"
 	top_watched "github.com/satont/tsuwari/apps/parser/internal/variables/top/watched"
 	"github.com/satont/tsuwari/apps/parser/internal/variables/touser"
@@ -68,6 +69,7 @@ func New() Variables {
 		streamviewers.Variable,
 		top_messages.Variable,
 		top_watched.Variable,
+		top_emotes.Variable,
 		userage.Variable,
 		userfollowage.Variable,
 		usermessages.Variable,

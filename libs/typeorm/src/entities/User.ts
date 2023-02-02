@@ -11,6 +11,7 @@ import {
 
 import { Channel } from './Channel';
 import { ChannelChatMessage } from './ChannelChatMessage';
+import { ChannelEmoteUsage } from './ChannelEmoteUsage';
 import { ChannelPermit } from './ChannelPermit';
 import { CommandUsage } from './CommandUsage';
 import { DashboardAccess } from './DashboardAccess';
@@ -75,4 +76,7 @@ export class User {
 
   @OneToMany(() => ChannelChatMessage, _ => _.user)
   messages?: ChannelChatMessage[];
+
+  @OneToMany(() => ChannelEmoteUsage, _ => _.channel)
+  emotesUsages?: ChannelEmoteUsage[];
 }

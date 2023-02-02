@@ -3,6 +3,9 @@ package handlers
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/redis/go-redis/v9"
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/bots/internal/di"
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 
@@ -32,12 +35,15 @@ type Handlers struct {
 	BotClient  *types.BotClient
 	cfg        *cfg.Config
 	parserGrpc parser.ParserClient
+	redis      redis.Client
 
 	greetingsCounter prometheus.Counter
 	keywordsCounter  prometheus.Counter
 }
 
 func CreateHandlers(opts *HandlersOpts) *Handlers {
+	redisClient := do.MustInvoke[redis.Client](di.Provider)
+
 	labels := prometheus.Labels{
 		"botId":   opts.BotClient.TwitchUser.ID,
 		"botName": opts.BotClient.TwitchUser.Login,
@@ -61,6 +67,7 @@ func CreateHandlers(opts *HandlersOpts) *Handlers {
 		parserGrpc:       opts.ParserGrpc,
 		greetingsCounter: greetingsCounter,
 		keywordsCounter:  keywordsCounter,
+		redis:            redisClient,
 	}
 
 	prometheus.Register(greetingsCounter)
