@@ -26,11 +26,12 @@ var Variable = types.Variable{
 		emotes := []Emote{}
 		err := db.
 			Raw(`SELECT emote, COUNT(*) 
-				FROM channels_emotes_usages 
+				FROM channels_emotes_usages
+				WHERE "channelId" = ?
 				Group By emote 
 				Order By COUNT(*) 
 				DESC LIMIT 30
-			`).
+			`, ctx.ChannelId).
 			Scan(&emotes).
 			Error
 
