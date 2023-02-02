@@ -196,6 +196,8 @@ services:
     networks:
       - tsuwari
     deploy:
+      update_config:
+        parallelism: 4
       restart_policy:
         condition: any
         delay: 30s
@@ -213,6 +215,8 @@ services:
     secrets:
       - tsuwari_doppler_token
     deploy:
+      update_config:
+        parallelism: 10
       restart_policy:
         condition: any
         delay: 30s
@@ -324,6 +328,8 @@ services:
     secrets:
       - tsuwari_doppler_token
     deploy:
+      update_config:
+        parallelism: 10
       mode: replicated
       replicas: 50
       endpoint_mode: dnsrr
@@ -458,6 +464,8 @@ services:
     networks:
       - tsuwari
     deploy:
+      update_config:
+        parallelism: 5
       mode: replicated
       replicas: 10
       restart_policy:
@@ -473,6 +481,8 @@ services:
     networks:
       - tsuwari
     deploy:
+      update_config:
+        parallelism: 5
       restart_policy:
         condition: any
         delay: 30s
