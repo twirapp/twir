@@ -3,7 +3,7 @@ version: '3'
 tasks:
   dev:
     cmds:
-      - reflex -s -g '**/*.go' go run cmd/main.go
+      - reflex -s -r '\.go$' go run cmd/main.go
 
   build:
     cmds:
