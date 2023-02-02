@@ -37,4 +37,5 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
     go install github.com/segmentio/golines@latest && \
     go install github.com/twitchdev/twitch-cli@latest && \
     go install -v golang.org/x/tools/gopls@latest && \
-    go install github.com/swaggo/swag/cmd/swag@3fe9ca22de310099640d9c96cafb2b787a5820f8
+    go install github.com/swaggo/swag/cmd/swag@3fe9ca22de310099640d9c96cafb2b787a5820f8 && \
+    go install github.com/cespare/reflex@latest
