@@ -59,7 +59,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 	}
 
 	if meReq.Error != "" {
-		fmt.Println(meReq.ErrorMessage)
+		fmt.Println(opts.Model.ID + " " + meReq.ErrorMessage)
 		panic(meReq.Error)
 	}
 
