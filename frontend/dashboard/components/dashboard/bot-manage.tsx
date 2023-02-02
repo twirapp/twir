@@ -13,14 +13,14 @@ export const BotManage = () => {
   const { classes } = useCardStyles();
 
   return (
-    <Skeleton radius="md" visible={botInfo?.isMod === undefined}>
-      <Card withBorder radius="md">
+    <Skeleton radius="md" visible={botInfo?.isMod === undefined} h={'100%'}>
+      <Card withBorder radius="md" h={'100%'}>
         <Card.Section withBorder inheritPadding py="sm">
           <Group position="apart">
             <Text weight={500}>{t('widgets.bot.title')}</Text>
           </Group>
         </Card.Section>
-        <Card.Section p="md" className={classes.card}>
+        <Card.Section p="md" className={classes.card} h={'100%'}>
           {botInfo?.isMod ? (
             <Alert icon={<IconCheck size={16} />} color="teal" variant="outline">
               <span dangerouslySetInnerHTML={{ __html: t('widgets.bot.alert.true') }} />

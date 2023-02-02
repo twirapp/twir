@@ -31,6 +31,7 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "18.2.0",
     "react-i18next": "^12.1.1",
+    "react-moveable": "^0.46.1",
     "react-youtube": "^10.1.0",
     "socket.io-client": "4.5.4"
   },
