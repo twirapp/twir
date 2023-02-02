@@ -40,16 +40,15 @@ var TopEmotesVariable = types.Variable{
 			return nil, err
 		}
 
-		mappedTop := lo.Map(emotes, func(e Emote, idx int) string {
+		mappedTop := lo.Map(emotes, func(e Emote, _ int) string {
 			return fmt.Sprintf(
-				"%v. %s — %v",
-				idx+1,
+				"%s × %v",
 				e.Emote,
 				e.Count,
 			)
 		})
 
-		result.Result = strings.Join(mappedTop, ", ")
+		result.Result = strings.Join(mappedTop, " ")
 		return result, nil
 	},
 }
