@@ -1,4 +1,4 @@
-package emotes
+package user_top
 
 import (
 	"fmt"
@@ -16,9 +16,10 @@ type Emote struct {
 	Count int
 }
 
-var Variable = types.Variable{
-	Name:        "top.emotes",
-	Description: lo.ToPtr("Top emotes"),
+var TopEmotesVariable = types.Variable{
+	Name:         "user.top.emotes",
+	Description:  lo.ToPtr("User top used emotes"),
+	CommandsOnly: lo.ToPtr(true),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		db := do.MustInvoke[gorm.DB](di.Provider)
 		result := &types.VariableHandlerResult{}
@@ -27,11 +28,11 @@ var Variable = types.Variable{
 		err := db.
 			Raw(`SELECT emote, COUNT(*) 
 				FROM channels_emotes_usages
-				WHERE "channelId" = ?
+				WHERE "channelId" = ? AND "userId" = ?
 				Group By emote 
 				Order By COUNT(*) 
 				DESC LIMIT 20
-			`, ctx.ChannelId).
+			`, ctx.ChannelId, ctx.SenderId).
 			Scan(&emotes).
 			Error
 
