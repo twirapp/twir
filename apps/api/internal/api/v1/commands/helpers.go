@@ -2,6 +2,7 @@ package commands
 
 import (
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"sort"
 
 	"github.com/guregu/null"
 	"github.com/samber/lo"
@@ -14,6 +15,10 @@ func getChannelCommands(db *gorm.DB, channelId string) []model.ChannelsCommands 
 	db.Preload("Responses").
 		Where(`"channelId" = ?`, channelId).
 		Find(&cmds)
+
+	sort.Slice(cmds, func(i, j int) bool {
+		return cmds[i].Name < cmds[j].Name
+	})
 
 	return cmds
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"net/http"
+	"sort"
 )
 
 type Command struct {
@@ -43,6 +44,10 @@ func handleGet(channelId string, services types.Services) ([]Command, error) {
 			CooldownType: cmd.CooldownType,
 		})
 	}
+
+	sort.Slice(commandsResponse, func(i, j int) bool {
+		return commandsResponse[i].Name < commandsResponse[j].Name
+	})
 
 	return commandsResponse, nil
 }
