@@ -51,7 +51,7 @@ func GetTop(
 	offset := (*page - 1) * limit
 
 	channel := model.Channels{}
-	err = db.Where(`"channelId" = ?`, channelId).Find(&channel).Error
+	err = db.Where(`"id" = ?`, channelId).Find(&channel).Error
 	if err != nil || channel.ID == "" {
 		return nil
 	}
@@ -64,7 +64,7 @@ func GetTop(
 		Select("users_stats.*").
 		From("users_stats").
 		Where(squirrel.Eq{`"channelId"`: channelId}).
-		Where(squirrel.NotEq{`userId`: channel.BotID}).
+		Where(squirrel.NotEq{`"userId"`: channel.BotID}).
 		Where(`NOT EXISTS (select 1 from users_ignored where "id" = "users_stats"."userId")`).
 		Limit(uint64(limit)).
 		Offset(uint64(offset)).
