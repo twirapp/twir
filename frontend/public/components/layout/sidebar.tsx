@@ -14,7 +14,7 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import { useHotkeys, useViewportSize } from '@mantine/hooks';
-import { IconCommand, IconMoonStars, IconPlaylist, IconSun } from '@tabler/icons';
+import { IconCommand, IconMoonStars, IconPlaylist, IconSun } from '@tabler/icons-react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 

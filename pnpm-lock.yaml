@@ -411,7 +411,7 @@ importers:
       '@mantine/form': ^5.10.3
       '@mantine/hooks': ^5.10.3
       '@mantine/next': ^5.10.3
-      '@tabler/icons': ^2.2.0
+      '@tabler/icons-react': ^2.2.0
       '@tanstack/react-query': ^4.24.4
       '@twurple/api': ^5.3.4
       '@types/node': 18.13.0
@@ -430,7 +430,7 @@ importers:
       '@mantine/form': 5.10.3_react@18.2.0
       '@mantine/hooks': 5.10.3_react@18.2.0
       '@mantine/next': 5.10.3_frkyvidol3cyjondljhrqtyp5u
-      '@tabler/icons': 2.2.0
+      '@tabler/icons-react': 2.2.0_react@18.2.0
       '@tanstack/react-query': 4.24.4_biqbaboplfbrettd7655fr4n2y
       cookies-next: 2.1.1
       next: 13.1.6_672uxklweod7ene3nqtsh262ca
@@ -5697,6 +5697,16 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       defer-to-connect: 2.0.1
+    dev: false
+
+  /@tabler/icons-react/2.2.0_react@18.2.0:
+    resolution: {integrity: sha512-4dIT/XL2VVTrqTR9mRMXSbM8/Pe9AmaiciItP+So8bpZy5dakwkc1zT5JtDFEbcv5YEi73rlnyuHdAhwRC1NGA==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@tabler/icons': 2.2.0
+      prop-types: 15.8.1
+      react: 18.2.0
     dev: false
 
   /@tabler/icons/1.117.0_biqbaboplfbrettd7655fr4n2y:
