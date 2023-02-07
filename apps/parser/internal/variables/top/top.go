@@ -63,8 +63,10 @@ func GetTop(
 	query, args, err := squirrel.
 		Select("users_stats.*").
 		From("users_stats").
-		Where(squirrel.Eq{`"channelId"`: channelId}).
-		Where(squirrel.NotEq{`"userId"`: channel.BotID}).
+		Where(squirrel.And{
+			squirrel.Eq{`"channelId"`: channelId},
+			squirrel.NotEq{`"userId"`: channel.BotID},
+		}).
 		Where(`NOT EXISTS (select 1 from users_ignored where "id" = "users_stats"."userId")`).
 		Limit(uint64(limit)).
 		Offset(uint64(offset)).

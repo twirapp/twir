@@ -64,8 +64,10 @@ func handleGet(channelId, limit, page, sortBy, order string) ([]User, error) {
 		Select(`users_stats.*, COUNT("channels_emotes_usages"."id") AS "emotes"`).
 		From("users_stats").
 		LeftJoin(`"channels_emotes_usages" ON "channels_emotes_usages"."userId" = "users_stats"."userId" AND "channels_emotes_usages"."channelId" = "users_stats"."channelId"`).
-		Where(squirrel.Eq{`"users_stats"."channelId"`: channelId}).
-		Where(squirrel.NotEq{`"users_stats"."userId"`: channelId}).
+		Where(squirrel.And{
+			squirrel.Eq{`"users_stats"."channelId"`: channelId},
+			squirrel.NotEq{`"users_stats"."userId"`: channelId},
+		}).
 		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_stats"."userId")`).
 		Limit(uint64(parsedLimit)).
 		Offset(uint64(offset)).
