@@ -9,6 +9,7 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
+	"gorm.io/gorm"
 
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
@@ -33,6 +34,7 @@ func GetTop(
 	cfg := do.MustInvoke[config.Config](di.Provider)
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 	sqlxDb := do.MustInvoke[sqlx.DB](di.Provider)
+	db := do.MustInvoke[gorm.DB](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
 
@@ -48,6 +50,12 @@ func GetTop(
 
 	offset := (*page - 1) * limit
 
+	channel := model.Channels{}
+	err = db.Where(`"channelId" = ?`, channelId).Find(&channel).Error
+	if err != nil || channel.ID == "" {
+		return nil
+	}
+
 	// another approach how to filter is via joins, but i decided to leave it with sub query
 	//LEFT JOIN "users_ignored" ON "users_ignored"."id" = "users_stats"."userId"
 	//WHERE
@@ -56,6 +64,7 @@ func GetTop(
 		Select("users_stats.*").
 		From("users_stats").
 		Where(squirrel.Eq{`"channelId"`: channelId}).
+		Where(squirrel.NotEq{`userId`: channel.BotID}).
 		Where(`NOT EXISTS (select 1 from users_ignored where "id" = "users_stats"."userId")`).
 		Limit(uint64(limit)).
 		Offset(uint64(offset)).
