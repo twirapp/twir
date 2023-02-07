@@ -289,7 +289,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                                   autosize={true}
                                   minRows={1}
                                   rightSection={
-                                    <Menu position="bottom-end" shadow="md" width={250}>
+                                    <Menu position="bottom-end" shadow="md" width={380} offset={15}>
                                       <Menu.Target>
                                         <ActionIcon variant="filled">
                                           <IconVariable size={18} />
@@ -303,7 +303,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                                           rightSection={<IconSearch size={12} />}
                                           onChange={event => setVariablesSearchInput(event.target.value)}
                                         />
-                                        <ScrollArea h={200} type={'always'} offsetScrollbars style={{ marginTop: 5 }}>
+                                        <ScrollArea h={350} type={'always'} offsetScrollbars style={{ marginTop: 5 }}>
                                         {variables.data?.length && variables.data
                                           .filter(v => v.name.includes(variablesSearchInput)
                                             || v.description?.includes(variablesSearchInput))
