@@ -32,7 +32,7 @@ import (
 	top_watched "github.com/satont/tsuwari/apps/parser/internal/variables/top/watched"
 	"github.com/satont/tsuwari/apps/parser/internal/variables/touser"
 	userage "github.com/satont/tsuwari/apps/parser/internal/variables/user/age"
-	userfollowage "github.com/satont/tsuwari/apps/parser/internal/variables/user/followage"
+	user_follow "github.com/satont/tsuwari/apps/parser/internal/variables/user/follow"
 	usermessages "github.com/satont/tsuwari/apps/parser/internal/variables/user/messages"
 	userwatched "github.com/satont/tsuwari/apps/parser/internal/variables/user/watched"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
@@ -71,7 +71,8 @@ func New() Variables {
 		top_watched.Variable,
 		top_emotes.Variable,
 		userage.Variable,
-		userfollowage.Variable,
+		user_follow.FollowageVariable,
+		user_follow.FollowsinceVariable,
 		usermessages.Variable,
 		userwatched.Variable,
 		touser.Variable,
