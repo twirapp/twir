@@ -191,7 +191,6 @@ export const CommandDrawer: React.FC<Props> = (props) => {
               <Textarea
                 label={t('drawer.description.label')}
                 placeholder={t('drawer.description.placeholder')}
-                withAsterisk
                 {...form.getInputProps('description')}
                 w={'100%'}
                 autosize={true}
