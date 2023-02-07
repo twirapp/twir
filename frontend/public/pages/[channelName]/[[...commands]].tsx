@@ -1,4 +1,4 @@
-import { Badge, Table, Text } from '@mantine/core';
+import { Badge, Table, Text, Tooltip } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -12,6 +12,7 @@ type Command = {
   permission: string
   cooldown: number
   cooldownType: string
+  aliases: string[]
 }
 
 
@@ -42,7 +43,18 @@ const Commands: NextPage = () => {
     </thead>
     <tbody>
     {commands?.map((c, commandIndex) => <tr key={commandIndex}>
-      <td>{c?.name}</td>
+      <td style={{
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        maxWidth: 100,
+      }}>
+        <Tooltip label={[c?.name, ...c.aliases].join(', ')}>
+          <Text truncate>
+           {[c?.name, ...c.aliases].join(', ')}
+          </Text>
+        </Tooltip>
+      </td>
       <td>{c?.responses?.map((r, responseIndex) => <Text
         key={responseIndex}
         title={r}

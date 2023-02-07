@@ -10,23 +10,23 @@
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/server": "^11.10.0",
-    "@mantine/core": "^5.9.5",
-    "@mantine/form": "^5.9.5",
-    "@mantine/hooks": "^5.9.5",
-    "@mantine/next": "^5.9.5",
-    "@tabler/icons": "^1.117.0",
-    "@tanstack/react-query": "^4.20.4",
+    "@mantine/core": "^5.10.3",
+    "@mantine/form": "^5.10.3",
+    "@mantine/hooks": "^5.10.3",
+    "@mantine/next": "^5.10.3",
+    "@tabler/icons": "^2.2.0",
+    "@tanstack/react-query": "^4.24.4",
     "cookies-next": "^2.1.1",
-    "next": "13.0.7",
-    "next-i18next": "^13.0.2",
+    "next": "13.1.6",
+    "next-i18next": "^13.1.4",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "@twurple/api": "^5.3.0",
-    "@types/node": "18.11.17",
-    "@types/react": "18.0.26",
-    "@types/react-dom": "18.0.9",
-    "typescript": "4.9.4"
+    "@twurple/api": "^5.3.4",
+    "@types/node": "18.13.0",
+    "@types/react": "18.0.27",
+    "@types/react-dom": "18.0.10",
+    "typescript": "4.9.5"
   }
 }
