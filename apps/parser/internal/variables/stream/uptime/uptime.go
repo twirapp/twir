@@ -20,7 +20,10 @@ var Variable = types.Variable{
 			return &result, nil
 		}
 
-		result.Result = helpers.Duration(stream.StartedAt, lo.ToPtr(true))
+		result.Result = helpers.Duration(stream.StartedAt, &helpers.DurationOpts{
+			UseUtc: true,
+			Hide:   helpers.DurationOptsHide{},
+		})
 
 		return &result, nil
 	},

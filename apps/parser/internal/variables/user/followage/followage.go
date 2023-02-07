@@ -24,7 +24,7 @@ var Variable = types.Variable{
 		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
 		twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
-		
+
 		if err != nil {
 			return nil, err
 		}
@@ -46,7 +46,7 @@ var Variable = types.Variable{
 		}
 
 		if ctx.ChannelId == targetId {
-			result.Result = "Cannot fetch followage of yourself because you are broadcaster."
+			result.Result = "🎙️ broadcaster"
 			return result, nil
 		}
 
@@ -54,7 +54,13 @@ var Variable = types.Variable{
 		if follow == nil {
 			result.Result = "not a follower"
 		} else {
-			result.Result = helpers.Duration(follow.FollowedAt, lo.ToPtr(true))
+			result.Result = helpers.Duration(follow.FollowedAt, &helpers.DurationOpts{
+				UseUtc: true,
+				Hide: helpers.DurationOptsHide{
+					Minutes: true,
+					Seconds: true,
+				},
+			})
 		}
 
 		return result, nil

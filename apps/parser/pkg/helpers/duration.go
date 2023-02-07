@@ -53,38 +53,56 @@ func dateDiff(a, b time.Time) (year, month, day, hour, min, sec int) {
 	return
 }
 
-func Duration(t time.Time, useUtc *bool) string {
+type DurationOptsHide struct {
+	Years   bool
+	Months  bool
+	Days    bool
+	Hours   bool
+	Minutes bool
+	Seconds bool
+}
+
+type DurationOpts struct {
+	UseUtc bool
+	Hide   DurationOptsHide
+}
+
+func Duration(t time.Time, opts *DurationOpts) string {
+	if opts == nil {
+		opts = &DurationOpts{}
+	}
+
 	date := strings.Builder{}
 	currentTime := time.Now()
 	var y, m, d, h, mi, s int
 
-	if useUtc != nil && *useUtc == true {
+	if opts.UseUtc == true {
 		y, m, d, h, mi, s = dateDiff(t, currentTime.UTC())
 	} else {
 		y, m, d, h, mi, s = dateDiff(t, currentTime)
 	}
 
-	if y > 0 {
+	if y > 0 && !opts.Hide.Years {
 		fmt.Fprintf(&date, "%dy ", y)
 	}
 
-	if m > 0 {
+	if m > 0 && !opts.Hide.Months {
 		fmt.Fprintf(&date, "%dmo ", m)
 	}
 
-	if d > 0 {
+	if d > 0 && !opts.Hide.Days {
 		fmt.Fprintf(&date, "%dd ", d)
 	}
 
-	if h > 0 {
+	if h > 0 && !opts.Hide.Hours {
 		fmt.Fprintf(&date, "%dh ", h)
 	}
 
-	if mi > 0 {
+	if mi > 0 && !opts.Hide.Minutes {
 		fmt.Fprintf(&date, "%dm ", mi)
 	}
 
-	if s > 0 {
+	if s > 0 && !opts.Hide.Seconds {
 		fmt.Fprintf(&date, "%ds", s)
 	}
 
