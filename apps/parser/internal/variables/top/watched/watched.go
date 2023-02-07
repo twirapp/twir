@@ -14,6 +14,7 @@ import (
 var Variable = types.Variable{
 	Name:        "top.watched",
 	Description: lo.ToPtr("Top users by watch time"),
+	Example:     lo.ToPtr("top.watched|10"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 		var page = 1
@@ -29,7 +30,19 @@ var Variable = types.Variable{
 			}
 		}
 
-		topUsers := top.GetTop(ctx, ctx.ChannelId, "watched", &page)
+		limit := 10
+		if data.Params != nil {
+			newLimit, err := strconv.Atoi(*data.Params)
+			if err == nil {
+				limit = newLimit
+			}
+		}
+
+		if limit > 50 {
+			limit = 10
+		}
+
+		topUsers := top.GetTop(ctx, ctx.ChannelId, "watched", &page, limit)
 
 		if topUsers == nil || len(topUsers) == 0 {
 			return result, nil

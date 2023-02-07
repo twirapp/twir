@@ -28,6 +28,7 @@ func GetTop(
 	channelId string,
 	topType string,
 	page *int,
+	limit int,
 ) []*UserStats {
 	cfg := do.MustInvoke[config.Config](di.Provider)
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
@@ -45,7 +46,7 @@ func GetTop(
 		page = &newPage
 	}
 
-	offset := (*page - 1) * 10
+	offset := (*page - 1) * limit
 
 	// another approach how to filter is via joins, but i decided to leave it with sub query
 	//LEFT JOIN "users_ignored" ON "users_ignored"."id" = "users_stats"."userId"
@@ -56,7 +57,7 @@ func GetTop(
 		From("users_stats").
 		Where(squirrel.Eq{`"channelId"`: channelId}).
 		Where(`NOT EXISTS (select 1 from users_ignored where "id" = "users_stats"."userId")`).
-		Limit(10).
+		Limit(uint64(limit)).
 		Offset(uint64(offset)).
 		OrderBy(fmt.Sprintf("%s DESC", topType)).
 		ToSql()
