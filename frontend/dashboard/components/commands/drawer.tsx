@@ -292,7 +292,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                                       setVariablesSearchInput('');
                                     }}>
                                       <Menu.Target>
-                                        <ActionIcon variant="filled">
+                                        <ActionIcon color="blue" variant="filled">
                                           <IconVariable size={18} />
                                         </ActionIcon>
                                       </Menu.Target>

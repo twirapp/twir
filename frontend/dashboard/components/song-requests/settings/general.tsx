@@ -92,7 +92,6 @@ export const YouTubeGeneralSettings: React.FC = () => {
           />
           <NumberInput
             label={t('general.neededVotesVorSkip')}
-            labelPosition={'left'}
             {...form.getInputProps('neededVotesVorSkip')}
           />
           <Select
