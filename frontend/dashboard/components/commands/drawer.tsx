@@ -288,7 +288,9 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                                   autosize={true}
                                   minRows={1}
                                   rightSection={
-                                    <Menu position="bottom-end" shadow="md" width={380} offset={15}>
+                                    <Menu position="bottom-end" shadow="md" width={380} offset={15} onClose={() => {
+                                      setVariablesSearchInput('');
+                                    }}>
                                       <Menu.Target>
                                         <ActionIcon variant="filled">
                                           <IconVariable size={18} />
