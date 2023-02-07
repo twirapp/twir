@@ -38,14 +38,13 @@ var Variable = types.Variable{
 
 		mappedTop := lo.Map(topUsers, func(user *top.UserStats, idx int) string {
 			return fmt.Sprintf(
-				"%v. %s — %v",
-				(idx+1)+(page-1)*10,
+				"%s %v",
 				user.UserName,
 				user.Value,
 			)
 		})
 
-		result.Result = strings.Join(mappedTop, ", ")
+		result.Result = strings.Join(mappedTop, " · ")
 		return result, nil
 	},
 }
