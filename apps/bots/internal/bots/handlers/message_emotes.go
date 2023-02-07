@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"github.com/samber/lo"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -28,7 +27,10 @@ func (c *Handlers) handleEmotes(msg Message) {
 		return nil
 	})
 
-	emotesKeys, err := c.redis.Keys(context.Background(), fmt.Sprintf("channels:%s:emotes:*", msg.Channel.ID)).Result()
+	emotesKeys, err := c.redis.Keys(
+		context.Background(),
+		fmt.Sprintf("channels:%s:emotes:*", msg.Channel.ID),
+	).Result()
 
 	if err != nil {
 		return
@@ -38,8 +40,9 @@ func (c *Handlers) handleEmotes(msg Message) {
 
 	c.db.Transaction(func(tx *gorm.DB) error {
 		for _, emoteKey := range emotesKeys {
-			emoteSlice := strings.Split(emoteKey, ":")
-			emote, err := lo.Last(emoteSlice)
+			emoteSlice := strings.Split(emoteKey, fmt.Sprintf("channels:%s:emotes:", msg.Channel.ID))
+			emote := strings.Join(emoteSlice[1:], "")
+
 			if err != nil {
 				continue
 			}
