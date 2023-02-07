@@ -16,6 +16,7 @@ type Command struct {
 	Cooldown     int64    `json:"cooldown"`
 	CooldownType string   `json:"cooldownType"`
 	Aliases      []string `json:"aliases"`
+	Description  *string  `json:"description"`
 }
 
 func handleGet(channelId string, services types.Services) ([]Command, error) {
@@ -44,6 +45,7 @@ func handleGet(channelId string, services types.Services) ([]Command, error) {
 			Cooldown:     cmd.Cooldown.Int64,
 			CooldownType: cmd.CooldownType,
 			Aliases:      cmd.Aliases,
+			Description:  cmd.Description.Ptr(),
 		})
 	}
 

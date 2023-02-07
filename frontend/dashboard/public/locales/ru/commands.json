@@ -11,6 +11,7 @@
   "name": "Имя",
   "responses": "Ответы",
   "builtInBadge": "Это встроенная команда",
+  "description": "Описание",
   "table": {
     "head": {
       "status": "Статус",
@@ -22,6 +23,10 @@
     "aliases": {
       "name": "Алиасы",
       "emptyAlert": "Ещё ничего не добавлено"
+    },
+    "description": {
+      "label": "Описание",
+      "placeholder": "Этот текст будет виден на публичной страничке с командами"
     },
     "cooldown": {
       "time": "Время перезарядки (seconds)",

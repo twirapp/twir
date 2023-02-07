@@ -13,6 +13,7 @@ type Command = {
   cooldown: number
   cooldownType: string
   aliases: string[]
+  description: null | string
 }
 
 
@@ -36,7 +37,7 @@ const Commands: NextPage = () => {
     <thead>
     <tr>
       <th>Name</th>
-      <th>Responses</th>
+      <th>Description</th>
       <th>Permission</th>
       <th>Cooldown</th>
     </tr>
@@ -55,7 +56,7 @@ const Commands: NextPage = () => {
           </Text>
         </Tooltip>
       </td>
-      <td>{c?.responses?.map((r, responseIndex) => <Text
+      <td>{c.description ? c.description : c?.responses?.map((r, responseIndex) => <Text
         key={responseIndex}
         title={r}
         lineClamp={1}

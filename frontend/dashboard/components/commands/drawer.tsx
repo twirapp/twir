@@ -187,6 +187,18 @@ export const CommandDrawer: React.FC<Props> = (props) => {
               </ScrollArea.Autosize>
             </div>
 
+            <div style={{ width: '100%' }}>
+              <Textarea
+                label={t('drawer.description.label')}
+                placeholder={t('drawer.description.placeholder')}
+                withAsterisk
+                {...form.getInputProps('description')}
+                w={'100%'}
+                autosize={true}
+                minRows={1}
+              />
+            </div>
+
             <div>
               <Flex direction="row" gap={5} wrap="wrap">
                 <NumberInput

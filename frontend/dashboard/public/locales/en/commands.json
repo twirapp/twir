@@ -23,6 +23,10 @@
       "name": "Aliases",
       "emptyAlert": "No aliases added"
     },
+    "description": {
+      "label": "Description",
+      "placeholder": "his description will be visible on public command page"
+    },
     "cooldown": {
       "time": "Cooldown time (seconds)",
       "type": "Cooldown type"
