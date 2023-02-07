@@ -66,10 +66,10 @@ const Commands: NextPage = () => {
       <Table style={{ tableLayout: 'fixed', width: '100%' }}>
         <thead>
           <tr>
-            <th>{t('name')}</th>
-            {viewPort.width > 550 && <th>{t('responses')}</th>}
-            <th>{t('table.head.status')}</th>
-            <th>{t('table.head.actions')}</th>
+            <th style={{ width: '15%' }}>{t('name')}</th>
+            {viewPort.width > 550 && <th style={{ width: '70%' }}>{t('responses')}</th>}
+            <th style={{ width: '5%' }}>{t('table.head.status')}</th>
+            <th style={{ width: '10%' }}>{t('table.head.actions')}</th>
           </tr>
         </thead>
 
@@ -87,12 +87,21 @@ const Commands: NextPage = () => {
               })
               .map((command) => (
                 <tr key={command.id}>
-                  <td>
-                    <Badge>{command.name}</Badge>
+                  <td style={{
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    maxWidth: 100,
+                  }}>
+                    <Badge>
+                      <Text truncate>
+                        {command.name}
+                      </Text>
+                    </Badge>
                   </td>
                   {viewPort.width > 550 && (
                     <td>
-                      {command.module != 'CUSTOM' && <Badge>{t('builtInBadge')}</Badge>}
+                      {command.module != 'CUSTOM' && <Text dangerouslySetInnerHTML={{ __html: command.description || '' }} />}
                       {command.module === 'CUSTOM' &&
                         (command.responses?.map((r) => (
                           <Text
