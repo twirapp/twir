@@ -26,9 +26,9 @@ type Entity struct {
 }
 
 func handleGet(channelId string, services types.Services) ([]Entity, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
 	if err != nil {
@@ -84,9 +84,9 @@ func handleGet(channelId string, services types.Services) ([]Entity, error) {
 }
 
 func handlePost(channelId string, dto *addUserDto, services types.Services) (*Entity, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
 	if err != nil {

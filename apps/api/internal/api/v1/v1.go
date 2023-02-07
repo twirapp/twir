@@ -3,6 +3,7 @@ package apiv1
 import (
 	"github.com/gofiber/fiber/v2"
 	admin_users "github.com/satont/tsuwari/apps/api/internal/api/v1/admin/users"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/community"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatello"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatepay"
 	public_commands "github.com/satont/tsuwari/apps/api/internal/api/v1/public/commands"
@@ -58,6 +59,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	variables.Setup(channelsGroup, services)
 	settings.Setup(channelsGroup, services)
 	rewards.Setup(channelsGroup, services)
+	community.Setup(channelsGroup, services)
 
 	integrationsGroup := channelsGroup.Group("integrations")
 	donationalerts.Setup(integrationsGroup, services)

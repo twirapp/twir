@@ -13,7 +13,7 @@ import (
 )
 
 func handleGet(channelId string) []model.ChannelsTimers {
-	timersService := do.MustInvoke[interfaces.TimersService](di.Injector)
+	timersService := do.MustInvoke[interfaces.TimersService](di.Provider)
 
 	timers, err := timersService.FindManyByChannelId(channelId)
 	if err != nil {
@@ -28,8 +28,8 @@ func handlePost(
 	dto *timerDto,
 	services types.Services,
 ) (*model.ChannelsTimers, error) {
-	timersService := do.MustInvoke[interfaces.TimersService](di.Injector)
-	timersGrpc := do.MustInvoke[timers.TimersClient](di.Injector)
+	timersService := do.MustInvoke[interfaces.TimersService](di.Provider)
+	timersGrpc := do.MustInvoke[timers.TimersClient](di.Provider)
 
 	responses := lo.Map(dto.Responses, func(r responseDto, _ int) model.ChannelsTimersResponses {
 		return model.ChannelsTimersResponses{
@@ -59,8 +59,8 @@ func handlePost(
 }
 
 func handleDelete(timerId string, services types.Services) error {
-	timersService := do.MustInvoke[interfaces.TimersService](di.Injector)
-	timersGrpc := do.MustInvoke[timers.TimersClient](di.Injector)
+	timersService := do.MustInvoke[interfaces.TimersService](di.Provider)
+	timersGrpc := do.MustInvoke[timers.TimersClient](di.Provider)
 
 	err := timersService.Delete(timerId)
 
@@ -80,8 +80,8 @@ func handlePut(
 	dto *timerDto,
 	services types.Services,
 ) (*model.ChannelsTimers, error) {
-	timersService := do.MustInvoke[interfaces.TimersService](di.Injector)
-	timersGrpc := do.MustInvoke[timers.TimersClient](di.Injector)
+	timersService := do.MustInvoke[interfaces.TimersService](di.Provider)
+	timersGrpc := do.MustInvoke[timers.TimersClient](di.Provider)
 
 	responses := lo.Map(dto.Responses, func(r responseDto, _ int) model.ChannelsTimersResponses {
 		return model.ChannelsTimersResponses{
@@ -123,8 +123,8 @@ func handlePatch(
 	dto *timerPatchDto,
 	services types.Services,
 ) (*model.ChannelsTimers, error) {
-	timersService := do.MustInvoke[interfaces.TimersService](di.Injector)
-	timersGrpc := do.MustInvoke[timers.TimersClient](di.Injector)
+	timersService := do.MustInvoke[interfaces.TimersService](di.Provider)
+	timersGrpc := do.MustInvoke[timers.TimersClient](di.Provider)
 
 	updatedTimer, err := timersService.SetEnabled(timerId, *dto.Enabled)
 	if err != nil {

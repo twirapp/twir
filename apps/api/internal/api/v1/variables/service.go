@@ -19,7 +19,7 @@ import (
 )
 
 func handleGet(channelId string, services types.Services) ([]model.ChannelsCustomvars, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	variables := []model.ChannelsCustomvars{}
 	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&variables).Error
@@ -32,8 +32,8 @@ func handleGet(channelId string, services types.Services) ([]model.ChannelsCusto
 }
 
 func handleGetBuiltIn(services types.Services) ([]*parser.GetVariablesResponse_Variable, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	grpc := do.MustInvoke[parser.ParserClient](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	grpc := do.MustInvoke[parser.ParserClient](di.Provider)
 
 	req, err := grpc.GetDefaultVariables(context.Background(), &emptypb.Empty{})
 	if err != nil {
@@ -75,7 +75,7 @@ func handlePost(
 }
 
 func handleDelete(channelId string, variableId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	variable := &model.ChannelsCustomvars{}
 	err := services.DB.Where(`"channelId" = ? AND "id" = ?`, channelId, variableId).
@@ -100,7 +100,7 @@ func handleUpdate(
 	dto *variableDto,
 	services types.Services,
 ) (*model.ChannelsCustomvars, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	err := services.DB.Where("id = ?", variableId).First(&model.ChannelsCustomvars{}).Error
 	if err == gorm.ErrRecordNotFound {

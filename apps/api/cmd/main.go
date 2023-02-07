@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"log"
 	"os"
 	"os/signal"
 	"reflect"
@@ -63,7 +66,7 @@ func main() {
 		panic("Cannot load config of application")
 	}
 
-	do.ProvideValue[interfaces.Logger](di.Injector, logger.Sugar())
+	do.ProvideValue[interfaces.Logger](di.Provider, logger.Sugar())
 
 	if cfg.SentryDsn != "" {
 		sentry.Init(sentry.ClientOptions{
@@ -85,9 +88,20 @@ func main() {
 	d.SetMaxOpenConns(20)
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
-	do.ProvideValue[*gorm.DB](di.Injector, db)
-	do.ProvideValue[interfaces.TimersService](di.Injector, services.NewTimersService())
-	do.ProvideValue[config.Config](di.Injector, *cfg)
+	do.ProvideValue[*gorm.DB](di.Provider, db)
+	do.ProvideValue[interfaces.TimersService](di.Provider, services.NewTimersService())
+	do.ProvideValue[config.Config](di.Provider, *cfg)
+
+	dbConnOpts, err := pq.ParseURL(cfg.DatabaseUrl)
+	if err != nil {
+		panic(fmt.Errorf("cannot parse postgres url connection: %w", err))
+	}
+	pgConn, err := sqlx.Connect("postgres", dbConnOpts)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	do.ProvideValue[sqlx.DB](di.Provider, *pgConn)
 
 	storage := redis.NewCache(cfg.RedisUrl)
 
@@ -126,13 +140,13 @@ func main() {
 
 	app.Use(compress.New())
 
-	do.ProvideValue[integrations.IntegrationsClient](di.Injector, clients.NewIntegrations(cfg.AppEnv))
-	do.ProvideValue[parser.ParserClient](di.Injector, clients.NewParser(cfg.AppEnv))
-	do.ProvideValue[eventsub.EventSubClient](di.Injector, clients.NewEventSub(cfg.AppEnv))
-	do.ProvideValue[scheduler.SchedulerClient](di.Injector, clients.NewScheduler(cfg.AppEnv))
-	do.ProvideValue[timers.TimersClient](di.Injector, clients.NewTimers(cfg.AppEnv))
-	do.ProvideValue[bots.BotsClient](di.Injector, clients.NewBots(cfg.AppEnv))
-	do.ProvideValue[tokens.TokensClient](di.Injector, clients.NewTokens(cfg.AppEnv))
+	do.ProvideValue[integrations.IntegrationsClient](di.Provider, clients.NewIntegrations(cfg.AppEnv))
+	do.ProvideValue[parser.ParserClient](di.Provider, clients.NewParser(cfg.AppEnv))
+	do.ProvideValue[eventsub.EventSubClient](di.Provider, clients.NewEventSub(cfg.AppEnv))
+	do.ProvideValue[scheduler.SchedulerClient](di.Provider, clients.NewScheduler(cfg.AppEnv))
+	do.ProvideValue[timers.TimersClient](di.Provider, clients.NewTimers(cfg.AppEnv))
+	do.ProvideValue[bots.BotsClient](di.Provider, clients.NewBots(cfg.AppEnv))
+	do.ProvideValue[tokens.TokensClient](di.Provider, clients.NewTokens(cfg.AppEnv))
 
 	v1 := app.Group("/v1")
 

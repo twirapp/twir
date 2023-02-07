@@ -27,7 +27,7 @@ func handlePost(
 	services types.Services,
 	dto *commandDto,
 ) (*model.ChannelsCommands, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	dto.Name = strings.ToLower(dto.Name)
 	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
@@ -87,7 +87,7 @@ func handleUpdate(
 	dto *commandDto,
 	services types.Services,
 ) (*model.ChannelsCommands, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	dto.Name = strings.ToLower(dto.Name)
 	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
@@ -157,7 +157,7 @@ func handlePatch(
 	dto *commandPatchDto,
 	services types.Services,
 ) (*model.ChannelsCommands, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	command, err := getChannelCommand(services.DB, channelId, commandId)
 	if err != nil || command == nil {

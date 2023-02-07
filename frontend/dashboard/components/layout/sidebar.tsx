@@ -27,7 +27,7 @@ import {
   IconPlaylist,
   IconSettings,
   IconSpeakerphone,
-  IconSword,
+  IconSword, IconUsers,
   TablerIcon,
 } from '@tabler/icons';
 import { Dashboard } from '@tsuwari/shared';
@@ -73,6 +73,7 @@ const navigationLinks: Array<Page> = [
       { label: 'Dota', path: '/commands/dota' },
     ],
   },
+  { label: 'Community', icon: IconUsers, path: '/community' },
   { label: 'Timers', icon: IconClockHour7, path: '/timers' },
   { label: 'Moderation', icon: IconSword, path: '/moderation' },
   { label: 'Keywords', icon: IconKey, path: '/keywords' },

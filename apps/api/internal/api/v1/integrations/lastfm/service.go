@@ -25,7 +25,7 @@ type Lastfm struct {
 }
 
 func handlePost(channelId string, dto *lastfmDto, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.DB)
 	if err != nil {
@@ -96,7 +96,7 @@ func handleAuth(services types.Services) (string, error) {
 }
 
 func handleProfile(channelId string, services types.Services) (*LastfmProfile, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.DB)
 	if err != nil {
@@ -131,7 +131,7 @@ func handleProfile(channelId string, services types.Services) (*LastfmProfile, e
 }
 
 func handleLogout(channelId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.DB)
 	if err != nil {

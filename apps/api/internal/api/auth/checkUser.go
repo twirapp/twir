@@ -67,10 +67,10 @@ func checkUser(
 	tokens helix.AccessCredentials,
 	services types.Services,
 ) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	eventSubGrpc := do.MustInvoke[eventsub.EventSubClient](di.Injector)
-	schedulerGrpc := do.MustInvoke[scheduler.SchedulerClient](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	eventSubGrpc := do.MustInvoke[eventsub.EventSubClient](di.Provider)
+	schedulerGrpc := do.MustInvoke[scheduler.SchedulerClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	defaultBot := model.Bots{}
 	err := services.DB.Where("type = ?", "DEFAULT").First(&defaultBot).Error

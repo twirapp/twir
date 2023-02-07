@@ -30,7 +30,7 @@ func handleGet(
 	channelId string,
 	services types.Services,
 ) ([]model.ChannelsModerationSettings, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	settings := []model.ChannelsModerationSettings{}
 	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&settings).Error
@@ -68,7 +68,7 @@ func handleUpdate(
 	dto *moderationDto,
 	services types.Services,
 ) ([]model.ChannelsModerationSettings, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	settings := []model.ChannelsModerationSettings{}
 	for _, item := range dto.Items {

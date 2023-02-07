@@ -18,7 +18,7 @@ import (
 const integrationName = "DONATEPAY"
 
 func handleGet(services types.Services, channelId string) (*string, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, integrationName, services.DB)
 	if err != nil {
@@ -34,8 +34,8 @@ func handleGet(services types.Services, channelId string) (*string, error) {
 }
 
 func handlePost(services types.Services, channelId string, dto *createOrUpdateDTO) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	integrationsGrpc := do.MustInvoke[integrations.IntegrationsClient](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	integrationsGrpc := do.MustInvoke[integrations.IntegrationsClient](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, integrationName, services.DB)
 	if err != nil {

@@ -62,7 +62,7 @@ type profileResponse struct {
 }
 
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	channelIntegration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
 	if err != nil {
@@ -136,7 +136,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 }
 
 func handleGetProfile(channelId string, services types.Services) (*spotify.SpotifyProfile, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
 	if err != nil {
@@ -159,7 +159,7 @@ func handleGetProfile(channelId string, services types.Services) (*spotify.Spoti
 }
 
 func handleLogout(channelId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
 	if err != nil {

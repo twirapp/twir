@@ -88,9 +88,9 @@ func handleSearch(query string, searchType string) ([]youtube.SearchResult, erro
 }
 
 func handlePost(channelId string, dto *youtube.YouTubeSettings, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
 	if err != nil {

@@ -26,7 +26,7 @@ func jwtError(c *fiber.Ctx, err error) error {
 }
 
 var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	return func(c *fiber.Ctx) error {
 		if c.Locals("dbUser") != nil {
@@ -88,7 +88,7 @@ func ExtractTokenFromHeader(t string) (*jwt.Token, error) {
 		return nil, fiber.NewError(401, "invalid token format")
 	}
 
-	cfg := do.MustInvoke[config.Config](di.Injector)
+	cfg := do.MustInvoke[config.Config](di.Provider)
 
 	token, err := jwt.Parse(tokenSlice[1], func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

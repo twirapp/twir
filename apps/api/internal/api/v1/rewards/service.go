@@ -14,8 +14,8 @@ import (
 var cannotGetRewards = fiber.NewError(http.StatusInternalServerError, "cannot get custom rewards of channel")
 
 func handleGet(channelId string) ([]helix.ChannelCustomReward, error) {
-	config := do.MustInvoke[cfg.Config](di.Injector)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
+	config := do.MustInvoke[cfg.Config](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
 	twitchClient, err := twitch.NewUserClient(channelId, config, tokensGrpc)
 

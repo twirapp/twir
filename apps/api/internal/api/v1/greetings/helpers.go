@@ -12,8 +12,8 @@ import (
 )
 
 func getTwitchUserByName(userName string) *helix.User {
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
 	if err != nil {
@@ -33,8 +33,8 @@ func getTwitchUserByName(userName string) *helix.User {
 }
 
 func getTwitchUserById(id string) *helix.User {
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
 	if err != nil {

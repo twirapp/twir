@@ -47,7 +47,7 @@ func handleGetAuth(services types.Services) (*string, error) {
 }
 
 func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrationsData, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
 	if err != nil {
@@ -78,7 +78,7 @@ type profileResponse struct {
 }
 
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	channelIntegration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
 	if err != nil {
@@ -160,7 +160,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 }
 
 func sendGrpcEvent(integrationId string, isAdd bool) {
-	grpc := do.MustInvoke[integrations.IntegrationsClient](di.Injector)
+	grpc := do.MustInvoke[integrations.IntegrationsClient](di.Provider)
 	if isAdd {
 		grpc.AddIntegration(context.Background(), &integrations.Request{
 			Id: integrationId,
@@ -173,7 +173,7 @@ func sendGrpcEvent(integrationId string, isAdd bool) {
 }
 
 func handleLogout(channelId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
 	if err != nil {

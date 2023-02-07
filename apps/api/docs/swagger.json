@@ -177,7 +177,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -234,7 +234,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -355,7 +355,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_commands.commandPatchDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto"
                         }
                     },
                     {
@@ -398,6 +398,51 @@
                 }
             }
         },
+        "/v1/channels/{channelId}/community/users": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Community"
+                ],
+                "summary": "Get channel users list from database",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ChannelId",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_community.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/channels/{channelId}/greetings": {
             "get": {
                 "security": [
@@ -430,7 +475,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
                             }
                         }
                     },
@@ -465,7 +510,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsDto"
                         }
                     },
                     {
@@ -480,7 +525,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
                         }
                     },
                     "400": {
@@ -522,7 +567,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsPatchDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsPatchDto"
                         }
                     },
                     {
@@ -544,7 +589,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
                         }
                     },
                     "400": {
@@ -673,7 +718,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_donatepay.createOrUpdateDTO"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO"
                         }
                     },
                     {
@@ -767,7 +812,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_donationalerts.tokenDto"
                         }
                     },
                     {
@@ -1521,7 +1566,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_streamlabs.tokenDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto"
                         }
                     },
                     {
@@ -1668,7 +1713,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_vk.profile"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile"
                         }
                     },
                     "500": {
@@ -1702,7 +1747,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_vk.vkDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto"
                         }
                     },
                     {
@@ -3202,6 +3247,29 @@
                 }
             }
         },
+        "github_com_satont_tsuwari_apps_api_internal_api_v1_community.User": {
+            "type": "object",
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "emotes": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "messages": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "watched": {
+                    "type": "integer"
+                }
+            }
+        },
         "github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting": {
             "type": "object",
             "properties": {
@@ -3269,11 +3337,16 @@
                 }
             }
         },
+        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatello.createOrUpdateDTO": {
+            "type": "object",
+            "properties": {
+                "apiKey": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO": {
             "type": "object",
-            "required": [
-                "apiKey"
-            ],
             "properties": {
                 "apiKey": {
                     "type": "string"
@@ -3665,6 +3738,9 @@
         "helix.ChannelCustomReward": {
             "type": "object",
             "properties": {
+                "background_color": {
+                    "type": "string"
+                },
                 "broadcaster_id": {
                     "type": "string"
                 },
@@ -3914,6 +3990,29 @@
                 }
             }
         },
+        "internal_api_v1_community.User": {
+            "type": "object",
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "emotes": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "messages": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "watched": {
+                    "type": "integer"
+                }
+            }
+        },
         "internal_api_v1_greetings.Greeting": {
             "type": "object",
             "properties": {
@@ -3981,11 +4080,16 @@
                 }
             }
         },
+        "internal_api_v1_integrations_donatello.createOrUpdateDTO": {
+            "type": "object",
+            "properties": {
+                "apiKey": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_api_v1_integrations_donatepay.createOrUpdateDTO": {
             "type": "object",
-            "required": [
-                "apiKey"
-            ],
             "properties": {
                 "apiKey": {
                     "type": "string"

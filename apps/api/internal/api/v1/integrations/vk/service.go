@@ -64,7 +64,7 @@ type profileResponse struct {
 }
 
 func handleGet(channelId string, services types.Services) (*profile, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, "VK", services.DB)
 	if err != nil {
@@ -103,7 +103,7 @@ type tokensResponse struct {
 }
 
 func handlePost(channelId string, dto *vkDto, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, "VK", services.DB)
 	if err != nil {
@@ -163,7 +163,7 @@ func handlePost(channelId string, dto *vkDto, services types.Services) error {
 }
 
 func handleLogout(channelId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, "VK", services.DB)
 	if err != nil {

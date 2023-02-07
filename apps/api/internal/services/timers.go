@@ -19,8 +19,8 @@ type TimersService struct {
 
 func NewTimersService() *TimersService {
 	service := &TimersService{
-		db:     do.MustInvoke[*gorm.DB](di.Injector),
-		logger: do.MustInvoke[interfaces.Logger](di.Injector),
+		db:     do.MustInvoke[*gorm.DB](di.Provider),
+		logger: do.MustInvoke[interfaces.Logger](di.Provider),
 	}
 
 	return service

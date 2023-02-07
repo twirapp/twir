@@ -52,7 +52,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 func get() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		config := do.MustInvoke[cfg.Config](di.Injector)
+		config := do.MustInvoke[cfg.Config](di.Provider)
 
 		twitchClient, err := helix.NewClient(&helix.Options{
 			ClientID:    config.TwitchClientId,

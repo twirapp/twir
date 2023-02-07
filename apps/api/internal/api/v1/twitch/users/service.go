@@ -23,9 +23,9 @@ type RequestUser struct {
 }
 
 func handleGet(ids string, names string, services types.Services) ([]helix.User, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
 	if err != nil {

@@ -11,8 +11,8 @@ import (
 )
 
 func handleIgnoredUsersPost(services types.Services, dto *ignoredUsersPostDto) error {
-	db := do.MustInvoke[*gorm.DB](di.Injector)
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	db := do.MustInvoke[*gorm.DB](di.Provider)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	for _, user := range dto.Users {
 		newIgnoredUser := model.IgnoredUser{

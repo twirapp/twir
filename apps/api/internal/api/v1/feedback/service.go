@@ -28,8 +28,8 @@ func handlePost(
 	files []*multipart.FileHeader,
 	services types.Services,
 ) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	if services.TgBotApi == nil {
 		return fiber.NewError(

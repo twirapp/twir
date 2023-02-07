@@ -28,7 +28,7 @@ func handlePost(
 	dto *keywordDto,
 	services types.Services,
 ) (*model.ChannelsKeywords, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	existedKeyword := model.ChannelsKeywords{}
 	err := services.DB.Where(`"channelId" = ? AND "text" = ?`, channelId, dto.Text).
@@ -59,7 +59,7 @@ func handlePost(
 }
 
 func handleDelete(keywordId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	keyword := getById(services.DB, keywordId)
 	if keyword == nil {
@@ -80,7 +80,7 @@ func handleUpdate(
 	dto *keywordDto,
 	services types.Services,
 ) (*model.ChannelsKeywords, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	currentKeyword := getById(services.DB, keywordId)
 	if currentKeyword == nil {
@@ -114,7 +114,7 @@ func handlePatch(
 	dto *keywordPatchDto,
 	services types.Services,
 ) (*model.ChannelsKeywords, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	keyword := model.ChannelsKeywords{}
 	err := services.DB.Where(`"channelId" = ? AND "id" = ?`, channelId, keywordId).

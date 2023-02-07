@@ -6,6 +6,8 @@ type UsersStats struct {
 	ChannelID string `gorm:"column:channelId;type:TEXT;"                     json:"channelId" db:"channelId"`
 	Messages  int32  `gorm:"column:messages;type:INT4;default:0;"            json:"messages" db:"messages"`
 	Watched   int64  `gorm:"column:watched;type:INT8;default:0;"             json:"watched" db:"watched"`
+
+	Emotes int `gorm:"-" json:"emotes" db:"emotes"`
 }
 
 func (u *UsersStats) TableName() string {

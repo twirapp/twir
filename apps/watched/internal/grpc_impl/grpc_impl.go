@@ -91,6 +91,9 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 
 			chattersWg := sync.WaitGroup{}
 			for _, chatter := range chatters {
+				if chatter.UserID == "" {
+					continue
+				}
 				chattersWg.Add(1)
 
 				go func(chatter helix.ChatChatter) {
@@ -108,7 +111,7 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 					if user.ID == "" {
 						apiKey, _ := uuid.NewV4()
 						statsId, _ := uuid.NewV4()
-						user := &model.Users{
+						newUser := &model.Users{
 							ID:     chatter.UserID,
 							ApiKey: apiKey.String(),
 							Stats: &model.UsersStats{
@@ -120,7 +123,7 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 							},
 						}
 
-						if err := c.db.Create(&user).Error; err != nil {
+						if err := c.db.Create(&newUser).Error; err != nil {
 							c.logger.Sugar().Error(err)
 						}
 					} else if user.Stats == nil {
@@ -149,44 +152,6 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 						}
 					}
 
-					/* if user.ID == "" {
-						apiKey, _ := uuid.NewV4()
-						statsId, _ := uuid.NewV4()
-						user := &model.Users{
-							ID:     chatter.UserID,
-							ApiKey: apiKey.String(),
-							Stats: &model.UsersStats{
-								ID:        statsId.String(),
-								UserID:    chatter.UserID,
-								ChannelID: channel,
-								Messages:  0,
-								Watched:   0,
-							},
-						}
-						if err := c.db.Save(user).Error; err != nil {
-							c.logger.Sugar().Error(err)
-						}
-					} else if user.Stats == nil {
-						statsId, _ := uuid.NewV4()
-						err := c.db.Create(&model.UsersStats{
-							ID:        statsId.String(),
-							UserID:    chatter.UserID,
-							ChannelID: channel,
-							Messages:  0,
-							Watched:   0,
-						}).Error
-						if err != nil {
-							c.logger.Sugar().Error(err)
-						}
-					} else {
-						time := 5 * time.Minute
-
-						user.Stats.Watched += time.Milliseconds()
-						err := c.db.Save(&user).Error
-						if err != nil {
-							c.logger.Sugar().Error(err)
-						}
-					} */
 				}(chatter)
 			}
 

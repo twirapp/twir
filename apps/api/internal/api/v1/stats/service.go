@@ -21,7 +21,7 @@ type statsItem struct {
 }
 
 func handleGet(services types.Services) ([]statsItem, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	wg := sync.WaitGroup{}
 	statistic := []statsItem{

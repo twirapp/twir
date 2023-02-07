@@ -33,9 +33,9 @@ const (
 )
 
 func handleGetToken(code string, services types.Services) (*Tokens, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
 	if err != nil {
@@ -119,9 +119,9 @@ func createToken(claims jwt.Claims, secret string) (string, error) {
 }
 
 func handleGetProfile(user model.Users, services types.Services) (*Profile, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
 	if err != nil {
@@ -225,8 +225,8 @@ type Profile struct {
 }
 
 func handleRefresh(refreshToken string) (string, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

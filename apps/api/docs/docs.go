@@ -185,7 +185,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -242,7 +242,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -363,7 +363,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_commands.commandPatchDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto"
                         }
                     },
                     {
@@ -406,6 +406,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/channels/{channelId}/community/users": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Community"
+                ],
+                "summary": "Get channel users list from database",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ChannelId",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_community.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/channels/{channelId}/greetings": {
             "get": {
                 "security": [
@@ -438,7 +483,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
                             }
                         }
                     },
@@ -473,7 +518,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsDto"
                         }
                     },
                     {
@@ -488,7 +533,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
                         }
                     },
                     "400": {
@@ -530,7 +575,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsPatchDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsPatchDto"
                         }
                     },
                     {
@@ -552,7 +597,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
                         }
                     },
                     "400": {
@@ -681,7 +726,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_donatepay.createOrUpdateDTO"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO"
                         }
                     },
                     {
@@ -775,7 +820,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_donationalerts.tokenDto"
                         }
                     },
                     {
@@ -1529,7 +1574,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_streamlabs.tokenDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto"
                         }
                     },
                     {
@@ -1676,7 +1721,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_vk.profile"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile"
                         }
                     },
                     "500": {
@@ -1710,7 +1755,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_vk.vkDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto"
                         }
                     },
                     {
@@ -3210,6 +3255,29 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_satont_tsuwari_apps_api_internal_api_v1_community.User": {
+            "type": "object",
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "emotes": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "messages": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "watched": {
+                    "type": "integer"
+                }
+            }
+        },
         "github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting": {
             "type": "object",
             "properties": {
@@ -3277,11 +3345,16 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatello.createOrUpdateDTO": {
+            "type": "object",
+            "properties": {
+                "apiKey": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO": {
             "type": "object",
-            "required": [
-                "apiKey"
-            ],
             "properties": {
                 "apiKey": {
                     "type": "string"
@@ -3673,6 +3746,9 @@ const docTemplate = `{
         "helix.ChannelCustomReward": {
             "type": "object",
             "properties": {
+                "background_color": {
+                    "type": "string"
+                },
                 "broadcaster_id": {
                     "type": "string"
                 },
@@ -3922,6 +3998,29 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_api_v1_community.User": {
+            "type": "object",
+            "properties": {
+                "display_name": {
+                    "type": "string"
+                },
+                "emotes": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "messages": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "watched": {
+                    "type": "integer"
+                }
+            }
+        },
         "internal_api_v1_greetings.Greeting": {
             "type": "object",
             "properties": {
@@ -3989,11 +4088,16 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_api_v1_integrations_donatello.createOrUpdateDTO": {
+            "type": "object",
+            "properties": {
+                "apiKey": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_api_v1_integrations_donatepay.createOrUpdateDTO": {
             "type": "object",
-            "required": [
-                "apiKey"
-            ],
             "properties": {
                 "apiKey": {
                     "type": "string"

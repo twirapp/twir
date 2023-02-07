@@ -26,8 +26,8 @@ type Greeting struct {
 }
 
 func handleGet(channelId string, services types.Services) []Greeting {
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
 	if err != nil {
@@ -78,7 +78,7 @@ func handlePost(
 	dto *greetingsDto,
 	services types.Services,
 ) (*Greeting, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	twitchUser := getTwitchUserByName(dto.Username)
 	if twitchUser == nil {
@@ -114,7 +114,7 @@ func handlePost(
 }
 
 func handleDelete(greetingId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	greeting := findGreetingById(greetingId, services.DB)
 	if greeting == nil {
@@ -134,7 +134,7 @@ func handleUpdate(
 	dto *greetingsDto,
 	services types.Services,
 ) (*Greeting, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	greeting := findGreetingById(greetingId, services.DB)
 	if greeting == nil {
@@ -176,7 +176,7 @@ func handlePatch(
 	dto *greetingsPatchDto,
 	services types.Services,
 ) (*Greeting, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	greeting := findGreetingById(greetingId, services.DB)
 	if greeting == nil {

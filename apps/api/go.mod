@@ -15,6 +15,8 @@ require (
 	github.com/gofiber/storage/redis v0.0.0-20221027071415-dca8f183e44b
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/imroc/req/v3 v3.25.0
+	github.com/jmoiron/sqlx v1.3.5
+	github.com/lib/pq v1.10.7
 	github.com/samber/do v1.6.0
 	github.com/samber/lo v1.37.0
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
@@ -50,7 +52,6 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jackc/pgx/v5 v5.2.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/lib/pq v1.10.7 // indirect
 	github.com/lucas-clemente/quic-go v0.30.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/marten-seemann/qpack v0.3.0 // indirect

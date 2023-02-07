@@ -12,7 +12,7 @@ import (
 )
 
 var ErrorHandler = func(t ut.Translator) func(c *fiber.Ctx, err error) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	return func(c *fiber.Ctx, err error) error {
 		switch castedErr := err.(type) {

@@ -25,9 +25,9 @@ import (
 )
 
 func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
 	twitchClient, err := twitch.NewUserClient(channelId, config, tokensGrpc)
 	if err != nil {
@@ -96,10 +96,10 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 }
 
 func handlePatch(channelId string, dto *connectionDto, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
-	grpc := do.MustInvoke[bots.BotsClient](di.Injector)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Injector)
-	config := do.MustInvoke[cfg.Config](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	grpc := do.MustInvoke[bots.BotsClient](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
 	if err != nil {

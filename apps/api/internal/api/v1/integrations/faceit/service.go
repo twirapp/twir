@@ -22,7 +22,7 @@ import (
 )
 
 func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrationsData, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, "FACEIT", services.DB)
 	if err != nil {
@@ -61,7 +61,7 @@ func handleGetAuth(services types.Services) (*string, error) {
 }
 
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	channelIntegration, err := helpers.GetIntegration(channelId, "FACEIT", services.DB)
 
@@ -174,7 +174,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 }
 
 func handleLogout(channelId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Injector)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetIntegration(channelId, "FACEIT", services.DB)
 	if err != nil {
