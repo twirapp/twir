@@ -16,12 +16,14 @@ RUN npm i -g pnpm@7
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc go.work go.work.sum docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 
+COPY patches patches
+RUN pnpm fetch
+
 COPY libs libs
 COPY apps apps
 COPY frontend frontend
-COPY patches patches
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install -r --offline
 RUN pnpm build
 
 FROM node:18-alpine as node_prod_base
