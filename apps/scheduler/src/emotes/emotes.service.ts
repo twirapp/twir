@@ -9,8 +9,8 @@ import { emotesCacherGrpcClient } from '../libs/emotes.grpc.js';
 @Injectable()
 export class EmotesService {
 
-  @Interval('cacheEmotes', config.isDev ? 5000 : 5 * 60 * 1000)
-  async cacheEmotes() {
+  @Interval('cacheChannelEmotes', config.isDev ? 15000 : 5 * 60 * 1000)
+  async cacheChannelEmotes() {
     const channels = await typeorm.getRepository(Channel).find({
       select: {
         id: true,
@@ -18,7 +18,12 @@ export class EmotesService {
     });
 
     for (const channel of channels) {
-      emotesCacherGrpcClient.cacheEmotes({ channelId: channel.id });
+      emotesCacherGrpcClient.cacheChannelEmotes({ channelId: channel.id });
     }
+  }
+
+  @Interval('cacheGlobalEmotes', config.isDev ? 15000 : 5 * 60 * 1000)
+  cacheGlobalEmotes() {
+    emotesCacherGrpcClient.cacheGlobalEmotes({});
   }
 }

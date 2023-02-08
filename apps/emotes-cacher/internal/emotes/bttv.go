@@ -3,6 +3,7 @@ package emotes
 import (
 	"encoding/json"
 	"errors"
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
 	"io"
 	"net/http"
@@ -17,7 +18,7 @@ type BttvResponse struct {
 	SharedEmotes  []BttvEmote `json:"sharedEmotes"`
 }
 
-func GetBttvEmotes(channelID string) ([]string, error) {
+func GetChannelBttvEmotes(channelID string) ([]string, error) {
 	resp, err := http.Get("https://api.betterttv.net/3/cached/users/twitch/" + channelID)
 	if err != nil {
 		return nil, err
@@ -47,4 +48,26 @@ func GetBttvEmotes(channelID string) ([]string, error) {
 	emotes = append(emotes, mappedSharedEmotes...)
 
 	return emotes, nil
+}
+
+func GetGlobalBttvEmotes() ([]string, error) {
+	resp, err := http.Get("https://api.betterttv.net/3/cached/emotes/global")
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	emotes := []BttvEmote{}
+	err = json.Unmarshal(body, &emotes)
+	if err != nil {
+		return nil, errors.New("cannot fetch bttv emotes")
+	}
+
+	return lo.Map(emotes, func(item BttvEmote, _ int) string {
+		return item.Code
+	}), nil
 }

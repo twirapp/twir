@@ -8,6 +8,7 @@ import (
 	"github.com/satont/tsuwari/apps/emotes-cacher/internal/di"
 	"github.com/satont/tsuwari/apps/emotes-cacher/internal/emotes"
 	"github.com/satont/tsuwari/libs/grpc/generated/emotes_cacher"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"sync"
 	"time"
@@ -16,18 +17,27 @@ import (
 type EmotesCacherImpl struct {
 	emotes_cacher.UnimplementedEmotesCacherServer
 
-	redis redis.Client
+	redis  redis.Client
+	logger zap.Logger
 }
 
 func NewEmotesCacher() *EmotesCacherImpl {
 	redisClient := do.MustInvoke[redis.Client](di.Provider)
+	logger := do.MustInvoke[zap.Logger](di.Provider)
 
 	return &EmotesCacherImpl{
-		redis: redisClient,
+		redis:  redisClient,
+		logger: logger,
 	}
 }
 
-func (c *EmotesCacherImpl) CacheEmotes(_ context.Context, req *emotes_cacher.Request) (*emptypb.Empty, error) {
+func (c *EmotesCacherImpl) CacheChannelEmotes(_ context.Context, req *emotes_cacher.Request) (*emptypb.Empty, error) {
+	if req.ChannelId == "" {
+		return &emptypb.Empty{}, nil
+	}
+
+	start := time.Now()
+
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
 
@@ -37,7 +47,7 @@ func (c *EmotesCacherImpl) CacheEmotes(_ context.Context, req *emotes_cacher.Req
 
 	go func() {
 		defer wg.Done()
-		em, err := emotes.GetSevenTvEmotes(req.ChannelId)
+		em, err := emotes.GetChannelSevenTvEmotes(req.ChannelId)
 		if err != nil || em == nil || len(em) == 0 {
 			return
 		}
@@ -49,7 +59,7 @@ func (c *EmotesCacherImpl) CacheEmotes(_ context.Context, req *emotes_cacher.Req
 
 	go func() {
 		defer wg.Done()
-		em, err := emotes.GetBttvEmotes(req.ChannelId)
+		em, err := emotes.GetChannelBttvEmotes(req.ChannelId)
 		if err != nil || em == nil || len(em) == 0 {
 			return
 		}
@@ -61,7 +71,7 @@ func (c *EmotesCacherImpl) CacheEmotes(_ context.Context, req *emotes_cacher.Req
 
 	go func() {
 		defer wg.Done()
-		em, err := emotes.GetFfzEmotes(req.ChannelId)
+		em, err := emotes.GetChannelFfzEmotes(req.ChannelId)
 		if err != nil || em == nil || len(em) == 0 {
 			return
 		}
@@ -80,12 +90,88 @@ func (c *EmotesCacherImpl) CacheEmotes(_ context.Context, req *emotes_cacher.Req
 		go func(emote string) {
 			c.redis.Set(
 				context.Background(),
-				fmt.Sprintf("channels:%s:emotes:%s", req.ChannelId, emote),
+				fmt.Sprintf("emotes:channel:%s:%s", req.ChannelId, emote),
 				emote,
 				10*time.Minute,
 			)
 		}(emote)
 	}
+
+	c.logger.Sugar().Infow("Channel emotes cached",
+		"total size", len(resultEmotes),
+		"taken", fmt.Sprintf("%vms", time.Since(start).Milliseconds()),
+		"channelId", req.ChannelId,
+	)
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EmotesCacherImpl) CacheGlobalEmotes(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+	start := time.Now()
+
+	wg := sync.WaitGroup{}
+	mu := sync.Mutex{}
+
+	resultEmotes := make([]string, 300)
+
+	wg.Add(3)
+
+	go func() {
+		defer wg.Done()
+		em, err := emotes.GetGlobalSevenTvEmotes()
+		if err != nil || em == nil || len(em) == 0 {
+			return
+		}
+
+		mu.Lock()
+		defer mu.Unlock()
+		resultEmotes = append(resultEmotes, em...)
+	}()
+
+	go func() {
+		defer wg.Done()
+		em, err := emotes.GetGlobalFfzEmotes()
+		if err != nil || em == nil || len(em) == 0 {
+			return
+		}
+
+		mu.Lock()
+		defer mu.Unlock()
+		resultEmotes = append(resultEmotes, em...)
+	}()
+
+	go func() {
+		defer wg.Done()
+		em, err := emotes.GetGlobalBttvEmotes()
+		if err != nil || em == nil || len(em) == 0 {
+			return
+		}
+
+		mu.Lock()
+		defer mu.Unlock()
+		resultEmotes = append(resultEmotes, em...)
+	}()
+
+	wg.Wait()
+
+	for _, emote := range resultEmotes {
+		if emote == "" {
+			continue
+		}
+		go func(emote string) {
+			c.redis.Set(
+				context.Background(),
+				fmt.Sprintf("emotes:global:%s", emote),
+				emote,
+				10*time.Minute,
+			)
+		}(emote)
+	}
+
+	c.logger.Sugar().Infow("Global emotes cached",
+		"total size", len(resultEmotes),
+		"taken", fmt.Sprintf("%vms", time.Since(start).Milliseconds()),
+	)
 
 	return &emptypb.Empty{}, nil
 }

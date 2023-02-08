@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 )
@@ -31,8 +30,11 @@ func (c *Handlers) handleCommand(msg Message, userBadges []string) {
 	}
 
 	if res.KeepOrder != nil && !*res.KeepOrder {
-		for _, v := range res.Responses {
-			r := v
+		for _, response := range res.Responses {
+			r := response
+			if r == "" || r == " " {
+				continue
+			}
 			go c.BotClient.SayWithRateLimiting(
 				msg.Channel.Name,
 				r,
@@ -42,6 +44,11 @@ func (c *Handlers) handleCommand(msg Message, userBadges []string) {
 	} else {
 		for _, r := range res.Responses {
 			validateResposeErr := ValidateResponseSlashes(r)
+
+			if r == "" || r == " " {
+				continue
+			}
+
 			if validateResposeErr != nil {
 				c.BotClient.SayWithRateLimiting(
 					msg.Channel.Name,

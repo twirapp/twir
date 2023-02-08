@@ -2,6 +2,7 @@ package grpc_impl
 
 import (
 	"context"
+	"errors"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/bots/internal/di"
 	cfg "github.com/satont/tsuwari/libs/config"
@@ -79,6 +80,10 @@ func (c *botsGrpcServer) DeleteMessage(ctx context.Context, data *bots.DeleteMes
 }
 
 func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessageRequest) (*emptypb.Empty, error) {
+	if data.Message == "" {
+		return &emptypb.Empty{}, errors.New("empty message")
+	}
+
 	channel := model.Channels{}
 	err := c.db.Where("id = ?", data.ChannelId).Find(&channel).Error
 	if err != nil {

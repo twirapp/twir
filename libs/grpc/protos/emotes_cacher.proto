@@ -4,7 +4,8 @@ package emotes_cacher;
 import "google/protobuf/empty.proto";
 
 service EmotesCacher {
-  rpc CacheEmotes(Request) returns (google.protobuf.Empty) {}
+  rpc CacheChannelEmotes(Request) returns (google.protobuf.Empty) {}
+  rpc CacheGlobalEmotes(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
 message Request {
