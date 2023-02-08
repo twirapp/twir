@@ -33,6 +33,11 @@ export class DonatePay {
   constructor(private readonly twitchUserId: string, private readonly apiKey: string) {}
 
   async connect() {
+    if (this.#centrifuge || this.#subscription) {
+      await this.#subscription.unsubscribe()
+      await this.#centrifuge.disconnect()
+    }
+
     const userData = await this.#getUserData();
 
     this.#centrifuge = new Centrifuge('wss://centrifugo.donatepay.ru:43002/connection/websocket', {
@@ -85,6 +90,7 @@ export class DonatePay {
     });
 
     this.#centrifuge.connect();
+    setTimeout(() => this.connect(), 10 * 60 * 1000);
   }
 
   async disconnect() {
