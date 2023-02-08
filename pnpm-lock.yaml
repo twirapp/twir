@@ -9,24 +9,24 @@ importers:
 
   .:
     specifiers:
-      '@satont/eslint-config': github:satont/eslint-config
       '@types/node': 18.11.10
       '@typescript-eslint/eslint-plugin': 5.45.0
       '@typescript-eslint/parser': 5.45.0
       cross-env: ^7.0.3
       eslint: 8.28.0
       eslint-plugin-import: 2.26.0
+      eslint-plugin-vue: ^9.9.0
       ts-node: 10.9.1
       turbo: 1.6.3
       typescript: 4.9.3
     devDependencies:
-      '@satont/eslint-config': github.com/satont/eslint-config/db55fe5f29bcd17c115b523492a98af0075033e3_vbnhqcxlbs7ynbxw44hu2vq7eq
       '@types/node': 18.11.10
       '@typescript-eslint/eslint-plugin': 5.45.0_czs5uoqkd3podpy6vgtsxfc7au
       '@typescript-eslint/parser': 5.45.0_hsf322ms6xhhd4b5ne6lb74y4a
       cross-env: 7.0.3
       eslint: 8.28.0
       eslint-plugin-import: 2.26.0_vbnhqcxlbs7ynbxw44hu2vq7eq
+      eslint-plugin-vue: 9.9.0_eslint@8.28.0
       ts-node: 10.9.1_eoe7put6ewfbqpy6gs36tihw6y
       turbo: 1.6.3
       typescript: 4.9.3
@@ -9691,8 +9691,8 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-vue/9.8.0_eslint@8.28.0:
-    resolution: {integrity: sha512-E/AXwcTzunyzM83C2QqDHxepMzvI2y6x+mmeYHbVDQlKFqmKYvRrhaVixEeeG27uI44p9oKDFiyCRw4XxgtfHA==}
+  /eslint-plugin-vue/9.9.0_eslint@8.28.0:
+    resolution: {integrity: sha512-YbubS7eK0J7DCf0U2LxvVP7LMfs6rC6UltihIgval3azO3gyDwEGVgsCMe1TmDiEkl6GdMKfRpaME6QxIYtzDQ==}
     engines: {node: ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: ^6.2.0 || ^7.0.0 || ^8.0.0
@@ -17797,22 +17797,4 @@ packages:
 
   /zwitch/1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
-    dev: true
-
-  github.com/satont/eslint-config/db55fe5f29bcd17c115b523492a98af0075033e3_vbnhqcxlbs7ynbxw44hu2vq7eq:
-    resolution: {tarball: https://codeload.github.com/satont/eslint-config/tar.gz/db55fe5f29bcd17c115b523492a98af0075033e3}
-    id: github.com/satont/eslint-config/db55fe5f29bcd17c115b523492a98af0075033e3
-    name: '@satont/eslint-config'
-    version: 0.0.1
-    peerDependencies:
-      eslint: ^8.16.0
-    dependencies:
-      eslint: 8.28.0
-      eslint-plugin-import: 2.26.0_vbnhqcxlbs7ynbxw44hu2vq7eq
-      eslint-plugin-vue: 9.8.0_eslint@8.28.0
-    transitivePeerDependencies:
-      - '@typescript-eslint/parser'
-      - eslint-import-resolver-typescript
-      - eslint-import-resolver-webpack
-      - supports-color
     dev: true
