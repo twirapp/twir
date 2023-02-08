@@ -10,36 +10,11 @@ import (
 	"time"
 )
 
-func appendMatchedEmotes(emotes []string, channelId string, emotesKeys []string, message []string) []string {
-	key := "emotes:global:"
-	if channelId != "" {
-		key = fmt.Sprintf("emotes:channel:%s:", channelId)
-	}
-
-	for _, emoteKey := range emotesKeys {
-		emoteSlice := strings.Split(emoteKey, key)
-		emote := emoteSlice[1]
-
-		for _, word := range message {
-			hasMatch := strings.Contains(word, emote)
-			if !hasMatch {
-				continue
-			}
-
-			emotes = append(emotes, emote)
-		}
-	}
-
-	return emotes
-}
-
 func (c *Handlers) handleEmotes(msg Message) {
-	emotes := make([]string, 0)
+	emotes := make(map[string]int)
 
 	for _, emote := range msg.Emotes {
-		for i := 0; i < emote.Count; i++ {
-			emotes = append(emotes, emote.Name)
-		}
+		emotes[emote.Name] = emote.Count
 	}
 
 	channelEmotes, err := c.redis.Keys(
@@ -57,24 +32,39 @@ func (c *Handlers) handleEmotes(msg Message) {
 
 	splittedMsg := strings.Split(msg.Message, " ")
 
-	emotes = appendMatchedEmotes(emotes, msg.Channel.ID, channelEmotes, splittedMsg)
-	emotes = appendMatchedEmotes(emotes, "", globalEmotes, splittedMsg)
+	countEmotes(emotes, channelEmotes, splittedMsg, fmt.Sprintf("emotes:channel:%s:", msg.Channel.ID))
+	countEmotes(emotes, globalEmotes, splittedMsg, "emotes:global:")
 
 	c.db.Transaction(func(tx *gorm.DB) error {
-		for _, emote := range emotes {
-			err := tx.Create(&model.ChannelEmoteUsage{
-				ID:        uuid.NewV4().String(),
-				ChannelID: msg.Channel.ID,
-				UserID:    msg.User.ID,
-				Emote:     emote,
-				CreatedAt: time.Now().UTC(),
-			}).Error
+		for key, count := range emotes {
+			for i := 0; i < count; i++ {
+				err := tx.Create(&model.ChannelEmoteUsage{
+					ID:        uuid.NewV4().String(),
+					ChannelID: msg.Channel.ID,
+					UserID:    msg.User.ID,
+					Emote:     key,
+					CreatedAt: time.Now().UTC(),
+				}).Error
 
-			if err != nil {
-				return err
+				if err != nil {
+					return err
+				}
 			}
 		}
 
 		return nil
 	})
+}
+
+func countEmotes(emotes map[string]int, emotesList []string, splittedMsg []string, key string) {
+	for _, e := range emotesList {
+		emoteSlice := strings.Split(e, key)
+		emote := emoteSlice[1]
+
+		for _, word := range splittedMsg {
+			if strings.EqualFold(word, emote) {
+				emotes[emote]++
+			}
+		}
+	}
 }
