@@ -29,13 +29,13 @@ type Event = {
 export class DonatePay {
   #centrifuge: Centrifuge;
   #subscription: Centrifuge.Subscription;
+  #timeout: NodeJS.Timeout;
 
   constructor(private readonly twitchUserId: string, private readonly apiKey: string) {}
 
   async connect() {
     if (this.#centrifuge || this.#subscription) {
-      await this.#subscription.unsubscribe()
-      await this.#centrifuge.disconnect()
+     await this.disconnect();
     }
 
     const userData = await this.#getUserData();
@@ -90,12 +90,13 @@ export class DonatePay {
     });
 
     this.#centrifuge.connect();
-    setTimeout(() => this.connect(), 10 * 60 * 1000);
+    this.#timeout = setTimeout(() => this.connect(), 10 * 60 * 1000);
   }
 
   async disconnect() {
-    await this.#subscription.unsubscribe();
-    this.#centrifuge.disconnect();
+    clearTimeout(this.#timeout);
+    await this.#subscription?.unsubscribe();
+    this.#centrifuge?.disconnect();
     console.info(`DonatePay: disconnected from channel ${this.twitchUserId}`);
   }
 
