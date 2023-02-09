@@ -1,0 +1,119 @@
+syntax = "proto3";
+option go_package = "tsuwari/grpc/events";
+package events;
+import "google/protobuf/empty.proto";
+
+service Events {
+  rpc Follow(FollowMessage) returns (google.protobuf.Empty) {}
+  rpc Subscribe(SubscribeMessage) returns (google.protobuf.Empty) {}
+  rpc SubGift(SubGiftMessage) returns (google.protobuf.Empty) {}
+  rpc ReSubscribe(ReSubscribeMessage) returns (google.protobuf.Empty) {}
+  rpc RedemptionCreated(RedemptionCreatedMessage) returns (google.protobuf.Empty) {}
+  rpc CommandUsed(CommandUsedMessage) returns (google.protobuf.Empty) {}
+  rpc FirstUserMessage(FirstUserMessageMessage) returns (google.protobuf.Empty) {}
+  rpc Raided(RaidedMessage) returns (google.protobuf.Empty) {}
+  rpc TitleOrCategoryChanged(TitleOrCategoryChangedMessage) returns (google.protobuf.Empty) {}
+  rpc StreamOnline(StreamOnlineMessage) returns (google.protobuf.Empty) {}
+  rpc StreamOffline(StreamOfflineMessage) returns (google.protobuf.Empty) {}
+  rpc ChatClear(ChatClearMessage) returns (google.protobuf.Empty) {}
+}
+
+message BaseInfo {
+  string channelId = 1;
+}
+
+message FollowMessage {
+  BaseInfo baseInfo = 1;
+  string userName = 2;
+  string userDisplayName = 3;
+}
+
+message SubscribeMessage {
+  BaseInfo baseInfo = 1;
+
+  string userName = 2;
+  string userDisplayName = 3;
+  string level = 4;
+}
+
+message SubGiftMessage {
+  BaseInfo baseInfo = 1;
+
+  string senderUserName = 2;
+  string senderDisplayName = 3;
+  string targetUserName = 4;
+  string targetDisplayName = 5;
+  string level = 6;
+}
+
+message ReSubscribeMessage {
+  BaseInfo baseInfo = 1;
+
+  string userName = 2;
+  string userDisplayName = 3;
+  int64 months = 4;
+  int64 streak = 5;
+  bool isPrime = 6;
+  string message = 7;
+  string level = 8;
+}
+
+message RedemptionCreatedMessage {
+  BaseInfo baseInfo = 1;
+
+  string userName = 2;
+  string userDisplayName = 3;
+  string id = 4;
+  string rewardName = 5;
+  string rewardCost = 6;
+  optional string input = 7;
+}
+
+message CommandUsedMessage {
+  BaseInfo baseInfo = 1;
+
+  string commandId = 2;
+  string commandName = 3;
+  string userName = 4;
+  string userDisplayName = 5;
+}
+
+message FirstUserMessageMessage {
+  BaseInfo baseInfo = 1;
+
+  string userId = 2;
+  string userName = 3;
+  string userDisplayName = 4;
+}
+
+message RaidedMessage {
+  BaseInfo baseInfo = 1;
+
+  string userName = 2;
+  string userDisplayName = 3;
+  int64 viewers = 4;
+}
+
+message TitleOrCategoryChangedMessage {
+  BaseInfo baseInfo = 1;
+
+  string oldTitle = 2;
+  string newTitle = 3;
+  string oldCategory = 4;
+  string newCategory = 5;
+}
+
+message StreamOnlineMessage {
+  BaseInfo baseInfo = 1;
+
+  string title = 2;
+  string category = 3;
+}
+
+message StreamOfflineMessage {
+  BaseInfo baseInfo = 1;
+}
+
+message ChatClearMessage {
+  BaseInfo baseInfo = 1;
+}

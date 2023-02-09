@@ -22,6 +22,10 @@ includes:
   emotes-cacher:
     taskfile: ./apps/emotes-cacher/Taskfile.yml
     dir: ./apps/emotes-cacher
+  events:
+    taskfile: ./apps/events/Taskfile.yml
+    dir: ./apps/events
+
 
 tasks:
   build-libs:
@@ -77,13 +81,28 @@ tasks:
     cmds:
       - task: emotes-cacher:dev
 
+  events-dev:
+    deps: [ prepare ]
+    cmds:
+      - task: events:dev
+
   node-dev:
     deps: [prepare]
     cmds:
       - pnpm dev
 
   dev:
-    deps: [tokens-dev, parser-dev, timers-dev, api-dev, bots-dev, watched-dev, emotes-cacher-dev, node-dev]
+    deps: [
+      tokens-dev,
+      parser-dev,
+      timers-dev,
+      api-dev,
+      bots-dev,
+      watched-dev,
+      emotes-cacher-dev,
+      events-dev,
+      node-dev
+    ]
 
   docker-local-build:
     cmds:

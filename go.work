@@ -8,6 +8,7 @@ use (
 	./apps/timers
 	./apps/tokens
 	./apps/watched
+	./apps/events
 	./libs/config
 	./libs/gomodels
 	./libs/grpc

@@ -3,13 +3,13 @@ module github.com/satont/tsuwari/libs/twitch
 go 1.19
 
 require (
-	github.com/satont/go-helix/v2 v2.7.25
+	github.com/satont/go-helix/v2 v2.7.27
 	google.golang.org/grpc v1.52.3
 	google.golang.org/protobuf v1.28.1
 )
 
 require (
-	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.4.3 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	golang.org/x/net v0.4.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect

@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 // eslint-disable-next-line import/no-cycle
 import { Event } from './event';
@@ -25,7 +25,7 @@ export enum OperationType {
 }
 
 @Entity({ name: 'channels_events_operations' })
-export class BaseOperation {
+export class EventOperation {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -36,5 +36,12 @@ export class BaseOperation {
   delay: number | null;
 
   @ManyToOne(() => Event, _ => _.operations)
+  @JoinColumn({ name: 'eventId' })
   event: Event;
+
+  @Column('uuid')
+  eventId: string;
+
+  @Column('text', { nullable: true })
+  input: string | null;
 }
