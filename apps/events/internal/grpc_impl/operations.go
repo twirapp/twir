@@ -56,6 +56,16 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 			processor.SwitchSubMode(operation.Type)
 		case model.OperationEnableEmoteOnly, model.OperationDisableEmoteOnly:
 			processor.SwitchEmoteOnly(operation.Type)
+		case model.OperationChangeTitle:
+			if !operation.Input.Valid {
+				continue
+			}
+			processor.ChangeTitle(operation.Input.String)
+		case model.OperationChangeCategory:
+			if !operation.Input.Valid {
+				continue
+			}
+			processor.ChangeTitle(operation.Input.String)
 		}
 	}
 }

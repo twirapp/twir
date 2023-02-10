@@ -16,11 +16,12 @@ var (
 )
 
 type Event struct {
-	ID        string      `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
-	ChannelID string      `gorm:"column:channelId;type:TEXT;" json:"channelId"`
-	Type      string      `gorm:"column:type;type:TEXT;"                     json:"type"`
-	RewardID  null.String `gorm:"column:rewardId;type:TEXT;"                     json:"rewardId"`
-	CommandID null.String `gorm:"column:commandId;type:TEXT;"                     json:"commandId"`
+	ID          string      `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	ChannelID   string      `gorm:"column:channelId;type:TEXT;" json:"channelId"`
+	Type        string      `gorm:"column:type;type:TEXT;"                     json:"type"`
+	RewardID    null.String `gorm:"column:rewardId;type:TEXT;"                     json:"rewardId"`
+	CommandID   null.String `gorm:"column:commandId;type:TEXT;"                     json:"commandId"`
+	Description null.String `gorm:"column:description;type:TEXT" json:"description"`
 
 	Operations []EventOperation
 }

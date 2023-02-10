@@ -15,7 +15,7 @@ import { useViewportSize } from '@mantine/hooks';
 import { useSpotlight } from '@mantine/spotlight';
 import {
   IconActivity,
-  IconBox,
+  IconBox, IconCalendarEvent,
   IconClipboardCopy,
   IconClockHour7,
   IconCommand,
@@ -51,6 +51,7 @@ type Page = {
 const navigationLinks: Array<Page> = [
   { label: 'Dashboard', icon: IconDashboard, path: '/' },
   { label: 'Integrations', icon: IconBox, path: '/integrations' },
+  { label: 'Events', icon: IconCalendarEvent, path: '/events' },
   {
     label: 'Song Requests',
     icon: IconHeadphones,

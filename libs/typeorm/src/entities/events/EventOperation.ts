@@ -1,27 +1,27 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 // eslint-disable-next-line import/no-cycle
-import { Event } from './event';
+import { Event } from './Event';
 
 export enum OperationType {
-  BAN,
-  UNBAN,
-  BAN_RANDOM,
-  VIP,
-  UNVIP,
-  UNVIP_RANDOM,
-  MOD,
-  UNMOD,
-  UNMOD_RANDOM,
-  SEND_MESSAGE,
-  CHANGE_TITLE,
-  CHANGE_CATEGORY,
-  FULFILL_REDEMPTION,
-  CANCEL_REDEMPTION,
-  ENABLE_SUBMODE,
-  DISABLE_SUBMODE,
-  ENABLE_EMOTEONLY,
-  DISABLE_EMOTEONLY
+  BAN= 'BAN',
+  UNBAN = 'UNBAN',
+  BAN_RANDOM = 'BAN_RANDOM',
+  VIP = 'VIP',
+  UNVIP = 'UNVIP',
+  UNVIP_RANDOM = 'UNVIP_RANDOM',
+  MOD = 'MOD',
+  UNMOD = 'UNMOD',
+  UNMOD_RANDOM = 'UNMOD_RANDOM',
+  SEND_MESSAGE = 'SEND_MESSAGE',
+  CHANGE_TITLE = 'CHANGE_TITLE',
+  CHANGE_CATEGORY = 'CHANGE_CATEGORY',
+  FULFILL_REDEMPTION = 'FULFILL_REDEMPTION',
+  CANCEL_REDEMPTION = 'CANCEL_REDEMPTION',
+  ENABLE_SUBMODE = 'ENABLE_SUBMODE',
+  DISABLE_SUBMODE = 'DISABLE_SUBMODE',
+  ENABLE_EMOTEONLY = 'ENABLE_EMOTEONLY',
+  DISABLE_EMOTEONLY = 'DISABLE_EMOTEONLY'
 }
 
 @Entity({ name: 'channels_events_operations' })
@@ -37,7 +37,7 @@ export class EventOperation {
 
   @ManyToOne(() => Event, _ => _.operations)
   @JoinColumn({ name: 'eventId' })
-  event: Event;
+  event?: Event;
 
   @Column('uuid')
   eventId: string;

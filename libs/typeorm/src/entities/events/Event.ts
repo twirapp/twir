@@ -1,7 +1,8 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 // eslint-disable-next-line import/no-cycle
-import { EventOperation } from './eventOperation';
+import { Channel } from '../Channel';
+import { EventOperation } from './EventOperation';
 
 export enum EventType {
   FOLLOW = 'FOLLOW',
@@ -27,6 +28,9 @@ export class Event {
   @Column('enum', { enum: EventType })
   type: EventType;
 
+  @Column('text', { nullable: true })
+  description: string | null;
+
   @Column('uuid', { nullable: true })
   rewardId: string | null;
 
@@ -35,4 +39,11 @@ export class Event {
 
   @OneToMany(() => EventOperation, _ => _.event)
   operations: EventOperation[];
+
+  @ManyToOne(() => Channel, _ => _.events)
+  @JoinColumn({ name: 'channelId' })
+  channel?: Channel;
+
+  @Column()
+  channelId: string;
 }
