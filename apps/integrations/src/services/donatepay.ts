@@ -8,6 +8,7 @@ import ws from 'ws';
 import { XMLHttpRequest } from 'xmlhttprequest';
 
 import { donatePayStore, removeIntegration, typeorm } from '../index.js';
+import { eventsGrpcClient } from '../libs/eventsGrpc.js';
 import { sendMessage } from '../libs/sender.js';
 
 global.XMLHttpRequest = XMLHttpRequest;
@@ -77,6 +78,13 @@ export class DonatePay {
         channelId: this.twitchUserId,
         message: `${vars.name ?? 'Anonymous'}: ${vars.sum}${vars.currency} ${msg}`,
         color: 'orange',
+      });
+      eventsGrpcClient.donate({
+        amount: vars.sum.toString(),
+        message: vars.comment,
+        currency: vars.currency,
+        baseInfo: { channelId: this.twitchUserId },
+        userName: vars.name,
       });
     });
 

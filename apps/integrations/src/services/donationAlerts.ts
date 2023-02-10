@@ -5,6 +5,7 @@ import Centrifuge from 'centrifuge';
 import WebSocket from 'ws';
 
 import { donationAlertsStore, removeIntegration, typeorm } from '../index.js';
+import { eventsGrpcClient } from '../libs/eventsGrpc.js';
 import { sendMessage } from '../libs/sender.js';
 
 export class DonationAlerts {
@@ -62,6 +63,14 @@ export class DonationAlerts {
         channelId: this.twitchUserId,
         message: `${data.username ?? 'Anonymous'}: ${data.amount}${data.currency} ${msg}`,
         color: 'orange',
+      });
+
+      eventsGrpcClient.donate({
+        amount: data.amount.toString(),
+        message: msg,
+        currency: data.currency,
+        baseInfo: { channelId: this.twitchUserId },
+        userName: data.username ?? 'Anonymous',
       });
     });
   }

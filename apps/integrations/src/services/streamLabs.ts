@@ -4,6 +4,7 @@ import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration
 import * as IO from 'socket.io-client';
 
 import { removeIntegration, typeorm } from '../index.js';
+import { eventsGrpcClient } from '../libs/eventsGrpc.js';
 import { sendMessage } from '../libs/sender.js';
 
 type Socket = typeof IO.Socket;
@@ -40,6 +41,13 @@ export class StreamLabs {
       channelId: this.twitchUserId,
       message: `${data.from}: ${data.amount}${data.currency} ${data.message}`,
       color: 'green',
+    });
+    eventsGrpcClient.donate({
+      amount: data.amount.toString(),
+      message: data.message ?? '',
+      currency: data.currency,
+      baseInfo: { channelId: this.twitchUserId },
+      userName: data.from ?? 'Anonymous',
     });
   }
 
