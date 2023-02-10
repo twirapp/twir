@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/bots/internal/di"
+	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"sync"
 	"time"
@@ -39,6 +40,7 @@ type ClientOpts struct {
 
 func newBot(opts *ClientOpts) *types.BotClient {
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	eventsGrpc := do.MustInvoke[events.EventsClient](di.Provider)
 
 	globalRateLimiter, _ := ratelimiting.NewSlidingWindow(100, 30*time.Second)
 
@@ -88,6 +90,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 		Cfg:        opts.Cfg,
 		BotClient:  &client,
 		ParserGrpc: opts.ParserGrpc,
+		EventsGrpc: eventsGrpc,
 	})
 
 	go func() {
@@ -143,6 +146,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 					},
 					Message: message.Message,
 					Emotes:  message.Emotes,
+					Tags:    message.Tags,
 				})
 			})
 			client.OnPrivateMessage(func(message irc.PrivateMessage) {
@@ -164,6 +168,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 					},
 					Message: message.Message,
 					Emotes:  message.Emotes,
+					Tags:    message.Tags,
 				})
 			})
 

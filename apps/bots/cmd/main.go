@@ -5,6 +5,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/bots/internal/di"
+	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"log"
 	"net"
@@ -81,6 +82,7 @@ func main() {
 	}
 
 	do.ProvideValue[tokens.TokensClient](di.Provider, clients.NewTokens(cfg.AppEnv))
+	do.ProvideValue[events.EventsClient](di.Provider, clients.NewEvents(cfg.AppEnv))
 
 	redisUrl, err := redis.ParseURL(cfg.RedisUrl)
 	if err != nil {

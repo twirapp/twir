@@ -20,4 +20,5 @@ type Message struct {
 	User    MessageUser
 	Message string
 	Emotes  []*twitch.Emote
+	Tags    map[string]string
 }
