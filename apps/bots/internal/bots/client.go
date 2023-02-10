@@ -7,7 +7,6 @@ import (
 	"github.com/satont/tsuwari/apps/bots/internal/di"
 	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"strconv"
 	"sync"
 	"time"
 
@@ -177,19 +176,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 					BaseInfo: &events.BaseInfo{ChannelId: message.RoomID},
 				})
 			})
-			client.OnUserNoticeMessage(func(message irc.UserNoticeMessage) {
-				if message.Tags["msg-id"] == "raid" {
-					viewers := message.MsgParams["msg-param-viewerCount"]
-					intViewers, _ := strconv.Atoi(viewers)
-
-					eventsGrpc.Raided(context.Background(), &events.RaidedMessage{
-						BaseInfo:        &events.BaseInfo{ChannelId: message.RoomID},
-						UserName:        message.MsgParams["msg-param-login"],
-						UserDisplayName: message.MsgParams["msg-param-displayName"],
-						Viewers:         int64(intViewers),
-					})
-				}
-			})
+			client.OnUserNoticeMessage(botHandlers.OnNotice)
 
 			err = client.Connect()
 			if err != nil {
