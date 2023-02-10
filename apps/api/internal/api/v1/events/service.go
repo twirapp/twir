@@ -51,7 +51,7 @@ func handlePost(channelId string, dto *eventDto) error {
 				Delay:   null.IntFromPtr(operation.Delay),
 				EventID: newEvent.ID,
 				Input:   null.StringFromPtr(operation.Input),
-				Repeat:  null.IntFromPtr(operation.Repeat),
+				Repeat:  operation.Repeat,
 				Order:   i,
 			}
 
@@ -106,7 +106,7 @@ func handleUpdate(channelId, eventId string, dto *eventDto) error {
 				Delay:   null.IntFromPtr(operation.Delay),
 				EventID: event.ID,
 				Input:   null.StringFromPtr(operation.Input),
-				Repeat:  null.IntFromPtr(operation.Repeat),
+				Repeat:  operation.Repeat,
 				Order:   i,
 			}
 

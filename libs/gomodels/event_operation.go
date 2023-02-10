@@ -45,7 +45,7 @@ type EventOperation struct {
 	EventID string             `gorm:"column:eventId;type:string" json:"eventId"`
 
 	Input  null.String `gorm:"column:input;type:string" json:"input"`
-	Repeat null.Int    `gorm:"column:repeat;type:int" json:"repeat"`
+	Repeat int         `gorm:"column:repeat;type:int" json:"repeat"`
 	Order  int         `gorm:"column:order;type:int" json:"order"`
 }
 

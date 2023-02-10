@@ -28,44 +28,46 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 	})
 
 	for _, operation := range operations {
-		if operation.Delay.Valid {
-			duration := time.Duration(operation.Delay.Int64) * time.Second
-			time.Sleep(duration)
-		}
-
-		switch operation.Type {
-		case model.OperationSendMessage:
-			if operation.Input.Valid {
-				processor.SendMessage(channelId, operation.Input.String)
-			}
-		case model.OperationBan, model.OperationUnban:
-			if data.UserName == "" {
-				continue
+		for i := 0; i < operation.Repeat; i++ {
+			if operation.Delay.Valid {
+				duration := time.Duration(operation.Delay.Int64) * time.Second
+				time.Sleep(duration)
 			}
 
-			processor.BanOrUnban(operation.Type)
-		case model.OperationBanRandom:
-			processor.BanRandom()
-		case model.OperationVip, model.OperationUnvip:
-			if data.UserName == "" {
-				continue
-			}
+			switch operation.Type {
+			case model.OperationSendMessage:
+				if operation.Input.Valid {
+					processor.SendMessage(channelId, operation.Input.String)
+				}
+			case model.OperationBan, model.OperationUnban:
+				if data.UserName == "" {
+					continue
+				}
 
-			processor.VipOrUnvip(operation.Type)
-		case model.OperationEnableSubMode, model.OperationDisableSubMode:
-			processor.SwitchSubMode(operation.Type)
-		case model.OperationEnableEmoteOnly, model.OperationDisableEmoteOnly:
-			processor.SwitchEmoteOnly(operation.Type)
-		case model.OperationChangeTitle:
-			if !operation.Input.Valid {
-				continue
+				processor.BanOrUnban(operation.Type)
+			case model.OperationBanRandom:
+				processor.BanRandom()
+			case model.OperationVip, model.OperationUnvip:
+				if data.UserName == "" {
+					continue
+				}
+
+				processor.VipOrUnvip(operation.Type)
+			case model.OperationEnableSubMode, model.OperationDisableSubMode:
+				processor.SwitchSubMode(operation.Type)
+			case model.OperationEnableEmoteOnly, model.OperationDisableEmoteOnly:
+				processor.SwitchEmoteOnly(operation.Type)
+			case model.OperationChangeTitle:
+				if !operation.Input.Valid {
+					continue
+				}
+				processor.ChangeTitle(operation.Input.String)
+			case model.OperationChangeCategory:
+				if !operation.Input.Valid {
+					continue
+				}
+				processor.ChangeTitle(operation.Input.String)
 			}
-			processor.ChangeTitle(operation.Input.String)
-		case model.OperationChangeCategory:
-			if !operation.Input.Valid {
-				continue
-			}
-			processor.ChangeTitle(operation.Input.String)
 		}
 	}
 }

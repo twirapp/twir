@@ -6,7 +6,7 @@ type operationDto struct {
 	Type   model.EventOperationType `validate:"required" json:"type"`
 	Input  *string                  `json:"input"`
 	Delay  *int64                   `validate:"lt=60" json:"delay"`
-	Repeat *int64                   `validate:"gte=1,lt=10" json:"repeat"`
+	Repeat int                      `validate:"gte=1,lt=10" json:"repeat"`
 }
 
 type eventDto struct {

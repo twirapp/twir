@@ -18,14 +18,28 @@ func (c *Processor) VipOrUnvip(operation model.EventOperationType) {
 	}
 
 	if operation == "VIP" {
-		c.streamerApiClient.AddChannelVip(&helix.AddChannelVipParams{
+		resp, err := c.streamerApiClient.AddChannelVip(&helix.AddChannelVipParams{
 			BroadcasterID: c.channelId,
 			UserID:        user.Data.Users[0].ID,
 		})
+		if resp.ErrorMessage != "" || err != nil {
+			if err != nil {
+				c.services.Logger.Sugar().Error(err)
+			} else {
+				c.services.Logger.Sugar().Error(resp.ErrorMessage)
+			}
+		}
 	} else {
-		c.streamerApiClient.RemoveChannelVip(&helix.RemoveChannelVipParams{
+		resp, err := c.streamerApiClient.RemoveChannelVip(&helix.RemoveChannelVipParams{
 			BroadcasterID: c.channelId,
 			UserID:        user.Data.Users[0].ID,
 		})
+		if resp.ErrorMessage != "" || err != nil {
+			if err != nil {
+				c.services.Logger.Sugar().Error(err)
+			} else {
+				c.services.Logger.Sugar().Error(resp.ErrorMessage)
+			}
+		}
 	}
 }

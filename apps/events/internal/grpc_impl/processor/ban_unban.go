@@ -18,7 +18,7 @@ func (c *Processor) BanOrUnban(operation model.EventOperationType) {
 	}
 
 	if operation == "BAN" {
-		c.streamerApiClient.BanUser(&helix.BanUserParams{
+		resp, err := c.streamerApiClient.BanUser(&helix.BanUserParams{
 			BroadcasterID: c.channelId,
 			ModeratorId:   c.channelId,
 			Body: helix.BanUserRequestBody{
@@ -27,11 +27,25 @@ func (c *Processor) BanOrUnban(operation model.EventOperationType) {
 				UserId:   user.Data.Users[0].ID,
 			},
 		})
+		if resp.ErrorMessage != "" || err != nil {
+			if err != nil {
+				c.services.Logger.Sugar().Error(err)
+			} else {
+				c.services.Logger.Sugar().Error(resp.ErrorMessage)
+			}
+		}
 	} else {
-		c.streamerApiClient.UnbanUser(&helix.UnbanUserParams{
+		resp, err := c.streamerApiClient.UnbanUser(&helix.UnbanUserParams{
 			BroadcasterID: c.channelId,
 			ModeratorID:   c.channelId,
 			UserID:        user.Data.Users[0].ID,
 		})
+		if resp.ErrorMessage != "" || err != nil {
+			if err != nil {
+				c.services.Logger.Sugar().Error(err)
+			} else {
+				c.services.Logger.Sugar().Error(resp.ErrorMessage)
+			}
+		}
 	}
 }

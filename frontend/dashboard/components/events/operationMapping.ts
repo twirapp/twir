@@ -5,7 +5,7 @@ export const operationMapping: Record<keyof typeof OperationType, {
   haveInput?: boolean,
 }> = {
   SEND_MESSAGE: {
-    'description': 'Send message in chat',
+    description: 'Send message in chat',
     haveInput: true,
   },
   BAN: {

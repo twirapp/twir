@@ -15,7 +15,7 @@ import { Event, EventType } from '@tsuwari/typeorm/entities/events/Event';
 import { EventOperation, OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
 import { useEffect } from 'react';
 
-import { operationMapping } from '@/components/events/mapping';
+import { operationMapping } from '@/components/events/operationMapping';
 
 type Props = {
   opened: boolean;
