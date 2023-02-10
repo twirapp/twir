@@ -104,9 +104,17 @@ export const eventSubHandlers = {
     const stream = await e.getStream();
 
     pubsub.publish('streams.online', { channelId: e.broadcasterId, streamId: stream.id });
+    eventsGrpcClient.streamOnline({
+      baseInfo: { channelId: e.broadcasterId },
+      category: stream.gameName,
+      title: stream.title,
+    });
   },
   subscribeToStreamOfflineEvents: (e: EventSubStreamOfflineEvent) => {
     pubsub.publish('streams.offline', { channelId: e.broadcasterId });
+    eventsGrpcClient.streamOffline({
+      baseInfo: { channelId: e.broadcasterId },
+    });
   },
   subscribeToUserUpdateEvents: (e: EventSubUserUpdateEvent) => {
     pubsub.publish('user.update', getRawData(e));
