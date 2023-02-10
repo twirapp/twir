@@ -99,6 +99,12 @@ export const unSubscribeFromEvents = (channelId: string) => {
 export const eventSubHandlers = {
   subscribeToChannelUpdateEvents: (e: EventSubChannelUpdateEvent) => {
     pubsub.publish('stream.update', getRawData(e));
+
+    eventsGrpcClient.titleOrCategoryChanged({
+      baseInfo: { channelId: e.broadcasterId },
+      newCategory: e.categoryName,
+      newTitle: e.streamTitle,
+    });
   },
   subscribeToStreamOnlineEvents: async (e: EventSubStreamOnlineEvent) => {
     const stream = await e.getStream();
