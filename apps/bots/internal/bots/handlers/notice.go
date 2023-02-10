@@ -47,6 +47,19 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 			Level:           level,
 		})
 	}
+
+	if message.Tags["msg-id"] == "subgift" {
+		level := getSubPlan(message.MsgParams["msg-param-sub-plan"])
+
+		c.eventsGrpc.SubGift(context.Background(), &events.SubGiftMessage{
+			BaseInfo:          &events.BaseInfo{ChannelId: message.RoomID},
+			SenderUserName:    message.Tags["login"],
+			SenderDisplayName: message.Tags["display-name"],
+			TargetUserName:    message.MsgParams["msg-param-recipient-user-name"],
+			TargetDisplayName: message.MsgParams["msg-param-recipient-display-name"],
+			Level:             level,
+		})
+	}
 }
 
 func getSubPlan(plan string) string {
