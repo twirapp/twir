@@ -19,7 +19,7 @@ type Services struct {
 
 type Data struct {
 	UserName        string `json:"userName,omitempty"`
-	UserDisplayName string
+	UserDisplayName string `json:"userDisplayName,omitempty"`
 
 	RaidViewers int64 `json:"raidViewers,omitempty"`
 
@@ -36,11 +36,13 @@ type Data struct {
 	StreamTitle    string `json:"streamTitle"`
 	StreamCategory string `json:"streamCategory"`
 
+	RewardID    string  `json:"-"'`
 	RewardName  string  `json:"rewardName"`
 	RewardCost  string  `json:"rewardCost"`
 	RewardInput *string `json:"rewardInput"`
 
 	CommandName string `json:"commandName"`
+	CommandID   string `json:"-"`
 
 	TargetUserName        string `json:"targetUserName"`
 	TargetUserDisplayName string `json:"targetUserDisplayName"`

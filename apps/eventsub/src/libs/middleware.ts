@@ -23,6 +23,7 @@ import {
 } from '@twurple/eventsub';
 
 import { botsGrpcClient } from './botsGrpc.js';
+import { eventsGrpcClient } from './eventsGrpc.js';
 import { getHostName } from './hostname.js';
 import { parserGrpcClient } from './parserGrpc.js';
 import { pubsub } from './pubsub.js';
@@ -160,6 +161,13 @@ export const eventSubHandlers = {
       fromUserId: e.userId,
       toUserId: e.broadcasterId,
     });
+    await eventsGrpcClient.follow({
+      userName: e.userName,
+      userDisplayName: e.userDisplayName,
+      baseInfo: {
+        channelId: e.broadcasterId,
+      },
+    });
   },
   subscribeToChannelModeratorAddEvents: (e: EventSubChannelModeratorEvent) => {
     updateBotModStatus(e, true);
@@ -168,6 +176,16 @@ export const eventSubHandlers = {
     updateBotModStatus(e, false);
   },
   subscribeToChannelRedemptionAddEvents: async (e: EventSubChannelRedemptionAddEvent) => {
+    await eventsGrpcClient.redemptionCreated({
+      id: e.rewardId,
+      baseInfo: { channelId: e.broadcasterId },
+      input: e.input,
+      userName: e.userName,
+      userDisplayName: e.userDisplayName,
+      rewardCost: e.rewardCost.toString(),
+      rewardName: e.rewardTitle,
+    });
+
     if (!e.input) return;
 
     const repository = typeorm.getRepository(ChannelModuleSettings);

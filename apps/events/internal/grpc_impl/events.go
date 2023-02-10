@@ -24,6 +24,20 @@ func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.
 		return errors.New("event not found")
 	}
 
+	if dbEntity.Type == "COMMAND_USED" &&
+		data.CommandID != "" &&
+		dbEntity.CommandID.Valid &&
+		data.CommandID != dbEntity.CommandID.String {
+		return nil
+	}
+
+	if dbEntity.Type == "REDEMPTION_CREATED" &&
+		data.RewardID != "" &&
+		dbEntity.RewardID.Valid &&
+		data.RewardID != dbEntity.RewardID.String {
+		return nil
+	}
+
 	c.processOperations(channelId, dbEntity.Operations, data)
 
 	return nil

@@ -72,6 +72,7 @@ func (c *EventsGrpcImplementation) RedemptionCreated(_ context.Context, msg *eve
 			RewardCost:      msg.RewardCost,
 			RewardInput:     msg.Input,
 			RewardName:      msg.RewardName,
+			RewardID:        msg.Id,
 		},
 		"REDEMPTION_CREATED",
 	)
@@ -86,6 +87,7 @@ func (c *EventsGrpcImplementation) CommandUsed(_ context.Context, msg *events.Co
 			UserName:        msg.UserName,
 			UserDisplayName: msg.UserDisplayName,
 			CommandName:     msg.CommandName,
+			CommandID:       msg.CommandId,
 		},
 		"COMMAND_USED",
 	)

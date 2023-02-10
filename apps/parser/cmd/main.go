@@ -7,6 +7,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/dota"
 	"github.com/satont/tsuwari/libs/grpc/generated/eval"
+	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"log"
 	"net"
@@ -108,6 +109,7 @@ func main() {
 	do.ProvideValue[dota.DotaClient](di.Provider, clients.NewDota(cfg.AppEnv))
 	do.ProvideValue[eval.EvalClient](di.Provider, clients.NewEval(cfg.AppEnv))
 	do.ProvideValue[tokens.TokensClient](di.Provider, clients.NewTokens(cfg.AppEnv))
+	do.ProvideValue[events.EventsClient](di.Provider, clients.NewEvents(cfg.AppEnv))
 
 	do.ProvideValue[variables.Variables](di.Provider, variables.New())
 

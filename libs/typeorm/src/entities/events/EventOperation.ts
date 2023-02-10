@@ -45,8 +45,8 @@ export class EventOperation {
   @Column('text', { nullable: true })
   input: string | null;
 
-  @Column({ nullable: true })
-  repeat: number | null;
+  @Column({ default: 1 })
+  repeat: number;
 
   @Column()
   order: number;
