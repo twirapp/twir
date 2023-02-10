@@ -16,3 +16,36 @@ type Services struct {
 	BotsGrpc   bots.BotsClient
 	TokensGrpc tokens.TokensClient
 }
+
+type Data struct {
+	UserName        string `json:"userName,omitempty"`
+	UserDisplayName string
+
+	RaidViewers int64 `json:"raidViewers,omitempty"`
+
+	ResubMonths  int64  `json:"resubMonths"`
+	ResubStreak  int64  `json:"resubStreak"`
+	ResubMessage string `json:"resubMessage"`
+	SubLevel     string `json:"subLevel"`
+
+	OldTitle    string `json:"oldTitle"`
+	NewTitle    string `json:"newTitle"`
+	OldCategory string `json:"oldCategory"`
+	NewCategory string `json:"newCategory"`
+
+	StreamTitle    string `json:"streamTitle"`
+	StreamCategory string `json:"streamCategory"`
+
+	RewardName  string  `json:"rewardName"`
+	RewardCost  string  `json:"rewardCost"`
+	RewardInput *string `json:"rewardInput"`
+
+	CommandName string `json:"commandName"`
+
+	TargetUserName        string `json:"targetUserName"`
+	TargetUserDisplayName string `json:"targetUserDisplayName"`
+
+	DonateAmount   string `json:"donateAmount"`
+	DonateMessage  string `json:"donateMessage"`
+	DonateCurrency string `json:"donateCurrency"`
+}

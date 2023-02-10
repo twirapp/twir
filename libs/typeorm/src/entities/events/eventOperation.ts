@@ -44,4 +44,10 @@ export class EventOperation {
 
   @Column('text', { nullable: true })
   input: string | null;
+
+  @Column({ nullable: true })
+  repeat: number | null;
+
+  @Column()
+  order: number;
 }

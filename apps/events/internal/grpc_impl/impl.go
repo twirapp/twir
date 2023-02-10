@@ -22,7 +22,7 @@ func NewEvents(services *internal.Services) *EventsGrpcImplementation {
 func (c *EventsGrpcImplementation) Follow(_ context.Context, msg *events.FollowMessage) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
-		Data{
+		internal.Data{
 			UserName:        msg.UserName,
 			UserDisplayName: msg.UserDisplayName,
 		},
@@ -35,7 +35,7 @@ func (c *EventsGrpcImplementation) Follow(_ context.Context, msg *events.FollowM
 func (c *EventsGrpcImplementation) Subscribe(_ context.Context, msg *events.SubscribeMessage) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
-		Data{
+		internal.Data{
 			UserName:        msg.UserName,
 			UserDisplayName: msg.UserDisplayName,
 			SubLevel:        msg.Level,
@@ -49,7 +49,7 @@ func (c *EventsGrpcImplementation) Subscribe(_ context.Context, msg *events.Subs
 func (c *EventsGrpcImplementation) ReSubscribe(_ context.Context, msg *events.ReSubscribeMessage) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
-		Data{
+		internal.Data{
 			UserName:        msg.UserName,
 			UserDisplayName: msg.UserDisplayName,
 			SubLevel:        msg.Level,
@@ -66,7 +66,7 @@ func (c *EventsGrpcImplementation) ReSubscribe(_ context.Context, msg *events.Re
 func (c *EventsGrpcImplementation) RedemptionCreated(_ context.Context, msg *events.RedemptionCreatedMessage) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
-		Data{
+		internal.Data{
 			UserName:        msg.UserName,
 			UserDisplayName: msg.UserDisplayName,
 			RewardCost:      msg.RewardCost,
@@ -82,7 +82,7 @@ func (c *EventsGrpcImplementation) RedemptionCreated(_ context.Context, msg *eve
 func (c *EventsGrpcImplementation) CommandUsed(_ context.Context, msg *events.CommandUsedMessage) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
-		Data{
+		internal.Data{
 			UserName:        msg.UserName,
 			UserDisplayName: msg.UserDisplayName,
 			CommandName:     msg.CommandName,
@@ -96,7 +96,7 @@ func (c *EventsGrpcImplementation) CommandUsed(_ context.Context, msg *events.Co
 func (c *EventsGrpcImplementation) FirstUserMessage(_ context.Context, msg *events.FirstUserMessageMessage) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
-		Data{
+		internal.Data{
 			UserName:        msg.UserName,
 			UserDisplayName: msg.UserDisplayName,
 		},
@@ -109,7 +109,7 @@ func (c *EventsGrpcImplementation) FirstUserMessage(_ context.Context, msg *even
 func (c *EventsGrpcImplementation) Raided(_ context.Context, msg *events.RaidedMessage) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
-		Data{
+		internal.Data{
 			UserName:        msg.UserName,
 			UserDisplayName: msg.UserDisplayName,
 			RaidViewers:     msg.Viewers,
@@ -123,7 +123,7 @@ func (c *EventsGrpcImplementation) Raided(_ context.Context, msg *events.RaidedM
 func (c *EventsGrpcImplementation) TitleOrCategoryChanged(_ context.Context, msg *events.TitleOrCategoryChangedMessage) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
-		Data{
+		internal.Data{
 			OldCategory: msg.OldCategory,
 			NewCategory: msg.NewCategory,
 			OldTitle:    msg.OldTitle,
@@ -138,7 +138,7 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(_ context.Context, msg
 func (c *EventsGrpcImplementation) StreamOnline(_ context.Context, msg *events.StreamOnlineMessage) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
-		Data{
+		internal.Data{
 			StreamTitle:    msg.Title,
 			StreamCategory: msg.Category,
 		},
@@ -151,7 +151,7 @@ func (c *EventsGrpcImplementation) StreamOnline(_ context.Context, msg *events.S
 func (c *EventsGrpcImplementation) StreamOffline(_ context.Context, msg *events.StreamOfflineMessage) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
-		Data{},
+		internal.Data{},
 		"STREAM_OFFLINE",
 	)
 
@@ -161,7 +161,7 @@ func (c *EventsGrpcImplementation) StreamOffline(_ context.Context, msg *events.
 func (c *EventsGrpcImplementation) SubGift(_ context.Context, msg *events.SubGiftMessage) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
-		Data{
+		internal.Data{
 			TargetUserName:        msg.TargetUserName,
 			TargetUserDisplayName: msg.TargetDisplayName,
 			SubLevel:              msg.Level,
@@ -175,8 +175,23 @@ func (c *EventsGrpcImplementation) SubGift(_ context.Context, msg *events.SubGif
 func (c *EventsGrpcImplementation) ChatClear(_ context.Context, msg *events.ChatClearMessage) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
-		Data{},
+		internal.Data{},
 		"CHAT_CLEAR",
+	)
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) Donate(_ context.Context, msg *events.DonateMessage) (*emptypb.Empty, error) {
+	go c.processEvent(
+		msg.BaseInfo.ChannelId,
+		internal.Data{
+			UserName:       msg.UserName,
+			DonateAmount:   msg.Amount,
+			DonateCurrency: msg.Currency,
+			DonateMessage:  msg.Message,
+		},
+		"DONATE",
 	)
 
 	return &emptypb.Empty{}, nil

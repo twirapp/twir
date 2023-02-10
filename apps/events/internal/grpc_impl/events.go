@@ -2,10 +2,11 @@ package grpc_impl
 
 import (
 	"errors"
+	"github.com/satont/tsuwari/apps/events/internal"
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
-func (c *EventsGrpcImplementation) processEvent(channelId string, data Data, eventType string) error {
+func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.Data, eventType string) error {
 	dbEntity := &model.Event{}
 
 	err := c.services.DB.
