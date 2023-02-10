@@ -1,21 +1,28 @@
 import {
   ActionIcon,
-  Button, Card, Divider,
+  Button,
+  Card,
   Drawer,
   Flex,
   ScrollArea,
   TextInput,
   Center,
-  useMantineTheme, Select, NumberInput, createStyles,
+  Textarea,
+  useMantineTheme,
+  Select,
+  NumberInput,
+  createStyles,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import { IconArrowBigDownLines, IconHandFinger, IconPlus, IconX } from '@tabler/icons';
 import { Event, EventType } from '@tsuwari/typeorm/entities/events/Event';
 import { EventOperation, OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { operationMapping } from '@/components/events/operationMapping';
+import { RewardItem, RewardItemProps } from '@/components/reward';
+import { commandsManager, useRewards } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -52,8 +59,14 @@ export const EventsDrawer: React.FC<Props> = (props) => {
     },
   });
   const viewPort = useViewportSize();
-
   const cardClasses = useStyles();
+  const [rewards, setRewards] = useState<RewardItemProps[]>([]);
+
+  const commandManager = commandsManager();
+  const commandList = commandManager.useGetAll();
+
+  const rewardsManager = useRewards();
+  const { data: rewardsData } = rewardsManager();
 
   useEffect(() => {
     form.reset();
@@ -61,6 +74,25 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       form.setValues(props.event);
     }
   }, [props.event, props.opened]);
+
+  useEffect(() => {
+    if (rewardsData) {
+      const data = rewardsData
+        .sort((a, b) => (a.is_user_input_required === b.is_user_input_required ? 1 : -1))
+        .map(
+          (r) =>
+            ({
+              value: r.id,
+              label: r.title,
+              description: '',
+              image: r.image?.url_4x || r.default_image?.url_4x,
+              disabled: false,
+            } as RewardItemProps),
+        );
+
+      setRewards(data);
+    }
+  }, [rewardsData]);
 
   async function onSubmit() {
     const validate = form.validate();
@@ -90,7 +122,42 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
-            <TextInput label={'description'} required {...form.getInputProps('description')} />
+            <Textarea
+              label={'Description'}
+              required
+              w={'100%'}
+              autosize={true}
+              minRows={1}
+              {...form.getInputProps('description')}
+            />
+
+            {form.values.type === EventType.COMMAND_USED && <Select
+                label={'Command for trigger that event'}
+                searchable={true}
+                data={commandList.data?.map((c) => ({
+                  value: c.id,
+                  label: c.name,
+                })) ?? []}
+                onChange={(newValue) => {
+                  form.setFieldValue(`commandId`, newValue);
+                }}
+                value={form.values.commandId}
+                w={'100%'}
+            />}
+
+            {form.values.type === EventType.REDEMPTION_CREATED && <Select
+                label={'Reward for trigger that event'}
+                placeholder="..."
+                searchable
+                itemComponent={RewardItem}
+                dropdownPosition={'bottom'}
+                allowDeselect
+                data={rewards}
+                {...form.getInputProps('rewardId')}
+                w={'100%'}
+            />}
+
+
             {form.values.operations.map((o, operationIndex) =>
               <div className={cardClasses.classes.root}>
                 <div className={cardClasses.classes.label}>

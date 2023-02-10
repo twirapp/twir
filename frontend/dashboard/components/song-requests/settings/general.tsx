@@ -15,9 +15,9 @@ import { SearchResult } from '@tsuwari/types/api';
 import { useTranslation } from 'next-i18next';
 import React, { useEffect, useState } from 'react';
 
+import { RewardItem, RewardItemProps } from '@/components/reward';
 import { useYouTubeSettingsFormContext } from '@/components/song-requests/settings/form';
 import { YouTubeSettingsListButtonButton } from '@/components/song-requests/settings/listButton';
-import { RewardItem, RewardItemProps } from '@/components/song-requests/settings/reward';
 import { useRewards } from '@/services/api';
 import { useYoutubeModule } from '@/services/api/modules';
 
