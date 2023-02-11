@@ -204,6 +204,7 @@ COPY --from=base /app/apps/api apps/api/
 COPY --from=base /app/apps/tokens apps/tokens/
 COPY --from=base /app/apps/watched apps/watched/
 COPY --from=base /app/apps/emotes-cacher apps/emotes-cacher/
+COPY --from=base /app/apps/emotes apps/emotes/
 COPY --from=base /app/libs/config libs/config/
 COPY --from=base /app/libs/grpc libs/grpc/
 COPY --from=base /app/libs/pubsub libs/pubsub/
@@ -325,3 +326,13 @@ COPY --from=emotes-cacher_deps /app/apps/emotes-cacher/out /bin/emotes-cacher
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["/bin/emotes-cacher"]
+
+FROM golang_deps_base as emotes_deps
+RUN cd apps/emotes && go mod download
+RUN cd apps/emotes && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as emotes
+COPY --from=emotes_deps /app/apps/emotes/out /bin/emotes
+COPY --from=base /app/docker-entrypoint.sh /app/
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["/bin/emotes"]

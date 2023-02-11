@@ -80,7 +80,8 @@ jobs:
             landing,
             dashboard,
             public,
-            emotes-cacher
+            emotes-cacher,
+            events,
           ]
     steps:
       - uses: actions/checkout@v2
