@@ -11,14 +11,23 @@ import {
   useMantineTheme,
   Select,
   NumberInput,
-  createStyles,
+  createStyles, Group, Menu, Text,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
-import { IconArrowBigDownLines, IconHandFinger, IconPlus, IconX } from '@tabler/icons';
+import {
+  IconArrowBigDownLines,
+  IconGripVertical,
+  IconHandFinger, IconMinus,
+  IconPlus,
+  IconSearch,
+  IconVariable,
+  IconX,
+} from '@tabler/icons';
 import { Event, EventType } from '@tsuwari/typeorm/entities/events/Event';
 import { EventOperation, OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
 import React, { useEffect, useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { operationMapping } from '@/components/events/operationMapping';
 import { RewardItem, RewardItemProps } from '@/components/reward';
@@ -43,7 +52,6 @@ const useStyles = createStyles(() => ({
     right: 5,
   },
 }));
-
 
 export const EventsDrawer: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
@@ -158,57 +166,136 @@ export const EventsDrawer: React.FC<Props> = (props) => {
             />}
 
 
-            {form.values.operations.map((o, operationIndex) =>
-              <div className={cardClasses.classes.root}>
-                <div className={cardClasses.classes.label}>
-                  <Flex gap={'xs'}>
-                    <ActionIcon  variant={'default'}>
-                      <IconHandFinger />
-                    </ActionIcon>
+            <DragDropContext
+              onDragEnd={({ destination, source }) =>
+                form.reorderListItem('operations', {
+                  from: source.index,
+                  to: destination!.index,
+                })
+              }
+            >
+              <Droppable droppableId="responses" direction="vertical">
+                {(provided) => (
+                  <div {...provided.droppableProps} ref={provided.innerRef} style={{ width: '100%' }}>
+                    {form.values.operations?.map((o, index) => (
+                      <>
+                      <Draggable key={index} index={index} draggableId={index.toString()}>
+                        {(provided) => (
+                          <div key={index} className={cardClasses.classes.root} {...provided.dragHandleProps} ref={provided.innerRef}>
+                            <div className={cardClasses.classes.label}>
+                              <Flex gap={'xs'}>
+                                <ActionIcon variant={'default'} onClick={() => form.removeListItem('operations', index)}>
+                                  <IconX />
+                                </ActionIcon>
+                              </Flex>
+                            </div>
 
-                    <ActionIcon variant={'default'} onClick={() => form.removeListItem('operations', operationIndex)}>
-                      <IconX />
-                    </ActionIcon>
-                  </Flex>
-                </div>
+                            <Card
+                              shadow="sm"
+                              p="lg"
+                              radius="md"
+                              withBorder {...provided.draggableProps}
+                              style={{ ...provided.draggableProps.style, position: 'static' }}
+                            >
+                              <Card.Section p={'xs'} withBorder pt={20}>
+                                <Select
+                                  searchable={true}
+                                  data={Object.keys(OperationType).map(t => ({
+                                    value: t,
+                                    label: operationMapping[t as OperationType]?.description || t,
+                                  }))}
+                                  onChange={(newValue) => {
+                                    form.setFieldValue(`operations.${index}.type`, newValue);
+                                  }}
+                                  value={form.values.operations[index]?.type}
+                                />
+                              </Card.Section>
+                              <Card.Section p='sm'>
+                                {operationMapping[o.type].haveInput && <TextInput
+                                    label={'Input for operation'}
+                                    required
+                                    {...form.getInputProps(`operations.${index}.input`)}
+                                />}
+                                <NumberInput
+                                  label={'Delay in seconds before operation executes'}
+                                  {...form.getInputProps(`operations.${index}.delay`)}
+                                />
+                                <NumberInput
+                                  label={'How many times execute that operation'}
+                                  {...form.getInputProps(`operations.${index}.repeat`)}
+                                />
+                              </Card.Section>
+                            </Card>
 
-                <Card shadow="sm" p="lg" radius="md" withBorder>
-                <Card.Section p={'xs'} withBorder pt={20}>
-                  <Select
-                    searchable={true}
-                    data={Object.keys(OperationType).map(t => ({
-                      value: t,
-                      label: operationMapping[t as OperationType]?.description || t,
-                    }))}
-                    onChange={(newValue) => {
-                      form.setFieldValue(`operations.${operationIndex}.type`, newValue);
-                    }}
-                    value={form.values.operations[operationIndex]?.type}
-                  />
-                </Card.Section>
-                <Card.Section p='sm'>
-                  {operationMapping[o.type].haveInput && <TextInput
-                      label={'Input for operation'}
-                      required
-                      {...form.getInputProps(`operations.${operationIndex}.input`)}
-                  />}
-                  <NumberInput
-                    label={'Delay in seconds before operation executes'}
-                    {...form.getInputProps(`operations.${operationIndex}.delay`)}
-                  />
-                  <NumberInput
-                    label={'How many times execute that operation'}
-                    {...form.getInputProps(`operations.${operationIndex}.repeat`)}
-                  />
-                </Card.Section>
-              </Card>
-                {operationIndex < form.values.operations.length-1 &&
-                    <Center w={'100%'} mt={10}>
-                      <IconArrowBigDownLines size={30} />
-                    </Center>
-                }
-              </div>,
-              )}
+                        </div>
+                        )}
+                      </Draggable>
+                        {index < form.values.operations.length-1 &&
+                            <Center w={'100%'} mt={10} mb={10}>
+                                <IconArrowBigDownLines size={30} />
+                            </Center>
+                        }
+                        </>
+                    ))}
+
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+
+
+            {/*{form.values.operations.map((o, operationIndex) =>*/}
+            {/*  <div key={operationIndex} className={cardClasses.classes.root}>*/}
+            {/*    <div className={cardClasses.classes.label}>*/}
+            {/*      <Flex gap={'xs'}>*/}
+            {/*        <ActionIcon  variant={'default'}>*/}
+            {/*          <IconHandFinger />*/}
+            {/*        </ActionIcon>*/}
+
+            {/*        <ActionIcon variant={'default'} onClick={() => form.removeListItem('operations', operationIndex)}>*/}
+            {/*          <IconX />*/}
+            {/*        </ActionIcon>*/}
+            {/*      </Flex>*/}
+            {/*    </div>*/}
+
+            {/*    <Card shadow="sm" p="lg" radius="md" withBorder>*/}
+            {/*      <Card.Section p={'xs'} withBorder pt={20}>*/}
+            {/*        <Select*/}
+            {/*          searchable={true}*/}
+            {/*          data={Object.keys(OperationType).map(t => ({*/}
+            {/*            value: t,*/}
+            {/*            label: operationMapping[t as OperationType]?.description || t,*/}
+            {/*          }))}*/}
+            {/*          onChange={(newValue) => {*/}
+            {/*            form.setFieldValue(`operations.${operationIndex}.type`, newValue);*/}
+            {/*          }}*/}
+            {/*          value={form.values.operations[operationIndex]?.type}*/}
+            {/*        />*/}
+            {/*      </Card.Section>*/}
+            {/*      <Card.Section p='sm'>*/}
+            {/*        {operationMapping[o.type].haveInput && <TextInput*/}
+            {/*            label={'Input for operation'}*/}
+            {/*            required*/}
+            {/*            {...form.getInputProps(`operations.${operationIndex}.input`)}*/}
+            {/*        />}*/}
+            {/*        <NumberInput*/}
+            {/*          label={'Delay in seconds before operation executes'}*/}
+            {/*          {...form.getInputProps(`operations.${operationIndex}.delay`)}*/}
+            {/*        />*/}
+            {/*        <NumberInput*/}
+            {/*          label={'How many times execute that operation'}*/}
+            {/*          {...form.getInputProps(`operations.${operationIndex}.repeat`)}*/}
+            {/*        />*/}
+            {/*      </Card.Section>*/}
+            {/*    </Card>*/}
+            {/*    {operationIndex < form.values.operations.length-1 &&*/}
+            {/*        <Center w={'100%'} mt={10}>*/}
+            {/*            <IconArrowBigDownLines size={30} />*/}
+            {/*        </Center>*/}
+            {/*    }*/}
+            {/*  </div>,*/}
+            {/*)}*/}
 
             <Center w={'100%'}>
               <Button variant={'light'} onClick={() => {

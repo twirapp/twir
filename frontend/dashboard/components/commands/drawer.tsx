@@ -281,6 +281,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                                 ref={provided.innerRef}
                                 mt="xs"
                                 {...provided.draggableProps}
+                                style={{ ...provided.draggableProps.style, position: 'static' }}
                               >
                                 <Textarea
                                   w={'80%'}

@@ -38,6 +38,44 @@ const Events: NextPage<{ operations: typeof OperationType }> = (props) => {
       description: 'Send message when user follows channel',
       channelId: '',
     },
+    {
+      id: '',
+      type: 'COMMAND_USED' as EventType,
+      rewardId: '',
+      commandId: '',
+      operations: [
+        {
+          type: 'SEND_MESSAGE' as OperationType,
+          id: '',
+          delay: 0,
+          input: 'Im message',
+          eventId: '',
+          repeat: 1,
+          order: 0,
+        },
+      ],
+      description: 'Send message when user follows channel',
+      channelId: '',
+    },
+    {
+      id: '',
+      type: 'REDEMPTION_CREATED' as EventType,
+      rewardId: '',
+      commandId: '',
+      operations: [
+        {
+          type: 'SEND_MESSAGE' as OperationType,
+          id: '',
+          delay: 0,
+          input: 'Im message',
+          eventId: '',
+          repeat: 1,
+          order: 0,
+        },
+      ],
+      description: 'Send message when user follows channel',
+      channelId: '',
+    },
   ];
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableEvent, setEditableEvent] = useState<Event | undefined>();
