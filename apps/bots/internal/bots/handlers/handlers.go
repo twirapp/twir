@@ -7,6 +7,7 @@ import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/bots/internal/di"
 	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -27,6 +28,7 @@ type HandlersOpts struct {
 	Cfg        *cfg.Config
 	BotClient  *types.BotClient
 	ParserGrpc parser.ParserClient
+	EventsGrpc events.EventsClient
 }
 
 type Handlers struct {
@@ -35,6 +37,7 @@ type Handlers struct {
 	BotClient  *types.BotClient
 	cfg        *cfg.Config
 	parserGrpc parser.ParserClient
+	eventsGrpc events.EventsClient
 	redis      redis.Client
 
 	greetingsCounter prometheus.Counter
@@ -68,6 +71,7 @@ func CreateHandlers(opts *HandlersOpts) *Handlers {
 		greetingsCounter: greetingsCounter,
 		keywordsCounter:  keywordsCounter,
 		redis:            redisClient,
+		eventsGrpc:       opts.EventsGrpc,
 	}
 
 	prometheus.Register(greetingsCounter)

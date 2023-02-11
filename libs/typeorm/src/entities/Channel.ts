@@ -24,6 +24,7 @@ import { ChannelPermit } from './ChannelPermit';
 import { ChannelStream } from './ChannelStream';
 import { ChannelTimer } from './ChannelTimer';
 import { DashboardAccess } from './DashboardAccess';
+import { Event } from './events/Event';
 import { User } from './User';
 import { UserOnline } from './UserOnline';
 import { UserStats } from './UserStats';
@@ -96,7 +97,10 @@ export class Channel {
   usersStats?: UserStats[];
 
   @OneToMany(() => ChannelEvent, _ => _.channel)
-  events?: ChannelEvent[];
+  eventsList?: ChannelEvent[];
+
+  @OneToMany(() => Event, _ => _.channel)
+  events: Event[];
 
   @OneToMany(() => ChannelStream, _ => _.channel)
   streams?: ChannelStream[];

@@ -3,7 +3,7 @@ import { ChannelDonationEvent } from '@tsuwari/typeorm/entities/channelEvents/Do
 import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration';
 
 import { donatelloStore, removeIntegration, typeorm } from '../index.js';
-import { sendMessage } from '../libs/sender.js';
+import { eventsGrpcClient } from '../libs/eventsGrpc.js';
 
 export class Donatello {
   #interval: NodeJS.Timer;
@@ -64,10 +64,12 @@ export class Donatello {
         donateId: donation.pubId,
       });
 
-      sendMessage({
-        channelId: this.twitchUserId,
-        message: `${donation.clientName ?? 'Anonymous'}: ${donation.amount}${donation.currency} ${donation.message ?? ''}`,
-        color: 'blue',
+      eventsGrpcClient.donate({
+        amount: donation.amount,
+        message: donation.message,
+        currency: donation.currency,
+        baseInfo: { channelId: this.twitchUserId },
+        userName: donation.clientName,
       });
     }
   }

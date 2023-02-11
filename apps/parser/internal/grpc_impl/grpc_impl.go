@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"strings"
 	"time"
 
@@ -37,9 +38,10 @@ var (
 type parserGrpcServer struct {
 	parser.UnimplementedParserServer
 
-	redis     redis.Client
-	variables variables.Variables
-	commands  commands.Commands
+	redis      redis.Client
+	variables  variables.Variables
+	commands   commands.Commands
+	eventsGrpc events.EventsClient
 }
 
 func NewServer() *parserGrpcServer {
@@ -47,6 +49,8 @@ func NewServer() *parserGrpcServer {
 		redis:     do.MustInvoke[redis.Client](di.Provider),
 		variables: do.MustInvoke[variables.Variables](di.Provider),
 		commands:  do.MustInvoke[commands.Commands](di.Provider),
+
+		eventsGrpc: do.MustInvoke[events.EventsClient](di.Provider),
 	}
 }
 
@@ -115,6 +119,14 @@ func (c *parserGrpcServer) ProcessCommand(
 	}
 
 	result := c.commands.ParseCommandResponses(cmd, data)
+
+	defer c.eventsGrpc.CommandUsed(context.Background(), &events.CommandUsedMessage{
+		BaseInfo:        &events.BaseInfo{ChannelId: data.Channel.Id},
+		CommandId:       cmd.Cmd.ID,
+		CommandName:     cmd.Cmd.Name,
+		UserName:        data.Sender.Name,
+		UserDisplayName: data.Sender.DisplayName,
+	})
 
 	return result, nil
 }

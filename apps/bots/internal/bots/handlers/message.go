@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"strings"
 
 	"github.com/samber/lo"
@@ -44,6 +46,15 @@ func (c *Handlers) OnMessage(msg Message) {
 		)
 	}()
 	go messages.IncrementStreamParsedMessages(c.db, msg.Channel.ID)
+
+	if msg.Tags["first-msg"] == "1" {
+		go c.eventsGrpc.FirstUserMessage(context.Background(), &events.FirstUserMessageMessage{
+			BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
+			UserId:          msg.User.ID,
+			UserName:        msg.User.Name,
+			UserDisplayName: msg.User.DisplayName,
+		})
+	}
 }
 
 func createUserBadges(badges map[string]int) []string {

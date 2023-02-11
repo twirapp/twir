@@ -23,6 +23,7 @@ import {
 } from '@twurple/eventsub';
 
 import { botsGrpcClient } from './botsGrpc.js';
+import { eventsGrpcClient } from './eventsGrpc.js';
 import { getHostName } from './hostname.js';
 import { parserGrpcClient } from './parserGrpc.js';
 import { pubsub } from './pubsub.js';
@@ -98,14 +99,28 @@ export const unSubscribeFromEvents = (channelId: string) => {
 export const eventSubHandlers = {
   subscribeToChannelUpdateEvents: (e: EventSubChannelUpdateEvent) => {
     pubsub.publish('stream.update', getRawData(e));
+
+    eventsGrpcClient.titleOrCategoryChanged({
+      baseInfo: { channelId: e.broadcasterId },
+      newCategory: e.categoryName,
+      newTitle: e.streamTitle,
+    });
   },
   subscribeToStreamOnlineEvents: async (e: EventSubStreamOnlineEvent) => {
     const stream = await e.getStream();
 
     pubsub.publish('streams.online', { channelId: e.broadcasterId, streamId: stream.id });
+    eventsGrpcClient.streamOnline({
+      baseInfo: { channelId: e.broadcasterId },
+      category: stream.gameName,
+      title: stream.title,
+    });
   },
   subscribeToStreamOfflineEvents: (e: EventSubStreamOfflineEvent) => {
     pubsub.publish('streams.offline', { channelId: e.broadcasterId });
+    eventsGrpcClient.streamOffline({
+      baseInfo: { channelId: e.broadcasterId },
+    });
   },
   subscribeToUserUpdateEvents: (e: EventSubUserUpdateEvent) => {
     pubsub.publish('user.update', getRawData(e));
@@ -160,6 +175,13 @@ export const eventSubHandlers = {
       fromUserId: e.userId,
       toUserId: e.broadcasterId,
     });
+    await eventsGrpcClient.follow({
+      userName: e.userName,
+      userDisplayName: e.userDisplayName,
+      baseInfo: {
+        channelId: e.broadcasterId,
+      },
+    });
   },
   subscribeToChannelModeratorAddEvents: (e: EventSubChannelModeratorEvent) => {
     updateBotModStatus(e, true);
@@ -168,6 +190,16 @@ export const eventSubHandlers = {
     updateBotModStatus(e, false);
   },
   subscribeToChannelRedemptionAddEvents: async (e: EventSubChannelRedemptionAddEvent) => {
+    await eventsGrpcClient.redemptionCreated({
+      id: e.rewardId,
+      baseInfo: { channelId: e.broadcasterId },
+      input: e.input,
+      userName: e.userName,
+      userDisplayName: e.userDisplayName,
+      rewardCost: e.rewardCost.toString(),
+      rewardName: e.rewardTitle,
+    });
+
     if (!e.input) return;
 
     const repository = typeorm.getRepository(ChannelModuleSettings);

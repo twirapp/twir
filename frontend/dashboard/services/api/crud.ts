@@ -6,6 +6,7 @@ import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
+import { Event } from '@tsuwari/typeorm/entities/events/Event';
 import { useContext } from 'react';
 
 import { authFetcher } from '@/services/api';
@@ -114,3 +115,4 @@ export const keywordsManager =  () => createCrudManager<ChannelKeyword>('keyword
 export const timersManager =  () => createCrudManager<ChannelTimer>('timers');
 export const variablesManager = () => createCrudManager<ChannelCustomvar>('variables');
 export const dashboardAccessManager = () => createCrudManager<Dashboard>('settings/dashboard-access');
+export const eventsManager = () => createCrudManager<Event>('events');

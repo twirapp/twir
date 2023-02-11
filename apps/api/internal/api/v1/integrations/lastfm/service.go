@@ -8,7 +8,6 @@ import (
 	"gorm.io/gorm"
 	"net/http"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/guregu/null"
 	model "github.com/satont/tsuwari/libs/gomodels"
 
@@ -114,7 +113,6 @@ func handleProfile(channelId string, services types.Services) (*LastfmProfile, e
 	)
 	api.SetSession(integration.APIKey.String)
 	if err != nil {
-		spew.Dump(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 	info, err := api.User.GetInfo(make(map[string]interface{}))
