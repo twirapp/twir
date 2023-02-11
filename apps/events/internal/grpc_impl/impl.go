@@ -126,10 +126,10 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(_ context.Context, msg
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
-			OldCategory: msg.OldCategory,
-			NewCategory: msg.NewCategory,
-			OldTitle:    msg.OldTitle,
-			NewTitle:    msg.NewTitle,
+			OldStreamCategory: msg.OldCategory,
+			NewStreamCategory: msg.NewCategory,
+			OldStreamTitle:    msg.OldTitle,
+			NewStreamTitle:    msg.NewTitle,
 		},
 		"TITLE_OR_CATEGORY_CHANGED",
 	)

@@ -1,0 +1,26 @@
+{
+  "variables": {
+    "userName": "Name of the user who triggered the event",
+    "userDisplayName": "Display name of the user who triggered the event",
+    "targetUserName": "Target name of user",
+    "targetDisplayUserName": "Target display name of user",
+    "subLevel": "Level of subscription, equals 1/2/3/prime",
+    "resubMonths": "How many months has the user been subscribed",
+    "resubStreak": "How many cumulative months has the user been subscribed",
+    "resubMessage": "Message user entered when re-resubscribed",
+    "rewardName": "Name of used reward",
+    "rewardCost": "Cost of used reward",
+    "rewardInput": "Input of used reward",
+    "commandName": "Name of command",
+    "raidViewers": "Number of viewers",
+    "oldStreamTitle": "Old stream title",
+    "newStreamTitle": "New stream title",
+    "oldStreamCategory": "Old stream category",
+    "newStreamCategory": "New stream category",
+    "streamTitle": "Title of stream",
+    "streamCategory": "Category of stream",
+    "donateAmount": "Donate amount",
+    "donateCurrency": "Donate currency",
+    "donateMessage": "Donate message"
+  }
+}

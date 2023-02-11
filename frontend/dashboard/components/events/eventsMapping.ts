@@ -2,91 +2,91 @@ import { EventType } from '@tsuwari/typeorm/entities/events/Event';
 
 export const eventsMapping: Record<keyof typeof EventType, {
   description: string,
-  availableVariables: Array<[string, string]>
+  availableVariables: Array<string>
 }> = {
   FOLLOW: {
     description: '',
     availableVariables: [
-      ['userName', 'Triggered user name'],
-      ['userDisplayName', 'Triggered user name with case'],
+      'userName',
+      'userDisplayName',
     ],
   },
   SUBSCRIBE: {
     description: '',
     availableVariables: [
-      ['userName', 'Triggered user name'],
-      ['userDisplayName', 'Triggered user name with case'],
-      ['subLevel', 'Level of subscription (1/2/3/prime)'],
+      'userName',
+      'userDisplayName',
+      'subLevel',
     ],
   },
   RESUBSCRIBE: {
     description: '',
     availableVariables: [
-      ['userName', 'Username of user who subscribed channel'],
-      ['userDisplayName', 'Username of user who subscribed channel with case'],
-      ['subLevel', 'Level of subscription (1/2/3/prime)'],
-      ['resubMonths', 'How many months user subscribed'],
-      ['resubStreak', 'Cumulative streak of months of subscription'],
-      ['resubMessage', 'Message of re-subscription'],
+      'userName',
+      'userDisplayName',
+      'subLevel',
+      'resubMonths',
+      'resubStreak',
+      'resubMessage',
     ],
   },
   SUB_GIFT: {
     description: '',
     availableVariables: [
-      ['senderUserName', 'Username of user who gifted subscription'],
-      ['senderDisplayName', 'Username of user who gifted subscription with case'],
-      ['targetUserName', 'Username of user who receive subscription'],
-      ['targetDisplayName', 'Username of user who receive subscription with case'],
-      ['subLevel', 'Level of subscription (1/2/3/prime)'],
+      'userName',
+      'userDisplayName',
+      'targetUserName',
+      'targetDisplayName',
+      'subLevel',
     ],
   },
   REDEMPTION_CREATED: {
     description: '',
     availableVariables: [
-      ['userName', 'Triggered user name'],
-      ['userDisplayName', 'Triggered user name with case'],
-      ['rewardName', 'Name of reward'],
-      ['rewardCost', 'Cost of reward'],
-      ['rewardInput', 'User input of reward'],
+      'userName',
+      'userDisplayName',
+      'rewardName',
+      'rewardCost',
+      'rewardInput',
     ],
   },
   COMMAND_USED: {
     description: '',
     availableVariables: [
-      ['userName', 'Triggered user name'],
-      ['userDisplayName', 'Triggered user name with case'],
-      ['commandName', 'Command name'],
+      'userName',
+      'userDisplayName',
+      'commandName',
     ],
   },
   FIRST_USER_MESSAGE: {
     description: '',
     availableVariables: [
-      ['userName', 'Triggered user name'],
-      ['userDisplayName', 'Triggered user name with case'],
+      'userName',
+      'userDisplayName',
     ],
   },
   RAIDED: {
     description: '',
     availableVariables: [
-      ['userName', 'Triggered user name'],
-      ['userDisplayName', 'Triggered user name with case'],
-      ['raidViewers', 'Count of viewers'],
+      'userName',
+      'userDisplayName',
+      'raidViewers',
     ],
   },
   TITLE_OR_CATEGORY_CHANGED: {
     description: '',
     availableVariables: [
-      ['oldTitle', 'Old title of stream'],
-      ['newTitle', 'New title of stream'],
-      ['newCategory', 'Old category of stream'],
-      ['newCategory', 'Old category of stream'],
+      'oldStreamTitle',
+      'newStreamTitle',
+      'newStreamCategory',
+      'newStreamCategory',
     ],
   },
   STREAM_ONLINE: {
     description: '',
     availableVariables: [
-      ['streamTitle', 'Title of stream'],
-      ['streamCategory', 'Category of stream'],
+      'streamTitle',
+      'streamCategory',
     ],
   },
   STREAM_OFFLINE: {
@@ -100,10 +100,10 @@ export const eventsMapping: Record<keyof typeof EventType, {
   DONATE: {
     description: '',
     availableVariables: [
-      ['userName', 'Who donated'],
-      ['donateAmount', 'Donate amount'],
-      ['donateCurrency', 'Donate currency'],
-      ['donateMessage', 'Donate message'],
+      'userName',
+      'donateAmount',
+      'donateCurrency',
+      'donateMessage',
     ],
   },
 };

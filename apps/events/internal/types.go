@@ -28,10 +28,10 @@ type Data struct {
 	ResubMessage string `json:"resubMessage"`
 	SubLevel     string `json:"subLevel"`
 
-	OldTitle    string `json:"oldTitle"`
-	NewTitle    string `json:"newTitle"`
-	OldCategory string `json:"oldCategory"`
-	NewCategory string `json:"newCategory"`
+	OldStreamTitle    string `json:"oldStreamTitle"`
+	NewStreamTitle    string `json:"newStreamTitle"`
+	OldStreamCategory string `json:"oldStreamCategory"`
+	NewStreamCategory string `json:"newStreamCategory"`
 
 	StreamTitle    string `json:"streamTitle"`
 	StreamCategory string `json:"streamCategory"`

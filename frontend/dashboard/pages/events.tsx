@@ -13,7 +13,7 @@ import { Greeting } from '@/services/api';
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale, ['layout'])),
+    ...(await serverSideTranslations(locale, ['events', 'layout'])),
   },
 });
 

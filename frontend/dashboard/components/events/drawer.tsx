@@ -26,6 +26,7 @@ import {
 } from '@tabler/icons';
 import { Event, EventType } from '@tsuwari/typeorm/entities/events/Event';
 import { EventOperation, OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
+import { useTranslation } from 'next-i18next';
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
@@ -68,6 +69,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       rewardId: '',
     },
   });
+  const { t } = useTranslation('events');
   const viewPort = useViewportSize();
   const cardClasses = useStyles();
   const [rewards, setRewards] = useState<RewardItemProps[]>([]);
@@ -170,25 +172,19 @@ export const EventsDrawer: React.FC<Props> = (props) => {
             <Flex direction={'column'} gap={'sm'}>
               <Text mb={5}>Available variables</Text>
               {eventsMapping[form.values.type]?.availableVariables?.map((variable) =>
-                <Group>
-                  <CopyButton value={`{${variable[0]}}`}>
-                    {({ copied, copy }) => (
-                      <Code
-                        onClick={copy}
-                        style={{ cursor:'pointer' }}
-                      >
-                        {copied ? 'Copied' : `{${variable[0]}}`}
-                      </Code>
-                      // <Button size={'xs'} compact variant="light" color={copied ? 'teal' : 'blue'} onClick={copy}>
-                      //   {copied ? 'Copied' : `{${variable[0]}}`}
-                      // </Button>
-                    )}
-                  </CopyButton>
                   <Text size={'sm'}>
-
-                    {variable[1]}
-                  </Text>
-                </Group>,
+                    <CopyButton value={`{${variable}}`}>
+                      {({ copied, copy }) => (
+                        <Code
+                          onClick={copy}
+                          style={{ cursor:'pointer' }}
+                        >
+                          {copied ? 'Copied' : `{${variable}}`}
+                        </Code>
+                      )}
+                    </CopyButton>
+                    {' '} {t(`variables.${variable}`)}
+                  </Text>,
               )}
             </Flex>
 
