@@ -6,6 +6,7 @@ replace (
 	github.com/satont/tsuwari/libs/config => ../../libs/config
 	github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 	github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+	github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
 )
 
 require (
@@ -15,6 +16,8 @@ require (
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
+	github.com/satont/tsuwari/libs/twitch v0.0.0-00010101000000-000000000000
+	github.com/satori/go.uuid v1.2.0
 	github.com/valyala/fasttemplate v1.2.2
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.52.3
@@ -37,7 +40,6 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/lib/pq v1.10.7 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
-	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
