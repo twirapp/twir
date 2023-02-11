@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColum
 
 // eslint-disable-next-line import/no-cycle
 import { Channel } from '../Channel';
+// eslint-disable-next-line import/no-cycle
 import { EventOperation } from './EventOperation';
 
 export enum EventType {

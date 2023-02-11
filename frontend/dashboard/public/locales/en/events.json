@@ -22,5 +22,14 @@
     "donateAmount": "Donate amount",
     "donateCurrency": "Donate currency",
     "donateMessage": "Donate message"
+  },
+  "description": "Description of your listener",
+  "availableVariables": "Available variables",
+  "triggerCommand": "Choose command for trigger that event",
+  "triggerReward": "Reward for trigger that event",
+  "operations": {
+    "input": "Input. That input will be used for operation, e.g sends this message in chat",
+    "delay": "Delay in seconds before operation executes",
+    "repeat": "How many times execute that operation"
   }
 }

@@ -4,14 +4,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	"net/http"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("events")
 	middleware.Get("", get(services))
 	middleware.Post("", create(services))
-	middleware.Put("", update(services))
+	middleware.Put(":eventId", update(services))
+	middleware.Delete(":eventId", delete(services))
 
 	return middleware
 }
@@ -37,11 +37,12 @@ func create(services types.Services) fiber.Handler {
 			return err
 		}
 
-		if err = handlePost(ctx.Params("channelId"), dto); err != nil {
+		event, err := handlePost(ctx.Params("channelId"), dto)
+		if err != nil {
 			return err
 		}
 
-		return ctx.SendStatus(http.StatusOK)
+		return ctx.JSON(event)
 	}
 }
 
@@ -58,10 +59,22 @@ func update(services types.Services) fiber.Handler {
 			return err
 		}
 
-		if err = handleUpdate(ctx.Params("channelId"), ctx.Params("eventId"), dto); err != nil {
+		event, err := handleUpdate(ctx.Params("channelId"), ctx.Params("eventId"), dto)
+		if err != nil {
 			return err
 		}
 
-		return ctx.SendStatus(http.StatusOK)
+		return ctx.JSON(event)
+	}
+}
+
+func delete(services types.Services) fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		err := handleDelete(ctx.Params("channelId"), ctx.Params("eventId"))
+		if err != nil {
+			return err
+		}
+
+		return ctx.SendStatus(200)
 	}
 }

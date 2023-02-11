@@ -30,11 +30,12 @@ import { useTranslation } from 'next-i18next';
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
+import { noop } from '../../util/chore';
 import { eventsMapping } from './eventsMapping';
 
 import { operationMapping } from '@/components/events/operationMapping';
 import { RewardItem, RewardItemProps } from '@/components/reward';
-import { commandsManager, useRewards } from '@/services/api';
+import { commandsManager, eventsManager, useRewards } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -69,6 +70,8 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       rewardId: '',
     },
   });
+  const manager = eventsManager();
+  const updater = manager.useCreateOrUpdate();
   const { t } = useTranslation('events');
   const viewPort = useViewportSize();
   const cardClasses = useStyles();
@@ -112,6 +115,14 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       console.log(validate.errors);
       return;
     }
+
+    await updater.mutateAsync({
+      id: form.values.id,
+      data: form.values,
+    }).then(() => {
+      props.setOpened(false);
+      form.reset();
+    }).catch(noop);
   }
 
   return (
@@ -134,8 +145,23 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
+            <Select
+              label={'Event'}
+              searchable={true}
+              disabled={!!form.values.id}
+              data={Object.keys(eventsMapping).map((e) => ({
+                value: e,
+                label: eventsMapping[e as EventType].description || e,
+              })) ?? []}
+              onChange={(newValue) => {
+                form.setFieldValue(`type`, newValue as EventType);
+              }}
+              value={form.values.type}
+              w={'100%'}
+            />
+
             <Textarea
-              label={'Description'}
+              label={t('description')}
               required
               w={'100%'}
               autosize={true}
@@ -144,7 +170,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
             />
 
             {form.values.type === EventType.COMMAND_USED && <Select
-                label={'Command for trigger that event'}
+                label={t('triggerCommand')}
                 searchable={true}
                 data={commandList.data?.map((c) => ({
                   value: c.id,
@@ -158,7 +184,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
             />}
 
             {form.values.type === EventType.REDEMPTION_CREATED && <Select
-                label={'Reward for trigger that event'}
+                label={t('triggerReward')}
                 placeholder="..."
                 searchable
                 itemComponent={RewardItem}
@@ -170,7 +196,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
             />}
 
             <Flex direction={'column'} gap={'sm'}>
-              <Text mb={5}>Available variables</Text>
+              <Text mb={5}>{t('availableVariables')}</Text>
               {eventsMapping[form.values.type]?.availableVariables?.map((variable) =>
                   <Text size={'sm'}>
                     <CopyButton value={`{${variable}}`}>
@@ -234,16 +260,16 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                               </Card.Section>
                               <Card.Section p='sm'>
                                 {operationMapping[o.type].haveInput && <TextInput
-                                    label={'Input for operation'}
+                                    label={t('operations.input')}
                                     required
                                     {...form.getInputProps(`operations.${index}.input`)}
                                 />}
                                 <NumberInput
-                                  label={'Delay in seconds before operation executes'}
+                                  label={t('operations.delay')}
                                   {...form.getInputProps(`operations.${index}.delay`)}
                                 />
                                 <NumberInput
-                                  label={'How many times execute that operation'}
+                                  label={t('operations.repeat')}
                                   {...form.getInputProps(`operations.${index}.repeat`)}
                                 />
                               </Card.Section>
@@ -267,58 +293,6 @@ export const EventsDrawer: React.FC<Props> = (props) => {
             </DragDropContext>
 
 
-            {/*{form.values.operations.map((o, operationIndex) =>*/}
-            {/*  <div key={operationIndex} className={cardClasses.classes.root}>*/}
-            {/*    <div className={cardClasses.classes.label}>*/}
-            {/*      <Flex gap={'xs'}>*/}
-            {/*        <ActionIcon  variant={'default'}>*/}
-            {/*          <IconHandFinger />*/}
-            {/*        </ActionIcon>*/}
-
-            {/*        <ActionIcon variant={'default'} onClick={() => form.removeListItem('operations', operationIndex)}>*/}
-            {/*          <IconX />*/}
-            {/*        </ActionIcon>*/}
-            {/*      </Flex>*/}
-            {/*    </div>*/}
-
-            {/*    <Card shadow="sm" p="lg" radius="md" withBorder>*/}
-            {/*      <Card.Section p={'xs'} withBorder pt={20}>*/}
-            {/*        <Select*/}
-            {/*          searchable={true}*/}
-            {/*          data={Object.keys(OperationType).map(t => ({*/}
-            {/*            value: t,*/}
-            {/*            label: operationMapping[t as OperationType]?.description || t,*/}
-            {/*          }))}*/}
-            {/*          onChange={(newValue) => {*/}
-            {/*            form.setFieldValue(`operations.${operationIndex}.type`, newValue);*/}
-            {/*          }}*/}
-            {/*          value={form.values.operations[operationIndex]?.type}*/}
-            {/*        />*/}
-            {/*      </Card.Section>*/}
-            {/*      <Card.Section p='sm'>*/}
-            {/*        {operationMapping[o.type].haveInput && <TextInput*/}
-            {/*            label={'Input for operation'}*/}
-            {/*            required*/}
-            {/*            {...form.getInputProps(`operations.${operationIndex}.input`)}*/}
-            {/*        />}*/}
-            {/*        <NumberInput*/}
-            {/*          label={'Delay in seconds before operation executes'}*/}
-            {/*          {...form.getInputProps(`operations.${operationIndex}.delay`)}*/}
-            {/*        />*/}
-            {/*        <NumberInput*/}
-            {/*          label={'How many times execute that operation'}*/}
-            {/*          {...form.getInputProps(`operations.${operationIndex}.repeat`)}*/}
-            {/*        />*/}
-            {/*      </Card.Section>*/}
-            {/*    </Card>*/}
-            {/*    {operationIndex < form.values.operations.length-1 &&*/}
-            {/*        <Center w={'100%'} mt={10}>*/}
-            {/*            <IconArrowBigDownLines size={30} />*/}
-            {/*        </Center>*/}
-            {/*    }*/}
-            {/*  </div>,*/}
-            {/*)}*/}
-
             <Center w={'100%'}>
               <Button variant={'light'} onClick={() => {
                 form.setFieldValue('operations', [...form.values.operations, {
@@ -332,7 +306,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                 }]);
               }}>
                 <IconPlus size={30} />
-                Add new operation
+                New
               </Button>
             </Center>
           </Flex>

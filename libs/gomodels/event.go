@@ -23,7 +23,7 @@ type Event struct {
 	CommandID   null.String `gorm:"column:commandId;type:TEXT;"                     json:"commandId"`
 	Description null.String `gorm:"column:description;type:TEXT" json:"description"`
 
-	Operations []EventOperation
+	Operations []EventOperation `json:"operations"`
 }
 
 func (c *Event) TableName() string {

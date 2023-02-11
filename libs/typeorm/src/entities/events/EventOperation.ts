@@ -32,8 +32,8 @@ export class EventOperation {
   @Column('enum', { enum: OperationType })
   type: OperationType;
 
-  @Column({ nullable: true })
-  delay: number | null;
+  @Column({ nullable: false, default: 0 })
+  delay: number;
 
   @ManyToOne(() => Event, _ => _.operations)
   @JoinColumn({ name: 'eventId' })
