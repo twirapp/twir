@@ -11,7 +11,7 @@ import {
   useMantineTheme,
   Select,
   NumberInput,
-  createStyles, Group, Menu, Text,
+  createStyles, Group, Menu, Text, CopyButton, Code,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
@@ -28,6 +28,8 @@ import { Event, EventType } from '@tsuwari/typeorm/entities/events/Event';
 import { EventOperation, OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
+import { eventsMapping } from './eventsMapping';
 
 import { operationMapping } from '@/components/events/operationMapping';
 import { RewardItem, RewardItemProps } from '@/components/reward';
@@ -165,6 +167,30 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                 w={'100%'}
             />}
 
+            <Flex direction={'column'} gap={'sm'}>
+              <Text mb={5}>Available variables</Text>
+              {eventsMapping[form.values.type]?.availableVariables?.map((variable) =>
+                <Group>
+                  <CopyButton value={`{${variable[0]}}`}>
+                    {({ copied, copy }) => (
+                      <Code
+                        onClick={copy}
+                        style={{ cursor:'pointer' }}
+                      >
+                        {copied ? 'Copied' : `{${variable[0]}}`}
+                      </Code>
+                      // <Button size={'xs'} compact variant="light" color={copied ? 'teal' : 'blue'} onClick={copy}>
+                      //   {copied ? 'Copied' : `{${variable[0]}}`}
+                      // </Button>
+                    )}
+                  </CopyButton>
+                  <Text size={'sm'}>
+
+                    {variable[1]}
+                  </Text>
+                </Group>,
+              )}
+            </Flex>
 
             <DragDropContext
               onDragEnd={({ destination, source }) =>
