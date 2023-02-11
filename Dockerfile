@@ -327,12 +327,12 @@ COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["/bin/emotes-cacher"]
 
-FROM golang_deps_base as emotes_deps
-RUN cd apps/emotes && go mod download
-RUN cd apps/emotes && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+FROM golang_deps_base as events_deps
+RUN cd apps/events && go mod download
+RUN cd apps/events && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
-FROM go_prod_base as emotes
-COPY --from=emotes_deps /app/apps/emotes/out /bin/emotes
+FROM go_prod_base as events
+COPY --from=events_deps /app/apps/events/out /bin/events
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["/bin/emotes"]
+CMD ["/bin/events"]
