@@ -3,6 +3,7 @@ import { OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
 export const operationMapping: Record<keyof typeof OperationType, {
   description: string
   haveInput?: boolean,
+  producedVariables?: Array<string>
 }> = {
   SEND_MESSAGE: {
     description: 'Send message in chat',
@@ -16,6 +17,7 @@ export const operationMapping: Record<keyof typeof OperationType, {
   },
   BAN_RANDOM: {
     description: 'Ban random online user',
+    producedVariables: ['bannedUserName'],
   },
   VIP: {
     description: 'Vip user',
@@ -25,6 +27,7 @@ export const operationMapping: Record<keyof typeof OperationType, {
   },
   UNVIP_RANDOM: {
     description: 'Unvip random online user',
+    producedVariables: ['unvipedUserName'],
   },
   MOD: {
     description: 'Give user moderation',
@@ -34,6 +37,7 @@ export const operationMapping: Record<keyof typeof OperationType, {
   },
   UNMOD_RANDOM: {
     description: 'Remove moderation from random user',
+    producedVariables: ['unmodedUserName'],
   },
   CHANGE_TITLE: {
     description: 'Change title of stream',

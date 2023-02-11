@@ -50,4 +50,12 @@ type Data struct {
 	DonateAmount   string `json:"donateAmount"`
 	DonateMessage  string `json:"donateMessage"`
 	DonateCurrency string `json:"donateCurrency"`
+
+	PrevOperation *DataFromPrevOperation `json:"prevOperation"`
+}
+
+type DataFromPrevOperation struct {
+	UnmodedUserName string `json:"unmodedUserName"`
+	UnvipedUserName string `json:"unvipedUserName"`
+	BannedUserName  string `json:"bannedUserName"`
 }

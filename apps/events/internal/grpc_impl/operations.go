@@ -19,13 +19,15 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 	processor := processor.NewProcessor(processor.Opts{
 		Services:          c.services,
 		StreamerApiClient: streamerApiClient,
-		Data:              data,
+		Data:              &data,
 		ChannelID:         channelId,
 	})
 
 	sort.Slice(operations, func(i, j int) bool {
 		return operations[i].Order < operations[j].Order
 	})
+
+	data.PrevOperation = &internal.DataFromPrevOperation{}
 
 	for _, operation := range operations {
 		for i := 0; i < operation.Repeat; i++ {
@@ -68,7 +70,7 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 				if !operation.Input.Valid {
 					continue
 				}
-				processor.ChangeTitle(operation.Input.String)
+				processor.ChangeCategory(operation.Input.String)
 			case model.OperationMod, model.OperationUnmod:
 				if data.UserName == "" {
 					continue

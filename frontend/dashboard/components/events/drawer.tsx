@@ -11,7 +11,7 @@ import {
   useMantineTheme,
   Select,
   NumberInput,
-  createStyles, Group, Menu, Text, CopyButton, Code,
+  createStyles, Group, Menu, Text, CopyButton, Code, Divider,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
@@ -225,7 +225,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
               <Droppable droppableId="responses" direction="vertical">
                 {(provided) => (
                   <div {...provided.droppableProps} ref={provided.innerRef} style={{ width: '100%' }}>
-                    {form.values.operations?.map((o, index) => (
+                    {form.values.operations?.map((operation, index) => (
                       <>
                       <Draggable key={index} index={index} draggableId={index.toString()}>
                         {(provided) => (
@@ -258,12 +258,32 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                   value={form.values.operations[index]?.type}
                                 />
                               </Card.Section>
-                              <Card.Section p='sm'>
-                                {operationMapping[o.type].haveInput && <TextInput
+                              {operationMapping[operation.type].haveInput && <Card.Section p='sm'>
+                                  <TextInput
                                     label={t('operations.input')}
                                     required
                                     {...form.getInputProps(`operations.${index}.input`)}
-                                />}
+                                  />
+                                  {form.values.operations[index - 1]
+                                    && operationMapping[form.values.operations[index - 1].type].producedVariables
+                                    && <Flex direction={'column'} mt={5}>
+                                          <Text size={'sm'}>Available variables from prev operation:</Text>
+                                          <Flex direction={'row'}>
+                                            {operationMapping[form.values.operations[index - 1].type].producedVariables!.map(v => <CopyButton value={`{prevOperation.${v}}`}>
+                                              {({ copied, copy }) => (
+                                                <Text
+                                                  onClick={copy}
+                                                  style={{ cursor:'pointer' }}
+                                                  size={'xs'}
+                                                >
+                                                  {copied ? 'Copied' : `{prevOperation.${v}}`}
+                                                </Text>
+                                              )}
+                                            </CopyButton>)}
+                                          </Flex>
+                                      </Flex>}
+                              </Card.Section>}
+                              <Card.Section p='sm' withBorder>
                                 <NumberInput
                                   label={t('operations.delay')}
                                   {...form.getInputProps(`operations.${index}.delay`)}

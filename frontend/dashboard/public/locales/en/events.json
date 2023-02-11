@@ -1,6 +1,6 @@
 {
   "list": {
-    "description": " You can create event listener on some event, and add actions on that event. So for example you can send message in chat when someone follows your channel."
+    "description": "You can create event listener on some event, and add actions on that event. So for example you can send message in chat when someone follows your channel."
   },
   "variables": {
     "userName": "Name of the user who triggered the event",
@@ -31,7 +31,7 @@
   "triggerCommand": "Choose command for trigger that event",
   "triggerReward": "Reward for trigger that event",
   "operations": {
-    "input": "Input. That input will be used for operation, e.g sends this message in chat",
+    "input": "Input",
     "delay": "Delay in seconds before operation executes",
     "repeat": "How many times execute that operation"
   }

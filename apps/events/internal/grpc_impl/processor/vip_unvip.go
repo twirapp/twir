@@ -46,17 +46,32 @@ func (c *Processor) VipOrUnvip(operation model.EventOperationType) {
 }
 
 func (c *Processor) UnvipRandom() {
-	mods, err := c.streamerApiClient.GetChannelVips(&helix.GetChannelVipsParams{
-		BroadcasterID: c.channelId,
-	})
-
-	if err != nil || mods.ErrorMessage != "" || len(mods.Data.ChannelsVips) == 0 {
+	channel := model.Channels{}
+	c.services.DB.Where(`"channelId" = ?`, c.channelId).Find(&channel)
+	if channel.ID == "" {
 		return
 	}
 
-	randomVip := lo.Sample(mods.Data.ChannelsVips)
+	vips, err := c.streamerApiClient.GetChannelVips(&helix.GetChannelVipsParams{
+		BroadcasterID: c.channelId,
+	})
+
+	if err != nil || vips.ErrorMessage != "" || len(vips.Data.ChannelsVips) == 0 {
+		return
+	}
+
+	// choose random vip, but filter out bot account
+	randomVip := lo.Sample(lo.Filter(vips.Data.ChannelsVips, func(item helix.ChannelVips, index int) bool {
+		return item.UserID != channel.BotID
+	}))
 	c.streamerApiClient.RemoveChannelVip(&helix.RemoveChannelVipParams{
 		BroadcasterID: c.channelId,
 		UserID:        randomVip.UserID,
 	})
+
+	if len(c.data.PrevOperation.UnmodedUserName) > 0 {
+		c.data.PrevOperation.UnmodedUserName += ", " + randomVip.UserName
+	} else {
+		c.data.PrevOperation.UnmodedUserName = randomVip.UserName
+	}
 }
