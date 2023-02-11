@@ -491,8 +491,8 @@ services:
       mode: replicated
       replicas: 15
 
-  emotes:
-    image: registry.satont.dev/tsuwari/emotes
+  events:
+    image: registry.satont.dev/tsuwari/events
     secrets:
       - tsuwari_doppler_token
     networks:
