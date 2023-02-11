@@ -3,6 +3,7 @@ import { IconPencil, IconSearch, IconTrash } from '@tabler/icons';
 import type { Event, EventType } from '@tsuwari/typeorm/entities/events/Event';
 import { OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
 import { NextPage } from 'next';
+import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
 
@@ -22,6 +23,7 @@ const Events: NextPage<{ operations: typeof OperationType }> = (props) => {
   const manager = eventsManager();
   const { data: events } = manager.useGetAll();
   const deleter = manager.useDelete();
+  const { t } = useTranslation('events');
 
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [editableEvent, setEditableEvent] = useState<Event | undefined>();
@@ -29,9 +31,10 @@ const Events: NextPage<{ operations: typeof OperationType }> = (props) => {
   return (
     <>
       <Flex direction="row" justify="space-between">
-        <Group>
+        <Flex direction={'column'}>
           <Text size="lg">Events</Text>
-        </Group>
+          <Text size={'xs'}>{t('list.description')}</Text>
+        </Flex>
         <Button
           color="green"
           onClick={() => {

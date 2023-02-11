@@ -143,7 +143,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       overlayBlur={3}
     >
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
-        <form onSubmit={form.onSubmit((values) => console.log(values))}>
+        <form style={{ minHeight: viewPort.height - 150 }} onSubmit={form.onSubmit((values) => console.log(values))}>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
             <Select
               label={'Event'}
@@ -151,7 +151,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
               disabled={!!form.values.id}
               data={Object.keys(eventsMapping).map((e) => ({
                 value: e,
-                label: eventsMapping[e as EventType].description || e,
+                label: eventsMapping[e as EventType].description || e.split('_').join(' '),
               })) ?? []}
               onChange={(newValue) => {
                 form.setFieldValue(`type`, newValue as EventType);

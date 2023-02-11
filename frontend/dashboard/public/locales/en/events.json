@@ -1,4 +1,7 @@
 {
+  "list": {
+    "description": " You can create event listener on some event, and add actions on that event. So for example you can send message in chat when someone follows your channel."
+  },
   "variables": {
     "userName": "Name of the user who triggered the event",
     "userDisplayName": "Display name of the user who triggered the event",

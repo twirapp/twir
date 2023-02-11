@@ -29,8 +29,8 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 
 	for _, operation := range operations {
 		for i := 0; i < operation.Repeat; i++ {
-			if operation.Delay.Valid {
-				duration := time.Duration(operation.Delay.Int64) * time.Second
+			if operation.Delay != 0 {
+				duration := time.Duration(operation.Delay) * time.Second
 				time.Sleep(duration)
 			}
 
