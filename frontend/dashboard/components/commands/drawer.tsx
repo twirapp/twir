@@ -277,11 +277,10 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                           <Draggable key={index} index={index} draggableId={index.toString()}>
                             {(provided) => (
                               <Group
-                                style={{ width: '100%' }}
+                                style={{ width: '100%', ...provided.draggableProps.style, position: 'static'  }}
                                 ref={provided.innerRef}
                                 mt="xs"
                                 {...provided.draggableProps}
-                                style={{ ...provided.draggableProps.style, position: 'static' }}
                               >
                                 <Textarea
                                   w={'80%'}

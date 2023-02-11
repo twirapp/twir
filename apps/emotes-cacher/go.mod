@@ -7,7 +7,7 @@ replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
 replace github.com/satont/tsuwari/libs/config => ../../libs/config
 
 require (
-	github.com/getsentry/sentry-go v0.17.0
+	github.com/getsentry/sentry-go v0.18.0
 	github.com/redis/go-redis/v9 v9.0.2
 	github.com/samber/do v1.6.0
 	github.com/samber/lo v1.37.0
@@ -17,8 +17,8 @@ require (
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.52.3
 	google.golang.org/protobuf v1.28.1
-	gorm.io/driver/postgres v1.4.6
-	gorm.io/gorm v1.24.3
+	gorm.io/driver/postgres v1.4.7
+	gorm.io/gorm v1.24.5
 )
 
 require (

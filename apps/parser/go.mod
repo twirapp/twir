@@ -5,15 +5,14 @@ go 1.18
 require (
 	github.com/Masterminds/squirrel v1.5.3
 	github.com/SherlockYigit/youtube-go v1.0.0
-	github.com/davecgh/go-spew v1.1.1
-	github.com/getsentry/sentry-go v0.17.0
+	github.com/getsentry/sentry-go v0.18.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/kkdai/youtube/v2 v2.7.18
 	github.com/prometheus/client_golang v1.14.0
 	github.com/samber/do v1.6.0
-	github.com/satont/go-helix/v2 v2.7.25
+	github.com/satont/go-helix/v2 v2.7.28
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
@@ -25,8 +24,8 @@ require (
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.52.3
 	google.golang.org/protobuf v1.28.1
-	gorm.io/driver/postgres v1.4.6
-	gorm.io/gorm v1.24.3
+	gorm.io/driver/postgres v1.4.7
+	gorm.io/gorm v1.24.5
 )
 
 require (
@@ -38,7 +37,7 @@ require (
 	github.com/dop251/goja v0.0.0-20221115122301-6c0d9883792e // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
-	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.4.3 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/pprof v0.0.0-20221010195024-131d412537ea // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect

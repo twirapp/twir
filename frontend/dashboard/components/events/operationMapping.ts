@@ -1,9 +1,11 @@
+import { EventType } from '@tsuwari/typeorm/entities/events/Event';
 import { OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
 
 export const operationMapping: Record<keyof typeof OperationType, {
   description: string
   haveInput?: boolean,
-  producedVariables?: Array<string>
+  producedVariables?: Array<string>,
+  dependsOnEvents?: Array<EventType>
 }> = {
   SEND_MESSAGE: {
     description: 'Send message in chat',
@@ -64,5 +66,9 @@ export const operationMapping: Record<keyof typeof OperationType, {
   },
   DISABLE_EMOTEONLY: {
     description: 'Disable emotyonly',
+  },
+  CREATE_GREETING: {
+    description: 'Create greeting for user. Available only for redemption event, and requires user input.',
+    dependsOnEvents: [EventType.REDEMPTION_CREATED],
   },
 };

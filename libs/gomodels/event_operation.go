@@ -36,6 +36,7 @@ const (
 	OperationDisableSubMode    EventOperationType = "DISABLE_SUBMODE"
 	OperationEnableEmoteOnly   EventOperationType = "ENABLE_EMOTEONLY"
 	OperationDisableEmoteOnly  EventOperationType = "DISABLE_EMOTEONLY"
+	OperationCreateGreeting    EventOperationType = "CREATE_GREETING"
 )
 
 type EventOperation struct {

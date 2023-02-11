@@ -251,6 +251,9 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                   data={Object.keys(OperationType).map(t => ({
                                     value: t,
                                     label: operationMapping[t as OperationType]?.description || t,
+                                    disabled: operationMapping[t as OperationType].dependsOnEvents
+                                      ? !operationMapping[t as OperationType].dependsOnEvents?.some(e => e === form.values.type)
+                                      : false,
                                   }))}
                                   onChange={(newValue) => {
                                     form.setFieldValue(`operations.${index}.type`, newValue);

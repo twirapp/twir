@@ -5,8 +5,7 @@ go 1.19
 require (
 	github.com/Masterminds/squirrel v1.5.3
 	github.com/SherlockYigit/youtube-go v1.0.0
-	github.com/davecgh/go-spew v1.1.1
-	github.com/getsentry/sentry-go v0.17.0
+	github.com/getsentry/sentry-go v0.18.0
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.11.1
@@ -32,8 +31,8 @@ require (
 	github.com/swaggo/swag v1.8.8
 	go.uber.org/zap v1.24.0
 	google.golang.org/protobuf v1.28.1
-	gorm.io/driver/postgres v1.4.6
-	gorm.io/gorm v1.24.3
+	gorm.io/driver/postgres v1.4.7
+	gorm.io/gorm v1.24.5
 )
 
 require (
@@ -86,7 +85,7 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/gofiber/swagger v0.1.8
-	github.com/golang-jwt/jwt/v4 v4.4.2
+	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -95,7 +94,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/klauspost/compress v1.15.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
-	github.com/satont/go-helix/v2 v2.7.25
+	github.com/satont/go-helix/v2 v2.7.28
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.43.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
