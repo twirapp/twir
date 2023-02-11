@@ -1,7 +1,6 @@
 package events
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/samber/do"
@@ -44,7 +43,6 @@ func handlePost(channelId string, dto *eventDto) (*model.Event, error) {
 	}
 
 	err := db.Transaction(func(tx *gorm.DB) error {
-		spew.Dump(newEvent)
 		if err := tx.Create(newEvent).Error; err != nil {
 			return err
 		}

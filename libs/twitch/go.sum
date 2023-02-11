@@ -12,6 +12,8 @@ github.com/satont/go-helix/v2 v2.7.26 h1:OKPFU+MikD7bDbJAY2WPBRg9FuuVbW+dkSXCvrT
 github.com/satont/go-helix/v2 v2.7.26/go.mod h1:j+PWsRYZGj3r6SyoXO7jvmLcuxHc54jt82Z5XxbsHyQ=
 github.com/satont/go-helix/v2 v2.7.27 h1:o0+CKfrQSmLqM9ly15/14Y2zwOgNgOliFP//SHMGNY0=
 github.com/satont/go-helix/v2 v2.7.27/go.mod h1:j+PWsRYZGj3r6SyoXO7jvmLcuxHc54jt82Z5XxbsHyQ=
+github.com/satont/go-helix/v2 v2.7.28 h1:7ZkRVEXv2XwwahWqsawFo5949XSXsdJctW4aBBq+0G4=
+github.com/satont/go-helix/v2 v2.7.28/go.mod h1:j+PWsRYZGj3r6SyoXO7jvmLcuxHc54jt82Z5XxbsHyQ=
 golang.org/x/net v0.4.0 h1:Q5QPcMlvfxFTAPV0+07Xz/MpK9NTXu2VDUuy0FeMfaU=
 golang.org/x/net v0.4.0/go.mod h1:MBQ8lrhLObU/6UmLb4fmbmk5OcyYmqtbGd/9yIeKjEE=
 golang.org/x/sys v0.3.0 h1:w8ZOecv6NaNa/zC8944JTU3vz4u6Lagfk4RPQxv92NQ=

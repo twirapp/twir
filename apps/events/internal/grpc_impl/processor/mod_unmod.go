@@ -6,7 +6,7 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
-func (c *Processor) VipOrUnvip(operation model.EventOperationType) {
+func (c *Processor) ModOrUnmod(operation model.EventOperationType) {
 	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
 		Logins: []string{c.data.UserName},
 	})
@@ -18,8 +18,8 @@ func (c *Processor) VipOrUnvip(operation model.EventOperationType) {
 		return
 	}
 
-	if operation == "VIP" {
-		resp, err := c.streamerApiClient.AddChannelVip(&helix.AddChannelVipParams{
+	if operation == "MOD" {
+		resp, err := c.streamerApiClient.AddChannelModerator(&helix.AddChannelModeratorParams{
 			BroadcasterID: c.channelId,
 			UserID:        user.Data.Users[0].ID,
 		})
@@ -31,7 +31,7 @@ func (c *Processor) VipOrUnvip(operation model.EventOperationType) {
 			}
 		}
 	} else {
-		resp, err := c.streamerApiClient.RemoveChannelVip(&helix.RemoveChannelVipParams{
+		resp, err := c.streamerApiClient.RemoveChannelModerator(&helix.RemoveChannelModeratorParams{
 			BroadcasterID: c.channelId,
 			UserID:        user.Data.Users[0].ID,
 		})
@@ -45,18 +45,23 @@ func (c *Processor) VipOrUnvip(operation model.EventOperationType) {
 	}
 }
 
-func (c *Processor) UnvipRandom() {
-	mods, err := c.streamerApiClient.GetChannelVips(&helix.GetChannelVipsParams{
+func (c *Processor) UnmodRandom() {
+	mods, err := c.streamerApiClient.GetModerators(&helix.GetModeratorsParams{
 		BroadcasterID: c.channelId,
 	})
 
-	if err != nil || mods.ErrorMessage != "" || len(mods.Data.ChannelsVips) == 0 {
+	if err != nil || mods.ErrorMessage != "" {
+		c.services.Logger.Sugar().Error(err, mods.ErrorMessage)
 		return
 	}
 
-	randomVip := lo.Sample(mods.Data.ChannelsVips)
-	c.streamerApiClient.RemoveChannelVip(&helix.RemoveChannelVipParams{
+	if len(mods.Data.Moderators) == 0 {
+		return
+	}
+
+	randomMod := lo.Sample(mods.Data.Moderators)
+	c.streamerApiClient.RemoveChannelModerator(&helix.RemoveChannelModeratorParams{
 		BroadcasterID: c.channelId,
-		UserID:        randomVip.UserID,
+		UserID:        randomMod.UserID,
 	})
 }

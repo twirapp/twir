@@ -53,6 +53,8 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 				}
 
 				processor.VipOrUnvip(operation.Type)
+			case model.OperationUnvipRandom:
+				processor.UnvipRandom()
 			case model.OperationEnableSubMode, model.OperationDisableSubMode:
 				processor.SwitchSubMode(operation.Type)
 			case model.OperationEnableEmoteOnly, model.OperationDisableEmoteOnly:
@@ -67,6 +69,14 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 					continue
 				}
 				processor.ChangeTitle(operation.Input.String)
+			case model.OperationMod, model.OperationUnmod:
+				if data.UserName == "" {
+					continue
+				}
+
+				processor.ModOrUnmod(operation.Type)
+			case model.OperationUnmodRandom:
+				processor.UnmodRandom()
 			}
 		}
 	}

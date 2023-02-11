@@ -26,6 +26,7 @@ var scopes = []string{
 	"moderator:manage:banned_users",
 	"channel:read:vips",
 	"channel:manage:vips",
+	"channel:manage:moderators",
 }
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
