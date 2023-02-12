@@ -41,12 +41,12 @@ export const eventSubMiddleware = new EventSubMiddleware({
 const subscriptions: Map<string, UserSubscriptions> = new Map();
 
 class UserSubscriptions {
-  #subs: EventSubSubscription[] = [];
+  #subs: Array<EventSubSubscription | undefined> = [];
 
   constructor(private readonly userId: string) {}
 
   async init() {
-    this.#subs = await Promise.all([
+    this.#subs = (await Promise.allSettled([
       this.#subscribeToChannelUpdateEvents(),
       this.#subscribeToStreamOnlineEvents(),
       this.#subscribeToStreamOfflineEvents(),
@@ -55,11 +55,11 @@ class UserSubscriptions {
       this.#subscribeToChannelModeratorAddEvents(),
       this.#subscribeToChannelModeratorRemoveEvents(),
       this.#subscribeToChannelRedemptionAddEvents(),
-    ]);
+    ])).map(p => p.status === 'rejected' ? undefined : p.value);
   }
 
   async unsubscribe() {
-    await Promise.all(this.#subs.map(s => s.stop()));
+    await Promise.all(this.#subs.map(s => s?.stop()));
   }
 
   #subscribeToChannelUpdateEvents() {
