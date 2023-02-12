@@ -25,7 +25,7 @@ import {
   IconX,
 } from '@tabler/icons';
 import { Event, EventType } from '@tsuwari/typeorm/entities/events/Event';
-import { EventOperation, OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
+import { OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
 import { useTranslation } from 'next-i18next';
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -68,6 +68,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       commandId: '',
       operations: [],
       rewardId: '',
+      enabled: true,
     },
   });
   const manager = eventsManager();
