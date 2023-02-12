@@ -11,7 +11,7 @@ import {
   useMantineTheme,
   Select,
   NumberInput,
-  createStyles, Group, Menu, Text, CopyButton, Code, Divider,
+  createStyles, Group, Menu, Text, CopyButton, Code, Divider, Checkbox,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
@@ -285,6 +285,13 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                             </CopyButton>)}
                                           </Flex>
                                       </Flex>}
+                                {operationMapping[operation.type].additionalValues?.map((v) => <Group mt={5}>
+                                    {v === 'useAnnounce' && <Checkbox
+                                      label={t('operations.additionalValues.useAnnounce')}
+                                      labelPosition={'left'}
+                                      {...form.getInputProps(`operations.${index}.useAnnounce`, { type: 'checkbox' })}
+                                    />}
+                                </Group>)}
                               </Card.Section>}
                               <Card.Section p='sm' withBorder>
                                 <NumberInput
@@ -326,6 +333,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                   eventId: '',
                   repeat: 1,
                   order: form.values.operations.length,
+                  useAnnounce: false,
                 }]);
               }}>
                 <IconPlus size={30} />

@@ -39,7 +39,7 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 			switch operation.Type {
 			case model.OperationSendMessage:
 				if operation.Input.Valid {
-					processor.SendMessage(channelId, operation.Input.String)
+					processor.SendMessage(channelId, operation.Input.String, operation.UseAnnounce)
 				}
 			case model.OperationBan, model.OperationUnban:
 				if data.UserName == "" {

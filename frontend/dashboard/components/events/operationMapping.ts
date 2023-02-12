@@ -4,12 +4,14 @@ import { OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
 export const operationMapping: Record<keyof typeof OperationType, {
   description: string
   haveInput?: boolean,
+  additionalValues?: Array<string>,
   producedVariables?: Array<string>,
   dependsOnEvents?: Array<EventType>
 }> = {
   SEND_MESSAGE: {
     description: 'Send message in chat',
     haveInput: true,
+    additionalValues: ['useAnnounce'],
   },
   BAN: {
     'description': 'Ban user',

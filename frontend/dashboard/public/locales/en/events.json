@@ -33,6 +33,9 @@
   "operations": {
     "input": "Input",
     "delay": "Delay in seconds before operation executes",
-    "repeat": "How many times execute that operation"
+    "repeat": "How many times execute that operation",
+    "additionalValues": {
+      "useAnnounce": "Use announce"
+    }
   }
 }

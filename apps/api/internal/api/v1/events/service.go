@@ -50,13 +50,14 @@ func handlePost(channelId string, dto *eventDto) (*model.Event, error) {
 
 		for i, operation := range dto.Operations {
 			newOperation := &model.EventOperation{
-				ID:      uuid.NewV4().String(),
-				Type:    operation.Type,
-				Delay:   operation.Delay,
-				EventID: newEvent.ID,
-				Input:   null.StringFromPtr(operation.Input),
-				Repeat:  operation.Repeat,
-				Order:   i,
+				ID:          uuid.NewV4().String(),
+				Type:        operation.Type,
+				Delay:       operation.Delay,
+				EventID:     newEvent.ID,
+				Input:       null.StringFromPtr(operation.Input),
+				Repeat:      operation.Repeat,
+				Order:       i,
+				UseAnnounce: *operation.UseAnnounce,
 			}
 
 			if err := tx.Create(newOperation).Error; err != nil {
@@ -106,13 +107,14 @@ func handleUpdate(channelId, eventId string, dto *eventDto) (*model.Event, error
 
 		for i, operation := range dto.Operations {
 			newOperation := model.EventOperation{
-				ID:      uuid.NewV4().String(),
-				Type:    operation.Type,
-				Delay:   operation.Delay,
-				EventID: event.ID,
-				Input:   null.StringFromPtr(operation.Input),
-				Repeat:  operation.Repeat,
-				Order:   i,
+				ID:          uuid.NewV4().String(),
+				Type:        operation.Type,
+				Delay:       operation.Delay,
+				EventID:     event.ID,
+				Input:       null.StringFromPtr(operation.Input),
+				Repeat:      operation.Repeat,
+				Order:       i,
+				UseAnnounce: *operation.UseAnnounce,
 			}
 
 			if err := tx.Save(&newOperation).Error; err != nil {

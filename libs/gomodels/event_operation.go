@@ -45,9 +45,10 @@ type EventOperation struct {
 	Delay   int                `gorm:"column:delay;type:int" json:"delay"`
 	EventID string             `gorm:"column:eventId;type:string" json:"eventId"`
 
-	Input  null.String `gorm:"column:input;type:string" json:"input"`
-	Repeat int         `gorm:"column:repeat;type:int" json:"repeat"`
-	Order  int         `gorm:"column:order;type:int" json:"order"`
+	Input       null.String `gorm:"column:input;type:string" json:"input"`
+	Repeat      int         `gorm:"column:repeat;type:int" json:"repeat"`
+	Order       int         `gorm:"column:order;type:int" json:"order"`
+	UseAnnounce bool        `gorm:"column:useAnnounce;type:BOOL" json:"useAnnounce"`
 }
 
 func (c *EventOperation) TableName() string {

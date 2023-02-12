@@ -2,10 +2,11 @@ package processor
 
 import (
 	"context"
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 )
 
-func (c *Processor) SendMessage(channelId, message string) {
+func (c *Processor) SendMessage(channelId, message string, useAnnounce bool) {
 	msg, err := hydrateStringWithData(message, c.data)
 	if err != nil {
 		return
@@ -15,6 +16,6 @@ func (c *Processor) SendMessage(channelId, message string) {
 		ChannelId:   channelId,
 		ChannelName: nil,
 		Message:     msg,
-		IsAnnounce:  nil,
+		IsAnnounce:  lo.ToPtr(useAnnounce),
 	})
 }

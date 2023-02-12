@@ -51,4 +51,7 @@ export class EventOperation {
 
   @Column()
   order: number;
+
+  @Column({ default: false })
+  useAnnounce: boolean;
 }
