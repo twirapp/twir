@@ -15,11 +15,13 @@ import { IconMoonStars, IconSun, IconLanguage } from '@tabler/icons';
 import Image from 'next/image';
 import { Dispatch, SetStateAction } from 'react';
 
+import DiscordSvg from '../../public/assets/icons/brands/discord.svg';
 import { Profile } from './profile';
 
 import { useProfile } from '@/services/api';
 import { useLocale, LOCALES } from '@/services/dashboard';
 import { useTheme } from '@/services/dashboard';
+
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -30,9 +32,6 @@ const useStyles = createStyles((theme) => ({
   },
 
   hiddenMobile: {
-    pointerEvents: 'none',
-    userSelect: 'none',
-
     [theme.fn.smallerThan('sm')]: {
       display: 'none',
     },
@@ -81,11 +80,22 @@ export function NavBar({
               fz="xl"
               fw={500}
             >
-              Tsuwari
+              Twir
             </Text>
           </Box>
         </Flex>
         <Group position="center">
+          <ActionIcon
+            size={'lg'}
+            variant={'default'}
+            title={'Discord server'}
+            component="a"
+            href="https://discord.gg/Q9NBZq3zVV"
+            target={'_blank'}
+          >
+            <DiscordSvg width={20} fill={'#e3e3e4'} />
+          </ActionIcon>
+
           <ActionIcon
             size="lg"
             variant="default"

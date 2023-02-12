@@ -7,6 +7,11 @@ const nextConfig = {
   basePath: '/dashboard',
   i18n,
   webpack: (config, { isServer }) => {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    });
+
     if (!isServer) {
       config.resolve.fallback.fs = false;
     }

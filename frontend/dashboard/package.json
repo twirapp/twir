@@ -18,6 +18,7 @@
     "@mantine/notifications": "^5.10.3",
     "@mantine/spotlight": "^5.10.3",
     "@monaco-editor/react": "^4.4.6",
+    "@svgr/webpack": "^6.5.1",
     "@tabler/icons": "^1.117.0",
     "@tanstack/react-query": "^4.20.4",
     "@tsuwari/types": "workspace:*",
