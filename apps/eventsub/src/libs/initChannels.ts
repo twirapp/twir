@@ -2,7 +2,7 @@ import { config } from '@tsuwari/config';
 import { Channel } from '@tsuwari/typeorm/entities/Channel';
 import { Token } from '@tsuwari/typeorm/entities/Token';
 
-import { botsGrpcClient } from './botsGrpc';
+import { botsGrpcClient } from './botsGrpc.js';
 import {
   apiClient,
   eventSubMiddleware,
