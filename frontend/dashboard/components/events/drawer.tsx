@@ -262,10 +262,13 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                 />
                               </Card.Section>
                               {operationMapping[operation.type].haveInput && <Card.Section p='sm'>
-                                  <TextInput
-                                    label={t('operations.input')}
-                                    required
-                                    {...form.getInputProps(`operations.${index}.input`)}
+                                  <Textarea
+                                      label={t('operations.input')}
+                                      required
+                                      w={'100%'}
+                                      autosize={true}
+                                      minRows={1}
+                                      {...form.getInputProps(`operations.${index}.input`)}
                                   />
                                   {form.values.operations[index - 1]
                                     && operationMapping[form.values.operations[index - 1].type].producedVariables

@@ -47,7 +47,7 @@ func (c *Processor) VipOrUnvip(operation model.EventOperationType) {
 
 func (c *Processor) UnvipRandom() {
 	channel := model.Channels{}
-	c.services.DB.Where(`"channelId" = ?`, c.channelId).Find(&channel)
+	c.services.DB.Where(`"id" = ?`, c.channelId).Find(&channel)
 	if channel.ID == "" {
 		return
 	}

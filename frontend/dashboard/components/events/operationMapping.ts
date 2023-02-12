@@ -28,7 +28,7 @@ export const operationMapping: Record<keyof typeof OperationType, {
     description: 'Unvip user',
   },
   UNVIP_RANDOM: {
-    description: 'Unvip random online user',
+    description: 'Unvip random user',
     producedVariables: ['unvipedUserName'],
   },
   MOD: {
