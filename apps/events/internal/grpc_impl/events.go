@@ -7,12 +7,12 @@ import (
 )
 
 func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.Data, eventType string) error {
-	dbEntity := &model.Event{}
+	dbEntities := []model.Event{}
 
 	err := c.services.DB.
 		Where(`"channelId" = ? AND "type" = ?`, channelId, eventType).
 		Preload("Operations").
-		Find(dbEntity).
+		Find(&dbEntities).
 		Error
 
 	if err != nil {
@@ -20,25 +20,27 @@ func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.
 		return err
 	}
 
-	if dbEntity == nil || dbEntity.ID == "" {
-		return errors.New("event not found")
-	}
+	for _, entity := range dbEntities {
+		if entity.ID == "" {
+			return errors.New("event not found")
+		}
 
-	if dbEntity.Type == "COMMAND_USED" &&
-		data.CommandID != "" &&
-		dbEntity.CommandID.Valid &&
-		data.CommandID != dbEntity.CommandID.String {
-		return nil
-	}
+		if entity.Type == "COMMAND_USED" &&
+			data.CommandID != "" &&
+			entity.CommandID.Valid &&
+			data.CommandID != entity.CommandID.String {
+			continue
+		}
 
-	if dbEntity.Type == "REDEMPTION_CREATED" &&
-		data.RewardID != "" &&
-		dbEntity.RewardID.Valid &&
-		data.RewardID != dbEntity.RewardID.String {
-		return nil
-	}
+		if entity.Type == "REDEMPTION_CREATED" &&
+			data.RewardID != "" &&
+			entity.RewardID.Valid &&
+			data.RewardID != entity.RewardID.String {
+			continue
+		}
 
-	c.processOperations(channelId, dbEntity.Operations, data)
+		go c.processOperations(channelId, entity.Operations, data)
+	}
 
 	return nil
 }
