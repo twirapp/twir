@@ -69,9 +69,9 @@ func (c *Processor) UnvipRandom() {
 		UserID:        randomVip.UserID,
 	})
 
-	if len(c.data.PrevOperation.UnmodedUserName) > 0 {
-		c.data.PrevOperation.UnmodedUserName += ", " + randomVip.UserName
+	if len(c.data.PrevOperation.UnvipedUserName) > 0 {
+		c.data.PrevOperation.UnvipedUserName += ", " + randomVip.UserName
 	} else {
-		c.data.PrevOperation.UnmodedUserName = randomVip.UserName
+		c.data.PrevOperation.UnvipedUserName = randomVip.UserName
 	}
 }
