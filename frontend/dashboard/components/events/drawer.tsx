@@ -17,11 +17,7 @@ import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import {
   IconArrowBigDownLines,
-  IconGripVertical,
-  IconHandFinger, IconMinus,
   IconPlus,
-  IconSearch,
-  IconVariable,
   IconX,
 } from '@tabler/icons';
 import { Event, EventType } from '@tsuwari/typeorm/entities/events/Event';
