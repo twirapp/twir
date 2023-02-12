@@ -9,7 +9,7 @@ import {
   Loader,
   Menu,
   Text,
-  Box,
+  Box, Divider,
 } from '@mantine/core';
 import { IconMoonStars, IconSun, IconLanguage } from '@tabler/icons';
 import Image from 'next/image';
@@ -95,6 +95,8 @@ export function NavBar({
           >
             <DiscordSvg width={20} fill={'#e3e3e4'} />
           </ActionIcon>
+
+          <Divider orientation="vertical" />
 
           <ActionIcon
             size="lg"
