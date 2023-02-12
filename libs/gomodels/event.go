@@ -22,6 +22,7 @@ type Event struct {
 	RewardID    null.String `gorm:"column:rewardId;type:TEXT;"                     json:"rewardId"`
 	CommandID   null.String `gorm:"column:commandId;type:TEXT;"                     json:"commandId"`
 	Description null.String `gorm:"column:description;type:TEXT" json:"description"`
+	Enabled     bool        `gorm:"column:enabled;type:BOOL" json:"enabled"`
 
 	Operations []EventOperation `json:"operations"`
 }

@@ -1,6 +1,6 @@
-import { ActionIcon, Badge, Button, Flex, Group, Table, Text, TextInput } from '@mantine/core';
-import { IconPencil, IconSearch, IconTrash } from '@tabler/icons';
-import type { Event, EventType } from '@tsuwari/typeorm/entities/events/Event';
+import { ActionIcon, Badge, Button, Flex, Switch, Table, Text, TextInput } from '@mantine/core';
+import { IconPencil, IconTrash } from '@tabler/icons';
+import type { Event } from '@tsuwari/typeorm/entities/events/Event';
 import { OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
@@ -23,6 +23,7 @@ const Events: NextPage<{ operations: typeof OperationType }> = (props) => {
   const manager = eventsManager();
   const { data: events } = manager.useGetAll();
   const deleter = manager.useDelete();
+  const patcher = manager.usePatch();
   const { t } = useTranslation('events');
 
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
@@ -50,6 +51,7 @@ const Events: NextPage<{ operations: typeof OperationType }> = (props) => {
         <tr>
           <th>Event</th>
           <th>Description</th>
+          <th>Status</th>
           <th>Actions</th>
         </tr>
         </thead>
@@ -57,6 +59,14 @@ const Events: NextPage<{ operations: typeof OperationType }> = (props) => {
         {events?.map((e, idx) => <tr key={e.id}>
           <td><Badge>{e.type.split('_').join(' ')}</Badge></td>
           <td>{e.description}</td>
+          <td>
+            <Switch
+              checked={e.enabled}
+              onChange={(event) => {
+                patcher.mutate({ id: e.id, data: { enabled: event.currentTarget.checked } });
+              }}
+            />
+          </td>
           <td>
             <Flex direction="row" gap="xs">
               <ActionIcon

@@ -10,6 +10,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("events")
 	middleware.Get("", get(services))
 	middleware.Post("", create(services))
+	middleware.Patch(":eventId", patch(services))
 	middleware.Put(":eventId", update(services))
 	middleware.Delete(":eventId", delete(services))
 
@@ -76,5 +77,26 @@ func delete(services types.Services) fiber.Handler {
 		}
 
 		return ctx.SendStatus(200)
+	}
+}
+
+func patch(services types.Services) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		dto := &eventPatchDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
+		if err != nil {
+			return err
+		}
+		greeting, err := handlePatch(c.Params("channelId"), c.Params("eventId"), dto, services)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(greeting)
 	}
 }

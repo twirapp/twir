@@ -47,4 +47,7 @@ export class Event {
 
   @Column()
   channelId: string;
+
+  @Column({ default: true })
+  enabled: boolean;
 }

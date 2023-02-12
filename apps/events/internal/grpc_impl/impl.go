@@ -178,7 +178,7 @@ func (c *EventsGrpcImplementation) ChatClear(_ context.Context, msg *events.Chat
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{},
-		"CHAT_CLEAR",
+		"ON_CHAT_CLEAR",
 	)
 
 	return &emptypb.Empty{}, nil

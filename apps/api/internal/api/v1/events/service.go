@@ -40,6 +40,7 @@ func handlePost(channelId string, dto *eventDto) (*model.Event, error) {
 		RewardID:    null.NewString(*dto.RewardID, *dto.RewardID != ""),
 		CommandID:   null.NewString(*dto.CommandID, *dto.CommandID != ""),
 		Description: null.StringFrom(dto.Description),
+		Enabled:     true,
 	}
 
 	err := db.Transaction(func(tx *gorm.DB) error {
@@ -166,4 +167,33 @@ func handleDelete(channelId, eventId string) error {
 	}
 
 	return nil
+}
+
+func handlePatch(
+	channelId, eventId string,
+	dto *eventPatchDto,
+	services types.Services,
+) (*model.Event, error) {
+	db := do.MustInvoke[*gorm.DB](di.Provider)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+
+	event := model.Event{}
+	err := db.Where(`"id" = ? and "channelId" = ?`, eventId, channelId).Find(&event).Error
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	if event.ID == "" {
+		return nil, fiber.NewError(http.StatusNotFound, "event not found")
+	}
+
+	event.Enabled = *dto.Enabled
+	err = services.DB.Model(&event).Select("*").Updates(&event).Error
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update event")
+	}
+
+	return &event, nil
 }

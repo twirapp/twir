@@ -16,3 +16,7 @@ type eventDto struct {
 	Description string         `validate:"required" json:"description"`
 	Operations  []operationDto `validate:"dive"`
 }
+
+type eventPatchDto struct {
+	Enabled *bool `validate:"omitempty" json:"enabled,omitempty"`
+}
