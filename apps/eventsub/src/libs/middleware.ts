@@ -197,12 +197,13 @@ class UserSubscriptions {
   }
 }
 
-export const subscribeToEvents = (channelId: string) => {
-  if (!subscriptions.has(channelId)) {
+export const subscribeToEvents = async (channelId: string) => {
+  if (subscriptions.has(channelId)) {
     return;
   }
 
   const subs = new UserSubscriptions(channelId);
+  await subs.init();
   subscriptions.set(channelId, subs);
 };
 

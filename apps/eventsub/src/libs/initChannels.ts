@@ -10,6 +10,8 @@ import {
 } from './middleware.js';
 import { typeorm } from './typeorm.js';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 export const initChannels = async (force = false) => {
   const channels = await typeorm.getRepository(Channel).find({
     where: {
@@ -25,7 +27,7 @@ export const initChannels = async (force = false) => {
   } else {
     await apiClient.eventSub.deleteAllSubscriptions();
 
-    initChannels(true);
+    return initChannels(true);
   }
 
   eventSubMiddleware.subscribeToUserAuthorizationRevokeEvents(config.TWITCH_CLIENTID, async (e) => {
