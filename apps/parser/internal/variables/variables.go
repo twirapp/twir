@@ -13,9 +13,11 @@ import (
 	emotes7tv "github.com/satont/tsuwari/apps/parser/internal/variables/emotes/7tv"
 	emotesbttv "github.com/satont/tsuwari/apps/parser/internal/variables/emotes/bttv"
 	emotesffz "github.com/satont/tsuwari/apps/parser/internal/variables/emotes/ffz"
-	faceitelo "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/elo"
-	faceitelodiff "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/elodiff"
-	faceitlvl "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/lvl"
+	faceit_elo "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/elo"
+	faceit_elo_diff "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/elodiff"
+	faceit_lvl "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/lvl"
+	faceit_score "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/score"
+	faceit_trand "github.com/satont/tsuwari/apps/parser/internal/variables/faceit/trend"
 	"github.com/satont/tsuwari/apps/parser/internal/variables/keywords"
 	random "github.com/satont/tsuwari/apps/parser/internal/variables/random/number"
 	randomonlineuser "github.com/satont/tsuwari/apps/parser/internal/variables/random/online/user"
@@ -55,9 +57,13 @@ func New() Variables {
 		emotes7tv.Variable,
 		emotesbttv.Variable,
 		emotesffz.Variable,
-		faceitelo.Variable,
-		faceitelodiff.Variable,
-		faceitlvl.Variable,
+		faceit_elo.Variable,
+		faceit_elo_diff.Variable,
+		faceit_lvl.Variable,
+		faceit_trand.SimpleTrend,
+		faceit_trand.ExtendedTrend,
+		faceit_score.Wins,
+		faceit_score.Loses,
 		random.Variable,
 		randomonlineuser.Variable,
 		sender.Variable,

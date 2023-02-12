@@ -15,7 +15,7 @@ import (
 
 type FaceitResult struct {
 	FaceitUser *FaceitUser
-	Matches    *[]FaceitMatch `json:"matches"`
+	Matches    []FaceitMatch `json:"matches"`
 }
 
 type FaceitGame struct {
@@ -124,7 +124,7 @@ type FaceitMatch struct {
 
 type FaceitMatchesResponse []FaceitMatch
 
-func (c *VariablesCacheService) GetFaceitLatestMatches() (*[]FaceitMatch, error) {
+func (c *VariablesCacheService) GetFaceitLatestMatches() ([]FaceitMatch, error) {
 	c.locks.faceitMatches.Lock()
 	defer c.locks.faceitMatches.Unlock()
 
@@ -160,7 +160,7 @@ func (c *VariablesCacheService) GetFaceitLatestMatches() (*[]FaceitMatch, error)
 	matches := []FaceitMatch{}
 	stream := c.GetChannelStream()
 	if stream == nil {
-		return &matches, nil
+		return matches, nil
 	}
 	startedDate := stream.StartedAt.UnixMilli()
 
@@ -209,15 +209,15 @@ func (c *VariablesCacheService) GetFaceitLatestMatches() (*[]FaceitMatch, error)
 		matches = append(matches, match)
 	}
 
-	return &matches, nil
+	return matches, nil
 }
 
-func (c *VariablesCacheService) GetFaceitTodayEloDiff(matches *[]FaceitMatch) int {
+func (c *VariablesCacheService) GetFaceitTodayEloDiff(matches []FaceitMatch) int {
 	if matches == nil {
 		return 0
 	}
 
-	sum := lo.Reduce(*matches, func(agg int, item FaceitMatch, _ int) int {
+	sum := lo.Reduce(matches, func(agg int, item FaceitMatch, _ int) int {
 		if item.EloDiff == nil {
 			return agg
 		}
