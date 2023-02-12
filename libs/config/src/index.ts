@@ -29,4 +29,5 @@ export const config = cleanEnv(process.env, {
   MINIO_PASSWORD: str({ default: '' }),
   MINIO_URL: str({ default: '' }),
   TOKENS_CIPHER_KEY: str({ default: 'pnyfwfiulmnqlhkvixaeligpprcnlyke' }),
+  EVENTSUB_SECRET: str({ default: 'coolEventsubSecret' }),
 });

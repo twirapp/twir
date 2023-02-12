@@ -8,6 +8,9 @@ import { initChannels } from './libs/initChannels.js';
 import { eventSubMiddleware, subscribeToEvents } from './libs/middleware.js';
 
 const app = Express();
+app.get('/', (req, res) => {
+  res.send('Twir eventsub home.');
+});
 await eventSubMiddleware.apply(app);
 
 app.listen(3003, async () => {
