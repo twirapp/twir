@@ -45,7 +45,7 @@ export const SpotifyIntegration: React.FC = () => {
           <Text weight={500} size={30}>
             {profile.display_name}
           </Text>
-          {profile.images && <Avatar src={profile.images[0].url} h={150} w={150} style={{ borderRadius: 900 }} />}
+          {profile.images && <Avatar src={profile.images.at(0)?.url} h={150} w={150} style={{ borderRadius: 900 }} />}
         </Group>
       )}
     </IntegrationCard>
