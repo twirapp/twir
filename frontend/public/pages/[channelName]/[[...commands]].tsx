@@ -2,6 +2,7 @@ import { Badge, Table, Text, Tooltip } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 import { useUsersByNames } from '@/services/users';
 
@@ -50,9 +51,9 @@ const Commands: NextPage = () => {
         textOverflow: 'ellipsis',
         maxWidth: 100,
       }}>
-        <Tooltip label={[c?.name, ...c.aliases].join(', ')}>
+        <Tooltip label={[c?.name, ...c.aliases || []].join(', ')}>
           <Text truncate>
-           {[c?.name, ...c.aliases].join(', ')}
+           {[c?.name, ...c.aliases || []].join(', ')}
           </Text>
         </Tooltip>
       </td>
