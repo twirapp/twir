@@ -14,6 +14,29 @@ export default class _Document extends Document {
       <Html lang={currentLocale}>
         <Head>
           <link rel="shortcut icon" href="/dashboard/TsuwariInCircle.svg" sizes="any" type="image/svg+xml" />
+
+          <meta name="application-name" content="Twir app" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <meta name="apple-mobile-web-app-title" content="PWA App" />
+          <meta name="description" content="Twir app" />
+          <meta name="format-detection" content="telephone=no" />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="msapplication-config" content="/dashboard/icons/browserconfig.xml" />
+          <meta name="msapplication-TileColor" content="#2B5797" />
+          <meta name="msapplication-tap-highlight" content="no" />
+          <meta name="theme-color" content="#000000" />
+
+
+          <link rel="manifest" href="/dashboard/manifest.json" />
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" />
+
+          <meta property="og:type" content="website" />
+          <meta property="og:title" content="Twir app" />
+          <meta property="og:description" content="Twir bot dashboard" />
+          <meta property="og:site_name" content="Twir app" />
+          <meta property="og:url" content="https://tsuwari.app" />
+          <meta property="og:image" content="https://tsuwari.app/dashboard/icons/apple-touch-icon.png" />
         </Head>
         <body>
           <Main />

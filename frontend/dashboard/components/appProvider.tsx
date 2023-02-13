@@ -1,9 +1,11 @@
 import { AppShell, ColorScheme, useMantineTheme } from '@mantine/core';
+import OBSWebSocket from 'obs-websocket-js';
 import { useContext, useEffect, useState } from 'react';
 
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { FetcherError, useProfile } from '@/services/api';
+import { ObsWebsocketContext, useObsSocket } from '@/services/obsWebsocket';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 type Props = React.PropsWithChildren<{
@@ -11,6 +13,7 @@ type Props = React.PropsWithChildren<{
 }>;
 
 export const AppProvider: React.FC<Props> = (props) => {
+  const obsSocket = useObsSocket();
   const dashboardContext = useContext(SelectedDashboardContext);
   const { error: profileError, data: profileData } = useProfile();
 
@@ -44,7 +47,14 @@ export const AppProvider: React.FC<Props> = (props) => {
       navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened} />}
       header={<NavBar setOpened={setSidebarOpened} opened={sidebarOpened} />}
     >
-      {props.children}
+      <ObsWebsocketContext.Provider value={{
+        socket: obsSocket.socket,
+        setSocket: obsSocket.setSocket,
+        connected: false,
+        setConnected: obsSocket.setConnected,
+      }}>
+        {props.children}
+      </ObsWebsocketContext.Provider>
     </AppShell>
   );
 };

@@ -18,4 +18,5 @@ use (
 	./libs/types
 	./libs/ytdl
 	./libs/ytsr
+	./frontend/desktop
 )

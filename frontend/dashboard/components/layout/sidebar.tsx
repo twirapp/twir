@@ -9,12 +9,12 @@ import {
   Text,
   UnstyledButton,
   useMantineTheme,
-  Button,
+  Button, Divider,
 } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import { useSpotlight } from '@mantine/spotlight';
 import {
-  IconActivity,
+  IconActivity, IconApps,
   IconBox, IconCalendarEvent,
   IconClipboardCopy,
   IconClockHour7,
@@ -48,7 +48,7 @@ type Page = {
   subPages?: Page[];
 };
 
-const navigationLinks: Array<Page> = [
+const navigationLinks: Array<Page | null> = [
   { label: 'Dashboard', icon: IconDashboard, path: '/' },
   { label: 'Integrations', icon: IconBox, path: '/integrations' },
   { label: 'Events', icon: IconCalendarEvent, path: '/events' },
@@ -80,6 +80,8 @@ const navigationLinks: Array<Page> = [
   { label: 'Keywords', icon: IconKey, path: '/keywords' },
   { label: 'Variables', icon: IconActivity, path: '/variables' },
   { label: 'Greetings', icon: IconSpeakerphone, path: '/greetings' },
+  null,
+  { label: 'Application', icon: IconApps, path: '/application' },
 ];
 
 type Props = {
@@ -200,7 +202,9 @@ export function SideBar(props: Props) {
 
   const [links, setLinks] = useState<JSX.Element[]>([]);
   useEffect(() => {
-    setLinks(navigationLinks.map((item) => createNavLink(item)));
+    setLinks(navigationLinks.map((item) => {
+      return item === null ? <Divider /> : createNavLink(item);
+    }));
   }, [router]);
 
   return (
