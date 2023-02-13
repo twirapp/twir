@@ -41,16 +41,16 @@ func hydrateStringWithData(str string, data any) (string, error) {
 				return w.Write([]byte(""))
 			}
 
-			return w.Write([]byte(fmt.Sprintf("%v", v)))
+			return w.Write([]byte(fmt.Sprint(v)))
 		} else {
-			val, ok := m[tag].(string)
+			val, ok := m[tag]
 			if !ok {
-				// not a string
-				//return 0, fmt.Errorf("key '%s' is not a string", tag)
+				// not a found
+				//return 0, fmt.Errorf("key '%s' is not found", tag)
 				return w.Write([]byte(""))
 			}
 
-			return w.Write([]byte(val))
+			return w.Write([]byte(fmt.Sprint(val)))
 		}
 	})
 
