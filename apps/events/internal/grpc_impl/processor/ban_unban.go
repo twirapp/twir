@@ -5,6 +5,35 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
+func (c *Processor) Timeout(input string, timeoutTime int) {
+	hydratedName, err := hydrateStringWithData(input, c.data)
+
+	if err != nil || len(hydratedName) == 0 {
+		return
+	}
+
+	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
+		Logins: []string{hydratedName},
+	})
+
+	if err != nil || len(user.Data.Users) == 0 {
+		if err != nil {
+			c.services.Logger.Sugar().Error(err)
+		}
+		return
+	}
+
+	c.streamerApiClient.BanUser(&helix.BanUserParams{
+		BroadcasterID: c.channelId,
+		ModeratorId:   c.channelId,
+		Body: helix.BanUserRequestBody{
+			Duration: timeoutTime,
+			Reason:   "banned from twirapp",
+			UserId:   user.Data.Users[0].ID,
+		},
+	})
+}
+
 func (c *Processor) BanOrUnban(operation model.EventOperationType) {
 	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
 		Logins: []string{c.data.UserName},
@@ -50,9 +79,10 @@ func (c *Processor) BanOrUnban(operation model.EventOperationType) {
 	}
 }
 
-func (c *Processor) BanRandom() {
+func (c *Processor) BanRandom(timeoutTime int) {
 	randomOnlineUser := &model.UsersOnline{}
-	err := c.services.DB.Where(`"channelId" = ?`, c.channelId).Find(&randomOnlineUser).Error
+	err := c.services.DB.Order("random()").Find(randomOnlineUser).Error
+
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return
@@ -66,7 +96,7 @@ func (c *Processor) BanRandom() {
 		BroadcasterID: c.channelId,
 		ModeratorId:   c.channelId,
 		Body: helix.BanUserRequestBody{
-			Duration: 0,
+			Duration: timeoutTime,
 			Reason:   "randomly banned from twirapp",
 			UserId:   randomOnlineUser.UserId.String,
 		},

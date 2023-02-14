@@ -47,8 +47,14 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 				}
 
 				processor.BanOrUnban(operation.Type)
+			case model.OperationTimeout:
+				if operation.Input.Valid {
+					processor.Timeout(operation.Input.String, operation.TimeoutTime)
+				}
+			case model.OperationTimeoutRandom:
+				processor.BanRandom(operation.TimeoutTime)
 			case model.OperationBanRandom:
-				processor.BanRandom()
+				processor.BanRandom(0)
 			case model.OperationVip, model.OperationUnvip:
 				if data.UserName == "" {
 					continue

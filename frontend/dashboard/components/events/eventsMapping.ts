@@ -41,7 +41,7 @@ export const eventsMapping: Record<keyof typeof EventType, {
     ],
   },
   REDEMPTION_CREATED: {
-    description: '',
+    description: 'Reward activated',
     availableVariables: [
       'userName',
       'userDisplayName',

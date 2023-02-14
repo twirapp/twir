@@ -14,10 +14,16 @@ var Variable = types.Variable{
 		result := types.VariableHandlerResult{}
 
 		stream := ctx.GetChannelStream()
+
 		if stream != nil {
 			result.Result = stream.Title
 		} else {
-			result.Result = "stream offline"
+			channelInfo := ctx.GetTwitchChannel()
+			if channelInfo != nil {
+				result.Result = channelInfo.Title
+			} else {
+				result.Result = "error"
+			}
 		}
 
 		return &result, nil

@@ -6,7 +6,6 @@ import {
   Text,
   Grid,
   ActionIcon,
-  Input,
   Select,
   Alert,
   NumberInput,
@@ -58,12 +57,24 @@ const switches: Array<{
   { prop: 'keepResponsesOrder' },
 ];
 
+type ChannelCommandForm = Omit<ChannelCommand, 'aliases'> & { aliases: Array<{ name: string }> }
+
 export const CommandDrawer: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
-  const form = useForm<ChannelCommand>({
+  const form = useForm<ChannelCommandForm>({
     validate: {
-      name: (value) => (!value.length ? 'Name cannot be empty' : null),
-      aliases: (values) => (values.some((s) => !s.length) ? 'Aliase cannot be empty' : null),
+      name: (value) => {
+        if (!value.length) return 'Name cannot be empty';
+        if (value.startsWith('!')) return `Name of command shouldn't start with !`;
+        return null;
+      },
+      aliases: {
+        name: (value) => {
+          if (!value.length) return 'Aliase cannot be empty';
+          if (value.startsWith('!')) return `Aliase shouldn't start with !`;
+          return null;
+        },
+      },
       cooldown: (value) => (value && value < 0 ? 'Cooldown cannot be lower then 0' : null),
       permission: (v) => (!COMMAND_PERMS.includes(v as any) ? 'Unknown permission' : null),
       responses: {
@@ -100,19 +111,26 @@ export const CommandDrawer: React.FC<Props> = (props) => {
   useEffect(() => {
     form.reset();
     if (props.command) {
-      form.setValues(props.command);
+      form.setValues({
+        ...props.command,
+        aliases: props.command.aliases.map(a => ({ name: a })),
+      });
     }
   }, [props.command, props.opened]);
 
   function onSubmit() {
     const validate = form.validate();
     if (validate.hasErrors) {
+      console.log(validate.errors);
       return;
     }
 
     updater.mutateAsync({
       id: form.values.id,
-      data: form.values,
+      data: {
+        ...form.values,
+        aliases: form.values.aliases.map(a => a.name),
+      },
     }).then(() => {
       props.setOpened(false);
       form.reset();
@@ -157,19 +175,19 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                   <IconPlus
                     size={18}
                     onClick={() => {
-                      form.insertListItem('aliases', '');
+                      form.insertListItem('aliases', { name: '' });
                     }}
                   />
                 </ActionIcon>
               </Flex>
+
               {!form.values.aliases?.length && <Alert>{t('drawer.aliases.emptyAlert')}</Alert>}
               <ScrollArea.Autosize maxHeight={100} mx="auto" type="auto" offsetScrollbars={true}>
                 <Grid grow gutter="xs" style={{ margin: 0, gap: 8 }}>
                   {form.values.aliases?.map((_, i) => (
                     <Grid.Col style={{ padding: 0 }} key={i} xs={4} sm={4} md={4} lg={4} xl={4}>
-                      <Input
+                      <TextInput
                         placeholder="aliase"
-                        {...form.getInputProps(`aliases.${i}`)}
                         rightSection={
                           <ActionIcon
                             variant="filled"
@@ -180,6 +198,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                             <IconMinus size={18} />
                           </ActionIcon>
                         }
+                        {...form.getInputProps(`aliases.${i}.name`)}
                       />
                     </Grid.Col>
                   ))}

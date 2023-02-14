@@ -4,6 +4,8 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 't
 import { Event } from './Event';
 
 export enum OperationType {
+  TIMEOUT = 'TIMEOUT',
+  TIMEOUT_RANDOM = 'TIMEOUT_RANDOM',
   BAN= 'BAN',
   UNBAN = 'UNBAN',
   BAN_RANDOM = 'BAN_RANDOM',
@@ -54,4 +56,7 @@ export class EventOperation {
 
   @Column({ default: false })
   useAnnounce: boolean;
+
+  @Column({ default: 600 })
+  timeoutTime: number;
 }

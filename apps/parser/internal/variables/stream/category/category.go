@@ -17,7 +17,12 @@ var Variable = types.Variable{
 		if stream != nil {
 			result.Result = stream.GameName
 		} else {
-			result.Result = "stream offline"
+			channelInfo := ctx.GetTwitchChannel()
+			if channelInfo != nil {
+				result.Result = channelInfo.GameName
+			} else {
+				result.Result = "error"
+			}
 		}
 
 		return &result, nil

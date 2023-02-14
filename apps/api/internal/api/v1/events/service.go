@@ -11,6 +11,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 	"net/http"
+	"strings"
 )
 
 func handleGet(channelId string, services types.Services) []model.Event {
@@ -54,10 +55,11 @@ func handlePost(channelId string, dto *eventDto) (*model.Event, error) {
 				Type:        operation.Type,
 				Delay:       operation.Delay,
 				EventID:     newEvent.ID,
-				Input:       null.StringFromPtr(operation.Input),
+				Input:       null.StringFrom(strings.TrimSpace(*operation.Input)),
 				Repeat:      operation.Repeat,
 				Order:       i,
 				UseAnnounce: *operation.UseAnnounce,
+				TimeoutTime: operation.TimeoutTime,
 			}
 
 			if err := tx.Create(newOperation).Error; err != nil {
@@ -111,10 +113,11 @@ func handleUpdate(channelId, eventId string, dto *eventDto) (*model.Event, error
 				Type:        operation.Type,
 				Delay:       operation.Delay,
 				EventID:     event.ID,
-				Input:       null.StringFromPtr(operation.Input),
+				Input:       null.StringFrom(strings.TrimSpace(*operation.Input)),
 				Repeat:      operation.Repeat,
 				Order:       i,
 				UseAnnounce: *operation.UseAnnounce,
+				TimeoutTime: operation.TimeoutTime,
 			}
 
 			if err := tx.Save(&newOperation).Error; err != nil {
@@ -180,7 +183,10 @@ func handlePatch(
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	event := model.Event{}
-	err := db.Where(`"id" = ? and "channelId" = ?`, eventId, channelId).Find(&event).Error
+	err := db.
+		Where(`"id" = ? and "channelId" = ?`, eventId, channelId).
+		Preload("Operations").
+		Find(&event).Error
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")

@@ -8,6 +8,7 @@ type operationDto struct {
 	Delay       int                      `validate:"lt=600" json:"delay"`
 	Repeat      int                      `validate:"gte=1,lt=10" json:"repeat"`
 	UseAnnounce *bool                    `json:"useAnnounce"`
+	TimeoutTime int                      `json:"timeoutTime"`
 }
 
 type eventDto struct {
