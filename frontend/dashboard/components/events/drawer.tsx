@@ -258,16 +258,16 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                   value={form.values.operations[index]?.type}
                                 />
                               </Card.Section>
-                              {operationMapping[operation.type].haveInput && <Card.Section p='sm'>
-                                  <Textarea
-                                      label={t('operations.input')}
+                              {(operationMapping[operation.type].haveInput || operationMapping[operation.type].producedVariables || operationMapping[operation.type].additionalValues) && <Card.Section p='sm'>
+                                  {operationMapping[operation.type].haveInput && <Textarea
+                                      label={t(`operations.inputDescription.${operation.type}`, t('operations.input'))}
                                       required
                                       w={'100%'}
                                       autosize={true}
                                       minRows={1}
                                       {...form.getInputProps(`operations.${index}.input`)}
-                                  />
-                                  {form.values.operations[index - 1]
+                                  />}
+                                  {form.values.operations && form.values.operations[index - 1]
                                     && operationMapping[form.values.operations[index - 1].type].producedVariables
                                     && <Flex direction={'column'} mt={5}>
                                           <Text size={'sm'}>Available variables from prev operation:</Text>
@@ -286,11 +286,15 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                           </Flex>
                                       </Flex>}
                                 {operationMapping[operation.type].additionalValues?.map((v) => <Group mt={5}>
-                                    {v === 'useAnnounce' && <Checkbox
-                                      label={t('operations.additionalValues.useAnnounce')}
-                                      labelPosition={'left'}
-                                      {...form.getInputProps(`operations.${index}.useAnnounce`, { type: 'checkbox' })}
-                                    />}
+                                  {v === 'useAnnounce' && <Checkbox
+                                    label={t('operations.additionalValues.useAnnounce')}
+                                    labelPosition={'left'}
+                                    {...form.getInputProps(`operations.${index}.useAnnounce`, { type: 'checkbox' })}
+                                  />}
+                                  {v === 'timeoutTime' && <NumberInput
+                                    label={t('operations.additionalValues.timeoutTime')}
+                                    {...form.getInputProps(`operations.${index}.timeoutTime`)}
+                                  />}
                                 </Group>)}
                               </Card.Section>}
                               <Card.Section p='sm' withBorder>
@@ -334,6 +338,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                   repeat: 1,
                   order: form.values.operations.length,
                   useAnnounce: false,
+                  timeoutTime: 600,
                 }]);
               }}>
                 <IconPlus size={30} />

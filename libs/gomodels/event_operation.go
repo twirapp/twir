@@ -18,6 +18,8 @@ var (
 type EventOperationType string
 
 const (
+	OperationTimeout           EventOperationType = "TIMEOUT"
+	OperationTimeoutRandom     EventOperationType = "TIMEOUT_RANDOM"
 	OperationBan               EventOperationType = "BAN"
 	OperationUnban             EventOperationType = "UNBAN"
 	OperationBanRandom         EventOperationType = "BAN_RANDOM"
@@ -49,6 +51,7 @@ type EventOperation struct {
 	Repeat      int         `gorm:"column:repeat;type:int" json:"repeat"`
 	Order       int         `gorm:"column:order;type:int" json:"order"`
 	UseAnnounce bool        `gorm:"column:useAnnounce;type:BOOL" json:"useAnnounce"`
+	TimeoutTime int         `gorm:"column:timeoutTime;type:int" json:"timeoutTime"`
 }
 
 func (c *EventOperation) TableName() string {

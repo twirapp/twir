@@ -70,7 +70,18 @@ export const operationMapping: Record<keyof typeof OperationType, {
     description: 'Disable emoteonly',
   },
   CREATE_GREETING: {
-    description: 'Create greeting for user. Available only for redemption event, and requires user input.',
+    description: 'Create greeting for user. Available only for rewards event, and requires user input.',
     dependsOnEvents: [EventType.REDEMPTION_CREATED],
+  },
+  TIMEOUT: {
+    description: 'Timeout user',
+    haveInput: true,
+    // dependsOnEvents: [EventType.REDEMPTION_CREATED],
+    additionalValues: ['timeoutTime'],
+  },
+  TIMEOUT_RANDOM: {
+    description: 'Timeout random online user',
+    producedVariables: ['bannedUserName'],
+    additionalValues: ['timeoutTime'],
   },
 };

@@ -35,7 +35,11 @@
     "delay": "Delay in seconds before operation executes",
     "repeat": "How many times execute that operation",
     "additionalValues": {
-      "useAnnounce": "Use announce"
+      "useAnnounce": "Use announce",
+      "timeoutTime": "Time for timeout"
+    },
+    "inputDescription": {
+      "TIMEOUT": "Username who will get timeout. Variables supported in that input."
     }
   }
 }
