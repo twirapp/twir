@@ -148,7 +148,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
               disabled={!!form.values.id}
               data={Object.keys(eventsMapping).map((e) => ({
                 value: e,
-                label: eventsMapping[e as EventType].description || e.split('_').join(' '),
+                label: eventsMapping[e as EventType].description?.toUpperCase() || e.split('_').join(' '),
               })) ?? []}
               onChange={(newValue) => {
                 form.setFieldValue(`type`, newValue as EventType);

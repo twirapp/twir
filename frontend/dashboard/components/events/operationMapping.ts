@@ -67,7 +67,7 @@ export const operationMapping: Record<keyof typeof OperationType, {
     description: 'Enable emoteonly',
   },
   DISABLE_EMOTEONLY: {
-    description: 'Disable emotyonly',
+    description: 'Disable emoteonly',
   },
   CREATE_GREETING: {
     description: 'Create greeting for user. Available only for redemption event, and requires user input.',
