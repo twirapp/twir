@@ -62,8 +62,16 @@ export const CommandDrawer: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
   const form = useForm<ChannelCommand>({
     validate: {
-      name: (value) => (!value.length ? 'Name cannot be empty' : null),
-      aliases: (values) => (values.some((s) => !s.length) ? 'Aliase cannot be empty' : null),
+      name: (value) => {
+        if (!value.length) return 'Name cannot be empty';
+        if (value.startsWith('!')) return `Name of command shouldn't start with !`;
+        return null;
+      },
+      aliases: (values) => {
+        if (values.some((s) => !s.length)) return 'Aliase cannot be empty';
+        if (values.some(s => s.startsWith('!'))) return `Aliase shouldn't start with !`;
+        return null;
+      },
       cooldown: (value) => (value && value < 0 ? 'Cooldown cannot be lower then 0' : null),
       permission: (v) => (!COMMAND_PERMS.includes(v as any) ? 'Unknown permission' : null),
       responses: {
@@ -169,7 +177,6 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                     <Grid.Col style={{ padding: 0 }} key={i} xs={4} sm={4} md={4} lg={4} xl={4}>
                       <Input
                         placeholder="aliase"
-                        {...form.getInputProps(`aliases.${i}`)}
                         rightSection={
                           <ActionIcon
                             variant="filled"
@@ -180,6 +187,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                             <IconMinus size={18} />
                           </ActionIcon>
                         }
+                        {...form.getInputProps(`aliases.${i}`)}
                       />
                     </Grid.Col>
                   ))}
