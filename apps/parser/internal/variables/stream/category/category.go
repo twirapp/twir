@@ -17,7 +17,7 @@ var Variable = types.Variable{
 		if stream != nil {
 			result.Result = stream.GameName
 		} else {
-			channelInfo := ctx.GetChannelStream()
+			channelInfo := ctx.GetTwitchChannel()
 			if channelInfo != nil {
 				result.Result = channelInfo.GameName
 			} else {
