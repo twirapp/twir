@@ -63,6 +63,12 @@ const Application: NextPage = () => {
   const [, promptInstall] = useAddToHomescreenPrompt();
   const obsSocket = useObsSocket();
 
+  useEffect(() => {
+    obsSocket.getScenes()?.then(() => {
+      obsSocket.getScenesItems()?.then(console.log);
+    });
+  }, [obsSocket.connected]);
+
   return (<>
     <Text>{obsSocket.connected ? 'Connected' : 'Disconnected'}</Text>
     <Text>

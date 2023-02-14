@@ -45,9 +45,19 @@ export const useObsSocket = () => {
     context.socket?.disconnect().then(() => context.setConnected(false));
   }, [context.socket]);
 
+  const getScenes = useCallback(() => {
+    return context.socket?.call('GetSceneList');
+  }, [context.socket]);
+
+  const getScenesItems = useCallback((scene: string) => {
+    return context.socket?.call('GetSceneItemList', { sceneName: 'Scene' });
+  }, [context.socket]);
+
   return {
     connect,
     disconnect,
     connected: context.connected,
+    getScenes,
+    getScenesItems,
   };
 };
