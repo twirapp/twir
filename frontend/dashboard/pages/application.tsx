@@ -64,9 +64,7 @@ const Application: NextPage = () => {
   const obsSocket = useObsSocket();
 
   useEffect(() => {
-    obsSocket.getScenes()?.then(() => {
-      obsSocket.getScenesItems()?.then(console.log);
-    });
+   obsSocket.getScenes().then(console.log);
   }, [obsSocket.connected]);
 
   return (<>

@@ -45,12 +45,32 @@ export const useObsSocket = () => {
     context.socket?.disconnect().then(() => context.setConnected(false));
   }, [context.socket]);
 
-  const getScenes = useCallback(() => {
-    return context.socket?.call('GetSceneList');
-  }, [context.socket]);
+  // const getScenes = useCallback(() => {
+  //   return context.socket?.call('GetSceneList');
+  // }, [context.socket]);
+  //
+  // const getScenesItems = useCallback((scene: string) => {
+  //   return context.socket?.call('GetSceneItemList', { sceneName: 'Scene' });
+  // }, [context.socket]);
 
-  const getScenesItems = useCallback((scene: string) => {
-    return context.socket?.call('GetSceneItemList', { sceneName: 'Scene' });
+  const getScenes = useCallback(async () => {
+    const scenesReq = await context.socket?.call('GetSceneList');
+    if (!scenesReq) return;
+
+    const mappedScenesNames = scenesReq.scenes.map(s => s.sceneName as string);
+
+    const itemsPromises = await Promise.all(mappedScenesNames.map((sceneName) => {
+      return context.socket?.call('GetSceneItemList', { sceneName });
+    }));
+
+    return itemsPromises
+      .flat()
+      .map(item => {
+        return item!.sceneItems.map((i) => ({
+          name: i.sourceName,
+        }));
+      })
+      .flat();
   }, [context.socket]);
 
   return {
@@ -58,6 +78,5 @@ export const useObsSocket = () => {
     disconnect,
     connected: context.connected,
     getScenes,
-    getScenesItems,
   };
 };
