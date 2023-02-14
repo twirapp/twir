@@ -199,7 +199,9 @@ class UserSubscriptions {
 
 export const subscribeToEvents = async (channelId: string) => {
   if (subscriptions.has(channelId)) {
-    return;
+    const subscription = await subscriptions.get(channelId)!;
+    await subscription.unsubscribe();
+    subscriptions.delete(channelId);
   }
 
   const subs = new UserSubscriptions(channelId);
