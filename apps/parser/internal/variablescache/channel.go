@@ -9,7 +9,7 @@ import (
 	"github.com/satont/tsuwari/libs/twitch"
 )
 
-func (c *VariablesCacheService) GetTwitchChannel() *helix.Channel {
+func (c *VariablesCacheService) GetTwitchChannel() *helix.ChannelInformation {
 	cfg := do.MustInvoke[config.Config](di.Provider)
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 	twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
@@ -24,8 +24,8 @@ func (c *VariablesCacheService) GetTwitchChannel() *helix.Channel {
 		return c.cache.TwitchChannel
 	}
 
-	channel, err := twitchClient.SearchChannels(&helix.SearchChannelsParams{
-		Channel: c.ChannelId,
+	channel, err := twitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
+		BroadcasterIDs: []string{c.ChannelId},
 	})
 
 	if err == nil && len(channel.Data.Channels) != 0 {

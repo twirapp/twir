@@ -14,6 +14,7 @@ var Variable = types.Variable{
 		result := types.VariableHandlerResult{}
 
 		stream := ctx.GetChannelStream()
+
 		if stream != nil {
 			result.Result = stream.Title
 		} else {
