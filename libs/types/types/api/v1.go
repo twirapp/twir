@@ -7,6 +7,7 @@ import (
 
 type Modules struct {
 	YouTube modules.YouTube
+	OBS     modules.OBS
 }
 
 type Channels struct {

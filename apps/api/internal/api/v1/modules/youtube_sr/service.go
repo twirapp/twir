@@ -26,7 +26,7 @@ import (
 
 func handleGet(channelId string, services types.Services) (*youtube.YouTubeSettings, error) {
 	settings := model.ChannelModulesSettings{}
-	err := services.DB.Where(`"channelId" = ?`, channelId).First(&settings).Error
+	err := services.DB.Where(`"channelId" = ? and "type" = ?`, channelId, "youtube_song_requests").First(&settings).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusNotFound, "settings not found")
 	}
@@ -98,7 +98,7 @@ func handlePost(channelId string, dto *youtube.YouTubeSettings, services types.S
 	}
 
 	var existedSettings *model.ChannelModulesSettings
-	err = services.DB.Where(`"channelId" = ?`, channelId).First(&existedSettings).Error
+	err = services.DB.Where(`"channelId" = ? AND "type" = ?`, channelId, "youtube_song_requests").First(&existedSettings).Error
 
 	if err != nil && err != gorm.ErrRecordNotFound {
 		logger.Error(err)

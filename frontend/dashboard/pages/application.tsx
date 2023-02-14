@@ -1,10 +1,9 @@
 import { Button, Text } from '@mantine/core';
 import { NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import OBSWebSocket from 'obs-websocket-js';
 import { useContext, useEffect, useState } from 'react';
 
-import { ObsWebsocketContext, useObsSocket } from '@/services/obsWebsocket';
+import { useObsSocket } from '@/services/obsWebsocket';
 
 interface IBeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -63,10 +62,6 @@ export function useAddToHomescreenPrompt(): [
 const Application: NextPage = () => {
   const [, promptInstall] = useAddToHomescreenPrompt();
   const obsSocket = useObsSocket();
-
-  useEffect(() => {
-    obsSocket.connect();
-  }, []);
 
   return (<>
     <Text>{obsSocket.connected ? 'Connected' : 'Disconnected'}</Text>

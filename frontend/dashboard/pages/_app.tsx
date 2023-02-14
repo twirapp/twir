@@ -20,6 +20,7 @@ import { SideBar } from '@/components/layout/sidebar';
 import { queryClient } from '@/services/api';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 import '../styles/global.css';
+import { ObsWebsocketContext, OBSWebsocketProvider, useObsSocket } from '@/services/obsWebsocket';
 
 // put in constants.ts
 const ONE_MONTH = 2_629_700_000;
@@ -34,6 +35,7 @@ function App(props: AppProps & Props) {
   const { Component } = props;
   const [selectedDashboard, setSelectedDashboard] = useState<string>(props.dashboardId || '');
   const [sidebarOpened, setSidebarOpened] = useState(false);
+  const obsSocket = useObsSocket();
 
   const preferenceColorScheme = useColorScheme(undefined, {
     getInitialValueInEffect: true,
@@ -104,15 +106,17 @@ function App(props: AppProps & Props) {
                       navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened} />}
                       header={<NavBar setOpened={setSidebarOpened} opened={sidebarOpened} />}
                     >
-                      <AppProvider colorScheme={colorScheme}>
-                        <Component
-                          styles={{
-                            main: {
-                              background: colorScheme === 'dark' ? 'dark.8' : 'gray.0',
-                            },
-                          }}
-                        />
-                      </AppProvider>
+                      <OBSWebsocketProvider>
+                        <AppProvider colorScheme={colorScheme}>
+                          <Component
+                            styles={{
+                              main: {
+                                background: colorScheme === 'dark' ? 'dark.8' : 'gray.0',
+                              },
+                            }}
+                          />
+                        </AppProvider>
+                      </OBSWebsocketProvider>
                     </AppShell>
                   </ModalsProvider>
                 </SpotlightProvider>
