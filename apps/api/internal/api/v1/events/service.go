@@ -40,6 +40,7 @@ func handlePost(channelId string, dto *eventDto) (*model.Event, error) {
 		Type:        dto.Type,
 		RewardID:    null.NewString(*dto.RewardID, *dto.RewardID != ""),
 		CommandID:   null.NewString(*dto.CommandID, *dto.CommandID != ""),
+		KeywordID:   null.NewString(*dto.KeywordID, *dto.KeywordID != ""),
 		Description: null.StringFrom(dto.Description),
 		Enabled:     true,
 	}
@@ -96,6 +97,7 @@ func handleUpdate(channelId, eventId string, dto *eventDto) (*model.Event, error
 
 	event.RewardID = null.StringFromPtr(dto.RewardID)
 	event.CommandID = null.StringFromPtr(dto.CommandID)
+	event.CommandID = null.StringFromPtr(dto.KeywordID)
 	event.Description = null.StringFrom(dto.Description)
 
 	err = db.Transaction(func(tx *gorm.DB) error {
