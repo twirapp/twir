@@ -7,6 +7,7 @@ import (
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +20,11 @@ var Variable = types.Variable{
 		result := &types.VariableHandlerResult{}
 
 		var count int64
-		err := db.Where(`"channelId" = ? AND "userId" = ?`, ctx.ChannelId, ctx.SenderId).Count(&count).Error
+		err := db.
+			Where(`"channelId" = ? AND "userId" = ?`, ctx.ChannelId, ctx.SenderId).
+			Model(&model.ChannelEmoteUsage{}).
+			Count(&count).
+			Error
 
 		if err != nil {
 			fmt.Println(err)
