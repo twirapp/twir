@@ -18,7 +18,8 @@ export enum EventType {
   STREAM_ONLINE = 'STREAM_ONLINE',
   STREAM_OFFLINE = 'STREAM_OFFLINE',
   ON_CHAT_CLEAR = 'ON_CHAT_CLEAR',
-  DONATE = 'DONATE'
+  DONATE = 'DONATE',
+  KEYWORD_MATCHED = 'KEYWORD_MATCHED'
 }
 
 @Entity({ name: 'channels_events' })
@@ -37,6 +38,9 @@ export class Event {
 
   @Column('text', { nullable: true })
   commandId: string | null;
+
+  @Column('text', { nullable: true })
+  keywordId: string | null;
 
   @OneToMany(() => EventOperation, _ => _.event)
   operations: EventOperation[];

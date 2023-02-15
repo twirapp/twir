@@ -17,6 +17,7 @@ service Events {
   rpc StreamOffline(StreamOfflineMessage) returns (google.protobuf.Empty) {}
   rpc ChatClear(ChatClearMessage) returns (google.protobuf.Empty) {}
   rpc Donate(DonateMessage) returns (google.protobuf.Empty) {}
+  rpc KeywordMatched(KeywordMatchedMessage) returns (google.protobuf.Empty) {}
 }
 
 message BaseInfo {
@@ -126,4 +127,15 @@ message DonateMessage {
   string amount = 3;
   string currency = 4;
   string message = 5;
+}
+
+message KeywordMatchedMessage {
+  BaseInfo baseInfo = 1;
+
+  string keywordId = 2;
+  string keywordName = 3;
+  string keywordResponse = 4;
+  string userId = 5;
+  string userName = 6;
+  string userDisplayName = 7;
 }

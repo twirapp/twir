@@ -198,3 +198,22 @@ func (c *EventsGrpcImplementation) Donate(_ context.Context, msg *events.DonateM
 
 	return &emptypb.Empty{}, nil
 }
+
+func (c *EventsGrpcImplementation) KeywordMatched(
+	_ context.Context,
+	msg *events.KeywordMatchedMessage,
+) (*emptypb.Empty, error) {
+	go c.processEvent(
+		msg.BaseInfo.ChannelId,
+		internal.Data{
+			UserName:        msg.UserName,
+			UserDisplayName: msg.UserDisplayName,
+			KeywordName:     msg.KeywordName,
+			KeywordResponse: msg.KeywordResponse,
+			KeywordID:       msg.KeywordId,
+		},
+		"KEYWORD_MATCHED",
+	)
+
+	return &emptypb.Empty{}, nil
+}

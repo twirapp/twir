@@ -52,6 +52,10 @@ type Data struct {
 	DonateCurrency string `json:"donateCurrency"`
 
 	PrevOperation *DataFromPrevOperation `json:"prevOperation"`
+
+	KeywordID       string `json:"-"`
+	KeywordName     string `json:"keywordName"`
+	KeywordResponse string `json:"keywordResponse"`
 }
 
 type DataFromPrevOperation struct {

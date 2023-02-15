@@ -24,12 +24,15 @@
     "streamCategory": "Category of stream",
     "donateAmount": "Donate amount",
     "donateCurrency": "Donate currency",
-    "donateMessage": "Donate message"
+    "donateMessage": "Donate message",
+    "keywordName": "Name of keyword",
+    "keywordResponse": "Responses of keyword, joined by space"
   },
   "description": "Description of your listener",
   "availableVariables": "Available variables",
   "triggerCommand": "Choose command for trigger that event",
   "triggerReward": "Reward for trigger that event",
+  "triggerKeyword": "Keyword for trigger that event",
   "operations": {
     "input": "Input",
     "delay": "Delay in seconds before operation executes",

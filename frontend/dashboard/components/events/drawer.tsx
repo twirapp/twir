@@ -5,13 +5,17 @@ import {
   Drawer,
   Flex,
   ScrollArea,
-  TextInput,
   Center,
   Textarea,
   useMantineTheme,
   Select,
   NumberInput,
-  createStyles, Group, Menu, Text, CopyButton, Code, Divider, Checkbox,
+  createStyles,
+  Group,
+  CopyButton,
+  Code,
+  Checkbox,
+  Text,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
@@ -31,7 +35,7 @@ import { eventsMapping } from './eventsMapping';
 
 import { operationMapping } from '@/components/events/operationMapping';
 import { RewardItem, RewardItemProps } from '@/components/reward';
-import { commandsManager, eventsManager, useRewards } from '@/services/api';
+import { commandsManager, eventsManager as useEventsManager, keywordsManager as useKeywordsManager, useRewards } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -60,10 +64,11 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       id: '',
       type: '' as EventType,
       channelId: '',
-      description: '',
       commandId: '',
-      operations: [],
       rewardId: '',
+      keywordId: '',
+      description: '',
+      operations: [],
       enabled: true,
     },
     validate: {
@@ -73,8 +78,8 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       },
     },
   });
-  const manager = eventsManager();
-  const updater = manager.useCreateOrUpdate();
+  const eventsManager = useEventsManager();
+  const updater = eventsManager.useCreateOrUpdate();
   const { t } = useTranslation('events');
   const viewPort = useViewportSize();
   const cardClasses = useStyles();
@@ -82,6 +87,9 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 
   const commandManager = commandsManager();
   const commandList = commandManager.useGetAll();
+
+  const keywordsManager = useKeywordsManager();
+  const { data: keywords } = keywordsManager.useGetAll();
 
   const rewardsManager = useRewards();
   const { data: rewardsData } = rewardsManager();
@@ -195,6 +203,20 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                 allowDeselect
                 data={rewards}
                 {...form.getInputProps('rewardId')}
+                w={'100%'}
+            />}
+
+            {form.values.type === EventType.KEYWORD_MATCHED && <Select
+                label={t('triggerKeyword')}
+                searchable={true}
+                data={keywords?.map((c) => ({
+                  value: c.id,
+                  label: c.text,
+                })) ?? []}
+                onChange={(newValue) => {
+                  form.setFieldValue(`keywordId`, newValue);
+                }}
+                value={form.values.keywordId}
                 w={'100%'}
             />}
 
