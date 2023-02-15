@@ -36,3 +36,4 @@ export { Users } from './Users.js';
 export { Variable } from './Variable.js';
 export { Warning } from './Warning.js';
 export { Website } from './Website.js';
+export { Discord } from './Discord.js';
