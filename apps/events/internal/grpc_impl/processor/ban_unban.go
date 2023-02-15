@@ -42,9 +42,15 @@ func (c *Processor) Timeout(input string, timeoutTime int) error {
 	return nil
 }
 
-func (c *Processor) BanOrUnban(operation model.EventOperationType) error {
+func (c *Processor) BanOrUnban(input string, operation model.EventOperationType) error {
+	hydratedName, err := hydrateStringWithData(input, c.data)
+
+	if err != nil || len(hydratedName) == 0 {
+		return fmt.Errorf("cannot hydrate string %w", err)
+	}
+
 	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
-		Logins: []string{c.data.UserName},
+		Logins: []string{hydratedName},
 	})
 
 	if err != nil || len(user.Data.Users) == 0 {

@@ -45,11 +45,11 @@ operationsLoop:
 					operationError = processor.SendMessage(channelId, operation.Input.String, operation.UseAnnounce)
 				}
 			case model.OperationBan, model.OperationUnban:
-				if data.UserName == "" {
+				if !operation.Input.Valid {
 					continue
 				}
 
-				processor.BanOrUnban(operation.Type)
+				processor.BanOrUnban(operation.Input.String, operation.Type)
 			case model.OperationTimeout:
 				if operation.Input.Valid {
 					operationError = processor.Timeout(operation.Input.String, operation.TimeoutTime)
@@ -59,11 +59,11 @@ operationsLoop:
 			case model.OperationBanRandom:
 				operationError = processor.BanRandom(0)
 			case model.OperationVip, model.OperationUnvip:
-				if data.UserName == "" {
+				if !operation.Input.Valid {
 					continue
 				}
 
-				operationError = processor.VipOrUnvip(operation.Type)
+				operationError = processor.VipOrUnvip(operation.Input.String, operation.Type)
 			case model.OperationUnvipRandom:
 				operationError = processor.UnvipRandom()
 			case model.OperationEnableSubMode, model.OperationDisableSubMode:
@@ -81,11 +81,11 @@ operationsLoop:
 				}
 				operationError = processor.ChangeCategory(operation.Input.String)
 			case model.OperationMod, model.OperationUnmod:
-				if data.UserName == "" {
+				if !operation.Input.Valid {
 					continue
 				}
 
-				operationError = processor.ModOrUnmod(operation.Type)
+				operationError = processor.ModOrUnmod(operation.Input.String, operation.Type)
 			case model.OperationUnmodRandom:
 				operationError = processor.UnmodRandom()
 			}

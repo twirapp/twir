@@ -15,9 +15,11 @@ export const operationMapping: Record<keyof typeof OperationType, {
   },
   BAN: {
     'description': 'Ban user',
+    haveInput: true,
   },
   UNBAN: {
     description: 'Unban user',
+    haveInput: true,
   },
   BAN_RANDOM: {
     description: 'Ban random online user',
@@ -25,9 +27,11 @@ export const operationMapping: Record<keyof typeof OperationType, {
   },
   VIP: {
     description: 'Vip user',
+    haveInput: true,
   },
   UNVIP: {
     description: 'Unvip user',
+    haveInput: true,
   },
   UNVIP_RANDOM: {
     description: 'Unvip random user',
@@ -35,9 +39,11 @@ export const operationMapping: Record<keyof typeof OperationType, {
   },
   MOD: {
     description: 'Give user moderation',
+    haveInput: true,
   },
   UNMOD: {
     description: 'Remove moderation from user',
+    haveInput: true,
   },
   UNMOD_RANDOM: {
     description: 'Remove moderation from random user',
@@ -76,7 +82,6 @@ export const operationMapping: Record<keyof typeof OperationType, {
   TIMEOUT: {
     description: 'Timeout user',
     haveInput: true,
-    // dependsOnEvents: [EventType.REDEMPTION_CREATED],
     additionalValues: ['timeoutTime'],
   },
   TIMEOUT_RANDOM: {

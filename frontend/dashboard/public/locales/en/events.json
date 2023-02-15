@@ -39,7 +39,13 @@
       "timeoutTime": "Time for timeout"
     },
     "inputDescription": {
-      "TIMEOUT": "Username who will get timeout. Variables supported in that input."
+      "TIMEOUT": "Username who will get timeout. Variables supported in that input.",
+      "BAN": "Username who will get ban.",
+      "UNBAN": "Username who will get unbanned",
+      "VIP": "Username who will get vip.",
+      "UNVIP": "Username who will get unvipped",
+      "MOD": "Username who will get modded",
+      "UNMOD": "Username who will get unmodded"
     }
   }
 }
