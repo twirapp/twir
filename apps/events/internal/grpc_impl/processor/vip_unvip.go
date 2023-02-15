@@ -19,7 +19,30 @@ func (c *Processor) VipOrUnvip(operation model.EventOperationType) error {
 		return errors.New("cannot find user")
 	}
 
+	vips, err := c.streamerApiClient.GetChannelVips(&helix.GetChannelVipsParams{
+		BroadcasterID: c.channelId,
+	})
+
+	if err != nil || vips.ErrorMessage != "" {
+		if err != nil {
+			return err
+		}
+		return errors.New(vips.ErrorMessage)
+	}
+
+	if len(vips.Data.ChannelsVips) == 0 {
+		return errors.New("cannot get vips")
+	}
+
+	isAlreadyVip := lo.SomeBy(vips.Data.ChannelsVips, func(item helix.ChannelVips) bool {
+		return item.UserID == user.Data.Users[0].ID
+	})
+
 	if operation == "VIP" {
+		if isAlreadyVip {
+			return errors.New("user already vip")
+		}
+
 		resp, err := c.streamerApiClient.AddChannelVip(&helix.AddChannelVipParams{
 			BroadcasterID: c.channelId,
 			UserID:        user.Data.Users[0].ID,
@@ -32,6 +55,9 @@ func (c *Processor) VipOrUnvip(operation model.EventOperationType) error {
 			}
 		}
 	} else {
+		if !isAlreadyVip {
+			return errors.New("not a vip")
+		}
 		resp, err := c.streamerApiClient.RemoveChannelVip(&helix.RemoveChannelVipParams{
 			BroadcasterID: c.channelId,
 			UserID:        user.Data.Users[0].ID,

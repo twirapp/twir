@@ -19,7 +19,27 @@ func (c *Processor) ModOrUnmod(operation model.EventOperationType) error {
 		return errors.New("cannot get user")
 	}
 
+	mods, err := c.streamerApiClient.GetModerators(&helix.GetModeratorsParams{
+		BroadcasterID: c.channelId,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if mods.ErrorMessage != "" {
+		return errors.New(mods.ErrorMessage)
+	}
+
+	isAlreadyMod := lo.SomeBy(mods.Data.Moderators, func(item helix.Moderator) bool {
+		return item.UserID == user.Data.Users[0].ID
+	})
+
 	if operation == "MOD" {
+		if isAlreadyMod {
+			return errors.New("already mod")
+		}
+
 		resp, err := c.streamerApiClient.AddChannelModerator(&helix.AddChannelModeratorParams{
 			BroadcasterID: c.channelId,
 			UserID:        user.Data.Users[0].ID,
@@ -32,6 +52,10 @@ func (c *Processor) ModOrUnmod(operation model.EventOperationType) error {
 			}
 		}
 	} else {
+		if !isAlreadyMod {
+			return errors.New("not a mod")
+		}
+
 		resp, err := c.streamerApiClient.RemoveChannelModerator(&helix.RemoveChannelModeratorParams{
 			BroadcasterID: c.channelId,
 			UserID:        user.Data.Users[0].ID,
