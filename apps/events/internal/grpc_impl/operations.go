@@ -29,6 +29,9 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 
 	data.PrevOperation = &internal.DataFromPrevOperation{}
 
+	var operationError error
+
+operationsLoop:
 	for _, operation := range operations {
 		for i := 0; i < operation.Repeat; i++ {
 			if operation.Delay != 0 {
@@ -39,7 +42,7 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 			switch operation.Type {
 			case model.OperationSendMessage:
 				if operation.Input.Valid {
-					processor.SendMessage(channelId, operation.Input.String, operation.UseAnnounce)
+					operationError = processor.SendMessage(channelId, operation.Input.String, operation.UseAnnounce)
 				}
 			case model.OperationBan, model.OperationUnban:
 				if data.UserName == "" {
@@ -49,24 +52,24 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 				processor.BanOrUnban(operation.Type)
 			case model.OperationTimeout:
 				if operation.Input.Valid {
-					processor.Timeout(operation.Input.String, operation.TimeoutTime)
+					operationError = processor.Timeout(operation.Input.String, operation.TimeoutTime)
 				}
 			case model.OperationTimeoutRandom:
-				processor.BanRandom(operation.TimeoutTime)
+				operationError = processor.BanRandom(operation.TimeoutTime)
 			case model.OperationBanRandom:
-				processor.BanRandom(0)
+				operationError = processor.BanRandom(0)
 			case model.OperationVip, model.OperationUnvip:
 				if data.UserName == "" {
 					continue
 				}
 
-				processor.VipOrUnvip(operation.Type)
+				operationError = processor.VipOrUnvip(operation.Type)
 			case model.OperationUnvipRandom:
-				processor.UnvipRandom()
+				operationError = processor.UnvipRandom()
 			case model.OperationEnableSubMode, model.OperationDisableSubMode:
-				processor.SwitchSubMode(operation.Type)
+				operationError = processor.SwitchSubMode(operation.Type)
 			case model.OperationEnableEmoteOnly, model.OperationDisableEmoteOnly:
-				processor.SwitchEmoteOnly(operation.Type)
+				operationError = processor.SwitchEmoteOnly(operation.Type)
 			case model.OperationChangeTitle:
 				if !operation.Input.Valid {
 					continue
@@ -76,15 +79,20 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 				if !operation.Input.Valid {
 					continue
 				}
-				processor.ChangeCategory(operation.Input.String)
+				operationError = processor.ChangeCategory(operation.Input.String)
 			case model.OperationMod, model.OperationUnmod:
 				if data.UserName == "" {
 					continue
 				}
 
-				processor.ModOrUnmod(operation.Type)
+				operationError = processor.ModOrUnmod(operation.Type)
 			case model.OperationUnmodRandom:
-				processor.UnmodRandom()
+				operationError = processor.UnmodRandom()
+			}
+
+			if operationError != nil {
+				c.services.Logger.Sugar().Error(err)
+				break operationsLoop
 			}
 		}
 	}

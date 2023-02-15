@@ -1,12 +1,13 @@
 package processor
 
 import (
+	"errors"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
-func (c *Processor) SwitchEmoteOnly(operation model.EventOperationType) {
+func (c *Processor) SwitchEmoteOnly(operation model.EventOperationType) error {
 	resp, err := c.streamerApiClient.UpdateChatSettings(&helix.UpdateChatSettingsParams{
 		BroadcasterID: c.channelId,
 		ModeratorID:   c.channelId,
@@ -15,10 +16,12 @@ func (c *Processor) SwitchEmoteOnly(operation model.EventOperationType) {
 			Else(false)),
 	})
 	if err != nil {
-		c.services.Logger.Sugar().Error(err)
+		return err
 	}
 
 	if resp.ErrorMessage != "" {
-		c.services.Logger.Sugar().Error("Cannot update channel chat settings", c.channelId, resp.ErrorMessage)
+		return errors.New(resp.ErrorMessage)
 	}
+
+	return nil
 }

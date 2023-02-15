@@ -1,21 +1,22 @@
 package processor
 
 import (
+	"errors"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
-func (c *Processor) VipOrUnvip(operation model.EventOperationType) {
+func (c *Processor) VipOrUnvip(operation model.EventOperationType) error {
 	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
 		Logins: []string{c.data.UserName},
 	})
 
 	if err != nil || len(user.Data.Users) == 0 {
 		if err != nil {
-			c.services.Logger.Sugar().Error(err)
+			return err
 		}
-		return
+		return errors.New("cannot find user")
 	}
 
 	if operation == "VIP" {
@@ -25,9 +26,9 @@ func (c *Processor) VipOrUnvip(operation model.EventOperationType) {
 		})
 		if resp.ErrorMessage != "" || err != nil {
 			if err != nil {
-				c.services.Logger.Sugar().Error(err)
+				return err
 			} else {
-				c.services.Logger.Sugar().Error(resp.ErrorMessage)
+				return errors.New(resp.ErrorMessage)
 			}
 		}
 	} else {
@@ -37,41 +38,60 @@ func (c *Processor) VipOrUnvip(operation model.EventOperationType) {
 		})
 		if resp.ErrorMessage != "" || err != nil {
 			if err != nil {
-				c.services.Logger.Sugar().Error(err)
+				return err
 			} else {
-				c.services.Logger.Sugar().Error(resp.ErrorMessage)
+				return errors.New(resp.Error)
 			}
 		}
 	}
+
+	return nil
 }
 
-func (c *Processor) UnvipRandom() {
+func (c *Processor) UnvipRandom() error {
 	channel := model.Channels{}
-	c.services.DB.Where(`"id" = ?`, c.channelId).Find(&channel)
+	err := c.services.DB.Where(`"id" = ?`, c.channelId).Find(&channel).Error
 	if channel.ID == "" {
-		return
+		return err
 	}
 
 	vips, err := c.streamerApiClient.GetChannelVips(&helix.GetChannelVipsParams{
 		BroadcasterID: c.channelId,
 	})
 
-	if err != nil || vips.ErrorMessage != "" || len(vips.Data.ChannelsVips) == 0 {
-		return
+	if err != nil || vips.ErrorMessage != "" {
+		if err != nil {
+			return err
+		}
+		return errors.New(vips.ErrorMessage)
+	}
+
+	if len(vips.Data.ChannelsVips) == 0 {
+		return errors.New("cannot get vips")
 	}
 
 	// choose random vip, but filter out bot account
 	randomVip := lo.Sample(lo.Filter(vips.Data.ChannelsVips, func(item helix.ChannelVips, index int) bool {
 		return item.UserID != channel.BotID
 	}))
-	c.streamerApiClient.RemoveChannelVip(&helix.RemoveChannelVipParams{
+	removeReq, err := c.streamerApiClient.RemoveChannelVip(&helix.RemoveChannelVipParams{
 		BroadcasterID: c.channelId,
 		UserID:        randomVip.UserID,
 	})
+
+	if err != nil {
+		return err
+	}
+
+	if removeReq.ErrorMessage != "" {
+		return errors.New(removeReq.ErrorMessage)
+	}
 
 	if len(c.data.PrevOperation.UnvipedUserName) > 0 {
 		c.data.PrevOperation.UnvipedUserName += ", " + randomVip.UserName
 	} else {
 		c.data.PrevOperation.UnvipedUserName = randomVip.UserName
 	}
+
+	return nil
 }
