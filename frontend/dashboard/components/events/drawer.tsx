@@ -66,6 +66,12 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       rewardId: '',
       enabled: true,
     },
+    validate: {
+      operations: {
+        delay: (v) => v > 1800 ? 'Delay cannot be more then 1800' : null,
+        repeat: (v) => v > 10 ? 'Repeat cannot be more then 10' : null,
+      },
+    },
   });
   const manager = eventsManager();
   const updater = manager.useCreateOrUpdate();
