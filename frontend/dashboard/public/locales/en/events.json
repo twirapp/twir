@@ -15,6 +15,7 @@
     "rewardCost": "Cost of used reward",
     "rewardInput": "Input of used reward",
     "commandName": "Name of command",
+    "commandInput": "Parameters of command. Example someone used '!hello world' - and world is parameters there",
     "raidViewers": "Number of viewers",
     "oldStreamTitle": "Old stream title",
     "newStreamTitle": "New stream title",

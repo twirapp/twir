@@ -6,6 +6,12 @@ option go_package = "tsuwari/grpc/websockets";
 service Websocket {
   rpc YoutubeAddSongToQueue(YoutubeAddSongToQueueRequest) returns (google.protobuf.Empty) {}
   rpc YoutubeRemoveSongToQueue(YoutubeRemoveSongFromQueueRequest) returns (google.protobuf.Empty) {}
+  rpc ObsSetScene(ObsSetSceneMessage) returns (google.protobuf.Empty) {}
+  rpc ObsToggleSource(ObsToggleSourceMessage) returns (google.protobuf.Empty) {}
+  rpc ObsToggleAudio(ObsToggleAudioMessage) returns (google.protobuf.Empty) {}
+  rpc ObsAudioSetVolume(ObsAudioSetVolumeMessage) returns (google.protobuf.Empty) {}
+  rpc ObsAudioIncreaseVolume(ObsAudioIncreaseVolumeMessage) returns (google.protobuf.Empty) {}
+  rpc ObsAudioDecreaseVolume(ObsAudioDecreaseVolumeMessage) returns (google.protobuf.Empty) {}
 }
 
 message YoutubeAddSongToQueueRequest {
@@ -16,4 +22,37 @@ message YoutubeAddSongToQueueRequest {
 message YoutubeRemoveSongFromQueueRequest {
   string channelId = 1;
   string entityId = 2;
+}
+
+message ObsSetSceneMessage {
+  string channelId = 1;
+  string sceneName = 2;
+}
+
+message ObsToggleSourceMessage {
+  string channelId = 1;
+  string sourceName = 2;
+}
+
+message ObsToggleAudioMessage {
+  string channelId = 1;
+  string audioSourceName = 2;
+}
+
+message ObsAudioSetVolumeMessage {
+  string channelId = 1;
+  string sceneName = 2;
+  uint32 volume = 3;
+}
+
+message ObsAudioIncreaseVolumeMessage {
+  string channelId = 1;
+  string audioSourceName = 2;
+  uint32 step = 3;
+}
+
+message ObsAudioDecreaseVolumeMessage {
+  string channelId = 1;
+  string audioSourceName = 2;
+  uint32 step = 3;
 }

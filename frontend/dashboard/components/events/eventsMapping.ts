@@ -56,6 +56,7 @@ export const eventsMapping: Record<keyof typeof EventType, {
       'userName',
       'userDisplayName',
       'commandName',
+      'commandInput',
     ],
   },
   FIRST_USER_MESSAGE: {

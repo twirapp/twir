@@ -41,8 +41,9 @@ type Data struct {
 	RewardCost  string  `json:"rewardCost"`
 	RewardInput *string `json:"rewardInput"`
 
-	CommandName string `json:"commandName"`
-	CommandID   string `json:"-"`
+	CommandName  string `json:"commandName"`
+	CommandID    string `json:"-"`
+	CommandInput string `json:"commandInput"`
 
 	TargetUserName        string `json:"targetUserName"`
 	TargetUserDisplayName string `json:"targetUserDisplayName"`

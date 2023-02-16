@@ -88,6 +88,7 @@ func (c *EventsGrpcImplementation) CommandUsed(_ context.Context, msg *events.Co
 			UserDisplayName: msg.UserDisplayName,
 			CommandName:     msg.CommandName,
 			CommandID:       msg.CommandId,
+			CommandInput:    msg.CommandInput,
 		},
 		"COMMAND_USED",
 	)
