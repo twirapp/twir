@@ -9,7 +9,7 @@ import {
   Loader,
   Menu,
   Text,
-  Box, Divider, Button,
+  Box, Divider, Button, Badge,
 } from '@mantine/core';
 import { IconMoonStars, IconSun, IconLanguage } from '@tabler/icons';
 import Image from 'next/image';
@@ -22,6 +22,7 @@ import { Profile } from './profile';
 import { useProfile } from '@/services/api';
 import { useLocale, LOCALES } from '@/services/dashboard';
 import { useTheme } from '@/services/dashboard';
+import { useObsSocket } from '@/services/obs/hook';
 
 
 const useStyles = createStyles((theme) => ({
@@ -59,6 +60,8 @@ export function NavBar({
   const { locale, toggleLocale } = useLocale();
   const { data: userData, isLoading: isLoadingProfile } = useProfile();
 
+  const obs = useObsSocket();
+
   return (
     <Header height={60}>
       <Container maw="unset" className={classes.header}>
@@ -87,6 +90,9 @@ export function NavBar({
             </Text>
           </Box>
         </Flex>
+        <Group>
+          <Badge color={obs.connected ? 'green' : 'red'}>OBS {obs.connected ? 'connected' : 'disconnected'}</Badge>
+        </Group>
         <Group position="center">
           <Button variant={'light'} onClick={() => router.push('/application')}>Application</Button>
           <ActionIcon
