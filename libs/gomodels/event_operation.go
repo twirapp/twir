@@ -40,7 +40,7 @@ const (
 	OperationDisableEmoteOnly  EventOperationType = "DISABLE_EMOTEONLY"
 	OperationCreateGreeting    EventOperationType = "CREATE_GREETING"
 	OperationObsSetScene       EventOperationType = "OBS_SET_SCENE"
-	OperationObsToggleScene    EventOperationType = "OBS_TOGGLE_SOURCE"
+	OperationObsToggleSource   EventOperationType = "OBS_TOGGLE_SOURCE"
 	OperationObsToggleAudio    EventOperationType = "OBS_TOGGLE_AUDIO"
 	OperationObsSetVolume      EventOperationType = "OBS_AUDIO_SET_VOLUME"
 	OperationObsIncreaseVolume EventOperationType = "OBS_AUDIO_INCREASE_VOLUME"

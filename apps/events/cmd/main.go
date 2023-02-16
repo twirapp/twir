@@ -57,11 +57,12 @@ func main() {
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
 	services := &internal.Services{
-		DB:         db,
-		Logger:     logger,
-		Cfg:        cfg,
-		BotsGrpc:   clients.NewBots(cfg.AppEnv),
-		TokensGrpc: clients.NewTokens(cfg.AppEnv),
+		DB:             db,
+		Logger:         logger,
+		Cfg:            cfg,
+		BotsGrpc:       clients.NewBots(cfg.AppEnv),
+		TokensGrpc:     clients.NewTokens(cfg.AppEnv),
+		WebsocketsGrpc: clients.NewWebsocket(cfg.AppEnv),
 	}
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.EVENTS_SERVER_PORT))
