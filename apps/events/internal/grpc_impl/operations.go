@@ -49,7 +49,7 @@ operationsLoop:
 					continue
 				}
 
-				processor.BanOrUnban(operation.Input.String, operation.Type)
+				operationError = processor.BanOrUnban(operation.Input.String, operation.Type)
 			case model.OperationTimeout:
 				if operation.Input.Valid {
 					operationError = processor.Timeout(operation.Input.String, operation.TimeoutTime)
