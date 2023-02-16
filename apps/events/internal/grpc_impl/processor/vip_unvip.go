@@ -63,18 +63,18 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 	}
 
 	if user.Data.Users[0].ID == dbChannel.BotID || user.Data.Users[0].ID == dbChannel.ID {
-		return nil
+		return InternalError
 	}
 
 	mods, err := c.getChannelMods()
 	if err != nil {
-		return nil
+		return err
 	}
 
 	if lo.SomeBy(mods, func(item helix.Moderator) bool {
 		return item.UserID == user.Data.Users[0].ID
 	}) {
-		return nil
+		return InternalError
 	}
 
 	isAlreadyVip := lo.SomeBy(vips, func(item helix.ChannelVips) bool {
@@ -83,7 +83,7 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 
 	if operation == "VIP" {
 		if isAlreadyVip {
-			return nil
+			return InternalError
 		}
 
 		resp, err := c.streamerApiClient.AddChannelVip(&helix.AddChannelVipParams{
@@ -99,7 +99,7 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 		}
 	} else {
 		if !isAlreadyVip {
-			return nil
+			return InternalError
 		}
 		resp, err := c.streamerApiClient.RemoveChannelVip(&helix.RemoveChannelVipParams{
 			BroadcasterID: c.channelId,

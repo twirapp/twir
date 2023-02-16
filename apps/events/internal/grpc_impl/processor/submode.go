@@ -15,7 +15,6 @@ func (c *Processor) SwitchSubMode(operation model.EventOperationType) error {
 			If(operation == model.OperationEnableSubMode, true).
 			Else(false)),
 	})
-
 	if err != nil {
 		return err
 	}

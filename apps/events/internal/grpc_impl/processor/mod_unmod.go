@@ -59,7 +59,7 @@ func (c *Processor) ModOrUnmod(input string, operation model.EventOperationType)
 	}
 
 	if user.Data.Users[0].ID == dbChannel.BotID {
-		return nil
+		return InternalError
 	}
 
 	isAlreadyMod := lo.SomeBy(mods, func(item helix.Moderator) bool {

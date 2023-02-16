@@ -9,7 +9,6 @@ func (c *Processor) ChangeCategory(newCategory string) error {
 	searchCategory, err := c.streamerApiClient.SearchCategories(&helix.SearchCategoriesParams{
 		Query: newCategory,
 	})
-
 	if err != nil {
 		return err
 	}
@@ -22,7 +21,6 @@ func (c *Processor) ChangeCategory(newCategory string) error {
 		BroadcasterID: c.channelId,
 		GameID:        searchCategory.Data.Categories[0].ID,
 	})
-
 	if err != nil {
 		return err
 	}

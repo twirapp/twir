@@ -12,6 +12,8 @@ import (
 	"strings"
 )
 
+var InternalError = errors.New("internal")
+
 func hydrateStringWithData(str string, data any) (string, error) {
 	template := fasttemplate.New(str, "{", "}")
 

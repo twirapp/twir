@@ -6,20 +6,20 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (c *Processor) CreateGreeting() {
+func (c *Processor) CreateGreeting() error {
 	if c.data.RewardInput == nil {
-		return
+		return InternalError
 	}
 
 	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
 		Logins: []string{c.data.UserName},
 	})
+	if err != nil {
+		return err
+	}
 
-	if err != nil || len(user.Data.Users) == 0 {
-		if err != nil {
-			c.services.Logger.Sugar().Error(err)
-		}
-		return
+	if len(user.Data.Users) == 0 {
+		return InternalError
 	}
 
 	newGreeting := model.ChannelsGreetings{
@@ -31,5 +31,10 @@ func (c *Processor) CreateGreeting() {
 		IsReply:   true,
 		Processed: false,
 	}
-	c.services.DB.Create(&newGreeting)
+	err = c.services.DB.Create(&newGreeting).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

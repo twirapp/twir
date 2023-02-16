@@ -2,7 +2,7 @@ package grpc_impl
 
 import (
 	"github.com/satont/tsuwari/apps/events/internal"
-	"github.com/satont/tsuwari/apps/events/internal/grpc_impl/processor"
+	processor_module "github.com/satont/tsuwari/apps/events/internal/grpc_impl/processor"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/twitch"
 	"sort"
@@ -16,7 +16,7 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 		return
 	}
 
-	processor := processor.NewProcessor(processor.Opts{
+	processor := processor_module.NewProcessor(processor_module.Opts{
 		Services:          c.services,
 		StreamerApiClient: streamerApiClient,
 		Data:              &data,
@@ -91,7 +91,9 @@ operationsLoop:
 			}
 
 			if operationError != nil {
-				c.services.Logger.Sugar().Error(err)
+				if operationError != processor_module.InternalError {
+					c.services.Logger.Sugar().Error(err)
+				}
 				break operationsLoop
 			}
 		}

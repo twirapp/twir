@@ -37,13 +37,13 @@ func (c *Processor) Timeout(input string, timeoutTime int) error {
 	}
 
 	if user.Data.Users[0].ID == dbChannel.BotID || user.Data.Users[0].ID == dbChannel.ID {
-		return nil
+		return InternalError
 	}
 
 	if lo.SomeBy(mods, func(item helix.Moderator) bool {
 		return item.UserID == user.Data.Users[0].ID
 	}) {
-		return nil
+		return InternalError
 	}
 
 	banReq, err := c.streamerApiClient.BanUser(&helix.BanUserParams{
@@ -92,13 +92,13 @@ func (c *Processor) BanOrUnban(input string, operation model.EventOperationType)
 	}
 
 	if user.Data.Users[0].ID == dbChannel.BotID {
-		return nil
+		return InternalError
 	}
 
 	if lo.SomeBy(mods, func(item helix.Moderator) bool {
 		return item.UserID == user.Data.Users[0].ID
 	}) {
-		return nil
+		return InternalError
 	}
 
 	if operation == "BAN" {
@@ -139,12 +139,12 @@ func (c *Processor) BanOrUnban(input string, operation model.EventOperationType)
 func (c *Processor) BanRandom(timeoutTime int) error {
 	mods, err := c.getChannelMods()
 	if err != nil {
-		return nil
+		return err
 	}
 
 	dbChannel, err := c.getDbChannel()
 	if err != nil {
-		return nil
+		return err
 	}
 
 	excludedUsers := lo.Map(mods, func(item helix.Moderator, _ int) string {
