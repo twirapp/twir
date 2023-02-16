@@ -14,6 +14,7 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 )
@@ -33,6 +34,7 @@ func handleGet(channelId, limit, page, sortBy, order string) ([]User, error) {
 	sqlxDb := do.MustInvoke[sqlx.DB](di.Provider)
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	db := do.MustInvoke[*gorm.DB](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
 	if err != nil {
@@ -60,13 +62,23 @@ func handleGet(channelId, limit, page, sortBy, order string) ([]User, error) {
 
 	offset := (parsedPage - 1) * parsedLimit
 
+	channel := &model.Channels{}
+	err = db.Where(`"id" = ?`, channelId).Find(&channel).Error
+	if err != nil {
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+	if channel.ID == "" {
+		return nil, fiber.NewError(http.StatusNotFound, "channel not found")
+	}
+
 	query, args, err := squirrel.
 		Select(`users_stats.*, COUNT("channels_emotes_usages"."id") AS "emotes"`).
 		From("users_stats").
 		LeftJoin(`"channels_emotes_usages" ON "channels_emotes_usages"."userId" = "users_stats"."userId" AND "channels_emotes_usages"."channelId" = "users_stats"."channelId"`).
 		Where(squirrel.And{
 			squirrel.Eq{`"users_stats"."channelId"`: channelId},
-			squirrel.NotEq{`"users_stats"."userId"`: channelId},
+			//squirrel.NotEq{`"users_stats"."userId"`: channelId},
+			squirrel.NotEq{`"users_stats"."userId"`: channel.BotID},
 		}).
 		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_stats"."userId")`).
 		Limit(uint64(parsedLimit)).

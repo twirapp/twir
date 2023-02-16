@@ -172,6 +172,9 @@ func newBot(opts *ClientOpts) *types.BotClient {
 				})
 			})
 			client.OnClearChatMessage(func(message irc.ClearChatMessage) {
+				if message.TargetUserID != "" {
+					return
+				}
 				eventsGrpc.ChatClear(context.Background(), &events.ChatClearMessage{
 					BaseInfo: &events.BaseInfo{ChannelId: message.RoomID},
 				})

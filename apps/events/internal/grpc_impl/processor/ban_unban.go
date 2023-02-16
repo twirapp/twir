@@ -1,15 +1,18 @@
 package processor
 
 import (
+	"errors"
+	"fmt"
+	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
-func (c *Processor) Timeout(input string, timeoutTime int) {
+func (c *Processor) Timeout(input string, timeoutTime int) error {
 	hydratedName, err := hydrateStringWithData(input, c.data)
 
 	if err != nil || len(hydratedName) == 0 {
-		return
+		return fmt.Errorf("cannot hydrate string %w", err)
 	}
 
 	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
@@ -18,12 +21,32 @@ func (c *Processor) Timeout(input string, timeoutTime int) {
 
 	if err != nil || len(user.Data.Users) == 0 {
 		if err != nil {
-			c.services.Logger.Sugar().Error(err)
+			return err
 		}
-		return
+		return fmt.Errorf("user not found")
 	}
 
-	c.streamerApiClient.BanUser(&helix.BanUserParams{
+	mods, err := c.getChannelMods()
+	if err != nil {
+		return err
+	}
+
+	dbChannel, err := c.getDbChannel()
+	if err != nil {
+		return err
+	}
+
+	if user.Data.Users[0].ID == dbChannel.BotID || user.Data.Users[0].ID == dbChannel.ID {
+		return InternalError
+	}
+
+	if lo.SomeBy(mods, func(item helix.Moderator) bool {
+		return item.UserID == user.Data.Users[0].ID
+	}) {
+		return InternalError
+	}
+
+	banReq, err := c.streamerApiClient.BanUser(&helix.BanUserParams{
 		BroadcasterID: c.channelId,
 		ModeratorId:   c.channelId,
 		Body: helix.BanUserRequestBody{
@@ -32,18 +55,50 @@ func (c *Processor) Timeout(input string, timeoutTime int) {
 			UserId:   user.Data.Users[0].ID,
 		},
 	})
+
+	if err != nil || banReq.ErrorMessage != "" {
+		return fmt.Errorf("cannot ban user %w", err)
+	}
+
+	return nil
 }
 
-func (c *Processor) BanOrUnban(operation model.EventOperationType) {
+func (c *Processor) BanOrUnban(input string, operation model.EventOperationType) error {
+	hydratedName, err := hydrateStringWithData(input, c.data)
+
+	if err != nil || len(hydratedName) == 0 {
+		return fmt.Errorf("cannot hydrate string %w", err)
+	}
+
 	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
-		Logins: []string{c.data.UserName},
+		Logins: []string{hydratedName},
 	})
 
 	if err != nil || len(user.Data.Users) == 0 {
 		if err != nil {
-			c.services.Logger.Sugar().Error(err)
+			return err
 		}
-		return
+		return fmt.Errorf("cannot find user")
+	}
+
+	mods, err := c.getChannelMods()
+	if err != nil {
+		return err
+	}
+
+	dbChannel, err := c.getDbChannel()
+	if err != nil {
+		return err
+	}
+
+	if user.Data.Users[0].ID == dbChannel.BotID {
+		return InternalError
+	}
+
+	if lo.SomeBy(mods, func(item helix.Moderator) bool {
+		return item.UserID == user.Data.Users[0].ID
+	}) {
+		return InternalError
 	}
 
 	if operation == "BAN" {
@@ -58,9 +113,9 @@ func (c *Processor) BanOrUnban(operation model.EventOperationType) {
 		})
 		if resp.ErrorMessage != "" || err != nil {
 			if err != nil {
-				c.services.Logger.Sugar().Error(err)
+				return err
 			} else {
-				c.services.Logger.Sugar().Error(resp.ErrorMessage)
+				return errors.New(resp.ErrorMessage)
 			}
 		}
 	} else {
@@ -71,28 +126,49 @@ func (c *Processor) BanOrUnban(operation model.EventOperationType) {
 		})
 		if resp.ErrorMessage != "" || err != nil {
 			if err != nil {
-				c.services.Logger.Sugar().Error(err)
+				return err
 			} else {
-				c.services.Logger.Sugar().Error(resp.ErrorMessage)
+				return errors.New(resp.ErrorMessage)
 			}
 		}
 	}
+
+	return nil
 }
 
-func (c *Processor) BanRandom(timeoutTime int) {
+func (c *Processor) BanRandom(timeoutTime int) error {
+	mods, err := c.getChannelMods()
+	if err != nil {
+		return err
+	}
+
+	dbChannel, err := c.getDbChannel()
+	if err != nil {
+		return err
+	}
+
+	excludedUsers := lo.Map(mods, func(item helix.Moderator, _ int) string {
+		return item.UserID
+	})
+
+	excludedUsers = append(excludedUsers, dbChannel.ID, dbChannel.BotID)
+
 	randomOnlineUser := &model.UsersOnline{}
-	err := c.services.DB.Order("random()").Find(randomOnlineUser).Error
+	err = c.services.DB.
+		Where(`"userId" not in ?`, excludedUsers).
+		Order("random()").
+		Find(randomOnlineUser).
+		Error
 
 	if err != nil {
-		c.services.Logger.Sugar().Error(err)
-		return
+		return err
 	}
 
 	if randomOnlineUser == nil || !randomOnlineUser.UserId.Valid {
-		return
+		return errors.New("cannot get random user")
 	}
 
-	c.streamerApiClient.BanUser(&helix.BanUserParams{
+	banReq, err := c.streamerApiClient.BanUser(&helix.BanUserParams{
 		BroadcasterID: c.channelId,
 		ModeratorId:   c.channelId,
 		Body: helix.BanUserRequestBody{
@@ -102,9 +178,19 @@ func (c *Processor) BanRandom(timeoutTime int) {
 		},
 	})
 
+	if err != nil {
+		return err
+	}
+
+	if banReq.ErrorMessage != "" {
+		return errors.New(banReq.ErrorMessage)
+	}
+
 	if len(c.data.PrevOperation.BannedUserName) > 0 {
 		c.data.PrevOperation.BannedUserName += ", " + randomOnlineUser.UserName.String
 	} else {
 		c.data.PrevOperation.BannedUserName = randomOnlineUser.UserName.String
 	}
+
+	return nil
 }

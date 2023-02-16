@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"regexp"
 	"strings"
 	"sync"
@@ -95,6 +96,16 @@ func (c *Handlers) handleKeywords(
 					fmt.Println(err)
 					return
 				}
+
+				c.eventsGrpc.KeywordMatched(context.Background(), &events.KeywordMatchedMessage{
+					BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
+					KeywordId:       k.ID,
+					KeywordName:     k.Text,
+					KeywordResponse: strings.Join(res.Responses, " "),
+					UserId:          msg.User.ID,
+					UserName:        msg.User.Name,
+					UserDisplayName: msg.User.DisplayName,
+				})
 
 				for _, r := range res.Responses {
 					validateResposeErr := ValidateResponseSlashes(r)

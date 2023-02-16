@@ -1,6 +1,7 @@
 import { ActionIcon, Badge, Button, Flex, Switch, Table, Text, TextInput } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons';
 import type { Event } from '@tsuwari/typeorm/entities/events/Event';
+import { EventType } from '@tsuwari/typeorm/entities/events/Event';
 import { OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
@@ -9,6 +10,7 @@ import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { EventsDrawer } from '@/components/events/drawer';
+import { eventsMapping } from '@/components/events/eventsMapping';
 import { eventsManager } from '@/services/api';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -57,7 +59,7 @@ const Events: NextPage<{ operations: typeof OperationType }> = (props) => {
         </thead>
         <tbody>
         {events?.map((e, idx) => <tr key={e.id}>
-          <td><Badge>{e.type.split('_').join(' ')}</Badge></td>
+          <td><Badge>{eventsMapping[e.type as EventType].description?.toUpperCase() || e.type.split('_').join(' ')}</Badge></td>
           <td>{e.description}</td>
           <td>
             <Switch

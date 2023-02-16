@@ -106,4 +106,13 @@ export const eventsMapping: Record<keyof typeof EventType, {
       'donateMessage',
     ],
   },
+  KEYWORD_MATCHED: {
+    description: 'Keyword used',
+    availableVariables: [
+      'userName',
+      'userDisplayName',
+      'keywordName',
+      'keywordResponse',
+    ],
+  },
 };

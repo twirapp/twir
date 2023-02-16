@@ -2,6 +2,8 @@ package variables
 
 import (
 	"fmt"
+	user_emotes "github.com/satont/tsuwari/apps/parser/internal/variables/user/emotes"
+	user_top "github.com/satont/tsuwari/apps/parser/internal/variables/user/top"
 	"regexp"
 	"strings"
 	"sync"
@@ -83,10 +85,12 @@ func New() Variables {
 		userwatched.Variable,
 		touser.Variable,
 		phrase.Variable,
+		user_top.TopEmotesVariable,
 		command_counter.CommandVariable,
 		command_counter.UserVariable,
 		command_counter.CommandVariableFromOther,
 		keywords.Counter,
+		user_emotes.Variable,
 	}
 
 	ctx := Variables{

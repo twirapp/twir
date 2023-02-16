@@ -1,18 +1,33 @@
 package processor
 
-import "github.com/satont/go-helix/v2"
+import (
+	"errors"
+	"github.com/satont/go-helix/v2"
+)
 
-func (c *Processor) ChangeCategory(newCategory string) {
+func (c *Processor) ChangeCategory(newCategory string) error {
 	searchCategory, err := c.streamerApiClient.SearchCategories(&helix.SearchCategoriesParams{
 		Query: newCategory,
 	})
-
-	if len(searchCategory.Data.Categories) == 0 || err != nil {
-		return
+	if err != nil {
+		return err
 	}
 
-	c.streamerApiClient.EditChannelInformation(&helix.EditChannelInformationParams{
+	if len(searchCategory.Data.Categories) == 0 {
+		return errors.New("cannot get category with that name")
+	}
+
+	editReq, err := c.streamerApiClient.EditChannelInformation(&helix.EditChannelInformationParams{
 		BroadcasterID: c.channelId,
 		GameID:        searchCategory.Data.Categories[0].ID,
 	})
+	if err != nil {
+		return err
+	}
+
+	if editReq.ErrorMessage != "" {
+		return errors.New(editReq.ErrorMessage)
+	}
+
+	return nil
 }

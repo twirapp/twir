@@ -39,6 +39,13 @@ func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.
 			continue
 		}
 
+		if entity.Type == "KEYWORD_MATCHED" &&
+			data.RewardID != "" &&
+			entity.RewardID.Valid &&
+			data.KeywordID != entity.KeywordID.String {
+			continue
+		}
+
 		go c.processOperations(channelId, entity.Operations, data)
 	}
 

@@ -2,7 +2,7 @@ package grpc_impl
 
 import (
 	"github.com/satont/tsuwari/apps/events/internal"
-	"github.com/satont/tsuwari/apps/events/internal/grpc_impl/processor"
+	processor_module "github.com/satont/tsuwari/apps/events/internal/grpc_impl/processor"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/twitch"
 	"sort"
@@ -16,7 +16,7 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 		return
 	}
 
-	processor := processor.NewProcessor(processor.Opts{
+	processor := processor_module.NewProcessor(processor_module.Opts{
 		Services:          c.services,
 		StreamerApiClient: streamerApiClient,
 		Data:              &data,
@@ -29,6 +29,9 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 
 	data.PrevOperation = &internal.DataFromPrevOperation{}
 
+	var operationError error
+
+operationsLoop:
 	for _, operation := range operations {
 		for i := 0; i < operation.Repeat; i++ {
 			if operation.Delay != 0 {
@@ -39,52 +42,59 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 			switch operation.Type {
 			case model.OperationSendMessage:
 				if operation.Input.Valid {
-					processor.SendMessage(channelId, operation.Input.String, operation.UseAnnounce)
+					operationError = processor.SendMessage(channelId, operation.Input.String, operation.UseAnnounce)
 				}
 			case model.OperationBan, model.OperationUnban:
-				if data.UserName == "" {
+				if !operation.Input.Valid {
 					continue
 				}
 
-				processor.BanOrUnban(operation.Type)
+				operationError = processor.BanOrUnban(operation.Input.String, operation.Type)
 			case model.OperationTimeout:
 				if operation.Input.Valid {
-					processor.Timeout(operation.Input.String, operation.TimeoutTime)
+					operationError = processor.Timeout(operation.Input.String, operation.TimeoutTime)
 				}
 			case model.OperationTimeoutRandom:
-				processor.BanRandom(operation.TimeoutTime)
+				operationError = processor.BanRandom(operation.TimeoutTime)
 			case model.OperationBanRandom:
-				processor.BanRandom(0)
+				operationError = processor.BanRandom(0)
 			case model.OperationVip, model.OperationUnvip:
-				if data.UserName == "" {
+				if !operation.Input.Valid {
 					continue
 				}
 
-				processor.VipOrUnvip(operation.Type)
+				operationError = processor.VipOrUnvip(operation.Input.String, operation.Type)
 			case model.OperationUnvipRandom:
-				processor.UnvipRandom()
+				operationError = processor.UnvipRandom()
 			case model.OperationEnableSubMode, model.OperationDisableSubMode:
-				processor.SwitchSubMode(operation.Type)
+				operationError = processor.SwitchSubMode(operation.Type)
 			case model.OperationEnableEmoteOnly, model.OperationDisableEmoteOnly:
-				processor.SwitchEmoteOnly(operation.Type)
+				operationError = processor.SwitchEmoteOnly(operation.Type)
 			case model.OperationChangeTitle:
 				if !operation.Input.Valid {
 					continue
 				}
-				processor.ChangeTitle(operation.Input.String)
+				operationError = processor.ChangeTitle(operation.Input.String)
 			case model.OperationChangeCategory:
 				if !operation.Input.Valid {
 					continue
 				}
-				processor.ChangeCategory(operation.Input.String)
+				operationError = processor.ChangeCategory(operation.Input.String)
 			case model.OperationMod, model.OperationUnmod:
-				if data.UserName == "" {
+				if !operation.Input.Valid {
 					continue
 				}
 
-				processor.ModOrUnmod(operation.Type)
+				operationError = processor.ModOrUnmod(operation.Input.String, operation.Type)
 			case model.OperationUnmodRandom:
-				processor.UnmodRandom()
+				operationError = processor.UnmodRandom()
+			}
+
+			if operationError != nil {
+				if operationError != processor_module.InternalError {
+					c.services.Logger.Sugar().Error(err)
+				}
+				break operationsLoop
 			}
 		}
 	}
