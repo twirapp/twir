@@ -3,6 +3,7 @@ package processor
 import (
 	"errors"
 	"fmt"
+	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
@@ -23,6 +24,26 @@ func (c *Processor) Timeout(input string, timeoutTime int) error {
 			return err
 		}
 		return fmt.Errorf("user not found")
+	}
+
+	mods, err := c.getChannelMods()
+	if err != nil {
+		return err
+	}
+
+	dbChannel, err := c.getDbChannel()
+	if err != nil {
+		return err
+	}
+
+	if user.Data.Users[0].ID == dbChannel.BotID || user.Data.Users[0].ID == dbChannel.ID {
+		return nil
+	}
+
+	if lo.SomeBy(mods, func(item helix.Moderator) bool {
+		return item.UserID == user.Data.Users[0].ID
+	}) {
+		return nil
 	}
 
 	banReq, err := c.streamerApiClient.BanUser(&helix.BanUserParams{
@@ -58,6 +79,26 @@ func (c *Processor) BanOrUnban(input string, operation model.EventOperationType)
 			return err
 		}
 		return fmt.Errorf("cannot find user")
+	}
+
+	mods, err := c.getChannelMods()
+	if err != nil {
+		return err
+	}
+
+	dbChannel, err := c.getDbChannel()
+	if err != nil {
+		return err
+	}
+
+	if user.Data.Users[0].ID == dbChannel.BotID {
+		return nil
+	}
+
+	if lo.SomeBy(mods, func(item helix.Moderator) bool {
+		return item.UserID == user.Data.Users[0].ID
+	}) {
+		return nil
 	}
 
 	if operation == "BAN" {
@@ -96,8 +137,28 @@ func (c *Processor) BanOrUnban(input string, operation model.EventOperationType)
 }
 
 func (c *Processor) BanRandom(timeoutTime int) error {
+	mods, err := c.getChannelMods()
+	if err != nil {
+		return nil
+	}
+
+	dbChannel, err := c.getDbChannel()
+	if err != nil {
+		return nil
+	}
+
+	excludedUsers := lo.Map(mods, func(item helix.Moderator, _ int) string {
+		return item.UserID
+	})
+
+	excludedUsers = append(excludedUsers, dbChannel.ID, dbChannel.BotID)
+
 	randomOnlineUser := &model.UsersOnline{}
-	err := c.services.DB.Order("random()").Find(randomOnlineUser).Error
+	err = c.services.DB.
+		Where(`"userId" not in ?`, excludedUsers).
+		Order("random()").
+		Find(randomOnlineUser).
+		Error
 
 	if err != nil {
 		return err

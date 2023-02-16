@@ -8,6 +8,32 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
+func (c *Processor) getChannelVips() ([]helix.ChannelVips, error) {
+	if c.cache.channelVips != nil {
+		return c.cache.channelVips, nil
+	}
+
+	vips, err := c.streamerApiClient.GetChannelVips(&helix.GetChannelVipsParams{
+		BroadcasterID: c.channelId,
+	})
+
+	if err != nil {
+		return nil, errors.New(vips.ErrorMessage)
+	}
+
+	if vips.ErrorMessage != "" {
+		return nil, errors.New(vips.ErrorMessage)
+	}
+
+	if len(vips.Data.ChannelsVips) == 0 {
+		return nil, errors.New("cannot get vips")
+	}
+
+	c.cache.channelVips = vips.Data.ChannelsVips
+
+	return vips.Data.ChannelsVips, nil
+}
+
 func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType) error {
 	hydratedName, err := hydrateStringWithData(input, c.data)
 
@@ -26,28 +52,38 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 		return errors.New("cannot find user")
 	}
 
-	vips, err := c.streamerApiClient.GetChannelVips(&helix.GetChannelVipsParams{
-		BroadcasterID: c.channelId,
-	})
-
-	if err != nil || vips.ErrorMessage != "" {
-		if err != nil {
-			return err
-		}
-		return errors.New(vips.ErrorMessage)
+	vips, err := c.getChannelVips()
+	if err != nil {
+		return err
 	}
 
-	if len(vips.Data.ChannelsVips) == 0 {
-		return errors.New("cannot get vips")
+	dbChannel, err := c.getDbChannel()
+	if err != nil {
+		return err
 	}
 
-	isAlreadyVip := lo.SomeBy(vips.Data.ChannelsVips, func(item helix.ChannelVips) bool {
+	if user.Data.Users[0].ID == dbChannel.BotID || user.Data.Users[0].ID == dbChannel.ID {
+		return nil
+	}
+
+	mods, err := c.getChannelMods()
+	if err != nil {
+		return nil
+	}
+
+	if lo.SomeBy(mods, func(item helix.Moderator) bool {
+		return item.UserID == user.Data.Users[0].ID
+	}) {
+		return nil
+	}
+
+	isAlreadyVip := lo.SomeBy(vips, func(item helix.ChannelVips) bool {
 		return item.UserID == user.Data.Users[0].ID
 	})
 
 	if operation == "VIP" {
 		if isAlreadyVip {
-			return errors.New("user already vip")
+			return nil
 		}
 
 		resp, err := c.streamerApiClient.AddChannelVip(&helix.AddChannelVipParams{
@@ -63,7 +99,7 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 		}
 	} else {
 		if !isAlreadyVip {
-			return errors.New("not a vip")
+			return nil
 		}
 		resp, err := c.streamerApiClient.RemoveChannelVip(&helix.RemoveChannelVipParams{
 			BroadcasterID: c.channelId,
@@ -82,30 +118,19 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 }
 
 func (c *Processor) UnvipRandom() error {
-	channel := model.Channels{}
-	err := c.services.DB.Where(`"id" = ?`, c.channelId).Find(&channel).Error
-	if channel.ID == "" {
+	vips, err := c.getChannelVips()
+	if err != nil {
 		return err
 	}
 
-	vips, err := c.streamerApiClient.GetChannelVips(&helix.GetChannelVipsParams{
-		BroadcasterID: c.channelId,
-	})
-
-	if err != nil || vips.ErrorMessage != "" {
-		if err != nil {
-			return err
-		}
-		return errors.New(vips.ErrorMessage)
-	}
-
-	if len(vips.Data.ChannelsVips) == 0 {
-		return errors.New("cannot get vips")
+	dbChannel, err := c.getDbChannel()
+	if err != nil {
+		return err
 	}
 
 	// choose random vip, but filter out bot account
-	randomVip := lo.Sample(lo.Filter(vips.Data.ChannelsVips, func(item helix.ChannelVips, index int) bool {
-		return item.UserID != channel.BotID
+	randomVip := lo.Sample(lo.Filter(vips, func(item helix.ChannelVips, index int) bool {
+		return item.UserID != dbChannel.BotID
 	}))
 	removeReq, err := c.streamerApiClient.RemoveChannelVip(&helix.RemoveChannelVipParams{
 		BroadcasterID: c.channelId,

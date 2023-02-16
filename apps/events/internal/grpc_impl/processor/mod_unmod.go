@@ -8,6 +8,28 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
+func (c *Processor) getChannelMods() ([]helix.Moderator, error) {
+	if c.cache.channelModerators != nil {
+		return c.cache.channelModerators, nil
+	}
+
+	mods, err := c.streamerApiClient.GetModerators(&helix.GetModeratorsParams{
+		BroadcasterID: c.channelId,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if mods.ErrorMessage != "" {
+		return nil, errors.New(mods.ErrorMessage)
+	}
+
+	c.cache.channelModerators = mods.Data.Moderators
+
+	return mods.Data.Moderators, nil
+}
+
 func (c *Processor) ModOrUnmod(input string, operation model.EventOperationType) error {
 	hydratedName, err := hydrateStringWithData(input, c.data)
 
@@ -26,19 +48,21 @@ func (c *Processor) ModOrUnmod(input string, operation model.EventOperationType)
 		return errors.New("cannot get user")
 	}
 
-	mods, err := c.streamerApiClient.GetModerators(&helix.GetModeratorsParams{
-		BroadcasterID: c.channelId,
-	})
-
+	mods, err := c.getChannelMods()
 	if err != nil {
 		return err
 	}
 
-	if mods.ErrorMessage != "" {
-		return errors.New(mods.ErrorMessage)
+	dbChannel, err := c.getDbChannel()
+	if err != nil {
+		return err
 	}
 
-	isAlreadyMod := lo.SomeBy(mods.Data.Moderators, func(item helix.Moderator) bool {
+	if user.Data.Users[0].ID == dbChannel.BotID {
+		return nil
+	}
+
+	isAlreadyMod := lo.SomeBy(mods, func(item helix.Moderator) bool {
 		return item.UserID == user.Data.Users[0].ID
 	})
 
@@ -80,32 +104,21 @@ func (c *Processor) ModOrUnmod(input string, operation model.EventOperationType)
 }
 
 func (c *Processor) UnmodRandom() error {
-	channel := model.Channels{}
-	c.services.DB.Where(`"id" = ?`, c.channelId).Find(&channel)
-	if channel.ID == "" {
-		return errors.New("cannot get channel")
-	}
-
-	mods, err := c.streamerApiClient.GetModerators(&helix.GetModeratorsParams{
-		BroadcasterID: c.channelId,
-	})
-
+	dbChannel, err := c.getDbChannel()
 	if err != nil {
 		return err
 	}
 
-	if mods.ErrorMessage != "" {
-		return errors.New(mods.ErrorMessage)
-	}
-
-	if len(mods.Data.Moderators) == 0 {
-		return errors.New("cannot get mods")
+	mods, err := c.getChannelMods()
+	if err != nil {
+		return err
 	}
 
 	// choose random mod, but filter out bot account
-	randomMod := lo.Sample(lo.Filter(mods.Data.Moderators, func(item helix.Moderator, index int) bool {
-		return item.UserID != channel.BotID
-	}))
+	filteredMods := lo.Filter(mods, func(item helix.Moderator, index int) bool {
+		return item.UserID != dbChannel.BotID
+	})
+	randomMod := lo.Sample(filteredMods)
 
 	removeReq, err := c.streamerApiClient.RemoveChannelModerator(&helix.RemoveChannelModeratorParams{
 		BroadcasterID: c.channelId,

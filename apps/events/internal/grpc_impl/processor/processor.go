@@ -2,9 +2,11 @@ package processor
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/events/internal"
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/valyala/fasttemplate"
 	"io"
 	"strings"
@@ -57,12 +59,20 @@ func hydrateStringWithData(str string, data any) (string, error) {
 	return s, nil
 }
 
+type ProcessorCache struct {
+	channelModerators []helix.Moderator
+	channelVips       []helix.ChannelVips
+	dbChannel         *model.Channels
+}
+
 type Processor struct {
 	services          *internal.Services
 	streamerApiClient *helix.Client
 
 	data      *internal.Data
 	channelId string
+
+	cache ProcessorCache
 }
 
 type Opts struct {
@@ -78,5 +88,27 @@ func NewProcessor(opts Opts) *Processor {
 		streamerApiClient: opts.StreamerApiClient,
 		data:              opts.Data,
 		channelId:         opts.ChannelID,
+		cache:             ProcessorCache{},
 	}
+}
+
+func (c *Processor) getDbChannel() (*model.Channels, error) {
+	if c.cache.dbChannel != nil {
+		return c.cache.dbChannel, nil
+	}
+
+	channel := &model.Channels{}
+	err := c.services.DB.Where(`"id" = ?`, c.channelId).Find(channel).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	if channel.ID == "" {
+		return nil, errors.New("channel not found")
+	}
+
+	c.cache.dbChannel = channel
+
+	return channel, nil
 }
