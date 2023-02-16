@@ -9,10 +9,11 @@ import {
   Loader,
   Menu,
   Text,
-  Box, Divider,
+  Box, Divider, Button,
 } from '@mantine/core';
 import { IconMoonStars, IconSun, IconLanguage } from '@tabler/icons';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction } from 'react';
 
 import DiscordSvg from '../../public/assets/icons/brands/discord.svg';
@@ -51,6 +52,8 @@ export function NavBar({
   setOpened: Dispatch<SetStateAction<boolean>>;
   opened: boolean;
 }) {
+  const router = useRouter();
+
   const { classes } = useStyles();
   const { theme, colorScheme, toggleColorScheme } = useTheme();
   const { locale, toggleLocale } = useLocale();
@@ -85,6 +88,7 @@ export function NavBar({
           </Box>
         </Flex>
         <Group position="center">
+          <Button variant={'light'} onClick={() => router.push('/application')}>Application</Button>
           <ActionIcon
             size={'lg'}
             variant={'default'}

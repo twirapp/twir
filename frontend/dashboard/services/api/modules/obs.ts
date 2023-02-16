@@ -1,31 +1,24 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { V1 } from '@tsuwari/types/api';
-
 import { useContext } from 'react';
 
-import { authFetcher } from '@/services/api';
+import { authFetcher, queryClient } from '@/services/api';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
-type Youtube = V1['CHANNELS']['MODULES']['YouTube']
+export type OBS = V1['CHANNELS']['MODULES']['OBS']
 
-export const useYoutubeModule = () => {
+export const useObsModule = () => {
   const dashboard = useContext(SelectedDashboardContext);
-  const getUrl = () => `/api/v1/channels/${dashboard.id}/modules/youtube-sr`;
+  const getUrl = () => `/api/v1/channels/${dashboard.id}/modules/obs-websocket`;
   
   return {
-    useSettings: () => useQuery<Youtube['GET']>({
+    useSettings: () => useQuery<OBS['GET']>({
       queryKey: [getUrl()],
       queryFn: () => authFetcher(getUrl()),
       retry: false,
     }),
-    useSearch: () => useMutation({
-      mutationFn: ({ query, type }: {query: string, type: 'channel' | 'video'}) => {
-        return authFetcher(`${getUrl()}/search?type=${type}&query=${query}`) as Promise<Youtube['SEARCH']>;
-      },
-      mutationKey: [`${getUrl()}/search`],
-    }),
     useUpdate: () => useMutation({
-      mutationFn: (body: Youtube['POST']) => {
+      mutationFn: (body: OBS['POST']) => {
         return authFetcher(`${getUrl()}`, {
           method: 'POST',
           body: JSON.stringify(body),
@@ -33,6 +26,9 @@ export const useYoutubeModule = () => {
             'Content-Type': 'application/json',
           },
         });
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [getUrl()] });
       },
       mutationKey: [getUrl()],
     }),

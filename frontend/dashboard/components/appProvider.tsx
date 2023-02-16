@@ -1,11 +1,11 @@
 import { AppShell, ColorScheme, useMantineTheme } from '@mantine/core';
-import OBSWebSocket from 'obs-websocket-js';
 import { useContext, useEffect, useState } from 'react';
 
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { FetcherError, useProfile } from '@/services/api';
-import { useObsSocket } from '@/services/obsWebsocket';
+import { useObsModule } from '@/services/api/modules';
+import { useObsSocket } from '@/services/obs/hook';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 type Props = React.PropsWithChildren<{
@@ -14,16 +14,21 @@ type Props = React.PropsWithChildren<{
 
 export const AppProvider: React.FC<Props> = (props) => {
   const obsSocket = useObsSocket();
+  const obsModule = useObsModule();
+  const { data: obsSettings } = obsModule.useSettings();
+
   const dashboardContext = useContext(SelectedDashboardContext);
   const { error: profileError, data: profileData } = useProfile();
 
   useEffect(() => {
+    if (!obsSettings) return;
+
     obsSocket.connect();
 
     return () => {
       obsSocket.disconnect();
     };
-  }, []);
+  }, [obsSettings]);
 
   useEffect(() => {
     if (!dashboardContext.id && profileData) {

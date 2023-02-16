@@ -1,33 +1,14 @@
 import OBSWebSocket from 'obs-websocket-js';
-import { createContext, Dispatch, SetStateAction, useCallback, useContext, useState } from 'react';
+import { useCallback, useContext } from 'react';
 
-export const ObsWebsocketContext = createContext({} as {
-  socket: OBSWebSocket | null,
-  setSocket: Dispatch<SetStateAction<OBSWebSocket | null>>
-  connected: boolean,
-  setConnected: Dispatch<SetStateAction<boolean>>,
-});
+import { useObsModule } from '@/services/api/modules';
+import { ObsWebsocketContext } from '@/services/obs/provider';
 
-export function OBSWebsocketProvider({ children }: { children: React.ReactElement }) {
-  const [socket, setSocket] = useState<OBSWebSocket | null>(null);
-  const [connected, setConnected] = useState(false);
-
-  return (
-    <ObsWebsocketContext.Provider
-      value={{
-        connected,
-        setConnected,
-        setSocket,
-        socket,
-      }}
-    >
-    {children}
-  </ObsWebsocketContext.Provider>
-);
-}
 
 export const useObsSocket = () => {
   const context = useContext(ObsWebsocketContext);
+  const obsModule = useObsModule();
+  const { data: obsSettings } = obsModule.useSettings();
 
   const connect = useCallback(async () => {
     if (context.socket) {
@@ -35,11 +16,21 @@ export const useObsSocket = () => {
       context.setSocket(null);
     }
 
+    if (!obsSettings || !obsSettings.serverAddress || !obsSettings.serverPort) {
+      return;
+    }
+
     const newSocket = new OBSWebSocket();
-    await newSocket.connect('ws://localhost:4455', '123456');
-    context.setSocket(newSocket);
-    context.setConnected(true);
-  }, [context.socket]);
+    try {
+      await newSocket.connect(`ws://${obsSettings.serverAddress}:${obsSettings.serverPort}`, obsSettings.serverPassword);
+      context.setSocket(newSocket);
+      context.setConnected(true);
+    } catch (e) {
+      console.log(e);
+      context.setSocket(null);
+      context.setConnected(false);
+    }
+  }, [context.socket, obsSettings]);
 
   const disconnect = useCallback(() => {
     context.socket?.disconnect().then(() => context.setConnected(false));
