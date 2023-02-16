@@ -95,13 +95,29 @@ operationsLoop:
 
 				operationError = processor.ObsSetScene(operation.Input.String)
 			case model.OperationObsToggleSource:
-				operationError = processor.ObsToggleSource()
+				if !operation.Input.Valid {
+					continue
+				}
+
+				operationError = processor.ObsToggleSource(operation.Input.String)
 			case model.OperationObsToggleAudio:
-				operationError = processor.ObsToggleAudio()
+				if !operation.Input.Valid {
+					continue
+				}
+
+				operationError = processor.ObsToggleAudio(operation.Input.String)
 			case model.OperationObsIncreaseVolume, model.OperationObsDecreaseVolume:
-				operationError = processor.ObsAudioChangeVolume()
+				if !operation.Input.Valid {
+					continue
+				}
+
+				operationError = processor.ObsAudioChangeVolume(operation.Type, operation.Input.String)
 			case model.OperationObsSetVolume:
-				operationError = processor.ObsAudioSetVolume()
+				if !operation.Input.Valid {
+					continue
+				}
+
+				operationError = processor.ObsAudioSetVolume(operation.operation.Input.String)
 			}
 
 			if operationError != nil {

@@ -41,7 +41,7 @@ message ObsToggleAudioMessage {
 
 message ObsAudioSetVolumeMessage {
   string channelId = 1;
-  string sceneName = 2;
+  string audioSourceName = 2;
   uint32 volume = 3;
 }
 

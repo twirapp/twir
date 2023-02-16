@@ -53,11 +53,13 @@ type EventOperation struct {
 	Delay   int                `gorm:"column:delay;type:int" json:"delay"`
 	EventID string             `gorm:"column:eventId;type:string" json:"eventId"`
 
-	Input       null.String `gorm:"column:input;type:string" json:"input"`
-	Repeat      int         `gorm:"column:repeat;type:int" json:"repeat"`
-	Order       int         `gorm:"column:order;type:int" json:"order"`
-	UseAnnounce bool        `gorm:"column:useAnnounce;type:BOOL" json:"useAnnounce"`
-	TimeoutTime int         `gorm:"column:timeoutTime;type:int" json:"timeoutTime"`
+	Input         null.String `gorm:"column:input;type:string" json:"input"`
+	Repeat        int         `gorm:"column:repeat;type:int" json:"repeat"`
+	Order         int         `gorm:"column:order;type:int" json:"order"`
+	UseAnnounce   bool        `gorm:"column:useAnnounce;type:BOOL" json:"useAnnounce"`
+	TimeoutTime   int         `gorm:"column:timeoutTime;type:int" json:"timeoutTime"`
+	ObsAudioStep  int         `gorm:"column:obsAudioStep;type:int" json:"obsAudioStep"`
+	ObsSourceName null.String `gorm:"column:obsSourceName;type:string" json:"obsSourceName"`
 }
 
 func (c *EventOperation) TableName() string {

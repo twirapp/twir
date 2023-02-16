@@ -3,7 +3,7 @@ import {
   Alert,
   Badge,
   Button,
-  Card,
+  Card, createStyles,
   Divider,
   Flex,
   Group,
@@ -74,6 +74,12 @@ export function useAddToHomescreenPrompt(): [
   return [prompt, promptToInstall];
 }
 
+export const useObsStyles = createStyles((theme) => ({
+  card: {
+    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+  },
+}));
+
 
 const Application: NextPage = () => {
   const [, promptInstall] = useAddToHomescreenPrompt();
@@ -81,6 +87,7 @@ const Application: NextPage = () => {
   const obsSettingsManager = useObsModule();
   const obsSettingsUpdater = obsSettingsManager.useUpdate();
   const { data: obsSettings } = obsSettingsManager.useSettings();
+  const obsStyles = useObsStyles();
 
   const obsSettingsForm = useForm<OBS['GET']>({
     initialValues: {
@@ -144,7 +151,7 @@ const Application: NextPage = () => {
           </Text>
         </Alert>
       </Card.Section>
-      <Card.Section p={'sm'} withBorder>
+      <Card.Section p={'sm'} withBorder className={obsStyles.classes.card}>
           <TextInput
             label={`Address. Usually it's localhost, but if you advanced user you know what to do with that field.`}
             {...obsSettingsForm.getInputProps('serverAddress')} withAsterisk
