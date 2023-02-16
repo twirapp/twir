@@ -74,7 +74,7 @@ operationsLoop:
 				if !operation.Input.Valid {
 					continue
 				}
-				processor.ChangeTitle(operation.Input.String)
+				operationError = processor.ChangeTitle(operation.Input.String)
 			case model.OperationChangeCategory:
 				if !operation.Input.Valid {
 					continue
