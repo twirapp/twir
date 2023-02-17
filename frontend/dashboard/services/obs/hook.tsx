@@ -76,7 +76,7 @@ export const useObsSocket = () => {
       result[sceneName] = {
         sources: item.sceneItems.filter(i => !i.isGroup).map((i) => ({
           name: i.sourceName as string,
-          type: i.inputKind as string | null,
+          type: i.inputKind?.toString() || null,
         })),
       };
 
@@ -92,7 +92,7 @@ export const useObsSocket = () => {
           ...result[sceneName].sources,
           ...group.sceneItems.filter(i => !i.isGroup).map((i) => ({
             name: i.sourceName as string,
-            type: i.inputKind as string | null,
+            type: i.inputKind?.toString() || null,
           })),
         ];
       }));
