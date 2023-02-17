@@ -121,10 +121,6 @@ const Application: NextPage = () => {
     obsSettingsUpdater.mutateAsync(obsSettingsForm.values);
   }
 
-  useEffect(() => {
-   obsSocket.getScenes().then(console.log);
-  }, [obsSocket.connected]);
-
   return (<>
     <Text>
       You can install site as application on your system. In this case you will be able to use dashboard without actual browser opened, and also it brings OBS Websocket support
@@ -142,6 +138,7 @@ const Application: NextPage = () => {
         </Flex>
       </Card.Section>
       <Card.Section p={'xs'}>
+        {JSON.stringify(obsSocket.scenes, null, 2)}
         <Alert color="cyan" mb={5}>
           <Text>
             For working with obs we need you to keep site OPENED. Otherwise connection to obs will be closed.

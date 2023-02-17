@@ -1,14 +1,26 @@
 import OBSWebSocket from 'obs-websocket-js';
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
 import { useObsModule } from '@/services/api/modules';
 import { ObsWebsocketContext } from '@/services/obs/provider';
 
 
+type OBSScene = {
+  sources: Array<{
+    name: string,
+    type: string | null
+  }>
+}
+
+type OBSScenes = {
+  [x: string]: OBSScene
+}
+
 export const useObsSocket = () => {
   const context = useContext(ObsWebsocketContext);
   const obsModule = useObsModule();
   const { data: obsSettings } = obsModule.useSettings();
+  const [scenes, setScenes] = useState<OBSScenes>({});
 
   const connect = useCallback(async () => {
     if (context.socket) {
@@ -36,15 +48,17 @@ export const useObsSocket = () => {
     context.socket?.disconnect().then(() => context.setConnected(false));
   }, [context.socket]);
 
-  // const getScenes = useCallback(() => {
-  //   return context.socket?.call('GetSceneList');
-  // }, [context.socket]);
-  //
-  // const getScenesItems = useCallback((scene: string) => {
-  //   return context.socket?.call('GetSceneItemList', { sceneName: 'Scene' });
-  // }, [context.socket]);
+  useEffect(() => {
+    if (context.connected) {
+      getScenes().then((newScenes) => {
+        if (newScenes) {
+          setScenes(newScenes);
+        }
+      });
+    }
+  }, [context.connected]);
 
-  const getScenes = useCallback(async () => {
+  const getScenes = useCallback(async (): Promise<OBSScenes | undefined> => {
     const scenesReq = await context.socket?.call('GetSceneList');
     if (!scenesReq) return;
 
@@ -54,20 +68,43 @@ export const useObsSocket = () => {
       return context.socket?.call('GetSceneItemList', { sceneName });
     }));
 
-    return itemsPromises
-      .flat()
-      .map(item => {
-        return item!.sceneItems.map((i) => ({
-          name: i.sourceName,
-        }));
-      })
-      .flat();
+    const result: OBSScenes = {};
+
+    await Promise.all(itemsPromises.map(async (item, index) => {
+      if (!item) return;
+      const sceneName = mappedScenesNames[index];
+      result[sceneName] = {
+        sources: item.sceneItems.filter(i => !i.isGroup).map((i) => ({
+          name: i.sourceName as string,
+          type: i.inputKind as string | null,
+        })),
+      };
+
+      const groups = item.sceneItems
+        .filter(i => i.isGroup)
+        .map(g => g.sourceName);
+
+      await Promise.all(groups.map(async (g) => {
+        const group = await context.socket?.call('GetGroupSceneItemList', { sceneName: g as string });
+        if (!group) return;
+
+        result[sceneName].sources = [
+          ...result[sceneName].sources,
+          ...group.sceneItems.filter(i => !i.isGroup).map((i) => ({
+            name: i.sourceName as string,
+            type: i.inputKind as string | null,
+          })),
+        ];
+      }));
+    }));
+
+    return result;
   }, [context.socket]);
 
   return {
     connect,
     disconnect,
     connected: context.connected,
-    getScenes,
+    scenes,
   };
 };
