@@ -89,4 +89,31 @@ export const operationMapping: Record<keyof typeof OperationType, {
     producedVariables: ['bannedUserName'],
     additionalValues: ['timeoutTime'],
   },
+  OBS_SET_SCENE: {
+    description: '[OBS] Change scene',
+    additionalValues: ['obsTargetName'],
+  },
+  OBS_TOGGLE_SOURCE: {
+    description: `[OBS] Toggle source visibility`,
+    additionalValues: ['obsTargetName'],
+  },
+  OBS_TOGGLE_AUDIO: {
+    description: '[OBS] Toggle audio on/off',
+    additionalValues: ['obsTargetName'],
+  },
+  OBS_AUDIO_SET_VOLUME: {
+    description: '[OBS] Set audio volume',
+    haveInput: true,
+    additionalValues: ['obsTargetName'],
+  },
+  OBS_AUDIO_DECREASE_VOLUME: {
+    description: '[OBS] Decrease audio volume',
+    haveInput: true,
+    additionalValues: ['obsTargetName'],
+  },
+  OBS_AUDIO_INCREASE_VOLUME: {
+    description: '[OBS] Increase audio volume',
+    haveInput: true,
+    additionalValues: ['obsTargetName'],
+  },
 };

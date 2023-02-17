@@ -138,7 +138,6 @@ const Application: NextPage = () => {
         </Flex>
       </Card.Section>
       <Card.Section p={'xs'}>
-        {JSON.stringify(obsSocket.scenes, null, 2)}
         <Alert color="cyan" mb={5}>
           <Text>
             For working with obs we need you to keep site OPENED. Otherwise connection to obs will be closed.

@@ -66,9 +66,6 @@ export class EventOperation {
   @Column({ default: 600 })
   timeoutTime: number;
 
-  @Column({ default: 5 })
-  obsAudioStep: number;
-
   @Column({ nullable: true })
-  obsSourceName: string | null;
+  obsTargetName: string | null;
 }

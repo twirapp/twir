@@ -59,7 +59,7 @@ type EventOperation struct {
 	UseAnnounce   bool        `gorm:"column:useAnnounce;type:BOOL" json:"useAnnounce"`
 	TimeoutTime   int         `gorm:"column:timeoutTime;type:int" json:"timeoutTime"`
 	ObsAudioStep  int         `gorm:"column:obsAudioStep;type:int" json:"obsAudioStep"`
-	ObsSourceName null.String `gorm:"column:obsSourceName;type:string" json:"obsSourceName"`
+	ObsTargetName null.String `gorm:"column:obsTargetName;type:string" json:"obsTargetName"`
 }
 
 func (c *EventOperation) TableName() string {

@@ -2,40 +2,42 @@ import {
   ActionIcon,
   Button,
   Card,
+  Center,
+  Checkbox,
+  Code,
+  CopyButton,
+  createStyles,
   Drawer,
   Flex,
+  Group,
+  NumberInput,
   ScrollArea,
-  Center,
+  Select,
+  Text,
   Textarea,
   useMantineTheme,
-  Select,
-  NumberInput,
-  createStyles,
-  Group,
-  CopyButton,
-  Code,
-  Checkbox,
-  Text,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
-import {
-  IconArrowBigDownLines,
-  IconPlus,
-  IconX,
-} from '@tabler/icons';
+import { IconArrowBigDownLines, IconPlus, IconX } from '@tabler/icons';
 import { Event, EventType } from '@tsuwari/typeorm/entities/events/Event';
 import { OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
 import { useTranslation } from 'next-i18next';
 import React, { useEffect, useState } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 import { noop } from '../../util/chore';
 import { eventsMapping } from './eventsMapping';
 
 import { operationMapping } from '@/components/events/operationMapping';
 import { RewardItem, RewardItemProps } from '@/components/reward';
-import { commandsManager, eventsManager as useEventsManager, keywordsManager as useKeywordsManager, useRewards } from '@/services/api';
+import {
+  commandsManager,
+  eventsManager as useEventsManager,
+  keywordsManager as useKeywordsManager,
+  useRewards,
+} from '@/services/api';
+import { useObsSocket } from '@/services/obs/hook';
 
 type Props = {
   opened: boolean;
@@ -94,6 +96,8 @@ export const EventsDrawer: React.FC<Props> = (props) => {
   const rewardsManager = useRewards();
   const { data: rewardsData } = rewardsManager();
 
+  const obsSocket = useObsSocket();
+
   useEffect(() => {
     form.reset();
     if (props.event) {
@@ -134,6 +138,32 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       props.setOpened(false);
       form.reset();
     }).catch(noop);
+  }
+
+  function getObsSourceByOperationType(type: OperationType) {
+    if (
+      type === OperationType.OBS_TOGGLE_AUDIO
+      || type == OperationType.OBS_AUDIO_DECREASE_VOLUME
+      || type == OperationType.OBS_AUDIO_INCREASE_VOLUME) {
+      return [];
+    }
+
+    if (type == OperationType.OBS_SET_SCENE) {
+      return [];
+    }
+
+    if (type == OperationType.OBS_TOGGLE_SOURCE) {
+      return Object.entries(obsSocket.scenes)
+        .map((pair) => {
+          return pair[1].sources.map((source) => ({
+            label: `[${pair[0]}] ${source.name}`,
+            value: source.name,
+          }));
+        })
+        .flat();
+    }
+
+    return [];
   }
 
   return (
@@ -323,6 +353,18 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                     label={t('operations.additionalValues.timeoutTime')}
                                     {...form.getInputProps(`operations.${index}.timeoutTime`)}
                                   />}
+                                  {/*value: c.id,*/}
+                                  {/*label: c.name,*/}
+                                  {v === 'obsTargetName' && <Select
+                                      label={'OBS Target'}
+                                      searchable={true}
+                                      data={getObsSourceByOperationType(operation.type)}
+                                      onChange={(newValue) => {
+                                        // form.setFieldValue(`type`, newValue as EventType);
+                                      }}
+                                      value={form.values.operations[index].obsTargetName}
+                                      w={'100%'}
+                                  />}
                                 </Group>)}
                               </Card.Section>}
                               <Card.Section p='sm' withBorder>
@@ -367,6 +409,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                   order: form.values.operations.length,
                   useAnnounce: false,
                   timeoutTime: 600,
+                  obsTargetName: '',
                 }]);
               }}>
                 <IconPlus size={30} />
