@@ -6,6 +6,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"strings"
 )
 
 func (c *Processor) getChannelVips() ([]helix.ChannelVips, error) {
@@ -40,6 +41,8 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 	if err != nil || len(hydratedName) == 0 {
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}
+
+	hydratedName = strings.ReplaceAll(hydratedName, "@", "")
 
 	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
 		Logins: []string{hydratedName},
