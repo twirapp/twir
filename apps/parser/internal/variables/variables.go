@@ -2,6 +2,7 @@ package variables
 
 import (
 	"fmt"
+	"github.com/satont/tsuwari/apps/parser/internal/variables/command_param"
 	user_emotes "github.com/satont/tsuwari/apps/parser/internal/variables/user/emotes"
 	user_top "github.com/satont/tsuwari/apps/parser/internal/variables/user/top"
 	"regexp"
@@ -91,6 +92,7 @@ func New() Variables {
 		command_counter.CommandVariableFromOther,
 		keywords.Counter,
 		user_emotes.Variable,
+		command_param.Variable,
 	}
 
 	ctx := Variables{
