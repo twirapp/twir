@@ -1,12 +1,6 @@
-import { getCookie } from 'cookies-next';
-import OBSWebSocket from 'obs-websocket-js';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
 
-import { useProfile } from '@/services/api';
-import { useObsModule } from '@/services/api/modules';
 import { ObsWebsocketContext } from '@/services/obs/provider';
-
 
 type OBSScene = {
   sources: Array<{

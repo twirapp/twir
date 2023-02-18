@@ -22,7 +22,6 @@ export const AppProvider: React.FC<Props> = (props) => {
 
   useEffect(() => {
     if (!obsSettings) return;
-
     obsSocket.connect();
 
     return () => {

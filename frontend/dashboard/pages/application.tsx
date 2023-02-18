@@ -78,7 +78,6 @@ export const useObsStyles = createStyles((theme) => ({
   },
 }));
 
-
 const Application: NextPage = () => {
   const [, promptInstall] = useAddToHomescreenPrompt();
   const obsSocket = useObs();
@@ -110,7 +109,6 @@ const Application: NextPage = () => {
       obsSettingsForm.setFieldValue(e[0], e[1]);
     });
   }, [obsSettings]);
-
 
   function saveObsSettings() {
     const validate = obsSettingsForm.validate();

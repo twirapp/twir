@@ -2,9 +2,9 @@ import { getCookie } from 'cookies-next';
 import OBSWebSocket from 'obs-websocket-js';
 import {
   createContext,
-  Dispatch, MutableRefObject,
-  SetStateAction, useCallback, useEffect,
-  useRef,
+  Dispatch,
+  SetStateAction,
+  useEffect,
   useState,
 } from 'react';
 import { io, Socket } from 'socket.io-client';
@@ -55,7 +55,6 @@ export function OBSWebsocketProvider({ children }: { children: React.ReactElemen
     setObs(null);
   };
 
-
   return (
       <ObsWebsocketContext.Provider
         value={{
@@ -69,14 +68,10 @@ export function OBSWebsocketProvider({ children }: { children: React.ReactElemen
   );
 }
 
-export const InternalObsWebsocketContext = createContext({} as {
-  socket: Socket | null,
-  setSocket: Dispatch<SetStateAction<Socket | null>>,
-});
+export const InternalObsWebsocketContext = createContext({});
 
 export function InternalObsWebsocketProvider({ children }: { children: React.ReactElement }) {
   const obs = useObs();
-  const [socket, setSocket] = useState<Socket | null>(null);
   const profile = useProfile();
 
   useEffect(() => {
@@ -97,8 +92,6 @@ export function InternalObsWebsocketProvider({ children }: { children: React.Rea
 
     webSocket.connect();
 
-    setSocket(webSocket);
-
     webSocket.on('setScene', (data) => {
       console.log(data);
       obs.setScene(data.sceneName);
@@ -107,15 +100,10 @@ export function InternalObsWebsocketProvider({ children }: { children: React.Rea
     return () => {
       webSocket.removeAllListeners();
       webSocket.disconnect();
-      setSocket(null);
     };
   }, [profile.data]);
 
   return (
-    <InternalObsWebsocketContext.Provider
-      value={{
-        socket,
-        setSocket,
-      }}>{children}</InternalObsWebsocketContext.Provider>
+    <InternalObsWebsocketContext.Provider value={{}}>{children}</InternalObsWebsocketContext.Provider>
   );
 }
