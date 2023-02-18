@@ -1,7 +1,7 @@
 FROM ubuntu:22.10
 
 ARG NODE_VERSION="18.12.1"
-ARG GO_VERSION="2:1.19.3"
+ARG GO_VERSION="1.20.1"
 ARG PNPM_VERSION="7.17.1"
 
 ARG TARGETARCH
@@ -16,9 +16,9 @@ RUN apt update && \
     apt install -y build-essential git protobuf-compiler curl wget sudo
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt install -y nodejs
-RUN wget https://go.dev/dl/go1.19.4.linux-$TARGETARCH.tar.gz && \
-    tar -C /usr/local -xzf go1.19.4.linux-$TARGETARCH.tar.gz && \
-    rm go1.19.4.linux-$TARGETARCH.tar.gz
+RUN wget https://go.dev/dl/go$GO_VERSION.linux-$TARGETARCH.tar.gz && \
+    tar -C /usr/local -xzf go$GO_VERSION.linux-$TARGETARCH.tar.gz && \
+    rm go$GO_VERSION.linux-$TARGETARCH.tar.gz
 
 RUN npm i -g pnpm@7.17.1 @go-task/cli
 
