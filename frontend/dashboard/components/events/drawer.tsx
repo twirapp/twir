@@ -225,10 +225,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                   value: c.id,
                   label: c.name,
                 })) ?? []}
-                onChange={(newValue) => {
-                  form.setFieldValue(`commandId`, newValue);
-                }}
-                value={form.values.commandId}
+                {...form.getInputProps('commandId')}
                 w={'100%'}
             />}
 
@@ -367,7 +364,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                       searchable={true}
                                       data={getObsSourceByOperationType(operation.type)}
                                       w={'100%'}
-                                      {...form.getInputProps(`form.values.operations.${index}.obsTargetName`)}
+                                      {...form.getInputProps(`operations.${index}.obsTargetName`)}
                                   />}
                                 </Group>)}
                               </Card.Section>}

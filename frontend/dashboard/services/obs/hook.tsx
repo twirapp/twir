@@ -1,6 +1,9 @@
+import { getCookie } from 'cookies-next';
 import OBSWebSocket from 'obs-websocket-js';
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 
+import { useProfile } from '@/services/api';
 import { useObsModule } from '@/services/api/modules';
 import { ObsWebsocketContext } from '@/services/obs/provider';
 
@@ -24,8 +27,24 @@ export const useObs = () => {
   const { data: obsSettings } = obsModule.useSettings();
   const [scenes, setScenes] = useState<OBSScenes>({});
   const [inputs, setInputs] = useState<OBSInputs>([]);
+  const profile = useProfile();
+
+  const setVolume = useCallback(async (opts: { audioSourceName: string, volume: number}) => {
+    await context.socket?.call('SetInputVolume', {
+      inputName: opts.audioSourceName,
+      inputVolumeDb: opts.volume,
+    });
+  }, [context.socket]);
+
+  const setScene = useCallback(async (opts: { sceneName: string }) => {
+    context.socket?.call('GetCurrentProgramScene').then(console.log);
+    context.socket?.call('SetCurrentProgramScene', { sceneName: opts.sceneName })
+      .catch(console.error);
+  }, [context.socket, context.connected]);
 
   const connect = useCallback(async () => {
+    if (!profile.data) return;
+
     if (context.socket) {
       await context.socket.disconnect();
       context.setSocket(null);
@@ -45,10 +64,35 @@ export const useObs = () => {
       context.setSocket(null);
       context.setConnected(false);
     }
-  }, [context.socket, obsSettings]);
+
+    if (context.webSocket.current) {
+      context.webSocket.current?.removeAllListeners();
+      context.webSocket.current?.disconnect();
+    }
+
+    context.webSocket.current = io(
+      `${`${window.location.protocol == 'https:' ? 'wss' : 'ws'}://${
+        window.location.host
+      }`}/obs`,
+      {
+        transports: ['websocket'],
+        autoConnect: false,
+        auth: (cb) => {
+          cb({ apiKey: profile.data?.apiKey, channelId: getCookie('dashboard_id') });
+        },
+      },
+    );
+
+    context.webSocket.current.connect();
+    context.webSocket.current.on('setScene', (data) => {
+      setScene(data);
+    });
+  }, [context.socket, obsSettings, profile.data]);
 
   const disconnect = useCallback(() => {
     context.socket?.disconnect().then(() => context.setConnected(false));
+    context.webSocket.current?.removeAllListeners();
+    context.webSocket.current?.disconnect();
   }, [context.socket]);
 
   useEffect(() => {
@@ -119,5 +163,7 @@ export const useObs = () => {
     connected: context.connected,
     scenes,
     inputs,
+    setScene,
+    setVolume,
   };
 };

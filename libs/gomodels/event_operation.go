@@ -58,7 +58,6 @@ type EventOperation struct {
 	Order         int         `gorm:"column:order;type:int" json:"order"`
 	UseAnnounce   bool        `gorm:"column:useAnnounce;type:BOOL" json:"useAnnounce"`
 	TimeoutTime   int         `gorm:"column:timeoutTime;type:int" json:"timeoutTime"`
-	ObsAudioStep  int         `gorm:"column:obsAudioStep;type:int" json:"obsAudioStep"`
 	ObsTargetName null.String `gorm:"column:obsTargetName;type:string" json:"obsTargetName"`
 }
 

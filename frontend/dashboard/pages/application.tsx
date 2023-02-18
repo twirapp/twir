@@ -19,7 +19,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useEffect, useState } from 'react';
 
 import { useObsModule, type OBS } from '@/services/api/modules';
-import { useObs } from '@/services/obs/hook';
+import { useObs, useObsWebSocket } from '@/services/obs/hook';
 
 interface IBeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -88,6 +88,8 @@ const Application: NextPage = () => {
   const obsSettingsUpdater = obsSettingsManager.useUpdate();
   const { data: obsSettings } = obsSettingsManager.useSettings();
   const obsStyles = useObsStyles();
+
+  const ws = useObsWebSocket();
 
   const obsSettingsForm = useForm<OBS['GET']>({
     initialValues: {
