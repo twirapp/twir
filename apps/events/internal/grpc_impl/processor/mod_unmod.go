@@ -84,6 +84,12 @@ func (c *Processor) ModOrUnmod(input string, operation model.EventOperationType)
 			} else {
 				return errors.New(resp.ErrorMessage)
 			}
+		} else {
+			c.cache.channelModerators = append(c.cache.channelModerators, helix.Moderator{
+				UserID:    user.Data.Users[0].ID,
+				UserLogin: user.Data.Users[0].Login,
+				UserName:  user.Data.Users[0].DisplayName,
+			})
 		}
 	} else {
 		if !isAlreadyMod {
@@ -100,6 +106,10 @@ func (c *Processor) ModOrUnmod(input string, operation model.EventOperationType)
 			}
 
 			return errors.New(resp.ErrorMessage)
+		} else {
+			c.cache.channelModerators = lo.Filter(c.cache.channelModerators, func(item helix.Moderator, index int) bool {
+				return item.UserID != user.Data.Users[0].ID
+			})
 		}
 	}
 
@@ -135,6 +145,10 @@ func (c *Processor) UnmodRandom() error {
 	if removeReq.ErrorMessage != "" {
 		return errors.New(removeReq.ErrorMessage)
 	}
+
+	c.cache.channelModerators = lo.Filter(c.cache.channelModerators, func(item helix.Moderator, index int) bool {
+		return item.UserID != randomMod.UserID
+	})
 
 	if len(c.data.PrevOperation.UnmodedUserName) > 0 {
 		c.data.PrevOperation.UnmodedUserName += ", " + randomMod.UserName

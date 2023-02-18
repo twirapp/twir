@@ -122,7 +122,7 @@ operationsLoop:
 
 			if operationError != nil {
 				if operationError != processor_module.InternalError {
-					c.services.Logger.Sugar().Error(err)
+					c.services.Logger.Sugar().Error(operationError)
 				}
 				break operationsLoop
 			}

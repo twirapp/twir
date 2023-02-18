@@ -99,6 +99,12 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 			} else {
 				return errors.New(resp.ErrorMessage)
 			}
+		} else {
+			c.cache.channelVips = append(c.cache.channelVips, helix.ChannelVips{
+				UserID:    user.Data.Users[0].ID,
+				UserLogin: user.Data.Users[0].Login,
+				UserName:  user.Data.Users[0].DisplayName,
+			})
 		}
 	} else {
 		if !isAlreadyVip {
@@ -114,6 +120,10 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 			} else {
 				return errors.New(resp.Error)
 			}
+		} else {
+			c.cache.channelVips = lo.Filter(c.cache.channelVips, func(item helix.ChannelVips, index int) bool {
+				return item.UserID != user.Data.Users[0].ID
+			})
 		}
 	}
 
@@ -147,6 +157,10 @@ func (c *Processor) UnvipRandom() error {
 	if removeReq.ErrorMessage != "" {
 		return errors.New(removeReq.ErrorMessage)
 	}
+
+	c.cache.channelVips = lo.Filter(c.cache.channelVips, func(item helix.ChannelVips, index int) bool {
+		return item.UserID != randomVip.UserID
+	})
 
 	if len(c.data.PrevOperation.UnvipedUserName) > 0 {
 		c.data.PrevOperation.UnvipedUserName += ", " + randomVip.UserName
