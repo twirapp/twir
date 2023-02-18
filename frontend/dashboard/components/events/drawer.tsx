@@ -144,12 +144,20 @@ export const EventsDrawer: React.FC<Props> = (props) => {
     if (
       type === OperationType.OBS_TOGGLE_AUDIO
       || type == OperationType.OBS_AUDIO_DECREASE_VOLUME
-      || type == OperationType.OBS_AUDIO_INCREASE_VOLUME) {
-      return [];
+      || type == OperationType.OBS_AUDIO_INCREASE_VOLUME
+      || type == OperationType.OBS_AUDIO_SET_VOLUME
+    ) {
+      return obsSocket.inputs.map((i) => ({
+        label: i,
+        value: i,
+      }));
     }
 
     if (type == OperationType.OBS_SET_SCENE) {
-      return [];
+      return Object.keys(obsSocket.scenes).map((s) => ({
+        label: s,
+        value: s,
+      }));
     }
 
     if (type == OperationType.OBS_TOGGLE_SOURCE) {
@@ -252,8 +260,8 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 
             <Flex direction={'column'} gap={'sm'}>
               <Text mb={5}>{t('availableVariables')}</Text>
-              {eventsMapping[form.values.type]?.availableVariables?.map((variable) =>
-                  <Text size={'sm'}>
+              {eventsMapping[form.values.type]?.availableVariables?.map((variable, i) =>
+                  <Text size={'sm'} key={i}>
                     <CopyButton value={`{${variable}}`}>
                       {({ copied, copy }) => (
                         <Code
@@ -330,12 +338,13 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                     && <Flex direction={'column'} mt={5}>
                                           <Text size={'sm'}>Available variables from prev operation:</Text>
                                           <Flex direction={'row'}>
-                                            {operationMapping[form.values.operations[index - 1].type].producedVariables!.map(v => <CopyButton value={`{prevOperation.${v}}`}>
+                                            {operationMapping[form.values.operations[index - 1].type].producedVariables!.map((v, i) => <CopyButton value={`{prevOperation.${v}}`}>
                                               {({ copied, copy }) => (
                                                 <Text
                                                   onClick={copy}
                                                   style={{ cursor:'pointer' }}
                                                   size={'xs'}
+                                                  key={i}
                                                 >
                                                   {copied ? 'Copied' : `{prevOperation.${v}}`}
                                                 </Text>
@@ -343,7 +352,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                             </CopyButton>)}
                                           </Flex>
                                       </Flex>}
-                                {operationMapping[operation.type].additionalValues?.map((v) => <Group mt={5}>
+                                {operationMapping[operation.type].additionalValues?.map((v, i) => <Group key={i} mt={5}>
                                   {v === 'useAnnounce' && <Checkbox
                                     label={t('operations.additionalValues.useAnnounce')}
                                     labelPosition={'left'}

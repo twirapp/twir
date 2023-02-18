@@ -16,11 +16,14 @@ type OBSScenes = {
   [x: string]: OBSScene
 }
 
+type OBSInputs = string[]
+
 export const useObsSocket = () => {
   const context = useContext(ObsWebsocketContext);
   const obsModule = useObsModule();
   const { data: obsSettings } = obsModule.useSettings();
   const [scenes, setScenes] = useState<OBSScenes>({});
+  const [inputs, setInputs] = useState<OBSInputs>([]);
 
   const connect = useCallback(async () => {
     if (context.socket) {
@@ -54,6 +57,9 @@ export const useObsSocket = () => {
         if (newScenes) {
           setScenes(newScenes);
         }
+      });
+      getInputs().then((inputs) => {
+        setInputs(inputs);
       });
     }
   }, [context.connected]);
@@ -101,10 +107,17 @@ export const useObsSocket = () => {
     return result;
   }, [context.socket]);
 
+  const getInputs = useCallback(async () => {
+    const req = await context.socket?.call('GetInputList');
+
+    return req?.inputs.map(i => i.inputName as string) ?? [];
+  }, [context.socket]);
+
   return {
     connect,
     disconnect,
     connected: context.connected,
     scenes,
+    inputs,
   };
 };
