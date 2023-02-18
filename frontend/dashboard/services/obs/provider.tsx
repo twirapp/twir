@@ -16,24 +16,22 @@ import { useObs } from '@/services/obs/hook';
 export const ObsWebsocketContext = createContext({} as {
   obs: OBSWebSocket | null,
   setObs: Dispatch<SetStateAction<OBSWebSocket | null>>
+  
   connected: boolean,
   setConnected: Dispatch<SetStateAction<boolean>>,
-  connectObs: () => Promise<void>
-  disconnectObs: () => Promise<void>
-
-  webSocket: Socket | null,
-  setWebSocket: Dispatch<SetStateAction<Socket | null>>,
+  
+  connect: () => Promise<void>
+  disconnect: () => Promise<void>
 });
 
 export function OBSWebsocketProvider({ children }: { children: React.ReactElement }) {
   const [obs, setObs] = useState<OBSWebSocket | null>(null);
   const [connected, setConnected] = useState(false);
-  const [webSocket, setWebSocket] = useState<Socket | null>(null);
 
   const obsModule = useObsModule();
   const { data: obsSettings } = obsModule.useSettings();
 
-  const connectObs = async () => {
+  const connect = async () => {
     if (!obsSettings || !obsSettings.serverAddress || !obsSettings.serverPort) {
       return;
     }
@@ -51,7 +49,7 @@ export function OBSWebsocketProvider({ children }: { children: React.ReactElemen
     }
   };
 
-  const disconnectObs = async () => {
+  const disconnect = async () => {
     obs?.disconnect();
     setConnected(false);
     setObs(null);
@@ -65,10 +63,8 @@ export function OBSWebsocketProvider({ children }: { children: React.ReactElemen
           setConnected,
           obs,
           setObs,
-          webSocket,
-          setWebSocket,
-          connectObs: connectObs,
-          disconnectObs: disconnectObs,
+          connect,
+          disconnect,
       }}>{children}</ObsWebsocketContext.Provider>
   );
 }

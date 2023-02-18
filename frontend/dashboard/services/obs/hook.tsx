@@ -28,7 +28,7 @@ export const useObs = () => {
   const [inputs, setInputs] = useState<OBSInputs>([]);
 
   const setScene = useCallback((sceneName: string) => {
-    console.log(context.obs);
+    console.log(context);
     context.obs?.call('GetCurrentProgramScene').then(console.log);
     context.obs?.call('SetCurrentProgramScene', { sceneName })
       .catch(console.error);
@@ -97,9 +97,9 @@ export const useObs = () => {
   }, [context.obs]);
 
   return {
-    connect: context.connectObs,
+    connect: context.connect,
     connected: context.connected,
-    disconnect: context.disconnectObs,
+    disconnect: context.disconnect,
     scenes,
     inputs,
     setScene,
