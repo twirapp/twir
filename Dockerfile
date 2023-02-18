@@ -1,6 +1,6 @@
 FROM node:18-alpine as base
 
-COPY --from=golang:1.20-1-alpine /usr/local/go/ /usr/local/go/
+COPY --from=golang:1.20.1-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="$PATH:/usr/local/go/bin"
 ENV PATH="$PATH:/root/go/bin"
 
@@ -194,7 +194,7 @@ RUN apk add wget && \
   apk add doppler && apk del wget && \
   rm -rf /var/cache/apk/*
 
-FROM golang:1.20-1-alpine as golang_deps_base
+FROM golang:1.20.1-alpine as golang_deps_base
 WORKDIR /app
 RUN apk add git curl wget upx
 COPY --from=base /app/apps/parser apps/parser/
