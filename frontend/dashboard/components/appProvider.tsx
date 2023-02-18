@@ -5,7 +5,7 @@ import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { FetcherError, useProfile } from '@/services/api';
 import { useObsModule } from '@/services/api/modules';
-import { useObsSocket } from '@/services/obs/hook';
+import { useObs } from '@/services/obs/hook';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 type Props = React.PropsWithChildren<{
@@ -13,7 +13,7 @@ type Props = React.PropsWithChildren<{
 }>;
 
 export const AppProvider: React.FC<Props> = (props) => {
-  const obsSocket = useObsSocket();
+  const obsSocket = useObs();
   const obsModule = useObsModule();
   const { data: obsSettings } = obsModule.useSettings();
 

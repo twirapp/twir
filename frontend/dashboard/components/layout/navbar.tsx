@@ -22,7 +22,7 @@ import { Profile } from './profile';
 import { useProfile } from '@/services/api';
 import { useLocale, LOCALES } from '@/services/dashboard';
 import { useTheme } from '@/services/dashboard';
-import { useObsSocket } from '@/services/obs/hook';
+import { useObs } from '@/services/obs/hook';
 
 
 const useStyles = createStyles((theme) => ({
@@ -60,7 +60,7 @@ export function NavBar({
   const { locale, toggleLocale } = useLocale();
   const { data: userData, isLoading: isLoadingProfile } = useProfile();
 
-  const obs = useObsSocket();
+  const obs = useObs();
 
   return (
     <Header height={60}>

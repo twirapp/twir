@@ -37,7 +37,7 @@ import {
   keywordsManager as useKeywordsManager,
   useRewards,
 } from '@/services/api';
-import { useObsSocket } from '@/services/obs/hook';
+import { useObs } from '@/services/obs/hook';
 
 type Props = {
   opened: boolean;
@@ -96,7 +96,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
   const rewardsManager = useRewards();
   const { data: rewardsData } = rewardsManager();
 
-  const obsSocket = useObsSocket();
+  const obsSocket = useObs();
 
   useEffect(() => {
     form.reset();

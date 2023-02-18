@@ -18,7 +18,7 @@ type OBSScenes = {
 
 type OBSInputs = string[]
 
-export const useObsSocket = () => {
+export const useObs = () => {
   const context = useContext(ObsWebsocketContext);
   const obsModule = useObsModule();
   const { data: obsSettings } = obsModule.useSettings();

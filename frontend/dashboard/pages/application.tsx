@@ -19,7 +19,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useEffect, useState } from 'react';
 
 import { useObsModule, type OBS } from '@/services/api/modules';
-import { useObsSocket } from '@/services/obs/hook';
+import { useObs } from '@/services/obs/hook';
 
 interface IBeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -83,7 +83,7 @@ export const useObsStyles = createStyles((theme) => ({
 
 const Application: NextPage = () => {
   const [, promptInstall] = useAddToHomescreenPrompt();
-  const obsSocket = useObsSocket();
+  const obsSocket = useObs();
   const obsSettingsManager = useObsModule();
   const obsSettingsUpdater = obsSettingsManager.useUpdate();
   const { data: obsSettings } = obsSettingsManager.useSettings();
