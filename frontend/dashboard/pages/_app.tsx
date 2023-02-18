@@ -18,7 +18,7 @@ import { AppProvider } from '@/components/appProvider';
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { queryClient } from '@/services/api';
-import { OBSWebsocketProvider } from '@/services/obs/provider';
+import { InternalObsWebsocketProvider, OBSWebsocketProvider } from '@/services/obs/provider';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 import '../styles/global.css';
 
@@ -96,15 +96,17 @@ function App(props: AppProps & Props) {
                 >
                   <ModalsProvider>
                     <OBSWebsocketProvider>
-                      <AppProvider colorScheme={colorScheme}>
-                        <Component
-                          styles={{
-                            main: {
-                              background: colorScheme === 'dark' ? 'dark.8' : 'gray.0',
-                            },
-                          }}
-                        />
-                      </AppProvider>
+                      <InternalObsWebsocketProvider>
+                        <AppProvider colorScheme={colorScheme}>
+                          <Component
+                            styles={{
+                              main: {
+                                background: colorScheme === 'dark' ? 'dark.8' : 'gray.0',
+                              },
+                            }}
+                          />
+                        </AppProvider>
+                      </InternalObsWebsocketProvider>
                     </OBSWebsocketProvider>
                   </ModalsProvider>
                 </SpotlightProvider>
