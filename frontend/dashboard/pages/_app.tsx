@@ -95,29 +95,17 @@ function App(props: AppProps & Props) {
                   }}
                 >
                   <ModalsProvider>
-                    <AppShell
-                      styles={{
-                        main: {
-                          background: colorScheme === 'dark' ? 'dark.8' : 'gray.0',
-                          padding: 0,
-                          width: '100%',
-                        },
-                      }}
-                      navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened} />}
-                      header={<NavBar setOpened={setSidebarOpened} opened={sidebarOpened} />}
-                    >
-                      <OBSWebsocketProvider>
-                        <AppProvider colorScheme={colorScheme}>
-                          <Component
-                            styles={{
-                              main: {
-                                background: colorScheme === 'dark' ? 'dark.8' : 'gray.0',
-                              },
-                            }}
-                          />
-                        </AppProvider>
-                      </OBSWebsocketProvider>
-                    </AppShell>
+                    <OBSWebsocketProvider>
+                      <AppProvider colorScheme={colorScheme}>
+                        <Component
+                          styles={{
+                            main: {
+                              background: colorScheme === 'dark' ? 'dark.8' : 'gray.0',
+                            },
+                          }}
+                        />
+                      </AppProvider>
+                    </OBSWebsocketProvider>
                   </ModalsProvider>
                 </SpotlightProvider>
               </NotificationsProvider>

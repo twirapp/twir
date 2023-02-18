@@ -68,8 +68,11 @@ export const useObs = () => {
 
     context.setWebSocket(webSocket);
 
-    webSocket!.connect();
-    webSocket!.on('setScene', setScene);
+    context.webSocket!.connect();
+    context.webSocket!.on('setScene', (data) => {
+      console.log(context);
+      setScene(data);
+    });
   };
 
   const setScene = useCallback((data) => {
@@ -77,7 +80,7 @@ export const useObs = () => {
     context.socket?.call('GetCurrentProgramScene').then(console.log);
     context.socket?.call('SetCurrentProgramScene', { sceneName: data.sceneName })
       .catch(console.error);
-  }, [context.socket]);
+  }, [context]);
 
   const disconnect = async () => {
     await context.socket?.disconnect();
