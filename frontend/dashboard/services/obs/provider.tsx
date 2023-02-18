@@ -14,13 +14,14 @@ export const ObsWebsocketContext = createContext({} as {
   setSocket: Dispatch<SetStateAction<OBSWebSocket | null>>
   connected: boolean,
   setConnected: Dispatch<SetStateAction<boolean>>,
-  webSocket: MutableRefObject<Socket | null>
+  webSocket: Socket | null,
+  setWebSocket: Dispatch<SetStateAction<Socket | null>>,
 });
 
 export function OBSWebsocketProvider({ children }: { children: React.ReactElement }) {
   const [socket, setSocket] = useState<OBSWebSocket | null>(null);
   const [connected, setConnected] = useState(false);
-  const webSocket = useRef<Socket | null>(null);
+  const [webSocket, setWebSocket] = useState<Socket | null>(null);
 
   return (
       <ObsWebsocketContext.Provider
@@ -30,6 +31,7 @@ export function OBSWebsocketProvider({ children }: { children: React.ReactElemen
         setSocket,
         socket,
         webSocket,
+        setWebSocket,
       }}>{children}</ObsWebsocketContext.Provider>
   );
 }

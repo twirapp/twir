@@ -25,29 +25,16 @@ export const useObs = () => {
   const context = useContext(ObsWebsocketContext);
   const obsModule = useObsModule();
   const { data: obsSettings } = obsModule.useSettings();
-  const [scenes, setScenes] = useState<OBSScenes>({});
-  const [inputs, setInputs] = useState<OBSInputs>([]);
   const profile = useProfile();
 
-  const setVolume = useCallback(async (opts: { audioSourceName: string, volume: number}) => {
-    await context.socket?.call('SetInputVolume', {
-      inputName: opts.audioSourceName,
-      inputVolumeDb: opts.volume,
-    });
-  }, [context.socket]);
+  const [scenes, setScenes] = useState<OBSScenes>({});
+  const [inputs, setInputs] = useState<OBSInputs>([]);
 
-  const setScene = useCallback(async (opts: { sceneName: string }) => {
-    context.socket?.call('GetCurrentProgramScene').then(console.log);
-    context.socket?.call('SetCurrentProgramScene', { sceneName: opts.sceneName })
-      .catch(console.error);
-  }, [context.socket, context.connected]);
-
-  const connect = useCallback(async () => {
+  const connect = async () => {
     if (!profile.data) return;
 
     if (context.socket) {
-      await context.socket.disconnect();
-      context.setSocket(null);
+      await disconnect();
     }
 
     if (!obsSettings || !obsSettings.serverAddress || !obsSettings.serverPort) {
@@ -63,14 +50,10 @@ export const useObs = () => {
       console.log(e);
       context.setSocket(null);
       context.setConnected(false);
+      return;
     }
 
-    if (context.webSocket.current) {
-      context.webSocket.current?.removeAllListeners();
-      context.webSocket.current?.disconnect();
-    }
-
-    context.webSocket.current = io(
+    const webSocket = io(
       `${`${window.location.protocol == 'https:' ? 'wss' : 'ws'}://${
         window.location.host
       }`}/obs`,
@@ -83,17 +66,28 @@ export const useObs = () => {
       },
     );
 
-    context.webSocket.current.connect();
-    context.webSocket.current.on('setScene', (data) => {
-      setScene(data);
-    });
-  }, [context.socket, obsSettings, profile.data]);
+    context.setWebSocket(webSocket);
 
-  const disconnect = useCallback(() => {
-    context.socket?.disconnect().then(() => context.setConnected(false));
-    context.webSocket.current?.removeAllListeners();
-    context.webSocket.current?.disconnect();
+    webSocket!.connect();
+    webSocket!.on('setScene', setScene);
+  };
+
+  const setScene = useCallback((data) => {
+    console.log(context);
+    context.socket?.call('GetCurrentProgramScene').then(console.log);
+    context.socket?.call('SetCurrentProgramScene', { sceneName: data.sceneName })
+      .catch(console.error);
   }, [context.socket]);
+
+  const disconnect = async () => {
+    await context.socket?.disconnect();
+    context.setConnected(false);
+    context.setSocket(null);
+
+    context.webSocket?.removeAllListeners();
+    context.webSocket?.disconnect();
+    context.setWebSocket(null);
+  };
 
   useEffect(() => {
     if (context.connected) {
@@ -164,6 +158,5 @@ export const useObs = () => {
     scenes,
     inputs,
     setScene,
-    setVolume,
   };
 };

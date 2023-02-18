@@ -202,8 +202,8 @@ export function SideBar(props: Props) {
 
   const [links, setLinks] = useState<JSX.Element[]>([]);
   useEffect(() => {
-    setLinks(navigationLinks.map((item) => {
-      return item === null ? <Divider /> : createNavLink(item);
+    setLinks(navigationLinks.map((item, i) => {
+      return item === null ? <Divider key={i} /> : createNavLink(item);
     }));
   }, [router]);
 
@@ -273,7 +273,11 @@ export function SideBar(props: Props) {
               style={{ marginTop: 5 }}
               variant={'light'}
               component="a"
-              href={'window' in globalThis ? `${window.location.origin}/p/${selectedDashboard?.twitchUser.login}/commands` : ''}
+              href={
+                'window' in globalThis && selectedDashboard?.twitchUser.login
+                  ? `${window.location.origin}/p/${selectedDashboard?.twitchUser.login}/commands`
+                  : ''
+              }
               target={'_blank'}
               leftIcon={<IconExternalLink size={14} />}
               w={'100%'}
