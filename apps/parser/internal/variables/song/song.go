@@ -151,7 +151,7 @@ var Variable = types.Variable{
 				}
 
 				result.Result = fmt.Sprintf(
-					`"%s youtu.be/%s" requested by @%s`,
+					`"%s" youtu.be/%s requested by @%s`,
 					song.Title,
 					song.VideoID,
 					song.OrderedByName,
