@@ -362,17 +362,12 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                     label={t('operations.additionalValues.timeoutTime')}
                                     {...form.getInputProps(`operations.${index}.timeoutTime`)}
                                   />}
-                                  {/*value: c.id,*/}
-                                  {/*label: c.name,*/}
                                   {v === 'obsTargetName' && <Select
                                       label={'OBS Target'}
                                       searchable={true}
                                       data={getObsSourceByOperationType(operation.type)}
-                                      onChange={(newValue) => {
-                                        // form.setFieldValue(`type`, newValue as EventType);
-                                      }}
-                                      value={form.values.operations[index].obsTargetName}
                                       w={'100%'}
+                                      {...form.getInputProps(`form.values.operations.${index}.obsTargetName`)}
                                   />}
                                 </Group>)}
                               </Card.Section>}
