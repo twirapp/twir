@@ -1,6 +1,6 @@
 module github.com/satont/tsuwari/apps/bots
 
-go 1.19
+go 1.20
 
 require (
 	github.com/aidenwallis/go-ratelimiting v0.0.1

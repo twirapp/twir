@@ -1,6 +1,6 @@
 module github.com/satont/tsuwari/apps/events
 
-go 1.19
+go 1.20
 
 replace (
 	github.com/satont/tsuwari/libs/config => ../../libs/config

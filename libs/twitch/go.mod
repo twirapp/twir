@@ -1,6 +1,6 @@
 module github.com/satont/tsuwari/libs/twitch
 
-go 1.19
+go 1.20
 
 require (
 	github.com/satont/go-helix/v2 v2.7.28

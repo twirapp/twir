@@ -1,6 +1,6 @@
 module github.com/satont/tsuwari/libs/grpc
 
-go 1.19
+go 1.20
 
 require (
 	google.golang.org/grpc v1.52.3

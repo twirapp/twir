@@ -1,6 +1,6 @@
 module github.com/satont/tsuwari/libs/types
 
-go 1.19
+go 1.20
 
 require github.com/tkrajina/typescriptify-golang-structs v0.1.8
 

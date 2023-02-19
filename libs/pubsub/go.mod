@@ -1,6 +1,6 @@
 module github.com/satont/tsuwari/libs/pubsub
 
-go 1.19
+go 1.20
 
 require github.com/go-redis/redis/v9 v9.0.0-rc.2
 
