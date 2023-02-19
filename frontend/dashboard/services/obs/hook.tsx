@@ -53,6 +53,10 @@ export const useInternalObsWs = () => {
       // sourceName
       obs.toggleSource(data.sourceName);
     });
+
+    webSocket?.off('toggleAudioSource').on('toggleAudioSource', (data) => {
+      obs.toggleAudioSource(data.audioSourceName);
+    });
   };
 
   const disconnect = () => {
@@ -103,6 +107,12 @@ export const useObs = () => {
       sceneItemId: idReq.sceneItemId,
       sceneItemEnabled: !currentStateReq.videoShowing,
     });
+  };
+
+  const toggleAudioSource = async (sourceName: string) => {
+    const obs = jotaiStore.get(externalObsWsAtom);
+
+    await obs?.call('ToggleInputMute', { inputName: sourceName });
   };
 
   const connect = async () => {
@@ -201,5 +211,6 @@ export const useObs = () => {
     inputs,
     setScene,
     toggleSource,
+    toggleAudioSource,
   };
 };
