@@ -21,7 +21,6 @@ type OBSScenes = {
 
 type OBSInputs = string[]
 
-
 export const useInternalObsWs = () => {
   const [ws, setWs] = useAtom(internalObsWsAtom);
   const profile = useProfile();
@@ -72,11 +71,11 @@ export const useObs = () => {
   const [scenes, setScenes] = useState<OBSScenes>({});
   const [inputs, setInputs] = useState<OBSInputs>([]);
 
-  const setScene = useCallback((sceneName: string) => {
+  const setScene = (sceneName: string) => {
     obs?.call('GetCurrentProgramScene').then(console.log);
     obs?.call('SetCurrentProgramScene', { sceneName })
       .catch(console.error);
-  }, [obs]);
+  };
 
   const connect = async () => {
     await disconnect();
@@ -108,7 +107,7 @@ export const useObs = () => {
     }
   }, [obs?.connected]);
 
-  const getScenes = useCallback(async (): Promise<OBSScenes | undefined> => {
+  const getScenes = async (): Promise<OBSScenes | undefined> => {
     const scenesReq = await obs?.call('GetSceneList');
     if (!scenesReq) return;
 
@@ -149,13 +148,13 @@ export const useObs = () => {
     }));
 
     return result;
-  }, [obs]);
+  };
 
-  const getInputs = useCallback(async () => {
+  const getInputs = async () => {
     const req = await obs?.call('GetInputList');
 
     return req?.inputs.map(i => i.inputName as string) ?? [];
-  }, [obs]);
+  };
 
   return {
     connected: obs?.connected,
