@@ -11,8 +11,8 @@ import {
   TextInput,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconInfoCircle, IconInfoSquareRounded, IconQuestionMark } from '@tabler/icons';
 import { NextPage } from 'next';
+import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useEffect, useState } from 'react';
 
@@ -32,7 +32,7 @@ interface IBeforeInstallPromptEvent extends Event {
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale, ['layout'])),
+    ...(await serverSideTranslations(locale, ['application', 'layout'])),
   },
 });
 
@@ -86,6 +86,8 @@ const Application: NextPage = () => {
   const { data: obsSettings } = obsSettingsManager.useSettings();
   const obsStyles = useObsStyles();
 
+  const { t } = useTranslation('application');
+
   const obsSettingsForm = useForm<OBS['GET']>({
     initialValues: {
       serverAddress: 'localhost',
@@ -119,7 +121,7 @@ const Application: NextPage = () => {
 
   return (<>
     <Text>
-      You can install site as application on your system. In this case you will be able to use dashboard without actual browser opened, and also it brings OBS Websocket support
+      {t('title')}
       <Button onClick={() => promptInstall()} size={'xs'} variant={'outline'} ml={5}>Install</Button>
     </Text>
     <Divider mt={5} />
@@ -128,7 +130,7 @@ const Application: NextPage = () => {
         <Flex direction={'row'} justify={'space-between'}>
           <Flex direction={'column'}>
             <Text>OBS Websocket</Text>
-            <Text size={'xs'}>It brings support to events for hide/show scenes, mute/unmute audio and some other obs control things</Text>
+            <Text size={'xs'}>{t('obs.title')}</Text>
           </Flex>
           <Badge color={obsSocket.connected ? 'green' : 'red'}>{obsSocket.connected ? 'Connected' : 'Disconnected'}</Badge>
         </Flex>
@@ -136,20 +138,17 @@ const Application: NextPage = () => {
       <Card.Section p={'xs'}>
         <Alert color="cyan" mb={5}>
           <Text>
-            For working with obs we need you to keep site OPENED. Otherwise connection to obs will be closed.
-          </Text>
-          <Text>
-            You can install the site as application for a more comfortable experience.
+            {t('obs.info')}
           </Text>
         </Alert>
       </Card.Section>
       <Card.Section p={'sm'} withBorder className={obsStyles.classes.card}>
           <TextInput
-            label={`Address. Usually it's localhost, but if you advanced user you know what to do with that field.`}
+            label={t('obs.address')}
             {...obsSettingsForm.getInputProps('serverAddress')} withAsterisk
           />
-          <NumberInput label={'Port'} {...obsSettingsForm.getInputProps('serverPort')} withAsterisk />
-          <TextInput label={'Password'} {...obsSettingsForm.getInputProps('serverPassword')} withAsterisk />
+          <NumberInput label={t('obs.port')} {...obsSettingsForm.getInputProps('serverPort')} withAsterisk />
+          <TextInput label={t('obs.password')} {...obsSettingsForm.getInputProps('serverPassword')} withAsterisk />
       </Card.Section>
       <Card.Section p={'sm'}>
         <Button color={'green'} onClick={saveObsSettings}>Save</Button>
