@@ -106,18 +106,22 @@ operationsLoop:
 				}
 
 				operationError = processor.ObsToggleAudio(operation.ObsTargetName.String)
-				//case model.OperationObsIncreaseVolume, model.OperationObsDecreaseVolume:
-				//	if !operation.Input.Valid {
-				//		continue
-				//	}
-				//
-				//	operationError = processor.ObsAudioChangeVolume(operation.Type, operation.Input.String)
-				//case model.OperationObsSetVolume:
-				//	if !operation.Input.Valid {
-				//		continue
-				//	}
-				//
-				//	operationError = processor.ObsAudioSetVolume(operation.operation.Input.String)
+			case model.OperationObsIncreaseVolume, model.OperationObsDecreaseVolume:
+				if !operation.Input.Valid || !operation.ObsTargetName.Valid {
+					continue
+				}
+
+				operationError = processor.ObsAudioChangeVolume(
+					operation.Type,
+					operation.ObsTargetName.String,
+					operation.Input.String,
+				)
+			case model.OperationObsSetVolume:
+				if !operation.Input.Valid || !operation.ObsTargetName.Valid {
+					continue
+				}
+
+				operationError = processor.ObsAudioSetVolume(operation.ObsTargetName.String, operation.Input.String)
 			}
 
 			if operationError != nil {

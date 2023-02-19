@@ -45,17 +45,29 @@ export const useInternalObsWs = () => {
 
     jotaiStore.set(internalObsWsAtom, webSocket);
 
-    webSocket?.off('setScene').on('setScene', (data) => {
+    webSocket.off('setScene').on('setScene', (data) => {
       obs.setScene(data.sceneName);
     });
 
-    webSocket?.off('toggleSource').on('toggleSource', (data) => {
+    webSocket.off('toggleSource').on('toggleSource', (data) => {
       // sourceName
       obs.toggleSource(data.sourceName);
     });
 
-    webSocket?.off('toggleAudioSource').on('toggleAudioSource', (data) => {
+    webSocket.off('toggleAudioSource').on('toggleAudioSource', (data) => {
       obs.toggleAudioSource(data.audioSourceName);
+    });
+
+    webSocket.off('setVolume').on('setVolume', (data) => {
+      obs.setVolume(data.audioSourceName, data.volume);
+    });
+
+    webSocket.off('increaseVolume').on('increaseVolume', (data) => {
+      obs.changeVolume(data.audioSourceName, data.step, 'increase');
+    });
+
+    webSocket.off('decreaseVolume').on('decreaseVolume', (data) => {
+      obs.changeVolume(data.audioSourceName, data.step, 'decrease');
     });
   };
 
@@ -113,6 +125,38 @@ export const useObs = () => {
     const obs = jotaiStore.get(externalObsWsAtom);
 
     await obs?.call('ToggleInputMute', { inputName: sourceName });
+  };
+
+  const setVolume = async (inputName: string, volume: number) => {
+    const obs = jotaiStore.get(externalObsWsAtom);
+
+    await obs?.call('SetInputVolume', {
+      inputName,
+      inputVolumeDb: volume * 3 - 60,
+    });
+  };
+
+  const changeVolume = async (inputName: string, step: number, operation: 'increase' | 'decrease') => {
+    const obs = jotaiStore.get(externalObsWsAtom);
+
+    const currentVolumeReq = await obs?.call('GetInputVolume', { inputName });
+    if (!currentVolumeReq) return;
+
+    if (currentVolumeReq.inputVolumeDb === 0 && operation === 'increase') {
+      return;
+    }
+
+    if (currentVolumeReq.inputVolumeDb <= 95 && operation === 'decrease') {
+      return;
+    }
+
+    const newVolume = currentVolumeReq.inputVolumeDb + (operation === 'increase' ? step : -step);
+    console.log(newVolume, operation, step);
+
+    await obs?.call('SetInputVolume', {
+      inputName,
+      inputVolumeDb: newVolume,
+    });
   };
 
   const connect = async () => {
@@ -212,5 +256,7 @@ export const useObs = () => {
     setScene,
     toggleSource,
     toggleAudioSource,
+    setVolume,
+    changeVolume,
   };
 };

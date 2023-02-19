@@ -54,6 +54,10 @@ func (c *Processor) ObsAudioChangeVolume(operationType model.EventOperationType,
 		return err
 	}
 
+	if parsedStep < 0 || parsedStep > 20 {
+		return InternalError
+	}
+
 	if operationType == model.OperationObsIncreaseVolume {
 		_, err = c.services.WebsocketsGrpc.ObsAudioIncreaseVolume(context.Background(), &websockets.ObsAudioIncreaseVolumeMessage{
 			ChannelId:       c.channelId,
@@ -86,6 +90,10 @@ func (c *Processor) ObsAudioSetVolume(sourceName, input string) error {
 	parsedVolume, err := strconv.Atoi(msg)
 	if err != nil {
 		return err
+	}
+
+	if parsedVolume < 0 || parsedVolume > 20 {
+		return InternalError
 	}
 
 	_, err = c.services.WebsocketsGrpc.ObsAudioSetVolume(context.Background(), &websockets.ObsAudioSetVolumeMessage{

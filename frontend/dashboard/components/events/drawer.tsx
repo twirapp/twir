@@ -77,6 +77,25 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       operations: {
         delay: (v) => v > 1800 ? 'Delay cannot be more then 1800' : null,
         repeat: (v) => v > 10 ? 'Repeat cannot be more then 10' : null,
+        // input: (v, values, path) => {
+        //   const pathWithoutInput = path.split('.input')[0];
+        //   const operationIndex = pathWithoutInput.at(pathWithoutInput.length - 1);
+        //   const operation = values.operations[Number(operationIndex)];
+        //   if (!operation) return null;
+        //   if (
+        //     operation.type === OperationType.OBS_AUDIO_SET_VOLUME
+        //     || operation.type === OperationType.OBS_AUDIO_INCREASE_VOLUME
+        //     || operation.type === OperationType.OBS_AUDIO_DECREASE_VOLUME
+        //   ) {
+        //     const convertedValue = Number(v);
+        //     if (Number.isNaN(convertedValue)) return 'Incorrect value. Can be from 0 to 20';
+        //     if (convertedValue < 0 || convertedValue > 20) {
+        //       return 'Volume can be from 0 to 20.';
+        //     }
+        //   }
+        //
+        //   return null;
+        // },
       },
     },
   });
