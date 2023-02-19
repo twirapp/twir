@@ -48,6 +48,11 @@ export const useInternalObsWs = () => {
     webSocket?.off('setScene').on('setScene', (data) => {
       obs.setScene(data.sceneName);
     });
+
+    webSocket?.off('toggleSource').on('toggleSource', (data) => {
+      // sourceName
+      obs.toggleSource(data.sourceName);
+    });
   };
 
   const disconnect = () => {
@@ -79,6 +84,25 @@ export const useObs = () => {
 
     obs?.call('SetCurrentProgramScene', { sceneName })
       .catch(console.error);
+  };
+
+  const toggleSource = async (sourceName: string) => {
+    const obs = jotaiStore.get(externalObsWsAtom);
+
+    const currentSceneReq = await obs?.call('GetCurrentProgramScene');
+    if (!currentSceneReq) return;
+
+    const [currentStateReq, idReq] = await Promise.all([
+      obs?.call('GetSourceActive', { sourceName }),
+      obs?.call('GetSceneItemId', { sourceName, sceneName: currentSceneReq.currentProgramSceneName }),
+    ]);
+    if (!currentStateReq || !idReq) return;
+
+    await obs?.call('SetSceneItemEnabled', {
+      sceneName: currentSceneReq.currentProgramSceneName,
+      sceneItemId: idReq.sceneItemId,
+      sceneItemEnabled: !currentStateReq.videoShowing,
+    });
   };
 
   const connect = async () => {
@@ -176,5 +200,6 @@ export const useObs = () => {
     scenes,
     inputs,
     setScene,
+    toggleSource,
   };
 };
