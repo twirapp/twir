@@ -7,6 +7,7 @@ import (
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/events/internal"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 	"github.com/valyala/fasttemplate"
 	"io"
 	"strings"
@@ -70,6 +71,8 @@ type ProcessorCache struct {
 type Processor struct {
 	services          *internal.Services
 	streamerApiClient *helix.Client
+
+	websocketsGrpc websockets.WebsocketClient
 
 	data      *internal.Data
 	channelId string

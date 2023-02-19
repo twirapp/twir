@@ -25,6 +25,12 @@ export enum OperationType {
   ENABLE_EMOTEONLY = 'ENABLE_EMOTEONLY',
   DISABLE_EMOTEONLY = 'DISABLE_EMOTEONLY',
   CREATE_GREETING = 'CREATE_GREETING',
+  OBS_SET_SCENE = 'OBS_SET_SCENE',
+  OBS_TOGGLE_SOURCE = 'OBS_TOGGLE_SOURCE',
+  OBS_TOGGLE_AUDIO = 'OBS_TOGGLE_AUDIO',
+  OBS_AUDIO_SET_VOLUME = 'OBS_AUDIO_SET_VOLUME',
+  OBS_AUDIO_INCREASE_VOLUME = 'OBS_AUDIO_INCREASE_VOLUME',
+  OBS_AUDIO_DECREASE_VOLUME = 'OBS_AUDIO_DECREASE_VOLUME',
 }
 
 @Entity({ name: 'channels_events_operations' })
@@ -59,4 +65,7 @@ export class EventOperation {
 
   @Column({ default: 600 })
   timeoutTime: number;
+
+  @Column({ nullable: true })
+  obsTargetName: string | null;
 }

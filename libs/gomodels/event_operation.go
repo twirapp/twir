@@ -39,6 +39,12 @@ const (
 	OperationEnableEmoteOnly   EventOperationType = "ENABLE_EMOTEONLY"
 	OperationDisableEmoteOnly  EventOperationType = "DISABLE_EMOTEONLY"
 	OperationCreateGreeting    EventOperationType = "CREATE_GREETING"
+	OperationObsSetScene       EventOperationType = "OBS_SET_SCENE"
+	OperationObsToggleSource   EventOperationType = "OBS_TOGGLE_SOURCE"
+	OperationObsToggleAudio    EventOperationType = "OBS_TOGGLE_AUDIO"
+	OperationObsSetVolume      EventOperationType = "OBS_AUDIO_SET_VOLUME"
+	OperationObsIncreaseVolume EventOperationType = "OBS_AUDIO_INCREASE_VOLUME"
+	OperationObsDecreaseVolume EventOperationType = "OBS_AUDIO_DECREASE_VOLUME"
 )
 
 type EventOperation struct {
@@ -47,11 +53,12 @@ type EventOperation struct {
 	Delay   int                `gorm:"column:delay;type:int" json:"delay"`
 	EventID string             `gorm:"column:eventId;type:string" json:"eventId"`
 
-	Input       null.String `gorm:"column:input;type:string" json:"input"`
-	Repeat      int         `gorm:"column:repeat;type:int" json:"repeat"`
-	Order       int         `gorm:"column:order;type:int" json:"order"`
-	UseAnnounce bool        `gorm:"column:useAnnounce;type:BOOL" json:"useAnnounce"`
-	TimeoutTime int         `gorm:"column:timeoutTime;type:int" json:"timeoutTime"`
+	Input         null.String `gorm:"column:input;type:string" json:"input"`
+	Repeat        int         `gorm:"column:repeat;type:int" json:"repeat"`
+	Order         int         `gorm:"column:order;type:int" json:"order"`
+	UseAnnounce   bool        `gorm:"column:useAnnounce;type:BOOL" json:"useAnnounce"`
+	TimeoutTime   int         `gorm:"column:timeoutTime;type:int" json:"timeoutTime"`
+	ObsTargetName null.String `gorm:"column:obsTargetName;type:string" json:"obsTargetName"`
 }
 
 func (c *EventOperation) TableName() string {

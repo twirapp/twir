@@ -4,6 +4,7 @@ import (
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -13,8 +14,9 @@ type Services struct {
 	Logger *zap.Logger
 	Cfg    *cfg.Config
 
-	BotsGrpc   bots.BotsClient
-	TokensGrpc tokens.TokensClient
+	BotsGrpc       bots.BotsClient
+	TokensGrpc     tokens.TokensClient
+	WebsocketsGrpc websockets.WebsocketClient
 }
 
 type Data struct {
@@ -41,8 +43,9 @@ type Data struct {
 	RewardCost  string  `json:"rewardCost"`
 	RewardInput *string `json:"rewardInput"`
 
-	CommandName string `json:"commandName"`
-	CommandID   string `json:"-"`
+	CommandName  string `json:"commandName"`
+	CommandID    string `json:"-"`
+	CommandInput string `json:"commandInput"`
 
 	TargetUserName        string `json:"targetUserName"`
 	TargetUserDisplayName string `json:"targetUserDisplayName"`

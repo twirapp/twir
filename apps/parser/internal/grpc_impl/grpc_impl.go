@@ -124,6 +124,7 @@ func (c *parserGrpcServer) ProcessCommand(
 		BaseInfo:        &events.BaseInfo{ChannelId: data.Channel.Id},
 		CommandId:       cmd.Cmd.ID,
 		CommandName:     cmd.Cmd.Name,
+		CommandInput:    strings.TrimSpace(data.Message.Text[len(cmd.FoundBy):]),
 		UserName:        data.Sender.Name,
 		UserDisplayName: data.Sender.DisplayName,
 	})

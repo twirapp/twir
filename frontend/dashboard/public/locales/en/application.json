@@ -1,0 +1,10 @@
+{
+  "title": "You can install site as application on your system. In this case you will be able to use dashboard without actual browser opened, and also it brings OBS Websocket support.",
+  "obs": {
+    "title": "It brings support to events for hide/show scenes, mute/unmute audio and some other obs control things.",
+    "info": "For working with obs we need you to keep site OPENED. Otherwise connection to obs will be closed.\nYou can install the site as application for a more comfortable experience.",
+    "address": "Address. Usually it's localhost, but if you advanced user you know what to do with that field",
+    "port": "Port",
+    "password": "Password"
+  }
+}

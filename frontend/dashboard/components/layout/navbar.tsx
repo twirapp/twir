@@ -9,10 +9,11 @@ import {
   Loader,
   Menu,
   Text,
-  Box, Divider,
+  Box, Divider, Button, Badge,
 } from '@mantine/core';
 import { IconMoonStars, IconSun, IconLanguage } from '@tabler/icons';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction } from 'react';
 
 import DiscordSvg from '../../public/assets/icons/brands/discord.svg';
@@ -21,6 +22,7 @@ import { Profile } from './profile';
 import { useProfile } from '@/services/api';
 import { useLocale, LOCALES } from '@/services/dashboard';
 import { useTheme } from '@/services/dashboard';
+import { useObs } from '@/services/obs/hook';
 
 
 const useStyles = createStyles((theme) => ({
@@ -51,10 +53,14 @@ export function NavBar({
   setOpened: Dispatch<SetStateAction<boolean>>;
   opened: boolean;
 }) {
+  const router = useRouter();
+
   const { classes } = useStyles();
   const { theme, colorScheme, toggleColorScheme } = useTheme();
   const { locale, toggleLocale } = useLocale();
   const { data: userData, isLoading: isLoadingProfile } = useProfile();
+
+  const obs = useObs();
 
   return (
     <Header height={60}>
@@ -84,7 +90,11 @@ export function NavBar({
             </Text>
           </Box>
         </Flex>
+        <Group>
+          <Badge color={obs.connected ? 'green' : 'red'}>OBS {obs.connected ? 'connected' : 'disconnected'}</Badge>
+        </Group>
         <Group position="center">
+          <Button variant={'light'} onClick={() => router.push('/application')}>Application</Button>
           <ActionIcon
             size={'lg'}
             variant={'default'}

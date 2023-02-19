@@ -2,40 +2,42 @@ import {
   ActionIcon,
   Button,
   Card,
+  Center,
+  Checkbox,
+  Code,
+  CopyButton,
+  createStyles,
   Drawer,
   Flex,
+  Group,
+  NumberInput,
   ScrollArea,
-  Center,
+  Select,
+  Text,
   Textarea,
   useMantineTheme,
-  Select,
-  NumberInput,
-  createStyles,
-  Group,
-  CopyButton,
-  Code,
-  Checkbox,
-  Text,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
-import {
-  IconArrowBigDownLines,
-  IconPlus,
-  IconX,
-} from '@tabler/icons';
+import { IconArrowBigDownLines, IconPlus, IconX } from '@tabler/icons';
 import { Event, EventType } from '@tsuwari/typeorm/entities/events/Event';
 import { OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
 import { useTranslation } from 'next-i18next';
 import React, { useEffect, useState } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 import { noop } from '../../util/chore';
 import { eventsMapping } from './eventsMapping';
 
 import { operationMapping } from '@/components/events/operationMapping';
 import { RewardItem, RewardItemProps } from '@/components/reward';
-import { commandsManager, eventsManager as useEventsManager, keywordsManager as useKeywordsManager, useRewards } from '@/services/api';
+import {
+  commandsManager,
+  eventsManager as useEventsManager,
+  keywordsManager as useKeywordsManager,
+  useRewards,
+} from '@/services/api';
+import { useObs } from '@/services/obs/hook';
 
 type Props = {
   opened: boolean;
@@ -75,6 +77,25 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       operations: {
         delay: (v) => v > 1800 ? 'Delay cannot be more then 1800' : null,
         repeat: (v) => v > 10 ? 'Repeat cannot be more then 10' : null,
+        // input: (v, values, path) => {
+        //   const pathWithoutInput = path.split('.input')[0];
+        //   const operationIndex = pathWithoutInput.at(pathWithoutInput.length - 1);
+        //   const operation = values.operations[Number(operationIndex)];
+        //   if (!operation) return null;
+        //   if (
+        //     operation.type === OperationType.OBS_AUDIO_SET_VOLUME
+        //     || operation.type === OperationType.OBS_AUDIO_INCREASE_VOLUME
+        //     || operation.type === OperationType.OBS_AUDIO_DECREASE_VOLUME
+        //   ) {
+        //     const convertedValue = Number(v);
+        //     if (Number.isNaN(convertedValue)) return 'Incorrect value. Can be from 0 to 20';
+        //     if (convertedValue < 0 || convertedValue > 20) {
+        //       return 'Volume can be from 0 to 20.';
+        //     }
+        //   }
+        //
+        //   return null;
+        // },
       },
     },
   });
@@ -93,6 +114,8 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 
   const rewardsManager = useRewards();
   const { data: rewardsData } = rewardsManager();
+
+  const obsSocket = useObs();
 
   useEffect(() => {
     form.reset();
@@ -134,6 +157,40 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       props.setOpened(false);
       form.reset();
     }).catch(noop);
+  }
+
+  function getObsSourceByOperationType(type: OperationType) {
+    if (
+      type === OperationType.OBS_TOGGLE_AUDIO
+      || type == OperationType.OBS_AUDIO_DECREASE_VOLUME
+      || type == OperationType.OBS_AUDIO_INCREASE_VOLUME
+      || type == OperationType.OBS_AUDIO_SET_VOLUME
+    ) {
+      return obsSocket.inputs.map((i) => ({
+        label: i,
+        value: i,
+      }));
+    }
+
+    if (type == OperationType.OBS_SET_SCENE) {
+      return Object.keys(obsSocket.scenes).map((s) => ({
+        label: s,
+        value: s,
+      }));
+    }
+
+    if (type == OperationType.OBS_TOGGLE_SOURCE) {
+      return Object.entries(obsSocket.scenes)
+        .map((pair) => {
+          return pair[1].sources.map((source) => ({
+            label: `[${pair[0]}] ${source.name}`,
+            value: source.name,
+          }));
+        })
+        .flat();
+    }
+
+    return [];
   }
 
   return (
@@ -187,10 +244,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                   value: c.id,
                   label: c.name,
                 })) ?? []}
-                onChange={(newValue) => {
-                  form.setFieldValue(`commandId`, newValue);
-                }}
-                value={form.values.commandId}
+                {...form.getInputProps('commandId')}
                 w={'100%'}
             />}
 
@@ -222,8 +276,8 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 
             <Flex direction={'column'} gap={'sm'}>
               <Text mb={5}>{t('availableVariables')}</Text>
-              {eventsMapping[form.values.type]?.availableVariables?.map((variable) =>
-                  <Text size={'sm'}>
+              {eventsMapping[form.values.type]?.availableVariables?.map((variable, i) =>
+                  <Text size={'sm'} key={i}>
                     <CopyButton value={`{${variable}}`}>
                       {({ copied, copy }) => (
                         <Code
@@ -300,12 +354,13 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                     && <Flex direction={'column'} mt={5}>
                                           <Text size={'sm'}>Available variables from prev operation:</Text>
                                           <Flex direction={'row'}>
-                                            {operationMapping[form.values.operations[index - 1].type].producedVariables!.map(v => <CopyButton value={`{prevOperation.${v}}`}>
+                                            {operationMapping[form.values.operations[index - 1].type].producedVariables!.map((v, i) => <CopyButton value={`{prevOperation.${v}}`}>
                                               {({ copied, copy }) => (
                                                 <Text
                                                   onClick={copy}
                                                   style={{ cursor:'pointer' }}
                                                   size={'xs'}
+                                                  key={i}
                                                 >
                                                   {copied ? 'Copied' : `{prevOperation.${v}}`}
                                                 </Text>
@@ -313,7 +368,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                             </CopyButton>)}
                                           </Flex>
                                       </Flex>}
-                                {operationMapping[operation.type].additionalValues?.map((v) => <Group mt={5}>
+                                {operationMapping[operation.type].additionalValues?.map((v, i) => <Group key={i} mt={5}>
                                   {v === 'useAnnounce' && <Checkbox
                                     label={t('operations.additionalValues.useAnnounce')}
                                     labelPosition={'left'}
@@ -322,6 +377,13 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                   {v === 'timeoutTime' && <NumberInput
                                     label={t('operations.additionalValues.timeoutTime')}
                                     {...form.getInputProps(`operations.${index}.timeoutTime`)}
+                                  />}
+                                  {v === 'obsTargetName' && <Select
+                                      label={'OBS Target'}
+                                      searchable={true}
+                                      data={getObsSourceByOperationType(operation.type)}
+                                      w={'100%'}
+                                      {...form.getInputProps(`operations.${index}.obsTargetName`)}
                                   />}
                                 </Group>)}
                               </Card.Section>}
@@ -367,6 +429,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                   order: form.values.operations.length,
                   useAnnounce: false,
                   timeoutTime: 600,
+                  obsTargetName: '',
                 }]);
               }}>
                 <IconPlus size={30} />

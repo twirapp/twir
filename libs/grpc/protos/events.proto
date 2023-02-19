@@ -78,6 +78,7 @@ message CommandUsedMessage {
   string commandName = 3;
   string userName = 4;
   string userDisplayName = 5;
+  string commandInput = 6;
 }
 
 message FirstUserMessageMessage {

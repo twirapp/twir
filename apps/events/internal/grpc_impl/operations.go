@@ -88,6 +88,40 @@ operationsLoop:
 				operationError = processor.ModOrUnmod(operation.Input.String, operation.Type)
 			case model.OperationUnmodRandom:
 				operationError = processor.UnmodRandom()
+			case model.OperationObsSetScene:
+				if !operation.ObsTargetName.Valid {
+					continue
+				}
+
+				operationError = processor.ObsSetScene(operation.ObsTargetName.String)
+			case model.OperationObsToggleSource:
+				if !operation.ObsTargetName.Valid {
+					continue
+				}
+
+				operationError = processor.ObsToggleSource(operation.ObsTargetName.String)
+			case model.OperationObsToggleAudio:
+				if !operation.ObsTargetName.Valid {
+					continue
+				}
+
+				operationError = processor.ObsToggleAudio(operation.ObsTargetName.String)
+			case model.OperationObsIncreaseVolume, model.OperationObsDecreaseVolume:
+				if !operation.Input.Valid || !operation.ObsTargetName.Valid {
+					continue
+				}
+
+				operationError = processor.ObsAudioChangeVolume(
+					operation.Type,
+					operation.ObsTargetName.String,
+					operation.Input.String,
+				)
+			case model.OperationObsSetVolume:
+				if !operation.Input.Valid || !operation.ObsTargetName.Valid {
+					continue
+				}
+
+				operationError = processor.ObsAudioSetVolume(operation.ObsTargetName.String, operation.Input.String)
 			}
 
 			if operationError != nil {

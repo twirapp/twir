@@ -4,6 +4,7 @@ import { type Channel } from './Channel.js';
 
 export enum ModuleType {
   YOUTUBE_SONG_REQUESTS = 'youtube_song_requests',
+  OBS_WEBSOCKET = 'obs_websocket'
 }
 
 @Entity('channels_modules_settings')

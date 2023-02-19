@@ -6,6 +6,7 @@ import { SpotlightProvider } from '@mantine/spotlight';
 import { IconSearch } from '@tabler/icons';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { getCookie, setCookie } from 'cookies-next';
+import { Provider as JotaiProvider } from 'jotai';
 import { GetServerSidePropsContext } from 'next';
 import { appWithTranslation } from 'next-i18next';
 import { AppProps } from 'next/app';
@@ -18,8 +19,12 @@ import { AppProvider } from '@/components/appProvider';
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { queryClient } from '@/services/api';
+import { InternalObsWebsocketProvider, OBSWebsocketProvider } from '@/services/obs/provider';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
+
 import '../styles/global.css';
+import { obsStore } from '../stores/obs';
+
 
 // put in constants.ts
 const ONE_MONTH = 2_629_700_000;
@@ -93,17 +98,7 @@ function App(props: AppProps & Props) {
                   }}
                 >
                   <ModalsProvider>
-                    <AppShell
-                      styles={{
-                        main: {
-                          background: colorScheme === 'dark' ? 'dark.8' : 'gray.0',
-                          padding: 0,
-                          width: '100%',
-                        },
-                      }}
-                      navbar={<SideBar opened={sidebarOpened} setOpened={setSidebarOpened} />}
-                      header={<NavBar setOpened={setSidebarOpened} opened={sidebarOpened} />}
-                    >
+                    <JotaiProvider store={obsStore}>
                       <AppProvider colorScheme={colorScheme}>
                         <Component
                           styles={{
@@ -113,7 +108,7 @@ function App(props: AppProps & Props) {
                           }}
                         />
                       </AppProvider>
-                    </AppShell>
+                    </JotaiProvider>
                   </ModalsProvider>
                 </SpotlightProvider>
               </NotificationsProvider>

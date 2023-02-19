@@ -3,12 +3,14 @@ package events
 import model "github.com/satont/tsuwari/libs/gomodels"
 
 type operationDto struct {
-	Type        model.EventOperationType `validate:"required" json:"type"`
-	Input       *string                  `json:"input"`
-	Delay       int                      `validate:"lte=1800" json:"delay"`
-	Repeat      int                      `validate:"gte=1,lte=10" json:"repeat"`
-	UseAnnounce *bool                    `json:"useAnnounce"`
-	TimeoutTime int                      `json:"timeoutTime"`
+	Type          model.EventOperationType `validate:"required" json:"type"`
+	Input         *string                  `json:"input"`
+	Delay         int                      `validate:"lte=1800" json:"delay"`
+	Repeat        int                      `validate:"gte=1,lte=10" json:"repeat"`
+	UseAnnounce   *bool                    `json:"useAnnounce"`
+	TimeoutTime   int                      `json:"timeoutTime"`
+	ObsAudioStep  string                   `json:"obsAudioStep"`
+	ObsTargetName string                   `json:"obsTargetName"`
 }
 
 type eventDto struct {

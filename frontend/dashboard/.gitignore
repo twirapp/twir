@@ -1,1 +1,3 @@
 .next
+/public/sw*
+/public/workbox-*
