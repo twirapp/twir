@@ -26,6 +26,7 @@ export default class _Document extends Document {
           <meta name="msapplication-TileColor" content="#2B5797" />
           <meta name="msapplication-tap-highlight" content="no" />
           <meta name="theme-color" content="#000000" />
+          <meta name="darkreader-lock" />
 
 
           <link rel="manifest" href="/dashboard/manifest.json" />
