@@ -1,6 +1,6 @@
 import { getCookie } from 'cookies-next';
-import { useAtom, useStore } from 'jotai';
-import { useCallback, useEffect, useState } from 'react';
+import { useStore } from 'jotai';
+import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 
 import { externalObsWsAtom, internalObsWsAtom, MyOBSWebsocket } from '../../stores/obs';
@@ -46,7 +46,6 @@ export const useInternalObsWs = () => {
     jotaiStore.set(internalObsWsAtom, webSocket);
 
     webSocket?.off('setScene').on('setScene', (data) => {
-      console.log(data, obs.connected);
       obs.setScene(data.sceneName);
     });
   };
@@ -77,8 +76,7 @@ export const useObs = () => {
 
   const setScene = (sceneName: string) => {
     const obs = jotaiStore.get(externalObsWsAtom);
-    console.log(obs);
-    obs?.call('GetCurrentProgramScene').then(console.log);
+
     obs?.call('SetCurrentProgramScene', { sceneName })
       .catch(console.error);
   };
