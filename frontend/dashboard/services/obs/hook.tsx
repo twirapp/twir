@@ -1,5 +1,5 @@
 import { getCookie } from 'cookies-next';
-import { useAtom } from 'jotai';
+import { useAtom, useStore } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 
@@ -22,7 +22,8 @@ type OBSScenes = {
 type OBSInputs = string[]
 
 export const useInternalObsWs = () => {
-  const [ws, setWs] = useAtom(internalObsWsAtom);
+  const jotaiStore = useStore();
+
   const profile = useProfile();
   const obs = useObs();
 
@@ -42,7 +43,7 @@ export const useInternalObsWs = () => {
       },
     );
 
-    setWs(webSocket);
+    jotaiStore.set(internalObsWsAtom, webSocket);
 
     webSocket?.off('setScene').on('setScene', (data) => {
       console.log(data, obs.connected);
@@ -51,20 +52,23 @@ export const useInternalObsWs = () => {
   };
 
   const disconnect = () => {
+    const ws = jotaiStore.get(internalObsWsAtom);
+
     ws?.removeAllListeners();
     ws?.disconnect();
-    setWs(null);
+    jotaiStore.set(internalObsWsAtom, null);
   };
 
   return {
     connect,
     disconnect,
-    connected: ws?.connected,
+    connected: jotaiStore.get(internalObsWsAtom)?.connected,
   };
 };
 
 export const useObs = () => {
-  const [obs, setObs] = useAtom(externalObsWsAtom);
+  const jotaiStore = useStore();
+
   const obsModule = useObsModule();
   const { data: obsSettings } = obsModule.useSettings();
 
@@ -72,6 +76,8 @@ export const useObs = () => {
   const [inputs, setInputs] = useState<OBSInputs>([]);
 
   const setScene = (sceneName: string) => {
+    const obs = jotaiStore.get(externalObsWsAtom);
+    console.log(obs);
     obs?.call('GetCurrentProgramScene').then(console.log);
     obs?.call('SetCurrentProgramScene', { sceneName })
       .catch(console.error);
@@ -84,17 +90,22 @@ export const useObs = () => {
 
     const newObs = new MyOBSWebsocket();
     await newObs.connect(`ws://${obsSettings.serverAddress}:${obsSettings.serverPort}`, obsSettings.serverPassword);
-    setObs(newObs);
+
+    jotaiStore.set(externalObsWsAtom, newObs);
   };
 
   const disconnect = async () => {
+    const obs = jotaiStore.get(externalObsWsAtom);
+
     if (!obs) return;
 
     await obs.disconnect();
-    setObs(null);
+    jotaiStore.set(externalObsWsAtom, null);
   };
 
   useEffect(() => {
+    const obs = jotaiStore.get(externalObsWsAtom);
+
     if (obs?.connected) {
       getScenes().then((newScenes) => {
         if (newScenes) {
@@ -105,9 +116,11 @@ export const useObs = () => {
         setInputs(inputs);
       });
     }
-  }, [obs?.connected]);
+  }, [jotaiStore.get(externalObsWsAtom)]);
 
   const getScenes = async (): Promise<OBSScenes | undefined> => {
+    const obs = jotaiStore.get(externalObsWsAtom);
+
     const scenesReq = await obs?.call('GetSceneList');
     if (!scenesReq) return;
 
@@ -151,13 +164,15 @@ export const useObs = () => {
   };
 
   const getInputs = async () => {
+    const obs = jotaiStore.get(externalObsWsAtom);
+
     const req = await obs?.call('GetInputList');
 
     return req?.inputs.map(i => i.inputName as string) ?? [];
   };
 
   return {
-    connected: obs?.connected,
+    connected: jotaiStore.get(externalObsWsAtom)?.connected,
     disconnect,
     connect,
     scenes,
