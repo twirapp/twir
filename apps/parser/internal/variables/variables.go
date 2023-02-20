@@ -93,6 +93,7 @@ func New() Variables {
 		keywords.Counter,
 		user_emotes.Variable,
 		command_param.Variable,
+		top_emotes.UsersVariable,
 	}
 
 	ctx := Variables{

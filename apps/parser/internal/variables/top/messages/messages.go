@@ -51,7 +51,7 @@ var Variable = types.Variable{
 
 		mappedTop := lo.Map(topUsers, func(user *top.UserStats, idx int) string {
 			return fmt.Sprintf(
-				"%s %v",
+				"%s × %v",
 				user.UserName,
 				user.Value,
 			)

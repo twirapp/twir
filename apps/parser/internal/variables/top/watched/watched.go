@@ -51,7 +51,7 @@ var Variable = types.Variable{
 		mappedTop := lo.Map(topUsers, func(user *top.UserStats, idx int) string {
 			duration := time.Duration(user.Value) * time.Millisecond
 			return fmt.Sprintf(
-				"%s %.1fh",
+				"%s × %.1fh",
 				user.UserName,
 				duration.Hours(),
 			)

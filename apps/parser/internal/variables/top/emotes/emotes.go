@@ -15,6 +15,8 @@ import (
 type Emote struct {
 	Emote string
 	Count int
+
+	UserID string
 }
 
 var Variable = types.Variable{
