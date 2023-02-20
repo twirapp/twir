@@ -266,10 +266,12 @@ importers:
     specifiers:
       '@tsuwari/grpc': workspace:*
       nice-grpc: ^2.1.0
+      ytdl-core: ^4.11.2
       ytsr: ^3.8.0
     dependencies:
       '@tsuwari/grpc': link:../../libs/grpc
       nice-grpc: 2.1.0
+      ytdl-core: 4.11.2
       ytsr: 3.8.0
 
   frontend/dashboard:
@@ -12575,6 +12577,14 @@ packages:
     hasBin: true
     dev: false
 
+  /m3u8stream/0.8.6:
+    resolution: {integrity: sha512-LZj8kIVf9KCphiHmH7sbFQTVe4tOemb202fWwvJwR9W5ENW/1hxJN6ksAWGhQgSBSa3jyWhnjKU1Fw1GaOdbyA==}
+    engines: {node: '>=12'}
+    dependencies:
+      miniget: 4.2.2
+      sax: 1.2.4
+    dev: false
+
   /magic-string/0.25.9:
     resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==}
     dependencies:
@@ -18324,6 +18334,15 @@ packages:
       sister: 3.0.2
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /ytdl-core/4.11.2:
+    resolution: {integrity: sha512-D939t9b4ZzP3v0zDvehR2q+KgG97UTgrTKju3pOPGQcXtl4W6W5z0EpznzcJFu+OOpl7S7Ge8hv8zU65QnxYug==}
+    engines: {node: '>=12'}
+    dependencies:
+      m3u8stream: 0.8.6
+      miniget: 4.2.2
+      sax: 1.2.4
     dev: false
 
   /ytsr/3.8.0:
