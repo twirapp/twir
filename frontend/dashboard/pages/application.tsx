@@ -6,7 +6,7 @@ import {
   Card, createStyles,
   Divider,
   Flex,
-  NumberInput,
+  NumberInput, PasswordInput,
   Text,
   TextInput,
 } from '@mantine/core';
@@ -154,7 +154,7 @@ const Application: NextPage = () => {
             {...obsSettingsForm.getInputProps('serverAddress')} withAsterisk
           />
           <NumberInput label={t('obs.port')} {...obsSettingsForm.getInputProps('serverPort')} withAsterisk />
-          <TextInput label={t('obs.password')} {...obsSettingsForm.getInputProps('serverPassword')} withAsterisk />
+          <PasswordInput label={t('obs.password')} {...obsSettingsForm.getInputProps('serverPassword')} withAsterisk />
       </Card.Section>
       <Card.Section p={'sm'}>
         <Button color={'green'} onClick={saveObsSettings}>Save</Button>
