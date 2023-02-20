@@ -79,7 +79,7 @@ export const eventsMapping: Record<keyof typeof EventType, {
     availableVariables: [
       'oldStreamTitle',
       'newStreamTitle',
-      'newStreamCategory',
+      'oldStreamCategory',
       'newStreamCategory',
     ],
   },
