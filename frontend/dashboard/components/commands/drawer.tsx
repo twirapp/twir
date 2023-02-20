@@ -206,16 +206,16 @@ export const CommandDrawer: React.FC<Props> = (props) => {
               </ScrollArea.Autosize>
             </div>
 
-            {form.values.module === 'CUSTOM' && <div style={{ width: '100%' }}>
-                <Textarea
-                    label={t('drawer.description.label')}
-                    placeholder={t('drawer.description.placeholder') ?? ''}
-                    {...form.getInputProps('description')}
-                    w={'100%'}
-                    autosize={true}
-                    minRows={1}
-                />
-            </div>}
+            <div style={{ width: '100%' }}>
+              <Textarea
+                  label={t('drawer.description.label')}
+                  placeholder={t('drawer.description.placeholder') ?? ''}
+                  {...form.getInputProps('description')}
+                  w={'100%'}
+                  autosize={true}
+                  minRows={1}
+              />
+            </div>
 
             <div>
               <Flex direction="row" gap={5} wrap="wrap">
