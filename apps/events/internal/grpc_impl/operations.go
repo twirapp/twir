@@ -116,6 +116,12 @@ operationsLoop:
 					operation.ObsTargetName.String,
 					operation.Input.String,
 				)
+			case model.OperationObsEnableAudio, model.OperationObsDisableAudio:
+				if !operation.ObsTargetName.Valid {
+					return
+				}
+
+				operationError = processor.ObsEnableOrDisableAudio(operation.Type, operation.ObsTargetName.String)
 			case model.OperationObsSetVolume:
 				if !operation.Input.Valid || !operation.ObsTargetName.Valid {
 					continue

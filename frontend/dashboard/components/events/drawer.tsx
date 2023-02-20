@@ -165,6 +165,8 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       || type == OperationType.OBS_AUDIO_DECREASE_VOLUME
       || type == OperationType.OBS_AUDIO_INCREASE_VOLUME
       || type == OperationType.OBS_AUDIO_SET_VOLUME
+      || type == OperationType.OBS_DISABLE_AUDIO
+      || type == OperationType.OBS_ENABLE_AUDIO
     ) {
       return obsSocket.inputs.map((i) => ({
         label: i,

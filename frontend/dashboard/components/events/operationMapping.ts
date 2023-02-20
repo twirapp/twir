@@ -116,4 +116,12 @@ export const operationMapping: Record<keyof typeof OperationType, {
     haveInput: true,
     additionalValues: ['obsTargetName'],
   },
+  OBS_ENABLE_AUDIO: {
+    description: '[OBS] Enable audio source',
+    additionalValues: ['obsTargetName'],
+  },
+  OBS_DISABLE_AUDIO: {
+    description: '[OBS] Disable audio source',
+    additionalValues: ['obsTargetName'],
+  },
 };

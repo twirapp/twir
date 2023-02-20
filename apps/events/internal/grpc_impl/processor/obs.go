@@ -107,3 +107,27 @@ func (c *Processor) ObsAudioSetVolume(sourceName, input string) error {
 
 	return nil
 }
+
+func (c *Processor) ObsEnableOrDisableAudio(operation model.EventOperationType, sourceName string) error {
+	if operation == model.OperationObsDisableAudio {
+		_, err := c.services.WebsocketsGrpc.ObsAudioDisable(context.Background(), &websockets.ObsAudioDisableOrEnableMessage{
+			ChannelId:       c.channelId,
+			AudioSourceName: sourceName,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	if operation == model.OperationObsEnableAudio {
+		_, err := c.services.WebsocketsGrpc.ObsAudioEnable(context.Background(), &websockets.ObsAudioDisableOrEnableMessage{
+			ChannelId:       c.channelId,
+			AudioSourceName: sourceName,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

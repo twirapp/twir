@@ -69,6 +69,14 @@ export const useInternalObsWs = () => {
     webSocket.off('decreaseVolume').on('decreaseVolume', (data) => {
       obs.changeVolume(data.audioSourceName, data.step, 'decrease');
     });
+
+    webSocket.off('enableAudio').on('enableAudio', (data) => {
+      obs.toggleAudioSource(data.audioSourceName, true);
+    });
+
+    webSocket.off('disableAudio').on('disableAudio', (data) => {
+      obs.toggleAudioSource(data.audioSourceName, false);
+    });
   };
 
   const disconnect = () => {
@@ -121,10 +129,14 @@ export const useObs = () => {
     });
   };
 
-  const toggleAudioSource = async (sourceName: string) => {
+  const toggleAudioSource = async (sourceName: string, muted?: boolean) => {
     const obs = jotaiStore.get(externalObsWsAtom);
 
-    await obs?.call('ToggleInputMute', { inputName: sourceName });
+    if (typeof muted !== 'undefined') {
+      await obs?.call('SetInputMute', { inputName: sourceName, inputMuted: !muted });
+    } else {
+      await obs?.call('ToggleInputMute', { inputName: sourceName });
+    }
   };
 
   const setVolume = async (inputName: string, volume: number) => {

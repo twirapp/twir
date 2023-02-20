@@ -1,6 +1,6 @@
 import { Empty } from '@tsuwari/grpc/generated/websockets/google/protobuf/empty';
 import {
-  ObsAudioDecreaseVolumeMessage,
+  ObsAudioDecreaseVolumeMessage, ObsAudioDisableOrEnableMessage,
   ObsAudioIncreaseVolumeMessage,
   ObsAudioSetVolumeMessage,
   ObsSetSceneMessage,
@@ -70,6 +70,24 @@ export const onToggleSource = async (data: ObsToggleSourceMessage): Promise<Empt
   if (!socket) return {};
 
   socket.emit('toggleSource', data);
+
+  return {};
+};
+
+export const onAudioEnable = async (data: ObsAudioDisableOrEnableMessage): Promise<Empty> => {
+  const socket = sockets.get(data.channelId);
+  if (!socket) return {};
+
+  socket.emit('enableAudio', data);
+
+  return {};
+};
+
+export const onAudioDisable = async (data: ObsAudioDisableOrEnableMessage): Promise<Empty> => {
+  const socket = sockets.get(data.channelId);
+  if (!socket) return {};
+
+  socket.emit('disableAudio', data);
 
   return {};
 };
