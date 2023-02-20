@@ -4,7 +4,6 @@ go 1.18
 
 require (
 	github.com/Masterminds/squirrel v1.5.3
-	github.com/SherlockYigit/youtube-go v1.0.0
 	github.com/getsentry/sentry-go v0.18.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/guregu/null v4.0.0+incompatible
@@ -92,10 +91,6 @@ replace github.com/satont/tsuwari/libs/integrations/spotify => ../../libs/integr
 replace github.com/satont/tsuwari/libs/config => ../../libs/config
 
 replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
-
-replace github.com/kkdai/youtube/v2 => ../../libs/ytdl
-
-replace github.com/SherlockYigit/youtube-go => ../../libs/ytsr
 
 replace github.com/satont/tsuwari/libs/types => ../../libs/types
 

@@ -336,3 +336,16 @@ COPY --from=events_deps /app/apps/events/out /bin/events
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["/bin/events"]
+
+FROM node_deps_base as ytsr_deps
+COPY --from=base /app/apps/ytsr apps/ytsr/
+COPY --from=base /app/libs/grpc libs/grpc/
+COPY --from=base /app/patches patches/
+RUN pnpm install --prod --frozen-lockfile
+
+FROM node_prod_base as ytsr
+WORKDIR /app
+COPY --from=ytsr_deps /app/ /app/
+COPY --from=base /app/docker-entrypoint.sh /app/
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["pnpm", "--filter=@tsuwari/ytsr", "start"]

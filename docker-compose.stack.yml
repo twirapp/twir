@@ -516,6 +516,27 @@ services:
       mode: replicated
       replicas: 15
 
+  ytsr:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: ytsr
+    image: registry.satont.dev/tsuwari/ytsr
+    secrets:
+      - tsuwari_doppler_token
+    networks:
+      - tsuwari
+    deploy:
+      update_config:
+        parallelism: 5
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      mode: replicated
+      replicas: 20
+
 volumes:
   postgres-data:
   redis-data:

@@ -262,6 +262,16 @@ importers:
     devDependencies:
       '@tsuwari/types': link:../../libs/types
 
+  apps/ytsr:
+    specifiers:
+      '@tsuwari/grpc': workspace:*
+      nice-grpc: ^2.1.0
+      ytsr: ^3.8.0
+    dependencies:
+      '@tsuwari/grpc': link:../../libs/grpc
+      nice-grpc: 2.1.0
+      ytsr: 3.8.0
+
   frontend/dashboard:
     specifiers:
       '@emotion/react': ^11.10.5
@@ -6358,6 +6368,7 @@ packages:
 
   /@types/node/18.11.17:
     resolution: {integrity: sha512-HJSUJmni4BeDHhfzn6nF0sVmd1SMezP7/4F0Lq+aXzmp2xm9O7WXrUtHW/CHlYVtZUbByEvWidHqRtcJXGF2Ng==}
+    dev: true
 
   /@types/node/18.11.18:
     resolution: {integrity: sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==}
@@ -12823,6 +12834,11 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
+  /miniget/4.2.2:
+    resolution: {integrity: sha512-a7voNL1N5lDMxvTMExOkg+Fq89jM2vY8pAi9ZEWzZtfNmdfP6RXkvUtFnCAXoCv2T9k1v/fUJVaAEuepGcvLYA==}
+    engines: {node: '>=12'}
+    dev: false
+
   /minimalistic-assert/1.0.1:
     resolution: {integrity: sha512-UtJcAD4yEaGtjPezWuO9wC4nwUnVH/8/Im3yEHQP4b67cXlD/Qr9hdITCU1xDbSEXg2XKNaP8jsReV7vQd00/A==}
     dev: true
@@ -14373,7 +14389,7 @@ packages:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 18.11.17
+      '@types/node': 18.13.0
       long: 5.2.1
 
   /proxy-addr/2.0.7:
@@ -18308,6 +18324,13 @@ packages:
       sister: 3.0.2
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /ytsr/3.8.0:
+    resolution: {integrity: sha512-R+RfYXvBBMAr2e4OxrQ5SBv5x/Mdhmcj1Q8TH0f2HK5d2jbhHOtK4BdzPvLriA6MDoMwqqX04GD8Rpf9UNtSTg==}
+    engines: {node: '>=8'}
+    dependencies:
+      miniget: 4.2.2
     dev: false
 
   /zwitch/1.0.5:

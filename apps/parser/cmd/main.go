@@ -9,6 +9,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/eval"
 	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/grpc/generated/ytsr"
 	"log"
 	"net"
 	"net/http"
@@ -110,6 +111,7 @@ func main() {
 	do.ProvideValue[eval.EvalClient](di.Provider, clients.NewEval(cfg.AppEnv))
 	do.ProvideValue[tokens.TokensClient](di.Provider, clients.NewTokens(cfg.AppEnv))
 	do.ProvideValue[events.EventsClient](di.Provider, clients.NewEvents(cfg.AppEnv))
+	do.ProvideValue[ytsr.YtsrClient](di.Provider, clients.NewYtsr(cfg.AppEnv))
 
 	do.ProvideValue[variables.Variables](di.Provider, variables.New())
 

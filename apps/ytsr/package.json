@@ -1,0 +1,15 @@
+{
+  "name": "@tsuwari/ytsr",
+  "type": "module",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc -b tsconfig.json",
+    "dev": "reflex -s -r '\\.ts$' -- sh -c 'cross-env TS_NODE_TRANSPILE_ONLY=true node --loader ts-node/esm --enable-source-maps --trace-warnings --nolazy src/index.ts'",
+    "start": "node --enable-source-maps dist/index.js"
+  },
+  "dependencies": {
+    "@tsuwari/grpc": "workspace:*",
+    "nice-grpc": "^2.1.0",
+    "ytsr": "^3.8.0"
+  }
+}

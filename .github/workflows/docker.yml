@@ -82,6 +82,7 @@ jobs:
             public,
             emotes-cacher,
             events,
+            ytsr,
           ]
     steps:
       - uses: actions/checkout@v2
