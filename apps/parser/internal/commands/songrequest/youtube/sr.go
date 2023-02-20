@@ -363,7 +363,8 @@ func validate(
 				settings.Translations.Song.MaximumOrdered,
 				"{{", "}}",
 				map[string]interface{}{
-					"count": strconv.Itoa(settings.User.MaxRequests),
+					"count":   strconv.Itoa(settings.User.MaxRequests),
+					"maximum": strconv.Itoa(settings.User.MaxRequests),
 				},
 			)
 			return errors.New(message)
