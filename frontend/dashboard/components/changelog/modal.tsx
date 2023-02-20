@@ -38,14 +38,14 @@ export const ChangelogModal = () => {
         title="Changelog"
         size={'lg'}
       >
-        {Object.entries(mappedData).map(([date, commits], i) => (<>
+        {Object.entries(mappedData).map(([date, commits], i) => (
           <Flex key={date} direction={'column'}>
             <Text size={'xl'} mt={i === 0 ? 0 : 20}>{date}</Text>
             <Flex direction={'column'}>
               {commits.map((c) => <Text key={c.sha} size={'sm'}>{c.commit.message.split('\n')[0]}</Text>)}
             </Flex>
           </Flex>
-        </>))}
+        ))}
       </Modal>
   );
 };
