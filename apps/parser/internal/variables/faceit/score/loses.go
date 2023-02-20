@@ -8,7 +8,7 @@ import (
 )
 
 var Loses = types.Variable{
-	Name:        "faceit.score.wins",
+	Name:        "faceit.score.loses",
 	Description: lo.ToPtr(`Faceit loses on stream`),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
