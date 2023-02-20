@@ -9,10 +9,10 @@ import {
   Loader,
   Menu,
   Text,
-  Box, Divider, Button, Badge,
+  Box, Divider, Button, Badge, Tooltip,
 } from '@mantine/core';
-import { IconMoonStars, IconSun, IconLanguage } from '@tabler/icons';
-import { useStore } from 'jotai';
+import { IconMoonStars, IconSun, IconLanguage, IconNotes } from '@tabler/icons';
+import { useStore, useAtom } from 'jotai';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction } from 'react';
@@ -21,6 +21,8 @@ import DiscordSvg from '../../public/assets/icons/brands/discord.svg';
 import { externalObsWsAtom } from '../../stores/obs';
 import { Profile } from './profile';
 
+import { ChangelogModal } from '@/components/changelog/modal';
+import { modalOpenedAtomic } from '@/components/changelog/store';
 import { useProfile } from '@/services/api';
 import { useLocale, LOCALES } from '@/services/dashboard';
 import { useTheme } from '@/services/dashboard';
@@ -56,9 +58,9 @@ export function NavBar({
   opened: boolean;
 }) {
   const store = useStore();
-
-
   const router = useRouter();
+
+  const [modalOpened, setModalOpened] = useAtom(modalOpenedAtomic);
 
   const { classes } = useStyles();
   const { theme, colorScheme, toggleColorScheme } = useTheme();
@@ -102,16 +104,27 @@ export function NavBar({
         </Group>
         <Group position="center">
           <Button variant={'light'} onClick={() => router.push('/application')}>Application</Button>
-          <ActionIcon
-            size={'lg'}
-            variant={'default'}
-            title={'Discord server'}
-            component="a"
-            href="https://discord.gg/Q9NBZq3zVV"
-            target={'_blank'}
-          >
-            <DiscordSvg width={20} fill={'#e3e3e4'} />
-          </ActionIcon>
+          <Tooltip label={'Discord'} withArrow>
+            <ActionIcon
+              size={'lg'}
+              variant={'default'}
+              component="a"
+              href="https://discord.gg/Q9NBZq3zVV"
+              target={'_blank'}
+            >
+              <DiscordSvg width={20} fill={'#e3e3e4'} />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip label={'Changelog'} withArrow>
+            <ActionIcon
+              size={'lg'}
+              variant={'default'}
+              title={'Changelog'}
+              onClick={() => setModalOpened(true)}
+            >
+              <IconNotes />
+            </ActionIcon>
+          </Tooltip>
 
           <Divider orientation="vertical" />
 
@@ -149,6 +162,8 @@ export function NavBar({
           {!isLoadingProfile && userData && <Profile user={userData} />}
         </Group>
       </Container>
+
+      <ChangelogModal />
     </Header>
   );
 }

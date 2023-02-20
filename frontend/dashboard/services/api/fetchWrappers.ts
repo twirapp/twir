@@ -79,7 +79,7 @@ const createFetcher = (fetchFn = fetch) => {
   return async <T = any>(url: RequestInfo | URL, options?: RequestInit) => {
     const res = await fetchFn(url, options);
 
-    const isJson = res.headers.get('content-type') == 'application/json';
+    const isJson = res.headers.get('content-type')?.startsWith('application/json');
     const data = isJson ? await res.json() : await res.text();
 
     if (!res.ok) {
