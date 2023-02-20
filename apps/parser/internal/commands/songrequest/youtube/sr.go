@@ -102,13 +102,14 @@ var SrCommand = types.DefaultCommand{
 
 		var songsCount int64
 
-		db.
+		err = db.
+			Model(&model.RequestedSong{}).
 			Where(`"channelId" = ? AND "deletedAt" IS NULL`, ctx.ChannelId).
 			Order(`"createdAt" asc`).
-			Count(&songsCount)
+			Count(&songsCount).Error
 
-		requested := make([]model.RequestedSong, 0, len(req.Songs))
-		errors := make([]ReqError, 0, len(req.Songs))
+		requested := make([]*model.RequestedSong, 0, len(req.Songs))
+		errors := make([]*ReqError, 0, len(req.Songs))
 
 		for i, song := range req.Songs {
 			err = validate(
@@ -119,12 +120,12 @@ var SrCommand = types.DefaultCommand{
 			)
 
 			if err != nil {
-				errors = append(errors, ReqError{
+				errors = append(errors, &ReqError{
 					Title: song.Title,
 					Error: err.Error(),
 				})
 			} else {
-				model := model.RequestedSong{
+				model := &model.RequestedSong{
 					ID:                   uuid.NewV4().String(),
 					ChannelID:            ctx.ChannelId,
 					OrderedById:          ctx.SenderId,
@@ -136,7 +137,7 @@ var SrCommand = types.DefaultCommand{
 					CreatedAt:            time.Now().UTC(),
 					QueuePosition:        int(songsCount) + i + 1,
 				}
-				err = db.Create(&model).Error
+				err = db.Create(model).Error
 				if err == nil {
 					requested = append(requested, model)
 				}
@@ -144,7 +145,7 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		if len(requested) > 0 {
-			requestedMapped := lo.Map(requested, func(item model.RequestedSong, _ int) string {
+			requestedMapped := lo.Map(requested, func(item *model.RequestedSong, _ int) string {
 				return fmt.Sprintf("%s (#%v)", item.Title, item.QueuePosition)
 			})
 
@@ -152,7 +153,7 @@ var SrCommand = types.DefaultCommand{
 		}
 
 		if len(errors) > 0 {
-			errorsMapped := lo.Map(errors, func(item ReqError, _ int) string {
+			errorsMapped := lo.Map(errors, func(item *ReqError, _ int) string {
 				return item.Title + " - " + item.Error
 			})
 			result.Result = append(result.Result, "❌"+strings.Join(errorsMapped, " · "))
@@ -318,7 +319,7 @@ func validate(
 			Count(&count)
 		if count >= int64(settings.User.MaxRequests) {
 			message := fasttemplate.ExecuteString(
-				settings.Translations.Song.MaximumOrdered,
+				settings.Translations.User.MaxRequests,
 				"{{", "}}",
 				map[string]interface{}{
 					"count":   strconv.Itoa(settings.User.MaxRequests),
