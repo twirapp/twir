@@ -12,6 +12,7 @@
     "copy": "Copy variable for usage in commands"
   },
   "drawer": {
-    "save": "Save"
+    "save": "Save",
+    "scriptAlert": "Script should be written in JavaScript, and you should end each line with semicolon \";\" symbol."
   }
 }

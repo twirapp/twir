@@ -1,4 +1,4 @@
-import { Button, Drawer, Flex, ScrollArea, Select, Textarea, TextInput, useMantineTheme } from '@mantine/core';
+import { Alert, Button, Drawer, Flex, ScrollArea, Select, Textarea, TextInput, useMantineTheme } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import Editor from '@monaco-editor/react';
@@ -92,7 +92,8 @@ export const VariableDrawer: React.FC<Props> = (props) => {
               ]}
               {...form.getInputProps('type')}
             />
-            {form.values.type === 'SCRIPT' && (
+            {form.values.type === 'SCRIPT' && (<>
+              <Alert>{t('drawer.scriptAlert')}</Alert>
               <Editor
                 height="50vh"
                 defaultLanguage="javascript"
@@ -104,7 +105,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
                   form.values.evalValue = v ?? '';
                 }}
               />
-            )}
+            </>)}
             {form.values.type === 'TEXT' && (
               <Textarea label={t('response')} autosize={true} {...form.getInputProps('response')} />
             )}
