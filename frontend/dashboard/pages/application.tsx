@@ -11,10 +11,13 @@ import {
   TextInput,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useStore } from 'jotai';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useEffect, useState } from 'react';
+
+import { externalObsWsAtom } from '../stores/obs';
 
 import { useObsModule, type OBS } from '@/services/api/modules';
 import { useObs } from '@/services/obs/hook';
@@ -79,6 +82,7 @@ export const useObsStyles = createStyles((theme) => ({
 }));
 
 const Application: NextPage = () => {
+  const store = useStore();
   const [, promptInstall] = useAddToHomescreenPrompt();
   const obsSocket = useObs();
   const obsSettingsManager = useObsModule();
@@ -132,7 +136,9 @@ const Application: NextPage = () => {
             <Text>OBS Websocket</Text>
             <Text size={'xs'}>{t('obs.title')}</Text>
           </Flex>
-          <Badge color={obsSocket.connected ? 'green' : 'red'}>{obsSocket.connected ? 'Connected' : 'Disconnected'}</Badge>
+          <Badge color={store.get(externalObsWsAtom)?.connected ? 'green' : 'red'}>
+            {store.get(externalObsWsAtom)?.connected ? 'Connected' : 'Disconnected'}
+          </Badge>
         </Flex>
       </Card.Section>
       <Card.Section p={'xs'}>

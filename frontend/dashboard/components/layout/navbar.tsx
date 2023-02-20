@@ -12,11 +12,13 @@ import {
   Box, Divider, Button, Badge,
 } from '@mantine/core';
 import { IconMoonStars, IconSun, IconLanguage } from '@tabler/icons';
+import { useStore } from 'jotai';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction } from 'react';
 
 import DiscordSvg from '../../public/assets/icons/brands/discord.svg';
+import { externalObsWsAtom } from '../../stores/obs';
 import { Profile } from './profile';
 
 import { useProfile } from '@/services/api';
@@ -53,6 +55,9 @@ export function NavBar({
   setOpened: Dispatch<SetStateAction<boolean>>;
   opened: boolean;
 }) {
+  const store = useStore();
+
+
   const router = useRouter();
 
   const { classes } = useStyles();
@@ -91,7 +96,9 @@ export function NavBar({
           </Box>
         </Flex>
         <Group>
-          <Badge color={obs.connected ? 'green' : 'red'}>OBS {obs.connected ? 'connected' : 'disconnected'}</Badge>
+          <Badge color={store.get(externalObsWsAtom)?.connected ? 'green' : 'red'}>
+            OBS {store.get(externalObsWsAtom)?.connected ? 'connected' : 'disconnected'}
+          </Badge>
         </Group>
         <Group position="center">
           <Button variant={'light'} onClick={() => router.push('/application')}>Application</Button>
