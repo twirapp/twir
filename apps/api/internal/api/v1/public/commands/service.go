@@ -19,11 +19,13 @@ type Command struct {
 	Description  *string  `json:"description"`
 }
 
+var CommandPerms = []string{"BROADCASTER", "MODERATOR", "VIP", "SUBSCRIBER", "FOLLOWER", "VIEWER"}
+
 func handleGet(channelId string, services types.Services) ([]Command, error) {
 	commands := []model.ChannelsCommands{}
 
 	err := services.DB.
-		Where(`"channelId" = ? AND "enabled" = ? AND "module" = ?`, channelId, true, "CUSTOM").
+		Where(`"channelId" = ? AND "enabled" = ? AND "visible" = ?`, channelId, true, true).
 		Preload("Responses").
 		Find(&commands).Error
 
@@ -50,7 +52,14 @@ func handleGet(channelId string, services types.Services) ([]Command, error) {
 	}
 
 	sort.Slice(commandsResponse, func(i, j int) bool {
-		return commandsResponse[i].Name < commandsResponse[j].Name
+		iPermIndex := lo.IndexOf(CommandPerms, commandsResponse[i].Permission)
+		jPermIndex := lo.IndexOf(CommandPerms, commandsResponse[j].Permission)
+
+		if iPermIndex == jPermIndex {
+			return commandsResponse[i].Name < commandsResponse[j].Name
+		}
+
+		return iPermIndex < jPermIndex
 	})
 
 	return commandsResponse, nil
