@@ -21,7 +21,7 @@ import (
 
 var WrongCommand = types.DefaultCommand{
 	Command: types.Command{
-		Name:               "ytsr wrong",
+		Name:               "sr wrong",
 		Description:        lo.ToPtr("Delete wrong song from queue"),
 		Permission:         "VIEWER",
 		Visible:            false,

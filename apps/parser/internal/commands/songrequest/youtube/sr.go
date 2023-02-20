@@ -45,7 +45,7 @@ var (
 
 var SrCommand = types.DefaultCommand{
 	Command: types.Command{
-		Name:               "ytsr",
+		Name:               "sr",
 		Description:        lo.ToPtr("Song requests from youtube"),
 		Permission:         "VIEWER",
 		Visible:            false,
