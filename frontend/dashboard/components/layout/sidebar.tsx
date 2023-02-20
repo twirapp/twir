@@ -211,7 +211,7 @@ export function SideBar(props: Props) {
     <Navbar zIndex={99} hiddenBreakpoint="sm" hidden={!props.opened} width={{ sm: 250 }}>
       <Navbar.Section grow>
         <ScrollArea.Autosize
-          maxHeight={viewPort.height - 120}
+          maxHeight={viewPort.height - 170}
           type="auto"
           offsetScrollbars={true}
           styles={{
