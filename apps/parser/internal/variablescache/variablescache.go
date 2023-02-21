@@ -35,6 +35,7 @@ type ExecutionContext struct {
 	SenderId          string
 	SenderName        string
 	SenderDisplayName string
+	SenderBadges      []string
 	Text              *string
 	IsCommand         bool
 	Command           *model.ChannelsCommands
@@ -56,18 +57,20 @@ type VariablesCacheOpts struct {
 	DB                *gorm.DB
 	IsCommand         bool
 	Command           *model.ChannelsCommands
+	SenderBadges      []string
 }
 
 func New(opts VariablesCacheOpts) *VariablesCacheService {
 	cache := &VariablesCacheService{
 		ExecutionContext: ExecutionContext{
-			ChannelName: opts.ChannelName,
-			ChannelId:   opts.ChannelId,
-			SenderId:    opts.SenderId,
-			SenderName:  *opts.SenderName,
-			Text:        opts.Text,
-			IsCommand:   opts.IsCommand,
-			Command:     opts.Command,
+			ChannelName:  opts.ChannelName,
+			ChannelId:    opts.ChannelId,
+			SenderId:     opts.SenderId,
+			SenderName:   *opts.SenderName,
+			SenderBadges: opts.SenderBadges,
+			Text:         opts.Text,
+			IsCommand:    opts.IsCommand,
+			Command:      opts.Command,
 		},
 		cache: variablesCache{},
 		locks: &variablesLocks{

@@ -180,6 +180,7 @@ func (c *Commands) ParseCommandResponses(
 			SenderId:          data.Sender.Id,
 			SenderName:        data.Sender.Name,
 			SenderDisplayName: data.Sender.DisplayName,
+			SenderBadges:      data.Sender.Badges,
 			Text:              cmdParams,
 			IsCommand:         true,
 			Command:           command.Cmd,
@@ -213,6 +214,7 @@ func (c *Commands) ParseCommandResponses(
 			ChannelId:         data.Channel.Id,
 			IsCommand:         true,
 			Command:           command.Cmd,
+			SenderBadges:      data.Sender.Badges,
 		})
 
 		go func(i int, r string) {

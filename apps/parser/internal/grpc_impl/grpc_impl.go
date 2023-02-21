@@ -150,6 +150,7 @@ func (c *parserGrpcServer) ParseTextResponse(
 		SenderName:        &data.Sender.Name,
 		SenderDisplayName: &data.Sender.DisplayName,
 		IsCommand:         isCommand,
+		SenderBadges:      data.Sender.Badges,
 	})
 
 	res := c.variables.ParseInput(cacheService, data.Message.Text)
