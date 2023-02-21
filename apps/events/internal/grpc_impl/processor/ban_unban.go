@@ -3,6 +3,7 @@ package processor
 import (
 	"errors"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -16,8 +17,9 @@ func (c *Processor) Timeout(input string, timeoutTime int) error {
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}
 
-	hydratedName = strings.ReplaceAll(hydratedName, "@", "")
+	hydratedName = strings.TrimSpace(strings.ReplaceAll(hydratedName, "@", ""))
 
+	spew.Dump(hydratedName)
 	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
 		Logins: []string{hydratedName},
 	})
@@ -73,7 +75,7 @@ func (c *Processor) BanOrUnban(input string, operation model.EventOperationType)
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}
 
-	hydratedName = strings.ReplaceAll(hydratedName, "@", "")
+	hydratedName = strings.TrimSpace(strings.ReplaceAll(hydratedName, "@", ""))
 
 	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
 		Logins: []string{hydratedName},

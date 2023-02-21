@@ -38,7 +38,7 @@ func (c *Processor) ModOrUnmod(input string, operation model.EventOperationType)
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}
 
-	hydratedName = strings.ReplaceAll(hydratedName, "@", "")
+	hydratedName = strings.TrimSpace(strings.ReplaceAll(hydratedName, "@", ""))
 
 	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
 		Logins: []string{hydratedName},
