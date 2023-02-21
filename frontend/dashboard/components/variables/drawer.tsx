@@ -1,4 +1,15 @@
-import { Alert, Button, Drawer, Flex, ScrollArea, Select, Textarea, TextInput, useMantineTheme } from '@mantine/core';
+import {
+  Alert,
+  Button,
+  Drawer,
+  Flex,
+  NumberInput,
+  ScrollArea,
+  Select,
+  Textarea,
+  TextInput,
+  useMantineTheme,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import Editor from '@monaco-editor/react';
@@ -55,7 +66,10 @@ export const VariableDrawer: React.FC<Props> = (props) => {
 
     await updater.mutateAsync({
       id: form.values.id,
-      data: form.values,
+      data: {
+        ...form.values,
+        response: form.values.response.toString(),
+      },
     })
       .then(() => {
         props.setOpened(false);
@@ -82,15 +96,18 @@ export const VariableDrawer: React.FC<Props> = (props) => {
     >
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
-          <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
+          <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap" h={viewPort.height - 200}>
             <TextInput label={t('name')} required {...form.getInputProps('name')} />
             <Select
               label={t('type')}
               data={[
                 { value: 'SCRIPT', label: 'Script' },
                 { value: 'TEXT', label: 'Text' },
+                { value: 'NUMBER', label: 'Number' },
               ]}
               {...form.getInputProps('type')}
+              dropdownPosition={'bottom'}
+              zIndex={999}
             />
             {form.values.type === 'SCRIPT' && (<>
               <Alert>{t('drawer.scriptAlert')}</Alert>
@@ -108,6 +125,9 @@ export const VariableDrawer: React.FC<Props> = (props) => {
             </>)}
             {form.values.type === 'TEXT' && (
               <Textarea label={t('response')} autosize={true} {...form.getInputProps('response')} />
+            )}
+            {form.values.type === 'NUMBER' && (
+              <NumberInput label={t('response')} {...form.getInputProps('response')} />
             )}
           </Flex>
         </form>

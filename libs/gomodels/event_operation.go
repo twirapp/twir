@@ -50,6 +50,8 @@ const (
 	OperationObsStopStream     EventOperationType = "OBS_STOP_STREAM"
 	OperationObsStartStream    EventOperationType = "OBS_START_STREAM"
 	OperationChangeVariable    EventOperationType = "CHANGE_VARIABLE"
+	OperationIncrementVariable EventOperationType = "INCREMENT_VARIABLE"
+	OperationDecrementVariable EventOperationType = "DECREMENT_VARIABLE"
 )
 
 type EventOperation struct {

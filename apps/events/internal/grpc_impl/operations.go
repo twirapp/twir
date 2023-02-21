@@ -136,6 +136,16 @@ operationsLoop:
 				}
 
 				operationError = processor.ChangeVariableValue(operation.Target.String, operation.Input.String)
+			case model.OperationIncrementVariable, model.OperationDecrementVariable:
+				if !operation.Target.Valid {
+					continue
+				}
+
+				operationError = processor.IncrementORDecrementVariable(
+					operation.Type,
+					operation.Target.String,
+					operation.Input.String,
+				)
 			}
 
 			if operationError != nil {

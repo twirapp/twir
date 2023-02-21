@@ -6,6 +6,7 @@ import { Channel } from './Channel';
 export enum CustomVarType {
   SCRIPT = 'SCRIPT',
   TEXT = 'TEXT',
+  NUMBER = 'NUMBER'
 }
 
 @Entity('channels_customvars', { schema: 'public' })

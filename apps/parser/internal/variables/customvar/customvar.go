@@ -35,7 +35,7 @@ var Variable = types.Variable{
 			return result, nil
 		}
 
-		if v.Type == "SCRIPT" {
+		if v.Type == model.CustomVarScript {
 			req, err := evalGrpc.Process(context.Background(), &eval.Evaluate{
 				Script: v.EvalValue,
 			})
@@ -47,7 +47,9 @@ var Variable = types.Variable{
 			}
 
 			result.Result = req.Result
-		} else {
+		}
+
+		if v.Type == model.CustomVarText || v.Type == model.CustomVarNumber {
 			result.Result = v.Response
 		}
 

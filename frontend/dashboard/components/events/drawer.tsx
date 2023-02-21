@@ -384,7 +384,13 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                     label={t('operations.additionalValues.timeoutTime')}
                                     {...form.getInputProps(`operations.${index}.timeoutTime`)}
                                   />}
-                                  {v === 'target' && operation.type === OperationType.CHANGE_VARIABLE && <Select
+                                  {
+                                    v === 'target'
+                                    && (operation.type === OperationType.CHANGE_VARIABLE
+                                      || operation.type === OperationType.INCREMENT_VARIABLE
+                                      || operation.type === OperationType.DECREMENT_VARIABLE
+                                    )
+                                    && <Select
                                     label={'Variable'}
                                     searchable
                                     data={variables?.map(v => ({

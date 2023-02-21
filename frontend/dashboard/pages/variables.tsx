@@ -62,8 +62,8 @@ export default function () {
                   <Badge color="cyan">{variable.type}</Badge>
                 </td>
                 {viewPort.width > 550 && <td>
-                  {variable.type === 'TEXT' && <Badge>{variable.response}</Badge>}
-                  {variable.type !== 'TEXT' && (
+                  {variable.type !== 'SCRIPT' && <Badge>{variable.response}</Badge>}
+                  {variable.type === 'SCRIPT' && (
                     <Badge color="red">{t('table.scriptAlert')}</Badge>
                   )}
                 </td>}

@@ -135,4 +135,13 @@ export const operationMapping: Record<keyof typeof OperationType, {
     haveInput: true,
     additionalValues: ['target'],
   },
+  DECREMENT_VARIABLE: {
+    description: 'Decrement number variable',
+    haveInput: true,
+  },
+  INCREMENT_VARIABLE: {
+    description: 'Increment number variable',
+    haveInput: true,
+    additionalValues: ['target'],
+  },
 };
