@@ -16,7 +16,9 @@ export const ChangelogModal = () => {
     if (!data) return;
 
     const groupedData = groupBy(
-      data.map(v => ({
+      data
+        .filter(v => !v.commit.message.startsWith('chore'))
+        .map(v => ({
         ...v,
         commit: {
           ...v.commit,
