@@ -89,47 +89,53 @@ operationsLoop:
 			case model.OperationUnmodRandom:
 				operationError = processor.UnmodRandom()
 			case model.OperationObsSetScene:
-				if !operation.ObsTargetName.Valid {
+				if !operation.Target.Valid {
 					continue
 				}
 
-				operationError = processor.ObsSetScene(operation.ObsTargetName.String)
+				operationError = processor.ObsSetScene(operation.Target.String)
 			case model.OperationObsToggleSource:
-				if !operation.ObsTargetName.Valid {
+				if !operation.Target.Valid {
 					continue
 				}
 
-				operationError = processor.ObsToggleSource(operation.ObsTargetName.String)
+				operationError = processor.ObsToggleSource(operation.Target.String)
 			case model.OperationObsToggleAudio:
-				if !operation.ObsTargetName.Valid {
+				if !operation.Target.Valid {
 					continue
 				}
 
-				operationError = processor.ObsToggleAudio(operation.ObsTargetName.String)
+				operationError = processor.ObsToggleAudio(operation.Target.String)
 			case model.OperationObsIncreaseVolume, model.OperationObsDecreaseVolume:
-				if !operation.Input.Valid || !operation.ObsTargetName.Valid {
+				if !operation.Input.Valid || !operation.Target.Valid {
 					continue
 				}
 
 				operationError = processor.ObsAudioChangeVolume(
 					operation.Type,
-					operation.ObsTargetName.String,
+					operation.Target.String,
 					operation.Input.String,
 				)
 			case model.OperationObsEnableAudio, model.OperationObsDisableAudio:
-				if !operation.ObsTargetName.Valid {
+				if !operation.Target.Valid {
 					return
 				}
 
-				operationError = processor.ObsEnableOrDisableAudio(operation.Type, operation.ObsTargetName.String)
+				operationError = processor.ObsEnableOrDisableAudio(operation.Type, operation.Target.String)
 			case model.OperationObsSetVolume:
-				if !operation.Input.Valid || !operation.ObsTargetName.Valid {
+				if !operation.Input.Valid || !operation.Target.Valid {
 					continue
 				}
 
-				operationError = processor.ObsAudioSetVolume(operation.ObsTargetName.String, operation.Input.String)
+				operationError = processor.ObsAudioSetVolume(operation.Target.String, operation.Input.String)
 			case model.OperationObsStartStream, model.OperationObsStopStream:
 				operationError = processor.ObsStartOrStopStream(operation.Type)
+			case model.OperationChangeVariable:
+				if !operation.Input.Valid || !operation.Target.Valid {
+					continue
+				}
+
+				operationError = processor.ChangeVariableValue(operation.Target.String, operation.Input.String)
 			}
 
 			if operationError != nil {

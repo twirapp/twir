@@ -49,6 +49,7 @@ const (
 	OperationObsDisableAudio   EventOperationType = "OBS_DISABLE_AUDIO"
 	OperationObsStopStream     EventOperationType = "OBS_STOP_STREAM"
 	OperationObsStartStream    EventOperationType = "OBS_START_STREAM"
+	OperationChangeVariable    EventOperationType = "CHANGE_VARIABLE"
 )
 
 type EventOperation struct {
@@ -57,12 +58,12 @@ type EventOperation struct {
 	Delay   int                `gorm:"column:delay;type:int" json:"delay"`
 	EventID string             `gorm:"column:eventId;type:string" json:"eventId"`
 
-	Input         null.String `gorm:"column:input;type:string" json:"input"`
-	Repeat        int         `gorm:"column:repeat;type:int" json:"repeat"`
-	Order         int         `gorm:"column:order;type:int" json:"order"`
-	UseAnnounce   bool        `gorm:"column:useAnnounce;type:BOOL" json:"useAnnounce"`
-	TimeoutTime   int         `gorm:"column:timeoutTime;type:int" json:"timeoutTime"`
-	ObsTargetName null.String `gorm:"column:obsTargetName;type:string" json:"obsTargetName"`
+	Input       null.String `gorm:"column:input;type:string" json:"input"`
+	Repeat      int         `gorm:"column:repeat;type:int" json:"repeat"`
+	Order       int         `gorm:"column:order;type:int" json:"order"`
+	UseAnnounce bool        `gorm:"column:useAnnounce;type:BOOL" json:"useAnnounce"`
+	TimeoutTime int         `gorm:"column:timeoutTime;type:int" json:"timeoutTime"`
+	Target      null.String `gorm:"column:target;type:string" json:"target"`
 }
 
 func (c *EventOperation) TableName() string {

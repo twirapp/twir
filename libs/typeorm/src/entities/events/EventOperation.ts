@@ -35,6 +35,7 @@ export enum OperationType {
   OBS_ENABLE_AUDIO = 'OBS_ENABLE_AUDIO',
   OBS_START_STREAM = 'OBS_START_STREAM',
   OBS_STOP_STREAM = 'OBS_STOP_STREAM',
+  CHANGE_VARIABLE = 'CHANGE_VARIABLE'
 }
 
 @Entity({ name: 'channels_events_operations' })
@@ -71,5 +72,5 @@ export class EventOperation {
   timeoutTime: number;
 
   @Column({ nullable: true })
-  obsTargetName: string | null;
+  target: string | null;
 }

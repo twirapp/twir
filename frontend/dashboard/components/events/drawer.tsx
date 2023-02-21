@@ -36,6 +36,7 @@ import {
   eventsManager as useEventsManager,
   keywordsManager as useKeywordsManager,
   useRewards,
+  variablesManager as useVariablesManager,
 } from '@/services/api';
 import { useObs } from '@/services/obs/hook';
 
@@ -111,6 +112,9 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 
   const keywordsManager = useKeywordsManager();
   const { data: keywords } = keywordsManager.useGetAll();
+
+  const variablesManager = useVariablesManager();
+  const { data: variables } = variablesManager.useGetAll();
 
   const rewardsManager = useRewards();
   const { data: rewardsData } = rewardsManager();
@@ -380,12 +384,22 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                     label={t('operations.additionalValues.timeoutTime')}
                                     {...form.getInputProps(`operations.${index}.timeoutTime`)}
                                   />}
-                                  {v === 'obsTargetName' && <Select
+                                  {v === 'target' && operation.type === OperationType.CHANGE_VARIABLE && <Select
+                                    label={'Variable'}
+                                    searchable
+                                    data={variables?.map(v => ({
+                                      value: v.id,
+                                      label: v.name,
+                                    })) ?? []}
+                                    w={'100%'}
+                                    {...form.getInputProps(`operations.${index}.target`)}
+                                  />}
+                                  {v === 'target' && operation.type.startsWith('OBS') && <Select
                                       label={'OBS Target'}
                                       searchable={true}
                                       data={getObsSourceByOperationType(operation.type)}
                                       w={'100%'}
-                                      {...form.getInputProps(`operations.${index}.obsTargetName`)}
+                                      {...form.getInputProps(`operations.${index}.target`)}
                                   />}
                                 </Group>)}
                               </Card.Section>}
@@ -431,7 +445,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                   order: form.values.operations.length,
                   useAnnounce: false,
                   timeoutTime: 600,
-                  obsTargetName: '',
+                  target: '',
                 }]);
               }}>
                 <IconPlus size={30} />
