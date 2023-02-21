@@ -66,12 +66,12 @@ func GetTop(
 		Where(squirrel.And{
 			squirrel.Eq{`"channelId"`: channelId},
 			squirrel.NotEq{`"userId"`: channel.BotID},
-			squirrel.NotEq{`"userId"`: channelId},
+			//squirrel.NotEq{`"userId"`: channelId},
 		}).
 		Where(`NOT EXISTS (select 1 from users_ignored where "id" = "users_stats"."userId")`).
 		Limit(uint64(limit)).
 		Offset(uint64(offset)).
-		OrderBy(fmt.Sprintf("%s DESC", topType)).
+		OrderBy(fmt.Sprintf(`"%s" DESC`, topType)).
 		ToSql()
 	query = sqlxDb.Rebind(query)
 
@@ -100,13 +100,14 @@ func GetTop(
 		return nil
 	}
 
-	stats := lo.Map(records, func(record model.UsersStats, _ int) *UserStats {
+	stats := []*UserStats{}
+	for _, record := range records {
 		twitchUser, ok := lo.Find(twitchUsers.Data.Users, func(user helix.User) bool {
 			return user.ID == record.UserID
 		})
 
 		if !ok {
-			return nil
+			continue
 		}
 
 		res := &UserStats{
@@ -126,8 +127,12 @@ func GetTop(
 			res.Value = int(record.UsedChannelPoints)
 		}
 
-		return res
-	})
+		if res.Value == 0 {
+			continue
+		}
+
+		stats = append(stats, res)
+	}
 
 	return stats
 }
