@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/samber/do"
@@ -57,21 +56,15 @@ var WrongCommand = types.DefaultCommand{
 			return result
 		}
 
-		if ctx.Text == nil {
-			mappedSongs := lo.Map(songs, func(s model.RequestedSong, index int) string {
-				return fmt.Sprintf("%v. %s", index+1, s.Title)
-			})
-			result.Result = append(
-				result.Result,
-				fmt.Sprintf("Choose song number: %s", strings.Join(mappedSongs, ", ")),
-			)
-			return result
-		}
+		number := 1
 
-		number, err := strconv.Atoi(*ctx.Text)
-		if err != nil {
-			result.Result = append(result.Result, "Seems like you provided not a number.")
-			return result
+		if ctx.Text != nil {
+			newNumber, err := strconv.Atoi(*ctx.Text)
+			if err != nil {
+				result.Result = append(result.Result, "Seems like you provided not a number.")
+				return result
+			}
+			number = newNumber
 		}
 
 		if number > len(songs)+1 || number <= 0 {
