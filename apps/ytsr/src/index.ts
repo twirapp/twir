@@ -20,7 +20,7 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
     const linkMatches = [...request.search.matchAll(linkRegexp)];
     if (linkMatches.length) {
       await Promise.all(linkMatches.map(async (match) => {
-        const song = await ytdl.getInfo(match[0]);
+        const song = await ytdl.getInfo(match[0]).catch(() => null);
         if (!song) return;
         videos.push({
           title: song.videoDetails.title,
