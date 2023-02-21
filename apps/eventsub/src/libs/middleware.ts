@@ -15,6 +15,7 @@ import {
 } from '@twurple/eventsub';
 
 import { countUserChannelPoints } from '../helpers/countUserChannelPoints.js';
+import { decrementUserChannelPoints } from '../helpers/decrementUserChannelPoints';
 import { botsGrpcClient } from './botsGrpc.js';
 import { eventsGrpcClient } from './eventsGrpc.js';
 import { getHostName } from './hostname.js';
@@ -56,6 +57,7 @@ class UserSubscriptions {
       this.#subscribeToChannelModeratorAddEvents(),
       this.#subscribeToChannelModeratorRemoveEvents(),
       this.#subscribeToChannelRedemptionAddEvents(),
+      this.#subscribeToChannelRedemptionUpdateEvents(),
     ])).map(p => p.status === 'rejected' ? undefined : p.value);
   }
 
@@ -195,6 +197,14 @@ class UserSubscriptions {
         isAnnounce: false,
         message: `@${e.userName} ${result.responses[0]}`,
       });
+    });
+  }
+
+  #subscribeToChannelRedemptionUpdateEvents() {
+    return eventSubMiddleware.subscribeToChannelRedemptionUpdateEvents(this.userId, (data) => {
+      if (data.status === 'canceled') {
+        decrementUserChannelPoints(data.broadcasterId, data.userId, data.rewardCost);
+      }
     });
   }
 }
