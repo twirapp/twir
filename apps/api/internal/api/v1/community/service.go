@@ -20,13 +20,14 @@ import (
 )
 
 type User struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	DisplayName string `json:"displayName"`
-	Watched     int64  `json:"watched"`
-	Messages    int32  `json:"messages"`
-	Emotes      int    `json:"emotes"`
-	AvatarUrl   string `json:"avatarUrl"`
+	ID                string `json:"id"`
+	Name              string `json:"name"`
+	DisplayName       string `json:"displayName"`
+	Watched           int64  `json:"watched"`
+	Messages          int32  `json:"messages"`
+	Emotes            int    `json:"emotes"`
+	AvatarUrl         string `json:"avatarUrl"`
+	UsedChannelPoints string `json:"usedChannelPoints"`
 }
 
 func handleGet(channelId, limit, page, sortBy, order string) ([]User, error) {
@@ -52,7 +53,7 @@ func handleGet(channelId, limit, page, sortBy, order string) ([]User, error) {
 		return nil, fiber.NewError(http.StatusBadRequest, "invalid page")
 	}
 
-	if sortBy != "watched" && sortBy != "messages" && sortBy != "emotes" {
+	if sortBy != "watched" && sortBy != "messages" && sortBy != "emotes" && sortBy != "usedChannelPoints" {
 		return nil, fiber.NewError(http.StatusBadRequest, "invalid sortBy")
 	}
 
@@ -122,13 +123,14 @@ func handleGet(channelId, limit, page, sortBy, order string) ([]User, error) {
 		}
 
 		users = append(users, User{
-			ID:          twitchUser.ID,
-			Name:        twitchUser.Login,
-			DisplayName: twitchUser.DisplayName,
-			Watched:     dbUser.Watched,
-			Messages:    dbUser.Messages,
-			Emotes:      dbUser.Emotes,
-			AvatarUrl:   twitchUser.ProfileImageURL,
+			ID:                twitchUser.ID,
+			Name:              twitchUser.Login,
+			DisplayName:       twitchUser.DisplayName,
+			Watched:           dbUser.Watched,
+			Messages:          dbUser.Messages,
+			Emotes:            dbUser.Emotes,
+			AvatarUrl:         twitchUser.ProfileImageURL,
+			UsedChannelPoints: strconv.FormatInt(dbUser.UsedChannelPoints, 10),
 		})
 	}
 
@@ -143,7 +145,7 @@ func handleResetStats(channelId string, dto *resetStatsDto) error {
 	var args []any
 	var sqlQueryErr error
 
-	if dto.Field == "messages" || dto.Field == "watched" {
+	if dto.Field == "messages" || dto.Field == "watched" || dto.Field == "usedChannelPoints" {
 		query, args, sqlQueryErr = squirrel.
 			Update("users_stats").
 			Where(squirrel.Eq{`"channelId"`: channelId}).

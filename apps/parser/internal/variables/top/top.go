@@ -122,6 +122,10 @@ func GetTop(
 			res.Value = int(record.Watched)
 		}
 
+		if topType == "usedChannelPoints" {
+			res.Value = int(record.UsedChannelPoints)
+		}
+
 		return res
 	})
 

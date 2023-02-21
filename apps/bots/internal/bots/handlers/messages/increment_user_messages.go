@@ -59,10 +59,11 @@ func IncrementUserMessages(db *gorm.DB, userId, channelId string) {
 
 func createStats(userId, channelId string) *model.UsersStats {
 	stats := &model.UsersStats{
-		UserID:    userId,
-		ChannelID: channelId,
-		Messages:  1,
-		Watched:   0,
+		UserID:            userId,
+		ChannelID:         channelId,
+		Messages:          1,
+		Watched:           0,
+		UsedChannelPoints: 0,
 	}
 	return stats
 }

@@ -29,6 +29,9 @@ export class UserStats {
   @Column('bigint', { name: 'watched', default: 0 })
   watched: bigint;
 
+  @Column('bigint', { default: 0 })
+  usedChannelPoints: bigint;
+
   @ManyToOne(() => Channel, _ => _.usersStats, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',

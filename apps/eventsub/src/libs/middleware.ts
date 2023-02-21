@@ -14,6 +14,7 @@ import {
   EventSubSubscription,
 } from '@twurple/eventsub';
 
+import { countUserChannelPoints } from '../helpers/countUserChannelPoints.js';
 import { botsGrpcClient } from './botsGrpc.js';
 import { eventsGrpcClient } from './eventsGrpc.js';
 import { getHostName } from './hostname.js';
@@ -140,6 +141,7 @@ class UserSubscriptions {
 
   #subscribeToChannelRedemptionAddEvents() {
     return eventSubMiddleware.subscribeToChannelRedemptionAddEvents(this.userId, async (e) => {
+      countUserChannelPoints(e.broadcasterId, e.userId, e.rewardCost);
       await eventsGrpcClient.redemptionCreated({
         id: e.rewardId,
         baseInfo: { channelId: e.broadcasterId },

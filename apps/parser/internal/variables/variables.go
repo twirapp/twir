@@ -3,8 +3,10 @@ package variables
 import (
 	"fmt"
 	"github.com/satont/tsuwari/apps/parser/internal/variables/command_param"
+	top_channel_points "github.com/satont/tsuwari/apps/parser/internal/variables/top/channel_points"
 	user_emotes "github.com/satont/tsuwari/apps/parser/internal/variables/user/emotes"
 	user_top "github.com/satont/tsuwari/apps/parser/internal/variables/user/top"
+	user_used_channel_points "github.com/satont/tsuwari/apps/parser/internal/variables/user/used_channel_points"
 	"regexp"
 	"strings"
 	"sync"
@@ -94,6 +96,8 @@ func New() Variables {
 		user_emotes.Variable,
 		command_param.Variable,
 		top_emotes.UsersVariable,
+		user_used_channel_points.Variable,
+		top_channel_points.Variable,
 	}
 
 	ctx := Variables{

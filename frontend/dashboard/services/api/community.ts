@@ -12,9 +12,10 @@ type User = {
   'messages': number,
   'emotes': number,
   'avatarUrl': string,
+  'usedChannelPoints': string,
 }
 
-export type SortyByField = 'messages' | 'watched' | 'emotes'
+export type SortyByField = 'messages' | 'watched' | 'emotes' | 'usedChannelPoints'
 
 export const useCommunity = () => {
   const dashboard = useContext(SelectedDashboardContext);

@@ -38,7 +38,7 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-const sortableColumns = ['watched', 'messages', 'emotes'] as const;
+const sortableColumns = ['watched', 'messages', 'emotes', 'usedChannelPoints'] as const;
 
 const Community: NextPage = () => {
   const community = useCommunity();
@@ -60,6 +60,7 @@ const Community: NextPage = () => {
   return (
     <div>
       <Flex justify={'space-between'} mb={15}>
+        {/*for space, do not remove*/}
         <div></div>
         <Group>
           {sortableColumns.map((item, i) => <Button
@@ -92,6 +93,7 @@ const Community: NextPage = () => {
           <td>{(u.watched / HOUR).toFixed(1)}h</td>
           <td>{u.messages}</td>
           <td>{u.emotes}</td>
+          <td>{u.usedChannelPoints}</td>
         </tr>)}
         </tbody>
       </Table>

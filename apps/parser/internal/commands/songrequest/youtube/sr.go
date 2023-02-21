@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/guregu/null"
 	config "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
@@ -187,8 +186,6 @@ func validate(
 	if err != nil {
 		return err
 	}
-
-	spew.Dump(song)
 
 	alreadyRequestedSong := &model.RequestedSong{}
 	db.Where(`"videoId" = ? AND "deletedAt" IS NULL AND "channelId" = ?`, song.Id, channelId).
