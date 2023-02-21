@@ -66,6 +66,7 @@ var Variable = types.Variable{
 		query, args, err := squirrel.
 			Select(`"orderedById"`, "COUNT(*) as count").
 			From("channels_requested_songs").
+			Where(`"channelId" = ?`, ctx.ChannelId).
 			GroupBy(`"orderedById"`).
 			OrderBy("count desc").
 			Limit(uint64(limit)).
