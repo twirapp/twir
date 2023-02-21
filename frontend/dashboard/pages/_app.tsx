@@ -73,7 +73,7 @@ function App(props: AppProps & Props) {
   return (
     <>
       <Head>
-        <title>Tsuwari</title>
+        <title>Twir</title>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
       </Head>
       <SelectedDashboardContext.Provider

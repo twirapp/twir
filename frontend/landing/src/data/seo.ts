@@ -11,15 +11,15 @@ export const ogImage = ''; // TODO
 
 export const seoLocales: { [K in Locale]: SeoPageProps } = {
   en: {
-    title: 'Tsuwari - Main page',
+    title: 'Twir - Main page',
     description:
-      'Very powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.',
-    keywords: ['tsuwari', 'twitch bot', 'tsuwari bot'],
+      'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.',
+    keywords: ['twir', 'twir bot', 'tsuwari', 'twitch bot', 'tsuwari bot'],
   },
   ru: {
-    title: 'Tsuwari - Главная страница',
+    title: 'Twir - Главная страница',
     description:
-      'Очень мощный и полезный бот для Twitch, который помогает управлять чатом на больших каналах. Разработан от стримеров для стримеров c любовью.',
-    keywords: ['tsuwari', 'twitch bot', 'tsuwari bot'],
+      'Мощный и полезный бот для Twitch, который помогает управлять чатом на больших каналах. Разработан от стримеров для стримеров c любовью.',
+    keywords: ['twir', 'twir bot', 'tsuwari', 'twitch bot', 'tsuwari bot'],
   },
 };
