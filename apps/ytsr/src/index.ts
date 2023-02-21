@@ -12,7 +12,6 @@ export const grpcServer = createServer({
 
 const linkRegexp = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|.+\?v=)?([\w-]{11})(?:\S+)?/g;
 
-
 const ytsrService: YTSR.YtsrServiceImplementation = {
   async search(request: YTSR.SearchRequest, context): Promise<YTSR.DeepPartial<YTSR.SearchResponse>> {
     const videos: Array<YTSR.Song> = [];
@@ -20,7 +19,8 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
     const linkMatches = [...request.search.matchAll(linkRegexp)];
     if (linkMatches.length) {
       await Promise.all(linkMatches.map(async (match) => {
-        const song = await ytdl.getInfo(match[0]).catch(() => null);
+        const url = `https://${match[0].replace('https://', '')}`;
+        const song = await ytdl.getInfo(url).catch(() => null);
         if (!song) return;
         videos.push({
           title: song.videoDetails.title,
