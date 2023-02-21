@@ -1,6 +1,6 @@
 import { UserStats } from '@tsuwari/typeorm/entities/UserStats';
 
-import { typeorm } from '../libs/typeorm';
+import { typeorm } from '../libs/typeorm.js';
 
 export const decrementUserChannelPoints = async (channelId: string, userId: string, count: number) => {
   const repository = typeorm.getRepository(UserStats);

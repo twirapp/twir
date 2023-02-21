@@ -15,7 +15,7 @@ import {
 } from '@twurple/eventsub';
 
 import { countUserChannelPoints } from '../helpers/countUserChannelPoints.js';
-import { decrementUserChannelPoints } from '../helpers/decrementUserChannelPoints';
+import { decrementUserChannelPoints } from '../helpers/decrementUserChannelPoints.js';
 import { botsGrpcClient } from './botsGrpc.js';
 import { eventsGrpcClient } from './eventsGrpc.js';
 import { getHostName } from './hostname.js';
