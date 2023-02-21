@@ -10,6 +10,7 @@ replace (
 )
 
 require (
+	github.com/davecgh/go-spew v1.1.1
 	github.com/getsentry/sentry-go v0.18.0
 	github.com/samber/lo v1.37.0
 	github.com/satont/go-helix/v2 v2.7.28
