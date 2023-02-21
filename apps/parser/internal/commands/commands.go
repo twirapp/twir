@@ -24,8 +24,8 @@ import (
 
 	uuid "github.com/satori/go.uuid"
 
-	channel_game "github.com/satont/tsuwari/apps/parser/internal/commands/channel/game"
-	channel_title "github.com/satont/tsuwari/apps/parser/internal/commands/channel/title"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/channel/game"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/channel/title"
 
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
@@ -40,8 +40,10 @@ type Commands struct {
 
 func New() Commands {
 	commands := []types.DefaultCommand{
-		channel_title.Command,
-		channel_game.Command,
+		channel_title.SetCommand,
+		channel_title.History,
+		channel_game.SetCommand,
+		channel_game.History,
 		permit.Command,
 		spam.Command,
 		nuke.Command,

@@ -17,6 +17,7 @@ import { ChannelDotaAccount } from './ChannelDotaAccount';
 import { ChannelEmoteUsage } from './ChannelEmoteUsage';
 import { ChannelEvent } from './ChannelEvent';
 import { ChannelGreeting } from './ChannelGreeting';
+import { ChannelInfoHistory } from './ChannelInfoHistory';
 import { ChannelIntegration } from './ChannelIntegration';
 import { ChannelKeyword } from './ChannelKeyword';
 import { ChannelModerationSetting } from './ChannelModerationSetting';
@@ -113,4 +114,7 @@ export class Channel {
 
   @OneToMany(() => ChannelEmoteUsage, _ => _.channel)
   emotesUsages?: ChannelEmoteUsage[];
+
+  @OneToMany(() => ChannelInfoHistory, _ => _.channel)
+  infoHistories?: ChannelInfoHistory[];
 }

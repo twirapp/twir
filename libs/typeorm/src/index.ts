@@ -15,6 +15,7 @@ import { ChannelEvent } from './entities/ChannelEvent';
 import { ChannelDonationEvent } from './entities/channelEvents/Donation';
 import { ChannelFollowEvent } from './entities/channelEvents/Follow';
 import { ChannelGreeting } from './entities/ChannelGreeting';
+import { ChannelInfoHistory } from './entities/ChannelInfoHistory';
 import { ChannelIntegration } from './entities/ChannelIntegration';
 import { ChannelKeyword } from './entities/ChannelKeyword';
 import { ChannelModerationSetting } from './entities/ChannelModerationSetting';
@@ -95,6 +96,7 @@ export const AppDataSource = new DataSource({
     ChannelEmoteUsage,
     Event,
     EventOperation,
+    ChannelInfoHistory,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

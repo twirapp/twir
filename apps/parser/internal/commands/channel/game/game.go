@@ -15,7 +15,7 @@ import (
 	"github.com/satont/go-helix/v2"
 )
 
-var Command = types.DefaultCommand{
+var SetCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "game",
 		Description: lo.ToPtr("Print or change category of channel."),

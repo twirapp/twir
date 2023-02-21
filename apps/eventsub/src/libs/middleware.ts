@@ -3,6 +3,7 @@ import { Channel } from '@tsuwari/typeorm/entities/Channel';
 import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { ChannelEvent, EventType } from '@tsuwari/typeorm/entities/ChannelEvent';
 import { ChannelFollowEvent } from '@tsuwari/typeorm/entities/channelEvents/Follow';
+import { ChannelInfoHistory } from '@tsuwari/typeorm/entities/ChannelInfoHistory';
 import { ChannelModuleSettings, ModuleType } from '@tsuwari/typeorm/entities/ChannelModuleSettings';
 import { type YouTubeSettings } from '@tsuwari/types/api';
 import { ApiClient } from '@twurple/api';
@@ -73,6 +74,12 @@ class UserSubscriptions {
         baseInfo: { channelId: e.broadcasterId },
         newCategory: e.categoryName,
         newTitle: e.streamTitle,
+      });
+
+      typeorm.getRepository(ChannelInfoHistory).save({
+        channelId: e.broadcasterId,
+        title: e.streamTitle,
+        category: e.categoryName,
       });
     });
   }
