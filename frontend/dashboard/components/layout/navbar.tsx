@@ -97,13 +97,13 @@ export function NavBar({
             </Text>
           </Box>
         </Flex>
-        <Group>
+        <Group className={classes.hiddenMobile}>
           <Badge color={store.get(externalObsWsAtom)?.connected ? 'green' : 'red'}>
             OBS {store.get(externalObsWsAtom)?.connected ? 'connected' : 'disconnected'}
           </Badge>
         </Group>
         <Group position="center">
-          <Button variant={'light'} onClick={() => router.push('/application')}>Application</Button>
+          <Button className={classes.hiddenMobile} variant={'light'} onClick={() => router.push('/application')}>Application</Button>
           <Tooltip label={'Discord'} withArrow>
             <ActionIcon
               size={'lg'}
