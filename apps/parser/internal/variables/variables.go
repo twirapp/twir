@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/satont/tsuwari/apps/parser/internal/variables/command_param"
 	top_channel_points "github.com/satont/tsuwari/apps/parser/internal/variables/top/channel_points"
+	top_song_requesters "github.com/satont/tsuwari/apps/parser/internal/variables/top/song_requesters"
 	user_emotes "github.com/satont/tsuwari/apps/parser/internal/variables/user/emotes"
+	user_songs_requested "github.com/satont/tsuwari/apps/parser/internal/variables/user/songs_requested"
 	user_top "github.com/satont/tsuwari/apps/parser/internal/variables/user/top"
 	user_used_channel_points "github.com/satont/tsuwari/apps/parser/internal/variables/user/used_channel_points"
 	"regexp"
@@ -98,6 +100,9 @@ func New() Variables {
 		top_emotes.UsersVariable,
 		user_used_channel_points.Variable,
 		top_channel_points.Variable,
+		top_song_requesters.Variable,
+		user_songs_requested.CountVariable,
+		user_songs_requested.DurationVariable,
 	}
 
 	ctx := Variables{
