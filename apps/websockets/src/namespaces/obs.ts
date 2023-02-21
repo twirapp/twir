@@ -3,7 +3,7 @@ import {
   ObsAudioDecreaseVolumeMessage, ObsAudioDisableOrEnableMessage,
   ObsAudioIncreaseVolumeMessage,
   ObsAudioSetVolumeMessage,
-  ObsSetSceneMessage,
+  ObsSetSceneMessage, ObsStopOrStartStream,
   ObsToggleAudioMessage,
   ObsToggleSourceMessage,
 } from '@tsuwari/grpc/generated/websockets/websockets';
@@ -92,3 +92,20 @@ export const onAudioDisable = async (data: ObsAudioDisableOrEnableMessage): Prom
   return {};
 };
 
+export const onStartStream = async (data: ObsStopOrStartStream): Promise<Empty> => {
+  const socket = sockets.get(data.channelId);
+  if (!socket) return {};
+
+  socket.emit('startStream', data);
+
+  return {};
+};
+
+export const onStopStream = async (data: ObsStopOrStartStream): Promise<Empty> => {
+  const socket = sockets.get(data.channelId);
+  if (!socket) return {};
+
+  socket.emit('stopStream', data);
+
+  return {};
+};

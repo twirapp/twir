@@ -14,6 +14,8 @@ service Websocket {
   rpc ObsAudioDecreaseVolume(ObsAudioDecreaseVolumeMessage) returns (google.protobuf.Empty) {}
   rpc ObsAudioEnable(ObsAudioDisableOrEnableMessage) returns (google.protobuf.Empty) {}
   rpc ObsAudioDisable(ObsAudioDisableOrEnableMessage) returns (google.protobuf.Empty) {}
+  rpc ObsStopStream(ObsStopOrStartStream) returns (google.protobuf.Empty) {}
+  rpc ObsStartStream(ObsStopOrStartStream) returns (google.protobuf.Empty) {}
 }
 
 message YoutubeAddSongToQueueRequest {
@@ -62,4 +64,8 @@ message ObsAudioDecreaseVolumeMessage {
 message ObsAudioDisableOrEnableMessage {
   string channelId = 1;
   string audioSourceName = 2;
+}
+
+message ObsStopOrStartStream {
+  string channelId = 1;
 }

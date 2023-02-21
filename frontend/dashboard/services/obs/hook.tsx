@@ -77,6 +77,9 @@ export const useInternalObsWs = () => {
     webSocket.off('disableAudio').on('disableAudio', (data) => {
       obs.toggleAudioSource(data.audioSourceName, false);
     });
+
+    webSocket.off('startStream').on('startStream', () => obs.startStream());
+    webSocket.off('stopStream').on('stopStream', () => obs.stopStream());
   };
 
   const disconnect = () => {
@@ -169,6 +172,18 @@ export const useObs = () => {
       inputName,
       inputVolumeDb: newVolume,
     });
+  };
+
+  const startStream = async () => {
+    const obs = jotaiStore.get(externalObsWsAtom);
+
+    await obs?.call('StartStream');
+  };
+
+  const stopStream = async () => {
+    const obs = jotaiStore.get(externalObsWsAtom);
+
+    await obs?.call('StopStream');
   };
 
   const connect = async () => {
@@ -270,5 +285,7 @@ export const useObs = () => {
     toggleAudioSource,
     setVolume,
     changeVolume,
+    startStream,
+    stopStream,
   };
 };

@@ -47,6 +47,8 @@ const (
 	OperationObsDecreaseVolume EventOperationType = "OBS_AUDIO_DECREASE_VOLUME"
 	OperationObsEnableAudio    EventOperationType = "OBS_ENABLE_AUDIO"
 	OperationObsDisableAudio   EventOperationType = "OBS_DISABLE_AUDIO"
+	OperationObsStopStream     EventOperationType = "OBS_STOP_STREAM"
+	OperationObsStartStream    EventOperationType = "OBS_START_STREAM"
 )
 
 type EventOperation struct {

@@ -131,3 +131,25 @@ func (c *Processor) ObsEnableOrDisableAudio(operation model.EventOperationType, 
 
 	return nil
 }
+
+func (c *Processor) ObsStartOrStopStream(operation model.EventOperationType) error {
+	if operation == model.OperationObsStartStream {
+		_, err := c.services.WebsocketsGrpc.ObsStartStream(context.Background(), &websockets.ObsStopOrStartStream{
+			ChannelId: c.channelId,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	if operation == model.OperationObsStopStream {
+		_, err := c.services.WebsocketsGrpc.ObsStopStream(context.Background(), &websockets.ObsStopOrStartStream{
+			ChannelId: c.channelId,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

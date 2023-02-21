@@ -124,4 +124,10 @@ export const operationMapping: Record<keyof typeof OperationType, {
     description: '[OBS] Disable audio source',
     additionalValues: ['obsTargetName'],
   },
+  OBS_START_STREAM: {
+    description: '[OBS] Start stream',
+  },
+  OBS_STOP_STREAM: {
+    description: '[OBS] Stop stream',
+  },
 };

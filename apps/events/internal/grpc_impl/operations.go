@@ -128,6 +128,8 @@ operationsLoop:
 				}
 
 				operationError = processor.ObsAudioSetVolume(operation.ObsTargetName.String, operation.Input.String)
+			case model.OperationObsStartStream, model.OperationObsStopStream:
+				operationError = processor.ObsStartOrStopStream(operation.Type)
 			}
 
 			if operationError != nil {

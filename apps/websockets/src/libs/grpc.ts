@@ -3,12 +3,16 @@ import { PORTS } from '@tsuwari/grpc/servers/constants';
 import { createServer } from 'nice-grpc';
 
 import {
-  onAudioDecrease, onAudioDisable, onAudioEnable,
+  onAudioDecrease,
+  onAudioDisable,
+  onAudioEnable,
   onAudioIncrease,
   onSetAudio,
   onSetScene,
   onToggleAudioSource,
   onToggleSource,
+  onStartStream,
+  onStopStream,
 } from '../namespaces/obs.js';
 import { onAddRequest, onRemoveRequest } from '../namespaces/youtube.js';
 
@@ -27,6 +31,8 @@ const websocketService: Websocket.WebsocketServiceImplementation = {
   obsAudioIncreaseVolume: onAudioIncrease,
   obsAudioDisable: onAudioDisable,
   obsAudioEnable: onAudioEnable,
+  obsStartStream: onStartStream,
+  obsStopStream: onStopStream,
 };
 
 grpcServer.add(Websocket.WebsocketDefinition, websocketService);
