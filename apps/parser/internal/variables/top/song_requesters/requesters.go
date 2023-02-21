@@ -2,6 +2,8 @@ package top_song_requesters
 
 import (
 	"fmt"
+	"github.com/Masterminds/squirrel"
+	"github.com/jmoiron/sqlx"
 	"github.com/samber/do"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
@@ -11,19 +13,24 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
-	"gorm.io/gorm"
 	"strconv"
 	"strings"
 
 	"github.com/samber/lo"
 )
 
+type Request struct {
+	ChannelID   string
+	OrderedById string
+	Count       int
+}
+
 var Variable = types.Variable{
 	Name:        "top.songs.requesters",
 	Description: lo.ToPtr("Top users by requested songs"),
 	Example:     lo.ToPtr("top.songs.requesters|10"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-		db := do.MustInvoke[gorm.DB](di.Provider)
+		sqlxDb := do.MustInvoke[sqlx.DB](di.Provider)
 		cfg := do.MustInvoke[config.Config](di.Provider)
 		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 		twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
@@ -56,13 +63,16 @@ var Variable = types.Variable{
 
 		dbEntities := []model.RequestedSong{}
 
-		err = db.
-			Select(`"orderedById", COUNT(*) as count`).
-			Group(`"orderedById"`).
-			Order("count DESC").
-			Limit(limit).
-			Find(&dbEntities).
-			Error
+		query, args, err := squirrel.
+			Select(`"orderedById"`, "COUNT(*) as count").
+			From("channels_requested_songs").
+			GroupBy(`"orderedById"`).
+			OrderBy("count desc").
+			Limit(uint64(limit)).
+			ToSql()
+		query = sqlxDb.Rebind(query)
+		fmt.Println(query)
+		err = sqlxDb.Select(&dbEntities, query, args...)
 
 		if err != nil {
 			fmt.Println(err)

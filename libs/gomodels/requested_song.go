@@ -18,7 +18,7 @@ var (
 type RequestedSong struct {
 	ID                   string      `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	ChannelID            string      `gorm:"column:channelId;type:TEXT;"                     json:"channelId"`
-	OrderedById          string      `gorm:"column:orderedById;type:TEXT;"                   json:"orderedById"`
+	OrderedById          string      `gorm:"column:orderedById;type:TEXT;"                   json:"orderedById" db:"orderedById"`
 	OrderedByName        string      `gorm:"column:orderedByName;type:TEXT;"                 json:"orderedByName"`
 	OrderedByDisplayName null.String `gorm:"column:orderedByDisplayName;type:TEXT;"                 json:"orderedByDisplayName"`
 	VideoID              string      `gorm:"column:videoId;type:varchar;"                    json:"videoId"`
@@ -29,7 +29,7 @@ type RequestedSong struct {
 	QueuePosition        int         `gorm:"column:queuePosition;type:int4"                  json:"queuePosition"`
 
 	// internal variable, not db
-	Count int `gorm:"column:count" db:"count"`
+	Count int `gorm:"-" db:"count"`
 }
 
 func (c *RequestedSong) TableName() string {

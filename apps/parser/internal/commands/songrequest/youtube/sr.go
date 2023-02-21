@@ -136,6 +136,7 @@ var SrCommand = types.DefaultCommand{
 					CreatedAt:            time.Now().UTC(),
 					QueuePosition:        int(songsCount) + i + 1,
 				}
+
 				err = db.Create(model).Error
 				if err == nil {
 					requested = append(requested, model)
@@ -189,7 +190,7 @@ func validate(
 
 	alreadyRequestedSong := &model.RequestedSong{}
 	db.Where(`"videoId" = ? AND "deletedAt" IS NULL AND "channelId" = ?`, song.Id, channelId).
-		First(&alreadyRequestedSong)
+		Find(&alreadyRequestedSong)
 
 	if alreadyRequestedSong.ID != "" {
 		return errors.New(settings.Translations.Song.AlreadyInQueue)
