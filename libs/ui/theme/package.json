@@ -9,7 +9,7 @@
     ".": "./index.js"
   },
   "devDependencies": {
-    "tailwindcss": "^3.2.4"
+    "tailwindcss": "^3.2.7"
   },
   "dependencies": {
     "@tsuwari/ui-fonts": "workspace:*"
