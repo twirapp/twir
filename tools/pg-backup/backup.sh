@@ -53,8 +53,7 @@ pg_dump -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d "$POSTGRE
 
 echo "Uploading dump to $S3_BUCKET"
 
-# shellcheck disable=SC2002
-cat $SRC_FILE | aws "$AWS_ARGS" s3 cp - s3://"$S3_BUCKET"/"$S3_PREFIX"/"$DEST_FILE" || exit 2
+aws "$AWS_ARGS" s3 cp "$SRC_FILE" s3://"$S3_BUCKET"/"$S3_PREFIX"/"$DEST_FILE" || exit 2
 
 echo "SQL backup finished"
 
