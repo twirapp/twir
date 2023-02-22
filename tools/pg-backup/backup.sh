@@ -37,7 +37,6 @@ if [ "${POSTGRES_PASSWORD}" = "" ]; then
   exit 1
 fi
 
-AWS_ARGS="--endpoint-url ${S3_ENDPOINT}"
 export AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY
 export AWS_DEFAULT_REGION=$S3_REGION
@@ -53,7 +52,7 @@ pg_dump -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d "$POSTGRE
 
 echo "Uploading dump to $S3_BUCKET"
 
-aws "$AWS_ARGS" s3 cp "$SRC_FILE" s3://"$S3_BUCKET"/"$S3_PREFIX"/"$DEST_FILE" || exit 2
+aws s3 cp "$SRC_FILE" s3://"$S3_BUCKET"/"$S3_PREFIX"/"$DEST_FILE" --endpoint-url "$S3_ENDPOINT" || exit 2
 
 echo "SQL backup finished"
 
