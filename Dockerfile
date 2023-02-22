@@ -312,11 +312,6 @@ COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["pnpm", "--filter=@tsuwari/public", "start"]
 
-FROM satont/postgresql-backup-s3 as postgres-backup
-WORKDIR /app
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-
 FROM golang_deps_base as emotes-cacher_deps
 RUN cd apps/emotes-cacher && go mod download
 RUN cd apps/emotes-cacher && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
