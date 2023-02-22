@@ -35,7 +35,7 @@ func (c *Handlers) handleEmotes(msg Message) {
 	countEmotes(emotes, channelEmotes, splittedMsg, fmt.Sprintf("emotes:channel:%s:", msg.Channel.ID))
 	countEmotes(emotes, globalEmotes, splittedMsg, "emotes:global:")
 
-	c.db.Transaction(func(tx *gorm.DB) error {
+	err = c.db.Transaction(func(tx *gorm.DB) error {
 		for key, count := range emotes {
 			for i := 0; i < count; i++ {
 				err := tx.Create(&model.ChannelEmoteUsage{
@@ -54,6 +54,10 @@ func (c *Handlers) handleEmotes(msg Message) {
 
 		return nil
 	})
+
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func countEmotes(emotes map[string]int, emotesList []string, splittedMsg []string, key string) {
