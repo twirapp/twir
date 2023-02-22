@@ -2,7 +2,7 @@ FROM ubuntu:22.10
 
 ARG NODE_VERSION="18.12.1"
 ARG GO_VERSION="1.20.1"
-ARG PNPM_VERSION="7.17.1"
+ARG PNPM_VERSION="7.27.1"
 
 ARG TARGETARCH
 ARG USERNAME=tsuwari
@@ -20,7 +20,7 @@ RUN wget https://go.dev/dl/go$GO_VERSION.linux-$TARGETARCH.tar.gz && \
     tar -C /usr/local -xzf go$GO_VERSION.linux-$TARGETARCH.tar.gz && \
     rm go$GO_VERSION.linux-$TARGETARCH.tar.gz
 
-RUN npm i -g pnpm@7.17.1 @go-task/cli
+RUN npm i -g pnpm@$PNPM_VERSION @go-task/cli
 
 RUN echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers
     
