@@ -38,6 +38,8 @@ definitions:
         type: string
       enabled:
         type: boolean
+      groupId:
+        type: string
       id:
         type: string
       isReply:
@@ -85,9 +87,21 @@ definitions:
     required:
     - text
     type: object
+  github_com_satont_tsuwari_apps_api_internal_api_v1_commands_group.groupDto:
+    properties:
+      color:
+        type: string
+      name:
+        type: string
+    required:
+    - color
+    - name
+    type: object
   github_com_satont_tsuwari_apps_api_internal_api_v1_community.User:
     properties:
-      display_name:
+      avatarUrl:
+        type: string
+      displayName:
         type: string
       emotes:
         type: integer
@@ -96,6 +110,8 @@ definitions:
       messages:
         type: integer
       name:
+        type: string
+      usedChannelPoints:
         type: string
       watched:
         type: integer
@@ -537,6 +553,8 @@ definitions:
         type: string
       enabled:
         type: boolean
+      groupId:
+        type: string
       id:
         type: string
       isReply:
@@ -584,9 +602,21 @@ definitions:
     required:
     - text
     type: object
+  internal_api_v1_commands_group.groupDto:
+    properties:
+      color:
+        type: string
+      name:
+        type: string
+    required:
+    - color
+    - name
+    type: object
   internal_api_v1_community.User:
     properties:
-      display_name:
+      avatarUrl:
+        type: string
+      displayName:
         type: string
       emotes:
         type: integer
@@ -595,6 +625,8 @@ definitions:
       messages:
         type: integer
       name:
+        type: string
+      usedChannelPoints:
         type: string
       watched:
         type: integer
@@ -892,6 +924,21 @@ definitions:
     - name
     - type
     type: object
+  model.ChannelCommandGroup:
+    properties:
+      channelId:
+        type: string
+      color:
+        type: string
+      commands:
+        items:
+          $ref: '#/definitions/model.ChannelsCommands'
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+    type: object
   model.Channels:
     properties:
       botId:
@@ -925,6 +972,10 @@ definitions:
         type: string
       enabled:
         type: boolean
+      group:
+        $ref: '#/definitions/model.ChannelCommandGroup'
+      groupId:
+        $ref: '#/definitions/null.String'
       id:
         type: string
       isReply:
@@ -958,30 +1009,18 @@ definitions:
   model.ChannelsCustomvars:
     properties:
       channelId:
-        description: '[ 6] channelId                                      TEXT                 null:
-          false  primary: false  isArray: false  auto: false  col: TEXT            len:
-          -1      default: []'
         type: string
       description:
         type: string
       evalValue:
-        description: '[ 4] evalValue                                      TEXT                 null:
-          true   primary: false  isArray: false  auto: false  col: TEXT            len:
-          -1      default: []'
         type: string
       id:
         type: string
       name:
         type: string
       response:
-        description: '[ 5] response                                       TEXT                 null:
-          true   primary: false  isArray: false  auto: false  col: TEXT            len:
-          -1      default: []'
         type: string
       type:
-        description: '[ 3] type                                           USER_DEFINED         null:
-          false  primary: false  isArray: false  auto: false  col: USER_DEFINED    len:
-          -1      default: []'
         type: string
     type: object
   model.ChannelsIntegrations:
@@ -1348,6 +1387,14 @@ definitions:
       minWatched:
         type: string
     type: object
+  null.String:
+    properties:
+      string:
+        type: string
+      valid:
+        description: Valid is true if String is not NULL
+        type: boolean
+    type: object
   parser.GetVariablesResponse_Variable:
     properties:
       description:
@@ -1459,7 +1506,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_bot.connectionDto'
+          $ref: '#/definitions/internal_api_v1_bot.connectionDto'
       produces:
       - application/json
       responses:
@@ -1515,7 +1562,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1587,7 +1634,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1629,7 +1676,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto'
+          $ref: '#/definitions/internal_api_v1_commands.commandDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1662,6 +1709,138 @@ paths:
       summary: Update command
       tags:
       - Commands
+  /v1/channels/{channelId}/commands/groups:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ChannelId
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ChannelCommandGroup'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get channel commands groups list
+      tags:
+      - CommandsGroup
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_v1_commands_group.groupDto'
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChannelCommandGroup'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create command group
+      tags:
+      - CommandsGroup
+  /v1/channels/{channelId}/commands/groups/{groupId}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      - description: ID of group
+        in: path
+        name: groupId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete command group
+      tags:
+      - CommandsGroup
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_v1_commands_group.groupDto'
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      - description: ID of group
+        in: path
+        name: groupId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChannelCommandGroup'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update command group
+      tags:
+      - CommandsGroup
   /v1/channels/{channelId}/community/users:
     get:
       consumes:
@@ -1679,7 +1858,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_community.User'
+              $ref: '#/definitions/internal_api_v1_community.User'
             type: array
         "500":
           description: Internal Server Error
@@ -1688,6 +1867,30 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get channel users list from database
+      tags:
+      - Community
+  /v1/channels/{channelId}/community/users/stats:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ChannelId
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Reset stats of channel
       tags:
       - Community
   /v1/channels/{channelId}/greetings:
@@ -1861,7 +2064,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO'
+          $ref: '#/definitions/internal_api_v1_integrations_donatepay.createOrUpdateDTO'
       - description: ID of channel
         in: path
         name: channelId
@@ -1918,7 +2121,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_donationalerts.tokenDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2035,7 +2238,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_faceit.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2390,7 +2593,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_streamlabs.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2484,7 +2687,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile'
+            $ref: '#/definitions/internal_api_v1_integrations_vk.profile'
         "500":
           description: Internal Server Error
           schema:
@@ -2503,7 +2706,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto'
+          $ref: '#/definitions/internal_api_v1_integrations_vk.vkDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3046,7 +3249,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3116,7 +3319,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerPatchDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3156,7 +3359,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3226,7 +3429,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto'
+          $ref: '#/definitions/internal_api_v1_variables.variableDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3298,7 +3501,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto'
+          $ref: '#/definitions/internal_api_v1_variables.variableDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3368,7 +3571,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_stats.statsItem'
+              $ref: '#/definitions/internal_api_v1_stats.statsItem'
             type: array
         "500":
           description: Internal Server Error

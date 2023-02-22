@@ -95,7 +95,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_bot.connectionDto"
+                            "$ref": "#/definitions/internal_api_v1_bot.connectionDto"
                         }
                     }
                 ],
@@ -185,7 +185,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -208,6 +208,214 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/commands/groups": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CommandsGroup"
+                ],
+                "summary": "Get channel commands groups list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ChannelId",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ChannelCommandGroup"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CommandsGroup"
+                ],
+                "summary": "Create command group",
+                "parameters": [
+                    {
+                        "description": "Data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_api_v1_commands_group.groupDto"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ChannelCommandGroup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/commands/groups/{groupId}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CommandsGroup"
+                ],
+                "summary": "Update command group",
+                "parameters": [
+                    {
+                        "description": "Data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_api_v1_commands_group.groupDto"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of group",
+                        "name": "groupId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ChannelCommandGroup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CommandsGroup"
+                ],
+                "summary": "Delete command group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of group",
+                        "name": "groupId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -242,7 +450,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandDto"
                         }
                     },
                     {
@@ -363,7 +571,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_commands.commandPatchDto"
                         }
                     },
                     {
@@ -438,9 +646,48 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_community.User"
+                                "$ref": "#/definitions/internal_api_v1_community.User"
                             }
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/community/users/stats": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Community"
+                ],
+                "summary": "Reset stats of channel",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ChannelId",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -726,7 +973,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO"
+                            "$ref": "#/definitions/internal_api_v1_integrations_donatepay.createOrUpdateDTO"
                         }
                     },
                     {
@@ -820,7 +1067,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_donationalerts.tokenDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto"
                         }
                     },
                     {
@@ -1007,7 +1254,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.tokenDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_faceit.tokenDto"
                         }
                     },
                     {
@@ -1574,7 +1821,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_streamlabs.tokenDto"
                         }
                     },
                     {
@@ -1721,7 +1968,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile"
+                            "$ref": "#/definitions/internal_api_v1_integrations_vk.profile"
                         }
                     },
                     "500": {
@@ -1755,7 +2002,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_vk.vkDto"
                         }
                     },
                     {
@@ -2615,7 +2862,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto"
+                            "$ref": "#/definitions/internal_api_v1_timers.timerDto"
                         }
                     },
                     {
@@ -2672,7 +2919,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto"
+                            "$ref": "#/definitions/internal_api_v1_timers.timerDto"
                         }
                     },
                     {
@@ -2790,7 +3037,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_timers.timerPatchDto"
                         }
                     },
                     {
@@ -2897,7 +3144,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto"
+                            "$ref": "#/definitions/internal_api_v1_variables.variableDto"
                         }
                     },
                     {
@@ -2999,7 +3246,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto"
+                            "$ref": "#/definitions/internal_api_v1_variables.variableDto"
                         }
                     },
                     {
@@ -3118,7 +3365,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_stats.statsItem"
+                                "$ref": "#/definitions/internal_api_v1_stats.statsItem"
                             }
                         }
                     },
@@ -3199,6 +3446,9 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
+                "groupId": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -3255,10 +3505,28 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_satont_tsuwari_apps_api_internal_api_v1_commands_group.groupDto": {
+            "type": "object",
+            "required": [
+                "color",
+                "name"
+            ],
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_satont_tsuwari_apps_api_internal_api_v1_community.User": {
             "type": "object",
             "properties": {
-                "display_name": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "displayName": {
                     "type": "string"
                 },
                 "emotes": {
@@ -3271,6 +3539,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "usedChannelPoints": {
                     "type": "string"
                 },
                 "watched": {
@@ -3942,6 +4213,9 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
+                "groupId": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -3998,10 +4272,28 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_api_v1_commands_group.groupDto": {
+            "type": "object",
+            "required": [
+                "color",
+                "name"
+            ],
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_api_v1_community.User": {
             "type": "object",
             "properties": {
-                "display_name": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "displayName": {
                     "type": "string"
                 },
                 "emotes": {
@@ -4014,6 +4306,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "usedChannelPoints": {
                     "type": "string"
                 },
                 "watched": {
@@ -4456,6 +4751,29 @@ const docTemplate = `{
                 }
             }
         },
+        "model.ChannelCommandGroup": {
+            "type": "object",
+            "properties": {
+                "channelId": {
+                    "type": "string"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "commands": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ChannelsCommands"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Channels": {
             "type": "object",
             "properties": {
@@ -4505,6 +4823,12 @@ const docTemplate = `{
                 },
                 "enabled": {
                     "type": "boolean"
+                },
+                "group": {
+                    "$ref": "#/definitions/model.ChannelCommandGroup"
+                },
+                "groupId": {
+                    "$ref": "#/definitions/null.String"
                 },
                 "id": {
                     "type": "string"
@@ -4556,14 +4880,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "channelId": {
-                    "description": "[ 6] channelId                                      TEXT                 null: false  primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []",
                     "type": "string"
                 },
                 "description": {
                     "type": "string"
                 },
                 "evalValue": {
-                    "description": "[ 4] evalValue                                      TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []",
                     "type": "string"
                 },
                 "id": {
@@ -4573,11 +4895,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "response": {
-                    "description": "[ 5] response                                       TEXT                 null: true   primary: false  isArray: false  auto: false  col: TEXT            len: -1      default: []",
                     "type": "string"
                 },
                 "type": {
-                    "description": "[ 3] type                                           USER_DEFINED         null: false  primary: false  isArray: false  auto: false  col: USER_DEFINED    len: -1      default: []",
                     "type": "string"
                 }
             }
@@ -5118,6 +5438,18 @@ const docTemplate = `{
                 },
                 "minWatched": {
                     "type": "string"
+                }
+            }
+        },
+        "null.String": {
+            "type": "object",
+            "properties": {
+                "string": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if String is not NULL",
+                    "type": "boolean"
                 }
             }
         },

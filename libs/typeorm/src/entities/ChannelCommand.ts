@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 
 import { Channel } from './Channel';
+import { ChannelCommandGroup } from './ChannelCommandGroup';
 import { CommandResponse } from './CommandResponse';
 import { CommandUsage } from './CommandUsage';
 
@@ -104,4 +105,10 @@ export class ChannelCommand {
 
   @OneToMany(() => CommandUsage, _ => _.command)
   usages?: CommandUsage[];
+
+  @ManyToOne(() => ChannelCommandGroup, _ => _.commands, { onDelete: 'SET NULL' })
+  group?: ChannelCommandGroup;
+
+  @Column('uuid', { nullable: true })
+  groupId?: string;
 }

@@ -32,7 +32,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { noop } from '../../util/chore';
 
-import { commandsManager, useVariables } from '@/services/api';
+import { commandsGroupManager, commandsManager, useVariables } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -107,6 +107,9 @@ export const CommandDrawer: React.FC<Props> = (props) => {
   const updater = useCreateOrUpdate();
 
   const variables = useVariables();
+
+  const groupsManager = commandsGroupManager();
+  const { data: groups } = groupsManager.useGetAll();
 
   useEffect(() => {
     form.reset();
@@ -246,6 +249,18 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                   value,
                   label: value,
                 }))}
+              />
+            </div>
+
+            <div>
+              <Select
+                label='Group'
+                {...form.getInputProps('groupId')}
+                data={groups?.map((value) => ({
+                  value: value.id,
+                  label: value.name,
+                })) ?? []}
+                allowDeselect={true}
               />
             </div>
 

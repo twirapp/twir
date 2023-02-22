@@ -10,17 +10,19 @@ import {
   TextInput,
 } from '@mantine/core';
 import { useDebouncedState, useViewportSize } from '@mantine/hooks';
-import { IconPencil, IconSearch, IconTrash } from '@tabler/icons';
+import { IconCaretDown, IconCaretUp, IconFolder, IconPencil, IconSearch, IconTrash } from '@tabler/icons';
 import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
+import { ChannelCommandGroup } from '@tsuwari/typeorm/entities/ChannelCommandGroup';
 import { GetServerSideProps, NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { CommandDrawer } from '@/components/commands/drawer';
+import { ChannelCommandGroupDrawer } from '@/components/commandsGroup/drawer';
 import { confirmDelete } from '@/components/confirmDelete';
-import { commandsManager } from '@/services/api';
+import { commandsGroupManager, commandsManager } from '@/services/api';
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
   props: {
@@ -31,7 +33,11 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
 const Commands: NextPage = () => {
   const router = useRouter();
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
+  const [groupEditDrawerOpened, setGroupEditDrawerOpened] = useState(false);
+
   const [editableCommand, setEditableCommand] = useState<ChannelCommand | undefined>();
+  const [editableGroup, setEditableGroup] = useState<ChannelCommandGroup | undefined>();
+
   const viewPort = useViewportSize();
   const { t } = useTranslation('commands');
 
@@ -39,6 +45,54 @@ const Commands: NextPage = () => {
   const patcher = usePatch();
   const deleter = useDelete();
   const { data: commands } = useGetAll();
+
+  const groupManager = commandsGroupManager();
+  const groupDeleter = groupManager.useDelete();
+
+  const [commandsWithGroups, setCommandsWithGroups] = useState<{ [x: string]: {
+      list: ChannelCommand[],
+      show: boolean,
+      id: string,
+      color?: string,
+    }}>({
+    default: {
+      list: [],
+      show: true,
+      id: '',
+    },
+  });
+
+  useEffect(() => {
+    if (!commands || !router.query.module) return;
+
+    setCommandsWithGroups({});
+
+    for (const command of commands) {
+      if (command.module.toLowerCase() !== (router.query.module ? router.query.module[0] : 'custom')) continue;
+
+      if (!command.group) {
+        setCommandsWithGroups((prev) => ({
+          ...prev,
+          default: {
+            ...prev.default,
+            list: [...(prev.default?.list || []), command],
+          },
+        }));
+        continue;
+      } else {
+        setCommandsWithGroups((prev) => ({
+          ...prev,
+          [command.group!.name]: {
+            list: [...(prev[command.group!.name]?.list || []), command],
+            show: prev[command.group!.name]?.show || false,
+            id: command.group!.id,
+            color: command.group!.color,
+          },
+        }));
+      }
+    }
+
+  }, [commands]);
 
   const [searchInput, setSearchInput] = useDebouncedState('', 200);
 
@@ -53,16 +107,28 @@ const Commands: NextPage = () => {
             onChange={(event) => setSearchInput(event.target.value)}
           />
         </Group>
-        <Button
-          color="green"
-          onClick={() => {
-            setEditableCommand(undefined);
-            setEditDrawerOpened(true);
-          }}
-        >
-          {t('create')}
-        </Button>
+        <Group>
+          <Button
+            color="green"
+            onClick={() => {
+              setEditableGroup(undefined);
+              setGroupEditDrawerOpened(true);
+            }}
+          >
+            {t('createGroup')}
+          </Button>
+          <Button
+            color="green"
+            onClick={() => {
+              setEditableCommand(undefined);
+              setEditDrawerOpened(true);
+            }}
+          >
+            {t('createCommand')}
+          </Button>
+        </Group>
       </Flex>
+
       <Table style={{ tableLayout: 'fixed', width: '100%' }}>
         <thead>
           <tr>
@@ -74,24 +140,86 @@ const Commands: NextPage = () => {
         </thead>
 
         <tbody>
-          {commands &&
-            commands.length &&
-            commands
-              .filter((c) => {
-                const isActiveTab =
-                  c.module.toLowerCase() ===
-                  (router.query.module ? router.query.module[0] : 'custom');
-                const nameIncludes = c.name.includes(searchInput);
-                const aliasesIncludes = c.aliases.some((a) => a.includes(searchInput));
-                return isActiveTab && (nameIncludes || aliasesIncludes);
+        {Object.keys(commandsWithGroups).map((group, groupIndex) => (
+          <>
+            <tr
+              style={{
+                padding: 5,
+                display: group === 'default' ? 'none' : undefined,
+                backgroundColor: group !== 'default' && commandsWithGroups[group].show ? commandsWithGroups[group].color! : undefined,
+              }}
+              key={groupIndex}
+            >
+              <td
+                style={{
+                  cursor: 'pointer',
+                }}
+                onClick={() => {
+                  setCommandsWithGroups((prev) => ({
+                    ...prev,
+                    [group]: {
+                      ...prev[group],
+                      show: !prev[group].show,
+                    },
+                  }));
+                }}
+              >
+                <Text size={'md'}><IconFolder size={15} /> {group}</Text>
+              </td>
+              <td></td>
+              <td>
+                {!commandsWithGroups[group].show && <IconCaretDown size={25} />}
+                {commandsWithGroups[group].show && <IconCaretUp size={25} />}
+              </td>
+              <td>
+                <Flex direction={'row'} gap="xs">
+                  <ActionIcon
+                    onClick={() => {
+                      setEditableGroup(commands?.find((c) => c.groupId === commandsWithGroups[group]!.id)?.group);
+                      setGroupEditDrawerOpened(true);
+                    }}
+                    variant="filled"
+                    color="blue"
+                  >
+                    <IconPencil size={14} />
+                  </ActionIcon>
+                  <ActionIcon
+                    onClick={() =>
+                      confirmDelete({
+                        onConfirm: () => groupDeleter.mutate(commandsWithGroups[group].id),
+                        text: 'This will delete only group, not commands. Delete group?',
+                      })
+                    }
+                    variant="filled"
+                    color="red"
+                  >
+                    <IconTrash size={14} />
+                  </ActionIcon>
+                </Flex>
+              </td>
+            </tr>
+            {commandsWithGroups[group].list
+              .filter(c => {
+                const someAliase = c.aliases.some(a => a.includes(searchInput));
+                return someAliase || c.name.includes(searchInput);
               })
-              .map((command) => (
-                <tr key={command.id}>
+              .map((command, commandIndex) => (
+                <tr key={command.id} style={{
+                  borderTop: (groupIndex === Object.keys(commandsWithGroups).length - 1 && commandIndex === 0)
+                    ? '1px solid #373A40'
+                    : undefined,
+                  display: group !== 'default'
+                    ? commandsWithGroups[group].show ? undefined : 'none'
+                    : undefined,
+                  marginLeft: group !== 'default' && commandsWithGroups[group].show ? 10 : 10,
+                  backgroundColor: group !== 'default' && commandsWithGroups[group].show ? commandsWithGroups[group].color! : undefined,
+                }}>
                   <td style={{
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     maxWidth: 100,
+                    paddingLeft: 10,
                   }}>
                     <Badge>
                       <Text truncate>
@@ -126,7 +254,7 @@ const Commands: NextPage = () => {
                     <Flex direction="row" gap="xs">
                       <ActionIcon
                         onClick={() => {
-                          setEditableCommand(commands.find((c) => c.id === command.id)!);
+                          setEditableCommand(commands!.find((c) => c.id === command.id)!);
                           setEditDrawerOpened(true);
                         }}
                         variant="filled"
@@ -151,6 +279,8 @@ const Commands: NextPage = () => {
                   </td>
                 </tr>
               ))}
+          </>
+        ))}
         </tbody>
       </Table>
 
@@ -158,6 +288,12 @@ const Commands: NextPage = () => {
         opened={editDrawerOpened}
         setOpened={setEditDrawerOpened}
         command={editableCommand}
+      />
+
+      <ChannelCommandGroupDrawer
+        opened={groupEditDrawerOpened}
+        setOpened={setGroupEditDrawerOpened}
+        group={editableGroup}
       />
     </div>
   );

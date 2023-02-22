@@ -1,6 +1,7 @@
 {
   "title": "Commands",
-  "create": "Create",
+  "createCommand": "Create command",
+  "createGroup": "Create group",
   "tabs": {
     "custom": "Custom",
     "channel": "Channel",

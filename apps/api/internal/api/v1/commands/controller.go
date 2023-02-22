@@ -2,12 +2,14 @@ package commands
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/commands/group"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("commands")
+	group.Setup(middleware, services)
 
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
@@ -15,7 +17,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Put(":commandId", put(services))
 	middleware.Patch(":commandId", patch(services))
 
-	return router
+	return middleware
 }
 
 type JSONResult struct{}

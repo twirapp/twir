@@ -124,6 +124,11 @@ func handleUpdate(
 	command.Name = dto.Name
 	command.Permission = dto.Permission
 	command.Visible = *dto.Visible
+	command.GroupID = null.StringFromPtr(dto.GroupID)
+
+	if dto.GroupID == nil {
+		command.Group = nil
+	}
 
 	err = services.DB.
 		Select("*").
@@ -149,7 +154,12 @@ func handleUpdate(
 		command.Responses = responses
 	}
 
-	return command, nil
+	newCmd, err := getChannelCommand(services.DB, channelId, commandId)
+	if err != nil || command == nil {
+		return nil, fiber.NewError(http.StatusNotFound, "command not found")
+	}
+
+	return newCmd, nil
 }
 
 func handlePatch(

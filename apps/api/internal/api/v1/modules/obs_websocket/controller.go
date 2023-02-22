@@ -15,16 +15,6 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
-// OBSWebSocket godoc
-// @Security ApiKeyAuth
-// @Summary      Get OBSWebSocket settings
-// @Tags         Modules|OBSWebSocket
-// @Accept       json
-// @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
-// @Success      200  {object}  youtube.YouTubeSettings
-// @Failure 500 {object} types.DOCApiInternalError
-// @Router       /v1/channels/{channelId}/modules/obs-websocket [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		settings, err := handleGet(c.Params("channelId"), services)

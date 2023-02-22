@@ -8,6 +8,7 @@ import { Bot } from './entities/Bot';
 import { Channel } from './entities/Channel';
 import { ChannelChatMessage } from './entities/ChannelChatMessage';
 import { ChannelCommand } from './entities/ChannelCommand';
+import { ChannelCommandGroup } from './entities/ChannelCommandGroup';
 import { ChannelCustomvar } from './entities/ChannelCustomvar';
 import { ChannelDotaAccount } from './entities/ChannelDotaAccount';
 import { ChannelEmoteUsage } from './entities/ChannelEmoteUsage';
@@ -97,6 +98,7 @@ export const AppDataSource = new DataSource({
     Event,
     EventOperation,
     ChannelInfoHistory,
+    ChannelCommandGroup,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

@@ -12,6 +12,7 @@ import {
 import { Bot } from './Bot';
 import { ChannelChatMessage } from './ChannelChatMessage';
 import { ChannelCommand } from './ChannelCommand';
+import { ChannelCommandGroup } from './ChannelCommandGroup';
 import { ChannelCustomvar } from './ChannelCustomvar';
 import { ChannelDotaAccount } from './ChannelDotaAccount';
 import { ChannelEmoteUsage } from './ChannelEmoteUsage';
@@ -117,4 +118,7 @@ export class Channel {
 
   @OneToMany(() => ChannelInfoHistory, _ => _.channel)
   infoHistories?: ChannelInfoHistory[];
+
+  @OneToMany(() => ChannelCommandGroup, _ => _.channel)
+  commandsGroups?: ChannelCommandGroup[];
 }

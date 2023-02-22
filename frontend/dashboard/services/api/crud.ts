@@ -2,6 +2,7 @@
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
 import { Dashboard } from '@tsuwari/shared';
 import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
+import { ChannelCommandGroup } from '@tsuwari/typeorm/entities/ChannelCommandGroup';
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
@@ -22,7 +23,9 @@ interface Crud<T> {
   useCreateOrUpdate: () => UseMutationResult<any, unknown, {id?: string | undefined, data: T}, unknown>,
 }
 
-const createCrudManager = <T extends { id: string }>(system: string): Crud<T> => {
+const createCrudManager = <T extends { id: string }>(system: string, opts?: {
+  additionalSystemsKeys?: string[],
+}): Crud<T> => {
   const dashboard = useContext(SelectedDashboardContext);
 
   const getUrl = (system: string) => `/api/v1/channels/${dashboard.id}/${system}`;
@@ -45,9 +48,11 @@ const createCrudManager = <T extends { id: string }>(system: string): Crud<T> =>
         );
       },
       onSuccess: (result, id, context) => {
-        queryClient.setQueryData<ChannelCommand[]>([getUrl(system)], old => {
-          return old?.filter(c => c.id !== id);
-        });
+        queryClient.invalidateQueries([getUrl(system)]);
+
+        for (const additionalSystem of opts?.additionalSystemsKeys ?? []) {
+          queryClient.refetchQueries([getUrl(additionalSystem)]);
+        }
       },
       mutationKey: [getUrl(system)],
     }),
@@ -65,14 +70,11 @@ const createCrudManager = <T extends { id: string }>(system: string): Crud<T> =>
         );
       },
       onSuccess: (result, data) => {
-        queryClient.setQueryData<T[]>([getUrl(system)], old => {
-          if (!old) {
-            return [result];
-          }
-          const index = old?.findIndex(o => o.id === data.id);
-          old[index!] = result;
-          return old;
-        });
+        queryClient.invalidateQueries([getUrl(system)]);
+
+        for (const additionalSystem of opts?.additionalSystemsKeys ?? []) {
+          queryClient.refetchQueries([getUrl(additionalSystem)]);
+        }
       },
       mutationKey: [getUrl(system)],
     }),
@@ -90,19 +92,10 @@ const createCrudManager = <T extends { id: string }>(system: string): Crud<T> =>
         );
       },
       onSuccess: (result, data) => {
-        queryClient.setQueryData<T[]>([getUrl(system)], old => {
-          if (!old) {
-            return [result];
-          }
-          const index = old?.findIndex(o => o.id === data.id);
-          if (index != -1) {
-            old[index!] = result;
-          } else {
-            old.push(result);
-          }
-          console.log(old);
-          return old;
-        });
+        queryClient.invalidateQueries([getUrl(system)]);
+        for (const additionalSystem of opts?.additionalSystemsKeys ?? []) {
+          queryClient.refetchQueries([getUrl(additionalSystem)]);
+        }
       },
       mutationKey: [getUrl(system)],
     }),
@@ -116,3 +109,6 @@ export const timersManager =  () => createCrudManager<ChannelTimer>('timers');
 export const variablesManager = () => createCrudManager<ChannelCustomvar>('variables');
 export const dashboardAccessManager = () => createCrudManager<Dashboard>('settings/dashboard-access');
 export const eventsManager = () => createCrudManager<Event>('events');
+export const commandsGroupManager = () => createCrudManager<ChannelCommandGroup>('commands/groups', {
+  additionalSystemsKeys: ['commands'],
+});

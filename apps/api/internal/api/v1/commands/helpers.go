@@ -12,7 +12,9 @@ import (
 
 func getChannelCommands(db *gorm.DB, channelId string) []model.ChannelsCommands {
 	cmds := []model.ChannelsCommands{}
-	db.Preload("Responses").
+	db.
+		Preload("Responses").
+		Preload("Group").
 		Where(`"channelId" = ?`, channelId).
 		Find(&cmds)
 
@@ -31,6 +33,7 @@ func getChannelCommand(
 	command := &model.ChannelsCommands{}
 	err := db.Where(`"channelId" = ? AND "id" = ?`, channelId, commandId).
 		Preload("Responses").
+		Preload("Group").
 		First(&command).
 		Error
 	if err != nil {
@@ -98,6 +101,7 @@ func createCommandFromDto(
 		IsReply:      lo.If(dto.IsReply == nil, false).Else(*dto.IsReply),
 		KeepResponsesOrder: lo.If(dto.KeepResponsesOrder == nil, false).
 			Else(*dto.KeepResponsesOrder),
+		GroupID: null.StringFromPtr(dto.GroupID),
 	}
 }
 

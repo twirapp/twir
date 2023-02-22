@@ -13,6 +13,7 @@ require (
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/gofiber/fiber/v2 v2.41.0
 	github.com/gofiber/storage/redis v0.0.0-20221027071415-dca8f183e44b
+	github.com/google/uuid v1.3.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/imroc/req/v3 v3.32.0
 	github.com/jmoiron/sqlx v1.3.5
