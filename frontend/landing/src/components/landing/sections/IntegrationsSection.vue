@@ -10,7 +10,7 @@
       px-5
     "
   >
-    <div class="container max-w-[1040px] relative">
+    <div class="container max-w-[1180px] relative">
       <div class="flex flex-col justify-between items-center relative z-0">
         <Cube class="absolute left-0 right-0 mx-auto -z-[1] -top-[80px]" />
         <h2
@@ -48,6 +48,7 @@ import DonationAlerts from '@/assets/logos/DonationAlerts.svg?component';
 import Dota2 from '@/assets/logos/Dota2.svg?component';
 import Faceit from '@/assets/logos/Faceit.svg?component';
 import LastFm from '@/assets/logos/LastFm.svg?component';
+import OBS from '@/assets/logos/OBS.svg?component';
 import Spotify from '@/assets/logos/Spotify.svg?component';
 import StreamElements from '@/assets/logos/StreamElements.svg?component';
 import Streamlabs from '@/assets/logos/Streamlabs.svg?component';
@@ -56,14 +57,15 @@ import VK from '@/assets/logos/VK.svg?component';
 import { useTranslation } from '@/services/locale';
 
 const integrationLogos = [
-  LastFm,
   Spotify,
   TwitchSoundtrack,
-  VK,
   Dota2,
+  VK,
+  DonationAlerts,
+  LastFm,
   StreamElements,
   Streamlabs,
-  DonationAlerts,
+  OBS,
   Faceit,
 ];
 
