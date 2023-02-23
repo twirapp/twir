@@ -1,14 +1,12 @@
 import {
-  ActionIcon,
-  Button, ColorPicker,
+  Button, ColorInput,
   Drawer,
   Flex,
-  Menu,
   ScrollArea,
-  Switch, Text,
-  Textarea,
+  Text,
   TextInput,
   useMantineTheme,
+  DEFAULT_THEME,
 } from '@mantine/core';
 import { isNotEmpty, useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
@@ -19,6 +17,7 @@ import { useEffect } from 'react';
 
 import { noop } from '../../util/chore';
 
+import { colorPickerColors } from '@/components/commandsGroup/colors';
 import { commandsGroupManager } from '@/services/api';
 
 type Props = {
@@ -89,10 +88,16 @@ export const ChannelCommandGroupDrawer: React.FC<Props> = (props) => {
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
             <TextInput label={'Name'} required {...form.getInputProps('name')} />
-            <Text>Color</Text>
-            <ColorPicker format="rgba" value={form.values.color} onChange={(v) => {
-              form.setFieldValue('color', v);
-            }} />
+            <ColorInput
+              label="Color for group"
+              format="rgba"
+              value={form.values.color}
+              onChange={(v) => {
+                form.setFieldValue('color', v);
+              }}
+              swatches={colorPickerColors}
+              withAsterisk
+            />
           </Flex>
         </form>
       </ScrollArea.Autosize>
