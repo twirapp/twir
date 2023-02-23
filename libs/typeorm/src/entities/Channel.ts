@@ -23,6 +23,8 @@ import { ChannelIntegration } from './ChannelIntegration';
 import { ChannelKeyword } from './ChannelKeyword';
 import { ChannelModerationSetting } from './ChannelModerationSetting';
 import { ChannelPermit } from './ChannelPermit';
+import { ChannelRole } from './ChannelRole';
+import { ChannelRoleUser } from './ChannelRoleUser';
 import { ChannelStream } from './ChannelStream';
 import { ChannelTimer } from './ChannelTimer';
 import { DashboardAccess } from './DashboardAccess';
@@ -121,4 +123,7 @@ export class Channel {
 
   @OneToMany(() => ChannelCommandGroup, _ => _.channel)
   commandsGroups?: ChannelCommandGroup[];
+
+  @OneToMany(() => ChannelRole, _ => _.channel)
+  roles?: ChannelRole[];
 }

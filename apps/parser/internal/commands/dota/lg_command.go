@@ -2,6 +2,7 @@ package dota
 
 import (
 	"fmt"
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"strconv"
 	"strings"
 
@@ -17,7 +18,7 @@ var LgCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "lg",
 		Description: lo.ToPtr("Players from the latest game"),
-		Permission:  "VIEWER",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeBroadcaster},
 		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
 		IsReply:     true,

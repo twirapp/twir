@@ -63,7 +63,7 @@ var checkScopes = func(ctx *fiber.Ctx) error {
 }
 
 func checkUser(
-	username, userId string,
+	userId string,
 	tokens helix.AccessCredentials,
 	services types.Services,
 ) error {

@@ -21,7 +21,7 @@ var DelAccCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "dota delacc",
 		Description: lo.ToPtr("Delete dota account "),
-		Permission:  "BROADCASTER",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeBroadcaster},
 		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
 		IsReply:     true,

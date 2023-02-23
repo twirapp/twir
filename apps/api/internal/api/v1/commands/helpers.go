@@ -96,7 +96,6 @@ func createCommandFromDto(
 		Description:  null.StringFromPtr(dto.Description),
 		Visible:      lo.If(dto.Visible == nil, false).Else(*dto.Visible),
 		ChannelID:    channelId,
-		Permission:   dto.Permission,
 		Module:       "CUSTOM",
 		IsReply:      lo.If(dto.IsReply == nil, false).Else(*dto.IsReply),
 		KeepResponsesOrder: lo.If(dto.KeepResponsesOrder == nil, false).

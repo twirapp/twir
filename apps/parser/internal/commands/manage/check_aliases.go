@@ -20,7 +20,7 @@ var CheckAliasesCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "commands aliases",
 		Description: lo.ToPtr("Check command aliases"),
-		Permission:  "MODERATOR",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
 		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
 		IsReply:     true,

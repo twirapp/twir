@@ -14,7 +14,6 @@ var SrListCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:               "sr list",
 		Description:        lo.ToPtr("List of requested songs"),
-		Permission:         "VIEWER",
 		Visible:            false,
 		Module:             lo.ToPtr("SONGREQUEST"),
 		IsReply:            true,

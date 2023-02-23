@@ -23,7 +23,6 @@ var SkipCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:               "voteskip",
 		Description:        lo.ToPtr("Vote for skip command"),
-		Permission:         "VIEWER",
 		Visible:            false,
 		Module:             lo.ToPtr("SONGREQUEST"),
 		IsReply:            true,

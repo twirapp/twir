@@ -95,7 +95,6 @@ var AddCommand = types.DefaultCommand{
 			DefaultName:  null.String{},
 			Visible:      true,
 			ChannelID:    ctx.ChannelId,
-			Permission:   "VIEWER",
 			Default:      false,
 			Module:       "CUSTOM",
 			Responses: []model.ChannelsCommandsResponses{

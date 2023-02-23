@@ -66,7 +66,5 @@ func createUserBadges(badges map[string]int) []string {
 		userBadges = append(userBadges, "SUBSCRIBER")
 	}
 
-	userBadges = append(userBadges, "VIEWER")
-
 	return userBadges
 }

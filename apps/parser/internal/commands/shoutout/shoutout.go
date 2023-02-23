@@ -10,6 +10,7 @@ import (
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	config "github.com/satont/tsuwari/libs/config"
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
 )
@@ -20,7 +21,7 @@ var ShoutOut = types.DefaultCommand{
 		Description: lo.ToPtr(
 			"Shoutout some streamer",
 		),
-		Permission:         "MODERATOR",
+		RolesNames:         []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
 		Visible:            false,
 		Module:             lo.ToPtr("MODERATION"),
 		IsReply:            false,

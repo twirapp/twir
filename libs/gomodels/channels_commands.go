@@ -26,13 +26,13 @@ type ChannelsCommands struct {
 	Description        null.String                 `gorm:"column:description;type:TEXT;"                    json:"description"        swaggertype:"string"`
 	Visible            bool                        `gorm:"column:visible;type:BOOL;default:true;"           json:"visible"`
 	ChannelID          string                      `gorm:"column:channelId;type:TEXT;"                      json:"channelId"`
-	Permission         string                      `gorm:"column:permission;type:VARCHAR;"                  json:"permission"`
 	Default            bool                        `gorm:"column:default;type:BOOL;default:false;"          json:"default"`
 	DefaultName        null.String                 `gorm:"column:defaultName;type:TEXT;"                    json:"defaultName"        swaggertype:"string"`
 	Module             string                      `gorm:"column:module;type:VARCHAR;default:CUSTOM;"       json:"module"`
 	Responses          []ChannelsCommandsResponses `gorm:"foreignKey:CommandID"                             json:"responses"`
 	IsReply            bool                        `gorm:"column:is_reply;type:BOOL;default:true"           json:"isReply"`
 	KeepResponsesOrder bool                        `gorm:"column:keepResponsesOrder;type:BOOL;default:true" json:"keepResponsesOrder"`
+	RolesIDS           []string                    `gorm:"column:rolesIds;type:TEXT[]" json:"rolesIds"`
 
 	GroupID null.String          `gorm:"column:groupId;type:UUID" json:"groupId"`
 	Group   *ChannelCommandGroup `gorm:"foreignKey:GroupID" json:"group"`

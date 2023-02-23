@@ -20,7 +20,7 @@ var EditCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "commands edit",
 		Description: lo.ToPtr("Edit command response"),
-		Permission:  "MODERATOR",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
 		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
 		IsReply:     true,

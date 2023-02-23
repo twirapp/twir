@@ -22,7 +22,6 @@ var WrongCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:               "sr wrong",
 		Description:        lo.ToPtr("Delete wrong song from queue"),
-		Permission:         "VIEWER",
 		Visible:            false,
 		Module:             lo.ToPtr("SONGREQUEST"),
 		IsReply:            true,

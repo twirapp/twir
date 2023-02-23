@@ -46,7 +46,7 @@ var WlCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "wl",
 		Description: lo.ToPtr("Score for played games on stream"),
-		Permission:  "VIEWER",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeBroadcaster},
 		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
 		IsReply:     true,

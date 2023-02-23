@@ -2,6 +2,7 @@ package types
 
 import (
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
 type VariableHandlerParams struct {
@@ -33,10 +34,9 @@ type (
 type Command struct {
 	Id                 *string  `json:"id"`
 	Name               string   `json:"name"`
-	ChannelId          string   `json:"channel_id"`
+	ChannelId          string   `json:"channelId"`
 	Aliases            []string `json:"aliases"`
 	Responses          []string `json:"responses"`
-	Permission         string   `json:"permission"`
 	Description        *string  `json:"description"`
 	Visible            bool     `json:"visible"`
 	Module             *string  `json:"module"`
@@ -47,6 +47,7 @@ type Command struct {
 	CooldownType       string   `json:"cooldownType"`
 	IsReply            bool     `json:"isReply"`
 	KeepResponsesOrder *bool    `json:"keepResponsesOrder"`
+	RolesNames         []model.ChannelRoleEnum
 }
 
 type DefaultCommand struct {

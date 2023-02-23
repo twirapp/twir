@@ -26,7 +26,7 @@ var GmCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "gm",
 		Description: lo.ToPtr("Game medals from current game."),
-		Permission:  "BROADCASTER",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeBroadcaster},
 		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
 		IsReply:     true,

@@ -19,7 +19,6 @@ var SetCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "game",
 		Description: lo.ToPtr("Print or change category of channel."),
-		Permission:  "VIEWER",
 		Visible:     false,
 		Module:      lo.ToPtr("MODERATION"),
 		IsReply:     true,

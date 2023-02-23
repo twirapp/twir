@@ -19,7 +19,7 @@ var DelCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "commands remove",
 		Description: lo.ToPtr("Remove command"),
-		Permission:  "MODERATOR",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
 		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
 		IsReply:     true,

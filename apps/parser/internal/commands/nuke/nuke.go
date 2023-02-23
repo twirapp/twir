@@ -23,7 +23,7 @@ var Command = types.DefaultCommand{
 		Description: lo.ToPtr(
 			"Mass remove messages in chat by message content. Usage: <b>!nuke phrase</b>",
 		),
-		Permission: "MODERATOR",
+		RolesNames: []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
 		Visible:    false,
 		Module:     lo.ToPtr("MODERATION"),
 	},

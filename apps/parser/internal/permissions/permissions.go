@@ -1,49 +1,52 @@
 package permissions
 
 import (
+	"fmt"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"gorm.io/gorm"
 )
 
-var CommandPerms = []string{"BROADCASTER", "MODERATOR", "VIP", "SUBSCRIBER", "FOLLOWER", "VIEWER"}
+func IsUserHasPermissionToCommand(userId, channelId string, badges []string, commandRoles []string) bool {
+	if userId == channelId {
+		return true
+	}
 
-func IsUserHasPermissionToCommand(userId, channelId string, badges []string, commandPermission string) bool {
+	if len(commandRoles) == 0 {
+		return true
+	}
+
 	db := do.MustInvoke[gorm.DB](di.Provider)
-	dbUser := &model.Users{}
 
-	db.Where(`"id" = ?`, userId).Preload("DashboardAccess").Find(&dbUser)
+	var roles []*model.ChannelRole
 
-	if dbUser.ID != "" {
-		if dbUser.IsBotAdmin {
-			return true
-		}
+	err := db.Model(&model.ChannelRole{}).
+		Where(`"channelId" = ?`, channelId).
+		Preload("Users", `"userId" = ?`, userId).
+		Find(&roles).
+		Error
 
-		if dbUser.DashboardAccess != nil && len(dbUser.DashboardAccess) > 0 {
-			for _, access := range dbUser.DashboardAccess {
-				if access.ChannelID == channelId {
-					return true
-				}
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	for _, badge := range badges {
+		for _, role := range roles {
+			if role.Type == badge && role.System {
+				return true
 			}
 		}
 	}
 
-	commandPermIndex := helpers.IndexOf(CommandPerms, commandPermission)
-
-	res := false
-	for _, b := range badges {
-		idx := helpers.IndexOf(CommandPerms, b)
-
-		if idx == -1 {
-			continue
-		}
-		if idx <= commandPermIndex {
-			res = true
-			break
+	for _, role := range roles {
+		for _, users := range role.Users {
+			if users.UserID == userId {
+				return true
+			}
 		}
 	}
 
-	return res
+	return false
 }

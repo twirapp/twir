@@ -21,7 +21,7 @@ var AddAccCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "dota addacc",
 		Description: lo.ToPtr("Add dota account for watching games"),
-		Permission:  "BROADCASTER",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeBroadcaster},
 		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
 		IsReply:     true,

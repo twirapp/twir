@@ -17,7 +17,7 @@ var History = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "title history",
 		Description: lo.ToPtr("Print history of titles."),
-		Permission:  "MODERATOR",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
 		Visible:     false,
 		Module:      lo.ToPtr("MODERATION"),
 		IsReply:     true,

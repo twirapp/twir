@@ -20,7 +20,7 @@ var RemoveAliaseCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "commands aliases remove",
 		Description: lo.ToPtr("Remove aliase from command"),
-		Permission:  "MODERATOR",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
 		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
 		IsReply:     true,

@@ -1,6 +1,7 @@
 package spam
 
 import (
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"strconv"
 	"strings"
 
@@ -16,7 +17,7 @@ var Command = types.DefaultCommand{
 		Description: lo.ToPtr(
 			"Spam into chat. Example usage: <b>!spam 5 https://tsuwari.tk</b>",
 		),
-		Permission:         "MODERATOR",
+		RolesNames:         []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
 		Visible:            false,
 		Module:             lo.ToPtr("MODERATION"),
 		IsReply:            false,

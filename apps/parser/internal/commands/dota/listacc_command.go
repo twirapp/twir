@@ -1,6 +1,7 @@
 package dota
 
 import (
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"strings"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -13,7 +14,7 @@ var ListAccCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "dota listacc",
 		Description: lo.ToPtr("List of added dota accounts"),
-		Permission:  "BROADCASTER",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeBroadcaster},
 		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
 		IsReply:     true,

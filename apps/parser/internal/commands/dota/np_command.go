@@ -2,6 +2,7 @@ package dota
 
 import (
 	"fmt"
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 
@@ -14,7 +15,7 @@ var NpAccCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "np",
 		Description: lo.ToPtr("Notable players from current dota game"),
-		Permission:  "VIEWER",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeBroadcaster},
 		Visible:     false,
 		Module:      lo.ToPtr("DOTA"),
 		IsReply:     true,

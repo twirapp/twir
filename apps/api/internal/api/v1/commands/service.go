@@ -122,7 +122,6 @@ func handleUpdate(
 	command.IsReply = *dto.IsReply
 	command.KeepResponsesOrder = *dto.KeepResponsesOrder
 	command.Name = dto.Name
-	command.Permission = dto.Permission
 	command.Visible = *dto.Visible
 	command.GroupID = null.StringFromPtr(dto.GroupID)
 

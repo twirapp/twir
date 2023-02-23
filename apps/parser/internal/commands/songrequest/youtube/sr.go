@@ -43,7 +43,6 @@ var SrCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:               "sr",
 		Description:        lo.ToPtr("Song requests from youtube"),
-		Permission:         "VIEWER",
 		Visible:            false,
 		Module:             lo.ToPtr("SONGREQUEST"),
 		IsReply:            true,

@@ -12,14 +12,11 @@ import (
 type Command struct {
 	Name         string   `json:"name"`
 	Responses    []string `json:"responses"`
-	Permission   string   `json:"permission"`
 	Cooldown     int64    `json:"cooldown"`
 	CooldownType string   `json:"cooldownType"`
 	Aliases      []string `json:"aliases"`
 	Description  *string  `json:"description"`
 }
-
-var CommandPerms = []string{"BROADCASTER", "MODERATOR", "VIP", "SUBSCRIBER", "FOLLOWER", "VIEWER"}
 
 func handleGet(channelId string, services types.Services) ([]Command, error) {
 	commands := []model.ChannelsCommands{}
@@ -43,7 +40,6 @@ func handleGet(channelId string, services types.Services) ([]Command, error) {
 		commandsResponse = append(commandsResponse, Command{
 			Name:         cmd.Name,
 			Responses:    responses,
-			Permission:   cmd.Permission,
 			Cooldown:     cmd.Cooldown.Int64,
 			CooldownType: cmd.CooldownType,
 			Aliases:      cmd.Aliases,
@@ -52,14 +48,7 @@ func handleGet(channelId string, services types.Services) ([]Command, error) {
 	}
 
 	sort.Slice(commandsResponse, func(i, j int) bool {
-		iPermIndex := lo.IndexOf(CommandPerms, commandsResponse[i].Permission)
-		jPermIndex := lo.IndexOf(CommandPerms, commandsResponse[j].Permission)
-
-		if iPermIndex == jPermIndex {
-			return commandsResponse[i].Name < commandsResponse[j].Name
-		}
-
-		return iPermIndex < jPermIndex
+		return commandsResponse[i].Name < commandsResponse[j].Name
 	})
 
 	return commandsResponse, nil

@@ -21,7 +21,7 @@ var AddAliaseCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "commands aliases add",
 		Description: lo.ToPtr("Add aliase to command"),
-		Permission:  "MODERATOR",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
 		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
 		IsReply:     true,

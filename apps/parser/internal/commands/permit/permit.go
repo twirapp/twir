@@ -26,7 +26,7 @@ var Command = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "permit",
 		Description: lo.ToPtr("Permits user."),
-		Permission:  "MODERATOR",
+		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
 		Visible:     false,
 		Module:      lo.ToPtr("MODERATION"),
 		IsReply:     true,

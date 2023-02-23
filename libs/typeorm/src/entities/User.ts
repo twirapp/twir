@@ -13,6 +13,7 @@ import { Channel } from './Channel';
 import { ChannelChatMessage } from './ChannelChatMessage';
 import { ChannelEmoteUsage } from './ChannelEmoteUsage';
 import { ChannelPermit } from './ChannelPermit';
+import { ChannelRoleUser } from './ChannelRoleUser';
 import { CommandUsage } from './CommandUsage';
 import { DashboardAccess } from './DashboardAccess';
 import { Notification } from './Notification';
@@ -79,4 +80,7 @@ export class User {
 
   @OneToMany(() => ChannelEmoteUsage, _ => _.channel)
   emotesUsages?: ChannelEmoteUsage[];
+
+  @OneToMany(() => ChannelRoleUser, _ => _.user)
+  channelRoleUsers?: ChannelRoleUser[];
 }
