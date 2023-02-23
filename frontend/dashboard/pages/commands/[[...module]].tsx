@@ -62,8 +62,8 @@ const Commands: NextPage = () => {
     },
   });
 
-  useEffect(() => {
-    if (!commands || !router.query.module) return;
+  function setCommandsGroup() {
+    if (!commands) return;
 
     setCommandsWithGroups({});
 
@@ -92,7 +92,15 @@ const Commands: NextPage = () => {
       }
     }
 
+  }
+
+  useEffect(() => {
+    setCommandsGroup();
   }, [commands]);
+
+  useEffect(() => {
+    setCommandsGroup();
+  }, [router.query.module]);
 
   const [searchInput, setSearchInput] = useDebouncedState('', 200);
 
