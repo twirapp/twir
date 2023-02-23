@@ -21,8 +21,8 @@ func IncrementUserMessages(db *gorm.DB, userId, channelId string) {
 
 	user := model.Users{}
 	err := db.
-		Where(`"users"."id" = ? AND "Stats"."channelId" = ?`, userId, channelId).
-		Joins("Stats").
+		Where(`"id" = ?`, userId).
+		Preload("Stats", `"userId" = ? AND "channelId" = ?`, userId, channelId).
 		Find(&user).Error
 	if err != nil {
 		zap.S().Error(err)
@@ -35,7 +35,7 @@ func IncrementUserMessages(db *gorm.DB, userId, channelId string) {
 		user.ApiKey = uuid.NewV4().String()
 		user.IsBotAdmin = false
 		user.IsTester = false
-		//user.Stats = createStats(userId, channelId)
+		user.Stats = createStats(userId, channelId)
 
 		if err := db.Create(&user).Error; err != nil {
 			zap.S().Error(err)
@@ -46,7 +46,7 @@ func IncrementUserMessages(db *gorm.DB, userId, channelId string) {
 			newStats := createStats(userId, channelId)
 			err := db.Create(newStats).Error
 			if err != nil {
-				zap.S().Error(err)
+				zap.S().Error(err, newStats)
 			}
 		} else {
 			err := db.
@@ -63,6 +63,7 @@ func IncrementUserMessages(db *gorm.DB, userId, channelId string) {
 
 func createStats(userId, channelId string) *model.UsersStats {
 	stats := &model.UsersStats{
+		ID:                uuid.NewV4().String(),
 		UserID:            userId,
 		ChannelID:         channelId,
 		Messages:          1,
