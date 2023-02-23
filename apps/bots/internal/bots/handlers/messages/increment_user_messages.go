@@ -35,7 +35,7 @@ func IncrementUserMessages(db *gorm.DB, userId, channelId string) {
 		user.ApiKey = uuid.NewV4().String()
 		user.IsBotAdmin = false
 		user.IsTester = false
-		user.Stats = createStats(userId, channelId)
+		//user.Stats = createStats(userId, channelId)
 
 		if err := db.Create(&user).Error; err != nil {
 			zap.S().Error(err)
@@ -49,7 +49,11 @@ func IncrementUserMessages(db *gorm.DB, userId, channelId string) {
 				zap.S().Error(err)
 			}
 		} else {
-			err := db.Model(&user.Stats).Update("messages", user.Stats.Messages+1).Error
+			err := db.
+				Model(&user.Stats).
+				Where(`"userId" = ? AND "channelId" = ?`, userId, channelId).
+				Update("messages", user.Stats.Messages+1).
+				Error
 			if err != nil {
 				zap.S().Error(err)
 			}
