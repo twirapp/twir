@@ -35,7 +35,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Tags         Integrations|Lastfm
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {array}  LastfmProfile
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/lastfm [get]
@@ -55,7 +55,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Tags         Integrations|Lastfm
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {string}  string
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/lastfm/auth [get]

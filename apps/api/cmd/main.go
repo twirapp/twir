@@ -52,6 +52,7 @@ import (
 )
 
 // @title Tsuwari api
+// @version 1.0
 // @description Non-public api for tsuwari
 // @host localhost:3002
 // @BasePath /

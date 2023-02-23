@@ -34,7 +34,7 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 
 	for _, badge := range badges {
 		for _, role := range roles {
-			if role.Type == badge && role.System {
+			if role.Type.String() == badge && role.System {
 				return true
 			}
 		}

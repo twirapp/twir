@@ -36,7 +36,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Tags         Integrations|Spotify
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {object}  spotify.SpotifyProfile
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/spotify [get]
@@ -56,7 +56,7 @@ func getProfile(services types.Services) func(c *fiber.Ctx) error {
 // @Tags         Integrations|Spotify
 // @Accept       json
 // @Produce      plain
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success 200 {string} string	"Auth link"
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/spotify/auth [get]

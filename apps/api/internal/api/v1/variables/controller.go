@@ -23,7 +23,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Tags         Variables
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {array}  model.ChannelsCustomvars
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/variables [get]
@@ -43,7 +43,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Tags         Variables
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {array}  parser.GetVariablesResponse_Variable
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/variables/builtin [get]

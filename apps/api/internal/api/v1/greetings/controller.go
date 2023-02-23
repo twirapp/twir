@@ -24,7 +24,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Tags         Greetings
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {array}  Greeting
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/greetings [get]

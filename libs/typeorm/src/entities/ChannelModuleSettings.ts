@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Relation } from 'typeorm';
 
 import { type Channel } from './Channel.js';
 
@@ -9,11 +9,7 @@ export enum ModuleType {
 
 @Entity('channels_modules_settings')
 export class ChannelModuleSettings {
-  @PrimaryColumn('uuid', {
-    primary: true,
-    name: 'id',
-    default: () => 'gen_random_uuid()',
-  })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column('enum', { enum: ModuleType })

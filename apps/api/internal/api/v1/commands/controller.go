@@ -28,7 +28,7 @@ type JSONResult struct{}
 // @Tags         Commands
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {array}  model.ChannelsCommands
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands [get]

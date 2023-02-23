@@ -318,6 +318,19 @@ definitions:
     - type
     - vips
     type: object
+  github_com_satont_tsuwari_apps_api_internal_api_v1_roles.roleDto:
+    properties:
+      flags:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
   github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity:
     properties:
       channelId:
@@ -833,6 +846,19 @@ definitions:
     - type
     - vips
     type: object
+  internal_api_v1_roles.roleDto:
+    properties:
+      flags:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
   internal_api_v1_settings_dashboardAccess.Entity:
     properties:
       channelId:
@@ -939,6 +965,42 @@ definitions:
       name:
         type: string
     type: object
+  model.ChannelRole:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/model.ChannelRolePermission'
+        type: array
+      system:
+        type: boolean
+      type:
+        $ref: '#/definitions/model.ChannelRoleEnum'
+    type: object
+  model.ChannelRoleEnum:
+    enum:
+    - BROADCASTER
+    - MODERATOR
+    - SUBSCRIBER
+    - VIP
+    - CUSTOM
+    type: string
+    x-enum-varnames:
+    - ChannelRoleTypeBroadcaster
+    - ChannelRoleTypeModerator
+    - ChannelRoleTypeSubscriber
+    - ChannelRoleTypeVip
+    - ChannelRoleTypeCustom
+  model.ChannelRolePermission:
+    properties:
+      flag:
+        $ref: '#/definitions/model.RoleFlag'
+      id:
+        type: string
+    type: object
   model.Channels:
     properties:
       botId:
@@ -986,11 +1048,13 @@ definitions:
         type: string
       name:
         type: string
-      permission:
-        type: string
       responses:
         items:
           $ref: '#/definitions/model.ChannelsCommandsResponses'
+        type: array
+      rolesIds:
+        items:
+          type: string
         type: array
       visible:
         type: boolean
@@ -1184,6 +1248,55 @@ definitions:
       text:
         type: string
     type: object
+  model.RoleFlag:
+    properties:
+      flag:
+        $ref: '#/definitions/model.RolePermissionEnum'
+      id:
+        type: string
+    type: object
+  model.RolePermissionEnum:
+    enum:
+    - ADMINISTRATOR
+    - UPDATE_CHANNEL_TITLE
+    - UPDATE_CHANNEL_CATEGORY
+    - VIEW_COMMANDS
+    - MANAGE_COMMANDS
+    - VIEW_KEYWORDS
+    - MANAGE_KEYWORDS
+    - VIEW_TIMERS
+    - MANAGE_TIMERS
+    - VIEW_INTEGRATIONS
+    - MANAGE_INTEGRATIONS
+    - VIEW_SONG_REQUESTS
+    - MANAGE_SONG_REQUESTS
+    - VIEW_MODERATION
+    - MANAGE_MODERATION
+    - VIEW_VARIABLES
+    - MANAGE_VARIABLES
+    - VIEW_GREETINGS
+    - MANAGE_GREETINGS
+    type: string
+    x-enum-varnames:
+    - RolePermissionAdministrator
+    - RolePermissionUpdateChannelTitle
+    - RolePermissionUpdateChannelCategory
+    - RolePermissionViewCommands
+    - RolePermissionManageCommands
+    - RolePermissionViewKeywords
+    - RolePermissionManageKeywords
+    - RolePermissionViewTimers
+    - RolePermissionManageTimers
+    - RolePermissionViewIntegrations
+    - RolePermissionManageIntegrations
+    - RolePermissionViewSongRequests
+    - RolePermissionManageSongRequests
+    - RolePermissionViewModeration
+    - RolePermissionManageModeration
+    - RolePermissionViewVariables
+    - RolePermissionManageVariables
+    - RolePermissionViewGreetings
+    - RolePermissionManageGreetings
   modules.SearchResult:
     properties:
       id:
@@ -1460,13 +1573,15 @@ info:
   contact: {}
   description: Non-public api for tsuwari
   title: Tsuwari api
+  version: "1.0"
 paths:
   /v1/channels/{channelId}/bot/checkmod:
     get:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -1496,7 +1611,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -1506,7 +1622,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_bot.connectionDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_bot.connectionDto'
       produces:
       - application/json
       responses:
@@ -1530,7 +1646,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -1714,7 +1831,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -1746,7 +1864,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_commands_group.groupDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands_group.groupDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1810,7 +1928,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_commands_group.groupDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands_group.groupDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -1846,7 +1964,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -1858,7 +1977,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_api_v1_community.User'
+              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_community.User'
             type: array
         "500":
           description: Internal Server Error
@@ -1874,7 +1993,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -1898,7 +2018,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2034,7 +2155,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2064,7 +2186,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_donatepay.createOrUpdateDTO'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO'
       - description: ID of channel
         in: path
         name: channelId
@@ -2091,7 +2213,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2121,7 +2244,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_donationalerts.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2150,7 +2273,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2208,7 +2332,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2267,7 +2392,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2325,7 +2451,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2388,7 +2515,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2446,7 +2574,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2505,7 +2634,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2563,7 +2693,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2593,7 +2724,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_integrations_streamlabs.tokenDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2622,7 +2753,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2676,7 +2808,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2735,7 +2868,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2789,7 +2923,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -2973,7 +3108,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -3038,7 +3174,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -3064,7 +3201,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -3102,7 +3240,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -3125,12 +3264,14 @@ paths:
       summary: Get channel rewards list
       tags:
       - Rewards
-  /v1/channels/{channelId}/settings/dashboard-access:
+  /v1/channels/{channelId}/roles:
     get:
       consumes:
       - application/json
+      description: Get roles
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: Channel ID
         in: path
         name: channelId
         required: true
@@ -3142,7 +3283,140 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.Entity'
+              $ref: '#/definitions/model.ChannelRole'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get roles
+      tags:
+      - Roles
+    post:
+      consumes:
+      - application/json
+      description: Create role
+      parameters:
+      - default: '{{channelId}}'
+        description: Channel ID
+        in: path
+        name: channelId
+        required: true
+        type: string
+      - description: Role
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles.roleDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChannelRole'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create role
+      tags:
+      - Roles
+  /v1/channels/{channelId}/roles/{roleId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete role
+      parameters:
+      - default: '{{channelId}}'
+        description: Channel ID
+        in: path
+        name: channelId
+        required: true
+        type: string
+      - default: '{{roleId}}'
+        description: Role ID
+        in: path
+        name: roleId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete role
+      tags:
+      - Roles
+    put:
+      consumes:
+      - application/json
+      description: Update role
+      parameters:
+      - default: '{{channelId}}'
+        description: Channel ID
+        in: path
+        name: channelId
+        required: true
+        type: string
+      - default: '{{roleId}}'
+        description: Role ID
+        in: path
+        name: roleId
+        required: true
+        type: string
+      - description: Role
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles.roleDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChannelRole'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update role
+      tags:
+      - Roles
+  /v1/channels/{channelId}/settings/dashboard-access:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: '{{channelId}}'
+        description: ChannelId
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
             type: array
         "500":
           description: Internal Server Error
@@ -3162,7 +3436,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.addUserDto'
+          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3174,7 +3448,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_api_v1_settings_dashboardAccess.Entity'
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
         "400":
           description: Bad Request
           schema:
@@ -3191,7 +3465,8 @@ paths:
   /v1/channels/{channelId}/streams:
     get:
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -3217,7 +3492,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -3397,7 +3673,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true
@@ -3539,7 +3816,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ChannelId
+      - default: '{{channelId}}'
+        description: ChannelId
         in: path
         name: channelId
         required: true

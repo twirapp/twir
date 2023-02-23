@@ -33,13 +33,13 @@ const (
 	RolePermissionManageGreetings RolePermissionEnum = "MANAGE_GREETINGS"
 )
 
-type RolePermission struct {
-	ID         string             `gorm:"column:id;primary_key;type:uuid;default:uuid_generate_v4()"`
-	Permission RolePermissionEnum `gorm:"column:permission;type:text;"`
+type RoleFlag struct {
+	ID   string             `gorm:"column:id;primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
+	Flag RolePermissionEnum `gorm:"column:flag;type:text;" json:"flag"`
 
-	ChannelRolePermissions []*ChannelRolePermission `gorm:"foreignKey:PermissionID"`
+	ChannelRolePermissions []*ChannelRolePermission `gorm:"foreignKey:FlagID" json:"-"`
 }
 
-func (RolePermission) TableName() string {
-	return "role_permissions"
+func (RoleFlag) TableName() string {
+	return "roles_flags"
 }

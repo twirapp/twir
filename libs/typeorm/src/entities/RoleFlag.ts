@@ -3,7 +3,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 // eslint-disable-next-line import/no-cycle
 import { ChannelRolePermission } from './ChannelRolePermission';
 
-enum RolePermissionEnum {
+export enum RolePermissionEnum {
   ADMINISTRATOR = 'ADMINISTRATOR',
 
   UPDATE_CHANNEL_TITLE = 'UPDATE_CHANNEL_TITLE',
@@ -34,14 +34,14 @@ enum RolePermissionEnum {
   MANAGE_GREETINGS = 'MANAGE_GREETINGS',
 }
 
-@Entity('roles_permissions')
-export class RolePermission {
+@Entity('roles_flags')
+export class RoleFlag {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column('enum', { enum: RolePermissionEnum, default: RolePermissionEnum.ADMINISTRATOR, unique: true })
-  permission: RolePermissionEnum;
+  flag: RolePermissionEnum;
 
-  @OneToMany(() => ChannelRolePermission, _ => _.permission)
+  @OneToMany(() => ChannelRolePermission, _ => _.flag)
   channelRolePermissions: ChannelRolePermission[];
 }

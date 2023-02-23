@@ -21,7 +21,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Tags         Community
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {array}  User
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/community/users [get]
@@ -47,7 +47,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Tags         Community
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/community/users/stats [get]

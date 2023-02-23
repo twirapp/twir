@@ -3,7 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 't
 // eslint-disable-next-line import/no-cycle
 import { ChannelRole } from './ChannelRole';
 // eslint-disable-next-line import/no-cycle
-import { RolePermission } from './RolePermission';
+import { RoleFlag } from './RoleFlag';
 
 @Entity('channels_roles_permissions')
 export class ChannelRolePermission {
@@ -14,13 +14,13 @@ export class ChannelRolePermission {
   roleId: string;
 
   @Column()
-  permissionId: string;
+  flagId: string;
 
   @ManyToOne(() => ChannelRole, _ => _.permissions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'roleId' })
   role?: ChannelRole;
 
-  @ManyToOne(() => RolePermission, _ => _.channelRolePermissions)
-  @JoinColumn({ name: 'permissionId' })
-  permission?: RolePermission;
+  @ManyToOne(() => RoleFlag, _ => _.channelRolePermissions)
+  @JoinColumn({ name: 'flagId' })
+  flag?: RoleFlag;
 }

@@ -58,9 +58,6 @@ export class ChannelCommand {
   @Column('boolean', { name: 'is_reply', default: true })
   isReply: boolean;
 
-  @Column('text', { array: true, default: [] })
-  rolesIds: string[];
-
   @Column('boolean', { name: 'default', default: false })
   default: boolean;
 
@@ -99,4 +96,7 @@ export class ChannelCommand {
 
   @Column('uuid', { nullable: true })
   groupId?: string;
+
+  @Column('text', { array: true, default: [] })
+  rolesIds: string[];
 }

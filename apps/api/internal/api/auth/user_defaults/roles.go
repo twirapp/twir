@@ -29,8 +29,8 @@ func CreateRoles(userId string) {
 			System:    true,
 			Permissions: []*model.ChannelRolePermission{
 				{
-					ID:         uuid.NewV4().String(),
-					Permission: &model.RolePermission{Permission: model.RolePermissionAdministrator},
+					ID:   uuid.NewV4().String(),
+					Flag: &model.RoleFlag{Flag: model.RolePermissionAdministrator},
 				},
 			},
 		},

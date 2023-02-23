@@ -11,6 +11,7 @@ import (
 	public_commands "github.com/satont/tsuwari/apps/api/internal/api/v1/public/commands"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/public/song_requests"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/rewards"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/roles"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/twitch/users"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 
@@ -63,6 +64,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	rewards.Setup(channelsGroup, services)
 	community.Setup(channelsGroup, services)
 	events.Setup(channelsGroup, services)
+	roles.Setup(channelsGroup, services)
 
 	integrationsGroup := channelsGroup.Group("integrations")
 	donationalerts.Setup(integrationsGroup, services)
