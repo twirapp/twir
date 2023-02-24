@@ -10,8 +10,6 @@ export enum RoleType {
   MODERATOR = 'MODERATOR',
   SUBSCRIBER = 'SUBSCRIBER',
   VIP = 'VIP',
-  // FOLLOWER = 'FOLLOWER',
-  // VIEWER = 'VIEWER',
   CUSTOM = 'CUSTOM',
 }
 
