@@ -13,16 +13,15 @@ import {
   Select,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useDebouncedState } from '@mantine/hooks';
 import { IconManualGearbox, IconPlus, IconTrash, IconUsers } from '@tabler/icons';
-import { ChannelRole } from '@tsuwari/typeorm/entities/ChannelRole';
+import { ChannelRole, RoleType } from '@tsuwari/typeorm/entities/ChannelRole';
 import { RoleFlags } from '@tsuwari/typeorm/entities/ChannelRole';
-import { HelixUserData } from '@twurple/api';
 import { useCallback, useEffect, useState } from 'react';
 
+import { noop } from '../../util/chore';
 import { chunk } from '../../util/chunk';
 
-import { useRolesUsers, useTwitch } from '@/services/api';
+import { useRolesApi, useRolesUsers, useTwitch } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -32,10 +31,12 @@ type Props = {
 
 export const RolesModal: React.FC<Props> = (props) => {
   const form = useForm<{
+    id: string,
     name: string,
     flags: string[],
   }>({
     initialValues: {
+      id: '',
       name: '',
       flags: [],
     },
@@ -43,9 +44,29 @@ export const RolesModal: React.FC<Props> = (props) => {
 
   const [newUser, setNewUser] = useState('');
 
+  const rolesManager = useRolesApi();
+  const rolesUpdater = rolesManager.useCreateOrUpdate();
+
   const usersManager = useRolesUsers();
   const { data: users } = usersManager.useGetAll(props.role?.id || '');
   const usersUpdater = usersManager.useUpdate();
+
+  const saveRole = useCallback(() => {
+    rolesUpdater.mutateAsync({
+      id: form.values.id,
+      data: {
+        id: form.values.id,
+        name: form.values.name,
+        permissions: form.values.flags as RoleFlags[],
+        channelId: props.role?.channelId || '',
+        system: props.role?.system ?? false,
+        type: props.role?.type ?? RoleType.CUSTOM,
+      },
+    }).then(() => {
+      props.setOpened(false);
+      form.reset();
+    }).catch(noop);
+  }, [form.values]);
 
   async function addNewUser() {
     if (!newUser) return;
@@ -66,9 +87,12 @@ export const RolesModal: React.FC<Props> = (props) => {
   }
 
   useEffect(() => {
+    form.reset();
     if (!props.role) return;
+
     form.setFieldValue('name', props.role.name || '');
     form.setFieldValue('flags', props.role.permissions);
+    form.setFieldValue('id', props.role.id);
   }, [props.role]);
 
   useEffect(() => {
@@ -78,8 +102,6 @@ export const RolesModal: React.FC<Props> = (props) => {
   }, [users]);
 
   const createCheckboxes = useCallback(() => {
-    if (!props.role) return (<></>);
-
     const checkboxes = Object.values(RoleFlags).map((permission, i) => {
       const permissionName = permission.replace(/_/g, ' ').toLowerCase();
       const text = permissionName.split(' ').map((word) => {
@@ -98,7 +120,6 @@ export const RolesModal: React.FC<Props> = (props) => {
           }
         }}
       />;
-      return;
     });
 
     const adminitratorCheckbox = checkboxes[0]!;
@@ -141,11 +162,15 @@ export const RolesModal: React.FC<Props> = (props) => {
           <Grid mt={10} >
             {createCheckboxes()}
           </Grid>
+
+          <Flex direction={'row'} justify={'space-between'}>
+            <div></div>
+            <Button mt={10} variant={'light'} color={'green'} onClick={saveRole}>Save</Button>
+          </Flex>
         </Tabs.Panel>
 
         <Tabs.Panel value="users" pt="xs">
           <Grid>
-
             <Grid.Col span={12}>
               <Grid align="center">
                 <Grid.Col span={10}>

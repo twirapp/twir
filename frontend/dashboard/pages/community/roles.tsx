@@ -1,4 +1,5 @@
-import { Button, Card, Flex, Text } from '@mantine/core';
+import { Button, Card, Center, DEFAULT_THEME, Flex, Text } from '@mantine/core';
+import { IconPlus } from '@tabler/icons';
 import { ChannelRole } from '@tsuwari/typeorm/entities/ChannelRole';
 import { NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -11,6 +12,8 @@ import { useRolesApi } from '@/services/api';
 const Roles: NextPage = () => {
   const rolesManager = useRolesApi();
   const { data: roles } = rolesManager.useGetAll();
+  const rolesDeleter = rolesManager.useDelete();
+
   const [modalOpened, setModalOpened] = useState(false);
   const [editableRole, setEditableRole] = useState<ChannelRole | undefined>();
 
@@ -18,6 +21,26 @@ const Roles: NextPage = () => {
     <>
 
       <Flex direction={'column'} align={'center'} gap={'lg'}>
+        <Card
+          shadow="sm"
+          p="lg"
+          radius="md"
+          withBorder
+          w={500}
+          onMouseDown={() => {
+            setEditableRole(undefined);
+            setModalOpened(true);
+          }}
+          style={{
+            cursor: 'pointer',
+            backgroundColor: DEFAULT_THEME.colors.gray[7],
+          }}
+        >
+          <Center>
+            <IconPlus />
+            <Text size={'lg'}>New role</Text>
+          </Center>
+        </Card>
         {!!roles?.length && roles.map((role) => (
           <Card
             key={role.id}
@@ -27,7 +50,8 @@ const Roles: NextPage = () => {
             withBorder
             w={500}
             onMouseDown={() => {
-              console.log('hello world');
+              setEditableRole(role);
+              setModalOpened(true);
             }}
             style={{ cursor: 'pointer' }}
           >
@@ -52,7 +76,7 @@ const Roles: NextPage = () => {
                         e.stopPropagation();
                         confirmDelete({
                           onConfirm: () => {
-                            console.log('confirmed');
+                            rolesDeleter.mutate(role.id);
                           },
                         });
                       }}

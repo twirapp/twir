@@ -57,11 +57,10 @@ func updateRoleService(channelId, roleId string, dto *roleDto) (*model.ChannelRo
 		return nil, fiber.NewError(http.StatusNotFound, "Role not found")
 	}
 
-	err = db.
-		Model(&role).
-		Update("name", dto.Name).
-		Update("permissions", dto.Permissions).
-		Error
+	role.Name = dto.Name
+	role.Permissions = dto.Permissions
+
+	err = db.Save(&role).Error
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
