@@ -34,12 +34,10 @@ export const RolesModal: React.FC<Props> = (props) => {
   const form = useForm<{
     name: string,
     flags: string[],
-    users: string[],
   }>({
     initialValues: {
       name: '',
       flags: [],
-      users: [],
     },
   });
 
@@ -47,6 +45,25 @@ export const RolesModal: React.FC<Props> = (props) => {
 
   const usersManager = useRolesUsers();
   const { data: users } = usersManager.useGetAll(props.role?.id || '');
+  const usersUpdater = usersManager.useUpdate();
+
+  async function addNewUser() {
+    if (!newUser) return;
+
+    await usersUpdater.mutateAsync({
+      roleId: props.role?.id || '',
+      userNames: [...users?.map(u => u.userName) ?? [], newUser],
+    });
+    setNewUser('');
+  }
+
+  async function removeUser(id: string) {
+    await usersUpdater.mutateAsync({
+      roleId: props.role?.id || '',
+      userNames: users?.filter(u => u.userId !== id).map(u => u.userName) ?? [],
+    });
+    setNewUser('');
+  }
 
   useEffect(() => {
     if (!props.role) return;
@@ -63,13 +80,14 @@ export const RolesModal: React.FC<Props> = (props) => {
   const createCheckboxes = useCallback(() => {
     if (!props.role) return (<></>);
 
-    const checkboxes = Object.values(RoleFlags).map((permission) => {
+    const checkboxes = Object.values(RoleFlags).map((permission, i) => {
       const permissionName = permission.replace(/_/g, ' ').toLowerCase();
       const text = permissionName.split(' ').map((word) => {
         return word.charAt(0).toUpperCase() + word.slice(1);
       }).join(' ');
 
       return <Checkbox
+        key={i}
         label={text}
         checked={form.values.flags.includes(permission)}
         onChange={(e) => {
@@ -89,7 +107,7 @@ export const RolesModal: React.FC<Props> = (props) => {
     const chunks = chunk(checkboxes, 2);
     return [
       <Grid.Col span={12}>{adminitratorCheckbox}</Grid.Col>,
-        chunks.map(c => {
+        chunks.map((c, i) => {
           return (
             <>
             <Grid.Col span={6}>
@@ -138,11 +156,11 @@ export const RolesModal: React.FC<Props> = (props) => {
                   />
                 </Grid.Col>
                 <Grid.Col span={2}>
-                  <Button fullWidth variant={'light'}><IconPlus /></Button>
+                  <Button fullWidth variant={'light'} onClick={addNewUser}><IconPlus /></Button>
                 </Grid.Col>
               </Grid>
             </Grid.Col>
-            {users?.map((user, index) => {
+            {users?.map((user) => {
               return (
                 <Grid.Col span={6}>
                   <Card>
@@ -157,7 +175,7 @@ export const RolesModal: React.FC<Props> = (props) => {
                         <ActionIcon
                           color={'red'}
                           onClick={() => {
-                            form.removeListItem('users', index);
+                            removeUser(user.userId);
                           }}
                         >
                           <IconTrash size={25} />

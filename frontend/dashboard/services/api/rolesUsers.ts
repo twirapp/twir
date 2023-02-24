@@ -3,6 +3,7 @@ import { ChannelRoleUser } from '@tsuwari/typeorm/entities/ChannelRoleUser';
 import { useContext } from 'react';
 
 import { authFetcher } from '@/services/api/fetchWrappers';
+import { queryClient } from '@/services/api/queryClient';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 
@@ -22,18 +23,21 @@ export const useRolesUsers = () => {
         return authFetcher(`/api/v1/channels/${dashboard.id}/roles/${roleId}/users`);
       },
     }),
-    useUpdate: (roleId: string) => useMutation({
-      mutationFn: (data: { userNames: string }) => {
+    useUpdate: () => useMutation({
+      mutationFn: (data: { userNames: string[], roleId: string }) => {
         return authFetcher(
-          `/api/v1/channels/${dashboard.id}/roles/${roleId}/users`,
+          `/api/v1/channels/${dashboard.id}/roles/${data.roleId}/users`,
           {
-            method: 'POST',
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(data),
+            body: JSON.stringify({ userNames: data.userNames }),
           },
         );
+      },
+      onSuccess: (d, data) => {
+        queryClient.refetchQueries([`/api/v1/channels/${dashboard.id}/roles/${data.roleId}/users`]);
       },
     }),
   };

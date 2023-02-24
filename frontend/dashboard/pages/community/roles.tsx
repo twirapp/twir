@@ -20,6 +20,7 @@ const Roles: NextPage = () => {
       <Flex direction={'column'} align={'center'} gap={'lg'}>
         {!!roles?.length && roles.map((role) => (
           <Card
+            key={role.id}
             shadow="sm"
             p="lg"
             radius="md"

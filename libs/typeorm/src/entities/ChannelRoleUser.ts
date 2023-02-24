@@ -10,10 +10,10 @@ export class ChannelRoleUser {
     id: number;
 
     @Column()
-    userId: number;
+    userId: string;
 
     @Column()
-    roleId: number;
+    roleId: string;
 
     @ManyToOne(() => ChannelRole, _ => _.users, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'roleId' })
