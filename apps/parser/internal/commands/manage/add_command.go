@@ -30,7 +30,6 @@ var AddCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "commands add",
 		Description: lo.ToPtr("Add command"),
-		Permission:  "MODERATOR",
 		Visible:     false,
 		Module:      lo.ToPtr("MANAGE"),
 		IsReply:     true,

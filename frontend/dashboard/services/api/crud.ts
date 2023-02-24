@@ -6,6 +6,7 @@ import { ChannelCommandGroup } from '@tsuwari/typeorm/entities/ChannelCommandGro
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
+import { ChannelRole } from '@tsuwari/typeorm/entities/ChannelRole';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { Event } from '@tsuwari/typeorm/entities/events/Event';
 import { useContext } from 'react';
@@ -112,3 +113,4 @@ export const eventsManager = () => createCrudManager<Event>('events');
 export const commandsGroupManager = () => createCrudManager<ChannelCommandGroup>('commands/groups', {
   additionalSystemsKeys: ['commands'],
 });
+export const useRolesApi = () => createCrudManager<ChannelRole>('roles');

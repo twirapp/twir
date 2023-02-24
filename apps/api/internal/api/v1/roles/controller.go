@@ -2,12 +2,15 @@ package roles
 
 import (
 	"github.com/gofiber/fiber/v2"
+	roles_users "github.com/satont/tsuwari/apps/api/internal/api/v1/roles/users"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("/roles")
+	roles_users.Setup(middleware, services)
+
 	middleware.Get("/", getRoles(services))
 	middleware.Put("/:roleId", updateRole(services))
 	middleware.Delete("/:roleId", deleteRole(services))
@@ -48,6 +51,7 @@ func getRoles(services types.Services) fiber.Handler {
 // @Param roleId path string true "Role ID" default({{roleId}})
 // @Param role body roleDto true "Role"
 // @Success      200  {object}  model.ChannelRole
+// @Failure 404 {object} types.DOCApiNotFoundError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/roles/{roleId} [put]
 func updateRole(services types.Services) fiber.Handler {
@@ -82,6 +86,7 @@ func updateRole(services types.Services) fiber.Handler {
 // @Param channelId path string true "Channel ID" default({{channelId}})
 // @Param roleId path string true "Role ID" default({{roleId}})
 // @Success      204
+// @Failure 404 {object} types.DOCApiNotFoundError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/roles/{roleId} [delete]
 func deleteRole(services types.Services) fiber.Handler {

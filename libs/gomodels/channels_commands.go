@@ -32,7 +32,7 @@ type ChannelsCommands struct {
 	Responses          []ChannelsCommandsResponses `gorm:"foreignKey:CommandID"                             json:"responses"`
 	IsReply            bool                        `gorm:"column:is_reply;type:BOOL;default:true"           json:"isReply"`
 	KeepResponsesOrder bool                        `gorm:"column:keepResponsesOrder;type:BOOL;default:true" json:"keepResponsesOrder"`
-	RolesIDS           []string                    `gorm:"column:rolesIds;type:TEXT[]" json:"rolesIds"`
+	RolesIDS           pq.StringArray              `gorm:"column:rolesIds;type:text[];default:[];" json:"rolesIds"`
 
 	GroupID null.String          `gorm:"column:groupId;type:UUID" json:"groupId"`
 	Group   *ChannelCommandGroup `gorm:"foreignKey:GroupID" json:"group"`

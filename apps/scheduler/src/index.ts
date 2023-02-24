@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import * as Sentry from '@sentry/node';
 import '@sentry/tracing';
 import { config } from '@tsuwari/config';
@@ -11,7 +10,6 @@ import { AppDataSource } from '@tsuwari/typeorm';
 import { createServer } from 'nice-grpc';
 
 import { AppModule } from './app.module.js';
-import { DefaultCommandsCreatorService } from './default-commands-creator/default-commands-creator.service.js';
 
 Sentry.init({
   dsn: 'https://1c78d79f3bcb443680e4d5550005e3ac@o324161.ingest.sentry.io/6485379',
@@ -26,8 +24,8 @@ await app.init();
 
 const schedulerService: Scheduler.SchedulerServiceImplementation = {
   async createDefaultCommands(request: Scheduler.CreateDefaultCommandsRequest) {
-    const service = await app.resolve(DefaultCommandsCreatorService);
-    service.createDefaultCommands([request.userId]);
+    // const service = await app.resolve();
+    // service.createDefaultCommands([request.userId]);
     return {};
   },
 };

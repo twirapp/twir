@@ -20,6 +20,7 @@ func getRole(id string) *model.ChannelRole {
 		Where(`"id" = ?`, id).
 		Preload("Permissions").
 		Preload("Permissions.Flag").
+		Preload("Users").
 		First(&role).Error
 	if err != nil {
 		logger.Error(err)
@@ -38,6 +39,7 @@ func getRolesService(channelId string) ([]*model.ChannelRole, error) {
 		Where(`"channelId" = ?`, channelId).
 		Preload("Permissions").
 		Preload("Permissions.Flag").
+		Preload("Users").
 		Find(&channelsRoles).Error
 	if err != nil {
 		logger.Error(err)
@@ -56,7 +58,6 @@ func updateRoleService(channelId, roleId string, dto *roleDto) (*model.ChannelRo
 		Where(`"channelId" = ? AND "id" = ?`, channelId, roleId).
 		First(&role).Error
 	if err != nil {
-		logger.Error(err)
 		return nil, fiber.NewError(http.StatusNotFound, "Role not found")
 	}
 
@@ -112,7 +113,6 @@ func deleteRoleService(channelId, roleId string) error {
 		Where(`"channelId" = ? AND "id" = ?`, channelId, roleId).
 		First(&role).Error
 	if err != nil {
-		logger.Error(err)
 		return fiber.NewError(http.StatusNotFound, "Role not found")
 	}
 

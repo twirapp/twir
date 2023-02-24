@@ -40,10 +40,17 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 		}
 	}
 
-	for _, role := range roles {
-		for _, users := range role.Users {
-			if users.UserID == userId {
-				return true
+	for _, commandRole := range commandRoles {
+		for _, role := range roles {
+			if role.ID != commandRole {
+				continue
+			}
+
+			for _, user := range role.Users {
+				if user.UserID == userId {
+					fmt.Println(role.Name, role.ID, commandRole, user.UserID)
+					return true
+				}
 			}
 		}
 	}

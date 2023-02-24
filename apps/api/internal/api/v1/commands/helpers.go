@@ -100,7 +100,8 @@ func createCommandFromDto(
 		IsReply:      lo.If(dto.IsReply == nil, false).Else(*dto.IsReply),
 		KeepResponsesOrder: lo.If(dto.KeepResponsesOrder == nil, false).
 			Else(*dto.KeepResponsesOrder),
-		GroupID: null.StringFromPtr(dto.GroupID),
+		GroupID:  null.StringFromPtr(dto.GroupID),
+		RolesIDS: dto.RolesIDS,
 	}
 }
 

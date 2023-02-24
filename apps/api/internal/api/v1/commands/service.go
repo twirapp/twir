@@ -124,6 +124,7 @@ func handleUpdate(
 	command.Name = dto.Name
 	command.Visible = *dto.Visible
 	command.GroupID = null.StringFromPtr(dto.GroupID)
+	command.RolesIDS = dto.RolesIDS
 
 	if dto.GroupID == nil {
 		command.Group = nil

@@ -12,7 +12,6 @@ type commandDto struct {
 	Cooldown           uint32         `validate:"lte=86400"                   json:"cooldown"`
 	CooldownType       string         `validate:"required"                    json:"cooldownType"`
 	Description        *string        `validate:"omitempty,max=500"           json:"description,omitempty"`
-	Permission         string         `validate:"required"                    json:"permission"`
 	Aliases            []string       `validate:"max=20,dive,required" json:"aliases"`
 	Visible            *bool          `validate:"omitempty,required"          json:"visible,omitempty"`
 	Enabled            *bool          `validate:"omitempty,required"          json:"enabled,omitempty"`
@@ -20,6 +19,7 @@ type commandDto struct {
 	KeepResponsesOrder *bool          `validate:"required"                    json:"keepResponsesOrder"`
 	IsReply            *bool          `validate:"omitempty,required"          json:"isReply,omitempty"`
 	GroupID            *string        `json:"groupId,omitempty"`
+	RolesIDS           []string       `json:"rolesIds"`
 }
 
 type commandPatchDto struct {

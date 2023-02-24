@@ -4,7 +4,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 't
 import { ChannelRole } from './ChannelRole';
 import { User } from './User';
 
-@Entity('channel_role_users')
+@Entity('channels_roles_users')
 export class ChannelRoleUser {
     @PrimaryGeneratedColumn('uuid')
     id: number;

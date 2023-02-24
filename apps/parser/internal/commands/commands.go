@@ -84,6 +84,7 @@ func (c *Commands) GetChannelCommands(channelId string) (*[]model.ChannelsComman
 		Where(`"channelId" = ? AND "enabled" = ?`, channelId, true).
 		Preload("Responses").
 		Find(&cmds).Error
+
 	if err != nil {
 		return nil, err
 	}

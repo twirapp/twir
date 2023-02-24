@@ -1,12 +1,12 @@
 package model
 
 type ChannelRoleUser struct {
-	ID     string `gorm:"column:id;primary_key;type:uuid;default:uuid_generate_v4()"`
-	UserID string `gorm:"column:userId;type:uuid;"`
-	RoleID string `gorm:"column:roleId;type:uuid;"`
+	ID     string `gorm:"column:id;primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
+	UserID string `gorm:"column:userId;type:uuid;" json:"userId"`
+	RoleID string `gorm:"column:roleId;type:uuid;" json:"-"`
 
-	Role *ChannelRole `gorm:"foreignKey:RoleID"`
-	User *Users       `gorm:"foreignKey:UserID"`
+	Role *ChannelRole `gorm:"foreignKey:RoleID" json:"-"`
+	User *Users       `gorm:"foreignKey:UserID" json:"-"`
 }
 
 func (ChannelRoleUser) TableName() string {

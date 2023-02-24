@@ -19,7 +19,6 @@ var SetCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "title",
 		Description: lo.ToPtr("Print or change title of channel."),
-		Permission:  "VIEWER",
 		Visible:     false,
 		Module:      lo.ToPtr("MODERATION"),
 		IsReply:     true,

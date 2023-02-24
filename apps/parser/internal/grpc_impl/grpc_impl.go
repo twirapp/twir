@@ -171,7 +171,6 @@ func (c *parserGrpcServer) GetDefaultCommands(
 			Name:               v.Name,
 			Description:        *v.Description,
 			Visible:            v.Visible,
-			Permission:         v.Permission,
 			Module:             *v.Module,
 			IsReply:            v.IsReply,
 			KeepResponsesOrder: v.KeepResponsesOrder,
