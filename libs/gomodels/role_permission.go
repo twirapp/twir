@@ -3,7 +3,7 @@ package model
 type RolePermissionEnum string
 
 const (
-	RolePermissionAdministrator RolePermissionEnum = "ADMINISTRATOR"
+	RolePermissionCanAcessDashboard RolePermissionEnum = "CAN_ACCESS_DASHBOARD"
 
 	RolePermissionUpdateChannelTitle    RolePermissionEnum = "UPDATE_CHANNEL_TITLE"
 	RolePermissionUpdateChannelCategory RolePermissionEnum = "UPDATE_CHANNEL_CATEGORY"

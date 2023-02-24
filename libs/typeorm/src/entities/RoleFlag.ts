@@ -4,7 +4,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ChannelRolePermission } from './ChannelRolePermission';
 
 export enum RolePermissionEnum {
-  ADMINISTRATOR = 'ADMINISTRATOR',
+  CAN_ACCESS_DASHBOARD = 'CAN_ACCESS_DASHBOARD',
 
   UPDATE_CHANNEL_TITLE = 'UPDATE_CHANNEL_TITLE',
   UPDATE_CHANNEL_CATEGORY = 'UPDATE_CHANNEL_CATEGORY',
@@ -39,7 +39,7 @@ export class RoleFlag {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('enum', { enum: RolePermissionEnum, default: RolePermissionEnum.ADMINISTRATOR, unique: true })
+  @Column('enum', { enum: RolePermissionEnum, default: RolePermissionEnum.CAN_ACCESS_DASHBOARD, unique: true })
   flag: RolePermissionEnum;
 
   @OneToMany(() => ChannelRolePermission, _ => _.flag)

@@ -20,7 +20,7 @@ export class addRoles1677145437134 implements MigrationInterface {
             await queryRunner.query(`INSERT INTO "roles_permissions" ("permission") VALUES ($1)`, [permission]);
         }
 
-        const administratorPermission = await queryRunner.query(`SELECT * FROM "roles_permissions" WHERE "permission" = $1`, [RolePermissionEnum.ADMINISTRATOR]);
+        const administratorPermission = await queryRunner.query(`SELECT * FROM "roles_permissions" WHERE "permission" = $1`, [RolePermissionEnum.CAN_ACCESS_DASHBOARD]);
 
         for (const channel of await queryRunner.query(`SELECT * FROM "channels"`)) {
             for (const role of Object.values(ChannelRoleType).filter(v => v != ChannelRoleType.CUSTOM)) {
