@@ -5,7 +5,7 @@ import { Channel } from './Channel';
 import { ChannelRolePermission } from './ChannelRolePermission';
 import { ChannelRoleUser } from './ChannelRoleUser';
 
-export enum ChannelRoleType {
+export enum RoleType {
   BROADCASTER = 'BROADCASTER',
   MODERATOR = 'MODERATOR',
   SUBSCRIBER = 'SUBSCRIBER',
@@ -15,7 +15,7 @@ export enum ChannelRoleType {
   CUSTOM = 'CUSTOM',
 }
 
-export enum RoleFlag {
+export enum RoleFlags {
   CAN_ACCESS_DASHBOARD = 'CAN_ACCESS_DASHBOARD',
 
   UPDATE_CHANNEL_TITLE = 'UPDATE_CHANNEL_TITLE',
@@ -61,19 +61,19 @@ export class ChannelRole {
   @Column()
   name: string;
 
-  @Column('enum', { enum: ChannelRoleType, default: ChannelRoleType.CUSTOM })
-  type: ChannelRoleType;
+  @Column('enum', { enum: RoleType, default: RoleType.CUSTOM })
+  type: RoleType;
 
   @Column({ default: false })
   system: boolean;
 
   @Column({
     type: 'enum',
-    enum: RoleFlag,
+    enum: RoleFlags,
     array: true,
     default: [],
   })
-  permissions: RoleFlag[];
+  permissions: RoleFlags[];
 
   @OneToMany(() => ChannelRoleUser, _ => _.role)
   users?: ChannelRoleUser[];

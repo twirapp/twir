@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-import { ChannelRoleType } from '../entities/ChannelRole';
+import { RoleType } from '../entities/ChannelRole';
 import { RolePermissionEnum } from '../entities/RoleFlag';
 
 export class addRoles1677145437134 implements MigrationInterface {
@@ -23,7 +23,7 @@ export class addRoles1677145437134 implements MigrationInterface {
         const administratorPermission = await queryRunner.query(`SELECT * FROM "roles_permissions" WHERE "permission" = $1`, [RolePermissionEnum.CAN_ACCESS_DASHBOARD]);
 
         for (const channel of await queryRunner.query(`SELECT * FROM "channels"`)) {
-            for (const role of Object.values(ChannelRoleType).filter(v => v != ChannelRoleType.CUSTOM)) {
+            for (const role of Object.values(RoleType).filter(v => v != RoleType.CUSTOM)) {
                 await queryRunner.query('INSERT INTO "channels_roles" ("channelId", "name", "type", "system") VALUES ($1, $2, $3, $4)', [
                     channel.id,
                     role.charAt(0).toUpperCase() + role.slice(1).toLowerCase(),
@@ -32,7 +32,7 @@ export class addRoles1677145437134 implements MigrationInterface {
                 ]);
             }
 
-            const broadcasterRole = await queryRunner.query(`SELECT * FROM "channels_roles" WHERE "channelId" = $1 AND "type" = $2`, [channel.id, ChannelRoleType.BROADCASTER]);
+            const broadcasterRole = await queryRunner.query(`SELECT * FROM "channels_roles" WHERE "channelId" = $1 AND "type" = $2`, [channel.id, RoleType.BROADCASTER]);
             await queryRunner.query(`INSERT INTO "channels_roles_permissions" ("roleId", "permissionId") VALUES ($1, $2)`, [broadcasterRole[0].id, administratorPermission[0].id]);
 
             const roles = await queryRunner.query(`SELECT * FROM "channels_roles" WHERE "channelId" = $1`, [channel.id]);
