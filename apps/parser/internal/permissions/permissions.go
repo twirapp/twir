@@ -48,7 +48,6 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 
 			for _, user := range role.Users {
 				if user.UserID == userId {
-					fmt.Println(role.Name, role.ID, commandRole, user.UserID)
 					return true
 				}
 			}

@@ -18,8 +18,6 @@ func getRole(id string) *model.ChannelRole {
 	role := &model.ChannelRole{}
 	err := db.
 		Where(`"id" = ?`, id).
-		Preload("Permissions").
-		Preload("Permissions.Flag").
 		Preload("Users").
 		First(&role).Error
 	if err != nil {
@@ -37,8 +35,6 @@ func getRolesService(channelId string) ([]*model.ChannelRole, error) {
 	channelsRoles := []*model.ChannelRole{}
 	err := db.
 		Where(`"channelId" = ?`, channelId).
-		Preload("Permissions").
-		Preload("Permissions.Flag").
 		Preload("Users").
 		Find(&channelsRoles).Error
 	if err != nil {
@@ -61,38 +57,15 @@ func updateRoleService(channelId, roleId string, dto *roleDto) (*model.ChannelRo
 		return nil, fiber.NewError(http.StatusNotFound, "Role not found")
 	}
 
-	err = db.Transaction(func(tx *gorm.DB) error {
-		err = db.
-			Delete(&model.ChannelRolePermission{}, `"roleId" = ?`, role.ID).
-			Error
-		if err != nil {
-			return err
-		}
-
-		for _, flag := range dto.Flags {
-			dbFlag := &model.RoleFlag{}
-			err = db.Where("flag = ?", flag).First(&dbFlag).Error
-			if err != nil {
-				return err
-			}
-
-			err = db.Create(&model.ChannelRolePermission{
-				ID:     uuid.NewV4().String(),
-				RoleID: role.ID,
-				FlagID: dbFlag.ID,
-			}).Error
-			if err != nil {
-				return err
-			}
-		}
-
-		err = db.Model(&role).Update("name", dto.Name).Error
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
+	err = db.
+		Model(&role).
+		Update("name", dto.Name).
+		Update("permissions", dto.Permissions).
+		Error
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
 
 	if err != nil {
 		logger.Error(err)
@@ -134,39 +107,15 @@ func createRoleService(channelId string, dto *roleDto) (*model.ChannelRole, erro
 	db := do.MustInvoke[*gorm.DB](di.Provider)
 
 	role := &model.ChannelRole{
-		ID:        uuid.NewV4().String(),
-		ChannelID: channelId,
-		Name:      dto.Name,
-		System:    false,
-		Type:      model.ChannelRoleTypeCustom,
+		ID:          uuid.NewV4().String(),
+		ChannelID:   channelId,
+		Name:        dto.Name,
+		System:      false,
+		Type:        model.ChannelRoleTypeCustom,
+		Permissions: dto.Permissions,
 	}
 
-	err := db.Transaction(func(tx *gorm.DB) error {
-		err := db.Create(&role).Error
-		if err != nil {
-			return err
-		}
-
-		for _, flag := range dto.Flags {
-			dbFlag := &model.RoleFlag{}
-			err = db.Where("flag = ?", flag).First(&dbFlag).Error
-			if err != nil {
-				return err
-			}
-
-			err = db.Create(&model.ChannelRolePermission{
-				ID:     uuid.NewV4().String(),
-				RoleID: role.ID,
-				FlagID: dbFlag.ID,
-			}).Error
-			if err != nil {
-				logger.Error(err)
-				return err
-			}
-		}
-
-		return nil
-	})
+	err := db.Create(&role).Error
 
 	if err != nil {
 		logger.Error(err)

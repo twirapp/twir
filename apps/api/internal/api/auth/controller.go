@@ -49,7 +49,6 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		"profile",
 		checkScopes,
 		middlewares.CheckUserAuth(services),
-		createUserDefaults,
 		profileCache,
 		getProfile(services),
 	)

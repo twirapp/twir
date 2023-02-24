@@ -1,11 +1,28 @@
-import { Modal, Button, Group, Flex, Text, TextInput, Checkbox, Grid, Tabs } from '@mantine/core';
+import {
+  Modal,
+  Text,
+  TextInput,
+  Checkbox,
+  Grid,
+  Tabs,
+  Card,
+  Avatar,
+  Flex,
+  Button,
+  ActionIcon,
+  Select,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconManualGearbox, IconUsers } from '@tabler/icons';
+import { useDebouncedState } from '@mantine/hooks';
+import { IconManualGearbox, IconPlus, IconTrash, IconUsers } from '@tabler/icons';
 import { ChannelRole } from '@tsuwari/typeorm/entities/ChannelRole';
-import { RolePermissionEnum } from '@tsuwari/typeorm/entities/RoleFlag';
-import { useCallback, useEffect } from 'react';
+import { RoleFlags } from '@tsuwari/typeorm/entities/ChannelRole';
+import { HelixUserData } from '@twurple/api';
+import { useCallback, useEffect, useState } from 'react';
 
 import { chunk } from '../../util/chunk';
+
+import { useRolesUsers, useTwitch } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -26,19 +43,27 @@ export const RolesModal: React.FC<Props> = (props) => {
     },
   });
 
+  const [newUser, setNewUser] = useState('');
+
+  const usersManager = useRolesUsers();
+  const { data: users } = usersManager.useGetAll(props.role?.id || '');
+
   useEffect(() => {
     if (!props.role) return;
     form.setFieldValue('name', props.role.name || '');
-
-    const flags = props.role.permissions?.map((permission) => permission?.flag!.flag as string) ?? [];
-
-    form.setFieldValue('flags', flags);
+    form.setFieldValue('flags', props.role.permissions);
   }, [props.role]);
+
+  useEffect(() => {
+    if (!users?.length) return;
+
+    form.setFieldValue('users', users.map((user) => user.userName));
+  }, [users]);
 
   const createCheckboxes = useCallback(() => {
     if (!props.role) return (<></>);
 
-    const checkboxes = Object.values(RolePermissionEnum).map((permission) => {
+    const checkboxes = Object.values(RoleFlags).map((permission) => {
       const permissionName = permission.replace(/_/g, ' ').toLowerCase();
       const text = permissionName.split(' ').map((word) => {
         return word.charAt(0).toUpperCase() + word.slice(1);
@@ -101,7 +126,50 @@ export const RolesModal: React.FC<Props> = (props) => {
         </Tabs.Panel>
 
         <Tabs.Panel value="users" pt="xs">
-          <Text>Users</Text>
+          <Grid>
+
+            <Grid.Col span={12}>
+              <Grid align="center">
+                <Grid.Col span={10}>
+                  <TextInput
+                    placeholder={'Add new user by name'}
+                    value={newUser}
+                    onChange={(event) => setNewUser(event.currentTarget.value)}
+                  />
+                </Grid.Col>
+                <Grid.Col span={2}>
+                  <Button fullWidth variant={'light'}><IconPlus /></Button>
+                </Grid.Col>
+              </Grid>
+            </Grid.Col>
+            {users?.map((user, index) => {
+              return (
+                <Grid.Col span={6}>
+                  <Card>
+                    <Card.Section p={'lg'}>
+                      <Flex direction={'row'} justify={'space-between'} align={'center'}>
+                        <Flex direction={'row'} gap={'md'} align={'center'}>
+                          <Avatar src={user.userAvatar} radius="xl" />
+                          <Text>
+                            {user.userDisplayName}
+                          </Text>
+                        </Flex>
+                        <ActionIcon
+                          color={'red'}
+                          onClick={() => {
+                            form.removeListItem('users', index);
+                          }}
+                        >
+                          <IconTrash size={25} />
+                        </ActionIcon>
+                      </Flex>
+                    </Card.Section>
+                  </Card>
+                </Grid.Col>
+              );
+            })
+            }
+          </Grid>
         </Tabs.Panel>
       </Tabs>
 

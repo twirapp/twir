@@ -24,7 +24,6 @@ import { ChannelModerationWarn } from './entities/ChannelModerationWarn';
 import { ChannelModuleSettings } from './entities/ChannelModuleSettings';
 import { ChannelPermit } from './entities/ChannelPermit';
 import { ChannelRole } from './entities/ChannelRole';
-import { ChannelRolePermission } from './entities/ChannelRolePermission';
 import { ChannelRoleUser } from './entities/ChannelRoleUser';
 import { ChannelStream } from './entities/ChannelStream';
 import { ChannelTimer } from './entities/ChannelTimer';
@@ -44,7 +43,6 @@ import { Integration } from './entities/Integration';
 import { Notification } from './entities/Notification';
 import { NotificationMessage } from './entities/NotificationMessage';
 import { RequestedSong } from './entities/RequestedSong';
-import { RoleFlag } from './entities/RoleFlag';
 import { Token } from './entities/Token';
 import { User } from './entities/User';
 import { UserFile } from './entities/UserFile';
@@ -104,8 +102,6 @@ export const AppDataSource = new DataSource({
     ChannelInfoHistory,
     ChannelCommandGroup,
     ChannelRole,
-    RoleFlag,
-    ChannelRolePermission,
     ChannelRoleUser,
   ],
   subscribers: [],

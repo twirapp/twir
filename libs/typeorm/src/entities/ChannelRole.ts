@@ -2,7 +2,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Channel } from './Channel';
-import { ChannelRolePermission } from './ChannelRolePermission';
 import { ChannelRoleUser } from './ChannelRoleUser';
 
 export enum RoleType {
