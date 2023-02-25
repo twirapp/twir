@@ -28,6 +28,10 @@ import (
 var checkScopes = func(ctx *fiber.Ctx) error {
 	headers := ctx.GetReqHeaders()
 	header, ok := headers["Authorization"]
+	_, okApiKey := headers["Api-Key"]
+	if okApiKey {
+		return ctx.Next()
+	}
 
 	if !ok {
 		return fiber.NewError(http.StatusUnauthorized, "no token provided")
