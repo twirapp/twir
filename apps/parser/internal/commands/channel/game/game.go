@@ -10,6 +10,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
 	"gorm.io/gorm"
+	"strings"
 
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
@@ -73,9 +74,18 @@ var SetCommand = types.DefaultCommand{
 			return result
 		}
 
+		categoryId := games.Data.Categories[0].ID
+
+		for _, category := range games.Data.Categories {
+			if strings.Contains(strings.ToLower(category.Name), strings.ToLower(*ctx.Text)) {
+				categoryId = category.ID
+				break
+			}
+		}
+
 		req, err := twitchClient.EditChannelInformation(&helix.EditChannelInformationParams{
 			BroadcasterID: ctx.ChannelId,
-			GameID:        games.Data.Categories[0].ID,
+			GameID:        categoryId,
 		})
 
 		if err != nil || req.StatusCode != 204 {
