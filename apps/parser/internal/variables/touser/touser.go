@@ -17,7 +17,7 @@ var Variable = types.Variable{
 		}
 
 		if ctx.Text != nil {
-			result.Result = *ctx.Text
+			result.Result = strings.ReplaceAll(*ctx.Text, "@", "")
 		}
 
 		return &result, nil
