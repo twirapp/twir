@@ -5,6 +5,7 @@ import (
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
+	"strings"
 )
 
 var Variable = types.Variable{
