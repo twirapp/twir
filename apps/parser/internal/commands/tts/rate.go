@@ -13,7 +13,7 @@ var RateCommand = types.DefaultCommand{
 		Name:        "tts rate",
 		Description: lo.ToPtr("Change tts rate"),
 		Permission:  "VIEWER",
-		Visible:     false,
+		Visible:     true,
 		Module:      lo.ToPtr("TTS"),
 		IsReply:     true,
 	},

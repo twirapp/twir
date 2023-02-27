@@ -16,7 +16,7 @@ var SkipCommand = types.DefaultCommand{
 		Name:        "tts skip",
 		Description: lo.ToPtr("Skip current saying message in tts"),
 		Permission:  "MODERATOR",
-		Visible:     false,
+		Visible:     true,
 		Module:      lo.ToPtr("TTS"),
 		IsReply:     true,
 	},

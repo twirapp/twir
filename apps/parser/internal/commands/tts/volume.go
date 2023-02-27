@@ -13,7 +13,7 @@ var VolumeCommand = types.DefaultCommand{
 		Name:        "tts volume",
 		Description: lo.ToPtr("Change tts volume. This is not per user, it's global for the channel."),
 		Permission:  "BROADCASTER",
-		Visible:     false,
+		Visible:     true,
 		Module:      lo.ToPtr("TTS"),
 		IsReply:     true,
 	},

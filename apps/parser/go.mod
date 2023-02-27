@@ -4,9 +4,9 @@ go 1.18
 
 require (
 	github.com/Masterminds/squirrel v1.5.3
-	github.com/davecgh/go-spew v1.1.1
 	github.com/getsentry/sentry-go v0.18.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
+	github.com/google/uuid v1.3.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/prometheus/client_golang v1.14.0
@@ -19,6 +19,7 @@ require (
 	github.com/satont/tsuwari/libs/types v0.0.0-20230103005447-f8437299a3a0
 	github.com/satori/go.uuid v1.2.0
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
+	github.com/tidwall/gjson v1.14.4
 	github.com/valyala/fasttemplate v1.2.2
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.52.3
@@ -53,7 +54,6 @@ require (
 	github.com/quic-go/qtls-go1-19 v0.2.1 // indirect
 	github.com/quic-go/qtls-go1-20 v0.1.1 // indirect
 	github.com/quic-go/quic-go v0.32.0 // indirect
-	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect

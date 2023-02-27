@@ -13,7 +13,7 @@ var PitchCommand = types.DefaultCommand{
 		Name:        "tts pitch",
 		Description: lo.ToPtr("Change tts pitch"),
 		Permission:  "VIEWER",
-		Visible:     false,
+		Visible:     true,
 		Module:      lo.ToPtr("TTS"),
 		IsReply:     true,
 	},

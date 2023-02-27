@@ -13,7 +13,7 @@ var VoiceCommand = types.DefaultCommand{
 		Name:        "tts voice",
 		Description: lo.ToPtr("Change tts voice"),
 		Permission:  "VIEWER",
-		Visible:     false,
+		Visible:     true,
 		Module:      lo.ToPtr("TTS"),
 		IsReply:     true,
 	},
