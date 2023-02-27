@@ -1,7 +1,7 @@
 import {
   ActionIcon, Alert,
   Button,
-  Card,
+  Card, CopyButton,
   Divider,
   Flex,
   Modal,
@@ -24,7 +24,7 @@ declare global {
 
 import { noop } from '../../util/chore';
 
-import { authFetch } from '@/services/api';
+import { authFetch, useProfile } from '@/services/api';
 import { TTS, useTtsModule } from '@/services/api/modules';
 
 export const TTSOverlay: React.FC = () => {
@@ -51,6 +51,7 @@ export const TTSOverlay: React.FC = () => {
   const { data: ttsSettings } = tts.useSettings();
   const ttsInfo = tts.useInfo();
   const updater = tts.useUpdate();
+  const { data: profile } = useProfile();
 
   useEffect(() => {
     if (ttsSettings) {
@@ -92,9 +93,22 @@ export const TTSOverlay: React.FC = () => {
           <Flex direction={'row'} justify={'space-between'}>
             <div></div>
             <Flex direction={'row'} gap={0}>
-              <Tooltip label={'Copy link to overlay'} withArrow arrowSize={5} color={'dark'}>
-                <ActionIcon color={'dark'}><IconCopy /></ActionIcon>
-              </Tooltip>
+                <CopyButton
+                  value={'window' in globalThis
+                    ? `${window.location.origin}/overlays/${profile?.apiKey}/tts`
+                    : ''}
+                >
+                  {({ copied, copy }) => (
+                    <Tooltip label={'Copy link to overlay'} withArrow arrowSize={5} color={'dark'}>
+                        <ActionIcon
+                          color={'dark'}
+                          onClick={copy}
+                        >
+                          <IconCopy />
+                        </ActionIcon>
+                    </Tooltip>
+                  )}
+                </CopyButton>
               <ActionIcon color={'dark'} onClick={() => setModalOpened(true)}><IconSettings /></ActionIcon>
             </Flex>
           </Flex>
