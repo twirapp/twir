@@ -33,6 +33,7 @@ export const TTS: React.FC = () => {
   }, []);
 
   const queueRef = useRef<Array<Record<string, string>>>([]);
+  const currentAudioBuffer = useRef<AudioBufferSourceNode | null>(null);
 
   useEffect(() => {
     if (tts) {
@@ -46,6 +47,10 @@ export const TTS: React.FC = () => {
         if (queueRef.current.length === 1) {
           processQueue();
         }
+      });
+
+      tts.on('skip', () => {
+        currentAudioBuffer.current?.stop();
       });
     }
 
@@ -82,6 +87,8 @@ export const TTS: React.FC = () => {
     const arrayBuffer = await req.arrayBuffer();
 
     const source = audioContext.createBufferSource();
+    currentAudioBuffer.current = source;
+
     source.buffer = await audioContext.decodeAudioData(arrayBuffer);
 
     gainNode.gain.value = parseInt(data.volume) / 100;
@@ -90,8 +97,10 @@ export const TTS: React.FC = () => {
 
     return new Promise((resolve) => {
       source.onended = () => {
+        currentAudioBuffer.current = null;
         resolve(null);
       };
+
       source.start(0);
     });
   };

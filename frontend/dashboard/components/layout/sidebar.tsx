@@ -19,7 +19,7 @@ import {
   IconClipboardCopy,
   IconClockHour7,
   IconCommand,
-  IconDashboard, IconExternalLink,
+  IconDashboard, IconDeviceDesktop, IconExternalLink,
   IconHeadphones,
   IconKey,
   IconPencilPlus,
@@ -52,6 +52,7 @@ const navigationLinks: Array<Page | null> = [
   { label: 'Dashboard', icon: IconDashboard, path: '/' },
   { label: 'Integrations', icon: IconBox, path: '/integrations' },
   { label: 'Events', icon: IconCalendarEvent, path: '/events' },
+  { label: 'Overlays', icon: IconDeviceDesktop, path: '/overlays' },
   {
     label: 'Song Requests',
     icon: IconHeadphones,

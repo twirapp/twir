@@ -19,7 +19,10 @@ import (
 
 func handleGet(channelId string, services types.Services) (*modules.TTSSettings, error) {
 	settings := model.ChannelModulesSettings{}
-	err := services.DB.Where(`"channelId" = ? AND "type" = ?`, channelId, "tts").First(&settings).Error
+	err := services.DB.
+		Where(`"channelId" = ? AND "type" = ?`, channelId, "tts").
+		Where(`"userId" IS NULL`).
+		First(&settings).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusNotFound, "settings not found")
 	}
@@ -37,7 +40,10 @@ func handlePost(channelId string, dto *modules.TTSSettings, services types.Servi
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	var existedSettings *model.ChannelModulesSettings
-	err := services.DB.Where(`"channelId" = ? AND "type" = ?`, channelId, "tts").First(&existedSettings).Error
+	err := services.DB.
+		Where(`"channelId" = ? AND "type" = ?`, channelId, "tts").
+		Where(`"userId" IS NULL`).
+		First(&existedSettings).Error
 
 	if err != nil && err != gorm.ErrRecordNotFound {
 		logger.Error(err)

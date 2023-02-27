@@ -53,6 +53,9 @@ const (
 	OperationIncrementVariable EventOperationType = "INCREMENT_VARIABLE"
 	OperationDecrementVariable EventOperationType = "DECREMENT_VARIABLE"
 	OperationTTSSay            EventOperationType = "TTS_SAY"
+	OperationTTSSkip           EventOperationType = "TTS_SKIP"
+	OperationTTSEnable         EventOperationType = "TTS_ENABLE"
+	OperationTTSDisable        EventOperationType = "TTS_DISABLE"
 )
 
 type EventOperation struct {

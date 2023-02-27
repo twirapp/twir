@@ -14,7 +14,7 @@ import {
   onStartStream,
   onStopStream,
 } from '../namespaces/obs.js';
-import { onTtsSay } from '../namespaces/tts.js';
+import { onTtsSay, onTtsSkip } from '../namespaces/tts.js';
 import { onAddRequest, onRemoveRequest } from '../namespaces/youtube.js';
 
 export const grpcServer = createServer({
@@ -35,6 +35,7 @@ const websocketService: Websocket.WebsocketServiceImplementation = {
   obsStartStream: onStartStream,
   obsStopStream: onStopStream,
   textToSpeechSay: onTtsSay,
+  textToSpeechSkip: onTtsSkip,
 };
 
 grpcServer.add(Websocket.WebsocketDefinition, websocketService);

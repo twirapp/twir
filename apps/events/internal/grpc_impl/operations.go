@@ -1,6 +1,7 @@
 package grpc_impl
 
 import (
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/events/internal"
 	processor_module "github.com/satont/tsuwari/apps/events/internal/grpc_impl/processor"
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -152,6 +153,12 @@ operationsLoop:
 				}
 
 				operationError = processor.TtsSay(channelId, data.UserID, operation.Input.String)
+			case model.OperationTTSSkip:
+				operationError = processor.TtsSkip(channelId)
+			case model.OperationTTSEnable, model.OperationTTSDisable:
+				action := lo.If(operation.Type == model.OperationTTSEnable, true).Else(false)
+
+				operationError = processor.TtsChangeState(channelId, action)
 			}
 
 			if operationError != nil {

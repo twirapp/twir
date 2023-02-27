@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func (c *Processor) getTtsSettings(channelId, userId string) *modules.TTSSettings {
+func (c *Processor) getTtsSettings(channelId, userId string) (*modules.TTSSettings, *model.ChannelModulesSettings) {
 	settings := &model.ChannelModulesSettings{}
 	query := c.services.DB.
 		Where(`"channelId" = ?`, channelId).
@@ -19,20 +19,22 @@ func (c *Processor) getTtsSettings(channelId, userId string) *modules.TTSSetting
 
 	if userId != "" {
 		query = query.Where(`"userId" = ?`, userId)
+	} else {
+		query = query.Where(`"userId" IS NULL`)
 	}
 
 	err := query.First(&settings).Error
 	if err != nil {
-		return nil
+		return nil, nil
 	}
 
 	data := modules.TTSSettings{}
 	err = json.Unmarshal(settings.Settings, &data)
 	if err != nil {
-		return nil
+		return nil, nil
 	}
 
-	return &data
+	return &data, settings
 }
 
 func (c *Processor) TtsSay(channelId, userId, message string) error {
@@ -41,13 +43,13 @@ func (c *Processor) TtsSay(channelId, userId, message string) error {
 		return fmt.Errorf("cannot hydrate string %s", err)
 	}
 
-	channelSettings := c.getTtsSettings(channelId, "")
+	channelSettings, _ := c.getTtsSettings(channelId, "")
 
 	if channelSettings == nil || !*channelSettings.Enabled {
 		return InternalError
 	}
 
-	userSettings := c.getTtsSettings(channelId, userId)
+	userSettings, _ := c.getTtsSettings(channelId, userId)
 
 	voice := lo.IfF(userSettings != nil, func() string {
 		return userSettings.Voice
@@ -70,6 +72,41 @@ func (c *Processor) TtsSay(channelId, userId, message string) error {
 
 	if err != nil {
 		return fmt.Errorf("cannot send message %s", err)
+	}
+
+	return nil
+}
+
+func (c *Processor) TtsSkip(channelId string) error {
+	_, err := c.services.WebsocketsGrpc.TextToSpeechSkip(context.Background(), &websockets.TTSSkipMessage{
+		ChannelId: channelId,
+	})
+
+	if err != nil {
+		return fmt.Errorf("cannot send message %s", err)
+	}
+
+	return nil
+}
+
+func (c *Processor) TtsChangeState(channelId string, enabled bool) error {
+	currentSettings, dbModel := c.getTtsSettings(channelId, "")
+	if currentSettings == nil {
+		return nil
+	}
+
+	currentSettings.Enabled = &enabled
+
+	bytes, err := json.Marshal(currentSettings)
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return err
+	}
+
+	err = c.services.DB.Model(&dbModel).Updates(map[string]interface{}{"settings": bytes}).Error
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return err
 	}
 
 	return nil

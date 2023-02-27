@@ -1,5 +1,5 @@
 import {
-  ActionIcon,
+  ActionIcon, Alert,
   Button,
   Card,
   Divider,
@@ -114,6 +114,7 @@ export const TTSOverlay: React.FC = () => {
       >
         <Divider />
         <Flex mt={10} direction={'column'} gap={'md'}>
+          <Alert><Text size={'xs'}>Hint: you can use events system to trigger tts on reward.</Text></Alert>
           <Switch
             label={'Enabled'}
             labelPosition={'left'}

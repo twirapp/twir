@@ -67,6 +67,7 @@ func New() Commands {
 		sr_youtube.SkipCommand,
 		shoutout.ShoutOut,
 		tts.SayVariable,
+		tts.SkipVariable,
 	}
 
 	ctx := Commands{

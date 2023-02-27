@@ -144,4 +144,17 @@ export const operationMapping: Record<keyof typeof OperationType, {
     haveInput: true,
     additionalValues: ['target'],
   },
+  TTS_SAY: {
+    description: '[TTS] Say text',
+    haveInput: true,
+  },
+  TTS_DISABLE: {
+    description: '[TTS] Disable TTS',
+  },
+  TTS_ENABLE: {
+    description: '[TTS] Enable TTS',
+  },
+  TTS_SKIP: {
+    description: '[TTS] Skip current text',
+  },
 };

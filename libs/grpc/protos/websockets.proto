@@ -19,6 +19,7 @@ service Websocket {
   rpc ObsStartStream(ObsStopOrStartStream) returns (google.protobuf.Empty) {}
 
   rpc TextToSpeechSay(TTSMessage) returns (google.protobuf.Empty) {}
+  rpc TextToSpeechSkip(TTSSkipMessage) returns (google.protobuf.Empty) {}
 }
 
 message YoutubeAddSongToQueueRequest {
@@ -80,4 +81,8 @@ message TTSMessage {
   string rate = 4;
   string pitch = 5;
   string volume = 6;
+}
+
+message TTSSkipMessage {
+  string channelId = 1;
 }

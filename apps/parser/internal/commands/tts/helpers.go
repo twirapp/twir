@@ -19,6 +19,8 @@ func getSettings(channelId, userId string) *modules.TTSSettings {
 
 	if userId != "" {
 		query = query.Where(`"userId" = ?`, userId)
+	} else {
+		query = query.Where(`"userId" IS NULL`)
 	}
 
 	err := query.First(&settings).Error
