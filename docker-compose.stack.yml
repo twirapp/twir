@@ -530,6 +530,10 @@ services:
       replicas: 5
 
   overlays:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: overlays
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/overlays
     ports:
