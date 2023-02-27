@@ -73,6 +73,8 @@ func New() Commands {
 		tts.RateCommand,
 		tts.PitchCommand,
 		tts.VolumeCommand,
+		tts.DisableCommand,
+		tts.EnableCommand,
 	}
 
 	ctx := Commands{

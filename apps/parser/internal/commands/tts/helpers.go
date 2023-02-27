@@ -2,6 +2,7 @@ package tts
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/guregu/null"
@@ -124,4 +125,20 @@ func createUserSettings(rate, pitch int, voice, channelId, userId string) (
 	}
 
 	return userModel, userSettings, nil
+}
+
+func switchEnableState(channelId string, newState bool) error {
+	channelSettings, channelModele := getSettings(channelId, "")
+
+	if channelSettings == nil {
+		return errors.New("Tts not configured")
+	}
+
+	channelSettings.Enabled = &newState
+	err := updateSettings(channelModele, channelSettings)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
