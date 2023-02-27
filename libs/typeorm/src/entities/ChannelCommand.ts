@@ -34,6 +34,7 @@ export enum CommandModule {
   MODERATION = 'MODERATION',
   MANAGE = 'MANAGE',
   SONGREQUEST = 'SONGREQUEST',
+  TTS = 'TTS'
 }
 
 @Index('channels_commands_name_channelId_key', ['channelId', 'name'], { unique: true })
@@ -111,4 +112,7 @@ export class ChannelCommand {
 
   @Column('uuid', { nullable: true })
   groupId?: string;
+
+  @Column('text', { array: true, default: [] })
+  deniedUsersIds: string[];
 }

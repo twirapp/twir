@@ -16,7 +16,7 @@ import (
 
 func handleGet(channelId string, services types.Services) (*modules.OBSWebSocketSettings, error) {
 	settings := model.ChannelModulesSettings{}
-	err := services.DB.Where(`"channelId" = ?`, channelId).First(&settings).Error
+	err := services.DB.Where(`"channelId" = ? AND "type" = ?`, channelId, "obs_websocket").First(&settings).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusNotFound, "settings not found")
 	}
@@ -32,7 +32,7 @@ func handleGet(channelId string, services types.Services) (*modules.OBSWebSocket
 
 func handlePost(channelId string, dto *modules.OBSWebSocketSettings, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	
+
 	var existedSettings *model.ChannelModulesSettings
 	err := services.DB.Where(`"channelId" = ? AND "type" = ?`, channelId, "obs_websocket").First(&existedSettings).Error
 

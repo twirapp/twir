@@ -18,6 +18,7 @@ service Events {
   rpc ChatClear(ChatClearMessage) returns (google.protobuf.Empty) {}
   rpc Donate(DonateMessage) returns (google.protobuf.Empty) {}
   rpc KeywordMatched(KeywordMatchedMessage) returns (google.protobuf.Empty) {}
+  rpc GreetingSended(GreetingSendedMessage) returns (google.protobuf.Empty) {}
 }
 
 message BaseInfo {
@@ -28,6 +29,7 @@ message FollowMessage {
   BaseInfo baseInfo = 1;
   string userName = 2;
   string userDisplayName = 3;
+  string userId = 4;
 }
 
 message SubscribeMessage {
@@ -36,6 +38,7 @@ message SubscribeMessage {
   string userName = 2;
   string userDisplayName = 3;
   string level = 4;
+  string userId = 5;
 }
 
 message SubGiftMessage {
@@ -46,6 +49,7 @@ message SubGiftMessage {
   string targetUserName = 4;
   string targetDisplayName = 5;
   string level = 6;
+  string senderUserId = 7;
 }
 
 message ReSubscribeMessage {
@@ -58,6 +62,7 @@ message ReSubscribeMessage {
   bool isPrime = 6;
   string message = 7;
   string level = 8;
+  string userId = 9;
 }
 
 message RedemptionCreatedMessage {
@@ -69,6 +74,7 @@ message RedemptionCreatedMessage {
   string rewardName = 5;
   string rewardCost = 6;
   optional string input = 7;
+  string userId = 8;
 }
 
 message CommandUsedMessage {
@@ -79,6 +85,7 @@ message CommandUsedMessage {
   string userName = 4;
   string userDisplayName = 5;
   string commandInput = 6;
+  string userId = 7;
 }
 
 message FirstUserMessageMessage {
@@ -95,6 +102,7 @@ message RaidedMessage {
   string userName = 2;
   string userDisplayName = 3;
   int64 viewers = 4;
+  string userId = 5;
 }
 
 message TitleOrCategoryChangedMessage {
@@ -139,4 +147,13 @@ message KeywordMatchedMessage {
   string userId = 5;
   string userName = 6;
   string userDisplayName = 7;
+}
+
+message GreetingSendedMessage {
+  BaseInfo baseInfo = 1;
+
+  string userId = 2;
+  string userName = 3;
+  string userDisplayName = 4;
+  string greetingText = 5;
 }

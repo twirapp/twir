@@ -20,6 +20,7 @@ type commandDto struct {
 	KeepResponsesOrder *bool          `validate:"required"                    json:"keepResponsesOrder"`
 	IsReply            *bool          `validate:"omitempty,required"          json:"isReply,omitempty"`
 	GroupID            *string        `json:"groupId,omitempty"`
+	DeniedUsersIds     []string       `json:"deniedUsersIds,omitempty"`
 }
 
 type commandPatchDto struct {

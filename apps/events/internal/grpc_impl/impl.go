@@ -25,6 +25,7 @@ func (c *EventsGrpcImplementation) Follow(_ context.Context, msg *events.FollowM
 		internal.Data{
 			UserName:        msg.UserName,
 			UserDisplayName: msg.UserDisplayName,
+			UserID:          msg.UserId,
 		},
 		"FOLLOW",
 	)
@@ -39,6 +40,7 @@ func (c *EventsGrpcImplementation) Subscribe(_ context.Context, msg *events.Subs
 			UserName:        msg.UserName,
 			UserDisplayName: msg.UserDisplayName,
 			SubLevel:        msg.Level,
+			UserID:          msg.UserId,
 		},
 		"SUBSCRIBE",
 	)
@@ -56,6 +58,7 @@ func (c *EventsGrpcImplementation) ReSubscribe(_ context.Context, msg *events.Re
 			ResubMessage:    msg.Message,
 			ResubMonths:     msg.Months,
 			ResubStreak:     msg.Streak,
+			UserID:          msg.UserId,
 		},
 		"RESUBSCRIBE",
 	)
@@ -73,6 +76,7 @@ func (c *EventsGrpcImplementation) RedemptionCreated(_ context.Context, msg *eve
 			RewardInput:     msg.Input,
 			RewardName:      msg.RewardName,
 			RewardID:        msg.Id,
+			UserID:          msg.UserId,
 		},
 		"REDEMPTION_CREATED",
 	)
@@ -89,6 +93,7 @@ func (c *EventsGrpcImplementation) CommandUsed(_ context.Context, msg *events.Co
 			CommandName:     msg.CommandName,
 			CommandID:       msg.CommandId,
 			CommandInput:    msg.CommandInput,
+			UserID:          msg.UserId,
 		},
 		"COMMAND_USED",
 	)
@@ -102,6 +107,7 @@ func (c *EventsGrpcImplementation) FirstUserMessage(_ context.Context, msg *even
 		internal.Data{
 			UserName:        msg.UserName,
 			UserDisplayName: msg.UserDisplayName,
+			UserID:          msg.UserId,
 		},
 		"FIRST_USER_MESSAGE",
 	)
@@ -116,6 +122,7 @@ func (c *EventsGrpcImplementation) Raided(_ context.Context, msg *events.RaidedM
 			UserName:        msg.UserName,
 			UserDisplayName: msg.UserDisplayName,
 			RaidViewers:     msg.Viewers,
+			UserID:          msg.UserId,
 		},
 		"RAIDED",
 	)
@@ -168,6 +175,7 @@ func (c *EventsGrpcImplementation) SubGift(_ context.Context, msg *events.SubGif
 			TargetUserName:        msg.TargetUserName,
 			TargetUserDisplayName: msg.TargetDisplayName,
 			SubLevel:              msg.Level,
+			UserID:                msg.SenderUserId,
 		},
 		"SUB_GIFT",
 	)
@@ -212,8 +220,24 @@ func (c *EventsGrpcImplementation) KeywordMatched(
 			KeywordName:     msg.KeywordName,
 			KeywordResponse: msg.KeywordResponse,
 			KeywordID:       msg.KeywordId,
+			UserID:          msg.UserId,
 		},
 		"KEYWORD_MATCHED",
+	)
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) GreetingSended(_ context.Context, msg *events.GreetingSendedMessage) (*emptypb.Empty, error) {
+	go c.processEvent(
+		msg.BaseInfo.ChannelId,
+		internal.Data{
+			UserName:        msg.UserName,
+			UserDisplayName: msg.UserDisplayName,
+			UserID:          msg.UserId,
+			GreetingText:    msg.GreetingText,
+		},
+		"GREETING_SENDED",
 	)
 
 	return &emptypb.Empty{}, nil
