@@ -5,22 +5,21 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
-	"strings"
+	"strconv"
 )
 
-var VoiceCommand = types.DefaultCommand{
+var PitchCommand = types.DefaultCommand{
 	Command: types.Command{
-		Name:        "tts voice",
-		Description: lo.ToPtr("Change tts voice"),
+		Name:        "tts pitch",
+		Description: lo.ToPtr("Change tts pitch"),
 		Permission:  "VIEWER",
 		Visible:     false,
 		Module:      lo.ToPtr("TTS"),
 		IsReply:     true,
 	},
 	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		//webSocketsGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelModel := getSettings(ctx.ChannelId, "")
+		channelSettings, channelModele := getSettings(ctx.ChannelId, "")
 
 		if channelSettings == nil {
 			result.Result = append(result.Result, "TTS is not configured.")
@@ -33,33 +32,29 @@ var VoiceCommand = types.DefaultCommand{
 			result.Result = append(
 				result.Result,
 				fmt.Sprintf(
-					"Global voice: %s | Your voice: %s",
-					channelSettings.Voice,
-					lo.IfF(userSettings != nil, func() string {
-						return userSettings.Voice
-					}).Else("not setted"),
+					"Global pitch: %v | Your pitch: %v",
+					channelSettings.Pitch,
+					lo.IfF(userSettings != nil, func() int {
+						return userSettings.Pitch
+					}).Else(channelSettings.Pitch),
 				))
 			return result
 		}
 
-		voices := getVoices()
-		if len(voices) == 0 {
-			result.Result = append(result.Result, "No voices found")
+		pitch, err := strconv.Atoi(*ctx.Text)
+		if err != nil {
+			result.Result = append(result.Result, "Pitch must be a number")
 			return result
 		}
 
-		wantedVoice, ok := lo.Find(voices, func(item voice) bool {
-			return item.Name == strings.ToLower(*ctx.Text)
-		})
-
-		if !ok {
-			result.Result = append(result.Result, fmt.Sprintf("Voice %s not found", *ctx.Text))
+		if pitch < 0 || pitch > 100 {
+			result.Result = append(result.Result, "Pitch must be between 0 and 100")
 			return result
 		}
 
 		if ctx.ChannelId == ctx.SenderId {
-			channelSettings.Voice = wantedVoice.Name
-			err := updateSettings(channelModel, channelSettings)
+			channelSettings.Pitch = pitch
+			err := updateSettings(channelModele, channelSettings)
 			if err != nil {
 				fmt.Println(err)
 				result.Result = append(result.Result, "Error while updating settings")
@@ -67,15 +62,14 @@ var VoiceCommand = types.DefaultCommand{
 			}
 		} else {
 			if userSettings == nil {
-				_, _, err := createUserSettings(50, 50, wantedVoice.Name, ctx.ChannelId, ctx.SenderId)
+				_, _, err := createUserSettings(pitch, 50, channelSettings.Voice, ctx.ChannelId, ctx.SenderId)
 				if err != nil {
 					fmt.Println(err)
 					result.Result = append(result.Result, "Error while creating settings")
 					return result
 				}
 			} else {
-
-				userSettings.Voice = wantedVoice.Name
+				userSettings.Pitch = pitch
 				err := updateSettings(currentUserModel, userSettings)
 				if err != nil {
 					fmt.Println(err)
@@ -85,7 +79,7 @@ var VoiceCommand = types.DefaultCommand{
 			}
 		}
 
-		result.Result = append(result.Result, fmt.Sprintf("Voice changed to %s", wantedVoice.Name))
+		result.Result = append(result.Result, fmt.Sprintf("Pitch changed to %v", pitch))
 
 		return result
 	},

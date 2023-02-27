@@ -12,7 +12,7 @@ import (
 	"strconv"
 )
 
-var SayVariable = types.DefaultCommand{
+var SayCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "tts",
 		Description: lo.ToPtr("Say text in tts"),
@@ -29,13 +29,13 @@ var SayVariable = types.DefaultCommand{
 			return result
 		}
 
-		channelSettings := getSettings(ctx.ChannelId, "")
+		channelSettings, _ := getSettings(ctx.ChannelId, "")
 
 		if channelSettings == nil || !*channelSettings.Enabled {
 			return result
 		}
 
-		userSettings := getSettings(ctx.ChannelId, ctx.SenderId)
+		userSettings, _ := getSettings(ctx.ChannelId, ctx.SenderId)
 
 		voice := lo.IfF(userSettings != nil, func() string {
 			return userSettings.Voice

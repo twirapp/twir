@@ -66,8 +66,12 @@ func New() Commands {
 		sr_youtube.SrListCommand,
 		sr_youtube.SkipCommand,
 		shoutout.ShoutOut,
-		tts.SayVariable,
-		tts.SkipVariable,
+		tts.SayCommand,
+		tts.SkipCommand,
+		tts.VoicesCommand,
+		tts.VoiceCommand,
+		tts.RateCommand,
+		tts.PitchCommand,
 	}
 
 	ctx := Commands{

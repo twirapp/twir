@@ -1,45 +1,43 @@
 package model
 
 import (
-	"database/sql/driver"
 	"encoding/json"
-	"errors"
-	"fmt"
+	"github.com/guregu/null"
 )
 
-type JSON json.RawMessage
-
 type ChannelModulesSettings struct {
-	ID        string `gorm:"column:id;type:uuid"        json:"id"`
-	Type      string `gorm:"column:type;"               json:"type"`
-	Settings  JSON   `gorm:"column:settings;type:jsonb" json:"settings"`
-	ChannelId string `gorm:"column:channelId;type:text" json:"channelId"`
-	UserId    string `gorm:"column:userId;type:text"    json:"userId"`
+	ID        string      `gorm:"column:id;type:uuid"        json:"id"`
+	Type      string      `gorm:"column:type;"               json:"type"`
+	Settings  []byte      `gorm:"column:settings;type:jsonb" json:"settings"`
+	ChannelId string      `gorm:"column:channelId;type:text" json:"channelId"`
+	UserId    null.String `gorm:"column:userId;type:text"    json:"userId"`
 }
 
 func (ChannelModulesSettings) TableName() string {
 	return "channels_modules_settings"
 }
 
-func (j *JSON) Scan(value interface{}) error {
-	bytes, ok := value.([]byte)
-	if !ok {
-		return errors.New(fmt.Sprint("Failed to unmarshal JSONB value:", value))
-	}
-
-	result := json.RawMessage{}
-	err := json.Unmarshal(bytes, &result)
-	*j = JSON(result)
-	return err
-}
-
-// Value return json value, implement driver.Valuer interface
-func (j JSON) Value() (driver.Value, error) {
-	if len(j) == 0 {
-		return nil, nil
-	}
-	return json.RawMessage(j).MarshalJSON()
-}
+//type JSON json.RawMessage
+//func (j *JSON) Scan(value interface{}) error {
+//	bytes, ok := value.([]byte)
+//	if !ok {
+//		return errors.New(fmt.Sprint("Failed to unmarshal JSONB value:", value))
+//	}
+//
+//	result := json.RawMessage{}
+//	err := json.Unmarshal(bytes, &result)
+//	*j = JSON(result)
+//	return err
+//}
+//
+//// Value return json value, implement driver.Valuer interface
+//func (j JSON) Value() (driver.Value, error) {
+//	if len(j) == 0 {
+//		return nil, nil
+//	}
+//
+//	return json.RawMessage(j).MarshalJSON()
+//}
 
 type UserYoutubeSettings struct {
 	MaxRequests  uint32 `validate:"required,lte=4294967295"           json:"maxRequests"`

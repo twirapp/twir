@@ -11,7 +11,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 )
 
-var SkipVariable = types.DefaultCommand{
+var SkipCommand = types.DefaultCommand{
 	Command: types.Command{
 		Name:        "tts skip",
 		Description: lo.ToPtr("Skip current saying message in tts"),
