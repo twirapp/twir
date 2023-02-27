@@ -146,6 +146,12 @@ operationsLoop:
 					operation.Target.String,
 					operation.Input.String,
 				)
+			case model.OperationTTSSay:
+				if !operation.Input.Valid {
+					continue
+				}
+
+				operationError = processor.TtsSay(channelId, data.UserID, operation.Input.String)
 			}
 
 			if operationError != nil {

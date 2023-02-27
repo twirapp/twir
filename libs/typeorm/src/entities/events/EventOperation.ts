@@ -38,6 +38,7 @@ export enum OperationType {
   CHANGE_VARIABLE = 'CHANGE_VARIABLE',
   INCREMENT_VARIABLE = 'INCREMENT_VARIABLE',
   DECREMENT_VARIABLE = 'DECREMENT_VARIABLE',
+  TTS_SAY = 'TTS_SAY',
 }
 
 @Entity({ name: 'channels_events_operations' })

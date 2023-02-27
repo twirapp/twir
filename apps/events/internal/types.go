@@ -22,6 +22,7 @@ type Services struct {
 type Data struct {
 	UserName        string `json:"userName,omitempty"`
 	UserDisplayName string `json:"userDisplayName,omitempty"`
+	UserID          string `json:"userId,omitempty"`
 
 	RaidViewers int64 `json:"raidViewers,omitempty"`
 

@@ -515,6 +515,22 @@ services:
       mode: replicated
       replicas: 20
 
+  tts:
+    restart: unless-stopped
+    image: aculeasis/rhvoice-rest:amd64
+    networks:
+      - tsuwari
+    deploy:
+      update_config:
+        parallelism: 2
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      mode: replicated
+      replicas: 5
+
 volumes:
   postgres-data:
   redis-data:

@@ -127,6 +127,7 @@ func (c *parserGrpcServer) ProcessCommand(
 		CommandInput:    strings.TrimSpace(data.Message.Text[len(cmd.FoundBy):]),
 		UserName:        data.Sender.Name,
 		UserDisplayName: data.Sender.DisplayName,
+		UserId:          data.Sender.Id,
 	})
 
 	return result, nil
