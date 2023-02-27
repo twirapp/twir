@@ -75,10 +75,12 @@ var SetCommand = types.DefaultCommand{
 		}
 
 		categoryId := games.Data.Categories[0].ID
+		categoryName := games.Data.Categories[0].Name
 
 		for _, category := range games.Data.Categories {
 			if strings.Contains(strings.ToLower(category.Name), strings.ToLower(*ctx.Text)) {
 				categoryId = category.ID
+				categoryName = category.Name
 				break
 			}
 		}
@@ -93,7 +95,7 @@ var SetCommand = types.DefaultCommand{
 			return result
 		}
 
-		result.Result = append(result.Result, "✅ "+games.Data.Categories[0].Name)
+		result.Result = append(result.Result, "✅ "+categoryName)
 		return result
 	},
 }
