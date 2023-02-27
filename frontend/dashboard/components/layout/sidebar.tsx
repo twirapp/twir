@@ -72,6 +72,7 @@ const navigationLinks: Array<Page | null> = [
       { label: 'Moderation', icon: IconSword, path: '/commands/moderation' },
       { label: 'Song Requests', icon: IconPlaylist, path: '/commands/songrequest' },
       { label: 'Manage', icon: IconClipboardCopy, path: '/commands/manage' },
+      { label: 'TTS', icon: IconSpeakerphone, path: '/commands/tts' },
       { label: 'Dota', path: '/commands/dota' },
     ],
   },

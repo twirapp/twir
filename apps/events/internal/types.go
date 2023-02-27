@@ -60,6 +60,8 @@ type Data struct {
 	KeywordID       string `json:"-"`
 	KeywordName     string `json:"keywordName"`
 	KeywordResponse string `json:"keywordResponse"`
+
+	GreetingText string `json:"greetingText"`
 }
 
 type DataFromPrevOperation struct {

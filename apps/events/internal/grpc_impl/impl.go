@@ -227,3 +227,18 @@ func (c *EventsGrpcImplementation) KeywordMatched(
 
 	return &emptypb.Empty{}, nil
 }
+
+func (c *EventsGrpcImplementation) GreetingSended(_ context.Context, msg *events.GreetingSendedMessage) (*emptypb.Empty, error) {
+	go c.processEvent(
+		msg.BaseInfo.ChannelId,
+		internal.Data{
+			UserName:        msg.UserName,
+			UserDisplayName: msg.UserDisplayName,
+			UserID:          msg.UserId,
+			GreetingText:    msg.GreetingText,
+		},
+		"GREETING_SENDED",
+	)
+
+	return &emptypb.Empty{}, nil
+}

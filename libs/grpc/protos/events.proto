@@ -18,6 +18,7 @@ service Events {
   rpc ChatClear(ChatClearMessage) returns (google.protobuf.Empty) {}
   rpc Donate(DonateMessage) returns (google.protobuf.Empty) {}
   rpc KeywordMatched(KeywordMatchedMessage) returns (google.protobuf.Empty) {}
+  rpc GreetingSended(GreetingSendedMessage) returns (google.protobuf.Empty) {}
 }
 
 message BaseInfo {
@@ -146,4 +147,13 @@ message KeywordMatchedMessage {
   string userId = 5;
   string userName = 6;
   string userDisplayName = 7;
+}
+
+message GreetingSendedMessage {
+  BaseInfo baseInfo = 1;
+
+  string userId = 2;
+  string userName = 3;
+  string userDisplayName = 4;
+  string greetingText = 5;
 }
