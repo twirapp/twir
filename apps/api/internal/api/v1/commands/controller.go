@@ -34,9 +34,12 @@ type JSONResult struct{}
 // @Router       /v1/channels/{channelId}/commands [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		c.JSON(handleGet(c.Params("channelId"), services))
+		cmds, err := handleGet(c.Params("channelId"), services)
+		if err != nil {
+			return err
+		}
 
-		return nil
+		return c.JSON(cmds)
 	}
 }
 

@@ -53,6 +53,10 @@ func handleGet(ids string, names string, services types.Services) ([]helix.User,
 		return nil, fiber.NewError(400, "you cannot request more then 200 users")
 	}
 
+	if len(usersForReq) == 0 {
+		return nil, nil
+	}
+
 	users := []helix.User{}
 
 	chunks := lo.Chunk(usersForReq, 100)

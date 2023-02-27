@@ -6,7 +6,7 @@ import { typeorm } from './typeorm.js';
 
 export const io = new Server();
 
-export const authMiddleware = (socket: Socket, next: (err?: ExtendedError) => void) => {
+export const authMiddleware = async (socket: Socket, next: (err?: ExtendedError) => void) => {
   const handshake = socket.handshake;
   const apiKey = handshake.auth?.apiKey as string | undefined;
 
@@ -14,13 +14,15 @@ export const authMiddleware = (socket: Socket, next: (err?: ExtendedError) => vo
     return next(new Error('Apikey not provided'));
   }
 
-  const user = typeorm.getRepository(User).findOneBy({
+  const user = await typeorm.getRepository(User).findOneBy({
     apiKey,
-  });
+  }).catch(() => null);
 
   if (!user) {
     return next(new Error('User with that token not found'));
   }
+
+  socket.data.channelId = user.id;
 
   return next();
 };

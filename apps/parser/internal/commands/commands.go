@@ -3,6 +3,7 @@ package commands
 import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/shoutout"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/tts"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"regexp"
 	"sort"
@@ -65,6 +66,7 @@ func New() Commands {
 		sr_youtube.SrListCommand,
 		sr_youtube.SkipCommand,
 		shoutout.ShoutOut,
+		tts.SayVariable,
 	}
 
 	ctx := Commands{

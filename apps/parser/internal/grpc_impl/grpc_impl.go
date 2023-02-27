@@ -111,7 +111,7 @@ func (c *parserGrpcServer) ProcessCommand(
 		data.Sender.Id,
 		data.Channel.Id,
 		data.Sender.Badges,
-		cmd.Cmd.Permission,
+		cmd.Cmd,
 	)
 
 	if !hasPerm {

@@ -8,9 +8,11 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatello"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatepay"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/modules/obs_websocket"
+	tts_channel_module "github.com/satont/tsuwari/apps/api/internal/api/v1/modules/tts"
 	public_commands "github.com/satont/tsuwari/apps/api/internal/api/v1/public/commands"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/public/song_requests"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/rewards"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/tts"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/twitch/users"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 
@@ -38,6 +40,8 @@ import (
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	feedback.Setup(router, services)
 	stats.Setup(router, services)
+
+	tts.Setup(router, services)
 
 	adminGroup := router.Group("admin")
 	adminGroup.Use(middlewares.CheckUserAuth(services))
@@ -77,6 +81,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	modulesGroup := channelsGroup.Group("modules")
 	youtube_sr.Setup(modulesGroup, services)
 	obs_websocket.Setup(modulesGroup, services)
+	tts_channel_module.Setup(modulesGroup, services)
 
 	publicGroup := router.Group("p")
 	public_commands.Setup(publicGroup, services)

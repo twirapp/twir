@@ -14,6 +14,7 @@ type ChannelModulesSettings struct {
 	Type      string `gorm:"column:type;"               json:"type"`
 	Settings  JSON   `gorm:"column:settings;type:jsonb" json:"settings"`
 	ChannelId string `gorm:"column:channelId;type:text" json:"channelId"`
+	UserId    string `gorm:"column:userId;type:text"    json:"userId"`
 }
 
 func (ChannelModulesSettings) TableName() string {

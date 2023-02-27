@@ -6,6 +6,7 @@ option go_package = "tsuwari/grpc/websockets";
 service Websocket {
   rpc YoutubeAddSongToQueue(YoutubeAddSongToQueueRequest) returns (google.protobuf.Empty) {}
   rpc YoutubeRemoveSongToQueue(YoutubeRemoveSongFromQueueRequest) returns (google.protobuf.Empty) {}
+
   rpc ObsSetScene(ObsSetSceneMessage) returns (google.protobuf.Empty) {}
   rpc ObsToggleSource(ObsToggleSourceMessage) returns (google.protobuf.Empty) {}
   rpc ObsToggleAudio(ObsToggleAudioMessage) returns (google.protobuf.Empty) {}
@@ -16,6 +17,8 @@ service Websocket {
   rpc ObsAudioDisable(ObsAudioDisableOrEnableMessage) returns (google.protobuf.Empty) {}
   rpc ObsStopStream(ObsStopOrStartStream) returns (google.protobuf.Empty) {}
   rpc ObsStartStream(ObsStopOrStartStream) returns (google.protobuf.Empty) {}
+
+  rpc TextToSpeechSay(TTSMessage) returns (google.protobuf.Empty) {}
 }
 
 message YoutubeAddSongToQueueRequest {
@@ -68,4 +71,13 @@ message ObsAudioDisableOrEnableMessage {
 
 message ObsStopOrStartStream {
   string channelId = 1;
+}
+
+message TTSMessage {
+  string channelId = 1;
+  string text = 2;
+  string voice = 3;
+  string rate = 4;
+  string pitch = 5;
+  string volume = 6;
 }

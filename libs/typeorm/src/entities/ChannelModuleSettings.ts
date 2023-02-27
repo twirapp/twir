@@ -1,19 +1,26 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 
 import { type Channel } from './Channel.js';
+import { User } from './User';
 
 export enum ModuleType {
   YOUTUBE_SONG_REQUESTS = 'youtube_song_requests',
-  OBS_WEBSOCKET = 'obs_websocket'
+  OBS_WEBSOCKET = 'obs_websocket',
+  TTS = 'tts',
 }
 
 @Entity('channels_modules_settings')
 export class ChannelModuleSettings {
-  @PrimaryColumn('uuid', {
-    primary: true,
-    name: 'id',
-    default: () => 'gen_random_uuid()',
-  })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column('enum', { enum: ModuleType })
@@ -28,4 +35,11 @@ export class ChannelModuleSettings {
   @ManyToOne('Channel', 'modules')
   @JoinColumn({ name: 'channelId' })
   channel?: Relation<Channel>;
+
+  @OneToOne(() => User, _ => _.ttsSettings)
+  @JoinColumn({ name: 'userId' })
+  user?: User;
+
+  @Column({ nullable: true })
+  userId: string | null;
 }

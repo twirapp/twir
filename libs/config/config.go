@@ -23,6 +23,7 @@ type Config struct {
 	JwtRefreshSecret         string  `required:"false" default:"CoolSecretForRefresh"        envconfig:"JWT_REFRESH_SECRET"`
 	HostName                 string  `required:"false" default:"localhost:3005" envconfig:"HOSTNAME"`
 	TokensCipherKey          string  `required:"false" default:"pnyfwfiulmnqlhkvixaeligpprcnlyke" envconfig:"TOKENS_CIPHER_KEY"`
+	TTSServiceUrl            string  `required:"false" default:"localhost:7000" envconfig:"TTS_SERVICE_URL"`
 }
 
 func New() (*Config, error) {

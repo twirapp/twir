@@ -1,12 +1,15 @@
-package obs_websocket
+package tts
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/imroc/req/v3"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"github.com/satont/tsuwari/apps/api/internal/types"
+	cfg "github.com/satont/tsuwari/libs/config"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	modules "github.com/satont/tsuwari/libs/types/types/api/modules"
 	uuid "github.com/satori/go.uuid"
@@ -14,14 +17,14 @@ import (
 	"net/http"
 )
 
-func handleGet(channelId string, services types.Services) (*modules.OBSWebSocketSettings, error) {
+func handleGet(channelId string, services types.Services) (*modules.TTSSettings, error) {
 	settings := model.ChannelModulesSettings{}
-	err := services.DB.Where(`"channelId" = ? AND "type" = ?`, channelId, "obs_websocket").First(&settings).Error
+	err := services.DB.Where(`"channelId" = ? AND "type" = ?`, channelId, "tts").First(&settings).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusNotFound, "settings not found")
 	}
 
-	data := modules.OBSWebSocketSettings{}
+	data := modules.TTSSettings{}
 	err = json.Unmarshal(settings.Settings, &data)
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
@@ -30,11 +33,11 @@ func handleGet(channelId string, services types.Services) (*modules.OBSWebSocket
 	return &data, nil
 }
 
-func handlePost(channelId string, dto *modules.OBSWebSocketSettings, services types.Services) error {
+func handlePost(channelId string, dto *modules.TTSSettings, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	var existedSettings *model.ChannelModulesSettings
-	err := services.DB.Where(`"channelId" = ? AND "type" = ?`, channelId, "obs_websocket").First(&existedSettings).Error
+	err := services.DB.Where(`"channelId" = ? AND "type" = ?`, channelId, "tts").First(&existedSettings).Error
 
 	if err != nil && err != gorm.ErrRecordNotFound {
 		logger.Error(err)
@@ -50,7 +53,7 @@ func handlePost(channelId string, dto *modules.OBSWebSocketSettings, services ty
 	if existedSettings.ID == "" {
 		err = services.DB.Model(&model.ChannelModulesSettings{}).Create(map[string]interface{}{
 			"id":        uuid.NewV4().String(),
-			"type":      "obs_websocket",
+			"type":      "tts",
 			"settings":  bytes,
 			"channelId": channelId,
 		}).Error
@@ -69,4 +72,13 @@ func handlePost(channelId string, dto *modules.OBSWebSocketSettings, services ty
 
 		return nil
 	}
+}
+
+func handleGetInfo() map[string]any {
+	config := do.MustInvoke[cfg.Config](di.Provider)
+
+	result := map[string]any{}
+	req.R().SetSuccessResult(&result).Get(fmt.Sprintf("http://%s/info", config.TTSServiceUrl))
+
+	return result
 }
