@@ -22,7 +22,7 @@ func (c *Processor) Timeout(input string, timeoutTime int) error {
 		Logins: []string{hydratedName},
 	})
 
-	if err != nil || len(user.Data.Users) == 0 {
+	if err != nil || user.ErrorMessage != "" || len(user.Data.Users) == 0 {
 		if err != nil {
 			return err
 		}
@@ -79,7 +79,7 @@ func (c *Processor) BanOrUnban(input string, operation model.EventOperationType)
 		Logins: []string{hydratedName},
 	})
 
-	if err != nil || len(user.Data.Users) == 0 {
+	if err != nil || user.ErrorMessage != "" || len(user.Data.Users) == 0 {
 		if err != nil {
 			return err
 		}

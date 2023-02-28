@@ -12,6 +12,7 @@ import {
 import { Channel } from './Channel';
 import { ChannelChatMessage } from './ChannelChatMessage';
 import { ChannelEmoteUsage } from './ChannelEmoteUsage';
+import { ChannelModuleSettings } from './ChannelModuleSettings';
 import { ChannelPermit } from './ChannelPermit';
 import { ChannelRoleUser } from './ChannelRoleUser';
 import { CommandUsage } from './CommandUsage';
@@ -80,6 +81,9 @@ export class User {
 
   @OneToMany(() => ChannelEmoteUsage, _ => _.channel)
   emotesUsages?: ChannelEmoteUsage[];
+
+  @OneToOne(() => ChannelModuleSettings, _ => _.user)
+  ttsSettings?: ChannelModuleSettings;
 
   @OneToMany(() => ChannelRoleUser, _ => _.user)
   channelRoleUsers?: ChannelRoleUser[];

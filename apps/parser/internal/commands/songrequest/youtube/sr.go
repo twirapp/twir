@@ -98,13 +98,12 @@ var SrCommand = types.DefaultCommand{
 			return result
 		}
 
-		var songsCount int64
+		latestSong := &model.RequestedSong{}
 
 		err = db.
-			Model(&model.RequestedSong{}).
 			Where(`"channelId" = ? AND "deletedAt" IS NULL`, ctx.ChannelId).
-			Order(`"createdAt" asc`).
-			Count(&songsCount).Error
+			Order(`"createdAt" desc`).
+			Find(&latestSong).Error
 
 		requested := make([]*model.RequestedSong, 0, len(req.Songs))
 		errors := make([]*ReqError, 0, len(req.Songs))
@@ -133,7 +132,7 @@ var SrCommand = types.DefaultCommand{
 					Title:                song.Title,
 					Duration:             int32(song.Duration),
 					CreatedAt:            time.Now().UTC(),
-					QueuePosition:        int(songsCount) + i + 1,
+					QueuePosition:        latestSong.QueuePosition + (i + 1),
 				}
 
 				err = db.Create(model).Error

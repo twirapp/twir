@@ -132,6 +132,7 @@ class UserSubscriptions {
         baseInfo: {
           channelId: e.broadcasterId,
         },
+        userId: e.userId,
       });
     });
   }
@@ -159,6 +160,7 @@ class UserSubscriptions {
         userDisplayName: e.userDisplayName,
         rewardCost: e.rewardCost.toString(),
         rewardName: e.rewardTitle,
+        userId: e.userId,
       });
 
       if (!e.input) return;

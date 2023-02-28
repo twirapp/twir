@@ -53,6 +53,8 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		getProfile(services),
 	)
 
+	middleware.Patch("api-key", middlewares.CheckUserAuth(services), updateApiKey(services))
+
 	return middleware
 }
 
@@ -163,5 +165,22 @@ func refreshToken(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		return c.JSON(fiber.Map{"accessToken": newAccess})
+	}
+}
+
+func updateApiKey(services types.Services) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		userId := c.Locals("dbUser").(model.Users).ID
+		err := handleUpdateApiKey(userId, services)
+		if err != nil {
+			return err
+		}
+
+		services.RedisStorage.DeleteByMethod(
+			fmt.Sprintf("fiber:cache:auth:profile:%s", userId),
+			"GET",
+		)
+
+		return c.SendStatus(200)
 	}
 }

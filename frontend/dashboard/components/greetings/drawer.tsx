@@ -1,5 +1,5 @@
 import {
-  ActionIcon,
+  ActionIcon, Alert,
   Button,
   Drawer,
   Flex,
@@ -92,6 +92,7 @@ export const GreetingDrawer: React.FC<Props> = (props) => {
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
+            <Alert><Text size={'xs'}>Tip: you can create tts for greeting in events.</Text></Alert>
             <TextInput label={t('userName')} required {...form.getInputProps('userName')} />
             <Textarea
               label={t('message')}

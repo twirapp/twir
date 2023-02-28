@@ -60,6 +60,14 @@ services:
     networks:
       - tsuwari-dev
 
+  tts:
+    restart: unless-stopped
+    image: aculeasis/rhvoice-rest:amd64
+    ports:
+      - "7000:8080"
+    networks:
+      - tsuwari-dev
+
 volumes:
   redis-data:
   postgres-data:

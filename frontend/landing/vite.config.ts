@@ -52,10 +52,15 @@ export default defineConfig({
         ws: true,
       },
       '/p': {
-        target: 'http://127.0.0.1:3007/p',
+        target: 'http://127.0.0.1:3007',
         changeOrigin: true,
         ws: true,
-        rewrite: (path) => path.replace(/^\/p/, ''),
+        // rewrite: (path) => path.replace(/^\/p/, ''),
+      },
+      '/overlays': {
+        target: 'http://127.0.0.1:3008',
+        changeOrigin: true,
+        ws: true,
       },
     },
   },

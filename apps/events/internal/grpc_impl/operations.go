@@ -1,6 +1,7 @@
 package grpc_impl
 
 import (
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/events/internal"
 	processor_module "github.com/satont/tsuwari/apps/events/internal/grpc_impl/processor"
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -142,6 +143,38 @@ operationsLoop:
 				}
 
 				operationError = processor.IncrementORDecrementVariable(
+					operation.Type,
+					operation.Target.String,
+					operation.Input.String,
+				)
+			case model.OperationTTSSay:
+				if !operation.Input.Valid {
+					continue
+				}
+
+				operationError = processor.TtsSay(channelId, data.UserID, operation.Input.String)
+			case model.OperationTTSSkip:
+				operationError = processor.TtsSkip(channelId)
+			case model.OperationTTSEnable, model.OperationTTSDisable:
+				action := lo.If(operation.Type == model.OperationTTSEnable, true).Else(false)
+
+				operationError = processor.TtsChangeState(channelId, action)
+			case model.OperationAllowCommandToUser, model.OperationRemoveAllowCommandToUser:
+				if !operation.Input.Valid || !operation.Target.Valid {
+					continue
+				}
+
+				operationError = processor.AllowOrRemoveAllowCommandToUser(
+					operation.Type,
+					operation.Target.String,
+					operation.Input.String,
+				)
+			case model.OperationDenyCommandToUser, model.OperationRemoveDenyCommandToUser:
+				if !operation.Input.Valid || !operation.Target.Valid {
+					continue
+				}
+
+				operationError = processor.DenyOrRemoveDenyCommandToUser(
 					operation.Type,
 					operation.Target.String,
 					operation.Input.String,

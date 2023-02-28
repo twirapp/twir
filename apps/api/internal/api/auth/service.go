@@ -259,3 +259,23 @@ func handleRefresh(refreshToken string) (string, error) {
 	}
 	return newToken, nil
 }
+
+func handleUpdateApiKey(userId string, services types.Services) error {
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+
+	user := model.Users{}
+	err := services.DB.Where(`"id" = ?`, userId).First(&user).Error
+	if err != nil {
+		logger.Error(err)
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	user.ApiKey = uuid.NewV4().String()
+	err = services.DB.Save(&user).Error
+	if err != nil {
+		logger.Error(err)
+		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	return nil
+}

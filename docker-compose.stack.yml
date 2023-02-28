@@ -143,8 +143,6 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
-      # mode: replicated
-      # replicas: 1
       endpoint_mode: dnsrr
       placement:
         constraints:
@@ -514,6 +512,46 @@ services:
       endpoint_mode: dnsrr
       mode: replicated
       replicas: 20
+
+  tts:
+    restart: unless-stopped
+    image: aculeasis/rhvoice-rest:amd64
+    networks:
+      - tsuwari
+    deploy:
+      update_config:
+        parallelism: 2
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      mode: replicated
+      replicas: 5
+
+  overlays:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: overlays
+    restart: unless-stopped
+    image: registry.satont.dev/tsuwari/overlays
+    ports:
+      - target: 80
+        published: 3007
+        mode: host
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
 
 volumes:
   postgres-data:

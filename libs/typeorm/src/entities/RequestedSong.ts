@@ -5,7 +5,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn, PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
 

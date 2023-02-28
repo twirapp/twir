@@ -18,7 +18,7 @@ export const config = cleanEnv(process.env, {
   TWITCH_CALLBACKURL: str({ default: 'http://localhost:3005/login' }),
   JWT_EXPIRES_IN: str({ default: '5m' }),
   JWT_ACCESS_SECRET: str({ default: 'CoolSecretForAccess' }),
-  JWT_REFRESH_SECRET: str({ default: 'CoolSecretForRefresh' }),
+  JWT_REFRESH_SECRET: str({ default: 'Cool`SecretForRefresh' }),
   REDIS_URL: str({ default: 'redis://localhost:6379/0' }),
   SAY_IN_CHAT: bool({ default: true }),
   HOSTNAME: str({ default: '' }),
@@ -30,4 +30,5 @@ export const config = cleanEnv(process.env, {
   MINIO_URL: str({ default: '' }),
   TOKENS_CIPHER_KEY: str({ default: 'pnyfwfiulmnqlhkvixaeligpprcnlyke' }),
   EVENTSUB_SECRET: str({ default: 'coolEventsubSecret' }),
+  TTS_SERVICE_URL: str({ default: 'http://localhost:7000' }),
 });

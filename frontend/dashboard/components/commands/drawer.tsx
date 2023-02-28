@@ -15,9 +15,10 @@ import {
   Textarea,
   Menu,
   Button,
-  useMantineTheme, MultiSelect,
+  useMantineTheme,
+  MultiSelect,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { isNotEmpty, useForm } from '@mantine/form';
 import { useDebouncedState, useViewportSize } from '@mantine/hooks';
 import { IconChevronDown, IconGripVertical, IconMinus, IconPlus, IconSearch, IconShieldHalfFilled, IconVariable } from '@tabler/icons';
 import type {
@@ -26,12 +27,17 @@ import type {
   CooldownType,
 } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useTranslation } from 'next-i18next';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { noop } from '../../util/chore';
 
-import { commandsGroupManager, commandsManager, useRolesApi, useVariables } from '@/services/api';
+import {
+  commandsGroupManager,
+  commandsManager,
+  useVariables,
+  useRolesApi,
+} from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -47,7 +53,11 @@ const switches: Array<{
   { prop: 'keepResponsesOrder' },
 ];
 
-type ChannelCommandForm = Omit<ChannelCommand, 'aliases'> & { aliases: Array<{ name: string }> }
+type ChannelCommandForm = Omit<ChannelCommand, 'aliases' | 'deniedUsersIds' | 'allowedUsersIds'> & {
+  aliases: Array<{ name: string }>,
+  deniedUsersIds: Array<{ name: string }>,
+  allowedUsersIds: Array<{ name: string }>,
+}
 
 export const CommandDrawer: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
@@ -64,6 +74,12 @@ export const CommandDrawer: React.FC<Props> = (props) => {
           if (value.startsWith('!')) return `Aliase shouldn't start with !`;
           return null;
         },
+      },
+      deniedUsersIds: {
+        name: isNotEmpty('User name cannot be empty'),
+      },
+      allowedUsersIds: {
+        name: isNotEmpty('User name cannot be empty'),
       },
       cooldown: (value) => (value && value < 0 ? 'Cooldown cannot be lower then 0' : null),
       responses: {
@@ -87,6 +103,8 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       responses: [],
       channelId: '',
       id: '',
+      deniedUsersIds: [],
+      allowedUsersIds: [],
     },
   });
 
@@ -105,13 +123,17 @@ export const CommandDrawer: React.FC<Props> = (props) => {
 
   useEffect(() => {
     form.reset();
+
     if (props.command) {
       form.setValues({
         ...props.command,
         aliases: props.command.aliases.map(a => ({ name: a })),
+        deniedUsersIds: props.command.deniedUsersIds.map(a => ({ name: a })) ?? [],
+        allowedUsersIds: props.command.allowedUsersIds.map(a => ({ name: a })) ?? [],
       });
     }
   }, [props.command, props.opened]);
+
 
   function onSubmit() {
     const validate = form.validate();
@@ -125,6 +147,8 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       data: {
         ...form.values,
         aliases: form.values.aliases.map(a => a.name),
+        deniedUsersIds: form.values.deniedUsersIds.map(a => a.name),
+        allowedUsersIds: form.values.allowedUsersIds.map(a => a.name),
       },
     }).then(() => {
       props.setOpened(false);
@@ -194,6 +218,82 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                           </ActionIcon>
                         }
                         {...form.getInputProps(`aliases.${i}.name`)}
+                      />
+                    </Grid.Col>
+                  ))}
+                </Grid>
+              </ScrollArea.Autosize>
+            </div>
+
+            <div>
+              <Flex direction="row" gap="xs">
+                <Text>Denied users</Text>
+                <ActionIcon variant="light" color="green" size="xs">
+                  <IconPlus
+                    size={18}
+                    onClick={() => {
+                      form.insertListItem('deniedUsersIds', { name: '' });
+                    }}
+                  />
+                </ActionIcon>
+              </Flex>
+
+              {!form.values.deniedUsersIds?.length && <Alert>No users added</Alert>}
+              <ScrollArea.Autosize maxHeight={100} mx="auto" type="auto" offsetScrollbars={true}>
+                <Grid grow gutter="xs" style={{ margin: 0, gap: 8 }}>
+                  {form.values.deniedUsersIds?.map((_, i) => (
+                    <Grid.Col style={{ padding: 0 }} key={i} xs={4} sm={4} md={4} lg={4} xl={4}>
+                      <TextInput
+                        placeholder="username"
+                        rightSection={
+                          <ActionIcon
+                            variant="filled"
+                            onClick={() => {
+                              form.removeListItem('deniedUsersIds', i);
+                            }}
+                          >
+                            <IconMinus size={18} />
+                          </ActionIcon>
+                        }
+                        {...form.getInputProps(`deniedUsersIds.${i}.name`)}
+                      />
+                    </Grid.Col>
+                  ))}
+                </Grid>
+              </ScrollArea.Autosize>
+            </div>
+
+            <div>
+              <Flex direction="row" gap="xs">
+                <Text>Allowed users</Text>
+                <ActionIcon variant="light" color="green" size="xs">
+                  <IconPlus
+                    size={18}
+                    onClick={() => {
+                      form.insertListItem('allowedUsersIds', { name: '' });
+                    }}
+                  />
+                </ActionIcon>
+              </Flex>
+
+              {!form.values.allowedUsersIds?.length && <Alert>No users added</Alert>}
+              <ScrollArea.Autosize maxHeight={100} mx="auto" type="auto" offsetScrollbars={true}>
+                <Grid grow gutter="xs" style={{ margin: 0, gap: 8 }}>
+                  {form.values.allowedUsersIds?.map((_, i) => (
+                    <Grid.Col style={{ padding: 0 }} key={i} xs={4} sm={4} md={4} lg={4} xl={4}>
+                      <TextInput
+                        placeholder="username"
+                        rightSection={
+                          <ActionIcon
+                            variant="filled"
+                            onClick={() => {
+                              form.removeListItem('allowedUsersIds', i);
+                            }}
+                          >
+                            <IconMinus size={18} />
+                          </ActionIcon>
+                        }
+                        {...form.getInputProps(`allowedUsersIds.${i}.name`)}
                       />
                     </Grid.Col>
                   ))}

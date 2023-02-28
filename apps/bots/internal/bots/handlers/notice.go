@@ -17,6 +17,7 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 			UserName:        message.MsgParams["msg-param-login"],
 			UserDisplayName: message.MsgParams["msg-param-displayName"],
 			Viewers:         int64(intViewers),
+			UserId:          message.MsgParams["user-id"],
 		})
 	}
 
@@ -28,6 +29,7 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 			UserName:        message.Tags["login"],
 			UserDisplayName: message.Tags["display-name"],
 			Level:           level,
+			UserId:          message.MsgParams["user-id"],
 		})
 	}
 
@@ -45,6 +47,7 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 			IsPrime:         level == "prime",
 			Message:         message.Message,
 			Level:           level,
+			UserId:          message.MsgParams["user-id"],
 		})
 	}
 
@@ -58,6 +61,7 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 			TargetUserName:    message.MsgParams["msg-param-recipient-user-name"],
 			TargetDisplayName: message.MsgParams["msg-param-recipient-display-name"],
 			Level:             level,
+			SenderUserId:      message.MsgParams["user-id"],
 		})
 	}
 }

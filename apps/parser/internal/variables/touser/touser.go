@@ -5,6 +5,7 @@ import (
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
+	"strings"
 )
 
 var Variable = types.Variable{
@@ -17,7 +18,7 @@ var Variable = types.Variable{
 		}
 
 		if ctx.Text != nil {
-			result.Result = *ctx.Text
+			result.Result = strings.ReplaceAll(*ctx.Text, "@", "")
 		}
 
 		return &result, nil

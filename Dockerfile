@@ -344,3 +344,6 @@ COPY --from=ytsr_deps /app/ /app/
 COPY --from=base /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["pnpm", "--filter=@tsuwari/ytsr", "start"]
+
+FROM codecentric/single-page-application-server as overlays
+COPY --from=base /app/frontend/overlays/dist/ /app

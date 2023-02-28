@@ -27,7 +27,8 @@
     "donateCurrency": "Donate currency",
     "donateMessage": "Donate message",
     "keywordName": "Name of keyword",
-    "keywordResponse": "Responses of keyword, joined by space"
+    "keywordResponse": "Responses of keyword, joined by space",
+    "greetingText": "Greeting message"
   },
   "description": "Description of your listener",
   "availableVariables": "Available variables",

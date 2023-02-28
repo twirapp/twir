@@ -407,6 +407,21 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                       w={'100%'}
                                       {...form.getInputProps(`operations.${index}.target`)}
                                   />}
+                                  {v === 'target' && (
+                                    operation.type === OperationType.ALLOW_COMMAND_TO_USER ||
+                                    operation.type === OperationType.REMOVE_ALLOW_COMMAND_TO_USER ||
+                                    operation.type === OperationType.DENY_COMMAND_TO_USER ||
+                                    operation.type === OperationType.REMOVE_DENY_COMMAND_TO_USER) &&
+                                      <Select
+                                          label={'Command'}
+                                          searchable={true}
+                                          data={commandList.data?.map((c) => ({
+                                            value: c.id,
+                                            label: c.name,
+                                          })) ?? []}
+                                          {...form.getInputProps(`operations.${index}.target`)}
+                                          w={'100%'}
+                                      />}
                                 </Group>)}
                               </Card.Section>}
                               <Card.Section p='sm' withBorder>

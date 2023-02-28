@@ -144,4 +144,37 @@ export const operationMapping: Record<keyof typeof OperationType, {
     haveInput: true,
     additionalValues: ['target'],
   },
+  TTS_SAY: {
+    description: '[TTS] Say text',
+    haveInput: true,
+  },
+  TTS_DISABLE: {
+    description: '[TTS] Disable TTS',
+  },
+  TTS_ENABLE: {
+    description: '[TTS] Enable TTS',
+  },
+  TTS_SKIP: {
+    description: '[TTS] Skip current text',
+  },
+  ALLOW_COMMAND_TO_USER: {
+    description: '[COMMANDS] Allow command to user',
+    haveInput: true,
+    additionalValues: ['target'],
+  },
+  REMOVE_ALLOW_COMMAND_TO_USER: {
+    description: '[COMMANDS] Remove allow command to user',
+    haveInput: true,
+    additionalValues: ['target'],
+  },
+  DENY_COMMAND_TO_USER: {
+    description: '[COMMANDS] Deny command to user',
+    haveInput: true,
+    additionalValues: ['target'],
+  },
+  REMOVE_DENY_COMMAND_TO_USER: {
+    description: '[COMMANDS] Remove deny command to user',
+    haveInput: true,
+    additionalValues: ['target'],
+  },
 };

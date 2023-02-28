@@ -16,15 +16,6 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func jwtError(c *fiber.Ctx, err error) error {
-	if err.Error() == "Missing or malformed JWT" {
-		return c.Status(fiber.StatusBadRequest).
-			JSON(fiber.Map{"status": "error", "message": "Missing or malformed JWT", "data": nil})
-	}
-	return c.Status(fiber.StatusUnauthorized).
-		JSON(fiber.Map{"status": "error", "message": "Invalid or expired JWT", "data": nil})
-}
-
 var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
@@ -43,7 +34,7 @@ var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
 				First(&dbUser).
 				Error
 			if err != nil {
-				return c.JSON(fiber.Map{"message": "user with that api key not found"})
+				return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"message": "user with that api key not found"})
 			}
 			c.Locals("dbUser", dbUser)
 			return c.Next()
@@ -53,7 +44,7 @@ var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
 		if authorizationToken != "" {
 			token, err := ExtractTokenFromHeader(authorizationToken)
 			if err != nil {
-				return fiber.NewError(401, "invalid token. Probably token is expired.")
+				return fiber.NewError(http.StatusUnauthorized, "invalid token. Probably token is expired.")
 			}
 
 			claims := token.Claims.(jwt.MapClaims)
@@ -61,7 +52,7 @@ var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
 
 			if userId == "" {
 				logger.Error("no userId in request")
-				return fiber.NewError(401, "invalid token")
+				return fiber.NewError(http.StatusUnauthorized, "invalid token")
 			}
 
 			err = services.DB.Where(`"id" = ?`, userId).
@@ -69,13 +60,13 @@ var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
 				First(&dbUser).
 				Error
 			if err != nil {
-				return c.Status(http.StatusNotFound).JSON(fiber.Map{"message": "user not found"})
+				return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"message": "user not found"})
 			}
 			c.Locals("dbUser", dbUser)
 		}
 
 		if dbUser.ID == "" {
-			return c.Status(401).JSON(fiber.Map{"message": "unauthenticated"})
+			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"message": "unauthenticated"})
 		}
 
 		return c.Next()
@@ -85,7 +76,7 @@ var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
 func ExtractTokenFromHeader(t string) (*jwt.Token, error) {
 	tokenSlice := strings.Split(t, "Bearer ")
 	if len(tokenSlice) < 2 {
-		return nil, fiber.NewError(401, "invalid token format")
+		return nil, fiber.NewError(http.StatusUnauthorized, "invalid token format")
 	}
 
 	cfg := do.MustInvoke[config.Config](di.Provider)

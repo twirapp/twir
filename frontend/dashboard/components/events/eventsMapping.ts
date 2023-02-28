@@ -116,4 +116,12 @@ export const eventsMapping: Record<keyof typeof EventType, {
       'keywordResponse',
     ],
   },
+  GREETING_SENDED: {
+    description: 'Greeting sended in chat',
+    availableVariables: [
+      'userName',
+      'userDisplayName',
+      'greetingText',
+    ],
+  },
 };
