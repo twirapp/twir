@@ -36,6 +36,7 @@ export const TTSOverlay: React.FC = () => {
       volume: 80,
       voice: '',
       allow_users_choose_voice_in_main_command: false,
+      max_symbols: 0,
     },
     validate: {
       voice: isNotEmpty('Voice is required'),
@@ -167,6 +168,12 @@ export const TTSOverlay: React.FC = () => {
             label={'Allow users use different voices in main (!tts) command'}
             labelPosition={'left'}
             {...form.getInputProps('allow_users_choose_voice_in_main_command', { type: 'checkbox' })}
+          />
+          <NumberInput
+            label={'Max message length for tts. If setted to 0 then there is no restriction'}
+            max={500}
+            min={0}
+            {...form.getInputProps('max_symbols')}
           />
         </Flex>
 

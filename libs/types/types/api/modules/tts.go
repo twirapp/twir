@@ -7,6 +7,7 @@ type TTSSettings struct {
 	Pitch                              int    `validate:"gte=0,lte=100" json:"pitch"`
 	Voice                              string `validate:"required" json:"voice"`
 	AllowUsersChooseVoiceInMainCommand bool   `validate:"required" json:"allow_users_choose_voice_in_main_command"`
+	MaxSymbols                         int    `validate:"required" json:"max_symbols"`
 }
 
 type TTS struct {

@@ -11,6 +11,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 var SayCommand = types.DefaultCommand{
@@ -54,6 +55,10 @@ var SayCommand = types.DefaultCommand{
 				voice = targetVoice.Name
 				*ctx.Text = strings.Join(splittedChatArgs[1:], " ")
 			}
+		}
+
+		if channelSettings.MaxSymbols > 0 && utf8.RuneCountInString(*ctx.Text) > channelSettings.MaxSymbols {
+			return result
 		}
 
 		rate := lo.IfF(userSettings != nil, func() int {
