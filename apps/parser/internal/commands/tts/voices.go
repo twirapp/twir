@@ -26,7 +26,7 @@ var VoicesCommand = types.DefaultCommand{
 			return result
 		}
 
-		mapped := lo.Map(voices, func(item voice, _ int) string {
+		mapped := lo.Map(voices, func(item Voice, _ int) string {
 			return fmt.Sprintf("%s (%s)", item.Name, item.Country)
 		})
 		result.Result = append(result.Result, strings.Join(mapped, " · "))

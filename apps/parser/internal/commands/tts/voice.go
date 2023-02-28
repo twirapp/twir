@@ -48,7 +48,7 @@ var VoiceCommand = types.DefaultCommand{
 			return result
 		}
 
-		wantedVoice, ok := lo.Find(voices, func(item voice) bool {
+		wantedVoice, ok := lo.Find(voices, func(item Voice) bool {
 			return item.Name == strings.ToLower(*ctx.Text)
 		})
 

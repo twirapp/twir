@@ -45,12 +45,12 @@ func getSettings(channelId, userId string) (*modules.TTSSettings, *model.Channel
 	return &data, settings
 }
 
-type voice struct {
+type Voice struct {
 	Name    string
 	Country string
 }
 
-func getVoices() []voice {
+func getVoices() []Voice {
 	cfg := do.MustInvoke[config.Config](di.Provider)
 	data := map[string]any{}
 	_, err := req.R().SetSuccessResult(&data).Get(fmt.Sprintf("http://%s/info", cfg.TTSServiceUrl))
@@ -66,9 +66,9 @@ func getVoices() []voice {
 	}
 
 	parsedJson := gjson.ParseBytes(bytes)
-	voices := []voice{}
+	voices := []Voice{}
 	parsedJson.Get("rhvoice_wrapper_voices_info").ForEach(func(key, value gjson.Result) bool {
-		voices = append(voices, voice{
+		voices = append(voices, Voice{
 			Name:    key.String(),
 			Country: value.Get("country").String(),
 		})

@@ -35,6 +35,7 @@ export const TTSOverlay: React.FC = () => {
       rate: 50,
       volume: 80,
       voice: '',
+      allow_users_choose_voice_in_main_command: false,
     },
     validate: {
       voice: isNotEmpty('Voice is required'),
@@ -162,6 +163,11 @@ export const TTSOverlay: React.FC = () => {
           <NumberInput label={'Pitch'} max={100} min={1} required {...form.getInputProps('pitch')} />
           <NumberInput label={'Rate'} max={100} min={1} required {...form.getInputProps('rate')} />
           <NumberInput label={'Volume'} max={100} min={1} required {...form.getInputProps('volume')} />
+          <Switch
+            label={'Allow users use different voices in main (!tts) command'}
+            labelPosition={'left'}
+            {...form.getInputProps('allow_users_choose_voice_in_main_command', { type: 'checkbox' })}
+          />
         </Flex>
 
         <Divider mt={10} mb={5} />

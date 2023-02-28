@@ -38,23 +38,23 @@ var SayCommand = types.DefaultCommand{
 
 		userSettings, _ := getSettings(ctx.ChannelId, ctx.SenderId)
 
-		voices := getVoices()
-
-		splittedChatArgs := strings.Split(*ctx.Text, " ")
-		targetVoice, targetVoiceFound := lo.Find(voices, func(item voice) bool {
-			return strings.ToLower(item.Name) == strings.ToLower(splittedChatArgs[0])
-		})
-
-		if targetVoiceFound {
-			*ctx.Text = strings.Join(splittedChatArgs[1:], " ")
-		}
-
-		voice := lo.
-			If(targetVoiceFound, targetVoice.Name).
-			ElseIfF(userSettings != nil, func() string {
-				return userSettings.Voice
-			}).
+		voice := lo.IfF(userSettings != nil, func() string {
+			return userSettings.Voice
+		}).
 			Else(channelSettings.Voice)
+
+		if channelSettings.AllowUsersChooseVoiceInMainCommand {
+			voices := getVoices()
+			splittedChatArgs := strings.Split(*ctx.Text, " ")
+			targetVoice, targetVoiceFound := lo.Find(voices, func(item Voice) bool {
+				return strings.ToLower(item.Name) == strings.ToLower(splittedChatArgs[0])
+			})
+
+			if targetVoiceFound {
+				voice = targetVoice.Name
+				*ctx.Text = strings.Join(splittedChatArgs[1:], " ")
+			}
+		}
 
 		rate := lo.IfF(userSettings != nil, func() int {
 			return userSettings.Rate
