@@ -1,15 +1,16 @@
 package tts
 
 import (
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	"net/http"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("tts")
-	middleware.Use(middlewares.CheckUserAuth(services))
+	middleware.Use(middlewares.AttachUser(services))
 	middleware.Get("say", getSpeak(services))
 
 	return middleware

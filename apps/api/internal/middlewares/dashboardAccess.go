@@ -27,8 +27,9 @@ var CheckHasAccessToDashboard = func(c *fiber.Ctx) error {
 	if dbUser.ID == channelId {
 		return c.Next()
 	}
-	_, ok := lo.Find(dbUser.DashboardAccess, func(a model.ChannelsDashboardAccess) bool {
-		return a.ChannelID == channelId
+
+	_, ok := lo.Find(dbUser.Roles, func(a model.ChannelRoleUser) bool {
+		return a.Role.ChannelID == channelId
 	})
 
 	if ok {

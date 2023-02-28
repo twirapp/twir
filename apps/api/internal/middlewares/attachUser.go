@@ -2,12 +2,13 @@ package middlewares
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	config "github.com/satont/tsuwari/libs/config"
-	"net/http"
-	"strings"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
@@ -16,7 +17,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
+var AttachUser = func(services types.Services) func(c *fiber.Ctx) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	return func(c *fiber.Ctx) error {
@@ -29,10 +30,7 @@ var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
 		dbUser := model.Users{}
 
 		if apiKey != "" {
-			err := services.DB.Where(`"apiKey" = ?`, apiKey).
-				Preload("DashboardAccess").
-				First(&dbUser).
-				Error
+			err := services.DB.Where(`"apiKey" = ?`, apiKey).First(&dbUser).Error
 			if err != nil {
 				return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"message": "user with that api key not found"})
 			}
@@ -55,10 +53,7 @@ var CheckUserAuth = func(services types.Services) func(c *fiber.Ctx) error {
 				return fiber.NewError(http.StatusUnauthorized, "invalid token")
 			}
 
-			err = services.DB.Where(`"id" = ?`, userId).
-				Preload("DashboardAccess").
-				First(&dbUser).
-				Error
+			err = services.DB.Where(`"id" = ?`, userId).Error
 			if err != nil {
 				return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"message": "user not found"})
 			}

@@ -30,7 +30,6 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/keywords"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/moderation"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/modules/youtube_sr"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/settings"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/stats"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/streams"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/timers"
@@ -45,7 +44,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	tts.Setup(router, services)
 
 	adminGroup := router.Group("admin")
-	adminGroup.Use(middlewares.CheckUserAuth(services))
+	adminGroup.Use(middlewares.AttachUser(services))
 	adminGroup.Use(middlewares.IsAdmin)
 	admin_users.Setup(adminGroup, services)
 
@@ -53,7 +52,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	users.Setup(twitchGroup, services)
 
 	channelsGroup := router.Group("channels/:channelId")
-	channelsGroup.Use(middlewares.CheckUserAuth(services))
+	channelsGroup.Use(middlewares.AttachUser(services))
 	channelsGroup.Use(middlewares.CheckHasAccessToDashboard)
 
 	commands.Setup(channelsGroup, services)
@@ -64,7 +63,6 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	bot.Setup(channelsGroup, services)
 	streams.Setup(channelsGroup, services)
 	variables.Setup(channelsGroup, services)
-	settings.Setup(channelsGroup, services)
 	rewards.Setup(channelsGroup, services)
 	community.Setup(channelsGroup, services)
 	events.Setup(channelsGroup, services)

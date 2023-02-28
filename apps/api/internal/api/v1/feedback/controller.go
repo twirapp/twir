@@ -14,7 +14,7 @@ import (
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("feedback")
-	middleware.Use(middlewares.CheckUserAuth(services))
+	middleware.Use(middlewares.AttachUser(services))
 
 	limit := limiter.New(limiter.Config{
 		Max:        2,

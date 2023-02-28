@@ -30,7 +30,6 @@ import { ChannelTimer } from './entities/ChannelTimer';
 import { ChannelTimerResponse } from './entities/ChannelTimerResponse';
 import { CommandResponse } from './entities/CommandResponse';
 import { CommandUsage } from './entities/CommandUsage';
-import { DashboardAccess } from './entities/DashboardAccess';
 import { DotaGameMode } from './entities/DotaGameMode';
 import { DotaHero } from './entities/DotaHero';
 import { DotaMatch } from './entities/DotaMatch';
@@ -74,7 +73,6 @@ export const AppDataSource = new DataSource({
     ChannelTimerResponse,
     CommandResponse,
     CommandUsage,
-    DashboardAccess,
     DotaGameMode,
     DotaHero,
     DotaMatch,

@@ -2,16 +2,17 @@ package auth
 
 import (
 	"fmt"
+	"github.com/gofiber/fiber/v2/middleware/cache"
+	"net/http"
+	"time"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	cfg "github.com/satont/tsuwari/libs/config"
-	"net/http"
-	"time"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
@@ -36,7 +37,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Get("", get())
 	middleware.Get("token", getTokens(services))
 	middleware.Post("token", refreshToken(services))
-	middleware.Post("logout", middlewares.CheckUserAuth(services), logout(services))
+	middleware.Post("logout", middlewares.AttachUser(services), logout(services))
 
 	profileCache := cache.New(cache.Config{
 		Expiration: 24 * time.Hour,
@@ -48,12 +49,12 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Get(
 		"profile",
 		checkScopes,
-		middlewares.CheckUserAuth(services),
+		middlewares.AttachUser(services),
 		profileCache,
 		getProfile(services),
 	)
 
-	middleware.Patch("api-key", middlewares.CheckUserAuth(services), updateApiKey(services))
+	middleware.Patch("api-key", middlewares.AttachUser(services), updateApiKey(services))
 
 	return middleware
 }
@@ -66,7 +67,6 @@ func get() func(c *fiber.Ctx) error {
 			ClientID:    config.TwitchClientId,
 			RedirectURI: config.TwitchCallbackUrl,
 		})
-
 		if err != nil {
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
@@ -119,12 +119,9 @@ func getTokens(services types.Services) func(c *fiber.Ctx) error {
 
 func getProfile(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		user := c.Locals("dbUser")
-		if user == nil {
-			return fiber.NewError(401, "unauthorized")
-		}
+		user := c.Locals("dbUser").(model.Users)
 
-		profile, err := handleGetProfile(user.(model.Users), services)
+		profile, err := handleGetProfile(user, services)
 		if err != nil {
 			return err
 		}

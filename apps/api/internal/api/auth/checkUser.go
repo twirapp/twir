@@ -60,7 +60,7 @@ var checkScopes = func(ctx *fiber.Ctx) error {
 		})
 
 		if !ok {
-			return ctx.SendStatus(http.StatusForbidden)
+			return ctx.Status(http.StatusForbidden).SendString("not enough scopes")
 		}
 	}
 	return ctx.Next()

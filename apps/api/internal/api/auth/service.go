@@ -2,6 +2,9 @@ package auth
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
@@ -9,13 +12,9 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
-	"net/http"
-	"sync"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
@@ -127,101 +126,39 @@ func handleGetProfile(user model.Users, services types.Services) (*Profile, erro
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
-
-	dbDashboards := []model.ChannelsDashboardAccess{}
-	err = services.DB.Where(`"userId" = ?`, user.ID).Find(&dbDashboards).Error
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	if user.IsBotAdmin {
-		channelsIds := lo.Map(dbDashboards, func(d model.ChannelsDashboardAccess, _ int) string {
-			return d.ChannelID
-		})
-		channelsIds = append(channelsIds, user.ID)
-		channels := []model.Channels{}
-		err := services.DB.Not(channelsIds).Find(&channels).Error
-		if err != nil {
-			logger.Error(err)
-			return nil, fiber.NewError(http.StatusInternalServerError, "cannot get channels")
-		}
-
-		for _, c := range channels {
-			dbDashboards = append(dbDashboards, model.ChannelsDashboardAccess{
-				ID:        uuid.NewV4().String(),
-				ChannelID: c.ID,
-				UserID:    user.ID,
-			})
-		}
-	}
-
-	neededUsersIds := []string{user.ID}
-	neededUsersIds = append(
-		neededUsersIds,
-		lo.Map(dbDashboards, func(a model.ChannelsDashboardAccess, _ int) string {
-			return a.ChannelID
-		})...,
-	)
-	chunks := lo.Chunk(neededUsersIds, 100)
-
-	twitchUsers := []helix.User{}
-	twitchUsersWg := sync.WaitGroup{}
-	twitchUsersWg.Add(len(chunks))
-
-	for _, chunk := range chunks {
-		go func(c []string) {
-			defer twitchUsersWg.Done()
-			users, err := twitchClient.GetUsers(&helix.UsersParams{IDs: c})
-			if err != nil {
-				return
-			}
-
-			twitchUsers = append(twitchUsers, users.Data.Users...)
-		}(chunk)
-	}
-
-	twitchUsersWg.Wait()
-
-	dashboards := []DashboardAndUser{}
-
-	for _, d := range dbDashboards {
-		twitchUser, ok := lo.Find(twitchUsers, func(user helix.User) bool {
-			return user.ID == d.ChannelID
-		})
-
-		if !ok {
-			continue
-		}
-
-		newDash := DashboardAndUser{
-			ChannelsDashboardAccess: d,
-			TwitchUser:              twitchUser,
-		}
-
-		dashboards = append(dashboards, newDash)
-	}
-
-	myTwitchUser, _ := lo.Find(twitchUsers, func(u helix.User) bool {
-		return u.ID == user.ID
+	usersReq, err := twitchClient.GetUsers(&helix.UsersParams{
+		IDs: []string{user.ID},
 	})
+
+	if err != nil || usersReq.ErrorMessage != "" {
+		logger.Error(err)
+		logger.Error(usersReq.ErrorMessage)
+
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	if len(usersReq.Data.Users) == 0 {
+		return nil, fiber.NewError(http.StatusUnauthorized, "no user found on twitch")
+	}
+
+	myTwitchUser := usersReq.Data.Users[0]
 
 	return &Profile{
 		User:       myTwitchUser,
 		ApiKey:     user.ApiKey,
-		DashBoards: dashboards,
+		IsBotAdmin: user.IsBotAdmin,
 	}, nil
-}
-
-type DashboardAndUser struct {
-	model.ChannelsDashboardAccess
-	TwitchUser helix.User `json:"twitchUser"`
 }
 
 type Profile struct {
 	helix.User
-	ApiKey     string             `json:"apiKey"`
-	DashBoards []DashboardAndUser `json:"dashboards"`
+	ApiKey     string `json:"apiKey"`
+	IsBotAdmin bool
 }
 
 func handleRefresh(refreshToken string) (string, error) {

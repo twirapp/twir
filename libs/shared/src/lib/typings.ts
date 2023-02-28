@@ -1,13 +1,6 @@
-import { DashboardAccess } from '@tsuwari/typeorm/entities/DashboardAccess';
-import { HelixStream, HelixUser } from '@twurple/api';
-import { rawDataSymbol } from '@twurple/common';
+import { HelixUserData } from '@twurple/api';
 
-export type CachedStream = HelixStream[typeof rawDataSymbol] & { parsedMessages?: number };
-
-export type Dashboard = DashboardAccess & { twitchUser: HelixUser[typeof rawDataSymbol] };
-
-export type AuthUser = HelixUser[typeof rawDataSymbol] & {
-  dashboards: Dashboard[];
-  isTester: boolean;
+export type AuthUser = HelixUserData & {
   isBotAdmin?: boolean;
+  apiKey: string;
 };

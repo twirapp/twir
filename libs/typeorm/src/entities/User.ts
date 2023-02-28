@@ -16,7 +16,6 @@ import { ChannelModuleSettings } from './ChannelModuleSettings';
 import { ChannelPermit } from './ChannelPermit';
 import { ChannelRoleUser } from './ChannelRoleUser';
 import { CommandUsage } from './CommandUsage';
-import { DashboardAccess } from './DashboardAccess';
 import { Notification } from './Notification';
 import { Token } from './Token';
 import { UserFile } from './UserFile';
@@ -40,9 +39,6 @@ export class User {
 
   @OneToMany(() => CommandUsage, _ => _.user)
   commandUsages?: CommandUsage[];
-
-  @OneToMany(() => DashboardAccess, _ => _.user)
-  dashboardAccess?: DashboardAccess[];
 
   @OneToMany(() => ChannelPermit, _ => _.user)
   permits?: ChannelPermit[];

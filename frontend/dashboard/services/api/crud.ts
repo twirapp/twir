@@ -1,6 +1,4 @@
-
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
-import { Dashboard } from '@tsuwari/shared';
 import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { ChannelCommandGroup } from '@tsuwari/typeorm/entities/ChannelCommandGroup';
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
@@ -108,7 +106,6 @@ export const greetingsManager = () => createCrudManager<Greeting>('greetings');
 export const keywordsManager =  () => createCrudManager<ChannelKeyword>('keywords');
 export const timersManager =  () => createCrudManager<ChannelTimer>('timers');
 export const variablesManager = () => createCrudManager<ChannelCustomvar>('variables');
-export const dashboardAccessManager = () => createCrudManager<Dashboard>('settings/dashboard-access');
 export const eventsManager = () => createCrudManager<Event>('events');
 export const commandsGroupManager = () => createCrudManager<ChannelCommandGroup>('commands/groups', {
   additionalSystemsKeys: ['commands'],

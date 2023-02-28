@@ -29,7 +29,7 @@ func createRolesAndCommand(services types.Services, userId string) error {
 		return err
 	}
 
-	createdRoles := []*model.ChannelRole{}
+	var createdRoles []*model.ChannelRole
 	for _, role := range neededRoles {
 		newRole := &model.ChannelRole{
 			ID:        uuid.New().String(),

@@ -31,7 +31,6 @@ import {
   IconSword, IconUsers,
   TablerIcon,
 } from '@tabler/icons';
-import { Dashboard } from '@tsuwari/shared';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useCallback, useContext, useEffect, useState } from 'react';
@@ -63,7 +62,6 @@ const navigationLinks: Array<Page | null> = [
       { label: 'Settings', icon: IconSettings, path: '/song-requests/settings' },
     ],
   },
-  { label: 'Settings', icon: IconSettings, path: '/settings' },
   {
     label: 'Commands',
     icon: IconCommand,
@@ -121,63 +119,16 @@ export function SideBar(props: Props) {
   const spotlight = useSpotlight();
   const dashboardContext = useContext(SelectedDashboardContext);
 
-  const [selectedDashboard, setSelectedDashboard] = useState<Dashboard>();
-
-  const setDefaultDashboard = useCallback(() => {
-    if (!user) return;
-    dashboardContext.setId(user.id);
-    setSelectedDashboard({
-      id: user.id,
-      channelId: user.id,
-      userId: user.id,
-      twitchUser: user,
-    });
-  }, [user]);
-
   useEffect(() => {
-    if (dashboardContext.id && user) {
-      if (dashboardContext.id === user.id) {
-        setDefaultDashboard();
-      } else {
-        const dashboard = user.dashboards.find((d) => d.channelId === dashboardContext.id);
-        if (dashboard) {
-          setSelectedDashboard(dashboard);
-        } else {
-          setDefaultDashboard();
-        }
-      }
-    }
-  }, [user, dashboardContext.id]);
+    if (!user) return
+    dashboardContext.setId(user.id)
+  }, [user]);
 
   function openSpotlight() {
     if (user && dashboardContext.id) {
-      spotlight.removeActions(spotlight.actions.map((a) => a.id!));
-      const actions = user.dashboards
-        .filter((d) => d.channelId != dashboardContext.id)
-        .map((d) => ({
-          title: resolveUserName(d.twitchUser.login, d.twitchUser.display_name),
-          description: d.twitchUser.id,
-          onTrigger: () => {
-            dashboardContext.setId(d.channelId);
-          },
-          icon: <Avatar radius="xs" src={d.twitchUser.profile_image_url} />,
-          id: d.id,
-        }));
-
-      if (dashboardContext.id != user.id) {
-        actions.unshift({
-          title: resolveUserName(user.login, user.display_name),
-          description: user.id,
-          onTrigger: () => {
-            dashboardContext.setId(user.id);
-          },
-          icon: <Avatar radius="xs" src={user.profile_image_url} />,
-          id: user.id,
-        });
-      }
-
-      spotlight.registerActions(actions);
-      spotlight.openSpotlight();
+      // spotlight.removeActions();
+      // spotlight.registerActions(actions);
+      // spotlight.openSpotlight();
     }
   }
 
@@ -236,7 +187,7 @@ export function SideBar(props: Props) {
           </Box>
         </ScrollArea.Autosize>
       </Navbar.Section>
-      <Navbar.Section>
+      {/* <Navbar.Section>
         <Box
           sx={{
             padding: theme.spacing.sm,
@@ -297,7 +248,7 @@ export function SideBar(props: Props) {
           </Button>
 
         </Box>
-      </Navbar.Section>
+      </Navbar.Section> */}
     </Navbar>
   );
 }
