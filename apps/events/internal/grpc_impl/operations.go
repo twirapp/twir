@@ -159,6 +159,26 @@ operationsLoop:
 				action := lo.If(operation.Type == model.OperationTTSEnable, true).Else(false)
 
 				operationError = processor.TtsChangeState(channelId, action)
+			case model.OperationAllowCommandToUser, model.OperationRemoveAllowCommandToUser:
+				if !operation.Input.Valid || !operation.Target.Valid {
+					continue
+				}
+
+				operationError = processor.AllowOrRemoveAllowCommandToUser(
+					operation.Type,
+					operation.Target.String,
+					operation.Input.String,
+				)
+			case model.OperationDenyCommandToUser, model.OperationRemoveDenyCommandToUser:
+				if !operation.Input.Valid || !operation.Target.Valid {
+					continue
+				}
+
+				operationError = processor.DenyOrRemoveDenyCommandToUser(
+					operation.Type,
+					operation.Target.String,
+					operation.Input.String,
+				)
 			}
 
 			if operationError != nil {

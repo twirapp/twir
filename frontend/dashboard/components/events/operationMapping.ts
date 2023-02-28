@@ -157,4 +157,24 @@ export const operationMapping: Record<keyof typeof OperationType, {
   TTS_SKIP: {
     description: '[TTS] Skip current text',
   },
+  ALLOW_COMMAND_TO_USER: {
+    description: '[COMMANDS] Allow command to user',
+    haveInput: true,
+    additionalValues: ['target'],
+  },
+  REMOVE_ALLOW_COMMAND_TO_USER: {
+    description: '[COMMANDS] Remove allow command to user',
+    haveInput: true,
+    additionalValues: ['target'],
+  },
+  DENY_COMMAND_TO_USER: {
+    description: '[COMMANDS] Deny command to user',
+    haveInput: true,
+    additionalValues: ['target'],
+  },
+  REMOVE_DENY_COMMAND_TO_USER: {
+    description: '[COMMANDS] Remove deny command to user',
+    haveInput: true,
+    additionalValues: ['target'],
+  },
 };

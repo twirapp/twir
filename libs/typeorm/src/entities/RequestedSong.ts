@@ -5,7 +5,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
 
@@ -14,11 +14,7 @@ import { type User } from './User.js';
 
 @Entity('channels_requested_songs')
 export class RequestedSong {
-  @PrimaryColumn('uuid', {
-    primary: true,
-    name: 'id',
-    default: () => 'gen_random_uuid()',
-  })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column('varchar')
