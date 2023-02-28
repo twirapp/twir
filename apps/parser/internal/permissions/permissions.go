@@ -16,12 +16,6 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 		return true
 	}
 
-	if lo.SomeBy(command.DeniedUsersIDS, func(id string) bool {
-		return id == userId
-	}) {
-		return false
-	}
-
 	db := do.MustInvoke[gorm.DB](di.Provider)
 	dbUser := &model.Users{}
 
@@ -39,6 +33,18 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 				}
 			}
 		}
+	}
+
+	if lo.SomeBy(command.DeniedUsersIDS, func(id string) bool {
+		return id == userId
+	}) {
+		return false
+	}
+
+	if lo.SomeBy(command.AllowedUsersIDS, func(id string) bool {
+		return id == userId
+	}) {
+		return true
 	}
 
 	commandPermIndex := helpers.IndexOf(CommandPerms, command.Permission)

@@ -115,4 +115,7 @@ export class ChannelCommand {
 
   @Column('text', { array: true, default: [] })
   deniedUsersIds: string[];
+
+  @Column('text', { array: true, default: [] })
+  allowedUsersIds: string[];
 }

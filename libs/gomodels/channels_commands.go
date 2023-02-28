@@ -34,6 +34,7 @@ type ChannelsCommands struct {
 	IsReply            bool                        `gorm:"column:is_reply;type:BOOL;default:true"           json:"isReply"`
 	KeepResponsesOrder bool                        `gorm:"column:keepResponsesOrder;type:BOOL;default:true" json:"keepResponsesOrder"`
 	DeniedUsersIDS     pq.StringArray              `gorm:"column:deniedUsersIds;type:text[];default:[];"    json:"deniedUsersIds"`
+	AllowedUsersIDS    pq.StringArray              `gorm:"column:allowedUsersIds;type:text[];default:[];"   json:"allowedUsersIds"`
 
 	GroupID null.String          `gorm:"column:groupId;type:UUID" json:"groupId"`
 	Group   *ChannelCommandGroup `gorm:"foreignKey:GroupID" json:"group"`
