@@ -1,6 +1,8 @@
 package roles
 
 import (
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
@@ -8,7 +10,6 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
-	"net/http"
 )
 
 func getRole(id string) *model.ChannelRole {
@@ -88,7 +89,7 @@ func deleteRoleService(channelId, roleId string) error {
 		return fiber.NewError(http.StatusNotFound, "Role not found")
 	}
 
-	if role.System {
+	if role.Type != model.ChannelRoleTypeCustom {
 		return fiber.NewError(http.StatusForbidden, "System role can't be deleted")
 	}
 
@@ -109,13 +110,11 @@ func createRoleService(channelId string, dto *roleDto) (*model.ChannelRole, erro
 		ID:          uuid.NewV4().String(),
 		ChannelID:   channelId,
 		Name:        dto.Name,
-		System:      false,
 		Type:        model.ChannelRoleTypeCustom,
 		Permissions: dto.Permissions,
 	}
 
 	err := db.Create(&role).Error
-
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")

@@ -3,27 +3,29 @@ package tts
 import (
 	"context"
 	"fmt"
+	"github.com/guregu/null"
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"strconv"
+	"strings"
+	"unicode/utf8"
+
 	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
-	"strconv"
-	"strings"
-	"unicode/utf8"
 )
 
-var SayCommand = types.DefaultCommand{
-	Command: types.Command{
+var SayCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "tts",
-		Description: lo.ToPtr("Say text in tts. You can use !tts <voice> <text> to send tts with some voice."),
-		Permission:  "VIEWER",
+		Description: null.StringFrom("Say text in tts. You can use !tts <voice> <text> to send tts with some voice."),
 		Visible:     true,
-		Module:      lo.ToPtr("TTS"),
+		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		webSocketsGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
 
 		result := &types.CommandsHandlerResult{}
@@ -76,7 +78,6 @@ var SayCommand = types.DefaultCommand{
 			Pitch:     strconv.Itoa(pitch),
 			Volume:    strconv.Itoa(channelSettings.Volume),
 		})
-
 		if err != nil {
 			fmt.Println(err)
 			return result

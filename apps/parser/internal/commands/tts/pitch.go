@@ -2,22 +2,24 @@ package tts
 
 import (
 	"fmt"
+	"github.com/guregu/null"
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"strconv"
+
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
-	"strconv"
 )
 
-var PitchCommand = types.DefaultCommand{
-	Command: types.Command{
+var PitchCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "tts pitch",
-		Description: lo.ToPtr("Change tts pitch"),
-		Permission:  "VIEWER",
+		Description: null.StringFrom("Change tts pitch"),
 		Visible:     true,
-		Module:      lo.ToPtr("TTS"),
+		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 		channelSettings, channelModele := getSettings(ctx.ChannelId, "")
 

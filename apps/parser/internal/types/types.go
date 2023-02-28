@@ -31,30 +31,10 @@ type (
 	}
 )
 
-type Command struct {
-	Id                 *string  `json:"id"`
-	Name               string   `json:"name"`
-	ChannelId          string   `json:"channelId"`
-	Aliases            []string `json:"aliases"`
-	Responses          []string `json:"responses"`
-	Description        *string  `json:"description"`
-	Visible            bool     `json:"visible"`
-	Module             *string  `json:"module"`
-	Enabled            bool     `json:"enabled"`
-	Default            bool     `json:"default"`
-	DefaultName        *string  `json:"defaultName"`
-	Cooldown           int      `json:"cooldown"`
-	CooldownType       string   `json:"cooldownType"`
-	IsReply            bool     `json:"isReply"`
-	KeepResponsesOrder *bool    `json:"keepResponsesOrder"`
-	RolesNames         []model.ChannelRoleEnum
-}
-
 type DefaultCommand struct {
-	Command
+	*model.ChannelsCommands
 
-	Handler func(ctx variables_cache.ExecutionContext) *CommandsHandlerResult
-	IsReply *bool
+	Handler func(ctx *variables_cache.ExecutionContext) *CommandsHandlerResult
 }
 
 type Sender struct {

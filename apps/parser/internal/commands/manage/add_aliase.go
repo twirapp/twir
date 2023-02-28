@@ -2,6 +2,8 @@ package manage
 
 import (
 	"fmt"
+	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"gorm.io/gorm"
@@ -17,16 +19,15 @@ import (
 	"github.com/samber/lo"
 )
 
-var AddAliaseCommand = types.DefaultCommand{
-	Command: types.Command{
+var AddAliaseCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "commands aliases add",
-		Description: lo.ToPtr("Add aliase to command"),
-		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
-		Visible:     false,
-		Module:      lo.ToPtr("MANAGE"),
+		Description: null.StringFrom("Add aliase to command"),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
+		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)
 
 		result := &types.CommandsHandlerResult{

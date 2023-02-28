@@ -56,8 +56,9 @@ message GetDefaultCommandsResponse {
     bool visible = 3;
     repeated string rolesNames = 4;
     string module = 5;
-    optional bool isReply = 6;
-    optional bool keepResponsesOrder = 7;
+    bool isReply = 6;
+    bool keepResponsesOrder = 7;
+    repeated string aliases = 8;
   }
   repeated DefaultCommand list = 1;
 }

@@ -1,6 +1,8 @@
 package manage
 
 import (
+	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"gorm.io/gorm"
@@ -16,16 +18,15 @@ import (
 	"github.com/samber/lo"
 )
 
-var RemoveAliaseCommand = types.DefaultCommand{
-	Command: types.Command{
+var RemoveAliaseCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "commands aliases remove",
-		Description: lo.ToPtr("Remove aliase from command"),
-		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
-		Visible:     false,
-		Module:      lo.ToPtr("MANAGE"),
+		Description: null.StringFrom("Remove aliase from command"),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
+		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)
 
 		result := &types.CommandsHandlerResult{

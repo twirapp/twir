@@ -1,6 +1,7 @@
 package manage
 
 import (
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"gorm.io/gorm"
@@ -15,7 +16,6 @@ import (
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/guregu/null"
-	"github.com/samber/lo"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -26,15 +26,15 @@ const (
 	alreadyExists  = "Command with that name or aliase already exists."
 )
 
-var AddCommand = types.DefaultCommand{
-	Command: types.Command{
+var AddCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "commands add",
-		Description: lo.ToPtr("Add command"),
-		Visible:     false,
-		Module:      lo.ToPtr("MANAGE"),
+		Description: null.StringFrom("Add command"),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
+		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)
 
 		result := &types.CommandsHandlerResult{

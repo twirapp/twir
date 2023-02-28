@@ -7,7 +7,6 @@ type ChannelRole struct {
 	ChannelID   string          `gorm:"column:channelId;type:uuid;" json:"-"`
 	Name        string          `gorm:"column:name;type:text;" json:"name"`
 	Type        ChannelRoleEnum `gorm:"column:type;type:text;" json:"type"`
-	System      bool            `gorm:"column:system;type:boolean;default:false" json:"system"`
 	Permissions pq.StringArray  `gorm:"column:permissions;type:text[]" json:"permissions"`
 
 	Channel *Channels          `gorm:"foreignKey:ChannelID" json:"-"`
@@ -39,7 +38,7 @@ func (r RolePermissionEnum) String() string {
 }
 
 const (
-	RolePermissionCanAcessDashboard RolePermissionEnum = "CAN_ACCESS_DASHBOARD"
+	RolePermissionCanAccessDashboard RolePermissionEnum = "CAN_ACCESS_DASHBOARD"
 
 	RolePermissionUpdateChannelTitle    RolePermissionEnum = "UPDATE_CHANNEL_TITLE"
 	RolePermissionUpdateChannelCategory RolePermissionEnum = "UPDATE_CHANNEL_CATEGORY"

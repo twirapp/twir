@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/libs/grpc/generated/events"
-	"strings"
-	"time"
 
 	"github.com/go-redis/redis/v9"
 	"github.com/prometheus/client_golang/prometheus"
@@ -112,7 +113,6 @@ func (c *parserGrpcServer) ProcessCommand(
 		data.Channel.Id,
 		data.Sender.Badges,
 		cmd.Cmd,
-		cmd.Cmd.RolesIDS,
 	)
 
 	if !hasPerm {
@@ -171,9 +171,9 @@ func (c *parserGrpcServer) GetDefaultCommands(
 	for i, v := range c.commands.DefaultCommands {
 		cmd := &parser.GetDefaultCommandsResponse_DefaultCommand{
 			Name:               v.Name,
-			Description:        *v.Description,
+			Description:        v.Description.String,
 			Visible:            v.Visible,
-			Module:             *v.Module,
+			Module:             v.Module,
 			IsReply:            v.IsReply,
 			KeepResponsesOrder: v.KeepResponsesOrder,
 		}

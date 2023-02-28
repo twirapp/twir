@@ -1,6 +1,7 @@
 package channel_game
 
 import (
+	"github.com/guregu/null"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -16,15 +17,14 @@ import (
 	"github.com/satont/go-helix/v2"
 )
 
-var SetCommand = types.DefaultCommand{
-	Command: types.Command{
+var SetCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "game",
-		Description: lo.ToPtr("Print or change category of channel."),
-		Visible:     false,
-		Module:      lo.ToPtr("MODERATION"),
+		Description: null.StringFrom("Print or change category of channel."),
+		Module:      "MODERATION",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)
 		cfg := do.MustInvoke[config.Config](di.Provider)
 		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)

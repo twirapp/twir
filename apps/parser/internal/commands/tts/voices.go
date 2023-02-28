@@ -2,22 +2,24 @@ package tts
 
 import (
 	"fmt"
+	"github.com/guregu/null"
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"strings"
+
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
-	"strings"
 )
 
-var VoicesCommand = types.DefaultCommand{
-	Command: types.Command{
+var VoicesCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "tts voices",
-		Description: lo.ToPtr("List available voices"),
-		Permission:  "VIEWER",
+		Description: null.StringFrom("List available voices"),
 		Visible:     true,
-		Module:      lo.ToPtr("TTS"),
+		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 
 		voices := getVoices()

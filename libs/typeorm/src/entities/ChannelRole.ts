@@ -61,9 +61,6 @@ export class ChannelRole {
   @Column('enum', { enum: RoleType, default: RoleType.CUSTOM })
   type: RoleType;
 
-  @Column({ default: false })
-  system: boolean;
-
   @Column({
     type: 'enum',
     enum: RoleFlags,

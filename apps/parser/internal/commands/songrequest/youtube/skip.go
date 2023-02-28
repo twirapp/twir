@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis/v9"
+	"github.com/guregu/null"
 	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
@@ -19,16 +20,14 @@ import (
 	"time"
 )
 
-var SkipCommand = types.DefaultCommand{
-	Command: types.Command{
-		Name:               "voteskip",
-		Description:        lo.ToPtr("Vote for skip command"),
-		Visible:            false,
-		Module:             lo.ToPtr("SONGREQUEST"),
-		IsReply:            true,
-		KeepResponsesOrder: lo.ToPtr(false),
+var SkipCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
+		Name:        "voteskip",
+		Description: null.StringFrom("Vote for skip command"),
+		Module:      "SONGREQUEST",
+		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		logger := do.MustInvoke[zap.Logger](di.Provider)
 		db := do.MustInvoke[gorm.DB](di.Provider)
 		redisClient := do.MustInvoke[redis.Client](di.Provider)

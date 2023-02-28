@@ -3,6 +3,8 @@ package shoutout
 import (
 	"context"
 	"fmt"
+	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
@@ -15,19 +17,14 @@ import (
 	"github.com/satont/tsuwari/libs/twitch"
 )
 
-var ShoutOut = types.DefaultCommand{
-	Command: types.Command{
-		Name: "so",
-		Description: lo.ToPtr(
-			"Shoutout some streamer",
-		),
-		RolesNames:         []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
-		Visible:            false,
-		Module:             lo.ToPtr("MODERATION"),
-		IsReply:            false,
-		KeepResponsesOrder: lo.ToPtr(false),
+var ShoutOut = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
+		Name:        "so",
+		Description: null.StringFrom("Shoutout some streamer"),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
+		Module:      "MODERATION",
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		cfg := do.MustInvoke[config.Config](di.Provider)
 		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 		result := &types.CommandsHandlerResult{}

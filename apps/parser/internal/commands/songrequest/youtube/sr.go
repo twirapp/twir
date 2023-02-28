@@ -39,16 +39,14 @@ type ReqError struct {
 	Error string
 }
 
-var SrCommand = types.DefaultCommand{
-	Command: types.Command{
-		Name:               "sr",
-		Description:        lo.ToPtr("Song requests from youtube"),
-		Visible:            false,
-		Module:             lo.ToPtr("SONGREQUEST"),
-		IsReply:            true,
-		KeepResponsesOrder: lo.ToPtr(false),
+var SrCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
+		Name:        "sr",
+		Description: null.StringFrom("Song requests from youtube"),
+		Module:      "SONGREQUEST",
+		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)
 		websocketGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
 		logger := do.MustInvoke[zap.Logger](di.Provider)

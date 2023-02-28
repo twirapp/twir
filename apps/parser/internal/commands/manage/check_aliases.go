@@ -2,6 +2,8 @@ package manage
 
 import (
 	"fmt"
+	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"gorm.io/gorm"
@@ -12,20 +14,17 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
-
-	"github.com/samber/lo"
 )
 
-var CheckAliasesCommand = types.DefaultCommand{
-	Command: types.Command{
+var CheckAliasesCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "commands aliases",
-		Description: lo.ToPtr("Check command aliases"),
-		RolesNames:  []model.ChannelRoleEnum{model.ChannelRoleTypeModerator},
-		Visible:     false,
-		Module:      lo.ToPtr("MANAGE"),
+		Description: null.StringFrom("Check command aliases"),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
+		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)
 
 		result := &types.CommandsHandlerResult{

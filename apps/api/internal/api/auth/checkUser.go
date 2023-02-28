@@ -66,6 +66,7 @@ var checkScopes = func(ctx *fiber.Ctx) error {
 	return ctx.Next()
 }
 
+// used for register user in system
 func checkUser(
 	userId string,
 	tokens helix.AccessCredentials,
@@ -134,6 +135,11 @@ func checkUser(
 			return err
 		}
 		user.Channel = &channel
+		err = createRolesAndCommand(services, userId)
+		if err != nil {
+			logger.Error(err)
+			return fiber.NewError(http.StatusInternalServerError, "internal error")
+		}
 	}
 	if err != nil && err != gorm.ErrRecordNotFound {
 		logger.Error(err)

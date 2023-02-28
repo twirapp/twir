@@ -2,13 +2,13 @@ package permissions
 
 import (
 	"fmt"
+
 	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"gorm.io/gorm"
 )
-
 
 func IsUserHasPermissionToCommand(userId, channelId string, badges []string, command *model.ChannelsCommands) bool {
 	if userId == channelId {
@@ -21,7 +21,6 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 
 	db := do.MustInvoke[gorm.DB](di.Provider)
 
-
 	var roles []*model.ChannelRole
 
 	err := db.Model(&model.ChannelRole{}).
@@ -29,7 +28,6 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 		Preload("Users", `"userId" = ?`, userId).
 		Find(&roles).
 		Error
-
 	if err != nil {
 		fmt.Println(err)
 		return false
@@ -37,7 +35,7 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 
 	for _, badge := range badges {
 		for _, role := range roles {
-			if role.Type.String() == badge && role.System {
+			if role.Type.String() == badge && role.Type != model.ChannelRoleTypeCustom {
 				return true
 			}
 		}
@@ -54,7 +52,6 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 	}) {
 		return true
 	}
-
 
 	for _, commandRole := range command.RolesIDS {
 		for _, role := range roles {

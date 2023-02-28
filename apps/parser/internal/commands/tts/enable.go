@@ -1,21 +1,20 @@
 package tts
 
 import (
-	"github.com/samber/lo"
+	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
-var EnableCommand = types.DefaultCommand{
-	Command: types.Command{
+var EnableCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "tts enable",
-		Description: lo.ToPtr("Enable tts."),
-		Permission:  "BROADCASTER",
-		Visible:     false,
-		Module:      lo.ToPtr("TTS"),
+		Description: null.StringFrom("Enable tts."),
+		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 		err := switchEnableState(ctx.ChannelId, true)
 		if err != nil {
