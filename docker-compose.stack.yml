@@ -537,7 +537,7 @@ services:
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/overlays
     ports:
-      - target: 8080
+      - target: 80
         published: 3007
         mode: host
     networks:
