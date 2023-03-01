@@ -68,6 +68,7 @@ const Commands: NextPage = () => {
       <td>
         <Flex direction={'column'} gap={'xs'}>
           {c?.permissions?.map((p, i) => <Badge key={i}>{p}</Badge>)}
+          {!c.permissions?.length && <Badge color={'green'}>Everyone</Badge>}
         </Flex>
       </td>
       <td>{c?.cooldown} ({c?.cooldownType?.toLowerCase().replace('_', ' ')})</td>
