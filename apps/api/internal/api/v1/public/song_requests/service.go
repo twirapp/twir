@@ -5,14 +5,16 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"net/http"
+	"time"
 )
 
 type Song struct {
-	Title                string  `json:"title"`
-	VideoID              string  `json:"videoId"`
-	Duration             int32   `json:"duration"`
-	OrderedByName        string  `json:"orderedByName"`
-	OrderedByDisplayName *string `json:"orderedByDisplayName"`
+	Title                string    `json:"title"`
+	VideoID              string    `json:"videoId"`
+	Duration             int32     `json:"duration"`
+	OrderedByName        string    `json:"orderedByName"`
+	OrderedByDisplayName *string   `json:"orderedByDisplayName"`
+	CreatedAt            time.Time `json:"createdAt"`
 }
 
 func handleGet(channelId string, services types.Services) ([]Song, error) {
@@ -36,6 +38,7 @@ func handleGet(channelId string, services types.Services) ([]Song, error) {
 			VideoID:              song.VideoID,
 			OrderedByName:        song.OrderedByName,
 			OrderedByDisplayName: song.OrderedByDisplayName.Ptr(),
+			CreatedAt:            song.CreatedAt,
 		})
 	}
 

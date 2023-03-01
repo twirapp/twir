@@ -1,4 +1,4 @@
-import { Anchor, Badge, Table, Text } from '@mantine/core';
+import { Anchor, Center, Table } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -11,6 +11,7 @@ type Song = {
   duration: number
   orderedByName: string
   orderedByDisplayName: string | null
+  createdAt: number,
 }
 
 const padTo2Digits = (num: number) => {
@@ -52,6 +53,7 @@ const SongRequests: NextPage = () => {
       <th>#</th>
       <th>Title</th>
       <th>Author</th>
+      <th>Requested</th>
       <th>Duration</th>
     </tr>
     </thead>
@@ -60,10 +62,39 @@ const SongRequests: NextPage = () => {
       <td>{i + 1}</td>
       <td><Anchor href={'https://youtu.be/' + c.videoId} target={'_blank'}>{c.title}</Anchor></td>
       <td>{c.orderedByDisplayName ?? c.orderedByName}</td>
+      <td title={new Date(c.createdAt).toLocaleString()}>
+        <Center w="120px">{createdAtTime(new Date(c.createdAt))}</Center>
+      </td>
       <td>{convertMillisToTime(c.duration)}</td>
     </tr>)}
     </tbody>
   </Table>);
 };
+
+function createdAtTime(createdAt: string | Date) {
+  const date = createdAt instanceof Date ? createdAt : new Date(createdAt);
+  const formatter = new Intl.RelativeTimeFormat('en');
+  const ranges = {
+    years: 3600 * 24 * 365,
+    months: 3600 * 24 * 30,
+    weeks: 3600 * 24 * 7,
+    days: 3600 * 24,
+    hours: 3600,
+    minutes: 60,
+    seconds: 1,
+  } as Record<string, number>;
+
+  const secondsElapsed = (date.getTime() - Date.now()) / 1000;
+
+  for (const range in ranges) {
+    if (ranges[range] < Math.abs(secondsElapsed)) {
+      const delta = secondsElapsed / ranges[range];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return formatter.format(Math.round(delta), range);
+    }
+  }
+}
+
 
 export default SongRequests;
