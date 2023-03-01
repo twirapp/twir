@@ -6,6 +6,7 @@ import (
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	types "github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"time"
 
@@ -33,7 +34,7 @@ var DurationVariable = types.Variable{
 			Error
 
 		if err != nil {
-			fmt.Println(err)
+			zap.S().Error(err)
 			result.Result = "0"
 			return result, nil
 		}

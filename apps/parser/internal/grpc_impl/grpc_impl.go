@@ -7,6 +7,7 @@ import (
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/libs/grpc/generated/events"
+	"go.uber.org/zap"
 	"strings"
 	"time"
 
@@ -87,7 +88,7 @@ func (c *parserGrpcServer) ProcessCommand(
 		if rErr == redis.Nil {
 			c.redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
 		} else {
-			fmt.Println(err)
+			zap.S().Error(err)
 			return nil, errors.New("error while setting redis cooldown for command")
 		}
 	}
@@ -102,7 +103,7 @@ func (c *parserGrpcServer) ProcessCommand(
 		if rErr == redis.Nil {
 			c.redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
 		} else {
-			fmt.Println(err)
+			zap.S().Error(err)
 			return nil, errors.New("error while setting redis cooldown for command")
 		}
 	}

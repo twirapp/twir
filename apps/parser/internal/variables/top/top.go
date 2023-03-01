@@ -9,6 +9,7 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
@@ -39,7 +40,7 @@ func GetTop(
 	twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
 
 	if err != nil {
-		fmt.Println(err)
+		zap.S().Error(err)
 		return nil
 	}
 
@@ -76,7 +77,7 @@ func GetTop(
 	query = sqlxDb.Rebind(query)
 
 	if err != nil {
-		fmt.Println(err)
+		zap.S().Error(err)
 		return nil
 	}
 
@@ -84,7 +85,7 @@ func GetTop(
 
 	err = sqlxDb.Select(&records, query, args...)
 	if err != nil {
-		fmt.Println(err)
+		zap.S().Error(err)
 		return nil
 	}
 

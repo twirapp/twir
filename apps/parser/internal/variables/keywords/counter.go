@@ -1,9 +1,9 @@
 package keywords
 
 import (
-	"fmt"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strconv"
 
@@ -32,7 +32,7 @@ var Counter = types.Variable{
 			Where(`"channelId" = ? AND "id" = ?`, ctx.ChannelId, data.Params).
 			Find(&keyword).Error
 		if err != nil {
-			fmt.Println(err)
+			zap.S().Error(err)
 			result.Result = "internal error"
 			return result, nil
 		}

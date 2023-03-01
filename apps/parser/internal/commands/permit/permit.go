@@ -6,6 +6,7 @@ import (
 	config "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
+	"go.uber.org/zap"
 
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"strconv"
@@ -79,7 +80,7 @@ var Command = types.DefaultCommand{
 				}
 				err := tx.Create(&permit).Error
 				if err != nil {
-					fmt.Println(err)
+					zap.S().Error(err)
 					return err
 				}
 			}

@@ -14,6 +14,7 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/types/types/api/modules"
 	"github.com/tidwall/gjson"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -55,13 +56,13 @@ func getVoices() []Voice {
 	data := map[string]any{}
 	_, err := req.R().SetSuccessResult(&data).Get(fmt.Sprintf("http://%s/info", cfg.TTSServiceUrl))
 	if err != nil {
-		fmt.Println(err)
+		zap.S().Error(err)
 		return nil
 	}
 
 	bytes, err := json.Marshal(&data)
 	if err != nil {
-		fmt.Println(err)
+		zap.S().Error(err)
 		return nil
 	}
 

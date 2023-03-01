@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strconv"
 	"strings"
@@ -116,7 +117,7 @@ var GmCommand = types.DefaultCommand{
 
 				err = db.Create(&card).Error
 				if err != nil {
-					fmt.Println(err)
+					zap.S().Error(err)
 				}
 			}(player)
 		}

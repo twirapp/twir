@@ -3,9 +3,9 @@ package customvar
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -69,7 +69,7 @@ func getVarByName(name string) *model.ChannelsCustomvars {
 	variable := &model.ChannelsCustomvars{}
 	err := db.Where(`"name" = ?`, name).First(variable).Error
 	if err != nil {
-		fmt.Println(err)
+		zap.S().Error(err)
 		return nil
 	}
 
