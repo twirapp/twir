@@ -37,7 +37,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 
 import { resolveUserName } from '../../util/resolveUserName';
 
-import { useProfile } from '@/services/api';
+import { Dashboard, useDashboards, useProfile } from '@/services/api';
 import { useLocale } from '@/services/dashboard';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
@@ -115,22 +115,46 @@ export function SideBar(props: Props) {
   const { t } = useTranslation('layout');
 
   const { data: user } = useProfile();
+  const { data: dashboards } = useDashboards();
 
+  const [selectedDashboard, setSelectedDashboard] = useState<Dashboard>();
   const spotlight = useSpotlight();
   const dashboardContext = useContext(SelectedDashboardContext);
 
   useEffect(() => {
-    if (!user) return
-    dashboardContext.setId(user.id)
-  }, [user]);
-
-  function openSpotlight() {
-    if (user && dashboardContext.id) {
-      // spotlight.removeActions();
-      // spotlight.registerActions(actions);
-      // spotlight.openSpotlight();
+    if (!user || !dashboards) return;
+    const dashboard = dashboards.find((d) => d.id === dashboardContext.id);
+    if (!dashboard) {
+      // if we not found dashboard by id from cookie in dashboards list, then we set to user dashboard.
+      // it can happened, if user lost access to some dashboard
+      setSelectedDashboard(dashboards.find((d) => d.id === user.id)!);
+      return;
     }
-  }
+    setSelectedDashboard(dashboard);
+  }, [user, dashboards]);
+
+  const openSpotlight = useCallback(() => {
+    if (!dashboards) return;
+
+    if (user && dashboardContext.id) {
+      spotlight.removeActions(spotlight.actions.map((a) => a.id!));
+
+      const actions = dashboards
+        .map((d) => ({
+          title: resolveUserName(d.name, d.displayName),
+          description: d.id,
+          onTrigger: () => {
+            setSelectedDashboard(dashboards.find(dash => dash.id === d.id));
+            dashboardContext.setId(d.id);
+          },
+          icon: <Avatar radius="xs" src={d.avatar} />,
+          id: d.id,
+        }));
+
+      spotlight.registerActions(actions);
+      spotlight.openSpotlight();
+    }
+  }, [dashboards]);
 
   const computeActive = (item: Page) => {
     if (item.subPages) {
@@ -187,7 +211,7 @@ export function SideBar(props: Props) {
           </Box>
         </ScrollArea.Autosize>
       </Navbar.Section>
-      {/* <Navbar.Section>
+      <Navbar.Section>
         <Box
           sx={{
             padding: theme.spacing.sm,
@@ -212,7 +236,7 @@ export function SideBar(props: Props) {
             onClick={openSpotlight}
           >
             <Group>
-              <Avatar src={selectedDashboard?.twitchUser.profile_image_url} radius="xl" />
+              <Avatar src={selectedDashboard?.avatar} radius="xl" />
               <Box sx={{ flex: 1 }}>
                 <Text size="xs" weight={500}>
                   {t('sidebar.manage')}
@@ -220,8 +244,8 @@ export function SideBar(props: Props) {
                 <Text color="dimmed" size="xs">
                   {selectedDashboard
                     ? resolveUserName(
-                        selectedDashboard.twitchUser.login,
-                        selectedDashboard.twitchUser.display_name,
+                        selectedDashboard.name,
+                        selectedDashboard.displayName,
                       )
                     : ''}
                 </Text>
@@ -236,8 +260,8 @@ export function SideBar(props: Props) {
               variant={'light'}
               component="a"
               href={
-                'window' in globalThis && selectedDashboard?.twitchUser.login
-                  ? `${window.location.origin}/p/${selectedDashboard?.twitchUser.login}/commands`
+                'window' in globalThis && selectedDashboard?.name
+                  ? `${window.location.origin}/p/${selectedDashboard?.name}/commands`
                   : ''
               }
               target={'_blank'}
@@ -248,7 +272,7 @@ export function SideBar(props: Props) {
           </Button>
 
         </Box>
-      </Navbar.Section> */}
+      </Navbar.Section>
     </Navbar>
   );
 }

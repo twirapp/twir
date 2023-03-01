@@ -2,7 +2,9 @@ package auth
 
 import (
 	"fmt"
+	"github.com/samber/lo"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/samber/do"
@@ -158,7 +160,7 @@ func handleGetProfile(user model.Users, services types.Services) (*Profile, erro
 type Profile struct {
 	helix.User
 	ApiKey     string `json:"apiKey"`
-	IsBotAdmin bool
+	IsBotAdmin bool   `json:"isBotAdmin"`
 }
 
 func handleRefresh(refreshToken string) (string, error) {
@@ -215,4 +217,95 @@ func handleUpdateApiKey(userId string, services types.Services) error {
 	}
 
 	return nil
+}
+
+type Dashboard struct {
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	DisplayName string   `json:"displayName"`
+	Avatar      string   `json:"avatar"`
+	Flags       []string `json:"flags"`
+}
+
+func handleGetDashboards(user model.Users, services types.Services) ([]Dashboard, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
+
+	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+	if err != nil {
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	dashboards := []Dashboard{}
+
+	if user.IsBotAdmin {
+		channels := []model.Channels{}
+
+		err = services.DB.Find(&channels).Error
+		if err != nil {
+			logger.Error(err)
+			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+		}
+
+		dashboards = append(dashboards, lo.Map(channels, func(channel model.Channels, _ int) Dashboard {
+			return Dashboard{
+				ID:    channel.ID,
+				Flags: []string{model.RolePermissionCanAccessDashboard.String()},
+			}
+		})...)
+	} else {
+		roles := []model.ChannelRole{}
+
+		err = services.DB.Preload("Users", `"userId" = ?`, user.ID).Find(&roles).Error
+		if err != nil {
+			logger.Error(err)
+			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+		}
+
+		dashboards = append(dashboards, lo.Map(roles, func(role model.ChannelRole, _ int) Dashboard {
+			return Dashboard{
+				ID:    role.ChannelID,
+				Flags: role.Permissions,
+			}
+		})...)
+	}
+
+	chunks := lo.Chunk(dashboards, 100)
+	wg := sync.WaitGroup{}
+
+	for _, chunk := range chunks {
+		wg.Add(1)
+		go func(chunk []Dashboard) {
+			defer wg.Done()
+
+			ids := lo.Map(chunk, func(dashboard Dashboard, _ int) string {
+				return dashboard.ID
+			})
+
+			usersReq, err := twitchClient.GetUsers(&helix.UsersParams{
+				IDs: ids,
+			})
+
+			if err != nil || usersReq.ErrorMessage != "" {
+				logger.Error(err)
+				logger.Error(usersReq.ErrorMessage)
+				return
+			}
+
+			for _, user := range usersReq.Data.Users {
+				for i := range chunk {
+					if chunk[i].ID == user.ID {
+						chunk[i].Name = user.Login
+						chunk[i].DisplayName = user.DisplayName
+						chunk[i].Avatar = user.ProfileImageURL
+					}
+				}
+			}
+		}(chunk)
+	}
+
+	wg.Wait()
+
+	return dashboards, nil
 }

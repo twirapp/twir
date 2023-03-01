@@ -54,6 +54,21 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		getProfile(services),
 	)
 
+	dashboardsCache := cache.New(cache.Config{
+		Expiration: 10 * time.Minute,
+		Storage:    services.RedisStorage,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return fmt.Sprintf("fiber:cache:auth:profile:dashboards:%s", c.Locals("dbUser").(model.Users).ID)
+		},
+	})
+	middleware.Get(
+		"profile/dashboards",
+		checkScopes,
+		middlewares.AttachUser(services),
+		dashboardsCache,
+		getDashboards(services),
+	)
+
 	middleware.Patch("api-key", middlewares.AttachUser(services), updateApiKey(services))
 
 	return middleware
@@ -137,6 +152,10 @@ func logout(services types.Services) func(c *fiber.Ctx) error {
 			fmt.Sprintf("fiber:cache:auth:profile:%s", userId),
 			"GET",
 		)
+		services.RedisStorage.DeleteByMethod(
+			fmt.Sprintf("fiber:cache:auth:profile:dashboards:%s", userId),
+			"GET",
+		)
 
 		c.Cookie(&fiber.Cookie{
 			Name:     "refresh_token",
@@ -179,5 +198,16 @@ func updateApiKey(services types.Services) fiber.Handler {
 		)
 
 		return c.SendStatus(200)
+	}
+}
+
+func getDashboards(services types.Services) fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		dashboards, err := handleGetDashboards(ctx.Locals("dbUser").(model.Users), services)
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(dashboards)
 	}
 }

@@ -22,3 +22,17 @@ export const useLogoutMutation = () =>
       window.location.replace(window.location.origin);
     },
   });
+
+export type Dashboard = {
+  id: string,
+  name: string,
+  displayName: string,
+  avatar: string,
+  flags: string[]
+}
+
+export const useDashboards = () => useQuery<Dashboard[]>({
+  queryKey: [`/api/auth/profile/dashboards`],
+  queryFn: () => authFetcher(`/api/auth/profile/dashboards`),
+  retry: false,
+});
