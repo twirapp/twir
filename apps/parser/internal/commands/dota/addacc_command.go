@@ -1,14 +1,14 @@
 package dota
 
 import (
-	"fmt"
+	"strconv"
+
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"strconv"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 
