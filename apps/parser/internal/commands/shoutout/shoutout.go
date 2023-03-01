@@ -3,6 +3,8 @@ package shoutout
 import (
 	"context"
 	"fmt"
+	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
@@ -10,23 +12,19 @@ import (
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	config "github.com/satont/tsuwari/libs/config"
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
 )
 
-var ShoutOut = types.DefaultCommand{
-	Command: types.Command{
-		Name: "so",
-		Description: lo.ToPtr(
-			"Shoutout some streamer",
-		),
-		Permission:         "MODERATOR",
-		Visible:            false,
-		Module:             lo.ToPtr("MODERATION"),
-		IsReply:            false,
-		KeepResponsesOrder: lo.ToPtr(false),
+var ShoutOut = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
+		Name:        "so",
+		Description: null.StringFrom("Shoutout some streamer"),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
+		Module:      "MODERATION",
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		cfg := do.MustInvoke[config.Config](di.Provider)
 		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 		result := &types.CommandsHandlerResult{}

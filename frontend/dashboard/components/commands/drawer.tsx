@@ -16,14 +16,14 @@ import {
   Menu,
   Button,
   useMantineTheme,
+  MultiSelect,
 } from '@mantine/core';
 import { isNotEmpty, useForm } from '@mantine/form';
 import { useDebouncedState, useViewportSize } from '@mantine/hooks';
-import { IconGripVertical, IconMinus, IconPlus, IconSearch, IconVariable } from '@tabler/icons';
+import { IconChevronDown, IconGripVertical, IconMinus, IconPlus, IconSearch, IconShieldHalfFilled, IconVariable } from '@tabler/icons';
 import type {
   ChannelCommand,
   CommandModule,
-  CommandPermission,
   CooldownType,
 } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useTranslation } from 'next-i18next';
@@ -35,9 +35,8 @@ import { noop } from '../../util/chore';
 import {
   commandsGroupManager,
   commandsManager,
-  useTwitchUsersByIds,
-  useTwitchUsersByNames,
   useVariables,
+  useRolesApi,
 } from '@/services/api';
 
 type Props = {
@@ -45,15 +44,6 @@ type Props = {
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
   command?: ChannelCommand;
 };
-
-const COMMAND_PERMS: Array<keyof typeof CommandPermission> = [
-  'BROADCASTER',
-  'MODERATOR',
-  'VIP',
-  'SUBSCRIBER',
-  'FOLLOWER',
-  'VIEWER',
-];
 
 const switches: Array<{
   prop: keyof ChannelCommand;
@@ -92,7 +82,6 @@ export const CommandDrawer: React.FC<Props> = (props) => {
         name: isNotEmpty('User name cannot be empty'),
       },
       cooldown: (value) => (value && value < 0 ? 'Cooldown cannot be lower then 0' : null),
-      permission: (v) => (!COMMAND_PERMS.includes(v as any) ? 'Unknown permission' : null),
       responses: {
         text: (value) => (value && !value.length ? 'Response cannot be empty' : null),
       },
@@ -109,7 +98,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       isReply: true,
       keepResponsesOrder: true,
       module: 'CUSTOM' as CommandModule,
-      permission: 'VIEWER' as CommandPermission,
+      rolesIds: [],
       visible: true,
       responses: [],
       channelId: '',
@@ -125,6 +114,9 @@ export const CommandDrawer: React.FC<Props> = (props) => {
   const updater = useCreateOrUpdate();
 
   const variables = useVariables();
+
+  const rolesManager = useRolesApi();
+  const { data: roles } = rolesManager.useGetAll();
 
   const groupsManager = commandsGroupManager();
   const { data: groups } = groupsManager.useGetAll();
@@ -341,14 +333,20 @@ export const CommandDrawer: React.FC<Props> = (props) => {
               </Flex>
             </div>
 
-            <div>
-              <Select
+            <div style={{ width: '100%' }}>
+              <MultiSelect
+                data={roles?.map(r => ({
+                  value: r.id,
+                  label: r.name,
+                  group: r.system ? 'System' : 'Custom',
+                })) ?? []}
+                icon={<IconShieldHalfFilled size={18} />}
                 label={t('drawer.permission')}
-                {...form.getInputProps('permission')}
-                data={COMMAND_PERMS.map((value) => ({
-                  value,
-                  label: value,
-                }))}
+                placeholder="That roles will access to command."
+                description={'Leave blank for everyone.'}
+                clearButtonLabel="Clear selection"
+                clearable
+                {...form.getInputProps('rolesIds')}
               />
             </div>
 

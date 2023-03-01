@@ -1,4 +1,4 @@
-import { Badge, Table, Text, Tooltip } from '@mantine/core';
+import { Badge, Flex, Grid, Table, Text, Tooltip } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -10,7 +10,7 @@ type Command = {
   id: string
   name: string
   responses: string[]
-  permission: string
+  permissions: string[]
   cooldown: number
   cooldownType: string
   aliases: string[]
@@ -39,7 +39,7 @@ const Commands: NextPage = () => {
     <tr>
       <th>Name</th>
       <th>Description</th>
-      <th>Permission</th>
+      <th>Permissions</th>
       <th>Cooldown</th>
     </tr>
     </thead>
@@ -49,7 +49,7 @@ const Commands: NextPage = () => {
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        maxWidth: 100,
+        maxWidth: 150,
       }}>
         <Tooltip label={[c?.name, ...c.aliases || []].join(', ')}>
           <Text truncate>
@@ -65,7 +65,12 @@ const Commands: NextPage = () => {
       >
         {r}
       </Text>)}</td>
-      <td><Badge>{c?.permission}</Badge></td>
+      <td>
+        <Flex direction={'column'} gap={'xs'}>
+          {c?.permissions?.map((p, i) => <Badge key={i}>{p}</Badge>)}
+          {!c.permissions?.length && <Badge color={'green'}>Everyone</Badge>}
+        </Flex>
+      </td>
       <td>{c?.cooldown} ({c?.cooldownType?.toLowerCase().replace('_', ' ')})</td>
     </tr>)}
     </tbody>

@@ -2,6 +2,8 @@ package permit
 
 import (
 	"fmt"
+	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	config "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
@@ -17,22 +19,20 @@ import (
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
-	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
-var Command = types.DefaultCommand{
-	Command: types.Command{
+var Command = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "permit",
-		Description: lo.ToPtr("Permits user."),
-		Permission:  "MODERATOR",
-		Visible:     false,
-		Module:      lo.ToPtr("MODERATION"),
+		Description: null.StringFrom("Permits user."),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
+		Module:      "MODERATION",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)
 		cfg := do.MustInvoke[config.Config](di.Provider)
 		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)

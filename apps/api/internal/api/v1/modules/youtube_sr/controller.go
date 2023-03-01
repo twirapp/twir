@@ -22,7 +22,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Tags         Modules|YouTube
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {object}  youtube.YouTubeSettings
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/modules/youtube-sr [get]
@@ -43,7 +43,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Tags         Modules|YouTube
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Param        query   query      string  true  "Input string"
 // @Param        type   query      string  true  "channel or video"
 // @Success      200  {array}  youtube.SearchResult

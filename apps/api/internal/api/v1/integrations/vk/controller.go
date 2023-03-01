@@ -22,7 +22,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Tags         Integrations|VK
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {object}  profile
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/vk [get]
@@ -42,7 +42,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Tags         Integrations|VK
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {object}  model.ChannelsIntegrations
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/vk/auth [get]

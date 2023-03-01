@@ -36,6 +36,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -84,6 +85,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -95,7 +97,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_bot.connectionDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_bot.connectionDto"
                         }
                     }
                 ],
@@ -138,6 +140,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -238,6 +241,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -634,6 +638,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -646,7 +651,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/internal_api_v1_community.User"
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_community.User"
                             }
                         }
                     },
@@ -679,6 +684,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -718,6 +724,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -730,7 +737,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
+                                "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
                             }
                         }
                     },
@@ -765,7 +772,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsDto"
+                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsDto"
                         }
                     },
                     {
@@ -780,7 +787,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
+                            "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
                         }
                     },
                     "400": {
@@ -822,7 +829,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsPatchDto"
                         }
                     },
                     {
@@ -844,7 +851,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting"
+                            "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
                         }
                     },
                     "400": {
@@ -932,6 +939,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -973,7 +981,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_donatepay.createOrUpdateDTO"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO"
                         }
                     },
                     {
@@ -1023,6 +1031,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -1067,7 +1076,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_donationalerts.tokenDto"
                         }
                     },
                     {
@@ -1117,6 +1126,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -1210,6 +1220,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -1304,6 +1315,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -1397,6 +1409,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -1497,6 +1510,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -1590,6 +1604,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -1684,6 +1699,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -1777,6 +1793,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -1821,7 +1838,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_streamlabs.tokenDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto"
                         }
                     },
                     {
@@ -1871,6 +1888,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -1958,6 +1976,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -1968,7 +1987,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_vk.profile"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile"
                         }
                     },
                     "500": {
@@ -2002,7 +2021,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_integrations_vk.vkDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto"
                         }
                     },
                     {
@@ -2052,6 +2071,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -2139,6 +2159,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -2427,6 +2448,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -2474,7 +2496,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto"
+                            "$ref": "#/definitions/internal_api_v1_moderation.moderationDto"
                         }
                     },
                     {
@@ -2530,6 +2552,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -2572,6 +2595,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -2631,6 +2655,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -2645,6 +2670,350 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/helix.ChannelCustomReward"
                             }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/roles": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get roles",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Get roles",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "{{channelId}}",
+                        "description": "Channel ID",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ChannelRole"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Create role",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "{{channelId}}",
+                        "description": "Channel ID",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Role",
+                        "name": "role",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles.roleDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ChannelRole"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/roles/{roleId}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Update role",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "{{channelId}}",
+                        "description": "Channel ID",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "{{roleId}}",
+                        "description": "Role ID",
+                        "name": "roleId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Role",
+                        "name": "role",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles.roleDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ChannelRole"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Delete role",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "{{channelId}}",
+                        "description": "Channel ID",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "{{roleId}}",
+                        "description": "Role ID",
+                        "name": "roleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/roles/{roleId}/users": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Get users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "{{channelId}}",
+                        "description": "Channel ID",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "{{roleId}}",
+                        "description": "Role ID",
+                        "name": "roleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles_users.roleUser"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Update users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "{{channelId}}",
+                        "description": "Channel ID",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "{{roleId}}",
+                        "description": "Role ID",
+                        "name": "roleId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Role",
+                        "name": "role",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles_users.roleUserDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ChannelRole"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiNotFoundError"
                         }
                     },
                     "500": {
@@ -2676,6 +3045,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -2688,7 +3058,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/internal_api_v1_settings_dashboardAccess.Entity"
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity"
                             }
                         }
                     },
@@ -2723,7 +3093,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_settings_dashboardAccess.addUserDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto"
                         }
                     },
                     {
@@ -2738,7 +3108,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_settings_dashboardAccess.Entity"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity"
                         }
                     },
                     "400": {
@@ -2773,6 +3143,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -2815,6 +3186,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -2862,7 +3234,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_timers.timerDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto"
                         }
                     },
                     {
@@ -2919,7 +3291,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_timers.timerDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto"
                         }
                     },
                     {
@@ -3037,7 +3409,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_timers.timerPatchDto"
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerPatchDto"
                         }
                     },
                     {
@@ -3097,6 +3469,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -3197,6 +3570,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "{{channelId}}",
                         "description": "ChannelId",
                         "name": "channelId",
                         "in": "path",
@@ -3365,7 +3739,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/internal_api_v1_stats.statsItem"
+                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_stats.statsItem"
                             }
                         }
                     },
@@ -3851,6 +4225,63 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_satont_tsuwari_apps_api_internal_api_v1_roles.roleDto": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "flags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_satont_tsuwari_apps_api_internal_api_v1_roles_users.roleUser": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "userAvatar": {
+                    "type": "string"
+                },
+                "userDisplayName": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_satont_tsuwari_apps_api_internal_api_v1_roles_users.roleUserDto": {
+            "type": "object",
+            "required": [
+                "userNames"
+            ],
+            "properties": {
+                "userNames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity": {
             "type": "object",
             "properties": {
@@ -3993,6 +4424,17 @@ const docTemplate = `{
             }
         },
         "github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError": {
+            "type": "object",
+            "properties": {
+                "messages": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_satont_tsuwari_apps_api_internal_types.DOCApiNotFoundError": {
             "type": "object",
             "properties": {
                 "messages": {
@@ -4618,6 +5060,63 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_api_v1_roles.roleDto": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "flags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "internal_api_v1_roles_users.roleUser": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "userAvatar": {
+                    "type": "string"
+                },
+                "userDisplayName": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_api_v1_roles_users.roleUserDto": {
+            "type": "object",
+            "required": [
+                "userNames"
+            ],
+            "properties": {
+                "userNames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "internal_api_v1_settings_dashboardAccess.Entity": {
             "type": "object",
             "properties": {
@@ -4774,6 +5273,57 @@ const docTemplate = `{
                 }
             }
         },
+        "model.ChannelRole": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ChannelRolePermission"
+                    }
+                },
+                "system": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "$ref": "#/definitions/model.ChannelRoleEnum"
+                }
+            }
+        },
+        "model.ChannelRoleEnum": {
+            "type": "string",
+            "enum": [
+                "BROADCASTER",
+                "MODERATOR",
+                "SUBSCRIBER",
+                "VIP",
+                "CUSTOM"
+            ],
+            "x-enum-varnames": [
+                "ChannelRoleTypeBroadcaster",
+                "ChannelRoleTypeModerator",
+                "ChannelRoleTypeSubscriber",
+                "ChannelRoleTypeVip",
+                "ChannelRoleTypeCustom"
+            ]
+        },
+        "model.ChannelRolePermission": {
+            "type": "object",
+            "properties": {
+                "flag": {
+                    "$ref": "#/definitions/model.RoleFlag"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Channels": {
             "type": "object",
             "properties": {
@@ -4845,13 +5395,16 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "permission": {
-                    "type": "string"
-                },
                 "responses": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.ChannelsCommandsResponses"
+                    }
+                },
+                "rolesIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
                     }
                 },
                 "visible": {
@@ -5146,6 +5699,62 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "model.RoleFlag": {
+            "type": "object",
+            "properties": {
+                "flag": {
+                    "$ref": "#/definitions/model.RolePermissionEnum"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.RolePermissionEnum": {
+            "type": "string",
+            "enum": [
+                "ADMINISTRATOR",
+                "UPDATE_CHANNEL_TITLE",
+                "UPDATE_CHANNEL_CATEGORY",
+                "VIEW_COMMANDS",
+                "MANAGE_COMMANDS",
+                "VIEW_KEYWORDS",
+                "MANAGE_KEYWORDS",
+                "VIEW_TIMERS",
+                "MANAGE_TIMERS",
+                "VIEW_INTEGRATIONS",
+                "MANAGE_INTEGRATIONS",
+                "VIEW_SONG_REQUESTS",
+                "MANAGE_SONG_REQUESTS",
+                "VIEW_MODERATION",
+                "MANAGE_MODERATION",
+                "VIEW_VARIABLES",
+                "MANAGE_VARIABLES",
+                "VIEW_GREETINGS",
+                "MANAGE_GREETINGS"
+            ],
+            "x-enum-varnames": [
+                "RolePermissionAdministrator",
+                "RolePermissionUpdateChannelTitle",
+                "RolePermissionUpdateChannelCategory",
+                "RolePermissionViewCommands",
+                "RolePermissionManageCommands",
+                "RolePermissionViewKeywords",
+                "RolePermissionManageKeywords",
+                "RolePermissionViewTimers",
+                "RolePermissionManageTimers",
+                "RolePermissionViewIntegrations",
+                "RolePermissionManageIntegrations",
+                "RolePermissionViewSongRequests",
+                "RolePermissionManageSongRequests",
+                "RolePermissionViewModeration",
+                "RolePermissionManageModeration",
+                "RolePermissionViewVariables",
+                "RolePermissionManageVariables",
+                "RolePermissionViewGreetings",
+                "RolePermissionManageGreetings"
+            ]
         },
         "modules.SearchResult": {
             "type": "object",
@@ -5558,7 +6167,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0",
 	Host:             "localhost:3002",
 	BasePath:         "/",
 	Schemes:          []string{},

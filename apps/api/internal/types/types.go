@@ -26,6 +26,10 @@ type DOCApiValidationError struct {
 	Messages []string
 }
 
+type DOCApiNotFoundError struct {
+	Messages []string
+}
+
 type DOCApiInternalError struct {
 	Messages []string
 }

@@ -19,15 +19,6 @@ export enum CooldownType {
   PER_USER = 'PER_USER',
 }
 
-export enum CommandPermission {
-  BROADCASTER = 'BROADCASTER',
-  MODERATOR = 'MODERATOR',
-  SUBSCRIBER = 'SUBSCRIBER',
-  VIP = 'VIP',
-  VIEWER = 'VIEWER',
-  FOLLOWER = 'FOLLOWER',
-}
-
 export enum CommandModule {
   CUSTOM = 'CUSTOM',
   DOTA = 'DOTA',
@@ -67,12 +58,6 @@ export class ChannelCommand {
 
   @Column('boolean', { name: 'is_reply', default: true })
   isReply: boolean;
-
-  @Column('enum', {
-    name: 'permission',
-    enum: CommandPermission,
-  })
-  permission: CommandPermission;
 
   @Column('boolean', { name: 'default', default: false })
   default: boolean;
@@ -118,4 +103,7 @@ export class ChannelCommand {
 
   @Column('text', { array: true, default: [] })
   allowedUsersIds: string[];
+
+  @Column('text', { array: true, default: [] })
+  rolesIds: string[];
 }

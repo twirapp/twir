@@ -1,6 +1,8 @@
 package manage
 
 import (
+	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"gorm.io/gorm"
@@ -12,20 +14,17 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
-
-	"github.com/samber/lo"
 )
 
-var EditCommand = types.DefaultCommand{
-	Command: types.Command{
+var EditCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "commands edit",
-		Description: lo.ToPtr("Edit command response"),
-		Permission:  "MODERATOR",
-		Visible:     false,
-		Module:      lo.ToPtr("MANAGE"),
+		Description: null.StringFrom("Edit command response"),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
+		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)
 
 		result := &types.CommandsHandlerResult{

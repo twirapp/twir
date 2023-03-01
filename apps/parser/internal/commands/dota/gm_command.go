@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"go.uber.org/zap"
@@ -23,16 +25,15 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-var GmCommand = types.DefaultCommand{
-	Command: types.Command{
+var GmCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "gm",
-		Description: lo.ToPtr("Game medals from current game."),
-		Permission:  "BROADCASTER",
-		Visible:     false,
-		Module:      lo.ToPtr("DOTA"),
+		Description: null.StringFrom("Game medals from current game."),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
+		Module:      "DOTA",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		dotaGrpc := do.MustInvoke[dota.DotaClient](di.Provider)
 		db := do.MustInvoke[gorm.DB](di.Provider)
 

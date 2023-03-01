@@ -14,8 +14,8 @@ import { ChannelChatMessage } from './ChannelChatMessage';
 import { ChannelEmoteUsage } from './ChannelEmoteUsage';
 import { ChannelModuleSettings } from './ChannelModuleSettings';
 import { ChannelPermit } from './ChannelPermit';
+import { ChannelRoleUser } from './ChannelRoleUser';
 import { CommandUsage } from './CommandUsage';
-import { DashboardAccess } from './DashboardAccess';
 import { Notification } from './Notification';
 import { Token } from './Token';
 import { UserFile } from './UserFile';
@@ -39,9 +39,6 @@ export class User {
 
   @OneToMany(() => CommandUsage, _ => _.user)
   commandUsages?: CommandUsage[];
-
-  @OneToMany(() => DashboardAccess, _ => _.user)
-  dashboardAccess?: DashboardAccess[];
 
   @OneToMany(() => ChannelPermit, _ => _.user)
   permits?: ChannelPermit[];
@@ -83,4 +80,7 @@ export class User {
 
   @OneToOne(() => ChannelModuleSettings, _ => _.user)
   ttsSettings?: ChannelModuleSettings;
+
+  @OneToMany(() => ChannelRoleUser, _ => _.user)
+  channelRoleUsers?: ChannelRoleUser[];
 }

@@ -7,4 +7,5 @@ export * from './variables';
 export * from './rewards';
 export * from './community';
 export * from './changelog';
+export * from './rolesUsers';
 export * from './twitch';

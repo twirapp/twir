@@ -23,9 +23,9 @@ import { ChannelIntegration } from './ChannelIntegration';
 import { ChannelKeyword } from './ChannelKeyword';
 import { ChannelModerationSetting } from './ChannelModerationSetting';
 import { ChannelPermit } from './ChannelPermit';
+import { ChannelRole } from './ChannelRole';
 import { ChannelStream } from './ChannelStream';
 import { ChannelTimer } from './ChannelTimer';
-import { DashboardAccess } from './DashboardAccess';
 import { Event } from './events/Event';
 import { User } from './User';
 import { UserOnline } from './UserOnline';
@@ -70,9 +70,6 @@ export class Channel {
 
   @OneToMany(() => ChannelCustomvar, _ => _.channel)
   customVar?: ChannelCustomvar[];
-
-  @OneToMany(() => DashboardAccess, _ => _.channel)
-  dashboardAccess?: DashboardAccess[];
 
   @OneToMany(() => ChannelDotaAccount, _ => _.channel)
   dotaAccounts?: ChannelDotaAccount[];
@@ -121,4 +118,7 @@ export class Channel {
 
   @OneToMany(() => ChannelCommandGroup, _ => _.channel)
   commandsGroups?: ChannelCommandGroup[];
+
+  @OneToMany(() => ChannelRole, _ => _.channel)
+  roles?: ChannelRole[];
 }

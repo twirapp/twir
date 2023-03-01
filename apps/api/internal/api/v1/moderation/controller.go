@@ -20,7 +20,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Tags         Moderation
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {array}  model.ChannelsModerationSettings
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/moderation [get]

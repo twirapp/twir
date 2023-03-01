@@ -23,12 +23,13 @@ import { ChannelModerationSetting } from './entities/ChannelModerationSetting';
 import { ChannelModerationWarn } from './entities/ChannelModerationWarn';
 import { ChannelModuleSettings } from './entities/ChannelModuleSettings';
 import { ChannelPermit } from './entities/ChannelPermit';
+import { ChannelRole } from './entities/ChannelRole';
+import { ChannelRoleUser } from './entities/ChannelRoleUser';
 import { ChannelStream } from './entities/ChannelStream';
 import { ChannelTimer } from './entities/ChannelTimer';
 import { ChannelTimerResponse } from './entities/ChannelTimerResponse';
 import { CommandResponse } from './entities/CommandResponse';
 import { CommandUsage } from './entities/CommandUsage';
-import { DashboardAccess } from './entities/DashboardAccess';
 import { DotaGameMode } from './entities/DotaGameMode';
 import { DotaHero } from './entities/DotaHero';
 import { DotaMatch } from './entities/DotaMatch';
@@ -72,7 +73,6 @@ export const AppDataSource = new DataSource({
     ChannelTimerResponse,
     CommandResponse,
     CommandUsage,
-    DashboardAccess,
     DotaGameMode,
     DotaHero,
     DotaMatch,
@@ -99,6 +99,8 @@ export const AppDataSource = new DataSource({
     EventOperation,
     ChannelInfoHistory,
     ChannelCommandGroup,
+    ChannelRole,
+    ChannelRoleUser,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

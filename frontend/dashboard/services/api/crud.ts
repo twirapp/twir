@@ -1,11 +1,10 @@
-
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
-import { Dashboard } from '@tsuwari/shared';
 import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { ChannelCommandGroup } from '@tsuwari/typeorm/entities/ChannelCommandGroup';
 import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
+import { ChannelRole } from '@tsuwari/typeorm/entities/ChannelRole';
 import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
 import { Event } from '@tsuwari/typeorm/entities/events/Event';
 import { useContext } from 'react';
@@ -107,8 +106,8 @@ export const greetingsManager = () => createCrudManager<Greeting>('greetings');
 export const keywordsManager =  () => createCrudManager<ChannelKeyword>('keywords');
 export const timersManager =  () => createCrudManager<ChannelTimer>('timers');
 export const variablesManager = () => createCrudManager<ChannelCustomvar>('variables');
-export const dashboardAccessManager = () => createCrudManager<Dashboard>('settings/dashboard-access');
 export const eventsManager = () => createCrudManager<Event>('events');
 export const commandsGroupManager = () => createCrudManager<ChannelCommandGroup>('commands/groups', {
   additionalSystemsKeys: ['commands'],
 });
+export const useRolesApi = () => createCrudManager<ChannelRole>('roles');

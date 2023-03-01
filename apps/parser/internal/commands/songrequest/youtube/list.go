@@ -2,25 +2,25 @@ package sr_youtube
 
 import (
 	"fmt"
+	"github.com/guregu/null"
 	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	config "github.com/satont/tsuwari/libs/config"
+	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
-var SrListCommand = types.DefaultCommand{
-	Command: types.Command{
-		Name:               "sr list",
-		Description:        lo.ToPtr("List of requested songs"),
-		Permission:         "VIEWER",
-		Visible:            false,
-		Module:             lo.ToPtr("SONGREQUEST"),
-		IsReply:            true,
-		KeepResponsesOrder: lo.ToPtr(false),
+var SrListCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
+		Name:        "sr list",
+		Description: null.StringFrom("List of requested songs"),
+		Visible:     true,
+		Module:      "SONGREQUEST",
+		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		cfg := do.MustInvoke[config.Config](di.Provider)
 
 		result := &types.CommandsHandlerResult{}

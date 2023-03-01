@@ -2,23 +2,23 @@ package tts
 
 import (
 	"fmt"
-	"github.com/samber/lo"
+	"strconv"
+
+	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"go.uber.org/zap"
-	"strconv"
 )
 
-var VolumeCommand = types.DefaultCommand{
-	Command: types.Command{
+var VolumeCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "tts volume",
-		Description: lo.ToPtr("Change tts volume. This is not per user, it's global for the channel."),
-		Permission:  "BROADCASTER",
-		Visible:     true,
-		Module:      lo.ToPtr("TTS"),
+		Description: null.StringFrom("Change tts volume. This is not per user, it's global for the channel."),
+		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 		channelSettings, channelModele := getSettings(ctx.ChannelId, "")
 

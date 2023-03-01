@@ -14,6 +14,7 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 
 import i18nconfig from '../next-i18next.config.js';
+import { obsStore } from '../stores/obs';
 
 import { AppProvider } from '@/components/appProvider';
 import { NavBar } from '@/components/layout/navbar';
@@ -23,7 +24,6 @@ import { InternalObsWebsocketProvider, OBSWebsocketProvider } from '@/services/o
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 import '../styles/global.css';
-import { obsStore } from '../stores/obs';
 
 
 // put in constants.ts

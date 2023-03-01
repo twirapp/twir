@@ -3,6 +3,7 @@ package sr_youtube
 import (
 	"context"
 	"fmt"
+	"github.com/guregu/null"
 	"gorm.io/gorm"
 	"log"
 	"strconv"
@@ -18,17 +19,15 @@ import (
 	"github.com/samber/lo"
 )
 
-var WrongCommand = types.DefaultCommand{
-	Command: types.Command{
-		Name:               "sr wrong",
-		Description:        lo.ToPtr("Delete wrong song from queue"),
-		Permission:         "VIEWER",
-		Visible:            false,
-		Module:             lo.ToPtr("SONGREQUEST"),
-		IsReply:            true,
-		KeepResponsesOrder: lo.ToPtr(false),
+var WrongCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
+		Name:        "sr wrong",
+		Description: null.StringFrom("Delete wrong song from queue"),
+		Module:      "SONGREQUEST",
+		IsReply:     true,
+		Visible:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)
 		websocketGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
 

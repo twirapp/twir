@@ -1,6 +1,8 @@
 package dota
 
 import (
+	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"go.uber.org/zap"
@@ -17,16 +19,15 @@ import (
 	"github.com/samber/lo"
 )
 
-var DelAccCommand = types.DefaultCommand{
-	Command: types.Command{
+var DelAccCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "dota delacc",
-		Description: lo.ToPtr("Delete dota account "),
-		Permission:  "BROADCASTER",
-		Visible:     false,
-		Module:      lo.ToPtr("DOTA"),
+		Description: null.StringFrom("Delete dota account "),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
+		Module:      "DOTA",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}

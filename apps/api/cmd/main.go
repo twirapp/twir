@@ -52,6 +52,7 @@ import (
 )
 
 // @title Tsuwari api
+// @version 1.0
 // @description Non-public api for tsuwari
 // @host localhost:3002
 // @BasePath /
@@ -65,6 +66,8 @@ func main() {
 		logger.Sugar().Error(err)
 		panic("Cannot load config of application")
 	}
+
+	zap.ReplaceGlobals(logger)
 
 	do.ProvideValue[interfaces.Logger](di.Provider, logger.Sugar())
 

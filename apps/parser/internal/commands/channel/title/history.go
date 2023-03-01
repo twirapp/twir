@@ -1,6 +1,8 @@
 package channel_title
 
 import (
+	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -13,16 +15,16 @@ import (
 	"github.com/samber/lo"
 )
 
-var History = types.DefaultCommand{
-	Command: types.Command{
+var History = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "title history",
-		Description: lo.ToPtr("Print history of titles."),
-		Permission:  "MODERATOR",
-		Visible:     false,
-		Module:      lo.ToPtr("MODERATION"),
+		Description: null.StringFrom("Print history of titles."),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
+		Module:      "MODERATION",
 		IsReply:     true,
+		Visible:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)
 
 		result := &types.CommandsHandlerResult{

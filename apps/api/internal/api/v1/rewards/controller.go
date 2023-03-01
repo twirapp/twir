@@ -18,7 +18,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Tags         Rewards
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {array}  helix.ChannelCustomReward
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/rewards [get]

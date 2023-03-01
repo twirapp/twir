@@ -1,6 +1,9 @@
 package dota
 
 import (
+	"fmt"
+	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"go.uber.org/zap"
@@ -17,16 +20,15 @@ import (
 	"github.com/samber/lo"
 )
 
-var AddAccCommand = types.DefaultCommand{
-	Command: types.Command{
+var AddAccCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "dota addacc",
-		Description: lo.ToPtr("Add dota account for watching games"),
-		Permission:  "BROADCASTER",
-		Visible:     false,
-		Module:      lo.ToPtr("DOTA"),
+		Description: null.StringFrom("Add dota account for watching games"),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
+		Module:      "DOTA",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}

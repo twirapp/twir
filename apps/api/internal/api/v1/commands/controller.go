@@ -28,7 +28,7 @@ type JSONResult struct{}
 // @Tags         Commands
 // @Accept       json
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {array}  model.ChannelsCommands
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands [get]
@@ -128,11 +128,11 @@ func put(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		cmd, err := handleUpdate(c.Params("channelId"), c.Params("commandId"), dto, services)
-		if err == nil && cmd != nil {
-			return c.JSON(cmd)
+		if err != nil {
+			return err
 		}
 
-		return err
+		return c.JSON(cmd)
 	}
 }
 

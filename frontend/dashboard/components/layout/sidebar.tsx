@@ -9,7 +9,7 @@ import {
   Text,
   UnstyledButton,
   useMantineTheme,
-  Button, Divider,
+  Button, Divider, Loader,
 } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import { useSpotlight } from '@mantine/spotlight';
@@ -26,18 +26,18 @@ import {
   IconPlayerPlay,
   IconPlaylist,
   IconSettings,
+  IconShieldHalfFilled,
   IconSpeakerphone,
   IconSword, IconUsers,
   TablerIcon,
 } from '@tabler/icons';
-import { Dashboard } from '@tsuwari/shared';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useCallback, useContext, useEffect, useState } from 'react';
 
 import { resolveUserName } from '../../util/resolveUserName';
 
-import { useProfile } from '@/services/api';
+import { Dashboard, useDashboards, useProfile } from '@/services/api';
 import { useLocale } from '@/services/dashboard';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
@@ -62,7 +62,6 @@ const navigationLinks: Array<Page | null> = [
       { label: 'Settings', icon: IconSettings, path: '/song-requests/settings' },
     ],
   },
-  { label: 'Settings', icon: IconSettings, path: '/settings' },
   {
     label: 'Commands',
     icon: IconCommand,
@@ -76,7 +75,15 @@ const navigationLinks: Array<Page | null> = [
       { label: 'Dota', path: '/commands/dota' },
     ],
   },
-  { label: 'Community', icon: IconUsers, path: '/community' },
+  {
+    label: 'Community',
+    icon: IconUsers,
+    path: '/community',
+    subPages: [
+      { label: 'Users', icon: IconUsers, path: '/community/users' },
+      { label: 'Roles', icon: IconShieldHalfFilled, path: '/community/roles' },
+    ],
+  },
   { label: 'Timers', icon: IconClockHour7, path: '/timers' },
   { label: 'Moderation', icon: IconSword, path: '/moderation' },
   { label: 'Keywords', icon: IconKey, path: '/keywords' },
@@ -108,69 +115,46 @@ export function SideBar(props: Props) {
   const { t } = useTranslation('layout');
 
   const { data: user } = useProfile();
+  const { data: dashboards, isLoading } = useDashboards();
 
+  const [selectedDashboard, setSelectedDashboard] = useState<Dashboard>();
   const spotlight = useSpotlight();
   const dashboardContext = useContext(SelectedDashboardContext);
 
-  const [selectedDashboard, setSelectedDashboard] = useState<Dashboard>();
-
-  const setDefaultDashboard = useCallback(() => {
-    if (!user) return;
-    dashboardContext.setId(user.id);
-    setSelectedDashboard({
-      id: user.id,
-      channelId: user.id,
-      userId: user.id,
-      twitchUser: user,
-    });
-  }, [user]);
-
   useEffect(() => {
-    if (dashboardContext.id && user) {
-      if (dashboardContext.id === user.id) {
-        setDefaultDashboard();
-      } else {
-        const dashboard = user.dashboards.find((d) => d.channelId === dashboardContext.id);
-        if (dashboard) {
-          setSelectedDashboard(dashboard);
-        } else {
-          setDefaultDashboard();
-        }
-      }
+    if (!user || !dashboards) return;
+    const dashboard = dashboards.find((d) => d.id === dashboardContext.id);
+    if (!dashboard) {
+      // if we not found dashboard by id from cookie in dashboards list, then we set to user dashboard.
+      // it can happened, if user lost access to some dashboard
+      setSelectedDashboard(dashboards.find((d) => d.id === user.id)!);
+      return;
     }
-  }, [user, dashboardContext.id]);
+    setSelectedDashboard(dashboard);
+  }, [user, dashboards]);
 
-  function openSpotlight() {
+  const openSpotlight = useCallback(() => {
+    if (!dashboards) return;
+
     if (user && dashboardContext.id) {
       spotlight.removeActions(spotlight.actions.map((a) => a.id!));
-      const actions = user.dashboards
-        .filter((d) => d.channelId != dashboardContext.id)
+
+      const actions = dashboards
         .map((d) => ({
-          title: resolveUserName(d.twitchUser.login, d.twitchUser.display_name),
-          description: d.twitchUser.id,
+          title: resolveUserName(d.name, d.displayName),
+          description: d.id,
           onTrigger: () => {
-            dashboardContext.setId(d.channelId);
+            setSelectedDashboard(dashboards.find(dash => dash.id === d.id));
+            dashboardContext.setId(d.id);
           },
-          icon: <Avatar radius="xs" src={d.twitchUser.profile_image_url} />,
+          icon: <Avatar radius="xs" src={d.avatar} />,
           id: d.id,
         }));
-
-      if (dashboardContext.id != user.id) {
-        actions.unshift({
-          title: resolveUserName(user.login, user.display_name),
-          description: user.id,
-          onTrigger: () => {
-            dashboardContext.setId(user.id);
-          },
-          icon: <Avatar radius="xs" src={user.profile_image_url} />,
-          id: user.id,
-        });
-      }
 
       spotlight.registerActions(actions);
       spotlight.openSpotlight();
     }
-  }
+  }, [dashboards]);
 
   const computeActive = (item: Page) => {
     if (item.subPages) {
@@ -236,38 +220,39 @@ export function SideBar(props: Props) {
             }`,
           }}
         >
-          <UnstyledButton
-            sx={{
-              display: 'block',
-              width: '100%',
-              padding: theme.spacing.xs,
-              borderRadius: theme.radius.sm,
-              color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
+          {!isLoading && <UnstyledButton
+              sx={{
+                display: 'block',
+                width: '100%',
+                padding: theme.spacing.xs,
+                borderRadius: theme.radius.sm,
+                color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
 
-              '&:hover': {
-                backgroundColor:
-                  theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-              },
-            }}
-            onClick={openSpotlight}
+                '&:hover': {
+                  backgroundColor:
+                    theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+                },
+              }}
+              onClick={openSpotlight}
           >
-            <Group>
-              <Avatar src={selectedDashboard?.twitchUser.profile_image_url} radius="xl" />
-              <Box sx={{ flex: 1 }}>
-                <Text size="xs" weight={500}>
-                  {t('sidebar.manage')}
-                </Text>
-                <Text color="dimmed" size="xs">
-                  {selectedDashboard
-                    ? resolveUserName(
-                        selectedDashboard.twitchUser.login,
-                        selectedDashboard.twitchUser.display_name,
-                      )
-                    : ''}
-                </Text>
-              </Box>
-            </Group>
-          </UnstyledButton>
+              <Group>
+                  <Avatar src={selectedDashboard?.avatar} radius="xl" />
+                  <Box sx={{ flex: 1 }}>
+                      <Text size="xs" weight={500}>
+                        {t('sidebar.manage')}
+                      </Text>
+                      <Text color="dimmed" size="xs">
+                        {selectedDashboard
+                          ? resolveUserName(
+                            selectedDashboard.name,
+                            selectedDashboard.displayName,
+                          )
+                          : ''}
+                      </Text>
+                  </Box>
+              </Group>
+          </UnstyledButton>}
+          {isLoading && <Loader color="violet" variant="dots" size={50} />}
           <Button
               size={'xs'}
               compact
@@ -276,8 +261,8 @@ export function SideBar(props: Props) {
               variant={'light'}
               component="a"
               href={
-                'window' in globalThis && selectedDashboard?.twitchUser.login
-                  ? `${window.location.origin}/p/${selectedDashboard?.twitchUser.login}/commands`
+                'window' in globalThis && selectedDashboard?.name
+                  ? `${window.location.origin}/p/${selectedDashboard?.name}/commands`
                   : ''
               }
               target={'_blank'}
@@ -286,7 +271,6 @@ export function SideBar(props: Props) {
           >
               Public page
           </Button>
-
         </Box>
       </Navbar.Section>
     </Navbar>

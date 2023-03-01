@@ -1,20 +1,21 @@
 package commands
 
 import (
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/commands/shoutout"
-	"github.com/satont/tsuwari/apps/parser/internal/commands/tts"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"regexp"
 	"sort"
 	"strings"
 	"sync"
 
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/shoutout"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/tts"
+	"github.com/satont/tsuwari/apps/parser/internal/di"
+
 	"github.com/satont/tsuwari/apps/parser/internal/commands/dota"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/manage"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/nuke"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/permit"
-	"github.com/satont/tsuwari/apps/parser/internal/commands/songrequest/youtube"
+	sr_youtube "github.com/satont/tsuwari/apps/parser/internal/commands/songrequest/youtube"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/spam"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	"github.com/satont/tsuwari/apps/parser/internal/variables"
@@ -25,8 +26,8 @@ import (
 
 	uuid "github.com/satori/go.uuid"
 
-	"github.com/satont/tsuwari/apps/parser/internal/commands/channel/game"
-	"github.com/satont/tsuwari/apps/parser/internal/commands/channel/title"
+	channel_game "github.com/satont/tsuwari/apps/parser/internal/commands/channel/game"
+	channel_title "github.com/satont/tsuwari/apps/parser/internal/commands/channel/title"
 
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
@@ -36,11 +37,11 @@ import (
 )
 
 type Commands struct {
-	DefaultCommands []types.DefaultCommand
+	DefaultCommands []*types.DefaultCommand
 }
 
 func New() Commands {
-	commands := []types.DefaultCommand{
+	commands := []*types.DefaultCommand{
 		channel_title.SetCommand,
 		channel_title.History,
 		channel_game.SetCommand,
@@ -169,7 +170,7 @@ func (c *Commands) ParseCommandResponses(
 
 	defaultCommand, isDefaultExists := lo.Find(
 		c.DefaultCommands,
-		func(command types.DefaultCommand) bool {
+		func(command *types.DefaultCommand) bool {
 			if cmd.DefaultName.Valid {
 				return command.Name == cmd.DefaultName.String
 			} else {
@@ -178,7 +179,7 @@ func (c *Commands) ParseCommandResponses(
 		},
 	)
 
-	db.Create(&model.ChannelsCommandsUsages{
+	defer db.Create(&model.ChannelsCommandsUsages{
 		ID:        uuid.NewV4().String(),
 		UserID:    data.Sender.Id,
 		ChannelID: data.Channel.Id,
@@ -186,7 +187,7 @@ func (c *Commands) ParseCommandResponses(
 	})
 
 	if cmd.Default && isDefaultExists {
-		results := defaultCommand.Handler(variables_cache.ExecutionContext{
+		results := defaultCommand.Handler(&variables_cache.ExecutionContext{
 			ChannelName:       data.Channel.Name,
 			ChannelId:         data.Channel.Id,
 			SenderId:          data.Sender.Id,

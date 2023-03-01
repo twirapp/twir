@@ -3,6 +3,7 @@ package dota
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/guregu/null"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"go.uber.org/zap"
@@ -43,16 +44,15 @@ type MatchResponse struct {
 	Result MatchResult `json:"result"`
 }
 
-var WlCommand = types.DefaultCommand{
-	Command: types.Command{
+var WlCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "wl",
-		Description: lo.ToPtr("Score for played games on stream"),
-		Permission:  "VIEWER",
-		Visible:     false,
-		Module:      lo.ToPtr("DOTA"),
+		Description: null.StringFrom("Score for played games on stream"),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
+		Module:      "DOTA",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)
 
 		result := &types.CommandsHandlerResult{

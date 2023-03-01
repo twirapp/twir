@@ -17,7 +17,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Summary      Get channel stream
 // @Tags         Streams
 // @Produce      json
-// @Param        channelId   path      string  true  "ChannelId"
+// @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
 // @Success      200  {object}  model.ChannelsStreams
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/streams [get]

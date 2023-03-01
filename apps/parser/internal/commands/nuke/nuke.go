@@ -2,6 +2,8 @@ package nuke
 
 import (
 	"context"
+	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"go.uber.org/zap"
@@ -17,17 +19,16 @@ import (
 	"github.com/samber/lo"
 )
 
-var Command = types.DefaultCommand{
-	Command: types.Command{
+var Command = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name: "nuke",
-		Description: lo.ToPtr(
+		Description: null.StringFrom(
 			"Mass remove messages in chat by message content. Usage: <b>!nuke phrase</b>",
 		),
-		Permission: "MODERATOR",
-		Visible:    false,
-		Module:     lo.ToPtr("MODERATION"),
+		RolesIDS: pq.StringArray{model.ChannelRoleTypeModerator.String()},
+		Module:   "MODERATION",
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		botsGrpc := do.MustInvoke[bots.BotsClient](di.Provider)
 		db := do.MustInvoke[gorm.DB](di.Provider)
 

@@ -2,6 +2,9 @@ package dota
 
 import (
 	"fmt"
+	"github.com/guregu/null"
+	"github.com/lib/pq"
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"strconv"
 	"strings"
 
@@ -13,16 +16,15 @@ import (
 	"github.com/samber/lo"
 )
 
-var LgCommand = types.DefaultCommand{
-	Command: types.Command{
+var LgCommand = &types.DefaultCommand{
+	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "lg",
-		Description: lo.ToPtr("Players from the latest game"),
-		Permission:  "VIEWER",
-		Visible:     false,
-		Module:      lo.ToPtr("DOTA"),
+		Description: null.StringFrom("Players from the latest game"),
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
+		Module:      "DOTA",
 		IsReply:     true,
 	},
-	Handler: func(ctx variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
