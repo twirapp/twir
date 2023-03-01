@@ -338,7 +338,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
                 data={roles?.map(r => ({
                   value: r.id,
                   label: r.name,
-                  group: r.system ? 'System' : 'Custom',
+                  group: r.type !== 'CUSTOM' ? 'System' : 'Custom',
                 })) ?? []}
                 icon={<IconShieldHalfFilled size={18} />}
                 label={t('drawer.permission')}

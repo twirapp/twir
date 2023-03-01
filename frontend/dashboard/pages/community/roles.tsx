@@ -67,7 +67,7 @@ const Roles: NextPage = () => {
                   }}>
                     Edit
                   </Button>
-                  {!role.system &&
+                  {role.type === 'CUSTOM' &&
                     <Button
                       size={'xs'}
                       variant={'light'}

@@ -10,7 +10,6 @@ import {
   Flex,
   Button,
   ActionIcon,
-  Select,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconManualGearbox, IconPlus, IconTrash, IconUsers } from '@tabler/icons';
@@ -59,7 +58,6 @@ export const RolesModal: React.FC<Props> = (props) => {
         name: form.values.name,
         permissions: form.values.flags as RoleFlags[],
         channelId: props.role?.channelId || '',
-        system: props.role?.system ?? false,
         type: props.role?.type ?? RoleType.CUSTOM,
       },
     }).then(() => {
