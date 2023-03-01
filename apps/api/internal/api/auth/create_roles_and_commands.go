@@ -79,6 +79,7 @@ func createRolesAndCommand(services types.Services, userId string) error {
 				KeepResponsesOrder: command.KeepResponsesOrder,
 				Aliases:            command.Aliases,
 				Default:            true,
+				DefaultName:        null.StringFrom(command.Name),
 			}
 			err = services.DB.Create(newCommand).Error
 			if err != nil {

@@ -2,7 +2,6 @@ package permissions
 
 import (
 	"fmt"
-
 	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/di"

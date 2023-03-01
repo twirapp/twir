@@ -179,7 +179,7 @@ func (c *Commands) ParseCommandResponses(
 		},
 	)
 
-	db.Create(&model.ChannelsCommandsUsages{
+	defer db.Create(&model.ChannelsCommandsUsages{
 		ID:        uuid.NewV4().String(),
 		UserID:    data.Sender.Id,
 		ChannelID: data.Channel.Id,
