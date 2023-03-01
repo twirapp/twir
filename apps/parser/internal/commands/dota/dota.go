@@ -6,6 +6,7 @@ import (
 	"github.com/go-redis/redis/v9"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"go.uber.org/zap"
 	"strings"
 	"time"
 
@@ -207,7 +208,7 @@ func GetAccountsByChannelId(channelId string) *[]string {
 		Find(&accounts).
 		Error
 	if err != nil {
-		fmt.Println(err)
+		zap.S().Error(err)
 		return nil
 	}
 

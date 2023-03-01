@@ -8,6 +8,7 @@ import (
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -27,7 +28,7 @@ var Variable = types.Variable{
 			Error
 
 		if err != nil {
-			fmt.Println(err)
+			zap.S().Error(err)
 			result.Result = "error"
 			return result, nil
 		}

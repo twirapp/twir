@@ -2,11 +2,11 @@ package nuke
 
 import (
 	"context"
-	"fmt"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strings"
 
@@ -47,7 +47,7 @@ var Command = &types.DefaultCommand{
 			Find(&messages).
 			Error
 		if err != nil {
-			fmt.Println(err)
+			zap.S().Error(err)
 			return nil
 		}
 

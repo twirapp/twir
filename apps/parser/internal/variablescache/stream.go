@@ -1,12 +1,12 @@
 package variables_cache
 
 import (
-	"fmt"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	config "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -37,7 +37,7 @@ func (c *VariablesCacheService) GetChannelStream() *model.ChannelsStreams {
 	err = db.Where(`"userId" = ?`, c.ChannelId).First(&stream).Error
 
 	if err != nil {
-		fmt.Println(err)
+		zap.S().Error(err)
 		streams, err := twitchClient.GetStreams(&helix.StreamsParams{
 			UserIDs: []string{c.ChannelId},
 		})

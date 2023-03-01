@@ -1,11 +1,11 @@
 package dota
 
 import (
-	"fmt"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strconv"
 
@@ -59,7 +59,7 @@ var DelAccCommand = &types.DefaultCommand{
 			Count(&count).Error
 
 		if err != nil {
-			fmt.Println(err)
+			zap.S().Error(err)
 			result.Result = append(result.Result, "Error happend on our side.")
 			return result
 		}
@@ -76,7 +76,7 @@ var DelAccCommand = &types.DefaultCommand{
 			}).Error
 
 		if err != nil {
-			fmt.Println(err)
+			zap.S().Error(err)
 			result.Result = append(
 				result.Result,
 				"Something went wrong on out side when inserting account into db.",

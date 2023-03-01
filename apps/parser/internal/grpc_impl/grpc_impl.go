@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
-	"time"
-
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/libs/grpc/generated/events"
+	"go.uber.org/zap"
+	"strings"
+	"time"
 
 	"github.com/go-redis/redis/v9"
 	"github.com/prometheus/client_golang/prometheus"
@@ -82,13 +82,12 @@ func (c *parserGrpcServer) ProcessCommand(
 		cmd.Cmd.Cooldown.Int64 > 0 &&
 		c.shouldCheckCooldown(data.Sender.Badges) {
 		key := fmt.Sprintf("commands:%s:cooldowns:global", cmd.Cmd.ID)
-		_, rErr := c.redis.Get(context.TODO(), key).
-			Result()
+		rErr := c.redis.Get(context.TODO(), key).Err()
 
 		if rErr == redis.Nil {
 			c.redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
-		} else {
-			fmt.Println(err)
+		} else if rErr != nil {
+			zap.S().Error(rErr)
 			return nil, errors.New("error while setting redis cooldown for command")
 		}
 	}
@@ -97,13 +96,12 @@ func (c *parserGrpcServer) ProcessCommand(
 		cmd.Cmd.Cooldown.Int64 > 0 &&
 		c.shouldCheckCooldown(data.Sender.Badges) {
 		key := fmt.Sprintf("commands:%s:cooldowns:user:%s", cmd.Cmd.ID, data.Sender.Id)
-		_, rErr := c.redis.Get(context.TODO(), key).
-			Result()
+		rErr := c.redis.Get(context.TODO(), key).Err()
 
 		if rErr == redis.Nil {
 			c.redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
-		} else {
-			fmt.Println(err)
+		} else if rErr != nil {
+			zap.S().Error(rErr)
 			return nil, errors.New("error while setting redis cooldown for command")
 		}
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+	"go.uber.org/zap"
 )
 
 var RateCommand = &types.DefaultCommand{
@@ -57,7 +58,7 @@ var RateCommand = &types.DefaultCommand{
 			channelSettings.Rate = rate
 			err := updateSettings(channelModele, channelSettings)
 			if err != nil {
-				fmt.Println(err)
+				zap.S().Error(err)
 				result.Result = append(result.Result, "Error while updating settings")
 				return result
 			}
@@ -65,7 +66,7 @@ var RateCommand = &types.DefaultCommand{
 			if userSettings == nil {
 				_, _, err := createUserSettings(rate, 50, channelSettings.Voice, ctx.ChannelId, ctx.SenderId)
 				if err != nil {
-					fmt.Println(err)
+					zap.S().Error(err)
 					result.Result = append(result.Result, "Error while creating settings")
 					return result
 				}
@@ -73,7 +74,7 @@ var RateCommand = &types.DefaultCommand{
 				userSettings.Rate = rate
 				err := updateSettings(currentUserModel, userSettings)
 				if err != nil {
-					fmt.Println(err)
+					zap.S().Error(err)
 					result.Result = append(result.Result, "Error while updating settings")
 					return result
 				}

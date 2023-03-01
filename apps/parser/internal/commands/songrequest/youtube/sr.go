@@ -73,7 +73,7 @@ var SrCommand = &types.DefaultCommand{
 		if moduleSettings.ID != "" {
 			err = json.Unmarshal(moduleSettings.Settings, parsedSettings)
 			if err != nil {
-				fmt.Println(err)
+				zap.S().Error(err)
 				result.Result = append(result.Result, "internal error")
 				return result
 			}
@@ -89,7 +89,7 @@ var SrCommand = &types.DefaultCommand{
 
 		req, err := search.Search(context.Background(), &ytsr.SearchRequest{Search: *ctx.Text})
 		if err != nil {
-			fmt.Println(err)
+			zap.S().Error(err)
 			return result
 		}
 		if len(req.Songs) == 0 {

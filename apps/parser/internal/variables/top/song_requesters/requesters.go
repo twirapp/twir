@@ -13,6 +13,7 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
+	"go.uber.org/zap"
 	"strconv"
 	"strings"
 
@@ -76,7 +77,7 @@ var Variable = types.Variable{
 		err = sqlxDb.Select(&dbEntities, query, args...)
 
 		if err != nil {
-			fmt.Println(err)
+			zap.S().Error(err)
 			result.Result = "internal error"
 			return result, nil
 		}

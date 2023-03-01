@@ -8,6 +8,7 @@ import (
 	config "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strings"
 
@@ -141,7 +142,7 @@ var Variable = types.Variable{
 					continue
 				}
 				if err != nil {
-					fmt.Println(err)
+					zap.S().Error(err)
 					continue
 				}
 				song := model.RequestedSong{}
@@ -169,7 +170,7 @@ var Variable = types.Variable{
 					BroadcasterID: ctx.ChannelId,
 				})
 				if err != nil {
-					fmt.Println(err)
+					zap.S().Error(err)
 					continue
 				}
 

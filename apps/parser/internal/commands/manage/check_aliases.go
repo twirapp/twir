@@ -1,11 +1,11 @@
 package manage
 
 import (
-	"fmt"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strings"
 
@@ -41,7 +41,7 @@ var CheckAliasesCommand = &types.DefaultCommand{
 		cmd := model.ChannelsCommands{}
 		err := db.Where(`"channelId" = ? AND "name" = ?`, ctx.ChannelId, commandName).Find(&cmd).Error
 		if err != nil {
-			fmt.Println(err)
+			zap.S().Error(err)
 			result.Result = append(result.Result, "internal error")
 			return result
 		}

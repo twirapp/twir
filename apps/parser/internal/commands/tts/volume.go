@@ -8,6 +8,7 @@ import (
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"go.uber.org/zap"
 )
 
 var VolumeCommand = &types.DefaultCommand{
@@ -47,7 +48,7 @@ var VolumeCommand = &types.DefaultCommand{
 		channelSettings.Volume = volume
 		err = updateSettings(channelModele, channelSettings)
 		if err != nil {
-			fmt.Println(err)
+			zap.S().Error(err)
 			result.Result = append(result.Result, "Error while updating settings")
 			return result
 		}

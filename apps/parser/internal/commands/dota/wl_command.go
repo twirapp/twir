@@ -6,6 +6,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strconv"
 	"strings"
@@ -96,7 +97,7 @@ var WlCommand = &types.DefaultCommand{
 			Find(&dbGames).Error
 
 		if err != nil {
-			fmt.Println(err)
+			zap.S().Error(err)
 			result.Result = append(result.Result, "Something went wrong on fetching games.")
 			return result
 		}

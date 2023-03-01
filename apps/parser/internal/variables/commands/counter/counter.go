@@ -1,9 +1,9 @@
 package command_counter
 
 import (
-	"fmt"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	"go.uber.org/zap"
 	"strconv"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -24,7 +24,7 @@ func getCount(commandId string, userId *string) (string, error) {
 
 	err := tx.Count(&count).Error
 	if err != nil {
-		fmt.Println(err)
+		zap.S().Error(err)
 		return "", nil
 	}
 

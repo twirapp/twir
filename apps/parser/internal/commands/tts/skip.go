@@ -2,7 +2,6 @@ package tts
 
 import (
 	"context"
-	"fmt"
 	"github.com/guregu/null"
 	model "github.com/satont/tsuwari/libs/gomodels"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
+	"go.uber.org/zap"
 )
 
 var SkipCommand = &types.DefaultCommand{
@@ -29,7 +29,7 @@ var SkipCommand = &types.DefaultCommand{
 			ChannelId: ctx.ChannelId,
 		})
 		if err != nil {
-			fmt.Println(err)
+			zap.S().Error(err)
 		}
 
 		return result
