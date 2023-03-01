@@ -111,31 +111,36 @@ func checkUser(
 		First(&user).Error
 
 	if err != nil && err == gorm.ErrRecordNotFound {
-		newToken := tokenData
-		newToken.ID = uuid.NewV4().String()
+		err = services.DB.Transaction(func(tx *gorm.DB) error {
+			newToken := tokenData
+			newToken.ID = uuid.NewV4().String()
 
-		if err = services.DB.Save(&newToken).Error; err != nil {
-			logger.Error(err)
-			return err
-		}
+			if err = services.DB.Save(&newToken).Error; err != nil {
+				return err
+			}
 
-		user.ID = userId
-		user.TokenID = sql.NullString{String: newToken.ID, Valid: true}
-		user.ApiKey = uuid.NewV4().String()
+			user.ID = userId
+			user.TokenID = sql.NullString{String: newToken.ID, Valid: true}
+			user.ApiKey = uuid.NewV4().String()
 
-		if err = services.DB.Save(&user).Error; err != nil {
-			logger.Error(err)
-			return err
-		}
+			if err = services.DB.Save(&user).Error; err != nil {
+				return err
+			}
 
-		channel := createChannelModel(user.ID, defaultBot.ID)
+			channel := createChannelModel(user.ID, defaultBot.ID)
 
-		if err = services.DB.Create(&channel).Error; err != nil {
-			logger.Error(err)
-			return err
-		}
-		user.Channel = &channel
-		err = createRolesAndCommand(services, userId)
+			if err = services.DB.Create(&channel).Error; err != nil {
+				return err
+			}
+			user.Channel = &channel
+			err = createRolesAndCommand(services, userId)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+
 		if err != nil {
 			logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")

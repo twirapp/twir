@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint --ext .ts,.vue apps/",
     "lint:fix": "eslint --fix --ext .ts,.vue,tsx apps/ frontend/",
-    "dev": "turbo run dev --filter=./apps/* --filter=./frontend/*",
+    "dev": "turbo run dev --filter='./apps/*' --filter='./frontend/*'",
     "build": "turbo run build",
     "build:libs": "turbo run build --filter=./libs/**",
     "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/typeorm run deploy"

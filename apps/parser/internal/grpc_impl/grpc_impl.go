@@ -173,9 +173,11 @@ func (c *parserGrpcServer) GetDefaultCommands(
 			Name:               v.Name,
 			Description:        v.Description.String,
 			Visible:            v.Visible,
+			RolesNames:         v.RolesIDS,
 			Module:             v.Module,
 			IsReply:            v.IsReply,
 			KeepResponsesOrder: v.KeepResponsesOrder,
+			Aliases:            v.Aliases,
 		}
 
 		list[i] = cmd

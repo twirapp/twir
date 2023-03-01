@@ -12,6 +12,7 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/gorm"
 )
 
 var neededRoles = []model.ChannelRoleEnum{
@@ -29,55 +30,64 @@ func createRolesAndCommand(services types.Services, userId string) error {
 		return err
 	}
 
-	var createdRoles []*model.ChannelRole
-	for _, role := range neededRoles {
-		newRole := &model.ChannelRole{
-			ID:        uuid.New().String(),
-			ChannelID: userId,
-			Name:      role.String(),
-			Type:      role,
-			Permissions: lo.
-				If(
-					role == model.ChannelRoleTypeBroadcaster,
-					pq.StringArray{model.RolePermissionCanAccessDashboard.String()},
-				).
-				Else(pq.StringArray{}),
+	err = services.DB.Transaction(func(tx *gorm.DB) error {
+		var createdRoles []*model.ChannelRole
+		for _, role := range neededRoles {
+			newRole := &model.ChannelRole{
+				ID:        uuid.New().String(),
+				ChannelID: userId,
+				Name:      role.String(),
+				Type:      role,
+				Permissions: lo.
+					If(
+						role == model.ChannelRoleTypeBroadcaster,
+						pq.StringArray{model.RolePermissionCanAccessDashboard.String()},
+					).
+					Else(pq.StringArray{}),
+			}
+			err = services.DB.Create(newRole).Error
+			if err != nil {
+				return err
+			}
+			createdRoles = append(createdRoles, newRole)
 		}
-		err = services.DB.Create(newRole).Error
-		if err != nil {
-			return err
-		}
-		createdRoles = append(createdRoles, newRole)
-	}
 
-	for _, command := range defaultCommands.List {
-		roleIds := pq.StringArray{}
+		for _, command := range defaultCommands.List {
+			roleIds := pq.StringArray{}
 
-		for _, roleName := range command.RolesNames {
-			role, ok := lo.Find(createdRoles, func(role *model.ChannelRole) bool {
-				return role.Type.String() == roleName
-			})
-			if !ok {
-				continue
+			for _, roleName := range command.RolesNames {
+				role, ok := lo.Find(createdRoles, func(role *model.ChannelRole) bool {
+					return role.Type.String() == roleName
+				})
+				if !ok {
+					continue
+				}
+
+				roleIds = append(roleIds, role.ID)
 			}
 
-			roleIds = append(roleIds, role.ID)
+			newCommand := &model.ChannelsCommands{
+				ID:                 uuid.New().String(),
+				ChannelID:          userId,
+				Enabled:            true,
+				Name:               command.Name,
+				Description:        null.StringFrom(command.Description),
+				Visible:            command.Visible,
+				RolesIDS:           roleIds,
+				Module:             command.Module,
+				IsReply:            command.IsReply,
+				KeepResponsesOrder: command.KeepResponsesOrder,
+				Aliases:            command.Aliases,
+				Default:            true,
+			}
+			err = services.DB.Create(newCommand).Error
+			if err != nil {
+				return err
+			}
 		}
 
-		newCommand := &model.ChannelsCommands{
-			ID:          uuid.New().String(),
-			ChannelID:   userId,
-			Name:        command.Name,
-			Description: null.StringFrom(command.Description),
-			Aliases:     command.Aliases,
-			RolesIDS:    roleIds,
-			Enabled:     true,
-		}
-		err = services.DB.Create(newCommand).Error
-		if err != nil {
-			return err
-		}
-	}
+		return nil
+	})
 
-	return nil
+	return err
 }

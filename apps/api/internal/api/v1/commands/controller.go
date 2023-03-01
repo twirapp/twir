@@ -128,11 +128,11 @@ func put(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		cmd, err := handleUpdate(c.Params("channelId"), c.Params("commandId"), dto, services)
-		if err == nil && cmd != nil {
-			return c.JSON(cmd)
+		if err != nil {
+			return err
 		}
 
-		return err
+		return c.JSON(cmd)
 	}
 }
 

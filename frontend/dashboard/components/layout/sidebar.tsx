@@ -9,7 +9,7 @@ import {
   Text,
   UnstyledButton,
   useMantineTheme,
-  Button, Divider,
+  Button, Divider, Loader,
 } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import { useSpotlight } from '@mantine/spotlight';
@@ -115,7 +115,7 @@ export function SideBar(props: Props) {
   const { t } = useTranslation('layout');
 
   const { data: user } = useProfile();
-  const { data: dashboards } = useDashboards();
+  const { data: dashboards, isLoading } = useDashboards();
 
   const [selectedDashboard, setSelectedDashboard] = useState<Dashboard>();
   const spotlight = useSpotlight();
@@ -220,38 +220,39 @@ export function SideBar(props: Props) {
             }`,
           }}
         >
-          <UnstyledButton
-            sx={{
-              display: 'block',
-              width: '100%',
-              padding: theme.spacing.xs,
-              borderRadius: theme.radius.sm,
-              color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
+          {!isLoading && <UnstyledButton
+              sx={{
+                display: 'block',
+                width: '100%',
+                padding: theme.spacing.xs,
+                borderRadius: theme.radius.sm,
+                color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
 
-              '&:hover': {
-                backgroundColor:
-                  theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-              },
-            }}
-            onClick={openSpotlight}
+                '&:hover': {
+                  backgroundColor:
+                    theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+                },
+              }}
+              onClick={openSpotlight}
           >
-            <Group>
-              <Avatar src={selectedDashboard?.avatar} radius="xl" />
-              <Box sx={{ flex: 1 }}>
-                <Text size="xs" weight={500}>
-                  {t('sidebar.manage')}
-                </Text>
-                <Text color="dimmed" size="xs">
-                  {selectedDashboard
-                    ? resolveUserName(
-                        selectedDashboard.name,
-                        selectedDashboard.displayName,
-                      )
-                    : ''}
-                </Text>
-              </Box>
-            </Group>
-          </UnstyledButton>
+              <Group>
+                  <Avatar src={selectedDashboard?.avatar} radius="xl" />
+                  <Box sx={{ flex: 1 }}>
+                      <Text size="xs" weight={500}>
+                        {t('sidebar.manage')}
+                      </Text>
+                      <Text color="dimmed" size="xs">
+                        {selectedDashboard
+                          ? resolveUserName(
+                            selectedDashboard.name,
+                            selectedDashboard.displayName,
+                          )
+                          : ''}
+                      </Text>
+                  </Box>
+              </Group>
+          </UnstyledButton>}
+          {isLoading && <Loader color="violet" variant="dots" size={50} />}
           <Button
               size={'xs'}
               compact
@@ -270,7 +271,6 @@ export function SideBar(props: Props) {
           >
               Public page
           </Button>
-
         </Box>
       </Navbar.Section>
     </Navbar>

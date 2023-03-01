@@ -1,7 +1,7 @@
 package commands
 
 type responsesDto struct {
-	Text  string `validate:"required,min=1,max=500" json:"text"`
+	Text  string `validate:"min=1,max=500" json:"text"`
 	Order uint8  `validate:"gte=0"                                             json:"order"`
 }
 
