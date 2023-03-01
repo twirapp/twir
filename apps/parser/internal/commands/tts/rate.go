@@ -15,7 +15,6 @@ var RateCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "tts rate",
 		Description: null.StringFrom("Change tts rate"),
-		Visible:     true,
 		Module:      "TTS",
 		IsReply:     true,
 	},

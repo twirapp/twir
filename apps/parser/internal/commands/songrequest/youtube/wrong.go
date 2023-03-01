@@ -25,6 +25,7 @@ var WrongCommand = &types.DefaultCommand{
 		Description: null.StringFrom("Delete wrong song from queue"),
 		Module:      "SONGREQUEST",
 		IsReply:     true,
+		Visible:     true,
 	},
 	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)

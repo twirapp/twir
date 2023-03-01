@@ -8,9 +8,9 @@ import (
 	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
@@ -22,7 +22,7 @@ var neededRoles = []model.ChannelRoleEnum{
 	model.ChannelRoleTypeSubscriber,
 }
 
-func createRolesAndCommand(services types.Services, userId string) error {
+func createRolesAndCommand(transaction *gorm.DB, userId string) error {
 	parserGrpc := do.MustInvoke[parser.ParserClient](di.Provider)
 
 	defaultCommands, err := parserGrpc.GetDefaultCommands(context.Background(), &emptypb.Empty{})
@@ -30,65 +30,62 @@ func createRolesAndCommand(services types.Services, userId string) error {
 		return err
 	}
 
-	err = services.DB.Transaction(func(tx *gorm.DB) error {
-		var createdRoles []*model.ChannelRole
-		for _, role := range neededRoles {
-			newRole := &model.ChannelRole{
-				ID:        uuid.New().String(),
-				ChannelID: userId,
-				Name:      role.String(),
-				Type:      role,
-				Permissions: lo.
-					If(
-						role == model.ChannelRoleTypeBroadcaster,
-						pq.StringArray{model.RolePermissionCanAccessDashboard.String()},
-					).
-					Else(pq.StringArray{}),
+	var createdRoles []*model.ChannelRole
+	for _, role := range neededRoles {
+		newRole := &model.ChannelRole{
+			ID:        uuid.New().String(),
+			ChannelID: userId,
+			Name:      role.String(),
+			Type:      role,
+			Permissions: lo.
+				If(
+					role == model.ChannelRoleTypeBroadcaster,
+					pq.StringArray{model.RolePermissionCanAccessDashboard.String()},
+				).
+				Else(pq.StringArray{}),
+		}
+		err = transaction.Save(newRole).Error
+		if err != nil {
+			return err
+		}
+		createdRoles = append(createdRoles, newRole)
+	}
+	for _, command := range defaultCommands.List {
+		roleIds := pq.StringArray{}
+
+		for _, roleName := range command.RolesNames {
+			role, ok := lo.Find(createdRoles, func(role *model.ChannelRole) bool {
+				return role.Type.String() == roleName
+			})
+			if !ok {
+				continue
 			}
-			err = services.DB.Create(newRole).Error
-			if err != nil {
-				return err
-			}
-			createdRoles = append(createdRoles, newRole)
+
+			roleIds = append(roleIds, role.ID)
 		}
 
-		for _, command := range defaultCommands.List {
-			roleIds := pq.StringArray{}
-
-			for _, roleName := range command.RolesNames {
-				role, ok := lo.Find(createdRoles, func(role *model.ChannelRole) bool {
-					return role.Type.String() == roleName
-				})
-				if !ok {
-					continue
-				}
-
-				roleIds = append(roleIds, role.ID)
-			}
-
-			newCommand := &model.ChannelsCommands{
-				ID:                 uuid.New().String(),
-				ChannelID:          userId,
-				Enabled:            true,
-				Name:               command.Name,
-				Description:        null.StringFrom(command.Description),
-				Visible:            command.Visible,
-				RolesIDS:           roleIds,
-				Module:             command.Module,
-				IsReply:            command.IsReply,
-				KeepResponsesOrder: command.KeepResponsesOrder,
-				Aliases:            command.Aliases,
-				Default:            true,
-				DefaultName:        null.StringFrom(command.Name),
-			}
-			err = services.DB.Create(newCommand).Error
-			if err != nil {
-				return err
-			}
+		newCommand := &model.ChannelsCommands{
+			ID:                 uuid.New().String(),
+			ChannelID:          userId,
+			Enabled:            true,
+			Name:               command.Name,
+			Description:        null.StringFrom(command.Description),
+			Visible:            command.Visible,
+			RolesIDS:           roleIds,
+			Module:             command.Module,
+			IsReply:            command.IsReply,
+			KeepResponsesOrder: command.KeepResponsesOrder,
+			Aliases:            command.Aliases,
+			Default:            true,
+			DefaultName:        null.StringFrom(command.Name),
+			CooldownType:       "GLOBAL",
 		}
+		zap.S().Info("new command", newCommand, newCommand.Visible)
+		err = transaction.Save(newCommand).Error
+		if err != nil {
+			return err
+		}
+	}
 
-		return nil
-	})
-
-	return err
+	return nil
 }

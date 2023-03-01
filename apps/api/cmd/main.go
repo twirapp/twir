@@ -67,6 +67,8 @@ func main() {
 		panic("Cannot load config of application")
 	}
 
+	zap.ReplaceGlobals(logger)
+
 	do.ProvideValue[interfaces.Logger](di.Provider, logger.Sugar())
 
 	if cfg.SentryDsn != "" {

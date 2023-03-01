@@ -45,6 +45,7 @@ var SrCommand = &types.DefaultCommand{
 		Description: null.StringFrom("Song requests from youtube"),
 		Module:      "SONGREQUEST",
 		IsReply:     true,
+		Visible:     true,
 	},
 	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)

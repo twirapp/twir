@@ -15,7 +15,6 @@ var PitchCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "tts pitch",
 		Description: null.StringFrom("Change tts pitch"),
-		Visible:     true,
 		Module:      "TTS",
 		IsReply:     true,
 	},

@@ -15,7 +15,6 @@ var VoicesCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "tts voices",
 		Description: null.StringFrom("List available voices"),
-		Visible:     true,
 		Module:      "TTS",
 		IsReply:     true,
 	},

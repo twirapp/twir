@@ -23,6 +23,7 @@ var SetCommand = &types.DefaultCommand{
 		Description: null.StringFrom("Print or change category of channel."),
 		Module:      "MODERATION",
 		IsReply:     true,
+		Visible:     true,
 	},
 	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)

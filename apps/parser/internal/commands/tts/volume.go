@@ -14,7 +14,6 @@ var VolumeCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "tts volume",
 		Description: null.StringFrom("Change tts volume. This is not per user, it's global for the channel."),
-		Visible:     true,
 		Module:      "TTS",
 		IsReply:     true,
 	},

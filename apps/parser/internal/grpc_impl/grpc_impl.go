@@ -163,21 +163,21 @@ func (c *parserGrpcServer) ParseTextResponse(
 }
 
 func (c *parserGrpcServer) GetDefaultCommands(
-	ctx context.Context,
-	data *emptypb.Empty,
+	_ context.Context,
+	_ *emptypb.Empty,
 ) (*parser.GetDefaultCommandsResponse, error) {
 	list := make([]*parser.GetDefaultCommandsResponse_DefaultCommand, len(c.commands.DefaultCommands))
 
 	for i, v := range c.commands.DefaultCommands {
 		cmd := &parser.GetDefaultCommandsResponse_DefaultCommand{
-			Name:               v.Name,
-			Description:        v.Description.String,
-			Visible:            v.Visible,
-			RolesNames:         v.RolesIDS,
-			Module:             v.Module,
-			IsReply:            v.IsReply,
-			KeepResponsesOrder: v.KeepResponsesOrder,
-			Aliases:            v.Aliases,
+			Name:               v.ChannelsCommands.Name,
+			Description:        v.ChannelsCommands.Description.String,
+			Visible:            v.ChannelsCommands.Visible,
+			RolesNames:         v.ChannelsCommands.RolesIDS,
+			Module:             v.ChannelsCommands.Module,
+			IsReply:            v.ChannelsCommands.IsReply,
+			KeepResponsesOrder: v.ChannelsCommands.KeepResponsesOrder,
+			Aliases:            v.ChannelsCommands.Aliases,
 		}
 
 		list[i] = cmd

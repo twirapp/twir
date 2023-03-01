@@ -22,6 +22,7 @@ var History = &types.DefaultCommand{
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "MODERATION",
 		IsReply:     true,
+		Visible:     true,
 	},
 	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		db := do.MustInvoke[gorm.DB](di.Provider)

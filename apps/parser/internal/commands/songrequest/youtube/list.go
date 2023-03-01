@@ -14,12 +14,11 @@ import (
 
 var SrListCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
-		Name:               "sr list",
-		Description:        null.StringFrom("List of requested songs"),
-		Visible:            false,
-		Module:             "SONGREQUEST",
-		IsReply:            true,
-		KeepResponsesOrder: false,
+		Name:        "sr list",
+		Description: null.StringFrom("List of requested songs"),
+		Visible:     true,
+		Module:      "SONGREQUEST",
+		IsReply:     true,
 	},
 	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		cfg := do.MustInvoke[config.Config](di.Provider)

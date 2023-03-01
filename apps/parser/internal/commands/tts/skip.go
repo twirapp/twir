@@ -17,7 +17,6 @@ var SkipCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "tts skip",
 		Description: null.StringFrom("Skip current saying message in tts"),
-		Visible:     true,
 		Module:      "TTS",
 		IsReply:     true,
 	},
