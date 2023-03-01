@@ -263,12 +263,17 @@ func handleGetDashboards(user model.Users, services types.Services) ([]Dashboard
 			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 
-		dashboards = append(dashboards, lo.Map(roles, func(role model.ChannelRole, _ int) Dashboard {
-			return Dashboard{
+		for _, role := range roles {
+			ok := lo.Contains(role.Permissions, model.RolePermissionCanAccessDashboard.String())
+			if !ok {
+				continue
+			}
+
+			dashboards = append(dashboards, Dashboard{
 				ID:    role.ChannelID,
 				Flags: role.Permissions,
-			}
-		})...)
+			})
+		}
 	}
 
 	chunks := lo.Chunk(dashboards, 100)
