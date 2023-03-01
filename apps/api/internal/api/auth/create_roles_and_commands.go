@@ -10,7 +10,6 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
-	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
@@ -80,7 +79,7 @@ func createRolesAndCommand(transaction *gorm.DB, userId string) error {
 			DefaultName:        null.StringFrom(command.Name),
 			CooldownType:       "GLOBAL",
 		}
-		zap.S().Info("new command", newCommand, newCommand.Visible)
+
 		err = transaction.Save(newCommand).Error
 		if err != nil {
 			return err
