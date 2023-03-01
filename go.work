@@ -13,10 +13,10 @@ use (
 	./libs/gomodels
 	./libs/grpc
 	./libs/integrations/spotify
+	./libs/permissions
 	./libs/pubsub
 	./libs/twitch
 	./libs/types
 	./libs/ytdl
 	./libs/ytsr
-	./libs/permissions
 )

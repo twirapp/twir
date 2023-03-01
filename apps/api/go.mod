@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/Masterminds/squirrel v1.5.3
 	github.com/SherlockYigit/youtube-go v1.0.0
+	github.com/davecgh/go-spew v1.1.1
 	github.com/getsentry/sentry-go v0.18.0
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
