@@ -2,13 +2,13 @@ package tts
 
 import (
 	"context"
-	"fmt"
 	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
+	"go.uber.org/zap"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -78,7 +78,7 @@ var SayCommand = types.DefaultCommand{
 		})
 
 		if err != nil {
-			fmt.Println(err)
+			zap.S().Error(err)
 			return result
 		}
 

@@ -76,6 +76,8 @@ func main() {
 		logger = l
 	}
 
+	zap.ReplaceGlobals(logger)
+
 	do.ProvideValue[zap.Logger](di.Provider, *logger)
 
 	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl))
