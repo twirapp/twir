@@ -25,6 +25,9 @@ includes:
   events:
     taskfile: ./apps/events/Taskfile.yml
     dir: ./apps/events
+  scheduler:
+    taskfile: ./apps/scheduler/Taskfile.yml
+    dir: ./apps/scheduler
 
 
 tasks:
@@ -86,6 +89,11 @@ tasks:
     cmds:
       - task: events:dev
 
+  scheduler-dev:
+    deps: [ prepare ]
+    cmds:
+      - task: scheduler:dev
+
   node-dev:
     deps: [prepare]
     cmds:
@@ -101,6 +109,7 @@ tasks:
       watched-dev,
       emotes-cacher-dev,
       events-dev,
+      scheduler-dev,
       node-dev
     ]
 

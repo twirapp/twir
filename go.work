@@ -6,6 +6,7 @@ use (
 	./apps/emotes-cacher
 	./apps/events
 	./apps/parser
+	./apps/scheduler
 	./apps/timers
 	./apps/tokens
 	./apps/watched

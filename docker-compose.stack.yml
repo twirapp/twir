@@ -127,8 +127,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: api
+      dockerfile: ./apps/api/Dockerfile
     image: registry.satont.dev/tsuwari/api
     secrets:
       - tsuwari_doppler_token
@@ -151,8 +150,7 @@ services:
   bots:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: bots
+      dockerfile: ./apps/bots/Dockerfile
     image: registry.satont.dev/tsuwari/bots
     secrets:
       - tsuwari_doppler_token
@@ -166,6 +164,9 @@ services:
       endpoint_mode: dnsrr
 
   watched:
+    build:
+      context: .
+      dockerfile: ./apps/watched/Dockerfile
     image: registry.satont.dev/tsuwari/watched
     secrets:
       - tsuwari_doppler_token
@@ -185,8 +186,7 @@ services:
   parser:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: parser
+      dockerfile: ./apps/parser/Dockerfile
     image: registry.satont.dev/tsuwari/parser
     secrets:
       - tsuwari_doppler_token
@@ -206,8 +206,7 @@ services:
   timers:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: timers
+      dockerfile: ./apps/timers/Dockerfile
     image: registry.satont.dev/tsuwari/timers
     secrets:
       - tsuwari_doppler_token
@@ -223,8 +222,7 @@ services:
   scheduler:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: scheduler
+      dockerfile: ./apps/scheduler/Dockerfile
     image: registry.satont.dev/tsuwari/scheduler
     secrets:
       - tsuwari_doppler_token
@@ -240,8 +238,7 @@ services:
   streamstatus:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: streamstatus
+      dockerfile: ./apps/streamstatus/Dockerfile
     image: registry.satont.dev/tsuwari/streamstatus
     secrets:
       - tsuwari_doppler_token
@@ -257,8 +254,7 @@ services:
   eventsub:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: eventsub
+      dockerfile: ./apps/eventsub/Dockerfile
     image: registry.satont.dev/tsuwari/eventsub
     secrets:
       - tsuwari_doppler_token
@@ -281,8 +277,7 @@ services:
   dota:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: dota
+      dockerfile: ./apps/dota/Dockerfile
     image: registry.satont.dev/tsuwari/dota
     secrets:
       - tsuwari_doppler_token
@@ -298,8 +293,7 @@ services:
   eval:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: eval
+      dockerfile: ./apps/eval/Dockerfile
     image: registry.satont.dev/tsuwari/eval
     secrets:
       - tsuwari_doppler_token
@@ -319,8 +313,7 @@ services:
   integrations:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: integrations
+      dockerfile: ./apps/integrations/Dockerfile
     image: registry.satont.dev/tsuwari/integrations
     secrets:
       - tsuwari_doppler_token
@@ -336,8 +329,7 @@ services:
   landing:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: landing
+      dockerfile: ./frontend/landing/Dockerfile
     image: registry.satont.dev/tsuwari/landing
     secrets:
       - tsuwari_doppler_token
@@ -360,8 +352,7 @@ services:
   dashboard:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: dashboard
+      dockerfile: ./frontend/dashboard/Dockerfile
     image: registry.satont.dev/tsuwari/dashboard
     secrets:
       - tsuwari_doppler_token
@@ -384,8 +375,7 @@ services:
   public:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: dashboard
+      dockerfile: ./frontend/public/Dockerfile
     image: registry.satont.dev/tsuwari/public
     secrets:
       - tsuwari_doppler_token
@@ -408,8 +398,7 @@ services:
   websockets:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: websockets
+      dockerfile: ./apps/websockets/Dockerfile
     image: registry.satont.dev/tsuwari/websockets
     secrets:
       - tsuwari_doppler_token
@@ -432,8 +421,7 @@ services:
   tokens:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: tokens
+      dockerfile: ./apps/tokens/Dockerfile
     image: registry.satont.dev/tsuwari/tokens
     secrets:
       - tsuwari_doppler_token
@@ -453,8 +441,7 @@ services:
   emotes-cacher:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: emotes-cacher
+      dockerfile: ./apps/emotes-cacher/Dockerfile
     image: registry.satont.dev/tsuwari/emotes-cacher
     secrets:
       - tsuwari_doppler_token
@@ -474,8 +461,7 @@ services:
   events:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: events
+      dockerfile: ./apps/events/Dockerfile
     image: registry.satont.dev/tsuwari/events
     secrets:
       - tsuwari_doppler_token
@@ -495,8 +481,7 @@ services:
   ytsr:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: ytsr
+      dockerfile: ./apps/ytsrDockerfile
     image: registry.satont.dev/tsuwari/ytsr
     secrets:
       - tsuwari_doppler_token
@@ -532,8 +517,7 @@ services:
   overlays:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      target: overlays
+      dockerfile: ./frontend/overlays/Dockerfile
     restart: unless-stopped
     image: registry.satont.dev/tsuwari/overlays
     ports:
