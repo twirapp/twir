@@ -6,7 +6,7 @@ RUN apk add git curl wget upx
 
 COPY go.work go.work.sum docker-entrypoint.sh ./
 COPY libs libs
-COPY apps/timers apps/timers
+COPY apps apps
 
 RUN cd apps/timers && go mod download
 RUN cd apps/timers && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out

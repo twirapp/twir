@@ -15,7 +15,7 @@ RUN npm i -g pnpm@7
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
 
 COPY libs libs
-COPY apps/streamstatus apps/streamstatus
+COPY apps apps
 COPY patches patches
 
 RUN pnpm install --frozen-lockfile

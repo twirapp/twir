@@ -14,7 +14,7 @@ RUN npm i -g pnpm@7
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
 
-COPY frontend/public frontend/public/
+COPY frontend frontend
 COPY patches patches
 
 RUN pnpm install --frozen-lockfile
