@@ -8,6 +8,8 @@ COPY go.work go.work.sum docker-entrypoint.sh ./
 COPY libs libs
 COPY apps apps
 
+RUN pnpm build:libs
+
 RUN cd apps/parser && go mod download
 RUN cd apps/parser && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
