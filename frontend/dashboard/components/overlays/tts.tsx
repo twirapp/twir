@@ -4,7 +4,7 @@ import {
   Card, CopyButton,
   Divider,
   Flex,
-  Modal,
+  Modal, MultiSelect,
   NumberInput,
   Select,
   Switch,
@@ -37,6 +37,7 @@ export const TTSOverlay: React.FC = () => {
       voice: '',
       allow_users_choose_voice_in_main_command: false,
       max_symbols: 0,
+      disallowed_voices: [],
     },
     validate: {
       voice: isNotEmpty('Voice is required'),
@@ -49,6 +50,8 @@ export const TTSOverlay: React.FC = () => {
   const [modalOpened, setModalOpened] = useState(false);
   const [testText, setTestText] = useState('');
 
+  const [availableVoices, setAvailableVoices] = useState<Array<{ value: string, label: string }>>([]);
+
   const tts = useTtsModule();
   const { data: ttsSettings } = tts.useSettings();
   const ttsInfo = tts.useInfo();
@@ -60,6 +63,30 @@ export const TTSOverlay: React.FC = () => {
       form.setValues(ttsSettings);
     }
   }, [ttsSettings]);
+
+  useEffect(() => {
+    if (!ttsInfo.data) return;
+
+    const voices = Object.keys(ttsInfo.data.rhvoice_wrapper_voices_info)
+      .sort((a, b) => {
+        const dataA = ttsInfo.data?.rhvoice_wrapper_voices_info[a];
+        const dataB = ttsInfo.data?.rhvoice_wrapper_voices_info[b];
+        if (dataA.country === dataB.country) {
+          return dataA.name.localeCompare(dataB.name);
+        }
+        return dataA.country.localeCompare(dataB.country);
+      })
+      .map((key) => {
+        const data = ttsInfo.data?.rhvoice_wrapper_voices_info[key];
+
+        return {
+          value: key,
+          label: `[${data.country}] ${data.name}`,
+        };
+      });
+
+    setAvailableVoices(voices);
+  }, [ttsInfo.data]);
 
   async function onSubmit() {
     if (form.validate().hasErrors) return;
@@ -139,26 +166,7 @@ export const TTSOverlay: React.FC = () => {
           <Select
             label="Voice"
             required
-            data={ttsInfo.data
-              ? Object.keys(ttsInfo.data.rhvoice_wrapper_voices_info)
-                .sort((a, b) => {
-                  const dataA = ttsInfo.data?.rhvoice_wrapper_voices_info[a];
-                  const dataB = ttsInfo.data?.rhvoice_wrapper_voices_info[b];
-                  if (dataA.country === dataB.country) {
-                    return dataA.name.localeCompare(dataB.name);
-                  }
-                  return dataA.country.localeCompare(dataB.country);
-                })
-                .map((key) => {
-                const data = ttsInfo.data?.rhvoice_wrapper_voices_info[key];
-
-                return {
-                  value: key,
-                  label: `[${data.country}] ${data.name}`,
-                };
-              })
-              : []
-          }
+            data={availableVoices}
             {...form.getInputProps('voice')}
           />
           <NumberInput label={'Pitch'} max={100} min={1} required {...form.getInputProps('pitch')} />
@@ -174,6 +182,12 @@ export const TTSOverlay: React.FC = () => {
             max={500}
             min={0}
             {...form.getInputProps('max_symbols')}
+          />
+          <MultiSelect
+            label={'Disallowed for usage voices'}
+            data={availableVoices}
+            clearable
+            {...form.getInputProps('disallowed_voices')}
           />
         </Flex>
 

@@ -59,6 +59,18 @@ var VoiceCommand = &types.DefaultCommand{
 			return result
 		}
 
+		_, isDisallowed := lo.Find(channelSettings.DisallowedVoices, func(item string) bool {
+			return item == wantedVoice.Name
+		})
+
+		if isDisallowed {
+			result.Result = append(
+				result.Result,
+				fmt.Sprintf("Voice %s is disallowed for usage", wantedVoice.Name),
+			)
+			return result
+		}
+
 		if ctx.ChannelId == ctx.SenderId {
 			channelSettings.Voice = wantedVoice.Name
 			err := updateSettings(channelModel, channelSettings)

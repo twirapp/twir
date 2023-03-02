@@ -2,6 +2,7 @@ package tts
 
 import (
 	"context"
+	"fmt"
 	"github.com/guregu/null"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"strconv"
@@ -55,6 +56,19 @@ var SayCommand = &types.DefaultCommand{
 
 			if targetVoiceFound {
 				voice = targetVoice.Name
+
+				_, isDisallowed := lo.Find(channelSettings.DisallowedVoices, func(item string) bool {
+					return item == voice
+				})
+
+				if isDisallowed {
+					result.Result = append(
+						result.Result,
+						fmt.Sprintf("Voice %s is disallowed fopr usage", voice),
+					)
+					return result
+				}
+
 				*ctx.Text = strings.Join(splittedChatArgs[1:], " ")
 			}
 		}
