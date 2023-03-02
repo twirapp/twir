@@ -8,6 +8,7 @@ COPY go.work go.work.sum docker-entrypoint.sh ./
 COPY libs libs
 COPY apps apps
 
+RUN npm i -g pnpm@7
 RUN pnpm build:libs
 
 RUN cd apps/scheduler && go mod download
