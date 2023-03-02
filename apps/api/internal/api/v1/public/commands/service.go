@@ -17,6 +17,8 @@ type Command struct {
 	Aliases      []string `json:"aliases"`
 	Description  *string  `json:"description"`
 	Permissions  []string `json:"permissions"`
+	Group        *string  `json:"group"`
+	Module       string   `json:"module"`
 }
 
 func handleGet(channelId string, services types.Services) ([]Command, error) {
@@ -26,6 +28,7 @@ func handleGet(channelId string, services types.Services) ([]Command, error) {
 	err := services.DB.
 		Where(`"channelId" = ? AND "enabled" = ? AND "visible" = ?`, channelId, true, true).
 		Preload("Responses").
+		Preload("Group").
 		Find(&commands).Error
 
 	err = services.DB.Where(`"channelId" = ?`, channelId).Find(&channelRoles).Error
@@ -61,6 +64,10 @@ func handleGet(channelId string, services types.Services) ([]Command, error) {
 			Aliases:      cmd.Aliases,
 			Description:  cmd.Description.Ptr(),
 			Permissions:  roles,
+			Module:       cmd.Module,
+			Group: lo.IfF(cmd.Group != nil, func() *string {
+				return &cmd.Group.Name
+			}).Else(nil),
 		})
 	}
 

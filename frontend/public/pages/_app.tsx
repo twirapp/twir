@@ -1,13 +1,9 @@
 import {
-  AppShell, Avatar,
+  AppShell,
   ColorScheme,
   ColorSchemeProvider, Container,
-  Flex,
-  Grid,
-  Center,
   MantineProvider,
   useMantineTheme,
-  Text,
 } from '@mantine/core';
 import { useColorScheme } from '@mantine/hooks';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -15,13 +11,10 @@ import { getCookie, setCookie } from 'cookies-next';
 import { GetServerSidePropsContext } from 'next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 import { Header } from '@/components/layout/header';
-import { SideBar } from '@/components/layout/sidebar';
 import { queryClient } from '@/services/queryClient';
-import { useUsersByNames } from '@/services/users';
 
 function App(props: AppProps & { colorScheme: ColorScheme }) {
   const { Component } = props;
@@ -60,7 +53,7 @@ function App(props: AppProps & { colorScheme: ColorScheme }) {
             <Container py="xl">
               <AppShell>
                 <Header />
-                <Component />
+                <Component {...props.pageProps} />
               </AppShell>
               </Container>
           </MantineProvider>

@@ -422,6 +422,9 @@ importers:
       vite-svg-loader: 4.0.0
       vue-router: 4.1.6_vue@3.2.47
 
+  frontend/landing/dist/server:
+    specifiers: {}
+
   frontend/overlays:
     specifiers:
       '@types/react': ^18.0.27
@@ -7645,7 +7648,7 @@ packages:
     dependencies:
       '@types/react': 18.0.27
       react: 18.2.0
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /aria-hidden/1.2.2_kzbn2opkn2327fwg5yzwzya5o4:
@@ -8114,6 +8117,8 @@ packages:
 
   /binarykvparser/2.2.0:
     resolution: {integrity: sha512-mGBKngQF9ui53THcMjgjd0LrBH/HsI2Vywfjq52udSAmRGG87h0vjhkqun0kF+iC4rQ2jLZqldwJE7YN2ueiWw==}
+    dependencies:
+      long: 3.2.0
     dev: false
     bundledDependencies:
       - long
