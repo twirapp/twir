@@ -197,6 +197,7 @@ func (c *Commands) ParseCommandResponses(
 			Text:              cmdParams,
 			IsCommand:         true,
 			Command:           command.Cmd,
+			Emotes:            data.Message.Emotes,
 		})
 		if results == nil {
 			result.Responses = []string{}
@@ -228,6 +229,7 @@ func (c *Commands) ParseCommandResponses(
 			IsCommand:         true,
 			Command:           command.Cmd,
 			SenderBadges:      data.Sender.Badges,
+			Emotes:            data.Message.Emotes,
 		})
 
 		go func(i int, r string) {

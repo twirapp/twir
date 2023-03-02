@@ -3,6 +3,7 @@ package tts
 import (
 	"context"
 	"fmt"
+	"github.com/go-redis/redis/v9"
 	"github.com/guregu/null"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"regexp"
@@ -30,6 +31,7 @@ var SayCommand = &types.DefaultCommand{
 		IsReply:     true,
 	},
 	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+		redisClient := do.MustInvoke[redis.Client](di.Provider)
 		webSocketsGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
 
 		result := &types.CommandsHandlerResult{}
@@ -89,6 +91,32 @@ var SayCommand = &types.DefaultCommand{
 
 		if channelSettings.DoNotReadEmoji {
 			*ctx.Text = emojiRx.ReplaceAllString(*ctx.Text, ``)
+		}
+
+		if channelSettings.DoNotReadTwitchEmotes {
+			for _, emote := range ctx.Emotes {
+				*ctx.Text = strings.Replace(*ctx.Text, emote.Name, "", -1)
+			}
+			channelKey := fmt.Sprintf("emotes:channel:%s:", ctx.ChannelId)
+			channelEmotes := redisClient.Keys(
+				context.Background(),
+				fmt.Sprintf("%s:%s:*", channelKey, ctx.ChannelId),
+			).Val()
+
+			for _, emote := range channelEmotes {
+				*ctx.Text = strings.Replace(*ctx.Text, strings.Split(emote, channelKey)[1], "", -1)
+			}
+
+			globalKey := "emotes:global:"
+			globalEmotes := redisClient.Keys(
+				context.Background(),
+				fmt.Sprintf("%s:*", globalKey),
+			).Val()
+
+			for _, emote := range globalEmotes {
+				*ctx.Text = strings.Replace(*ctx.Text, strings.Split(emote, globalKey)[1], "", -1)
+			}
+
 		}
 
 		_, err := webSocketsGrpc.TextToSpeechSay(context.Background(), &websockets.TTSMessage{

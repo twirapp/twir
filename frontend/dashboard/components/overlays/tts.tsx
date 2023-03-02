@@ -39,6 +39,7 @@ export const TTSOverlay: React.FC = () => {
       max_symbols: 0,
       disallowed_voices: [],
       do_not_read_emoji: false,
+      do_not_read_twitch_emotes: false,
     },
     validate: {
       voice: isNotEmpty('Voice is required'),
@@ -182,6 +183,11 @@ export const TTSOverlay: React.FC = () => {
             label={'Do not read emoji'}
             labelPosition={'left'}
             {...form.getInputProps('do_not_read_emoji', { type: 'checkbox' })}
+          />
+          <Switch
+            label={'Do read twitch emotes. Including 7tv, ffz, bttv.'}
+            labelPosition={'left'}
+            {...form.getInputProps('do_not_read_twitch_emotes', { type: 'checkbox' })}
           />
           <NumberInput
             label={'Max message length for tts. If setted to 0 then there is no restriction'}

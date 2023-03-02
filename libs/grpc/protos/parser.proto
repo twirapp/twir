@@ -23,8 +23,21 @@ message Channel {
 }
 
 message Message {
+  message EmotePosition {
+    int64 start = 1;
+    int64 end = 2;
+  }
+
+  message Emote {
+    string name = 1;
+    string id = 2;
+    int64 count = 3;
+    repeated EmotePosition positions = 4;
+  }
+
   string text = 1;
   string id = 2;
+  repeated Emote emotes = 3;
 }
 
 message ProcessCommandRequest {

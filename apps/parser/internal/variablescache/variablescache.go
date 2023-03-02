@@ -1,6 +1,7 @@
 package variables_cache
 
 import (
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 	"sync"
 
 	"github.com/satont/go-helix/v2"
@@ -39,6 +40,7 @@ type ExecutionContext struct {
 	Text              *string
 	IsCommand         bool
 	Command           *model.ChannelsCommands
+	Emotes            []*parser.Message_Emote
 }
 
 type VariablesCacheService struct {
@@ -58,6 +60,7 @@ type VariablesCacheOpts struct {
 	IsCommand         bool
 	Command           *model.ChannelsCommands
 	SenderBadges      []string
+	Emotes            []*parser.Message_Emote
 }
 
 func New(opts VariablesCacheOpts) *VariablesCacheService {
@@ -71,6 +74,7 @@ func New(opts VariablesCacheOpts) *VariablesCacheService {
 			Text:         opts.Text,
 			IsCommand:    opts.IsCommand,
 			Command:      opts.Command,
+			Emotes:       opts.Emotes,
 		},
 		cache: variablesCache{},
 		locks: &variablesLocks{

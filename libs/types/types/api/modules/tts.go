@@ -10,6 +10,7 @@ type TTSSettings struct {
 	MaxSymbols                         int      `json:"max_symbols"`
 	DisallowedVoices                   []string `json:"disallowed_voices"`
 	DoNotReadEmoji                     bool     `json:"do_not_read_emoji"`
+	DoNotReadTwitchEmotes              bool     `json:"do_not_read_twitch_emotes"`
 }
 
 type TTS struct {
