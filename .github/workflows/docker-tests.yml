@@ -37,6 +37,7 @@ jobs:
         run: pnpm build
 
   backend:
+    needs: base
     runs-on: ubuntu-latest
     strategy:
       matrix:
