@@ -92,6 +92,15 @@ func updateUsersService(roleId string, userNames []string) error {
 		return fiber.NewError(fiber.StatusNotFound, "Role not found")
 	}
 
+	if len(userNames) == 0 {
+		if err = db.Where(`"roleId" = ?`, role.ID).Delete(&model.ChannelRoleUser{}).Error; err != nil {
+			logger.Error(err)
+			return fiber.NewError(http.StatusInternalServerError, "internal error")
+		}
+
+		return nil
+	}
+
 	twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
 		Logins: userNames,
 	})

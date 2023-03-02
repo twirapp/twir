@@ -6,7 +6,9 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"strings"
 )
 
 func IsUserHasPermissionToCommand(userId, channelId string, badges []string, command *model.ChannelsCommands) bool {
@@ -20,21 +22,36 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 
 	db := do.MustInvoke[gorm.DB](di.Provider)
 
-	var roles []*model.ChannelRole
+	var userRoles []*model.ChannelRole
 
 	err := db.Model(&model.ChannelRole{}).
 		Where(`"channelId" = ?`, channelId).
 		Preload("Users", `"userId" = ?`, userId).
-		Find(&roles).
+		Find(&userRoles).
 		Error
 	if err != nil {
-		fmt.Println(err)
+		zap.S().Error(err)
 		return false
 	}
 
-	for _, badge := range badges {
-		for _, role := range roles {
-			if role.Type.String() == badge && role.Type != model.ChannelRoleTypeCustom {
+	commandRoles := []*model.ChannelRole{}
+
+	mappedCommandsRoles := lo.Map(command.RolesIDS, func(id string, _ int) string {
+		return id
+	})
+	err = db.Where(`"id" IN ?`, mappedCommandsRoles).Find(&commandRoles).Error
+	if err != nil {
+		zap.S().Error(err)
+		return false
+	}
+
+	for _, role := range commandRoles {
+		if role.Type == model.ChannelRoleTypeCustom {
+			continue
+		}
+
+		for _, badge := range badges {
+			if strings.ToLower(role.Type.String()) == strings.ToLower(badge) {
 				return true
 			}
 		}
@@ -49,17 +66,19 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 	if lo.SomeBy(command.AllowedUsersIDS, func(id string) bool {
 		return id == userId
 	}) {
+		fmt.Println("allowed user", userId)
 		return true
 	}
 
 	for _, commandRole := range command.RolesIDS {
-		for _, role := range roles {
+		for _, role := range userRoles {
 			if role.ID != commandRole {
 				continue
 			}
 
 			for _, user := range role.Users {
 				if user.UserID == userId {
+					fmt.Println("user in role", userId)
 					return true
 				}
 			}
