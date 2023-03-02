@@ -1,4 +1,4 @@
-FROM golang:1.20.1-alpine as builder
+FROM alpine:latest as builder
 
 WORKDIR /app
 
@@ -7,9 +7,6 @@ RUN apk add git curl wget upx
 COPY go.work go.work.sum docker-entrypoint.sh ./
 COPY libs libs
 COPY apps apps
-
-RUN npm i -g pnpm@7
-RUN pnpm build:libs
 
 RUN cd apps/api && go mod download
 RUN cd apps/api && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out

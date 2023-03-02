@@ -1,4 +1,11 @@
-FROM golang:1.20.1-alpine as builder
+FROM node:18-alpine as builder
+
+COPY --from=golang:1.20.1-alpine /usr/local/go/ /usr/local/go/
+ENV PATH="$PATH:/usr/local/go/bin"
+ENV PATH="$PATH:/root/go/bin"
+
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
 
 WORKDIR /app
 
