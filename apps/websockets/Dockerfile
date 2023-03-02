@@ -4,6 +4,9 @@ COPY --from=golang:1.20.1-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="$PATH:/usr/local/go/bin"
 ENV PATH="$PATH:/root/go/bin"
 
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest  && \
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
 WORKDIR /app
 
 RUN apk add git openssh libc6-compat
