@@ -1,4 +1,4 @@
-FROM alpine:latest as builder
+FROM golang:1.20.1-alpine as builder
 
 WORKDIR /app
 
