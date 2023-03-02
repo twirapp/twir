@@ -1,8 +1,8 @@
-import { Badge, Flex, Grid, Table, Text, Tooltip } from '@mantine/core';
+import { Badge, Flex, Grid, Group, Table, Text, Tooltip } from '@mantine/core';
+import { IconCurrencyDollar, IconDiamond, IconSword, IconVideo } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 
 import { useUsersByNames } from '@/services/users';
 
@@ -17,6 +17,12 @@ type Command = {
   description: null | string
 }
 
+const rolesMapping: Record<string, JSX.Element> = {
+  'BROADCASTER': <IconVideo color={'#db4f4f'} />,
+  'MODERATOR': <IconSword color={'green'} />,
+  'VIP': <IconDiamond color={'pink'} />,
+  'SUBSCRIBER': <IconCurrencyDollar color={'cyan'} />,
+};
 
 const Commands: NextPage = () => {
   const router = useRouter();
@@ -66,9 +72,22 @@ const Commands: NextPage = () => {
         {r}
       </Text>)}</td>
       <td>
-        <Flex direction={'column'} gap={'xs'}>
-          {c?.permissions?.map((p, i) => <Badge key={i}>{p}</Badge>)}
-          {!c.permissions?.length && <Badge color={'green'}>Everyone</Badge>}
+        <Flex direction={'column'} gap={'xs'} align={'center'}>
+          <Flex direction={'row'} gap={'xs'}>
+            {c?.permissions?.map((p, i) => {
+              if (rolesMapping[p]) {
+                return <Tooltip label={p} key={i}>{rolesMapping[p]}</Tooltip>;
+              }
+            })}
+          </Flex>
+          <Flex direction={'row'} gap={'xs'}>
+            {c?.permissions?.map((p, i) => {
+              if (!rolesMapping[p]) {
+                return <Badge color={'green'} size={'sm'}>{p}</Badge>;
+              }
+            })}
+          </Flex>
+          {/*{!c.permissions?.length && <Badge color={'green'}>Everyone</Badge>}*/}
         </Flex>
       </td>
       <td>{c?.cooldown} ({c?.cooldownType?.toLowerCase().replace('_', ' ')})</td>
