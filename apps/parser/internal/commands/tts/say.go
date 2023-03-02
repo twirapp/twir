@@ -100,7 +100,7 @@ var SayCommand = &types.DefaultCommand{
 			channelKey := fmt.Sprintf("emotes:channel:%s:", ctx.ChannelId)
 			channelEmotes := redisClient.Keys(
 				context.Background(),
-				fmt.Sprintf("%s:%s:*", channelKey, ctx.ChannelId),
+				fmt.Sprintf("%s:*", channelKey),
 			).Val()
 
 			for _, emote := range channelEmotes {
