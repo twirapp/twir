@@ -138,7 +138,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
   migrations:
-    needs: build
+#    needs: build
     name: Build migrations
     runs-on: ubuntu-latest
     steps:
