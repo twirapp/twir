@@ -38,6 +38,7 @@ export const TTSOverlay: React.FC = () => {
       allow_users_choose_voice_in_main_command: false,
       max_symbols: 0,
       disallowed_voices: [],
+      do_not_read_emoji: false,
     },
     validate: {
       voice: isNotEmpty('Voice is required'),
@@ -176,6 +177,11 @@ export const TTSOverlay: React.FC = () => {
             label={'Allow users use different voices in main (!tts) command'}
             labelPosition={'left'}
             {...form.getInputProps('allow_users_choose_voice_in_main_command', { type: 'checkbox' })}
+          />
+          <Switch
+            label={'Do not read emoji'}
+            labelPosition={'left'}
+            {...form.getInputProps('do_not_read_emoji', { type: 'checkbox' })}
           />
           <NumberInput
             label={'Max message length for tts. If setted to 0 then there is no restriction'}

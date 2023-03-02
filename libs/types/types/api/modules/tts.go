@@ -9,6 +9,7 @@ type TTSSettings struct {
 	AllowUsersChooseVoiceInMainCommand bool     `json:"allow_users_choose_voice_in_main_command"`
 	MaxSymbols                         int      `json:"max_symbols"`
 	DisallowedVoices                   []string `json:"disallowed_voices"`
+	DoNotReadEmoji                     bool     `json:"do_not_read_emoji"`
 }
 
 type TTS struct {
