@@ -219,7 +219,7 @@ RUN rm -r `find . -name node_modules -type d`
 
 FROM golang_deps_base as parser_deps
 RUN cd apps/parser && go mod download
-RUN cd apps/parser && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+RUN cd apps/parser && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as parser
 COPY --from=parser_deps /app/apps/parser/out /bin/parser
@@ -229,7 +229,7 @@ CMD ["/bin/parser"]
 
 FROM golang_deps_base as timers_deps
 RUN cd apps/timers && go mod download
-RUN cd apps/timers && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+RUN cd apps/timers && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as timers
 COPY --from=timers_deps /app/apps/timers/out /bin/timers
@@ -239,7 +239,7 @@ CMD ["/bin/timers"]
 
 FROM golang_deps_base as api_deps
 RUN cd apps/api && go mod download
-RUN cd apps/api && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+RUN cd apps/api && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as api
 COPY --from=api_deps /app/apps/api/out /bin/api
@@ -249,7 +249,7 @@ CMD ["/bin/api"]
 
 FROM golang_deps_base as bots_deps
 RUN cd apps/bots && go mod download
-RUN cd apps/bots && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+RUN cd apps/bots && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as bots
 COPY --from=bots_deps /app/apps/bots/out /bin/bots
@@ -259,7 +259,7 @@ CMD ["/bin/bots"]
 
 FROM golang_deps_base as tokens_deps
 RUN cd apps/tokens && go mod download
-RUN cd apps/tokens && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+RUN cd apps/tokens && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as tokens
 COPY --from=tokens_deps /app/apps/tokens/out /bin/tokens
@@ -269,7 +269,7 @@ CMD ["/bin/tokens"]
 
 FROM golang_deps_base as watched_deps
 RUN cd apps/watched && go mod download
-RUN cd apps/watched && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+RUN cd apps/watched && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as watched
 COPY --from=watched_deps /app/apps/watched/out /bin/watched
@@ -314,7 +314,7 @@ CMD ["pnpm", "--filter=@tsuwari/public", "start"]
 
 FROM golang_deps_base as emotes-cacher_deps
 RUN cd apps/emotes-cacher && go mod download
-RUN cd apps/emotes-cacher && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+RUN cd apps/emotes-cacher && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as emotes-cacher
 COPY --from=emotes-cacher_deps /app/apps/emotes-cacher/out /bin/emotes-cacher
@@ -324,7 +324,7 @@ CMD ["/bin/emotes-cacher"]
 
 FROM golang_deps_base as events_deps
 RUN cd apps/events && go mod download
-RUN cd apps/events && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+RUN cd apps/events && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as events
 COPY --from=events_deps /app/apps/events/out /bin/events
