@@ -70,7 +70,6 @@ jobs:
           context: .
           push: false
           file: ./apps/${{ matrix.application }}/Dockerfile
-          target: ${{ matrix.application }}
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}:latest
           platforms: linux/amd64,linux/arm64
