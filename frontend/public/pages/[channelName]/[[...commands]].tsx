@@ -11,7 +11,7 @@ export type Command = {
   id: string
   name: string
   responses: string[]
-  permissions: string[]
+  permissions: Array<{ name: string, type: string }>
   cooldown: number
   cooldownType: string
   aliases: string[]
@@ -116,17 +116,15 @@ const Commands: NextPage = () => {
               <td>
                 <Flex direction={'column'} gap={'xs'} align={'center'}>
                   <Flex direction={'row'} gap={'xs'}>
-                    {c?.permissions?.map((p, i) => {
-                      if (rolesMapping[p]) {
-                        return <Tooltip label={p} key={i}>{rolesMapping[p]}</Tooltip>;
+                    {c?.permissions?.filter(p => p.type !== 'CUSTOM').map((p, i) => {
+                      if (rolesMapping[p.type]) {
+                        return <Tooltip label={p.name} key={i}>{rolesMapping[p.type]}</Tooltip>;
                       }
                     })}
                   </Flex>
                   <Flex direction={'row'} gap={'xs'}>
-                    {c?.permissions?.map((p, i) => {
-                      if (!rolesMapping[p]) {
-                        return <Badge color={'green'} size={'sm'}>{p}</Badge>;
-                      }
+                    {c?.permissions?.filter(p => p.type === 'CUSTOM').map((p, i) => {
+                      return <Badge key={i} color={'green'} size={'sm'}>{p.name}</Badge>;
                     })}
                   </Flex>
                 </Flex>

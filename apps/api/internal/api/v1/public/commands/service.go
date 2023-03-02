@@ -9,16 +9,21 @@ import (
 	"sort"
 )
 
+type Permission struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
 type Command struct {
-	Name         string   `json:"name"`
-	Responses    []string `json:"responses"`
-	Cooldown     int64    `json:"cooldown"`
-	CooldownType string   `json:"cooldownType"`
-	Aliases      []string `json:"aliases"`
-	Description  *string  `json:"description"`
-	Permissions  []string `json:"permissions"`
-	Group        *string  `json:"group"`
-	Module       string   `json:"module"`
+	Name         string       `json:"name"`
+	Responses    []string     `json:"responses"`
+	Cooldown     int64        `json:"cooldown"`
+	CooldownType string       `json:"cooldownType"`
+	Aliases      []string     `json:"aliases"`
+	Description  *string      `json:"description"`
+	Permissions  []Permission `json:"permissions"`
+	Group        *string      `json:"group"`
+	Module       string       `json:"module"`
 }
 
 func handleGet(channelId string, services types.Services) ([]Command, error) {
@@ -44,7 +49,7 @@ func handleGet(channelId string, services types.Services) ([]Command, error) {
 			return item.Text.String
 		})
 
-		roles := []string{}
+		var roles []Permission
 
 		for _, role := range cmd.RolesIDS {
 			r, ok := lo.Find(channelRoles, func(item model.ChannelRole) bool {
@@ -53,7 +58,10 @@ func handleGet(channelId string, services types.Services) ([]Command, error) {
 			if !ok {
 				continue
 			}
-			roles = append(roles, r.Name)
+			roles = append(roles, Permission{
+				Name: r.Name,
+				Type: r.Type.String(),
+			})
 		}
 
 		commandsResponse = append(commandsResponse, Command{
