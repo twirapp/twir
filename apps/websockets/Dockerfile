@@ -4,18 +4,18 @@ COPY --from=golang:1.20.1-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="$PATH:/usr/local/go/bin"
 ENV PATH="$PATH:/root/go/bin"
 
-RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest  && \
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
 
 WORKDIR /app
 
-RUN apk add git openssh libc6-compat
+RUN apk add git openssh libc6-compat protoc
 RUN npm i -g pnpm@7
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
 
 COPY libs libs
-COPY apps apps
+COPY apps/websockets apps/websockets
 COPY patches patches
 
 RUN pnpm install --frozen-lockfile

@@ -15,12 +15,12 @@ RUN npm i -g pnpm@7
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc ./
 
 COPY libs libs
-COPY apps/ytsr apps/ytsr
+COPY frontend/landing frontend/landing
 COPY patches patches
 
 RUN pnpm install --frozen-lockfile
 RUN pnpm build:libs
-RUN cd apps/ytsr && pnpm build
+RUN cd frontend/landing && pnpm build
 
 FROM node:18-alpine
 RUN apk add wget && \
@@ -34,9 +34,14 @@ RUN npm i -g pnpm@7
 WORKDIR /app
 
 COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/turbo.json /app/.npmrc ./
-COPY --from=builder /app/libs/grpc libs/grpc/
+COPY --from=builder /app/frontend/landing frontend/landing/
+COPY --from=builder /app/libs/typeorm libs/typeorm/
+COPY --from=builder /app/libs/shared libs/shared/
+COPY --from=builder /app/libs/ui libs/ui/
+COPY --from=builder /app/libs/config libs/config/
+COPY --from=builder /app/patches patches/
 COPY --from=builder /app/patches patches
 RUN pnpm prune --prod
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "--filter=@tsuwari/ytsr", "start"]
+CMD ["pnpm", "--filter=@tsuwari/landing", "start"]

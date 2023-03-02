@@ -326,96 +326,96 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
 
-#  landing:
-#    build:
-#      context: .
-#      dockerfile: ./frontend/landing/Dockerfile
-#    image: registry.satont.dev/tsuwari/landing
-#    secrets:
-#      - tsuwari_doppler_token
-#    ports:
-#      - target: 3000
-#        published: 3001
-#        mode: host
-#    networks:
-#      - tsuwari
-#    deploy:
-#      restart_policy:
-#        condition: any
-#        delay: 30s
-#        max_attempts: 30
-#      endpoint_mode: dnsrr
-#      placement:
-#        constraints:
-#          - node.role == manager
+  landing:
+    build:
+      context: .
+      dockerfile: ./frontend/landing/Dockerfile
+    image: registry.satont.dev/tsuwari/landing
+    secrets:
+      - tsuwari_doppler_token
+    ports:
+      - target: 3000
+        published: 3001
+        mode: host
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
 #
-#  dashboard:
-#    build:
-#      context: .
-#      dockerfile: ./frontend/dashboard/Dockerfile
-#    image: registry.satont.dev/tsuwari/dashboard
-#    secrets:
-#      - tsuwari_doppler_token
-#    ports:
-#      - target: 3000
-#        published: 3002
-#        mode: host
-#    networks:
-#      - tsuwari
-#    deploy:
-#      restart_policy:
-#        condition: any
-#        delay: 30s
-#        max_attempts: 30
-#      endpoint_mode: dnsrr
-#      placement:
-#        constraints:
-#          - node.role == manager
+  dashboard:
+    build:
+      context: .
+      dockerfile: ./frontend/dashboard/Dockerfile
+    image: registry.satont.dev/tsuwari/dashboard
+    secrets:
+      - tsuwari_doppler_token
+    ports:
+      - target: 3000
+        published: 3002
+        mode: host
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
 #
-#  public:
-#    build:
-#      context: .
-#      dockerfile: ./frontend/public/Dockerfile
-#    image: registry.satont.dev/tsuwari/public
-#    secrets:
-#      - tsuwari_doppler_token
-#    ports:
-#      - target: 3000
-#        published: 3006
-#        mode: host
-#    networks:
-#      - tsuwari
-#    deploy:
-#      restart_policy:
-#        condition: any
-#        delay: 30s
-#        max_attempts: 30
-#      endpoint_mode: dnsrr
-#      placement:
-#        constraints:
-#          - node.role == manager
+  public:
+    build:
+      context: .
+      dockerfile: ./frontend/public/Dockerfile
+    image: registry.satont.dev/tsuwari/public
+    secrets:
+      - tsuwari_doppler_token
+    ports:
+      - target: 3000
+        published: 3006
+        mode: host
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
 
-#  overlays:
-#    build:
-#      context: .
-#      dockerfile: ./frontend/overlays/Dockerfile
-#    restart: unless-stopped
-#    image: registry.satont.dev/tsuwari/overlays
-#    ports:
-#      - target: 80
-#        published: 3007
-#        mode: host
-#    networks:
-#      - tsuwari
-#    deploy:
-#      restart_policy:
-#        condition: any
-#        delay: 30s
-#        max_attempts: 30
-#      endpoint_mode: dnsrr
-#      placement:
-#        constraints:
-#          - node.role == manager
+  overlays:
+    build:
+      context: .
+      dockerfile: ./frontend/overlays/Dockerfile
+    restart: unless-stopped
+    image: registry.satont.dev/tsuwari/overlays
+    ports:
+      - target: 80
+        published: 3007
+        mode: host
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
 
   websockets:
     build:
