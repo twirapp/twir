@@ -2,67 +2,9 @@ name: Build and push docker images
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
 
 jobs:
-#  build:
-#    if: "! contains(toJSON(github.event.commits.*.message), '[skip-docker]')"
-#    name: Build base
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v2
-#
-#      - name: Prepare
-#        id: prep
-#        run: |
-#          TAG=$(echo $GITHUB_SHA | head -c7)
-#          IMAGE=${{ secrets.DOCKER_REGISTRY }}/tsuwari/base-image
-#          echo ::set-output name=tagged_image::${IMAGE}:${TAG}
-#          echo ::set-output name=tag::${TAG}
-#
-#      - name: Set up QEMU
-#        uses: docker/setup-qemu-action@v2
-#
-#      - name: Set up Docker Buildx
-#        id: buildx
-#        uses: docker/setup-buildx-action@master
-#
-#      - name: Cache Docker layers
-#        uses: actions/cache@v2
-#        with:
-#          path: /tmp/.buildx-cache
-#          key: ${{ runner.os }}-single-buildx-${{ github.sha }}
-#          restore-keys: |
-#            ${{ runner.os }}-single-buildx
-#
-#      - name: Login to Container Registry
-#        uses: docker/login-action@v1.14.1
-#        with:
-#          registry: ${{ secrets.DOCKER_REGISTRY }}
-#          username: ${{ secrets.DOCKER_USERNAME }}
-#          password: ${{ secrets.DOCKER_PASSWORD }}
-#
-#      - name: Build base
-#        uses: docker/build-push-action@v2
-#        with:
-#          builder: ${{ steps.buildx.outputs.name }}
-#          cache-from: type=local,src=/tmp/.buildx-cache
-#          cache-to: type=local,dest=/tmp/.buildx-cache-new
-#          context: .
-#          push: false
-#          file: ./Dockerfile
-#          target: base
-#          platforms: linux/amd64,linux/arm64
-#
-#      - name: Move cache
-#        run: |
-#          rm -rf /tmp/.buildx-cache
-#          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
-  build-matrix:
-#    needs: build
+  backend:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -81,16 +23,13 @@ jobs:
             watched,
             websockets,
             tokens,
-            landing,
-            dashboard,
-            public,
             emotes-cacher,
             events,
             ytsr,
-            overlays,
+            migrations,
           ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Prepare
         id: prep
@@ -99,9 +38,6 @@ jobs:
           IMAGE=${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}
           echo ::set-output name=tagged_image::${IMAGE}:${TAG}
           echo ::set-output name=tag::${TAG}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
         id: buildx
@@ -135,29 +71,34 @@ jobs:
           target: ${{ matrix.application }}
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}:latest
-          platforms: linux/amd64,linux/arm64
 
-  migrations:
-#    needs: build
-    name: Build migrations
+  frontend:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        application:
+          [
+            dashboard,
+            landing,
+            overlays,
+            public,
+          ]
     steps:
       - uses: actions/checkout@v2
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
 
       - name: Prepare
         id: prep
         run: |
           TAG=$(echo $GITHUB_SHA | head -c7)
-          IMAGE=${{ secrets.DOCKER_REGISTRY }}/tsuwari/migrations
+          IMAGE=${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}
           echo ::set-output name=tagged_image::${IMAGE}:${TAG}
           echo ::set-output name=tag::${TAG}
 
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@master
+        with:
+          install: true
 
       - name: Cache Docker layers
         uses: actions/cache@v2
@@ -174,7 +115,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build migrations docker
+      - name: Build ${{ matrix.application }}
         uses: docker/build-push-action@v2
         with:
           builder: ${{ steps.buildx.outputs.name }}
@@ -182,10 +123,9 @@ jobs:
           context: .
           push: true
           file: ./Dockerfile
-          target: migrations
+          target: ${{ matrix.application }}
           tags: |
-            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/migrations:latest
-          platforms: linux/amd64,linux/arm64
+            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}:latest
 
   postgres-backup:
     name: Build postgres-backup
@@ -200,9 +140,6 @@ jobs:
           IMAGE=${{ secrets.DOCKER_REGISTRY }}/tsuwari/postgres-backup
           echo ::set-output name=tagged_image::${IMAGE}:${TAG}
           echo ::set-output name=tag::${TAG}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
         id: buildx
@@ -233,4 +170,3 @@ jobs:
           file: ./tools/pg-backup/Dockerfile
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/tsuwari/postgres-backup:latest
-          platforms: linux/amd64,linux/arm64
