@@ -284,6 +284,5 @@ WORKDIR /app
 COPY --from=builder /app/tsconfig.base.json /app/
 COPY --from=migrations_builder /app/libs/typeorm /app/libs/typeorm
 COPY --from=migrations_builder /app/libs/config /app/libs/config
-COPY --from=migrations_builder /app/libs/grpc /app/libs/grpc
-COPY --from=migrations_builder /app/libs/typeorm /app/libs/typeorm
+COPY --from=migrations_builder /app/libs/crypto /app/libs/crypto
 CMD ["pnpm", "run", "migrate:deploy"]
