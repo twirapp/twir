@@ -200,3 +200,42 @@ FROM node_prod_base as ytsr
 WORKDIR /app
 COPY --from=ytsr_builder /app /app
 CMD ["pnpm", "--filter=@tsuwari/ytsr", "start"]
+
+### FRONTEND
+
+FROM builder as dashboard_builder
+RUN cd frontend/dashboard && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as dashboard
+WORKDIR /app
+COPY --from=dashboard_builder /app /app
+CMD ["pnpm", "--filter=@tsuwari/dashboard", "start"]
+
+FROM builder as landing_builder
+RUN cd frontend/landing && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as landing
+WORKDIR /app
+COPY --from=landing_builder /app /app
+CMD ["pnpm", "--filter=@tsuwari/landing", "start"]
+
+FROM builder as public_builder
+RUN cd frontend/public && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as public
+WORKDIR /app
+COPY --from=public_builder /app /app
+CMD ["pnpm", "--filter=@tsuwari/public", "start"]
+
+FROM builder as overlays_builder
+RUN cd frontend/overlays && \
+    pnpm build
+
+FROM codecentric/single-page-application-server as overlays
+COPY --from=overlays_builder /app/frontend/overlays/dist/ /app

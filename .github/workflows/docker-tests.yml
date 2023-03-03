@@ -71,56 +71,57 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}:latest
 
-#  frontend:
-#    runs-on: ubuntu-latest
-#    strategy:
-#      matrix:
-#        application:
-#          [
-#            dashboard,
-#            landing,
-#            overlays,
-#            public,
-#          ]
-#    steps:
-#      - uses: actions/checkout@v2
-#
-#      - name: Prepare
-#        id: prep
-#        run: |
-#          TAG=$(echo $GITHUB_SHA | head -c7)
-#          IMAGE=${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}
-#          echo ::set-output name=tagged_image::${IMAGE}:${TAG}
-#          echo ::set-output name=tag::${TAG}
-#
-#      - name: Set up Docker Buildx
-#        id: buildx
-#        uses: docker/setup-buildx-action@master
-#        with:
-#          install: true
-#
-#      - name: Cache Docker layers
-#        uses: actions/cache@v2
-#        with:
-#          path: /tmp/.buildx-cache
-#          key: ${{ runner.os }}-single-buildx-${{ github.sha }}
-#          restore-keys: |
-#            ${{ runner.os }}-single-buildx
-#
-#      - name: Login to Container Registry
-#        uses: docker/login-action@v1.14.1
-#        with:
-#          registry: ${{ secrets.DOCKER_REGISTRY }}
-#          username: ${{ secrets.DOCKER_USERNAME }}
-#          password: ${{ secrets.DOCKER_PASSWORD }}
-#
-#      - name: Build ${{ matrix.application }}
-#        uses: docker/build-push-action@v2
-#        with:
-#          builder: ${{ steps.buildx.outputs.name }}
-#          cache-from: type=local,src=/tmp/.buildx-cache
-#          context: .
-#          push: false
-#          file: ./frontend/${{ matrix.application }}/Dockerfile
-#          tags: |
-#            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}:latest
+  frontend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        application:
+          [
+            dashboard,
+            landing,
+            overlays,
+            public,
+          ]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Prepare
+        id: prep
+        run: |
+          TAG=$(echo $GITHUB_SHA | head -c7)
+          IMAGE=${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}
+          echo ::set-output name=tagged_image::${IMAGE}:${TAG}
+          echo ::set-output name=tag::${TAG}
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@master
+        with:
+          install: true
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-single-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-single-buildx
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v1.14.1
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build ${{ matrix.application }}
+        uses: docker/build-push-action@v2
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          context: .
+          push: false
+          file: ./Dockerfile
+          target: ${{ matrix.application }}
+          tags: |
+            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}:latest
