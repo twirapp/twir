@@ -127,6 +127,11 @@ CMD ["/bin/scheduler"]
 ### NODEJS MICROSERVICES
 
 FROM node:18-alpine as node_prod_base
+RUN apk add wget && \
+  wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
+  echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories && \
+  apk add doppler && apk del wget && \
+  rm -rf /var/cache/apk/*
 COPY --from=builder /app/docker-entrypoint.sh /app/
 RUN corepack enable
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
@@ -138,7 +143,11 @@ RUN cd apps/dota && \
 
 FROM node_prod_base as dota
 WORKDIR /app
-COPY --from=dota_builder /app /app
+COPY --from=dota_builder /app/apps/dota /app/apps/dota
+COPY --from=dota_builder /app/libs/config /app/libs/config
+COPY --from=dota_builder /app/libs/grpc /app/libs/grpc
+COPY --from=dota_builder /app/libs/shared /app/libs/shared
+COPY --from=dota_builder /app/libs/typeorm /app/libs/typeorm
 CMD ["pnpm", "--filter=@tsuwari/dota", "start"]
 
 FROM builder as eval_builder

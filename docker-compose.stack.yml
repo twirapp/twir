@@ -151,7 +151,8 @@ services:
   bots:
     build:
       context: .
-      dockerfile: ./apps/bots/Dockerfile
+      dockerfile: ./Dockerfile
+      target: bots
     image: registry.satont.dev/tsuwari/bots
     secrets:
       - tsuwari_doppler_token
