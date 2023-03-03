@@ -132,7 +132,8 @@ RUN apk add wget && \
   echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories && \
   apk add doppler && apk del wget && \
   rm -rf /var/cache/apk/*
-COPY --from=builder /app/docker-entrypoint.sh /app/
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/.npmrc /app/docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 RUN corepack enable
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
