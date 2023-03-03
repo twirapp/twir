@@ -32,7 +32,8 @@ func main() {
 		panic("failed to connect database")
 	}
 
-	appCtx := context.Background()
+	appCtx, cancelCtx := context.WithCancel(context.Background())
+
 	services := &types.Services{
 		Grpc: &types.GrpcServices{
 			Emotes:  clients.NewEmotesCacher(cfg.AppEnv),
@@ -53,6 +54,6 @@ func main() {
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal
-	appCtx.Done()
+	cancelCtx()
 	logger.Sugar().Info("Closing...")
 }
