@@ -128,6 +128,7 @@ CMD ["/bin/scheduler"]
 
 FROM node:18-alpine as node_prod_base
 COPY --from=builder /app/docker-entrypoint.sh /app/
+RUN corepack enable
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 FROM builder as dota_builder
