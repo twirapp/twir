@@ -113,7 +113,7 @@ FROM go_prod_base as watched
 COPY --from=watched_builder /app/apps/watched/out /bin/watched
 CMD ["/bin/watched"]
 
-FROM golang:1.20.1-alpine as scheduler_builder
+FROM builder as scheduler_builder
 RUN cd apps/scheduler && \
     go mod download && \
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
