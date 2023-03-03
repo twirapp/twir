@@ -281,6 +281,7 @@ RUN cd libs/typeorm && \
 
 FROM node_prod_base as migrations
 WORKDIR /app
+COPY --from=builder /app/tsconfig.base.json /app/
 COPY --from=migrations_builder /app/libs/typeorm /app/libs/typeorm
 COPY --from=migrations_builder /app/libs/config /app/libs/config
 COPY --from=migrations_builder /app/libs/grpc /app/libs/grpc
