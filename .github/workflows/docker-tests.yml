@@ -67,6 +67,7 @@ jobs:
           context: .
           push: false
           file: ./Dockerfile
+          target: ${{ matrix.application }}
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}:latest
 
