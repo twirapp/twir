@@ -272,9 +272,9 @@ COPY --from=overlays_builder /app/frontend/overlays/dist/ /app
 ### MIGRATIONS
 FROM node_prod_base as migrations
 WORKDIR /app
-COPY --from=base /app/docker-entrypoint.sh /app/
-COPY --from=dota_builder /app/libs/typeorm /app/libs/typeorm
-COPY --from=dota_builder /app/libs/config /app/libs/config
-COPY --from=dota_builder /app/libs/crypto /app/libs/crypto
+COPY --from=builder /app/docker-entrypoint.sh /app/
+COPY --from=builder /app/libs/typeorm /app/libs/typeorm
+COPY --from=builder /app/libs/config /app/libs/config
+COPY --from=builder /app/libs/crypto /app/libs/crypto
 RUN pnpm prune --prod
 CMD ["pnpm", "run", "migrate:deploy"]
