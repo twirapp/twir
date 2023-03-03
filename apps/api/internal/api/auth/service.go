@@ -237,12 +237,20 @@ func handleGetDashboards(user model.Users, services types.Services) ([]Dashboard
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	dashboards := []Dashboard{}
+	dashboards := []Dashboard{
+		{
+			ID:          user.ID,
+			Name:        "",
+			DisplayName: "",
+			Avatar:      "",
+			Flags:       []string{model.RolePermissionCanAccessDashboard.String()},
+		},
+	}
 
 	if user.IsBotAdmin {
 		channels := []model.Channels{}
 
-		err = services.DB.Find(&channels).Error
+		err = services.DB.Where(`"id" != ?`, user.ID).Find(&channels).Error
 		if err != nil {
 			logger.Error(err)
 			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
@@ -255,23 +263,20 @@ func handleGetDashboards(user model.Users, services types.Services) ([]Dashboard
 			}
 		})...)
 	} else {
-		roles := []model.ChannelRole{}
-
-		err = services.DB.Preload("Users", `"userId" = ?`, user.ID).Find(&roles).Error
 		if err != nil {
 			logger.Error(err)
 			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 
-		for _, role := range roles {
-			ok := lo.Contains(role.Permissions, model.RolePermissionCanAccessDashboard.String())
+		for _, role := range user.Roles {
+			ok := lo.Contains(role.Role.Permissions, model.RolePermissionCanAccessDashboard.String())
 			if !ok {
 				continue
 			}
 
 			dashboards = append(dashboards, Dashboard{
-				ID:    role.ChannelID,
-				Flags: role.Permissions,
+				ID:    role.Role.ChannelID,
+				Flags: role.Role.Permissions,
 			})
 		}
 	}

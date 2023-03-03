@@ -1,12 +1,14 @@
 package roles_users
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/tsuwari/apps/api/internal/types"
 	cfg "github.com/satont/tsuwari/libs/config"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
@@ -75,7 +77,7 @@ func getUsersService(roleId string) ([]*roleUser, error) {
 	return response, nil
 }
 
-func updateUsersService(roleId string, userNames []string) error {
+func updateUsersService(roleId string, userNames []string, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 	config := do.MustInvoke[cfg.Config](di.Provider)
 	db := do.MustInvoke[*gorm.DB](di.Provider)
@@ -96,6 +98,13 @@ func updateUsersService(roleId string, userNames []string) error {
 		if err = db.Where(`"roleId" = ?`, role.ID).Delete(&model.ChannelRoleUser{}).Error; err != nil {
 			logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
+		}
+
+		for _, user := range role.Users {
+			services.RedisStorage.DeleteByMethod(
+				fmt.Sprintf("fiber:cache:auth:profile:dashboards:%s", user.UserID),
+				"GET",
+			)
 		}
 
 		return nil
@@ -133,6 +142,20 @@ func updateUsersService(roleId string, userNames []string) error {
 	if err != nil {
 		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	for _, user := range role.Users {
+		services.RedisStorage.DeleteByMethod(
+			fmt.Sprintf("fiber:cache:auth:profile:dashboards:%s", user.UserID),
+			"GET",
+		)
+	}
+
+	for _, user := range twitchUsers.Data.Users {
+		services.RedisStorage.DeleteByMethod(
+			fmt.Sprintf("fiber:cache:auth:profile:dashboards:%s", user.ID),
+			"GET",
+		)
 	}
 
 	return nil

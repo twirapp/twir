@@ -65,7 +65,7 @@ func updateUsers(services types.Services) fiber.Handler {
 			return err
 		}
 
-		err = updateUsersService(c.Params("roleId"), dto.UserNames)
+		err = updateUsersService(c.Params("roleId"), dto.UserNames, services)
 		if err != nil {
 			return err
 		}

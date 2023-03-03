@@ -6,7 +6,7 @@ import { externalObsWsAtom, internalObsWsAtom, MyOBSWebsocket } from '../stores/
 
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
-import { FetcherError, useProfile } from '@/services/api';
+import { FetcherError, useDashboards, useProfile } from '@/services/api';
 import { useObsModule } from '@/services/api/modules';
 import { useInternalObsWs, useObs } from '@/services/obs/hook';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
@@ -23,6 +23,7 @@ export const AppProvider: React.FC<Props> = (props) => {
 
   const dashboardContext = useContext(SelectedDashboardContext);
   const { error: profileError, data: profileData } = useProfile();
+  const { data: dashboards } = useDashboards();
 
   useEffect(() => {
     if (!obsSettings || !profileData) return;
@@ -38,10 +39,16 @@ export const AppProvider: React.FC<Props> = (props) => {
   }, [obsSettings, profileData]);
 
   useEffect(() => {
-    if (!dashboardContext.id && profileData) {
+    if (!profileData || !dashboards) return;
+    if (!dashboardContext.id) {
       dashboardContext.setId(profileData.id);
+    } else {
+      const selectedDashboard = dashboards.find((d) => d.id === dashboardContext.id);
+      if (!selectedDashboard) {
+        dashboardContext.setId(profileData.id);
+      }
     }
-  }, [profileData]);
+  }, [profileData, dashboards]);
 
   useEffect(() => {
     if (profileError) {
