@@ -8,7 +8,7 @@ WORKDIR /app
 RUN apk add git curl wget upx protoc libc6-compat && \
     go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
-    npm i -g pnpm@7
+    corepack enable
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc go.work go.work.sum docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
@@ -21,6 +21,8 @@ COPY patches patches
 RUN pnpm install --frozen-lockfile
 RUN pnpm build:libs
 
+
+### GOLANG MICROSERVICES
 
 FROM alpine:latest as go_prod_base
 RUN apk add wget && \
@@ -121,3 +123,19 @@ RUN cd apps/scheduler && \
 FROM go_prod_base as scheduler
 COPY --from=scheduler_builder /app/apps/scheduler/out /bin/scheduler
 CMD ["/bin/scheduler"]
+
+### NODEJS MICROSERVICES
+
+FROM node:18-alpine as node_prod_base
+COPY --from=builder /app/docker-entrypoint.sh /app/
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+
+FROM builder as dota_builder
+RUN cd apps/dota && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as dota
+WORKDIR /app
+COPY --from=builder /app /app
+CMD ["pnpm", "--filter=@tsuwari/dota", "start"]

@@ -278,7 +278,8 @@ services:
   dota:
     build:
       context: .
-      dockerfile: ./apps/dota/Dockerfile
+      dockerfile: ./Dockerfile
+      target: dota
     image: registry.satont.dev/tsuwari/dota
     secrets:
       - tsuwari_doppler_token
@@ -444,7 +445,8 @@ services:
   tokens:
     build:
       context: .
-      dockerfile: ./apps/tokens/Dockerfile
+      dockerfile: ./Dockerfile
+      target: tokens
     image: registry.satont.dev/tsuwari/tokens
     secrets:
       - tsuwari_doppler_token
