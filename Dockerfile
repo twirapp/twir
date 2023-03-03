@@ -139,3 +139,63 @@ FROM node_prod_base as dota
 WORKDIR /app
 COPY --from=builder /app /app
 CMD ["pnpm", "--filter=@tsuwari/dota", "start"]
+
+FROM builder as eval_builder
+RUN cd apps/eval && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as eval
+WORKDIR /app
+COPY --from=builder /app /app
+CMD ["pnpm", "--filter=@tsuwari/eval", "start"]
+
+FROM builder as eventsub_builder
+RUN cd apps/eventsub && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as eventsub
+WORKDIR /app
+COPY --from=builder /app /app
+CMD ["pnpm", "--filter=@tsuwari/eventsub", "start"]
+
+FROM builder as integrations_builder
+RUN cd apps/integrations && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as integrations
+WORKDIR /app
+COPY --from=builder /app /app
+CMD ["pnpm", "--filter=@tsuwari/integrations", "start"]
+
+FROM builder as streamstatus_builder
+RUN cd apps/streamstatus && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as streamstatus
+WORKDIR /app
+COPY --from=builder /app /app
+CMD ["pnpm", "--filter=@tsuwari/dota", "start"]
+
+FROM builder as websockets_builder
+RUN cd apps/websockets && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as websockets
+WORKDIR /app
+COPY --from=builder /app /app
+CMD ["pnpm", "--filter=@tsuwari/websockets", "start"]
+
+FROM builder as ytsr_builder
+RUN cd apps/ytsr && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as ytsr
+WORKDIR /app
+COPY --from=builder /app /app
+CMD ["pnpm", "--filter=@tsuwari/ytsr", "start"]
