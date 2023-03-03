@@ -270,11 +270,16 @@ FROM codecentric/single-page-application-server as overlays
 COPY --from=overlays_builder /app/frontend/overlays/dist/ /app
 
 ### MIGRATIONS
+
+FROM builder as migrations_builder
+RUN cd libs/typeorm && \
+    pnpm build && \
+    pnpm prune --prod
+
 FROM node_prod_base as migrations
 WORKDIR /app
-COPY --from=builder /app/docker-entrypoint.sh /app/
-COPY --from=builder /app/libs/typeorm /app/libs/typeorm
-COPY --from=builder /app/libs/config /app/libs/config
-COPY --from=builder /app/libs/crypto /app/libs/crypto
-RUN pnpm prune --prod
+COPY --from=migrations_builder /app/libs/typeorm /app/libs/typeorm
+COPY --from=migrations_builder /app/libs/config /app/libs/config
+COPY --from=migrations_builder /app/libs/grpc /app/libs/grpc
+COPY --from=migrations_builder /app/libs/typeorm /app/libs/typeorm
 CMD ["pnpm", "run", "migrate:deploy"]
