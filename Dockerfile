@@ -138,3 +138,15 @@ RUN cd apps/watched && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./o
 FROM go_prod_base as watched
 COPY --from=watched_builder /app/apps/watched/out /bin/watched
 CMD ["/bin/watched"]
+
+FROM golang:1.20.1-alpine as scheduler_builder
+WORKDIR /app
+RUN apk add git curl wget upx
+COPY --from=builder /app/apps /app/apps
+COPY --from=builder /app/libs /app/libs
+RUN cd apps/scheduler && go mod download
+RUN cd apps/scheduler && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as scheduler
+COPY --from=scheduler_builder /app/apps/scheduler/out /bin/scheduler
+CMD ["/bin/scheduler"]
