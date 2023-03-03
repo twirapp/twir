@@ -127,7 +127,8 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./apps/api/Dockerfile
+      dockerfile: ./Dockerfile
+      target: api
     image: registry.satont.dev/tsuwari/api
     secrets:
       - tsuwari_doppler_token

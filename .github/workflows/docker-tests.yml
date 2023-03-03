@@ -12,20 +12,20 @@ jobs:
         application:
           [
             api,
-#            bots,
+            bots,
 #            dota,
 #            eval,
 #            eventsub,
 #            integrations,
-#            parser,
-#            scheduler,
+            parser,
+            scheduler,
 #            streamstatus,
-#            timers,
-#            watched,
+            timers,
+            watched,
 #            websockets,
-#            tokens,
-#            emotes-cacher,
-#            events,
+            tokens,
+            emotes-cacher,
+            events,
 #            ytsr,
           ]
     steps:
