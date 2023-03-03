@@ -137,7 +137,7 @@ RUN cd apps/dota && \
 
 FROM node_prod_base as dota
 WORKDIR /app
-COPY --from=builder /app /app
+COPY --from=dota_builder /app /app
 CMD ["pnpm", "--filter=@tsuwari/dota", "start"]
 
 FROM builder as eval_builder
@@ -147,7 +147,7 @@ RUN cd apps/eval && \
 
 FROM node_prod_base as eval
 WORKDIR /app
-COPY --from=builder /app /app
+COPY --from=eval_builder /app /app
 CMD ["pnpm", "--filter=@tsuwari/eval", "start"]
 
 FROM builder as eventsub_builder
@@ -157,7 +157,7 @@ RUN cd apps/eventsub && \
 
 FROM node_prod_base as eventsub
 WORKDIR /app
-COPY --from=builder /app /app
+COPY --from=eventsub_builder /app /app
 CMD ["pnpm", "--filter=@tsuwari/eventsub", "start"]
 
 FROM builder as integrations_builder
@@ -167,7 +167,7 @@ RUN cd apps/integrations && \
 
 FROM node_prod_base as integrations
 WORKDIR /app
-COPY --from=builder /app /app
+COPY --from=integrations_builder /app /app
 CMD ["pnpm", "--filter=@tsuwari/integrations", "start"]
 
 FROM builder as streamstatus_builder
@@ -177,7 +177,7 @@ RUN cd apps/streamstatus && \
 
 FROM node_prod_base as streamstatus
 WORKDIR /app
-COPY --from=builder /app /app
+COPY --from=streamstatus_builder /app /app
 CMD ["pnpm", "--filter=@tsuwari/dota", "start"]
 
 FROM builder as websockets_builder
@@ -187,7 +187,7 @@ RUN cd apps/websockets && \
 
 FROM node_prod_base as websockets
 WORKDIR /app
-COPY --from=builder /app /app
+COPY --from=websockets_builder /app /app
 CMD ["pnpm", "--filter=@tsuwari/websockets", "start"]
 
 FROM builder as ytsr_builder
@@ -197,5 +197,5 @@ RUN cd apps/ytsr && \
 
 FROM node_prod_base as ytsr
 WORKDIR /app
-COPY --from=builder /app /app
+COPY --from=ytsr_builder /app /app
 CMD ["pnpm", "--filter=@tsuwari/ytsr", "start"]
