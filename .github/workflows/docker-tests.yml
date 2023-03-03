@@ -4,48 +4,6 @@ on:
   push:
 
 jobs:
-  builder:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - uses: actions/setup-go@v3
-        with:
-          go-version: '>=1.20.1'
-
-      - name: Protobuf installation
-        run: |
-          sudo apt install -y protobuf-compiler && \
-          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
-          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
-
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build
-        run: pnpm build
-
   backend:
     needs: builder
     runs-on: ubuntu-latest
@@ -71,7 +29,7 @@ jobs:
 #            ytsr,
           ]
     steps:
-#      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Prepare
         id: prep
