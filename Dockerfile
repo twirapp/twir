@@ -5,7 +5,6 @@ ENV PATH="$PATH:/root/go/bin"
 
 WORKDIR /app
 
-
 RUN apk add git curl wget upx protoc libc6-compat && \
     go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
@@ -16,6 +15,7 @@ RUN chmod +x docker-entrypoint.sh
 
 COPY libs libs
 COPY apps apps
+COPY frontend frontend
 COPY patches patches
 
 RUN pnpm install --frozen-lockfile
