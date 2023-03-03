@@ -166,6 +166,10 @@ services:
       endpoint_mode: dnsrr
 
   watched:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: watched
     image: registry.satont.dev/tsuwari/watched
     secrets:
       - tsuwari_doppler_token
@@ -356,7 +360,7 @@ services:
       placement:
         constraints:
           - node.role == manager
-
+#
   dashboard:
     build:
       context: .
@@ -380,18 +384,41 @@ services:
       placement:
         constraints:
           - node.role == manager
-
+#
   public:
     build:
       context: .
       dockerfile: ./Dockerfile
-      target: dashboard
+      target: public
     image: registry.satont.dev/tsuwari/public
     secrets:
       - tsuwari_doppler_token
     ports:
       - target: 3000
         published: 3006
+        mode: host
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
+  overlays:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: overlays
+    restart: unless-stopped
+    image: registry.satont.dev/tsuwari/overlays
+    ports:
+      - target: 80
+        published: 3007
         mode: host
     networks:
       - tsuwari
@@ -528,29 +555,6 @@ services:
       endpoint_mode: dnsrr
       mode: replicated
       replicas: 5
-
-  overlays:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: overlays
-    restart: unless-stopped
-    image: registry.satont.dev/tsuwari/overlays
-    ports:
-      - target: 80
-        published: 3007
-        mode: host
-    networks:
-      - tsuwari
-    deploy:
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.role == manager
 
 
 volumes:

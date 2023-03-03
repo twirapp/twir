@@ -1,17 +1,14 @@
-FROM node:18-alpine as base
-
+FROM node:18-alpine as builder
 COPY --from=golang:1.20.1-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="$PATH:/usr/local/go/bin"
 ENV PATH="$PATH:/root/go/bin"
 
-RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
-RUN apk add --no-cache protoc git curl libc6-compat
-
-RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
-  go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-
 WORKDIR /app
-RUN npm i -g pnpm@7
+
+RUN apk add git curl wget upx protoc libc6-compat && \
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
+    corepack enable
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc go.work go.work.sum docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
@@ -22,170 +19,10 @@ COPY frontend frontend
 COPY patches patches
 
 RUN pnpm install --frozen-lockfile
-RUN pnpm build
+RUN pnpm build:libs
 
-FROM node:18-alpine as node_prod_base
-RUN npm i -g pnpm
-RUN apk add wget
-RUN wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub
-RUN echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories
-RUN apk add doppler
-RUN rm -rf /var/cache/apk/*
 
-FROM node:18-alpine as node_deps_base
-WORKDIR /app
-RUN npm i -g pnpm
-RUN apk add git
-COPY --from=base /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/turbo.json /app/.npmrc ./
-
-FROM node_deps_base as dota_deps
-RUN apk add openssh libc6-compat
-COPY --from=base /app/apps/dota apps/dota/
-COPY --from=base /app/libs/typeorm libs/typeorm/
-COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/libs/grpc libs/grpc/
-COPY --from=base /app/libs/pubsub libs/pubsub/
-COPY --from=base /app/libs/crypto libs/crypto/
-COPY --from=base /app/patches patches/
-RUN pnpm install --prod --frozen-lockfile
-
-FROM node_prod_base as dota
-WORKDIR /app
-COPY --from=dota_deps /app/ /app/
-COPY --from=base /app/docker-entrypoint.sh /app
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "--filter=@tsuwari/dota", "start"]
-
-FROM node_deps_base as eval_deps
-COPY --from=base /app/apps/eval apps/eval/
-COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/grpc libs/grpc/
-COPY --from=base /app/patches patches/
-RUN pnpm install --prod --frozen-lockfile
-
-FROM node_prod_base as eval
-WORKDIR /app
-COPY --from=eval_deps /app/ /app/
-COPY --from=base /app/docker-entrypoint.sh /app
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "--filter=@tsuwari/eval", "start"]
-
-FROM node_deps_base as eventsub_deps
-COPY --from=base /app/apps/eventsub apps/eventsub/
-COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/grpc libs/grpc/
-COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/libs/typeorm libs/typeorm/
-COPY --from=base /app/libs/types libs/types/
-COPY --from=base /app/libs/pubsub libs/pubsub/
-COPY --from=base /app/patches patches/
-RUN pnpm install --prod --frozen-lockfile
-
-FROM node_prod_base as eventsub
-WORKDIR /app
-COPY --from=eventsub_deps /app/ /app/
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "--filter=@tsuwari/eventsub", "start"]
-
-FROM node_deps_base as integrations_deps
-COPY --from=base /app/apps/integrations apps/integrations/
-COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/grpc libs/grpc/
-COPY --from=base /app/libs/typeorm libs/typeorm/
-COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/patches patches/
-RUN pnpm install --prod --frozen-lockfile
-
-FROM node_prod_base as integrations
-WORKDIR /app
-COPY --from=integrations_deps /app/ /app/
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "--filter=@tsuwari/integrations", "start"]
-
-FROM node_deps_base as scheduler_deps
-COPY --from=base /app/apps/scheduler apps/scheduler/
-COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/grpc libs/grpc/
-COPY --from=base /app/libs/typeorm libs/typeorm/
-COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/patches patches/
-RUN pnpm install --prod --frozen-lockfile
-
-FROM node_prod_base as scheduler
-WORKDIR /app
-COPY --from=scheduler_deps /app/ /app/
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "--filter=@tsuwari/scheduler", "start"]
-
-FROM node_deps_base as streamstatus_deps
-COPY --from=base /app/apps/streamstatus apps/streamstatus/
-COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/typeorm libs/typeorm/
-COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/libs/grpc libs/grpc/
-COPY --from=base /app/libs/pubsub libs/pubsub/
-COPY --from=base /app/patches patches/
-RUN pnpm install --prod --frozen-lockfile
-
-FROM node_prod_base as streamstatus
-WORKDIR /app
-COPY --from=streamstatus_deps /app/ /app/
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "--filter=@tsuwari/streamstatus", "start"]
-
-FROM node_deps_base as migrations_deps
-COPY --from=base /app/tsconfig.json /app/tsconfig.base.json ./
-COPY --from=base /app/libs/typeorm libs/typeorm/
-COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/crypto libs/crypto/
-COPY --from=base /app/patches patches/
-RUN pnpm install --prod --frozen-lockfile
-
-FROM node_prod_base as migrations
-WORKDIR /app
-COPY --from=migrations_deps /app/ /app/
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "run", "migrate:deploy"]
-
-FROM node_deps_base as landing_deps
-COPY --from=base /app/frontend/landing frontend/landing/
-COPY --from=base /app/libs/typeorm libs/typeorm/
-COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/libs/ui libs/ui/
-COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/patches patches/
-RUN pnpm install --prod --frozen-lockfile
-
-FROM node_prod_base as landing
-WORKDIR /app
-COPY --from=landing_deps /app/ /app/
-EXPOSE 3000
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "--filter=@tsuwari/landing", "start"]
-
-FROM node_deps_base as dashboard_deps
-COPY --from=base /app/frontend/dashboard frontend/dashboard/
-COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/libs/typeorm libs/typeorm/
-COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/types libs/types/
-COPY --from=base /app/patches patches/
-RUN pnpm install --prod --frozen-lockfile
-
-FROM node_prod_base as dashboard
-WORKDIR /app
-COPY --from=dashboard_deps /app/ /app/
-EXPOSE 3000
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "--filter=@tsuwari/dashboard", "start"]
+### GOLANG MICROSERVICES
 
 FROM alpine:latest as go_prod_base
 RUN apk add wget && \
@@ -193,157 +30,258 @@ RUN apk add wget && \
   echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories && \
   apk add doppler && apk del wget && \
   rm -rf /var/cache/apk/*
-
-FROM golang:1.20.1-alpine as golang_deps_base
-WORKDIR /app
-RUN apk add git curl wget upx
-COPY --from=base /app/apps/parser apps/parser/
-COPY --from=base /app/apps/timers apps/timers/
-COPY --from=base /app/apps/bots apps/bots/
-COPY --from=base /app/apps/api apps/api/
-COPY --from=base /app/apps/tokens apps/tokens/
-COPY --from=base /app/apps/watched apps/watched/
-COPY --from=base /app/apps/emotes-cacher apps/emotes-cacher/
-COPY --from=base /app/apps/events apps/events/
-COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/grpc libs/grpc/
-COPY --from=base /app/libs/pubsub libs/pubsub/
-COPY --from=base /app/libs/twitch libs/twitch/
-COPY --from=base /app/libs/gomodels libs/gomodels/
-COPY --from=base /app/libs/ytdl libs/ytdl/
-COPY --from=base /app/libs/ytsr libs/ytsr/
-COPY --from=base /app/libs/types libs/types/
-COPY --from=base /app/libs/crypto libs/crypto/
-COPY --from=base /app/libs/integrations/spotify libs/integrations/spotify/
-RUN rm -r `find . -name node_modules -type d`
-
-FROM golang_deps_base as parser_deps
-RUN cd apps/parser && go mod download
-RUN cd apps/parser && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
-
-FROM go_prod_base as parser
-COPY --from=parser_deps /app/apps/parser/out /bin/parser
-COPY --from=base /app/docker-entrypoint.sh /app/
+COPY --from=builder /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["/bin/parser"]
 
-FROM golang_deps_base as timers_deps
-RUN cd apps/timers && go mod download
-RUN cd apps/timers && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
-
-FROM go_prod_base as timers
-COPY --from=timers_deps /app/apps/timers/out /bin/timers
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["/bin/timers"]
-
-FROM golang_deps_base as api_deps
-RUN cd apps/api && go mod download
-RUN cd apps/api && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+FROM builder as api_builder
+RUN cd apps/api && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as api
-COPY --from=api_deps /app/apps/api/out /bin/api
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+COPY --from=api_builder /app/apps/api/out /bin/api
 CMD ["/bin/api"]
 
-FROM golang_deps_base as bots_deps
-RUN cd apps/bots && go mod download
-RUN cd apps/bots && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+FROM builder as bots_builder
+WORKDIR /app
+RUN cd apps/bots && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as bots
-COPY --from=bots_deps /app/apps/bots/out /bin/bots
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+COPY --from=bots_builder /app/apps/bots/out /bin/bots
 CMD ["/bin/bots"]
 
-FROM golang_deps_base as tokens_deps
-RUN cd apps/tokens && go mod download
-RUN cd apps/tokens && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+FROM builder as emotes-cacher_builder
+RUN cd apps/emotes-cacher && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as emotes-cacher
+COPY --from=emotes-cacher_builder /app/apps/emotes-cacher/out /bin/emotes-cacher
+CMD ["/bin/emotes-cacher"]
+
+FROM builder as events_builder
+RUN cd apps/events && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as events
+COPY --from=events_builder /app/apps/events/out /bin/events
+CMD ["/bin/events"]
+
+FROM builder as parser_builder
+RUN cd apps/parser && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as parser
+COPY --from=parser_builder /app/apps/parser/out /bin/parser
+CMD ["/bin/parser"]
+
+FROM builder as streamstatus_builder
+RUN cd apps/streamstatus && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as streamstatus
+COPY --from=streamstatus_builder /app/apps/api/out /bin/api
+CMD ["/bin/api"]
+
+FROM builder as timers_builder
+RUN cd apps/timers && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as timers
+COPY --from=timers_builder /app/apps/timers/out /bin/timers
+CMD ["/bin/timers"]
+
+FROM builder as tokens_builder
+RUN cd apps/tokens && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as tokens
-COPY --from=tokens_deps /app/apps/tokens/out /bin/tokens
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+COPY --from=tokens_builder /app/apps/tokens/out /bin/tokens
 CMD ["/bin/tokens"]
 
-FROM golang_deps_base as watched_deps
-RUN cd apps/watched && go mod download
-RUN cd apps/watched && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+FROM builder as watched_builder
+RUN cd apps/watched && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as watched
-COPY --from=watched_deps /app/apps/watched/out /bin/watched
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+COPY --from=watched_builder /app/apps/watched/out /bin/watched
 CMD ["/bin/watched"]
 
-FROM node_deps_base as websocket_deps
-RUN apk add openssh libc6-compat
-COPY --from=base /app/apps/websockets apps/websockets/
-COPY --from=base /app/libs/typeorm libs/typeorm/
-COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/libs/grpc libs/grpc/
-COPY --from=base /app/libs/types libs/types/
-COPY --from=base /app/patches patches/
-RUN pnpm install --prod --frozen-lockfile
+FROM builder as scheduler_builder
+RUN cd apps/scheduler && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as scheduler
+COPY --from=scheduler_builder /app/apps/scheduler/out /bin/scheduler
+CMD ["/bin/scheduler"]
+
+### NODEJS MICROSERVICES
+
+FROM node:18-alpine as node_prod_base
+WORKDIR /app
+RUN apk add wget && \
+  wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
+  echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories && \
+  apk add doppler && apk del wget && \
+  rm -rf /var/cache/apk/*
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/.npmrc /app/docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
+RUN corepack enable
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+
+FROM builder as dota_builder
+RUN cd apps/dota && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as dota
+WORKDIR /app
+COPY --from=dota_builder /app/apps/dota /app/apps/dota
+COPY --from=dota_builder /app/libs/config /app/libs/config
+COPY --from=dota_builder /app/libs/grpc /app/libs/grpc
+COPY --from=dota_builder /app/libs/shared /app/libs/shared
+COPY --from=dota_builder /app/libs/typeorm /app/libs/typeorm
+CMD ["pnpm", "--filter=@tsuwari/dota", "start"]
+
+FROM builder as eval_builder
+RUN cd apps/eval && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as eval
+WORKDIR /app
+COPY --from=eval_builder /app/apps/eval /app/apps/eval
+COPY --from=eval_builder /app/libs/config /app/libs/config
+COPY --from=eval_builder /app/libs/grpc /app/libs/grpc
+CMD ["pnpm", "--filter=@tsuwari/eval", "start"]
+
+FROM builder as eventsub_builder
+RUN cd apps/eventsub && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as eventsub
+WORKDIR /app
+COPY --from=eventsub_builder /app/apps/eventsub /app/apps/eventsub
+COPY --from=eventsub_builder /app/libs/config /app/libs/config
+COPY --from=eventsub_builder /app/libs/grpc /app/libs/grpc
+COPY --from=eventsub_builder /app/libs/shared /app/libs/shared
+COPY --from=eventsub_builder /app/libs/typeorm /app/libs/typeorm
+COPY --from=eventsub_builder /app/libs/pubsub /app/libs/pubsub
+COPY --from=eventsub_builder /app/libs/types /app/libs/types
+CMD ["pnpm", "--filter=@tsuwari/eventsub", "start"]
+
+FROM builder as integrations_builder
+RUN cd apps/integrations && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as integrations
+WORKDIR /app
+COPY --from=integrations_builder /app/apps/integrations /app/apps/integrations
+COPY --from=integrations_builder /app/libs/config /app/libs/config
+COPY --from=integrations_builder /app/libs/grpc /app/libs/grpc
+COPY --from=integrations_builder /app/libs/shared /app/libs/shared
+COPY --from=integrations_builder /app/libs/typeorm /app/libs/typeorm
+CMD ["pnpm", "--filter=@tsuwari/integrations", "start"]
+
+FROM builder as streamstatus_builder
+RUN cd apps/streamstatus && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as streamstatus
+WORKDIR /app
+COPY --from=streamstatus_builder /app/apps/streamstatus /app/apps/streamstatus
+COPY --from=streamstatus_builder /app/libs/config /app/libs/config
+COPY --from=streamstatus_builder /app/libs/pubsub /app/libs/pubsub
+COPY --from=streamstatus_builder /app/libs/shared /app/libs/shared
+COPY --from=streamstatus_builder /app/libs/typeorm /app/libs/typeorm
+CMD ["pnpm", "--filter=@tsuwari/dota", "start"]
+
+FROM builder as websockets_builder
+RUN cd apps/websockets && \
+    pnpm build && \
+    pnpm prune --prod
 
 FROM node_prod_base as websockets
 WORKDIR /app
-COPY --from=websocket_deps /app/ /app/
-COPY --from=base /app/docker-entrypoint.sh /app
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+COPY --from=websockets_builder /app/apps/websockets /app/apps/websockets
+COPY --from=websockets_builder /app/libs/config /app/libs/config
+COPY --from=websockets_builder /app/libs/grpc /app/libs/grpc
+COPY --from=websockets_builder /app/libs/typeorm /app/libs/typeorm
 CMD ["pnpm", "--filter=@tsuwari/websockets", "start"]
 
-FROM node_deps_base as public_deps
-COPY --from=base /app/frontend/public frontend/public/
-COPY --from=base /app/libs/shared libs/shared/
-COPY --from=base /app/libs/typeorm libs/typeorm/
-COPY --from=base /app/libs/config libs/config/
-COPY --from=base /app/libs/types libs/types/
-COPY --from=base /app/patches patches/
-RUN pnpm install --prod --frozen-lockfile
-
-FROM node_prod_base as public
-WORKDIR /app
-COPY --from=public_deps /app/ /app/
-EXPOSE 3000
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "--filter=@tsuwari/public", "start"]
-
-FROM golang_deps_base as emotes-cacher_deps
-RUN cd apps/emotes-cacher && go mod download
-RUN cd apps/emotes-cacher && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
-
-FROM go_prod_base as emotes-cacher
-COPY --from=emotes-cacher_deps /app/apps/emotes-cacher/out /bin/emotes-cacher
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["/bin/emotes-cacher"]
-
-FROM golang_deps_base as events_deps
-RUN cd apps/events && go mod download
-RUN cd apps/events && CGO_ENABLED=0 GOOS=linux  go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
-
-FROM go_prod_base as events
-COPY --from=events_deps /app/apps/events/out /bin/events
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["/bin/events"]
-
-FROM node_deps_base as ytsr_deps
-COPY --from=base /app/apps/ytsr apps/ytsr/
-COPY --from=base /app/libs/grpc libs/grpc/
-COPY --from=base /app/patches patches/
-RUN pnpm install --prod --frozen-lockfile
+FROM builder as ytsr_builder
+RUN cd apps/ytsr && \
+    pnpm build && \
+    pnpm prune --prod
 
 FROM node_prod_base as ytsr
 WORKDIR /app
-COPY --from=ytsr_deps /app/ /app/
-COPY --from=base /app/docker-entrypoint.sh /app/
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+COPY --from=ytsr_builder /app/apps/ytsr /app/apps/ytsr
+COPY --from=ytsr_builder /app/libs/grpc /app/libs/grpc
 CMD ["pnpm", "--filter=@tsuwari/ytsr", "start"]
 
+### FRONTEND
+
+FROM builder as dashboard_builder
+RUN cd frontend/dashboard && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as dashboard
+WORKDIR /app
+COPY --from=dashboard_builder /app /app
+CMD ["pnpm", "--filter=@tsuwari/dashboard", "start"]
+
+FROM builder as landing_builder
+RUN cd frontend/landing && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as landing
+WORKDIR /app
+COPY --from=landing_builder /app /app
+CMD ["pnpm", "--filter=@tsuwari/landing", "start"]
+
+FROM builder as public_builder
+RUN cd frontend/public && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as public
+WORKDIR /app
+COPY --from=public_builder /app /app
+CMD ["pnpm", "--filter=@tsuwari/public", "start"]
+
+FROM builder as overlays_builder
+RUN cd frontend/overlays && \
+    pnpm build
+
 FROM codecentric/single-page-application-server as overlays
-COPY --from=base /app/frontend/overlays/dist/ /app
+COPY --from=overlays_builder /app/frontend/overlays/dist/ /app
+
+### MIGRATIONS
+
+FROM builder as migrations_builder
+RUN cd libs/typeorm && \
+    pnpm build && \
+    pnpm prune --prod
+
+FROM node_prod_base as migrations
+WORKDIR /app
+COPY --from=migrations_builder /app/libs/typeorm /app/libs/typeorm
+COPY --from=migrations_builder /app/libs/config /app/libs/config
+COPY --from=migrations_builder /app/libs/grpc /app/libs/grpc
+COPY --from=migrations_builder /app/libs/typeorm /app/libs/typeorm
+CMD ["pnpm", "run", "migrate:deploy"]
