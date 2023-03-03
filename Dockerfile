@@ -31,121 +31,92 @@ RUN apk add wget && \
 COPY --from=builder /app/docker-entrypoint.sh /app/
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
-FROM golang:1.20.1-alpine as api_builder
-WORKDIR /app
-RUN apk add git curl wget upx
-COPY --from=builder /app/apps /app/apps
-COPY --from=builder /app/libs /app/libs
-RUN cd apps/api && go mod download
-RUN cd apps/api && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+FROM builder as api_builder
+RUN cd apps/api && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as api
 COPY --from=api_builder /app/apps/api/out /bin/api
 CMD ["/bin/api"]
 
-FROM golang:1.20.1-alpine as bots_builder
+FROM builder as bots_builder
 WORKDIR /app
-RUN apk add git curl wget upx
-COPY --from=builder /app/apps /app/apps
-COPY --from=builder /app/libs /app/libs
-RUN cd apps/bots && go mod download
-RUN cd apps/bots && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+RUN cd apps/bots && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as bots
 COPY --from=bots_builder /app/apps/bots/out /bin/bots
 CMD ["/bin/bots"]
 
-FROM golang:1.20.1-alpine as emotes-cacher_builder
-WORKDIR /app
-RUN apk add git curl wget upx
-COPY --from=builder /app/apps /app/apps
-COPY --from=builder /app/libs /app/libs
-RUN cd apps/emotes-cacher && go mod download
-RUN cd apps/emotes-cacher && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+FROM builder as emotes-cacher_builder
+RUN cd apps/emotes-cacher && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as emotes-cacher
 COPY --from=emotes-cacher_builder /app/apps/emotes-cacher/out /bin/emotes-cacher
 CMD ["/bin/emotes-cacher"]
 
-FROM golang:1.20.1-alpine as events_builder
-WORKDIR /app
-RUN apk add git curl wget upx
-COPY --from=builder /app/apps /app/apps
-COPY --from=builder /app/libs /app/libs
-RUN cd apps/events && go mod download
-RUN cd apps/events && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+FROM builder as events_builder
+RUN cd apps/events && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as events
 COPY --from=events_builder /app/apps/events/out /bin/events
 CMD ["/bin/events"]
 
-FROM golang:1.20.1-alpine as parser_builder
-WORKDIR /app
-RUN apk add git curl wget upx
-COPY --from=builder /app/apps /app/apps
-COPY --from=builder /app/libs /app/libs
-RUN cd apps/parser && go mod download
-RUN cd apps/parser && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+FROM builder as parser_builder
+RUN cd apps/parser && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as parser
 COPY --from=parser_builder /app/apps/parser/out /bin/parser
 CMD ["/bin/parser"]
 
-FROM golang:1.20.1-alpine as streamstatus_builder
-WORKDIR /app
-RUN apk add git curl wget upx
-COPY --from=builder /app/apps /app/apps
-COPY --from=builder /app/libs /app/libs
-RUN cd apps/streamstatus && go mod download
-RUN cd apps/streamstatus && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+FROM builder as streamstatus_builder
+RUN cd apps/streamstatus && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as streamstatus
 COPY --from=streamstatus_builder /app/apps/api/out /bin/api
 CMD ["/bin/api"]
 
-FROM golang:1.20.1-alpine as timers_builder
-WORKDIR /app
-RUN apk add git curl wget upx
-COPY --from=builder /app/apps /app/apps
-COPY --from=builder /app/libs /app/libs
-RUN cd apps/timers && go mod download
-RUN cd apps/timers && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+FROM builder as timers_builder
+RUN cd apps/timers && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as timers
 COPY --from=timers_builder /app/apps/timers/out /bin/timers
 CMD ["/bin/timers"]
 
-FROM golang:1.20.1-alpine as tokens_builder
-WORKDIR /app
-RUN apk add git curl wget upx
-COPY --from=builder /app/apps /app/apps
-COPY --from=builder /app/libs /app/libs
-RUN cd apps/tokens && go mod download
-RUN cd apps/tokens && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+FROM builder as tokens_builder
+RUN cd apps/tokens && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as tokens
 COPY --from=tokens_builder /app/apps/tokens/out /bin/tokens
 CMD ["/bin/tokens"]
 
-FROM golang:1.20.1-alpine as watched_builder
-WORKDIR /app
-RUN apk add git curl wget upx
-COPY --from=builder /app/apps /app/apps
-COPY --from=builder /app/libs /app/libs
-RUN cd apps/watched && go mod download
-RUN cd apps/watched && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+FROM builder as watched_builder
+RUN cd apps/watched && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as watched
 COPY --from=watched_builder /app/apps/watched/out /bin/watched
 CMD ["/bin/watched"]
 
 FROM golang:1.20.1-alpine as scheduler_builder
-WORKDIR /app
-RUN apk add git curl wget upx
-COPY --from=builder /app/apps /app/apps
-COPY --from=builder /app/libs /app/libs
-RUN cd apps/scheduler && go mod download
-RUN cd apps/scheduler && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+RUN cd apps/scheduler && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
 
 FROM go_prod_base as scheduler
 COPY --from=scheduler_builder /app/apps/scheduler/out /bin/scheduler
