@@ -134,6 +134,7 @@ RUN apk add wget && \
   apk add doppler && apk del wget && \
   rm -rf /var/cache/apk/*
 COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/.npmrc /app/docker-entrypoint.sh ./
+COPY --from=builder /app/node_modules/ ./node_modules/
 RUN chmod +x docker-entrypoint.sh
 RUN corepack enable
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
