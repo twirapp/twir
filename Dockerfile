@@ -157,7 +157,9 @@ RUN cd apps/eval && \
 
 FROM node_prod_base as eval
 WORKDIR /app
-COPY --from=eval_builder /app /app
+COPY --from=eval_builder /app/apps/eval /app/apps/eval
+COPY --from=eval_builder /app/libs/config /app/libs/config
+COPY --from=eval_builder /app/libs/grpc /app/libs/grpc
 CMD ["pnpm", "--filter=@tsuwari/eval", "start"]
 
 FROM builder as eventsub_builder
@@ -167,7 +169,13 @@ RUN cd apps/eventsub && \
 
 FROM node_prod_base as eventsub
 WORKDIR /app
-COPY --from=eventsub_builder /app /app
+COPY --from=eventsub_builder /app/apps/eventsub /app/apps/eventsub
+COPY --from=eventsub_builder /app/libs/config /app/libs/config
+COPY --from=eventsub_builder /app/libs/grpc /app/libs/grpc
+COPY --from=eventsub_builder /app/libs/shared /app/libs/shared
+COPY --from=eventsub_builder /app/libs/typeorm /app/libs/typeorm
+COPY --from=eventsub_builder /app/libs/pubsub /app/libs/pubsub
+COPY --from=eventsub_builder /app/libs/types /app/libs/types
 CMD ["pnpm", "--filter=@tsuwari/eventsub", "start"]
 
 FROM builder as integrations_builder
@@ -177,7 +185,11 @@ RUN cd apps/integrations && \
 
 FROM node_prod_base as integrations
 WORKDIR /app
-COPY --from=integrations_builder /app /app
+COPY --from=integrations_builder /app/apps/integrations /app/apps/integrations
+COPY --from=integrations_builder /app/libs/config /app/libs/config
+COPY --from=integrations_builder /app/libs/grpc /app/libs/grpc
+COPY --from=integrations_builder /app/libs/shared /app/libs/shared
+COPY --from=integrations_builder /app/libs/typeorm /app/libs/typeorm
 CMD ["pnpm", "--filter=@tsuwari/integrations", "start"]
 
 FROM builder as streamstatus_builder
@@ -187,7 +199,11 @@ RUN cd apps/streamstatus && \
 
 FROM node_prod_base as streamstatus
 WORKDIR /app
-COPY --from=streamstatus_builder /app /app
+COPY --from=streamstatus_builder /app/apps/streamstatus /app/apps/streamstatus
+COPY --from=streamstatus_builder /app/libs/config /app/libs/config
+COPY --from=streamstatus_builder /app/libs/pubsub /app/libs/pubsub
+COPY --from=streamstatus_builder /app/libs/shared /app/libs/shared
+COPY --from=streamstatus_builder /app/libs/typeorm /app/libs/typeorm
 CMD ["pnpm", "--filter=@tsuwari/dota", "start"]
 
 FROM builder as websockets_builder
@@ -197,7 +213,10 @@ RUN cd apps/websockets && \
 
 FROM node_prod_base as websockets
 WORKDIR /app
-COPY --from=websockets_builder /app /app
+COPY --from=websockets_builder /app/apps/websockets /app/apps/websockets
+COPY --from=websockets_builder /app/libs/config /app/libs/config
+COPY --from=websockets_builder /app/libs/grpc /app/libs/grpc
+COPY --from=websockets_builder /app/libs/typeorm /app/libs/typeorm
 CMD ["pnpm", "--filter=@tsuwari/websockets", "start"]
 
 FROM builder as ytsr_builder
@@ -207,7 +226,8 @@ RUN cd apps/ytsr && \
 
 FROM node_prod_base as ytsr
 WORKDIR /app
-COPY --from=ytsr_builder /app /app
+COPY --from=ytsr_builder /app/apps/ytsr /app/apps/ytsr
+COPY --from=ytsr_builder /app/libs/grpc /app/libs/grpc
 CMD ["pnpm", "--filter=@tsuwari/ytsr", "start"]
 
 ### FRONTEND
@@ -248,3 +268,13 @@ RUN cd frontend/overlays && \
 
 FROM codecentric/single-page-application-server as overlays
 COPY --from=overlays_builder /app/frontend/overlays/dist/ /app
+
+### MIGRATIONS
+FROM node_prod_base as migrations
+WORKDIR /app
+COPY --from=base /app/docker-entrypoint.sh /app/
+COPY --from=dota_builder /app/libs/typeorm /app/libs/typeorm
+COPY --from=dota_builder /app/libs/config /app/libs/config
+COPY --from=dota_builder /app/libs/crypto /app/libs/crypto
+RUN pnpm prune --prod
+CMD ["pnpm", "run", "migrate:deploy"]
