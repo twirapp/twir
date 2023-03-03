@@ -11,6 +11,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("obs-websocket")
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
+	middleware.Get("data", getData(services))
 
 	return middleware
 }
@@ -45,5 +46,16 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		return c.SendStatus(204)
+	}
+}
+
+func getData(services types.Services) fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		data, err := handleGetData(ctx.Params("channelId"))
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSON(data)
 	}
 }

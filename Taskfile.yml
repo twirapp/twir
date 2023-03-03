@@ -28,6 +28,9 @@ includes:
   scheduler:
     taskfile: ./apps/scheduler/Taskfile.yml
     dir: ./apps/scheduler
+  websockets:
+    taskfile: ./apps/websockets/Taskfile.yml
+    dir: ./apps/websockets
 
 
 tasks:
@@ -94,6 +97,11 @@ tasks:
     cmds:
       - task: scheduler:dev
 
+  websockets-dev:
+    deps: [ prepare ]
+    cmds:
+      - task: websockets:dev
+
   node-dev:
     deps: [prepare]
     cmds:
@@ -110,6 +118,7 @@ tasks:
       emotes-cacher-dev,
       events-dev,
       scheduler-dev,
+      websockets-dev,
       node-dev
     ]
 

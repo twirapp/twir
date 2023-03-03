@@ -18,7 +18,6 @@ import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction } from 'react';
 
 import DiscordSvg from '../../public/assets/icons/brands/discord.svg';
-import { externalObsWsAtom } from '../../stores/obs';
 import { Profile } from './profile';
 
 import { ChangelogModal } from '@/components/changelog/modal';
@@ -26,8 +25,6 @@ import { modalOpenedAtomic } from '@/components/changelog/store';
 import { useProfile } from '@/services/api';
 import { useLocale, LOCALES } from '@/services/dashboard';
 import { useTheme } from '@/services/dashboard';
-import { useObs } from '@/services/obs/hook';
-
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -67,8 +64,6 @@ export function NavBar({
   const { locale, toggleLocale } = useLocale();
   const { data: userData, isLoading: isLoadingProfile } = useProfile();
 
-  const obs = useObs();
-
   return (
     <Header height={60}>
       <Container maw="unset" className={classes.header}>
@@ -97,11 +92,6 @@ export function NavBar({
             </Text>
           </Box>
         </Flex>
-        <Group className={classes.hiddenMobile}>
-          <Badge color={store.get(externalObsWsAtom)?.connected ? 'green' : 'red'}>
-            OBS {store.get(externalObsWsAtom)?.connected ? 'connected' : 'disconnected'}
-          </Badge>
-        </Group>
         <Group position="center">
           <Button className={classes.hiddenMobile} variant={'light'} onClick={() => router.push('/application')}>Application</Button>
           <Tooltip label={'Discord'} withArrow>

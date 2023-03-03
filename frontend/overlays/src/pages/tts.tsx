@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { io, Socket } from 'socket.io-client';
 
 declare global {
   interface Window {
@@ -10,25 +9,19 @@ declare global {
 
 export const TTS: React.FC = () => {
   const { apiKey } = useParams();
-  const [tts, setTTS] = useState<Socket | null>(null);
+  const [tts, setTTS] = useState<WebSocket | null>(null);
+
+  const connect = () => {
+    const url = `${`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`}/socket/tts?apiKey=${apiKey}`;
+    const socket = new WebSocket(url);
+    return socket;
+  };
 
   useEffect(() => {
-    const tts = io(
-      `${`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`}/tts`,
-      {
-        transports: ['websocket'],
-        autoConnect: true,
-        auth: (cb) => {
-          cb({ apiKey });
-        },
-      },
-    );
-
-    setTTS(tts);
+    setTTS(connect());
 
     return () => {
-      tts.removeAllListeners();
-      tts.disconnect();
+      tts?.close();
     };
   }, []);
 
@@ -37,26 +30,34 @@ export const TTS: React.FC = () => {
 
   useEffect(() => {
     if (tts) {
-      tts.on('connect', () => {
+      tts.onopen = () => {
         console.log('connected');
-      });
+      };
 
-      tts.on('say', (data) => {
-        queueRef.current.push(data);
+      tts.onmessage = (msg) => {
+        const parsedData = JSON.parse(msg.data);
+        console.log(parsedData);
 
-        if (queueRef.current.length === 1) {
-          processQueue();
+        if (parsedData.eventName === 'say') {
+          queueRef.current.push(parsedData.data);
+
+          if (queueRef.current.length === 1) {
+            processQueue();
+          }
         }
-      });
 
-      tts.on('skip', () => {
-        currentAudioBuffer.current?.stop();
-      });
+        if (parsedData.eventName === 'skip') {
+          currentAudioBuffer.current?.stop();
+        }
+      };
+
+      tts.onclose = () => {
+        setTTS(null);
+        setTimeout(() => {
+          setTTS(connect());
+        }, 1500);
+      };
     }
-
-    return () => {
-      tts?.removeAllListeners();
-    };
   }, [tts]);
 
   const processQueue = useCallback(async () => {

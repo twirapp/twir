@@ -14,13 +14,9 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 
 import i18nconfig from '../next-i18next.config.js';
-import { obsStore } from '../stores/obs';
 
 import { AppProvider } from '@/components/appProvider';
-import { NavBar } from '@/components/layout/navbar';
-import { SideBar } from '@/components/layout/sidebar';
 import { queryClient } from '@/services/api';
-import { InternalObsWebsocketProvider, OBSWebsocketProvider } from '@/services/obs/provider';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 import '../styles/global.css';
@@ -98,17 +94,15 @@ function App(props: AppProps & Props) {
                   }}
                 >
                   <ModalsProvider>
-                    <JotaiProvider store={obsStore}>
-                      <AppProvider colorScheme={colorScheme}>
-                        <Component
-                          styles={{
-                            main: {
-                              background: colorScheme === 'dark' ? 'dark.8' : 'gray.0',
-                            },
-                          }}
-                        />
-                      </AppProvider>
-                    </JotaiProvider>
+                    <AppProvider colorScheme={colorScheme}>
+                      <Component
+                        styles={{
+                          main: {
+                            background: colorScheme === 'dark' ? 'dark.8' : 'gray.0',
+                          },
+                        }}
+                      />
+                    </AppProvider>
                   </ModalsProvider>
                 </SpotlightProvider>
               </NotificationsProvider>

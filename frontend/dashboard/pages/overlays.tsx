@@ -1,14 +1,16 @@
-import { Grid } from '@mantine/core';
+import { Flex, Grid } from '@mantine/core';
 import { NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
+import { OBSOverlay } from '@/components/overlays/obs';
 import { TTSOverlay } from '@/components/overlays/tts';
 
 const Overlays: NextPage = () => {
   return (
-   <Grid>
-     <Grid.Col span={2}><TTSOverlay /></Grid.Col>
-   </Grid>
+   <Flex direction={'row'} gap={'md'}>
+     <TTSOverlay />
+     <OBSOverlay />
+   </Flex>
   );
 };
 
@@ -16,7 +18,7 @@ const Overlays: NextPage = () => {
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale, ['events', 'layout'])),
+    ...(await serverSideTranslations(locale, ['events', 'layout', 'application'])),
   },
 });
 

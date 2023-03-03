@@ -34,7 +34,8 @@ const Player: NextPage = () => {
   const { data: youtubeSettings } = youtube.useSettings();
   const profile = useProfile();
   const [videos, videosHandlers] = useListState<RequestedSong>([]);
-  const socketRef = useRef<Socket | null>(null);
+
+  const socketRef = useRef<WebSocket | null>(null);
   const [autoPlay, setAutoPlay] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -77,7 +78,7 @@ const Player: NextPage = () => {
 
       const newVideos = moveItem(videos, from, to).map((v, i) => ({ ...v, queuePosition: i + 1 }));
 
-      socketRef.current?.emit('newOrder', newVideos);
+      socketRef.current?.send(JSON.stringify({ eventName: 'reorder', data: newVideos }));
     },
     [videos, socketRef.current],
   );
@@ -86,35 +87,27 @@ const Player: NextPage = () => {
     if (!profile.data) return;
 
     if (!socketRef.current) {
-      socketRef.current = io(
-        `${`${window.location.protocol == 'https:' ? 'wss' : 'ws'}://${
-          window.location.host
-        }`}/youtube`,
-        {
-          transports: ['websocket'],
-          autoConnect: false,
-          auth: (cb) => {
-            cb({ apiKey: profile.data?.apiKey, channelId: getCookie('dashboard_id') });
-          },
-        },
-      );
+      const url = `${`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`}/socket/youtube?apiKey=${profile.data.apiKey}`;
+      socketRef.current = new WebSocket(url);
     }
 
-    socketRef.current.connect();
+    socketRef.current!.onmessage = (msg) => {
+      const event = JSON.parse(msg.data);
 
-    socketRef.current.emit('currentQueue', (data: RequestedSong[]) => {
-      videosHandlers.setState([]);
-      addVideos(data);
-    });
+      if (event.eventName === 'currentQueue') {
+        videosHandlers.setState([]);
+        addVideos(event.data);
+      }
 
-    socketRef.current.on('newTrack', (track: RequestedSong) => {
-      if (autoPlay === 0) setAutoPlay(1);
-      addVideos([track]);
-    });
+      if (event.eventName === 'newTrack') {
+        if (autoPlay === 0) setAutoPlay(1);
+        addVideos([event.data]);
+      }
+    };
 
     return () => {
-      socketRef.current?.off('newTrack');
-      socketRef.current?.disconnect();
+      socketRef.current?.close();
+      socketRef.current = null;
     };
   }, [profile.data]);
 
@@ -122,29 +115,38 @@ const Player: NextPage = () => {
   useEffect(() => {
     if (!socketRef.current) return;
 
-    socketRef.current.on('removeTrack', (track: RequestedSong) => {
-      const index = videos.findIndex((v) => v.id === track.id);
-      if (index >= 0) {
-        skipVideo(index, false);
+    socketRef.current?.addEventListener('message', (msg) => {
+      const event = JSON.parse(msg.data);
+
+      if (event.eventName === 'removeTrack') {
+        const index = videos.findIndex((v) => v.id === event.data.id);
+        if (index >= 0) {
+          skipVideo(index, false);
+        }
       }
     });
-
-    return () => {
-      socketRef.current?.off('removeTrack');
-    };
   }, [videos, socketRef.current]);
 
   function callWsSkip(videos: RequestedSong | RequestedSong[]) {
     const ids = (Array.isArray(videos) ? videos : [videos]).map((v) => v.id);
-    socketRef.current?.emit('skip', ids);
+    socketRef.current?.send(JSON.stringify({
+      eventName: 'skip',
+      data: ids,
+    }));
   }
 
   useEffect(() => {
+    if (!socketRef.current) return;
     const video = videos[0]!;
     if (isPlaying) {
-      socketRef.current?.emit('play', { id: video.id, duration: video.duration });
+      socketRef.current?.send(JSON.stringify({
+        eventName: 'play',
+        data: { id: video.id, duration: video.duration },
+      }));
     } else {
-      socketRef.current?.emit('pause');
+      socketRef.current?.send(JSON.stringify({
+        eventName: 'pause',
+      }));
     }
   }, [isPlaying]);
 
