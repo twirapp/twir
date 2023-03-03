@@ -100,9 +100,6 @@ jobs:
           echo ::set-output name=tagged_image::${IMAGE}:${TAG}
           echo ::set-output name=tag::${TAG}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@master
@@ -135,17 +132,12 @@ jobs:
           target: ${{ matrix.application }}
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}:latest
-          platforms: linux/amd64,linux/arm64
 
   migrations:
-#    needs: build
     name: Build migrations
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
 
       - name: Prepare
         id: prep
@@ -185,7 +177,6 @@ jobs:
           target: migrations
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/tsuwari/migrations:latest
-          platforms: linux/amd64,linux/arm64
 
   postgres-backup:
     name: Build postgres-backup
@@ -200,9 +191,6 @@ jobs:
           IMAGE=${{ secrets.DOCKER_REGISTRY }}/tsuwari/postgres-backup
           echo ::set-output name=tagged_image::${IMAGE}:${TAG}
           echo ::set-output name=tag::${TAG}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
         id: buildx
@@ -233,4 +221,3 @@ jobs:
           file: ./tools/pg-backup/Dockerfile
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/tsuwari/postgres-backup:latest
-          platforms: linux/amd64,linux/arm64

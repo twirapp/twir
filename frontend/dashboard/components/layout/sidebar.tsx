@@ -122,16 +122,10 @@ export function SideBar(props: Props) {
   const dashboardContext = useContext(SelectedDashboardContext);
 
   useEffect(() => {
-    if (!user || !dashboards) return;
+    if (!user || !dashboards || !dashboardContext.id) return;
     const dashboard = dashboards.find((d) => d.id === dashboardContext.id);
-    if (!dashboard) {
-      // if we not found dashboard by id from cookie in dashboards list, then we set to user dashboard.
-      // it can happened, if user lost access to some dashboard
-      setSelectedDashboard(dashboards.find((d) => d.id === user.id)!);
-      return;
-    }
     setSelectedDashboard(dashboard);
-  }, [user, dashboards]);
+  }, [user, dashboards, dashboardContext.id]);
 
   const openSpotlight = useCallback(() => {
     if (!dashboards) return;

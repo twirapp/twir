@@ -31,7 +31,11 @@ var AttachUser = func(services types.Services) func(c *fiber.Ctx) error {
 		dbUser := model.Users{}
 
 		if apiKey != "" {
-			err := services.DB.Where(`"apiKey" = ?`, apiKey).First(&dbUser).Error
+			err := services.DB.
+				Where(`"apiKey" = ?`, apiKey).
+				Preload("Roles").
+				Preload("Roles.Role").
+				First(&dbUser).Error
 			if err != nil {
 				return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"message": "user with that api key not found"})
 			}
@@ -55,7 +59,11 @@ var AttachUser = func(services types.Services) func(c *fiber.Ctx) error {
 				return fiber.NewError(http.StatusUnauthorized, "invalid token")
 			}
 
-			err = services.DB.Where(`"id" = ?`, userId).Find(&dbUser).Error
+			err = services.DB.
+				Where(`"id" = ?`, userId).
+				Preload("Roles").
+				Preload("Roles.Role").
+				Find(&dbUser).Error
 			if err != nil {
 				return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"message": "user not found"})
 			}
