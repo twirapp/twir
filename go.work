@@ -10,6 +10,7 @@ use (
 	./apps/timers
 	./apps/tokens
 	./apps/watched
+	./apps/websockets
 	./libs/config
 	./libs/gomodels
 	./libs/grpc

@@ -46,10 +46,11 @@ export default defineConfig({
         ws: true,
         rewrite: (path) => path.replace(/^\/dashboard/, ''),
       },
-      '/socket.io': {
+      '/socket': {
         target: 'http://127.0.0.1:3004',
         changeOrigin: true,
         ws: true,
+        rewrite: (path) => path.replace(/^\/socket/, ''),
       },
       '/p': {
         target: 'http://127.0.0.1:3007',

@@ -45,6 +45,7 @@ import (
 
 	"github.com/satont/tsuwari/apps/api/internal/services/redis"
 
+	rdb "github.com/go-redis/redis/v9"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	_ "github.com/satont/tsuwari/apps/api/docs"
@@ -105,6 +106,9 @@ func main() {
 	}
 
 	do.ProvideValue[sqlx.DB](di.Provider, *pgConn)
+	
+	r := redis.New(cfg.RedisUrl)
+	do.ProvideValue[*rdb.Client](di.Provider, r)
 
 	storage := redis.NewCache(cfg.RedisUrl)
 

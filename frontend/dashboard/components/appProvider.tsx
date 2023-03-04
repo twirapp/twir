@@ -1,14 +1,10 @@
 import { AppShell, ColorScheme, useMantineTheme } from '@mantine/core';
-import { useAtom } from 'jotai/index';
 import { useContext, useEffect, useState } from 'react';
-
-import { externalObsWsAtom, internalObsWsAtom, MyOBSWebsocket } from '../stores/obs';
 
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
 import { FetcherError, useDashboards, useProfile } from '@/services/api';
 import { useObsModule } from '@/services/api/modules';
-import { useInternalObsWs, useObs } from '@/services/obs/hook';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 type Props = React.PropsWithChildren<{
@@ -16,27 +12,12 @@ type Props = React.PropsWithChildren<{
 }>;
 
 export const AppProvider: React.FC<Props> = (props) => {
-  const obs = useObs();
-  const internalObs = useInternalObsWs();
   const obsModule = useObsModule();
   const { data: obsSettings } = obsModule.useSettings();
 
   const dashboardContext = useContext(SelectedDashboardContext);
   const { error: profileError, data: profileData } = useProfile();
   const { data: dashboards } = useDashboards();
-
-  useEffect(() => {
-    if (!obsSettings || !profileData) return;
-    obs.connect().then(() => {
-      return internalObs.connect();
-    });
-
-    return () => {
-      obs.disconnect().then(() => {
-        return internalObs.disconnect();
-      });
-    };
-  }, [obsSettings, profileData]);
 
   useEffect(() => {
     if (!profileData || !dashboards) return;

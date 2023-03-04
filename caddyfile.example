@@ -20,6 +20,17 @@ tsuwari.app {
             rewrite * /socket.io{path}
             reverse_proxy localhost:3005
         }
+
+        handle_path /overlays* {
+            rewrite /assets* /{path}
+            rewrite * /overlays/{path}
+            reverse_proxy localhost:3007
+        }
+
+        handle_path /socket* {
+            rewrite * {path}
+            reverse_proxy localhost:3004
+        }
 }
 
 grafana.tsuwari.app {

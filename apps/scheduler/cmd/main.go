@@ -49,7 +49,7 @@ func main() {
 	timers.NewEmotes(appCtx, services)
 	timers.NewOnlineUsers(appCtx, services)
 
-	logger.Sugar().Info("Started")
+	logger.Sugar().Info("Scheduler started")
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)

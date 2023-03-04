@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"net/http"
 	"strings"
 
@@ -47,7 +46,6 @@ var AttachUser = func(services types.Services) func(c *fiber.Ctx) error {
 		if authorizationToken != "" {
 			token, err := ExtractTokenFromHeader(authorizationToken)
 			if err != nil {
-				spew.Dump(err)
 				return fiber.NewError(http.StatusUnauthorized, "invalid token. Probably token is expired.")
 			}
 

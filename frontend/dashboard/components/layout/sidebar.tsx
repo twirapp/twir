@@ -90,7 +90,6 @@ const navigationLinks: Array<Page | null> = [
   { label: 'Variables', icon: IconActivity, path: '/variables' },
   { label: 'Greetings', icon: IconSpeakerphone, path: '/greetings' },
   null,
-  { label: 'Application', icon: IconApps, path: '/application' },
 ];
 
 type Props = {

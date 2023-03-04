@@ -1,7 +1,10 @@
 package obs_websocket
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
+	"github.com/go-redis/redis/v9"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
@@ -69,4 +72,34 @@ func handlePost(channelId string, dto *modules.OBSWebSocketSettings, services ty
 
 		return nil
 	}
+}
+
+type OBSWebSocketData struct {
+	Sources      []string `json:"sources"`
+	AudioSources []string `json:"audioSources"`
+	Scenes       []string `json:"scenes"`
+}
+
+func handleGetData(channelId string) (*OBSWebSocketData, error) {
+	redisClient := do.MustInvoke[*redis.Client](di.Provider)
+
+	ctx := context.Background()
+
+	sourcesReq := redisClient.Get(ctx, fmt.Sprintf("obs:sources:%s", channelId)).Val()
+	audioSourcesReq := redisClient.Get(ctx, fmt.Sprintf("obs:audio-sources:%s", channelId)).Val()
+	scenesReq := redisClient.Get(ctx, fmt.Sprintf("obs:scenes:%s", channelId)).Val()
+
+	sources := make([]string, 0)
+	audioSources := make([]string, 0)
+	scenes := make([]string, 0)
+
+	json.Unmarshal([]byte(sourcesReq), &sources)
+	json.Unmarshal([]byte(audioSourcesReq), &audioSources)
+	json.Unmarshal([]byte(scenesReq), &scenes)
+
+	return &OBSWebSocketData{
+		Sources:      sources,
+		AudioSources: audioSources,
+		Scenes:       scenes,
+	}, nil
 }

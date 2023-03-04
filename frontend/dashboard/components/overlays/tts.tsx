@@ -134,6 +134,7 @@ export const TTSOverlay: React.FC = () => {
                         <ActionIcon
                           color={'dark'}
                           onClick={copy}
+                          disabled={!!ttsSettings === false}
                         >
                           <IconCopy />
                         </ActionIcon>

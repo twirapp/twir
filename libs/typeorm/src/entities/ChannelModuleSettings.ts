@@ -5,7 +5,7 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
-  Relation,
+  Relation, Unique,
 } from 'typeorm';
 
 import { type Channel } from './Channel.js';
@@ -18,6 +18,7 @@ export enum ModuleType {
 }
 
 @Entity('channels_modules_settings')
+@Unique(['channelId', 'userId'])
 export class ChannelModuleSettings {
   @PrimaryGeneratedColumn('uuid')
   id: string;

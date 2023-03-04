@@ -7,6 +7,12 @@ import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 export type OBS = V1['CHANNELS']['MODULES']['OBS']
 
+type OBSData = {
+  sources: string[],
+  scenes: string[],
+  audioSources: string[],
+}
+
 export const useObsModule = () => {
   const dashboard = useContext(SelectedDashboardContext);
   const getUrl = () => `/api/v1/channels/${dashboard.id}/modules/obs-websocket`;
@@ -29,8 +35,14 @@ export const useObsModule = () => {
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: [getUrl()] });
+        queryClient.refetchQueries({ queryKey: [`${getUrl()}/data`] });
       },
       mutationKey: [getUrl()],
+    }),
+    useData: () => useQuery<OBSData>({
+      queryKey: [`${getUrl()}/data`],
+      queryFn: () => authFetcher(`${getUrl()}/data`),
+      retry: false,
     }),
   };
 };

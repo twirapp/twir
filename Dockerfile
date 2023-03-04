@@ -124,6 +124,15 @@ FROM go_prod_base as scheduler
 COPY --from=scheduler_builder /app/apps/scheduler/out /bin/scheduler
 CMD ["/bin/scheduler"]
 
+FROM builder as websockets_builder
+RUN cd apps/websockets && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as websockets
+COPY --from=websockets_builder /app/apps/websockets/out /bin/websockets
+CMD ["/bin/websockets"]
+
 ### NODEJS MICROSERVICES
 
 FROM node:18-alpine as node_prod_base
@@ -208,19 +217,6 @@ COPY --from=streamstatus_builder /app/libs/pubsub /app/libs/pubsub
 COPY --from=streamstatus_builder /app/libs/shared /app/libs/shared
 COPY --from=streamstatus_builder /app/libs/typeorm /app/libs/typeorm
 CMD ["pnpm", "--filter=@tsuwari/dota", "start"]
-
-FROM builder as websockets_builder
-RUN cd apps/websockets && \
-    pnpm build && \
-    pnpm prune --prod
-
-FROM node_prod_base as websockets
-WORKDIR /app
-COPY --from=websockets_builder /app/apps/websockets /app/apps/websockets
-COPY --from=websockets_builder /app/libs/config /app/libs/config
-COPY --from=websockets_builder /app/libs/grpc /app/libs/grpc
-COPY --from=websockets_builder /app/libs/typeorm /app/libs/typeorm
-CMD ["pnpm", "--filter=@tsuwari/websockets", "start"]
 
 FROM builder as ytsr_builder
 RUN cd apps/ytsr && \

@@ -38,7 +38,7 @@ import {
   useRewards,
   variablesManager as useVariablesManager,
 } from '@/services/api';
-import { useObs } from '@/services/obs/hook';
+import { useObsModule } from '@/services/api/modules';
 
 type Props = {
   opened: boolean;
@@ -119,7 +119,8 @@ export const EventsDrawer: React.FC<Props> = (props) => {
   const rewardsManager = useRewards();
   const { data: rewardsData } = rewardsManager();
 
-  const obsSocket = useObs();
+  const obsManager = useObsModule();
+  const { data: obsData } = obsManager.useData();
 
   useEffect(() => {
     form.reset();
@@ -172,32 +173,29 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       || type == OperationType.OBS_DISABLE_AUDIO
       || type == OperationType.OBS_ENABLE_AUDIO
     ) {
-      return obsSocket.inputs.map((i) => ({
-        label: i,
-        value: i,
-      }));
+      return obsData?.audioSources.map((s) => ({
+        label: s,
+        value: s,
+      })) ?? [];
     }
 
     if (type == OperationType.OBS_SET_SCENE) {
-      return Object.keys(obsSocket.scenes).map((s) => ({
+      return obsData?.scenes.map((s) => ({
         label: s,
         value: s,
-      }));
+      })) ?? [];
     }
 
     if (type == OperationType.OBS_TOGGLE_SOURCE) {
-      return Object.entries(obsSocket.scenes)
-        .map((pair) => {
-          return pair[1].sources.map((source) => ({
-            label: `[${pair[0]}] ${source.name}`,
-            value: source.name,
-          }));
-        })
-        .flat();
+      return obsData?.sources.map((s) => ({
+        label: s,
+        value: s,
+      })) ?? [];
     }
 
     return [];
   }
+
 
   return (
     <Drawer
