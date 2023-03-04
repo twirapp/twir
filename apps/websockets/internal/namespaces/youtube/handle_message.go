@@ -2,6 +2,8 @@ package youtube
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/olahol/melody"
 	"github.com/satont/tsuwari/apps/websockets/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -38,6 +40,8 @@ func (c *YouTube) handleMessage(session *melody.Session, msg []byte) {
 			c.services.Logger.Error(err)
 			return
 		}
+
+		c.handlePlay(userId.(string), parsedData)
 	}
 
 	if data.EventName == "skip" {
@@ -57,9 +61,15 @@ func (c *YouTube) handleMessage(session *melody.Session, msg []byte) {
 
 		c.handleNewOrder(userId.(string), parsedData)
 	}
+
+	if data.EventName == "pause" {
+		fmt.Println("get paused")
+	}
+
 }
 
 func (c *YouTube) handleSkip(channelId string, ids []string) {
+	spew.Dump(ids)
 	err := c.services.Gorm.
 		Model(&model.RequestedSong{}).
 		Where(`id IN (?) AND "channelId" = ?`, ids, channelId).
@@ -92,4 +102,8 @@ func (c *YouTube) handleNewOrder(channelId string, songs []model.RequestedSong) 
 			return
 		}
 	}
+}
+
+func (c *YouTube) handlePlay(userId string, data *playEvent) {
+	fmt.Println(userId, data)
 }

@@ -39,6 +39,8 @@ const Player: NextPage = () => {
   const [autoPlay, setAutoPlay] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  const [connected, setConnected] = useState(false);
+
   const skipVideo = useCallback(
     (index = 0, callWs = true) => {
       if (videos[index] && callWs) {
@@ -83,14 +85,14 @@ const Player: NextPage = () => {
     [videos, socketRef.current],
   );
 
-  useEffect(() => {
-    if (!profile.data) return;
+  const connect = useCallback(() => {
+    const url = `${`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`}/socket/youtube?apiKey=${profile.data.apiKey}`;
+    const ws = new WebSocket(url);
 
-    if (!socketRef.current) {
-      const url = `${`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`}/socket/youtube?apiKey=${profile.data.apiKey}`;
-      socketRef.current = new WebSocket(url);
-    }
+    return ws;
+  }, [profile.data]);
 
+  const attachListeners = useCallback(() => {
     socketRef.current!.onmessage = (msg) => {
       const event = JSON.parse(msg.data);
 
@@ -104,9 +106,36 @@ const Player: NextPage = () => {
         addVideos([event.data]);
       }
     };
+  }, [socketRef.current]);
+
+  useEffect(() => {
+    if (!profile.data) return;
+
+    if (socketRef.current) {
+      return;
+    }
+
+    const ws = connect();
+
+    socketRef.current = ws;
+
+    attachListeners();
+
+    socketRef.current!.onclose = (msg) => {
+      setConnected(false);
+      setTimeout(() => {
+        socketRef.current = connect();
+        attachListeners();
+      }, 1500);
+    };
+
+    socketRef.current!.onopen = (msg) => {
+      setConnected(true);
+      console.log('Connected to youtube');
+    };
 
     return () => {
-      socketRef.current?.close();
+      ws?.close();
       socketRef.current = null;
     };
   }, [profile.data]);
@@ -136,7 +165,7 @@ const Player: NextPage = () => {
   }
 
   useEffect(() => {
-    if (!socketRef.current) return;
+    if (!socketRef.current || !connected) return;
     const video = videos[0]!;
     if (isPlaying) {
       socketRef.current?.send(JSON.stringify({
@@ -148,7 +177,7 @@ const Player: NextPage = () => {
         eventName: 'pause',
       }));
     }
-  }, [isPlaying]);
+  }, [isPlaying, connected]);
 
   return (
     <PlayerContext.Provider
