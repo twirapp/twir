@@ -7,6 +7,8 @@ import (
 	"github.com/olahol/melody"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/websockets/types"
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/types/types/api/modules"
 	"time"
 )
 
@@ -43,6 +45,10 @@ func (c *OBS) handleMessage(session *melody.Session, msg []byte) {
 			return
 		}
 		c.handleSetAudioSources(userId.(string), audioSources)
+	}
+
+	if data.EventName == "requestSettings" {
+		c.handleRequestSettings(userId.(string))
 	}
 }
 
@@ -98,4 +104,40 @@ func (c *OBS) handleSetSources(channelId string, scenes map[string][]obsSource) 
 		c.services.Logger.Error(err)
 		return
 	}
+}
+
+func (c *OBS) handleRequestSettings(channelId string) {
+	settings := &model.ChannelModulesSettings{}
+	err := c.services.Gorm.
+		Where(`"channelId" = ? AND "type" = ?`, channelId, "obs_websocket").
+		Find(settings).
+		Error
+
+	if err != nil {
+		c.services.Logger.Error(err)
+		return
+	}
+
+	obsSettings := &modules.OBSWebSocketSettings{}
+	err = json.Unmarshal(settings.Settings, obsSettings)
+	if err != nil {
+		c.services.Logger.Error(err)
+		return
+	}
+
+	outCome := &types.WebSocketMessage{
+		EventName: "settings",
+		Data:      obsSettings,
+	}
+
+	bytes, err := json.Marshal(outCome)
+	if err != nil {
+		c.services.Logger.Error(err)
+		return
+	}
+
+	c.manager.BroadcastFilter(bytes, func(session *melody.Session) bool {
+		id, ok := session.Get("userId")
+		return ok && id.(string) == channelId
+	})
 }

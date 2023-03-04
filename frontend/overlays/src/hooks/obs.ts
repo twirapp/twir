@@ -1,5 +1,5 @@
 import OBSWebSocket from 'obs-websocket-js';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 type ObsSource = {
   name: string,
@@ -11,7 +11,7 @@ type OBSScenes = {
 }
 
 export const useObs = () => {
-  const [obs, setObs] = useState<OBSWebSocket | null>(null);
+  const obs = useRef<OBSWebSocket>(new OBSWebSocket());
   const [connected, setConnected] = useState(false);
 
   const connect = useCallback(async (address: string, port: number | string, password: string) => {
@@ -19,13 +19,12 @@ export const useObs = () => {
       return;
     }
 
-    const newSocket = new OBSWebSocket();
+    await obs.current.disconnect();
+
     try {
-      await newSocket.connect(`ws://${address}:${port}`, password);
-      setObs(newSocket);
+      await obs.current.connect(`ws://${address}:${port}`, password);
       setConnected(true);
     } catch (e) {
-      setObs(null);
       setConnected(false);
       console.error(e);
       return;
@@ -33,27 +32,26 @@ export const useObs = () => {
   }, []);
 
   const disconnect = useCallback(async () => {
-    obs?.disconnect();
-    setObs(null);
+    obs?.current.disconnect();
     setConnected(false);
   }, [obs]);
 
   const setScene = useCallback((sceneName: string) => {
-    obs?.call('SetCurrentProgramScene', { sceneName })
+    obs.current.call('SetCurrentProgramScene', { sceneName })
       .catch(console.error);
   }, [obs]);
 
   const toggleSource = useCallback(async (sourceName: string) => {
-    const currentSceneReq = await obs?.call('GetCurrentProgramScene');
+    const currentSceneReq = await obs.current.call('GetCurrentProgramScene');
     if (!currentSceneReq) return;
 
     const [currentStateReq, idReq] = await Promise.all([
-      obs?.call('GetSourceActive', { sourceName }),
-      obs?.call('GetSceneItemId', { sourceName, sceneName: currentSceneReq.currentProgramSceneName }),
+      obs.current.call('GetSourceActive', { sourceName }),
+      obs.current.call('GetSceneItemId', { sourceName, sceneName: currentSceneReq.currentProgramSceneName }),
     ]);
     if (!currentStateReq || !idReq) return;
 
-    await obs?.call('SetSceneItemEnabled', {
+    await obs.current.call('SetSceneItemEnabled', {
       sceneName: currentSceneReq.currentProgramSceneName,
       sceneItemId: idReq.sceneItemId,
       sceneItemEnabled: !currentStateReq.videoShowing,
@@ -62,21 +60,21 @@ export const useObs = () => {
 
   const toggleAudioSource = useCallback(async (sourceName: string, muted?: boolean) => {
     if (typeof muted !== 'undefined') {
-      await obs?.call('SetInputMute', { inputName: sourceName, inputMuted: !muted });
+      await obs.current.call('SetInputMute', { inputName: sourceName, inputMuted: !muted });
     } else {
-      await obs?.call('ToggleInputMute', { inputName: sourceName });
+      await obs.current.call('ToggleInputMute', { inputName: sourceName });
     }
   }, [obs]);
 
   const setVolume = useCallback(async (inputName: string, volume: number) => {
-    await obs?.call('SetInputVolume', {
+    await obs.current.call('SetInputVolume', {
       inputName,
       inputVolumeDb: volume * 3 - 60,
     });
   }, [obs]);
 
   const changeVolume = useCallback(async (inputName: string, step: number, operation: 'increase' | 'decrease') => {
-    const currentVolumeReq = await obs?.call('GetInputVolume', { inputName });
+    const currentVolumeReq = await obs.current.call('GetInputVolume', { inputName });
     if (!currentVolumeReq) return;
 
     if (currentVolumeReq.inputVolumeDb === 0 && operation === 'increase') {
@@ -89,28 +87,28 @@ export const useObs = () => {
 
     const newVolume = currentVolumeReq.inputVolumeDb + (operation === 'increase' ? step : -step);
 
-    await obs?.call('SetInputVolume', {
+    await obs.current.call('SetInputVolume', {
       inputName,
       inputVolumeDb: newVolume,
     });
   }, [obs]);
 
   const startStream = useCallback(async () => {
-    await obs?.call('StartStream');
+    await obs.current.call('StartStream');
   }, [obs]);
 
   const stopStream = useCallback(async () => {
-    await obs?.call('StopStream');
+    await obs.current.call('StopStream');
   }, [obs]);
 
   const getSources = useCallback(async () => {
-    const scenesReq = await obs?.call('GetSceneList');
+    const scenesReq = await obs.current.call('GetSceneList');
     if (!scenesReq) return;
 
     const mappedScenesNames = scenesReq.scenes.map(s => s.sceneName as string);
 
     const itemsPromises = await Promise.all(mappedScenesNames.map((sceneName) => {
-      return obs?.call('GetSceneItemList', { sceneName });
+      return obs.current.call('GetSceneItemList', { sceneName });
     }));
 
     const result: OBSScenes = {};
@@ -128,7 +126,7 @@ export const useObs = () => {
         .map(g => g.sourceName);
 
       await Promise.all(groups.map(async (g) => {
-        const group = await obs?.call('GetGroupSceneItemList', { sceneName: g as string });
+        const group = await obs.current.call('GetGroupSceneItemList', { sceneName: g as string });
         if (!group) return;
 
         result[sceneName] = [
@@ -145,7 +143,7 @@ export const useObs = () => {
   }, [obs]);
 
   const getAudioSources = useCallback(async () => {
-    const req = await obs?.call('GetInputList');
+    const req = await obs.current.call('GetInputList');
 
     return req?.inputs.map(i => i.inputName as string) ?? [];
   }, [obs]);

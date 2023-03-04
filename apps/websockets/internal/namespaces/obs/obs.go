@@ -24,6 +24,7 @@ func NewObs(services *types.Services) *OBS {
 		err := helpers.CheckUserByApiKey(services.Gorm, session)
 		if err != nil {
 			services.Logger.Error(err)
+			return
 		}
 	})
 
