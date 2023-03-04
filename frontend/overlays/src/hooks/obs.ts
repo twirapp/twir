@@ -19,7 +19,6 @@ export const useObs = () => {
       return;
     }
 
-    
     const newSocket = new OBSWebSocket();
     try {
       await newSocket.connect(`ws://${address}:${port}`, password);
@@ -164,5 +163,6 @@ export const useObs = () => {
     stopStream,
     getSources,
     getAudioSources,
+    instance: obs,
   };
 };

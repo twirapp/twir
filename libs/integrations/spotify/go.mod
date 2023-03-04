@@ -7,7 +7,7 @@ require (
 	github.com/imroc/req/v3 v3.32.0
 	github.com/samber/lo v1.37.0
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
-	gorm.io/gorm v1.24.5
+	gorm.io/gorm v1.24.6
 )
 
 require (

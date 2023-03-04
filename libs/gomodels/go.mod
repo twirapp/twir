@@ -6,7 +6,7 @@ require (
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/lib/pq v1.10.7
 	github.com/satori/go.uuid v1.2.0
-	gorm.io/gorm v1.24.5
+	gorm.io/gorm v1.24.6
 )
 
 require (

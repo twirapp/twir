@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useObs } from '../hooks/obs';
@@ -24,14 +24,31 @@ export const OBS: React.FC = () => {
     };
   }, [apiKey]);
 
+
+  useEffect(() => {
+    if (!socket || !obs.instance) return;
+    socket.onmessage = (msg) => {
+      const { eventName, data } = JSON.parse(msg.data);
+
+      switch (eventName) {
+        case 'setScene': obs.setScene(data.sceneName); break;
+        case 'toggleSource': obs.toggleSource(data.sourceName); break;
+        case 'toggleAudioSource': obs.toggleAudioSource(data.audioSourceName); break;
+        case 'setVolume': obs.setVolume(data.audioSourceName, data.volume); break;
+        case 'increaseVolume': obs.changeVolume(data.audioSourceName, data.step, 'increase'); break;
+        case 'decreaseVolume': obs.changeVolume(data.audioSourceName, data.step, 'decrease'); break;
+        case 'enableAudio': obs.toggleAudioSource(data.audioSourceName, true); break;
+        case 'disableAudio': obs.toggleAudioSource(data.audioSourceName, false); break;
+        case 'startStart': obs.startStream(); break;
+        case 'stopStream': obs.stopStream(); break;
+      }
+    };
+  }, [socket, obs.instance]);
+
   useEffect(() => {
     if (!socket) return;
     socket.onopen = async () => {
       setConnected(true);
-    };
-
-    socket.onmessage = (msg) => {
-
     };
 
     socket.onclose = (e) => {
