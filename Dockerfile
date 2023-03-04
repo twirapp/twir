@@ -265,9 +265,10 @@ FROM builder as overlays_builder
 RUN cd frontend/overlays && \
     pnpm build
 
-FROM codecentric/single-page-application-server as overlays
+FROM steebchen/nginx-spa:stable as overlays
 COPY --from=overlays_builder /app/frontend/overlays/dist/ /app
-
+EXPOSE 80
+CMD ["nginx"]
 ### MIGRATIONS
 
 FROM builder as migrations_builder
