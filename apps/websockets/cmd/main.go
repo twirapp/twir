@@ -10,6 +10,7 @@ import (
 	"github.com/satont/tsuwari/apps/websockets/internal/namespaces/youtube"
 	"github.com/satont/tsuwari/apps/websockets/types"
 	config "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/clients"
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 	"github.com/satont/tsuwari/libs/grpc/servers"
 	"go.uber.org/zap"
@@ -68,6 +69,9 @@ func main() {
 		Gorm:   db,
 		Logger: logger.Sugar(),
 		Redis:  rdb,
+		Grpc: &types.GrpcClients{
+			Bots: clients.NewBots(cfg.AppEnv),
+		},
 	}
 
 	ttsNamespace := namespaces.NewNameSpace(services)

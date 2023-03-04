@@ -86,7 +86,7 @@ const Player: NextPage = () => {
   );
 
   const connect = useCallback(() => {
-    const url = `${`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`}/socket/youtube?apiKey=${profile.data.apiKey}`;
+    const url = `${`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`}/socket/youtube?apiKey=${profile.data?.apiKey}`;
     const ws = new WebSocket(url);
 
     return ws;
@@ -177,7 +177,7 @@ const Player: NextPage = () => {
         eventName: 'pause',
       }));
     }
-  }, [isPlaying, connected]);
+  }, [isPlaying, connected, socketRef.current]);
 
   return (
     <PlayerContext.Provider

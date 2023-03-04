@@ -1,13 +1,18 @@
 package youtube
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/olahol/melody"
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/websockets/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"strings"
 	"time"
+
+	"github.com/satont/tsuwari/libs/types/types/api/modules"
 )
 
 type playEvent struct {
@@ -63,13 +68,12 @@ func (c *YouTube) handleMessage(session *melody.Session, msg []byte) {
 	}
 
 	if data.EventName == "pause" {
-		fmt.Println("get paused")
+		//fmt.Println("get paused")
 	}
 
 }
 
 func (c *YouTube) handleSkip(channelId string, ids []string) {
-	spew.Dump(ids)
 	err := c.services.Gorm.
 		Model(&model.RequestedSong{}).
 		Where(`id IN (?) AND "channelId" = ?`, ids, channelId).
@@ -78,6 +82,8 @@ func (c *YouTube) handleSkip(channelId string, ids []string) {
 	if err != nil {
 		c.services.Logger.Error(err)
 	}
+	redisKey := fmt.Sprintf("songrequests:youtube:%s:currentPlaying", channelId)
+	c.services.Redis.Del(context.Background(), redisKey)
 }
 
 func (c *YouTube) handleNewOrder(channelId string, songs []model.RequestedSong) {
@@ -105,5 +111,51 @@ func (c *YouTube) handleNewOrder(channelId string, songs []model.RequestedSong) 
 }
 
 func (c *YouTube) handlePlay(userId string, data *playEvent) {
-	fmt.Println(userId, data)
+	ctx := context.Background()
+	redisKey := fmt.Sprintf("songrequests:youtube:%s:currentPlaying", userId)
+	current := c.services.Redis.Get(ctx, redisKey).Val()
+	song := &model.RequestedSong{}
+	err := c.services.Gorm.Where("id = ?", data.ID).Find(song).Error
+	if err != nil {
+		c.services.Logger.Error(err)
+		return
+	}
+	if song.ID == "" {
+		return
+	}
+
+	channelSettings := &model.ChannelModulesSettings{}
+	err = c.services.Gorm.Where(`"channelId" = ? AND type = ?`, song.ChannelID, "youtube_song_requests").Find(channelSettings).Error
+	if err != nil {
+		c.services.Logger.Error(err)
+		return
+	}
+	if channelSettings.ID == "" {
+		return
+	}
+
+	youtubeSettings := &modules.YouTubeSettings{}
+	err = json.Unmarshal(channelSettings.Settings, youtubeSettings)
+	if err != nil {
+		c.services.Logger.Error(err)
+		return
+	}
+
+	if current == "" && song.ID != "" && youtubeSettings.AnnouncePlay != nil && *youtubeSettings.AnnouncePlay {
+		message := youtubeSettings.Translations.NowPlaying
+		message = strings.ReplaceAll(message, "{{songTitle}}", song.Title)
+		message = strings.ReplaceAll(message, "{{songId}}", song.VideoID)
+		message = strings.ReplaceAll(message, "{{orderedByName}}", song.OrderedByName)
+		message = strings.ReplaceAll(message, "{{orderedByDisplayName}}", song.OrderedByDisplayName.String)
+
+		fmt.Println(message)
+		c.services.Grpc.Bots.SendMessage(ctx, &bots.SendMessageRequest{
+			ChannelId:   song.ChannelID,
+			ChannelName: nil,
+			Message:     message,
+			IsAnnounce:  lo.ToPtr(true),
+		})
+	}
+
+	c.services.Redis.Set(ctx, redisKey, data.ID, time.Duration(data.Duration)*time.Second)
 }
