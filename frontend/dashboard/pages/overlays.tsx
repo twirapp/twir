@@ -18,7 +18,7 @@ const Overlays: NextPage = () => {
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale, ['events', 'layout', 'application'])),
+    ...(await serverSideTranslations(locale, ['events', 'layout', 'commands', 'application'])),
   },
 });
 

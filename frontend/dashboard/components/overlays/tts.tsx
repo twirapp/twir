@@ -1,20 +1,23 @@
 import {
-  ActionIcon, Alert,
+  ActionIcon,
+  Alert,
   Button,
-  Card, CopyButton,
+  Card,
+  CopyButton,
   Divider,
   Flex,
-  Modal, MultiSelect,
+  Modal,
+  MultiSelect,
   NumberInput,
   Select,
-  Switch,
+  Switch, Tabs,
   Text,
   Textarea,
   Tooltip,
 } from '@mantine/core';
 import { isNotEmpty, useForm, isInRange } from '@mantine/form';
-import { IconCopy, IconSettings, IconSpeakerphone } from '@tabler/icons';
-import { useCallback, useEffect, useState } from 'react';
+import { IconCommand, IconCopy, IconSettings, IconSpeakerphone } from '@tabler/icons';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 
 declare global {
   interface Window {
@@ -24,8 +27,11 @@ declare global {
 
 import { noop } from '../../util/chore';
 
-import { authFetch, useProfile } from '@/services/api';
+import { CommandsList } from '@/components/commands/list';
+import { authFetch, commandsManager, useProfile } from '@/services/api';
 import { TTS, useTtsModule } from '@/services/api/modules';
+
+import { CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
 
 export const TTSOverlay: React.FC = () => {
   const form = useForm<TTS['POST']>({
@@ -59,6 +65,9 @@ export const TTSOverlay: React.FC = () => {
   const ttsInfo = tts.useInfo();
   const updater = tts.useUpdate();
   const { data: profile } = useProfile();
+
+  const cmdsManager = commandsManager();
+  const { data: commands } = cmdsManager.useGetAll();
 
   useEffect(() => {
     if (ttsSettings) {
@@ -118,7 +127,7 @@ export const TTSOverlay: React.FC = () => {
   }, [form.values, testText]);
 
   return (
-    <>
+    <Fragment>
       <Card shadow="sm" p="lg" radius="md" w={200} withBorder>
         <Card.Section>
           <Flex direction={'row'} justify={'space-between'}>
@@ -157,58 +166,70 @@ export const TTSOverlay: React.FC = () => {
         opened={modalOpened}
         onClose={() => setModalOpened(false)}
         title={<Button size={'sm'} variant={'light'} onClick={onSubmit} color={'green'}>Save</Button>}
+        size={'xl'}
       >
         <Divider />
-        <Flex mt={10} direction={'column'} gap={'md'}>
-          <Alert><Text size={'xs'}>Hint: you can use events system to trigger tts on reward.</Text></Alert>
-          <Switch
-            label={'Enabled'}
-            labelPosition={'left'}
-            {...form.getInputProps('enabled', { type: 'checkbox' })}
-          />
-          <Select
-            label="Voice"
-            required
-            data={availableVoices}
-            {...form.getInputProps('voice')}
-          />
-          <NumberInput label={'Pitch'} max={100} min={1} required {...form.getInputProps('pitch')} />
-          <NumberInput label={'Rate'} max={100} min={1} required {...form.getInputProps('rate')} />
-          <NumberInput label={'Volume'} max={100} min={1} required {...form.getInputProps('volume')} />
-          <Switch
-            label={'Allow users use different voices in main (!tts) command'}
-            labelPosition={'left'}
-            {...form.getInputProps('allow_users_choose_voice_in_main_command', { type: 'checkbox' })}
-          />
-          <Switch
-            label={'Do not read emoji'}
-            labelPosition={'left'}
-            {...form.getInputProps('do_not_read_emoji', { type: 'checkbox' })}
-          />
-          <Switch
-            label={'Do read twitch emotes. Including 7tv, ffz, bttv.'}
-            labelPosition={'left'}
-            {...form.getInputProps('do_not_read_twitch_emotes', { type: 'checkbox' })}
-          />
-          <NumberInput
-            label={'Max message length for tts. If setted to 0 then there is no restriction'}
-            max={500}
-            min={0}
-            {...form.getInputProps('max_symbols')}
-          />
-          <MultiSelect
-            label={'Disallowed for usage voices'}
-            data={availableVoices}
-            clearable
-            {...form.getInputProps('disallowed_voices')}
-          />
-        </Flex>
+        <Tabs defaultValue="settings" radius={0}>
+          <Tabs.List grow>
+            <Tabs.Tab value="settings" icon={<IconSettings size={14} />}>Settings</Tabs.Tab>
+            <Tabs.Tab value="commands" icon={<IconCommand size={14} />}>Commands</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="settings" pt="xs">
+            <Flex mt={10} direction={'column'} gap={'md'}>
+              <Alert><Text size={'xs'}>Hint: you can use events system to trigger tts on reward.</Text></Alert>
+              <Switch
+                label={'Enabled'}
+                labelPosition={'left'}
+                {...form.getInputProps('enabled', { type: 'checkbox' })}
+              />
+              <Select
+                label="Voice"
+                required
+                data={availableVoices}
+                {...form.getInputProps('voice')}
+              />
+              <NumberInput label={'Pitch'} max={100} min={1} required {...form.getInputProps('pitch')} />
+              <NumberInput label={'Rate'} max={100} min={1} required {...form.getInputProps('rate')} />
+              <NumberInput label={'Volume'} max={100} min={1} required {...form.getInputProps('volume')} />
+              <Switch
+                label={'Allow users use different voices in main (!tts) command'}
+                labelPosition={'left'}
+                {...form.getInputProps('allow_users_choose_voice_in_main_command', { type: 'checkbox' })}
+              />
+              <Switch
+                label={'Do not read emoji'}
+                labelPosition={'left'}
+                {...form.getInputProps('do_not_read_emoji', { type: 'checkbox' })}
+              />
+              <Switch
+                label={'Do read twitch emotes. Including 7tv, ffz, bttv.'}
+                labelPosition={'left'}
+                {...form.getInputProps('do_not_read_twitch_emotes', { type: 'checkbox' })}
+              />
+              <NumberInput
+                label={'Max message length for tts. If setted to 0 then there is no restriction'}
+                max={500}
+                min={0}
+                {...form.getInputProps('max_symbols')}
+              />
+              <MultiSelect
+                label={'Disallowed for usage voices'}
+                data={availableVoices}
+                clearable
+                {...form.getInputProps('disallowed_voices')}
+              />
+            </Flex>
 
-        <Divider mt={10} mb={5} />
+            <Divider mt={10} mb={5} />
 
-        <Textarea placeholder={'enter text for test'} value={testText} onChange={e => setTestText(e.target.value)} />
-        <Button variant={'light'} onClick={testSpeak} fullWidth mt={10}>Test</Button>
+            <Textarea placeholder={'enter text for test'} value={testText} onChange={e => setTestText(e.target.value)} />
+            <Button variant={'light'} onClick={testSpeak} fullWidth mt={10}>Test</Button>
+          </Tabs.Panel>
+          <Tabs.Panel value="commands" pt="xs">
+            <CommandsList commands={commands?.filter(c => c.module === CommandModule.TTS) ?? []} />
+          </Tabs.Panel>
+        </Tabs>
       </Modal>
-    </>
+    </Fragment>
   );
 };
