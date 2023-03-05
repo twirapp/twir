@@ -10,6 +10,11 @@ import (
 )
 
 func (c *handler) handleStreamOffline(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventStreamOffline) {
+	defer zap.S().Infow("stream offline", ""+
+		"channelId", event.BroadcasterUserID,
+		"channelName", event.BroadcasterUserLogin,
+	)
+
 	c.services.Grpc.Events.StreamOffline(context.Background(), &events.StreamOfflineMessage{
 		BaseInfo: &events.BaseInfo{ChannelId: event.BroadcasterUserID},
 	})

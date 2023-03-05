@@ -12,6 +12,11 @@ import (
 )
 
 func (c *handler) handleStreamOnline(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventStreamOnline) {
+	defer zap.S().Infow("stream online",
+		"channelId", event.BroadcasterUserID,
+		"channelName", event.BroadcasterUserLogin,
+	)
+
 	twitchClient, err := twitch.NewAppClient(*c.services.Config, c.services.Grpc.Tokens)
 	if err != nil {
 		zap.S().Error(err)

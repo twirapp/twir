@@ -21,6 +21,13 @@ func (c *handler) handleChannelPointsRewardRedemptionAdd(
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
 ) {
+	defer zap.S().Infow("channel points reward redemption add",
+		"reward", event.Reward.Title,
+		"userName", event.UserLogin,
+		"userId", event.UserID,
+		"channelName", event.BroadcasterUserLogin,
+		"channelId", event.BroadcasterUserID,
+	)
 
 	// fire event to events microsevice
 	c.services.Grpc.Events.RedemptionCreated(context.Background(), &events.RedemptionCreatedMessage{

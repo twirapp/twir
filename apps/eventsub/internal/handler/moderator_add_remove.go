@@ -7,10 +7,20 @@ import (
 )
 
 func (c *handler) handleChannelModeratorAdd(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorAdd) {
+	defer zap.S().Infow("channel moderator add",
+		"channelId", event.BroadcasterUserID,
+		"userId", event.UserID,
+		"userName", event.UserLogin,
+	)
 	c.updateBotStatus(event.BroadcasterUserID, event.UserID, true)
 }
 
 func (c *handler) handleChannelModeratorRemove(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorRemove) {
+	defer zap.S().Infow("channel moderator remove",
+		"channelId", event.BroadcasterUserID,
+		"userId", event.UserID,
+		"userName", event.UserLogin,
+	)
 	c.updateBotStatus(event.BroadcasterUserID, event.UserID, false)
 }
 
