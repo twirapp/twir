@@ -13,6 +13,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/clients"
 	"github.com/satont/tsuwari/libs/grpc/generated/eventsub"
 	"github.com/satont/tsuwari/libs/grpc/servers"
+	"github.com/satont/tsuwari/libs/pubsub"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -58,14 +59,21 @@ func main() {
 		If(cfg.AppEnv != "production", appTun.Addr().String()).
 		Else(fmt.Sprintf("eventsub.%s", cfg.HostName))
 
-	tokensGrpc := clients.NewTokens(cfg.AppEnv)
+	pb, err := pubsub.NewPubSub(cfg.RedisUrl)
+	if err != nil {
+		panic(err)
+	}
 
 	services := &types.Services{
 		Gorm:   db,
 		Config: cfg,
 		Grpc: &types.GrpcClients{
-			Tokens: tokensGrpc,
+			Tokens: clients.NewTokens(cfg.AppEnv),
+			Events: clients.NewEvents(cfg.AppEnv),
+			Bots:   clients.NewBots(cfg.AppEnv),
+			Parser: clients.NewParser(cfg.AppEnv),
 		},
+		PubSub: pb,
 	}
 
 	eventSubHandler := handler.NewHandler(services)

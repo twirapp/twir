@@ -3,23 +3,15 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/satont/tsuwari/libs/pubsub"
 
 	"github.com/satont/tsuwari/apps/bots/internal/bots"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"gorm.io/gorm"
 )
 
-type userUpdateUser struct {
-	UserID        string `json:"user_id"`
-	UserLogin     string `json:"user_login"`
-	UserName      string `json:"user_name"`
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-	Description   string `json:"description"`
-}
-
 func UserUpdate(db *gorm.DB, botsService *bots.BotsService, data []byte) {
-	userStruct := &userUpdateUser{}
+	userStruct := &pubsub.UserUpdateMessage{}
 	if err := json.Unmarshal(data, userStruct); err != nil {
 		fmt.Println(err)
 		return

@@ -3,17 +3,14 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/satont/tsuwari/libs/pubsub"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"gorm.io/gorm"
 )
 
-type streamOfflineData struct {
-	ChannelID string `json:"channelId"`
-}
-
 func StreamsOffline(db *gorm.DB, data []byte) {
-	streamOfflineStruct := &streamOfflineData{}
+	streamOfflineStruct := &pubsub.StreamOfflineMessage{}
 	if err := json.Unmarshal(data, &streamOfflineStruct); err != nil {
 		fmt.Println(err)
 		return

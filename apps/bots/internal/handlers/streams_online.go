@@ -4,16 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/pubsub"
 	"gorm.io/gorm"
 )
 
-type streamOnlineData struct {
-	StreamID  string `json:"streamId"`
-	ChannelID string `json:"channelId"`
-}
-
 func StreamsOnline(db *gorm.DB, data []byte) {
-	streamOnlineStruct := &streamOnlineData{}
+	streamOnlineStruct := &pubsub.StreamOnlineMessage{}
 	if err := json.Unmarshal(data, &streamOnlineStruct); err != nil {
 		fmt.Println(err)
 		return

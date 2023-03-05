@@ -6,14 +6,16 @@ import (
 )
 
 type handler struct {
-	Manager *eventsub_framework.SubHandler
+	Manager  *eventsub_framework.SubHandler
+	services *types.Services
 }
 
 func NewHandler(services *types.Services) *handler {
 	manager := eventsub_framework.NewSubHandler(true, []byte(services.Config.TwitchClientSecret))
 
 	myHandler := &handler{
-		Manager: manager,
+		Manager:  manager,
+		services: services,
 	}
 
 	manager.HandleChannelUpdate = myHandler.handleChannelUpdate

@@ -20,6 +20,7 @@ type Channels struct {
 	IsEnabled      bool   `gorm:"column:isEnabled;type:BOOL;"       json:"isEnabled"`
 	IsTwitchBanned bool   `gorm:"column:isTwitchBanned;type:BOOL;" json:"isTwitchBanned"`
 	IsBanned       bool   `gorm:"column:isBanned;type:BOOL;"       json:"isBanned"`
+	IsBotMod       bool   `gorm:"column:isBotMod;type:BOOL;" json:"isBotMod"`
 	BotID          string `gorm:"column:botId;type:TEXT;"                        json:"botId"`
 }
 

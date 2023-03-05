@@ -7,6 +7,7 @@ type ChannelInfoHistory struct {
 	Category  string    `gorm:"column:category;type:text"               json:"category"`
 	Title     string    `gorm:"column:title;type:text"               json:"title"`
 	CreatedAt time.Time `gorm:"column:createdAt;type:timestamp"         json:"createdAt"`
+	ChannelID string    `gorm:"column:channelId;type:TEXT;" json:"channelId"`
 
 	Channel *Channels `gorm:"foreignKey:ID" json:"channel"`
 }

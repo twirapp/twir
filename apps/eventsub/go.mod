@@ -7,18 +7,23 @@ replace (
 	github.com/dnsge/twitch-eventsub-framework => ../../vendor/twitch-eventsub-framework
 	github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 	github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+	github.com/satont/tsuwari/libs/pubsub => ../../libs/pubsub
 	github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
+	github.com/satont/tsuwari/libs/types => ../../libs/types
 )
 
 require (
 	github.com/dnsge/twitch-eventsub-bindings v0.0.0-20211025032511-9c30a4c90402
 	github.com/dnsge/twitch-eventsub-framework v1.0.2
+	github.com/google/uuid v1.3.0
 	github.com/samber/lo v1.37.0
 	github.com/satont/go-helix/v2 v2.7.28
 	github.com/satont/tsuwari/libs/config v0.0.0-20230305122358-17fcb584d9ed
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
+	github.com/satont/tsuwari/libs/pubsub v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/twitch v0.0.0-00010101000000-000000000000
+	github.com/satont/tsuwari/libs/types v0.0.0-20230305190758-592d5ff92f0d
 	go.uber.org/zap v1.24.0
 	golang.ngrok.com/ngrok v1.0.0
 	google.golang.org/grpc v1.53.0
@@ -29,6 +34,9 @@ require (
 
 require (
 	github.com/benbjohnson/clock v1.3.0 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
+	github.com/go-redis/redis/v9 v9.0.0-rc.2 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.3 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
