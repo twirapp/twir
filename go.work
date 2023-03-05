@@ -11,6 +11,7 @@ use (
 	./apps/tokens
 	./apps/watched
 	./apps/websockets
+	./apps/eventsub
 	./libs/config
 	./libs/gomodels
 	./libs/grpc

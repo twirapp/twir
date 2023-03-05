@@ -31,6 +31,9 @@ includes:
   websockets:
     taskfile: ./apps/websockets/Taskfile.yml
     dir: ./apps/websockets
+  eventsub:
+    taskfile: ./apps/eventsub/Taskfile.yml
+    dir: ./apps/eventsub
 
 
 tasks:
@@ -102,6 +105,11 @@ tasks:
     cmds:
       - task: websockets:dev
 
+  eventsub-dev:
+    deps: [ prepare ]
+    cmds:
+      - task: eventsub:dev
+
   node-dev:
     deps: [prepare]
     cmds:
@@ -119,6 +127,7 @@ tasks:
       events-dev,
       scheduler-dev,
       websockets-dev,
+      eventsub-dev,
       node-dev
     ]
 
