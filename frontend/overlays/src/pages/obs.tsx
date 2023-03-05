@@ -65,7 +65,9 @@ export const OBS: React.FC = () => {
       return;
     }
 
-    obs.connect(settings.serverAddress, settings.serverPort, settings.serverPassword).then(() => console.log('obs connected'));
+    obs.connect(settings.serverAddress, settings.serverPort, settings.serverPassword).then(() => {
+      console.log('obs connected');
+    });
 
     return () => {
       obs.disconnect();
@@ -90,6 +92,32 @@ export const OBS: React.FC = () => {
         data: sources,
       }));
     });
+
+    const scenesHandler = async () => {
+      const sources = await obs.getSources();
+      socket.send(JSON.stringify({
+        eventName: 'setSources',
+        data: sources,
+      }));
+    };
+
+    const audioHandler = async () => {
+      const sources = await obs.getAudioSources();
+      socket.send(JSON.stringify({
+        eventName: 'setAudioSources',
+        data: sources,
+      }));
+    };
+
+    obs.instance.current
+      .on('SceneListChanged', scenesHandler)
+
+      .on('InputCreated', audioHandler)
+      .on('InputRemoved', audioHandler)
+      .on('InputNameChanged', audioHandler)
+
+      .on('SceneItemCreated', scenesHandler)
+      .on('SceneItemRemoved', scenesHandler);
   }, [socket, obs.connected]);
 
   return <div></div>;
