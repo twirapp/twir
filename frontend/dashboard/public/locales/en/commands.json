@@ -22,7 +22,8 @@
     "save": "Save",
     "aliases": {
       "name": "Aliases",
-      "emptyAlert": "No aliases added"
+      "emptyAlert": "No aliases added",
+      "placeholder": "Start typing to create aliase"
     },
     "description": {
       "label": "Description",

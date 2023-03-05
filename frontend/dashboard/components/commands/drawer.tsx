@@ -53,8 +53,7 @@ const switches: Array<{
   { prop: 'keepResponsesOrder' },
 ];
 
-type ChannelCommandForm = Omit<ChannelCommand, 'aliases' | 'deniedUsersIds' | 'allowedUsersIds'> & {
-  aliases: Array<{ name: string }>,
+type ChannelCommandForm = Omit<ChannelCommand, 'deniedUsersIds' | 'allowedUsersIds'> & {
   deniedUsersIds: Array<{ name: string }>,
   allowedUsersIds: Array<{ name: string }>,
 }
@@ -66,12 +65,6 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       name: (value) => {
         if (!value.length) return 'Name cannot be empty';
         return null;
-      },
-      aliases: {
-        name: (value) => {
-          if (!value.length) return 'Aliase cannot be empty';
-          return null;
-        },
       },
       deniedUsersIds: {
         name: isNotEmpty('User name cannot be empty'),
@@ -106,6 +99,9 @@ export const CommandDrawer: React.FC<Props> = (props) => {
     },
   });
 
+  const [aliases, setAliases] = useState<Array<string>>([]);
+  const [aliasesSearch, setAliasesSearch] = useState('');
+
   const { t } = useTranslation('commands');
   const viewPort = useViewportSize();
   const { useCreateOrUpdate } = commandsManager();
@@ -121,14 +117,17 @@ export const CommandDrawer: React.FC<Props> = (props) => {
 
   useEffect(() => {
     form.reset();
+    setAliasesSearch('');
+    setAliases([]);
 
     if (props.command) {
       form.setValues({
         ...props.command,
-        aliases: props.command.aliases.map(a => ({ name: a })),
         deniedUsersIds: props.command.deniedUsersIds.map(a => ({ name: a })) ?? [],
         allowedUsersIds: props.command.allowedUsersIds.map(a => ({ name: a })) ?? [],
       });
+
+      setAliases(props.command.aliases);
     }
   }, [props.command, props.opened]);
 
@@ -144,13 +143,12 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       id: form.values.id,
       data: {
         ...form.values,
-        aliases: form.values.aliases.map(a => a.name),
+        aliases: aliases,
         deniedUsersIds: form.values.deniedUsersIds.map(a => a.name),
         allowedUsersIds: form.values.allowedUsersIds.map(a => a.name),
       },
     }).then(() => {
       props.setOpened(false);
-      form.reset();
     }).catch(noop);
   }
 
@@ -185,43 +183,29 @@ export const CommandDrawer: React.FC<Props> = (props) => {
               />
             </div>
 
-            <div>
-              <Flex direction="row" gap="xs">
-                <Text>{t('drawer.aliases.name')}</Text>
-                <ActionIcon variant="light" color="green" size="xs">
-                  <IconPlus
-                    size={18}
-                    onClick={() => {
-                      form.insertListItem('aliases', { name: '' });
-                    }}
-                  />
-                </ActionIcon>
-              </Flex>
-
-              {!form.values.aliases?.length && <Alert>{t('drawer.aliases.emptyAlert')}</Alert>}
-              <ScrollArea.Autosize maxHeight={100} mx="auto" type="auto" offsetScrollbars={true}>
-                <Grid grow gutter="xs" style={{ margin: 0, gap: 8 }}>
-                  {form.values.aliases?.map((_, i) => (
-                    <Grid.Col style={{ padding: 0 }} key={i} xs={4} sm={4} md={4} lg={4} xl={4}>
-                      <TextInput
-                        placeholder="aliase"
-                        rightSection={
-                          <ActionIcon
-                            variant="filled"
-                            onClick={() => {
-                              form.removeListItem('aliases', i);
-                            }}
-                          >
-                            <IconMinus size={18} />
-                          </ActionIcon>
-                        }
-                        {...form.getInputProps(`aliases.${i}.name`)}
-                      />
-                    </Grid.Col>
-                  ))}
-                </Grid>
-              </ScrollArea.Autosize>
-            </div>
+            <MultiSelect
+              label={t('drawer.aliases.name')}
+              data={aliases}
+              value={aliases}
+              placeholder={t('drawer.aliases.placeholder')!}
+              searchable
+              creatable
+              withinPortal
+              getCreateLabel={(query) => `+ Create ${query}`}
+              onChange={(data) => {
+                setAliases(data);
+              }}
+              searchValue={aliasesSearch}
+              onSearchChange={setAliasesSearch}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ';' || e.key === ',') {
+                  if (aliases.includes(aliasesSearch)) return;
+                  setAliases((data) => [...data, aliasesSearch]);
+                  setAliasesSearch('');
+                }
+              }}
+              w={'100%'}
+            />
 
             <div>
               <Flex direction="row" gap="xs">

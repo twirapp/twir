@@ -17,7 +17,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 import { CommandDrawer } from '@/components/commands/drawer';
 import { ChannelCommandGroupDrawer } from '@/components/commandsGroup/drawer';
@@ -149,14 +149,13 @@ const Commands: NextPage = () => {
 
         <tbody>
         {Object.keys(commandsWithGroups).map((group, groupIndex) => (
-          <>
+          <Fragment key={groupIndex}>
             <tr
               style={{
                 padding: 5,
                 display: group === 'default' ? 'none' : undefined,
                 backgroundColor: group !== 'default' && commandsWithGroups[group].show ? commandsWithGroups[group].color! : undefined,
               }}
-              key={groupIndex}
             >
               <td
                 style={{
@@ -244,6 +243,7 @@ const Commands: NextPage = () => {
                             title={r.text!}
                             lineClamp={1}
                             style={{ textOverflow: 'ellipsis', overflow: 'hidden' }}
+                            key={r.id}
                           >
                             {r.text}
                           </Text>
@@ -287,7 +287,7 @@ const Commands: NextPage = () => {
                   </td>
                 </tr>
               ))}
-          </>
+          </Fragment>
         ))}
         </tbody>
       </Table>
