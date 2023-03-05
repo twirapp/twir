@@ -17,6 +17,7 @@ COPY libs libs
 COPY apps apps
 COPY frontend frontend
 COPY patches patches
+COPY vendor vendor
 
 RUN pnpm install --frozen-lockfile
 RUN pnpm build:libs
@@ -124,6 +125,15 @@ FROM go_prod_base as websockets
 COPY --from=websockets_builder /app/apps/websockets/out /bin/websockets
 CMD ["/bin/websockets"]
 
+FROM builder as eventsub_builder
+RUN cd apps/eventsub && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as eventsub
+COPY --from=eventsub_builder /app/apps/eventsub/out /bin/eventsub
+CMD ["/bin/eventsub"]
+
 ### NODEJS MICROSERVICES
 
 FROM node:18-alpine as node_prod_base
@@ -164,22 +174,6 @@ COPY --from=eval_builder /app/apps/eval /app/apps/eval
 COPY --from=eval_builder /app/libs/config /app/libs/config
 COPY --from=eval_builder /app/libs/grpc /app/libs/grpc
 CMD ["pnpm", "--filter=@tsuwari/eval", "start"]
-
-FROM builder as eventsub_builder
-RUN cd apps/eventsub && \
-    pnpm build && \
-    pnpm prune --prod
-
-FROM node_prod_base as eventsub
-WORKDIR /app
-COPY --from=eventsub_builder /app/apps/eventsub /app/apps/eventsub
-COPY --from=eventsub_builder /app/libs/config /app/libs/config
-COPY --from=eventsub_builder /app/libs/grpc /app/libs/grpc
-COPY --from=eventsub_builder /app/libs/shared /app/libs/shared
-COPY --from=eventsub_builder /app/libs/typeorm /app/libs/typeorm
-COPY --from=eventsub_builder /app/libs/pubsub /app/libs/pubsub
-COPY --from=eventsub_builder /app/libs/types /app/libs/types
-CMD ["pnpm", "--filter=@tsuwari/eventsub", "start"]
 
 FROM builder as integrations_builder
 RUN cd apps/integrations && \

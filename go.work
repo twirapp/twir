@@ -5,6 +5,7 @@ use (
 	./apps/bots
 	./apps/emotes-cacher
 	./apps/events
+	./apps/eventsub
 	./apps/parser
 	./apps/scheduler
 	./apps/timers
