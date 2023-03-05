@@ -69,6 +69,8 @@ export const TTSOverlay: React.FC = () => {
   const cmdsManager = commandsManager();
   const { data: commands } = cmdsManager.useGetAll();
 
+  const [activeTab, setActiveTab] = useState<string | null>('settings');
+
   useEffect(() => {
     if (ttsSettings) {
       form.setValues(ttsSettings);
@@ -165,11 +167,11 @@ export const TTSOverlay: React.FC = () => {
       <Modal
         opened={modalOpened}
         onClose={() => setModalOpened(false)}
-        title={<Button size={'sm'} variant={'light'} onClick={onSubmit} color={'green'}>Save</Button>}
+        title={activeTab === 'settings' && <Button size={'sm'} variant={'light'} onClick={onSubmit} color={'green'}>Save</Button>}
         size={'xl'}
       >
         <Divider />
-        <Tabs defaultValue="settings" radius={0}>
+        <Tabs value={activeTab} onTabChange={setActiveTab} defaultValue="settings" radius={0}>
           <Tabs.List grow>
             <Tabs.Tab value="settings" icon={<IconSettings size={14} />}>Settings</Tabs.Tab>
             <Tabs.Tab value="commands" icon={<IconCommand size={14} />}>Commands</Tabs.Tab>
