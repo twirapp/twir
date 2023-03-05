@@ -5,13 +5,13 @@ use (
 	./apps/bots
 	./apps/emotes-cacher
 	./apps/events
+	./apps/eventsub
 	./apps/parser
 	./apps/scheduler
 	./apps/timers
 	./apps/tokens
 	./apps/watched
 	./apps/websockets
-	./apps/eventsub
 	./libs/config
 	./libs/gomodels
 	./libs/grpc
