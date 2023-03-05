@@ -79,15 +79,6 @@ FROM go_prod_base as parser
 COPY --from=parser_builder /app/apps/parser/out /bin/parser
 CMD ["/bin/parser"]
 
-FROM builder as streamstatus_builder
-RUN cd apps/streamstatus && \
-    go mod download && \
-    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
-
-FROM go_prod_base as streamstatus
-COPY --from=streamstatus_builder /app/apps/api/out /bin/api
-CMD ["/bin/api"]
-
 FROM builder as timers_builder
 RUN cd apps/timers && \
     go mod download && \
@@ -216,7 +207,7 @@ COPY --from=streamstatus_builder /app/libs/config /app/libs/config
 COPY --from=streamstatus_builder /app/libs/pubsub /app/libs/pubsub
 COPY --from=streamstatus_builder /app/libs/shared /app/libs/shared
 COPY --from=streamstatus_builder /app/libs/typeorm /app/libs/typeorm
-CMD ["pnpm", "--filter=@tsuwari/dota", "start"]
+CMD ["pnpm", "--filter=@tsuwari/streamstatus", "start"]
 
 FROM builder as ytsr_builder
 RUN cd apps/ytsr && \
