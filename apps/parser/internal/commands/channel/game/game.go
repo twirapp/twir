@@ -10,7 +10,6 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
-	"gorm.io/gorm"
 	"strings"
 
 	"github.com/samber/lo"
@@ -26,7 +25,6 @@ var SetCommand = &types.DefaultCommand{
 		Visible:     true,
 	},
 	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		db := do.MustInvoke[gorm.DB](di.Provider)
 		cfg := do.MustInvoke[config.Config](di.Provider)
 		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
@@ -34,35 +32,26 @@ var SetCommand = &types.DefaultCommand{
 			Result: make([]string, 0),
 		}
 
-		stream := &model.ChannelsStreams{}
-		err := db.Where(`"userId" = ?`, ctx.ChannelId).Find(stream).Error
-		if err != nil {
-			result.Result = append(result.Result, "internal error")
-			return result
-		}
-
-		if stream.ID == "" {
-			result.Result = append(result.Result, "offline")
-			return result
-		}
-
 		_, isHavePermToChange := lo.Find(ctx.SenderBadges, func(item string) bool {
 			return item == "BROADCASTER" || item == "MODERATOR"
 		})
 
-		if !isHavePermToChange {
-			result.Result = append(result.Result, stream.GameName)
-			return result
-		}
-
-		if ctx.Text == nil || *ctx.Text == "" {
-			result.Result = append(result.Result, stream.GameName)
-			return result
-		}
-
 		twitchClient, err := twitch.NewUserClient(ctx.ChannelId, cfg, tokensGrpc)
 		if err != nil {
 			return nil
+		}
+
+		if ctx.Text == nil || *ctx.Text == "" || !isHavePermToChange {
+			channelInfo, err := twitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
+				BroadcasterIDs: []string{ctx.ChannelId},
+			})
+
+			if err != nil || channelInfo.ErrorMessage != "" || len(channelInfo.Data.Channels) == 0 {
+				return nil
+			}
+
+			result.Result = append(result.Result, channelInfo.Data.Channels[0].GameName)
+			return result
 		}
 
 		gameReq, err := twitchClient.GetGames(&helix.GamesParams{
