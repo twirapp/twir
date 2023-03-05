@@ -8,6 +8,7 @@ import (
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
+	"strings"
 
 	"github.com/satont/go-helix/v2"
 	internalBots "github.com/satont/tsuwari/apps/bots/internal/bots"
@@ -122,6 +123,8 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 		}
 		channelName = &usersReq.Data.Users[0].Login
 	}
+
+	data.Message = strings.ReplaceAll(data.Message, "\n", " ")
 
 	if data.IsAnnounce != nil && *data.IsAnnounce == true {
 		twitchClient.SendChatAnnouncement(&helix.SendChatAnnouncementParams{

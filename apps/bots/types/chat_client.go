@@ -50,6 +50,8 @@ func (c *BotClient) SayWithRateLimiting(channel, text string, replyTo *string) {
 
 	text = validateResponseSlashes(text)
 
+	text = strings.ReplaceAll(text, "\n", " ")
+
 	if replyTo != nil {
 		c.Reply(channel, *replyTo, text)
 	} else {
