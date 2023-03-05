@@ -29,9 +29,9 @@ func NewPubSub(url string) (*PubSub, error) {
 	}, nil
 }
 
-type CB func(data string)
+type CB func(data []byte)
 
-func (c *PubSub) Publish(topic string, data string) {
+func (c *PubSub) Publish(topic string, data []byte) {
 	c.publisher.Publish(c.ctx, topic, data)
 }
 
@@ -45,7 +45,7 @@ func (c *PubSub) Subscribe(topic string, cb CB) {
 				panic(err)
 			}
 
-			cb(msg.Payload)
+			cb([]byte(msg.Payload))
 		}
 	}()
 }

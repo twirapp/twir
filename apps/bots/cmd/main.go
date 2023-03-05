@@ -113,13 +113,13 @@ func main() {
 	}))
 	go grpcServer.Serve(grpcNetListener)
 
-	pb.Subscribe("user.update", func(data string) {
+	pb.Subscribe("user.update", func(data []byte) {
 		handlers.UserUpdate(db, botsService, data)
 	})
-	pb.Subscribe("streams.online", func(data string) {
+	pb.Subscribe("stream.online", func(data []byte) {
 		handlers.StreamsOnline(db, data)
 	})
-	pb.Subscribe("streams.offline", func(data string) {
+	pb.Subscribe("stream.offline", func(data []byte) {
 		handlers.StreamsOffline(db, data)
 	})
 

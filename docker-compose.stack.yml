@@ -241,23 +241,6 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
 
-  streamstatus:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: streamstatus
-    image: registry.satont.dev/tsuwari/streamstatus
-    secrets:
-      - tsuwari_doppler_token
-    networks:
-      - tsuwari
-    deploy:
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-
   eventsub:
     build:
       context: .

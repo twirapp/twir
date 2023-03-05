@@ -6,6 +6,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/grpc/generated/watched"
+	"github.com/satont/tsuwari/libs/pubsub"
 	"gorm.io/gorm"
 )
 
@@ -20,4 +21,5 @@ type Services struct {
 	Grpc   *GrpcServices
 	Gorm   *gorm.DB
 	Config *config.Config
+	PubSub *pubsub.PubSub
 }

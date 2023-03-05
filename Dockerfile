@@ -195,20 +195,6 @@ COPY --from=integrations_builder /app/libs/shared /app/libs/shared
 COPY --from=integrations_builder /app/libs/typeorm /app/libs/typeorm
 CMD ["pnpm", "--filter=@tsuwari/integrations", "start"]
 
-FROM builder as streamstatus_builder
-RUN cd apps/streamstatus && \
-    pnpm build && \
-    pnpm prune --prod
-
-FROM node_prod_base as streamstatus
-WORKDIR /app
-COPY --from=streamstatus_builder /app/apps/streamstatus /app/apps/streamstatus
-COPY --from=streamstatus_builder /app/libs/config /app/libs/config
-COPY --from=streamstatus_builder /app/libs/pubsub /app/libs/pubsub
-COPY --from=streamstatus_builder /app/libs/shared /app/libs/shared
-COPY --from=streamstatus_builder /app/libs/typeorm /app/libs/typeorm
-CMD ["pnpm", "--filter=@tsuwari/streamstatus", "start"]
-
 FROM builder as ytsr_builder
 RUN cd apps/ytsr && \
     pnpm build && \

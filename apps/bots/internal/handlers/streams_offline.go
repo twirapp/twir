@@ -12,9 +12,9 @@ type streamOfflineData struct {
 	ChannelID string `json:"channelId"`
 }
 
-func StreamsOffline(db *gorm.DB, data string) {
+func StreamsOffline(db *gorm.DB, data []byte) {
 	streamOfflineStruct := &streamOfflineData{}
-	if err := json.Unmarshal([]byte(data), &streamOfflineStruct); err != nil {
+	if err := json.Unmarshal(data, &streamOfflineStruct); err != nil {
 		fmt.Println(err)
 		return
 	}

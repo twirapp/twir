@@ -18,9 +18,9 @@ type userUpdateUser struct {
 	Description   string `json:"description"`
 }
 
-func UserUpdate(db *gorm.DB, botsService *bots.BotsService, data string) {
+func UserUpdate(db *gorm.DB, botsService *bots.BotsService, data []byte) {
 	userStruct := &userUpdateUser{}
-	if err := json.Unmarshal([]byte(data), userStruct); err != nil {
+	if err := json.Unmarshal(data, userStruct); err != nil {
 		fmt.Println(err)
 		return
 	}

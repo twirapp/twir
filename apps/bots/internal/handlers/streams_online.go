@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"gorm.io/gorm"
 )
@@ -13,9 +12,9 @@ type streamOnlineData struct {
 	ChannelID string `json:"channelId"`
 }
 
-func StreamsOnline(db *gorm.DB, data string) {
+func StreamsOnline(db *gorm.DB, data []byte) {
 	streamOnlineStruct := &streamOnlineData{}
-	if err := json.Unmarshal([]byte(data), &streamOnlineStruct); err != nil {
+	if err := json.Unmarshal(data, &streamOnlineStruct); err != nil {
 		fmt.Println(err)
 		return
 	}

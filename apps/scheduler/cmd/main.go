@@ -6,6 +6,7 @@ import (
 	"github.com/satont/tsuwari/apps/scheduler/internal/types"
 	config "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/clients"
+	"github.com/satont/tsuwari/libs/pubsub"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -34,6 +35,11 @@ func main() {
 
 	appCtx, cancelCtx := context.WithCancel(context.Background())
 
+	pb, err := pubsub.NewPubSub(cfg.RedisUrl)
+	if err != nil {
+		panic(err)
+	}
+
 	services := &types.Services{
 		Grpc: &types.GrpcServices{
 			Emotes:  clients.NewEmotesCacher(cfg.AppEnv),
@@ -43,11 +49,13 @@ func main() {
 		},
 		Gorm:   db,
 		Config: cfg,
+		PubSub: pb,
 	}
 
 	timers.NewWatched(appCtx, services)
 	timers.NewEmotes(appCtx, services)
 	timers.NewOnlineUsers(appCtx, services)
+	timers.NewStreams(appCtx, services)
 
 	logger.Sugar().Info("Scheduler started")
 
