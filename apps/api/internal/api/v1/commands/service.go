@@ -98,9 +98,9 @@ func handlePost(
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	dto.Name = strings.ToLower(dto.Name)
+	dto.Name = strings.Replace(strings.ToLower(dto.Name), "!", "", 1)
 	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
-		return strings.ToLower(a)
+		return strings.Replace(strings.ToLower(a), "!", "", 1)
 	})
 
 	isExists := isCommandWithThatNameExists(services.DB, channelId, dto.Name, dto.Aliases, nil)
@@ -204,11 +204,6 @@ func handleUpdate(
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	dto.Name = strings.ToLower(dto.Name)
-	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
-		return strings.ToLower(a)
-	})
-
 	command, err := getChannelCommand(services.DB, channelId, commandId)
 	if err != nil || command == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "command not found")
@@ -217,6 +212,11 @@ func handleUpdate(
 	if len(dto.Responses) == 0 && !command.Default {
 		return nil, fiber.NewError(400, "responses cannot be empty")
 	}
+
+	dto.Name = strings.Replace(strings.ToLower(dto.Name), "!", "", 1)
+	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
+		return strings.Replace(strings.ToLower(a), "!", "", 1)
+	})
 
 	isExists := isCommandWithThatNameExists(
 		services.DB,
@@ -229,6 +229,7 @@ func handleUpdate(
 		return nil, fiber.NewError(400, "command with that name already exists")
 	}
 
+	command.Name = dto.Name
 	command.Aliases = dto.Aliases
 	command.Cooldown = null.IntFrom(int64(dto.Cooldown))
 	command.CooldownType = dto.CooldownType
@@ -236,7 +237,6 @@ func handleUpdate(
 	command.Enabled = *dto.Enabled
 	command.IsReply = *dto.IsReply
 	command.KeepResponsesOrder = *dto.KeepResponsesOrder
-	command.Name = dto.Name
 	command.Visible = *dto.Visible
 	command.GroupID = null.StringFromPtr(dto.GroupID)
 	command.RolesIDS = dto.RolesIDS

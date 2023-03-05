@@ -65,13 +65,11 @@ export const CommandDrawer: React.FC<Props> = (props) => {
     validate: {
       name: (value) => {
         if (!value.length) return 'Name cannot be empty';
-        if (value.startsWith('!')) return `Name of command shouldn't start with !`;
         return null;
       },
       aliases: {
         name: (value) => {
           if (!value.length) return 'Aliase cannot be empty';
-          if (value.startsWith('!')) return `Aliase shouldn't start with !`;
           return null;
         },
       },
