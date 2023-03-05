@@ -207,6 +207,114 @@ export const CommandDrawer: React.FC<Props> = (props) => {
               w={'100%'}
             />
 
+            {form.values.module === 'CUSTOM' && (
+              <div style={{ width: 450 }}>
+                <Flex direction="row" gap="xs">
+                  <Text>{t('responses')}</Text>
+                  <ActionIcon variant="light" color="green" size="xs">
+                    <IconPlus
+                      size={18}
+                      onClick={() => {
+                        form.insertListItem('responses', { text: '' });
+                      }}
+                    />
+                  </ActionIcon>
+                </Flex>
+                {!form.getInputProps('responses').value?.length && (
+                  <Alert>{t('drawer.responses.emptyAlert')}</Alert>
+                )}
+                <DragDropContext
+                  onDragEnd={({ destination, source }) =>
+                    form.reorderListItem('responses', {
+                      from: source.index,
+                      to: destination!.index,
+                    })
+                  }
+                >
+                  <Droppable droppableId="responses" direction="vertical">
+                    {(provided) => (
+                      <div {...provided.droppableProps} ref={provided.innerRef}>
+                        {form.values.responses?.map((_, index) => (
+                          <Draggable key={index} index={index} draggableId={index.toString()}>
+                            {(provided) => (
+                              <Group
+                                {...provided.draggableProps}
+                                ref={provided.innerRef}
+                                mt="xs"
+                                style={{ ...provided.draggableProps.style, position: 'static', width: '100%'  }}
+                              >
+                                <Textarea
+                                  w={'80%'}
+                                  placeholder="response"
+                                  autosize={true}
+                                  minRows={1}
+                                  rightSection={
+                                    <Menu position="bottom-end" shadow="md" width={380} offset={15} onClose={() => {
+                                      setVariablesSearchInput('');
+                                    }}>
+                                      <Menu.Target>
+                                        <ActionIcon color="blue" variant="filled">
+                                          <IconVariable size={18} />
+                                        </ActionIcon>
+                                      </Menu.Target>
+
+                                      <Menu.Dropdown>
+                                        <TextInput
+                                          placeholder={'search...'}
+                                          size={'sm'}
+                                          rightSection={<IconSearch size={12} />}
+                                          onChange={event => setVariablesSearchInput(event.target.value)}
+                                        />
+                                        <ScrollArea h={350} type={'always'} offsetScrollbars style={{ marginTop: 5 }}>
+                                          {variables.data?.length && variables.data
+                                            .filter(v => v.name.includes(variablesSearchInput)
+                                              || v.description?.includes(variablesSearchInput))
+                                            .map(v => (
+                                              <Menu.Item key={v.name} onClick={() => {
+                                                const insertValue = `${v.example ? v.example : v.name}`;
+                                                form.setFieldValue(
+                                                  `responses.${index}.text`,
+                                                  `${form.values.responses![index]!.text} $(${insertValue})`,
+                                                );
+                                                setVariablesSearchInput('');
+                                              }}>
+                                                <Flex direction={'column'}>
+                                                  <Text>{v.name}</Text>
+                                                  <Text size={'xs'}>{v.description}</Text>
+                                                </Flex>
+                                              </Menu.Item>
+                                            ))}
+                                        </ScrollArea>
+                                      </Menu.Dropdown>
+
+                                    </Menu>
+                                  }
+                                  {...form.getInputProps(`responses.${index}.text`)}
+                                />
+                                <Center {...provided.dragHandleProps}>
+                                  <IconGripVertical size={18} />
+                                </Center>
+                                <ActionIcon>
+                                  <IconMinus
+                                    size={18}
+                                    onClick={() => {
+                                      form.removeListItem('responses', index);
+                                    }}
+                                  />
+                                </ActionIcon>
+                              </Group>
+                            )}
+                          </Draggable>
+                        ))}
+
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              </div>
+            )}
+
             <div>
               <Flex direction="row" gap="xs">
                 <Text>Denied users</Text>
@@ -360,113 +468,6 @@ export const CommandDrawer: React.FC<Props> = (props) => {
               </Grid>
             </div>
 
-            {form.values.module === 'CUSTOM' && (
-              <div style={{ width: 450 }}>
-                <Flex direction="row" gap="xs">
-                  <Text>{t('responses')}</Text>
-                  <ActionIcon variant="light" color="green" size="xs">
-                    <IconPlus
-                      size={18}
-                      onClick={() => {
-                        form.insertListItem('responses', { text: '' });
-                      }}
-                    />
-                  </ActionIcon>
-                </Flex>
-                {!form.getInputProps('responses').value?.length && (
-                  <Alert>{t('drawer.responses.emptyAlert')}</Alert>
-                )}
-                <DragDropContext
-                  onDragEnd={({ destination, source }) =>
-                    form.reorderListItem('responses', {
-                      from: source.index,
-                      to: destination!.index,
-                    })
-                  }
-                >
-                  <Droppable droppableId="responses" direction="vertical">
-                    {(provided) => (
-                      <div {...provided.droppableProps} ref={provided.innerRef}>
-                        {form.values.responses?.map((_, index) => (
-                          <Draggable key={index} index={index} draggableId={index.toString()}>
-                            {(provided) => (
-                              <Group
-                                style={{ width: '100%', ...provided.draggableProps.style, position: 'static'  }}
-                                ref={provided.innerRef}
-                                mt="xs"
-                                {...provided.draggableProps}
-                              >
-                                <Textarea
-                                  w={'80%'}
-                                  placeholder="response"
-                                  autosize={true}
-                                  minRows={1}
-                                  rightSection={
-                                    <Menu position="bottom-end" shadow="md" width={380} offset={15} onClose={() => {
-                                      setVariablesSearchInput('');
-                                    }}>
-                                      <Menu.Target>
-                                        <ActionIcon color="blue" variant="filled">
-                                          <IconVariable size={18} />
-                                        </ActionIcon>
-                                      </Menu.Target>
-
-                                      <Menu.Dropdown>
-                                        <TextInput
-                                          placeholder={'search...'}
-                                          size={'sm'}
-                                          rightSection={<IconSearch size={12} />}
-                                          onChange={event => setVariablesSearchInput(event.target.value)}
-                                        />
-                                        <ScrollArea h={350} type={'always'} offsetScrollbars style={{ marginTop: 5 }}>
-                                        {variables.data?.length && variables.data
-                                          .filter(v => v.name.includes(variablesSearchInput)
-                                            || v.description?.includes(variablesSearchInput))
-                                          .map(v => (
-                                          <Menu.Item key={v.name} onClick={() => {
-                                            const insertValue = `${v.example ? v.example : v.name}`;
-                                            form.setFieldValue(
-                                              `responses.${index}.text`,
-                                              `${form.values.responses![index]!.text} $(${insertValue})`,
-                                            );
-                                            setVariablesSearchInput('');
-                                          }}>
-                                            <Flex direction={'column'}>
-                                              <Text>{v.name}</Text>
-                                              <Text size={'xs'}>{v.description}</Text>
-                                            </Flex>
-                                          </Menu.Item>
-                                        ))}
-                                        </ScrollArea>
-                                      </Menu.Dropdown>
-
-                                    </Menu>
-                                  }
-                                  {...form.getInputProps(`responses.${index}.text`)}
-                                />
-                                <Center {...provided.dragHandleProps}>
-                                  <IconGripVertical size={18} />
-                                </Center>
-                                <ActionIcon>
-                                  <IconMinus
-                                    size={18}
-                                    onClick={() => {
-                                      form.removeListItem('responses', index);
-                                    }}
-                                  />
-                                </ActionIcon>
-                              </Group>
-                            )}
-                          </Draggable>
-                        ))}
-
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </DragDropContext>
-              </div>
-            )}
           </Flex>
         </form>
       </ScrollArea.Autosize>
