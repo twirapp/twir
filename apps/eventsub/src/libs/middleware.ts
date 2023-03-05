@@ -5,6 +5,7 @@ import { ChannelEvent, EventType } from '@tsuwari/typeorm/entities/ChannelEvent'
 import { ChannelFollowEvent } from '@tsuwari/typeorm/entities/channelEvents/Follow';
 import { ChannelInfoHistory } from '@tsuwari/typeorm/entities/ChannelInfoHistory';
 import { ChannelModuleSettings, ModuleType } from '@tsuwari/typeorm/entities/ChannelModuleSettings';
+import { ChannelStream } from '@tsuwari/typeorm/entities/ChannelStream';
 import { type YouTubeSettings } from '@tsuwari/types/api';
 import { ApiClient } from '@twurple/api';
 import { ClientCredentialsAuthProvider } from '@twurple/auth';
@@ -68,6 +69,7 @@ class UserSubscriptions {
 
   #subscribeToChannelUpdateEvents() {
     return eventSubMiddleware.subscribeToChannelUpdateEvents(this.userId, (e) => {
+      console.log(e.streamTitle);
       pubsub.publish('stream.update', getRawData(e));
 
       eventsGrpcClient.titleOrCategoryChanged({
@@ -81,6 +83,11 @@ class UserSubscriptions {
         title: e.streamTitle,
         category: e.categoryName,
       });
+
+      typeorm.getRepository(ChannelStream).update(
+        { userId: e.broadcasterId },
+        { title: e.streamTitle, gameName: e.categoryName },
+      ).catch(() => {});
     });
   }
 

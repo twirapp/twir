@@ -3,7 +3,6 @@ package timers
 import (
 	"context"
 	"encoding/json"
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
@@ -81,7 +80,7 @@ func processStreams(services *types.Services) {
 				twitchStream, twitchStreamExists := lo.Find(streams.Data.Streams, func(stream helix.Stream) bool {
 					return stream.UserID == channel.ID
 				})
-				dbStream, dbStreamExists := lo.Find(existedStreams, func(stream model.ChannelsStreams) bool {
+				_, dbStreamExists := lo.Find(existedStreams, func(stream model.ChannelsStreams) bool {
 					return stream.UserId == channel.ID
 				})
 
@@ -91,7 +90,7 @@ func processStreams(services *types.Services) {
 				}
 
 				channelStream := &model.ChannelsStreams{
-					ID:             uuid.New().String(),
+					ID:             twitchStream.ID,
 					UserId:         twitchStream.UserID,
 					UserLogin:      twitchStream.UserLogin,
 					UserName:       twitchStream.UserName,
@@ -111,8 +110,7 @@ func processStreams(services *types.Services) {
 				}
 
 				if twitchStreamExists && dbStreamExists {
-					channelStream.ID = dbStream.ID
-					err = services.Gorm.Updates(channelStream).Error
+					err = services.Gorm.Where(`"userId" = ?`, channel.ID).Updates(channelStream).Error
 					if err != nil {
 						zap.S().Error(err)
 						return
@@ -139,9 +137,7 @@ func processStreams(services *types.Services) {
 				}
 
 				if !twitchStreamExists && dbStreamExists {
-					err = services.Gorm.Delete(&model.ChannelsStreams{
-						UserId: channel.ID,
-					}).Error
+					err = services.Gorm.Where(`"userId" = ?`, channel.ID).Delete(&model.ChannelsStreams{}).Error
 					if err != nil {
 						zap.S().Error(err)
 						return
