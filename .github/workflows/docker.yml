@@ -21,7 +21,6 @@ jobs:
             integrations,
             parser,
             scheduler,
-            streamstatus,
             timers,
             watched,
             websockets,
