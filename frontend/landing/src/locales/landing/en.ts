@@ -42,6 +42,14 @@ const messages: ILandingLocale = {
           name: 'Greatings',
           description: 'Do you want to somehow highlight your favorite viewers? Add a greeting!',
         },
+        {
+          name: 'OBS Websockets',
+          description: 'Highly integrate with obs studio via websockets. Change scenes, mute audio, toggle source visibility via bot',
+        },
+        {
+          name: 'Events',
+          description: 'With this powerful tool, you can easily set up customized listeners to keep track of specific events happening in the chat, or even trigger actions based on system events',
+        },
       ],
     },
     firstScreen: {
