@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	eventsub_framework "github.com/dnsge/twitch-eventsub-framework"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/eventsub/internal/client"
 	"github.com/satont/tsuwari/apps/eventsub/internal/grpm_impl"
@@ -77,19 +76,6 @@ func main() {
 	}()
 
 	eventSubClient, err := client.NewClient(appCtx, services, fmt.Sprintf("https://%s", appAddr))
-	if err != nil {
-		panic(err)
-	}
-
-	// TODO: remove, it's for testing
-	_, err = eventSubClient.Subscribe(appCtx, &eventsub_framework.SubRequest{
-		Type: "channel.update",
-		Condition: map[string]string{
-			"broadcaster_user_id": "869882828",
-		},
-		Callback: fmt.Sprintf("https://%s", appAddr),
-		Secret:   cfg.TwitchClientSecret,
-	})
 	if err != nil {
 		panic(err)
 	}
