@@ -29,6 +29,7 @@
             :role="teamMembersLocale[memberId]"
             :name="member.name"
             :socials="member.socials"
+            :avatar-url="member.avatarUrl"
           />
         </li>
       </ul>

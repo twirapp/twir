@@ -1,6 +1,21 @@
 <template>
   <div class="min-lg:px-6 inline-flex min-lg:justify-items-center min-lg:items-center w-full">
+    <img
+      v-if="avatarUrl"
+      :src="avatarUrl"
+      class="
+          min-sm:w-[80px] min-sm:h-[80px]
+          w-[68px]
+          h-[68px]
+          inline-block
+          p-1
+          rounded-full
+          object-cover
+        "
+    />
+
     <UserImage
+      v-else
       class="
         min-sm:w-[80px] min-sm:h-[80px]
         w-[68px]
@@ -63,6 +78,7 @@ defineProps<{
   role: string;
   socials: TeamMemberMedia[];
   isFounder?: boolean;
+  avatarUrl?: string
 }>();
 
 const { t } = useTranslation<'landing'>();

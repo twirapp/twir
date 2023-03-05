@@ -14,6 +14,7 @@ export interface TeamMember {
   name: string;
   isFounder?: boolean;
   socials: TeamMemberMedia[];
+  avatarUrl?: string,
 }
 
 type TeamMembers = {
@@ -29,18 +30,21 @@ export const teamMembers: TeamMembers = {
     name: 'Satont',
     isFounder: true,
     socials: [
-      { type: 'Github', link: 'https://github.com/satont' },
-      { type: 'Telegram', link: 'https://t.me/satont' },
       { type: 'Twitch', link: 'https://www.twitch.tv/fukushine' },
+      { type: 'Telegram', link: 'https://t.me/satont' },
+      { type: 'Github', link: 'https://github.com/satont' },
       { type: 'Website', link: 'https://satont.dev/' },
     ],
+    avatarUrl: 'https://cdn.7tv.app/emote/62c5c34724fb1819d9f08b4d/3x.webp',
   },
   [TeamMemberId.Melkam]: {
     name: 'Melkam',
     socials: [
+      { type: 'Twitch', link: 'https://www.twitch.tv/mellkam' },
+      { type: 'Telegram', link: 'https://t.me/mellkam' },
       { type: 'Github', link: 'https://github.com/MellKam' },
       { type: 'Instagram', link: 'https://www.instagram.com/mel._.kam/' },
-      { type: 'Telegram', link: 'https://t.me/mellkam' },
     ],
+    avatarUrl: 'https://avatars.githubusercontent.com/u/51422045?s=80&v=4',
   },
 };
