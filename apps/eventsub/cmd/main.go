@@ -69,12 +69,19 @@ func main() {
 		},
 	}
 
-	eventSubClient, err := client.NewClient(appCtx, services)
+	eventSubHandler := handler.NewHandler(services)
+	go func() {
+		if err := http.Serve(appTun, eventSubHandler.Manager); err != nil {
+			panic(err)
+		}
+	}()
+
+	eventSubClient, err := client.NewClient(appCtx, services, fmt.Sprintf("https://%s", appAddr))
 	if err != nil {
 		panic(err)
 	}
-	eventSubHandler := handler.NewHandler(services)
 
+	// TODO: remove, it's for testing
 	_, err = eventSubClient.Subscribe(appCtx, &eventsub_framework.SubRequest{
 		Type: "channel.update",
 		Condition: map[string]string{
@@ -87,9 +94,7 @@ func main() {
 		panic(err)
 	}
 
-	go http.Serve(appTun, eventSubHandler.Manager)
-
-	grpcImpl := grpm_impl.NewGrpcImpl()
+	grpcImpl := grpm_impl.NewGrpcImpl(eventSubClient, services, fmt.Sprintf("https://%s", appAddr))
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.EVENTSUB_SERVER_PORT))
 	if err != nil {
 		panic(err)
@@ -98,7 +103,11 @@ func main() {
 		MaxConnectionAge: 1 * time.Minute,
 	}))
 	eventsub.RegisterEventSubServer(grpcServer, grpcImpl)
-	go grpcServer.Serve(lis)
+	go func() {
+		if err := grpcServer.Serve(lis); err != nil {
+			panic(err)
+		}
+	}()
 
 	logger.Sugar().Infow("EventSub started", "addr", appAddr)
 
