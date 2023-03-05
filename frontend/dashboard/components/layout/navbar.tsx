@@ -93,7 +93,6 @@ export function NavBar({
           </Box>
         </Flex>
         <Group position="center">
-          <Button className={classes.hiddenMobile} variant={'light'} onClick={() => router.push('/application')}>Application</Button>
           <Tooltip label={'Discord'} withArrow>
             <ActionIcon
               size={'lg'}
