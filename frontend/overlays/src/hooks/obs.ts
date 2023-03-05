@@ -117,7 +117,7 @@ export const useObs = () => {
       if (!item) return;
       const sceneName = mappedScenesNames[index];
       result[sceneName] = item.sceneItems.filter(i => !i.isGroup).map((i) => ({
-        name: `[${sceneName}] ${i.sourceName}`,
+        name: i.sourceName as string,
         type: i.inputKind?.toString() || null,
       }));
 
@@ -132,7 +132,7 @@ export const useObs = () => {
         result[sceneName] = [
           ...result[sceneName],
           ...group.sceneItems.filter(i => !i.isGroup).map((i) => ({
-            name: `[${sceneName}] ${i.sourceName}`,
+            name: i.sourceName as string,
             type: i.inputKind?.toString() || null,
           })),
         ];
