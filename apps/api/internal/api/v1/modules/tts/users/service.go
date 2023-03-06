@@ -53,7 +53,7 @@ func handleGet(channelId string, services types.Services) ([]*UserSettings, erro
 		}
 
 		usersSettings = append(usersSettings, &UserSettings{
-			Rate:   ttsSettings.Pitch,
+			Rate:   ttsSettings.Rate,
 			Voice:  ttsSettings.Voice,
 			Pitch:  ttsSettings.Pitch,
 			UserID: setting.UserId.String,
@@ -107,34 +107,13 @@ func handleGet(channelId string, services types.Services) ([]*UserSettings, erro
 	return usersSettings, nil
 }
 
-func handleDelete(channelId, userId string, services types.Services) error {
+func handleDelete(channelId string, dto *deleteDto, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	user := &model.ChannelModulesSettings{}
 	err := services.DB.
-		Where(`"userId" = ? AND "channelId" = ? AND type = ?`, userId, channelId, "tts").
-		Find(user).
-		Error
-	if err != nil {
-		logger.Error(err)
-		return fiber.NewError(http.StatusInternalServerError, "internal error")
-	}
-
-	err = services.DB.Delete(user).Error
-	if err != nil {
-		logger.Error(err)
-		return fiber.NewError(http.StatusInternalServerError, "internal error")
-	}
-
-	return nil
-}
-
-func handleDeleteAll(channelId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
-	err := services.DB.
-		Where(`"channelId" = ? AND type = ? and "userId" IS NOT NULL`, channelId, "tts").
-		Delete(&model.ChannelModulesSettings{}).
+		Where(`"userId" IN ? AND "channelId" = ? AND type = ?`, dto.UsersIDS, channelId, "tts").
+		Delete(user).
 		Error
 	if err != nil {
 		logger.Error(err)

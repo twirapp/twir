@@ -6,7 +6,7 @@ import {
   Avatar,
   Button,
   Card,
-  Center,
+  Checkbox,
   CopyButton,
   Divider,
   Flex,
@@ -26,7 +26,17 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import { isNotEmpty, useForm, isInRange } from '@mantine/form';
-import { IconAlertCircle, IconCommand, IconCopy, IconSearch, IconSettings, IconSpeakerphone, IconTrash, IconUsers } from '@tabler/icons';
+import {
+  IconAlertCircle,
+  IconCheck,
+  IconChecks,
+  IconCommand,
+  IconCopy, IconEraser,
+  IconSearch,
+  IconSettings,
+  IconSpeakerphone,
+  IconUsers,
+} from '@tabler/icons';
 import { CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 
@@ -42,7 +52,6 @@ import { confirmDelete } from '../confirmDelete';
 import { CommandsList } from '@/components/commands/list';
 import { authFetch, commandsManager, useProfile } from '@/services/api';
 import { TTS, useTtsModule } from '@/services/api/modules';
-
 
 
 export const TTSOverlay: React.FC = () => {
@@ -70,6 +79,8 @@ export const TTSOverlay: React.FC = () => {
     },
   });
 
+  const [usersForDelete, setUsersForDelete] = useState<string[]>([]);
+
   const [modalOpened, setModalOpened] = useState(false);
   const [testText, setTestText] = useState('');
 
@@ -85,7 +96,6 @@ export const TTSOverlay: React.FC = () => {
 
   const { data: usersSettings } = tts.useUsersSettings();
   const usersDeleter = tts.useUsersDelete();
-  const usersClearAll = tts.useUsersClear();
 
   const cmdsManager = commandsManager();
   const { data: commands } = cmdsManager.useGetAll();
@@ -289,15 +299,36 @@ export const TTSOverlay: React.FC = () => {
             />
             <Flex justify={'space-between'} mt={10}>
               <div></div>
-              <Button
-                color='red'
-                variant='light'
-                onClick={() => {
-                  confirmDelete({
-                    onConfirm: () => usersClearAll.mutate(),
-                  });
-                }}
-              >Delete all</Button>
+              <Group>
+                {usersSettings?.length && (usersForDelete.length !== usersSettings?.length) &&
+                    <Button
+                        leftIcon={<IconChecks />}
+                        onClick={() => setUsersForDelete(usersSettings?.map(u => u.userId) || [])}
+                        variant={'light'}
+                    >
+                        Select all
+                    </Button>
+                }
+                {usersForDelete.length === usersSettings?.length &&
+                    <Button
+                        leftIcon={<IconEraser />}
+                        onClick={() => setUsersForDelete([])}
+                        variant={'light'}
+                    >Undo select</Button>
+                }
+                <Button
+                  color='red'
+                  variant='light'
+                  onClick={() => {
+                    confirmDelete({
+                      onConfirm: () => usersDeleter.mutate(usersForDelete),
+                    });
+                  }}
+                  disabled={!usersForDelete.length}
+                >
+                  Delete {usersForDelete.length}
+                </Button>
+              </Group>
             </Flex>
             <Grid mt={10}>
               {usersSettings?.filter((u) => {
@@ -336,9 +367,23 @@ export const TTSOverlay: React.FC = () => {
                           <IconSpeakerphone />
                         </ActionIcon>
                       </Tooltip>
-                      <ActionIcon variant='light' onClick={() => usersDeleter.mutate(u.userId)}>
-                        <IconTrash />
-                      </ActionIcon>
+                      <Checkbox
+                        icon={({ indeterminate, className }) => {
+                          return indeterminate
+                            ? <IconCheck className={className} />
+                            : <IconCheck className={className} />;
+                        }}
+                        indeterminate
+                        size={'md'}
+                        checked={usersForDelete.includes(u.userId)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setUsersForDelete([...usersForDelete, u.userId]);
+                          } else {
+                            setUsersForDelete(usersForDelete.filter((id) => id !== u.userId));
+                          }
+                        }}
+                      />
                     </Flex>
                   </Flex>
                 </UnstyledButton>

@@ -54,32 +54,19 @@ export const useTtsModule = () => {
       retry: false,
     }),
     useUsersDelete: () => useMutation({
-      mutationFn: (userId: string) => {
-        return authFetcher(`${getUrl()}/users/${userId}`, {
+      mutationFn: (usersIds: string[]) => {
+        return authFetcher(`${getUrl()}/users/`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ usersIds }),
         });
       },
       onSuccess: () => {
         queryClient.refetchQueries({ queryKey: [`${getUrl()}/users`] });
       },
       mutationKey: [`${getUrl()}/users`],
-    }),
-    useUsersClear: () => useMutation({
-      mutationFn: () => {
-        return authFetcher(`${getUrl()}/users/clear`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-      },
-      onSuccess: () => {
-        queryClient.refetchQueries({ queryKey: [`${getUrl()}/users`] });
-      },
-      mutationKey: [`${getUrl()}/users/clear`],
     }),
   };
 };

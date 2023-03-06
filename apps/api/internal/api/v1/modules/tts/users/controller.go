@@ -1,6 +1,7 @@
 package users
 
 import (
+	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,8 +11,7 @@ import (
 func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("users")
 	middleware.Get("", get(services))
-	middleware.Delete("clear", deleteAll(services))
-	middleware.Delete(":userId", delete(services))
+	middleware.Delete("", delete(services))
 
 	return middleware
 }
@@ -29,22 +29,20 @@ func get(services types.Services) fiber.Handler {
 
 func delete(services types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		err := handleDelete(c.Params("channelId"), c.Params("userId"), services)
+		dto := &deleteDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			dto,
+		)
 		if err != nil {
 			return err
 		}
+
+		err = handleDelete(c.Params("channelId"), dto, services)
 
 		return c.SendStatus(http.StatusOK)
 	}
 }
 
-func deleteAll(services types.Services) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		err := handleDeleteAll(c.Params("channelId"), services)
-		if err != nil {
-			return err
-		}
-
-		return c.SendStatus(http.StatusOK)
-	}
-}
