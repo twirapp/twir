@@ -143,7 +143,7 @@ func (c *handler) handleYoutubeSongRequests(event *eventsub_bindings.EventChanne
 	entity := &model.ChannelModulesSettings{}
 	err := c.services.Gorm.
 		Where(`"channelId" = ? AND "type" = ?`, event.BroadcasterUserID, "youtube_song_requests").
-		Find(settings).
+		Find(entity).
 		Error
 	if err != nil {
 		zap.S().Error(err)
