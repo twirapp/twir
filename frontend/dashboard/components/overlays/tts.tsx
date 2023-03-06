@@ -230,7 +230,7 @@ export const TTSOverlay: React.FC = () => {
                 {...form.getInputProps('do_not_read_emoji', { type: 'checkbox' })}
               />
               <Switch
-                label={'Do read twitch emotes. Including 7tv, ffz, bttv.'}
+                label={'Do not read twitch emotes. Including 7tv, ffz, bttv.'}
                 labelPosition={'left'}
                 {...form.getInputProps('do_not_read_twitch_emotes', { type: 'checkbox' })}
               />
