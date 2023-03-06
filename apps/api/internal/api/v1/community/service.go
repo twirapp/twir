@@ -85,7 +85,7 @@ func handleGet(channelId, limit, page, sortBy, order string) ([]User, error) {
 		Limit(uint64(parsedLimit)).
 		Offset(uint64(offset)).
 		GroupBy(`"users_stats"."id"`).
-		OrderBy(fmt.Sprintf("%s %s", sortBy, order)).
+		OrderBy(fmt.Sprintf(`"%s" %s`, sortBy, order)).
 		ToSql()
 	query = sqlxDb.Rebind(query)
 
