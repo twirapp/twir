@@ -21,6 +21,7 @@ export interface TTSSettings {
     disallowed_voices: string[];
     do_not_read_emoji: boolean;
     do_not_read_twitch_emotes: boolean;
+    do_not_read_links: boolean;
 }
 export interface TTS {
     GET: TTSSettings;

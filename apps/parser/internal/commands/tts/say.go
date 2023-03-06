@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v9"
 	"github.com/guregu/null"
+	"github.com/satont/tsuwari/apps/bots/pkg/tlds"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"regexp"
 	"strconv"
@@ -21,6 +22,14 @@ import (
 )
 
 var emojiRx = regexp.MustCompile(`[\p{So}\p{Sk}\p{Sm}\p{Sc}]`)
+
+// [a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})
+var linksWithSpaces = regexp.MustCompile(
+	fmt.Sprintf(
+		`(www)? ??\.? ?[a-zA-Z0-9]+([a-zA-Z0-9-]+) ??\. ?(%s)\b`,
+		strings.Join(tlds.TLDS, "|"),
+	),
+)
 
 var SayCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
@@ -91,6 +100,10 @@ var SayCommand = &types.DefaultCommand{
 
 		if channelSettings.DoNotReadEmoji {
 			*ctx.Text = emojiRx.ReplaceAllString(*ctx.Text, ``)
+		}
+
+		if channelSettings.DoNotReadLinks {
+			*ctx.Text = linksWithSpaces.ReplaceAllString(*ctx.Text, ``)
 		}
 
 		if channelSettings.DoNotReadTwitchEmotes {

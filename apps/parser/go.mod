@@ -12,7 +12,8 @@ require (
 	github.com/prometheus/client_golang v1.14.0
 	github.com/samber/do v1.6.0
 	github.com/satont/go-helix/v2 v2.7.28
-	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
+	github.com/satont/tsuwari/apps/bots v0.0.0-20230306140052-60f1293647c4
+	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/twitch v0.0.0-20230112134844-218713e75233
@@ -29,7 +30,6 @@ require (
 )
 
 require (
-	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
@@ -58,7 +58,6 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/goleak v1.1.12 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
@@ -80,9 +79,9 @@ require (
 	github.com/satont/tsuwari/libs/config v0.0.0
 	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb // indirect
-	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/net v0.8.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/text v0.8.0 // indirect
 )
 
 replace github.com/satont/tsuwari/libs/integrations/spotify => ../../libs/integrations/spotify
