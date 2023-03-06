@@ -250,7 +250,12 @@ export const TTSOverlay: React.FC = () => {
 
             <Divider mt={10} mb={5} />
 
-            <Textarea placeholder={'enter text for test'} value={testText} onChange={e => setTestText(e.target.value)} />
+            <Textarea
+              placeholder={'enter text for test'}
+              value={testText}
+              onChange={e => setTestText(e.target.value)}
+              maxLength={500}
+            />
             <Button 
               variant={'light'}
               onClick={() => testSpeak({ 
@@ -274,6 +279,7 @@ export const TTSOverlay: React.FC = () => {
               placeholder={'text for testing user voices'} 
               value={testText} onChange={e => setTestText(e.target.value)}
               icon={<IconSpeakerphone />}
+              maxLength={500}
             />
             <Flex justify={'space-between'} mt={10}>
               <div></div>
