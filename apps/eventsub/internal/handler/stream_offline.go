@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/dnsge/twitch-eventsub-bindings"
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/pubsub"
 	"go.uber.org/zap"
@@ -25,6 +26,11 @@ func (c *handler) handleStreamOffline(h *eventsub_bindings.ResponseHeaders, even
 	if err != nil {
 		zap.S().Error(err)
 		return
+	}
+
+	err = c.services.Gorm.Where(`"userId" = ?`, event.BroadcasterUserID).Delete(&model.ChannelsStreams{}).Error
+	if err != nil {
+		zap.S().Error(err)
 	}
 
 	c.services.PubSub.Publish("stream.offline", bytes)

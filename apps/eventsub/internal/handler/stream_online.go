@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/dnsge/twitch-eventsub-bindings"
+	"github.com/lib/pq"
 	"github.com/satont/go-helix/v2"
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/pubsub"
 	"github.com/satont/tsuwari/libs/twitch"
@@ -34,6 +36,43 @@ func (c *handler) handleStreamOnline(h *eventsub_bindings.ResponseHeaders, event
 
 	if len(streamsReq.Data.Streams) == 0 {
 		return
+	}
+
+	stream := streamsReq.Data.Streams[0]
+
+	err = c.services.Gorm.Where(`"userId" = ?`, event.BroadcasterUserID).Delete(&model.ChannelsStreams{}).Error
+	if err == nil {
+		tags := pq.StringArray{}
+		for _, tag := range stream.Tags {
+			tags = append(tags, tag)
+		}
+		tagIds := pq.StringArray{}
+		for _, tagId := range stream.TagIDs {
+			tagIds = append(tagIds, tagId)
+		}
+
+		err = c.services.Gorm.Create(&model.ChannelsStreams{
+			ID:             event.ID,
+			UserId:         event.BroadcasterUserID,
+			UserLogin:      event.BroadcasterUserLogin,
+			UserName:       event.BroadcasterUserName,
+			GameId:         stream.GameID,
+			GameName:       stream.GameName,
+			CommunityIds:   nil,
+			Type:           stream.Type,
+			Title:          stream.Title,
+			ViewerCount:    stream.ViewerCount,
+			StartedAt:      stream.StartedAt,
+			Language:       stream.Language,
+			ThumbnailUrl:   stream.ThumbnailURL,
+			TagIds:         &tagIds,
+			Tags:           &tags,
+			IsMature:       stream.IsMature,
+			ParsedMessages: 0,
+		}).Error
+		if err != nil {
+			zap.S().Error(err)
+		}
 	}
 
 	c.services.Grpc.Events.StreamOnline(context.Background(), &events.StreamOnlineMessage{
