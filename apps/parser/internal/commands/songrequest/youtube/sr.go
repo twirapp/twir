@@ -107,6 +107,19 @@ var SrCommand = &types.DefaultCommand{
 		requested := make([]*model.RequestedSong, 0, len(req.Songs))
 		errors := make([]*ReqError, 0, len(req.Songs))
 
+		var currentQueueCount int64
+		err = db.
+			Where(`"channelId" = ? AND "deletedAt" IS NULL`, ctx.ChannelId).
+			Model(&model.RequestedSong{}).
+			Count(&currentQueueCount).
+			Error
+
+		if err != nil {
+			zap.S().Error(err)
+			result.Result = append(result.Result, "internal error")
+			return result
+		}
+
 		for i, song := range req.Songs {
 			err = validate(
 				ctx.ChannelId,
@@ -131,7 +144,7 @@ var SrCommand = &types.DefaultCommand{
 					Title:                song.Title,
 					Duration:             int32(song.Duration),
 					CreatedAt:            time.Now().UTC(),
-					QueuePosition:        latestSong.QueuePosition + (i + 1),
+					QueuePosition:        int(currentQueueCount) + (i + 1),
 				}
 
 				err = db.Create(model).Error
