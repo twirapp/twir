@@ -2,6 +2,7 @@ package tts
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/modules/tts/users"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	"github.com/satont/tsuwari/libs/types/types/api/modules"
@@ -12,6 +13,8 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
 	middleware.Get("info", getInfo(services))
+
+	users.Setup(middleware, services)
 
 	return middleware
 }

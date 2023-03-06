@@ -7,6 +7,17 @@ import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 export type TTS = V1['CHANNELS']['MODULES']['TTS']
 
+
+type UserSettings = {
+  rate: number,
+  pitch: number,
+  voice: string,
+  userLogin: string,
+  userName: string,
+  userAvatar: string,
+  userId: string,
+}
+
 export const useTtsModule = () => {
   const dashboard = useContext(SelectedDashboardContext);
   const getUrl = () => `/api/v1/channels/${dashboard.id}/modules/tts`;
@@ -36,6 +47,39 @@ export const useTtsModule = () => {
         queryClient.invalidateQueries({ queryKey: [getUrl()] });
       },
       mutationKey: [getUrl()],
+    }),
+    useUsersSettings: () => useQuery<UserSettings[]>({
+      queryKey: [`${getUrl()}/users`],
+      queryFn: () => authFetcher(`${getUrl()}/users`),
+      retry: false,
+    }),
+    useUsersDelete: () => useMutation({
+      mutationFn: (userId: string) => {
+        return authFetcher(`${getUrl()}/users/${userId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      },
+      onSuccess: () => {
+        queryClient.refetchQueries({ queryKey: [`${getUrl()}/users`] });
+      },
+      mutationKey: [`${getUrl()}/users`],
+    }),
+    useUsersClear: () => useMutation({
+      mutationFn: () => {
+        return authFetcher(`${getUrl()}/users/clear`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      },
+      onSuccess: () => {
+        queryClient.refetchQueries({ queryKey: [`${getUrl()}/users`] });
+      },
+      mutationKey: [`${getUrl()}/users/clear`],
     }),
   };
 };

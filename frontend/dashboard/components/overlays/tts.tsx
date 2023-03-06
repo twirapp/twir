@@ -1,22 +1,33 @@
+import { resolveUserName } from 'util/resolveUserName';
+
 import {
   ActionIcon,
   Alert,
+  Avatar,
   Button,
   Card,
+  Center,
   CopyButton,
   Divider,
   Flex,
+  Grid,
+  Group,
   Modal,
   MultiSelect,
   NumberInput,
   Select,
+  Space,
   Switch, Tabs,
   Text,
   Textarea,
+  TextInput,
   Tooltip,
+  UnstyledButton,
+  useMantineTheme,
 } from '@mantine/core';
 import { isNotEmpty, useForm, isInRange } from '@mantine/form';
-import { IconCommand, IconCopy, IconSettings, IconSpeakerphone } from '@tabler/icons';
+import { IconAlertCircle, IconCommand, IconCopy, IconSearch, IconSettings, IconSpeakerphone, IconTrash, IconUsers } from '@tabler/icons';
+import { CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 
 declare global {
@@ -26,14 +37,17 @@ declare global {
 }
 
 import { noop } from '../../util/chore';
+import { confirmDelete } from '../confirmDelete';
 
 import { CommandsList } from '@/components/commands/list';
 import { authFetch, commandsManager, useProfile } from '@/services/api';
 import { TTS, useTtsModule } from '@/services/api/modules';
 
-import { CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
+
 
 export const TTSOverlay: React.FC = () => {
+  const theme = useMantineTheme();
+
   const form = useForm<TTS['POST']>({
     initialValues: {
       enabled: false,
@@ -60,11 +74,17 @@ export const TTSOverlay: React.FC = () => {
 
   const [availableVoices, setAvailableVoices] = useState<Array<{ value: string, label: string }>>([]);
 
+  const [usersSearch, setUsersSearch] = useState('');
+
   const tts = useTtsModule();
   const { data: ttsSettings } = tts.useSettings();
   const ttsInfo = tts.useInfo();
   const updater = tts.useUpdate();
   const { data: profile } = useProfile();
+
+  const { data: usersSettings } = tts.useUsersSettings();
+  const usersDeleter = tts.useUsersDelete();
+  const usersClearAll = tts.useUsersClear();
 
   const cmdsManager = commandsManager();
   const { data: commands } = cmdsManager.useGetAll();
@@ -109,12 +129,11 @@ export const TTSOverlay: React.FC = () => {
       .catch(noop);
   }
 
-  const testSpeak = useCallback(async () => {
-    if (!testText) return;
-
+  const testSpeak = useCallback(async (opts: { voice: string, rate: string, pitch: string }) => {
     const query = new URLSearchParams({
-      ...form.values as any,
-      text: testText,
+      ...opts,
+      volume: form.values.volume.toString(),
+      text: testText || 'This is test',
     });
 
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -167,13 +186,20 @@ export const TTSOverlay: React.FC = () => {
       <Modal
         opened={modalOpened}
         onClose={() => setModalOpened(false)}
-        title={activeTab === 'settings' && <Button size={'sm'} variant={'light'} onClick={onSubmit} color={'green'}>Save</Button>}
+        title={
+            <Flex direction='row' gap='md'>
+              <Text size='xl'>TTS</Text>
+              {activeTab === 'settings' 
+                && <Button size={'sm'} variant={'light'} onClick={onSubmit} color={'green'}>Save</Button>}
+            </Flex>
+        }
         size={'xl'}
       >
         <Divider />
         <Tabs value={activeTab} onTabChange={setActiveTab} defaultValue="settings" radius={0}>
           <Tabs.List grow>
             <Tabs.Tab value="settings" icon={<IconSettings size={14} />}>Settings</Tabs.Tab>
+            <Tabs.Tab value="usersSettings" icon={<IconUsers size={14} />}>Users Settings</Tabs.Tab>
             <Tabs.Tab value="commands" icon={<IconCommand size={14} />}>Commands</Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value="settings" pt="xs">
@@ -225,7 +251,91 @@ export const TTSOverlay: React.FC = () => {
             <Divider mt={10} mb={5} />
 
             <Textarea placeholder={'enter text for test'} value={testText} onChange={e => setTestText(e.target.value)} />
-            <Button variant={'light'} onClick={testSpeak} fullWidth mt={10}>Test</Button>
+            <Button 
+              variant={'light'}
+              onClick={() => testSpeak({ 
+                voice: form.values.voice,
+                rate: form.values.rate.toString(),
+                pitch: form.values.pitch.toString(),
+              })} 
+              fullWidth 
+              mt={10}>
+                Test
+            </Button>
+          </Tabs.Panel>
+          <Tabs.Panel value="usersSettings" pt="xs">
+            <TextInput 
+              placeholder='search...'
+              onChange={(e) => setUsersSearch(e.target.value)} value={usersSearch}
+              icon={<IconSearch />}
+            />
+            <Textarea 
+              mt={5} 
+              placeholder={'text for testing user voices'} 
+              value={testText} onChange={e => setTestText(e.target.value)}
+              icon={<IconSpeakerphone />}
+            />
+            <Flex justify={'space-between'} mt={10}>
+              <div></div>
+              <Button
+                color='red'
+                variant='light'
+                onClick={() => {
+                  confirmDelete({
+                    onConfirm: () => usersClearAll.mutate(),
+                  });
+                }}
+              >Delete all</Button>
+            </Flex>
+            <Grid mt={10}>
+              {usersSettings?.filter((u) => {
+                return u.userLogin.includes(usersSearch) || u.userName.includes(usersSearch);
+              })
+              .map((u) => <Grid.Col span={6} key={u.userId}>
+                <UnstyledButton 
+                style={{ 
+                  backgroundColor: theme.colors.dark[5],
+                  padding: 5,
+                  borderRadius: 11,
+                  width: '100%',
+                  cursor: 'default',
+                }}
+                >
+                  <Flex direction={'row'} justify={'space-between'}>
+                    <Group>
+                      <Avatar size={40} color="blue" src={u.userAvatar} />
+                      <div>
+                        <Text>{resolveUserName(u.userLogin, u.userName)}</Text>
+                        <Text size="xs" color="dimmed">
+                          Pitch: {u.pitch} Rate: {u.rate} Voice: {u.voice}
+                        </Text>
+                      </div>
+                    </Group>
+                  
+                    <Flex direction='row' align='center' gap='sm'>
+                      <Tooltip label='Test' withArrow color={theme.colors.dark[6]}>
+                        <ActionIcon onClick={() => {
+                          testSpeak({
+                            voice: u.voice,
+                            rate: u.rate.toString(),
+                            pitch: u.pitch.toString(),
+                          });
+                        }}>
+                          <IconSpeakerphone />
+                        </ActionIcon>
+                      </Tooltip>
+                      <ActionIcon variant='light' onClick={() => usersDeleter.mutate(u.userId)}>
+                        <IconTrash />
+                      </ActionIcon>
+                    </Flex>
+                  </Flex>
+                </UnstyledButton>
+              </Grid.Col>)}
+              {!usersSettings?.length
+                && <Alert icon={<IconAlertCircle size="1rem" />} color="indigo" variant="outline" w={'100%'}>
+                  No users
+              </Alert>}
+            </Grid>
           </Tabs.Panel>
           <Tabs.Panel value="commands" pt="xs">
             <CommandsList commands={commands?.filter(c => c.module === CommandModule.TTS) ?? []} />
