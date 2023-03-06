@@ -189,7 +189,7 @@ export const TTSOverlay: React.FC = () => {
         title={
             <Flex direction='row' gap='md'>
               <Text size='xl'>TTS</Text>
-              {activeTab === 'settings' 
+              {activeTab === 'settings'
                 && <Button size={'sm'} variant={'light'} onClick={onSubmit} color={'green'}>Save</Button>}
             </Flex>
         }
@@ -251,7 +251,7 @@ export const TTSOverlay: React.FC = () => {
             <Divider mt={10} mb={5} />
 
             <Textarea
-              placeholder={'enter text for test'}
+              placeholder={'Text for test'}
               value={testText}
               onChange={e => setTestText(e.target.value)}
               maxLength={500}
@@ -270,13 +270,13 @@ export const TTSOverlay: React.FC = () => {
           </Tabs.Panel>
           <Tabs.Panel value="usersSettings" pt="xs">
             <TextInput 
-              placeholder='search...'
+              placeholder='Search...'
               onChange={(e) => setUsersSearch(e.target.value)} value={usersSearch}
               icon={<IconSearch />}
             />
             <Textarea 
               mt={5} 
-              placeholder={'text for testing user voices'} 
+              placeholder={'Text for testing user voices'}
               value={testText} onChange={e => setTestText(e.target.value)}
               icon={<IconSpeakerphone />}
               maxLength={500}
