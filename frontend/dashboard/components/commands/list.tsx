@@ -38,9 +38,6 @@ export const CommandsList: FC<Props> = (props) => {
         <tbody>
         {props.commands.map((command) => <tr key={command.id}>
           <td style={{
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
             maxWidth: 100,
             paddingLeft: 10,
           }}
