@@ -75,7 +75,10 @@ func (c *handler) handleChannelPointsRewardRedemptionUpdate(
 
 func (c *handler) countUserChannelPoints(userId, channelId string, count int) {
 	user := &model.Users{}
-	err := c.services.Gorm.Where("id = ?", userId).Preload("Stats").First(user).Error
+	err := c.services.Gorm.
+		Where("id = ?", userId).
+		Preload("Stats", `"channelId" = ?`, channelId).
+		First(user).Error
 	if err != nil {
 		zap.S().Error(err)
 		return
@@ -139,7 +142,7 @@ func (c *handler) handleYoutubeSongRequests(event *eventsub_bindings.EventChanne
 	settings := &modules.YouTubeSettings{}
 	entity := &model.ChannelModulesSettings{}
 	err := c.services.Gorm.
-		Where(`channelId" = ? AND type = ?`, event.BroadcasterUserID, "youtube_song_requests").
+		Where(`"channelId" = ? AND "type" = ?`, event.BroadcasterUserID, "youtube_song_requests").
 		Find(settings).
 		Error
 	if err != nil {
