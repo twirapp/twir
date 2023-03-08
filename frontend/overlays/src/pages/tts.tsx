@@ -73,7 +73,7 @@ export const TTS: React.FC = () => {
   }, []);
 
   const say = async (data: Record<string, string>) => {
-    if (!apiKey) return;
+    if (!apiKey || !data.text) return;
 
     const query = new URLSearchParams(data);
 
@@ -85,6 +85,10 @@ export const TTS: React.FC = () => {
         'Api-Key': apiKey,
       },
     });
+    if (!req.ok) {
+      currentAudioBuffer.current = null;
+      return;
+    }
     const arrayBuffer = await req.arrayBuffer();
 
     const source = audioContext.createBufferSource();
