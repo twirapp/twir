@@ -1,15 +1,11 @@
 package users
 
 import (
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
 	"net/http"
 	"strings"
 	"sync"
+
+	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
@@ -22,14 +18,10 @@ type RequestUser struct {
 	Name *string
 }
 
-func handleGet(ids string, names string, services types.Services) ([]helix.User, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-	config := do.MustInvoke[cfg.Config](di.Provider)
-
-	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+func handleGet(ids string, names string, services *types.Services) ([]helix.User, error) {
+	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -100,7 +92,7 @@ func handleGet(ids string, names string, services types.Services) ([]helix.User,
 	select {
 	case err := <-errCH:
 		close(errCH)
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get users")
 	default:
 		return users, nil

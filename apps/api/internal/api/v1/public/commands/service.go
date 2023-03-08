@@ -1,12 +1,13 @@
 package commands
 
 import (
+	"net/http"
+	"sort"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"net/http"
-	"sort"
 )
 
 type Permission struct {
@@ -26,17 +27,17 @@ type Command struct {
 	Module       string       `json:"module"`
 }
 
-func handleGet(channelId string, services types.Services) ([]Command, error) {
+func handleGet(channelId string, services *types.Services) ([]Command, error) {
 	commands := []model.ChannelsCommands{}
 	channelRoles := []model.ChannelRole{}
 
-	err := services.DB.
+	err := services.Gorm.
 		Where(`"channelId" = ? AND "enabled" = ? AND "visible" = ?`, channelId, true, true).
 		Preload("Responses").
 		Preload("Group").
 		Find(&commands).Error
 
-	err = services.DB.Where(`"channelId" = ?`, channelId).Find(&channelRoles).Error
+	err = services.Gorm.Where(`"channelId" = ?`, channelId).Find(&channelRoles).Error
 
 	if err != nil {
 		return nil, fiber.NewError(http.StatusNotFound, "cannot find commands")

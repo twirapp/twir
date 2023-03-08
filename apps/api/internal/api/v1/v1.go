@@ -37,7 +37,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	feedback.Setup(router, services)
 	stats.Setup(router, services)
 

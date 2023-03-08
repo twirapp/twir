@@ -4,22 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/go-redis/redis/v9"
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	modules "github.com/satont/tsuwari/libs/types/types/api/modules"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
-	"net/http"
 )
 
-func handleGet(channelId string, services types.Services) (*modules.OBSWebSocketSettings, error) {
+func handleGet(channelId string, services *types.Services) (*modules.OBSWebSocketSettings, error) {
 	settings := model.ChannelModulesSettings{}
-	err := services.DB.Where(`"channelId" = ? AND "type" = ?`, channelId, "obs_websocket").First(&settings).Error
+	err := services.Gorm.Where(`"channelId" = ? AND "type" = ?`, channelId, "obs_websocket").First(&settings).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusNotFound, "settings not found")
 	}
@@ -33,40 +30,39 @@ func handleGet(channelId string, services types.Services) (*modules.OBSWebSocket
 	return &data, nil
 }
 
-func handlePost(channelId string, dto *modules.OBSWebSocketSettings, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
+func handlePost(channelId string, dto *modules.OBSWebSocketSettings, services *types.Services) error {
+	
 	var existedSettings *model.ChannelModulesSettings
-	err := services.DB.Where(`"channelId" = ? AND "type" = ?`, channelId, "obs_websocket").First(&existedSettings).Error
+	err := services.Gorm.Where(`"channelId" = ? AND "type" = ?`, channelId, "obs_websocket").First(&existedSettings).Error
 
 	if err != nil && err != gorm.ErrRecordNotFound {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	bytes, err := json.Marshal(*dto)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	if existedSettings.ID == "" {
-		err = services.DB.Model(&model.ChannelModulesSettings{}).Create(map[string]interface{}{
+		err = services.Gorm.Model(&model.ChannelModulesSettings{}).Create(map[string]interface{}{
 			"id":        uuid.NewV4().String(),
 			"type":      "obs_websocket",
 			"settings":  bytes,
 			"channelId": channelId,
 		}).Error
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 
 		return nil
 	} else {
-		err = services.DB.Model(existedSettings).Updates(map[string]interface{}{"settings": bytes}).Error
+		err = services.Gorm.Model(existedSettings).Updates(map[string]interface{}{"settings": bytes}).Error
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 
@@ -80,14 +76,14 @@ type OBSWebSocketData struct {
 	Scenes       []string `json:"scenes"`
 }
 
-func handleGetData(channelId string) (*OBSWebSocketData, error) {
-	redisClient := do.MustInvoke[*redis.Client](di.Provider)
+func handleGetData(channelId string, services *types.Services) (*OBSWebSocketData, error) {
+	
 
 	ctx := context.Background()
 
-	sourcesReq := redisClient.Get(ctx, fmt.Sprintf("obs:sources:%s", channelId)).Val()
-	audioSourcesReq := redisClient.Get(ctx, fmt.Sprintf("obs:audio-sources:%s", channelId)).Val()
-	scenesReq := redisClient.Get(ctx, fmt.Sprintf("obs:scenes:%s", channelId)).Val()
+	sourcesReq := services.Redis.Get(ctx, fmt.Sprintf("obs:sources:%s", channelId)).Val()
+	audioSourcesReq := services.Redis.Get(ctx, fmt.Sprintf("obs:audio-sources:%s", channelId)).Val()
+	scenesReq := services.Redis.Get(ctx, fmt.Sprintf("obs:scenes:%s", channelId)).Val()
 
 	sources := make([]string, 0)
 	audioSources := make([]string, 0)

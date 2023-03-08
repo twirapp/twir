@@ -8,7 +8,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("tts")
 	middleware.Use(middlewares.AttachUser(services))
 	middleware.Get("say", getSpeak(services))
@@ -16,7 +16,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
-func getSpeak(services types.Services) fiber.Handler {
+func getSpeak(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		volume := c.Query("volume", "100")
 		pitch := c.Query("pitch", "50")
@@ -28,7 +28,7 @@ func getSpeak(services types.Services) fiber.Handler {
 			return c.SendStatus(http.StatusBadRequest)
 		}
 
-		r, err := handleGetSay(voice, pitch, volume, rate, text)
+		r, err := handleGetSay(services, voice, pitch, volume, rate, text)
 		if err != nil {
 			return err
 		}

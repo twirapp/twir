@@ -6,7 +6,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("groups")
 
 	middleware.Get("/", getGroups(services))
@@ -27,7 +27,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Success      200  {array}  model.ChannelCommandGroup
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands/groups [get]
-func getGroups(services types.Services) fiber.Handler {
+func getGroups(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		groups, err := getGroupsService(c.Params("channelId"), services)
 		if err != nil {
@@ -50,7 +50,7 @@ func getGroups(services types.Services) fiber.Handler {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands/groups [post]
-func createGroup(services types.Services) fiber.Handler {
+func createGroup(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		dto := &groupDto{}
 		err := middlewares.ValidateBody(
@@ -63,7 +63,7 @@ func createGroup(services types.Services) fiber.Handler {
 			return err
 		}
 
-		group, err := createGroupService(c.Params("channelId"), dto)
+		group, err := createGroupService(c.Params("channelId"), dto, services)
 		if err != nil {
 			return err
 		}
@@ -83,9 +83,9 @@ func createGroup(services types.Services) fiber.Handler {
 // @Success      204
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands/groups/{groupId} [delete]
-func deleteGroup(services types.Services) fiber.Handler {
+func deleteGroup(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		err := deleteGroupService(c.Params("channelId"), c.Params("groupId"))
+		err := deleteGroupService(c.Params("channelId"), c.Params("groupId"), services)
 		if err != nil {
 			return err
 		}
@@ -107,7 +107,7 @@ func deleteGroup(services types.Services) fiber.Handler {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands/groups/{groupId} [put]
-func updateGroup(services types.Services) fiber.Handler {
+func updateGroup(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		dto := &groupDto{}
 		err := middlewares.ValidateBody(
@@ -120,7 +120,7 @@ func updateGroup(services types.Services) fiber.Handler {
 			return err
 		}
 
-		group, err := updateGroupService(c.Params("channelId"), c.Params("groupId"), dto)
+		group, err := updateGroupService(c.Params("channelId"), c.Params("groupId"), dto, services)
 		if err != nil {
 			return err
 		}

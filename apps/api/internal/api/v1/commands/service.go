@@ -1,15 +1,11 @@
 package commands
 
 import (
-	"github.com/samber/do"
-	"github.com/satont/go-helix/v2"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
 	"net/http"
 	"strings"
+
+	"github.com/satont/go-helix/v2"
+	"github.com/satont/tsuwari/libs/twitch"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
@@ -20,17 +16,14 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func handleGet(channelId string, services types.Services) ([]model.ChannelsCommands, error) {
-	config := do.MustInvoke[cfg.Config](di.Provider)
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+func handleGet(channelId string, services *types.Services) ([]model.ChannelsCommands, error) {
+	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	cmds := getChannelCommands(services.DB, channelId)
+	cmds := getChannelCommands(services.Gorm, channelId)
 
 	usersForReq := []string{}
 
@@ -73,11 +66,11 @@ func handleGet(channelId string, services types.Services) ([]model.ChannelsComma
 		}
 	} else {
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 		}
 
 		if twitchUsersReq.ErrorMessage != "" {
-			logger.Error(twitchUsersReq.ErrorMessage)
+			services.Logger.Error(twitchUsersReq.ErrorMessage)
 		}
 	}
 
@@ -86,15 +79,12 @@ func handleGet(channelId string, services types.Services) ([]model.ChannelsComma
 
 func handlePost(
 	channelId string,
-	services types.Services,
+	services *types.Services,
 	dto *commandDto,
 ) (*model.ChannelsCommands, error) {
-	config := do.MustInvoke[cfg.Config](di.Provider)
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -103,7 +93,7 @@ func handlePost(
 		return strings.Replace(strings.ToLower(a), "!", "", 1)
 	})
 
-	isExists := isCommandWithThatNameExists(services.DB, channelId, dto.Name, dto.Aliases, nil)
+	isExists := isCommandWithThatNameExists(services.Gorm, channelId, dto.Name, dto.Aliases, nil)
 	if isExists {
 		return nil, fiber.NewError(400, "command with that name already exists")
 	}
@@ -122,11 +112,11 @@ func handlePost(
 			Logins: append(dto.DeniedUsersIds, dto.AllowedUsersIds...),
 		})
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 		if twitchUsersReq.ErrorMessage != "" {
-			logger.Error(twitchUsersReq.ErrorMessage)
+			services.Logger.Error(twitchUsersReq.ErrorMessage)
 			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 
@@ -153,16 +143,16 @@ func handlePost(
 		}
 	}
 
-	err = services.DB.Save(newCommand).Error
+	err = services.Gorm.Save(newCommand).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create command")
 	}
 
 	responses := createResponsesFromDto(dto.Responses, newCommand.ID)
-	err = services.DB.Save(&responses).Error
+	err = services.Gorm.Save(&responses).Error
 	if err != nil {
-		services.DB.Where(`"id" = ?`, newCommand.ID).Delete(&model.ChannelsCommands{})
+		services.Gorm.Where(`"id" = ?`, newCommand.ID).Delete(&model.ChannelsCommands{})
 
 		return nil, fiber.NewError(
 			http.StatusInternalServerError,
@@ -175,13 +165,13 @@ func handlePost(
 	return newCommand, nil
 }
 
-func handleDelete(channelId string, commandId string, services types.Services) error {
-	command, err := getChannelCommand(services.DB, channelId, commandId)
+func handleDelete(channelId string, commandId string, services *types.Services) error {
+	command, err := getChannelCommand(services.Gorm, channelId, commandId)
 	if err != nil || command == nil {
 		return fiber.NewError(http.StatusNotFound, "command not found")
 	}
 
-	err = services.DB.Delete(&command).Error
+	err = services.Gorm.Delete(&command).Error
 	if err != nil {
 		return fiber.NewError(http.StatusInternalServerError, "cannot delete command")
 	}
@@ -193,18 +183,15 @@ func handleUpdate(
 	channelId string,
 	commandId string,
 	dto *commandDto,
-	services types.Services,
+	services *types.Services,
 ) (*model.ChannelsCommands, error) {
-	config := do.MustInvoke[cfg.Config](di.Provider)
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	command, err := getChannelCommand(services.DB, channelId, commandId)
+	command, err := getChannelCommand(services.Gorm, channelId, commandId)
 	if err != nil || command == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "command not found")
 	}
@@ -219,7 +206,7 @@ func handleUpdate(
 	})
 
 	isExists := isCommandWithThatNameExists(
-		services.DB,
+		services.Gorm,
 		channelId,
 		dto.Name,
 		dto.Aliases,
@@ -248,11 +235,11 @@ func handleUpdate(
 			Logins: append(dto.DeniedUsersIds, dto.AllowedUsersIds...),
 		})
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 		if twitchUsersReq.ErrorMessage != "" {
-			logger.Error(twitchUsersReq.ErrorMessage)
+			services.Logger.Error(twitchUsersReq.ErrorMessage)
 			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 		for _, deniedUser := range dto.DeniedUsersIds {
@@ -282,21 +269,21 @@ func handleUpdate(
 		command.Group = nil
 	}
 
-	err = services.DB.
+	err = services.Gorm.
 		Select("*").
 		Updates(command).
 		Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, err
 	}
 
 	if !command.Default {
-		services.DB.Where(`"commandId" = ?`, command.ID).Delete(&model.ChannelsCommandsResponses{})
+		services.Gorm.Where(`"commandId" = ?`, command.ID).Delete(&model.ChannelsCommandsResponses{})
 		responses := createResponsesFromDto(dto.Responses, commandId)
-		err = services.DB.Save(&responses).Error
+		err = services.Gorm.Save(&responses).Error
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return nil, fiber.NewError(
 				http.StatusInternalServerError,
 				"something went wrong on creating response",
@@ -306,7 +293,7 @@ func handleUpdate(
 		command.Responses = responses
 	}
 
-	newCmd, err := getChannelCommand(services.DB, channelId, commandId)
+	newCmd, err := getChannelCommand(services.Gorm, channelId, commandId)
 	if err != nil || command == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "command not found")
 	}
@@ -317,26 +304,24 @@ func handleUpdate(
 func handlePatch(
 	channelId, commandId string,
 	dto *commandPatchDto,
-	services types.Services,
+	services *types.Services,
 ) (*model.ChannelsCommands, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
-	command, err := getChannelCommand(services.DB, channelId, commandId)
+	command, err := getChannelCommand(services.Gorm, channelId, commandId)
 	if err != nil || command == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "command not found")
 	}
 
 	command.Enabled = *dto.Enabled
 
-	err = services.DB.
+	err = services.Gorm.
 		Select("*").
 		Updates(command).
 		Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, err
 	}
 
-	newCommand, _ := getChannelCommand(services.DB, channelId, commandId)
+	newCommand, _ := getChannelCommand(services.Gorm, channelId, commandId)
 	return newCommand, nil
 }

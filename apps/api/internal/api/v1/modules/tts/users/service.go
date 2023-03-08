@@ -6,15 +6,10 @@ import (
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	config "github.com/satont/tsuwari/libs/config"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
 	"github.com/satont/tsuwari/libs/types/types/api/modules"
 	"go.uber.org/zap"
@@ -31,9 +26,9 @@ type UserSettings struct {
 	UserID     string `json:"userId"`
 }
 
-func handleGet(channelId string, services types.Services) ([]*UserSettings, error) {
+func handleGet(channelId string, services *types.Services) ([]*UserSettings, error) {
 	var settings []model.ChannelModulesSettings
-	err := services.DB.
+	err := services.Gorm.
 		Where(`"channelId" = ? AND "type" = ? AND "userId" IS NOT NULL`, channelId, "tts").
 		Find(&settings).
 		Error
@@ -60,9 +55,7 @@ func handleGet(channelId string, services types.Services) ([]*UserSettings, erro
 		})
 	}
 
-	cfg := do.MustInvoke[config.Config](di.Provider)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-	twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
+	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
 	if err != nil {
 		zap.S().Error(err)
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Internal error")
@@ -107,16 +100,14 @@ func handleGet(channelId string, services types.Services) ([]*UserSettings, erro
 	return usersSettings, nil
 }
 
-func handleDelete(channelId string, dto *deleteDto, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
+func handleDelete(channelId string, dto *deleteDto, services *types.Services) error {
 	user := &model.ChannelModulesSettings{}
-	err := services.DB.
+	err := services.Gorm.
 		Where(`"userId" IN ? AND "channelId" = ? AND type = ?`, dto.UsersIDS, channelId, "tts").
 		Delete(user).
 		Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 

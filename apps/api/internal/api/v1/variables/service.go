@@ -2,9 +2,6 @@ package variables
 
 import (
 	"context"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -18,26 +15,21 @@ import (
 	"gorm.io/gorm"
 )
 
-func handleGet(channelId string, services types.Services) ([]model.ChannelsCustomvars, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
+func handleGet(channelId string, services *types.Services) ([]model.ChannelsCustomvars, error) {
 	variables := []model.ChannelsCustomvars{}
-	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&variables).Error
+	err := services.Gorm.Where(`"channelId" = ?`, channelId).Find(&variables).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get variables")
 	}
 
 	return variables, nil
 }
 
-func handleGetBuiltIn(services types.Services) ([]*parser.GetVariablesResponse_Variable, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	grpc := do.MustInvoke[parser.ParserClient](di.Provider)
-
-	req, err := grpc.GetDefaultVariables(context.Background(), &emptypb.Empty{})
+func handleGetBuiltIn(services *types.Services) ([]*parser.GetVariablesResponse_Variable, error) {
+	req, err := services.Grpc.Parser.GetDefaultVariables(context.Background(), &emptypb.Empty{})
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get builtin variables")
 	}
 
@@ -47,10 +39,10 @@ func handleGetBuiltIn(services types.Services) ([]*parser.GetVariablesResponse_V
 func handlePost(
 	channelId string,
 	dto *variableDto,
-	services types.Services,
+	services *types.Services,
 ) (*model.ChannelsCustomvars, error) {
 	existedVariable := &model.ChannelsCustomvars{}
-	err := services.DB.Where(`"channelId" = ? AND name = ?`, channelId, dto.Name).
+	err := services.Gorm.Where(`"channelId" = ? AND name = ?`, channelId, dto.Name).
 		First(existedVariable).
 		Error
 	if err == nil && existedVariable != nil {
@@ -66,7 +58,7 @@ func handlePost(
 		Response:    dto.Response,
 		ChannelID:   channelId,
 	}
-	err = services.DB.Save(&newVariable).Error
+	err = services.Gorm.Save(&newVariable).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create variable")
 	}
@@ -74,20 +66,18 @@ func handlePost(
 	return &newVariable, nil
 }
 
-func handleDelete(channelId string, variableId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
+func handleDelete(channelId string, variableId string, services *types.Services) error {
 	variable := &model.ChannelsCustomvars{}
-	err := services.DB.Where(`"channelId" = ? AND "id" = ?`, channelId, variableId).
+	err := services.Gorm.Where(`"channelId" = ? AND "id" = ?`, channelId, variableId).
 		First(variable).
 		Error
 	if err == gorm.ErrRecordNotFound {
 		return fiber.NewError(http.StatusNotFound, "variable not found")
 	}
 
-	err = services.DB.Delete(variable).Error
+	err = services.Gorm.Delete(variable).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot delete variable")
 	}
 
@@ -98,11 +88,11 @@ func handleUpdate(
 	channelId string,
 	variableId string,
 	dto *variableDto,
-	services types.Services,
+	services *types.Services,
 ) (*model.ChannelsCustomvars, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	
 
-	err := services.DB.Where("id = ?", variableId).First(&model.ChannelsCustomvars{}).Error
+	err := services.Gorm.Where("id = ?", variableId).First(&model.ChannelsCustomvars{}).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(http.StatusNotFound, "variable not found")
 	}
@@ -117,9 +107,9 @@ func handleUpdate(
 		ChannelID:   channelId,
 	}
 
-	err = services.DB.Select("*").Updates(&newData).Error
+	err = services.Gorm.Select("*").Updates(&newData).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(
 			http.StatusInternalServerError,
 			"something happend on our side, cannot update variable",

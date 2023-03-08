@@ -10,9 +10,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func handleGet(channelId string, services types.Services) (*model.ChannelsStreams, error) {
+func handleGet(channelId string, services *types.Services) (*model.ChannelsStreams, error) {
 	stream := model.ChannelsStreams{}
-	err := services.DB.Where(`"userId" = ?`, channelId).First(&stream).Error
+	err := services.Gorm.Where(`"userId" = ?`, channelId).First(&stream).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}

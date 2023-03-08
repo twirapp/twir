@@ -1,9 +1,8 @@
-package services
+package timers_service
 
 import (
 	"errors"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
+
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
@@ -17,10 +16,10 @@ type TimersService struct {
 	logger interfaces.Logger
 }
 
-func NewTimersService() *TimersService {
+func NewTimersService(db *gorm.DB, logger interfaces.Logger) *TimersService {
 	service := &TimersService{
-		db:     do.MustInvoke[*gorm.DB](di.Provider),
-		logger: do.MustInvoke[interfaces.Logger](di.Provider),
+		db:     db,
+		logger: logger,
 	}
 
 	return service
@@ -29,7 +28,6 @@ func NewTimersService() *TimersService {
 func (c *TimersService) FindOneById(id string) (*model.ChannelsTimers, error) {
 	timer := model.ChannelsTimers{}
 	err := c.db.Where("id = ?", id).Preload("Responses").Find(&timer).Error
-
 	if err != nil {
 		c.logger.Error(err)
 		return nil, notFoundError
@@ -45,7 +43,6 @@ func (c *TimersService) FindOneById(id string) (*model.ChannelsTimers, error) {
 func (c *TimersService) FindManyByChannelId(channelId string) ([]model.ChannelsTimers, error) {
 	var timers []model.ChannelsTimers
 	err := c.db.Where(`"channelId" = ?`, channelId).Preload("Responses").Find(&timers).Error
-
 	if err != nil {
 		c.logger.Error(err)
 		return nil, notFoundError
@@ -79,7 +76,6 @@ func (c *TimersService) Create(
 
 		return nil
 	})
-
 	if err != nil {
 		c.logger.Error(err)
 		return nil, errors.New("internal error")

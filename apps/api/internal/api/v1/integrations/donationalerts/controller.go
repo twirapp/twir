@@ -6,7 +6,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("donationalerts")
 	middleware.Get("auth", getAuth(services))
 	middleware.Get("", get(services))
@@ -26,7 +26,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Success      200  {object}  model.ChannelsIntegrationsData
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/donationalerts [get]
-func get(services types.Services) func(c *fiber.Ctx) error {
+func get(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		integration, err := handleGet(c.Params("channelId"), services)
 		if err != nil {
@@ -46,7 +46,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Success 200 {string} string	"Auth link"
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/donationalerts/auth [get]
-func getAuth(services types.Services) func(c *fiber.Ctx) error {
+func getAuth(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		authLink, err := handleGetAuth(services)
 		if err != nil {
@@ -73,7 +73,7 @@ type tokenDto struct {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/donationalerts [post]
-func post(services types.Services) func(c *fiber.Ctx) error {
+func post(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &tokenDto{}
 		err := middlewares.ValidateBody(
@@ -107,7 +107,7 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 // @Failure 404 {object} types.DOCApiBadRequest
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/donationalerts/logout [post]
-func logout(services types.Services) fiber.Handler {
+func logout(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		channelId := c.Params("channelId")
 		err := handleLogout(channelId, services)

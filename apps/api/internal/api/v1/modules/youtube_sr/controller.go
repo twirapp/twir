@@ -7,7 +7,7 @@ import (
 	youtube "github.com/satont/tsuwari/libs/types/types/api/modules"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("youtube-sr")
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
@@ -26,7 +26,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Success      200  {object}  youtube.YouTubeSettings
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/modules/youtube-sr [get]
-func get(services types.Services) func(c *fiber.Ctx) error {
+func get(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		settings, err := handleGet(c.Params("channelId"), services)
 		if err != nil {
@@ -49,7 +49,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Success      200  {array}  youtube.SearchResult
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/modules/youtube-sr/search [get]
-func getSearch(service types.Services) fiber.Handler {
+func getSearch(service *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		results, err := handleSearch(c.Query("query"), c.Query("type"))
 		if err != nil {
@@ -60,7 +60,7 @@ func getSearch(service types.Services) fiber.Handler {
 	}
 }
 
-func post(services types.Services) func(c *fiber.Ctx) error {
+func post(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := youtube.YouTubeSettings{}
 		err := middlewares.ValidateBody(

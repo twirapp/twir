@@ -15,7 +15,7 @@ import (
 	_ "github.com/satont/tsuwari/libs/types/types/api/bot"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("bot")
 
 	botInfoCache := cache.New(cache.Config{
@@ -58,7 +58,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Failure 404 {object} types.DOCApiInternalError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/bot/checkmod [get]
-func get(services types.Services) func(c *fiber.Ctx) error {
+func get(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		isBotMod, err := handleGet(c.Params("channelId"), services)
 		if err != nil {
@@ -85,7 +85,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/bot/connection [patch]
-func patch(services types.Services) func(c *fiber.Ctx) error {
+func patch(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &connectionDto{}
 		err := middlewares.ValidateBody(

@@ -7,7 +7,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("/roles")
 	roles_users.Setup(middleware, services)
 
@@ -30,9 +30,9 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Success      200  {array}  model.ChannelRole
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/roles [get]
-func getRoles(services types.Services) fiber.Handler {
+func getRoles(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		roles, err := getRolesService(c.Params("channelId"))
+		roles, err := getRolesService(c.Params("channelId"), services)
 		if err != nil {
 			return err
 		}
@@ -54,7 +54,7 @@ func getRoles(services types.Services) fiber.Handler {
 // @Failure 404 {object} types.DOCApiNotFoundError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/roles/{roleId} [put]
-func updateRole(services types.Services) fiber.Handler {
+func updateRole(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		dto := &roleDto{}
 		err := middlewares.ValidateBody(
@@ -67,7 +67,7 @@ func updateRole(services types.Services) fiber.Handler {
 			return err
 		}
 
-		newRole, err := updateRoleService(c.Params("channelId"), c.Params("roleId"), dto)
+		newRole, err := updateRoleService(c.Params("channelId"), c.Params("roleId"), dto, services)
 		if err != nil {
 			return err
 		}
@@ -89,9 +89,9 @@ func updateRole(services types.Services) fiber.Handler {
 // @Failure 404 {object} types.DOCApiNotFoundError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/roles/{roleId} [delete]
-func deleteRole(services types.Services) fiber.Handler {
+func deleteRole(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		err := deleteRoleService(c.Params("channelId"), c.Params("roleId"))
+		err := deleteRoleService(c.Params("channelId"), c.Params("roleId"), services)
 		if err != nil {
 			return err
 		}
@@ -112,7 +112,7 @@ func deleteRole(services types.Services) fiber.Handler {
 // @Success      200  {object}  model.ChannelRole
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/roles [post]
-func createRole(services types.Services) fiber.Handler {
+func createRole(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		dto := &roleDto{}
 		err := middlewares.ValidateBody(
@@ -125,7 +125,7 @@ func createRole(services types.Services) fiber.Handler {
 			return err
 		}
 
-		newRole, err := createRoleService(c.Params("channelId"), dto)
+		newRole, err := createRoleService(c.Params("channelId"), dto, services)
 		if err != nil {
 			return err
 		}

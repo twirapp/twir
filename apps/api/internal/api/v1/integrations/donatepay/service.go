@@ -2,27 +2,25 @@ package donatepay
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
-	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
 	uuid "github.com/satori/go.uuid"
-	"net/http"
 )
 
 const integrationName = "DONATEPAY"
 
-func handleGet(services types.Services, channelId string) (*string, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+func handleGet(services *types.Services, channelId string) (*string, error) {
+	
 
-	integration, err := helpers.GetIntegration(channelId, integrationName, services.DB)
+	integration, err := helpers.GetIntegration(channelId, integrationName, services.Gorm)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, nil
 	}
 
@@ -33,24 +31,22 @@ func handleGet(services types.Services, channelId string) (*string, error) {
 	return &integration.APIKey.String, nil
 }
 
-func handlePost(services types.Services, channelId string, dto *createOrUpdateDTO) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	integrationsGrpc := do.MustInvoke[integrations.IntegrationsClient](di.Provider)
+func handlePost(services *types.Services, channelId string, dto *createOrUpdateDTO) error {
 
-	integration, err := helpers.GetIntegration(channelId, integrationName, services.DB)
+	integration, err := helpers.GetIntegration(channelId, integrationName, services.Gorm)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	if integration == nil {
 		neededIntegration := model.Integrations{}
-		err = services.DB.
+		err = services.Gorm.
 			Where("service = ?", integrationName).
 			First(&neededIntegration).
 			Error
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return fiber.NewError(
 				http.StatusInternalServerError,
 				"seems like donatepay not enabled on our side",
@@ -72,17 +68,17 @@ func handlePost(services types.Services, channelId string, dto *createOrUpdateDT
 	}
 
 	integration.APIKey = null.StringFrom(dto.ApiKey)
-	err = services.DB.Save(integration).Error
+	err = services.Gorm.Save(integration).Error
 	if err != nil {
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	if len(integration.APIKey.String) > 0 {
-		integrationsGrpc.AddIntegration(context.Background(), &integrations.Request{
+		services.Grpc.Integrations.AddIntegration(context.Background(), &integrations.Request{
 			Id: integration.ID,
 		})
 	} else {
-		integrationsGrpc.RemoveIntegration(context.Background(), &integrations.Request{
+		services.Grpc.Integrations.RemoveIntegration(context.Background(), &integrations.Request{
 			Id: integration.ID,
 		})
 	}

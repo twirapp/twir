@@ -5,7 +5,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("rewards")
 	middleware.Get("", get(services))
 
@@ -22,9 +22,9 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Success      200  {array}  helix.ChannelCustomReward
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/rewards [get]
-func get(services types.Services) func(c *fiber.Ctx) error {
+func get(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		rewards, err := handleGet(c.Params("channelId"))
+		rewards, err := handleGet(c.Params("channelId"), services)
 		if err != nil {
 			return err
 		}

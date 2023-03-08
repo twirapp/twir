@@ -7,7 +7,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("commands")
 	group.Setup(middleware, services)
 
@@ -32,7 +32,7 @@ type JSONResult struct{}
 // @Success      200  {array}  model.ChannelsCommands
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands [get]
-func get(services types.Services) func(c *fiber.Ctx) error {
+func get(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		cmds, err := handleGet(c.Params("channelId"), services)
 		if err != nil {
@@ -55,7 +55,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands [post]
-func post(services types.Services) func(c *fiber.Ctx) error {
+func post(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &commandDto{}
 		err := middlewares.ValidateBody(
@@ -90,7 +90,7 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 // @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands/{commandId} [delete]
-func delete(services types.Services) func(c *fiber.Ctx) error {
+func delete(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		err := handleDelete(c.Params("channelId"), c.Params("commandId"), services)
 		if err != nil {
@@ -114,7 +114,7 @@ func delete(services types.Services) func(c *fiber.Ctx) error {
 // @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands/{commandId} [put]
-func put(services types.Services) func(c *fiber.Ctx) error {
+func put(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &commandDto{}
 		err := middlewares.ValidateBody(
@@ -150,7 +150,7 @@ func put(services types.Services) func(c *fiber.Ctx) error {
 // @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands/{commandId} [patch]
-func patch(services types.Services) func(c *fiber.Ctx) error {
+func patch(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &commandPatchDto{}
 		err := middlewares.ValidateBody(

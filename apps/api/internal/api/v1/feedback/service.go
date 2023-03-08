@@ -3,10 +3,6 @@ package feedback
 import (
 	"bytes"
 	"fmt"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	cfg "github.com/satont/tsuwari/libs/config"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -26,11 +22,8 @@ func handlePost(
 	fromId string,
 	text string,
 	files []*multipart.FileHeader,
-	services types.Services,
+	services *types.Services,
 ) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	config := do.MustInvoke[cfg.Config](di.Provider)
-
 	if services.TgBotApi == nil {
 		return fiber.NewError(
 			400,
@@ -40,13 +33,13 @@ func handlePost(
 
 	myText := fmt.Sprintf("New feedback from %s\n%s", fromId, text)
 
-	userId, _ := strconv.Atoi(*config.FeedbackTelegramUserID)
+	userId, _ := strconv.Atoi(*services.Config.FeedbackTelegramUserID)
 
 	if len(files) == 0 {
 		msg := tgbotapi.NewMessage(int64(userId), myText)
 		_, err := services.TgBotApi.Send(msg)
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return cannotSendFeedbackError
 		}
 	} else {

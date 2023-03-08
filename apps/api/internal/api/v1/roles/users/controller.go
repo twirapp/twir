@@ -6,9 +6,9 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group(":roleId/users")
-	middleware.Get("/", getUsers())
+	middleware.Get("/", getUsers(services))
 	middleware.Put("/", updateUsers(services))
 
 	return middleware
@@ -27,9 +27,9 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Failure 404 {object} types.DOCApiNotFoundError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/roles/{roleId}/users [get]
-func getUsers() fiber.Handler {
+func getUsers(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		users, err := getUsersService(c.Params("roleId"))
+		users, err := getUsersService(c.Params("roleId"), services)
 		if err != nil {
 			return err
 		}
@@ -52,7 +52,7 @@ func getUsers() fiber.Handler {
 // @Failure 404 {object} types.DOCApiNotFoundError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/roles/{roleId}/users [put]
-func updateUsers(services types.Services) fiber.Handler {
+func updateUsers(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		dto := &roleUserDto{}
 		err := middlewares.ValidateBody(

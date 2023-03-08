@@ -2,14 +2,8 @@ package bot
 
 import (
 	"context"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"net/http"
 	"sync"
-
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
@@ -24,18 +18,14 @@ import (
 	apiTypes "github.com/satont/tsuwari/libs/types/types/api/bot"
 )
 
-func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	config := do.MustInvoke[cfg.Config](di.Provider)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-
-	twitchClient, err := twitch.NewUserClient(channelId, config, tokensGrpc)
+func handleGet(channelId string, services *types.Services) (*apiTypes.BotInfo, error) {
+	twitchClient, err := twitch.NewUserClient(channelId, *services.Config, services.Grpc.Tokens)
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create twitch client from your tokens. Please try to reauthorize")
 	}
 
 	channel := &model.Channels{}
-	err = services.DB.Where("id = ?", channelId).First(channel).Error
+	err = services.Gorm.Where("id = ?", channelId).First(channel).Error
 	if err != nil || channel == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "cannot find channel in db")
 	}
@@ -60,7 +50,7 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 			UserIDs:       []string{channel.BotID},
 		})
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return
 		}
 
@@ -72,9 +62,8 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 		infoReq, err := twitchClient.GetUsers(&helix.UsersParams{
 			IDs: []string{channel.BotID},
 		})
-
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return
 		}
 
@@ -95,13 +84,8 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 	return &result, nil
 }
 
-func handlePatch(channelId string, dto *connectionDto, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	grpc := do.MustInvoke[bots.BotsClient](di.Provider)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-	config := do.MustInvoke[cfg.Config](di.Provider)
-
-	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+func handlePatch(channelId string, dto *connectionDto, services *types.Services) error {
+	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
 	if err != nil {
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
@@ -110,7 +94,7 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 		&helix.UsersParams{IDs: []string{channelId}},
 	)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get twitch user")
 	}
 
@@ -121,10 +105,10 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 	user := twitchUsers.Data.Users[0]
 
 	dbUser := model.Channels{}
-	err = services.DB.Where(`"id" = ?`, channelId).First(&dbUser).Error
+	err = services.Gorm.Where(`"id" = ?`, channelId).First(&dbUser).Error
 
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get user from database")
 	}
 
@@ -134,15 +118,15 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 		dbUser.IsEnabled = true
 	}
 
-	services.DB.Where(`"id" = ?`, channelId).Select("*").Updates(&dbUser)
+	services.Gorm.Where(`"id" = ?`, channelId).Select("*").Updates(&dbUser)
 
 	if dbUser.IsEnabled {
-		grpc.Join(context.Background(), &bots.JoinOrLeaveRequest{
+		services.Grpc.Bots.Join(context.Background(), &bots.JoinOrLeaveRequest{
 			BotId:    dbUser.BotID,
 			UserName: user.Login,
 		})
 	} else {
-		grpc.Leave(context.Background(), &bots.JoinOrLeaveRequest{
+		services.Grpc.Bots.Leave(context.Background(), &bots.JoinOrLeaveRequest{
 			BotId:    dbUser.BotID,
 			UserName: user.Login,
 		})

@@ -2,17 +2,13 @@ package auth
 
 import (
 	"fmt"
-	"github.com/samber/lo"
 	"net/http"
 	"sync"
 	"time"
 
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/samber/lo"
+
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/gofiber/fiber/v2"
@@ -33,19 +29,15 @@ const (
 	refreshLifeTime = 31 * 24 * time.Hour
 )
 
-func handleGetToken(code string, services types.Services) (*Tokens, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	config := do.MustInvoke[cfg.Config](di.Provider)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-
-	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+func handleGetToken(code string, services *types.Services) (*Tokens, error) {
+	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	resp, err := twitchClient.RequestUserAccessToken(code)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusUnauthorized, "cannot get user tokens")
 	}
 
@@ -53,7 +45,7 @@ func handleGetToken(code string, services types.Services) (*Tokens, error) {
 
 	users, err := twitchClient.GetUsers(&helix.UsersParams{})
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(401, "cannot get user tokens")
 	}
 
@@ -73,24 +65,24 @@ func handleGetToken(code string, services types.Services) (*Tokens, error) {
 
 	accessClaims := claims
 	accessClaims.ExpiresAt = jwt.NewNumericDate(now.Add(accessLifeTime))
-	accessToken, err := createToken(accessClaims, config.JwtAccessSecret)
+	accessToken, err := createToken(accessClaims, services.Config.JwtAccessSecret)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(401, "cannot create JWT access token")
 	}
 
 	refreshClaims := claims
 	refreshClaims.ExpiresAt = jwt.NewNumericDate(now.Add(refreshLifeTime))
 
-	refreshToken, err := createToken(refreshClaims, config.JwtRefreshSecret)
+	refreshToken, err := createToken(refreshClaims, services.Config.JwtRefreshSecret)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(401, "cannot create JWT refresh token")
 	}
 
 	err = checkUser(user.ID, resp.Data, services)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(500, "internal error")
 	}
 
@@ -119,17 +111,13 @@ func createToken(claims jwt.Claims, secret string) (string, error) {
 	return tokenString, nil
 }
 
-func handleGetProfile(user model.Users, services types.Services) (*Profile, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-	config := do.MustInvoke[cfg.Config](di.Provider)
-
-	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+func handleGetProfile(user model.Users, services *types.Services) (*Profile, error) {
+	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -138,8 +126,8 @@ func handleGetProfile(user model.Users, services types.Services) (*Profile, erro
 	})
 
 	if err != nil || usersReq.ErrorMessage != "" {
-		logger.Error(err)
-		logger.Error(usersReq.ErrorMessage)
+		services.Logger.Error(err)
+		services.Logger.Error(usersReq.ErrorMessage)
 
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
@@ -163,16 +151,13 @@ type Profile struct {
 	IsBotAdmin bool   `json:"isBotAdmin"`
 }
 
-func handleRefresh(refreshToken string) (string, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	config := do.MustInvoke[cfg.Config](di.Provider)
-
+func handleRefresh(services *types.Services, refreshToken string) (string, error) {
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return []byte(config.JwtRefreshSecret), nil
+		return []byte(services.Config.JwtRefreshSecret), nil
 	})
 	if err != nil {
 		return "", fiber.NewError(401, "invalid token. Probably token is expired.")
@@ -191,28 +176,26 @@ func handleRefresh(refreshToken string) (string, error) {
 	}
 
 	newClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(accessLifeTime))
-	newToken, err := createToken(newClaims, config.JwtAccessSecret)
+	newToken, err := createToken(newClaims, services.Config.JwtAccessSecret)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return "", fiber.NewError(401, "cannot create new access token")
 	}
 	return newToken, nil
 }
 
-func handleUpdateApiKey(userId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
+func handleUpdateApiKey(userId string, services *types.Services) error {
 	user := model.Users{}
-	err := services.DB.Where(`"id" = ?`, userId).First(&user).Error
+	err := services.Gorm.Where(`"id" = ?`, userId).First(&user).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	user.ApiKey = uuid.NewV4().String()
-	err = services.DB.Save(&user).Error
+	err = services.Gorm.Save(&user).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -227,12 +210,8 @@ type Dashboard struct {
 	Flags       []string `json:"flags"`
 }
 
-func handleGetDashboards(user model.Users, services types.Services) ([]Dashboard, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-	config := do.MustInvoke[cfg.Config](di.Provider)
-
-	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+func handleGetDashboards(user model.Users, services *types.Services) ([]Dashboard, error) {
+	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
@@ -250,9 +229,9 @@ func handleGetDashboards(user model.Users, services types.Services) ([]Dashboard
 	if user.IsBotAdmin {
 		channels := []model.Channels{}
 
-		err = services.DB.Where(`"id" != ?`, user.ID).Find(&channels).Error
+		err = services.Gorm.Where(`"id" != ?`, user.ID).Find(&channels).Error
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 
@@ -264,7 +243,7 @@ func handleGetDashboards(user model.Users, services types.Services) ([]Dashboard
 		})...)
 	} else {
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 
@@ -298,8 +277,8 @@ func handleGetDashboards(user model.Users, services types.Services) ([]Dashboard
 			})
 
 			if err != nil || usersReq.ErrorMessage != "" {
-				logger.Error(err)
-				logger.Error(usersReq.ErrorMessage)
+				services.Logger.Error(err)
+				services.Logger.Error(usersReq.ErrorMessage)
 				return
 			}
 

@@ -5,7 +5,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("commands")
 
 	middleware.Get(":channelId", get(services))
@@ -13,7 +13,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return router
 }
 
-func get(services types.Services) fiber.Handler {
+func get(services *types.Services) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		commands, err := handleGet(ctx.Params("channelId"), services)
 

@@ -1,9 +1,6 @@
 package keywords
 
 import (
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -13,9 +10,9 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func handleGet(channelId string, services types.Services) ([]model.ChannelsKeywords, error) {
+func handleGet(channelId string, services *types.Services) ([]model.ChannelsKeywords, error) {
 	keywords := []model.ChannelsKeywords{}
-	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&keywords).Error
+	err := services.Gorm.Where(`"channelId" = ?`, channelId).Find(&keywords).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get keywords")
 	}
@@ -26,12 +23,10 @@ func handleGet(channelId string, services types.Services) ([]model.ChannelsKeywo
 func handlePost(
 	channelId string,
 	dto *keywordDto,
-	services types.Services,
+	services *types.Services,
 ) (*model.ChannelsKeywords, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
 	existedKeyword := model.ChannelsKeywords{}
-	err := services.DB.Where(`"channelId" = ? AND "text" = ?`, channelId, dto.Text).
+	err := services.Gorm.Where(`"channelId" = ? AND "text" = ?`, channelId, dto.Text).
 		First(&existedKeyword).
 		Error
 	if err == nil {
@@ -49,26 +44,24 @@ func handlePost(
 		IsReply:   *dto.IsReply,
 		Usages:    *dto.Usages,
 	}
-	err = services.DB.Save(&newKeyword).Error
+	err = services.Gorm.Save(&newKeyword).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create keyword")
 	}
 
 	return &newKeyword, nil
 }
 
-func handleDelete(keywordId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
-	keyword := getById(services.DB, keywordId)
+func handleDelete(keywordId string, services *types.Services) error {
+	keyword := getById(services.Gorm, keywordId)
 	if keyword == nil {
 		return fiber.NewError(http.StatusNotFound, "keyword not found")
 	}
 
-	err := services.DB.Delete(keyword).Error
+	err := services.Gorm.Delete(keyword).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot delete keyword")
 	}
 
@@ -78,11 +71,9 @@ func handleDelete(keywordId string, services types.Services) error {
 func handleUpdate(
 	keywordId string,
 	dto *keywordDto,
-	services types.Services,
+	services *types.Services,
 ) (*model.ChannelsKeywords, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
-	currentKeyword := getById(services.DB, keywordId)
+	currentKeyword := getById(services.Gorm, keywordId)
 	if currentKeyword == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "keyword not found")
 	}
@@ -99,9 +90,9 @@ func handleUpdate(
 		Usages:    *dto.Usages,
 	}
 
-	err := services.DB.Model(currentKeyword).Select("*").Updates(newKeyword).Error
+	err := services.Gorm.Model(currentKeyword).Select("*").Updates(newKeyword).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update keyword")
 	}
 
@@ -112,16 +103,14 @@ func handlePatch(
 	channelId,
 	keywordId string,
 	dto *keywordPatchDto,
-	services types.Services,
+	services *types.Services,
 ) (*model.ChannelsKeywords, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
 	keyword := model.ChannelsKeywords{}
-	err := services.DB.Where(`"channelId" = ? AND "id" = ?`, channelId, keywordId).
+	err := services.Gorm.Where(`"channelId" = ? AND "id" = ?`, channelId, keywordId).
 		Find(&keyword).
 		Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -131,9 +120,9 @@ func handlePatch(
 
 	keyword.Enabled = *dto.Enabled
 
-	err = services.DB.Save(&keyword).Error
+	err = services.Gorm.Save(&keyword).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update keyword")
 	}
 

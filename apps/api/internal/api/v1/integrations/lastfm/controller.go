@@ -10,7 +10,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("lastfm")
 	middleware.Get("auth", auth(services))
 	middleware.Post("", post(services))
@@ -39,7 +39,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Success      200  {array}  LastfmProfile
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/lastfm [get]
-func get(services types.Services) func(c *fiber.Ctx) error {
+func get(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		integration, err := handleProfile(c.Params("channelId"), services)
 		if err != nil {
@@ -59,7 +59,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Success      200  {string}  string
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/lastfm/auth [get]
-func auth(services types.Services) func(c *fiber.Ctx) error {
+func auth(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		integration, err := handleAuth(services)
 		if err != nil {
@@ -81,7 +81,7 @@ func auth(services types.Services) func(c *fiber.Ctx) error {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/lastfm [post]
-func post(services types.Services) func(c *fiber.Ctx) error {
+func post(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &lastfmDto{}
 		err := middlewares.ValidateBody(
@@ -122,7 +122,7 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 // @Failure 404 {object} types.DOCApiBadRequest
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/lastfm/logout [post]
-func logout(services types.Services) fiber.Handler {
+func logout(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		channelId := c.Params("channelId")
 		err := handleLogout(channelId, services)

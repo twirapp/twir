@@ -2,18 +2,14 @@ package middlewares
 
 import (
 	"encoding/json"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 )
 
-var ErrorHandler = func(t ut.Translator) func(c *fiber.Ctx, err error) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
+var ErrorHandler = func(logger interfaces.Logger, t ut.Translator) func(c *fiber.Ctx, err error) error {
 	return func(c *fiber.Ctx, err error) error {
 		switch castedErr := err.(type) {
 		case validator.ValidationErrors:

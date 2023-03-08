@@ -2,13 +2,10 @@ package auth
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2/middleware/cache"
 	"net/http"
 	"time"
 
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
@@ -32,9 +29,9 @@ var scopes = []string{
 	"moderator:manage:chat_settings",
 }
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("auth")
-	middleware.Get("", get())
+	middleware.Get("", get(services))
 	middleware.Get("token", getTokens(services))
 	middleware.Post("token", refreshToken(services))
 	middleware.Post("logout", middlewares.AttachUser(services), logout(services))
@@ -48,7 +45,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	})
 	middleware.Get(
 		"profile",
-		checkScopes,
+		checkScopes(services),
 		middlewares.AttachUser(services),
 		profileCache,
 		getProfile(services),
@@ -63,7 +60,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	})
 	middleware.Get(
 		"profile/dashboards",
-		checkScopes,
+		checkScopes(services),
 		middlewares.AttachUser(services),
 		dashboardsCache,
 		getDashboards(services),
@@ -74,13 +71,11 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
-func get() func(c *fiber.Ctx) error {
+func get(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		config := do.MustInvoke[cfg.Config](di.Provider)
-
 		twitchClient, err := helix.NewClient(&helix.Options{
-			ClientID:    config.TwitchClientId,
-			RedirectURI: config.TwitchCallbackUrl,
+			ClientID:    services.Config.TwitchClientId,
+			RedirectURI: services.Config.TwitchCallbackUrl,
 		})
 		if err != nil {
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
@@ -102,7 +97,7 @@ func get() func(c *fiber.Ctx) error {
 	}
 }
 
-func getTokens(services types.Services) func(c *fiber.Ctx) error {
+func getTokens(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		code := c.Query("code")
 		state := c.Query("state")
@@ -132,7 +127,7 @@ func getTokens(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
-func getProfile(services types.Services) func(c *fiber.Ctx) error {
+func getProfile(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		user := c.Locals("dbUser").(model.Users)
 
@@ -144,7 +139,7 @@ func getProfile(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
-func logout(services types.Services) func(c *fiber.Ctx) error {
+func logout(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		userId := c.Locals("dbUser").(model.Users).ID
 
@@ -168,14 +163,14 @@ func logout(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
-func refreshToken(services types.Services) func(c *fiber.Ctx) error {
+func refreshToken(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		refreshToken := c.Cookies("refresh_token")
 		if refreshToken == "" {
 			return fiber.NewError(401, "unauthorized")
 		}
 
-		newAccess, err := handleRefresh(refreshToken)
+		newAccess, err := handleRefresh(services, refreshToken)
 		if err != nil {
 			return err
 		}
@@ -184,7 +179,7 @@ func refreshToken(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
-func updateApiKey(services types.Services) fiber.Handler {
+func updateApiKey(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userId := c.Locals("dbUser").(model.Users).ID
 		err := handleUpdateApiKey(userId, services)
@@ -201,7 +196,7 @@ func updateApiKey(services types.Services) fiber.Handler {
 	}
 }
 
-func getDashboards(services types.Services) fiber.Handler {
+func getDashboards(services *types.Services) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		dashboards, err := handleGetDashboards(ctx.Locals("dbUser").(model.Users), services)
 		if err != nil {

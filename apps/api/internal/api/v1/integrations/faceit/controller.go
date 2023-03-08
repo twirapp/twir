@@ -6,7 +6,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("faceit")
 	middleware.Get("", get(services))
 	middleware.Get("auth", getAuthLink(services))
@@ -26,7 +26,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Success 200 {object} model.ChannelsIntegrationsData
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/faceit [get]
-func get(services types.Services) func(c *fiber.Ctx) error {
+func get(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		profile, err := handleGet(c.Params("channelId"), services)
 		if err != nil {
@@ -47,7 +47,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Success 200 {string} string	"Auth link"
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/faceit/auth [get]
-func getAuthLink(services types.Services) func(c *fiber.Ctx) error {
+func getAuthLink(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		authLink, err := handleGetAuth(services)
 		if err != nil {
@@ -70,7 +70,7 @@ func getAuthLink(services types.Services) func(c *fiber.Ctx) error {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/faceit [post]
-func post(services types.Services) func(c *fiber.Ctx) error {
+func post(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &tokenDto{}
 		err := middlewares.ValidateBody(
@@ -105,7 +105,7 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 // @Failure 404 {object} types.DOCApiBadRequest
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/faceit/logout [post]
-func logout(services types.Services) fiber.Handler {
+func logout(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		channelId := c.Params("channelId")
 		err := handleLogout(channelId, services)

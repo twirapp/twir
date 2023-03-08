@@ -3,18 +3,13 @@ package group
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"gorm.io/gorm"
 )
 
-func getGroupsService(channelId string, services types.Services) ([]model.ChannelCommandGroup, error) {
-	db := do.MustInvoke[*gorm.DB](di.Provider)
-
+func getGroupsService(channelId string, services *types.Services) ([]model.ChannelCommandGroup, error) {
 	var groups []model.ChannelCommandGroup
-	err := db.
+	err := services.Gorm.
 		Where(`"channelId" = ?`, channelId).
 		Find(&groups).Error
 	if err != nil {
@@ -24,9 +19,7 @@ func getGroupsService(channelId string, services types.Services) ([]model.Channe
 	return groups, nil
 }
 
-func createGroupService(channelId string, dto *groupDto) (*model.ChannelCommandGroup, error) {
-	db := do.MustInvoke[*gorm.DB](di.Provider)
-
+func createGroupService(channelId string, dto *groupDto, services *types.Services) (*model.ChannelCommandGroup, error) {
 	group := &model.ChannelCommandGroup{
 		ID:        uuid.New().String(),
 		ChannelID: channelId,
@@ -34,7 +27,7 @@ func createGroupService(channelId string, dto *groupDto) (*model.ChannelCommandG
 		Color:     dto.Color,
 	}
 
-	err := db.Create(group).Error
+	err := services.Gorm.Create(group).Error
 	if err != nil {
 		return nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -42,10 +35,11 @@ func createGroupService(channelId string, dto *groupDto) (*model.ChannelCommandG
 	return group, nil
 }
 
-func deleteGroupService(channelId, groupId string) error {
-	db := do.MustInvoke[*gorm.DB](di.Provider)
-
-	err := db.Where(`"channelId" = ? AND "id" = ?`, channelId, groupId).Delete(&model.ChannelCommandGroup{}).Error
+func deleteGroupService(channelId, groupId string, services *types.Services) error {
+	err := services.Gorm.
+		Where(`"channelId" = ? AND "id" = ?`, channelId, groupId).
+		Delete(&model.ChannelCommandGroup{}).
+		Error
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -53,9 +47,7 @@ func deleteGroupService(channelId, groupId string) error {
 	return nil
 }
 
-func updateGroupService(channelId, groupId string, dto *groupDto) (*model.ChannelCommandGroup, error) {
-	db := do.MustInvoke[*gorm.DB](di.Provider)
-
+func updateGroupService(channelId, groupId string, dto *groupDto, services *types.Services) (*model.ChannelCommandGroup, error) {
 	group := &model.ChannelCommandGroup{
 		ID:        groupId,
 		ChannelID: channelId,
@@ -63,7 +55,7 @@ func updateGroupService(channelId, groupId string, dto *groupDto) (*model.Channe
 		Color:     dto.Color,
 	}
 
-	err := db.
+	err := services.Gorm.
 		Model(&model.ChannelCommandGroup{}).
 		Where(`"channelId" = ? AND "id" = ?`, channelId, groupId).
 		Updates(group).Error

@@ -1,14 +1,10 @@
 package stats
 
 import (
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"sync"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
-
 	"github.com/satont/tsuwari/apps/api/internal/types"
+	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
 type nResult struct {
@@ -20,9 +16,7 @@ type statsItem struct {
 	Name  string `json:"name"  enums:"users,channels,commands,messages"`
 }
 
-func handleGet(services types.Services) ([]statsItem, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
+func handleGet(services *types.Services) ([]statsItem, error) {
 	wg := sync.WaitGroup{}
 	statistic := []statsItem{
 		{Name: "users"},
@@ -36,9 +30,9 @@ func handleGet(services types.Services) ([]statsItem, error) {
 	go func() {
 		defer wg.Done()
 		var count int64
-		err := services.DB.Model(&model.Users{}).Count(&count).Error
+		err := services.Gorm.Model(&model.Users{}).Count(&count).Error
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 		} else {
 			statistic[0].Count = count
 		}
@@ -47,9 +41,9 @@ func handleGet(services types.Services) ([]statsItem, error) {
 	go func() {
 		defer wg.Done()
 		var count int64
-		err := services.DB.Model(&model.Channels{}).Count(&count).Error
+		err := services.Gorm.Model(&model.Channels{}).Count(&count).Error
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 		} else {
 			statistic[1].Count = count
 		}
@@ -58,12 +52,12 @@ func handleGet(services types.Services) ([]statsItem, error) {
 	go func() {
 		defer wg.Done()
 		var count int64
-		err := services.DB.Model(&model.ChannelsCommands{}).
+		err := services.Gorm.Model(&model.ChannelsCommands{}).
 			Where("module = ?", "CUSTOM").
 			Count(&count).
 			Error
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 		} else {
 			statistic[2].Count = count
 		}
@@ -72,12 +66,12 @@ func handleGet(services types.Services) ([]statsItem, error) {
 	go func() {
 		defer wg.Done()
 		result := nResult{}
-		err := services.DB.Model(&model.UsersStats{}).
+		err := services.Gorm.Model(&model.UsersStats{}).
 			Select("sum(messages) as n").
 			Scan(&result).
 			Error
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 		} else {
 			statistic[3].Count = result.N
 		}

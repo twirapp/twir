@@ -2,14 +2,13 @@ package auth
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
@@ -21,10 +20,8 @@ var neededRoles = []model.ChannelRoleEnum{
 	model.ChannelRoleTypeSubscriber,
 }
 
-func createRolesAndCommand(transaction *gorm.DB, userId string) error {
-	parserGrpc := do.MustInvoke[parser.ParserClient](di.Provider)
-
-	defaultCommands, err := parserGrpc.GetDefaultCommands(context.Background(), &emptypb.Empty{})
+func createRolesAndCommand(transaction *gorm.DB, services *types.Services, userId string) error {
+	defaultCommands, err := services.Grpc.Parser.GetDefaultCommands(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		return err
 	}

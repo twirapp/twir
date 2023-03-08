@@ -5,11 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	config "github.com/satont/tsuwari/libs/config"
-
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,9 +12,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-var AttachUser = func(services types.Services) func(c *fiber.Ctx) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
+var AttachUser = func(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		if c.Locals("dbUser") != nil {
 			return c.Next()
@@ -30,7 +23,7 @@ var AttachUser = func(services types.Services) func(c *fiber.Ctx) error {
 		dbUser := model.Users{}
 
 		if apiKey != "" {
-			err := services.DB.
+			err := services.Gorm.
 				Where(`"apiKey" = ?`, apiKey).
 				Preload("Roles").
 				Preload("Roles.Role").
@@ -44,7 +37,7 @@ var AttachUser = func(services types.Services) func(c *fiber.Ctx) error {
 
 		authorizationToken := headers["Authorization"]
 		if authorizationToken != "" {
-			token, err := ExtractTokenFromHeader(authorizationToken)
+			token, err := ExtractTokenFromHeader(services, authorizationToken)
 			if err != nil {
 				return fiber.NewError(http.StatusUnauthorized, "invalid token. Probably token is expired.")
 			}
@@ -53,11 +46,11 @@ var AttachUser = func(services types.Services) func(c *fiber.Ctx) error {
 			userId := claims["id"]
 
 			if userId == "" {
-				logger.Error("no userId in request")
+				services.Logger.Error("no userId in request")
 				return fiber.NewError(http.StatusUnauthorized, "invalid token")
 			}
 
-			err = services.DB.
+			err = services.Gorm.
 				Where(`"id" = ?`, userId).
 				Preload("Roles").
 				Preload("Roles.Role").
@@ -76,20 +69,18 @@ var AttachUser = func(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
-func ExtractTokenFromHeader(t string) (*jwt.Token, error) {
+func ExtractTokenFromHeader(services *types.Services, t string) (*jwt.Token, error) {
 	tokenSlice := strings.Split(t, "Bearer ")
 	if len(tokenSlice) < 2 {
 		return nil, fiber.NewError(http.StatusUnauthorized, "invalid token format")
 	}
-
-	cfg := do.MustInvoke[config.Config](di.Provider)
 
 	token, err := jwt.Parse(tokenSlice[1], func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return []byte(cfg.JwtAccessSecret), nil
+		return []byte(services.Config.JwtAccessSecret), nil
 	})
 
 	return token, err

@@ -6,7 +6,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("events")
 	middleware.Get("", get(services))
 	middleware.Post("", create(services))
@@ -17,7 +17,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
-func get(services types.Services) fiber.Handler {
+func get(services *types.Services) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		events := handleGet(ctx.Params("channelId"), services)
 
@@ -25,7 +25,7 @@ func get(services types.Services) fiber.Handler {
 	}
 }
 
-func create(services types.Services) fiber.Handler {
+func create(services *types.Services) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		dto := &eventDto{}
 		err := middlewares.ValidateBody(
@@ -38,7 +38,7 @@ func create(services types.Services) fiber.Handler {
 			return err
 		}
 
-		event, err := handlePost(ctx.Params("channelId"), dto)
+		event, err := handlePost(ctx.Params("channelId"), dto, services)
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,7 @@ func create(services types.Services) fiber.Handler {
 	}
 }
 
-func update(services types.Services) fiber.Handler {
+func update(services *types.Services) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		dto := &eventDto{}
 		err := middlewares.ValidateBody(
@@ -60,7 +60,7 @@ func update(services types.Services) fiber.Handler {
 			return err
 		}
 
-		event, err := handleUpdate(ctx.Params("channelId"), ctx.Params("eventId"), dto)
+		event, err := handleUpdate(ctx.Params("channelId"), ctx.Params("eventId"), dto, services)
 		if err != nil {
 			return err
 		}
@@ -69,9 +69,9 @@ func update(services types.Services) fiber.Handler {
 	}
 }
 
-func delete(services types.Services) fiber.Handler {
+func delete(services *types.Services) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		err := handleDelete(ctx.Params("channelId"), ctx.Params("eventId"))
+		err := handleDelete(ctx.Params("channelId"), ctx.Params("eventId"), services)
 		if err != nil {
 			return err
 		}
@@ -80,7 +80,7 @@ func delete(services types.Services) fiber.Handler {
 	}
 }
 
-func patch(services types.Services) fiber.Handler {
+func patch(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		dto := &eventPatchDto{}
 		err := middlewares.ValidateBody(

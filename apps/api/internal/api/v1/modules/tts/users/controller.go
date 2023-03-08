@@ -8,7 +8,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("users")
 	middleware.Get("", get(services))
 	middleware.Delete("", delete(services))
@@ -16,7 +16,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
-func get(services types.Services) fiber.Handler {
+func get(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		data, err := handleGet(c.Params("channelId"), services)
 		if err != nil {
@@ -27,7 +27,7 @@ func get(services types.Services) fiber.Handler {
 	}
 }
 
-func delete(services types.Services) fiber.Handler {
+func delete(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		dto := &deleteDto{}
 		err := middlewares.ValidateBody(
@@ -45,4 +45,3 @@ func delete(services types.Services) fiber.Handler {
 		return c.SendStatus(http.StatusOK)
 	}
 }
-

@@ -3,9 +3,6 @@ package streamlabs
 import (
 	"context"
 	"fmt"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 	"net/url"
 
@@ -22,9 +19,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func handleGetAuth(services types.Services) (*string, error) {
+func handleGetAuth(services *types.Services) (*string, error) {
 	integration := model.Integrations{}
-	err := services.DB.Where(`"service" = ?`, "STREAMLABS").First(&integration).Error
+	err := services.Gorm.Where(`"service" = ?`, "STREAMLABS").First(&integration).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(
 			404,
@@ -46,12 +43,10 @@ func handleGetAuth(services types.Services) (*string, error) {
 	return &str, nil
 }
 
-func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrationsData, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
-	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
+func handleGet(channelId string, services *types.Services) (*model.ChannelsIntegrationsData, error) {
+	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.Gorm)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, nil
 	}
 
@@ -77,22 +72,20 @@ type profileResponse struct {
 	} `json:"streamlabs"`
 }
 
-func handlePost(channelId string, dto *tokenDto, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
-	channelIntegration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
+func handlePost(channelId string, dto *tokenDto, services *types.Services) error {
+	channelIntegration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.Gorm)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return err
 	}
 
 	neededIntegration := model.Integrations{}
-	err = services.DB.
+	err = services.Gorm.
 		Where("service = ?", "STREAMLABS").
 		First(&neededIntegration).
 		Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(
 			http.StatusInternalServerError,
 			"seems like streamlabs not enabled on our side",
@@ -121,7 +114,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		SetContentType("application/x-www-form-urlencoded").
 		Post("https://streamlabs.com/api/v1.0/token")
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get tokens")
 	}
 	if !resp.IsSuccess() {
@@ -134,7 +127,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		Get(fmt.Sprintf("https://streamlabs.com/api/v1.0/user?access_token=%s", data.AccessToken))
 
 	if err != nil || !profileResp.IsSuccess() {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get profile")
 	}
 
@@ -146,21 +139,20 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		Avatar: lo.ToPtr(profile.StreamLabs.ThumbNail),
 	}
 
-	err = services.DB.
+	err = services.Gorm.
 		Save(channelIntegration).Error
 
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
-	sendGrpcEvent(channelIntegration.ID, channelIntegration.Enabled)
+	sendGrpcEvent(channelIntegration.ID, channelIntegration.Enabled, services.Grpc.Integrations)
 
 	return nil
 }
 
-func sendGrpcEvent(integrationId string, isAdd bool) {
-	grpc := do.MustInvoke[integrations.IntegrationsClient](di.Provider)
+func sendGrpcEvent(integrationId string, isAdd bool, grpc integrations.IntegrationsClient) {
 	if isAdd {
 		grpc.AddIntegration(context.Background(), &integrations.Request{
 			Id: integrationId,
@@ -172,21 +164,19 @@ func sendGrpcEvent(integrationId string, isAdd bool) {
 	}
 }
 
-func handleLogout(channelId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
-	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
+func handleLogout(channelId string, services *types.Services) error {
+	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.Gorm)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return err
 	}
 	if integration == nil {
 		return fiber.NewError(http.StatusNotFound, "integration not found")
 	}
 
-	err = services.DB.Delete(&integration).Error
+	err = services.Gorm.Delete(&integration).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 

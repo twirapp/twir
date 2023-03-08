@@ -2,9 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"log"
 	"os"
 	"os/signal"
@@ -13,16 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"github.com/satont/tsuwari/apps/api/internal/services"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
-	"github.com/satont/tsuwari/libs/grpc/generated/eventsub"
-	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
-	"github.com/satont/tsuwari/libs/grpc/generated/scheduler"
-	"github.com/satont/tsuwari/libs/grpc/generated/timers"
+	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/go-playground/locales/en_US"
@@ -36,16 +25,17 @@ import (
 	apiv1 "github.com/satont/tsuwari/apps/api/internal/api/v1"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	"github.com/satont/tsuwari/libs/grpc/clients"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	config "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/clients"
 
 	"github.com/satont/tsuwari/apps/api/internal/services/redis"
 
-	rdb "github.com/go-redis/redis/v9"
+	"github.com/satont/tsuwari/apps/api/internal/services/timers_service"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	_ "github.com/satont/tsuwari/apps/api/docs"
@@ -70,8 +60,6 @@ func main() {
 
 	zap.ReplaceGlobals(logger)
 
-	do.ProvideValue[interfaces.Logger](di.Provider, logger.Sugar())
-
 	if cfg.SentryDsn != "" {
 		sentry.Init(sentry.ClientOptions{
 			Dsn:              cfg.SentryDsn,
@@ -92,32 +80,21 @@ func main() {
 	d.SetMaxOpenConns(20)
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
-	do.ProvideValue[*gorm.DB](di.Provider, db)
-	do.ProvideValue[interfaces.TimersService](di.Provider, services.NewTimersService())
-	do.ProvideValue[config.Config](di.Provider, *cfg)
-
 	dbConnOpts, err := pq.ParseURL(cfg.DatabaseUrl)
 	if err != nil {
 		panic(fmt.Errorf("cannot parse postgres url connection: %w", err))
 	}
-	pgConn, err := sqlx.Connect("postgres", dbConnOpts)
+	sqlxConn, err := sqlx.Connect("postgres", dbConnOpts)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	do.ProvideValue[sqlx.DB](di.Provider, *pgConn)
-	
-	r := redis.New(cfg.RedisUrl)
-	do.ProvideValue[*rdb.Client](di.Provider, r)
-
-	storage := redis.NewCache(cfg.RedisUrl)
 
 	validator := validator.New()
 	en := en_US.New()
 	uni := ut.New(en, en)
 	transEN, _ := uni.GetTranslator("en_US")
 	enTranslations.RegisterDefaultTranslations(validator, transEN)
-	errorMiddleware := middlewares.ErrorHandler(transEN)
+	errorMiddleware := middlewares.ErrorHandler(logger.Sugar(), transEN)
 	validator.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
 
@@ -147,21 +124,28 @@ func main() {
 
 	app.Use(compress.New())
 
-	do.ProvideValue[integrations.IntegrationsClient](di.Provider, clients.NewIntegrations(cfg.AppEnv))
-	do.ProvideValue[parser.ParserClient](di.Provider, clients.NewParser(cfg.AppEnv))
-	do.ProvideValue[eventsub.EventSubClient](di.Provider, clients.NewEventSub(cfg.AppEnv))
-	do.ProvideValue[scheduler.SchedulerClient](di.Provider, clients.NewScheduler(cfg.AppEnv))
-	do.ProvideValue[timers.TimersClient](di.Provider, clients.NewTimers(cfg.AppEnv))
-	do.ProvideValue[bots.BotsClient](di.Provider, clients.NewBots(cfg.AppEnv))
-	do.ProvideValue[tokens.TokensClient](di.Provider, clients.NewTokens(cfg.AppEnv))
-
 	v1 := app.Group("/v1")
 
-	neededServices := types.Services{
-		DB:                  db,
-		RedisStorage:        storage,
+	neededServices := &types.Services{
+		Logger:              logger.Sugar(),
+		Redis:               redis.New(cfg.RedisUrl),
+		Gorm:                db,
+		Sqlx:                sqlxConn,
+		Config:              &config.Config{},
+		RedisStorage:        redis.NewCache(cfg.RedisUrl),
 		Validator:           validator,
 		ValidatorTranslator: transEN,
+		TgBotApi:            &tgbotapi.BotAPI{},
+		Grpc: &types.GrpcClientsService{
+			Integrations: clients.NewIntegrations(cfg.AppEnv),
+			Parser:       clients.NewParser(cfg.AppEnv),
+			EventSub:     clients.NewEventSub(cfg.AppEnv),
+			Scheduler:    clients.NewScheduler(cfg.AppEnv),
+			Timers:       clients.NewTimers(cfg.AppEnv),
+			Bots:         clients.NewBots(cfg.AppEnv),
+			Tokens:       clients.NewTokens(cfg.AppEnv),
+		},
+		TimersService: timers_service.NewTimersService(db, logger.Sugar()),
 	}
 
 	if cfg.FeedbackTelegramBotToken != nil {
@@ -180,5 +164,5 @@ func main() {
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal
-	fmt.Println("Closing...")
+	logger.Sugar().Info("Api exiting...")
 }

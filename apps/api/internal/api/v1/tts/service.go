@@ -2,18 +2,15 @@ package tts
 
 import (
 	"fmt"
-	"github.com/imroc/req/v3"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	cfg "github.com/satont/tsuwari/libs/config"
 	"io"
 	"net/url"
+
+	"github.com/imroc/req/v3"
+	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func handleGetSay(voice, pitch, volume, rate, text string) (io.ReadCloser, error) {
-	config := do.MustInvoke[cfg.Config](di.Provider)
-
-	reqUrl, err := url.Parse(fmt.Sprintf("http://%s/say", config.TTSServiceUrl))
+func handleGetSay(services *types.Services, voice, pitch, volume, rate, text string) (io.ReadCloser, error) {
+	reqUrl, err := url.Parse(fmt.Sprintf("http://%s/say", services.Config.TTSServiceUrl))
 	if err != nil {
 		return nil, err
 	}

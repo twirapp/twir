@@ -1,11 +1,12 @@
 package song_requests
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"net/http"
-	"time"
 )
 
 type Song struct {
@@ -17,14 +18,13 @@ type Song struct {
 	CreatedAt            time.Time `json:"createdAt"`
 }
 
-func handleGet(channelId string, services types.Services) ([]Song, error) {
+func handleGet(channelId string, services *types.Services) ([]Song, error) {
 	songs := []model.RequestedSong{}
 
-	err := services.DB.
+	err := services.Gorm.
 		Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelId).
 		Order(`"queuePosition" asc`).
 		Find(&songs).Error
-
 	if err != nil {
 		return nil, fiber.NewError(http.StatusNotFound, "cannot find commands")
 	}

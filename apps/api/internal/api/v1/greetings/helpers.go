@@ -1,21 +1,14 @@
 package greetings
 
 import (
-	"github.com/samber/do"
 	"github.com/satont/go-helix/v2"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
-	"gorm.io/gorm"
 )
 
-func getTwitchUserByName(userName string) *helix.User {
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-	config := do.MustInvoke[cfg.Config](di.Provider)
-
-	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+func getTwitchUserByName(userName string, services *types.Services) *helix.User {
+	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
 	if err != nil {
 		return nil
 	}
@@ -32,11 +25,8 @@ func getTwitchUserByName(userName string) *helix.User {
 	return &twitchUser
 }
 
-func getTwitchUserById(id string) *helix.User {
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-	config := do.MustInvoke[cfg.Config](di.Provider)
-
-	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
+func getTwitchUserById(id string, services *types.Services) *helix.User {
+	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
 	if err != nil {
 		return nil
 	}
@@ -53,9 +43,9 @@ func getTwitchUserById(id string) *helix.User {
 	return &twitchUser
 }
 
-func findGreetingByUser(userId string, channelId string, db *gorm.DB) *model.ChannelsGreetings {
+func findGreetingByUser(userId string, channelId string, services *types.Services) *model.ChannelsGreetings {
 	greeting := &model.ChannelsGreetings{}
-	err := db.Where(`"channelId" = ? AND "userId" = ?`, channelId, userId).First(greeting).Error
+	err := services.Gorm.Where(`"channelId" = ? AND "userId" = ?`, channelId, userId).First(greeting).Error
 	if err != nil {
 		return nil
 	}
@@ -63,9 +53,9 @@ func findGreetingByUser(userId string, channelId string, db *gorm.DB) *model.Cha
 	return greeting
 }
 
-func findGreetingById(id string, db *gorm.DB) *model.ChannelsGreetings {
+func findGreetingById(id string, services *types.Services) *model.ChannelsGreetings {
 	greeting := model.ChannelsGreetings{}
-	err := db.Where("id = ?", id).First(&greeting).Error
+	err := services.Gorm.Where("id = ?", id).First(&greeting).Error
 	if err != nil {
 		return nil
 	}

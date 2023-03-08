@@ -8,7 +8,7 @@ import (
 	"github.com/satont/tsuwari/libs/types/types/api/modules"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("tts")
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
@@ -30,7 +30,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Success 200 {object} modules.TTSSettings
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/modules/tts [get]
-func get(services types.Services) func(c *fiber.Ctx) error {
+func get(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		settings, err := handleGet(c.Params("channelId"), services)
 		if err != nil {
@@ -53,7 +53,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 // @Success 204
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/modules/tts [post]
-func post(services types.Services) func(c *fiber.Ctx) error {
+func post(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := modules.TTSSettings{}
 		err := middlewares.ValidateBody(
@@ -75,9 +75,9 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
-func getInfo(services types.Services) fiber.Handler {
+func getInfo(services *types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		info := handleGetInfo()
+		info := handleGetInfo(services)
 
 		return c.JSON(info)
 	}

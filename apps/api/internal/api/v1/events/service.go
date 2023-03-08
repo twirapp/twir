@@ -1,39 +1,31 @@
 package events
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
-	"net/http"
-	"strings"
 )
 
-func handleGet(channelId string, services types.Services) []model.Event {
-	db := do.MustInvoke[*gorm.DB](di.Provider)
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
+func handleGet(channelId string, services *types.Services) []model.Event {
 	events := []model.Event{}
-	err := db.
+	err := services.Gorm.
 		Where(`"channelId" = ?`, channelId).
 		Preload("Operations").
 		Find(&events).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 	}
 
 	return events
 }
 
-func handlePost(channelId string, dto *eventDto) (*model.Event, error) {
-	db := do.MustInvoke[*gorm.DB](di.Provider)
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
+func handlePost(channelId string, dto *eventDto, services *types.Services) (*model.Event, error) {
 	newEvent := &model.Event{
 		ID:          uuid.NewV4().String(),
 		ChannelID:   channelId,
@@ -45,7 +37,7 @@ func handlePost(channelId string, dto *eventDto) (*model.Event, error) {
 		Enabled:     true,
 	}
 
-	err := db.Transaction(func(tx *gorm.DB) error {
+	err := services.Gorm.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(newEvent).Error; err != nil {
 			return err
 		}
@@ -71,24 +63,20 @@ func handlePost(channelId string, dto *eventDto) (*model.Event, error) {
 
 		return nil
 	})
-
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	db.Where(`"id" = ?`, newEvent.ID).Preload("Operations").Find(newEvent)
+	services.Gorm.Where(`"id" = ?`, newEvent.ID).Preload("Operations").Find(newEvent)
 	return newEvent, nil
 }
 
-func handleUpdate(channelId, eventId string, dto *eventDto) (*model.Event, error) {
-	db := do.MustInvoke[*gorm.DB](di.Provider)
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
+func handleUpdate(channelId, eventId string, dto *eventDto, services *types.Services) (*model.Event, error) {
 	event := model.Event{}
-	err := db.Where(`"id" = ? and "channelId" = ?`, eventId, channelId).Find(&event).Error
+	err := services.Gorm.Where(`"id" = ? and "channelId" = ?`, eventId, channelId).Find(&event).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -101,12 +89,12 @@ func handleUpdate(channelId, eventId string, dto *eventDto) (*model.Event, error
 	event.KeywordID = null.StringFromPtr(dto.KeywordID)
 	event.Description = null.StringFrom(dto.Description)
 
-	err = db.Transaction(func(tx *gorm.DB) error {
-		if err = db.Save(&event).Error; err != nil {
+	err = services.Gorm.Transaction(func(tx *gorm.DB) error {
+		if err = services.Gorm.Save(&event).Error; err != nil {
 			return err
 		}
 
-		if err = db.Where(`"eventId" = ?`, event.ID).Delete(&model.EventOperation{}).Error; err != nil {
+		if err = services.Gorm.Where(`"eventId" = ?`, event.ID).Delete(&model.EventOperation{}).Error; err != nil {
 			return err
 		}
 
@@ -133,22 +121,19 @@ func handleUpdate(channelId, eventId string, dto *eventDto) (*model.Event, error
 	})
 
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	db.Where(`"id" = ? and "channelId" = ?`, eventId, channelId).Preload("Operations").Find(&event)
+	services.Gorm.Where(`"id" = ? and "channelId" = ?`, eventId, channelId).Preload("Operations").Find(&event)
 	return &event, nil
 }
 
-func handleDelete(channelId, eventId string) error {
-	db := do.MustInvoke[*gorm.DB](di.Provider)
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
+func handleDelete(channelId, eventId string, services *types.Services) error {
 	event := model.Event{}
-	err := db.Where(`"id" = ? and "channelId" = ?`, eventId, channelId).Find(&event).Error
+	err := services.Gorm.Where(`"id" = ? and "channelId" = ?`, eventId, channelId).Find(&event).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -156,13 +141,13 @@ func handleDelete(channelId, eventId string) error {
 		return fiber.NewError(http.StatusNotFound, "event not found")
 	}
 
-	err = db.Transaction(func(tx *gorm.DB) error {
-		err = db.Where(`"eventId" = ?`, event.ID).Delete(&model.EventOperation{}).Error
+	err = services.Gorm.Transaction(func(tx *gorm.DB) error {
+		err = tx.Where(`"eventId" = ?`, event.ID).Delete(&model.EventOperation{}).Error
 		if err != nil {
 			return err
 		}
 
-		err = db.Delete(&event).Error
+		err = tx.Delete(&event).Error
 		if err != nil {
 			return err
 		}
@@ -171,7 +156,7 @@ func handleDelete(channelId, eventId string) error {
 	})
 
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -181,18 +166,15 @@ func handleDelete(channelId, eventId string) error {
 func handlePatch(
 	channelId, eventId string,
 	dto *eventPatchDto,
-	services types.Services,
+	services *types.Services,
 ) (*model.Event, error) {
-	db := do.MustInvoke[*gorm.DB](di.Provider)
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
 	event := model.Event{}
-	err := db.
+	err := services.Gorm.
 		Where(`"id" = ? and "channelId" = ?`, eventId, channelId).
 		Preload("Operations").
 		Find(&event).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -201,9 +183,9 @@ func handlePatch(
 	}
 
 	event.Enabled = *dto.Enabled
-	err = services.DB.Model(&event).Select("*").Updates(&event).Error
+	err = services.Gorm.Model(&event).Select("*").Updates(&event).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update event")
 	}
 

@@ -1,9 +1,6 @@
 package vk
 
 import (
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 	"net/url"
 
@@ -23,9 +20,9 @@ type VK struct {
 	Data map[string]any `json:"data"`
 }
 
-func handleGetAuth(services types.Services) (*string, error) {
+func handleGetAuth(services *types.Services) (*string, error) {
 	integration := model.Integrations{}
-	err := services.DB.Where(`"service" = ?`, "VK").First(&integration).Error
+	err := services.Gorm.Where(`"service" = ?`, "VK").First(&integration).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(
 			404,
@@ -63,12 +60,10 @@ type profileResponse struct {
 	}
 }
 
-func handleGet(channelId string, services types.Services) (*profile, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
-	integration, err := helpers.GetIntegration(channelId, "VK", services.DB)
+func handleGet(channelId string, services *types.Services) (*profile, error) {
+	integration, err := helpers.GetIntegration(channelId, "VK", services.Gorm)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, err
 	}
 
@@ -87,7 +82,7 @@ func handleGet(channelId string, services types.Services) (*profile, error) {
 		Get("https://api.vk.com/method/users.get")
 
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -102,23 +97,21 @@ type tokensResponse struct {
 	AccessToken string `json:"access_token"`
 }
 
-func handlePost(channelId string, dto *vkDto, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
-	integration, err := helpers.GetIntegration(channelId, "VK", services.DB)
+func handlePost(channelId string, dto *vkDto, services *types.Services) error {
+	integration, err := helpers.GetIntegration(channelId, "VK", services.Gorm)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return err
 	}
 
 	if integration == nil {
 		neededIntegration := model.Integrations{}
-		err = services.DB.
+		err = services.Gorm.
 			Where("service = ?", "VK").
 			First(&neededIntegration).
 			Error
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return fiber.NewError(
 				http.StatusInternalServerError,
 				"seems like VK not enabled on our side",
@@ -147,36 +140,34 @@ func handlePost(channelId string, dto *vkDto, services types.Services) error {
 		Get("https://oauth.vk.com/access_token")
 
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	integration.Enabled = true
 	integration.AccessToken = null.StringFrom(data.AccessToken)
 
-	if err = services.DB.Save(integration).Error; err != nil {
-		logger.Error(err)
+	if err = services.Gorm.Save(integration).Error; err != nil {
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update faceit data")
 	}
 
 	return nil
 }
 
-func handleLogout(channelId string, services types.Services) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
-	integration, err := helpers.GetIntegration(channelId, "VK", services.DB)
+func handleLogout(channelId string, services *types.Services) error {
+	integration, err := helpers.GetIntegration(channelId, "VK", services.Gorm)
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return err
 	}
 	if integration == nil {
 		return fiber.NewError(http.StatusNotFound, "integration not found")
 	}
 
-	err = services.DB.Delete(&integration).Error
+	err = services.Gorm.Delete(&integration).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 

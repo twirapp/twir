@@ -6,7 +6,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("donatello")
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
@@ -24,7 +24,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Success      200  {string} string
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/donatepay [get]
-func get(services types.Services) fiber.Handler {
+func get(services *types.Services) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		data, err := handleGet(services, ctx.Params("channelId"))
 
@@ -47,7 +47,7 @@ func get(services types.Services) fiber.Handler {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/donatepay [post]
-func post(services types.Services) fiber.Handler {
+func post(services *types.Services) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		dto := &createOrUpdateDTO{}
 		err := middlewares.ValidateBody(

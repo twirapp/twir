@@ -1,9 +1,6 @@
 package moderation
 
 import (
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"net/http"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -28,14 +25,12 @@ var modTypes = []string{"links", "blacklists", "symbols", "longMessage", "caps",
 
 func handleGet(
 	channelId string,
-	services types.Services,
+	services *types.Services,
 ) ([]model.ChannelsModerationSettings, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
 	settings := []model.ChannelsModerationSettings{}
-	err := services.DB.Where(`"channelId" = ?`, channelId).Find(&settings).Error
+	err := services.Gorm.Where(`"channelId" = ?`, channelId).Find(&settings).Error
 	if err != nil {
-		logger.Error(err)
+		services.Logger.Error(err)
 		return nil, err
 	}
 
@@ -52,9 +47,9 @@ func handleGet(
 			Type:      t,
 		}
 
-		err := services.DB.Create(&newSetting).Error
+		err := services.Gorm.Create(&newSetting).Error
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return nil, err
 		}
 		settings = append(settings, newSetting)
@@ -66,10 +61,8 @@ func handleGet(
 func handleUpdate(
 	channelId string,
 	dto *moderationDto,
-	services types.Services,
+	services *types.Services,
 ) ([]model.ChannelsModerationSettings, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-
 	settings := []model.ChannelsModerationSettings{}
 	for _, item := range dto.Items {
 		setting := model.ChannelsModerationSettings{
@@ -88,13 +81,13 @@ func handleUpdate(
 			BlackListSentences: item.BlackListSentences,
 		}
 
-		err := services.DB.
+		err := services.Gorm.
 			Model(&model.ChannelsModerationSettings{}).
 			Select("*").
 			Where(`"channelId" = ? AND type = ?`, channelId, item.Type).
 			Updates(&setting).Error
 		if err != nil {
-			logger.Error(err)
+			services.Logger.Error(err)
 			return nil, fiber.NewError(
 				http.StatusInternalServerError,
 				"cannot update moderation settings",

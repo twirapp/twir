@@ -7,7 +7,7 @@ import (
 	modules "github.com/satont/tsuwari/libs/types/types/api/modules"
 )
 
-func Setup(router fiber.Router, services types.Services) fiber.Router {
+func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("obs-websocket")
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
@@ -16,7 +16,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	return middleware
 }
 
-func get(services types.Services) func(c *fiber.Ctx) error {
+func get(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		settings, err := handleGet(c.Params("channelId"), services)
 		if err != nil {
@@ -27,7 +27,7 @@ func get(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
-func post(services types.Services) func(c *fiber.Ctx) error {
+func post(services *types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := modules.OBSWebSocketSettings{}
 		err := middlewares.ValidateBody(
@@ -49,9 +49,9 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
-func getData(services types.Services) fiber.Handler {
+func getData(services *types.Services) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		data, err := handleGetData(ctx.Params("channelId"))
+		data, err := handleGetData(ctx.Params("channelId"), services)
 		if err != nil {
 			return err
 		}
