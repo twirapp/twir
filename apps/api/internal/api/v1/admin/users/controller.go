@@ -6,12 +6,20 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group("users")
+type adminUsers struct {
+	router   fiber.Router
+	services *types.Services
+}
 
-	middleware.Post("ignored", ignoredUsersPost(services))
+func CreateAdminUsers(router fiber.Router, services *types.Services) fiber.Router {
+	adminUsers := &adminUsers{
+		services: services,
+		router:   router,
+	}
 
-	return router
+	return adminUsers.router.
+		Group("users").
+		Post("ignored", adminUsers.post)
 }
 
 type ignoredUserPostDto struct {
@@ -24,24 +32,22 @@ type ignoredUsersPostDto struct {
 	Users []ignoredUserPostDto `json:"users"`
 }
 
-func ignoredUsersPost(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := &ignoredUsersPostDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		err = handleIgnoredUsersPost(services, dto)
-		if err == nil {
-			return c.SendStatus(200)
-		}
-
+func (c *adminUsers) post(ctx *fiber.Ctx) error {
+	dto := &ignoredUsersPostDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
 		return err
 	}
+
+	err = c.postService(dto)
+	if err == nil {
+		return ctx.SendStatus(200)
+	}
+
+	return err
 }
