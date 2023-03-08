@@ -6,16 +6,21 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group("keywords")
+type Keywords struct {
+	services *types.Services
+}
 
-	middleware.Get("", get(services))
-	middleware.Post("", post(services))
-	middleware.Delete(":keywordId", delete(services))
-	middleware.Put(":keywordId", put(services))
-	middleware.Patch(":keywordId", patch(services))
+func NewKeywords(router fiber.Router, services *types.Services) fiber.Router {
+	keywords := &Keywords{
+		services: services,
+	}
 
-	return middleware
+	return router.Group("keywords").
+		Get("", keywords.get).
+		Post("", keywords.post).
+		Delete(":keywordId", keywords.delete).
+		Put(":keywordId", keywords.put).
+		Patch(":keywordId", keywords.patch)
 }
 
 // Keywords godoc
@@ -28,14 +33,12 @@ func Setup(router fiber.Router, services *types.Services) fiber.Router {
 // @Success      200  {array}  model.ChannelsKeywords
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/keywords [get]
-func get(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		keywords, err := handleGet(c.Params("channelId"), services)
-		if err != nil {
-			return err
-		}
-		return c.JSON(keywords)
+func (c *Keywords) get(ctx *fiber.Ctx) error {
+	keywords, err := c.getService(ctx.Params("channelId"))
+	if err != nil {
+		return err
 	}
+	return ctx.JSON(keywords)
 }
 
 // Keywords godoc
@@ -50,26 +53,24 @@ func get(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/keywords [post]
-func post(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := &keywordDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		keyword, err := handlePost(c.Params("channelId"), dto, services)
-		if err == nil {
-			return c.JSON(keyword)
-		}
-
+func (c *Keywords) post(ctx *fiber.Ctx) error {
+	dto := &keywordDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
 		return err
 	}
+
+	keyword, err := c.postService(ctx.Params("channelId"), dto)
+	if err == nil {
+		return ctx.JSON(keyword)
+	}
+
+	return err
 }
 
 // Keywords godoc
@@ -85,15 +86,13 @@ func post(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/keywords/{keywordId} [delete]
-func delete(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		err := handleDelete(c.Params("keywordId"), services)
-		if err != nil {
-			return err
-		}
-
-		return c.SendStatus(200)
+func (c *Keywords) delete(ctx *fiber.Ctx) error {
+	err := c.deleteService(ctx.Params("keywordId"))
+	if err != nil {
+		return err
 	}
+
+	return ctx.SendStatus(200)
 }
 
 // Keywords godoc
@@ -110,26 +109,24 @@ func delete(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/keywords/{keywordId} [put]
-func put(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := &keywordDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		keyword, err := handleUpdate(c.Params("keywordId"), dto, services)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(keyword)
+func (c *Keywords) put(ctx *fiber.Ctx) error {
+	dto := &keywordDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+
+	keyword, err := c.putService(ctx.Params("keywordId"), dto)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(keyword)
 }
 
 // Keywords godoc
@@ -146,24 +143,22 @@ func put(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/keywords/{keywordId} [patch]
-func patch(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := &keywordPatchDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		cmd, err := handlePatch(c.Params("channelId"), c.Params("keywordId"), dto, services)
-		if err == nil && cmd != nil {
-			return c.JSON(cmd)
-		}
-
+func (c *Keywords) patch(ctx *fiber.Ctx) error {
+	dto := &keywordPatchDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
 		return err
 	}
+
+	cmd, err := c.patchService(ctx.Params("channelId"), ctx.Params("keywordId"), dto)
+	if err == nil && cmd != nil {
+		return ctx.JSON(cmd)
+	}
+
+	return err
 }

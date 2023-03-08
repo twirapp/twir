@@ -11,7 +11,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -21,14 +20,14 @@ type Greeting struct {
 	Avatar   string `json:"avatar"`
 }
 
-func handleGet(channelId string, services *types.Services) []Greeting {
-	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
+func (c *Greetings) getService(channelId string) []Greeting {
+	twitchClient, err := twitch.NewAppClient(*c.services.Config, c.services.Grpc.Tokens)
 	if err != nil {
 		return nil
 	}
 
 	greetings := []model.ChannelsGreetings{}
-	services.Gorm.Where(`"channelId" = ?`, channelId).Find(&greetings)
+	c.services.Gorm.Where(`"channelId" = ?`, channelId).Find(&greetings)
 	users := []Greeting{}
 
 	chunks := lo.Chunk(greetings, 100)
@@ -66,17 +65,16 @@ func handleGet(channelId string, services *types.Services) []Greeting {
 	return users
 }
 
-func handlePost(
+func (c *Greetings) postService(
 	channelId string,
 	dto *greetingsDto,
-	services *types.Services,
 ) (*Greeting, error) {
-	twitchUser := getTwitchUserByName(dto.Username, services)
+	twitchUser := c.getTwitchUserByName(dto.Username)
 	if twitchUser == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "cannot find twitch user")
 	}
 
-	existedGreeting := findGreetingByUser(twitchUser.ID, channelId, services)
+	existedGreeting := c.findGreetingByUser(twitchUser.ID, channelId)
 	if existedGreeting != nil {
 		return nil, fiber.NewError(400, "greeting for that user already exists")
 	}
@@ -91,9 +89,9 @@ func handlePost(
 		Processed: false,
 	}
 
-	err := services.Gorm.Save(greeting).Error
+	err := c.services.Gorm.Save(greeting).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create greeting")
 	}
 
@@ -104,26 +102,25 @@ func handlePost(
 	}, nil
 }
 
-func handleDelete(greetingId string, services *types.Services) error {
-	greeting := findGreetingById(greetingId, services)
+func (c *Greetings) deleteService(greetingId string) error {
+	greeting := c.findGreetingById(greetingId)
 	if greeting == nil {
 		return fiber.NewError(http.StatusNotFound, "greeting not found")
 	}
-	err := services.Gorm.Where("id = ?", greetingId).Delete(&model.ChannelsGreetings{}).Error
+	err := c.services.Gorm.Where("id = ?", greetingId).Delete(&model.ChannelsGreetings{}).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot delete greeting")
 	}
 
 	return nil
 }
 
-func handleUpdate(
+func (c *Greetings) putService(
 	greetingId string,
 	dto *greetingsDto,
-	services *types.Services,
 ) (*Greeting, error) {
-	greeting := findGreetingById(greetingId, services)
+	greeting := c.findGreetingById(greetingId)
 	if greeting == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "greeting not found")
 	}
@@ -138,16 +135,16 @@ func handleUpdate(
 		Processed: false,
 	}
 
-	twitchUser := getTwitchUserByName(dto.Username, services)
+	twitchUser := c.getTwitchUserByName(dto.Username)
 	if twitchUser == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "cannot find twitch user")
 	}
 
 	newGreeting.UserID = twitchUser.ID
 
-	err := services.Gorm.Model(greeting).Select("*").Updates(newGreeting).Error
+	err := c.services.Gorm.Model(greeting).Select("*").Updates(newGreeting).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update greeting")
 	}
 
@@ -158,25 +155,25 @@ func handleUpdate(
 	}, nil
 }
 
-func handlePatch(
-	channelId, greetingId string,
+func (c *Greetings) patchService(
+	channelId,
+	greetingId string,
 	dto *greetingsPatchDto,
-	services *types.Services,
 ) (*Greeting, error) {
-	greeting := findGreetingById(greetingId, services)
+	greeting := c.findGreetingById(greetingId)
 	if greeting == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "greeting not found")
 	}
 
-	twitchUser := getTwitchUserById(greeting.UserID, services)
+	twitchUser := c.getTwitchUserById(greeting.UserID)
 	if twitchUser == nil {
 		return nil, fiber.NewError(http.StatusNotFound, "cannot find twitch user")
 	}
 
 	greeting.Enabled = *dto.Enabled
-	err := services.Gorm.Model(greeting).Select("*").Updates(greeting).Error
+	err := c.services.Gorm.Model(greeting).Select("*").Updates(greeting).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update greeting")
 	}
 

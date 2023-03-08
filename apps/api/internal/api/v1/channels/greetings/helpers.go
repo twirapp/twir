@@ -2,13 +2,12 @@ package greetings
 
 import (
 	"github.com/satont/go-helix/v2"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/twitch"
 )
 
-func getTwitchUserByName(userName string, services *types.Services) *helix.User {
-	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
+func (c *Greetings) getTwitchUserByName(userName string) *helix.User {
+	twitchClient, err := twitch.NewAppClient(*c.services.Config, c.services.Grpc.Tokens)
 	if err != nil {
 		return nil
 	}
@@ -25,8 +24,8 @@ func getTwitchUserByName(userName string, services *types.Services) *helix.User 
 	return &twitchUser
 }
 
-func getTwitchUserById(id string, services *types.Services) *helix.User {
-	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
+func (c *Greetings) getTwitchUserById(id string) *helix.User {
+	twitchClient, err := twitch.NewAppClient(*c.services.Config, c.services.Grpc.Tokens)
 	if err != nil {
 		return nil
 	}
@@ -43,9 +42,9 @@ func getTwitchUserById(id string, services *types.Services) *helix.User {
 	return &twitchUser
 }
 
-func findGreetingByUser(userId string, channelId string, services *types.Services) *model.ChannelsGreetings {
+func (c *Greetings) findGreetingByUser(userId string, channelId string) *model.ChannelsGreetings {
 	greeting := &model.ChannelsGreetings{}
-	err := services.Gorm.Where(`"channelId" = ? AND "userId" = ?`, channelId, userId).First(greeting).Error
+	err := c.services.Gorm.Where(`"channelId" = ? AND "userId" = ?`, channelId, userId).First(greeting).Error
 	if err != nil {
 		return nil
 	}
@@ -53,9 +52,9 @@ func findGreetingByUser(userId string, channelId string, services *types.Service
 	return greeting
 }
 
-func findGreetingById(id string, services *types.Services) *model.ChannelsGreetings {
+func (c *Greetings) findGreetingById(id string) *model.ChannelsGreetings {
 	greeting := model.ChannelsGreetings{}
-	err := services.Gorm.Where("id = ?", id).First(&greeting).Error
+	err := c.services.Gorm.Where("id = ?", id).First(&greeting).Error
 	if err != nil {
 		return nil
 	}

@@ -6,16 +6,21 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group("greetings")
+type Greetings struct {
+	services *types.Services
+}
 
-	middleware.Get("", get(services))
-	middleware.Post("", post(services))
-	middleware.Delete(":greetingId", delete(services))
-	middleware.Put(":greetingId", put(services))
-	middleware.Patch(":greetingId", patch(services))
+func NewGreetings(router fiber.Router, services *types.Services) fiber.Router {
+	greetings := &Greetings{
+		services: services,
+	}
 
-	return middleware
+	return router.Group("greetings").
+		Get("", greetings.get).
+		Post("", greetings.post).
+		Delete(":greetingId", greetings.delete).
+		Put(":greetingId", greetings.put).
+		Patch(":greetingId", greetings.patch)
 }
 
 // Greetings godoc
@@ -28,10 +33,8 @@ func Setup(router fiber.Router, services *types.Services) fiber.Router {
 // @Success      200  {array}  Greeting
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/greetings [get]
-func get(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		return c.JSON(handleGet(c.Params("channelId"), services))
-	}
+func (c *Greetings) get(ctx *fiber.Ctx) error {
+	return ctx.JSON(c.getService(ctx.Params("channelId")))
 }
 
 // greetings godoc
@@ -46,26 +49,24 @@ func get(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/greetings [post]
-func post(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := &greetingsDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		greeting, err := handlePost(c.Params("channelId"), dto, services)
-		if err == nil && greeting != nil {
-			return c.JSON(greeting)
-		}
-
+func (c *Greetings) post(ctx *fiber.Ctx) error {
+	dto := &greetingsDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
 		return err
 	}
+
+	greeting, err := c.postService(ctx.Params("channelId"), dto)
+	if err == nil && greeting != nil {
+		return ctx.JSON(greeting)
+	}
+
+	return err
 }
 
 // greetings godoc
@@ -80,14 +81,12 @@ func post(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 404
 // @Router       /v1/channels/{channelId}/greetings/{greetingId} [delete]
-func delete(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		err := handleDelete(c.Params("greetingId"), services)
-		if err != nil {
-			return err
-		}
-		return c.SendStatus(fiber.StatusOK)
+func (c *Greetings) delete(ctx *fiber.Ctx) error {
+	err := c.deleteService(ctx.Params("greetingId"))
+	if err != nil {
+		return err
 	}
+	return ctx.SendStatus(fiber.StatusOK)
 }
 
 // Greetings godoc
@@ -104,25 +103,23 @@ func delete(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/greetings/{greetingId} [put]
-func put(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := &greetingsDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-		greeting, err := handleUpdate(c.Params("greetingId"), dto, services)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(greeting)
+func (c *Greetings) put(ctx *fiber.Ctx) error {
+	dto := &greetingsDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+	greeting, err := c.putService(ctx.Params("greetingId"), dto)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(greeting)
 }
 
 // Greetings godoc
@@ -139,23 +136,21 @@ func put(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/greetings/{greetingId} [put]
-func patch(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := &greetingsPatchDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-		greeting, err := handlePatch(c.Params("channelId"), c.Params("greetingId"), dto, services)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(greeting)
+func (c *Greetings) patch(ctx *fiber.Ctx) error {
+	dto := &greetingsPatchDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+	greeting, err := c.patchService(ctx.Params("channelId"), ctx.Params("greetingId"), dto)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(greeting)
 }
