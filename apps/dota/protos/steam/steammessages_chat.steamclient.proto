@@ -990,47 +990,47 @@ service ChatRoom {
 	option (service_description) = "Service for joining, managing, and using multi-user chat rooms";
 
 	rpc CreateChatRoomGroup (.CChatRoom_CreateChatRoomGroup_Request) returns (.CChatRoom_CreateChatRoomGroup_Response) {
-		option (method_description) = "Create's a chat group that can contain other chat rooms";
+		option (method_description) = "Create's a chat commands_group that can contain other chat rooms";
 	}
 
 	rpc SaveChatRoomGroup (.CChatRoom_SaveChatRoomGroup_Request) returns (.CChatRoom_SaveChatRoomGroup_Response) {
-		option (method_description) = "Saves's a chat group";
+		option (method_description) = "Saves's a chat commands_group";
 	}
 
 	rpc RenameChatRoomGroup (.CChatRoom_RenameChatRoomGroup_Request) returns (.CChatRoom_RenameChatRoomGroup_Response) {
-		option (method_description) = "Rename a chat room group";
+		option (method_description) = "Rename a chat room commands_group";
 	}
 
 	rpc SetChatRoomGroupTagline (.CChatRoom_SetChatRoomGroupTagline_Request) returns (.CChatRoom_SetChatRoomGroupTagline_Response) {
-		option (method_description) = "Set tagline for a chat room group";
+		option (method_description) = "Set tagline for a chat room commands_group";
 	}
 
 	rpc SetChatRoomGroupAvatar (.CChatRoom_SetChatRoomGroupAvatar_Request) returns (.CChatRoom_SetChatRoomGroupAvatar_Response) {
-		option (method_description) = "Set avatar SHA for a chat room group";
+		option (method_description) = "Set avatar SHA for a chat room commands_group";
 	}
 
 	rpc SetChatRoomGroupWatchingBroadcast (.CChatRoom_SetChatRoomGroupWatchingBroadcast_Request) returns (.CChatRoom_SetChatRoomGroupWatchingBroadcast_Response) {
-		option (method_description) = "Sets a broadcast that the chat room group is watching";
+		option (method_description) = "Sets a broadcast that the chat room commands_group is watching";
 	}
 
 	rpc JoinMiniGameForChatRoomGroup (.CChatRoom_JoinMiniGameForChatRoomGroup_Request) returns (.CChatRoom_JoinMiniGameForChatRoomGroup_Response) {
-		option (method_description) = "Joins the minigame for the chat room group or starts a new one (Winter 2019 sale party game)";
+		option (method_description) = "Joins the minigame for the chat room commands_group or starts a new one (Winter 2019 sale party game)";
 	}
 
 	rpc EndMiniGameForChatRoomGroup (.CChatRoom_EndMiniGameForChatRoomGroup_Request) returns (.CChatRoom_EndMiniGameForChatRoomGroup_Response) {
-		option (method_description) = "Ends the minigame in the chat room group";
+		option (method_description) = "Ends the minigame in the chat room commands_group";
 	}
 
 	rpc MuteUserInGroup (.CChatRoom_MuteUser_Request) returns (.CChatRoom_MuteUser_Response) {
-		option (method_description) = "Mute user in group";
+		option (method_description) = "Mute user in commands_group";
 	}
 
 	rpc KickUserFromGroup (.CChatRoom_KickUser_Request) returns (.CChatRoom_KickUser_Response) {
-		option (method_description) = "Kick user from group";
+		option (method_description) = "Kick user from commands_group";
 	}
 
 	rpc SetUserBanState (.CChatRoom_SetUserBanState_Request) returns (.CChatRoom_SetUserBanState_Response) {
-		option (method_description) = "Ban/unban user from group";
+		option (method_description) = "Ban/unban user from commands_group";
 	}
 
 	rpc RevokeInviteToGroup (.CChatRoom_RevokeInvite_Request) returns (.CChatRoom_RevokeInvite_Response) {
@@ -1042,7 +1042,7 @@ service ChatRoom {
 	}
 
 	rpc GetRoles (.CChatRoom_GetRoles_Request) returns (.CChatRoom_GetRoles_Response) {
-		option (method_description) = "Get all roles in group";
+		option (method_description) = "Get all roles in commands_group";
 	}
 
 	rpc RenameRole (.CChatRoom_RenameRole_Request) returns (.CChatRoom_RenameRole_Response) {
@@ -1054,27 +1054,27 @@ service ChatRoom {
 	}
 
 	rpc DeleteRole (.CChatRoom_DeleteRole_Request) returns (.CChatRoom_DeleteRole_Response) {
-		option (method_description) = "Delete role from group";
+		option (method_description) = "Delete role from commands_group";
 	}
 
 	rpc GetRoleActions (.CChatRoom_GetRoleActions_Request) returns (.CChatRoom_GetRoleActions_Response) {
-		option (method_description) = "Get all defined roles and actions in group";
+		option (method_description) = "Get all defined roles and actions in commands_group";
 	}
 
 	rpc ReplaceRoleActions (.CChatRoom_ReplaceRoleActions_Request) returns (.CChatRoom_ReplaceRoleActions_Response) {
-		option (method_description) = "Replace role actions in group";
+		option (method_description) = "Replace role actions in commands_group";
 	}
 
 	rpc AddRoleToUser (.CChatRoom_AddRoleToUser_Request) returns (.CChatRoom_AddRoleToUser_Response) {
-		option (method_description) = "Add role to user in group";
+		option (method_description) = "Add role to user in commands_group";
 	}
 
 	rpc GetRolesForUser (.CChatRoom_GetRolesForUser_Request) returns (.CChatRoom_GetRolesForUser_Response) {
-		option (method_description) = "Get all roles assigned to user in group";
+		option (method_description) = "Get all roles assigned to user in commands_group";
 	}
 
 	rpc DeleteRoleFromUser (.CChatRoom_DeleteRoleFromUser_Request) returns (.CChatRoom_DeleteRoleFromUser_Response) {
-		option (method_description) = "Delete role from user in group";
+		option (method_description) = "Delete role from user in commands_group";
 	}
 
 	rpc JoinChatRoomGroup (.CChatRoom_JoinChatRoomGroup_Request) returns (.CChatRoom_JoinChatRoomGroup_Response) {
@@ -1086,23 +1086,23 @@ service ChatRoom {
 	}
 
 	rpc LeaveChatRoomGroup (.CChatRoom_LeaveChatRoomGroup_Request) returns (.CChatRoom_LeaveChatRoomGroup_Response) {
-		option (method_description) = "Leaves a chat room group and all related chats";
+		option (method_description) = "Leaves a chat room commands_group and all related chats";
 	}
 
 	rpc CreateChatRoom (.CChatRoom_CreateChatRoom_Request) returns (.CChatRoom_CreateChatRoom_Response) {
-		option (method_description) = "Creates a chat room inside a chat room group";
+		option (method_description) = "Creates a chat room inside a chat room commands_group";
 	}
 
 	rpc DeleteChatRoom (.CChatRoom_DeleteChatRoom_Request) returns (.CChatRoom_DeleteChatRoom_Response) {
-		option (method_description) = "Deletes a chat room inside a chat room group";
+		option (method_description) = "Deletes a chat room inside a chat room commands_group";
 	}
 
 	rpc RenameChatRoom (.CChatRoom_RenameChatRoom_Request) returns (.CChatRoom_RenameChatRoom_Response) {
-		option (method_description) = "Renames a chat room inside a chat room group";
+		option (method_description) = "Renames a chat room inside a chat room commands_group";
 	}
 
 	rpc ReorderChatRoom (.CChatRoom_ReorderChatRoom_Request) returns (.CChatRoom_ReorderChatRoom_Response) {
-		option (method_description) = "Reorders a chat room inside a chat room group";
+		option (method_description) = "Reorders a chat room inside a chat room commands_group";
 	}
 
 	rpc SendChatMessage (.CChatRoom_SendChatMessage_Request) returns (.CChatRoom_SendChatMessage_Response) {
@@ -1130,15 +1130,15 @@ service ChatRoom {
 	}
 
 	rpc GetChatRoomGroupSummary (.CChatRoom_GetChatRoomGroupSummary_Request) returns (.CChatRoom_GetChatRoomGroupSummary_Response) {
-		option (method_description) = "Get basic information about a chat room group";
+		option (method_description) = "Get basic information about a chat room commands_group";
 	}
 
 	rpc SetAppChatRoomGroupForceActive (.CChatRoom_SetAppChatRoomGroupForceActive_Request) returns (.CChatRoom_SetAppChatRoomGroupForceActive_Response) {
-		option (method_description) = "Force a group chat to be considered active on the server for this user";
+		option (method_description) = "Force a commands_group chat to be considered active on the server for this user";
 	}
 
 	rpc SetAppChatRoomGroupStopForceActive (.CChatRoom_SetAppChatRoomGroupStopForceActive_Notification) returns (.NoResponse) {
-		option (method_description) = "If a group chat is forced active (see SetAppChatRoomGroupForceActive), decrement the force count";
+		option (method_description) = "If a commands_group chat is forced active (see SetAppChatRoomGroupForceActive), decrement the force count";
 	}
 
 	rpc AckChatMessage (.CChatRoom_AckChatMessage_Notification) returns (.NoResponse) {
@@ -1154,11 +1154,11 @@ service ChatRoom {
 	}
 
 	rpc GetInviteInfo (.CChatRoom_GetInviteInfo_Request) returns (.CChatRoom_GetInviteInfo_Response) {
-		option (method_description) = "Returns chat room info about any invite involving the sender and passed group id";
+		option (method_description) = "Returns chat room info about any invite involving the sender and passed commands_group id";
 	}
 
 	rpc GetInviteLinksForGroup (.CChatRoom_GetInviteLinksForGroup_Request) returns (.CChatRoom_GetInviteLinksForGroup_Response) {
-		option (method_description) = "Returns all invite links for the specified group";
+		option (method_description) = "Returns all invite links for the specified commands_group";
 	}
 
 	rpc GetBanList (.CChatRoom_GetBanList_Request) returns (.CChatRoom_GetBanList_Response) {
@@ -1178,7 +1178,7 @@ service ChatRoom {
 	}
 
 	rpc SetUserChatGroupPreferences (.CChatRoom_SetUserChatGroupPreferences_Request) returns (.CChatRoom_SetUserChatGroupPreferences_Response) {
-		option (method_description) = "Set preferences around chat notifications for a group";
+		option (method_description) = "Set preferences around chat notifications for a commands_group";
 	}
 
 	rpc DeleteChatMessages (.CChatRoom_DeleteChatMessages_Request) returns (.CChatRoom_DeleteChatMessages_Response) {
@@ -1235,7 +1235,7 @@ service ChatRoomClient {
 	}
 
 	rpc NotifyChatRoomGroupRoomsChange (.CChatRoom_ChatRoomGroupRoomsChange_Notification) returns (.NoResponse) {
-		option (method_description) = "Something about a chatroom group changed (created, deleted, etc.)";
+		option (method_description) = "Something about a chatroom commands_group changed (created, deleted, etc.)";
 	}
 
 	rpc NotifyShouldRejoinChatRoomVoiceChat (.CChatRoom_NotifyShouldRejoinChatRoomVoiceChat_Notification) returns (.NoResponse) {
@@ -1243,7 +1243,7 @@ service ChatRoomClient {
 	}
 
 	rpc NotifyChatGroupUserStateChanged (.ChatRoomClient_NotifyChatGroupUserStateChanged_Notification) returns (.NoResponse) {
-		option (method_description) = "User chat group state (preferences, ack state, etc) have changed.";
+		option (method_description) = "User chat commands_group state (preferences, ack state, etc) have changed.";
 	}
 
 	rpc NotifyAckChatMessageEcho (.CChatRoom_AckChatMessage_Notification) returns (.NoResponse) {

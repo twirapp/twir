@@ -3,14 +3,21 @@ package channels
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/channels/bot"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/channels/commands"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/channels/events"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func CreateChannelRouter(router fiber.Router, services *types.Services) fiber.Router {
-	return router.
+func CreateChannelsRouter(router fiber.Router, services *types.Services) fiber.Router {
+	channel := router.
 		Group("channels/:channelId").
 		Use(middlewares.AttachUser(services)).
-		Use(middlewares.CheckHasAccessToDashboard).
-		Use(bot.NewBot(router, services))
+		Use(middlewares.CheckHasAccessToDashboard)
+
+	bot.NewBot(channel, services)
+	commands.NewCommands(channel, services)
+	events.NewEvents(channel, services)
+
+	return channel
 }

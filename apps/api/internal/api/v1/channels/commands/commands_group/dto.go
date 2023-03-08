@@ -1,4 +1,4 @@
-package group
+package commands_group
 
 type groupDto struct {
 	Name  string `json:"name" validate:"required"`

@@ -6,97 +6,94 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group("events")
-	middleware.Get("", get(services))
-	middleware.Post("", create(services))
-	middleware.Patch(":eventId", patch(services))
-	middleware.Put(":eventId", update(services))
-	middleware.Delete(":eventId", delete(services))
-
-	return middleware
+type Events struct {
+	services *types.Services
 }
 
-func get(services *types.Services) fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		events := handleGet(ctx.Params("channelId"), services)
-
-		return ctx.JSON(events)
+func NewEvents(router fiber.Router, services *types.Services) fiber.Router {
+	events := &Events{
+		services: services,
 	}
+
+	return router.Group("events").
+		Get("", events.get).
+		Post("", events.post).
+		Patch(":eventId", events.patch).
+		Put(":eventId", events.put).
+		Delete(":eventId", events.delete)
 }
 
-func create(services *types.Services) fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		dto := &eventDto{}
-		err := middlewares.ValidateBody(
-			ctx,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
+func (c *Events) get(ctx *fiber.Ctx) error {
+	events := c.getService(ctx.Params("channelId"))
 
-		event, err := handlePost(ctx.Params("channelId"), dto, services)
-		if err != nil {
-			return err
-		}
-
-		return ctx.JSON(event)
-	}
+	return ctx.JSON(events)
 }
 
-func update(services *types.Services) fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		dto := &eventDto{}
-		err := middlewares.ValidateBody(
-			ctx,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		event, err := handleUpdate(ctx.Params("channelId"), ctx.Params("eventId"), dto, services)
-		if err != nil {
-			return err
-		}
-
-		return ctx.JSON(event)
+func (c *Events) post(ctx *fiber.Ctx) error {
+	dto := &eventDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+
+	event, err := c.postService(ctx.Params("channelId"), dto)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(event)
 }
 
-func delete(services *types.Services) fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		err := handleDelete(ctx.Params("channelId"), ctx.Params("eventId"), services)
-		if err != nil {
-			return err
-		}
-
-		return ctx.SendStatus(200)
+func (c *Events) put(ctx *fiber.Ctx) error {
+	dto := &eventDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+
+	event, err := c.putService(ctx.Params("channelId"), ctx.Params("eventId"), dto)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(event)
 }
 
-func patch(services *types.Services) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		dto := &eventPatchDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-		greeting, err := handlePatch(c.Params("channelId"), c.Params("eventId"), dto, services)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(greeting)
+func (c *Events) delete(ctx *fiber.Ctx) error {
+	err := c.deleteService(ctx.Params("channelId"), ctx.Params("eventId"))
+	if err != nil {
+		return err
 	}
+
+	return ctx.SendStatus(200)
+
+}
+
+func (c *Events) patch(ctx *fiber.Ctx) error {
+	dto := &eventPatchDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
+	}
+	greeting, err := c.patchService(ctx.Params("channelId"), ctx.Params("eventId"), dto)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(greeting)
 }

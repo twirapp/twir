@@ -1,15 +1,14 @@
-package group
+package commands_group
 
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
-func getGroupsService(channelId string, services *types.Services) ([]model.ChannelCommandGroup, error) {
+func (c *CommandsGroup) getService(channelId string) ([]model.ChannelCommandGroup, error) {
 	var groups []model.ChannelCommandGroup
-	err := services.Gorm.
+	err := c.services.Gorm.
 		Where(`"channelId" = ?`, channelId).
 		Find(&groups).Error
 	if err != nil {
@@ -19,7 +18,10 @@ func getGroupsService(channelId string, services *types.Services) ([]model.Chann
 	return groups, nil
 }
 
-func createGroupService(channelId string, dto *groupDto, services *types.Services) (*model.ChannelCommandGroup, error) {
+func (c *CommandsGroup) postService(
+	channelId string,
+	dto *groupDto,
+) (*model.ChannelCommandGroup, error) {
 	group := &model.ChannelCommandGroup{
 		ID:        uuid.New().String(),
 		ChannelID: channelId,
@@ -27,7 +29,7 @@ func createGroupService(channelId string, dto *groupDto, services *types.Service
 		Color:     dto.Color,
 	}
 
-	err := services.Gorm.Create(group).Error
+	err := c.services.Gorm.Create(group).Error
 	if err != nil {
 		return nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -35,8 +37,8 @@ func createGroupService(channelId string, dto *groupDto, services *types.Service
 	return group, nil
 }
 
-func deleteGroupService(channelId, groupId string, services *types.Services) error {
-	err := services.Gorm.
+func (c *CommandsGroup) deleteService(channelId, groupId string) error {
+	err := c.services.Gorm.
 		Where(`"channelId" = ? AND "id" = ?`, channelId, groupId).
 		Delete(&model.ChannelCommandGroup{}).
 		Error
@@ -47,7 +49,11 @@ func deleteGroupService(channelId, groupId string, services *types.Services) err
 	return nil
 }
 
-func updateGroupService(channelId, groupId string, dto *groupDto, services *types.Services) (*model.ChannelCommandGroup, error) {
+func (c *CommandsGroup) putService(
+	channelId,
+	groupId string,
+	dto *groupDto,
+) (*model.ChannelCommandGroup, error) {
 	group := &model.ChannelCommandGroup{
 		ID:        groupId,
 		ChannelID: channelId,
@@ -55,7 +61,7 @@ func updateGroupService(channelId, groupId string, dto *groupDto, services *type
 		Color:     dto.Color,
 	}
 
-	err := services.Gorm.
+	err := c.services.Gorm.
 		Model(&model.ChannelCommandGroup{}).
 		Where(`"channelId" = ? AND "id" = ?`, channelId, groupId).
 		Updates(group).Error

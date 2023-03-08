@@ -37,7 +37,7 @@ type ChannelsCommands struct {
 
 	Responses []ChannelsCommandsResponses `gorm:"foreignKey:CommandID"                             json:"responses"`
 	GroupID   null.String                 `gorm:"column:groupId;type:UUID" json:"groupId"`
-	Group     *ChannelCommandGroup        `gorm:"foreignKey:GroupID" json:"group"`
+	Group     *ChannelCommandGroup        `gorm:"foreignKey:GroupID" json:"commands_group"`
 }
 
 func (c *ChannelsCommands) TableName() string {

@@ -4,24 +4,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	admin_users "github.com/satont/tsuwari/apps/api/internal/api/v1/admin/users"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/channels"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatello"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatepay"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/modules/obs_websocket"
-	tts_channel_module "github.com/satont/tsuwari/apps/api/internal/api/v1/modules/tts"
-	public_commands "github.com/satont/tsuwari/apps/api/internal/api/v1/public/commands"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/public/song_requests"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/tts"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/twitch/users"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/feedback"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donationalerts"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/faceit"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/lastfm"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/spotify"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/streamlabs"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/vk"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/modules/youtube_sr"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/stats"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
@@ -40,7 +27,7 @@ func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	twitchGroup := router.Group("twitch")
 	users.Setup(twitchGroup, services)
 
-	router.Use(channels.CreateChannelRouter(router, services))
+	router.Use(channels.CreateChannelsRouter(router, services))
 	//channelsGroup := router.Group("channels/:channelId")
 	//channelsGroup.Use(middlewares.AttachUser(services))
 	//channelsGroup.Use(middlewares.CheckHasAccessToDashboard)
@@ -58,24 +45,24 @@ func Setup(router fiber.Router, services *types.Services) fiber.Router {
 	//events.Setup(channelsGroup, services)
 	//roles.Setup(channelsGroup, services)
 
-	integrationsGroup := channelsGroup.Group("integrations")
-	donationalerts.Setup(integrationsGroup, services)
-	streamlabs.Setup(integrationsGroup, services)
-	faceit.Setup(integrationsGroup, services)
-	lastfm.Setup(integrationsGroup, services)
-	vk.Setup(integrationsGroup, services)
-	spotify.Setup(integrationsGroup, services)
-	donatepay.Setup(integrationsGroup, services)
-	donatello.Setup(integrationsGroup, services)
-
-	modulesGroup := channelsGroup.Group("modules")
-	youtube_sr.Setup(modulesGroup, services)
-	obs_websocket.Setup(modulesGroup, services)
-	tts_channel_module.Setup(modulesGroup, services)
-
-	publicGroup := router.Group("p")
-	public_commands.Setup(publicGroup, services)
-	song_requests.Setup(publicGroup, services)
+	//integrationsGroup := channelsGroup.Group("integrations")
+	//donationalerts.Setup(integrationsGroup, services)
+	//streamlabs.Setup(integrationsGroup, services)
+	//faceit.Setup(integrationsGroup, services)
+	//lastfm.Setup(integrationsGroup, services)
+	//vk.Setup(integrationsGroup, services)
+	//spotify.Setup(integrationsGroup, services)
+	//donatepay.Setup(integrationsGroup, services)
+	//donatello.Setup(integrationsGroup, services)
+	//
+	//modulesGroup := channelsGroup.Group("modules")
+	//youtube_sr.Setup(modulesGroup, services)
+	//obs_websocket.Setup(modulesGroup, services)
+	//tts_channel_module.Setup(modulesGroup, services)
+	//
+	//publicGroup := router.Group("p")
+	//public_commands.Setup(publicGroup, services)
+	//song_requests.Setup(publicGroup, services)
 
 	return router
 }

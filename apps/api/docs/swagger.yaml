@@ -1942,7 +1942,7 @@ paths:
             $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
       security:
       - ApiKeyAuth: []
-      summary: Create command group
+      summary: Create command commands_group
       tags:
       - CommandsGroup
   /v1/channels/{channelId}/commands/groups/{groupId}:
@@ -1955,7 +1955,7 @@ paths:
         name: channelId
         required: true
         type: string
-      - description: ID of group
+      - description: ID of commands_group
         in: path
         name: groupId
         required: true
@@ -1971,7 +1971,7 @@ paths:
             $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
       security:
       - ApiKeyAuth: []
-      summary: Delete command group
+      summary: Delete command commands_group
       tags:
       - CommandsGroup
     put:
@@ -1989,7 +1989,7 @@ paths:
         name: channelId
         required: true
         type: string
-      - description: ID of group
+      - description: ID of commands_group
         in: path
         name: groupId
         required: true
@@ -2011,7 +2011,7 @@ paths:
             $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
       security:
       - ApiKeyAuth: []
-      summary: Update command group
+      summary: Update command commands_group
       tags:
       - CommandsGroup
   /v1/channels/{channelId}/community/users:

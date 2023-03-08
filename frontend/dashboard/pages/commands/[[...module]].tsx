@@ -194,7 +194,7 @@ const Commands: NextPage = () => {
                     onClick={() =>
                       confirmDelete({
                         onConfirm: () => groupDeleter.mutate(commandsWithGroups[group].id),
-                        text: 'This will delete only group, not commands. Delete group?',
+                        text: 'This will delete only commands_group, not commands. Delete commands_group?',
                       })
                     }
                     variant="filled"

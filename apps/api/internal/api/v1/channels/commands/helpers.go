@@ -7,12 +7,11 @@ import (
 	"github.com/guregu/null"
 	"github.com/samber/lo"
 	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
 )
 
-func getChannelCommands(db *gorm.DB, channelId string) []model.ChannelsCommands {
+func (c *Commands) getChannelCommands(channelId string) []model.ChannelsCommands {
 	cmds := []model.ChannelsCommands{}
-	db.
+	c.services.Gorm.
 		Preload("Responses").
 		Preload("Group").
 		Where(`"channelId" = ?`, channelId).
@@ -25,13 +24,12 @@ func getChannelCommands(db *gorm.DB, channelId string) []model.ChannelsCommands 
 	return cmds
 }
 
-func getChannelCommand(
-	db *gorm.DB,
+func (c *Commands) getChannelCommand(
 	channelId string,
 	commandId string,
 ) (*model.ChannelsCommands, error) {
 	command := &model.ChannelsCommands{}
-	err := db.Where(`"channelId" = ? AND "id" = ?`, channelId, commandId).
+	err := c.services.Gorm.Where(`"channelId" = ? AND "id" = ?`, channelId, commandId).
 		Preload("Responses").
 		Preload("Group").
 		First(&command).
@@ -42,14 +40,13 @@ func getChannelCommand(
 	return command, nil
 }
 
-func isCommandWithThatNameExists(
-	db *gorm.DB,
+func (c *Commands) isCommandWithThatNameExists(
 	channelId string,
 	name string,
 	aliases []string,
 	exceptCommandId *string,
 ) bool {
-	cmds := getChannelCommands(db, channelId)
+	cmds := c.getChannelCommands(channelId)
 
 	if len(cmds) == 0 {
 		return false
@@ -100,9 +97,9 @@ func createCommandFromDto(
 		IsReply:      lo.If(dto.IsReply == nil, false).Else(*dto.IsReply),
 		KeepResponsesOrder: lo.If(dto.KeepResponsesOrder == nil, false).
 			Else(*dto.KeepResponsesOrder),
-		GroupID:        null.StringFromPtr(dto.GroupID),
-		DeniedUsersIDS: dto.DeniedUsersIds,
-		RolesIDS: dto.RolesIDS,
+		GroupID:         null.StringFromPtr(dto.GroupID),
+		DeniedUsersIDS:  dto.DeniedUsersIds,
+		RolesIDS:        dto.RolesIDS,
 		AllowedUsersIDS: dto.AllowedUsersIds,
 	}
 }

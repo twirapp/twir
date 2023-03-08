@@ -1,4 +1,4 @@
-package group
+package commands_group
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -6,15 +6,23 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group("groups")
+type CommandsGroup struct {
+	services *types.Services
+	router   fiber.Router
+}
 
-	middleware.Get("/", getGroups(services))
-	middleware.Post("/", createGroup(services))
-	middleware.Delete(":groupId", deleteGroup(services))
-	middleware.Put(":groupId", updateGroup(services))
+func NewCommandsGroup(router fiber.Router, services *types.Services) fiber.Router {
+	group := &CommandsGroup{
+		services: services,
+		router:   router,
+	}
 
-	return middleware
+	return group.router.
+		Group("groups").
+		Get("", group.get).
+		Post("", group.post).
+		Delete(":groupId", group.delete).
+		Put(":groupId", group.put)
 }
 
 // CommandsGroup godoc
@@ -27,15 +35,13 @@ func Setup(router fiber.Router, services *types.Services) fiber.Router {
 // @Success      200  {array}  model.ChannelCommandGroup
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands/groups [get]
-func getGroups(services *types.Services) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		groups, err := getGroupsService(c.Params("channelId"), services)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(groups)
+func (c *CommandsGroup) get(ctx *fiber.Ctx) error {
+	groups, err := c.getService(ctx.Params("channelId"))
+	if err != nil {
+		return err
 	}
+
+	return ctx.JSON(groups)
 }
 
 // CommandsGroup
@@ -50,26 +56,24 @@ func getGroups(services *types.Services) fiber.Handler {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands/groups [post]
-func createGroup(services *types.Services) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		dto := &groupDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		group, err := createGroupService(c.Params("channelId"), dto, services)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(group)
+func (c *CommandsGroup) post(ctx *fiber.Ctx) error {
+	dto := &groupDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+
+	group, err := c.postService(ctx.Params("channelId"), dto)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(group)
 }
 
 // CommandsGroup godoc
@@ -83,15 +87,13 @@ func createGroup(services *types.Services) fiber.Handler {
 // @Success      204
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands/groups/{groupId} [delete]
-func deleteGroup(services *types.Services) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		err := deleteGroupService(c.Params("channelId"), c.Params("groupId"), services)
-		if err != nil {
-			return err
-		}
-
-		return c.SendStatus(fiber.StatusNoContent)
+func (c *CommandsGroup) delete(ctx *fiber.Ctx) error {
+	err := c.deleteService(ctx.Params("channelId"), ctx.Params("groupId"))
+	if err != nil {
+		return err
 	}
+
+	return ctx.SendStatus(fiber.StatusNoContent)
 }
 
 // CommandsGroup godoc
@@ -107,24 +109,22 @@ func deleteGroup(services *types.Services) fiber.Handler {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/commands/groups/{groupId} [put]
-func updateGroup(services *types.Services) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		dto := &groupDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		group, err := updateGroupService(c.Params("channelId"), c.Params("groupId"), dto, services)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(group)
+func (c *CommandsGroup) put(ctx *fiber.Ctx) error {
+	dto := &groupDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+
+	group, err := c.putService(ctx.Params("channelId"), ctx.Params("groupId"), dto)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(group)
 }
