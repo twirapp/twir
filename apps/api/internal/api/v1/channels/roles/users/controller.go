@@ -6,12 +6,18 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group(":roleId/users")
-	middleware.Get("/", getUsers(services))
-	middleware.Put("/", updateUsers(services))
+type RolesUsers struct {
+	services *types.Services
+}
 
-	return middleware
+func NewRolesUsers(router fiber.Router, services *types.Services) fiber.Router {
+	rolesUsers := &RolesUsers{
+		services: services,
+	}
+
+	return router.Group(":roleId/users").
+		Get("/", rolesUsers.get).
+		Put("/", rolesUsers.put)
 }
 
 // Roles godoc
@@ -27,15 +33,13 @@ func Setup(router fiber.Router, services *types.Services) fiber.Router {
 // @Failure 404 {object} types.DOCApiNotFoundError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/roles/{roleId}/users [get]
-func getUsers(services *types.Services) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		users, err := getUsersService(c.Params("roleId"), services)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(users)
+func (c *RolesUsers) get(ctx *fiber.Ctx) error {
+	users, err := c.getService(ctx.Params("roleId"))
+	if err != nil {
+		return err
 	}
+
+	return ctx.JSON(users)
 }
 
 // Roles godoc
@@ -52,24 +56,22 @@ func getUsers(services *types.Services) fiber.Handler {
 // @Failure 404 {object} types.DOCApiNotFoundError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/roles/{roleId}/users [put]
-func updateUsers(services *types.Services) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		dto := &roleUserDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		err = updateUsersService(c.Params("roleId"), dto.UserNames, services)
-		if err != nil {
-			return err
-		}
-
-		return c.SendStatus(fiber.StatusOK)
+func (c *RolesUsers) put(ctx *fiber.Ctx) error {
+	dto := &roleUserDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+
+	err = c.putService(ctx.Params("roleId"), dto.UserNames)
+	if err != nil {
+		return err
+	}
+
+	return ctx.SendStatus(fiber.StatusOK)
 }

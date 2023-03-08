@@ -8,7 +8,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -23,14 +22,13 @@ import (
 
 var modTypes = []string{"links", "blacklists", "symbols", "longMessage", "caps", "emotes"}
 
-func handleGet(
+func (c *Moderation) getService(
 	channelId string,
-	services *types.Services,
 ) ([]model.ChannelsModerationSettings, error) {
 	settings := []model.ChannelsModerationSettings{}
-	err := services.Gorm.Where(`"channelId" = ?`, channelId).Find(&settings).Error
+	err := c.services.Gorm.Where(`"channelId" = ?`, channelId).Find(&settings).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, err
 	}
 
@@ -47,9 +45,9 @@ func handleGet(
 			Type:      t,
 		}
 
-		err := services.Gorm.Create(&newSetting).Error
+		err := c.services.Gorm.Create(&newSetting).Error
 		if err != nil {
-			services.Logger.Error(err)
+			c.services.Logger.Error(err)
 			return nil, err
 		}
 		settings = append(settings, newSetting)
@@ -58,10 +56,9 @@ func handleGet(
 	return settings, nil
 }
 
-func handleUpdate(
+func (c *Moderation) postService(
 	channelId string,
 	dto *moderationDto,
-	services *types.Services,
 ) ([]model.ChannelsModerationSettings, error) {
 	settings := []model.ChannelsModerationSettings{}
 	for _, item := range dto.Items {
@@ -81,13 +78,13 @@ func handleUpdate(
 			BlackListSentences: item.BlackListSentences,
 		}
 
-		err := services.Gorm.
+		err := c.services.Gorm.
 			Model(&model.ChannelsModerationSettings{}).
 			Select("*").
 			Where(`"channelId" = ? AND type = ?`, channelId, item.Type).
 			Updates(&setting).Error
 		if err != nil {
-			services.Logger.Error(err)
+			c.services.Logger.Error(err)
 			return nil, fiber.NewError(
 				http.StatusInternalServerError,
 				"cannot update moderation settings",

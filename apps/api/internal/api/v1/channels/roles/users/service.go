@@ -9,7 +9,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/twitch"
 	"gorm.io/gorm"
@@ -22,15 +21,15 @@ type roleUser struct {
 	UserAvatar      string `json:"userAvatar"`
 }
 
-func getUsersService(roleId string, services *types.Services) ([]*roleUser, error) {
-	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
+func (c *RolesUsers) getService(roleId string) ([]*roleUser, error) {
+	twitchClient, err := twitch.NewAppClient(*c.services.Config, c.services.Grpc.Tokens)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	role := &model.ChannelRole{}
-	if err := services.Gorm.Preload("Users").Where("id = ?", roleId).First(role).Error; err != nil {
+	if err := c.services.Gorm.Preload("Users").Where("id = ?", roleId).First(role).Error; err != nil {
 		return nil, fiber.NewError(fiber.StatusNotFound, "Role not found")
 	}
 
@@ -46,7 +45,7 @@ func getUsersService(roleId string, services *types.Services) ([]*roleUser, erro
 	})
 
 	if err != nil || twitchUsers.ErrorMessage != "" {
-		services.Logger.Error(err, twitchUsers.ErrorMessage)
+		c.services.Logger.Error(err, twitchUsers.ErrorMessage)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -70,26 +69,26 @@ func getUsersService(roleId string, services *types.Services) ([]*roleUser, erro
 	return response, nil
 }
 
-func updateUsersService(roleId string, userNames []string, services *types.Services) error {
-	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
+func (c *RolesUsers) putService(roleId string, userNames []string) error {
+	twitchClient, err := twitch.NewAppClient(*c.services.Config, c.services.Grpc.Tokens)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	role := &model.ChannelRole{}
-	if err := services.Gorm.Preload("Users").Where("id = ?", roleId).First(role).Error; err != nil {
+	if err := c.services.Gorm.Preload("Users").Where("id = ?", roleId).First(role).Error; err != nil {
 		return fiber.NewError(fiber.StatusNotFound, "Role not found")
 	}
 
 	if len(userNames) == 0 {
-		if err = services.Gorm.Where(`"roleId" = ?`, role.ID).Delete(&model.ChannelRoleUser{}).Error; err != nil {
-			services.Logger.Error(err)
+		if err = c.services.Gorm.Where(`"roleId" = ?`, role.ID).Delete(&model.ChannelRoleUser{}).Error; err != nil {
+			c.services.Logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 
 		for _, user := range role.Users {
-			services.RedisStorage.DeleteByMethod(
+			c.services.RedisStorage.DeleteByMethod(
 				fmt.Sprintf("fiber:cache:auth:profile:dashboards:%s", user.UserID),
 				"GET",
 			)
@@ -103,7 +102,7 @@ func updateUsersService(roleId string, userNames []string, services *types.Servi
 	})
 
 	if err != nil || twitchUsers.ErrorMessage != "" {
-		services.Logger.Error(err, twitchUsers.ErrorMessage)
+		c.services.Logger.Error(err, twitchUsers.ErrorMessage)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -115,7 +114,7 @@ func updateUsersService(roleId string, userNames []string, services *types.Servi
 		})
 	}
 
-	err = services.Gorm.Transaction(func(tx *gorm.DB) error {
+	err = c.services.Gorm.Transaction(func(tx *gorm.DB) error {
 		if err = tx.Where(`"roleId" = ?`, role.ID).Delete(&model.ChannelRoleUser{}).Error; err != nil {
 			return err
 		}
@@ -128,19 +127,19 @@ func updateUsersService(roleId string, userNames []string, services *types.Servi
 	})
 
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	for _, user := range role.Users {
-		services.RedisStorage.DeleteByMethod(
+		c.services.RedisStorage.DeleteByMethod(
 			fmt.Sprintf("fiber:cache:auth:profile:dashboards:%s", user.UserID),
 			"GET",
 		)
 	}
 
 	for _, user := range twitchUsers.Data.Users {
-		services.RedisStorage.DeleteByMethod(
+		c.services.RedisStorage.DeleteByMethod(
 			fmt.Sprintf("fiber:cache:auth:profile:dashboards:%s", user.ID),
 			"GET",
 		)

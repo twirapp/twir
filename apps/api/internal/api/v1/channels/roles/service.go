@@ -5,42 +5,41 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 )
 
-func getRole(id string, services *types.Services) *model.ChannelRole {
+func (c *Roles) getById(id string) *model.ChannelRole {
 	role := &model.ChannelRole{}
-	err := services.Gorm.
+	err := c.services.Gorm.
 		Where(`"id" = ?`, id).
 		Preload("Users").
 		First(&role).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil
 	}
 
 	return role
 }
 
-func getRolesService(channelId string, services *types.Services) ([]*model.ChannelRole, error) {
+func (c *Roles) getService(channelId string) ([]*model.ChannelRole, error) {
 	channelsRoles := []*model.ChannelRole{}
-	err := services.Gorm.
+	err := c.services.Gorm.
 		Where(`"channelId" = ?`, channelId).
 		Preload("Users").
 		Find(&channelsRoles).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, err
 	}
 
 	return channelsRoles, nil
 }
 
-func updateRoleService(channelId, roleId string, dto *roleDto, services *types.Services) (*model.ChannelRole, error) {
+func (c *Roles) putService(channelId, roleId string, dto *roleDto) (*model.ChannelRole, error) {
 	role := &model.ChannelRole{}
-	err := services.Gorm.
+	err := c.services.Gorm.
 		Where(`"channelId" = ? AND "id" = ?`, channelId, roleId).
 		First(&role).Error
 	if err != nil {
@@ -50,25 +49,25 @@ func updateRoleService(channelId, roleId string, dto *roleDto, services *types.S
 	role.Name = dto.Name
 	role.Permissions = dto.Permissions
 
-	err = services.Gorm.Save(&role).Error
+	err = c.services.Gorm.Save(&role).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	newRole := getRole(roleId, services)
+	newRole := c.getById(roleId)
 
 	return newRole, nil
 }
 
-func deleteRoleService(channelId, roleId string, services *types.Services) error {
+func (c *Roles) deleteService(channelId, roleId string) error {
 	role := &model.ChannelRole{}
-	err := services.Gorm.
+	err := c.services.Gorm.
 		Where(`"channelId" = ? AND "id" = ?`, channelId, roleId).
 		First(&role).Error
 	if err != nil {
@@ -79,16 +78,16 @@ func deleteRoleService(channelId, roleId string, services *types.Services) error
 		return fiber.NewError(http.StatusForbidden, "System role can't be deleted")
 	}
 
-	err = services.Gorm.Delete(&role).Error
+	err = c.services.Gorm.Delete(&role).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	return nil
 }
 
-func createRoleService(channelId string, dto *roleDto, services *types.Services) (*model.ChannelRole, error) {
+func (c *Roles) postService(channelId string, dto *roleDto) (*model.ChannelRole, error) {
 	role := &model.ChannelRole{
 		ID:          uuid.NewV4().String(),
 		ChannelID:   channelId,
@@ -97,12 +96,12 @@ func createRoleService(channelId string, dto *roleDto, services *types.Services)
 		Permissions: dto.Permissions,
 	}
 
-	err := services.Gorm.Create(&role).Error
+	err := c.services.Gorm.Create(&role).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	newRole := getRole(role.ID, services)
+	newRole := c.getById(role.ID)
 	return newRole, nil
 }

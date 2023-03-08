@@ -6,12 +6,18 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group("moderation")
-	middleware.Get("", get(services))
-	middleware.Post("", post(services))
+type Moderation struct {
+	services *types.Services
+}
 
-	return middleware
+func NewModeration(router fiber.Router, services *types.Services) fiber.Router {
+	moderation := &Moderation{
+		services: services,
+	}
+
+	return router.Group("moderation").
+		Get("", moderation.get).
+		Post("", moderation.post)
 }
 
 // Moderation godoc
@@ -24,15 +30,13 @@ func Setup(router fiber.Router, services *types.Services) fiber.Router {
 // @Success      200  {array}  model.ChannelsModerationSettings
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/moderation [get]
-func get(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		settings, err := handleGet(c.Params("channelId"), services)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(settings)
+func (c *Moderation) get(ctx *fiber.Ctx) error {
+	settings, err := c.getService(ctx.Params("channelId"))
+	if err != nil {
+		return err
 	}
+
+	return ctx.JSON(settings)
 }
 
 // Moderation godoc
@@ -47,23 +51,21 @@ func get(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/moderation [post]
-func post(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := moderationDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			&dto,
-		)
-		if err != nil {
-			return err
-		}
-		settings, err := handleUpdate(c.Params("channelId"), &dto, services)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(settings)
+func (c *Moderation) post(ctx *fiber.Ctx) error {
+	dto := &moderationDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+	settings, err := c.postService(ctx.Params("channelId"), dto)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(settings)
 }
