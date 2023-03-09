@@ -9,7 +9,7 @@ type Rewards struct {
 	services *types.Services
 }
 
-func NewRewards(router fiber.Router, services *types.Services) fiber.Router {
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
 	rewards := &Rewards{
 		services: services,
 	}

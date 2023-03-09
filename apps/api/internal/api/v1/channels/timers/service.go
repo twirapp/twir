@@ -7,12 +7,10 @@ import (
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/timers"
-
-	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func handleGet(channelId string, services *types.Services) []model.ChannelsTimers {
-	timers, err := services.TimersService.FindManyByChannelId(channelId)
+func (c *Timers) getService(channelId string) []model.ChannelsTimers {
+	timers, err := c.services.TimersService.FindManyByChannelId(channelId)
 	if err != nil {
 		return nil
 	}
@@ -20,10 +18,9 @@ func handleGet(channelId string, services *types.Services) []model.ChannelsTimer
 	return timers
 }
 
-func handlePost(
+func (c *Timers) postService(
 	channelId string,
 	dto *timerDto,
-	services *types.Services,
 ) (*model.ChannelsTimers, error) {
 	responses := lo.Map(dto.Responses, func(r responseDto, _ int) model.ChannelsTimersResponses {
 		return model.ChannelsTimersResponses{
@@ -32,7 +29,7 @@ func handlePost(
 		}
 	})
 
-	timer, err := services.TimersService.Create(model.ChannelsTimers{
+	timer, err := c.services.TimersService.Create(model.ChannelsTimers{
 		ChannelID:                channelId,
 		Name:                     dto.Name,
 		Enabled:                  *dto.Enabled,
@@ -44,30 +41,29 @@ func handlePost(
 		return nil, err
 	}
 
-	services.Grpc.Timers.AddTimerToQueue(context.Background(), &timers.Request{
+	c.services.Grpc.Timers.AddTimerToQueue(context.Background(), &timers.Request{
 		TimerId: timer.ID,
 	})
 
 	return timer, nil
 }
 
-func handleDelete(timerId string, services *types.Services) error {
-	err := services.TimersService.Delete(timerId)
+func (c *Timers) deleteService(timerId string) error {
+	err := c.services.TimersService.Delete(timerId)
 	if err != nil {
 		return err
 	}
 
-	services.Grpc.Timers.RemoveTimerFromQueue(context.Background(), &timers.Request{
+	c.services.Grpc.Timers.RemoveTimerFromQueue(context.Background(), &timers.Request{
 		TimerId: timerId,
 	})
 
 	return nil
 }
 
-func handlePut(
+func (c *Timers) putService(
 	timerId string,
 	dto *timerDto,
-	services *types.Services,
 ) (*model.ChannelsTimers, error) {
 	responses := lo.Map(dto.Responses, func(r responseDto, _ int) model.ChannelsTimersResponses {
 		return model.ChannelsTimersResponses{
@@ -76,7 +72,7 @@ func handlePut(
 		}
 	})
 
-	timer, err := services.TimersService.Update(
+	timer, err := c.services.TimersService.Update(
 		timerId,
 		model.ChannelsTimers{
 			Name:            dto.Name,
@@ -91,11 +87,11 @@ func handlePut(
 	}
 
 	if timer.Enabled {
-		services.Grpc.Timers.AddTimerToQueue(context.Background(), &timers.Request{
+		c.services.Grpc.Timers.AddTimerToQueue(context.Background(), &timers.Request{
 			TimerId: timer.ID,
 		})
 	} else {
-		services.Grpc.Timers.RemoveTimerFromQueue(context.Background(), &timers.Request{
+		c.services.Grpc.Timers.RemoveTimerFromQueue(context.Background(), &timers.Request{
 			TimerId: timer.ID,
 		})
 	}
@@ -103,22 +99,21 @@ func handlePut(
 	return timer, nil
 }
 
-func handlePatch(
+func (c *Timers) patchService(
 	timerId string,
 	dto *timerPatchDto,
-	services *types.Services,
 ) (*model.ChannelsTimers, error) {
-	updatedTimer, err := services.TimersService.SetEnabled(timerId, *dto.Enabled)
+	updatedTimer, err := c.services.TimersService.SetEnabled(timerId, *dto.Enabled)
 	if err != nil {
 		return nil, err
 	}
 
 	if updatedTimer.Enabled {
-		services.Grpc.Timers.AddTimerToQueue(context.Background(), &timers.Request{
+		c.services.Grpc.Timers.AddTimerToQueue(context.Background(), &timers.Request{
 			TimerId: timerId,
 		})
 	} else {
-		services.Grpc.Timers.RemoveTimerFromQueue(context.Background(), &timers.Request{
+		c.services.Grpc.Timers.RemoveTimerFromQueue(context.Background(), &timers.Request{
 			TimerId: timerId,
 		})
 	}

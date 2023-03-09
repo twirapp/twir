@@ -10,7 +10,7 @@ type Events struct {
 	services *types.Services
 }
 
-func NewEvents(router fiber.Router, services *types.Services) fiber.Router {
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
 	events := &Events{
 		services: services,
 	}

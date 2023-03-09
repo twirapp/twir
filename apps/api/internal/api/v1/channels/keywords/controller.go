@@ -10,7 +10,7 @@ type Keywords struct {
 	services *types.Services
 }
 
-func NewKeywords(router fiber.Router, services *types.Services) fiber.Router {
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
 	keywords := &Keywords{
 		services: services,
 	}

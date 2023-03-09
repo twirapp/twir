@@ -6,13 +6,12 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	"gorm.io/gorm"
 )
 
-func handleGet(channelId string, services *types.Services) (*model.ChannelsStreams, error) {
+func (c *Streams) getService(channelId string) (*model.ChannelsStreams, error) {
 	stream := model.ChannelsStreams{}
-	err := services.Gorm.Where(`"userId" = ?`, channelId).First(&stream).Error
+	err := c.services.Gorm.Where(`"userId" = ?`, channelId).First(&stream).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}

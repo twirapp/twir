@@ -20,7 +20,7 @@ type Bot struct {
 	router   fiber.Router
 }
 
-func NewBot(router fiber.Router, services *types.Services) fiber.Router {
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
 	bot := &Bot{
 		services: services,
 		router:   router,

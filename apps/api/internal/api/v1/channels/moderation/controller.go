@@ -10,7 +10,7 @@ type Moderation struct {
 	services *types.Services
 }
 
-func NewModeration(router fiber.Router, services *types.Services) fiber.Router {
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
 	moderation := &Moderation{
 		services: services,
 	}

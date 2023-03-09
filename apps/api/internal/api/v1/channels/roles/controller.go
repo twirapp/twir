@@ -11,7 +11,7 @@ type Roles struct {
 	services *types.Services
 }
 
-func NewRoles(router fiber.Router, services *types.Services) fiber.Router {
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
 	roles := Roles{services: services}
 
 	middleware := router.Group("/roles")

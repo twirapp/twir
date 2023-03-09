@@ -10,7 +10,7 @@ type Greetings struct {
 	services *types.Services
 }
 
-func NewGreetings(router fiber.Router, services *types.Services) fiber.Router {
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
 	greetings := &Greetings{
 		services: services,
 	}

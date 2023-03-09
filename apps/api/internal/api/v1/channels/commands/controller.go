@@ -12,7 +12,7 @@ type Commands struct {
 	router   fiber.Router
 }
 
-func NewCommands(router fiber.Router, services *types.Services) fiber.Router {
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
 	commands := &Commands{
 		services: services,
 		router:   router,

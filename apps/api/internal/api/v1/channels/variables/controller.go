@@ -6,15 +6,19 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group("variables")
-	middleware.Get("", get(services))
-	middleware.Post("", post(services))
-	middleware.Delete(":variableId", delete(services))
-	middleware.Put(":variableId", put(services))
-	middleware.Get("builtin", getBuiltIn(services))
+type Variables struct {
+	services *types.Services
+}
 
-	return middleware
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
+	variables := &Variables{}
+
+	return router.Group("variables").
+		Get("", variables.get).
+		Post("", variables.post).
+		Delete(":variableId", variables.delete).
+		Put(":variableId", variables.put).
+		Get("builtin", variables.builtIn)
 }
 
 // Variables godoc
@@ -27,14 +31,12 @@ func Setup(router fiber.Router, services *types.Services) fiber.Router {
 // @Success      200  {array}  model.ChannelsCustomvars
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/variables [get]
-func get(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		variables, err := handleGet(c.Params("channelId"), services)
-		if err != nil {
-			return err
-		}
-		return c.JSON(variables)
+func (c *Variables) get(ctx *fiber.Ctx) error {
+	variables, err := c.getService(ctx.Params("channelId"))
+	if err != nil {
+		return err
 	}
+	return ctx.JSON(variables)
 }
 
 // Variables godoc
@@ -47,15 +49,13 @@ func get(services *types.Services) func(c *fiber.Ctx) error {
 // @Success      200  {array}  parser.GetVariablesResponse_Variable
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/variables/builtin [get]
-func getBuiltIn(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		variables, err := handleGetBuiltIn(services)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(variables)
+func (c *Variables) builtIn(ctx *fiber.Ctx) error {
+	variables, err := c.builtInService()
+	if err != nil {
+		return err
 	}
+
+	return ctx.JSON(variables)
 }
 
 // Variables godoc
@@ -70,26 +70,24 @@ func getBuiltIn(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/variables [post]
-func post(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := &variableDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		variable, err := handlePost(c.Params("channelId"), dto, services)
-		if err == nil {
-			return c.JSON(variable)
-		}
-
+func (c *Variables) post(ctx *fiber.Ctx) error {
+	dto := &variableDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
 		return err
 	}
+
+	variable, err := c.postService(ctx.Params("channelId"), dto)
+	if err == nil {
+		return ctx.JSON(variable)
+	}
+
+	return err
 }
 
 // Variables godoc
@@ -105,14 +103,12 @@ func post(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/variables/{variableId} [delete]
-func delete(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		err := handleDelete(c.Params("channelId"), c.Params("variableId"), services)
-		if err != nil {
-			return err
-		}
-		return c.SendStatus(200)
+func (c *Variables) delete(ctx *fiber.Ctx) error {
+	err := c.deleteService(ctx.Params("channelId"), ctx.Params("variableId"))
+	if err != nil {
+		return err
 	}
+	return ctx.SendStatus(200)
 }
 
 // Variables godoc
@@ -129,24 +125,22 @@ func delete(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/variables/{variableId} [put]
-func put(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := &variableDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		variable, err := handleUpdate(c.Params("channelId"), c.Params("variableId"), dto, services)
-		if err == nil {
-			return c.JSON(variable)
-		}
-
+func (c *Variables) put(ctx *fiber.Ctx) error {
+	dto := &variableDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
 		return err
 	}
+
+	variable, err := c.putService(ctx.Params("channelId"), ctx.Params("variableId"), dto)
+	if err == nil {
+		return ctx.JSON(variable)
+	}
+
+	return err
 }

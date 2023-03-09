@@ -9,11 +9,13 @@ type Streams struct {
 	services *types.Services
 }
 
-func NewStreams(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group("streams")
-	middleware.Get("", get(services))
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
+	streams := &Streams{
+		services: services,
+	}
 
-	return middleware
+	return router.Group("streams").
+		Get("", streams.get)
 }
 
 // Streams godoc
@@ -25,12 +27,10 @@ func NewStreams(router fiber.Router, services *types.Services) fiber.Router {
 // @Success      200  {object}  model.ChannelsStreams
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/streams [get]
-func get(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		stream, err := handleGet(c.Params("channelId"), services)
-		if err != nil {
-			return err
-		}
-		return c.JSON(stream)
+func (c *Streams) get(ctx *fiber.Ctx) error {
+	stream, err := c.getService(ctx.Params("channelId"))
+	if err != nil {
+		return err
 	}
+	return ctx.JSON(stream)
 }
