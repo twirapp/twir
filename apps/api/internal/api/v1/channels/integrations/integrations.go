@@ -8,6 +8,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/channels/integrations/faceit"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/channels/integrations/lastfm"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/channels/integrations/spotify"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/channels/integrations/streamlabs"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
@@ -20,6 +21,7 @@ func NewController(router fiber.Router, services *types.Services) fiber.Router {
 	faceit.NewController(route, services)
 	lastfm.NewController(route, services)
 	spotify.NewController(route, services)
+	streamlabs.NewController(route, services)
 
 	return route
 }

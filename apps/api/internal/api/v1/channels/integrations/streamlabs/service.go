@@ -3,6 +3,7 @@ package streamlabs
 import (
 	"context"
 	"fmt"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/channels/integrations/helpers"
 	"net/http"
 	"net/url"
 
@@ -13,15 +14,13 @@ import (
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
-func handleGetAuth(services *types.Services) (*string, error) {
+func (c *StreamLabs) getAuthLinkService() (*string, error) {
 	integration := model.Integrations{}
-	err := services.Gorm.Where(`"service" = ?`, "STREAMLABS").First(&integration).Error
+	err := c.services.Gorm.Where(`"service" = ?`, "STREAMLABS").First(&integration).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(
 			404,
@@ -29,24 +28,24 @@ func handleGetAuth(services *types.Services) (*string, error) {
 		)
 	}
 
-	url, _ := url.Parse("https://www.streamlabs.com/api/v1.0/authorize")
+	parsedUrl, _ := url.Parse("https://www.streamlabs.com/api/v1.0/authorize")
 
-	q := url.Query()
+	q := parsedUrl.Query()
 	q.Add("response_type", "code")
 	q.Add("client_id", integration.ClientID.String)
 	q.Add("scope", "socket.token donations.read")
 	q.Add("redirect_uri", integration.RedirectURL.String)
-	url.RawQuery = q.Encode()
+	parsedUrl.RawQuery = q.Encode()
 
-	str := url.String()
+	str := parsedUrl.String()
 
 	return &str, nil
 }
 
-func handleGet(channelId string, services *types.Services) (*model.ChannelsIntegrationsData, error) {
-	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.Gorm)
+func (c *StreamLabs) getService(channelId string) (*model.ChannelsIntegrationsData, error) {
+	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, nil
 	}
 
@@ -72,20 +71,20 @@ type profileResponse struct {
 	} `json:"streamlabs"`
 }
 
-func handlePost(channelId string, dto *tokenDto, services *types.Services) error {
-	channelIntegration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.Gorm)
+func (c *StreamLabs) postService(channelId string, dto *tokenDto) error {
+	channelIntegration, err := helpers.GetIntegration(channelId, "STREAMLABS", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return err
 	}
 
 	neededIntegration := model.Integrations{}
-	err = services.Gorm.
+	err = c.services.Gorm.
 		Where("service = ?", "STREAMLABS").
 		First(&neededIntegration).
 		Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(
 			http.StatusInternalServerError,
 			"seems like streamlabs not enabled on our side",
@@ -114,7 +113,7 @@ func handlePost(channelId string, dto *tokenDto, services *types.Services) error
 		SetContentType("application/x-www-form-urlencoded").
 		Post("https://streamlabs.com/api/v1.0/token")
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get tokens")
 	}
 	if !resp.IsSuccess() {
@@ -127,7 +126,7 @@ func handlePost(channelId string, dto *tokenDto, services *types.Services) error
 		Get(fmt.Sprintf("https://streamlabs.com/api/v1.0/user?access_token=%s", data.AccessToken))
 
 	if err != nil || !profileResp.IsSuccess() {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get profile")
 	}
 
@@ -139,15 +138,15 @@ func handlePost(channelId string, dto *tokenDto, services *types.Services) error
 		Avatar: lo.ToPtr(profile.StreamLabs.ThumbNail),
 	}
 
-	err = services.Gorm.
+	err = c.services.Gorm.
 		Save(channelIntegration).Error
 
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
-	sendGrpcEvent(channelIntegration.ID, channelIntegration.Enabled, services.Grpc.Integrations)
+	sendGrpcEvent(channelIntegration.ID, channelIntegration.Enabled, c.services.Grpc.Integrations)
 
 	return nil
 }
@@ -164,19 +163,19 @@ func sendGrpcEvent(integrationId string, isAdd bool, grpc integrations.Integrati
 	}
 }
 
-func handleLogout(channelId string, services *types.Services) error {
-	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.Gorm)
+func (c *StreamLabs) logoutService(channelId string) error {
+	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return err
 	}
 	if integration == nil {
 		return fiber.NewError(http.StatusNotFound, "integration not found")
 	}
 
-	err = services.Gorm.Delete(&integration).Error
+	err = c.services.Gorm.Delete(&integration).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
