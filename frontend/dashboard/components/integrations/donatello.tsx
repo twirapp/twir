@@ -1,4 +1,4 @@
-import { ActionIcon, Anchor, Button, Flex, PasswordInput, TextInput, Tooltip } from '@mantine/core';
+import { ActionIcon, Anchor, Button, Flex, Grid, PasswordInput, TextInput, Tooltip } from '@mantine/core';
 import { IconDeviceFloppy, IconLink } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 import { useEffect, useState } from 'react';
@@ -37,18 +37,24 @@ export const DonatelloIntegration: React.FC = () => {
         </Flex>
       }
     >
-      <PasswordInput
-        label="Api key"
-        value={key}
-        onChange={(v) => setKey(v.currentTarget.value)}
-        rightSection={<Tooltip label="Get api key" color="violet" withArrow>
-          <Anchor href={'https://donatello.to/panel/doc-api'} target={'_blank'}>
-            <ActionIcon>
-              <IconLink/>
-            </ActionIcon>
-          </Anchor>
-        </Tooltip>}
-      />
+      <Grid align="flex-end">
+        <Grid.Col span={9} >
+          <PasswordInput
+            label="Api key"
+            value={key}
+            onChange={(v) => setKey(v.currentTarget.value)}
+          />
+        </Grid.Col>
+        <Grid.Col span={'auto'}>
+          <Button
+            variant={'light'}
+            component={'a'}
+            href={'https://donatello.to/panel/doc-api'}
+            target={'_blank'}>
+            Get Api Key
+          </Button>
+        </Grid.Col>
+      </Grid>
     </IntegrationCard>
   );
 };

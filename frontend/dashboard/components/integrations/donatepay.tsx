@@ -10,6 +10,7 @@ import {
   ActionIcon,
   Anchor,
   PasswordInput,
+  Grid,
 } from '@mantine/core';
 import { IconLogout, IconLogin, IconLink, IconDeviceFloppy } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
@@ -49,18 +50,25 @@ export const DonatePayIntegration: React.FC = () => {
         </Flex>
       }
     >
-      <PasswordInput
-        label='Api key'
-        value={key}
-        onChange={(v) => setKey(v.currentTarget.value)}
-        rightSection={<Tooltip label="Get api key" color="violet" withArrow>
-          <Anchor href={'https://donatepay.ru/page/api'} target={'_blank'}>
-            <ActionIcon>
-              <IconLink />
-            </ActionIcon>
-          </Anchor>
-        </Tooltip>}
-      />
+      <Grid align="flex-end" gutter="xs" justify={'space-beetwen'}>
+        <Grid.Col span={9}>
+          <PasswordInput
+            label='Api key'
+            value={key}
+            onChange={(v) => setKey(v.currentTarget.value)}
+          />
+        </Grid.Col>
+
+        <Grid.Col span={'auto'}>
+          <Button
+            variant={'light'}
+            component={'a'}
+            href={'https://donatepay.ru/page/api'}
+            target={'_blank'}>
+            Get Api Key
+          </Button>
+        </Grid.Col>
+      </Grid>
     </IntegrationCard>
   );
 };
