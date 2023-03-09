@@ -5,7 +5,11 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
+type Streams struct {
+	services *types.Services
+}
+
+func NewStreams(router fiber.Router, services *types.Services) fiber.Router {
 	middleware := router.Group("streams")
 	middleware.Get("", get(services))
 
