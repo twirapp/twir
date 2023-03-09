@@ -49,18 +49,18 @@ func (c *BotClient) SayWithRateLimiting(channel, text string, replyTo *string) {
 		return
 	}
 
-	text = validateResponseSlashes(text)
-
 	text = strings.ReplaceAll(text, "\n", " ")
 
 	parts := splitTextByLength(text)
 
 	if replyTo != nil {
 		for _, part := range parts {
+			text = validateResponseSlashes(text)
 			c.Reply(channel, *replyTo, part)
 		}
 	} else {
 		for _, part := range parts {
+			text = validateResponseSlashes(text)
 			c.Say(channel, part)
 		}
 	}
