@@ -130,10 +130,6 @@ func checkUser(
 				return err
 			}
 			user.Channel = &channel
-			err = createRolesAndCommand(tx, userId)
-			if err != nil {
-				return err
-			}
 
 			return nil
 		})
@@ -171,12 +167,11 @@ func checkUser(
 		}
 	}
 
-	//schedulerGrpc.CreateDefaultCommands(
-	//	context.Background(),
-	//	&scheduler.CreateDefaultCommandsRequest{
-	//		UserId: userId,
-	//	},
-	//)
+	err = createRolesAndCommand(services.DB, userId)
+	if err != nil {
+		return err
+	}
+
 	eventSubGrpc.SubscribeToEvents(
 		context.Background(),
 		&eventsub.SubscribeToEventsRequest{
