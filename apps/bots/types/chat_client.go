@@ -3,6 +3,7 @@ package types
 import (
 	"strings"
 	"sync"
+	"unicode/utf8"
 
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	irc "github.com/gempir/go-twitch-irc/v3"
@@ -52,10 +53,16 @@ func (c *BotClient) SayWithRateLimiting(channel, text string, replyTo *string) {
 
 	text = strings.ReplaceAll(text, "\n", " ")
 
+	parts := splitTextByLength(text)
+
 	if replyTo != nil {
-		c.Reply(channel, *replyTo, text)
+		for _, part := range parts {
+			c.Reply(channel, *replyTo, part)
+		}
 	} else {
-		c.Say(channel, text)
+		for _, part := range parts {
+			c.Say(channel, part)
+		}
 	}
 }
 
@@ -69,4 +76,23 @@ func validateResponseSlashes(response string) string {
 	} else {
 		return response
 	}
+}
+
+func splitTextByLength(text string) []string {
+	var parts []string
+	for len(text) > 0 {
+		if len(text) < 500 {
+			parts = append(parts, text)
+			break
+		}
+		// Find the last complete UTF-8 character within the next 500 bytes
+		i := 500
+		for !utf8.ValidString(text[:i]) {
+			i--
+		}
+		parts = append(parts, text[:i])
+		text = text[i:]
+	}
+
+	return parts
 }
