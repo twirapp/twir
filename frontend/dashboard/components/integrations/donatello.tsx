@@ -1,4 +1,4 @@
-import { ActionIcon, Anchor, Button, Flex, TextInput, Tooltip } from '@mantine/core';
+import { ActionIcon, Anchor, Button, Flex, PasswordInput, TextInput, Tooltip } from '@mantine/core';
 import { IconDeviceFloppy, IconLink } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 import { useEffect, useState } from 'react';
@@ -37,7 +37,7 @@ export const DonatelloIntegration: React.FC = () => {
         </Flex>
       }
     >
-      <TextInput
+      <PasswordInput
         label="Api key"
         value={key}
         onChange={(v) => setKey(v.currentTarget.value)}

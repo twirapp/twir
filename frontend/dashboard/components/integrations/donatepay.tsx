@@ -1,4 +1,16 @@
-import { Group, Avatar, Text, Flex, Button, Alert, TextInput, Tooltip, ActionIcon, Anchor } from '@mantine/core';
+import {
+  Group,
+  Avatar,
+  Text,
+  Flex,
+  Button,
+  Alert,
+  TextInput,
+  Tooltip,
+  ActionIcon,
+  Anchor,
+  PasswordInput,
+} from '@mantine/core';
 import { IconLogout, IconLogin, IconLink, IconDeviceFloppy } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 import { useEffect, useState } from 'react';
@@ -37,7 +49,7 @@ export const DonatePayIntegration: React.FC = () => {
         </Flex>
       }
     >
-      <TextInput
+      <PasswordInput
         label='Api key'
         value={key}
         onChange={(v) => setKey(v.currentTarget.value)}
