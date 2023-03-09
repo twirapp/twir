@@ -2,6 +2,7 @@ package donationalerts
 
 import (
 	"context"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/channels/integrations/helpers"
 	"net/http"
 	"net/url"
 
@@ -11,15 +12,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
-func handleGetAuth(services *types.Services) (*string, error) {
+func (c *DonationAlerts) getAuthService() (*string, error) {
 	integration := model.Integrations{}
-	err := services.Gorm.Where(`"service" = ?`, "DONATIONALERTS").First(&integration).Error
+	err := c.services.Gorm.Where(`"service" = ?`, "DONATIONALERTS").First(&integration).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(
 			404,
@@ -41,10 +40,10 @@ func handleGetAuth(services *types.Services) (*string, error) {
 	return &str, nil
 }
 
-func handleGet(channelId string, services *types.Services) (*model.ChannelsIntegrationsData, error) {
-	integration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", services.Gorm)
+func (c *DonationAlerts) getService(channelId string) (*model.ChannelsIntegrationsData, error) {
+	integration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, nil
 	}
 
@@ -70,20 +69,20 @@ type profileResponse struct {
 	} `json:"data"`
 }
 
-func handlePost(channelId string, dto *tokenDto, services *types.Services) error {
-	channelIntegration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", services.Gorm)
+func (c *DonationAlerts) postService(channelId string, dto *tokenDto) error {
+	channelIntegration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return err
 	}
 
 	neededIntegration := model.Integrations{}
-	err = services.Gorm.
+	err = c.services.Gorm.
 		Where("service = ?", "DONATIONALERTS").
 		First(&neededIntegration).
 		Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(
 			http.StatusInternalServerError,
 			"seems like donationalerts not enabled on our side",
@@ -112,7 +111,7 @@ func handlePost(channelId string, dto *tokenDto, services *types.Services) error
 		SetContentType("application/x-www-form-urlencoded").
 		Post("https://www.donationalerts.com/oauth/token")
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get tokens")
 	}
 	if !resp.IsSuccess() {
@@ -126,7 +125,7 @@ func handlePost(channelId string, dto *tokenDto, services *types.Services) error
 		Get("https://www.donationalerts.com/api/v1/user/oauth")
 
 	if err != nil || !profileResp.IsSuccess() {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot get profile")
 	}
 
@@ -148,14 +147,14 @@ func handlePost(channelId string, dto *tokenDto, services *types.Services) error
 	channelIntegration.AccessToken = null.StringFrom(data.AccessToken)
 	channelIntegration.RefreshToken = null.StringFrom(data.RefreshToken)
 
-	err = services.Gorm.Save(channelIntegration).Error
+	err = c.services.Gorm.Save(channelIntegration).Error
 
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
-	sendGrpcEvent(channelIntegration.ID, channelIntegration.Enabled, services.Grpc.Integrations)
+	sendGrpcEvent(channelIntegration.ID, channelIntegration.Enabled, c.services.Grpc.Integrations)
 
 	return nil
 }
@@ -172,19 +171,19 @@ func sendGrpcEvent(integrationId string, isAdd bool, grpc integrations.Integrati
 	}
 }
 
-func handleLogout(channelId string, services *types.Services) error {
-	integration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", services.Gorm)
+func (c *DonationAlerts) logoutService(channelId string) error {
+	integration, err := helpers.GetIntegration(channelId, "DONATIONALERTS", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return err
 	}
 	if integration == nil {
 		return fiber.NewError(http.StatusNotFound, "integration not found")
 	}
 
-	err = services.Gorm.Delete(&integration).Error
+	err = c.services.Gorm.Delete(&integration).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 

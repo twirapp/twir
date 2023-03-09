@@ -2,6 +2,7 @@ package lastfm
 
 import (
 	"fmt"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/channels/integrations/helpers"
 	"net/http"
 
 	"gorm.io/gorm"
@@ -10,8 +11,6 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 	lfm "github.com/shkh/lastfm-go/lastfm"
 )
@@ -21,23 +20,21 @@ type Lastfm struct {
 	Data map[string]any `json:"data"`
 }
 
-func handlePost(channelId string, dto *lastfmDto, services *types.Services) error {
-
-
-	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.Gorm)
+func (c *LastFM) postService(channelId string, dto *lastfmDto) error {
+	integration, err := helpers.GetIntegration(channelId, "LASTFM", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return err
 	}
 
 	if integration == nil {
 		neededIntegration := model.Integrations{}
-		err = services.Gorm.
+		err = c.services.Gorm.
 			Where("service = ?", "LASTFM").
 			First(&neededIntegration).
 			Error
 		if err != nil {
-			services.Logger.Error(err)
+			c.services.Logger.Error(err)
 			return fiber.NewError(
 				http.StatusInternalServerError,
 				"seems like lastfm not enabled on our side",
@@ -63,18 +60,18 @@ func handlePost(channelId string, dto *lastfmDto, services *types.Services) erro
 
 	integration.APIKey = null.StringFrom(sessionKey)
 
-	if err = services.Gorm.Save(integration).Error; err != nil {
-		services.Logger.Error(err)
+	if err = c.services.Gorm.Save(integration).Error; err != nil {
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update faceit data")
 	}
 
 	return nil
 }
 
-func handleAuth(services *types.Services) (string, error) {
+func (c *LastFM) authService() (string, error) {
 	// http://www.last.fm/api/auth/?api_key=xxx&cb=http://example.com
 	neededIntegration := model.Integrations{}
-	err := services.Gorm.
+	err := c.services.Gorm.
 		Where("service = ?", "LASTFM").
 		First(&neededIntegration).
 		Error
@@ -92,10 +89,10 @@ func handleAuth(services *types.Services) (string, error) {
 	), nil
 }
 
-func handleProfile(channelId string, services *types.Services) (*LastfmProfile, error) {
-	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.Gorm)
+func (c *LastFM) getService(channelId string) (*LastfmProfile, error) {
+	integration, err := helpers.GetIntegration(channelId, "LASTFM", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, err
 	}
 
@@ -113,7 +110,7 @@ func handleProfile(channelId string, services *types.Services) (*LastfmProfile, 
 	}
 	info, err := api.User.GetInfo(make(map[string]interface{}))
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
@@ -124,19 +121,19 @@ func handleProfile(channelId string, services *types.Services) (*LastfmProfile, 
 	}, nil
 }
 
-func handleLogout(channelId string, services *types.Services) error {
-	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.Gorm)
+func (c *LastFM) logoutService(channelId string) error {
+	integration, err := helpers.GetIntegration(channelId, "LASTFM", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return err
 	}
 	if integration == nil {
 		return fiber.NewError(http.StatusNotFound, "integration not found")
 	}
 
-	err = services.Gorm.Delete(&integration).Error
+	err = c.services.Gorm.Delete(&integration).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 

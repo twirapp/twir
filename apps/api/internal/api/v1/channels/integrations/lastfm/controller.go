@@ -10,23 +10,31 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group("lastfm")
-	middleware.Get("auth", auth(services))
-	middleware.Post("", post(services))
-	middleware.Post("logout", logout(services))
+type LastFM struct {
+	services *types.Services
+}
 
-	profileCache := cache.New(cache.Config{
-		Expiration: 31 * 24 * time.Hour,
-		Storage:    services.RedisStorage,
-		KeyGenerator: func(c *fiber.Ctx) string {
-			return fmt.Sprintf("fiber:cache:integrations:lastfm:profile:%s", c.Params("channelId"))
-		},
-	})
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
+	lastFm := &LastFM{
+		services,
+	}
 
-	middleware.Get("", profileCache, get(services))
+	return router.Group("lastfm").
+		Get("auth", lastFm.auth).
+		Post("", lastFm.post).
+		Post("logout", lastFm.logout).
+		Get(
+			"",
+			cache.New(cache.Config{
+				Expiration: 31 * 24 * time.Hour,
+				Storage:    services.RedisStorage,
+				KeyGenerator: func(c *fiber.Ctx) string {
+					return fmt.Sprintf("fiber:cache:integrations:lastfm:profile:%s", c.Params("channelId"))
+				},
+			}),
+			lastFm.get,
+		)
 
-	return middleware
 }
 
 // Integrations godoc
@@ -39,14 +47,12 @@ func Setup(router fiber.Router, services *types.Services) fiber.Router {
 // @Success      200  {array}  LastfmProfile
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/lastfm [get]
-func get(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		integration, err := handleProfile(c.Params("channelId"), services)
-		if err != nil {
-			return err
-		}
-		return c.JSON(integration)
+func (c *LastFM) get(ctx *fiber.Ctx) error {
+	integration, err := c.getService(ctx.Params("channelId"))
+	if err != nil {
+		return err
 	}
+	return ctx.JSON(integration)
 }
 
 // Integrations godoc
@@ -59,14 +65,12 @@ func get(services *types.Services) func(c *fiber.Ctx) error {
 // @Success      200  {string}  string
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/lastfm/auth [get]
-func auth(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		integration, err := handleAuth(services)
-		if err != nil {
-			return err
-		}
-		return c.JSON(integration)
+func (c *LastFM) auth(ctx *fiber.Ctx) error {
+	integration, err := c.authService()
+	if err != nil {
+		return err
 	}
+	return ctx.JSON(integration)
 }
 
 // Integrations godoc
@@ -81,33 +85,31 @@ func auth(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/lastfm [post]
-func post(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := &lastfmDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		channelId := c.Params("channelId")
-		err = handlePost(channelId, dto, services)
-
-		if err != nil {
-			return err
-		}
-
-		services.RedisStorage.DeleteByMethod(
-			fmt.Sprintf("fiber:cache:integrations:lastfm:profile:%s", channelId),
-			"GET",
-		)
-
-		return c.SendStatus(200)
+func (c *LastFM) post(ctx *fiber.Ctx) error {
+	dto := &lastfmDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+
+	channelId := ctx.Params("channelId")
+	err = c.postService(channelId, dto)
+
+	if err != nil {
+		return err
+	}
+
+	c.services.RedisStorage.DeleteByMethod(
+		fmt.Sprintf("fiber:cache:integrations:lastfm:profile:%s", channelId),
+		"GET",
+	)
+
+	return ctx.SendStatus(200)
 }
 
 // Integrations godoc
@@ -122,19 +124,17 @@ func post(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 404 {object} types.DOCApiBadRequest
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/lastfm/logout [post]
-func logout(services *types.Services) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		channelId := c.Params("channelId")
-		err := handleLogout(channelId, services)
-		if err != nil {
-			return err
-		}
-
-		services.RedisStorage.DeleteByMethod(
-			fmt.Sprintf("fiber:cache:integrations:lastfm:profile:%s", channelId),
-			"GET",
-		)
-
-		return c.SendStatus(200)
+func (c *LastFM) logout(ctx *fiber.Ctx) error {
+	channelId := ctx.Params("channelId")
+	err := c.logoutService(channelId)
+	if err != nil {
+		return err
 	}
+
+	c.services.RedisStorage.DeleteByMethod(
+		fmt.Sprintf("fiber:cache:integrations:lastfm:profile:%s", channelId),
+		"GET",
+	)
+
+	return ctx.SendStatus(200)
 }

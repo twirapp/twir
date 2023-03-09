@@ -6,14 +6,20 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group("donationalerts")
-	middleware.Get("auth", getAuth(services))
-	middleware.Get("", get(services))
-	middleware.Post("logout", logout(services))
-	middleware.Post("", post((services)))
+type DonationAlerts struct {
+	services *types.Services
+}
 
-	return middleware
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
+	donationAlerts := &DonationAlerts{
+		services,
+	}
+
+	return router.Group("donationalerts").
+		Get("auth", donationAlerts.getAuth).
+		Get("", donationAlerts.get).
+		Post("logout", donationAlerts.logout).
+		Post("", donationAlerts.post)
 }
 
 // Integrations godoc
@@ -26,14 +32,12 @@ func Setup(router fiber.Router, services *types.Services) fiber.Router {
 // @Success      200  {object}  model.ChannelsIntegrationsData
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/donationalerts [get]
-func get(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		integration, err := handleGet(c.Params("channelId"), services)
-		if err != nil {
-			return err
-		}
-		return c.JSON(integration)
+func (c *DonationAlerts) get(ctx *fiber.Ctx) error {
+	integration, err := c.getService(ctx.Params("channelId"))
+	if err != nil {
+		return err
 	}
+	return ctx.JSON(integration)
 }
 
 // Integrations godoc
@@ -46,15 +50,13 @@ func get(services *types.Services) func(c *fiber.Ctx) error {
 // @Success 200 {string} string	"Auth link"
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/donationalerts/auth [get]
-func getAuth(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		authLink, err := handleGetAuth(services)
-		if err != nil {
-			return err
-		}
-
-		return c.SendString(*authLink)
+func (c *DonationAlerts) getAuth(ctx *fiber.Ctx) error {
+	authLink, err := c.getAuthService()
+	if err != nil {
+		return err
 	}
+
+	return ctx.SendString(*authLink)
 }
 
 type tokenDto struct {
@@ -73,26 +75,24 @@ type tokenDto struct {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/donationalerts [post]
-func post(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := &tokenDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		err = handlePost(c.Params("channelId"), dto, services)
-		if err != nil {
-			return err
-		}
-
-		return c.SendStatus(200)
+func (c *DonationAlerts) post(ctx *fiber.Ctx) error {
+	dto := &tokenDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+
+	err = c.postService(ctx.Params("channelId"), dto)
+	if err != nil {
+		return err
+	}
+
+	return ctx.SendStatus(200)
 }
 
 // Integrations godoc
@@ -107,14 +107,12 @@ func post(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 404 {object} types.DOCApiBadRequest
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/donationalerts/logout [post]
-func logout(services *types.Services) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		channelId := c.Params("channelId")
-		err := handleLogout(channelId, services)
-		if err != nil {
-			return err
-		}
-
-		return c.SendStatus(200)
+func (c *DonationAlerts) logout(ctx *fiber.Ctx) error {
+	channelId := ctx.Params("channelId")
+	err := c.logoutService(channelId)
+	if err != nil {
+		return err
 	}
+
+	return ctx.SendStatus(200)
 }

@@ -6,14 +6,20 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group("faceit")
-	middleware.Get("", get(services))
-	middleware.Get("auth", getAuthLink(services))
-	middleware.Post("", post(services))
-	middleware.Post("logout", logout(services))
+type Faceit struct {
+	services *types.Services
+}
 
-	return middleware
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
+	faceit := &Faceit{
+		services,
+	}
+
+	return router.Group("faceit").
+		Get("", faceit.get).
+		Get("auth", faceit.getAuthLink).
+		Post("", faceit.post).
+		Post("logout", faceit.logout)
 }
 
 // Integrations godoc
@@ -26,15 +32,13 @@ func Setup(router fiber.Router, services *types.Services) fiber.Router {
 // @Success 200 {object} model.ChannelsIntegrationsData
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/faceit [get]
-func get(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		profile, err := handleGet(c.Params("channelId"), services)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(profile)
+func (c *Faceit) get(ctx *fiber.Ctx) error {
+	profile, err := c.getService(ctx.Params("channelId"))
+	if err != nil {
+		return err
 	}
+
+	return ctx.JSON(profile)
 }
 
 // Integrations godoc
@@ -47,15 +51,13 @@ func get(services *types.Services) func(c *fiber.Ctx) error {
 // @Success 200 {string} string	"Auth link"
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/faceit/auth [get]
-func getAuthLink(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		authLink, err := handleGetAuth(services)
-		if err != nil {
-			return err
-		}
-
-		return c.SendString(*authLink)
+func (c *Faceit) getAuthLink(ctx *fiber.Ctx) error {
+	authLink, err := c.getAuthLinkService()
+	if err != nil {
+		return err
 	}
+
+	return ctx.SendString(*authLink)
 }
 
 // Integrations godoc
@@ -70,27 +72,25 @@ func getAuthLink(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/faceit [post]
-func post(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := &tokenDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		channelId := c.Params("channelId")
-		err = handlePost(channelId, dto, services)
-		if err != nil {
-			return err
-		}
-
-		return c.SendStatus(200)
+func (c *Faceit) post(ctx *fiber.Ctx) error {
+	dto := &tokenDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+
+	channelId := ctx.Params("channelId")
+	err = c.postService(channelId, dto)
+	if err != nil {
+		return err
+	}
+
+	return ctx.SendStatus(200)
 }
 
 // Integrations godoc
@@ -105,14 +105,12 @@ func post(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 404 {object} types.DOCApiBadRequest
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/faceit/logout [post]
-func logout(services *types.Services) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		channelId := c.Params("channelId")
-		err := handleLogout(channelId, services)
-		if err != nil {
-			return err
-		}
-
-		return c.SendStatus(200)
+func (c *Faceit) logout(ctx *fiber.Ctx) error {
+	channelId := ctx.Params("channelId")
+	err := c.logoutService(channelId)
+	if err != nil {
+		return err
 	}
+
+	return ctx.SendStatus(200)
 }

@@ -3,6 +3,7 @@ package faceit
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/channels/integrations/helpers"
 	"io"
 	"net/http"
 	"net/url"
@@ -10,19 +11,17 @@ import (
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func handleGet(channelId string, services *types.Services) (*model.ChannelsIntegrationsData, error) {
-	integration, err := helpers.GetIntegration(channelId, "FACEIT", services.Gorm)
+func (c *Faceit) getService(channelId string) (*model.ChannelsIntegrationsData, error) {
+	integration, err := helpers.GetIntegration(channelId, "FACEIT", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, nil
 	}
 
@@ -33,9 +32,9 @@ func handleGet(channelId string, services *types.Services) (*model.ChannelsInteg
 	return integration.Data, nil
 }
 
-func handleGetAuth(services *types.Services) (*string, error) {
+func (c *Faceit) getAuthLinkService() (*string, error) {
 	integration := model.Integrations{}
-	err := services.Gorm.Where(`"service" = ?`, "FACEIT").First(&integration).Error
+	err := c.services.Gorm.Where(`"service" = ?`, "FACEIT").First(&integration).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(
 			404,
@@ -56,20 +55,20 @@ func handleGetAuth(services *types.Services) (*string, error) {
 	return &str, nil
 }
 
-func handlePost(channelId string, dto *tokenDto, services *types.Services) error {
-	channelIntegration, err := helpers.GetIntegration(channelId, "FACEIT", services.Gorm)
+func (c *Faceit) postService(channelId string, dto *tokenDto) error {
+	channelIntegration, err := helpers.GetIntegration(channelId, "FACEIT", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return err
 	}
 
 	neededIntegration := model.Integrations{}
-	err = services.Gorm.
+	err = c.services.Gorm.
 		Where("service = ?", "FACEIT").
 		First(&neededIntegration).
 		Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(
 			http.StatusInternalServerError,
 			"seems like faceit not enabled on our side",
@@ -158,27 +157,27 @@ func handlePost(channelId string, dto *tokenDto, services *types.Services) error
 
 	channelIntegration.Data = &integrationData
 
-	if err = services.Gorm.Save(channelIntegration).Error; err != nil {
-		services.Logger.Error(err)
+	if err = c.services.Gorm.Save(channelIntegration).Error; err != nil {
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
 	return nil
 }
 
-func handleLogout(channelId string, services *types.Services) error {
-	integration, err := helpers.GetIntegration(channelId, "FACEIT", services.Gorm)
+func (c *Faceit) logoutService(channelId string) error {
+	integration, err := helpers.GetIntegration(channelId, "FACEIT", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return err
 	}
 	if integration == nil {
 		return fiber.NewError(http.StatusNotFound, "integration not found")
 	}
 
-	err = services.Gorm.Delete(&integration).Error
+	err = c.services.Gorm.Delete(&integration).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 

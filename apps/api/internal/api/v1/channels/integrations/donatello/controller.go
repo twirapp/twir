@@ -6,12 +6,16 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group("donatello")
-	middleware.Get("", get(services))
-	middleware.Post("", post(services))
+type Donatello struct {
+	services *types.Services
+}
 
-	return middleware
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
+	donatello := &Donatello{services: services}
+
+	return router.Group("donatello").
+		Get("", donatello.get).
+		Post("", donatello.post)
 }
 
 // Integrations godoc
@@ -24,16 +28,13 @@ func Setup(router fiber.Router, services *types.Services) fiber.Router {
 // @Success      200  {string} string
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/donatepay [get]
-func get(services *types.Services) fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		data, err := handleGet(services, ctx.Params("channelId"))
-
-		if err != nil {
-			return err
-		}
-
-		return ctx.JSON(data)
+func (c *Donatello) get(ctx *fiber.Ctx) error {
+	data, err := c.getService(ctx.Params("channelId"))
+	if err != nil {
+		return err
 	}
+
+	return ctx.JSON(data)
 }
 
 // Integrations godoc
@@ -47,24 +48,22 @@ func get(services *types.Services) fiber.Handler {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/donatepay [post]
-func post(services *types.Services) fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		dto := &createOrUpdateDTO{}
-		err := middlewares.ValidateBody(
-			ctx,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		err = handlePost(services, ctx.Params("channelId"), dto)
-		if err != nil {
-			return err
-		}
-
-		return ctx.SendStatus(200)
+func (c *Donatello) post(ctx *fiber.Ctx) error {
+	dto := &createOrUpdateDTO{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+
+	err = c.postService(ctx.Params("channelId"), dto)
+	if err != nil {
+		return err
+	}
+
+	return ctx.SendStatus(200)
 }

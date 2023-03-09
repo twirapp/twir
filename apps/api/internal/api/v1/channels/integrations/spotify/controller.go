@@ -11,23 +11,29 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 )
 
-func Setup(router fiber.Router, services *types.Services) fiber.Router {
-	middleware := router.Group("spotify")
-	middleware.Get("auth", getAuth(services))
-	middleware.Post("", post((services)))
-	middleware.Post("logout", logout(services))
+type Spotify struct {
+	services *types.Services
+}
 
-	profileCache := cache.New(cache.Config{
-		Expiration: 31 * 24 * time.Hour,
-		Storage:    services.RedisStorage,
-		KeyGenerator: func(c *fiber.Ctx) string {
-			return fmt.Sprintf("fiber:cache:integrations:spotify:profile:%s", c.Params("channelId"))
-		},
-	})
+func NewController(router fiber.Router, services *types.Services) fiber.Router {
+	spotify := &Spotify{
+		services,
+	}
 
-	middleware.Get("", profileCache, getProfile((services)))
-
-	return middleware
+	return router.Group("spotify").
+		Get(
+			"", cache.New(cache.Config{
+				Expiration: 31 * 24 * time.Hour,
+				Storage:    services.RedisStorage,
+				KeyGenerator: func(c *fiber.Ctx) string {
+					return fmt.Sprintf("fiber:cache:integrations:spotify:profile:%s", c.Params("channelId"))
+				},
+			}),
+			spotify.get,
+		).
+		Get("auth", spotify.authLink).
+		Post("", spotify.post).
+		Post("logout", spotify.logout)
 }
 
 // Integrations godoc
@@ -40,14 +46,12 @@ func Setup(router fiber.Router, services *types.Services) fiber.Router {
 // @Success      200  {object}  spotify.SpotifyProfile
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/spotify [get]
-func getProfile(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		profile, err := handleGetProfile(c.Params("channelId"), services)
-		if err != nil {
-			return err
-		}
-		return c.JSON(profile)
+func (c *Spotify) get(ctx *fiber.Ctx) error {
+	profile, err := c.getService(ctx.Params("channelId"))
+	if err != nil {
+		return err
 	}
+	return ctx.JSON(profile)
 }
 
 // Integrations godoc
@@ -60,15 +64,13 @@ func getProfile(services *types.Services) func(c *fiber.Ctx) error {
 // @Success 200 {string} string	"Auth link"
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/spotify/auth [get]
-func getAuth(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		authLink, err := handleGetAuth(services)
-		if err != nil {
-			return err
-		}
-
-		return c.SendString(*authLink)
+func (c *Spotify) authLink(ctx *fiber.Ctx) error {
+	authLink, err := c.getAuthLinkService()
+	if err != nil {
+		return err
 	}
+
+	return ctx.SendString(*authLink)
 }
 
 // Integrations godoc
@@ -83,32 +85,30 @@ func getAuth(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/spotify [post]
-func post(services *types.Services) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		dto := &tokenDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		channelId := c.Params("channelId")
-		err = handlePost(channelId, dto, services)
-		if err != nil {
-			return err
-		}
-
-		services.RedisStorage.DeleteByMethod(
-			fmt.Sprintf("fiber:cache:integrations:spotify:profile:%s", channelId),
-			"GET",
-		)
-
-		return c.SendStatus(200)
+func (c *Spotify) post(ctx *fiber.Ctx) error {
+	dto := &tokenDto{}
+	err := middlewares.ValidateBody(
+		ctx,
+		c.services.Validator,
+		c.services.ValidatorTranslator,
+		dto,
+	)
+	if err != nil {
+		return err
 	}
+
+	channelId := ctx.Params("channelId")
+	err = c.postService(channelId, dto)
+	if err != nil {
+		return err
+	}
+
+	c.services.RedisStorage.DeleteByMethod(
+		fmt.Sprintf("fiber:cache:integrations:spotify:profile:%s", channelId),
+		"GET",
+	)
+
+	return ctx.SendStatus(200)
 }
 
 // Integrations godoc
@@ -123,19 +123,18 @@ func post(services *types.Services) func(c *fiber.Ctx) error {
 // @Failure 404 {object} types.DOCApiBadRequest
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/integrations/spotify/logout [post]
-func logout(services *types.Services) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		channelId := c.Params("channelId")
-		err := handleLogout(channelId, services)
-		if err != nil {
-			return err
-		}
-
-		services.RedisStorage.DeleteByMethod(
-			fmt.Sprintf("fiber:cache:integrations:spotify:profile:%s", channelId),
-			"GET",
-		)
-
-		return c.SendStatus(200)
+func (c *Spotify) logout(ctx *fiber.Ctx) error {
+	channelId := ctx.Params("channelId")
+	err := c.logoutService(channelId)
+	if err != nil {
+		return err
 	}
+
+	c.services.RedisStorage.DeleteByMethod(
+		fmt.Sprintf("fiber:cache:integrations:spotify:profile:%s", channelId),
+		"GET",
+	)
+
+	return ctx.SendStatus(200)
+
 }

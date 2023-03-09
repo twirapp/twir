@@ -3,6 +3,7 @@ package spotify
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/channels/integrations/helpers"
 	"io"
 	"net/http"
 	"net/url"
@@ -12,16 +13,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 	"github.com/satont/tsuwari/libs/integrations/spotify"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
-func handleGetAuth(services *types.Services) (*string, error) {
+func (c *Spotify) getAuthLinkService() (*string, error) {
 	integration := model.Integrations{}
-	err := services.Gorm.Where(`"service" = ?`, "SPOTIFY").First(&integration).Error
+	err := c.services.Gorm.Where(`"service" = ?`, "SPOTIFY").First(&integration).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(
 			404,
@@ -29,16 +28,16 @@ func handleGetAuth(services *types.Services) (*string, error) {
 		)
 	}
 
-	url, _ := url.Parse("https://accounts.spotify.com/authorize")
+	parsedUrl, _ := url.Parse("https://accounts.spotify.com/authorize")
 
-	q := url.Query()
+	q := parsedUrl.Query()
 	q.Add("response_type", "code")
 	q.Add("client_id", integration.ClientID.String)
 	q.Add("scope", "user-read-currently-playing")
 	q.Add("redirect_uri", integration.RedirectURL.String)
-	url.RawQuery = q.Encode()
+	parsedUrl.RawQuery = q.Encode()
 
-	str := url.String()
+	str := parsedUrl.String()
 
 	return &str, nil
 }
@@ -58,20 +57,20 @@ type profileResponse struct {
 	} `json:"streamlabs"`
 }
 
-func handlePost(channelId string, dto *tokenDto, services *types.Services) error {
-	channelIntegration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.Gorm)
+func (c *Spotify) postService(channelId string, dto *tokenDto) error {
+	channelIntegration, err := helpers.GetIntegration(channelId, "SPOTIFY", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return err
 	}
 
 	neededIntegration := model.Integrations{}
-	err = services.Gorm.
+	err = c.services.Gorm.
 		Where("service = ?", "SPOTIFY").
 		First(&neededIntegration).
 		Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(
 			http.StatusInternalServerError,
 			"seems like spotify not enabled on our side",
@@ -119,23 +118,21 @@ func handlePost(channelId string, dto *tokenDto, services *types.Services) error
 	channelIntegration.AccessToken = null.StringFrom(data.AccessToken)
 	channelIntegration.RefreshToken = null.StringFrom(data.RefreshToken)
 
-	err = services.Gorm.
+	err = c.services.Gorm.
 		Save(channelIntegration).Error
 
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "cannot update integration")
 	}
 
 	return nil
 }
 
-func handleGetProfile(channelId string, services *types.Services) (*spotify.SpotifyProfile, error) {
-	
-
-	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.Gorm)
+func (c *Spotify) getService(channelId string) (*spotify.SpotifyProfile, error) {
+	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, err
 	}
 
@@ -143,31 +140,29 @@ func handleGetProfile(channelId string, services *types.Services) (*spotify.Spot
 		return nil, nil
 	}
 
-	spoty := spotify.New(integration, services.Gorm)
+	spoty := spotify.New(integration, c.services.Gorm)
 	profile, err := spoty.GetProfile()
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return nil, fiber.NewError(400, "cannot get spotify profile")
 	}
 
 	return profile, nil
 }
 
-func handleLogout(channelId string, services *types.Services) error {
-	
-
-	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.Gorm)
+func (c *Spotify) logoutService(channelId string) error {
+	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", c.services.Gorm)
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return err
 	}
 	if integration == nil {
 		return fiber.NewError(http.StatusNotFound, "integration not found")
 	}
 
-	err = services.Gorm.Delete(&integration).Error
+	err = c.services.Gorm.Delete(&integration).Error
 	if err != nil {
-		services.Logger.Error(err)
+		c.services.Logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
