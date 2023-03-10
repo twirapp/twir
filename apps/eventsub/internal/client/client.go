@@ -51,6 +51,11 @@ func NewClient(
 	return subClient, nil
 }
 
+type SubRequest struct {
+	Version   string
+	Condition map[string]string
+}
+
 func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) error {
 	channelCondition := map[string]string{
 		"broadcaster_user_id": userId,
@@ -59,19 +64,46 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) 
 		"user_id": userId,
 	}
 
-	neededSubs := map[string]map[string]string{
-		"channel.update": channelCondition,
-		"stream.online":  channelCondition,
-		"stream.offline": channelCondition,
-		"user.update":    userCondition,
-		"channel.follow": {
-			"broadcaster_user_id": userId,
-			"moderator_user_id":   userId,
+	neededSubs := map[string]SubRequest{
+		"channel.update": {
+			Version:   "1",
+			Condition: channelCondition,
 		},
-		"channel.moderator.add":                                  channelCondition,
-		"channel.moderator.remove":                               channelCondition,
-		"channel.channel_points_custom_reward_redemption.add":    channelCondition,
-		"channel.channel_points_custom_reward_redemption.update": channelCondition,
+		"stream.online": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"stream.offline": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"user.update": {
+			Condition: userCondition,
+			Version:   "1",
+		},
+		"channel.follow": {
+			Version: "2",
+			Condition: map[string]string{
+				"broadcaster_user_id": userId,
+				"moderator_user_id":   userId,
+			},
+		},
+		"channel.moderator.add": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"channel.moderator.remove": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"channel.channel_points_custom_reward_redemption.add": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"channel.channel_points_custom_reward_redemption.update": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
 	}
 
 	twitchClient, err := twitch.NewAppClient(*c.services.Config, c.services.Grpc.Tokens)
@@ -89,11 +121,13 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) 
 	var ops uint64
 
 	for key, value := range neededSubs {
-		go func(key string, value map[string]string) {
+		go func(key string, value SubRequest) {
 			defer wg.Done()
 
 			existedSub, ok := lo.Find(subsReq.Data.EventSubSubscriptions, func(item helix.EventSubSubscription) bool {
-				return item.Type == key && (item.Condition.BroadcasterUserID == value["broadcaster_user_id"] || item.Condition.UserID == value["user_id"])
+				return item.Type == key &&
+					(item.Condition.BroadcasterUserID == value.Condition["broadcaster_user_id"] ||
+						item.Condition.UserID == value.Condition["user_id"])
 			})
 
 			if ok && existedSub.Status == "enabled" && existedSub.Transport.Callback == c.callbackUrl {
@@ -110,9 +144,10 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) 
 
 			request := &eventsub_framework.SubRequest{
 				Type:      key,
-				Condition: value,
+				Condition: value.Condition,
 				Callback:  c.callbackUrl,
 				Secret:    c.services.Config.TwitchClientSecret,
+				Version:   value.Version,
 			}
 			if _, err := c.Subscribe(ctx, request); err != nil {
 				zap.S().Error(err, key, userId)

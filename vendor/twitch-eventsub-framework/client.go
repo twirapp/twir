@@ -31,6 +31,9 @@ type SubRequest struct {
 	Callback string
 	// The HMAC secret used to verify the event data.
 	Secret string
+
+	// Version
+	Version string
 }
 
 type Status string
@@ -136,7 +139,7 @@ func (s *SubClient) do(req *http.Request) (*http.Response, error) {
 func (s *SubClient) Subscribe(ctx context.Context, srq *SubRequest) (*esb.RequestStatus, error) {
 	reqJSON := esb.Request{
 		Type:      srq.Type,
-		Version:   "1",
+		Version:   srq.Version,
 		Condition: srq.Condition,
 		Transport: esb.Transport{
 			Method:   "webhook",
