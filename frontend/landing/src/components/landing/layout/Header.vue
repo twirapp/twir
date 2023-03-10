@@ -13,7 +13,7 @@
                 class="h-[30px] w-[30px] pointer-events-none"
                 :style="{ backgroundImage: cssURL(TsuwariLogo) }"
               />
-              <span class="font-medium text-xl pointer-events-none">Tsuwari</span>
+              <span class="font-medium text-xl pointer-events-none">Twir</span>
             </button>
             <div class="inline-grid grid-flow-col gap-x-3">
               <BurgerMenuButton />

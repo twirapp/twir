@@ -24,7 +24,7 @@
         >
           <div class="inline-flex items-center min-md:mr-auto">
             <div class="w-[28px] h-[28px]" :style="{ backgroundImage: cssURL(TsuwariLogo) }" />
-            <span class="text-[22px] ml-3 font-medium">Tsuwari</span>
+            <span class="text-[22px] ml-3 font-medium">Twir</span>
           </div>
         </div>
         <NavMenu

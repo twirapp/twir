@@ -1,4 +1,4 @@
-tsuwari.app {
+twir.app {
         reverse_proxy localhost:3001
 
         handle_path /dashboard* {
@@ -33,10 +33,14 @@ tsuwari.app {
         }
 }
 
-grafana.tsuwari.app {
+grafana.twir.app {
         reverse_proxy localhost:35648
 }
 
-prom.tsuwari.app {
+prom.twir.app {
         reverse_proxy localhost:21394
+}
+
+eventsub.twir.app {
+        reverse_proxy localhost:3003
 }

@@ -36,8 +36,8 @@ export default class _Document extends Document {
           <meta property="og:title" content="Twir app" />
           <meta property="og:description" content="Twir bot dashboard" />
           <meta property="og:site_name" content="Twir app" />
-          <meta property="og:url" content="https://tsuwari.app" />
-          <meta property="og:image" content="https://tsuwari.app/dashboard/icons/apple-touch-icon.png" />
+          <meta property="og:url" content="https://twir.app" />
+          <meta property="og:image" content="https://twir.app/dashboard/icons/apple-touch-icon.png" />
         </Head>
         <body>
           <Main />

@@ -58,7 +58,7 @@ const messages: ILandingLocale = {
       title: '<span>Идеальный бот</span> для вашего стрима',
     },
     footer: {
-      rights: '© Tsuwari {year}. Все права защищены.',
+      rights: '© Twir {year}. Все права защищены.',
     },
     integrations: {
       preTitle: 'Интеграции',

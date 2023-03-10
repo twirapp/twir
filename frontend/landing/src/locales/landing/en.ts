@@ -56,7 +56,7 @@ const messages: ILandingLocale = {
       title: 'The <span>perfect bot</span> for your stream',
     },
     footer: {
-      rights: '© Tsuwari {year}. All rights reserved.',
+      rights: '© Twir {year}. All rights reserved.',
     },
     integrations: {
       preTitle: 'Integrations',
