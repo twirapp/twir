@@ -17,7 +17,6 @@ COPY libs libs
 COPY apps apps
 COPY frontend frontend
 COPY patches patches
-COPY vendor vendor
 
 RUN pnpm install --frozen-lockfile
 RUN pnpm build:libs
