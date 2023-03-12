@@ -63,7 +63,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
   const form = useForm<ChannelCommandForm>({
     validate: {
       name: (value) => {
-        if (!value.length) return 'Name cannot be empty';
+        if (!value.length || value.trim().length == 0) return 'Name cannot be empty';
         return null;
       },
       deniedUsersIds: {

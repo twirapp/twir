@@ -12,7 +12,7 @@ type commandDto struct {
 	Cooldown           uint32         `validate:"lte=86400"                   json:"cooldown"`
 	CooldownType       string         `validate:"required"                    json:"cooldownType"`
 	Description        *string        `validate:"omitempty,max=500"           json:"description,omitempty"`
-	Aliases            []string       `validate:"max=20,dive,required" json:"aliases"`
+	Aliases            []string       `validate:"required,dive,max=20" json:"aliases"`
 	Visible            *bool          `validate:"omitempty,required"          json:"visible,omitempty"`
 	Enabled            *bool          `validate:"omitempty,required"          json:"enabled,omitempty"`
 	Responses          []responsesDto `validate:"dive"                        json:"responses"`

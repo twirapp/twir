@@ -98,10 +98,24 @@ func handlePost(
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	dto.Name = strings.Replace(strings.ToLower(dto.Name), "!", "", 1)
+	dto.Name = strings.TrimSpace(dto.Name)
+	dto.Name = strings.ToLower(dto.Name)
+	dto.Name = strings.Replace(dto.Name, "!", "", 1)
+	if len(dto.Name) == 0 {
+		return nil, fiber.NewError(400, "name cannot be empty")
+	}
+
 	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
-		return strings.Replace(strings.ToLower(a), "!", "", 1)
+		a = strings.TrimSpace(a)
+		a = strings.ToLower(a)
+		a = strings.Replace(a, "!", "", 1)
+		return a
 	})
+	if lo.SomeBy(dto.Aliases, func(a string) bool {
+		return len(a) == 0
+	}) {
+		return nil, fiber.NewError(400, "aliase cannot be empty")
+	}
 
 	isExists := isCommandWithThatNameExists(services.DB, channelId, dto.Name, dto.Aliases, nil)
 	if isExists {
@@ -213,10 +227,24 @@ func handleUpdate(
 		return nil, fiber.NewError(400, "responses cannot be empty")
 	}
 
-	dto.Name = strings.Replace(strings.ToLower(dto.Name), "!", "", 1)
+	dto.Name = strings.TrimSpace(dto.Name)
+	dto.Name = strings.ToLower(dto.Name)
+	dto.Name = strings.Replace(dto.Name, "!", "", 1)
+	if len(dto.Name) == 0 {
+		return nil, fiber.NewError(400, "name cannot be empty")
+	}
+
 	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
-		return strings.Replace(strings.ToLower(a), "!", "", 1)
+		a = strings.TrimSpace(a)
+		a = strings.ToLower(a)
+		a = strings.Replace(a, "!", "", 1)
+		return a
 	})
+	if lo.SomeBy(dto.Aliases, func(a string) bool {
+		return len(a) == 0
+	}) {
+		return nil, fiber.NewError(400, "aliase cannot be empty")
+	}
 
 	isExists := isCommandWithThatNameExists(
 		services.DB,
