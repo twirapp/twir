@@ -9,6 +9,7 @@ import {
   createStyles,
   Drawer,
   Flex,
+  Grid,
   Group,
   NumberInput,
   ScrollArea,
@@ -77,25 +78,6 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       operations: {
         delay: (v) => v > 1800 ? 'Delay cannot be more then 1800' : null,
         repeat: (v) => v > 10 ? 'Repeat cannot be more then 10' : null,
-        // input: (v, values, path) => {
-        //   const pathWithoutInput = path.split('.input')[0];
-        //   const operationIndex = pathWithoutInput.at(pathWithoutInput.length - 1);
-        //   const operation = values.operations[Number(operationIndex)];
-        //   if (!operation) return null;
-        //   if (
-        //     operation.type === OperationType.OBS_AUDIO_SET_VOLUME
-        //     || operation.type === OperationType.OBS_AUDIO_INCREASE_VOLUME
-        //     || operation.type === OperationType.OBS_AUDIO_DECREASE_VOLUME
-        //   ) {
-        //     const convertedValue = Number(v);
-        //     if (Number.isNaN(convertedValue)) return 'Incorrect value. Can be from 0 to 20';
-        //     if (convertedValue < 0 || convertedValue > 20) {
-        //       return 'Volume can be from 0 to 20.';
-        //     }
-        //   }
-        //
-        //   return null;
-        // },
       },
     },
   });
@@ -206,7 +188,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
         </Button>
       }
       padding="xl"
-      size="xl"
+      size={'50%'}
       position="right"
       transition="slide-left"
       overlayColor={theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2]}
@@ -216,89 +198,94 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
         <form style={{ minHeight: viewPort.height - 150 }} onSubmit={form.onSubmit((values) => console.log(values))}>
           <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
-            <Select
-              label={'Event'}
-              searchable={true}
-              disabled={!!form.values.id}
-              data={Object.keys(eventsMapping).map((e) => ({
-                value: e,
-                label: eventsMapping[e as EventType].description?.toUpperCase() || e.split('_').join(' '),
-              })) ?? []}
-              onChange={(newValue) => {
-                form.setFieldValue(`type`, newValue as EventType);
-              }}
-              value={form.values.type}
-              w={'100%'}
-            />
+            <Grid>
+              <Grid.Col span={6}>
+                <Flex direction={'column'}>
+                  <Select
+                    label={'Event'}
+                    searchable={true}
+                    disabled={!!form.values.id}
+                    data={Object.keys(eventsMapping).map((e) => ({
+                      value: e,
+                      label: eventsMapping[e as EventType].description?.toUpperCase() || e.split('_').join(' '),
+                    })) ?? []}
+                    onChange={(newValue) => {
+                      form.setFieldValue(`type`, newValue as EventType);
+                    }}
+                    value={form.values.type}
+                    w={'100%'}
+                  />
 
-            <Textarea
-              label={t('description')}
-              required
-              w={'100%'}
-              autosize={true}
-              minRows={1}
-              {...form.getInputProps('description')}
-            />
+                  <Textarea
+                    label={t('description')}
+                    required
+                    w={'100%'}
+                    autosize={true}
+                    minRows={1}
+                    {...form.getInputProps('description')}
+                  />
 
-            {form.values.type === EventType.COMMAND_USED && <Select
-                label={t('triggerCommand')}
-                searchable={true}
-                data={commandList.data?.map((c) => ({
-                  value: c.id,
-                  label: c.name,
-                })) ?? []}
-                {...form.getInputProps('commandId')}
-                w={'100%'}
-            />}
+                  {form.values.type === EventType.COMMAND_USED && <Select
+                      label={t('triggerCommand')}
+                      searchable={true}
+                      data={commandList.data?.map((c) => ({
+                        value: c.id,
+                        label: c.name,
+                      })) ?? []}
+                      {...form.getInputProps('commandId')}
+                      w={'100%'}
+                  />}
 
-            {form.values.type === EventType.REDEMPTION_CREATED && <Select
-                label={t('triggerReward')}
-                placeholder="..."
-                searchable
-                itemComponent={RewardItem}
-                dropdownPosition={'bottom'}
-                allowDeselect
-                data={rewards}
-                {...form.getInputProps('rewardId')}
-                w={'100%'}
-            />}
+                  {form.values.type === EventType.REDEMPTION_CREATED && <Select
+                      label={t('triggerReward')}
+                      placeholder="..."
+                      searchable
+                      itemComponent={RewardItem}
+                      dropdownPosition={'bottom'}
+                      allowDeselect
+                      data={rewards}
+                      {...form.getInputProps('rewardId')}
+                      w={'100%'}
+                  />}
 
-            {form.values.type === EventType.KEYWORD_MATCHED && <Select
-                label={t('triggerKeyword')}
-                searchable={true}
-                data={keywords?.map((c) => ({
-                  value: c.id,
-                  label: c.text,
-                })) ?? []}
-                onChange={(newValue) => {
-                  form.setFieldValue(`keywordId`, newValue);
-                }}
-                value={form.values.keywordId}
-                w={'100%'}
-            />}
+                  {form.values.type === EventType.KEYWORD_MATCHED && <Select
+                      label={t('triggerKeyword')}
+                      searchable={true}
+                      data={keywords?.map((c) => ({
+                        value: c.id,
+                        label: c.text,
+                      })) ?? []}
+                      onChange={(newValue) => {
+                        form.setFieldValue(`keywordId`, newValue);
+                      }}
+                      value={form.values.keywordId}
+                      w={'100%'}
+                  />}
+                </Flex>
+              </Grid.Col>
+              <Grid.Col span={6}>
+                <Flex direction={'column'} gap={'sm'}>
+                  <Text mb={5}>{t('availableVariables')}</Text>
+                  {eventsMapping[form.values.type]?.availableVariables?.map((variable, i) =>
+                    <Text size={'sm'} key={i}>
+                      <CopyButton value={`{${variable}}`}>
+                        {({ copied, copy }) => (
+                          <Code
+                            onClick={copy}
+                            style={{ cursor:'pointer' }}
+                          >
+                            {copied ? 'Copied' : `{${variable}}`}
+                          </Code>
+                        )}
+                      </CopyButton>
+                      {' '} {t(`variables.${variable}`)}
+                    </Text>,
+                  )}
+                </Flex>
+              </Grid.Col>
+            </Grid>
 
-            <Flex direction={'column'} gap={'sm'}>
-              <Text mb={5}>{t('availableVariables')}</Text>
-              {eventsMapping[form.values.type]?.availableVariables?.map((variable, i) =>
-                  <Text size={'sm'} key={i}>
-                    <CopyButton value={`{${variable}}`}>
-                      {({ copied, copy }) => (
-                        <Code
-                          onClick={copy}
-                          style={{ cursor:'pointer' }}
-                        >
-                          {copied ? 'Copied' : `{${variable}}`}
-                        </Code>
-                      )}
-                    </CopyButton>
-                    {' '} {t(`variables.${variable}`)}
-                  </Text>,
-              )}
-            </Flex>
-
-
-
-                {form.values.operations?.map((operation, index) => (
+            {form.values.operations?.map((operation, index) => (
                   <Fragment key={index}>
                     <div className={cardClasses.classes.root} >
                       <div className={cardClasses.classes.label}>
@@ -333,109 +320,117 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                         radius="md"
                         withBorder
                       >
-                        <Card.Section p={'xs'} withBorder pt={20}>
-                          <Select
-                            searchable={true}
-                            data={Object.keys(OperationType).map(t => ({
-                              value: t,
-                              label: operationMapping[t as OperationType]?.description || t,
-                              disabled: operationMapping[t as OperationType].dependsOnEvents
-                                ? !operationMapping[t as OperationType].dependsOnEvents?.some(e => e === form.values.type)
-                                : false,
-                            }))}
-                            onChange={(newValue) => {
-                              form.setFieldValue(`operations.${index}.type`, newValue);
-                            }}
-                            value={form.values.operations[index]?.type}
-                          />
-                        </Card.Section>
-                        {(operationMapping[operation.type].haveInput || operationMapping[operation.type].producedVariables || operationMapping[operation.type].additionalValues) && <Card.Section p='sm'>
-                          {operationMapping[operation.type].haveInput && <Textarea
-                              label={t(`operations.inputDescription.${operation.type}`, t('operations.input'))}
-                              required
-                              w={'100%'}
-                              autosize={true}
-                              minRows={1}
-                              {...form.getInputProps(`operations.${index}.input`)}
-                          />}
-                          {form.values.operations && form.values.operations[index - 1]
-                            && operationMapping[form.values.operations[index - 1].type].producedVariables
-                            && <Flex direction={'column'} mt={5}>
-                                  <Text size={'sm'}>Available variables from prev operation:</Text>
-                                  <Flex direction={'row'}>
-                                    {operationMapping[form.values.operations[index - 1].type].producedVariables!.map((v, i) => <CopyButton value={`{prevOperation.${v}}`}>
-                                      {({ copied, copy }) => (
-                                        <Text
-                                          onClick={copy}
-                                          style={{ cursor:'pointer' }}
-                                          size={'xs'}
-                                          key={i}
-                                        >
-                                          {copied ? 'Copied' : `{prevOperation.${v}}`}
-                                        </Text>
-                                      )}
-                                    </CopyButton>)}
-                                  </Flex>
-                              </Flex>}
-                          {operationMapping[operation.type].additionalValues?.map((v, i) => <Group key={i} mt={5}>
-                            {v === 'useAnnounce' && <Checkbox
-                                label={t('operations.additionalValues.useAnnounce')}
-                                labelPosition={'left'}
-                                {...form.getInputProps(`operations.${index}.useAnnounce`, { type: 'checkbox' })}
-                            />}
-                            {v === 'timeoutTime' && <NumberInput
-                                label={t('operations.additionalValues.timeoutTime')}
-                                {...form.getInputProps(`operations.${index}.timeoutTime`)}
-                            />}
-                            {
-                              v === 'target'
-                              && (operation.type === OperationType.CHANGE_VARIABLE
-                                || operation.type === OperationType.INCREMENT_VARIABLE
-                                || operation.type === OperationType.DECREMENT_VARIABLE
-                              )
-                              && <Select
-                                    label={'Variable'}
-                                    searchable
-                                    data={variables?.map(v => ({
-                                      value: v.id,
-                                      label: v.name,
-                                    })) ?? []}
-                                    w={'100%'}
-                                    {...form.getInputProps(`operations.${index}.target`)}
-                                />}
-                            {v === 'target' && operation.type.startsWith('OBS') && <Select
-                                label={'OBS Target'}
+                        <Card.Section p={'lg'}>
+                          <Grid>
+                            <Grid.Col span={6} w={'100%'}>
+                              <Select
+                                label={'Operation'}
                                 searchable={true}
-                                data={getObsSourceByOperationType(operation.type)}
+                                data={Object.keys(OperationType).map(t => ({
+                                  value: t,
+                                  label: operationMapping[t as OperationType]?.description || t,
+                                  disabled: operationMapping[t as OperationType].dependsOnEvents
+                                    ? !operationMapping[t as OperationType].dependsOnEvents?.some(e => e === form.values.type)
+                                    : false,
+                                }))}
+                                onChange={(newValue) => {
+                                  form.setFieldValue(`operations.${index}.type`, newValue);
+                                }}
+                                value={form.values.operations[index]?.type}
                                 w={'100%'}
-                                {...form.getInputProps(`operations.${index}.target`)}
-                            />}
-                            {v === 'target' && (
-                                operation.type === OperationType.ALLOW_COMMAND_TO_USER ||
-                                operation.type === OperationType.REMOVE_ALLOW_COMMAND_TO_USER ||
-                                operation.type === OperationType.DENY_COMMAND_TO_USER ||
-                                operation.type === OperationType.REMOVE_DENY_COMMAND_TO_USER) &&
-                                <Select
-                                    label={'Command'}
+                              />
+
+                              {(operationMapping[operation.type].haveInput || operationMapping[operation.type].producedVariables || operationMapping[operation.type].additionalValues) && <Fragment>
+                              {operationMapping[operation.type].haveInput && <Textarea
+                                  label={t(`operations.inputDescription.${operation.type}`, t('operations.input'))}
+                                  required
+                                  autosize={true}
+                                  minRows={1}
+                                  {...form.getInputProps(`operations.${index}.input`)}
+                                  w={'100%'}
+                              />}
+                              {form.values.operations && form.values.operations[index - 1]
+                                && operationMapping[form.values.operations[index - 1].type].producedVariables
+                                && <Flex direction={'column'}>
+                                      <Text size={'sm'}>Available variables from prev operation:</Text>
+                                      <Flex direction={'row'}>
+                                        {operationMapping[form.values.operations[index - 1].type].producedVariables!.map((v, i) => <CopyButton value={`{prevOperation.${v}}`}>
+                                          {({ copied, copy }) => (
+                                            <Text
+                                              onClick={copy}
+                                              style={{ cursor:'pointer' }}
+                                              size={'xs'}
+                                              key={i}
+                                            >
+                                              {copied ? 'Copied' : `{prevOperation.${v}}`}
+                                            </Text>
+                                          )}
+                                        </CopyButton>)}
+                                      </Flex>
+                                  </Flex>}
+                              {operationMapping[operation.type].additionalValues?.map((v, i) => <Group key={i} mt={5}>
+                                {v === 'useAnnounce' && <Checkbox
+                                    label={t('operations.additionalValues.useAnnounce')}
+                                    labelPosition={'left'}
+                                    {...form.getInputProps(`operations.${index}.useAnnounce`, { type: 'checkbox' })}
+                                />}
+                                {v === 'timeoutTime' && <NumberInput
+                                    label={t('operations.additionalValues.timeoutTime')}
+                                    {...form.getInputProps(`operations.${index}.timeoutTime`)}
+                                    w={'100%'}
+                                />}
+                                {
+                                  v === 'target'
+                                  && (operation.type === OperationType.CHANGE_VARIABLE
+                                    || operation.type === OperationType.INCREMENT_VARIABLE
+                                    || operation.type === OperationType.DECREMENT_VARIABLE
+                                  )
+                                  && <Select
+                                        label={'Variable'}
+                                        searchable
+                                        data={variables?.map(v => ({
+                                          value: v.id,
+                                          label: v.name,
+                                        })) ?? []}
+                                        {...form.getInputProps(`operations.${index}.target`)}
+                                        w={'100%'}
+                                    />}
+                                {v === 'target' && operation.type.startsWith('OBS') && <Select
+                                    label={'OBS Target'}
                                     searchable={true}
-                                    data={commandList.data?.map((c) => ({
-                                      value: c.id,
-                                      label: c.name,
-                                    })) ?? []}
+                                    data={getObsSourceByOperationType(operation.type)}
                                     {...form.getInputProps(`operations.${index}.target`)}
                                     w={'100%'}
                                 />}
-                          </Group>)}
-                        </Card.Section>}
-                        <Card.Section p='sm' withBorder>
-                          <NumberInput
-                            label={t('operations.delay')}
-                            {...form.getInputProps(`operations.${index}.delay`)}
-                          />
-                          <NumberInput
-                            label={t('operations.repeat')}
-                            {...form.getInputProps(`operations.${index}.repeat`)}
-                          />
+                                {v === 'target' && (
+                                    operation.type === OperationType.ALLOW_COMMAND_TO_USER ||
+                                    operation.type === OperationType.REMOVE_ALLOW_COMMAND_TO_USER ||
+                                    operation.type === OperationType.DENY_COMMAND_TO_USER ||
+                                    operation.type === OperationType.REMOVE_DENY_COMMAND_TO_USER) &&
+                                    <Select
+                                        label={'Command'}
+                                        searchable={true}
+                                        data={commandList.data?.map((c) => ({
+                                          value: c.id,
+                                          label: c.name,
+                                        })) ?? []}
+                                        {...form.getInputProps(`operations.${index}.target`)}
+                                        w={'100%'}
+                                    />}
+                              </Group>)}
+                            </Fragment>}
+                            </Grid.Col>
+                          <Grid.Col span={6}>
+                            <NumberInput
+                              label={t('operations.delay')}
+                              {...form.getInputProps(`operations.${index}.delay`)}
+                            />
+                            <NumberInput
+                              label={t('operations.repeat')}
+                              {...form.getInputProps(`operations.${index}.repeat`)}
+                            />
+                          </Grid.Col>
+                        </Grid>
                         </Card.Section>
                       </Card>
 
