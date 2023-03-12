@@ -20,3 +20,5 @@ devbox/go
 .pnpm-store
 
 !*/**/.gitkeep
+
+main
