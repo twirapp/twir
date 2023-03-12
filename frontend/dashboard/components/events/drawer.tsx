@@ -214,6 +214,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                     }}
                     value={form.values.type}
                     w={'100%'}
+                    withinPortal={true}
                   />
 
                   <Textarea
@@ -338,6 +339,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                 }}
                                 value={form.values.operations[index]?.type}
                                 w={'100%'}
+                                withinPortal={true}
                               />
 
                               {(operationMapping[operation.type].haveInput || operationMapping[operation.type].producedVariables || operationMapping[operation.type].additionalValues) && <Fragment>
@@ -394,6 +396,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                         })) ?? []}
                                         {...form.getInputProps(`operations.${index}.target`)}
                                         w={'100%'}
+                                        withinPortal={true}
                                     />}
                                 {v === 'target' && operation.type.startsWith('OBS') && <Select
                                     label={'OBS Target'}
@@ -401,6 +404,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                     data={getObsSourceByOperationType(operation.type)}
                                     {...form.getInputProps(`operations.${index}.target`)}
                                     w={'100%'}
+                                    withinPortal={true}
                                 />}
                                 {v === 'target' && (
                                     operation.type === OperationType.ALLOW_COMMAND_TO_USER ||
@@ -416,6 +420,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                                         })) ?? []}
                                         {...form.getInputProps(`operations.${index}.target`)}
                                         w={'100%'}
+                                        withinPortal={true}
                                     />}
                               </Group>)}
                             </Fragment>}
