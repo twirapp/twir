@@ -32,6 +32,32 @@ func (c *Processor) getChannelVips() ([]helix.ChannelVips, error) {
 
 	c.cache.channelVips = vips.Data.ChannelsVips
 
+	cursor := ""
+	if vips.Data.Pagination.Cursor != "" {
+		for {
+			vips, err = c.streamerApiClient.GetChannelVips(&helix.GetChannelVipsParams{
+				BroadcasterID: c.channelId,
+				After:         cursor,
+			})
+
+			if err != nil {
+				return nil, errors.New(vips.ErrorMessage)
+			}
+
+			if vips.ErrorMessage != "" {
+				return nil, errors.New(vips.ErrorMessage)
+			}
+
+			c.cache.channelVips = append(c.cache.channelVips, vips.Data.ChannelsVips...)
+
+			if vips.Data.Pagination.Cursor == "" {
+				break
+			}
+
+			cursor = vips.Data.Pagination.Cursor
+		}
+	}
+
 	return vips.Data.ChannelsVips, nil
 }
 

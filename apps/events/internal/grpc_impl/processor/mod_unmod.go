@@ -28,6 +28,32 @@ func (c *Processor) getChannelMods() ([]helix.Moderator, error) {
 
 	c.cache.channelModerators = mods.Data.Moderators
 
+	cursor := ""
+	if mods.Data.Pagination.Cursor != "" {
+		for {
+			mods, err = c.streamerApiClient.GetModerators(&helix.GetModeratorsParams{
+				BroadcasterID: c.channelId,
+				After:         cursor,
+			})
+
+			if err != nil {
+				return nil, err
+			}
+
+			if mods.ErrorMessage != "" {
+				return nil, errors.New(mods.ErrorMessage)
+			}
+
+			c.cache.channelModerators = append(c.cache.channelModerators, mods.Data.Moderators...)
+
+			if mods.Data.Pagination.Cursor == "" {
+				break
+			}
+
+			cursor = mods.Data.Pagination.Cursor
+		}
+	}
+
 	return mods.Data.Moderators, nil
 }
 
