@@ -26,15 +26,20 @@ export const operationMapping: Record<keyof typeof OperationType, {
     producedVariables: ['bannedUserName'],
   },
   VIP: {
-    description: 'Vip user',
+    description: '[VIPS] Vip user',
     haveInput: true,
   },
   UNVIP: {
-    description: 'Unvip user',
+    description: '[VIPS] Unvip user',
     haveInput: true,
   },
   UNVIP_RANDOM: {
-    description: 'Unvip random user',
+    description: '[VIPS] Unvip random user',
+    producedVariables: ['unvipedUserName'],
+  },
+  UNVIP_RANDOM_IF_NO_SLOTS: {
+    description: '[VIPS] Unvip random user if no slots',
+    haveInput: true,
     producedVariables: ['unvipedUserName'],
   },
   MOD: {

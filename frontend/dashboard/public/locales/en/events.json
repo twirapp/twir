@@ -54,7 +54,8 @@
       "OBS_AUDIO_SET_VOLUME": "Volume for setting. Available value is from 0 to 20. If value out of that range will be provided, then that operation wont be fired",
       "OBS_AUDIO_DECREASE_VOLUME": "Volume for setting. Available value is from 0 to 20. If value out of that range will be provided, then that operation wont be fired",
       "OBS_AUDIO_INCREASE_VOLUME": "Volume for setting. Available value is from 0 to 20. If value out of that range will be provided, then that operation wont be fired",
-      "CHANGE_VARIABLE": "New variable value."
+      "CHANGE_VARIABLE": "New variable value.",
+      "UNVIP_RANDOM_IF_NO_SLOTS": "The number of vip slots. If the number of vips equals the number of slots, a random user will lose a vip."
     }
   }
 }

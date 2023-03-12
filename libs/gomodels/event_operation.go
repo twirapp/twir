@@ -26,6 +26,7 @@ const (
 	OperationVip                      EventOperationType = "VIP"
 	OperationUnvip                    EventOperationType = "UNVIP"
 	OperationUnvipRandom              EventOperationType = "UNVIP_RANDOM"
+	OperationUnvipRandomIfNoSlots     EventOperationType = "UNVIP_RANDOM_IF_NO_SLOTS"
 	OperationMod                      EventOperationType = "MOD"
 	OperationUnmod                    EventOperationType = "UNMOD"
 	OperationUnmodRandom              EventOperationType = "UNMOD_RANDOM"

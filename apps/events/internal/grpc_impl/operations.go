@@ -65,8 +65,8 @@ operationsLoop:
 				}
 
 				operationError = processor.VipOrUnvip(operation.Input.String, operation.Type)
-			case model.OperationUnvipRandom:
-				operationError = processor.UnvipRandom()
+			case model.OperationUnvipRandom, model.OperationUnvipRandomIfNoSlots:
+				operationError = processor.UnvipRandom(operation.Type, operation.Input.String)
 			case model.OperationEnableSubMode, model.OperationDisableSubMode:
 				operationError = processor.SwitchSubMode(operation.Type)
 			case model.OperationEnableEmoteOnly, model.OperationDisableEmoteOnly:

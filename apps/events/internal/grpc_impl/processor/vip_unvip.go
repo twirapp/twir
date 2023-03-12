@@ -6,6 +6,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/go-helix/v2"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"strconv"
 	"strings"
 )
 
@@ -24,10 +25,6 @@ func (c *Processor) getChannelVips() ([]helix.ChannelVips, error) {
 
 	if vips.ErrorMessage != "" {
 		return nil, errors.New(vips.ErrorMessage)
-	}
-
-	if len(vips.Data.ChannelsVips) == 0 {
-		return nil, errors.New("cannot get vips")
 	}
 
 	c.cache.channelVips = vips.Data.ChannelsVips
@@ -56,6 +53,10 @@ func (c *Processor) getChannelVips() ([]helix.ChannelVips, error) {
 
 			cursor = vips.Data.Pagination.Cursor
 		}
+	}
+
+	if len(c.cache.channelVips) == 0 {
+		return nil, errors.New("cannot get vips")
 	}
 
 	return vips.Data.ChannelsVips, nil
@@ -156,10 +157,26 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 	return nil
 }
 
-func (c *Processor) UnvipRandom() error {
+func (c *Processor) UnvipRandom(operation model.EventOperationType, slots string) error {
 	vips, err := c.getChannelVips()
 	if err != nil {
 		return err
+	}
+
+	// if there is still slots available, we should skip unvip
+	if operation == model.OperationUnvipRandomIfNoSlots {
+		if slots == "" {
+			return errors.New("input is empty")
+		}
+
+		slotsInt, err := strconv.Atoi(slots)
+		if err != nil {
+			return err
+		}
+
+		if len(vips) <= slotsInt {
+			return nil
+		}
 	}
 
 	dbChannel, err := c.getDbChannel()
