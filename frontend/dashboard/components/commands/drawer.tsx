@@ -51,6 +51,7 @@ const switches: Array<{
   { prop: 'isReply' },
   { prop: 'visible' },
   { prop: 'keepResponsesOrder' },
+  { prop: 'onlineOnly' },
 ];
 
 type ChannelCommandForm = Omit<ChannelCommand, 'deniedUsersIds' | 'allowedUsersIds'> & {
@@ -96,6 +97,7 @@ export const CommandDrawer: React.FC<Props> = (props) => {
       id: '',
       deniedUsersIds: [],
       allowedUsersIds: [],
+      onlineOnly: false,
     },
   });
 

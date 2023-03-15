@@ -49,6 +49,10 @@
       "keepResponsesOrder": {
         "name": "Keep order",
         "description": "Keep order of responses when sending them in chat"
+      },
+      "onlineOnly": {
+        "name": "Online only",
+        "description": "Command will work only when stream online"
       }
     }
   }

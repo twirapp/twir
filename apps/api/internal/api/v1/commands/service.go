@@ -268,6 +268,7 @@ func handleUpdate(
 	command.Visible = *dto.Visible
 	command.GroupID = null.StringFromPtr(dto.GroupID)
 	command.RolesIDS = dto.RolesIDS
+	command.OnlineOnly = *dto.OnlineOnly
 
 	command.DeniedUsersIDS = []string{}
 	command.AllowedUsersIDS = []string{}

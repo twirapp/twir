@@ -34,6 +34,7 @@ type ChannelsCommands struct {
 	DeniedUsersIDS     pq.StringArray `gorm:"column:deniedUsersIds;type:text[];default:[];"    json:"deniedUsersIds"`
 	AllowedUsersIDS    pq.StringArray `gorm:"column:allowedUsersIds;type:text[];default:[];"   json:"allowedUsersIds"`
 	RolesIDS           pq.StringArray `gorm:"column:rolesIds;type:text[];default:[];" json:"rolesIds"`
+	OnlineOnly         bool           `gorm:"column:online_only;type:BOOL;" json:"onlineOnly"`
 
 	Responses []ChannelsCommandsResponses `gorm:"foreignKey:CommandID"                             json:"responses"`
 	GroupID   null.String                 `gorm:"column:groupId;type:UUID" json:"groupId"`

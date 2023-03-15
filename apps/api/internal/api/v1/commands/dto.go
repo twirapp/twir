@@ -22,6 +22,7 @@ type commandDto struct {
 	DeniedUsersIds     []string       `json:"deniedUsersIds"`
 	AllowedUsersIds    []string       `json:"allowedUsersIds"`
 	RolesIDS           []string       `json:"rolesIds"`
+	OnlineOnly         *bool          `validate:"required" json:"onlineOnly"`
 }
 
 type commandPatchDto struct {

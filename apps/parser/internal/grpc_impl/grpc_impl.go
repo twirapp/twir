@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 
@@ -43,6 +45,7 @@ type parserGrpcServer struct {
 	variables  variables.Variables
 	commands   commands.Commands
 	eventsGrpc events.EventsClient
+	gorm       gorm.DB
 }
 
 func NewServer() *parserGrpcServer {
@@ -50,6 +53,7 @@ func NewServer() *parserGrpcServer {
 		redis:     do.MustInvoke[redis.Client](di.Provider),
 		variables: do.MustInvoke[variables.Variables](di.Provider),
 		commands:  do.MustInvoke[commands.Commands](di.Provider),
+		gorm:      do.MustInvoke[gorm.DB](di.Provider),
 
 		eventsGrpc: do.MustInvoke[events.EventsClient](di.Provider),
 	}
@@ -60,7 +64,6 @@ func (c *parserGrpcServer) ProcessCommand(
 	data *parser.ProcessCommandRequest,
 ) (*parser.ProcessCommandResponse, error) {
 	defer commandsCounter.Inc()
-	defer fmt.Printf("Proceed %s msg\n", data.Message.Id)
 
 	if !strings.HasPrefix(data.Message.Text, "!") {
 		return nil, nil
@@ -76,6 +79,18 @@ func (c *parserGrpcServer) ProcessCommand(
 
 	if cmd.Cmd == nil {
 		return nil, errors.New("command not found")
+	}
+
+	if cmd.Cmd.OnlineOnly {
+		stream := &model.ChannelsStreams{}
+		err = c.gorm.Where(`"userId" = ?`, data.Channel.Id).Find(stream).Error
+		if err != nil {
+			zap.S().Error(err)
+			return nil, err
+		}
+		if stream == nil || stream.ID == "" {
+			return &parser.ProcessCommandResponse{}, errors.New("stream is offline")
+		}
 	}
 
 	if cmd.Cmd.Cooldown.Valid && cmd.Cmd.CooldownType == cooldownGlobal &&

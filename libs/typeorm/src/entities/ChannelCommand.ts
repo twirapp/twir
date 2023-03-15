@@ -106,4 +106,7 @@ export class ChannelCommand {
 
   @Column('text', { array: true, default: [] })
   rolesIds: string[];
+
+  @Column('boolean', { default: false, name: 'online_only' })
+  onlineOnly: boolean;
 }
