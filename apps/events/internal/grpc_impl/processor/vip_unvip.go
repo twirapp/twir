@@ -174,7 +174,7 @@ func (c *Processor) UnvipRandom(operation model.EventOperationType, slots string
 			return err
 		}
 
-		if len(vips) <= slotsInt {
+		if len(vips) < slotsInt {
 			return nil
 		}
 	}
