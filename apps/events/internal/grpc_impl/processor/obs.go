@@ -44,7 +44,7 @@ func (c *Processor) ObsToggleAudio(sourceName string) error {
 }
 
 func (c *Processor) ObsAudioChangeVolume(operationType model.EventOperationType, sourceName, input string) error {
-	msg, err := hydrateStringWithData(input, c.data)
+	msg, err := c.hydrateStringWithData(input, c.data)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func (c *Processor) ObsAudioChangeVolume(operationType model.EventOperationType,
 }
 
 func (c *Processor) ObsAudioSetVolume(sourceName, input string) error {
-	msg, err := hydrateStringWithData(input, c.data)
+	msg, err := c.hydrateStringWithData(input, c.data)
 	if err != nil {
 		return err
 	}

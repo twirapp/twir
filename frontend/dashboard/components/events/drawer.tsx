@@ -1,5 +1,5 @@
 import {
-  ActionIcon,
+  ActionIcon, Alert,
   Button,
   Card,
   Center,
@@ -282,6 +282,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                       {' '} {t(`variables.${variable}`)}
                     </Text>,
                   )}
+                  <Alert><Text size={'xs'}>{t('availableVariablesDescription')}</Text></Alert>
                 </Flex>
               </Grid.Col>
             </Grid>

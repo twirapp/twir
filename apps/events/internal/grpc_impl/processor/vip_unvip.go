@@ -63,7 +63,7 @@ func (c *Processor) getChannelVips() ([]helix.ChannelVips, error) {
 }
 
 func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType) error {
-	hydratedName, err := hydrateStringWithData(input, c.data)
+	hydratedName, err := c.hydrateStringWithData(input, c.data)
 
 	if err != nil || len(hydratedName) == 0 {
 		return fmt.Errorf("cannot hydrate string %w", err)

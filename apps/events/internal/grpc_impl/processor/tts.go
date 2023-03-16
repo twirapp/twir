@@ -38,7 +38,7 @@ func (c *Processor) getTtsSettings(channelId, userId string) (*modules.TTSSettin
 }
 
 func (c *Processor) TtsSay(channelId, userId, message string) error {
-	msg, err := hydrateStringWithData(message, c.data)
+	msg, err := c.hydrateStringWithData(message, c.data)
 	if err != nil {
 		return fmt.Errorf("cannot hydrate string %s", err)
 	}
