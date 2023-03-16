@@ -53,8 +53,10 @@ func (c *handler) handleChannelUpdate(h *eventsub_bindings.ResponseHeaders, even
 	err = c.services.Gorm.
 		Model(&model.ChannelsStreams{}).
 		Where(`"userId" = ?`, event.BroadcasterUserID).
-		Update("title", event.Title).
-		Update(`"gameName"`, event.CategoryName).Error
+		Updates(map[string]any{
+			"title":    event.Title,
+			"gameName": event.CategoryName,
+		}).Error
 	if err != nil {
 		zap.S().Errorw("failed to update channel stream", "error", err)
 	}
