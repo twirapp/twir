@@ -24,6 +24,7 @@ type Event struct {
 	KeywordID   null.String `gorm:"column:keywordId;type:TEXT;"                     json:"keywordId"`
 	Description null.String `gorm:"column:description;type:TEXT" json:"description"`
 	Enabled     bool        `gorm:"column:enabled;type:BOOL" json:"enabled"`
+	OnlineOnly  bool        `gorm:"column:online_only;type:BOOL" json:"onlineOnly"`
 
 	Operations []EventOperation `json:"operations"`
 }

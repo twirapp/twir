@@ -19,6 +19,7 @@ type eventDto struct {
 	CommandID   *string        `json:"commandId"`
 	KeywordID   *string        `json:"keywordId"`
 	Description string         `validate:"required" json:"description"`
+	OnlineOnly  *bool          `validate:"required" json:"onlineOnly"`
 	Operations  []operationDto `validate:"dive"`
 }
 

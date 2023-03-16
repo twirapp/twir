@@ -46,7 +46,7 @@ func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.
 			continue
 		}
 
-		go c.processOperations(channelId, entity.Operations, data)
+		go c.processOperations(channelId, entity, data)
 	}
 
 	return nil

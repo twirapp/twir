@@ -43,6 +43,7 @@ func handlePost(channelId string, dto *eventDto) (*model.Event, error) {
 		KeywordID:   null.NewString(*dto.KeywordID, *dto.KeywordID != ""),
 		Description: null.StringFrom(dto.Description),
 		Enabled:     true,
+		OnlineOnly:  *dto.OnlineOnly,
 	}
 
 	err := db.Transaction(func(tx *gorm.DB) error {
@@ -100,6 +101,7 @@ func handleUpdate(channelId, eventId string, dto *eventDto) (*model.Event, error
 	event.CommandID = null.StringFromPtr(dto.CommandID)
 	event.KeywordID = null.StringFromPtr(dto.KeywordID)
 	event.Description = null.StringFrom(dto.Description)
+	event.OnlineOnly = *dto.OnlineOnly
 
 	err = db.Transaction(func(tx *gorm.DB) error {
 		if err = db.Save(&event).Error; err != nil {

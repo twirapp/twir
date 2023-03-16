@@ -10,11 +10,25 @@ import (
 	"time"
 )
 
-func (c *EventsGrpcImplementation) processOperations(channelId string, operations []model.EventOperation, data internal.Data) {
+func (c *EventsGrpcImplementation) processOperations(channelId string, event model.Event, data internal.Data) {
 	streamerApiClient, err := twitch.NewUserClient(channelId, *c.services.Cfg, c.services.TokensGrpc)
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return
+	}
+
+	// wont process stream if event setted to online only streams and stream is offline
+	if event.OnlineOnly {
+		stream := &model.ChannelsStreams{}
+		err := c.services.DB.Where(`"userId" = ?`, channelId).Find(stream).Error
+		if err != nil {
+			c.services.Logger.Sugar().Error(err)
+			return
+		}
+
+		if stream.ID == "" {
+			return
+		}
 	}
 
 	processor := processor_module.NewProcessor(processor_module.Opts{
@@ -24,8 +38,8 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 		ChannelID:         channelId,
 	})
 
-	sort.Slice(operations, func(i, j int) bool {
-		return operations[i].Order < operations[j].Order
+	sort.Slice(event.Operations, func(i, j int) bool {
+		return event.Operations[i].Order < event.Operations[j].Order
 	})
 
 	data.PrevOperation = &internal.DataFromPrevOperation{}
@@ -33,7 +47,7 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, operation
 	var operationError error
 
 operationsLoop:
-	for _, operation := range operations {
+	for _, operation := range event.Operations {
 		for i := 0; i < operation.Repeat; i++ {
 			if operation.Delay != 0 {
 				duration := time.Duration(operation.Delay) * time.Second

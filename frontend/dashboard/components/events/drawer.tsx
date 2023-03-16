@@ -13,7 +13,7 @@ import {
   Group,
   NumberInput,
   ScrollArea,
-  Select,
+  Select, Switch,
   Text,
   Textarea,
   useMantineTheme,
@@ -73,6 +73,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
       description: '',
       operations: [],
       enabled: true,
+      onlineOnly: false,
     },
     validate: {
       operations: {
@@ -262,6 +263,14 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                       value={form.values.keywordId}
                       w={'100%'}
                   />}
+
+                  <Switch
+                    mt={10}
+                    label={t('onlineOnly')}
+                    labelPosition={'right'}
+                    w={'100%'}
+                    {...form.getInputProps('onlineOnly', { type: 'checkbox' })}
+                  />
                 </Flex>
               </Grid.Col>
               <Grid.Col span={6}>

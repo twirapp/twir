@@ -33,6 +33,7 @@
   "description": "Description of your listener",
   "availableVariables": "Available variables",
   "availableVariablesDescription": "You can use custom variables in operations.",
+  "onlineOnly": "Execute only when stream is online",
   "triggerCommand": "Choose command for trigger that event",
   "triggerReward": "Reward for trigger that event",
   "triggerKeyword": "Keyword for trigger that event",

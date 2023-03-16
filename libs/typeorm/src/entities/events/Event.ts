@@ -55,4 +55,7 @@ export class Event {
 
   @Column({ default: true })
   enabled: boolean;
+
+  @Column('boolean', { default: false, name: 'online_only' })
+  onlineOnly: boolean;
 }
