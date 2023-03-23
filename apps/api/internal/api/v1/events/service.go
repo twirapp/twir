@@ -22,6 +22,7 @@ func handleGet(channelId string, services types.Services) []model.Event {
 	err := db.
 		Where(`"channelId" = ?`, channelId).
 		Preload("Operations").
+		Preload("Operations.Filters").
 		Find(&events).Error
 	if err != nil {
 		logger.Error(err)
@@ -67,6 +68,20 @@ func handlePost(channelId string, dto *eventDto) (*model.Event, error) {
 
 			if err := tx.Create(newOperation).Error; err != nil {
 				return err
+			}
+
+			for _, filter := range operation.Filters {
+				newFilter := &model.EventOperationFilter{
+					ID:          uuid.NewV4().String(),
+					Type:        filter.Type,
+					Left:        filter.Left,
+					Right:       filter.Right,
+					OperationID: newOperation.ID,
+				}
+
+				if err := tx.Create(newFilter).Error; err != nil {
+					return err
+				}
 			}
 		}
 
@@ -128,6 +143,20 @@ func handleUpdate(channelId, eventId string, dto *eventDto) (*model.Event, error
 
 			if err := tx.Save(&newOperation).Error; err != nil {
 				return err
+			}
+
+			for _, filter := range operation.Filters {
+				newFilter := &model.EventOperationFilter{
+					ID:          uuid.NewV4().String(),
+					Type:        filter.Type,
+					Left:        filter.Left,
+					Right:       filter.Right,
+					OperationID: newOperation.ID,
+				}
+
+				if err := tx.Create(newFilter).Error; err != nil {
+					return err
+				}
 			}
 		}
 

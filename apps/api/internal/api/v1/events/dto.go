@@ -2,6 +2,12 @@ package events
 
 import model "github.com/satont/tsuwari/libs/gomodels"
 
+type operationFilterDto struct {
+	Type  model.EventOperationFilterType `validate:"required" json:"type"`
+	Left  string                         `validate:"required" json:"left"`
+	Right string                         `json:"right"`
+}
+
 type operationDto struct {
 	Type         model.EventOperationType `validate:"required" json:"type"`
 	Input        *string                  `json:"input"`
@@ -11,6 +17,7 @@ type operationDto struct {
 	TimeoutTime  int                      `json:"timeoutTime"`
 	ObsAudioStep string                   `json:"obsAudioStep"`
 	Target       string                   `json:"target"`
+	Filters      []operationFilterDto     `validate:"dive" json:"filters"`
 }
 
 type eventDto struct {

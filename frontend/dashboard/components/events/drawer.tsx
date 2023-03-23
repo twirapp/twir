@@ -6,7 +6,7 @@ import {
   Checkbox,
   Code,
   CopyButton,
-  createStyles,
+  createStyles, Divider,
   Drawer,
   Flex,
   Grid,
@@ -15,12 +15,12 @@ import {
   ScrollArea,
   Select, Switch,
   Text,
-  Textarea,
+  Textarea, TextInput,
   useMantineTheme,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
-import { IconArrowBigDownLines, IconArrowDown, IconArrowUp, IconPlus, IconX } from '@tabler/icons';
+import { IconArrowBigDownLines, IconArrowDown, IconArrowUp, IconPlus, IconTrash, IconX } from '@tabler/icons';
 import { Event, EventType } from '@tsuwari/typeorm/entities/events/Event';
 import { OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
 import { useTranslation } from 'next-i18next';
@@ -29,6 +29,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { noop } from '../../util/chore';
 import { eventsMapping } from './eventsMapping';
 
+import { filtersMapping } from '@/components/events/filtersMapping';
 import { operationMapping } from '@/components/events/operationMapping';
 import { RewardItem, RewardItemProps } from '@/components/reward';
 import {
@@ -282,7 +283,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                         {({ copied, copy }) => (
                           <Code
                             onClick={copy}
-                            style={{ cursor:'pointer' }}
+                            style={{ cursor: 'pointer' }}
                           >
                             {copied ? 'Copied' : `{${variable}}`}
                           </Code>
@@ -296,167 +297,239 @@ export const EventsDrawer: React.FC<Props> = (props) => {
               </Grid.Col>
             </Grid>
 
-            {form.values.operations?.map((operation, index) => (
-                  <Fragment key={index}>
-                    <div className={cardClasses.classes.root} >
-                      <div className={cardClasses.classes.label}>
-                        <Flex gap={'xs'}>
-                          {index > 0 && <ActionIcon
-                              variant={'default'}
-                              onClick={() => form.reorderListItem('operations', {
-                                from: index,
-                                to: index-1,
-                              })}
-                          >
-                              <IconArrowUp />
-                          </ActionIcon>}
-                          {(form.values.operations.length > 1 && index+1 !== form.values.operations.length) && <ActionIcon
-                              variant={'default'}
-                              onClick={() => form.reorderListItem('operations', {
-                                from: index,
-                                to: index+1,
-                              })}
-                          >
-                              <IconArrowDown />
-                          </ActionIcon>}
-                          <ActionIcon variant={'default'} onClick={() => form.removeListItem('operations', index)}>
-                            <IconX />
-                          </ActionIcon>
-                        </Flex>
-                      </div>
-
-                      <Card
-                        shadow="sm"
-                        p="lg"
-                        radius="md"
-                        withBorder
+            {form.values.operations?.map((operation, operationIndex) => (
+              <Fragment key={operationIndex}>
+                <div className={cardClasses.classes.root}>
+                  <div className={cardClasses.classes.label}>
+                    <Flex gap={'xs'}>
+                      {operationIndex > 0 && <ActionIcon
+                          variant={'default'}
+                          onClick={() => form.reorderListItem('operations', {
+                            from: operationIndex,
+                            to: operationIndex - 1,
+                          })}
                       >
-                        <Card.Section p={'lg'}>
-                          <Grid>
-                            <Grid.Col span={6} w={'100%'}>
-                              <Select
-                                label={'Operation'}
-                                searchable={true}
-                                data={Object.keys(OperationType).map(t => ({
-                                  value: t,
-                                  label: operationMapping[t as OperationType]?.description || t,
-                                  disabled: operationMapping[t as OperationType].dependsOnEvents
-                                    ? !operationMapping[t as OperationType].dependsOnEvents?.some(e => e === form.values.type)
-                                    : false,
-                                }))}
-                                onChange={(newValue) => {
-                                  form.setFieldValue(`operations.${index}.type`, newValue);
-                                }}
-                                value={form.values.operations[index]?.type}
-                                w={'100%'}
-                                withinPortal={true}
-                              />
+                          <IconArrowUp/>
+                      </ActionIcon>}
+                      {(form.values.operations.length > 1 && operationIndex + 1 !== form.values.operations.length) &&
+                          <ActionIcon
+                              variant={'default'}
+                              onClick={() => form.reorderListItem('operations', {
+                                from: operationIndex,
+                                to: operationIndex + 1,
+                              })}
+                          >
+                              <IconArrowDown/>
+                          </ActionIcon>}
+                      <ActionIcon variant={'default'} onClick={() => form.removeListItem('operations', operationIndex)}>
+                        <IconX/>
+                      </ActionIcon>
+                    </Flex>
+                  </div>
 
-                              {(operationMapping[operation.type].haveInput || operationMapping[operation.type].producedVariables || operationMapping[operation.type].additionalValues) && <Fragment>
-                              {operationMapping[operation.type].haveInput && <Textarea
-                                  label={t(`operations.inputDescription.${operation.type}`, t('operations.input'))}
-                                  required
-                                  autosize={true}
-                                  minRows={1}
-                                  {...form.getInputProps(`operations.${index}.input`)}
-                                  w={'100%'}
-                              />}
-                              {form.values.operations && form.values.operations[index - 1]
-                                && operationMapping[form.values.operations[index - 1].type].producedVariables
-                                && <Flex direction={'column'}>
-                                      <Text size={'sm'}>Available variables from prev operation:</Text>
-                                      <Flex direction={'row'}>
-                                        {operationMapping[form.values.operations[index - 1].type].producedVariables!.map((v, i) => <CopyButton value={`{prevOperation.${v}}`}>
-                                          {({ copied, copy }) => (
-                                            <Text
-                                              onClick={copy}
-                                              style={{ cursor:'pointer' }}
-                                              size={'xs'}
-                                              key={i}
-                                            >
-                                              {copied ? 'Copied' : `{prevOperation.${v}}`}
-                                            </Text>
-                                          )}
-                                        </CopyButton>)}
-                                      </Flex>
-                                  </Flex>}
-                              {operationMapping[operation.type].additionalValues?.map((v, i) => <Group key={i} mt={5}>
-                                {v === 'useAnnounce' && <Checkbox
-                                    label={t('operations.additionalValues.useAnnounce')}
-                                    labelPosition={'left'}
-                                    {...form.getInputProps(`operations.${index}.useAnnounce`, { type: 'checkbox' })}
-                                />}
-                                {v === 'timeoutTime' && <NumberInput
-                                    label={t('operations.additionalValues.timeoutTime')}
-                                    {...form.getInputProps(`operations.${index}.timeoutTime`)}
+                  <Card
+                    shadow="sm"
+                    p="lg"
+                    radius="md"
+                    withBorder
+                  >
+                    <Card.Section p={'lg'}>
+                      <Grid>
+                        <Grid.Col span={6} w={'100%'}>
+                          <Select
+                            label={'Operation'}
+                            searchable={true}
+                            data={Object.keys(OperationType).map(t => ({
+                              value: t,
+                              label: operationMapping[t as OperationType]?.description || t,
+                              disabled: operationMapping[t as OperationType].dependsOnEvents
+                                ? !operationMapping[t as OperationType].dependsOnEvents?.some(e => e === form.values.type)
+                                : false,
+                            }))}
+                            onChange={(newValue) => {
+                              form.setFieldValue(`operations.${operationIndex}.type`, newValue);
+                            }}
+                            value={form.values.operations[operationIndex]?.type}
+                            w={'100%'}
+                            withinPortal={true}
+                          />
+
+                          {(operationMapping[operation.type].haveInput || operationMapping[operation.type].producedVariables || operationMapping[operation.type].additionalValues) &&
+                              <Fragment>
+                                {operationMapping[operation.type].haveInput && <Textarea
+                                    label={t(`operations.inputDescription.${operation.type}`, t('operations.input'))}
+                                    required
+                                    autosize={true}
+                                    minRows={1}
+                                    {...form.getInputProps(`operations.${operationIndex}.input`)}
                                     w={'100%'}
                                 />}
-                                {
-                                  v === 'target'
-                                  && (operation.type === OperationType.CHANGE_VARIABLE
-                                    || operation.type === OperationType.INCREMENT_VARIABLE
-                                    || operation.type === OperationType.DECREMENT_VARIABLE
-                                  )
-                                  && <Select
-                                        label={'Variable'}
-                                        searchable
-                                        data={variables?.map(v => ({
-                                          value: v.id,
-                                          label: v.name,
-                                        })) ?? []}
-                                        {...form.getInputProps(`operations.${index}.target`)}
-                                        w={'100%'}
-                                        withinPortal={true}
-                                    />}
-                                {v === 'target' && operation.type.startsWith('OBS') && <Select
-                                    label={'OBS Target'}
-                                    searchable={true}
-                                    data={getObsSourceByOperationType(operation.type)}
-                                    {...form.getInputProps(`operations.${index}.target`)}
-                                    w={'100%'}
-                                    withinPortal={true}
-                                />}
-                                {v === 'target' && (
-                                    operation.type === OperationType.ALLOW_COMMAND_TO_USER ||
-                                    operation.type === OperationType.REMOVE_ALLOW_COMMAND_TO_USER ||
-                                    operation.type === OperationType.DENY_COMMAND_TO_USER ||
-                                    operation.type === OperationType.REMOVE_DENY_COMMAND_TO_USER) &&
-                                    <Select
-                                        label={'Command'}
-                                        searchable={true}
-                                        data={commandList.data?.map((c) => ({
-                                          value: c.id,
-                                          label: c.name,
-                                        })) ?? []}
-                                        {...form.getInputProps(`operations.${index}.target`)}
-                                        w={'100%'}
-                                        withinPortal={true}
-                                    />}
-                              </Group>)}
-                            </Fragment>}
-                            </Grid.Col>
-                          <Grid.Col span={6}>
-                            <NumberInput
-                              label={t('operations.delay')}
-                              {...form.getInputProps(`operations.${index}.delay`)}
-                            />
-                            <NumberInput
-                              label={t('operations.repeat')}
-                              {...form.getInputProps(`operations.${index}.repeat`)}
-                            />
-                          </Grid.Col>
-                        </Grid>
-                        </Card.Section>
-                      </Card>
+                                {form.values.operations && form.values.operations[operationIndex - 1]
+                                  && operationMapping[form.values.operations[operationIndex - 1].type].producedVariables
+                                  && <Flex direction={'column'}>
+                                        <Text size={'sm'}>Available variables from prev operation:</Text>
+                                        <Flex direction={'row'}>
+                                          {operationMapping[form.values.operations[operationIndex - 1].type].producedVariables!.map((v, i) =>
+                                            <CopyButton value={`{prevOperation.${v}}`}>
+                                              {({ copied, copy }) => (
+                                                <Text
+                                                  onClick={copy}
+                                                  style={{ cursor: 'pointer' }}
+                                                  size={'xs'}
+                                                  key={i}
+                                                >
+                                                  {copied ? 'Copied' : `{prevOperation.${v}}`}
+                                                </Text>
+                                              )}
+                                            </CopyButton>)}
+                                        </Flex>
+                                    </Flex>}
+                                {operationMapping[operation.type].additionalValues?.map((v, i) => <Group key={i} mt={5}>
+                                  {v === 'useAnnounce' && <Checkbox
+                                      label={t('operations.additionalValues.useAnnounce')}
+                                      labelPosition={'left'}
+                                      {...form.getInputProps(`operations.${operationIndex}.useAnnounce`, { type: 'checkbox' })}
+                                  />}
+                                  {v === 'timeoutTime' && <NumberInput
+                                      label={t('operations.additionalValues.timeoutTime')}
+                                      {...form.getInputProps(`operations.${operationIndex}.timeoutTime`)}
+                                      w={'100%'}
+                                  />}
+                                  {
+                                    v === 'target'
+                                    && (operation.type === OperationType.CHANGE_VARIABLE
+                                      || operation.type === OperationType.INCREMENT_VARIABLE
+                                      || operation.type === OperationType.DECREMENT_VARIABLE
+                                    )
+                                    && <Select
+                                          label={'Variable'}
+                                          searchable
+                                          data={variables?.map(v => ({
+                                            value: v.id,
+                                            label: v.name,
+                                          })) ?? []}
+                                          {...form.getInputProps(`operations.${operationIndex}.target`)}
+                                          w={'100%'}
+                                          withinPortal={true}
+                                      />}
+                                  {v === 'target' && operation.type.startsWith('OBS') && <Select
+                                      label={'OBS Target'}
+                                      searchable={true}
+                                      data={getObsSourceByOperationType(operation.type)}
+                                      {...form.getInputProps(`operations.${operationIndex}.target`)}
+                                      w={'100%'}
+                                      withinPortal={true}
+                                  />}
+                                  {v === 'target' && (
+                                      operation.type === OperationType.ALLOW_COMMAND_TO_USER ||
+                                      operation.type === OperationType.REMOVE_ALLOW_COMMAND_TO_USER ||
+                                      operation.type === OperationType.DENY_COMMAND_TO_USER ||
+                                      operation.type === OperationType.REMOVE_DENY_COMMAND_TO_USER) &&
+                                      <Select
+                                          label={'Command'}
+                                          searchable={true}
+                                          data={commandList.data?.map((c) => ({
+                                            value: c.id,
+                                            label: c.name,
+                                          })) ?? []}
+                                          {...form.getInputProps(`operations.${operationIndex}.target`)}
+                                          w={'100%'}
+                                          withinPortal={true}
+                                      />}
+                                </Group>)}
+                              </Fragment>}
+                        </Grid.Col>
+                        <Grid.Col span={6}>
+                          <NumberInput
+                            label={t('operations.delay')}
+                            {...form.getInputProps(`operations.${operationIndex}.delay`)}
+                          />
+                          <NumberInput
+                            label={t('operations.repeat')}
+                            {...form.getInputProps(`operations.${operationIndex}.repeat`)}
+                          />
+                        </Grid.Col>
+                      </Grid>
 
-                    </div>
-                    {index < form.values.operations.length-1 &&
-                        <Center w={'100%'} mt={10} mb={10}>
-                            <IconArrowBigDownLines size={30} />
-                        </Center>
-                    }
-                  </Fragment>
-                ))}
+                      <Divider mt={5}/>
+                      <Text mt={5} size={'lg'}>Filters</Text>
+
+                      {operation.filters?.map((f, filterIndex) => <Grid columns={20} key={filterIndex}>
+                        <Grid.Col span={6}>
+                          <TextInput
+                            {...form.getInputProps(`operations.${operationIndex}.filters.${filterIndex}.left`)}
+                            placeholder={'Enter value'}
+                          />
+                        </Grid.Col>
+                        <Grid.Col span={6}>
+                          <Select
+                            searchable
+                            placeholder={'Select filter'}
+                            data={Object.entries(filtersMapping).map(f => ({
+                                label: f[1].description,
+                                value: f[0],
+                              }),
+                            )}
+                            withinPortal={true}
+                            onChange={(v) => {
+                              form.setFieldValue(
+                                `operations.${operationIndex}.filters.${filterIndex}.right`,
+                                '',
+                              );
+                              form.setFieldValue(
+                                `operations.${operationIndex}.filters.${filterIndex}.left`,
+                                '',
+                              );
+                              form.setFieldValue(
+                                `operations.${operationIndex}.filters.${filterIndex}.type`,
+                                v,
+                              );
+                            }}
+                            value={f.type}
+                          />
+                        </Grid.Col>
+                        <Grid.Col span={6}>
+                          <TextInput
+                            {...form.getInputProps(`operations.${operationIndex}.filters.${filterIndex}.right`)}
+                            placeholder={'Enter value'}
+                            disabled={filtersMapping[f.type].withoutRight}
+                          />
+                        </Grid.Col>
+                        <Grid.Col span={2}>
+                          <Button
+                            variant={'light'}
+                            color={'red'}
+                            onClick={() => {
+                              form.removeListItem(`operations.${operationIndex}.filters`, filterIndex);
+                            }}
+                          >
+                            <IconTrash />
+                          </Button>
+                        </Grid.Col>
+                      </Grid>)}
+
+                      <Button mt={10} variant={'light'} size={'xs'} onClick={() => {
+                        form.insertListItem(`operations.${operationIndex}.filters`, {
+                          right: '',
+                          left: '',
+                          type: 'CONTAINS',
+                        });
+                      }}
+                      >
+                        <IconPlus size={30}/>
+                        New filter
+                      </Button>
+                    </Card.Section>
+                  </Card>
+
+                </div>
+                {operationIndex < form.values.operations.length - 1 &&
+                    <Center w={'100%'} mt={10} mb={10}>
+                        <IconArrowBigDownLines size={30}/>
+                    </Center>
+                }
+              </Fragment>
+            ))}
 
             <Center w={'100%'}>
               <Button variant={'light'} onClick={() => {
@@ -471,9 +544,11 @@ export const EventsDrawer: React.FC<Props> = (props) => {
                   useAnnounce: false,
                   timeoutTime: 600,
                   target: '',
+                  filters: [],
                 }]);
-              }}>
-                <IconPlus size={30} />
+              }}
+              >
+                <IconPlus size={30}/>
                 New
               </Button>
             </Center>

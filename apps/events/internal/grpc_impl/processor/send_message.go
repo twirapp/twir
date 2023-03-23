@@ -8,7 +8,7 @@ import (
 )
 
 func (c *Processor) SendMessage(channelId, message string, useAnnounce bool) error {
-	msg, err := c.hydrateStringWithData(message, c.data)
+	msg, err := c.HydrateStringWithData(message, c.data)
 	if err != nil {
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}

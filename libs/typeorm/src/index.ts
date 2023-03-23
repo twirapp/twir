@@ -37,6 +37,7 @@ import { DotaMatchCard } from './entities/DotaMatchCard';
 import { DotaMatchResult } from './entities/DotaMatchResult';
 import { Event } from './entities/events/Event';
 import { EventOperation } from './entities/events/EventOperation';
+import { EventOperationFilter } from './entities/events/EventOperationFilter';
 import { IgnoredUser } from './entities/IgnoredUser';
 import { Integration } from './entities/Integration';
 import { Notification } from './entities/Notification';
@@ -101,6 +102,7 @@ export const AppDataSource = new DataSource({
     ChannelCommandGroup,
     ChannelRole,
     ChannelRoleUser,
+    EventOperationFilter,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

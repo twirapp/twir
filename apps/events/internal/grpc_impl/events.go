@@ -12,6 +12,7 @@ func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.
 	err := c.services.DB.
 		Where(`"channelId" = ? AND "type" = ? AND "enabled" = ?`, channelId, eventType, true).
 		Preload("Operations").
+		Preload("Operations.Filters").
 		Find(&dbEntities).
 		Error
 

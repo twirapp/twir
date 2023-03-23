@@ -77,7 +77,7 @@ var variablesRegular = regexp.MustCompile(
 	`(?m)\$\((?P<all>(?P<main>[^.)|]+)(?:\.[^)|]+)?)(?:\|(?P<params>[^)]+))?\)`,
 )
 
-func (c *Processor) hydrateStringWithData(str string, data any) (string, error) {
+func (c *Processor) HydrateStringWithData(str string, data any) (string, error) {
 	template := fasttemplate.New(str, "{", "}")
 
 	bytes, err := json.Marshal(data)

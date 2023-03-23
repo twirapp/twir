@@ -7,8 +7,99 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/twitch"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 )
+
+// check is filter returns false and if so - break operations loop
+func (c *EventsGrpcImplementation) processFilters(
+	processor *processor_module.Processor,
+	filters []*model.EventOperationFilter,
+	data internal.Data,
+) bool {
+	for _, filter := range filters {
+		hydratedRight, _ := processor.HydrateStringWithData(filter.Right, data)
+		hydratedLeft, _ := processor.HydrateStringWithData(filter.Left, data)
+
+		numericRight, _ := strconv.Atoi(hydratedRight)
+		numericLeft, _ := strconv.Atoi(hydratedLeft)
+
+		if filter.Type == model.EventOperationFilterTypeEquals {
+			if hydratedLeft != hydratedRight {
+				return false
+			}
+		}
+
+		if filter.Type == model.EventOperationFilterTypeNotEquals {
+			if hydratedLeft == hydratedRight {
+				return false
+			}
+		}
+
+		if filter.Type == model.EventOperationFilterTypeContains {
+			if !strings.Contains(hydratedLeft, hydratedRight) {
+				return false
+			}
+		}
+
+		if filter.Type == model.EventOperationFilterTypeStartsWith {
+			if !strings.HasPrefix(hydratedLeft, hydratedRight) {
+				return false
+			}
+		}
+
+		if filter.Type == model.EventOperationFilterTypeEndsWith {
+			if !strings.HasSuffix(hydratedLeft, hydratedRight) {
+				return false
+			}
+		}
+
+		if filter.Type == model.EventOperationFilterTypeNotContains {
+			if strings.Contains(hydratedLeft, hydratedRight) {
+				return false
+			}
+		}
+
+		if filter.Type == model.EventOperationFilterTypeGreaterThan {
+			if numericLeft <= numericRight {
+				return false
+			}
+		}
+
+		if filter.Type == model.EventOperationFilterTypeLessThan {
+			if numericLeft >= numericRight {
+				return false
+			}
+		}
+
+		if filter.Type == model.EventOperationFilterTypeGreaterThanOrEquals {
+			if numericLeft < numericRight {
+				return false
+			}
+		}
+
+		if filter.Type == model.EventOperationFilterTypeLessThanOrEquals {
+			if numericLeft > numericRight {
+				return false
+			}
+		}
+
+		if filter.Type == model.EventOperationFilterTypeIsEmpty {
+			if hydratedLeft != "" {
+				return false
+			}
+		}
+
+		if filter.Type == model.EventOperationFilterTypeIsNotEmpty {
+			if hydratedLeft == "" {
+				return false
+			}
+		}
+	}
+
+	return true
+}
 
 func (c *EventsGrpcImplementation) processOperations(channelId string, event model.Event, data internal.Data) {
 	streamerApiClient, err := twitch.NewUserClient(channelId, *c.services.Cfg, c.services.TokensGrpc)
@@ -48,6 +139,11 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, event mod
 
 operationsLoop:
 	for _, operation := range event.Operations {
+		allFiltersOk := c.processFilters(processor, operation.Filters, data)
+		if !allFiltersOk {
+			continue
+		}
+
 		for i := 0; i < operation.Repeat; i++ {
 			if operation.Delay != 0 {
 				duration := time.Duration(operation.Delay) * time.Second

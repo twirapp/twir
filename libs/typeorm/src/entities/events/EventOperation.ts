@@ -1,7 +1,8 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 // eslint-disable-next-line import/no-cycle
 import { Event } from './Event';
+import { EventOperationFilter } from './EventOperationFilter';
 
 export enum OperationType {
   TIMEOUT = 'TIMEOUT',
@@ -84,4 +85,7 @@ export class EventOperation {
 
   @Column({ nullable: true })
   target: string | null;
+
+  @OneToMany(() => EventOperationFilter, _ => _.operation)
+  filters: EventOperationFilter[];
 }
