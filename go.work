@@ -19,7 +19,6 @@ use (
 	./libs/permissions
 	./libs/pubsub
 	./libs/twitch
-	./libs/twitch-eventsub-bindings
 	./libs/types
 	./libs/ytdl
 	./libs/ytsr
