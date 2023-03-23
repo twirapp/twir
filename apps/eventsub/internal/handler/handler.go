@@ -5,15 +5,15 @@ import (
 	"github.com/satont/tsuwari/apps/eventsub/internal/types"
 )
 
-type handler struct {
+type Handler struct {
 	Manager  *eventsub_framework.SubHandler
 	services *types.Services
 }
 
-func NewHandler(services *types.Services) *handler {
+func NewHandler(services *types.Services) *Handler {
 	manager := eventsub_framework.NewSubHandler(true, []byte(services.Config.TwitchClientSecret))
 
-	myHandler := &handler{
+	myHandler := &Handler{
 		Manager:  manager,
 		services: services,
 	}
@@ -27,6 +27,13 @@ func NewHandler(services *types.Services) *handler {
 	manager.HandleChannelModeratorRemove = myHandler.handleChannelModeratorRemove
 	manager.HandleChannelPointsRewardRedemptionAdd = myHandler.handleChannelPointsRewardRedemptionAdd
 	manager.HandleChannelPointsRewardRedemptionUpdate = myHandler.handleChannelPointsRewardRedemptionUpdate
+	manager.HandleChannelPollBegin = myHandler.handleChannelPollBegin
+	manager.HandleChannelPollProgress = myHandler.handleChannelPollProgress
+	manager.HandleChannelPollEnd = myHandler.handleChannelPollEnd
+	manager.HandleChannelPredictionBegin = myHandler.handleChannelPredictionBegin
+	manager.HandleChannelPredictionProgress = myHandler.handleChannelPredictionProgress
+	manager.HandleChannelPredictionLock = myHandler.handleChannelPredictionLock
+	manager.HandleChannelPredictionEnd = myHandler.handleChannelPredictionEnd
 
 	return myHandler
 }

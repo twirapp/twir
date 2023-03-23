@@ -17,7 +17,7 @@ import (
 	"strconv"
 )
 
-func (c *handler) handleChannelPointsRewardRedemptionAdd(
+func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
 ) {
@@ -48,7 +48,7 @@ func (c *handler) handleChannelPointsRewardRedemptionAdd(
 	c.handleYoutubeSongRequests(event)
 }
 
-func (c *handler) handleChannelPointsRewardRedemptionUpdate(
+func (c *Handler) handleChannelPointsRewardRedemptionUpdate(
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPointsRewardRedemptionUpdate,
 ) {
@@ -73,7 +73,7 @@ func (c *handler) handleChannelPointsRewardRedemptionUpdate(
 	}
 }
 
-func (c *handler) countUserChannelPoints(userId, channelId string, count int) {
+func (c *Handler) countUserChannelPoints(userId, channelId string, count int) {
 	user := &model.Users{}
 	err := c.services.Gorm.
 		Where("id = ?", userId).
@@ -134,7 +134,7 @@ func (c *handler) countUserChannelPoints(userId, channelId string, count int) {
 	}
 }
 
-func (c *handler) handleYoutubeSongRequests(event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd) {
+func (c *Handler) handleYoutubeSongRequests(event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd) {
 	if event.UserInput == "" {
 		return
 	}

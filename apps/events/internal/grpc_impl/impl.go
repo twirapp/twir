@@ -2,9 +2,12 @@ package grpc_impl
 
 import (
 	"context"
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/events/internal"
+	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"strings"
 )
 
 type EventsGrpcImplementation struct {
@@ -27,7 +30,7 @@ func (c *EventsGrpcImplementation) Follow(_ context.Context, msg *events.FollowM
 			UserDisplayName: msg.UserDisplayName,
 			UserID:          msg.UserId,
 		},
-		"FOLLOW",
+		model.EventTypeFollow,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -42,7 +45,7 @@ func (c *EventsGrpcImplementation) Subscribe(_ context.Context, msg *events.Subs
 			SubLevel:        msg.Level,
 			UserID:          msg.UserId,
 		},
-		"SUBSCRIBE",
+		model.EventTypeSubscribe,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -60,7 +63,7 @@ func (c *EventsGrpcImplementation) ReSubscribe(_ context.Context, msg *events.Re
 			ResubStreak:     msg.Streak,
 			UserID:          msg.UserId,
 		},
-		"RESUBSCRIBE",
+		model.EventTypeResubscribe,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -78,7 +81,7 @@ func (c *EventsGrpcImplementation) RedemptionCreated(_ context.Context, msg *eve
 			RewardID:        msg.Id,
 			UserID:          msg.UserId,
 		},
-		"REDEMPTION_CREATED",
+		model.EventTypeRedemptionCreated,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -95,7 +98,7 @@ func (c *EventsGrpcImplementation) CommandUsed(_ context.Context, msg *events.Co
 			CommandInput:    msg.CommandInput,
 			UserID:          msg.UserId,
 		},
-		"COMMAND_USED",
+		model.EventTypeCommandUsed,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -109,7 +112,7 @@ func (c *EventsGrpcImplementation) FirstUserMessage(_ context.Context, msg *even
 			UserDisplayName: msg.UserDisplayName,
 			UserID:          msg.UserId,
 		},
-		"FIRST_USER_MESSAGE",
+		model.EventTypeFirstUserMessage,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -124,7 +127,7 @@ func (c *EventsGrpcImplementation) Raided(_ context.Context, msg *events.RaidedM
 			RaidViewers:     msg.Viewers,
 			UserID:          msg.UserId,
 		},
-		"RAIDED",
+		model.EventTypeRaided,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -139,7 +142,7 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(_ context.Context, msg
 			OldStreamTitle:    msg.OldTitle,
 			NewStreamTitle:    msg.NewTitle,
 		},
-		"TITLE_OR_CATEGORY_CHANGED",
+		model.EventTypeTitleOrCategoryChanged,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -152,7 +155,7 @@ func (c *EventsGrpcImplementation) StreamOnline(_ context.Context, msg *events.S
 			StreamTitle:    msg.Title,
 			StreamCategory: msg.Category,
 		},
-		"STREAM_ONLINE",
+		model.EventTypeStreamOnline,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -162,7 +165,7 @@ func (c *EventsGrpcImplementation) StreamOffline(_ context.Context, msg *events.
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{},
-		"STREAM_OFFLINE",
+		model.EventTypeStreamOffline,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -177,7 +180,7 @@ func (c *EventsGrpcImplementation) SubGift(_ context.Context, msg *events.SubGif
 			SubLevel:              msg.Level,
 			UserID:                msg.SenderUserId,
 		},
-		"SUB_GIFT",
+		model.EventTypeSubGift,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -187,7 +190,7 @@ func (c *EventsGrpcImplementation) ChatClear(_ context.Context, msg *events.Chat
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{},
-		"ON_CHAT_CLEAR",
+		model.EventTypeOnChatClear,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -202,7 +205,7 @@ func (c *EventsGrpcImplementation) Donate(_ context.Context, msg *events.DonateM
 			DonateCurrency: msg.Currency,
 			DonateMessage:  msg.Message,
 		},
-		"DONATE",
+		model.EventTypeDonate,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -222,7 +225,7 @@ func (c *EventsGrpcImplementation) KeywordMatched(
 			KeywordID:       msg.KeywordId,
 			UserID:          msg.UserId,
 		},
-		"KEYWORD_MATCHED",
+		model.EventTypeKeywordMatched,
 	)
 
 	return &emptypb.Empty{}, nil
@@ -237,7 +240,170 @@ func (c *EventsGrpcImplementation) GreetingSended(_ context.Context, msg *events
 			UserID:          msg.UserId,
 			GreetingText:    msg.GreetingText,
 		},
-		"GREETING_SENDED",
+		model.EventTypeGreetingSended,
+	)
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) PollBegin(_ context.Context, msg *events.PollBeginMessage) (*emptypb.Empty, error) {
+	go c.processEvent(
+		msg.BaseInfo.ChannelId,
+		internal.Data{
+			UserName:        msg.UserName,
+			UserDisplayName: msg.UserDisplayName,
+			PollTitle:       msg.Info.Title,
+			PollOptionsNames: strings.Join(lo.Map(msg.Info.Choices, func(item *events.PollInfo_Choice, _ int) string {
+				return item.Title
+			}), " · "),
+		},
+		model.EventTypePollBegin,
+	)
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) PollProgress(_ context.Context, msg *events.PollProgressMessage) (*emptypb.Empty, error) {
+	totalVotes := lo.Reduce(msg.Info.Choices, func(acc int, item *events.PollInfo_Choice, _ int) int {
+		return acc + int(item.Votes)
+	}, 0)
+
+	go c.processEvent(
+		msg.BaseInfo.ChannelId,
+		internal.Data{
+			UserName:        msg.UserName,
+			UserDisplayName: msg.UserDisplayName,
+			PollTitle:       msg.Info.Title,
+			PollOptionsNames: strings.Join(lo.Map(msg.Info.Choices, func(item *events.PollInfo_Choice, _ int) string {
+				return item.Title
+			}), " · "),
+			PollTotalVotes: totalVotes,
+		},
+		model.EventTypePollProgress,
+	)
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) PollEnd(_ context.Context, msg *events.PollEndMessage) (*emptypb.Empty, error) {
+	totalVotes := lo.Reduce(msg.Info.Choices, func(acc int, item *events.PollInfo_Choice, _ int) int {
+		return acc + int(item.Votes)
+	}, 0)
+
+	// find most total votes in choices
+	winner := lo.MaxBy(msg.Info.Choices, func(a *events.PollInfo_Choice, b *events.PollInfo_Choice) bool {
+		return a.Votes > b.Votes
+	})
+
+	go c.processEvent(
+		msg.BaseInfo.ChannelId,
+		internal.Data{
+			UserName:        msg.UserName,
+			UserDisplayName: msg.UserDisplayName,
+			PollTitle:       msg.Info.Title,
+			PollOptionsNames: strings.Join(lo.Map(msg.Info.Choices, func(item *events.PollInfo_Choice, _ int) string {
+				return item.Title
+			}), " · "),
+			PollWinnerTitle:               winner.Title,
+			PollWinnerBitsVotes:           int(winner.BitsVotes),
+			PollWinnerChannelsPointsVotes: int(winner.ChannelsPointsVotes),
+			PollWinnerTotalVotes:          int(winner.Votes),
+			PollTotalVotes:                totalVotes,
+		},
+		model.EventTypePollEnd,
+	)
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) PredictionBegin(_ context.Context, msg *events.PredictionBeginMessage) (*emptypb.Empty, error) {
+	go c.processEvent(
+		msg.BaseInfo.ChannelId,
+		internal.Data{
+			UserName:        msg.UserName,
+			UserDisplayName: msg.UserDisplayName,
+			PredictionTitle: msg.Info.Title,
+			PredictionOptionsNames: strings.Join(lo.Map(msg.Info.Outcomes, func(item *events.PredictionInfo_OutCome, _ int) string {
+				return item.Title
+			}), " · "),
+		},
+		model.EventTypePredictionBegin,
+	)
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) PredictionProgress(_ context.Context, msg *events.PredictionProgressMessage) (*emptypb.Empty, error) {
+	totalPoints := lo.Reduce(msg.Info.Outcomes, func(acc int, item *events.PredictionInfo_OutCome, _ int) int {
+		return acc + int(item.ChannelPoints)
+	}, 0)
+
+	go c.processEvent(
+		msg.BaseInfo.ChannelId,
+		internal.Data{
+			UserName:        msg.UserName,
+			UserDisplayName: msg.UserDisplayName,
+			PredictionTitle: msg.Info.Title,
+			PredictionOptionsNames: strings.Join(lo.Map(msg.Info.Outcomes, func(item *events.PredictionInfo_OutCome, _ int) string {
+				return item.Title
+			}), " · "),
+			PredictionTotalChannelPoints: totalPoints,
+		},
+		model.EventTypePredictionProgress,
+	)
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) PredictionLock(_ context.Context, msg *events.PredictionLockMessage) (*emptypb.Empty, error) {
+	totalPoints := lo.Reduce(msg.Info.Outcomes, func(acc int, item *events.PredictionInfo_OutCome, _ int) int {
+		return acc + int(item.ChannelPoints)
+	}, 0)
+
+	go c.processEvent(
+		msg.BaseInfo.ChannelId,
+		internal.Data{
+			UserName:        msg.UserName,
+			UserDisplayName: msg.UserDisplayName,
+			PredictionTitle: msg.Info.Title,
+			PredictionOptionsNames: strings.Join(lo.Map(msg.Info.Outcomes, func(item *events.PredictionInfo_OutCome, _ int) string {
+				return item.Title
+			}), " · "),
+			PredictionTotalChannelPoints: totalPoints,
+		},
+		model.EventTypePredictionLock,
+	)
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) PredictionEnd(_ context.Context, msg *events.PredictionEndMessage) (*emptypb.Empty, error) {
+	totalPoints := lo.Reduce(msg.Info.Outcomes, func(acc int, item *events.PredictionInfo_OutCome, _ int) int {
+		return acc + int(item.ChannelPoints)
+	}, 0)
+
+	winner, _ := lo.Find(msg.Info.Outcomes, func(item *events.PredictionInfo_OutCome) bool {
+		return item.Id == msg.WinningOutcomeId
+	})
+
+	go c.processEvent(
+		msg.BaseInfo.ChannelId,
+		internal.Data{
+			UserName:        msg.UserName,
+			UserDisplayName: msg.UserDisplayName,
+			PredictionTitle: msg.Info.Title,
+			PredictionOptionsNames: strings.Join(lo.Map(msg.Info.Outcomes, func(item *events.PredictionInfo_OutCome, _ int) string {
+				return item.Title
+			}), " · "),
+			PredictionWinner: internal.PredictionOutCome{
+				Title:       winner.Title,
+				TotalUsers:  int(winner.Users),
+				TotalPoints: int(winner.ChannelPoints),
+				TopUsers:    predictionMapTopPredictors(winner.TopPredictors),
+			},
+			PredictionTotalChannelPoints: totalPoints,
+		},
+		model.EventTypePredictionEnd,
 	)
 
 	return &emptypb.Empty{}, nil

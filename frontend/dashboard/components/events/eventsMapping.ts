@@ -124,4 +124,66 @@ export const eventsMapping: Record<keyof typeof EventType, {
       'greetingText',
     ],
   },
+  POLL_BEGIN: {
+    description: '[POLL] Poll started',
+    availableVariables: [
+      'pollTitle',
+      'pollOptionsNames',
+    ],
+  },
+  POLL_PROGRESS: {
+    description: '[POLL] Vote received',
+    availableVariables: [
+      'pollTitle',
+      'pollOptionsNames',
+      'pollTotalVotes',
+    ],
+  },
+  POLL_END: {
+    description: '[POLL] Poll ended',
+    availableVariables: [
+      'pollTitle',
+      'pollOptionsNames',
+      'pollTotalVotes',
+      'pollWinnerTitle',
+      'pollWinnerBitsVotes',
+      'pollWinnerChannelsPointsVotes',
+      'pollWinnerTotalVotes',
+    ],
+  },
+  PREDICTION_BEGIN: {
+    description: '[PREDICTION] Prediction started',
+    availableVariables: [
+      'predictionTitle',
+      'predictionOptionsNames',
+    ],
+  },
+  PREDICTION_PROGRESS: {
+    description: '[PREDICTION] Prediction received',
+    availableVariables: [
+      'predictionTitle',
+      'predictionOptionsNames',
+      'predictionTotalChannelPoints',
+    ],
+  },
+  PREDICTION_LOCK: {
+    description: '[PREDICTION] Prediction locked.',
+    availableVariables: [
+      'predictionTitle',
+      'predictionOptionsNames',
+      'predictionTotalChannelPoints',
+    ],
+  },
+  PREDICTION_END: {
+    description: '[PREDICTION] Prediction ended',
+    availableVariables: [
+      'predictionTitle',
+      'predictionOptionsNames',
+      'predictionTotalChannelPoints',
+      `predictionWinner.title`,
+      `predictionWinner.totalUsers`,
+      `predictionWinner.totalPoints`,
+      `predictionWinner.topUsers`,
+    ],
+  },
 };

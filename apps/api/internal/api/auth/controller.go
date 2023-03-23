@@ -30,6 +30,10 @@ var scopes = []string{
 	"channel:manage:moderators",
 	"moderator:read:followers",
 	"moderator:manage:chat_settings",
+	"channel:read:polls",
+	"channel:manage:polls",
+	"channel:read:predictions",
+	"channel:manage:predictions",
 }
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {

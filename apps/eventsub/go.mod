@@ -3,7 +3,8 @@ module github.com/satont/tsuwari/apps/eventsub
 go 1.20
 
 replace (
-	github.cim/satont/tsuwari/libs/config => ../../libs/config
+	github.com/dnsge/twitch-eventsub-bindings => ../../libs/twitch-eventsub-bindings
+	github.com/satont/tsuwari/libs/config => ../../libs/config
 	github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 	github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
 	github.com/satont/tsuwari/libs/pubsub => ../../libs/pubsub
@@ -13,7 +14,7 @@ replace (
 
 require (
 	github.com/dnsge/twitch-eventsub-bindings v1.0.0
-	github.com/dnsge/twitch-eventsub-framework v1.1.0
+	github.com/dnsge/twitch-eventsub-framework v1.1.1
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.7
 	github.com/samber/lo v1.37.0

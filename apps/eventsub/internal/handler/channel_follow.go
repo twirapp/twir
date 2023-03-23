@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (c *handler) handleChannelFollow(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelFollow) {
+func (c *Handler) handleChannelFollow(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelFollow) {
 	zap.S().Infow("channel follow",
 		"channelId", event.BroadcasterUserID,
 		"channelName", event.BroadcasterUserLogin,

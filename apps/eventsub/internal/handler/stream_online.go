@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (c *handler) handleStreamOnline(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventStreamOnline) {
+func (c *Handler) handleStreamOnline(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventStreamOnline) {
 	defer zap.S().Infow("stream online",
 		"channelId", event.BroadcasterUserID,
 		"channelName", event.BroadcasterUserLogin,

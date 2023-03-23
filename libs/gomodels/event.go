@@ -15,10 +15,41 @@ var (
 	_ = uuid.UUID{}
 )
 
+type EventType string
+
+func (e EventType) String() string {
+	return string(e)
+}
+
+const (
+	EventTypeFollow                 EventType = "FOLLOW"
+	EventTypeSubscribe              EventType = "SUBSCRIBE"
+	EventTypeResubscribe            EventType = "RESUBSCRIBE"
+	EventTypeSubGift                EventType = "SUB_GIFT"
+	EventTypeRedemptionCreated      EventType = "REDEMPTION_CREATED"
+	EventTypeCommandUsed            EventType = "COMMAND_USED"
+	EventTypeFirstUserMessage       EventType = "FIRST_USER_MESSAGE"
+	EventTypeRaided                 EventType = "RAIDED"
+	EventTypeTitleOrCategoryChanged EventType = "TITLE_OR_CATEGORY_CHANGED"
+	EventTypeStreamOnline           EventType = "STREAM_ONLINE"
+	EventTypeStreamOffline          EventType = "STREAM_OFFLINE"
+	EventTypeOnChatClear            EventType = "ON_CHAT_CLEAR"
+	EventTypeDonate                 EventType = "DONATE"
+	EventTypeKeywordMatched         EventType = "KEYWORD_MATCHED"
+	EventTypeGreetingSended         EventType = "GREETING_SENDED"
+	EventTypePollBegin              EventType = "POLL_BEGIN"
+	EventTypePollProgress           EventType = "POLL_PROGRESS"
+	EventTypePollEnd                EventType = "POLL_END"
+	EventTypePredictionBegin        EventType = "PREDICTION_BEGIN"
+	EventTypePredictionProgress     EventType = "PREDICTION_PROGRESS"
+	EventTypePredictionEnd          EventType = "PREDICTION_END"
+	EventTypePredictionLock         EventType = "PREDICTION_LOCK"
+)
+
 type Event struct {
 	ID          string      `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	ChannelID   string      `gorm:"column:channelId;type:TEXT;" json:"channelId"`
-	Type        string      `gorm:"column:type;type:TEXT;"                     json:"type"`
+	Type        EventType   `gorm:"column:type;type:TEXT;"                     json:"type"`
 	RewardID    null.String `gorm:"column:rewardId;type:TEXT;"                     json:"rewardId"`
 	CommandID   null.String `gorm:"column:commandId;type:TEXT;"                     json:"commandId"`
 	KeywordID   null.String `gorm:"column:keywordId;type:TEXT;"                     json:"keywordId"`

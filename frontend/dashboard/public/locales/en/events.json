@@ -28,7 +28,22 @@
     "donateMessage": "Donate message",
     "keywordName": "Name of keyword",
     "keywordResponse": "Responses of keyword, joined by space",
-    "greetingText": "Greeting message"
+    "greetingText": "Greeting message",
+    "pollTitle": "Title of poll",
+    "pollOptionsNames": "Options of poll, joined by comma",
+    "pollTotalVotes": "Total votes of poll",
+    "pollWinnerTitle": "Title of poll winner",
+    "pollWinnerBitsVotes": "Bits votes of poll winner",
+    "pollWinnerChannelsPointsVotes": "Channel points votes of poll winner",
+    "pollWinnerTotalVotes": "Total votes of poll winner. It includes bits and channel points votes",
+
+    "predictionTitle": "Title of prediction",
+    "predictionOptionsNames": "Options of prediction, joined by · symbol",
+    "predictionTotalChannelPoints": "Total used channel points for prediction",
+    "predictionWinner.title": "Title of winner option",
+    "predictionWinner.totalUsers": "Total users who voted for winner option",
+    "predictionWinner.totalPoints": "Total used channel points for winner option",
+    "predictionWinner.topUsers": "Top 10 users who voted for winner option"
   },
   "description": "Description of your listener",
   "availableVariables": "Available variables",

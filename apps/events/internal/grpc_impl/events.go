@@ -6,8 +6,8 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
-func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.Data, eventType string) error {
-	dbEntities := []model.Event{}
+func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.Data, eventType model.EventType) error {
+	var dbEntities []model.Event
 
 	err := c.services.DB.
 		Where(`"channelId" = ? AND "type" = ? AND "enabled" = ?`, channelId, eventType, true).
@@ -25,21 +25,21 @@ func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.
 			return errors.New("event not found")
 		}
 
-		if entity.Type == "COMMAND_USED" &&
+		if entity.Type == model.EventTypeCommandUsed &&
 			data.CommandID != "" &&
 			entity.CommandID.Valid &&
 			data.CommandID != entity.CommandID.String {
 			continue
 		}
 
-		if entity.Type == "REDEMPTION_CREATED" &&
+		if entity.Type == model.EventTypeRedemptionCreated &&
 			data.RewardID != "" &&
 			entity.RewardID.Valid &&
 			data.RewardID != entity.RewardID.String {
 			continue
 		}
 
-		if entity.Type == "KEYWORD_MATCHED" &&
+		if entity.Type == model.EventTypeKeywordMatched &&
 			data.RewardID != "" &&
 			entity.RewardID.Valid &&
 			data.KeywordID != entity.KeywordID.String {

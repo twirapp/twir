@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (c *handler) handleChannelModeratorAdd(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorAdd) {
+func (c *Handler) handleChannelModeratorAdd(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorAdd) {
 	defer zap.S().Infow("channel moderator add",
 		"channelId", event.BroadcasterUserID,
 		"userId", event.UserID,
@@ -15,7 +15,7 @@ func (c *handler) handleChannelModeratorAdd(h *eventsub_bindings.ResponseHeaders
 	c.updateBotStatus(event.BroadcasterUserID, event.UserID, true)
 }
 
-func (c *handler) handleChannelModeratorRemove(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorRemove) {
+func (c *Handler) handleChannelModeratorRemove(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorRemove) {
 	defer zap.S().Infow("channel moderator remove",
 		"channelId", event.BroadcasterUserID,
 		"userId", event.UserID,
@@ -24,7 +24,7 @@ func (c *handler) handleChannelModeratorRemove(h *eventsub_bindings.ResponseHead
 	c.updateBotStatus(event.BroadcasterUserID, event.UserID, false)
 }
 
-func (c *handler) updateBotStatus(channelId string, userId string, newStatus bool) {
+func (c *Handler) updateBotStatus(channelId string, userId string, newStatus bool) {
 	channel := model.Channels{}
 	err := c.services.Gorm.Where("id = ?", channelId).First(&channel).Error
 	if err != nil {

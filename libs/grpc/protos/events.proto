@@ -19,6 +19,13 @@ service Events {
   rpc Donate(DonateMessage) returns (google.protobuf.Empty) {}
   rpc KeywordMatched(KeywordMatchedMessage) returns (google.protobuf.Empty) {}
   rpc GreetingSended(GreetingSendedMessage) returns (google.protobuf.Empty) {}
+  rpc PollBegin(PollBeginMessage) returns (google.protobuf.Empty) {}
+  rpc PollProgress(PollProgressMessage) returns (google.protobuf.Empty) {}
+  rpc PollEnd(PollEndMessage) returns (google.protobuf.Empty) {}
+  rpc PredictionBegin(PredictionBeginMessage) returns (google.protobuf.Empty) {}
+  rpc PredictionProgress(PredictionProgressMessage) returns (google.protobuf.Empty) {}
+  rpc PredictionLock(PredictionLockMessage) returns (google.protobuf.Empty) {}
+  rpc PredictionEnd(PredictionEndMessage) returns (google.protobuf.Empty) {}
 }
 
 message BaseInfo {
@@ -156,4 +163,108 @@ message GreetingSendedMessage {
   string userName = 3;
   string userDisplayName = 4;
   string greetingText = 5;
+}
+
+message PollInfo {
+  message Choice {
+    string id = 1;
+    string title = 2;
+    uint64 bitsVotes = 3;
+    uint64 channelsPointsVotes = 4;
+    uint64 votes = 5;
+  }
+
+  message BitsVotes {
+    bool enabled = 1;
+    uint64 amountPerVote = 2;
+  }
+
+  message ChannelPointsVotes {
+    bool enabled = 1;
+    uint64 amountPerVote = 2;
+  }
+
+  string title = 1;
+  repeated Choice choices = 2;
+  BitsVotes bitsVoting = 3;
+  ChannelPointsVotes channelsPointsVoting = 4;
+}
+
+message PollBeginMessage {
+  BaseInfo baseInfo = 1;
+
+  string userName = 2;
+  string userDisplayName = 3;
+  PollInfo info = 4;
+}
+
+message PollProgressMessage {
+  BaseInfo baseInfo = 1;
+
+  string userName = 2;
+  string userDisplayName = 3;
+  PollInfo info = 4;
+}
+
+message PollEndMessage {
+  BaseInfo baseInfo = 1;
+
+  string userName = 2;
+  string userDisplayName = 3;
+  PollInfo info = 4;
+}
+
+message PredictionInfo {
+  message OutCome {
+    message TopPredictor {
+      string userName = 1;
+      string userDisplayName = 2;
+      string userId = 3;
+      uint64 pointsUsed = 4;
+      optional uint64 pointsWin = 6;
+    }
+
+    string id = 1;
+    string title = 2;
+    string color = 3;
+    uint64 users = 4;
+    uint64 channelPoints = 5;
+    repeated TopPredictor topPredictors = 6;
+  }
+
+  string title = 1;
+  repeated OutCome outcomes = 2;
+}
+
+message PredictionBeginMessage {
+  BaseInfo baseInfo = 1;
+
+  string userName = 2;
+  string userDisplayName = 3;
+  PredictionInfo info = 4;
+}
+
+message PredictionProgressMessage {
+  BaseInfo baseInfo = 1;
+
+  string userName = 2;
+  string userDisplayName = 3;
+  PredictionInfo info = 4;
+}
+
+message PredictionLockMessage {
+  BaseInfo baseInfo = 1;
+
+  string userName = 2;
+  string userDisplayName = 3;
+  PredictionInfo info = 4;
+}
+
+message PredictionEndMessage {
+  BaseInfo baseInfo = 1;
+
+  string userName = 2;
+  string userDisplayName = 3;
+  PredictionInfo info = 4;
+  string winningOutcomeId = 5;
 }

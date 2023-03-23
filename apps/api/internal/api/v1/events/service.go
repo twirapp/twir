@@ -37,7 +37,7 @@ func handlePost(channelId string, dto *eventDto) (*model.Event, error) {
 	newEvent := &model.Event{
 		ID:          uuid.NewV4().String(),
 		ChannelID:   channelId,
-		Type:        dto.Type,
+		Type:        model.EventType(dto.Type),
 		RewardID:    null.NewString(*dto.RewardID, *dto.RewardID != ""),
 		CommandID:   null.NewString(*dto.CommandID, *dto.CommandID != ""),
 		KeywordID:   null.NewString(*dto.KeywordID, *dto.KeywordID != ""),

@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (c *handler) handleStreamOffline(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventStreamOffline) {
+func (c *Handler) handleStreamOffline(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventStreamOffline) {
 	defer zap.S().Infow("stream offline", ""+
 		"channelId", event.BroadcasterUserID,
 		"channelName", event.BroadcasterUserLogin,

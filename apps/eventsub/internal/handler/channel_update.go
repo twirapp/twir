@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func (c *handler) handleChannelUpdate(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelUpdate) {
+func (c *Handler) handleChannelUpdate(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelUpdate) {
 	defer zap.S().Infow("channel update",
 		"title", event.Title,
 		"category", event.CategoryName,

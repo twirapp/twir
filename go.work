@@ -22,4 +22,5 @@ use (
 	./libs/types
 	./libs/ytdl
 	./libs/ytsr
+	./libs/twitch-eventsub-bindings
 )

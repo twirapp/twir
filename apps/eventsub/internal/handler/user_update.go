@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (c *handler) handleUserUpdate(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventUserUpdate) {
+func (c *Handler) handleUserUpdate(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventUserUpdate) {
 	defer zap.S().Infow("user update", "userId", event.UserID, "userLogin", event.UserLogin)
 
 	bytes, err := json.Marshal(&pubsub.UserUpdateMessage{

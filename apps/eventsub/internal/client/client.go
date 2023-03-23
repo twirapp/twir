@@ -104,6 +104,34 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) 
 			Version:   "1",
 			Condition: channelCondition,
 		},
+		"channel.poll.begin": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"channel.poll.progress": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"channel.poll.end": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"channel.prediction.begin": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"channel.prediction.lock": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"channel.prediction.progress": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"channel.prediction.end": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
 	}
 
 	twitchClient, err := twitch.NewAppClient(*c.services.Config, c.services.Grpc.Tokens)

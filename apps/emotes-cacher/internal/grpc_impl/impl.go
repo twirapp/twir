@@ -36,8 +36,6 @@ func (c *EmotesCacherImpl) CacheChannelEmotes(_ context.Context, req *emotes_cac
 		return &emptypb.Empty{}, nil
 	}
 
-	start := time.Now()
-
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
 
@@ -97,18 +95,10 @@ func (c *EmotesCacherImpl) CacheChannelEmotes(_ context.Context, req *emotes_cac
 		}(emote)
 	}
 
-	c.logger.Sugar().Infow("Channel emotes cached",
-		"total size", len(resultEmotes),
-		"taken", fmt.Sprintf("%vms", time.Since(start).Milliseconds()),
-		"channelId", req.ChannelId,
-	)
-
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EmotesCacherImpl) CacheGlobalEmotes(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
-	start := time.Now()
-
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
 
@@ -167,11 +157,6 @@ func (c *EmotesCacherImpl) CacheGlobalEmotes(_ context.Context, _ *emptypb.Empty
 			)
 		}(emote)
 	}
-
-	c.logger.Sugar().Infow("Global emotes cached",
-		"total size", len(resultEmotes),
-		"taken", fmt.Sprintf("%vms", time.Since(start).Milliseconds()),
-	)
 
 	return &emptypb.Empty{}, nil
 }
