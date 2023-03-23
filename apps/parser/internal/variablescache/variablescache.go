@@ -10,13 +10,15 @@ import (
 )
 
 type variablesCache struct {
-	Stream        *model.ChannelsStreams
-	DbUserStats   *model.UsersStats
-	TwitchUser    *helix.User
-	TwitchFollow  *helix.UserFollow
-	TwitchChannel *helix.ChannelInformation
-	Integrations  []model.ChannelsIntegrations
-	FaceitData    *FaceitResult
+	Stream          *model.ChannelsStreams
+	DbUserStats     *model.UsersStats
+	TwitchUser      *helix.User
+	TwitchFollow    *helix.UserFollow
+	TwitchChannel   *helix.ChannelInformation
+	Integrations    []model.ChannelsIntegrations
+	FaceitData      *FaceitResult
+	ValorantProfile *ValorantProfile
+	ValorantMatches []ValorantMatch
 }
 
 type variablesLocks struct {
@@ -28,6 +30,8 @@ type variablesLocks struct {
 	integrations      *sync.Mutex
 	faceitIntegration *sync.Mutex
 	faceitMatches     *sync.Mutex
+	valorantProfile   *sync.Mutex
+	valorantMatch     *sync.Mutex
 }
 
 type ExecutionContext struct {
@@ -86,6 +90,8 @@ func New(opts VariablesCacheOpts) *VariablesCacheService {
 			integrations:      &sync.Mutex{},
 			faceitIntegration: &sync.Mutex{},
 			faceitMatches:     &sync.Mutex{},
+			valorantProfile:   &sync.Mutex{},
+			valorantMatch:     &sync.Mutex{},
 		},
 	}
 

@@ -16,7 +16,8 @@ export enum IntegrationService {
   DONATIONALERTS = 'DONATIONALERTS',
   STREAMLABS = 'STREAMLABS',
   DONATEPAY = 'DONATEPAY',
-  DONATELLO = 'DONATELLO'
+  DONATELLO = 'DONATELLO',
+  VALORANT = 'VALORANT',
 }
 
 @Entity('integrations', { schema: 'public' })

@@ -10,6 +10,7 @@ import { VKIntegration } from '../components/integrations/vk';
 import { DonatelloIntegration } from '@/components/integrations/donatello';
 import { DonatePayIntegration } from '@/components/integrations/donatepay';
 import { FaceitIntegration } from '@/components/integrations/faceit';
+import { ValorantIntegration } from '@/components/integrations/valorant';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -53,6 +54,9 @@ export default function Integrations() {
       </Grid.Col>
       <Grid.Col {...cols}>
         <DonatelloIntegration />
+      </Grid.Col>
+      <Grid.Col {...cols}>
+        <ValorantIntegration />
       </Grid.Col>
     </Grid>
   );

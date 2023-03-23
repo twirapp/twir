@@ -9,6 +9,8 @@ import (
 	user_songs_requested "github.com/satont/tsuwari/apps/parser/internal/variables/user/songs_requested"
 	user_top "github.com/satont/tsuwari/apps/parser/internal/variables/user/top"
 	user_used_channel_points "github.com/satont/tsuwari/apps/parser/internal/variables/user/used_channel_points"
+	valorant_matches "github.com/satont/tsuwari/apps/parser/internal/variables/valorant"
+	valorant_profile "github.com/satont/tsuwari/apps/parser/internal/variables/valorant/profile"
 	"regexp"
 	"strings"
 	"sync"
@@ -103,6 +105,12 @@ func New() Variables {
 		top_song_requesters.Variable,
 		user_songs_requested.CountVariable,
 		user_songs_requested.DurationVariable,
+		valorant_profile.Tier,
+		valorant_profile.TierPatched,
+		valorant_profile.RankingInTier,
+		valorant_profile.Elo,
+		valorant_profile.MmrChangeToLastGame,
+		valorant_matches.Trend,
 	}
 
 	ctx := Variables{

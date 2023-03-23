@@ -7,6 +7,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/events"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatello"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatepay"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/valorant"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/modules/obs_websocket"
 	tts_channel_module "github.com/satont/tsuwari/apps/api/internal/api/v1/modules/tts"
 	public_commands "github.com/satont/tsuwari/apps/api/internal/api/v1/public/commands"
@@ -77,6 +78,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	spotify.Setup(integrationsGroup, services)
 	donatepay.Setup(integrationsGroup, services)
 	donatello.Setup(integrationsGroup, services)
+	valorant.Setup(integrationsGroup, services)
 
 	modulesGroup := channelsGroup.Group("modules")
 	youtube_sr.Setup(modulesGroup, services)

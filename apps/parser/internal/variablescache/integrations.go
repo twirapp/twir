@@ -17,7 +17,7 @@ func (c *VariablesCacheService) GetEnabledIntegrations() []model.ChannelsIntegra
 
 	db := do.MustInvoke[gorm.DB](di.Provider)
 
-	result := []model.ChannelsIntegrations{}
+	var result []model.ChannelsIntegrations
 	err := db.Where(`"channelId" = ? AND enabled = ?`, c.ChannelId, true).
 		Preload("Integration").
 		Find(&result).
