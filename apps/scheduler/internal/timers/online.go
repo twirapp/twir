@@ -59,13 +59,15 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 								}
 
 								err = services.Gorm.Transaction(func(tx *gorm.DB) error {
+									tx.Delete(&model.UsersOnline{}).Where(`"channelId" = ?`, userId)
 									for _, chatter := range chatters {
 										var user model.Users
 										err := tx.Where("id = ?", chatter.UserID).First(&user).Error
 										if err != nil {
 											if err == gorm.ErrRecordNotFound {
 												user = model.Users{
-													ID: chatter.UserID,
+													ID:     chatter.UserID,
+													ApiKey: uuid.New().String(),
 												}
 												err = tx.Create(&user).Error
 												if err != nil {
@@ -75,7 +77,6 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 												return err
 											}
 										} else {
-											tx.Delete(&model.UsersOnline{}).Where(`"userId" = ?`, chatter.UserID)
 											tx.Save(&model.UsersOnline{
 												ID:        uuid.New().String(),
 												ChannelId: userId,
