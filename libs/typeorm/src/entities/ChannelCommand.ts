@@ -25,7 +25,8 @@ export enum CommandModule {
   MODERATION = 'MODERATION',
   MANAGE = 'MANAGE',
   SONGREQUEST = 'SONGREQUEST',
-  TTS = 'TTS'
+  TTS = 'TTS',
+  STATS = 'STATS',
 }
 
 @Index('channels_commands_name_channelId_key', ['channelId', 'name'], { unique: true })
@@ -75,7 +76,7 @@ export class ChannelCommand {
   })
   module: CommandModule;
 
-  @ManyToOne(() => Channel, _ => _.commands, {
+  @ManyToOne(() => Channel, (_) => _.commands, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
@@ -86,13 +87,13 @@ export class ChannelCommand {
   @Column('text', { name: 'channelId' })
   channelId: string;
 
-  @OneToMany(() => CommandResponse, _ => _.command)
+  @OneToMany(() => CommandResponse, (_) => _.command)
   responses?: CommandResponse[];
 
-  @OneToMany(() => CommandUsage, _ => _.command)
+  @OneToMany(() => CommandUsage, (_) => _.command)
   usages?: CommandUsage[];
 
-  @ManyToOne(() => ChannelCommandGroup, _ => _.commands, { onDelete: 'SET NULL' })
+  @ManyToOne(() => ChannelCommandGroup, (_) => _.commands, { onDelete: 'SET NULL' })
   group?: ChannelCommandGroup;
 
   @Column('uuid', { nullable: true })

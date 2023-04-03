@@ -74,7 +74,7 @@ var UsersVariable = types.Variable{
 			user, ok := lo.Find(twitchUsers.Data.Users, func(item helix.User) bool {
 				return item.ID == usage.UserID
 			})
-			
+
 			if !ok {
 				continue
 			}
@@ -82,7 +82,7 @@ var UsersVariable = types.Variable{
 			mappedTop = append(mappedTop, fmt.Sprintf(
 				"%s × %v",
 				user.Login,
-				*usage.Count,
+				lo.If(usage.Count != nil, *usage.Count).Else(0),
 			))
 		}
 

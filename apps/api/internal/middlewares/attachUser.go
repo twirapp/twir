@@ -72,6 +72,8 @@ var AttachUser = func(services types.Services) func(c *fiber.Ctx) error {
 			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"message": "unauthenticated"})
 		}
 
+		defer CreateRolesAndCommand(services.DB, dbUser.ID)
+
 		return c.Next()
 	}
 }

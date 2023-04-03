@@ -9,7 +9,9 @@ import {
   Text,
   UnstyledButton,
   useMantineTheme,
-  Button, Divider, Loader,
+  Button,
+  Divider,
+  Loader,
 } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import { useSpotlight } from '@mantine/spotlight';
@@ -22,6 +24,7 @@ import {
   IconCommand,
   IconDashboard,
   IconDeviceDesktop,
+  IconDeviceDesktopAnalytics,
   IconExternalLink,
   IconHeadphones,
   IconKey,
@@ -31,7 +34,8 @@ import {
   IconSettings,
   IconShieldHalfFilled,
   IconSpeakerphone,
-  IconSword, IconUsers,
+  IconSword,
+  IconUsers,
   TablerIcon,
 } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
@@ -71,6 +75,7 @@ const navigationLinks: Array<Page | null> = [
     path: '/commands',
     subPages: [
       { label: 'Custom', icon: IconPencilPlus, path: '/commands/custom' },
+      { label: 'Stats', icon: IconDeviceDesktopAnalytics, path: '/commands/stats' },
       { label: 'Moderation', icon: IconSword, path: '/commands/moderation' },
       { label: 'Song Requests', icon: IconPlaylist, path: '/commands/songrequest' },
       { label: 'Manage', icon: IconClipboardCopy, path: '/commands/manage' },
@@ -134,17 +139,16 @@ export function SideBar(props: Props) {
     if (user && dashboardContext.id) {
       spotlight.removeActions(spotlight.actions.map((a) => a.id!));
 
-      const actions = dashboards
-        .map((d) => ({
-          title: resolveUserName(d.name, d.displayName),
-          description: d.id,
-          onTrigger: () => {
-            setSelectedDashboard(dashboards.find(dash => dash.id === d.id));
-            dashboardContext.setId(d.id);
-          },
-          icon: <Avatar radius="xs" src={d.avatar} />,
-          id: d.id,
-        }));
+      const actions = dashboards.map((d) => ({
+        title: resolveUserName(d.name, d.displayName),
+        description: d.id,
+        onTrigger: () => {
+          setSelectedDashboard(dashboards.find((dash) => dash.id === d.id));
+          dashboardContext.setId(d.id);
+        },
+        icon: <Avatar radius="xs" src={d.avatar} />,
+        id: d.id,
+      }));
 
       spotlight.registerActions(actions);
       spotlight.openSpotlight();
@@ -183,9 +187,11 @@ export function SideBar(props: Props) {
 
   const [links, setLinks] = useState<JSX.Element[]>([]);
   useEffect(() => {
-    setLinks(navigationLinks.map((item, i) => {
-      return item === null ? <Divider key={i} /> : createNavLink(item);
-    }));
+    setLinks(
+      navigationLinks.map((item, i) => {
+        return item === null ? <Divider key={i} /> : createNavLink(item);
+      }),
+    );
   }, [router]);
 
   return (
@@ -215,7 +221,8 @@ export function SideBar(props: Props) {
             }`,
           }}
         >
-          {!isLoading && <UnstyledButton
+          {!isLoading && (
+            <UnstyledButton
               sx={{
                 display: 'block',
                 width: '100%',
@@ -229,42 +236,40 @@ export function SideBar(props: Props) {
                 },
               }}
               onClick={openSpotlight}
-          >
+            >
               <Group>
-                  <Avatar src={selectedDashboard?.avatar} radius="xl" />
-                  <Box sx={{ flex: 1 }}>
-                      <Text size="xs" weight={500}>
-                        {t('sidebar.manage')}
-                      </Text>
-                      <Text color="dimmed" size="xs">
-                        {selectedDashboard
-                          ? resolveUserName(
-                            selectedDashboard.name,
-                            selectedDashboard.displayName,
-                          )
-                          : ''}
-                      </Text>
-                  </Box>
+                <Avatar src={selectedDashboard?.avatar} radius="xl" />
+                <Box sx={{ flex: 1 }}>
+                  <Text size="xs" weight={500}>
+                    {t('sidebar.manage')}
+                  </Text>
+                  <Text color="dimmed" size="xs">
+                    {selectedDashboard
+                      ? resolveUserName(selectedDashboard.name, selectedDashboard.displayName)
+                      : ''}
+                  </Text>
+                </Box>
               </Group>
-          </UnstyledButton>}
+            </UnstyledButton>
+          )}
           {isLoading && <Loader color="violet" variant="dots" size={50} />}
           <Button
-              size={'xs'}
-              compact
-              color="grape"
-              style={{ marginTop: 5 }}
-              variant={'light'}
-              component="a"
-              href={
-                'window' in globalThis && selectedDashboard?.name
-                  ? `${window.location.origin}/p/${selectedDashboard?.name}/commands`
-                  : ''
-              }
-              target={'_blank'}
-              leftIcon={<IconExternalLink size={14} />}
-              w={'100%'}
+            size={'xs'}
+            compact
+            color="grape"
+            style={{ marginTop: 5 }}
+            variant={'light'}
+            component="a"
+            href={
+              'window' in globalThis && selectedDashboard?.name
+                ? `${window.location.origin}/p/${selectedDashboard?.name}/commands`
+                : ''
+            }
+            target={'_blank'}
+            leftIcon={<IconExternalLink size={14} />}
+            w={'100%'}
           >
-              Public page
+            Public page
           </Button>
         </Box>
       </Navbar.Section>

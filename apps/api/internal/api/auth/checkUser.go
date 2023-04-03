@@ -167,7 +167,7 @@ func checkUser(
 		}
 	}
 
-	err = createRolesAndCommand(services.DB, userId)
+	err = middlewares.CreateRolesAndCommand(services.DB, userId)
 	if err != nil {
 		return err
 	}

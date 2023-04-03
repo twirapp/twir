@@ -1,4 +1,4 @@
-package auth
+package middlewares
 
 import (
 	"context"
@@ -21,7 +21,7 @@ var neededRoles = []model.ChannelRoleEnum{
 	model.ChannelRoleTypeSubscriber,
 }
 
-func createRolesAndCommand(db *gorm.DB, userId string) error {
+func CreateRolesAndCommand(db *gorm.DB, userId string) error {
 	parserGrpc := do.MustInvoke[parser.ParserClient](di.Provider)
 
 	defaultCommands, err := parserGrpc.GetDefaultCommands(context.Background(), &emptypb.Empty{})

@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"github.com/satont/tsuwari/apps/parser/internal/commands/stats"
 	"regexp"
 	"sort"
 	"strings"
@@ -76,6 +77,15 @@ func New() Commands {
 		tts.VolumeCommand,
 		tts.DisableCommand,
 		tts.EnableCommand,
+		stats.UserWatchTime,
+		stats.UserMe,
+		stats.UserFollowage,
+		stats.UserFollowSince,
+		stats.TopTime,
+		stats.TopMessages,
+		stats.TopEmotes,
+		stats.TopEmotesUsers,
+		stats.TopPoints,
 	}
 
 	ctx := Commands{
