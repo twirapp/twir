@@ -43,7 +43,7 @@ var SrCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "sr",
 		Description: null.StringFrom("Song requests from youtube"),
-		Module:      "SONGREQUEST",
+		Module:      "SONGS",
 		IsReply:     true,
 		Visible:     true,
 	},

@@ -17,7 +17,7 @@ var SrListCommand = &types.DefaultCommand{
 		Name:        "sr list",
 		Description: null.StringFrom("List of requested songs"),
 		Visible:     true,
-		Module:      "SONGREQUEST",
+		Module:      "SONGS",
 		IsReply:     true,
 	},
 	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {

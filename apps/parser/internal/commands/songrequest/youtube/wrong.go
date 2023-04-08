@@ -23,7 +23,7 @@ var WrongCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "sr wrong",
 		Description: null.StringFrom("Delete wrong song from queue"),
-		Module:      "SONGREQUEST",
+		Module:      "SONGS",
 		IsReply:     true,
 		Visible:     true,
 	},

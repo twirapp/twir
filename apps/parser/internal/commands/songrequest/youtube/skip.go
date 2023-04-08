@@ -24,7 +24,7 @@ var SkipCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "voteskip",
 		Description: null.StringFrom("Vote for skip command"),
-		Module:      "SONGREQUEST",
+		Module:      "SONGS",
 		IsReply:     true,
 	},
 	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {

@@ -15,7 +15,7 @@ var CurrentSong = &types.DefaultCommand{
 		Name:        "song",
 		Description: null.StringFrom(*currentsong.Variable.Description),
 		RolesIDS:    pq.StringArray{},
-		Module:      "SONGREQUEST",
+		Module:      "SONGS",
 		Visible:     true,
 		IsReply:     true,
 		Aliases:     []string{"currentsong"},
