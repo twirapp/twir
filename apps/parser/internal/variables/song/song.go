@@ -36,7 +36,7 @@ const (
 
 var Variable = types.Variable{
 	Name:        "currentsong",
-	Description: lo.ToPtr("Current played song"),
+	Description: lo.ToPtr("Print current played song from Spotify, Last.fm, e.t.c, and also from song requests."),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		db := do.MustInvoke[gorm.DB](di.Provider)
 		redisClient := do.MustInvoke[redis.Client](di.Provider)

@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"github.com/satont/tsuwari/apps/parser/internal/commands/song"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/stats"
 	"regexp"
 	"sort"
@@ -86,6 +87,7 @@ func New() Commands {
 		stats.TopEmotes,
 		stats.TopEmotesUsers,
 		stats.TopPoints,
+		song.CurrentSong,
 	}
 
 	ctx := Commands{
