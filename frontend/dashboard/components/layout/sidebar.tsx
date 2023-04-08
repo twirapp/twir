@@ -77,7 +77,7 @@ const navigationLinks: Array<Page | null> = [
       { label: 'Custom', icon: IconPencilPlus, path: '/commands/custom' },
       { label: 'Stats', icon: IconDeviceDesktopAnalytics, path: '/commands/stats' },
       { label: 'Moderation', icon: IconSword, path: '/commands/moderation' },
-      { label: 'Songs', icon: IconPlaylist, path: '/commands/songrequest' },
+      { label: 'Songs', icon: IconPlaylist, path: '/commands/songs' },
       { label: 'Manage', icon: IconClipboardCopy, path: '/commands/manage' },
       { label: 'Dota', path: '/commands/dota' },
     ],

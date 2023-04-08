@@ -24,7 +24,7 @@ export enum CommandModule {
   DOTA = 'DOTA',
   MODERATION = 'MODERATION',
   MANAGE = 'MANAGE',
-  SONGREQUEST = 'SONGREQUEST',
+  SONGS = 'SONGS',
   TTS = 'TTS',
   STATS = 'STATS',
 }
