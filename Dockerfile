@@ -197,6 +197,7 @@ FROM node_prod_base as ytsr
 WORKDIR /app
 COPY --from=ytsr_builder /app/apps/ytsr /app/apps/ytsr
 COPY --from=ytsr_builder /app/libs/grpc /app/libs/grpc
+COPY --from=ytsr_builder /app/libs/config /app/libs/config
 CMD ["pnpm", "--filter=@tsuwari/ytsr", "start"]
 
 ### FRONTEND
