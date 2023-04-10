@@ -7,7 +7,7 @@ import (
 
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	irc "github.com/gempir/go-twitch-irc/v3"
-	"github.com/satont/go-helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 

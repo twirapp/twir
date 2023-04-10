@@ -3,12 +3,13 @@ package bots
 import (
 	"context"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/bots/internal/di"
 	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"sync"
-	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -22,7 +23,7 @@ import (
 
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	irc "github.com/gempir/go-twitch-irc/v3"
-	"github.com/satont/go-helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/tsuwari/apps/bots/internal/bots/handlers"
 	"github.com/satont/tsuwari/apps/bots/pkg/utils"
 	"github.com/satont/tsuwari/apps/bots/types"
@@ -195,7 +196,6 @@ func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *t
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
 	twitchClient, err := twitch.NewBotClient(botClient.Model.ID, *cfg, tokensGrpc)
-
 	if err != nil {
 		panic(err)
 	}

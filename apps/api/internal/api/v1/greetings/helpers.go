@@ -1,8 +1,8 @@
 package greetings
 
 import (
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	cfg "github.com/satont/tsuwari/libs/config"
 	model "github.com/satont/tsuwari/libs/gomodels"

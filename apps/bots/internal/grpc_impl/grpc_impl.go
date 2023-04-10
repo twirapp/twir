@@ -3,14 +3,15 @@ package grpc_impl
 import (
 	"context"
 	"errors"
+	"strings"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/bots/internal/di"
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
-	"strings"
 
-	"github.com/satont/go-helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	internalBots "github.com/satont/tsuwari/apps/bots/internal/bots"
 	"github.com/satont/tsuwari/apps/bots/pkg/utils"
 	"github.com/satont/tsuwari/apps/bots/types"
@@ -65,7 +66,6 @@ func (c *botsGrpcServer) DeleteMessage(ctx context.Context, data *bots.DeleteMes
 
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 	twitchClient, err := twitch.NewBotClient(bot.Model.ID, *c.cfg, tokensGrpc)
-
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,6 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 	twitchClient, err := twitch.NewBotClient(bot.Model.ID, *c.cfg, tokensGrpc)
-
 	if err != nil {
 		return &emptypb.Empty{}, err
 	}

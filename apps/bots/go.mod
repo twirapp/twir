@@ -7,11 +7,11 @@ require (
 	github.com/gempir/go-twitch-irc/v3 v3.2.0
 	github.com/getsentry/sentry-go v0.18.0
 	github.com/imroc/req/v3 v3.32.0
+	github.com/nicklaw5/helix/v2 v2.22.0
 	github.com/prometheus/client_golang v1.14.0
 	github.com/redis/go-redis/v9 v9.0.2
 	github.com/samber/do v1.6.0
 	github.com/samber/lo v1.37.0
-	github.com/satont/go-helix/v2 v2.7.28
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000

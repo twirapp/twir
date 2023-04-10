@@ -9,9 +9,9 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/jmoiron/sqlx v1.3.5
+	github.com/nicklaw5/helix/v2 v2.22.0
 	github.com/prometheus/client_golang v1.14.0
 	github.com/samber/do v1.6.0
-	github.com/satont/go-helix/v2 v2.7.28
 	github.com/satont/tsuwari/apps/bots v0.0.0-20230306140052-60f1293647c4
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000

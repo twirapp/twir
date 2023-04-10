@@ -3,9 +3,10 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"github.com/dnsge/twitch-eventsub-bindings"
+
+	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/lib/pq"
-	"github.com/satont/go-helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/pubsub"

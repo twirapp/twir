@@ -2,17 +2,18 @@ package timers
 
 import (
 	"context"
+	"sync"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/scheduler/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/twitch"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"sync"
-	"time"
 )
 
 func NewOnlineUsers(ctx context.Context, services *types.Services) {

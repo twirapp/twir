@@ -2,10 +2,13 @@ package top_song_requesters
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
@@ -14,8 +17,6 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
 	"go.uber.org/zap"
-	"strconv"
-	"strings"
 
 	"github.com/samber/lo"
 )
@@ -37,7 +38,7 @@ var Variable = types.Variable{
 		twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
 
 		result := &types.VariableHandlerResult{}
-		var page = 1
+		page := 1
 
 		if ctx.Text != nil {
 			p, err := strconv.Atoi(*ctx.Text)
@@ -87,7 +88,6 @@ var Variable = types.Variable{
 				return item.OrderedById
 			}),
 		})
-
 		if err != nil {
 			return nil, err
 		}

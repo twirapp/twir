@@ -3,6 +3,10 @@ package youtube_sr
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
+	"sync"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
@@ -10,14 +14,11 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
-	"net/http"
-	"strings"
-	"sync"
 
 	ytsr "github.com/SherlockYigit/youtube-go"
 	"github.com/gofiber/fiber/v2"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	youtube "github.com/satont/tsuwari/libs/types/types/api/modules"
 	uuid "github.com/satori/go.uuid"

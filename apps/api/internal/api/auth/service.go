@@ -2,10 +2,11 @@ package auth
 
 import (
 	"fmt"
-	"github.com/samber/lo"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/samber/lo"
 
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
@@ -17,7 +18,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/satont/go-helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 )

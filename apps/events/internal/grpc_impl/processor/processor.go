@@ -4,15 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/satont/go-helix/v2"
+	"io"
+	"regexp"
+	"strings"
+
+	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/tsuwari/apps/events/internal"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 	"github.com/valyala/fasttemplate"
 	"go.uber.org/zap"
-	"io"
-	"regexp"
-	"strings"
 )
 
 var InternalError = errors.New("internal")
@@ -59,7 +60,6 @@ func (c *Processor) getDbChannel() (*model.Channels, error) {
 
 	channel := &model.Channels{}
 	err := c.services.DB.Where(`"id" = ?`, c.channelId).Find(channel).Error
-
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (c *Processor) HydrateStringWithData(str string, data any) (string, error) 
 			val, ok := m[splittedTag[0]].(map[string]any)
 			if !ok {
 				// key not found in map
-				//return 0, fmt.Errorf("key '%s' is not a map[string]interface{}", splittedTag[0])
+				// return 0, fmt.Errorf("key '%s' is not a map[string]interface{}", splittedTag[0])
 				return w.Write([]byte(""))
 			}
 
@@ -113,7 +113,7 @@ func (c *Processor) HydrateStringWithData(str string, data any) (string, error) 
 			val, ok := m[tag]
 			if !ok {
 				// not a found
-				//return 0, fmt.Errorf("key '%s' is not found", tag)
+				// return 0, fmt.Errorf("key '%s' is not found", tag)
 				return w.Write([]byte(""))
 			}
 

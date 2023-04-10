@@ -3,13 +3,14 @@ package grpc_impl
 import (
 	"context"
 	"errors"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
 	"sync"
 	"time"
 
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
+
 	"github.com/gofrs/uuid"
-	"github.com/satont/go-helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	cfg "github.com/satont/tsuwari/libs/config"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/watched"
@@ -48,7 +49,6 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 	data *watched.Request,
 ) (*emptypb.Empty, error) {
 	twitchClient, err := twitch.NewBotClient(data.BotId, *c.cfg, c.tokensGrpc)
-
 	if err != nil {
 		c.logger.Sugar().Error(err)
 		return nil, errors.New("cannot create api for bot")
@@ -151,7 +151,6 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 							c.logger.Sugar().Error(err)
 						}
 					}
-
 				}(chatter)
 			}
 

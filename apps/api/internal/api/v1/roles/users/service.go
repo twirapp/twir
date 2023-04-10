@@ -2,10 +2,12 @@ package roles_users
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"github.com/satont/tsuwari/apps/api/internal/types"
@@ -14,7 +16,6 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
 	"gorm.io/gorm"
-	"net/http"
 )
 
 type roleUser struct {

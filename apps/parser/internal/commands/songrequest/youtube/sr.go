@@ -5,6 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/guregu/null"
 	config "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
@@ -12,10 +17,6 @@ import (
 	"github.com/satont/tsuwari/libs/twitch"
 	"github.com/valyala/fasttemplate"
 	"go.uber.org/zap"
-	"math"
-	"strconv"
-	"strings"
-	"time"
 
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
@@ -25,7 +26,7 @@ import (
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	model "github.com/satont/tsuwari/libs/gomodels"
 
-	"github.com/satont/go-helix/v2"
+	"github.com/nicklaw5/helix/v2"
 
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -193,7 +194,6 @@ func validate(
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
-
 	if err != nil {
 		return err
 	}

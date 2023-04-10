@@ -2,6 +2,7 @@ package userage
 
 import (
 	"fmt"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	config "github.com/satont/tsuwari/libs/config"
@@ -13,8 +14,8 @@ import (
 
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 )
 
 var Variable = types.Variable{
@@ -26,7 +27,6 @@ var Variable = types.Variable{
 		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
 		twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
-
 		if err != nil {
 			return nil, err
 		}

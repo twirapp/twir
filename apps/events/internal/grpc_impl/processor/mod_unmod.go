@@ -3,10 +3,11 @@ package processor
 import (
 	"errors"
 	"fmt"
-	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
-	model "github.com/satont/tsuwari/libs/gomodels"
 	"strings"
+
+	"github.com/nicklaw5/helix/v2"
+	"github.com/samber/lo"
+	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
 func (c *Processor) getChannelMods() ([]helix.Moderator, error) {
@@ -17,7 +18,6 @@ func (c *Processor) getChannelMods() ([]helix.Moderator, error) {
 	mods, err := c.streamerApiClient.GetModerators(&helix.GetModeratorsParams{
 		BroadcasterID: c.channelId,
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,6 @@ func (c *Processor) UnmodRandom() error {
 		BroadcasterID: c.channelId,
 		UserID:        randomMod.UserID,
 	})
-
 	if err != nil {
 		return err
 	}

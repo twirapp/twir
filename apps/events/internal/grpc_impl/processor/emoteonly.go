@@ -2,8 +2,9 @@ package processor
 
 import (
 	"errors"
+
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 

@@ -2,15 +2,16 @@ package handlers
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/bots/internal/di"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
-	"strings"
-	"time"
 
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/bots/internal/bots/handlers/moderation"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
@@ -69,7 +70,6 @@ func (c *Handlers) moderateMessage(msg Message, badges []string) bool {
 		if res != nil {
 			tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 			twitchClient, err := twitch.NewBotClient(c.BotClient.Model.ID, *c.cfg, tokensGrpc)
-
 			if err != nil {
 				return false
 			}

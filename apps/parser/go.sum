@@ -285,6 +285,8 @@ github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3Rllmb
 github.com/modern-go/reflect2 v1.0.2/go.mod h1:yWuevngMOJpCy52FWWMvUC8ws7m/LJsjYzDa0/r8luk=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
+github.com/nicklaw5/helix/v2 v2.22.0 h1:zrCGcAe+Dk0ecwpjJYx7YhlAht73S6oIRJCCN0uHHgA=
+github.com/nicklaw5/helix/v2 v2.22.0/go.mod h1:zZcKsyyBWDli34x3QleYsVMiiNGMXPAEU5NjsiZDtvY=
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/onsi/ginkgo v1.16.5 h1:8xi0RTUf59SOSfEtZMvwTvXYMzG4gV23XVHOZiXNtnE=
@@ -354,8 +356,6 @@ github.com/samber/do v1.6.0 h1:Jy/N++BXINDB6lAx5wBlbpHlUdl0FKpLWgGEV9YWqaU=
 github.com/samber/do v1.6.0/go.mod h1:DWqBvumy8dyb2vEnYZE7D7zaVEB64J45B0NjTlY/M4k=
 github.com/samber/lo v1.37.0 h1:XjVcB8g6tgUp8rsPsJ2CvhClfImrpL04YpQHXeHPhRw=
 github.com/samber/lo v1.37.0/go.mod h1:9vaz2O4o8oOnK23pd2TrXufcbdbJIa3b6cstBWKpopA=
-github.com/satont/go-helix/v2 v2.7.28 h1:7ZkRVEXv2XwwahWqsawFo5949XSXsdJctW4aBBq+0G4=
-github.com/satont/go-helix/v2 v2.7.28/go.mod h1:j+PWsRYZGj3r6SyoXO7jvmLcuxHc54jt82Z5XxbsHyQ=
 github.com/satont/tsuwari/apps/bots v0.0.0-20230306140052-60f1293647c4 h1:uPbEm+VD3+gyBIf36Df2Vr9ufmf2e7g6bBT9+7Whs0E=
 github.com/satont/tsuwari/apps/bots v0.0.0-20230306140052-60f1293647c4/go.mod h1:cUBQPDky/0hP6ueEHUICym9GjOSZFnM6ZsjhvXcZ88o=
 github.com/satori/go.uuid v1.2.0 h1:0uYX9dsZ2yD7q2RtLRtPSdGDWzjeM3TbMJP9utgA0ww=

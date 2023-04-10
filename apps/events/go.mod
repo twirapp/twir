@@ -12,8 +12,8 @@ replace (
 
 require (
 	github.com/getsentry/sentry-go v0.18.0
+	github.com/nicklaw5/helix/v2 v2.22.0
 	github.com/samber/lo v1.37.0
-	github.com/satont/go-helix/v2 v2.7.28
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000

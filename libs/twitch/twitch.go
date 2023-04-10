@@ -2,13 +2,14 @@ package twitch
 
 import (
 	"context"
+	"time"
+
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"time"
 
-	helix "github.com/satont/go-helix/v2"
+	"github.com/nicklaw5/helix/v2"
 )
 
 func rateLimitCallback(lastResponse *helix.Response) error {

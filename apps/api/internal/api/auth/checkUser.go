@@ -4,6 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"net/http"
+	"time"
+
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/samber/do"
 	"github.com/samber/lo"
@@ -12,11 +15,9 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/crypto"
-	"net/http"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/satont/go-helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/eventsub"
@@ -73,7 +74,7 @@ func checkUser(
 ) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 	eventSubGrpc := do.MustInvoke[eventsub.EventSubClient](di.Provider)
-	//schedulerGrpc := do.MustInvoke[scheduler.SchedulerClient](di.Provider)
+	// schedulerGrpc := do.MustInvoke[scheduler.SchedulerClient](di.Provider)
 	config := do.MustInvoke[cfg.Config](di.Provider)
 
 	defaultBot := model.Bots{}

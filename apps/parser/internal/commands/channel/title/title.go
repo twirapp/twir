@@ -2,9 +2,9 @@ package channel_title
 
 import (
 	"github.com/guregu/null"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"

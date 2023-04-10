@@ -2,9 +2,12 @@ package emotes
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
+
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
@@ -13,8 +16,6 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
 	"gorm.io/gorm"
-	"strconv"
-	"strings"
 )
 
 type topUser struct {
@@ -63,7 +64,6 @@ var UsersVariable = types.Variable{
 				return item.UserID
 			}),
 		})
-
 		if err != nil {
 			return nil, err
 		}

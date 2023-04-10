@@ -2,7 +2,8 @@ package processor
 
 import (
 	"errors"
-	"github.com/satont/go-helix/v2"
+
+	"github.com/nicklaw5/helix/v2"
 )
 
 func (c *Processor) ChangeTitle(newTitle string) error {
@@ -10,7 +11,6 @@ func (c *Processor) ChangeTitle(newTitle string) error {
 		BroadcasterID: c.channelId,
 		Title:         newTitle,
 	})
-
 	if err != nil {
 		return err
 	}

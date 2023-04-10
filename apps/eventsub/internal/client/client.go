@@ -2,16 +2,17 @@ package client
 
 import (
 	"context"
-	"github.com/dnsge/twitch-eventsub-framework"
+	"sync"
+	"sync/atomic"
+
+	eventsub_framework "github.com/dnsge/twitch-eventsub-framework"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/eventsub/internal/creds"
 	"github.com/satont/tsuwari/apps/eventsub/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/twitch"
 	"go.uber.org/zap"
-	"sync"
-	"sync/atomic"
 )
 
 type SubClient struct {

@@ -3,15 +3,16 @@ package timers
 import (
 	"context"
 	"encoding/json"
+	"sync"
+	"time"
+
 	"github.com/lib/pq"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/scheduler/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/twitch"
 	"go.uber.org/zap"
-	"sync"
-	"time"
 )
 
 func NewStreams(ctx context.Context, services *types.Services) {
@@ -154,7 +155,6 @@ func processStreams(services *types.Services) {
 					services.PubSub.Publish("stream.offline", bytes)
 				}
 			}
-
 		}(chunk)
 	}
 

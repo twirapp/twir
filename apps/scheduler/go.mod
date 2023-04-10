@@ -6,6 +6,7 @@ replace (
 	github.com/satont/tsuwari/libs/config => ../../libs/config
 	github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
 	github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+	github.com/satont/tsuwari/libs/pubsub => ../../libs/pubsub
 	github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
 )
 
@@ -13,11 +14,12 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/lib/pq v1.10.7
+	github.com/nicklaw5/helix/v2 v2.22.0
 	github.com/samber/lo v1.37.0
-	github.com/satont/go-helix/v2 v2.7.28
 	github.com/satont/tsuwari/libs/config v0.0.0-20230302140714-704247d5bf81
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/grpc v0.0.0-20230302140714-704247d5bf81
+	github.com/satont/tsuwari/libs/pubsub v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/twitch v0.0.0-00010101000000-000000000000
 	go.uber.org/zap v1.24.0
 	google.golang.org/protobuf v1.28.1
@@ -27,6 +29,9 @@ require (
 
 require (
 	github.com/benbjohnson/clock v1.3.0 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
+	github.com/go-redis/redis/v9 v9.0.0-rc.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.3 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -39,7 +44,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/stretchr/testify v1.8.2 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/goleak v1.1.12 // indirect
 	go.uber.org/multierr v1.8.0 // indirect

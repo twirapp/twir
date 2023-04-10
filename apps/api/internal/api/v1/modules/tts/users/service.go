@@ -6,9 +6,9 @@ import (
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"github.com/satont/tsuwari/apps/api/internal/types"

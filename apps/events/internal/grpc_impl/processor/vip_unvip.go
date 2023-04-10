@@ -3,11 +3,12 @@ package processor
 import (
 	"errors"
 	"fmt"
-	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
-	model "github.com/satont/tsuwari/libs/gomodels"
 	"strconv"
 	"strings"
+
+	"github.com/nicklaw5/helix/v2"
+	"github.com/samber/lo"
+	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
 func (c *Processor) getChannelVips() ([]helix.ChannelVips, error) {
@@ -18,7 +19,6 @@ func (c *Processor) getChannelVips() ([]helix.ChannelVips, error) {
 	vips, err := c.streamerApiClient.GetChannelVips(&helix.GetChannelVipsParams{
 		BroadcasterID: c.channelId,
 	})
-
 	if err != nil {
 		return nil, errors.New(vips.ErrorMessage)
 	}
@@ -192,7 +192,6 @@ func (c *Processor) UnvipRandom(operation model.EventOperationType, slots string
 		BroadcasterID: c.channelId,
 		UserID:        randomVip.UserID,
 	})
-
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,8 @@
 package channel_game
 
 import (
+	"strings"
+
 	"github.com/guregu/null"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
@@ -10,10 +12,9 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
-	"strings"
 
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 )
 
 var SetCommand = &types.DefaultCommand{
@@ -71,7 +72,6 @@ var SetCommand = &types.DefaultCommand{
 			games, err := twitchClient.SearchCategories(&helix.SearchCategoriesParams{
 				Query: *ctx.Text,
 			})
-
 			if err != nil {
 				return nil
 			}

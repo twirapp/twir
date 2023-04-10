@@ -3,9 +3,11 @@ package grpc_impl
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/go-redsync/redsync/v4"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/tokens/internal/di"
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/crypto"
@@ -13,7 +15,6 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
-	"time"
 )
 
 var appTokenScopes = []string{}
@@ -43,13 +44,11 @@ func NewTokens() *TokensGrpcImpl {
 		ClientSecret: config.TwitchClientSecret,
 		RedirectURI:  config.TwitchCallbackUrl,
 	})
-
 	if err != nil {
 		panic(err)
 	}
 
 	appAccessToken, err := helixClient.RequestAppAccessToken(appTokenScopes)
-
 	if err != nil {
 		panic(err)
 	}
@@ -80,7 +79,6 @@ func (c *TokensGrpcImpl) RequestAppToken(
 
 	if isTokenExpired(c.appAccessToken.ExpiresIn, c.appAccessToken.ObtainmentTime) {
 		appAccessToken, err := c.globalClient.RequestAppAccessToken(appTokenScopes)
-
 		if err != nil {
 			return nil, err
 		}
@@ -110,7 +108,6 @@ func (c *TokensGrpcImpl) RequestUserToken(
 
 	user := model.Users{}
 	err := db.Where("id = ?", data.UserId).Preload("Token").Find(&user).Error
-
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +123,6 @@ func (c *TokensGrpcImpl) RequestUserToken(
 
 	if isTokenExpired(int(user.Token.ExpiresIn), user.Token.ObtainmentTimestamp) {
 		newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
-
 		if err != nil {
 			return nil, err
 		}
@@ -172,7 +168,6 @@ func (c *TokensGrpcImpl) RequestBotToken(
 
 	bot := model.Bots{}
 	err := db.Where("id = ?", data.BotId).Preload("Token").Find(&bot).Error
-
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +183,6 @@ func (c *TokensGrpcImpl) RequestBotToken(
 
 	if isTokenExpired(int(bot.Token.ExpiresIn), bot.Token.ObtainmentTimestamp) {
 		newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
-
 		if err != nil {
 			return nil, err
 		}

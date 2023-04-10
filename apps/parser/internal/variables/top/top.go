@@ -2,6 +2,7 @@ package top
 
 import (
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
@@ -15,8 +16,8 @@ import (
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 )
 
 type UserStats struct {
@@ -38,7 +39,6 @@ func GetTop(
 	db := do.MustInvoke[gorm.DB](di.Provider)
 
 	twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
-
 	if err != nil {
 		zap.S().Error(err)
 		return nil

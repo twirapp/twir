@@ -2,21 +2,22 @@ package community
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"github.com/satont/tsuwari/libs/config"
+	cfg "github.com/satont/tsuwari/libs/config"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
 	"gorm.io/gorm"
-	"net/http"
-	"strconv"
 )
 
 type User struct {
@@ -78,7 +79,7 @@ func handleGet(channelId, limit, page, sortBy, order string) ([]User, error) {
 		LeftJoin(`"channels_emotes_usages" ON "channels_emotes_usages"."userId" = "users_stats"."userId" AND "channels_emotes_usages"."channelId" = "users_stats"."channelId"`).
 		Where(squirrel.And{
 			squirrel.Eq{`"users_stats"."channelId"`: channelId},
-			//squirrel.NotEq{`"users_stats"."userId"`: channelId},
+			// squirrel.NotEq{`"users_stats"."userId"`: channelId},
 			squirrel.NotEq{`"users_stats"."userId"`: channel.BotID},
 		}).
 		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_stats"."userId")`).
@@ -107,7 +108,6 @@ func handleGet(channelId, limit, page, sortBy, order string) ([]User, error) {
 			return record.UserID
 		}),
 	})
-
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}

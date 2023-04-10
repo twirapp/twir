@@ -2,10 +2,11 @@ package bot
 
 import (
 	"context"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"net/http"
 	"sync"
+
+	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
@@ -17,8 +18,8 @@ import (
 	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 
 	apiTypes "github.com/satont/tsuwari/libs/types/types/api/bot"
@@ -72,7 +73,6 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 		infoReq, err := twitchClient.GetUsers(&helix.UsersParams{
 			IDs: []string{channel.BotID},
 		})
-
 		if err != nil {
 			logger.Error(err)
 			return

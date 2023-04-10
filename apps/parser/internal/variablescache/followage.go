@@ -1,8 +1,8 @@
 package variables_cache
 
 import (
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
-	"github.com/satont/go-helix/v2"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	config "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"

@@ -1,10 +1,11 @@
 package variables_cache
 
 import (
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 	"sync"
 
-	"github.com/satont/go-helix/v2"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+
+	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"gorm.io/gorm"
 )

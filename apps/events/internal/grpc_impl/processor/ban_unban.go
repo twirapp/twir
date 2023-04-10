@@ -3,10 +3,11 @@ package processor
 import (
 	"errors"
 	"fmt"
-	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
-	model "github.com/satont/tsuwari/libs/gomodels"
 	"strings"
+
+	"github.com/nicklaw5/helix/v2"
+	"github.com/samber/lo"
+	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
 func (c *Processor) Timeout(input string, timeoutTime int) error {
@@ -182,7 +183,6 @@ func (c *Processor) BanRandom(timeoutTime int) error {
 			UserId:   randomOnlineUser.UserId.String,
 		},
 	})
-
 	if err != nil {
 		return err
 	}

@@ -12,7 +12,7 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/lib/pq"
-	"github.com/satont/go-helix/v2"
+	"github.com/nicklaw5/helix/v2"
 )
 
 func (c *VariablesCacheService) GetChannelStream() *model.ChannelsStreams {

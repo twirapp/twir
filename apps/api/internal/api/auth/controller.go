@@ -2,9 +2,10 @@ package auth
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2/middleware/cache"
 	"net/http"
 	"time"
+
+	"github.com/gofiber/fiber/v2/middleware/cache"
 
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
@@ -13,7 +14,7 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/satont/go-helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )

@@ -11,8 +11,8 @@ import (
 	config "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 )
 
 var FollowageVariable = types.Variable{
@@ -24,7 +24,6 @@ var FollowageVariable = types.Variable{
 		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
 		twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
-
 		if err != nil {
 			return nil, err
 		}

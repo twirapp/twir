@@ -2,6 +2,9 @@ package permit
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/do"
@@ -11,15 +14,13 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"strconv"
-	"strings"
 
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
-	"github.com/satont/go-helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )

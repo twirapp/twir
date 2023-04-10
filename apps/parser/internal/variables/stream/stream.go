@@ -1,6 +1,6 @@
 package stream
 
-import "github.com/satont/go-helix/v2"
+import "github.com/nicklaw5/helix/v2"
 
 type HelixStream struct {
 	helix.Stream

@@ -3,6 +3,8 @@ package song
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	config "github.com/satont/tsuwari/libs/config"
@@ -10,7 +12,6 @@ import (
 	"github.com/satont/tsuwari/libs/twitch"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"strings"
 
 	lastfm "github.com/satont/tsuwari/apps/parser/internal/integrations/lastfm"
 	vkIntegr "github.com/satont/tsuwari/apps/parser/internal/integrations/vk"
@@ -22,8 +23,8 @@ import (
 	"github.com/go-redis/redis/v9"
 	spotify "github.com/satont/tsuwari/libs/integrations/spotify"
 
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/go-helix/v2"
 )
 
 const (
