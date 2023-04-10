@@ -106,7 +106,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 			"grant_type": "authorization_code",
 			"code":       dto.Code,
 		}).
-		SetResult(&tokensData).
+		SetSuccessResult(&tokensData).
 		SetHeader("Authorization", fmt.Sprintf("Basic %s", token)).
 		SetContentType("application/x-www-form-urlencoded").
 		Post("https://api.faceit.com/auth/v1/oauth/token")
@@ -114,9 +114,10 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		return fiber.NewError(http.StatusInternalServerError, "cannot get tokens")
 	}
 
-	if !resp.IsSuccess() {
+	if !resp.IsSuccessState() {
 		data, _ := io.ReadAll(resp.Body)
 		fmt.Println(string(data))
+		fmt.Println(resp.StatusCode)
 		return fiber.NewError(401, "seems like code is invalid")
 	}
 
