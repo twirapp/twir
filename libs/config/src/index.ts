@@ -31,4 +31,6 @@ export const config = cleanEnv(process.env, {
   TOKENS_CIPHER_KEY: str({ default: 'pnyfwfiulmnqlhkvixaeligpprcnlyke' }),
   EVENTSUB_SECRET: str({ default: 'coolEventsubSecret' }),
   TTS_SERVICE_URL: str({ default: 'http://localhost:7000' }),
+  SPOTIFY_CLIENT_ID: str({ default: '' }),
+  SPOTIFY_CLIENT_SECRET: str({ default: '' }),
 });

@@ -1,7 +1,9 @@
+import { createSpotifyAPI } from '@soundify/api';
+import { ClientCredentials } from '@soundify/node-auth';
+import { config } from '@tsuwari/config';
 import * as YTSR from '@tsuwari/grpc/generated/ytsr/ytsr';
 import { PORTS } from '@tsuwari/grpc/servers/constants';
 import { createServer } from 'nice-grpc';
-import ytdl from 'ytdl-core';
 import ytsrLib, { Video } from 'ytsr';
 
 import { durationToMilliseconds } from './utils/convertDuration.js';
@@ -10,8 +12,17 @@ export const grpcServer = createServer({
   'grpc.keepalive_time_ms': 1 * 60 * 1000,
 });
 
-const linkRegexp =
+const youtubeLinkRegexp =
   /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|.+\?v=)?([\w-]{11})(?:\S+)?/g;
+const spotifyLinkRegexp =
+  /^(https:\/\/open.spotify.com\/track\/|spotify:track:)([a-zA-Z0-9]+)(.*)$/g;
+
+const spotifyClient = createSpotifyAPI(
+  new ClientCredentials({
+    client_id: config.SPOTIFY_CLIENT_ID,
+    client_secret: config.SPOTIFY_CLIENT_SECRET,
+  }).createAuthProvider(),
+);
 
 const ytsrService: YTSR.YtsrServiceImplementation = {
   async search(
@@ -20,35 +31,34 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
   ): Promise<YTSR.DeepPartial<YTSR.SearchResponse>> {
     const videos: Array<YTSR.Song> = [];
 
-    const linkMatches = [...request.search.matchAll(linkRegexp)];
-    if (linkMatches.length) {
-      await Promise.all(
-        linkMatches.map(async (match) => {
-          const url = `https://${match[0].replace('https://', '')}`;
-          const song = await ytdl.getInfo(url).catch((e) => {
-            console.error(e);
-            return null;
-          });
-          if (!song) return;
-          videos.push({
-            title: song.videoDetails.title,
-            isLive: song.videoDetails.isLiveContent,
-            duration: Number(song.videoDetails.lengthSeconds) * 1000,
-            thumbnailUrl: song.videoDetails.thumbnails[0]?.url,
-            author: {
-              name: song.videoDetails.author.name,
-              avatarUrl: song.videoDetails.author.thumbnails?.at(0)?.url,
-              channelId: song.videoDetails.author.id,
-            },
-            id: song.videoDetails.videoId,
-            views: Number(song.videoDetails.viewCount),
-          });
-        }),
-      );
-    } else {
-      const search = await ytsrLib(request.search, { limit: 1 });
-      if (search.items.length && search.items?.at(0)?.type === 'video') {
-        const item = search.items.at(0) as ytsrLib.Video;
+    const tracksForSearch: string[] = [];
+
+    const youtubeLinkMatches = [...request.search.matchAll(youtubeLinkRegexp)];
+    const spotifyLinkMatches = [...request.search.matchAll(spotifyLinkRegexp)];
+
+    await Promise.all(
+      spotifyLinkMatches.map(async (match) => {
+        const song = await spotifyClient.getTrack(match[2]!).catch(() => null);
+        if (!song) return;
+
+        tracksForSearch.push(`${song.artists.map((a) => a.name)} ${song.name}`);
+      }),
+    );
+
+    for (const match of youtubeLinkMatches) {
+      tracksForSearch.push(match[1]!);
+    }
+
+    if (!youtubeLinkMatches.length && !spotifyLinkMatches.length) {
+      tracksForSearch.push(request.search);
+    }
+
+    await Promise.all(
+      tracksForSearch.map(async (track) => {
+        const search = await ytsrLib(track, { limit: 1 });
+        const item = search.items.at(0) as Video;
+        if (!item) return;
+
         videos.push({
           title: item.title,
           isLive: item.isLive,
@@ -62,8 +72,8 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
             avatarUrl: item.author?.bestAvatar?.url || '',
           },
         });
-      }
-    }
+      }),
+    );
 
     return {
       songs: videos,
