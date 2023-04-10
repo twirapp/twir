@@ -25,7 +25,10 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
       await Promise.all(
         linkMatches.map(async (match) => {
           const url = `https://${match[0].replace('https://', '')}`;
-          const song = await ytdl.getInfo(url).catch(() => null);
+          const song = await ytdl.getInfo(url).catch((e) => {
+            console.error(e);
+            return null;
+          });
           if (!song) return;
           videos.push({
             title: song.videoDetails.title,
