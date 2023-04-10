@@ -10,7 +10,7 @@
   "dependencies": {
     "@tsuwari/grpc": "workspace:*",
     "nice-grpc": "^2.1.0",
-    "ytdl-core": "^4.11.2",
+    "ytdl-core": "^4.11.3",
     "ytsr": "^3.8.0"
   }
 }
