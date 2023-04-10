@@ -10,32 +10,38 @@ export const grpcServer = createServer({
   'grpc.keepalive_time_ms': 1 * 60 * 1000,
 });
 
-const linkRegexp = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|.+\?v=)?([\w-]{11})(?:\S+)?/g;
+const linkRegexp =
+  /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|.+\?v=)?([\w-]{11})(?:\S+)?/g;
 
 const ytsrService: YTSR.YtsrServiceImplementation = {
-  async search(request: YTSR.SearchRequest, context): Promise<YTSR.DeepPartial<YTSR.SearchResponse>> {
+  async search(
+    request: YTSR.SearchRequest,
+    context,
+  ): Promise<YTSR.DeepPartial<YTSR.SearchResponse>> {
     const videos: Array<YTSR.Song> = [];
 
     const linkMatches = [...request.search.matchAll(linkRegexp)];
     if (linkMatches.length) {
-      await Promise.all(linkMatches.map(async (match) => {
-        const url = `https://${match[0].replace('https://', '')}`;
-        const song = await ytdl.getInfo(url).catch(() => null);
-        if (!song) return;
-        videos.push({
-          title: song.videoDetails.title,
-          isLive: song.videoDetails.isLiveContent,
-          duration: Number(song.videoDetails.lengthSeconds) * 1000,
-          thumbnailUrl: song.videoDetails.thumbnails[0]?.url,
-          author: {
-            name: song.videoDetails.author.name,
-            avatarUrl: song.videoDetails.author.thumbnails?.at(0)?.url,
-            channelId: song.videoDetails.author.id,
-          },
-          id: song.videoDetails.videoId,
-          views: Number(song.videoDetails.viewCount),
-        });
-      }));
+      await Promise.all(
+        linkMatches.map(async (match) => {
+          const url = `https://${match[0].replace('https://', '')}`;
+          const song = await ytdl.getInfo(url).catch(() => null);
+          if (!song) return;
+          videos.push({
+            title: song.videoDetails.title,
+            isLive: song.videoDetails.isLiveContent,
+            duration: Number(song.videoDetails.lengthSeconds) * 1000,
+            thumbnailUrl: song.videoDetails.thumbnails[0]?.url,
+            author: {
+              name: song.videoDetails.author.name,
+              avatarUrl: song.videoDetails.author.thumbnails?.at(0)?.url,
+              channelId: song.videoDetails.author.id,
+            },
+            id: song.videoDetails.videoId,
+            views: Number(song.videoDetails.viewCount),
+          });
+        }),
+      );
     } else {
       const search = await ytsrLib(request.search, { limit: 1 });
       if (search.items.length && search.items?.at(0)?.type === 'video') {
@@ -65,3 +71,5 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
 grpcServer.add(YTSR.YtsrDefinition, ytsrService);
 
 grpcServer.listen(`0.0.0.0:${PORTS.YTSR_SERVER_PORT}`);
+
+process.on('SIGINT', () => grpcServer.shutdown()).on('SIGTERM', () => grpcServer.shutdown());
