@@ -2,6 +2,7 @@ package userage
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
@@ -35,6 +36,8 @@ var Variable = types.Variable{
 
 		var user *helix.User
 		if ctx.Text != nil {
+			*ctx.Text = strings.ReplaceAll(*ctx.Text, "@", "")
+
 			users, err := twitchClient.GetUsers(&helix.UsersParams{
 				Logins: []string{*ctx.Text},
 			})

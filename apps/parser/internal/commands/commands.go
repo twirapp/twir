@@ -1,12 +1,13 @@
 package commands
 
 import (
-	"github.com/satont/tsuwari/apps/parser/internal/commands/song"
-	"github.com/satont/tsuwari/apps/parser/internal/commands/stats"
 	"regexp"
 	"sort"
 	"strings"
 	"sync"
+
+	"github.com/satont/tsuwari/apps/parser/internal/commands/song"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/stats"
 
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/shoutout"
@@ -87,6 +88,7 @@ func New() Commands {
 		stats.TopEmotes,
 		stats.TopEmotesUsers,
 		stats.TopPoints,
+		stats.UserAge,
 		song.CurrentSong,
 	}
 
