@@ -118,6 +118,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		data, _ := io.ReadAll(resp.Body)
 		fmt.Println(string(data))
 		fmt.Println(resp.StatusCode)
+		fmt.Println(resp.Header)
 		return fiber.NewError(401, "seems like code is invalid")
 	}
 
