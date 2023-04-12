@@ -26,7 +26,7 @@ func StreamsOffline(db *gorm.DB, data []byte) {
 		return
 	}
 
-	db.Model(&model.ChannelsGreetings{}).
-		Where(`"channelId" = ?`, channel.ID).
-		Update("processed", false)
+	//db.Model(&model.ChannelsGreetings{}).
+	//	Where(`"channelId" = ?`, channel.ID).
+	//	Update("processed", false)
 }
