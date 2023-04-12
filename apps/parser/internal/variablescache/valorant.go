@@ -44,7 +44,7 @@ type ValorantMatchPlayer struct {
 	CurrentTier        int    `json:"currenttier"`
 	CurrentTierPatched string `json:"currenttier_patched"`
 	Behavior           struct {
-		AfkRounds    int `json:"afk_rounds"`
+		AfkRounds    float64 `json:"afk_rounds"`
 		FriendlyFire struct {
 			Incoming int `json:"incoming"`
 			Outgoing int `json:"outgoing"`
