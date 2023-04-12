@@ -15,8 +15,19 @@ func (c *Handlers) handleGreetings(
 	msg Message,
 	userBadges []string,
 ) {
+	stream := &model.ChannelsStreams{}
+	err := c.db.Where(`"userId" = ?`, msg.Channel.ID).Find(&stream).Error
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if stream.ID == "" {
+		return
+	}
+
 	entity := model.ChannelsGreetings{}
-	err := c.db.
+	err = c.db.
 		Where(
 			`"channelId" = ? AND "userId" = ? AND "processed" = ? AND "enabled" = ?`,
 			msg.Channel.ID,
