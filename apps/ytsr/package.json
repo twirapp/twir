@@ -8,11 +8,10 @@
     "start": "node --enable-source-maps dist/index.js"
   },
   "dependencies": {
-    "@soundify/api": "0.1.4-beta.0",
-    "@soundify/node-auth": "0.1.4-beta.0",
     "@tsuwari/config": "workspace:^",
     "@tsuwari/grpc": "workspace:*",
     "nice-grpc": "^2.1.0",
+    "tlds": "^1.238.0",
     "ytsr": "^3.8.0"
   }
 }

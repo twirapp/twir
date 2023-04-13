@@ -1,9 +1,8 @@
-import { createSpotifyAPI } from '@soundify/api';
-import { ClientCredentials } from '@soundify/node-auth';
 import { config } from '@tsuwari/config';
 import * as YTSR from '@tsuwari/grpc/generated/ytsr/ytsr';
 import { PORTS } from '@tsuwari/grpc/servers/constants';
 import { createServer } from 'nice-grpc';
+import tlds from 'tlds' assert { type: 'json' };
 import ytsrLib, { Video } from 'ytsr';
 
 import { durationToMilliseconds } from './utils/convertDuration.js';
@@ -12,16 +11,9 @@ export const grpcServer = createServer({
   'grpc.keepalive_time_ms': 1 * 60 * 1000,
 });
 
-const youtubeLinkRegexp =
-  /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|.+\?v=)?([\w-]{11})(?:\S+)?/g;
-const spotifyLinkRegexp =
-  /^(https:\/\/open.spotify.com\/track\/|spotify:track:)([a-zA-Z0-9]+)(.*)$/g;
-
-const spotifyClient = createSpotifyAPI(
-  new ClientCredentials({
-    client_id: config.SPOTIFY_CLIENT_ID,
-    client_secret: config.SPOTIFY_CLIENT_SECRET,
-  }).createAuthProvider(),
+const linkRegexp = new RegExp(
+  `[a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})(?=\\P{L}|$)`,
+  'igu',
 );
 
 const ytsrService: YTSR.YtsrServiceImplementation = {
@@ -33,23 +25,26 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
 
     const tracksForSearch: string[] = [];
 
-    const youtubeLinkMatches = [...request.search.matchAll(youtubeLinkRegexp)];
-    const spotifyLinkMatches = [...request.search.matchAll(spotifyLinkRegexp)];
+    const linkMatches = [...request.search.matchAll(linkRegexp)];
 
-    await Promise.all(
-      spotifyLinkMatches.map(async (match) => {
-        const song = await spotifyClient.getTrack(match[2]!).catch(() => null);
-        if (!song) return;
+    console.log(linkMatches);
 
-        tracksForSearch.push(`${song.artists.map((a) => a.name)} ${song.name}`);
-      }),
-    );
+    if (linkMatches.length) {
+      await Promise.all(
+        linkMatches.map(async (match) => {
+          const request = await fetch(
+            `https://api.song.link/v1-alpha.1/links?url=${match.input}&key=${config.ODESLI_API_KEY}`,
+          );
+          if (!request.ok) return;
 
-    for (const match of youtubeLinkMatches) {
-      tracksForSearch.push(match[1]!);
-    }
+          const data = await request.json();
+          const youTube = data.linksByPlatform?.youtube;
+          if (!youTube) return;
 
-    if (!youtubeLinkMatches.length && !spotifyLinkMatches.length) {
+          tracksForSearch.push(youTube.url);
+        }),
+      );
+    } else {
       tracksForSearch.push(request.search);
     }
 
@@ -83,6 +78,7 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
 
 grpcServer.add(YTSR.YtsrDefinition, ytsrService);
 
-grpcServer.listen(`0.0.0.0:${PORTS.YTSR_SERVER_PORT}`);
+await grpcServer.listen(`0.0.0.0:${PORTS.YTSR_SERVER_PORT}`);
+console.log('YTSR server listening on port', PORTS.YTSR_SERVER_PORT);
 
 process.on('SIGINT', () => grpcServer.shutdown()).on('SIGTERM', () => grpcServer.shutdown());
