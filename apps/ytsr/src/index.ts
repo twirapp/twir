@@ -12,7 +12,7 @@ export const grpcServer = createServer({
 });
 
 const linkRegexp = new RegExp(
-  `[a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})(?=\\P{L}|$)`,
+  `\\S+[a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})(?=\\P{L}|$)\\S*`,
   'igu',
 );
 
@@ -27,13 +27,11 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
 
     const linkMatches = [...request.search.matchAll(linkRegexp)];
 
-    console.log(linkMatches);
-
     if (linkMatches.length) {
       await Promise.all(
         linkMatches.map(async (match) => {
           const request = await fetch(
-            `https://api.song.link/v1-alpha.1/links?url=${match.input}&key=${config.ODESLI_API_KEY}`,
+            `https://api.song.link/v1-alpha.1/links?url=${match[0]}&key=${config.ODESLI_API_KEY}`,
           );
           if (!request.ok) return;
 
