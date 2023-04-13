@@ -1,6 +1,7 @@
 package channel_game
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/guregu/null"
@@ -101,6 +102,8 @@ var SetCommand = &types.DefaultCommand{
 		})
 
 		if err != nil || req.StatusCode != 204 {
+			fmt.Println(err)
+			fmt.Println(req.ErrorMessage)
 			result.Result = append(result.Result, "❌")
 			return result
 		}
