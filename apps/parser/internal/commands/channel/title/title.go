@@ -39,22 +39,24 @@ var SetCommand = &types.DefaultCommand{
 			return nil
 		}
 
+		channelsInfo, err := twitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
+			BroadcasterIDs: []string{ctx.ChannelId},
+		})
+		if err != nil || channelsInfo.ErrorMessage != "" || len(channelsInfo.Data.Channels) == 0 {
+			return nil
+		}
+
+		channelInfo := channelsInfo.Data.Channels[0]
+
 		if ctx.Text == nil || *ctx.Text == "" || !isHavePermToChange {
-			channelInfo, err := twitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
-				BroadcasterIDs: []string{ctx.ChannelId},
-			})
-
-			if err != nil || channelInfo.ErrorMessage != "" || len(channelInfo.Data.Channels) == 0 {
-				return nil
-			}
-
-			result.Result = append(result.Result, channelInfo.Data.Channels[0].Title)
+			result.Result = append(result.Result, channelInfo.Title)
 			return result
 		}
 
 		req, err := twitchClient.EditChannelInformation(&helix.EditChannelInformationParams{
 			BroadcasterID: ctx.ChannelId,
 			Title:         *ctx.Text,
+			GameID:        channelInfo.GameID,
 		})
 
 		if err != nil || req.StatusCode != 204 {
