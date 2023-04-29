@@ -12,6 +12,8 @@ type TTSSettings struct {
 	DoNotReadEmoji                     bool     `json:"do_not_read_emoji"`
 	DoNotReadTwitchEmotes              bool     `json:"do_not_read_twitch_emotes"`
 	DoNotReadLinks                     bool     `json:"do_not_read_links"`
+	ReadChatMessages                   bool     `json:"read_chat_messages"`
+	ReadChatMessagesNicknames          bool     `json:"read_chat_messages_nicknames"`
 }
 
 type TTS struct {

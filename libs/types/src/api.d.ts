@@ -22,6 +22,8 @@ export interface TTSSettings {
     do_not_read_emoji: boolean;
     do_not_read_twitch_emotes: boolean;
     do_not_read_links: boolean;
+    read_chat_messages: boolean;
+    read_chat_messages_nicknames: boolean;
 }
 export interface TTS {
     GET: TTSSettings;

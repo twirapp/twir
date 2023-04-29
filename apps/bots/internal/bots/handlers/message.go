@@ -30,6 +30,7 @@ func (c *Handlers) OnMessage(msg Message) {
 	go c.handleGreetings(msg, userBadges)
 	go c.handleKeywords(msg, userBadges)
 	go c.handleEmotes(msg)
+	go c.handleTts(msg, userBadges)
 
 	go func() {
 		messages.StoreMessage(
