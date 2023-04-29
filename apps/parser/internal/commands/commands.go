@@ -89,6 +89,7 @@ func New() Commands {
 		stats.TopEmotesUsers,
 		stats.TopPoints,
 		stats.UserAge,
+		stats.Uptime,
 		song.CurrentSong,
 	}
 
