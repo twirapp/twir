@@ -16,7 +16,7 @@ require (
 	github.com/dnsge/twitch-eventsub-framework v1.1.1
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.7
-	github.com/nicklaw5/helix/v2 v2.22.0
+	github.com/nicklaw5/helix/v2 v2.22.1
 	github.com/samber/lo v1.37.0
 	github.com/satont/tsuwari/libs/config v0.0.0-20230305122358-17fcb584d9ed
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
@@ -38,7 +38,7 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/go-redis/redis/v9 v9.0.0-rc.2 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
-	github.com/golang-jwt/jwt/v4 v4.4.3 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/inconshreveable/log15 v3.0.0-testing.3+incompatible // indirect

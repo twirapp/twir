@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/nicklaw5/helix/v2 v2.22.0
+	github.com/nicklaw5/helix/v2 v2.22.1
 	github.com/prometheus/client_golang v1.14.0
 	github.com/samber/do v1.6.0
 	github.com/satont/tsuwari/apps/bots v0.0.0-20230306140052-60f1293647c4
@@ -33,7 +33,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
-	github.com/golang-jwt/jwt/v4 v4.4.3 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/pprof v0.0.0-20230207041349-798e818bf904 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
