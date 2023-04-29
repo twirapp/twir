@@ -10,7 +10,7 @@ import (
 
 var Variable = types.Variable{
 	Name:        "stream.uptime",
-	Description: lo.ToPtr("Stream uptime"),
+	Description: lo.ToPtr("Prints uptime of stream"),
 	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
