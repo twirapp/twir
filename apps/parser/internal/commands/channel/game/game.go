@@ -43,16 +43,15 @@ var SetCommand = &types.DefaultCommand{
 			return nil
 		}
 
-		channelsInfo, err := twitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
-			BroadcasterIDs: []string{ctx.ChannelId},
-		})
-		if err != nil || channelsInfo.ErrorMessage != "" || len(channelsInfo.Data.Channels) == 0 {
-			return nil
-		}
-
-		channelInfo := channelsInfo.Data.Channels[0]
-
 		if ctx.Text == nil || *ctx.Text == "" || !isHavePermToChange {
+			channelsInfo, err := twitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
+				BroadcasterIDs: []string{ctx.ChannelId},
+			})
+			if err != nil || channelsInfo.ErrorMessage != "" || len(channelsInfo.Data.Channels) == 0 {
+				return nil
+			}
+			channelInfo := channelsInfo.Data.Channels[0]
+
 			result.Result = append(result.Result, channelInfo.GameName)
 			return result
 		}
@@ -100,13 +99,12 @@ var SetCommand = &types.DefaultCommand{
 		req, err := twitchClient.EditChannelInformation(&helix.EditChannelInformationParams{
 			BroadcasterID: ctx.ChannelId,
 			GameID:        categoryId,
-			Title:         channelInfo.Title,
 		})
 
 		if err != nil || req.StatusCode != 204 {
 			fmt.Println(err)
 			fmt.Println(req.ErrorMessage)
-			result.Result = append(result.Result, "❌")
+			result.Result = append(result.Result, "❌ internal error")
 			return result
 		}
 

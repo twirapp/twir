@@ -3,7 +3,7 @@ module github.com/satont/tsuwari/libs/twitch
 go 1.20
 
 require (
-	github.com/nicklaw5/helix/v2 v2.22.0
+	github.com/nicklaw5/helix/v2 v2.22.1
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	google.golang.org/grpc v1.53.0
@@ -11,7 +11,7 @@ require (
 )
 
 require (
-	github.com/golang-jwt/jwt/v4 v4.4.3 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
