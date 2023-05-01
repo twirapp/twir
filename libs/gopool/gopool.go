@@ -7,12 +7,20 @@ import (
 type worker struct {
 	tasksChannel chan func()
 	readyWg      *sync.WaitGroup
+	closeChannel chan bool
 }
 
 func (w *worker) run() {
 	w.readyWg.Done()
-	for task := range w.tasksChannel {
-		task()
+
+	for {
+		select {
+		case <-w.closeChannel:
+			close(w.tasksChannel)
+			return
+		case task := <-w.tasksChannel:
+			task()
+		}
 	}
 }
 
@@ -38,6 +46,12 @@ func (p *Pool) Submit(f func()) {
 	w.tasksChannel <- f
 }
 
+func (p *Pool) Close() {
+	for _, w := range p.workers {
+		w.closeChannel <- true
+	}
+}
+
 func NewPool(size int) *Pool {
 	readyWg := &sync.WaitGroup{}
 
@@ -52,6 +66,7 @@ func NewPool(size int) *Pool {
 		w := &worker{
 			readyWg:      readyWg,
 			tasksChannel: make(chan func()),
+			closeChannel: make(chan bool),
 		}
 		go w.run()
 
