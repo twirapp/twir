@@ -1,7 +1,6 @@
 package permissions
 
 import (
-	"fmt"
 	"github.com/samber/do"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
@@ -22,9 +21,19 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 
 	db := do.MustInvoke[gorm.DB](di.Provider)
 
+	dbUser := &model.Users{}
+	err := db.Where(`"id" = ?`, userId).Find(dbUser).Error
+	if err != nil {
+		zap.S().Error(err)
+	}
+
+	if dbUser.IsBotAdmin {
+		return true
+	}
+
 	var userRoles []*model.ChannelRole
 
-	err := db.Model(&model.ChannelRole{}).
+	err = db.Model(&model.ChannelRole{}).
 		Where(`"channelId" = ?`, channelId).
 		Preload("Users", `"userId" = ?`, userId).
 		Find(&userRoles).
@@ -66,7 +75,7 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 	if lo.SomeBy(command.AllowedUsersIDS, func(id string) bool {
 		return id == userId
 	}) {
-		fmt.Println("allowed user", userId)
+		// allowed user
 		return true
 	}
 
@@ -78,7 +87,7 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 
 			for _, user := range role.Users {
 				if user.UserID == userId {
-					fmt.Println("user in role", userId)
+					// user in role
 					return true
 				}
 			}
