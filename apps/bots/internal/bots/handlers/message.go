@@ -10,29 +10,41 @@ import (
 )
 
 func (c *Handlers) OnMessage(msg Message) {
+	userBadges := createUserBadges(msg.User.Badges)
 	// this need to be first because if we have no user in db it will produce many bugs
 	messages.IncrementUserMessages(c.db, msg.User.ID, msg.Channel.ID)
 
-	userBadges := createUserBadges(msg.User.Badges)
+	c.workersPool.Submit(func() {
+		splittedMsg := strings.Split(msg.Message, " ")
+		isReplyCommand := len(splittedMsg) >= 2 && strings.HasPrefix(splittedMsg[0], "@") &&
+			strings.HasPrefix(splittedMsg[1], "!")
 
-	splittedMsg := strings.Split(msg.Message, " ")
-	isReplyCommand := len(splittedMsg) >= 2 && strings.HasPrefix(splittedMsg[0], "@") &&
-		strings.HasPrefix(splittedMsg[1], "!")
+		if strings.HasPrefix(msg.Message, "!") || isReplyCommand {
+			if isReplyCommand {
+				msg.Message = strings.Join(splittedMsg[1:], " ")
+			}
 
-	if strings.HasPrefix(msg.Message, "!") || isReplyCommand {
-		if isReplyCommand {
-			msg.Message = strings.Join(splittedMsg[1:], " ")
+			c.handleCommand(msg, userBadges)
 		}
+	})
 
-		go c.handleCommand(msg, userBadges)
-	}
+	c.workersPool.Submit(func() {
+		c.handleGreetings(msg, userBadges)
+	})
 
-	go c.handleGreetings(msg, userBadges)
-	go c.handleKeywords(msg, userBadges)
-	go c.handleEmotes(msg)
-	go c.handleTts(msg, userBadges)
+	c.workersPool.Submit(func() {
+		c.handleKeywords(msg, userBadges)
+	})
 
-	go func() {
+	c.workersPool.Submit(func() {
+		c.handleEmotes(msg)
+	})
+
+	c.workersPool.Submit(func() {
+		c.handleTts(msg, userBadges)
+	})
+
+	c.workersPool.Submit(func() {
 		messages.StoreMessage(
 			c.db,
 			msg.ID,
@@ -45,15 +57,21 @@ func (c *Handlers) OnMessage(msg Message) {
 				[]string{"BROADCASTER", "MODERATOR", "SUBSCRIBER", "VIP"},
 			),
 		)
-	}()
-	go messages.IncrementStreamParsedMessages(c.db, msg.Channel.ID)
+
+	})
+
+	c.workersPool.Submit(func() {
+		messages.IncrementStreamParsedMessages(c.db, msg.Channel.ID)
+	})
 
 	if msg.Tags["first-msg"] == "1" {
-		go c.eventsGrpc.FirstUserMessage(context.Background(), &events.FirstUserMessageMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
-			UserId:          msg.User.ID,
-			UserName:        msg.User.Name,
-			UserDisplayName: msg.User.DisplayName,
+		c.workersPool.Submit(func() {
+			c.eventsGrpc.FirstUserMessage(context.Background(), &events.FirstUserMessageMessage{
+				BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
+				UserId:          msg.User.ID,
+				UserName:        msg.User.Name,
+				UserDisplayName: msg.User.DisplayName,
+			})
 		})
 	}
 }
