@@ -41,6 +41,7 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 					twitchClient, err := twitch.NewUserClient(stream.UserId, *services.Config, services.Grpc.Tokens)
 					if err != nil {
 						zap.S().Error(err)
+						streamsWg.Done()
 						continue
 					}
 
