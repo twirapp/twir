@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func (c *Handlers) handleTts(msg Message, userBadges []string) {
+func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 	if strings.HasPrefix(msg.Message, "!") {
 		return
 	}

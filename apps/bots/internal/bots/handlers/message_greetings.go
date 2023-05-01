@@ -12,7 +12,7 @@ import (
 )
 
 func (c *Handlers) handleGreetings(
-	msg Message,
+	msg *Message,
 	userBadges []string,
 ) {
 	stream := &model.ChannelsStreams{}

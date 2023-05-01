@@ -15,7 +15,7 @@ import (
 )
 
 func (c *Handlers) handleKeywords(
-	msg Message,
+	msg *Message,
 	userBadges []string,
 ) {
 	keywords := []model.ChannelsKeywords{}

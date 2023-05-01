@@ -133,7 +133,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 				if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
 					return
 				}
-				botHandlers.OnMessage(handlers.Message{
+				botHandlers.OnMessage(&handlers.Message{
 					ID: message.ID,
 					Channel: handlers.MessageChannel{
 						ID:   message.RoomID,
@@ -155,7 +155,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 				if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
 					return
 				}
-				botHandlers.OnMessage(handlers.Message{
+				botHandlers.OnMessage(&handlers.Message{
 					ID: message.ID,
 					Channel: handlers.MessageChannel{
 						ID:   message.RoomID,

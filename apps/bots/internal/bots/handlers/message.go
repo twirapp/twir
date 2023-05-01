@@ -9,7 +9,7 @@ import (
 	"github.com/satont/tsuwari/apps/bots/internal/bots/handlers/messages"
 )
 
-func (c *Handlers) OnMessage(msg Message) {
+func (c *Handlers) OnMessage(msg *Message) {
 	userBadges := createUserBadges(msg.User.Badges)
 	// this need to be first because if we have no user in db it will produce many bugs
 	messages.IncrementUserMessages(c.db, msg.User.ID, msg.Channel.ID)

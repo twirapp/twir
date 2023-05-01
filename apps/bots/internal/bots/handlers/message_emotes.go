@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func (c *Handlers) handleEmotes(msg Message) {
+func (c *Handlers) handleEmotes(msg *Message) {
 	emotes := make(map[string]int)
 
 	for _, emote := range msg.Emotes {

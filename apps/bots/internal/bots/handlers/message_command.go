@@ -7,7 +7,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 )
 
-func (c *Handlers) handleCommand(msg Message, userBadges []string) {
+func (c *Handlers) handleCommand(msg *Message, userBadges []string) {
 	requestStruct := &parser.ProcessCommandRequest{
 		Sender: &parser.Sender{
 			Id:          msg.User.ID,
