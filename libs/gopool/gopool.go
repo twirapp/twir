@@ -27,7 +27,7 @@ func (w *worker) run() {
 type Pool struct {
 	workers          []*worker
 	latestUsedWorker int
-	submitLock       *sync.Mutex
+	submitLock       sync.Mutex
 }
 
 func (p *Pool) Submit(f func()) {
@@ -57,7 +57,7 @@ func NewPool(size int) *Pool {
 
 	pool := &Pool{
 		workers:    make([]*worker, size),
-		submitLock: &sync.Mutex{},
+		submitLock: sync.Mutex{},
 	}
 
 	for i := 0; i < size; i++ {
