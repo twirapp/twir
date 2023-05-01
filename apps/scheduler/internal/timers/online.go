@@ -51,8 +51,8 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 						cursor := ""
 						for {
 							req, err := twitchClient.GetChannelChatChatters(&helix.GetChatChattersParams{
-								BroadcasterID: stream.UserId,
-								ModeratorID:   stream.UserId,
+								BroadcasterID: broadcasterId,
+								ModeratorID:   broadcasterId,
 								After:         cursor,
 							})
 							if err != nil {
