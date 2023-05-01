@@ -21,4 +21,5 @@ use (
 	./libs/types
 	./libs/ytdl
 	./libs/ytsr
+	./libs/gopool
 )

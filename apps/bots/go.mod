@@ -14,9 +14,11 @@ require (
 	github.com/samber/lo v1.37.0
 	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
+	github.com/satont/tsuwari/libs/gopool v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/pubsub v0.0.0-00010101000000-000000000000
 	github.com/satont/tsuwari/libs/twitch v0.0.0-00010101000000-000000000000
+	github.com/satont/tsuwari/libs/types v0.0.0-20230501072144-eb4ca703ed7c
 	github.com/satori/go.uuid v1.2.0
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.53.0
@@ -55,7 +57,6 @@ require (
 	github.com/lib/pq v1.10.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/onsi/ginkgo/v2 v2.8.3 // indirect
-	github.com/panjf2000/ants/v2 v2.7.3 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
@@ -84,3 +85,5 @@ replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
 replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
 
 replace github.com/satont/tsuwari/libs/pubsub => ../../libs/pubsub
+
+replace github.com/satont/tsuwari/libs/gopool => ../../libs/gopool

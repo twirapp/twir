@@ -115,7 +115,7 @@ func main() {
 	do.ProvideValue[events.EventsClient](di.Provider, clients.NewEvents(cfg.AppEnv))
 	do.ProvideValue[ytsr.YtsrClient](di.Provider, clients.NewYtsr(cfg.AppEnv))
 
-	do.ProvideValue[variables.Variables](di.Provider, variables.New())
+	do.ProvideValue[*variables.Variables](di.Provider, variables.New())
 
 	do.ProvideValue[commands.Commands](di.Provider, commands.New())
 

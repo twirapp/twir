@@ -54,6 +54,7 @@ require (
 	github.com/quic-go/qtls-go1-19 v0.2.1 // indirect
 	github.com/quic-go/qtls-go1-20 v0.1.1 // indirect
 	github.com/quic-go/quic-go v0.32.0 // indirect
+	github.com/satont/tsuwari/libs/gopool v0.0.0-00010101000000-000000000000 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
@@ -95,3 +96,5 @@ replace github.com/satont/tsuwari/libs/types => ../../libs/types
 replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
 
 replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
+
+replace github.com/satont/tsuwari/libs/gopool => ../../libs/gopool

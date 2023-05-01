@@ -8,10 +8,10 @@ import (
 	"github.com/satont/tsuwari/apps/bots/internal/di"
 	cfg "github.com/satont/tsuwari/libs/config"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/gopool"
 	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 
-	"github.com/panjf2000/ants/v2"
 	"github.com/satont/tsuwari/apps/bots/types"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -40,7 +40,7 @@ type Handlers struct {
 	eventsGrpc events.EventsClient
 	redis      redis.Client
 
-	workersPool *ants.Pool
+	workersPool *gopool.Pool
 
 	greetingsCounter prometheus.Counter
 	keywordsCounter  prometheus.Counter
@@ -64,11 +64,7 @@ func CreateHandlers(opts *HandlersOpts) *Handlers {
 		ConstLabels: labels,
 	})
 
-	workersPool, err := ants.NewPool(1000)
-
-	if err != nil {
-		panic(err)
-	}
+	workersPool := gopool.NewPool(1000)
 
 	handlersService := &Handlers{
 		db:               opts.DB,

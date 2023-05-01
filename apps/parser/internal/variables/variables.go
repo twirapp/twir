@@ -11,6 +11,7 @@ import (
 	user_used_channel_points "github.com/satont/tsuwari/apps/parser/internal/variables/user/used_channel_points"
 	valorant_matches "github.com/satont/tsuwari/apps/parser/internal/variables/valorant"
 	valorant_profile "github.com/satont/tsuwari/apps/parser/internal/variables/valorant/profile"
+	"github.com/satont/tsuwari/libs/gopool"
 	"regexp"
 	"strings"
 	"sync"
@@ -52,14 +53,15 @@ import (
 )
 
 type Variables struct {
-	Store []types.Variable
+	Store          []types.Variable
+	goroutinesPool *gopool.Pool
 }
 
 var Regexp = regexp.MustCompile(
 	`(?m)\$\((?P<all>(?P<main>[^.)|]+)(?:\.[^)|]+)?)(?:\|(?P<params>[^)]+))?\)`,
 )
 
-func New() Variables {
+func New() *Variables {
 	store := []types.Variable{
 		commandsvariable.Variable,
 		customvar.Variable,
@@ -113,16 +115,16 @@ func New() Variables {
 		valorant_matches.Trend,
 	}
 
-	ctx := Variables{
-		Store: store,
+	ctx := &Variables{
+		Store:          store,
+		goroutinesPool: gopool.NewPool(100),
 	}
 
 	return ctx
 }
 
-func (c Variables) ParseInput(cache *variables_cache.VariablesCacheService, input string) string {
+func (c *Variables) ParseInput(cache *variables_cache.VariablesCacheService, input string) string {
 	wg := sync.WaitGroup{}
-
 	mu := sync.Mutex{}
 
 	for _, s := range Regexp.FindAllString(input, len(input)) {
@@ -136,7 +138,7 @@ func (c Variables) ParseInput(cache *variables_cache.VariablesCacheService, inpu
 		})
 
 		if !ok {
-			defer wg.Done()
+			wg.Done()
 			continue
 		}
 
@@ -148,7 +150,8 @@ func (c Variables) ParseInput(cache *variables_cache.VariablesCacheService, inpu
 			continue
 		}
 
-		go func(s string) {
+		str := s
+		c.goroutinesPool.Submit(func() {
 			defer wg.Done()
 			res, err := variable.Handler(cache, types.VariableHandlerParams{
 				Key:    all,
@@ -157,10 +160,10 @@ func (c Variables) ParseInput(cache *variables_cache.VariablesCacheService, inpu
 
 			if err == nil {
 				mu.Lock()
-				input = strings.ReplaceAll(input, s, res.Result)
+				input = strings.ReplaceAll(input, str, res.Result)
 				mu.Unlock()
 			}
-		}(s)
+		})
 	}
 
 	wg.Wait()

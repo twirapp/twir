@@ -42,7 +42,7 @@ type parserGrpcServer struct {
 	parser.UnimplementedParserServer
 
 	redis      redis.Client
-	variables  variables.Variables
+	variables  *variables.Variables
 	commands   commands.Commands
 	eventsGrpc events.EventsClient
 	gorm       gorm.DB
@@ -51,7 +51,7 @@ type parserGrpcServer struct {
 func NewServer() *parserGrpcServer {
 	return &parserGrpcServer{
 		redis:     do.MustInvoke[redis.Client](di.Provider),
-		variables: do.MustInvoke[variables.Variables](di.Provider),
+		variables: do.MustInvoke[*variables.Variables](di.Provider),
 		commands:  do.MustInvoke[commands.Commands](di.Provider),
 		gorm:      do.MustInvoke[gorm.DB](di.Provider),
 

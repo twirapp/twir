@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"github.com/satont/tsuwari/libs/gopool"
 	"regexp"
 	"sort"
 	"strings"
@@ -40,7 +41,8 @@ import (
 )
 
 type Commands struct {
-	DefaultCommands []*types.DefaultCommand
+	DefaultCommands    []*types.DefaultCommand
+	parseResponsesPool *gopool.Pool
 }
 
 func New() Commands {
@@ -94,7 +96,8 @@ func New() Commands {
 	}
 
 	ctx := Commands{
-		DefaultCommands: commands,
+		DefaultCommands:    commands,
+		parseResponsesPool: gopool.NewPool(100),
 	}
 
 	return ctx
@@ -170,7 +173,7 @@ func (c *Commands) ParseCommandResponses(
 	data *parser.ProcessCommandRequest,
 ) *parser.ProcessCommandResponse {
 	db := do.MustInvoke[gorm.DB](di.Provider)
-	variablesService := do.MustInvoke[variables.Variables](di.Provider)
+	variablesService := do.MustInvoke[*variables.Variables](di.Provider)
 
 	result := &parser.ProcessCommandResponse{
 		KeepOrder: &command.Cmd.KeepResponsesOrder,
@@ -247,11 +250,12 @@ func (c *Commands) ParseCommandResponses(
 			Emotes:            data.Message.Emotes,
 		})
 
-		go func(i int, r string) {
-			defer wg.Done()
-
-			result.Responses[i] = variablesService.ParseInput(cacheService, r)
-		}(i, r)
+		index := i
+		response := r
+		c.parseResponsesPool.Submit(func() {
+			result.Responses[index] = variablesService.ParseInput(cacheService, response)
+			wg.Done()
+		})
 	}
 	wg.Wait()
 
