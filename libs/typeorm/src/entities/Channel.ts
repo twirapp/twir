@@ -30,6 +30,7 @@ import { Event } from './events/Event';
 import { User } from './User';
 import { UserOnline } from './UserOnline';
 import { UserStats } from './UserStats';
+import { ChannelCategoryAlias } from './ChannelCategoryAlias';
 
 @Entity('channels', { schema: 'public' })
 export class Channel {
@@ -121,4 +122,7 @@ export class Channel {
 
   @OneToMany(() => ChannelRole, _ => _.channel)
   roles?: ChannelRole[];
+
+  @OneToMany(() => ChannelCategoryAlias, _ => _.channel)
+  categoriesAliases?: ChannelCategoryAlias[];
 }
