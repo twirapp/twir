@@ -16,10 +16,12 @@ const linkRegexp = new RegExp(
   'igu',
 );
 
+const isYoutubeLink = (l: string) => ['youtube', 'youtu.be'].some(link => l.includes(link));
+
 const ytsrService: YTSR.YtsrServiceImplementation = {
   async search(
     request: YTSR.SearchRequest,
-    context,
+    _context,
   ): Promise<YTSR.DeepPartial<YTSR.SearchResponse>> {
     const videos: Array<YTSR.Song> = [];
 
@@ -27,21 +29,30 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
 
     const linkMatches = [...request.search.matchAll(linkRegexp)];
 
+    const youtubeMatches = linkMatches.filter(link => isYoutubeLink(link[0]));
+    const nonYoutubeMatches = linkMatches.filter(link => !isYoutubeLink(link[0]));
+
     if (linkMatches.length) {
-      await Promise.all(
-        linkMatches.map(async (match) => {
-          const request = await fetch(
-            `https://api.song.link/v1-alpha.1/links?url=${match[0]}&key=${config.ODESLI_API_KEY}`,
-          );
-          if (!request.ok) return;
+      if (youtubeMatches.length) {
+        tracksForSearch.push(...youtubeMatches.map(m => m[0]));
+      }
 
-          const data = await request.json();
-          const youTube = data.linksByPlatform?.youtube;
-          if (!youTube) return;
-
-          tracksForSearch.push(youTube.url);
-        }),
-      );
+      if (nonYoutubeMatches.length) {
+        await Promise.all(
+          linkMatches.map(async (match) => {
+            const request = await fetch(
+              `https://api.song.link/v1-alpha.1/links?url=${match[0]}&key=${config.ODESLI_API_KEY}`,
+            );
+            if (!request.ok) return;
+  
+            const data = await request.json();
+            const youTube = data.linksByPlatform?.youtube;
+            if (!youTube) return;
+  
+            tracksForSearch.push(youTube.url);
+          }),
+        );
+      }
     } else {
       tracksForSearch.push(request.search);
     }
