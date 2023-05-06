@@ -2,6 +2,7 @@ package stats
 
 import (
 	"fmt"
+
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -23,7 +24,7 @@ var UserMe = &types.DefaultCommand{
 		result := &types.CommandsHandlerResult{
 			Result: []string{
 				fmt.Sprintf(
-					"$(%s) used emotes · $(%s) watched · $(%s) messages · $(%s) channel points · $(%s) song requests",
+					"$(%s) used emotes · $(%s) watched · $(%s) messages · $(%s) used points · $(%s) songs requested",
 					"user.emotes",
 					"user.watched",
 					"user.messages",
