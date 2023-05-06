@@ -42,8 +42,24 @@ var SetCommand = &types.DefaultCommand{
 			return result
 		}
 
+		categoryFromReq := *ctx.Text
+
+		var categoryFromAlias *model.ChannelCategoryAlias
+
+		err = db.Table("channels_categories_aliases").
+			Where("channelId = ? AND alias = ?", ctx.ChannelId, *ctx.Text).Find(categoryFromAlias).Error
+		if err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil
+			}
+		}
+
+		if categoryFromAlias != nil {
+			categoryFromReq = categoryFromAlias.Category
+		}
+
 		gameReq, err := twitchClient.GetGames(&helix.GamesParams{
-			Names: []string{*parseCtx.Text},
+			Names: []string{categoryFromReq},
 		})
 		if err != nil {
 			return nil
@@ -57,7 +73,7 @@ var SetCommand = &types.DefaultCommand{
 			categoryName = gameReq.Data.Games[0].Name
 		} else {
 			games, err := twitchClient.SearchCategories(&helix.SearchCategoriesParams{
-				Query: *parseCtx.Text,
+				Query: categoryFromReq,
 			})
 			if err != nil {
 				return nil
