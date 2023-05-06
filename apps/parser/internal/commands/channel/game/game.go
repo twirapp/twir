@@ -2,9 +2,12 @@ package channel_game
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
 	"strings"
+
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"gorm.io/gorm"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -42,18 +45,17 @@ var SetCommand = &types.DefaultCommand{
 			return result
 		}
 
-		categoryFromReq := *ctx.Text
+		categoryFromReq := *parseCtx.Text
 
-		var categoryFromAlias *model.ChannelCategoryAlias
+		categoryFromAlias := &model.ChannelCategoryAlias{}
 
 		err = db.Table("channels_categories_aliases").
-			Where("channelId = ? AND alias = ?", ctx.ChannelId, *ctx.Text).Find(categoryFromAlias).Error
+			Where(`"channelId" = ? AND "alias" = ?`, parseCtx.Channel.ID, categoryFromReq).Find(categoryFromAlias).Error
 		if err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil
 			}
 		}
-
 		if categoryFromAlias != nil {
 			categoryFromReq = categoryFromAlias.Category
 		}

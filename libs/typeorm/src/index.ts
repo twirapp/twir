@@ -49,6 +49,7 @@ import { UserFile } from './entities/UserFile';
 import { UserOnline } from './entities/UserOnline';
 import { UserStats } from './entities/UserStats';
 import { UserViewedNotification } from './entities/UserViewedNotification';
+import { ChannelCategoryAlias } from './entities/ChannelCategoryAlias';
 
 dotenv.config({ path: resolve(process.cwd(), '../../.env') });
 
@@ -103,6 +104,7 @@ export const AppDataSource = new DataSource({
     ChannelRole,
     ChannelRoleUser,
     EventOperationFilter,
+    ChannelCategoryAlias,
   ],
   subscribers: [],
   migrations: ['src/migrations/*.ts'],

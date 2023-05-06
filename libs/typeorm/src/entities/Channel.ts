@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 
 import { Bot } from './Bot';
+import { ChannelCategoryAlias } from './ChannelCategoryAlias';
 import { ChannelChatMessage } from './ChannelChatMessage';
 import { ChannelCommand } from './ChannelCommand';
 import { ChannelCommandGroup } from './ChannelCommandGroup';
@@ -30,7 +31,6 @@ import { Event } from './events/Event';
 import { User } from './User';
 import { UserOnline } from './UserOnline';
 import { UserStats } from './UserStats';
-import { ChannelCategoryAlias } from './ChannelCategoryAlias';
 
 @Entity('channels', { schema: 'public' })
 export class Channel {
