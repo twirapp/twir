@@ -3,14 +3,15 @@ package tts
 import (
 	"context"
 	"fmt"
-	"github.com/go-redis/redis/v9"
-	"github.com/guregu/null"
-	"github.com/satont/tsuwari/apps/bots/pkg/tlds"
-	model "github.com/satont/tsuwari/libs/gomodels"
 	"regexp"
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/go-redis/redis/v9"
+	"github.com/guregu/null"
+	"github.com/satont/tsuwari/apps/bots/pkg/tlds"
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/samber/do"
 	"github.com/samber/lo"
@@ -26,7 +27,7 @@ var emojiRx = regexp.MustCompile(`[\p{So}\p{Sk}\p{Sm}\p{Sc}]`)
 // [a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})
 var linksWithSpaces = regexp.MustCompile(
 	fmt.Sprintf(
-		`(www)? ??\.? ?[a-zA-Z0-9]+([a-zA-Z0-9-]+) ??\. ?(%s)\b`,
+		`(https?:\/\/)?(www)? ??\.? ?[a-zA-Z0-9]+([a-zA-Z0-9-]+) ??\. ?(%s)\b`,
 		strings.Join(tlds.TLDS, "|"),
 	),
 )
@@ -103,7 +104,7 @@ var SayCommand = &types.DefaultCommand{
 		}
 
 		if channelSettings.DoNotReadLinks {
-			*ctx.Text = linksWithSpaces.ReplaceAllString(*ctx.Text, ``)
+			*ctx.Text = strings.TrimSpace(linksWithSpaces.ReplaceAllString(*ctx.Text, ``))
 		}
 
 		if channelSettings.DoNotReadTwitchEmotes {
