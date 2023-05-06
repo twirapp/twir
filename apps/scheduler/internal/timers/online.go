@@ -2,6 +2,7 @@ package timers
 
 import (
 	"context"
+	"gorm.io/gorm"
 	"sync"
 	"time"
 
@@ -9,11 +10,11 @@ import (
 	"github.com/guregu/null"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
+	loParallel "github.com/samber/lo/parallel"
 	"github.com/satont/tsuwari/apps/scheduler/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/twitch"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 func NewOnlineUsers(ctx context.Context, services *types.Services) {
@@ -65,22 +66,40 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 							}
 						}
 
-						err = services.Gorm.Transaction(func(tx *gorm.DB) error {
-							err = tx.Where(`"channelId" = ?`, broadcasterId).Delete(&model.UsersOnline{}).Error
+						chattersChunks := lo.Chunk(chatters, 1000)
+
+						err = services.Gorm.Where(`"channelId" = ?`, broadcasterId).Delete(&model.UsersOnline{}).Error
+						if err != nil {
+							zap.S().Error(err)
+							return
+						}
+
+						loParallel.ForEach(chattersChunks, func(chunk []helix.ChatChatter, _ int) {
+							dbChatters := make([]*model.Users, 0, len(chunk))
+							err = services.Gorm.
+								Where(
+									`"id" IN ?`,
+									lo.Map(chunk, func(chatter helix.ChatChatter, _ int) string {
+										return chatter.UserID
+									}),
+								).
+								Find(&dbChatters).
+								Error
 
 							if err != nil {
-								return err
+								zap.S().Error(err)
+								return
 							}
 
-							for _, chatter := range chatters {
-								user := &model.Users{}
-								err = tx.Where("id = ?", chatter.UserID).Find(user).Error
-								if err != nil {
-									return err
-								}
+							var usersForCreate []*model.Users
+							var usersOnlineForCreate []*model.UsersOnline
 
-								if user.ID == "" {
-									user = &model.Users{
+							for _, chatter := range chunk {
+								isExists := lo.SomeBy(dbChatters, func(item *model.Users) bool {
+									return item.ID == chatter.UserID
+								})
+								if !isExists {
+									usersForCreate = append(usersForCreate, &model.Users{
 										ID:     chatter.UserID,
 										ApiKey: uuid.New().String(),
 										Stats: &model.UsersStats{
@@ -88,34 +107,34 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 											ChannelID: broadcasterId,
 											UserID:    chatter.UserID,
 										},
-									}
-									err = tx.Create(user).Error
-									if err != nil {
-										return err
-									}
-
-									continue
+									})
 								}
 
-								err = tx.Save(&model.UsersOnline{
+								usersOnlineForCreate = append(usersOnlineForCreate, &model.UsersOnline{
 									ID:        uuid.New().String(),
 									ChannelId: broadcasterId,
 									UserId:    null.StringFrom(chatter.UserID),
 									UserName:  null.StringFrom(chatter.UserLogin),
-								}).Error
+								})
+							}
 
+							err = services.Gorm.Transaction(func(tx *gorm.DB) error {
+								err = services.Gorm.CreateInBatches(usersForCreate, 1000).Error
 								if err != nil {
 									return err
 								}
 
-								continue
-							}
-							return nil
-						})
+								err = services.Gorm.CreateInBatches(usersOnlineForCreate, 1000).Error
+								if err != nil {
+									return err
+								}
 
-						if err != nil {
-							zap.S().Error(err)
-						}
+								return nil
+							})
+							if err != nil {
+								zap.S().Error(err)
+							}
+						})
 					}(stream.UserId)
 				}
 				streamsWg.Wait()
