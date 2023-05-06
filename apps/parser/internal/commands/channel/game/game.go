@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -15,16 +16,16 @@ import (
 	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/nicklaw5/helix/v2"
-	"github.com/samber/lo"
 )
 
 var SetCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "game",
-		Description: null.StringFrom("Print or change category of channel."),
+		Description: null.StringFrom("Change category of channel"),
 		Module:      "MODERATION",
 		IsReply:     true,
-		Visible:     true,
+		Visible:     false,
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 	},
 	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
 		cfg := do.MustInvoke[config.Config](di.Provider)
@@ -34,25 +35,12 @@ var SetCommand = &types.DefaultCommand{
 			Result: make([]string, 0),
 		}
 
-		_, isHavePermToChange := lo.Find(ctx.SenderBadges, func(item string) bool {
-			return item == "BROADCASTER" || item == "MODERATOR"
-		})
-
 		twitchClient, err := twitch.NewUserClient(ctx.ChannelId, cfg, tokensGrpc)
 		if err != nil {
 			return nil
 		}
 
-		if ctx.Text == nil || *ctx.Text == "" || !isHavePermToChange {
-			channelsInfo, err := twitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
-				BroadcasterIDs: []string{ctx.ChannelId},
-			})
-			if err != nil || channelsInfo.ErrorMessage != "" || len(channelsInfo.Data.Channels) == 0 {
-				return nil
-			}
-			channelInfo := channelsInfo.Data.Channels[0]
-
-			result.Result = append(result.Result, channelInfo.GameName)
+		if ctx.Text == nil || *ctx.Text == "" {
 			return result
 		}
 
@@ -92,7 +80,7 @@ var SetCommand = &types.DefaultCommand{
 		}
 
 		if categoryId == "" || categoryName == "" {
-			result.Result = append(result.Result, "game not found on twitch")
+			result.Result = append(result.Result, "❌ game not found on twitch")
 			return result
 		}
 
