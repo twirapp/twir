@@ -119,12 +119,12 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 							}
 
 							err = services.Gorm.Transaction(func(tx *gorm.DB) error {
-								err = services.Gorm.CreateInBatches(usersForCreate, 1000).Error
+								err = tx.CreateInBatches(usersForCreate, 1000).Error
 								if err != nil {
 									return err
 								}
 
-								err = services.Gorm.CreateInBatches(usersOnlineForCreate, 1000).Error
+								err = tx.CreateInBatches(usersOnlineForCreate, 1000).Error
 								if err != nil {
 									return err
 								}
