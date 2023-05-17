@@ -1,13 +1,12 @@
 package variables_cache
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/imroc/req/v3"
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/samber/lo"
@@ -64,30 +63,19 @@ func (c *VariablesCacheService) GetFaceitUserData() (*FaceitUser, error) {
 		game = "csgo"
 	}
 
-	client := &http.Client{}
-	req, _ := http.NewRequest(
-		"GET",
-		"https://open.faceit.com/data/v4/players/"+*integration.Data.UserId,
-		nil,
-	)
-	req.Header.Set("Authorization", "Bearer "+integration.Integration.APIKey.String)
-	res, err := client.Do(req)
-
-	if req.Response != nil && req.Response.StatusCode == 404 {
-		return nil, errors.New(
-			"user not found on faceit. Please make sure you typed correct nickname",
-		)
-	}
-
+	data := &FaceitUserResponse{}
+	resp, err := req.R().
+		SetBearerAuthToken(integration.Integration.APIKey.String).
+		SetSuccessResult(data).
+		Get("https://open.faceit.com/data/v4/players/" + *integration.Data.UserId)
 	if err != nil {
 		return nil, err
 	}
 
-	data := FaceitUserResponse{}
-
-	err = json.NewDecoder(res.Body).Decode(&data)
-	if err != nil {
-		return nil, errors.New("internal error happend on parsing user profile.")
+	if resp.StatusCode == 404 {
+		return nil, errors.New(
+			"user not found on faceit. Please make sure you typed correct nickname",
+		)
 	}
 
 	if data.Games[game] == nil {
@@ -141,21 +129,20 @@ func (c *VariablesCacheService) GetFaceitLatestMatches() ([]FaceitMatch, error) 
 		return c.cache.FaceitData.Matches, nil
 	}
 
-	client := &http.Client{}
+	reqResult := FaceitMatchesResponse{}
 
-	req, _ := http.NewRequest(
-		"GET",
-		fmt.Sprintf(
+	_, err := req.R().
+		SetSuccessResult(&reqResult).
+		Get(fmt.Sprintf(
 			"https://api.faceit.com/stats/api/v1/stats/time/users/%s/games/%s?size=30",
 			c.cache.FaceitData.FaceitUser.PlayerId,
 			c.cache.FaceitData.FaceitUser.FaceitGame.Name,
-		),
-		nil,
-	)
-	res, _ := client.Do(req)
+		))
 
-	reqResult := FaceitMatchesResponse{}
-	json.NewDecoder(res.Body).Decode(&reqResult)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
 
 	matches := []FaceitMatch{}
 	stream := c.GetChannelStream()
