@@ -64,7 +64,7 @@ func (c *VariablesCacheService) GetFaceitUserData() (*FaceitUser, error) {
 	}
 
 	data := &FaceitUserResponse{}
-	resp, err := req.R().
+	resp, err := req.C().EnableForceHTTP1().R().
 		SetBearerAuthToken(integration.Integration.APIKey.String).
 		SetSuccessResult(data).
 		Get("https://open.faceit.com/data/v4/players/" + *integration.Data.UserId)
@@ -131,7 +131,7 @@ func (c *VariablesCacheService) GetFaceitLatestMatches() ([]FaceitMatch, error) 
 
 	reqResult := FaceitMatchesResponse{}
 
-	_, err := req.R().
+	_, err := req.C().EnableForceHTTP1().R().
 		SetSuccessResult(&reqResult).
 		Get(fmt.Sprintf(
 			"https://api.faceit.com/stats/api/v1/stats/time/users/%s/games/%s?size=30",
@@ -144,7 +144,7 @@ func (c *VariablesCacheService) GetFaceitLatestMatches() ([]FaceitMatch, error) 
 		return nil, err
 	}
 
-	matches := []FaceitMatch{}
+	var matches []FaceitMatch
 	stream := c.GetChannelStream()
 	if stream == nil {
 		return matches, nil
