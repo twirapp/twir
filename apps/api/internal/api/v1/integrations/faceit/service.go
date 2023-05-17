@@ -1,8 +1,8 @@
 package faceit
 
 import (
-	"encoding/base64"
 	"fmt"
+	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	"github.com/samber/do"
@@ -10,15 +10,13 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 	"io"
 	"net/http"
 	"net/url"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
 func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrationsData, error) {
@@ -94,21 +92,16 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 	}
 
 	tokensData := make(map[string]any)
-	token := base64.StdEncoding.EncodeToString([]byte(
-		fmt.Sprintf(
-			"%s:%s",
-			neededIntegration.ClientID.String,
-			neededIntegration.ClientSecret.String,
-		),
-	))
-	resp, err := req.R().
+
+	resp, err := req.
+		C().EnableForceHTTP1().
+		R().
 		SetFormData(map[string]string{
 			"grant_type": "authorization_code",
 			"code":       dto.Code,
 		}).
 		SetSuccessResult(&tokensData).
-		SetHeader("Authorization", fmt.Sprintf("Basic %s", token)).
-		SetContentType("application/x-www-form-urlencoded").
+		SetBasicAuth(neededIntegration.ClientID.String, neededIntegration.ClientSecret.String).
 		Post("https://api.faceit.com/auth/v1/oauth/token")
 	if err != nil {
 		return fiber.NewError(http.StatusInternalServerError, "cannot get tokens")
@@ -118,7 +111,6 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 		data, _ := io.ReadAll(resp.Body)
 		fmt.Println(string(data))
 		fmt.Println(resp.StatusCode)
-		fmt.Println(resp.Header)
 		return fiber.NewError(401, "seems like code is invalid")
 	}
 
@@ -126,9 +118,11 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 	channelIntegration.RefreshToken = null.StringFrom(tokensData["refresh_token"].(string))
 
 	userInfoResult := make(map[string]any)
-	resp, err = req.R().
+	resp, err = req.
+		C().EnableForceHTTP1().
+		R().
 		SetBearerAuthToken(channelIntegration.AccessToken.String).
-		SetResult(&userInfoResult).
+		SetSuccessResult(&userInfoResult).
 		Get("https://api.faceit.com/auth/v1/resources/userinfo")
 
 	if err != nil {
@@ -148,9 +142,11 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 	}
 
 	profileResult := make(map[string]any)
-	resp, err = req.R().
+	resp, err = req.
+		C().EnableForceHTTP1().
+		R().
 		SetBearerAuthToken(channelIntegration.Integration.APIKey.String).
-		SetResult(&profileResult).
+		SetSuccessResult(&profileResult).
 		Get("https://open.faceit.com/data/v4/players/" + *integrationData.UserId)
 
 	if err != nil {
