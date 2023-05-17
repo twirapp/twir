@@ -36,9 +36,9 @@ type ChannelsCommands struct {
 	RolesIDS           pq.StringArray `gorm:"column:rolesIds;type:text[];default:[];" json:"rolesIds"`
 	OnlineOnly         bool           `gorm:"column:online_only;type:BOOL;" json:"onlineOnly"`
 
-	Responses []ChannelsCommandsResponses `gorm:"foreignKey:CommandID"                             json:"responses"`
-	GroupID   null.String                 `gorm:"column:groupId;type:UUID" json:"groupId"`
-	Group     *ChannelCommandGroup        `gorm:"foreignKey:GroupID" json:"group"`
+	Responses []*ChannelsCommandsResponses `gorm:"foreignKey:CommandID"                             json:"responses"`
+	GroupID   null.String                  `gorm:"column:groupId;type:UUID" json:"groupId"`
+	Group     *ChannelCommandGroup         `gorm:"foreignKey:GroupID" json:"group"`
 }
 
 func (c *ChannelsCommands) TableName() string {

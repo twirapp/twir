@@ -7,6 +7,7 @@ use (
 	./apps/events
 	./apps/eventsub
 	./apps/parser
+	./apps/parser-new
 	./apps/scheduler
 	./apps/timers
 	./apps/tokens
