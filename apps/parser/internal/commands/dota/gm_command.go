@@ -29,7 +29,7 @@ var GmCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "gm",
 		Description: null.StringFrom("Game medals from current game."),
-		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
+		RolesIDS:    pq.StringArray{},
 		Module:      "DOTA",
 		IsReply:     true,
 	},

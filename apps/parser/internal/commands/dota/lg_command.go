@@ -20,7 +20,7 @@ var LgCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "lg",
 		Description: null.StringFrom("Players from the latest game"),
-		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
+		RolesIDS:    pq.StringArray{},
 		Module:      "DOTA",
 		IsReply:     true,
 	},

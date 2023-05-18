@@ -48,7 +48,7 @@ var WlCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "wl",
 		Description: null.StringFrom("Score for played games on stream"),
-		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
+		RolesIDS:    pq.StringArray{},
 		Module:      "DOTA",
 		IsReply:     true,
 	},

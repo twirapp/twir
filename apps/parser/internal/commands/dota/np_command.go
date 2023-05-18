@@ -17,7 +17,7 @@ var NpAccCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "np",
 		Description: null.StringFrom("Notable players from current dota game"),
-		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
+		RolesIDS:    pq.StringArray{},
 		Module:      "DOTA",
 		IsReply:     true,
 	},
