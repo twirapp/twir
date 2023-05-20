@@ -1,5 +1,5 @@
 import { Group, Avatar, Text, Flex, Button, Alert } from '@mantine/core';
-import { IconLogout, IconLogin } from '@tabler/icons';
+import { IconLogout, IconLogin, IconInfoCircle } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 
 import { IntegrationCard } from './card';
@@ -50,6 +50,10 @@ export const DonationAlertsIntegration: React.FC = () => {
           <Avatar src={data.avatar} h={150} w={150} style={{ borderRadius: 900 }} />
         </Group>
       )}
+
+      <Alert color={'lime'} icon={<IconInfoCircle />} mt={5}>
+        <Text dangerouslySetInnerHTML={{ __html: t('info.donations') }} />
+      </Alert>
     </IntegrationCard>
   );
 };

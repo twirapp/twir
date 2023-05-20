@@ -1,5 +1,5 @@
 import { Group, Avatar, Text, Button, Flex, Alert } from '@mantine/core';
-import { IconBrandSpotify, IconLogin, IconLogout } from '@tabler/icons';
+import { IconBrandSpotify, IconInfoCircle, IconLogin, IconLogout } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 
 import { IntegrationCard } from './card';
@@ -29,7 +29,13 @@ export const SpotifyIntegration: React.FC = () => {
       header={
         <Flex direction="row" gap="sm">
           {profile && (
-            <Button compact leftIcon={<IconLogout />} variant="outline" color="red" onClick={() => logout.mutate()}>
+            <Button
+              compact
+              leftIcon={<IconLogout />}
+              variant="outline"
+              color="red"
+              onClick={() => logout.mutate()}
+            >
               {t('logout')}
             </Button>
           )}
@@ -45,9 +51,15 @@ export const SpotifyIntegration: React.FC = () => {
           <Text weight={500} size={30}>
             {profile.display_name}
           </Text>
-          {profile.images && <Avatar src={profile.images.at(0)?.url} h={150} w={150} style={{ borderRadius: 900 }} />}
+          {profile.images && (
+            <Avatar src={profile.images.at(0)?.url} h={150} w={150} style={{ borderRadius: 900 }} />
+          )}
         </Group>
       )}
+
+      <Alert color={'lime'} icon={<IconInfoCircle />} mt={5}>
+        {t('info.song')}
+      </Alert>
     </IntegrationCard>
   );
 };

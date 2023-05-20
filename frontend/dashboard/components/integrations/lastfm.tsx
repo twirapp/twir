@@ -1,9 +1,8 @@
 import { Group, Avatar, Text, Flex, Button, Alert } from '@mantine/core';
-import { IconBrandLastfm, IconLogin, IconLogout } from '@tabler/icons';
+import { IconBrandLastfm, IconInfoCircle, IconLogin, IconLogout } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 
 import { IntegrationCard } from './card';
-
 
 import { useLastfm } from '@/services/api/integrations';
 
@@ -61,6 +60,10 @@ export const LastfmIntegration: React.FC = () => {
           />
         </Group>
       )}
+
+      <Alert color={'lime'} icon={<IconInfoCircle />} mt={5}>
+        {t('info.song')}
+      </Alert>
     </IntegrationCard>
   );
 };

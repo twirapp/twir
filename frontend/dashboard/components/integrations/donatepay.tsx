@@ -12,7 +12,7 @@ import {
   PasswordInput,
   Grid,
 } from '@mantine/core';
-import { IconLogout, IconLogin, IconLink, IconDeviceFloppy } from '@tabler/icons';
+import { IconLogout, IconLogin, IconLink, IconDeviceFloppy, IconInfoCircle } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 import { useEffect, useState } from 'react';
 
@@ -23,6 +23,7 @@ import { useDonatePayIntegration, useDonationAlerts } from '@/services/api/integ
 export const DonatePayIntegration: React.FC = () => {
   const manager = useDonatePayIntegration();
   const { data: apiKey } = manager.useData();
+  const { t: integrationsTranslate } = useTranslation('integrations');
   const { t } = useTranslation('common');
   const update = manager.usePost();
 
@@ -44,7 +45,13 @@ export const DonatePayIntegration: React.FC = () => {
       title="DonatePay"
       header={
         <Flex direction="row" gap="sm">
-          <Button compact leftIcon={<IconDeviceFloppy />} variant="outline" color="green" onClick={save}>
+          <Button
+            compact
+            leftIcon={<IconDeviceFloppy />}
+            variant="outline"
+            color="green"
+            onClick={save}
+          >
             {t('save')}
           </Button>
         </Flex>
@@ -53,7 +60,7 @@ export const DonatePayIntegration: React.FC = () => {
       <Grid align="flex-end" gutter="xs" justify={'space-beetwen'}>
         <Grid.Col span={9}>
           <PasswordInput
-            label='Api key'
+            label="Api key"
             value={key}
             onChange={(v) => setKey(v.currentTarget.value)}
           />
@@ -64,11 +71,16 @@ export const DonatePayIntegration: React.FC = () => {
             variant={'light'}
             component={'a'}
             href={'https://donatepay.ru/page/api'}
-            target={'_blank'}>
+            target={'_blank'}
+          >
             Get Api Key
           </Button>
         </Grid.Col>
       </Grid>
+
+      <Alert color={'lime'} icon={<IconInfoCircle />} mt={5}>
+        <Text dangerouslySetInnerHTML={{ __html: integrationsTranslate('info.donations') }} />
+      </Alert>
     </IntegrationCard>
   );
 };

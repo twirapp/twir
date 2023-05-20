@@ -1,9 +1,8 @@
 import { Group, Avatar, Text, Button, Flex, Alert } from '@mantine/core';
-import { IconBrandVk, IconLogin, IconLogout } from '@tabler/icons';
+import { IconBrandVk, IconInfoCircle, IconLogin, IconLogout } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 
 import { IntegrationCard } from './card';
-
 
 import { useVK } from '@/services/api/integrations';
 
@@ -53,6 +52,10 @@ export const VKIntegration: React.FC = () => {
           <Avatar src={profile.photo_max_orig} h={150} w={150} style={{ borderRadius: 900 }} />
         </Group>
       )}
+
+      <Alert color={'lime'} icon={<IconInfoCircle />} mt={5}>
+        {t('info.song')}
+      </Alert>
     </IntegrationCard>
   );
 };
