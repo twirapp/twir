@@ -3,6 +3,8 @@ import {
   Button,
   Drawer,
   Flex,
+  Grid,
+  Modal,
   NumberInput,
   ScrollArea,
   Select,
@@ -15,7 +17,7 @@ import { useViewportSize } from '@mantine/hooks';
 import Editor from '@monaco-editor/react';
 import { ChannelCustomvar, CustomVarType } from '@tsuwari/typeorm/entities/ChannelCustomvar';
 import { useTranslation } from 'next-i18next';
-import { useEffect, useRef } from 'react';
+import { Fragment, useEffect, useRef } from 'react';
 
 import { noop } from '../../util/chore';
 
@@ -27,7 +29,7 @@ type Props = {
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const VariableDrawer: React.FC<Props> = (props) => {
+export const VariableModal: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
   const form = useForm<ChannelCustomvar>({
     initialValues: {
@@ -54,7 +56,7 @@ export const VariableDrawer: React.FC<Props> = (props) => {
     }
   }, [props.variable, props.opened]);
 
-  const {  useCreateOrUpdate } = variablesManager();
+  const { useCreateOrUpdate } = variablesManager();
   const updater = useCreateOrUpdate();
 
   async function onSubmit() {
@@ -64,21 +66,23 @@ export const VariableDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    await updater.mutateAsync({
-      id: form.values.id,
-      data: {
-        ...form.values,
-        response: form.values.response.toString(),
-      },
-    })
+    await updater
+      .mutateAsync({
+        id: form.values.id,
+        data: {
+          ...form.values,
+          response: form.values.response.toString(),
+        },
+      })
       .then(() => {
         props.setOpened(false);
         form.reset();
-      }).catch(noop);
+      })
+      .catch(noop);
   }
 
   return (
-    <Drawer
+    <Modal
       opened={props.opened}
       onClose={() => props.setOpened(false)}
       title={
@@ -88,16 +92,17 @@ export const VariableDrawer: React.FC<Props> = (props) => {
       }
       padding="xl"
       size={form.values.type === 'SCRIPT' ? '80%' : 'xl'}
-      position="right"
       transition="slide-left"
       overlayColor={theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2]}
       overlayOpacity={0.55}
       overlayBlur={3}
     >
-      <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
-        <form onSubmit={form.onSubmit((values) => console.log(values))}>
-          <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap" h={viewPort.height - 200}>
+      <form onSubmit={form.onSubmit((values) => console.log(values))}>
+        <Grid w={'100%'}>
+          <Grid.Col span={6}>
             <TextInput label={t('name')} required {...form.getInputProps('name')} />
+          </Grid.Col>
+          <Grid.Col span={6}>
             <Select
               label={t('type')}
               data={[
@@ -109,29 +114,33 @@ export const VariableDrawer: React.FC<Props> = (props) => {
               dropdownPosition={'bottom'}
               zIndex={999}
             />
-            {form.values.type === 'SCRIPT' && (<>
-              <Alert>{t('drawer.scriptAlert')}</Alert>
-              <Editor
-                height="50vh"
-                defaultLanguage="javascript"
-                theme={theme.colorScheme === 'dark' ? 'vs-dark' : 'light'}
-                defaultValue="//"
-                onMount={handleEditorDidMount}
-                value={form.values.evalValue}
-                onChange={(v) => {
-                  form.values.evalValue = v ?? '';
-                }}
-              />
-            </>)}
+          </Grid.Col>
+          <Grid.Col span={12}>
+            {form.values.type === 'SCRIPT' && (
+              <Fragment>
+                <Alert mb={10}>{t('drawer.scriptAlert')}</Alert>
+                <Editor
+                  height="50vh"
+                  defaultLanguage="javascript"
+                  theme={theme.colorScheme === 'dark' ? 'vs-dark' : 'light'}
+                  defaultValue="//"
+                  onMount={handleEditorDidMount}
+                  value={form.values.evalValue}
+                  onChange={(v) => {
+                    form.values.evalValue = v ?? '';
+                  }}
+                />
+              </Fragment>
+            )}
             {form.values.type === 'TEXT' && (
               <Textarea label={t('response')} autosize={true} {...form.getInputProps('response')} />
             )}
             {form.values.type === 'NUMBER' && (
               <NumberInput label={t('response')} {...form.getInputProps('response')} />
             )}
-          </Flex>
-        </form>
-      </ScrollArea.Autosize>
-    </Drawer>
+          </Grid.Col>
+        </Grid>
+      </form>
+    </Modal>
   );
 };

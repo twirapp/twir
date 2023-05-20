@@ -7,15 +7,15 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
-import { VariableDrawer } from '@/components/variables/drawer';
+import { VariableModal } from '@/components/variables/modal';
 import { variablesManager } from '@/services/api';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
-    props: {
-        ...(await serverSideTranslations(locale, ['variables', 'layout'])),
-    },
+  props: {
+    ...(await serverSideTranslations(locale, ['variables', 'layout'])),
+  },
 });
 
 export default function () {
@@ -39,7 +39,7 @@ export default function () {
             setEditDrawerOpened(true);
           }}
         >
-            {t('create')}
+          {t('create')}
         </Button>
       </Flex>
       <Table>
@@ -61,21 +61,19 @@ export default function () {
                 <td>
                   <Badge color="cyan">{variable.type}</Badge>
                 </td>
-                {viewPort.width > 550 && <td>
-                  {variable.type !== 'SCRIPT' && <Badge>{variable.response}</Badge>}
-                  {variable.type === 'SCRIPT' && (
-                    <Badge color="red">{t('table.scriptAlert')}</Badge>
-                  )}
-                </td>}
+                {viewPort.width > 550 && (
+                  <td>
+                    {variable.type !== 'SCRIPT' && <Badge>{variable.response}</Badge>}
+                    {variable.type === 'SCRIPT' && (
+                      <Badge color="red">{t('table.scriptAlert')}</Badge>
+                    )}
+                  </td>
+                )}
                 <td>
                   <Flex direction="row" gap="xs">
                     <CopyButton value={`$(customvar|${variable.name})`}>
                       {({ copied, copy }) => (
-                        <Tooltip
-                          label={t('table.copy')}
-                          withArrow
-                          position="bottom"
-                        >
+                        <Tooltip label={t('table.copy')} withArrow position="bottom">
                           <ActionIcon
                             color={copied ? 'teal' : 'blue'}
                             variant="filled"
@@ -115,7 +113,7 @@ export default function () {
         </tbody>
       </Table>
 
-      <VariableDrawer
+      <VariableModal
         opened={editDrawerOpened}
         setOpened={setEditDrawerOpened}
         variable={editableVariable}
