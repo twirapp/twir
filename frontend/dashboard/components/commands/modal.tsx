@@ -19,6 +19,8 @@ import {
   Modal,
   Title,
   Divider,
+  Paper,
+  Space,
 } from '@mantine/core';
 import { isNotEmpty, useForm } from '@mantine/form';
 import { useDebouncedState, useViewportSize } from '@mantine/hooks';
@@ -500,22 +502,20 @@ export const CommandsModal: React.FC<Props> = (props) => {
           </Grid>
 
           <Divider label={<Title order={3}>Settings</Title>} w={'100%'} />
-          <Grid w={'100%'}>
+          <Grid w={'100%'} align={'stretch'}>
             {switches.map(({ prop }, i) => (
-              <Grid.Col key={i} span={6} w={'100%'}>
-                <Grid>
-                  <Grid.Col span={10}>
-                    <Text>{t(`drawer.switches.${prop}.name`)}</Text>
-                  </Grid.Col>
-                  <Grid.Col span={2}>
+              <Grid.Col key={i} span={6}>
+                <Paper key={i} shadow="xs" p="xs" withBorder>
+                  <Flex direction={'row'} align={'center'} justify={'space-between'}>
+                    <Flex direction={'column'}>
+                      <Text>{t(`drawer.switches.${prop}.name`)}</Text>
+                      <Text c="dimmed" size={'xs'}>
+                        {t(`drawer.switches.${prop}.description`)}
+                      </Text>
+                    </Flex>
                     <Switch {...form.getInputProps(prop, { type: 'checkbox' })} />
-                  </Grid.Col>
-                  <Grid.Col span={12} mt={-10}>
-                    <Text c="dimmed" size={'xs'}>
-                      {t(`drawer.switches.${prop}.description`)}
-                    </Text>
-                  </Grid.Col>
-                </Grid>
+                  </Flex>
+                </Paper>
               </Grid.Col>
             ))}
           </Grid>
