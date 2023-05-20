@@ -10,7 +10,14 @@ import {
   TextInput,
 } from '@mantine/core';
 import { useDebouncedState, useViewportSize } from '@mantine/hooks';
-import { IconCaretDown, IconCaretUp, IconFolder, IconPencil, IconSearch, IconTrash } from '@tabler/icons';
+import {
+  IconCaretDown,
+  IconCaretUp,
+  IconFolder,
+  IconPencil,
+  IconSearch,
+  IconTrash,
+} from '@tabler/icons';
 import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { ChannelCommandGroup } from '@tsuwari/typeorm/entities/ChannelCommandGroup';
 import { GetServerSideProps, NextPage } from 'next';
@@ -19,7 +26,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { Fragment, useEffect, useState } from 'react';
 
-import { CommandDrawer } from '@/components/commands/drawer';
+import { CommandsModal } from '@/components/commands/modal';
 import { ChannelCommandGroupDrawer } from '@/components/commandsGroup/drawer';
 import { confirmDelete } from '@/components/confirmDelete';
 import { commandsGroupManager, commandsManager } from '@/services/api';
@@ -49,12 +56,14 @@ const Commands: NextPage = () => {
   const groupManager = commandsGroupManager();
   const groupDeleter = groupManager.useDelete();
 
-  const [commandsWithGroups, setCommandsWithGroups] = useState<{ [x: string]: {
-      list: ChannelCommand[],
-      show: boolean,
-      id: string,
-      color?: string,
-    }}>({
+  const [commandsWithGroups, setCommandsWithGroups] = useState<{
+    [x: string]: {
+      list: ChannelCommand[];
+      show: boolean;
+      id: string;
+      color?: string;
+    };
+  }>({
     default: {
       list: [],
       show: true,
@@ -68,7 +77,10 @@ const Commands: NextPage = () => {
     setCommandsWithGroups({});
 
     for (const command of commands) {
-      if (command.module.toLowerCase() !== (router.query.module ? router.query.module[0] : 'custom')) continue;
+      if (
+        command.module.toLowerCase() !== (router.query.module ? router.query.module[0] : 'custom')
+      )
+        continue;
 
       if (!command.group) {
         setCommandsWithGroups((prev) => ({
@@ -91,7 +103,6 @@ const Commands: NextPage = () => {
         }));
       }
     }
-
   }
 
   useEffect(() => {
@@ -148,151 +159,171 @@ const Commands: NextPage = () => {
         </thead>
 
         <tbody>
-        {Object.keys(commandsWithGroups).map((group, groupIndex) => (
-          <Fragment key={groupIndex}>
-            <tr
-              style={{
-                padding: 5,
-                display: group === 'default' ? 'none' : undefined,
-                backgroundColor: group !== 'default' && commandsWithGroups[group].show ? commandsWithGroups[group].color! : undefined,
-              }}
-            >
-              <td
+          {Object.keys(commandsWithGroups).map((group, groupIndex) => (
+            <Fragment key={groupIndex}>
+              <tr
                 style={{
-                  cursor: 'pointer',
-                }}
-                onClick={() => {
-                  setCommandsWithGroups((prev) => ({
-                    ...prev,
-                    [group]: {
-                      ...prev[group],
-                      show: !prev[group].show,
-                    },
-                  }));
+                  padding: 5,
+                  display: group === 'default' ? 'none' : undefined,
+                  backgroundColor:
+                    group !== 'default' && commandsWithGroups[group].show
+                      ? commandsWithGroups[group].color!
+                      : undefined,
                 }}
               >
-                <Text size={'md'}><IconFolder size={15} /> {group}</Text>
-              </td>
-              <td></td>
-              <td>
-                {!commandsWithGroups[group].show && <IconCaretDown size={25} />}
-                {commandsWithGroups[group].show && <IconCaretUp size={25} />}
-              </td>
-              <td>
-                <Flex direction={'row'} gap="xs">
-                  <ActionIcon
-                    onClick={() => {
-                      setEditableGroup(commands?.find((c) => c.groupId === commandsWithGroups[group]!.id)?.group);
-                      setGroupEditDrawerOpened(true);
-                    }}
-                    variant="filled"
-                    color="blue"
-                  >
-                    <IconPencil size={14} />
-                  </ActionIcon>
-                  <ActionIcon
-                    onClick={() =>
-                      confirmDelete({
-                        onConfirm: () => groupDeleter.mutate(commandsWithGroups[group].id),
-                        text: 'This will delete only group, not commands. Delete group?',
-                      })
-                    }
-                    variant="filled"
-                    color="red"
-                  >
-                    <IconTrash size={14} />
-                  </ActionIcon>
-                </Flex>
-              </td>
-            </tr>
-            {commandsWithGroups[group].list
-              .filter(c => {
-                const someAliase = c.aliases.some(a => a.includes(searchInput));
-                return someAliase || c.name.includes(searchInput);
-              })
-              .map((command, commandIndex) => (
-                <tr key={command.id} style={{
-                  borderTop: (groupIndex === Object.keys(commandsWithGroups).length - 1 && commandIndex === 0)
-                    ? '1px solid #373A40'
-                    : undefined,
-                  display: group !== 'default'
-                    ? commandsWithGroups[group].show ? undefined : 'none'
-                    : undefined,
-                  marginLeft: group !== 'default' && commandsWithGroups[group].show ? 10 : 10,
-                  backgroundColor: group !== 'default' && commandsWithGroups[group].show ? commandsWithGroups[group].color! : undefined,
-                }}>
-                  <td style={{
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    maxWidth: 100,
-                    paddingLeft: 10,
-                  }}>
-                    <Badge>
-                      <Text truncate>
-                        {command.name}
-                      </Text>
-                    </Badge>
-                  </td>
-                  {viewPort.width > 550 && (
-                    <td>
-                      {command.module != 'CUSTOM' && <Text dangerouslySetInnerHTML={{ __html: command.description || '' }} />}
-                      {command.module === 'CUSTOM' &&
-                        (command.responses?.map((r) => (
-                          <Text
-                            title={r.text!}
-                            lineClamp={1}
-                            style={{ textOverflow: 'ellipsis', overflow: 'hidden' }}
-                            key={r.id}
-                          >
-                            {r.text}
-                          </Text>
-                        )) || <Badge>No Response</Badge>)}
-                    </td>
-                  )}
-                  <td>
-                    <Switch
-                      checked={command.enabled}
-                      onChange={() =>
-                        patcher.mutate({ id: command.id, data: { enabled: !command.enabled } })
+                <td
+                  style={{
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    setCommandsWithGroups((prev) => ({
+                      ...prev,
+                      [group]: {
+                        ...prev[group],
+                        show: !prev[group].show,
+                      },
+                    }));
+                  }}
+                >
+                  <Text size={'md'}>
+                    <IconFolder size={15} /> {group}
+                  </Text>
+                </td>
+                <td></td>
+                <td>
+                  {!commandsWithGroups[group].show && <IconCaretDown size={25} />}
+                  {commandsWithGroups[group].show && <IconCaretUp size={25} />}
+                </td>
+                <td>
+                  <Flex direction={'row'} gap="xs">
+                    <ActionIcon
+                      onClick={() => {
+                        setEditableGroup(
+                          commands?.find((c) => c.groupId === commandsWithGroups[group]!.id)?.group,
+                        );
+                        setGroupEditDrawerOpened(true);
+                      }}
+                      variant="filled"
+                      color="blue"
+                    >
+                      <IconPencil size={14} />
+                    </ActionIcon>
+                    <ActionIcon
+                      onClick={() =>
+                        confirmDelete({
+                          onConfirm: () => groupDeleter.mutate(commandsWithGroups[group].id),
+                          text: 'This will delete only group, not commands. Delete group?',
+                        })
                       }
-                    />
-                  </td>
-                  <td>
-                    <Flex direction="row" gap="xs">
-                      <ActionIcon
-                        onClick={() => {
-                          setEditableCommand(commands!.find((c) => c.id === command.id)!);
-                          setEditDrawerOpened(true);
-                        }}
-                        variant="filled"
-                        color="blue"
-                      >
-                        <IconPencil size={14} />
-                      </ActionIcon>
-                      {command.module === 'CUSTOM' && (
+                      variant="filled"
+                      color="red"
+                    >
+                      <IconTrash size={14} />
+                    </ActionIcon>
+                  </Flex>
+                </td>
+              </tr>
+              {commandsWithGroups[group].list
+                .filter((c) => {
+                  const someAliase = c.aliases.some((a) => a.includes(searchInput));
+                  return someAliase || c.name.includes(searchInput);
+                })
+                .map((command, commandIndex) => (
+                  <tr
+                    key={command.id}
+                    style={{
+                      borderTop:
+                        groupIndex === Object.keys(commandsWithGroups).length - 1 &&
+                        commandIndex === 0
+                          ? '1px solid #373A40'
+                          : undefined,
+                      display:
+                        group !== 'default'
+                          ? commandsWithGroups[group].show
+                            ? undefined
+                            : 'none'
+                          : undefined,
+                      marginLeft: group !== 'default' && commandsWithGroups[group].show ? 10 : 10,
+                      backgroundColor:
+                        group !== 'default' && commandsWithGroups[group].show
+                          ? commandsWithGroups[group].color!
+                          : undefined,
+                    }}
+                  >
+                    <td
+                      style={{
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        maxWidth: 100,
+                        paddingLeft: 10,
+                      }}
+                    >
+                      <Badge>
+                        <Text truncate>{command.name}</Text>
+                      </Badge>
+                    </td>
+                    {viewPort.width > 550 && (
+                      <td>
+                        {command.module != 'CUSTOM' && (
+                          <Text dangerouslySetInnerHTML={{ __html: command.description || '' }} />
+                        )}
+                        {command.module === 'CUSTOM' &&
+                          (command.responses?.map((r) => (
+                            <Text
+                              title={r.text!}
+                              lineClamp={1}
+                              style={{ textOverflow: 'ellipsis', overflow: 'hidden' }}
+                              key={r.id}
+                            >
+                              {r.text}
+                            </Text>
+                          )) || <Badge>No Response</Badge>)}
+                      </td>
+                    )}
+                    <td>
+                      <Switch
+                        checked={command.enabled}
+                        onChange={() =>
+                          patcher.mutate({ id: command.id, data: { enabled: !command.enabled } })
+                        }
+                      />
+                    </td>
+                    <td>
+                      <Flex direction="row" gap="xs">
                         <ActionIcon
-                          onClick={() =>
-                            confirmDelete({
-                              onConfirm: () => deleter.mutate(command.id),
-                            })
-                          }
+                          onClick={() => {
+                            setEditableCommand(commands!.find((c) => c.id === command.id)!);
+                            setEditDrawerOpened(true);
+                          }}
                           variant="filled"
-                          color="red"
+                          color="blue"
                         >
-                          <IconTrash size={14} />
+                          <IconPencil size={14} />
                         </ActionIcon>
-                      )}
-                    </Flex>
-                  </td>
-                </tr>
-              ))}
-          </Fragment>
-        ))}
+                        {command.module === 'CUSTOM' && (
+                          <ActionIcon
+                            onClick={() =>
+                              confirmDelete({
+                                onConfirm: () => deleter.mutate(command.id),
+                              })
+                            }
+                            variant="filled"
+                            color="red"
+                          >
+                            <IconTrash size={14} />
+                          </ActionIcon>
+                        )}
+                      </Flex>
+                    </td>
+                  </tr>
+                ))}
+            </Fragment>
+          ))}
         </tbody>
       </Table>
 
-      <CommandDrawer
+      <CommandsModal
         opened={editDrawerOpened}
         setOpened={setEditDrawerOpened}
         command={editableCommand}

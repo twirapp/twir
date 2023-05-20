@@ -5,7 +5,7 @@ import { type ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
 import { useTranslation } from 'next-i18next';
 import { FC, Fragment, useState } from 'react';
 
-import { CommandDrawer } from '@/components/commands/drawer';
+import { CommandsModal } from '@/components/commands/modal';
 import { confirmDelete } from '@/components/confirmDelete';
 import { commandsManager } from '@/services/api';
 
@@ -104,7 +104,7 @@ export const CommandsList: FC<Props> = (props) => {
         </tbody>
       </Table>
 
-      <CommandDrawer
+      <CommandsModal
         opened={editDrawerOpened}
         setOpened={setEditDrawerOpened}
         command={editableCommand}

@@ -27,13 +27,13 @@
     },
     "description": {
       "label": "Description",
-      "placeholder": "his description will be visible on public command page"
+      "placeholder": "This description will be visible on public command page"
     },
     "cooldown": {
-      "time": "Cooldown time (seconds)",
-      "type": "Cooldown type"
+      "time": "Time (seconds)",
+      "type": "Type"
     },
-    "permission": "Permission",
+    "permission": "Permissions",
     "responses": {
       "emptyAlert": "No responses added"
     },
@@ -44,7 +44,7 @@
       },
       "visible": {
         "name": "Visible",
-        "description": "Is command visible"
+        "description": "Is command visible in commands list on public page and in chat commands variable"
       },
       "keepResponsesOrder": {
         "name": "Keep order",
