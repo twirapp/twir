@@ -6,7 +6,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
-import { GreetingDrawer } from '@/components/greetings/drawer';
+import { GreetingModal } from '@/components/greetings/modal';
 import { type Greeting, greetingsManager } from '@/services/api';
 
 
@@ -117,7 +117,7 @@ export default function () {
         </tbody>
       </Table>
 
-      <GreetingDrawer
+      <GreetingModal
         opened={editDrawerOpened}
         setOpened={setEditDrawerOpened}
         greeting={editableGreeting}
