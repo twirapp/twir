@@ -17,6 +17,6 @@
     "save": "Save",
     "useReply": "Use twitch reply",
     "isRegular": "Regular expression",
-    "expressionAlert": "We use Golang in our services, so regular expression also should be written in Golang."
+    "expressionAlert": "We use Golang in our services, so regular expression also should be written for Golang."
   }
 }

@@ -1,4 +1,14 @@
-import { ActionIcon, Badge, Button, CopyButton, Flex, Switch, Table, Text, Tooltip } from '@mantine/core';
+import {
+  ActionIcon,
+  Badge,
+  Button,
+  CopyButton,
+  Flex,
+  Switch,
+  Table,
+  Text,
+  Tooltip,
+} from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import { IconCopy, IconPencil, IconTrash } from '@tabler/icons';
 import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
@@ -7,7 +17,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
-import { KeywordDrawer } from '@/components/keywords/drawer';
+import { KeywordModal } from '@/components/keywords/drawer';
 import { keywordsManager } from '@/services/api';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -45,87 +55,89 @@ export default function () {
       </Flex>
       <Table>
         <thead>
-        <tr>
-          <th>{t('trigger')}</th>
-          {viewPort.width > 550 && (<>
-            <th>{t('response')}</th>
-            <th>{t('usages')}</th>
-          </>)
-          }
-          <th>{t('table.head.status')}</th>
-          <th>{t('table.head.actions')}</th>
-        </tr>
+          <tr>
+            <th>{t('trigger')}</th>
+            {viewPort.width > 550 && (
+              <>
+                <th>{t('response')}</th>
+                <th>{t('usages')}</th>
+              </>
+            )}
+            <th>{t('table.head.status')}</th>
+            <th>{t('table.head.actions')}</th>
+          </tr>
         </thead>
         <tbody>
-        {keywords &&
-          keywords.map((keyword, idx) => (
-            <tr key={keyword.id}>
-              <td>
-                <Badge>{keyword.text}</Badge>
-              </td>
-              {viewPort.width > 550 && (<>
-                <td>{keyword.response}</td>
+          {keywords &&
+            keywords.map((keyword, idx) => (
+              <tr key={keyword.id}>
                 <td>
-                  <Badge>{keyword.usages}</Badge>
+                  <Badge>{keyword.text}</Badge>
                 </td>
-              </>)}
-              <td>
-                <Switch
-                  checked={keyword.enabled}
-                  onChange={(event) => {
-                    patcher.mutate({ id: keyword.id, data: { enabled: event.currentTarget.checked } });
-                  }}
-                />
-              </td>
-              <td>
-                <Flex direction="row" gap="xs">
-                  <CopyButton value={`$(keywords.counter|${keyword.id})`}>
-                    {({ copied, copy }) => (
-                      <Tooltip
-                        label={t('copy')}
-                        withArrow
-                        position="bottom"
-                      >
-                        <ActionIcon
-                          color={copied ? 'teal' : 'blue'}
-                          variant="filled"
-                          onClick={copy}
-                        >
-                          <IconCopy size={14}/>
-                        </ActionIcon>
-                      </Tooltip>
-                    )}
-                  </CopyButton>
-                  <ActionIcon
-                    onClick={() => {
-                      setEditableKeyword(keywords[idx] as any);
-                      setEditDrawerOpened(true);
+                {viewPort.width > 550 && (
+                  <>
+                    <td>{keyword.response}</td>
+                    <td>
+                      <Badge>{keyword.usages}</Badge>
+                    </td>
+                  </>
+                )}
+                <td>
+                  <Switch
+                    checked={keyword.enabled}
+                    onChange={(event) => {
+                      patcher.mutate({
+                        id: keyword.id,
+                        data: { enabled: event.currentTarget.checked },
+                      });
                     }}
-                    variant="filled"
-                    color="blue"
-                  >
-                    <IconPencil size={14}/>
-                  </ActionIcon>
+                  />
+                </td>
+                <td>
+                  <Flex direction="row" gap="xs">
+                    <CopyButton value={`$(keywords.counter|${keyword.id})`}>
+                      {({ copied, copy }) => (
+                        <Tooltip label={t('copy')} withArrow position="bottom">
+                          <ActionIcon
+                            color={copied ? 'teal' : 'blue'}
+                            variant="filled"
+                            onClick={copy}
+                          >
+                            <IconCopy size={14} />
+                          </ActionIcon>
+                        </Tooltip>
+                      )}
+                    </CopyButton>
+                    <ActionIcon
+                      onClick={() => {
+                        setEditableKeyword(keywords[idx] as any);
+                        setEditDrawerOpened(true);
+                      }}
+                      variant="filled"
+                      color="blue"
+                    >
+                      <IconPencil size={14} />
+                    </ActionIcon>
 
-                  <ActionIcon
-                    onClick={() =>
-                      confirmDelete({
-                        onConfirm: () => deleter.mutate(keyword.id),
-                      })
-                    }
-                    variant="filled"
-                    color="red"
-                  >
-                    <IconTrash size={14}/>
-                  </ActionIcon>
-                </Flex>
-              </td>
-            </tr>
-          ))}
+                    <ActionIcon
+                      onClick={() =>
+                        confirmDelete({
+                          onConfirm: () => deleter.mutate(keyword.id),
+                        })
+                      }
+                      variant="filled"
+                      color="red"
+                    >
+                      <IconTrash size={14} />
+                    </ActionIcon>
+                  </Flex>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </Table>
 
-      <KeywordDrawer
+      <KeywordModal
         opened={editDrawerOpened}
         setOpened={setEditDrawerOpened}
         keyword={editableKeyword}

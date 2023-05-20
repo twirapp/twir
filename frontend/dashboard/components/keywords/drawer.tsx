@@ -1,14 +1,20 @@
 import {
   Alert,
   Button,
+  Divider,
   Drawer,
   Flex,
+  Grid,
+  Modal,
   NumberInput,
   ScrollArea,
   Switch,
   Textarea,
   TextInput,
+  Title,
+  Text,
   useMantineTheme,
+  Paper,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
@@ -26,7 +32,7 @@ type Props = {
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const KeywordDrawer: React.FC<Props> = (props) => {
+export const KeywordModal: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
   const form = useForm<ChannelKeyword>({
     validate: {
@@ -65,18 +71,20 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    await updater.mutateAsync({
-      id: form.values.id,
-      data: form.values,
-    })
+    await updater
+      .mutateAsync({
+        id: form.values.id,
+        data: form.values,
+      })
       .then(() => {
         props.setOpened(false);
         form.reset();
-      }).catch(noop);
+      })
+      .catch(noop);
   }
 
   return (
-    <Drawer
+    <Modal
       opened={props.opened}
       onClose={() => props.setOpened(false)}
       title={
@@ -86,35 +94,59 @@ export const KeywordDrawer: React.FC<Props> = (props) => {
       }
       padding="xl"
       size="xl"
-      position="right"
-      transition="slide-left"
       overlayColor={theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2]}
       overlayOpacity={0.55}
       overlayBlur={3}
     >
-      <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
-        <form onSubmit={form.onSubmit((values) => console.log(values))}>
-          <Flex direction="column" gap="md" justify="flex-start" align="flex-start" wrap="wrap">
-            <TextInput {...form.getInputProps('text')} label={t('trigger')} required w="100%" />
-            <Switch label={t('drawer.isRegular')} {...form.getInputProps('isRegular', { type: 'checkbox' })} />
-            {form.values.isRegular && (
-              <Alert>
-                {t('drawer.expressionAlert')}
-              </Alert>
-            )}
-            <Textarea
-              {...form.getInputProps('response')}
-              label={t('response')}
-              autosize={true}
-              w="100%"
-            />
-            <NumberInput label={t('cooldown')} required {...form.getInputProps('cooldown')} />
-            <NumberInput label={t('usages')} {...form.getInputProps('usages')} />
+      <form onSubmit={form.onSubmit((values) => console.log(values))}>
+        <Flex
+          w={'100%'}
+          direction="column"
+          gap="md"
+          justify="flex-start"
+          align="flex-start"
+          wrap="wrap"
+        >
+          <TextInput
+            {...form.getInputProps('text')}
+            label={t('trigger')}
+            required
+            w="100%"
+            placeholder={'Type trigger'}
+          />
+          <Switch
+            label={t('drawer.isRegular')}
+            {...form.getInputProps('isRegular', { type: 'checkbox' })}
+          />
+          {form.values.isRegular && <Alert w={'100%'}>{t('drawer.expressionAlert')}</Alert>}
+          <Textarea
+            {...form.getInputProps('response')}
+            label={t('response')}
+            autosize={true}
+            w="100%"
+            placeholder={'Text here'}
+          />
 
-            <Switch label={t('drawer.useReply')} {...form.getInputProps('isReply', { type: 'checkbox' })} />
-          </Flex>
-        </form>
-      </ScrollArea.Autosize>
-    </Drawer>
+          <Divider w={'100%'} label={<Title order={3}>Settings</Title>} />
+
+          <Grid w={'100%'}>
+            <Grid.Col span={6}>
+              <NumberInput label={t('cooldown')} required {...form.getInputProps('cooldown')} />
+            </Grid.Col>
+            <Grid.Col span={6}>
+              <NumberInput label={t('usages')} {...form.getInputProps('usages')} />
+            </Grid.Col>
+            <Grid.Col span={6}>
+              <Paper shadow="xs" p="xs" withBorder>
+                <Flex direction={'row'} align={'center'} justify={'space-between'}>
+                  <Text>{t('drawer.useReply')}</Text>
+                  <Switch {...form.getInputProps('isReply', { type: 'checkbox' })} />
+                </Flex>
+              </Paper>
+            </Grid.Col>
+          </Grid>
+        </Flex>
+      </form>
+    </Modal>
   );
 };
