@@ -4,10 +4,12 @@ import {
   Button,
   Center,
   Checkbox,
+  Divider,
   Drawer,
   Flex,
   Group,
   Menu,
+  Modal,
   NumberInput,
   ScrollArea,
   Slider,
@@ -39,7 +41,7 @@ const sliderSteps = new Array(6).fill(1).map((_, index) => {
   return { value, label: value.toString() };
 });
 
-export const TimerDrawer: React.FC<Props> = (props) => {
+export const TimerModal: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
   const form = useForm<ChannelTimer>({
     initialValues: {
@@ -73,17 +75,20 @@ export const TimerDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    updater.mutateAsync({
-      id: form.values.id,
-      data: form.values,
-    }).then(() => {
-      props.setOpened(false);
-      form.reset();
-    }).catch(noop);
+    updater
+      .mutateAsync({
+        id: form.values.id,
+        data: form.values,
+      })
+      .then(() => {
+        props.setOpened(false);
+        form.reset();
+      })
+      .catch(noop);
   }
 
   return (
-    <Drawer
+    <Modal
       opened={props.opened}
       onClose={() => props.setOpened(false)}
       title={
@@ -93,8 +98,6 @@ export const TimerDrawer: React.FC<Props> = (props) => {
       }
       padding="xl"
       size="xl"
-      position="right"
-      transition="slide-left"
       overlayColor={theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2]}
       overlayOpacity={0.55}
       overlayBlur={3}
@@ -120,7 +123,7 @@ export const TimerDrawer: React.FC<Props> = (props) => {
 
             <NumberInput label={t('intervalMessages')} {...form.getInputProps('messageInterval')} />
 
-            <div style={{ width: 450 }}>
+            <div style={{ width: '100%' }}>
               <Flex direction="row" gap="xs">
                 <Text>{t('responses')}</Text>
                 <ActionIcon variant="light" color="green" size="xs">
@@ -132,7 +135,9 @@ export const TimerDrawer: React.FC<Props> = (props) => {
                   />
                 </ActionIcon>
               </Flex>
-              {!form.getInputProps('responses').value?.length && <Alert>{t('drawer.emptyAlert')}</Alert>}
+              {!form.getInputProps('responses').value?.length && (
+                <Alert color={'red'}>{t('drawer.emptyAlert')}</Alert>
+              )}
               <DragDropContext
                 onDragEnd={({ destination, source }) =>
                   form.reorderListItem('responses', {
@@ -186,7 +191,9 @@ export const TimerDrawer: React.FC<Props> = (props) => {
                               <Checkbox
                                 label={t('drawer.useAnnounce')}
                                 labelPosition={'left'}
-                                {...form.getInputProps(`responses.${index}.isAnnounce`, { type: 'checkbox' })}
+                                {...form.getInputProps(`responses.${index}.isAnnounce`, {
+                                  type: 'checkbox',
+                                })}
                               />
                             </Group>
                           )}
@@ -202,6 +209,6 @@ export const TimerDrawer: React.FC<Props> = (props) => {
           </Flex>
         </form>
       </ScrollArea.Autosize>
-    </Drawer>
+    </Modal>
   );
 };

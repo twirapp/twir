@@ -7,7 +7,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
-import { TimerDrawer } from '@/components/timers/drawer';
+import { TimerModal } from '@/components/timers/modal';
 import { timersManager } from '@/services/api';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -121,11 +121,7 @@ export default function () {
         </tbody>
       </Table>
 
-      <TimerDrawer
-        opened={editDrawerOpened}
-        setOpened={setEditDrawerOpened}
-        timer={editableTimer}
-      />
+      <TimerModal opened={editDrawerOpened} setOpened={setEditDrawerOpened} timer={editableTimer} />
     </div>
   );
 }
