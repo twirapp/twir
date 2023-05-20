@@ -92,7 +92,6 @@ export const VariableModal: React.FC<Props> = (props) => {
       }
       padding="xl"
       size={form.values.type === 'SCRIPT' ? '80%' : 'xl'}
-      transition="slide-left"
       overlayColor={theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2]}
       overlayOpacity={0.55}
       overlayBlur={3}
