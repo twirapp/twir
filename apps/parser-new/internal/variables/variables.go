@@ -10,6 +10,7 @@ import (
 	"github.com/satont/tsuwari/apps/parser-new/internal/types/services"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/keywords"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/random"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/sender"
 
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/command_param"
@@ -58,6 +59,7 @@ func New(opts *Opts) *Variables {
 	store[random.Number.Name] = random.Number
 	store[random.OnlineUser.Name] = random.OnlineUser
 	store[random.Phrase.Name] = random.Phrase
+	store[sender.Sender.Name] = sender.Sender
 
 	variables := &Variables{
 		services:       opts.Services,
