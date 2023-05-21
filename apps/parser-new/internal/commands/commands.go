@@ -172,6 +172,7 @@ func (c *Commands) ParseCommandResponses(
 			ParseCtxSender:  parseCtxSender,
 			ParseCtxText:    cmdParams,
 		}),
+		Command: command.Cmd,
 	}
 
 	if command.Cmd.Default && defaultCommand != nil {

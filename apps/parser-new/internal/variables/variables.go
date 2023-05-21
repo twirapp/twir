@@ -11,6 +11,8 @@ import (
 
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/command_param"
+	commands_list "github.com/satont/tsuwari/apps/parser-new/internal/variables/commands"
+	command_counters "github.com/satont/tsuwari/apps/parser-new/internal/variables/commands/counters"
 	"github.com/satont/tsuwari/libs/gopool"
 )
 
@@ -32,6 +34,10 @@ func New(opts *Opts) *Variables {
 	store := make(map[string]*types.Variable)
 
 	store[command_param.Variable.Name] = command_param.Variable
+	store[commands_list.Variable.Name] = commands_list.Variable
+	store[command_counters.CommandCounter.Name] = command_counters.CommandCounter
+	store[command_counters.CommandFromOtherCounter.Name] = command_counters.CommandFromOtherCounter
+	store[command_counters.CommandUserCounter.Name] = command_counters.CommandUserCounter
 
 	variables := &Variables{
 		services:       opts.Services,

@@ -2,6 +2,8 @@ package types
 
 import (
 	"context"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
 type VariableHandlerResult struct {
