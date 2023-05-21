@@ -8,6 +8,8 @@ import (
 	"sync"
 
 	"github.com/satont/tsuwari/apps/parser-new/internal/types/services"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/keywords"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/random"
 
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/command_param"
@@ -15,6 +17,7 @@ import (
 	command_counters "github.com/satont/tsuwari/apps/parser-new/internal/variables/commands/counters"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/custom_var"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/emotes"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/faceit"
 	"github.com/satont/tsuwari/libs/gopool"
 )
 
@@ -44,6 +47,17 @@ func New(opts *Opts) *Variables {
 	store[emotes.SevenTv.Name] = emotes.SevenTv
 	store[emotes.BetterTTV.Name] = emotes.BetterTTV
 	store[emotes.FrankerFaceZ.Name] = emotes.FrankerFaceZ
+	store[faceit.Elo.Name] = faceit.Elo
+	store[faceit.EloDiff.Name] = faceit.EloDiff
+	store[faceit.LVL.Name] = faceit.LVL
+	store[faceit.ScoreLoses.Name] = faceit.ScoreLoses
+	store[faceit.ScoreWins.Name] = faceit.ScoreWins
+	store[faceit.TrendExtended.Name] = faceit.TrendExtended
+	store[faceit.TrendSimple.Name] = faceit.TrendSimple
+	store[keywords.Counter.Name] = keywords.Counter
+	store[random.Number.Name] = random.Number
+	store[random.OnlineUser.Name] = random.OnlineUser
+	store[random.Phrase.Name] = random.Phrase
 
 	variables := &Variables{
 		services:       opts.Services,
