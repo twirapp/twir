@@ -14,6 +14,7 @@ import (
 	commands_list "github.com/satont/tsuwari/apps/parser-new/internal/variables/commands"
 	command_counters "github.com/satont/tsuwari/apps/parser-new/internal/variables/commands/counters"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/custom_var"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/emotes"
 	"github.com/satont/tsuwari/libs/gopool"
 )
 
@@ -40,6 +41,9 @@ func New(opts *Opts) *Variables {
 	store[command_counters.CommandFromOtherCounter.Name] = command_counters.CommandFromOtherCounter
 	store[command_counters.CommandUserCounter.Name] = command_counters.CommandUserCounter
 	store[custom_var.CustomVar.Name] = custom_var.CustomVar
+	store[emotes.SevenTv.Name] = emotes.SevenTv
+	store[emotes.BetterTTV.Name] = emotes.BetterTTV
+	store[emotes.FrankerFaceZ.Name] = emotes.FrankerFaceZ
 
 	variables := &Variables{
 		services:       opts.Services,
