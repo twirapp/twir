@@ -3,10 +3,11 @@ package variables
 import (
 	"context"
 	"fmt"
-	"github.com/satont/tsuwari/apps/parser-new/internal/types/services"
 	"regexp"
 	"strings"
 	"sync"
+
+	"github.com/satont/tsuwari/apps/parser-new/internal/types/services"
 
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/command_param"

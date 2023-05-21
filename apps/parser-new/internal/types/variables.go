@@ -30,4 +30,6 @@ type Variable struct {
 
 type VariableParseContext struct {
 	*ParseContext
+
+	Cacher DataCacher
 }

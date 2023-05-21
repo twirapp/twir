@@ -96,7 +96,7 @@ var AddCommand = &types.DefaultCommand{
 			ChannelID:    ctx.ChannelId,
 			Default:      false,
 			Module:       "CUSTOM",
-			Responses: []model.ChannelsCommandsResponses{
+			Responses: []*model.ChannelsCommandsResponses{
 				{
 					ID:        uuid.NewV4().String(),
 					Text:      null.StringFrom(text),

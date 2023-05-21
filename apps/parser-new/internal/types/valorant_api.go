@@ -71,7 +71,7 @@ type ValorantMatchPlayers struct {
 }
 
 type ValorantMatchesResponse struct {
-	Data []ValorantMatch `json:"data"`
+	Data []*ValorantMatch `json:"data"`
 }
 
 type ValorantMatch struct {

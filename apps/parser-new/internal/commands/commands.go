@@ -2,18 +2,20 @@ package commands
 
 import (
 	"context"
+	"regexp"
+	"sort"
+	"strings"
+	"sync"
+
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/satont/tsuwari/apps/parser-new/internal/cacher"
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
 	"github.com/satont/tsuwari/apps/parser-new/internal/types/services"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/gopool"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
-	"regexp"
-	"sort"
-	"strings"
-	"sync"
 )
 
 type Commands struct {
@@ -147,20 +149,29 @@ func (c *Commands) ParseCommandResponses(
 			CommandID: command.Cmd.ID,
 		})
 
+	parseCtxChannel := &types.ParseContextChannel{
+		ID:   requestData.Channel.Id,
+		Name: requestData.Channel.Name,
+	}
+	parseCtxSender := &types.ParseContextSender{
+		ID:          requestData.Sender.Id,
+		Name:        requestData.Sender.Name,
+		DisplayName: requestData.Sender.DisplayName,
+		Badges:      requestData.Sender.Badges,
+	}
+
 	parseCtx := &types.ParseContext{
-		Channel: &types.ParseContextChannel{
-			ID:   requestData.Channel.Id,
-			Name: requestData.Channel.Name,
-		},
-		Sender: &types.ParseContextSender{
-			ID:          requestData.Sender.Id,
-			Name:        requestData.Sender.Name,
-			DisplayName: requestData.Sender.DisplayName,
-			Badges:      requestData.Sender.Badges,
-		},
+		Channel:   parseCtxChannel,
+		Sender:    parseCtxSender,
 		Text:      cmdParams,
 		IsCommand: true,
 		Services:  c.services,
+		Cacher: cacher.NewCacher(&cacher.CacherOpts{
+			Services:        c.services,
+			ParseCtxChannel: parseCtxChannel,
+			ParseCtxSender:  parseCtxSender,
+			ParseCtxText:    cmdParams,
+		}),
 	}
 
 	if command.Cmd.Default && defaultCommand != nil {

@@ -20,7 +20,7 @@ type FaceitMatch struct {
 
 type FaceitResult struct {
 	FaceitUser *FaceitUser
-	Matches    []FaceitMatch `json:"matches"`
+	Matches    []*FaceitMatch `json:"matches"`
 }
 
 type FaceitGame struct {
