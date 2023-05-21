@@ -13,6 +13,7 @@ import (
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/command_param"
 	commands_list "github.com/satont/tsuwari/apps/parser-new/internal/variables/commands"
 	command_counters "github.com/satont/tsuwari/apps/parser-new/internal/variables/commands/counters"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/custom_var"
 	"github.com/satont/tsuwari/libs/gopool"
 )
 
@@ -38,6 +39,7 @@ func New(opts *Opts) *Variables {
 	store[command_counters.CommandCounter.Name] = command_counters.CommandCounter
 	store[command_counters.CommandFromOtherCounter.Name] = command_counters.CommandFromOtherCounter
 	store[command_counters.CommandUserCounter.Name] = command_counters.CommandUserCounter
+	store[custom_var.CustomVar.Name] = custom_var.CustomVar
 
 	variables := &Variables{
 		services:       opts.Services,
@@ -68,7 +70,7 @@ func (c *Variables) ParseVariablesInText(ctx context.Context, parseCtx *types.Pa
 			continue
 		}
 
-		if variable.CommandsOnly != nil && *variable.CommandsOnly && !parseCtx.IsCommand {
+		if variable.CommandsOnly && !parseCtx.IsCommand {
 			mu.Lock()
 			input = strings.ReplaceAll(input, s, fmt.Sprintf("$(%s)", all))
 			mu.Unlock()
