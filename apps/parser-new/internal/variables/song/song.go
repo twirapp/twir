@@ -14,7 +14,7 @@ import (
 	"github.com/satont/tsuwari/libs/twitch"
 )
 
-var Sender = &types.Variable{
+var Song = &types.Variable{
 	Name:        "currentsong",
 	Description: lo.ToPtr("Print current played song from Spotify, Last.fm, e.t.c, and also from song requests."),
 	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {

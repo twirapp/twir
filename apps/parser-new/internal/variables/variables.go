@@ -11,6 +11,8 @@ import (
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/keywords"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/random"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/sender"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/song"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/stream"
 
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/command_param"
@@ -60,6 +62,11 @@ func New(opts *Opts) *Variables {
 	store[random.OnlineUser.Name] = random.OnlineUser
 	store[random.Phrase.Name] = random.Phrase
 	store[sender.Sender.Name] = sender.Sender
+	store[song.Song.Name] = song.Song
+	store[stream.Category.Name] = stream.Category
+	store[stream.Title.Name] = stream.Title
+	store[stream.Uptime.Name] = stream.Uptime
+	store[stream.Viewers.Name] = stream.Viewers
 
 	variables := &Variables{
 		services:       opts.Services,
