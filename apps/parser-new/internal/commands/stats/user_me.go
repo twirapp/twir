@@ -3,7 +3,9 @@ package stats
 import (
 	"context"
 	"fmt"
+
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/user"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -26,11 +28,11 @@ var UserMe = &types.DefaultCommand{
 			Result: []string{
 				fmt.Sprintf(
 					"$(%s) used emotes · $(%s) watched · $(%s) messages · $(%s) used points · $(%s) songs requested",
-					"user.emotes",
-					"user.watched",
-					"user.messages",
-					"user.usedChannelPoints",
-					"user.songs.requested.count",
+					user.Emotes.Name,
+					user.Watched.Name,
+					user.Messages.Name,
+					user.UsedChannelPoints.Name,
+					user.SongsRequested.Name,
 				),
 			},
 		}

@@ -3,7 +3,9 @@ package stats
 import (
 	"context"
 	"fmt"
+
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/user"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -14,7 +16,7 @@ import (
 var UserAge = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "age",
-		Description: null.StringFrom(*userage.Variable.Description),
+		Description: null.StringFrom(*user.Age.Description),
 		RolesIDS:    pq.StringArray{},
 		Module:      "STATS",
 		Visible:     true,
@@ -26,7 +28,7 @@ var UserAge = &types.DefaultCommand{
 			Result: []string{
 				fmt.Sprintf(
 					"$(%s)",
-					userage.Variable.Name,
+					user.Age.Name,
 				),
 			},
 		}

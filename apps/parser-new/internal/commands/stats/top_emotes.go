@@ -3,16 +3,18 @@ package stats
 import (
 	"context"
 	"fmt"
+
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/top"
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
 var TopEmotes = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "top emotes",
-		Description: null.StringFrom(*emotes.Variable.Description),
+		Description: null.StringFrom(*top.Emotes.Description),
 		RolesIDS:    pq.StringArray{},
 		Module:      "STATS",
 		Visible:     true,
@@ -23,7 +25,7 @@ var TopEmotes = &types.DefaultCommand{
 			Result: []string{
 				fmt.Sprintf(
 					"$(%s)",
-					emotes.Variable.Name,
+					top.Emotes.Name,
 				),
 			},
 		}

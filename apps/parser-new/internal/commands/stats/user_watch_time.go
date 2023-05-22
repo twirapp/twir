@@ -3,9 +3,11 @@ package stats
 import (
 	"context"
 	"fmt"
+
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/user"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
@@ -22,7 +24,7 @@ var UserWatchTime = &types.DefaultCommand{
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
-			Result: []string{fmt.Sprintf("You watching stream for $(%s)", userwatched.Variable.Name)},
+			Result: []string{fmt.Sprintf("You watching stream for $(%s)", user.Watched.Name)},
 		}
 
 		return result

@@ -3,9 +3,11 @@ package stats
 import (
 	"context"
 	"fmt"
+
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/user"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
@@ -13,7 +15,7 @@ import (
 var UserFollowSince = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "followsince",
-		Description: null.StringFrom(*user_follow.FollowsinceVariable.Description),
+		Description: null.StringFrom(*user.FollowSince.Description),
 		RolesIDS:    pq.StringArray{},
 		Module:      "STATS",
 		Visible:     true,
@@ -24,7 +26,7 @@ var UserFollowSince = &types.DefaultCommand{
 			Result: []string{
 				fmt.Sprintf(
 					"$(%s)",
-					"user.followsince",
+					user.FollowSince.Name,
 				),
 			},
 		}

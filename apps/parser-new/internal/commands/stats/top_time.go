@@ -3,9 +3,11 @@ package stats
 import (
 	"context"
 	"fmt"
+
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/top"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
@@ -13,7 +15,7 @@ import (
 var TopTime = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "top time",
-		Description: null.StringFrom(*watched.Variable.Description),
+		Description: null.StringFrom(*top.Watched.Description),
 		RolesIDS:    pq.StringArray{},
 		Module:      "STATS",
 		Visible:     true,
@@ -25,7 +27,7 @@ var TopTime = &types.DefaultCommand{
 			Result: []string{
 				fmt.Sprintf(
 					"$(%s)",
-					watched.Variable.Name,
+					top.Watched.Name,
 				),
 			},
 		}
