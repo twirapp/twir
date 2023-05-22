@@ -7,12 +7,14 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser-new/internal/types/services"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/keywords"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/random"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/sender"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/song"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/stream"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/top"
 
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/command_param"
@@ -39,38 +41,47 @@ var Regexp = regexp.MustCompile(
 )
 
 func New(opts *Opts) *Variables {
-	store := make(map[string]*types.Variable)
-
-	store[command_param.Variable.Name] = command_param.Variable
-	store[commands_list.Variable.Name] = commands_list.Variable
-	store[command_counters.CommandCounter.Name] = command_counters.CommandCounter
-	store[command_counters.CommandFromOtherCounter.Name] = command_counters.CommandFromOtherCounter
-	store[command_counters.CommandUserCounter.Name] = command_counters.CommandUserCounter
-	store[custom_var.CustomVar.Name] = custom_var.CustomVar
-	store[emotes.SevenTv.Name] = emotes.SevenTv
-	store[emotes.BetterTTV.Name] = emotes.BetterTTV
-	store[emotes.FrankerFaceZ.Name] = emotes.FrankerFaceZ
-	store[faceit.Elo.Name] = faceit.Elo
-	store[faceit.EloDiff.Name] = faceit.EloDiff
-	store[faceit.LVL.Name] = faceit.LVL
-	store[faceit.ScoreLoses.Name] = faceit.ScoreLoses
-	store[faceit.ScoreWins.Name] = faceit.ScoreWins
-	store[faceit.TrendExtended.Name] = faceit.TrendExtended
-	store[faceit.TrendSimple.Name] = faceit.TrendSimple
-	store[keywords.Counter.Name] = keywords.Counter
-	store[random.Number.Name] = random.Number
-	store[random.OnlineUser.Name] = random.OnlineUser
-	store[random.Phrase.Name] = random.Phrase
-	store[sender.Sender.Name] = sender.Sender
-	store[song.Song.Name] = song.Song
-	store[stream.Category.Name] = stream.Category
-	store[stream.Title.Name] = stream.Title
-	store[stream.Uptime.Name] = stream.Uptime
-	store[stream.Viewers.Name] = stream.Viewers
+	store := lo.SliceToMap([]*types.Variable{
+		command_param.Variable,
+		commands_list.Variable,
+		command_counters.CommandCounter,
+		command_counters.CommandFromOtherCounter,
+		command_counters.CommandUserCounter,
+		custom_var.CustomVar,
+		emotes.SevenTv,
+		emotes.BetterTTV,
+		emotes.FrankerFaceZ,
+		faceit.Elo,
+		faceit.EloDiff,
+		faceit.LVL,
+		faceit.ScoreLoses,
+		faceit.ScoreWins,
+		faceit.TrendExtended,
+		faceit.TrendSimple,
+		keywords.Counter,
+		random.Number,
+		random.OnlineUser,
+		random.Phrase,
+		sender.Sender,
+		song.Song,
+		stream.Category,
+		stream.Title,
+		stream.Uptime,
+		stream.Viewers,
+		top.Watched,
+		top.Messages,
+		top.SongRequesters,
+		top.ChannelPoints,
+		top.Emotes,
+		top.EmotesUsers,
+	}, func(v *types.Variable) (string, *types.Variable) {
+		return v.Name, v
+	})
 
 	variables := &Variables{
 		services:       opts.Services,
 		goroutinesPool: gopool.NewPool(500),
+		Store:          store,
 	}
 
 	return variables

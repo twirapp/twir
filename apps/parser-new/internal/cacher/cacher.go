@@ -74,6 +74,8 @@ func NewCacher(opts *CacherOpts) types.DataCacher {
 		parseCtxChannel: opts.ParseCtxChannel,
 		parseCtxSender:  opts.ParseCtxSender,
 		parseCtxText:    opts.ParseCtxText,
+		locks:           &locks{},
+		cache:           &cache{},
 	}
 }
 

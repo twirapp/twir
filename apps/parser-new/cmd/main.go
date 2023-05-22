@@ -21,6 +21,9 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
+	"github.com/satont/tsuwari/apps/parser-new/internal/commands"
+	"github.com/satont/tsuwari/apps/parser-new/internal/types/services"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables"
 	"go.uber.org/zap"
 )
 
@@ -74,7 +77,7 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("cannot parse postgres url connection: %w", err))
 	}
-	pgConn, err := sqlx.Connect("postgres", dbConnOpts)
+	pgConn, err := sqlx.ConnectContext(appCtx, "postgres", dbConnOpts)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -95,13 +98,13 @@ func main() {
 
 	redisClient.Conn()
 
-	services := &services.Services{
+	s := &services.Services{
 		Config: config,
 		Logger: logger,
 		Gorm:   db,
 		Sqlx:   pgConn,
 		Redis:  redisClient,
-		GrpcClients: &services.ServicesGrpc{
+		GrpcClients: &services.Grpc{
 			WebSockets: clients.NewWebsocket(config.AppEnv),
 			Bots:       clients.NewBots(config.AppEnv),
 			Dota:       clients.NewDota(config.AppEnv),
@@ -111,6 +114,14 @@ func main() {
 			Ytsr:       clients.NewYtsr(config.AppEnv),
 		},
 	}
+
+	variablesService := variables.New(&variables.Opts{
+		Services: s,
+	})
+	commandsService := commands.New(&commands.Opts{
+		Services:         s,
+		VariablesService: variablesService,
+	})
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
