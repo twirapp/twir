@@ -16,6 +16,7 @@ import (
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/stream"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/to_user"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/top"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/user"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/valorant"
 
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
@@ -82,6 +83,15 @@ func New(opts *Opts) *Variables {
 		valorant.Tier,
 		valorant.TierText,
 		valorant.RankInTier,
+		user.Age,
+		user.FollowAge,
+		user.FollowSince,
+		user.Emotes,
+		user.Messages,
+		user.UsedChannelPoints,
+		user.SongsRequested,
+		user.SongsRequestedDuration,
+		user.EmotesTop,
 	}, func(v *types.Variable) (string, *types.Variable) {
 		return v.Name, v
 	})

@@ -40,9 +40,9 @@ type cache struct {
 	stream      *model.ChannelsStreams
 	dbUserStats *model.UsersStats
 
-	twitchSenderUser *helix.User
-	twitchUserFollow *helix.UserFollow
-	twitchChannel    *helix.ChannelInformation
+	twitchSenderUser  *helix.User
+	twitchUserFollows map[string]*helix.UserFollow
+	twitchChannel     *helix.ChannelInformation
 
 	channelIntegrations []*model.ChannelsIntegrations
 
@@ -75,7 +75,9 @@ func NewCacher(opts *CacherOpts) types.DataCacher {
 		parseCtxSender:  opts.ParseCtxSender,
 		parseCtxText:    opts.ParseCtxText,
 		locks:           &locks{},
-		cache:           &cache{},
+		cache: &cache{
+			twitchUserFollows: make(map[string]*helix.UserFollow),
+		},
 	}
 }
 
@@ -347,12 +349,12 @@ func (c *cacher) GetFaceitUserData(ctx context.Context) (*types.FaceitUser, erro
 }
 
 // GetFollowAge implements types.VariablesCacher
-func (c *cacher) GetTwitchUserFollow(ctx context.Context, userId string) *helix.UserFollow {
+func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.UserFollow {
 	c.locks.twitchFollow.Lock()
 	defer c.locks.twitchFollow.Unlock()
 
-	if c.cache.twitchUserFollow != nil {
-		return c.cache.twitchUserFollow
+	if c.cache.twitchUserFollows[userID] != nil {
+		return c.cache.twitchUserFollows[userID]
 	}
 
 	twitchClient, err := twitch.NewAppClientWithContext(
@@ -365,15 +367,15 @@ func (c *cacher) GetTwitchUserFollow(ctx context.Context, userId string) *helix.
 	}
 
 	follow, err := twitchClient.GetUsersFollows(&helix.UsersFollowsParams{
-		FromID: userId,
+		FromID: userID,
 		ToID:   c.parseCtxChannel.ID,
 	})
 
 	if err == nil && len(follow.Data.Follows) != 0 {
-		c.cache.twitchUserFollow = &follow.Data.Follows[0]
+		c.cache.twitchUserFollows[userID] = &follow.Data.Follows[0]
 	}
 
-	return c.cache.twitchUserFollow
+	return c.cache.twitchUserFollows[userID]
 }
 
 // GetGbUser implements types.VariablesCacher
