@@ -14,7 +14,9 @@ import (
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/sender"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/song"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/stream"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/to_user"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/top"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables/valorant"
 
 	"github.com/satont/tsuwari/apps/parser-new/internal/types"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables/command_param"
@@ -74,6 +76,12 @@ func New(opts *Opts) *Variables {
 		top.ChannelPoints,
 		top.Emotes,
 		top.EmotesUsers,
+		to_user.ToUser,
+		valorant.Matches,
+		valorant.Elo,
+		valorant.Tier,
+		valorant.TierText,
+		valorant.RankInTier,
 	}, func(v *types.Variable) (string, *types.Variable) {
 		return v.Name, v
 	})
