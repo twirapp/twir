@@ -3,10 +3,11 @@ package emotes
 import (
 	"encoding/json"
 	"errors"
-	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/samber/lo"
 )
 
 type FfzEmote struct {
@@ -40,7 +41,7 @@ func GetChannelFfzEmotes(channelID string) ([]string, error) {
 
 	emotes := []string{}
 	for _, set := range reqData.Sets {
-		mapped := helpers.Map(set.Emoticons, func(e FfzEmote) string {
+		mapped := lo.Map(set.Emoticons, func(e FfzEmote, _ int) string {
 			return e.Name
 		})
 
@@ -69,7 +70,7 @@ func GetGlobalFfzEmotes() ([]string, error) {
 
 	emotes := []string{}
 	for _, set := range reqData.Sets {
-		mapped := helpers.Map(set.Emoticons, func(e FfzEmote) string {
+		mapped := lo.Map(set.Emoticons, func(e FfzEmote, _ int) string {
 			return e.Name
 		})
 

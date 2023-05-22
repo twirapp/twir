@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
 	"io"
 	"net/http"
 )
@@ -37,10 +36,10 @@ func GetChannelBttvEmotes(channelID string) ([]string, error) {
 
 	emotes := []string{}
 
-	mappedChannelEmotes := helpers.Map(reqData.ChannelEmotes, func(e BttvEmote) string {
+	mappedChannelEmotes := lo.Map(reqData.ChannelEmotes, func(e BttvEmote, _ int) string {
 		return e.Code
 	})
-	mappedSharedEmotes := helpers.Map(reqData.SharedEmotes, func(e BttvEmote) string {
+	mappedSharedEmotes := lo.Map(reqData.SharedEmotes, func(e BttvEmote, _ int) string {
 		return e.Code
 	})
 

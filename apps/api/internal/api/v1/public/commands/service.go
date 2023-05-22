@@ -1,12 +1,13 @@
 package commands
 
 import (
+	"net/http"
+	"sort"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"net/http"
-	"sort"
 )
 
 type Permission struct {
@@ -45,7 +46,7 @@ func handleGet(channelId string, services types.Services) ([]Command, error) {
 	commandsResponse := []Command{}
 
 	for _, cmd := range commands {
-		responses := lo.Map(cmd.Responses, func(item model.ChannelsCommandsResponses, _ int) string {
+		responses := lo.Map(cmd.Responses, func(item *model.ChannelsCommandsResponses, _ int) string {
 			return item.Text.String
 		})
 
