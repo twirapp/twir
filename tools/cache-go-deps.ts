@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
@@ -15,7 +15,8 @@ process.stdout.write('Caching golang deps');
 
 for (const packagePath of packages) {
   process.stdout.write('.');
-  spawnSync('go mod download', {
+
+  execSync('go mod download', {
     cwd: resolve(process.cwd(), packagePath),
   });
 }
