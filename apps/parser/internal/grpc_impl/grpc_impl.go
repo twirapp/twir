@@ -220,7 +220,7 @@ func (c *parserGrpcServer) GetDefaultVariables(
 	vars := lo.FilterMap(
 		lo.Values(c.variables.Store),
 		func(v *types.Variable, _i int) (*parser.GetVariablesResponse_Variable, bool) {
-			if v.Visible == nil || !*v.Visible {
+			if v.Visible != nil && !*v.Visible {
 				return nil, false
 			}
 

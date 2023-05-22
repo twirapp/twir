@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/nicklaw5/helix/v2"
@@ -29,8 +30,10 @@ var FollowSince = &types.Variable{
 
 		targetId := parseCtx.Sender.ID
 		if parseCtx.Text != nil {
+			userName := strings.ReplaceAll(*parseCtx.Text, "@", "")
+
 			users, err := twitchClient.GetUsers(&helix.UsersParams{
-				Logins: []string{*parseCtx.Text},
+				Logins: []string{userName},
 			})
 
 			if err != nil || len(users.Data.Users) == 0 {

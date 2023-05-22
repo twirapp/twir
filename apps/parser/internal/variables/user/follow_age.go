@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"strings"
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
@@ -28,8 +29,10 @@ var FollowAge = &types.Variable{
 
 		targetId := parseCtx.Sender.ID
 		if parseCtx.Text != nil {
+			userName := strings.ReplaceAll(*parseCtx.Text, "@", "")
+
 			users, err := twitchClient.GetUsers(&helix.UsersParams{
-				Logins: []string{*parseCtx.Text},
+				Logins: []string{userName},
 			})
 
 			if err != nil || len(users.Data.Users) == 0 {

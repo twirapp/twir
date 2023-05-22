@@ -453,6 +453,11 @@ func (c *cacher) GetTwitchSenderUser(ctx context.Context) *helix.User {
 		IDs: []string{c.parseCtxSender.ID},
 	})
 
+	if err != nil || users.ErrorMessage != "" {
+		c.services.Logger.Sugar().Error(users.ErrorMessage, err)
+		return nil
+	}
+
 	if err == nil && len(users.Data.Users) != 0 {
 		c.cache.twitchSenderUser = &users.Data.Users[0]
 	}

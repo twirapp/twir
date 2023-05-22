@@ -127,6 +127,9 @@ func (c *Commands) ParseCommandResponses(
 
 	var cmdParams *string
 	params := strings.TrimSpace(requestData.Message.Text[len(command.FoundBy):])
+	// this shit comes from 7tv for bypass message duplicate
+	params = strings.ReplaceAll(params, "\U000e0000", "")
+	params = strings.TrimSpace(params)
 	if len(params) > 0 {
 		cmdParams = &params
 	}
@@ -204,7 +207,6 @@ func (c *Commands) ParseCommandResponses(
 
 		index := i
 		response := r
-
 		c.parseResponsesPool.Submit(func() {
 			result.Responses[index] = c.variablesService.ParseVariablesInText(ctx, parseCtx, response)
 			wg.Done()

@@ -92,6 +92,7 @@ func New(opts *Opts) *Variables {
 		user.SongsRequested,
 		user.SongsRequestedDuration,
 		user.EmotesTop,
+		user.Watched,
 	}, func(v *types.Variable) (string, *types.Variable) {
 		return v.Name, v
 	})
@@ -115,6 +116,7 @@ func (c *Variables) ParseVariablesInText(ctx context.Context, parseCtx *types.Pa
 
 	for _, s := range Regexp.FindAllString(input, len(input)) {
 		wg.Add(1)
+
 		v := Regexp.FindStringSubmatch(s)
 		all := v[1]
 		params := v[3]
@@ -136,7 +138,6 @@ func (c *Variables) ParseVariablesInText(ctx context.Context, parseCtx *types.Pa
 
 		str := s
 		c.goroutinesPool.Submit(func() {
-			defer wg.Done()
 			res, err := variable.Handler(ctx, variablesParseCtx, &types.VariableData{
 				Key:    all,
 				Params: &params,
@@ -147,6 +148,7 @@ func (c *Variables) ParseVariablesInText(ctx context.Context, parseCtx *types.Pa
 				input = strings.ReplaceAll(input, str, res.Result)
 				mu.Unlock()
 			}
+			wg.Done()
 		})
 	}
 
