@@ -38,15 +38,15 @@ var EmotesUsers = &types.Variable{
 			limit = 10
 		}
 
-		var usages []model.ChannelEmoteUsage
+		var usages []*model.ChannelEmoteUsage
 		err = parseCtx.Services.Gorm.
-			WithContext(ctx).
 			Model(&model.ChannelEmoteUsage{}).
 			Select(`"userId", COUNT(*) as count`).
 			Group(`"userId"`).
 			Order("count DESC").
 			Limit(10).
 			Scan(&usages).
+			WithContext(ctx).
 			Error
 
 		if err != nil {
@@ -54,11 +54,12 @@ var EmotesUsers = &types.Variable{
 		}
 
 		twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
-			IDs: lo.Map(usages, func(item model.ChannelEmoteUsage, _ int) string {
+			IDs: lo.Map(usages, func(item *model.ChannelEmoteUsage, _ int) string {
 				return item.UserID
 			}),
 		})
 		if err != nil {
+			parseCtx.Services.Logger.Sugar().Error(err)
 			return nil, err
 		}
 
@@ -76,7 +77,7 @@ var EmotesUsers = &types.Variable{
 			mappedTop = append(mappedTop, fmt.Sprintf(
 				"%s × %v",
 				user.Login,
-				lo.If(usage.Count != nil, *usage.Count).Else(0),
+				usage.Count,
 			))
 		}
 

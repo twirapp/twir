@@ -30,6 +30,7 @@ func getTop(
 		*parseCtx.Services.Config,
 		parseCtx.Services.GrpcClients.Tokens,
 	)
+
 	if err != nil {
 		parseCtx.Services.Logger.Sugar().Error(err)
 		return nil
@@ -42,12 +43,13 @@ func getTop(
 
 	offset := (*page - 1) * limit
 
-	var channel *model.Channels
+	channel := &model.Channels{}
 	err = parseCtx.Services.Gorm.
 		WithContext(ctx).
 		Where(`"id" = ?`, parseCtx.Channel.ID).
 		Find(channel).Error
 	if err != nil || channel.ID == "" {
+		parseCtx.Services.Logger.Sugar().Error(err)
 		return nil
 	}
 

@@ -23,10 +23,11 @@ var SevenTv = &types.Variable{
 
 		_, err := req.R().
 			SetContext(ctx).
-			SetSuccessResult(data).
+			SetSuccessResult(&data).
 			Get("https://api.7tv.app/v2/users/" + parseCtx.Channel.ID + "/emotes")
 
 		if err != nil {
+			parseCtx.Services.Logger.Sugar().Error(err)
 			return result, nil
 		}
 

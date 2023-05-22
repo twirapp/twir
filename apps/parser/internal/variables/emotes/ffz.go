@@ -31,10 +31,11 @@ var FrankerFaceZ = &types.Variable{
 
 		_, err := req.R().
 			SetContext(ctx).
-			SetSuccessResult(data).
+			SetSuccessResult(&data).
 			Get("https://api.frankerfacez.com/v1/room/id/" + parseCtx.Channel.ID)
 
 		if err != nil {
+			parseCtx.Services.Logger.Sugar().Error(err)
 			return result, nil
 		}
 

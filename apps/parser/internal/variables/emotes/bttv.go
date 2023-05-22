@@ -28,10 +28,11 @@ var BetterTTV = &types.Variable{
 
 		_, err := req.R().
 			SetContext(ctx).
-			SetSuccessResult(data).
+			SetSuccessResult(&data).
 			Get("https://api.betterttv.net/3/cached/users/twitch/" + parseCtx.Channel.ID)
 
 		if err != nil {
+			parseCtx.Services.Logger.Sugar().Error(err)
 			return result, nil
 		}
 

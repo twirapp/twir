@@ -16,9 +16,9 @@ import (
 )
 
 var SongRequesters = &types.Variable{
-	Name:        "top.messages",
-	Description: lo.ToPtr("Top users by messages"),
-	Example:     lo.ToPtr("top.messages|10"),
+	Name:        "top.songs.requesters",
+	Description: lo.ToPtr("Top users by requested songs"),
+	Example:     lo.ToPtr("top.songs.requesters|10"),
 	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
 		twitchClient, err := twitch.NewAppClientWithContext(
 			ctx,

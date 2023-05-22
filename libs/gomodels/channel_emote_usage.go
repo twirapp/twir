@@ -12,7 +12,7 @@ type ChannelEmoteUsage struct {
 	Channel *Channels `gorm:"foreignKey:ID" json:"channel"`
 	User    *Users    `gorm:"foreignKey:ID" json:"user"`
 
-	Count *int `gorm:"-"`
+	Count int `gorm:"count"`
 }
 
 func (c *ChannelEmoteUsage) TableName() string {
