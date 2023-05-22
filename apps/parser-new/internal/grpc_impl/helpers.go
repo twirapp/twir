@@ -1,16 +1,26 @@
-package permissions
+package grpc_impl
 
 import (
-	"github.com/samber/do"
-	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
+	"context"
 	"strings"
+
+	"github.com/samber/lo"
+	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
-func IsUserHasPermissionToCommand(userId, channelId string, badges []string, command *model.ChannelsCommands) bool {
+func (c *parserGrpcServer) shouldCheckCooldown(badges []string) bool {
+	return !lo.Contains(badges, "BROADCASTER") &&
+		!lo.Contains(badges, "MODERATOR") &&
+		!lo.Contains(badges, "SUBSCRIBER")
+}
+
+func (c *parserGrpcServer) isUserHasPermissionToCommand(
+	ctx context.Context,
+	userId,
+	channelId string,
+	badges []string,
+	command *model.ChannelsCommands,
+) bool {
 	if userId == channelId {
 		return true
 	}
@@ -19,12 +29,13 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 		return true
 	}
 
-	db := do.MustInvoke[gorm.DB](di.Provider)
-
 	dbUser := &model.Users{}
-	err := db.Where(`"id" = ?`, userId).Find(dbUser).Error
+	err := c.services.Gorm.
+		WithContext(ctx).
+		Where(`"id" = ?`, userId).
+		Find(dbUser).Error
 	if err != nil {
-		zap.S().Error(err)
+		c.services.Logger.Sugar().Error(err)
 	}
 
 	if dbUser.IsBotAdmin {
@@ -33,13 +44,14 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 
 	var userRoles []*model.ChannelRole
 
-	err = db.Model(&model.ChannelRole{}).
+	err = c.services.Gorm.
+		WithContext(ctx).Model(&model.ChannelRole{}).
 		Where(`"channelId" = ?`, channelId).
 		Preload("Users", `"userId" = ?`, userId).
 		Find(&userRoles).
 		Error
 	if err != nil {
-		zap.S().Error(err)
+		c.services.Logger.Sugar().Error(err)
 		return false
 	}
 
@@ -48,9 +60,10 @@ func IsUserHasPermissionToCommand(userId, channelId string, badges []string, com
 	mappedCommandsRoles := lo.Map(command.RolesIDS, func(id string, _ int) string {
 		return id
 	})
-	err = db.Where(`"id" IN ?`, mappedCommandsRoles).Find(&commandRoles).Error
+	err = c.services.Gorm.
+		WithContext(ctx).Where(`"id" IN ?`, mappedCommandsRoles).Find(&commandRoles).Error
 	if err != nil {
-		zap.S().Error(err)
+		c.services.Logger.Sugar().Error(err)
 		return false
 	}
 

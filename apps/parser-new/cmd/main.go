@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,6 +16,9 @@ import (
 	"github.com/lib/pq"
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/clients"
+	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	"github.com/satont/tsuwari/libs/grpc/servers"
+	"google.golang.org/grpc"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -22,6 +26,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/tsuwari/apps/parser-new/internal/commands"
+	"github.com/satont/tsuwari/apps/parser-new/internal/grpc_impl"
 	"github.com/satont/tsuwari/apps/parser-new/internal/types/services"
 	"github.com/satont/tsuwari/apps/parser-new/internal/variables"
 	"go.uber.org/zap"
@@ -71,6 +76,7 @@ func main() {
 	d, _ := db.DB()
 	d.SetMaxOpenConns(20)
 	d.SetConnMaxIdleTime(1 * time.Minute)
+	defer d.Close()
 
 	// sqlx
 	dbConnOpts, err := pq.ParseURL(config.DatabaseUrl)
@@ -78,6 +84,7 @@ func main() {
 		panic(fmt.Errorf("cannot parse postgres url connection: %w", err))
 	}
 	pgConn, err := sqlx.ConnectContext(appCtx, "postgres", dbConnOpts)
+	defer pgConn.Close()
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -95,6 +102,7 @@ func main() {
 		DB:       url.DB,
 		Username: url.Username,
 	})
+	defer redisClient.Close()
 
 	redisClient.Conn()
 
@@ -123,12 +131,24 @@ func main() {
 		VariablesService: variablesService,
 	})
 
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.PARSER_SERVER_PORT))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	grpcServer := grpc.NewServer()
+	parser.RegisterParserServer(
+		grpcServer,
+		grpc_impl.NewServer(s, commandsService, variablesService),
+	)
+	go grpcServer.Serve(lis)
+	defer grpcServer.GracefulStop()
+
+	logger.Info("Parser microservice started")
+
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
+
 	<-exitSignal
 	logger.Sugar().Info("Exiting")
-	pgConn.Close()
-	redisClient.Close()
-	d.Close()
 	appCtxCancel()
 }

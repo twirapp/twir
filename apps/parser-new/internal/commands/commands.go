@@ -31,10 +31,10 @@ type Opts struct {
 	VariablesService *variables.Variables
 }
 
-func New(opts *Opts) Commands {
+func New(opts *Opts) *Commands {
 	commands := make(map[string]*types.DefaultCommand)
 
-	ctx := Commands{
+	ctx := &Commands{
 		DefaultCommands:    commands,
 		parseResponsesPool: gopool.NewPool(100),
 		services:           opts.Services,

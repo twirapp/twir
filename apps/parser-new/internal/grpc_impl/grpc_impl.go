@@ -4,27 +4,23 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis/v9"
+	"github.com/go-redis/redis"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/commands"
-	"github.com/satont/tsuwari/apps/parser/internal/permissions"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	"github.com/satont/tsuwari/apps/parser/internal/variables"
+	"github.com/satont/tsuwari/apps/parser-new/internal/cacher"
+	"github.com/satont/tsuwari/apps/parser-new/internal/commands"
+	"github.com/satont/tsuwari/apps/parser-new/internal/types"
+	"github.com/satont/tsuwari/apps/parser-new/internal/types/services"
+	"github.com/satont/tsuwari/apps/parser-new/internal/variables"
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
-
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 )
 
 var (
@@ -41,21 +37,20 @@ var (
 type parserGrpcServer struct {
 	parser.UnimplementedParserServer
 
-	redis      redis.Client
-	variables  *variables.Variables
-	commands   commands.Commands
-	eventsGrpc events.EventsClient
-	gorm       gorm.DB
+	services  *services.Services
+	commands  *commands.Commands
+	variables *variables.Variables
 }
 
-func NewServer() *parserGrpcServer {
+func NewServer(
+	services *services.Services,
+	commands *commands.Commands,
+	variables *variables.Variables,
+) *parserGrpcServer {
 	return &parserGrpcServer{
-		redis:     do.MustInvoke[redis.Client](di.Provider),
-		variables: do.MustInvoke[*variables.Variables](di.Provider),
-		commands:  do.MustInvoke[commands.Commands](di.Provider),
-		gorm:      do.MustInvoke[gorm.DB](di.Provider),
-
-		eventsGrpc: do.MustInvoke[events.EventsClient](di.Provider),
+		services:  services,
+		commands:  commands,
+		variables: variables,
 	}
 }
 
@@ -70,12 +65,12 @@ func (c *parserGrpcServer) ProcessCommand(
 	}
 	data.Message.Text = data.Message.Text[1:]
 
-	cmds, err := c.commands.GetChannelCommands(data.Channel.Id)
+	cmds, err := c.commands.GetChannelCommands(ctx, data.Channel.Id)
 	if err != nil {
 		return nil, errors.New("command not found")
 	}
 
-	cmd := c.commands.FindByMessage(data.Message.Text, cmds)
+	cmd := c.commands.FindChannelCommandInInput(data.Message.Text, cmds)
 
 	if cmd.Cmd == nil {
 		return nil, errors.New("command not found")
@@ -83,9 +78,12 @@ func (c *parserGrpcServer) ProcessCommand(
 
 	if cmd.Cmd.OnlineOnly {
 		stream := &model.ChannelsStreams{}
-		err = c.gorm.Where(`"userId" = ?`, data.Channel.Id).Find(stream).Error
+		err = c.services.Gorm.
+			WithContext(ctx).
+			Where(`"userId" = ?`, data.Channel.Id).
+			Find(stream).Error
 		if err != nil {
-			zap.S().Error(err)
+			c.services.Logger.Sugar().Error(err)
 			return nil, err
 		}
 		if stream == nil || stream.ID == "" {
@@ -97,12 +95,12 @@ func (c *parserGrpcServer) ProcessCommand(
 		cmd.Cmd.Cooldown.Int64 > 0 &&
 		c.shouldCheckCooldown(data.Sender.Badges) {
 		key := fmt.Sprintf("commands:%s:cooldowns:global", cmd.Cmd.ID)
-		rErr := c.redis.Get(context.TODO(), key).Err()
+		rErr := c.services.Redis.Get(context.TODO(), key).Err()
 
 		if rErr == redis.Nil {
-			c.redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
+			c.services.Redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
 		} else if rErr != nil {
-			zap.S().Error(rErr)
+			c.services.Logger.Sugar().Error(rErr)
 			return nil, errors.New("error while setting redis cooldown for command")
 		}
 	}
@@ -111,17 +109,18 @@ func (c *parserGrpcServer) ProcessCommand(
 		cmd.Cmd.Cooldown.Int64 > 0 &&
 		c.shouldCheckCooldown(data.Sender.Badges) {
 		key := fmt.Sprintf("commands:%s:cooldowns:user:%s", cmd.Cmd.ID, data.Sender.Id)
-		rErr := c.redis.Get(context.TODO(), key).Err()
+		rErr := c.services.Redis.Get(context.TODO(), key).Err()
 
 		if rErr == redis.Nil {
-			c.redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
+			c.services.Redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
 		} else if rErr != nil {
 			zap.S().Error(rErr)
 			return nil, errors.New("error while setting redis cooldown for command")
 		}
 	}
 
-	hasPerm := permissions.IsUserHasPermissionToCommand(
+	hasPerm := c.isUserHasPermissionToCommand(
+		ctx,
 		data.Sender.Id,
 		data.Channel.Id,
 		data.Sender.Badges,
@@ -132,9 +131,9 @@ func (c *parserGrpcServer) ProcessCommand(
 		return nil, errors.New("have no permissions")
 	}
 
-	result := c.commands.ParseCommandResponses(cmd, data)
+	result := c.commands.ParseCommandResponses(ctx, cmd, data)
 
-	defer c.eventsGrpc.CommandUsed(context.Background(), &events.CommandUsedMessage{
+	defer c.services.GrpcClients.Events.CommandUsed(context.Background(), &events.CommandUsedMessage{
 		BaseInfo:        &events.BaseInfo{ChannelId: data.Channel.Id},
 		CommandId:       cmd.Cmd.ID,
 		CommandName:     cmd.Cmd.Name,
@@ -157,19 +156,31 @@ func (c *parserGrpcServer) ParseTextResponse(
 		return *data.ParseVariables
 	}).ElseF(func() bool { return false })
 
-	cacheService := variables_cache.New(variables_cache.VariablesCacheOpts{
-		Text:              &data.Message.Text,
-		SenderId:          data.Sender.Id,
-		ChannelName:       data.Channel.Name,
-		ChannelId:         data.Channel.Id,
-		SenderName:        &data.Sender.Name,
-		SenderDisplayName: &data.Sender.DisplayName,
-		IsCommand:         isCommand,
-		SenderBadges:      data.Sender.Badges,
-		Emotes:            data.Message.Emotes,
-	})
+	parseCtxChannel := &types.ParseContextChannel{
+		ID:   data.Channel.Id,
+		Name: data.Channel.Name,
+	}
+	parseCtxSender := &types.ParseContextSender{
+		ID:          data.Sender.Id,
+		Name:        data.Sender.Name,
+		DisplayName: data.Sender.DisplayName,
+		Badges:      data.Sender.Badges,
+	}
+	parseCtx := &types.ParseContext{
+		Channel:   parseCtxChannel,
+		Sender:    parseCtxSender,
+		Text:      &data.Message.Text,
+		Services:  c.services,
+		IsCommand: isCommand,
+		Cacher: cacher.NewCacher(&cacher.CacherOpts{
+			Services:        c.services,
+			ParseCtxChannel: parseCtxChannel,
+			ParseCtxSender:  parseCtxSender,
+			ParseCtxText:    &data.Message.Text,
+		}),
+	}
 
-	res := c.variables.ParseInput(cacheService, data.Message.Text)
+	res := c.variables.ParseVariablesInText(ctx, parseCtx, data.Message.Text)
 
 	return &parser.ParseTextResponseData{
 		Responses: []string{res},
@@ -182,7 +193,7 @@ func (c *parserGrpcServer) GetDefaultCommands(
 ) (*parser.GetDefaultCommandsResponse, error) {
 	list := make([]*parser.GetDefaultCommandsResponse_DefaultCommand, len(c.commands.DefaultCommands))
 
-	for i, v := range c.commands.DefaultCommands {
+	for _, v := range c.commands.DefaultCommands {
 		cmd := &parser.GetDefaultCommandsResponse_DefaultCommand{
 			Name:               v.ChannelsCommands.Name,
 			Description:        v.ChannelsCommands.Description.String,
@@ -194,7 +205,7 @@ func (c *parserGrpcServer) GetDefaultCommands(
 			Aliases:            v.ChannelsCommands.Aliases,
 		}
 
-		list[i] = cmd
+		list = append(list, cmd)
 	}
 
 	return &parser.GetDefaultCommandsResponse{
@@ -206,16 +217,13 @@ func (c *parserGrpcServer) GetDefaultVariables(
 	ctx context.Context,
 	data *emptypb.Empty,
 ) (*parser.GetVariablesResponse, error) {
-	filteredVars := lo.Filter(c.variables.Store, func(i types.Variable, _i int) bool {
-		if i.Visible != nil {
-			return *i.Visible
-		}
-		return true
-	})
+	vars := lo.FilterMap(
+		lo.Values(c.variables.Store),
+		func(v *types.Variable, _i int) (*parser.GetVariablesResponse_Variable, bool) {
+			if v.Visible == nil || !*v.Visible {
+				return nil, false
+			}
 
-	vars := lo.Map(
-		filteredVars,
-		func(v types.Variable, _ int) *parser.GetVariablesResponse_Variable {
 			desc := v.Name
 			if v.Description != nil {
 				desc = *v.Description
@@ -235,9 +243,8 @@ func (c *parserGrpcServer) GetDefaultVariables(
 				Example:     example,
 				Description: desc,
 				Visible:     visible,
-			}
-		},
-	)
+			}, true
+		})
 
 	return &parser.GetVariablesResponse{
 		List: vars,
