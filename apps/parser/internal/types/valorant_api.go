@@ -41,7 +41,7 @@ type ValorantMatchPlayer struct {
 			Incoming int `json:"incoming"`
 			Outgoing int `json:"outgoing"`
 		} `json:"friendly_fire"`
-		RoundsInSpawn int `json:"rounds_in_spawn"`
+		RoundsInSpawn float64 `json:"rounds_in_spawn"`
 	} `json:"behavior"`
 	Stats struct {
 		Score     int `json:"score"`
