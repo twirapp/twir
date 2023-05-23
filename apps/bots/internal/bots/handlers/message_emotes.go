@@ -3,11 +3,12 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	model "github.com/satont/tsuwari/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
-	"strings"
-	"time"
 )
 
 func (c *Handlers) handleEmotes(msg *Message) {

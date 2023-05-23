@@ -10,6 +10,17 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/cacher"
+	channel_game "github.com/satont/tsuwari/apps/parser/internal/commands/channel/game"
+	channel_title "github.com/satont/tsuwari/apps/parser/internal/commands/channel/title"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/manage"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/nuke"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/permit"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/shoutout"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/song"
+	sr_youtube "github.com/satont/tsuwari/apps/parser/internal/commands/songrequest/youtube"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/spam"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/stats"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/tts"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	"github.com/satont/tsuwari/apps/parser/internal/types/services"
 	"github.com/satont/tsuwari/apps/parser/internal/variables"
@@ -32,7 +43,49 @@ type Opts struct {
 }
 
 func New(opts *Opts) *Commands {
-	commands := make(map[string]*types.DefaultCommand)
+	commands := lo.SliceToMap([]*types.DefaultCommand{
+		song.CurrentSong,
+		channel_game.SetCommand,
+		channel_game.History,
+		channel_title.SetCommand,
+		channel_title.History,
+		manage.AddAliaseCommand,
+		manage.AddCommand,
+		manage.CheckAliasesCommand,
+		manage.DelCommand,
+		manage.EditCommand,
+		manage.RemoveAliaseCommand,
+		nuke.Command,
+		permit.Command,
+		shoutout.ShoutOut,
+		spam.Command,
+		stats.TopEmotes,
+		stats.TopEmotesUsers,
+		stats.TopMessages,
+		stats.TopPoints,
+		stats.TopTime,
+		stats.Uptime,
+		stats.UserAge,
+		stats.UserFollowSince,
+		stats.UserFollowage,
+		stats.UserMe,
+		stats.UserWatchTime,
+		tts.DisableCommand,
+		tts.EnableCommand,
+		tts.PitchCommand,
+		tts.RateCommand,
+		tts.SayCommand,
+		tts.SkipCommand,
+		tts.VoiceCommand,
+		tts.VoicesCommand,
+		tts.VolumeCommand,
+		sr_youtube.SkipCommand,
+		sr_youtube.SrCommand,
+		sr_youtube.SrListCommand,
+		sr_youtube.WrongCommand,
+	}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
+		return v.Name, v
+	})
 
 	ctx := &Commands{
 		DefaultCommands:    commands,
@@ -194,7 +247,11 @@ func (c *Commands) ParseCommandResponses(
 	if command.Cmd.Default && defaultCommand != nil {
 		results := defaultCommand.Handler(ctx, parseCtx)
 
-		result.Responses = lo.If(results == nil, []string{}).Else(results.Result)
+		result.Responses = lo.
+			IfF(results == nil, func() []string { return []string{} }).
+			ElseF(func() []string {
+				return results.Result
+			})
 	} else {
 		result.Responses = lo.Map(command.Cmd.Responses, func(r *model.ChannelsCommandsResponses, _ int) string {
 			return r.Text.String
