@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/cacher"
 	"github.com/satont/tsuwari/apps/parser/internal/commands"
@@ -91,8 +91,7 @@ func (c *parserGrpcServer) ProcessCommand(
 		}
 	}
 
-	if cmd.Cmd.Cooldown.Valid && cmd.Cmd.CooldownType == cooldownGlobal &&
-		cmd.Cmd.Cooldown.Int64 > 0 &&
+	if cmd.Cmd.CooldownType == cooldownGlobal && cmd.Cmd.Cooldown.Int64 > 0 &&
 		c.shouldCheckCooldown(data.Sender.Badges) {
 		key := fmt.Sprintf("commands:%s:cooldowns:global", cmd.Cmd.ID)
 		rErr := c.services.Redis.Get(context.TODO(), key).Err()
@@ -101,12 +100,13 @@ func (c *parserGrpcServer) ProcessCommand(
 			c.services.Redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
 		} else if rErr != nil {
 			c.services.Logger.Sugar().Error(rErr)
-			return nil, errors.New("error while setting redis cooldown for command")
+			return &parser.ProcessCommandResponse{}, errors.New("error while setting redis cooldown for command")
+		} else {
+			return &parser.ProcessCommandResponse{}, nil
 		}
 	}
 
-	if cmd.Cmd.Cooldown.Valid && cmd.Cmd.CooldownType == cooldownPerUser &&
-		cmd.Cmd.Cooldown.Int64 > 0 &&
+	if cmd.Cmd.CooldownType == cooldownPerUser && cmd.Cmd.Cooldown.Int64 > 0 &&
 		c.shouldCheckCooldown(data.Sender.Badges) {
 		key := fmt.Sprintf("commands:%s:cooldowns:user:%s", cmd.Cmd.ID, data.Sender.Id)
 		rErr := c.services.Redis.Get(context.TODO(), key).Err()
@@ -116,6 +116,8 @@ func (c *parserGrpcServer) ProcessCommand(
 		} else if rErr != nil {
 			zap.S().Error(rErr)
 			return nil, errors.New("error while setting redis cooldown for command")
+		} else {
+			return &parser.ProcessCommandResponse{}, nil
 		}
 	}
 
