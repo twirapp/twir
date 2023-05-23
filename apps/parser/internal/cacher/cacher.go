@@ -485,7 +485,6 @@ func (c *cacher) GetValorantMatches(ctx context.Context) []*types.ValorantMatch 
 		return nil
 	}
 
-	fmt.Println("doing req")
 	_, err := req.R().
 		SetContext(ctx).
 		SetSuccessResult(&data).
