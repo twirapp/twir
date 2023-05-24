@@ -25,6 +25,10 @@ var EmotesUsers = &types.Variable{
 			*parseCtx.Services.Config,
 			parseCtx.Services.GrpcClients.Tokens,
 		)
+		if err != nil {
+			parseCtx.Services.Logger.Sugar().Error(err)
+			return nil, err
+		}
 
 		limit := 10
 		if variableData.Params != nil {
@@ -42,6 +46,7 @@ var EmotesUsers = &types.Variable{
 		err = parseCtx.Services.Gorm.
 			Model(&model.ChannelEmoteUsageWithCount{}).
 			Select(`"userId", COUNT(*) as count`).
+			Where(`"channelId" = ?`, parseCtx.Channel.ID).
 			Group(`"userId"`).
 			Order("count DESC").
 			Limit(10).
