@@ -1,14 +1,15 @@
 package tts
 
 import (
+	"context"
 	"fmt"
+	"strings"
+
 	"github.com/guregu/null"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"strings"
 
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	"go.uber.org/zap"
 )
 
@@ -19,19 +20,23 @@ var VoiceCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		// webSocketsGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelModel := getSettings(ctx.ChannelId, "")
+		channelSettings, channelModel := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
 
 		if channelSettings == nil {
 			result.Result = append(result.Result, "TTS is not configured.")
 			return result
 		}
 
-		userSettings, currentUserModel := getSettings(ctx.ChannelId, ctx.SenderId)
+		userSettings, currentUserModel := getSettings(
+			ctx,
+			parseCtx.Services.Gorm,
+			parseCtx.Channel.ID,
+			parseCtx.Sender.ID,
+		)
 
-		if ctx.Text == nil {
+		if parseCtx.Text == nil {
 			result.Result = append(
 				result.Result,
 				fmt.Sprintf(
@@ -44,18 +49,18 @@ var VoiceCommand = &types.DefaultCommand{
 			return result
 		}
 
-		voices := getVoices()
+		voices := getVoices(ctx, parseCtx.Services.Config)
 		if len(voices) == 0 {
 			result.Result = append(result.Result, "No voices found")
 			return result
 		}
 
 		wantedVoice, ok := lo.Find(voices, func(item Voice) bool {
-			return item.Name == strings.ToLower(*ctx.Text)
+			return item.Name == strings.ToLower(*parseCtx.Text)
 		})
 
 		if !ok {
-			result.Result = append(result.Result, fmt.Sprintf("Voice %s not found", *ctx.Text))
+			result.Result = append(result.Result, fmt.Sprintf("Voice %s not found", *parseCtx.Text))
 			return result
 		}
 
@@ -71,9 +76,9 @@ var VoiceCommand = &types.DefaultCommand{
 			return result
 		}
 
-		if ctx.ChannelId == ctx.SenderId {
+		if parseCtx.Channel.ID == parseCtx.Sender.ID {
 			channelSettings.Voice = wantedVoice.Name
-			err := updateSettings(channelModel, channelSettings)
+			err := updateSettings(ctx, parseCtx.Services.Gorm, channelModel, channelSettings)
 			if err != nil {
 				zap.S().Error(err)
 				result.Result = append(result.Result, "Error while updating settings")
@@ -81,7 +86,15 @@ var VoiceCommand = &types.DefaultCommand{
 			}
 		} else {
 			if userSettings == nil {
-				_, _, err := createUserSettings(50, 50, wantedVoice.Name, ctx.ChannelId, ctx.SenderId)
+				_, _, err := createUserSettings(
+					ctx,
+					parseCtx.Services.Gorm,
+					50,
+					50,
+					wantedVoice.Name,
+					parseCtx.Channel.ID,
+					parseCtx.Sender.ID,
+				)
 				if err != nil {
 					zap.S().Error(err)
 					result.Result = append(result.Result, "Error while creating settings")
@@ -90,7 +103,7 @@ var VoiceCommand = &types.DefaultCommand{
 			} else {
 
 				userSettings.Voice = wantedVoice.Name
-				err := updateSettings(currentUserModel, userSettings)
+				err := updateSettings(ctx, parseCtx.Services.Gorm, currentUserModel, userSettings)
 				if err != nil {
 					zap.S().Error(err)
 					result.Result = append(result.Result, "Error while updating settings")

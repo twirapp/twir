@@ -1,14 +1,13 @@
 package sr_youtube
 
 import (
+	"context"
 	"fmt"
 	"github.com/guregu/null"
-	"github.com/samber/do"
-	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
-	config "github.com/satont/tsuwari/libs/config"
+
+	"github.com/samber/lo"
+
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
@@ -20,16 +19,14 @@ var SrListCommand = &types.DefaultCommand{
 		Module:      "SONGS",
 		IsReply:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		cfg := do.MustInvoke[config.Config](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 
 		url := fmt.Sprintf(
 			"%s://%s/p/%s/song-requests",
-			lo.If(cfg.AppEnv == "development", "http").Else("https"),
-			cfg.HostName,
-			ctx.ChannelName,
+			lo.If(parseCtx.Services.Config.AppEnv == "development", "http").Else("https"),
+			parseCtx.Services.Config.HostName,
+			parseCtx.Channel.Name,
 		)
 
 		result.Result = append(result.Result, url)

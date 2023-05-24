@@ -1,123 +1,116 @@
 package commands
 
 import (
-	"github.com/satont/tsuwari/libs/gopool"
+	"context"
 	"regexp"
 	"sort"
 	"strings"
 	"sync"
 
-	"github.com/satont/tsuwari/apps/parser/internal/commands/song"
-	"github.com/satont/tsuwari/apps/parser/internal/commands/stats"
-
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/commands/shoutout"
-	"github.com/satont/tsuwari/apps/parser/internal/commands/tts"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-
-	"github.com/satont/tsuwari/apps/parser/internal/commands/dota"
+	"github.com/google/uuid"
+	"github.com/samber/lo"
+	"github.com/satont/tsuwari/apps/parser/internal/cacher"
+	channel_game "github.com/satont/tsuwari/apps/parser/internal/commands/channel/game"
+	channel_title "github.com/satont/tsuwari/apps/parser/internal/commands/channel/title"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/manage"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/nuke"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/permit"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/shoutout"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/song"
 	sr_youtube "github.com/satont/tsuwari/apps/parser/internal/commands/songrequest/youtube"
 	"github.com/satont/tsuwari/apps/parser/internal/commands/spam"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/stats"
+	"github.com/satont/tsuwari/apps/parser/internal/commands/tts"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/tsuwari/apps/parser/internal/types/services"
 	"github.com/satont/tsuwari/apps/parser/internal/variables"
-	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
-
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/gopool"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
-
-	uuid "github.com/satori/go.uuid"
-
-	channel_game "github.com/satont/tsuwari/apps/parser/internal/commands/channel/game"
-	channel_title "github.com/satont/tsuwari/apps/parser/internal/commands/channel/title"
-
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
-
-	"github.com/samber/lo"
-
-	"gorm.io/gorm"
 )
 
 type Commands struct {
-	DefaultCommands    []*types.DefaultCommand
+	DefaultCommands    map[string]*types.DefaultCommand
 	parseResponsesPool *gopool.Pool
+
+	services         *services.Services
+	variablesService *variables.Variables
 }
 
-func New() Commands {
-	commands := []*types.DefaultCommand{
-		channel_title.SetCommand,
-		channel_title.History,
+type Opts struct {
+	Services         *services.Services
+	VariablesService *variables.Variables
+}
+
+func New(opts *Opts) *Commands {
+	commands := lo.SliceToMap([]*types.DefaultCommand{
+		song.CurrentSong,
 		channel_game.SetCommand,
 		channel_game.History,
-		permit.Command,
-		spam.Command,
-		nuke.Command,
-		dota.AddAccCommand,
-		dota.DelAccCommand,
-		dota.ListAccCommand,
-		dota.NpAccCommand,
-		dota.WlCommand,
-		dota.LgCommand,
-		dota.GmCommand,
+		channel_title.SetCommand,
+		channel_title.History,
+		manage.AddAliaseCommand,
 		manage.AddCommand,
+		manage.CheckAliasesCommand,
 		manage.DelCommand,
 		manage.EditCommand,
-		manage.AddAliaseCommand,
 		manage.RemoveAliaseCommand,
-		manage.CheckAliasesCommand,
-		sr_youtube.SrCommand,
-		sr_youtube.WrongCommand,
-		sr_youtube.SrListCommand,
-		sr_youtube.SkipCommand,
+		nuke.Command,
+		permit.Command,
 		shoutout.ShoutOut,
-		tts.SayCommand,
-		tts.SkipCommand,
-		tts.VoicesCommand,
-		tts.VoiceCommand,
-		tts.RateCommand,
-		tts.PitchCommand,
-		tts.VolumeCommand,
-		tts.DisableCommand,
-		tts.EnableCommand,
-		stats.UserWatchTime,
-		stats.UserMe,
-		stats.UserFollowage,
-		stats.UserFollowSince,
-		stats.TopTime,
-		stats.TopMessages,
+		spam.Command,
 		stats.TopEmotes,
 		stats.TopEmotesUsers,
+		stats.TopMessages,
 		stats.TopPoints,
-		stats.UserAge,
+		stats.TopTime,
 		stats.Uptime,
-		song.CurrentSong,
-	}
+		stats.UserAge,
+		stats.UserFollowSince,
+		stats.UserFollowage,
+		stats.UserMe,
+		stats.UserWatchTime,
+		tts.DisableCommand,
+		tts.EnableCommand,
+		tts.PitchCommand,
+		tts.RateCommand,
+		tts.SayCommand,
+		tts.SkipCommand,
+		tts.VoiceCommand,
+		tts.VoicesCommand,
+		tts.VolumeCommand,
+		sr_youtube.SkipCommand,
+		sr_youtube.SrCommand,
+		sr_youtube.SrListCommand,
+		sr_youtube.WrongCommand,
+	}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
+		return v.Name, v
+	})
 
-	ctx := Commands{
+	ctx := &Commands{
 		DefaultCommands:    commands,
 		parseResponsesPool: gopool.NewPool(100),
+		services:           opts.Services,
+		variablesService:   opts.VariablesService,
 	}
 
 	return ctx
 }
 
-func (c *Commands) GetChannelCommands(channelId string) (*[]model.ChannelsCommands, error) {
-	db := do.MustInvoke[gorm.DB](di.Provider)
+func (c *Commands) GetChannelCommands(ctx context.Context, channelId string) ([]*model.ChannelsCommands, error) {
+	var cmds []*model.ChannelsCommands
 
-	cmds := []model.ChannelsCommands{}
-
-	err := db.
+	err := c.services.Gorm.
 		Model(&model.ChannelsCommands{}).
 		Where(`"channelId" = ? AND "enabled" = ?`, channelId, true).
 		Preload("Responses").
+		WithContext(ctx).
 		Find(&cmds).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return &cmds, nil
+	return cmds, nil
 }
 
 var splittedNameRegexp = regexp.MustCompile(`[^\s]+`)
@@ -127,7 +120,11 @@ type FindByMessageResult struct {
 	FoundBy string
 }
 
-func (c *Commands) FindByMessage(input string, cmds *[]model.ChannelsCommands) FindByMessageResult {
+// FindByMessage
+// Splitting chat message by spaces, then
+// read message from end to start, and delete one word from end while message gets empty,
+// or we found a command in message
+func (c *Commands) FindChannelCommandInInput(input string, cmds []*model.ChannelsCommands) *FindByMessageResult {
 	msg := strings.ToLower(input)
 	splittedName := splittedNameRegexp.FindAllString(msg, -1)
 
@@ -137,16 +134,18 @@ func (c *Commands) FindByMessage(input string, cmds *[]model.ChannelsCommands) F
 
 	for i := 0; i < length; i++ {
 		query := strings.Join(splittedName, " ")
-		for _, c := range *cmds {
-			if c.Name == query {
+		for _, cmd := range cmds {
+			if cmd.Name == query {
 				res.FoundBy = query
-				res.Cmd = &c
+				res.Cmd = cmd
 				break
 			}
 
-			if helpers.Contains(c.Aliases, query) {
+			if lo.SomeBy(cmd.Aliases, func(item string) bool {
+				return item == query
+			}) {
 				res.FoundBy = query
-				res.Cmd = &c
+				res.Cmd = cmd
 				break
 			}
 		}
@@ -159,101 +158,114 @@ func (c *Commands) FindByMessage(input string, cmds *[]model.ChannelsCommands) F
 		}
 	}
 
+	// sort command responses in right order, which set from dashboard ui
 	if res.Cmd != nil {
 		sort.Slice(res.Cmd.Responses, func(a, b int) bool {
 			return res.Cmd.Responses[a].Order < res.Cmd.Responses[b].Order
 		})
 	}
 
-	return res
+	return &res
 }
 
 func (c *Commands) ParseCommandResponses(
-	command FindByMessageResult,
-	data *parser.ProcessCommandRequest,
+	ctx context.Context,
+	command *FindByMessageResult,
+	requestData *parser.ProcessCommandRequest,
 ) *parser.ProcessCommandResponse {
-	db := do.MustInvoke[gorm.DB](di.Provider)
-	variablesService := do.MustInvoke[*variables.Variables](di.Provider)
-
 	result := &parser.ProcessCommandResponse{
 		KeepOrder: &command.Cmd.KeepResponsesOrder,
+		IsReply:   command.Cmd.IsReply,
 	}
 
-	cmd := *command.Cmd
 	var cmdParams *string
-	params := strings.TrimSpace(data.Message.Text[len(command.FoundBy):])
+	params := strings.TrimSpace(requestData.Message.Text[len(command.FoundBy):])
+	// this shit comes from 7tv for bypass message duplicate
+	params = strings.ReplaceAll(params, "\U000e0000", "")
+	params = strings.TrimSpace(params)
 	if len(params) > 0 {
 		cmdParams = &params
 	}
 
-	defaultCommand, isDefaultExists := lo.Find(
-		c.DefaultCommands,
-		func(command *types.DefaultCommand) bool {
-			if cmd.DefaultName.Valid {
-				return command.Name == cmd.DefaultName.String
-			} else {
-				return false
-			}
-		},
-	)
+	var defaultCommand *types.DefaultCommand
 
-	defer db.Create(&model.ChannelsCommandsUsages{
-		ID:        uuid.NewV4().String(),
-		UserID:    data.Sender.Id,
-		ChannelID: data.Channel.Id,
-		CommandID: cmd.ID,
-	})
-
-	if cmd.Default && isDefaultExists {
-		results := defaultCommand.Handler(&variables_cache.ExecutionContext{
-			ChannelName:       data.Channel.Name,
-			ChannelId:         data.Channel.Id,
-			SenderId:          data.Sender.Id,
-			SenderName:        data.Sender.Name,
-			SenderDisplayName: data.Sender.DisplayName,
-			SenderBadges:      data.Sender.Badges,
-			Text:              cmdParams,
-			IsCommand:         true,
-			Command:           command.Cmd,
-			Emotes:            data.Message.Emotes,
-		})
-		if results == nil {
-			result.Responses = []string{}
-		} else {
-			result.Responses = results.Result
+	if command.Cmd.Default {
+		cmd, ok := c.DefaultCommands[command.Cmd.DefaultName.String]
+		if ok {
+			defaultCommand = cmd
 		}
-	} else {
-		result.Responses = lo.Map(cmd.Responses, func(r model.ChannelsCommandsResponses, _ int) string {
-			if r.Text.Valid {
-				return r.Text.String
-			} else {
-				return ""
+	}
+
+	defer c.services.Gorm.
+		WithContext(ctx).
+		Create(&model.ChannelsCommandsUsages{
+			ID:        uuid.New().String(),
+			UserID:    requestData.Sender.Id,
+			ChannelID: requestData.Channel.Id,
+			CommandID: command.Cmd.ID,
+		})
+
+	parseCtxChannel := &types.ParseContextChannel{
+		ID:   requestData.Channel.Id,
+		Name: requestData.Channel.Name,
+	}
+	parseCtxSender := &types.ParseContextSender{
+		ID:          requestData.Sender.Id,
+		Name:        requestData.Sender.Name,
+		DisplayName: requestData.Sender.DisplayName,
+		Badges:      requestData.Sender.Badges,
+	}
+
+	parseCtx := &types.ParseContext{
+		Channel:   parseCtxChannel,
+		Sender:    parseCtxSender,
+		Text:      cmdParams,
+		IsCommand: true,
+		Services:  c.services,
+		Cacher: cacher.NewCacher(&cacher.CacherOpts{
+			Services:        c.services,
+			ParseCtxChannel: parseCtxChannel,
+			ParseCtxSender:  parseCtxSender,
+			ParseCtxText:    cmdParams,
+		}),
+		Emotes: lo.Map(requestData.Message.Emotes, func(e *parser.Message_Emote, _ int) *types.ParseContextEmote {
+			return &types.ParseContextEmote{
+				Name:  e.Name,
+				ID:    e.Id,
+				Count: e.Count,
+				Positions: lo.Map(e.Positions, func(p *parser.Message_EmotePosition, _ int) *types.ParseContextEmotePosition {
+					return &types.ParseContextEmotePosition{
+						Start: p.Start,
+						End:   p.End,
+					}
+				}),
 			}
+		}),
+		Command: command.Cmd,
+	}
+
+	if command.Cmd.Default && defaultCommand != nil {
+		results := defaultCommand.Handler(ctx, parseCtx)
+
+		result.Responses = lo.
+			IfF(results == nil, func() []string { return []string{} }).
+			ElseF(func() []string {
+				return results.Result
+			})
+	} else {
+		result.Responses = lo.Map(command.Cmd.Responses, func(r *model.ChannelsCommandsResponses, _ int) string {
+			return r.Text.String
 		})
 	}
 
-	result.IsReply = cmd.IsReply
-
-	wg := sync.WaitGroup{}
+	wg := &sync.WaitGroup{}
 	for i, r := range result.Responses {
 		wg.Add(1)
-		// TODO: concatenate all responses into one slice and use it for cache
-		cacheService := variables_cache.New(variables_cache.VariablesCacheOpts{
-			Text:              cmdParams,
-			SenderId:          data.Sender.Id,
-			SenderName:        &data.Sender.DisplayName,
-			SenderDisplayName: &data.Sender.DisplayName,
-			ChannelId:         data.Channel.Id,
-			IsCommand:         true,
-			Command:           command.Cmd,
-			SenderBadges:      data.Sender.Badges,
-			Emotes:            data.Message.Emotes,
-		})
 
 		index := i
 		response := r
 		c.parseResponsesPool.Submit(func() {
-			result.Responses[index] = variablesService.ParseInput(cacheService, response)
+			result.Responses[index] = c.variablesService.ParseVariablesInText(ctx, parseCtx, response)
 			wg.Done()
 		})
 	}

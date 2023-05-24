@@ -1,14 +1,15 @@
 package tts
 
 import (
+	"context"
 	"fmt"
+	"strings"
+
 	"github.com/guregu/null"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"strings"
 
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 )
 
 var VoicesCommand = &types.DefaultCommand{
@@ -18,12 +19,12 @@ var VoicesCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 
-		channelSettings, _ := getSettings(ctx.ChannelId, "")
+		channelSettings, _ := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
 
-		voices := getVoices()
+		voices := getVoices(ctx, parseCtx.Services.Config)
 		if len(voices) == 0 {
 			result.Result = append(result.Result, "No voices found")
 			return result

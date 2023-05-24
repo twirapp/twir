@@ -1,15 +1,15 @@
 package tts
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
-	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
 	config "github.com/satont/tsuwari/libs/config"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/types/types/api/modules"
@@ -18,11 +18,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func getSettings(channelId, userId string) (*modules.TTSSettings, *model.ChannelModulesSettings) {
-	db := do.MustInvoke[gorm.DB](di.Provider)
-
+func getSettings(
+	ctx context.Context,
+	db *gorm.DB,
+	channelId, userId string,
+) (*modules.TTSSettings, *model.ChannelModulesSettings) {
 	settings := &model.ChannelModulesSettings{}
 	query := db.
+		WithContext(ctx).
 		Where(`"channelId" = ?`, channelId).
 		Where(`"type" = ?`, "tts")
 
@@ -51,10 +54,12 @@ type Voice struct {
 	Country string
 }
 
-func getVoices() []Voice {
-	cfg := do.MustInvoke[config.Config](di.Provider)
+func getVoices(ctx context.Context, cfg *config.Config) []Voice {
 	data := map[string]any{}
-	_, err := req.R().SetSuccessResult(&data).Get(fmt.Sprintf("http://%s/info", cfg.TTSServiceUrl))
+	_, err := req.R().
+		SetContext(ctx).
+		SetSuccessResult(&data).
+		Get(fmt.Sprintf("http://%s/info", cfg.TTSServiceUrl))
 	if err != nil {
 		zap.S().Error(err)
 		return nil
@@ -80,23 +85,29 @@ func getVoices() []Voice {
 	return voices
 }
 
-func updateSettings(entity *model.ChannelModulesSettings, settings *modules.TTSSettings) error {
-	db := do.MustInvoke[gorm.DB](di.Provider)
-
+func updateSettings(ctx context.Context, db *gorm.DB, entity *model.ChannelModulesSettings, settings *modules.TTSSettings) error {
 	bytes, err := json.Marshal(settings)
 	if err != nil {
 		return err
 	}
 
-	return db.Model(entity).Updates(map[string]interface{}{"settings": bytes}).Error
+	return db.
+		Model(entity).
+		WithContext(ctx).
+		Updates(map[string]interface{}{"settings": bytes}).
+		Error
 }
 
-func createUserSettings(rate, pitch int, voice, channelId, userId string) (
+func createUserSettings(
+	ctx context.Context,
+	db *gorm.DB,
+	rate, pitch int,
+	voice, channelId, userId string,
+) (
 	*model.ChannelModulesSettings,
 	*modules.TTSSettings,
 	error,
 ) {
-	db := do.MustInvoke[gorm.DB](di.Provider)
 	userModel := &model.ChannelModulesSettings{
 		ID:        uuid.New().String(),
 		Type:      "tts",
@@ -120,7 +131,7 @@ func createUserSettings(rate, pitch int, voice, channelId, userId string) (
 
 	userModel.Settings = bytes
 
-	err = db.Create(userModel).Error
+	err = db.WithContext(ctx).Create(userModel).Error
 	if err != nil {
 		return nil, nil, err
 	}
@@ -128,15 +139,15 @@ func createUserSettings(rate, pitch int, voice, channelId, userId string) (
 	return userModel, userSettings, nil
 }
 
-func switchEnableState(channelId string, newState bool) error {
-	channelSettings, channelModele := getSettings(channelId, "")
+func switchEnableState(ctx context.Context, db *gorm.DB, channelId string, newState bool) error {
+	channelSettings, channelModele := getSettings(ctx, db, channelId, "")
 
 	if channelSettings == nil {
 		return errors.New("Tts not configured")
 	}
 
 	channelSettings.Enabled = &newState
-	err := updateSettings(channelModele, channelSettings)
+	err := updateSettings(ctx, db, channelModele, channelSettings)
 	if err != nil {
 		return err
 	}

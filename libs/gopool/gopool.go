@@ -1,6 +1,7 @@
 package gopool
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -19,6 +20,11 @@ func (w *worker) run() {
 			close(w.tasksChannel)
 			return
 		case task := <-w.tasksChannel:
+			defer func() {
+				if err := recover(); err != nil {
+					fmt.Println(err)
+				}
+			}()
 			task()
 		}
 	}

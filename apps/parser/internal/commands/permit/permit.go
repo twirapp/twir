@@ -1,22 +1,16 @@
 package permit
 
 import (
+	"context"
 	"fmt"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
 	"strconv"
 	"strings"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/samber/do"
-	config "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
 	"go.uber.org/zap"
-
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
@@ -33,17 +27,17 @@ var Command = &types.DefaultCommand{
 		Module:      "MODERATION",
 		IsReply:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		db := do.MustInvoke[gorm.DB](di.Provider)
-		cfg := do.MustInvoke[config.Config](di.Provider)
-		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-
-		twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+		twitchClient, err := twitch.NewAppClientWithContext(
+			ctx,
+			*parseCtx.Services.Config,
+			parseCtx.Services.GrpcClients.Tokens,
+		)
 
 		result := &types.CommandsHandlerResult{}
 
 		count := 1
-		params := strings.Split(*ctx.Text, " ")
+		params := strings.Split(*parseCtx.Text, " ")
 
 		paramsLen := len(params)
 		if paramsLen < 1 {
@@ -72,11 +66,11 @@ var Command = &types.DefaultCommand{
 			return result
 		}
 
-		db.Transaction(func(tx *gorm.DB) error {
+		parseCtx.Services.Gorm.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 			for i := 0; i < count; i++ {
 				permit := model.ChannelsPermits{
 					ID:        uuid.NewV4().String(),
-					ChannelID: ctx.ChannelId,
+					ChannelID: parseCtx.Channel.ID,
 					UserID:    target.Data.Users[0].ID,
 				}
 				err := tx.Create(&permit).Error

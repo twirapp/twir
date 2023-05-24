@@ -3,16 +3,14 @@ package shoutout
 import (
 	"context"
 	"fmt"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/samber/do"
+
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
-	config "github.com/satont/tsuwari/libs/config"
+
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
@@ -25,18 +23,16 @@ var ShoutOut = &types.DefaultCommand{
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "MODERATION",
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		cfg := do.MustInvoke[config.Config](di.Provider)
-		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 
-		if ctx.Text == nil || *ctx.Text == "" {
+		if parseCtx.Text == nil || *parseCtx.Text == "" {
 			result.Result = append(result.Result, "you have to type streamer for shoutout.")
 			return result
 		}
 
-		token, err := tokensGrpc.RequestUserToken(context.Background(), &tokens.GetUserTokenRequest{
-			UserId: ctx.ChannelId,
+		token, err := parseCtx.Services.GrpcClients.Tokens.RequestUserToken(ctx, &tokens.GetUserTokenRequest{
+			UserId: parseCtx.Channel.ID,
 		})
 		if err != nil {
 			result.Result = append(result.Result, "internal error")
@@ -51,13 +47,18 @@ var ShoutOut = &types.DefaultCommand{
 			return result
 		}
 
-		twitchClient, err := twitch.NewUserClient(ctx.ChannelId, cfg, tokensGrpc)
+		twitchClient, err := twitch.NewUserClientWithContext(
+			ctx,
+			parseCtx.Channel.ID,
+			*parseCtx.Services.Config,
+			parseCtx.Services.GrpcClients.Tokens,
+		)
 		if err != nil {
 			return nil
 		}
 
 		usersReq, err := twitchClient.GetUsers(&helix.UsersParams{
-			Logins: []string{*ctx.Text},
+			Logins: []string{*parseCtx.Text},
 		})
 		if err != nil || len(usersReq.Data.Users) == 0 {
 			return nil
@@ -66,9 +67,9 @@ var ShoutOut = &types.DefaultCommand{
 		user := usersReq.Data.Users[0]
 
 		go twitchClient.SendShoutout(&helix.SendShoutoutParams{
-			FromBroadcasterID: ctx.ChannelId,
+			FromBroadcasterID: parseCtx.Channel.ID,
 			ToBroadcasterID:   user.ID,
-			ModeratorID:       ctx.ChannelId,
+			ModeratorID:       parseCtx.Channel.ID,
 		})
 
 		streamsReq, err := twitchClient.GetStreams(&helix.StreamsParams{

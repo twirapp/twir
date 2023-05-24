@@ -2,13 +2,11 @@ package tts
 
 import (
 	"context"
+
 	"github.com/guregu/null"
 	model "github.com/satont/tsuwari/libs/gomodels"
 
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 	"go.uber.org/zap"
 )
@@ -20,13 +18,11 @@ var SkipCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		webSocketsGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 
-		_, err := webSocketsGrpc.TextToSpeechSkip(context.Background(), &websockets.TTSSkipMessage{
-			ChannelId: ctx.ChannelId,
+		_, err := parseCtx.Services.GrpcClients.WebSockets.TextToSpeechSkip(context.Background(), &websockets.TTSSkipMessage{
+			ChannelId: parseCtx.Channel.ID,
 		})
 		if err != nil {
 			zap.S().Error(err)

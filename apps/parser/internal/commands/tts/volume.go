@@ -1,12 +1,12 @@
 package tts
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
 	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"go.uber.org/zap"
 )
@@ -18,23 +18,23 @@ var VolumeCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelModele := getSettings(ctx.ChannelId, "")
+		channelSettings, channelModele := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
 
 		if channelSettings == nil {
 			result.Result = append(result.Result, "TTS is not configured.")
 			return result
 		}
 
-		if ctx.Text == nil {
+		if parseCtx.Text == nil {
 			result.Result = append(
 				result.Result,
 				fmt.Sprintf("Global volume: %v", channelSettings.Volume))
 			return result
 		}
 
-		volume, err := strconv.Atoi(*ctx.Text)
+		volume, err := strconv.Atoi(*parseCtx.Text)
 		if err != nil {
 			result.Result = append(result.Result, "Volume must be a number")
 			return result
@@ -46,7 +46,7 @@ var VolumeCommand = &types.DefaultCommand{
 		}
 
 		channelSettings.Volume = volume
-		err = updateSettings(channelModele, channelSettings)
+		err = updateSettings(ctx, parseCtx.Services.Gorm, channelModele, channelSettings)
 		if err != nil {
 			zap.S().Error(err)
 			result.Result = append(result.Result, "Error while updating settings")

@@ -4,15 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/guregu/null"
-	"gorm.io/gorm"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
 	"log"
 	"strconv"
 	"time"
 
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 
@@ -27,18 +23,15 @@ var WrongCommand = &types.DefaultCommand{
 		IsReply:     true,
 		Visible:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		db := do.MustInvoke[gorm.DB](di.Provider)
-		websocketGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 
-		songs := []model.RequestedSong{}
-		err := db.
+		var songs []*model.RequestedSong
+		err := parseCtx.Services.Gorm.WithContext(ctx).
 			Where(
 				`"channelId" = ? AND "orderedById" = ? AND "deletedAt" IS NULL`,
-				ctx.ChannelId,
-				ctx.SenderId,
+				parseCtx.Channel.ID,
+				parseCtx.Sender.ID,
 			).
 			Limit(5).
 			Order(`"createdAt" desc`).
@@ -57,8 +50,8 @@ var WrongCommand = &types.DefaultCommand{
 
 		number := 1
 
-		if ctx.Text != nil {
-			newNumber, err := strconv.Atoi(*ctx.Text)
+		if parseCtx.Text != nil {
+			newNumber, err := strconv.Atoi(*parseCtx.Text)
 			if err != nil {
 				result.Result = append(result.Result, "Seems like you provided not a number.")
 				return result
@@ -76,16 +69,16 @@ var WrongCommand = &types.DefaultCommand{
 
 		choosedSong := songs[number-1]
 		choosedSong.DeletedAt = lo.ToPtr(time.Now().UTC())
-		err = db.Updates(&choosedSong).Error
+		err = parseCtx.Services.Gorm.WithContext(ctx).Updates(&choosedSong).Error
 		if err != nil {
 			result.Result = append(result.Result, "Cannot delete song")
 			return result
 		}
 
-		_, err = websocketGrpc.YoutubeRemoveSongToQueue(
-			context.Background(),
+		_, err = parseCtx.Services.GrpcClients.WebSockets.YoutubeRemoveSongToQueue(
+			ctx,
 			&websockets.YoutubeRemoveSongFromQueueRequest{
-				ChannelId: ctx.ChannelId,
+				ChannelId: parseCtx.Channel.ID,
 				EntityId:  choosedSong.ID,
 			},
 		)

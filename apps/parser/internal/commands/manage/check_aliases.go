@@ -1,19 +1,15 @@
 package manage
 
 import (
+	"context"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
-	"strings"
-
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"go.uber.org/zap"
+	"strings"
 
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
 var CheckAliasesCommand = &types.DefaultCommand{
@@ -24,22 +20,24 @@ var CheckAliasesCommand = &types.DefaultCommand{
 		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		db := do.MustInvoke[gorm.DB](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
-		if ctx.Text == nil {
+		if parseCtx.Text == nil {
 			result.Result = append(result.Result, "type command name for check aliases.")
 			return result
 		}
 
-		commandName := strings.ReplaceAll(strings.ToLower(*ctx.Text), "!", "")
+		commandName := strings.ReplaceAll(strings.ToLower(*parseCtx.Text), "!", "")
 
 		cmd := model.ChannelsCommands{}
-		err := db.Where(`"channelId" = ? AND "name" = ?`, ctx.ChannelId, commandName).Find(&cmd).Error
+		err := parseCtx.Services.Gorm.
+			WithContext(ctx).
+			Where(`"channelId" = ? AND "name" = ?`, parseCtx.Channel.ID, commandName).
+			Find(&cmd).
+			Error
 		if err != nil {
 			zap.S().Error(err)
 			result.Result = append(result.Result, "internal error")

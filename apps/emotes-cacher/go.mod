@@ -11,7 +11,6 @@ require (
 	github.com/redis/go-redis/v9 v9.0.2
 	github.com/samber/do v1.6.0
 	github.com/samber/lo v1.37.0
-	github.com/satont/tsuwari/apps/parser v0.0.0-20230201225635-782be9343513
 	github.com/satont/tsuwari/libs/config v0.0.0
 	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
 	go.uber.org/zap v1.24.0

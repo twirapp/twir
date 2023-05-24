@@ -4,17 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/go-redis/redis/v9"
 	"github.com/guregu/null"
-	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 	youtube "github.com/satont/tsuwari/libs/types/types/api/modules"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"math"
 	"time"
@@ -27,21 +23,16 @@ var SkipCommand = &types.DefaultCommand{
 		Module:      "SONGS",
 		IsReply:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		logger := do.MustInvoke[zap.Logger](di.Provider)
-		db := do.MustInvoke[gorm.DB](di.Provider)
-		redisClient := do.MustInvoke[redis.Client](di.Provider)
-		websocketGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 
 		moduleSettings := &model.ChannelModulesSettings{}
 		parsedSettings := &youtube.YouTubeSettings{}
-		err := db.
-			Where(`"channelId" = ? AND "type" = ?`, ctx.ChannelId, "youtube_song_requests").
+		err := parseCtx.Services.Gorm.WithContext(ctx).
+			Where(`"channelId" = ? AND "type" = ?`, parseCtx.Channel.ID, "youtube_song_requests").
 			First(moduleSettings).Error
 		if err != nil && err != gorm.ErrRecordNotFound {
-			logger.Sugar().Error(err)
+			parseCtx.Services.Logger.Sugar().Error(err)
 			result.Result = append(result.Result, "Internal error")
 			return result
 		}
@@ -53,7 +44,7 @@ var SkipCommand = &types.DefaultCommand{
 
 		err = json.Unmarshal(moduleSettings.Settings, parsedSettings)
 		if err != nil {
-			logger.Sugar().Error(err)
+			parseCtx.Services.Logger.Sugar().Error(err)
 			result.Result = append(result.Result, "Internal error")
 			return result
 		}
@@ -64,15 +55,15 @@ var SkipCommand = &types.DefaultCommand{
 		}
 
 		currentSong := &model.RequestedSong{}
-		err = db.
-			Where(`"channelId" = ? AND "deletedAt" IS NULL`, ctx.ChannelId).
+		err = parseCtx.Services.Gorm.WithContext(ctx).
+			Where(`"channelId" = ? AND "deletedAt" IS NULL`, parseCtx.Channel.ID).
 			Order(`"createdAt" asc`).
 			Limit(1).
 			Find(&currentSong).
 			Error
 
 		if err != nil {
-			logger.Sugar().Error(err)
+			parseCtx.Services.Logger.Sugar().Error(err)
 			result.Result = append(result.Result, "Internal error")
 			return result
 		}
@@ -83,29 +74,29 @@ var SkipCommand = &types.DefaultCommand{
 		}
 
 		var onlineUsersCount int64
-		err = db.
-			Where(`"channelId" = ?`, ctx.ChannelId).
+		err = parseCtx.Services.Gorm.WithContext(ctx).
+			Where(`"channelId" = ?`, parseCtx.Channel.ID).
 			Model(&model.UsersOnline{}).
 			Count(&onlineUsersCount).
 			Error
 
 		if err != nil {
-			logger.Sugar().Error(err)
+			parseCtx.Services.Logger.Sugar().Error(err)
 			result.Result = append(result.Result, "Internal error")
 			return result
 		}
 
 		redisKey := fmt.Sprintf("songrequests-voteskip-%s", currentSong.ID)
-		votesCount, err := redisClient.SCard(context.Background(), redisKey).Result()
+		votesCount, err := parseCtx.Services.Redis.SCard(ctx, redisKey).Result()
 		if err != nil {
-			logger.Sugar().Error(err)
+			parseCtx.Services.Logger.Sugar().Error(err)
 			result.Result = append(result.Result, "Internal error")
 			return result
 		}
 
-		currentVote, err := redisClient.SIsMember(context.Background(), redisKey, ctx.SenderId).Result()
+		currentVote, err := parseCtx.Services.Redis.SIsMember(ctx, redisKey, parseCtx.Sender.ID).Result()
 		if err != nil {
-			logger.Sugar().Error(err)
+			parseCtx.Services.Logger.Sugar().Error(err)
 			result.Result = append(result.Result, "Internal error")
 			return result
 		}
@@ -117,24 +108,27 @@ var SkipCommand = &types.DefaultCommand{
 			return result
 		}
 
-		redisClient.SAdd(context.Background(), redisKey, ctx.SenderId)
-		redisClient.Expire(context.Background(), redisKey, 1*time.Hour)
+		parseCtx.Services.Redis.SAdd(ctx, redisKey, parseCtx.Sender.ID)
+		parseCtx.Services.Redis.Expire(ctx, redisKey, 1*time.Hour)
 
 		if votesCount+1 >= neededVotes {
-			_, err = websocketGrpc.YoutubeRemoveSongToQueue(context.Background(), &websockets.YoutubeRemoveSongFromQueueRequest{
-				ChannelId: ctx.ChannelId,
-				EntityId:  currentSong.ID,
-			})
+			_, err = parseCtx.Services.GrpcClients.WebSockets.YoutubeRemoveSongToQueue(
+				ctx,
+				&websockets.YoutubeRemoveSongFromQueueRequest{
+					ChannelId: parseCtx.Channel.ID,
+					EntityId:  currentSong.ID,
+				},
+			)
 
 			if err != nil {
-				logger.Sugar().Error(err)
+				parseCtx.Services.Logger.Sugar().Error(err)
 				result.Result = append(result.Result, "Internal error")
 				return result
 			}
 
 			currentSong.DeletedAt = lo.ToPtr(time.Now().UTC())
-			db.Updates(currentSong)
-			redisClient.Del(context.Background(), redisKey)
+			parseCtx.Services.Gorm.WithContext(ctx).Updates(currentSong)
+			parseCtx.Services.Redis.Del(ctx, redisKey)
 
 			result.Result = append(result.Result, fmt.Sprintf("Song %s skipped", currentSong.Title))
 			return result

@@ -1,15 +1,8 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
-	"github.com/satont/tsuwari/libs/grpc/generated/dota"
-	"github.com/satont/tsuwari/libs/grpc/generated/eval"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/grpc/generated/ytsr"
 	"log"
 	"net"
 	"net/http"
@@ -18,49 +11,45 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
-
-	"github.com/satont/tsuwari/apps/parser/internal/commands"
-	myRedis "github.com/satont/tsuwari/apps/parser/internal/config/redis"
-	"github.com/satont/tsuwari/apps/parser/internal/variables"
-
-	config "github.com/satont/tsuwari/libs/config"
-
 	"github.com/getsentry/sentry-go"
-
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/satont/tsuwari/apps/parser/internal/grpc_impl"
+	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
+	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/clients"
 	"github.com/satont/tsuwari/libs/grpc/generated/parser"
 	"github.com/satont/tsuwari/libs/grpc/servers"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/go-redis/redis/v9"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/redis/go-redis/v9"
+	"github.com/satont/tsuwari/apps/parser/internal/commands"
+	"github.com/satont/tsuwari/apps/parser/internal/grpc_impl"
+	"github.com/satont/tsuwari/apps/parser/internal/types/services"
+	"github.com/satont/tsuwari/apps/parser/internal/variables"
+	"go.uber.org/zap"
 )
 
 func main() {
-	cfg, err := config.New()
-	if err != nil || cfg == nil {
+	appCtx, appCtxCancel := context.WithCancel(context.Background())
+
+	config, err := cfg.New()
+	if err != nil || config == nil {
 		fmt.Println(err)
 		panic("Cannot load config of application")
 	}
 
-	do.ProvideValue[config.Config](di.Provider, *cfg)
-
-	if cfg.AppEnv != "development" {
+	if config.AppEnv != "development" {
 		http.Handle("/metrics", promhttp.Handler())
 		go http.ListenAndServe("0.0.0.0:3000", nil)
 	}
 
-	if cfg.SentryDsn != "" {
+	if config.SentryDsn != "" {
 		sentry.Init(sentry.ClientOptions{
-			Dsn:              cfg.SentryDsn,
-			Environment:      cfg.AppEnv,
+			Dsn:              config.SentryDsn,
+			Environment:      config.AppEnv,
 			Debug:            true,
 			TracesSampleRate: 1.0,
 		})
@@ -68,7 +57,7 @@ func main() {
 
 	var logger *zap.Logger
 
-	if cfg.AppEnv == "development" {
+	if config.AppEnv == "development" {
 		l, _ := zap.NewDevelopment()
 		logger = l
 	} else {
@@ -78,9 +67,8 @@ func main() {
 
 	zap.ReplaceGlobals(logger)
 
-	do.ProvideValue[zap.Logger](di.Provider, *logger)
-
-	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl))
+	// gorm
+	db, err := gorm.Open(postgres.Open(config.DatabaseUrl))
 	if err != nil {
 		fmt.Println(err)
 		panic("failed to connect database")
@@ -88,55 +76,79 @@ func main() {
 	d, _ := db.DB()
 	d.SetMaxOpenConns(20)
 	d.SetConnMaxIdleTime(1 * time.Minute)
+	defer d.Close()
 
-	do.ProvideValue[gorm.DB](di.Provider, *db)
-
-	dbConnOpts, err := pq.ParseURL(cfg.DatabaseUrl)
+	// sqlx
+	dbConnOpts, err := pq.ParseURL(config.DatabaseUrl)
 	if err != nil {
 		panic(fmt.Errorf("cannot parse postgres url connection: %w", err))
 	}
-	pgConn, err := sqlx.Connect("postgres", dbConnOpts)
+	pgConn, err := sqlx.ConnectContext(appCtx, "postgres", dbConnOpts)
+	defer pgConn.Close()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	do.ProvideValue[sqlx.DB](di.Provider, *pgConn)
-
-	r := myRedis.New(cfg.RedisUrl)
-	defer r.Close()
-
-	do.ProvideValue[redis.Client](di.Provider, *r)
-
-	do.ProvideValue[websockets.WebsocketClient](di.Provider, clients.NewWebsocket(cfg.AppEnv))
-	do.ProvideValue[bots.BotsClient](di.Provider, clients.NewBots(cfg.AppEnv))
-	do.ProvideValue[dota.DotaClient](di.Provider, clients.NewDota(cfg.AppEnv))
-	do.ProvideValue[eval.EvalClient](di.Provider, clients.NewEval(cfg.AppEnv))
-	do.ProvideValue[tokens.TokensClient](di.Provider, clients.NewTokens(cfg.AppEnv))
-	do.ProvideValue[events.EventsClient](di.Provider, clients.NewEvents(cfg.AppEnv))
-	do.ProvideValue[ytsr.YtsrClient](di.Provider, clients.NewYtsr(cfg.AppEnv))
-
-	do.ProvideValue[*variables.Variables](di.Provider, variables.New())
-
-	do.ProvideValue[commands.Commands](di.Provider, commands.New())
+	// redis
+	url, err := redis.ParseURL(config.RedisUrl)
 
 	if err != nil {
-		panic(err)
+		panic("Wrong redis url")
 	}
+
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     url.Addr,
+		Password: url.Password,
+		DB:       url.DB,
+		Username: url.Username,
+	})
+	defer redisClient.Close()
+
+	redisClient.Conn()
+
+	s := &services.Services{
+		Config: config,
+		Logger: logger,
+		Gorm:   db,
+		Sqlx:   pgConn,
+		Redis:  redisClient,
+		GrpcClients: &services.Grpc{
+			WebSockets: clients.NewWebsocket(config.AppEnv),
+			Bots:       clients.NewBots(config.AppEnv),
+			Dota:       clients.NewDota(config.AppEnv),
+			Eval:       clients.NewEval(config.AppEnv),
+			Tokens:     clients.NewTokens(config.AppEnv),
+			Events:     clients.NewEvents(config.AppEnv),
+			Ytsr:       clients.NewYtsr(config.AppEnv),
+		},
+	}
+
+	variablesService := variables.New(&variables.Opts{
+		Services: s,
+	})
+	commandsService := commands.New(&commands.Opts{
+		Services:         s,
+		VariablesService: variablesService,
+	})
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.PARSER_SERVER_PORT))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	grpcServer := grpc.NewServer()
-	parser.RegisterParserServer(grpcServer, grpc_impl.NewServer())
+	parser.RegisterParserServer(
+		grpcServer,
+		grpc_impl.NewServer(s, commandsService, variablesService),
+	)
 	go grpcServer.Serve(lis)
+	defer grpcServer.GracefulStop()
 
 	logger.Info("Parser microservice started")
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
+
 	<-exitSignal
-	log.Fatalf("Exiting")
-	grpcServer.Stop()
-	d.Close()
+	logger.Sugar().Info("Exiting")
+	appCtxCancel()
 }

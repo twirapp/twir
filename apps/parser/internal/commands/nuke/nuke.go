@@ -4,14 +4,10 @@ import (
 	"context"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
-	"strings"
-
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+
+	"go.uber.org/zap"
+	"strings"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
@@ -28,21 +24,18 @@ var Command = &types.DefaultCommand{
 		RolesIDS: pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:   "MODERATION",
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		botsGrpc := do.MustInvoke[bots.BotsClient](di.Provider)
-		db := do.MustInvoke[gorm.DB](di.Provider)
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+		var messages []model.ChannelChatMessage
 
-		messages := []model.ChannelChatMessage{}
-
-		if ctx.Text == nil {
+		if parseCtx.Text == nil {
 			return nil
 		}
 
-		err := db.
+		err := parseCtx.Services.Gorm.WithContext(ctx).
 			Where(
 				`"canBeDeleted" = ? AND text LIKE ?`,
 				true,
-				"%"+strings.ToLower(*ctx.Text)+"%",
+				"%"+strings.ToLower(*parseCtx.Text)+"%",
 			).
 			Find(&messages).
 			Error
@@ -62,13 +55,13 @@ var Command = &types.DefaultCommand{
 			return m.MessageId
 		})
 
-		botsGrpc.DeleteMessage(context.Background(), &bots.DeleteMessagesRequest{
-			ChannelId:   ctx.ChannelId,
+		parseCtx.Services.GrpcClients.Bots.DeleteMessage(context.Background(), &bots.DeleteMessagesRequest{
+			ChannelId:   parseCtx.Channel.ID,
 			MessageIds:  mappedMessages,
-			ChannelName: ctx.ChannelName,
+			ChannelName: parseCtx.Channel.Name,
 		})
 
-		db.Where(`"messageId" IN ?`, mappedMessages).
+		parseCtx.Services.Gorm.WithContext(ctx).Where(`"messageId" IN ?`, mappedMessages).
 			Delete(&model.ChannelChatMessage{})
 
 		return nil

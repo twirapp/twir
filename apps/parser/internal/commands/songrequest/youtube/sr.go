@@ -5,25 +5,21 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/tsuwari/apps/parser/internal/types/services"
 	"math"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/guregu/null"
-	config "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/grpc/generated/ytsr"
 	"github.com/satont/tsuwari/libs/twitch"
 	"github.com/valyala/fasttemplate"
 	"go.uber.org/zap"
 
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/nicklaw5/helix/v2"
@@ -48,26 +44,21 @@ var SrCommand = &types.DefaultCommand{
 		IsReply:     true,
 		Visible:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		db := do.MustInvoke[gorm.DB](di.Provider)
-		websocketGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
-		logger := do.MustInvoke[zap.Logger](di.Provider)
-		search := do.MustInvoke[ytsr.YtsrClient](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 
-		if ctx.Text == nil {
+		if parseCtx.Text == nil {
 			result.Result = append(result.Result, "You should provide text for song request")
 			return result
 		}
 
 		moduleSettings := &model.ChannelModulesSettings{}
 		parsedSettings := &youtube.YouTubeSettings{}
-		err := db.
-			Where(`"channelId" = ? AND "type" = ?`, ctx.ChannelId, "youtube_song_requests").
+		err := parseCtx.Services.Gorm.WithContext(ctx).
+			Where(`"channelId" = ? AND "type" = ?`, parseCtx.Channel.ID, "youtube_song_requests").
 			First(moduleSettings).Error
 		if err != nil && err != gorm.ErrRecordNotFound {
-			logger.Sugar().Error(err)
+			parseCtx.Services.Logger.Sugar().Error(err)
 			result.Result = append(result.Result, "internal error")
 			return result
 		}
@@ -88,7 +79,7 @@ var SrCommand = &types.DefaultCommand{
 			return result
 		}
 
-		req, err := search.Search(context.Background(), &ytsr.SearchRequest{Search: *ctx.Text})
+		req, err := parseCtx.Services.GrpcClients.Ytsr.Search(context.Background(), &ytsr.SearchRequest{Search: *parseCtx.Text})
 		if err != nil {
 			zap.S().Error(err)
 			return result
@@ -100,8 +91,8 @@ var SrCommand = &types.DefaultCommand{
 
 		latestSong := &model.RequestedSong{}
 
-		err = db.
-			Where(`"channelId" = ? AND "deletedAt" IS NULL`, ctx.ChannelId).
+		err = parseCtx.Services.Gorm.WithContext(ctx).
+			Where(`"channelId" = ? AND "deletedAt" IS NULL`, parseCtx.Channel.ID).
 			Order(`"createdAt" desc`).
 			Find(&latestSong).Error
 
@@ -109,8 +100,8 @@ var SrCommand = &types.DefaultCommand{
 		errors := make([]*ReqError, 0, len(req.Songs))
 
 		var currentQueueCount int64
-		err = db.
-			Where(`"channelId" = ? AND "deletedAt" IS NULL`, ctx.ChannelId).
+		err = parseCtx.Services.Gorm.WithContext(ctx).
+			Where(`"channelId" = ? AND "deletedAt" IS NULL`, parseCtx.Channel.ID).
 			Model(&model.RequestedSong{}).
 			Count(&currentQueueCount).
 			Error
@@ -123,8 +114,10 @@ var SrCommand = &types.DefaultCommand{
 
 		for i, song := range req.Songs {
 			err = validate(
-				ctx.ChannelId,
-				ctx.SenderId,
+				ctx,
+				parseCtx.Services,
+				parseCtx.Channel.ID,
+				parseCtx.Sender.ID,
 				parsedSettings,
 				song,
 			)
@@ -137,10 +130,10 @@ var SrCommand = &types.DefaultCommand{
 			} else {
 				model := &model.RequestedSong{
 					ID:                   uuid.NewV4().String(),
-					ChannelID:            ctx.ChannelId,
-					OrderedById:          ctx.SenderId,
-					OrderedByName:        ctx.SenderName,
-					OrderedByDisplayName: null.StringFrom(ctx.SenderDisplayName),
+					ChannelID:            parseCtx.Channel.ID,
+					OrderedById:          parseCtx.Sender.ID,
+					OrderedByName:        parseCtx.Sender.Name,
+					OrderedByDisplayName: null.StringFrom(parseCtx.Sender.DisplayName),
 					VideoID:              song.Id,
 					Title:                song.Title,
 					Duration:             int32(song.Duration),
@@ -148,7 +141,7 @@ var SrCommand = &types.DefaultCommand{
 					QueuePosition:        int(currentQueueCount) + (i + 1),
 				}
 
-				err = db.Create(model).Error
+				err = parseCtx.Services.Gorm.WithContext(ctx).Create(model).Error
 				if err == nil {
 					requested = append(requested, model)
 				}
@@ -171,10 +164,10 @@ var SrCommand = &types.DefaultCommand{
 		}
 
 		for _, song := range requested {
-			websocketGrpc.YoutubeAddSongToQueue(
+			parseCtx.Services.GrpcClients.WebSockets.YoutubeAddSongToQueue(
 				context.Background(),
 				&websockets.YoutubeAddSongToQueueRequest{
-					ChannelId: ctx.ChannelId,
+					ChannelId: parseCtx.Channel.ID,
 					EntityId:  song.ID,
 				},
 			)
@@ -185,21 +178,19 @@ var SrCommand = &types.DefaultCommand{
 }
 
 func validate(
+	ctx context.Context,
+	services *services.Services,
 	channelId, userId string,
 	settings *youtube.YouTubeSettings,
 	song *ytsr.Song,
 ) error {
-	db := do.MustInvoke[gorm.DB](di.Provider)
-	cfg := do.MustInvoke[config.Config](di.Provider)
-	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-
-	twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, *services.Config, services.GrpcClients.Tokens)
 	if err != nil {
 		return err
 	}
 
 	alreadyRequestedSong := &model.RequestedSong{}
-	db.Where(`"videoId" = ? AND "deletedAt" IS NULL AND "channelId" = ?`, song.Id, channelId).
+	services.Gorm.WithContext(ctx).Where(`"videoId" = ? AND "deletedAt" IS NULL AND "channelId" = ?`, song.Id, channelId).
 		Find(&alreadyRequestedSong)
 
 	if alreadyRequestedSong.ID != "" {
@@ -251,7 +242,7 @@ func validate(
 
 	if *settings.AcceptOnlyWhenOnline {
 		stream := &model.ChannelsStreams{}
-		db.Where(`"userId" = ?`, channelId).First(stream)
+		services.Gorm.WithContext(ctx).Where(`"userId" = ?`, channelId).First(stream)
 		if stream.ID == "" {
 			return errors.New(settings.Translations.AcceptOnlineWhenOnline)
 		}
@@ -259,7 +250,7 @@ func validate(
 
 	if settings.MaxRequests != 0 {
 		var count int64
-		db.Model(&model.RequestedSong{}).
+		services.Gorm.WithContext(ctx).Model(&model.RequestedSong{}).
 			Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelId).
 			Count(&count)
 		if count >= int64(settings.MaxRequests) {
@@ -321,7 +312,7 @@ func validate(
 
 	if settings.User.MaxRequests != 0 {
 		var count int64
-		db.
+		services.Gorm.WithContext(ctx).
 			Model(&model.RequestedSong{}).
 			Where(`"orderedById" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, userId, channelId).
 			Count(&count)
@@ -340,7 +331,7 @@ func validate(
 
 	if settings.User.MinMessages != 0 || settings.User.MinWatchTime != 0 {
 		user := &model.Users{}
-		db.Where("id = ?", userId).Preload("Stats").First(&user)
+		services.Gorm.WithContext(ctx).Where("id = ?", userId).Preload("Stats").First(&user)
 		if user.ID == "" {
 			return errors.New(
 				"there is restrictions on user, but i cannot find you in db, sorry. :(",

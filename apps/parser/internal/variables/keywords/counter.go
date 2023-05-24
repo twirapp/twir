@@ -1,38 +1,36 @@
 package keywords
 
 import (
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
+	"context"
 	"strconv"
 
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
-var Counter = types.Variable{
-	Name:         "keywords.counter",
-	Description:  lo.ToPtr("Show how many times keyword was used"),
-	CommandsOnly: lo.ToPtr(true),
-	Visible:      lo.ToPtr(false),
-	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
+var Counter = &types.Variable{
+	Name:        "keywords.counter",
+	Description: lo.ToPtr("Show how many times keyword was used"),
+	Example:     lo.ToPtr("keywords.counter|id"),
+	Visible:     lo.ToPtr(false),
+	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
-		db := do.MustInvoke[gorm.DB](di.Provider)
 
-		if data.Params == nil {
+		if variableData.Params == nil {
 			result.Result = "id is not provided"
 			return result, nil
 		}
 
-		keyword := model.ChannelsKeywords{}
-		err := db.
-			Where(`"channelId" = ? AND "id" = ?`, ctx.ChannelId, data.Params).
+		var keyword *model.ChannelsKeywords
+		err := parseCtx.Services.Gorm.
+			WithContext(ctx).
+			Where(`"channelId" = ? AND "id" = ?`, parseCtx.Channel.ID, variableData.Params).
 			Find(&keyword).Error
+
 		if err != nil {
-			zap.S().Error(err)
+			parseCtx.Services.Logger.Sugar().Error(err)
+
 			result.Result = "internal error"
 			return result, nil
 		}

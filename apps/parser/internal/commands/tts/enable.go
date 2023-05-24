@@ -1,9 +1,11 @@
 package tts
 
 import (
+	"context"
+
 	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
@@ -14,9 +16,9 @@ var EnableCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
-		err := switchEnableState(ctx.ChannelId, true)
+		err := switchEnableState(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, true)
 		if err != nil {
 			result.Result = append(result.Result, "Error while updating settings")
 			return result

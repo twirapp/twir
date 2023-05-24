@@ -3,11 +3,11 @@ package handlers
 import (
 	"context"
 	"fmt"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
 	"strings"
 	"time"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
+	uuid "github.com/satori/go.uuid"
 )
 
 func (c *Handlers) handleEmotes(msg *Message) {
@@ -35,25 +35,24 @@ func (c *Handlers) handleEmotes(msg *Message) {
 	countEmotes(emotes, channelEmotes, splittedMsg, fmt.Sprintf("emotes:channel:%s:", msg.Channel.ID))
 	countEmotes(emotes, globalEmotes, splittedMsg, "emotes:global:")
 
-	err = c.db.Transaction(func(tx *gorm.DB) error {
-		for key, count := range emotes {
-			for i := 0; i < count; i++ {
-				err := tx.Create(&model.ChannelEmoteUsage{
-					ID:        uuid.NewV4().String(),
-					ChannelID: msg.Channel.ID,
-					UserID:    msg.User.ID,
-					Emote:     key,
-					CreatedAt: time.Now().UTC(),
-				}).Error
+	var emotesForCreate []*model.ChannelEmoteUsage
 
-				if err != nil {
-					return err
-				}
-			}
+	for key, count := range emotes {
+		for i := 0; i < count; i++ {
+			emotesForCreate = append(emotesForCreate, &model.ChannelEmoteUsage{
+				ID:        uuid.NewV4().String(),
+				ChannelID: msg.Channel.ID,
+				UserID:    msg.User.ID,
+				Emote:     key,
+				CreatedAt: time.Now().UTC(),
+			})
 		}
+	}
 
-		return nil
-	})
+	err = c.db.CreateInBatches(
+		emotesForCreate,
+		100,
+	).Error
 
 	if err != nil {
 		fmt.Println(err)

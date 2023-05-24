@@ -8,16 +8,12 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/go-redis/redis/v9"
 	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/bots/pkg/tlds"
 	model "github.com/satont/tsuwari/libs/gomodels"
 
-	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 	"go.uber.org/zap"
 )
@@ -40,22 +36,24 @@ var SayCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		redisClient := do.MustInvoke[redis.Client](di.Provider)
-		webSocketsGrpc := do.MustInvoke[websockets.WebsocketClient](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 
-		if ctx.Text == nil {
+		if parseCtx.Text == nil {
 			return result
 		}
 
-		channelSettings, _ := getSettings(ctx.ChannelId, "")
+		channelSettings, _ := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
 		if channelSettings == nil || !*channelSettings.Enabled {
 			return result
 		}
 
-		userSettings, _ := getSettings(ctx.ChannelId, ctx.SenderId)
+		userSettings, _ := getSettings(
+			ctx,
+			parseCtx.Services.Gorm,
+			parseCtx.Channel.ID,
+			parseCtx.Sender.ID,
+		)
 
 		voice := lo.IfF(userSettings != nil, func() string {
 			return userSettings.Voice
@@ -63,8 +61,8 @@ var SayCommand = &types.DefaultCommand{
 			Else(channelSettings.Voice)
 
 		if channelSettings.AllowUsersChooseVoiceInMainCommand {
-			voices := getVoices()
-			splittedChatArgs := strings.Split(*ctx.Text, " ")
+			voices := getVoices(ctx, parseCtx.Services.Config)
+			splittedChatArgs := strings.Split(*parseCtx.Text, " ")
 			targetVoice, targetVoiceFound := lo.Find(voices, func(item Voice) bool {
 				return strings.ToLower(item.Name) == strings.ToLower(splittedChatArgs[0])
 			})
@@ -84,11 +82,11 @@ var SayCommand = &types.DefaultCommand{
 					return result
 				}
 
-				*ctx.Text = strings.Join(splittedChatArgs[1:], " ")
+				*parseCtx.Text = strings.Join(splittedChatArgs[1:], " ")
 			}
 		}
 
-		if channelSettings.MaxSymbols > 0 && utf8.RuneCountInString(*ctx.Text) > channelSettings.MaxSymbols {
+		if channelSettings.MaxSymbols > 0 && utf8.RuneCountInString(*parseCtx.Text) > channelSettings.MaxSymbols {
 			return result
 		}
 
@@ -100,42 +98,42 @@ var SayCommand = &types.DefaultCommand{
 		}).Else(channelSettings.Pitch)
 
 		if channelSettings.DoNotReadEmoji {
-			*ctx.Text = emojiRx.ReplaceAllString(*ctx.Text, ``)
+			*parseCtx.Text = emojiRx.ReplaceAllString(*parseCtx.Text, ``)
 		}
 
 		if channelSettings.DoNotReadLinks {
-			*ctx.Text = strings.TrimSpace(linksWithSpaces.ReplaceAllString(*ctx.Text, ``))
+			*parseCtx.Text = strings.TrimSpace(linksWithSpaces.ReplaceAllString(*parseCtx.Text, ``))
 		}
 
 		if channelSettings.DoNotReadTwitchEmotes {
-			for _, emote := range ctx.Emotes {
-				*ctx.Text = strings.Replace(*ctx.Text, emote.Name, "", -1)
+			for _, emote := range parseCtx.Emotes {
+				*parseCtx.Text = strings.Replace(*parseCtx.Text, emote.Name, "", -1)
 			}
-			channelKey := fmt.Sprintf("emotes:channel:%s:", ctx.ChannelId)
-			channelEmotes := redisClient.Keys(
+			channelKey := fmt.Sprintf("emotes:channel:%s:", parseCtx.Channel.ID)
+			channelEmotes := parseCtx.Services.Redis.Keys(
 				context.Background(),
 				fmt.Sprintf("%s*", channelKey),
 			).Val()
 
 			for _, emote := range channelEmotes {
-				*ctx.Text = strings.Replace(*ctx.Text, strings.Split(emote, channelKey)[1], "", -1)
+				*parseCtx.Text = strings.Replace(*parseCtx.Text, strings.Split(emote, channelKey)[1], "", -1)
 			}
 
 			globalKey := "emotes:global:"
-			globalEmotes := redisClient.Keys(
+			globalEmotes := parseCtx.Services.Redis.Keys(
 				context.Background(),
 				fmt.Sprintf("%s:*", globalKey),
 			).Val()
 
 			for _, emote := range globalEmotes {
-				*ctx.Text = strings.Replace(*ctx.Text, strings.Split(emote, globalKey)[1], "", -1)
+				*parseCtx.Text = strings.Replace(*parseCtx.Text, strings.Split(emote, globalKey)[1], "", -1)
 			}
 
 		}
 
-		_, err := webSocketsGrpc.TextToSpeechSay(context.Background(), &websockets.TTSMessage{
-			ChannelId: ctx.ChannelId,
-			Text:      *ctx.Text,
+		_, err := parseCtx.Services.GrpcClients.WebSockets.TextToSpeechSay(context.Background(), &websockets.TTSMessage{
+			ChannelId: parseCtx.Channel.ID,
+			Text:      *parseCtx.Text,
 			Voice:     voice,
 			Rate:      strconv.Itoa(rate),
 			Pitch:     strconv.Itoa(pitch),

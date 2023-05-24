@@ -1,14 +1,11 @@
 package channel_game
 
 import (
+	"context"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"gorm.io/gorm"
 	"strconv"
 	"strings"
 
@@ -24,17 +21,15 @@ var History = &types.DefaultCommand{
 		IsReply:     true,
 		Visible:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		db := do.MustInvoke[gorm.DB](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
 		limit := 5
 
-		if ctx.Text != nil && *ctx.Text != "" {
-			l, err := strconv.Atoi(*ctx.Text)
+		if parseCtx.Text != nil && *parseCtx.Text != "" {
+			l, err := strconv.Atoi(*parseCtx.Text)
 			if err == nil {
 				limit = l
 			}
@@ -44,14 +39,15 @@ var History = &types.DefaultCommand{
 			limit = 5
 		}
 
-		histories := []model.ChannelInfoHistory{}
-		err := db.
+		var histories []*model.ChannelInfoHistory
+		err := parseCtx.Services.Gorm.
+			WithContext(ctx).
 			Raw(`SELECT * FROM (
-				SELECT DISTINCT ON (category) * FROM "channels_info_history" 
+				SELECT DISTINCT ON (category) * FROM "channels_info_history"
 				                             WHERE "channelId" = ?
-				                             ORDER BY "category", "createdAt" 
+				                             ORDER BY "category", "createdAt"
 				                             DESC
-				) subquery ORDER BY "createdAt" DESC LIMIT ?`, ctx.ChannelId, limit).
+				) subquery ORDER BY "createdAt" DESC LIMIT ?`, parseCtx.Channel.ID, limit).
 			Find(&histories).
 			Error
 
@@ -60,7 +56,7 @@ var History = &types.DefaultCommand{
 			return result
 		}
 
-		categories := lo.Map(histories, func(item model.ChannelInfoHistory, _ int) string {
+		categories := lo.Map(histories, func(item *model.ChannelInfoHistory, _ int) string {
 			return item.Category
 		})
 

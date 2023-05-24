@@ -5,52 +5,28 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	config "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
-
-	lastfm "github.com/satont/tsuwari/apps/parser/internal/integrations/lastfm"
-	vkIntegr "github.com/satont/tsuwari/apps/parser/internal/integrations/vk"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
-
-	model "github.com/satont/tsuwari/libs/gomodels"
-
-	"github.com/go-redis/redis/v9"
-	spotify "github.com/satont/tsuwari/libs/integrations/spotify"
-
 	"github.com/nicklaw5/helix/v2"
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+	model "github.com/satont/tsuwari/libs/gomodels"
+	spotify "github.com/satont/tsuwari/libs/integrations/spotify"
+	"github.com/satont/tsuwari/libs/twitch"
 )
 
-const (
-	SOUNDTRACK = "TWITCH_SOUNDTRACK"
-	VK         = "VK"
-	SPOTIFY    = "SPOTIFY"
-	LASTFM     = "LASTFM"
-	YOUTUBE_SR = "YOUTUBE_SR"
-)
-
-var Variable = types.Variable{
+var Song = &types.Variable{
 	Name:        "currentsong",
 	Description: lo.ToPtr("Print current played song from Spotify, Last.fm, e.t.c, and also from song requests."),
-	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-		db := do.MustInvoke[gorm.DB](di.Provider)
-		redisClient := do.MustInvoke[redis.Client](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		integrations := ctx.GetEnabledIntegrations()
+		integrations := parseCtx.Cacher.GetEnabledChannelIntegrations(ctx)
 
 		integrations = lo.Filter(
 			integrations,
-			func(integration model.ChannelsIntegrations, _ int) bool {
+			func(integration *model.ChannelsIntegrations, _ int) bool {
 				switch integration.Integration.Service {
-				case SPOTIFY, VK, LASTFM:
+				case "SPOTIFY", "VK", "LASTFM":
 					return integration.Enabled
 				default:
 					return false
@@ -60,52 +36,52 @@ var Variable = types.Variable{
 
 		lastFmIntegration, ok := lo.Find(
 			integrations,
-			func(integration model.ChannelsIntegrations) bool {
+			func(integration *model.ChannelsIntegrations) bool {
 				return integration.Integration.Service == "LASTFM"
 			},
 		)
 
-		var lfm *lastfm.LastFm
+		var lfm *lastFm
 		if ok {
-			lfm = lastfm.New(&lastFmIntegration)
+			lfm = newLastfm(lastFmIntegration)
 		}
 
 		spotifyIntegration, ok := lo.Find(
 			integrations,
-			func(integration model.ChannelsIntegrations) bool {
+			func(integration *model.ChannelsIntegrations) bool {
 				return integration.Integration.Service == "SPOTIFY"
 			},
 		)
 		var spoti *spotify.Spotify
 		if ok {
-			spoti = spotify.New(&spotifyIntegration, &db)
+			spoti = spotify.New(spotifyIntegration, parseCtx.Services.Gorm)
 		}
 
 		vkIntegration, ok := lo.Find(
 			integrations,
-			func(integration model.ChannelsIntegrations) bool {
+			func(integration *model.ChannelsIntegrations) bool {
 				return integration.Integration.Service == "VK"
 			},
 		)
-		var vk *vkIntegr.Vk
+		var vk *vkService
 		if ok {
-			vk = vkIntegr.New(&vkIntegration)
+			vk = newVk(vkIntegration)
 		}
 
 		integrationsForFetch := lo.Map(
 			integrations,
-			func(integration model.ChannelsIntegrations, _ int) string {
+			func(integration *model.ChannelsIntegrations, _ int) string {
 				return integration.Integration.Service
 			},
 		)
 
-		integrationsForFetch = append(integrationsForFetch, SOUNDTRACK)
-		integrationsForFetch = append(integrationsForFetch, YOUTUBE_SR)
+		integrationsForFetch = append(integrationsForFetch, "SOUNDTRACK")
+		integrationsForFetch = append(integrationsForFetch, "YOUTUBE_SR")
 
 	checkServices:
 		for _, integration := range integrationsForFetch {
 			switch integration {
-			case SPOTIFY:
+			case "SPOTIFY":
 				if spoti == nil {
 					continue
 				}
@@ -114,7 +90,7 @@ var Variable = types.Variable{
 					result.Result = *track
 					break checkServices
 				}
-			case LASTFM:
+			case "LASTFM":
 				if lfm == nil {
 					continue
 				}
@@ -125,29 +101,32 @@ var Variable = types.Variable{
 					result.Result = *track
 					break checkServices
 				}
-			case VK:
+			case "VK":
 				if vk == nil {
 					continue
 				}
-				track := vk.GetTrack()
+				track := vk.GetTrack(ctx)
 				if track != nil {
 					result.Result = *track
 					break checkServices
 				}
-			case YOUTUBE_SR:
-				redisData, err := redisClient.Get(
+			case "YOUTUBE_SR":
+				redisData, err := parseCtx.Services.Redis.Get(
 					context.Background(),
-					fmt.Sprintf("songrequests:youtube:%s:currentPlaying", ctx.ChannelId),
+					fmt.Sprintf("songrequests:youtube:%s:currentPlaying", parseCtx.Channel.ID),
 				).Result()
 				if err == redis.Nil {
 					continue
 				}
 				if err != nil {
-					zap.S().Error(err)
+					parseCtx.Services.Logger.Sugar().Error(err)
 					continue
 				}
 				song := model.RequestedSong{}
-				if err = db.Where("id = ?", redisData).First(&song).Error; err != nil {
+				if err = parseCtx.Services.Gorm.
+					WithContext(ctx).
+					Where("id = ?", redisData).
+					First(&song).Error; err != nil {
 					fmt.Println("song nog found", err)
 					continue
 				}
@@ -159,19 +138,20 @@ var Variable = types.Variable{
 					song.OrderedByName,
 				)
 				break checkServices
-			case SOUNDTRACK:
-				cfg := do.MustInvoke[config.Config](di.Provider)
-				tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-
-				twitchClient, err := twitch.NewAppClient(cfg, tokensGrpc)
+			case "SOUNDTRACK":
+				twitchClient, err := twitch.NewAppClientWithContext(
+					ctx,
+					*parseCtx.Services.Config,
+					parseCtx.Services.GrpcClients.Tokens,
+				)
 				if err != nil {
 					continue
 				}
 				tracks, err := twitchClient.GetSoundTrackCurrentTrack(&helix.SoundtrackCurrentTrackParams{
-					BroadcasterID: ctx.ChannelId,
+					BroadcasterID: parseCtx.Channel.ID,
 				})
 				if err != nil {
-					zap.S().Error(err)
+					parseCtx.Services.Logger.Sugar().Error(err)
 					continue
 				}
 

@@ -1,20 +1,15 @@
 package manage
 
 import (
+	"context"
 	"fmt"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"gorm.io/gorm"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
 	"log"
 	"strings"
 
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-
 	model "github.com/satont/tsuwari/libs/gomodels"
-
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/samber/lo"
 )
@@ -27,19 +22,17 @@ var AddAliaseCommand = &types.DefaultCommand{
 		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		db := do.MustInvoke[gorm.DB](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
-		if ctx.Text == nil {
+		if parseCtx.Text == nil {
 			result.Result = append(result.Result, incorrectUsage)
 			return result
 		}
 
-		args := strings.Split(*ctx.Text, " ")
+		args := strings.Split(*parseCtx.Text, " ")
 
 		if len(args) < 2 {
 			result.Result = append(result.Result, incorrectUsage)
@@ -49,8 +42,13 @@ var AddAliaseCommand = &types.DefaultCommand{
 		commandName := strings.ToLower(strings.ReplaceAll(args[0], "!", ""))
 		aliase := strings.ToLower(strings.ReplaceAll(strings.Join(args[1:], " "), "!", ""))
 
-		existedCommands := []model.ChannelsCommands{}
-		err := db.Where(`"channelId" = ?`, ctx.ChannelId).Select(`"channelId"`, "name", "aliases").Find(&existedCommands).Error
+		var existedCommands []*model.ChannelsCommands
+		err := parseCtx.Services.Gorm.
+			WithContext(ctx).
+			Where(`"channelId" = ?`, parseCtx.Channel.ID).
+			Select(`"channelId"`, "name", "aliases").
+			Find(&existedCommands).
+			Error
 		if err != nil {
 			fmt.Println("cannot get count", err)
 			result.Result = append(result.Result, "internal error")
@@ -71,8 +69,9 @@ var AddAliaseCommand = &types.DefaultCommand{
 		}
 
 		cmd := model.ChannelsCommands{}
-		err = db.
-			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, commandName).
+		err = parseCtx.Services.Gorm.
+			WithContext(ctx).
+			Where(`"channelId" = ? AND name = ?`, parseCtx.Channel.ID, commandName).
 			Preload(`Responses`).
 			First(&cmd).Error
 
@@ -83,7 +82,8 @@ var AddAliaseCommand = &types.DefaultCommand{
 
 		cmd.Aliases = append(cmd.Aliases, aliase)
 
-		err = db.
+		err = parseCtx.Services.Gorm.
+			WithContext(ctx).
 			Save(&cmd).Error
 
 		if err != nil {

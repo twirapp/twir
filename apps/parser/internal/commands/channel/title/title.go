@@ -1,16 +1,12 @@
 package channel_title
 
 import (
+	"context"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
-	config "github.com/satont/tsuwari/libs/config"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
 )
 
@@ -23,26 +19,28 @@ var SetCommand = &types.DefaultCommand{
 		Visible:     false,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		cfg := do.MustInvoke[config.Config](di.Provider)
-		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
-		twitchClient, err := twitch.NewUserClient(ctx.ChannelId, cfg, tokensGrpc)
+		twitchClient, err := twitch.NewUserClientWithContext(
+			ctx,
+			parseCtx.Channel.ID,
+			*parseCtx.Services.Config,
+			parseCtx.Services.GrpcClients.Tokens,
+		)
 		if err != nil {
 			return nil
 		}
 
-		if ctx.Text == nil || *ctx.Text == "" {
+		if parseCtx.Text == nil || *parseCtx.Text == "" {
 			return result
 		}
 
 		req, err := twitchClient.EditChannelInformation(&helix.EditChannelInformationParams{
-			BroadcasterID: ctx.ChannelId,
-			Title:         *ctx.Text,
+			BroadcasterID: parseCtx.Channel.ID,
+			Title:         *parseCtx.Text,
 		})
 
 		if err != nil || req.StatusCode != 204 {
@@ -50,7 +48,7 @@ var SetCommand = &types.DefaultCommand{
 			return result
 		}
 
-		result.Result = append(result.Result, "✅ "+*ctx.Text)
+		result.Result = append(result.Result, "✅ "+*parseCtx.Text)
 		return result
 	},
 }

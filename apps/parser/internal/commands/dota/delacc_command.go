@@ -1,90 +1,90 @@
 package dota
 
-import (
-	"github.com/guregu/null"
-	"github.com/lib/pq"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
-	"strconv"
+// import (
+// 	"github.com/guregu/null"
+// 	"github.com/lib/pq"
+// 	"github.com/samber/do"
+// 	"github.com/satont/tsuwari/apps/parser/internal/di"
+// 	"go.uber.org/zap"
+// 	"gorm.io/gorm"
+// 	"strconv"
 
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+// 	"github.com/satont/tsuwari/apps/parser/internal/types"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+// 	model "github.com/satont/tsuwari/libs/gomodels"
 
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+// 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
-	steamid "github.com/leighmacdonald/steamid/v2/steamid"
-	"github.com/samber/lo"
-)
+// 	steamid "github.com/leighmacdonald/steamid/v2/steamid"
+// 	"github.com/samber/lo"
+// )
 
-var DelAccCommand = &types.DefaultCommand{
-	ChannelsCommands: &model.ChannelsCommands{
-		Name:        "dota delacc",
-		Description: null.StringFrom("Delete dota account "),
-		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
-		Module:      "DOTA",
-		IsReply:     true,
-	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		result := &types.CommandsHandlerResult{
-			Result: make([]string, 0),
-		}
-		db := do.MustInvoke[gorm.DB](di.Provider)
+// var DelAccCommand = &types.DefaultCommand{
+// 	ChannelsCommands: &model.ChannelsCommands{
+// 		Name:        "dota delacc",
+// 		Description: null.StringFrom("Delete dota account "),
+// 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
+// 		Module:      "DOTA",
+// 		IsReply:     true,
+// 	},
+// 	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+// 		result := &types.CommandsHandlerResult{
+// 			Result: make([]string, 0),
+// 		}
+// 		db := do.MustInvoke[gorm.DB](di.Provider)
 
-		acc, err := strconv.ParseUint(*ctx.Text, 10, 64)
-		if err != nil {
-			result.Result = append(result.Result, WRONG_ACCOUNT_ID)
-			return result
-		}
+// 		acc, err := strconv.ParseUint(*ctx.Text, 10, 64)
+// 		if err != nil {
+// 			result.Result = append(result.Result, WRONG_ACCOUNT_ID)
+// 			return result
+// 		}
 
-		ok := lo.Try(func() error {
-			n := steamid.SID32(acc)
-			steamid.SID32ToSID(n)
-			return nil
-		})
+// 		ok := lo.Try(func() error {
+// 			n := steamid.SID32(acc)
+// 			steamid.SID32ToSID(n)
+// 			return nil
+// 		})
 
-		if !ok {
-			result.Result = append(result.Result, WRONG_ACCOUNT_ID)
-			return result
-		}
+// 		if !ok {
+// 			result.Result = append(result.Result, WRONG_ACCOUNT_ID)
+// 			return result
+// 		}
 
-		accId := steamid.SID32(acc)
+// 		accId := steamid.SID32(acc)
 
-		var count int64 = 0
-		err = db.
-			Table("channels_dota_accounts").
-			Where(`"channelId" = ? AND "id" = ?`, ctx.ChannelId, strconv.Itoa(int(accId))).
-			Count(&count).Error
+// 		var count int64 = 0
+// 		err = db.
+// 			Table("channels_dota_accounts").
+// 			Where(`"channelId" = ? AND "id" = ?`, ctx.ChannelId, strconv.Itoa(int(accId))).
+// 			Count(&count).Error
 
-		if err != nil {
-			zap.S().Error(err)
-			result.Result = append(result.Result, "Error happend on our side.")
-			return result
-		}
+// 		if err != nil {
+// 			zap.S().Error(err)
+// 			result.Result = append(result.Result, "Error happend on our side.")
+// 			return result
+// 		}
 
-		if count == 0 {
-			result.Result = append(result.Result, "Account not added.")
-			return result
-		}
+// 		if count == 0 {
+// 			result.Result = append(result.Result, "Account not added.")
+// 			return result
+// 		}
 
-		err = db.
-			Delete(&model.ChannelsDotaAccounts{
-				ID:        strconv.Itoa(int(accId)),
-				ChannelID: ctx.ChannelId,
-			}).Error
+// 		err = db.
+// 			Delete(&model.ChannelsDotaAccounts{
+// 				ID:        strconv.Itoa(int(accId)),
+// 				ChannelID: ctx.ChannelId,
+// 			}).Error
 
-		if err != nil {
-			zap.S().Error(err)
-			result.Result = append(
-				result.Result,
-				"Something went wrong on out side when inserting account into db.",
-			)
-			return result
-		}
+// 		if err != nil {
+// 			zap.S().Error(err)
+// 			result.Result = append(
+// 				result.Result,
+// 				"Something went wrong on out side when inserting account into db.",
+// 			)
+// 			return result
+// 		}
 
-		result.Result = append(result.Result, "Account removed.")
-		return result
-	},
-}
+// 		result.Result = append(result.Result, "Account removed.")
+// 		return result
+// 	},
+// }

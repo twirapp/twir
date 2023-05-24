@@ -1,8 +1,9 @@
 package commands
 
 import (
-	model "github.com/satont/tsuwari/libs/gomodels"
 	"sort"
+
+	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/guregu/null"
 	"github.com/samber/lo"
@@ -111,8 +112,8 @@ func createCommandFromDto(
 func createResponsesFromDto(
 	responsesDto []responsesDto,
 	commandId string,
-) []model.ChannelsCommandsResponses {
-	responses := []model.ChannelsCommandsResponses{}
+) []*model.ChannelsCommandsResponses {
+	responses := []*model.ChannelsCommandsResponses{}
 	for _, r := range responsesDto {
 		response := model.ChannelsCommandsResponses{
 			ID:        uuid.NewV4().String(),
@@ -120,7 +121,7 @@ func createResponsesFromDto(
 			Order:     int(r.Order),
 			CommandID: commandId,
 		}
-		responses = append(responses, response)
+		responses = append(responses, &response)
 	}
 
 	return responses

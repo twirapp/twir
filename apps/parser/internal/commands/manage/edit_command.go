@@ -1,19 +1,15 @@
 package manage
 
 import (
+	"context"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"gorm.io/gorm"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
+
 	"log"
 	"strings"
 
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-
 	model "github.com/satont/tsuwari/libs/gomodels"
-
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 )
 
 var EditCommand = &types.DefaultCommand{
@@ -24,19 +20,17 @@ var EditCommand = &types.DefaultCommand{
 		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		db := do.MustInvoke[gorm.DB](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
-		if ctx.Text == nil {
+		if parseCtx.Text == nil {
 			result.Result = append(result.Result, incorrectUsage)
 			return result
 		}
 
-		args := strings.Split(*ctx.Text, " ")
+		args := strings.Split(*parseCtx.Text, " ")
 
 		if len(args) < 2 {
 			result.Result = append(result.Result, incorrectUsage)
@@ -47,8 +41,9 @@ var EditCommand = &types.DefaultCommand{
 		text := strings.Join(args[1:], " ")
 
 		cmd := model.ChannelsCommands{}
-		err := db.
-			Where(`"channelId" = ? AND name = ?`, ctx.ChannelId, name).
+		err := parseCtx.Services.Gorm.
+			WithContext(ctx).
+			Where(`"channelId" = ? AND name = ?`, parseCtx.Channel.ID, name).
 			Preload(`Responses`).
 			First(&cmd).Error
 
@@ -71,7 +66,8 @@ var EditCommand = &types.DefaultCommand{
 			return result
 		}
 
-		err = db.
+		err = parseCtx.Services.Gorm.
+			WithContext(ctx).
 			Model(&model.ChannelsCommandsResponses{}).
 			Where(`"commandId" = ?`, cmd.ID).
 			Update(`text`, text).Error

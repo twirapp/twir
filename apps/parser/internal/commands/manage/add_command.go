@@ -1,19 +1,15 @@
 package manage
 
 import (
-	"github.com/lib/pq"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"gorm.io/gorm"
+	"context"
 	"log"
 	"strings"
 
+	"github.com/lib/pq"
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
-
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 
 	"github.com/guregu/null"
 	uuid "github.com/satori/go.uuid"
@@ -34,19 +30,17 @@ var AddCommand = &types.DefaultCommand{
 		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		db := do.MustInvoke[gorm.DB](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
-		if ctx.Text == nil {
+		if parseCtx.Text == nil {
 			result.Result = append(result.Result, incorrectUsage)
 			return result
 		}
 
-		args := strings.Split(*ctx.Text, " ")
+		args := strings.Split(*parseCtx.Text, " ")
 
 		if len(args) < 2 {
 			result.Result = append(result.Result, incorrectUsage)
@@ -61,9 +55,11 @@ var AddCommand = &types.DefaultCommand{
 			return result
 		}
 
-		commands := []model.ChannelsCommands{}
-		err := db.Model(&model.ChannelsCommands{}).
-			Where(`"channelId" = ?`, ctx.ChannelId).
+		var commands []*model.ChannelsCommands
+		err := parseCtx.Services.Gorm.
+			WithContext(ctx).
+			Model(&model.ChannelsCommands{}).
+			Where(`"channelId" = ?`, parseCtx.Channel.ID).
 			Find(&commands).Error
 		if err != nil {
 			log.Fatalln(err)
@@ -76,7 +72,7 @@ var AddCommand = &types.DefaultCommand{
 				return result
 			}
 
-			if helpers.Contains(c.Aliases, name) {
+			if lo.Contains(c.Aliases, name) {
 				result.Result = append(result.Result, alreadyExists)
 				return result
 			}
@@ -93,10 +89,10 @@ var AddCommand = &types.DefaultCommand{
 			Description:  null.String{},
 			DefaultName:  null.String{},
 			Visible:      true,
-			ChannelID:    ctx.ChannelId,
+			ChannelID:    parseCtx.Channel.ID,
 			Default:      false,
 			Module:       "CUSTOM",
-			Responses: []model.ChannelsCommandsResponses{
+			Responses: []*model.ChannelsCommandsResponses{
 				{
 					ID:        uuid.NewV4().String(),
 					Text:      null.StringFrom(text),
@@ -104,7 +100,7 @@ var AddCommand = &types.DefaultCommand{
 				},
 			},
 		}
-		err = db.Create(&command).Error
+		err = parseCtx.Services.Gorm.WithContext(ctx).Create(&command).Error
 
 		if err != nil {
 			log.Fatalln(err)

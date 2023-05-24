@@ -1,18 +1,17 @@
 package sender
 
 import (
-	types "github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+	"context"
 
 	"github.com/samber/lo"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
 )
 
-var Variable = types.Variable{
-	Name:         "sender",
-	Description:  lo.ToPtr("Username of user, who sended message"),
-	CommandsOnly: lo.ToPtr(true),
-	Handler: func(ctx *variables_cache.VariablesCacheService, data types.VariableHandlerParams) (*types.VariableHandlerResult, error) {
-		result := types.VariableHandlerResult{Result: ctx.SenderName}
+var Sender = &types.Variable{
+	Name:        "sender",
+	Description: lo.ToPtr("Username of user, who sended message"),
+	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+		result := types.VariableHandlerResult{Result: parseCtx.Sender.Name}
 
 		return &result, nil
 	},

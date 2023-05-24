@@ -1,18 +1,14 @@
 package channel_game
 
 import (
+	"context"
 	"fmt"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
 	"strings"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/parser/internal/di"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
-	config "github.com/satont/tsuwari/libs/config"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/tsuwari/libs/twitch"
 
 	"github.com/nicklaw5/helix/v2"
@@ -27,25 +23,27 @@ var SetCommand = &types.DefaultCommand{
 		Visible:     false,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
-		cfg := do.MustInvoke[config.Config](di.Provider)
-		tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
-		twitchClient, err := twitch.NewUserClient(ctx.ChannelId, cfg, tokensGrpc)
+		twitchClient, err := twitch.NewUserClientWithContext(
+			ctx,
+			parseCtx.Channel.ID,
+			*parseCtx.Services.Config,
+			parseCtx.Services.GrpcClients.Tokens,
+		)
 		if err != nil {
 			return nil
 		}
 
-		if ctx.Text == nil || *ctx.Text == "" {
+		if parseCtx.Text == nil || *parseCtx.Text == "" {
 			return result
 		}
 
 		gameReq, err := twitchClient.GetGames(&helix.GamesParams{
-			Names: []string{*ctx.Text},
+			Names: []string{*parseCtx.Text},
 		})
 		if err != nil {
 			return nil
@@ -59,7 +57,7 @@ var SetCommand = &types.DefaultCommand{
 			categoryName = gameReq.Data.Games[0].Name
 		} else {
 			games, err := twitchClient.SearchCategories(&helix.SearchCategoriesParams{
-				Query: *ctx.Text,
+				Query: *parseCtx.Text,
 			})
 			if err != nil {
 				return nil
@@ -70,7 +68,7 @@ var SetCommand = &types.DefaultCommand{
 				categoryName = games.Data.Categories[0].Name
 
 				for _, category := range games.Data.Categories {
-					if strings.Index(strings.ToLower(category.Name), strings.ToLower(*ctx.Text)) == 0 {
+					if strings.Index(strings.ToLower(category.Name), strings.ToLower(*parseCtx.Text)) == 0 {
 						categoryId = category.ID
 						categoryName = category.Name
 						break
@@ -85,7 +83,7 @@ var SetCommand = &types.DefaultCommand{
 		}
 
 		req, err := twitchClient.EditChannelInformation(&helix.EditChannelInformationParams{
-			BroadcasterID: ctx.ChannelId,
+			BroadcasterID: parseCtx.Channel.ID,
 			GameID:        categoryId,
 		})
 

@@ -33,8 +33,12 @@ func rateLimitCallback(lastResponse *helix.Response) error {
 }
 
 func NewAppClient(config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
+	return NewAppClientWithContext(context.Background(), config, tokensGrpc)
+}
+
+func NewAppClientWithContext(ctx context.Context, config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
 	appToken, err := tokensGrpc.RequestAppToken(
-		context.Background(),
+		ctx,
 		&emptypb.Empty{},
 		grpc.WaitForReady(true),
 	)
@@ -42,7 +46,7 @@ func NewAppClient(config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Cli
 		return nil, err
 	}
 
-	client, err := helix.NewClient(&helix.Options{
+	client, err := helix.NewClientWithContext(ctx, &helix.Options{
 		ClientID:       config.TwitchClientId,
 		ClientSecret:   config.TwitchClientSecret,
 		RedirectURI:    config.TwitchCallbackUrl,
@@ -57,8 +61,17 @@ func NewAppClient(config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Cli
 }
 
 func NewUserClient(userID string, config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
+	return NewUserClientWithContext(context.Background(), userID, config, tokensGrpc)
+}
+
+func NewUserClientWithContext(
+	ctx context.Context,
+	userID string,
+	config cfg.Config,
+	tokensGrpc tokens.TokensClient,
+) (*helix.Client, error) {
 	userToken, err := tokensGrpc.RequestUserToken(
-		context.Background(),
+		ctx,
 		&tokens.GetUserTokenRequest{UserId: userID},
 		grpc.WaitForReady(true),
 	)
@@ -66,7 +79,7 @@ func NewUserClient(userID string, config cfg.Config, tokensGrpc tokens.TokensCli
 		return nil, err
 	}
 
-	client, err := helix.NewClient(&helix.Options{
+	client, err := helix.NewClientWithContext(ctx, &helix.Options{
 		ClientID:        config.TwitchClientId,
 		ClientSecret:    config.TwitchClientSecret,
 		RedirectURI:     config.TwitchCallbackUrl,
@@ -81,8 +94,12 @@ func NewUserClient(userID string, config cfg.Config, tokensGrpc tokens.TokensCli
 }
 
 func NewBotClient(botID string, config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
+	return NewBotClientWithContext(context.Background(), botID, config, tokensGrpc)
+}
+
+func NewBotClientWithContext(ctx context.Context, botID string, config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
 	botToken, err := tokensGrpc.RequestBotToken(
-		context.Background(),
+		ctx,
 		&tokens.GetBotTokenRequest{BotId: botID},
 		grpc.WaitForReady(true),
 	)
@@ -90,7 +107,7 @@ func NewBotClient(botID string, config cfg.Config, tokensGrpc tokens.TokensClien
 		return nil, err
 	}
 
-	client, err := helix.NewClient(&helix.Options{
+	client, err := helix.NewClientWithContext(ctx, &helix.Options{
 		ClientID:        config.TwitchClientId,
 		ClientSecret:    config.TwitchClientSecret,
 		RedirectURI:     config.TwitchCallbackUrl,

@@ -1,28 +1,27 @@
 package spam
 
 import (
+	"context"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	"github.com/satont/tsuwari/apps/parser/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"strconv"
 	"strings"
-
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
 )
 
 var Command = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "spam",
-		Description: null.StringFrom("Spam into chat. Example usage: <b>!spam 5 https://tsuwari.tk</b>"),
+		Description: null.StringFrom("Spam into chat. Example usage: <b>!spam 5 Follow me on twitter"),
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "MODERATION",
 	},
-	Handler: func(ctx *variables_cache.ExecutionContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 
 		count := 1
-		params := strings.Split(*ctx.Text, " ")
+		params := strings.Split(*parseCtx.Text, " ")
 
 		paramsLen := len(params)
 		if paramsLen < 2 {
