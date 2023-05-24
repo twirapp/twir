@@ -73,7 +73,7 @@ func (c *parserGrpcServer) isUserHasPermissionToCommand(
 		}
 
 		for _, badge := range badges {
-			if strings.ToLower(role.Type.String()) == strings.ToLower(badge) {
+			if strings.EqualFold(role.Type.String(), badge) {
 				return true
 			}
 		}
