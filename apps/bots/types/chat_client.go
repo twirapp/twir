@@ -80,18 +80,16 @@ func validateResponseSlashes(response string) string {
 
 func splitTextByLength(text string) []string {
 	var parts []string
-	for len(text) > 0 {
-		if len(text) < 500 {
+
+	i := 500
+	for utf8.RuneCountInString(text) > 0 {
+		if utf8.RuneCountInString(text) < 500 {
 			parts = append(parts, text)
 			break
 		}
-		// Find the last complete UTF-8 character within the next 500 bytes
-		i := 500
-		for !utf8.ValidString(text[:i]) {
-			i--
-		}
-		parts = append(parts, text[:i])
-		text = text[i:]
+		runned := []rune(text)
+		parts = append(parts, string(runned[:i]))
+		text = string(runned[i:])
 	}
 
 	return parts
