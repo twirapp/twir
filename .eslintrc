@@ -35,9 +35,6 @@
     "@typescript-eslint/func-call-spacing": [
       "error"
     ],
-    "no-tabs": [
-      "error"
-    ],
     "semi": [
       2,
       "always"
