@@ -13,7 +13,7 @@ export const grpcServer = createServer({
 
 const linkRegexp = new RegExp(
   `\\S+[a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})(?=\\P{L}|$)\\S*`,
-  'iu',
+  'giu',
 );
 
 const youtubeLinkRegexp = /(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)&?/;
