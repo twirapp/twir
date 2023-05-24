@@ -13,8 +13,10 @@ export const grpcServer = createServer({
 
 const linkRegexp = new RegExp(
   `\\S+[a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})(?=\\P{L}|$)\\S*`,
-  'igu',
+  'iu',
 );
+
+const youtubeLinkRegexp = /(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)&?/;
 
 const isYoutubeLink = (l: string) => ['youtube', 'youtu.be'].some(link => l.includes(link));
 
@@ -34,7 +36,12 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
 
     if (linkMatches.length) {
       if (youtubeMatches.length) {
-        tracksForSearch.push(...youtubeMatches.map(m => m[0]));
+        tracksForSearch.push(...youtubeMatches.map(m => {
+					const fullLink = m[0];
+					const match = youtubeLinkRegexp.exec(fullLink)!;
+
+					return `https://www.youtube.com/watch?v=${match[1]!}`;
+				}));
       }
 
       if (nonYoutubeMatches.length) {
@@ -44,11 +51,11 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
               `https://api.song.link/v1-alpha.1/links?url=${match[0]}&key=${config.ODESLI_API_KEY}`,
             );
             if (!request.ok) return;
-  
+
             const data = await request.json();
             const youTube = data.linksByPlatform?.youtube;
             if (!youTube) return;
-  
+
             tracksForSearch.push(youTube.url);
           }),
         );
@@ -59,6 +66,7 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
 
     await Promise.all(
       tracksForSearch.map(async (track) => {
+
         const search = await ytsrLib(track, { limit: 1 });
         const item = search.items.at(0) as Video;
         if (!item) return;
