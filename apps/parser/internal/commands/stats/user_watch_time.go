@@ -21,6 +21,7 @@ var UserWatchTime = &types.DefaultCommand{
 		Aliases:     pq.StringArray{"watch"},
 		Visible:     true,
 		Enabled:     false,
+		IsReply:     true,
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{
