@@ -14,6 +14,7 @@ use (
 	./apps/websockets
 	./libs/config
 	./libs/gomodels
+	./libs/gopool
 	./libs/grpc
 	./libs/integrations/spotify
 	./libs/pubsub
@@ -21,5 +22,4 @@ use (
 	./libs/types
 	./libs/ytdl
 	./libs/ytsr
-	./libs/gopool
 )
