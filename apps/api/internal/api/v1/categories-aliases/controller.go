@@ -11,8 +11,8 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 
 	middleware.Get("/", get(services))
 	middleware.Post("/", post(services))
-	middleware.Delete(":gameAliasId", delete(services))
-	middleware.Put(":gameAliasId", put(services))
+	middleware.Delete(":categoryAliasId", delete(services))
+	middleware.Patch(":categoryAliasId", patch(services))
 
 	return middleware
 }
@@ -68,7 +68,7 @@ func post(services types.Services) fiber.Handler {
 			return c.JSON(categoryAlias)
 		}
 
-		return c.JSON(dto)
+		return err
 	}
 }
 
@@ -107,42 +107,6 @@ func delete(services types.Services) fiber.Handler {
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
-// @Router       /v1/channels/{channelId}/categories-aliases/{categoryAliasId} [put]
-func put(services types.Services) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		dto := &categoryAliasDto{}
-		err := middlewares.ValidateBody(
-			c,
-			services.Validator,
-			services.ValidatorTranslator,
-			dto,
-		)
-		if err != nil {
-			return err
-		}
-
-		categoryAlias, err := handleUpdate(c.Params("categoryAliasId"), dto, services)
-		if err == nil && categoryAlias != nil {
-			return c.JSON(categoryAlias)
-		}
-
-		return c.JSON(dto)
-	}
-}
-
-// Category aliases godoc
-// @Security ApiKeyAuth
-// @Summary Update category alias
-// @Tags categoriesAliases
-// @Accept json
-// @Produce json
-// @Param data body categoryAliasDto true "Data"
-// @Param        channelId   path      string  true  "ID of channel"
-// @Param        categoryAliasId   path      string  true  "ID of category"
-// @Success      200
-// @Failure 400 {object} types.DOCApiValidationError
-// @Failure 404
-// @Failure 500 {object} types.DOCApiInternalError
 // @Router       /v1/channels/{channelId}/categories-aliases/{categoryAliasId} [patch]
 func patch(services types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -157,7 +121,7 @@ func patch(services types.Services) fiber.Handler {
 			return err
 		}
 
-		categoryAlias, err := handlePatch(c.Params("categoryAliasId"), dto, services)
+		categoryAlias, err := handlePatch(c.Params("channelId"), c.Params("categoryAliasId"), dto, services)
 		if err != nil {
 			return err
 		}

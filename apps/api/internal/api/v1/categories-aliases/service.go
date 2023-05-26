@@ -9,6 +9,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
@@ -30,11 +31,12 @@ func handlePost(channelId string, dto *categoryAliasDto, services types.Services
 
 	existedAlias := &model.ChannelCategoryAlias{}
 	err := db.Where(`"channelId" = ? AND "alias" = ?`, channelId, dto.Alias).First(existedAlias).Error
-	if err != nil {
+	if err == nil {
 		return nil, fiber.NewError(http.StatusBadRequest, "alias with this name already exists")
 	}
 
 	alias := &model.ChannelCategoryAlias{
+		ID:        uuid.NewV4().String(),
 		ChannelID: channelId,
 		Category:  dto.Category,
 		Alias:     dto.Alias,
@@ -68,40 +70,8 @@ func handleDelete(categoryAliasId string, services types.Services) error {
 	return nil
 }
 
-func handleUpdate(
-	gameAliasId string,
-	dto *categoryAliasDto,
-	services types.Services,
-) (*model.ChannelCategoryAlias, error) {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	db := do.MustInvoke[*gorm.DB](di.Provider)
-
-	existedAlias := &model.ChannelCategoryAlias{}
-	err := db.Where(`"id" = ?`, dto.ID).First(existedAlias).Error
-	if err != nil && existedAlias == nil {
-		return nil, fiber.NewError(http.StatusNotFound, "alias not found")
-	}
-	if err != nil {
-		logger.Error(err)
-		return nil, fiber.NewError(http.StatusInternalServerError)
-	}
-
-	newAlias := &model.ChannelCategoryAlias{
-		ID:       *dto.ID,
-		Category: dto.Category,
-		Alias:    dto.Alias,
-	}
-
-	err = db.Model(existedAlias).Select("*").Updates(newAlias).Error
-	if err != nil {
-		logger.Error(err)
-		return nil, fiber.NewError(http.StatusInternalServerError)
-	}
-
-	return newAlias, nil
-}
-
 func handlePatch(
+	channelId string,
 	categoryAliasId string,
 	dto *categoryAliasPatchDto,
 	services types.Services,
@@ -111,7 +81,8 @@ func handlePatch(
 
 	existedAlias := &model.ChannelCategoryAlias{}
 	err := db.Where(`"id" = ?`, categoryAliasId).First(existedAlias).Error
-	if err != nil && existedAlias == nil {
+	if err != nil {
+
 		return nil, fiber.NewError(http.StatusNotFound, "alias not found")
 	}
 	if err != nil {
@@ -119,11 +90,15 @@ func handlePatch(
 		return nil, fiber.NewError(http.StatusInternalServerError)
 	}
 
+	err = db.Where(`"channelId" = ? AND "alias" = ?`, channelId, dto.Alias).First(existedAlias).Error
+	if err == nil {
+		return nil, fiber.NewError(http.StatusBadGateway, "alias with this name already exists")
+	}
+
 	existedAlias.Category = dto.Category
 	existedAlias.Alias = dto.Alias
 	err = db.Model(existedAlias).Select("*").Updates(existedAlias).Error
 	if err != nil {
-		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update category alias")
 	}
 
