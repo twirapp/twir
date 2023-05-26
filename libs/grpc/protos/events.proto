@@ -11,6 +11,7 @@ service Events {
   rpc RedemptionCreated(RedemptionCreatedMessage) returns (google.protobuf.Empty) {}
   rpc CommandUsed(CommandUsedMessage) returns (google.protobuf.Empty) {}
   rpc FirstUserMessage(FirstUserMessageMessage) returns (google.protobuf.Empty) {}
+	rpc StreamFirstUserJoin(StreamFirstUserJoinMessage) returns (google.protobuf.Empty) {}
   rpc Raided(RaidedMessage) returns (google.protobuf.Empty) {}
   rpc TitleOrCategoryChanged(TitleOrCategoryChangedMessage) returns (google.protobuf.Empty) {}
   rpc StreamOnline(StreamOnlineMessage) returns (google.protobuf.Empty) {}
@@ -267,4 +268,11 @@ message PredictionEndMessage {
   string userDisplayName = 3;
   PredictionInfo info = 4;
   string winningOutcomeId = 5;
+}
+
+
+message StreamFirstUserJoinMessage {
+	BaseInfo baseInfo = 1;
+
+	string userName = 2;
 }

@@ -408,3 +408,15 @@ func (c *EventsGrpcImplementation) PredictionEnd(_ context.Context, msg *events.
 
 	return &emptypb.Empty{}, nil
 }
+
+func (c *EventsGrpcImplementation) StreamFirstUserJoin(_ context.Context, msg *events.StreamFirstUserJoinMessage) (*emptypb.Empty, error) {
+	go c.processEvent(
+		msg.BaseInfo.ChannelId,
+		internal.Data{
+			UserName: msg.UserName,
+		},
+		model.EventStreamFirstUserJoin,
+	)
+
+	return &emptypb.Empty{}, nil
+}

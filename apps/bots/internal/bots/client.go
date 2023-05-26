@@ -85,6 +85,8 @@ func newBot(opts *ClientOpts) *types.BotClient {
 
 	client.Client = irc.NewClient(me.Login, "")
 	client.TwitchUser = &me
+	client.Client.Capabilities = []string{irc.TagsCapability, irc.MembershipCapability, irc.CommandsCapability}
+
 	botHandlers := handlers.CreateHandlers(&handlers.HandlersOpts{
 		DB:         opts.DB,
 		Logger:     opts.Logger,
@@ -181,6 +183,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 				})
 			})
 			client.OnUserNoticeMessage(botHandlers.OnNotice)
+			client.OnUserJoinMessage(botHandlers.OnUserJoin)
 
 			err = client.Connect()
 			if err != nil {

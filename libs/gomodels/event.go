@@ -44,6 +44,7 @@ const (
 	EventTypePredictionProgress     EventType = "PREDICTION_PROGRESS"
 	EventTypePredictionEnd          EventType = "PREDICTION_END"
 	EventTypePredictionLock         EventType = "PREDICTION_LOCK"
+	EventStreamFirstUserJoin        EventType = "STREAM_FIRST_USER_JOIN"
 )
 
 type Event struct {
