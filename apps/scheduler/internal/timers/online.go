@@ -2,9 +2,10 @@ package timers
 
 import (
 	"context"
-	"gorm.io/gorm"
 	"sync"
 	"time"
+
+	"gorm.io/gorm"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
@@ -26,8 +27,10 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 			select {
 			case <-ctx.Done():
 				ticker.Stop()
-				break
-			case <-ticker.C:
+				return
+			case t := <-ticker.C:
+				zap.S().Debugf("Online users timer tick at %s", t)
+
 				var streams []*model.ChannelsStreams
 				err := services.Gorm.Find(&streams).Error
 				if err != nil {

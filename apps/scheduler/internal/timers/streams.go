@@ -24,8 +24,9 @@ func NewStreams(ctx context.Context, services *types.Services) {
 			select {
 			case <-ctx.Done():
 				ticker.Stop()
-				break
-			case <-ticker.C:
+				return
+			case t := <-ticker.C:
+				zap.S().Debugf("streams timer %s", t.String())
 				processStreams(services)
 			}
 		}

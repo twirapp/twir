@@ -2,12 +2,13 @@ package timers
 
 import (
 	"context"
+	"time"
+
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/scheduler/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/watched"
 	"go.uber.org/zap"
-	"time"
 )
 
 func NewWatched(ctx context.Context, services *types.Services) {
@@ -19,8 +20,10 @@ func NewWatched(ctx context.Context, services *types.Services) {
 			select {
 			case <-ctx.Done():
 				ticker.Stop()
-				break
-			case <-ticker.C:
+				return
+			case t := <-ticker.C:
+				zap.S().Debugf("watched timer ticked at %s", t)
+
 				var streams []model.ChannelsStreams
 				err := services.Gorm.
 					Preload("Channel").

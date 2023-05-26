@@ -2,13 +2,14 @@ package timers
 
 import (
 	"context"
+	"time"
+
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/scheduler/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/emotes_cacher"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"time"
 )
 
 func NewEmotes(ctx context.Context, services *types.Services) {
@@ -22,8 +23,10 @@ func NewEmotes(ctx context.Context, services *types.Services) {
 			select {
 			case <-ctx.Done():
 				channelsTicker.Stop()
-				break
-			case <-channelsTicker.C:
+				return
+			case t := <-channelsTicker.C:
+				zap.S().Debugf("Emotes tick at %s", t)
+
 				var channels []model.Channels
 				err := services.Gorm.
 					Where(`"isEnabled" = ?`, true).
