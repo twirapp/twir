@@ -25,6 +25,11 @@
       "emptyAlert": "No aliases added",
       "placeholder": "Start typing to create aliase"
     },
+    "gameAliases": {
+      "name": "Game aliases",
+      "emptyAlert": "No game aliases added",
+      "placeholder": "Start typing to create game aliase"
+    },
     "description": {
       "label": "Description",
       "placeholder": "This description will be visible on public command page"

@@ -3,7 +3,6 @@ package users
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/satont/tsuwari/apps/api/internal/types"
-	"github.com/satont/tsuwari/libs/twitch"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
@@ -37,12 +36,12 @@ func get(services types.Services) fiber.Handler {
 func getCategories(services types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		category := c.Query("category", "")
+		userId := c.Query("userId", "")
 
-		categories, err := handleGetCategories(category)
+		categories, err := handleGetCategories(userId, category)
 		if err != nil {
 			return err
 		}
-
 		return c.JSON(categories)
 	}
 }

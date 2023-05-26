@@ -45,6 +45,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { noop } from '../../util/chore';
 
 import { commandsGroupManager, commandsManager, useVariables, useRolesApi } from '@/services/api';
+import GameAliasesCreator from '../commons/game-aliases-creator';
 
 type Props = {
 	opened: boolean;

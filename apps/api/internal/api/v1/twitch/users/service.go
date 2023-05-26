@@ -18,6 +18,54 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
+func handleGetCategories(userId, category string) ([]helix.Category, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
+
+	twitchClient, err := twitch.NewUserClient(userId, config, tokensGrpc)
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	gameReq, err := twitchClient.GetGames(&helix.GamesParams{
+		Names: []string{category},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	categoriesResponse := make([]helix.Category, 0)
+
+	if len(gameReq.Data.Games) != 0 {
+		for _, game := range gameReq.Data.Games {
+			categoriesResponse = append(categoriesResponse, helix.Category{
+				ID:        game.ID,
+				Name:      game.Name,
+				BoxArtURL: game.BoxArtURL,
+			})
+		}
+
+		return categoriesResponse, nil
+	}
+
+	if len(gameReq.Data.Games) == 0 {
+		games, err := twitchClient.SearchCategories(&helix.SearchCategoriesParams{
+			Query: category,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		if len(games.Data.Categories) > 0 {
+			return games.Data.Categories, nil
+		}
+	}
+
+	return categoriesResponse, nil
+}
+
 type RequestUser struct {
 	ID   *string
 	Name *string
