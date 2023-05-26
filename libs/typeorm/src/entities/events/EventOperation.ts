@@ -7,7 +7,7 @@ import { EventOperationFilter } from './EventOperationFilter';
 export enum OperationType {
   TIMEOUT = 'TIMEOUT',
   TIMEOUT_RANDOM = 'TIMEOUT_RANDOM',
-  BAN= 'BAN',
+  BAN = 'BAN',
   UNBAN = 'UNBAN',
   BAN_RANDOM = 'BAN_RANDOM',
   VIP = 'VIP',
@@ -44,6 +44,9 @@ export enum OperationType {
   TTS_SKIP = 'TTS_SKIP',
   TTS_ENABLE = 'TTS_ENABLE',
   TTS_DISABLE = 'TTS_DISABLE',
+  TTS_ENABLE_AUTOREAD = 'TTS_ENABLE_AUTOREAD',
+  TTS_DISABLE_AUTOREAD = 'TTS_DISABLE_AUTOREAD',
+  TTS_SWITCH_AUTOREAD = 'TTS_SWITCH_AUTOREAD',
   ALLOW_COMMAND_TO_USER = 'ALLOW_COMMAND_TO_USER',
   REMOVE_ALLOW_COMMAND_TO_USER = 'REMOVE_ALLOW_COMMAND_TO_USER',
   DENY_COMMAND_TO_USER = 'DENY_COMMAND_TO_USER',
@@ -61,7 +64,7 @@ export class EventOperation {
   @Column({ nullable: false, default: 0 })
   delay: number;
 
-  @ManyToOne(() => Event, _ => _.operations)
+  @ManyToOne(() => Event, (_) => _.operations)
   @JoinColumn({ name: 'eventId' })
   event?: Event;
 
@@ -86,6 +89,6 @@ export class EventOperation {
   @Column({ nullable: true })
   target: string | null;
 
-  @OneToMany(() => EventOperationFilter, _ => _.operation)
+  @OneToMany(() => EventOperationFilter, (_) => _.operation)
   filters: EventOperationFilter[];
 }

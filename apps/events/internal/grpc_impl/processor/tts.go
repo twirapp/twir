@@ -111,3 +111,30 @@ func (c *Processor) TtsChangeState(channelId string, enabled bool) error {
 
 	return nil
 }
+
+func (c *Processor) TtsChangeAutoReadState(channelId string, newState *bool) error {
+	currentSettings, dbModel := c.getTtsSettings(channelId, "")
+	if currentSettings == nil {
+		return nil
+	}
+
+	if newState == nil {
+		currentSettings.ReadChatMessages = !currentSettings.ReadChatMessages
+	} else {
+		currentSettings.ReadChatMessages = *newState
+	}
+
+	bytes, err := json.Marshal(currentSettings)
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return err
+	}
+
+	err = c.services.DB.Model(&dbModel).Updates(map[string]interface{}{"settings": bytes}).Error
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return err
+	}
+
+	return nil
+}

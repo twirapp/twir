@@ -61,6 +61,9 @@ const (
 	OperationRemoveAllowCommandToUser EventOperationType = "REMOVE_ALLOW_COMMAND_TO_USER"
 	OperationDenyCommandToUser        EventOperationType = "DENY_COMMAND_TO_USER"
 	OperationRemoveDenyCommandToUser  EventOperationType = "REMOVE_DENY_COMMAND_TO_USER"
+	OperationTTSSwitchAutoRead        EventOperationType = "TTS_SWITCH_AUTOREAD"
+	OperationTTSEnableAutoRead        EventOperationType = "TTS_ENABLE_AUTOREAD"
+	OperationTTSDisableAutoRead       EventOperationType = "TTS_DISABLE_AUTOREAD"
 )
 
 type EventOperation struct {

@@ -108,7 +108,7 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, event mod
 		return
 	}
 
-	// wont process stream if event setted to online only streams and stream is offline
+	// won't process stream if event setted to online only streams and stream is offline
 	if event.OnlineOnly {
 		stream := &model.ChannelsStreams{}
 		err := c.services.DB.Where(`"userId" = ?`, channelId).Find(stream).Error
@@ -269,6 +269,13 @@ operationsLoop:
 				action := lo.If(operation.Type == model.OperationTTSEnable, true).Else(false)
 
 				operationError = processor.TtsChangeState(channelId, action)
+			case model.OperationTTSSwitchAutoRead, model.OperationTTSEnableAutoRead, model.OperationTTSDisableAutoRead:
+				value := lo.
+					If[*bool](operation.Type == model.OperationTTSSwitchAutoRead, nil).
+					ElseIf(operation.Type == model.OperationTTSEnableAutoRead, lo.ToPtr(true)).
+					Else(lo.ToPtr(false))
+
+				operationError = processor.TtsChangeAutoReadState(channelId, value)
 			case model.OperationAllowCommandToUser, model.OperationRemoveAllowCommandToUser:
 				if !operation.Input.Valid || !operation.Target.Valid {
 					continue
