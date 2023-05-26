@@ -36,9 +36,8 @@ func get(services types.Services) fiber.Handler {
 func getCategories(services types.Services) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		category := c.Query("category", "")
-		userId := c.Query("userId", "")
 
-		categories, err := handleGetCategories(userId, category)
+		categories, err := handleGetCategories(category)
 		if err != nil {
 			return err
 		}

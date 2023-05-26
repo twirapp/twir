@@ -20,6 +20,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/bot"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/categories-aliases"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/commands"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/feedback"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/greetings"
@@ -69,6 +70,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	community.Setup(channelsGroup, services)
 	events.Setup(channelsGroup, services)
 	roles.Setup(channelsGroup, services)
+	categories_aliases.Setup(channelsGroup, services)
 
 	integrationsGroup := channelsGroup.Group("integrations")
 	donationalerts.Setup(integrationsGroup, services)

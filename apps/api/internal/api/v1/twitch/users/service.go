@@ -18,12 +18,12 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 )
 
-func handleGetCategories(userId, category string) ([]helix.Category, error) {
+func handleGetCategories(category string) ([]helix.Category, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 	config := do.MustInvoke[cfg.Config](di.Provider)
 
-	twitchClient, err := twitch.NewUserClient(userId, config, tokensGrpc)
+	twitchClient, err := twitch.NewAppClient(config, tokensGrpc)
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")

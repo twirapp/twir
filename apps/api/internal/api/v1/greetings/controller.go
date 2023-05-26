@@ -98,7 +98,7 @@ func delete(services types.Services) func(c *fiber.Ctx) error {
 // @Produce      json
 // @Param data body greetingsDto true "Data"
 // @Param        channelId   path      string  true  "ID of channel"
-// @Param        channelId   path      string  true  "ID of greeting"
+// @Param        greetingId   path      string  true  "ID of greeting"
 // @Success      200  {object}  Greeting
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 404
@@ -133,12 +133,12 @@ func put(services types.Services) func(c *fiber.Ctx) error {
 // @Produce      json
 // @Param data body greetingsPatchDto true "Data"
 // @Param        channelId   path      string  true  "ID of channel"
-// @Param        channelId   path      string  true  "ID of greeting"
+// @Param        greetingId   path      string  true  "ID of greeting"
 // @Success      200  {object}  Greeting
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 404
 // @Failure 500 {object} types.DOCApiInternalError
-// @Router       /v1/channels/{channelId}/greetings/{greetingId} [put]
+// @Router       /v1/channels/{channelId}/greetings/{greetingId} [patch]
 func patch(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := &greetingsPatchDto{}
