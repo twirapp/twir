@@ -10,6 +10,14 @@
         "true": "Бот является модератором на канале",
         "false": "Мы обнаружили, что бот не является модератором на канале. Пожалуйста, используйте <b>/mod {{botName}}</b>, иначе некоторые функции могут работать некорректно."
       }
+    },
+    "categoriesAliases": {
+      "title": "Manage categories aliases",
+      "creator": {
+        "name": "Game aliases",
+        "emptyAlert": "No game aliases added",
+        "placeholder": "Start typing to create game aliase"
+      }
     }
   }
 }

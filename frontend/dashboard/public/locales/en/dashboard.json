@@ -11,5 +11,13 @@
         "false": "We have found that the bot is not a moderator on this channel. Please, use <b>/mod {{botName}}</b>, or some of functionality may work incorrectly."
       }
     }
+  },
+  "categoriesAliases": {
+    "title": "Manage categories aliases",
+    "creator": {
+      "name": "Game aliases",
+      "emptyAlert": "No game aliases added",
+      "placeholder": "Start typing to create game aliase"
+    }
   }
 }
