@@ -29,7 +29,7 @@ export const useTwitchUsersByIds = (ids: string[]) =>
 		queryFn: () => authFetcher(`/api/auth/profile?ids=${ids.join(',')}`),
 	});
 
-export const useTwitchGameCategories = (category: string, userId: string) =>
+export const useTwitchGameCategories = (category: string) =>
 	useQuery<HelixGameData[]>({
 		queryKey: [`/api/v1/twitch/cateogries`, category],
 		queryFn: () => {

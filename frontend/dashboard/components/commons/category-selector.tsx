@@ -8,64 +8,62 @@ import {
 	Text,
 	SelectItemProps,
 } from '@mantine/core';
-import React, { Component, forwardRef, useRef, useState } from 'react';
+import React, { forwardRef, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-interface Props {
-	channelId: string;
-}
-
 interface ItemProps extends SelectItemProps {
-	description: string;
 	image: string;
 }
 
 const Category = forwardRef<HTMLDivElement, ItemProps>(
-	({ description, value, image, ...others }: ItemProps, ref) => (
-		<Group noWrap>
-			<Avatar src={image} size="lg" />
-			<div style={{ flex: 1 }}>
-				<Text size="sm" weight={500}>
-					{description}
-				</Text>
-			</div>
-		</Group>
+	({ value, image, ...others }: ItemProps, ref) => (
+		<div ref={ref} {...others}>
+			<Group noWrap>
+				<Avatar src={image} size="lg" />
+				<div style={{ flex: 1 }}>
+					<Text size="sm" weight={500}>
+						{value}
+					</Text>
+				</div>
+			</Group>
+		</div>
 	),
 );
 
-const CategorySelector = ({ channelId }: Props) => {
-	const timeoutRef = useRef<number>(-1);
-	const [category, setCategory] = useState('');
-	const [loading, setLoading] = useState(false);
+interface Props {
+	label: string;
+	setCategory: (value: string) => void;
+}
 
-	const { t } = useTranslation('twitch');
+const CategorySelector = ({ label, setCategory }: Props) => {
+	const timeoutRef = useRef<number>(-1);
+	const [category, setInnerCategory] = useState('');
+
 	const theme = useMantineTheme();
-	const categories = useTwitchGameCategories(category, channelId);
+	const categories = useTwitchGameCategories(category);
 
 	const handleChange = (val: string) => {
-		window.clearTimeout(timeoutRef.current);
+		// window.clearTimeout(timeoutRef.current);
+		setInnerCategory(val);
 		setCategory(val);
-
-		if (val.trim().length === 0) {
-			setLoading(false);
-		} else {
-			setLoading(true);
-			timeoutRef.current = window.setTimeout(() => {
-				setLoading(false);
-				categories.refetch();
-			}, 1000);
-		}
+		// if (val.trim().length === 0) {
+		// 	setLoading(false);
+		// } else {
+		// 	setLoading(true);
+		// 	timeoutRef.current = window.setTimeout(() => {
+		// 		setLoading(false);
+		// 	}, 1000);
+		// }
 	};
-
 	const data = categories?.data?.map((item) => ({ image: item.box_art_url, value: item.name }));
-
 	return (
 		<Autocomplete
-			label="Select a category"
-			placeholder="Pick one"
+			rightSection={categories.isLoading ? <Loader w={20} /> : <></>}
+			label={label}
 			itemComponent={Category}
+			className="scr"
 			data={data ?? []}
-			onChange={onSearchInputChange}
+			onChange={handleChange}
 		/>
 	);
 };

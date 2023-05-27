@@ -6,8 +6,10 @@ import {
 	CardSection,
 	Flex,
 	Group,
+	Input,
 	Skeleton,
 	Text,
+	TextInput,
 	Tooltip,
 } from '@mantine/core';
 import { useTranslation } from 'next-i18next';
@@ -30,27 +32,28 @@ const ManageCategoriesAliases = () => {
 			<Card withBorder radius="md">
 				<Card.Section withBorder inheritPadding py="sm">
 					<Group position="apart">
-						<Text weight={500}>{t('categoriesAliases.title')}</Text>
+						<Text weight={500}>{t('widgets.streamManager.title')}</Text>
 						<Tooltip label={'Settings'} withArrow>
-							<ActionIcon size={'lg'} variant={'default'} component="a" target={'_blank'}>
+							<ActionIcon
+								size={'lg'}
+								variant={'default'}
+								component="a"
+								target={'_blank'}
+								onClick={() => {
+									setEditDrawerOpened(true);
+								}}
+							>
 								<IconSettings width={20} />
 							</ActionIcon>
 						</Tooltip>
 					</Group>
 				</Card.Section>
 				<Card.Section p="md" className={classes.card}>
-					<CategorySelector />
-					<GameAliasesCreator />
+					<CategorySelector label={t('widgets.streamManager.setCategory')} />
+					<TextInput mt="md" label={t('widgets.streamManager.setTitle')} />
 					<Flex mt="md">
-						<Button
-							size="md"
-							w="30%"
-							color="green"
-							onClick={() => {
-								setEditDrawerOpened(true);
-							}}
-						>
-							Добавить
+						<Button size="md" w="30%" color="green">
+							{t('widgets.streamManager.save')}
 						</Button>
 					</Flex>
 				</Card.Section>

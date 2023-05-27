@@ -44,19 +44,19 @@ var SetCommand = &types.DefaultCommand{
 		if parseCtx.Text == nil || *parseCtx.Text == "" {
 			return result
 		}
-
 		categoryFromReq := *parseCtx.Text
 
-		var categoryFromAlias *model.ChannelCategoryAlias
+		categoryFromAlias := &model.ChannelCategoryAlias{}
 
 		err = parseCtx.Services.Gorm.Table("channels_categories_aliases").
 			Where(`"channelId" = ? AND "alias" = ?`, parseCtx.Channel.ID, categoryFromReq).Find(categoryFromAlias).Error
 		if err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				parseCtx.Services.Logger.Error(err.Error())
 				return nil
 			}
 		}
-		if categoryFromAlias != nil {
+		if categoryFromAlias.Category != "" {
 			categoryFromReq = categoryFromAlias.Category
 		}
 
