@@ -66,7 +66,7 @@ func NewFiber(
 			DeepLinking:          false,
 			DocExpansion:         "list",
 			PersistAuthorization: true,
-			Title:                "Tsuwari api",
+			Title:                "Twir api",
 			TryItOutEnabled:      true,
 		}))
 		app.Get("/swagger/*", swagger.HandlerDefault)

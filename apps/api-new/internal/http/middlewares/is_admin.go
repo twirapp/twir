@@ -9,7 +9,7 @@ import (
 
 func (c *Middlewares) IsAdmin(ctx *fiber.Ctx) error {
 	if ctx.Locals("dbUser") == nil {
-		return fiber.NewError(401, "unauthentificated")
+		return fiber.NewError(401, "unauthenticated")
 	}
 	dbUser, ok := ctx.Locals("dbUser").(model.Users)
 
