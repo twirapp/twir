@@ -3,6 +3,7 @@ package fiber
 import (
 	"context"
 	"github.com/ansrivas/fiberprometheus/v2"
+	"github.com/goccy/go-json"
 	"github.com/gofiber/contrib/fiberzap"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
@@ -38,6 +39,9 @@ func NewFiber(
 		ErrorHandler:          middlewares.ErrorHandler,
 		EnablePrintRoutes:     true,
 		DisableStartupMessage: true,
+		JSONEncoder:           json.Marshal,
+		JSONDecoder:           json.Unmarshal,
+		BodyLimit:             20 * 1024 * 1024,
 	})
 	app.Use(cors.New())
 	app.Use(compress.New())
