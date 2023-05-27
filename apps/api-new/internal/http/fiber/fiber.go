@@ -8,6 +8,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/helmet"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
 	"github.com/satont/tsuwari/apps/api-new/internal/http/middlewares"
 	config "github.com/satont/tsuwari/libs/config"
@@ -50,6 +52,10 @@ func NewFiber(
 			return redisCacheStorage.BuildKey(c.Path())
 		},
 		Storage: redisCacheStorage,
+	}))
+	app.Use(helmet.New())
+	app.Use(recover.New(recover.Config{
+		EnableStackTrace: true,
 	}))
 
 	prometheus := fiberprometheus.New("twir-api")
