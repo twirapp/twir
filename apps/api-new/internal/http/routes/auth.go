@@ -10,4 +10,6 @@ func NewAuth(app *fiber.App, handlers *auth_handlers.AuthHandlers) {
 
 	group.Get("/", handlers.GetLink)
 	group.Post("/", handlers.PostCode)
+	group.Delete("/", handlers.Logout)
+	group.Get("/profile", handlers.GetProfile)
 }

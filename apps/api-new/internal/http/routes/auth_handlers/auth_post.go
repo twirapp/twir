@@ -66,10 +66,7 @@ func (c *AuthHandlers) PostCode(ctx *fiber.Ctx) error {
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	//services.RedisStorage.DeleteByMethod(
-	//	fmt.Sprintf("fiber:cache:auth:profile:%s", tokens.UserId),
-	//	"GET",
-	//)
+	c.cacheStorage.DeleteGet("/auth/profile")
 
-	return nil
+	return ctx.SendStatus(http.StatusOK)
 }

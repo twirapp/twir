@@ -3,6 +3,7 @@ package auth_handlers
 import (
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/satont/tsuwari/apps/api-new/internal/grpc_clients"
+	"github.com/satont/tsuwari/apps/api-new/internal/http/fiber"
 	"github.com/satont/tsuwari/apps/api-new/internal/http/middlewares"
 	config "github.com/satont/tsuwari/libs/config"
 	"go.uber.org/fx"
@@ -15,6 +16,7 @@ type AuthHandlers struct {
 	grpcClients    *grpc_clients.GrpcClients
 	logger         *zap.SugaredLogger
 	sessionStorage *session.Store
+	cacheStorage   *fiber.RedisCacheStorage
 }
 
 type Opts struct {
@@ -25,6 +27,7 @@ type Opts struct {
 	GrpcClients    *grpc_clients.GrpcClients
 	Logger         *zap.SugaredLogger
 	SessionStorage *session.Store
+	CacheStorage   *fiber.RedisCacheStorage
 }
 
 func NewAuthHandlers(opts Opts) *AuthHandlers {
@@ -34,5 +37,6 @@ func NewAuthHandlers(opts Opts) *AuthHandlers {
 		grpcClients:    opts.GrpcClients,
 		logger:         opts.Logger,
 		sessionStorage: opts.SessionStorage,
+		cacheStorage:   opts.CacheStorage,
 	}
 }

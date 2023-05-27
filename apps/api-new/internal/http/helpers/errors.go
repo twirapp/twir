@@ -1,6 +1,10 @@
 package helpers
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/gofiber/fiber/v2"
+	"net/http"
+)
 
 type BusinessError struct {
 	Err error
@@ -19,3 +23,5 @@ func CreateBusinessErrorWithMessage(code int, message string) BusinessError {
 		Messages:   []string{message},
 	}
 }
+
+var ErrInternalError = fiber.NewError(http.StatusInternalServerError, "internal error")
