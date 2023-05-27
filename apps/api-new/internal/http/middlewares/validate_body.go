@@ -1,13 +1,11 @@
 package middlewares
 
 import (
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
 func (c *Middlewares) ValidateBody(
 	ctx *fiber.Ctx,
-	v *validator.Validate,
 	dto any,
 ) error {
 	if err := ctx.BodyParser(dto); err != nil {
@@ -17,7 +15,7 @@ func (c *Middlewares) ValidateBody(
 		return err
 	}
 
-	if err := v.Struct(dto); err != nil {
+	if err := c.validator.Struct(dto); err != nil {
 		return err
 	}
 

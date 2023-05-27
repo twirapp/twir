@@ -12,10 +12,12 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api-new/internal/http/middlewares"
 	config "github.com/satont/tsuwari/libs/config"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"strings"
 	"time"
 )
 
@@ -49,13 +51,36 @@ func NewFiber(
 		Logger: notSugaredLogger,
 		Fields: []string{"latency", "status", "method", "url", "body", "queryParams"},
 	}))
+
+	cacheExpirationTime := lo.
+		If(cfg.AppEnv == "development", 1*time.Second).
+		Else(24 * time.Hour)
+
 	app.Use(cache.New(cache.Config{
-		Expiration:   30 * time.Minute,
+		Expiration:   cacheExpirationTime,
 		CacheControl: false,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return redisCacheStorage.BuildKey(c.Path())
 		},
 		Storage: redisCacheStorage,
+		Next: func(c *fiber.Ctx) bool {
+			notCachedPaths := []string{
+				"/metrics",
+				"/auth",
+			}
+			excludeFromNotCached := []string{"/auth/profile", "/auth/dashboard"}
+			p := c.Path()
+
+			if lo.SomeBy(excludeFromNotCached, func(path string) bool {
+				return strings.HasPrefix(p, path)
+			}) {
+				return true
+			}
+
+			return lo.SomeBy(notCachedPaths, func(path string) bool {
+				return strings.HasPrefix(p, path)
+			})
+		},
 	}))
 	app.Use(helmet.New())
 	app.Use(recover.New(recover.Config{

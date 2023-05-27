@@ -46,11 +46,11 @@ type Opts struct {
 	Logger *zap.SugaredLogger
 }
 
-func NewMiddlewares(logger *zap.SugaredLogger) *Middlewares {
+func NewMiddlewares(opts Opts) *Middlewares {
 	v, translator := newValidator()
 
 	return &Middlewares{
-		logger:     logger,
+		logger:     opts.Logger,
 		validator:  v,
 		translator: translator,
 	}

@@ -6,9 +6,11 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
+	"github.com/satont/tsuwari/apps/api-new/internal/grpc_clients"
 	"github.com/satont/tsuwari/apps/api-new/internal/http/fiber"
 	"github.com/satont/tsuwari/apps/api-new/internal/http/middlewares"
 	"github.com/satont/tsuwari/apps/api-new/internal/http/routes"
+	"github.com/satont/tsuwari/apps/api-new/internal/http/routes/auth_handlers"
 	"github.com/satont/tsuwari/apps/api-new/internal/http/routes/v1_handlers"
 	config "github.com/satont/tsuwari/libs/config"
 	"go.uber.org/fx"
@@ -68,49 +70,39 @@ func main() {
 	redisClient := redis.NewClient(redisConnOpts)
 
 	app := fx.New(
-		fx.WithLogger(func() fxevent.Logger {
-			return &fxevent.ZapLogger{Logger: z}
-		}),
+		fx.WithLogger(func() fxevent.Logger { return &fxevent.ZapLogger{Logger: z} }),
 		fx.Provide(
 			func(lc fx.Lifecycle) *gorm.DB {
 				lc.Append(fx.Hook{
-					OnStop: func(context.Context) error {
-						return d.Close()
-					},
+					OnStop: func(context.Context) error { return d.Close() },
 				})
 				return db
 			},
 			func(lc fx.Lifecycle) *sqlx.DB {
 				lc.Append(fx.Hook{
-					OnStop: func(context.Context) error {
-						return sqlxConn.Close()
-					},
+					OnStop: func(context.Context) error { return sqlxConn.Close() },
 				})
 				return sqlxConn
 			},
 			func(lc fx.Lifecycle) *redis.Client {
 				lc.Append(fx.Hook{
-					OnStop: func(context.Context) error {
-						return redisClient.Close()
-					},
+					OnStop: func(context.Context) error { return redisClient.Close() },
 				})
 				return redisClient
 			},
-			func() *zap.SugaredLogger {
-				return logger
-			},
-			func() *zap.Logger {
-				return z
-			},
-			func() *config.Config {
-				return cfg
-			},
+			func() *zap.SugaredLogger { return logger },
+			func() *zap.Logger { return z },
+			func() *config.Config { return cfg },
 		),
-		fx.Provide(middlewares.NewMiddlewares),
 		fx.Provide(fiber.NewCache),
+		fx.Provide(fiber.NewSession),
+		fx.Provide(grpc_clients.NewGrpcClients),
+		fx.Provide(middlewares.NewMiddlewares),
 		fx.Provide(fiber.NewFiber),
 		fx.Provide(v1_handlers.NewHandlers),
+		fx.Provide(auth_handlers.NewAuthHandlers),
 		fx.Invoke(routes.NewV1),
+		fx.Invoke(routes.NewAuth),
 	)
 
 	logger.Info("App started")
