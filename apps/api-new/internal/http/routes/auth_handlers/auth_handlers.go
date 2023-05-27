@@ -8,6 +8,7 @@ import (
 	config "github.com/satont/tsuwari/libs/config"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type AuthHandlers struct {
@@ -17,6 +18,7 @@ type AuthHandlers struct {
 	logger         *zap.SugaredLogger
 	sessionStorage *session.Store
 	cacheStorage   *fiber.RedisCacheStorage
+	gorm           *gorm.DB
 }
 
 type Opts struct {
@@ -28,9 +30,12 @@ type Opts struct {
 	Logger         *zap.SugaredLogger
 	SessionStorage *session.Store
 	CacheStorage   *fiber.RedisCacheStorage
+	Gorm           *gorm.DB
 }
 
 func NewAuthHandlers(opts Opts) *AuthHandlers {
+	opts.SessionStorage.RegisterType(SessionUser{})
+
 	return &AuthHandlers{
 		config:         opts.Config,
 		middlewares:    opts.Middlewares,
@@ -38,5 +43,6 @@ func NewAuthHandlers(opts Opts) *AuthHandlers {
 		logger:         opts.Logger,
 		sessionStorage: opts.SessionStorage,
 		cacheStorage:   opts.CacheStorage,
+		gorm:           opts.Gorm,
 	}
 }

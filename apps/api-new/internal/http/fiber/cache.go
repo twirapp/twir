@@ -34,7 +34,6 @@ func (c *RedisCacheStorage) BuildKey(path string) string {
 
 func (c *RedisCacheStorage) DeleteGet(path string) {
 	baseKey := fmt.Sprintf("%s_%s", c.BuildKey(path), "GET")
-	fmt.Println("baseKey", baseKey)
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)

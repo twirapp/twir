@@ -7,6 +7,7 @@ import (
 	config "github.com/satont/tsuwari/libs/config"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type Opts struct {
@@ -17,6 +18,7 @@ type Opts struct {
 	Config         *config.Config
 	CacheStorage   *fiber.RedisCacheStorage
 	SessionStorage *session.Store
+	Gorm           *gorm.DB
 }
 
 type Handlers struct {
@@ -25,6 +27,7 @@ type Handlers struct {
 	config         *config.Config
 	cacheStorage   *fiber.RedisCacheStorage
 	sessionStorage *session.Store
+	gorm           *gorm.DB
 }
 
 func NewHandlers(opts Opts) *Handlers {
@@ -34,5 +37,6 @@ func NewHandlers(opts Opts) *Handlers {
 		config:         opts.Config,
 		cacheStorage:   opts.CacheStorage,
 		sessionStorage: opts.SessionStorage,
+		gorm:           opts.Gorm,
 	}
 }
