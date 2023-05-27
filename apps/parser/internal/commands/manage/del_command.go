@@ -53,6 +53,12 @@ var DelCommand = &types.DefaultCommand{
 			Where(`"channelId" = ? AND name = ?`, parseCtx.Channel.ID, name).
 			Delete(&model.ChannelsCommands{})
 
+		dropRedisCache(ctx, parseCtx.Services.Redis, parseCtx.Services.Logger.Sugar(), parseCtx.Channel.ID)
+
+		if err != nil {
+			parseCtx.Services.Logger.Sugar().Error(err)
+		}
+
 		result.Result = append(result.Result, "✅ Command removed.")
 		return result
 	},

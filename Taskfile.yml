@@ -10,6 +10,9 @@ includes:
   api:
     taskfile: ./apps/api/Taskfile.yml
     dir: ./apps/api
+  api-new:
+    taskfile: ./apps/api-new/Taskfile.yml
+    dir: ./apps/api-new
   bots:
     taskfile: ./apps/bots/Taskfile.yml
     dir: ./apps/bots
@@ -74,6 +77,10 @@ tasks:
     deps: [prepare]
     cmds:
       - task: api:dev
+
+  api-new-dev:
+    cmds:
+      - task: api-new:dev
 
   bots-dev:
     deps: [prepare]

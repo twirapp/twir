@@ -106,7 +106,7 @@ func main() {
 	}
 
 	do.ProvideValue[sqlx.DB](di.Provider, *pgConn)
-	
+
 	r := redis.New(cfg.RedisUrl)
 	do.ProvideValue[*rdb.Client](di.Provider, r)
 
@@ -142,7 +142,6 @@ func main() {
 			TryItOutEnabled:      true,
 		}))
 		app.Get("/swagger/*", swagger.HandlerDefault)
-
 	}
 
 	app.Use(compress.New())

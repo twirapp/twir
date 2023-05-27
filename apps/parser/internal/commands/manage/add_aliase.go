@@ -6,7 +6,6 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
-	"log"
 	"strings"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -87,13 +86,15 @@ var AddAliaseCommand = &types.DefaultCommand{
 			Save(&cmd).Error
 
 		if err != nil {
-			log.Fatalln(err)
+			parseCtx.Services.Logger.Sugar().Error(err)
 			result.Result = append(
 				result.Result,
 				"Cannot update command aliases. This is internal bug, please report it.",
 			)
 			return result
 		}
+
+		dropRedisCache(ctx, parseCtx.Services.Redis, parseCtx.Services.Logger.Sugar(), parseCtx.Channel.ID)
 
 		result.Result = append(result.Result, "✅ Aliase added.")
 		return result

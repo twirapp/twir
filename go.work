@@ -2,6 +2,7 @@ go 1.20
 
 use (
 	./apps/api
+	./apps/api-new
 	./apps/bots
 	./apps/emotes-cacher
 	./apps/events

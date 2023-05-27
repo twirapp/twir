@@ -103,10 +103,12 @@ var AddCommand = &types.DefaultCommand{
 		err = parseCtx.Services.Gorm.WithContext(ctx).Create(&command).Error
 
 		if err != nil {
-			log.Fatalln(err)
+			parseCtx.Services.Logger.Sugar().Error(err)
 			result.Result = append(result.Result, wentWrong)
 			return result
 		}
+
+		dropRedisCache(ctx, parseCtx.Services.Redis, parseCtx.Services.Logger.Sugar(), parseCtx.Channel.ID)
 
 		result.Result = []string{"✅ Command added."}
 		return result
