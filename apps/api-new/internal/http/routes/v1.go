@@ -13,5 +13,9 @@ func NewV1(app *fiber.App, handlers *v1_handlers.Handlers) {
 	})
 
 	channelGroup := group.Group("channels/:channelId")
-	channelGroup.Get("/commands", handlers.GetChannelsCommands)
+
+	commandsGroup := channelGroup.Group("commands")
+	commandsGroup.Get("/", handlers.GetChannelsCommands)
+	commandsGroup.Post("/", handlers.CreateCommand)
+	commandsGroup.Delete("/:commandId", handlers.DeleteCommand)
 }

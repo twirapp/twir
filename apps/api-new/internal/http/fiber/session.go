@@ -11,7 +11,7 @@ func NewSession(redisStorage *RedisCacheStorage) *session.Store {
 		Storage:    redisStorage,
 		Expiration: 7 * 24 * time.Hour,
 		KeyGenerator: func() string {
-			return "fiber:session:" + uuid.New().String()
+			return "sessions:" + uuid.New().String()
 		},
 	})
 

@@ -173,3 +173,17 @@ func (c *Handlers) CreateCommand(ctx *fiber.Ctx) error {
 
 	return ctx.SendStatus(http.StatusCreated)
 }
+
+func (c *Handlers) DeleteCommand(ctx *fiber.Ctx) error {
+	channelId := ctx.Params("channelId")
+	commandId := ctx.Params("commandId")
+
+	command := &model.ChannelsCommands{}
+	err := c.gorm.Where(`"commandId = ?" AND "channelId" = ?`, commandId, channelId).Find(command).Error
+	if err != nil {
+		c.logger.Error(err)
+		return helpers.ErrInternalError
+	}
+
+	return ctx.SendStatus(http.StatusOK)
+}
