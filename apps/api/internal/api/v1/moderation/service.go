@@ -1,17 +1,21 @@
 package moderation
 
 import (
+	"net/http"
+
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"net/http"
-
-	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api/internal/types"
+	cfg "github.com/satont/tsuwari/libs/config"
+	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/twitch"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -103,4 +107,56 @@ func handleUpdate(
 		settings = append(settings, setting)
 	}
 	return settings, nil
+}
+
+func handlePostTitle(channelId string, dto *postTitleDto, services types.Services) (*postTitleResponse, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
+
+	twitchClient, err := twitch.NewUserClient(channelId, config, tokensGrpc)
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	resp, err := twitchClient.EditChannelInformation(&helix.EditChannelInformationParams{
+		BroadcasterID: channelId,
+		Title:         dto.Title,
+	})
+	if err != nil {
+		logger.Error(err)
+		logger.Error(resp.ErrorMessage)
+		return nil, err
+	}
+
+	return &postTitleResponse{
+		Title: dto.Title,
+	}, nil
+}
+
+func handlePostCategory(channelId string, dto *postCategoryDto, services types.Services) (*postCategoryResponse, error) {
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
+	config := do.MustInvoke[cfg.Config](di.Provider)
+
+	twitchClient, err := twitch.NewUserClient(channelId, config, tokensGrpc)
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	resp, err := twitchClient.EditChannelInformation(&helix.EditChannelInformationParams{
+		BroadcasterID: channelId,
+		GameID:        dto.CategoryId,
+	})
+	if err != nil {
+		logger.Error(err)
+		logger.Error(resp.ErrorMessage)
+		return nil, err
+	}
+
+	return &postCategoryResponse{
+		CategoryId: dto.CategoryId,
+	}, nil
 }

@@ -18,3 +18,19 @@ type moderationItemDto struct {
 type moderationDto struct {
 	Items []moderationItemDto `validate:"required,dive"`
 }
+
+type postTitleDto struct {
+	Title string `validate:"required" json:"title"`
+}
+
+type postTitleResponse struct {
+	Title string `json:"title"`
+}
+
+type postCategoryDto struct {
+	CategoryId string `validate:"required" json:"categoryId"`
+}
+
+type postCategoryResponse struct {
+	CategoryId string `json:"categoryId"`
+}

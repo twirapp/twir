@@ -57,7 +57,20 @@ var SetCommand = &types.DefaultCommand{
 			}
 		}
 		if categoryFromAlias.Category != "" {
-			categoryFromReq = categoryFromAlias.Category
+			req, err := twitchClient.EditChannelInformation(&helix.EditChannelInformationParams{
+				BroadcasterID: parseCtx.Channel.ID,
+				GameID:        categoryFromAlias.CategoryId,
+			})
+
+			if err != nil || req.StatusCode != 204 {
+				fmt.Println(err)
+				fmt.Println(req.ErrorMessage)
+				result.Result = append(result.Result, "❌ internal error")
+				return result
+			}
+
+			result.Result = append(result.Result, "✅ "+categoryFromAlias.Category)
+			return result
 		}
 
 		gameReq, err := twitchClient.GetGames(&helix.GamesParams{

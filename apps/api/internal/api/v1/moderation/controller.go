@@ -10,6 +10,8 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware := router.Group("moderation")
 	middleware.Get("", get(services))
 	middleware.Post("", post(services))
+	middleware.Post("/title", postTitle(services))
+	middleware.Post("/category", postCategory(services))
 
 	return middleware
 }
@@ -65,5 +67,49 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 		}
 
 		return c.JSON(settings)
+	}
+}
+
+func postTitle(services types.Services) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		dto := postTitleDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			&dto,
+		)
+		if err != nil {
+			return err
+		}
+
+		title, err := handlePostTitle(c.Params("channelId"), &dto, services)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(*title)
+	}
+}
+
+func postCategory(services types.Services) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		dto := postCategoryDto{}
+		err := middlewares.ValidateBody(
+			c,
+			services.Validator,
+			services.ValidatorTranslator,
+			&dto,
+		)
+		if err != nil {
+			return err
+		}
+
+		category, err := handlePostCategory(c.Params("channelId"), &dto, services)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(category)
 	}
 }
