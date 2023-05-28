@@ -36,10 +36,11 @@ func handlePost(channelId string, dto *categoryAliasDto, services types.Services
 	}
 
 	alias := &model.ChannelCategoryAlias{
-		ID:        uuid.NewV4().String(),
-		ChannelID: channelId,
-		Category:  dto.Category,
-		Alias:     dto.Alias,
+		ID:         uuid.NewV4().String(),
+		ChannelID:  channelId,
+		Category:   dto.Category,
+		CategoryId: dto.CategoryId,
+		Alias:      dto.Alias,
 	}
 
 	err = db.Save(alias).Error
@@ -92,11 +93,12 @@ func handlePatch(
 
 	err = db.Where(`"channelId" = ? AND "alias" = ?`, channelId, dto.Alias).First(existedAlias).Error
 	if err == nil {
-		return nil, fiber.NewError(http.StatusBadGateway, "alias with this name already exists")
+		return nil, fiber.NewError(http.StatusBadRequest, "alias with this name already exists")
 	}
 
-	existedAlias.Category = dto.Category
-	existedAlias.Alias = dto.Alias
+	existedAlias.Category = *dto.Category
+	existedAlias.CategoryId = *dto.CategoryId
+	existedAlias.Alias = *dto.Alias
 	err = db.Model(existedAlias).Select("*").Updates(existedAlias).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update category alias")

@@ -26,6 +26,7 @@ const ManageCategoriesAliases = () => {
 	const { useCreateOrUpdate } = categoriesAliasesManager();
 	const updater = useCreateOrUpdate();
 	const [editDrawerOpened, setEditDrawerOpened] = useState(false);
+	const [category, setCategory] = useState('');
 
 	return (
 		<Skeleton radius="md" visible={false}>
@@ -49,7 +50,10 @@ const ManageCategoriesAliases = () => {
 					</Group>
 				</Card.Section>
 				<Card.Section p="md" className={classes.card}>
-					<CategorySelector label={t('widgets.streamManager.setCategory')} />
+					<CategorySelector
+						label={t('widgets.streamManager.setCategory')}
+						setCategory={setCategory}
+					/>
 					<TextInput mt="md" label={t('widgets.streamManager.setTitle')} />
 					<Flex mt="md">
 						<Button size="md" w="30%" color="green">
