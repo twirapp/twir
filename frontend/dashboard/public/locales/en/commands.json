@@ -54,6 +54,14 @@
         "name": "Online only",
         "description": "Command will work only when stream online"
       }
-    }
+    },
+		"restrictions": {
+			"title": "Restrictions by stats",
+			"labels": {
+				"requiredWatchTime": "Required watch time (hours)",
+				"requiredMessages": "Required messages",
+				"requiredUsedChannelPoints": "Required used channel points"
+			}
+		}
   }
 }

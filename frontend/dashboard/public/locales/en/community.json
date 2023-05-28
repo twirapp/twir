@@ -1,0 +1,10 @@
+{
+	"roles": {
+		"alert": "With these settings, you can set up the automatic assignment of this role to users, when they using commands.<br><b>Note</b>: that they will not appear in the <b>Users</b> list.",
+		"labels": {
+			"requiredWatchTime": "Required watch time (hours)",
+			"requiredMessages": "Required messages",
+			"requiredUsedChannelPoints": "Required used channel points"
+		}
+	}
+}

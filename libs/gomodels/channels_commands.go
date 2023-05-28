@@ -35,6 +35,10 @@ type ChannelsCommands struct {
 	AllowedUsersIDS    pq.StringArray `gorm:"column:allowedUsersIds;type:text[];default:[];"   json:"allowedUsersIds"`
 	RolesIDS           pq.StringArray `gorm:"column:rolesIds;type:text[];default:[];" json:"rolesIds"`
 	OnlineOnly         bool           `gorm:"column:online_only;type:BOOL;" json:"onlineOnly"`
+	
+	RequiredWatchTime         int `gorm:"column:requiredWatchTime;type:INT4;default:0;" json:"requiredWatchTime"`
+	RequiredMessages          int `gorm:"column:requiredMessages;type:INT4;default:0;" json:"requiredMessages"`
+	RequiredUsedChannelPoints int `gorm:"column:requiredUsedChannelPoints;type:INT4;default:0;" json:"requiredUsedChannelPoints"`
 
 	Responses []*ChannelsCommandsResponses `gorm:"foreignKey:CommandID"                             json:"responses"`
 	GroupID   null.String                  `gorm:"column:groupId;type:UUID" json:"groupId"`

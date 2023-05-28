@@ -270,6 +270,9 @@ func handleUpdate(
 	command.GroupID = null.StringFromPtr(dto.GroupID)
 	command.RolesIDS = dto.RolesIDS
 	command.OnlineOnly = *dto.OnlineOnly
+	command.RequiredUsedChannelPoints = dto.RequiredUsedChannelPoints
+	command.RequiredWatchTime = dto.RequiredWatchTime
+	command.RequiredMessages = dto.RequiredMessages
 
 	command.DeniedUsersIDS = []string{}
 	command.AllowedUsersIDS = []string{}

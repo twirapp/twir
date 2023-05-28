@@ -8,9 +8,16 @@ type ChannelRole struct {
 	Name        string          `gorm:"column:name;type:text;" json:"name"`
 	Type        ChannelRoleEnum `gorm:"column:type;type:text;" json:"type"`
 	Permissions pq.StringArray  `gorm:"column:permissions;type:text[]" json:"permissions"`
+	Settings    []byte          `gorm:"column:settings;type:jsonb" json:"settings"`
 
 	Channel *Channels          `gorm:"foreignKey:ChannelID" json:"-"`
 	Users   []*ChannelRoleUser `gorm:"foreignKey:RoleID" json:"-"`
+}
+
+type ChannelRoleSettings struct {
+	RequiredWatchTime         int64 `json:"requiredWatchTime"`
+	RequiredMessages          int32 `json:"requiredMessages"`
+	RequiredUsedChannelPoints int64 `json:"requiredUsedChannelPoints"`
 }
 
 func (ChannelRole) TableName() string {

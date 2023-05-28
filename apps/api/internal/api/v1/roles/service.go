@@ -1,6 +1,8 @@
 package roles
 
 import (
+	"encoding/json"
+	"github.com/davecgh/go-spew/spew"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,7 +14,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func getRole(id string) *model.ChannelRole {
+type Role struct {
+	*model.ChannelRole
+	Settings *model.ChannelRoleSettings `json:"settings"`
+}
+
+func getRole(id string) *Role {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 	db := do.MustInvoke[*gorm.DB](di.Provider)
 
@@ -26,14 +33,22 @@ func getRole(id string) *model.ChannelRole {
 		return nil
 	}
 
-	return role
+	settings := &model.ChannelRoleSettings{}
+	err = json.Unmarshal(role.Settings, settings)
+
+	r := &Role{
+		ChannelRole: role,
+		Settings:    settings,
+	}
+
+	return r
 }
 
-func getRolesService(channelId string) ([]*model.ChannelRole, error) {
+func getRolesService(channelId string) ([]Role, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 	db := do.MustInvoke[*gorm.DB](di.Provider)
 
-	channelsRoles := []*model.ChannelRole{}
+	var channelsRoles []*model.ChannelRole
 	err := db.
 		Where(`"channelId" = ?`, channelId).
 		Preload("Users").
@@ -43,10 +58,25 @@ func getRolesService(channelId string) ([]*model.ChannelRole, error) {
 		return nil, err
 	}
 
-	return channelsRoles, nil
+	roles := make([]Role, len(channelsRoles))
+	for i, role := range channelsRoles {
+		settings := &model.ChannelRoleSettings{}
+		err = json.Unmarshal(role.Settings, settings)
+		if err != nil {
+			logger.Error(err)
+		}
+
+		r := Role{
+			ChannelRole: role,
+			Settings:    settings,
+		}
+		roles[i] = r
+	}
+
+	return roles, nil
 }
 
-func updateRoleService(channelId, roleId string, dto *roleDto) (*model.ChannelRole, error) {
+func updateRoleService(channelId, roleId string, dto *roleDto) (*Role, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 	db := do.MustInvoke[*gorm.DB](di.Provider)
 
@@ -60,6 +90,15 @@ func updateRoleService(channelId, roleId string, dto *roleDto) (*model.ChannelRo
 
 	role.Name = dto.Name
 	role.Permissions = dto.Permissions
+
+	spew.Dump(dto.Settings)
+	settings, err := json.Marshal(dto.Settings)
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
+
+	role.Settings = settings
 
 	err = db.Save(&role).Error
 	if err != nil {
@@ -102,9 +141,15 @@ func deleteRoleService(channelId, roleId string) error {
 	return nil
 }
 
-func createRoleService(channelId string, dto *roleDto) (*model.ChannelRole, error) {
+func createRoleService(channelId string, dto *roleDto) (*Role, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 	db := do.MustInvoke[*gorm.DB](di.Provider)
+
+	settingsBytes, err := json.Marshal(dto.Settings)
+	if err != nil {
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
+	}
 
 	role := &model.ChannelRole{
 		ID:          uuid.NewV4().String(),
@@ -112,9 +157,10 @@ func createRoleService(channelId string, dto *roleDto) (*model.ChannelRole, erro
 		Name:        dto.Name,
 		Type:        model.ChannelRoleTypeCustom,
 		Permissions: dto.Permissions,
+		Settings:    settingsBytes,
 	}
 
-	err := db.Create(&role).Error
+	err = db.Create(&role).Error
 	if err != nil {
 		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")

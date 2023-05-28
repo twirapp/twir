@@ -2,10 +2,11 @@ package grpc_impl
 
 import (
 	"context"
-	"strings"
-
+	"encoding/json"
 	"github.com/samber/lo"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"strings"
+	"time"
 )
 
 func (c *parserGrpcServer) shouldCheckCooldown(badges []string) bool {
@@ -33,6 +34,7 @@ func (c *parserGrpcServer) isUserHasPermissionToCommand(
 	err := c.services.Gorm.
 		WithContext(ctx).
 		Where(`"id" = ?`, userId).
+		Preload("Stats", `"channelId" = ? AND "userId" = ?`, channelId, userId).
 		Find(dbUser).Error
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
@@ -55,7 +57,7 @@ func (c *parserGrpcServer) isUserHasPermissionToCommand(
 		return false
 	}
 
-	commandRoles := []*model.ChannelRole{}
+	var commandRoles []*model.ChannelRole
 
 	mappedCommandsRoles := lo.Map(command.RolesIDS, func(id string, _ int) string {
 		return id
@@ -103,6 +105,41 @@ func (c *parserGrpcServer) isUserHasPermissionToCommand(
 					// user in role
 					return true
 				}
+			}
+		}
+	}
+
+	if dbUser.Stats != nil {
+		watched := time.Duration(dbUser.Stats.Watched) * time.Millisecond
+		hoursWatched := int64(watched.Hours())
+
+		// check command restriction by stats
+		if (command.RequiredWatchTime > 0 || command.RequiredMessages > 0 || command.RequiredUsedChannelPoints > 0) &&
+			dbUser.Stats.UsedChannelPoints >= int64(command.RequiredUsedChannelPoints) &&
+			dbUser.Stats.Messages >= int32(command.RequiredMessages) &&
+			hoursWatched >= int64(command.RequiredWatchTime) {
+			return true
+		}
+
+		// check role restriction by stats
+		for _, role := range commandRoles {
+			settings := &model.ChannelRoleSettings{}
+			err = json.Unmarshal(role.Settings, settings)
+			if err != nil {
+				c.services.Logger.Sugar().Error(err)
+				return false
+			}
+
+			if settings.RequiredWatchTime == 0 &&
+				settings.RequiredUsedChannelPoints == 0 &&
+				settings.RequiredMessages == 0 {
+				continue
+			}
+
+			if dbUser.Stats.UsedChannelPoints >= settings.RequiredUsedChannelPoints &&
+				dbUser.Stats.Messages >= settings.RequiredMessages &&
+				hoursWatched >= settings.RequiredWatchTime {
+				return true
 			}
 		}
 	}
