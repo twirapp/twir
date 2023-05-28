@@ -1,4 +1,5 @@
 import { useTwitchGameCategories } from '@/services/api';
+import { printError } from '@/services/api/error';
 import {
 	Autocomplete,
 	Avatar,
@@ -8,11 +9,12 @@ import {
 	Text,
 	SelectItemProps,
 } from '@mantine/core';
+import { useDebouncedState } from '@mantine/hooks';
 import React, { forwardRef, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 interface ItemProps extends SelectItemProps {
 	image: string;
+	id: string;
 }
 
 const Category = forwardRef<HTMLDivElement, ItemProps>(
@@ -32,37 +34,42 @@ const Category = forwardRef<HTMLDivElement, ItemProps>(
 
 interface Props {
 	label: string;
-	setCategory: (value: string) => void;
+	setCategory: (value: CategoryType) => void;
+}
+
+export interface CategoryType {
+	name: string;
+	id: string;
 }
 
 const CategorySelector = ({ label, setCategory }: Props) => {
-	const timeoutRef = useRef<number>(-1);
-	const [category, setInnerCategory] = useState('');
+	const [category, setInnerCategory] = useDebouncedState('', 200);
 
 	const theme = useMantineTheme();
 	const categories = useTwitchGameCategories(category);
 
 	const handleChange = (val: string) => {
-		// window.clearTimeout(timeoutRef.current);
 		setInnerCategory(val);
-		setCategory(val);
-		// if (val.trim().length === 0) {
-		// 	setLoading(false);
-		// } else {
-		// 	setLoading(true);
-		// 	timeoutRef.current = window.setTimeout(() => {
-		// 		setLoading(false);
-		// 	}, 1000);
-		// }
+		const findedCategory = categories.data?.find((category) => category.name == val);
+		setCategory({
+			id: findedCategory?.id ?? '',
+			name: findedCategory?.name ?? '',
+		});
 	};
-	const data = categories?.data?.map((item) => ({ image: item.box_art_url, value: item.name }));
+
+	const data = categories?.data?.map((item) => ({
+		image: item.box_art_url,
+		value: item.name,
+		id: item.id,
+	}));
+
 	return (
 		<Autocomplete
 			rightSection={categories.isLoading ? <Loader w={20} /> : <></>}
 			label={label}
 			itemComponent={Category}
-			className="scr"
 			data={data ?? []}
+			withAsterisk
 			onChange={handleChange}
 		/>
 	);

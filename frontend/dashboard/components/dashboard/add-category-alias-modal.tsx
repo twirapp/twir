@@ -17,10 +17,11 @@ import {
 import { IconSearch, IconSettings, IconTrash } from '@tabler/icons';
 import React, { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import CategorySelector from '../commons/category-selector';
+import CategorySelector, { CategoryType } from '../commons/category-selector';
 import GameAliasesCreator from '../commons/game-aliases-creator';
 import { useDebouncedState, useViewportSize } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
+import { printError } from '@/services/api/error';
 
 type Props = {
 	opened: boolean;
@@ -32,6 +33,8 @@ type ChannelCategoryAlias = {
 	alias: string;
 };
 
+type AddCategoryAliasForm = ChannelCategoryAlias & { categoryId: string };
+
 const AddCategoryAliasModal = (props: Props) => {
 	const theme = useMantineTheme();
 	const viewPort = useViewportSize();
@@ -42,10 +45,12 @@ const AddCategoryAliasModal = (props: Props) => {
 	const aliases = useGetAll();
 	const deleter = useDelete();
 
-	const [category, setCategory] = useState('');
-	const [alias, setAlias] = useState('');
+	const [category, setCategory] = useState<CategoryType>({
+		id: '',
+		name: '',
+	});
 
-	const form = useForm<ChannelCategoryAlias>({
+	const form = useForm<AddCategoryAliasForm>({
 		validate: {
 			category: (value) => {
 				if (!value.length || value.trim().length == 0) return 'Category cannot be empty';
@@ -59,14 +64,17 @@ const AddCategoryAliasModal = (props: Props) => {
 		initialValues: {
 			category: '',
 			alias: '',
+			categoryId: '',
 		},
 	});
 
 	function onSubmit() {
-		form.values.category = category;
+		form.values.category = category.name;
+		form.values.categoryId = category.id;
 
 		const validate = form.validate();
 		if (validate.hasErrors) {
+			printError('Form has errors');
 			console.log(validate.errors);
 			return;
 		}
@@ -75,7 +83,7 @@ const AddCategoryAliasModal = (props: Props) => {
 			.mutateAsync({
 				data: {
 					...form.values,
-				} as ChannelCategoryAlias,
+				},
 			})
 			.then(() => {})
 			.catch((e) => console.log(e));
@@ -129,11 +137,9 @@ const AddCategoryAliasModal = (props: Props) => {
 						<CategorySelector
 							label={t('widgets.streamManager.category')}
 							setCategory={setCategory}
-							{...form.getInputProps('category')}
 						/>
 						<TextInput
-							label={t('name')}
-							placeholder="your alias"
+							label={t('widgets.streamManager.alias')}
 							withAsterisk
 							{...form.getInputProps('alias')}
 						/>
