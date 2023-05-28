@@ -94,7 +94,12 @@ const ManageCategoriesAliases = () => {
 						setCategory={setCategory}
 						withAsterisk={false}
 					/>
-					<TextInput mt="md" label={t('widgets.streamManager.setTitle')} />
+					<TextInput
+						mt="md"
+						label={t('widgets.streamManager.setTitle')}
+						value={title}
+						onChange={(event) => setTitle(event.currentTarget.value)}
+					/>
 					<Flex mt="md">
 						<Button size="md" w="30%" color="green" onClick={onSaveClick}>
 							{t('widgets.streamManager.save')}

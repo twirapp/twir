@@ -37,7 +37,6 @@ type AddCategoryAliasForm = ChannelCategoryAlias & { categoryId: string };
 
 const AddCategoryAliasModal = (props: Props) => {
 	const theme = useMantineTheme();
-	const viewPort = useViewportSize();
 	const { t } = useTranslation('dashboard');
 	const { classes } = useCardStyles();
 	const { useCreateOrUpdate, useGetAll, useDelete } = categoriesAliasesManager();
@@ -74,7 +73,6 @@ const AddCategoryAliasModal = (props: Props) => {
 
 		const validate = form.validate();
 		if (validate.hasErrors) {
-			printError('Form has errors');
 			console.log(validate.errors);
 			return;
 		}
@@ -83,7 +81,7 @@ const AddCategoryAliasModal = (props: Props) => {
 			.mutateAsync({
 				data: {
 					...form.values,
-				},
+				} as any,
 			})
 			.then(() => {})
 			.catch((e) => console.log(e));
