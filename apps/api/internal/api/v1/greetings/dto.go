@@ -10,5 +10,5 @@ type greetingsDto struct {
 }
 
 type greetingsPatchDto struct {
-	Enabled *bool `validate:"omitempty" json:"enabled,omitempty"`
+	Enabled *bool `validate:"required" json:"enabled"`
 }
