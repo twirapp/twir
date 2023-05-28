@@ -70,6 +70,18 @@ func post(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Moderation godoc
+// @Security ApiKeyAuth
+// @Summary      Change stream title
+// @Tags         Moderation
+// @Accept       json
+// @Produce      json
+// @Param data body postTitleDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200  {array}  postTitleResponse
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/moderation/title [post]
 func postTitle(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := postTitleDto{}
@@ -92,6 +104,18 @@ func postTitle(services types.Services) func(c *fiber.Ctx) error {
 	}
 }
 
+// Moderation godoc
+// @Security ApiKeyAuth
+// @Summary      Change stream category
+// @Tags         Moderation
+// @Accept       json
+// @Produce      json
+// @Param data body postCategoryDto true "Data"
+// @Param        channelId   path      string  true  "ID of channel"
+// @Success      200  {array}  postCategoryResponse
+// @Failure 400 {object} types.DOCApiValidationError
+// @Failure 500 {object} types.DOCApiInternalError
+// @Router       /v1/channels/{channelId}/moderation/category [post]
 func postCategory(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		dto := postCategoryDto{}

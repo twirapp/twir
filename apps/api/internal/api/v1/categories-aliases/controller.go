@@ -20,11 +20,11 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // Game aliases godoc
 // @Security ApiKeyAuth
 // @Summary Get channel categories aliases list
-// @Tags categoriesAliases
+// @Tags CategoriesAliases
 // @Accept json
 // @Produce json
 // @Param        channelId   path      string  true  "ChannelId" default({{channelId}})
-// @Success 200 {array} GameAliases
+// @Success 200 {array} model.ChannelCategoryAlias
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router /v1/channels/{channelId}/categories-aliases [get]
 func get(services types.Services) fiber.Handler {
@@ -41,12 +41,12 @@ func get(services types.Services) fiber.Handler {
 // Category aliases godoc
 // @Security ApiKeyAuth
 // @Summary Create category alias
-// @Tags categoriesAliases
+// @Tags CategoriesAliases
 // @Accept json
 // @Produce json
 // @Param data body categoryAliasDto true "Data"
 // @Param        channelId   path      string  true  "ID of channel"
-// @Success 200 {object} CategoryAliase
+// @Success 200 {object} model.ChannelCategoryAlias
 // @Failure 400 {object} types.DOCApiValidationError
 // @Failure 500 {object} types.DOCApiInternalError
 // @Router /v1/channels/{channelId}/categories-aliases [post]
@@ -75,7 +75,7 @@ func post(services types.Services) fiber.Handler {
 // Category aliases godoc
 // @Security ApiKeyAuth
 // @Summary Delete category alias
-// @Tags categoriesAliases
+// @Tags CategoriesAliases
 // @Accept json
 // @Produce json
 // @Param        channelId   path      string  true  "ID of channel"
@@ -97,7 +97,7 @@ func delete(services types.Services) fiber.Handler {
 // Category aliases godoc
 // @Security ApiKeyAuth
 // @Summary Update category alias
-// @Tags categoriesAliases
+// @Tags CategoriesAliases
 // @Accept json
 // @Produce json
 // @Param data body categoryAliasDto true "Data"

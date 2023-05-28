@@ -11,441 +11,6 @@ definitions:
       isMod:
         type: boolean
     type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_bot.connectionDto:
-    properties:
-      action:
-        enum:
-        - join
-        - part
-        type: string
-    required:
-    - action
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto:
-    properties:
-      aliases:
-        items:
-          type: string
-        maxItems: 20
-        type: array
-      cooldown:
-        maximum: 86400
-        type: integer
-      cooldownType:
-        type: string
-      description:
-        maxLength: 500
-        type: string
-      enabled:
-        type: boolean
-      groupId:
-        type: string
-      id:
-        type: string
-      isReply:
-        type: boolean
-      keepResponsesOrder:
-        type: boolean
-      name:
-        maxLength: 100
-        minLength: 1
-        type: string
-      permission:
-        type: string
-      responses:
-        items:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.responsesDto'
-        type: array
-      visible:
-        type: boolean
-    required:
-    - aliases
-    - cooldownType
-    - enabled
-    - isReply
-    - keepResponsesOrder
-    - name
-    - permission
-    - visible
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto:
-    properties:
-      enabled:
-        type: boolean
-    required:
-    - enabled
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_commands.responsesDto:
-    properties:
-      order:
-        minimum: 0
-        type: integer
-      text:
-        maxLength: 500
-        minLength: 1
-        type: string
-    required:
-    - text
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_commands_group.groupDto:
-    properties:
-      color:
-        type: string
-      name:
-        type: string
-    required:
-    - color
-    - name
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_community.User:
-    properties:
-      avatarUrl:
-        type: string
-      displayName:
-        type: string
-      emotes:
-        type: integer
-      id:
-        type: string
-      messages:
-        type: integer
-      name:
-        type: string
-      usedChannelPoints:
-        type: string
-      watched:
-        type: integer
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting:
-    properties:
-      avatar:
-        type: string
-      channelId:
-        type: string
-      enabled:
-        type: boolean
-      id:
-        type: string
-      isReply:
-        type: boolean
-      processed:
-        type: boolean
-      text:
-        type: string
-      userId:
-        type: string
-      userName:
-        type: string
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsDto:
-    properties:
-      enabled:
-        type: boolean
-      id:
-        type: string
-      isReply:
-        type: boolean
-      text:
-        maxLength: 400
-        type: string
-      userName:
-        minLength: 1
-        type: string
-    required:
-    - enabled
-    - isReply
-    - userName
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsPatchDto:
-    properties:
-      enabled:
-        type: boolean
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatello.createOrUpdateDTO:
-    properties:
-      apiKey:
-        type: string
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO:
-    properties:
-      apiKey:
-        type: string
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto:
-    properties:
-      code:
-        type: string
-    required:
-    - code
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.tokenDto:
-    properties:
-      code:
-        type: string
-    required:
-    - code
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile:
-    properties:
-      albumCount:
-        type: string
-      image:
-        type: string
-      name:
-        type: string
-      playCount:
-        type: string
-      trackCount:
-        type: string
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto:
-    properties:
-      code:
-        type: string
-    required:
-    - code
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.tokenDto:
-    properties:
-      code:
-        type: string
-    required:
-    - code
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto:
-    properties:
-      code:
-        type: string
-    required:
-    - code
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile:
-    properties:
-      first_name:
-        type: string
-      id:
-        type: integer
-      last_name:
-        type: string
-      photo_max_orig:
-        type: string
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto:
-    properties:
-      code:
-        type: string
-    required:
-    - code
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto:
-    properties:
-      cooldown:
-        maximum: 86400
-        minimum: 5
-        type: integer
-      enabled:
-        type: boolean
-      isRegular:
-        type: boolean
-      isReply:
-        type: boolean
-      response:
-        maxLength: 400
-        type: string
-      text:
-        maxLength: 100
-        type: string
-      usages:
-        type: integer
-    required:
-    - enabled
-    - isRegular
-    - isReply
-    - text
-    - usages
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordPatchDto:
-    properties:
-      enabled:
-        type: boolean
-    required:
-    - enabled
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationItemDto'
-        type: array
-    required:
-    - items
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationItemDto:
-    properties:
-      banMessage:
-        type: string
-      banTime:
-        type: integer
-      blackListSentences:
-        items:
-          type: string
-        type: array
-      checkClips:
-        type: boolean
-      enabled:
-        type: boolean
-      id:
-        type: string
-      maxPercentage:
-        type: integer
-      subscribers:
-        type: boolean
-      triggerLength:
-        type: integer
-      type:
-        type: string
-      vips:
-        type: boolean
-      warningMessage:
-        type: string
-    required:
-    - banTime
-    - enabled
-    - id
-    - maxPercentage
-    - subscribers
-    - triggerLength
-    - type
-    - vips
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_roles.roleDto:
-    properties:
-      flags:
-        items:
-          type: string
-        type: array
-      name:
-        type: string
-      users:
-        items:
-          type: string
-        type: array
-    required:
-    - name
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_roles_users.roleUser:
-    properties:
-      id:
-        type: string
-      userAvatar:
-        type: string
-      userDisplayName:
-        type: string
-      userId:
-        type: string
-      userName:
-        type: string
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_roles_users.roleUserDto:
-    properties:
-      userNames:
-        items:
-          type: string
-        type: array
-    required:
-    - userNames
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity:
-    properties:
-      channelId:
-        type: string
-      id:
-        type: string
-      twitchUser:
-        $ref: '#/definitions/helix.User'
-      userId:
-        type: string
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto:
-    properties:
-      userName:
-        type: string
-    required:
-    - userName
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_stats.statsItem:
-    properties:
-      count:
-        type: integer
-      name:
-        enum:
-        - users
-        - channels
-        - commands
-        - messages
-        type: string
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_timers.responseDto:
-    properties:
-      isAnnounce:
-        type: boolean
-      text:
-        maxLength: 400
-        type: string
-    required:
-    - isAnnounce
-    - text
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto:
-    properties:
-      enabled:
-        type: boolean
-      messageInterval:
-        maximum: 10000
-        minimum: 0
-        type: integer
-      name:
-        maxLength: 510
-        type: string
-      responses:
-        items:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.responseDto'
-        type: array
-      timeInterval:
-        maximum: 120
-        minimum: 1
-        type: integer
-    required:
-    - enabled
-    - name
-    - responses
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerPatchDto:
-    properties:
-      enabled:
-        type: boolean
-    required:
-    - enabled
-    type: object
-  github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto:
-    properties:
-      description:
-        type: string
-      evalValue:
-        type: string
-      name:
-        type: string
-      response:
-        type: string
-      type:
-        enum:
-        - SCRIPT
-        - TEXT
-        type: string
-    required:
-    - name
-    - type
-    type: object
   github_com_satont_tsuwari_apps_api_internal_types.DOCApiBadRequest:
     properties:
       messages:
@@ -545,31 +110,6 @@ definitions:
       url_4x:
         type: string
     type: object
-  helix.User:
-    properties:
-      broadcaster_type:
-        type: string
-      created_at:
-        type: string
-      description:
-        type: string
-      display_name:
-        type: string
-      email:
-        type: string
-      id:
-        type: string
-      login:
-        type: string
-      offline_image_url:
-        type: string
-      profile_image_url:
-        type: string
-      type:
-        type: string
-      view_count:
-        type: integer
-    type: object
   internal_api_v1_bot.connectionDto:
     properties:
       action:
@@ -580,18 +120,44 @@ definitions:
     required:
     - action
     type: object
+  internal_api_v1_categories-aliases.categoryAliasDto:
+    properties:
+      alias:
+        maxLength: 300
+        minLength: 1
+        type: string
+      category:
+        maxLength: 300
+        minLength: 1
+        type: string
+      categoryId:
+        type: string
+      id:
+        type: string
+    required:
+    - alias
+    - category
+    - categoryId
+    type: object
   internal_api_v1_commands.commandDto:
     properties:
       aliases:
         items:
           type: string
-        maxItems: 20
+        type: array
+      allowedUsersIds:
+        items:
+          type: string
         type: array
       cooldown:
         maximum: 86400
         type: integer
       cooldownType:
         type: string
+      deniedUsersIds:
+        items:
+          type: string
+        type: array
       description:
         maxLength: 500
         type: string
@@ -609,11 +175,15 @@ definitions:
         maxLength: 100
         minLength: 1
         type: string
-      permission:
-        type: string
+      onlineOnly:
+        type: boolean
       responses:
         items:
           $ref: '#/definitions/internal_api_v1_commands.responsesDto'
+        type: array
+      rolesIds:
+        items:
+          type: string
         type: array
       visible:
         type: boolean
@@ -624,7 +194,7 @@ definitions:
     - isReply
     - keepResponsesOrder
     - name
-    - permission
+    - onlineOnly
     - visible
     type: object
   internal_api_v1_commands.commandPatchDto:
@@ -643,8 +213,6 @@ definitions:
         maxLength: 500
         minLength: 1
         type: string
-    required:
-    - text
     type: object
   internal_api_v1_commands_group.groupDto:
     properties:
@@ -719,6 +287,8 @@ definitions:
     properties:
       enabled:
         type: boolean
+    required:
+    - enabled
     type: object
   internal_api_v1_integrations_donatello.createOrUpdateDTO:
     properties:
@@ -778,6 +348,11 @@ definitions:
     required:
     - code
     type: object
+  internal_api_v1_integrations_valorant.createOrUpdateDTO:
+    properties:
+      username:
+        type: string
+    type: object
   internal_api_v1_integrations_vk.profile:
     properties:
       first_name:
@@ -809,10 +384,10 @@ definitions:
       isReply:
         type: boolean
       response:
-        maxLength: 400
+        maxLength: 500
         type: string
       text:
-        maxLength: 100
+        maxLength: 500
         type: string
       usages:
         type: integer
@@ -877,14 +452,38 @@ definitions:
     - type
     - vips
     type: object
+  internal_api_v1_moderation.postCategoryDto:
+    properties:
+      categoryId:
+        type: string
+    required:
+    - categoryId
+    type: object
+  internal_api_v1_moderation.postCategoryResponse:
+    properties:
+      categoryId:
+        type: string
+    type: object
+  internal_api_v1_moderation.postTitleDto:
+    properties:
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  internal_api_v1_moderation.postTitleResponse:
+    properties:
+      title:
+        type: string
+    type: object
   internal_api_v1_roles.roleDto:
     properties:
-      flags:
+      name:
+        type: string
+      permissions:
         items:
           type: string
         type: array
-      name:
-        type: string
       users:
         items:
           type: string
@@ -913,24 +512,6 @@ definitions:
         type: array
     required:
     - userNames
-    type: object
-  internal_api_v1_settings_dashboardAccess.Entity:
-    properties:
-      channelId:
-        type: string
-      id:
-        type: string
-      twitchUser:
-        $ref: '#/definitions/helix.User'
-      userId:
-        type: string
-    type: object
-  internal_api_v1_settings_dashboardAccess.addUserDto:
-    properties:
-      userName:
-        type: string
-    required:
-    - userName
     type: object
   internal_api_v1_stats.statsItem:
     properties:
@@ -1005,6 +586,19 @@ definitions:
     - name
     - type
     type: object
+  model.ChannelCategoryAlias:
+    properties:
+      alias:
+        type: string
+      category:
+        type: string
+      categoryId:
+        type: string
+      channelId:
+        type: string
+      id:
+        type: string
+    type: object
   model.ChannelCommandGroup:
     properties:
       channelId:
@@ -1028,10 +622,8 @@ definitions:
         type: string
       permissions:
         items:
-          $ref: '#/definitions/model.ChannelRolePermission'
+          type: string
         type: array
-      system:
-        type: boolean
       type:
         $ref: '#/definitions/model.ChannelRoleEnum'
     type: object
@@ -1049,13 +641,6 @@ definitions:
     - ChannelRoleTypeSubscriber
     - ChannelRoleTypeVip
     - ChannelRoleTypeCustom
-  model.ChannelRolePermission:
-    properties:
-      flag:
-        $ref: '#/definitions/model.RoleFlag'
-      id:
-        type: string
-    type: object
   model.Channels:
     properties:
       botId:
@@ -1063,6 +648,8 @@ definitions:
       id:
         type: string
       isBanned:
+        type: boolean
+      isBotMod:
         type: boolean
       isEnabled:
         type: boolean
@@ -1072,6 +659,10 @@ definitions:
   model.ChannelsCommands:
     properties:
       aliases:
+        items:
+          type: string
+        type: array
+      allowedUsersIds:
         items:
           type: string
         type: array
@@ -1085,6 +676,10 @@ definitions:
         type: boolean
       defaultName:
         type: string
+      deniedUsersIds:
+        items:
+          type: string
+        type: array
       description:
         type: string
       enabled:
@@ -1103,6 +698,8 @@ definitions:
         type: string
       name:
         type: string
+      onlineOnly:
+        type: boolean
       responses:
         items:
           $ref: '#/definitions/model.ChannelsCommandsResponses'
@@ -1303,55 +900,6 @@ definitions:
       text:
         type: string
     type: object
-  model.RoleFlag:
-    properties:
-      flag:
-        $ref: '#/definitions/model.RolePermissionEnum'
-      id:
-        type: string
-    type: object
-  model.RolePermissionEnum:
-    enum:
-    - ADMINISTRATOR
-    - UPDATE_CHANNEL_TITLE
-    - UPDATE_CHANNEL_CATEGORY
-    - VIEW_COMMANDS
-    - MANAGE_COMMANDS
-    - VIEW_KEYWORDS
-    - MANAGE_KEYWORDS
-    - VIEW_TIMERS
-    - MANAGE_TIMERS
-    - VIEW_INTEGRATIONS
-    - MANAGE_INTEGRATIONS
-    - VIEW_SONG_REQUESTS
-    - MANAGE_SONG_REQUESTS
-    - VIEW_MODERATION
-    - MANAGE_MODERATION
-    - VIEW_VARIABLES
-    - MANAGE_VARIABLES
-    - VIEW_GREETINGS
-    - MANAGE_GREETINGS
-    type: string
-    x-enum-varnames:
-    - RolePermissionAdministrator
-    - RolePermissionUpdateChannelTitle
-    - RolePermissionUpdateChannelCategory
-    - RolePermissionViewCommands
-    - RolePermissionManageCommands
-    - RolePermissionViewKeywords
-    - RolePermissionManageKeywords
-    - RolePermissionViewTimers
-    - RolePermissionManageTimers
-    - RolePermissionViewIntegrations
-    - RolePermissionManageIntegrations
-    - RolePermissionViewSongRequests
-    - RolePermissionManageSongRequests
-    - RolePermissionViewModeration
-    - RolePermissionManageModeration
-    - RolePermissionViewVariables
-    - RolePermissionManageVariables
-    - RolePermissionViewGreetings
-    - RolePermissionManageGreetings
   modules.SearchResult:
     properties:
       id:
@@ -1360,6 +908,46 @@ definitions:
         type: string
       title:
         type: string
+    type: object
+  modules.TTSSettings:
+    properties:
+      allow_users_choose_voice_in_main_command:
+        type: boolean
+      disallowed_voices:
+        items:
+          type: string
+        type: array
+      do_not_read_emoji:
+        type: boolean
+      do_not_read_links:
+        type: boolean
+      do_not_read_twitch_emotes:
+        type: boolean
+      enabled:
+        type: boolean
+      max_symbols:
+        type: integer
+      pitch:
+        maximum: 100
+        minimum: 0
+        type: integer
+      rate:
+        maximum: 100
+        minimum: 0
+        type: integer
+      read_chat_messages:
+        type: boolean
+      read_chat_messages_nicknames:
+        type: boolean
+      voice:
+        type: string
+      volume:
+        maximum: 100
+        minimum: 0
+        type: integer
+    required:
+    - enabled
+    - voice
     type: object
   modules.YouTubeChannelTranslations:
     properties:
@@ -1677,7 +1265,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_bot.connectionDto'
+          $ref: '#/definitions/internal_api_v1_bot.connectionDto'
       produces:
       - application/json
       responses:
@@ -1696,6 +1284,141 @@ paths:
       summary: Check does bot moderator on the channel
       tags:
       - Bot
+  /v1/channels/{channelId}/categories-aliases:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: '{{channelId}}'
+        description: ChannelId
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ChannelCategoryAlias'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get channel categories aliases list
+      tags:
+      - CategoriesAliases
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_v1_categories-aliases.categoryAliasDto'
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChannelCategoryAlias'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create category alias
+      tags:
+      - CategoriesAliases
+  /v1/channels/{channelId}/categories-aliases/{categoryAliasId}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      - description: ID of category
+        in: path
+        name: categoryAliasId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "404":
+          description: Not Found
+      security:
+      - ApiKeyAuth: []
+      summary: Delete category alias
+      tags:
+      - CategoriesAliases
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_v1_categories-aliases.categoryAliasDto'
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      - description: ID of category
+        in: path
+        name: categoryAliasId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update category alias
+      tags:
+      - CategoriesAliases
   /v1/channels/{channelId}/commands:
     get:
       consumes:
@@ -2032,7 +1755,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_community.User'
+              $ref: '#/definitions/internal_api_v1_community.User'
             type: array
         "500":
           description: Internal Server Error
@@ -2163,7 +1886,7 @@ paths:
       summary: Delete greeting
       tags:
       - Greetings
-    put:
+    patch:
       consumes:
       - application/json
       parameters:
@@ -2180,7 +1903,49 @@ paths:
         type: string
       - description: ID of greeting
         in: path
+        name: greetingId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_v1_greetings.Greeting'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update greeting
+      tags:
+      - Greetings
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_v1_greetings.greetingsDto'
+      - description: ID of channel
+        in: path
         name: channelId
+        required: true
+        type: string
+      - description: ID of greeting
+        in: path
+        name: greetingId
         required: true
         type: string
       produces:
@@ -2241,7 +2006,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO'
+          $ref: '#/definitions/internal_api_v1_integrations_donatepay.createOrUpdateDTO'
       - description: ID of channel
         in: path
         name: channelId
@@ -2519,7 +2284,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile'
+              $ref: '#/definitions/internal_api_v1_integrations_lastfm.LastfmProfile'
             type: array
         "500":
           description: Internal Server Error
@@ -2539,7 +2304,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto'
+          $ref: '#/definitions/internal_api_v1_integrations_lastfm.lastfmDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2660,7 +2425,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_spotify.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2779,7 +2544,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto'
+          $ref: '#/definitions/internal_api_v1_integrations_streamlabs.tokenDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -2858,6 +2623,64 @@ paths:
       summary: Logout
       tags:
       - Integrations|Streamlabs
+  /v1/channels/{channelId}/integrations/valorant:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: '{{channelId}}'
+        description: ChannelId
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChannelsIntegrationsData'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get valorant data
+      tags:
+      - Integrations|Valorant
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_v1_integrations_valorant.createOrUpdateDTO'
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update valorant data
+      tags:
+      - Integrations|Valorant
   /v1/channels/{channelId}/integrations/vk:
     get:
       consumes:
@@ -2875,7 +2698,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile'
+            $ref: '#/definitions/internal_api_v1_integrations_vk.profile'
         "500":
           description: Internal Server Error
           schema:
@@ -2894,7 +2717,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto'
+          $ref: '#/definitions/internal_api_v1_integrations_vk.vkDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3224,6 +3047,139 @@ paths:
       summary: Create command
       tags:
       - Moderation
+  /v1/channels/{channelId}/moderation/category:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_v1_moderation.postCategoryDto'
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_api_v1_moderation.postCategoryResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Change stream category
+      tags:
+      - Moderation
+  /v1/channels/{channelId}/moderation/title:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_v1_moderation.postTitleDto'
+      - description: ID of channel
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_api_v1_moderation.postTitleResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Change stream title
+      tags:
+      - Moderation
+  /v1/channels/{channelId}/modules/tts:
+    get:
+      consumes:
+      - application/json
+      description: Get TTS settings
+      parameters:
+      - description: Channel ID
+        in: path
+        name: channelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/modules.TTSSettings'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get TTS settings
+      tags:
+      - TTS
+    post:
+      consumes:
+      - application/json
+      description: Set TTS settings
+      parameters:
+      - description: Channel ID
+        in: path
+        name: channelId
+        required: true
+        type: string
+      - description: TTS settings
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/modules.TTSSettings'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
+      security:
+      - ApiKeyAuth: []
+      summary: Set TTS settings
+      tags:
+      - TTS
   /v1/channels/{channelId}/modules/youtube-sr:
     get:
       consumes:
@@ -3365,7 +3321,7 @@ paths:
         name: role
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles.roleDto'
+          $ref: '#/definitions/internal_api_v1_roles.roleDto'
       produces:
       - application/json
       responses:
@@ -3440,7 +3396,7 @@ paths:
         name: role
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles.roleDto'
+          $ref: '#/definitions/internal_api_v1_roles.roleDto'
       produces:
       - application/json
       responses:
@@ -3486,7 +3442,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles_users.roleUser'
+              $ref: '#/definitions/internal_api_v1_roles_users.roleUser'
             type: array
         "404":
           description: Not Found
@@ -3523,7 +3479,7 @@ paths:
         name: role
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles_users.roleUserDto'
+          $ref: '#/definitions/internal_api_v1_roles_users.roleUserDto'
       produces:
       - application/json
       responses:
@@ -3544,70 +3500,6 @@ paths:
       summary: Update users
       tags:
       - Roles
-  /v1/channels/{channelId}/settings/dashboard-access:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - default: '{{channelId}}'
-        description: ChannelId
-        in: path
-        name: channelId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
-      security:
-      - ApiKeyAuth: []
-      summary: Get channel dashboard access list
-      tags:
-      - Dashboard Access
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto'
-      - description: ID of channel
-        in: path
-        name: channelId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError'
-      security:
-      - ApiKeyAuth: []
-      summary: Add user to dashboard access list
-      tags:
-      - Dashboard Access
   /v1/channels/{channelId}/streams:
     get:
       parameters:
@@ -3671,7 +3563,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3741,7 +3633,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerPatchDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerPatchDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3781,7 +3673,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto'
+          $ref: '#/definitions/internal_api_v1_timers.timerDto'
       - description: ID of channel
         in: path
         name: channelId
@@ -3995,7 +3887,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_stats.statsItem'
+              $ref: '#/definitions/internal_api_v1_stats.statsItem'
             type: array
         "500":
           description: Internal Server Error

@@ -90,7 +90,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_bot.connectionDto"
+                            "$ref": "#/definitions/internal_api_v1_bot.connectionDto"
                         }
                     }
                 ],
@@ -99,6 +99,218 @@
                         "description": "OK",
                         "schema": {
                             "type": "boolean"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/categories-aliases": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CategoriesAliases"
+                ],
+                "summary": "Get channel categories aliases list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "{{channelId}}",
+                        "description": "ChannelId",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ChannelCategoryAlias"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CategoriesAliases"
+                ],
+                "summary": "Create category alias",
+                "parameters": [
+                    {
+                        "description": "Data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_api_v1_categories-aliases.categoryAliasDto"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ChannelCategoryAlias"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/categories-aliases/{categoryAliasId}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CategoriesAliases"
+                ],
+                "summary": "Delete category alias",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of category",
+                        "name": "categoryAliasId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CategoriesAliases"
+                ],
+                "summary": "Update category alias",
+                "parameters": [
+                    {
+                        "description": "Data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_api_v1_categories-aliases.categoryAliasDto"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of category",
+                        "name": "categoryAliasId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
                         }
                     },
                     "404": {
@@ -644,7 +856,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_community.User"
+                                "$ref": "#/definitions/internal_api_v1_community.User"
                             }
                         }
                     },
@@ -822,7 +1034,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsDto"
                         }
                     },
                     {
@@ -835,7 +1047,7 @@
                     {
                         "type": "string",
                         "description": "ID of greeting",
-                        "name": "channelId",
+                        "name": "greetingId",
                         "in": "path",
                         "required": true
                     }
@@ -910,6 +1122,71 @@
                         "description": "Not Found"
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Greetings"
+                ],
+                "summary": "Update greeting",
+                "parameters": [
+                    {
+                        "description": "Data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_api_v1_greetings.greetingsPatchDto"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of greeting",
+                        "name": "greetingId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_api_v1_greetings.Greeting"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
             }
         },
         "/v1/channels/{channelId}/integrations/donatepay": {
@@ -974,7 +1251,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO"
+                            "$ref": "#/definitions/internal_api_v1_integrations_donatepay.createOrUpdateDTO"
                         }
                     },
                     {
@@ -1415,7 +1692,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile"
+                                "$ref": "#/definitions/internal_api_v1_integrations_lastfm.LastfmProfile"
                             }
                         }
                     },
@@ -1450,7 +1727,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_lastfm.lastfmDto"
                         }
                     },
                     {
@@ -1642,7 +1919,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.tokenDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_spotify.tokenDto"
                         }
                     },
                     {
@@ -1831,7 +2108,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_streamlabs.tokenDto"
                         }
                     },
                     {
@@ -1949,6 +2226,98 @@
                 }
             }
         },
+        "/v1/channels/{channelId}/integrations/valorant": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Integrations|Valorant"
+                ],
+                "summary": "Get valorant data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "{{channelId}}",
+                        "description": "ChannelId",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ChannelsIntegrationsData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Integrations|Valorant"
+                ],
+                "summary": "Update valorant data",
+                "parameters": [
+                    {
+                        "description": "Data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_api_v1_integrations_valorant.createOrUpdateDTO"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/channels/{channelId}/integrations/vk": {
             "get": {
                 "security": [
@@ -1980,7 +2349,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile"
+                            "$ref": "#/definitions/internal_api_v1_integrations_vk.profile"
                         }
                     },
                     "500": {
@@ -2014,7 +2383,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto"
+                            "$ref": "#/definitions/internal_api_v1_integrations_vk.vkDto"
                         }
                     },
                     {
@@ -2525,6 +2894,216 @@
                 }
             }
         },
+        "/v1/channels/{channelId}/moderation/category": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Moderation"
+                ],
+                "summary": "Change stream category",
+                "parameters": [
+                    {
+                        "description": "Data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_api_v1_moderation.postCategoryDto"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/internal_api_v1_moderation.postCategoryResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/moderation/title": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Moderation"
+                ],
+                "summary": "Change stream title",
+                "parameters": [
+                    {
+                        "description": "Data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_api_v1_moderation.postTitleDto"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of channel",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/internal_api_v1_moderation.postTitleResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/channels/{channelId}/modules/tts": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get TTS settings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TTS"
+                ],
+                "summary": "Get TTS settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Channel ID",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/modules.TTSSettings"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Set TTS settings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TTS"
+                ],
+                "summary": "Set TTS settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Channel ID",
+                        "name": "channelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "TTS settings",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/modules.TTSSettings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/channels/{channelId}/modules/youtube-sr": {
             "get": {
                 "security": [
@@ -2752,7 +3331,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles.roleDto"
+                            "$ref": "#/definitions/internal_api_v1_roles.roleDto"
                         }
                     }
                 ],
@@ -2813,7 +3392,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles.roleDto"
+                            "$ref": "#/definitions/internal_api_v1_roles.roleDto"
                         }
                     }
                 ],
@@ -2934,7 +3513,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles_users.roleUser"
+                                "$ref": "#/definitions/internal_api_v1_roles_users.roleUser"
                             }
                         }
                     },
@@ -2992,7 +3571,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_roles_users.roleUserDto"
+                            "$ref": "#/definitions/internal_api_v1_roles_users.roleUserDto"
                         }
                     }
                 ],
@@ -3007,107 +3586,6 @@
                         "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiNotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/channels/{channelId}/settings/dashboard-access": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Dashboard Access"
-                ],
-                "summary": "Get channel dashboard access list",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "{{channelId}}",
-                        "description": "ChannelId",
-                        "name": "channelId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiInternalError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Dashboard Access"
-                ],
-                "summary": "Add user to dashboard access list",
-                "parameters": [
-                    {
-                        "description": "Data",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "ID of channel",
-                        "name": "channelId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_types.DOCApiValidationError"
                         }
                     },
                     "500": {
@@ -3227,7 +3705,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto"
+                            "$ref": "#/definitions/internal_api_v1_timers.timerDto"
                         }
                     },
                     {
@@ -3284,7 +3762,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto"
+                            "$ref": "#/definitions/internal_api_v1_timers.timerDto"
                         }
                     },
                     {
@@ -3402,7 +3880,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerPatchDto"
+                            "$ref": "#/definitions/internal_api_v1_timers.timerPatchDto"
                         }
                     },
                     {
@@ -3732,7 +4210,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_stats.statsItem"
+                                "$ref": "#/definitions/internal_api_v1_stats.statsItem"
                             }
                         }
                     },
@@ -3761,650 +4239,6 @@
                 },
                 "isMod": {
                     "type": "boolean"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_bot.connectionDto": {
-            "type": "object",
-            "required": [
-                "action"
-            ],
-            "properties": {
-                "action": {
-                    "type": "string",
-                    "enum": [
-                        "join",
-                        "part"
-                    ]
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandDto": {
-            "type": "object",
-            "required": [
-                "aliases",
-                "cooldownType",
-                "enabled",
-                "isReply",
-                "keepResponsesOrder",
-                "name",
-                "permission",
-                "visible"
-            ],
-            "properties": {
-                "aliases": {
-                    "type": "array",
-                    "maxItems": 20,
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "cooldown": {
-                    "type": "integer",
-                    "maximum": 86400
-                },
-                "cooldownType": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "groupId": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "isReply": {
-                    "type": "boolean"
-                },
-                "keepResponsesOrder": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1
-                },
-                "permission": {
-                    "type": "string"
-                },
-                "responses": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_commands.responsesDto"
-                    }
-                },
-                "visible": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_commands.commandPatchDto": {
-            "type": "object",
-            "required": [
-                "enabled"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_commands.responsesDto": {
-            "type": "object",
-            "required": [
-                "text"
-            ],
-            "properties": {
-                "order": {
-                    "type": "integer",
-                    "minimum": 0
-                },
-                "text": {
-                    "type": "string",
-                    "maxLength": 500,
-                    "minLength": 1
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_commands_group.groupDto": {
-            "type": "object",
-            "required": [
-                "color",
-                "name"
-            ],
-            "properties": {
-                "color": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_community.User": {
-            "type": "object",
-            "properties": {
-                "avatarUrl": {
-                    "type": "string"
-                },
-                "displayName": {
-                    "type": "string"
-                },
-                "emotes": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "messages": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "usedChannelPoints": {
-                    "type": "string"
-                },
-                "watched": {
-                    "type": "integer"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.Greeting": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "channelId": {
-                    "type": "string"
-                },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "isReply": {
-                    "type": "boolean"
-                },
-                "processed": {
-                    "type": "boolean"
-                },
-                "text": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "string"
-                },
-                "userName": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsDto": {
-            "type": "object",
-            "required": [
-                "enabled",
-                "isReply",
-                "userName"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "isReply": {
-                    "type": "boolean"
-                },
-                "text": {
-                    "type": "string",
-                    "maxLength": 400
-                },
-                "userName": {
-                    "type": "string",
-                    "minLength": 1
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_greetings.greetingsPatchDto": {
-            "type": "object",
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatello.createOrUpdateDTO": {
-            "type": "object",
-            "properties": {
-                "apiKey": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donatepay.createOrUpdateDTO": {
-            "type": "object",
-            "properties": {
-                "apiKey": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_donationalerts.tokenDto": {
-            "type": "object",
-            "required": [
-                "code"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_faceit.tokenDto": {
-            "type": "object",
-            "required": [
-                "code"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.LastfmProfile": {
-            "type": "object",
-            "properties": {
-                "albumCount": {
-                    "type": "string"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "playCount": {
-                    "type": "string"
-                },
-                "trackCount": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_lastfm.lastfmDto": {
-            "type": "object",
-            "required": [
-                "code"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_spotify.tokenDto": {
-            "type": "object",
-            "required": [
-                "code"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_streamlabs.tokenDto": {
-            "type": "object",
-            "required": [
-                "code"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.profile": {
-            "type": "object",
-            "properties": {
-                "first_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "photo_max_orig": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_integrations_vk.vkDto": {
-            "type": "object",
-            "required": [
-                "code"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordDto": {
-            "type": "object",
-            "required": [
-                "enabled",
-                "isRegular",
-                "isReply",
-                "text",
-                "usages"
-            ],
-            "properties": {
-                "cooldown": {
-                    "type": "integer",
-                    "maximum": 86400,
-                    "minimum": 5
-                },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "isRegular": {
-                    "type": "boolean"
-                },
-                "isReply": {
-                    "type": "boolean"
-                },
-                "response": {
-                    "type": "string",
-                    "maxLength": 400
-                },
-                "text": {
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "usages": {
-                    "type": "integer"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_keywords.keywordPatchDto": {
-            "type": "object",
-            "required": [
-                "enabled"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationDto": {
-            "type": "object",
-            "required": [
-                "items"
-            ],
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationItemDto"
-                    }
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_moderation.moderationItemDto": {
-            "type": "object",
-            "required": [
-                "banTime",
-                "enabled",
-                "id",
-                "maxPercentage",
-                "subscribers",
-                "triggerLength",
-                "type",
-                "vips"
-            ],
-            "properties": {
-                "banMessage": {
-                    "type": "string"
-                },
-                "banTime": {
-                    "type": "integer"
-                },
-                "blackListSentences": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "checkClips": {
-                    "type": "boolean"
-                },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "maxPercentage": {
-                    "type": "integer"
-                },
-                "subscribers": {
-                    "type": "boolean"
-                },
-                "triggerLength": {
-                    "type": "integer"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "vips": {
-                    "type": "boolean"
-                },
-                "warningMessage": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_roles.roleDto": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "flags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "name": {
-                    "type": "string"
-                },
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_roles_users.roleUser": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "userAvatar": {
-                    "type": "string"
-                },
-                "userDisplayName": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "string"
-                },
-                "userName": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_roles_users.roleUserDto": {
-            "type": "object",
-            "required": [
-                "userNames"
-            ],
-            "properties": {
-                "userNames": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.Entity": {
-            "type": "object",
-            "properties": {
-                "channelId": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "twitchUser": {
-                    "$ref": "#/definitions/helix.User"
-                },
-                "userId": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_settings_dashboardAccess.addUserDto": {
-            "type": "object",
-            "required": [
-                "userName"
-            ],
-            "properties": {
-                "userName": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_stats.statsItem": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string",
-                    "enum": [
-                        "users",
-                        "channels",
-                        "commands",
-                        "messages"
-                    ]
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_timers.responseDto": {
-            "type": "object",
-            "required": [
-                "isAnnounce",
-                "text"
-            ],
-            "properties": {
-                "isAnnounce": {
-                    "type": "boolean"
-                },
-                "text": {
-                    "type": "string",
-                    "maxLength": 400
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerDto": {
-            "type": "object",
-            "required": [
-                "enabled",
-                "name",
-                "responses"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                },
-                "messageInterval": {
-                    "type": "integer",
-                    "maximum": 10000,
-                    "minimum": 0
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 510
-                },
-                "responses": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_satont_tsuwari_apps_api_internal_api_v1_timers.responseDto"
-                    }
-                },
-                "timeInterval": {
-                    "type": "integer",
-                    "maximum": 120,
-                    "minimum": 1
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_timers.timerPatchDto": {
-            "type": "object",
-            "required": [
-                "enabled"
-            ],
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "github_com_satont_tsuwari_apps_api_internal_api_v1_variables.variableDto": {
-            "type": "object",
-            "required": [
-                "name",
-                "type"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "evalValue": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "response": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string",
-                    "enum": [
-                        "SCRIPT",
-                        "TEXT"
-                    ]
                 }
             }
         },
@@ -4561,44 +4395,6 @@
                 }
             }
         },
-        "helix.User": {
-            "type": "object",
-            "properties": {
-                "broadcaster_type": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "display_name": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "login": {
-                    "type": "string"
-                },
-                "offline_image_url": {
-                    "type": "string"
-                },
-                "profile_image_url": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "view_count": {
-                    "type": "integer"
-                }
-            }
-        },
         "internal_api_v1_bot.connectionDto": {
             "type": "object",
             "required": [
@@ -4614,6 +4410,32 @@
                 }
             }
         },
+        "internal_api_v1_categories-aliases.categoryAliasDto": {
+            "type": "object",
+            "required": [
+                "alias",
+                "category",
+                "categoryId"
+            ],
+            "properties": {
+                "alias": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "minLength": 1
+                },
+                "category": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "minLength": 1
+                },
+                "categoryId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_api_v1_commands.commandDto": {
             "type": "object",
             "required": [
@@ -4623,13 +4445,18 @@
                 "isReply",
                 "keepResponsesOrder",
                 "name",
-                "permission",
+                "onlineOnly",
                 "visible"
             ],
             "properties": {
                 "aliases": {
                     "type": "array",
-                    "maxItems": 20,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "allowedUsersIds": {
+                    "type": "array",
                     "items": {
                         "type": "string"
                     }
@@ -4640,6 +4467,12 @@
                 },
                 "cooldownType": {
                     "type": "string"
+                },
+                "deniedUsersIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "description": {
                     "type": "string",
@@ -4665,13 +4498,19 @@
                     "maxLength": 100,
                     "minLength": 1
                 },
-                "permission": {
-                    "type": "string"
+                "onlineOnly": {
+                    "type": "boolean"
                 },
                 "responses": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internal_api_v1_commands.responsesDto"
+                    }
+                },
+                "rolesIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
                     }
                 },
                 "visible": {
@@ -4692,9 +4531,6 @@
         },
         "internal_api_v1_commands.responsesDto": {
             "type": "object",
-            "required": [
-                "text"
-            ],
             "properties": {
                 "order": {
                     "type": "integer",
@@ -4812,6 +4648,9 @@
         },
         "internal_api_v1_greetings.greetingsPatchDto": {
             "type": "object",
+            "required": [
+                "enabled"
+            ],
             "properties": {
                 "enabled": {
                     "type": "boolean"
@@ -4909,6 +4748,14 @@
                 }
             }
         },
+        "internal_api_v1_integrations_valorant.createOrUpdateDTO": {
+            "type": "object",
+            "properties": {
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_api_v1_integrations_vk.profile": {
             "type": "object",
             "properties": {
@@ -4963,11 +4810,11 @@
                 },
                 "response": {
                     "type": "string",
-                    "maxLength": 400
+                    "maxLength": 500
                 },
                 "text": {
                     "type": "string",
-                    "maxLength": 100
+                    "maxLength": 500
                 },
                 "usages": {
                     "type": "integer"
@@ -5053,20 +4900,58 @@
                 }
             }
         },
+        "internal_api_v1_moderation.postCategoryDto": {
+            "type": "object",
+            "required": [
+                "categoryId"
+            ],
+            "properties": {
+                "categoryId": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_api_v1_moderation.postCategoryResponse": {
+            "type": "object",
+            "properties": {
+                "categoryId": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_api_v1_moderation.postTitleDto": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_api_v1_moderation.postTitleResponse": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_api_v1_roles.roleDto": {
             "type": "object",
             "required": [
                 "name"
             ],
             "properties": {
-                "flags": {
+                "name": {
+                    "type": "string"
+                },
+                "permissions": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
-                },
-                "name": {
-                    "type": "string"
                 },
                 "users": {
                     "type": "array",
@@ -5107,34 +4992,6 @@
                     "items": {
                         "type": "string"
                     }
-                }
-            }
-        },
-        "internal_api_v1_settings_dashboardAccess.Entity": {
-            "type": "object",
-            "properties": {
-                "channelId": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "twitchUser": {
-                    "$ref": "#/definitions/helix.User"
-                },
-                "userId": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_api_v1_settings_dashboardAccess.addUserDto": {
-            "type": "object",
-            "required": [
-                "userName"
-            ],
-            "properties": {
-                "userName": {
-                    "type": "string"
                 }
             }
         },
@@ -5243,6 +5100,26 @@
                 }
             }
         },
+        "model.ChannelCategoryAlias": {
+            "type": "object",
+            "properties": {
+                "alias": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "categoryId": {
+                    "type": "string"
+                },
+                "channelId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "model.ChannelCommandGroup": {
             "type": "object",
             "properties": {
@@ -5278,11 +5155,8 @@
                 "permissions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.ChannelRolePermission"
+                        "type": "string"
                     }
-                },
-                "system": {
-                    "type": "boolean"
                 },
                 "type": {
                     "$ref": "#/definitions/model.ChannelRoleEnum"
@@ -5306,17 +5180,6 @@
                 "ChannelRoleTypeCustom"
             ]
         },
-        "model.ChannelRolePermission": {
-            "type": "object",
-            "properties": {
-                "flag": {
-                    "$ref": "#/definitions/model.RoleFlag"
-                },
-                "id": {
-                    "type": "string"
-                }
-            }
-        },
         "model.Channels": {
             "type": "object",
             "properties": {
@@ -5327,6 +5190,9 @@
                     "type": "string"
                 },
                 "isBanned": {
+                    "type": "boolean"
+                },
+                "isBotMod": {
                     "type": "boolean"
                 },
                 "isEnabled": {
@@ -5346,6 +5212,12 @@
                         "type": "string"
                     }
                 },
+                "allowedUsersIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "channelId": {
                     "type": "string"
                 },
@@ -5360,6 +5232,12 @@
                 },
                 "defaultName": {
                     "type": "string"
+                },
+                "deniedUsersIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "description": {
                     "type": "string"
@@ -5387,6 +5265,9 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "onlineOnly": {
+                    "type": "boolean"
                 },
                 "responses": {
                     "type": "array",
@@ -5693,62 +5574,6 @@
                 }
             }
         },
-        "model.RoleFlag": {
-            "type": "object",
-            "properties": {
-                "flag": {
-                    "$ref": "#/definitions/model.RolePermissionEnum"
-                },
-                "id": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.RolePermissionEnum": {
-            "type": "string",
-            "enum": [
-                "ADMINISTRATOR",
-                "UPDATE_CHANNEL_TITLE",
-                "UPDATE_CHANNEL_CATEGORY",
-                "VIEW_COMMANDS",
-                "MANAGE_COMMANDS",
-                "VIEW_KEYWORDS",
-                "MANAGE_KEYWORDS",
-                "VIEW_TIMERS",
-                "MANAGE_TIMERS",
-                "VIEW_INTEGRATIONS",
-                "MANAGE_INTEGRATIONS",
-                "VIEW_SONG_REQUESTS",
-                "MANAGE_SONG_REQUESTS",
-                "VIEW_MODERATION",
-                "MANAGE_MODERATION",
-                "VIEW_VARIABLES",
-                "MANAGE_VARIABLES",
-                "VIEW_GREETINGS",
-                "MANAGE_GREETINGS"
-            ],
-            "x-enum-varnames": [
-                "RolePermissionAdministrator",
-                "RolePermissionUpdateChannelTitle",
-                "RolePermissionUpdateChannelCategory",
-                "RolePermissionViewCommands",
-                "RolePermissionManageCommands",
-                "RolePermissionViewKeywords",
-                "RolePermissionManageKeywords",
-                "RolePermissionViewTimers",
-                "RolePermissionManageTimers",
-                "RolePermissionViewIntegrations",
-                "RolePermissionManageIntegrations",
-                "RolePermissionViewSongRequests",
-                "RolePermissionManageSongRequests",
-                "RolePermissionViewModeration",
-                "RolePermissionManageModeration",
-                "RolePermissionViewVariables",
-                "RolePermissionManageVariables",
-                "RolePermissionViewGreetings",
-                "RolePermissionManageGreetings"
-            ]
-        },
         "modules.SearchResult": {
             "type": "object",
             "properties": {
@@ -5760,6 +5585,63 @@
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "modules.TTSSettings": {
+            "type": "object",
+            "required": [
+                "enabled",
+                "voice"
+            ],
+            "properties": {
+                "allow_users_choose_voice_in_main_command": {
+                    "type": "boolean"
+                },
+                "disallowed_voices": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "do_not_read_emoji": {
+                    "type": "boolean"
+                },
+                "do_not_read_links": {
+                    "type": "boolean"
+                },
+                "do_not_read_twitch_emotes": {
+                    "type": "boolean"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "max_symbols": {
+                    "type": "integer"
+                },
+                "pitch": {
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 0
+                },
+                "rate": {
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 0
+                },
+                "read_chat_messages": {
+                    "type": "boolean"
+                },
+                "read_chat_messages_nicknames": {
+                    "type": "boolean"
+                },
+                "voice": {
+                    "type": "string"
+                },
+                "volume": {
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 0
                 }
             }
         },
