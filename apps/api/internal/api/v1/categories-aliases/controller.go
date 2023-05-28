@@ -121,10 +121,6 @@ func patch(services types.Services) fiber.Handler {
 			return err
 		}
 
-		// if (*dto.Category != "" && *dto.CategoryId == "") || (*dto.Category == "" && *dto.CategoryId != "") {
-		// 	return fiber.NewError(http.StatusBadRequest, "you must specify both a category and a categoryId")
-		// }
-
 		categoryAlias, err := handlePatch(c.Params("channelId"), c.Params("categoryAliasId"), dto, services)
 		if err != nil {
 			return err

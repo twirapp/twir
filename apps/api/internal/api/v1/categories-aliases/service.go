@@ -96,9 +96,15 @@ func handlePatch(
 		return nil, fiber.NewError(http.StatusBadRequest, "alias with this name already exists")
 	}
 
-	existedAlias.Category = *dto.Category
-	existedAlias.CategoryId = *dto.CategoryId
-	existedAlias.Alias = *dto.Alias
+	if dto.CategoryId != nil {
+		existedAlias.CategoryId = *dto.CategoryId
+	}
+	if dto.Alias != nil {
+		existedAlias.Alias = *dto.Alias
+	}
+	if dto.Category != nil {
+		existedAlias.Category = *dto.Category
+	}
 	err = db.Model(existedAlias).Select("*").Updates(existedAlias).Error
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot update category alias")
