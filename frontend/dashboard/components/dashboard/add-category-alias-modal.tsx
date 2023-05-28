@@ -90,7 +90,10 @@ const AddCategoryAliasModal = (props: Props) => {
 	return (
 		<Modal
 			opened={props.opened}
-			onClose={() => props.setOpened(false)}
+			onClose={() => {
+				props.setOpened(false);
+				form.reset();
+			}}
 			title={<Text size="xl">{t('widgets.streamManager.aliases.manage')}</Text>}
 			padding="xl"
 			size="xl"
@@ -107,7 +110,7 @@ const AddCategoryAliasModal = (props: Props) => {
 					</tr>
 				</thead>
 
-				<tbody>
+				<tbody style={{ maxHeight: '100%', overflowY: 'auto' }}>
 					{aliases?.data?.map((alias) => (
 						<Fragment key={alias.id}>
 							<tr style={{ padding: 5 }}>
