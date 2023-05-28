@@ -7,33 +7,56 @@ import { authFetcher, queryClient } from '@/services/api';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 export const useModerationSettings = () => {
-  const dashboard = useContext(SelectedDashboardContext);
-  const getUrl = () => `/api/v1/channels/${dashboard.id}/moderation`;
+	const dashboard = useContext(SelectedDashboardContext);
+	const getUrl = () => `/api/v1/channels/${dashboard.id}/moderation`;
 
-  return {
-    useGet: () => useQuery<ChannelModerationSetting[]>({
-      queryKey: [getUrl()],
-      queryFn: () => authFetcher(getUrl()),
-    }),
-    useUpdate: () => useMutation({
-      mutationKey: [getUrl()],
-      mutationFn: (data: ChannelModerationSetting[]) => {
-        return authFetcher(
-          getUrl(),
-          {
-            body: JSON.stringify({ items: data }),
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          },
-        );
-      },
-      onSuccess: (result) => {
-        queryClient.setQueryData<ChannelModerationSetting[]>([getUrl()], old => {
-          return result;
-        });
-      },
-    }),
-  };
+	return {
+		useGet: () =>
+			useQuery<ChannelModerationSetting[]>({
+				queryKey: [getUrl()],
+				queryFn: () => authFetcher(getUrl()),
+			}),
+		useUpdate: () =>
+			useMutation({
+				mutationKey: [getUrl()],
+				mutationFn: (data: ChannelModerationSetting[]) => {
+					return authFetcher(getUrl(), {
+						body: JSON.stringify({ items: data }),
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+					});
+				},
+				onSuccess: (result) => {
+					queryClient.setQueryData<ChannelModerationSetting[]>([getUrl()], (old) => {
+						return result;
+					});
+				},
+			}),
+	};
+};
+
+export const useModerationManager = () => {
+	const dashboard = useContext(SelectedDashboardContext);
+	const getUrl = () => `/api/v1/channels/${dashboard.id}/moderation`;
+
+	return {
+		useUpdateTitle: () =>
+			useMutation({
+				mutationKey: [getUrl() + '/title'],
+				mutationFn: (title: string) => {
+					return authFetcher(getUrl() + '/title', {
+						body: JSON.stringify({ title: title }),
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+					});
+				},
+				onSuccess: (result) => {
+					queryClient.setQueryData<string>([getUrl() + '/title'], (old) => {
+						return result;
+					});
+				},
+			}),
+	};
 };

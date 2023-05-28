@@ -35,6 +35,7 @@ const Category = forwardRef<HTMLDivElement, ItemProps>(
 interface Props {
 	label: string;
 	setCategory: (value: CategoryType) => void;
+	withAsterisk: boolean;
 }
 
 export interface CategoryType {
@@ -42,7 +43,7 @@ export interface CategoryType {
 	id: string;
 }
 
-const CategorySelector = ({ label, setCategory }: Props) => {
+const CategorySelector = ({ label, setCategory, withAsterisk }: Props) => {
 	const [category, setInnerCategory] = useDebouncedState('', 200);
 
 	const theme = useMantineTheme();
@@ -69,7 +70,7 @@ const CategorySelector = ({ label, setCategory }: Props) => {
 			label={label}
 			itemComponent={Category}
 			data={data ?? []}
-			withAsterisk
+			withAsterisk={withAsterisk}
 			onChange={handleChange}
 		/>
 	);

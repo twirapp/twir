@@ -137,6 +137,7 @@ const AddCategoryAliasModal = (props: Props) => {
 						<CategorySelector
 							label={t('widgets.streamManager.category')}
 							setCategory={setCategory}
+							withAsterisk={true}
 						/>
 						<TextInput
 							label={t('widgets.streamManager.alias')}
