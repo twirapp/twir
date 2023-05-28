@@ -5,6 +5,7 @@ import { useContext } from 'react';
 
 import { authFetcher, queryClient } from '@/services/api';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
+import { ChannelStream } from '@tsuwari/typeorm/entities/ChannelStream';
 
 export const useModerationSettings = () => {
 	const dashboard = useContext(SelectedDashboardContext);
@@ -57,6 +58,30 @@ export const useModerationManager = () => {
 						return result;
 					});
 				},
+			}),
+		useUpdateCategory: () =>
+			useMutation({
+				mutationKey: [getUrl() + '/category'],
+				mutationFn: (categoryId: string) => {
+					return authFetcher(getUrl() + '/category', {
+						body: JSON.stringify({ categoryId: categoryId }),
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+					});
+				},
+			}),
+	};
+};
+
+export const useGetStream = () => {
+	const dashboard = useContext(SelectedDashboardContext);
+	const getUrl = () => `/api/v1/channels/${dashboard.id}/streams`;
+
+	return {
+		useGet: () =>
+			useQuery<ChannelStream>({
+				queryKey: [getUrl()],
+				queryFn: () => authFetcher(getUrl()),
 			}),
 	};
 };

@@ -8,10 +8,10 @@ import {
 	useMantineTheme,
 	Text,
 	SelectItemProps,
+	Paper,
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
-import React, { forwardRef, useRef, useState } from 'react';
-
+import React, { ReactNode, forwardRef, useRef, useState, Children } from 'react';
 interface ItemProps extends SelectItemProps {
 	image: string;
 	id: string;
@@ -32,6 +32,34 @@ const Category = forwardRef<HTMLDivElement, ItemProps>(
 	),
 );
 
+interface DropdownComponentProps {
+	children: ReactNode[];
+}
+
+const dropdownComponent = ({ children }: DropdownComponentProps) => {
+	const theme = useMantineTheme();
+
+	return (
+		<div
+			style={{
+				position: 'fixed',
+				overflow: 'auto',
+				backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[0],
+				borderRadius: 10,
+				maxHeight: 300,
+				minWidth: 400,
+				scrollbarWidth: 'thin',
+				scrollbarColor:
+					theme.colorScheme === 'dark'
+						? `${theme.colors.dark[4]} ${theme.colors.dark[6]}`
+						: `${theme.colors.gray[3]} ${theme.colors.gray[6]}`,
+			}}
+		>
+			{children}
+		</div>
+	);
+};
+
 interface Props {
 	label: string;
 	setCategory: (value: CategoryType) => void;
@@ -46,7 +74,6 @@ export interface CategoryType {
 const CategorySelector = ({ label, setCategory, withAsterisk }: Props) => {
 	const [category, setInnerCategory] = useDebouncedState('', 200);
 
-	const theme = useMantineTheme();
 	const categories = useTwitchGameCategories(category);
 
 	const handleChange = (val: string) => {
@@ -69,6 +96,7 @@ const CategorySelector = ({ label, setCategory, withAsterisk }: Props) => {
 			rightSection={categories.isLoading ? <Loader w={20} /> : <></>}
 			label={label}
 			itemComponent={Category}
+			dropdownComponent={dropdownComponent}
 			data={data ?? []}
 			withAsterisk={withAsterisk}
 			onChange={handleChange}
