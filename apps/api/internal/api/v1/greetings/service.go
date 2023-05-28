@@ -189,7 +189,9 @@ func handlePatch(
 		return nil, fiber.NewError(http.StatusNotFound, "cannot find twitch user")
 	}
 
-	greeting.Enabled = *dto.Enabled
+	if dto.Enabled != nil {
+		greeting.Enabled = *dto.Enabled
+	}
 	err := services.DB.Model(greeting).Select("*").Updates(greeting).Error
 	if err != nil {
 		logger.Error(err)
