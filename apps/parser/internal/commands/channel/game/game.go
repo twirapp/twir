@@ -45,7 +45,6 @@ var SetCommand = &types.DefaultCommand{
 			return result
 		}
 		categoryFromReq := *parseCtx.Text
-
 		categoryFromAlias := &model.ChannelCategoryAlias{}
 
 		err = parseCtx.Services.Gorm.Table("channels_categories_aliases").

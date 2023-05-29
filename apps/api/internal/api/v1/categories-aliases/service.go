@@ -1,6 +1,7 @@
 package categories_aliases
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,11 +16,13 @@ import (
 
 func handleGetCategoryAliases(channelId string, services types.Services) ([]model.ChannelCategoryAlias, error) {
 	db := do.MustInvoke[*gorm.DB](di.Provider)
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	var aliases []model.ChannelCategoryAlias
 	err := db.Where(`"channelId" = ?`, channelId).Find(&aliases).Error
 	if err != nil {
-		return nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		logger.Error(err)
+		return nil, fiber.NewError(fiber.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	return aliases, nil
@@ -33,6 +36,12 @@ func handlePost(channelId string, dto *categoryAliasDto, services types.Services
 	err := db.Where(`"channelId" = ? AND "alias" = ?`, channelId, dto.Alias).First(existedAlias).Error
 	if err == nil {
 		return nil, fiber.NewError(http.StatusBadRequest, "alias with this name already exists")
+	}
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logger.Error(err)
+			return nil, fiber.NewError(http.StatusInternalServerError, "cannot get info about aliases")
+		}
 	}
 
 	alias := &model.ChannelCategoryAlias{
@@ -83,10 +92,9 @@ func handlePatch(
 	existedAlias := &model.ChannelCategoryAlias{}
 	err := db.Where(`"id" = ?`, categoryAliasId).First(existedAlias).Error
 	if err != nil {
-
-		return nil, fiber.NewError(http.StatusNotFound, "alias not found")
-	}
-	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fiber.NewError(http.StatusNotFound, "alias not found")
+		}
 		logger.Error(err)
 		return nil, fiber.NewError(http.StatusInternalServerError)
 	}
@@ -94,6 +102,14 @@ func handlePatch(
 	err = db.Where(`"channelId" = ? AND "alias" = ?`, channelId, dto.Alias).First(existedAlias).Error
 	if err == nil {
 		return nil, fiber.NewError(http.StatusBadRequest, "alias with this name already exists")
+	}
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logger.Error(err)
+			return nil, fiber.NewError(http.StatusInternalServerError)
+		}
+		logger.Error(err)
+		return nil, fiber.NewError(http.StatusNotFound)
 	}
 
 	if dto.CategoryId != nil {

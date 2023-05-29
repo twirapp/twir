@@ -124,10 +124,10 @@ func handlePostTitle(channelId string, dto *postTitleDto, services types.Service
 		BroadcasterID: channelId,
 		Title:         dto.Title,
 	})
-	if err != nil {
+	if err != nil || resp.StatusCode != 204 {
 		logger.Error(err)
 		logger.Error(resp.ErrorMessage)
-		return nil, err
+		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
 	return &postTitleResponse{
