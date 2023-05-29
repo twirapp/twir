@@ -51,6 +51,14 @@ const ManageCategoriesAliases = () => {
 		}, 60 * 1000);
 	}, []);
 
+	React.useEffect(() => {
+		setCategory({
+			id: stream?.gameId ?? '',
+			name: stream?.gameName ?? '',
+		});
+		setTitle(stream?.title ?? '');
+	}, [stream]);
+
 	return (
 		<Skeleton radius="md" visible={false}>
 			<Card withBorder radius="md">
@@ -92,6 +100,7 @@ const ManageCategoriesAliases = () => {
 					<CategorySelector
 						label={t('widgets.streamManager.setCategory')}
 						setCategory={setCategory}
+						outerCategory={category}
 						withAsterisk={false}
 					/>
 					<TextInput

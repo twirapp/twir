@@ -63,6 +63,7 @@ const dropdownComponent = ({ children }: DropdownComponentProps) => {
 interface Props {
 	label: string;
 	setCategory: (value: CategoryType) => void;
+	outerCategory: CategoryType;
 	withAsterisk: boolean;
 }
 
@@ -71,8 +72,8 @@ export interface CategoryType {
 	id: string;
 }
 
-const CategorySelector = ({ label, setCategory, withAsterisk }: Props) => {
-	const [category, setInnerCategory] = useDebouncedState('', 200);
+const CategorySelector = ({ label, setCategory, withAsterisk, outerCategory }: Props) => {
+	const [category, setInnerCategory] = useState(outerCategory.name);
 
 	const categories = useTwitchGameCategories(category);
 
@@ -90,9 +91,9 @@ const CategorySelector = ({ label, setCategory, withAsterisk }: Props) => {
 		value: item.name,
 		id: item.id,
 	}));
-
 	return (
 		<Autocomplete
+			value={category}
 			rightSection={categories.isLoading ? <Loader w={20} /> : <></>}
 			label={label}
 			itemComponent={Category}

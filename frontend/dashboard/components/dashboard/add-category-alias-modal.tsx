@@ -5,23 +5,19 @@ import {
 	Button,
 	Card,
 	Flex,
-	Group,
 	Modal,
-	Skeleton,
 	Table,
 	Text,
 	TextInput,
-	Tooltip,
 	useMantineTheme,
 } from '@mantine/core';
-import { IconSearch, IconSettings, IconTrash } from '@tabler/icons';
+import { IconTrash } from '@tabler/icons';
 import React, { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CategorySelector, { CategoryType } from '../commons/category-selector';
 import GameAliasesCreator from '../commons/game-aliases-creator';
 import { useDebouncedState, useViewportSize } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
-import { printError } from '@/services/api/error';
 
 type Props = {
 	opened: boolean;
@@ -137,6 +133,7 @@ const AddCategoryAliasModal = (props: Props) => {
 					<Card.Section p="md" className={classes.card}>
 						<CategorySelector
 							label={t('widgets.streamManager.category')}
+							outerCategory={category}
 							setCategory={setCategory}
 							withAsterisk={true}
 						/>
