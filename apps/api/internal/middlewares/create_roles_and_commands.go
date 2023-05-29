@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -55,6 +56,11 @@ func CreateRolesAndCommand(db *gorm.DB, userId string) error {
 				continue
 			}
 
+			settings, err := json.Marshal(&model.ChannelRoleSettings{})
+			if err != nil {
+				return err
+			}
+
 			newRole := &model.ChannelRole{
 				ID:        uuid.New().String(),
 				ChannelID: userId,
@@ -66,6 +72,7 @@ func CreateRolesAndCommand(db *gorm.DB, userId string) error {
 						pq.StringArray{model.RolePermissionCanAccessDashboard.String()},
 					).
 					Else(pq.StringArray{}),
+				Settings: settings,
 			}
 			err = tx.Save(newRole).Error
 			if err != nil {
