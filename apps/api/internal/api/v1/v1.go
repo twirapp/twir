@@ -5,6 +5,7 @@ import (
 	admin_users "github.com/satont/tsuwari/apps/api/internal/api/v1/admin/users"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/community"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/events"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donate_stream"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatello"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatepay"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/valorant"
@@ -79,6 +80,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	donatepay.Setup(integrationsGroup, services)
 	donatello.Setup(integrationsGroup, services)
 	valorant.Setup(integrationsGroup, services)
+	donate_stream.Setup(integrationsGroup, services)
 
 	modulesGroup := channelsGroup.Group("modules")
 	youtube_sr.Setup(modulesGroup, services)

@@ -2,6 +2,8 @@ package donatello
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/samber/do"
@@ -12,15 +14,12 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
 	uuid "github.com/satori/go.uuid"
-	"net/http"
 )
-
-const integrationName = "DONATELLO"
 
 func handleGet(services types.Services, channelId string) (*string, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, integrationName, services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceDonatello, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return nil, nil
@@ -37,7 +36,7 @@ func handlePost(services types.Services, channelId string, dto *createOrUpdateDT
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 	integrationsGrpc := do.MustInvoke[integrations.IntegrationsClient](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, integrationName, services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceDonatello, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
@@ -46,7 +45,7 @@ func handlePost(services types.Services, channelId string, dto *createOrUpdateDT
 	if integration == nil {
 		neededIntegration := model.Integrations{}
 		err = services.DB.
-			Where("service = ?", integrationName).
+			Where("service = ?", model.IntegrationServiceDonatello).
 			First(&neededIntegration).
 			Error
 		if err != nil {

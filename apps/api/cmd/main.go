@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+	"github.com/satont/tsuwari/apps/api/internal/api/webhooks"
+	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"log"
 	"os"
@@ -106,7 +108,7 @@ func main() {
 	}
 
 	do.ProvideValue[sqlx.DB](di.Provider, *pgConn)
-	
+
 	r := redis.New(cfg.RedisUrl)
 	do.ProvideValue[*rdb.Client](di.Provider, r)
 
@@ -154,6 +156,7 @@ func main() {
 	do.ProvideValue[timers.TimersClient](di.Provider, clients.NewTimers(cfg.AppEnv))
 	do.ProvideValue[bots.BotsClient](di.Provider, clients.NewBots(cfg.AppEnv))
 	do.ProvideValue[tokens.TokensClient](di.Provider, clients.NewTokens(cfg.AppEnv))
+	do.ProvideValue[events.EventsClient](di.Provider, clients.NewEvents(cfg.AppEnv))
 
 	v1 := app.Group("/v1")
 
@@ -170,6 +173,7 @@ func main() {
 
 	apiv1.Setup(v1, neededServices)
 	auth.Setup(app, neededServices)
+	webhooks.Setup(app, neededServices)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Status(404).SendString("Not found")

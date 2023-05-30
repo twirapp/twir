@@ -3,12 +3,13 @@ package spotify
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/samber/do"
+	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 
@@ -24,7 +25,7 @@ import (
 
 func handleGetAuth(services types.Services) (*string, error) {
 	integration := model.Integrations{}
-	err := services.DB.Where(`"service" = ?`, "SPOTIFY").First(&integration).Error
+	err := services.DB.Where(`"service" = ?`, model.IntegrationServiceSpotify).First(&integration).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(
 			404,
@@ -64,7 +65,7 @@ type profileResponse struct {
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	channelIntegration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
+	channelIntegration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceSpotify, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return err
@@ -72,7 +73,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 
 	neededIntegration := model.Integrations{}
 	err = services.DB.
-		Where("service = ?", "SPOTIFY").
+		Where("service = ?", model.IntegrationServiceSpotify).
 		First(&neededIntegration).
 		Error
 	if err != nil {
@@ -138,7 +139,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 func handleGetProfile(channelId string, services types.Services) (*spotify.SpotifyProfile, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceSpotify, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return nil, err
@@ -161,7 +162,7 @@ func handleGetProfile(channelId string, services types.Services) (*spotify.Spoti
 func handleLogout(channelId string, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, "SPOTIFY", services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceSpotify, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return err

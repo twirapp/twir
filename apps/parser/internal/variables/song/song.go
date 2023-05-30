@@ -70,18 +70,18 @@ var Song = &types.Variable{
 
 		integrationsForFetch := lo.Map(
 			integrations,
-			func(integration *model.ChannelsIntegrations, _ int) string {
+			func(integration *model.ChannelsIntegrations, _ int) model.IntegrationService {
 				return integration.Integration.Service
 			},
 		)
 
-		integrationsForFetch = append(integrationsForFetch, "SOUNDTRACK")
-		integrationsForFetch = append(integrationsForFetch, "YOUTUBE_SR")
+		integrationsForFetch = append(integrationsForFetch, model.IntegrationService("SOUNDTRACK"))
+		integrationsForFetch = append(integrationsForFetch, model.IntegrationService("YOUTUBE_SR"))
 
 	checkServices:
 		for _, integration := range integrationsForFetch {
 			switch integration {
-			case "SPOTIFY":
+			case model.IntegrationServiceSpotify:
 				if spoti == nil {
 					continue
 				}
@@ -90,7 +90,7 @@ var Song = &types.Variable{
 					result.Result = *track
 					break checkServices
 				}
-			case "LASTFM":
+			case model.IntegrationServiceLastfm:
 				if lfm == nil {
 					continue
 				}
@@ -101,7 +101,7 @@ var Song = &types.Variable{
 					result.Result = *track
 					break checkServices
 				}
-			case "VK":
+			case model.IntegrationServiceVK:
 				if vk == nil {
 					continue
 				}

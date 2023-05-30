@@ -2,6 +2,10 @@ package faceit
 
 import (
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
@@ -14,15 +18,12 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
-	"io"
-	"net/http"
-	"net/url"
 )
 
 func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrationsData, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, "FACEIT", services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceFaceit, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return nil, nil
@@ -37,7 +38,7 @@ func handleGet(channelId string, services types.Services) (*model.ChannelsIntegr
 
 func handleGetAuth(services types.Services) (*string, error) {
 	integration := model.Integrations{}
-	err := services.DB.Where(`"service" = ?`, "FACEIT").First(&integration).Error
+	err := services.DB.Where(`"service" = ?`, model.IntegrationServiceFaceit).First(&integration).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(
 			404,
@@ -61,7 +62,7 @@ func handleGetAuth(services types.Services) (*string, error) {
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	channelIntegration, err := helpers.GetIntegration(channelId, "FACEIT", services.DB)
+	channelIntegration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceFaceit, services.DB)
 
 	if err != nil {
 		logger.Error(err)
@@ -70,7 +71,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 
 	neededIntegration := model.Integrations{}
 	err = services.DB.
-		Where("service = ?", "FACEIT").
+		Where("service = ?", model.IntegrationServiceFaceit).
 		First(&neededIntegration).
 		Error
 	if err != nil {
@@ -174,7 +175,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 func handleLogout(channelId string, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, "FACEIT", services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceFaceit, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return err

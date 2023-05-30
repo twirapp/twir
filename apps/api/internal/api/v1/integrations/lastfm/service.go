@@ -2,11 +2,12 @@ package lastfm
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"gorm.io/gorm"
-	"net/http"
 
 	"github.com/guregu/null"
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -26,7 +27,7 @@ type Lastfm struct {
 func handlePost(channelId string, dto *lastfmDto, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceLastfm, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return err
@@ -35,7 +36,7 @@ func handlePost(channelId string, dto *lastfmDto, services types.Services) error
 	if integration == nil {
 		neededIntegration := model.Integrations{}
 		err = services.DB.
-			Where("service = ?", "LASTFM").
+			Where("service = ?", model.IntegrationServiceLastfm).
 			First(&neededIntegration).
 			Error
 		if err != nil {
@@ -77,7 +78,7 @@ func handleAuth(services types.Services) (string, error) {
 	// http://www.last.fm/api/auth/?api_key=xxx&cb=http://example.com
 	neededIntegration := model.Integrations{}
 	err := services.DB.
-		Where("service = ?", "LASTFM").
+		Where("service = ?", model.IntegrationServiceLastfm).
 		First(&neededIntegration).
 		Error
 	if err != nil && err == gorm.ErrRecordNotFound {
@@ -97,7 +98,7 @@ func handleAuth(services types.Services) (string, error) {
 func handleProfile(channelId string, services types.Services) (*LastfmProfile, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceLastfm, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return nil, err
@@ -131,7 +132,7 @@ func handleProfile(channelId string, services types.Services) (*LastfmProfile, e
 func handleLogout(channelId string, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, "LASTFM", services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceLastfm, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return err

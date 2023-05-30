@@ -10,9 +10,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetIntegration(
+func GetChannelIntegration(
 	channelId string,
-	service string,
+	service model.IntegrationService,
 	db *gorm.DB,
 ) (*model.ChannelsIntegrations, error) {
 	integration := model.ChannelsIntegrations{}

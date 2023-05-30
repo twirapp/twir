@@ -3,11 +3,12 @@ package streamlabs
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"net/http"
-	"net/url"
 
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
@@ -24,7 +25,7 @@ import (
 
 func handleGetAuth(services types.Services) (*string, error) {
 	integration := model.Integrations{}
-	err := services.DB.Where(`"service" = ?`, "STREAMLABS").First(&integration).Error
+	err := services.DB.Where(`"service" = ?`, model.IntegrationServiceStreamLabs).First(&integration).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(
 			404,
@@ -49,7 +50,7 @@ func handleGetAuth(services types.Services) (*string, error) {
 func handleGet(channelId string, services types.Services) (*model.ChannelsIntegrationsData, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceStreamLabs, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return nil, nil
@@ -74,13 +75,13 @@ type profileResponse struct {
 		ID          int    `json:"id"`
 		DisplayName string `json:"display_name"`
 		ThumbNail   string `json:"thumbnail"`
-	} `json:"streamlabs"`
+	} `json:model.IntegrationServiceStreamLabs`
 }
 
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	channelIntegration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
+	channelIntegration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceStreamLabs, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return err
@@ -88,7 +89,7 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 
 	neededIntegration := model.Integrations{}
 	err = services.DB.
-		Where("service = ?", "STREAMLABS").
+		Where("service = ?", model.IntegrationServiceStreamLabs).
 		First(&neededIntegration).
 		Error
 	if err != nil {
@@ -175,7 +176,7 @@ func sendGrpcEvent(integrationId string, isAdd bool) {
 func handleLogout(channelId string, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, "STREAMLABS", services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceStreamLabs, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return err

@@ -1,6 +1,8 @@
 package valorant
 
 import (
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/samber/do"
@@ -10,15 +12,12 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
-	"net/http"
 )
-
-const integrationName = "VALORANT"
 
 func handleGet(services types.Services, channelId string) (*model.ChannelsIntegrationsData, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, integrationName, services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceValorant, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return nil, nil
@@ -34,7 +33,7 @@ func handleGet(services types.Services, channelId string) (*model.ChannelsIntegr
 func handlePost(services types.Services, channelId string, dto *createOrUpdateDTO) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, integrationName, services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceValorant, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return fiber.NewError(http.StatusInternalServerError, "internal error")
@@ -47,7 +46,7 @@ func handlePost(services types.Services, channelId string, dto *createOrUpdateDT
 	if integration == nil {
 		neededIntegration := model.Integrations{}
 		err = services.DB.
-			Where("service = ?", integrationName).
+			Where("service = ?", model.IntegrationServiceValorant).
 			First(&neededIntegration).
 			Error
 		if err != nil {

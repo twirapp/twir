@@ -1,11 +1,12 @@
 package vk
 
 import (
+	"net/http"
+	"net/url"
+
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"net/http"
-	"net/url"
 
 	"github.com/guregu/null"
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -25,7 +26,7 @@ type VK struct {
 
 func handleGetAuth(services types.Services) (*string, error) {
 	integration := model.Integrations{}
-	err := services.DB.Where(`"service" = ?`, "VK").First(&integration).Error
+	err := services.DB.Where(`"service" = ?`, model.IntegrationServiceVK).First(&integration).Error
 	if err != nil && err == gorm.ErrRecordNotFound {
 		return nil, fiber.NewError(
 			404,
@@ -66,7 +67,7 @@ type profileResponse struct {
 func handleGet(channelId string, services types.Services) (*profile, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, "VK", services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceVK, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return nil, err
@@ -105,7 +106,7 @@ type tokensResponse struct {
 func handlePost(channelId string, dto *vkDto, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, "VK", services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceVK, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return err
@@ -114,7 +115,7 @@ func handlePost(channelId string, dto *vkDto, services types.Services) error {
 	if integration == nil {
 		neededIntegration := model.Integrations{}
 		err = services.DB.
-			Where("service = ?", "VK").
+			Where("service = ?", model.IntegrationServiceVK).
 			First(&neededIntegration).
 			Error
 		if err != nil {
@@ -165,7 +166,7 @@ func handlePost(channelId string, dto *vkDto, services types.Services) error {
 func handleLogout(channelId string, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
-	integration, err := helpers.GetIntegration(channelId, "VK", services.DB)
+	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceVK, services.DB)
 	if err != nil {
 		logger.Error(err)
 		return err

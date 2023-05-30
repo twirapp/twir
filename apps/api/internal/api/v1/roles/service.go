@@ -2,7 +2,6 @@ package roles
 
 import (
 	"encoding/json"
-	"github.com/davecgh/go-spew/spew"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -91,7 +90,6 @@ func updateRoleService(channelId, roleId string, dto *roleDto) (*Role, error) {
 	role.Name = dto.Name
 	role.Permissions = dto.Permissions
 
-	spew.Dump(dto.Settings)
 	settings, err := json.Marshal(dto.Settings)
 	if err != nil {
 		logger.Error(err)
