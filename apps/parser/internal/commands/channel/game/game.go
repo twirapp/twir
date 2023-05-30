@@ -47,7 +47,7 @@ var SetCommand = &types.DefaultCommand{
 		categoryFromReq := *parseCtx.Text
 		categoryFromAlias := &model.ChannelCategoryAlias{}
 
-		err = parseCtx.Services.Gorm.Table("channels_categories_aliases").
+		err = parseCtx.Services.Gorm.
 			Where(`"channelId" = ? AND "alias" = ?`, parseCtx.Channel.ID, categoryFromReq).Find(categoryFromAlias).Error
 		if err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
