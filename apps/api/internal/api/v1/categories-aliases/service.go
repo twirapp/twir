@@ -99,7 +99,7 @@ func handlePatch(
 		return nil, fiber.NewError(http.StatusInternalServerError)
 	}
 
-	err = db.Where(`"channelId" = ? AND "alias" = ?`, channelId, dto.Alias).First(existedAlias).Error
+	err = db.Where(`"channelId" = ? AND "alias" = ?`, channelId, dto.Alias).First(&model.ChannelCategoryAlias{}).Error
 	if err == nil {
 		return nil, fiber.NewError(http.StatusBadRequest, "alias with this name already exists")
 	}
@@ -108,8 +108,6 @@ func handlePatch(
 			logger.Error(err)
 			return nil, fiber.NewError(http.StatusInternalServerError)
 		}
-		logger.Error(err)
-		return nil, fiber.NewError(http.StatusNotFound)
 	}
 
 	if dto.CategoryId != nil {
