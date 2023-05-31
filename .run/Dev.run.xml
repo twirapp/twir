@@ -15,7 +15,10 @@
     <toRun name="Dev Eval" type="NodeJSConfigurationType" />
     <toRun name="Dev Integrations" type="NodeJSConfigurationType" />
     <toRun name="Dev YTSR" type="NodeJSConfigurationType" />
-    <toRun name="Prepare" type="ShConfigurationType" />
+    <toRun name="[Frontend] Dashboard" type="ShConfigurationType" />
+    <toRun name="[Frontend] Landing" type="ShConfigurationType" />
+    <toRun name="[Frontend] Overlays" type="ShConfigurationType" />
+    <toRun name="[Frontend] Public" type="ShConfigurationType" />
     <method v="2" />
   </configuration>
 </component>
