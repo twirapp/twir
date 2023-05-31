@@ -30,7 +30,7 @@ type postDto struct {
 
 func handlePost(services types.Services) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		apiKey := ctx.GetRespHeader("X-Key")
+		apiKey := ctx.Get("X-Key")
 
 		if apiKey == "" {
 			return ctx.SendStatus(http.StatusUnauthorized)
