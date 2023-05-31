@@ -1,10 +1,6 @@
 package donatello
 
 import (
-	"context"
-	"net/http"
-
-	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
@@ -12,48 +8,28 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
 	uuid "github.com/satori/go.uuid"
 )
 
-func handleGet(services types.Services, channelId string) (*string, error) {
+func handleGet(services types.Services, channelId string) (string, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
 	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceDonatello, services.DB)
 	if err != nil {
 		logger.Error(err)
-		return nil, nil
+		return "", nil
 	}
 
 	if integration == nil {
-		return nil, nil
-	}
-
-	return &integration.APIKey.String, nil
-}
-
-func handlePost(services types.Services, channelId string, dto *createOrUpdateDTO) error {
-	logger := do.MustInvoke[interfaces.Logger](di.Provider)
-	integrationsGrpc := do.MustInvoke[integrations.IntegrationsClient](di.Provider)
-
-	integration, err := helpers.GetChannelIntegration(channelId, model.IntegrationServiceDonatello, services.DB)
-	if err != nil {
-		logger.Error(err)
-		return fiber.NewError(http.StatusInternalServerError, "internal error")
-	}
-
-	if integration == nil {
-		neededIntegration := model.Integrations{}
+		neededIntegration := &model.Integrations{}
 		err = services.DB.
 			Where("service = ?", model.IntegrationServiceDonatello).
-			First(&neededIntegration).
+			First(neededIntegration).
 			Error
+
 		if err != nil {
 			logger.Error(err)
-			return fiber.NewError(
-				http.StatusInternalServerError,
-				"seems like donatello not enabled on our side",
-			)
+			return "", err
 		}
 
 		integration = &model.ChannelsIntegrations{
@@ -66,25 +42,16 @@ func handlePost(services types.Services, channelId string, dto *createOrUpdateDT
 			ClientID:      null.String{},
 			ClientSecret:  null.String{},
 			Data:          nil,
-			Integration:   nil,
 		}
+
+		err = services.DB.Save(integration).Error
+		if err != nil {
+			logger.Error(err)
+			return "", err
+		}
+
+		return integration.ID, nil
 	}
 
-	integration.APIKey = null.StringFrom(dto.ApiKey)
-	err = services.DB.Save(integration).Error
-	if err != nil {
-		return fiber.NewError(http.StatusInternalServerError, "internal error")
-	}
-
-	if len(integration.APIKey.String) > 0 {
-		integrationsGrpc.AddIntegration(context.Background(), &integrations.Request{
-			Id: integration.ID,
-		})
-	} else {
-		integrationsGrpc.RemoveIntegration(context.Background(), &integrations.Request{
-			Id: integration.ID,
-		})
-	}
-
-	return nil
+	return integration.ID, nil
 }

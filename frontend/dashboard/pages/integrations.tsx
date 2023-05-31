@@ -8,7 +8,6 @@ import { SpotifyIntegration } from '../components/integrations/spotify';
 import { StreamlabsIntegration } from '../components/integrations/streamlabs';
 import { VKIntegration } from '../components/integrations/vk';
 
-import { DonatelloIntegration } from '@/components/integrations/donatello';
 import { DonatePayIntegration } from '@/components/integrations/donatepay';
 import { FaceitIntegration } from '@/components/integrations/faceit';
 import { ValorantIntegration } from '@/components/integrations/valorant';
@@ -30,6 +29,10 @@ const cols = {
 };
 
 const DonateStreamIntegration = dynamic(() => import('../components/integrations/donateStream'), {
+	ssr: false,
+});
+
+const DonatelloIntegration = dynamic(() => import('../components/integrations/donatello'), {
 	ssr: false,
 });
 
