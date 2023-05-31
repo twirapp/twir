@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Dev Parser" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="tsuwari" />
+    <working_directory value="$PROJECT_DIR$/apps/parser" />
+    <kind value="FILE" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/apps/parser/cmd/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

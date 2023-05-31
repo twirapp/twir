@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Dev YTSR" type="NodeJSConfigurationType" node-parameters="--loader ts-node/esm --enable-source-maps" path-to-js-file="src/index.ts" working-dir="$PROJECT_DIR$/apps/ytsr">
+    <envs>
+      <env name="TS_NODE_TRANSPILE_ONLY" value="true" />
+    </envs>
+    <method v="2" />
+  </configuration>
+</component>
