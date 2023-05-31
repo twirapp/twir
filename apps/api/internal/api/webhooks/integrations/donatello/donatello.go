@@ -1,10 +1,10 @@
 package donatello
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/do"
 	"github.com/satont/tsuwari/apps/api/internal/di"
+	"github.com/satont/tsuwari/apps/api/internal/interfaces"
 	"github.com/satont/tsuwari/apps/api/internal/middlewares"
 	"github.com/satont/tsuwari/apps/api/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -29,20 +29,25 @@ type postDto struct {
 }
 
 func handlePost(services types.Services) fiber.Handler {
+	logger := do.MustInvoke[interfaces.Logger](di.Provider)
+
 	return func(ctx *fiber.Ctx) error {
 		apiKey := ctx.Get("X-Key")
 
 		if apiKey == "" {
+			logger.Infow("No key", "key", apiKey)
 			return ctx.SendStatus(http.StatusUnauthorized)
 		}
 
 		integration := model.ChannelsIntegrations{}
 		err := services.DB.Where(`"apiKey" = ?`, apiKey).Find(&integration).Error
 		if err != nil {
+			logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 
 		if integration.ID == "" {
+			logger.Infow("No integration", "key", apiKey)
 			return fiber.NewError(http.StatusNotFound, "not found")
 		}
 
@@ -54,9 +59,8 @@ func handlePost(services types.Services) fiber.Handler {
 			dto,
 		)
 
-		spew.Dump(dto)
-
 		if err != nil {
+			logger.Error(err)
 			return err
 		}
 
