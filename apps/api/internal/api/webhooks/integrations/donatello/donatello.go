@@ -39,8 +39,8 @@ func handlePost(services types.Services) fiber.Handler {
 			return ctx.SendStatus(http.StatusUnauthorized)
 		}
 
-		integration := model.ChannelsIntegrations{}
-		err := services.DB.Where(`"apiKey" = ?`, apiKey).Find(&integration).Error
+		integration := &model.ChannelsIntegrations{}
+		err := services.DB.Where(`"id" = ?`, apiKey).Find(integration).Error
 		if err != nil {
 			logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
