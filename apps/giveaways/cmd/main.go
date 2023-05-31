@@ -2,12 +2,19 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"github.com/satont/tsuwari/apps/giveaways/grpc_impl"
 	"log"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-redis/redis"
-	"github.com/lib/pq"
 	config "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/giveaways"
+	"github.com/satont/tsuwari/libs/grpc/servers"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -18,6 +25,8 @@ import (
 )
 
 func main() {
+	_, appCtxCancel := context.WithCancel(context.Background())
+
 	z, _ := zap.NewDevelopment()
 	logger := z.Sugar()
 
@@ -40,25 +49,21 @@ func main() {
 	d.SetMaxOpenConns(20)
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
-	dbConnOpts, err := pq.ParseURL(cfg.DatabaseUrl)
-	if err != nil {
-		logger.Fatalln(err)
-	}
-
 	redisConnOpts, err := redis.ParseURL(cfg.RedisUrl)
 	if err != nil {
 		logger.Fatalln(err)
 	}
 	redisClient := redis.NewClient(redisConnOpts)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", services.GIVEAWAYS_SERVER_PORT))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.GIVEAWAYS_SERVER_PORT))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
 	grpcServer := grpc.NewServer()
-	
-
+	giveaways.RegisterGiveawaysServer(grpcServer, grpc_impl.NewServer())
+	go grpcServer.Serve(lis)
+	defer grpcServer.GracefulStop()
 
 	app := fx.New(
 		fx.WithLogger(func() fxevent.Logger { return &fxevent.ZapLogger{Logger: z} }),
@@ -76,12 +81,18 @@ func main() {
 				return redisClient
 			},
 			func() *zap.SugaredLogger { return logger },
-			func() *zap.Logger { return z },
 			func() *config.Config { return cfg },
 		),
-		fx.Provide()
 	)
 
-	logger.Info("App started")
 	app.Run()
+	logger.Info("Giveaways microservice started")
+
+	exitSignal := make(chan os.Signal, 1)
+	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
+
+	<-exitSignal
+	logger.Info("Exiting")
+	appCtxCancel()
+
 }
