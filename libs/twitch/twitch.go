@@ -12,6 +12,10 @@ import (
 	"github.com/nicklaw5/helix/v2"
 )
 
+type helixClient struct {
+	*helix.Client
+}
+
 func rateLimitCallback(lastResponse *helix.Response) error {
 	if lastResponse.GetRateLimitRemaining() > 0 {
 		return nil
