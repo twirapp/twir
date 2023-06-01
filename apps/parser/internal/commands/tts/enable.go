@@ -2,6 +2,7 @@ package tts
 
 import (
 	"context"
+	"github.com/lib/pq"
 
 	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
@@ -15,6 +16,7 @@ var EnableCommand = &types.DefaultCommand{
 		Description: null.StringFrom("Enable tts."),
 		Module:      "TTS",
 		IsReply:     true,
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
