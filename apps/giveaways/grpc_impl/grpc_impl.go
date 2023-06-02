@@ -42,10 +42,10 @@ func (server *GiveawaysGrpcServer) HandleChatMessage(
 		return nil, err
 	}
 
-	err = lo.If(giveaway.Type == model.ChannelGiveAwayTypeByKeyword, handleKeywordGiveawayMessage(ctx, data, giveaway)).
+	err = lo.If(giveaway.Type == model.ChannelGiveAwayTypeByKeyword, handleKeywordGiveawayMessage(ctx, server.services, data, giveaway)).
 		Else(handleRundomNumberGiveawayMessage(ctx, data, giveaway))
 	if err != nil {
-
+		return nil, err
 	}
 
 	return nil, nil
