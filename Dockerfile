@@ -8,7 +8,7 @@ WORKDIR /app
 RUN apk add git curl wget upx protoc libc6-compat && \
     go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
-    npm i -g pnpm@7.28.0
+    npm i -g pnpm@8
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc go.work go.work.sum docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
@@ -145,7 +145,7 @@ RUN apk add wget && \
 COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/.npmrc /app/docker-entrypoint.sh ./
 COPY --from=builder /app/node_modules/ ./node_modules/
 RUN chmod +x docker-entrypoint.sh
-RUN npm i -g pnpm@7.28.0
+RUN npm i -g pnpm@8
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 FROM builder as dota_builder
