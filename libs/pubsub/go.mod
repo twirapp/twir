@@ -10,6 +10,6 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/onsi/gomega v1.27.0 // indirect
 	github.com/stretchr/testify v1.8.2 // indirect
-	golang.org/x/net v0.8.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/net v0.10.0 // indirect
+	golang.org/x/sys v0.8.0 // indirect
 )
