@@ -10,7 +10,7 @@ import (
 )
 
 func (c *Handler) handleChannelFollow(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelFollow) {
-	redisKey := fmt.Sprintf("%s:%s", event.BroadcasterUserID, event.UserID)
+	redisKey := fmt.Sprintf("follows-cache:%s:%s", event.BroadcasterUserID, event.UserID)
 	key, _ := c.services.Redis.Get(context.Background(), redisKey).Result()
 
 	if key != "" {
