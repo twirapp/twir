@@ -2,11 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
-	"github.com/satont/twir/apps/api/internal/api/webhooks"
-	"github.com/satont/twir/libs/grpc/generated/events"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"log"
 	"os"
 	"os/signal"
@@ -14,6 +9,13 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
+	"github.com/satont/tsuwari/libs/grpc/generated/giveaways"
+	"github.com/satont/twir/apps/api/internal/api/webhooks"
+	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 
 	"github.com/samber/do"
 	"github.com/satont/twir/apps/api/internal/di"
@@ -168,6 +170,7 @@ func main() {
 	do.ProvideValue[timers.TimersClient](di.Provider, clients.NewTimers(cfg.AppEnv))
 	do.ProvideValue[bots.BotsClient](di.Provider, clients.NewBots(cfg.AppEnv))
 	do.ProvideValue[tokens.TokensClient](di.Provider, clients.NewTokens(cfg.AppEnv))
+	do.ProvideValue[giveaways.GiveawaysClient](di.Provider, clients.NewGiveaways(cfg.AppEnv))
 	do.ProvideValue[events.EventsClient](di.Provider, clients.NewEvents(cfg.AppEnv))
 
 	v1 := app.Group("/v1")

@@ -12,6 +12,7 @@ use (
 	./apps/tokens
 	./apps/watched
 	./apps/websockets
+	./apps/giveaways
 	./libs/config
 	./libs/gomodels
 	./libs/gopool

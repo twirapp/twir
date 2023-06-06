@@ -1,17 +1,10 @@
 /* eslint-disable import/no-cycle */
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-  PrimaryColumn,
-} from 'typeorm';
+import { Column, Entity, Index, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
 
 import { Channel } from './Channel';
 import { ChannelChatMessage } from './ChannelChatMessage';
 import { ChannelEmoteUsage } from './ChannelEmoteUsage';
+import { ChannelGiveawayParticipant } from './ChannelGiveawayParticipant';
 import { ChannelModuleSettings } from './ChannelModuleSettings';
 import { ChannelPermit } from './ChannelPermit';
 import { ChannelRoleUser } from './ChannelRoleUser';
@@ -34,19 +27,19 @@ export class User {
   @Column('boolean', { name: 'isBotAdmin', default: false })
   isBotAdmin: boolean;
 
-  @OneToOne(() => Channel, _ => _.user)
+  @OneToOne(() => Channel, (_) => _.user)
   channel?: Channel;
 
-  @OneToMany(() => CommandUsage, _ => _.user)
+  @OneToMany(() => CommandUsage, (_) => _.user)
   commandUsages?: CommandUsage[];
 
-  @OneToMany(() => ChannelPermit, _ => _.user)
+  @OneToMany(() => ChannelPermit, (_) => _.user)
   permits?: ChannelPermit[];
 
-  @OneToMany(() => Notification, _ => _.user)
+  @OneToMany(() => Notification, (_) => _.user)
   notifications?: Notification[];
 
-  @OneToOne(() => Token, _ => _.user, {
+  @OneToOne(() => Token, (_) => _.user, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
@@ -60,27 +53,30 @@ export class User {
   @Column('uuid', { generated: 'uuid' })
   apiKey: string;
 
-  @OneToMany(() => UserFile, _ => _.user)
+  @OneToMany(() => UserFile, (_) => _.user)
   files?: UserFile[];
 
-  @OneToMany(() => UserStats, _ => _.user)
+  @OneToMany(() => UserStats, (_) => _.user)
   stats?: UserStats[];
 
-  @OneToOne(() => UserOnline, _ => _.user)
+  @OneToOne(() => UserOnline, (_) => _.user)
   online?: UserOnline;
 
-  @OneToMany(() => UserViewedNotification, _ => _.user)
+  @OneToMany(() => UserViewedNotification, (_) => _.user)
   viewedNotifications?: UserViewedNotification[];
 
-  @OneToMany(() => ChannelChatMessage, _ => _.user)
+  @OneToMany(() => ChannelChatMessage, (_) => _.user)
   messages?: ChannelChatMessage[];
 
-  @OneToMany(() => ChannelEmoteUsage, _ => _.channel)
+  @OneToMany(() => ChannelEmoteUsage, (_) => _.channel)
   emotesUsages?: ChannelEmoteUsage[];
 
-  @OneToOne(() => ChannelModuleSettings, _ => _.user)
+  @OneToOne(() => ChannelModuleSettings, (_) => _.user)
   ttsSettings?: ChannelModuleSettings;
 
-  @OneToMany(() => ChannelRoleUser, _ => _.user)
+  @OneToMany(() => ChannelRoleUser, (_) => _.user)
   channelRoleUsers?: ChannelRoleUser[];
+
+  @OneToMany(() => ChannelGiveawayParticipant, (_) => _.user)
+  giveaway_participants?: ChannelGiveawayParticipant[];
 }

@@ -1,0 +1,40 @@
+syntax = "proto3";
+option go_package = "tsuwari/grpc/giveaways";
+package giveaways;
+import "google/protobuf/empty.proto";
+
+service Giveaways {
+  rpc HandleChatMessage(HandleChatMessageRequest) returns (google.protobuf.Empty) {}
+  rpc SelectWinners(ChooseWinnersRequest) returns (ChooseWinnersResponse) {}
+  rpc ReSelectWinners(ChooseWinnersRequest) returns (ChooseWinnersResponse) {}
+}
+
+message Sender {
+  string id = 1;
+  string name = 2;
+  string displayName = 3;
+  repeated string badges = 4;
+}
+
+message Channel {
+  string id = 1;
+  string name = 2;
+}
+
+message HandleChatMessageRequest {
+  string text = 1;
+  Sender sender = 2;
+  Channel channel = 3;
+}
+
+message ChooseWinnersRequest {
+  string giveawayId = 1;
+}
+
+message GiveawayWinner {
+  string id = 1;
+}
+
+message ChooseWinnersResponse {
+  repeated GiveawayWinner winners = 1;
+}

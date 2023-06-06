@@ -17,6 +17,7 @@ import { ChannelCustomvar } from './ChannelCustomvar';
 import { ChannelDotaAccount } from './ChannelDotaAccount';
 import { ChannelEmoteUsage } from './ChannelEmoteUsage';
 import { ChannelEvent } from './ChannelEvent';
+import { ChannelGiveaway } from './ChannelGiveaway';
 import { ChannelGreeting } from './ChannelGreeting';
 import { ChannelInfoHistory } from './ChannelInfoHistory';
 import { ChannelIntegration } from './ChannelIntegration';
@@ -45,7 +46,7 @@ export class Channel {
   @Column('boolean', { name: 'isBanned', default: false })
   isBanned: boolean;
 
-  @ManyToOne(() => Bot, _ => _.channels, {
+  @ManyToOne(() => Bot, (_) => _.channels, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
@@ -58,67 +59,70 @@ export class Channel {
   @Column('bool', { default: false })
   isBotMod: boolean;
 
-  @OneToOne(() => User, _ => _.channel, {
+  @OneToOne(() => User, (_) => _.channel, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'id', referencedColumnName: 'id' }])
   user?: User;
 
-  @OneToMany(() => ChannelCommand, _ => _.channel)
+  @OneToMany(() => ChannelCommand, (_) => _.channel)
   commands?: ChannelCommand[];
 
-  @OneToMany(() => ChannelCustomvar, _ => _.channel)
+  @OneToMany(() => ChannelCustomvar, (_) => _.channel)
   customVar?: ChannelCustomvar[];
 
-  @OneToMany(() => ChannelDotaAccount, _ => _.channel)
+  @OneToMany(() => ChannelDotaAccount, (_) => _.channel)
   dotaAccounts?: ChannelDotaAccount[];
 
-  @OneToMany(() => ChannelGreeting, _ => _.channel)
+  @OneToMany(() => ChannelGreeting, (_) => _.channel)
   greetings?: ChannelGreeting[];
 
-  @OneToMany(() => ChannelIntegration, _ => _.channel)
+  @OneToMany(() => ChannelIntegration, (_) => _.channel)
   channelsIntegrations?: ChannelIntegration[];
 
-  @OneToMany(() => ChannelKeyword, _ => _.channel)
+  @OneToMany(() => ChannelKeyword, (_) => _.channel)
   keywords?: ChannelKeyword[];
 
-  @OneToMany(() => ChannelModerationSetting, _ => _.channel)
+  @OneToMany(() => ChannelModerationSetting, (_) => _.channel)
   moderationSettings?: ChannelModerationSetting[];
 
-  @OneToMany(() => ChannelPermit, _ => _.channel)
+  @OneToMany(() => ChannelPermit, (_) => _.channel)
   permits?: ChannelPermit[];
 
-  @OneToMany(() => ChannelTimer, _ => _.channel)
+  @OneToMany(() => ChannelTimer, (_) => _.channel)
   timers?: ChannelTimer[];
 
-  @OneToMany(() => UserStats, _ => _.channel)
+  @OneToMany(() => UserStats, (_) => _.channel)
   usersStats?: UserStats[];
 
-  @OneToMany(() => ChannelEvent, _ => _.channel)
+  @OneToMany(() => ChannelEvent, (_) => _.channel)
   eventsList?: ChannelEvent[];
 
-  @OneToMany(() => Event, _ => _.channel)
+  @OneToMany(() => Event, (_) => _.channel)
   events: Event[];
 
-  @OneToMany(() => ChannelStream, _ => _.channel)
+  @OneToMany(() => ChannelStream, (_) => _.channel)
   streams?: ChannelStream[];
 
-  @OneToMany(() => UserOnline, _ => _.channel)
+  @OneToMany(() => UserOnline, (_) => _.channel)
   onlineUsers?: UserOnline[];
 
-  @OneToMany(() => ChannelChatMessage, _ => _.channel)
+  @OneToMany(() => ChannelChatMessage, (_) => _.channel)
   messages?: ChannelChatMessage[];
 
-  @OneToMany(() => ChannelEmoteUsage, _ => _.channel)
+  @OneToMany(() => ChannelEmoteUsage, (_) => _.channel)
   emotesUsages?: ChannelEmoteUsage[];
 
-  @OneToMany(() => ChannelInfoHistory, _ => _.channel)
+  @OneToMany(() => ChannelInfoHistory, (_) => _.channel)
   infoHistories?: ChannelInfoHistory[];
 
-  @OneToMany(() => ChannelCommandGroup, _ => _.channel)
+  @OneToMany(() => ChannelCommandGroup, (_) => _.channel)
   commandsGroups?: ChannelCommandGroup[];
 
-  @OneToMany(() => ChannelRole, _ => _.channel)
+  @OneToMany(() => ChannelRole, (_) => _.channel)
   roles?: ChannelRole[];
+
+  @OneToMany(() => ChannelGiveaway, (_) => _.channel)
+  giveAways?: ChannelGiveaway[];
 }
