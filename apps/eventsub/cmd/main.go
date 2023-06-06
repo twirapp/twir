@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/eventsub/internal/client"
 	"github.com/satont/tsuwari/apps/eventsub/internal/grpm_impl"
@@ -64,6 +65,13 @@ func main() {
 		panic(err)
 	}
 
+	redisUrl, err := redis.ParseURL(cfg.RedisUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	redisClient := redis.NewClient(redisUrl)
+
 	services := &types.Services{
 		Gorm:   db,
 		Config: cfg,
@@ -74,6 +82,7 @@ func main() {
 			Parser: clients.NewParser(cfg.AppEnv),
 		},
 		PubSub: pb,
+		Redis:  redisClient,
 	}
 
 	eventSubHandler := handler.NewHandler(services)
