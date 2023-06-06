@@ -23,7 +23,7 @@ RUN wget https://go.dev/dl/go$GO_VERSION.linux-$TARGETARCH.tar.gz && \
 RUN npm i -g pnpm@$PNPM_VERSION @go-task/cli
 
 RUN echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers
-    
+
 # switch user on build time
 RUN echo "${USERNAME}:tsuwari" | chpasswd
 USER ${USERNAME}
@@ -37,5 +37,5 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
     go install github.com/segmentio/golines@latest && \
     go install github.com/twitchdev/twitch-cli@latest && \
     go install -v golang.org/x/tools/gopls@latest && \
-    go install github.com/swaggo/swag/cmd/swag@3fe9ca22de310099640d9c96cafb2b787a5820f8 && \
+    go install github.com/swaggo/swag/cmd/swag@latest && \
     go install github.com/cespare/reflex@latest

@@ -39,7 +39,7 @@ includes:
 tasks:
   cache-golang-deps:
     cmds:
-      - pnpm ts-node --esm --transpileOnly tools/cache-go-deps.ts
+      - pnpm cache-golang-deps
 
   build-libs:
     cmds:
@@ -47,7 +47,7 @@ tasks:
 
   gen-tokens:
     cmds:
-      - pnpm ts-node --esm --transpileOnly tools/tokens.ts
+      - pnpm ts-node --esm --transpileOnly ./tools/tokens.ts
 
   migrations:
     cmds:

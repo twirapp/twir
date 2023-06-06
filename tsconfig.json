@@ -17,5 +17,9 @@
     "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {}
-  }
+  },
+	"ts-node": {
+		"esm": true,
+		"experimentalSpecifierResolution": "node"
+	}
 }

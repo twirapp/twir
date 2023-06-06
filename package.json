@@ -8,7 +8,8 @@
     "dev": "turbo run dev --filter='./apps/*' --filter='./frontend/*'",
     "build": "turbo run build",
     "build:libs": "turbo run build --filter=./libs/**",
-    "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/typeorm run deploy"
+    "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/typeorm run deploy",
+		"cache-golang-deps": "ts-node --esm --transpileOnly ./tools/cache-go-deps.ts"
   },
   "author": "Satont <satontworldwide@gmail.com>",
   "devDependencies": {
