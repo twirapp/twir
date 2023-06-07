@@ -1,7 +1,7 @@
-import { Button, Flex, Grid, TextInput, Alert, Text, Autocomplete, NativeSelect, SelectItem } from '@mantine/core';
+import { Button, Flex, Grid, TextInput, Alert, Text, NativeSelect } from '@mantine/core';
 import { IconDeviceFloppy, IconInfoCircle } from '@tabler/icons';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'next-i18next';
+import { useEffect, useState } from 'react';
 
 import { IntegrationCard } from './card';
 
@@ -37,17 +37,33 @@ export const RocketLeagueIntegration: React.FC = () => {
 	const update = manager.usePost();
 
   const [username, setUsername] = useState<string>('');
-  const [platform, setPlatform] = useState<Platform>();
+  const [platform, setPlatform] = useState<Platform>(platforms[0]);
   const [platformSelectValue, setPlatformSelectValue] = useState<string>('Steam');
 
+	useEffect(() => {
+		if (typeof data?.username !== 'undefined' && typeof data?.code !== 'undefined') {
+			setUsername(data.username);
+			const plat = platforms.find(p => p.code === data.code);
+			if (!plat) return;
+			setPlatformSelectValue(plat.value);
+			setPlatform(plat);
+		}
+	}, [data]);
+
   async function save() {
-		if (!platform || !username) return;
-		await update.mutateAsync({ username, platform: platform.code });
+		if (!platform || !username) {
+			printError('Platform and UserID must be filled');
+			return; 
+		}
+		await update.mutateAsync({ username, code: platform.code });
   }
 
   function onChangePlatform(val: string) {
     const plat = platforms.find(plat => plat.value === val);
-    if (!plat) printError('Unable to find platform');
+		if (!plat) {
+			printError('Unable to find platform');
+			return; 
+		}
 
     setPlatform(plat);
     setPlatformSelectValue(val);

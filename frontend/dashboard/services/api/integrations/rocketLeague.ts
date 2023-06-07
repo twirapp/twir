@@ -12,17 +12,17 @@ export const useRocketLeagueIntegration = () => {
   
   return {
 		useData: () =>
-			useQuery<{ username: string; platform: string }>({
+			useQuery<{ username: string; code: string }>({
 				queryKey: [getUrl()],
 				queryFn: () => authFetcher(getUrl()),
 			}),
 		usePost: () =>
-			useMutation<any, unknown, { username: string; platform: string }, unknown>({
-        mutationFn: ({ username, platform }) => {
+			useMutation<any, unknown, { username: string; code: string }, unknown>({
+        mutationFn: ({ username, code }) => {
           return authFetcher(
             getUrl(),
             {
-              body: JSON.stringify({ username, platform }),
+              body: JSON.stringify({ username, code }),
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
