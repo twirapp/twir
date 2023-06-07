@@ -43,6 +43,7 @@ const (
 	IntegrationServiceDonatello      IntegrationService = "DONATELLO"
 	IntegrationServiceValorant       IntegrationService = "VALORANT"
 	IntegrationServiceDonateStream   IntegrationService = "DONATE_STREAM"
+	IntegrationServiceRocketLeague   IntegrationService = "ROCKETLEAGUE"
 )
 
 func (c IntegrationService) String() string {
