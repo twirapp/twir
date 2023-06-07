@@ -11,7 +11,7 @@ import { VKIntegration } from '../components/integrations/vk';
 import { DonatePayIntegration } from '@/components/integrations/donatepay';
 import { FaceitIntegration } from '@/components/integrations/faceit';
 import { ValorantIntegration } from '@/components/integrations/valorant';
-
+import { RocketLeagueIntegration } from '@/components/integrations/rocketLeague';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const getServerSideProps = async ({ locale }) => ({
@@ -68,6 +68,9 @@ export default function Integrations() {
 			</Grid.Col>
 			<Grid.Col {...cols}>
 				<ValorantIntegration />
+			</Grid.Col>
+			<Grid.Col {...cols}>
+				<RocketLeagueIntegration />
 			</Grid.Col>
 		</Grid>
 	);
