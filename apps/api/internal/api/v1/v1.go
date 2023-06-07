@@ -8,6 +8,7 @@ import (
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donate_stream"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatello"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/donatepay"
+	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/rocket_league"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/valorant"
 	"github.com/satont/tsuwari/apps/api/internal/api/v1/modules/obs_websocket"
 	tts_channel_module "github.com/satont/tsuwari/apps/api/internal/api/v1/modules/tts"
@@ -81,6 +82,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	donatello.Setup(integrationsGroup, services)
 	valorant.Setup(integrationsGroup, services)
 	donate_stream.Setup(integrationsGroup, services)
+	rocket_league.Setup(integrationsGroup, services)
 
 	modulesGroup := channelsGroup.Group("modules")
 	youtube_sr.Setup(modulesGroup, services)
