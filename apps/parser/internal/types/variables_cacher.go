@@ -13,6 +13,7 @@ type DataCacher interface {
 	GetFaceitLatestMatches(ctx context.Context) ([]*FaceitMatch, error)
 	GetFaceitTodayEloDiff(ctx context.Context, matches []*FaceitMatch) int
 	GetFaceitUserData(ctx context.Context) (*FaceitUser, error)
+	GetRocketLeagueUserStats(ctx context.Context) *RocketLeagueUserStats
 	GetTwitchUserFollow(ctx context.Context, userId string) *helix.UserFollow
 	GetGbUserStats(ctx context.Context) *model.UsersStats
 	GetTwitchChannel(ctx context.Context) *helix.ChannelInformation

@@ -9,6 +9,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/eval"
 	"github.com/satont/tsuwari/libs/grpc/generated/events"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/tsuwari/libs/grpc/generated/trackernet"
 	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
 	"github.com/satont/tsuwari/libs/grpc/generated/ytsr"
 	"go.uber.org/zap"
@@ -23,6 +24,7 @@ type Grpc struct {
 	Tokens     tokens.TokensClient
 	Events     events.EventsClient
 	Ytsr       ytsr.YtsrClient
+	Trackernet trackernet.TrackernetClient
 }
 
 type Services struct {

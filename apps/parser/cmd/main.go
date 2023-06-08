@@ -120,6 +120,7 @@ func main() {
 			Tokens:     clients.NewTokens(config.AppEnv),
 			Events:     clients.NewEvents(config.AppEnv),
 			Ytsr:       clients.NewYtsr(config.AppEnv),
+			Trackernet: clients.NewTrackernet(config.AppEnv),
 		},
 	}
 

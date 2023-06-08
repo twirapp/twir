@@ -11,6 +11,7 @@ import (
 	"github.com/satont/tsuwari/apps/parser/internal/types/services"
 	"github.com/satont/tsuwari/apps/parser/internal/variables/keywords"
 	"github.com/satont/tsuwari/apps/parser/internal/variables/random"
+	"github.com/satont/tsuwari/apps/parser/internal/variables/rocket_league"
 	"github.com/satont/tsuwari/apps/parser/internal/variables/sender"
 	"github.com/satont/tsuwari/apps/parser/internal/variables/song"
 	"github.com/satont/tsuwari/apps/parser/internal/variables/stream"
@@ -93,6 +94,16 @@ func New(opts *Opts) *Variables {
 		user.SongsRequestedDuration,
 		user.EmotesTop,
 		user.Watched,
+		rocket_league.Rank2v2,
+		rocket_league.Rank1v1,
+		rocket_league.Rank3v3,
+		rocket_league.RankDropshot,
+		rocket_league.RankRumble,
+		rocket_league.Rating2v2,
+		rocket_league.Rating1v1,
+		rocket_league.Rating3v3,
+		rocket_league.RatingDropshot,
+		rocket_league.RatingRumble,
 	}, func(v *types.Variable) (string, *types.Variable) {
 		return v.Name, v
 	})

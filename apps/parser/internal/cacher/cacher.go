@@ -16,6 +16,7 @@ import (
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	"github.com/satont/tsuwari/apps/parser/internal/types/services"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/trackernet"
 	"github.com/satont/tsuwari/libs/twitch"
 )
 
@@ -34,6 +35,8 @@ type locks struct {
 
 	valorantProfile sync.Mutex
 	valorantMatch   sync.Mutex
+
+	rocketLeagueUserStats sync.Mutex
 }
 
 type cache struct {
@@ -47,6 +50,8 @@ type cache struct {
 	channelIntegrations []*model.ChannelsIntegrations
 
 	faceitData *types.FaceitResult
+
+	rocketLeagueUserStats *types.RocketLeagueUserStats
 
 	valorantProfile *types.ValorantProfile
 	valorantMatches []*types.ValorantMatch
@@ -285,6 +290,58 @@ func (c *cacher) GetFaceitTodayEloDiff(ctx context.Context, matches []*types.Fac
 	}, 0)
 
 	return sum
+}
+
+func (c *cacher) GetRocketLeagueUserStats(ctx context.Context) *types.RocketLeagueUserStats {
+	c.locks.rocketLeagueUserStats.Lock()
+	defer c.locks.rocketLeagueUserStats.Unlock()
+
+	if c.cache.rocketLeagueUserStats != nil {
+		return c.cache.rocketLeagueUserStats
+	}
+
+	c.cache.rocketLeagueUserStats = &types.RocketLeagueUserStats{}
+
+	integrations := c.GetEnabledChannelIntegrations(ctx)
+	if integrations == nil {
+		return nil
+	}
+
+	integration, ok := lo.Find(integrations, func(i *model.ChannelsIntegrations) bool {
+		return i.Integration.Service == model.IntegrationServiceRocketLeague && i.Enabled
+	})
+	if !ok {
+		return nil
+	}
+
+	platform := *integration.Data.Code
+	username := *integration.Data.UserName
+	res, err := c.services.GrpcClients.Trackernet.GetRanks(ctx, &trackernet.GetRanksRequest{
+		Username: username,
+		Platform: platform,
+	})
+	if err != nil || res == nil {
+		return nil
+	}
+	ranks := make([]types.Ranking, len(res.Rankings))
+	for _, rank := range res.Rankings {
+		ranks = append(ranks, types.Ranking{
+			Playlist: rank.Playlist,
+			Rating:   rank.Rating,
+			Rank:     rank.Rank,
+			Matches: &types.Matches{
+				Total:  rank.Matches.Total,
+				Streak: rank.Matches.Streak,
+			},
+		})
+	}
+
+	c.cache.rocketLeagueUserStats = &types.RocketLeagueUserStats{
+		Rankings: ranks,
+		Username: username,
+	}
+
+	return c.cache.rocketLeagueUserStats
 }
 
 // GetFaceitUserData implements types.VariablesCacher
