@@ -1,4 +1,5 @@
 import { Button, Flex, Grid, TextInput, Alert, Text, NativeSelect } from '@mantine/core';
+import { showNotification } from '@mantine/notifications';
 import { IconDeviceFloppy, IconInfoCircle } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 import { useEffect, useState } from 'react';
@@ -7,7 +8,6 @@ import { IntegrationCard } from './card';
 
 import { printError } from '@/services/api/error';
 import { useRocketLeagueIntegration } from '@/services/api/integrations/rocketLeague';
-
 
 type Platform = {
   value: string,
@@ -55,7 +55,20 @@ export const RocketLeagueIntegration: React.FC = () => {
 			printError('Platform and UserID must be filled');
 			return; 
 		}
-		await update.mutateAsync({ username, code: platform.code });
+		try{
+			await update.mutateAsync({ username, code: platform.code });
+			showNotification({
+				title: 'Successful',
+				message: (
+					<div>
+						Added new Rocket League integration into your account.
+					</div>
+				),
+				color: 'green',
+			});
+		} catch(e) {
+			console.log(e);
+		}
   }
 
   function onChangePlatform(val: string) {

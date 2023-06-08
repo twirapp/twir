@@ -1,4 +1,4 @@
-import { printError } from './error';
+import { printError } from './errror';
 
 // Local storage key
 const ACCESS_TOKEN_KEY = 'access_token';
