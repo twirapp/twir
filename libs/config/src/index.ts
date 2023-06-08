@@ -34,4 +34,5 @@ export const config = cleanEnv(process.env, {
   SPOTIFY_CLIENT_ID: str({ default: '' }),
   SPOTIFY_CLIENT_SECRET: str({ default: '' }),
   ODESLI_API_KEY: str({ default: '' }),
+  SELENIUM_ADDR: str({ default: 'http://localhost:4444' }),
 });

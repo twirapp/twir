@@ -1,0 +1,29 @@
+syntax = "proto3";
+package trackernet;
+option go_package = "tsuwari/grpc/trackernet";
+
+service Trackernet {
+  rpc GetRanks(GetRanksRequest) returns (GetRanksResponse) {}
+}
+
+message GetRanksRequest {
+  string username = 1;
+  string platform = 2;
+}
+
+message GetRanksResponse {
+  string displayName = 1;
+  repeated Ranking rankings = 2;
+}
+
+message Ranking {
+  string playlist = 1;
+  int32 rating = 2;
+  string rank = 3;
+  Matches matches = 4;
+}
+
+message Matches {
+  int32 total = 1;
+  string streak = 2;
+}

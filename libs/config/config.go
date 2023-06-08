@@ -24,6 +24,7 @@ type Config struct {
 	HostName                 string  `required:"false" default:"localhost:3005" envconfig:"HOSTNAME"`
 	TokensCipherKey          string  `required:"false" default:"pnyfwfiulmnqlhkvixaeligpprcnlyke" envconfig:"TOKENS_CIPHER_KEY"`
 	TTSServiceUrl            string  `required:"false" default:"localhost:7000" envconfig:"TTS_SERVICE_URL"`
+	SeleniumAddr             string  `required:"false" default:"http://localhost:4444" envconfig:"SELENIUM_ADDR"`
 }
 
 func New() (*Config, error) {
