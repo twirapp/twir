@@ -17,13 +17,13 @@ var Rank2v2 = &types.Variable{
 		result := types.VariableHandlerResult{}
 		stats := parseCtx.Cacher.GetRocketLeagueUserStats(ctx)
 		if stats == nil {
-			return nil, nil
+			return &result, nil
 		}
 		rank, ok := lo.Find(stats.Rankings, func(rank types.Ranking) bool {
 			return rank.Playlist == "Ranked Doubles 2v2"
 		})
 		if !ok {
-			return nil, nil
+			return &result, nil
 		}
 		result.Result = rank.Rank
 
@@ -40,13 +40,13 @@ var Rating2v2 = &types.Variable{
 		result := types.VariableHandlerResult{}
 		stats := parseCtx.Cacher.GetRocketLeagueUserStats(ctx)
 		if stats == nil {
-			return nil, nil
+			return &result, nil
 		}
 		rank, ok := lo.Find(stats.Rankings, func(rank types.Ranking) bool {
 			return rank.Playlist == "Ranked Doubles 2v2"
 		})
 		if !ok {
-			return nil, nil
+			return &result, nil
 		}
 		result.Result = fmt.Sprintf("%v", rank.Rating)
 
@@ -63,13 +63,13 @@ var Rank1v1 = &types.Variable{
 		result := types.VariableHandlerResult{}
 		stats := parseCtx.Cacher.GetRocketLeagueUserStats(ctx)
 		if stats == nil {
-			return nil, nil
+			return &result, nil
 		}
 		rank, ok := lo.Find(stats.Rankings, func(rank types.Ranking) bool {
 			return rank.Playlist == "Ranked Duel 1v1"
 		})
 		if !ok {
-			return nil, nil
+			return &result, nil
 		}
 		result.Result = rank.Rank
 
@@ -86,13 +86,13 @@ var Rating1v1 = &types.Variable{
 		result := types.VariableHandlerResult{}
 		stats := parseCtx.Cacher.GetRocketLeagueUserStats(ctx)
 		if stats == nil {
-			return nil, nil
+			return &result, nil
 		}
 		rank, ok := lo.Find(stats.Rankings, func(rank types.Ranking) bool {
 			return rank.Playlist == "Ranked Duel 1v1"
 		})
 		if !ok {
-			return nil, nil
+			return &result, nil
 		}
 		result.Result = fmt.Sprintf("%v", rank.Rating)
 
@@ -109,13 +109,13 @@ var Rank3v3 = &types.Variable{
 		result := types.VariableHandlerResult{}
 		stats := parseCtx.Cacher.GetRocketLeagueUserStats(ctx)
 		if stats == nil {
-			return nil, nil
+			return &result, nil
 		}
 		rank, ok := lo.Find(stats.Rankings, func(rank types.Ranking) bool {
 			return rank.Playlist == "Ranked Standard 3v3"
 		})
 		if !ok {
-			return nil, nil
+			return &result, nil
 		}
 		result.Result = rank.Rank
 
@@ -132,13 +132,13 @@ var Rating3v3 = &types.Variable{
 		result := types.VariableHandlerResult{}
 		stats := parseCtx.Cacher.GetRocketLeagueUserStats(ctx)
 		if stats == nil {
-			return nil, nil
+			return &result, nil
 		}
 		rank, ok := lo.Find(stats.Rankings, func(rank types.Ranking) bool {
 			return rank.Playlist == "Ranked Standard 3v3"
 		})
 		if !ok {
-			return nil, nil
+			return &result, nil
 		}
 		result.Result = fmt.Sprintf("%v", rank.Rating)
 
@@ -155,13 +155,13 @@ var RankRumble = &types.Variable{
 		result := types.VariableHandlerResult{}
 		stats := parseCtx.Cacher.GetRocketLeagueUserStats(ctx)
 		if stats == nil {
-			return nil, nil
+			return &result, nil
 		}
 		rank, ok := lo.Find(stats.Rankings, func(rank types.Ranking) bool {
 			return rank.Playlist == "Rumble"
 		})
 		if !ok {
-			return nil, nil
+			return &result, nil
 		}
 		result.Result = rank.Rank
 
@@ -178,13 +178,13 @@ var RatingRumble = &types.Variable{
 		result := types.VariableHandlerResult{}
 		stats := parseCtx.Cacher.GetRocketLeagueUserStats(ctx)
 		if stats == nil {
-			return nil, nil
+			return &result, nil
 		}
 		rank, ok := lo.Find(stats.Rankings, func(rank types.Ranking) bool {
 			return rank.Playlist == "Rumble"
 		})
 		if !ok {
-			return nil, nil
+			return &result, nil
 		}
 		result.Result = fmt.Sprintf("%v", rank.Rating)
 
@@ -201,13 +201,13 @@ var RankDropshot = &types.Variable{
 		result := types.VariableHandlerResult{}
 		stats := parseCtx.Cacher.GetRocketLeagueUserStats(ctx)
 		if stats == nil {
-			return nil, nil
+			return &result, nil
 		}
 		rank, ok := lo.Find(stats.Rankings, func(rank types.Ranking) bool {
 			return rank.Playlist == "Dropshot"
 		})
 		if !ok {
-			return nil, nil
+			return &result, nil
 		}
 		result.Result = rank.Rank
 
@@ -224,13 +224,13 @@ var RatingDropshot = &types.Variable{
 		result := types.VariableHandlerResult{}
 		stats := parseCtx.Cacher.GetRocketLeagueUserStats(ctx)
 		if stats == nil {
-			return nil, nil
+			return &result, nil
 		}
 		rank, ok := lo.Find(stats.Rankings, func(rank types.Ranking) bool {
 			return rank.Playlist == "Dropshot"
 		})
 		if !ok {
-			return nil, nil
+			return &result, nil
 		}
 		result.Result = fmt.Sprintf("%v", rank.Rating)
 
