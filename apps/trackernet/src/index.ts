@@ -14,64 +14,75 @@ const trackernetServer: Trackernet.TrackernetServiceImplementation = {
       throw new ServerError(Status.INVALID_ARGUMENT, 'Empty platform or username');
     }
 
-    const cached = await redis.get(`${request.platform}/${request.username}`);
-    if (cached) {
-      return JSON.parse(cached);
-    }
-
-    const caps = Capabilities.chrome();
-		const driver = new Builder().usingServer(config.SELENIUM_ADDR).withCapabilities(caps).build();
-		await driver.get(
-			`https://rocketleague.tracker.network/rocket-league/profile/${request.platform}/${request.username}/overview`,
-		);
-
-		await driver.wait(until.elementLocated(By.className('trn-table')), 10000);
-
-		const table = await driver.findElement(By.className('trn-table'));
-		
-    const rows = await table.findElements(By.tagName('tr'));
-
-    if (!rows) {
-      throw new ServerError(Status.INTERNAL, 'Cannot parse tracker.network');
-    }
-
-    const rankings: Trackernet.Ranking[] = [];
-
-		for (let i = 1; i < rows.length; i++) {
-      const columns = await rows[i]?.findElements(By.tagName('td'));
-      if (!columns || columns.length < 6) {
-        throw new ServerError(Status.INTERNAL, 'Internal server error');
+    try {
+      const cached = await redis.get(`${request.platform}/${request.username}`);
+      if (cached) {
+        return JSON.parse(cached);
       }
+
+      const caps = Capabilities.chrome();
+      const driver = new Builder().usingServer(config.SELENIUM_ADDR).withCapabilities(caps).build();
+      await driver.get(
+        `https://rocketleague.tracker.network/rocket-league/profile/${request.platform}/${request.username}/overview`,
+      );
+
+      await driver.wait(until.elementLocated(By.className('trn-table')), 10000);
+
+      const table = await driver.findElement(By.className('trn-table'));
+		
+      const rows = await table.findElements(By.tagName('tr'));
+
+      if (!rows) {
+        throw new ServerError(Status.INTERNAL, 'Cannot parse tracker.network');
+      }
+
+      const rankings: Trackernet.Ranking[] = [];
+
+      for (let i = 1; i < rows.length; i++) {
+        const columns = await rows[i]?.findElements(By.tagName('td'));
+        if (!columns || columns.length < 6) {
+          throw new ServerError(Status.INTERNAL, 'Internal server error');
+        }
       
-			const rankCol = columns[1];
-      const playlist = await rankCol?.findElement(By.className('playlist')).getText();
-      const rank = await rankCol?.findElement(By.className('rank')).getText();
-      const rating = (await columns[2]?.getText())?.split('\n')[0];
-      const ratingStr = rating?.replaceAll(',', '');
-      const matches = await columns[5]?.getText();
-      const [totalMatches, streak] = matches?.split('\n') || [];
+        const rankCol = columns[1];
+        const playlist = await rankCol?.findElement(By.className('playlist')).getText();
+        const rank = await rankCol?.findElement(By.className('rank')).getText();
+        const rating = (await columns[2]?.getText())?.split('\n')[0];
+        const ratingStr = rating?.replaceAll(',', '');
+        const matches = await columns[5]?.getText();
+        const [totalMatches, streak] = matches?.split('\n') || [];
 
-      rankings.push({
-        playlist: playlist,
-        rating: ratingStr,
-        rank: rank,
-        matches: {
-          total: totalMatches ? +totalMatches : 0,
-          streak: streak,
-        },
-      });
-		}
+        rankings.push({
+          playlist: playlist ?? '',
+          rating: ratingStr ? +ratingStr : 0,
+          rank: rank ?? '',
+          matches: {
+            total: totalMatches ? +totalMatches : 0,
+            streak: streak ?? '',
+          },
+        });
+      }
 
-    await driver.quit();
-    await redis.set(`${request.platform}/${request.username}`, JSON.stringify({
-      displayName: request.username,
-      rankings: rankings,
-    }));
-    await redis.expire(`${request.platform}/${request.username}`, 10 * 60);
-    return {
-      displayName: request.username,
-      rankings: rankings,
-    };
+      await driver.quit();
+      await redis.set(`${request.platform}/${request.username}`, JSON.stringify({
+        displayName: request.username,
+        rankings: rankings,
+      }));
+      await redis.expire(`${request.platform}/${request.username}`, 10 * 60);
+      console.log({
+				displayName: request.username,
+				rankings: rankings,
+			});
+      return {
+        displayName: request.username,
+        rankings: rankings,
+      };
+    } catch (e) {
+      console.log(e);
+      await redis.set(`${request.platform}/${request.username}`, JSON.stringify({displayName: request.username, rankings: [] }));
+			await redis.expire(`${request.platform}/${request.username}`, 10 * 60);
+      throw new ServerError(Status.INTERNAL, 'Internal server error');
+    }
   },
 };
 
