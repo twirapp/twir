@@ -36,6 +36,7 @@ import {
   IconSpeakerphone,
   IconSword,
   IconUsers,
+  IconGift,
   TablerIcon,
 } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
@@ -93,6 +94,7 @@ const navigationLinks: Array<Page | null> = [
   },
   { label: 'Timers', icon: IconClockHour7, path: '/timers' },
   { label: 'Moderation', icon: IconSword, path: '/moderation' },
+  { label: 'Giveaways', icon: IconGift, path: '/giveaways' },
   { label: 'Keywords', icon: IconKey, path: '/keywords' },
   { label: 'Variables', icon: IconActivity, path: '/variables' },
   { label: 'Greetings', icon: IconSpeakerphone, path: '/greetings' },
