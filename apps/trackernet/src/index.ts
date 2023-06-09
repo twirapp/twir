@@ -69,10 +69,6 @@ const trackernetServer: Trackernet.TrackernetServiceImplementation = {
         rankings: rankings,
       }));
       await redis.expire(`${request.platform}/${request.username}`, 10 * 60);
-      console.log({
-				displayName: request.username,
-				rankings: rankings,
-			});
       return {
         displayName: request.username,
         rankings: rankings,
