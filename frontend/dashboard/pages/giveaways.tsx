@@ -1,11 +1,11 @@
-import { Flex, Grid } from '@mantine/core';
+import { Grid } from '@mantine/core';
+import { useViewportSize } from '@mantine/hooks';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 import { Settings } from '@/components/giveaways/Settings';
 import { TwitchChatWrapper } from '@/components/giveaways/TwitchChatWrapper';
 import { UsersList } from '@/components/giveaways/UsersList';
 import { useTheme } from '@/services/dashboard/useTheme';
-import { useViewportSize } from '@mantine/hooks';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore

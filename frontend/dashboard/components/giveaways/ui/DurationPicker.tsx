@@ -5,13 +5,15 @@ type Props = {
 	onChange: (value: number | null) => void;
 	label: string;
 	placeholder: string;
+	defaultValue?: string;
 };
 
-export const DurationPicker = ({ onChange, label, placeholder }: Props) => {
-	const [inputString, setInputString] = useState('');
+export const DurationPicker = ({ onChange, label, placeholder, defaultValue }: Props) => {
+	const [inputString, setInputString] = useState(defaultValue);
 	const [error, setError] = useState(false);
 
 	const convertTimeString = (str: string) => {
+		setError(false);
 		setInputString(str);
 
 		const timeRegex = /(\d+)\s*(s|m|h|d|w|mo|с|мин|ч|дн|н|мес)/g;
@@ -22,7 +24,6 @@ export const DurationPicker = ({ onChange, label, placeholder }: Props) => {
 			onChange(null);
 			return;
 		}
-
 		let totalMs = 0;
 
 		matches.forEach((match) => {
@@ -60,7 +61,6 @@ export const DurationPicker = ({ onChange, label, placeholder }: Props) => {
 		});
 
 		onChange(totalMs);
-		setError(false);
 	};
 
 	return (
