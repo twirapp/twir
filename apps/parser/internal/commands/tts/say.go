@@ -94,7 +94,7 @@ var SayCommand = &types.DefaultCommand{
 
 		if channelSettings.DoNotReadLinks {
 			for _, part := range strings.Fields(*parseCtx.Text) {
-				isUrl := IsUrl(part)
+				isUrl := isValidUrl(part)
 				if isUrl {
 					*parseCtx.Text = strings.Replace(*parseCtx.Text, part, "", 1)
 				}

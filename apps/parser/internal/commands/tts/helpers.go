@@ -5,10 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/satont/tsuwari/apps/bots/pkg/tlds"
-	"net/url"
-	"strings"
-
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
@@ -19,6 +15,9 @@ import (
 	"github.com/tidwall/gjson"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"net"
+	"net/url"
+	"strings"
 )
 
 func getSettings(
@@ -158,13 +157,22 @@ func switchEnableState(ctx context.Context, db *gorm.DB, channelId string, newSt
 	return nil
 }
 
-func IsUrl(str string) bool {
-	u, err := url.Parse(str)
-	if err != nil {
-		return false
+func isValidUrl(input string) bool {
+	if u, e := url.Parse(input); e == nil {
+		if u.Host != "" {
+			return dnsCheck(u.Host)
+		}
+
+		return dnsCheck(input)
 	}
 
-	return u.Scheme != "" && u.Host != "" && lo.SomeBy(tlds.TLDS, func(item string) bool {
-		return strings.HasSuffix(u.Host, item)
-	})
+	return false
+}
+
+func dnsCheck(input string) bool {
+	input = strings.TrimPrefix(input, "https://")
+	input = strings.TrimPrefix(input, "http://")
+
+	ips, _ := net.LookupIP(input)
+	return len(ips) > 0
 }
