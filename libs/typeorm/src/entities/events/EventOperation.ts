@@ -91,4 +91,7 @@ export class EventOperation {
 
   @OneToMany(() => EventOperationFilter, (_) => _.operation)
   filters: EventOperationFilter[];
+
+	@Column('boolean', { default: true })
+	enabled: boolean;
 }

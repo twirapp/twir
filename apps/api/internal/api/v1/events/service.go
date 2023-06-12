@@ -64,6 +64,7 @@ func handlePost(channelId string, dto *eventDto) (*model.Event, error) {
 				UseAnnounce: *operation.UseAnnounce,
 				TimeoutTime: operation.TimeoutTime,
 				Target:      null.StringFrom(operation.Target),
+				Enabled:     *operation.Enabled,
 			}
 
 			if err := tx.Create(newOperation).Error; err != nil {
@@ -139,6 +140,7 @@ func handleUpdate(channelId, eventId string, dto *eventDto) (*model.Event, error
 				UseAnnounce: *operation.UseAnnounce,
 				TimeoutTime: operation.TimeoutTime,
 				Target:      null.StringFrom(operation.Target),
+				Enabled:     *operation.Enabled,
 			}
 
 			if err := tx.Save(&newOperation).Error; err != nil {

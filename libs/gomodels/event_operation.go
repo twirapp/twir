@@ -78,6 +78,7 @@ type EventOperation struct {
 	UseAnnounce bool        `gorm:"column:useAnnounce;type:BOOL" json:"useAnnounce"`
 	TimeoutTime int         `gorm:"column:timeoutTime;type:int" json:"timeoutTime"`
 	Target      null.String `gorm:"column:target;type:string" json:"target"`
+	Enabled     bool        `gorm:"column:enabled;type:bool" json:"enabled"`
 
 	Filters []*EventOperationFilter `gorm:"foreignkey:OperationID" json:"filters"`
 }

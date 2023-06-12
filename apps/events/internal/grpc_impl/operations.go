@@ -139,6 +139,10 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, event mod
 
 operationsLoop:
 	for _, operation := range event.Operations {
+		if !operation.Enabled {
+			continue
+		}
+
 		allFiltersOk := c.processFilters(processor, operation.Filters, data)
 		if !allFiltersOk {
 			continue

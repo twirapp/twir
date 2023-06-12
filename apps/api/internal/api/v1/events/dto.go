@@ -18,6 +18,7 @@ type operationDto struct {
 	ObsAudioStep string                   `json:"obsAudioStep"`
 	Target       string                   `json:"target"`
 	Filters      []operationFilterDto     `validate:"dive" json:"filters"`
+	Enabled      *bool                    `validate:"required" json:"enabled"`
 }
 
 type eventDto struct {
