@@ -87,8 +87,8 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 		},
 		validate: {
 			operations: {
-				delay: (v) => v > 1800 ? 'Delay cannot be more then 1800' : null,
-				repeat: (v) => v > 10 ? 'Repeat cannot be more then 10' : null,
+				delay: (v) => v > 1800 ? 'Delay cannot be more than 1800' : null,
+				repeat: (v) => v > 10 ? 'Repeat cannot be more than 10' : null,
 			},
 		},
 	});
@@ -451,6 +451,11 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 																	{...form.getInputProps(`operations.${operationIndex}.timeoutTime`)}
 																	w={'100%'}
 																/>}
+																{v === 'timeoutMessage' && <Textarea
+																	label={t('operations.additionalValues.timeoutMessage')}
+																	{...form.getInputProps(`operations.${operationIndex}.timeoutMessage`)}
+																	w={'100%'}
+																/>}
 																{
 																	v === 'target'
 																	&& (operation.type === OperationType.CHANGE_VARIABLE
@@ -599,6 +604,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 									order: form.values.operations.length,
 									useAnnounce: false,
 									timeoutTime: 600,
+									timeoutMessage: null,
 									target: '',
 									filters: [],
 									enabled: true,

@@ -72,13 +72,14 @@ type EventOperation struct {
 	Delay   int                `gorm:"column:delay;type:int" json:"delay"`
 	EventID string             `gorm:"column:eventId;type:string" json:"eventId"`
 
-	Input       null.String `gorm:"column:input;type:string" json:"input"`
-	Repeat      int         `gorm:"column:repeat;type:int" json:"repeat"`
-	Order       int         `gorm:"column:order;type:int" json:"order"`
-	UseAnnounce bool        `gorm:"column:useAnnounce;type:BOOL" json:"useAnnounce"`
-	TimeoutTime int         `gorm:"column:timeoutTime;type:int" json:"timeoutTime"`
-	Target      null.String `gorm:"column:target;type:string" json:"target"`
-	Enabled     bool        `gorm:"column:enabled;type:bool" json:"enabled"`
+	Input          null.String `gorm:"column:input;type:string" json:"input"`
+	Repeat         int         `gorm:"column:repeat;type:int" json:"repeat"`
+	Order          int         `gorm:"column:order;type:int" json:"order"`
+	UseAnnounce    bool        `gorm:"column:useAnnounce;type:BOOL" json:"useAnnounce"`
+	TimeoutTime    int         `gorm:"column:timeoutTime;type:int" json:"timeoutTime"`
+	TimeoutMessage null.String `gorm:"column:timeoutMessage;type:text" json:"timeoutMessage"`
+	Target         null.String `gorm:"column:target;type:string" json:"target"`
+	Enabled        bool        `gorm:"column:enabled;type:bool" json:"enabled"`
 
 	Filters []*EventOperationFilter `gorm:"foreignkey:OperationID" json:"filters"`
 }

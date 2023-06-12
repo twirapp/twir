@@ -9,16 +9,17 @@ type operationFilterDto struct {
 }
 
 type operationDto struct {
-	Type         model.EventOperationType `validate:"required" json:"type"`
-	Input        *string                  `json:"input"`
-	Delay        int                      `validate:"lte=1800" json:"delay"`
-	Repeat       int                      `validate:"gte=1,lte=10" json:"repeat"`
-	UseAnnounce  *bool                    `json:"useAnnounce"`
-	TimeoutTime  int                      `json:"timeoutTime"`
-	ObsAudioStep string                   `json:"obsAudioStep"`
-	Target       string                   `json:"target"`
-	Filters      []operationFilterDto     `validate:"dive" json:"filters"`
-	Enabled      *bool                    `validate:"required" json:"enabled"`
+	Type           model.EventOperationType `validate:"required" json:"type"`
+	Input          *string                  `json:"input"`
+	Delay          int                      `validate:"lte=1800" json:"delay"`
+	Repeat         int                      `validate:"gte=1,lte=10" json:"repeat"`
+	UseAnnounce    *bool                    `json:"useAnnounce"`
+	TimeoutTime    int                      `json:"timeoutTime"`
+	TimeoutMessage *string                  `json:"timeoutMessage"`
+	ObsAudioStep   string                   `json:"obsAudioStep"`
+	Target         string                   `json:"target"`
+	Filters        []operationFilterDto     `validate:"dive" json:"filters"`
+	Enabled        *bool                    `validate:"required" json:"enabled"`
 }
 
 type eventDto struct {

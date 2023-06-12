@@ -164,15 +164,29 @@ operationsLoop:
 					continue
 				}
 
-				operationError = processor.BanOrUnban(operation.Input.String, operation.Type)
+				operationError = processor.BanOrUnban(
+					operation.Input.String,
+					operation.Type,
+					operation.TimeoutMessage,
+				)
 			case model.OperationTimeout:
 				if operation.Input.Valid {
-					operationError = processor.Timeout(operation.Input.String, operation.TimeoutTime)
+					operationError = processor.Timeout(
+						operation.Input.String,
+						operation.TimeoutTime,
+						operation.TimeoutMessage,
+					)
 				}
 			case model.OperationTimeoutRandom:
-				operationError = processor.BanRandom(operation.TimeoutTime)
+				operationError = processor.BanRandom(
+					operation.TimeoutTime,
+					operation.TimeoutMessage,
+				)
 			case model.OperationBanRandom:
-				operationError = processor.BanRandom(0)
+				operationError = processor.BanRandom(
+					0,
+					operation.TimeoutMessage,
+				)
 			case model.OperationVip, model.OperationUnvip:
 				if !operation.Input.Valid {
 					continue

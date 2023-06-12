@@ -3,6 +3,7 @@ package processor
 import (
 	"errors"
 	"fmt"
+	"github.com/guregu/null"
 	"strings"
 
 	"github.com/nicklaw5/helix/v2"
@@ -10,7 +11,15 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 )
 
-func (c *Processor) Timeout(input string, timeoutTime int) error {
+func computeBanReason(reason null.String) string {
+	if reason.Valid && reason.String != "" {
+		return reason.String
+	}
+
+	return "banned from twirapp"
+}
+
+func (c *Processor) Timeout(input string, timeoutTime int, timeoutReason null.String) error {
 	hydratedName, err := c.HydrateStringWithData(input, c.data)
 
 	if err != nil || len(hydratedName) == 0 {
@@ -55,7 +64,7 @@ func (c *Processor) Timeout(input string, timeoutTime int) error {
 		ModeratorId:   c.channelId,
 		Body: helix.BanUserRequestBody{
 			Duration: timeoutTime,
-			Reason:   "banned from twirapp",
+			Reason:   computeBanReason(timeoutReason),
 			UserId:   user.Data.Users[0].ID,
 		},
 	})
@@ -67,7 +76,7 @@ func (c *Processor) Timeout(input string, timeoutTime int) error {
 	return nil
 }
 
-func (c *Processor) BanOrUnban(input string, operation model.EventOperationType) error {
+func (c *Processor) BanOrUnban(input string, operation model.EventOperationType, timeoutReason null.String) error {
 	hydratedName, err := c.HydrateStringWithData(input, c.data)
 
 	if err != nil || len(hydratedName) == 0 {
@@ -113,7 +122,7 @@ func (c *Processor) BanOrUnban(input string, operation model.EventOperationType)
 			ModeratorId:   c.channelId,
 			Body: helix.BanUserRequestBody{
 				Duration: 0,
-				Reason:   "banned from twirapp",
+				Reason:   computeBanReason(timeoutReason),
 				UserId:   user.Data.Users[0].ID,
 			},
 		})
@@ -142,7 +151,7 @@ func (c *Processor) BanOrUnban(input string, operation model.EventOperationType)
 	return nil
 }
 
-func (c *Processor) BanRandom(timeoutTime int) error {
+func (c *Processor) BanRandom(timeoutTime int, timeoutReason null.String) error {
 	mods, err := c.getChannelMods()
 	if err != nil {
 		return err
@@ -179,7 +188,7 @@ func (c *Processor) BanRandom(timeoutTime int) error {
 		ModeratorId:   c.channelId,
 		Body: helix.BanUserRequestBody{
 			Duration: timeoutTime,
-			Reason:   "randomly banned from twirapp",
+			Reason:   computeBanReason(timeoutReason),
 			UserId:   randomOnlineUser.UserId.String,
 		},
 	})

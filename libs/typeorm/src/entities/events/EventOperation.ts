@@ -94,4 +94,7 @@ export class EventOperation {
 
 	@Column('boolean', { default: true })
 	enabled: boolean;
+
+	@Column('text', { nullable: true })
+	timeoutMessage: string | null;
 }

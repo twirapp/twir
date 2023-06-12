@@ -19,6 +19,7 @@ export const operationMapping: Record<
 	BAN: {
 		description: 'Ban user',
 		haveInput: true,
+		additionalValues: ['timeoutMessage'],
 	},
 	UNBAN: {
 		description: 'Unban user',
@@ -27,6 +28,7 @@ export const operationMapping: Record<
 	BAN_RANDOM: {
 		description: 'Ban random online user',
 		producedVariables: ['bannedUserName'],
+		additionalValues: ['timeoutMessage'],
 	},
 	VIP: {
 		description: '[VIPS] Vip user',
@@ -91,12 +93,12 @@ export const operationMapping: Record<
 	TIMEOUT: {
 		description: 'Timeout user',
 		haveInput: true,
-		additionalValues: ['timeoutTime'],
+		additionalValues: ['timeoutTime', 'timeoutMessage'],
 	},
 	TIMEOUT_RANDOM: {
 		description: 'Timeout random online user',
 		producedVariables: ['bannedUserName'],
-		additionalValues: ['timeoutTime'],
+		additionalValues: ['timeoutTime', 'timeoutMessage'],
 	},
 	OBS_SET_SCENE: {
 		description: '[OBS] Change scene',

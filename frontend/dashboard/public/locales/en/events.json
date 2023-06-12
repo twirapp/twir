@@ -58,7 +58,8 @@
     "repeat": "How many times execute that operation",
     "additionalValues": {
       "useAnnounce": "Use announce",
-      "timeoutTime": "Time for timeout"
+      "timeoutTime": "Time for timeout",
+			"timeoutMessage": "Timeout/ban reason"
     },
     "inputDescription": {
       "TIMEOUT": "Username who will get timeout. Variables supported in that input.",
