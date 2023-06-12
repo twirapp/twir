@@ -5,7 +5,8 @@
   "scripts": {
     "lint": "eslint --ext .ts,.vue apps/",
     "lint:fix": "eslint --fix --ext .ts,.vue,tsx apps/ frontend/",
-    "dev": "turbo run dev --filter='./apps/*' --filter='./frontend/*'",
+		"pre:dev": "pnpm run migrate:deploy && build:libs",
+    "dev": "go run ./tools/process-runner.go",
     "build": "turbo run build",
     "build:libs": "turbo run build --filter=./libs/**",
     "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/typeorm run deploy",

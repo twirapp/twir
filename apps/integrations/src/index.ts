@@ -14,6 +14,7 @@ export const donationAlertsStore: Map<string, DonationAlerts> = new Map();
 export const streamlabsStore: Map<string, StreamLabs> = new Map();
 export const donatePayStore: Map<string, DonatePay> = new Map();
 
+
 const integrations = await typeorm.getRepository(ChannelIntegration).find({
 	where: {
 		integration: {
@@ -124,6 +125,7 @@ const server = createServer({
 server.add(Integrations.IntegrationsDefinition, integrationsServer);
 
 await server.listen(`0.0.0.0:${PORTS.INTEGRATIONS_SERVER_PORT}`);
+console.info('Integrations started');
 
 export async function removeIntegration(integration: ChannelIntegration) {
 	if (integration.integration?.service === IntegrationService.STREAMLABS) {

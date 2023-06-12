@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node ./vite.dev.js",
     "build": "pnpm build:app && pnpm build:server",
     "build:app": "vite build",
     "vercel-build": "pnpm turbo run build --filter=web",

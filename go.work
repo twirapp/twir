@@ -1,6 +1,7 @@
 go 1.20
 
 use (
+	./tools
 	./apps/api
 	./apps/bots
 	./apps/emotes-cacher

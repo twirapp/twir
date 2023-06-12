@@ -9,4 +9,5 @@ export default defineConfig({
     host: true,
     port: 3008,
   },
+	clearScreen: false,
 });

@@ -11,6 +11,11 @@ You can easy setup dependencies for project via installation of this deps:
 - [Docker](https://docs.docker.com/engine/)
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [VSCode Devcontainers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+- Node 18
+- pnpm
+```bash
+npm i -g pnpm
+```
 
 #### If you not using vscode
 
@@ -36,12 +41,12 @@ Well, now we are almost ready for developing project, just few steps.
   Then fill that with values.
 - Open project folder in devcontainer. Execute "Dev Containers: open folder in container" via vscode commands, or via
   another ways. Doesn't metter.
-- Execute `pnpm install && go mod download`
+- Execute `pnpm install`
 
 Now you are read to run project:
 
 ```bash
-task dev
+pnpm dev
 ```
 
 And when everything starts open https://localhost:3005
@@ -77,4 +82,4 @@ Migration runned automatically when you execute `task dev`, or you can run them 
 ```bash
 cd libs/typeorm
 pnpm run deploy
-``` 
+```
