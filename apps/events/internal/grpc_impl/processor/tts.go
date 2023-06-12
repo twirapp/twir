@@ -46,7 +46,8 @@ func (c *Processor) TtsSay(channelId, userId, message string) error {
 	channelSettings, _ := c.getTtsSettings(channelId, "")
 
 	if channelSettings == nil || !*channelSettings.Enabled {
-		return InternalError
+		//return InternalError
+		return nil
 	}
 
 	userSettings, _ := c.getTtsSettings(channelId, userId)
