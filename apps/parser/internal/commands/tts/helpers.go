@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/satont/tsuwari/apps/bots/pkg/tlds"
+	"net/url"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
@@ -153,4 +156,15 @@ func switchEnableState(ctx context.Context, db *gorm.DB, channelId string, newSt
 	}
 
 	return nil
+}
+
+func IsUrl(str string) bool {
+	u, err := url.Parse(str)
+	if err != nil {
+		return false
+	}
+
+	return u.Scheme != "" && u.Host != "" && lo.SomeBy(tlds.TLDS, func(item string) bool {
+		return strings.HasSuffix(u.Host, item)
+	})
 }

@@ -9,7 +9,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/guregu/null"
-	"github.com/satont/tsuwari/apps/bots/pkg/tlds"
 	model "github.com/satont/tsuwari/libs/gomodels"
 
 	"github.com/samber/lo"
@@ -19,14 +18,6 @@ import (
 )
 
 var emojiRx = regexp.MustCompile(`[\p{So}\p{Sk}\p{Sm}\p{Sc}]`)
-
-// [a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})
-var linksWithSpaces = regexp.MustCompile(
-	fmt.Sprintf(
-		`(https?:\/\/)?(www)? ??\.? ?[a-zA-Z0-9]+([a-zA-Z0-9-]+) ??\. ?(%s)\b`,
-		strings.Join(tlds.TLDS, "|"),
-	),
-)
 
 var SayCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
@@ -102,7 +93,12 @@ var SayCommand = &types.DefaultCommand{
 		}
 
 		if channelSettings.DoNotReadLinks {
-			*parseCtx.Text = strings.TrimSpace(linksWithSpaces.ReplaceAllString(*parseCtx.Text, ``))
+			for _, part := range strings.Fields(*parseCtx.Text) {
+				isUrl := IsUrl(part)
+				if isUrl {
+					*parseCtx.Text = strings.Replace(*parseCtx.Text, part, "", 1)
+				}
+			}
 		}
 
 		if channelSettings.DoNotReadTwitchEmotes {
@@ -111,7 +107,7 @@ var SayCommand = &types.DefaultCommand{
 			}
 			channelKey := fmt.Sprintf("emotes:channel:%s:", parseCtx.Channel.ID)
 			channelEmotes := parseCtx.Services.Redis.Keys(
-				context.Background(),
+				ctx,
 				fmt.Sprintf("%s*", channelKey),
 			).Val()
 
@@ -121,17 +117,22 @@ var SayCommand = &types.DefaultCommand{
 
 			globalKey := "emotes:global:"
 			globalEmotes := parseCtx.Services.Redis.Keys(
-				context.Background(),
+				ctx,
 				fmt.Sprintf("%s:*", globalKey),
 			).Val()
 
 			for _, emote := range globalEmotes {
 				*parseCtx.Text = strings.Replace(*parseCtx.Text, strings.Split(emote, globalKey)[1], "", -1)
 			}
-
 		}
 
-		_, err := parseCtx.Services.GrpcClients.WebSockets.TextToSpeechSay(context.Background(), &websockets.TTSMessage{
+		*parseCtx.Text = strings.TrimSpace(*parseCtx.Text)
+
+		if len(*parseCtx.Text) == 0 {
+			return result
+		}
+
+		_, err := parseCtx.Services.GrpcClients.WebSockets.TextToSpeechSay(ctx, &websockets.TTSMessage{
 			ChannelId: parseCtx.Channel.ID,
 			Text:      *parseCtx.Text,
 			Voice:     voice,
