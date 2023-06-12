@@ -1,7 +1,6 @@
 go 1.20
 
 use (
-	./tools
 	./apps/api
 	./apps/bots
 	./apps/emotes-cacher
@@ -23,4 +22,5 @@ use (
 	./libs/types
 	./libs/ytdl
 	./libs/ytsr
+	./tools
 )

@@ -14,6 +14,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig
 RUN chmod +x docker-entrypoint.sh
 
 COPY libs libs
+COPY tools tools
 COPY apps apps
 COPY frontend frontend
 COPY patches patches
