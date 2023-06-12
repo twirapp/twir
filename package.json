@@ -5,11 +5,11 @@
   "scripts": {
     "lint": "eslint --ext .ts,.vue apps/",
     "lint:fix": "eslint --fix --ext .ts,.vue,tsx apps/ frontend/",
-		"pre:dev": "pnpm run migrate:deploy && build:libs",
+		"predev": "pnpm migrate:deploy && pnpm build:libs",
     "dev": "go run ./tools/process-runner.go",
     "build": "turbo run build",
     "build:libs": "turbo run build --filter=./libs/**",
-    "migrate:deploy": "doppler run -- pnpm --filter=@tsuwari/typeorm run deploy",
+    "migrate:deploy": "pnpm --filter=@tsuwari/typeorm run deploy",
 		"cache-golang-deps": "ts-node --esm --transpileOnly ./tools/cache-go-deps.ts"
   },
   "author": "Satont <satontworldwide@gmail.com>",
