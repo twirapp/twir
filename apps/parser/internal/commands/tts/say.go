@@ -112,7 +112,8 @@ var SayCommand = &types.DefaultCommand{
 			).Val()
 
 			for _, emote := range channelEmotes {
-				*parseCtx.Text = strings.Replace(*parseCtx.Text, strings.Split(emote, channelKey)[1], "", -1)
+				pattern := regexp.MustCompile(`(\b)` + strings.Split(emote, channelKey)[1] + `(\b)`)
+				*parseCtx.Text = pattern.ReplaceAllString(*parseCtx.Text, "")
 			}
 
 			globalKey := "emotes:global:"
@@ -122,13 +123,14 @@ var SayCommand = &types.DefaultCommand{
 			).Val()
 
 			for _, emote := range globalEmotes {
-				*parseCtx.Text = strings.Replace(*parseCtx.Text, strings.Split(emote, globalKey)[1], "", -1)
+				pattern := regexp.MustCompile(`(\b)` + strings.Split(emote, globalKey)[1] + `(\b)`)
+				*parseCtx.Text = pattern.ReplaceAllString(*parseCtx.Text, "")
 			}
 		}
 
 		*parseCtx.Text = strings.TrimSpace(*parseCtx.Text)
 
-		if len(*parseCtx.Text) == 0 {
+		if len(*parseCtx.Text) == 0 || *parseCtx.Text == parseCtx.Sender.Name {
 			return result
 		}
 
