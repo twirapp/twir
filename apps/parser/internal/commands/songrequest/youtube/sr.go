@@ -47,11 +47,6 @@ var SrCommand = &types.DefaultCommand{
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
 		result := &types.CommandsHandlerResult{}
 
-		if parseCtx.Text == nil {
-			result.Result = append(result.Result, "You should provide text for song request")
-			return result
-		}
-
 		moduleSettings := &model.ChannelModulesSettings{}
 		parsedSettings := &youtube.YouTubeSettings{}
 		err := parseCtx.Services.Gorm.WithContext(ctx).
@@ -76,6 +71,11 @@ var SrCommand = &types.DefaultCommand{
 			}
 		} else {
 			result.Result = append(result.Result, "Song requests not enabled")
+			return result
+		}
+
+		if parseCtx.Text == nil {
+			result.Result = append(result.Result, parsedSettings.Translations.NoText)
 			return result
 		}
 
