@@ -57,11 +57,14 @@ func (c *Handlers) OnMessage(msg *Message) {
 				[]string{"BROADCASTER", "MODERATOR", "SUBSCRIBER", "VIP"},
 			),
 		)
-
 	})
 
 	c.workersPool.Submit(func() {
 		messages.IncrementStreamParsedMessages(c.db, msg.Channel.ID)
+	})
+
+	c.workersPool.Submit(func() {
+		messages.RemoveUserFromLurkers(c.db, msg.User.ID)
 	})
 
 	if msg.Tags["first-msg"] == "1" {
