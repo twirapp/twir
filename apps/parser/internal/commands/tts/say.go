@@ -92,11 +92,13 @@ var SayCommand = &types.DefaultCommand{
 			*parseCtx.Text = emojiRx.ReplaceAllString(*parseCtx.Text, ``)
 		}
 
+		splittedString := strings.Fields(*parseCtx.Text)
+
 		if channelSettings.DoNotReadLinks {
-			for _, part := range strings.Fields(*parseCtx.Text) {
+			for i, part := range splittedString {
 				isUrl := isValidUrl(part)
 				if isUrl {
-					*parseCtx.Text = strings.Replace(*parseCtx.Text, part, "", 1)
+					splittedString[i] = ""
 				}
 			}
 		}
@@ -111,24 +113,30 @@ var SayCommand = &types.DefaultCommand{
 				fmt.Sprintf("%s*", channelKey),
 			).Val()
 
-			for _, emote := range channelEmotes {
-				pattern := regexp.MustCompile(`(\b)` + strings.Split(emote, channelKey)[1] + `(\b)`)
-				*parseCtx.Text = pattern.ReplaceAllString(*parseCtx.Text, "")
-			}
-
 			globalKey := "emotes:global:"
 			globalEmotes := parseCtx.Services.Redis.Keys(
 				ctx,
 				fmt.Sprintf("%s:*", globalKey),
 			).Val()
 
-			for _, emote := range globalEmotes {
-				pattern := regexp.MustCompile(`(\b)` + strings.Split(emote, globalKey)[1] + `(\b)`)
-				*parseCtx.Text = pattern.ReplaceAllString(*parseCtx.Text, "")
+			for wordIndex, word := range splittedString {
+				for _, emotePattern := range channelEmotes {
+					emote := strings.Split(emotePattern, channelKey)[1]
+					if emote == word {
+						splittedString[wordIndex] = ""
+					}
+				}
+
+				for _, emotePattern := range globalEmotes {
+					emote := strings.Split(emotePattern, globalKey)[1]
+					if emote == word {
+						splittedString[wordIndex] = ""
+					}
+				}
 			}
 		}
 
-		*parseCtx.Text = strings.TrimSpace(*parseCtx.Text)
+		*parseCtx.Text = strings.TrimSpace(strings.Join(splittedString, " "))
 
 		if len(*parseCtx.Text) == 0 || *parseCtx.Text == parseCtx.Sender.Name {
 			return result
