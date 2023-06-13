@@ -80,7 +80,7 @@ const Settings: NextPage = () => {
           denied: 'You are denied to request any song.',
           maxRequests: 'Maximum number of songs ordered by you ({{count}})',
           minMessages: 'You have only {{userMessages}} messages, but needed {{neededMessages}} for requesting song',
-          minWatched: 'You have only {{userWatched}} messages, but needed {{neededWatched}} for requesting song',
+          minWatched: 'You\'ve only watched {{userWatched}} but needed {{neededWatched}} to request a song.',
           minFollow: 'You are followed for {{userFollow}} minutes, but needed {{neededFollow}} for requesting song',
         },
         channel: {
