@@ -107,6 +107,7 @@ export const OBSOverlay: React.FC = () => {
       opened={modalOpened}
       onClose={() => setModalOpened(false)}
       title={<Button size={'sm'} variant={'light'} onClick={saveObsSettings} color={'green'}>Save</Button>}
+			closeOnClickOutside={false}
     >
       <Divider />
       <Flex mt={10} direction={'column'} gap={'md'}>

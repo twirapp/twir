@@ -83,6 +83,7 @@ export const ChannelCommandGroupDrawer: React.FC<Props> = (props) => {
       overlayColor={theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2]}
       overlayOpacity={0.55}
       overlayBlur={3}
+			closeOnClickOutside={false}
     >
       <ScrollArea.Autosize maxHeight={viewPort.height - 120} type="auto" offsetScrollbars={true}>
         <form onSubmit={form.onSubmit((values) => console.log(values))}>

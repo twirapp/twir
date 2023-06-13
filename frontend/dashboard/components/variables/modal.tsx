@@ -95,6 +95,7 @@ export const VariableModal: React.FC<Props> = (props) => {
       overlayColor={theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2]}
       overlayOpacity={0.55}
       overlayBlur={3}
+			closeOnClickOutside={false}
     >
       <form onSubmit={form.onSubmit((values) => console.log(values))}>
         <Grid w={'100%'}>

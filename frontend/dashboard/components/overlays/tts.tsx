@@ -217,6 +217,7 @@ export const TTSOverlay: React.FC = () => {
           </Flex>
         }
         size={'xl'}
+				closeOnClickOutside={false}
       >
         <Divider />
         <Tabs value={activeTab} onTabChange={setActiveTab} defaultValue="settings" radius={0}>

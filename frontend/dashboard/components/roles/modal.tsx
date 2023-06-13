@@ -180,6 +180,7 @@ export const RolesModal: React.FC<Props> = (props) => {
 			onClose={() => props.setOpened(false)}
 			title={'Edit role'}
 			size={'lg'}
+			closeOnClickOutside={false}
 		>
 			<Tabs defaultValue="settings">
 				<Tabs.List grow>
