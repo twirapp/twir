@@ -27,7 +27,11 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
   ): Promise<YTSR.DeepPartial<YTSR.SearchResponse>> {
     const videos: Array<YTSR.Song> = [];
 
-    const tracksForSearch: string[] = [];
+    const tracksForSearch: {
+			isLink: boolean,
+			text: string,
+			odesliLink?: string
+		}[] = [];
 
     const linkMatches = [...request.search.matchAll(linkRegexp)];
 
@@ -40,7 +44,10 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
 					const fullLink = m[0];
 					const match = youtubeLinkRegexp.exec(fullLink)!;
 
-					return `https://www.youtube.com/watch?v=${match[1]!}`;
+					return {
+						isLink: true,
+						text: `https://www.youtube.com/watch?v=${match[1]!}`,
+					};
 				}));
       }
 
@@ -56,18 +63,25 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
             const youTube = data.linksByPlatform?.youtube;
             if (!youTube) return;
 
-            tracksForSearch.push(youTube.url);
+						tracksForSearch.push({
+							isLink: true,
+							text: youTube.url,
+							odesliLink: data.pageUrl,
+						});
           }),
         );
       }
     } else {
-      tracksForSearch.push(request.search);
+      tracksForSearch.push({
+				isLink: false,
+				text: request.search,
+			});
     }
 
     await Promise.all(
       tracksForSearch.map(async (track) => {
 
-        const search = await ytsrLib(track, { limit: 1 });
+        const search = await ytsrLib(track.text, { limit: 1 });
         const item = search.items.at(0) as Video;
         if (!item) return;
 
@@ -83,6 +97,7 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
             channelId: item.author?.channelID || '',
             avatarUrl: item.author?.bestAvatar?.url || '',
           },
+					link: track.odesliLink,
         });
       }),
     );

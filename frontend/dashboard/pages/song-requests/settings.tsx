@@ -60,7 +60,7 @@ const Settings: NextPage = () => {
       },
       translations: {
         notEnabled: 'Song requests not enabled.',
-        nowPlaying: 'Now playing "{{songTitle}} youtu.be/{{songId}}" requested from @{{orderedByDisplayName}}',
+        nowPlaying: 'Now playing "{{songTitle}}" {{songLink} requested by @{{orderedByDisplayName}}',
         noText: 'You should provide text for song request.',
         acceptOnlyWhenOnline: 'Requests accepted only on online streams.',
         song: {

@@ -141,14 +141,20 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 		return
 	}
 
+	var songLink string
+	if song.SongLink.Valid {
+		songLink = song.SongLink.String
+	} else {
+		songLink = fmt.Sprintf("https://youtube.be/%s", song.VideoID)
+	}
+
 	if current == "" && song.ID != "" && youtubeSettings.AnnouncePlay != nil && *youtubeSettings.AnnouncePlay {
 		message := youtubeSettings.Translations.NowPlaying
 		message = strings.ReplaceAll(message, "{{songTitle}}", song.Title)
-		message = strings.ReplaceAll(message, "{{songId}}", song.VideoID)
+		message = strings.ReplaceAll(message, "{{songLink}}", songLink)
 		message = strings.ReplaceAll(message, "{{orderedByName}}", song.OrderedByName)
 		message = strings.ReplaceAll(message, "{{orderedByDisplayName}}", song.OrderedByDisplayName.String)
 
-		fmt.Println(message)
 		c.services.Grpc.Bots.SendMessage(ctx, &bots.SendMessageRequest{
 			ChannelId:   song.ChannelID,
 			ChannelName: nil,

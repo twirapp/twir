@@ -25,6 +25,7 @@ message Song {
   optional string thumbnailUrl = 5;
   bool isLive = 6;
   optional SongAuthor author = 7;
+	optional string link = 8;
 }
 
 message SearchResponse {

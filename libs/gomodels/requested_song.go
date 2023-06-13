@@ -27,6 +27,7 @@ type RequestedSong struct {
 	CreatedAt            time.Time   `gorm:"column:createdAt;type:TIMESTAMP;"                json:"createdAt"`
 	DeletedAt            *time.Time  `gorm:"column:deletedAt;type:TIMESTAMP;"                json:"deletedAt"`
 	QueuePosition        int         `gorm:"column:queuePosition;type:int4"                  json:"queuePosition"`
+	SongLink             null.String `gorm:"column:songLink;type:TEXT;"                           json:"songLink"`
 
 	// internal variable, not db
 	Count int `gorm:"-" db:"count"`

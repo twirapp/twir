@@ -54,4 +54,7 @@ export class RequestedSong {
 
   @DeleteDateColumn({ nullable: true })
   deletedAt: Date | null;
+
+	@Column({ nullable: true })
+	songLink: string | null;
 }

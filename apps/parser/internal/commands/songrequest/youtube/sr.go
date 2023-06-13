@@ -148,6 +148,7 @@ var SrCommand = &types.DefaultCommand{
 					Duration:             int32(song.Duration),
 					CreatedAt:            time.Now().UTC(),
 					QueuePosition:        int(currentQueueCount) + (i + 1),
+					SongLink:             null.StringFromPtr(song.Link),
 				}
 
 				err = parseCtx.Services.Gorm.WithContext(ctx).Create(model).Error
