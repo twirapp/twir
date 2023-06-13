@@ -205,6 +205,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 			overlayColor={theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2]}
 			overlayOpacity={0.55}
 			overlayBlur={3}
+			closeOnClickOutside={false}
 		>
 			<ScrollArea.Autosize maxHeight={viewPort.height - 120} type='auto' offsetScrollbars={true}>
 				<form style={{ minHeight: viewPort.height - 150 }} onSubmit={form.onSubmit((values) => console.log(values))}>
@@ -311,15 +312,6 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 								<div className={cardClasses.classes.root}>
 									<div className={cardClasses.classes.label}>
 										<Flex gap={'xs'} justify={'space-between'}>
-											{/*<Chip*/}
-											{/*	onChange={(newValue) => {*/}
-											{/*		form.setFieldValue(`operations.${operationIndex}.enabled`, newValue);*/}
-											{/*	}}*/}
-											{/*	checked={form.values.operations[operationIndex]?.enabled}*/}
-											{/*	color={'teal'}*/}
-											{/*>*/}
-											{/*	{form.values.operations[operationIndex]?.enabled ? 'Enabled' : 'Disabled' }*/}
-											{/*</Chip>*/}
 											<Box
 												sx={(theme) => ({
 													backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
@@ -329,11 +321,9 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 													border: form.values.operations[operationIndex]?.enabled
 														? '1px solid rgb(9, 146, 104)'
 														: '1px solid rgb(224, 49, 49)',
-													// paddingTop: 5,
 													paddingLeft: 10,
 													paddingRight: 10,
 													margin: 8,
-													// padding: 5,
 												})}
 												onClick={() => {
 													form.setFieldValue(
