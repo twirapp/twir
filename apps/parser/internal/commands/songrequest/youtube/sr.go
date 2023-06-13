@@ -79,6 +79,15 @@ var SrCommand = &types.DefaultCommand{
 			return result
 		}
 
+		if *parsedSettings.AcceptOnlyWhenOnline {
+			stream := &model.ChannelsStreams{}
+			parseCtx.Services.Gorm.WithContext(ctx).Where(`"userId" = ?`, parseCtx.Channel.ID).First(stream)
+			if stream.ID == "" {
+				result.Result = append(result.Result, parsedSettings.Translations.AcceptOnlineWhenOnline)
+				return result
+			}
+		}
+
 		req, err := parseCtx.Services.GrpcClients.Ytsr.Search(context.Background(), &ytsr.SearchRequest{Search: *parseCtx.Text})
 		if err != nil {
 			zap.S().Error(err)
@@ -237,14 +246,6 @@ func validate(
 
 		if isSongBlackListed {
 			return errors.New(settings.Translations.Song.Denied)
-		}
-	}
-
-	if *settings.AcceptOnlyWhenOnline {
-		stream := &model.ChannelsStreams{}
-		services.Gorm.WithContext(ctx).Where(`"userId" = ?`, channelId).First(stream)
-		if stream.ID == "" {
-			return errors.New(settings.Translations.AcceptOnlineWhenOnline)
 		}
 	}
 
