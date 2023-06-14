@@ -350,8 +350,8 @@ func validate(
 				settings.Translations.User.MinMessages,
 				"{{", "}}",
 				map[string]interface{}{
-					"minMessages":  strconv.Itoa(settings.User.MinMessages),
-					"userMessages": strconv.Itoa(int(user.Stats.Messages)),
+					"neededMessages": strconv.Itoa(settings.User.MinMessages),
+					"userMessages":   strconv.Itoa(int(user.Stats.Messages)),
 				},
 			)
 			return errors.New(message)
