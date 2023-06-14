@@ -77,7 +77,7 @@ const Community: NextPage = () => {
           <th style={{ width:50 }}></th>
           <th>Name</th>
           {sortableColumns.map((item, i) => <Th
-            sorted={sortBy === item.toLowerCase()}
+            sorted={sortBy.toLowerCase() === item.toLowerCase()}
             reversed={reverseSortDirection}
             onSort={() => setSorting(item)}
             key={i}
