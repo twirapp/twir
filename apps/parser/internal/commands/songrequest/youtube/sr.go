@@ -194,6 +194,10 @@ func validate(
 	settings *youtube.YouTubeSettings,
 	song *ytsr.Song,
 ) error {
+	if channelId == userId {
+		return nil
+	}
+
 	twitchClient, err := twitch.NewAppClientWithContext(ctx, *services.Config, services.GrpcClients.Tokens)
 	if err != nil {
 		return err
