@@ -3,15 +3,11 @@ package song
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	spotify "github.com/satont/tsuwari/libs/integrations/spotify"
-	"github.com/satont/tsuwari/libs/twitch"
 )
 
 var Song = &types.Variable{
@@ -75,7 +71,6 @@ var Song = &types.Variable{
 			},
 		)
 
-		integrationsForFetch = append(integrationsForFetch, model.IntegrationService("SOUNDTRACK"))
 		integrationsForFetch = append(integrationsForFetch, model.IntegrationService("YOUTUBE_SR"))
 
 	checkServices:
@@ -137,33 +132,6 @@ var Song = &types.Variable{
 					song.VideoID,
 					song.OrderedByName,
 				)
-				break checkServices
-			case "SOUNDTRACK":
-				twitchClient, err := twitch.NewAppClientWithContext(
-					ctx,
-					*parseCtx.Services.Config,
-					parseCtx.Services.GrpcClients.Tokens,
-				)
-				if err != nil {
-					continue
-				}
-				tracks, err := twitchClient.GetSoundTrackCurrentTrack(&helix.SoundtrackCurrentTrackParams{
-					BroadcasterID: parseCtx.Channel.ID,
-				})
-				if err != nil {
-					parseCtx.Services.Logger.Sugar().Error(err)
-					continue
-				}
-
-				if len(tracks.Data.Tracks) == 0 {
-					continue
-				}
-
-				track := tracks.Data.Tracks[0]
-				artists := lo.Map(track.Track.Artists, func(artist helix.SoundtrackTrackArtist, _ int) string {
-					return artist.Name
-				})
-				result.Result = fmt.Sprintf("%s — %s", strings.Join(artists, ", "), track.Track.Title)
 				break checkServices
 			}
 		}
