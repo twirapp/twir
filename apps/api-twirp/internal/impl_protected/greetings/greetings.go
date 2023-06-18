@@ -2,13 +2,13 @@ package greetings
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/greetings"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Greetings struct {
-	*deps.Deps
+	*impl_deps.Deps
 }
 
 func (c *Greetings) GreetingsGetAll(ctx context.Context, empty *emptypb.Empty) (*greetings.GetAllResponse, error) {

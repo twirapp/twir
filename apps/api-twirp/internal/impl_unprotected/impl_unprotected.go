@@ -2,6 +2,8 @@ package impl_unprotected
 
 import (
 	"github.com/redis/go-redis/v9"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_unprotected/commands"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_unprotected/stats"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_unprotected/twitch"
 	"gorm.io/gorm"
@@ -10,6 +12,7 @@ import (
 type UnProtected struct {
 	*twitch.Twitch
 	*stats.Stats
+	*commands.Commands
 }
 
 type Opts struct {
@@ -18,5 +21,20 @@ type Opts struct {
 }
 
 func New(opts Opts) *UnProtected {
-	return &UnProtected{}
+	d := &impl_deps.Deps{
+		Redis: opts.Redis,
+		Db:    opts.DB,
+	}
+
+	return &UnProtected{
+		Twitch: &twitch.Twitch{
+			Deps: d,
+		},
+		Stats: &stats.Stats{
+			Deps: d,
+		},
+		Commands: &commands.Commands{
+			Deps: d,
+		},
+	}
 }

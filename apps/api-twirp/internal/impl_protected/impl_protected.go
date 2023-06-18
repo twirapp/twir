@@ -5,7 +5,6 @@ import (
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/bot"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/commands"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/community"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/events"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/greetings"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/integrations"
@@ -37,7 +36,7 @@ type Opts struct {
 }
 
 func New(opts Opts) *Protected {
-	d := &deps.Deps{
+	d := &impl_deps.Deps{
 		Redis: opts.Redis,
 		Db:    opts.DB,
 	}

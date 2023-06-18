@@ -2,13 +2,13 @@ package timers
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/timers"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Timers struct {
-	*deps.Deps
+	*impl_deps.Deps
 }
 
 func (c *Timers) TimersGet(ctx context.Context, empty *emptypb.Empty) (*timers.GetResponse, error) {

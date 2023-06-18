@@ -1,7 +1,7 @@
 package modules
 
-import "github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
+import "github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 
 type Modules struct {
-	*deps.Deps
+	*impl_deps.Deps
 }

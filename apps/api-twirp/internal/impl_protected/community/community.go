@@ -2,13 +2,13 @@ package community
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/community"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Community struct {
-	*deps.Deps
+	*impl_deps.Deps
 }
 
 func (c *Community) CommunityGetUsers(ctx context.Context, request *community.GetUsersRequest) (*community.GetUsersResponse, error) {

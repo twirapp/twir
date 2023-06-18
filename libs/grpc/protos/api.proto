@@ -138,8 +138,12 @@ service Protected {
 // UnProtected
 import "api/stats.proto";
 import "api/twitch.proto";
+import "api/commands_unprotected.proto";
 
 service UnProtected {
 	rpc TwitchSearchUsers(api.twitch.TwitchSearchUsersRequest) returns (api.twitch.TwitchSearchUsersResponse) {}
+
 	rpc Stats(google.protobuf.Empty) returns (api.stats.Response) {}
+
+	rpc GetChannelCommands(api.commands_unprotected.GetChannelCommandsRequest) returns (api.commands_unprotected.GetChannelCommandsResponse) {}
 }

@@ -2,13 +2,13 @@ package roles
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/roles"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Roles struct {
-	*deps.Deps
+	*impl_deps.Deps
 }
 
 func (c *Roles) RolesGetAll(ctx context.Context, empty *emptypb.Empty) (*roles.GetAllResponse, error) {

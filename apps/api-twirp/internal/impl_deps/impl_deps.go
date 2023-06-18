@@ -1,4 +1,4 @@
-package deps
+package impl_deps
 
 import (
 	"github.com/redis/go-redis/v9"

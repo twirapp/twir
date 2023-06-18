@@ -2,13 +2,13 @@ package events
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/events"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Events struct {
-	*deps.Deps
+	*impl_deps.Deps
 }
 
 func (c *Events) EventsGetAll(ctx context.Context, empty *emptypb.Empty) (*events.GetAllResponse, error) {

@@ -2,13 +2,13 @@ package commands
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/commands"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Commands struct {
-	*deps.Deps
+	*impl_deps.Deps
 }
 
 func (c *Commands) CommandsGetAll(ctx context.Context, empty *emptypb.Empty) (*commands.CommandsGetAllResponse, error) {

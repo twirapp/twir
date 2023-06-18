@@ -2,11 +2,13 @@ package stats
 
 import (
 	"context"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/stats"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Stats struct {
+	*impl_deps.Deps
 }
 
 func (c *Stats) Stats(ctx context.Context, empty *emptypb.Empty) (*stats.Response, error) {

@@ -2,14 +2,14 @@ package bot
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/meta"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Bot struct {
-	*deps.Deps
+	*impl_deps.Deps
 }
 
 func (c *Bot) BotInfo(ctx context.Context, meta *meta.BaseRequestMeta) (*bots.BotInfo, error) {
