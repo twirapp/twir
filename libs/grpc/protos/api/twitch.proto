@@ -1,0 +1,26 @@
+syntax = "proto3";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/twitch";
+package api.twitch;
+
+message TwitchSearchUsersRequest {
+	repeated string ids = 1;
+	repeated string names = 2;
+}
+
+message TwitchUser {
+	string id = 1;
+	string login = 2;
+	string display_name = 3;
+	string type = 4;
+	string broadcaster_type = 5;
+	string description = 6;
+	string profile_image_url = 7;
+	string offline_image_url = 8;
+	int64 view_count = 9;
+	string email = 10;
+	uint64 created_at = 11;
+}
+
+message TwitchSearchUsersResponse {
+	repeated TwitchUser users = 1;
+}
