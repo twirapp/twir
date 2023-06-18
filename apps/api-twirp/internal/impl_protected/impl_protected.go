@@ -2,6 +2,7 @@ package impl_protected
 
 import (
 	"github.com/redis/go-redis/v9"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/bot"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/commands"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/community"
