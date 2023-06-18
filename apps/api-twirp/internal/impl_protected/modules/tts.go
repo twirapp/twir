@@ -11,7 +11,7 @@ func (c *Modules) ModulesTTSGet(ctx context.Context, empty *emptypb.Empty) (*mod
 	panic("implement me")
 }
 
-func (c *Modules) ModulesTTSPost(ctx context.Context, request *modules_tts.PostRequest) (*emptypb.Empty, error) {
+func (c *Modules) ModulesTTSUpdate(ctx context.Context, request *modules_tts.PostRequest) (*emptypb.Empty, error) {
 	//TODO implement me
 	panic("implement me")
 }

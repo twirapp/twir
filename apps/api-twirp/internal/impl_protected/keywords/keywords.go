@@ -2,7 +2,7 @@ package keywords
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/keywords"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -31,12 +31,12 @@ func (c *Keywords) KeywordsDelete(ctx context.Context, request *keywords.DeleteR
 	panic("implement me")
 }
 
-func (c *Keywords) KeywordsPut(ctx context.Context, request *keywords.PutRequest) (*keywords.Keyword, error) {
+func (c *Keywords) KeywordsUpdate(ctx context.Context, request *keywords.PutRequest) (*keywords.Keyword, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (c *Keywords) KeywordsPatch(ctx context.Context, request *keywords.PatchRequest) (*keywords.Keyword, error) {
+func (c *Keywords) KeywordsEnableOrDisable(ctx context.Context, request *keywords.PatchRequest) (*keywords.Keyword, error) {
 	//TODO implement me
 	panic("implement me")
 }

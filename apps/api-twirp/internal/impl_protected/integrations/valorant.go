@@ -11,7 +11,7 @@ func (c *Integrations) IntegrationsValorantGet(ctx context.Context, empty *empty
 	panic("implement me")
 }
 
-func (c *Integrations) IntegrationsValorantPost(ctx context.Context, request *integrations_valorant.PostRequest) (*emptypb.Empty, error) {
+func (c *Integrations) IntegrationsValorantUpdate(ctx context.Context, request *integrations_valorant.PostRequest) (*emptypb.Empty, error) {
 	//TODO implement me
 	panic("implement me")
 }

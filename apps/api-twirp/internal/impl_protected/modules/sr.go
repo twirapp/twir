@@ -11,12 +11,12 @@ func (c *Modules) ModulesSRGet(ctx context.Context, empty *emptypb.Empty) (*modu
 	panic("implement me")
 }
 
-func (c *Modules) ModulesSRGetSearch(ctx context.Context, request *modules_sr.GetSearchRequest) (*modules_sr.GetSearchResponse, error) {
+func (c *Modules) ModulesSRSearchVideosOrChannels(ctx context.Context, request *modules_sr.GetSearchRequest) (*modules_sr.GetSearchResponse, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (c *Modules) ModulesSRPost(ctx context.Context, request *modules_sr.PostRequest) (*emptypb.Empty, error) {
+func (c *Modules) ModulesSRUpdate(ctx context.Context, request *modules_sr.PostRequest) (*emptypb.Empty, error) {
 	//TODO implement me
 	panic("implement me")
 }

@@ -2,7 +2,7 @@ package events
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/events"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -31,12 +31,12 @@ func (c *Events) EventsDelete(ctx context.Context, request *events.DeleteRequest
 	panic("implement me")
 }
 
-func (c *Events) EventsPut(ctx context.Context, request *events.PutRequest) (*events.Event, error) {
+func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (*events.Event, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (c *Events) EventsPatch(ctx context.Context, request *events.PatchRequest) (*events.Event, error) {
+func (c *Events) EventsEnableOrDisable(ctx context.Context, request *events.PatchRequest) (*events.Event, error) {
 	//TODO implement me
 	panic("implement me")
 }

@@ -2,7 +2,7 @@ package community
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/community"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

@@ -11,7 +11,7 @@ func (c *Modules) ModulesOBSWebsocketGet(ctx context.Context, empty *emptypb.Emp
 	panic("implement me")
 }
 
-func (c *Modules) ModulesOBSWebsocketPost(ctx context.Context, request *modules_obs_websocket.PostRequest) (*emptypb.Empty, error) {
+func (c *Modules) ModulesOBSWebsocketUpdate(ctx context.Context, request *modules_obs_websocket.PostRequest) (*emptypb.Empty, error) {
 	//TODO implement me
 	panic("implement me")
 }

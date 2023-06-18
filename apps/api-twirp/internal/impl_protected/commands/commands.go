@@ -2,7 +2,7 @@ package commands
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/commands"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -31,12 +31,12 @@ func (c *Commands) CommandsDelete(ctx context.Context, request *commands.DeleteR
 	panic("implement me")
 }
 
-func (c *Commands) CommandsPut(ctx context.Context, request *commands.PutRequest) (*commands.Command, error) {
+func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequest) (*commands.Command, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (c *Commands) CommandsPatch(ctx context.Context, request *commands.PatchRequest) (*commands.Command, error) {
+func (c *Commands) CommandsEnableOrDisable(ctx context.Context, request *commands.PatchRequest) (*commands.Command, error) {
 	//TODO implement me
 	panic("implement me")
 }

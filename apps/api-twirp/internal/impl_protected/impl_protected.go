@@ -12,6 +12,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/keywords"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/modules"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/rewards"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/roles"
 	"gorm.io/gorm"
 )
 
@@ -25,6 +26,7 @@ type Protected struct {
 	*events.Events
 	*greetings.Greetings
 	*rewards.Rewards
+	*roles.Roles
 }
 
 type Opts struct {
@@ -48,5 +50,6 @@ func New(opts Opts) *Protected {
 		Events:       &events.Events{Deps: d},
 		Greetings:    &greetings.Greetings{Deps: d},
 		Rewards:      &rewards.Rewards{Deps: d},
+		Roles:        &roles.Roles{Deps: d},
 	}
 }

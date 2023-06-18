@@ -2,30 +2,6 @@ syntax = "proto3";
 option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/rewards";
 package api.rewards;
 
-
-//	type ChannelCustomReward struct {
-//BroadcasterID                     string                      `json:"broadcaster_id"`
-//	BroadcasterLogin                  string                      `json:"broadcaster_login"`
-//	BroadcasterName                   string                      `json:"broadcaster_name"`
-//	ID                                string                      `json:"id"`
-//	Title                             string                      `json:"title"`
-//	Prompt                            string                      `json:"prompt"`
-//	Cost                              int                         `json:"cost"`
-//	Image                             RewardImage                 `json:"image"`
-//	BackgroundColor                   string                      `json:"background_color"`
-//	DefaultImage                      RewardImage                 `json:"default_image"`
-//IsEnabled                         bool                        `json:"is_enabled"`
-//	IsUserInputRequired               bool                        `json:"is_user_input_required"`
-//	MaxPerStreamSetting               MaxPerStreamSettings        `json:"max_per_stream_setting"`
-//	MaxPerUserPerStreamSetting        MaxPerUserPerStreamSettings `json:"max_per_user_per_stream_setting"`
-//	GlobalCooldownSetting             GlobalCooldownSettings      `json:"global_cooldown_setting"`
-//	IsPaused                          bool                        `json:"is_paused"`
-//	IsInStock                         bool                        `json:"is_in_stock"`
-//	ShouldRedemptionsSkipRequestQueue bool                        `json:"should_redemptions_skip_request_queue"`
-//	RedemptionsRedeemedCurrentStream  int                         `json:"redemptions_redeemed_current_stream"`
-//	CooldownExpiresAt                 string                      `json:"cooldown_expires_at"`
-//	}
-
 message Reward {
 	message Image {
 		string url_1x = 1;
