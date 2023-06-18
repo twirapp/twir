@@ -22,7 +22,7 @@ func NewProtected(opts Opts) (string, http.Handler) {
 	interceptorsService := interceptors.New(opts.Redis)
 
 	twirpHandler := api.NewProtectedServer(
-		impl_protected.NewApi(impl_protected.Opts{
+		impl_protected.New(impl_protected.Opts{
 			Redis: opts.Redis,
 			DB:    opts.DB,
 		}),

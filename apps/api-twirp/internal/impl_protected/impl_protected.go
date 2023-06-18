@@ -15,7 +15,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type Api struct {
+type Protected struct {
 	*integrations.Integrations
 	*keywords.Keywords
 	*modules.Modules
@@ -32,13 +32,13 @@ type Opts struct {
 	DB    *gorm.DB
 }
 
-func NewApi(opts Opts) *Api {
+func New(opts Opts) *Protected {
 	d := &deps.Deps{
 		Redis: opts.Redis,
 		Db:    opts.DB,
 	}
 
-	return &Api{
+	return &Protected{
 		Integrations: &integrations.Integrations{Deps: d},
 		Keywords:     &keywords.Keywords{Deps: d},
 		Modules:      &modules.Modules{Deps: d},

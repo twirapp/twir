@@ -37,12 +37,16 @@ func main() {
 	}
 	redisClient := redis.NewClient(redisOpts)
 
-	twirpProtectedPath, twirpProtectedHandler := twirp_handlers.NewProtected(twirp_handlers.Opts{
+	mux := http.NewServeMux()
+
+	mux.Handle(twirp_handlers.NewProtected(twirp_handlers.Opts{
 		Redis: redisClient,
 		DB:    db,
-	})
+	}))
+	mux.Handle(twirp_handlers.NewUnProtected(twirp_handlers.Opts{
+		Redis: redisClient,
+		DB:    db,
+	}))
 
-	mux := http.NewServeMux()
-	mux.Handle(twirpProtectedPath, twirpProtectedHandler)
 	logger.Sugar().Panic(http.ListenAndServe(":3002", mux))
 }
