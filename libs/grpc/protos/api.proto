@@ -24,6 +24,9 @@ import "api/integrations_valorant.proto";
 
 import "api/modules_obs_websocket.proto";
 import "api/modules_tts.proto";
+import "api/modules_sr.proto";
+
+
 
 service Api {
 	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
@@ -108,4 +111,8 @@ service Api {
 	rpc ModulesTTSGet(google.protobuf.Empty) returns (api.modules_tts.GetResponse) {}
 	rpc ModulesTTSPost(api.modules_tts.PostRequest) returns (google.protobuf.Empty) {}
 	rpc ModulesTTSGetInfo(google.protobuf.Empty) returns (api.modules_tts.GetInfoResponse) {}
+
+	rpc ModulesSRGet(google.protobuf.Empty) returns (api.modules_sr.GetResponse) {}
+	rpc ModulesSRGetSearch(api.modules_sr.GetSearchRequest) returns (api.modules_sr.GetSearchResponse) {}
+	rpc ModulesSRPost(api.modules_sr.PostRequest) returns (google.protobuf.Empty) {}
 }
