@@ -18,15 +18,14 @@ func main() {
 
 	config, err := cfg.New()
 	if err != nil {
-		panic(err)
+		logger.Sugar().Panic(err)
 	}
 
 	db, err := gorm.Open(postgres.Open(config.DatabaseUrl), &gorm.Config{
 		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
 	})
 	if err != nil {
-		logger.Sugar().Error(err)
-		panic("failed to connect database")
+		logger.Sugar().Panic("failed to connect database", err)
 	}
 	d, _ := db.DB()
 	d.SetMaxOpenConns(20)
@@ -34,7 +33,7 @@ func main() {
 
 	redisOpts, err := redis.ParseURL(config.RedisUrl)
 	if err != nil {
-		panic(err)
+		logger.Sugar().Panic(err)
 	}
 	redisClient := redis.NewClient(redisOpts)
 
@@ -45,5 +44,5 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle(twirpProtectedPath, twirpProtectedHandler)
-	http.ListenAndServe(":3002", mux)
+	logger.Sugar().Panic(http.ListenAndServe(":3002", mux))
 }
