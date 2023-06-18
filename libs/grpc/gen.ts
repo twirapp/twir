@@ -59,6 +59,7 @@ rmSync('generated', { recursive: true, force: true });
 		const filePath = `${directoryPath}/${name}.pb.go`;
 		mkdirSync(directoryPath, { recursive: true });
 		await promisedExec(`protoc --experimental_allow_proto3_optional --go_opt=paths=source_relative --go_out=${directoryPath} --proto_path=./protos api/${file}`);
+		// найс костыль кекв / cool crutch kekw
 		await promisedExec(`mv ${directoryPath}/api/${name}.pb.go ${filePath}`);
 	}
 
