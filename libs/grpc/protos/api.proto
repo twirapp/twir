@@ -102,6 +102,5 @@ service Api {
 	rpc KeywordsPatch(api.keywords.PatchRequest) returns (api.keywords.Keyword) {}
 
 	rpc ModulesOBSWebsocketGet(google.protobuf.Empty) returns (api.modules_obs_websocket.GetResponse) {}
-	rpc ModulesOBSWebsocketGetData(google.protobuf.Empty) returns (api.modules_obs_websocket.GetDataResponse) {}
 	rpc ModulesOBSWebsocketPost(api.modules_obs_websocket.PostRequest) returns (google.protobuf.Empty) {}
 }

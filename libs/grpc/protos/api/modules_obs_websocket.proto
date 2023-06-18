@@ -6,16 +6,14 @@ message GetResponse {
 	uint32 server_port = 1;
 	string server_address = 2;
 	string server_password = 3;
+
+	repeated string sources = 4;
+	repeated string audio_sources = 5;
+	repeated string scenes = 6;
 }
 
 message PostRequest {
 	uint32 server_port = 1;
 	string server_address = 2;
 	string server_password = 3;
-}
-
-message GetDataResponse {
-	repeated string sources = 1;
-	repeated string audio_sources = 2;
-	repeated string scenes = 3;
 }
