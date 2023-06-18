@@ -2,7 +2,7 @@ package bot
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/meta"
 	"google.golang.org/protobuf/types/known/emptypb"

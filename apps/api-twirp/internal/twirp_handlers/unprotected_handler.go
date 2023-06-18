@@ -14,7 +14,7 @@ func NewUnProtected(opts Opts) (string, http.Handler) {
 			Redis: opts.Redis,
 			DB:    opts.DB,
 		}),
-		twirp.WithServerPathPrefix("/unprotected"),
+		twirp.WithServerPathPrefix("/v1"),
 	)
 
 	return twirpHandler.PathPrefix(), wrappers.Wrap(
