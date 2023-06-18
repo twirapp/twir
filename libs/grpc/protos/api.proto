@@ -111,6 +111,7 @@ service Protected {
 	rpc ModulesOBSWebsocketGet(google.protobuf.Empty) returns (api.modules_obs_websocket.GetResponse) {}
 	rpc ModulesOBSWebsocketUpdate(api.modules_obs_websocket.PostRequest) returns (google.protobuf.Empty) {}
 
+	rpc ModulesTTSSay(api.modules_tts.SayRequest) returns (google.protobuf.Empty) {}
 	rpc ModulesTTSGet(google.protobuf.Empty) returns (api.modules_tts.GetResponse) {}
 	rpc ModulesTTSUpdate(api.modules_tts.PostRequest) returns (google.protobuf.Empty) {}
 	rpc ModulesTTSGetInfo(google.protobuf.Empty) returns (api.modules_tts.GetInfoResponse) {}

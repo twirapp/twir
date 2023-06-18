@@ -31,3 +31,11 @@ message PostRequest {
 message GetInfoResponse {
 	map<string, google.protobuf.Any> data = 1;
 }
+
+message SayRequest {
+	uint32 volume = 1;
+	uint32 pitch = 2;
+	uint32 rate = 3;
+	string text = 4;
+	string voice = 5;
+}

@@ -20,3 +20,8 @@ func (c *Modules) ModulesTTSGetInfo(ctx context.Context, empty *emptypb.Empty) (
 	//TODO implement me
 	panic("implement me")
 }
+
+func (c *Modules) ModulesTTSSay(ctx context.Context, request *modules_tts.SayRequest) (*emptypb.Empty, error) {
+	//TODO implement me
+	panic("implement me")
+}
