@@ -1,0 +1,10 @@
+syntax = "proto3";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/stats";
+package api.stats;
+
+message Response {
+	int64 users = 1;
+	int64 channels = 2;
+	int64 commands = 3;
+	int64 messages = 4;
+}

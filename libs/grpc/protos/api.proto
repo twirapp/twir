@@ -126,7 +126,10 @@ service Protected {
 	rpc RolesCreate(api.roles.CreateRequest) returns (api.roles.Role) {}
 }
 
+// UnProtected
+import "api/stats.proto";
 
 service UnProtected {
 	rpc Greet(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc Stats(google.protobuf.Empty) returns (api.stats.Response) {}
 }
