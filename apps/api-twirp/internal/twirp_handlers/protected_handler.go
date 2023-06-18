@@ -26,7 +26,7 @@ func NewProtected(opts Opts) (string, http.Handler) {
 			Redis: opts.Redis,
 			DB:    opts.DB,
 		}),
-		twirp.WithServerPathPrefix("/v1"),
+		twirp.WithServerPathPrefix("/protected"),
 		twirp.WithServerInterceptors(interceptorsService.NewCacheInterceptor(interceptors.CacheOpts{
 			CacheMethod:       "BotInfo",
 			CacheDuration:     1 * time.Minute,
