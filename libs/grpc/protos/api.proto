@@ -16,6 +16,7 @@ import "api/integrations_donationalerts.proto";
 import "api/integrations_faceit.proto";
 import "api/integrations_lastfm.proto";
 import "api/integrations_spotify.proto";
+import "api/integrations_streamlabs.proto";
 
 service Api {
 	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
@@ -73,4 +74,9 @@ service Api {
 	rpc IntegrationsSpotifyGetData(google.protobuf.Empty) returns (api.integrations_spotify.GetDataResponse) {}
 	rpc IntegrationsSpotifyPostCode(api.integrations_spotify.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsSpotifyLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsStreamlabsGetAuthLink(google.protobuf.Empty) returns (api.integrations_streamlabs.GetAuthLink) {}
+	rpc IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (api.integrations_streamlabs.GetDataResponse) {}
+	rpc IntegrationsStreamlabsPostCode(api.integrations_streamlabs.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
