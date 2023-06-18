@@ -1,27 +1,31 @@
 package main
 
 import (
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/wrappers"
-	"github.com/satont/tsuwari/libs/grpc/generated/api"
-	"github.com/twitchtv/twirp"
+	"github.com/redis/go-redis/v9"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/twirp_handler"
+	cfg "github.com/satont/tsuwari/libs/config"
+	"go.uber.org/zap"
 	"net/http"
 )
 
 func main() {
-	twirpHandler := api.NewApiServer(
-		&impl.Api{},
-		twirp.WithServerPathPrefix("/v1"),
-	)
+	logger, _ := zap.NewDevelopment()
+	zap.ReplaceGlobals(logger)
+
+	config, err := cfg.New()
+	if err != nil {
+		panic(err)
+	}
+
+	redisOpts, err := redis.ParseURL(config.RedisUrl)
+	if err != nil {
+		panic(err)
+	}
+	redisClient := redis.NewClient(redisOpts)
+
+	twirpPathPrefix, twirpHandler := twirp_handler.New(redisClient)
 
 	mux := http.NewServeMux()
-	mux.Handle(
-		twirpHandler.PathPrefix(),
-		wrappers.Wrap(
-			twirpHandler,
-			wrappers.WithCors,
-			wrappers.WithChannelId,
-		),
-	)
+	mux.Handle(twirpPathPrefix, twirpHandler)
 	http.ListenAndServe(":3002", mux)
 }
