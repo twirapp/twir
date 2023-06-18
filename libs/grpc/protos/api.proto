@@ -22,7 +22,6 @@ import "api/integrations_spotify.proto";
 import "api/integrations_streamlabs.proto";
 import "api/integrations_vk.proto";
 import "api/integrations_valorant.proto";
-import "api/twitch.proto";
 
 import "api/modules_obs_websocket.proto";
 import "api/modules_tts.proto";
@@ -134,13 +133,13 @@ service Protected {
 	rpc TimersCreate(api.timers.CreateRequest) returns (api.timers.Timer) {}
 	rpc TimersEnableOrDisable(api.timers.PatchRequest) returns (api.timers.Timer) {}
 
-	rpc TwitchSearchUsers(api.twitch.TwitchSearchUsersRequest) returns (api.twitch.TwitchSearchUsersResponse) {}
 }
 
 // UnProtected
 import "api/stats.proto";
+import "api/twitch.proto";
 
 service UnProtected {
-	rpc Greet(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc TwitchSearchUsers(api.twitch.TwitchSearchUsersRequest) returns (api.twitch.TwitchSearchUsersResponse) {}
 	rpc Stats(google.protobuf.Empty) returns (api.stats.Response) {}
 }
