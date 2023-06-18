@@ -6,15 +6,27 @@ import "google/protobuf/empty.proto";
 import "api/bots.proto";
 import "api/meta.proto";
 import "api/commands.proto";
+import "api/community.proto";
+import "api/events.proto";
 
 service Api {
 	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
 	rpc BotJoinPart(api.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
 
-	rpc CommandsCreate(api.commands.CreateRequest) returns (api.commands.Command) {}
-	rpc CommandsGetById(api.commands.GetByIdRequest) returns (api.commands.Command) {}
-	rpc CommandsGetAll(api.commands.GetAllRequest) returns (api.commands.GetAllResponse) {}
-	rpc CommandsDelete(api.commands.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc CommandsPut(api.commands.CreateRequest) returns (api.commands.Command) {}
-	rpc CommandsPatch(api.commands.PatchRequest) returns (api.commands.Command) {}
+	rpc CommandsGetAll(google.protobuf.Empty) returns (api.commands.CommandsGetAllResponse) {}
+	rpc CommandsGetById(api.commands.CommandsGetByIdRequest) returns (api.commands.CommandsCommand) {}
+	rpc CommandsCreate(api.commands.CommandsCreateRequest) returns (api.commands.CommandsCommand) {}
+	rpc CommandsDelete(api.commands.CommandsDeleteRequest) returns (google.protobuf.Empty) {}
+	rpc CommandsPut(api.commands.CommandsPutRequest) returns (api.commands.CommandsCommand) {}
+	rpc CommandsPatch(api.commands.CommandsPatchRequest) returns (api.commands.CommandsCommand) {}
+
+	rpc CommunityGetUsers(api.community.CommunityGetUsersRequest) returns (api.community.CommunityGetUsersResponse) {}
+	rpc CommunityResetStats(api.community.CommunityResetStatsRequest) returns (google.protobuf.Empty) {}
+
+	rpc EventsGetAll(google.protobuf.Empty) returns (api.events.EventsGetAllResponse) {}
+	rpc EventsGetById(api.events.EventsGetByIdRequest) returns (api.events.EventsEvent) {}
+	rpc EventsCreate(api.events.EventsCreateRequest) returns (api.events.EventsEvent) {}
+	rpc EventsDelete(api.events.EventsDeleteRequest) returns (google.protobuf.Empty) {}
+	rpc EventsPut(api.events.EventsPutRequest) returns (api.events.EventsEvent) {}
+	rpc EventsPatch(api.events.EventsPatchRequest) returns (api.events.EventsEvent) {}
 }

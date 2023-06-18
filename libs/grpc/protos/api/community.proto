@@ -1,0 +1,49 @@
+syntax = "proto3";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/api";
+package api.community;
+
+import "api/meta.proto";
+
+message CommunityGetUsersRequest {
+	enum Order {
+		Desc = 0;
+		Asc = 1;
+	}
+
+	enum SortBy {
+		Watched = 0;
+		Messages = 1;
+		Emotes = 2;
+		UsedChannelPoints = 3;
+	}
+
+	uint32 limit = 1;
+	uint32 page = 2;
+ 	Order order = 3;
+	SortBy sort_by = 4;
+}
+
+
+
+message CommunityGetUsersResponse {
+	message User {
+		string id = 1;
+		string name = 2;
+		string display_name = 3;
+		int64 watched = 4;
+		int32 messages = 5;
+		uint64 emotes = 6;
+		string avatar_url = 7;
+		string used_channel_points = 8;
+	}
+
+	repeated User users = 1;
+}
+
+message CommunityResetStatsRequest {
+	enum Field {
+		Messages = 0;
+		Watched = 1;
+		UsedChannelsPoints = 2;
+	}
+}

@@ -4,7 +4,7 @@ package api.commands;
 
 import "api/meta.proto";
 
-message CreateRequest {
+message CommandsCreateRequest {
 	message Response {
 		string text = 1;
 		uint32 order = 2;
@@ -30,7 +30,7 @@ message CreateRequest {
 	uint64 required_used_channel_points = 18;
 }
 
-message Command {
+message CommandsCommand {
 	message Response {
 		string id = 1;
 		optional string text = 2;
@@ -71,25 +71,26 @@ message Command {
 	optional Group group = 24;
 }
 
-message GetByIdRequest {
+message CommandsPutRequest {
+	string id = 1;
+	CommandsCreateRequest command = 2;
+}
+
+message CommandsGetByIdRequest {
 	api.meta.BaseRequestMeta meta = 1;
 	string command_id = 2;
 }
 
-message GetAllRequest {
-	api.meta.BaseRequestMeta meta = 1;
+message CommandsGetAllResponse {
+	repeated CommandsCommand commands = 1;
 }
 
-message GetAllResponse {
-	repeated Command commands = 1;
-}
-
-message DeleteRequest {
+message CommandsDeleteRequest {
 	api.meta.BaseRequestMeta meta = 1;
 	string command_id = 2;
 }
 
-message PatchRequest {
+message CommandsPatchRequest {
 	string command_id = 1;
 	bool enabled = 2;
 }

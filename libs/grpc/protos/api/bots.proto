@@ -3,9 +3,9 @@ option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/api";
 package api.bots;
 
 message BotInfo {
-	bool isMod = 1;
-	string botId = 2;
-	string botName = 3;
+	bool is_mod = 1;
+	string bot_id = 2;
+	string bot_name = 3;
 	bool enabled = 4;
 }
 

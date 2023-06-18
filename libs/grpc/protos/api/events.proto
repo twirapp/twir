@@ -1,0 +1,69 @@
+syntax = "proto3";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/api";
+package api.events;
+
+import "api/meta.proto";
+
+message EventsEvent {
+	string id = 1;
+	string channel_id = 2;
+	string type = 3;
+	string reward_id = 4;
+	string command_id = 5;
+	string keyword_id = 6;
+	string description = 7;
+	bool enabled = 8;
+	bool online_only = 9;
+}
+
+message EventsGetAllResponse {
+	repeated EventsEvent events = 1;
+}
+
+message EventsGetByIdRequest {
+	string id = 1;
+}
+
+message EventsCreateRequest {
+	message OperationFilter {
+		string type = 1;
+		string left = 2;
+		string right = 3;
+	}
+
+	message Operation {
+		string type = 1;
+		string input = 2;
+		uint64 delay = 3;
+		uint64 repeat = 4;
+		bool use_announce = 5;
+		uint64 timeout_time = 6;
+		string timeout_message = 7;
+		string obs_audio_step = 8;
+		string target = 9;
+		repeated OperationFilter filters = 10;
+		bool enabled = 11;
+	}
+
+	string type = 1;
+	optional string reward_id = 2;
+	optional string command_id = 3;
+	optional string keyword_id = 4;
+	string description = 5;
+	bool online_only = 6;
+	repeated Operation operations = 7;
+}
+
+message EventsPutRequest {
+	string id = 1;
+	EventsCreateRequest event = 2;
+}
+
+message EventsDeleteRequest {
+	string id = 1;
+}
+
+message EventsPatchRequest {
+	string id = 1;
+	bool enabled = 2;
+}
