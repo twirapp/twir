@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/redis/go-redis/v9"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/sessions"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/twirp_handlers"
 	cfg "github.com/satont/tsuwari/libs/config"
 	"go.uber.org/zap"
@@ -37,16 +38,18 @@ func main() {
 	}
 	redisClient := redis.NewClient(redisOpts)
 
+	sessionManager := sessions.New(redisClient)
+
 	mux := http.NewServeMux()
 
-	mux.Handle(twirp_handlers.NewProtected(twirp_handlers.Opts{
-		Redis: redisClient,
-		DB:    db,
-	}))
-	mux.Handle(twirp_handlers.NewUnProtected(twirp_handlers.Opts{
-		Redis: redisClient,
-		DB:    db,
-	}))
+	twirpOpts := twirp_handlers.Opts{
+		Redis:          redisClient,
+		DB:             db,
+		SessionManager: sessionManager,
+	}
 
-	logger.Sugar().Panic(http.ListenAndServe(":3002", mux))
+	mux.Handle(twirp_handlers.NewProtected(twirpOpts))
+	mux.Handle(twirp_handlers.NewUnProtected(twirpOpts))
+
+	logger.Sugar().Panic(http.ListenAndServe(":3002", sessionManager.LoadAndSave(mux)))
 }

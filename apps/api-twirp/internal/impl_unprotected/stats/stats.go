@@ -11,7 +11,7 @@ type Stats struct {
 	*impl_deps.Deps
 }
 
-func (c *Stats) Stats(ctx context.Context, empty *emptypb.Empty) (*stats.Response, error) {
+func (c *Stats) GetStats(ctx context.Context, empty *emptypb.Empty) (*stats.Response, error) {
 	return &stats.Response{
 		Users:    0,
 		Channels: 0,
