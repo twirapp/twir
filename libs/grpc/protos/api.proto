@@ -12,6 +12,10 @@ import "api/greetings.proto";
 import "api/integrations_donate_stream.proto";
 import "api/integrations_donatello.proto";
 import "api/integrations_donatepay.proto";
+import "api/integrations_donationalerts.proto";
+import "api/integrations_faceit.proto";
+import "api/integrations_lastfm.proto";
+import "api/integrations_spotify.proto";
 
 service Api {
 	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
@@ -48,4 +52,25 @@ service Api {
 
 	rpc IntegrationsDonatepayGet(google.protobuf.Empty) returns (api.integrations_donatepay.GetResponse) {}
 	rpc IntegrationsDonatepayPut(api.integrations_donatepay.PostRequest) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsDonationAlertsGetAuthLink(google.protobuf.Empty) returns (api.integrations_donationalerts.GetAuthLink) {}
+	rpc IntegrationsDonationAlertsGetData(google.protobuf.Empty) returns (api.integrations_donationalerts.GetDataResponse) {}
+	rpc IntegrationsDonationAlertsPostCode(api.integrations_donationalerts.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsDonationAlertsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsFaceitGetAuthLink(google.protobuf.Empty) returns (api.integrations_faceit.GetAuthLink) {}
+	rpc IntegrationsFaceitGetData(google.protobuf.Empty) returns (api.integrations_faceit.GetDataResponse) {}
+	rpc IntegrationsFaceitPostCode(api.integrations_faceit.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsFaceitLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsLastFMGetAuthLink(google.protobuf.Empty) returns (api.integrations_lastfm.GetAuthLink) {}
+	rpc IntegrationsLastFMGetData(google.protobuf.Empty) returns (api.integrations_lastfm.GetDataResponse) {}
+	rpc IntegrationsLastFMPostCode(api.integrations_lastfm.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsLastFMLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+
+	rpc IntegrationsSpotifyGetAuthLink(google.protobuf.Empty) returns (api.integrations_spotify.GetAuthLink) {}
+	rpc IntegrationsSpotifyGetData(google.protobuf.Empty) returns (api.integrations_spotify.GetDataResponse) {}
+	rpc IntegrationsSpotifyPostCode(api.integrations_spotify.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsSpotifyLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
