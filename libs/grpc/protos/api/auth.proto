@@ -1,0 +1,15 @@
+syntax = "proto3";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/auth";
+package api.auth;
+
+message GetLinkRequest {
+	string state = 1;
+}
+
+message GetLinkResponse {
+	string link = 1;
+}
+
+message PostCodeRequest {
+	string code = 1;
+}

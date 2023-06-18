@@ -11,8 +11,10 @@ import (
 func NewUnProtected(opts Opts) (string, http.Handler) {
 	twirpHandler := api.NewUnProtectedServer(
 		impl_unprotected.New(impl_unprotected.Opts{
-			Redis: opts.Redis,
-			DB:    opts.DB,
+			Redis:          opts.Redis,
+			DB:             opts.DB,
+			Config:         opts.Config,
+			SessionManager: opts.SessionManager,
 		}),
 		twirp.WithServerPathPrefix("/v1"),
 	)
@@ -21,5 +23,6 @@ func NewUnProtected(opts Opts) (string, http.Handler) {
 		twirpHandler,
 		wrappers.WithCors,
 		wrappers.WithDashboardId,
+		wrappers.WithApiKeyHeader,
 	)
 }

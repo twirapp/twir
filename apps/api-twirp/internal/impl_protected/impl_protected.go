@@ -1,6 +1,7 @@
 package impl_protected
 
 import (
+	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/bot"
@@ -14,6 +15,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/rewards"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/roles"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/timers"
+	config "github.com/satont/tsuwari/libs/config"
 	"gorm.io/gorm"
 )
 
@@ -32,14 +34,18 @@ type Protected struct {
 }
 
 type Opts struct {
-	Redis *redis.Client
-	DB    *gorm.DB
+	Redis          *redis.Client
+	DB             *gorm.DB
+	Config         *config.Config
+	SessionManager *scs.SessionManager
 }
 
 func New(opts Opts) *Protected {
 	d := &impl_deps.Deps{
-		Redis: opts.Redis,
-		Db:    opts.DB,
+		Redis:          opts.Redis,
+		Db:             opts.DB,
+		Config:         opts.Config,
+		SessionManager: opts.SessionManager,
 	}
 
 	return &Protected{

@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"github.com/kr/pretty"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/meta"
@@ -13,6 +14,8 @@ type Bot struct {
 }
 
 func (c *Bot) BotInfo(ctx context.Context, meta *meta.BaseRequestMeta) (*bots.BotInfo, error) {
+	pretty.Println(ctx.Value("user"))
+
 	return &bots.BotInfo{
 		IsMod:   false,
 		BotId:   "123",

@@ -46,6 +46,7 @@ func main() {
 		Redis:          redisClient,
 		DB:             db,
 		SessionManager: sessionManager,
+		Config:         config,
 	}
 
 	mux.Handle(twirp_handlers.NewProtected(twirpOpts))
