@@ -26,8 +26,6 @@ import "api/modules_obs_websocket.proto";
 import "api/modules_tts.proto";
 import "api/modules_sr.proto";
 
-
-
 service Api {
 	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
 	rpc BotJoinPart(api.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
