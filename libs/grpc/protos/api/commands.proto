@@ -1,0 +1,95 @@
+syntax = "proto3";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/api";
+package api.commands;
+
+import "api/meta.proto";
+
+message CreateRequest {
+	message Response {
+		string text = 1;
+		uint32 order = 2;
+	}
+
+	string name = 1;
+	uint32 cooldown = 2;
+	string cooldown_type = 3;
+	string description = 4;
+	repeated string aliases = 5;
+	bool visible = 6;
+	bool enabled = 7;
+	repeated Response responses = 8;
+	bool keep_responses_order = 9;
+	bool is_reply = 10;
+	string group_id = 11;
+	repeated string denied_users_ids = 12;
+	repeated string allowed_users_ids = 13;
+	repeated string roles_ids = 14;
+	bool online_only = 15;
+	uint64 required_watch_time = 16;
+	uint64 required_messages = 17;
+	uint64 required_used_channel_points = 18;
+}
+
+message Command {
+	message Response {
+		string id = 1;
+		optional string text = 2;
+		string command_id = 3;
+		uint32 order = 4;
+	}
+
+	message Group {
+		string id = 1;
+		string channel_id = 2;
+		string name = 3;
+		string color = 4;
+	}
+
+	string id = 1;
+	string name = 2;
+	uint32 cooldown = 3;
+	string cooldown_type = 4;
+	bool enabled = 5;
+	repeated string aliases = 6;
+	string description = 7;
+	bool visible = 8;
+	string channel_id = 9;
+	bool default = 10;
+	optional string default_name = 11;
+	string module = 12;
+	bool is_reply = 13;
+	bool keep_responses_order = 14;
+	repeated string denied_users_ids = 15;
+	repeated string allowed_users_ids = 16;
+	repeated string roles_ids = 17;
+	bool online_only = 18;
+	uint64 required_watch_time = 19;
+	uint64 required_messages = 20;
+	uint64 required_used_channel_points = 21;
+	repeated Response responses = 22;
+	optional string group_id = 23;
+	optional Group group = 24;
+}
+
+message GetByIdRequest {
+	api.meta.BaseRequestMeta meta = 1;
+	string command_id = 2;
+}
+
+message GetAllRequest {
+	api.meta.BaseRequestMeta meta = 1;
+}
+
+message GetAllResponse {
+	repeated Command commands = 1;
+}
+
+message DeleteRequest {
+	api.meta.BaseRequestMeta meta = 1;
+	string command_id = 2;
+}
+
+message PatchRequest {
+	string command_id = 1;
+	bool enabled = 2;
+}

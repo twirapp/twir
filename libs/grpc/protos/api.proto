@@ -1,0 +1,19 @@
+syntax = "proto3";
+option go_package = "tsuwari/grpc/api";
+package api;
+import "google/protobuf/empty.proto";
+import "api/bots.proto";
+import "api/meta.proto";
+import "api/commands.proto";
+
+service Api {
+	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
+	rpc BotJoinPart(api.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
+
+	rpc CommandsCreate(api.commands.CreateRequest) returns (api.commands.Command) {}
+	rpc CommandsGetById(api.commands.GetByIdRequest) returns (api.commands.Command) {}
+	rpc CommandsGetAll(api.commands.GetAllRequest) returns (api.commands.GetAllResponse) {}
+	rpc CommandsDelete(api.commands.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc CommandsPut(api.commands.CreateRequest) returns (api.commands.Command) {}
+	rpc CommandsPatch(api.commands.PatchRequest) returns (api.commands.Command) {}
+}

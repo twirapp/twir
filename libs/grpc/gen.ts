@@ -11,9 +11,10 @@ rmSync('generated', { recursive: true, force: true });
 
 (async () => {
   const files = await readdir('./protos');
-  // const pluginDir = isDocker()
-  //   ? '/app/libs/gprc/node_modules/.bin/protoc-gen-ts_proto'
-  //   : './node_modules/.bin/protoc-gen-ts_proto';
+
+	const ignoredFiles = [
+		'api',
+	];
   await Promise.all(
     files
       .filter((n) => n != 'google')
@@ -23,6 +24,10 @@ rmSync('generated', { recursive: true, force: true });
         if (!existsSync(`generated/${name}`)) {
           mkdirSync(`generated/${name}`, { recursive: true });
         }
+
+				if (ignoredFiles.includes(name)) {
+					return;
+				}
 
         const protocPath = resolve(
           __dirname,
@@ -40,10 +45,20 @@ rmSync('generated', { recursive: true, force: true });
         ]);
 
         console.info(`✅ Generated ${name} proto definitions for go and ts.`);
-
         return requests;
       }),
   );
+
+	await promisedExec(`protoc --experimental_allow_proto3_optional --ts_out ./generated/api --ts_opt=generate_dependencies,eslint_disable --proto_path ./protos api.proto`);
+	await promisedExec(`protoc --experimental_allow_proto3_optional --go_opt=paths=source_relative --twirp_opt=paths=source_relative --go_out=./generated/api --twirp_out=./generated/api --proto_path=./protos api.proto`);
+	const apiFiles = await readdir('./protos/api');
+
+	for (const file of apiFiles) {
+		await promisedExec(`protoc --experimental_allow_proto3_optional --go_opt=paths=source_relative --go_out=./generated/api --proto_path=./protos api/${file}`);
+	}
+
+	console.info(`✅ Generated api proto definitions for go and ts.`);
+
 })();
 
 // function hasDockerEnv() {
