@@ -54,7 +54,12 @@ rmSync('generated', { recursive: true, force: true });
 	const apiFiles = await readdir('./protos/api');
 
 	for (const file of apiFiles) {
-		await promisedExec(`protoc --experimental_allow_proto3_optional --go_opt=paths=source_relative --go_out=./generated/api --proto_path=./protos api/${file}`);
+		const name = file.replace('.proto', '');
+		const directoryPath = `./generated/api/${name}`;
+		const filePath = `${directoryPath}/${name}.pb.go`;
+		mkdirSync(directoryPath, { recursive: true });
+		await promisedExec(`protoc --experimental_allow_proto3_optional --go_opt=paths=source_relative --go_out=${directoryPath} --proto_path=./protos api/${file}`);
+		await promisedExec(`mv ${directoryPath}/api/${name}.pb.go ${filePath}`);
 	}
 
 	console.info(`✅ Generated api proto definitions for go and ts.`);

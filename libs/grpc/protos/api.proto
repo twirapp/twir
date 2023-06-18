@@ -8,25 +8,37 @@ import "api/meta.proto";
 import "api/commands.proto";
 import "api/community.proto";
 import "api/events.proto";
+import "api/greetings.proto";
+import "api/integrations_donate_stream.proto";
 
 service Api {
 	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
 	rpc BotJoinPart(api.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
 
 	rpc CommandsGetAll(google.protobuf.Empty) returns (api.commands.CommandsGetAllResponse) {}
-	rpc CommandsGetById(api.commands.CommandsGetByIdRequest) returns (api.commands.CommandsCommand) {}
-	rpc CommandsCreate(api.commands.CommandsCreateRequest) returns (api.commands.CommandsCommand) {}
-	rpc CommandsDelete(api.commands.CommandsDeleteRequest) returns (google.protobuf.Empty) {}
-	rpc CommandsPut(api.commands.CommandsPutRequest) returns (api.commands.CommandsCommand) {}
-	rpc CommandsPatch(api.commands.CommandsPatchRequest) returns (api.commands.CommandsCommand) {}
+	rpc CommandsGetById(api.commands.GetByIdRequest) returns (api.commands.Command) {}
+	rpc CommandsCreate(api.commands.CreateRequest) returns (api.commands.Command) {}
+	rpc CommandsDelete(api.commands.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc CommandsPut(api.commands.PutRequest) returns (api.commands.Command) {}
+	rpc CommandsPatch(api.commands.PatchRequest) returns (api.commands.Command) {}
 
-	rpc CommunityGetUsers(api.community.CommunityGetUsersRequest) returns (api.community.CommunityGetUsersResponse) {}
-	rpc CommunityResetStats(api.community.CommunityResetStatsRequest) returns (google.protobuf.Empty) {}
+	rpc CommunityGetUsers(api.community.GetUsersRequest) returns (api.community.GetUsersResponse) {}
+	rpc CommunityResetStats(api.community.ResetStatsRequest) returns (google.protobuf.Empty) {}
 
-	rpc EventsGetAll(google.protobuf.Empty) returns (api.events.EventsGetAllResponse) {}
-	rpc EventsGetById(api.events.EventsGetByIdRequest) returns (api.events.EventsEvent) {}
-	rpc EventsCreate(api.events.EventsCreateRequest) returns (api.events.EventsEvent) {}
-	rpc EventsDelete(api.events.EventsDeleteRequest) returns (google.protobuf.Empty) {}
-	rpc EventsPut(api.events.EventsPutRequest) returns (api.events.EventsEvent) {}
-	rpc EventsPatch(api.events.EventsPatchRequest) returns (api.events.EventsEvent) {}
+	rpc EventsGetAll(google.protobuf.Empty) returns (api.events.GetAllResponse) {}
+	rpc EventsGetById(api.events.GetByIdRequest) returns (api.events.Event) {}
+	rpc EventsCreate(api.events.CreateRequest) returns (api.events.Event) {}
+	rpc EventsDelete(api.events.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc EventsPut(api.events.PutRequest) returns (api.events.Event) {}
+	rpc EventsPatch(api.events.PatchRequest) returns (api.events.Event) {}
+
+	rpc GreetingsGetAll(google.protobuf.Empty) returns (api.greetings.GetAllResponse) {}
+	rpc GreetingsGetById(api.greetings.GetByIdRequest) returns (api.greetings.Greeting) {}
+	rpc GreetingsCreate(api.greetings.CreateRequest) returns (api.greetings.Greeting) {}
+	rpc GreetingsDelete(api.greetings.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc GreetingsPut(api.greetings.PutRequest) returns (api.greetings.Greeting) {}
+	rpc GreetingsPatch(api.greetings.PatchRequest) returns (api.greetings.Greeting) {}
+
+	rpc IntegrationsDonateStreamGet(google.protobuf.Empty) returns (api.integrations_donate_stream.DonateStreamResponse) {}
+	rpc IntegrationsDonateStreamPostSecret(api.integrations_donate_stream.DonateStreamPostSecretRequest) returns (google.protobuf.Empty) {}
 }

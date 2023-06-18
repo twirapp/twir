@@ -6,7 +6,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-twirp/internal/interceptors"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/wrappers"
 	"github.com/satont/tsuwari/libs/grpc/generated/api"
-	api_types "github.com/satont/tsuwari/libs/grpc/generated/api/api"
+	"github.com/satont/tsuwari/libs/grpc/generated/api/bots"
 	"github.com/twitchtv/twirp"
 	"gorm.io/gorm"
 	"net/http"
@@ -32,7 +32,7 @@ func New(opts Opts) (string, http.Handler) {
 			CacheDuration:     1 * time.Minute,
 			WithChannelHeader: true,
 			NewCastTo: func() any {
-				return &api_types.BotInfo{}
+				return &bots.BotInfo{}
 			},
 		})),
 	)

@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/api";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/bots";
 package api.bots;
 
 message BotInfo {

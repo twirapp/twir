@@ -1,10 +1,10 @@
 syntax = "proto3";
-option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/api";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/events";
 package api.events;
 
 import "api/meta.proto";
 
-message EventsEvent {
+message Event {
 	string id = 1;
 	string channel_id = 2;
 	string type = 3;
@@ -16,15 +16,15 @@ message EventsEvent {
 	bool online_only = 9;
 }
 
-message EventsGetAllResponse {
-	repeated EventsEvent events = 1;
+message GetAllResponse {
+	repeated Event events = 1;
 }
 
-message EventsGetByIdRequest {
+message GetByIdRequest {
 	string id = 1;
 }
 
-message EventsCreateRequest {
+message CreateRequest {
 	message OperationFilter {
 		string type = 1;
 		string left = 2;
@@ -54,16 +54,16 @@ message EventsCreateRequest {
 	repeated Operation operations = 7;
 }
 
-message EventsPutRequest {
+message PutRequest {
 	string id = 1;
-	EventsCreateRequest event = 2;
+	CreateRequest event = 2;
 }
 
-message EventsDeleteRequest {
+message DeleteRequest {
 	string id = 1;
 }
 
-message EventsPatchRequest {
+message PatchRequest {
 	string id = 1;
 	bool enabled = 2;
 }

@@ -1,10 +1,10 @@
 syntax = "proto3";
-option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/api";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/commands";
 package api.commands;
 
 import "api/meta.proto";
 
-message CommandsCreateRequest {
+message CreateRequest {
 	message Response {
 		string text = 1;
 		uint32 order = 2;
@@ -30,7 +30,7 @@ message CommandsCreateRequest {
 	uint64 required_used_channel_points = 18;
 }
 
-message CommandsCommand {
+message Command {
 	message Response {
 		string id = 1;
 		optional string text = 2;
@@ -71,26 +71,26 @@ message CommandsCommand {
 	optional Group group = 24;
 }
 
-message CommandsPutRequest {
+message PutRequest {
 	string id = 1;
-	CommandsCreateRequest command = 2;
+	CreateRequest command = 2;
 }
 
-message CommandsGetByIdRequest {
+message GetByIdRequest {
 	api.meta.BaseRequestMeta meta = 1;
 	string command_id = 2;
 }
 
 message CommandsGetAllResponse {
-	repeated CommandsCommand commands = 1;
+	repeated Command commands = 1;
 }
 
-message CommandsDeleteRequest {
+message DeleteRequest {
 	api.meta.BaseRequestMeta meta = 1;
 	string command_id = 2;
 }
 
-message CommandsPatchRequest {
+message PatchRequest {
 	string command_id = 1;
 	bool enabled = 2;
 }
