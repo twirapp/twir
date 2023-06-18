@@ -10,6 +10,7 @@ import "api/community.proto";
 import "api/events.proto";
 import "api/greetings.proto";
 import "api/keywords.proto";
+import "api/timers.proto";
 
 import "api/integrations_donate_stream.proto";
 import "api/integrations_donatello.proto";
@@ -124,6 +125,12 @@ service Protected {
 	rpc RolesUpdate(api.roles.UpdateRequest) returns (api.roles.Role) {}
 	rpc RolesDelete(api.roles.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc RolesCreate(api.roles.CreateRequest) returns (api.roles.Role) {}
+
+	rpc TimersGet(google.protobuf.Empty) returns (api.timers.GetResponse) {}
+	rpc TimersUpdate(api.timers.UpdateRequest) returns (api.timers.Timer) {}
+	rpc TimersDelete(api.timers.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc TimersCreate(api.timers.CreateRequest) returns (api.timers.Timer) {}
+	rpc TimersEnableOrDisable(api.timers.PatchRequest) returns (api.timers.Timer) {}
 }
 
 // UnProtected

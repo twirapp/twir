@@ -1,0 +1,43 @@
+syntax = "proto3";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/timers";
+package api.timers;
+
+message Timer {
+	message Response {
+		string id = 1;
+		string text = 2;
+		bool is_announce = 3;
+		string timer_id = 4;
+	}
+
+	string id = 1;
+	string channel_id = 2;
+	string name = 3;
+	bool enabled = 4;
+	int32 time_interval = 5;
+	int32 message_interval = 6;
+	int32 last_trigger_message_number = 7;
+	repeated Response responses = 8;
+}
+
+message GetResponse {
+	repeated Timer timers = 1;
+}
+
+message UpdateRequest {
+	string id = 1;
+	Timer timer = 2;
+}
+
+message DeleteRequest {
+	string id = 1;
+}
+
+message CreateRequest {
+	Timer data = 1;
+}
+
+message PatchRequest {
+	string id = 1;
+	bool enabled = 2;
+}
