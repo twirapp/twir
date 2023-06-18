@@ -8,15 +8,24 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/api"
 	api_types "github.com/satont/tsuwari/libs/grpc/generated/api/api"
 	"github.com/twitchtv/twirp"
+	"gorm.io/gorm"
 	"net/http"
 	"time"
 )
 
-func New(redisClient *redis.Client) (string, http.Handler) {
-	interceptorsService := interceptors.New(redisClient)
+type Opts struct {
+	Redis *redis.Client
+	DB    *gorm.DB
+}
+
+func New(opts Opts) (string, http.Handler) {
+	interceptorsService := interceptors.New(opts.Redis)
 
 	twirpHandler := api.NewApiServer(
-		&impl.Api{},
+		impl.NewApi(impl.Opts{
+			Redis: opts.Redis,
+			DB:    opts.DB,
+		}),
 		twirp.WithServerPathPrefix("/v1"),
 		twirp.WithServerInterceptors(interceptorsService.NewCacheInterceptor(interceptors.CacheOpts{
 			CacheMethod:       "BotInfo",
