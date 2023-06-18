@@ -21,7 +21,7 @@ func main() {
 	// order matters
 	apps := []App{
 		{Stack: "go", Name: "tokens", Port: servers.TOKENS_SERVER_PORT},
-		{Stack: "go", Name: "api", Port: 3002},
+		{Stack: "go", Name: "api-twirp", Port: 3002},
 		{Stack: "go", Name: "timers", Port: servers.TIMERS_SERVER_PORT},
 		{Stack: "go", Name: "events", Port: servers.EVENTS_SERVER_PORT},
 		{Stack: "node", Name: "integrations", Port: servers.INTEGRATIONS_SERVER_PORT},
