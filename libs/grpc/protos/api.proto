@@ -26,6 +26,8 @@ import "api/modules_obs_websocket.proto";
 import "api/modules_tts.proto";
 import "api/modules_sr.proto";
 
+import "api/rewards.proto";
+
 service Protected {
 	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
 	rpc BotJoinPart(api.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
@@ -113,6 +115,8 @@ service Protected {
 	rpc ModulesSRGet(google.protobuf.Empty) returns (api.modules_sr.GetResponse) {}
 	rpc ModulesSRGetSearch(api.modules_sr.GetSearchRequest) returns (api.modules_sr.GetSearchResponse) {}
 	rpc ModulesSRPost(api.modules_sr.PostRequest) returns (google.protobuf.Empty) {}
+
+	rpc RewardsGet(google.protobuf.Empty) returns (api.rewards.GetResponse) {}
 }
 
 

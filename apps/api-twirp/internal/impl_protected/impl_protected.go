@@ -11,6 +11,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/integrations"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/keywords"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/modules"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/rewards"
 	"gorm.io/gorm"
 )
 
@@ -23,6 +24,7 @@ type Api struct {
 	*community.Community
 	*events.Events
 	*greetings.Greetings
+	*rewards.Rewards
 }
 
 type Opts struct {
@@ -45,5 +47,6 @@ func NewApi(opts Opts) *Api {
 		Community:    &community.Community{Deps: d},
 		Events:       &events.Events{Deps: d},
 		Greetings:    &greetings.Greetings{Deps: d},
+		Rewards:      &rewards.Rewards{Deps: d},
 	}
 }
