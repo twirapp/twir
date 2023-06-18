@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/twirp_handler"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/twirp_handlers"
 	cfg "github.com/satont/tsuwari/libs/config"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
@@ -38,12 +38,12 @@ func main() {
 	}
 	redisClient := redis.NewClient(redisOpts)
 
-	twirpPathPrefix, twirpHandler := twirp_handler.New(twirp_handler.Opts{
+	twirpProtectedPath, twirpProtectedHandler := twirp_handlers.NewProtected(twirp_handlers.Opts{
 		Redis: redisClient,
 		DB:    db,
 	})
 
 	mux := http.NewServeMux()
-	mux.Handle(twirpPathPrefix, twirpHandler)
+	mux.Handle(twirpProtectedPath, twirpProtectedHandler)
 	http.ListenAndServe(":3002", mux)
 }

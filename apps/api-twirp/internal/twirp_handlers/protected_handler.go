@@ -1,8 +1,8 @@
-package twirp_handler
+package twirp_handlers
 
 import (
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/interceptors"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/wrappers"
 	"github.com/satont/tsuwari/libs/grpc/generated/api"
@@ -18,11 +18,11 @@ type Opts struct {
 	DB    *gorm.DB
 }
 
-func New(opts Opts) (string, http.Handler) {
+func NewProtected(opts Opts) (string, http.Handler) {
 	interceptorsService := interceptors.New(opts.Redis)
 
-	twirpHandler := api.NewApiServer(
-		impl.NewApi(impl.Opts{
+	twirpHandler := api.NewProtectedServer(
+		impl_protected.NewApi(impl_protected.Opts{
 			Redis: opts.Redis,
 			DB:    opts.DB,
 		}),

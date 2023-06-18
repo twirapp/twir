@@ -1,16 +1,16 @@
-package impl
+package impl_protected
 
 import (
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/bot"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/commands"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/community"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/deps"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/events"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/greetings"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/integrations"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/keywords"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl/modules"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/bot"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/commands"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/community"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/deps"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/events"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/greetings"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/integrations"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/keywords"
+	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/modules"
 	"gorm.io/gorm"
 )
 
