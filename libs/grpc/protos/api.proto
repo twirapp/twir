@@ -17,6 +17,7 @@ import "api/integrations_faceit.proto";
 import "api/integrations_lastfm.proto";
 import "api/integrations_spotify.proto";
 import "api/integrations_streamlabs.proto";
+import "api/integrations_vk.proto";
 
 service Api {
 	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
@@ -79,4 +80,9 @@ service Api {
 	rpc IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (api.integrations_streamlabs.GetDataResponse) {}
 	rpc IntegrationsStreamlabsPostCode(api.integrations_streamlabs.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsVKGetAuthLink(google.protobuf.Empty) returns (api.integrations_vk.GetAuthLink) {}
+	rpc IntegrationsVKGetData(google.protobuf.Empty) returns (api.integrations_vk.GetDataResponse) {}
+	rpc IntegrationsVKPostCode(api.integrations_vk.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsVKLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }

@@ -1,0 +1,16 @@
+syntax = "proto3";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/integrations_vk";
+package api.integrations_vk;
+
+message GetAuthLink {
+	string link = 1;
+}
+
+message GetDataResponse {
+	string user_name = 1;
+	string avatar = 2;
+}
+
+message PostCodeRequest {
+	string code = 1;
+}
