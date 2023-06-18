@@ -15,7 +15,6 @@ import (
 )
 
 type Api struct {
-	*deps.Deps
 	*integrations.Integrations
 	*keywords.Keywords
 	*modules.Modules
@@ -38,30 +37,13 @@ func NewApi(opts Opts) *Api {
 	}
 
 	return &Api{
-		Deps: d,
-		Integrations: &integrations.Integrations{
-			Deps: d,
-		},
-		Keywords: &keywords.Keywords{
-			Deps: d,
-		},
-		Modules: &modules.Modules{
-			Deps: d,
-		},
-		Bot: &bot.Bot{
-			Deps: d,
-		},
-		Commands: &commands.Commands{
-			Deps: d,
-		},
-		Community: &community.Community{
-			Deps: d,
-		},
-		Events: &events.Events{
-			Deps: d,
-		},
-		Greetings: &greetings.Greetings{
-			Deps: d,
-		},
+		Integrations: &integrations.Integrations{Deps: d},
+		Keywords:     &keywords.Keywords{Deps: d},
+		Modules:      &modules.Modules{Deps: d},
+		Bot:          &bot.Bot{Deps: d},
+		Commands:     &commands.Commands{Deps: d},
+		Community:    &community.Community{Deps: d},
+		Events:       &events.Events{Deps: d},
+		Greetings:    &greetings.Greetings{Deps: d},
 	}
 }
