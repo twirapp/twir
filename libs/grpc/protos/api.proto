@@ -22,6 +22,8 @@ import "api/integrations_streamlabs.proto";
 import "api/integrations_vk.proto";
 import "api/integrations_valorant.proto";
 
+import "api/modules_obs_websocket.proto";
+
 service Api {
 	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
 	rpc BotJoinPart(api.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
@@ -98,4 +100,8 @@ service Api {
 	rpc KeywordsDelete(api.keywords.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc KeywordsPut(api.keywords.PutRequest) returns (api.keywords.Keyword) {}
 	rpc KeywordsPatch(api.keywords.PatchRequest) returns (api.keywords.Keyword) {}
+
+	rpc ModulesOBSWebsocketGet(google.protobuf.Empty) returns (api.modules_obs_websocket.GetResponse) {}
+	rpc ModulesOBSWebsocketGetData(google.protobuf.Empty) returns (api.modules_obs_websocket.GetDataResponse) {}
+	rpc ModulesOBSWebsocketPost(api.modules_obs_websocket.PostRequest) returns (google.protobuf.Empty) {}
 }
