@@ -1,0 +1,33 @@
+syntax = "proto3";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/modules_tts";
+package api.modules_tts;
+
+import "google/protobuf/any.proto";
+
+message Settings {
+	bool enabled = 1;
+	uint32 rate = 2;
+	uint32 volume = 3;
+	uint32 pitch = 4;
+	string voice = 5;
+	bool allow_users_choose_voice_in_main_command = 6;
+	uint32 max_symbols = 7;
+	repeated string disallowed_voices = 8;
+	bool do_not_read_emoji = 9;
+	bool do_not_read_twitch_emotes = 10;
+	bool do_not_read_links = 11;
+	bool read_chat_messages = 12;
+	bool read_chat_messages_nicknames = 13;
+}
+
+message GetResponse {
+	Settings data = 1;
+}
+
+message PostRequest {
+	Settings data = 1;
+}
+
+message GetInfoResponse {
+	map<string, google.protobuf.Any> data = 1;
+}
