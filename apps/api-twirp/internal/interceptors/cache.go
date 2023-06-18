@@ -26,7 +26,7 @@ func (s *Service) NewCacheInterceptor(opts CacheOpts) twirp.Interceptor {
 
 			channelId := ctx.Value("dashboard_id").(string)
 
-			cacheKey := fmt.Sprintf("api-cache-twirp-%s", opts.CacheMethod)
+			cacheKey := fmt.Sprintf("api:cache:twirp-%s", opts.CacheMethod)
 			if opts.WithChannelHeader {
 				cacheKey += "-channel-" + channelId
 			}
