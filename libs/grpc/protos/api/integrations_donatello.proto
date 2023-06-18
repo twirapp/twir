@@ -1,0 +1,7 @@
+syntax = "proto3";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/integrations_donatello";
+package api.integrations_donatello;
+
+message GetResponse {
+	string integration_id = 1;
+}

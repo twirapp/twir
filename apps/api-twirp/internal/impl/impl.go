@@ -20,8 +20,12 @@ type Api struct {
 }
 
 func (a *Api) BotInfo(ctx context.Context, meta *meta.BaseRequestMeta) (*bots.BotInfo, error) {
-	//TODO implement me
-	panic("implement me")
+	return &bots.BotInfo{
+		IsMod:   false,
+		BotId:   "123",
+		BotName: "",
+		Enabled: false,
+	}, nil
 }
 
 func (a *Api) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest) (*emptypb.Empty, error) {

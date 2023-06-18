@@ -10,6 +10,8 @@ import "api/community.proto";
 import "api/events.proto";
 import "api/greetings.proto";
 import "api/integrations_donate_stream.proto";
+import "api/integrations_donatello.proto";
+import "api/integrations_donatepay.proto";
 
 service Api {
 	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
@@ -41,4 +43,9 @@ service Api {
 
 	rpc IntegrationsDonateStreamGet(google.protobuf.Empty) returns (api.integrations_donate_stream.DonateStreamResponse) {}
 	rpc IntegrationsDonateStreamPostSecret(api.integrations_donate_stream.DonateStreamPostSecretRequest) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsDonatelloGet(google.protobuf.Empty) returns (api.integrations_donatello.GetResponse) {}
+
+	rpc IntegrationsDonatepayGet(google.protobuf.Empty) returns (api.integrations_donatepay.GetResponse) {}
+	rpc IntegrationsDonatepayPut(api.integrations_donatepay.PostRequest) returns (google.protobuf.Empty) {}
 }
