@@ -9,6 +9,8 @@ import "api/commands.proto";
 import "api/community.proto";
 import "api/events.proto";
 import "api/greetings.proto";
+import "api/keywords.proto";
+
 import "api/integrations_donate_stream.proto";
 import "api/integrations_donatello.proto";
 import "api/integrations_donatepay.proto";
@@ -89,4 +91,11 @@ service Api {
 
 	rpc IntegrationsValorantGet(google.protobuf.Empty) returns (api.integrations_valorant.GetResponse) {}
 	rpc IntegrationsValorantPost(api.integrations_valorant.PostRequest) returns (google.protobuf.Empty) {}
+
+	rpc KeywordsGetAll(google.protobuf.Empty) returns (api.keywords.GetAllResponse) {}
+	rpc KeywordsGetById(api.keywords.GetByIdRequest) returns (api.keywords.Keyword) {}
+	rpc KeywordsCreate(api.keywords.CreateRequest) returns (api.keywords.Keyword) {}
+	rpc KeywordsDelete(api.keywords.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc KeywordsPut(api.keywords.PutRequest) returns (api.keywords.Keyword) {}
+	rpc KeywordsPatch(api.keywords.PatchRequest) returns (api.keywords.Keyword) {}
 }

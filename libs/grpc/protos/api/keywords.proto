@@ -1,0 +1,57 @@
+syntax = "proto3";
+option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/keywords";
+package api.keywords;
+
+message Keyword {
+	string id = 1;
+	string channel_id = 2;
+	string text = 3;
+	string response = 4;
+	bool enabled = 5;
+	int64 cooldown = 6;
+	bool is_reply = 7;
+	bool is_regular = 8;
+	int64 usages = 9;
+}
+
+message GetAllResponse {
+	repeated Keyword keywords = 1;
+}
+
+message GetByIdRequest {
+	string id = 1;
+}
+
+message GetByIdResponse {
+	Keyword keyword = 1;
+}
+
+message CreateRequest {
+	string text = 1;
+	string response = 2;
+	bool enabled = 3;
+	int64 cooldown = 4;
+	bool is_reply = 5;
+	bool is_regular = 6;
+	int64 usages = 7;
+}
+
+message DeleteRequest {
+	string id = 1;
+}
+
+message PutRequest {
+	string id = 1;
+	string text = 2;
+	string response = 3;
+	bool enabled = 4;
+	int64 cooldown = 5;
+	bool is_reply = 6;
+	bool is_regular = 7;
+	int64 usages = 8;
+}
+
+message PatchRequest {
+	string id = 1;
+	bool enabled = 2;
+}
