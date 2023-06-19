@@ -14,7 +14,7 @@ type Grpc struct {
 	Tokens tokens.TokensClient
 }
 
-func NewProtected(opts Opts) *Handler {
+func NewProtected(opts Opts) IHandler {
 	twirpHandler := api.NewProtectedServer(
 		opts.ImplProtected,
 		twirp.WithServerPathPrefix("/v1"),

@@ -6,7 +6,7 @@ import (
 	"github.com/twitchtv/twirp"
 )
 
-func NewUnProtected(opts Opts) *Handler {
+func NewUnProtected(opts Opts) IHandler {
 	twirpHandler := api.NewUnProtectedServer(
 		opts.ImplUnProtected,
 		twirp.WithServerPathPrefix("/v1"),
@@ -21,6 +21,6 @@ func NewUnProtected(opts Opts) *Handler {
 			wrappers.WithApiKeyHeader,
 		),
 	}
-	
+
 	return h
 }
