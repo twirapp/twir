@@ -20,6 +20,9 @@ require (
 	github.com/alexedwards/scs/redisstore v0.0.0-20230327161757-10d4299e3b24 // indirect
 	github.com/alexedwards/scs/v2 v2.5.1 // indirect
 	github.com/gomodule/redigo v1.8.0 // indirect
+	go.uber.org/dig v1.17.0 // indirect
+	go.uber.org/fx v1.20.0 // indirect
+	golang.org/x/sys v0.8.0 // indirect
 )
 
 require (

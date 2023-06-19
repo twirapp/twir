@@ -9,6 +9,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_unprotected/stats"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_unprotected/twitch"
 	cfg "github.com/satont/tsuwari/libs/config"
+	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -20,6 +21,8 @@ type UnProtected struct {
 }
 
 type Opts struct {
+	fx.In
+
 	Redis          *redis.Client
 	DB             *gorm.DB
 	Config         *cfg.Config

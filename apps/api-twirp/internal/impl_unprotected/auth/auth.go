@@ -65,17 +65,18 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 	if err != nil {
 		return nil, err
 	}
+
+	defaultBot := &model.Bots{}
+	err = c.Db.Where("type = ?", "DEFAULT").Find(defaultBot).Error
+	if err != nil {
+		return nil, err
+	}
+
+	if defaultBot.ID == "" {
+		return nil, twirp.Internal.Error("no default bot found")
+	}
+
 	if dbUser.ID == "" {
-		defaultBot := &model.Bots{}
-		err = c.Db.Where("type = ?", "DEFAULT").Find(defaultBot).Error
-		if err != nil {
-			return nil, err
-		}
-
-		if defaultBot.ID == "" {
-			return nil, twirp.Internal.Error("no default bot found")
-		}
-
 		accessToken, err := crypto.Encrypt(tokens.Data.AccessToken, c.Config.TokensCipherKey)
 		if err != nil {
 			return nil, err
@@ -121,6 +122,12 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 		}
 
 		dbUser = newUser
+	}
+	if dbUser.Channel == nil || dbUser.Channel.ID == "" {
+		dbUser.Channel = &model.Channels{
+			ID:    twitchUser.ID,
+			BotID: defaultBot.ID,
+		}
 	}
 
 	c.SessionManager.Put(ctx, "user", dbUser)

@@ -16,6 +16,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/roles"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/timers"
 	config "github.com/satont/tsuwari/libs/config"
+	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -34,6 +35,8 @@ type Protected struct {
 }
 
 type Opts struct {
+	fx.In
+
 	Redis          *redis.Client
 	DB             *gorm.DB
 	Config         *config.Config
