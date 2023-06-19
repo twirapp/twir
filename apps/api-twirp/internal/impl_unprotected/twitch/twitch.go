@@ -16,7 +16,7 @@ type Twitch struct {
 }
 
 func (c *Twitch) TwitchSearchUsers(ctx context.Context, req *generatedTwitch.TwitchSearchUsersRequest) (*generatedTwitch.TwitchSearchUsersResponse, error) {
-	twitchClient, err := twitch.NewAppClient(*c.Config, c.Grpc.Tokens)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, *c.Config, c.Grpc.Tokens)
 	if err != nil {
 		return nil, twirp.Internal.Error(err.Error())
 	}

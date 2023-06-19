@@ -44,7 +44,7 @@ func (c *Auth) AuthGetLink(ctx context.Context, request *auth.GetLinkRequest) (*
 }
 
 func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) (*emptypb.Empty, error) {
-	twitchClient, err := twitch.NewAppClient(*c.Config, c.Grpc.Tokens)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, *c.Config, c.Grpc.Tokens)
 	if err != nil {
 		return nil, err
 	}
@@ -61,13 +61,13 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 	twitchUser := users.Data.Users[0]
 
 	dbUser := &model.Users{}
-	err = c.Db.Where("id = ?", twitchUser.ID).Find(dbUser).Error
+	err = c.Db.WithContext(ctx).Where("id = ?", twitchUser.ID).Find(dbUser).Error
 	if err != nil {
 		return nil, err
 	}
 
 	defaultBot := &model.Bots{}
-	err = c.Db.Where("type = ?", "DEFAULT").Find(defaultBot).Error
+	err = c.Db.WithContext(ctx).Where("type = ?", "DEFAULT").Find(defaultBot).Error
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 			Scopes:              tokens.Data.Scopes,
 		}
 
-		err = c.Db.Create(&tokenData).Error
+		err = c.Db.WithContext(ctx).Create(&tokenData).Error
 		if err != nil {
 			return nil, err
 		}
@@ -116,7 +116,7 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 				BotID:          defaultBot.ID,
 			},
 		}
-		err = c.Db.Create(newUser).Error
+		err = c.Db.WithContext(ctx).Create(newUser).Error
 		if err != nil {
 			return nil, err
 		}
