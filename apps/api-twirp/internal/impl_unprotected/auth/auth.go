@@ -25,7 +25,7 @@ func (c *Auth) AuthGetLink(ctx context.Context, request *auth.GetLinkRequest) (*
 		return nil, twirp.NewError(twirp.ErrorCode(400), "no state provided")
 	}
 
-	twitchClient, err := helix.NewClient(&helix.Options{
+	twitchClient, err := helix.NewClientWithContext(ctx, &helix.Options{
 		ClientID:    c.Config.TwitchClientId,
 		RedirectURI: c.Config.TwitchCallbackUrl,
 	})
