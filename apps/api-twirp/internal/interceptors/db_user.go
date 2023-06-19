@@ -25,10 +25,10 @@ func (s *Service) getUserByApiKey(apiKey string) (*model.Users, error) {
 	return &user, nil
 }
 
-func (s *Service) SessionInterceptor(next twirp.Method) twirp.Method {
+func (s *Service) DbUserInterceptor(next twirp.Method) twirp.Method {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		apiKey := ctx.Value("apiKey")
-		user := s.sessionManager.Get(ctx, "user")
+		user := s.sessionManager.Get(ctx, "dbUser")
 		if user != nil {
 			parsedUser := &model.Users{}
 			err := json.Unmarshal([]byte(user.(string)), parsedUser)
@@ -37,7 +37,7 @@ func (s *Service) SessionInterceptor(next twirp.Method) twirp.Method {
 				return nil, twirp.Internal.Error("internal error")
 			}
 
-			ctx = context.WithValue(ctx, "user", parsedUser)
+			ctx = context.WithValue(ctx, "dbUser", parsedUser)
 			return next(ctx, req)
 		}
 
@@ -58,7 +58,7 @@ func (s *Service) SessionInterceptor(next twirp.Method) twirp.Method {
 		if dbUser == nil {
 			return nil, twirp.Unauthenticated.Error("not authenticated")
 		}
-		ctx = context.WithValue(ctx, "user", dbUser)
+		ctx = context.WithValue(ctx, "dbUser", dbUser)
 
 		return next(ctx, req)
 	}

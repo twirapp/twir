@@ -21,7 +21,7 @@ func WithDashboardId(base http.Handler) http.Handler {
 			channelId = header
 		}
 
-		ctx = context.WithValue(ctx, "dashboard_id", channelId)
+		ctx = context.WithValue(ctx, "dashboardId", channelId)
 		r = r.WithContext(ctx)
 
 		base.ServeHTTP(w, r)

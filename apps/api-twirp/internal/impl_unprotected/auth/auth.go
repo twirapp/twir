@@ -130,7 +130,12 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 		}
 	}
 
-	c.SessionManager.Put(ctx, "user", dbUser)
+	c.SessionManager.Put(ctx, "dbUser", dbUser)
 
-	return nil, nil
+	err = twirp.SetHTTPResponseHeader(ctx, "Dashboard-id", dbUser.ID)
+	if err != nil {
+		return nil, twirp.InternalErrorWith(err)
+	}
+
+	return &emptypb.Empty{}, nil
 }
