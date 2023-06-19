@@ -16,6 +16,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/roles"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected/timers"
 	config "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -43,6 +44,7 @@ type Opts struct {
 	Config         *config.Config
 	SessionManager *scs.SessionManager
 	TokensGrpc     tokens.TokensClient
+	BotsGrpc       bots.BotsClient
 }
 
 func New(opts Opts) *Protected {
@@ -53,6 +55,7 @@ func New(opts Opts) *Protected {
 		SessionManager: opts.SessionManager,
 		Grpc: &impl_deps.Grpc{
 			Tokens: opts.TokensGrpc,
+			Bots:   opts.BotsGrpc,
 		},
 	}
 

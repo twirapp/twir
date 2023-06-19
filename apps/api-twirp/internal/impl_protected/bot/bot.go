@@ -8,6 +8,7 @@ import (
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/meta"
+	botsGrtpc "github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"github.com/satont/tsuwari/libs/twitch"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -85,6 +86,51 @@ func (c *Bot) BotInfo(ctx context.Context, meta *meta.BaseRequestMeta) (*bots.Bo
 }
 
 func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId, ok := ctx.Value("dashboardId").(string)
+	if !ok || dashboardId == "" {
+		return nil, twirp.NewError(twirp.ErrorCode(http.StatusBadRequest), "no dashboardId provided")
+	}
+
+	dbChannel := &model.Channels{}
+	err := c.Db.Preload("Channel").Where(`"id" = ?`, dashboardId).Find(dbChannel).Error
+	if err != nil {
+		return nil, err
+	}
+	if dbChannel.ID == "" {
+		return nil, twirp.NotFoundError("channel not found")
+	}
+
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, *c.Config, c.Grpc.Tokens)
+	if err != nil {
+		return nil, err
+	}
+
+	twitchUsers, err := twitchClient.GetUsers(
+		&helix.UsersParams{IDs: []string{dashboardId}},
+	)
+	if err != nil || twitchUsers.ErrorMessage != "" || len(twitchUsers.Data.Users) == 0 {
+		return nil, twirp.Internal.Error("user not found on twitch")
+	}
+
+	if request.Action == bots.BotJoinPartRequest_JOIN {
+		dbChannel.IsEnabled = true
+	} else {
+		dbChannel.IsEnabled = false
+	}
+
+	c.Db.Where(`"id" = ?`, dashboardId).Select("*").Updates(dbChannel)
+
+	if dbChannel.IsEnabled {
+		c.Grpc.Bots.Join(context.Background(), &botsGrtpc.JoinOrLeaveRequest{
+			BotId:    dbChannel.BotID,
+			UserName: twitchUsers.Data.Users[0].Login,
+		})
+	} else {
+		c.Grpc.Bots.Leave(context.Background(), &botsGrtpc.JoinOrLeaveRequest{
+			BotId:    dbChannel.BotID,
+			UserName: twitchUsers.Data.Users[0].Login,
+		})
+	}
+
+	return &emptypb.Empty{}, nil
 }

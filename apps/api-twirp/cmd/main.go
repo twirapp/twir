@@ -11,6 +11,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-twirp/internal/twirp_handlers"
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/clients"
+	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
@@ -41,6 +42,9 @@ func main() {
 			},
 			func(c *cfg.Config) tokens.TokensClient {
 				return clients.NewTokens(c.AppEnv)
+			},
+			func(c *cfg.Config) bots.BotsClient {
+				return clients.NewBots(c.AppEnv)
 			},
 			func(config *cfg.Config, lc fx.Lifecycle) *redis.Client {
 				redisOpts, err := redis.ParseURL(config.RedisUrl)
