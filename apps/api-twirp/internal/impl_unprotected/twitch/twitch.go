@@ -25,37 +25,39 @@ func (c *Twitch) TwitchSearchUsers(ctx context.Context, req *generatedTwitch.Twi
 	var mu sync.Mutex
 	twitchUsers := make([]helix.User, 0, len(req.Ids)+len(req.Names))
 
-	go func() {
-		defer wg.Done()
-		if len(req.Ids) == 0 {
-			return
-		}
-		req, err := twitchClient.GetUsers(&helix.UsersParams{
-			IDs: req.Ids,
-		})
-		if err != nil || req.ErrorMessage != "" || len(req.Data.Users) == 0 {
-			return
-		}
-		mu.Lock()
-		defer mu.Unlock()
-		twitchUsers = append(twitchUsers, req.Data.Users...)
-	}()
+	idsChunks := lo.Chunk(req.Ids, 100)
+	namesChunks := lo.Chunk(req.Names, 100)
+	wg.Add(len(idsChunks) + len(namesChunks))
 
-	go func() {
-		defer wg.Done()
-		if len(req.Names) == 0 {
-			return
-		}
-		req, err := twitchClient.GetUsers(&helix.UsersParams{
-			Logins: req.Names,
-		})
-		if err != nil || req.ErrorMessage != "" || len(req.Data.Users) == 0 {
-			return
-		}
-		mu.Lock()
-		defer mu.Unlock()
-		twitchUsers = append(twitchUsers, req.Data.Users...)
-	}()
+	for _, idsChunk := range idsChunks {
+		go func(ids []string) {
+			defer wg.Done()
+			twitchReq, twitchErr := twitchClient.GetUsers(&helix.UsersParams{
+				IDs: ids,
+			})
+			if twitchErr != nil || twitchReq.ErrorMessage != "" || len(twitchReq.Data.Users) == 0 {
+				return
+			}
+			mu.Lock()
+			defer mu.Unlock()
+			twitchUsers = append(twitchUsers, twitchReq.Data.Users...)
+		}(idsChunk)
+	}
+
+	for _, namesChunk := range namesChunks {
+		go func(names []string) {
+			defer wg.Done()
+			twitchReq, twitchErr := twitchClient.GetUsers(&helix.UsersParams{
+				Logins: names,
+			})
+			if twitchErr != nil || twitchReq.ErrorMessage != "" || len(twitchReq.Data.Users) == 0 {
+				return
+			}
+			mu.Lock()
+			defer mu.Unlock()
+			twitchUsers = append(twitchUsers, twitchReq.Data.Users...)
+		}(namesChunk)
+	}
 
 	wg.Wait()
 

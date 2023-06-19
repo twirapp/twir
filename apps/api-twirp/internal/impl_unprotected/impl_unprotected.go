@@ -9,6 +9,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_unprotected/stats"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_unprotected/twitch"
 	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -27,6 +28,7 @@ type Opts struct {
 	DB             *gorm.DB
 	Config         *cfg.Config
 	SessionManager *scs.SessionManager
+	TokensGrpc     tokens.TokensClient
 }
 
 func New(opts Opts) *UnProtected {
@@ -35,6 +37,9 @@ func New(opts Opts) *UnProtected {
 		Db:             opts.DB,
 		Config:         opts.Config,
 		SessionManager: opts.SessionManager,
+		Grpc: &impl_deps.Grpc{
+			Tokens: opts.TokensGrpc,
+		},
 	}
 
 	return &UnProtected{
