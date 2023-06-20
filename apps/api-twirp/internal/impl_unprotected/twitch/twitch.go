@@ -19,6 +19,7 @@ type Twitch struct {
 
 const redisLoginsPrefix = "api:cache:twitch:users:by:logins:"
 const redisIdsPrefix = "api:cache:twitch:users:by:ids:"
+const cacheDuration = 24 * time.Hour
 
 func (c *Twitch) getUsersFromCache(ctx context.Context, keys []string) ([]helix.User, error) {
 	if len(keys) == 0 {
@@ -67,7 +68,7 @@ func (c *Twitch) getUsersFromTwitch(ctx context.Context, params *helix.UsersPara
 					If(len(params.Logins) > 0, redisLoginsPrefix+strings.ToLower(user.Login)).
 					Else(redisIdsPrefix + user.ID)
 
-				c.Redis.Set(ctx, key, bytes, 24*time.Hour)
+				c.Redis.Set(ctx, key, bytes, cacheDuration)
 			}
 		}
 	}()
