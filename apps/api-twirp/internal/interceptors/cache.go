@@ -2,8 +2,8 @@ package interceptors
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"github.com/goccy/go-json"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/zap"
 	"time"
@@ -65,10 +65,10 @@ func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
 				return next(ctx, req)
 			}
 
-			cached, _ := s.redis.Get(ctx, cacheKey).Result()
-			if cached != "" {
+			cached, _ := s.redis.Get(ctx, cacheKey).Bytes()
+			if cached != nil {
 				castedData := option.NewCastTo()
-				unmarshalErr := json.Unmarshal([]byte(cached), castedData)
+				unmarshalErr := json.Unmarshal(cached, castedData)
 				if unmarshalErr != nil {
 					zap.S().Error(unmarshalErr)
 					return nil, unmarshalErr

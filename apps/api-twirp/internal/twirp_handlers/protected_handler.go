@@ -7,6 +7,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/api/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/commands"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/events"
+	"github.com/satont/tsuwari/libs/grpc/generated/api/greetings"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/fx"
@@ -51,6 +52,15 @@ func NewProtected(opts Opts) IHandler {
 				WithChannelHeader: true,
 				NewCastTo: func() any {
 					return &events.GetAllResponse{}
+				},
+			},
+			interceptors.CacheOpts{
+				CacheMethod:       "GreetingsGetAll",
+				CacheDuration:     24 * time.Hour,
+				ClearMethods:      []string{"GreetingsCreate", "GreetingsDelete", "GreetingsUpdate", "GreetingsEnableOrDisable"},
+				WithChannelHeader: true,
+				NewCastTo: func() any {
+					return &greetings.GetAllResponse{}
 				},
 			},
 		)),

@@ -2,7 +2,7 @@ package twitch
 
 import (
 	"context"
-	"encoding/json"
+	"github.com/goccy/go-json"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
@@ -26,13 +26,13 @@ func (c *Twitch) getUsersFromCache(ctx context.Context, keys []string) ([]helix.
 		return nil, nil
 	}
 
-	cachedUsersByIds, err := c.Redis.MGet(ctx, keys...).Result()
+	cachedUsers, err := c.Redis.MGet(ctx, keys...).Result()
 	if err != nil {
 		return nil, err
 	}
 
 	var users []helix.User
-	for _, cachedUser := range cachedUsersByIds {
+	for _, cachedUser := range cachedUsers {
 		if cachedUser == nil {
 			continue
 		}
@@ -91,7 +91,7 @@ func (c *Twitch) TwitchSearchUsers(ctx context.Context, req *generatedTwitch.Twi
 	twitchUsers = append(twitchUsers, cachedUsersByIds...)
 
 	cachedUsersByNames, err := c.getUsersFromCache(ctx, lo.Map(req.Names, func(name string, _ int) string {
-		return redisLoginsPrefix + name
+		return redisLoginsPrefix + strings.ToLower(name)
 	}))
 	if err != nil {
 		return nil, err
