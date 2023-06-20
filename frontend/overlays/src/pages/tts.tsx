@@ -9,56 +9,50 @@ declare global {
 
 export const TTS: React.FC = () => {
   const { apiKey } = useParams();
-  const [tts, setTTS] = useState<WebSocket | null>(null);
-
-  const connect = () => {
-    const url = `${`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`}/socket/tts?apiKey=${apiKey}`;
-    const socket = new WebSocket(url);
-    return socket;
-  };
-
-  useEffect(() => {
-    setTTS(connect());
-
-    return () => {
-      tts?.close();
-    };
-  }, []);
+  const { ws, connect } = useWebSocket(apiKey);
 
   const queueRef = useRef<Array<Record<string, string>>>([]);
   const currentAudioBuffer = useRef<AudioBufferSourceNode | null>(null);
 
   useEffect(() => {
-    if (tts) {
-      tts.onopen = () => {
-        console.log('connected');
-      };
+    if (!ws) return;
 
-      tts.onmessage = (msg) => {
-        const parsedData = JSON.parse(msg.data);
-        console.log(parsedData);
+    const onOpen = () => {
+      console.log('connected');
+    } 
 
-        if (parsedData.eventName === 'say') {
-          queueRef.current.push(parsedData.data);
+    const onMessage = (message: MessageEvent) => {
+      const parsedData = JSON.parse(message.data);
+      console.log(parsedData);
 
-          if (queueRef.current.length === 1) {
-            processQueue();
-          }
+      if (parsedData.eventName === 'say') {
+        queueRef.current.push(parsedData.data);
+
+        if (queueRef.current.length === 1) {
+          processQueue();
         }
+      }
 
-        if (parsedData.eventName === 'skip') {
-          currentAudioBuffer.current?.stop();
-        }
-      };
-
-      tts.onclose = () => {
-        setTTS(null);
-        setTimeout(() => {
-          setTTS(connect());
-        }, 1500);
-      };
+      if (parsedData.eventName === 'skip') {
+        currentAudioBuffer.current?.stop();
+      }
     }
-  }, [tts]);
+
+    const onClose = () => {
+      connect();
+    }
+
+    ws.addEventListener('open', onOpen);
+    ws.addEventListener('message', onMessage);
+    ws.addEventListener('close', onClose);
+
+    return () => {
+      ws.removeEventListener('open', onOpen);
+      ws.removeEventListener('message', onMessage);
+      ws.removeEventListener('close', onClose);
+      ws.close();
+    }
+  }, [ws]);
 
   const processQueue = useCallback(async () => {
     if (queueRef.current.length === 0) {
