@@ -23,16 +23,13 @@ message GetUsersRequest {
 	SortBy sort_by = 4;
 }
 
-
-
 message GetUsersResponse {
 	message User {
 		string id = 1;
 		int64 watched = 2;
 		int32 messages = 3;
 		uint64 emotes = 4;
-		string avatar_url = 5;
-		string used_channel_points = 6;
+		string used_channel_points = 5;
 	}
 
 	repeated User users = 1;
