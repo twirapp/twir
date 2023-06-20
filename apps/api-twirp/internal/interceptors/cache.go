@@ -24,7 +24,6 @@ func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
 			if !ok {
 				return nil, twirp.InternalError("failed to get method name")
 			}
-			channelId := ctx.Value("dashboardId").(string)
 
 			var option *CacheOpts
 			for _, opt := range options {
@@ -45,6 +44,7 @@ func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
 				return next(ctx, req)
 			}
 
+			channelId := ctx.Value("dashboardId").(string)
 			cacheKey := fmt.Sprintf("api:cache:twirp-%s", option.CacheMethod)
 			if option.WithChannelHeader {
 				cacheKey += "-channel-" + channelId
