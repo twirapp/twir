@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"github.com/guregu/null"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	model "github.com/satont/tsuwari/libs/gomodels"
@@ -86,8 +87,49 @@ func (c *Events) EventsGetById(ctx context.Context, request *events.GetByIdReque
 }
 
 func (c *Events) EventsCreate(ctx context.Context, request *events.CreateRequest) (*events.Event, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId := ctx.Value("dashboardId").(string)
+	entity := &model.Event{
+		ChannelID:   dashboardId,
+		Type:        model.EventType(request.Event.Type),
+		RewardID:    null.StringFromPtr(request.Event.RewardId),
+		CommandID:   null.StringFromPtr(request.Event.CommandId),
+		KeywordID:   null.StringFromPtr(request.Event.KeywordId),
+		Description: null.StringFrom(request.Event.Description),
+		Enabled:     true,
+		OnlineOnly:  request.Event.OnlineOnly,
+		Operations:  make([]model.EventOperation, len(request.Event.Operations)),
+	}
+
+	for i, operation := range request.Event.Operations {
+		entity.Operations[i] = model.EventOperation{
+			ID:             "",
+			Type:           model.EventOperationType(operation.Type),
+			Delay:          int(operation.Delay),
+			Input:          null.StringFromPtr(operation.Input),
+			Repeat:         int(operation.Repeat),
+			Order:          i,
+			UseAnnounce:    operation.UseAnnounce,
+			TimeoutTime:    int(operation.TimeoutTime),
+			TimeoutMessage: null.StringFromPtr(operation.TimeoutMessage),
+			Target:         null.StringFromPtr(operation.Target),
+			Enabled:        operation.Enabled,
+			Filters:        make([]*model.EventOperationFilter, len(operation.Filters)),
+		}
+
+		for j, filter := range operation.Filters {
+			entity.Operations[i].Filters[j] = &model.EventOperationFilter{
+				Type:  model.EventOperationFilterType(filter.Type),
+				Left:  filter.Left,
+				Right: filter.Right,
+			}
+		}
+	}
+
+	if err := c.Db.WithContext(ctx).Create(entity).Error; err != nil {
+		return nil, err
+	}
+
+	return c.convertEntity(entity), nil
 }
 
 func (c *Events) EventsDelete(ctx context.Context, request *events.DeleteRequest) (*emptypb.Empty, error) {

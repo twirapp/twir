@@ -45,33 +45,7 @@ message GetByIdRequest {
 }
 
 message CreateRequest {
-	message OperationFilter {
-		string type = 1;
-		string left = 2;
-		string right = 3;
-	}
-
-	message Operation {
-		string type = 1;
-		string input = 2;
-		uint64 delay = 3;
-		uint64 repeat = 4;
-		bool use_announce = 5;
-		uint64 timeout_time = 6;
-		string timeout_message = 7;
-		string obs_audio_step = 8;
-		string target = 9;
-		repeated OperationFilter filters = 10;
-		bool enabled = 11;
-	}
-
-	string type = 1;
-	optional string reward_id = 2;
-	optional string command_id = 3;
-	optional string keyword_id = 4;
-	string description = 5;
-	bool online_only = 6;
-	repeated Operation operations = 7;
+	Event event = 1;
 }
 
 message PutRequest {
