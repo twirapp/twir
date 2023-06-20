@@ -52,7 +52,7 @@ func (c *Commands) convertDbToRpc(cmd *model.ChannelsCommands) *commands.Command
 	}
 }
 
-func (c *Commands) CommandsGetAll(ctx context.Context, empty *emptypb.Empty) (*commands.CommandsGetAllResponse, error) {
+func (c *Commands) CommandsGetAll(ctx context.Context, _ *emptypb.Empty) (*commands.CommandsGetAllResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	var cmds []model.ChannelsCommands
