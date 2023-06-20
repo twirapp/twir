@@ -25,33 +25,35 @@ func NewProtected(opts Opts) IHandler {
 		twirp.WithServerPathPrefix("/v1"),
 		twirp.WithServerInterceptors(opts.Interceptor.DbUserInterceptor),
 		twirp.WithServerInterceptors(opts.Interceptor.ChannelAccessInterceptor),
-		twirp.WithServerInterceptors(opts.Interceptor.NewCacheInterceptor(interceptors.CacheOpts{
-			CacheMethod:       "BotInfo",
-			CacheDuration:     10 * time.Second,
-			ClearMethods:      []string{"BotJoinPart"},
-			WithChannelHeader: true,
-			NewCastTo: func() any {
-				return &bots.BotInfo{}
+		twirp.WithServerInterceptors(opts.Interceptor.NewCacheInterceptor(
+			interceptors.CacheOpts{
+				CacheMethod:       "BotInfo",
+				CacheDuration:     10 * time.Second,
+				ClearMethods:      []string{"BotJoinPart"},
+				WithChannelHeader: true,
+				NewCastTo: func() any {
+					return &bots.BotInfo{}
+				},
 			},
-		})),
-		twirp.WithServerInterceptors(opts.Interceptor.NewCacheInterceptor(interceptors.CacheOpts{
-			CacheMethod:       "CommandsGetAll",
-			CacheDuration:     24 * time.Hour,
-			ClearMethods:      []string{"CommandsCreate", "CommandsDelete", "CommandsUpdate", "CommandsEnableOrDisable"},
-			WithChannelHeader: true,
-			NewCastTo: func() any {
-				return &commands.CommandsGetAllResponse{}
+			interceptors.CacheOpts{
+				CacheMethod:       "CommandsGetAll",
+				CacheDuration:     24 * time.Hour,
+				ClearMethods:      []string{"CommandsCreate", "CommandsDelete", "CommandsUpdate", "CommandsEnableOrDisable"},
+				WithChannelHeader: true,
+				NewCastTo: func() any {
+					return &commands.CommandsGetAllResponse{}
+				},
 			},
-		})),
-		twirp.WithServerInterceptors(opts.Interceptor.NewCacheInterceptor(interceptors.CacheOpts{
-			CacheMethod:       "EventsGetAll",
-			CacheDuration:     24 * time.Hour,
-			ClearMethods:      []string{"EventsCreate", "EventsDelete", "EventsUpdate", "EventsEnableOrDisable"},
-			WithChannelHeader: true,
-			NewCastTo: func() any {
-				return &events.GetAllResponse{}
+			interceptors.CacheOpts{
+				CacheMethod:       "EventsGetAll",
+				CacheDuration:     24 * time.Hour,
+				ClearMethods:      []string{"EventsCreate", "EventsDelete", "EventsUpdate", "EventsEnableOrDisable"},
+				WithChannelHeader: true,
+				NewCastTo: func() any {
+					return &events.GetAllResponse{}
+				},
 			},
-		})),
+		)),
 	)
 
 	h := &Handler{

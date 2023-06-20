@@ -17,7 +17,7 @@ type CacheOpts struct {
 	NewCastTo         func() any
 }
 
-func (s *Service) NewCacheInterceptor(opts CacheOpts) twirp.Interceptor {
+func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
 	return func(next twirp.Method) twirp.Method {
 		return func(ctx context.Context, req interface{}) (interface{}, error) {
 			method, ok := twirp.MethodName(ctx)
@@ -26,13 +26,32 @@ func (s *Service) NewCacheInterceptor(opts CacheOpts) twirp.Interceptor {
 			}
 			channelId := ctx.Value("dashboardId").(string)
 
-			cacheKey := fmt.Sprintf("api:cache:twirp-%s", opts.CacheMethod)
-			if opts.WithChannelHeader {
+			var option *CacheOpts
+			for _, opt := range options {
+				if opt.CacheMethod == method {
+					option = &opt
+					break
+				}
+
+				for _, clearMethod := range opt.ClearMethods {
+					if clearMethod == method {
+						option = &opt
+						break
+					}
+				}
+			}
+
+			if option == nil {
+				return next(ctx, req)
+			}
+
+			cacheKey := fmt.Sprintf("api:cache:twirp-%s", option.CacheMethod)
+			if option.WithChannelHeader {
 				cacheKey += "-channel-" + channelId
 			}
 
 			// delete cache if returns with no error
-			for _, clearMethod := range opts.ClearMethods {
+			for _, clearMethod := range option.ClearMethods {
 				if clearMethod == method {
 					res, err := next(ctx, req)
 					if err == nil {
@@ -42,13 +61,13 @@ func (s *Service) NewCacheInterceptor(opts CacheOpts) twirp.Interceptor {
 				}
 			}
 
-			if method != opts.CacheMethod || !ok {
+			if method != option.CacheMethod || !ok {
 				return next(ctx, req)
 			}
 
 			cached, _ := s.redis.Get(ctx, cacheKey).Result()
 			if cached != "" {
-				castedData := opts.NewCastTo()
+				castedData := option.NewCastTo()
 				unmarshalErr := json.Unmarshal([]byte(cached), castedData)
 				if unmarshalErr != nil {
 					zap.S().Error(unmarshalErr)
@@ -65,7 +84,7 @@ func (s *Service) NewCacheInterceptor(opts CacheOpts) twirp.Interceptor {
 				if marshallErr != nil {
 					zap.S().Error(marshallErr)
 				} else {
-					redisSetErr := s.redis.Set(ctx, cacheKey, bytes, opts.CacheDuration).Err()
+					redisSetErr := s.redis.Set(ctx, cacheKey, bytes, option.CacheDuration).Err()
 					if redisSetErr != nil {
 						zap.S().Error(redisSetErr)
 					}
