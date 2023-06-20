@@ -2,12 +2,14 @@ package events
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/events"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/gorm"
 )
 
 type Events struct {
@@ -144,8 +146,75 @@ func (c *Events) EventsDelete(ctx context.Context, request *events.DeleteRequest
 }
 
 func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (*events.Event, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId := ctx.Value("dashboardId").(string)
+	entity := &model.Event{}
+	if err := c.Db.
+		WithContext(ctx).
+		Preload("Operations").
+		Preload("Operations.Filters").
+		Where(`"id" = ? AND "channelId" = ?`, request.Id, dashboardId).First(entity).Error; err != nil {
+		return nil, err
+	}
+
+	entity.RewardID = null.StringFromPtr(request.Event.RewardId)
+	entity.CommandID = null.StringFromPtr(request.Event.CommandId)
+	entity.KeywordID = null.StringFromPtr(request.Event.KeywordId)
+	entity.Description = null.StringFrom(request.Event.Description)
+	entity.OnlineOnly = request.Event.OnlineOnly
+	entity.Type = model.EventType(request.Event.Type)
+	entity.Operations = make([]model.EventOperation, len(request.Event.Operations))
+
+	err := c.Db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Save(entity).Error; err != nil {
+			return err
+		}
+
+		if err := tx.WithContext(ctx).Where(`"eventId" = ?`, entity.ID).Delete(&model.EventOperation{}).Error; err != nil {
+			return err
+		}
+
+		for i, operation := range request.Event.Operations {
+			entity.Operations[i] = model.EventOperation{
+				ID:             uuid.New().String(),
+				EventID:        entity.ID,
+				Type:           model.EventOperationType(operation.Type),
+				Delay:          int(operation.Delay),
+				Input:          null.StringFromPtr(operation.Input),
+				Repeat:         int(operation.Repeat),
+				Order:          i,
+				UseAnnounce:    operation.UseAnnounce,
+				TimeoutTime:    int(operation.TimeoutTime),
+				TimeoutMessage: null.StringFromPtr(operation.TimeoutMessage),
+				Target:         null.StringFromPtr(operation.Target),
+				Enabled:        operation.Enabled,
+				Filters:        make([]*model.EventOperationFilter, len(operation.Filters)),
+			}
+			if err := tx.WithContext(ctx).Save(&entity.Operations[i]).Error; err != nil {
+				return err
+			}
+
+			for j, filter := range operation.Filters {
+				entity.Operations[i].Filters[j] = &model.EventOperationFilter{
+					ID:          uuid.New().String(),
+					OperationID: entity.Operations[i].ID,
+					Type:        model.EventOperationFilterType(filter.Type),
+					Left:        filter.Left,
+					Right:       filter.Right,
+				}
+				if err := tx.WithContext(ctx).Save(entity.Operations[i].Filters[j]).Error; err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return c.convertEntity(entity), nil
 }
 
 func (c *Events) EventsEnableOrDisable(ctx context.Context, request *events.PatchRequest) (*events.Event, error) {

@@ -50,7 +50,7 @@ message CreateRequest {
 
 message PutRequest {
 	string id = 1;
-	CreateRequest event = 2;
+	Event event = 2;
 }
 
 message DeleteRequest {

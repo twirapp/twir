@@ -186,13 +186,15 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 		}
 
 		for _, res := range request.Command.Responses {
-			if err = tx.WithContext(ctx).Create(&model.ChannelsCommandsResponses{
+			r := &model.ChannelsCommandsResponses{
 				ID:    uuid.New().String(),
 				Text:  null.StringFrom(res.Text),
 				Order: int(res.Order),
-			}).Error; err != nil {
+			}
+			if err = tx.WithContext(ctx).Create(r).Error; err != nil {
 				return err
 			}
+			cmd.Responses = append(cmd.Responses, r)
 		}
 
 		return tx.WithContext(ctx).Save(cmd).Error
@@ -202,7 +204,7 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 		return nil, err
 	}
 
-	return nil, nil
+	return c.convertDbToRpc(cmd), nil
 }
 
 func (c *Commands) CommandsEnableOrDisable(ctx context.Context, request *commands.PatchRequest) (*commands.Command, error) {
