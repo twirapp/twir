@@ -9,7 +9,7 @@ declare global {
 
 export const TTS: React.FC = () => {
   const { apiKey } = useParams();
-  const { ws, connect } = useWebSocket(apiKey);
+  const { ws, close, connect } = useWebSocket(apiKey);
 
   const queueRef = useRef<Array<Record<string, string>>>([]);
   const currentAudioBuffer = useRef<AudioBufferSourceNode | null>(null);
@@ -50,7 +50,7 @@ export const TTS: React.FC = () => {
       ws.removeEventListener('open', onOpen);
       ws.removeEventListener('message', onMessage);
       ws.removeEventListener('close', onClose);
-      ws.close();
+      close();
     }
   }, [ws]);
 
