@@ -61,7 +61,7 @@ func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
 				}
 			}
 
-			if method != option.CacheMethod || !ok {
+			if method != option.CacheMethod {
 				return next(ctx, req)
 			}
 
