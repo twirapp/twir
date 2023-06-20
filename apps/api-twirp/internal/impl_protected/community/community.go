@@ -24,7 +24,7 @@ func (c *Community) CommunityGetUsers(ctx context.Context, request *community.Ge
 	}
 
 	channel := &model.Channels{}
-	err = c.Db.Where("id = ?", dashboardId).First(channel).Error
+	err = c.Db.WithContext(ctx).Where("id = ?", dashboardId).First(channel).Error
 	if err != nil {
 		return nil, err
 	}
@@ -45,12 +45,12 @@ func (c *Community) CommunityGetUsers(ctx context.Context, request *community.Ge
 		OrderBy(fmt.Sprintf(`"%s" %s`, request.SortBy.String(), request.Order.String())).
 		ToSql()
 
-	sql, err := db.Prepare(query)
+	sql, err := db.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := sql.Query(args...)
+	rows, err := sql.QueryContext(ctx, args...)
 	if err != nil {
 		return nil, err
 	}

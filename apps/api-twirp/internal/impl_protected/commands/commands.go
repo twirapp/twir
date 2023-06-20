@@ -57,6 +57,7 @@ func (c *Commands) CommandsGetAll(ctx context.Context, _ *emptypb.Empty) (*comma
 
 	var cmds []model.ChannelsCommands
 	err := c.Db.
+		WithContext(ctx).
 		Where(`"channelId" = ?`, dashboardId).
 		Preload("Responses").
 		Preload("Group").
@@ -76,6 +77,7 @@ func (c *Commands) CommandsGetById(ctx context.Context, request *commands.GetByI
 	dashboardId := ctx.Value("dashboardId").(string)
 	cmd := &model.ChannelsCommands{}
 	err := c.Db.
+		WithContext(ctx).
 		Where(`"channelId" = ? AND "id" = ?`, dashboardId, request.CommandId).
 		Preload("Responses").
 		Preload("Group").
@@ -126,7 +128,7 @@ func (c *Commands) CommandsCreate(ctx context.Context, request *commands.CreateR
 		})
 	}
 
-	err := c.Db.Create(command).Error
+	err := c.Db.WithContext(ctx).Create(command).Error
 	if err != nil {
 		return nil, err
 	}
@@ -137,6 +139,7 @@ func (c *Commands) CommandsCreate(ctx context.Context, request *commands.CreateR
 func (c *Commands) CommandsDelete(ctx context.Context, request *commands.DeleteRequest) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	err := c.Db.
+		WithContext(ctx).
 		Where(`"channelId" = ? AND "id" = ?`, dashboardId, request.CommandId).
 		Delete(&model.ChannelsCommands{}).Error
 	if err != nil {
@@ -150,6 +153,7 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 	dashboardId := ctx.Value("dashboardId").(string)
 	cmd := &model.ChannelsCommands{}
 	err := c.Db.
+		WithContext(ctx).
 		Where(`"channelId" = ? AND "id" = ?`, dashboardId, request.Id).
 		Find(cmd).Error
 	if err != nil {
@@ -177,12 +181,12 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 	cmd.GroupID = null.StringFrom(request.Command.GroupId)
 
 	err = c.Db.Transaction(func(tx *gorm.DB) error {
-		if err = tx.Delete(&model.ChannelsCommandsResponses{}, `"commandId" = ?`, cmd.ID).Error; err != nil {
+		if err = tx.WithContext(ctx).Delete(&model.ChannelsCommandsResponses{}, `"commandId" = ?`, cmd.ID).Error; err != nil {
 			return err
 		}
 
 		for _, res := range request.Command.Responses {
-			if err = tx.Create(&model.ChannelsCommandsResponses{
+			if err = tx.WithContext(ctx).Create(&model.ChannelsCommandsResponses{
 				ID:    uuid.New().String(),
 				Text:  null.StringFrom(res.Text),
 				Order: int(res.Order),
@@ -191,7 +195,7 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 			}
 		}
 
-		return tx.Save(cmd).Error
+		return tx.WithContext(ctx).Save(cmd).Error
 	})
 
 	if err != nil {
@@ -205,6 +209,7 @@ func (c *Commands) CommandsEnableOrDisable(ctx context.Context, request *command
 	dashboardId := ctx.Value("dashboardId").(string)
 	cmd := &model.ChannelsCommands{}
 	err := c.Db.
+		WithContext(ctx).
 		Where(`"channelId" = ? AND "id" = ?`, dashboardId, request.CommandId).Find(cmd).Error
 	if err != nil {
 		return nil, err
@@ -214,7 +219,7 @@ func (c *Commands) CommandsEnableOrDisable(ctx context.Context, request *command
 	}
 
 	cmd.Enabled = request.Enabled
-	err = c.Db.Save(cmd).Error
+	err = c.Db.WithContext(ctx).Save(cmd).Error
 	if err != nil {
 		return nil, err
 	}
