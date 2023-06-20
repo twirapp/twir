@@ -12,7 +12,8 @@ func (c *Integrations) IntegrationsDonatepayGet(
 	ctx context.Context,
 	_ *emptypb.Empty,
 ) (*integrations_donatepay.GetResponse, error) {
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceDonateStream)
+	dashboardId := ctx.Value("dashboardId").(string)
+	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceDonateStream, dashboardId)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +27,8 @@ func (c *Integrations) IntegrationsDonatepayPut(
 	ctx context.Context,
 	request *integrations_donatepay.PostRequest,
 ) (*emptypb.Empty, error) {
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceDonateStream)
+	dashboardId := ctx.Value("dashboardId").(string)
+	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceDonateStream, dashboardId)
 	if err != nil {
 		return nil, err
 	}

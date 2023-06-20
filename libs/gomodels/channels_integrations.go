@@ -28,7 +28,7 @@ type ChannelsIntegrationsData struct {
 }
 
 type ChannelsIntegrations struct {
-	ID            string                    `gorm:"primary_key;column:id;type:TEXT;" json:"id"`
+	ID            string                    `gorm:"primaryKey;column:id;type:TEXT;default:uuid_generate_v4()" json:"id"`
 	Enabled       bool                      `gorm:"column:enabled;type:BOOL;"        json:"enabled"`
 	ChannelID     string                    `gorm:"column:channelId;type:TEXT;"      json:"channelId"`
 	IntegrationID string                    `gorm:"column:integrationId;type:TEXT;"  json:"integrationId"`

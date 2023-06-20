@@ -10,8 +10,11 @@ import (
 
 const donateStreamConfirmationKey = "donate_stream_confirmation"
 
-func (c *Integrations) IntegrationsDonateStreamGet(ctx context.Context, _ *emptypb.Empty) (*integrations_donate_stream.DonateStreamResponse, error) {
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceDonateStream)
+func (c *Integrations) IntegrationsDonateStreamGet(
+	ctx context.Context, _ *emptypb.Empty,
+) (*integrations_donate_stream.DonateStreamResponse, error) {
+	dashboardId := ctx.Value("dashboardId").(string)
+	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceDonateStream, dashboardId)
 	if err != nil {
 		return nil, err
 	}
@@ -21,8 +24,11 @@ func (c *Integrations) IntegrationsDonateStreamGet(ctx context.Context, _ *empty
 	}, nil
 }
 
-func (c *Integrations) IntegrationsDonateStreamPostSecret(ctx context.Context, request *integrations_donate_stream.DonateStreamPostSecretRequest) (*emptypb.Empty, error) {
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceDonateStream)
+func (c *Integrations) IntegrationsDonateStreamPostSecret(
+	ctx context.Context, request *integrations_donate_stream.DonateStreamPostSecretRequest,
+) (*emptypb.Empty, error) {
+	dashboardId := ctx.Value("dashboardId").(string)
+	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceDonateStream, dashboardId)
 	if err != nil {
 		return nil, err
 	}
