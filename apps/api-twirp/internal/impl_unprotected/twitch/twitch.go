@@ -17,8 +17,8 @@ type Twitch struct {
 	*impl_deps.Deps
 }
 
-const redisLoginsPrefix = "api:cache:twitch:users:by:logins:"
-const redisIdsPrefix = "api:cache:twitch:users:by:ids:"
+const redisLoginsPrefix = "twitch:user:by:login:"
+const redisIdsPrefix = "twitch:user:by:id:"
 const cacheDuration = 24 * time.Hour
 
 func (c *Twitch) getUsersFromCache(ctx context.Context, keys []string) ([]helix.User, error) {
