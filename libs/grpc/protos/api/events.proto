@@ -5,15 +5,35 @@ package api.events;
 import "api/meta.proto";
 
 message Event {
+	message OperationFilter {
+		string type = 1;
+		string left = 2;
+		string right = 3;
+	}
+
+	message Operation {
+		string type = 1;
+		optional string input = 2;
+		uint64 delay = 3;
+		uint64 repeat = 4;
+		bool use_announce = 5;
+		uint64 timeout_time = 6;
+		optional string timeout_message = 7;
+		optional string target = 8;
+		repeated OperationFilter filters = 9;
+		bool enabled = 10;
+	}
+
 	string id = 1;
 	string channel_id = 2;
 	string type = 3;
-	string reward_id = 4;
-	string command_id = 5;
-	string keyword_id = 6;
+	optional string reward_id = 4;
+	optional string command_id = 5;
+	optional string keyword_id = 6;
 	string description = 7;
 	bool enabled = 8;
 	bool online_only = 9;
+	repeated Operation operations = 10;
 }
 
 message GetAllResponse {

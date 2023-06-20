@@ -17,6 +17,10 @@ var (
 
 type EventOperationType string
 
+func (r EventOperationType) String() string {
+	return string(r)
+}
+
 const (
 	OperationTimeout                  EventOperationType = "TIMEOUT"
 	OperationTimeoutRandom            EventOperationType = "TIMEOUT_RANDOM"
