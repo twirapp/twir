@@ -31,6 +31,7 @@ func (c *Bot) BotInfo(ctx context.Context, meta *meta.BaseRequestMeta) (*bots.Bo
 	if err != nil {
 		return nil, err
 	}
+
 	if dbUser.ID == "" || dbUser.Channel == nil {
 		return nil, twirp.NotFoundError("user not found")
 	}

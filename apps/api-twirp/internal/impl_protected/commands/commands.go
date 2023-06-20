@@ -2,12 +2,15 @@ package commands
 
 import (
 	"context"
+	"github.com/google/uuid"
+	"github.com/guregu/null"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/commands"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/gorm"
 )
 
 type Commands struct {
@@ -88,21 +91,133 @@ func (c *Commands) CommandsGetById(ctx context.Context, request *commands.GetByI
 }
 
 func (c *Commands) CommandsCreate(ctx context.Context, request *commands.CreateRequest) (*commands.Command, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId := ctx.Value("dashboardId").(string)
+	command := &model.ChannelsCommands{
+		ID:                        uuid.New().String(),
+		Name:                      request.Name,
+		Cooldown:                  null.IntFrom(int64(request.Cooldown)),
+		CooldownType:              request.CooldownType,
+		Enabled:                   request.Enabled,
+		Aliases:                   request.Aliases,
+		Description:               null.StringFrom(request.Description),
+		Visible:                   request.Visible,
+		ChannelID:                 dashboardId,
+		Default:                   false,
+		DefaultName:               null.String{},
+		Module:                    "CUSTOM",
+		IsReply:                   request.IsReply,
+		KeepResponsesOrder:        request.KeepResponsesOrder,
+		DeniedUsersIDS:            nil,
+		AllowedUsersIDS:           request.AllowedUsersIds,
+		RolesIDS:                  request.RolesIds,
+		OnlineOnly:                request.OnlineOnly,
+		RequiredWatchTime:         int(request.RequiredWatchTime),
+		RequiredMessages:          int(request.RequiredMessages),
+		RequiredUsedChannelPoints: int(request.RequiredUsedChannelPoints),
+		Responses:                 make([]*model.ChannelsCommandsResponses, 0, len(request.Responses)),
+		GroupID:                   null.StringFrom(request.GroupId),
+	}
+
+	for _, res := range request.Responses {
+		command.Responses = append(command.Responses, &model.ChannelsCommandsResponses{
+			ID:    uuid.New().String(),
+			Text:  null.StringFrom(res.Text),
+			Order: int(res.Order),
+		})
+	}
+
+	err := c.Db.Create(command).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return c.convertDbToRpc(command), nil
 }
 
 func (c *Commands) CommandsDelete(ctx context.Context, request *commands.DeleteRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId := ctx.Value("dashboardId").(string)
+	err := c.Db.
+		Where(`"channelId" = ? AND "id" = ?`, dashboardId, request.CommandId).
+		Delete(&model.ChannelsCommands{}).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequest) (*commands.Command, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId := ctx.Value("dashboardId").(string)
+	cmd := &model.ChannelsCommands{}
+	err := c.Db.
+		Where(`"channelId" = ? AND "id" = ?`, dashboardId, request.Id).
+		Find(cmd).Error
+	if err != nil {
+		return nil, err
+	}
+	if cmd.ID == "" {
+		return nil, twirp.NewError(twirp.NotFound, "command not found")
+	}
+
+	cmd.Name = request.Command.Name
+	cmd.Cooldown = null.IntFrom(int64(request.Command.Cooldown))
+	cmd.CooldownType = request.Command.CooldownType
+	cmd.Enabled = request.Command.Enabled
+	cmd.Aliases = request.Command.Aliases
+	cmd.Description = null.StringFrom(request.Command.Description)
+	cmd.Visible = request.Command.Visible
+	cmd.IsReply = request.Command.IsReply
+	cmd.KeepResponsesOrder = request.Command.KeepResponsesOrder
+	cmd.AllowedUsersIDS = request.Command.AllowedUsersIds
+	cmd.RolesIDS = request.Command.RolesIds
+	cmd.OnlineOnly = request.Command.OnlineOnly
+	cmd.RequiredWatchTime = int(request.Command.RequiredWatchTime)
+	cmd.RequiredMessages = int(request.Command.RequiredMessages)
+	cmd.RequiredUsedChannelPoints = int(request.Command.RequiredUsedChannelPoints)
+	cmd.GroupID = null.StringFrom(request.Command.GroupId)
+
+	err = c.Db.Transaction(func(tx *gorm.DB) error {
+		if err = tx.Delete(&model.ChannelsCommandsResponses{}, `"commandId" = ?`, cmd.ID).Error; err != nil {
+			return err
+		}
+
+		for _, res := range request.Command.Responses {
+			if err = tx.Create(&model.ChannelsCommandsResponses{
+				ID:    uuid.New().String(),
+				Text:  null.StringFrom(res.Text),
+				Order: int(res.Order),
+			}).Error; err != nil {
+				return err
+			}
+		}
+
+		return tx.Save(cmd).Error
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 func (c *Commands) CommandsEnableOrDisable(ctx context.Context, request *commands.PatchRequest) (*commands.Command, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId := ctx.Value("dashboardId").(string)
+	cmd := &model.ChannelsCommands{}
+	err := c.Db.
+		Where(`"channelId" = ? AND "id" = ?`, dashboardId, request.CommandId).Find(cmd).Error
+	if err != nil {
+		return nil, err
+	}
+	if cmd.ID == "" {
+		return nil, twirp.NewError(twirp.NotFound, "command not found")
+	}
+
+	cmd.Enabled = request.Enabled
+	err = c.Db.Save(cmd).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return c.convertDbToRpc(cmd), nil
 }
