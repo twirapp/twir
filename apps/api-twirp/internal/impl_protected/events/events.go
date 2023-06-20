@@ -72,8 +72,17 @@ func (c *Events) EventsGetAll(ctx context.Context, _ *emptypb.Empty) (*events.Ge
 }
 
 func (c *Events) EventsGetById(ctx context.Context, request *events.GetByIdRequest) (*events.Event, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId := ctx.Value("dashboardId").(string)
+	entity := &model.Event{}
+	if err := c.Db.
+		WithContext(ctx).
+		Preload("Operations").
+		Preload("Operations.Filters").
+		Where(`"id" = ? AND "channelId" = ?`, request.Id, dashboardId).First(entity).Error; err != nil {
+		return nil, err
+	}
+
+	return c.convertEntity(entity), nil
 }
 
 func (c *Events) EventsCreate(ctx context.Context, request *events.CreateRequest) (*events.Event, error) {
