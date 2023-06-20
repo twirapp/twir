@@ -54,6 +54,7 @@ func NewProtected(opts Opts) IHandler {
 				},
 			},
 		)),
+		twirp.WithServerInterceptors(opts.Interceptor.Errors),
 	)
 
 	h := &Handler{

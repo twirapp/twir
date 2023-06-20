@@ -10,6 +10,7 @@ func NewUnProtected(opts Opts) IHandler {
 	twirpHandler := api.NewUnProtectedServer(
 		opts.ImplUnProtected,
 		twirp.WithServerPathPrefix("/v1"),
+		twirp.WithServerInterceptors(opts.Interceptor.Errors),
 	)
 
 	h := &Handler{

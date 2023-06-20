@@ -90,7 +90,9 @@ func (c *Events) EventsGetById(ctx context.Context, request *events.GetByIdReque
 
 func (c *Events) EventsCreate(ctx context.Context, request *events.CreateRequest) (*events.Event, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
+
 	entity := &model.Event{
+		ID:          uuid.New().String(),
 		ChannelID:   dashboardId,
 		Type:        model.EventType(request.Event.Type),
 		RewardID:    null.StringFromPtr(request.Event.RewardId),
@@ -104,7 +106,7 @@ func (c *Events) EventsCreate(ctx context.Context, request *events.CreateRequest
 
 	for i, operation := range request.Event.Operations {
 		entity.Operations[i] = model.EventOperation{
-			ID:             "",
+			ID:             uuid.New().String(),
 			Type:           model.EventOperationType(operation.Type),
 			Delay:          int(operation.Delay),
 			Input:          null.StringFromPtr(operation.Input),
@@ -162,7 +164,6 @@ func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (
 	entity.Description = null.StringFrom(request.Event.Description)
 	entity.OnlineOnly = request.Event.OnlineOnly
 	entity.Type = model.EventType(request.Event.Type)
-	entity.Operations = make([]model.EventOperation, len(request.Event.Operations))
 
 	err := c.Db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Save(entity).Error; err != nil {
@@ -173,6 +174,7 @@ func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (
 			return err
 		}
 
+		entity.Operations = make([]model.EventOperation, len(request.Event.Operations))
 		for i, operation := range request.Event.Operations {
 			entity.Operations[i] = model.EventOperation{
 				ID:             uuid.New().String(),
@@ -187,11 +189,12 @@ func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (
 				TimeoutMessage: null.StringFromPtr(operation.TimeoutMessage),
 				Target:         null.StringFromPtr(operation.Target),
 				Enabled:        operation.Enabled,
-				Filters:        make([]*model.EventOperationFilter, len(operation.Filters)),
 			}
 			if err := tx.WithContext(ctx).Save(&entity.Operations[i]).Error; err != nil {
 				return err
 			}
+
+			entity.Operations[i].Filters = make([]*model.EventOperationFilter, len(operation.Filters))
 
 			for j, filter := range operation.Filters {
 				entity.Operations[i].Filters[j] = &model.EventOperationFilter{

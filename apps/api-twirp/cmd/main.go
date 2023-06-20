@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-	logger, _ := zap.NewProduction()
+	logger, _ := zap.NewDevelopment()
 	zap.ReplaceGlobals(logger)
 
 	fx.New(
