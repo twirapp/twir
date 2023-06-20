@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
+import { useWebSocket } from '../hooks/websocket';
+
 declare global {
   interface Window {
     webkitAudioContext: typeof AudioContext
@@ -19,7 +21,7 @@ export const TTS: React.FC = () => {
 
     const onOpen = () => {
       console.log('connected');
-    } 
+    };
 
     const onMessage = (message: MessageEvent) => {
       const parsedData = JSON.parse(message.data);
@@ -36,11 +38,11 @@ export const TTS: React.FC = () => {
       if (parsedData.eventName === 'skip') {
         currentAudioBuffer.current?.stop();
       }
-    }
+    };
 
     const onClose = () => {
       connect();
-    }
+    };
 
     ws.addEventListener('open', onOpen);
     ws.addEventListener('message', onMessage);
@@ -51,7 +53,7 @@ export const TTS: React.FC = () => {
       ws.removeEventListener('message', onMessage);
       ws.removeEventListener('close', onClose);
       close();
-    }
+    };
   }, [ws]);
 
   const processQueue = useCallback(async () => {
