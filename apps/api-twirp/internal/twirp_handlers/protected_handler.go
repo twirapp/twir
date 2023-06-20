@@ -6,6 +6,7 @@ import (
 	"github.com/satont/tsuwari/libs/grpc/generated/api"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/commands"
+	"github.com/satont/tsuwari/libs/grpc/generated/api/events"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/fx"
@@ -27,6 +28,7 @@ func NewProtected(opts Opts) IHandler {
 		twirp.WithServerInterceptors(opts.Interceptor.NewCacheInterceptor(interceptors.CacheOpts{
 			CacheMethod:       "BotInfo",
 			CacheDuration:     10 * time.Second,
+			ClearMethods:      []string{"BotJoinPart"},
 			WithChannelHeader: true,
 			NewCastTo: func() any {
 				return &bots.BotInfo{}
@@ -35,9 +37,19 @@ func NewProtected(opts Opts) IHandler {
 		twirp.WithServerInterceptors(opts.Interceptor.NewCacheInterceptor(interceptors.CacheOpts{
 			CacheMethod:       "CommandsGetAll",
 			CacheDuration:     24 * time.Hour,
+			ClearMethods:      []string{"CommandsCreate", "CommandsDelete", "CommandsUpdate", "CommandsEnableOrDisable"},
 			WithChannelHeader: true,
 			NewCastTo: func() any {
 				return &commands.CommandsGetAllResponse{}
+			},
+		})),
+		twirp.WithServerInterceptors(opts.Interceptor.NewCacheInterceptor(interceptors.CacheOpts{
+			CacheMethod:       "EventsGetAll",
+			CacheDuration:     24 * time.Hour,
+			ClearMethods:      []string{"EventsCreate", "EventsDelete", "EventsUpdate", "EventsEnableOrDisable"},
+			WithChannelHeader: true,
+			NewCastTo: func() any {
+				return &events.GetAllResponse{}
 			},
 		})),
 	)
