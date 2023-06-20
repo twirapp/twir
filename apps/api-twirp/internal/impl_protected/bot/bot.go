@@ -20,7 +20,7 @@ type Bot struct {
 	*impl_deps.Deps
 }
 
-func (c *Bot) BotInfo(ctx context.Context, meta *meta.BaseRequestMeta) (*bots.BotInfo, error) {
+func (c *Bot) BotInfo(ctx context.Context, _ *meta.BaseRequestMeta) (*bots.BotInfo, error) {
 	dashboardId, ok := ctx.Value("dashboardId").(string)
 	if !ok || dashboardId == "" {
 		return nil, twirp.NewError(twirp.ErrorCode(http.StatusBadRequest), "no dashboardId provided")
