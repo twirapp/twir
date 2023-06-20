@@ -79,6 +79,26 @@ func (c *Community) CommunityGetUsers(ctx context.Context, request *community.Ge
 }
 
 func (c *Community) CommunityResetStats(ctx context.Context, request *community.ResetStatsRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId := ctx.Value("dashboardId").(string)
+
+	if request.Field == community.ResetStatsRequest_Emotes {
+		err := c.Db.WithContext(ctx).
+			Where(`"channelId" = ?`, dashboardId).
+			Delete(&model.ChannelEmoteUsage{}).Error
+		if err != nil {
+			return nil, err
+		}
+
+		return &emptypb.Empty{}, nil
+	}
+
+	err := c.Db.WithContext(ctx).
+		Model(&model.UsersStats{}).
+		Where(`"channelId" = ?`, dashboardId).
+		Update(request.Field.String(), 0).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }

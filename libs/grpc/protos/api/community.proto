@@ -40,5 +40,8 @@ message ResetStatsRequest {
 		Messages = 0;
 		Watched = 1;
 		UsedChannelsPoints = 2;
+		Emotes = 3;
 	}
+
+	Field field = 1;
 }
