@@ -133,8 +133,14 @@ func (c *Events) EventsCreate(ctx context.Context, request *events.CreateRequest
 }
 
 func (c *Events) EventsDelete(ctx context.Context, request *events.DeleteRequest) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId := ctx.Value("dashboardId").(string)
+	if err := c.Db.
+		WithContext(ctx).
+		Where(`"id" = ? AND "channelId" = ?`, request.Id, dashboardId).Delete(&model.Event{}).Error; err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (*events.Event, error) {
@@ -143,6 +149,18 @@ func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (
 }
 
 func (c *Events) EventsEnableOrDisable(ctx context.Context, request *events.PatchRequest) (*events.Event, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId := ctx.Value("dashboardId").(string)
+	entity := &model.Event{}
+	if err := c.Db.
+		WithContext(ctx).
+		Where(`"id" = ? AND "channelId" = ?`, request.Id, dashboardId).First(entity).Error; err != nil {
+		return nil, err
+	}
+
+	entity.Enabled = request.Enabled
+	if err := c.Db.WithContext(ctx).Save(entity).Error; err != nil {
+		return nil, err
+	}
+
+	return c.convertEntity(entity), nil
 }
