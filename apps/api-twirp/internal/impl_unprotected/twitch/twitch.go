@@ -2,60 +2,142 @@ package twitch
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	generatedTwitch "github.com/satont/tsuwari/libs/grpc/generated/api/twitch"
 	"github.com/satont/tsuwari/libs/twitch"
-	"github.com/twitchtv/twirp"
+	"strings"
 	"sync"
+	"time"
 )
 
 type Twitch struct {
 	*impl_deps.Deps
 }
 
-func (c *Twitch) TwitchSearchUsers(ctx context.Context, req *generatedTwitch.TwitchSearchUsersRequest) (*generatedTwitch.TwitchSearchUsersResponse, error) {
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, *c.Config, c.Grpc.Tokens)
-	if err != nil {
-		return nil, twirp.Internal.Error(err.Error())
+const redisLoginsPrefix = "api:cache:twitch:users:by:logins:"
+const redisIdsPrefix = "api:cache:twitch:users:by:ids:"
+
+func (c *Twitch) getUsersFromCache(ctx context.Context, keys []string) ([]helix.User, error) {
+	if len(keys) == 0 {
+		return nil, nil
 	}
 
+	cachedUsersByIds, err := c.Redis.MGet(ctx, keys...).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	var users []helix.User
+	for _, cachedUser := range cachedUsersByIds {
+		if cachedUser == nil {
+			continue
+		}
+
+		var user helix.User
+		if err := json.Unmarshal([]byte(cachedUser.(string)), &user); err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+func (c *Twitch) getUsersFromTwitch(ctx context.Context, params *helix.UsersParams) ([]helix.User, error) {
+
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, *c.Config, c.Grpc.Tokens)
+	if err != nil {
+		return nil, err
+	}
+
+	twitchReq, twitchErr := twitchClient.GetUsers(params)
+	if twitchErr != nil || twitchReq.ErrorMessage != "" || len(twitchReq.Data.Users) == 0 {
+		return nil, twitchErr
+	}
+
+	defer func() {
+		for _, user := range twitchReq.Data.Users {
+			bytes, err := json.Marshal(user)
+			if err == nil {
+				key := lo.
+					If(len(params.Logins) > 0, redisLoginsPrefix+strings.ToLower(user.Login)).
+					Else(redisIdsPrefix + user.ID)
+
+				c.Redis.Set(ctx, key, bytes, 24*time.Hour)
+			}
+		}
+	}()
+
+	return twitchReq.Data.Users, nil
+}
+
+func (c *Twitch) TwitchSearchUsers(ctx context.Context, req *generatedTwitch.TwitchSearchUsersRequest) (*generatedTwitch.TwitchSearchUsersResponse, error) {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	twitchUsers := make([]helix.User, 0, len(req.Ids)+len(req.Names))
 
+	cachedUsersByIds, err := c.getUsersFromCache(ctx, lo.Map(req.Ids, func(id string, _ int) string {
+		return redisIdsPrefix + id
+	}))
+	if err != nil {
+		return nil, err
+	}
+	req.Ids = lo.Filter(req.Ids, func(id string, _ int) bool {
+		return !lo.ContainsBy(cachedUsersByIds, func(user helix.User) bool {
+			return user.ID == id
+		})
+	})
+	twitchUsers = append(twitchUsers, cachedUsersByIds...)
+
+	cachedUsersByNames, err := c.getUsersFromCache(ctx, lo.Map(req.Names, func(name string, _ int) string {
+		return redisLoginsPrefix + name
+	}))
+	if err != nil {
+		return nil, err
+	}
+	req.Names = lo.Filter(req.Names, func(name string, _ int) bool {
+		return !lo.ContainsBy(cachedUsersByNames, func(user helix.User) bool {
+			return user.Login == strings.ToLower(name)
+		})
+	})
+	twitchUsers = append(twitchUsers, cachedUsersByNames...)
+
 	idsChunks := lo.Chunk(req.Ids, 100)
 	namesChunks := lo.Chunk(req.Names, 100)
-	wg.Add(len(idsChunks) + len(namesChunks))
 
 	for _, idsChunk := range idsChunks {
+		wg.Add(1)
 		go func(ids []string) {
 			defer wg.Done()
-			twitchReq, twitchErr := twitchClient.GetUsers(&helix.UsersParams{
+			users, err := c.getUsersFromTwitch(ctx, &helix.UsersParams{
 				IDs: ids,
 			})
-			if twitchErr != nil || twitchReq.ErrorMessage != "" || len(twitchReq.Data.Users) == 0 {
+			if err != nil {
 				return
 			}
 			mu.Lock()
 			defer mu.Unlock()
-			twitchUsers = append(twitchUsers, twitchReq.Data.Users...)
+			twitchUsers = append(twitchUsers, users...)
 		}(idsChunk)
 	}
 
 	for _, namesChunk := range namesChunks {
-		go func(names []string) {
+		wg.Add(1)
+		go func(ids []string) {
 			defer wg.Done()
-			twitchReq, twitchErr := twitchClient.GetUsers(&helix.UsersParams{
-				Logins: names,
+			users, err := c.getUsersFromTwitch(ctx, &helix.UsersParams{
+				Logins: ids,
 			})
-			if twitchErr != nil || twitchReq.ErrorMessage != "" || len(twitchReq.Data.Users) == 0 {
+			if err != nil {
 				return
 			}
 			mu.Lock()
 			defer mu.Unlock()
-			twitchUsers = append(twitchUsers, twitchReq.Data.Users...)
+			twitchUsers = append(twitchUsers, users...)
 		}(namesChunk)
 	}
 
