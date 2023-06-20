@@ -41,6 +41,7 @@ export const TTS: React.FC = () => {
     };
 
     const onClose = () => {
+			console.log('disconnected');
       connect();
     };
 
