@@ -5,6 +5,7 @@ import (
 	"github.com/satont/tsuwari/apps/api-twirp/internal/wrappers"
 	"github.com/satont/tsuwari/libs/grpc/generated/api"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/bots"
+	"github.com/satont/tsuwari/libs/grpc/generated/api/commands"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/fx"
@@ -25,10 +26,18 @@ func NewProtected(opts Opts) IHandler {
 		twirp.WithServerInterceptors(opts.Interceptor.ChannelAccessInterceptor),
 		twirp.WithServerInterceptors(opts.Interceptor.NewCacheInterceptor(interceptors.CacheOpts{
 			CacheMethod:       "BotInfo",
-			CacheDuration:     5 * time.Second,
+			CacheDuration:     10 * time.Second,
 			WithChannelHeader: true,
 			NewCastTo: func() any {
 				return &bots.BotInfo{}
+			},
+		})),
+		twirp.WithServerInterceptors(opts.Interceptor.NewCacheInterceptor(interceptors.CacheOpts{
+			CacheMethod:       "CommandsGetAll",
+			CacheDuration:     24 * time.Hour,
+			WithChannelHeader: true,
+			NewCastTo: func() any {
+				return &commands.CommandsGetAllResponse{}
 			},
 		})),
 	)

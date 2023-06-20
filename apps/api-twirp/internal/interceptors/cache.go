@@ -12,6 +12,7 @@ import (
 type CacheOpts struct {
 	CacheMethod       string
 	CacheDuration     time.Duration
+	ClearMethods      []string
 	WithChannelHeader bool
 	NewCastTo         func() any
 }
@@ -20,15 +21,29 @@ func (s *Service) NewCacheInterceptor(opts CacheOpts) twirp.Interceptor {
 	return func(next twirp.Method) twirp.Method {
 		return func(ctx context.Context, req interface{}) (interface{}, error) {
 			method, ok := twirp.MethodName(ctx)
-			if method != opts.CacheMethod || !ok {
-				return next(ctx, req)
+			if !ok {
+				return nil, twirp.InternalError("failed to get method name")
 			}
-
 			channelId := ctx.Value("dashboardId").(string)
 
 			cacheKey := fmt.Sprintf("api:cache:twirp-%s", opts.CacheMethod)
 			if opts.WithChannelHeader {
 				cacheKey += "-channel-" + channelId
+			}
+
+			// delete cache if returns with no error
+			for _, clearMethod := range opts.ClearMethods {
+				if clearMethod == method {
+					res, err := next(ctx, req)
+					if err == nil {
+						s.redis.Del(ctx, cacheKey)
+					}
+					return res, err
+				}
+			}
+
+			if method != opts.CacheMethod || !ok {
+				return next(ctx, req)
 			}
 
 			cached, _ := s.redis.Get(ctx, cacheKey).Result()
