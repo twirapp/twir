@@ -4,7 +4,7 @@ export function useWebSocket(apiKey: string) {
     const connect = useCallback(() => {
         const url = `${`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`}/socket/tts?apiKey=${apiKey}`;
         setWs(new WebSocket(url));
-    }, [ws]);
+    }, [apiKey]);
 
     useEffect(() => {
         connect();
