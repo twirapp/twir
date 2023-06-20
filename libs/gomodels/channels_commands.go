@@ -17,7 +17,7 @@ var (
 )
 
 type ChannelsCommands struct {
-	ID                 string         `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;"  json:"id"`
+	ID                 string         `gorm:"primaryKey;column:id;type:TEXT;default:uuid_generate_v4()"  json:"id"`
 	Name               string         `gorm:"column:name;type:TEXT;"                           json:"name"`
 	Cooldown           null.Int       `gorm:"column:cooldown;type:INT4;default:0;"             json:"cooldown"           swaggertype:"integer"`
 	CooldownType       string         `gorm:"column:cooldownType;type:VARCHAR;default:GLOBAL;" json:"cooldownType"`
@@ -35,7 +35,7 @@ type ChannelsCommands struct {
 	AllowedUsersIDS    pq.StringArray `gorm:"column:allowedUsersIds;type:text[];default:[];"   json:"allowedUsersIds"`
 	RolesIDS           pq.StringArray `gorm:"column:rolesIds;type:text[];default:[];" json:"rolesIds"`
 	OnlineOnly         bool           `gorm:"column:online_only;type:BOOL;" json:"onlineOnly"`
-	
+
 	RequiredWatchTime         int `gorm:"column:requiredWatchTime;type:INT4;default:0;" json:"requiredWatchTime"`
 	RequiredMessages          int `gorm:"column:requiredMessages;type:INT4;default:0;" json:"requiredMessages"`
 	RequiredUsedChannelPoints int `gorm:"column:requiredUsedChannelPoints;type:INT4;default:0;" json:"requiredUsedChannelPoints"`

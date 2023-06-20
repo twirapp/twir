@@ -179,22 +179,21 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 	cmd.RequiredMessages = int(request.Command.RequiredMessages)
 	cmd.RequiredUsedChannelPoints = int(request.Command.RequiredUsedChannelPoints)
 	cmd.GroupID = null.StringFrom(request.Command.GroupId)
+	cmd.Responses = make([]*model.ChannelsCommandsResponses, 0, len(request.Command.Responses))
+
+	for _, res := range request.Command.Responses {
+		r := &model.ChannelsCommandsResponses{
+			Text:      null.StringFrom(res.Text),
+			Order:     int(res.Order),
+			CommandID: cmd.ID,
+		}
+
+		cmd.Responses = append(cmd.Responses, r)
+	}
 
 	err = c.Db.Transaction(func(tx *gorm.DB) error {
 		if err = tx.WithContext(ctx).Delete(&model.ChannelsCommandsResponses{}, `"commandId" = ?`, cmd.ID).Error; err != nil {
 			return err
-		}
-
-		for _, res := range request.Command.Responses {
-			r := &model.ChannelsCommandsResponses{
-				ID:    uuid.New().String(),
-				Text:  null.StringFrom(res.Text),
-				Order: int(res.Order),
-			}
-			if err = tx.WithContext(ctx).Create(r).Error; err != nil {
-				return err
-			}
-			cmd.Responses = append(cmd.Responses, r)
 		}
 
 		return tx.WithContext(ctx).Save(cmd).Error

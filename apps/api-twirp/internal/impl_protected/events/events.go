@@ -164,53 +164,50 @@ func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (
 	entity.Description = null.StringFrom(request.Event.Description)
 	entity.OnlineOnly = request.Event.OnlineOnly
 	entity.Type = model.EventType(request.Event.Type)
+	entity.Operations = make([]model.EventOperation, len(request.Event.Operations))
+
+	for i, operation := range request.Event.Operations {
+		entity.Operations[i] = model.EventOperation{
+			EventID:        entity.ID,
+			Type:           model.EventOperationType(operation.Type),
+			Delay:          int(operation.Delay),
+			Input:          null.StringFromPtr(operation.Input),
+			Repeat:         int(operation.Repeat),
+			Order:          i,
+			UseAnnounce:    operation.UseAnnounce,
+			TimeoutTime:    int(operation.TimeoutTime),
+			TimeoutMessage: null.StringFromPtr(operation.TimeoutMessage),
+			Target:         null.StringFromPtr(operation.Target),
+			Enabled:        operation.Enabled,
+		}
+
+		entity.Operations[i].Filters = make([]*model.EventOperationFilter, len(operation.Filters))
+
+		for j, filter := range operation.Filters {
+			entity.Operations[i].Filters[j] = &model.EventOperationFilter{
+				OperationID: entity.Operations[i].ID,
+				Type:        model.EventOperationFilterType(filter.Type),
+				Left:        filter.Left,
+				Right:       filter.Right,
+			}
+		}
+	}
 
 	err := c.Db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.WithContext(ctx).Save(entity).Error; err != nil {
-			return err
+		for _, operation := range entity.Operations {
+			if err := tx.
+				WithContext(ctx).
+				Where(`"operationId" = ?`, operation.ID).
+				Delete(&model.EventOperationFilter{}).Error; err != nil {
+				return err
+			}
 		}
 
 		if err := tx.WithContext(ctx).Where(`"eventId" = ?`, entity.ID).Delete(&model.EventOperation{}).Error; err != nil {
 			return err
 		}
 
-		entity.Operations = make([]model.EventOperation, len(request.Event.Operations))
-		for i, operation := range request.Event.Operations {
-			entity.Operations[i] = model.EventOperation{
-				ID:             uuid.New().String(),
-				EventID:        entity.ID,
-				Type:           model.EventOperationType(operation.Type),
-				Delay:          int(operation.Delay),
-				Input:          null.StringFromPtr(operation.Input),
-				Repeat:         int(operation.Repeat),
-				Order:          i,
-				UseAnnounce:    operation.UseAnnounce,
-				TimeoutTime:    int(operation.TimeoutTime),
-				TimeoutMessage: null.StringFromPtr(operation.TimeoutMessage),
-				Target:         null.StringFromPtr(operation.Target),
-				Enabled:        operation.Enabled,
-			}
-			if err := tx.WithContext(ctx).Save(&entity.Operations[i]).Error; err != nil {
-				return err
-			}
-
-			entity.Operations[i].Filters = make([]*model.EventOperationFilter, len(operation.Filters))
-
-			for j, filter := range operation.Filters {
-				entity.Operations[i].Filters[j] = &model.EventOperationFilter{
-					ID:          uuid.New().String(),
-					OperationID: entity.Operations[i].ID,
-					Type:        model.EventOperationFilterType(filter.Type),
-					Left:        filter.Left,
-					Right:       filter.Right,
-				}
-				if err := tx.WithContext(ctx).Save(entity.Operations[i].Filters[j]).Error; err != nil {
-					return err
-				}
-			}
-		}
-
-		return nil
+		return tx.WithContext(ctx).Save(entity).Error
 	})
 
 	if err != nil {
