@@ -2,7 +2,7 @@ package twitch
 
 import (
 	"context"
-	"github.com/goccy/go-json"
+	json "github.com/bytedance/sonic"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"

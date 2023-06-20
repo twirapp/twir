@@ -19,10 +19,15 @@ require (
 	github.com/alexedwards/scs/goredisstore v0.0.0-20230327161757-10d4299e3b24 // indirect
 	github.com/alexedwards/scs/redisstore v0.0.0-20230327161757-10d4299e3b24 // indirect
 	github.com/alexedwards/scs/v2 v2.5.1 // indirect
+	github.com/bytedance/sonic v1.9.1 // indirect
+	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gomodule/redigo v1.8.0 // indirect
+	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
+	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	go.uber.org/dig v1.17.0 // indirect
 	go.uber.org/fx v1.20.0 // indirect
+	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 )
 

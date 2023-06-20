@@ -3,7 +3,7 @@ package interceptors
 import (
 	"context"
 	"fmt"
-	"github.com/goccy/go-json"
+	json "github.com/bytedance/sonic"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/zap"
 	"time"
