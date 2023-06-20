@@ -49,7 +49,6 @@ func (c *Twitch) getUsersFromCache(ctx context.Context, keys []string) ([]helix.
 }
 
 func (c *Twitch) getUsersFromTwitch(ctx context.Context, params *helix.UsersParams) ([]helix.User, error) {
-
 	twitchClient, err := twitch.NewAppClientWithContext(ctx, *c.Config, c.Grpc.Tokens)
 	if err != nil {
 		return nil, err
@@ -64,11 +63,8 @@ func (c *Twitch) getUsersFromTwitch(ctx context.Context, params *helix.UsersPara
 		for _, user := range twitchReq.Data.Users {
 			bytes, err := json.Marshal(user)
 			if err == nil {
-				key := lo.
-					If(len(params.Logins) > 0, redisLoginsPrefix+strings.ToLower(user.Login)).
-					Else(redisIdsPrefix + user.ID)
-
-				c.Redis.Set(ctx, key, bytes, cacheDuration)
+				c.Redis.Set(ctx, redisLoginsPrefix+strings.ToLower(user.Login), bytes, cacheDuration)
+				c.Redis.Set(ctx, redisIdsPrefix+user.ID, bytes, cacheDuration)
 			}
 		}
 	}()
@@ -144,6 +140,10 @@ func (c *Twitch) TwitchSearchUsers(ctx context.Context, req *generatedTwitch.Twi
 
 	wg.Wait()
 
+	twitchUsers = lo.UniqBy(twitchUsers, func(user helix.User) string {
+		return user.ID
+	})
+
 	convertedUsers := lo.Map(twitchUsers, func(user helix.User, _ int) *generatedTwitch.TwitchUser {
 		return &generatedTwitch.TwitchUser{
 			Id:              user.ID,
@@ -154,8 +154,6 @@ func (c *Twitch) TwitchSearchUsers(ctx context.Context, req *generatedTwitch.Twi
 			Description:     user.Description,
 			ProfileImageUrl: user.ProfileImageURL,
 			OfflineImageUrl: user.OfflineImageURL,
-			ViewCount:       int64(user.ViewCount),
-			Email:           user.Email,
 			CreatedAt:       uint64(user.CreatedAt.UnixMilli()),
 		}
 	})
