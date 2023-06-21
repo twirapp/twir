@@ -82,6 +82,7 @@ func (c *Integrations) IntegrationsDonationAlertsPostCode(
 
 	data := donationAlertsTokensResponse{}
 	resp, err := req.R().
+		SetContext(ctx).
 		SetFormData(
 			map[string]string{
 				"grant_type":    "authorization_code",
@@ -103,6 +104,7 @@ func (c *Integrations) IntegrationsDonationAlertsPostCode(
 
 	profile := donationAlertsProfileResponse{}
 	profileResp, err := req.R().
+		SetContext(ctx).
 		SetSuccessResult(&profile).
 		SetBearerAuthToken(data.AccessToken).
 		Get("https://www.donationalerts.com/api/v1/user/oauth")
@@ -121,7 +123,7 @@ func (c *Integrations) IntegrationsDonationAlertsPostCode(
 	integration.AccessToken = null.StringFrom(data.AccessToken)
 	integration.RefreshToken = null.StringFrom(data.RefreshToken)
 
-	err = c.Db.Save(integration).Error
+	err = c.Db.WithContext(ctx).Save(integration).Error
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +149,7 @@ func (c *Integrations) IntegrationsDonationAlertsLogout(ctx context.Context, _ *
 	integration.RefreshToken = null.String{}
 	integration.Enabled = false
 
-	err = c.Db.Save(&integration).Error
+	err = c.Db.WithContext(ctx).Save(&integration).Error
 	if err != nil {
 		return nil, err
 	}
