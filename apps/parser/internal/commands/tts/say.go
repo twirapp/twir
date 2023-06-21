@@ -46,24 +46,30 @@ var SayCommand = &types.DefaultCommand{
 			parseCtx.Sender.ID,
 		)
 
-		voice := lo.IfF(userSettings != nil, func() string {
-			return userSettings.Voice
-		}).
+		voice := lo.IfF(
+			userSettings != nil, func() string {
+				return userSettings.Voice
+			},
+		).
 			Else(channelSettings.Voice)
 
 		if channelSettings.AllowUsersChooseVoiceInMainCommand {
 			voices := getVoices(ctx, parseCtx.Services.Config)
 			splittedChatArgs := strings.Split(*parseCtx.Text, " ")
-			targetVoice, targetVoiceFound := lo.Find(voices, func(item Voice) bool {
-				return strings.ToLower(item.Name) == strings.ToLower(splittedChatArgs[0])
-			})
+			targetVoice, targetVoiceFound := lo.Find(
+				voices, func(item Voice) bool {
+					return strings.ToLower(item.Name) == strings.ToLower(splittedChatArgs[0])
+				},
+			)
 
 			if targetVoiceFound {
 				voice = targetVoice.Name
 
-				_, isDisallowed := lo.Find(channelSettings.DisallowedVoices, func(item string) bool {
-					return item == voice
-				})
+				_, isDisallowed := lo.Find(
+					channelSettings.DisallowedVoices, func(item string) bool {
+						return item == voice
+					},
+				)
 
 				if isDisallowed {
 					result.Result = append(
@@ -81,12 +87,16 @@ var SayCommand = &types.DefaultCommand{
 			return result
 		}
 
-		rate := lo.IfF(userSettings != nil, func() int {
-			return userSettings.Rate
-		}).Else(channelSettings.Rate)
-		pitch := lo.IfF(userSettings != nil, func() int {
-			return userSettings.Pitch
-		}).Else(channelSettings.Pitch)
+		rate := lo.IfF(
+			userSettings != nil, func() int {
+				return userSettings.Rate
+			},
+		).Else(channelSettings.Rate)
+		pitch := lo.IfF(
+			userSettings != nil, func() int {
+				return userSettings.Pitch
+			},
+		).Else(channelSettings.Pitch)
 
 		if channelSettings.DoNotReadEmoji {
 			*parseCtx.Text = emojiRx.ReplaceAllString(*parseCtx.Text, ``)
@@ -142,14 +152,16 @@ var SayCommand = &types.DefaultCommand{
 			return result
 		}
 
-		_, err := parseCtx.Services.GrpcClients.WebSockets.TextToSpeechSay(ctx, &websockets.TTSMessage{
-			ChannelId: parseCtx.Channel.ID,
-			Text:      *parseCtx.Text,
-			Voice:     voice,
-			Rate:      strconv.Itoa(rate),
-			Pitch:     strconv.Itoa(pitch),
-			Volume:    strconv.Itoa(channelSettings.Volume),
-		})
+		_, err := parseCtx.Services.GrpcClients.WebSockets.TextToSpeechSay(
+			ctx, &websockets.TTSMessage{
+				ChannelId: parseCtx.Channel.ID,
+				Text:      *parseCtx.Text,
+				Voice:     voice,
+				Rate:      strconv.Itoa(rate),
+				Pitch:     strconv.Itoa(pitch),
+				Volume:    strconv.Itoa(channelSettings.Volume),
+			},
+		)
 		if err != nil {
 			zap.S().Error(err)
 			return result

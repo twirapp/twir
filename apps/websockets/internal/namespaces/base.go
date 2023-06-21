@@ -20,9 +20,12 @@ func NewNameSpace(services *types.Services) *NameSpace {
 		services: services,
 	}
 
-	namespace.manager.HandleConnect(func(session *melody.Session) {
-		helpers.CheckUserByApiKey(services.Gorm, session)
-	})
+	namespace.manager.HandleConnect(
+		func(session *melody.Session) {
+			session.Write([]byte(`{"event":"connected"}`))
+			helpers.CheckUserByApiKey(services.Gorm, session)
+		},
+	)
 
 	return namespace
 }
@@ -43,10 +46,12 @@ func (c *NameSpace) SendEvent(userId, eventName string, data any) error {
 		return err
 	}
 
-	err = c.manager.BroadcastFilter(bytes, func(session *melody.Session) bool {
-		socketUserId, ok := session.Get("userId")
-		return ok && socketUserId.(string) == userId
-	})
+	err = c.manager.BroadcastFilter(
+		bytes, func(session *melody.Session) bool {
+			socketUserId, ok := session.Get("userId")
+			return ok && socketUserId.(string) == userId
+		},
+	)
 
 	if err != nil {
 		c.services.Logger.Error(err)

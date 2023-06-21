@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import useWebSocket from 'react-use-websocket';
+
 
 declare global {
   interface Window {
@@ -8,57 +10,40 @@ declare global {
 }
 
 export const TTS: React.FC = () => {
+	const [url, setUrl] = useState<string | null>(null);
   const { apiKey } = useParams();
-  const [tts, setTTS] = useState<WebSocket | null>(null);
+  const { lastMessage } = useWebSocket(url, {
+		shouldReconnect: () => true,
+		onOpen: () => console.log('Opened'),
+		reconnectInterval: 500,
+	});
 
-  const connect = () => {
-    const url = `${`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`}/socket/tts?apiKey=${apiKey}`;
-    const socket = new WebSocket(url);
-    return socket;
-  };
+	useEffect(() => {
+		if (!lastMessage) return;
+		const parsedData = JSON.parse(lastMessage.data);
+		console.log(parsedData);
 
-  useEffect(() => {
-    setTTS(connect());
+		if (parsedData.eventName === 'say') {
+			queueRef.current.push(parsedData.data);
 
-    return () => {
-      tts?.close();
-    };
-  }, []);
+			if (queueRef.current.length === 1) {
+				processQueue();
+			}
+		}
+
+		if (parsedData.eventName === 'skip') {
+			currentAudioBuffer.current?.stop();
+		}
+	}, [lastMessage]);
+
+	useEffect(() => {
+		if (!apiKey) return;
+
+		setUrl(`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/socket/tts?apiKey=${apiKey}`);
+	}, [apiKey]);
 
   const queueRef = useRef<Array<Record<string, string>>>([]);
   const currentAudioBuffer = useRef<AudioBufferSourceNode | null>(null);
-
-  useEffect(() => {
-    if (tts) {
-      tts.onopen = () => {
-        console.log('connected');
-      };
-
-      tts.onmessage = (msg) => {
-        const parsedData = JSON.parse(msg.data);
-        console.log(parsedData);
-
-        if (parsedData.eventName === 'say') {
-          queueRef.current.push(parsedData.data);
-
-          if (queueRef.current.length === 1) {
-            processQueue();
-          }
-        }
-
-        if (parsedData.eventName === 'skip') {
-          currentAudioBuffer.current?.stop();
-        }
-      };
-
-      tts.onclose = () => {
-        setTTS(null);
-        setTimeout(() => {
-          setTTS(connect());
-        }, 1500);
-      };
-    }
-  }, [tts]);
 
   const processQueue = useCallback(async () => {
     if (queueRef.current.length === 0) {

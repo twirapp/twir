@@ -39,17 +39,21 @@ func main() {
 	zap.ReplaceGlobals(logger)
 
 	if cfg.SentryDsn != "" {
-		sentry.Init(sentry.ClientOptions{
-			Dsn:              cfg.SentryDsn,
-			Environment:      cfg.AppEnv,
-			Debug:            true,
-			TracesSampleRate: 1.0,
-		})
+		sentry.Init(
+			sentry.ClientOptions{
+				Dsn:              cfg.SentryDsn,
+				Environment:      cfg.AppEnv,
+				Debug:            true,
+				TracesSampleRate: 1.0,
+			},
+		)
 	}
 
-	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{
-		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
-	})
+	db, err := gorm.Open(
+		postgres.Open(cfg.DatabaseUrl), &gorm.Config{
+			Logger: gormLogger.Default.LogMode(gormLogger.Silent),
+		},
+	)
 	if err != nil {
 		logger.Sugar().Error(err)
 		panic("failed to connect database")
@@ -88,14 +92,18 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	grpcServer := grpc.NewServer()
-	websockets.RegisterWebsocketServer(grpcServer, grpc_impl.NewGrpcImplementation(&grpc_impl.GrpcOpts{
-		Services: services,
-		Sockets: &grpc_impl.Sockets{
-			TTS:     ttsNamespace,
-			OBS:     obsNamespace,
-			YouTube: youTubeNameSpace,
-		},
-	}))
+	websockets.RegisterWebsocketServer(
+		grpcServer, grpc_impl.NewGrpcImplementation(
+			&grpc_impl.GrpcOpts{
+				Services: services,
+				Sockets: &grpc_impl.Sockets{
+					TTS:     ttsNamespace,
+					OBS:     obsNamespace,
+					YouTube: youTubeNameSpace,
+				},
+			},
+		),
+	)
 
 	go http.ListenAndServe(":3004", nil)
 	go grpcServer.Serve(lis)
