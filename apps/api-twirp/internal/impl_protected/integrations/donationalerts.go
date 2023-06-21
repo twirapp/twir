@@ -122,6 +122,7 @@ func (c *Integrations) IntegrationsDonationAlertsPostCode(
 	}
 	integration.AccessToken = null.StringFrom(data.AccessToken)
 	integration.RefreshToken = null.StringFrom(data.RefreshToken)
+	integration.Enabled = true
 
 	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {
 		return nil, err
