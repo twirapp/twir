@@ -67,20 +67,16 @@ func (c *Integrations) getChannelIntegrationByService(
 	return channelIntegration, nil
 }
 
-func (c *Integrations) sendGrpcEvent(ctx context.Context, integrationId string, isAdd bool) {
+func (c *Integrations) sendGrpcEvent(ctx context.Context, integrationId string, isAdd bool) error {
+	req := &integrations.Request{
+		Id: integrationId,
+	}
+
 	if isAdd {
-		c.Grpc.Integrations.AddIntegration(
-			ctx,
-			&integrations.Request{
-				Id: integrationId,
-			},
-		)
+		_, err := c.Grpc.Integrations.AddIntegration(ctx, req)
+		return err
 	} else {
-		c.Grpc.Integrations.RemoveIntegration(
-			ctx,
-			&integrations.Request{
-				Id: integrationId,
-			},
-		)
+		_, err := c.Grpc.Integrations.RemoveIntegration(ctx, req)
+		return err
 	}
 }

@@ -123,12 +123,13 @@ func (c *Integrations) IntegrationsDonationAlertsPostCode(
 	integration.AccessToken = null.StringFrom(data.AccessToken)
 	integration.RefreshToken = null.StringFrom(data.RefreshToken)
 
-	err = c.Db.WithContext(ctx).Save(integration).Error
-	if err != nil {
+	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {
 		return nil, err
 	}
 
-	c.sendGrpcEvent(ctx, integration.ID, integration.Enabled)
+	if err = c.sendGrpcEvent(ctx, integration.ID, integration.Enabled); err != nil {
+		return nil, err
+	}
 
 	return &emptypb.Empty{}, nil
 }
@@ -149,12 +150,13 @@ func (c *Integrations) IntegrationsDonationAlertsLogout(ctx context.Context, _ *
 	integration.RefreshToken = null.String{}
 	integration.Enabled = false
 
-	err = c.Db.WithContext(ctx).Save(&integration).Error
-	if err != nil {
+	if err = c.Db.WithContext(ctx).Save(&integration).Error; err != nil {
 		return nil, err
 	}
 
-	c.sendGrpcEvent(ctx, integration.ID, integration.Enabled)
+	if err = c.sendGrpcEvent(ctx, integration.ID, integration.Enabled); err != nil {
+		return nil, err
+	}
 
 	return &emptypb.Empty{}, nil
 }

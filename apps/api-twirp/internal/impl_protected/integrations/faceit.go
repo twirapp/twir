@@ -145,8 +145,7 @@ func (c *Integrations) IntegrationsFaceitLogout(ctx context.Context, empty *empt
 	integration.RefreshToken = null.String{}
 	integration.Enabled = false
 
-	err = c.Db.WithContext(ctx).Save(&integration).Error
-	if err != nil {
+	if err = c.Db.WithContext(ctx).Save(&integration).Error; err != nil {
 		return nil, err
 	}
 
