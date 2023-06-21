@@ -5,6 +5,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
 )
 
 type Integrations struct {
@@ -28,8 +29,8 @@ func (c *Integrations) getChannelIntegrationByService(
 	service model.IntegrationService,
 	channelId string,
 ) (*model.ChannelsIntegrations, error) {
-	integration := &model.Integrations{}
-	if err := c.Db.WithContext(ctx).Where("service = ?", service).First(integration).Error; err != nil {
+	integration, err := c.getIntegrationByService(ctx, service)
+	if err != nil {
 		return nil, err
 	}
 
@@ -40,6 +41,7 @@ func (c *Integrations) getChannelIntegrationByService(
 			integration.ID,
 			channelId,
 		).
+		Preload("Integration").
 		Find(channelIntegration).Error; err != nil {
 		return nil, err
 	}
@@ -54,6 +56,7 @@ func (c *Integrations) getChannelIntegrationByService(
 			ClientID:      null.String{},
 			ClientSecret:  null.String{},
 			APIKey:        null.String{},
+			Integration:   integration,
 		}
 
 		if err := c.Db.WithContext(ctx).Save(channelIntegration).Error; err != nil {
@@ -62,4 +65,22 @@ func (c *Integrations) getChannelIntegrationByService(
 	}
 
 	return channelIntegration, nil
+}
+
+func (c *Integrations) sendGrpcEvent(ctx context.Context, integrationId string, isAdd bool) {
+	if isAdd {
+		c.Grpc.Integrations.AddIntegration(
+			ctx,
+			&integrations.Request{
+				Id: integrationId,
+			},
+		)
+	} else {
+		c.Grpc.Integrations.RemoveIntegration(
+			ctx,
+			&integrations.Request{
+				Id: integrationId,
+			},
+		)
+	}
 }

@@ -208,6 +208,9 @@ importers:
       '@monaco-editor/react':
         specifier: ^4.4.6
         version: 4.4.6(monaco-editor@0.39.0)(react-dom@18.2.0)(react@18.2.0)
+      '@protobuf-ts/twirp-transport':
+        specifier: ^2.9.0
+        version: 2.9.0
       '@svgr/webpack':
         specifier: ^6.5.1
         version: 6.5.1
@@ -217,6 +220,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^4.20.4
         version: 4.28.0(react-dom@18.2.0)(react@18.2.0)
+      '@tsuwari/grpc':
+        specifier: workspace:^
+        version: link:../../libs/grpc
       '@tsuwari/types':
         specifier: workspace:*
         version: link:../../libs/types
@@ -323,9 +329,15 @@ importers:
       '@nanostores/vue':
         specifier: ^0.7.0
         version: 0.7.0(nanostores@0.7.4)(vue@3.2.47)
+      '@protobuf-ts/twirp-transport':
+        specifier: ^2.9.0
+        version: 2.9.0
       '@tanstack/vue-query':
         specifier: ^4.24.10
         version: 4.27.0(vue@3.2.47)
+      '@tsuwari/grpc':
+        specifier: workspace:^
+        version: link:../../libs/grpc
       '@vue/server-renderer':
         specifier: ^3.2.47
         version: 3.2.47(vue@3.2.47)

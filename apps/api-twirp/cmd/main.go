@@ -12,6 +12,7 @@ import (
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/clients"
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
@@ -28,10 +29,12 @@ func main() {
 	zap.ReplaceGlobals(logger)
 
 	fx.New(
-		fx.WithLogger(func() fxevent.Logger {
-			l, _ := zap.NewDevelopment()
-			return &fxevent.ZapLogger{Logger: l}
-		}),
+		fx.WithLogger(
+			func() fxevent.Logger {
+				l, _ := zap.NewDevelopment()
+				return &fxevent.ZapLogger{Logger: l}
+			},
+		),
 		fx.Provide(
 			func() *cfg.Config {
 				config, err := cfg.New()
@@ -46,17 +49,22 @@ func main() {
 			func(c *cfg.Config) bots.BotsClient {
 				return clients.NewBots(c.AppEnv)
 			},
+			func(c *cfg.Config) integrations.IntegrationsClient {
+				return clients.NewIntegrations(c.AppEnv)
+			},
 			func(config *cfg.Config, lc fx.Lifecycle) *redis.Client {
 				redisOpts, err := redis.ParseURL(config.RedisUrl)
 				if err != nil {
 					logger.Sugar().Panic(err)
 				}
 				client := redis.NewClient(redisOpts)
-				lc.Append(fx.Hook{
-					OnStop: func(ctx context.Context) error {
-						return client.Close()
+				lc.Append(
+					fx.Hook{
+						OnStop: func(ctx context.Context) error {
+							return client.Close()
+						},
 					},
-				})
+				)
 
 				return client
 			},
@@ -64,9 +72,11 @@ func main() {
 				return sessions.New(r)
 			},
 			func(config *cfg.Config, lc fx.Lifecycle) *gorm.DB {
-				db, err := gorm.Open(postgres.Open(config.DatabaseUrl), &gorm.Config{
-					Logger: gormLogger.Default.LogMode(gormLogger.Silent),
-				})
+				db, err := gorm.Open(
+					postgres.Open(config.DatabaseUrl), &gorm.Config{
+						Logger: gormLogger.Default.LogMode(gormLogger.Silent),
+					},
+				)
 				if err != nil {
 					logger.Sugar().Panic("failed to connect database", err)
 				}
@@ -74,11 +84,13 @@ func main() {
 				d.SetMaxOpenConns(20)
 				d.SetConnMaxIdleTime(1 * time.Minute)
 
-				lc.Append(fx.Hook{
-					OnStop: func(ctx context.Context) error {
-						return d.Close()
+				lc.Append(
+					fx.Hook{
+						OnStop: func(ctx context.Context) error {
+							return d.Close()
+						},
 					},
-				})
+				)
 
 				return db
 			},
@@ -98,8 +110,10 @@ func main() {
 				fx.ParamTags(`group:"handlers"`),
 			),
 		),
-		fx.Invoke(func(mux *http.ServeMux, sessionManager *scs.SessionManager) {
-			logger.Sugar().Panic(http.ListenAndServe(":3002", sessionManager.LoadAndSave(mux)))
-		}),
+		fx.Invoke(
+			func(mux *http.ServeMux, sessionManager *scs.SessionManager) {
+				logger.Sugar().Panic(http.ListenAndServe(":3002", sessionManager.LoadAndSave(mux)))
+			},
+		),
 	).Run()
 }
