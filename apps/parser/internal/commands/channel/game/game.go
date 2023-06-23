@@ -2,7 +2,7 @@ package channel_game
 
 import (
 	"context"
-	"fmt"
+	"github.com/samber/lo"
 	"github.com/satont/tsuwari/apps/parser/internal/types"
 	"strings"
 
@@ -42,9 +42,11 @@ var SetCommand = &types.DefaultCommand{
 			return result
 		}
 
-		gameReq, err := twitchClient.GetGames(&helix.GamesParams{
-			Names: []string{*parseCtx.Text},
-		})
+		gameReq, err := twitchClient.GetGames(
+			&helix.GamesParams{
+				Names: []string{*parseCtx.Text},
+			},
+		)
 		if err != nil {
 			return nil
 		}
@@ -56,9 +58,11 @@ var SetCommand = &types.DefaultCommand{
 			categoryId = gameReq.Data.Games[0].ID
 			categoryName = gameReq.Data.Games[0].Name
 		} else {
-			games, err := twitchClient.SearchCategories(&helix.SearchCategoriesParams{
-				Query: *parseCtx.Text,
-			})
+			games, err := twitchClient.SearchCategories(
+				&helix.SearchCategoriesParams{
+					Query: *parseCtx.Text,
+				},
+			)
 			if err != nil {
 				return nil
 			}
@@ -82,15 +86,18 @@ var SetCommand = &types.DefaultCommand{
 			return result
 		}
 
-		req, err := twitchClient.EditChannelInformation(&helix.EditChannelInformationParams{
-			BroadcasterID: parseCtx.Channel.ID,
-			GameID:        categoryId,
-		})
+		req, err := twitchClient.EditChannelInformation(
+			&helix.EditChannelInformationParams{
+				BroadcasterID: parseCtx.Channel.ID,
+				GameID:        categoryId,
+			},
+		)
 
 		if err != nil || req.StatusCode != 204 {
-			fmt.Println(err)
-			fmt.Println(req.ErrorMessage)
-			result.Result = append(result.Result, "❌ internal error")
+			result.Result = append(
+				result.Result,
+				lo.If(req.ErrorMessage != "", req.ErrorMessage).Else("❌ internal error"),
+			)
 			return result
 		}
 
