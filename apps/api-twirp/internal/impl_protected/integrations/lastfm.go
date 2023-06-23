@@ -3,8 +3,10 @@ package integrations
 import (
 	"context"
 	"fmt"
+	"github.com/guregu/null"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/integrations_lastfm"
+	lfm "github.com/shkh/lastfm-go/lastfm"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -57,6 +59,15 @@ func (c *Integrations) IntegrationsLastFMPostCode(
 	if err != nil {
 		return nil, err
 	}
+
+	api := lfm.New(
+		integration.Integration.APIKey.String,
+		integration.Integration.ClientSecret.String,
+	)
+	err = api.LoginWithToken(request.Code)
+	sessionKey := api.GetSessionKey()
+
+	integration.APIKey = null.StringFrom(sessionKey)
 
 	return &emptypb.Empty{}, nil
 }
