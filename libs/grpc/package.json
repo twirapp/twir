@@ -1,15 +1,18 @@
 {
   "name": "@tsuwari/grpc",
   "scripts": {
-    "build": "rm -rf dist && ts-node --transpileOnly gen.ts && tsc"
+    "build": "rm -rf dist && ts-node --transpileOnly gen.ts && tsc --module ESNext --outDir dist/esm --declaration false --declarationMap false && tsc --module CommonJS --declaration false --declarationMap false --outDir dist/cjs && tsc --emitDeclarationOnly --outDir dist/types"
   },
   "exports": {
-    "./*": "./dist/*.js"
+    "./*": {
+      "require": "./dist/cjs/*.js",
+      "import": "./dist/esm/*.js"
+    }
   },
   "typesVersions": {
     "*": {
       "*": [
-        "./dist/*.d.ts"
+        "./dist/types/*.d.ts"
       ]
     }
   },

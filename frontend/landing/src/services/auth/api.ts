@@ -3,6 +3,16 @@ import type { AuthUser } from '@tsuwari/shared';
 import { authFetch } from './authFetch.js';
 import { LOGIN_ROUTE_STATE, ORIGIN_STATE } from './locationHelpers.js';
 
+import { ProtectedClient } from '@tsuwari/grpc/generated/api/api.client';
+import { TwirpFetchTransport } from '@protobuf-ts/twirp-transport';
+
+const transport = new TwirpFetchTransport({
+  baseUrl: 'http://localhost:3005/api/v1',
+});
+const client = new ProtectedClient(transport);
+
+client.botInfo({});
+
 export const getProfile = async (): Promise<AuthUser> => {
   const res = await authFetch('/api/auth/profile');
   if (!res.ok) {
