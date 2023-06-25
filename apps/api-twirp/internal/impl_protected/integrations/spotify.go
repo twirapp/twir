@@ -41,10 +41,8 @@ func (c *Integrations) IntegrationsSpotifyGetAuthLink(
 	q.Add("redirect_uri", integration.RedirectURL.String)
 	link.RawQuery = q.Encode()
 
-	str := link.String()
-
 	return &integrations_spotify.GetAuthLink{
-		Link: str,
+		Link: link.String(),
 	}, nil
 }
 
