@@ -82,8 +82,10 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
       tracksForSearch.map(async (track) => {
 
         const search = await ytsrLib(track.text, { limit: 1 });
-        const item = search.items.at(0) as Video;
+
+        const item = search.items.at(0);
         if (!item) return;
+				if (!('id' in item)) return;
 
         videos.push({
           title: item.title,
