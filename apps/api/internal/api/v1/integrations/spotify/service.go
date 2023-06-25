@@ -54,14 +54,6 @@ type tokensResponse struct {
 	ExpiresIn    int    `json:"expires_in"`
 }
 
-type profileResponse struct {
-	StreamLabs struct {
-		ID          int    `json:"id"`
-		DisplayName string `json:"display_name"`
-		ThumbNail   string `json:"thumbnail"`
-	} `json:"streamlabs"`
-}
-
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 
@@ -95,20 +87,24 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 	}
 
 	data := tokensResponse{}
-	token := base64.StdEncoding.EncodeToString([]byte(
-		fmt.Sprintf(
-			"%s:%s",
-			neededIntegration.ClientID.String,
-			neededIntegration.ClientSecret.String,
+	token := base64.StdEncoding.EncodeToString(
+		[]byte(
+			fmt.Sprintf(
+				"%s:%s",
+				neededIntegration.ClientID.String,
+				neededIntegration.ClientSecret.String,
+			),
 		),
-	))
+	)
 
 	resp, err := req.R().
-		SetFormData(map[string]string{
-			"grant_type":   "authorization_code",
-			"redirect_uri": neededIntegration.RedirectURL.String,
-			"code":         dto.Code,
-		}).
+		SetFormData(
+			map[string]string{
+				"grant_type":   "authorization_code",
+				"redirect_uri": neededIntegration.RedirectURL.String,
+				"code":         dto.Code,
+			},
+		).
 		SetHeader("Authorization", fmt.Sprintf("Basic %s", token)).
 		SetResult(&data).
 		SetContentType("application/x-www-form-urlencoded").

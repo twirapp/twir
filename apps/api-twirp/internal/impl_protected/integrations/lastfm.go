@@ -69,6 +69,10 @@ func (c *Integrations) IntegrationsLastFMPostCode(
 
 	integration.APIKey = null.StringFrom(sessionKey)
 
+	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {
+		return nil, err
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -82,6 +86,7 @@ func (c *Integrations) IntegrationsLastFMLogout(ctx context.Context, _ *emptypb.
 	}
 
 	integration.Data = nil
+	integration.APIKey = null.String{}
 
 	if err = c.Db.WithContext(ctx).Save(&integration).Error; err != nil {
 		return nil, err
