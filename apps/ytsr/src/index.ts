@@ -80,12 +80,12 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
 
     await Promise.all(
       tracksForSearch.map(async (track) => {
-
-        const search = await ytsrLib(track.text, { limit: 1 });
+        const search = await ytsrLib(track.text, { limit: 1 }).catch(() => null);
+				if (!search) return;
 
         const item = search.items.at(0);
         if (!item) return;
-				if (!('id' in item)) return;
+				if (!('id' in item) || item.type !== 'video') return;
 
         videos.push({
           title: item.title,
