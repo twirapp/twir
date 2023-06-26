@@ -20,9 +20,9 @@ export const getServerSideProps = async ({ locale }) => ({
 	},
 });
 
-// const DonateStreamIntegration = dynamic(() => import('../components/integrations/donateStream'), {
-// 	ssr: false,
-// });
+const DonateStreamIntegration = dynamic(() => import('../components/integrations/donateStream'), {
+	ssr: false,
+});
 
 const DonatelloIntegration = dynamic(() => import('../components/integrations/donatello'), {
 	ssr: false,
@@ -56,6 +56,9 @@ export default function Integrations() {
 					<FaceitIntegration />
 					<DonationAlertsIntegration />
 					<DonatelloIntegration />
+					<DonatePayIntegration />
+					<DonateStreamIntegration />
+					<ValorantIntegration />
 				</tbody>
 			</Table>
 		</Center>

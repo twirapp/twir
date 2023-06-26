@@ -1,18 +1,26 @@
 import { Button, Flex, Modal, useMantineTheme } from '@mantine/core';
-import { IconLogin } from '@tabler/icons';
+import { showNotification } from '@mantine/notifications';
+import { IconLogin, IconManualGearbox, IconSettings } from '@tabler/icons';
 import Image from 'next/image';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 type Props = {
 	integrationKey: string
 	body: React.ReactElement
 	save?: () => void | Promise<void>
 	imageSize?: number
+	imageScale?: number
 }
 
 export const ManualComponent: React.FC<Props> = (props) => {
 	const [opened, setOpened] = useState(false);
 	const theme = useMantineTheme();
+
+	const [uppercasedKey, setUppercasedKey] = useState<string>('');
+
+	useEffect(() => {
+		setUppercasedKey(props.integrationKey.charAt(0).toUpperCase() + props.integrationKey.slice(1));
+	}, [props.integrationKey]);
 
 	return <Fragment>
 		<tr key={props.integrationKey} style={{ height: 65 }}>
@@ -21,16 +29,19 @@ export const ManualComponent: React.FC<Props> = (props) => {
 				height={props.imageSize ?? 30}
 				width={props.imageSize ?? 30}
 				alt={props.integrationKey}
+				style={{
+					scale: props.imageScale ?? 1,
+				}}
 			/>
 			</td>
-			<td>
 
-			</td>
+			<td></td>
+
 			<td>
 				<Flex direction='row' gap='sm' justify='flex-end'>
 					<Button
 						compact
-						leftIcon={<IconLogin />}
+						leftIcon={<IconSettings />}
 						variant='light'
 						color='blue'
 						onClick={() => setOpened(true)}
@@ -51,11 +62,25 @@ export const ManualComponent: React.FC<Props> = (props) => {
 			overlayBlur={3}
 			opened={opened}
 			onClose={() => setOpened(false)}
-			title={props.integrationKey.charAt(0).toUpperCase() + props.integrationKey.slice(1)}
+			title={uppercasedKey}
 			closeOnClickOutside={false}
 		>
 			{props.body}
-			{props.save && <Button mt={5} variant={'light'} color={'green'} w={'100%'}>Save</Button>}
+			{props.save && <Button
+				mt={5}
+				variant={'light'}
+				color={'green'}
+				w={'100%'}
+				onClick={() => {
+					props.save!();
+					setOpened(false);
+					showNotification({
+						title: 'Saved',
+						message: `${uppercasedKey} settings saved.`,
+						color: 'green',
+					});
+				}}
+			>Save</Button>}
 		</Modal>
 	</Fragment>;
 };
