@@ -13,10 +13,10 @@ import (
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	"github.com/satont/tsuwari/apps/parser/internal/types/services"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types/services"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 )
 
 type locks struct {
@@ -109,9 +109,11 @@ func (c *cacher) GetChannelStream(ctx context.Context) *model.ChannelsStreams {
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 
-		streams, err := twitchClient.GetStreams(&helix.StreamsParams{
-			UserIDs: []string{c.parseCtxChannel.ID},
-		})
+		streams, err := twitchClient.GetStreams(
+			&helix.StreamsParams{
+				UserIDs: []string{c.parseCtxChannel.ID},
+			},
+		)
 
 		if err != nil || len(streams.Data.Streams) == 0 {
 			return nil
@@ -199,11 +201,13 @@ func (c *cacher) GetFaceitLatestMatches(ctx context.Context) ([]*types.FaceitMat
 	_, err := req.C().EnableForceHTTP1().R().
 		SetContext(ctx).
 		SetSuccessResult(&reqResult).
-		Get(fmt.Sprintf(
-			"https://api.faceit.com/stats/api/v1/stats/time/users/%s/games/%s?size=30",
-			c.cache.faceitData.FaceitUser.PlayerId,
-			c.cache.faceitData.FaceitUser.FaceitGame.Name,
-		))
+		Get(
+			fmt.Sprintf(
+				"https://api.faceit.com/stats/api/v1/stats/time/users/%s/games/%s?size=30",
+				c.cache.faceitData.FaceitUser.PlayerId,
+				c.cache.faceitData.FaceitUser.FaceitGame.Name,
+			),
+		)
 
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
@@ -273,16 +277,18 @@ func (c *cacher) GetFaceitTodayEloDiff(ctx context.Context, matches []*types.Fac
 		return 0
 	}
 
-	sum := lo.Reduce(matches, func(agg int, item *types.FaceitMatch, _ int) int {
-		if item.EloDiff == nil {
-			return agg
-		}
-		v, err := strconv.Atoi(*item.EloDiff)
-		if err != nil {
-			return agg
-		}
-		return agg + v
-	}, 0)
+	sum := lo.Reduce(
+		matches, func(agg int, item *types.FaceitMatch, _ int) int {
+			if item.EloDiff == nil {
+				return agg
+			}
+			v, err := strconv.Atoi(*item.EloDiff)
+			if err != nil {
+				return agg
+			}
+			return agg + v
+		}, 0,
+	)
 
 	return sum
 }
@@ -304,9 +310,11 @@ func (c *cacher) GetFaceitUserData(ctx context.Context) (*types.FaceitUser, erro
 		return nil, errors.New("no enabled integrations")
 	}
 
-	integration, ok := lo.Find(integrations, func(i *model.ChannelsIntegrations) bool {
-		return i.Integration.Service == "FACEIT" && i.Enabled
-	})
+	integration, ok := lo.Find(
+		integrations, func(i *model.ChannelsIntegrations) bool {
+			return i.Integration.Service == "FACEIT" && i.Enabled
+		},
+	)
 
 	if !ok {
 		return nil, errors.New("faceit integration not enabled")
@@ -366,10 +374,12 @@ func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.
 		return nil
 	}
 
-	follow, err := twitchClient.GetUsersFollows(&helix.UsersFollowsParams{
-		FromID: userID,
-		ToID:   c.parseCtxChannel.ID,
-	})
+	follow, err := twitchClient.GetUsersFollows(
+		&helix.UsersFollowsParams{
+			FromID: userID,
+			ToID:   c.parseCtxChannel.ID,
+		},
+	)
 
 	if err == nil && len(follow.Data.Follows) != 0 {
 		c.cache.twitchUserFollows[userID] = &follow.Data.Follows[0]
@@ -420,9 +430,11 @@ func (c *cacher) GetTwitchChannel(ctx context.Context) *helix.ChannelInformation
 		return nil
 	}
 
-	channel, err := twitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
-		BroadcasterIDs: []string{c.parseCtxChannel.ID},
-	})
+	channel, err := twitchClient.GetChannelInformation(
+		&helix.GetChannelInformationParams{
+			BroadcasterIDs: []string{c.parseCtxChannel.ID},
+		},
+	)
 
 	if err == nil && len(channel.Data.Channels) != 0 {
 		c.cache.twitchChannel = &channel.Data.Channels[0]
@@ -449,9 +461,11 @@ func (c *cacher) GetTwitchSenderUser(ctx context.Context) *helix.User {
 		return nil
 	}
 
-	users, err := twitchClient.GetUsers(&helix.UsersParams{
-		IDs: []string{c.parseCtxSender.ID},
-	})
+	users, err := twitchClient.GetUsers(
+		&helix.UsersParams{
+			IDs: []string{c.parseCtxSender.ID},
+		},
+	)
 
 	if err != nil || users.ErrorMessage != "" {
 		c.services.Logger.Sugar().Error(users.ErrorMessage, err)
@@ -477,9 +491,11 @@ func (c *cacher) GetValorantMatches(ctx context.Context) []*types.ValorantMatch 
 	var data *types.ValorantMatchesResponse
 
 	integrations := c.GetEnabledChannelIntegrations(ctx)
-	integration, ok := lo.Find(integrations, func(item *model.ChannelsIntegrations) bool {
-		return item.Integration.Service == "VALORANT"
-	})
+	integration, ok := lo.Find(
+		integrations, func(item *model.ChannelsIntegrations) bool {
+			return item.Integration.Service == "VALORANT"
+		},
+	)
 
 	if !ok || integration.Data == nil || integration.Data.UserName == nil {
 		return nil
@@ -488,12 +504,14 @@ func (c *cacher) GetValorantMatches(ctx context.Context) []*types.ValorantMatch 
 	_, err := req.R().
 		SetContext(ctx).
 		SetSuccessResult(&data).
-		Get("https://api.henrikdev.xyz/valorant/v3/matches/eu/" + strings.Replace(
-			*integration.Data.UserName,
-			"#",
-			"/",
-			1,
-		))
+		Get(
+			"https://api.henrikdev.xyz/valorant/v3/matches/eu/" + strings.Replace(
+				*integration.Data.UserName,
+				"#",
+				"/",
+				1,
+			),
+		)
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return nil
@@ -514,9 +532,11 @@ func (c *cacher) GetValorantProfile(ctx context.Context) *types.ValorantProfile 
 	}
 
 	integrations := c.GetEnabledChannelIntegrations(ctx)
-	integration, ok := lo.Find(integrations, func(item *model.ChannelsIntegrations) bool {
-		return item.Integration.Service == "VALORANT"
-	})
+	integration, ok := lo.Find(
+		integrations, func(item *model.ChannelsIntegrations) bool {
+			return item.Integration.Service == "VALORANT"
+		},
+	)
 
 	if !ok || integration.Data == nil || integration.Data.UserName == nil {
 		return nil
@@ -526,12 +546,14 @@ func (c *cacher) GetValorantProfile(ctx context.Context) *types.ValorantProfile 
 	_, err := req.R().
 		SetContext(ctx).
 		SetSuccessResult(c.cache.valorantProfile).
-		Get("https://api.henrikdev.xyz/valorant/v1/mmr/eu/" + strings.Replace(
-			*integration.Data.UserName,
-			"#",
-			"/",
-			1,
-		))
+		Get(
+			"https://api.henrikdev.xyz/valorant/v1/mmr/eu/" + strings.Replace(
+				*integration.Data.UserName,
+				"#",
+				"/",
+				1,
+			),
+		)
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return nil

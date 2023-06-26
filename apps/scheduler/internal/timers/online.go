@@ -12,9 +12,9 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	loParallel "github.com/samber/lo/parallel"
-	"github.com/satont/tsuwari/apps/scheduler/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/scheduler/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 	"go.uber.org/zap"
 )
 
@@ -54,11 +54,13 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 						var chatters []helix.ChatChatter
 						cursor := ""
 						for {
-							req, err := twitchClient.GetChannelChatChatters(&helix.GetChatChattersParams{
-								BroadcasterID: broadcasterId,
-								ModeratorID:   broadcasterId,
-								After:         cursor,
-							})
+							req, err := twitchClient.GetChannelChatChatters(
+								&helix.GetChatChattersParams{
+									BroadcasterID: broadcasterId,
+									ModeratorID:   broadcasterId,
+									After:         cursor,
+								},
+							)
 							if err != nil {
 								zap.S().Error(err)
 							} else {
@@ -77,67 +79,79 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 							return
 						}
 
-						loParallel.ForEach(chattersChunks, func(chunk []helix.ChatChatter, _ int) {
-							dbChatters := make([]*model.Users, 0, len(chunk))
-							err = services.Gorm.
-								Where(
-									`"id" IN ?`,
-									lo.Map(chunk, func(chatter helix.ChatChatter, _ int) string {
-										return chatter.UserID
-									}),
-								).
-								Find(&dbChatters).
-								Error
+						loParallel.ForEach(
+							chattersChunks, func(chunk []helix.ChatChatter, _ int) {
+								dbChatters := make([]*model.Users, 0, len(chunk))
+								err = services.Gorm.
+									Where(
+										`"id" IN ?`,
+										lo.Map(
+											chunk, func(chatter helix.ChatChatter, _ int) string {
+												return chatter.UserID
+											},
+										),
+									).
+									Find(&dbChatters).
+									Error
 
-							if err != nil {
-								zap.S().Error(err)
-								return
-							}
+								if err != nil {
+									zap.S().Error(err)
+									return
+								}
 
-							var usersForCreate []*model.Users
-							var usersOnlineForCreate []*model.UsersOnline
+								var usersForCreate []*model.Users
+								var usersOnlineForCreate []*model.UsersOnline
 
-							for _, chatter := range chunk {
-								isExists := lo.SomeBy(dbChatters, func(item *model.Users) bool {
-									return item.ID == chatter.UserID
-								})
-								if !isExists {
-									usersForCreate = append(usersForCreate, &model.Users{
-										ID:     chatter.UserID,
-										ApiKey: uuid.New().String(),
-										Stats: &model.UsersStats{
-											ID:        uuid.New().String(),
-											ChannelID: broadcasterId,
-											UserID:    chatter.UserID,
+								for _, chatter := range chunk {
+									isExists := lo.SomeBy(
+										dbChatters, func(item *model.Users) bool {
+											return item.ID == chatter.UserID
 										},
-									})
+									)
+									if !isExists {
+										usersForCreate = append(
+											usersForCreate, &model.Users{
+												ID:     chatter.UserID,
+												ApiKey: uuid.New().String(),
+												Stats: &model.UsersStats{
+													ID:        uuid.New().String(),
+													ChannelID: broadcasterId,
+													UserID:    chatter.UserID,
+												},
+											},
+										)
+									}
+
+									usersOnlineForCreate = append(
+										usersOnlineForCreate, &model.UsersOnline{
+											ID:        uuid.New().String(),
+											ChannelId: broadcasterId,
+											UserId:    null.StringFrom(chatter.UserID),
+											UserName:  null.StringFrom(chatter.UserLogin),
+										},
+									)
 								}
 
-								usersOnlineForCreate = append(usersOnlineForCreate, &model.UsersOnline{
-									ID:        uuid.New().String(),
-									ChannelId: broadcasterId,
-									UserId:    null.StringFrom(chatter.UserID),
-									UserName:  null.StringFrom(chatter.UserLogin),
-								})
-							}
+								err = services.Gorm.Transaction(
+									func(tx *gorm.DB) error {
+										err = tx.CreateInBatches(usersForCreate, 1000).Error
+										if err != nil {
+											return err
+										}
 
-							err = services.Gorm.Transaction(func(tx *gorm.DB) error {
-								err = tx.CreateInBatches(usersForCreate, 1000).Error
+										err = tx.CreateInBatches(usersOnlineForCreate, 1000).Error
+										if err != nil {
+											return err
+										}
+
+										return nil
+									},
+								)
 								if err != nil {
-									return err
+									zap.S().Error(err)
 								}
-
-								err = tx.CreateInBatches(usersOnlineForCreate, 1000).Error
-								if err != nil {
-									return err
-								}
-
-								return nil
-							})
-							if err != nil {
-								zap.S().Error(err)
-							}
-						})
+							},
+						)
 					}(stream.UserId)
 				}
 				streamsWg.Wait()

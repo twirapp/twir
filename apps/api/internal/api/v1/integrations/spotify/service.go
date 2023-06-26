@@ -8,17 +8,17 @@ import (
 	"net/url"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	"github.com/satont/tsuwari/libs/integrations/spotify"
+	"github.com/satont/twir/apps/api/internal/api/v1/integrations/helpers"
+	"github.com/satont/twir/apps/api/internal/types"
+	"github.com/satont/twir/libs/integrations/spotify"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -95,20 +95,24 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 	}
 
 	data := tokensResponse{}
-	token := base64.StdEncoding.EncodeToString([]byte(
-		fmt.Sprintf(
-			"%s:%s",
-			neededIntegration.ClientID.String,
-			neededIntegration.ClientSecret.String,
+	token := base64.StdEncoding.EncodeToString(
+		[]byte(
+			fmt.Sprintf(
+				"%s:%s",
+				neededIntegration.ClientID.String,
+				neededIntegration.ClientSecret.String,
+			),
 		),
-	))
+	)
 
 	resp, err := req.R().
-		SetFormData(map[string]string{
-			"grant_type":   "authorization_code",
-			"redirect_uri": neededIntegration.RedirectURL.String,
-			"code":         dto.Code,
-		}).
+		SetFormData(
+			map[string]string{
+				"grant_type":   "authorization_code",
+				"redirect_uri": neededIntegration.RedirectURL.String,
+				"code":         dto.Code,
+			},
+		).
 		SetHeader("Authorization", fmt.Sprintf("Basic %s", token)).
 		SetResult(&data).
 		SetContentType("application/x-www-form-urlencoded").

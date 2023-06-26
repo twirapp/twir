@@ -161,7 +161,7 @@ COPY --from=dota_builder /app/libs/config /app/libs/config
 COPY --from=dota_builder /app/libs/grpc /app/libs/grpc
 COPY --from=dota_builder /app/libs/shared /app/libs/shared
 COPY --from=dota_builder /app/libs/typeorm /app/libs/typeorm
-CMD ["pnpm", "--filter=@tsuwari/dota", "start"]
+CMD ["pnpm", "--filter=@twir/dota", "start"]
 
 FROM builder as eval_builder
 RUN cd apps/eval && \
@@ -173,7 +173,7 @@ WORKDIR /app
 COPY --from=eval_builder /app/apps/eval /app/apps/eval
 COPY --from=eval_builder /app/libs/config /app/libs/config
 COPY --from=eval_builder /app/libs/grpc /app/libs/grpc
-CMD ["pnpm", "--filter=@tsuwari/eval", "start"]
+CMD ["pnpm", "--filter=@twir/eval", "start"]
 
 FROM builder as integrations_builder
 RUN cd apps/integrations && \
@@ -187,7 +187,7 @@ COPY --from=integrations_builder /app/libs/config /app/libs/config
 COPY --from=integrations_builder /app/libs/grpc /app/libs/grpc
 COPY --from=integrations_builder /app/libs/shared /app/libs/shared
 COPY --from=integrations_builder /app/libs/typeorm /app/libs/typeorm
-CMD ["pnpm", "--filter=@tsuwari/integrations", "start"]
+CMD ["pnpm", "--filter=@twir/integrations", "start"]
 
 FROM builder as ytsr_builder
 RUN cd apps/ytsr && \
@@ -199,7 +199,7 @@ WORKDIR /app
 COPY --from=ytsr_builder /app/apps/ytsr /app/apps/ytsr
 COPY --from=ytsr_builder /app/libs/grpc /app/libs/grpc
 COPY --from=ytsr_builder /app/libs/config /app/libs/config
-CMD ["pnpm", "--filter=@tsuwari/ytsr", "start"]
+CMD ["pnpm", "--filter=@twir/ytsr", "start"]
 
 ### FRONTEND
 
@@ -211,7 +211,7 @@ RUN cd frontend/dashboard && \
 FROM node_prod_base as dashboard
 WORKDIR /app
 COPY --from=dashboard_builder /app /app
-CMD ["pnpm", "--filter=@tsuwari/dashboard", "start"]
+CMD ["pnpm", "--filter=@twir/dashboard", "start"]
 
 FROM builder as landing_builder
 RUN cd frontend/landing && \
@@ -221,7 +221,7 @@ RUN cd frontend/landing && \
 FROM node_prod_base as landing
 WORKDIR /app
 COPY --from=landing_builder /app /app
-CMD ["pnpm", "--filter=@tsuwari/landing", "start"]
+CMD ["pnpm", "--filter=@twir/landing", "start"]
 
 FROM builder as public_builder
 RUN cd frontend/public && \
@@ -231,7 +231,7 @@ RUN cd frontend/public && \
 FROM node_prod_base as public
 WORKDIR /app
 COPY --from=public_builder /app /app
-CMD ["pnpm", "--filter=@tsuwari/public", "start"]
+CMD ["pnpm", "--filter=@twir/public", "start"]
 
 FROM builder as overlays_builder
 RUN cd frontend/overlays && \

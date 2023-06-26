@@ -8,11 +8,11 @@ import (
 	"github.com/go-redsync/redsync/v4"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/tokens/internal/di"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/crypto"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/twir/apps/tokens/internal/di"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/crypto"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
@@ -39,11 +39,13 @@ type TokensGrpcImpl struct {
 func NewTokens() *TokensGrpcImpl {
 	config := do.MustInvoke[cfg.Config](di.Provider)
 
-	helixClient, err := helix.NewClient(&helix.Options{
-		ClientID:     config.TwitchClientId,
-		ClientSecret: config.TwitchClientSecret,
-		RedirectURI:  config.TwitchCallbackUrl,
-	})
+	helixClient, err := helix.NewClient(
+		&helix.Options{
+			ClientID:     config.TwitchClientId,
+			ClientSecret: config.TwitchClientSecret,
+			RedirectURI:  config.TwitchCallbackUrl,
+		},
+	)
 	if err != nil {
 		panic(err)
 	}

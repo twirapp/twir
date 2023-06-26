@@ -1,5 +1,5 @@
 import { UseListStateHandlers } from '@mantine/hooks';
-import type { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
+import type { RequestedSong } from '@twir/typeorm/entities/RequestedSong';
 import { createContext, Dispatch, SetStateAction } from 'react';
 import { DraggableLocation } from 'react-beautiful-dnd';
 

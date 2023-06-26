@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { V1 } from '@tsuwari/types/api';
+import { V1 } from '@twir/types/api';
 import { useContext } from 'react';
 
 import { authFetcher, queryClient } from '@/services/api';
@@ -21,7 +21,7 @@ type UserSettings = {
 export const useTtsModule = () => {
   const dashboard = useContext(SelectedDashboardContext);
   const getUrl = () => `/api/v1/channels/${dashboard.id}/modules/tts`;
-  
+
   return {
     useInfo: () => useQuery({
       queryKey: [`${getUrl()}/info`],

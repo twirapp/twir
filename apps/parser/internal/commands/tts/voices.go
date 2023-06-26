@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/guregu/null"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 var VoicesCommand = &types.DefaultCommand{
@@ -31,14 +31,18 @@ var VoicesCommand = &types.DefaultCommand{
 		}
 
 		if channelSettings != nil && len(channelSettings.DisallowedVoices) > 0 {
-			voices = lo.Filter(voices, func(item Voice, _ int) bool {
-				return !lo.Contains(channelSettings.DisallowedVoices, item.Name)
-			})
+			voices = lo.Filter(
+				voices, func(item Voice, _ int) bool {
+					return !lo.Contains(channelSettings.DisallowedVoices, item.Name)
+				},
+			)
 		}
 
-		mapped := lo.Map(voices, func(item Voice, _ int) string {
-			return fmt.Sprintf("%s (%s)", item.Name, item.Country)
-		})
+		mapped := lo.Map(
+			voices, func(item Voice, _ int) string {
+				return fmt.Sprintf("%s (%s)", item.Name, item.Country)
+			},
+		)
 
 		result.Result = append(result.Result, strings.Join(mapped, " · "))
 

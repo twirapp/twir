@@ -1,12 +1,12 @@
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
-import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
-import { ChannelCommandGroup } from '@tsuwari/typeorm/entities/ChannelCommandGroup';
-import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
-import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
-import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
-import { ChannelRole } from '@tsuwari/typeorm/entities/ChannelRole';
-import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
-import { Event } from '@tsuwari/typeorm/entities/events/Event';
+import { ChannelCommand } from '@twir/typeorm/entities/ChannelCommand';
+import { ChannelCommandGroup } from '@twir/typeorm/entities/ChannelCommandGroup';
+import { ChannelCustomvar } from '@twir/typeorm/entities/ChannelCustomvar';
+import { ChannelGreeting } from '@twir/typeorm/entities/ChannelGreeting';
+import { ChannelKeyword } from '@twir/typeorm/entities/ChannelKeyword';
+import { ChannelRole } from '@twir/typeorm/entities/ChannelRole';
+import { ChannelTimer } from '@twir/typeorm/entities/ChannelTimer';
+import { Event } from '@twir/typeorm/entities/events/Event';
 import { useContext } from 'react';
 
 import { authFetcher } from '@/services/api';

@@ -2,9 +2,9 @@ package grpm_impl
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/eventsub/internal/client"
-	"github.com/satont/tsuwari/apps/eventsub/internal/types"
-	"github.com/satont/tsuwari/libs/grpc/generated/eventsub"
+	"github.com/satont/twir/apps/eventsub/internal/client"
+	"github.com/satont/twir/apps/eventsub/internal/types"
+	"github.com/satont/twir/libs/grpc/generated/eventsub"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -23,7 +23,9 @@ func NewGrpcImpl(eventSubClient *client.SubClient, services *types.Services, cal
 	}
 }
 
-func (c *EventSubGrpcImpl) SubscribeToEvents(ctx context.Context, msg *eventsub.SubscribeToEventsRequest) (*emptypb.Empty, error) {
+func (c *EventSubGrpcImpl) SubscribeToEvents(
+	ctx context.Context, msg *eventsub.SubscribeToEventsRequest,
+) (*emptypb.Empty, error) {
 	err := c.eventSubClient.SubscribeToNeededEvents(ctx, msg.ChannelId)
 	if err != nil {
 		return nil, err

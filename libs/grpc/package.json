@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/grpc",
+  "name": "@twir/grpc",
   "scripts": {
     "build": "rm -rf dist && ts-node --transpileOnly gen.ts && tsc"
   },

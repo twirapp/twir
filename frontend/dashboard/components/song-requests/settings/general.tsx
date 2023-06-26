@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import { IconPlus, IconX } from '@tabler/icons';
-import { SearchResult } from '@tsuwari/types/api';
+import { SearchResult } from '@twir/types/api';
 import { useTranslation } from 'next-i18next';
 import React, { useEffect, useState } from 'react';
 

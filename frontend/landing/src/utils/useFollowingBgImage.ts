@@ -1,4 +1,4 @@
-import { cssPX, cssURL } from '@tsuwari/ui-components';
+import { cssPX, cssURL } from '@twir/ui-components';
 import { useImage, useMouseInElement, type MaybeElementRef } from '@vueuse/core';
 import { computed, ComputedRef, StyleValue } from 'vue';
 

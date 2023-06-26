@@ -5,22 +5,22 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	"github.com/satont/tsuwari/apps/parser/internal/types/services"
+	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types/services"
 	"math"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satont/tsuwari/libs/grpc/generated/ytsr"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/libs/grpc/generated/ytsr"
+	"github.com/satont/twir/libs/twitch"
 	"github.com/valyala/fasttemplate"
 	"go.uber.org/zap"
 
-	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/nicklaw5/helix/v2"
 
@@ -28,7 +28,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/samber/lo"
-	youtube "github.com/satont/tsuwari/libs/types/types/api/modules"
+	youtube "github.com/satont/twir/libs/types/types/api/modules"
 )
 
 type ReqError struct {

@@ -3,11 +3,11 @@ package handler
 import (
 	"context"
 
-	"github.com/satont/tsuwari/apps/timers/internal/types"
+	"github.com/satont/twir/apps/timers/internal/types"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/generated/parser"
 
 	"github.com/go-co-op/gocron"
 	"go.uber.org/zap"
@@ -71,16 +71,18 @@ func (c *Handler) Handle(j gocron.Job) {
 		return
 	}
 
-	req, err := c.parserGrpc.ParseTextResponse(context.Background(), &parser.ParseTextRequestData{
-		Sender: &parser.Sender{
-			Id:          "",
-			Name:        "bot",
-			DisplayName: "Bot",
-			Badges:      []string{"BROADCASTER"},
+	req, err := c.parserGrpc.ParseTextResponse(
+		context.Background(), &parser.ParseTextRequestData{
+			Sender: &parser.Sender{
+				Id:          "",
+				Name:        "bot",
+				DisplayName: "Bot",
+				Badges:      []string{"BROADCASTER"},
+			},
+			Channel: &parser.Channel{Id: stream.UserId, Name: stream.UserLogin},
+			Message: &parser.Message{Text: timerResponse.Text},
 		},
-		Channel: &parser.Channel{Id: stream.UserId, Name: stream.UserLogin},
-		Message: &parser.Message{Text: timerResponse.Text},
-	})
+	)
 	if err != nil {
 		return
 	}
@@ -88,12 +90,14 @@ func (c *Handler) Handle(j gocron.Job) {
 	for i := 0; i < len(req.Responses); i++ {
 		message := req.Responses[i]
 
-		c.botsGrpc.SendMessage(context.Background(), &bots.SendMessageRequest{
-			ChannelId:   stream.UserId,
-			ChannelName: &stream.UserLogin,
-			Message:     message,
-			IsAnnounce:  &timerResponse.IsAnnounce,
-		})
+		c.botsGrpc.SendMessage(
+			context.Background(), &bots.SendMessageRequest{
+				ChannelId:   stream.UserId,
+				ChannelName: &stream.UserLogin,
+				Message:     message,
+				IsAnnounce:  &timerResponse.IsAnnounce,
+			},
+		)
 	}
 
 	nextIndex := t.SendIndex + 1

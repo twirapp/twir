@@ -1,5 +1,5 @@
 import { Global, Injectable, Module } from '@nestjs/common';
-import { config } from '@tsuwari/config';
+import { config } from '@twir/config';
 import Redis from 'ioredis';
 
 @Global()

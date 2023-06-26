@@ -1,4 +1,4 @@
-module github.com/satont/tsuwari/apps/parser
+module github.com/satont/twir/apps/parser
 
 go 1.20
 
@@ -72,16 +72,16 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
 )
 
-replace github.com/satont/tsuwari/libs/integrations/spotify => ../../libs/integrations/spotify
+replace github.com/satont/twir/libs/integrations/spotify => ../../libs/integrations/spotify
 
-replace github.com/satont/tsuwari/libs/config => ../../libs/config
+replace github.com/satont/twir/libs/config => ../../libs/config
 
-replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
+replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 
-replace github.com/satont/tsuwari/libs/types => ../../libs/types
+replace github.com/satont/twir/libs/types => ../../libs/types
 
-replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+replace github.com/satont/twir/libs/grpc => ../../libs/grpc
 
-replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
+replace github.com/satont/twir/libs/twitch => ../../libs/twitch
 
-replace github.com/satont/tsuwari/libs/gopool => ../../libs/gopool
+replace github.com/satont/twir/libs/gopool => ../../libs/gopool

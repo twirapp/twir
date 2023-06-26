@@ -1,5 +1,5 @@
 import { Grid } from '@mantine/core';
-import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
+import { ChannelModerationSetting } from '@twir/typeorm/entities/ChannelModerationSetting';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
 

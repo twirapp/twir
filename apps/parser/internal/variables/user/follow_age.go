@@ -6,16 +6,18 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/pkg/helpers"
+	"github.com/satont/twir/libs/twitch"
 )
 
 var FollowAge = &types.Variable{
 	Name:         "user.followage",
 	Description:  lo.ToPtr(`User followage duration in "1y 3mo 22d" format`),
 	CommandsOnly: true,
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		twitchClient, err := twitch.NewAppClientWithContext(
 			ctx,
 			*parseCtx.Services.Config,
@@ -31,9 +33,11 @@ var FollowAge = &types.Variable{
 		if parseCtx.Text != nil {
 			userName := strings.ReplaceAll(*parseCtx.Text, "@", "")
 
-			users, err := twitchClient.GetUsers(&helix.UsersParams{
-				Logins: []string{userName},
-			})
+			users, err := twitchClient.GetUsers(
+				&helix.UsersParams{
+					Logins: []string{userName},
+				},
+			)
 
 			if err != nil || len(users.Data.Users) == 0 {
 				result.Result = "Cannot find user " + *parseCtx.Text + " on twitch."
@@ -52,13 +56,15 @@ var FollowAge = &types.Variable{
 		if follow == nil {
 			result.Result = "not a follower"
 		} else {
-			result.Result = helpers.Duration(follow.FollowedAt, &helpers.DurationOpts{
-				UseUtc: true,
-				Hide: helpers.DurationOptsHide{
-					Minutes: true,
-					Seconds: true,
+			result.Result = helpers.Duration(
+				follow.FollowedAt, &helpers.DurationOpts{
+					UseUtc: true,
+					Hide: helpers.DurationOptsHide{
+						Minutes: true,
+						Seconds: true,
+					},
 				},
-			})
+			)
 		}
 
 		return result, nil

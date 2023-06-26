@@ -1,8 +1,8 @@
 import { ActionIcon, Badge, Button, Flex, Switch, Table, Text, TextInput } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons';
-import type { Event } from '@tsuwari/typeorm/entities/events/Event';
-import { EventType } from '@tsuwari/typeorm/entities/events/Event';
-import { OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
+import type { Event } from '@twir/typeorm/entities/events/Event';
+import { EventType } from '@twir/typeorm/entities/events/Event';
+import { OperationType } from '@twir/typeorm/entities/events/EventOperation';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';

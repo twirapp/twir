@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/shared",
+  "name": "@twir/shared",
   "private": true,
   "type": "module",
   "module": "./dist/index.js",
@@ -14,8 +14,8 @@
     "@nestjs/common": "9.2.1",
     "@nestjs/core": "^9.2.1",
     "@nestjs/microservices": "9.2.1",
-    "@tsuwari/config": "workspace:*",
-    "@tsuwari/typeorm": "workspace:*",
+    "@twir/config": "workspace:*",
+    "@twir/typeorm": "workspace:*",
     "@twurple/api": "5.2.7",
     "@twurple/auth": "5.2.7",
     "@twurple/common": "5.2.7",

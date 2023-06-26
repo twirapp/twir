@@ -3,17 +3,17 @@ package variables
 import (
 	"context"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
 	"net/http"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/parser"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )

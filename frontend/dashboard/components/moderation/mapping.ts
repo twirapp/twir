@@ -7,7 +7,7 @@ import {
   IconPlaylistX,
   IconLambda,
 } from '@tabler/icons';
-import type { SettingsType } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
+import type { SettingsType } from '@twir/typeorm/entities/ChannelModerationSetting';
 
 export const typesMapping: Record<
   keyof typeof SettingsType,

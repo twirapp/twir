@@ -2,10 +2,10 @@ package grpc_impl
 
 import (
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/events/internal"
-	processor_module "github.com/satont/tsuwari/apps/events/internal/grpc_impl/processor"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/events/internal"
+	processor_module "github.com/satont/twir/apps/events/internal/grpc_impl/processor"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 	"sort"
 	"strconv"
 	"strings"
@@ -122,16 +122,20 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, event mod
 		}
 	}
 
-	processor := processor_module.NewProcessor(processor_module.Opts{
-		Services:          c.services,
-		StreamerApiClient: streamerApiClient,
-		Data:              &data,
-		ChannelID:         channelId,
-	})
+	processor := processor_module.NewProcessor(
+		processor_module.Opts{
+			Services:          c.services,
+			StreamerApiClient: streamerApiClient,
+			Data:              &data,
+			ChannelID:         channelId,
+		},
+	)
 
-	sort.Slice(event.Operations, func(i, j int) bool {
-		return event.Operations[i].Order < event.Operations[j].Order
-	})
+	sort.Slice(
+		event.Operations, func(i, j int) bool {
+			return event.Operations[i].Order < event.Operations[j].Order
+		},
+	)
 
 	data.PrevOperation = &internal.DataFromPrevOperation{}
 

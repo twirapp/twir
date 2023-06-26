@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/olahol/melody"
-	"github.com/satont/tsuwari/apps/websockets/types"
-	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
+	"github.com/satont/twir/apps/websockets/types"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -21,10 +21,12 @@ func (c *TTS) Skip(ctx context.Context, msg *websockets.TTSSkipMessage) (*emptyp
 		return nil, err
 	}
 
-	err = c.manager.BroadcastFilter(bytes, func(session *melody.Session) bool {
-		userId, ok := session.Get("userId")
-		return ok && userId.(string) == msg.ChannelId
-	})
+	err = c.manager.BroadcastFilter(
+		bytes, func(session *melody.Session) bool {
+			userId, ok := session.Get("userId")
+			return ok && userId.(string) == msg.ChannelId
+		},
+	)
 
 	if err != nil {
 		c.services.Logger.Error(err)

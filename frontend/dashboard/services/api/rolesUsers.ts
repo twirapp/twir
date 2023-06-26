@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ChannelRoleUser } from '@tsuwari/typeorm/entities/ChannelRoleUser';
+import { ChannelRoleUser } from '@twir/typeorm/entities/ChannelRoleUser';
 import { useContext } from 'react';
 
 import { authFetcher } from '@/services/api/fetchWrappers';

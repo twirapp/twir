@@ -3,8 +3,8 @@ package youtube
 import (
 	"encoding/json"
 	"github.com/olahol/melody"
-	"github.com/satont/tsuwari/apps/websockets/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/websockets/types"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 func (c *YouTube) handleConnect(session *melody.Session) {
@@ -42,8 +42,10 @@ func (c *YouTube) handleConnect(session *melody.Session) {
 		return
 	}
 
-	c.manager.BroadcastFilter(bytes, func(session *melody.Session) bool {
-		id, ok := session.Get("userId")
-		return ok && id.(string) == userId.(string)
-	})
+	c.manager.BroadcastFilter(
+		bytes, func(session *melody.Session) bool {
+			id, ok := session.Get("userId")
+			return ok && id.(string) == userId.(string)
+		},
+	)
 }

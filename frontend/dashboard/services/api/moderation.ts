@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
+import { ChannelModerationSetting } from '@twir/typeorm/entities/ChannelModerationSetting';
 import { getCookie } from 'cookies-next';
 import { useContext } from 'react';
 

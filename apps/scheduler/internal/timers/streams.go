@@ -9,9 +9,9 @@ import (
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/scheduler/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/scheduler/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 	"go.uber.org/zap"
 )
 
@@ -65,13 +65,17 @@ func processStreams(services *types.Services) {
 	for _, chunk := range chunks {
 		go func(chunk []model.Channels) {
 			defer wg.Done()
-			usersIds := lo.Map(chunk, func(channel model.Channels, _ int) string {
-				return channel.ID
-			})
+			usersIds := lo.Map(
+				chunk, func(channel model.Channels, _ int) string {
+					return channel.ID
+				},
+			)
 
-			streams, err := twitchClient.GetStreams(&helix.StreamsParams{
-				UserIDs: usersIds,
-			})
+			streams, err := twitchClient.GetStreams(
+				&helix.StreamsParams{
+					UserIDs: usersIds,
+				},
+			)
 
 			if err != nil || streams.ErrorMessage != "" {
 				zap.S().Error(err)
@@ -79,12 +83,16 @@ func processStreams(services *types.Services) {
 			}
 
 			for _, channel := range chunk {
-				twitchStream, twitchStreamExists := lo.Find(streams.Data.Streams, func(stream helix.Stream) bool {
-					return stream.UserID == channel.ID
-				})
-				_, dbStreamExists := lo.Find(existedStreams, func(stream model.ChannelsStreams) bool {
-					return stream.UserId == channel.ID
-				})
+				twitchStream, twitchStreamExists := lo.Find(
+					streams.Data.Streams, func(stream helix.Stream) bool {
+						return stream.UserID == channel.ID
+					},
+				)
+				_, dbStreamExists := lo.Find(
+					existedStreams, func(stream model.ChannelsStreams) bool {
+						return stream.UserId == channel.ID
+					},
+				)
 
 				tags := &pq.StringArray{}
 				for _, tag := range twitchStream.Tags {
@@ -126,10 +134,12 @@ func processStreams(services *types.Services) {
 						return
 					}
 
-					bytes, err := json.Marshal(&streamOnlineMessage{
-						StreamID:  channelStream.ID,
-						ChannelID: channelStream.UserId,
-					})
+					bytes, err := json.Marshal(
+						&streamOnlineMessage{
+							StreamID:  channelStream.ID,
+							ChannelID: channelStream.UserId,
+						},
+					)
 					if err != nil {
 						zap.S().Error(err)
 						return
@@ -145,9 +155,11 @@ func processStreams(services *types.Services) {
 						return
 					}
 
-					bytes, err := json.Marshal(&streamOfflineMessage{
-						ChannelID: channelStream.UserId,
-					})
+					bytes, err := json.Marshal(
+						&streamOfflineMessage{
+							ChannelID: channelStream.UserId,
+						},
+					)
 					if err != nil {
 						zap.S().Error(err)
 						return

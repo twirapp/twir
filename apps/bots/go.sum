@@ -261,8 +261,8 @@ github.com/rogpeppe/go-internal v1.9.0/go.mod h1:WtVeX8xhTBvf0smdhujwtBcq4Qrzq/f
 github.com/samber/do v1.6.0 h1:Jy/N++BXINDB6lAx5wBlbpHlUdl0FKpLWgGEV9YWqaU=
 github.com/samber/do v1.6.0/go.mod h1:DWqBvumy8dyb2vEnYZE7D7zaVEB64J45B0NjTlY/M4k=
 github.com/samber/lo v1.38.1 h1:j2XEAqXKb09Am4ebOg31SpvzUTTs6EN3VfgeLUhPdXM=
-github.com/satont/tsuwari/libs/types v0.0.0-20230501072144-eb4ca703ed7c h1:j627n42G/LC1JbaRSM+BW+Znb12hWFrnkW1kGcq3zxY=
-github.com/satont/tsuwari/libs/types v0.0.0-20230501072144-eb4ca703ed7c/go.mod h1:3EBXEmbbzZiiuy6/Qp482LJD3MMAEH4GYFbG8XUwH8o=
+github.com/satont/twir/libs/types v0.0.0-20230501072144-eb4ca703ed7c h1:j627n42G/LC1JbaRSM+BW+Znb12hWFrnkW1kGcq3zxY=
+github.com/satont/twir/libs/types v0.0.0-20230501072144-eb4ca703ed7c/go.mod h1:3EBXEmbbzZiiuy6/Qp482LJD3MMAEH4GYFbG8XUwH8o=
 github.com/satori/go.uuid v1.2.0 h1:0uYX9dsZ2yD7q2RtLRtPSdGDWzjeM3TbMJP9utgA0ww=
 github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdhQKdks0=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=

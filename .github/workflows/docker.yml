@@ -37,7 +37,7 @@ jobs:
         id: prep
         run: |
           TAG=$(echo $GITHUB_SHA | head -c7)
-          IMAGE=${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}
+          IMAGE=${{ secrets.DOCKER_REGISTRY }}/twir/${{ matrix.application }}
           echo ::set-output name=tagged_image::${IMAGE}:${TAG}
           echo ::set-output name=tag::${TAG}
 
@@ -72,7 +72,7 @@ jobs:
           file: ./Dockerfile
           target: ${{ matrix.application }}
           tags: |
-            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}:latest
+            ${{ secrets.DOCKER_REGISTRY }}/twir/${{ matrix.application }}:latest
 
   frontend:
     runs-on: ubuntu-latest
@@ -92,7 +92,7 @@ jobs:
         id: prep
         run: |
           TAG=$(echo $GITHUB_SHA | head -c7)
-          IMAGE=${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}
+          IMAGE=${{ secrets.DOCKER_REGISTRY }}/twir/${{ matrix.application }}
           echo ::set-output name=tagged_image::${IMAGE}:${TAG}
           echo ::set-output name=tag::${TAG}
 
@@ -127,7 +127,7 @@ jobs:
           file: ./Dockerfile
           target: ${{ matrix.application }}
           tags: |
-            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/${{ matrix.application }}:latest
+            ${{ secrets.DOCKER_REGISTRY }}/twir/${{ matrix.application }}:latest
 
   postgres-backup:
     name: Build postgres-backup
@@ -139,7 +139,7 @@ jobs:
         id: prep
         run: |
           TAG=$(echo $GITHUB_SHA | head -c7)
-          IMAGE=${{ secrets.DOCKER_REGISTRY }}/tsuwari/postgres-backup
+          IMAGE=${{ secrets.DOCKER_REGISTRY }}/twir/postgres-backup
           echo ::set-output name=tagged_image::${IMAGE}:${TAG}
           echo ::set-output name=tag::${TAG}
 
@@ -171,4 +171,4 @@ jobs:
           push: true
           file: ./tools/pg-backup/Dockerfile
           tags: |
-            ${{ secrets.DOCKER_REGISTRY }}/tsuwari/postgres-backup:latest
+            ${{ secrets.DOCKER_REGISTRY }}/twir/postgres-backup:latest

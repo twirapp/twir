@@ -1,4 +1,4 @@
-module github.com/satont/tsuwari/libs/grpc
+module github.com/satont/twir/libs/grpc
 
 go 1.20
 

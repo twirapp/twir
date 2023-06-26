@@ -6,15 +6,15 @@ import (
 	"strings"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	config "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	config "github.com/satont/twir/libs/config"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/types"
 )
 
 var AttachUser = func(services types.Services) func(c *fiber.Ctx) error {
@@ -86,13 +86,15 @@ func ExtractTokenFromHeader(t string) (*jwt.Token, error) {
 
 	cfg := do.MustInvoke[config.Config](di.Provider)
 
-	token, err := jwt.Parse(tokenSlice[1], func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
+	token, err := jwt.Parse(
+		tokenSlice[1], func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			}
 
-		return []byte(cfg.JwtAccessSecret), nil
-	})
+			return []byte(cfg.JwtAccessSecret), nil
+		},
+	)
 
 	return token, err
 }

@@ -6,7 +6,7 @@ import (
 
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 type betterTTVEmote struct {
@@ -21,7 +21,9 @@ type betterTTVResponse struct {
 var BetterTTV = &types.Variable{
 	Name:        "emotes.bttv",
 	Description: lo.ToPtr("Emotes of channel from https://betterttv.com/"),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		var data *betterTTVResponse
@@ -38,12 +40,16 @@ var BetterTTV = &types.Variable{
 
 		emotes := make([]string, 0, len(data.ChannelEmotes)+len(data.SharedEmotes))
 
-		mappedChannelEmotes := lo.Map(data.ChannelEmotes, func(e *betterTTVEmote, _ int) string {
-			return e.Code
-		})
-		mappedSharedEmotes := lo.Map(data.SharedEmotes, func(e *betterTTVEmote, _ int) string {
-			return e.Code
-		})
+		mappedChannelEmotes := lo.Map(
+			data.ChannelEmotes, func(e *betterTTVEmote, _ int) string {
+				return e.Code
+			},
+		)
+		mappedSharedEmotes := lo.Map(
+			data.SharedEmotes, func(e *betterTTVEmote, _ int) string {
+				return e.Code
+			},
+		)
 
 		emotes = append(emotes, mappedChannelEmotes...)
 		emotes = append(emotes, mappedSharedEmotes...)

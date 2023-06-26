@@ -7,26 +7,26 @@ import (
 	"time"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/bots/internal/di"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/twir/apps/bots/internal/di"
+	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/samber/lo"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/parser"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/libs/twitch"
 
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/tsuwari/apps/bots/internal/bots/handlers"
-	"github.com/satont/tsuwari/apps/bots/pkg/utils"
-	"github.com/satont/tsuwari/apps/bots/types"
+	"github.com/satont/twir/apps/bots/internal/bots/handlers"
+	"github.com/satont/twir/apps/bots/pkg/utils"
+	"github.com/satont/twir/apps/bots/types"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -54,9 +54,11 @@ func newBot(opts *ClientOpts) *types.BotClient {
 
 	twitchClient, err := twitch.NewBotClient(opts.Model.ID, *opts.Cfg, tokensGrpc)
 
-	meReq, err := twitchClient.GetUsers(&helix.UsersParams{
-		IDs: []string{opts.Model.ID},
-	})
+	meReq, err := twitchClient.GetUsers(
+		&helix.UsersParams{
+			IDs: []string{opts.Model.ID},
+		},
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -72,14 +74,16 @@ func newBot(opts *ClientOpts) *types.BotClient {
 
 	me := meReq.Data.Users[0]
 
-	messagesCounter := promauto.NewCounter(prometheus.CounterOpts{
-		Name: "bots_messages_counter",
-		Help: "The total number of processed messages",
-		ConstLabels: prometheus.Labels{
-			"botName": meReq.Data.Users[0].Login,
-			"botId":   meReq.Data.Users[0].ID,
+	messagesCounter := promauto.NewCounter(
+		prometheus.CounterOpts{
+			Name: "bots_messages_counter",
+			Help: "The total number of processed messages",
+			ConstLabels: prometheus.Labels{
+				"botName": meReq.Data.Users[0].Login,
+				"botId":   meReq.Data.Users[0].ID,
+			},
 		},
-	})
+	)
 
 	prometheus.Register(messagesCounter)
 
@@ -87,20 +91,24 @@ func newBot(opts *ClientOpts) *types.BotClient {
 	client.TwitchUser = &me
 	client.Client.Capabilities = []string{irc.TagsCapability, irc.MembershipCapability, irc.CommandsCapability}
 
-	botHandlers := handlers.CreateHandlers(&handlers.HandlersOpts{
-		DB:         opts.DB,
-		Logger:     opts.Logger,
-		Cfg:        opts.Cfg,
-		BotClient:  &client,
-		ParserGrpc: opts.ParserGrpc,
-		EventsGrpc: eventsGrpc,
-	})
+	botHandlers := handlers.CreateHandlers(
+		&handlers.HandlersOpts{
+			DB:         opts.DB,
+			Logger:     opts.Logger,
+			Cfg:        opts.Cfg,
+			BotClient:  &client,
+			ParserGrpc: opts.ParserGrpc,
+			EventsGrpc: eventsGrpc,
+		},
+	)
 
 	go func() {
 		for {
-			token, err := tokensGrpc.RequestBotToken(context.Background(), &tokens.GetBotTokenRequest{
-				BotId: opts.Model.ID,
-			})
+			token, err := tokensGrpc.RequestBotToken(
+				context.Background(), &tokens.GetBotTokenRequest{
+					BotId: opts.Model.ID,
+				},
+			)
 
 			twitchClient.SetUserAccessToken(token.AccessToken)
 
@@ -110,9 +118,11 @@ func newBot(opts *ClientOpts) *types.BotClient {
 
 			joinChannels(opts.DB, opts.Cfg, opts.Logger, &client)
 			client.Client.SetIRCToken(fmt.Sprintf("oauth:%s", token.AccessToken))
-			meReq, err := twitchClient.GetUsers(&helix.UsersParams{
-				IDs: []string{opts.Model.ID},
-			})
+			meReq, err := twitchClient.GetUsers(
+				&helix.UsersParams{
+					IDs: []string{opts.Model.ID},
+				},
+			)
 			if err != nil {
 				return
 			}
@@ -123,65 +133,79 @@ func newBot(opts *ClientOpts) *types.BotClient {
 
 			client.OnConnect(botHandlers.OnConnect)
 			client.OnSelfJoinMessage(botHandlers.OnSelfJoin)
-			client.OnUserStateMessage(func(message irc.UserStateMessage) {
-				defer messagesCounter.Inc()
-				if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
-					return
-				}
-				botHandlers.OnUserStateMessage(message)
-			})
-			client.OnUserNoticeMessage(func(message irc.UserNoticeMessage) {
-				defer messagesCounter.Inc()
-				if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
-					return
-				}
-				botHandlers.OnMessage(&handlers.Message{
-					ID: message.ID,
-					Channel: handlers.MessageChannel{
-						ID:   message.RoomID,
-						Name: message.Channel,
-					},
-					User: handlers.MessageUser{
-						ID:          message.User.ID,
-						Name:        message.User.Name,
-						DisplayName: message.User.DisplayName,
-						Badges:      message.User.Badges,
-					},
-					Message: message.Message,
-					Emotes:  message.Emotes,
-					Tags:    message.Tags,
-				})
-			})
-			client.OnPrivateMessage(func(message irc.PrivateMessage) {
-				defer messagesCounter.Inc()
-				if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
-					return
-				}
-				botHandlers.OnMessage(&handlers.Message{
-					ID: message.ID,
-					Channel: handlers.MessageChannel{
-						ID:   message.RoomID,
-						Name: message.Channel,
-					},
-					User: handlers.MessageUser{
-						ID:          message.User.ID,
-						Name:        message.User.Name,
-						DisplayName: message.User.DisplayName,
-						Badges:      message.User.Badges,
-					},
-					Message: message.Message,
-					Emotes:  message.Emotes,
-					Tags:    message.Tags,
-				})
-			})
-			client.OnClearChatMessage(func(message irc.ClearChatMessage) {
-				if message.TargetUserID != "" {
-					return
-				}
-				eventsGrpc.ChatClear(context.Background(), &events.ChatClearMessage{
-					BaseInfo: &events.BaseInfo{ChannelId: message.RoomID},
-				})
-			})
+			client.OnUserStateMessage(
+				func(message irc.UserStateMessage) {
+					defer messagesCounter.Inc()
+					if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
+						return
+					}
+					botHandlers.OnUserStateMessage(message)
+				},
+			)
+			client.OnUserNoticeMessage(
+				func(message irc.UserNoticeMessage) {
+					defer messagesCounter.Inc()
+					if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
+						return
+					}
+					botHandlers.OnMessage(
+						&handlers.Message{
+							ID: message.ID,
+							Channel: handlers.MessageChannel{
+								ID:   message.RoomID,
+								Name: message.Channel,
+							},
+							User: handlers.MessageUser{
+								ID:          message.User.ID,
+								Name:        message.User.Name,
+								DisplayName: message.User.DisplayName,
+								Badges:      message.User.Badges,
+							},
+							Message: message.Message,
+							Emotes:  message.Emotes,
+							Tags:    message.Tags,
+						},
+					)
+				},
+			)
+			client.OnPrivateMessage(
+				func(message irc.PrivateMessage) {
+					defer messagesCounter.Inc()
+					if message.User.ID == me.ID && opts.Cfg.AppEnv != "development" {
+						return
+					}
+					botHandlers.OnMessage(
+						&handlers.Message{
+							ID: message.ID,
+							Channel: handlers.MessageChannel{
+								ID:   message.RoomID,
+								Name: message.Channel,
+							},
+							User: handlers.MessageUser{
+								ID:          message.User.ID,
+								Name:        message.User.Name,
+								DisplayName: message.User.DisplayName,
+								Badges:      message.User.Badges,
+							},
+							Message: message.Message,
+							Emotes:  message.Emotes,
+							Tags:    message.Tags,
+						},
+					)
+				},
+			)
+			client.OnClearChatMessage(
+				func(message irc.ClearChatMessage) {
+					if message.TargetUserID != "" {
+						return
+					}
+					eventsGrpc.ChatClear(
+						context.Background(), &events.ChatClearMessage{
+							BaseInfo: &events.BaseInfo{ChannelId: message.RoomID},
+						},
+					)
+				},
+			)
 			client.OnUserNoticeMessage(botHandlers.OnNotice)
 			client.OnUserJoinMessage(botHandlers.OnUserJoin)
 
@@ -228,13 +252,17 @@ func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *t
 	for _, chunk := range channelsChunks {
 		go func(chunk []model.Channels) {
 			defer wg.Done()
-			usersIds := lo.Map(chunk, func(item model.Channels, _ int) string {
-				return item.ID
-			})
+			usersIds := lo.Map(
+				chunk, func(item model.Channels, _ int) string {
+					return item.ID
+				},
+			)
 
-			twitchUsersReq, err := twitchClient.GetUsers(&helix.UsersParams{
-				IDs: usersIds,
-			})
+			twitchUsersReq, err := twitchClient.GetUsers(
+				&helix.UsersParams{
+					IDs: usersIds,
+				},
+			)
 			if err != nil {
 				panic(err)
 			}
@@ -261,10 +289,12 @@ func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *t
 			isMod := false
 
 			if dbUser.ID != "" && dbUser.Token != nil {
-				botModRequest, err := twitchClient.GetModerators(&helix.GetModeratorsParams{
-					BroadcasterID: u.ID,
-					UserIDs:       []string{botClient.Model.ID},
-				})
+				botModRequest, err := twitchClient.GetModerators(
+					&helix.GetModeratorsParams{
+						BroadcasterID: u.ID,
+						UserIDs:       []string{botClient.Model.ID},
+					},
+				)
 
 				if err != nil || botModRequest.ResponseCommon.StatusCode != 200 {
 					isMod = false

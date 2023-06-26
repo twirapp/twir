@@ -5,7 +5,7 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 func (c *Processor) AllowOrRemoveAllowCommandToUser(operation model.EventOperationType, commandId, input string) error {
@@ -15,9 +15,11 @@ func (c *Processor) AllowOrRemoveAllowCommandToUser(operation model.EventOperati
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}
 
-	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
-		Logins: []string{hydratedName},
-	})
+	user, err := c.streamerApiClient.GetUsers(
+		&helix.UsersParams{
+			Logins: []string{hydratedName},
+		},
+	)
 
 	if err != nil || user.ErrorMessage != "" || len(user.Data.Users) == 0 {
 		if err != nil {
@@ -34,17 +36,21 @@ func (c *Processor) AllowOrRemoveAllowCommandToUser(operation model.EventOperati
 	}
 
 	if operation == model.OperationAllowCommandToUser {
-		if lo.SomeBy(command.AllowedUsersIDS, func(item string) bool {
-			return item == user.Data.Users[0].ID
-		}) {
+		if lo.SomeBy(
+			command.AllowedUsersIDS, func(item string) bool {
+				return item == user.Data.Users[0].ID
+			},
+		) {
 			return InternalError
 		}
 
 		command.AllowedUsersIDS = append(command.AllowedUsersIDS, user.Data.Users[0].ID)
 	} else {
-		command.AllowedUsersIDS = lo.Filter(command.AllowedUsersIDS, func(item string, _ int) bool {
-			return item != user.Data.Users[0].ID
-		})
+		command.AllowedUsersIDS = lo.Filter(
+			command.AllowedUsersIDS, func(item string, _ int) bool {
+				return item != user.Data.Users[0].ID
+			},
+		)
 	}
 
 	err = c.services.DB.Save(command).Error
@@ -59,9 +65,11 @@ func (c *Processor) DenyOrRemoveDenyCommandToUser(operation model.EventOperation
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}
 
-	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
-		Logins: []string{hydratedName},
-	})
+	user, err := c.streamerApiClient.GetUsers(
+		&helix.UsersParams{
+			Logins: []string{hydratedName},
+		},
+	)
 
 	if err != nil || user.ErrorMessage != "" || len(user.Data.Users) == 0 {
 		if err != nil {
@@ -78,17 +86,21 @@ func (c *Processor) DenyOrRemoveDenyCommandToUser(operation model.EventOperation
 	}
 
 	if operation == model.OperationDenyCommandToUser {
-		if lo.SomeBy(command.DeniedUsersIDS, func(item string) bool {
-			return item == user.Data.Users[0].ID
-		}) {
+		if lo.SomeBy(
+			command.DeniedUsersIDS, func(item string) bool {
+				return item == user.Data.Users[0].ID
+			},
+		) {
 			return InternalError
 		}
 
 		command.DeniedUsersIDS = append(command.DeniedUsersIDS, user.Data.Users[0].ID)
 	} else {
-		command.DeniedUsersIDS = lo.Filter(command.DeniedUsersIDS, func(item string, _ int) bool {
-			return item != user.Data.Users[0].ID
-		})
+		command.DeniedUsersIDS = lo.Filter(
+			command.DeniedUsersIDS, func(item string, _ int) bool {
+				return item != user.Data.Users[0].ID
+			},
+		)
 	}
 
 	err = c.services.DB.Save(command).Error

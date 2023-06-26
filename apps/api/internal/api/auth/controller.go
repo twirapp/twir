@@ -8,15 +8,15 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cache"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/twir/apps/api/internal/di"
+	cfg "github.com/satont/twir/libs/config"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/tsuwari/apps/api/internal/middlewares"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/middlewares"
+	"github.com/satont/twir/apps/api/internal/types"
 )
 
 var scopes = []string{
@@ -44,13 +44,15 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Post("token", refreshToken(services))
 	middleware.Post("logout", middlewares.AttachUser(services), logout(services))
 
-	profileCache := cache.New(cache.Config{
-		Expiration: 24 * time.Hour,
-		Storage:    services.RedisStorage,
-		KeyGenerator: func(c *fiber.Ctx) string {
-			return fmt.Sprintf("fiber:cache:auth:profile:%s", c.Locals("dbUser").(model.Users).ID)
+	profileCache := cache.New(
+		cache.Config{
+			Expiration: 24 * time.Hour,
+			Storage:    services.RedisStorage,
+			KeyGenerator: func(c *fiber.Ctx) string {
+				return fmt.Sprintf("fiber:cache:auth:profile:%s", c.Locals("dbUser").(model.Users).ID)
+			},
 		},
-	})
+	)
 	middleware.Get(
 		"profile",
 		checkScopes,
@@ -59,13 +61,15 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 		getProfile(services),
 	)
 
-	dashboardsCache := cache.New(cache.Config{
-		Expiration: 10 * time.Minute,
-		Storage:    services.RedisStorage,
-		KeyGenerator: func(c *fiber.Ctx) string {
-			return fmt.Sprintf("fiber:cache:auth:profile:dashboards:%s", c.Locals("dbUser").(model.Users).ID)
+	dashboardsCache := cache.New(
+		cache.Config{
+			Expiration: 10 * time.Minute,
+			Storage:    services.RedisStorage,
+			KeyGenerator: func(c *fiber.Ctx) string {
+				return fmt.Sprintf("fiber:cache:auth:profile:dashboards:%s", c.Locals("dbUser").(model.Users).ID)
+			},
 		},
-	})
+	)
 	middleware.Get(
 		"profile/dashboards",
 		checkScopes,
@@ -83,10 +87,12 @@ func get() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		config := do.MustInvoke[cfg.Config](di.Provider)
 
-		twitchClient, err := helix.NewClient(&helix.Options{
-			ClientID:    config.TwitchClientId,
-			RedirectURI: config.TwitchCallbackUrl,
-		})
+		twitchClient, err := helix.NewClient(
+			&helix.Options{
+				ClientID:    config.TwitchClientId,
+				RedirectURI: config.TwitchCallbackUrl,
+			},
+		)
 		if err != nil {
 			return fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
@@ -96,12 +102,14 @@ func get() func(c *fiber.Ctx) error {
 			return c.JSON(fiber.Map{"message": "state is missed"})
 		}
 
-		url := twitchClient.GetAuthorizationURL(&helix.AuthorizationURLParams{
-			ResponseType: "code",
-			Scopes:       scopes,
-			State:        state,
-			ForceVerify:  false,
-		})
+		url := twitchClient.GetAuthorizationURL(
+			&helix.AuthorizationURLParams{
+				ResponseType: "code",
+				Scopes:       scopes,
+				State:        state,
+				ForceVerify:  false,
+			},
+		)
 
 		return c.Redirect(url)
 	}
@@ -126,13 +134,15 @@ func getTokens(services types.Services) func(c *fiber.Ctx) error {
 			"GET",
 		)
 
-		c.Cookie(&fiber.Cookie{
-			Name:     "refresh_token",
-			Value:    tokens.RefreshToken,
-			HTTPOnly: true,
-			Expires:  time.Now().UTC().Add(refreshLifeTime),
-			SameSite: "lax",
-		})
+		c.Cookie(
+			&fiber.Cookie{
+				Name:     "refresh_token",
+				Value:    tokens.RefreshToken,
+				HTTPOnly: true,
+				Expires:  time.Now().UTC().Add(refreshLifeTime),
+				SameSite: "lax",
+			},
+		)
 		return c.JSON(fiber.Map{"accessToken": tokens.AccessToken})
 	}
 }
@@ -162,13 +172,15 @@ func logout(services types.Services) func(c *fiber.Ctx) error {
 			"GET",
 		)
 
-		c.Cookie(&fiber.Cookie{
-			Name:     "refresh_token",
-			Value:    "",
-			HTTPOnly: true,
-			Expires:  time.Now().UTC(),
-			SameSite: "lax",
-		})
+		c.Cookie(
+			&fiber.Cookie{
+				Name:     "refresh_token",
+				Value:    "",
+				HTTPOnly: true,
+				Expires:  time.Now().UTC(),
+				SameSite: "lax",
+			},
+		)
 		return c.SendStatus(200)
 	}
 }

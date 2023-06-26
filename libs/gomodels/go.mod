@@ -1,4 +1,4 @@
-module github.com/satont/tsuwari/libs/gomodels
+module github.com/satont/twir/libs/gomodels
 
 go 1.20
 

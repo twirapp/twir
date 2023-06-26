@@ -3,11 +3,11 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/events"
 
 	"github.com/samber/lo"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/parser"
 	"gorm.io/gorm"
 )
 
@@ -89,15 +89,19 @@ func (c *Handlers) handleGreetings(
 		}
 	}
 
-	c.db.Model(&entity).Where("id = ?", entity.ID).Select("*").Updates(map[string]any{
-		"processed": true,
-	})
+	c.db.Model(&entity).Where("id = ?", entity.ID).Select("*").Updates(
+		map[string]any{
+			"processed": true,
+		},
+	)
 
-	c.eventsGrpc.GreetingSended(context.Background(), &events.GreetingSendedMessage{
-		BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
-		UserId:          msg.User.ID,
-		UserName:        msg.User.Name,
-		UserDisplayName: msg.User.DisplayName,
-		GreetingText:    entity.Text,
-	})
+	c.eventsGrpc.GreetingSended(
+		context.Background(), &events.GreetingSendedMessage{
+			BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
+			UserId:          msg.User.ID,
+			UserName:        msg.User.Name,
+			UserDisplayName: msg.User.DisplayName,
+			GreetingText:    entity.Text,
+		},
+	)
 }

@@ -1,4 +1,4 @@
-import type { FilterType } from '@tsuwari/typeorm/entities/events/EventOperationFilter';
+import type { FilterType } from '@twir/typeorm/entities/events/EventOperationFilter';
 
 export const filtersMapping: Record<keyof typeof FilterType, {
   description: string,

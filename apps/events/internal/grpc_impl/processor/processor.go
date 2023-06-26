@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/tsuwari/apps/events/internal"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
+	"github.com/satont/twir/apps/events/internal"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"github.com/valyala/fasttemplate"
 	"go.uber.org/zap"
 )
@@ -91,35 +91,37 @@ func (c *Processor) HydrateStringWithData(str string, data any) (string, error) 
 		return "", err
 	}
 
-	s := template.ExecuteFuncString(func(w io.Writer, tag string) (int, error) {
-		splittedTag := strings.Split(tag, ".")
-		if len(splittedTag) > 1 {
-			val, ok := m[splittedTag[0]].(map[string]any)
-			if !ok {
-				// key not found in map
-				// return 0, fmt.Errorf("key '%s' is not a map[string]interface{}", splittedTag[0])
-				return w.Write([]byte(""))
-			}
+	s := template.ExecuteFuncString(
+		func(w io.Writer, tag string) (int, error) {
+			splittedTag := strings.Split(tag, ".")
+			if len(splittedTag) > 1 {
+				val, ok := m[splittedTag[0]].(map[string]any)
+				if !ok {
+					// key not found in map
+					// return 0, fmt.Errorf("key '%s' is not a map[string]interface{}", splittedTag[0])
+					return w.Write([]byte(""))
+				}
 
-			v, ok := val[splittedTag[1]]
-			if !ok {
-				// key not found in map
-				// return 0, fmt.Errorf("key '%s' is not found in map", splittedTag[1])
-				return w.Write([]byte(""))
-			}
+				v, ok := val[splittedTag[1]]
+				if !ok {
+					// key not found in map
+					// return 0, fmt.Errorf("key '%s' is not found in map", splittedTag[1])
+					return w.Write([]byte(""))
+				}
 
-			return w.Write([]byte(fmt.Sprint(v)))
-		} else {
-			val, ok := m[tag]
-			if !ok {
-				// not a found
-				// return 0, fmt.Errorf("key '%s' is not found", tag)
-				return w.Write([]byte(""))
-			}
+				return w.Write([]byte(fmt.Sprint(v)))
+			} else {
+				val, ok := m[tag]
+				if !ok {
+					// not a found
+					// return 0, fmt.Errorf("key '%s' is not found", tag)
+					return w.Write([]byte(""))
+				}
 
-			return w.Write([]byte(fmt.Sprint(val)))
-		}
-	})
+				return w.Write([]byte(fmt.Sprint(val)))
+			}
+		},
+	)
 
 	for _, match := range variablesRegular.FindAllString(s, len(s)) {
 		variable := variablesRegular.FindStringSubmatch(match)

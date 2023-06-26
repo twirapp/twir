@@ -6,14 +6,16 @@ import (
 	"time"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 var Watched = &types.Variable{
 	Name:         "user.watched",
 	Description:  lo.ToPtr("User watched time"),
 	CommandsOnly: true,
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
 		dbUser := parseCtx.Cacher.GetGbUserStats(ctx)

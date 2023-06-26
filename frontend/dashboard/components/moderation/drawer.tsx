@@ -15,7 +15,7 @@ import {
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import { IconMinus, IconPlus } from '@tabler/icons';
-import { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
+import { ChannelModerationSetting } from '@twir/typeorm/entities/ChannelModerationSetting';
 import { getCookie } from 'cookies-next';
 import { useTranslation } from 'next-i18next';
 import { useContext, useEffect } from 'react';

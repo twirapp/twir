@@ -7,18 +7,18 @@ import (
 	"net/url"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/integrations"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/api/v1/integrations/helpers"
+	"github.com/satont/twir/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -111,13 +111,15 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 
 	data := tokensResponse{}
 	resp, err := req.R().
-		SetFormData(map[string]string{
-			"grant_type":    "authorization_code",
-			"client_id":     neededIntegration.ClientID.String,
-			"client_secret": neededIntegration.ClientSecret.String,
-			"redirect_uri":  neededIntegration.RedirectURL.String,
-			"code":          dto.Code,
-		}).
+		SetFormData(
+			map[string]string{
+				"grant_type":    "authorization_code",
+				"client_id":     neededIntegration.ClientID.String,
+				"client_secret": neededIntegration.ClientSecret.String,
+				"redirect_uri":  neededIntegration.RedirectURL.String,
+				"code":          dto.Code,
+			},
+		).
 		SetResult(&data).
 		SetContentType("application/x-www-form-urlencoded").
 		Post("https://streamlabs.com/api/v1.0/token")
@@ -163,13 +165,17 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 func sendGrpcEvent(integrationId string, isAdd bool) {
 	grpc := do.MustInvoke[integrations.IntegrationsClient](di.Provider)
 	if isAdd {
-		grpc.AddIntegration(context.Background(), &integrations.Request{
-			Id: integrationId,
-		})
+		grpc.AddIntegration(
+			context.Background(), &integrations.Request{
+				Id: integrationId,
+			},
+		)
 	} else {
-		grpc.RemoveIntegration(context.Background(), &integrations.Request{
-			Id: integrationId,
-		})
+		grpc.RemoveIntegration(
+			context.Background(), &integrations.Request{
+				Id: integrationId,
+			},
+		)
 	}
 }
 

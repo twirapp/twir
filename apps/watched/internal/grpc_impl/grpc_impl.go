@@ -6,14 +6,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
 
 	"github.com/gofrs/uuid"
 	"github.com/nicklaw5/helix/v2"
-	cfg "github.com/satont/tsuwari/libs/config"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/watched"
+	cfg "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/watched"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
@@ -128,13 +128,15 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 						}
 					} else if user.Stats == nil {
 						statsId, _ := uuid.NewV4()
-						err := c.db.Create(&model.UsersStats{
-							ID:        statsId.String(),
-							UserID:    chatter.UserID,
-							ChannelID: channel,
-							Messages:  0,
-							Watched:   0,
-						}).Error
+						err := c.db.Create(
+							&model.UsersStats{
+								ID:        statsId.String(),
+								UserID:    chatter.UserID,
+								ChannelID: channel,
+								Messages:  0,
+								Watched:   0,
+							},
+						).Error
 						if err != nil {
 							c.logger.Sugar().Error(err)
 						}
@@ -144,9 +146,11 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 						err := c.db.
 							Model(&model.UsersStats{}).
 							Where("id = ?", user.Stats.ID).
-							Updates(map[string]any{
-								"watched": user.Stats.Watched + time.Milliseconds(),
-							}).Error
+							Updates(
+								map[string]any{
+									"watched": user.Stats.Watched + time.Milliseconds(),
+								},
+							).Error
 						if err != nil {
 							c.logger.Sugar().Error(err)
 						}

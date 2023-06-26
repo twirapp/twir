@@ -1,12 +1,12 @@
-module github.com/satont/tsuwari/libs/twitch
+module github.com/satont/twir/libs/twitch
 
 go 1.20
 
 require (
 	github.com/nicklaw5/helix/v2 v2.22.1
 	github.com/samber/lo v1.38.1
-	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/config v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0
 )
@@ -23,8 +23,8 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
 )
 
-replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
+replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 
-replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+replace github.com/satont/twir/libs/grpc => ../../libs/grpc
 
-replace github.com/satont/tsuwari/libs/config => ../../libs/config
+replace github.com/satont/twir/libs/config => ../../libs/config

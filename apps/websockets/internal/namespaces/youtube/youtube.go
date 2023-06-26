@@ -2,8 +2,8 @@ package youtube
 
 import (
 	"github.com/olahol/melody"
-	"github.com/satont/tsuwari/apps/websockets/internal/namespaces/helpers"
-	"github.com/satont/tsuwari/apps/websockets/types"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
+	"github.com/satont/twir/apps/websockets/types"
 )
 
 type YouTube struct {
@@ -19,18 +19,22 @@ func NewYouTube(services *types.Services) *YouTube {
 		services: services,
 	}
 
-	youTube.manager.HandleConnect(func(session *melody.Session) {
-		err := helpers.CheckUserByApiKey(services.Gorm, session)
-		if err != nil {
-			services.Logger.Error(err)
-		} else {
-			youTube.handleConnect(session)
-		}
-	})
+	youTube.manager.HandleConnect(
+		func(session *melody.Session) {
+			err := helpers.CheckUserByApiKey(services.Gorm, session)
+			if err != nil {
+				services.Logger.Error(err)
+			} else {
+				youTube.handleConnect(session)
+			}
+		},
+	)
 
-	youTube.manager.HandleMessage(func(session *melody.Session, msg []byte) {
-		youTube.handleMessage(session, msg)
-	})
+	youTube.manager.HandleMessage(
+		func(session *melody.Session, msg []byte) {
+			youTube.handleMessage(session, msg)
+		},
+	)
 
 	return youTube
 }

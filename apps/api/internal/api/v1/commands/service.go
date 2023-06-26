@@ -6,18 +6,18 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -44,16 +44,20 @@ func handleGet(channelId string, services types.Services) ([]model.ChannelsComma
 		return cmds, nil
 	}
 
-	twitchUsersReq, err := twitchClient.GetUsers(&helix.UsersParams{
-		IDs: usersForReq,
-	})
+	twitchUsersReq, err := twitchClient.GetUsers(
+		&helix.UsersParams{
+			IDs: usersForReq,
+		},
+	)
 
 	if err == nil && twitchUsersReq.ErrorMessage == "" {
 		for i, cmd := range cmds {
 			for userIdx, deniedUser := range cmd.DeniedUsersIDS {
-				twitchUser, ok := lo.Find(twitchUsersReq.Data.Users, func(u helix.User) bool {
-					return u.ID == deniedUser
-				})
+				twitchUser, ok := lo.Find(
+					twitchUsersReq.Data.Users, func(u helix.User) bool {
+						return u.ID == deniedUser
+					},
+				)
 				if !ok {
 					continue
 				}
@@ -62,9 +66,11 @@ func handleGet(channelId string, services types.Services) ([]model.ChannelsComma
 			}
 
 			for userIdx, allowedUser := range cmd.AllowedUsersIDS {
-				twitchUser, ok := lo.Find(twitchUsersReq.Data.Users, func(u helix.User) bool {
-					return u.ID == allowedUser
-				})
+				twitchUser, ok := lo.Find(
+					twitchUsersReq.Data.Users, func(u helix.User) bool {
+						return u.ID == allowedUser
+					},
+				)
 				if !ok {
 					continue
 				}
@@ -106,15 +112,19 @@ func handlePost(
 		return nil, fiber.NewError(400, "name cannot be empty")
 	}
 
-	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
-		a = strings.TrimSpace(a)
-		a = strings.ToLower(a)
-		a = strings.Replace(a, "!", "", 1)
-		return a
-	})
-	if lo.SomeBy(dto.Aliases, func(a string) bool {
-		return len(a) == 0
-	}) {
+	dto.Aliases = lo.Map(
+		dto.Aliases, func(a string, _ int) string {
+			a = strings.TrimSpace(a)
+			a = strings.ToLower(a)
+			a = strings.Replace(a, "!", "", 1)
+			return a
+		},
+	)
+	if lo.SomeBy(
+		dto.Aliases, func(a string) bool {
+			return len(a) == 0
+		},
+	) {
 		return nil, fiber.NewError(400, "aliase cannot be empty")
 	}
 
@@ -133,9 +143,11 @@ func handlePost(
 	newCommand.AllowedUsersIDS = []string{}
 
 	if len(dto.DeniedUsersIds) > 0 || len(dto.AllowedUsersIds) > 0 {
-		twitchUsersReq, err := twitchClient.GetUsers(&helix.UsersParams{
-			Logins: append(dto.DeniedUsersIds, dto.AllowedUsersIds...),
-		})
+		twitchUsersReq, err := twitchClient.GetUsers(
+			&helix.UsersParams{
+				Logins: append(dto.DeniedUsersIds, dto.AllowedUsersIds...),
+			},
+		)
 		if err != nil {
 			logger.Error(err)
 			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
@@ -146,9 +158,11 @@ func handlePost(
 		}
 
 		for _, deniedUser := range dto.DeniedUsersIds {
-			twitchUser, ok := lo.Find(twitchUsersReq.Data.Users, func(u helix.User) bool {
-				return u.Login == strings.ToLower(deniedUser)
-			})
+			twitchUser, ok := lo.Find(
+				twitchUsersReq.Data.Users, func(u helix.User) bool {
+					return u.Login == strings.ToLower(deniedUser)
+				},
+			)
 
 			if !ok {
 				continue
@@ -157,9 +171,11 @@ func handlePost(
 		}
 
 		for _, allowedUser := range dto.AllowedUsersIds {
-			twitchUser, ok := lo.Find(twitchUsersReq.Data.Users, func(u helix.User) bool {
-				return u.Login == strings.ToLower(allowedUser)
-			})
+			twitchUser, ok := lo.Find(
+				twitchUsersReq.Data.Users, func(u helix.User) bool {
+					return u.Login == strings.ToLower(allowedUser)
+				},
+			)
 
 			if !ok {
 				continue
@@ -235,15 +251,19 @@ func handleUpdate(
 		return nil, fiber.NewError(400, "name cannot be empty")
 	}
 
-	dto.Aliases = lo.Map(dto.Aliases, func(a string, _ int) string {
-		a = strings.TrimSpace(a)
-		a = strings.ToLower(a)
-		a = strings.Replace(a, "!", "", 1)
-		return a
-	})
-	if lo.SomeBy(dto.Aliases, func(a string) bool {
-		return len(a) == 0
-	}) {
+	dto.Aliases = lo.Map(
+		dto.Aliases, func(a string, _ int) string {
+			a = strings.TrimSpace(a)
+			a = strings.ToLower(a)
+			a = strings.Replace(a, "!", "", 1)
+			return a
+		},
+	)
+	if lo.SomeBy(
+		dto.Aliases, func(a string) bool {
+			return len(a) == 0
+		},
+	) {
 		return nil, fiber.NewError(400, "aliase cannot be empty")
 	}
 
@@ -277,9 +297,11 @@ func handleUpdate(
 	command.DeniedUsersIDS = []string{}
 	command.AllowedUsersIDS = []string{}
 	if len(dto.DeniedUsersIds) > 0 || len(dto.AllowedUsersIds) > 0 {
-		twitchUsersReq, err := twitchClient.GetUsers(&helix.UsersParams{
-			Logins: append(dto.DeniedUsersIds, dto.AllowedUsersIds...),
-		})
+		twitchUsersReq, err := twitchClient.GetUsers(
+			&helix.UsersParams{
+				Logins: append(dto.DeniedUsersIds, dto.AllowedUsersIds...),
+			},
+		)
 		if err != nil {
 			logger.Error(err)
 			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
@@ -289,9 +311,11 @@ func handleUpdate(
 			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 		for _, deniedUser := range dto.DeniedUsersIds {
-			twitchUser, ok := lo.Find(twitchUsersReq.Data.Users, func(u helix.User) bool {
-				return u.Login == strings.ToLower(deniedUser)
-			})
+			twitchUser, ok := lo.Find(
+				twitchUsersReq.Data.Users, func(u helix.User) bool {
+					return u.Login == strings.ToLower(deniedUser)
+				},
+			)
 
 			if !ok {
 				continue
@@ -300,9 +324,11 @@ func handleUpdate(
 		}
 
 		for _, allowedUser := range dto.AllowedUsersIds {
-			twitchUser, ok := lo.Find(twitchUsersReq.Data.Users, func(u helix.User) bool {
-				return u.Login == strings.ToLower(allowedUser)
-			})
+			twitchUser, ok := lo.Find(
+				twitchUsersReq.Data.Users, func(u helix.User) bool {
+					return u.Login == strings.ToLower(allowedUser)
+				},
+			)
 
 			if !ok {
 				continue

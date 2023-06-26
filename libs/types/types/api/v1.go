@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/satont/tsuwari/libs/types/types/api/bot"
-	"github.com/satont/tsuwari/libs/types/types/api/modules"
+	"github.com/satont/twir/libs/types/types/api/bot"
+	"github.com/satont/twir/libs/types/types/api/modules"
 )
 
 type Modules struct {

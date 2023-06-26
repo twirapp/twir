@@ -6,13 +6,15 @@ import (
 	"strings"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 var TrendExtended = &types.Variable{
 	Name:        "faceit.trend.extended",
 	Description: lo.ToPtr(`Faceit latest matches trend in "W +26 | L -23" format`),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		matches, err := parseCtx.Cacher.GetFaceitLatestMatches(ctx)

@@ -3,12 +3,12 @@ package bots
 import (
 	"sync"
 
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/parser"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
-	"github.com/satont/tsuwari/apps/bots/types"
+	"github.com/satont/twir/apps/bots/types"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -42,13 +42,15 @@ func NewBotsService(opts *NewBotsOpts) *BotsService {
 
 	for _, bot := range bots {
 		b := bot
-		instance := newBot(&ClientOpts{
-			DB:         opts.DB,
-			Cfg:        opts.Cfg,
-			Logger:     opts.Logger,
-			Model:      &b,
-			ParserGrpc: opts.ParserGrpc,
-		})
+		instance := newBot(
+			&ClientOpts{
+				DB:         opts.DB,
+				Cfg:        opts.Cfg,
+				Logger:     opts.Logger,
+				Model:      &b,
+				ParserGrpc: opts.ParserGrpc,
+			},
+		)
 
 		mu.Lock()
 		service.Instances[b.ID] = instance

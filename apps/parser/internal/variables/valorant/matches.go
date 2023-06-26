@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/parser/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 var Matches = &types.Variable{
@@ -15,13 +15,17 @@ var Matches = &types.Variable{
 	Description: lo.ToPtr(
 		`Latest 5 matches trend, i.e "W(13/4) — Killjoy 12/4/10 | L(4/13) — Killjoy 4/12/10"`,
 	),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
 		integrations := parseCtx.Cacher.GetEnabledChannelIntegrations(ctx)
-		integration, ok := lo.Find(integrations, func(item *model.ChannelsIntegrations) bool {
-			return item.Integration.Service == "VALORANT"
-		})
+		integration, ok := lo.Find(
+			integrations, func(item *model.ChannelsIntegrations) bool {
+				return item.Integration.Service == "VALORANT"
+			},
+		)
 
 		if !ok || integration.Data == nil || integration.Data.UserName == nil {
 			return nil, nil
@@ -39,9 +43,11 @@ var Matches = &types.Variable{
 				continue
 			}
 
-			player, ok := lo.Find(match.Players.AllPlayers, func(el types.ValorantMatchPlayer) bool {
-				return fmt.Sprintf("%s#%s", el.Name, el.Tag) == *integration.Data.UserName
-			})
+			player, ok := lo.Find(
+				match.Players.AllPlayers, func(el types.ValorantMatchPlayer) bool {
+					return fmt.Sprintf("%s#%s", el.Name, el.Tag) == *integration.Data.UserName
+				},
+			)
 
 			if !ok {
 				continue

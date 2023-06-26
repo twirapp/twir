@@ -1,3 +1,3 @@
-module github.com/satont/tsuwari/libs/crypto
+module github.com/satont/twir/libs/crypto
 
 go 1.20

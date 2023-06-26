@@ -1,5 +1,5 @@
-import { EventType } from '@tsuwari/typeorm/entities/events/Event';
-import { OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
+import { EventType } from '@twir/typeorm/entities/events/Event';
+import { OperationType } from '@twir/typeorm/entities/events/EventOperation';
 
 export const operationMapping: Record<
 	keyof typeof OperationType,

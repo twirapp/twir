@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 	"github.com/dnsge/twitch-eventsub-bindings"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/events"
 	"go.uber.org/zap"
 )
 
@@ -11,13 +11,15 @@ func convertChoices(choices []eventsub_bindings.PollChoice) []*events.PollInfo_C
 	converted := make([]*events.PollInfo_Choice, 0, len(choices))
 
 	for _, choice := range choices {
-		converted = append(converted, &events.PollInfo_Choice{
-			Id:                  choice.ID,
-			Title:               choice.Title,
-			BitsVotes:           uint64(choice.BitsVotes),
-			ChannelsPointsVotes: uint64(choice.ChannelPointsVotes),
-			Votes:               uint64(choice.Votes),
-		})
+		converted = append(
+			converted, &events.PollInfo_Choice{
+				Id:                  choice.ID,
+				Title:               choice.Title,
+				BitsVotes:           uint64(choice.BitsVotes),
+				ChannelsPointsVotes: uint64(choice.ChannelPointsVotes),
+				Votes:               uint64(choice.Votes),
+			},
+		)
 	}
 
 	return converted

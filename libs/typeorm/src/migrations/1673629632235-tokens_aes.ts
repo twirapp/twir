@@ -1,5 +1,5 @@
-import { config } from '@tsuwari/config';
-import { encrypt } from '@tsuwari/crypto';
+import { config } from '@twir/config';
+import { encrypt } from '@twir/crypto';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class tokensAes1673629632235 implements MigrationInterface {

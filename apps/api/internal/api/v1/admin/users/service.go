@@ -3,10 +3,10 @@ package users
 import (
 	"github.com/guregu/null"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 

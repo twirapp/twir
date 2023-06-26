@@ -11,11 +11,11 @@ import (
 	"github.com/imroc/req/v3"
 	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/api/internal/api/v1/integrations/helpers"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -97,10 +97,12 @@ func handlePost(channelId string, dto *tokenDto, services types.Services) error 
 	resp, err := req.
 		C().EnableForceHTTP1().
 		R().
-		SetFormData(map[string]string{
-			"grant_type": "authorization_code",
-			"code":       dto.Code,
-		}).
+		SetFormData(
+			map[string]string{
+				"grant_type": "authorization_code",
+				"code":       dto.Code,
+			},
+		).
 		SetSuccessResult(&tokensData).
 		SetBasicAuth(neededIntegration.ClientID.String, neededIntegration.ClientSecret.String).
 		Post("https://api.faceit.com/auth/v1/oauth/token")

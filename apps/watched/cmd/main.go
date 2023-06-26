@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/satont/tsuwari/libs/grpc/clients"
+	"github.com/satont/twir/libs/grpc/clients"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"time"
 
-	"github.com/satont/tsuwari/apps/watched/internal/grpc_impl"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/watched"
-	"github.com/satont/tsuwari/libs/grpc/servers"
+	"github.com/satont/twir/apps/watched/internal/grpc_impl"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/watched"
+	"github.com/satont/twir/libs/grpc/servers"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -37,9 +37,11 @@ func main() {
 		logger = l
 	}
 
-	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{
-		Logger: gormLogger.Default.LogMode(gormLogger.Error),
-	})
+	db, err := gorm.Open(
+		postgres.Open(cfg.DatabaseUrl), &gorm.Config{
+			Logger: gormLogger.Default.LogMode(gormLogger.Error),
+		},
+	)
 	if err != nil {
 		fmt.Println(err)
 		panic("failed to connect database")
@@ -54,15 +56,23 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	grpcServer := grpc.NewServer(grpc.KeepaliveParams(keepalive.ServerParameters{
-		MaxConnectionAge: 1 * time.Minute,
-	}))
-	watched.RegisterWatchedServer(grpcServer, grpc_impl.New(&grpc_impl.WatchedGrpcServerOpts{
-		Db:         db,
-		Cfg:        cfg,
-		Logger:     logger,
-		TokensGrpc: tokensGrpc,
-	}))
+	grpcServer := grpc.NewServer(
+		grpc.KeepaliveParams(
+			keepalive.ServerParameters{
+				MaxConnectionAge: 1 * time.Minute,
+			},
+		),
+	)
+	watched.RegisterWatchedServer(
+		grpcServer, grpc_impl.New(
+			&grpc_impl.WatchedGrpcServerOpts{
+				Db:         db,
+				Cfg:        cfg,
+				Logger:     logger,
+				TokensGrpc: tokensGrpc,
+			},
+		),
+	)
 	go grpcServer.Serve(lis)
 
 	log.Println("Watched microservice started")

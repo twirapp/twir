@@ -7,9 +7,9 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/parser/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 )
 
 type userStats struct {
@@ -56,11 +56,13 @@ func getTop(
 	query, args, err := squirrel.
 		Select("users_stats.*").
 		From("users_stats").
-		Where(squirrel.And{
-			squirrel.Eq{`"channelId"`: parseCtx.Channel.ID},
-			squirrel.NotEq{`"userId"`: channel.BotID},
-			squirrel.NotEq{`"userId"`: parseCtx.Channel.ID},
-		}).
+		Where(
+			squirrel.And{
+				squirrel.Eq{`"channelId"`: parseCtx.Channel.ID},
+				squirrel.NotEq{`"userId"`: channel.BotID},
+				squirrel.NotEq{`"userId"`: parseCtx.Channel.ID},
+			},
+		).
 		Where(`NOT EXISTS (select 1 from users_ignored where "id" = "users_stats"."userId")`).
 		Limit(uint64(limit)).
 		Offset(uint64(offset)).
@@ -81,13 +83,17 @@ func getTop(
 		return nil
 	}
 
-	ids := lo.Map(records, func(record model.UsersStats, _ int) string {
-		return record.UserID
-	})
+	ids := lo.Map(
+		records, func(record model.UsersStats, _ int) string {
+			return record.UserID
+		},
+	)
 
-	twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
-		IDs: ids,
-	})
+	twitchUsers, err := twitchClient.GetUsers(
+		&helix.UsersParams{
+			IDs: ids,
+		},
+	)
 
 	if err != nil || len(twitchUsers.Data.Users) == 0 {
 		return nil
@@ -95,9 +101,11 @@ func getTop(
 
 	var stats []*userStats
 	for _, record := range records {
-		twitchUser, ok := lo.Find(twitchUsers.Data.Users, func(user helix.User) bool {
-			return user.ID == record.UserID
-		})
+		twitchUser, ok := lo.Find(
+			twitchUsers.Data.Users, func(user helix.User) bool {
+				return user.ID == record.UserID
+			},
+		)
 
 		if !ok {
 			continue

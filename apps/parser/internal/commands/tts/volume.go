@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/guregu/null"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/parser/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
 	"go.uber.org/zap"
 )
 
@@ -30,7 +30,8 @@ var VolumeCommand = &types.DefaultCommand{
 		if parseCtx.Text == nil {
 			result.Result = append(
 				result.Result,
-				fmt.Sprintf("Global volume: %v", channelSettings.Volume))
+				fmt.Sprintf("Global volume: %v", channelSettings.Volume),
+			)
 			return result
 		}
 

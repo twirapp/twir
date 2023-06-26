@@ -3,13 +3,13 @@ package channel_game
 import (
 	"context"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 	"strings"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/twitch"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 
 	"github.com/nicklaw5/helix/v2"
 )

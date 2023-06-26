@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/parser/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
 	"strconv"
 	"strings"
 
@@ -42,12 +42,14 @@ var History = &types.DefaultCommand{
 		var histories []*model.ChannelInfoHistory
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Raw(`SELECT * FROM (
+			Raw(
+				`SELECT * FROM (
 				SELECT DISTINCT ON (title) * FROM "channels_info_history"
 				                             WHERE "channelId" = ?
 				                             ORDER BY "title", "createdAt"
 				                             DESC
-				) subquery ORDER BY "createdAt" DESC LIMIT ?`, parseCtx.Channel.ID, limit).
+				) subquery ORDER BY "createdAt" DESC LIMIT ?`, parseCtx.Channel.ID, limit,
+			).
 			Find(&histories).
 			Error
 
@@ -56,9 +58,11 @@ var History = &types.DefaultCommand{
 			return result
 		}
 
-		titles := lo.Map(histories, func(item *model.ChannelInfoHistory, _ int) string {
-			return item.Title
-		})
+		titles := lo.Map(
+			histories, func(item *model.ChannelInfoHistory, _ int) string {
+				return item.Title
+			},
+		)
 
 		result.Result = append(result.Result, strings.Join(titles, " ║ "))
 		return result

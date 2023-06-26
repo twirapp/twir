@@ -1,12 +1,12 @@
-module github.com/satont/tsuwari/apps/websockets
+module github.com/satont/twir/apps/websockets
 
 go 1.20
 
 replace (
-	github.com/satont/tsuwari/libs/config => ../../libs/config
-	github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
-	github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
-	github.com/satont/tsuwari/libs/types => ../../libs/types
+	github.com/satont/twir/libs/config => ../../libs/config
+	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
+	github.com/satont/twir/libs/grpc => ../../libs/grpc
+	github.com/satont/twir/libs/types => ../../libs/types
 )
 
 require (
@@ -14,10 +14,10 @@ require (
 	github.com/olahol/melody v1.1.1
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/samber/lo v1.38.1
-	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/types v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/config v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/types v0.0.0-00010101000000-000000000000
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0

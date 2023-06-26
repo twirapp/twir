@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/events"
 	"go.uber.org/zap"
 )
 
@@ -16,25 +16,29 @@ func convertOutCome(outcomes []eventsub_bindings.PredictionOutcome) []*events.Pr
 
 		for _, predictor := range outcome.TopPredictors {
 			won := uint64(predictor.ChannelPointsWon)
-			topPredictors = append(topPredictors, &events.PredictionInfo_OutCome_TopPredictor{
-				UserName:        predictor.UserLogin,
-				UserDisplayName: predictor.UserName,
-				UserId:          predictor.UserID,
-				PointsUsed:      uint64(predictor.ChannelPointsUsed),
-				PointsWin: lo.
-					If(predictor.ChannelPointsWon > 0, &won).
-					Else(nil),
-			})
+			topPredictors = append(
+				topPredictors, &events.PredictionInfo_OutCome_TopPredictor{
+					UserName:        predictor.UserLogin,
+					UserDisplayName: predictor.UserName,
+					UserId:          predictor.UserID,
+					PointsUsed:      uint64(predictor.ChannelPointsUsed),
+					PointsWin: lo.
+						If(predictor.ChannelPointsWon > 0, &won).
+						Else(nil),
+				},
+			)
 		}
 
-		out = append(out, &events.PredictionInfo_OutCome{
-			Id:            outcome.ID,
-			Title:         outcome.Title,
-			Color:         outcome.Color,
-			Users:         uint64(outcome.Users),
-			ChannelPoints: uint64(outcome.ChannelPoints),
-			TopPredictors: topPredictors,
-		})
+		out = append(
+			out, &events.PredictionInfo_OutCome{
+				Id:            outcome.ID,
+				Title:         outcome.Title,
+				Color:         outcome.Color,
+				Users:         uint64(outcome.Users),
+				ChannelPoints: uint64(outcome.ChannelPoints),
+				TopPredictors: topPredictors,
+			},
+		)
 	}
 	return out
 }

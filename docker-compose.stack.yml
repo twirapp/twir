@@ -43,7 +43,7 @@ services:
     build:
       context: .
       dockerfile: ./tools/pg-backup/Dockerfile
-    image: registry.satont.ru/tsuwari/postgres-backup
+    image: registry.satont.ru/twir/postgres-backup
     secrets:
       - tsuwari_doppler_token
     networks:
@@ -97,7 +97,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: migrations
-    image: registry.satont.ru/tsuwari/migrations
+    image: registry.satont.ru/twir/migrations
     secrets:
       - tsuwari_doppler_token
     networks:
@@ -129,7 +129,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: api
-    image: registry.satont.ru/tsuwari/api
+    image: registry.satont.ru/twir/api
     secrets:
       - tsuwari_doppler_token
     ports:
@@ -153,7 +153,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: bots
-    image: registry.satont.ru/tsuwari/bots
+    image: registry.satont.ru/twir/bots
     secrets:
       - tsuwari_doppler_token
     networks:
@@ -170,7 +170,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: watched
-    image: registry.satont.ru/tsuwari/watched
+    image: registry.satont.ru/twir/watched
     secrets:
       - tsuwari_doppler_token
     networks:
@@ -191,7 +191,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: parser
-    image: registry.satont.ru/tsuwari/parser
+    image: registry.satont.ru/twir/parser
     secrets:
       - tsuwari_doppler_token
     deploy:
@@ -212,7 +212,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: timers
-    image: registry.satont.ru/tsuwari/timers
+    image: registry.satont.ru/twir/timers
     secrets:
       - tsuwari_doppler_token
     networks:
@@ -229,7 +229,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: scheduler
-    image: registry.satont.ru/tsuwari/scheduler
+    image: registry.satont.ru/twir/scheduler
     secrets:
       - tsuwari_doppler_token
     networks:
@@ -246,7 +246,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: eventsub
-    image: registry.satont.ru/tsuwari/eventsub
+    image: registry.satont.ru/twir/eventsub
     secrets:
       - tsuwari_doppler_token
     ports:
@@ -270,7 +270,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: dota
-    image: registry.satont.ru/tsuwari/dota
+    image: registry.satont.ru/twir/dota
     secrets:
       - tsuwari_doppler_token
     networks:
@@ -287,7 +287,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: eval
-    image: registry.satont.ru/tsuwari/eval
+    image: registry.satont.ru/twir/eval
     secrets:
       - tsuwari_doppler_token
     deploy:
@@ -308,7 +308,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: integrations
-    image: registry.satont.ru/tsuwari/integrations
+    image: registry.satont.ru/twir/integrations
     secrets:
       - tsuwari_doppler_token
     networks:
@@ -325,7 +325,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: landing
-    image: registry.satont.ru/tsuwari/landing
+    image: registry.satont.ru/twir/landing
     secrets:
       - tsuwari_doppler_token
     ports:
@@ -349,7 +349,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: dashboard
-    image: registry.satont.ru/tsuwari/dashboard
+    image: registry.satont.ru/twir/dashboard
     secrets:
       - tsuwari_doppler_token
     ports:
@@ -373,7 +373,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: public
-    image: registry.satont.ru/tsuwari/public
+    image: registry.satont.ru/twir/public
     secrets:
       - tsuwari_doppler_token
     ports:
@@ -398,7 +398,7 @@ services:
       dockerfile: ./Dockerfile
       target: overlays
     restart: unless-stopped
-    image: registry.satont.ru/tsuwari/overlays
+    image: registry.satont.ru/twir/overlays
     ports:
       - target: 80
         published: 3007
@@ -420,7 +420,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: websockets
-    image: registry.satont.ru/tsuwari/websockets
+    image: registry.satont.ru/twir/websockets
     secrets:
       - tsuwari_doppler_token
     networks:
@@ -444,7 +444,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: tokens
-    image: registry.satont.ru/tsuwari/tokens
+    image: registry.satont.ru/twir/tokens
     secrets:
       - tsuwari_doppler_token
     networks:
@@ -465,7 +465,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: emotes-cacher
-    image: registry.satont.ru/tsuwari/emotes-cacher
+    image: registry.satont.ru/twir/emotes-cacher
     secrets:
       - tsuwari_doppler_token
     networks:
@@ -486,7 +486,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: events
-    image: registry.satont.ru/tsuwari/events
+    image: registry.satont.ru/twir/events
     secrets:
       - tsuwari_doppler_token
     networks:
@@ -507,7 +507,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: ytsr
-    image: registry.satont.ru/tsuwari/ytsr
+    image: registry.satont.ru/twir/ytsr
     secrets:
       - tsuwari_doppler_token
     networks:

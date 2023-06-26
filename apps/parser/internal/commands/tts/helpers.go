@@ -9,9 +9,9 @@ import (
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	config "github.com/satont/tsuwari/libs/config"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/types/types/api/modules"
+	config "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/types/types/api/modules"
 	"github.com/tidwall/gjson"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -75,19 +75,25 @@ func getVoices(ctx context.Context, cfg *config.Config) []Voice {
 
 	parsedJson := gjson.ParseBytes(bytes)
 	voices := []Voice{}
-	parsedJson.Get("rhvoice_wrapper_voices_info").ForEach(func(key, value gjson.Result) bool {
-		voices = append(voices, Voice{
-			Name:    key.String(),
-			Country: value.Get("country").String(),
-		})
+	parsedJson.Get("rhvoice_wrapper_voices_info").ForEach(
+		func(key, value gjson.Result) bool {
+			voices = append(
+				voices, Voice{
+					Name:    key.String(),
+					Country: value.Get("country").String(),
+				},
+			)
 
-		return true
-	})
+			return true
+		},
+	)
 
 	return voices
 }
 
-func updateSettings(ctx context.Context, db *gorm.DB, entity *model.ChannelModulesSettings, settings *modules.TTSSettings) error {
+func updateSettings(
+	ctx context.Context, db *gorm.DB, entity *model.ChannelModulesSettings, settings *modules.TTSSettings,
+) error {
 	bytes, err := json.Marshal(settings)
 	if err != nil {
 		return err

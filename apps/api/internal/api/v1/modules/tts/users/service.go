@@ -9,14 +9,14 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	config "github.com/satont/tsuwari/libs/config"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
-	"github.com/satont/tsuwari/libs/types/types/api/modules"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/types"
+	config "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
+	"github.com/satont/twir/libs/types/types/api/modules"
 	"go.uber.org/zap"
 )
 
@@ -52,12 +52,14 @@ func handleGet(channelId string, services types.Services) ([]*UserSettings, erro
 			return nil, fiber.NewError(fiber.StatusInternalServerError, "Internal error")
 		}
 
-		usersSettings = append(usersSettings, &UserSettings{
-			Rate:   ttsSettings.Rate,
-			Voice:  ttsSettings.Voice,
-			Pitch:  ttsSettings.Pitch,
-			UserID: setting.UserId.String,
-		})
+		usersSettings = append(
+			usersSettings, &UserSettings{
+				Rate:   ttsSettings.Rate,
+				Voice:  ttsSettings.Voice,
+				Pitch:  ttsSettings.Pitch,
+				UserID: setting.UserId.String,
+			},
+		)
 	}
 
 	cfg := do.MustInvoke[config.Config](di.Provider)
@@ -76,11 +78,15 @@ func handleGet(channelId string, services types.Services) ([]*UserSettings, erro
 		go func(c []*UserSettings) {
 			defer wg.Done()
 
-			users, err := twitchClient.GetUsers(&helix.UsersParams{
-				IDs: lo.Map(c, func(item *UserSettings, _ int) string {
-					return item.UserID
-				}),
-			})
+			users, err := twitchClient.GetUsers(
+				&helix.UsersParams{
+					IDs: lo.Map(
+						c, func(item *UserSettings, _ int) string {
+							return item.UserID
+						},
+					),
+				},
+			)
 
 			if err != nil || users.ErrorMessage != "" {
 				zap.S().Error(err, users.ErrorMessage)
@@ -88,9 +94,11 @@ func handleGet(channelId string, services types.Services) ([]*UserSettings, erro
 			}
 
 			for _, user := range users.Data.Users {
-				settings, ok := lo.Find(usersSettings, func(s *UserSettings) bool {
-					return s.UserID == user.ID
-				})
+				settings, ok := lo.Find(
+					usersSettings, func(s *UserSettings) bool {
+						return s.UserID == user.ID
+					},
+				)
 				if !ok {
 					continue
 				}

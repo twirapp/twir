@@ -6,7 +6,7 @@ import (
 
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 type sevenTVEmote struct {
@@ -16,7 +16,9 @@ type sevenTVEmote struct {
 var SevenTv = &types.Variable{
 	Name:        "emotes.7tv",
 	Description: lo.ToPtr("Emotes of channel from https://7tv.app"),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		var data []*sevenTVEmote
@@ -31,9 +33,11 @@ var SevenTv = &types.Variable{
 			return result, nil
 		}
 
-		mapped := lo.Map(data, func(e *sevenTVEmote, _ int) string {
-			return e.Name
-		})
+		mapped := lo.Map(
+			data, func(e *sevenTVEmote, _ int) string {
+				return e.Name
+			},
+		)
 
 		result.Result = strings.Join(mapped, " ")
 

@@ -2,7 +2,7 @@ package types
 
 import (
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/generated/bots"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

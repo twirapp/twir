@@ -6,7 +6,7 @@ import (
 
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 type frankerFaceZEmote struct {
@@ -24,7 +24,9 @@ type frankerFaceZResponse struct {
 var FrankerFaceZ = &types.Variable{
 	Name:        "emotes.ffz",
 	Description: lo.ToPtr("Emotes of channel from https://frankerfacez.com"),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		var data *frankerFaceZResponse
@@ -42,9 +44,11 @@ var FrankerFaceZ = &types.Variable{
 		var emotes []string
 
 		for _, set := range data.Sets {
-			mapped := lo.Map(set.Emoticons, func(e *frankerFaceZEmote, _ int) string {
-				return e.Name
-			})
+			mapped := lo.Map(
+				set.Emoticons, func(e *frankerFaceZEmote, _ int) string {
+					return e.Name
+				},
+			)
 
 			emotes = append(emotes, mapped...)
 		}

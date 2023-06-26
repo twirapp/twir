@@ -6,16 +6,16 @@ import (
 	"sync"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/types"
 )
 
 type RequestUser struct {
@@ -71,21 +71,31 @@ func handleGet(ids string, names string, services types.Services) ([]helix.User,
 		go func(c []*RequestUser) {
 			defer wg.Done()
 
-			usersByIds := lo.Filter(c, func(item *RequestUser, _ int) bool {
-				return item.ID != nil
-			})
-			usersByNames := lo.Filter(c, func(item *RequestUser, _ int) bool {
-				return item.Name != nil
-			})
+			usersByIds := lo.Filter(
+				c, func(item *RequestUser, _ int) bool {
+					return item.ID != nil
+				},
+			)
+			usersByNames := lo.Filter(
+				c, func(item *RequestUser, _ int) bool {
+					return item.Name != nil
+				},
+			)
 
-			req, err := twitchClient.GetUsers(&helix.UsersParams{
-				IDs: lo.Map(usersByIds, func(item *RequestUser, _ int) string {
-					return *item.ID
-				}),
-				Logins: lo.Map(usersByNames, func(item *RequestUser, _ int) string {
-					return *item.Name
-				}),
-			})
+			req, err := twitchClient.GetUsers(
+				&helix.UsersParams{
+					IDs: lo.Map(
+						usersByIds, func(item *RequestUser, _ int) string {
+							return *item.ID
+						},
+					),
+					Logins: lo.Map(
+						usersByNames, func(item *RequestUser, _ int) string {
+							return *item.Name
+						},
+					),
+				},
+			)
 			if err != nil {
 				errCH <- err
 			}

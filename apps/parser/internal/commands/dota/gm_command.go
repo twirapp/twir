@@ -7,19 +7,19 @@ package dota
 // 	"github.com/guregu/null"
 // 	"github.com/lib/pq"
 // 	"github.com/samber/do"
-// 	"github.com/satont/tsuwari/apps/parser/internal/di"
+// 	"github.com/satont/twir/apps/parser/internal/di"
 // 	"go.uber.org/zap"
 // 	"gorm.io/gorm"
 // 	"strconv"
 // 	"strings"
 // 	"sync"
 
-// 	"github.com/satont/tsuwari/apps/parser/internal/types"
+// 	"github.com/satont/twir/apps/parser/internal/types"
 
-// 	model "github.com/satont/tsuwari/libs/gomodels"
-// 	"github.com/satont/tsuwari/libs/grpc/generated/dota"
+// 	model "github.com/satont/twir/libs/gomodels"
+// 	"github.com/satont/twir/libs/grpc/generated/dota"
 
-// 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+// 	variables_cache "github.com/satont/twir/apps/parser/internal/variablescache"
 
 // 	"github.com/samber/lo"
 // 	uuid "github.com/satori/go.uuid"

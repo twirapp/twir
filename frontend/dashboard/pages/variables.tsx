@@ -1,7 +1,7 @@
 import { ActionIcon, Badge, Button, CopyButton, Flex, Table, Text, Tooltip } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import { IconCopy, IconPencil, IconTrash } from '@tabler/icons';
-import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
+import { ChannelCustomvar } from '@twir/typeorm/entities/ChannelCustomvar';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';

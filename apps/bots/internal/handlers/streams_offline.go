@@ -3,9 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/satont/tsuwari/libs/pubsub"
+	"github.com/satont/twir/libs/pubsub"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 

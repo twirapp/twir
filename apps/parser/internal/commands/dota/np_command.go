@@ -4,11 +4,11 @@ package dota
 // 	"fmt"
 // 	"github.com/guregu/null"
 // 	"github.com/lib/pq"
-// 	model "github.com/satont/tsuwari/libs/gomodels"
+// 	model "github.com/satont/twir/libs/gomodels"
 
-// 	"github.com/satont/tsuwari/apps/parser/internal/types"
+// 	"github.com/satont/twir/apps/parser/internal/types"
 
-// 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+// 	variables_cache "github.com/satont/twir/apps/parser/internal/variablescache"
 
 // 	"github.com/samber/lo"
 // )

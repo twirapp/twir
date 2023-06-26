@@ -3,7 +3,7 @@ package song
 import (
 	"fmt"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	lfm "github.com/shkh/lastfm-go/lastfm"
 )
@@ -37,10 +37,12 @@ func (c *lastFm) GetTrack() *string {
 		return nil
 	}
 
-	tracks, err := api.User.GetRecentTracks(map[string]interface{}{
-		"limit": "1",
-		"user":  user.Name,
-	})
+	tracks, err := api.User.GetRecentTracks(
+		map[string]interface{}{
+			"limit": "1",
+			"user":  user.Name,
+		},
+	)
 
 	if err != nil || len(tracks.Tracks) == 0 || tracks.Tracks[0].NowPlaying != "true" {
 		return nil

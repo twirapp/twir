@@ -1,6 +1,6 @@
-import { Repository } from '@tsuwari/typeorm';
-import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration';
-import { IntegrationService } from '@tsuwari/typeorm/entities/Integration';
+import { Repository } from '@twir/typeorm';
+import { ChannelIntegration } from '@twir/typeorm/entities/ChannelIntegration';
+import { IntegrationService } from '@twir/typeorm/entities/Integration';
 import axios, { AxiosError } from 'axios';
 
 import { SpotifyIntegration } from './integration.js';

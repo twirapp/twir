@@ -3,10 +3,10 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/satont/tsuwari/libs/pubsub"
+	"github.com/satont/twir/libs/pubsub"
 
-	"github.com/satont/tsuwari/apps/bots/internal/bots"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/bots/internal/bots"
+	model "github.com/satont/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 

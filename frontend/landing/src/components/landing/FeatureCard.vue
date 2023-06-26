@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import { TswIcon } from '@tsuwari/ui-components';
+import { TswIcon } from '@twir/ui-components';
 import { useWindowSize } from '@vueuse/core';
 import { Ref, ref } from 'vue';
 
@@ -32,8 +32,8 @@ const card = ref(null) as Ref<HTMLElement | null>;
 
 <style lang="postcss" scoped>
 .feature-card {
-  @apply min-md:p-7 py-8 min-md:rounded-[10px] flex flex-col h-full justify-center gap-y-6 relative z-10 overflow-hidden 
-  min-md:border border-b border-black-25 min-md:border-black-20 min-md:bg-black-15 min-md:bg-opacity-30 
+  @apply min-md:p-7 py-8 min-md:rounded-[10px] flex flex-col h-full justify-center gap-y-6 relative z-10 overflow-hidden
+  min-md:border border-b border-black-25 min-md:border-black-20 min-md:bg-black-15 min-md:bg-opacity-30
   min-md:hover:scale-[1.02] min-md:transition-transform min-md:duration-300;
 
   h3 {

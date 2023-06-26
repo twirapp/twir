@@ -1,4 +1,4 @@
-import '@tsuwari/ui-fonts';
+import '@twir/ui-fonts';
 import '../src/styles/storybook-preview.postcss';
 
 import { theme } from './manager.js';

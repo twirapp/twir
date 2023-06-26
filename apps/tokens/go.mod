@@ -1,14 +1,14 @@
-module github.com/satont/tsuwari/apps/tokens
+module github.com/satont/twir/apps/tokens
 
 go 1.20
 
-replace github.com/satont/tsuwari/libs/config => ../../libs/config
+replace github.com/satont/twir/libs/config => ../../libs/config
 
-replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
+replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 
-replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+replace github.com/satont/twir/libs/grpc => ../../libs/grpc
 
-replace github.com/satont/tsuwari/libs/crypto => ../../libs/crypto
+replace github.com/satont/twir/libs/crypto => ../../libs/crypto
 
 require (
 	github.com/getsentry/sentry-go v0.18.0
@@ -16,10 +16,10 @@ require (
 	github.com/go-redsync/redsync/v4 v4.7.1
 	github.com/nicklaw5/helix/v2 v2.22.1
 	github.com/samber/do v1.6.0
-	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/crypto v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/config v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/crypto v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0

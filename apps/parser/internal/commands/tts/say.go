@@ -9,11 +9,11 @@ import (
 	"unicode/utf8"
 
 	"github.com/guregu/null"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
+	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"go.uber.org/zap"
 )
 

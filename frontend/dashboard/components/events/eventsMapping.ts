@@ -1,4 +1,4 @@
-import { EventType } from '@tsuwari/typeorm/entities/events/Event';
+import { EventType } from '@twir/typeorm/entities/events/Event';
 
 export const eventsMapping: Record<
 	keyof typeof EventType,

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"gorm.io/gorm"
 )

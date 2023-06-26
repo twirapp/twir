@@ -6,14 +6,14 @@ import (
 	"time"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/bots/internal/di"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/bots/internal/di"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/bots/internal/bots/handlers/moderation"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/bots/internal/bots/handlers/moderation"
+	model "github.com/satont/twir/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -28,7 +28,9 @@ type parsers struct {
 	db *gorm.DB
 }
 
-var functionsMapping = map[string]func(c *parsers, settings *model.ChannelsModerationSettings, ircMsg Message, badges []string) *handleResult{
+var functionsMapping = map[string]func(
+	c *parsers, settings *model.ChannelsModerationSettings, ircMsg Message, badges []string,
+) *handleResult{
 	"links":       (*parsers).linksParser,
 	"blacklists":  (*parsers).blacklistsParser,
 	"symbols":     (*parsers).symbolsParser,
@@ -75,11 +77,13 @@ func (c *Handlers) moderateMessage(msg Message, badges []string) bool {
 			}
 
 			if res.IsDelete {
-				res, err := twitchClient.DeleteChatMessage(&helix.DeleteChatMessageParams{
-					BroadcasterID: msg.Channel.ID,
-					ModeratorID:   c.BotClient.Model.ID,
-					MessageID:     msg.ID,
-				})
+				res, err := twitchClient.DeleteChatMessage(
+					&helix.DeleteChatMessageParams{
+						BroadcasterID: msg.Channel.ID,
+						ModeratorID:   c.BotClient.Model.ID,
+						MessageID:     msg.ID,
+					},
+				)
 
 				if res.StatusCode != 200 {
 					c.logger.Sugar().Info(res.ErrorMessage)
@@ -89,15 +93,17 @@ func (c *Handlers) moderateMessage(msg Message, badges []string) bool {
 				}
 			} else {
 				if res.Time != nil {
-					res, err := twitchClient.BanUser(&helix.BanUserParams{
-						BroadcasterID: msg.Channel.ID,
-						ModeratorId:   c.BotClient.Model.ID,
-						Body: helix.BanUserRequestBody{
-							Duration: int(*res.Time),
-							Reason:   res.Message,
-							UserId:   msg.User.ID,
+					res, err := twitchClient.BanUser(
+						&helix.BanUserParams{
+							BroadcasterID: msg.Channel.ID,
+							ModeratorId:   c.BotClient.Model.ID,
+							Body: helix.BanUserRequestBody{
+								Duration: int(*res.Time),
+								Reason:   res.Message,
+								UserId:   msg.User.ID,
+							},
 						},
-					})
+					)
 
 					if res.StatusCode != 200 {
 						c.logger.Sugar().Info(res.ErrorMessage)
@@ -135,12 +141,14 @@ func (c *parsers) returnByWarnedState(
 	}
 
 	if warning.ID == "" {
-		c.db.Save(&model.ChannelModerationWarn{
-			ID:        uuid.NewV4().String(),
-			ChannelID: settings.ChannelID,
-			UserID:    userID,
-			Reason:    reason,
-		})
+		c.db.Save(
+			&model.ChannelModerationWarn{
+				ID:        uuid.NewV4().String(),
+				ChannelID: settings.ChannelID,
+				UserID:    userID,
+				Reason:    reason,
+			},
+		)
 		return &handleResult{
 			IsDelete: true,
 			Message:  settings.WarningMessage,

@@ -11,7 +11,7 @@ import {
 import { isNotEmpty, useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import { IconVariable } from '@tabler/icons';
-import { ChannelCommandGroup } from '@tsuwari/typeorm/entities/ChannelCommandGroup';
+import { ChannelCommandGroup } from '@twir/typeorm/entities/ChannelCommandGroup';
 import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 

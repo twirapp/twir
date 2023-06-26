@@ -46,16 +46,16 @@ importers:
 
   apps/dota:
     dependencies:
-      '@tsuwari/config':
+      '@twir/config':
         specifier: workspace:*
         version: link:../../libs/config
-      '@tsuwari/grpc':
+      '@twir/grpc':
         specifier: workspace:*
         version: link:../../libs/grpc
-      '@tsuwari/shared':
+      '@twir/shared':
         specifier: workspace:*
         version: link:../../libs/shared
-      '@tsuwari/typeorm':
+      '@twir/typeorm':
         specifier: workspace:*
         version: link:../../libs/typeorm
       '@types/lodash':
@@ -95,10 +95,10 @@ importers:
 
   apps/eval:
     dependencies:
-      '@tsuwari/config':
+      '@twir/config':
         specifier: workspace:*
         version: link:../../libs/config
-      '@tsuwari/grpc':
+      '@twir/grpc':
         specifier: workspace:*
         version: link:../../libs/grpc
       lodash:
@@ -117,16 +117,16 @@ importers:
 
   apps/integrations:
     dependencies:
-      '@tsuwari/config':
+      '@twir/config':
         specifier: workspace:*
         version: link:../../libs/config
-      '@tsuwari/grpc':
+      '@twir/grpc':
         specifier: workspace:*
         version: link:../../libs/grpc
-      '@tsuwari/shared':
+      '@twir/shared':
         specifier: workspace:*
         version: link:../../libs/shared
-      '@tsuwari/typeorm':
+      '@twir/typeorm':
         specifier: workspace:*
         version: link:../../libs/typeorm
       '@twurple/api':
@@ -160,10 +160,10 @@ importers:
 
   apps/ytsr:
     dependencies:
-      '@tsuwari/config':
+      '@twir/config':
         specifier: workspace:^
         version: link:../../libs/config
-      '@tsuwari/grpc':
+      '@twir/grpc':
         specifier: workspace:*
         version: link:../../libs/grpc
       nice-grpc:
@@ -217,7 +217,7 @@ importers:
       '@tanstack/react-query':
         specifier: ^4.20.4
         version: 4.28.0(react-dom@18.2.0)(react@18.2.0)
-      '@tsuwari/types':
+      '@twir/types':
         specifier: workspace:*
         version: link:../../libs/types
       cookies-next:
@@ -266,10 +266,10 @@ importers:
         specifier: 4.5.4
         version: 4.5.4
     devDependencies:
-      '@tsuwari/shared':
+      '@twir/shared':
         specifier: workspace:*
         version: link:../../libs/shared
-      '@tsuwari/typeorm':
+      '@twir/typeorm':
         specifier: workspace:*
         version: link:../../libs/typeorm
       '@twurple/api':
@@ -351,16 +351,16 @@ importers:
         specifier: ^9.2.2
         version: 9.2.2(vue@3.2.47)
     devDependencies:
-      '@tsuwari/shared':
+      '@twir/shared':
         specifier: workspace:*
         version: link:../../libs/shared
-      '@tsuwari/ui-components':
+      '@twir/ui-components':
         specifier: workspace:*
         version: link:../../libs/ui/components
-      '@tsuwari/ui-fonts':
+      '@twir/ui-fonts':
         specifier: workspace:*
         version: link:../../libs/ui/fonts
-      '@tsuwari/ui-theme':
+      '@twir/ui-theme':
         specifier: workspace:*
         version: link:../../libs/ui/theme
       '@vitejs/plugin-vue':
@@ -528,7 +528,7 @@ importers:
 
   libs/integrations/spotify:
     dependencies:
-      '@tsuwari/typeorm':
+      '@twir/typeorm':
         specifier: workspace:*
         version: link:../../typeorm
       axios:
@@ -537,7 +537,7 @@ importers:
 
   libs/pubsub:
     dependencies:
-      '@tsuwari/config':
+      '@twir/config':
         specifier: workspace:*
         version: link:../config
       redis:
@@ -558,10 +558,10 @@ importers:
       '@nestjs/microservices':
         specifier: 9.2.1
         version: 9.2.1(@nestjs/common@9.2.1)(@nestjs/core@9.3.12)(ioredis@5.2.4)(reflect-metadata@0.1.13)(rxjs@7.5.7)
-      '@tsuwari/config':
+      '@twir/config':
         specifier: workspace:*
         version: link:../config
-      '@tsuwari/typeorm':
+      '@twir/typeorm':
         specifier: workspace:*
         version: link:../typeorm
       '@twurple/api':
@@ -598,10 +598,10 @@ importers:
 
   libs/typeorm:
     dependencies:
-      '@tsuwari/config':
+      '@twir/config':
         specifier: workspace:*
         version: link:../config
-      '@tsuwari/crypto':
+      '@twir/crypto':
         specifier: workspace:*
         version: link:../crypto
       pg:
@@ -682,10 +682,10 @@ importers:
       '@storybook/vue3':
         specifier: ^6.5.16
         version: 6.5.16(@babel/core@7.21.0)(@babel/preset-env@7.22.5)(@vue/compiler-sfc@3.3.4)(babel-loader@9.1.2)(eslint@8.4.1)(typescript@4.9.5)(vue@3.2.47)
-      '@tsuwari/ui-fonts':
+      '@twir/ui-fonts':
         specifier: workspace:*
         version: link:../fonts
-      '@tsuwari/ui-theme':
+      '@twir/ui-theme':
         specifier: workspace:*
         version: link:../theme
       '@vitejs/plugin-vue':
@@ -738,7 +738,7 @@ importers:
 
   libs/ui/theme:
     dependencies:
-      '@tsuwari/ui-fonts':
+      '@twir/ui-fonts':
         specifier: workspace:*
         version: link:../fonts
     devDependencies:

@@ -8,7 +8,7 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 func (c *Processor) getChannelVips() ([]helix.ChannelVips, error) {
@@ -16,9 +16,11 @@ func (c *Processor) getChannelVips() ([]helix.ChannelVips, error) {
 		return c.cache.channelVips, nil
 	}
 
-	vips, err := c.streamerApiClient.GetChannelVips(&helix.GetChannelVipsParams{
-		BroadcasterID: c.channelId,
-	})
+	vips, err := c.streamerApiClient.GetChannelVips(
+		&helix.GetChannelVipsParams{
+			BroadcasterID: c.channelId,
+		},
+	)
 	if err != nil {
 		return nil, errors.New(vips.ErrorMessage)
 	}
@@ -32,10 +34,12 @@ func (c *Processor) getChannelVips() ([]helix.ChannelVips, error) {
 	cursor := ""
 	if vips.Data.Pagination.Cursor != "" {
 		for {
-			vips, err = c.streamerApiClient.GetChannelVips(&helix.GetChannelVipsParams{
-				BroadcasterID: c.channelId,
-				After:         cursor,
-			})
+			vips, err = c.streamerApiClient.GetChannelVips(
+				&helix.GetChannelVipsParams{
+					BroadcasterID: c.channelId,
+					After:         cursor,
+				},
+			)
 
 			if err != nil {
 				return nil, errors.New(vips.ErrorMessage)
@@ -71,9 +75,11 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 
 	hydratedName = strings.TrimSpace(strings.ReplaceAll(hydratedName, "@", ""))
 
-	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
-		Logins: []string{hydratedName},
-	})
+	user, err := c.streamerApiClient.GetUsers(
+		&helix.UsersParams{
+			Logins: []string{hydratedName},
+		},
+	)
 
 	if err != nil || len(user.Data.Users) == 0 {
 		if err != nil {
@@ -101,25 +107,31 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 		return err
 	}
 
-	if lo.SomeBy(mods, func(item helix.Moderator) bool {
-		return item.UserID == user.Data.Users[0].ID
-	}) {
+	if lo.SomeBy(
+		mods, func(item helix.Moderator) bool {
+			return item.UserID == user.Data.Users[0].ID
+		},
+	) {
 		return InternalError
 	}
 
-	isAlreadyVip := lo.SomeBy(vips, func(item helix.ChannelVips) bool {
-		return item.UserID == user.Data.Users[0].ID
-	})
+	isAlreadyVip := lo.SomeBy(
+		vips, func(item helix.ChannelVips) bool {
+			return item.UserID == user.Data.Users[0].ID
+		},
+	)
 
 	if operation == "VIP" {
 		if isAlreadyVip {
 			return InternalError
 		}
 
-		resp, err := c.streamerApiClient.AddChannelVip(&helix.AddChannelVipParams{
-			BroadcasterID: c.channelId,
-			UserID:        user.Data.Users[0].ID,
-		})
+		resp, err := c.streamerApiClient.AddChannelVip(
+			&helix.AddChannelVipParams{
+				BroadcasterID: c.channelId,
+				UserID:        user.Data.Users[0].ID,
+			},
+		)
 		if resp.ErrorMessage != "" || err != nil {
 			if err != nil {
 				return err
@@ -127,20 +139,24 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 				return errors.New(resp.ErrorMessage)
 			}
 		} else {
-			c.cache.channelVips = append(c.cache.channelVips, helix.ChannelVips{
-				UserID:    user.Data.Users[0].ID,
-				UserLogin: user.Data.Users[0].Login,
-				UserName:  user.Data.Users[0].DisplayName,
-			})
+			c.cache.channelVips = append(
+				c.cache.channelVips, helix.ChannelVips{
+					UserID:    user.Data.Users[0].ID,
+					UserLogin: user.Data.Users[0].Login,
+					UserName:  user.Data.Users[0].DisplayName,
+				},
+			)
 		}
 	} else {
 		if !isAlreadyVip {
 			return InternalError
 		}
-		resp, err := c.streamerApiClient.RemoveChannelVip(&helix.RemoveChannelVipParams{
-			BroadcasterID: c.channelId,
-			UserID:        user.Data.Users[0].ID,
-		})
+		resp, err := c.streamerApiClient.RemoveChannelVip(
+			&helix.RemoveChannelVipParams{
+				BroadcasterID: c.channelId,
+				UserID:        user.Data.Users[0].ID,
+			},
+		)
 		if resp.ErrorMessage != "" || err != nil {
 			if err != nil {
 				return err
@@ -148,9 +164,11 @@ func (c *Processor) VipOrUnvip(input string, operation model.EventOperationType)
 				return errors.New(resp.Error)
 			}
 		} else {
-			c.cache.channelVips = lo.Filter(c.cache.channelVips, func(item helix.ChannelVips, index int) bool {
-				return item.UserID != user.Data.Users[0].ID
-			})
+			c.cache.channelVips = lo.Filter(
+				c.cache.channelVips, func(item helix.ChannelVips, index int) bool {
+					return item.UserID != user.Data.Users[0].ID
+				},
+			)
 		}
 	}
 
@@ -185,13 +203,19 @@ func (c *Processor) UnvipRandom(operation model.EventOperationType, slots string
 	}
 
 	// choose random vip, but filter out bot account
-	randomVip := lo.Sample(lo.Filter(vips, func(item helix.ChannelVips, index int) bool {
-		return item.UserID != dbChannel.BotID
-	}))
-	removeReq, err := c.streamerApiClient.RemoveChannelVip(&helix.RemoveChannelVipParams{
-		BroadcasterID: c.channelId,
-		UserID:        randomVip.UserID,
-	})
+	randomVip := lo.Sample(
+		lo.Filter(
+			vips, func(item helix.ChannelVips, index int) bool {
+				return item.UserID != dbChannel.BotID
+			},
+		),
+	)
+	removeReq, err := c.streamerApiClient.RemoveChannelVip(
+		&helix.RemoveChannelVipParams{
+			BroadcasterID: c.channelId,
+			UserID:        randomVip.UserID,
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -200,9 +224,11 @@ func (c *Processor) UnvipRandom(operation model.EventOperationType, slots string
 		return errors.New(removeReq.ErrorMessage)
 	}
 
-	c.cache.channelVips = lo.Filter(c.cache.channelVips, func(item helix.ChannelVips, index int) bool {
-		return item.UserID != randomVip.UserID
-	})
+	c.cache.channelVips = lo.Filter(
+		c.cache.channelVips, func(item helix.ChannelVips, index int) bool {
+			return item.UserID != randomVip.UserID
+		},
+	)
 
 	if len(c.data.PrevOperation.UnvipedUserName) > 0 {
 		c.data.PrevOperation.UnvipedUserName += ", " + randomVip.UserName

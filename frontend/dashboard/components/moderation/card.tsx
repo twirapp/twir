@@ -1,6 +1,6 @@
 import { ActionIcon, Card, Divider, Flex, Grid, Group, Text } from '@mantine/core';
 import { IconPencil } from '@tabler/icons';
-import type { ChannelModerationSetting } from '@tsuwari/typeorm/entities/ChannelModerationSetting';
+import type { ChannelModerationSetting } from '@twir/typeorm/entities/ChannelModerationSetting';
 import { useTranslation } from 'next-i18next';
 
 import { typesMapping } from './mapping';

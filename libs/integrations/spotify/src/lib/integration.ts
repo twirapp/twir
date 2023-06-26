@@ -1,5 +1,5 @@
-import { Repository } from '@tsuwari/typeorm';
-import { Integration, IntegrationService } from '@tsuwari/typeorm/entities/Integration';
+import { Repository } from '@twir/typeorm';
+import { Integration, IntegrationService } from '@twir/typeorm/entities/Integration';
 
 export class SpotifyIntegration {
   constructor(private readonly repository: Repository<Integration>) {}

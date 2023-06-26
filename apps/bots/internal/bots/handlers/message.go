@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"context"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/events"
 	"strings"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/bots/internal/bots/handlers/messages"
+	"github.com/satont/twir/apps/bots/internal/bots/handlers/messages"
 )
 
 func (c *Handlers) OnMessage(msg *Message) {

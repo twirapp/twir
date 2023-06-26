@@ -2,7 +2,7 @@ package handlers
 
 import (
 	irc "github.com/gempir/go-twitch-irc/v3"
-	"github.com/satont/tsuwari/apps/bots/pkg/utils"
+	"github.com/satont/twir/apps/bots/pkg/utils"
 )
 
 func (c *Handlers) OnUserStateMessage(msg irc.UserStateMessage) {

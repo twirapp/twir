@@ -3,7 +3,7 @@ package middlewares
 import (
 	"net/http"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
@@ -28,9 +28,11 @@ var CheckHasAccessToDashboard = func(c *fiber.Ctx) error {
 		return c.Next()
 	}
 
-	_, ok := lo.Find(dbUser.Roles, func(a model.ChannelRoleUser) bool {
-		return a.Role.ChannelID == channelId
-	})
+	_, ok := lo.Find(
+		dbUser.Roles, func(a model.ChannelRoleUser) bool {
+			return a.Role.ChannelID == channelId
+		},
+	)
 
 	if ok {
 		return c.Next()

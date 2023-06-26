@@ -5,13 +5,15 @@ import (
 	"fmt"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 var ScoreWins = &types.Variable{
 	Name:        "faceit.score.wins",
 	Description: lo.ToPtr(`Faceit wins on stream`),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		matches, err := parseCtx.Cacher.GetFaceitLatestMatches(ctx)
@@ -20,13 +22,15 @@ var ScoreWins = &types.Variable{
 			return result, nil
 		}
 
-		wins := lo.Reduce(matches, func(agg int, item *types.FaceitMatch, _ int) int {
-			if item.IsWin {
-				return agg + 1
-			} else {
-				return agg
-			}
-		}, 0)
+		wins := lo.Reduce(
+			matches, func(agg int, item *types.FaceitMatch, _ int) int {
+				if item.IsWin {
+					return agg + 1
+				} else {
+					return agg
+				}
+			}, 0,
+		)
 
 		result.Result = fmt.Sprintf("%v", wins)
 		return result, nil

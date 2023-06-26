@@ -21,7 +21,7 @@ import {
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import { IconGripVertical, IconMinus, IconPlus, IconVariable } from '@tabler/icons';
-import { ChannelTimer } from '@tsuwari/typeorm/entities/ChannelTimer';
+import { ChannelTimer } from '@twir/typeorm/entities/ChannelTimer';
 import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';

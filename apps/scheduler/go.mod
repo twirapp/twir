@@ -1,13 +1,13 @@
-module github.com/satont/tsuwari/apps/scheduler
+module github.com/satont/twir/apps/scheduler
 
 go 1.20
 
 replace (
-	github.com/satont/tsuwari/libs/config => ../../libs/config
-	github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
-	github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
-	github.com/satont/tsuwari/libs/pubsub => ../../libs/pubsub
-	github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
+	github.com/satont/twir/libs/config => ../../libs/config
+	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
+	github.com/satont/twir/libs/grpc => ../../libs/grpc
+	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
+	github.com/satont/twir/libs/twitch => ../../libs/twitch
 )
 
 require (
@@ -16,11 +16,11 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/nicklaw5/helix/v2 v2.22.1
 	github.com/samber/lo v1.38.1
-	github.com/satont/tsuwari/libs/config v0.0.0-20230302140714-704247d5bf81
-	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/grpc v0.0.0-20230302140714-704247d5bf81
-	github.com/satont/tsuwari/libs/pubsub v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/twitch v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/config v0.0.0-20230302140714-704247d5bf81
+	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/grpc v0.0.0-20230302140714-704247d5bf81
+	github.com/satont/twir/libs/pubsub v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/twitch v0.0.0-00010101000000-000000000000
 	go.uber.org/zap v1.24.0
 	google.golang.org/protobuf v1.30.0
 	gorm.io/driver/postgres v1.5.2

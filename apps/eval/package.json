@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/eval",
+  "name": "@twir/eval",
   "type": "module",
   "scripts": {
     "prebuild": "rm -rf dist",
@@ -7,8 +7,8 @@
     "start": "node --enable-source-maps dist/index.js"
   },
   "dependencies": {
-    "@tsuwari/config": "workspace:*",
-    "@tsuwari/grpc": "workspace:*",
+    "@twir/config": "workspace:*",
+    "@twir/grpc": "workspace:*",
     "lodash": "4.17.21",
     "nice-grpc": "^2.0.1",
     "vm2": "^3.9.12"

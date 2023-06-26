@@ -5,15 +5,17 @@ import (
 	"strconv"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/parser/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 var SongsRequested = &types.Variable{
 	Name:         "user.songs.requested.count",
 	Description:  lo.ToPtr("How many songs user requested"),
 	CommandsOnly: true,
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		var count int64

@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const TsuwariTheme = require('@tsuwari/ui-theme');
+const TsuwariTheme = require('@twir/ui-theme');
 
 /** @type {import('tailwindcss').Config} **/
 module.exports = {

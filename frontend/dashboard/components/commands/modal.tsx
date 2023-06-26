@@ -37,7 +37,7 @@ import type {
 	ChannelCommand,
 	CommandModule,
 	CooldownType,
-} from '@tsuwari/typeorm/entities/ChannelCommand';
+} from '@twir/typeorm/entities/ChannelCommand';
 import { useTranslation } from 'next-i18next';
 import { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';

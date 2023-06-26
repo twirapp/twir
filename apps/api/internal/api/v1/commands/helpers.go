@@ -3,7 +3,7 @@ package commands
 import (
 	"sort"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/guregu/null"
 	"github.com/samber/lo"
@@ -19,9 +19,11 @@ func getChannelCommands(db *gorm.DB, channelId string) []model.ChannelsCommands 
 		Where(`"channelId" = ?`, channelId).
 		Find(&cmds)
 
-	sort.Slice(cmds, func(i, j int) bool {
-		return cmds[i].Name < cmds[j].Name
-	})
+	sort.Slice(
+		cmds, func(i, j int) bool {
+			return cmds[i].Name < cmds[j].Name
+		},
+	)
 
 	return cmds
 }

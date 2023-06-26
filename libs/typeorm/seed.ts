@@ -1,6 +1,6 @@
 import { resolve } from 'path';
 
-import { encrypt } from '@tsuwari/crypto';
+import { encrypt } from '@twir/crypto';
 import * as dotenv from 'dotenv';
 
 dotenv.config({ path: resolve(process.cwd(), '../../.env') });
@@ -9,7 +9,7 @@ import { AppDataSource } from './src';
 import { Bot, BotType } from './src/entities/Bot';
 import { Token } from './src/entities/Token';
 
-import { config } from '@tsuwari/config';
+import { config } from '@twir/config';
 
 async function bootstrap() {
   const typeorm = await AppDataSource.initialize();

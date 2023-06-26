@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/satont/tsuwari/libs/grpc/servers"
+	"github.com/satont/twir/libs/grpc/servers"
 	"net"
 	"os"
 	"os/exec"

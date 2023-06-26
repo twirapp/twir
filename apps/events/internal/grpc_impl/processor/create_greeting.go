@@ -2,7 +2,7 @@ package processor
 
 import (
 	"github.com/nicklaw5/helix/v2"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -11,9 +11,11 @@ func (c *Processor) CreateGreeting() error {
 		return InternalError
 	}
 
-	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
-		Logins: []string{c.data.UserName},
-	})
+	user, err := c.streamerApiClient.GetUsers(
+		&helix.UsersParams{
+			Logins: []string{c.data.UserName},
+		},
+	)
 	if err != nil {
 		return err
 	}

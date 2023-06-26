@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/guregu/null"
 	req "github.com/imroc/req/v3"
@@ -99,9 +99,11 @@ func (c *Spotify) GetTrack() *string {
 		return nil
 	}
 
-	artistsMap := lo.Map(data.Track.Artists, func(artist SpotifyArtist, _ int) string {
-		return artist.Name
-	})
+	artistsMap := lo.Map(
+		data.Track.Artists, func(artist SpotifyArtist, _ int) string {
+			return artist.Name
+		},
+	)
 
 	response := fmt.Sprintf(
 		"%s — %s",

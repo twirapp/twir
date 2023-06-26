@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { V1 } from '@tsuwari/types/api';
+import { V1 } from '@twir/types/api';
 import { useContext } from 'react';
 
 import { queryClient } from './queryClient';

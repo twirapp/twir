@@ -2,7 +2,7 @@
 
 /** @type { import('tailwindcss/defaultTheme') } */
 module.exports = {
-  fontFamily: require('@tsuwari/ui-fonts/tailwind'),
+  fontFamily: require('@twir/ui-fonts/tailwind'),
   container: {
     center: true,
     screens: {

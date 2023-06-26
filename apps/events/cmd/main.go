@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"github.com/getsentry/sentry-go"
-	"github.com/satont/tsuwari/apps/events/internal"
-	"github.com/satont/tsuwari/apps/events/internal/grpc_impl"
-	config "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/clients"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
-	"github.com/satont/tsuwari/libs/grpc/servers"
+	"github.com/satont/twir/apps/events/internal"
+	"github.com/satont/twir/apps/events/internal/grpc_impl"
+	config "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/clients"
+	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/servers"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
@@ -29,12 +29,14 @@ func main() {
 	}
 
 	if cfg.SentryDsn != "" {
-		sentry.Init(sentry.ClientOptions{
-			Dsn:              cfg.SentryDsn,
-			Environment:      cfg.AppEnv,
-			Debug:            true,
-			TracesSampleRate: 1.0,
-		})
+		sentry.Init(
+			sentry.ClientOptions{
+				Dsn:              cfg.SentryDsn,
+				Environment:      cfg.AppEnv,
+				Debug:            true,
+				TracesSampleRate: 1.0,
+			},
+		)
 	}
 
 	var logger *zap.Logger

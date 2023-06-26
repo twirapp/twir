@@ -1,4 +1,4 @@
-import { config } from '@tsuwari/config';
-import { createEvents } from '@tsuwari/grpc/clients/events';
+import { config } from '@twir/config';
+import { createEvents } from '@twir/grpc/clients/events';
 
 export const eventsGrpcClient = await createEvents(config.NODE_ENV);

@@ -80,7 +80,7 @@
 </template>
 
 <script lang="ts" setup>
-import { TswImage } from '@tsuwari/ui-components';
+import { TswImage } from '@twir/ui-components';
 
 import PurpleBlob from '@/assets/blob-purple.png';
 import CurveArrow from '@/assets/CurveArrow.svg?component';

@@ -8,15 +8,17 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/satont/twir/libs/twitch"
 )
 
 var FollowSince = &types.Variable{
 	Name:         "user.followsince",
 	Description:  lo.ToPtr(`User follow since in "16 January 2023 (22 days)" format.`),
 	CommandsOnly: true,
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		twitchClient, err := twitch.NewAppClientWithContext(
 			ctx,
 			*parseCtx.Services.Config,
@@ -32,9 +34,11 @@ var FollowSince = &types.Variable{
 		if parseCtx.Text != nil {
 			userName := strings.ReplaceAll(*parseCtx.Text, "@", "")
 
-			users, err := twitchClient.GetUsers(&helix.UsersParams{
-				Logins: []string{userName},
-			})
+			users, err := twitchClient.GetUsers(
+				&helix.UsersParams{
+					Logins: []string{userName},
+				},
+			)
 
 			if err != nil || len(users.Data.Users) == 0 {
 				result.Result = "Cannot find user " + *parseCtx.Text + " on twitch."

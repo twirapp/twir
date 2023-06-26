@@ -4,13 +4,15 @@ import (
 	"context"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 var Title = &types.Variable{
 	Name:        "stream.title",
 	Description: lo.ToPtr("Stream title"),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
 		stream := parseCtx.Cacher.GetChannelStream(ctx)

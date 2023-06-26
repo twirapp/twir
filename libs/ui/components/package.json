@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/ui-components",
+  "name": "@twir/ui-components",
   "version": "1.0.0",
   "private": true,
   "files": [
@@ -39,8 +39,8 @@
     "@storybook/testing-library": "^0.0.13",
     "@storybook/theming": "^6.5.16",
     "@storybook/vue3": "^6.5.16",
-    "@tsuwari/ui-fonts": "workspace:*",
-    "@tsuwari/ui-theme": "workspace:*",
+    "@twir/ui-fonts": "workspace:*",
+    "@twir/ui-theme": "workspace:*",
     "@vitejs/plugin-vue": "^4.0.0",
     "@vueuse/core": "^9.13.0",
     "autoprefixer": "^10.4.13",

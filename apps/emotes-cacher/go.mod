@@ -1,18 +1,18 @@
-module github.com/satont/tsuwari/apps/emotes-cacher
+module github.com/satont/twir/apps/emotes-cacher
 
 go 1.20
 
-replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+replace github.com/satont/twir/libs/grpc => ../../libs/grpc
 
-replace github.com/satont/tsuwari/libs/config => ../../libs/config
+replace github.com/satont/twir/libs/config => ../../libs/config
 
 require (
 	github.com/getsentry/sentry-go v0.18.0
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/samber/do v1.6.0
 	github.com/samber/lo v1.38.1
-	github.com/satont/tsuwari/libs/config v0.0.0
-	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/config v0.0.0
+	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0

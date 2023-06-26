@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts" setup>
-import { TswIcon, TswAvatar } from '@tsuwari/ui-components';
+import { TswIcon, TswAvatar } from '@twir/ui-components';
 
 import UserImage from '@/assets/User.svg?component';
 import ClientOnly from '@/components/ClientOnly.vue';

@@ -2,8 +2,8 @@ package grpc_impl
 
 import (
 	"errors"
-	"github.com/satont/tsuwari/apps/events/internal"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/events/internal"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.Data, eventType model.EventType) error {

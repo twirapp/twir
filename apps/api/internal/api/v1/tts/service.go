@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/imroc/req/v3"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	cfg "github.com/satont/tsuwari/libs/config"
+	"github.com/satont/twir/apps/api/internal/di"
+	cfg "github.com/satont/twir/libs/config"
 	"io"
 	"net/url"
 )

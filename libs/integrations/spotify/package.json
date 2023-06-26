@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/spotify",
+  "name": "@twir/spotify",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tsuwari/typeorm": "workspace:*",
+    "@twir/typeorm": "workspace:*",
     "axios": "1.2.0"
   }
 }

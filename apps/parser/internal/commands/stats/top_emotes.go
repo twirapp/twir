@@ -6,9 +6,9 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	"github.com/satont/tsuwari/apps/parser/internal/variables/top"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/variables/top"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 var TopEmotes = &types.DefaultCommand{

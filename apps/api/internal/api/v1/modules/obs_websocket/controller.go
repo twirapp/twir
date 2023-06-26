@@ -2,9 +2,9 @@ package obs_websocket
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/satont/tsuwari/apps/api/internal/middlewares"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	modules "github.com/satont/tsuwari/libs/types/types/api/modules"
+	"github.com/satont/twir/apps/api/internal/middlewares"
+	"github.com/satont/twir/apps/api/internal/types"
+	modules "github.com/satont/twir/libs/types/types/api/modules"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {

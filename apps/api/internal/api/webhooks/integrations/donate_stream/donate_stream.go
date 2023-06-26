@@ -4,12 +4,12 @@ import (
 	"github.com/go-redis/redis/v9"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"github.com/satont/tsuwari/apps/api/internal/middlewares"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/middlewares"
+	"github.com/satont/twir/apps/api/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/events"
 	"net/http"
 )
 
@@ -60,13 +60,15 @@ func handlePost(services types.Services) fiber.Handler {
 
 		eventsGrpcClient := do.MustInvoke[events.EventsClient](di.Provider)
 
-		eventsGrpcClient.Donate(ctx.Context(), &events.DonateMessage{
-			BaseInfo: &events.BaseInfo{ChannelId: integration.ChannelID},
-			UserName: dto.Nickname,
-			Amount:   dto.Sum,
-			Currency: "RUB",
-			Message:  dto.Message,
-		})
+		eventsGrpcClient.Donate(
+			ctx.Context(), &events.DonateMessage{
+				BaseInfo: &events.BaseInfo{ChannelId: integration.ChannelID},
+				UserName: dto.Nickname,
+				Amount:   dto.Sum,
+				Currency: "RUB",
+				Message:  dto.Message,
+			},
+		)
 
 		return ctx.SendStatus(http.StatusOK)
 	}

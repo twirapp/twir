@@ -5,16 +5,16 @@ import (
 	"net/http"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
 	"gorm.io/gorm"
 
 	"github.com/guregu/null"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/api/v1/integrations/helpers"
+	"github.com/satont/twir/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 	lfm "github.com/shkh/lastfm-go/lastfm"
 )

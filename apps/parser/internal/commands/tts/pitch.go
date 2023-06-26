@@ -6,10 +6,10 @@ import (
 	"strconv"
 
 	"github.com/guregu/null"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 	"go.uber.org/zap"
 )
 
@@ -42,10 +42,13 @@ var PitchCommand = &types.DefaultCommand{
 				fmt.Sprintf(
 					"Global pitch: %v | Your pitch: %v",
 					channelSettings.Pitch,
-					lo.IfF(userSettings != nil, func() int {
-						return userSettings.Pitch
-					}).Else(channelSettings.Pitch),
-				))
+					lo.IfF(
+						userSettings != nil, func() int {
+							return userSettings.Pitch
+						},
+					).Else(channelSettings.Pitch),
+				),
+			)
 			return result
 		}
 

@@ -67,7 +67,7 @@
 </template>
 
 <script lang="ts" setup>
-import { TswIcon } from '@tsuwari/ui-components';
+import { TswIcon } from '@twir/ui-components';
 
 import UserImage from '@/assets/User.svg?component';
 import type { TeamMemberMedia } from '@/data/landing/team.js';

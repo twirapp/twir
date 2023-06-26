@@ -2,7 +2,7 @@ package types
 
 import (
 	"context"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 type CommandsHandlerResult struct {

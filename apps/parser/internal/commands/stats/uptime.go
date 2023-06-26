@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	"github.com/satont/tsuwari/apps/parser/internal/variables/stream"
+	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/variables/stream"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 var Uptime = &types.DefaultCommand{

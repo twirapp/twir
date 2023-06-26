@@ -1,6 +1,6 @@
-import { config } from '@tsuwari/config';
-import * as YTSR from '@tsuwari/grpc/generated/ytsr/ytsr';
-import { PORTS } from '@tsuwari/grpc/servers/constants';
+import { config } from '@twir/config';
+import * as YTSR from '@twir/grpc/generated/ytsr/ytsr';
+import { PORTS } from '@twir/grpc/servers/constants';
 import { createServer } from 'nice-grpc';
 import tlds from 'tlds' assert { type: 'json' };
 import ytsrLib, { Video } from 'ytsr';

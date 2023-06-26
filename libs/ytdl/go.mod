@@ -1,4 +1,4 @@
-module github.com/satont/tsuwari/libs/youtube
+module github.com/satont/twir/libs/youtube
 
 go 1.18
 

@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts" setup>
-import { TswIcon, TswAvatar, cssURL, TswDropdown } from '@tsuwari/ui-components';
+import { TswIcon, TswAvatar, cssURL, TswDropdown } from '@twir/ui-components';
 
 import { appMenu, appMenuIcons } from './router.js';
 

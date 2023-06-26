@@ -4,12 +4,12 @@ import (
 	"context"
 	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/timers"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/timers"
 
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/types"
 )
 
 func handleGet(channelId string) []model.ChannelsTimers {
@@ -31,29 +31,35 @@ func handlePost(
 	timersService := do.MustInvoke[interfaces.TimersService](di.Provider)
 	timersGrpc := do.MustInvoke[timers.TimersClient](di.Provider)
 
-	responses := lo.Map(dto.Responses, func(r responseDto, _ int) model.ChannelsTimersResponses {
-		return model.ChannelsTimersResponses{
-			Text:       r.Text,
-			IsAnnounce: *r.IsAnnounce,
-		}
-	})
+	responses := lo.Map(
+		dto.Responses, func(r responseDto, _ int) model.ChannelsTimersResponses {
+			return model.ChannelsTimersResponses{
+				Text:       r.Text,
+				IsAnnounce: *r.IsAnnounce,
+			}
+		},
+	)
 
-	timer, err := timersService.Create(model.ChannelsTimers{
-		ChannelID:                channelId,
-		Name:                     dto.Name,
-		Enabled:                  *dto.Enabled,
-		TimeInterval:             int32(dto.TimeInterval),
-		MessageInterval:          int32(dto.MessageInterval),
-		LastTriggerMessageNumber: 0,
-	}, responses)
+	timer, err := timersService.Create(
+		model.ChannelsTimers{
+			ChannelID:                channelId,
+			Name:                     dto.Name,
+			Enabled:                  *dto.Enabled,
+			TimeInterval:             int32(dto.TimeInterval),
+			MessageInterval:          int32(dto.MessageInterval),
+			LastTriggerMessageNumber: 0,
+		}, responses,
+	)
 
 	if err != nil {
 		return nil, err
 	}
 
-	timersGrpc.AddTimerToQueue(context.Background(), &timers.Request{
-		TimerId: timer.ID,
-	})
+	timersGrpc.AddTimerToQueue(
+		context.Background(), &timers.Request{
+			TimerId: timer.ID,
+		},
+	)
 
 	return timer, nil
 }
@@ -68,9 +74,11 @@ func handleDelete(timerId string, services types.Services) error {
 		return err
 	}
 
-	timersGrpc.RemoveTimerFromQueue(context.Background(), &timers.Request{
-		TimerId: timerId,
-	})
+	timersGrpc.RemoveTimerFromQueue(
+		context.Background(), &timers.Request{
+			TimerId: timerId,
+		},
+	)
 
 	return nil
 }
@@ -83,12 +91,14 @@ func handlePut(
 	timersService := do.MustInvoke[interfaces.TimersService](di.Provider)
 	timersGrpc := do.MustInvoke[timers.TimersClient](di.Provider)
 
-	responses := lo.Map(dto.Responses, func(r responseDto, _ int) model.ChannelsTimersResponses {
-		return model.ChannelsTimersResponses{
-			Text:       r.Text,
-			IsAnnounce: *r.IsAnnounce,
-		}
-	})
+	responses := lo.Map(
+		dto.Responses, func(r responseDto, _ int) model.ChannelsTimersResponses {
+			return model.ChannelsTimersResponses{
+				Text:       r.Text,
+				IsAnnounce: *r.IsAnnounce,
+			}
+		},
+	)
 
 	timer, err := timersService.Update(
 		timerId,
@@ -106,13 +116,17 @@ func handlePut(
 	}
 
 	if timer.Enabled {
-		timersGrpc.AddTimerToQueue(context.Background(), &timers.Request{
-			TimerId: timer.ID,
-		})
+		timersGrpc.AddTimerToQueue(
+			context.Background(), &timers.Request{
+				TimerId: timer.ID,
+			},
+		)
 	} else {
-		timersGrpc.RemoveTimerFromQueue(context.Background(), &timers.Request{
-			TimerId: timer.ID,
-		})
+		timersGrpc.RemoveTimerFromQueue(
+			context.Background(), &timers.Request{
+				TimerId: timer.ID,
+			},
+		)
 	}
 
 	return timer, nil
@@ -132,13 +146,17 @@ func handlePatch(
 	}
 
 	if updatedTimer.Enabled {
-		timersGrpc.AddTimerToQueue(context.Background(), &timers.Request{
-			TimerId: timerId,
-		})
+		timersGrpc.AddTimerToQueue(
+			context.Background(), &timers.Request{
+				TimerId: timerId,
+			},
+		)
 	} else {
-		timersGrpc.RemoveTimerFromQueue(context.Background(), &timers.Request{
-			TimerId: timerId,
-		})
+		timersGrpc.RemoveTimerFromQueue(
+			context.Background(), &timers.Request{
+				TimerId: timerId,
+			},
+		)
 	}
 
 	return updatedTimer, nil

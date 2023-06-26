@@ -3,8 +3,8 @@ package obs
 import (
 	"encoding/json"
 	"github.com/olahol/melody"
-	"github.com/satont/tsuwari/apps/websockets/internal/namespaces/helpers"
-	"github.com/satont/tsuwari/apps/websockets/types"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
+	"github.com/satont/twir/apps/websockets/types"
 )
 
 type OBS struct {
@@ -20,17 +20,21 @@ func NewObs(services *types.Services) *OBS {
 		services: services,
 	}
 
-	obs.manager.HandleConnect(func(session *melody.Session) {
-		err := helpers.CheckUserByApiKey(services.Gorm, session)
-		if err != nil {
-			services.Logger.Error(err)
-			return
-		}
-	})
+	obs.manager.HandleConnect(
+		func(session *melody.Session) {
+			err := helpers.CheckUserByApiKey(services.Gorm, session)
+			if err != nil {
+				services.Logger.Error(err)
+				return
+			}
+		},
+	)
 
-	obs.manager.HandleMessage(func(session *melody.Session, msg []byte) {
-		obs.handleMessage(session, msg)
-	})
+	obs.manager.HandleMessage(
+		func(session *melody.Session, msg []byte) {
+			obs.handleMessage(session, msg)
+		},
+	)
 
 	return obs
 }
@@ -47,10 +51,12 @@ func (c *OBS) SendEvent(userId, eventName string, data any) error {
 		return err
 	}
 
-	err = c.manager.BroadcastFilter(bytes, func(session *melody.Session) bool {
-		socketUserId, ok := session.Get("userId")
-		return ok && socketUserId.(string) == userId
-	})
+	err = c.manager.BroadcastFilter(
+		bytes, func(session *melody.Session) bool {
+			socketUserId, ok := session.Get("userId")
+			return ok && socketUserId.(string) == userId
+		},
+	)
 
 	if err != nil {
 		c.services.Logger.Error(err)

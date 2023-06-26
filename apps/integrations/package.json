@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/integrations",
+  "name": "@twir/integrations",
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "tsc",
@@ -7,10 +7,10 @@
   },
   "type": "module",
   "dependencies": {
-    "@tsuwari/config": "workspace:*",
-    "@tsuwari/grpc": "workspace:*",
-    "@tsuwari/shared": "workspace:*",
-    "@tsuwari/typeorm": "workspace:*",
+    "@twir/config": "workspace:*",
+    "@twir/grpc": "workspace:*",
+    "@twir/shared": "workspace:*",
+    "@twir/typeorm": "workspace:*",
     "@twurple/api": "^5.2.7",
     "@twurple/auth": "^5.2.7",
     "centrifuge": "2.8.5",
