@@ -234,13 +234,13 @@ importers:
         version: 2.0.3(react@18.2.0)
       next:
         specifier: 13.0.7
-        version: 13.0.7(@babel/core@7.22.5)(react-dom@18.2.0)(react@18.2.0)
+        version: 13.0.7(@babel/core@7.21.0)(react-dom@18.2.0)(react@18.2.0)
       next-i18next:
         specifier: ^13.0.2
         version: 13.2.2(i18next@22.4.13)(next@13.0.7)(react-i18next@12.2.0)(react@18.2.0)
       next-pwa:
         specifier: ^5.6.0
-        version: 5.6.0(@babel/core@7.22.5)(next@13.0.7)(webpack@5.88.1)
+        version: 5.6.0(@babel/core@7.21.0)(next@13.0.7)(webpack@5.88.1)
       obs-websocket-js:
         specifier: ^5.0.2
         version: 5.0.2
@@ -551,7 +551,7 @@ importers:
         version: 3.0.0
       '@nestjs/common':
         specifier: 9.2.1
-        version: 9.2.1(class-validator@0.13.2)(reflect-metadata@0.1.13)(rxjs@7.5.7)
+        version: 9.2.1(class-validator@0.14.0)(reflect-metadata@0.1.13)(rxjs@7.5.7)
       '@nestjs/core':
         specifier: ^9.2.1
         version: 9.3.12(@nestjs/common@9.2.1)(@nestjs/microservices@9.2.1)(reflect-metadata@0.1.13)(rxjs@7.5.7)
@@ -577,8 +577,8 @@ importers:
         specifier: 5.2.7
         version: 5.2.7(@twurple/api@5.2.7)
       class-validator:
-        specifier: 0.13.2
-        version: 0.13.2
+        specifier: 0.14.0
+        version: 0.14.0
       ioredis:
         specifier: 5.2.4
         version: 5.2.4
@@ -612,7 +612,7 @@ importers:
         version: 0.1.13
       ts-node:
         specifier: 10.9.1
-        version: 10.9.1(@types/node@20.3.2)(typescript@4.9.3)
+        version: 10.9.1(@types/node@18.13.0)(typescript@4.9.3)
       typeorm:
         specifier: ^0.3.17
         version: 0.3.17(pg@8.8.0)(ts-node@10.9.1)
@@ -4119,7 +4119,7 @@ packages:
     dependencies:
       '@d-fischer/detect-node': 3.0.1
       '@d-fischer/shared-utils': 3.6.3
-      tslib: 2.6.0
+      tslib: 2.4.1
     dev: true
 
   /@d-fischer/promise.allsettled@2.0.2:
@@ -4165,7 +4165,7 @@ packages:
   /@d-fischer/shared-utils@3.6.3:
     resolution: {integrity: sha512-Lz+Qk1WJLVoeREOHPZcIDTHOoxecxMSG2sq+x1xWYCH1exqiMKMMx06pXdy15UzHG7ohvQRNXk2oHqZ9EOl9jQ==}
     dependencies:
-      tslib: 2.6.0
+      tslib: 2.4.1
     dev: true
 
   /@d-fischer/typed-event-emitter@3.3.0:
@@ -5328,7 +5328,7 @@ packages:
     dependencies:
       '@mantine/ssr': 5.10.5(@emotion/react@11.10.6)(@emotion/server@11.10.0)(react-dom@18.2.0)(react@18.2.0)
       '@mantine/styles': 5.10.5(@emotion/react@11.10.6)(react-dom@18.2.0)(react@18.2.0)
-      next: 13.0.7(@babel/core@7.22.5)(react-dom@18.2.0)(react@18.2.0)
+      next: 13.0.7(@babel/core@7.21.0)(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -5537,7 +5537,7 @@ packages:
       vue: 3.2.47
     dev: false
 
-  /@nestjs/common@9.2.1(class-validator@0.13.2)(reflect-metadata@0.1.13)(rxjs@7.5.7):
+  /@nestjs/common@9.2.1(class-validator@0.14.0)(reflect-metadata@0.1.13)(rxjs@7.5.7):
     resolution: {integrity: sha512-nZuo3oDsSSlC5mti/M2aCWTEIfHPGDXmBwWgPeCpRbrNz3IWd109rkajll+yxgidVjznAdBS9y00JkAVJblNYw==}
     peerDependencies:
       cache-manager: <=5
@@ -5553,7 +5553,7 @@ packages:
       class-validator:
         optional: true
     dependencies:
-      class-validator: 0.13.2
+      class-validator: 0.14.0
       iterare: 1.2.1
       reflect-metadata: 0.1.13
       rxjs: 7.5.7
@@ -5579,7 +5579,7 @@ packages:
       '@nestjs/websockets':
         optional: true
     dependencies:
-      '@nestjs/common': 9.2.1(class-validator@0.13.2)(reflect-metadata@0.1.13)(rxjs@7.5.7)
+      '@nestjs/common': 9.2.1(class-validator@0.14.0)(reflect-metadata@0.1.13)(rxjs@7.5.7)
       '@nestjs/microservices': 9.2.1(@nestjs/common@9.2.1)(@nestjs/core@9.3.12)(ioredis@5.2.4)(reflect-metadata@0.1.13)(rxjs@7.5.7)
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
@@ -5629,7 +5629,7 @@ packages:
       nats:
         optional: true
     dependencies:
-      '@nestjs/common': 9.2.1(class-validator@0.13.2)(reflect-metadata@0.1.13)(rxjs@7.5.7)
+      '@nestjs/common': 9.2.1(class-validator@0.14.0)(reflect-metadata@0.1.13)(rxjs@7.5.7)
       '@nestjs/core': 9.3.12(@nestjs/common@9.2.1)(@nestjs/microservices@9.2.1)(reflect-metadata@0.1.13)(rxjs@7.5.7)
       ioredis: 5.2.4
       iterare: 1.2.1
@@ -8132,7 +8132,7 @@ packages:
       '@d-fischer/shared-utils': 3.6.3
       '@twurple/api-call': 5.3.4
       '@twurple/common': 5.3.4
-      tslib: 2.6.0
+      tslib: 2.4.1
     transitivePeerDependencies:
       - encoding
     dev: true
@@ -8338,10 +8338,6 @@ packages:
   /@types/node@20.3.1:
     resolution: {integrity: sha512-EhcH/wvidPy1WeML3TtYFGR83UzjxeWRen9V402T8aUGYsCHOmfoisV3ZSg03gAFIbLq8TnWOJ0f4cALtnSEUg==}
 
-  /@types/node@20.3.2:
-    resolution: {integrity: sha512-vOBLVQeCQfIcF/2Y7eKFTqrMnizK5lRNQ7ykML/5RuwVXVWxYkgwS7xbt4B6fKCUPgbSL5FSsjHQpaGQP/dQmw==}
-    dev: false
-
   /@types/normalize-package-data@2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: true
@@ -8489,6 +8485,10 @@ packages:
   /@types/unist@2.0.6:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
     dev: true
+
+  /@types/validator@13.7.17:
+    resolution: {integrity: sha512-aqayTNmeWrZcvnG2MG9eGYI6b7S5fl+yKgPs6bAjOTwPS316R5SxBGKvtSExfyoJU7pIeHJfsHI0Ji41RVMkvQ==}
+    dev: false
 
   /@types/web-bluetooth@0.0.16:
     resolution: {integrity: sha512-oh8q2Zc32S6gd/j50GowEjKLoOVOwHP/bWVjKJInBwQqdOYMdPrf1oVlelTlyfFK3CKxL1uahMDAr+vy8T7yMQ==}
@@ -8792,7 +8792,7 @@ packages:
       '@vue/shared': 3.3.4
       estree-walker: 2.0.2
       magic-string: 0.30.0
-      postcss: 8.4.21
+      postcss: 8.4.24
       source-map-js: 1.0.2
     dev: true
 
@@ -9813,22 +9813,6 @@ packages:
       make-dir: 3.1.0
       schema-utils: 2.7.1
       webpack: 5.88.1
-    dev: true
-
-  /babel-loader@8.3.0(@babel/core@7.22.5)(webpack@5.88.1):
-    resolution: {integrity: sha512-H8SvsMF+m9t15HNLMipppzkC+Y2Yq+v3SonZyU70RBL/h1gxPkH08Ot8pEE9Z4Kd+czyWJClmFS8qzIP9OZ04Q==}
-    engines: {node: '>= 8.9'}
-    peerDependencies:
-      '@babel/core': ^7.0.0
-      webpack: '>=2'
-    dependencies:
-      '@babel/core': 7.22.5
-      find-cache-dir: 3.3.2
-      loader-utils: 2.0.4
-      make-dir: 3.1.0
-      schema-utils: 2.7.1
-      webpack: 5.88.1
-    dev: false
 
   /babel-loader@9.1.2(@babel/core@7.21.0)(webpack@5.88.1):
     resolution: {integrity: sha512-mN14niXW43tddohGl8HPu5yfQq70iUThvFL/4QzESA7GcZoC0eVOhvWdQ8+3UlSjaDE9MVtsW9mxDY07W7VpVA==}
@@ -10609,9 +10593,10 @@ packages:
       static-extend: 0.1.2
     dev: true
 
-  /class-validator@0.13.2:
-    resolution: {integrity: sha512-yBUcQy07FPlGzUjoLuUfIOXzgynnQPPruyK1Ge2B74k9ROwnle1E+NxLWnUv5OLU8hA/qL5leAE9XnXq3byaBw==}
+  /class-validator@0.14.0:
+    resolution: {integrity: sha512-ct3ltplN8I9fOwUd8GrP8UQixwff129BkEtuWDKL5W45cQuLd19xqmTLu5ge78YDm/fdje6FMt0hGOhl0lii3A==}
     dependencies:
+      '@types/validator': 13.7.17
       libphonenumber-js: 1.10.24
       validator: 13.9.0
     dev: false
@@ -15115,7 +15100,7 @@ packages:
       hoist-non-react-statics: 3.3.2
       i18next: 22.4.13
       i18next-fs-backend: 2.1.1
-      next: 13.0.7(@babel/core@7.22.5)(react-dom@18.2.0)(react@18.2.0)
+      next: 13.0.7(@babel/core@7.21.0)(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-i18next: 12.2.0(i18next@22.4.13)(react-dom@18.2.0)(react@18.2.0)
     dev: false
@@ -15140,15 +15125,15 @@ packages:
       react-i18next: 12.3.1(i18next@22.5.1)(react-dom@18.2.0)(react@18.2.0)
     dev: false
 
-  /next-pwa@5.6.0(@babel/core@7.22.5)(next@13.0.7)(webpack@5.88.1):
+  /next-pwa@5.6.0(@babel/core@7.21.0)(next@13.0.7)(webpack@5.88.1):
     resolution: {integrity: sha512-XV8g8C6B7UmViXU8askMEYhWwQ4qc/XqJGnexbLV68hzKaGHZDMtHsm2TNxFcbR7+ypVuth/wwpiIlMwpRJJ5A==}
     peerDependencies:
       next: '>=9.0.0'
     dependencies:
-      babel-loader: 8.3.0(@babel/core@7.22.5)(webpack@5.88.1)
+      babel-loader: 8.3.0(@babel/core@7.21.0)(webpack@5.88.1)
       clean-webpack-plugin: 4.0.0(webpack@5.88.1)
       globby: 11.1.0
-      next: 13.0.7(@babel/core@7.22.5)(react-dom@18.2.0)(react@18.2.0)
+      next: 13.0.7(@babel/core@7.21.0)(react-dom@18.2.0)(react@18.2.0)
       terser-webpack-plugin: 5.3.7(webpack@5.88.1)
       workbox-webpack-plugin: 6.5.4(webpack@5.88.1)
       workbox-window: 6.5.4
@@ -15162,7 +15147,7 @@ packages:
       - webpack
     dev: false
 
-  /next@13.0.7(@babel/core@7.22.5)(react-dom@18.2.0)(react@18.2.0):
+  /next@13.0.7(@babel/core@7.21.0)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-YfTifqX9vfHm+rSU/H/3xvzOHDkYuMuh4wsvTjiqj9h7qHEF7KHB66X4qrH96Po+ohdid4JY8YVGPziDwdXL0A==}
     engines: {node: '>=14.6.0'}
     hasBin: true
@@ -15186,7 +15171,7 @@ packages:
       postcss: 8.4.14
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-      styled-jsx: 5.1.0(@babel/core@7.22.5)(react@18.2.0)
+      styled-jsx: 5.1.0(@babel/core@7.21.0)(react@18.2.0)
     optionalDependencies:
       '@next/swc-android-arm-eabi': 13.0.7
       '@next/swc-android-arm64': 13.0.7
@@ -18364,7 +18349,7 @@ packages:
     dependencies:
       inline-style-parser: 0.1.1
 
-  /styled-jsx@5.1.0(@babel/core@7.22.5)(react@18.2.0):
+  /styled-jsx@5.1.0(@babel/core@7.21.0)(react@18.2.0):
     resolution: {integrity: sha512-/iHaRJt9U7T+5tp6TRelLnqBqiaIT0HsO0+vgyj8hK2KUk7aejFqRrumqPUlAqDwAj8IbS/1hk3IhBAAK/FCUQ==}
     engines: {node: '>= 12.0.0'}
     peerDependencies:
@@ -18377,7 +18362,7 @@ packages:
       babel-plugin-macros:
         optional: true
     dependencies:
-      '@babel/core': 7.22.5
+      '@babel/core': 7.21.0
       client-only: 0.0.1
       react: 18.2.0
     dev: false
@@ -18682,7 +18667,7 @@ packages:
       uglify-js:
         optional: true
     dependencies:
-      '@jridgewell/trace-mapping': 0.3.18
+      '@jridgewell/trace-mapping': 0.3.17
       jest-worker: 27.5.1
       schema-utils: 3.1.1
       serialize-javascript: 6.0.1
@@ -18990,7 +18975,7 @@ packages:
       yn: 3.1.1
     dev: true
 
-  /ts-node@10.9.1(@types/node@20.3.2)(typescript@4.9.3):
+  /ts-node@10.9.1(@types/node@18.13.0)(typescript@4.9.3):
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -19009,7 +18994,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.3
-      '@types/node': 20.3.2
+      '@types/node': 18.13.0
       acorn: 8.8.2
       acorn-walk: 8.2.0
       arg: 4.1.3
@@ -19308,7 +19293,7 @@ packages:
       pg: 8.8.0
       reflect-metadata: 0.1.13
       sha.js: 2.4.11
-      ts-node: 10.9.1(@types/node@20.3.2)(typescript@4.9.3)
+      ts-node: 10.9.1(@types/node@18.13.0)(typescript@4.9.3)
       tslib: 2.6.0
       uuid: 9.0.0
       yargs: 17.7.2

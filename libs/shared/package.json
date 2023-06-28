@@ -20,7 +20,7 @@
     "@twurple/auth": "5.2.7",
     "@twurple/common": "5.2.7",
     "@twurple/eventsub": "5.2.7",
-    "class-validator": "0.13.2",
+    "class-validator": "0.14.0",
     "ioredis": "5.2.4",
     "lodash": "4.17.21",
     "rxjs": "7.5.7",
