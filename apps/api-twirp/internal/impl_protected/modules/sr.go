@@ -227,7 +227,7 @@ func (c *Modules) ModulesSRUpdate(
 		},
 	}
 
-	bytes, err := json.Marshal(request.Data.Translations)
+	bytes, err := json.Marshal(settings)
 	if err != nil {
 		return nil, err
 	}
