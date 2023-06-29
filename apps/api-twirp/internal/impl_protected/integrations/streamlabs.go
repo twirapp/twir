@@ -81,6 +81,7 @@ func (c *Integrations) IntegrationsStreamlabsPostCode(
 
 	tokensData := streamlabsTokensResponse{}
 	resp, err := req.R().
+		SetContext(ctx).
 		SetFormData(
 			map[string]string{
 				"grant_type":    "authorization_code",
@@ -102,6 +103,7 @@ func (c *Integrations) IntegrationsStreamlabsPostCode(
 
 	profileData := streamlabsProfileResponse{}
 	resp, err = req.R().
+		SetContext(ctx).
 		SetSuccessResult(&tokensData).
 		SetBearerAuthToken(tokensData.AccessToken).
 		Get("https://streamlabs.com/api/v2.0/user")
@@ -119,7 +121,7 @@ func (c *Integrations) IntegrationsStreamlabsPostCode(
 	channelIntegration.AccessToken = null.StringFrom(tokensData.AccessToken)
 	channelIntegration.RefreshToken = null.StringFrom(tokensData.RefreshToken)
 	channelIntegration.Enabled = true
-	if err = c.Db.Save(channelIntegration).Error; err != nil {
+	if err = c.Db.WithContext(ctx).Save(channelIntegration).Error; err != nil {
 		return nil, err
 	}
 

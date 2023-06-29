@@ -3,7 +3,7 @@ option go_package = "github.com/satont/twir/libs/grpc/generated/api/integrations
 package api.integrations_valorant;
 
 message GetResponse {
-	string user_name = 1;
+	optional string user_name = 1;
 }
 
 message PostRequest {
