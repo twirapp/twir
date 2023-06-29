@@ -139,6 +139,103 @@ func (c *Modules) ModulesSRUpdate(
 	ctx context.Context,
 	request *modules_sr.PostRequest,
 ) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId := ctx.Value("dashboardId").(string)
+	entity := &model.ChannelModulesSettings{}
+	if err := c.Db.WithContext(ctx).Where(`"channelId" = ?`, dashboardId).First(entity).Error; err != nil {
+		return nil, err
+	}
+
+	settings := &modules.YouTubeSettings{
+		Enabled:               &request.Data.Enabled,
+		AcceptOnlyWhenOnline:  &request.Data.AcceptOnlyWhenOnline,
+		MaxRequests:           int(request.Data.MaxRequests),
+		ChannelPointsRewardId: request.Data.ChannelPointsRewardId,
+		AnnouncePlay:          &request.Data.AnnouncePlay,
+		NeededVotesVorSkip:    float64(request.Data.NeededVotesVorSkip),
+		User: modules.YouTubeUserSettings{
+			MaxRequests:   int(request.Data.User.MaxRequests),
+			MinWatchTime:  request.Data.User.MinWatchTime,
+			MinMessages:   int(request.Data.User.MinMessages),
+			MinFollowTime: int(request.Data.User.MinFollowTime),
+		},
+		Song: modules.YouTubeSongSettings{
+			MinLength:          int(request.Data.Song.MinLength),
+			MaxLength:          int(request.Data.Song.MaxLength),
+			MinViews:           int(request.Data.Song.MinViews),
+			AcceptedCategories: request.Data.Song.AcceptedCategories,
+		},
+		DenyList: modules.YouTubeDenyList{
+			Users: lo.Map(
+				request.Data.DenyList.Users,
+				func(user *modules_sr.YouTubeDenySettingsUsers, _ int) modules.YouTubeDenySettingsUsers {
+					return modules.YouTubeDenySettingsUsers{
+						UserID:   user.UserId,
+						UserName: user.UserName,
+					}
+				},
+			),
+			Songs: lo.Map(
+				request.Data.DenyList.Songs,
+				func(song *modules_sr.YouTubeDenySettingsSongs, _ int) modules.YouTubeDenySettingsSongs {
+					return modules.YouTubeDenySettingsSongs{
+						ID:        song.Id,
+						Title:     song.Title,
+						ThumbNail: song.Thumbnail,
+					}
+				},
+			),
+			Channels: lo.Map(
+				request.Data.DenyList.Channels,
+				func(channel *modules_sr.YouTubeDenySettingsChannels, _ int) modules.YouTubeDenySettingsChannels {
+					return modules.YouTubeDenySettingsChannels{
+						ID:        channel.Id,
+						Title:     channel.Title,
+						ThumbNail: channel.Thumbnail,
+					}
+				},
+			),
+			ArtistsNames: request.Data.DenyList.ArtistsNames,
+		},
+		Translations: modules.YouTubeTranslations{
+			NowPlaying:             request.Data.Translations.NowPlaying,
+			NotEnabled:             request.Data.Translations.NotEnabled,
+			NoText:                 request.Data.Translations.NoText,
+			AcceptOnlineWhenOnline: request.Data.Translations.AcceptOnlyWhenOnline,
+			User: modules.YouTubeUserTranslations{
+				Denied:      request.Data.Translations.User.Denied,
+				MaxRequests: request.Data.Translations.User.MaxRequests,
+				MinMessages: request.Data.Translations.User.MinMessages,
+				MinWatched:  request.Data.Translations.User.MinWatched,
+				MinFollow:   request.Data.Translations.User.MinFollow,
+			},
+			Song: modules.YouTubeSongTranslations{
+				Denied:               request.Data.Translations.Song.Denied,
+				NotFound:             request.Data.Translations.Song.NotFound,
+				AlreadyInQueue:       request.Data.Translations.Song.AlreadyInQueue,
+				AgeRestrictions:      request.Data.Translations.Song.AgeRestrictions,
+				CannotGetInformation: request.Data.Translations.Song.CannotGetInformation,
+				Live:                 request.Data.Translations.Song.Live,
+				MaxLength:            request.Data.Translations.Song.MaxLength,
+				MinLength:            request.Data.Translations.Song.MinLength,
+				RequestedMessage:     request.Data.Translations.Song.RequestedMessage,
+				MaximumOrdered:       request.Data.Translations.Song.MaximumOrdered,
+				MinViews:             request.Data.Translations.Song.MinViews,
+			},
+			Channel: modules.YouTubeChannelTranslations{
+				Denied: request.Data.Translations.Channel.Denied,
+			},
+		},
+	}
+
+	bytes, err := json.Marshal(request.Data.Translations)
+	if err != nil {
+		return nil, err
+	}
+
+	entity.Settings = bytes
+	if err := c.Db.WithContext(ctx).Save(entity).Error; err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
