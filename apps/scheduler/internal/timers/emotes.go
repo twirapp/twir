@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/scheduler/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/emotes_cacher"
+	"github.com/satont/twir/apps/scheduler/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/emotes_cacher"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -37,9 +37,11 @@ func NewEmotes(ctx context.Context, services *types.Services) {
 					zap.S().Error(err)
 				} else {
 					for _, channel := range channels {
-						_, err = services.Grpc.Emotes.CacheChannelEmotes(ctx, &emotes_cacher.Request{
-							ChannelId: channel.ID,
-						})
+						_, err = services.Grpc.Emotes.CacheChannelEmotes(
+							ctx, &emotes_cacher.Request{
+								ChannelId: channel.ID,
+							},
+						)
 						if err != nil {
 							zap.S().Error(err)
 						}

@@ -3,11 +3,11 @@ package greetings
 import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	cfg "github.com/satont/tsuwari/libs/config"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/api/internal/di"
+	cfg "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
 	"gorm.io/gorm"
 )
 
@@ -20,9 +20,11 @@ func getTwitchUserByName(userName string) *helix.User {
 		return nil
 	}
 
-	twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
-		Logins: []string{userName},
-	})
+	twitchUsers, err := twitchClient.GetUsers(
+		&helix.UsersParams{
+			Logins: []string{userName},
+		},
+	)
 
 	if err != nil || len(twitchUsers.Data.Users) == 0 {
 		return nil
@@ -41,9 +43,11 @@ func getTwitchUserById(id string) *helix.User {
 		return nil
 	}
 
-	twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
-		IDs: []string{id},
-	})
+	twitchUsers, err := twitchClient.GetUsers(
+		&helix.UsersParams{
+			IDs: []string{id},
+		},
+	)
 
 	if err != nil || len(twitchUsers.Data.Users) == 0 {
 		return nil

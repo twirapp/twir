@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"github.com/olahol/melody"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/websockets/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/types/types/api/modules"
+	"github.com/satont/twir/apps/websockets/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/types/types/api/modules"
 	"time"
 )
 
@@ -136,8 +136,10 @@ func (c *OBS) handleRequestSettings(channelId string) {
 		return
 	}
 
-	c.manager.BroadcastFilter(bytes, func(session *melody.Session) bool {
-		id, ok := session.Get("userId")
-		return ok && id.(string) == channelId
-	})
+	c.manager.BroadcastFilter(
+		bytes, func(session *melody.Session) bool {
+			id, ok := session.Get("userId")
+			return ok && id.(string) == channelId
+		},
+	)
 }

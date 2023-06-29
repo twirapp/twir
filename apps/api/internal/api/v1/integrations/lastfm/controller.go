@@ -6,8 +6,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
-	"github.com/satont/tsuwari/apps/api/internal/middlewares"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/middlewares"
+	"github.com/satont/twir/apps/api/internal/types"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
@@ -16,13 +16,15 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 	middleware.Post("", post(services))
 	middleware.Post("logout", logout(services))
 
-	profileCache := cache.New(cache.Config{
-		Expiration: 31 * 24 * time.Hour,
-		Storage:    services.RedisStorage,
-		KeyGenerator: func(c *fiber.Ctx) string {
-			return fmt.Sprintf("fiber:cache:integrations:lastfm:profile:%s", c.Params("channelId"))
+	profileCache := cache.New(
+		cache.Config{
+			Expiration: 31 * 24 * time.Hour,
+			Storage:    services.RedisStorage,
+			KeyGenerator: func(c *fiber.Ctx) string {
+				return fmt.Sprintf("fiber:cache:integrations:lastfm:profile:%s", c.Params("channelId"))
+			},
 		},
-	})
+	)
 
 	middleware.Get("", profileCache, get(services))
 

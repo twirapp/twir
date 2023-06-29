@@ -5,9 +5,10 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/samber/lo"
+	"github.com/satont/twir/apps/parser/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 )
 
 var SetCommand = &types.DefaultCommand{
@@ -38,13 +39,18 @@ var SetCommand = &types.DefaultCommand{
 			return result
 		}
 
-		req, err := twitchClient.EditChannelInformation(&helix.EditChannelInformationParams{
-			BroadcasterID: parseCtx.Channel.ID,
-			Title:         *parseCtx.Text,
-		})
+		req, err := twitchClient.EditChannelInformation(
+			&helix.EditChannelInformationParams{
+				BroadcasterID: parseCtx.Channel.ID,
+				Title:         *parseCtx.Text,
+			},
+		)
 
 		if err != nil || req.StatusCode != 204 {
-			result.Result = append(result.Result, "❌ internal error")
+			result.Result = append(
+				result.Result,
+				lo.If(req.ErrorMessage != "", req.ErrorMessage).Else("❌ internal error"),
+			)
 			return result
 		}
 

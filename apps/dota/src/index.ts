@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 
-import { config } from '@tsuwari/config';
-import * as DotaServer from '@tsuwari/grpc/generated/dota/dota';
-import { PORTS } from '@tsuwari/grpc/servers/constants';
-import { ChannelDotaAccount } from '@tsuwari/typeorm/entities/ChannelDotaAccount';
+import { config } from '@twir/config';
+import * as DotaServer from '@twir/grpc/generated/dota/dota';
+import { PORTS } from '@twir/grpc/servers/constants';
+import { ChannelDotaAccount } from '@twir/typeorm/entities/ChannelDotaAccount';
 import _ from 'lodash';
 import { createServer } from 'nice-grpc';
 

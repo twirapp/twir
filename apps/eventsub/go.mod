@@ -1,14 +1,14 @@
-module github.com/satont/tsuwari/apps/eventsub
+module github.com/satont/twir/apps/eventsub
 
 go 1.20
 
 replace (
-	github.com/satont/tsuwari/libs/config => ../../libs/config
-	github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
-	github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
-	github.com/satont/tsuwari/libs/pubsub => ../../libs/pubsub
-	github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
-	github.com/satont/tsuwari/libs/types => ../../libs/types
+	github.com/satont/twir/libs/config => ../../libs/config
+	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
+	github.com/satont/twir/libs/grpc => ../../libs/grpc
+	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
+	github.com/satont/twir/libs/twitch => ../../libs/twitch
+	github.com/satont/twir/libs/types => ../../libs/types
 )
 
 require (
@@ -19,12 +19,12 @@ require (
 	github.com/nicklaw5/helix/v2 v2.22.1
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/samber/lo v1.38.1
-	github.com/satont/tsuwari/libs/config v0.0.0-20230606001334-07f3c562ff7e
-	github.com/satont/tsuwari/libs/gomodels v0.0.0-20230606001334-07f3c562ff7e
-	github.com/satont/tsuwari/libs/grpc v0.0.0-20230606001334-07f3c562ff7e
-	github.com/satont/tsuwari/libs/pubsub v0.0.0-20230606001334-07f3c562ff7e
-	github.com/satont/tsuwari/libs/twitch v0.0.0-20230606001334-07f3c562ff7e
-	github.com/satont/tsuwari/libs/types v0.0.0-20230606001334-07f3c562ff7e
+	github.com/satont/twir/libs/config v0.0.0-20230606001334-07f3c562ff7e
+	github.com/satont/twir/libs/gomodels v0.0.0-20230606001334-07f3c562ff7e
+	github.com/satont/twir/libs/grpc v0.0.0-20230606001334-07f3c562ff7e
+	github.com/satont/twir/libs/pubsub v0.0.0-20230606001334-07f3c562ff7e
+	github.com/satont/twir/libs/twitch v0.0.0-20230606001334-07f3c562ff7e
+	github.com/satont/twir/libs/types v0.0.0-20230606001334-07f3c562ff7e
 	go.uber.org/zap v1.24.0
 	golang.ngrok.com/ngrok v1.1.1
 	google.golang.org/grpc v1.55.0

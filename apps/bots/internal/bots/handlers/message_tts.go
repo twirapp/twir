@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
-	"github.com/satont/tsuwari/libs/types/types/api/modules"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/types/types/api/modules"
 	"strings"
 )
 
@@ -86,19 +86,23 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 		Message: &parser.Message{
 			Id:   msg.ID,
 			Text: msgText.String(),
-			Emotes: lo.Map(msg.Emotes, func(item *twitch.Emote, _ int) *parser.Message_Emote {
-				return &parser.Message_Emote{
-					Name:  item.Name,
-					Id:    item.ID,
-					Count: int64(item.Count),
-					Positions: lo.Map(item.Positions, func(item twitch.EmotePosition, _ int) *parser.Message_EmotePosition {
-						return &parser.Message_EmotePosition{
-							Start: int64(item.Start),
-							End:   int64(item.End),
-						}
-					}),
-				}
-			}),
+			Emotes: lo.Map(
+				msg.Emotes, func(item *twitch.Emote, _ int) *parser.Message_Emote {
+					return &parser.Message_Emote{
+						Name:  item.Name,
+						Id:    item.ID,
+						Count: int64(item.Count),
+						Positions: lo.Map(
+							item.Positions, func(item twitch.EmotePosition, _ int) *parser.Message_EmotePosition {
+								return &parser.Message_EmotePosition{
+									Start: int64(item.Start),
+									End:   int64(item.End),
+								}
+							},
+						),
+					}
+				},
+			),
 		},
 	}
 

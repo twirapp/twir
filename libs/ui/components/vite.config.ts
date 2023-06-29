@@ -11,7 +11,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', '@tsuwari/ui-icons', 'vee-validate'],
+      external: ['vue', '@twir/ui-icons', 'vee-validate'],
       output: {
         esModule: true,
         exports: 'named',

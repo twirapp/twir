@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/generated/bots"
 )
 
 func (c *Processor) SendMessage(channelId, message string, useAnnounce bool) error {
@@ -13,12 +13,14 @@ func (c *Processor) SendMessage(channelId, message string, useAnnounce bool) err
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}
 
-	_, err = c.services.BotsGrpc.SendMessage(context.Background(), &bots.SendMessageRequest{
-		ChannelId:   channelId,
-		ChannelName: nil,
-		Message:     msg,
-		IsAnnounce:  lo.ToPtr(useAnnounce),
-	})
+	_, err = c.services.BotsGrpc.SendMessage(
+		context.Background(), &bots.SendMessageRequest{
+			ChannelId:   channelId,
+			ChannelName: nil,
+			Message:     msg,
+			IsAnnounce:  lo.ToPtr(useAnnounce),
+		},
+	)
 
 	if err != nil {
 		return fmt.Errorf("cannot send message %w", err)

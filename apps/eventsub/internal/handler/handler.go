@@ -2,7 +2,7 @@ package handler
 
 import (
 	eventsub_framework "github.com/dnsge/twitch-eventsub-framework"
-	"github.com/satont/tsuwari/apps/eventsub/internal/types"
+	"github.com/satont/twir/apps/eventsub/internal/types"
 )
 
 type Handler struct {

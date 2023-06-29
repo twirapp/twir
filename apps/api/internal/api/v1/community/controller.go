@@ -2,8 +2,8 @@ package community
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/satont/tsuwari/apps/api/internal/middlewares"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/middlewares"
+	"github.com/satont/twir/apps/api/internal/types"
 	"net/http"
 )
 

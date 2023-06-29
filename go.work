@@ -23,5 +23,6 @@ use (
 	./libs/types
 	./libs/ytdl
 	./libs/ytsr
+	./libs/crypto
 	./tools
 )

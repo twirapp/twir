@@ -1,11 +1,11 @@
 package users
 
 import (
-	"github.com/satont/tsuwari/apps/api/internal/middlewares"
+	"github.com/satont/twir/apps/api/internal/middlewares"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/types"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {
@@ -45,4 +45,3 @@ func delete(services types.Services) fiber.Handler {
 		return c.SendStatus(http.StatusOK)
 	}
 }
-

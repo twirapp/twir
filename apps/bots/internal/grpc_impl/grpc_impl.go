@@ -6,17 +6,17 @@ import (
 	"strings"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/bots/internal/di"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/bots/internal/di"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
 
 	"github.com/nicklaw5/helix/v2"
-	internalBots "github.com/satont/tsuwari/apps/bots/internal/bots"
-	"github.com/satont/tsuwari/apps/bots/pkg/utils"
-	"github.com/satont/tsuwari/apps/bots/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	internalBots "github.com/satont/twir/apps/bots/internal/bots"
+	"github.com/satont/twir/apps/bots/pkg/utils"
+	"github.com/satont/twir/apps/bots/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/bots"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
@@ -71,11 +71,13 @@ func (c *botsGrpcServer) DeleteMessage(ctx context.Context, data *bots.DeleteMes
 	}
 
 	for _, m := range data.MessageIds {
-		go twitchClient.DeleteChatMessage(&helix.DeleteChatMessageParams{
-			BroadcasterID: channel.ID,
-			ModeratorID:   channel.BotID,
-			MessageID:     m,
-		})
+		go twitchClient.DeleteChatMessage(
+			&helix.DeleteChatMessageParams{
+				BroadcasterID: channel.ID,
+				ModeratorID:   channel.BotID,
+				MessageID:     m,
+			},
+		)
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -110,9 +112,11 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 	channelName := data.ChannelName
 
 	if channelName == nil {
-		usersReq, err := twitchClient.GetUsers(&helix.UsersParams{
-			IDs: []string{data.ChannelId},
-		})
+		usersReq, err := twitchClient.GetUsers(
+			&helix.UsersParams{
+				IDs: []string{data.ChannelId},
+			},
+		)
 		if err != nil {
 			c.logger.Sugar().Error(err)
 			return &emptypb.Empty{}, nil
@@ -126,11 +130,13 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 	data.Message = strings.ReplaceAll(data.Message, "\n", " ")
 
 	if data.IsAnnounce != nil && *data.IsAnnounce == true {
-		twitchClient.SendChatAnnouncement(&helix.SendChatAnnouncementParams{
-			BroadcasterID: channel.ID,
-			ModeratorID:   channel.BotID,
-			Message:       data.Message,
-		})
+		twitchClient.SendChatAnnouncement(
+			&helix.SendChatAnnouncementParams{
+				BroadcasterID: channel.ID,
+				ModeratorID:   channel.BotID,
+				Message:       data.Message,
+			},
+		)
 	} else {
 		bot.SayWithRateLimiting(*channelName, data.Message, nil)
 	}

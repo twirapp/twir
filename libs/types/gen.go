@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/satont/tsuwari/libs/types/types/api"
+	"github.com/satont/twir/libs/types/types/api"
 	"github.com/tkrajina/typescriptify-golang-structs/typescriptify"
 )
 

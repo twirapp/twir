@@ -1,4 +1,4 @@
-module github.com/satont/tsuwari/libs/config
+module github.com/satont/twir/libs/config
 
 go 1.20
 

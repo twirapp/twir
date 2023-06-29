@@ -1,11 +1,11 @@
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
-import { config } from '@tsuwari/config';
-import { DotaGame, dotaHeroes, gameModes } from '@tsuwari/shared';
-import { DotaGameMode } from '@tsuwari/typeorm/entities/DotaGameMode';
-import { DotaHero } from '@tsuwari/typeorm/entities/DotaHero';
-import { DotaMatch } from '@tsuwari/typeorm/entities/DotaMatch';
+import { config } from '@twir/config';
+import { DotaGame, dotaHeroes, gameModes } from '@twir/shared';
+import { DotaGameMode } from '@twir/typeorm/entities/DotaGameMode';
+import { DotaHero } from '@twir/typeorm/entities/DotaHero';
+import { DotaMatch } from '@twir/typeorm/entities/DotaMatch';
 import protobufjs from 'protobufjs';
 import SteamUser from 'steam-user';
 import SteamID from 'steamid';

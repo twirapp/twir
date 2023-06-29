@@ -11,27 +11,31 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/cacher"
-	"github.com/satont/tsuwari/apps/parser/internal/commands"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	"github.com/satont/tsuwari/apps/parser/internal/types/services"
-	"github.com/satont/tsuwari/apps/parser/internal/variables"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	"github.com/satont/twir/apps/parser/internal/cacher"
+	"github.com/satont/twir/apps/parser/internal/commands"
+	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types/services"
+	"github.com/satont/twir/apps/parser/internal/variables"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/parser"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var (
-	commandsCounter = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "parser_commands_processed",
-		Help: "The total number of processed commands",
-	})
-	textParseCounter = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "parser_text_processed",
-		Help: "The total number of processed commands",
-	})
+	commandsCounter = promauto.NewCounter(
+		prometheus.CounterOpts{
+			Name: "parser_commands_processed",
+			Help: "The total number of processed commands",
+		},
+	)
+	textParseCounter = promauto.NewCounter(
+		prometheus.CounterOpts{
+			Name: "parser_text_processed",
+			Help: "The total number of processed commands",
+		},
+	)
 )
 
 type parserGrpcServer struct {
@@ -135,15 +139,17 @@ func (c *parserGrpcServer) ProcessCommand(
 
 	result := c.commands.ParseCommandResponses(ctx, cmd, data)
 
-	defer c.services.GrpcClients.Events.CommandUsed(context.Background(), &events.CommandUsedMessage{
-		BaseInfo:        &events.BaseInfo{ChannelId: data.Channel.Id},
-		CommandId:       cmd.Cmd.ID,
-		CommandName:     cmd.Cmd.Name,
-		CommandInput:    strings.TrimSpace(data.Message.Text[len(cmd.FoundBy):]),
-		UserName:        data.Sender.Name,
-		UserDisplayName: data.Sender.DisplayName,
-		UserId:          data.Sender.Id,
-	})
+	defer c.services.GrpcClients.Events.CommandUsed(
+		context.Background(), &events.CommandUsedMessage{
+			BaseInfo:        &events.BaseInfo{ChannelId: data.Channel.Id},
+			CommandId:       cmd.Cmd.ID,
+			CommandName:     cmd.Cmd.Name,
+			CommandInput:    strings.TrimSpace(data.Message.Text[len(cmd.FoundBy):]),
+			UserName:        data.Sender.Name,
+			UserDisplayName: data.Sender.DisplayName,
+			UserId:          data.Sender.Id,
+		},
+	)
 
 	return result, nil
 }
@@ -154,9 +160,11 @@ func (c *parserGrpcServer) ParseTextResponse(
 ) (*parser.ParseTextResponseData, error) {
 	defer textParseCounter.Inc()
 
-	isCommand := lo.IfF(data.ParseVariables != nil, func() bool {
-		return *data.ParseVariables
-	}).ElseF(func() bool { return false })
+	isCommand := lo.IfF(
+		data.ParseVariables != nil, func() bool {
+			return *data.ParseVariables
+		},
+	).ElseF(func() bool { return false })
 
 	parseCtxChannel := &types.ParseContextChannel{
 		ID:   data.Channel.Id,
@@ -174,12 +182,14 @@ func (c *parserGrpcServer) ParseTextResponse(
 		Text:      &data.Message.Text,
 		Services:  c.services,
 		IsCommand: isCommand,
-		Cacher: cacher.NewCacher(&cacher.CacherOpts{
-			Services:        c.services,
-			ParseCtxChannel: parseCtxChannel,
-			ParseCtxSender:  parseCtxSender,
-			ParseCtxText:    &data.Message.Text,
-		}),
+		Cacher: cacher.NewCacher(
+			&cacher.CacherOpts{
+				Services:        c.services,
+				ParseCtxChannel: parseCtxChannel,
+				ParseCtxSender:  parseCtxSender,
+				ParseCtxText:    &data.Message.Text,
+			},
+		),
 	}
 
 	res := c.variables.ParseVariablesInText(ctx, parseCtx, data.Message.Text)
@@ -246,7 +256,8 @@ func (c *parserGrpcServer) GetDefaultVariables(
 				Description: desc,
 				Visible:     visible,
 			}, true
-		})
+		},
+	)
 
 	return &parser.GetVariablesResponse{
 		List: vars,

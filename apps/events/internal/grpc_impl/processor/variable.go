@@ -3,7 +3,7 @@ package processor
 import (
 	"fmt"
 	"github.com/samber/lo"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 	"strconv"
 	"strings"
 )
@@ -44,7 +44,9 @@ func (c *Processor) ChangeVariableValue(variableId, input string) error {
 	return nil
 }
 
-func (c *Processor) IncrementORDecrementVariable(operationType model.EventOperationType, variableId, input string) error {
+func (c *Processor) IncrementORDecrementVariable(
+	operationType model.EventOperationType, variableId, input string,
+) error {
 	hydratedInput, err := c.HydrateStringWithData(input, c.data)
 
 	if err != nil || len(hydratedInput) == 0 {

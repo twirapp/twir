@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/ytsr",
+  "name": "@twir/ytsr",
   "type": "module",
   "scripts": {
     "prebuild": "rm -rf dist",
@@ -7,10 +7,10 @@
     "start": "node --enable-source-maps dist/index.js"
   },
   "dependencies": {
-    "@tsuwari/config": "workspace:^",
-    "@tsuwari/grpc": "workspace:*",
-    "nice-grpc": "^2.1.0",
-    "tlds": "^1.238.0",
-    "ytsr": "^3.8.0"
+    "@twir/config": "workspace:^",
+    "@twir/grpc": "workspace:*",
+    "nice-grpc": "^2.1.4",
+    "tlds": "^1.240.0",
+    "ytsr": "^3.8.2"
   }
 }

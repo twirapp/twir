@@ -1,7 +1,7 @@
 import {
   ChannelModerationSetting,
   SettingsType,
-} from '@tsuwari/typeorm/entities/ChannelModerationSetting';
+} from '@twir/typeorm/entities/ChannelModerationSetting';
 import {
   IsArray,
   IsBoolean,

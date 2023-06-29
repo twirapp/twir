@@ -1,8 +1,8 @@
 import { CachedGetter } from '@d-fischer/cache-decorators';
 import { Global, Injectable } from '@nestjs/common';
-import { config } from '@tsuwari/config';
-import { Repository } from '@tsuwari/typeorm';
-import { Token } from '@tsuwari/typeorm/entities/Token';
+import { config } from '@twir/config';
+import { Repository } from '@twir/typeorm';
+import { Token } from '@twir/typeorm/entities/Token';
 import { ApiClient, HelixUserApi, HelixUserData, UserIdResolvable } from '@twurple/api';
 import { ClientCredentialsAuthProvider, RefreshingAuthProvider } from '@twurple/auth';
 import { getRawData, UserNameResolvable } from '@twurple/common';

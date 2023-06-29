@@ -9,9 +9,9 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/parser/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 	"go.uber.org/zap"
 )
 
@@ -19,7 +19,9 @@ var SongRequesters = &types.Variable{
 	Name:        "top.songs.requesters",
 	Description: lo.ToPtr("Top users by requested songs"),
 	Example:     lo.ToPtr("top.songs.requesters|10"),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		twitchClient, err := twitch.NewAppClientWithContext(
 			ctx,
 			*parseCtx.Services.Config,
@@ -76,11 +78,15 @@ var SongRequesters = &types.Variable{
 			return result, nil
 		}
 
-		twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
-			IDs: lo.Map(dbEntities, func(item model.RequestedSong, _ int) string {
-				return item.OrderedById
-			}),
-		})
+		twitchUsers, err := twitchClient.GetUsers(
+			&helix.UsersParams{
+				IDs: lo.Map(
+					dbEntities, func(item model.RequestedSong, _ int) string {
+						return item.OrderedById
+					},
+				),
+			},
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -88,19 +94,23 @@ var SongRequesters = &types.Variable{
 		mappedTop := []string{}
 
 		for _, entity := range dbEntities {
-			user, ok := lo.Find(twitchUsers.Data.Users, func(item helix.User) bool {
-				return item.ID == entity.OrderedById
-			})
+			user, ok := lo.Find(
+				twitchUsers.Data.Users, func(item helix.User) bool {
+					return item.ID == entity.OrderedById
+				},
+			)
 
 			if !ok {
 				continue
 			}
 
-			mappedTop = append(mappedTop, fmt.Sprintf(
-				"%s × %v",
-				user.Login,
-				entity.Count,
-			))
+			mappedTop = append(
+				mappedTop, fmt.Sprintf(
+					"%s × %v",
+					user.Login,
+					entity.Count,
+				),
+			)
 		}
 
 		result.Result = strings.Join(mappedTop, " · ")

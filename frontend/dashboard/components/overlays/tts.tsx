@@ -39,7 +39,7 @@ import {
   IconSpeakerphone,
   IconUsers,
 } from '@tabler/icons';
-import { CommandModule } from '@tsuwari/typeorm/entities/ChannelCommand';
+import { CommandModule } from '@twir/typeorm/entities/ChannelCommand';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 
 declare global {

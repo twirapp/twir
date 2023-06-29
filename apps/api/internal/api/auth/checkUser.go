@@ -10,17 +10,17 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"github.com/satont/tsuwari/apps/api/internal/middlewares"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/crypto"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/middlewares"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/crypto"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/eventsub"
+	"github.com/satont/twir/apps/api/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/eventsub"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -46,18 +46,22 @@ var checkScopes = func(ctx *fiber.Ctx) error {
 		return ctx.SendStatus(http.StatusForbidden)
 	}
 
-	parsedScopes := lo.Map(reqScopes.([]any), func(item any, _ int) string {
-		scope, ok := item.(string)
-		if !ok {
-			return ""
-		}
-		return scope
-	})
+	parsedScopes := lo.Map(
+		reqScopes.([]any), func(item any, _ int) string {
+			scope, ok := item.(string)
+			if !ok {
+				return ""
+			}
+			return scope
+		},
+	)
 
 	for _, scope := range scopes {
-		_, ok := lo.Find(parsedScopes, func(s string) bool {
-			return s == scope
-		})
+		_, ok := lo.Find(
+			parsedScopes, func(s string) bool {
+				return s == scope
+			},
+		)
 
 		if !ok {
 			return ctx.Status(http.StatusForbidden).SendString("not enough scopes")
@@ -109,31 +113,33 @@ func checkUser(
 		First(&user).Error
 
 	if err != nil && err == gorm.ErrRecordNotFound {
-		err = services.DB.Transaction(func(tx *gorm.DB) error {
-			newToken := tokenData
-			newToken.ID = uuid.NewV4().String()
+		err = services.DB.Transaction(
+			func(tx *gorm.DB) error {
+				newToken := tokenData
+				newToken.ID = uuid.NewV4().String()
 
-			if err = tx.Save(&newToken).Error; err != nil {
-				return err
-			}
+				if err = tx.Save(&newToken).Error; err != nil {
+					return err
+				}
 
-			user.ID = userId
-			user.TokenID = sql.NullString{String: newToken.ID, Valid: true}
-			user.ApiKey = uuid.NewV4().String()
+				user.ID = userId
+				user.TokenID = sql.NullString{String: newToken.ID, Valid: true}
+				user.ApiKey = uuid.NewV4().String()
 
-			if err = tx.Save(&user).Error; err != nil {
-				return err
-			}
+				if err = tx.Save(&user).Error; err != nil {
+					return err
+				}
 
-			channel := createChannelModel(user.ID, defaultBot.ID)
+				channel := createChannelModel(user.ID, defaultBot.ID)
 
-			if err = tx.Create(&channel).Error; err != nil {
-				return err
-			}
-			user.Channel = &channel
+				if err = tx.Create(&channel).Error; err != nil {
+					return err
+				}
+				user.Channel = &channel
 
-			return nil
-		})
+				return nil
+			},
+		)
 
 		if err != nil {
 			return err

@@ -17,8 +17,8 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconManualGearbox, IconPlus, IconTrash, IconUsers } from '@tabler/icons';
-import { ChannelRole, RoleType } from '@tsuwari/typeorm/entities/ChannelRole';
-import { RoleFlags } from '@tsuwari/typeorm/entities/ChannelRole';
+import { ChannelRole, RoleType } from '@twir/typeorm/entities/ChannelRole';
+import { RoleFlags } from '@twir/typeorm/entities/ChannelRole';
 import { useTranslation } from 'next-i18next';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 

@@ -1,6 +1,6 @@
 package variables
 
-import model "github.com/satont/tsuwari/libs/gomodels"
+import model "github.com/satont/twir/libs/gomodels"
 
 type variableDto struct {
 	Name        string              `validate:"required"                   json:"name"`

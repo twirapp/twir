@@ -3,7 +3,7 @@ package shoutout
 import (
 	"context"
 	"fmt"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -11,9 +11,9 @@ import (
 
 	"github.com/samber/lo"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
 )
 
 var ShoutOut = &types.DefaultCommand{
@@ -31,19 +31,25 @@ var ShoutOut = &types.DefaultCommand{
 			return result
 		}
 
-		token, err := parseCtx.Services.GrpcClients.Tokens.RequestUserToken(ctx, &tokens.GetUserTokenRequest{
-			UserId: parseCtx.Channel.ID,
-		})
+		token, err := parseCtx.Services.GrpcClients.Tokens.RequestUserToken(
+			ctx, &tokens.GetUserTokenRequest{
+				UserId: parseCtx.Channel.ID,
+			},
+		)
 		if err != nil {
 			result.Result = append(result.Result, "internal error")
 			return result
 		}
 
-		_, ok := lo.Find(token.Scopes, func(item string) bool {
-			return item == "moderator:manage:shoutouts"
-		})
+		_, ok := lo.Find(
+			token.Scopes, func(item string) bool {
+				return item == "moderator:manage:shoutouts"
+			},
+		)
 		if !ok {
-			result.Result = append(result.Result, "we have no permissions for shoutout. Streamer must re-authorize to bot dashboard.")
+			result.Result = append(
+				result.Result, "we have no permissions for shoutout. Streamer must re-authorize to bot dashboard.",
+			)
 			return result
 		}
 
@@ -57,24 +63,30 @@ var ShoutOut = &types.DefaultCommand{
 			return nil
 		}
 
-		usersReq, err := twitchClient.GetUsers(&helix.UsersParams{
-			Logins: []string{*parseCtx.Text},
-		})
+		usersReq, err := twitchClient.GetUsers(
+			&helix.UsersParams{
+				Logins: []string{*parseCtx.Text},
+			},
+		)
 		if err != nil || len(usersReq.Data.Users) == 0 {
 			return nil
 		}
 
 		user := usersReq.Data.Users[0]
 
-		go twitchClient.SendShoutout(&helix.SendShoutoutParams{
-			FromBroadcasterID: parseCtx.Channel.ID,
-			ToBroadcasterID:   user.ID,
-			ModeratorID:       parseCtx.Channel.ID,
-		})
+		go twitchClient.SendShoutout(
+			&helix.SendShoutoutParams{
+				FromBroadcasterID: parseCtx.Channel.ID,
+				ToBroadcasterID:   user.ID,
+				ModeratorID:       parseCtx.Channel.ID,
+			},
+		)
 
-		streamsReq, err := twitchClient.GetStreams(&helix.StreamsParams{
-			UserIDs: []string{user.ID},
-		})
+		streamsReq, err := twitchClient.GetStreams(
+			&helix.StreamsParams{
+				UserIDs: []string{user.ID},
+			},
+		)
 		if err != nil {
 			return nil
 		}
@@ -94,9 +106,11 @@ var ShoutOut = &types.DefaultCommand{
 			)
 			return result
 		} else {
-			channelReq, err := twitchClient.GetChannelInformation(&helix.GetChannelInformationParams{
-				BroadcasterIDs: []string{user.ID},
-			})
+			channelReq, err := twitchClient.GetChannelInformation(
+				&helix.GetChannelInformationParams{
+					BroadcasterIDs: []string{user.ID},
+				},
+			)
 			if err != nil || len(channelReq.Data.Channels) == 0 {
 				return nil
 			}

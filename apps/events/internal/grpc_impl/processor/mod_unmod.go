@@ -7,7 +7,7 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 func (c *Processor) getChannelMods() ([]helix.Moderator, error) {
@@ -15,9 +15,11 @@ func (c *Processor) getChannelMods() ([]helix.Moderator, error) {
 		return c.cache.channelModerators, nil
 	}
 
-	mods, err := c.streamerApiClient.GetModerators(&helix.GetModeratorsParams{
-		BroadcasterID: c.channelId,
-	})
+	mods, err := c.streamerApiClient.GetModerators(
+		&helix.GetModeratorsParams{
+			BroadcasterID: c.channelId,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -31,10 +33,12 @@ func (c *Processor) getChannelMods() ([]helix.Moderator, error) {
 	cursor := ""
 	if mods.Data.Pagination.Cursor != "" {
 		for {
-			mods, err = c.streamerApiClient.GetModerators(&helix.GetModeratorsParams{
-				BroadcasterID: c.channelId,
-				After:         cursor,
-			})
+			mods, err = c.streamerApiClient.GetModerators(
+				&helix.GetModeratorsParams{
+					BroadcasterID: c.channelId,
+					After:         cursor,
+				},
+			)
 
 			if err != nil {
 				return nil, err
@@ -66,9 +70,11 @@ func (c *Processor) ModOrUnmod(input string, operation model.EventOperationType)
 
 	hydratedName = strings.TrimSpace(strings.ReplaceAll(hydratedName, "@", ""))
 
-	user, err := c.streamerApiClient.GetUsers(&helix.UsersParams{
-		Logins: []string{hydratedName},
-	})
+	user, err := c.streamerApiClient.GetUsers(
+		&helix.UsersParams{
+			Logins: []string{hydratedName},
+		},
+	)
 
 	if err != nil || len(user.Data.Users) == 0 {
 		if err != nil {
@@ -91,19 +97,23 @@ func (c *Processor) ModOrUnmod(input string, operation model.EventOperationType)
 		return InternalError
 	}
 
-	isAlreadyMod := lo.SomeBy(mods, func(item helix.Moderator) bool {
-		return item.UserID == user.Data.Users[0].ID
-	})
+	isAlreadyMod := lo.SomeBy(
+		mods, func(item helix.Moderator) bool {
+			return item.UserID == user.Data.Users[0].ID
+		},
+	)
 
 	if operation == "MOD" {
 		if isAlreadyMod {
 			return errors.New("already mod")
 		}
 
-		resp, err := c.streamerApiClient.AddChannelModerator(&helix.AddChannelModeratorParams{
-			BroadcasterID: c.channelId,
-			UserID:        user.Data.Users[0].ID,
-		})
+		resp, err := c.streamerApiClient.AddChannelModerator(
+			&helix.AddChannelModeratorParams{
+				BroadcasterID: c.channelId,
+				UserID:        user.Data.Users[0].ID,
+			},
+		)
 		if resp.ErrorMessage != "" || err != nil {
 			if err != nil {
 				return err
@@ -111,21 +121,25 @@ func (c *Processor) ModOrUnmod(input string, operation model.EventOperationType)
 				return errors.New(resp.ErrorMessage)
 			}
 		} else {
-			c.cache.channelModerators = append(c.cache.channelModerators, helix.Moderator{
-				UserID:    user.Data.Users[0].ID,
-				UserLogin: user.Data.Users[0].Login,
-				UserName:  user.Data.Users[0].DisplayName,
-			})
+			c.cache.channelModerators = append(
+				c.cache.channelModerators, helix.Moderator{
+					UserID:    user.Data.Users[0].ID,
+					UserLogin: user.Data.Users[0].Login,
+					UserName:  user.Data.Users[0].DisplayName,
+				},
+			)
 		}
 	} else {
 		if !isAlreadyMod {
 			return errors.New("not a mod")
 		}
 
-		resp, err := c.streamerApiClient.RemoveChannelModerator(&helix.RemoveChannelModeratorParams{
-			BroadcasterID: c.channelId,
-			UserID:        user.Data.Users[0].ID,
-		})
+		resp, err := c.streamerApiClient.RemoveChannelModerator(
+			&helix.RemoveChannelModeratorParams{
+				BroadcasterID: c.channelId,
+				UserID:        user.Data.Users[0].ID,
+			},
+		)
 		if resp.ErrorMessage != "" || err != nil {
 			if err != nil {
 				return err
@@ -133,9 +147,11 @@ func (c *Processor) ModOrUnmod(input string, operation model.EventOperationType)
 
 			return errors.New(resp.ErrorMessage)
 		} else {
-			c.cache.channelModerators = lo.Filter(c.cache.channelModerators, func(item helix.Moderator, index int) bool {
-				return item.UserID != user.Data.Users[0].ID
-			})
+			c.cache.channelModerators = lo.Filter(
+				c.cache.channelModerators, func(item helix.Moderator, index int) bool {
+					return item.UserID != user.Data.Users[0].ID
+				},
+			)
 		}
 	}
 
@@ -154,15 +170,19 @@ func (c *Processor) UnmodRandom() error {
 	}
 
 	// choose random mod, but filter out bot account
-	filteredMods := lo.Filter(mods, func(item helix.Moderator, index int) bool {
-		return item.UserID != dbChannel.BotID
-	})
+	filteredMods := lo.Filter(
+		mods, func(item helix.Moderator, index int) bool {
+			return item.UserID != dbChannel.BotID
+		},
+	)
 	randomMod := lo.Sample(filteredMods)
 
-	removeReq, err := c.streamerApiClient.RemoveChannelModerator(&helix.RemoveChannelModeratorParams{
-		BroadcasterID: c.channelId,
-		UserID:        randomMod.UserID,
-	})
+	removeReq, err := c.streamerApiClient.RemoveChannelModerator(
+		&helix.RemoveChannelModeratorParams{
+			BroadcasterID: c.channelId,
+			UserID:        randomMod.UserID,
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -171,9 +191,11 @@ func (c *Processor) UnmodRandom() error {
 		return errors.New(removeReq.ErrorMessage)
 	}
 
-	c.cache.channelModerators = lo.Filter(c.cache.channelModerators, func(item helix.Moderator, index int) bool {
-		return item.UserID != randomMod.UserID
-	})
+	c.cache.channelModerators = lo.Filter(
+		c.cache.channelModerators, func(item helix.Moderator, index int) bool {
+			return item.UserID != randomMod.UserID
+		},
+	)
 
 	if len(c.data.PrevOperation.UnmodedUserName) > 0 {
 		c.data.PrevOperation.UnmodedUserName += ", " + randomMod.UserName

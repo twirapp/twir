@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/timers/internal/di"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/twir/apps/timers/internal/di"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"log"
 	"net"
 	"os"
@@ -12,24 +12,24 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/satont/tsuwari/apps/timers/internal/scheduler"
-	"github.com/satont/tsuwari/apps/timers/internal/types"
+	"github.com/satont/twir/apps/timers/internal/scheduler"
+	"github.com/satont/twir/apps/timers/internal/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/clients"
-	"github.com/satont/tsuwari/libs/grpc/servers"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/clients"
+	"github.com/satont/twir/libs/grpc/servers"
 
-	cfg "github.com/satont/tsuwari/libs/config"
+	cfg "github.com/satont/twir/libs/config"
 
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 
-	"github.com/satont/tsuwari/apps/timers/internal/grpc_impl"
-	timersgrpc "github.com/satont/tsuwari/libs/grpc/generated/timers"
+	"github.com/satont/twir/apps/timers/internal/grpc_impl"
+	timersgrpc "github.com/satont/twir/libs/grpc/generated/timers"
 )
 
 func main() {
@@ -41,9 +41,11 @@ func main() {
 
 	logger, _ := zap.NewDevelopment()
 
-	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{
-		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
-	})
+	db, err := gorm.Open(
+		postgres.Open(cfg.DatabaseUrl), &gorm.Config{
+			Logger: gormLogger.Default.LogMode(gormLogger.Silent),
+		},
+	)
 	if err != nil {
 		logger.Sugar().Error(err)
 		panic("failed to connect database")
@@ -59,14 +61,22 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	grpcServer := grpc.NewServer(grpc.KeepaliveParams(keepalive.ServerParameters{
-		MaxConnectionAge: 1 * time.Minute,
-	}))
-	timersgrpc.RegisterTimersServer(grpcServer, grpc_impl.New(&grpc_impl.TimersGrpcServerOpts{
-		Db:        db,
-		Logger:    logger,
-		Scheduler: scheduler,
-	}))
+	grpcServer := grpc.NewServer(
+		grpc.KeepaliveParams(
+			keepalive.ServerParameters{
+				MaxConnectionAge: 1 * time.Minute,
+			},
+		),
+	)
+	timersgrpc.RegisterTimersServer(
+		grpcServer, grpc_impl.New(
+			&grpc_impl.TimersGrpcServerOpts{
+				Db:        db,
+				Logger:    logger,
+				Scheduler: scheduler,
+			},
+		),
+	)
 	go grpcServer.Serve(lis)
 
 	timers := []*model.ChannelsTimers{}
@@ -84,10 +94,12 @@ func main() {
 	} else {
 		for _, timer := range timers {
 			if timer.Enabled {
-				scheduler.AddTimer(&types.Timer{
-					Model:     timer,
-					SendIndex: 0,
-				})
+				scheduler.AddTimer(
+					&types.Timer{
+						Model:     timer,
+						SendIndex: 0,
+					},
+				)
 			}
 		}
 	}

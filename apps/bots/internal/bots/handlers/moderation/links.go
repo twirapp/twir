@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/satont/tsuwari/apps/bots/pkg/tlds"
+	"github.com/satont/twir/apps/bots/pkg/tlds"
 )
 
 // [a-zA-Z0-9]+([a-zA-Z0-9-]+)?\\.(${tlds.join('|')})

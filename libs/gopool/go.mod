@@ -1,3 +1,3 @@
-module github.com/satont/tsuwari/libs/gopool
+module github.com/satont/twir/libs/gopool
 
 go 1.20

@@ -1,4 +1,4 @@
-import type { IconName } from '@tsuwari/ui-components';
+import type { IconName } from '@twir/ui-components';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 import {

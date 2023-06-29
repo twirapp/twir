@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/typeorm",
+  "name": "@twir/typeorm",
   "type": "commonjs",
   "exports": {
     ".": "./dist/index.js",
@@ -22,12 +22,12 @@
     "seed": "pnpm ts-node --transpileOnly ./seed.ts"
   },
   "dependencies": {
-    "@tsuwari/config": "workspace:*",
-    "@tsuwari/crypto": "workspace:*",
+    "@twir/config": "workspace:*",
+    "@twir/crypto": "workspace:*",
     "pg": "8.8.0",
     "reflect-metadata": "^0.1.13",
     "ts-node": "10.9.1",
-    "typeorm": "^0.3.10",
+    "typeorm": "^0.3.17",
     "typescript": "4.9.3"
   },
   "devDependencies": {

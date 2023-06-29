@@ -5,14 +5,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/bots/internal/di"
-	cfg "github.com/satont/tsuwari/libs/config"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/gopool"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	"github.com/satont/twir/apps/bots/internal/di"
+	cfg "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/gopool"
+	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/parser"
 
-	"github.com/satont/tsuwari/apps/bots/types"
+	"github.com/satont/twir/apps/bots/types"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -53,16 +53,20 @@ func CreateHandlers(opts *HandlersOpts) *Handlers {
 		"botId":   opts.BotClient.TwitchUser.ID,
 		"botName": opts.BotClient.TwitchUser.Login,
 	}
-	greetingsCounter := promauto.NewCounter(prometheus.CounterOpts{
-		Name:        "bots_greetings_counter",
-		Help:        "The total number of processed greetings",
-		ConstLabels: labels,
-	})
-	keywordsCounter := promauto.NewCounter(prometheus.CounterOpts{
-		Name:        "bots_keywords_counter",
-		Help:        "The total number of processed keywords",
-		ConstLabels: labels,
-	})
+	greetingsCounter := promauto.NewCounter(
+		prometheus.CounterOpts{
+			Name:        "bots_greetings_counter",
+			Help:        "The total number of processed greetings",
+			ConstLabels: labels,
+		},
+	)
+	keywordsCounter := promauto.NewCounter(
+		prometheus.CounterOpts{
+			Name:        "bots_keywords_counter",
+			Help:        "The total number of processed keywords",
+			ConstLabels: labels,
+		},
+	)
 
 	workersPool := gopool.NewPool(1000)
 

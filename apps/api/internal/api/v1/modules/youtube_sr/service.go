@@ -8,19 +8,19 @@ import (
 	"sync"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	cfg "github.com/satont/tsuwari/libs/config"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	cfg "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
 
 	ytsr "github.com/SherlockYigit/youtube-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	youtube "github.com/satont/tsuwari/libs/types/types/api/modules"
+	"github.com/satont/twir/apps/api/internal/types"
+	youtube "github.com/satont/twir/libs/types/types/api/modules"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -50,10 +50,12 @@ func handleSearch(query string, searchType string) ([]youtube.SearchResult, erro
 		return nil, fiber.NewError(400, "type can be only video or channel")
 	}
 
-	search, err := ytsr.Search(query, ytsr.SearchOptions{
-		Limit: 20,
-		Type:  searchType,
-	})
+	search, err := ytsr.Search(
+		query, ytsr.SearchOptions{
+			Limit: 20,
+			Type:  searchType,
+		},
+	)
 
 	result := make([]youtube.SearchResult, 0)
 	if err != nil {
@@ -99,7 +101,9 @@ func handlePost(channelId string, dto *youtube.YouTubeSettings, services types.S
 	}
 
 	var existedSettings *model.ChannelModulesSettings
-	err = services.DB.Where(`"channelId" = ? AND "type" = ?`, channelId, "youtube_song_requests").First(&existedSettings).Error
+	err = services.DB.Where(
+		`"channelId" = ? AND "type" = ?`, channelId, "youtube_song_requests",
+	).First(&existedSettings).Error
 
 	if err != nil && err != gorm.ErrRecordNotFound {
 		logger.Error(err)
@@ -116,14 +120,16 @@ func handlePost(channelId string, dto *youtube.YouTubeSettings, services types.S
 		for _, chunk := range twitchUsersChunks {
 			go func(chunk []youtube.YouTubeDenySettingsUsers) {
 				defer wg.Done()
-				req, _ := twitchClient.GetUsers(&helix.UsersParams{
-					Logins: lo.Map(
-						chunk,
-						func(item youtube.YouTubeDenySettingsUsers, _ int) string {
-							return item.UserName
-						},
-					),
-				})
+				req, _ := twitchClient.GetUsers(
+					&helix.UsersParams{
+						Logins: lo.Map(
+							chunk,
+							func(item youtube.YouTubeDenySettingsUsers, _ int) string {
+								return item.UserName
+							},
+						),
+					},
+				)
 				mu.Lock()
 				twitchUsers = append(twitchUsers, req.Data.Users...)
 				mu.Unlock()
@@ -134,9 +140,11 @@ func handlePost(channelId string, dto *youtube.YouTubeSettings, services types.S
 
 		errors := []string{}
 		for i, u := range dto.DenyList.Users {
-			userInSlice, ok := lo.Find(twitchUsers, func(item helix.User) bool {
-				return item.Login == strings.ToLower(u.UserName)
-			})
+			userInSlice, ok := lo.Find(
+				twitchUsers, func(item helix.User) bool {
+					return item.Login == strings.ToLower(u.UserName)
+				},
+			)
 
 			if !ok {
 				errors = append(errors, fmt.Sprintf("user %s not found on twitch", u.UserName))
@@ -158,12 +166,14 @@ func handlePost(channelId string, dto *youtube.YouTubeSettings, services types.S
 	}
 
 	if existedSettings.ID == "" {
-		err = services.DB.Model(&model.ChannelModulesSettings{}).Create(map[string]interface{}{
-			"id":        uuid.NewV4().String(),
-			"type":      "youtube_song_requests",
-			"settings":  bytes,
-			"channelId": channelId,
-		}).Error
+		err = services.DB.Model(&model.ChannelModulesSettings{}).Create(
+			map[string]interface{}{
+				"id":        uuid.NewV4().String(),
+				"type":      "youtube_song_requests",
+				"settings":  bytes,
+				"channelId": channelId,
+			},
+		).Error
 		if err != nil {
 			logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")

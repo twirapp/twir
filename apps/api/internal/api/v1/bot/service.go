@@ -5,24 +5,24 @@ import (
 	"net/http"
 	"sync"
 
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/bots"
 
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/libs/twitch"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/types"
 
-	apiTypes "github.com/satont/tsuwari/libs/types/types/api/bot"
+	apiTypes "github.com/satont/twir/libs/types/types/api/bot"
 )
 
 func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, error) {
@@ -32,7 +32,9 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 
 	twitchClient, err := twitch.NewUserClient(channelId, config, tokensGrpc)
 	if err != nil {
-		return nil, fiber.NewError(http.StatusInternalServerError, "cannot create twitch client from your tokens. Please try to reauthorize")
+		return nil, fiber.NewError(
+			http.StatusInternalServerError, "cannot create twitch client from your tokens. Please try to reauthorize",
+		)
 	}
 
 	channel := &model.Channels{}
@@ -56,10 +58,12 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 			return
 		}
 
-		mods, err := twitchClient.GetModerators(&helix.GetModeratorsParams{
-			BroadcasterID: channelId,
-			UserIDs:       []string{channel.BotID},
-		})
+		mods, err := twitchClient.GetModerators(
+			&helix.GetModeratorsParams{
+				BroadcasterID: channelId,
+				UserIDs:       []string{channel.BotID},
+			},
+		)
 		if err != nil {
 			logger.Error(err)
 			return
@@ -70,9 +74,11 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 
 	go func() {
 		defer wg.Done()
-		infoReq, err := twitchClient.GetUsers(&helix.UsersParams{
-			IDs: []string{channel.BotID},
-		})
+		infoReq, err := twitchClient.GetUsers(
+			&helix.UsersParams{
+				IDs: []string{channel.BotID},
+			},
+		)
 		if err != nil {
 			logger.Error(err)
 			return
@@ -137,15 +143,19 @@ func handlePatch(channelId string, dto *connectionDto, services types.Services) 
 	services.DB.Where(`"id" = ?`, channelId).Select("*").Updates(&dbUser)
 
 	if dbUser.IsEnabled {
-		grpc.Join(context.Background(), &bots.JoinOrLeaveRequest{
-			BotId:    dbUser.BotID,
-			UserName: user.Login,
-		})
+		grpc.Join(
+			context.Background(), &bots.JoinOrLeaveRequest{
+				BotId:    dbUser.BotID,
+				UserName: user.Login,
+			},
+		)
 	} else {
-		grpc.Leave(context.Background(), &bots.JoinOrLeaveRequest{
-			BotId:    dbUser.BotID,
-			UserName: user.Login,
-		})
+		grpc.Leave(
+			context.Background(), &bots.JoinOrLeaveRequest{
+				BotId:    dbUser.BotID,
+				UserName: user.Login,
+			},
+		)
 	}
 
 	return nil

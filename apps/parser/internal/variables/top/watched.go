@@ -8,14 +8,16 @@ import (
 	"time"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 var Watched = &types.Variable{
 	Name:        "top.watched",
 	Description: lo.ToPtr("Top users by watch time"),
 	Example:     lo.ToPtr("top.watched|10"),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 		var page = 1
 
@@ -48,14 +50,16 @@ var Watched = &types.Variable{
 			return result, nil
 		}
 
-		mappedTop := lo.Map(topUsers, func(user *userStats, idx int) string {
-			duration := time.Duration(user.Value) * time.Millisecond
-			return fmt.Sprintf(
-				"%s × %.1fh",
-				user.UserName,
-				duration.Hours(),
-			)
-		})
+		mappedTop := lo.Map(
+			topUsers, func(user *userStats, idx int) string {
+				duration := time.Duration(user.Value) * time.Millisecond
+				return fmt.Sprintf(
+					"%s × %.1fh",
+					user.UserName,
+					duration.Hours(),
+				)
+			},
+		)
 
 		result.Result = strings.Join(mappedTop, " · ")
 		return result, nil

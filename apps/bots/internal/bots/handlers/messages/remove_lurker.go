@@ -1,7 +1,7 @@
 package messages
 
 import (
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

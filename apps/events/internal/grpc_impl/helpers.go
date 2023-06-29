@@ -2,7 +2,7 @@ package grpc_impl
 
 import (
 	"fmt"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/events"
 	"strings"
 )
 

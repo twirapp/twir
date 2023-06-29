@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"

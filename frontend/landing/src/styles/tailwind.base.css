@@ -1,5 +1,5 @@
-@import '@tsuwari/ui-fonts';
-@import '@tsuwari/ui-components/styles';
+@import '@twir/ui-fonts';
+@import '@twir/ui-components/styles';
 
 @tailwind base;
 @tailwind components;

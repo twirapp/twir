@@ -3,8 +3,8 @@ package tts
 import (
 	"encoding/json"
 	"github.com/olahol/melody"
-	"github.com/satont/tsuwari/apps/websockets/internal/namespaces/helpers"
-	"github.com/satont/tsuwari/apps/websockets/types"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
+	"github.com/satont/twir/apps/websockets/types"
 	"net/http"
 )
 
@@ -20,9 +20,11 @@ func NewTts(services *types.Services) *TTS {
 		services: services,
 	}
 
-	tts.manager.HandleConnect(func(session *melody.Session) {
-		helpers.CheckUserByApiKey(services.Gorm, session)
-	})
+	tts.manager.HandleConnect(
+		func(session *melody.Session) {
+			helpers.CheckUserByApiKey(services.Gorm, session)
+		},
+	)
 
 	return tts
 }
@@ -43,10 +45,12 @@ func (c *TTS) SendEvent(userId, eventName string, data any) error {
 		return err
 	}
 
-	err = c.manager.BroadcastFilter(bytes, func(session *melody.Session) bool {
-		socketUserId, ok := session.Get("userId")
-		return ok && socketUserId.(string) == userId
-	})
+	err = c.manager.BroadcastFilter(
+		bytes, func(session *melody.Session) bool {
+			socketUserId, ok := session.Get("userId")
+			return ok && socketUserId.(string) == userId
+		},
+	)
 
 	if err != nil {
 		c.services.Logger.Error(err)

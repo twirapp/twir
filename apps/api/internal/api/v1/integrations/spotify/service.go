@@ -8,17 +8,17 @@ import (
 	"net/url"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	"github.com/satont/tsuwari/libs/integrations/spotify"
+	"github.com/satont/twir/apps/api/internal/api/v1/integrations/helpers"
+	"github.com/satont/twir/apps/api/internal/types"
+	"github.com/satont/twir/libs/integrations/spotify"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )

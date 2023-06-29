@@ -1,6 +1,6 @@
 import { Avatar, Menu } from '@mantine/core';
 import { IconLogout } from '@tabler/icons';
-import { AuthUser } from '@tsuwari/shared';
+import { AuthUser } from '@twir/shared';
 
 import { useLogoutMutation } from '@/services/api';
 

@@ -29,8 +29,8 @@ import {
 	IconTrash,
 	IconX,
 } from '@tabler/icons';
-import { Event, EventType } from '@tsuwari/typeorm/entities/events/Event';
-import { OperationType } from '@tsuwari/typeorm/entities/events/EventOperation';
+import { Event, EventType } from '@twir/typeorm/entities/events/Event';
+import { OperationType } from '@twir/typeorm/entities/events/EventOperation';
 import { useTranslation } from 'next-i18next';
 import React, { Fragment, useEffect, useState } from 'react';
 

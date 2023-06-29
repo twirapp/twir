@@ -1,4 +1,4 @@
-module github.com/satont/tsuwari/libs/pubsub
+module github.com/satont/twir/libs/pubsub
 
 go 1.20
 

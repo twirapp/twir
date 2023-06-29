@@ -3,7 +3,7 @@ package command_counters
 import (
 	"strconv"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
 

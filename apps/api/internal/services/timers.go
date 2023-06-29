@@ -3,9 +3,9 @@ package services
 import (
 	"errors"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	model "github.com/satont/twir/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -63,22 +63,24 @@ func (c *TimersService) Create(
 	}
 	timer.ID = uuid.NewV4().String()
 
-	err := c.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Save(&timer).Error; err != nil {
-			return err
-		}
-
-		for _, response := range responses {
-			response.TimerID = timer.ID
-			response.ID = uuid.NewV4().String()
-			if err := tx.Save(&response).Error; err != nil {
+	err := c.db.Transaction(
+		func(tx *gorm.DB) error {
+			if err := tx.Save(&timer).Error; err != nil {
 				return err
 			}
-			timer.Responses = append(timer.Responses, response)
-		}
 
-		return nil
-	})
+			for _, response := range responses {
+				response.TimerID = timer.ID
+				response.ID = uuid.NewV4().String()
+				if err := tx.Save(&response).Error; err != nil {
+					return err
+				}
+				timer.Responses = append(timer.Responses, response)
+			}
+
+			return nil
+		},
+	)
 
 	if err != nil {
 		c.logger.Error(err)
@@ -123,27 +125,29 @@ func (c *TimersService) Update(
 
 	timer.Responses = []model.ChannelsTimersResponses{}
 
-	err = c.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Save(&timer).Error; err != nil {
-			return err
-		}
-
-		err := tx.Where(`"timerId" = ?`, timer.ID).Delete(&model.ChannelsTimersResponses{}).Error
-		if err != nil {
-			return err
-		}
-
-		for _, response := range responses {
-			response.TimerID = timer.ID
-			response.ID = uuid.NewV4().String()
-			if err := tx.Save(&response).Error; err != nil {
+	err = c.db.Transaction(
+		func(tx *gorm.DB) error {
+			if err := tx.Save(&timer).Error; err != nil {
 				return err
 			}
-			timer.Responses = append(timer.Responses, response)
-		}
 
-		return nil
-	})
+			err := tx.Where(`"timerId" = ?`, timer.ID).Delete(&model.ChannelsTimersResponses{}).Error
+			if err != nil {
+				return err
+			}
+
+			for _, response := range responses {
+				response.TimerID = timer.ID
+				response.ID = uuid.NewV4().String()
+				if err := tx.Save(&response).Error; err != nil {
+					return err
+				}
+				timer.Responses = append(timer.Responses, response)
+			}
+
+			return nil
+		},
+	)
 
 	if err != nil {
 		c.logger.Error(err)

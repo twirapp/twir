@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
-	"github.com/satont/tsuwari/apps/api/internal/api/webhooks"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/twir/apps/api/internal/api/webhooks"
+	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"log"
 	"os"
 	"os/signal"
@@ -16,15 +16,15 @@ import (
 	"time"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"github.com/satont/tsuwari/apps/api/internal/services"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
-	"github.com/satont/tsuwari/libs/grpc/generated/eventsub"
-	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
-	"github.com/satont/tsuwari/libs/grpc/generated/scheduler"
-	"github.com/satont/tsuwari/libs/grpc/generated/timers"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/services"
+	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/generated/eventsub"
+	"github.com/satont/twir/libs/grpc/generated/integrations"
+	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/grpc/generated/scheduler"
+	"github.com/satont/twir/libs/grpc/generated/timers"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/go-playground/locales/en_US"
@@ -34,23 +34,23 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/swagger"
-	"github.com/satont/tsuwari/apps/api/internal/api/auth"
-	apiv1 "github.com/satont/tsuwari/apps/api/internal/api/v1"
-	"github.com/satont/tsuwari/apps/api/internal/middlewares"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	"github.com/satont/tsuwari/libs/grpc/clients"
+	"github.com/satont/twir/apps/api/internal/api/auth"
+	apiv1 "github.com/satont/twir/apps/api/internal/api/v1"
+	"github.com/satont/twir/apps/api/internal/middlewares"
+	"github.com/satont/twir/apps/api/internal/types"
+	"github.com/satont/twir/libs/grpc/clients"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	config "github.com/satont/tsuwari/libs/config"
+	config "github.com/satont/twir/libs/config"
 
-	"github.com/satont/tsuwari/apps/api/internal/services/redis"
+	"github.com/satont/twir/apps/api/internal/services/redis"
 
 	rdb "github.com/go-redis/redis/v9"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	_ "github.com/satont/tsuwari/apps/api/docs"
+	_ "github.com/satont/twir/apps/api/docs"
 	gormLogger "gorm.io/gorm/logger"
 )
 
@@ -75,17 +75,21 @@ func main() {
 	do.ProvideValue[interfaces.Logger](di.Provider, logger.Sugar())
 
 	if cfg.SentryDsn != "" {
-		sentry.Init(sentry.ClientOptions{
-			Dsn:              cfg.SentryDsn,
-			Environment:      cfg.AppEnv,
-			Debug:            true,
-			TracesSampleRate: 1.0,
-		})
+		sentry.Init(
+			sentry.ClientOptions{
+				Dsn:              cfg.SentryDsn,
+				Environment:      cfg.AppEnv,
+				Debug:            true,
+				TracesSampleRate: 1.0,
+			},
+		)
 	}
 
-	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{
-		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
-	})
+	db, err := gorm.Open(
+		postgres.Open(cfg.DatabaseUrl), &gorm.Config{
+			Logger: gormLogger.Default.LogMode(gormLogger.Silent),
+		},
+	)
 	if err != nil {
 		logger.Sugar().Error(err)
 		panic("failed to connect database")
@@ -120,29 +124,37 @@ func main() {
 	transEN, _ := uni.GetTranslator("en_US")
 	enTranslations.RegisterDefaultTranslations(validator, transEN)
 	errorMiddleware := middlewares.ErrorHandler(transEN)
-	validator.RegisterTagNameFunc(func(fld reflect.StructField) string {
-		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+	validator.RegisterTagNameFunc(
+		func(fld reflect.StructField) string {
+			name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
 
-		if name == "-" {
-			return ""
-		}
+			if name == "-" {
+				return ""
+			}
 
-		return name
-	})
+			return name
+		},
+	)
 
-	app := fiber.New(fiber.Config{
-		ErrorHandler: errorMiddleware,
-	})
+	app := fiber.New(
+		fiber.Config{
+			ErrorHandler: errorMiddleware,
+		},
+	)
 	app.Use(cors.New())
 	if cfg.AppEnv == "development" {
-		app.Get("/swagger/*", swagger.New(swagger.Config{
-			URL:                  "http://localhost:3002/swagger/doc.json",
-			DeepLinking:          false,
-			DocExpansion:         "list",
-			PersistAuthorization: true,
-			Title:                "Tsuwari api",
-			TryItOutEnabled:      true,
-		}))
+		app.Get(
+			"/swagger/*", swagger.New(
+				swagger.Config{
+					URL:                  "http://localhost:3002/swagger/doc.json",
+					DeepLinking:          false,
+					DocExpansion:         "list",
+					PersistAuthorization: true,
+					Title:                "Tsuwari api",
+					TryItOutEnabled:      true,
+				},
+			),
+		)
 		app.Get("/swagger/*", swagger.HandlerDefault)
 
 	}
@@ -175,9 +187,11 @@ func main() {
 	auth.Setup(app, neededServices)
 	webhooks.Setup(app, neededServices)
 
-	app.Use(func(c *fiber.Ctx) error {
-		return c.Status(404).SendString("Not found")
-	})
+	app.Use(
+		func(c *fiber.Ctx) error {
+			return c.Status(404).SendString("Not found")
+		},
+	)
 
 	go app.Listen(":3002")
 

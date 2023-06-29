@@ -14,10 +14,10 @@ import (
 	"github.com/getsentry/sentry-go"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/clients"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
-	"github.com/satont/tsuwari/libs/grpc/servers"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/clients"
+	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/grpc/servers"
 	"google.golang.org/grpc"
 
 	"gorm.io/driver/postgres"
@@ -25,10 +25,10 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/tsuwari/apps/parser/internal/commands"
-	"github.com/satont/tsuwari/apps/parser/internal/grpc_impl"
-	"github.com/satont/tsuwari/apps/parser/internal/types/services"
-	"github.com/satont/tsuwari/apps/parser/internal/variables"
+	"github.com/satont/twir/apps/parser/internal/commands"
+	"github.com/satont/twir/apps/parser/internal/grpc_impl"
+	"github.com/satont/twir/apps/parser/internal/types/services"
+	"github.com/satont/twir/apps/parser/internal/variables"
 	"go.uber.org/zap"
 )
 
@@ -47,12 +47,14 @@ func main() {
 	}
 
 	if config.SentryDsn != "" {
-		sentry.Init(sentry.ClientOptions{
-			Dsn:              config.SentryDsn,
-			Environment:      config.AppEnv,
-			Debug:            true,
-			TracesSampleRate: 1.0,
-		})
+		sentry.Init(
+			sentry.ClientOptions{
+				Dsn:              config.SentryDsn,
+				Environment:      config.AppEnv,
+				Debug:            true,
+				TracesSampleRate: 1.0,
+			},
+		)
 	}
 
 	var logger *zap.Logger
@@ -96,12 +98,14 @@ func main() {
 		panic("Wrong redis url")
 	}
 
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     url.Addr,
-		Password: url.Password,
-		DB:       url.DB,
-		Username: url.Username,
-	})
+	redisClient := redis.NewClient(
+		&redis.Options{
+			Addr:     url.Addr,
+			Password: url.Password,
+			DB:       url.DB,
+			Username: url.Username,
+		},
+	)
 	defer redisClient.Close()
 
 	redisClient.Conn()
@@ -123,13 +127,17 @@ func main() {
 		},
 	}
 
-	variablesService := variables.New(&variables.Opts{
-		Services: s,
-	})
-	commandsService := commands.New(&commands.Opts{
-		Services:         s,
-		VariablesService: variablesService,
-	})
+	variablesService := variables.New(
+		&variables.Opts{
+			Services: s,
+		},
+	)
+	commandsService := commands.New(
+		&commands.Opts{
+			Services:         s,
+			VariablesService: variablesService,
+		},
+	)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.PARSER_SERVER_PORT))
 	if err != nil {

@@ -1,13 +1,13 @@
-module github.com/satont/tsuwari/apps/timers
+module github.com/satont/twir/apps/timers
 
 go 1.20
 
 require (
 	github.com/go-co-op/gocron v1.17.1
 	github.com/samber/do v1.6.0
-	github.com/satont/tsuwari/libs/config v0.0.0
-	github.com/satont/tsuwari/libs/gomodels v0.0.0
-	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/config v0.0.0
+	github.com/satont/twir/libs/gomodels v0.0.0
+	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.55.0
 	gorm.io/driver/postgres v1.5.2
@@ -47,10 +47,10 @@ require (
 	google.golang.org/protobuf v1.30.0
 )
 
-replace github.com/satont/tsuwari/libs/config => ../../libs/config
+replace github.com/satont/twir/libs/config => ../../libs/config
 
-replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
+replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 
-replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
+replace github.com/satont/twir/libs/twitch => ../../libs/twitch
 
-replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+replace github.com/satont/twir/libs/grpc => ../../libs/grpc

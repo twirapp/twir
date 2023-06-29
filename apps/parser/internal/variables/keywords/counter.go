@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/parser/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 var Counter = &types.Variable{
@@ -14,7 +14,9 @@ var Counter = &types.Variable{
 	Description: lo.ToPtr("Show how many times keyword was used"),
 	Example:     lo.ToPtr("keywords.counter|id"),
 	Visible:     lo.ToPtr(false),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		if variableData.Params == nil {

@@ -13,7 +13,7 @@ import {
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import { IconVariable } from '@tabler/icons';
-import { ChannelGreeting } from '@tsuwari/typeorm/entities/ChannelGreeting';
+import { ChannelGreeting } from '@twir/typeorm/entities/ChannelGreeting';
 import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 

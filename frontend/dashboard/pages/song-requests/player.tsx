@@ -1,6 +1,6 @@
 import { Grid } from '@mantine/core';
 import { useListState } from '@mantine/hooks';
-import type { RequestedSong } from '@tsuwari/typeorm/entities/RequestedSong';
+import type { RequestedSong } from '@twir/typeorm/entities/RequestedSong';
 import { getCookie } from 'cookies-next';
 import { GetServerSideProps, NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';

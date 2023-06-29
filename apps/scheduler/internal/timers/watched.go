@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/scheduler/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/watched"
+	"github.com/satont/twir/apps/scheduler/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/watched"
 	"go.uber.org/zap"
 )
 
@@ -32,9 +32,11 @@ func NewWatched(ctx context.Context, services *types.Services) {
 				if err != nil {
 					zap.S().Error(err)
 				} else {
-					groups := lo.GroupBy(streams, func(item model.ChannelsStreams) string {
-						return item.Channel.BotID
-					})
+					groups := lo.GroupBy(
+						streams, func(item model.ChannelsStreams) string {
+							return item.Channel.BotID
+						},
+					)
 
 					for botId, streams := range groups {
 						chunks := lo.Chunk(streams, 100)
@@ -45,10 +47,12 @@ func NewWatched(ctx context.Context, services *types.Services) {
 								channelsIds = append(channelsIds, stream.Channel.ID)
 							}
 
-							_, err := services.Grpc.Watched.IncrementByChannelId(ctx, &watched.Request{
-								BotId:      botId,
-								ChannelsId: channelsIds,
-							})
+							_, err := services.Grpc.Watched.IncrementByChannelId(
+								ctx, &watched.Request{
+									BotId:      botId,
+									ChannelsId: channelsIds,
+								},
+							)
 							if err != nil {
 								zap.S().Error(err)
 							}

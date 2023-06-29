@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import { TswIcon } from '@tsuwari/ui-components';
+import { TswIcon } from '@twir/ui-components';
 
 import type { Locale } from '@/locales';
 

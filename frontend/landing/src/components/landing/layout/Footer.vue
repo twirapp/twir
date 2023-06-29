@@ -49,8 +49,8 @@
 </template>
 
 <script lang="ts" setup>
-import { TswIcon } from '@tsuwari/ui-components';
-import { cssURL } from '@tsuwari/ui-components';
+import { TswIcon } from '@twir/ui-components';
+import { cssURL } from '@twir/ui-components';
 
 import TsuwariLogo from '@/assets/brand/TsuwariInCircle.svg';
 import NavMenu from '@/components/landing/layout/NavMenu.vue';

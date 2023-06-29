@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import { TswIcon, TswDropdown } from '@tsuwari/ui-components';
+import { TswIcon, TswDropdown } from '@twir/ui-components';
 
 import LangSelectOption from './LangSelectOption.vue';
 

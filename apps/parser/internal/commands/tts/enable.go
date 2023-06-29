@@ -5,9 +5,9 @@ import (
 	"github.com/lib/pq"
 
 	"github.com/guregu/null"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 var EnableCommand = &types.DefaultCommand{

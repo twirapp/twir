@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/guregu/null"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 
 	"github.com/samber/lo"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 var SrListCommand = &types.DefaultCommand{

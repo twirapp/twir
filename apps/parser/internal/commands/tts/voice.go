@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/guregu/null"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 	"go.uber.org/zap"
 )
 
@@ -42,10 +42,13 @@ var VoiceCommand = &types.DefaultCommand{
 				fmt.Sprintf(
 					"Global voice: %s | Your voice: %s",
 					channelSettings.Voice,
-					lo.IfF(userSettings != nil, func() string {
-						return userSettings.Voice
-					}).Else("not setted"),
-				))
+					lo.IfF(
+						userSettings != nil, func() string {
+							return userSettings.Voice
+						},
+					).Else("not setted"),
+				),
+			)
 			return result
 		}
 
@@ -55,18 +58,22 @@ var VoiceCommand = &types.DefaultCommand{
 			return result
 		}
 
-		wantedVoice, ok := lo.Find(voices, func(item Voice) bool {
-			return item.Name == strings.ToLower(*parseCtx.Text)
-		})
+		wantedVoice, ok := lo.Find(
+			voices, func(item Voice) bool {
+				return item.Name == strings.ToLower(*parseCtx.Text)
+			},
+		)
 
 		if !ok {
 			result.Result = append(result.Result, fmt.Sprintf("Voice %s not found", *parseCtx.Text))
 			return result
 		}
 
-		_, isDisallowed := lo.Find(channelSettings.DisallowedVoices, func(item string) bool {
-			return item == wantedVoice.Name
-		})
+		_, isDisallowed := lo.Find(
+			channelSettings.DisallowedVoices, func(item string) bool {
+				return item == wantedVoice.Name
+			},
+		)
 
 		if isDisallowed {
 			result.Result = append(

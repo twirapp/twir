@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/eventsub/internal/client"
-	"github.com/satont/tsuwari/apps/eventsub/internal/grpm_impl"
-	"github.com/satont/tsuwari/apps/eventsub/internal/handler"
-	"github.com/satont/tsuwari/apps/eventsub/internal/helpers"
-	"github.com/satont/tsuwari/apps/eventsub/internal/types"
-	config "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/clients"
-	"github.com/satont/tsuwari/libs/grpc/generated/eventsub"
-	"github.com/satont/tsuwari/libs/grpc/servers"
-	"github.com/satont/tsuwari/libs/pubsub"
+	"github.com/satont/twir/apps/eventsub/internal/client"
+	"github.com/satont/twir/apps/eventsub/internal/grpm_impl"
+	"github.com/satont/twir/apps/eventsub/internal/handler"
+	"github.com/satont/twir/apps/eventsub/internal/helpers"
+	"github.com/satont/twir/apps/eventsub/internal/types"
+	config "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/clients"
+	"github.com/satont/twir/libs/grpc/generated/eventsub"
+	"github.com/satont/twir/libs/grpc/servers"
+	"github.com/satont/twir/libs/pubsub"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -40,9 +40,11 @@ func main() {
 		panic(err)
 	}
 
-	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{
-		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
-	})
+	db, err := gorm.Open(
+		postgres.Open(cfg.DatabaseUrl), &gorm.Config{
+			Logger: gormLogger.Default.LogMode(gormLogger.Silent),
+		},
+	)
 	if err != nil {
 		logger.Sugar().Error(err)
 		panic("failed to connect database")
@@ -102,9 +104,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	grpcServer := grpc.NewServer(grpc.KeepaliveParams(keepalive.ServerParameters{
-		MaxConnectionAge: 1 * time.Minute,
-	}))
+	grpcServer := grpc.NewServer(
+		grpc.KeepaliveParams(
+			keepalive.ServerParameters{
+				MaxConnectionAge: 1 * time.Minute,
+			},
+		),
+	)
 	eventsub.RegisterEventSubServer(grpcServer, grpcImpl)
 	go func() {
 		if err := grpcServer.Serve(lis); err != nil {

@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/grpc",
+  "name": "@twir/grpc",
   "scripts": {
     "build": "rm -rf dist && ts-node --transpileOnly gen.ts && tsc --module ESNext --outDir dist/esm --declaration false --declarationMap false && tsc --module CommonJS --declaration false --declarationMap false --outDir dist/cjs && tsc --emitDeclarationOnly --outDir dist/types"
   },

@@ -5,11 +5,11 @@ import (
 	"github.com/getsentry/sentry-go"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/emotes-cacher/internal/di"
-	"github.com/satont/tsuwari/apps/emotes-cacher/internal/grpc_impl"
-	config "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/emotes_cacher"
-	"github.com/satont/tsuwari/libs/grpc/servers"
+	"github.com/satont/twir/apps/emotes-cacher/internal/di"
+	"github.com/satont/twir/apps/emotes-cacher/internal/grpc_impl"
+	config "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/emotes_cacher"
+	"github.com/satont/twir/libs/grpc/servers"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
@@ -32,12 +32,14 @@ func main() {
 	do.ProvideValue[config.Config](di.Provider, *cfg)
 
 	if cfg.SentryDsn != "" {
-		sentry.Init(sentry.ClientOptions{
-			Dsn:              cfg.SentryDsn,
-			Environment:      cfg.AppEnv,
-			Debug:            true,
-			TracesSampleRate: 1.0,
-		})
+		sentry.Init(
+			sentry.ClientOptions{
+				Dsn:              cfg.SentryDsn,
+				Environment:      cfg.AppEnv,
+				Debug:            true,
+				TracesSampleRate: 1.0,
+			},
+		)
 	}
 
 	var logger *zap.Logger

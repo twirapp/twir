@@ -1,6 +1,6 @@
-import { ChannelEvent, EventType } from '@tsuwari/typeorm/entities/ChannelEvent';
-import { ChannelDonationEvent } from '@tsuwari/typeorm/entities/channelEvents/Donation';
-import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration';
+import { ChannelEvent, EventType } from '@twir/typeorm/entities/ChannelEvent';
+import { ChannelDonationEvent } from '@twir/typeorm/entities/channelEvents/Donation';
+import { ChannelIntegration } from '@twir/typeorm/entities/ChannelIntegration';
 import Centrifuge from 'centrifuge';
 import WebSocket from 'ws';
 

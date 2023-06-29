@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/crypto",
+  "name": "@twir/crypto",
   "private": true,
   "module": "./dist/src/index.js",
   "main": "./dist/src/index.js",

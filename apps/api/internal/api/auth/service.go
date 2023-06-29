@@ -9,17 +9,17 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	cfg "github.com/satont/tsuwari/libs/config"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	cfg "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -134,9 +134,11 @@ func handleGetProfile(user model.Users, services types.Services) (*Profile, erro
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	usersReq, err := twitchClient.GetUsers(&helix.UsersParams{
-		IDs: []string{user.ID},
-	})
+	usersReq, err := twitchClient.GetUsers(
+		&helix.UsersParams{
+			IDs: []string{user.ID},
+		},
+	)
 
 	if err != nil || usersReq.ErrorMessage != "" {
 		logger.Error(err)
@@ -168,13 +170,15 @@ func handleRefresh(refreshToken string) (string, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 	config := do.MustInvoke[cfg.Config](di.Provider)
 
-	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
+	token, err := jwt.Parse(
+		refreshToken, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			}
 
-		return []byte(config.JwtRefreshSecret), nil
-	})
+			return []byte(config.JwtRefreshSecret), nil
+		},
+	)
 	if err != nil {
 		return "", fiber.NewError(401, "invalid token. Probably token is expired.")
 	}
@@ -257,12 +261,16 @@ func handleGetDashboards(user model.Users, services types.Services) ([]Dashboard
 			return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 		}
 
-		dashboards = append(dashboards, lo.Map(channels, func(channel model.Channels, _ int) Dashboard {
-			return Dashboard{
-				ID:    channel.ID,
-				Flags: []string{model.RolePermissionCanAccessDashboard.String()},
-			}
-		})...)
+		dashboards = append(
+			dashboards, lo.Map(
+				channels, func(channel model.Channels, _ int) Dashboard {
+					return Dashboard{
+						ID:    channel.ID,
+						Flags: []string{model.RolePermissionCanAccessDashboard.String()},
+					}
+				},
+			)...,
+		)
 	} else {
 		if err != nil {
 			logger.Error(err)
@@ -275,10 +283,12 @@ func handleGetDashboards(user model.Users, services types.Services) ([]Dashboard
 				continue
 			}
 
-			dashboards = append(dashboards, Dashboard{
-				ID:    role.Role.ChannelID,
-				Flags: role.Role.Permissions,
-			})
+			dashboards = append(
+				dashboards, Dashboard{
+					ID:    role.Role.ChannelID,
+					Flags: role.Role.Permissions,
+				},
+			)
 		}
 	}
 
@@ -290,13 +300,17 @@ func handleGetDashboards(user model.Users, services types.Services) ([]Dashboard
 		go func(chunk []Dashboard) {
 			defer wg.Done()
 
-			ids := lo.Map(chunk, func(dashboard Dashboard, _ int) string {
-				return dashboard.ID
-			})
+			ids := lo.Map(
+				chunk, func(dashboard Dashboard, _ int) string {
+					return dashboard.ID
+				},
+			)
 
-			usersReq, err := twitchClient.GetUsers(&helix.UsersParams{
-				IDs: ids,
-			})
+			usersReq, err := twitchClient.GetUsers(
+				&helix.UsersParams{
+					IDs: ids,
+				},
+			)
 
 			if err != nil || usersReq.ErrorMessage != "" {
 				logger.Error(err)

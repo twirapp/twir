@@ -2,9 +2,9 @@ package webhooks
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/satont/tsuwari/apps/api/internal/api/webhooks/integrations/donate_stream"
-	"github.com/satont/tsuwari/apps/api/internal/api/webhooks/integrations/donatello"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/api/webhooks/integrations/donate_stream"
+	"github.com/satont/twir/apps/api/internal/api/webhooks/integrations/donatello"
+	"github.com/satont/twir/apps/api/internal/types"
 )
 
 func Setup(router fiber.Router, services types.Services) {

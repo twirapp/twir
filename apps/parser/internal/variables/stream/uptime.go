@@ -4,14 +4,16 @@ import (
 	"context"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	"github.com/satont/tsuwari/apps/parser/pkg/helpers"
+	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/pkg/helpers"
 )
 
 var Uptime = &types.Variable{
 	Name:        "stream.uptime",
 	Description: lo.ToPtr("Prints uptime of stream"),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
 		stream := parseCtx.Cacher.GetChannelStream(ctx)
@@ -20,10 +22,12 @@ var Uptime = &types.Variable{
 			return &result, nil
 		}
 
-		result.Result = helpers.Duration(stream.StartedAt, &helpers.DurationOpts{
-			UseUtc: true,
-			Hide:   helpers.DurationOptsHide{},
-		})
+		result.Result = helpers.Duration(
+			stream.StartedAt, &helpers.DurationOpts{
+				UseUtc: true,
+				Hide:   helpers.DurationOptsHide{},
+			},
+		)
 
 		return &result, nil
 	},

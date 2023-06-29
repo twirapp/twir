@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"github.com/olahol/melody"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/websockets/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	"github.com/satont/twir/apps/websockets/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/bots"
 	"strings"
 	"time"
 
-	"github.com/satont/tsuwari/libs/types/types/api/modules"
+	"github.com/satont/twir/libs/types/types/api/modules"
 )
 
 type playEvent struct {
@@ -125,7 +125,9 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 	}
 
 	channelSettings := &model.ChannelModulesSettings{}
-	err = c.services.Gorm.Where(`"channelId" = ? AND type = ?`, song.ChannelID, "youtube_song_requests").Find(channelSettings).Error
+	err = c.services.Gorm.Where(
+		`"channelId" = ? AND type = ?`, song.ChannelID, "youtube_song_requests",
+	).Find(channelSettings).Error
 	if err != nil {
 		c.services.Logger.Error(err)
 		return
@@ -155,12 +157,14 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 		message = strings.ReplaceAll(message, "{{orderedByName}}", song.OrderedByName)
 		message = strings.ReplaceAll(message, "{{orderedByDisplayName}}", song.OrderedByDisplayName.String)
 
-		c.services.Grpc.Bots.SendMessage(ctx, &bots.SendMessageRequest{
-			ChannelId:   song.ChannelID,
-			ChannelName: nil,
-			Message:     message,
-			IsAnnounce:  lo.ToPtr(true),
-		})
+		c.services.Grpc.Bots.SendMessage(
+			ctx, &bots.SendMessageRequest{
+				ChannelId:   song.ChannelID,
+				ChannelName: nil,
+				Message:     message,
+				IsAnnounce:  lo.ToPtr(true),
+			},
+		)
 	}
 
 	c.services.Redis.Set(ctx, redisKey, data.ID, time.Duration(data.Duration)*time.Second)

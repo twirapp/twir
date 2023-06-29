@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/samber/lo"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 	"strings"
 	"time"
 )
@@ -59,9 +59,11 @@ func (c *parserGrpcServer) isUserHasPermissionToCommand(
 
 	var commandRoles []*model.ChannelRole
 
-	mappedCommandsRoles := lo.Map(command.RolesIDS, func(id string, _ int) string {
-		return id
-	})
+	mappedCommandsRoles := lo.Map(
+		command.RolesIDS, func(id string, _ int) string {
+			return id
+		},
+	)
 	err = c.services.Gorm.
 		WithContext(ctx).Where(`"id" IN ?`, mappedCommandsRoles).Find(&commandRoles).Error
 	if err != nil {
@@ -81,15 +83,19 @@ func (c *parserGrpcServer) isUserHasPermissionToCommand(
 		}
 	}
 
-	if lo.SomeBy(command.DeniedUsersIDS, func(id string) bool {
-		return id == userId
-	}) {
+	if lo.SomeBy(
+		command.DeniedUsersIDS, func(id string) bool {
+			return id == userId
+		},
+	) {
 		return false
 	}
 
-	if lo.SomeBy(command.AllowedUsersIDS, func(id string) bool {
-		return id == userId
-	}) {
+	if lo.SomeBy(
+		command.AllowedUsersIDS, func(id string) bool {
+			return id == userId
+		},
+	) {
 		// allowed user
 		return true
 	}

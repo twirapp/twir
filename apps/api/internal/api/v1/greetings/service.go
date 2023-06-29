@@ -5,18 +5,18 @@ import (
 	"sync"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -45,25 +45,33 @@ func handleGet(channelId string, services types.Services) []Greeting {
 	for _, chunk := range chunks {
 		go func(c []model.ChannelsGreetings) {
 			defer greetingsWg.Done()
-			ids := lo.Map(chunk, func(g model.ChannelsGreetings, _ int) string {
-				return g.UserID
-			})
-			twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
-				IDs: ids,
-			})
+			ids := lo.Map(
+				chunk, func(g model.ChannelsGreetings, _ int) string {
+					return g.UserID
+				},
+			)
+			twitchUsers, err := twitchClient.GetUsers(
+				&helix.UsersParams{
+					IDs: ids,
+				},
+			)
 			if err != nil {
 				return
 			}
 			for _, u := range twitchUsers.Data.Users {
-				user, ok := lo.Find(greetings, func(g model.ChannelsGreetings) bool {
-					return g.UserID == u.ID
-				})
+				user, ok := lo.Find(
+					greetings, func(g model.ChannelsGreetings) bool {
+						return g.UserID == u.ID
+					},
+				)
 				if ok {
-					users = append(users, Greeting{
-						ChannelsGreetings: user,
-						UserName:          u.Login,
-						Avatar:            u.ProfileImageURL,
-					})
+					users = append(
+						users, Greeting{
+							ChannelsGreetings: user,
+							UserName:          u.Login,
+							Avatar:            u.ProfileImageURL,
+						},
+					)
 				}
 			}
 		}(chunk)

@@ -1,4 +1,4 @@
-module github.com/satont/tsuwari/apps/api
+module github.com/satont/twir/apps/api
 
 go 1.20
 
@@ -20,13 +20,13 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/samber/do v1.6.0
 	github.com/samber/lo v1.38.1
-	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/crypto v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
-	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/integrations/spotify v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/twitch v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/types v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/config v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/crypto v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/gomodels v0.0.0-20221114143619-e5e207524b96
+	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/integrations/spotify v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/twitch v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/types v0.0.0-00010101000000-000000000000
 	github.com/satori/go.uuid v1.2.0
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/swaggo/swag v1.8.8
@@ -104,18 +104,18 @@ require (
 	golang.org/x/text v0.9.0 // indirect
 )
 
-replace github.com/satont/tsuwari/libs/integrations/spotify => ../../libs/integrations/spotify
+replace github.com/satont/twir/libs/integrations/spotify => ../../libs/integrations/spotify
 
-replace github.com/satont/tsuwari/libs/config => ../../libs/config
+replace github.com/satont/twir/libs/config => ../../libs/config
 
-replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
+replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 
-replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
+replace github.com/satont/twir/libs/twitch => ../../libs/twitch
 
-replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+replace github.com/satont/twir/libs/grpc => ../../libs/grpc
 
-replace github.com/satont/tsuwari/libs/types => ../../libs/types
+replace github.com/satont/twir/libs/types => ../../libs/types
 
 replace github.com/SherlockYigit/youtube-go => ../../libs/ytsr
 
-replace github.com/satont/tsuwari/libs/crypto => ../../libs/crypto
+replace github.com/satont/twir/libs/crypto => ../../libs/crypto

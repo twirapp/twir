@@ -6,10 +6,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/api/internal/di"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
 )
 
 var cannotGetRewards = fiber.NewError(http.StatusInternalServerError, "cannot get custom rewards of channel")
@@ -23,11 +23,13 @@ func handleGet(channelId string) ([]helix.ChannelCustomReward, error) {
 		return nil, cannotGetRewards
 	}
 
-	request, err := twitchClient.GetCustomRewards(&helix.GetCustomRewardsParams{
-		BroadcasterID:         channelId,
-		ID:                    "",
-		OnlyManageableRewards: false,
-	})
+	request, err := twitchClient.GetCustomRewards(
+		&helix.GetCustomRewardsParams{
+			BroadcasterID:         channelId,
+			ID:                    "",
+			OnlyManageableRewards: false,
+		},
+	)
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "cannot get custom rewards of channel")
 	}

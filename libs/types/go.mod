@@ -1,4 +1,4 @@
-module github.com/satont/tsuwari/libs/types
+module github.com/satont/twir/libs/types
 
 go 1.20
 

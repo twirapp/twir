@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/nicklaw5/helix/v2"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 type DataCacher interface {

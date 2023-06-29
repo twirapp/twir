@@ -1,6 +1,6 @@
 import { Button, Card, Center, DEFAULT_THEME, Flex, Text } from '@mantine/core';
 import { IconPlus } from '@tabler/icons';
-import { ChannelRole } from '@tsuwari/typeorm/entities/ChannelRole';
+import { ChannelRole } from '@twir/typeorm/entities/ChannelRole';
 import { NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';

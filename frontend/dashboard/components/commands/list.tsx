@@ -1,7 +1,7 @@
 import { ActionIcon, Badge, Flex, Switch, Table, Text } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import { IconPencil, IconTrash } from '@tabler/icons';
-import { type ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
+import { type ChannelCommand } from '@twir/typeorm/entities/ChannelCommand';
 import { useTranslation } from 'next-i18next';
 import { FC, Fragment, useState } from 'react';
 

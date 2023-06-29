@@ -1,4 +1,4 @@
-import { Grid } from '@mantine/core';
+import { Center, Grid, Table, useMantineTheme } from '@mantine/core';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import dynamic from 'next/dynamic';
 
@@ -20,14 +20,6 @@ export const getServerSideProps = async ({ locale }) => ({
 	},
 });
 
-const cols = {
-	xs: 12,
-	sm: 12,
-	md: 5,
-	lg: 5,
-	xl: 5,
-};
-
 const DonateStreamIntegration = dynamic(() => import('../components/integrations/donateStream'), {
 	ssr: false,
 });
@@ -37,38 +29,38 @@ const DonatelloIntegration = dynamic(() => import('../components/integrations/do
 });
 
 export default function Integrations() {
+	const theme = useMantineTheme();
+
 	return (
-		<Grid justify="center">
-			<Grid.Col {...cols}>
-				<SpotifyIntegration />
-			</Grid.Col>
-			<Grid.Col {...cols}>
-				<LastfmIntegration />
-			</Grid.Col>
-			<Grid.Col {...cols}>
-				<VKIntegration />
-			</Grid.Col>
-			<Grid.Col {...cols}>
-				<DonationAlertsIntegration />
-			</Grid.Col>
-			<Grid.Col {...cols}>
-				<StreamlabsIntegration />
-			</Grid.Col>
-			<Grid.Col {...cols}>
-				<FaceitIntegration />
-			</Grid.Col>
-			<Grid.Col {...cols}>
-				<DonatePayIntegration />
-			</Grid.Col>
-			<Grid.Col {...cols}>
-				<DonatelloIntegration />
-			</Grid.Col>
-			<Grid.Col {...cols}>
-				<DonateStreamIntegration />
-			</Grid.Col>
-			<Grid.Col {...cols}>
-				<ValorantIntegration />
-			</Grid.Col>
-		</Grid>
+		<Center>
+			<Table
+				style={{
+					backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[2],
+				}}
+				highlightOnHover
+				w={'50%'}
+				horizontalSpacing='xl'
+			>
+				<thead style={{ display: 'none' }}>
+				<tr>
+					<th style={{ width: 50 }}></th>
+					<th></th>
+					<th></th>
+				</tr>
+				</thead>
+				<tbody>
+					<SpotifyIntegration />
+					<LastfmIntegration />
+					<VKIntegration />
+					<StreamlabsIntegration />
+					<FaceitIntegration />
+					<DonationAlertsIntegration />
+					<DonatelloIntegration />
+					<DonatePayIntegration />
+					<DonateStreamIntegration />
+					<ValorantIntegration />
+				</tbody>
+			</Table>
+		</Center>
 	);
 }

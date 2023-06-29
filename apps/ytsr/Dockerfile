@@ -39,4 +39,4 @@ COPY --from=builder /app/patches patches
 RUN pnpm prune --prod
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["pnpm", "--filter=@tsuwari/ytsr", "start"]
+CMD ["pnpm", "--filter=@twir/ytsr", "start"]

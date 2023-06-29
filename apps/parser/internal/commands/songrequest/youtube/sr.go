@@ -5,22 +5,22 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	"github.com/satont/tsuwari/apps/parser/internal/types/services"
+	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types/services"
 	"math"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/guregu/null"
-	"github.com/satont/tsuwari/libs/grpc/generated/ytsr"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/libs/grpc/generated/ytsr"
+	"github.com/satont/twir/libs/twitch"
 	"github.com/valyala/fasttemplate"
 	"go.uber.org/zap"
 
-	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/nicklaw5/helix/v2"
 
@@ -28,7 +28,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/samber/lo"
-	youtube "github.com/satont/tsuwari/libs/types/types/api/modules"
+	youtube "github.com/satont/twir/libs/types/types/api/modules"
 )
 
 type ReqError struct {
@@ -88,7 +88,9 @@ var SrCommand = &types.DefaultCommand{
 			}
 		}
 
-		req, err := parseCtx.Services.GrpcClients.Ytsr.Search(context.Background(), &ytsr.SearchRequest{Search: *parseCtx.Text})
+		req, err := parseCtx.Services.GrpcClients.Ytsr.Search(
+			context.Background(), &ytsr.SearchRequest{Search: *parseCtx.Text},
+		)
 		if err != nil {
 			zap.S().Error(err)
 			return result
@@ -132,10 +134,12 @@ var SrCommand = &types.DefaultCommand{
 			)
 
 			if err != nil {
-				errors = append(errors, &ReqError{
-					Title: song.Title,
-					Error: err.Error(),
-				})
+				errors = append(
+					errors, &ReqError{
+						Title: song.Title,
+						Error: err.Error(),
+					},
+				)
 			} else {
 				model := &model.RequestedSong{
 					ID:                   uuid.NewV4().String(),
@@ -159,17 +163,21 @@ var SrCommand = &types.DefaultCommand{
 		}
 
 		if len(requested) > 0 {
-			requestedMapped := lo.Map(requested, func(item *model.RequestedSong, _ int) string {
-				return fmt.Sprintf("%s (#%v)", item.Title, item.QueuePosition)
-			})
+			requestedMapped := lo.Map(
+				requested, func(item *model.RequestedSong, _ int) string {
+					return fmt.Sprintf("%s (#%v)", item.Title, item.QueuePosition)
+				},
+			)
 
 			result.Result = append(result.Result, "✅ "+strings.Join(requestedMapped, " · "))
 		}
 
 		if len(errors) > 0 {
-			errorsMapped := lo.Map(errors, func(item *ReqError, _ int) string {
-				return item.Title + " - " + item.Error
-			})
+			errorsMapped := lo.Map(
+				errors, func(item *ReqError, _ int) string {
+					return item.Title + " - " + item.Error
+				},
+			)
 			result.Result = append(result.Result, "❌"+strings.Join(errorsMapped, " · "))
 		}
 
@@ -194,14 +202,6 @@ func validate(
 	settings *youtube.YouTubeSettings,
 	song *ytsr.Song,
 ) error {
-	if channelId == userId {
-		return nil
-	}
-
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, *services.Config, services.GrpcClients.Tokens)
-	if err != nil {
-		return err
-	}
 
 	alreadyRequestedSong := &model.RequestedSong{}
 	services.Gorm.WithContext(ctx).Where(`"videoId" = ? AND "deletedAt" IS NULL AND "channelId" = ?`, song.Id, channelId).
@@ -209,6 +209,15 @@ func validate(
 
 	if alreadyRequestedSong.ID != "" {
 		return errors.New(settings.Translations.Song.AlreadyInQueue)
+	}
+
+	if channelId == userId {
+		return nil
+	}
+
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, *services.Config, services.GrpcClients.Tokens)
+	if err != nil {
+		return err
 	}
 
 	if song.IsLive {
@@ -374,10 +383,12 @@ func validate(
 
 	if settings.User.MinFollowTime != 0 {
 		neededDuration := time.Minute * time.Duration(settings.User.MinFollowTime)
-		followReq, err := twitchClient.GetUsersFollows(&helix.UsersFollowsParams{
-			FromID: userId,
-			ToID:   channelId,
-		})
+		followReq, err := twitchClient.GetUsersFollows(
+			&helix.UsersFollowsParams{
+				FromID: userId,
+				ToID:   channelId,
+			},
+		)
 		if err != nil {
 			return errors.New("Internal error when checking follow")
 		}

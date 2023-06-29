@@ -2,10 +2,10 @@ package tts
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/modules/tts/users"
-	"github.com/satont/tsuwari/apps/api/internal/middlewares"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	"github.com/satont/tsuwari/libs/types/types/api/modules"
+	"github.com/satont/twir/apps/api/internal/api/v1/modules/tts/users"
+	"github.com/satont/twir/apps/api/internal/middlewares"
+	"github.com/satont/twir/apps/api/internal/types"
+	"github.com/satont/twir/libs/types/types/api/modules"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {

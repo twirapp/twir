@@ -1,4 +1,4 @@
-import { config } from '@tsuwari/config';
+import { config } from '@twir/config';
 import { ApiClient } from '@twurple/api';
 import { ClientCredentialsAuthProvider } from '@twurple/auth';
 

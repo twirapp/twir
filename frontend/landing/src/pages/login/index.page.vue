@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { TswButton, TswLoader } from '@tsuwari/ui-components';
+import { TswButton, TswLoader } from '@twir/ui-components';
 
 import { useTwitchAuth, redirectToLogin } from '@/services/auth';
 

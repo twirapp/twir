@@ -58,7 +58,7 @@
 </template>
 
 <script lang="ts" setup>
-import { cssURL, TswButton } from '@tsuwari/ui-components';
+import { cssURL, TswButton } from '@twir/ui-components';
 import { useWindowScroll, useWindowSize } from '@vueuse/core';
 import { computed } from 'vue';
 

@@ -15,7 +15,7 @@ import {
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import Editor from '@monaco-editor/react';
-import { ChannelCustomvar, CustomVarType } from '@tsuwari/typeorm/entities/ChannelCustomvar';
+import { ChannelCustomvar, CustomVarType } from '@twir/typeorm/entities/ChannelCustomvar';
 import { useTranslation } from 'next-i18next';
 import { Fragment, useEffect, useRef } from 'react';
 

@@ -3,15 +3,15 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/events"
 	"regexp"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/samber/lo"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/parser"
 )
 
 func (c *Handlers) handleKeywords(
@@ -97,15 +97,17 @@ func (c *Handlers) handleKeywords(
 					return
 				}
 
-				c.eventsGrpc.KeywordMatched(context.Background(), &events.KeywordMatchedMessage{
-					BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
-					KeywordId:       k.ID,
-					KeywordName:     k.Text,
-					KeywordResponse: strings.Join(res.Responses, " "),
-					UserId:          msg.User.ID,
-					UserName:        msg.User.Name,
-					UserDisplayName: msg.User.DisplayName,
-				})
+				c.eventsGrpc.KeywordMatched(
+					context.Background(), &events.KeywordMatchedMessage{
+						BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
+						KeywordId:       k.ID,
+						KeywordName:     k.Text,
+						KeywordResponse: strings.Join(res.Responses, " "),
+						UserId:          msg.User.ID,
+						UserName:        msg.User.Name,
+						UserDisplayName: msg.User.DisplayName,
+					},
+				)
 
 				for _, r := range res.Responses {
 					validateResposeErr := ValidateResponseSlashes(r)

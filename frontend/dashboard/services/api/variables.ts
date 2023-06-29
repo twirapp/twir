@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { ChannelCustomvar } from '@tsuwari/typeorm/entities/ChannelCustomvar';
+import { ChannelCustomvar } from '@twir/typeorm/entities/ChannelCustomvar';
 import { getCookie } from 'cookies-next';
 import { useContext } from 'react';
 

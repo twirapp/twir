@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import { cssPX, TswButton } from '@tsuwari/ui-components';
+import { cssPX, TswButton } from '@twir/ui-components';
 import { useWindowSize } from '@vueuse/core';
 import { computed, StyleValue } from 'vue';
 

@@ -18,7 +18,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
-import { ChannelKeyword } from '@tsuwari/typeorm/entities/ChannelKeyword';
+import { ChannelKeyword } from '@twir/typeorm/entities/ChannelKeyword';
 import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 

@@ -7,14 +7,16 @@ import (
 	"strings"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 var Messages = &types.Variable{
 	Name:        "top.messages",
 	Description: lo.ToPtr("Top users by messages"),
 	Example:     lo.ToPtr("top.messages|10"),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 		var page = 1
 
@@ -47,13 +49,15 @@ var Messages = &types.Variable{
 			return result, nil
 		}
 
-		mappedTop := lo.Map(topUsers, func(user *userStats, idx int) string {
-			return fmt.Sprintf(
-				"%s × %v",
-				user.UserName,
-				user.Value,
-			)
-		})
+		mappedTop := lo.Map(
+			topUsers, func(user *userStats, idx int) string {
+				return fmt.Sprintf(
+					"%s × %v",
+					user.UserName,
+					user.Value,
+				)
+			},
+		)
 
 		result.Result = strings.Join(mappedTop, " · ")
 		return result, nil

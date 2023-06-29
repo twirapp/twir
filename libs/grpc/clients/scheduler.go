@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/satont/tsuwari/libs/grpc/generated/scheduler"
-	"github.com/satont/tsuwari/libs/grpc/servers"
+	"github.com/satont/twir/libs/grpc/generated/scheduler"
+	"github.com/satont/twir/libs/grpc/servers"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials/insecure"

@@ -8,13 +8,13 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	cfg "github.com/satont/tsuwari/libs/config"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/types"
+	cfg "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
 	"gorm.io/gorm"
 )
 
@@ -47,11 +47,15 @@ func getUsersService(roleId string) ([]*roleUser, error) {
 		return response, nil
 	}
 
-	twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
-		IDs: lo.Map(role.Users, func(user *model.ChannelRoleUser, _ int) string {
-			return user.UserID
-		}),
-	})
+	twitchUsers, err := twitchClient.GetUsers(
+		&helix.UsersParams{
+			IDs: lo.Map(
+				role.Users, func(user *model.ChannelRoleUser, _ int) string {
+					return user.UserID
+				},
+			),
+		},
+	)
 
 	if err != nil || twitchUsers.ErrorMessage != "" {
 		logger.Error(err, twitchUsers.ErrorMessage)
@@ -59,20 +63,24 @@ func getUsersService(roleId string) ([]*roleUser, error) {
 	}
 
 	for _, user := range role.Users {
-		twitchUser, ok := lo.Find(twitchUsers.Data.Users, func(twitchUser helix.User) bool {
-			return twitchUser.ID == user.UserID
-		})
+		twitchUser, ok := lo.Find(
+			twitchUsers.Data.Users, func(twitchUser helix.User) bool {
+				return twitchUser.ID == user.UserID
+			},
+		)
 
 		if !ok {
 			continue
 		}
 
-		response = append(response, &roleUser{
-			ChannelRoleUser: *user,
-			UserName:        twitchUser.Login,
-			UserDisplayName: twitchUser.DisplayName,
-			UserAvatar:      twitchUser.ProfileImageURL,
-		})
+		response = append(
+			response, &roleUser{
+				ChannelRoleUser: *user,
+				UserName:        twitchUser.Login,
+				UserDisplayName: twitchUser.DisplayName,
+				UserAvatar:      twitchUser.ProfileImageURL,
+			},
+		)
 	}
 
 	return response, nil
@@ -111,9 +119,11 @@ func updateUsersService(roleId string, userNames []string, services types.Servic
 		return nil
 	}
 
-	twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
-		Logins: userNames,
-	})
+	twitchUsers, err := twitchClient.GetUsers(
+		&helix.UsersParams{
+			Logins: userNames,
+		},
+	)
 
 	if err != nil || twitchUsers.ErrorMessage != "" {
 		logger.Error(err, twitchUsers.ErrorMessage)
@@ -122,23 +132,27 @@ func updateUsersService(roleId string, userNames []string, services types.Servic
 
 	roleUsers := make([]*model.ChannelRoleUser, 0, len(twitchUsers.Data.Users))
 	for _, twitchUser := range twitchUsers.Data.Users {
-		roleUsers = append(roleUsers, &model.ChannelRoleUser{
-			RoleID: role.ID,
-			UserID: twitchUser.ID,
-		})
+		roleUsers = append(
+			roleUsers, &model.ChannelRoleUser{
+				RoleID: role.ID,
+				UserID: twitchUser.ID,
+			},
+		)
 	}
 
-	err = db.Transaction(func(tx *gorm.DB) error {
-		if err = tx.Where(`"roleId" = ?`, role.ID).Delete(&model.ChannelRoleUser{}).Error; err != nil {
-			return err
-		}
+	err = db.Transaction(
+		func(tx *gorm.DB) error {
+			if err = tx.Where(`"roleId" = ?`, role.ID).Delete(&model.ChannelRoleUser{}).Error; err != nil {
+				return err
+			}
 
-		if err = tx.Create(roleUsers).Error; err != nil {
-			return err
-		}
+			if err = tx.Create(roleUsers).Error; err != nil {
+				return err
+			}
 
-		return nil
-	})
+			return nil
+		},
+	)
 
 	if err != nil {
 		logger.Error(err)

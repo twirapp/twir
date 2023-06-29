@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/parser/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
 	"strconv"
 	"strings"
 )

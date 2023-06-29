@@ -4,13 +4,13 @@ import (
 	"context"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 
 	"go.uber.org/zap"
 	"strings"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/bots"
 
 	"github.com/samber/lo"
 )
@@ -48,18 +48,24 @@ var Command = &types.DefaultCommand{
 			return nil
 		}
 
-		messages = lo.Filter(messages, func(m model.ChannelChatMessage, _ int) bool {
-			return m.CanBeDeleted
-		})
-		mappedMessages := lo.Map(messages, func(m model.ChannelChatMessage, _ int) string {
-			return m.MessageId
-		})
+		messages = lo.Filter(
+			messages, func(m model.ChannelChatMessage, _ int) bool {
+				return m.CanBeDeleted
+			},
+		)
+		mappedMessages := lo.Map(
+			messages, func(m model.ChannelChatMessage, _ int) string {
+				return m.MessageId
+			},
+		)
 
-		parseCtx.Services.GrpcClients.Bots.DeleteMessage(context.Background(), &bots.DeleteMessagesRequest{
-			ChannelId:   parseCtx.Channel.ID,
-			MessageIds:  mappedMessages,
-			ChannelName: parseCtx.Channel.Name,
-		})
+		parseCtx.Services.GrpcClients.Bots.DeleteMessage(
+			context.Background(), &bots.DeleteMessagesRequest{
+				ChannelId:   parseCtx.Channel.ID,
+				MessageIds:  mappedMessages,
+				ChannelName: parseCtx.Channel.Name,
+			},
+		)
 
 		parseCtx.Services.Gorm.WithContext(ctx).Where(`"messageId" IN ?`, mappedMessages).
 			Delete(&model.ChannelChatMessage{})

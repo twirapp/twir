@@ -2,12 +2,15 @@ package handler
 
 import (
 	"github.com/dnsge/twitch-eventsub-bindings"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 	"go.uber.org/zap"
 )
 
-func (c *Handler) handleChannelModeratorAdd(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorAdd) {
-	defer zap.S().Infow("channel moderator add",
+func (c *Handler) handleChannelModeratorAdd(
+	h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorAdd,
+) {
+	defer zap.S().Infow(
+		"channel moderator add",
 		"channelId", event.BroadcasterUserID,
 		"userId", event.UserID,
 		"userName", event.UserLogin,
@@ -15,8 +18,11 @@ func (c *Handler) handleChannelModeratorAdd(h *eventsub_bindings.ResponseHeaders
 	c.updateBotStatus(event.BroadcasterUserID, event.UserID, true)
 }
 
-func (c *Handler) handleChannelModeratorRemove(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorRemove) {
-	defer zap.S().Infow("channel moderator remove",
+func (c *Handler) handleChannelModeratorRemove(
+	h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorRemove,
+) {
+	defer zap.S().Infow(
+		"channel moderator remove",
 		"channelId", event.BroadcasterUserID,
 		"userId", event.UserID,
 		"userName", event.UserLogin,

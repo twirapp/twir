@@ -2,9 +2,9 @@ package roles
 
 import (
 	"github.com/gofiber/fiber/v2"
-	roles_users "github.com/satont/tsuwari/apps/api/internal/api/v1/roles/users"
-	"github.com/satont/tsuwari/apps/api/internal/middlewares"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	roles_users "github.com/satont/twir/apps/api/internal/api/v1/roles/users"
+	"github.com/satont/twir/apps/api/internal/middlewares"
+	"github.com/satont/twir/apps/api/internal/types"
 )
 
 func Setup(router fiber.Router, services types.Services) fiber.Router {

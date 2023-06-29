@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/config",
+  "name": "@twir/config",
   "private": true,
   "main": "./dist/src/index.js",
   "scripts": {

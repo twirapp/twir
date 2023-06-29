@@ -7,12 +7,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
+	"github.com/satont/twir/apps/api/internal/api/v1/integrations/helpers"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/integrations"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -77,13 +77,17 @@ func handlePost(services types.Services, channelId string, dto *createOrUpdateDT
 	}
 
 	if len(integration.APIKey.String) > 0 {
-		integrationsGrpc.AddIntegration(context.Background(), &integrations.Request{
-			Id: integration.ID,
-		})
+		integrationsGrpc.AddIntegration(
+			context.Background(), &integrations.Request{
+				Id: integration.ID,
+			},
+		)
 	} else {
-		integrationsGrpc.RemoveIntegration(context.Background(), &integrations.Request{
-			Id: integration.ID,
-		})
+		integrationsGrpc.RemoveIntegration(
+			context.Background(), &integrations.Request{
+				Id: integration.ID,
+			},
+		)
 	}
 
 	return nil

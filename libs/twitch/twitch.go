@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 
@@ -40,7 +40,9 @@ func NewAppClient(config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Cli
 	return NewAppClientWithContext(context.Background(), config, tokensGrpc)
 }
 
-func NewAppClientWithContext(ctx context.Context, config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
+func NewAppClientWithContext(ctx context.Context, config cfg.Config, tokensGrpc tokens.TokensClient) (
+	*helix.Client, error,
+) {
 	appToken, err := tokensGrpc.RequestAppToken(
 		ctx,
 		&emptypb.Empty{},
@@ -50,13 +52,15 @@ func NewAppClientWithContext(ctx context.Context, config cfg.Config, tokensGrpc 
 		return nil, err
 	}
 
-	client, err := helix.NewClientWithContext(ctx, &helix.Options{
-		ClientID:       config.TwitchClientId,
-		ClientSecret:   config.TwitchClientSecret,
-		RedirectURI:    config.TwitchCallbackUrl,
-		RateLimitFunc:  rateLimitCallback,
-		AppAccessToken: appToken.AccessToken,
-	})
+	client, err := helix.NewClientWithContext(
+		ctx, &helix.Options{
+			ClientID:       config.TwitchClientId,
+			ClientSecret:   config.TwitchClientSecret,
+			RedirectURI:    config.TwitchCallbackUrl,
+			RateLimitFunc:  rateLimitCallback,
+			AppAccessToken: appToken.AccessToken,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -83,13 +87,15 @@ func NewUserClientWithContext(
 		return nil, err
 	}
 
-	client, err := helix.NewClientWithContext(ctx, &helix.Options{
-		ClientID:        config.TwitchClientId,
-		ClientSecret:    config.TwitchClientSecret,
-		RedirectURI:     config.TwitchCallbackUrl,
-		RateLimitFunc:   rateLimitCallback,
-		UserAccessToken: userToken.AccessToken,
-	})
+	client, err := helix.NewClientWithContext(
+		ctx, &helix.Options{
+			ClientID:        config.TwitchClientId,
+			ClientSecret:    config.TwitchClientSecret,
+			RedirectURI:     config.TwitchCallbackUrl,
+			RateLimitFunc:   rateLimitCallback,
+			UserAccessToken: userToken.AccessToken,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +107,9 @@ func NewBotClient(botID string, config cfg.Config, tokensGrpc tokens.TokensClien
 	return NewBotClientWithContext(context.Background(), botID, config, tokensGrpc)
 }
 
-func NewBotClientWithContext(ctx context.Context, botID string, config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
+func NewBotClientWithContext(
+	ctx context.Context, botID string, config cfg.Config, tokensGrpc tokens.TokensClient,
+) (*helix.Client, error) {
 	botToken, err := tokensGrpc.RequestBotToken(
 		ctx,
 		&tokens.GetBotTokenRequest{BotId: botID},
@@ -111,13 +119,15 @@ func NewBotClientWithContext(ctx context.Context, botID string, config cfg.Confi
 		return nil, err
 	}
 
-	client, err := helix.NewClientWithContext(ctx, &helix.Options{
-		ClientID:        config.TwitchClientId,
-		ClientSecret:    config.TwitchClientSecret,
-		RedirectURI:     config.TwitchCallbackUrl,
-		RateLimitFunc:   rateLimitCallback,
-		UserAccessToken: botToken.AccessToken,
-	})
+	client, err := helix.NewClientWithContext(
+		ctx, &helix.Options{
+			ClientID:        config.TwitchClientId,
+			ClientSecret:    config.TwitchClientSecret,
+			RedirectURI:     config.TwitchCallbackUrl,
+			RateLimitFunc:   rateLimitCallback,
+			UserAccessToken: botToken.AccessToken,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}

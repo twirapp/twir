@@ -11,12 +11,12 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/do"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	cfg "github.com/satont/tsuwari/libs/config"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	cfg "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/twitch"
 	"gorm.io/gorm"
 )
 
@@ -77,11 +77,13 @@ func handleGet(channelId, limit, page, sortBy, order string) ([]User, error) {
 		Select(`users_stats.*, COUNT("channels_emotes_usages"."id") AS "emotes"`).
 		From("users_stats").
 		LeftJoin(`"channels_emotes_usages" ON "channels_emotes_usages"."userId" = "users_stats"."userId" AND "channels_emotes_usages"."channelId" = "users_stats"."channelId"`).
-		Where(squirrel.And{
-			squirrel.Eq{`"users_stats"."channelId"`: channelId},
-			// squirrel.NotEq{`"users_stats"."userId"`: channelId},
-			squirrel.NotEq{`"users_stats"."userId"`: channel.BotID},
-		}).
+		Where(
+			squirrel.And{
+				squirrel.Eq{`"users_stats"."channelId"`: channelId},
+				// squirrel.NotEq{`"users_stats"."userId"`: channelId},
+				squirrel.NotEq{`"users_stats"."userId"`: channel.BotID},
+			},
+		).
 		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_stats"."userId")`).
 		Limit(uint64(parsedLimit)).
 		Offset(uint64(offset)).
@@ -103,11 +105,15 @@ func handleGet(channelId, limit, page, sortBy, order string) ([]User, error) {
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
 
-	twitchUsers, err := twitchClient.GetUsers(&helix.UsersParams{
-		IDs: lo.Map(dbUsers, func(record model.UsersStats, _ int) string {
-			return record.UserID
-		}),
-	})
+	twitchUsers, err := twitchClient.GetUsers(
+		&helix.UsersParams{
+			IDs: lo.Map(
+				dbUsers, func(record model.UsersStats, _ int) string {
+					return record.UserID
+				},
+			),
+		},
+	)
 	if err != nil {
 		return nil, fiber.NewError(http.StatusInternalServerError, "internal error")
 	}
@@ -115,23 +121,27 @@ func handleGet(channelId, limit, page, sortBy, order string) ([]User, error) {
 	users := []User{}
 
 	for _, dbUser := range dbUsers {
-		twitchUser, ok := lo.Find(twitchUsers.Data.Users, func(item helix.User) bool {
-			return item.ID == dbUser.UserID
-		})
+		twitchUser, ok := lo.Find(
+			twitchUsers.Data.Users, func(item helix.User) bool {
+				return item.ID == dbUser.UserID
+			},
+		)
 		if !ok {
 			continue
 		}
 
-		users = append(users, User{
-			ID:                twitchUser.ID,
-			Name:              twitchUser.Login,
-			DisplayName:       twitchUser.DisplayName,
-			Watched:           dbUser.Watched,
-			Messages:          dbUser.Messages,
-			Emotes:            dbUser.Emotes,
-			AvatarUrl:         twitchUser.ProfileImageURL,
-			UsedChannelPoints: strconv.FormatInt(dbUser.UsedChannelPoints, 10),
-		})
+		users = append(
+			users, User{
+				ID:                twitchUser.ID,
+				Name:              twitchUser.Login,
+				DisplayName:       twitchUser.DisplayName,
+				Watched:           dbUser.Watched,
+				Messages:          dbUser.Messages,
+				Emotes:            dbUser.Emotes,
+				AvatarUrl:         twitchUser.ProfileImageURL,
+				UsedChannelPoints: strconv.FormatInt(dbUser.UsedChannelPoints, 10),
+			},
+		)
 	}
 
 	return users, nil

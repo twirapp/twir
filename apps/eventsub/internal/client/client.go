@@ -8,10 +8,10 @@ import (
 	eventsub_framework "github.com/dnsge/twitch-eventsub-framework"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/eventsub/internal/creds"
-	"github.com/satont/tsuwari/apps/eventsub/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/eventsub/internal/creds"
+	"github.com/satont/twir/apps/eventsub/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 	"go.uber.org/zap"
 )
 
@@ -140,9 +140,11 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) 
 		return err
 	}
 
-	subsReq, err := twitchClient.GetEventSubSubscriptions(&helix.EventSubSubscriptionsParams{
-		UserID: userId,
-	})
+	subsReq, err := twitchClient.GetEventSubSubscriptions(
+		&helix.EventSubSubscriptionsParams{
+			UserID: userId,
+		},
+	)
 
 	wg := &sync.WaitGroup{}
 	wg.Add(len(neededSubs))
@@ -153,11 +155,13 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) 
 		go func(key string, value SubRequest) {
 			defer wg.Done()
 
-			existedSub, ok := lo.Find(subsReq.Data.EventSubSubscriptions, func(item helix.EventSubSubscription) bool {
-				return item.Type == key &&
-					(item.Condition.BroadcasterUserID == value.Condition["broadcaster_user_id"] ||
-						item.Condition.UserID == value.Condition["user_id"])
-			})
+			existedSub, ok := lo.Find(
+				subsReq.Data.EventSubSubscriptions, func(item helix.EventSubSubscription) bool {
+					return item.Type == key &&
+						(item.Condition.BroadcasterUserID == value.Condition["broadcaster_user_id"] ||
+							item.Condition.UserID == value.Condition["user_id"])
+				},
+			)
 
 			if ok && existedSub.Status == "enabled" && existedSub.Transport.Callback == c.callbackUrl {
 				return

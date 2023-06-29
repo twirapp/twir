@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/scheduler/internal/timers"
-	"github.com/satont/tsuwari/apps/scheduler/internal/types"
-	config "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/clients"
-	"github.com/satont/tsuwari/libs/pubsub"
+	"github.com/satont/twir/apps/scheduler/internal/timers"
+	"github.com/satont/twir/apps/scheduler/internal/types"
+	config "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/clients"
+	"github.com/satont/twir/libs/pubsub"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -25,9 +25,11 @@ func main() {
 	logger, _ := zap.NewDevelopment()
 	zap.ReplaceGlobals(logger)
 
-	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl), &gorm.Config{
-		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
-	})
+	db, err := gorm.Open(
+		postgres.Open(cfg.DatabaseUrl), &gorm.Config{
+			Logger: gormLogger.Default.LogMode(gormLogger.Silent),
+		},
+	)
 	if err != nil {
 		logger.Sugar().Error(err)
 		panic("failed to connect database")

@@ -6,12 +6,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/imroc/req/v3"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	cfg "github.com/satont/tsuwari/libs/config"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	modules "github.com/satont/tsuwari/libs/types/types/api/modules"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/types"
+	cfg "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
+	modules "github.com/satont/twir/libs/types/types/api/modules"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 	"net/http"
@@ -57,12 +57,14 @@ func handlePost(channelId string, dto *modules.TTSSettings, services types.Servi
 	}
 
 	if existedSettings.ID == "" {
-		err = services.DB.Model(&model.ChannelModulesSettings{}).Create(map[string]interface{}{
-			"id":        uuid.NewV4().String(),
-			"type":      "tts",
-			"settings":  bytes,
-			"channelId": channelId,
-		}).Error
+		err = services.DB.Model(&model.ChannelModulesSettings{}).Create(
+			map[string]interface{}{
+				"id":        uuid.NewV4().String(),
+				"type":      "tts",
+				"settings":  bytes,
+				"channelId": channelId,
+			},
+		).Error
 		if err != nil {
 			logger.Error(err)
 			return fiber.NewError(http.StatusInternalServerError, "internal error")

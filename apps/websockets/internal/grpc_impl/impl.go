@@ -1,11 +1,11 @@
 package grpc_impl
 
 import (
-	"github.com/satont/tsuwari/apps/websockets/internal/namespaces"
-	"github.com/satont/tsuwari/apps/websockets/internal/namespaces/obs"
-	"github.com/satont/tsuwari/apps/websockets/internal/namespaces/youtube"
-	"github.com/satont/tsuwari/apps/websockets/types"
-	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
+	"github.com/satont/twir/apps/websockets/internal/namespaces"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/obs"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/youtube"
+	"github.com/satont/twir/apps/websockets/types"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 )
 
 type Sockets struct {

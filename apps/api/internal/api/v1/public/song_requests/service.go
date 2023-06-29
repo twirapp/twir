@@ -2,8 +2,8 @@ package song_requests
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/api/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
 	"net/http"
 	"time"
 )
@@ -32,14 +32,16 @@ func handleGet(channelId string, services types.Services) ([]Song, error) {
 	songsResponse := []Song{}
 
 	for _, song := range songs {
-		songsResponse = append(songsResponse, Song{
-			Title:                song.Title,
-			Duration:             song.Duration,
-			VideoID:              song.VideoID,
-			OrderedByName:        song.OrderedByName,
-			OrderedByDisplayName: song.OrderedByDisplayName.Ptr(),
-			CreatedAt:            song.CreatedAt,
-		})
+		songsResponse = append(
+			songsResponse, Song{
+				Title:                song.Title,
+				Duration:             song.Duration,
+				VideoID:              song.VideoID,
+				OrderedByName:        song.OrderedByName,
+				OrderedByDisplayName: song.OrderedByDisplayName.Ptr(),
+				CreatedAt:            song.CreatedAt,
+			},
+		)
 	}
 
 	return songsResponse, nil

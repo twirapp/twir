@@ -18,8 +18,8 @@ import {
   IconSearch,
   IconTrash,
 } from '@tabler/icons';
-import { ChannelCommand } from '@tsuwari/typeorm/entities/ChannelCommand';
-import { ChannelCommandGroup } from '@tsuwari/typeorm/entities/ChannelCommandGroup';
+import { ChannelCommand } from '@twir/typeorm/entities/ChannelCommand';
+import { ChannelCommandGroup } from '@twir/typeorm/entities/ChannelCommandGroup';
 import { GetServerSideProps, NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';

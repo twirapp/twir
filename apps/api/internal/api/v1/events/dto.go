@@ -1,6 +1,6 @@
 package events
 
-import model "github.com/satont/tsuwari/libs/gomodels"
+import model "github.com/satont/twir/libs/gomodels"
 
 type operationFilterDto struct {
 	Type  model.EventOperationFilterType `validate:"required" json:"type"`

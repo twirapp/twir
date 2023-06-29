@@ -1,4 +1,4 @@
-import type { IconName } from '@tsuwari/ui-components';
+import type { IconName } from '@twir/ui-components';
 
 type Extract<T, U extends T> = T extends U ? T : never;
 

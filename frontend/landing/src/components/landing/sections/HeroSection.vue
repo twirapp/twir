@@ -70,7 +70,7 @@
 </template>
 
 <script lang="ts" setup>
-import { cssURL, TswButton } from '@tsuwari/ui-components';
+import { cssURL, TswButton } from '@twir/ui-components';
 import { isClient } from '@vueuse/core';
 import { ref, watch } from 'vue';
 
@@ -113,9 +113,9 @@ const isUserLoggedIn = useUserStatus();
 
 <style lang="postcss">
 .gradient-title {
-  @apply leading-[1.1] -tracking-[2px] font-bold text-center 
+  @apply leading-[1.1] -tracking-[2px] font-bold text-center
     animate-fadeInDown opacity-0 z-10
-    max-w-[690px] 
+    max-w-[690px]
     min-lg:text-[86px] min-sm:text-[74px] min-xs:text-[62px] text-[56px];
 
   & > span {

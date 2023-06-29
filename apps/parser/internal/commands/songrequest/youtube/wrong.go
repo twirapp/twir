@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/guregu/null"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 	"log"
 	"strconv"
 	"time"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 
 	"github.com/samber/lo"
 )

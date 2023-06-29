@@ -3,8 +3,8 @@ package middlewares
 import (
 	"encoding/json"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"

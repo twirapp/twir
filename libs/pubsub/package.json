@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/pubsub",
+  "name": "@twir/pubsub",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -7,7 +7,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@tsuwari/config": "workspace:*",
+    "@twir/config": "workspace:*",
     "redis": "^4.5.1"
   }
 }

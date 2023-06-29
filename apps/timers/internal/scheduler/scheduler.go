@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/satont/tsuwari/apps/timers/internal/handler"
-	"github.com/satont/tsuwari/apps/timers/internal/types"
+	"github.com/satont/twir/apps/timers/internal/handler"
+	"github.com/satont/twir/apps/timers/internal/types"
 
-	cfg "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
-	"github.com/satont/tsuwari/libs/grpc/generated/parser"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/generated/parser"
 
 	"github.com/go-co-op/gocron"
 	"go.uber.org/zap"
@@ -68,12 +68,14 @@ func (c *Scheduler) AddTimer(timer *types.Timer) error {
 		return err
 	}
 
-	c.logger.Info(fmt.Sprintf(
-		"Queued timer %s#%s for %s channel.",
-		timer.Model.Name,
-		timer.Model.ID,
-		timer.Model.ChannelID,
-	))
+	c.logger.Info(
+		fmt.Sprintf(
+			"Queued timer %s#%s for %s channel.",
+			timer.Model.Name,
+			timer.Model.ID,
+			timer.Model.ChannelID,
+		),
+	)
 
 	return nil
 }
@@ -81,10 +83,12 @@ func (c *Scheduler) AddTimer(timer *types.Timer) error {
 func (c *Scheduler) RemoveTimer(id string) error {
 	err := c.internalScheduler.RemoveByTag(id)
 
-	c.logger.Sugar().Info(fmt.Sprintf(
-		"Removed timer %s.",
-		id,
-	))
+	c.logger.Sugar().Info(
+		fmt.Sprintf(
+			"Removed timer %s.",
+			id,
+		),
+	)
 
 	delete(c.Timers, id)
 

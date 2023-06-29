@@ -5,13 +5,15 @@ import (
 	"fmt"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 var Elo = &types.Variable{
 	Name:        "valorant.profile.elo",
 	Description: lo.ToPtr(`Current elo, i.e "2419"`),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
 		profile := parseCtx.Cacher.GetValorantProfile(ctx)

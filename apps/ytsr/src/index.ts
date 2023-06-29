@@ -1,6 +1,6 @@
-import { config } from '@tsuwari/config';
-import * as YTSR from '@tsuwari/grpc/generated/ytsr/ytsr';
-import { PORTS } from '@tsuwari/grpc/servers/constants';
+import { config } from '@twir/config';
+import * as YTSR from '@twir/grpc/generated/ytsr/ytsr';
+import { PORTS } from '@twir/grpc/servers/constants';
 import { createServer } from 'nice-grpc';
 import tlds from 'tlds' assert { type: 'json' };
 import ytsrLib, { Video } from 'ytsr';
@@ -80,10 +80,12 @@ const ytsrService: YTSR.YtsrServiceImplementation = {
 
     await Promise.all(
       tracksForSearch.map(async (track) => {
+        const search = await ytsrLib(track.text, { limit: 1 }).catch(() => null);
+				if (!search) return;
 
-        const search = await ytsrLib(track.text, { limit: 1 });
-        const item = search.items.at(0) as Video;
+        const item = search.items.at(0);
         if (!item) return;
+				if (!('id' in item) || item.type !== 'video') return;
 
         videos.push({
           title: item.title,

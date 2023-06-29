@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { AuthUser } from '@tsuwari/shared';
+import { AuthUser } from '@twir/shared';
 import { deleteCookie } from 'cookies-next';
 
 import { authFetch, authFetcher } from '@/services/api';

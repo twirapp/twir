@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/dota",
+  "name": "@twir/dota",
   "type": "module",
   "scripts": {
     "prebuild": "rm -rf dist",
@@ -11,10 +11,10 @@
     "@types/steamid": "2.0.1"
   },
   "dependencies": {
-    "@tsuwari/config": "workspace:*",
-    "@tsuwari/grpc": "workspace:*",
-    "@tsuwari/shared": "workspace:*",
-    "@tsuwari/typeorm": "workspace:*",
+    "@twir/config": "workspace:*",
+    "@twir/grpc": "workspace:*",
+    "@twir/shared": "workspace:*",
+    "@twir/typeorm": "workspace:*",
     "@types/lodash": "^4.14.191",
     "ioredis": "5.2.4",
     "lodash": "4.17.21",

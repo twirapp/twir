@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 type userEmotesTopEmote struct {
@@ -20,7 +20,9 @@ var EmotesTop = &types.Variable{
 	Description:  lo.ToPtr("User top used emotes"),
 	Example:      lo.ToPtr("user.top.emotes|10"),
 	CommandsOnly: true,
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		limit := 10
@@ -37,13 +39,15 @@ var EmotesTop = &types.Variable{
 
 		emotes := []userEmotesTopEmote{}
 		err := parseCtx.Services.Gorm.
-			Raw(`SELECT emote, COUNT(*)
+			Raw(
+				`SELECT emote, COUNT(*)
 				FROM channels_emotes_usages
 				WHERE "channelId" = ? AND "userId" = ?
 				Group By emote
 				Order By COUNT(*)
 				DESC LIMIT ?
-			`, parseCtx.Channel.ID, parseCtx.Sender.ID, limit).
+			`, parseCtx.Channel.ID, parseCtx.Sender.ID, limit,
+			).
 			Scan(&emotes).
 			Error
 
@@ -51,13 +55,15 @@ var EmotesTop = &types.Variable{
 			return nil, err
 		}
 
-		mappedTop := lo.Map(emotes, func(e userEmotesTopEmote, _ int) string {
-			return fmt.Sprintf(
-				"%s × %v",
-				e.Emote,
-				e.Count,
-			)
-		})
+		mappedTop := lo.Map(
+			emotes, func(e userEmotesTopEmote, _ int) string {
+				return fmt.Sprintf(
+					"%s × %v",
+					e.Emote,
+					e.Count,
+				)
+			},
+		)
 
 		result.Result = strings.Join(mappedTop, " ")
 		return result, nil

@@ -3,10 +3,10 @@ package grpc_impl
 import (
 	"context"
 
-	"github.com/satont/tsuwari/apps/timers/internal/scheduler"
-	"github.com/satont/tsuwari/apps/timers/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/timers"
+	"github.com/satont/twir/apps/timers/internal/scheduler"
+	"github.com/satont/twir/apps/timers/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/timers"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
@@ -43,10 +43,12 @@ func (c *TimersGrpcServer) AddTimerToQueue(
 		c.logger.Sugar().Error(err)
 		return &emptypb.Empty{}, nil
 	}
-	c.scheduler.AddTimer(&types.Timer{
-		Model:     timer,
-		SendIndex: 0,
-	})
+	c.scheduler.AddTimer(
+		&types.Timer{
+			Model:     timer,
+			SendIndex: 0,
+		},
+	)
 
 	return &emptypb.Empty{}, nil
 }

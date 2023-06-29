@@ -4,12 +4,12 @@ import (
 	"context"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 
 	"go.uber.org/zap"
 	"strings"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 var CheckAliasesCommand = &types.DefaultCommand{

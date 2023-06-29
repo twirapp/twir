@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -39,13 +39,15 @@ func (c *Handlers) handleEmotes(msg *Message) {
 
 	for key, count := range emotes {
 		for i := 0; i < count; i++ {
-			emotesForCreate = append(emotesForCreate, &model.ChannelEmoteUsage{
-				ID:        uuid.NewV4().String(),
-				ChannelID: msg.Channel.ID,
-				UserID:    msg.User.ID,
-				Emote:     key,
-				CreatedAt: time.Now().UTC(),
-			})
+			emotesForCreate = append(
+				emotesForCreate, &model.ChannelEmoteUsage{
+					ID:        uuid.NewV4().String(),
+					ChannelID: msg.Channel.ID,
+					UserID:    msg.User.ID,
+					Emote:     key,
+					CreatedAt: time.Now().UTC(),
+				},
+			)
 		}
 	}
 

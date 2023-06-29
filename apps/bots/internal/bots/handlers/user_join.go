@@ -5,8 +5,8 @@ import (
 	"fmt"
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/redis/go-redis/v9"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/events"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/events"
 	"go.uber.org/zap"
 	"time"
 )
@@ -54,12 +54,14 @@ func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
 		return
 	}
 
-	_, err = c.eventsGrpc.StreamFirstUserJoin(ctx, &events.StreamFirstUserJoinMessage{
-		BaseInfo: &events.BaseInfo{
-			ChannelId: stream.UserId,
+	_, err = c.eventsGrpc.StreamFirstUserJoin(
+		ctx, &events.StreamFirstUserJoinMessage{
+			BaseInfo: &events.BaseInfo{
+				ChannelId: stream.UserId,
+			},
+			UserName: message.User,
 		},
-		UserName: message.User,
-	})
+	)
 
 	if err != nil {
 		zap.S().Error(err)

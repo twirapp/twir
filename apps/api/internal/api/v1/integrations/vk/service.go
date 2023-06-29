@@ -5,17 +5,17 @@ import (
 	"net/url"
 
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
 
 	"github.com/guregu/null"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/imroc/req/v3"
-	"github.com/satont/tsuwari/apps/api/internal/api/v1/integrations/helpers"
-	"github.com/satont/tsuwari/apps/api/internal/types"
+	"github.com/satont/twir/apps/api/internal/api/v1/integrations/helpers"
+	"github.com/satont/twir/apps/api/internal/types"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -79,11 +79,13 @@ func handleGet(channelId string, services types.Services) (*profile, error) {
 
 	data := profileResponse{}
 	_, err = req.R().
-		SetQueryParams(map[string]string{
-			"v":            "5.131",
-			"fields":       "photo_max_orig",
-			"access_token": integration.AccessToken.String,
-		}).
+		SetQueryParams(
+			map[string]string{
+				"v":            "5.131",
+				"fields":       "photo_max_orig",
+				"access_token": integration.AccessToken.String,
+			},
+		).
 		SetResult(&data).
 		Get("https://api.vk.com/method/users.get")
 
@@ -137,13 +139,15 @@ func handlePost(channelId string, dto *vkDto, services types.Services) error {
 
 	data := tokensResponse{}
 	_, err = req.R().
-		SetQueryParams(map[string]string{
-			"grant_type":    "authorization_code",
-			"client_id":     integration.Integration.ClientID.String,
-			"client_secret": integration.Integration.ClientSecret.String,
-			"redirect_uri":  integration.Integration.RedirectURL.String,
-			"code":          dto.Code,
-		}).
+		SetQueryParams(
+			map[string]string{
+				"grant_type":    "authorization_code",
+				"client_id":     integration.Integration.ClientID.String,
+				"client_secret": integration.Integration.ClientSecret.String,
+				"redirect_uri":  integration.Integration.RedirectURL.String,
+				"code":          dto.Code,
+			},
+		).
 		SetResult(&data).
 		Get("https://oauth.vk.com/access_token")
 

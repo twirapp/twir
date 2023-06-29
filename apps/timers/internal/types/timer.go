@@ -1,6 +1,6 @@
 package types
 
-import model "github.com/satont/tsuwari/libs/gomodels"
+import model "github.com/satont/twir/libs/gomodels"
 
 type Timer struct {
 	Model *model.ChannelsTimers

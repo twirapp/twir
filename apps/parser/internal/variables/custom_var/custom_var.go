@@ -5,16 +5,18 @@ import (
 	"errors"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/eval"
+	"github.com/satont/twir/apps/parser/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/eval"
 )
 
 var CustomVar = &types.Variable{
 	Name:        "customvar",
 	Description: lo.ToPtr("Custom variable"),
 	Visible:     lo.ToPtr(false),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		if variableData.Params == nil {
@@ -33,9 +35,11 @@ var CustomVar = &types.Variable{
 		}
 
 		if v.Type == model.CustomVarScript {
-			req, err := parseCtx.Services.GrpcClients.Eval.Process(context.Background(), &eval.Evaluate{
-				Script: v.EvalValue,
-			})
+			req, err := parseCtx.Services.GrpcClients.Eval.Process(
+				context.Background(), &eval.Evaluate{
+					Script: v.EvalValue,
+				},
+			)
 
 			if err != nil {
 				parseCtx.Services.Logger.Sugar().Error(err)

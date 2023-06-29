@@ -1,4 +1,4 @@
-module github.com/satont/tsuwari/libs/integrations/spotify
+module github.com/satont/twir/libs/integrations/spotify
 
 go 1.20
 
@@ -6,7 +6,7 @@ require (
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/imroc/req/v3 v3.32.0
 	github.com/samber/lo v1.38.1
-	github.com/satont/tsuwari/libs/gomodels v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
 	gorm.io/gorm v1.25.1
 )
 
@@ -40,4 +40,4 @@ require (
 	google.golang.org/protobuf v1.30.0 // indirect
 )
 
-replace github.com/satont/tsuwari/libs/gomodels => ../../gomodels
+replace github.com/satont/twir/libs/gomodels => ../../gomodels

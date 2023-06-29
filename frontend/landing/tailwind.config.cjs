@@ -1,4 +1,4 @@
-const tsuwariTheme = require('@tsuwari/ui-theme');
+const tsuwariTheme = require('@twir/ui-theme');
 
 module.exports = {
   content: ['./src/**/*.{vue,js,ts,jsx,tsx}'],

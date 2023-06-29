@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-import { TswLoader, TswAvatar } from '@tsuwari/ui-components';
+import { TswLoader, TswAvatar } from '@twir/ui-components';
 
 import { useUserProfile } from '@/services/auth';
 

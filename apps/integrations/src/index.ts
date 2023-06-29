@@ -1,8 +1,8 @@
-import * as Integrations from '@tsuwari/grpc/generated/integrations/integrations';
-import { PORTS } from '@tsuwari/grpc/servers/constants';
-import { AppDataSource, In } from '@tsuwari/typeorm';
-import { ChannelIntegration } from '@tsuwari/typeorm/entities/ChannelIntegration';
-import { IntegrationService } from '@tsuwari/typeorm/entities/Integration';
+import * as Integrations from '@twir/grpc/generated/integrations/integrations';
+import { PORTS } from '@twir/grpc/servers/constants';
+import { AppDataSource, In } from '@twir/typeorm';
+import { ChannelIntegration } from '@twir/typeorm/entities/ChannelIntegration';
+import { IntegrationService } from '@twir/typeorm/entities/Integration';
 import { createServer } from 'nice-grpc';
 
 import { addDonatePayIntegration, DonatePay } from './services/donatepay.js';

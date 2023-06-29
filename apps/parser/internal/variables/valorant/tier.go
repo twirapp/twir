@@ -5,13 +5,15 @@ import (
 	"fmt"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 var Tier = &types.Variable{
 	Name:        "valorant.profile.tier",
 	Description: lo.ToPtr(`Tier in number, i.e "26"`),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
 		profile := parseCtx.Cacher.GetValorantProfile(ctx)
@@ -28,7 +30,9 @@ var Tier = &types.Variable{
 var TierText = &types.Variable{
 	Name:        "valorant.profile.tier.text",
 	Description: lo.ToPtr(`Tier in text, i.e "Immortal 3"`),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
 		profile := parseCtx.Cacher.GetValorantProfile(ctx)
@@ -45,7 +49,9 @@ var TierText = &types.Variable{
 var RankInTier = &types.Variable{
 	Name:        "valorant.profile.tier.ranking",
 	Description: lo.ToPtr(`Ranking in tier, i.e "319"`),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
 		profile := parseCtx.Cacher.GetValorantProfile(ctx)

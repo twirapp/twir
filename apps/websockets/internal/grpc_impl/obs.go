@@ -2,7 +2,7 @@ package grpc_impl
 
 import (
 	"context"
-	"github.com/satont/tsuwari/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -27,35 +27,45 @@ func (c *grpcImpl) ObsToggleAudio(_ context.Context, msg *websockets.ObsToggleAu
 
 	return &emptypb.Empty{}, nil
 }
-func (c *grpcImpl) ObsAudioSetVolume(_ context.Context, msg *websockets.ObsAudioSetVolumeMessage) (*emptypb.Empty, error) {
+func (c *grpcImpl) ObsAudioSetVolume(_ context.Context, msg *websockets.ObsAudioSetVolumeMessage) (
+	*emptypb.Empty, error,
+) {
 	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "setVolume", msg); err != nil {
 		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil
 }
-func (c *grpcImpl) ObsAudioIncreaseVolume(_ context.Context, msg *websockets.ObsAudioIncreaseVolumeMessage) (*emptypb.Empty, error) {
+func (c *grpcImpl) ObsAudioIncreaseVolume(
+	_ context.Context, msg *websockets.ObsAudioIncreaseVolumeMessage,
+) (*emptypb.Empty, error) {
 	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "increaseVolume", msg); err != nil {
 		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil
 }
-func (c *grpcImpl) ObsAudioDecreaseVolume(_ context.Context, msg *websockets.ObsAudioDecreaseVolumeMessage) (*emptypb.Empty, error) {
+func (c *grpcImpl) ObsAudioDecreaseVolume(
+	_ context.Context, msg *websockets.ObsAudioDecreaseVolumeMessage,
+) (*emptypb.Empty, error) {
 	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "decreaseVolume", msg); err != nil {
 		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil
 }
-func (c *grpcImpl) ObsAudioEnable(_ context.Context, msg *websockets.ObsAudioDisableOrEnableMessage) (*emptypb.Empty, error) {
+func (c *grpcImpl) ObsAudioEnable(_ context.Context, msg *websockets.ObsAudioDisableOrEnableMessage) (
+	*emptypb.Empty, error,
+) {
 	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "enableAudio", msg); err != nil {
 		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil
 }
-func (c *grpcImpl) ObsAudioDisable(_ context.Context, msg *websockets.ObsAudioDisableOrEnableMessage) (*emptypb.Empty, error) {
+func (c *grpcImpl) ObsAudioDisable(_ context.Context, msg *websockets.ObsAudioDisableOrEnableMessage) (
+	*emptypb.Empty, error,
+) {
 	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "disableAudio", msg); err != nil {
 		return nil, err
 	}

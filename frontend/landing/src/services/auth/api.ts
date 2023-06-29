@@ -1,4 +1,4 @@
-import type { AuthUser } from '@tsuwari/shared';
+import type { AuthUser } from '@twir/shared';
 
 import { authFetch } from './authFetch.js';
 import { LOGIN_ROUTE_STATE, ORIGIN_STATE } from './locationHelpers.js';

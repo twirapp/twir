@@ -2,8 +2,8 @@ package creds
 
 import (
 	"context"
-	config "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	config "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

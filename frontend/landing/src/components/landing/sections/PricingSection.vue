@@ -68,7 +68,7 @@
 </template>
 
 <script lang="ts" setup>
-import { cssURL, TswImage } from '@tsuwari/ui-components';
+import { cssURL, TswImage } from '@twir/ui-components';
 import { computed } from 'vue';
 
 import CyanBlob from '@/assets/blob-cyan.png';

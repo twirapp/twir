@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types"
 )
 
 type songsRequestedDurationSumResult struct {
@@ -17,7 +17,9 @@ var SongsRequestedDuration = &types.Variable{
 	Name:         "user.songs.requested.duration",
 	Description:  lo.ToPtr("Duration of requested by user songs"),
 	CommandsOnly: true,
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
 		sum := &songsRequestedDurationSumResult{}

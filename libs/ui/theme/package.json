@@ -1,5 +1,5 @@
 {
-  "name": "@tsuwari/ui-theme",
+  "name": "@twir/ui-theme",
   "version": "1.0.0",
   "private": true,
   "files": [
@@ -12,6 +12,6 @@
     "tailwindcss": "^3.2.7"
   },
   "dependencies": {
-    "@tsuwari/ui-fonts": "workspace:*"
+    "@twir/ui-fonts": "workspace:*"
   }
 }

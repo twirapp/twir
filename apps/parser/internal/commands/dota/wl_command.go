@@ -5,7 +5,7 @@ package dota
 // 	"fmt"
 // 	"github.com/guregu/null"
 // 	"github.com/samber/do"
-// 	"github.com/satont/tsuwari/apps/parser/internal/di"
+// 	"github.com/satont/twir/apps/parser/internal/di"
 // 	"go.uber.org/zap"
 // 	"gorm.io/gorm"
 // 	"strconv"
@@ -13,11 +13,11 @@ package dota
 // 	"sync"
 // 	"time"
 
-// 	"github.com/satont/tsuwari/apps/parser/internal/types"
+// 	"github.com/satont/twir/apps/parser/internal/types"
 
-// 	model "github.com/satont/tsuwari/libs/gomodels"
+// 	model "github.com/satont/twir/libs/gomodels"
 
-// 	variables_cache "github.com/satont/tsuwari/apps/parser/internal/variablescache"
+// 	variables_cache "github.com/satont/twir/apps/parser/internal/variablescache"
 
 // 	"github.com/lib/pq"
 // 	"github.com/samber/lo"

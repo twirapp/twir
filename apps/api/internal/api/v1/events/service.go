@@ -4,10 +4,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/guregu/null"
 	"github.com/samber/do"
-	"github.com/satont/tsuwari/apps/api/internal/di"
-	"github.com/satont/tsuwari/apps/api/internal/interfaces"
-	"github.com/satont/tsuwari/apps/api/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/api/internal/di"
+	"github.com/satont/twir/apps/api/internal/interfaces"
+	"github.com/satont/twir/apps/api/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 	"net/http"
@@ -47,48 +47,50 @@ func handlePost(channelId string, dto *eventDto) (*model.Event, error) {
 		OnlineOnly:  *dto.OnlineOnly,
 	}
 
-	err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(newEvent).Error; err != nil {
-			return err
-		}
-
-		for i, operation := range dto.Operations {
-			newOperation := &model.EventOperation{
-				ID:             uuid.NewV4().String(),
-				Type:           operation.Type,
-				Delay:          operation.Delay,
-				EventID:        newEvent.ID,
-				Input:          null.StringFrom(strings.TrimSpace(*operation.Input)),
-				Repeat:         operation.Repeat,
-				Order:          i,
-				UseAnnounce:    *operation.UseAnnounce,
-				TimeoutTime:    operation.TimeoutTime,
-				TimeoutMessage: null.StringFromPtr(operation.TimeoutMessage),
-				Target:         null.StringFrom(operation.Target),
-				Enabled:        *operation.Enabled,
-			}
-
-			if err := tx.Create(newOperation).Error; err != nil {
+	err := db.Transaction(
+		func(tx *gorm.DB) error {
+			if err := tx.Create(newEvent).Error; err != nil {
 				return err
 			}
 
-			for _, filter := range operation.Filters {
-				newFilter := &model.EventOperationFilter{
-					ID:          uuid.NewV4().String(),
-					Type:        filter.Type,
-					Left:        filter.Left,
-					Right:       filter.Right,
-					OperationID: newOperation.ID,
+			for i, operation := range dto.Operations {
+				newOperation := &model.EventOperation{
+					ID:             uuid.NewV4().String(),
+					Type:           operation.Type,
+					Delay:          operation.Delay,
+					EventID:        newEvent.ID,
+					Input:          null.StringFrom(strings.TrimSpace(*operation.Input)),
+					Repeat:         operation.Repeat,
+					Order:          i,
+					UseAnnounce:    *operation.UseAnnounce,
+					TimeoutTime:    operation.TimeoutTime,
+					TimeoutMessage: null.StringFromPtr(operation.TimeoutMessage),
+					Target:         null.StringFrom(operation.Target),
+					Enabled:        *operation.Enabled,
 				}
 
-				if err := tx.Create(newFilter).Error; err != nil {
+				if err := tx.Create(newOperation).Error; err != nil {
 					return err
 				}
-			}
-		}
 
-		return nil
-	})
+				for _, filter := range operation.Filters {
+					newFilter := &model.EventOperationFilter{
+						ID:          uuid.NewV4().String(),
+						Type:        filter.Type,
+						Left:        filter.Left,
+						Right:       filter.Right,
+						OperationID: newOperation.ID,
+					}
+
+					if err := tx.Create(newFilter).Error; err != nil {
+						return err
+					}
+				}
+			}
+
+			return nil
+		},
+	)
 
 	if err != nil {
 		logger.Error(err)
@@ -120,52 +122,54 @@ func handleUpdate(channelId, eventId string, dto *eventDto) (*model.Event, error
 	event.Description = null.StringFrom(dto.Description)
 	event.OnlineOnly = *dto.OnlineOnly
 
-	err = db.Transaction(func(tx *gorm.DB) error {
-		if err = db.Save(&event).Error; err != nil {
-			return err
-		}
-
-		if err = db.Where(`"eventId" = ?`, event.ID).Delete(&model.EventOperation{}).Error; err != nil {
-			return err
-		}
-
-		for i, operation := range dto.Operations {
-			newOperation := model.EventOperation{
-				ID:             uuid.NewV4().String(),
-				Type:           operation.Type,
-				Delay:          operation.Delay,
-				EventID:        event.ID,
-				Input:          null.StringFrom(strings.TrimSpace(*operation.Input)),
-				Repeat:         operation.Repeat,
-				Order:          i,
-				UseAnnounce:    *operation.UseAnnounce,
-				TimeoutTime:    operation.TimeoutTime,
-				TimeoutMessage: null.StringFromPtr(operation.TimeoutMessage),
-				Target:         null.StringFrom(operation.Target),
-				Enabled:        *operation.Enabled,
-			}
-
-			if err := tx.Save(&newOperation).Error; err != nil {
+	err = db.Transaction(
+		func(tx *gorm.DB) error {
+			if err = db.Save(&event).Error; err != nil {
 				return err
 			}
 
-			for _, filter := range operation.Filters {
-				newFilter := &model.EventOperationFilter{
-					ID:          uuid.NewV4().String(),
-					Type:        filter.Type,
-					Left:        filter.Left,
-					Right:       filter.Right,
-					OperationID: newOperation.ID,
+			if err = db.Where(`"eventId" = ?`, event.ID).Delete(&model.EventOperation{}).Error; err != nil {
+				return err
+			}
+
+			for i, operation := range dto.Operations {
+				newOperation := model.EventOperation{
+					ID:             uuid.NewV4().String(),
+					Type:           operation.Type,
+					Delay:          operation.Delay,
+					EventID:        event.ID,
+					Input:          null.StringFrom(strings.TrimSpace(*operation.Input)),
+					Repeat:         operation.Repeat,
+					Order:          i,
+					UseAnnounce:    *operation.UseAnnounce,
+					TimeoutTime:    operation.TimeoutTime,
+					TimeoutMessage: null.StringFromPtr(operation.TimeoutMessage),
+					Target:         null.StringFrom(operation.Target),
+					Enabled:        *operation.Enabled,
 				}
 
-				if err := tx.Create(newFilter).Error; err != nil {
+				if err := tx.Save(&newOperation).Error; err != nil {
 					return err
 				}
-			}
-		}
 
-		return nil
-	})
+				for _, filter := range operation.Filters {
+					newFilter := &model.EventOperationFilter{
+						ID:          uuid.NewV4().String(),
+						Type:        filter.Type,
+						Left:        filter.Left,
+						Right:       filter.Right,
+						OperationID: newOperation.ID,
+					}
+
+					if err := tx.Create(newFilter).Error; err != nil {
+						return err
+					}
+				}
+			}
+
+			return nil
+		},
+	)
 
 	if err != nil {
 		logger.Error(err)
@@ -191,19 +195,21 @@ func handleDelete(channelId, eventId string) error {
 		return fiber.NewError(http.StatusNotFound, "event not found")
 	}
 
-	err = db.Transaction(func(tx *gorm.DB) error {
-		err = db.Where(`"eventId" = ?`, event.ID).Delete(&model.EventOperation{}).Error
-		if err != nil {
-			return err
-		}
+	err = db.Transaction(
+		func(tx *gorm.DB) error {
+			err = db.Where(`"eventId" = ?`, event.ID).Delete(&model.EventOperation{}).Error
+			if err != nil {
+				return err
+			}
 
-		err = db.Delete(&event).Error
-		if err != nil {
-			return err
-		}
+			err = db.Delete(&event).Error
+			if err != nil {
+				return err
+			}
 
-		return nil
-	})
+			return nil
+		},
+	)
 
 	if err != nil {
 		logger.Error(err)

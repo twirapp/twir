@@ -1,4 +1,4 @@
-module github.com/satont/tsuwari/apps/bots
+module github.com/satont/twir/apps/bots
 
 go 1.20
 
@@ -12,13 +12,13 @@ require (
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/samber/do v1.6.0
 	github.com/samber/lo v1.38.1
-	github.com/satont/tsuwari/libs/config v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/gomodels v0.0.0-20221114143619-e5e207524b96
-	github.com/satont/tsuwari/libs/gopool v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/grpc v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/pubsub v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/twitch v0.0.0-00010101000000-000000000000
-	github.com/satont/tsuwari/libs/types v0.0.0-20230501072144-eb4ca703ed7c
+	github.com/satont/twir/libs/config v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/gomodels v0.0.0-20221114143619-e5e207524b96
+	github.com/satont/twir/libs/gopool v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/pubsub v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/twitch v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/types v0.0.0-20230501072144-eb4ca703ed7c
 	github.com/satori/go.uuid v1.2.0
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.55.0
@@ -77,14 +77,14 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
 )
 
-replace github.com/satont/tsuwari/libs/config => ../../libs/config
+replace github.com/satont/twir/libs/config => ../../libs/config
 
-replace github.com/satont/tsuwari/libs/gomodels => ../../libs/gomodels
+replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 
-replace github.com/satont/tsuwari/libs/twitch => ../../libs/twitch
+replace github.com/satont/twir/libs/twitch => ../../libs/twitch
 
-replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+replace github.com/satont/twir/libs/grpc => ../../libs/grpc
 
-replace github.com/satont/tsuwari/libs/pubsub => ../../libs/pubsub
+replace github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 
-replace github.com/satont/tsuwari/libs/gopool => ../../libs/gopool
+replace github.com/satont/twir/libs/gopool => ../../libs/gopool

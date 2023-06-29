@@ -5,14 +5,16 @@ import (
 	"strings"
 
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/parser/internal/types"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	"github.com/satont/twir/apps/parser/internal/types"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 var Variable = &types.Variable{
 	Name:        "commands.list",
 	Description: lo.ToPtr("Command list"),
-	Handler: func(ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData) (*types.VariableHandlerResult, error) {
+	Handler: func(
+		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
+	) (*types.VariableHandlerResult, error) {
 		cmds := []*model.ChannelsCommands{}
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
@@ -30,9 +32,11 @@ var Variable = &types.Variable{
 				commandNames = append(commandNames, c.Name)
 			}
 		}
-		commandNames = lo.Filter(commandNames, func(n string, _ int) bool {
-			return n != ""
-		})
+		commandNames = lo.Filter(
+			commandNames, func(n string, _ int) bool {
+				return n != ""
+			},
+		)
 
 		r := types.VariableHandlerResult{
 			Result: strings.Join(commandNames, ", "),
