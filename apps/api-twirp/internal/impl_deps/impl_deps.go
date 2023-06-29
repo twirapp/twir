@@ -1,6 +1,7 @@
 package impl_deps
 
 import (
+	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/bots"

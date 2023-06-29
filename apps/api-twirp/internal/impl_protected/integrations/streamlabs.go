@@ -3,6 +3,8 @@ package integrations
 import (
 	"context"
 	"fmt"
+	"github.com/guregu/null"
+	"github.com/imroc/req/v3"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/integrations_streamlabs"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -14,6 +16,14 @@ type streamlabsTokensResponse struct {
 	RefreshToken string `json:"refresh_token"`
 	TokenType    string `json:"token_type"`
 	ExpiresIn    int    `json:"expires_in"`
+}
+
+type streamlabsProfileResponse struct {
+	StreamLabs struct {
+		ID          int    `json:"id"`
+		DisplayName string `json:"display_name"`
+		ThumbNail   string `json:"thumbnail"`
+	} `json:"streamlabs"`
 }
 
 func (c *Integrations) IntegrationsStreamlabsGetAuthLink(
@@ -29,7 +39,7 @@ func (c *Integrations) IntegrationsStreamlabsGetAuthLink(
 		return nil, fmt.Errorf("spotify integration not configured")
 	}
 
-	link, _ := url.Parse("https://www.streamlabs.com/api/v1.0/authorize")
+	link, _ := url.Parse("https://www.streamlabs.com/api/v2.0/authorize")
 
 	q := link.Query()
 	q.Add("response_type", "code")
@@ -63,11 +73,80 @@ func (c *Integrations) IntegrationsStreamlabsPostCode(
 	ctx context.Context,
 	request *integrations_streamlabs.PostCodeRequest,
 ) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId := ctx.Value("dashboardId").(string)
+	channelIntegration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceStreamLabs, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	tokensData := streamlabsTokensResponse{}
+	resp, err := req.R().
+		SetFormData(
+			map[string]string{
+				"grant_type":    "authorization_code",
+				"client_id":     channelIntegration.Integration.ClientID.String,
+				"client_secret": channelIntegration.Integration.ClientSecret.String,
+				"redirect_uri":  channelIntegration.Integration.RedirectURL.String,
+				"code":          request.Code,
+			},
+		).
+		SetSuccessResult(&tokensData).
+		SetContentType("application/x-www-form-urlencoded").
+		Post("https://streamlabs.com/api/v2.0/token")
+	if err != nil {
+		return nil, err
+	}
+	if !resp.IsSuccessState() {
+		return nil, fmt.Errorf("streamlabs token request failed: %s", resp.String())
+	}
+
+	profileData := streamlabsProfileResponse{}
+	resp, err = req.R().
+		SetSuccessResult(&tokensData).
+		SetBearerAuthToken(tokensData.AccessToken).
+		Get("https://streamlabs.com/api/v2.0/user")
+	if err != nil {
+		return nil, err
+	}
+	if !resp.IsSuccessState() {
+		return nil, fmt.Errorf("streamlabs token request failed: %s", resp.String())
+	}
+
+	channelIntegration.Data = &model.ChannelsIntegrationsData{
+		UserName: &profileData.StreamLabs.DisplayName,
+		Avatar:   &profileData.StreamLabs.ThumbNail,
+	}
+	channelIntegration.AccessToken = null.StringFrom(tokensData.AccessToken)
+	channelIntegration.RefreshToken = null.StringFrom(tokensData.RefreshToken)
+	channelIntegration.Enabled = true
+	if err = c.Db.Save(channelIntegration).Error; err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (c *Integrations) IntegrationsStreamlabsLogout(ctx context.Context, empty *emptypb.Empty) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	dashboardId := ctx.Value("dashboard_id").(string)
+	integration, err := c.getChannelIntegrationByService(
+		ctx, model.IntegrationServiceStreamLabs, dashboardId,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	integration.Data = nil
+	integration.AccessToken = null.String{}
+	integration.RefreshToken = null.String{}
+	integration.Enabled = false
+
+	if err = c.Db.WithContext(ctx).Save(&integration).Error; err != nil {
+		return nil, err
+	}
+
+	if err = c.sendGrpcEvent(ctx, integration.ID, integration.Enabled); err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }

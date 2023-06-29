@@ -67,6 +67,15 @@ func (c *Integrations) IntegrationsLastFMPostCode(
 	err = api.LoginWithToken(request.Code)
 	sessionKey := api.GetSessionKey()
 
+	info, err := api.User.GetInfo(make(map[string]interface{}))
+	if err != nil {
+		return nil, err
+	}
+
+	integration.Data = &model.ChannelsIntegrationsData{
+		UserName: &info.Name,
+		Avatar:   &info.Images[len(info.Images)-1].Url,
+	}
 	integration.APIKey = null.StringFrom(sessionKey)
 
 	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {

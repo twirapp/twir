@@ -75,7 +75,7 @@ type profileResponse struct {
 		ID          int    `json:"id"`
 		DisplayName string `json:"display_name"`
 		ThumbNail   string `json:"thumbnail"`
-	} `json:model.IntegrationServiceStreamLabs`
+	} `json:"streamlabs"`
 }
 
 func handlePost(channelId string, dto *tokenDto, services types.Services) error {
