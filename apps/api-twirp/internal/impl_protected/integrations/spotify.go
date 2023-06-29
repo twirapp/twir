@@ -2,6 +2,7 @@ package integrations
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
@@ -29,7 +30,7 @@ func (c *Integrations) IntegrationsSpotifyGetAuthLink(
 	}
 
 	if !integration.ClientID.Valid || !integration.ClientSecret.Valid || !integration.RedirectURL.Valid {
-		return nil, fmt.Errorf("spotify integration not configured")
+		return nil, errors.New("spotify not enabled on our side, please be patient")
 	}
 
 	link, _ := url.Parse("https://accounts.spotify.com/authorize")

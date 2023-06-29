@@ -2,6 +2,7 @@ package integrations
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
@@ -36,7 +37,7 @@ func (c *Integrations) IntegrationsStreamlabsGetAuthLink(
 	}
 
 	if !integration.ClientID.Valid || !integration.ClientSecret.Valid || !integration.RedirectURL.Valid {
-		return nil, fmt.Errorf("spotify integration not configured")
+		return nil, errors.New("streamlabs not enabled on our side, please be patient")
 	}
 
 	link, _ := url.Parse("https://www.streamlabs.com/api/v2.0/authorize")
@@ -125,11 +126,15 @@ func (c *Integrations) IntegrationsStreamlabsPostCode(
 		return nil, err
 	}
 
+	if err = c.sendGrpcEvent(ctx, channelIntegration.ID, channelIntegration.Enabled); err != nil {
+		return nil, err
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *Integrations) IntegrationsStreamlabsLogout(ctx context.Context, empty *emptypb.Empty) (*emptypb.Empty, error) {
-	dashboardId := ctx.Value("dashboard_id").(string)
+	dashboardId := ctx.Value("dashboardId").(string)
 	integration, err := c.getChannelIntegrationByService(
 		ctx, model.IntegrationServiceStreamLabs, dashboardId,
 	)

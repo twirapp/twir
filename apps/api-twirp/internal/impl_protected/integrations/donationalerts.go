@@ -2,6 +2,7 @@ package integrations
 
 import (
 	"context"
+	"errors"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	model "github.com/satont/twir/libs/gomodels"
@@ -35,7 +36,7 @@ func (c *Integrations) IntegrationsDonationAlertsGetAuthLink(
 	}
 
 	if !integration.ClientID.Valid || !integration.ClientSecret.Valid || !integration.RedirectURL.Valid {
-		return nil, twirp.Internal.Error("internal error")
+		return nil, errors.New("donationalerts not enabled on our side, please be patient")
 	}
 
 	u, _ := url.Parse("https://www.donationalerts.com/oauth/authorize")

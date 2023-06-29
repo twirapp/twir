@@ -2,12 +2,12 @@ package integrations
 
 import (
 	"context"
+	"errors"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/integrations_faceit"
-	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"net/url"
 )
@@ -20,8 +20,8 @@ func (c *Integrations) IntegrationsFaceitGetAuthLink(
 		return nil, err
 	}
 
-	if !integration.ClientID.Valid || !integration.RedirectURL.Valid {
-		return nil, twirp.NewError(twirp.Internal, "faceit not enabled on our side. Please be patient.")
+	if !integration.ClientID.Valid || !integration.ClientSecret.Valid || !integration.RedirectURL.Valid {
+		return nil, errors.New("faceit not enabled on our side, please be patient")
 	}
 
 	link, _ := url.Parse("https://cdn.faceit.com/widgets/sso/index.html")
