@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/Masterminds/squirrel"
 	"github.com/samber/lo"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/api/community"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/api/community"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

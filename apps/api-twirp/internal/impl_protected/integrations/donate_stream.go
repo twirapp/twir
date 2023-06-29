@@ -2,8 +2,8 @@ package integrations
 
 import (
 	"context"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/api/integrations_donate_stream"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/api/integrations_donate_stream"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"time"
 )

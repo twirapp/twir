@@ -3,7 +3,7 @@ package interceptors
 import (
 	"context"
 	"encoding/json"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/zap"
 )

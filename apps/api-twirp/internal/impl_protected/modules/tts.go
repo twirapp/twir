@@ -2,7 +2,7 @@ package modules
 
 import (
 	"context"
-	"github.com/satont/tsuwari/libs/grpc/generated/api/modules_tts"
+	"github.com/satont/twir/libs/grpc/generated/api/modules_tts"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

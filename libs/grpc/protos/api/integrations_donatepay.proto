@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/integrations_donatepay";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/integrations_donatepay";
 package api.integrations_donatepay;
 
 message GetResponse {

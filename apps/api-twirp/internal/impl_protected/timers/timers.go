@@ -2,8 +2,8 @@ package timers
 
 import (
 	"context"
-	"github.com/satont/tsuwari/libs/grpc/generated/api/timers"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
+	"github.com/satont/twir/libs/grpc/generated/api/timers"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

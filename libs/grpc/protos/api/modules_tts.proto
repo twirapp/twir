@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/modules_tts";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/modules_tts";
 package api.modules_tts;
 
 import "google/protobuf/any.proto";

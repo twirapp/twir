@@ -3,9 +3,9 @@ package integrations
 import (
 	"context"
 	"github.com/guregu/null"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/integrations"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/integrations"
 )
 
 type Integrations struct {

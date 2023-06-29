@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/commands";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/commands";
 package api.commands;
 
 import "api/meta.proto";

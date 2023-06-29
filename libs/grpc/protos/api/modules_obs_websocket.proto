@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/modules_obs_websocket";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/modules_obs_websocket";
 package api.modules_obs_websocket;
 
 message GetResponse {

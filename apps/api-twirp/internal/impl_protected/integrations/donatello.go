@@ -2,8 +2,8 @@ package integrations
 
 import (
 	"context"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/api/integrations_donatello"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/api/integrations_donatello"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

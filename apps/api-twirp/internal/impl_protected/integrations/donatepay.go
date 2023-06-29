@@ -3,8 +3,8 @@ package integrations
 import (
 	"context"
 	"github.com/guregu/null"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/api/integrations_donatepay"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/api/integrations_donatepay"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

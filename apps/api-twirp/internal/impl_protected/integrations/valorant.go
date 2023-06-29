@@ -2,7 +2,7 @@ package integrations
 
 import (
 	"context"
-	"github.com/satont/tsuwari/libs/grpc/generated/api/integrations_valorant"
+	"github.com/satont/twir/libs/grpc/generated/api/integrations_valorant"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

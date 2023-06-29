@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/rewards";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/rewards";
 package api.rewards;
 
 message Reward {

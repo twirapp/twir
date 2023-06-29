@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/commands_unprotected";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/commands_unprotected";
 package api.commands_unprotected;
 
 message GetChannelCommandsRequest {

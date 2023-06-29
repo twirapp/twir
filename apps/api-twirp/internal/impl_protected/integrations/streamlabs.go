@@ -3,8 +3,8 @@ package integrations
 import (
 	"context"
 	"fmt"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/api/integrations_streamlabs"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/api/integrations_streamlabs"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"net/url"
 )

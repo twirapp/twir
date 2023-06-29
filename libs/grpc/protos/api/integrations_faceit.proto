@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/integrations_faceit";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/integrations_faceit";
 package api.integrations_faceit;
 
 message GetAuthLink {

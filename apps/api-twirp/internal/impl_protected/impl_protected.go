@@ -2,10 +2,6 @@ package impl_protected
 
 import (
 	"github.com/redis/go-redis/v9"
-	config "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/bots"
-	integrationsGrpc "github.com/satont/tsuwari/libs/grpc/generated/integrations"
-	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/bot"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/commands"
@@ -18,6 +14,10 @@ import (
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/rewards"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/roles"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/timers"
+	config "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/bots"
+	integrationsGrpc "github.com/satont/twir/libs/grpc/generated/integrations"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

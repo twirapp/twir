@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/integrations_lastfm";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/integrations_lastfm";
 package api.integrations_lastfm;
 
 message GetAuthLink {

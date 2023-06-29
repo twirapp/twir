@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/tsuwari/libs/grpc/generated/api/twitch";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/twitch";
 package api.twitch;
 
 message TwitchSearchUsersRequest {

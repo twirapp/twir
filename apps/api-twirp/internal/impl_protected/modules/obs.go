@@ -2,7 +2,7 @@ package modules
 
 import (
 	"context"
-	"github.com/satont/tsuwari/libs/grpc/generated/api/modules_obs_websocket"
+	"github.com/satont/twir/libs/grpc/generated/api/modules_obs_websocket"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
