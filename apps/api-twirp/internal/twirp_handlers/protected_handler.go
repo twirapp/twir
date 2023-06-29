@@ -1,14 +1,14 @@
 package twirp_handlers
 
 import (
-	"github.com/satont/tsuwari/apps/api-twirp/internal/interceptors"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/wrappers"
 	"github.com/satont/tsuwari/libs/grpc/generated/api"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/commands"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/events"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/greetings"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/twir/apps/api-twirp/internal/interceptors"
+	"github.com/satont/twir/apps/api-twirp/internal/wrappers"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/fx"
 	"time"

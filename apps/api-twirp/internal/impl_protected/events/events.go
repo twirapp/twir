@@ -5,9 +5,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/events"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )

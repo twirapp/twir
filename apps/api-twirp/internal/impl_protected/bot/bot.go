@@ -2,14 +2,13 @@ package bot
 
 import (
 	"context"
-	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	model "github.com/satont/tsuwari/libs/gomodels"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/meta"
 	botsGrtpc "github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"github.com/satont/tsuwari/libs/twitch"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"net/http"

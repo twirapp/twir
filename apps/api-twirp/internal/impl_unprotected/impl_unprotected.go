@@ -1,16 +1,15 @@
 package impl_unprotected
 
 import (
-	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_unprotected/auth"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_unprotected/commands"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_unprotected/stats"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_unprotected/twitch"
 	cfg "github.com/satont/tsuwari/libs/config"
 	"github.com/satont/tsuwari/libs/grpc/generated/bots"
 	"github.com/satont/tsuwari/libs/grpc/generated/tokens"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_unprotected/auth"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_unprotected/commands"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_unprotected/stats"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_unprotected/twitch"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

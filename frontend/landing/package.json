@@ -39,7 +39,7 @@
     "@nanostores/vue": "^0.7.0",
     "@protobuf-ts/twirp-transport": "^2.9.0",
     "@tanstack/vue-query": "^4.24.10",
-    "@tsuwari/grpc": "workspace:^",
+    "@twir/grpc": "workspace:^",
     "@vue/server-renderer": "^3.2.47",
     "@vueuse/core": "^9.13.0",
     "cross-env": "^7.0.3",

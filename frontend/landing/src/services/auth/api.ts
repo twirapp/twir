@@ -3,7 +3,7 @@ import type { AuthUser } from '@twir/shared';
 import { authFetch } from './authFetch.js';
 import { LOGIN_ROUTE_STATE, ORIGIN_STATE } from './locationHelpers.js';
 
-import { ProtectedClient } from '@tsuwari/grpc/generated/api/api.client';
+import { ProtectedClient } from '@twir/grpc/generated/api/api.client';
 import { TwirpFetchTransport } from '@protobuf-ts/twirp-transport';
 
 const transport = new TwirpFetchTransport({

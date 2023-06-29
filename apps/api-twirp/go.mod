@@ -1,4 +1,4 @@
-module github.com/satont/tsuwari/apps/api-twirp
+module github.com/satont/twir/apps/api-twirp
 
 go 1.20
 

@@ -1,8 +1,8 @@
 package twirp_handlers
 
 import (
-	"github.com/satont/tsuwari/apps/api-twirp/internal/wrappers"
 	"github.com/satont/tsuwari/libs/grpc/generated/api"
+	"github.com/satont/twir/apps/api-twirp/internal/wrappers"
 	"github.com/twitchtv/twirp"
 )
 

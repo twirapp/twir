@@ -1,9 +1,9 @@
 package twirp_handlers
 
 import (
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_protected"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_unprotected"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/interceptors"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_protected"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_unprotected"
+	"github.com/satont/twir/apps/api-twirp/internal/interceptors"
 	"go.uber.org/fx"
 	"net/http"
 )

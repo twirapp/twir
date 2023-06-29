@@ -2,8 +2,8 @@ package keywords
 
 import (
 	"context"
-	"github.com/satont/tsuwari/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/tsuwari/libs/grpc/generated/api/keywords"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
