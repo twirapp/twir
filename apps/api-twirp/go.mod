@@ -2,7 +2,7 @@ module github.com/satont/twir/apps/api-twirp
 
 go 1.20
 
-replace github.com/satont/tsuwari/libs/grpc => ../../libs/grpc
+replace github.com/satont/twir/libs/grpc => ../../libs/grpc
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
@@ -15,11 +15,11 @@ require (
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/rs/cors v1.9.0
 	github.com/samber/lo v1.38.1
-	github.com/satont/tsuwari/libs/config v0.0.0-20230617211209-79e3285c6910
-	github.com/satont/tsuwari/libs/crypto v0.0.0-20230617211209-79e3285c6910
-	github.com/satont/tsuwari/libs/gomodels v0.0.0-20230617211209-79e3285c6910
-	github.com/satont/tsuwari/libs/grpc v0.0.0-20230617211209-79e3285c6910
-	github.com/satont/tsuwari/libs/twitch v0.0.0-20230617211209-79e3285c6910
+	github.com/satont/twir/libs/config v0.0.0-20230617211209-79e3285c6910
+	github.com/satont/twir/libs/crypto v0.0.0-20230617211209-79e3285c6910
+	github.com/satont/twir/libs/gomodels v0.0.0-20230617211209-79e3285c6910
+	github.com/satont/twir/libs/grpc v0.0.0-20230617211209-79e3285c6910
+	github.com/satont/twir/libs/twitch v0.0.0-20230617211209-79e3285c6910
 	github.com/twitchtv/twirp v8.1.3+incompatible
 	go.uber.org/fx v1.20.0
 	go.uber.org/zap v1.24.0
