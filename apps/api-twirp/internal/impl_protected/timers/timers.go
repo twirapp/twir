@@ -79,17 +79,16 @@ func (c *Timers) TimersUpdate(
 	entity.MessageInterval = request.Timer.MessageInterval
 	entity.TimeInterval = request.Timer.TimeInterval
 
-	txErr := c.Db.Transaction(func(tx *gorm.DB) error {
-		if err := c.Db.
-			WithContext(ctx).
+	txErr := c.Db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.
 			Where(`"channelId" = ?`, dashboardId).
 			Delete(&model.ChannelsTimersResponses{}).
 			Error; err != nil {
 			return err
 		}
 
-		responses := lo.Map(request.Timer.Responses, func(r *timers.Timer_Response, _ int) *model.ChannelsTimersResponses {
-			return &model.ChannelsTimersResponses{
+		entity.Responses = lo.Map(request.Timer.Responses, func(r *timers.Timer_Response, _ int) model.ChannelsTimersResponses {
+			return model.ChannelsTimersResponses{
 				ID:         uuid.New().String(),
 				Text:       r.Text,
 				IsAnnounce: r.IsAnnounce,
@@ -97,14 +96,9 @@ func (c *Timers) TimersUpdate(
 			}
 		})
 
-		if err := c.Db.Save(&responses).Error; err != nil {
-			return err
-		}
-
-		err := c.Db.Save(entity).Error
+		err := tx.Save(entity).Error
 		return err
 	})
-
 	if txErr != nil {
 		return nil, txErr
 	}

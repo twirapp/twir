@@ -109,7 +109,7 @@ func (c *Commands) CommandsCreate(ctx context.Context, request *commands.CreateR
 		Module:                    "CUSTOM",
 		IsReply:                   request.IsReply,
 		KeepResponsesOrder:        request.KeepResponsesOrder,
-		DeniedUsersIDS:            nil,
+		DeniedUsersIDS:            request.DeniedUsersIds,
 		AllowedUsersIDS:           request.AllowedUsersIds,
 		RolesIDS:                  request.RolesIds,
 		OnlineOnly:                request.OnlineOnly,
@@ -173,6 +173,7 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 	cmd.IsReply = request.Command.IsReply
 	cmd.KeepResponsesOrder = request.Command.KeepResponsesOrder
 	cmd.AllowedUsersIDS = request.Command.AllowedUsersIds
+	cmd.DeniedUsersIDS = request.Command.DeniedUsersIds
 	cmd.RolesIDS = request.Command.RolesIds
 	cmd.OnlineOnly = request.Command.OnlineOnly
 	cmd.RequiredWatchTime = int(request.Command.RequiredWatchTime)
@@ -191,15 +192,14 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 		cmd.Responses = append(cmd.Responses, r)
 	}
 
-	err = c.Db.Transaction(func(tx *gorm.DB) error {
-		if err = tx.WithContext(ctx).Delete(&model.ChannelsCommandsResponses{}, `"commandId" = ?`, cmd.ID).Error; err != nil {
+	txErr := c.Db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err = tx.Delete(&model.ChannelsCommandsResponses{}, `"commandId" = ?`, cmd.ID).Error; err != nil {
 			return err
 		}
 
-		return tx.WithContext(ctx).Save(cmd).Error
+		return tx.Save(cmd).Error
 	})
-
-	if err != nil {
+	if txErr != nil {
 		return nil, err
 	}
 
