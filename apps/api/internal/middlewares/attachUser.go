@@ -32,6 +32,7 @@ var AttachUser = func(services types.Services) func(c *fiber.Ctx) error {
 		if apiKey != "" {
 			err := services.DB.
 				Where(`"apiKey" = ?`, apiKey).
+				Preload("Channel").
 				Preload("Roles").
 				Preload("Roles.Role").
 				First(&dbUser).Error
@@ -59,6 +60,7 @@ var AttachUser = func(services types.Services) func(c *fiber.Ctx) error {
 
 			err = services.DB.
 				Where(`"id" = ?`, userId).
+				Preload("Channel").
 				Preload("Roles").
 				Preload("Roles.Role").
 				Find(&dbUser).Error

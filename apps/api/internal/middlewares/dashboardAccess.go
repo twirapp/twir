@@ -15,6 +15,11 @@ var CheckHasAccessToDashboard = func(c *fiber.Ctx) error {
 	}
 	dbUser := c.Locals("dbUser").(model.Users)
 
+	if dbUser.Channel != nil && dbUser.Channel.IsBanned {
+		return c.Status(http.StatusForbidden).
+			JSON(fiber.Map{"message": "uvy Jokerge"})
+	}
+
 	if dbUser.IsBotAdmin {
 		return c.Next()
 	}

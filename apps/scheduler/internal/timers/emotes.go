@@ -29,7 +29,7 @@ func NewEmotes(ctx context.Context, services *types.Services) {
 
 				var channels []model.Channels
 				err := services.Gorm.
-					Where(`"isEnabled" = ?`, true).
+					Where(`"isEnabled" = ? and "isBanned" = ?`, true, false).
 					Select("isEnabled", "id").
 					Find(&channels).
 					Error

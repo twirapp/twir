@@ -24,6 +24,7 @@ type ChannelsTimers struct {
 	MessageInterval          int32                     `gorm:"column:messageInterval;type:INT4;default:0;"          json:"messageInterval"`
 	LastTriggerMessageNumber int32                     `gorm:"column:lastTriggerMessageNumber;type:INT4;default:0;" json:"-"`
 	Responses                []ChannelsTimersResponses `gorm:"foreignKey:TimerID"                                   json:"responses"`
+	Channel                  *Channels                 `gorm:"foreignKey:ChannelID" json:"channel"`
 }
 
 func (c *ChannelsTimers) TableName() string {

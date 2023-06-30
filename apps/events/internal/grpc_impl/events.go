@@ -11,6 +11,7 @@ func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.
 
 	err := c.services.DB.
 		Where(`"channelId" = ? AND "type" = ? AND "enabled" = ?`, channelId, eventType, true).
+		Preload("Channel").
 		Preload("Operations").
 		Preload("Operations.Filters").
 		Find(&dbEntities).
@@ -24,6 +25,10 @@ func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.
 	for _, entity := range dbEntities {
 		if entity.ID == "" {
 			return errors.New("event not found")
+		}
+
+		if entity.Channel != nil && (!entity.Channel.IsEnabled || entity.Channel.IsBanned) {
+			continue
 		}
 
 		if entity.Type == model.EventTypeCommandUsed &&

@@ -87,12 +87,16 @@ func main() {
 	if err != nil {
 		logger.Sugar().Error(err)
 	}
-	err = db.Preload("Responses").Find(&timers).Error
+	err = db.Preload("Responses").Preload("Channel").Find(&timers).Error
 
 	if err != nil {
 		panic(err)
 	} else {
 		for _, timer := range timers {
+			if timer.Channel != nil && (!timer.Channel.IsEnabled || timer.Channel.IsBanned) {
+				continue
+			}
+
 			if timer.Enabled {
 				scheduler.AddTimer(
 					&types.Timer{
