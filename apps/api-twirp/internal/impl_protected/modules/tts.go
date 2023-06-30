@@ -148,11 +148,3 @@ func (c *Modules) ModulesTTSGetInfo(
 		VoicesInfo:      nil,
 	}, nil
 }
-
-func (c *Modules) ModulesTTSSay(
-	ctx context.Context,
-	request *modules_tts.SayRequest,
-) (*emptypb.Empty, error) {
-	//TODO implement me
-	panic("implement me")
-}

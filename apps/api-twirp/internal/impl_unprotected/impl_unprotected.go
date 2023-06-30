@@ -1,10 +1,12 @@
 package impl_unprotected
 
 import (
+	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_unprotected/auth"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_unprotected/commands"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_unprotected/modules"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_unprotected/stats"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_unprotected/twitch"
 	cfg "github.com/satont/twir/libs/config"
@@ -19,6 +21,7 @@ type UnProtected struct {
 	*stats.Stats
 	*commands.Commands
 	*auth.Auth
+	*modules.Modules
 }
 
 type Opts struct {
@@ -73,6 +76,9 @@ func New(opts Opts) *UnProtected {
 				"channel:read:predictions",
 				"channel:manage:predictions",
 			},
+		},
+		Modules: &modules.Modules{
+			Deps: d,
 		},
 	}
 }
