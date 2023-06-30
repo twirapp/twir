@@ -29,7 +29,26 @@ message PostRequest {
 }
 
 message GetInfoResponse {
-	map<string, google.protobuf.Any> data = 1;
+	message VoiceInfo {
+		string country = 1;
+		string gender = 2;
+		string lang = 3;
+		string name = 4;
+		int64 no = 5;
+	}
+
+	message Formats {
+		string flac = 1;
+		string mp3 = 2;
+		string opus = 3;
+		string wav = 4;
+	}
+
+	string default_format = 1;
+	string default_voice = 2;
+	Formats formats = 3;
+	repeated string supported_voices = 4;
+	map<string, VoiceInfo> voices_info = 5;
 }
 
 message SayRequest {

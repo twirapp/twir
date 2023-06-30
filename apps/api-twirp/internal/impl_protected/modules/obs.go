@@ -12,13 +12,18 @@ import (
 
 var keysForGet = []string{"obs:sources:%s", "obs:audio-sources:%s", "obs:scenes:%s"}
 
+const ObsType = "obs_websocket"
+
 func (c *Modules) ModulesOBSWebsocketGet(
 	ctx context.Context,
 	_ *emptypb.Empty,
 ) (*modules_obs_websocket.GetResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.ChannelModulesSettings{}
-	if err := c.Db.WithContext(ctx).Where(`"channelId" = ?`, dashboardId).First(entity).Error; err != nil {
+	if err := c.Db.
+		WithContext(ctx).
+		Where(`"channelId" = ? AND "type" = ?`, dashboardId, ObsType).
+		First(entity).Error; err != nil {
 		return nil, err
 	}
 
@@ -48,7 +53,10 @@ func (c *Modules) ModulesOBSWebsocketGet(
 func (c *Modules) ModulesOBSWebsocketUpdate(ctx context.Context, request *modules_obs_websocket.PostRequest) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.ChannelModulesSettings{}
-	if err := c.Db.WithContext(ctx).Where(`"channelId" = ?`, dashboardId).First(entity).Error; err != nil {
+	if err := c.Db.
+		WithContext(ctx).
+		Where(`"channelId" = ? AND "type" = ?`, dashboardId, ObsType).
+		First(entity).Error; err != nil {
 		return nil, err
 	}
 

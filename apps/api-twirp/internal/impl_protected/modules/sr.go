@@ -12,13 +12,18 @@ import (
 	ytsr "github.com/SherlockYigit/youtube-go"
 )
 
+const SrType = "youtube_song_requests"
+
 func (c *Modules) ModulesSRGet(
 	ctx context.Context,
 	_ *emptypb.Empty,
 ) (*modules_sr.GetResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.ChannelModulesSettings{}
-	if err := c.Db.WithContext(ctx).Where(`"channelId" = ?`, dashboardId).First(entity).Error; err != nil {
+	if err := c.Db.
+		WithContext(ctx).
+		Where(`"channelId" = ? AND "type" = ?`, dashboardId, SrType).
+		First(entity).Error; err != nil {
 		return nil, err
 	}
 
@@ -141,7 +146,10 @@ func (c *Modules) ModulesSRUpdate(
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.ChannelModulesSettings{}
-	if err := c.Db.WithContext(ctx).Where(`"channelId" = ?`, dashboardId).First(entity).Error; err != nil {
+	if err := c.Db.
+		WithContext(ctx).
+		Where(`"channelId" = ? AND "type" = ?`, dashboardId, SrType).
+		First(entity).Error; err != nil {
 		return nil, err
 	}
 
