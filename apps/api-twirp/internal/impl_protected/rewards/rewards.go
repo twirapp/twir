@@ -17,10 +17,10 @@ type Rewards struct {
 
 func (c *Rewards) RewardsGet(
 	ctx context.Context,
-	req *emptypb.Empty,
+	_ *emptypb.Empty,
 ) (*rewards.GetResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	twitchClient, err := twitch.NewUserClient(dashboardId, *c.Config, c.Grpc.Tokens)
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, dashboardId, *c.Config, c.Grpc.Tokens)
 	if err != nil {
 		return nil, err
 	}
