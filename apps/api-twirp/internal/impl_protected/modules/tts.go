@@ -57,7 +57,7 @@ func (c *Modules) ModulesTTSUpdate(
 	entity := &model.ChannelModulesSettings{}
 	if err := c.Db.
 		WithContext(ctx).
-		Where(`"dashboardId" = ? AND "type" = ?`, dashboardId, TTSType).
+		Where(`"channelId" = ? AND "type" = ?`, dashboardId, TTSType).
 		First(entity).Error; err != nil {
 		return nil, err
 	}
