@@ -13,7 +13,7 @@ type Auth struct {
 	*impl_deps.Deps
 }
 
-func (c *Auth) UserProfile(ctx context.Context, _ *emptypb.Empty) (*auth.Profile, error) {
+func (c *Auth) AuthUserProfile(ctx context.Context, _ *emptypb.Empty) (*auth.Profile, error) {
 	dbUser := c.SessionManager.Get(ctx, "dbUser").(model.Users)
 	twitchUser := c.SessionManager.Get(ctx, "twitchUser").(helix.User)
 	selectedDashboardId := c.SessionManager.Get(ctx, "dashboardId").(string)

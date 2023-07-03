@@ -1,7 +1,7 @@
 import { protectedApiClient, unprotectedApiClient } from '@/services/apiClients.js';
 
 export const getProfile = async () => {
-	const res = await protectedApiClient.userProfile({});
+	const res = await protectedApiClient.authUserProfile({});
 
   return res.response;
 };
