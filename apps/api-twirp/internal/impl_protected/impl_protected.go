@@ -1,6 +1,7 @@
 package impl_protected
 
 import (
+	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/bot"

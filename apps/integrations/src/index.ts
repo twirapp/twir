@@ -14,7 +14,6 @@ export const donationAlertsStore: Map<string, DonationAlerts> = new Map();
 export const streamlabsStore: Map<string, StreamLabs> = new Map();
 export const donatePayStore: Map<string, DonatePay> = new Map();
 
-
 const integrations = await typeorm.getRepository(ChannelIntegration).find({
 	where: {
 		integration: {

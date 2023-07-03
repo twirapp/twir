@@ -36,12 +36,33 @@ rmSync('generated', { recursive: true, force: true });
           `protoc-gen-ts_proto${platform() === 'win32' ? '.CMD' : ''}`,
         );
 
+				const goBuildString = [
+					`protoc --go_out=./generated/${name}`,
+					`--go_opt=paths=source_relative`,
+					`--go-grpc_out=./generated/${name}`,
+					`--go-grpc_opt=paths=source_relative`,
+					`--experimental_allow_proto3_optional`,
+					`--proto_path=./protos`,
+					`${name}.proto`,
+				].join(' ');
+
+				const nodeBuildString = [
+					'protoc',
+					`--plugin=protoc-gen-ts_proto=${protocPath}`,
+					`--ts_proto_out=./generated/${name}`,
+					'--ts_proto_opt=outputServices=nice-grpc',
+					'--ts_proto_opt=outputServices=generic-definitions',
+					'--ts_proto_opt=useExactTypes=false',
+					'--ts_proto_opt=esModuleInterop=true',
+					'--ts_proto_opt=importSuffix=.js',
+					'--experimental_allow_proto3_optional',
+					'--proto_path=./protos',
+					`${name}.proto`,
+				].join(' ');
+
         const requests = await Promise.all([
-          promisedExec(
-            `protoc --go_out=./generated/${name} --go_opt=paths=source_relative --go-grpc_out=./generated/${name} --go-grpc_opt=paths=source_relative --experimental_allow_proto3_optional --proto_path=./protos ${name}.proto`),
-          promisedExec(
-            `protoc --plugin=protoc-gen-ts_proto=${protocPath} --ts_proto_out=./generated/${name} --ts_proto_opt=outputServices=nice-grpc,outputServices=generic-definitions,useExactTypes=false,esModuleInterop=true --experimental_allow_proto3_optional --proto_path=./protos ${name}.proto`,
-          ),
+          promisedExec(goBuildString),
+          promisedExec(nodeBuildString),
         ]);
 
         console.info(`✅ Generated ${name} proto definitions for go and ts.`);

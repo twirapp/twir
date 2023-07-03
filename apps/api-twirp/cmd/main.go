@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_unprotected"
