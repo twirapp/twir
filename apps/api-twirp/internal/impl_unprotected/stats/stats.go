@@ -3,19 +3,75 @@ package stats
 import (
 	"context"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/stats"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"sync"
 )
 
 type Stats struct {
 	*impl_deps.Deps
 }
 
-func (c *Stats) GetStats(ctx context.Context, empty *emptypb.Empty) (*stats.Response, error) {
+type statsItem struct {
+	Count int64  `json:"count"`
+	Name  string `json:"name"`
+}
+
+type statsNResult struct {
+	N int64
+}
+
+func (c *Stats) GetStats(ctx context.Context, _ *emptypb.Empty) (*stats.Response, error) {
+	wg := sync.WaitGroup{}
+	statistic := []statsItem{
+		{Name: "users"},
+		{Name: "channels"},
+		{Name: "commands"},
+		{Name: "messages"},
+	}
+
+	wg.Add(4)
+
+	go func() {
+		defer wg.Done()
+		var count int64
+		c.Db.WithContext(ctx).Model(&model.Users{}).Count(&count)
+		statistic[0].Count = count
+	}()
+
+	go func() {
+		defer wg.Done()
+		var count int64
+		c.Db.WithContext(ctx).Model(&model.Channels{}).Count(&count)
+		statistic[1].Count = count
+	}()
+
+	go func() {
+		defer wg.Done()
+		var count int64
+		c.Db.WithContext(ctx).Model(&model.ChannelsCommands{}).
+			Where("module = ?", "CUSTOM").
+			Count(&count)
+
+		statistic[2].Count = count
+	}()
+
+	go func() {
+		defer wg.Done()
+		result := statsNResult{}
+		c.Db.WithContext(ctx).Model(&model.UsersStats{}).
+			Select("sum(messages) as n").
+			Scan(&result)
+		statistic[3].Count = result.N
+	}()
+
+	wg.Wait()
+
 	return &stats.Response{
-		Users:    0,
-		Channels: 0,
-		Commands: 0,
-		Messages: 0,
+		Users:    statistic[0].Count,
+		Channels: statistic[1].Count,
+		Commands: statistic[2].Count,
+		Messages: statistic[3].Count,
 	}, nil
 }
