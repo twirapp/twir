@@ -16,6 +16,7 @@ message PostCodeRequest {
 
 message Dashboard {
 	string id = 1;
+	repeated string flags = 2;
 }
 
 message Profile {
@@ -30,4 +31,8 @@ message Profile {
 
 message SetDashboard {
 	string dashboard_id = 1;
+}
+
+message GetDashboardsResponse {
+	repeated Dashboard dashboards = 1;
 }

@@ -34,3 +34,37 @@ func (c *Auth) AuthSetDashboard(ctx context.Context, req *auth.SetDashboard) (*e
 
 	return &emptypb.Empty{}, nil
 }
+
+func (c *Auth) AuthGetDashboards(ctx context.Context, _ emptypb.Empty) (*auth.GetDashboardsResponse, error) {
+	dbUser := c.SessionManager.Get(ctx, "dbUser").(model.Users)
+	var dashboards []*auth.Dashboard
+
+	if dbUser.IsBotAdmin {
+		var channels []*model.Channels
+		if err := c.Db.Find(&channels).Error; err != nil {
+			return nil, err
+		}
+
+		for _, channel := range channels {
+			dashboards = append(dashboards, &auth.Dashboard{
+				Id:    channel.ID,
+				Flags: []string{model.RolePermissionCanAccessDashboard.String()},
+			})
+		}
+	} else {
+		var roles []*model.ChannelRoleUser
+		if err := c.Db.Where(`"userId" = ?`, dbUser.ID).Preload("Role").Find(&roles).Error; err != nil {
+			return nil, err
+		}
+		for _, role := range roles {
+			dashboards = append(dashboards, &auth.Dashboard{
+				Id:    role.Role.ChannelID,
+				Flags: role.Role.Permissions,
+			})
+		}
+	}
+
+	return &auth.GetDashboardsResponse{
+		Dashboards: dashboards,
+	}, nil
+}
