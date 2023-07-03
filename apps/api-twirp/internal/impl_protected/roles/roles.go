@@ -118,6 +118,15 @@ func (c *Roles) RolesDelete(
 	request *roles.DeleteRequest,
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
+	if err := c.Db.
+		WithContext(ctx).
+		Where(`"channelId" = ? AND "type" = ?`, dashboardId, model.ChannelRoleTypeCustom.String()).
+		Delete(&model.ChannelRole{}).
+		Error; err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (c *Roles) RolesCreate(
@@ -125,4 +134,37 @@ func (c *Roles) RolesCreate(
 	request *roles.CreateRequest,
 ) (*roles.Role, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
+
+	settings := &model.ChannelRoleSettings{
+		RequiredWatchTime:         request.Role.Settings.RequiredWatchTime,
+		RequiredMessages:          request.Role.Settings.RequiredMessages,
+		RequiredUsedChannelPoints: request.Role.Settings.RequiredUserChannelPoints,
+	}
+
+	settingsBytes, err := json.Marshal(settings)
+	if err != nil {
+		return nil, err
+	}
+
+	entity := &model.ChannelRole{
+		ID:          uuid.New().String(),
+		ChannelID:   dashboardId,
+		Name:        request.Role.Name,
+		Type:        model.ChannelRoleTypeCustom,
+		Permissions: request.Role.Permissions,
+		Settings:    settingsBytes,
+		Users: lo.Map(request.Role.Users, func(u *roles.Role_User, _ int) *model.ChannelRoleUser {
+			return &model.ChannelRoleUser{
+				ID:     uuid.New().String(),
+				UserID: u.UserId,
+				RoleID: u.RoleId,
+			}
+		}),
+	}
+
+	if err := c.Db.WithContext(ctx).Save(entity).Error; err != nil {
+		return nil, err
+	}
+
+	return c.convertEntity(entity)
 }
