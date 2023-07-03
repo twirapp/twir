@@ -24,6 +24,7 @@ func NewProtected(opts Opts) IHandler {
 	twirpHandler := api.NewProtectedServer(
 		opts.ImplProtected,
 		twirp.WithServerPathPrefix("/v1"),
+		twirp.WithServerInterceptors(opts.Interceptor.Errors),
 		twirp.WithServerInterceptors(opts.Interceptor.DbUserInterceptor),
 		twirp.WithServerInterceptors(opts.Interceptor.ChannelAccessInterceptor),
 		twirp.WithServerInterceptors(opts.Interceptor.NewCacheInterceptor(
@@ -64,7 +65,6 @@ func NewProtected(opts Opts) IHandler {
 				},
 			},
 		)),
-		twirp.WithServerInterceptors(opts.Interceptor.Errors),
 	)
 
 	h := &Handler{

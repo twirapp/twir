@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
@@ -49,13 +50,21 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 		return nil, err
 	}
 	tokens, err := twitchClient.RequestUserAccessToken(request.Code)
-	if err != nil || tokens.ErrorMessage != "" {
+	if err != nil {
 		return nil, err
 	}
+	if tokens.ErrorMessage != "" {
+		return nil, errors.New(tokens.ErrorMessage)
+	}
+
+	twitchClient.SetUserAccessToken(tokens.Data.AccessToken)
 
 	users, err := twitchClient.GetUsers(&helix.UsersParams{})
-	if err != nil || len(users.Data.Users) == 0 {
+	if err != nil {
 		return nil, err
+	}
+	if len(users.Data.Users) == 0 {
+		return nil, errors.New("twitch user not found")
 	}
 
 	twitchUser := users.Data.Users[0]
@@ -131,11 +140,8 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 	}
 
 	c.SessionManager.Put(ctx, "dbUser", dbUser)
-
-	err = twirp.SetHTTPResponseHeader(ctx, "Dashboard-id", dbUser.ID)
-	if err != nil {
-		return nil, twirp.InternalErrorWith(err)
-	}
+	c.SessionManager.Put(ctx, "twitchUser", &twitchUser)
+	c.SessionManager.Put(ctx, "dashboardId", dbUser.ID)
 
 	return &emptypb.Empty{}, nil
 }

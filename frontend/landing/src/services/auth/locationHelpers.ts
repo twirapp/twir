@@ -1,20 +1,22 @@
 import { isClient } from '@vueuse/core';
 
-import { API_LOGIN_ROUTE } from './api.js';
 
 import type { Locale } from '@/locales';
+import { unprotectedApiClient } from '@/services/apiClients.js';
 
-export const LOGIN_ROUTE_STATE = isClient ? window.btoa(window.location.origin + '/login') : '';
 export const ORIGIN_STATE = isClient ? window.btoa(window.location.origin) : '';
 
-export const redirectToLogin = () => {
+export const redirectToLogin = async () => {
   if (isClient) {
-    window.location.replace(API_LOGIN_ROUTE);
+		const res = await unprotectedApiClient.authGetLink({
+			state: ORIGIN_STATE,
+		});
+
+    window.location.replace(res.response.link);
   }
 };
 
 export const redirectToDashboard = () => {
-  // window.location.replace('/app/dashboard');
   window.location.replace(`/dashboard`);
 };
 

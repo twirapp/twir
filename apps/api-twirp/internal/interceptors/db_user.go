@@ -2,7 +2,6 @@ package interceptors
 
 import (
 	"context"
-	"encoding/json"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/zap"
@@ -28,16 +27,14 @@ func (s *Service) getUserByApiKey(apiKey string) (*model.Users, error) {
 func (s *Service) DbUserInterceptor(next twirp.Method) twirp.Method {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		apiKey := ctx.Value("apiKey")
-		user := s.sessionManager.Get(ctx, "dbUser")
-		if user != nil {
-			parsedUser := &model.Users{}
-			err := json.Unmarshal([]byte(user.(string)), parsedUser)
-			if err != nil {
-				zap.S().Error(err)
-				return nil, twirp.Internal.Error("internal error")
-			}
+		sessionUser := s.sessionManager.Get(ctx, "dbUser")
+		if sessionUser == nil {
+			return nil, twirp.Unauthenticated.Error("not authenticated")
+		}
 
-			ctx = context.WithValue(ctx, "dbUser", parsedUser)
+		user := sessionUser.(model.Users)
+		if user.ID != "" {
+			ctx = context.WithValue(ctx, "dbUser", user)
 			return next(ctx, req)
 		}
 

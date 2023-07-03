@@ -4,6 +4,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/auth"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/bot"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/commands"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/community"
@@ -35,6 +36,7 @@ type Protected struct {
 	*rewards.Rewards
 	*roles.Roles
 	*timers.Timers
+	*auth.Auth
 }
 
 type Opts struct {
@@ -75,5 +77,6 @@ func New(opts Opts) *Protected {
 		Rewards:      &rewards.Rewards{Deps: d},
 		Roles:        &roles.Roles{Deps: d},
 		Timers:       &timers.Timers{Deps: d},
+		Auth:         &auth.Auth{Deps: d},
 	}
 }

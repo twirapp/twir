@@ -11,5 +11,5 @@ export const handleTwitchLoginCallback = async () => {
   const code = params.get('code');
   if (!code) throw new Error('Cannot find twitch code in query url');
 
-  return await authorizeByTwitchCode(code);
+  await authorizeByTwitchCode(code);
 };

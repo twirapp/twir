@@ -32,6 +32,8 @@ import "api/rewards.proto";
 import "api/roles.proto";
 
 service Protected {
+	rpc UserProfile(google.protobuf.Empty) returns (api.auth.Profile) {}
+
 	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
 	rpc BotJoinPart(api.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
 
