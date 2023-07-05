@@ -24,7 +24,6 @@ const createCrudManager = <
 	update: Update,
 	queryKey: string,
 }) => {
-
 	return {
 		getAll: (req: Parameters<typeof opts.getAll>[0]) => useQuery<ReturnType<typeof opts.getAll>['response']>({
 			queryKey: [opts.queryKey],
@@ -140,9 +139,9 @@ export const commandsGroupsManager = () => createCrudManager({
 	getAll: protectedApiClient.commandsGroupsGetAll,
 	update: protectedApiClient.commandsGroupsUpdate,
 	create: protectedApiClient.commandsGroupsCreate,
-	patch: protectedApiClient.commandsGroupsEnableOrDisable,
+	patch: null,
 	deleteOne: protectedApiClient.commandsGroupsDelete,
-	getOne: protectedApiClient.commandsGroupsGetById,
+	getOne: null,
 });
 
 export const rolesManager = () => createCrudManager({

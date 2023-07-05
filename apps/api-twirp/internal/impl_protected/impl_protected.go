@@ -7,6 +7,7 @@ import (
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/auth"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/bot"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/commands"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/commands_group"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/community"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/events"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/greetings"
@@ -16,6 +17,7 @@ import (
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/rewards"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/roles"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/timers"
+	"github.com/satont/twir/apps/api-twirp/internal/impl_protected/variables"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/bots"
 	integrationsGrpc "github.com/satont/twir/libs/grpc/generated/integrations"
@@ -37,6 +39,8 @@ type Protected struct {
 	*roles.Roles
 	*timers.Timers
 	*auth.Auth
+	*variables.Variables
+	*commands_group.CommandsGroup
 }
 
 type Opts struct {
@@ -66,17 +70,19 @@ func New(opts Opts) *Protected {
 	}
 
 	return &Protected{
-		Integrations: &integrations.Integrations{Deps: d},
-		Keywords:     &keywords.Keywords{Deps: d},
-		Modules:      &modules.Modules{Deps: d},
-		Bot:          &bot.Bot{Deps: d},
-		Commands:     &commands.Commands{Deps: d},
-		Community:    &community.Community{Deps: d},
-		Events:       &events.Events{Deps: d},
-		Greetings:    &greetings.Greetings{Deps: d},
-		Rewards:      &rewards.Rewards{Deps: d},
-		Roles:        &roles.Roles{Deps: d},
-		Timers:       &timers.Timers{Deps: d},
-		Auth:         &auth.Auth{Deps: d},
+		Integrations:  &integrations.Integrations{Deps: d},
+		Keywords:      &keywords.Keywords{Deps: d},
+		Modules:       &modules.Modules{Deps: d},
+		Bot:           &bot.Bot{Deps: d},
+		Commands:      &commands.Commands{Deps: d},
+		Community:     &community.Community{Deps: d},
+		Events:        &events.Events{Deps: d},
+		Greetings:     &greetings.Greetings{Deps: d},
+		Rewards:       &rewards.Rewards{Deps: d},
+		Roles:         &roles.Roles{Deps: d},
+		Timers:        &timers.Timers{Deps: d},
+		Auth:          &auth.Auth{Deps: d},
+		Variables:     &variables.Variables{Deps: d},
+		CommandsGroup: &commands_group.CommandsGroup{Deps: d},
 	}
 }

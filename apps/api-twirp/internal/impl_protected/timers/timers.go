@@ -38,7 +38,7 @@ func (c *Timers) convertEntity(entity *model.ChannelsTimers) *timers.Timer {
 	}
 }
 
-func (c *Timers) TimersGet(
+func (c *Timers) TimersGetAll(
 	ctx context.Context,
 	_ *emptypb.Empty,
 ) (*timers.GetResponse, error) {

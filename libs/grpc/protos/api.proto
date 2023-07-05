@@ -11,6 +11,9 @@ import "api/events.proto";
 import "api/greetings.proto";
 import "api/keywords.proto";
 import "api/timers.proto";
+import "api/roles.proto";
+import "api/variables.proto";
+import "api/commands_group.proto";
 
 import "api/integrations_donate_stream.proto";
 import "api/integrations_donatello.proto";
@@ -29,7 +32,6 @@ import "api/modules_sr.proto";
 
 import "api/rewards.proto";
 
-import "api/roles.proto";
 
 service Protected {
 	rpc AuthUserProfile(google.protobuf.Empty) returns (api.auth.Profile) {}
@@ -130,11 +132,22 @@ service Protected {
 	rpc RolesDelete(api.roles.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc RolesCreate(api.roles.CreateRequest) returns (api.roles.Role) {}
 
-	rpc TimersGet(google.protobuf.Empty) returns (api.timers.GetResponse) {}
+	rpc TimersGetAll(google.protobuf.Empty) returns (api.timers.GetResponse) {}
 	rpc TimersUpdate(api.timers.UpdateRequest) returns (api.timers.Timer) {}
 	rpc TimersDelete(api.timers.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc TimersCreate(api.timers.CreateRequest) returns (api.timers.Timer) {}
 	rpc TimersEnableOrDisable(api.timers.PatchRequest) returns (api.timers.Timer) {}
+
+	rpc VariablesGetAll(google.protobuf.Empty) returns (api.variables.GetAllResponse) {}
+	rpc VariablesGetById(api.variables.GetByIdRequest) returns (api.variables.Variable) {}
+	rpc VariablesCreate(api.variables.CreateRequest) returns (api.variables.Variable) {}
+	rpc VariablesDelete(api.variables.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc VariablesUpdate(api.variables.PutRequest) returns (api.variables.Variable) {}
+
+	rpc CommandsGroupGetAll(google.protobuf.Empty) returns (api.commands_group.GetAllResponse) {}
+	rpc CommandsGroupCreate(api.commands_group.CreateRequest) returns (api.commands_group.Group) {}
+	rpc CommandsGroupDelete(api.commands_group.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc CommandsGroupUpdate(api.commands_group.PutRequest) returns (api.commands_group.Group) {}
 }
 
 // UnProtected
