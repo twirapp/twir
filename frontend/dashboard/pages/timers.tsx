@@ -24,10 +24,10 @@ export default function () {
   const viewPort = useViewportSize();
   const { t } = useTranslation('timers');
 
-  const { useGetAll, usePatch, useDelete } = useTimersManager();
-  const { data: timers } = useGetAll();
-  const patcher = usePatch();
-  const deleter = useDelete();
+  const manager = useTimersManager();
+  const { data: timers } = manager.getAll({});
+  const patcher = manager.patch!;
+  const deleter = manager.deleteOne;
 
   return (
     <div>
@@ -59,8 +59,7 @@ export default function () {
           </tr>
         </thead>
         <tbody>
-          {timers &&
-            timers.map((timer, idx) => (
+          {timers?.timers.map((timer, idx) => (
               <tr key={timer.id}>
                 <td>
                   <Badge>{timer.name}</Badge>
@@ -85,7 +84,7 @@ export default function () {
                     onChange={(event) => {
                       patcher.mutate({
                         id: timer.id,
-                        data: { enabled: event.currentTarget.checked },
+                        enabled: event.currentTarget.checked,
                       });
                     }}
                   />
@@ -94,7 +93,7 @@ export default function () {
                   <Flex direction="row" gap="xs">
                     <ActionIcon
                       onClick={() => {
-                        setEditableTimer(timers[idx] as any);
+                        setEditableTimer(timers!.timers[idx] as any);
                         setEditDrawerOpened(true);
                       }}
                       variant="filled"
@@ -106,7 +105,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => deleter.mutate(timer.id),
+                          onConfirm: () => deleter.mutate({ id: timer.id }),
                         })
                       }
                       variant="filled"

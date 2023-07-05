@@ -4,11 +4,8 @@ import {
   Button,
   Center,
   Checkbox,
-  Divider,
-  Drawer,
   Flex,
   Group,
-  Menu,
   Modal,
   NumberInput,
   ScrollArea,
@@ -20,8 +17,8 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
-import { IconGripVertical, IconMinus, IconPlus, IconVariable } from '@tabler/icons';
-import { ChannelTimer } from '@twir/typeorm/entities/ChannelTimer';
+import { IconGripVertical, IconMinus, IconPlus } from '@tabler/icons';
+import type { Timer } from '@twir/grpc/generated/api/api/timers';
 import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
@@ -32,7 +29,7 @@ import { useTimersManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
-  timer?: ChannelTimer;
+  timer?: Timer;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -43,7 +40,7 @@ const sliderSteps = new Array(6).fill(1).map((_, index) => {
 
 export const TimerModal: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
-  const form = useForm<ChannelTimer>({
+  const form = useForm<Timer>({
     initialValues: {
       id: '',
       enabled: true,
@@ -58,8 +55,9 @@ export const TimerModal: React.FC<Props> = (props) => {
   const viewPort = useViewportSize();
   const { t } = useTranslation('timers');
 
-  const { useCreateOrUpdate } = useTimersManager();
-  const updater = useCreateOrUpdate();
+  const manager = useTimersManager();
+  const updater = manager.update;
+	const creator = manager.create;
 
   useEffect(() => {
     form.reset();
@@ -75,16 +73,15 @@ export const TimerModal: React.FC<Props> = (props) => {
       return;
     }
 
-    updater
-      .mutateAsync({
-        id: form.values.id,
-        data: form.values,
-      })
-      .then(() => {
-        props.setOpened(false);
-        form.reset();
-      })
-      .catch(noop);
+		if (form.values.id) {
+			await updater.mutateAsync(form.values);
+		} else {
+			await creator.mutateAsync({ data: form.values });
+		}
+
+		props.setOpened(false);
+		form.reset();
+
   }
 
   return (
