@@ -34,10 +34,10 @@ export default function () {
   const { t } = useTranslation('keywords');
   const viewPort = useViewportSize();
 
-  const { useGetAll, usePatch, useCreateOrUpdate, useDelete } = useKeywordsManager();
-  const { data: keywords } = useGetAll();
-  const patcher = usePatch();
-  const deleter = useDelete();
+  const manager = useKeywordsManager();
+  const { data: keywords } = manager.getAll({});
+  const patcher = manager.patch!;
+  const deleter = manager.deleteOne;
 
   return (
     <div>
@@ -68,8 +68,7 @@ export default function () {
           </tr>
         </thead>
         <tbody>
-          {keywords &&
-            keywords.map((keyword, idx) => (
+          {keywords?.keywords.map((keyword, idx) => (
               <tr key={keyword.id}>
                 <td>
                   <Badge>{keyword.text}</Badge>
@@ -78,7 +77,7 @@ export default function () {
                   <>
                     <td>{keyword.response}</td>
                     <td>
-                      <Badge>{keyword.usages}</Badge>
+                      <Badge>{keyword.usages.toString()}</Badge>
                     </td>
                   </>
                 )}
@@ -88,7 +87,7 @@ export default function () {
                     onChange={(event) => {
                       patcher.mutate({
                         id: keyword.id,
-                        data: { enabled: event.currentTarget.checked },
+                        enabled: event.currentTarget.checked,
                       });
                     }}
                   />
@@ -110,7 +109,7 @@ export default function () {
                     </CopyButton>
                     <ActionIcon
                       onClick={() => {
-                        setEditableKeyword(keywords[idx] as any);
+                        setEditableKeyword(keywords!.keywords[idx] as any);
                         setEditDrawerOpened(true);
                       }}
                       variant="filled"
@@ -122,7 +121,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => deleter.mutate(keyword.id),
+                          onConfirm: () => deleter.mutate({ id: keyword.id }),
                         })
                       }
                       variant="filled"

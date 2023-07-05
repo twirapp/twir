@@ -44,6 +44,7 @@ export const GreetingModal: React.FC<Props> = (props) => {
 
   const greetingsManager = useGreetingsManager();
   const updater = greetingsManager.update!;
+	const creator = greetingsManager.create;
 	const allVariables = useAllVariables();
 
   useEffect(() => {
@@ -60,16 +61,14 @@ export const GreetingModal: React.FC<Props> = (props) => {
       return;
     }
 
-    await updater.mutateAsync({
-      id: form.values.id,
-      enabled: form.values.enabled,
-			userId: form.values.userId,
-			text: form.values.text,
-			isReply: form.values.isReply,
-    }).then(() => {
-      props.setOpened(false);
-      form.reset();
-    }).catch(noop);
+		if (form.values.id) {
+			await updater.mutateAsync(form.values);
+		} else {
+			await creator.mutateAsync(form.values);
+		}
+
+		props.setOpened(false);
+		form.reset();
   }
 
   return (

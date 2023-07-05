@@ -2,12 +2,10 @@ import {
   Alert,
   Button,
   Divider,
-  Drawer,
   Flex,
   Grid,
   Modal,
   NumberInput,
-  ScrollArea,
   Switch,
   Textarea,
   TextInput,
@@ -18,6 +16,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
+import type { Keyword } from '@twir/grpc/generated/api/api/keywords';
 import { ChannelKeyword } from '@twir/typeorm/entities/ChannelKeyword';
 import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
@@ -28,30 +27,29 @@ import { useKeywordsManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
-  keyword?: ChannelKeyword;
+  keyword?: Keyword;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const KeywordModal: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
-  const form = useForm<ChannelKeyword>({
+  const form = useForm<Keyword>({
     validate: {
-      cooldown: (v) => v < 5 && 'Cooldown cannot be lower then 5.',
+      cooldown: (v) => v < 5 && 'Cooldown cannot be lower than 5.',
       text: (v) => !v?.length && 'Text cannot be empty',
     },
     initialValues: {
       channelId: '',
       id: '',
-      cooldown: 5,
-      cooldownExpireAt: null,
+      cooldown: 5n,
       enabled: true,
       isRegular: false,
       isReply: true,
-      text: '',
-      usages: 0,
+			text: '',
+      response: '',
+      usages: 0n,
     },
   });
-  const viewPort = useViewportSize();
   const { t } = useTranslation('keywords');
 
   useEffect(() => {
@@ -61,8 +59,9 @@ export const KeywordModal: React.FC<Props> = (props) => {
     }
   }, [props.keyword, props.opened]);
 
-  const { useCreateOrUpdate } = useKeywordsManager();
-  const updater = useCreateOrUpdate();
+  const manager = useKeywordsManager();
+  const updater = manager.update!;
+	const creator = manager.create;
 
   async function onSubmit() {
     const validate = form.validate();
@@ -71,16 +70,14 @@ export const KeywordModal: React.FC<Props> = (props) => {
       return;
     }
 
-    await updater
-      .mutateAsync({
-        id: form.values.id,
-        data: form.values,
-      })
-      .then(() => {
-        props.setOpened(false);
-        form.reset();
-      })
-      .catch(noop);
+		if (form.values.id) {
+			await updater.mutateAsync(form.values);
+		} else {
+			await creator.mutateAsync(form.values);
+		}
+
+		props.setOpened(false);
+		form.reset();
   }
 
   return (
