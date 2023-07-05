@@ -3,7 +3,7 @@ import {
 	Button,
 	Card,
 	Center,
-	Checkbox, Chip,
+	Checkbox,
 	Code,
 	CopyButton,
 	createStyles, Divider,
@@ -93,23 +93,22 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 		},
 	});
 	const eventsManager = useEventsManager();
-	const updater = eventsManager.useCreateOrUpdate();
+	const updater = eventsManager.update;
 	const { t } = useTranslation('events');
 	const viewPort = useViewportSize();
 	const cardClasses = useStyles();
 	const [rewards, setRewards] = useState<RewardItemProps[]>([]);
 
 	const commandManager = useCommandsManager();
-	const commandList = commandManager.useGetAll();
+	const commandList = commandManager.getAll({});
 
 	const keywordsManager = useKeywordsManager();
-	const { data: keywords } = keywordsManager.useGetAll();
+	const { data: keywords } = keywordsManager.getAll({});
 
 	const variablesManager = useVariablesManager();
-	const { data: variables } = variablesManager.useGetAll();
+	const { data: variables } = variablesManager.getAll({});
 
-	const rewardsManager = useRewards();
-	const { data: rewardsData } = rewardsManager();
+	const { data: rewardsData } = useRewards();
 
 	const obsManager = useObsModule();
 	const { data: obsData } = obsManager.useData();
@@ -123,15 +122,15 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 
 	useEffect(() => {
 		if (rewardsData) {
-			const data = rewardsData
-				.sort((a, b) => (a.is_user_input_required === b.is_user_input_required ? 1 : -1))
+			const data = rewardsData.rewards
+				.sort((a, b) => (a.isUserInputRequired === b.isUserInputRequired ? 1 : -1))
 				.map(
 					(r) =>
 						({
 							value: r.id,
 							label: r.title,
 							description: '',
-							image: r.image?.url_4x || r.default_image?.url_4x,
+							image: r.image?.url4X || r.defaultImage?.url4X,
 							disabled: false,
 						} as RewardItemProps),
 				);
@@ -149,7 +148,33 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 
 		await updater.mutateAsync({
 			id: form.values.id,
-			data: form.values,
+			event: {
+				enabled: form.values.enabled,
+				type: form.values.type,
+				description: form.values.description ?? '',
+				commandId: form.values.commandId || undefined,
+				keywordId: form.values.keywordId || undefined,
+				rewardId: form.values.rewardId || undefined,
+				onlineOnly: form.values.onlineOnly,
+				id: form.values.id,
+				channelId: form.values.channelId,
+				operations: form.values.operations.map(o => ({
+					type: o.type,
+					input: o.input || undefined,
+					delay: BigInt(o.delay),
+					repeat: BigInt(o.repeat),
+					useAnnounce: o.useAnnounce,
+					timeoutTime: BigInt(o.timeoutTime),
+					timeoutMessage: o.timeoutMessage || undefined,
+					target: o.target || undefined,
+					enabled: o.enabled,
+					filters: o.filters.map(f => ({
+						type: f.type,
+						right: f.right,
+						left: f.left,
+					})), // TODO
+				})),
+			},
 		}).then(() => {
 			props.setOpened(false);
 			form.reset();
@@ -241,7 +266,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 									{form.values.type === EventType.COMMAND_USED && <Select
 										label={t('triggerCommand')}
 										searchable={true}
-										data={commandList.data?.map((c) => ({
+										data={commandList.data?.commands.map((c) => ({
 											value: c.id,
 											label: c.name,
 										})) ?? []}
@@ -264,9 +289,9 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 									{form.values.type === EventType.KEYWORD_MATCHED && <Select
 										label={t('triggerKeyword')}
 										searchable={true}
-										data={keywords?.map((c) => ({
-											value: c.id,
-											label: c.text,
+										data={keywords?.keywords.map((k) => ({
+											value: k.id,
+											label: k.text,
 										})) ?? []}
 										onChange={(newValue) => {
 											form.setFieldValue(`keywordId`, newValue);
@@ -455,8 +480,8 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 																	&& <Select
 																		label={'Variable'}
 																		searchable
-																		data={variables?.map(v => ({
-																			value: v.id,
+																		data={variables?.variables.map(v => ({
+																			value: v.id!,
 																			label: v.name,
 																		})) ?? []}
 																		{...form.getInputProps(`operations.${operationIndex}.target`)}
@@ -479,7 +504,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 																	<Select
 																		label={'Command'}
 																		searchable={true}
-																		data={commandList.data?.map((c) => ({
+																		data={commandList.data?.commands.map((c) => ({
 																			value: c.id,
 																			label: c.name,
 																		})) ?? []}
