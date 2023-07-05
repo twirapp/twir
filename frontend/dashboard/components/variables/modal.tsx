@@ -1,47 +1,30 @@
-import {
-  Alert,
-  Button,
-  Drawer,
-  Flex,
-  Grid,
-  Modal,
-  NumberInput,
-  ScrollArea,
-  Select,
-  Textarea,
-  TextInput,
-  useMantineTheme,
-} from '@mantine/core';
+import { Alert, Button, Grid, Modal, NumberInput, Select, Textarea, TextInput, useMantineTheme } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useViewportSize } from '@mantine/hooks';
 import Editor from '@monaco-editor/react';
-import { ChannelCustomvar, CustomVarType } from '@twir/typeorm/entities/ChannelCustomvar';
+import { type Variable, VariableType } from '@twir/grpc/generated/api/api/variables';
 import { useTranslation } from 'next-i18next';
 import { Fragment, useEffect, useRef } from 'react';
-
-import { noop } from '../../util/chore';
 
 import { useVariablesManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
-  variable?: ChannelCustomvar;
+  variable?: Variable;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const VariableModal: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
-  const form = useForm<ChannelCustomvar>({
+  const form = useForm<Variable>({
     initialValues: {
-      id: '',
       description: '',
       evalValue: '',
       name: '',
       response: '',
-      type: 'TEXT' as CustomVarType,
+      type: VariableType.TEXT,
+			channelId: '',
     },
   });
-  const viewPort = useViewportSize();
   const editorRef = useRef(null);
   const { t } = useTranslation('variables');
 
@@ -56,8 +39,9 @@ export const VariableModal: React.FC<Props> = (props) => {
     }
   }, [props.variable, props.opened]);
 
-  const { useCreateOrUpdate } = useVariablesManager();
-  const updater = useCreateOrUpdate();
+  const manager = useVariablesManager();
+  const updater = manager.update;
+	const creator = manager.create;
 
   async function onSubmit() {
     const validate = form.validate();
@@ -66,19 +50,24 @@ export const VariableModal: React.FC<Props> = (props) => {
       return;
     }
 
-    await updater
-      .mutateAsync({
-        id: form.values.id,
-        data: {
-          ...form.values,
-          response: form.values.response.toString(),
-        },
-      })
-      .then(() => {
-        props.setOpened(false);
-        form.reset();
-      })
-      .catch(noop);
+		const data = {
+			...form.values,
+			type: Number(form.values.type),
+		};
+
+		if (form.values.id) {
+			await updater.mutateAsync({
+				id: form.values.id,
+				variable: data,
+			});
+		} else {
+			await creator.mutateAsync({
+				variable: data,
+			});
+		}
+
+		props.setOpened(false);
+		form.reset();
   }
 
   return (
@@ -91,7 +80,7 @@ export const VariableModal: React.FC<Props> = (props) => {
         </Button>
       }
       padding="xl"
-      size={form.values.type === 'SCRIPT' ? '80%' : 'xl'}
+      size={form.values.type === VariableType.SCRIPT ? '80%' : 'xl'}
       overlayColor={theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2]}
       overlayOpacity={0.55}
       overlayBlur={3}
@@ -106,9 +95,9 @@ export const VariableModal: React.FC<Props> = (props) => {
             <Select
               label={t('type')}
               data={[
-                { value: 'SCRIPT', label: 'Script' },
-                { value: 'TEXT', label: 'Text' },
-                { value: 'NUMBER', label: 'Number' },
+                { value: VariableType.SCRIPT.toString(), label: 'Script' },
+                { value: VariableType.TEXT.toString(), label: 'Text' },
+                { value: VariableType.NUMBER.toString(), label: 'Number' },
               ]}
               {...form.getInputProps('type')}
               dropdownPosition={'bottom'}
@@ -116,7 +105,7 @@ export const VariableModal: React.FC<Props> = (props) => {
             />
           </Grid.Col>
           <Grid.Col span={12}>
-            {form.values.type === 'SCRIPT' && (
+            {form.values.type === VariableType.SCRIPT && (
               <Fragment>
                 <Alert mb={10}>{t('drawer.scriptAlert')}</Alert>
                 <Editor
@@ -132,10 +121,10 @@ export const VariableModal: React.FC<Props> = (props) => {
                 />
               </Fragment>
             )}
-            {form.values.type === 'TEXT' && (
+            {form.values.type === VariableType.TEXT && (
               <Textarea label={t('response')} autosize={true} {...form.getInputProps('response')} />
             )}
-            {form.values.type === 'NUMBER' && (
+            {form.values.type === VariableType.NUMBER && (
               <NumberInput label={t('response')} {...form.getInputProps('response')} />
             )}
           </Grid.Col>

@@ -1,6 +1,7 @@
 import { ActionIcon, Badge, Button, CopyButton, Flex, Table, Text, Tooltip } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import { IconCopy, IconPencil, IconTrash } from '@tabler/icons';
+import { VariableType } from '@twir/grpc/generated/api/api/variables';
 import { ChannelCustomvar } from '@twir/typeorm/entities/ChannelCustomvar';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -24,9 +25,9 @@ export default function () {
   const { t } = useTranslation('variables');
   const viewPort = useViewportSize();
 
-  const { useGetAll, useDelete } = useVariablesManager();
-  const { data: variables } = useGetAll();
-  const deleter = useDelete();
+  const manager = useVariablesManager();
+  const { data: variables } = manager.getAll({});
+  const deleter = manager.deleteOne;
 
   return (
     <div>
@@ -52,8 +53,7 @@ export default function () {
           </tr>
         </thead>
         <tbody>
-          {variables &&
-            variables.map((variable, idx) => (
+          {variables?.variables.map((variable, idx) => (
               <tr key={variable.id}>
                 <td>
                   <Badge>{variable.name}</Badge>
@@ -63,8 +63,8 @@ export default function () {
                 </td>
                 {viewPort.width > 550 && (
                   <td>
-                    {variable.type !== 'SCRIPT' && <Badge>{variable.response}</Badge>}
-                    {variable.type === 'SCRIPT' && (
+                    {variable.type !== VariableType.SCRIPT && <Badge>{variable.response}</Badge>}
+                    {variable.type === VariableType.SCRIPT && (
                       <Badge color="red">{t('table.scriptAlert')}</Badge>
                     )}
                   </td>
@@ -86,7 +86,7 @@ export default function () {
                     </CopyButton>
                     <ActionIcon
                       onClick={() => {
-                        setEditableVariable(variables[idx] as any);
+                        setEditableVariable(variables.variables[idx] as any);
                         setEditDrawerOpened(true);
                       }}
                       variant="filled"
@@ -98,7 +98,7 @@ export default function () {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => deleter.mutate(variable.id),
+                          onConfirm: () => deleter.mutate({ id: variable.id! }),
                         })
                       }
                       variant="filled"
