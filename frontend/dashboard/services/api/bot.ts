@@ -1,39 +1,29 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { V1 } from '@twir/types/api';
-import { useContext } from 'react';
+import { BotJoinPartRequest_Action } from '@twir/grpc/generated/api/api/bots';
 
-import { queryClient } from './queryClient';
+import { queryClient } from '@/services/api/queryClient';
+import { protectedApiClient } from '@/services/api/twirp.js';
 
-import { authFetcher } from '@/services/api/fetchWrappers';
-import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
+const queryKey = ['botInfo'];
 
-export const useBotApi = () => {
-  const dashboard = useContext(SelectedDashboardContext);
+export const useBotInfo = useQuery<ReturnType<typeof protectedApiClient.botInfo>['response']>({
+	queryKey,
+	queryFn: async () => {
+		const call = await protectedApiClient.botInfo({});
+		return call.response;
+	},
+	refetchInterval: 4000,
+});
 
-  const getUrl = () => `/api/v1/channels/${dashboard.id}/bot`;
-
-  return {
-    botInfo: () =>
-      useQuery<V1['CHANNELS']['BOT']['GET']>({
-        queryKey: [getUrl()],
-        queryFn: () => authFetcher(`${getUrl()}`),
-        refetchInterval: 4000,
-      }),
-    useChangeState: () =>
-      useMutation({
-        onSuccess: async () => {
-          await queryClient.invalidateQueries({ queryKey: [getUrl()] });
-        },
-        mutationKey: [getUrl()],
-        mutationFn: (action: 'part' | 'join') => {
-          return authFetcher(`${getUrl()}/connection`, {
-            method: 'PATCH',
-            body: JSON.stringify({ action }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-        },
-      }),
-  };
-};
+export const useBotJoinPart = useMutation({
+	onSuccess: async () => {
+		await queryClient.invalidateQueries({ queryKey });
+	},
+	mutationFn: async (action: 'part' | 'join') => {
+		return protectedApiClient.botJoinPart({
+			action: action === 'join'
+				? BotJoinPartRequest_Action.JOIN
+				: BotJoinPartRequest_Action.LEAVE,
+		});
+	},
+});

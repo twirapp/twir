@@ -211,6 +211,9 @@ importers:
       '@monaco-editor/react':
         specifier: ^4.4.6
         version: 4.4.6(monaco-editor@0.39.0)(react-dom@18.2.0)(react@18.2.0)
+      '@protobuf-ts/runtime-rpc':
+        specifier: ^2.9.0
+        version: 2.9.0
       '@protobuf-ts/twirp-transport':
         specifier: ^2.9.0
         version: 2.9.0
@@ -552,6 +555,10 @@ importers:
       '@grpc/grpc-js':
         specifier: ^1.8.3
         version: 1.8.13
+
+  libs/grpc/dist/cjs: {}
+
+  libs/grpc/dist/esm: {}
 
   libs/integrations/spotify:
     dependencies:

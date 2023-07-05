@@ -3,7 +3,7 @@ import { ChannelCustomvar } from '@twir/typeorm/entities/ChannelCustomvar';
 import { getCookie } from 'cookies-next';
 import { useContext } from 'react';
 
-import { authFetcher } from '@/services/api/fetchWrappers';
+import { authFetcher } from '@/services/api/twirp.js';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
 

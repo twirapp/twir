@@ -5,7 +5,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
-import { SortyByField, useCommunity } from '@/services/api';
+import { SortByField, useCommunity } from '@/services/api';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -44,12 +44,12 @@ const Community: NextPage = () => {
   const community = useCommunity();
   const statsResetter = community.useResetStats();
 
-  const [sortBy, setSortBy] = useState<SortyByField>('watched');
+  const [sortBy, setSortBy] = useState<SortByField>('watched');
   const [order, setOrder] = useState<'desc' | 'asc'>('desc');
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
   const users = community.useUsers(50, 1, sortBy, order);
 
-  const setSorting = (field: SortyByField) => {
+  const setSorting = (field: SortByField) => {
     const reversed = field === sortBy ? !reverseSortDirection : false;
     setReverseSortDirection(reversed);
     setSortBy(field);

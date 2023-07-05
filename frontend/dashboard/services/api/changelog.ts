@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { fetcher } from '@/services/api/fetchWrappers';
-
-export const useChangelog = () => useQuery<Commit[]>({
+export const useChangelog = useQuery<Commit[]>({
   queryKey: ['github/changelog'],
-  queryFn: () => fetcher('https://api.github.com/repos/satont/tsuwari/commits?per_page=100'),
+  queryFn: async () => {
+		const call = await fetch('https://api.github.com/repos/satont/tsuwari/commits?per_page=100');
+
+		return await call.json();
+	},
 });
 
 export type Commit = {

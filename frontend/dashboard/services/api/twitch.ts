@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { HelixUserData } from '@twurple/api';
 
-import { authFetcher } from '@/services/api/fetchWrappers';
+import { authFetcher } from '@/services/api/twirp.js';
 
 
 export const useTwitch = () => {
