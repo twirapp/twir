@@ -41,11 +41,11 @@ import { filtersMapping } from '@/components/events/filtersMapping';
 import { operationMapping } from '@/components/events/operationMapping';
 import { RewardItem, RewardItemProps } from '@/components/reward';
 import {
-	commandsManager,
-	eventsManager as useEventsManager,
-	keywordsManager as useKeywordsManager,
+	useCommandsManager,
+	useEventsManager as useEventsManager,
+	useKeywordsManager as useKeywordsManager,
 	useRewards,
-	variablesManager as useVariablesManager,
+	useVariablesManager as useVariablesManager,
 } from '@/services/api';
 import { useObsModule } from '@/services/api/modules';
 
@@ -99,7 +99,7 @@ export const EventsDrawer: React.FC<Props> = (props) => {
 	const cardClasses = useStyles();
 	const [rewards, setRewards] = useState<RewardItemProps[]>([]);
 
-	const commandManager = commandsManager();
+	const commandManager = useCommandsManager();
 	const commandList = commandManager.useGetAll();
 
 	const keywordsManager = useKeywordsManager();

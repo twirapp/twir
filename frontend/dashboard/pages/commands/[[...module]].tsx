@@ -29,7 +29,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { CommandsModal } from '@/components/commands/modal';
 import { ChannelCommandGroupDrawer } from '@/components/commandsGroup/drawer';
 import { confirmDelete } from '@/components/confirmDelete';
-import { commandsGroupManager, commandsManager } from '@/services/api';
+import { commandsGroupManager, useCommandsManager } from '@/services/api';
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
   props: {
@@ -48,7 +48,7 @@ const Commands: NextPage = () => {
   const viewPort = useViewportSize();
   const { t } = useTranslation('commands');
 
-  const { useGetAll, usePatch, useDelete } = commandsManager();
+  const { useGetAll, usePatch, useDelete } = useCommandsManager();
   const patcher = usePatch();
   const deleter = useDelete();
   const { data: commands } = useGetAll();

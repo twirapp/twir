@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { VariableModal } from '@/components/variables/modal';
-import { variablesManager } from '@/services/api';
+import { useVariablesManager } from '@/services/api';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -24,7 +24,7 @@ export default function () {
   const { t } = useTranslation('variables');
   const viewPort = useViewportSize();
 
-  const { useGetAll, useDelete } = variablesManager();
+  const { useGetAll, useDelete } = useVariablesManager();
   const { data: variables } = useGetAll();
   const deleter = useDelete();
 

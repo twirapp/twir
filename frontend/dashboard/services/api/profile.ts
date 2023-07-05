@@ -1,20 +1,22 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { AuthUser } from '@twir/shared';
 import { deleteCookie } from 'cookies-next';
 
-import { authFetch, authFetcher } from '@/services/api';
+import { protectedApiClient } from '@/services/api/twirp';
 
 export const useProfile = () =>
-  useQuery<AuthUser & { apiKey: string }>({
+  useQuery<ReturnType<typeof protectedApiClient.authUserProfile>['response']>({
     queryKey: [`/api/auth/profile`],
-    queryFn: () => authFetcher(`/api/auth/profile`),
+    queryFn: async () => {
+			const call = await protectedApiClient.authUserProfile({});
+			return call.response;
+		},
     retry: false,
   });
 
 export const useLogoutMutation = () =>
   useMutation({
-    mutationFn: () => {
-      return authFetch('/api/auth/logout', { method: 'POST' });
+    mutationFn: async () => {
+			await protectedApiClient.authLogout({});
     },
     onSuccess() {
       localStorage.removeItem('access_token');
@@ -23,16 +25,11 @@ export const useLogoutMutation = () =>
     },
   });
 
-export type Dashboard = {
-  id: string,
-  name: string,
-  displayName: string,
-  avatar: string,
-  flags: string[]
-}
-
-export const useDashboards = () => useQuery<Dashboard[]>({
+export const useDashboards = () => useQuery<ReturnType<typeof protectedApiClient.authGetDashboards>['response']>({
   queryKey: [`/api/auth/profile/dashboards`],
-  queryFn: () => authFetcher(`/api/auth/profile/dashboards`),
+  queryFn: async () => {
+		const call = await protectedApiClient.authGetDashboards({});
+		return call.response;
+	},
   retry: false,
 });

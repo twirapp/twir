@@ -11,6 +11,8 @@ import (
 	"github.com/satont/twir/apps/api-twirp/internal/impl_unprotected/twitch"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/bots"
+	integrationsGrpc "github.com/satont/twir/libs/grpc/generated/integrations"
+	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -31,8 +33,11 @@ type Opts struct {
 	DB             *gorm.DB
 	Config         *cfg.Config
 	SessionManager *scs.SessionManager
-	TokensGrpc     tokens.TokensClient
-	BotsGrpc       bots.BotsClient
+
+	IntegrationsGrpc integrationsGrpc.IntegrationsClient
+	TokensGrpc       tokens.TokensClient
+	BotsGrpc         bots.BotsClient
+	ParserGrpc       parser.ParserClient
 }
 
 func New(opts Opts) *UnProtected {
@@ -42,8 +47,10 @@ func New(opts Opts) *UnProtected {
 		Config:         opts.Config,
 		SessionManager: opts.SessionManager,
 		Grpc: &impl_deps.Grpc{
-			Tokens: opts.TokensGrpc,
-			Bots:   opts.BotsGrpc,
+			Tokens:       opts.TokensGrpc,
+			Bots:         opts.BotsGrpc,
+			Integrations: opts.IntegrationsGrpc,
+			Parser:       opts.ParserGrpc,
 		},
 	}
 

@@ -52,7 +52,7 @@ import { noop } from '../../util/chore';
 import { confirmDelete } from '../confirmDelete';
 
 import { CommandsList } from '@/components/commands/list';
-import { authFetch, commandsManager, useProfile } from '@/services/api';
+import { authFetch, useCommandsManager, useProfile } from '@/services/api';
 import { TTS, useTtsModule } from '@/services/api/modules';
 
 export const TTSOverlay: React.FC = () => {
@@ -102,7 +102,7 @@ export const TTSOverlay: React.FC = () => {
   const { data: usersSettings } = tts.useUsersSettings();
   const usersDeleter = tts.useUsersDelete();
 
-  const cmdsManager = commandsManager();
+  const cmdsManager = useCommandsManager();
   const { data: commands } = cmdsManager.useGetAll();
 
   const [activeTab, setActiveTab] = useState<string | null>('settings');

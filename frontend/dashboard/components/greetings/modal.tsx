@@ -1,7 +1,6 @@
 import {
   ActionIcon, Alert,
   Button,
-  Drawer,
   Flex, Grid,
   Menu, Modal, Paper,
   ScrollArea,
@@ -11,19 +10,19 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useViewportSize } from '@mantine/hooks';
 import { IconVariable } from '@tabler/icons';
-import { ChannelGreeting } from '@twir/typeorm/entities/ChannelGreeting';
+import type { Greeting } from '@twir/grpc/generated/api/api/greetings';
 import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 
 import { noop } from '../../util/chore';
 
-import { type Greeting, greetingsManager, useVariables } from '@/services/api';
+import { useAllVariables } from '@/services/api/allVariables.js';
+import { useGreetingsManager } from '@/services/api/index.js';
 
 type Props = {
   opened: boolean;
-  greeting?: ChannelGreeting & { userName: string };
+  greeting?: Greeting;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -36,18 +35,16 @@ export const GreetingModal: React.FC<Props> = (props) => {
       processed: false,
       isReply: true,
       userId: '',
-      userName: '',
       text: '',
       enabled: true,
     },
   });
-  const viewPort = useViewportSize();
+
   const { t } = useTranslation('greetings');
 
-  const { useCreateOrUpdate } = greetingsManager();
-  const updater = useCreateOrUpdate();
-
-  const variables = useVariables();
+  const greetingsManager = useGreetingsManager();
+  const updater = greetingsManager.update!;
+	const allVariables = useAllVariables();
 
   useEffect(() => {
     form.reset();
@@ -65,7 +62,10 @@ export const GreetingModal: React.FC<Props> = (props) => {
 
     await updater.mutateAsync({
       id: form.values.id,
-      data: form.values,
+      enabled: form.values.enabled,
+			userId: form.values.userId,
+			text: form.values.text,
+			isReply: form.values.isReply,
     }).then(() => {
       props.setOpened(false);
       form.reset();
@@ -110,7 +110,7 @@ export const GreetingModal: React.FC<Props> = (props) => {
 
                     <Menu.Dropdown>
                       <ScrollArea h={200} type={'always'} offsetScrollbars>
-                        {variables.data?.length && variables.data.map(v => (
+                        {allVariables.map(v => (
                           <Menu.Item key={v.name} onClick={() => {
                             const insertValue = `${v.example ? v.example : v.name}`;
                             form.setFieldValue(

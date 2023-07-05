@@ -6,6 +6,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/grpc/generated/integrations"
+	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"gorm.io/gorm"
 )
@@ -14,6 +15,7 @@ type Grpc struct {
 	Tokens       tokens.TokensClient
 	Integrations integrations.IntegrationsClient
 	Bots         bots.BotsClient
+	Parser       parser.ParserClient
 }
 
 type Deps struct {

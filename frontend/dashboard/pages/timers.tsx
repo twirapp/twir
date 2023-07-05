@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { TimerModal } from '@/components/timers/modal';
-import { timersManager } from '@/services/api';
+import { useTimersManager } from '@/services/api';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -24,7 +24,7 @@ export default function () {
   const viewPort = useViewportSize();
   const { t } = useTranslation('timers');
 
-  const { useGetAll, usePatch, useDelete } = timersManager();
+  const { useGetAll, usePatch, useDelete } = useTimersManager();
   const { data: timers } = useGetAll();
   const patcher = usePatch();
   const deleter = useDelete();

@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { BotJoinPartRequest_Action } from '@twir/grpc/generated/api/api/bots';
 
 import { queryClient } from '@/services/api/queryClient';
-import { protectedApiClient } from '@/services/api/twirp.js';
+import { protectedApiClient } from '@/services/api/twirp';
 
 const queryKey = ['botInfo'];
 

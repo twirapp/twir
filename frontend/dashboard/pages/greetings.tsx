@@ -1,14 +1,14 @@
 import { ActionIcon, Avatar, Badge, Button, Flex, Group, Switch, Table, Text, TextInput } from '@mantine/core';
-import { useDebouncedState, useViewportSize } from '@mantine/hooks';
+import { useViewportSize } from '@mantine/hooks';
 import { IconPencil, IconSearch, IconTrash } from '@tabler/icons';
+import type { Greeting } from '@twir/grpc/generated/api/api/greetings';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { GreetingModal } from '@/components/greetings/modal';
-import { type Greeting, greetingsManager } from '@/services/api';
-
+import { useGreetingsManager, useTwitchUsers } from '@/services/api';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -24,12 +24,13 @@ export default function () {
   const { t } = useTranslation('greetings');
   const viewPort = useViewportSize();
 
-  const { useGetAll, useDelete, usePatch } = greetingsManager();
-  const { data: greetings } = useGetAll();
-  const patcher = usePatch();
-  const deleter = useDelete();
+  const greetingsManager = useGreetingsManager();
 
-  const [searchInput, setSearchInput] = useDebouncedState('', 200);
+  const { data: greetings } = greetingsManager.getAll({});
+  const patcher = greetingsManager.patch!;
+  const deleter = greetingsManager.deleteOne!;
+
+	const twitchUsers = useTwitchUsers([], greetings?.greetings?.map(g => g.userId) ?? []);
 
   return (
     <div>
@@ -39,7 +40,6 @@ export default function () {
           <TextInput
             placeholder={'search...'}
             rightSection={<IconSearch size={18} />}
-            onChange={(event) => setSearchInput(event.target.value)}
           />
         </Group>
 
@@ -64,56 +64,56 @@ export default function () {
           </tr>
         </thead>
         <tbody>
-          {greetings &&
-            greetings
-              .filter((g) => g.userName.includes(searchInput))
-              .map((greeting, idx) => (
-              <tr key={greeting.id}>
-                <td>
-                  <Avatar src={greeting.avatar} style={{ borderRadius:111 }} />
-                </td>
-                <td>
-                  <Badge>{greeting.userName}</Badge>
-                </td>
-                {viewPort.width > 550 && <td>
-                    <Badge color="cyan">{greeting.text}</Badge>
-                </td>}
-                <td>
-                  <Switch
-                    checked={greeting.enabled}
-                    onChange={(event) => {
-                      patcher.mutate({ id: greeting.id, data: { enabled: event.currentTarget.checked } });
-                    }}
-                  />
-                </td>
-                <td>
-                <Flex direction="row" gap="xs">
-                    <ActionIcon
-                      onClick={() => {
-                        setEditableGreeting(greetings[idx] as any);
-                        setEditDrawerOpened(true);
-                      }}
-                      variant="filled"
-                      color="blue"
-                    >
-                      <IconPencil size={14} />
-                    </ActionIcon>
+          {greetings?.greetings
+              .map((greeting, idx) => {
+								const twitchUser = twitchUsers.data?.users.find(u => u.id === greeting.userId);
 
-                    <ActionIcon
-                      onClick={() =>
-                        confirmDelete({
-                          onConfirm: () => deleter.mutate(greeting.id),
-                        })
-                      }
-                      variant="filled"
-                      color="red"
-                    >
-                      <IconTrash size={14} />
-                    </ActionIcon>
-                  </Flex>
-                </td>
-              </tr>
-            ))}
+								return <tr key={greeting.id}>
+									<td>
+										<Avatar src={twitchUser?.profileImageUrl} style={{ borderRadius:111 }} />
+									</td>
+									<td>
+										<Badge>{twitchUser?.login}</Badge>
+									</td>
+									{viewPort.width > 550 && <td>
+										<Badge color="cyan">{greeting.text}</Badge>
+									</td>}
+									<td>
+										<Switch
+											checked={greeting.enabled}
+											onChange={(event) => {
+												patcher.mutate({ id: greeting.id, enabled: event.currentTarget.checked });
+											}}
+										/>
+									</td>
+									<td>
+										<Flex direction="row" gap="xs">
+											<ActionIcon
+												onClick={() => {
+													setEditableGreeting(greetings!.greetings[idx] as any);
+													setEditDrawerOpened(true);
+												}}
+												variant="filled"
+												color="blue"
+											>
+												<IconPencil size={14} />
+											</ActionIcon>
+
+											<ActionIcon
+												onClick={() =>
+													confirmDelete({
+														onConfirm: () => deleter.mutate({ id: greeting.id }),
+													})
+												}
+												variant="filled"
+												color="red"
+											>
+												<IconTrash size={14} />
+											</ActionIcon>
+										</Flex>
+									</td>
+								</tr>;
+							})}
         </tbody>
       </Table>
 

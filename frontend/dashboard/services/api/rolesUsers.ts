@@ -1,13 +1,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ChannelRoleUser } from '@twir/typeorm/entities/ChannelRoleUser';
 import { useContext } from 'react';
 
-import { authFetcher } from '@/services/api/twirp.js';
 import { queryClient } from '@/services/api/queryClient';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
-
-
-export type RolesUser = ChannelRoleUser & { userName: string, userAvatar: string, userDisplayName: string };
 
 export const useRolesUsers = () => {
   const dashboard = useContext(SelectedDashboardContext);

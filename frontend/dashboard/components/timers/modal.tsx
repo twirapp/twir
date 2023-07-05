@@ -28,7 +28,7 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 import { noop } from '../../util/chore';
 
-import { timersManager } from '@/services/api';
+import { useTimersManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -58,7 +58,7 @@ export const TimerModal: React.FC<Props> = (props) => {
   const viewPort = useViewportSize();
   const { t } = useTranslation('timers');
 
-  const { useCreateOrUpdate } = timersManager();
+  const { useCreateOrUpdate } = useTimersManager();
   const updater = useCreateOrUpdate();
 
   useEffect(() => {

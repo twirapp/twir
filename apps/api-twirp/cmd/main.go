@@ -13,6 +13,7 @@ import (
 	"github.com/satont/twir/libs/grpc/clients"
 	"github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/grpc/generated/integrations"
+	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
@@ -51,6 +52,9 @@ func main() {
 			},
 			func(c *cfg.Config) integrations.IntegrationsClient {
 				return clients.NewIntegrations(c.AppEnv)
+			},
+			func(c *cfg.Config) parser.ParserClient {
+				return clients.NewParser(c.AppEnv)
 			},
 			func(config *cfg.Config, lc fx.Lifecycle) *redis.Client {
 				redisOpts, err := redis.ParseURL(config.RedisUrl)

@@ -44,7 +44,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { noop } from '../../util/chore';
 
-import { commandsGroupManager, commandsManager, useVariables, useRolesApi } from '@/services/api';
+import { commandsGroupManager, useCommandsManager, useVariables, useRolesApi } from '@/services/api';
 
 type Props = {
 	opened: boolean;
@@ -116,7 +116,7 @@ export const CommandsModal: React.FC<Props> = (props) => {
 
 	const { t } = useTranslation('commands');
 	const viewPort = useViewportSize();
-	const { useCreateOrUpdate } = commandsManager();
+	const { useCreateOrUpdate } = useCommandsManager();
 	const updater = useCreateOrUpdate();
 
 	const variables = useVariables();

@@ -32,6 +32,7 @@ import "api/modules_sr.proto";
 
 import "api/rewards.proto";
 
+import "api/built_in_variables.proto";
 
 service Protected {
 	rpc AuthUserProfile(google.protobuf.Empty) returns (api.auth.Profile) {}
@@ -143,6 +144,8 @@ service Protected {
 	rpc VariablesCreate(api.variables.CreateRequest) returns (api.variables.Variable) {}
 	rpc VariablesDelete(api.variables.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc VariablesUpdate(api.variables.PutRequest) returns (api.variables.Variable) {}
+
+	rpc BuiltInVariablesGetAll(google.protobuf.Empty) returns (api.built_in_variables.GetAllResponse) {}
 
 	rpc CommandsGroupGetAll(google.protobuf.Empty) returns (api.commands_group.GetAllResponse) {}
 	rpc CommandsGroupCreate(api.commands_group.CreateRequest) returns (api.commands_group.Group) {}

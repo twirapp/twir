@@ -18,7 +18,7 @@ import { useState } from 'react';
 
 import { confirmDelete } from '@/components/confirmDelete';
 import { KeywordModal } from '@/components/keywords/drawer';
-import { keywordsManager } from '@/services/api';
+import { useKeywordsManager } from '@/services/api';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -34,7 +34,7 @@ export default function () {
   const { t } = useTranslation('keywords');
   const viewPort = useViewportSize();
 
-  const { useGetAll, usePatch, useCreateOrUpdate, useDelete } = keywordsManager();
+  const { useGetAll, usePatch, useCreateOrUpdate, useDelete } = useKeywordsManager();
   const { data: keywords } = useGetAll();
   const patcher = usePatch();
   const deleter = useDelete();

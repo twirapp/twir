@@ -21,7 +21,7 @@ import { Fragment, useEffect, useRef } from 'react';
 
 import { noop } from '../../util/chore';
 
-import { variablesManager } from '@/services/api';
+import { useVariablesManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -56,7 +56,7 @@ export const VariableModal: React.FC<Props> = (props) => {
     }
   }, [props.variable, props.opened]);
 
-  const { useCreateOrUpdate } = variablesManager();
+  const { useCreateOrUpdate } = useVariablesManager();
   const updater = useCreateOrUpdate();
 
   async function onSubmit() {

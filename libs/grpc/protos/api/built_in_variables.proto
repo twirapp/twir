@@ -1,0 +1,14 @@
+syntax = "proto3";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/built_in_variables";
+package api.built_in_variables;
+
+message Variable {
+	string name = 1;
+	string example = 2;
+	string description = 3;
+	bool visible = 4;
+}
+
+message GetAllResponse {
+	repeated Variable variables = 1;
+}

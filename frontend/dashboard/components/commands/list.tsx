@@ -7,7 +7,7 @@ import { FC, Fragment, useState } from 'react';
 
 import { CommandsModal } from '@/components/commands/modal';
 import { confirmDelete } from '@/components/confirmDelete';
-import { commandsManager } from '@/services/api';
+import { useCommandsManager } from '@/services/api';
 
 type Props = {
   commands: ChannelCommand[]
@@ -20,7 +20,7 @@ export const CommandsList: FC<Props> = (props) => {
   const { t } = useTranslation('commands');
   const viewPort = useViewportSize();
 
-  const { usePatch, useDelete } = commandsManager();
+  const { usePatch, useDelete } = useCommandsManager();
   const patcher = usePatch();
   const deleter = useDelete();
 

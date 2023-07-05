@@ -24,7 +24,7 @@ import { useEffect } from 'react';
 
 import { noop } from '../../util/chore';
 
-import { keywordsManager } from '@/services/api';
+import { useKeywordsManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
@@ -61,7 +61,7 @@ export const KeywordModal: React.FC<Props> = (props) => {
     }
   }, [props.keyword, props.opened]);
 
-  const { useCreateOrUpdate } = keywordsManager();
+  const { useCreateOrUpdate } = useKeywordsManager();
   const updater = useCreateOrUpdate();
 
   async function onSubmit() {

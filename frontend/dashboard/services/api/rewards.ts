@@ -1,18 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { type HelixCustomRewardData } from '@twurple/api/lib/interfaces/helix/channelPoints.external';
-import { getCookie } from 'cookies-next';
-import { useContext } from 'react';
 
-import { authFetcher } from '@/services/api/twirp.js';
-import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
+import { protectedApiClient } from '@/services/api/twirp';
 
-
-export const useRewards = () => {
-  const dashboard = useContext(SelectedDashboardContext);
-  const getUrl = () => `/api/v1/channels/${dashboard.id}/rewards`;
-
-  return () => useQuery<HelixCustomRewardData[]>({
-    queryKey: [getUrl()],
-    queryFn: () => authFetcher(getUrl()),
-  });
-};
+export const useRewards = () => useQuery<ReturnType<typeof protectedApiClient.rewardsGet>['response']>({
+	queryKey: ['rewards'],
+	queryFn: async () => {
+		const call = await protectedApiClient.rewardsGet({});
+		return call.response;
+	},
+});

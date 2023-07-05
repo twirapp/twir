@@ -1,5 +1,6 @@
 import type { RpcOptions, UnaryCall } from '@protobuf-ts/runtime-rpc';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { UnwrapPromise } from 'next/dist/lib/coalesced-function';
 
 import { protectedApiClient, queryClient } from '@/services/api';
 
@@ -25,20 +26,22 @@ const createCrudManager = <
 	queryKey: string,
 }) => {
 	return {
-		getAll: (req: Parameters<typeof opts.getAll>[0]) => useQuery<ReturnType<typeof opts.getAll>['response']>({
+		getAll: (req: Parameters<typeof opts.getAll>[0]) => useQuery<UnwrapPromise<ReturnType<typeof opts.getAll>['response']>>({
 			queryKey: [opts.queryKey],
 			queryFn: async () => {
 				const call = await opts.getAll(req);
 				return call.response;
 			},
 		}),
-		getOne: opts.getOne ? (req: Parameters<typeof opts.getOne>[0]) => useQuery<ReturnType<typeof opts.getOne>['response']>({
-			queryKey: [opts.queryKey],
-			queryFn: async () => {
-				const call = await opts.getOne!(req);
-				return call.response;
-			},
-		}) : null,
+		getOne: opts.getOne
+			? (req: Parameters<typeof opts.getOne>[0]) => useQuery<UnwrapPromise<ReturnType<typeof opts.getOne>['response']>>({
+				queryKey: [opts.queryKey],
+				queryFn: async () => {
+					const call = await opts.getOne!(req);
+					return call.response;
+				},
+			})
+			: null,
 		deleteOne: useMutation({
 			mutationFn: async (req: Parameters<typeof opts.deleteOne>[0]) => {
 				await opts.deleteOne(req);
@@ -74,7 +77,7 @@ const createCrudManager = <
 	};
 };
 
-export const commandsManager = () => createCrudManager({
+export const useCommandsManager = () => createCrudManager({
 	queryKey: 'commands',
 	getAll: protectedApiClient.commandsGetAll,
 	update: protectedApiClient.commandsUpdate,
@@ -84,7 +87,7 @@ export const commandsManager = () => createCrudManager({
 	getOne: protectedApiClient.commandsGetById,
 });
 
-export const greetingsManager = () => createCrudManager({
+export const useGreetingsManager = () => createCrudManager({
 	queryKey: 'greetings',
 	getAll: protectedApiClient.greetingsGetAll,
 	update: protectedApiClient.greetingsUpdate,
@@ -94,7 +97,7 @@ export const greetingsManager = () => createCrudManager({
 	getOne: protectedApiClient.greetingsGetById,
 });
 
-export const keywordsManager = () => createCrudManager({
+export const useKeywordsManager = () => createCrudManager({
 	queryKey: 'keywords',
 	getAll: protectedApiClient.keywordsGetAll,
 	update: protectedApiClient.keywordsUpdate,
@@ -104,9 +107,9 @@ export const keywordsManager = () => createCrudManager({
 	getOne: protectedApiClient.keywordsGetById,
 });
 
-export const timersManager = () => createCrudManager({
+export const useTimersManager = () => createCrudManager({
 	queryKey: 'timers',
-	getAll: protectedApiClient.timersGet,
+	getAll: protectedApiClient.timersGetAll,
 	update: protectedApiClient.timersUpdate,
 	create: protectedApiClient.timersCreate,
 	patch: protectedApiClient.timersEnableOrDisable,
@@ -114,17 +117,17 @@ export const timersManager = () => createCrudManager({
 	getOne: null,
 });
 
-export const variablesManager = () => createCrudManager({
+export const useVariablesManager = () => createCrudManager({
 	queryKey: 'variables',
 	getAll: protectedApiClient.variablesGetAll,
 	update: protectedApiClient.variablesUpdate,
 	create: protectedApiClient.variablesCreate,
-	patch: protectedApiClient.variablesEnableOrDisable,
+	patch: null,
 	deleteOne: protectedApiClient.variablesDelete,
 	getOne: protectedApiClient.variablesGetById,
 });
 
-export const eventsManager = () => createCrudManager({
+export const useEventsManager = () => createCrudManager({
 	queryKey: 'events',
 	getAll: protectedApiClient.eventsGetAll,
 	update: protectedApiClient.eventsUpdate,
@@ -134,17 +137,17 @@ export const eventsManager = () => createCrudManager({
 	getOne: protectedApiClient.eventsGetById,
 });
 
-export const commandsGroupsManager = () => createCrudManager({
+export const useCommandsGroupsManager = () => createCrudManager({
 	queryKey: 'commands/groups',
-	getAll: protectedApiClient.commandsGroupsGetAll,
-	update: protectedApiClient.commandsGroupsUpdate,
-	create: protectedApiClient.commandsGroupsCreate,
+	getAll: protectedApiClient.commandsGroupGetAll,
+	update: protectedApiClient.commandsGroupUpdate,
+	create: protectedApiClient.commandsGroupCreate,
 	patch: null,
-	deleteOne: protectedApiClient.commandsGroupsDelete,
+	deleteOne: protectedApiClient.commandsGroupDelete,
 	getOne: null,
 });
 
-export const rolesManager = () => createCrudManager({
+export const useRolesManager = () => createCrudManager({
 	queryKey: 'roles',
 	getAll: protectedApiClient.rolesGetAll,
 	update: protectedApiClient.rolesUpdate,
