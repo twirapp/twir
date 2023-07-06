@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"github.com/samber/lo"
-	model "github.com/satont/tsuwari/libs/gomodels"
+	model "github.com/satont/twir/libs/gomodels"
 	"gorm.io/gorm"
 	"time"
 
-	"github.com/satont/tsuwari/apps/giveaways/internal/types/services"
-	"github.com/satont/tsuwari/libs/grpc/generated/giveaways"
+	"github.com/satont/twir/apps/giveaways/internal/types/services"
+	"github.com/satont/twir/libs/grpc/generated/giveaways"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

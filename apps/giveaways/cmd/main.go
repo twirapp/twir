@@ -3,18 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/satont/tsuwari/apps/giveaways/grpc_impl"
 	"log"
 	"net"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
+	"github.com/satont/twir/apps/giveaways/grpc_impl"
+
 	"github.com/go-redis/redis"
-	config "github.com/satont/tsuwari/libs/config"
-	"github.com/satont/tsuwari/libs/grpc/generated/giveaways"
-	"github.com/satont/tsuwari/libs/grpc/servers"
+	config "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/giveaways"
+	"github.com/satont/twir/libs/grpc/servers"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -25,7 +23,7 @@ import (
 )
 
 func main() {
-	_, appCtxCancel := context.WithCancel(context.Background())
+	// ctx, _ := context.WithCancel(context.Background())
 
 	z, _ := zap.NewDevelopment()
 	logger := z.Sugar()
@@ -85,14 +83,14 @@ func main() {
 		),
 	)
 
-	app.Run()
 	logger.Info("Giveaways microservice started")
+	app.Run()
 
-	exitSignal := make(chan os.Signal, 1)
-	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
+	// exitSignal := make(chan os.Signal, 1)
+	// signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 
-	<-exitSignal
-	logger.Info("Exiting")
-	appCtxCancel()
+	// <-exitSignal
+	// logger.Info("Exiting")
+	// appCtxCancel()
 
 }

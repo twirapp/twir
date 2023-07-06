@@ -12,9 +12,9 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
-	"github.com/satont/tsuwari/libs/grpc/generated/giveaways"
 	"github.com/satont/twir/apps/api/internal/api/webhooks"
 	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/giveaways"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 
 	"github.com/samber/do"

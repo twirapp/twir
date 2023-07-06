@@ -1,4 +1,4 @@
-module github.com/satont/tsuwari/apps/giveaways
+module github.com/satont/twir/apps/giveaways
 
 go 1.20
 

@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/satont/tsuwari/apps/giveaways/internal/types/services"
-	model "github.com/satont/tsuwari/libs/gomodels"
-	"github.com/satont/tsuwari/libs/grpc/generated/giveaways"
+	"github.com/satont/twir/apps/giveaways/internal/types/services"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/giveaways"
 )
 
 func handleKeywordGiveawayMessage(
@@ -65,7 +65,9 @@ func handleKeywordGiveawayMessage(
 	participant.UserID = user.ID
 	participant.IsSubscriber = isSub
 	participant.SubscriberTier = 1
-	participant.UserFollowSince
+	// participant.UserFollowSince
+
+	return nil
 }
 
 func handleRundomNumberGiveawayMessage(
@@ -73,5 +75,5 @@ func handleRundomNumberGiveawayMessage(
 	data *giveaways.HandleChatMessageRequest,
 	giveaway *model.ChannelGiveaway,
 ) error {
-
+	return nil
 }
