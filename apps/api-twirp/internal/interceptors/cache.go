@@ -15,7 +15,7 @@ type CacheOpts struct {
 	CacheDuration     time.Duration
 	ClearMethods      []string
 	WithChannelHeader bool
-	NewCastTo         func() any
+	CastTo            func() any
 }
 
 func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
@@ -59,7 +59,7 @@ func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
 
 			cached, _ := s.redis.Get(ctx, cacheKey).Bytes()
 			if cached != nil {
-				castedData := option.NewCastTo()
+				castedData := option.CastTo()
 				unmarshalErr := json.Unmarshal(cached, castedData)
 				if unmarshalErr != nil {
 					zap.S().Error(unmarshalErr)

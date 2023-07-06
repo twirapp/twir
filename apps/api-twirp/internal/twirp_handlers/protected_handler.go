@@ -31,7 +31,7 @@ func NewProtected(opts Opts) IHandler {
 				CacheDuration:     10 * time.Second,
 				ClearMethods:      []string{"BotJoinPart"},
 				WithChannelHeader: true,
-				NewCastTo: func() any {
+				CastTo: func() any {
 					return &bots.BotInfo{}
 				},
 			},
