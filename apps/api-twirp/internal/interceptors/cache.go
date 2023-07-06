@@ -3,10 +3,11 @@ package interceptors
 import (
 	"context"
 	"fmt"
+	"time"
+
 	json "github.com/bytedance/sonic"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/zap"
-	"time"
 )
 
 type CacheOpts struct {
@@ -18,6 +19,14 @@ type CacheOpts struct {
 }
 
 func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
+	interceptors := make(map[string]CacheOpts)
+	for _, option := range options {
+		interceptors[option.CacheMethod] = option
+		for _, clearMethod := range option.ClearMethods {
+			interceptors[clearMethod] = option
+		}
+	}
+
 	return func(next twirp.Method) twirp.Method {
 		return func(ctx context.Context, req interface{}) (interface{}, error) {
 			method, ok := twirp.MethodName(ctx)
@@ -25,22 +34,8 @@ func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
 				return nil, twirp.InternalError("failed to get method name")
 			}
 
-			var option *CacheOpts
-			for _, opt := range options {
-				if opt.CacheMethod == method {
-					option = &opt
-					break
-				}
-
-				for _, clearMethod := range opt.ClearMethods {
-					if clearMethod == method {
-						option = &opt
-						break
-					}
-				}
-			}
-
-			if option == nil {
+			option, ok := interceptors[method]
+			if !ok {
 				return next(ctx, req)
 			}
 
@@ -53,11 +48,8 @@ func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
 			// delete cache if returns with no error
 			for _, clearMethod := range option.ClearMethods {
 				if clearMethod == method {
-					res, err := next(ctx, req)
-					if err == nil {
-						s.redis.Del(ctx, cacheKey)
-					}
-					return res, err
+					s.redis.Del(ctx, cacheKey)
+					return next(ctx, req)
 				}
 			}
 

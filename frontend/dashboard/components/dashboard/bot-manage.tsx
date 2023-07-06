@@ -2,14 +2,13 @@ import { Alert, Button, Card, Group, Skeleton, Text } from '@mantine/core';
 import { IconAlertCircle, IconCheck, IconLogin, IconLogout } from '@tabler/icons';
 import { useTranslation } from 'next-i18next';
 
-import { useBotApi } from '@/services/api/bot';
+import { useBotInfo, useBotJoinPart } from '@/services/api';
 import { useCardStyles } from '@/styles/card';
 
 export const BotManage = () => {
   const { t } = useTranslation('dashboard');
-  const botApi = useBotApi();
-  const { data: botInfo } = botApi.botInfo();
-  const manager = botApi.useChangeState();
+  const { data: botInfo } = useBotInfo();
+  const manager = useBotJoinPart();
   const { classes } = useCardStyles();
 
   return (

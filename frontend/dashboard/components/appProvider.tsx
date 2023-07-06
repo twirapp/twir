@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 
 import { NavBar } from '@/components/layout/navbar';
 import { SideBar } from '@/components/layout/sidebar';
-import { FetcherError, useDashboards, useProfile } from '@/services/api';
+import { useDashboards, useProfile } from '@/services/api';
 import { useObsModule } from '@/services/api/modules';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
 
@@ -12,32 +12,25 @@ type Props = React.PropsWithChildren<{
 }>;
 
 export const AppProvider: React.FC<Props> = (props) => {
-  const obsModule = useObsModule();
-  const { data: obsSettings } = obsModule.useSettings();
-
-  const dashboardContext = useContext(SelectedDashboardContext);
+	const dashboardContext = useContext(SelectedDashboardContext);
   const { error: profileError, data: profileData } = useProfile();
   const { data: dashboards } = useDashboards();
 
   useEffect(() => {
-    if (!profileData || !dashboards) return;
-    if (!dashboardContext.id) {
-      dashboardContext.setId(profileData.id);
-    } else {
-      const selectedDashboard = dashboards.find((d) => d.id === dashboardContext.id);
-      if (!selectedDashboard) {
-        dashboardContext.setId(profileData.id);
-      }
-    }
+    // if (!profileData || !dashboards) return;
+    // if (!dashboardContext.id) {
+    //   dashboardContext.setId(profileData.id);
+    // } else {
+    //   const selectedDashboard = dashboards.find((d) => d.id === dashboardContext.id);
+    //   if (!selectedDashboard) {
+    //     dashboardContext.setId(profileData.id);
+    //   }
+    // }
   }, [profileData, dashboards]);
 
   useEffect(() => {
     if (profileError) {
-      if (profileError instanceof FetcherError && profileError.status === 403) {
-        window.location.replace(`/api/auth?state=${window.btoa(window.location.origin)}`);
-      } else {
-        window.location.replace(`${window.location.origin}`);
-      }
+			window.location.replace(`/`);
     }
   }, [profileError]);
 

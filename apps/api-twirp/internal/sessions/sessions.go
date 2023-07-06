@@ -2,12 +2,13 @@ package sessions
 
 import (
 	"encoding/gob"
+	"time"
+
 	"github.com/alexedwards/scs/goredisstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
 	model "github.com/satont/twir/libs/gomodels"
-	"time"
 )
 
 func New(redisClient *redis.Client) *scs.SessionManager {

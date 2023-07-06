@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
@@ -13,7 +15,6 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"time"
 )
 
 type Auth struct {
@@ -139,7 +140,7 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 		}
 	}
 
-	c.SessionManager.Put(ctx, "dbUser", dbUser)
+	c.SessionManager.Put(ctx, "dbUser", &dbUser)
 	c.SessionManager.Put(ctx, "twitchUser", &twitchUser)
 	c.SessionManager.Put(ctx, "dashboardId", dbUser.ID)
 

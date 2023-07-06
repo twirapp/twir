@@ -1,12 +1,13 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { BotJoinPartRequest_Action } from '@twir/grpc/generated/api/api/bots';
+import { UnwrapPromise } from 'next/dist/lib/coalesced-function';
 
 import { queryClient } from '@/services/api/queryClient';
 import { protectedApiClient } from '@/services/api/twirp';
 
 const queryKey = ['botInfo'];
 
-export const useBotInfo = useQuery<ReturnType<typeof protectedApiClient.botInfo>['response']>({
+export const useBotInfo = () => useQuery<UnwrapPromise<ReturnType<typeof protectedApiClient.botInfo>['response']>>({
 	queryKey,
 	queryFn: async () => {
 		const call = await protectedApiClient.botInfo({});
@@ -15,7 +16,7 @@ export const useBotInfo = useQuery<ReturnType<typeof protectedApiClient.botInfo>
 	refetchInterval: 4000,
 });
 
-export const useBotJoinPart = useMutation({
+export const useBotJoinPart = () => useMutation({
 	onSuccess: async () => {
 		await queryClient.invalidateQueries({ queryKey });
 	},

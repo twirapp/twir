@@ -38,15 +38,15 @@ import {
   IconUsers,
   TablerIcon,
 } from '@tabler/icons';
+import { Dashboard } from '@twir/grpc/generated/api/api/auth';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useCallback, useContext, useEffect, useState } from 'react';
 
-import { resolveUserName } from '../../util/resolveUserName';
-
-import { Dashboard, useDashboards, useProfile } from '@/services/api';
+import { useDashboards, useProfile } from '@/services/api';
 import { useLocale } from '@/services/dashboard';
 import { SelectedDashboardContext } from '@/services/selectedDashboardProvider';
+
 
 type Page = {
   label: string;
@@ -129,7 +129,7 @@ export function SideBar(props: Props) {
 
   useEffect(() => {
     if (!user || !dashboards || !dashboardContext.id) return;
-    const dashboard = dashboards.find((d) => d.id === dashboardContext.id);
+    const dashboard = dashboards.dashboards.find((d) => d.id === dashboardContext.id);
     setSelectedDashboard(dashboard);
   }, [user, dashboards, dashboardContext.id]);
 
@@ -139,14 +139,14 @@ export function SideBar(props: Props) {
     if (user && dashboardContext.id) {
       spotlight.removeActions(spotlight.actions.map((a) => a.id!));
 
-      const actions = dashboards.map((d) => ({
-        title: resolveUserName(d.name, d.displayName),
+      const actions = dashboards.dashboards.map((d) => ({
+        title: d.id,
         description: d.id,
         onTrigger: () => {
-          setSelectedDashboard(dashboards.find((dash) => dash.id === d.id));
+          setSelectedDashboard(dashboards.dashboards.find((dash) => dash.id === d.id));
           dashboardContext.setId(d.id);
         },
-        icon: <Avatar radius="xs" src={d.avatar} />,
+        icon: <Avatar radius="xs" src={d.id} />,
         id: d.id,
       }));
 
@@ -238,14 +238,14 @@ export function SideBar(props: Props) {
               onClick={openSpotlight}
             >
               <Group>
-                <Avatar src={selectedDashboard?.avatar} radius="xl" />
+                <Avatar src={''} radius="xl" />
                 <Box sx={{ flex: 1 }}>
                   <Text size="xs" weight={500}>
                     {t('sidebar.manage')}
                   </Text>
                   <Text color="dimmed" size="xs">
                     {selectedDashboard
-                      ? resolveUserName(selectedDashboard.name, selectedDashboard.displayName)
+                      ? 'here dashboard twitch user name'
                       : ''}
                   </Text>
                 </Box>
@@ -261,9 +261,10 @@ export function SideBar(props: Props) {
             variant={'light'}
             component="a"
             href={
-              'window' in globalThis && selectedDashboard?.name
-                ? `${window.location.origin}/p/${selectedDashboard?.name}/commands`
-                : ''
+              // 'window' in globalThis && selectedDashboard?.name
+              //   ? `${window.location.origin}/p/${selectedDashboard?.name}/commands`
+              //   : ''
+							''
             }
             target={'_blank'}
             leftIcon={<IconExternalLink size={14} />}

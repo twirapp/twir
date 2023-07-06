@@ -1,4 +1,4 @@
-import { Button, Group, Text, Modal, Flex } from '@mantine/core';
+import { Text, Modal, Flex } from '@mantine/core';
 import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 

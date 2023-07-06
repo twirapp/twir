@@ -2,6 +2,7 @@ package interceptors
 
 import (
 	"context"
+
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/zap"

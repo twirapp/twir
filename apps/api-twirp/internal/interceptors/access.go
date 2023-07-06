@@ -2,14 +2,19 @@ package interceptors
 
 import (
 	"context"
+
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twitchtv/twirp"
-	"net/http"
 )
 
 func (s *Service) ChannelAccessInterceptor(next twirp.Method) twirp.Method {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		method, _ := twirp.MethodName(ctx)
+		if method == "AuthUserProfile" || method == "AuthGetDashboards" {
+			return next(ctx, req)
+		}
+
 		user := ctx.Value("dbUser").(model.Users)
 		if user.ID == "" {
 			return nil, twirp.Internal.Error("internal error")
@@ -38,6 +43,6 @@ func (s *Service) ChannelAccessInterceptor(next twirp.Method) twirp.Method {
 			return next(ctx, req)
 		}
 
-		return nil, twirp.NewError(twirp.ErrorCode(http.StatusForbidden), "not authorized to that dashboard")
+		return nil, twirp.NewError(twirp.ErrorCode(twirp.PermissionDenied), "not authorized to that dashboard")
 	}
 }

@@ -1,6 +1,8 @@
 package twirp_handlers
 
 import (
+	"time"
+
 	"github.com/satont/twir/apps/api-twirp/internal/interceptors"
 	"github.com/satont/twir/apps/api-twirp/internal/wrappers"
 	"github.com/satont/twir/libs/grpc/generated/api"
@@ -11,7 +13,6 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/fx"
-	"time"
 )
 
 type Grpc struct {

@@ -14,7 +14,7 @@ export const useCommunityUsers = (
 	page = 1,
 	sortBy: SortByField,
 	order: 'asc' | 'desc' = 'desc',
-) => useQuery<ReturnType<typeof protectedApiClient.communityGetUsers>['response']>({
+) => () => useQuery<ReturnType<typeof protectedApiClient.communityGetUsers>['response']>({
 	queryKey: ['communityUsers'],
 	queryFn: async () => {
 		let sort: GetUsersRequest_SortBy;
@@ -48,7 +48,7 @@ export const useCommunityUsers = (
 	refetchInterval: 1000,
 });
 
-export const useCommunityReset = useMutation({
+export const useCommunityReset = () => useMutation({
 	mutationFn: async (field: SortByField) => {
 		let resetField: ResetStatsRequest_Field;
 		switch (field) {

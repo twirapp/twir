@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { deleteCookie } from 'cookies-next';
+import { UnwrapPromise } from 'next/dist/lib/coalesced-function';
 
 import { protectedApiClient } from '@/services/api/twirp';
 
@@ -25,7 +26,9 @@ export const useLogoutMutation = () =>
     },
   });
 
-export const useDashboards = () => useQuery<ReturnType<typeof protectedApiClient.authGetDashboards>['response']>({
+type DashboardsResponse = UnwrapPromise<ReturnType<typeof protectedApiClient.authGetDashboards>['response']>
+
+export const useDashboards = () => useQuery<DashboardsResponse>({
   queryKey: [`/api/auth/profile/dashboards`],
   queryFn: async () => {
 		const call = await protectedApiClient.authGetDashboards({});

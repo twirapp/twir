@@ -1,8 +1,9 @@
 package wrappers
 
 import (
-	"github.com/rs/cors"
 	"net/http"
+
+	"github.com/rs/cors"
 )
 
 func WithCors(base http.Handler) http.Handler {

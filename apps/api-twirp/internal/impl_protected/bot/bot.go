@@ -2,6 +2,9 @@ package bot
 
 import (
 	"context"
+	"net/http"
+	"sync"
+
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
@@ -12,8 +15,6 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"net/http"
-	"sync"
 )
 
 type Bot struct {
@@ -42,7 +43,9 @@ func (c *Bot) BotInfo(ctx context.Context, _ *meta.BaseRequestMeta) (*bots.BotIn
 	}
 
 	var wg sync.WaitGroup
-	result := &bots.BotInfo{}
+	result := &bots.BotInfo{
+		Enabled: dbUser.Channel.IsEnabled,
+	}
 	wg.Add(2)
 
 	go func() {
@@ -89,11 +92,11 @@ func (c *Bot) BotInfo(ctx context.Context, _ *meta.BaseRequestMeta) (*bots.BotIn
 func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest) (*emptypb.Empty, error) {
 	dashboardId, ok := ctx.Value("dashboardId").(string)
 	if !ok || dashboardId == "" {
-		return nil, twirp.NewError(twirp.ErrorCode(http.StatusBadRequest), "no dashboardId provided")
+		return nil, twirp.NewError(twirp.ErrorCode(twirp.Internal), "no dashboardId provided")
 	}
 
 	dbChannel := &model.Channels{}
-	err := c.Db.Preload("Channel").Where(`"id" = ?`, dashboardId).Find(dbChannel).Error
+	err := c.Db.Where(`"id" = ?`, dashboardId).Find(dbChannel).Error
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +122,9 @@ func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest)
 		dbChannel.IsEnabled = false
 	}
 
-	c.Db.Where(`"id" = ?`, dashboardId).Select("*").Updates(dbChannel)
+	if err := c.Db.Where(`"id" = ?`, dashboardId).Select("*").Save(dbChannel).Error; err != nil {
+		return nil, err
+	}
 
 	if dbChannel.IsEnabled {
 		c.Grpc.Bots.Join(context.Background(), &botsGrtpc.JoinOrLeaveRequest{
