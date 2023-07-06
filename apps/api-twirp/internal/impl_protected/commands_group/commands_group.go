@@ -2,6 +2,7 @@ package commands_group
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
@@ -23,7 +24,7 @@ func (c *CommandsGroup) convertEntity(g *model.ChannelCommandGroup) *commands_gr
 	}
 }
 
-func (c *CommandsGroup) CommandsGroupsGetAll(
+func (c *CommandsGroup) CommandsGroupGetAll(
 	ctx context.Context,
 	_ *emptypb.Empty,
 ) (*commands_group.GetAllResponse, error) {
@@ -40,7 +41,7 @@ func (c *CommandsGroup) CommandsGroupsGetAll(
 	}, nil
 }
 
-func (c *CommandsGroup) CommandsGroupsUpdate(
+func (c *CommandsGroup) CommandsGroupUpdate(
 	ctx context.Context,
 	req *commands_group.PutRequest,
 ) (*commands_group.Group, error) {
@@ -60,7 +61,7 @@ func (c *CommandsGroup) CommandsGroupsUpdate(
 	return c.convertEntity(entity), nil
 }
 
-func (c *CommandsGroup) CommandsGroupsCreate(
+func (c *CommandsGroup) CommandsGroupCreate(
 	ctx context.Context,
 	req *commands_group.CreateRequest,
 ) (*commands_group.Group, error) {
@@ -78,7 +79,7 @@ func (c *CommandsGroup) CommandsGroupsCreate(
 	return c.convertEntity(entity), nil
 }
 
-func (c *CommandsGroup) CommandsGroupsDelete(
+func (c *CommandsGroup) CommandsGroupDelete(
 	ctx context.Context,
 	req *commands_group.DeleteRequest,
 ) (*emptypb.Empty, error) {

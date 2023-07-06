@@ -2,6 +2,7 @@ package build_in_variables
 
 import (
 	"context"
+
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
 	"github.com/satont/twir/libs/grpc/generated/api/built_in_variables"

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
@@ -35,7 +36,7 @@ func (c *Auth) AuthSetDashboard(ctx context.Context, req *auth.SetDashboard) (*e
 	return &emptypb.Empty{}, nil
 }
 
-func (c *Auth) AuthGetDashboards(ctx context.Context, _ emptypb.Empty) (*auth.GetDashboardsResponse, error) {
+func (c *Auth) AuthGetDashboards(ctx context.Context, _ *emptypb.Empty) (*auth.GetDashboardsResponse, error) {
 	dbUser := c.SessionManager.Get(ctx, "dbUser").(model.Users)
 	var dashboards []*auth.Dashboard
 
