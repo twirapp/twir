@@ -18,8 +18,8 @@ import {
   IconSearch,
   IconTrash,
 } from '@tabler/icons';
-import { ChannelCommand } from '@twir/typeorm/entities/ChannelCommand';
-import { ChannelCommandGroup } from '@twir/typeorm/entities/ChannelCommandGroup';
+import type { Command } from '@twir/grpc/generated/api/api/commands';
+import type { Group as CommandGroup } from '@twir/grpc/generated/api/api/commands_group';
 import { GetServerSideProps, NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -29,7 +29,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { CommandsModal } from '@/components/commands/modal';
 import { ChannelCommandGroupDrawer } from '@/components/commandsGroup/drawer';
 import { confirmDelete } from '@/components/confirmDelete';
-import { commandsGroupManager, useCommandsManager } from '@/services/api';
+import { useCommandsGroupsManager, useCommandsManager } from '@/services/api';
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => ({
   props: {
@@ -42,23 +42,23 @@ const Commands: NextPage = () => {
   const [editDrawerOpened, setEditDrawerOpened] = useState(false);
   const [groupEditDrawerOpened, setGroupEditDrawerOpened] = useState(false);
 
-  const [editableCommand, setEditableCommand] = useState<ChannelCommand | undefined>();
-  const [editableGroup, setEditableGroup] = useState<ChannelCommandGroup | undefined>();
+  const [editableCommand, setEditableCommand] = useState<Command | undefined>();
+  const [editableGroup, setEditableGroup] = useState<CommandGroup | undefined>();
 
   const viewPort = useViewportSize();
   const { t } = useTranslation('commands');
 
-  const { useGetAll, usePatch, useDelete } = useCommandsManager();
-  const patcher = usePatch();
-  const deleter = useDelete();
-  const { data: commands } = useGetAll();
+  const manager = useCommandsManager();
+  const patcher = manager.patch;
+  const deleter = manager.deleteOne;
+  const { data: commands } = manager.getAll({});
 
-  const groupManager = commandsGroupManager();
-  const groupDeleter = groupManager.useDelete();
+  const groupManager = useCommandsGroupsManager();
+  const groupDeleter = groupManager.deleteOne;
 
   const [commandsWithGroups, setCommandsWithGroups] = useState<{
     [x: string]: {
-      list: ChannelCommand[];
+      list: Command[];
       show: boolean;
       id: string;
       color?: string;
@@ -76,7 +76,7 @@ const Commands: NextPage = () => {
 
     setCommandsWithGroups({});
 
-    for (const command of commands) {
+    for (const command of commands.commands) {
       if (
         command.module.toLowerCase() !== (router.query.module ? router.query.module[0] : 'custom')
       )
@@ -199,7 +199,7 @@ const Commands: NextPage = () => {
                     <ActionIcon
                       onClick={() => {
                         setEditableGroup(
-                          commands?.find((c) => c.groupId === commandsWithGroups[group]!.id)?.group,
+                          commands?.commands.find((c) => c.groupId === commandsWithGroups[group]!.id)?.group,
                         );
                         setGroupEditDrawerOpened(true);
                       }}
@@ -211,7 +211,7 @@ const Commands: NextPage = () => {
                     <ActionIcon
                       onClick={() =>
                         confirmDelete({
-                          onConfirm: () => groupDeleter.mutate(commandsWithGroups[group].id),
+                          onConfirm: () => groupDeleter.mutate({ id: commandsWithGroups[group].id }),
                           text: 'This will delete only group, not commands. Delete group?',
                         })
                       }
@@ -285,7 +285,7 @@ const Commands: NextPage = () => {
                       <Switch
                         checked={command.enabled}
                         onChange={() =>
-                          patcher.mutate({ id: command.id, data: { enabled: !command.enabled } })
+                          patcher!.mutate({ commandId: command.id, enabled: !command.enabled })
                         }
                       />
                     </td>
@@ -293,7 +293,7 @@ const Commands: NextPage = () => {
                       <Flex direction="row" gap="xs">
                         <ActionIcon
                           onClick={() => {
-                            setEditableCommand(commands!.find((c) => c.id === command.id)!);
+                            setEditableCommand(commands!.commands.find((c) => c.id === command.id)!);
                             setEditDrawerOpened(true);
                           }}
                           variant="filled"
@@ -305,7 +305,7 @@ const Commands: NextPage = () => {
                           <ActionIcon
                             onClick={() =>
                               confirmDelete({
-                                onConfirm: () => deleter.mutate(command.id),
+                                onConfirm: () => deleter.mutate({ commandId: command.id }),
                               })
                             }
                             variant="filled"
@@ -323,7 +323,7 @@ const Commands: NextPage = () => {
         </tbody>
       </Table>
 
-      <CommandsModal
+      {/* <CommandsModal
         opened={editDrawerOpened}
         setOpened={setEditDrawerOpened}
         command={editableCommand}
@@ -333,7 +333,7 @@ const Commands: NextPage = () => {
         opened={groupEditDrawerOpened}
         setOpened={setGroupEditDrawerOpened}
         group={editableGroup}
-      />
+      /> */}
     </div>
   );
 };
