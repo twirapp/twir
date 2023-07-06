@@ -14,6 +14,13 @@ require (
 	github.com/prometheus/client_golang v1.14.0
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/samber/lo v1.38.1
+	github.com/satont/twir/libs/config v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/gopool v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/integrations/spotify v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/twitch v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/types v0.0.0-00010101000000-000000000000
 	github.com/satori/go.uuid v1.2.0
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/tidwall/gjson v1.14.4
@@ -42,7 +49,8 @@ require (
 	github.com/jackc/pgx/v5 v5.3.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
@@ -55,7 +63,6 @@ require (
 	github.com/quic-go/qtls-go1-19 v0.2.1 // indirect
 	github.com/quic-go/qtls-go1-20 v0.1.1 // indirect
 	github.com/quic-go/quic-go v0.32.0 // indirect
-	github.com/stretchr/testify v1.8.2 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
