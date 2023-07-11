@@ -5,7 +5,7 @@ import { UnwrapPromise } from 'next/dist/lib/coalesced-function';
 import { protectedApiClient } from '@/services/api/twirp';
 
 export const useProfile = () =>
-  useQuery<ReturnType<typeof protectedApiClient.authUserProfile>['response']>({
+  useQuery<UnwrapPromise<ReturnType<typeof protectedApiClient.authUserProfile>['response']>>({
     queryKey: [`/api/auth/profile`],
     queryFn: async () => {
 			const call = await protectedApiClient.authUserProfile({});

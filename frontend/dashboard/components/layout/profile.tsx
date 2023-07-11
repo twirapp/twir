@@ -1,11 +1,11 @@
 import { Avatar, Menu } from '@mantine/core';
 import { IconLogout } from '@tabler/icons';
-import { AuthUser } from '@twir/shared';
+import { type Profile as IProfile } from '@twir/grpc/generated/api/api/auth';
 
 import { useLogoutMutation } from '@/services/api';
 
 type Props = {
-  user: AuthUser;
+  user: IProfile;
 };
 
 export function Profile(props: Props) {
@@ -19,12 +19,12 @@ export function Profile(props: Props) {
             size={34}
             radius="xs"
             style={{ cursor: 'pointer' }}
-            src={props.user.profile_image_url}
-            alt={props.user.display_name}
+            src={props.user.avatar}
+            alt={props.user.displayName}
           />
         </Menu.Target>
         <Menu.Dropdown>
-          <Menu.Label>Logged in as {props.user.display_name}</Menu.Label>
+          <Menu.Label>Logged in as {props.user.displayName}</Menu.Label>
           <Menu.Divider />
           <Menu.Item color="red" icon={<IconLogout size={14} />} onClick={() => logout.mutate()}>
             Logout

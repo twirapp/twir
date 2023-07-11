@@ -9,7 +9,9 @@ import {
   Loader,
   Menu,
   Text,
-  Box, Divider, Button, Badge, Tooltip,
+  Box,
+	Divider,
+	Tooltip,
 } from '@mantine/core';
 import { IconMoonStars, IconSun, IconLanguage, IconNotes } from '@tabler/icons';
 import { useStore, useAtom } from 'jotai';
