@@ -9,7 +9,6 @@ import {
 	Alert,
 	NumberInput,
 	Switch,
-	Group,
 	Center,
 	Textarea,
 	Menu,
@@ -20,12 +19,10 @@ import {
 	Title,
 	Divider,
 	Paper,
-	Space,
 } from '@mantine/core';
 import { isNotEmpty, useForm } from '@mantine/form';
 import { useDebouncedState, useViewportSize } from '@mantine/hooks';
 import {
-	IconChevronDown,
 	IconGripVertical,
 	IconMinus,
 	IconPlus,
@@ -33,27 +30,22 @@ import {
 	IconShieldHalfFilled,
 	IconVariable,
 } from '@tabler/icons';
-import type {
-	ChannelCommand,
-	CommandModule,
-	CooldownType,
-} from '@twir/typeorm/entities/ChannelCommand';
+import { type Command } from '@twir/grpc/generated/api/api/commands';
 import { useTranslation } from 'next-i18next';
 import { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-import { noop } from '../../util/chore';
-
-import { commandsGroupManager, useCommandsManager, useVariables, useRolesApi } from '@/services/api';
+import { useCommandsGroupsManager, useCommandsManager, useRolesManager } from '@/services/api';
+import { useAllVariables } from '@/services/api/allVariables';
 
 type Props = {
 	opened: boolean;
 	setOpened: React.Dispatch<React.SetStateAction<boolean>>;
-	command?: ChannelCommand;
+	command?: Command;
 };
 
 const switches: Array<{
-	prop: keyof ChannelCommand;
+	prop: keyof Command;
 }> = [
 	{ prop: 'isReply' },
 	{ prop: 'visible' },
@@ -61,9 +53,9 @@ const switches: Array<{
 	{ prop: 'onlineOnly' },
 ];
 
-type ChannelCommandForm = Omit<ChannelCommand, 'deniedUsersIds' | 'allowedUsersIds'> & {
-	deniedUsersIds: Array<{ name: string }>;
-	allowedUsersIds: Array<{ name: string }>;
+type ChannelCommandForm = Omit<Command, 'deniedUsersIds' | 'allowedUsersIds'> & {
+	deniedUsersIds: Array<{ id: string }>;
+	allowedUsersIds: Array<{ id: string }>;
 };
 
 export const CommandsModal: React.FC<Props> = (props) => {
@@ -75,10 +67,10 @@ export const CommandsModal: React.FC<Props> = (props) => {
 				return null;
 			},
 			deniedUsersIds: {
-				name: isNotEmpty('User name cannot be empty'),
+				id: isNotEmpty('User id cannot be empty'),
 			},
 			allowedUsersIds: {
-				name: isNotEmpty('User name cannot be empty'),
+				id: isNotEmpty('User id cannot be empty'),
 			},
 			cooldown: (value) => (value && value < 0 ? 'Cooldown cannot be lower then 0' : null),
 			responses: {
@@ -89,14 +81,14 @@ export const CommandsModal: React.FC<Props> = (props) => {
 			aliases: [],
 			name: '',
 			cooldown: 0,
-			cooldownType: 'GLOBAL' as CooldownType,
+			cooldownType: 'GLOBAL',
 			default: false,
-			defaultName: null,
+			defaultName: undefined,
 			description: '',
 			enabled: true,
 			isReply: true,
 			keepResponsesOrder: true,
-			module: 'CUSTOM' as CommandModule,
+			module: 'CUSTOM',
 			rolesIds: [],
 			visible: true,
 			responses: [],
@@ -105,9 +97,9 @@ export const CommandsModal: React.FC<Props> = (props) => {
 			deniedUsersIds: [],
 			allowedUsersIds: [],
 			onlineOnly: false,
-			requiredUsedChannelPoints: 0,
-			requiredMessages: 0,
-			requiredWatchTime: 0,
+			requiredUsedChannelPoints: 0n,
+			requiredMessages: 0n,
+			requiredWatchTime: 0n,
 		},
 	});
 
@@ -115,17 +107,18 @@ export const CommandsModal: React.FC<Props> = (props) => {
 	const [aliasesSearch, setAliasesSearch] = useState('');
 
 	const { t } = useTranslation('commands');
-	const viewPort = useViewportSize();
-	const { useCreateOrUpdate } = useCommandsManager();
-	const updater = useCreateOrUpdate();
 
-	const variables = useVariables();
+	const commandsManager = useCommandsManager();
+	const updater = commandsManager.update;
+	const creator = commandsManager.create;
 
-	const rolesManager = useRolesApi();
-	const { data: roles } = rolesManager.useGetAll();
+	const variables = useAllVariables();
 
-	const groupsManager = commandsGroupManager();
-	const { data: groups } = groupsManager.useGetAll();
+	const rolesManager = useRolesManager();
+	const { data: roles } = rolesManager.getAll({});
+
+	const groupsManager = useCommandsGroupsManager();
+	const { data: groups } = groupsManager.getAll({});
 
 	useEffect(() => {
 		form.reset();
@@ -135,35 +128,31 @@ export const CommandsModal: React.FC<Props> = (props) => {
 		if (props.command) {
 			form.setValues({
 				...props.command,
-				deniedUsersIds: props.command.deniedUsersIds.map((a) => ({ name: a })) ?? [],
-				allowedUsersIds: props.command.allowedUsersIds.map((a) => ({ name: a })) ?? [],
+				deniedUsersIds: props.command.deniedUsersIds.map((a) => ({ id: a })) ?? [],
+				allowedUsersIds: props.command.allowedUsersIds.map((a) => ({ id: a })) ?? [],
 			});
 
 			setAliases(props.command.aliases);
 		}
 	}, [props.command, props.opened]);
 
-	function onSubmit() {
+	async function onSubmit() {
 		const validate = form.validate();
 		if (validate.hasErrors) {
 			console.log(validate.errors);
 			return;
 		}
 
-		updater
-			.mutateAsync({
+		if (!form.values.id) {
+			await creator.mutateAsync(form.values as any);
+		} else {
+			await updater.mutateAsync({
 				id: form.values.id,
-				data: {
-					...form.values,
-					aliases: aliases,
-					deniedUsersIds: form.values.deniedUsersIds.map((a) => a.name),
-					allowedUsersIds: form.values.allowedUsersIds.map((a) => a.name),
-				},
-			})
-			.then(() => {
-				props.setOpened(false);
-			})
-			.catch(noop);
+				command: form.values as any,
+			});
+		}
+
+		props.setOpened(false);
 	}
 
 	const [variablesSearchInput, setVariablesSearchInput] = useDebouncedState('', 200);
@@ -304,8 +293,8 @@ export const CommandsModal: React.FC<Props> = (props) => {
 																					offsetScrollbars
 																					style={{ marginTop: 5 }}
 																				>
-																					{variables.data?.length &&
-																						variables.data
+																					{variables?.length &&
+																						variables
 																							.filter(
 																								(v) =>
 																									v.name.includes(variablesSearchInput) ||
@@ -391,7 +380,7 @@ export const CommandsModal: React.FC<Props> = (props) => {
 						<Grid.Col span={12}>
 							<MultiSelect
 								data={
-									roles?.map((r) => ({
+									roles?.roles?.map((r) => ({
 										value: r.id,
 										label: r.name,
 										group: r.type !== 'CUSTOM' ? 'System' : 'Custom',
@@ -553,8 +542,8 @@ export const CommandsModal: React.FC<Props> = (props) => {
 								label="Group"
 								{...form.getInputProps('groupId')}
 								data={
-									groups?.map((value) => ({
-										value: value.id,
+									groups?.groups?.map((value) => ({
+										value: value.id!,
 										label: value.name,
 									})) ?? []
 								}

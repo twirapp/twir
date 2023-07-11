@@ -323,13 +323,13 @@ const Commands: NextPage = () => {
         </tbody>
       </Table>
 
-      {/* <CommandsModal
+			<CommandsModal
         opened={editDrawerOpened}
         setOpened={setEditDrawerOpened}
         command={editableCommand}
       />
 
-      <ChannelCommandGroupDrawer
+      {/*<ChannelCommandGroupDrawer
         opened={groupEditDrawerOpened}
         setOpened={setGroupEditDrawerOpened}
         group={editableGroup}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { useBuiltInVariables } from '@/services/api/builtInVariables.js';
-import { useVariablesManager } from '@/services/api/crud.js';
+import { useBuiltInVariables } from '@/services/api/builtInVariables';
+import { useVariablesManager } from '@/services/api/crud';
 
 type Variable = {
 	name: string;
