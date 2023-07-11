@@ -3,32 +3,29 @@ import {
   Drawer,
   Flex,
   ScrollArea,
-  Text,
   TextInput,
   useMantineTheme,
-  DEFAULT_THEME,
 } from '@mantine/core';
 import { isNotEmpty, useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
-import { IconVariable } from '@tabler/icons';
-import { ChannelCommandGroup } from '@twir/typeorm/entities/ChannelCommandGroup';
+import { Group } from '@twir/grpc/generated/api/api/commands_group';
 import { useTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 
 import { noop } from '../../util/chore';
 
 import { colorPickerColors } from '@/components/commandsGroup/colors';
-import { commandsGroupManager } from '@/services/api';
+import { useCommandsGroupsManager } from '@/services/api';
 
 type Props = {
   opened: boolean;
-  group?: ChannelCommandGroup;
+  group?: Group;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const ChannelCommandGroupDrawer: React.FC<Props> = (props) => {
   const theme = useMantineTheme();
-  const form = useForm<ChannelCommandGroup>({
+  const form = useForm<Group>({
     validate: {
       name: isNotEmpty('Name cannot be empty'),
       color: isNotEmpty('Color cannot be empty'),
@@ -43,8 +40,9 @@ export const ChannelCommandGroupDrawer: React.FC<Props> = (props) => {
   const viewPort = useViewportSize();
   const { t } = useTranslation('greetings');
 
-  const group = commandsGroupManager();
-  const updater = group.useCreateOrUpdate();
+  const group = useCommandsGroupsManager();
+  const updater = group.update;
+	const creator = group.create;
 
   useEffect(() => {
     form.reset();
@@ -60,13 +58,17 @@ export const ChannelCommandGroupDrawer: React.FC<Props> = (props) => {
       return;
     }
 
-    await updater.mutateAsync({
-      id: form.values.id,
-      data: form.values,
-    }).then(() => {
-      props.setOpened(false);
-      form.reset();
-    }).catch(noop);
+		if (!form.values.id) {
+			await creator.mutateAsync({ group: form.values });
+		} else {
+			await updater.mutateAsync({
+				id: form.values.id,
+				group: form.values,
+			});
+		}
+
+		props.setOpened(false);
+		form.reset();
   }
 
   return (

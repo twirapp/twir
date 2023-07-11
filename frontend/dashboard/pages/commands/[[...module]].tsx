@@ -329,11 +329,11 @@ const Commands: NextPage = () => {
         command={editableCommand}
       />
 
-      {/*<ChannelCommandGroupDrawer
+      <ChannelCommandGroupDrawer
         opened={groupEditDrawerOpened}
         setOpened={setGroupEditDrawerOpened}
         group={editableGroup}
-      /> */}
+      />
     </div>
   );
 };

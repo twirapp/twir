@@ -143,12 +143,19 @@ export const CommandsModal: React.FC<Props> = (props) => {
 			return;
 		}
 
+		const data = {
+			...form.values,
+			deniedUsersIds: form.values.deniedUsersIds.map(v => v.id),
+			allowedUsersIds: form.values.allowedUsersIds.map(v => v.id),
+			responses: form.values.responses.map((r, i) => ({ ...r, order: i })),
+		};
+		console.log(data);
 		if (!form.values.id) {
-			await creator.mutateAsync(form.values as any);
+			await creator.mutateAsync(data as any);
 		} else {
 			await updater.mutateAsync({
 				id: form.values.id,
-				command: form.values as any,
+				command: data as any,
 			});
 		}
 
