@@ -45,7 +45,6 @@ import Vk from '@/components/integrations/vk.vue';
 
 .integrations table tr td:first-of-type {
 	width: 70px;
-	text-align: center;
 }
 
 .integrations table tr td:last-of-type {
@@ -53,9 +52,9 @@ import Vk from '@/components/integrations/vk.vue';
 }
 
 .integrations table tr td {
-	white-space: nowrap;   /* Prevent line breaks within cells */
-	overflow: hidden;      /* Hide overflowing content */
-	text-overflow: ellipsis;  /* Add an ellipsis (...) for overflow */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 	border-right: 0;
 }
 </style>
