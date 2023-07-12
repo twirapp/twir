@@ -39,7 +39,7 @@ const toggleSidebar = () => sidebarCollapsed.value = !sidebarCollapsed.value;
         >
           <Sidebar />
         </n-layout-sider>
-        <n-layout-content content-style="padding: 24px">
+        <n-layout-content content-style="padding: 24px; width: 100%">
           <router-view v-slot="{ Component, route }">
             <transition :name="route.meta.transition || 'fade'" mode="out-in">
               <div :key="route.name">

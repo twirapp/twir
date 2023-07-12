@@ -15,7 +15,7 @@ export const router = createRouter({
 				},
 				{
 					path: '/dashboard/integrations',
-					component: () => import('./pages/Dashboard.vue'),
+					component: () => import('./pages/Integrations.vue'),
 				},
 			],
 		},

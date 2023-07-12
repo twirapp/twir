@@ -1,7 +1,8 @@
 <script setup lang='ts'>
 
 import { IconMenu2, IconSun, IconMoon, IconLogout } from '@tabler/icons-vue';
-import { NButton, NDropdown, NAvatar, NSpin, DropdownOption } from 'naive-ui';
+import { NButton, NDropdown, NAvatar, NSpin, NText, NH4 } from 'naive-ui';
+import type { DropdownOption } from 'naive-ui';
 
 import { useProfile, useLogout } from '@/api/index.js';
 import { renderIcon } from '@/helpers/index.js';
@@ -37,7 +38,9 @@ const { data: profileData, isLoading: isProfileLoading } = useProfile();
       <n-button text @click="toggleSidebar">
         <IconMenu2 />
       </n-button>
-      TwirApp
+      <n-text strong>
+        TwirApp
+      </n-text>
     </div>
 
     <div>
