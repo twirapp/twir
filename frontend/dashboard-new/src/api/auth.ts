@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/vue-query';
+import { useQuery, useMutation } from '@tanstack/vue-query';
 import { Profile } from '@twir/grpc/generated/api/api/auth';
 import { ref } from 'vue';
 
@@ -17,6 +17,18 @@ export const useProfile = () =>
 		retry: false,
 		initialData: profile.value,
 	});
+
+export const useLogout = () => useMutation({
+	mutationKey: ['authLogout'],
+	mutationFn: async () => {
+		await protectedApiClient.authLogout({});
+		profile.value = null;
+	},
+	onSuccess: () => {
+		profile.value = null;
+		window.location.replace('/');
+	},
+});
 
 export const getProfile = async () => {
 	if (profile.value) return profile.value;

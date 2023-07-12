@@ -3,7 +3,7 @@
 import { IconMenu2, IconSun, IconMoon, IconLogout } from '@tabler/icons-vue';
 import { NButton, NDropdown, NAvatar, NSpin, DropdownOption } from 'naive-ui';
 
-import { useProfile } from '@/api/index.js';
+import { useProfile, useLogout } from '@/api/index.js';
 import { renderIcon } from '@/helpers/index.js';
 import { useTheme } from '@/hooks/index.js';
 
@@ -20,13 +20,14 @@ const changeTheme = () => {
 	}
 };
 
+const logout = useLogout();
 const profileOptions: DropdownOption[] = [{
 	label: 'Logout',
 	key: 'logout',
 	icon: renderIcon(IconLogout),
 	props: {
 		onClick: () => {
-			console.log('logout');
+			logout.mutate();
 		},
 		style: {
 			// 'background-color': 'red',

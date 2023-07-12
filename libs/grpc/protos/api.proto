@@ -38,6 +38,7 @@ service Protected {
 	rpc AuthUserProfile(google.protobuf.Empty) returns (api.auth.Profile) {}
 	rpc AuthSetDashboard(api.auth.SetDashboard) returns (google.protobuf.Empty) {}
 	rpc AuthGetDashboards(google.protobuf.Empty) returns (api.auth.GetDashboardsResponse) {}
+	rpc AuthLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
 	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
 	rpc BotJoinPart(api.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}

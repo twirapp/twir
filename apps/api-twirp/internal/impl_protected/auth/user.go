@@ -69,3 +69,9 @@ func (c *Auth) AuthGetDashboards(ctx context.Context, _ *emptypb.Empty) (*auth.G
 		Dashboards: dashboards,
 	}, nil
 }
+
+func (c *Auth) AuthLogout(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+	c.SessionManager.Destroy(ctx)
+
+	return &emptypb.Empty{}, nil
+}
