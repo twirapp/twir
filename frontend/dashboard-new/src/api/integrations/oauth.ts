@@ -47,6 +47,7 @@ const createIntegrationOauth = <
 				const call = await opts.getAuthLink({});
 				return call.response;
 			},
+			retry: false,
 		}),
 		usePostCode: () => useMutation({
 			mutationKey: [`${queryKey}/post-code`],

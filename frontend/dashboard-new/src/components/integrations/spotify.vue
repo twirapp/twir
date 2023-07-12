@@ -1,18 +1,18 @@
 <script setup lang='ts'>
-import { NBadge } from 'naive-ui';
-
 import { useSpotifyIntegration } from '@/api/index.js';
-import SpotifySVG from '@/assets/icons/integrations/spotify.svg?component';
+import IconSpotify from '@/assets/icons/integrations/spotify.svg?component';
+import OauthComponent from '@/components/integrations/oauthComponent.vue';
 
 const manager = useSpotifyIntegration();
 const { data } = manager.useData();
+const logout = manager.useLogout();
+const getAuthLink = manager.useAuthLink();
 </script>
 
 <template>
-  <tr>
-    <td><SpotifySVG style="width: 30px" /></td>
-    <td><n-badge :value="'Not logged in'" type="info" /></td>
-    <td>asdasd</td>
-  </tr>
+  <oauth-component :data="data" :logout="logout.mutateAsync" :getLoginLink="getAuthLink">
+    <template #icon>
+      <IconSpotify style="width: 30px;" />
+    </template>
+  </oauth-component>
 </template>
-

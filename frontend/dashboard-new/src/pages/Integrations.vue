@@ -1,12 +1,12 @@
 <script setup lang='ts'>
-import { NTable, NSpace } from 'naive-ui';
+import { NTable } from 'naive-ui';
 
 import Spotify from '@/components/integrations/spotify.vue';
 </script>
 
 <template>
   <div class="integrations">
-    <n-table :bordered="false" :single-line="false" :striped="false" size="large">
+    <n-table :bordered="false" :single-line="false" :striped="true" size="large">
       <thead style="display: none">
         <tr>
           <th></th>
@@ -31,5 +31,15 @@ import Spotify from '@/components/integrations/spotify.vue';
 
 .integrations table {
 	width: 50%;
+}
+
+.integrations table tr td:first-of-type {
+	width: 70px;
+}
+
+.integrations table tr td {
+	white-space: nowrap;   /* Prevent line breaks within cells */
+	overflow: hidden;      /* Hide overflowing content */
+	text-overflow: ellipsis;  /* Add an ellipsis (...) for overflow */
 }
 </style>
