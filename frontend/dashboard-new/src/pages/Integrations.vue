@@ -5,8 +5,8 @@ import Spotify from '@/components/integrations/spotify.vue';
 </script>
 
 <template>
-  <n-space justify="center">
-    <n-table :bordered="false" :single-line="false" :striped="false" size="large" style="width: 50%">
+  <div class="integrations">
+    <n-table :bordered="false" :single-line="false" :striped="false" size="large">
       <thead style="display: none">
         <tr>
           <th></th>
@@ -18,5 +18,18 @@ import Spotify from '@/components/integrations/spotify.vue';
         <Spotify />
       </tbody>
     </n-table>
-  </n-space>
+  </div>
 </template>
+
+<style>
+.integrations {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+}
+
+.integrations table {
+	width: 50%;
+}
+</style>
