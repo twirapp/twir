@@ -1,9 +1,10 @@
-import { useQuery } from '@tanstack/vue-query';
-import { BotInfo } from '@twir/grpc/generated/api/api/bots';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
+import { BotInfo, BotJoinPartRequest_Action } from '@twir/grpc/generated/api/api/bots';
 
 import { protectedApiClient } from './twirp.js';
 
 const queryKey = ['botInfo'];
+
 
 export const useBotInfo = () => useQuery<BotInfo>({
 	queryKey,
@@ -13,3 +14,21 @@ export const useBotInfo = () => useQuery<BotInfo>({
 	},
 	refetchInterval: 4000,
 });
+
+type Action = 'join' | 'part'
+
+export const useBotJoinPart = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (action: Action) => {
+			const call = await protectedApiClient.botJoinPart({
+				action: action === 'join' ? BotJoinPartRequest_Action.JOIN : BotJoinPartRequest_Action.LEAVE,
+			});
+			return call.response;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey });
+		},
+	});
+};
