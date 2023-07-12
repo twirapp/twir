@@ -108,7 +108,7 @@ const menuOptions: (MenuOption | MenuDividerOption)[] = [
 	},
 ].map((item) => ({
 	...item,
-	key: item.path,
+	key: item.path ?? item.label,
 	label: !item.path ? item.label ?? undefined : () => h(
 		RouterLink,
 		{

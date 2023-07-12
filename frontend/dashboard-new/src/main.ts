@@ -3,9 +3,9 @@ import { createApp } from 'vue';
 
 import { router } from './router.js';
 
-createApp({
-	template: '<router-view />',
-})
+import App from '@/App.vue';
+
+createApp(App)
 	.use(router)
 	.use(VueQueryPlugin)
 	.mount('#app');

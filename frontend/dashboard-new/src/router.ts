@@ -7,7 +7,7 @@ export const router = createRouter({
 	routes: [
 		{
 			path: '/dashboard',
-			component: () => import('./Layout.vue'),
+			component: () => import('./layout/layout.vue'),
 			children: [
 				{
 					path: '/dashboard',

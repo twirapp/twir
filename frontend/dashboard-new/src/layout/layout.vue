@@ -4,7 +4,7 @@ import {
 import { computed, ref } from 'vue';
 import { RouterView } from 'vue-router';
 
-import { useTheme } from '@/hooks/index.js';
+import { useTheme } from '@/hooks/index.ts';
 import Header from '@/layout/header.vue';
 import Sidebar from '@/layout/sidebar.vue';
 
@@ -36,8 +36,10 @@ function toggleSidebar() {
         </n-layout-sider>
         <n-layout-content content-style="padding: 24px">
           <router-view v-slot="{ Component, route }">
-            <transition :name="route.meta.transition || 'fade'">
-              <component :is="Component" />
+            <transition :name="route.meta.transition || 'fade'" mode="out-in">
+              <div :key="route.name">
+                <component :is="Component" />
+              </div>
             </transition>
           </router-view>
         </n-layout-content>
@@ -45,3 +47,16 @@ function toggleSidebar() {
     </n-layout>
   </n-config-provider>
 </template>
+
+
+<style>
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+</style>
