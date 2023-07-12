@@ -16,15 +16,13 @@ import {
 	IconShieldHalfFilled,
 	IconSpeakerphone,
 	IconSword,
-	IconUsers, SVGProps,
+	IconUsers,
 } from '@tabler/icons-vue';
 import { NMenu, MenuOption, NAvatar, MenuDividerOption } from 'naive-ui';
-import { h, ref, FunctionalComponent, onMounted } from 'vue';
+import { h, ref, onMounted } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 
-function renderIcon(icon: (props: SVGProps) => FunctionalComponent<SVGProps>) {
-	return () => h(icon, null, { default: () => h(icon) });
-}
+import { renderIcon } from '../helpers/index.js';
 
 const activeKey = ref<string | null>('/');
 const menuOptions: (MenuOption | MenuDividerOption)[] = [

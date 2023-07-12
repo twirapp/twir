@@ -1,9 +1,10 @@
 <script setup lang='ts'>
 
-import { IconMenu2, IconSun, IconMoon } from '@tabler/icons-vue';
-import { NButton, NDropdown, NAvatar } from 'naive-ui';
+import { IconMenu2, IconSun, IconMoon, IconLogout } from '@tabler/icons-vue';
+import { NButton, NDropdown, NAvatar, NSpin, DropdownOption } from 'naive-ui';
 
 import { useProfile } from '../api/index.js';
+import { renderIcon } from '../helpers/index.js';
 import { useTheme } from '../hooks/index.js';
 
 defineProps<{
@@ -19,10 +20,16 @@ const changeTheme = () => {
 	}
 };
 
-const profileOptions = [{
-	label: 'Marina Bay Sands',
-	key: 'Marina Bay Sands',
+const profileOptions: DropdownOption[] = [{
+	label: 'Logout',
+	key: 'logout',
+	icon: renderIcon(IconLogout),
 	disabled: false,
+	props: {
+		style: {
+			'background-color': 'red',
+		},
+	},
 }];
 
 const { data: profileData, isLoading: isProfileLoading } = useProfile();
@@ -43,7 +50,7 @@ const { data: profileData, isLoading: isProfileLoading } = useProfile();
         <IconMoon v-else />
       </n-button>
       <n-dropdown trigger="click" :options="profileOptions">
-        <n-button>
+        <n-button tertiary>
           <n-spin v-if="isProfileLoading" size="small" />
           <div v-else class="profile">
             <n-avatar

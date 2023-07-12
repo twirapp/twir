@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+import { getProfile } from './api/index.js';
+
 export const router = createRouter({
 	history: createWebHistory(),
 	routes: [
@@ -12,4 +14,14 @@ export const router = createRouter({
 			component: () => import('./pages/Home.vue'),
 		},
 	],
+});
+
+router.beforeEach(async () => {
+	try {
+		await getProfile();
+		return true;
+	} catch (e) {
+		console.error(e);
+		return '/';
+	}
 });
