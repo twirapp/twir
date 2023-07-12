@@ -11,14 +11,7 @@ defineProps<{
 	toggleSidebar: () => void;
 }>();
 
-const theme = useTheme();
-const changeTheme = () => {
-	if (theme.value === 'dark') {
-		theme.value = 'light';
-	} else {
-		theme.value = 'dark';
-	}
-};
+const { theme, toggleTheme } = useTheme();
 
 const logout = useLogout();
 const profileOptions: DropdownOption[] = [{
@@ -48,7 +41,7 @@ const { data: profileData, isLoading: isProfileLoading } = useProfile();
     </div>
 
     <div>
-      <n-button tertiary @click="changeTheme">
+      <n-button tertiary @click="toggleTheme">
         <IconSun v-if="theme === 'dark'" color="orange" />
         <IconMoon v-else />
       </n-button>

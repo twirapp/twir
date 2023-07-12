@@ -11,14 +11,16 @@ import {
 	IconDeviceDesktopAnalytics,
 	IconHeadphones,
 	IconKey,
-	IconPencilPlus, IconPlayerPlay,
-	IconPlaylist, IconSettings,
+	IconPencilPlus,
+	IconPlayerPlay,
+	IconPlaylist,
+	IconSettings,
 	IconShieldHalfFilled,
 	IconSpeakerphone,
 	IconSword,
 	IconUsers,
 } from '@tabler/icons-vue';
-import { NMenu, MenuOption, NAvatar, MenuDividerOption } from 'naive-ui';
+import { NMenu, MenuOption, MenuDividerOption } from 'naive-ui';
 import { h, ref, onMounted } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 

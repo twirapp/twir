@@ -4,12 +4,12 @@ import {
 import { computed, ref } from 'vue';
 import { RouterView } from 'vue-router';
 
-import { useTheme } from '@/hooks/index.ts';
+import { useTheme } from '@/hooks/index.js';
 import Header from '@/layout/header.vue';
 import Sidebar from '@/layout/sidebar.vue';
 
-const localStorageTheme = useTheme();
-const theme = computed(() => localStorageTheme.value === 'dark' ? darkTheme : null);
+const { theme } = useTheme();
+const themeStyles = computed(() => theme.value === 'dark' ? darkTheme : null);
 
 const sidebarCollapsed = ref(false);
 function toggleSidebar() {
@@ -18,7 +18,7 @@ function toggleSidebar() {
 </script>
 
 <template>
-  <n-config-provider :theme="theme as any" style="height: 100%">
+  <n-config-provider :theme="themeStyles as any" style="height: 100%">
     <n-layout style="height: 100%">
       <n-layout-header bordered style="height: 43px;">
         <Header :toggleSidebar="toggleSidebar" />
