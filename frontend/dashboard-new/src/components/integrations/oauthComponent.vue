@@ -16,7 +16,7 @@ defineSlots<{
 
 async function login() {
 	const { link } = await props.getLoginLink();
-	window.location.replace(link);
+	if (link) window.location.replace(link);
 }
 </script>
 
