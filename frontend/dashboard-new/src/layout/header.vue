@@ -3,6 +3,7 @@
 import { IconMenu2, IconSun, IconMoon } from '@tabler/icons-vue';
 import { NButton, NDropdown, NAvatar } from 'naive-ui';
 
+import { useProfile } from '../api/index.js';
 import { useTheme } from '../hooks/index.js';
 
 defineProps<{
@@ -23,6 +24,8 @@ const profileOptions = [{
 	key: 'Marina Bay Sands',
 	disabled: false,
 }];
+
+const { data: profileData, isLoading: isProfileLoading } = useProfile();
 </script>
 
 <template>
@@ -41,11 +44,15 @@ const profileOptions = [{
       </n-button>
       <n-dropdown trigger="click" :options="profileOptions">
         <n-button>
-          <n-avatar
-            size="small"
-            src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg?t=1"
-          />
-          Satont
+          <n-spin v-if="isProfileLoading" size="small" />
+          <div v-else class="profile">
+            <n-avatar
+              size="small"
+              :src="profileData?.avatar"
+              round
+            />
+            {{ profileData?.displayName }}
+          </div>
         </n-button>
       </n-dropdown>
     </div>
@@ -65,6 +72,12 @@ const profileOptions = [{
 	.header > div {
 		display: flex;
 		justify-content: flex-start;
+		gap: 5px;
+		align-items: center;
+	}
+
+	.profile {
+		display: flex;
 		gap: 5px;
 		align-items: center;
 	}

@@ -311,9 +311,18 @@ importers:
 
   frontend/dashboard-new:
     dependencies:
+      '@protobuf-ts/twirp-transport':
+        specifier: ^2.9.0
+        version: 2.9.0
       '@tabler/icons-vue':
         specifier: ^2.24.0
         version: 2.24.0(vue@3.3.4)
+      '@tanstack/vue-query':
+        specifier: ^4.24.10
+        version: 4.27.0(vue@3.3.4)
+      '@twir/grpc':
+        specifier: workspace:^
+        version: link:../../libs/grpc
       '@vueuse/core':
         specifier: ^9.13.0
         version: 9.13.0(vue@3.3.4)
@@ -8352,6 +8361,22 @@ packages:
       '@vue/devtools-api': 6.5.0
       vue: 3.2.47
       vue-demi: 0.13.11(vue@3.2.47)
+    dev: false
+
+  /@tanstack/vue-query@4.27.0(vue@3.3.4):
+    resolution: {integrity: sha512-C2XRSiJ9YmLNckJnAIjv7hX/3Z/c4eZQUbCBSQwlSusN3bN1NJ9T34DsOYfC2bsyCtvcrX/tXJhY3kaoqLytSw==}
+    peerDependencies:
+      '@vue/composition-api': ^1.1.2
+      vue: ^2.5.0 || ^3.0.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      '@tanstack/match-sorter-utils': 8.8.4
+      '@tanstack/query-core': 4.27.0
+      '@vue/devtools-api': 6.5.0
+      vue: 3.3.4
+      vue-demi: 0.13.11(vue@3.3.4)
     dev: false
 
   /@testing-library/dom@8.20.0:
