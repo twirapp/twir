@@ -11,7 +11,7 @@ import Vk from '@/components/integrations/vk.vue';
 
 <template>
   <div class="integrations">
-    <n-table :bordered="false" :single-line="false" :striped="true" size="large">
+    <n-table :bordered="false" :single-line="false" size="large">
       <thead style="display: none">
         <tr>
           <th></th>
@@ -56,5 +56,6 @@ import Vk from '@/components/integrations/vk.vue';
 	white-space: nowrap;   /* Prevent line breaks within cells */
 	overflow: hidden;      /* Hide overflowing content */
 	text-overflow: ellipsis;  /* Add an ellipsis (...) for overflow */
+	border-right: 0;
 }
 </style>
