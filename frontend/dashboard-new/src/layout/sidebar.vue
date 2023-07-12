@@ -49,7 +49,6 @@ const menuOptions: (MenuOption | MenuDividerOption)[] = [
 	{
 		label: 'Song Requests',
 		icon: renderIcon(IconHeadphones),
-		path: '/dashboard/song-requests',
 		children: [
 			{
 				label: 'Player',
@@ -66,7 +65,6 @@ const menuOptions: (MenuOption | MenuDividerOption)[] = [
 	{
 		label: 'Commands',
 		icon: renderIcon(IconCommand),
-		path: '/dashboard/commands',
 		children: [
 			{ label: 'Custom', icon: renderIcon(IconPencilPlus), path: '/dashboard/commands/custom' },
 			{ label: 'Stats', icon: renderIcon(IconDeviceDesktopAnalytics), path: '/dashboard/commands/stats' },
@@ -78,7 +76,6 @@ const menuOptions: (MenuOption | MenuDividerOption)[] = [
 	{
 		label: 'Community',
 		icon: renderIcon(IconUsers),
-		path: '/dashboard/community',
 		children: [
 			{ label: 'Users', icon: renderIcon(IconUsers), path: '/dashboard/community/users' },
 			{ label: 'Roles', icon: renderIcon(IconShieldHalfFilled), path: '/dashboard/community/roles' },
