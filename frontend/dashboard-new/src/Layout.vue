@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {
-	darkTheme, NLayout, NLayoutHeader, NLayoutContent, NLayoutSider, NConfigProvider, NButton } from 'naive-ui';
+	darkTheme, NLayout, NLayoutHeader, NLayoutContent, NLayoutSider, NConfigProvider } from 'naive-ui';
 import { computed, ref } from 'vue';
 import { RouterView } from 'vue-router';
 
-import { useTheme } from './hooks/index.js';
-import Header from './layout/header.vue';
-import Sidebar from './layout/sidebar.vue';
+import { useTheme } from '@/hooks/index.js';
+import Header from '@/layout/header.vue';
+import Sidebar from '@/layout/sidebar.vue';
 
 const localStorageTheme = useTheme();
 const theme = computed(() => localStorageTheme.value === 'dark' ? darkTheme : null);
