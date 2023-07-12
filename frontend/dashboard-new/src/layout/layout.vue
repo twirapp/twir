@@ -19,9 +19,7 @@ const { theme } = useTheme();
 const themeStyles = computed(() => theme.value === 'dark' ? darkTheme : lightTheme);
 
 const sidebarCollapsed = ref(false);
-function toggleSidebar() {
-	sidebarCollapsed.value = !sidebarCollapsed.value;
-}
+const toggleSidebar = () => sidebarCollapsed.value = !sidebarCollapsed.value;
 </script>
 
 <template>
