@@ -1,14 +1,24 @@
 <script setup lang='ts'>
 import { NCard, NAlert, NSkeleton, NButton, NSpin } from 'naive-ui';
+import { ref, watch } from 'vue';
 
 import { useBotInfo, useBotJoinPart } from '@/api/index.js';
 
 const { data, isLoading, isFetching } = useBotInfo();
 
 const stateMutation = useBotJoinPart();
+const isStateButtonDisabled = ref(true);
 async function changeBotState() {
+	isStateButtonDisabled.value = true;
 	await stateMutation.mutate(data?.value?.enabled ? 'part' : 'join');
 }
+
+watch(isFetching, (value) => {
+	if (!value) {
+		isStateButtonDisabled.value = false;
+		return;
+	}
+});
 </script>
 
 <template>
@@ -35,7 +45,8 @@ async function changeBotState() {
       <n-button
         :type="data?.enabled ? 'error' : 'success'"
         block
-        :loading="isFetching || isLoading"
+        :loading="isStateButtonDisabled"
+        :disabled="isStateButtonDisabled"
         @click="changeBotState"
       >
         {{ data?.enabled ? 'Leave' : 'Join' }}
