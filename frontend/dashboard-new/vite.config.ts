@@ -16,6 +16,14 @@ export default defineConfig({
 	server: {
 		port: 3006,
 		host: true,
+		proxy: {
+			'/api': {
+				target: 'http://127.0.0.1:3002',
+				changeOrigin: true,
+				rewrite: (path) => path.replace(/^\/api/, ''),
+				ws: true,
+			},
+		},
 	},
 	clearScreen: false,
 });
