@@ -1,7 +1,12 @@
 <script setup lang='ts'>
 import { NTable } from 'naive-ui';
 
+import Donationalerts from '@/components/integrations/donationalerts.vue';
+import Faceit from '@/components/integrations/faceit.vue';
+import Lastfm from '@/components/integrations/lastfm.vue';
 import Spotify from '@/components/integrations/spotify.vue';
+import Streamlabs from '@/components/integrations/streamlabs.vue';
+import Vk from '@/components/integrations/vk.vue';
 </script>
 
 <template>
@@ -16,6 +21,11 @@ import Spotify from '@/components/integrations/spotify.vue';
       </thead>
       <tbody>
         <Spotify />
+        <Lastfm />
+        <Vk />
+        <Streamlabs />
+        <Donationalerts />
+        <Faceit />
       </tbody>
     </n-table>
   </div>
@@ -35,6 +45,7 @@ import Spotify from '@/components/integrations/spotify.vue';
 
 .integrations table tr td:first-of-type {
 	width: 70px;
+	text-align: center;
 }
 
 .integrations table tr td {

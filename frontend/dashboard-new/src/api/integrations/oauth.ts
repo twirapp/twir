@@ -78,3 +78,45 @@ export const useSpotifyIntegration = () => createIntegrationOauth({
 	usePostCode: protectedApiClient.integrationsSpotifyPostCode,
 	useLogout: protectedApiClient.integrationsSpotifyLogout,
 });
+
+export const useLastfmIntegration = () => createIntegrationOauth({
+	integrationName: 'lastfm',
+	getData: protectedApiClient.integrationsLastFMGetData,
+	getAuthLink: protectedApiClient.integrationsLastFMGetAuthLink,
+	usePostCode: protectedApiClient.integrationsLastFMPostCode,
+	useLogout: protectedApiClient.integrationsLastFMLogout,
+});
+
+
+export const useVKIntegration = () => createIntegrationOauth({
+	integrationName: 'vk',
+	getData: protectedApiClient.integrationsVKGetData,
+	getAuthLink: protectedApiClient.integrationsVKGetAuthLink,
+	usePostCode: protectedApiClient.integrationsVKPostCode,
+	useLogout: protectedApiClient.integrationsVKLogout,
+});
+
+
+export const useStreamlabsIntegration = () => createIntegrationOauth({
+	integrationName: 'streamlabs',
+	getData: protectedApiClient.integrationsStreamlabsGetData,
+	getAuthLink: protectedApiClient.integrationsStreamlabsGetAuthLink,
+	usePostCode: protectedApiClient.integrationsStreamlabsPostCode,
+	useLogout: protectedApiClient.integrationsStreamlabsLogout,
+});
+
+export const useFaceitIntegration = () => createIntegrationOauth({
+	integrationName: 'faceit',
+	getData: protectedApiClient.integrationsFaceitGetData,
+	getAuthLink: protectedApiClient.integrationsFaceitGetAuthLink,
+	usePostCode: protectedApiClient.integrationsFaceitPostCode,
+	useLogout: protectedApiClient.integrationsFaceitLogout,
+});
+
+export const useDonationAlertsIntegration = () => createIntegrationOauth({
+	integrationName: 'donationalerts',
+	getData: protectedApiClient.integrationsDonationAlertsGetData,
+	getAuthLink: protectedApiClient.integrationsDonationAlertsGetAuthLink,
+	usePostCode: protectedApiClient.integrationsDonationAlertsPostCode,
+	useLogout: protectedApiClient.integrationsDonationAlertsLogout,
+});
