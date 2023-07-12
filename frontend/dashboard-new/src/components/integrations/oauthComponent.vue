@@ -1,10 +1,11 @@
 <script setup lang='ts'>
 import { IconLogin, IconLogout } from '@tabler/icons-vue';
-import { NButton } from 'naive-ui';
+import { NButton, NTooltip } from 'naive-ui';
 import type { FunctionalComponent } from 'vue';
 import { defineSlots } from 'vue';
 
 const props = defineProps<{
+	name: string,
 	data: { userName: string, avatar: string } | undefined
 	logout: () => Promise<void>
 	getLoginLink: () => Promise<{ link: string }>
@@ -23,7 +24,12 @@ async function login() {
 <template>
   <tr>
     <td>
-      <slot name="icon" />
+      <n-tooltip trigger="hover" placement="left">
+        <template #trigger>
+          <slot name="icon" />
+        </template>
+        {{ name }}
+      </n-tooltip>
     </td>
     <td>
       <n-text v-if="data">
