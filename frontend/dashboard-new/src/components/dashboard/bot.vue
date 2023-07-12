@@ -49,7 +49,7 @@ watch(isFetching, (value) => {
         :disabled="isStateButtonDisabled"
         @click="changeBotState"
       >
-        {{ data?.enabled ? 'Leave' : 'Join' }}
+				{{ data?.enabled ? 'Leave' : 'Join' }}
       </n-button>
     </template>
   </n-card>
