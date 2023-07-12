@@ -48,6 +48,10 @@ import Vk from '@/components/integrations/vk.vue';
 	text-align: center;
 }
 
+.integrations table tr td:last-of-type {
+	width: 70px;
+}
+
 .integrations table tr td {
 	white-space: nowrap;   /* Prevent line breaks within cells */
 	overflow: hidden;      /* Hide overflowing content */
