@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { IconMenu2 } from '@tabler/icons-vue';
 import {
 	darkTheme, NLayout, NLayoutHeader, NLayoutContent, NLayoutSider, NConfigProvider, NButton } from 'naive-ui';
 import { computed, ref } from 'vue';
@@ -7,7 +6,6 @@ import { RouterView } from 'vue-router';
 
 import { useTheme } from './hooks/index.js';
 import Header from './layout/header.vue';
-import Profile from './layout/profile.vue';
 import Sidebar from './layout/sidebar.vue';
 
 const localStorageTheme = useTheme();
@@ -37,7 +35,11 @@ function toggleSidebar() {
           <Sidebar />
         </n-layout-sider>
         <n-layout-content content-style="padding: 24px">
-          <router-view />
+          <router-view v-slot="{ Component, route }">
+            <transition :name="route.meta.transition || 'fade'">
+              <component :is="Component" />
+            </transition>
+          </router-view>
         </n-layout-content>
       </n-layout>
     </n-layout>

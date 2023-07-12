@@ -7,11 +7,17 @@ export const router = createRouter({
 	routes: [
 		{
 			path: '/dashboard',
-			component: () => import('./pages/Home.vue'),
-		},
-		{
-			path: '/dashboard/integrations',
-			component: () => import('./pages/Home.vue'),
+			component: () => import('./Layout.vue'),
+			children: [
+				{
+					path: '/dashboard',
+					component: () => import('./pages/Home.vue'),
+				},
+				{
+					path: '/dashboard/integrations',
+					component: () => import('./pages/Home.vue'),
+				},
+			],
 		},
 	],
 });
@@ -22,6 +28,7 @@ router.beforeEach(async () => {
 		return true;
 	} catch (e) {
 		console.error(e);
-		return '/';
+		window.location.replace('/');
+		return false;
 	}
 });

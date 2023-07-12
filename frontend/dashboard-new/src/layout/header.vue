@@ -24,10 +24,12 @@ const profileOptions: DropdownOption[] = [{
 	label: 'Logout',
 	key: 'logout',
 	icon: renderIcon(IconLogout),
-	disabled: false,
 	props: {
+		onClick: () => {
+			console.log('logout');
+		},
 		style: {
-			'background-color': 'red',
+			// 'background-color': 'red',
 		},
 	},
 }];
@@ -49,7 +51,7 @@ const { data: profileData, isLoading: isProfileLoading } = useProfile();
         <IconSun v-if="theme === 'dark'" color="orange" />
         <IconMoon v-else />
       </n-button>
-      <n-dropdown trigger="click" :options="profileOptions">
+      <n-dropdown trigger="click" :options="profileOptions" size="large">
         <n-button tertiary>
           <n-spin v-if="isProfileLoading" size="small" />
           <div v-else class="profile">

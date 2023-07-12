@@ -1,10 +1,10 @@
 <script setup lang='ts'>
-	import { NButton } from 'naive-ui';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
 </script>
 
 <template>
-  <n-button type="primary">
-    Hellow please mewge my puww requwst UwU
-  </n-button>
+  {{ route.fullPath }}
 </template>
 
