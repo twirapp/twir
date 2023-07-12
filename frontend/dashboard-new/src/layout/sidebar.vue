@@ -159,7 +159,7 @@ onMounted(async () => {
     <n-menu
       :options="[{
         label: 'Logout',
-        // icon: ,
+        key: 'logout',
         onClick: () => {
           window.location.href = '/logout';
         },
