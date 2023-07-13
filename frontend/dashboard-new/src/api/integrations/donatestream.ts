@@ -1,9 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
+import { useQuery, useMutation } from '@tanstack/vue-query';
 
 import { protectedApiClient } from '@/api/twirp.js';
 
 export const useDonateStreamIntegration = () => {
-	const queryClient = useQueryClient();
 	const queryKey = ['donatestream'];
 
 	return {
@@ -18,9 +17,6 @@ export const useDonateStreamIntegration = () => {
 			mutationKey: ['donatestream/post'],
 			mutationFn: async (secret: string) => {
 				await protectedApiClient.integrationsDonateStreamPostSecret({ secret });
-			},
-			onSuccess: async () => {
-				await queryClient.invalidateQueries(queryKey);
 			},
 		}),
 	};

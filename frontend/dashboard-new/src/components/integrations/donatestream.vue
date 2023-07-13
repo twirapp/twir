@@ -1,6 +1,6 @@
 <script setup lang='ts'>
-import { NTimeline, NTimelineItem, NText } from 'naive-ui';
-import { computed } from 'vue';
+import { NTimeline, NTimelineItem, NText, NInput, NButton, NInputGroup } from 'naive-ui';
+import { computed, ref } from 'vue';
 
 import { useDonateStreamIntegration } from '@/api/index.js';
 import DonateStreamSVG from '@/assets/icons/integrations/donate.stream.svg';
@@ -15,6 +15,13 @@ const currentPageUrl = `${window.location.origin}/api/webhooks/integrations/dona
 const webhookUrl = computed(() => {
 	return `${currentPageUrl}/${data.value?.integrationId}`;
 });
+
+const secret = ref('');
+async function saveSecret() {
+	console.log(secret.value);
+	if (!secret.value) return;
+	await mutateAsync(secret.value);
+}
 </script>
 
 <template>
@@ -28,22 +35,35 @@ const webhookUrl = computed(() => {
           <n-text>
             Paste that link into input on the
             <a
-              href="https://lk.donate.stream/settings/api-key"
+              href="https://lk.donate.stream/settings/api"
               target="_blank"
-              class="donatello-link"
+              class="link"
             >
-              https://lk.donate.stream/settings/api-key
+              https://lk.donate.stream/settings/api
             </a>
             <copy-input :text="webhookUrl" style="margin-top: 5px" />
           </n-text>
         </n-timeline-item>
         <n-timeline-item type="info" title="Step 2">
-          <n-text>Copy api key and paste into "Api Key" input</n-text>
-          <copy-input :text="''" style="margin-top: 5px" />
+          <n-text>
+            Paste the <a
+              href="https://i.imgur.com/OtW97pV.png"
+              target="_blank"
+              class="link"
+            >
+              secret key
+            </a>
+            from page and click SAVE
+          </n-text>
+          <n-input-group>
+            <n-input v-model:value="secret" type="text" size="small" placeholder="secret from page" />
+            <n-button size="small" secondary type="success" @click="saveSecret">
+              Save
+            </n-button>
+          </n-input-group>
         </n-timeline-item>
         <n-timeline-item type="info" title="Step 3">
-          <n-text>Copy link and paste into "Link" field</n-text>
-          <copy-input :text="webhookUrl" style="margin-top: 5px" />
+          <n-text>Back to donate.stream and click "confirm" button</n-text>
         </n-timeline-item>
       </n-timeline>
     </template>
@@ -51,7 +71,7 @@ const webhookUrl = computed(() => {
 </template>
 
 <style scoped>
-.donatello-link {
+.link {
 	color: #41c489;
 	text-decoration: none
 }

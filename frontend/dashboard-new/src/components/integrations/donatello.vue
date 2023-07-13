@@ -24,7 +24,7 @@ const webhookUrl = `${window.location.origin}/api/webhooks/integrations/donatell
             <a
               href="https://donatello.to/panel/settings"
               target="_blank"
-              class="donatello-link"
+              class="link"
             >
               https://donatello.to/panel/settings
             </a>
@@ -45,7 +45,7 @@ const webhookUrl = `${window.location.origin}/api/webhooks/integrations/donatell
 </template>
 
 <style scoped>
-.donatello-link {
+.link {
 	color: #41c489;
 	text-decoration: none
 }
