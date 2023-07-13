@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint --ext .ts,.vue apps/",
     "lint:fix": "eslint --fix --ext .ts,.vue,tsx apps/ frontend/",
-		"predev": "pnpm migrate:deploy && pnpm run setup && pnpm build:libs",
+		"predev": "pnpm build:libs && pnpm migrate:deploy && pnpm run setup",
     "dev": "go run ./tools/process-runner.go",
     "build": "turbo run build",
     "build:libs": "turbo run build --filter=./libs/**",
