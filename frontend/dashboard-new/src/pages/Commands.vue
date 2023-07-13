@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import { Command } from '@twir/grpc/generated/api/api/commands';
 import { NButton } from 'naive-ui';
+import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useCommandsManager } from '@/api/index.js';
@@ -10,12 +11,13 @@ const route = useRoute();
 const commandsManager = useCommandsManager();
 const { data: commandsResponse } = commandsManager.getAll({});
 
-const commands: Command = [{
+const commands = ref([{
 	name: 'test2',
 	responses: [
 		{ text: 'qwe' },
 	],
-}];
+	enabled: true,
+}]);
 </script>
 
 <template>
