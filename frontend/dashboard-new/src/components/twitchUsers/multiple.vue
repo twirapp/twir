@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { refDebounced, refThrottled } from '@vueuse/core';
+import { refDebounced } from '@vueuse/core';
 import { NSelect } from 'naive-ui';
 import { computed, ref, watch } from 'vue';
 import { defineModel } from 'vue/dist/vue.js';
@@ -10,12 +10,10 @@ const usersIds = defineModel<string[]>({ default: [] });
 
 const userName = ref<string>('');
 const userNameDebounced = refDebounced(userName, 1000);
-
 const twitchSearch = useTwitchSearchUsers({
-	ids: usersIds.value,
-	names: [userNameDebounced.value],
+	ids: usersIds,
+	names: userNameDebounced,
 });
-
 watch(userNameDebounced, () => {
 	twitchSearch.refetch();
 });
