@@ -1,12 +1,24 @@
 <script setup lang='ts'>
 import { IconVariable } from '@tabler/icons-vue';
-import { NText, NInput, NInputGroup, NSelect } from 'naive-ui';
+import { NText, NInput, NInputGroup, NSelect, NGridItem, NGrid } from 'naive-ui';
 import { type SelectMixedOption } from 'naive-ui/es/select/src/interface';
-import { computed, VNodeChild, h, defineModel } from 'vue';
+import { computed, VNodeChild, h, defineModel, FunctionalComponent, defineSlots } from 'vue';
 
 import { useAllVariables } from '@/api/index.js';
 
 const text = defineModel({ default: '' });
+
+const props = withDefaults(defineProps<{
+	inputType: 'text' | 'textarea',
+	minRows: 1,
+	maxRows: 6,
+}>(), {
+	inputType: 'text',
+});
+
+defineSlots<{
+	underSelect: FunctionalComponent
+}>();
 
 const allVariables = useAllVariables();
 const selectVariables = computed<SelectMixedOption[]>(() => {
@@ -85,27 +97,37 @@ function appendOptionToText(option: SelectMixedOption) {
 </script>
 
 <template>
-  <n-input-group>
-    <n-input
-      v-model:value="text"
-    />
-    <n-select
-      :style="{ width: '33%' }"
-      :options="selectVariables"
-      :loading="allVariables.isLoading.value"
-      placeholder="Search variable..."
-      :filterable="true"
-      :value="null"
-      :clear-filter-after-select="true"
-      :consistent-menu-width="false"
-      :render-label="renderVariableSelectLabel as any"
-      :on-update-value="(_, option) => appendOptionToText(option)"
-    >
-      <template #arrow>
-        <IconVariable />
-      </template>
-    </n-select>
-  </n-input-group>
+  <n-grid cols="12" x-gap="5">
+    <n-grid-item span="8">
+      <n-input
+        v-model:value="text"
+        style="width: 100%"
+        :type="inputType"
+        :autosize="inputType === 'text' ? {} : { minRows, maxRows }"
+        placeholder="Response text"
+      />
+    </n-grid-item>
+    <n-grid-item span="4">
+      <n-space vertical>
+        <n-select
+          :options="selectVariables"
+          :loading="allVariables.isLoading.value"
+          placeholder="Search variable..."
+          :filterable="true"
+          :value="null"
+          :clear-filter-after-select="true"
+          :consistent-menu-width="false"
+          :render-label="renderVariableSelectLabel as any"
+          :on-update-value="(_, option) => appendOptionToText(option)"
+        >
+          <template #arrow>
+            <IconVariable />
+          </template>
+        </n-select>
+        <slot name="underSelect" />
+      </n-space>
+    </n-grid-item>
+  </n-grid>
 </template>
 
 <style scoped lang='postcss'>

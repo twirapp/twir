@@ -87,7 +87,13 @@ const rules: FormRules = {
       show-sort-button
     >
       <template #default="{ value }: { value: Command_Response }">
-        <text-with-variables v-model="value.text" />
+        <text-with-variables
+          v-model="value.text"
+          inputType="textarea"
+          minRows="3"
+          maxRows="6"
+        >
+        </text-with-variables>
       </template>
     </n-dynamic-input>
     {{ JSON.stringify(formValue) }}
