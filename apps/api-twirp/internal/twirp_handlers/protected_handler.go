@@ -1,6 +1,7 @@
 package twirp_handlers
 
 import (
+	"github.com/satont/twir/apps/api-twirp/internal/handlers"
 	"time"
 
 	"github.com/satont/twir/apps/api-twirp/internal/interceptors"
@@ -18,7 +19,7 @@ type Grpc struct {
 	Tokens tokens.TokensClient
 }
 
-func NewProtected(opts Opts) IHandler {
+func NewProtected(opts Opts) handlers.IHandler {
 	twirpHandler := api.NewProtectedServer(
 		opts.ImplProtected,
 		twirp.WithServerPathPrefix("/v1"),
@@ -110,15 +111,15 @@ func NewProtected(opts Opts) IHandler {
 		)),
 	)
 
-	h := &Handler{
-		pattern: twirpHandler.PathPrefix(),
-		handler: wrappers.Wrap(
+	h := handlers.New(handlers.Opts{
+		Pattern: twirpHandler.PathPrefix(),
+		Handler: wrappers.Wrap(
 			twirpHandler,
 			wrappers.WithCors,
 			wrappers.WithDashboardId,
 			wrappers.WithApiKeyHeader,
 		),
-	}
+	})
 
 	return h
 }

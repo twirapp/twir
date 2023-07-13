@@ -11,7 +11,7 @@ const integration = useDonateStreamIntegration();
 const { data } = integration.useGetData();
 const { mutateAsync } = integration.usePost();
 
-const currentPageUrl = `${window.location.origin}/api/webhooks/integrations/donatestream/`;
+const currentPageUrl = `${window.location.origin}/api/webhooks/integrations/donatestream`;
 const webhookUrl = computed(() => {
 	return `${currentPageUrl}/${data.value?.integrationId}`;
 });

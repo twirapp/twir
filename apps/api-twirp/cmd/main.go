@@ -4,14 +4,17 @@ import (
 	"context"
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
+	"github.com/satont/twir/apps/api-twirp/internal/handlers"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_protected"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_unprotected"
 	"github.com/satont/twir/apps/api-twirp/internal/interceptors"
 	"github.com/satont/twir/apps/api-twirp/internal/sessions"
 	"github.com/satont/twir/apps/api-twirp/internal/twirp_handlers"
+	"github.com/satont/twir/apps/api-twirp/internal/webhooks"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
 	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/generated/events"
 	"github.com/satont/twir/libs/grpc/generated/integrations"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
@@ -55,6 +58,9 @@ func main() {
 			},
 			func(c *cfg.Config) parser.ParserClient {
 				return clients.NewParser(c.AppEnv)
+			},
+			func(c *cfg.Config) events.EventsClient {
+				return clients.NewEvents(c.AppEnv)
 			},
 			func(config *cfg.Config, lc fx.Lifecycle) *redis.Client {
 				redisOpts, err := redis.ParseURL(config.RedisUrl)
@@ -101,10 +107,12 @@ func main() {
 			interceptors.New,
 			impl_protected.New,
 			impl_unprotected.New,
-			twirp_handlers.AsHandler(twirp_handlers.NewProtected),
-			twirp_handlers.AsHandler(twirp_handlers.NewUnProtected),
+			handlers.AsHandler(twirp_handlers.NewProtected),
+			handlers.AsHandler(twirp_handlers.NewUnProtected),
+			handlers.AsHandler(webhooks.NewDonateStream),
+			handlers.AsHandler(webhooks.NewDonatello),
 			fx.Annotate(
-				func(handlers []twirp_handlers.IHandler) *http.ServeMux {
+				func(handlers []handlers.IHandler) *http.ServeMux {
 					mux := http.NewServeMux()
 					for _, route := range handlers {
 						mux.Handle(route.Pattern(), route.Handler())
