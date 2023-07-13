@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { IconLogin, IconLogout } from '@tabler/icons-vue';
-import { NButton, NTooltip, NAvatar } from 'naive-ui';
+import { NButton, NTooltip, NAvatar, NText } from 'naive-ui';
 import type { FunctionalComponent } from 'vue';
 import { defineSlots } from 'vue';
 
