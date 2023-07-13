@@ -14,8 +14,13 @@ export const router = createRouter({
 					component: () => import('./pages/Dashboard.vue'),
 				},
 				{
+					name: 'Integrations',
 					path: '/dashboard/integrations',
 					component: () => import('./pages/Integrations.vue'),
+				},
+				{
+					path: '/dashboard/integrations/:integrationName',
+					component: () => import('./pages/IntegrationsCallback.vue'),
 				},
 			],
 		},

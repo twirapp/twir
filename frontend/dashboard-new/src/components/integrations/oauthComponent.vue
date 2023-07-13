@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { IconLogin, IconLogout } from '@tabler/icons-vue';
-import { NButton, NTooltip } from 'naive-ui';
+import { NButton, NTooltip, NAvatar } from 'naive-ui';
 import type { FunctionalComponent } from 'vue';
 import { defineSlots } from 'vue';
 
@@ -8,7 +8,7 @@ const props = defineProps<{
 	name: string,
 	data: { userName: string, avatar: string } | undefined
 	logout: () => Promise<void>
-	getLoginLink: () => Promise<{ link: string }>
+	getLoginLink: () => Promise<{ data: { link: string } }>
 }>();
 
 defineSlots<{
@@ -16,8 +16,9 @@ defineSlots<{
 }>();
 
 async function login() {
-	const { link } = await props.getLoginLink();
-	if (link) window.location.replace(link);
+	const req = await props.getLoginLink();
+	if (!req.data?.link) return;
+	window.location.replace(req.data?.link);
 }
 </script>
 
@@ -32,9 +33,12 @@ async function login() {
       </n-tooltip>
     </td>
     <td>
-      <n-text v-if="data">
-        {{ data.userName }}
-      </n-text>
+      <div v-if="data?.userName" class="profile">
+        <n-avatar :src="data.avatar" class="avatar" round />
+        <n-text>
+          {{ data.userName }}
+        </n-text>
+      </div>
       <span v-else class="badge">Not Logged In</span>
     </td>
     <td>
@@ -68,5 +72,11 @@ async function login() {
 	align-items: center;
 	gap: 5px;
 	width: auto;
+}
+
+.profile {
+	display: flex;
+	align-items: center;
+	gap: 5px;
 }
 </style>

@@ -56,7 +56,7 @@ func (c *Integrations) IntegrationsDonationAlertsGetAuthLink(
 func (c *Integrations) IntegrationsDonationAlertsGetData(
 	ctx context.Context, _ *emptypb.Empty,
 ) (*integrations_donationalerts.GetDataResponse, error) {
-	dashboardId := ctx.Value("dashboard_id").(string)
+	dashboardId := ctx.Value("dashboardId").(string)
 	integration, err := c.getChannelIntegrationByService(
 		ctx, model.IntegrationServiceDonationAlerts, dashboardId,
 	)
@@ -73,7 +73,7 @@ func (c *Integrations) IntegrationsDonationAlertsGetData(
 func (c *Integrations) IntegrationsDonationAlertsPostCode(
 	ctx context.Context, request *integrations_donationalerts.PostCodeRequest,
 ) (*emptypb.Empty, error) {
-	dashboardId := ctx.Value("dashboard_id").(string)
+	dashboardId := ctx.Value("dashboardId").(string)
 	integration, err := c.getChannelIntegrationByService(
 		ctx, model.IntegrationServiceDonationAlerts, dashboardId,
 	)
@@ -139,7 +139,7 @@ func (c *Integrations) IntegrationsDonationAlertsPostCode(
 func (c *Integrations) IntegrationsDonationAlertsLogout(ctx context.Context, _ *emptypb.Empty) (
 	*emptypb.Empty, error,
 ) {
-	dashboardId := ctx.Value("dashboard_id").(string)
+	dashboardId := ctx.Value("dashboardId").(string)
 	integration, err := c.getChannelIntegrationByService(
 		ctx, model.IntegrationServiceDonationAlerts, dashboardId,
 	)

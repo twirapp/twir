@@ -12,7 +12,7 @@ func WithDashboardId(base http.Handler) http.Handler {
 		cookies := r.Cookies()
 
 		for _, cookie := range cookies {
-			if cookie.Name == "dashboard_id" {
+			if cookie.Name == "dashboardId" {
 				channelId = cookie.Value
 			}
 		}

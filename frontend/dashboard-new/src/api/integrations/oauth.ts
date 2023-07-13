@@ -8,7 +8,7 @@ type CallFunc<
 	Res extends Record<any, any>
 > = (input: Req, options?: RpcOptions) => UnaryCall<Req, Res>;
 
-const createIntegrationOauth = <
+export const createIntegrationOauth = <
 		GetData extends CallFunc<any, any>,
 		GetAuthLink extends CallFunc<any, any>,
 		UsePostCode extends CallFunc<any, any>,
@@ -60,7 +60,7 @@ const createIntegrationOauth = <
 			},
 		}),
 		useLogout: () => useMutation({
-			mutationKey: [`${queryKey}/post-code`],
+			mutationKey: [`${queryKey}/logout`],
 			mutationFn: async (req: Parameters<typeof opts.useLogout>[0]) => {
 				await opts.useLogout(req);
 			},

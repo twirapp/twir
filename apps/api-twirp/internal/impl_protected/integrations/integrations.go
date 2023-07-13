@@ -57,6 +57,7 @@ func (c *Integrations) getChannelIntegrationByService(
 			ClientSecret:  null.String{},
 			APIKey:        null.String{},
 			Integration:   integration,
+			Data:          &model.ChannelsIntegrationsData{},
 		}
 
 		if err := c.Db.WithContext(ctx).Save(channelIntegration).Error; err != nil {

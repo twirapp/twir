@@ -21,9 +21,7 @@ func NewWatched(ctx context.Context, services *types.Services) {
 			case <-ctx.Done():
 				ticker.Stop()
 				return
-			case t := <-ticker.C:
-				zap.S().Debugf("watched timer ticked at %s", t)
-
+			case <-ticker.C:
 				var streams []model.ChannelsStreams
 				err := services.Gorm.
 					Preload("Channel").

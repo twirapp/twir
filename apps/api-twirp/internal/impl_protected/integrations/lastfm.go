@@ -86,7 +86,7 @@ func (c *Integrations) IntegrationsLastFMPostCode(
 }
 
 func (c *Integrations) IntegrationsLastFMLogout(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
-	dashboardId := ctx.Value("dashboard_id").(string)
+	dashboardId := ctx.Value("dashboardId").(string)
 	integration, err := c.getChannelIntegrationByService(
 		ctx, model.IntegrationServiceLastfm, dashboardId,
 	)
