@@ -3,3 +3,4 @@ export * from './auth.js';
 export * from './integrations/index.js';
 export * from './crud.js';
 export * from './allVariables.js';
+export * from './twitch.js';

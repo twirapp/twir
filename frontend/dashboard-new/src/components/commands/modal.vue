@@ -21,13 +21,14 @@ import { ref, reactive, onMounted, computed } from 'vue';
 
 import { useRolesManager } from '@/api/index.js';
 import TextWithVariables from '@/components/textWithVariables.vue';
+import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue';
 
 const props = defineProps<{
 	command: Command | null
 }>();
 
 type FormCommand = Omit<Command, 'responses'> & {
-	responses: Omit<Command_Response, 'id' | 'commandId' | 'order'>[]
+	responses: Array<Omit<Command_Response, 'id' | 'commandId' | 'order'> & { id?: string }>
 };
 
 const formRef = ref<FormInst | null>(null);
@@ -37,6 +38,8 @@ const formValue = reactive<FormCommand>({
 	responses: [],
 	description: '',
 	rolesIds: [],
+	deniedUsersIds: [],
+	allowedUsersIds: [],
 });
 
 onMounted(() => {
@@ -46,6 +49,8 @@ onMounted(() => {
 		formValue.responses = props.command.responses;
 		formValue.description = props.command.description;
 		formValue.rolesIds = props.command.rolesIds;
+		formValue.deniedUsersIds = props.command.deniedUsersIds;
+		formValue.allowedUsersIds = props.command.allowedUsersIds;
 	}
 });
 
@@ -129,6 +134,7 @@ const rules: FormRules = {
     <n-divider>
       Permissions
     </n-divider>
+
     <n-form-item label="Roles" path="rolesIds">
       <n-select
         v-model:value="formValue.rolesIds"
@@ -141,6 +147,15 @@ const rules: FormRules = {
         </template>
       </n-select>
     </n-form-item>
+
+    <n-grid :cols="12">
+      <n-grid-item :span="6">
+        <twitch-users-multiple v-model="formValue.deniedUsersIds" />
+      </n-grid-item>
+
+      <n-grid-item :span="6">
+      </n-grid-item>
+    </n-grid>
     {{ JSON.stringify(formValue) }}
   </n-form>
 </template>
