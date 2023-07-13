@@ -43,11 +43,11 @@ async function login() {
     </td>
     <td>
       <div class="actions">
-        <n-button strong secondary type="error" @click="logout">
+        <n-button v-if="data?.userName" strong secondary type="error" @click="logout">
           <IconLogout />
           Logout
         </n-button>
-        <n-button trong secondary type="success" @click="login">
+        <n-button v-else trong secondary type="success" @click="login">
           <IconLogin />
           Login
         </n-button>
