@@ -3,6 +3,7 @@ import { NTable } from 'naive-ui';
 
 import Donatello from '@/components/integrations/donatello.vue';
 import Donatepay from '@/components/integrations/donatepay.vue';
+import Donatestream from '@/components/integrations/donatestream.vue';
 import Donationalerts from '@/components/integrations/donationalerts.vue';
 import Faceit from '@/components/integrations/faceit.vue';
 import Lastfm from '@/components/integrations/lastfm.vue';
@@ -30,6 +31,7 @@ import Vk from '@/components/integrations/vk.vue';
         <Faceit />
         <Donatello />
         <Donatepay />
+        <Donatestream />
       </tbody>
     </n-table>
   </div>
