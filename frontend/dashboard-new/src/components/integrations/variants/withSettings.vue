@@ -1,15 +1,13 @@
 <script setup lang='ts'>
 import { IconSettings } from '@tabler/icons-vue';
-import { NTooltip, NButton, NModal } from 'naive-ui';
+import { NTooltip, NButton, NModal, NSpace } from 'naive-ui';
 import { ref } from 'vue';
 import { defineSlots, FunctionalComponent } from 'vue/dist/vue.js';
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
 	name: string,
-	hasSaveButton: boolean
-}>(), {
-	hasSaveButton: false,
-});
+	save?: () => void | Promise<void>
+}>();
 
 defineSlots<{
 	icon: FunctionalComponent<any>
@@ -59,9 +57,14 @@ const modalWidth = '600px';
     <slot name="settings" />
 
     <template #action>
-      <n-button @click="showSettings = false">
-        Close
-      </n-button>
+      <n-space justify="end">
+        <n-button secondary @click="showSettings = false">
+          Close
+        </n-button>
+        <n-button v-if="save" secondary type="success" @click="save">
+          Save
+        </n-button>
+      </n-space>
     </template>
   </n-modal>
 </template>
