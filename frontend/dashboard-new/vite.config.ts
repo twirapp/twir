@@ -6,7 +6,14 @@ import svg from 'vite-svg-loader';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), svg({ svgo: false })],
+  plugins: [
+		vue({
+			script: {
+				defineModel: true,
+			},
+		}),
+		svg({ svgo: false }),
+	],
 	base: '/dashboard',
 	resolve: {
 		alias: {
