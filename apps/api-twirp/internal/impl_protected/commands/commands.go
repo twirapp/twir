@@ -43,7 +43,7 @@ func (c *Commands) convertDbToRpc(cmd *model.ChannelsCommands) *commands.Command
 		Responses: lo.Map(cmd.Responses, func(res *model.ChannelsCommandsResponses, _ int) *commands.Command_Response {
 			return &commands.Command_Response{
 				Id:        res.ID,
-				Text:      res.Text.Ptr(),
+				Text:      res.Text.String,
 				CommandId: res.CommandID,
 				Order:     uint32(res.Order),
 			}

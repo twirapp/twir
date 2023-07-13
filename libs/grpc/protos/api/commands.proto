@@ -33,7 +33,7 @@ message CreateRequest {
 message Command {
 	message Response {
 		string id = 1;
-		optional string text = 2;
+		string text = 2;
 		string command_id = 3;
 		uint32 order = 4;
 	}
