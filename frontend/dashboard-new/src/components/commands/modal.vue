@@ -1,10 +1,5 @@
 <script setup lang='ts'>
-import {
-	IconTrash,
-	IconPlus,
-	IconArrowBigUp,
-	IconArrowBigDown,
-} from '@tabler/icons-vue';
+import { IconVariable } from '@tabler/icons-vue';
 import type { Command, Command_Response } from '@twir/grpc/generated/api/api/commands';
 import {
 	NForm,
@@ -20,9 +15,16 @@ import {
 	NButton,
 	NSpace,
 	NInputGroup,
+	NInputGroupLabel,
 	NDynamicInput,
+	NSelect,
+	NBadge,
+	NText,
 } from 'naive-ui';
-import { ref } from 'vue';
+import { type SelectMixedOption } from 'naive-ui/es/select/src/interface';
+import { ref, computed, VNodeChild, h, reactive } from 'vue';
+
+import { useAllVariables } from '@/api/index.js';
 
 defineProps<{
 	command: Command | null
@@ -33,7 +35,7 @@ type FormCommand = Omit<Command, 'responses'> & {
 };
 
 const formRef = ref<FormInst | null>(null);
-const formValue = ref<FormCommand>({
+const formValue = reactive<FormCommand>({
 	name:'',
 	aliases: [],
 	responses: [],
@@ -61,6 +63,84 @@ const rules: FormRules = {
 		},
 	},
 };
+
+const allVariables = useAllVariables();
+const selectVariables = computed<SelectMixedOption[]>(() => {
+	const variables = allVariables.data?.value;
+	if (!variables) return [];
+
+	const builtIn = variables.filter((variable) => variable.isBuiltIn);
+	const custom = variables.filter((variable) => !variable.isBuiltIn);
+
+	return [
+		{
+			type: 'group',
+			label: 'Custom',
+			key: 'Custom',
+			children: custom.map(v => ({
+				label: v.name,
+				value: v.example || v.name,
+				description: v.description,
+			})),
+		},
+		{
+			type: 'group',
+			label: 'Built in',
+			key: 'Built in',
+			children: builtIn.map(v => ({
+				label: v.name,
+				value: v.example || v.name,
+				description: v.description,
+			})),
+		},
+	];
+});
+
+function renderVariableSelectLabel(option: {
+	type: string,
+	label: string,
+	description: string
+}): VNodeChild {
+	if (option.type === 'group') return option.label;
+	if (!option.description) return option.label;
+
+	return h(
+		'div',
+		{
+			style: {
+				display: 'flex',
+				alignItems: 'center',
+			},
+		},
+		[
+			h(
+				'div',
+				{
+					style: {
+						padding: '4px 0',
+					},
+				},
+				[
+					h('div', null, `$(${option.label})`),
+					h(
+						NText,
+						{ depth: 3, tag: 'div' },
+						{
+							default: () => option.description,
+						},
+					),
+				],
+			),
+		],
+	);
+}
+
+function appendOptionToResponse(responseIndex: number, option: SelectMixedOption) {
+	const response = formValue.responses[responseIndex];
+	if (!response) return;
+
+	response.text += ` $(${option.value})`;
+}
 </script>
 
 <template>
@@ -68,7 +148,10 @@ const rules: FormRules = {
     <n-grid :cols="12" :x-gap="10">
       <n-grid-item :span="6">
         <n-form-item label="Name" path="name">
-          <n-input v-model:value="formValue.name" placeholder="Input Name" />
+          <n-input-group>
+            <n-input-group-label>!</n-input-group-label>
+            <n-input v-model:value="formValue.name" placeholder="Input Name" />
+          </n-input-group>
         </n-form-item>
       </n-grid-item>
       <n-grid-item :span="6">
@@ -82,47 +165,36 @@ const rules: FormRules = {
       Responses
     </n-divider>
 
-    <!--    <n-button size="small" block @click="formValue.responses.push({ text: '' })">-->
-    <!--      +-->
-    <!--    </n-button>-->
-    <!--    <div v-for="(response, responseIndex) in formValue.responses" :key="responseIndex">-->
-    <!--      <n-form-item :path="'aliases'[responseIndex]">-->
-    <!--        <n-input-group>-->
-    <!--          <n-input v-model:value="response.text" placeholder="Response" />-->
-    <!--          <n-button type="primary">-->
-    <!--            Search-->
-    <!--          </n-button>-->
-    <!--          <n-button secondary type="error">-->
-    <!--            <IconTrash />-->
-    <!--          </n-button>-->
-    <!--        </n-input-group>-->
-    <!--      </n-form-item>-->
-    <!--    </div>-->
     <n-dynamic-input
       v-model:value="formValue.responses"
       :on-create="() => ({ text: '' })"
-      placeholder="Come on"
+      placeholder="Response"
       show-sort-button
     >
-      <template #default="{ value }">
-        <n-input v-model:value="value.text" type="text" />
+      <template #default="{ value, index: responseIndex }">
+        <n-input-group>
+          <n-input
+            v-model:value="value.text"
+            type="text"
+          />
+          <n-select
+            :style="{ width: '33%' }"
+            :options="selectVariables"
+            :loading="allVariables.isLoading.value"
+            placeholder="Search variable..."
+            :filterable="true"
+            :value="null"
+            :clear-filter-after-select="true"
+            :consistent-menu-width="false"
+            :render-label="renderVariableSelectLabel as any"
+            :on-update-value="(_, option) => appendOptionToResponse(responseIndex, option)"
+          >
+            <template #arrow>
+              <IconVariable />
+            </template>
+          </n-select>
+        </n-input-group>
       </template>
-      <!--      <template #action="{ index, create, remove, move }">-->
-      <!--        <n-space style="margin-left: 20px">-->
-      <!--          <n-button size="small" @click="() => create(index)">-->
-      <!--            <IconPlus />-->
-      <!--          </n-button>-->
-      <!--          <n-button size="small" @click="() => remove(index)">-->
-      <!--            <IconTrash />-->
-      <!--          </n-button>-->
-      <!--          <n-button size="small" @click="() => move('up', index)">-->
-      <!--            <IconArrowBigUp />-->
-      <!--          </n-button>-->
-      <!--          <n-button size="small" @click="() => move('down', index)">-->
-      <!--            <IconArrowBigDown />-->
-      <!--          </n-button>-->
-      <!--        </n-space>-->
-      <!--      </template>-->
     </n-dynamic-input>
     {{ JSON.stringify(formValue) }}
   </n-form>
