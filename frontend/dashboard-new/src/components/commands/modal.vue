@@ -14,12 +14,13 @@ import {
 	NInputGroup,
 	NInputGroupLabel,
 	NDynamicInput,
+	NSpace,
 } from 'naive-ui';
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 
 import TextWithVariables from '@/components/textWithVariables.vue';
 
-defineProps<{
+const props = defineProps<{
 	command: Command | null
 }>();
 
@@ -33,6 +34,15 @@ const formValue = reactive<FormCommand>({
 	aliases: [],
 	responses: [],
 });
+
+onMounted(() => {
+	if (props.command) {
+		formValue.name = props.command.name;
+		formValue.aliases = props.command.aliases;
+		formValue.responses = props.command.responses;
+	}
+});
+
 const nameValidator = (rule: FormItemRule, value: string) => {
 	if (!value) {
 		return new Error('Please input a name');
@@ -90,8 +100,8 @@ const rules: FormRules = {
         <text-with-variables
           v-model="value.text"
           inputType="textarea"
-          minRows="3"
-          maxRows="6"
+          :minRows="3"
+          :maxRows="6"
         >
         </text-with-variables>
       </template>

@@ -16,6 +16,7 @@ const commands = ref([{
 	responses: [
 		{ text: 'qwe' },
 	],
+	aliases: ['aliase'],
 	enabled: true,
 }]);
 </script>

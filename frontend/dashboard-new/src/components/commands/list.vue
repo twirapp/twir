@@ -2,7 +2,7 @@
 import { IconTrash, IconPencil } from '@tabler/icons-vue';
 import { type Command } from '@twir/grpc/generated/api/api/commands';
 import { NDataTable, DataTableColumns, NText, NSwitch, NButton, NSpace, NBadge, NModal } from 'naive-ui';
-import { h, ref } from 'vue';
+import { h, ref, toRaw } from 'vue';
 
 import Modal from '@/components/commands/modal.vue';
 import { renderIcon } from '@/helpers/index.js';
@@ -83,7 +83,7 @@ const showModal = ref(false);
 
 const editableCommand = ref<Command | null>(null);
 function editCommand(command: Command) {
-	editableCommand.value = command;
+	editableCommand.value = structuredClone(toRaw(command));
 	showModal.value = true;
 }
 
@@ -115,7 +115,7 @@ function onModalClose() {
       }"
       :on-close="onModalClose"
     >
-      <modal />
+      <modal :command="editableCommand" />
     </n-modal>
   </div>
 </template>
