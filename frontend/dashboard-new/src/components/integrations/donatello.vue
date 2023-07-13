@@ -1,23 +1,12 @@
 <script setup lang='ts'>
-import { useTimeout } from '@vueuse/core';
-import { NTimeline, NTimelineItem, NText, NInputGroup, NButton, NInput } from 'naive-ui';
+import { NTimeline, NTimelineItem, NText } from 'naive-ui';
 
 import { useDonatelloIntegration } from '@/api/index.js';
 import DonatelloSVG from '@/assets/icons/integrations/donatello.svg';
 import CopyInput from '@/components/copyInput.vue';
 import WithSettings from '@/components/integrations/variants/withSettings.vue';
-import { copyToClipBoard } from '@/helpers/index.js';
 
 const { data: donatelloData } = useDonatelloIntegration();
-const { start: copyStart, ready: isCopyReady } = useTimeout(2000, { controls: true });
-
-async function copy() {
-	console.log(donatelloData?.value?.integrationId);
-	if (donatelloData?.value?.integrationId) {
-		await copyToClipBoard(donatelloData?.value?.integrationId);
-		copyStart();
-	}
-}
 
 const webhookUrl = `${window.location.origin}/api/webhooks/integrations/donatello`;
 </script>

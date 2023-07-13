@@ -16,6 +16,11 @@ defineSlots<{
 
 const showSettings = ref(false);
 const modalWidth = '600px';
+
+async function callSave() {
+	await props.save?.();
+	showSettings.value = false;
+}
 </script>
 
 <template>
@@ -61,7 +66,7 @@ const modalWidth = '600px';
         <n-button secondary @click="showSettings = false">
           Close
         </n-button>
-        <n-button v-if="save" secondary type="success" @click="save">
+        <n-button v-if="save" secondary type="success" @click="callSave">
           Save
         </n-button>
       </n-space>
