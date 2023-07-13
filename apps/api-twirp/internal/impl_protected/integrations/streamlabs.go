@@ -102,10 +102,10 @@ func (c *Integrations) IntegrationsStreamlabsPostCode(
 		return nil, fmt.Errorf("streamlabs token request failed: %s", resp.String())
 	}
 
-	profileData := streamlabsProfileResponse{}
+	profileData := &streamlabsProfileResponse{}
 	resp, err = req.R().
 		SetContext(ctx).
-		SetSuccessResult(&tokensData).
+		SetSuccessResult(profileData).
 		SetBearerAuthToken(tokensData.AccessToken).
 		Get("https://streamlabs.com/api/v2.0/user")
 	if err != nil {
@@ -122,6 +122,7 @@ func (c *Integrations) IntegrationsStreamlabsPostCode(
 	channelIntegration.AccessToken = null.StringFrom(tokensData.AccessToken)
 	channelIntegration.RefreshToken = null.StringFrom(tokensData.RefreshToken)
 	channelIntegration.Enabled = true
+
 	if err = c.Db.WithContext(ctx).Save(channelIntegration).Error; err != nil {
 		return nil, err
 	}
