@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { IconLogin, IconLogout } from '@tabler/icons-vue';
-import { NButton, NTooltip, NAvatar, NText } from 'naive-ui';
+import { NButton, NTooltip, NAvatar, NText, NBadge } from 'naive-ui';
 import type { FunctionalComponent } from 'vue';
 import { defineSlots } from 'vue';
 
@@ -39,7 +39,7 @@ async function login() {
           {{ data.userName }}
         </n-text>
       </div>
-      <span v-else class="badge">Not Logged In</span>
+      <n-badge v-else value="Not Logged In" type="info" />
     </td>
     <td>
       <div class="actions">
