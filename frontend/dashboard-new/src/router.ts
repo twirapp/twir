@@ -22,6 +22,10 @@ export const router = createRouter({
 					path: '/dashboard/integrations/:integrationName',
 					component: () => import('./pages/IntegrationsCallback.vue'),
 				},
+				{
+					path: '/dashboard/commands/:system',
+					component: () => import('./pages/Commands.vue'),
+				},
 			],
 		},
 	],
