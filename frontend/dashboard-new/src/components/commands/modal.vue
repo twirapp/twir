@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+import { IconShieldHalfFilled } from '@tabler/icons-vue';
 import type { Command, Command_Response } from '@twir/grpc/generated/api/api/commands';
 import {
 	NForm,
@@ -14,10 +15,11 @@ import {
 	NInputGroup,
 	NInputGroupLabel,
 	NDynamicInput,
-	NSpace,
+	NSelect,
 } from 'naive-ui';
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 
+import { useRolesManager } from '@/api/index.js';
 import TextWithVariables from '@/components/textWithVariables.vue';
 
 const props = defineProps<{
@@ -33,6 +35,8 @@ const formValue = reactive<FormCommand>({
 	name:'',
 	aliases: [],
 	responses: [],
+	description: '',
+	rolesIds: [],
 });
 
 onMounted(() => {
@@ -40,7 +44,19 @@ onMounted(() => {
 		formValue.name = props.command.name;
 		formValue.aliases = props.command.aliases;
 		formValue.responses = props.command.responses;
+		formValue.description = props.command.description;
+		formValue.rolesIds = props.command.rolesIds;
 	}
+});
+
+const rolesManager = useRolesManager();
+const roles = rolesManager.getAll({});
+const rolesSelectOptions = computed(() => {
+	if (!roles.data?.value) return [];
+	return roles.data.value.roles.map((role) => ({
+		label: role.name,
+		value: role.id,
+	}));
 });
 
 const nameValidator = (rule: FormItemRule, value: string) => {
@@ -85,6 +101,9 @@ const rules: FormRules = {
         </n-form-item>
       </n-grid-item>
     </n-grid>
+    <n-form-item label="Description" path="description">
+      <n-input v-model:value="formValue.description" placeholder="Description" type="textarea" autosize />
+    </n-form-item>
 
     <n-divider>
       Responses
@@ -106,6 +125,22 @@ const rules: FormRules = {
         </text-with-variables>
       </template>
     </n-dynamic-input>
+
+    <n-divider>
+      Permissions
+    </n-divider>
+    <n-form-item label="Roles" path="rolesIds">
+      <n-select
+        v-model:value="formValue.rolesIds"
+        multiple
+        :options="rolesSelectOptions"
+        :loading="roles.isLoading.value"
+      >
+        <template #arrow>
+          <IconShieldHalfFilled />
+        </template>
+      </n-select>
+    </n-form-item>
     {{ JSON.stringify(formValue) }}
   </n-form>
 </template>
