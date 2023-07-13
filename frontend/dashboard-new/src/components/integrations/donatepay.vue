@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import { NInputGroup, NButton, NInput, NFormItem } from 'naive-ui';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
+import { watch } from 'vue/dist/vue.js';
 
 import { useDonatepayIntegration } from '@/api/index.js';
 import DonatePaySVG from '@/assets/icons/integrations/donatepay.svg';
@@ -14,7 +15,13 @@ const manager = useDonatepayIntegration();
 const { data } = manager.useGetData();
 const { mutateAsync } = manager.usePost();
 
-const apiKey = ref(data?.value?.apiKey ?? '');
+const apiKey = ref<string>('');
+
+watch(data, (value) => {
+	if (value?.apiKey) {
+		apiKey.value = value.apiKey;
+	}
+});
 
 async function save() {
 	await mutateAsync(apiKey.value);

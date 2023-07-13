@@ -9,6 +9,7 @@ import Faceit from '@/components/integrations/faceit.vue';
 import Lastfm from '@/components/integrations/lastfm.vue';
 import Spotify from '@/components/integrations/spotify.vue';
 import Streamlabs from '@/components/integrations/streamlabs.vue';
+import Valorant from '@/components/integrations/valorant.vue';
 import Vk from '@/components/integrations/vk.vue';
 </script>
 
@@ -32,6 +33,7 @@ import Vk from '@/components/integrations/vk.vue';
         <Donatello />
         <Donatepay />
         <Donatestream />
+        <Valorant />
       </tbody>
     </n-table>
   </div>
