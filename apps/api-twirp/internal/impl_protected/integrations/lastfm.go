@@ -45,7 +45,7 @@ func (c *Integrations) IntegrationsLastFMGetData(
 	}
 
 	return &integrations_lastfm.GetDataResponse{
-		UserName: integration.Data.Name,
+		UserName: integration.Data.UserName,
 		Avatar:   integration.Data.Avatar,
 	}, nil
 }
@@ -77,6 +77,7 @@ func (c *Integrations) IntegrationsLastFMPostCode(
 		Avatar:   &info.Images[len(info.Images)-1].Url,
 	}
 	integration.APIKey = null.StringFrom(sessionKey)
+	integration.Enabled = true
 
 	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {
 		return nil, err

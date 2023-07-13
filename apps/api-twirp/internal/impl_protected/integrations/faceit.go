@@ -45,7 +45,7 @@ func (c *Integrations) IntegrationsFaceitGetData(
 	}
 
 	return &integrations_faceit.GetDataResponse{
-		UserName: integration.Data.Name,
+		UserName: integration.Data.UserName,
 		Avatar:   integration.Data.Avatar,
 		Game:     integration.Data.Game,
 	}, nil
@@ -101,9 +101,9 @@ func (c *Integrations) IntegrationsFaceitPostCode(
 	}
 
 	integrationData := model.ChannelsIntegrationsData{
-		UserId: lo.ToPtr(userInfoResult["guid"].(string)),
-		Name:   lo.ToPtr(userInfoResult["nickname"].(string)),
-		Game:   lo.ToPtr("csgo"),
+		UserId:   lo.ToPtr(userInfoResult["guid"].(string)),
+		UserName: lo.ToPtr(userInfoResult["nickname"].(string)),
+		Game:     lo.ToPtr("csgo"),
 	}
 
 	profileResult := make(map[string]any)

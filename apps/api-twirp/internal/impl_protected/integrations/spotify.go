@@ -105,6 +105,7 @@ func (c *Integrations) IntegrationsSpotifyPostCode(
 
 	integration.Data.UserName = &profile.DisplayName
 	integration.Data.Avatar = &profile.Images[0].URL
+	integration.Enabled = true
 
 	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {
 		return nil, err
