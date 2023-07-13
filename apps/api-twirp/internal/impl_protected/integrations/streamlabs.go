@@ -142,7 +142,7 @@ func (c *Integrations) IntegrationsStreamlabsLogout(ctx context.Context, empty *
 		return nil, err
 	}
 
-	integration.Data = nil
+	integration.Data = &model.ChannelsIntegrationsData{}
 	integration.AccessToken = null.String{}
 	integration.RefreshToken = null.String{}
 	integration.Enabled = false

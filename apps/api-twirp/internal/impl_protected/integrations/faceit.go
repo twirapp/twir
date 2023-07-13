@@ -140,10 +140,9 @@ func (c *Integrations) IntegrationsFaceitLogout(ctx context.Context, empty *empt
 		return nil, err
 	}
 
-	integration.Data = nil
+	integration.Data = &model.ChannelsIntegrationsData{}
 	integration.AccessToken = null.String{}
 	integration.RefreshToken = null.String{}
-	integration.Enabled = false
 
 	if err = c.Db.WithContext(ctx).Save(&integration).Error; err != nil {
 		return nil, err
