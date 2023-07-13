@@ -122,8 +122,10 @@ func (c *Integrations) IntegrationsSpotifyLogout(ctx context.Context, empty *emp
 		return nil, err
 	}
 
-	integration.Data = nil
+	integration.Data = &model.ChannelsIntegrationsData{}
 	integration.APIKey = null.String{}
+	integration.AccessToken = null.String{}
+	integration.RefreshToken = null.String{}
 
 	if err = c.Db.WithContext(ctx).Save(&integration).Error; err != nil {
 		return nil, err

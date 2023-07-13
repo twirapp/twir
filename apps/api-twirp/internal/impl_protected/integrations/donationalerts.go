@@ -147,7 +147,7 @@ func (c *Integrations) IntegrationsDonationAlertsLogout(ctx context.Context, _ *
 		return nil, err
 	}
 
-	integration.Data = nil
+	integration.Data = &model.ChannelsIntegrationsData{}
 	integration.AccessToken = null.String{}
 	integration.RefreshToken = null.String{}
 	integration.Enabled = false
