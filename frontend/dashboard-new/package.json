@@ -16,6 +16,7 @@
     "install": "^0.13.0",
     "naive-ui": "^2.34.4",
     "pnpm": "^8.6.7",
+    "sass": "^1.63.6",
     "vite-svg-loader": "^4.0.0",
     "vue": "^3.3.4",
     "vue-router": "4"

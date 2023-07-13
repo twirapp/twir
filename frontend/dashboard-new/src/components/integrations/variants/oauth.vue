@@ -57,15 +57,6 @@ async function login() {
 </template>
 
 <style scoped>
-.badge {
-	background-color: #59c4c3;
-	color: #0a0a0a;
-	padding: 5px 10px;
-	border-radius: 5px;
-	font-size: 12px;
-	font-weight: 500;
-}
-
 .actions {
 	display: flex;
 	justify-content: flex-end;

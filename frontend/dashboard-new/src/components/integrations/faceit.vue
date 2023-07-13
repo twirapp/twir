@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { useFaceitIntegration } from '@/api/index.js';
 import IconFaceit from '@/assets/icons/integrations/faceit.svg?component';
-import OauthComponent from '@/components/integrations/oauthComponent.vue';
+import OauthComponent from '@/components/integrations/variants/oauth.vue';
 
 const manager = useFaceitIntegration();
 const { data } = manager.useData();

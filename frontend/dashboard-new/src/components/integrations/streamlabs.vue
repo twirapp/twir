@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { useStreamlabsIntegration } from '@/api/index.js';
 import IconStreamLabs from '@/assets/icons/integrations/streamlabs.svg?component';
-import OauthComponent from '@/components/integrations/oauthComponent.vue';
+import OauthComponent from '@/components/integrations/variants/oauth.vue';
 
 const manager = useStreamlabsIntegration();
 const { data } = manager.useData();
