@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { IconVariable } from '@tabler/icons-vue';
-import { NText, NInput, NSelect, NGridItem, NGrid, NSpace } from 'naive-ui';
+import { NText, NInput, NSelect, NInputGroup, NButton, NPopselect } from 'naive-ui';
 import { type SelectMixedOption } from 'naive-ui/es/select/src/interface';
 import { computed, VNodeChild, h, defineModel, FunctionalComponent, defineSlots } from 'vue';
 
@@ -97,37 +97,27 @@ function appendOptionToText(option: SelectMixedOption) {
 </script>
 
 <template>
-  <n-grid cols="12" x-gap="5">
-    <n-grid-item span="8">
-      <n-input
-        v-model:value="text"
-        style="width: 100%"
-        :type="inputType"
-        :autosize="inputType === 'text' ? {} : { minRows, maxRows }"
-        placeholder="Response text"
-      />
-    </n-grid-item>
-    <n-grid-item span="4">
-      <n-space vertical>
-        <n-select
-          :options="selectVariables"
-          :loading="allVariables.isLoading.value"
-          placeholder="Search variable..."
-          :filterable="true"
-          :value="null"
-          :clear-filter-after-select="true"
-          :consistent-menu-width="false"
-          :render-label="renderVariableSelectLabel as any"
-          :on-update-value="(_, option) => appendOptionToText(option)"
-        >
-          <template #arrow>
-            <IconVariable />
-          </template>
-        </n-select>
-        <slot name="underSelect" />
-      </n-space>
-    </n-grid-item>
-  </n-grid>
+  <n-input-group>
+    <n-input
+      v-model:value="text"
+      style="width: 100%"
+      :type="inputType"
+      :autosize="inputType === 'text' ? {} : { minRows, maxRows }"
+      placeholder="Response text"
+    />
+    <n-popselect
+      :options="selectVariables"
+      :loading="allVariables.isLoading.value"
+      scrollable
+      :value="null"
+      :render-label="renderVariableSelectLabel as any"
+      :on-update-value="(_, option) => appendOptionToText(option)"
+    >
+      <n-button style="height:auto">
+        <IconVariable />
+      </n-button>
+    </n-popselect>
+  </n-input-group>
 </template>
 
 <style scoped lang='postcss'>
