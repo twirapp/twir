@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { IconTrash, IconPencil } from '@tabler/icons-vue';
 import { type Command } from '@twir/grpc/generated/api/api/commands';
-import { NDataTable, DataTableColumns, NText, NSwitch, NButton, NSpace, NModal, NTag } from 'naive-ui';
+import { NDataTable, DataTableColumns, NText, NSwitch, NButton, NSpace, NModal, NTag, NPopconfirm } from 'naive-ui';
 import { h, ref, toRaw, VNode, computed } from 'vue';
 
 import { useCommandsManager } from '@/api/index.js';
@@ -111,14 +111,22 @@ const columns: DataTableColumns<RowData> = [
 				}, {
 				icon: renderIcon(IconPencil),
 			});
+
 			const deleteButton = h(
-				NButton, {
-					type: 'error',
-					size: 'small',
-					onClick: () => commandsDeleter.mutate({ commandId: row.id }),
-				}, {
-				icon: renderIcon(IconTrash),
-			});
+				NPopconfirm,
+				{
+					onPositiveClick: () => commandsDeleter.mutate({ commandId: row.id }),
+				},
+				{
+					trigger: h(NButton, {
+						type: 'error',
+						size: 'small',
+					}, {
+						default: renderIcon(IconTrash),
+					}),
+					default: () => 'Are you sure you want to delete this command?',
+				},
+			);
 
 			const buttons: VNode[] = [editButton];
 
