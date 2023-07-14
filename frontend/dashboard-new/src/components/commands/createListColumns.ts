@@ -38,7 +38,7 @@ export const createListColumns = (
 					{},
 					{
 						default: () => {
-							if (row.module !== 'CUSTOM') return 'Response is not editable';
+							if (row.module !== 'CUSTOM') return row.description ?? 'No description';
 							return row.responses.length ? row.responses?.map(r => `${r.text}`).join('\n') : 'Empty responses';
 						},
 					},
