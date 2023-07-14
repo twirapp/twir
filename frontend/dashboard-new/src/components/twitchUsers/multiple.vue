@@ -122,7 +122,7 @@ const renderLabel = (option: Option) => {
 					},
 				},
 				[
-					h('div', null, [option.label as string]),
+					h('div', null, option.label),
 				],
 			),
 		],
@@ -141,7 +141,7 @@ const renderLabel = (option: Option) => {
     clearable
     remote
     :clear-filter-after-select="false"
-    :render-label="renderLabel"
+    :render-label="renderLabel as any"
     :render-tag="renderMultipleSelectTag"
     @search="handleSearch"
   />
