@@ -71,6 +71,7 @@ export const createListColumns = (
 						type: 'primary',
 						size: 'small',
 						onClick: () => editCommand(row),
+						quaternary: true,
 					}, {
 						icon: renderIcon(IconPencil),
 					});
@@ -84,6 +85,7 @@ export const createListColumns = (
 						trigger: () => h(NButton, {
 							type: 'error',
 							size: 'small',
+							quaternary: true,
 						}, {
 							default: renderIcon(IconTrash),
 						}),
@@ -97,7 +99,7 @@ export const createListColumns = (
 					buttons.push(deleteButton);
 				}
 
-				return h(NSpace, {  }, { default: () => buttons });
+				return h(NSpace, { }, { default: () => buttons });
 			},
 		},
 	];
