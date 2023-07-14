@@ -30,7 +30,7 @@ func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, er
 	config := do.MustInvoke[cfg.Config](di.Provider)
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
-	twitchClient, err := twitch.NewUserClient(channelId, config, tokensGrpc)
+	twitchClient, err := twitch.NewUserClient(context.Background(), channelId, config, tokensGrpc)
 	if err != nil {
 		return nil, fiber.NewError(
 			http.StatusInternalServerError, "cannot create twitch client from your tokens. Please try to reauthorize",

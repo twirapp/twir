@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/satont/twir/libs/grpc/servers"
 	"net"
 	"os"
 	"os/exec"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/satont/twir/libs/grpc/servers"
 )
 
 type App struct {

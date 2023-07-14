@@ -1,15 +1,17 @@
 package grpc_impl
 
 import (
+	"context"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal"
 	processor_module "github.com/satont/twir/apps/events/internal/grpc_impl/processor"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
-	"sort"
-	"strconv"
-	"strings"
-	"time"
 )
 
 // check is filter returns false and if so - break operations loop
@@ -102,7 +104,7 @@ func (c *EventsGrpcImplementation) processFilters(
 }
 
 func (c *EventsGrpcImplementation) processOperations(channelId string, event model.Event, data internal.Data) {
-	streamerApiClient, err := twitch.NewUserClient(channelId, *c.services.Cfg, c.services.TokensGrpc)
+	streamerApiClient, err := twitch.NewUserClient(context.Background(), channelId, *c.services.Cfg, c.services.TokensGrpc)
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return

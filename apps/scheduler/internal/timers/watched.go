@@ -5,21 +5,25 @@ import (
 	"time"
 
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/scheduler/internal/types"
+	"go.uber.org/zap"
+
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/watched"
-	"go.uber.org/zap"
+
+	"github.com/satont/twir/apps/scheduler/internal/types"
 )
 
 func NewWatched(ctx context.Context, services *types.Services) {
-	timeTick := lo.If(services.Config.AppEnv != "production", 15*time.Second).Else(5 * time.Minute)
+	timeTick := lo.If(services.Config.AppEnv != "production", 3*time.Second).Else(5 * time.Minute)
 	ticker := time.NewTicker(timeTick)
 
+	zap.L().Info("watched started ticking", zap.Duration("interval", timeTick))
 	go func() {
+		defer ticker.Stop()
+
 		for {
 			select {
 			case <-ctx.Done():
-				ticker.Stop()
 				return
 			case t := <-ticker.C:
 				zap.S().Debugf("watched timer ticked at %s", t)
@@ -31,31 +35,27 @@ func NewWatched(ctx context.Context, services *types.Services) {
 					Error
 				if err != nil {
 					zap.S().Error(err)
-				} else {
-					groups := lo.GroupBy(
-						streams, func(item model.ChannelsStreams) string {
-							return item.Channel.BotID
-						},
-					)
+					continue
+				}
 
-					for botId, streams := range groups {
-						chunks := lo.Chunk(streams, 100)
+				groups := lo.GroupBy(streams, func(item model.ChannelsStreams) string {
+					return item.Channel.BotID
+				})
 
-						for _, chunk := range chunks {
-							var channelsIds []string
-							for _, stream := range chunk {
-								channelsIds = append(channelsIds, stream.Channel.ID)
-							}
+				for botId, streams := range groups {
+					chunks := lo.Chunk(streams, 100)
 
-							_, err := services.Grpc.Watched.IncrementByChannelId(
-								ctx, &watched.Request{
-									BotId:      botId,
-									ChannelsId: channelsIds,
-								},
-							)
-							if err != nil {
-								zap.S().Error(err)
-							}
+					for _, chunk := range chunks {
+						channelsIds := lo.Map(chunk, func(stream model.ChannelsStreams, _ int) string {
+							return stream.Channel.ID
+						})
+
+						_, err := services.Grpc.Watched.IncrementByChannelId(ctx, &watched.Request{
+							BotId:      botId,
+							ChannelsId: channelsIds,
+						})
+						if err != nil {
+							zap.S().Error(err)
 						}
 					}
 				}

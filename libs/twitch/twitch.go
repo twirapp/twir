@@ -68,8 +68,8 @@ func NewAppClientWithContext(ctx context.Context, config cfg.Config, tokensGrpc 
 	return client, nil
 }
 
-func NewUserClient(userID string, config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
-	return NewUserClientWithContext(context.Background(), userID, config, tokensGrpc)
+func NewUserClient(ctx context.Context, userID string, config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
+	return NewUserClientWithContext(ctx, userID, config, tokensGrpc)
 }
 
 func NewUserClientWithContext(
@@ -108,7 +108,10 @@ func NewBotClient(botID string, config cfg.Config, tokensGrpc tokens.TokensClien
 }
 
 func NewBotClientWithContext(
-	ctx context.Context, botID string, config cfg.Config, tokensGrpc tokens.TokensClient,
+	ctx context.Context,
+	botID string,
+	config cfg.Config,
+	tokensGrpc tokens.TokensClient,
 ) (*helix.Client, error) {
 	botToken, err := tokensGrpc.RequestBotToken(
 		ctx,

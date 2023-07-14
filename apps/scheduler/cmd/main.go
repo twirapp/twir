@@ -2,24 +2,28 @@ package main
 
 import (
 	"context"
-	"github.com/satont/twir/apps/scheduler/internal/timers"
-	"github.com/satont/twir/apps/scheduler/internal/types"
-	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/clients"
-	"github.com/satont/twir/libs/pubsub"
+	"fmt"
+	"log"
+	"os/signal"
+	"syscall"
+
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
-	"os"
-	"os/signal"
-	"syscall"
+
+	config "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/clients"
+	"github.com/satont/twir/libs/pubsub"
+
+	"github.com/satont/twir/apps/scheduler/internal/timers"
+	"github.com/satont/twir/apps/scheduler/internal/types"
 )
 
-func main() {
+func run() error {
 	cfg, err := config.New()
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("load config: %w", err)
 	}
 
 	logger, _ := zap.NewDevelopment()
@@ -31,15 +35,15 @@ func main() {
 		},
 	)
 	if err != nil {
-		logger.Sugar().Error(err)
-		panic("failed to connect database")
+		return fmt.Errorf("connect to database: %w", err)
 	}
 
-	appCtx, cancelCtx := context.WithCancel(context.Background())
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer cancel()
 
 	pb, err := pubsub.NewPubSub(cfg.RedisUrl)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("new pubsub: %w", err)
 	}
 
 	services := &types.Services{
@@ -54,16 +58,20 @@ func main() {
 		PubSub: pb,
 	}
 
-	timers.NewWatched(appCtx, services)
-	timers.NewEmotes(appCtx, services)
-	timers.NewOnlineUsers(appCtx, services)
-	timers.NewStreams(appCtx, services)
+	timers.NewWatched(ctx, services)
+	timers.NewEmotes(ctx, services)
+	timers.NewOnlineUsers(ctx, services)
+	timers.NewStreams(ctx, services)
 
 	logger.Sugar().Info("Scheduler started")
-
-	exitSignal := make(chan os.Signal, 1)
-	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
-	<-exitSignal
-	cancelCtx()
+	<-ctx.Done()
 	logger.Sugar().Info("Closing...")
+
+	return ctx.Err()
+}
+
+func main() {
+	if err := run(); err != nil {
+		log.Fatal(err.Error())
+	}
 }

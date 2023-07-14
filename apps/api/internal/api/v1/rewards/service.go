@@ -1,6 +1,7 @@
 package rewards
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,7 +19,7 @@ func handleGet(channelId string) ([]helix.ChannelCustomReward, error) {
 	config := do.MustInvoke[cfg.Config](di.Provider)
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
-	twitchClient, err := twitch.NewUserClient(channelId, config, tokensGrpc)
+	twitchClient, err := twitch.NewUserClient(context.Background(), channelId, config, tokensGrpc)
 	if err != nil {
 		return nil, cannotGetRewards
 	}
