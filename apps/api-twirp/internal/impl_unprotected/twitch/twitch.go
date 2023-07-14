@@ -205,11 +205,19 @@ func (c *Twitch) TwitchSearchChannels(
 	})
 
 	sort.Slice(channels, func(i, j int) bool {
-		// channels.Login contains query first
-		if strings.Contains(channels[i].Login, request.Query) && !strings.Contains(channels[j].Login, request.Query) {
+		name1 := channels[i].Login
+		name2 := channels[j].Login
+
+		containsName1 := strings.Contains(name1, request.Query)
+		containsName2 := strings.Contains(name2, request.Query)
+
+		if containsName1 && !containsName2 {
+			return true
+		} else if !containsName1 && containsName2 {
 			return false
+		} else {
+			return name1 < name2
 		}
-		return true
 	})
 
 	return &generatedTwitch.TwitchSearchChannelsResponse{
