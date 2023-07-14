@@ -276,49 +276,49 @@ const rules: FormRules = {
     <n-grid :cols="12" :x-gap="5" :y-gap="5" item-responsive>
       <n-grid-item :span="6">
         <n-card>
-          <n-space justify="space-between" align="center">
+          <div class="settings-card-body">
             <n-space vertical>
               <n-text>Reply</n-text>
               <n-text>Bot will send command response as reply</n-text>
             </n-space>
             <n-switch v-model:value="formValue.isReply" />
-          </n-space>
+          </div>
         </n-card>
       </n-grid-item>
 
       <n-grid-item :span="6">
         <n-card>
-          <n-space justify="space-between" align="center">
+          <div class="settings-card-body">
             <n-space vertical>
               <n-text>Visible</n-text>
               <n-text>Is command visible in commands list on public page and in chat commands variable</n-text>
             </n-space>
             <n-switch v-model:value="formValue.visible" />
-          </n-space>
+          </div>
         </n-card>
       </n-grid-item>
 
       <n-grid-item :span="6">
         <n-card>
-          <n-space justify="space-between" align="center">
+          <div class="settings-card-body">
             <n-space vertical>
               <n-text>Keep order</n-text>
               <n-text>Keep order of responses when sending them in chat</n-text>
             </n-space>
             <n-switch v-model:value="formValue.keepResponsesOrder" />
-          </n-space>
+          </div>
         </n-card>
       </n-grid-item>
 
       <n-grid-item :span="6">
         <n-card>
-          <n-space justify="space-between" align="center" wrap>
+          <div class="settings-card-body">
             <n-space vertical>
               <n-text>Online only</n-text>
               <n-text>Command will work only when stream online</n-text>
             </n-space>
             <n-switch v-model:value="formValue.onlineOnly" />
-          </n-space>
+          </div>
         </n-card>
       </n-grid-item>
     </n-grid>
@@ -329,6 +329,12 @@ const rules: FormRules = {
 
 <style scoped>
 .grid-stats-item {
-	width: 100%
+	width: 100%;
+}
+
+.settings-card-body {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
 }
 </style>
