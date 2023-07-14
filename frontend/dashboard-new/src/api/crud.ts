@@ -23,7 +23,6 @@ const createCrudManager = <
 	create: Create,
 	update: Update,
 	queryKey: string,
-	responseKey?: string;
 }) => {
 	const queryClient = useQueryClient();
 
@@ -89,7 +88,6 @@ const createCrudManager = <
 
 export const useCommandsManager = () => createCrudManager({
 	queryKey: 'commands',
-	responseKey: 'commands',
 	getAll: protectedApiClient?.commandsGetAll,
 	update: protectedApiClient?.commandsUpdate,
 	create: protectedApiClient?.commandsCreate,
