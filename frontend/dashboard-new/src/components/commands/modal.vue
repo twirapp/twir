@@ -17,6 +17,9 @@ import {
 	NDynamicInput,
 	NSelect,
 	NInputNumber,
+	NCard,
+	NSwitch,
+	NSpace,
 } from 'naive-ui';
 import { ref, reactive, onMounted, computed } from 'vue';
 
@@ -28,8 +31,17 @@ const props = defineProps<{
 	command: Command | null
 }>();
 
-type FormCommand = Omit<Command, 'responses'> & {
-	responses: Array<Omit<Command_Response, 'id' | 'commandId' | 'order'> & { id?: string }>
+type FormCommand = Omit<
+	Command,
+	'responses' |
+	'channelId' |
+	'default' |
+	'defaultName' |
+	'id' |
+	'group'
+> & {
+	responses: Array<Omit<Command_Response, 'id' | 'commandId' | 'order'>>,
+	id?: string
 };
 
 const formRef = ref<FormInst | null>(null);
@@ -46,6 +58,13 @@ const formValue = reactive<FormCommand>({
 	requiredWatchTime: 0,
 	cooldown: 0,
 	cooldownType: 'GLOBAL',
+	isReply: true,
+	visible: true,
+	keepResponsesOrder: true,
+	onlineOnly: false,
+	enabled: true,
+	groupId: undefined,
+	module: 'CUSTOM',
 });
 
 onMounted(() => {
@@ -62,6 +81,13 @@ onMounted(() => {
 		formValue.requiredWatchTime = props.command.requiredWatchTime;
 		formValue.cooldown = props.command.cooldown;
 		formValue.cooldownType = props.command.cooldownType;
+		formValue.isReply = props.command.isReply;
+		formValue.visible = props.command.visible;
+		formValue.keepResponsesOrder = props.command.keepResponsesOrder;
+		formValue.onlineOnly = props.command.onlineOnly;
+		formValue.enabled = props.command.enabled;
+		formValue.groupId = props.command.groupId;
+		formValue.module = props.command.module;
 	}
 });
 
@@ -240,6 +266,60 @@ const rules: FormRules = {
             ]"
           />
         </n-form-item>
+      </n-grid-item>
+    </n-grid>
+
+    <n-divider>
+      Settings
+    </n-divider>
+
+    <n-grid :cols="12" :x-gap="5" :y-gap="5" item-responsive>
+      <n-grid-item :span="6">
+        <n-card>
+          <n-space justify="space-between" align="center">
+            <n-space vertical>
+              <n-text>Reply</n-text>
+              <n-text>Bot will send command response as reply</n-text>
+            </n-space>
+            <n-switch v-model:value="formValue.isReply" />
+          </n-space>
+        </n-card>
+      </n-grid-item>
+
+      <n-grid-item :span="6">
+        <n-card>
+          <n-space justify="space-between" align="center">
+            <n-space vertical>
+              <n-text>Visible</n-text>
+              <n-text>Is command visible in commands list on public page and in chat commands variable</n-text>
+            </n-space>
+            <n-switch v-model:value="formValue.visible" />
+          </n-space>
+        </n-card>
+      </n-grid-item>
+
+      <n-grid-item :span="6">
+        <n-card>
+          <n-space justify="space-between" align="center">
+            <n-space vertical>
+              <n-text>Keep order</n-text>
+              <n-text>Keep order of responses when sending them in chat</n-text>
+            </n-space>
+            <n-switch v-model:value="formValue.keepResponsesOrder" />
+          </n-space>
+        </n-card>
+      </n-grid-item>
+
+      <n-grid-item :span="6">
+        <n-card>
+          <n-space justify="space-between" align="center" wrap>
+            <n-space vertical>
+              <n-text>Online only</n-text>
+              <n-text>Command will work only when stream online</n-text>
+            </n-space>
+            <n-switch v-model:value="formValue.onlineOnly" />
+          </n-space>
+        </n-card>
       </n-grid-item>
     </n-grid>
 
