@@ -39,7 +39,9 @@ export const createListColumns = (
 					{
 						default: () => {
 							if (row.module !== 'CUSTOM') return row.description ?? 'No description';
-							return row.responses.length ? row.responses?.map(r => `${r.text}`).join('\n') : 'Empty responses';
+							return row.responses.length
+								? h(NSpace, { vertical: true }, row.responses?.map(r => h('span', null, `${r.text}`)))
+								: 'Empty responses';
 						},
 					},
 				);

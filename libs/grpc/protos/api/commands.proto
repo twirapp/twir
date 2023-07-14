@@ -20,14 +20,14 @@ message CreateRequest {
 	repeated Response responses = 8;
 	bool keep_responses_order = 9;
 	bool is_reply = 10;
-	string group_id = 11;
+	optional string group_id = 11;
 	repeated string denied_users_ids = 12;
 	repeated string allowed_users_ids = 13;
 	repeated string roles_ids = 14;
 	bool online_only = 15;
-	uint64 required_watch_time = 16;
-	uint64 required_messages = 17;
-	uint64 required_used_channel_points = 18;
+	uint32 required_watch_time = 16;
+	uint32 required_messages = 17;
+	uint32 required_used_channel_points = 18;
 }
 
 message Command {

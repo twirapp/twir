@@ -2,7 +2,7 @@
 import { IconPlus, IconTrash, IconDeviceFloppy } from '@tabler/icons-vue';
 import type { Group } from '@twir/grpc/generated/api/api/commands_group';
 import { NDynamicInput, NInput, NColorPicker, NFormItem, NGrid, NGridItem, NButton } from 'naive-ui';
-import { toRaw, ref, watch } from 'vue';
+import { toRaw, ref, watch, onMounted } from 'vue';
 
 import { useCommandsGroupsManager } from '@/api/index.js';
 
@@ -16,9 +16,13 @@ type FormGroup = Omit<Group, 'id' | 'channelId'> & { id?: string }
 
 const groups = ref<FormGroup[]>([]);
 
+onMounted(() => {
+	groupsData.refetch();
+});
+
 watch(groupsData.data, (data) => {
 	groups.value = data?.groups ? toRaw(data.groups) : [];
-});
+}, { immediate: true });
 
 async function create(name: string, color: string) {
 	await groupsCreator.mutateAsync({ color, name });

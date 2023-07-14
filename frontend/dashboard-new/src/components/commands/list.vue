@@ -79,7 +79,15 @@ function onModalClose() {
             Manage groups
           </n-button>
 
-          <n-button v-if="showCreateButton" secondary type="success">
+          <n-button
+            v-if="showCreateButton"
+            secondary
+            type="success"
+            @click="() => {
+              editableCommand = null;
+              showCommandEditModal = true;
+            }"
+          >
             Create command
           </n-button>
         </n-space>
@@ -105,7 +113,13 @@ function onModalClose() {
       }"
       :on-close="onModalClose"
     >
-      <modal :command="editableCommand" />
+      <modal
+        :command="editableCommand"
+        @close="() => {
+          showCommandEditModal = false;
+          onModalClose()
+        }"
+      />
     </n-modal>
 
     <n-modal

@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { IconShieldHalfFilled } from '@tabler/icons-vue';
-import type { Command, Command_Response } from '@twir/grpc/generated/api/api/commands';
+import type { Command } from '@twir/grpc/generated/api/api/commands';
 import {
 	NForm,
 	NFormItem,
@@ -22,10 +22,11 @@ import {
 	NSpace,
 	NAlert,
 	NText,
+	NButton,
 } from 'naive-ui';
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed, toRaw } from 'vue';
 
-import { useRolesManager, useCommandsGroupsManager } from '@/api/index.js';
+import { useRolesManager, useCommandsGroupsManager, useCommandsManager } from '@/api/index.js';
 import { EditableCommand } from '@/components/commands/types.js';
 import TextWithVariables from '@/components/textWithVariables.vue';
 import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue';
@@ -34,6 +35,9 @@ const props = defineProps<{
 	command: Command | null
 }>();
 
+const emits = defineEmits<{
+	close: []
+}>();
 
 const formRef = ref<FormInst | null>(null);
 const formValue = reactive<EditableCommand>({
@@ -60,6 +64,7 @@ const formValue = reactive<EditableCommand>({
 
 onMounted(() => {
 	if (props.command) {
+		formValue.id = props.command.id;
 		formValue.name = props.command.name;
 		formValue.aliases = props.command.aliases;
 		formValue.responses = props.command.responses;
@@ -134,6 +139,32 @@ const rules: FormRules = {
 		},
 	},
 };
+
+const commandsManager = useCommandsManager();
+const commandsCreate = commandsManager.create;
+const commandsUpdate = commandsManager.update;
+
+async function save() {
+	const rawData = toRaw(formValue);
+	const data = {
+		...rawData,
+		responses: rawData.responses.map((r, i) => ({
+			...r,
+			order: i,
+		})),
+	};
+
+	if (rawData.id) {
+		await commandsUpdate.mutateAsync({
+			id: rawData.id,
+			command: data,
+		});
+	} else {
+		await commandsCreate.mutateAsync(data);
+	}
+
+	emits('close');
+}
 </script>
 
 <template>
@@ -168,7 +199,7 @@ const rules: FormRules = {
       placeholder="Response"
       show-sort-button
     >
-      <template #default="{ value }: { value: Command_Response }">
+      <template #default="{ value }">
         <text-with-variables
           v-model="value.text"
           inputType="textarea"
@@ -348,6 +379,10 @@ const rules: FormRules = {
         :options="commandsGroupsOptions"
       />
     </n-form-item>
+
+    <n-button secondary type="success" block @click="save">
+      Save
+    </n-button>
   </n-form>
 </template>
 

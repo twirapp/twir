@@ -125,7 +125,7 @@ func (c *Commands) CommandsCreate(ctx context.Context, request *commands.CreateR
 		RequiredMessages:          int(request.RequiredMessages),
 		RequiredUsedChannelPoints: int(request.RequiredUsedChannelPoints),
 		Responses:                 make([]*model.ChannelsCommandsResponses, 0, len(request.Responses)),
-		GroupID:                   null.StringFrom(request.GroupId),
+		GroupID:                   null.StringFromPtr(request.GroupId),
 	}
 
 	for _, res := range request.Responses {
@@ -187,7 +187,7 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 	cmd.RequiredWatchTime = int(request.Command.RequiredWatchTime)
 	cmd.RequiredMessages = int(request.Command.RequiredMessages)
 	cmd.RequiredUsedChannelPoints = int(request.Command.RequiredUsedChannelPoints)
-	cmd.GroupID = null.StringFrom(request.Command.GroupId)
+	cmd.GroupID = null.StringFromPtr(request.Command.GroupId)
 	cmd.Responses = make([]*model.ChannelsCommandsResponses, 0, len(request.Command.Responses))
 
 	for _, res := range request.Command.Responses {
@@ -205,7 +205,7 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 			return err
 		}
 
-		return tx.Save(cmd).Error
+		return tx.Updates(cmd).Error
 	})
 	if txErr != nil {
 		return nil, err
