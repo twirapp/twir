@@ -1,8 +1,8 @@
 <script setup lang='ts'>
-import { IconPlus, IconX, IconDeviceFloppy } from '@tabler/icons-vue';
+import { IconPlus, IconTrash, IconDeviceFloppy } from '@tabler/icons-vue';
 import type { Group } from '@twir/grpc/generated/api/api/commands_group';
 import { NDynamicInput, NInput, NColorPicker, NFormItem, NGrid, NGridItem, NButton } from 'naive-ui';
-import { computed, toRaw, ref, watch } from 'vue';
+import { toRaw, ref, watch } from 'vue';
 
 import { useCommandsGroupsManager } from '@/api/index.js';
 
@@ -72,11 +72,11 @@ async function update(index: number) {
 
     <template #action="{ index, remove }">
       <div class="group-actions">
-        <n-button size="small" @click="() => update(index)">
+        <n-button size="small" type="success" quaternary @click="() => update(index)">
           <IconDeviceFloppy />
         </n-button>
-        <n-button size="small" @click="() => remove(index)">
-          <IconX />
+        <n-button size="small" type="error" quaternary @click="() => remove(index)">
+          <IconTrash />
         </n-button>
       </div>
     </template>

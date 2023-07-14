@@ -36,7 +36,12 @@ export const createListColumns = (
 				return h(
 					NText,
 					{},
-					{ default: () => row.responses?.map(r => `${r.text}`).join('\n') },
+					{
+						default: () => {
+							if (row.module !== 'CUSTOM') return 'Response is not editable';
+							return row.responses.length ? row.responses?.map(r => `${r.text}`).join('\n') : 'Empty responses';
+						},
+					},
 				);
 			},
 		},
