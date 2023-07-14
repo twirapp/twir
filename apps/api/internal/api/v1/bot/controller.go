@@ -64,7 +64,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Router       /v1/channels/{channelId}/bot/checkmod [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		isBotMod, err := handleGet(c.Params("channelId"), services)
+		isBotMod, err := handleGet(c.Context(), c.Params("channelId"), services)
 		if err != nil {
 			return err
 		}

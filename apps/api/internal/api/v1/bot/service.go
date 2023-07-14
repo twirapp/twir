@@ -25,12 +25,12 @@ import (
 	apiTypes "github.com/satont/twir/libs/types/types/api/bot"
 )
 
-func handleGet(channelId string, services types.Services) (*apiTypes.BotInfo, error) {
+func handleGet(ctx context.Context, channelId string, services types.Services) (*apiTypes.BotInfo, error) {
 	logger := do.MustInvoke[interfaces.Logger](di.Provider)
 	config := do.MustInvoke[cfg.Config](di.Provider)
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
-	twitchClient, err := twitch.NewUserClient(context.Background(), channelId, config, tokensGrpc)
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, channelId, config, tokensGrpc)
 	if err != nil {
 		return nil, fiber.NewError(
 			http.StatusInternalServerError, "cannot create twitch client from your tokens. Please try to reauthorize",

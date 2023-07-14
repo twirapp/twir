@@ -15,11 +15,11 @@ import (
 
 var cannotGetRewards = fiber.NewError(http.StatusInternalServerError, "cannot get custom rewards of channel")
 
-func handleGet(channelId string) ([]helix.ChannelCustomReward, error) {
+func handleGet(ctx context.Context, channelId string) ([]helix.ChannelCustomReward, error) {
 	config := do.MustInvoke[cfg.Config](di.Provider)
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
 
-	twitchClient, err := twitch.NewUserClient(context.Background(), channelId, config, tokensGrpc)
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, channelId, config, tokensGrpc)
 	if err != nil {
 		return nil, cannotGetRewards
 	}

@@ -14,10 +14,9 @@ import (
 )
 
 func NewWatched(ctx context.Context, services *types.Services) {
-	timeTick := lo.If(services.Config.AppEnv != "production", 3*time.Second).Else(5 * time.Minute)
+	timeTick := lo.If(services.Config.AppEnv != "production", 15*time.Second).Else(5 * time.Minute)
 	ticker := time.NewTicker(timeTick)
 
-	zap.L().Info("watched started ticking", zap.Duration("interval", timeTick))
 	go func() {
 		defer ticker.Stop()
 

@@ -4,18 +4,51 @@ import (
 	"context"
 	"time"
 
-	"gorm.io/gorm"
-
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	loParallel "github.com/samber/lo/parallel"
-	"github.com/satont/twir/apps/scheduler/internal/types"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
+
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
-	"go.uber.org/zap"
+
+	"github.com/satont/twir/apps/scheduler/internal/types"
 )
+
+func scanChatters(
+	ctx context.Context,
+	broadcasterId string,
+	services *types.Services,
+) ([]helix.ChatChatter, error) {
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, broadcasterId, *services.Config, services.Grpc.Tokens)
+	if err != nil {
+		zap.S().Error(err)
+		return nil, err
+	}
+
+	chatters := []helix.ChatChatter{}
+	cursor := ""
+	for {
+		req, err := twitchClient.GetChannelChatChatters(&helix.GetChatChattersParams{
+			BroadcasterID: broadcasterId,
+			ModeratorID:   broadcasterId,
+			After:         cursor,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		chatters = append(chatters, req.Data.Chatters...)
+		cursor = req.Data.Pagination.Cursor
+		if req.Data.Pagination.Cursor == "" {
+			break
+		}
+	}
+	return chatters, nil
+}
 
 func NewOnlineUsers(ctx context.Context, services *types.Services) {
 	timeTick := lo.If(services.Config.AppEnv != "production", 15*time.Second).Else(5 * time.Minute)
@@ -43,32 +76,17 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 						return
 					}
 
-					twitchClient, err := twitch.NewUserClient(ctx, stream.UserId, *services.Config, services.Grpc.Tokens)
+					chatters, err := scanChatters(ctx, stream.UserId, services)
 					if err != nil {
 						zap.S().Error(err)
 						return
 					}
 
 					broadcasterId := stream.UserId
-					var chatters []helix.ChatChatter
-					cursor := ""
-					for {
-						req, err := twitchClient.GetChannelChatChatters(&helix.GetChatChattersParams{
-							BroadcasterID: broadcasterId,
-							ModeratorID:   broadcasterId,
-							After:         cursor, // TODO: cursor is not changing, should it?
-						})
-						if err != nil {
-							zap.S().Error(err)
-						} else {
-							chatters = append(chatters, req.Data.Chatters...)
-							if req.Data.Pagination.Cursor == "" {
-								break
-							}
-						}
-					}
-
-					err = services.Gorm.Where(`"channelId" = ?`, broadcasterId).Delete(&model.UsersOnline{}).Error
+					err = services.Gorm.
+						Where(`"channelId" = ?`, broadcasterId).
+						Delete(&model.UsersOnline{}).
+						Error
 					if err != nil {
 						zap.S().Error(err)
 						return

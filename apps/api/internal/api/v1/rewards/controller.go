@@ -24,7 +24,7 @@ func Setup(router fiber.Router, services types.Services) fiber.Router {
 // @Router       /v1/channels/{channelId}/rewards [get]
 func get(services types.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		rewards, err := handleGet(c.Params("channelId"))
+		rewards, err := handleGet(c.Context(), c.Params("channelId"))
 		if err != nil {
 			return err
 		}

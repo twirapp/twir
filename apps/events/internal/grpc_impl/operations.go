@@ -1,7 +1,6 @@
 package grpc_impl
 
 import (
-	"context"
 	"sort"
 	"strconv"
 	"strings"
@@ -104,7 +103,7 @@ func (c *EventsGrpcImplementation) processFilters(
 }
 
 func (c *EventsGrpcImplementation) processOperations(channelId string, event model.Event, data internal.Data) {
-	streamerApiClient, err := twitch.NewUserClient(context.Background(), channelId, *c.services.Cfg, c.services.TokensGrpc)
+	streamerApiClient, err := twitch.NewUserClient(channelId, *c.services.Cfg, c.services.TokensGrpc)
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return
