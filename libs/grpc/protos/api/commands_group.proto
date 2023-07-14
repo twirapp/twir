@@ -14,7 +14,8 @@ message GetAllResponse {
 }
 
 message CreateRequest {
-	Group group = 1;
+	string name = 1;
+	string color = 2;
 }
 
 message DeleteRequest {
@@ -23,5 +24,6 @@ message DeleteRequest {
 
 message PutRequest {
 	string id = 1;
-	Group group = 2;
+	string name = 2;
+	string color = 3;
 }

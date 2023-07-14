@@ -81,7 +81,7 @@ export const createListColumns = (
 						onPositiveClick: () => deleter.mutate({ commandId: row.id }),
 					},
 					{
-						trigger: h(NButton, {
+						trigger: () => h(NButton, {
 							type: 'error',
 							size: 'small',
 						}, {

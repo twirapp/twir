@@ -22,7 +22,9 @@ const createCrudManager = <
 	patch: Patch | null,
 	create: Create,
 	update: Update,
+
 	queryKey: string,
+	invalidateAdditionalQueries?: string[],
 }) => {
 	const queryClient = useQueryClient();
 
@@ -57,6 +59,10 @@ const createCrudManager = <
 			},
 			onSuccess: () => {
 				queryClient.invalidateQueries([opts.queryKey]);
+
+				for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
+					queryClient.invalidateQueries([queryKey]);
+				}
 			},
 		}),
 		patch: opts.patch ? useMutation({
@@ -65,6 +71,10 @@ const createCrudManager = <
 			},
 			onSuccess: () => {
 				queryClient.invalidateQueries([opts.queryKey]);
+
+				for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
+					queryClient.invalidateQueries([queryKey]);
+				}
 			},
 		}) : null,
 		create: useMutation({
@@ -73,11 +83,19 @@ const createCrudManager = <
 			},
 			onSuccess: () => {
 				queryClient.invalidateQueries([opts.queryKey]);
+
+				for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
+					queryClient.invalidateQueries([queryKey]);
+				}
 			},
 		}),
 		update: useMutation({
 			mutationFn: async (req: Parameters<typeof opts.update>[0]) => {
 				await opts.update(req);
+
+				for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
+					queryClient.invalidateQueries([queryKey]);
+				}
 			},
 			onSuccess: () => {
 				queryClient.invalidateQueries([opts.queryKey]);
@@ -94,6 +112,18 @@ export const useCommandsManager = () => createCrudManager({
 	patch: protectedApiClient?.commandsEnableOrDisable,
 	deleteOne: protectedApiClient?.commandsDelete,
 	getOne: protectedApiClient?.commandsGetById,
+	invalidateAdditionalQueries: ['commands/groups'],
+});
+
+export const useCommandsGroupsManager = () => createCrudManager({
+	queryKey: 'commands/groups',
+	getAll: protectedApiClient?.commandsGroupGetAll,
+	update: protectedApiClient?.commandsGroupUpdate,
+	create: protectedApiClient?.commandsGroupCreate,
+	patch: null,
+	deleteOne: protectedApiClient?.commandsGroupDelete,
+	getOne: null,
+	invalidateAdditionalQueries: ['commands'],
 });
 
 export const useGreetingsManager = () => createCrudManager({
@@ -144,16 +174,6 @@ export const useEventsManager = () => createCrudManager({
 	patch: protectedApiClient?.eventsEnableOrDisable,
 	deleteOne: protectedApiClient?.eventsDelete,
 	getOne: protectedApiClient?.eventsGetById,
-});
-
-export const useCommandsGroupsManager = () => createCrudManager({
-	queryKey: 'commands/groups',
-	getAll: protectedApiClient?.commandsGroupGetAll,
-	update: protectedApiClient?.commandsGroupUpdate,
-	create: protectedApiClient?.commandsGroupCreate,
-	patch: null,
-	deleteOne: protectedApiClient?.commandsGroupDelete,
-	getOne: null,
 });
 
 export const useRolesManager = () => createCrudManager({

@@ -16,7 +16,7 @@ const commands = computed(() => {
 </script>
 
 <template>
-  <list :commands="commands" :showHeader="true" />
+  <list :commands="commands" :showHeader="true" :showCreateButton="route.params.system === 'custom'" />
 </template>
 
 <style scoped>
