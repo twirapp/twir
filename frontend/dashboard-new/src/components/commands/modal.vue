@@ -20,6 +20,7 @@ import {
 	NCard,
 	NSwitch,
 	NSpace,
+	NAlert,
 } from 'naive-ui';
 import { ref, reactive, onMounted, computed } from 'vue';
 
@@ -152,6 +153,7 @@ const rules: FormRules = {
     </n-divider>
 
     <n-dynamic-input
+      v-if="formValue.module === 'CUSTOM'"
       v-model:value="formValue.responses"
       :on-create="() => ({ text: '' })"
       placeholder="Response"
@@ -167,6 +169,10 @@ const rules: FormRules = {
         </text-with-variables>
       </template>
     </n-dynamic-input>
+
+    <n-alert v-else type="info" :show-icon="false">
+      Responses cannot be edited for built-in commands
+    </n-alert>
 
     <n-divider>
       Permissions

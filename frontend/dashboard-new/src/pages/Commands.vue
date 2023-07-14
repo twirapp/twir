@@ -25,6 +25,12 @@ const commands = ref([{
 	requiredWatchTime: 0,
 	cooldown: 0,
 	cooldownType: 'GLOBAL',
+	isReply: true,
+	visible: true,
+	keepResponsesOrder: true,
+	onlineOnly: false,
+	groupId: undefined,
+	module: 'CUSTOM',
 }]);
 </script>
 
