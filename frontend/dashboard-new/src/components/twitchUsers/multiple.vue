@@ -34,7 +34,7 @@ const options = computed(() => {
 				: `${channel.login} (${channel.displayName})`,
 			value: channel.id,
 			profileImageUrl: channel.profileImageUrl,
-		})),
+		})).filter((channel) => !initialUsers.find((u) => u.id === channel.value)),
 		...initialUsers.map((user) => ({
 			label: user.login === user.displayName.toLowerCase()
 				? user.displayName

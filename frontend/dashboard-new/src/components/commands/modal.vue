@@ -148,15 +148,23 @@ const rules: FormRules = {
       </n-select>
     </n-form-item>
 
-    <n-grid :cols="12">
+    <n-grid :cols="12" :x-gap="5">
       <n-grid-item :span="6">
-        <twitch-users-multiple
-          v-model="formValue.deniedUsersIds"
-          :initial-users-ids="formValue.deniedUsersIds"
-        />
+        <n-form-item label="Denied users" path="deniedUsersIds">
+          <twitch-users-multiple
+            v-model="formValue.deniedUsersIds"
+            :initial-users-ids="formValue.deniedUsersIds"
+          />
+        </n-form-item>
       </n-grid-item>
 
       <n-grid-item :span="6">
+        <n-form-item label="Allowed users" path="allowedUsersIds">
+          <twitch-users-multiple
+            v-model="formValue.allowedUsersIds"
+            :initial-users-ids="formValue.allowedUsersIds"
+          />
+        </n-form-item>
       </n-grid-item>
     </n-grid>
     {{ JSON.stringify(formValue) }}
