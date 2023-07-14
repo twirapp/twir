@@ -1,7 +1,6 @@
 <script setup lang='ts'>
 import { NInputGroup, NButton, NInput, NFormItem } from 'naive-ui';
-import { ref } from 'vue';
-import { watch } from 'vue/dist/vue.js';
+import { ref, watch } from 'vue';
 
 import { useDonatepayIntegration } from '@/api/index.js';
 import DonatePaySVG from '@/assets/icons/integrations/donatepay.svg';

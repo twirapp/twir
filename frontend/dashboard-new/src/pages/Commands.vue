@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { Command } from '@twir/grpc/generated/api/api/commands';
 import { NButton } from 'naive-ui';
-import { ref } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useCommandsManager } from '@/api/index.js';
@@ -11,27 +11,10 @@ const route = useRoute();
 const commandsManager = useCommandsManager();
 const { data: commandsResponse } = commandsManager.getAll({});
 
-const commands = ref([{
-	name: 'test2',
-	responses: [
-		{ text: 'qwe' },
-	],
-	aliases: ['aliase'],
-	enabled: true,
-	deniedUsersIds: ['930477706'],
-	allowedUsersIds: [],
-	requiredMessages: 0,
-	requiredUsedChannelPoints: 0,
-	requiredWatchTime: 0,
-	cooldown: 0,
-	cooldownType: 'GLOBAL',
-	isReply: true,
-	visible: true,
-	keepResponsesOrder: true,
-	onlineOnly: false,
-	groupId: null,
-	module: 'CUSTOM',
-}]);
+const commands = computed(() => {
+	const system = Array.isArray(route.params.system) ? route.params.system[0] : route.params.system;
+	return commandsResponse.value?.commands.filter(c => c.module.toLowerCase() === system.toLowerCase()) ?? [];
+});
 </script>
 
 <template>

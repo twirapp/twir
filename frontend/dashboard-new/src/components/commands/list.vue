@@ -2,14 +2,18 @@
 import { IconTrash, IconPencil } from '@tabler/icons-vue';
 import { type Command } from '@twir/grpc/generated/api/api/commands';
 import { NDataTable, DataTableColumns, NText, NSwitch, NButton, NSpace, NBadge, NModal } from 'naive-ui';
-import { h, ref, toRaw } from 'vue';
+import { h, ref, toRaw, VNode } from 'vue';
 
+import { useCommandsManager } from '@/api/index.js';
 import Modal from '@/components/commands/modal.vue';
 import { renderIcon } from '@/helpers/index.js';
 
 defineProps<{
 	commands: Command[]
 }>();
+
+const commandsManager = useCommandsManager();
+const commandsDeleter = commandsManager.deleteOne;
 
 const columns: DataTableColumns<Command> = [
 	{
@@ -66,16 +70,27 @@ const columns: DataTableColumns<Command> = [
 				}, {
 				icon: renderIcon(IconPencil),
 			});
-			const deleteButton = h(NButton, { type: 'error', size: 'small' }, {
+			const deleteButton = h(
+				NButton, {
+					type: 'error',
+					size: 'small',
+					onClick: () => commandsDeleter.mutate({ commandId: row.id }),
+				}, {
 				icon: renderIcon(IconTrash),
 			});
-			return h(NSpace, {  }, {
-				default: () => [
-					editButton,
-					deleteButton,
-				],
-			});
+
+			const buttons: VNode[] = [editButton];
+
+			if (!row.default) {
+				buttons.push(deleteButton);
+			}
+
+			return h(NSpace, {  }, { default: () => buttons });
 		},
+	},
+	{
+		title: 'New',
+		key: 'new',
 	},
 ];
 

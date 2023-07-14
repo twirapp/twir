@@ -135,6 +135,15 @@ const rules: FormRules = {
 			return true;
 		},
 	},
+	cooldown: {
+		trigger: ['input', 'blur'],
+		validator: (rule: FormItemRule, value: number) => {
+			if (value < 0) {
+				return new Error('Cooldown cannot be negative');
+			}
+			return true;
+		},
+	},
 };
 </script>
 
