@@ -18,7 +18,7 @@ export const createListColumns = (
 		{
 			title: 'Name',
 			key: 'name',
-			width: 150,
+			width: 250,
 			render(row) {
 				return h(
 					NTag,
