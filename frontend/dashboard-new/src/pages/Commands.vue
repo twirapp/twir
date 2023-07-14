@@ -29,7 +29,7 @@ const commands = ref([{
 	visible: true,
 	keepResponsesOrder: true,
 	onlineOnly: false,
-	groupId: undefined,
+	groupId: null,
 	module: 'CUSTOM',
 }]);
 </script>

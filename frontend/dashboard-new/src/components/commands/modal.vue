@@ -21,10 +21,11 @@ import {
 	NSwitch,
 	NSpace,
 	NAlert,
+	NText,
 } from 'naive-ui';
 import { ref, reactive, onMounted, computed } from 'vue';
 
-import { useRolesManager } from '@/api/index.js';
+import { useRolesManager, useCommandsGroupsManager } from '@/api/index.js';
 import TextWithVariables from '@/components/textWithVariables.vue';
 import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue';
 
@@ -99,6 +100,16 @@ const rolesSelectOptions = computed(() => {
 	return roles.data.value.roles.map((role) => ({
 		label: role.name,
 		value: role.id,
+	}));
+});
+
+const commandsGroupsManager = useCommandsGroupsManager();
+const commandsGroups = commandsGroupsManager.getAll({});
+const commandsGroupsOptions = computed(() => {
+	if (!commandsGroups.data?.value) return [];
+	return commandsGroups.data.value.groups.map((group) => ({
+		label: group.name,
+		value: group.id,
 	}));
 });
 
@@ -328,6 +339,17 @@ const rules: FormRules = {
         </n-card>
       </n-grid-item>
     </n-grid>
+
+    <n-divider>
+      Other
+    </n-divider>
+
+    <n-form-item label="Command group" path="groupId">
+      <n-select
+        v-model:value="formValue.groupId"
+        :options="commandsGroupsOptions"
+      />
+    </n-form-item>
 
     {{ JSON.stringify(formValue) }}
   </n-form>

@@ -37,7 +37,7 @@ export const useTwitchSearchChannels = (query: string | Ref<string>) => useQuery
 	queryKey: ['twitch', 'search', 'channels', query],
 	queryFn: async () => {
 		const rawQuery = isRef(query) ? query.value : query;
-		console.log(rawQuery);
+
 		if (!rawQuery) return {
 			channels: [],
 		};
