@@ -150,7 +150,10 @@ const rules: FormRules = {
 
     <n-grid :cols="12">
       <n-grid-item :span="6">
-        <twitch-users-multiple v-model="formValue.deniedUsersIds" />
+        <twitch-users-multiple
+          v-model="formValue.deniedUsersIds"
+          :initial-users-ids="formValue.deniedUsersIds"
+        />
       </n-grid-item>
 
       <n-grid-item :span="6">

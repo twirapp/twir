@@ -1,33 +1,133 @@
 <script setup lang='ts'>
 import { refDebounced } from '@vueuse/core';
-import { NSelect } from 'naive-ui';
-import { computed, ref, watch } from 'vue';
+import { NSelect, SelectRenderTag, NTag, NAvatar, NText } from 'naive-ui';
+import { computed, ref, watch, h, onMounted } from 'vue';
 import { defineModel } from 'vue/dist/vue.js';
 
-import { useTwitchSearchUsers } from '@/api/index.js';
+import { useTwitchSearchChannels, useTwitchGetUsers } from '@/api/index.js';
 
 const usersIds = defineModel<string[]>({ default: [] });
 
+const props = defineProps<{
+	initialUsersIds: string[];
+}>();
+
+const getUsers = useTwitchGetUsers({
+	ids: usersIds,
+});
+
 const userName = ref<string>('');
 const userNameDebounced = refDebounced(userName, 1000);
-const twitchSearch = useTwitchSearchUsers({
-	ids: usersIds,
-	names: userNameDebounced,
+const twitchSearch = useTwitchSearchChannels(userNameDebounced);
+watch(userNameDebounced, () => {
+	twitchSearch.refetch();
 });
 
 const options = computed(() => {
-	if (!twitchSearch.data.value) return [];
-	return twitchSearch.data.value.users.map((user) => ({
-		label: user.login === user.displayName.toLowerCase()
-			? user.displayName
-			: `${user.login} (${user.displayName})`,
-		value: user.id,
-	}));
+	const searchUsers = twitchSearch.data.value?.channels ?? [];
+	const initialUsers = getUsers.data.value?.users ?? [];
+
+	return [
+		...searchUsers.map((channel) => ({
+			label: channel.login === channel.displayName.toLowerCase()
+				? channel.displayName
+				: `${channel.login} (${channel.displayName})`,
+			value: channel.id,
+			profileImageUrl: channel.profileImageUrl,
+		})),
+		...initialUsers.map((user) => ({
+			label: user.login === user.displayName.toLowerCase()
+				? user.displayName
+				: `${user.login} (${user.displayName})`,
+			value: user.id,
+			profileImageUrl: user.profileImageUrl,
+		})),
+	];
 });
 
 function handleSearch(query: string) {
 	userName.value = query;
 }
+
+type Option = {
+	label: string;
+	value: string;
+	profileImageUrl: string;
+};
+
+const renderMultipleSelectTag = ({ option, handleClose }: {
+	option: Option;
+	handleClose: () => void;
+}) => {
+	return h(
+		NTag,
+		{
+			style: {
+				padding: '0 6px 0 4px',
+			},
+			round: true,
+			closable: true,
+			onClose: (e) => {
+				e.stopPropagation();
+				handleClose();
+			},
+		},
+		{
+			default: () =>
+				h(
+					'div',
+					{
+						style: {
+							display: 'flex',
+							alignItems: 'center',
+						},
+					},
+					[
+						h(NAvatar, {
+							src: option.profileImageUrl,
+							round: true,
+							size: 22,
+							style: {
+								marginRight: '4px',
+							},
+						}),
+						option.label as string,
+					],
+				),
+		},
+	);
+};
+
+const renderLabel = (option: Option) => {
+	return h(
+		'div',
+		{
+			style: {
+				display: 'flex',
+				alignItems: 'center',
+			},
+		},
+		[
+			h(NAvatar, {
+				src: option.profileImageUrl,
+				round: true,
+				size: 'small',
+			}),
+			h(
+				'div',
+				{
+					style: {
+						marginLeft: '12px',
+						padding: '4px 0',
+					},
+				},
+				[
+					h('div', null, [option.label as string]),
+				],
+			),
+		],
+	);
+};
 </script>
 
 <template>
@@ -41,6 +141,8 @@ function handleSearch(query: string) {
     clearable
     remote
     :clear-filter-after-select="false"
+    :render-label="renderLabel"
+    :render-tag="renderMultipleSelectTag"
     @search="handleSearch"
   />
 </template>

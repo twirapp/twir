@@ -2,7 +2,7 @@ syntax = "proto3";
 option go_package = "github.com/satont/twir/libs/grpc/generated/api/twitch";
 package api.twitch;
 
-message TwitchSearchUsersRequest {
+message TwitchGetUsersRequest {
 	repeated string ids = 1;
 	repeated string names = 2;
 }
@@ -19,6 +19,25 @@ message TwitchUser {
 	uint64 created_at = 9;
 }
 
-message TwitchSearchUsersResponse {
+message TwitchGetUsersResponse {
 	repeated TwitchUser users = 1;
+}
+
+message TwitchSearchChannelsRequest {
+	string query = 1;
+}
+
+message Channel {
+	string id = 1;
+	string login = 2;
+	string display_name = 3;
+	string profile_image_url = 4;
+	string title = 5;
+	string game_name = 6;
+	string game_id = 7;
+	bool is_live = 8;
+}
+
+message TwitchSearchChannelsResponse {
+	repeated Channel channels = 1;
 }

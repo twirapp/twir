@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/vue-query';
-import { TwitchSearchUsersResponse } from '@twir/grpc/generated/api/api/twitch';
+import { TwitchGetUsersResponse } from '@twir/grpc/generated/api/api/twitch';
 import { Ref, isRef } from 'vue';
 
 import { unprotectedApiClient } from '@/api/twirp.js';
 
-export const useTwitchSearchUsers = (opts: {
+export const useTwitchGetUsers = (opts: {
 	ids?: Ref<string[]> | Ref<string> | string[],
 	names?: Ref<string[]> | Ref<string> | string[]
 }) => useQuery({
@@ -21,12 +21,29 @@ export const useTwitchSearchUsers = (opts: {
 		if (ids.length === 0 && names.length === 0) {
 			return {
 				users: [],
-			} as TwitchSearchUsersResponse;
+			} as TwitchGetUsersResponse;
 		}
 
-		const call = await unprotectedApiClient.twitchSearchUsers({
+		const call = await unprotectedApiClient.twitchGetUsers({
 			ids,
 			names,
+		});
+
+		return call.response;
+	},
+});
+
+export const useTwitchSearchChannels = (query: string | Ref<string>) => useQuery({
+	queryKey: ['twitch', 'search', 'channels', query],
+	queryFn: async () => {
+		const rawQuery = isRef(query) ? query.value : query;
+		console.log(rawQuery);
+		if (!rawQuery) return {
+			channels: [],
+		};
+
+		const call = await unprotectedApiClient.twitchSearchChannels({
+			query: rawQuery,
 		});
 
 		return call.response;

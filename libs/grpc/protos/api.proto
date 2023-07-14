@@ -161,7 +161,8 @@ import "api/commands_unprotected.proto";
 import "api/auth.proto";
 
 service UnProtected {
-	rpc TwitchSearchUsers(api.twitch.TwitchSearchUsersRequest) returns (api.twitch.TwitchSearchUsersResponse) {}
+	rpc TwitchGetUsers(api.twitch.TwitchGetUsersRequest) returns (api.twitch.TwitchGetUsersResponse) {}
+	rpc TwitchSearchChannels(api.twitch.TwitchSearchChannelsRequest) returns (api.twitch.TwitchSearchChannelsResponse) {}
 
 	rpc GetStats(google.protobuf.Empty) returns (api.stats.Response) {}
 

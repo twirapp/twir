@@ -2,12 +2,14 @@ package twitch
 
 import (
 	"context"
+	"fmt"
 	json "github.com/bytedance/sonic"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
 	generatedTwitch "github.com/satont/twir/libs/grpc/generated/api/twitch"
 	"github.com/satont/twir/libs/twitch"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -72,7 +74,10 @@ func (c *Twitch) getUsersFromTwitch(ctx context.Context, params *helix.UsersPara
 	return twitchReq.Data.Users, nil
 }
 
-func (c *Twitch) TwitchSearchUsers(ctx context.Context, req *generatedTwitch.TwitchSearchUsersRequest) (*generatedTwitch.TwitchSearchUsersResponse, error) {
+func (c *Twitch) TwitchGetUsers(
+	ctx context.Context,
+	req *generatedTwitch.TwitchGetUsersRequest,
+) (*generatedTwitch.TwitchGetUsersResponse, error) {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	twitchUsers := make([]helix.User, 0, len(req.Ids)+len(req.Names))
@@ -158,7 +163,56 @@ func (c *Twitch) TwitchSearchUsers(ctx context.Context, req *generatedTwitch.Twi
 		}
 	})
 
-	return &generatedTwitch.TwitchSearchUsersResponse{
+	return &generatedTwitch.TwitchGetUsersResponse{
 		Users: convertedUsers,
+	}, nil
+}
+
+func (c *Twitch) TwitchSearchChannels(
+	ctx context.Context,
+	request *generatedTwitch.TwitchSearchChannelsRequest,
+) (*generatedTwitch.TwitchSearchChannelsResponse, error) {
+	if request.Query == "" {
+		return nil, fmt.Errorf("query is empty")
+	}
+
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, *c.Config, c.Grpc.Tokens)
+	if err != nil {
+		return nil, err
+	}
+
+	twitchReq, twitchErr := twitchClient.SearchChannels(&helix.SearchChannelsParams{
+		Channel: request.Query,
+	})
+	if twitchErr != nil {
+		return nil, twitchErr
+	}
+	if twitchReq.ErrorMessage != "" {
+		return nil, fmt.Errorf(twitchReq.ErrorMessage)
+	}
+
+	channels := lo.Map(twitchReq.Data.Channels, func(channel helix.Channel, _ int) *generatedTwitch.Channel {
+		return &generatedTwitch.Channel{
+			Id:              channel.ID,
+			Login:           channel.BroadcasterLogin,
+			DisplayName:     channel.DisplayName,
+			ProfileImageUrl: channel.ThumbnailURL,
+			Title:           channel.Title,
+			GameName:        channel.GameName,
+			GameId:          channel.GameID,
+			IsLive:          channel.IsLive,
+		}
+	})
+
+	sort.Slice(channels, func(i, j int) bool {
+		// channels.Login contains query first
+		if strings.Contains(channels[i].Login, request.Query) && !strings.Contains(channels[j].Login, request.Query) {
+			return false
+		}
+		return true
+	})
+
+	return &generatedTwitch.TwitchSearchChannelsResponse{
+		Channels: channels,
 	}, nil
 }
