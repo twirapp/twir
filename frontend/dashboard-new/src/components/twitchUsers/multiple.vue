@@ -14,15 +14,12 @@ const twitchSearch = useTwitchSearchUsers({
 	ids: usersIds,
 	names: userNameDebounced,
 });
-watch(userNameDebounced, () => {
-	twitchSearch.refetch();
-});
 
 const options = computed(() => {
 	if (!twitchSearch.data.value) return [];
 	return twitchSearch.data.value.users.map((user) => ({
 		label: user.login === user.displayName.toLowerCase()
-			? user.login
+			? user.displayName
 			: `${user.login} (${user.displayName})`,
 		value: user.id,
 	}));
