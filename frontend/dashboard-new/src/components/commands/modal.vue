@@ -16,6 +16,7 @@ import {
 	NInputGroupLabel,
 	NDynamicInput,
 	NSelect,
+	NInputNumber,
 } from 'naive-ui';
 import { ref, reactive, onMounted, computed } from 'vue';
 
@@ -177,6 +178,45 @@ const rules: FormRules = {
     <n-divider>
       Restrictions by stats
     </n-divider>
+
+    <n-grid :cols="12" :x-gap="5">
+      <n-grid-item :span="6">
+        <n-form-item label="Required watch time (hours)" path="requiredWatchTime">
+          <n-input-number
+            v-model:value="formValue.requiredWatchTime"
+            :min="0"
+            class="grid-stats-item"
+          />
+        </n-form-item>
+      </n-grid-item>
+
+      <n-grid-item :span="6">
+        <n-form-item label="Required messages" path="requiredMessages">
+          <n-input-number
+            v-model:value="formValue.requiredMessages"
+            :min="0"
+            class="grid-stats-item"
+          />
+        </n-form-item>
+      </n-grid-item>
+
+      <n-grid-item :span="6">
+        <n-form-item label="Required used channels points" path="requiredUsedChannelPoints">
+          <n-input-number
+            v-model:value="formValue.requiredUsedChannelPoints"
+            :min="0"
+            class="grid-stats-item"
+          />
+        </n-form-item>
+      </n-grid-item>
+    </n-grid>
+
     {{ JSON.stringify(formValue) }}
   </n-form>
 </template>
+
+<style scoped>
+.grid-stats-item {
+	width: 100%
+}
+</style>
