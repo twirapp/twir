@@ -10,13 +10,12 @@ export const useTwitchGetUsers = (opts: {
 }) => useQuery({
 	queryKey: ['twitch', 'search', 'users', opts.ids, opts.names],
 	queryFn: async () => {
-		const ids = isRef(opts.ids)
-			? Array.isArray(opts.ids?.value) ? opts.ids?.value ?? [] : [opts.ids?.value ?? '']
-			: Array.isArray(opts.ids) ? opts.ids ?? [] : [opts.ids ?? ''];
-
-		const names = isRef(opts.names)
-			? Array.isArray(opts.names?.value) ? opts.names?.value ?? [] : [opts.names?.value ?? '']
-			: Array.isArray(opts.names) ? opts.names ?? [] : [opts.names ?? ''];
+		const ids = isRef(opts?.ids)
+			? Array.isArray(opts.ids.value) ? opts.ids.value : [opts.ids.value]
+			: opts?.ids ?? [''];
+		const names = isRef(opts?.names)
+			? Array.isArray(opts.names.value) ? opts.names.value : [opts.names.value]
+			: opts?.names ?? [''];
 
 		if (ids.length === 0 && names.length === 0) {
 			return {
