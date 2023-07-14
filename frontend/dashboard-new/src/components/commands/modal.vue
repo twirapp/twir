@@ -203,7 +203,9 @@ async function save() {
       <n-dynamic-input
         v-if="formValue.module === 'CUSTOM'"
         v-model:value="formValue.responses"
+        class="groups"
         placeholder="Response"
+        :create-button-props="{ class: 'create-button' } as any"
       >
         <template #default="{ value }">
           <text-with-variables
@@ -429,6 +431,7 @@ async function save() {
 
 .group-actions {
 	display: flex;
+	margin-left: 5px;
 	column-gap: 5px;
 	align-items: center
 }

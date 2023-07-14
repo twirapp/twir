@@ -7,10 +7,12 @@ import type { ListRowData, EditableCommand } from '@/components/commands/types.j
 import { renderIcon } from '@/helpers/index.js';
 
 type Deleter = ReturnType<typeof useCommandsManager>['deleteOne']
+type Patcher = NonNullable<ReturnType<typeof useCommandsManager>['patch']>
 
 export const createListColumns = (
 	editCommand: (command: EditableCommand) => void,
 	deleter: Deleter,
+	patcher: Patcher,
 ): DataTableColumns<ListRowData> => {
 	return [
 		{
@@ -60,6 +62,7 @@ export const createListColumns = (
 						value: row.enabled,
 						onUpdateValue: (value: boolean) => {
 							row.enabled = value;
+							patcher.mutate({ commandId: row.id, enabled: value });
 						},
 					},
 					{ default: () => row.enabled },

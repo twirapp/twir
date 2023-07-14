@@ -129,6 +129,10 @@ func (c *Commands) CommandsCreate(ctx context.Context, request *commands.CreateR
 	}
 
 	for _, res := range request.Responses {
+		if res.Text == "" {
+			continue
+		}
+
 		command.Responses = append(command.Responses, &model.ChannelsCommandsResponses{
 			ID:    uuid.New().String(),
 			Text:  null.StringFrom(res.Text),
@@ -191,6 +195,10 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 	cmd.Responses = make([]*model.ChannelsCommandsResponses, 0, len(request.Command.Responses))
 
 	for _, res := range request.Command.Responses {
+		if res.Text == "" {
+			continue
+		}
+
 		r := &model.ChannelsCommandsResponses{
 			Text:      null.StringFrom(res.Text),
 			Order:     int(res.Order),
