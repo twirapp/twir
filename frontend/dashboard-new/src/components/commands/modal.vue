@@ -350,8 +350,6 @@ const rules: FormRules = {
         :options="commandsGroupsOptions"
       />
     </n-form-item>
-
-    {{ JSON.stringify(formValue) }}
   </n-form>
 </template>
 
