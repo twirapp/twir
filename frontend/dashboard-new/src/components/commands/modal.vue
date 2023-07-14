@@ -1,5 +1,12 @@
 <script setup lang='ts'>
-import { IconShieldHalfFilled } from '@tabler/icons-vue';
+import {
+	IconShieldHalfFilled,
+	IconTrash,
+	IconDeviceFloppy,
+	IconArrowNarrowUp,
+	IconArrowNarrowDown,
+	IconPlus,
+} from '@tabler/icons-vue';
 import type { Command } from '@twir/grpc/generated/api/api/commands';
 import {
 	NForm,
@@ -192,23 +199,52 @@ async function save() {
       Responses
     </n-divider>
 
-    <n-dynamic-input
-      v-if="formValue.module === 'CUSTOM'"
-      v-model:value="formValue.responses"
-      :on-create="() => ({ text: '' })"
-      placeholder="Response"
-      show-sort-button
-    >
-      <template #default="{ value }">
-        <text-with-variables
-          v-model="value.text"
-          inputType="textarea"
-          :minRows="3"
-          :maxRows="6"
-        >
-        </text-with-variables>
-      </template>
-    </n-dynamic-input>
+    <div v-if="formValue.module === 'CUSTOM'">
+      <n-dynamic-input
+        v-if="formValue.module === 'CUSTOM'"
+        v-model:value="formValue.responses"
+        placeholder="Response"
+      >
+        <template #default="{ value }">
+          <text-with-variables
+            v-model="value.text"
+            inputType="textarea"
+            :minRows="3"
+            :maxRows="6"
+          >
+          </text-with-variables>
+        </template>
+
+        <template #action="{ index, remove, move }">
+          <div class="group-actions">
+            <n-button size="small" type="error" quaternary @click="() => remove(index)">
+              <IconTrash />
+            </n-button>
+            <n-button
+              size="small"
+              type="info"
+              quaternary
+              :disabled="index == 0"
+              @click="() => move('up', index)"
+            >
+              <IconArrowNarrowUp />
+            </n-button>
+            <n-button
+              size="small"
+              type="info"
+              quaternary
+              :disabled="!!formValue.responses.length && index === formValue.responses.length-1"
+              @click="() => move('down', index)"
+            >
+              <IconArrowNarrowDown />
+            </n-button>
+          </div>
+        </template>
+      </n-dynamic-input>
+      <n-button dashed block style="margin-top:10px" @click="() => formValue.responses.push({ text: '' })">
+        <IconPlus /> Create
+      </n-button>
+    </div>
 
     <n-alert v-else type="info" :show-icon="false">
       Responses cannot be edited for built-in commands
@@ -387,6 +423,16 @@ async function save() {
 </template>
 
 <style scoped>
+.groups :deep(.create-button) {
+	display: none;
+}
+
+.group-actions {
+	display: flex;
+	column-gap: 5px;
+	align-items: center
+}
+
 .grid-stats-item {
 	width: 100%;
 }
