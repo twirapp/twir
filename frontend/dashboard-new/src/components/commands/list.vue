@@ -2,20 +2,54 @@
 import { IconTrash, IconPencil } from '@tabler/icons-vue';
 import { type Command } from '@twir/grpc/generated/api/api/commands';
 import { NDataTable, DataTableColumns, NText, NSwitch, NButton, NSpace, NBadge, NModal } from 'naive-ui';
-import { h, ref, toRaw, VNode } from 'vue';
+import { h, ref, toRaw, VNode, computed } from 'vue';
 
 import { useCommandsManager } from '@/api/index.js';
 import Modal from '@/components/commands/modal.vue';
 import { renderIcon } from '@/helpers/index.js';
 
-defineProps<{
+const props = defineProps<{
 	commands: Command[]
 }>();
 
 const commandsManager = useCommandsManager();
 const commandsDeleter = commandsManager.deleteOne;
 
-const columns: DataTableColumns<Command> = [
+const commandsWithGroups = computed(() => {
+	const commands = props.commands;
+	const groups: Record<string, {
+		name: string,
+		children: Command[]
+		isGroup?: boolean,
+	}> = {
+		'no-group': {
+			name: 'no-group',
+			children: [],
+			isGroup: true,
+		},
+	};
+
+	for (const command of commands) {
+		const group = command.group?.name ?? 'no-group';
+		if (!groups[group]) {
+			groups[group] = {
+				name: group,
+				children: [],
+				isGroup: true,
+			};
+		}
+
+		groups[group].children.push(command);
+	}
+
+	return [
+		...groups['no-group']!.children,
+		...Object.entries(groups)
+			.filter(([groupName]) => groupName !== 'no-group').map(([, group]) => group),
+	];
+});
+
+const columns: DataTableColumns<Command & { isGroup?: boolean }> = [
 	{
 		title: 'Name',
 		key: 'name',
@@ -32,10 +66,11 @@ const columns: DataTableColumns<Command> = [
 		title: 'Responses',
 		key: 'responses',
 		render(row) {
+			if (row.isGroup) return;
 			return h(
 				NText,
 				{},
-				{ default: () => row.responses.map(r => `${r.text}`).join('\n') },
+				{ default: () => row.responses?.map(r => `${r.text}`).join('\n') },
 			);
 		},
 	},
@@ -44,6 +79,7 @@ const columns: DataTableColumns<Command> = [
 		key: 'enabled',
 		width: 100,
 		render(row) {
+			if (row.isGroup) return;
 			return h(
 				NSwitch,
 				{
@@ -61,6 +97,7 @@ const columns: DataTableColumns<Command> = [
 		key: 'actions',
 		width: 150,
 		render(row) {
+			if (row.isGroup) return;
 			const editButton = h(
 				NButton,
 				{
@@ -88,10 +125,6 @@ const columns: DataTableColumns<Command> = [
 			return h(NSpace, {  }, { default: () => buttons });
 		},
 	},
-	{
-		title: 'New',
-		key: 'new',
-	},
 ];
 
 const showModal = ref(false);
@@ -111,8 +144,9 @@ function onModalClose() {
   <div>
     <n-data-table
       :columns="columns"
-      :data="commands"
+      :data="commandsWithGroups"
       :bordered="false"
+      :row-class-name="row => row.isGroup ? 'group' : ''"
     />
 
     <n-modal
