@@ -1,6 +1,4 @@
 <script setup lang='ts'>
-import { Command } from '@twir/grpc/generated/api/api/commands';
-import { NButton } from 'naive-ui';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -18,20 +16,7 @@ const commands = computed(() => {
 </script>
 
 <template>
-  <div>
-    <div class="title">
-      <div>
-        <h2>Commands</h2>
-      </div>
-      <div>
-        <n-button type="primary">
-          Create
-        </n-button>
-      </div>
-    </div>
-
-    <list :commands="commands" />
-  </div>
+  <list :commands="commands" :showHeader="true" />
 </template>
 
 <style scoped>

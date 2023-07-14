@@ -8,9 +8,12 @@ import { useCommandsManager } from '@/api/index.js';
 import Modal from '@/components/commands/modal.vue';
 import { renderIcon } from '@/helpers/index.js';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
 	commands: Command[]
-}>();
+	showHeader: boolean
+}>(), {
+	showHeader: false,
+});
 
 const commandsManager = useCommandsManager();
 const commandsDeleter = commandsManager.deleteOne;
@@ -154,6 +157,17 @@ function onModalClose() {
 
 <template>
   <div>
+    <div v-if="showHeader" class="header">
+      <div>
+        <h2>Commands</h2>
+      </div>
+      <div>
+        <n-button type="primary">
+          Create
+        </n-button>
+      </div>
+    </div>
+
     <n-data-table
       :columns="columns"
       :data="commandsWithGroups"
@@ -177,3 +191,11 @@ function onModalClose() {
     </n-modal>
   </div>
 </template>
+
+<style scoped>
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+</style>
