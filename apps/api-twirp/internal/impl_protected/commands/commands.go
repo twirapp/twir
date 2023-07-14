@@ -50,8 +50,10 @@ func (c *Commands) convertDbToRpc(cmd *model.ChannelsCommands) *commands.Command
 		}),
 		GroupId: cmd.GroupID.Ptr(),
 		Group: lo.If(cmd.Group != nil, &commands.Command_Group{
-			Id:   cmd.Group.ID,
-			Name: cmd.Group.Name,
+			Id:        cmd.Group.ID,
+			ChannelId: cmd.Group.ChannelID,
+			Name:      cmd.Group.Name,
+			Color:     cmd.Group.Color,
 		}).Else(nil),
 	}
 }

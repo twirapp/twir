@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { IconTrash, IconPencil } from '@tabler/icons-vue';
 import { type Command } from '@twir/grpc/generated/api/api/commands';
-import { NDataTable, DataTableColumns, NText, NSwitch, NButton, NSpace, NBadge, NModal } from 'naive-ui';
+import { NDataTable, DataTableColumns, NText, NSwitch, NButton, NSpace, NModal, NTag } from 'naive-ui';
 import { h, ref, toRaw, VNode, computed } from 'vue';
 
 import { useCommandsManager } from '@/api/index.js';
@@ -15,18 +15,17 @@ const props = defineProps<{
 const commandsManager = useCommandsManager();
 const commandsDeleter = commandsManager.deleteOne;
 
-const commandsWithGroups = computed(() => {
+type RowData = Command & { isGroup?: boolean, groupColor?: string, children?: RowData[] };
+
+const commandsWithGroups = computed<RowData[]>(() => {
 	const commands = props.commands;
-	const groups: Record<string, {
-		name: string,
-		children: Command[]
-		isGroup?: boolean,
-	}> = {
+	const groups: Record<string, RowData> = {
 		'no-group': {
 			name: 'no-group',
 			children: [],
 			isGroup: true,
-		},
+			groupColor: '',
+		} as any as RowData,
 	};
 
 	for (const command of commands) {
@@ -36,29 +35,33 @@ const commandsWithGroups = computed(() => {
 				name: group,
 				children: [],
 				isGroup: true,
-			};
+				groupColor: command.group!.color,
+			} as any as RowData;
 		}
 
-		groups[group].children.push(command);
+		groups[group]!.children!.push(command as RowData);
 	}
 
 	return [
-		...groups['no-group']!.children,
+		...groups['no-group']!.children!,
 		...Object.entries(groups)
 			.filter(([groupName]) => groupName !== 'no-group').map(([, group]) => group),
 	];
 });
 
-const columns: DataTableColumns<Command & { isGroup?: boolean }> = [
+const columns: DataTableColumns<RowData> = [
 	{
 		title: 'Name',
 		key: 'name',
 		width: 150,
 		render(row) {
 			return h(
-				NBadge,
-				{ type: 'info', value: row.name },
-				{},
+				NTag,
+				{
+					bordered: false,
+					color: { color: row.isGroup ? row.groupColor : 'rgba(112, 192, 232, 0.16)' },
+				},
+				{ default: () => row.name },
 			);
 		},
 	},
@@ -80,6 +83,7 @@ const columns: DataTableColumns<Command & { isGroup?: boolean }> = [
 		width: 100,
 		render(row) {
 			if (row.isGroup) return;
+
 			return h(
 				NSwitch,
 				{
@@ -146,7 +150,6 @@ function onModalClose() {
       :columns="columns"
       :data="commandsWithGroups"
       :bordered="false"
-      :row-class-name="row => row.isGroup ? 'group' : ''"
     />
 
     <n-modal
@@ -166,7 +169,3 @@ function onModalClose() {
     </n-modal>
   </div>
 </template>
-
-<style scoped lang='postcss'>
-
-</style>
