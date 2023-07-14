@@ -37,9 +37,9 @@ func (c *Commands) convertDbToRpc(cmd *model.ChannelsCommands) *commands.Command
 		AllowedUsersIds:           cmd.AllowedUsersIDS,
 		RolesIds:                  cmd.RolesIDS,
 		OnlineOnly:                cmd.OnlineOnly,
-		RequiredWatchTime:         uint64(cmd.RequiredWatchTime),
-		RequiredMessages:          uint64(cmd.RequiredMessages),
-		RequiredUsedChannelPoints: uint64(cmd.RequiredUsedChannelPoints),
+		RequiredWatchTime:         uint32(cmd.RequiredWatchTime),
+		RequiredMessages:          uint32(cmd.RequiredMessages),
+		RequiredUsedChannelPoints: uint32(cmd.RequiredUsedChannelPoints),
 		Responses: lo.Map(cmd.Responses, func(res *model.ChannelsCommandsResponses, _ int) *commands.Command_Response {
 			return &commands.Command_Response{
 				Id:        res.ID,

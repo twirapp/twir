@@ -63,9 +63,9 @@ message Command {
 	repeated string allowed_users_ids = 16;
 	repeated string roles_ids = 17;
 	bool online_only = 18;
-	uint64 required_watch_time = 19;
-	uint64 required_messages = 20;
-	uint64 required_used_channel_points = 21;
+	uint32 required_watch_time = 19;
+	uint32 required_messages = 20;
+	uint32 required_used_channel_points = 21;
 	repeated Response responses = 22;
 	optional string group_id = 23;
 	optional Group group = 24;

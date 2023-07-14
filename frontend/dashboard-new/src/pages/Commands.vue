@@ -19,6 +19,10 @@ const commands = ref([{
 	aliases: ['aliase'],
 	enabled: true,
 	deniedUsersIds: ['930477706'],
+	allowedUsersIds: [],
+	requiredMessages: 0,
+	requiredUsedChannelPoints: 0,
+	requiredWatchTime: 0,
 }]);
 </script>
 

@@ -40,6 +40,9 @@ const formValue = reactive<FormCommand>({
 	rolesIds: [],
 	deniedUsersIds: [],
 	allowedUsersIds: [],
+	requiredMessages: 0,
+	requiredUsedChannelPoints: 0,
+	requiredWatchTime: 0,
 });
 
 onMounted(() => {
@@ -51,6 +54,9 @@ onMounted(() => {
 		formValue.rolesIds = props.command.rolesIds;
 		formValue.deniedUsersIds = props.command.deniedUsersIds;
 		formValue.allowedUsersIds = props.command.allowedUsersIds;
+		formValue.requiredMessages = props.command.requiredMessages;
+		formValue.requiredUsedChannelPoints = props.command.requiredUsedChannelPoints;
+		formValue.requiredWatchTime = props.command.requiredWatchTime;
 	}
 });
 
@@ -167,6 +173,10 @@ const rules: FormRules = {
         </n-form-item>
       </n-grid-item>
     </n-grid>
+
+    <n-divider>
+      Restrictions by stats
+    </n-divider>
     {{ JSON.stringify(formValue) }}
   </n-form>
 </template>
