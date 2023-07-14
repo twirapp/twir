@@ -109,8 +109,6 @@ function onModalClose() {
       class="modal"
       :style="{
         width: '800px',
-        position: 'fixed',
-        left: `calc(50% - 800px/2)`,
         top: '50px',
       }"
       :on-close="onModalClose"

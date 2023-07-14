@@ -44,6 +44,8 @@ const formValue = reactive<FormCommand>({
 	requiredMessages: 0,
 	requiredUsedChannelPoints: 0,
 	requiredWatchTime: 0,
+	cooldown: 0,
+	cooldownType: 'GLOBAL',
 });
 
 onMounted(() => {
@@ -58,6 +60,8 @@ onMounted(() => {
 		formValue.requiredMessages = props.command.requiredMessages;
 		formValue.requiredUsedChannelPoints = props.command.requiredUsedChannelPoints;
 		formValue.requiredWatchTime = props.command.requiredWatchTime;
+		formValue.cooldown = props.command.cooldown;
+		formValue.cooldownType = props.command.cooldownType;
 	}
 });
 
@@ -206,6 +210,34 @@ const rules: FormRules = {
             v-model:value="formValue.requiredUsedChannelPoints"
             :min="0"
             class="grid-stats-item"
+          />
+        </n-form-item>
+      </n-grid-item>
+    </n-grid>
+
+    <n-divider>
+      Cooldown
+    </n-divider>
+
+    <n-grid :cols="12" :x-gap="5">
+      <n-grid-item :span="6">
+        <n-form-item label="Cooldown (seconds)" path="cooldown">
+          <n-input-number
+            v-model:value="formValue.cooldown"
+            :min="0"
+            class="grid-stats-item"
+          />
+        </n-form-item>
+      </n-grid-item>
+
+      <n-grid-item :span="6">
+        <n-form-item label="Cooldown type" path="cooldownType">
+          <n-select
+            v-model:value="formValue.cooldownType"
+            :options="[
+              { label: 'On command', value: 'GLOBAL' },
+              { label: 'On user (not working on mods, subscribers)', value: 'PER_USER' },
+            ]"
           />
         </n-form-item>
       </n-grid-item>

@@ -23,6 +23,8 @@ const commands = ref([{
 	requiredMessages: 0,
 	requiredUsedChannelPoints: 0,
 	requiredWatchTime: 0,
+	cooldown: 0,
+	cooldownType: 'GLOBAL',
 }]);
 </script>
 
