@@ -5,7 +5,9 @@ import { NDataTable, DataTableColumns, NText, NSwitch, NButton, NSpace, NModal, 
 import { h, ref, toRaw, VNode, computed } from 'vue';
 
 import { useCommandsManager } from '@/api/index.js';
+import { createListColumns } from '@/components/commands/createListColumns.js';
 import Modal from '@/components/commands/modal.vue';
+import type { EditableCommand, ListRowData } from '@/components/commands/types.js';
 import { renderIcon } from '@/helpers/index.js';
 
 const props = withDefaults(defineProps<{
@@ -18,17 +20,15 @@ const props = withDefaults(defineProps<{
 const commandsManager = useCommandsManager();
 const commandsDeleter = commandsManager.deleteOne;
 
-type RowData = Command & { isGroup?: boolean, groupColor?: string, children?: RowData[] };
-
-const commandsWithGroups = computed<RowData[]>(() => {
+const commandsWithGroups = computed<ListRowData[]>(() => {
 	const commands = props.commands;
-	const groups: Record<string, RowData> = {
+	const groups: Record<string, ListRowData> = {
 		'no-group': {
 			name: 'no-group',
 			children: [],
 			isGroup: true,
 			groupColor: '',
-		} as any as RowData,
+		} as any as ListRowData,
 	};
 
 	for (const command of commands) {
@@ -39,10 +39,10 @@ const commandsWithGroups = computed<RowData[]>(() => {
 				children: [],
 				isGroup: true,
 				groupColor: command.group!.color,
-			} as any as RowData;
+			} as any as ListRowData;
 		}
 
-		groups[group]!.children!.push(command as RowData);
+		groups[group]!.children!.push(command as ListRowData);
 	}
 
 	return [
@@ -52,100 +52,10 @@ const commandsWithGroups = computed<RowData[]>(() => {
 	];
 });
 
-const columns: DataTableColumns<RowData> = [
-	{
-		title: 'Name',
-		key: 'name',
-		width: 150,
-		render(row) {
-			return h(
-				NTag,
-				{
-					bordered: false,
-					color: { color: row.isGroup ? row.groupColor : 'rgba(112, 192, 232, 0.16)' },
-				},
-				{ default: () => row.name },
-			);
-		},
-	},
-	{
-		title: 'Responses',
-		key: 'responses',
-		render(row) {
-			if (row.isGroup) return;
-			return h(
-				NText,
-				{},
-				{ default: () => row.responses?.map(r => `${r.text}`).join('\n') },
-			);
-		},
-	},
-	{
-		title: 'Status',
-		key: 'enabled',
-		width: 100,
-		render(row) {
-			if (row.isGroup) return;
-
-			return h(
-				NSwitch,
-				{
-					value: row.enabled,
-					onUpdateValue: (value: boolean) => {
-						row.enabled = value;
-					},
-				},
-				{ default: () => row.enabled },
-			);
-		},
-	},
-	{
-		title: 'Actions',
-		key: 'actions',
-		width: 150,
-		render(row) {
-			if (row.isGroup) return;
-			const editButton = h(
-				NButton,
-				{
-					type: 'primary',
-					size: 'small',
-					onClick: () => editCommand(row),
-				}, {
-				icon: renderIcon(IconPencil),
-			});
-
-			const deleteButton = h(
-				NPopconfirm,
-				{
-					onPositiveClick: () => commandsDeleter.mutate({ commandId: row.id }),
-				},
-				{
-					trigger: h(NButton, {
-						type: 'error',
-						size: 'small',
-					}, {
-						default: renderIcon(IconTrash),
-					}),
-					default: () => 'Are you sure you want to delete this command?',
-				},
-			);
-
-			const buttons: VNode[] = [editButton];
-
-			if (!row.default) {
-				buttons.push(deleteButton);
-			}
-
-			return h(NSpace, {  }, { default: () => buttons });
-		},
-	},
-];
-
 const showModal = ref(false);
 
-const editableCommand = ref<Command | null>(null);
-function editCommand(command: Command) {
+const editableCommand = ref<EditableCommand | null>(null);
+function editCommand(command: EditableCommand) {
 	editableCommand.value = structuredClone(toRaw(command));
 	showModal.value = true;
 }
@@ -169,7 +79,7 @@ function onModalClose() {
     </div>
 
     <n-data-table
-      :columns="columns"
+      :columns="createListColumns(editCommand, commandsDeleter)"
       :data="commandsWithGroups"
       :bordered="false"
     />

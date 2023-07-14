@@ -26,6 +26,7 @@ import {
 import { ref, reactive, onMounted, computed } from 'vue';
 
 import { useRolesManager, useCommandsGroupsManager } from '@/api/index.js';
+import { EditableCommand } from '@/components/commands/types.js';
 import TextWithVariables from '@/components/textWithVariables.vue';
 import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue';
 
@@ -33,21 +34,9 @@ const props = defineProps<{
 	command: Command | null
 }>();
 
-type FormCommand = Omit<
-	Command,
-	'responses' |
-	'channelId' |
-	'default' |
-	'defaultName' |
-	'id' |
-	'group'
-> & {
-	responses: Array<Omit<Command_Response, 'id' | 'commandId' | 'order'>>,
-	id?: string
-};
 
 const formRef = ref<FormInst | null>(null);
-const formValue = reactive<FormCommand>({
+const formValue = reactive<EditableCommand>({
 	name:'',
 	aliases: [],
 	responses: [],
