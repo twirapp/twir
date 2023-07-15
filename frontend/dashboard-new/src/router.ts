@@ -26,6 +26,10 @@ export const router = createRouter({
 					path: '/dashboard/commands/:system',
 					component: () => import('./pages/Commands.vue'),
 				},
+				{
+					path: '/dashboard/timers',
+					component: () => import('./pages/Timers.vue'),
+				},
 			],
 		},
 	],
