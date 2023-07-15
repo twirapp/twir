@@ -90,7 +90,7 @@ func (c *Roles) RolesUpdate(
 
 	entity.Name = request.Role.Name
 	entity.Permissions = request.Role.Permissions
-	entity.Users = lo.Map(request.Role.Users, func(u *roles.Role_User, _ int) *model.ChannelRoleUser {
+	entity.Users = lo.Map(request.Role.Users, func(u *roles.CreateRequest_User, _ int) *model.ChannelRoleUser {
 		return &model.ChannelRoleUser{
 			ID:     uuid.New().String(),
 			UserID: u.UserId,
@@ -120,7 +120,12 @@ func (c *Roles) RolesDelete(
 	dashboardId := ctx.Value("dashboardId").(string)
 	if err := c.Db.
 		WithContext(ctx).
-		Where(`"channelId" = ? AND "type" = ?`, dashboardId, model.ChannelRoleTypeCustom.String()).
+		Where(
+			`"id" = ? AND "channelId" = ? AND "type" = ?`,
+			request.Id,
+			dashboardId,
+			model.ChannelRoleTypeCustom.String(),
+		).
 		Delete(&model.ChannelRole{}).
 		Error; err != nil {
 		return nil, err
@@ -136,9 +141,9 @@ func (c *Roles) RolesCreate(
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	settings := &model.ChannelRoleSettings{
-		RequiredWatchTime:         int64(request.Role.Settings.RequiredWatchTime),
-		RequiredMessages:          request.Role.Settings.RequiredMessages,
-		RequiredUsedChannelPoints: int64(request.Role.Settings.RequiredUserChannelPoints),
+		RequiredWatchTime:         int64(request.Settings.RequiredWatchTime),
+		RequiredMessages:          request.Settings.RequiredMessages,
+		RequiredUsedChannelPoints: int64(request.Settings.RequiredUserChannelPoints),
 	}
 
 	settingsBytes, err := json.Marshal(settings)
@@ -149,11 +154,11 @@ func (c *Roles) RolesCreate(
 	entity := &model.ChannelRole{
 		ID:          uuid.New().String(),
 		ChannelID:   dashboardId,
-		Name:        request.Role.Name,
+		Name:        request.Name,
 		Type:        model.ChannelRoleTypeCustom,
-		Permissions: request.Role.Permissions,
+		Permissions: request.Permissions,
 		Settings:    settingsBytes,
-		Users: lo.Map(request.Role.Users, func(u *roles.Role_User, _ int) *model.ChannelRoleUser {
+		Users: lo.Map(request.Users, func(u *roles.CreateRequest_User, _ int) *model.ChannelRoleUser {
 			return &model.ChannelRoleUser{
 				ID:     uuid.New().String(),
 				UserID: u.UserId,
@@ -162,7 +167,7 @@ func (c *Roles) RolesCreate(
 		}),
 	}
 
-	if err := c.Db.WithContext(ctx).Save(entity).Error; err != nil {
+	if err := c.Db.WithContext(ctx).Create(entity).Error; err != nil {
 		return nil, err
 	}
 
