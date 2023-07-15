@@ -36,7 +36,20 @@ const columns: DataTableColumns<Variable> = [
 		title: 'Type',
 		key: 'type',
 		render(row) {
-			return h(NTag, { type: 'info', bordered: true }, { default: () => row.type });
+			return h(NTag, { type: 'info', bordered: true }, {
+				default: () => {
+					switch(row.type) {
+						case VariableType.SCRIPT:
+							return 'Script';
+						case VariableType.TEXT:
+							return 'Text';
+						case VariableType.NUMBER:
+							return 'Number';
+						default:
+							return 'Unknown';
+					}
+				},
+			});
 		},
 	},
 	{
@@ -106,7 +119,7 @@ function closeModal() {
   <n-data-table
     :isLoading="variables.isLoading.value"
     :columns="columns"
-    :data="variables.data.value?.keywords ?? []"
+    :data="variables.data.value?.variables ?? []"
   />
 
   <n-modal
@@ -117,7 +130,7 @@ function closeModal() {
     :title="editableVariable?.name ?? 'New variable'"
     class="modal"
     :style="{
-      width: '600px',
+      width: 'auto',
       top: '50px',
     }"
     :on-close="closeModal"

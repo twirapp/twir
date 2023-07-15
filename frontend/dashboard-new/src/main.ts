@@ -1,3 +1,4 @@
+import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor';
 import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query';
 import { createApp } from 'vue';
 
@@ -7,6 +8,7 @@ import App from '@/App.vue';
 
 const app = createApp(App).use(router);
 
+app.use(VueMonacoEditorPlugin);
 VueQueryPlugin.install(app, {
 	queryClient: new QueryClient({
 		defaultOptions: {
