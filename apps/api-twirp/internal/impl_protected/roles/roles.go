@@ -94,7 +94,7 @@ func (c *Roles) RolesUpdate(
 		return &model.ChannelRoleUser{
 			ID:     uuid.New().String(),
 			UserID: u.UserId,
-			RoleID: u.RoleId,
+			RoleID: entity.ID,
 		}
 	})
 
@@ -162,7 +162,6 @@ func (c *Roles) RolesCreate(
 			return &model.ChannelRoleUser{
 				ID:     uuid.New().String(),
 				UserID: u.UserId,
-				RoleID: u.RoleId,
 			}
 		}),
 	}

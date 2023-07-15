@@ -41,7 +41,6 @@ message CreateRequest {
 
 	message User {
 		string user_id = 1;
-		string role_id = 2;
 	}
 
 	string name = 1;
