@@ -42,6 +42,14 @@ export const router = createRouter({
 					path: '/dashboard/greetings',
 					component: () => import('./pages/Greetings.vue'),
 				},
+				{
+					path: '/dashboard/community/users',
+					component: () => import('./pages/CommunityUsers.vue'),
+				},
+				{
+					path: '/dashboard/community/roles',
+					component: () => import('./pages/CommunityRoles.vue'),
+				},
 			],
 		},
 	],

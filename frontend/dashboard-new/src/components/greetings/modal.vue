@@ -1,5 +1,15 @@
 <script setup lang='ts'>
-import { type FormInst, NInput, NForm, NSpace, NFormItem, FormRules, FormItemRule, NButton } from 'naive-ui';
+import {
+	type FormInst,
+	type FormRules,
+	type FormItemRule,
+	NInput,
+	NForm,
+	NSpace,
+	NFormItem,
+	NButton,
+	NSwitch,
+} from 'naive-ui';
 import { ref, onMounted, toRaw } from 'vue';
 
 import { useGreetingsManager } from '@/api/index.js';
@@ -88,6 +98,10 @@ const rules: FormRules = {
       </n-form-item>
       <n-form-item label="Text" path="text">
         <n-input v-model:value="formValue.text" />
+      </n-form-item>
+
+      <n-form-item label="Use twitch reply" path="text">
+        <n-input v-model:checked="formValue.isReply" />
       </n-form-item>
     </n-space>
 
