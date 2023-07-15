@@ -91,6 +91,7 @@ const createCrudManager = <
 		}),
 		update: useMutation({
 			mutationFn: async (req: Parameters<typeof opts.update>[0]) => {
+				console.log(req);
 				await opts.update(req);
 
 				for (const queryKey of opts.invalidateAdditionalQueries ?? []) {

@@ -7,7 +7,7 @@ import {
 	IconArrowNarrowDown,
 	IconPlus,
 } from '@tabler/icons-vue';
-import type { Command } from '@twir/grpc/generated/api/api/commands';
+import type { Command, Command_Response } from '@twir/grpc/generated/api/api/commands';
 import {
 	NForm,
 	NFormItem,
@@ -145,6 +145,20 @@ const rules: FormRules = {
 			return true;
 		},
 	},
+	description: {
+		trigger: ['input', 'blur'],
+		validator: (rule: FormItemRule, value: string) => {
+			if (value.length > 500) {
+				return new Error('Description cannot be longer than 500 characters');
+			}
+			return true;
+		},
+	},
+	responses: {
+		trigger: ['input', 'blur'],
+		required: true,
+		message: `Please input text or remove response`,
+	},
 };
 
 const commandsManager = useCommandsManager();
@@ -159,6 +173,7 @@ async function save() {
 			...r,
 			order: i,
 		})),
+		groupId: rawData.groupId === null ? undefined : rawData.groupId,
 	};
 
 	if (rawData.id) {
@@ -207,14 +222,20 @@ async function save() {
         placeholder="Response"
         :create-button-props="{ class: 'create-button' } as any"
       >
-        <template #default="{ value }">
-          <text-with-variables
-            v-model="value.text"
-            inputType="textarea"
-            :minRows="3"
-            :maxRows="6"
+        <template #default="{ value, index }">
+          <n-form-item
+            style="width: 100%"
+            :path="`responses[${index}].text`"
+            :rule="rules.responses"
           >
-          </text-with-variables>
+            <text-with-variables
+              v-model="value.text"
+              inputType="textarea"
+              :minRows="3"
+              :maxRows="6"
+            >
+            </text-with-variables>
+          </n-form-item>
         </template>
 
         <template #action="{ index, remove, move }">
@@ -415,6 +436,8 @@ async function save() {
       <n-select
         v-model:value="formValue.groupId"
         :options="commandsGroupsOptions"
+        clearable
+        :fallback-option="undefined"
       />
     </n-form-item>
 

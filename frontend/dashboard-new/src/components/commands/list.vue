@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<{
 
 const commandsManager = useCommandsManager();
 const commandsDeleter = commandsManager.deleteOne;
-const commandsPatcher = commandsManager.patch;
+const commandsPatcher = commandsManager.patch!;
 
 const commandsWithGroups = computed<ListRowData[]>(() => {
 	const commands = props.commands;

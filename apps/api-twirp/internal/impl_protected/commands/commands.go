@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/niemeyer/pretty"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
@@ -179,14 +180,22 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 	cmd.Cooldown = null.IntFrom(int64(request.Command.Cooldown))
 	cmd.CooldownType = request.Command.CooldownType
 	cmd.Enabled = request.Command.Enabled
-	cmd.Aliases = request.Command.Aliases
+	cmd.Aliases = lo.IfF(request.Command.Aliases == nil, func() []string {
+		return []string{}
+	}).Else(request.Command.Aliases)
 	cmd.Description = null.StringFrom(request.Command.Description)
 	cmd.Visible = request.Command.Visible
 	cmd.IsReply = request.Command.IsReply
 	cmd.KeepResponsesOrder = request.Command.KeepResponsesOrder
-	cmd.AllowedUsersIDS = request.Command.AllowedUsersIds
-	cmd.DeniedUsersIDS = request.Command.DeniedUsersIds
-	cmd.RolesIDS = request.Command.RolesIds
+	cmd.AllowedUsersIDS = lo.IfF(request.Command.AllowedUsersIds == nil, func() []string {
+		return []string{}
+	}).Else(request.Command.AllowedUsersIds)
+	cmd.DeniedUsersIDS = lo.IfF(request.Command.DeniedUsersIds == nil, func() []string {
+		return []string{}
+	}).Else(request.Command.DeniedUsersIds)
+	cmd.RolesIDS = lo.IfF(request.Command.RolesIds == nil, func() []string {
+		return []string{}
+	}).Else(request.Command.RolesIds)
 	cmd.OnlineOnly = request.Command.OnlineOnly
 	cmd.RequiredWatchTime = int(request.Command.RequiredWatchTime)
 	cmd.RequiredMessages = int(request.Command.RequiredMessages)
@@ -213,8 +222,10 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 			return err
 		}
 
-		return tx.Updates(cmd).Error
+		return tx.Save(cmd).Error
 	})
+
+	pretty.Println(txErr)
 	if txErr != nil {
 		return nil, err
 	}
