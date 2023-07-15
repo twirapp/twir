@@ -166,7 +166,7 @@ function closeModal() {
     :title="editableGreeting?.userName || 'Create greeting'"
     class="modal"
     :style="{
-      width: 'auto',
+      width: '400px',
       top: '50px',
     }"
     :on-close="closeModal"
