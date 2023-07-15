@@ -4,20 +4,28 @@ import {
 	NCard,
 	NSpace,
 	NText,
+	NModal,
 } from 'naive-ui';
 import { ref } from 'vue';
 
 import { useRolesManager } from '@/api/index.js';
+import RoleModal from '@/components/roles/modal.vue';
+import type { EditableRole } from '@/components/roles/types.js';
 
 const rolesManager = useRolesManager();
 const { data: roles } = rolesManager.getAll({});
 
-const isModalShowed = ref(false);
+const editableRole = ref<EditableRole | null>(null);
+const showModal = ref(false);
+function openModal(role: EditableRole | null) {
+	editableRole.value = role;
+	showModal.value = true;
+}
 </script>
 
 <template>
   <n-space align="center" justify="center" vertical>
-    <n-card class="card" size="small" bordered hoverable>
+    <n-card class="card" size="small" bordered hoverable @click="openModal(null)">
       <n-space align="center" justify="center" vertical>
         <n-text class="text">
           <IconPlus />
@@ -30,7 +38,7 @@ const isModalShowed = ref(false);
       size="small"
       class="card"
       hoverable
-      @click="() => console.log('clicked')"
+      @click="openModal(role)"
     >
       <n-space align="center" justify="center" vertical>
         <n-text class="text">
@@ -38,6 +46,21 @@ const isModalShowed = ref(false);
         </n-text>
       </n-space>
     </n-card>
+
+    <n-modal
+      v-model:show="showModal"
+      :mask-closable="false"
+      :segmented="true"
+      preset="card"
+      :title="editableRole?.name || 'Create role'"
+      :style="{
+        width: '600px',
+        top: '50px',
+      }"
+      :on-close="() => showModal = false"
+    >
+      <role-modal :role="editableRole" />
+    </n-modal>
   </n-space>
 </template>
 
