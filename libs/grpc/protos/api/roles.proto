@@ -4,9 +4,9 @@ package api.roles;
 
 message Role {
 	message Settings {
-		int64 required_watch_time = 1;
+		int32 required_watch_time = 1;
 		int32 required_messages = 2;
-		int64 required_user_channel_points = 3;
+		int32 required_user_channel_points = 3;
 	}
 
 	message User {

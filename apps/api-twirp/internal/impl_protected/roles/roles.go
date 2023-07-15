@@ -29,9 +29,9 @@ func (c *Roles) convertEntity(entity *model.ChannelRole) (*roles.Role, error) {
 		Type:        entity.Type.String(),
 		Permissions: entity.Permissions,
 		Settings: &roles.Role_Settings{
-			RequiredWatchTime:         settings.RequiredWatchTime,
+			RequiredWatchTime:         int32(settings.RequiredWatchTime),
 			RequiredMessages:          settings.RequiredMessages,
-			RequiredUserChannelPoints: settings.RequiredUsedChannelPoints,
+			RequiredUserChannelPoints: int32(settings.RequiredUsedChannelPoints),
 		},
 		Users: lo.Map(entity.Users, func(u *model.ChannelRoleUser, _ int) *roles.Role_User {
 			return &roles.Role_User{
@@ -136,9 +136,9 @@ func (c *Roles) RolesCreate(
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	settings := &model.ChannelRoleSettings{
-		RequiredWatchTime:         request.Role.Settings.RequiredWatchTime,
+		RequiredWatchTime:         int64(request.Role.Settings.RequiredWatchTime),
 		RequiredMessages:          request.Role.Settings.RequiredMessages,
-		RequiredUsedChannelPoints: request.Role.Settings.RequiredUserChannelPoints,
+		RequiredUsedChannelPoints: int64(request.Role.Settings.RequiredUserChannelPoints),
 	}
 
 	settingsBytes, err := json.Marshal(settings)
