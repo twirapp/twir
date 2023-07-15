@@ -34,6 +34,10 @@ export const router = createRouter({
 					path: '/dashboard/keywords',
 					component: () => import('./pages/Keywords.vue'),
 				},
+				{
+					path: '/dashboard/variables',
+					component: () => import('./pages/Variables.vue'),
+				},
 			],
 		},
 	],

@@ -40,7 +40,7 @@ func (c *Variables) convertEntity(entity *model.ChannelsCustomvars) *variables.V
 	}
 
 	return &variables.Variable{
-		Id:          &entity.ID,
+		Id:          entity.ID,
 		Name:        entity.Name,
 		Description: entity.Description.Ptr(),
 		Type:        t,
@@ -85,11 +85,11 @@ func (c *Variables) VariablesCreate(ctx context.Context, req *variables.CreateRe
 
 	entity := &model.ChannelsCustomvars{
 		ID:          uuid.New().String(),
-		Name:        req.Variable.Name,
-		Description: null.StringFromPtr(req.Variable.Description),
-		Type:        c.rpcTypeToDb(req.Variable.Type),
-		EvalValue:   req.Variable.EvalValue,
-		Response:    req.Variable.Response,
+		Name:        req.Name,
+		Description: null.StringFromPtr(req.Description),
+		Type:        c.rpcTypeToDb(req.Type),
+		EvalValue:   req.EvalValue,
+		Response:    req.Response,
 		ChannelID:   dashboardId,
 	}
 
@@ -120,7 +120,7 @@ func (c *Variables) VariablesUpdate(ctx context.Context, req *variables.PutReque
 	entity := &model.ChannelsCustomvars{}
 	if err := c.Db.
 		WithContext(ctx).
-		Where(`"channelId" = ? AND "id" = ?`, dashboardId, req.Variable.Id).
+		Where(`"channelId" = ? AND "id" = ?`, dashboardId, req.Id).
 		First(entity).Error; err != nil {
 		return nil, err
 	}

@@ -9,7 +9,7 @@ enum VariableType {
 }
 
 message Variable {
-	optional string id = 1;
+	string id = 1;
 	string name = 2;
 	optional string description = 3;
 	VariableType type = 4;
@@ -27,7 +27,11 @@ message GetByIdRequest {
 }
 
 message CreateRequest {
-	Variable variable = 1;
+	string name = 1;
+	optional string description =2;
+	VariableType type = 3;
+	string response = 4;
+	string eval_value = 5;
 }
 
 message DeleteRequest {
@@ -36,6 +40,6 @@ message DeleteRequest {
 
 message PutRequest {
 	string id = 1;
-	Variable variable = 2;
+	CreateRequest variable = 2;
 }
 
