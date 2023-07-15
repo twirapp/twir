@@ -128,14 +128,6 @@ const rules: FormRules = {
 		trigger: ['input', 'blur'],
 		validator: nameValidator,
 	}],
-	aliases: {
-		trigger: ['input', 'blur'],
-		validator: (rule: FormItemRule, value: string[]) => {
-			value.forEach((alias) => nameValidator(rule, alias));
-
-			return true;
-		},
-	},
 	cooldown: {
 		trigger: ['input', 'blur'],
 		validator: (rule: FormItemRule, value: number) => {
@@ -155,9 +147,25 @@ const rules: FormRules = {
 		},
 	},
 	responses: {
+		trigger: ['input', 'blur', 'focus'],
+		validator: (rule: FormItemRule, value: string) => {
+			if (value.length === 0) {
+				return new Error('Please input text or remove response');
+			}
+			if (value.length > 500) {
+				return new Error('Response cannot be longer than 500 characters');
+			}
+			return true;
+		},
+	},
+	aliases: {
 		trigger: ['input', 'blur'],
-		required: true,
-		message: `Please input text or remove response`,
+		validator: (rule: FormItemRule, value: string) => {
+			if (value.startsWith('!')) {
+				return new Error('Alias cannot start with !');
+			}
+			return true;
+		},
 	},
 };
 
