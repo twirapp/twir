@@ -21,6 +21,7 @@ function openModal(role: EditableRole | null) {
 	editableRole.value = role;
 	showModal.value = true;
 }
+const closeModal = () => showModal.value = false;
 </script>
 
 <template>
@@ -53,13 +54,10 @@ function openModal(role: EditableRole | null) {
       :segmented="true"
       preset="card"
       :title="editableRole?.name || 'Create role'"
-      :style="{
-        width: '600px',
-        top: '50px',
-      }"
-      :on-close="() => showModal = false"
+      :style="{ width: '600px',top: '50px' }"
+      :on-close="closeModal"
     >
-      <role-modal :role="editableRole" />
+      <role-modal :role="editableRole" @close="closeModal" />
     </n-modal>
   </n-space>
 </template>

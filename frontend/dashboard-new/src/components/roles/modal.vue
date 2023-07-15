@@ -11,16 +11,17 @@ import {
 	NCheckbox,
 	NCheckboxGroup,
 	NTabs,
-	NTabPane,
+	NTabPane, NButton,
 } from 'naive-ui';
 import { ref, onMounted, toRaw } from 'vue';
 
+import { useRolesManager } from '@/api/index.js';
 import { type EditableRole, permissions } from '@/components/roles/types.js';
 
 const props = defineProps<{
 	role?: EditableRole | null
 }>();
-defineEmits<{
+const emits = defineEmits<{
 	close: []
 }>();
 
@@ -41,6 +42,28 @@ onMounted(() => {
 	if (!props.role) return;
 	formValue.value = structuredClone(toRaw(props.role));
 });
+
+const rolesManager =useRolesManager();
+const rolesUpdater = rolesManager.update;
+const rolesCreator = rolesManager.create;
+
+async function save() {
+	if (!formRef.value || !formValue.value) return;
+	await formRef.value.validate();
+
+	const data = formValue.value;
+
+	if (data.id) {
+		await rolesUpdater.mutateAsync({
+			id: data.id,
+			role: data,
+		});
+	} else {
+		await rolesCreator.mutateAsync(data);
+	}
+
+	emits('close');
+}
 </script>
 
 <template>
@@ -95,8 +118,12 @@ onMounted(() => {
 
         <n-checkbox-group v-model:value="formValue.permissions">
           <n-grid :cols="12" :x-gap="5">
-            <n-grid-item v-for="(permission) of Object.entries(permissions)" :key="permission[0]" :span="6">
-              <n-checkbox :value="permission[0]" :label="permission[1]" />
+            <n-grid-item
+              v-for="(permission) of Object.entries(permissions)"
+              :key="permission[0]"
+              :span="6"
+            >
+              <n-checkbox :value="permission[0]" :label="permission[1]" :style="{ display: permission[1] == '' ? 'none' : undefined }" />
             </n-grid-item>
           </n-grid>
         </n-checkbox-group>
@@ -105,6 +132,12 @@ onMounted(() => {
         Users
       </n-tab-pane>
     </n-tabs>
+
+    <n-divider />
+
+    <n-button secondary type="success" block style="margin-top:15px" @click="save">
+      Save
+    </n-button>
   </n-form>
 </template>
 
