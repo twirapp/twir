@@ -31,7 +31,7 @@ message GetUsersResponse {
 	}
 
 	repeated User users = 1;
-	uint32 total_pages = 2;
+	uint32 total_users = 2;
 }
 
 message ResetStatsRequest {

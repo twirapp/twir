@@ -37,6 +37,11 @@ func (c *Community) CommunityGetUsers(ctx context.Context, request *community.Ge
 		sortBy = strings.ToLower(request.SortBy.String())
 	}
 
+	//orderBy := fmt.Sprintf(`"users_stats"."%s"`, sortBy)
+	//if request.SortBy == community.GetUsersRequest_Emotes {
+	//	orderBy = "emotes"
+	//}
+
 	query, args, err := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
 		Select(`users_stats.*, COUNT("channels_emotes_usages"."id") AS "emotes"`).
 		From("users_stats").
@@ -48,8 +53,8 @@ func (c *Community) CommunityGetUsers(ctx context.Context, request *community.Ge
 		}).
 		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_stats"."userId")`).
 		Limit(uint64(request.Limit)).
-		Offset(uint64((request.Page-1)*request.Limit)).
-		GroupBy(`"users_stats"."id"`, fmt.Sprintf(`"users_stats"."%s"`, sortBy)).
+		Offset(uint64((request.Page - 1) * request.Limit)).
+		GroupBy(`"users_stats"."id"`).
 		OrderBy(fmt.Sprintf(`"%s" %s`, sortBy, strings.ToLower(request.Order.String()))).
 		ToSql()
 
@@ -90,7 +95,7 @@ func (c *Community) CommunityGetUsers(ctx context.Context, request *community.Ge
 		return nil, err
 	}
 
-	totalPages := (totalStats + int64(request.Limit) - 1) / int64(request.Limit)
+	//totalPages := (totalStats + int64(request.Limit) - 1) / int64(request.Limit)
 
 	return &community.GetUsersResponse{
 		Users: lo.Map(dbUsers, func(item *model.UsersStats, _ int) *community.GetUsersResponse_User {
@@ -102,7 +107,7 @@ func (c *Community) CommunityGetUsers(ctx context.Context, request *community.Ge
 				UsedChannelPoints: fmt.Sprint(item.UsedChannelPoints),
 			}
 		}),
-		TotalPages: uint32(totalPages),
+		TotalUsers: uint32(totalStats),
 	}, nil
 }
 
