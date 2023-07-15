@@ -44,7 +44,7 @@ const columns: DataTableColumns<Greeting> = [
 		width: 50,
 		render(row) {
 			const user = twitchUsers.data.value?.users.find((u) => u.id === row.userId);
-			if (!user) return '';
+			if (!user) return;
 
 			return h(NAvatar, { size: 'medium', src: user.profileImageUrl, round: true });
 		},

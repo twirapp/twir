@@ -82,6 +82,19 @@ func (c *Twitch) TwitchGetUsers(
 	var mu sync.Mutex
 	twitchUsers := make([]helix.User, 0, len(req.Ids)+len(req.Names))
 
+	req.Ids = lo.Filter(req.Ids, func(id string, _ int) bool {
+		return id != ""
+	})
+	req.Names = lo.Filter(req.Names, func(name string, _ int) bool {
+		return name != ""
+	})
+
+	if len(req.Ids) == 0 && len(req.Names) == 0 {
+		return &generatedTwitch.TwitchGetUsersResponse{
+			Users: nil,
+		}, nil
+	}
+
 	cachedUsersByIds, err := c.getUsersFromCache(ctx, lo.Map(req.Ids, func(id string, _ int) string {
 		return redisIdsPrefix + id
 	}))
