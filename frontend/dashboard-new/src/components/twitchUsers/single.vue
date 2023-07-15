@@ -9,11 +9,11 @@ import { useTwitchSearchChannels, useTwitchGetUsers } from '@/api/index.js';
 const userId = defineModel<string>({ default: '' });
 
 const props = defineProps<{
-	initialUserId: string;
+	initialUserId?: string;
 }>();
 
 const getUsers = useTwitchGetUsers({
-	ids: [props.initialUserId],
+	ids: [props.initialUserId ?? ''],
 });
 
 const userName = ref<string>('');
@@ -59,7 +59,7 @@ const renderMultipleSelectTag = ({ option }: {
 	option: Option;
 	handleClose: () => void;
 }) => {
-	return h(
+	return !option ? null : h(
 		NTag,
 		{
 			style: {
@@ -93,8 +93,8 @@ const renderMultipleSelectTag = ({ option }: {
 	);
 };
 
-const renderLabel = (option: Option) => {
-	return h(
+const renderLabel = (option: Option | undefined) => {
+	return !option ? null : h(
 		'div',
 		{
 			style: {
