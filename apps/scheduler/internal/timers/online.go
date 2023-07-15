@@ -25,7 +25,6 @@ func scanChatters(
 ) ([]helix.ChatChatter, error) {
 	twitchClient, err := twitch.NewUserClientWithContext(ctx, broadcasterId, *services.Config, services.Grpc.Tokens)
 	if err != nil {
-		zap.S().Error(err)
 		return nil, err
 	}
 
