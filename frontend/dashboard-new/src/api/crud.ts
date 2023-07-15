@@ -184,4 +184,5 @@ export const useRolesManager = () => createCrudManager({
 	patch: null,
 	deleteOne: protectedApiClient?.rolesDelete,
 	getOne: null,
+	invalidateAdditionalQueries: ['commands'],
 });
