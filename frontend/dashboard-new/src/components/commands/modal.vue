@@ -158,15 +158,6 @@ const rules: FormRules = {
 			return true;
 		},
 	},
-	aliases: {
-		trigger: ['input', 'blur'],
-		validator: (rule: FormItemRule, value: string) => {
-			if (value.startsWith('!')) {
-				return new Error('Alias cannot start with !');
-			}
-			return true;
-		},
-	},
 };
 
 const commandsManager = useCommandsManager();
@@ -174,6 +165,8 @@ const commandsCreate = commandsManager.create;
 const commandsUpdate = commandsManager.update;
 
 async function save() {
+	await formRef.value?.validate();
+
 	const rawData = toRaw(formValue);
 	const data = {
 		...rawData,

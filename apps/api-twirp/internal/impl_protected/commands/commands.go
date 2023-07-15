@@ -11,6 +11,7 @@ import (
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
+	"strings"
 )
 
 type Commands struct {
@@ -103,12 +104,19 @@ func (c *Commands) CommandsGetById(ctx context.Context, request *commands.GetByI
 func (c *Commands) CommandsCreate(ctx context.Context, request *commands.CreateRequest) (*commands.Command, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	command := &model.ChannelsCommands{
-		ID:                        uuid.New().String(),
-		Name:                      request.Name,
-		Cooldown:                  null.IntFrom(int64(request.Cooldown)),
-		CooldownType:              request.CooldownType,
-		Enabled:                   request.Enabled,
-		Aliases:                   request.Aliases,
+		ID:           uuid.New().String(),
+		Name:         request.Name,
+		Cooldown:     null.IntFrom(int64(request.Cooldown)),
+		CooldownType: request.CooldownType,
+		Enabled:      request.Enabled,
+		Aliases: lo.Map(
+			lo.IfF(request.Aliases == nil, func() []string {
+				return []string{}
+			}).Else(request.Aliases),
+			func(alias string, _ int) string {
+				return strings.TrimSuffix(strings.ToLower(alias), "!")
+			},
+		),
 		Description:               null.StringFrom(request.Description),
 		Visible:                   request.Visible,
 		ChannelID:                 dashboardId,
@@ -179,9 +187,14 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 	cmd.Cooldown = null.IntFrom(int64(request.Command.Cooldown))
 	cmd.CooldownType = request.Command.CooldownType
 	cmd.Enabled = request.Command.Enabled
-	cmd.Aliases = lo.IfF(request.Command.Aliases == nil, func() []string {
-		return []string{}
-	}).Else(request.Command.Aliases)
+	cmd.Aliases = lo.Map(
+		lo.IfF(request.Command.Aliases == nil, func() []string {
+			return []string{}
+		}).Else(request.Command.Aliases),
+		func(alias string, _ int) string {
+			return strings.TrimSuffix(strings.ToLower(alias), "!")
+		},
+	)
 	cmd.Description = null.StringFrom(request.Command.Description)
 	cmd.Visible = request.Command.Visible
 	cmd.IsReply = request.Command.IsReply
