@@ -121,6 +121,9 @@ const nameValidator = (rule: FormItemRule, value: string) => {
 	if (value.startsWith('!')) {
 		return new Error('Name cannot start with !');
 	}
+	if (value.length > 50) {
+		return new Error('Name cannot be longer than 50 characters');
+	}
 	return true;
 };
 const rules: FormRules = {

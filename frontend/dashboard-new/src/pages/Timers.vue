@@ -6,12 +6,12 @@ import {
 	type DataTableColumns,
 	NSpace,
 	NTag,
-	NSwitch, NButton, NPopconfirm,
+	NSwitch, NButton, NPopconfirm, NModal,
 } from 'naive-ui';
-import { h } from 'vue';
-import { VNode } from 'vue/dist/vue.js';
+import { h, ref } from 'vue';
 
 import { useTimersManager } from '@/api/index.js';
+import Modal from '@/components/commands/modal.vue';
 import { renderIcon } from '@/helpers/index.js';
 
 const timersManager = useTimersManager();
@@ -99,6 +99,10 @@ const columns: DataTableColumns<Timer> = [
 		},
 	},
 ];
+
+const showModal = ref(false);
+
+const editableTimer = ref();
 </script>
 
 <template>
@@ -112,8 +116,20 @@ const columns: DataTableColumns<Timer> = [
       messageInterval: 5,
     }]"
   />
+
+  <n-modal
+    v-model:show="showModal"
+    :mask-closable="false"
+    :segmented="true"
+    preset="card"
+    :title="editableTimer?.name ?? 'New timer'"
+    class="modal"
+    :style="{
+      width: '800px',
+      top: '50px',
+    }"
+    :on-close="() => showModal = false"
+  >
+    qwe
+  </n-modal>
 </template>
-
-<style scoped lang='postcss'>
-
-</style>

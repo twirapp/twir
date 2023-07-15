@@ -13,4 +13,8 @@ export type EditableCommand = Omit<
 	id?: string
 };
 
-export type ListRowData = Command & { isGroup?: boolean, groupColor?: string, children?: ListRowData[] };
+export type ListRowData = Command & {
+	isGroup?: boolean,
+	groupColor?: string,
+	children?: ListRowData[],
+};

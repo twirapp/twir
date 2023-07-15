@@ -39,6 +39,11 @@ async function update(index: number) {
 	if (!group?.id) return;
 	await groupsUpdater.mutateAsync({ id: group.id, name: group.name, color: group.color });
 }
+
+const swatches = [
+	'rgba(116, 242, 202, 1)',
+	'rgba(208, 48, 80, 1)',
+];
 </script>
 
 <template>
@@ -61,13 +66,8 @@ async function update(index: number) {
             <n-color-picker
               v-model:value="value.color"
               :show-alpha="true"
-              :swatches="[
-                '#FFFFFF',
-                '#18A058',
-                '#2080F0',
-                '#F0A020',
-                'rgba(208, 48, 80, 1)'
-              ]"
+              :swatches="swatches"
+              :modes="['rgb']"
             />
           </n-form-item>
         </n-grid-item>
@@ -85,7 +85,7 @@ async function update(index: number) {
       </div>
     </template>
   </n-dynamic-input>
-  <n-button dashed block @click="() => create(`New Group #${groups.length + 1}`, '#2080F0')">
+  <n-button dashed block @click="() => create(`New Group #${groups.length + 1}`, swatches[0])">
     <IconPlus /> Create
   </n-button>
 </template>

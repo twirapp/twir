@@ -9,6 +9,20 @@ import { renderIcon } from '@/helpers/index.js';
 type Deleter = ReturnType<typeof useCommandsManager>['deleteOne']
 type Patcher = NonNullable<ReturnType<typeof useCommandsManager>['patch']>
 
+const rgbaPattern = /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)/;
+const computeGroupTextColor = (color?: string) => {
+	const result = rgbaPattern.exec(color ?? '');
+	if (!result) return '#c2b7b7';
+	console.log(result);
+	const [r, g, b] = result.slice(1).map(i => parseInt(i, 10));
+
+	const bright = (
+		(((r * 299) + (g * 587) + (b * 114)) / 1000) - 128
+	) * -1000;
+
+	return `rgba(${bright},${bright},${bright})`;
+};
+
 export const createListColumns = (
 	editCommand: (command: EditableCommand) => void,
 	deleter: Deleter,
@@ -26,7 +40,13 @@ export const createListColumns = (
 						bordered: false,
 						color: { color: row.isGroup ? row.groupColor : 'rgba(112, 192, 232, 0.16)' },
 					},
-					{ default: () => row.name },
+					{ default: () => h(
+						'p',
+						{
+							style: `color: ${computeGroupTextColor(row.groupColor)}`,
+						},
+						row.name),
+					},
 				);
 			},
 		},
