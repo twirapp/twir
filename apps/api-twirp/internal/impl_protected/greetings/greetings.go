@@ -85,10 +85,10 @@ func (c *Greetings) GreetingsUpdate(ctx context.Context, request *greetings.PutR
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.ChannelsGreetings{
 		ChannelID: dashboardId,
-		UserID:    request.UserId,
-		Enabled:   request.Enabled,
-		Text:      request.Text,
-		IsReply:   request.IsReply,
+		UserID:    request.Greeting.UserId,
+		Enabled:   request.Greeting.Enabled,
+		Text:      request.Greeting.Text,
+		IsReply:   request.Greeting.IsReply,
 		Processed: false,
 	}
 	err := c.Db.

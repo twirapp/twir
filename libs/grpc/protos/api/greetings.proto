@@ -31,10 +31,7 @@ message CreateRequest {
 
 message PutRequest {
 	string id = 1;
-	string user_id = 2;
-	string text = 3;
-	bool is_reply = 4;
-	bool enabled = 5;
+	CreateRequest greeting = 2;
 }
 
 message DeleteRequest {

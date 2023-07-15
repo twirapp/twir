@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
+import type { Greeting } from '@twir/grpc/generated/api/api/greetings';
 import { type Variable, VariableType } from '@twir/grpc/generated/api/api/variables';
 import {
 	type DataTableColumns,
@@ -9,56 +10,54 @@ import {
 	NAlert,
 	NButton,
 	NPopconfirm,
-	NModal,
+	NModal, NSwitch,
 } from 'naive-ui';
 import { h, ref } from 'vue';
 
-import { useVariablesManager } from '@/api/index.js';
-import Modal from '@/components/variables/modal.vue';
-import { type EditableVariable } from '@/components/variables/types.js';
+import { useGreetingsManager } from '@/api/index.js';
+import Modal from '@/components/greetings/modal.vue';
+import { EditableGreeting } from '@/components/greetings/types.js';
 import { renderIcon } from '@/helpers/index.js';
 
-const variablesManager = useVariablesManager();
-const variables = variablesManager.getAll({});
-const variablesDeleter = variablesManager.deleteOne;
+const greetingsManager = useGreetingsManager();
+const greetings = greetingsManager.getAll({});
+const greetingsDeleter = greetingsManager.deleteOne;
+const greetingsPatcher = greetingsManager.patch!;
 
 const showModal = ref(false);
 
-const columns: DataTableColumns<Variable> = [
+const columns: DataTableColumns<Greeting> = [
 	{
-		title: 'Name',
-		key: 'name',
+		title: 'User name',
+		key: 'userName',
 		render(row) {
-			return h(NTag, { type: 'info', bordered: false }, { default: () => row.name });
+			return h(NTag, { type: 'info', bordered: false }, { default: () => row.userId });
 		},
 	},
 	{
-		title: 'Type',
-		key: 'type',
+		title: 'Text',
+		key: 'text',
 		render(row) {
-			return h(NTag, { type: 'info', bordered: true }, {
-				default: () => {
-					switch(row.type) {
-						case VariableType.SCRIPT:
-							return 'Script';
-						case VariableType.TEXT:
-							return 'Text';
-						case VariableType.NUMBER:
-							return 'Number';
-						default:
-							return 'Unknown';
-					}
+			return h(NTag, { type: 'info', bordered: true }, { default: () => row.text });
+		},
+	},
+	{
+		title: 'Status',
+		key: 'enabled',
+		width: 100,
+		render(row) {
+			return h(
+				NSwitch,
+				{
+					value: row.enabled,
+					onUpdateValue: (value: boolean) => {
+						greetingsPatcher.mutateAsync({ id: row.id, enabled: value }).then(() => {
+							row.enabled = value;
+						});
+					},
 				},
-			});
-		},
-	},
-	{
-		title: 'Response',
-		key: 'response',
-		render(row) {
-			return h(NTag, { type: 'info', bordered: true }, {
-				default: () => row.type === VariableType.SCRIPT ? 'Script' : row.response,
-			});
+				{ default: () => row.enabled },
+			);
 		},
 	},
 	{
@@ -80,7 +79,7 @@ const columns: DataTableColumns<Variable> = [
 			const deleteButton = h(
 				NPopconfirm,
 				{
-					onPositiveClick: () => variablesDeleter.mutate({ id: row.id! }),
+					onPositiveClick: () => greetingsDeleter.mutate({ id: row.id! }),
 				},
 				{
 					trigger: () => h(NButton, {
@@ -99,9 +98,9 @@ const columns: DataTableColumns<Variable> = [
 	},
 ];
 
-const editableVariable = ref<EditableVariable | null>(null);
-function openModal(t: EditableVariable | null) {
-	editableVariable.value = t;
+const editableGreeting = ref<EditableGreeting | null>(null);
+function openModal(t: EditableGreeting | null) {
+	editableGreeting.value = t;
 	showModal.value = true;
 }
 function closeModal() {
@@ -111,18 +110,21 @@ function closeModal() {
 
 <template>
   <n-space justify="space-between" align="center">
-    <h2>Variables</h2>
+    <h2>Greetings</h2>
     <n-button secondary type="success" @click="openModal(null)">
       Create
     </n-button>
   </n-space>
   <n-alert>
-    When you create variable, then you can use them in bot responses.
+    <p>Greeting system used for welcoming new users typed their first message on stream.</p>
+    <p>
+      If you wanna greet every user in chat, not only specified - then you can use events system.
+    </p>
   </n-alert>
   <n-data-table
-    :isLoading="variables.isLoading.value"
+    :isLoading="greetings.isLoading.value"
     :columns="columns"
-    :data="variables.data.value?.variables ?? []"
+    :data="greetings.data.value?.variables ?? []"
     style="margin-top: 20px;"
   />
 
@@ -131,7 +133,7 @@ function closeModal() {
     :mask-closable="false"
     :segmented="true"
     preset="card"
-    :title="editableVariable?.name ?? 'New variable'"
+    :title="editableGreeting?.id ?? 'New greeting'"
     class="modal"
     :style="{
       width: 'auto',
@@ -139,6 +141,6 @@ function closeModal() {
     }"
     :on-close="closeModal"
   >
-    <modal :variable="editableVariable" @close="closeModal" />
+    <modal :greeting="editableVariable" @close="closeModal" />
   </n-modal>
 </template>
