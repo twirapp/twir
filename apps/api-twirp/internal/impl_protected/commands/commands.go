@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/guregu/null"
-	"github.com/niemeyer/pretty"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api-twirp/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
@@ -224,8 +223,6 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 
 		return tx.Save(cmd).Error
 	})
-
-	pretty.Println(txErr)
 	if txErr != nil {
 		return nil, err
 	}
