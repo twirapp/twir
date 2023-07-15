@@ -65,12 +65,13 @@ func (c *Community) CommunityGetUsers(ctx context.Context, request *community.Ge
 	var dbUsers []*model.UsersStats
 	for rows.Next() {
 		var dbUser model.UsersStats
+
 		err = rows.Scan(
 			&dbUser.ID,
-			&dbUser.UserID,
-			&dbUser.ChannelID,
 			&dbUser.Messages,
 			&dbUser.Watched,
+			&dbUser.ChannelID,
+			&dbUser.UserID,
 			&dbUser.UsedChannelPoints,
 			&dbUser.Emotes,
 		)
@@ -80,16 +81,28 @@ func (c *Community) CommunityGetUsers(ctx context.Context, request *community.Ge
 		dbUsers = append(dbUsers, &dbUser)
 	}
 
+	var totalStats int64
+	err = c.Db.WithContext(ctx).
+		Model(&model.UsersStats{}).
+		Where(`"channelId" = ?`, dashboardId).
+		Count(&totalStats).Error
+	if err != nil {
+		return nil, err
+	}
+
+	totalPages := (totalStats + int64(request.Limit) - 1) / int64(request.Limit)
+
 	return &community.GetUsersResponse{
 		Users: lo.Map(dbUsers, func(item *model.UsersStats, _ int) *community.GetUsersResponse_User {
 			return &community.GetUsersResponse_User{
 				Id:                item.UserID,
-				Watched:           item.Watched,
+				Watched:           fmt.Sprint(item.Watched),
 				Messages:          item.Messages,
-				Emotes:            uint64(item.Emotes),
-				UsedChannelPoints: fmt.Sprintf("%d", item.UsedChannelPoints),
+				Emotes:            fmt.Sprint(item.Emotes),
+				UsedChannelPoints: fmt.Sprint(item.UsedChannelPoints),
 			}
 		}),
+		TotalPages: uint32(totalPages),
 	}, nil
 }
 

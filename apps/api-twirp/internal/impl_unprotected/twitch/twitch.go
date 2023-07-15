@@ -172,7 +172,7 @@ func (c *Twitch) TwitchGetUsers(
 			Description:     user.Description,
 			ProfileImageUrl: user.ProfileImageURL,
 			OfflineImageUrl: user.OfflineImageURL,
-			CreatedAt:       fmt.Sprintf("%v", user.CreatedAt.UnixMilli()),
+			CreatedAt:       fmt.Sprint(user.CreatedAt.UnixMilli()),
 		}
 	})
 

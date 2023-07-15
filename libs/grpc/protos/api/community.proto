@@ -2,8 +2,6 @@ syntax = "proto3";
 option go_package = "github.com/satont/twir/libs/grpc/generated/api/community";
 package api.community;
 
-import "api/meta.proto";
-
 message GetUsersRequest {
 	enum Order {
 		Desc = 0;
@@ -26,13 +24,14 @@ message GetUsersRequest {
 message GetUsersResponse {
 	message User {
 		string id = 1;
-		int64 watched = 2;
+		string watched = 2;
 		int32 messages = 3;
-		uint64 emotes = 4;
+		string emotes = 4;
 		string used_channel_points = 5;
 	}
 
 	repeated User users = 1;
+	uint32 total_pages = 2;
 }
 
 message ResetStatsRequest {

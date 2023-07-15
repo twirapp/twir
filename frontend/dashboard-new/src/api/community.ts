@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/vue-query';
 import { GetUsersRequest_Order, GetUsersRequest_SortBy } from '@twir/grpc/generated/api/api/community';
+import { Ref, isRef } from 'vue';
 
 import { protectedApiClient } from '@/api/twirp.js';
 
@@ -24,9 +25,11 @@ export type GetCommunityUsersOpts = {
 
 export const useCommunityUsers = () => {
 	return {
-		getAll: (opts: GetCommunityUsersOpts) => useQuery({
-			queryKey: ['communityUsers'],
+		getAll: (rawOpts: GetCommunityUsersOpts | Ref<GetCommunityUsersOpts>) => useQuery({
+			queryKey: ['communityUsers', rawOpts],
 			queryFn: async () => {
+				const opts = isRef(rawOpts) ? rawOpts.value : rawOpts;
+
 				const order = opts.order === UsersOrder.Desc
 					? GetUsersRequest_Order.Desc
 					: GetUsersRequest_Order.Asc;
