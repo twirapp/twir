@@ -2,16 +2,20 @@
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
 import { type Timer } from '@twir/grpc/generated/api/api/timers';
 import {
-	NDataTable,
 	type DataTableColumns,
+	NDataTable,
 	NSpace,
 	NTag,
-	NSwitch, NButton, NPopconfirm, NModal,
+	NSwitch,
+	NButton,
+	NPopconfirm,
+	NModal,
 } from 'naive-ui';
 import { h, ref } from 'vue';
 
 import { useTimersManager } from '@/api/index.js';
-import Modal from '@/components/commands/modal.vue';
+import Modal from '@/components/timers/modal.vue';
+import { type EditableTimer } from '@/components/timers/types.js';
 import { renderIcon } from '@/helpers/index.js';
 
 const timersManager = useTimersManager();
@@ -72,7 +76,7 @@ const columns: DataTableColumns<Timer> = [
 				{
 					type: 'primary',
 					size: 'small',
-					onClick: () => console.log('edit'),
+					onClick: () => openModal(row),
 					quaternary: true,
 				}, {
 					icon: renderIcon(IconPencil),
@@ -102,10 +106,20 @@ const columns: DataTableColumns<Timer> = [
 
 const showModal = ref(false);
 
-const editableTimer = ref();
+const editableTimer = ref<EditableTimer | null>(null);
+function openModal(t: EditableTimer | null) {
+	editableTimer.value = t;
+	showModal.value = true;
+}
 </script>
 
 <template>
+  <n-space justify="space-between" align="center">
+    <h2>Timers</h2>
+    <n-button secondary type="success" @click="openModal(null)">
+      Create
+    </n-button>
+  </n-space>
   <n-data-table
     :isLoading="timers.isLoading.value"
     :columns="columns"
@@ -125,11 +139,11 @@ const editableTimer = ref();
     :title="editableTimer?.name ?? 'New timer'"
     class="modal"
     :style="{
-      width: '800px',
+      width: '600px',
       top: '50px',
     }"
     :on-close="() => showModal = false"
   >
-    qwe
+    <modal :timer="editableTimer" />
   </n-modal>
 </template>

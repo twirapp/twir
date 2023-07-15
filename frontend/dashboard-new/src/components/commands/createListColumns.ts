@@ -13,7 +13,6 @@ const rgbaPattern = /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s
 const computeGroupTextColor = (color?: string) => {
 	const result = rgbaPattern.exec(color ?? '');
 	if (!result) return '#c2b7b7';
-	console.log(result);
 	const [r, g, b] = result.slice(1).map(i => parseInt(i, 10));
 
 	const bright = (
