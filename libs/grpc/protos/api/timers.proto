@@ -24,9 +24,22 @@ message GetResponse {
 	repeated Timer timers = 1;
 }
 
+message CreateData {
+	message Response {
+		string text = 2;
+		bool is_announce = 3;
+	}
+
+	string name = 1;
+	bool enabled = 2;
+	int32 time_interval = 3;
+	int32 message_interval = 4;
+	repeated Response responses = 5;
+}
+
 message UpdateRequest {
 	string id = 1;
-	Timer timer = 2;
+	CreateData timer = 2;
 }
 
 message DeleteRequest {
@@ -34,7 +47,7 @@ message DeleteRequest {
 }
 
 message CreateRequest {
-	Timer data = 1;
+	CreateData data = 1;
 }
 
 message PatchRequest {

@@ -30,6 +30,10 @@ export const router = createRouter({
 					path: '/dashboard/timers',
 					component: () => import('./pages/Timers.vue'),
 				},
+				{
+					path: '/dashboard/keywords',
+					component: () => import('./pages/Keywords.vue'),
+				},
 			],
 		},
 	],

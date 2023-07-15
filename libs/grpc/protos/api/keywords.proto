@@ -8,10 +8,10 @@ message Keyword {
 	string text = 3;
 	string response = 4;
 	bool enabled = 5;
-	int64 cooldown = 6;
+	int32 cooldown = 6;
 	bool is_reply = 7;
 	bool is_regular = 8;
-	int64 usages = 9;
+	int32 usages = 9;
 }
 
 message GetAllResponse {
@@ -30,10 +30,10 @@ message CreateRequest {
 	string text = 1;
 	string response = 2;
 	bool enabled = 3;
-	int64 cooldown = 4;
+	int32 cooldown = 4;
 	bool is_reply = 5;
 	bool is_regular = 6;
-	int64 usages = 7;
+	int32 usages = 7;
 }
 
 message DeleteRequest {
@@ -42,13 +42,7 @@ message DeleteRequest {
 
 message PutRequest {
 	string id = 1;
-	string text = 2;
-	string response = 3;
-	bool enabled = 4;
-	int64 cooldown = 5;
-	bool is_reply = 6;
-	bool is_regular = 7;
-	int64 usages = 8;
+	CreateRequest keyword = 2;
 }
 
 message PatchRequest {

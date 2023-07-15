@@ -294,7 +294,7 @@ async function save() {
       </n-select>
     </n-form-item>
 
-    <n-grid :cols="12" :x-gap="5">
+    <n-grid :cols="12" :x-gap="5" responsive="screen">
       <n-grid-item :span="6">
         <n-form-item label="Denied users" path="deniedUsersIds">
           <twitch-users-multiple

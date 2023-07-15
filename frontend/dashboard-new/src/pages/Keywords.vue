@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
-import { type Timer } from '@twir/grpc/generated/api/api/timers';
+import type { Keyword } from '@twir/grpc/generated/api/api/keywords';
 import {
 	type DataTableColumns,
 	NDataTable,
@@ -13,47 +13,38 @@ import {
 } from 'naive-ui';
 import { h, ref } from 'vue';
 
-import { useTimersManager } from '@/api/index.js';
-import Modal from '@/components/timers/modal.vue';
-import { type EditableTimer } from '@/components/timers/types.js';
+import { useKeywordsManager } from '@/api/index.js';
+import Modal from '@/components/keywords/modal.vue';
+import { type EditableKeyword } from '@/components/keywords/types.js';
 import { renderIcon } from '@/helpers/index.js';
 
-const timersManager = useTimersManager();
-const timers = timersManager.getAll({});
-const timersDeleter = timersManager.deleteOne;
-const timersPatcher = timersManager.patch;
+const keywordsManager = useKeywordsManager();
+const keywords = keywordsManager.getAll({});
+const keywordsDeleter = keywordsManager.deleteOne;
+const keywordsPatcher = keywordsManager.patch;
 
-const columns: DataTableColumns<Timer> = [
+const showModal = ref(false);
+
+const columns: DataTableColumns<Keyword> = [
 	{
-		title: 'Name',
-		key: 'name',
+		title: 'Trigger',
+		key: 'text',
 		render(row) {
-			return h(NTag, { type: 'info', bordered: false }, { default: () => row.name });
+			return h(NTag, { type: 'info', bordered: false }, { default: () => row.text });
 		},
 	},
 	{
-		title: 'Responses',
-		key: 'responses',
+		title: 'Response',
+		key: 'response',
 		render(row) {
-			return h(NSpace, { vertical: true }, {
-				default: () => row.responses.map((response) => {
-					return h('span', null, response.text);
-				}),
-			});
+			return h(NTag, { type: 'info', bordered: true }, { default: () => row.response || 'No response' });
 		},
 	},
 	{
-		title: 'Interval in minutes',
-		key: 'timeInterval',
+		title: 'Usages',
+		key: 'usages',
 		render(row) {
-			return h(NTag, { type: 'info' }, { default: () => `${row.timeInterval} m.` });
-		},
-	},
-	{
-		title: 'Interval in messages',
-		key: 'messageInterval',
-		render(row) {
-			return h(NTag, { type: 'info' }, { default: () => `${row.messageInterval}` });
+			return h(NTag, { type: 'info', bordered: true }, { default: () => row.usages });
 		},
 	},
 	{
@@ -63,7 +54,7 @@ const columns: DataTableColumns<Timer> = [
 			return h(NSwitch, {
 				value: row.enabled,
 				onUpdateValue: (value) => {
-					timersPatcher!.mutateAsync({
+					keywordsPatcher!.mutateAsync({
 						id: row.id,
 						enabled: value,
 					}).then(() => row.enabled = value);
@@ -90,7 +81,7 @@ const columns: DataTableColumns<Timer> = [
 			const deleteButton = h(
 				NPopconfirm,
 				{
-					onPositiveClick: () => timersDeleter.mutate({ id: row.id }),
+					onPositiveClick: () => keywordsDeleter.mutate({ id: row.id }),
 				},
 				{
 					trigger: () => h(NButton, {
@@ -100,7 +91,7 @@ const columns: DataTableColumns<Timer> = [
 					}, {
 						default: renderIcon(IconTrash),
 					}),
-					default: () => 'Are you sure you want to delete this timer?',
+					default: () => 'Are you sure you want to delete this keyword?',
 				},
 			);
 
@@ -109,11 +100,9 @@ const columns: DataTableColumns<Timer> = [
 	},
 ];
 
-const showModal = ref(false);
-
-const editableTimer = ref<EditableTimer | null>(null);
-function openModal(t: EditableTimer | null) {
-	editableTimer.value = t;
+const editableKeyword = ref<EditableKeyword | null>(null);
+function openModal(t: EditableKeyword | null) {
+	editableKeyword.value = t;
 	showModal.value = true;
 }
 function closeModal() {
@@ -123,15 +112,15 @@ function closeModal() {
 
 <template>
   <n-space justify="space-between" align="center">
-    <h2>Timers</h2>
+    <h2>Keywords</h2>
     <n-button secondary type="success" @click="openModal(null)">
       Create
     </n-button>
   </n-space>
   <n-data-table
-    :isLoading="timers.isLoading.value"
+    :isLoading="keywords.isLoading.value"
     :columns="columns"
-    :data="timers.data.value?.timers ?? []"
+    :data="keywords.data.value?.keywords ?? []"
   />
 
   <n-modal
@@ -139,7 +128,7 @@ function closeModal() {
     :mask-closable="false"
     :segmented="true"
     preset="card"
-    :title="editableTimer?.name ?? 'New timer'"
+    :title="editableKeyword?.id ? 'Edit keyword' : 'New keyword'"
     class="modal"
     :style="{
       width: '600px',
@@ -147,6 +136,6 @@ function closeModal() {
     }"
     :on-close="closeModal"
   >
-    <modal :timer="editableTimer" @close="closeModal" />
+    <modal :keyword="editableKeyword" @close="closeModal" />
   </n-modal>
 </template>

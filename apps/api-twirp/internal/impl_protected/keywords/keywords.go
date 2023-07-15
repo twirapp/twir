@@ -22,14 +22,14 @@ func (c *Keywords) convertEntity(entity *model.ChannelsKeywords) *keywords.Keywo
 		Text:      entity.Text,
 		Response:  entity.Response,
 		Enabled:   entity.Enabled,
-		Cooldown:  int64(entity.Cooldown),
+		Cooldown:  int32(entity.Cooldown),
 		IsReply:   entity.IsReply,
 		IsRegular: entity.IsRegular,
-		Usages:    int64(entity.Usages),
+		Usages:    int32(entity.Usages),
 	}
 }
 
-func (c *Keywords) KeywordsGetAll(ctx context.Context, empty *emptypb.Empty) (*keywords.GetAllResponse, error) {
+func (c *Keywords) KeywordsGetAll(ctx context.Context, _ *emptypb.Empty) (*keywords.GetAllResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	var entities []*model.ChannelsKeywords
 	if err := c.Db.WithContext(ctx).Where(`"channelId" = ?`, dashboardId).Find(&entities).Error; err != nil {
@@ -88,12 +88,13 @@ func (c *Keywords) KeywordsUpdate(ctx context.Context, request *keywords.PutRequ
 		return nil, err
 	}
 
-	keyword.Text = request.Text
-	keyword.Response = request.Response
-	keyword.Enabled = request.Enabled
-	keyword.Cooldown = int(request.Cooldown)
-	keyword.IsReply = request.IsReply
-	keyword.IsRegular = request.IsRegular
+	keyword.Text = request.Keyword.Text
+	keyword.Response = request.Keyword.Response
+	keyword.Enabled = request.Keyword.Enabled
+	keyword.Cooldown = int(request.Keyword.Cooldown)
+	keyword.CooldownExpireAt = null.Time{}
+	keyword.IsReply = request.Keyword.IsReply
+	keyword.IsRegular = request.Keyword.IsRegular
 
 	if err := c.Db.WithContext(ctx).Save(keyword).Error; err != nil {
 		return nil, err

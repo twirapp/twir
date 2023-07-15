@@ -26,7 +26,7 @@ func (c *Timers) convertEntity(entity *model.ChannelsTimers) *timers.Timer {
 		LastTriggerMessageNumber: entity.LastTriggerMessageNumber,
 		Responses: lo.Map(
 			entity.Responses,
-			func(r model.ChannelsTimersResponses, _ int) *timers.Timer_Response {
+			func(r *model.ChannelsTimersResponses, _ int) *timers.Timer_Response {
 				return &timers.Timer_Response{
 					Id:         r.ID,
 					Text:       r.Text,
@@ -81,14 +81,14 @@ func (c *Timers) TimersUpdate(
 
 	txErr := c.Db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.
-			Where(`"channelId" = ?`, dashboardId).
+			Where(`"timerId" = ?`, entity.ID).
 			Delete(&model.ChannelsTimersResponses{}).
 			Error; err != nil {
 			return err
 		}
 
-		entity.Responses = lo.Map(request.Timer.Responses, func(r *timers.Timer_Response, _ int) model.ChannelsTimersResponses {
-			return model.ChannelsTimersResponses{
+		entity.Responses = lo.Map(request.Timer.Responses, func(r *timers.CreateData_Response, _ int) *model.ChannelsTimersResponses {
+			return &model.ChannelsTimersResponses{
 				ID:         uuid.New().String(),
 				Text:       r.Text,
 				IsAnnounce: r.IsAnnounce,
@@ -114,6 +114,7 @@ func (c *Timers) TimersDelete(
 	if err := c.Db.
 		WithContext(ctx).
 		Where(`"channelId" = ? AND "id" = ?`, dashboardId, request.Id).
+		Delete(&model.ChannelsTimers{}).
 		Error; err != nil {
 		return nil, err
 	}
@@ -130,13 +131,13 @@ func (c *Timers) TimersCreate(
 		ID:              uuid.New().String(),
 		ChannelID:       dashboardId,
 		Name:            request.Data.Name,
-		Enabled:         request.Data.Enabled,
+		Enabled:         true,
 		TimeInterval:    request.Data.TimeInterval,
 		MessageInterval: request.Data.MessageInterval,
 		Responses: lo.Map(
 			request.Data.Responses,
-			func(r *timers.Timer_Response, _ int) model.ChannelsTimersResponses {
-				return model.ChannelsTimersResponses{
+			func(r *timers.CreateData_Response, _ int) *model.ChannelsTimersResponses {
+				return &model.ChannelsTimersResponses{
 					ID:         uuid.New().String(),
 					Text:       r.Text,
 					IsAnnounce: r.IsAnnounce,
@@ -145,7 +146,7 @@ func (c *Timers) TimersCreate(
 		),
 	}
 
-	if err := c.Db.WithContext(ctx).Save(entity).Error; err != nil {
+	if err := c.Db.WithContext(ctx).Create(entity).Error; err != nil {
 		return nil, err
 	}
 

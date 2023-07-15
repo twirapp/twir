@@ -88,10 +88,11 @@ const menuOptions: (MenuOption | MenuDividerOption)[] = [
 		icon: renderIcon(IconClockHour7),
 		path: '/dashboard/timers',
 	},
-	{
-		label: 'Moderation',
-		icon: renderIcon(IconSword),
-		path: '/dashboard/moderation' },
+	// {
+	// 	label: 'Moderation',
+	// 	icon: renderIcon(IconSword),
+	// 	path: '/dashboard/moderation'
+	// },
 	{
 		label: 'Keywords',
 		icon: renderIcon(IconKey),

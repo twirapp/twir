@@ -1,3 +1,7 @@
-import type { Timer } from '@twir/grpc/generated/api/api/timers';
+import type { CreateData, CreateData_Response } from '@twir/grpc/generated/api/api/timers';
 
-export type EditableTimer = Omit<Timer, 'id' | 'channelId' | 'lastTriggerMessageNumber'> & { id?: string }
+export type EditableTimerResponse = CreateData_Response
+
+export type EditableTimer = CreateData & {
+	id?: string,
+}
