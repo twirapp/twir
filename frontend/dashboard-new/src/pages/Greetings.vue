@@ -1,7 +1,6 @@
 <script setup lang='ts'>
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
 import type { Greeting } from '@twir/grpc/generated/api/api/greetings';
-import { type Variable, VariableType } from '@twir/grpc/generated/api/api/variables';
 import {
 	type DataTableColumns,
 	NDataTable,
@@ -10,11 +9,13 @@ import {
 	NAlert,
 	NButton,
 	NPopconfirm,
-	NModal, NSwitch,
+	NModal,
+	NSwitch,
+	NAvatar,
 } from 'naive-ui';
-import { h, ref } from 'vue';
+import { h, ref, watch } from 'vue';
 
-import { useGreetingsManager } from '@/api/index.js';
+import { useGreetingsManager, useTwitchGetUsers } from '@/api/index.js';
 import Modal from '@/components/greetings/modal.vue';
 import { EditableGreeting } from '@/components/greetings/types.js';
 import { renderIcon } from '@/helpers/index.js';
@@ -26,12 +27,38 @@ const greetingsPatcher = greetingsManager.patch!;
 
 const showModal = ref(false);
 
+const twitchUsersIds = ref<string[]>([]);
+const twitchUsers = useTwitchGetUsers({
+	ids: twitchUsersIds,
+});
+
+watch(greetings.data, (value) => {
+	if (!value) return;
+	twitchUsersIds.value = value.greetings.map((g) => g.userId);
+});
+
 const columns: DataTableColumns<Greeting> = [
+	{
+		title: '',
+		key: 'avatar',
+		width: 50,
+		render(row) {
+			const user = twitchUsers.data.value?.users.find((u) => u.id === row.userId);
+			if (!user) return '';
+
+			return h(NAvatar, { size: 'medium', src: user.profileImageUrl, round: true });
+		},
+	},
 	{
 		title: 'User name',
 		key: 'userName',
 		render(row) {
-			return h(NTag, { type: 'info', bordered: false }, { default: () => row.userId });
+			return h(NTag, { type: 'info', bordered: false }, {
+				default: () => {
+					const user = twitchUsers.data.value?.users.find((u) => u.id === row.userId);
+					return user ? user.displayName : 'Unknown';
+				},
+			});
 		},
 	},
 	{
@@ -124,7 +151,7 @@ function closeModal() {
   <n-data-table
     :isLoading="greetings.isLoading.value"
     :columns="columns"
-    :data="greetings.data.value?.variables ?? []"
+    :data="greetings.data.value?.greetings ?? []"
     style="margin-top: 20px;"
   />
 
