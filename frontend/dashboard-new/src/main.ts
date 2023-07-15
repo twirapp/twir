@@ -16,6 +16,7 @@ VueQueryPlugin.install(app, {
 				refetchOnWindowFocus: false,
 				refetchOnMount: false,
 				refetchOnReconnect: false,
+				retry: false,
 			},
 		},
 	}),

@@ -22,7 +22,7 @@ export type GetCommunityUsersOpts = {
 	sortBy: UsersSortBy;
 }
 
-export const useCommunityUsers= () => {
+export const useCommunityUsers = () => {
 	return {
 		getAll: (opts: GetCommunityUsersOpts) => useQuery({
 			queryKey: ['communityUsers'],
