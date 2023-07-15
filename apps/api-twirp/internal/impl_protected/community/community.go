@@ -125,10 +125,15 @@ func (c *Community) CommunityResetStats(ctx context.Context, request *community.
 		return &emptypb.Empty{}, nil
 	}
 
+	field := strings.ToLower(request.Field.String())
+	if request.Field == community.ResetStatsRequest_UsedChannelsPoints {
+		field = "usedChannelPoints"
+	}
+
 	err := c.Db.WithContext(ctx).
 		Model(&model.UsersStats{}).
 		Where(`"channelId" = ?`, dashboardId).
-		Update(request.Field.String(), 0).Error
+		Update(field, 0).Error
 	if err != nil {
 		return nil, err
 	}

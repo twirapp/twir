@@ -1,15 +1,19 @@
-import { useQuery } from '@tanstack/vue-query';
-import { GetUsersRequest_Order, GetUsersRequest_SortBy } from '@twir/grpc/generated/api/api/community';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
+import {
+	GetUsersRequest_Order,
+	GetUsersRequest_SortBy,
+	ResetStatsRequest_Field,
+} from '@twir/grpc/generated/api/api/community';
 import { Ref, isRef } from 'vue';
 
 import { protectedApiClient } from '@/api/twirp.js';
 
-export const enum UsersOrder {
+export const enum ComminityOrder {
 	Desc = 'desc',
 	Asc = 'asc',
 }
 
-export const enum UsersSortBy {
+export const enum CommunitySortBy {
 	Watched = 'watched',
 	Messages = 'messages',
 	Emotes = 'emotes',
@@ -19,46 +23,66 @@ export const enum UsersSortBy {
 export type GetCommunityUsersOpts = {
 	limit: number;
 	page: number;
-	order: UsersOrder;
-	sortBy: UsersSortBy;
+	order: ComminityOrder;
+	sortBy: CommunitySortBy;
 }
+
+const sortBy = {
+	[CommunitySortBy.Watched]: GetUsersRequest_SortBy.Watched,
+	[CommunitySortBy.Messages]: GetUsersRequest_SortBy.Messages,
+	[CommunitySortBy.Emotes]: GetUsersRequest_SortBy.Emotes,
+	[CommunitySortBy.UsedChannelPoints]: GetUsersRequest_SortBy.UsedChannelPoints,
+};
 
 export const useCommunityUsers = () => {
 	return {
-		getAll: (rawOpts: GetCommunityUsersOpts | Ref<GetCommunityUsersOpts>) => useQuery({
-			queryKey: ['communityUsers', rawOpts],
+		getAll: (opts: GetCommunityUsersOpts | Ref<GetCommunityUsersOpts>) => useQuery({
+			queryKey: ['communityUsers', opts],
 			queryFn: async () => {
-				const opts = isRef(rawOpts) ? rawOpts.value : rawOpts;
+				const rawOpts = isRef(opts) ? opts.value : opts;
 
-				const order = opts.order === UsersOrder.Desc
+				const order = rawOpts.order === ComminityOrder.Desc
 					? GetUsersRequest_Order.Desc
 					: GetUsersRequest_Order.Asc;
 
-				let sortBy = GetUsersRequest_SortBy.Watched;
-
-				switch (opts.sortBy) {
-					case UsersSortBy.Watched:
-						sortBy = GetUsersRequest_SortBy.Watched;
-						break;
-					case UsersSortBy.Messages:
-						sortBy = GetUsersRequest_SortBy.Messages;
-						break;
-					case UsersSortBy.Emotes:
-						sortBy = GetUsersRequest_SortBy.Emotes;
-						break;
-					case UsersSortBy.UsedChannelPoints:
-						sortBy = GetUsersRequest_SortBy.UsedChannelPoints;
-						break;
-				}
-
 				const call = await protectedApiClient.communityGetUsers({
-					limit: opts.limit,
-					page: opts.page,
+					limit: rawOpts.limit,
+					page: rawOpts.page,
 					order,
-					sortBy,
+					sortBy: sortBy[rawOpts.sortBy],
 				});
 				return call.response;
 			},
 		}),
 	};
+};
+
+export const enum CommunityResetStatsField {
+	Watched = 'watched',
+	Messages = 'messages',
+	Emotes = 'emotes',
+	UsedChannelPoints = 'used_channel_points',
+}
+
+const resetFields = {
+	[CommunityResetStatsField.Watched]: ResetStatsRequest_Field.Watched,
+	[CommunityResetStatsField.Messages]: ResetStatsRequest_Field.Messages,
+	[CommunityResetStatsField.Emotes]: ResetStatsRequest_Field.Emotes,
+	[CommunityResetStatsField.UsedChannelPoints]: ResetStatsRequest_Field.UsedChannelsPoints,
+};
+
+export const useCommunityReset = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (field: CommunityResetStatsField) => {
+			const call = await protectedApiClient.communityResetStats({
+				field: resetFields[field],
+			});
+			return call.response;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries(['communityUsers']);
+		},
+	});
 };

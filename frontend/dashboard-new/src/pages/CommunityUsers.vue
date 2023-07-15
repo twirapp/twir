@@ -1,23 +1,25 @@
 <script setup lang='ts'>
-import type { GetUsersResponse_User } from '@twir/grpc/generated/api/api/community';
 import {
-	type DataTableColumns,
 	type PaginationProps,
 	NAvatar,
 	NDataTable,
 	NTag,
 	NPagination,
 	NSpace,
+	NButton,
+	NPopconfirm,
 } from 'naive-ui';
 import type { TableColumn } from 'naive-ui/es/data-table/src/interface';
 import { ref, computed, h } from 'vue';
 
 import {
 	useCommunityUsers,
-	UsersOrder,
-	UsersSortBy,
-	type GetCommunityUsersOpts,
+	ComminityOrder,
+	CommunitySortBy,
+	GetCommunityUsersOpts,
 	useTwitchGetUsers,
+	useCommunityReset,
+	CommunityResetStatsField,
 } from '@/api/index.js';
 
 const communityManager = useCommunityUsers();
@@ -25,8 +27,8 @@ const communityManager = useCommunityUsers();
 const usersOpts = ref<GetCommunityUsersOpts>({
 	page: 1,
 	limit: 100,
-	order: UsersOrder.Desc,
-	sortBy: UsersSortBy.Watched,
+	order: ComminityOrder.Desc,
+	sortBy: CommunitySortBy.Watched,
 });
 const users = communityManager.getAll(usersOpts);
 
@@ -108,12 +110,7 @@ function handlePageChange(page: number) {
 	usersOpts.value.page = page;
 }
 
-function handleFiltersChange(filters: any) {
-	console.log(filters);
-}
-
 function handleSorterChange(sorter: { columnKey: string; order: 'ascend' | 'descend' | false }) {
-	console.log(sorter);
 	const column: any = columns.value.find((column: any) => column.key === sorter.columnKey);
 	for (const column of columns.value) {
 		(column as any).sortOrder = false;
@@ -122,29 +119,71 @@ function handleSorterChange(sorter: { columnKey: string; order: 'ascend' | 'desc
 	column.sortOrder = sorter.order;
 
 	if (sorter.order === 'ascend') {
-		usersOpts.value.order = UsersOrder.Asc;
+		usersOpts.value.order = ComminityOrder.Asc;
 	} else if (sorter.order === 'descend') {
-		usersOpts.value.order = UsersOrder.Desc;
+		usersOpts.value.order = ComminityOrder.Desc;
 	} else {
-		usersOpts.value.order = UsersOrder.Desc;
+		usersOpts.value.order = ComminityOrder.Desc;
 	}
 
-	if (sorter.columnKey === UsersSortBy.Watched) {
-		usersOpts.value.sortBy = UsersSortBy.Watched;
-	} else if (sorter.columnKey === UsersSortBy.Messages) {
-		usersOpts.value.sortBy = UsersSortBy.Messages;
-	} else if (sorter.columnKey === UsersSortBy.Emotes) {
-		usersOpts.value.sortBy = UsersSortBy.Emotes;
-	} else if (sorter.columnKey === UsersSortBy.UsedChannelPoints) {
-		usersOpts.value.sortBy = UsersSortBy.UsedChannelPoints;
+	if (sorter.columnKey === CommunitySortBy.Watched) {
+		usersOpts.value.sortBy = CommunitySortBy.Watched;
+	} else if (sorter.columnKey === CommunitySortBy.Messages) {
+		usersOpts.value.sortBy = CommunitySortBy.Messages;
+	} else if (sorter.columnKey === CommunitySortBy.Emotes) {
+		usersOpts.value.sortBy = CommunitySortBy.Emotes;
+	} else if (sorter.columnKey === CommunitySortBy.UsedChannelPoints) {
+		usersOpts.value.sortBy = CommunitySortBy.UsedChannelPoints;
 	} else {
-		usersOpts.value.sortBy = UsersSortBy.Watched;
+		usersOpts.value.sortBy = CommunitySortBy.Watched;
 	}
+}
+
+const resetter = useCommunityReset();
+async function handleReset(field: CommunityResetStatsField) {
+	await resetter.mutateAsync(field);
+	usersOpts.value.page = 1;
+	usersOpts.value.order = ComminityOrder.Desc;
+	usersOpts.value.sortBy = CommunitySortBy.Watched;
 }
 </script>
 
 <template>
-  <n-space justify="end" style="margin-bottom: 15px;">
+  <n-space justify="space-between" style="margin-bottom: 15px;">
+    <n-space>
+      <n-popconfirm @positive-click="handleReset(CommunityResetStatsField.Watched)">
+        <template #trigger>
+          <n-button secondary type="warning">
+            Reset watched
+          </n-button>
+        </template>
+        Are you sure?
+      </n-popconfirm>
+      <n-popconfirm @positive-click="handleReset(CommunityResetStatsField.Messages)">
+        <template #trigger>
+          <n-button secondary type="warning">
+            Reset messages
+          </n-button>
+        </template>
+        Are you sure?
+      </n-popconfirm>
+      <n-popconfirm @positive-click="handleReset(CommunityResetStatsField.Emotes)">
+        <template #trigger>
+          <n-button secondary type="warning">
+            Reset emotes
+          </n-button>
+        </template>
+        Are you sure?
+      </n-popconfirm>
+      <n-popconfirm @positive-click="handleReset(CommunityResetStatsField.UsedChannelPoints)">
+        <template #trigger>
+          <n-button secondary type="warning">
+            Reset points
+          </n-button>
+        </template>
+        Are you sure?
+      </n-popconfirm>
+    </n-space>
     <Pagination />
   </n-space>
   <n-data-table
@@ -152,7 +191,6 @@ function handleSorterChange(sorter: { columnKey: string; order: 'ascend' | 'desc
     :columns="columns as any"
     :data="users.data.value?.users ?? []"
     remote
-    @update:filters="handleFiltersChange"
     @update:sorter="handleSorterChange"
   />
   <n-space justify="end" style="margin-top: 15px;">
