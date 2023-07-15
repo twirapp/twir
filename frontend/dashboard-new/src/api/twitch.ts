@@ -4,24 +4,30 @@ import { Ref, isRef } from 'vue';
 
 import { unprotectedApiClient } from '@/api/twirp.js';
 
+type Response = Awaited<ReturnType<typeof unprotectedApiClient.twitchGetUsers>['response']>
+
 export const useTwitchGetUsers = (opts: {
 	ids?: Ref<string[]> | Ref<string> | string[],
 	names?: Ref<string[]> | Ref<string> | string[]
-}) => useQuery({
+}) => useQuery<Response>({
 	queryKey: ['twitch', 'search', 'users', opts.ids, opts.names],
 	queryFn: async () => {
-		const ids = isRef(opts?.ids)
+		let ids = isRef(opts?.ids)
 			? Array.isArray(opts.ids.value) ? opts.ids.value : [opts.ids.value]
 			: opts?.ids ?? [''];
-		const names = isRef(opts?.names)
+		let names = isRef(opts?.names)
 			? Array.isArray(opts.names.value) ? opts.names.value : [opts.names.value]
 			: opts?.names ?? [''];
+
+		names = names.filter(n => n !== '');
+		ids = ids.filter(n => n !== '');
 
 		if (ids.length === 0 && names.length === 0) {
 			return {
 				users: [],
 			} as TwitchGetUsersResponse;
 		}
+
 
 		const call = await unprotectedApiClient.twitchGetUsers({
 			ids,

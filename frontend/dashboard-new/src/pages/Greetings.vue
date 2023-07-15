@@ -13,7 +13,7 @@ import {
 	NSwitch,
 	NAvatar,
 } from 'naive-ui';
-import { h, ref, watch } from 'vue';
+import { h, ref, watch, onMounted, computed } from 'vue';
 
 import { useGreetingsManager, useTwitchGetUsers } from '@/api/index.js';
 import Modal from '@/components/greetings/modal.vue';
@@ -27,14 +27,11 @@ const greetingsPatcher = greetingsManager.patch!;
 
 const showModal = ref(false);
 
-const twitchUsersIds = ref<string[]>([]);
+const twitchUsersIds = computed(() => {
+	return greetings.data.value?.greetings.map((g) => g.userId) ?? [];
+});
 const twitchUsers = useTwitchGetUsers({
 	ids: twitchUsersIds,
-});
-
-watch(greetings.data, (value) => {
-	if (!value) return;
-	twitchUsersIds.value = value.greetings.map((g) => g.userId);
 });
 
 const columns: DataTableColumns<Greeting> = [
@@ -44,6 +41,7 @@ const columns: DataTableColumns<Greeting> = [
 		width: 50,
 		render(row) {
 			const user = twitchUsers.data.value?.users.find((u) => u.id === row.userId);
+			console.log(user);
 			if (!user) return;
 
 			return h(NAvatar, { size: 'medium', src: user.profileImageUrl, round: true });
@@ -127,7 +125,12 @@ const columns: DataTableColumns<Greeting> = [
 
 const editableGreeting = ref<EditableGreeting | null>(null);
 function openModal(t: EditableGreeting | null) {
-	editableGreeting.value = t;
+	const twitchUser = twitchUsers.data.value?.users.find((u) => u.id === t?.userId);
+	editableGreeting.value = t ? {
+		...t,
+		userName: twitchUser?.login || 'Unknown user',
+	} : null;
+
 	showModal.value = true;
 }
 function closeModal() {
@@ -149,7 +152,7 @@ function closeModal() {
     </p>
   </n-alert>
   <n-data-table
-    :isLoading="greetings.isLoading.value"
+    :isLoading="greetings.isLoading.value || twitchUsers.isLoading.value"
     :columns="columns"
     :data="greetings.data.value?.greetings ?? []"
     style="margin-top: 20px;"
@@ -160,7 +163,7 @@ function closeModal() {
     :mask-closable="false"
     :segmented="true"
     preset="card"
-    :title="editableGreeting?.id ?? 'New greeting'"
+    :title="editableGreeting?.userName || 'Create greeting'"
     class="modal"
     :style="{
       width: 'auto',
@@ -168,6 +171,6 @@ function closeModal() {
     }"
     :on-close="closeModal"
   >
-    <modal :greeting="editableVariable" @close="closeModal" />
+    <modal :greeting="editableGreeting" @close="closeModal" />
   </n-modal>
 </template>

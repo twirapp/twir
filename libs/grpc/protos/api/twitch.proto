@@ -16,7 +16,7 @@ message TwitchUser {
 	string description = 6;
 	string profile_image_url = 7;
 	string offline_image_url = 8;
-	uint64 created_at = 9;
+	string created_at = 9;
 }
 
 message TwitchGetUsersResponse {
