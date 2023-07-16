@@ -75,7 +75,7 @@ const setMarks = (duration: number) => {
 };
 
 const formatLabelTime = (v: number) => {
-	return convertMillisToTime(v * 1000);
+	return `${convertMillisToTime(v * 1000)}/${convertMillisToTime((plyr.value?.duration ?? 0) * 1000)}`;
 };
 const duration = ref(0);
 
@@ -144,9 +144,10 @@ const canSkip = computed(() => {
     title="Card Slots Demo"
     content-style="padding: 0;"
     header-style="padding: 10px;"
+    segmented
   >
     <template #header-extra>
-      <n-space>
+      <n-space :wrap="false" :wrap-item="false">
         <n-button tertiary size="small" @click="playerDisplay = playerDisplay === 'block' ? 'none' : 'block'">
           <IconEyeOff v-if="playerDisplay === 'block'" />
           <IconEye v-else />
@@ -166,20 +167,27 @@ const canSkip = computed(() => {
     />
 
     <n-space vertical class="card-content">
-      <n-grid :cols="24" :x-gap="10" style="align-items: center">
+      <n-grid :cols="24" :x-gap="10" style="align-items: center; margin-top: 10px; margin-bottom: 10px" responsive="screen">
         <n-grid-item :span="3">
-          <n-space>
+          <n-space :wrap-item="false" :wrap="false" align="center">
             <n-button
               size="tiny"
               text
               round
               :disabled="currentVideo == null"
+              style="display: flex"
               @click="isPlaying ? plyr?.pause() : plyr?.play()"
             >
               <IconPlayerPlayFilled v-if="!isPlaying" />
               <IconPlayerPauseFilled v-else />
             </n-button>
-            <n-button size="tiny" text round :disabled="!canSkip" @click="nextVideoAndAutoplay()">
+            <n-button
+              style="display: flex"
+              size="tiny"
+              text
+              round
+              :disabled="!canSkip" @click="nextVideoAndAutoplay()"
+            >
               <IconPlayerSkipForwardFilled />
             </n-button>
           </n-space>
@@ -190,8 +198,8 @@ const canSkip = computed(() => {
             v-model:value="sliderTime"
             :format-tooltip="formatLabelTime"
             :step="1"
-            :marks="marks"
             :max="duration"
+            placement="bottom"
             @update-value="(v) => {
               plyr!.currentTime = v
             }"
@@ -208,7 +216,8 @@ const canSkip = computed(() => {
           </n-space>
         </n-grid-item>
       </n-grid>
-
+    </n-space>
+    <template #footer>
       <n-list :show-divider="false">
         <n-list-item>
           <template #prefix>
@@ -234,7 +243,7 @@ const canSkip = computed(() => {
           <a href="https://youtu.be/ZXgHcdLM7lM" class="card-song-link" target="_blank">youtu.be/ZXgHcdLM7lM</a>
         </n-list-item>
       </n-list>
-    </n-space>
+    </template>
   </n-card>
 </template>
 
