@@ -33,7 +33,7 @@ func main() {
 		{Stack: "go", Name: "watched", Port: servers.WATCHED_SERVER_PORT},
 		{Stack: "go", Name: "websockets", Port: servers.WEBSOCKET_SERVER_PORT},
 		{Stack: "node", Name: "ytsr", Port: servers.YTSR_SERVER_PORT},
-		{Stack: "go", Name: "api-twirp", Port: 3002},
+		{Stack: "go", Name: "api", Port: 3002},
 		{Stack: "go", Name: "scheduler"},
 		{Stack: "frontend", Name: "dashboard", Port: 3006},
 		{Stack: "frontend", Name: "landing", Port: 3005},
