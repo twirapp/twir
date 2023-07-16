@@ -249,7 +249,9 @@ const formatLabelTime = (v: number) => {
             <IconLink class="card-icon" />
           </template>
 
-          <a :href="`https://youtu.be/${currentVideo?.videoId}`" class="card-song-link" target="_blank">youtu.be/{{ currentVideo?.videoId }}</a>
+          <n-button tag="a" type="primary" text :href="`https://youtu.be/${currentVideo?.videoId}`" target="_blank">
+            youtu.be/{{ currentVideo?.videoId }}
+          </n-button>
         </n-list-item>
       </n-list>
       <n-empty v-else description="Waiting for songs">
@@ -269,11 +271,6 @@ const formatLabelTime = (v: number) => {
 
 .card-icon {
 	display: flex
-}
-
-.card-song-link {
-	color: #63e2b7;
-	text-decoration: none
 }
 </style>
 
