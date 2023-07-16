@@ -101,7 +101,7 @@ const rules: FormRules = {
       </n-form-item>
 
       <n-form-item label="Use twitch reply" path="text">
-        <n-input v-model:checked="formValue.isReply" />
+        <n-switch v-model:value="formValue.isReply" />
       </n-form-item>
     </n-space>
 
