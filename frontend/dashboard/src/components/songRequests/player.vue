@@ -28,12 +28,14 @@ import {
 import Plyr from 'plyr';
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
+import { convertMillisToTime } from '@/components/songRequests/helpers.js';
+
 defineProps<{
 	showSettingsModal: () => void
 }>();
 
 const player = ref<HTMLVideoElement | null>(null);
-const isPlayerHidden = useLocalStorage('twirPlayerIsHidden', false);
+const playerDisplay = useLocalStorage<string>('twirPlayerIsHidden', 'block');
 
 const isPlaying = ref(false);
 
@@ -61,7 +63,22 @@ const sliderVolume = computed(() => {
 	return volume.value;
 });
 
-const isFirstVideo = ref(true);
+const sliderTime = ref(0);
+
+const marks = ref({});
+
+const setMarks = (duration: number) => {
+	marks.value = {
+		'0': '0:00',
+		[duration.toString()]: convertMillisToTime(duration * 1000),
+	};
+};
+
+const formatLabelTime = (v: number) => {
+	return convertMillisToTime(v * 1000);
+};
+const duration = ref(0);
+
 const plyr = computed(() => {
 	if (!player.value) return null;
 
@@ -74,21 +91,29 @@ const plyr = computed(() => {
 
 	p.on('play', () => {
 		isPlaying.value = true;
-		isFirstVideo.value = false;
 	});
 
 	p.on('pause', () => {
 		isPlaying.value = false;
 	});
 
+	p.on('ready', () => {
+		duration.value = p.duration ?? 0;
+		setMarks(duration.value);
+	});
+
+	p.on('timeupdate', () => {
+		sliderTime.value = p.currentTime;
+	});
+
 	return p;
 });
+
 onMounted(() => {
 	if (!plyr.value) {
 		throw new Error('Plyr is not initialized');
 	}
 });
-
 onUnmounted(() => plyr.value?.destroy());
 
 const { currentVideo, queue, nextVideo, removeVideo, addVideo } = useVideoQueue(
@@ -96,26 +121,22 @@ const { currentVideo, queue, nextVideo, removeVideo, addVideo } = useVideoQueue(
 		plyr,
 		initialQueue: [
 			{ id: '1', src: 'https://www.youtube.com/watch?v=2-1ymGpV_1A&list=LL&index=4' },
-			{ id: '1', src: 'https://www.youtube.com/watch?v=BFtseA7Hs4g' },
+			{ id: '1', src: 'https://www.youtube.com/watch?v=P4ALDytLAXQ' },
 		],
 		defaultProvider: 'youtube',
-		onNextVideo: () => {
-			if (isFirstVideo.value) return;
-			plyr.value?.once('ready', () => {
-				plyr.value?.play();
-			});
-		},
-		onRemoveVideo: (video) => {
-			console.log(video);
-		},
 	},
 );
+
+const nextVideoAndAutoplay = () => {
+	nextVideo();
+	plyr.value?.once('ready', () => {
+		plyr.value?.play();
+	});
+};
 
 const canSkip = computed(() => {
 	return currentVideo.value != null || queue.value.length >= 1;
 });
-
-const length = ref(0);
 </script>
 
 <template>
@@ -126,8 +147,8 @@ const length = ref(0);
   >
     <template #header-extra>
       <n-space>
-        <n-button tertiary size="small" @click="isPlayerHidden = !isPlayerHidden">
-          <IconEyeOff v-if="!isPlayerHidden" />
+        <n-button tertiary size="small" @click="playerDisplay = playerDisplay === 'block' ? 'none' : 'block'">
+          <IconEyeOff v-if="playerDisplay === 'block'" />
           <IconEye v-else />
         </n-button>
         <n-button tertiary size="small" @click="showSettingsModal()">
@@ -140,8 +161,8 @@ const length = ref(0);
       ref="player"
       :style="{
         height: '300px',
-        display: isPlayerHidden ? 'none' : 'block',
       }"
+      class="plyr"
     />
 
     <n-space vertical class="card-content">
@@ -158,14 +179,23 @@ const length = ref(0);
               <IconPlayerPlayFilled v-if="!isPlaying" />
               <IconPlayerPauseFilled v-else />
             </n-button>
-            <n-button size="tiny" text round :disabled="!canSkip" @click="nextVideo">
+            <n-button size="tiny" text round :disabled="!canSkip" @click="nextVideoAndAutoplay()">
               <IconPlayerSkipForwardFilled />
             </n-button>
           </n-space>
         </n-grid-item>
 
         <n-grid-item :span="15">
-          <n-slider v-model:value="length" :step="1" :marks="{ 100: '100'}" />
+          <n-slider
+            v-model:value="sliderTime"
+            :format-tooltip="formatLabelTime"
+            :step="1"
+            :marks="marks"
+            :max="duration"
+            @update-value="(v) => {
+              plyr!.currentTime = v
+            }"
+          />
         </n-grid-item>
 
         <n-grid-item :span="6">
@@ -221,5 +251,11 @@ const length = ref(0);
 .card-song-link {
 	color: #63e2b7;
 	text-decoration: none
+}
+</style>
+
+<style>
+.plyr {
+	display: v-bind(playerDisplay);
 }
 </style>
