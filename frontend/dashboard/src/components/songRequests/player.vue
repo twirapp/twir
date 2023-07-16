@@ -29,6 +29,7 @@ import Plyr from 'plyr';
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
 import { convertMillisToTime } from '@/components/songRequests/helpers.js';
+import { useQueue } from '@/components/songRequests/hook.js';
 
 defineProps<{
 	showSettingsModal: () => void
@@ -116,7 +117,9 @@ onMounted(() => {
 });
 onUnmounted(() => plyr.value?.destroy());
 
-const { currentVideo, queue, nextVideo, removeVideo, addVideo } = useVideoQueue(
+const s = useQueue(plyr);
+
+const { currentVideo, queue, nextVideo } = useVideoQueue(
 	{
 		plyr,
 		initialQueue: [

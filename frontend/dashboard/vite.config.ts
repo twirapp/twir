@@ -31,6 +31,12 @@ export default defineConfig({
 				rewrite: (path) => path.replace(/^\/api/, ''),
 				ws: true,
 			},
+			'/socket': {
+				target: 'http://127.0.0.1:3004',
+				changeOrigin: true,
+				ws: true,
+				rewrite: (path) => path.replace(/^\/socket/, ''),
+			},
 		},
 	},
 	clearScreen: false,
