@@ -83,7 +83,7 @@ onMounted(() => {
 		playNext();
 	});
 });
-
+const isFirstLoad = ref(true);
 watch(() => props.currentVideo, (video) => {
 	if (!plyr.value) return;
 	if (!video) {
@@ -95,9 +95,11 @@ watch(() => props.currentVideo, (video) => {
 		return;
 	}
 
-	// plyr.value!.once('ready', () => {
-	// 	plyr.value!.play();
-	// });
+	if (!isFirstLoad.value) {
+		plyr.value!.once('ready', () => {
+			plyr.value!.play();
+		});
+	}
 
 	plyr.value.source = {
 		type: 'video',
@@ -109,6 +111,7 @@ watch(() => props.currentVideo, (video) => {
 		],
 		title: '',
 	};
+	isFirstLoad.value = false;
 
 });
 
