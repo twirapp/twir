@@ -35,7 +35,7 @@ func main() {
 		{Stack: "node", Name: "ytsr", Port: servers.YTSR_SERVER_PORT},
 		{Stack: "go", Name: "api-twirp", Port: 3002},
 		{Stack: "go", Name: "scheduler"},
-		{Stack: "frontend", Name: "dashboard-new", Port: 3006},
+		{Stack: "frontend", Name: "dashboard", Port: 3006},
 		{Stack: "frontend", Name: "landing", Port: 3005},
 		{Stack: "frontend", Name: "overlays", Port: 3008},
 		{Stack: "frontend", Name: "public", Port: 3007},

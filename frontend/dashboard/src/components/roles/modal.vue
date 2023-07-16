@@ -11,7 +11,8 @@ import {
 	NCheckbox,
 	NCheckboxGroup,
 	NTabs,
-	NTabPane, NButton,
+	NTabPane,
+	NButton,
 } from 'naive-ui';
 import { ref, onMounted, toRaw } from 'vue';
 
