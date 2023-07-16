@@ -42,9 +42,17 @@ export const useYoutubeSocket = () => {
 	watch(websocket.data, (data) => {
 		const parsedData = JSON.parse(data);
 			if (parsedData.eventName === 'currentQueue') {
-					const incomingVideos = parsedData.data;
+				const incomingVideos = parsedData.data;
 
-					videos.value = incomingVideos;
+				videos.value = incomingVideos;
+			}
+
+			if (parsedData.eventName === 'newTrack') {
+				videos.value.push(parsedData.data);
+			}
+
+			if (parsedData.eventName === 'removeTrack') {
+				videos.value = videos.value.filter(video => video.id !== parsedData.data.id);
 			}
 	});
 
@@ -52,14 +60,28 @@ export const useYoutubeSocket = () => {
 		websocket.open();
 	});
 
+	const callWsSkip = (ids: string | string[]) => {
+		const request = JSON.stringify({
+			eventName: 'skip',
+			data: Array.isArray(ids) ? ids : [ids],
+		});
+
+		websocket.send(request);
+	};
+
 	const nextVideo = () => {
-		// TODO: send socket we deleted video
+		callWsSkip(currentVideo.value.id);
 		videos.value = videos.value.slice(1);
 	};
 
 	const deleteVideo = (id: string) => {
-		// TODO: send socket we deleted video
+		callWsSkip(id);
 		videos.value = videos.value.filter(video => video.id !== id);
+	};
+
+	const deleteAllVideos = () => {
+		callWsSkip(videos.value.map(video => video.id));
+		videos.value = [];
 	};
 
 	return {
@@ -67,6 +89,7 @@ export const useYoutubeSocket = () => {
 		currentVideo,
 		nextVideo,
 		deleteVideo,
+		deleteAllVideos,
 	};
 };
 

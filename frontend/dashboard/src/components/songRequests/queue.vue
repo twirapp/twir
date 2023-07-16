@@ -12,6 +12,7 @@ const props = defineProps<{
 }>();
 defineEmits<{
 	deleteVideo: [id: string]
+	deleteAllVideos: []
 }>();
 
 const columns: TableColumn<Video>[] = [
