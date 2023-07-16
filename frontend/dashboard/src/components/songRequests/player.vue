@@ -83,6 +83,7 @@ onMounted(() => {
 		playNext();
 	});
 });
+
 const isFirstLoad = ref(true);
 watch(() => props.currentVideo, (video) => {
 	if (!plyr.value) return;
@@ -112,7 +113,6 @@ watch(() => props.currentVideo, (video) => {
 		title: '',
 	};
 	isFirstLoad.value = false;
-
 });
 
 onUnmounted(() => {
