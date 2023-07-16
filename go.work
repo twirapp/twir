@@ -12,7 +12,6 @@ use (
 	./apps/tokens
 	./apps/watched
 	./apps/websockets
-	./apps/api-twirp
 	./libs/config
 	./libs/gomodels
 	./libs/gopool
