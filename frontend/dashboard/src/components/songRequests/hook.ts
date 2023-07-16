@@ -85,7 +85,6 @@ export const useYoutubeSocket = () => {
 	};
 
 	const moveVideo = (id: string, newPosition: number) => {
-		console.log(id, newPosition);
 		const currentIndex = videos.value.findIndex(video => video.id === id);
 		const itemToMove = videos.value.splice(currentIndex, 1)[0];
 		videos.value.splice(newPosition, 0, itemToMove);
