@@ -27,7 +27,7 @@ async function saveSecret() {
 <template>
   <with-settings name="Donate.stream">
     <template #icon>
-      <DonateStreamSVG style="width: 50px" />
+      <DonateStreamSVG style="width: 50px; display: flex" />
     </template>
     <template #settings>
       <n-timeline>

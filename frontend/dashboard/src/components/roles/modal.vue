@@ -14,10 +14,11 @@ import {
 	NTabPane,
 	NButton,
 } from 'naive-ui';
-import { ref, onMounted, toRaw } from 'vue';
+import { ref, onMounted, toRaw, watch } from 'vue';
 
 import { useRolesManager } from '@/api/index.js';
 import { type EditableRole, permissions } from '@/components/roles/types.js';
+import UsersMultiSearch from '@/components/twitchUsers/multiple.vue';
 
 const props = defineProps<{
 	role?: EditableRole | null
@@ -38,13 +39,19 @@ const formValue = ref<EditableRole>({
 		requiredWatchTime: 0,
 	},
 });
+const searchUsersIds = ref<string[]>([]);
+watch(searchUsersIds, (value) => {
+	formValue.value.users = value.map((id) => ({ userId: id }));
+});
 
 onMounted(() => {
 	if (!props.role) return;
 	formValue.value = structuredClone(toRaw(props.role));
+	searchUsersIds.value = formValue.value.users.map((u) => u.userId) ?? [];
 });
 
-const rolesManager =useRolesManager();
+
+const rolesManager = useRolesManager();
 const rolesUpdater = rolesManager.update;
 const rolesCreator = rolesManager.create;
 
@@ -65,6 +72,8 @@ async function save() {
 
 	emits('close');
 }
+
+
 </script>
 
 <template>
@@ -81,6 +90,10 @@ async function save() {
         <n-form-item label="Name">
           <n-input v-model:value="formValue.name" />
         </n-form-item>
+
+        <n-divider>Access to users</n-divider>
+
+        <users-multi-search v-model="searchUsersIds" />
 
         <n-divider>Access by stats</n-divider>
 

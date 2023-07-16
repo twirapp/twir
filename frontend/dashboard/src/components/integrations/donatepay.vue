@@ -30,7 +30,7 @@ async function save() {
 <template>
   <with-settings name="Donatepay" :save="save">
     <template #icon>
-      <DonatePaySVG style="width: 50px" />
+      <DonatePaySVG style="width: 50px; display: flex" />
     </template>
     <template #settings>
       <n-form-item label="Api key">

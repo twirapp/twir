@@ -5,6 +5,7 @@ import {
 	NSpace,
 	NText,
 	NModal,
+	NButton,
 } from 'naive-ui';
 import { ref } from 'vue';
 
@@ -41,10 +42,18 @@ const closeModal = () => showModal.value = false;
       hoverable
       @click="openModal(role)"
     >
-      <n-space align="center" justify="center" vertical>
+      <n-space justify="space-between" align="center">
         <n-text class="text">
           {{ role.name }}
         </n-text>
+        <n-space>
+          <n-button secondary type="success">
+            Edit
+          </n-button>
+          <n-button :disabled="role.type === 'CUSTOM'" secondary type="error">
+            Remove
+          </n-button>
+        </n-space>
       </n-space>
     </n-card>
 

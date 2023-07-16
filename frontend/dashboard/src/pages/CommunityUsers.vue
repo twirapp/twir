@@ -48,7 +48,10 @@ const columns = ref<Array<TableColumn>>([
 		render(row) {
 			const twitchUser = twitchUsers.data.value?.users.find((user) => user.id === row.id);
 
-			return h(NAvatar, { src: twitchUser?.profileImageUrl });
+			return h(NAvatar, {
+				src: twitchUser?.profileImageUrl,
+				style: 'display: flex;',
+			});
 		},
 	},
 	{

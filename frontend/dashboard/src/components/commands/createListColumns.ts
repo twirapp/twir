@@ -1,6 +1,6 @@
 import { IconTrash, IconPencil } from '@tabler/icons-vue';
 import { DataTableColumns, NButton, NPopconfirm, NSpace, NSwitch, NTag, NText } from 'naive-ui';
-import { h, VNode } from 'vue';
+import { h } from 'vue';
 
 import { useCommandsManager } from '@/api/index.js';
 import type { ListRowData, EditableCommand } from '@/components/commands/types.js';
@@ -117,6 +117,7 @@ export const createListColumns = (
 							type: 'error',
 							size: 'small',
 							quaternary: true,
+							disabled: row.default,
 						}, {
 							default: renderIcon(IconTrash),
 						}),
@@ -124,13 +125,7 @@ export const createListColumns = (
 					},
 				);
 
-				const buttons: VNode[] = [editButton];
-
-				if (!row.default) {
-					buttons.push(deleteButton);
-				}
-
-				return h(NSpace, { }, { default: () => buttons });
+				return h(NSpace, { }, { default: () => [editButton, deleteButton] });
 			},
 		},
 	];

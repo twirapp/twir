@@ -10,9 +10,11 @@ const getAuthLink = manager.useAuthLink();
 </script>
 
 <template>
-  <oauth-component name="VK" :data="data" :logout="logout.mutateAsync" :getLoginLink="getAuthLink.refetch">
-    <template #icon>
-      <IconVk style="width: 30px;" />
-    </template>
-  </oauth-component>
+  <oauth-component
+    name="VK"
+    :data="data"
+    :logout="logout.mutateAsync"
+    :getLoginLink="getAuthLink.refetch"
+    :icon="IconVk"
+  />
 </template>

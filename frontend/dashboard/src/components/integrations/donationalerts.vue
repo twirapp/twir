@@ -10,9 +10,11 @@ const getAuthLink = manager.useAuthLink();
 </script>
 
 <template>
-  <oauth-component name="DonationAlerts" :data="data" :logout="logout.mutateAsync" :getLoginLink="getAuthLink.refetch">
-    <template #icon>
-      <IconDonationAlerts style="width: 30px;" />
-    </template>
-  </oauth-component>
+  <oauth-component
+    name="DonationAlerts"
+    :data="data"
+    :logout="logout.mutateAsync"
+    :getLoginLink="getAuthLink.refetch"
+    :icon="IconDonationAlerts"
+  />
 </template>

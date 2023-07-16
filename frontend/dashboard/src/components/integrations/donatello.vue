@@ -14,7 +14,7 @@ const webhookUrl = `${window.location.origin}/api/webhooks/integrations/donatell
 <template>
   <with-settings name="Donatello">
     <template #icon>
-      <DonatelloSVG style="width: 50px; margin-top: -15px; margin-bottom: -15px" />
+      <DonatelloSVG style="width: 50px; margin-top: -15px; margin-bottom: -15px; display: flex" />
     </template>
     <template #settings>
       <n-timeline>

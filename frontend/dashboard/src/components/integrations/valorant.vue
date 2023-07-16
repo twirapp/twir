@@ -27,7 +27,7 @@ async function save() {
 <template>
   <with-settings name="Valorant" :save="save">
     <template #icon>
-      <ValorantSVG style="width: 50px" />
+      <ValorantSVG style="width: 50px; display: flex" />
     </template>
     <template #settings>
       <n-form-item label="Valorant username with tag">

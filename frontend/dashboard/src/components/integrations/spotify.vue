@@ -10,9 +10,11 @@ const getAuthLink = manager.useAuthLink();
 </script>
 
 <template>
-  <oauth-component name="Spotify" :data="data" :logout="logout.mutateAsync" :getLoginLink="getAuthLink.refetch">
-    <template #icon>
-      <IconSpotify style="width: 30px;" />
-    </template>
-  </oauth-component>
+  <oauth-component
+    name="Spotify"
+    :data="data"
+    :logout="logout.mutateAsync"
+    :getLoginLink="getAuthLink.refetch"
+    :icon="IconSpotify"
+  />
 </template>

@@ -4,16 +4,16 @@ import { NButton, NTooltip, NAvatar, NText, NTag } from 'naive-ui';
 import type { FunctionalComponent } from 'vue';
 import { defineSlots } from 'vue';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
 	name: string,
 	data: { userName: string, avatar: string } | undefined
 	logout: () => Promise<void>
 	getLoginLink: () => Promise<{ data: { link: string } }>
-}>();
-
-defineSlots<{
 	icon: FunctionalComponent<any>
-}>();
+	iconWidth?: number
+}>(), {
+	iconWidth: 30,
+});
 
 async function login() {
 	const req = await props.getLoginLink();
@@ -27,7 +27,7 @@ async function login() {
     <td>
       <n-tooltip trigger="hover" placement="left">
         <template #trigger>
-          <slot name="icon" />
+          <component :is="props.icon" :width="props.iconWidth" class="icon" />
         </template>
         {{ name }}
       </n-tooltip>
@@ -59,6 +59,10 @@ async function login() {
 </template>
 
 <style scoped>
+.icon {
+	display: flex;
+}
+
 .actions {
 	display: flex;
 	justify-content: flex-end;

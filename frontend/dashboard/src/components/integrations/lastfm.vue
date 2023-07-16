@@ -10,9 +10,11 @@ const getAuthLink = manager.useAuthLink();
 </script>
 
 <template>
-  <oauth-component name="Faceit" :data="data" :logout="logout.mutateAsync" :getLoginLink="getAuthLink.refetch">
-    <template #icon>
-      <IconLastFM style="width: 30px;" />
-    </template>
-  </oauth-component>
+  <oauth-component
+    name="Faceit"
+    :data="data"
+    :logout="logout.mutateAsync"
+    :getLoginLink="getAuthLink.refetch"
+    :icon="IconLastFM"
+  />
 </template>
