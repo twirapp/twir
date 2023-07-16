@@ -1,6 +1,6 @@
-<script setup lang='ts'>
+<script lang='ts' setup>
 import 'plyr/dist/plyr.css';
-import { useVideoQueue } from '@mellkam/vue-plyr-queue';
+
 import {
 	IconEyeOff,
 	IconEye,
@@ -24,22 +24,100 @@ import {
 	NSlider,
 	NGrid,
 	NGridItem,
+	NEmpty,
+	NSpin,
 } from 'naive-ui';
 import Plyr from 'plyr';
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, watch, onUnmounted, computed } from 'vue';
 
 import { convertMillisToTime } from '@/components/songRequests/helpers.js';
-import { useQueue } from '@/components/songRequests/hook.js';
+import { Video } from '@/components/songRequests/hook.js';
 
-defineProps<{
-	showSettingsModal: () => void
+const props = defineProps<{
+	currentVideo: Video | null
+	nextVideo: boolean
+}>();
+
+const emits = defineEmits<{
+	next: []
 }>();
 
 const player = ref<HTMLVideoElement | null>(null);
-const playerDisplay = useLocalStorage<string>('twirPlayerIsHidden', 'block');
+const plyr = ref<Plyr | null>(null);
+
+const playNext = () => {
+	emits('next');
+
+	plyr.value!.once('ready', () => {
+		plyr.value!.play();
+	});
+};
 
 const isPlaying = ref(false);
+const sliderTime = ref(0);
 
+onMounted(() => {
+	if (!player.value) return;
+
+	plyr.value = new Plyr(player.value, {
+		controls: ['fullscreen', 'settings'],
+		settings: ['quality', 'speed'],
+		hideControls: true,
+		clickToPlay: false,
+	});
+
+	plyr.value.on('play', () => {
+		isPlaying.value = true;
+	});
+
+	plyr.value.on('pause', () => {
+		isPlaying.value = false;
+	});
+
+	plyr.value.on('timeupdate', () => {
+		sliderTime.value = plyr.value!.currentTime;
+	});
+
+	plyr.value.on('ended', () => {
+		if (!props.nextVideo) return;
+		playNext();
+	});
+});
+
+watch(() => props.currentVideo, (video) => {
+	if (!plyr.value) return;
+	if (!video) {
+		plyr.value.source = {
+			type: 'video',
+			sources: [],
+		};
+		plyr.value.stop();
+		return;
+	}
+
+	// plyr.value!.once('ready', () => {
+	// 	plyr.value!.play();
+	// });
+
+	plyr.value.source = {
+		type: 'video',
+		sources: [
+			{
+				src: `https://www.youtube.com/watch?v=${video.videoId}`,
+				provider: 'youtube',
+			},
+		],
+		title: '',
+	};
+
+});
+
+onUnmounted(() => {
+	if (!plyr.value) return;
+	plyr.value.destroy();
+});
+
+const playerDisplay = useLocalStorage<string>('twirPlayerIsHidden', 'block');
 const isMuted = useLocalStorage('twirPlayerIsMuted', false);
 const volume = useLocalStorage('twirPlayerVolume', 10);
 watch(volume, (value) => {
@@ -63,88 +141,14 @@ const sliderVolume = computed(() => {
 	if (isMuted.value) return 0;
 	return volume.value;
 });
-
-const sliderTime = ref(0);
-
-const marks = ref({});
-
-const setMarks = (duration: number) => {
-	marks.value = {
-		'0': '0:00',
-		[duration.toString()]: convertMillisToTime(duration * 1000),
-	};
-};
-
 const formatLabelTime = (v: number) => {
 	return `${convertMillisToTime(v * 1000)}/${convertMillisToTime((plyr.value?.duration ?? 0) * 1000)}`;
 };
-const duration = ref(0);
-
-const plyr = computed(() => {
-	if (!player.value) return null;
-
-	const p = new Plyr(player.value, {
-		controls: ['fullscreen', 'settings'],
-		settings: ['quality', 'speed'],
-		hideControls: true,
-		clickToPlay: false,
-	});
-
-	p.on('play', () => {
-		isPlaying.value = true;
-	});
-
-	p.on('pause', () => {
-		isPlaying.value = false;
-	});
-
-	p.on('ready', () => {
-		duration.value = p.duration ?? 0;
-		setMarks(duration.value);
-	});
-
-	p.on('timeupdate', () => {
-		sliderTime.value = p.currentTime;
-	});
-
-	return p;
-});
-
-onMounted(() => {
-	if (!plyr.value) {
-		throw new Error('Plyr is not initialized');
-	}
-});
-onUnmounted(() => plyr.value?.destroy());
-
-const s = useQueue(plyr);
-
-const { currentVideo, queue, nextVideo } = useVideoQueue(
-	{
-		plyr,
-		initialQueue: [
-			{ id: '1', src: 'https://www.youtube.com/watch?v=2-1ymGpV_1A&list=LL&index=4' },
-			{ id: '1', src: 'https://www.youtube.com/watch?v=P4ALDytLAXQ' },
-		],
-		defaultProvider: 'youtube',
-	},
-);
-
-const nextVideoAndAutoplay = () => {
-	nextVideo();
-	plyr.value?.once('ready', () => {
-		plyr.value?.play();
-	});
-};
-
-const canSkip = computed(() => {
-	return currentVideo.value != null || queue.value.length >= 1;
-});
 </script>
 
 <template>
   <n-card
-    title="Card Slots Demo"
+    title="Current Song"
     content-style="padding: 0;"
     header-style="padding: 10px;"
     segmented
@@ -155,12 +159,11 @@ const canSkip = computed(() => {
           <IconEyeOff v-if="playerDisplay === 'block'" />
           <IconEye v-else />
         </n-button>
-        <n-button tertiary size="small" @click="showSettingsModal()">
+        <n-button tertiary size="small" @click="() => {}">
           <IconSettings />
         </n-button>
       </n-space>
     </template>
-
     <video
       ref="player"
       :style="{
@@ -189,7 +192,8 @@ const canSkip = computed(() => {
               size="tiny"
               text
               round
-              :disabled="!canSkip" @click="nextVideoAndAutoplay()"
+              :disabled="!nextVideo"
+              @click="playNext"
             >
               <IconPlayerSkipForwardFilled />
             </n-button>
@@ -201,8 +205,9 @@ const canSkip = computed(() => {
             v-model:value="sliderTime"
             :format-tooltip="formatLabelTime"
             :step="1"
-            :max="duration"
+            :max="plyr?.duration ?? 0"
             placement="bottom"
+            :disabled="!currentVideo"
             @update-value="(v) => {
               plyr!.currentTime = v
             }"
@@ -220,14 +225,15 @@ const canSkip = computed(() => {
         </n-grid-item>
       </n-grid>
     </n-space>
+
     <template #footer>
-      <n-list :show-divider="false">
+      <n-list v-if="currentVideo" :show-divider="false">
         <n-list-item>
           <template #prefix>
             <IconPlaylist class="card-icon" />
           </template>
 
-          Anna Yvette - Shooting Star [Forza Horizon 4 Pulse] - Synthwave, Retrowave, Synthpop
+          {{ currentVideo?.title }}
         </n-list-item>
 
         <n-list-item>
@@ -235,7 +241,7 @@ const canSkip = computed(() => {
             <IconUser class="card-icon" />
           </template>
 
-          Satont
+          {{ currentVideo?.orderedByDisplayName || currentVideo?.orderedByName }}
         </n-list-item>
 
         <n-list-item>
@@ -243,9 +249,14 @@ const canSkip = computed(() => {
             <IconLink class="card-icon" />
           </template>
 
-          <a href="https://youtu.be/ZXgHcdLM7lM" class="card-song-link" target="_blank">youtu.be/ZXgHcdLM7lM</a>
+          <a :href="`https://youtu.be/${currentVideo?.videoId}`" class="card-song-link" target="_blank">youtu.be/{{ currentVideo?.videoId }}</a>
         </n-list-item>
       </n-list>
+      <n-empty v-else description="Waiting for songs">
+        <template #icon>
+          <n-spin size="small" />
+        </template>
+      </n-empty>
     </template>
   </n-card>
 </template>

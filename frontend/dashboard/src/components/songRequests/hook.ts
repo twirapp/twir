@@ -1,11 +1,28 @@
-import { useVideoQueue } from '@mellkam/vue-plyr-queue';
+
 import { useWebSocket } from '@vueuse/core';
-import Plyr from 'plyr';
-import { computed, onMounted, type ComputedRef } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 import { useProfile } from '@/api/index.js';
 
-export const useQueue = (plyr: ComputedRef<Plyr | null>) => {
+export type Video = {
+	id: string
+	channelId: string
+	createdAt: string
+	deletedAt: string | null
+	duration: number
+	orderedByDisplayName: string
+	orderedById: string
+	orderedByName: string
+	queuePosition: number
+	songLink: null | string
+	title: string
+	videoId: string
+}
+
+export const useYoutubeSocket = () => {
+	const videos = ref<Video[]>([]);
+	const currentVideo = computed(() => videos.value[0]);
+
 	const { data: userProfile } = useProfile();
 
 	const socketUrl = computed(() => {
@@ -22,22 +39,34 @@ export const useQueue = (plyr: ComputedRef<Plyr | null>) => {
 		},
 	});
 
+	watch(websocket.data, (data) => {
+		const parsedData = JSON.parse(data);
+			if (parsedData.eventName === 'currentQueue') {
+					const incomingVideos = parsedData.data;
+
+					videos.value = incomingVideos;
+			}
+	});
+
 	onMounted(() => {
 		websocket.open();
 	});
 
-	const controls = useVideoQueue({
-		plyr,
-		initialQueue: [
-			{ id: '1', src: 'https://www.youtube.com/watch?v=2-1ymGpV_1A&list=LL&index=4' },
-			{ id: '1', src: 'https://www.youtube.com/watch?v=P4ALDytLAXQ' },
-		],
-		defaultProvider: 'youtube',
-	});
+	const nextVideo = () => {
+		// TODO: send socket we deleted video
+		videos.value = videos.value.slice(1);
+	};
+
+	const deleteVideo = (id: string) => {
+		// TODO: send socket we deleted video
+		videos.value = videos.value.filter(video => video.id !== id);
+	};
 
 	return {
-		currentVideo: controls.currentVideo,
-		queue: controls.queue,
-		nextVideo: controls.nextVideo,
+		videos,
+		currentVideo,
+		nextVideo,
+		deleteVideo,
 	};
 };
+
