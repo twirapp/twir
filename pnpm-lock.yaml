@@ -179,6 +179,9 @@ importers:
       '@guolao/vue-monaco-editor':
         specifier: ^1.1.3
         version: 1.1.3(monaco-editor@0.35.0)(vue@3.3.4)
+      '@mellkam/vue-plyr-queue':
+        specifier: ^0.3.0
+        version: 0.3.0(plyr@3.7.8)(vue@3.3.4)
       '@protobuf-ts/twirp-transport':
         specifier: ^2.9.0
         version: 2.9.0
@@ -4781,6 +4784,16 @@ packages:
   /@mdx-js/util@1.6.22:
     resolution: {integrity: sha512-H1rQc1ZOHANWBvPcW+JpGwr+juXSxM8Q8YCkm3GhZd8REu1fHR3z99CErO1p9pkcfcxZnMdIZdIsXkOHY0NilA==}
     dev: true
+
+  /@mellkam/vue-plyr-queue@0.3.0(plyr@3.7.8)(vue@3.3.4):
+    resolution: {integrity: sha512-XHW4O7cykOHI55PLZCJIqferLMIxythTzu9etffnZSTEiHqx2JDSazTaC5szuoudQoDGQ0up2Z1JOGSOJjLz8w==}
+    peerDependencies:
+      plyr: '>=3.6.3'
+      vue: '>=3.2.0'
+    dependencies:
+      plyr: 3.7.8
+      vue: 3.3.4
+    dev: false
 
   /@monaco-editor/loader@1.3.2(monaco-editor@0.35.0):
     resolution: {integrity: sha512-BTDbpHl3e47r3AAtpfVFTlAi7WXv4UQ/xZmz8atKl4q7epQV5e7+JbigFDViWF71VBi4IIBdcWP57Hj+OWuc9g==}

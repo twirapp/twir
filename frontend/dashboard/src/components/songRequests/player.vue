@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import 'plyr/dist/plyr.css';
+import { useVideoQueue } from '@mellkam/vue-plyr-queue';
 import {
 	IconEyeOff,
 	IconEye,
@@ -10,6 +11,8 @@ import {
 	IconVolume,
 	IconVolume3,
 	IconPlayerPlayFilled,
+	IconPlayerSkipForwardFilled,
+	IconPlayerPauseFilled,
 } from '@tabler/icons-vue';
 import { useLocalStorage } from '@vueuse/core';
 import {
@@ -23,33 +26,16 @@ import {
 	NGridItem,
 } from 'naive-ui';
 import Plyr from 'plyr';
-import { ref, computed, onMounted, onUnmounted, Ref, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
 defineProps<{
 	showSettingsModal: () => void
 }>();
 
 const player = ref<HTMLVideoElement | null>(null);
-
-const plyr = computed(() => {
-	if (!player.value) return null;
-
-	return new Plyr(player.value);
-});
-
-onMounted(() => {
-	if (!plyr.value) {
-		throw new Error('Plyr is not initialized');
-	}
-});
-
-onUnmounted(() => {
-	if (!plyr.value) return;
-
-	plyr.value!.destroy();
-});
-
 const isPlayerHidden = useLocalStorage('twirPlayerIsHidden', false);
+
+const isPlaying = ref(false);
 
 const isMuted = useLocalStorage('twirPlayerIsMuted', false);
 const volume = useLocalStorage('twirPlayerVolume', 10);
@@ -73,6 +59,60 @@ watch(isMuted, (v) => {
 const sliderVolume = computed(() => {
 	if (isMuted.value) return 0;
 	return volume.value;
+});
+
+const isFirstVideo = ref(true);
+const plyr = computed(() => {
+	if (!player.value) return null;
+
+	const p = new Plyr(player.value, {
+		controls: ['fullscreen', 'settings'],
+		settings: ['quality', 'speed'],
+		hideControls: true,
+		clickToPlay: false,
+	});
+
+	p.on('play', () => {
+		isPlaying.value = true;
+		isFirstVideo.value = false;
+	});
+
+	p.on('pause', () => {
+		isPlaying.value = false;
+	});
+
+	return p;
+});
+onMounted(() => {
+	if (!plyr.value) {
+		throw new Error('Plyr is not initialized');
+	}
+});
+
+onUnmounted(() => plyr.value?.destroy());
+
+const { currentVideo, queue, nextVideo, removeVideo, addVideo } = useVideoQueue(
+	{
+		plyr,
+		initialQueue: [
+			{ id: '1', src: 'https://www.youtube.com/watch?v=2-1ymGpV_1A&list=LL&index=4' },
+			{ id: '1', src: 'https://www.youtube.com/watch?v=BFtseA7Hs4g' },
+		],
+		defaultProvider: 'youtube',
+		onNextVideo: () => {
+			if (isFirstVideo.value) return;
+			plyr.value?.once('ready', () => {
+				plyr.value?.play();
+			});
+		},
+		onRemoveVideo: (video) => {
+			console.log(video);
+		},
+	},
+);
+
+const canSkip = computed(() => {
+	return currentVideo.value != null || queue.value.length >= 1;
 });
 
 const length = ref(0);
@@ -108,11 +148,18 @@ const length = ref(0);
       <n-grid :cols="24" :x-gap="10" style="align-items: center">
         <n-grid-item :span="3">
           <n-space>
-            <n-button size="tiny" text round>
-              <IconPlayerPlayFilled />
+            <n-button
+              size="tiny"
+              text
+              round
+              :disabled="currentVideo == null"
+              @click="isPlaying ? plyr?.pause() : plyr?.play()"
+            >
+              <IconPlayerPlayFilled v-if="!isPlaying" />
+              <IconPlayerPauseFilled v-else />
             </n-button>
-            <n-button size="tiny" text round>
-              <IconPlayerPlayFilled />
+            <n-button size="tiny" text round :disabled="!canSkip" @click="nextVideo">
+              <IconPlayerSkipForwardFilled />
             </n-button>
           </n-space>
         </n-grid-item>
