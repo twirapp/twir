@@ -1,7 +1,9 @@
 <script setup lang='ts'>
 import {
 	IconTrash,
-	IconPlus, IconArrowNarrowUp, IconArrowNarrowDown,
+	IconPlus,
+	IconArrowNarrowUp,
+	IconArrowNarrowDown,
 } from '@tabler/icons-vue';
 import {
 	type FormInst,

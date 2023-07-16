@@ -84,12 +84,30 @@ export const useYoutubeSocket = () => {
 		videos.value = [];
 	};
 
+	const moveVideo = (id: string, newPosition: number) => {
+		console.log(id, newPosition);
+		const currentIndex = videos.value.findIndex(video => video.id === id);
+		const itemToMove = videos.value.splice(currentIndex, 1)[0];
+		videos.value.splice(newPosition, 0, itemToMove);
+
+		videos.value.forEach((video, index) => {
+			video.queuePosition = index+1;
+		});
+
+		const request = JSON.stringify({
+			eventName: 'reorder',
+			data: videos.value,
+		});
+		websocket.send(request);
+	};
+
 	return {
 		videos,
 		currentVideo,
 		nextVideo,
 		deleteVideo,
 		deleteAllVideos,
+		moveVideo,
 	};
 };
 

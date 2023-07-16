@@ -16,7 +16,14 @@ import SettingsModal from '@/components/songRequests/settings.vue';
 const isSettingsModalOpened = ref(false);
 const showSettingsModal = () => isSettingsModalOpened.value = true;
 
-const { videos, currentVideo, nextVideo, deleteVideo, deleteAllVideos } = useYoutubeSocket();
+const {
+	videos,
+	currentVideo,
+	nextVideo,
+	deleteVideo,
+	deleteAllVideos,
+	moveVideo,
+} = useYoutubeSocket();
 </script>
 
 <template>
@@ -33,6 +40,7 @@ const { videos, currentVideo, nextVideo, deleteVideo, deleteAllVideos } = useYou
         :queue="videos"
         @delete-video="(id) => deleteVideo(id)"
         @delete-all-videos="deleteAllVideos"
+        @move-video="(id, index) => moveVideo(id, index)"
       />
     </n-grid-item>
   </n-grid>

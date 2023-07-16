@@ -1,5 +1,9 @@
 <script setup lang='ts'>
-import { IconTrash } from '@tabler/icons-vue';
+import {
+	IconTrash,
+	IconArrowNarrowUp,
+	IconArrowNarrowDown,
+} from '@tabler/icons-vue';
 import {
 	type DataTableCreateSummary,
 	NDataTable,
@@ -10,11 +14,11 @@ import {
 	NCard,
 	NButton,
 } from 'naive-ui';
-import type { TableColumn, SummaryRowData } from 'naive-ui/es/data-table/src/interface';
+import type { TableColumn } from 'naive-ui/es/data-table/src/interface';
 import { h } from 'vue';
 
 import { timeAgo, convertMillisToTime } from '@/components/songRequests/helpers.js';
-import { Video } from '@/components/songRequests/hook.js';
+import type { Video } from '@/components/songRequests/hook.js';
 
 const props = defineProps<{
 	queue: Video[]
@@ -22,6 +26,7 @@ const props = defineProps<{
 const emits = defineEmits<{
 	deleteVideo: [id: string]
 	deleteAllVideos: []
+	moveVideo: [id: string, newPosition: number]
 }>();
 
 const columns: TableColumn<Video>[] = [
@@ -74,9 +79,9 @@ const columns: TableColumn<Video>[] = [
 	{
 		title: '',
 		key: 'actions',
-		width: 25,
-		render(row) {
-			return h(
+		width: 150,
+		render(row, index) {
+			const deleteButton = h(
 				NButton,
 				{
 					size: 'tiny',
@@ -87,6 +92,37 @@ const columns: TableColumn<Video>[] = [
 					default: () => h(IconTrash),
 				},
 			);
+
+			const moveUpButton = h(NButton, {
+				size: 'tiny',
+				type: 'primary',
+				text: true,
+				disabled: index === 0,
+				onClick: () => emits('moveVideo', row.id, index-1),
+			}, {
+				default: () => h(IconArrowNarrowUp),
+			});
+
+			const moveDownButton = h(NButton, {
+				size: 'tiny',
+				type: 'primary',
+				text: true,
+				disabled: index+1 === props.queue.length,
+				onClick: () => emits('moveVideo', row.id, index+1),
+			}, {
+				default: () => h(IconArrowNarrowDown),
+			});
+
+			return h(NSpace, {
+				justify: 'center',
+				align: 'center',
+			}, {
+				default: () => [
+					deleteButton,
+					moveUpButton,
+					moveDownButton,
+				],
+			});
 		},
 	},
 ];
