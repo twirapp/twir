@@ -16,11 +16,11 @@ defineEmits<{
 
 const columns: TableColumn<Video>[] = [
 	{
-		title: '',
+		title: '#',
 		key: 'position',
-		width: 50,
+		width: 25,
 		render(row, index) {
-			return `#${index+1}`;
+			return index+1;
 		},
 	},
 	{
