@@ -51,18 +51,7 @@ const menuOptions: (MenuOption | MenuDividerOption)[] = [
 	{
 		label: 'Song Requests',
 		icon: renderIcon(IconHeadphones),
-		children: [
-			{
-				label: 'Player',
-				icon: renderIcon(IconPlayerPlay),
-				path: '/dashboard/song-requests/player',
-			},
-			{
-				label: 'Settings',
-				icon: renderIcon(IconSettings),
-				path: '/dashboard/song-requests/settings',
-			},
-		],
+		path: '/dashboard/song-requests',
 	},
 	{
 		label: 'Commands',

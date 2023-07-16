@@ -20,7 +20,7 @@ const { videos, currentVideo, nextVideo, deleteVideo } = useYoutubeSocket();
 </script>
 
 <template>
-  <n-grid cols="1 s:1 m:1 l:12 xl:12" :x-gap="15" responsive="screen">
+  <n-grid cols="1 s:1 m:1 l:12 xl:12" :y-gap="15" :x-gap="15" responsive="screen">
     <n-grid-item :span="4">
       <player :current-video="currentVideo" :next-video="videos.length > 1" @next="nextVideo" />
     </n-grid-item>

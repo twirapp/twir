@@ -147,7 +147,7 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 	if song.SongLink.Valid {
 		songLink = song.SongLink.String
 	} else {
-		songLink = fmt.Sprintf("https://youtube.be/%s", song.VideoID)
+		songLink = fmt.Sprintf("https://youtu.be/%s", song.VideoID)
 	}
 
 	if current == "" && song.ID != "" && youtubeSettings.AnnouncePlay != nil && *youtubeSettings.AnnouncePlay {

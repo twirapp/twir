@@ -23,6 +23,7 @@ func (c *YouTube) handleConnect(session *melody.Session) {
 	var currentSongs []model.RequestedSong
 	err := c.services.Gorm.
 		Where(`"channelId" = ? AND "deletedAt" IS NULL`, userId.(string)).
+		Order(`"queuePosition" ASC`).
 		Find(&currentSongs).
 		Error
 

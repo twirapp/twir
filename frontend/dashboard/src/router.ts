@@ -51,7 +51,7 @@ export const router = createRouter({
 					component: () => import('./pages/CommunityRoles.vue'),
 				},
 				{
-					path: '/dashboard/song-requests/player',
+					path: '/dashboard/song-requests',
 					component: () => import('./pages/SongRequests.vue'),
 				},
 			],

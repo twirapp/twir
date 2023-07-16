@@ -1,5 +1,6 @@
 <script setup lang='ts'>
-import { NButton, NDataTable, NTag } from 'naive-ui';
+import { IconDots } from '@tabler/icons-vue';
+import { NDataTable, NTag, NSpin, NSpace, NText } from 'naive-ui';
 import type { TableColumn } from 'naive-ui/es/data-table/src/interface';
 import { h } from 'vue';
 
@@ -59,12 +60,23 @@ const columns: TableColumn<Video>[] = [
 </script>
 
 <template>
-  {{ queue }}
   <n-data-table
     :columns="columns"
     :data="queue"
-    :bordered="false"
-  />
+    bordered
+    bottom-bordered
+    :loading="!queue.length"
+  >
+    <template #loading>
+      <n-space vertical align="center" style="margin-top: 50px;">
+        <n-spin :rotate="false" stroke="#959596">
+          <template #description>
+            <n-text>Waiting for songs</n-text>
+          </template>
+        </n-spin>
+      </n-space>
+    </template>
+  </n-data-table>
 <!--  <n-button v-for="video of queue" :key="video.id" @click="$emit('deleteVideo', video.id)">-->
 <!--    Skip {{ video.id }}-->
 <!--  </n-button>-->

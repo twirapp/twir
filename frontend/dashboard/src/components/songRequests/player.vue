@@ -174,8 +174,8 @@ const formatLabelTime = (v: number) => {
 
     <n-space vertical class="card-content">
       <n-grid :cols="24" :x-gap="10" style="align-items: center; margin-top: 10px; margin-bottom: 10px" responsive="screen">
-        <n-grid-item :span="3">
-          <n-space :wrap-item="false" :wrap="false" align="center">
+        <n-grid-item :span="4">
+          <n-space align="center">
             <n-button
               size="tiny"
               text
@@ -192,7 +192,7 @@ const formatLabelTime = (v: number) => {
               size="tiny"
               text
               round
-              :disabled="!nextVideo"
+              :disabled="currentVideo == null"
               @click="playNext"
             >
               <IconPlayerSkipForwardFilled />
@@ -200,7 +200,7 @@ const formatLabelTime = (v: number) => {
           </n-space>
         </n-grid-item>
 
-        <n-grid-item :span="15">
+        <n-grid-item :span="14">
           <n-slider
             v-model:value="sliderTime"
             :format-tooltip="formatLabelTime"
@@ -254,7 +254,7 @@ const formatLabelTime = (v: number) => {
       </n-list>
       <n-empty v-else description="Waiting for songs">
         <template #icon>
-          <n-spin size="small" />
+          <n-spin size="small" stroke="#959596" />
         </template>
       </n-empty>
     </template>
