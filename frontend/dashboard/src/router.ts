@@ -50,6 +50,10 @@ export const router = createRouter({
 					path: '/dashboard/community/roles',
 					component: () => import('./pages/CommunityRoles.vue'),
 				},
+				{
+					path: '/dashboard/song-requests/player',
+					component: () => import('./pages/SongRequests.vue'),
+				},
 			],
 		},
 	],

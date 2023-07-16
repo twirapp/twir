@@ -6,6 +6,7 @@ import {
 	NText,
 	NModal,
 	NButton,
+	NPopconfirm,
 } from 'naive-ui';
 import { ref } from 'vue';
 
@@ -15,6 +16,7 @@ import type { EditableRole } from '@/components/roles/types.js';
 
 const rolesManager = useRolesManager();
 const { data: roles } = rolesManager.getAll({});
+const rolesDeleter = rolesManager.deleteOne;
 
 const editableRole = ref<EditableRole | null>(null);
 const showModal = ref(false);
@@ -27,7 +29,7 @@ const closeModal = () => showModal.value = false;
 
 <template>
   <n-space align="center" justify="center" vertical>
-    <n-card class="card" size="small" bordered hoverable @click="openModal(null)">
+    <n-card class="card" style="cursor: pointer;" size="small" bordered hoverable @click="openModal(null)">
       <n-space align="center" justify="center" vertical>
         <n-text class="text">
           <IconPlus />
@@ -40,19 +42,23 @@ const closeModal = () => showModal.value = false;
       size="small"
       class="card"
       hoverable
-      @click="openModal(role)"
     >
       <n-space justify="space-between" align="center">
         <n-text class="text">
           {{ role.name }}
         </n-text>
         <n-space>
-          <n-button secondary type="success">
+          <n-button secondary type="success" @click="openModal(role)">
             Edit
           </n-button>
-          <n-button :disabled="role.type === 'CUSTOM'" secondary type="error">
-            Remove
-          </n-button>
+          <n-popconfirm @positive-click="() => rolesDeleter.mutateAsync({ id: role.id })">
+            <template #trigger>
+              <n-button :disabled="role.type !== 'CUSTOM'" secondary type="error">
+                Remove
+              </n-button>
+            </template>
+            Are you sure?
+          </n-popconfirm>
         </n-space>
       </n-space>
     </n-card>
@@ -74,7 +80,6 @@ const closeModal = () => showModal.value = false;
 <style scoped>
 .card {
 	min-width: 400px;
-	cursor: pointer
 }
 
 .card .text {
