@@ -10,8 +10,6 @@ import {
 	NInputNumber,
 	NCheckbox,
 	NCheckboxGroup,
-	NTabs,
-	NTabPane,
 	NButton,
 } from 'naive-ui';
 import { ref, onMounted, toRaw, watch } from 'vue';
@@ -78,74 +76,60 @@ async function save() {
 
 <template>
   <n-form ref="formRef">
-    <n-tabs
-      class="card-tabs"
-      default-value="settings"
-      size="large"
-      animated
-      pane-wrapper-style="margin: 0 -4px"
-      pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;"
-    >
-      <n-tab-pane name="settings" tab="Settings">
-        <n-form-item label="Name">
-          <n-input v-model:value="formValue.name" />
+    <n-form-item label="Name">
+      <n-input v-model:value="formValue.name" />
+    </n-form-item>
+
+    <n-divider>Access to users</n-divider>
+
+    <users-multi-search v-model="searchUsersIds" />
+
+    <n-divider>Access by stats</n-divider>
+
+    <n-grid :cols="12" :x-gap="5">
+      <n-grid-item :span="6">
+        <n-form-item label="Required watch time">
+          <n-input-number
+            v-model:value="formValue.settings!.requiredWatchTime"
+            :min="0" :max="99999999"
+          />
         </n-form-item>
+      </n-grid-item>
 
-        <n-divider>Access to users</n-divider>
+      <n-grid-item :span="6">
+        <n-form-item label="Required messages">
+          <n-input-number
+            v-model:value="formValue.settings!.requiredMessages"
+            :min="0"
+            :max="99999999"
+          />
+        </n-form-item>
+      </n-grid-item>
 
-        <users-multi-search v-model="searchUsersIds" />
+      <n-grid-item :span="6">
+        <n-form-item label="Required used channels points">
+          <n-input-number
+            v-model:value="formValue.settings!.requiredUserChannelPoints"
+            :min="0"
+            :max="999999999999"
+          />
+        </n-form-item>
+      </n-grid-item>
+    </n-grid>
 
-        <n-divider>Access by stats</n-divider>
+    <n-divider>Permissions</n-divider>
 
-        <n-grid :cols="12" :x-gap="5">
-          <n-grid-item :span="6">
-            <n-form-item label="Required watch time">
-              <n-input-number
-                v-model:value="formValue.settings!.requiredWatchTime"
-                :min="0" :max="99999999"
-              />
-            </n-form-item>
-          </n-grid-item>
-
-          <n-grid-item :span="6">
-            <n-form-item label="Required messages">
-              <n-input-number
-                v-model:value="formValue.settings!.requiredMessages"
-                :min="0"
-                :max="99999999"
-              />
-            </n-form-item>
-          </n-grid-item>
-
-          <n-grid-item :span="6">
-            <n-form-item label="Required used channels points">
-              <n-input-number
-                v-model:value="formValue.settings!.requiredUserChannelPoints"
-                :min="0"
-                :max="999999999999"
-              />
-            </n-form-item>
-          </n-grid-item>
-        </n-grid>
-
-        <n-divider>Permissions</n-divider>
-
-        <n-checkbox-group v-model:value="formValue.permissions">
-          <n-grid :cols="12" :x-gap="5">
-            <n-grid-item
-              v-for="(permission) of Object.entries(permissions)"
-              :key="permission[0]"
-              :span="6"
-            >
-              <n-checkbox :value="permission[0]" :label="permission[1]" :style="{ display: permission[1] == '' ? 'none' : undefined }" />
-            </n-grid-item>
-          </n-grid>
-        </n-checkbox-group>
-      </n-tab-pane>
-      <n-tab-pane name="users" tab="Users">
-        Users
-      </n-tab-pane>
-    </n-tabs>
+    <n-checkbox-group v-model:value="formValue.permissions">
+      <n-grid :cols="12" :x-gap="5">
+        <n-grid-item
+          v-for="(permission) of Object.entries(permissions)"
+          :key="permission[0]"
+          :span="6"
+        >
+          <n-checkbox :value="permission[0]" :label="permission[1]" :style="{ display: permission[1] == '' ? 'none' : undefined }" />
+        </n-grid-item>
+      </n-grid>
+    </n-checkbox-group>
 
     <n-divider />
 
