@@ -18,7 +18,7 @@ func (c *Modules) ModulesTTSGet(ctx context.Context, empty *emptypb.Empty) (*mod
 	entity := &model.ChannelModulesSettings{}
 	if err := c.Db.
 		WithContext(ctx).
-		Where(`"dashboardId" = ? AND "type" = ?`, dashboardId, TTSType).
+		Where(`"channelId" = ? AND "type" = ? AND "userId" = ?`, dashboardId, TTSType, nil).
 		First(entity).Error; err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *Modules) ModulesTTSUpdate(
 	entity := &model.ChannelModulesSettings{}
 	if err := c.Db.
 		WithContext(ctx).
-		Where(`"channelId" = ? AND "type" = ?`, dashboardId, TTSType).
+		Where(`"channelId" = ? AND "type" = ? AND "userId" = ?`, dashboardId, TTSType, nil).
 		First(entity).Error; err != nil {
 		return nil, err
 	}

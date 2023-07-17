@@ -70,8 +70,8 @@ function onModalClose() {
 
 <template>
   <div>
-    <div class="header">
-      <div v-if="showHeader">
+    <div v-if="showHeader" class="header">
+      <div>
         <h2>Commands</h2>
       </div>
       <div>

@@ -54,6 +54,10 @@ export const router = createRouter({
 					path: '/dashboard/song-requests',
 					component: () => import('./pages/SongRequests.vue'),
 				},
+				{
+					path: '/dashboard/overlays',
+					component: () => import('./pages/Overlays.vue'),
+				},
 			],
 		},
 	],

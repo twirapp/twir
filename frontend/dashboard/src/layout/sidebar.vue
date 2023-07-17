@@ -42,7 +42,7 @@ const menuOptions: (MenuOption | MenuDividerOption)[] = [
 		path: '/dashboard/events',
 	},
 	{
-		label: 'Overlays',
+		label: 'OBS Overlays',
 		icon: renderIcon(IconDeviceDesktop),
 		path: '/dashboard/overlays',
 	},
