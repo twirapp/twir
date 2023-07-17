@@ -253,7 +253,23 @@ const songsSearchOptions = computed(() => {
       </n-tab-pane>
 
       <n-tab-pane name="translations" tab="Translations">
-        t
+        <div v-for="(key) in Object.keys(formValue.translations)" :key="key">
+          <n-input
+            v-if="typeof formValue.translations[key] === 'string'"
+            v-model:value="formValue.translations[key]"
+            :autosize="{ minRows: 1, maxRows: 6 }"
+          />
+
+          <div v-else>
+            <n-input
+              v-for="(subKey) in Object.keys(formValue.translations[key])"
+              :key="subKey"
+            >
+              {{ subKey }}
+              <n-input v-model:value="formValue.translations[key][subKey]" :placeholder="subKey" />
+            </n-input>
+          </div>
+        </div>
       </n-tab-pane>
     </n-tabs>
   </n-form>
