@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useLocalStorage } from '@vueuse/core';
 import {
 	darkTheme,
 	lightTheme,
@@ -18,7 +19,7 @@ import Sidebar from '@/layout/sidebar.vue';
 const { theme } = useTheme();
 const themeStyles = computed(() => theme.value === 'dark' ? darkTheme : lightTheme);
 
-const sidebarCollapsed = ref(false);
+const sidebarCollapsed = useLocalStorage('twirIsSidebarCollapsed', false);
 const toggleSidebar = () => sidebarCollapsed.value = !sidebarCollapsed.value;
 </script>
 

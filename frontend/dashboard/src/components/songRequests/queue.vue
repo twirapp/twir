@@ -1,8 +1,8 @@
 <script setup lang='ts'>
 import {
 	IconTrash,
-	IconArrowNarrowUp,
-	IconArrowNarrowDown,
+	IconChevronUp,
+	IconChevronDown,
 } from '@tabler/icons-vue';
 import {
 	type DataTableCreateSummary,
@@ -100,7 +100,7 @@ const columns: TableColumn<Video>[] = [
 				disabled: index === 0,
 				onClick: () => emits('moveVideo', row.id, index-1),
 			}, {
-				default: () => h(IconArrowNarrowUp),
+				default: () => h(IconChevronUp),
 			});
 
 			const moveDownButton = h(NButton, {
@@ -110,7 +110,7 @@ const columns: TableColumn<Video>[] = [
 				disabled: index+1 === props.queue.length,
 				onClick: () => emits('moveVideo', row.id, index+1),
 			}, {
-				default: () => h(IconArrowNarrowDown),
+				default: () => h(IconChevronDown),
 			});
 
 			return h(NSpace, {

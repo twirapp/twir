@@ -14,6 +14,7 @@ import { ref, onMounted, toRaw } from 'vue';
 
 import { useGreetingsManager } from '@/api/index.js';
 import type { EditableGreeting } from '@/components/greetings/types.js';
+import TextWithVariables from '@/components/textWithVariables.vue';
 import TwitchUserSearch from '@/components/twitchUsers/single.vue';
 
 const props = defineProps<{
@@ -97,7 +98,7 @@ const rules: FormRules = {
         />
       </n-form-item>
       <n-form-item label="Text" path="text">
-        <n-input v-model:value="formValue.text" />
+        <text-with-variables v-model="formValue.text" />
       </n-form-item>
 
       <n-form-item label="Use twitch reply" path="text">

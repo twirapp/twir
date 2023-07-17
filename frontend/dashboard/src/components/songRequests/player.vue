@@ -36,6 +36,7 @@ import { Video } from '@/components/songRequests/hook.js';
 const props = defineProps<{
 	currentVideo: Video | null
 	nextVideo: boolean
+	openSettingsModal: () => void
 }>();
 
 const emits = defineEmits<{
@@ -162,7 +163,7 @@ const formatLabelTime = (v: number) => {
           <IconEyeOff v-if="playerDisplay === 'block'" />
           <IconEye v-else />
         </n-button>
-        <n-button tertiary size="small" @click="() => {}">
+        <n-button tertiary size="small" @click="openSettingsModal">
           <IconSettings />
         </n-button>
       </n-space>

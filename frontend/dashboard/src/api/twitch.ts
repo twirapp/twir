@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/vue-query';
 import { TwitchGetUsersResponse } from '@twir/grpc/generated/api/api/twitch';
 import { Ref, isRef } from 'vue';
 
-import { unprotectedApiClient } from '@/api/twirp.js';
+import { unprotectedApiClient, protectedApiClient } from '@/api/twirp.js';
 
 type Response = Awaited<ReturnType<typeof unprotectedApiClient.twitchGetUsers>['response']>
 
@@ -51,6 +51,14 @@ export const useTwitchSearchChannels = (query: string | Ref<string>) => useQuery
 			query: rawQuery,
 		});
 
+		return call.response;
+	},
+});
+
+export const useTwitchRewards = () => useQuery({
+	queryKey: ['twitchRewards'],
+	queryFn: async () => {
+		const call = await protectedApiClient.rewardsGet({});
 		return call.response;
 	},
 });

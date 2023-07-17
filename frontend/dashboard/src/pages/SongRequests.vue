@@ -3,8 +3,6 @@ import {
 	NGrid,
 	NGridItem,
 	NModal,
-	NSpace,
-	NButton,
 } from 'naive-ui';
 import { ref } from 'vue';
 
@@ -14,7 +12,7 @@ import VideosQueue from '@/components/songRequests/queue.vue';
 import SettingsModal from '@/components/songRequests/settings.vue';
 
 const isSettingsModalOpened = ref(false);
-const showSettingsModal = () => isSettingsModalOpened.value = true;
+const openSettingsModal = () => isSettingsModalOpened.value = true;
 
 const {
 	videos,
@@ -31,7 +29,9 @@ const {
     <n-grid-item :span="4">
       <player
         :current-video="currentVideo"
-        :next-video="videos.length > 1" @next="nextVideo"
+        :next-video="videos.length > 1"
+        :open-settings-modal="openSettingsModal"
+        @next="nextVideo"
       />
     </n-grid-item>
 
