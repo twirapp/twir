@@ -1,13 +1,5 @@
 <script setup lang='ts'>
 import { IconPlus } from '@tabler/icons-vue';
-import {
-	NCard,
-	NSpace,
-	NText,
-	NModal,
-	NButton,
-	NPopconfirm,
-} from 'naive-ui';
 import { ref } from 'vue';
 
 import { useRolesManager } from '@/api/index.js';

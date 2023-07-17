@@ -3,11 +3,6 @@ import { useLocalStorage } from '@vueuse/core';
 import {
 	darkTheme,
 	lightTheme,
-	NLayout,
-	NLayoutHeader,
-	NLayoutContent,
-	NLayoutSider,
-	NConfigProvider,
 } from 'naive-ui';
 import { computed, ref } from 'vue';
 import { RouterView } from 'vue-router';

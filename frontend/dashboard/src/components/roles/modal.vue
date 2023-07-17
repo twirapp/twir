@@ -1,16 +1,6 @@
 <script setup lang='ts'>
 import {
 	type FormInst,
-	NInput,
-	NForm,
-	NFormItem,
-	NDivider,
-	NGrid,
-	NGridItem,
-	NInputNumber,
-	NCheckbox,
-	NCheckboxGroup,
-	NButton,
 } from 'naive-ui';
 import { ref, onMounted, toRaw, watch } from 'vue';
 

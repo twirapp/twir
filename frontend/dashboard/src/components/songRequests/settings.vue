@@ -1,19 +1,6 @@
 <script setup lang='ts'>
 import { useDebounce } from '@vueuse/core';
-import {
-	type SelectOption,
-	NTabs,
-	NTabPane,
-	NSpace,
-	NSwitch,
-	NText,
-	NInput,
-	NInputNumber,
-	NForm,
-	NFormItem,
-	NSelect,
-	NAvatar,
-} from 'naive-ui';
+import { NSpace, SelectOption, NAvatar, NText } from 'naive-ui';
 import { ref, computed, VNodeChild, h } from 'vue';
 
 import { useTwitchRewards, useYoutubeVideoOrChannelSearch, YoutubeSearchType } from '@/api/index.js';

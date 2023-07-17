@@ -1,6 +1,4 @@
 <script setup lang='ts'>
-import { NTable } from 'naive-ui';
-
 import Donatello from '@/components/integrations/donatello.vue';
 import Donatepay from '@/components/integrations/donatepay.vue';
 import Donatestream from '@/components/integrations/donatestream.vue';

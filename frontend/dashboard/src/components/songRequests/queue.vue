@@ -5,14 +5,7 @@ import {
 	IconChevronDown,
 } from '@tabler/icons-vue';
 import {
-	type DataTableCreateSummary,
-	NDataTable,
-	NTag,
-	NSpin,
-	NSpace,
-	NText,
-	NCard,
-	NButton,
+	type DataTableCreateSummary, NButton, NTag, NSpace,
 } from 'naive-ui';
 import type { TableColumn } from 'naive-ui/es/data-table/src/interface';
 import { h } from 'vue';
@@ -166,7 +159,7 @@ const createSummary: DataTableCreateSummary<Video> = (pageData) => {
       :data="queue"
       :loading="!queue.length"
       :bordered="false"
-      :summary="createSummary"
+      :summary="createSummary as any"
     >
       <template #loading>
         <n-space vertical align="center" style="margin-top: 50px;">

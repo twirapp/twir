@@ -1,6 +1,5 @@
 <script setup lang='ts'>
 import { IconVariable } from '@tabler/icons-vue';
-import { NText, NInput, NSelect, NInputGroup, NButton, NPopselect } from 'naive-ui';
 import { type SelectMixedOption } from 'naive-ui/es/select/src/interface';
 import { computed, VNodeChild, h, defineModel, FunctionalComponent, defineSlots } from 'vue';
 

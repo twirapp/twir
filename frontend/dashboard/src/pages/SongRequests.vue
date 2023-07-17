@@ -1,9 +1,4 @@
 <script setup lang='ts'>
-import {
-	NGrid,
-	NGridItem,
-	NModal,
-} from 'naive-ui';
 import { ref } from 'vue';
 
 import { useYoutubeSocket } from '@/components/songRequests/hook.js';

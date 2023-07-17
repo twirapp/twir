@@ -1,8 +1,6 @@
 <script setup lang='ts'>
 import { IconLogin, IconLogout } from '@tabler/icons-vue';
-import { NButton, NTooltip, NAvatar, NText, NTag } from 'naive-ui';
 import type { FunctionalComponent } from 'vue';
-import { defineSlots } from 'vue';
 
 const props = withDefaults(defineProps<{
 	name: string,

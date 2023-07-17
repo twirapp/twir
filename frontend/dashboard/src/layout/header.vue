@@ -1,7 +1,6 @@
 <script setup lang='ts'>
 
 import { IconMenu2, IconSun, IconMoon, IconLogout } from '@tabler/icons-vue';
-import { NButton, NDropdown, NAvatar, NSpin, NText, NH4 } from 'naive-ui';
 import type { DropdownOption } from 'naive-ui';
 
 import { useProfile, useLogout } from '@/api/index.js';

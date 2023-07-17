@@ -1,6 +1,5 @@
 <script setup lang='ts'>
 import { useTimeout } from '@vueuse/core';
-import { NInputGroup, NButton, NInput, NText } from 'naive-ui';
 
 import { copyToClipBoard } from '@/helpers/index.js';
 

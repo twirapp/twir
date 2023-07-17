@@ -2,34 +2,15 @@
 import {
 	IconShieldHalfFilled,
 	IconTrash,
-	IconDeviceFloppy,
 	IconArrowNarrowUp,
 	IconArrowNarrowDown,
 	IconPlus,
 } from '@tabler/icons-vue';
-import type { Command, Command_Response } from '@twir/grpc/generated/api/api/commands';
+import type { Command } from '@twir/grpc/generated/api/api/commands';
 import {
-	NForm,
-	NFormItem,
-	FormInst,
-	FormRules,
-	FormItemRule,
-	NInput,
-	NDynamicTags,
-	NGrid,
-	NGridItem,
-	NDivider,
-	NInputGroup,
-	NInputGroupLabel,
-	NDynamicInput,
-	NSelect,
-	NInputNumber,
-	NCard,
-	NSwitch,
-	NSpace,
-	NAlert,
-	NText,
-	NButton,
+	type FormInst,
+	type FormRules,
+	type FormItemRule,
 } from 'naive-ui';
 import { ref, reactive, onMounted, computed, toRaw } from 'vue';
 

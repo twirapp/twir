@@ -1,13 +1,6 @@
 <script setup lang='ts'>
 import {
-	type PaginationProps,
-	NAvatar,
-	NDataTable,
-	NTag,
-	NPagination,
-	NSpace,
-	NButton,
-	NPopconfirm,
+	type PaginationProps, NTag, NAvatar, NPagination,
 } from 'naive-ui';
 import type { TableColumn } from 'naive-ui/es/data-table/src/interface';
 import { ref, computed, h } from 'vue';

@@ -3,13 +3,6 @@ import { IconPencil, IconTrash } from '@tabler/icons-vue';
 import type { Keyword } from '@twir/grpc/generated/api/api/keywords';
 import {
 	type DataTableColumns,
-	NDataTable,
-	NSpace,
-	NTag,
-	NSwitch,
-	NButton,
-	NPopconfirm,
-	NModal,
 } from 'naive-ui';
 import { h, ref } from 'vue';
 

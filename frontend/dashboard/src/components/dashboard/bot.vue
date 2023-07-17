@@ -1,5 +1,4 @@
 <script setup lang='ts'>
-import { NCard, NAlert, NSkeleton, NButton, NSpin } from 'naive-ui';
 import { ref, watch } from 'vue';
 
 import { useBotInfo, useBotJoinPart } from '@/api/index.js';
@@ -49,7 +48,7 @@ watch(isFetching, (value) => {
         :disabled="isStateButtonDisabled"
         @click="changeBotState"
       >
-				{{ data?.enabled ? 'Leave' : 'Join' }}
+        {{ data?.enabled ? 'Leave' : 'Join' }}
       </n-button>
     </template>
   </n-card>
