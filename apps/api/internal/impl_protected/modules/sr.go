@@ -19,7 +19,7 @@ import (
 const SrType = "youtube_song_requests"
 
 func getThumbNailUrl(url string) string {
-	return strings.Replace(url, "http", "https", 1)
+	return strings.Replace(url, "http://", "https://", 1)
 }
 
 func (c *Modules) ModulesSRGet(

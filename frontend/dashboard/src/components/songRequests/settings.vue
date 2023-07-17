@@ -71,6 +71,12 @@ const formValue = ref<YouTubeSettings>({
 	},
 });
 
+watch(youtubeModuleSettings, async (v) => {
+	if (!v) return;
+
+	formValue.value = v;
+});
+
 async function save() {
 	const data = unref(formValue);
 
@@ -122,6 +128,7 @@ const selectedChannels = useYoutubeVideoOrChannelSearch(
 	channelsIds,
 	YoutubeSearchType.Channel,
 );
+
 const channelsOptions = computed(() => {
 	return selectedChannels?.data?.value?.items.map((channel) => {
 		return {
@@ -134,8 +141,12 @@ const channelsOptions = computed(() => {
 
 const songsSearchValue = ref('');
 const songsSearchDebounced = useDebounce(songsSearchValue, 500);
+
+const songsIds = computed(() => {
+	return [...formValue!.value!.denyList!.songs, songsSearchDebounced.value];
+});
 const songsSearch = useYoutubeVideoOrChannelSearch(
-	songsSearchDebounced,
+	songsIds,
 	YoutubeSearchType.Video,
 );
 const songsSearchOptions = computed(() => {
@@ -146,13 +157,6 @@ const songsSearchOptions = computed(() => {
 			image: channel.thumbnail,
 		};
 	}) ?? [];
-});
-
-watch(youtubeModuleSettings, async (v) => {
-	if (!v) return;
-
-	formValue.value = v;
-	// await initialChannels.refetch();
 });
 </script>
 
@@ -206,6 +210,7 @@ watch(youtubeModuleSettings, async (v) => {
               :options="channelsOptions"
               clearable
               multiple
+              :clear-filter-after-select="false"
               :render-label="renderSelectOption as any"
               @search="(v) => channelsSearchValue = v"
             />
