@@ -14,7 +14,6 @@ replace github.com/satont/twir/libs/twitch => ../../libs/twitch
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
-	github.com/SherlockYigit/youtube-go v1.0.0
 	github.com/alexedwards/scs/goredisstore v0.0.0-20230327161757-10d4299e3b24
 	github.com/alexedwards/scs/v2 v2.5.1
 	github.com/bytedance/sonic v1.9.1
@@ -22,6 +21,7 @@ require (
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/imroc/req/v3 v3.37.2
 	github.com/nicklaw5/helix/v2 v2.22.2
+	github.com/raitonoberu/ytsearch v0.2.0
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/rs/cors v1.9.0
 	github.com/samber/lo v1.38.1

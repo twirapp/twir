@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/google/uuid"
-	"github.com/kr/pretty"
+	"github.com/raitonoberu/ytsearch"
 	"github.com/samber/lo"
 	loParallel "github.com/samber/lo/parallel"
 	model "github.com/satont/twir/libs/gomodels"
@@ -14,11 +14,13 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"strings"
 	"sync"
-
-	ytsr "github.com/SherlockYigit/youtube-go"
 )
 
 const SrType = "youtube_song_requests"
+
+func getThumbNailUrl(url string) string {
+	return strings.Replace(url, "http", "https", 1)
+}
 
 func (c *Modules) ModulesSRGet(
 	ctx context.Context,
@@ -105,8 +107,6 @@ func (c *Modules) ModulesSRSearchVideosOrChannels(
 		Items: make([]*modules_sr.GetSearchResponse_Result, 0, len(request.Query)),
 	}
 
-	pretty.Println(request.Type.String())
-
 	if len(request.Query) == 0 {
 		return response, nil
 	}
@@ -117,27 +117,50 @@ func (c *Modules) ModulesSRSearchVideosOrChannels(
 		if query == "" {
 			return
 		}
-		res, err := ytsr.Search(query, ytsr.SearchOptions{
-			Type: strings.ToLower(request.Type.String()),
-		})
+
+		var search *ytsearch.SearchClient
+		if request.Type == modules_sr.GetSearchRequest_CHANNEL {
+			search = ytsearch.ChannelSearch(query)
+		} else {
+			search = ytsearch.VideoSearch(query)
+		}
+
+		res, err := search.Next()
 		if err != nil {
 			zap.S().Error(err)
 			return
 		}
+
 		mu.Lock()
 		defer mu.Unlock()
-
-		response.Items = append(
-			response.Items,
-			lo.Map(res, func(item ytsr.SearchResult, _ int) *modules_sr.GetSearchResponse_Result {
-				isVideo := item.Video.Id != ""
+		if request.Type == modules_sr.GetSearchRequest_CHANNEL {
+			channels := lo.Map(res.Channels, func(item *ytsearch.ChannelItem, _ int) *modules_sr.GetSearchResponse_Result {
+				thumb := getThumbNailUrl(item.Thumbnails[len(item.Thumbnails)-1].URL)
 				return &modules_sr.GetSearchResponse_Result{
-					Id:        lo.If(isVideo, item.Video.Id).Else(item.Channel.Id),
-					Title:     lo.If(isVideo, item.Video.Title).Else(item.Channel.Name),
-					Thumbnail: lo.If(isVideo, item.Video.Thumbnail.Url).Else(item.Channel.Icon.Url),
+					Id:        item.ID,
+					Title:     item.Title,
+					Thumbnail: thumb,
 				}
-			})...,
-		)
+			})
+			response.Items = append(
+				response.Items,
+				channels...,
+			)
+		} else {
+			videos := lo.Map(res.Videos, func(item *ytsearch.VideoItem, _ int) *modules_sr.GetSearchResponse_Result {
+				thumb := getThumbNailUrl(item.Thumbnails[len(item.Thumbnails)-1].URL)
+
+				return &modules_sr.GetSearchResponse_Result{
+					Id:        item.ID,
+					Title:     item.Title,
+					Thumbnail: thumb,
+				}
+			})
+			response.Items = append(
+				response.Items,
+				videos...,
+			)
+		}
 	})
 
 	return response, nil

@@ -1,7 +1,5 @@
 github.com/Masterminds/squirrel v1.5.4 h1:uUcX/aBc8O7Fg9kaISIUsHXdKuqehiXAMQTYX8afzqM=
 github.com/Masterminds/squirrel v1.5.4/go.mod h1:NNaOrjSoIDfDA40n7sr2tPNZRfjzjA400rg+riTZj10=
-github.com/SherlockYigit/youtube-go v1.0.0 h1:/GnStyJGlEcRCt/+D9sVhhY4288+wKcXUJfMKb7NXxE=
-github.com/SherlockYigit/youtube-go v1.0.0/go.mod h1:MsnPpZ9QQSV4/+s1idsMR7SLBpzVf3MbkPvr3v9+5OY=
 github.com/alexedwards/scs/goredisstore v0.0.0-20230327161757-10d4299e3b24 h1:HNHty4IpD0R0IQM3nGc5SoUmce6NOXoff28QTQa6Wcc=
 github.com/alexedwards/scs/goredisstore v0.0.0-20230327161757-10d4299e3b24/go.mod h1:ovMqA1cbRPYuGLSeyFGmD8HbbfzN5hXG4WahAmkf/5A=
 github.com/alexedwards/scs/v2 v2.5.1 h1:EhAz3Kb3OSQzD8T+Ub23fKsiuvE0GzbF5Lgn0uTwM3Y=
@@ -95,6 +93,8 @@ github.com/quic-go/qtls-go1-20 v0.2.2 h1:WLOPx6OY/hxtTxKV1Zrq20FtXtDEkeY00CGQm8G
 github.com/quic-go/qtls-go1-20 v0.2.2/go.mod h1:JKtK6mjbAVcUTN/9jZpvLbGxvdWIKS8uT7EiStoU1SM=
 github.com/quic-go/quic-go v0.35.1 h1:b0kzj6b/cQAf05cT0CkQubHM31wiA+xH3IBkxP62poo=
 github.com/quic-go/quic-go v0.35.1/go.mod h1:+4CVgVppm0FNjpG3UcX8Joi/frKOH7/ciD5yGcwOO1g=
+github.com/raitonoberu/ytsearch v0.2.0 h1:pOkkBuOiqCyKycWq1AAmhjfB+MlBNMvhHY8YEywP2ck=
+github.com/raitonoberu/ytsearch v0.2.0/go.mod h1:3jxsFXvol6AqYoMmIQ4VmAGWDP0vN7D99Qx863nsLzI=
 github.com/redis/go-redis/v9 v9.0.2/go.mod h1:/xDTe9EF1LM61hek62Poq2nzQSGj0xSrEtEHbBQevps=
 github.com/redis/go-redis/v9 v9.0.5 h1:CuQcn5HIEeK7BgElubPP8CGtE0KakrnbBSTLjathl5o=
 github.com/redis/go-redis/v9 v9.0.5/go.mod h1:WqMKv5vnQbRuZstUwxQI195wHy+t4PuXDOjzMvcuQHk=
