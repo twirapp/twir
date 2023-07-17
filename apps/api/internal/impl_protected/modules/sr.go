@@ -3,12 +3,17 @@ package modules
 import (
 	"context"
 	"encoding/json"
+	"github.com/google/uuid"
+	"github.com/kr/pretty"
 	"github.com/samber/lo"
+	loParallel "github.com/samber/lo/parallel"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/modules_sr"
 	"github.com/satont/twir/libs/types/types/api/modules"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"strings"
+	"sync"
 
 	ytsr "github.com/SherlockYigit/youtube-go"
 )
@@ -43,7 +48,7 @@ func (c *Modules) ModulesSRGet(
 			NeededVotesVorSkip:    float32(settings.NeededVotesVorSkip),
 			User: &modules_sr.YouTubeUserSettings{
 				MaxRequests:   int32(settings.User.MaxRequests),
-				MinWatchTime:  settings.User.MinWatchTime,
+				MinWatchTime:  int32(settings.User.MinWatchTime),
 				MinMessages:   int32(settings.User.MinMessages),
 				MinFollowTime: int32(settings.User.MinFollowTime),
 			},
@@ -54,35 +59,9 @@ func (c *Modules) ModulesSRGet(
 				AcceptedCategories: settings.Song.AcceptedCategories,
 			},
 			DenyList: &modules_sr.YouTubeDenyList{
-				Users: lo.Map(
-					settings.DenyList.Users,
-					func(user modules.YouTubeDenySettingsUsers, _ int) *modules_sr.YouTubeDenySettingsUsers {
-						return &modules_sr.YouTubeDenySettingsUsers{
-							UserId:   user.UserID,
-							UserName: user.UserName,
-						}
-					},
-				),
-				Songs: lo.Map(
-					settings.DenyList.Songs,
-					func(song modules.YouTubeDenySettingsSongs, _ int) *modules_sr.YouTubeDenySettingsSongs {
-						return &modules_sr.YouTubeDenySettingsSongs{
-							Id:        song.ID,
-							Title:     song.Title,
-							Thumbnail: song.ThumbNail,
-						}
-					},
-				),
-				Channels: lo.Map(
-					settings.DenyList.Channels,
-					func(channel modules.YouTubeDenySettingsChannels, _ int) *modules_sr.YouTubeDenySettingsChannels {
-						return &modules_sr.YouTubeDenySettingsChannels{
-							Id:        channel.ID,
-							Title:     channel.Title,
-							Thumbnail: channel.ThumbNail,
-						}
-					},
-				),
+				Users:        settings.DenyList.Users,
+				Songs:        settings.DenyList.Songs,
+				Channels:     settings.DenyList.Channels,
 				ArtistsNames: settings.DenyList.ArtistsNames,
 			},
 			Translations: &modules_sr.YouTubeTranslations{
@@ -122,23 +101,46 @@ func (c *Modules) ModulesSRSearchVideosOrChannels(
 	_ context.Context,
 	request *modules_sr.GetSearchRequest,
 ) (*modules_sr.GetSearchResponse, error) {
-	res, err := ytsr.Search(request.Query, ytsr.SearchOptions{
-		Type: strings.ToLower(request.Type.String()),
-	})
-	if err != nil {
-		return nil, err
+	response := &modules_sr.GetSearchResponse{
+		Items: make([]*modules_sr.GetSearchResponse_Result, 0, len(request.Query)),
 	}
 
-	return &modules_sr.GetSearchResponse{
-		Items: lo.Map(res, func(item ytsr.SearchResult, _ int) *modules_sr.GetSearchResponse_Result {
-			isVideo := item.Video.Id != ""
-			return &modules_sr.GetSearchResponse_Result{
-				Id:        lo.If(isVideo, item.Video.Id).Else(item.Channel.Id),
-				Title:     lo.If(isVideo, item.Video.Title).Else(item.Channel.Name),
-				Thumbnail: lo.If(isVideo, item.Video.Thumbnail.Url).Else(item.Channel.Icon.Url),
-			}
-		}),
-	}, nil
+	pretty.Println(request.Type.String())
+
+	if len(request.Query) == 0 {
+		return response, nil
+	}
+
+	var mu sync.Mutex
+
+	loParallel.ForEach(request.Query, func(query string, _ int) {
+		if query == "" {
+			return
+		}
+		res, err := ytsr.Search(query, ytsr.SearchOptions{
+			Type: strings.ToLower(request.Type.String()),
+		})
+		if err != nil {
+			zap.S().Error(err)
+			return
+		}
+		mu.Lock()
+		defer mu.Unlock()
+
+		response.Items = append(
+			response.Items,
+			lo.Map(res, func(item ytsr.SearchResult, _ int) *modules_sr.GetSearchResponse_Result {
+				isVideo := item.Video.Id != ""
+				return &modules_sr.GetSearchResponse_Result{
+					Id:        lo.If(isVideo, item.Video.Id).Else(item.Channel.Id),
+					Title:     lo.If(isVideo, item.Video.Title).Else(item.Channel.Name),
+					Thumbnail: lo.If(isVideo, item.Video.Thumbnail.Url).Else(item.Channel.Icon.Url),
+				}
+			})...,
+		)
+	})
+
+	return response, nil
 }
 
 func (c *Modules) ModulesSRUpdate(
@@ -150,9 +152,16 @@ func (c *Modules) ModulesSRUpdate(
 	if err := c.Db.
 		WithContext(ctx).
 		Where(`"channelId" = ? AND "type" = ?`, dashboardId, SrType).
-		First(entity).Error; err != nil {
+		Find(entity).Error; err != nil {
 		return nil, err
 	}
+
+	if entity.ID == "" {
+		entity.ID = uuid.New().String()
+	}
+
+	entity.ChannelId = dashboardId
+	entity.Type = SrType
 
 	settings := &modules.YouTubeSettings{
 		Enabled:               &request.Data.Enabled,
@@ -163,7 +172,7 @@ func (c *Modules) ModulesSRUpdate(
 		NeededVotesVorSkip:    float64(request.Data.NeededVotesVorSkip),
 		User: modules.YouTubeUserSettings{
 			MaxRequests:   int(request.Data.User.MaxRequests),
-			MinWatchTime:  request.Data.User.MinWatchTime,
+			MinWatchTime:  int64(request.Data.User.MinWatchTime),
 			MinMessages:   int(request.Data.User.MinMessages),
 			MinFollowTime: int(request.Data.User.MinFollowTime),
 		},
@@ -174,35 +183,9 @@ func (c *Modules) ModulesSRUpdate(
 			AcceptedCategories: request.Data.Song.AcceptedCategories,
 		},
 		DenyList: modules.YouTubeDenyList{
-			Users: lo.Map(
-				request.Data.DenyList.Users,
-				func(user *modules_sr.YouTubeDenySettingsUsers, _ int) modules.YouTubeDenySettingsUsers {
-					return modules.YouTubeDenySettingsUsers{
-						UserID:   user.UserId,
-						UserName: user.UserName,
-					}
-				},
-			),
-			Songs: lo.Map(
-				request.Data.DenyList.Songs,
-				func(song *modules_sr.YouTubeDenySettingsSongs, _ int) modules.YouTubeDenySettingsSongs {
-					return modules.YouTubeDenySettingsSongs{
-						ID:        song.Id,
-						Title:     song.Title,
-						ThumbNail: song.Thumbnail,
-					}
-				},
-			),
-			Channels: lo.Map(
-				request.Data.DenyList.Channels,
-				func(channel *modules_sr.YouTubeDenySettingsChannels, _ int) modules.YouTubeDenySettingsChannels {
-					return modules.YouTubeDenySettingsChannels{
-						ID:        channel.Id,
-						Title:     channel.Title,
-						ThumbNail: channel.Thumbnail,
-					}
-				},
-			),
+			Users:        request.Data.DenyList.Users,
+			Songs:        request.Data.DenyList.Songs,
+			Channels:     request.Data.DenyList.Channels,
 			ArtistsNames: request.Data.DenyList.ArtistsNames,
 		},
 		Translations: modules.YouTubeTranslations{

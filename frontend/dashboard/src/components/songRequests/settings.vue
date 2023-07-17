@@ -1,12 +1,21 @@
 <script setup lang='ts'>
+import type { YouTubeSettings } from '@twir/grpc/generated/api/api/modules_sr';
 import { useDebounce } from '@vueuse/core';
-import { NSpace, SelectOption, NAvatar, NText } from 'naive-ui';
-import { ref, computed, VNodeChild, h } from 'vue';
+import { NSpace, SelectOption, NAvatar, NText  } from 'naive-ui';
+import { ref, computed, VNodeChild, h, watch, unref, toRaw, reactive } from 'vue';
 
 import { useTwitchRewards, useYoutubeVideoOrChannelSearch, YoutubeSearchType } from '@/api/index.js';
+import { useYoutubeModuleSettings } from '@/api/index.js';
 import TwitchSearchUsers from '@/components/twitchUsers/multiple.vue';
 
-const formValue = ref({
+const youtubeModuleManager = useYoutubeModuleSettings();
+const youtubeModuleData = youtubeModuleManager.getAll();
+const youtubeModuleSettings = computed(() => {
+	return youtubeModuleData.data?.value?.data ?? null;
+});
+const youtubeModuleUpdater = youtubeModuleManager.update();
+
+const formValue = ref<YouTubeSettings>({
 	enabled: true,
 	acceptOnlyWhenOnline: true,
 	channelPointsRewardId: '',
@@ -62,6 +71,12 @@ const formValue = ref({
 	},
 });
 
+async function save() {
+	const data = unref(formValue);
+
+	await youtubeModuleUpdater.mutateAsync({ data });
+}
+
 const twitchRewards = useTwitchRewards();
 const rewardsOptions = computed(() => {
 	return twitchRewards.data?.value?.rewards.map((reward) => {
@@ -99,18 +114,22 @@ const renderSelectOption = (option: SelectOption & { image: string }): VNodeChil
 
 const channelsSearchValue = ref('');
 const channelsSearchDebounced = useDebounce(channelsSearchValue, 500);
-const channelsSearch = useYoutubeVideoOrChannelSearch(
-	channelsSearchDebounced,
+
+const channelsIds = computed(() => {
+	return [...formValue!.value!.denyList!.channels, channelsSearchDebounced.value];
+});
+const selectedChannels = useYoutubeVideoOrChannelSearch(
+	channelsIds,
 	YoutubeSearchType.Channel,
 );
-const channelsSearchOptions = computed(() => {
-	return channelsSearch.data?.value?.items.map((channel) => {
+const channelsOptions = computed(() => {
+	return selectedChannels?.data?.value?.items.map((channel) => {
 		return {
 			label: channel.title,
 			value: channel.id,
 			image: channel.thumbnail,
 		};
-	}) ?? [];
+	});
 });
 
 const songsSearchValue = ref('');
@@ -127,6 +146,13 @@ const songsSearchOptions = computed(() => {
 			image: channel.thumbnail,
 		};
 	}) ?? [];
+});
+
+watch(youtubeModuleSettings, async (v) => {
+	if (!v) return;
+
+	formValue.value = v;
+	// await initialChannels.refetch();
 });
 </script>
 
@@ -166,17 +192,20 @@ const songsSearchOptions = computed(() => {
               :options="rewardsOptions"
               :render-label="renderSelectOption as any"
               clearable
+              :disabled="twitchRewards.isError.value"
             />
           </n-form-item>
 
           <n-form-item label="Denied channels" path="channelPointsRewardId">
+            {{ formValue.denyList!.channels }}
             <n-select
-              v-model:value="formValue.denyList.channels"
-              :loading="channelsSearch.isLoading.value"
+              v-model:value="formValue.denyList!.channels"
+              :loading="selectedChannels.isLoading.value"
               remote
               filterable
-              :options="channelsSearchOptions"
+              :options="channelsOptions"
               clearable
+              multiple
               :render-label="renderSelectOption as any"
               @search="(v) => channelsSearchValue = v"
             />
@@ -186,29 +215,29 @@ const songsSearchOptions = computed(() => {
 
       <n-tab-pane name="users" tab="Users">
         <n-form-item label="Maximum songs by user in queue" path="user.maxRequests">
-          <n-input-number v-model:value="formValue.user.maxRequests" :min="0" :max="1000" />
+          <n-input-number v-model:value="formValue.user!.maxRequests" :min="0" :max="1000" />
         </n-form-item>
         <n-form-item
           label="Minimal watch time of user for request song (minutes)"
           path="user.minWatchTime"
         >
-          <n-input-number v-model:value="formValue.user.minWatchTime" :min="0" :max="999999999" />
+          <n-input-number v-model:value="formValue.user!.minWatchTime" :min="0" :max="999999999" />
         </n-form-item>
         <n-form-item
           label="Minimal messages by user for request song"
           path="user.minMessages"
         >
-          <n-input-number v-model:value="formValue.user.minMessages" :min="0" :max="999999999" />
+          <n-input-number v-model:value="formValue.user!.minMessages" :min="0" :max="999999999" />
         </n-form-item>
         <n-form-item
           label="Minimal follow time for request song (minutes)"
           path="user.minFollowTime"
         >
-          <n-input-number v-model:value="formValue.user.minFollowTime" :min="0" :max="99999999999999" />
+          <n-input-number v-model:value="formValue.user!.minFollowTime" :min="0" :max="99999999999999" />
         </n-form-item>
 
         <n-form-item label="Denied users for requests">
-          <twitch-search-users v-model="formValue.denyList.users" />
+          <twitch-search-users v-model="formValue.denyList!.users" />
         </n-form-item>
       </n-tab-pane>
 
@@ -217,17 +246,17 @@ const songsSearchOptions = computed(() => {
           <n-input-number v-model:value="formValue.maxRequests" :min="0" :max="99999999999999" />
         </n-form-item>
         <n-form-item label="Min length of song for request (minutes)">
-          <n-input-number v-model:value="formValue.song.minLength" :min="0" :max="99999999999999" />
+          <n-input-number v-model:value="formValue.song!.minLength" :min="0" :max="99999999999999" />
         </n-form-item>
         <n-form-item label="Max length of song for request (minutes)">
-          <n-input-number v-model:value="formValue.song.maxLength" :min="0" :max="99999999999999" />
+          <n-input-number v-model:value="formValue.song!.maxLength" :min="0" :max="99999999999999" />
         </n-form-item>
         <n-form-item label="Minimal views on song for request">
-          <n-input-number v-model:value="formValue.song.minViews" :min="0" :max="99999999999999" />
+          <n-input-number v-model:value="formValue.song!.minViews" :min="0" :max="99999999999999" />
         </n-form-item>
         <n-form-item label="Denied songs for request">
           <n-select
-            v-model:value="formValue.denyList.songs"
+            v-model:value="formValue.denyList!.songs"
             :loading="songsSearch.isLoading.value"
             remote
             filterable
@@ -241,24 +270,35 @@ const songsSearchOptions = computed(() => {
 
       <n-tab-pane name="translations" tab="Translations">
         <div v-for="(key) in Object.keys(formValue.translations)" :key="key">
-          <n-input
-            v-if="typeof formValue.translations[key] === 'string'"
-            v-model:value="formValue.translations[key]"
-            :autosize="{ minRows: 1, maxRows: 6 }"
-          />
+          <n-form-item v-if="typeof formValue.translations?.[key] === 'string'" :label="key" :path="key">
+            <n-input
+              v-model:value="formValue.translations[key]"
+              type="textarea"
+              :autosize="{ minRows: 1, maxRows: 6 }"
+            />
+          </n-form-item>
 
           <div v-else>
-            <n-input
-              v-for="(subKey) in Object.keys(formValue.translations[key])"
+            <n-form-item
+              v-for="subKey of Object.keys(formValue.translations?.[key])"
               :key="subKey"
+              :label="subKey"
+              :path="subKey"
             >
-              {{ subKey }}
-              <n-input v-model:value="formValue.translations[key][subKey]" :placeholder="subKey" />
-            </n-input>
+              <n-input
+                v-model:value="formValue.translations![key][subKey]"
+                type="textarea"
+                :autosize="{ minRows: 1, maxRows: 6 }"
+              />
+            </n-form-item>
           </div>
         </div>
       </n-tab-pane>
     </n-tabs>
+
+    <n-button secondary block type="success" @click="save">
+      Save
+    </n-button>
   </n-form>
 </template>
 

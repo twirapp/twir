@@ -15,14 +15,14 @@ const searchType = {
 };
 
 export const useYoutubeVideoOrChannelSearch = (
-	query: MaybeRef<string>,
+	query: MaybeRef<string | string[]>,
 	type: YoutubeSearchType,
 ) => {
 	return useQuery({
 		queryKey: [query, type],
 		queryFn: async () => {
 			const q = isRef(query) ? query.value : query;
-			if (!q) {
+			if (!q.length) {
 				return {
 					items: [],
 				};
@@ -30,7 +30,7 @@ export const useYoutubeVideoOrChannelSearch = (
 
 			const call = await protectedApiClient.modulesSRSearchVideosOrChannels({
 				type: searchType[type],
-				query: q,
+				query: Array.isArray(q) ? q : [q],
 			});
 
 			return call.response;

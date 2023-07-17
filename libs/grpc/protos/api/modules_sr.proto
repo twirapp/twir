@@ -18,7 +18,7 @@ message GetSearchRequest {
 		VIDEO = 1;
 	}
 
-	string query = 1;
+	repeated string query = 1;
 	Type type = 2;
 }
 
@@ -34,7 +34,7 @@ message GetSearchResponse {
 
 message YouTubeUserSettings {
 	int32 max_requests = 1;
-	int64 min_watch_time = 2;
+	int32 min_watch_time = 2;
 	int32 min_messages = 3;
 	int32 min_follow_time = 4;
 }
@@ -46,27 +46,10 @@ message YouTubeSongSettings {
 	repeated string accepted_categories = 4;
 }
 
-message YouTubeDenySettingsUsers {
-	string user_id = 1;
-	string user_name = 2;
-}
-
-message YouTubeDenySettingsSongs {
-	string id = 1;
-	string title = 2;
-	string thumbnail = 3;
-}
-
-message YouTubeDenySettingsChannels {
-	string id = 1;
-	string title = 2;
-	string thumbnail = 3;
-}
-
 message YouTubeDenyList {
-	repeated YouTubeDenySettingsUsers users = 1;
-	repeated YouTubeDenySettingsSongs songs = 2;
-	repeated YouTubeDenySettingsChannels channels = 3;
+	repeated string users = 1;
+	repeated string songs = 2;
+	repeated string channels = 3;
 	repeated string artists_names = 4;
 }
 

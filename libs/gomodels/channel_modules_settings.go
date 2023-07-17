@@ -17,28 +17,6 @@ func (ChannelModulesSettings) TableName() string {
 	return "channels_modules_settings"
 }
 
-//type JSON json.RawMessage
-//func (j *JSON) Scan(value interface{}) error {
-//	bytes, ok := value.([]byte)
-//	if !ok {
-//		return errors.New(fmt.Sprint("Failed to unmarshal JSONB value:", value))
-//	}
-//
-//	result := json.RawMessage{}
-//	err := json.Unmarshal(bytes, &result)
-//	*j = JSON(result)
-//	return err
-//}
-//
-//// Value return json value, implement driver.Valuer interface
-//func (j JSON) Value() (driver.Value, error) {
-//	if len(j) == 0 {
-//		return nil, nil
-//	}
-//
-//	return json.RawMessage(j).MarshalJSON()
-//}
-
 type UserYoutubeSettings struct {
 	MaxRequests  uint32 `validate:"required,lte=4294967295"           json:"maxRequests"`
 	MinWatchTime uint64 `validate:"required,lte=18446744073709551615" json:"minWatchTime"`
