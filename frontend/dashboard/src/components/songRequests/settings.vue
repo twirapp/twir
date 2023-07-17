@@ -14,6 +14,7 @@ import {
   NFormItem,
   NSelect,
   NAvatar,
+  NButton,
 } from 'naive-ui';
 import { ref, computed, VNodeChild, h, watch, unref, toRaw, reactive } from 'vue';
 
@@ -86,8 +87,7 @@ const formValue = ref<YouTubeSettings>({
 
 watch(youtubeModuleSettings, async (v) => {
 	if (!v) return;
-
-	formValue.value = v;
+	formValue.value = toRaw(v);
 });
 
 async function save() {
@@ -214,7 +214,6 @@ const songsSearchOptions = computed(() => {
           </n-form-item>
 
           <n-form-item label="Denied channels" path="channelPointsRewardId">
-            {{ formValue.denyList!.channels }}
             <n-select
               v-model:value="formValue.denyList!.channels"
               :loading="selectedChannels.isLoading.value"
@@ -278,6 +277,7 @@ const songsSearchOptions = computed(() => {
             :loading="songsSearch.isLoading.value"
             remote
             filterable
+            multiple
             :options="songsSearchOptions"
             :render-label="renderSelectOption as any"
             clearable

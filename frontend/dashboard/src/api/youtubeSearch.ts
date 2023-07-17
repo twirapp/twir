@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/vue-query';
 import { GetSearchRequest_Type } from '@twir/grpc/generated/api/api/modules_sr';
-import { type MaybeRef, isRef } from 'vue';
+import { type MaybeRef, isRef, toRaw } from 'vue';
 
 import { protectedApiClient } from '@/api/twirp.js';
 
@@ -21,8 +21,9 @@ export const useYoutubeVideoOrChannelSearch = (
 	return useQuery({
 		queryKey: [query, type],
 		queryFn: async () => {
-			const q = isRef(query) ? query.value : query;
-			if (!q.length) {
+			const q = isRef(query) ? toRaw(query.value) : query;
+			const qArray = (Array.isArray(q) ? q : [q]).filter(Boolean);
+			if (!qArray.length) {
 				return {
 					items: [],
 				};
@@ -30,7 +31,7 @@ export const useYoutubeVideoOrChannelSearch = (
 
 			const call = await protectedApiClient.modulesSRSearchVideosOrChannels({
 				type: searchType[type],
-				query: Array.isArray(q) ? q : [q],
+				query: qArray,
 			});
 
 			return call.response;
