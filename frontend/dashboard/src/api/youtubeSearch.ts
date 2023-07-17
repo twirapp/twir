@@ -21,9 +21,16 @@ export const useYoutubeVideoOrChannelSearch = (
 	return useQuery({
 		queryKey: [query, type],
 		queryFn: async () => {
+			const q = isRef(query) ? query.value : query;
+			if (!q) {
+				return {
+					items: [],
+				};
+			}
+
 			const call = await protectedApiClient.modulesSRSearchVideosOrChannels({
 				type: searchType[type],
-				query: isRef(query) ? query.value : query,
+				query: q,
 			});
 
 			return call.response;

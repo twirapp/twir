@@ -8,6 +8,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/api/modules_sr"
 	"github.com/satont/twir/libs/types/types/api/modules"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"strings"
 
 	ytsr "github.com/SherlockYigit/youtube-go"
 )
@@ -122,7 +123,7 @@ func (c *Modules) ModulesSRSearchVideosOrChannels(
 	request *modules_sr.GetSearchRequest,
 ) (*modules_sr.GetSearchResponse, error) {
 	res, err := ytsr.Search(request.Query, ytsr.SearchOptions{
-		Type: request.Type.String(),
+		Type: strings.ToLower(request.Type.String()),
 	})
 	if err != nil {
 		return nil, err

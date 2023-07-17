@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+import { useDebounce } from '@vueuse/core';
 import {
 	type SelectOption,
 	NTabs,
@@ -84,7 +85,8 @@ const rewardsOptions = computed(() => {
 		};
 	}) ?? [];
 });
-const rewardRenderOption = (option: SelectOption & { image: string }): VNodeChild => {
+
+const renderSelectOption = (option: SelectOption & { image: string }): VNodeChild => {
 	return h(NSpace,
 		{
 			align: 'center',
@@ -108,8 +110,9 @@ const rewardRenderOption = (option: SelectOption & { image: string }): VNodeChil
 };
 
 const channelsSearchValue = ref('');
+const channelsSearchDebounced = useDebounce(channelsSearchValue, 500);
 const channelsSearch = useYoutubeVideoOrChannelSearch(
-	channelsSearchValue,
+	channelsSearchDebounced,
 	YoutubeSearchType.Channel,
 );
 const channelsSearchOptions = computed(() => {
@@ -157,7 +160,7 @@ const channelsSearchOptions = computed(() => {
               remote
               filterable
               :options="rewardsOptions"
-              :render-label="rewardRenderOption as any"
+              :render-label="renderSelectOption as any"
               clearable
             />
           </n-form-item>
@@ -170,6 +173,8 @@ const channelsSearchOptions = computed(() => {
               filterable
               :options="channelsSearchOptions"
               clearable
+              :render-label="renderSelectOption as any"
+              @search="(v) => channelsSearchValue = v"
             />
           </n-form-item>
         </n-space>
