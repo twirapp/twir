@@ -5,6 +5,12 @@ import {
 	type FormRules,
 	type FormItemRule,
 	type SelectOption,
+  NForm,
+  NSpace,
+  NInput,
+  NFormItem,
+  NSelect,
+  NButton,
 } from 'naive-ui';
 import { ref, onMounted, toRaw } from 'vue';
 

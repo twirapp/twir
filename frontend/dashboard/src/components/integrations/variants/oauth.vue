@@ -1,11 +1,12 @@
 <script setup lang='ts'>
 import { IconLogin, IconLogout } from '@tabler/icons-vue';
+import { NButton, NTooltip, NAvatar, NText, NTag } from 'naive-ui';
 import type { FunctionalComponent } from 'vue';
 
 const props = withDefaults(defineProps<{
 	name: string,
 	data: { userName: string, avatar: string } | undefined
-	logout: () => Promise<void>
+	logout: () => any
 	getLoginLink: () => Promise<{ data: { link: string } }>
 	icon: FunctionalComponent<any>
 	iconWidth?: number

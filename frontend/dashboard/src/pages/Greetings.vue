@@ -2,7 +2,16 @@
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
 import type { Greeting } from '@twir/grpc/generated/api/api/greetings';
 import {
-	type DataTableColumns, NAvatar, NTag, NSwitch, NButton, NPopconfirm, NSpace,
+  type DataTableColumns,
+  NDataTable,
+  NSpace,
+  NTag,
+  NAlert,
+  NButton,
+  NPopconfirm,
+  NModal,
+  NSwitch,
+  NAvatar,
 } from 'naive-ui';
 import { h, ref, watch, onMounted, computed } from 'vue';
 

@@ -75,24 +75,10 @@ export interface YouTubeTranslations {
     song: YouTubeSongTranslations;
     channel: YouTubeChannelTranslations;
 }
-export interface YouTubeDenySettingsChannels {
-    id: string;
-    title: string;
-    thumbNail: string;
-}
-export interface YouTubeDenySettingsSongs {
-    id: string;
-    title: string;
-    thumbNail: string;
-}
-export interface YouTubeDenySettingsUsers {
-    userId: string;
-    userName: string;
-}
 export interface YouTubeDenyList {
-    users: YouTubeDenySettingsUsers[];
-    songs: YouTubeDenySettingsSongs[];
-    channels: YouTubeDenySettingsChannels[];
+    users: string[];
+    songs: string[];
+    channels: string[];
     artistsNames: string[];
 }
 export interface YouTubeSongSettings {

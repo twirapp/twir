@@ -2,7 +2,14 @@
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
 import { type Timer } from '@twir/grpc/generated/api/api/timers';
 import {
-	type DataTableColumns, NTag, NSpace, NSwitch, NButton, NPopconfirm,
+	type DataTableColumns,
+  NDataTable,
+  NSpace,
+  NTag,
+  NSwitch,
+  NButton,
+  NPopconfirm,
+  NModal,
 } from 'naive-ui';
 import { h, ref } from 'vue';
 

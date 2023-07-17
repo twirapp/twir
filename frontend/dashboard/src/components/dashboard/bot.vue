@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+import { NCard, NAlert, NSkeleton, NButton, NSpin } from 'naive-ui';
 import { ref, watch } from 'vue';
 
 import { useBotInfo, useBotJoinPart } from '@/api/index.js';

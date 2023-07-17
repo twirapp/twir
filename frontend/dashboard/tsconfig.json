@@ -7,7 +7,7 @@
     "skipLibCheck": true,
     "moduleResolution": "node",
     "allowImportingTsExtensions": false,
-		"allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -16,10 +16,9 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-		"paths": {
-			"@/*": ["./src/*"]
-		},
-		"types": ["naive-ui/volar"]
+    "paths": {
+        "@/*": ["./src/*"]
+    },
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/**/*.svg"],
   "references": [{ "path": "./tsconfig.node.json" }]

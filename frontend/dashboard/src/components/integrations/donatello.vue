@@ -1,4 +1,6 @@
 <script setup lang='ts'>
+import { NTimeline, NTimelineItem, NText } from 'naive-ui';
+
 import { useDonatelloIntegration } from '@/api/index.js';
 import DonatelloSVG from '@/assets/icons/integrations/donatello.svg';
 import CopyInput from '@/components/copyInput.vue';

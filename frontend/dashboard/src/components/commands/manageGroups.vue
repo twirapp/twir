@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import { IconPlus, IconTrash, IconDeviceFloppy } from '@tabler/icons-vue';
 import type { Group } from '@twir/grpc/generated/api/api/commands_group';
+import { NDynamicInput, NInput, NColorPicker, NFormItem, NGrid, NGridItem, NButton } from 'naive-ui';
 import { toRaw, ref, watch, onMounted } from 'vue';
 
 import { useCommandsGroupsManager } from '@/api/index.js';

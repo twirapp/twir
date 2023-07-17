@@ -12,15 +12,13 @@ import {
 	IconHeadphones,
 	IconKey,
 	IconPencilPlus,
-	IconPlayerPlay,
 	IconPlaylist,
-	IconSettings,
 	IconShieldHalfFilled,
 	IconSpeakerphone,
 	IconSword,
 	IconUsers,
 } from '@tabler/icons-vue';
-import type { MenuOption, MenuDividerOption } from 'naive-ui';
+import { type MenuOption, type MenuDividerOption, NMenu } from 'naive-ui';
 import { h, ref, onMounted } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 

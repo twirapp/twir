@@ -1,7 +1,20 @@
 <script setup lang='ts'>
 import type { YouTubeSettings } from '@twir/grpc/generated/api/api/modules_sr';
 import { useDebounce } from '@vueuse/core';
-import { NSpace, SelectOption, NAvatar, NText  } from 'naive-ui';
+import {
+  type SelectOption,
+  NTabs,
+  NTabPane,
+  NSpace,
+  NSwitch,
+  NText,
+  NInput,
+  NInputNumber,
+  NForm,
+  NFormItem,
+  NSelect,
+  NAvatar,
+} from 'naive-ui';
 import { ref, computed, VNodeChild, h, watch, unref, toRaw, reactive } from 'vue';
 
 import { useTwitchRewards, useYoutubeVideoOrChannelSearch, YoutubeSearchType } from '@/api/index.js';

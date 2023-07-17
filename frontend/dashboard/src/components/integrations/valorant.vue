@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+import { NInput, NFormItem } from 'naive-ui';
 import { ref, watch } from 'vue';
 
 import { useValorantIntegration } from '@/api/index.js';

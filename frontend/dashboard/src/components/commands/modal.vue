@@ -6,21 +6,37 @@ import {
 	IconArrowNarrowDown,
 	IconPlus,
 } from '@tabler/icons-vue';
-import type { Command } from '@twir/grpc/generated/api/api/commands';
 import {
 	type FormInst,
 	type FormRules,
 	type FormItemRule,
+	NForm,
+	NFormItem,
+	NInput,
+	NDynamicTags,
+	NGrid,
+	NGridItem,
+	NDivider,
+	NInputGroup,
+	NInputGroupLabel,
+	NDynamicInput,
+	NSelect,
+	NInputNumber,
+	NCard,
+	NSwitch,
+	NSpace,
+	NAlert,
+	NText,
 } from 'naive-ui';
 import { ref, reactive, onMounted, computed, toRaw } from 'vue';
 
 import { useRolesManager, useCommandsGroupsManager, useCommandsManager } from '@/api/index.js';
-import { EditableCommand } from '@/components/commands/types.js';
+import type { EditableCommand } from '@/components/commands/types.js';
 import TextWithVariables from '@/components/textWithVariables.vue';
 import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue';
 
 const props = defineProps<{
-	command: Command | null
+	command: EditableCommand | null
 }>();
 
 const emits = defineEmits<{
@@ -422,7 +438,7 @@ async function save() {
         v-model:value="formValue.groupId"
         :options="commandsGroupsOptions"
         clearable
-        :fallback-option="undefined"
+        :fallback-option="''"
       />
     </n-form-item>
 

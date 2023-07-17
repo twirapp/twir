@@ -9,6 +9,20 @@ import {
 	type FormInst,
 	type FormRules,
 	type FormItemRule,
+  NForm,
+  NFormItem,
+  NInput,
+  NInputNumber,
+  NButton,
+  NSlider,
+  NGrid,
+  NGridItem,
+  NDynamicInput,
+  NDivider,
+  NSpace,
+  NTimeline,
+  NTimelineItem,
+  NCheckbox,
 } from 'naive-ui';
 import { ref, onMounted, toRaw } from 'vue';
 

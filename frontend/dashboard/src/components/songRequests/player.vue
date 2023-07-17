@@ -1,6 +1,5 @@
 <script lang='ts' setup>
 import 'plyr/dist/plyr.css';
-
 import {
 	IconEyeOff,
 	IconEye,
@@ -15,6 +14,18 @@ import {
 	IconPlayerPauseFilled,
 } from '@tabler/icons-vue';
 import { useLocalStorage } from '@vueuse/core';
+import {
+  NCard,
+  NButton,
+  NSpace,
+  NList,
+  NListItem,
+  NSlider,
+  NGrid,
+  NGridItem,
+  NEmpty,
+  NSpin,
+} from 'naive-ui';
 import Plyr from 'plyr';
 import { ref, onMounted, watch, onUnmounted, computed } from 'vue';
 

@@ -3,6 +3,19 @@ import {
 	type FormInst,
 	type FormRules,
 	type FormItemRule,
+  NForm,
+  NFormItem,
+  NInput,
+  NInputNumber,
+  NSpace,
+  NCheckbox,
+  NDivider,
+  NGrid,
+  NGridItem,
+  NSwitch,
+  NCard,
+  NText,
+  NButton,
 } from 'naive-ui';
 import { ref, onMounted, toRaw } from 'vue';
 

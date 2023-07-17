@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { useLocalStorage } from '@vueuse/core';
 import {
-	darkTheme,
-	lightTheme,
+  darkTheme,
+  lightTheme,
+  NLayout,
+  NLayoutHeader,
+  NLayoutContent,
+  NLayoutSider,
+  NConfigProvider,
 } from 'naive-ui';
 import { computed, ref } from 'vue';
 import { RouterView } from 'vue-router';

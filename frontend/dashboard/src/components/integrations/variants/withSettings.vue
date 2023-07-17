@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { IconSettings } from '@tabler/icons-vue';
+import { NTooltip, NButton, NModal, NSpace } from 'naive-ui';
 import { ref } from 'vue';
 import { defineSlots, FunctionalComponent } from 'vue/dist/vue.js';
 

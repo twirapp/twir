@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+import { NTimeline, NTimelineItem, NText, NInput, NButton, NInputGroup } from 'naive-ui';
 import { computed, ref } from 'vue';
 
 import { useDonateStreamIntegration } from '@/api/index.js';

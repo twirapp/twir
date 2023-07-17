@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { type Command } from '@twir/grpc/generated/api/api/commands';
+import { NDataTable, NButton, NSpace, NModal } from 'naive-ui';
 import { ref, toRaw, computed } from 'vue';
 
 import { useCommandsManager } from '@/api/index.js';

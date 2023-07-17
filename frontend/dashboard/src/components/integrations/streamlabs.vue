@@ -13,7 +13,7 @@ const getAuthLink = manager.useAuthLink();
   <oauth-component
     name="StreamLabs"
     :data="data"
-    :logout="logout.mutateAsync"
+    :logout="() => logout.mutateAsync({})"
     :getLoginLink="getAuthLink.refetch"
     :icon="IconStreamLabs"
   />

@@ -13,7 +13,7 @@ const getAuthLink = manager.useAuthLink();
   <oauth-component
     name="DonationAlerts"
     :data="data"
-    :logout="logout.mutateAsync"
+    :logout="() => logout.mutateAsync({})"
     :getLoginLink="getAuthLink.refetch"
     :icon="IconDonationAlerts"
   />

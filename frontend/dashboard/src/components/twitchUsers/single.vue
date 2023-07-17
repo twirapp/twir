@@ -1,8 +1,7 @@
 <script setup lang='ts'>
 import { refDebounced } from '@vueuse/core';
-import { NTag, NAvatar } from 'naive-ui';
-import { computed, ref, watch, h } from 'vue';
-import { defineModel } from 'vue/dist/vue.js';
+import { NSelect, NTag, NAvatar } from 'naive-ui';
+import { computed, ref, watch, h, defineModel } from 'vue';
 
 import { useTwitchSearchChannels, useTwitchGetUsers } from '@/api/index.js';
 

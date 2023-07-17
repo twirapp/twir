@@ -2,7 +2,14 @@
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
 import { type Variable, VariableType } from '@twir/grpc/generated/api/api/variables';
 import {
-	type DataTableColumns, NTag, NButton, NPopconfirm, NSpace,
+	type DataTableColumns,
+  NDataTable,
+  NSpace,
+  NTag,
+  NAlert,
+  NButton,
+  NPopconfirm,
+  NModal,
 } from 'naive-ui';
 import { h, ref } from 'vue';
 
