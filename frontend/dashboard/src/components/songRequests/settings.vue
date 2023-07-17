@@ -17,6 +17,7 @@ import {
 import { ref, computed, VNodeChild, h } from 'vue';
 
 import { useTwitchRewards, useYoutubeVideoOrChannelSearch, YoutubeSearchType } from '@/api/index.js';
+import TwitchSearchUsers from '@/components/twitchUsers/multiple.vue';
 
 const formValue = ref({
 	enabled: true,
@@ -124,6 +125,22 @@ const channelsSearchOptions = computed(() => {
 		};
 	}) ?? [];
 });
+
+const songsSearchValue = ref('');
+const songsSearchDebounced = useDebounce(songsSearchValue, 500);
+const songsSearch = useYoutubeVideoOrChannelSearch(
+	songsSearchDebounced,
+	YoutubeSearchType.Video,
+);
+const songsSearchOptions = computed(() => {
+	return songsSearch.data?.value?.items.map((channel) => {
+		return {
+			label: channel.title,
+			value: channel.id,
+			image: channel.thumbnail,
+		};
+	}) ?? [];
+});
 </script>
 
 <template>
@@ -181,11 +198,58 @@ const channelsSearchOptions = computed(() => {
       </n-tab-pane>
 
       <n-tab-pane name="users" tab="Users">
-        s
+        <n-form-item label="Maximum songs by user in queue" path="user.maxRequests">
+          <n-input-number v-model:value="formValue.user.maxRequests" :min="0" :max="1000" />
+        </n-form-item>
+        <n-form-item
+          label="Minimal watch time of user for request song (minutes)"
+          path="user.minWatchTime"
+        >
+          <n-input-number v-model:value="formValue.user.minWatchTime" :min="0" :max="999999999" />
+        </n-form-item>
+        <n-form-item
+          label="Minimal messages by user for request song"
+          path="user.minMessages"
+        >
+          <n-input-number v-model:value="formValue.user.minMessages" :min="0" :max="999999999" />
+        </n-form-item>
+        <n-form-item
+          label="Minimal follow time for request song (minutes)"
+          path="user.minFollowTime"
+        >
+          <n-input-number v-model:value="formValue.user.minFollowTime" :min="0" :max="99999999999999" />
+        </n-form-item>
+
+        <n-form-item label="Denied users for requests">
+          <twitch-search-users v-model="formValue.denyList.users" />
+        </n-form-item>
       </n-tab-pane>
 
       <n-tab-pane name="songs" tab="Songs">
-        t
+        <n-form-item label="Maximum number of songs in queue">
+          <n-input-number v-model:value="formValue.maxRequests" :min="0" :max="99999999999999" />
+        </n-form-item>
+        <n-form-item label="Min length of song for request (minutes)">
+          <n-input-number v-model:value="formValue.song.minLength" :min="0" :max="99999999999999" />
+        </n-form-item>
+        <n-form-item label="Max length of song for request (minutes)">
+          <n-input-number v-model:value="formValue.song.maxLength" :min="0" :max="99999999999999" />
+        </n-form-item>
+        <n-form-item label="Minimal views on song for request">
+          <n-input-number v-model:value="formValue.song.minViews" :min="0" :max="99999999999999" />
+        </n-form-item>
+        <n-form-item label="Denied songs for request">
+          <n-select
+            v-model:value="formValue.denyList.songs"
+            :loading="songsSearch.isLoading.value"
+            remote
+            filterable
+            :options="songsSearchOptions"
+            :render-label="renderSelectOption as any"
+            clearable
+            @search="(v) => songsSearchValue = v"
+          />
+        </n-form-item>
       </n-tab-pane>
 
       <n-tab-pane name="translations" tab="Translations">
