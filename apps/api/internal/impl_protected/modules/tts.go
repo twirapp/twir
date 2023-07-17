@@ -104,35 +104,75 @@ func (c *Modules) ModulesTTSGetInfo(
 		return nil, err
 	}
 	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("tts service is not available")
+		return nil, fmt.Errorf("tts service is not available: %w", err)
 	}
 
 	defaultFormat, ok := result["DEFAULT_FORMAT"].(string)
 	if !ok {
-		return nil, ttsParseError
+		return nil, fmt.Errorf("%w: default format", ttsParseError)
 	}
 
 	defaultVoice, ok := result["DEFAULT_VOICE"].(string)
 	if !ok {
-		return nil, ttsParseError
+		return nil, fmt.Errorf("%w: default voice", ttsParseError)
 	}
 
-	formats := make(map[string]string)
 	respFormats, ok := result["FORMATS"].(map[string]interface{})
+	formats := make(map[string]string, len(respFormats))
 	if !ok {
-		return nil, ttsParseError
+		return nil, fmt.Errorf("%w: formats", ttsParseError)
 	}
 	for k, v := range respFormats {
 		formats[k] = v.(string)
 	}
 
-	supportedVoices := make([]string, 0)
-	respSupportedVoices, ok := result["SUPPORTED_VOICES"].([]interface{})
+	respSupportedVoices, ok := result["SUPPORT_VOICES"].([]interface{})
+	supportedVoices := make([]string, 0, len(respSupportedVoices))
 	if !ok {
-		return nil, ttsParseError
+		return nil, fmt.Errorf("%w: supported voices", ttsParseError)
 	}
 	for _, v := range respSupportedVoices {
 		supportedVoices = append(supportedVoices, v.(string))
+	}
+
+	respVoicesInfo, ok := result["rhvoice_wrapper_voices_info"].(map[string]interface{})
+	voicesInfo := make(map[string]*modules_tts.GetInfoResponse_VoiceInfo, len(supportedVoices))
+	if !ok {
+		return nil, fmt.Errorf("%w: voices info", ttsParseError)
+	}
+	for key, value := range respVoicesInfo {
+		info, ok := value.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("%w: %s voice info", ttsParseError, key)
+		}
+		country, ok := info["country"].(string)
+		if !ok {
+			return nil, fmt.Errorf("%w: %s voice info country", ttsParseError, key)
+		}
+		gender, ok := info["gender"].(string)
+		if !ok {
+			return nil, fmt.Errorf("%w: %s voice info gender", ttsParseError, key)
+		}
+		lang, ok := info["lang"].(string)
+		if !ok {
+			return nil, fmt.Errorf("%w: %s voice info lang", ttsParseError, key)
+		}
+		name, ok := info["name"].(string)
+		if !ok {
+			return nil, fmt.Errorf("%w: %s voice info name", ttsParseError, key)
+		}
+		no, ok := info["no"].(float64)
+		if !ok {
+			return nil, fmt.Errorf("%w: %s voice info no", ttsParseError, key)
+		}
+
+		voicesInfo[key] = &modules_tts.GetInfoResponse_VoiceInfo{
+			Country: country,
+			Gender:  gender,
+			Lang:    lang,
+			Name:    name,
+			No:      int64(no),
+		}
 	}
 
 	return &modules_tts.GetInfoResponse{
@@ -145,6 +185,6 @@ func (c *Modules) ModulesTTSGetInfo(
 			Wav:  formats["wav"],
 		},
 		SupportedVoices: supportedVoices,
-		VoicesInfo:      nil,
+		VoicesInfo:      voicesInfo,
 	}, nil
 }

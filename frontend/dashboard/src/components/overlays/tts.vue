@@ -16,10 +16,9 @@ import { ref, computed } from 'vue';
 import { useTtsOverlayManager, useCommandsManager, useProfile } from '@/api/index.js';
 import CommandsList from '@/components/commands/list.vue';
 
-
-
-const ttsManger = useTtsOverlayManager();
-const ttsSettings = ttsManger.getSettings();
+const ttsManager = useTtsOverlayManager();
+const ttsSettings = ttsManager.getSettings();
+const ttsInfo = ttsManager.getInfo();
 
 const commandsManager = useCommandsManager();
 const allCommands = commandsManager.getAll({});
@@ -62,13 +61,8 @@ const isModalOpened = ref(false);
     :segmented="true"
     preset="card"
     title="TTS"
-    :style="{
-      position: 'fixed',
-      width: '50%',
-      top: '50px',
-      right: '25%'
-    }"
-    content-style="padding: 0px"
+    content-style="padding: 0px; width: 100%"
+    style="width: 700px; max-width: calc(100vw - 40px);"
   >
     <template #header-extra>
       <n-button secondary type="success" @click="copyOverlayLink">
@@ -76,20 +70,16 @@ const isModalOpened = ref(false);
       </n-button>
     </template>
 
-    <n-tabs default-value="oasis" justify-content="space-evenly" type="line">
+    <n-tabs default-value="oasis" justify-content="space-evenly" type="line" pane-style="padding-top: 0px">
       <n-tab-pane name="oasis" tab="Oasis">
         Wonderwall
       </n-tab-pane>
       <n-tab-pane name="the beatles" tab="the Beatles">
         Hey Jude
       </n-tab-pane>
-      <n-tab-pane name="jay chou" tab="Jay Chou">
+      <n-tab-pane name="commands" tab="Commands">
         <commands-list :commands="ttsCommands" :show-header="false" />
       </n-tab-pane>
     </n-tabs>
   </n-modal>
 </template>
-
-<style scoped lang='postcss'>
-
-</style>

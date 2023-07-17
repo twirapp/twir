@@ -25,5 +25,12 @@ export const useTtsOverlayManager = () => {
         await queryClient.invalidateQueries(queryKey);
       },
     }),
+    getInfo: () => useQuery({
+      queryKey: ['ttsInfo'],
+      queryFn: async () => {
+        const call = await protectedApiClient.modulesTTSGetInfo({});
+        return call.response;
+      },
+    }),
   };
 };
