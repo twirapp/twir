@@ -29,14 +29,14 @@ watch(isFetching, (value) => {
       footer: 'soft'
     }"
   >
-    <n-skeleton v-if="!data || isLoading" :sharp="false" />
+    <n-skeleton v-if="!data" :sharp="false" />
 
-    <n-alert v-else :type="data?.isMod ? 'success' : 'error'" :bordered="false" class="bot-alert">
+    <n-alert v-else :type="data!.isMod ? 'success' : 'error'" :bordered="false" class="bot-alert">
       <span v-if="data?.isMod">
-        <b>{{ data?.botName }}</b> is a moderator.
+        <b>{{ data!.botName }}</b> is a moderator.
       </span>
       <span v-else>
-        We have found that the bot is not a moderator on this channel. Please, use <b>/mod {{ data?.botName }}</b>, or some of functionality may work incorrectly.
+        We have found that the bot is not a moderator on this channel. Please, use <b>/mod {{ data!.botName }}</b>, or some of functionality may work incorrectly.
       </span>
     </n-alert>
 

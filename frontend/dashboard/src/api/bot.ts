@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
-import { BotInfo, BotJoinPartRequest_Action } from '@twir/grpc/generated/api/api/bots';
+import { BotJoinPartRequest_Action } from '@twir/grpc/generated/api/api/bots';
 
 import { protectedApiClient } from './twirp.js';
 
 const queryKey = ['botInfo'];
 
 
-export const useBotInfo = () => useQuery<BotInfo>({
+export const useBotInfo = () => useQuery({
 	queryKey,
 	queryFn: async () => {
 		const call = await protectedApiClient.botInfo({});

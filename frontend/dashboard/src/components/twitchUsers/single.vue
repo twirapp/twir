@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { refDebounced } from '@vueuse/core';
+import { NTag, NAvatar } from 'naive-ui';
 import { computed, ref, watch, h } from 'vue';
 import { defineModel } from 'vue/dist/vue.js';
 
@@ -135,7 +136,7 @@ const renderLabel = (option: Option | undefined) => {
     remote
     :clear-filter-after-select="false"
     :render-label="renderLabel as any"
-    :render-tag="renderMultipleSelectTag"
+    :render-tag="renderMultipleSelectTag as any"
     @search="handleSearch"
   />
 </template>

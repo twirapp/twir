@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { refDebounced } from '@vueuse/core';
+import { NTag, NAvatar } from 'naive-ui';
 import { computed, ref, watch, h, onMounted } from 'vue';
 import { defineModel } from 'vue/dist/vue.js';
 
