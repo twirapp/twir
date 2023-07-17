@@ -13,6 +13,7 @@ import {
   NText,
   NCard,
   NButton,
+	NTime,
 } from 'naive-ui';
 import type { TableColumn } from 'naive-ui/es/data-table/src/interface';
 import { h } from 'vue';
@@ -65,7 +66,7 @@ const columns: TableColumn<Video>[] = [
 		key: 'createdAt',
 		width: 150,
 		render(row) {
-			return timeAgo(row.createdAt);
+			return h(NTime, { time: 0, to: Date.now() - new Date(row.createdAt).getTime(), type: 'relative' });
 		},
 	},
 	{
