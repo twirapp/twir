@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useLocalStorage } from '@vueuse/core';
+import { useLocalStorage, useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import {
   darkTheme,
   lightTheme,
@@ -10,7 +10,7 @@ import {
   NConfigProvider,
 	NMessageProvider,
 } from 'naive-ui';
-import { computed, ref } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue';
 import { RouterView } from 'vue-router';
 
 import { useTheme } from '@/hooks/index.js';
@@ -20,8 +20,20 @@ import Sidebar from '@/layout/sidebar.vue';
 const { theme } = useTheme();
 const themeStyles = computed(() => theme.value === 'dark' ? darkTheme : lightTheme);
 
-const sidebarCollapsed = useLocalStorage('twirIsSidebarCollapsed', false);
-const toggleSidebar = () => sidebarCollapsed.value = !sidebarCollapsed.value;
+
+const breakPoints = useBreakpoints(breakpointsTailwind);
+const smallerOrEqualLg = breakPoints.smallerOrEqual('lg');
+
+const storedSidebarValue = useLocalStorage('twirSidebarIsCollapsed', false);
+const toggleSidebar = () => storedSidebarValue.value = !storedSidebarValue.value;
+
+const isSidebarCollapsed = computed(() => {
+	return storedSidebarValue.value;
+});
+
+watch(smallerOrEqualLg, (v) => {
+	storedSidebarValue.value = v;
+});
 </script>
 
 <template>
@@ -38,7 +50,7 @@ const toggleSidebar = () => sidebarCollapsed.value = !sidebarCollapsed.value;
             :collapsed-width="64"
             :width="240"
             :native-scrollbar="false"
-            :collapsed="sidebarCollapsed"
+            :collapsed="isSidebarCollapsed"
           >
             <Sidebar />
           </n-layout-sider>
