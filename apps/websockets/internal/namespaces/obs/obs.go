@@ -27,6 +27,7 @@ func NewObs(services *types.Services) *OBS {
 				services.Logger.Error(err)
 				return
 			}
+			session.Write([]byte(`{"eventName":"connected"}`))
 		},
 	)
 
@@ -46,16 +47,18 @@ func (c *OBS) IsUserConnected(userId string) (bool, error) {
 	}
 
 	for _, s := range sessions {
-		value, exists := s.Get("userId")
-		if !exists {
+		userIdValue, isUserIdExists := s.Get("userId")
+		isConnectedValue, isConnectedExists := s.Get("obsConnected")
+		if !isUserIdExists || !isConnectedExists {
 			continue
 		}
-		castedValue, ok := value.(string)
-		if !ok {
+		castedUserId, isUserCastOk := userIdValue.(string)
+		castedIsConnected, isConnectCastOk := isConnectedValue.(bool)
+		if !isUserCastOk || !isConnectCastOk {
 			continue
 		}
-		if castedValue == userId {
-			return true, nil
+		if castedUserId == userId {
+			return castedIsConnected, nil
 		}
 	}
 

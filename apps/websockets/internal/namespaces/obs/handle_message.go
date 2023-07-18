@@ -50,6 +50,10 @@ func (c *OBS) handleMessage(session *melody.Session, msg []byte) {
 	if data.EventName == "requestSettings" {
 		c.handleRequestSettings(userId.(string))
 	}
+
+	if data.EventName == "obsConnected" {
+		session.Set("obsConnected", true)
+	}
 }
 
 type obsSource struct {
