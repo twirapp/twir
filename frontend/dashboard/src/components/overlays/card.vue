@@ -27,15 +27,9 @@ const copyOverlayLink = () => {
 </script>
 
 <template>
-  <n-card
-    content-style="padding: 0px"
-    class="overlay-item"
-  >
+  <n-card content-style="padding: 0px" class="overlay-item">
     <n-grid cols="5" style="height: 100%;">
-      <n-grid-item
-        :span="1"
-        class="section-icon"
-      >
+      <n-grid-item :span="1" class="section-icon">
         <div class="vector">
           <VectorSVG />
         </div>
@@ -48,7 +42,7 @@ const copyOverlayLink = () => {
           <h2 style="margin:0px">
             {{ title }}
           </h2>
-          <n-text :style="{ color: themeVars.textColor3}">
+          <n-text :style="{ color: themeVars.textColor3, 'margin-top': '12px' }">
             {{ description }}
           </n-text>
           <n-space style="margin-top: 20px;">
@@ -73,8 +67,9 @@ const copyOverlayLink = () => {
 
 <style scoped>
 .overlay-item {
-	min-height: 220px;
 	overflow: hidden;
+	display: flex;
+	height: 100%;
 }
 
 .section-icon {
@@ -89,7 +84,7 @@ const copyOverlayLink = () => {
 .section-info {
 	display: flex;
 	align-items: flex-start;
-	margin: 20px
+	margin: 32px
 }
 
 .section-info .body {
