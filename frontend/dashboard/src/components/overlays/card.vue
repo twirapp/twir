@@ -1,0 +1,110 @@
+<script setup lang='ts'>
+import { IconSettings, IconCopy } from '@tabler/icons-vue';
+import { NCard, NGrid, NGridItem, NSpace, NButton, NText, useThemeVars, useMessage } from 'naive-ui';
+import { FunctionalComponent } from 'vue';
+
+import VectorSVG from './vector.svg?component';
+
+const themeVars = useThemeVars();
+
+const props = defineProps<{
+	description: string
+	title: string
+	overlayLink: string
+}>();
+defineSlots<{
+	icon: FunctionalComponent<any>
+}>();
+defineEmits<{
+	openSettings: []
+}>();
+
+const messages = useMessage();
+const copyOverlayLink = () => {
+	navigator.clipboard.writeText(props.overlayLink);
+	messages.success('Copied link url, paste it in obs as browser source');
+};
+</script>
+
+<template>
+  <n-card
+    content-style="padding: 0px"
+    class="overlay-item"
+  >
+    <n-grid cols="5" style="height: 100%;">
+      <n-grid-item
+        :span="1"
+        class="section-icon"
+      >
+        <div class="vector">
+          <VectorSVG />
+        </div>
+
+        <slot name="icon" />
+      </n-grid-item>
+
+      <n-grid-item :span="4" class="section-info">
+        <div class="body">
+          <h2 style="margin:0px">
+            {{ title }}
+          </h2>
+          <n-text :style="{ color: themeVars.textColor3}">
+            {{ description }}
+          </n-text>
+          <n-space style="margin-top: 20px;">
+            <n-button secondary size="large" @click="$emit('openSettings')">
+              <n-space justify="space-between" align="center">
+                <n-text>Settings</n-text>
+                <IconSettings style="height: 25px" />
+              </n-space>
+            </n-button>
+            <n-button size="large" @click="copyOverlayLink">
+              <n-space justify="space-between" align="center">
+                <n-text>Copy overlay link</n-text>
+                <IconCopy style="height: 25px" />
+              </n-space>
+            </n-button>
+          </n-space>
+        </div>
+      </n-grid-item>
+    </n-grid>
+  </n-card>
+</template>
+
+<style scoped>
+.overlay-item {
+	min-height: 220px;
+	overflow: hidden;
+}
+
+.section-icon {
+	background: linear-gradient(48deg, #5557E6 0%, #3B6EEF 100%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	position: relative;
+}
+
+.section-info {
+	display: flex;
+	align-items: flex-start;
+	margin: 20px
+}
+
+.section-info .body {
+	display: flex;
+	flex-direction: column;
+	//margin-left: 15px;
+}
+
+.vector {
+	display: flex;
+	align-items: center;
+}
+
+.vector svg {
+	position: absolute;
+	transform: rotate(167deg);
+}
+</style>

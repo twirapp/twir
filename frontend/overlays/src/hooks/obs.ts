@@ -26,8 +26,7 @@ export const useObs = () => {
       setConnected(true);
     } catch (e) {
       setConnected(false);
-      console.error(e);
-      return;
+      throw e;
     }
   }, []);
 

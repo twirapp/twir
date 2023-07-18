@@ -1,26 +1,19 @@
 <script setup lang='ts'>
-import { IconMessageCircle } from '@tabler/icons-vue';
 import {
-  NCard,
-	NSpace,
-	NText,
-	NSkeleton,
 	NModal,
 	NButton,
 	NTabs,
 	NTabPane,
-	useMessage,
 } from 'naive-ui';
 import { ref, computed } from 'vue';
 
+import Card from './card.vue';
 import TTSSettings from './tts/settings.vue';
 import UsersSettings from './tts/users.vue';
 
-import { useTtsOverlayManager, useCommandsManager, useProfile } from '@/api/index.js';
+import { useCommandsManager, useProfile } from '@/api/index.js';
+import IconTTSSvg from '@/assets/icons/overlays/tts.svg?component';
 import CommandsList from '@/components/commands/list.vue';
-
-const ttsManager = useTtsOverlayManager();
-const ttsSettings = ttsManager.getSettings();
 
 const commandsManager = useCommandsManager();
 const allCommands = commandsManager.getAll({});
@@ -33,29 +26,20 @@ const overlayLink = computed(() => {
 	return `${window.location.origin}/overlays/${userProfile.data?.value?.apiKey}/tts`;
 });
 
-const messages = useMessage();
-const copyOverlayLink = () => {
-	navigator.clipboard.writeText(overlayLink.value);
-	messages.success('Copied link url, paste it in obs as browser source');
-	return overlayLink;
-};
-
 const isModalOpened = ref(false);
 </script>
 
 <template>
-  <n-card
-    class="overlay-item"
-    content-style="padding: 0px" @click="isModalOpened = true"
+  <card
+    title="Text to speech"
+    description="This overlay used for connect TwirApp with your obs. It gives opportunity to bot manage your sources, scenes, audio sources on events."
+    :overlay-link="overlayLink"
+    @open-settings="isModalOpened = true"
   >
-    <n-skeleton v-if="ttsSettings.isLoading.value" size="large" :repeat="4" />
-    <n-space v-else vertical align="center">
-      <IconMessageCircle style="width: 112px; height: 112px" />
-      <n-text strong style="font-size: 50px">
-        TTS
-      </n-text>
-    </n-space>
-  </n-card>
+    <template #icon>
+      <IconTTSSvg style="width: 100px; height: 100px; z-index:1; color: #fff;" />
+    </template>
+  </card>
 
   <n-modal
     v-model:show="isModalOpened"
