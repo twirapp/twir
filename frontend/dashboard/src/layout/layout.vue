@@ -51,6 +51,7 @@ watch(smallerOrEqualLg, (v) => {
             :width="240"
             :native-scrollbar="false"
             :collapsed="isSidebarCollapsed"
+            :show-collapsed-content="false"
           >
             <Sidebar />
           </n-layout-sider>

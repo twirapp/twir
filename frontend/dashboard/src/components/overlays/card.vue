@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { IconSettings, IconCopy } from '@tabler/icons-vue';
-import { NCard, NSpace, NButton, NText, useThemeVars, useMessage, NTooltip } from 'naive-ui';
+import { NCard, NSpace, NButton, NText, useThemeVars, useMessage, NTooltip, NGrid, NGridItem } from 'naive-ui';
 import { FunctionalComponent } from 'vue';
 
 import VectorSVG from './vector.svg?component';
@@ -30,43 +30,46 @@ const copyOverlayLink = () => {
 
 <template>
   <n-card content-style="padding: 0px" class="overlay-item">
-    <div style="height: 100%; display: flex">
-      <div class="section-icon">
-        <div class="vector">
-          <VectorSVG />
+    <n-grid cols="1 s:1 m:1 l:3" responsive="screen">
+      <n-grid-item :span="1">
+        <div class="section-icon">
+          <div class="vector">
+            <VectorSVG />
+          </div>
+
+          <slot name="icon" />
         </div>
-
-        <slot name="icon" />
-      </div>
-
-      <div class="section-info">
-        <h2 style="margin:0px">
-          {{ title }}
-        </h2>
-        <n-text :style="{ color: themeVars.textColor3, 'margin-top': '12px' }">
-          {{ description }}
-        </n-text>
-        <n-space style="margin-top: 20px;">
-          <n-button secondary size="large" @click="$emit('openSettings')">
-            <n-space justify="space-between" align="center">
-              <n-text>Settings</n-text>
-              <IconSettings style="height: 25px" />
-            </n-space>
-          </n-button>
-          <n-tooltip :disabled="!!overlayLink">
-            <template #trigger>
-              <n-button size="large" secondary type="info" :disabled="!overlayLink" @click="copyOverlayLink">
-                <n-space justify="space-between" align="center">
-                  <n-text>Copy overlay link</n-text>
-                  <IconCopy style="height: 25px" />
-                </n-space>
-              </n-button>
-            </template>
-            You should configure overlay first
-          </n-tooltip>
-        </n-space>
-      </div>
-    </div>
+      </n-grid-item>
+      <n-grid-item :span="2">
+        <div class="section-info">
+          <h2 style="margin:0px">
+            {{ title }}
+          </h2>
+          <n-text :style="{ color: themeVars.textColor3, 'margin-top': '12px' }">
+            {{ description }}
+          </n-text>
+          <n-space style="margin-top: 20px;">
+            <n-button secondary size="large" @click="$emit('openSettings')">
+              <n-space justify="space-between" align="center">
+                <n-text>Settings</n-text>
+                <IconSettings style="height: 25px" />
+              </n-space>
+            </n-button>
+            <n-tooltip :disabled="!!overlayLink">
+              <template #trigger>
+                <n-button size="large" secondary type="info" :disabled="!overlayLink" @click="copyOverlayLink">
+                  <n-space :wrap="false" justify="space-between" align="center">
+                    <n-text>Copy overlay link</n-text>
+                    <IconCopy style="height: 25px" />
+                  </n-space>
+                </n-button>
+              </template>
+              You should configure overlay first
+            </n-tooltip>
+          </n-space>
+        </div>
+      </n-grid-item>
+    </n-grid>
   </n-card>
 </template>
 
@@ -84,7 +87,7 @@ const copyOverlayLink = () => {
 	justify-content: center;
 	overflow: hidden;
 	position: relative;
-	flex: 0 0 120px;
+	height: 100%;
 }
 
 .section-info {

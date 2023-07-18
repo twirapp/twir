@@ -10,7 +10,7 @@ import TTS from '@/components/overlays/tts.vue';
 
 <template>
   <div style="display: flex; align-items: center; justify-content: center;">
-    <n-grid cols="1 s:1 m:1 l:2" :x-gap="24" :y-gap="10" responsive="screen">
+    <n-grid cols="1 s:1 m:2 l:2" :x-gap="24" :y-gap="10" responsive="screen">
       <n-grid-item :span="1">
         <TTS />
       </n-grid-item>
