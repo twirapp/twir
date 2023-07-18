@@ -24,14 +24,14 @@ const ttsUpdater = ttsManager.updateSettings();
 const ttsInfo = ttsManager.getInfo();
 
 const countriesMapping: Record<string, string> = {
-	'ru': '🇷🇺 Russia',
-	'mk': '🇲🇰 North Macedonia',
-	'uk': '🇺🇦 Ukraine',
-	'ky': '🇰🇬 Kyrgyzstan',
-	'en': '🇺🇸 USA',
-	'pt': '🇵🇹 Portugal',
-	'ka': '🇬🇪 Georgia',
-	'eo': '🇺🇳 World Language :)',
+	'ru': '🇷🇺 Russian',
+	'mk': '🇲🇰 Macedonian',
+	'uk': '🇺🇦 Ukrainian',
+	'ky': '🇰🇬 Kyrgyz',
+	'en': '🇺🇸 English',
+	'pt': '🇵🇹 Portuguese',
+	'ka': '🇬🇪 Georgian',
+	'eo': '🇺🇳 Esperanto',
 };
 
 type Voice = { label: string, value: string, key: string }
