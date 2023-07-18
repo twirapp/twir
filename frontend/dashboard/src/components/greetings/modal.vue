@@ -62,7 +62,7 @@ async function save() {
 const rules: FormRules = {
 	userId: {
 		trigger: ['input', 'blur'],
-		validator: (rule: FormItemRule, value: string) => {
+		validator: (_: FormItemRule, value: string) => {
 			if (!value || !value.length) {
 				return new Error('User is required');
 			}
@@ -72,7 +72,7 @@ const rules: FormRules = {
 	},
 	text: {
 		trigger: ['input', 'blur'],
-		validator: (rule: FormItemRule, value: string) => {
+		validator: (_: FormItemRule, value: string) => {
 			if (!value || !value.length) {
 				return new Error('Text is required');
 			}

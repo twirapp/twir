@@ -9,9 +9,9 @@ import { useAllVariables } from '@/api/index.js';
 const text = defineModel({ default: '' });
 
 const props = withDefaults(defineProps<{
-	inputType: 'text' | 'textarea',
-	minRows: number,
-	maxRows: number,
+	inputType?: 'text' | 'textarea',
+	minRows?: number,
+	maxRows?: number,
 }>(), {
 	inputType: 'text',
 });
