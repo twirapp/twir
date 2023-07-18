@@ -109,7 +109,7 @@ async function deleteUsers() {
       </n-space>
 
       <n-alert v-if="!users.length" title="No one's created their own customizations yet." type="info" />
-      <n-grid v-else :cols="24" :x-gap="10" :y-gap="10">
+      <n-grid v-else cols="1 s:1 m:24 l:24 xl:24" responsive="screen" :x-gap="10" :y-gap="10">
         <n-grid-item v-for="(user, index) of users" :key="index" :span="12">
           <n-card
             class="user-card"
