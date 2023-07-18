@@ -167,7 +167,7 @@ const createSummary: DataTableCreateSummary<Video> = (pageData) => {
       :data="queue"
       :loading="!queue.length"
       :bordered="false"
-      :summary="createSummary as any"
+      :summary="createSummary"
     >
       <template #loading>
         <n-space vertical align="center" style="margin-top: 50px;">
