@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { IconSettings, IconCopy } from '@tabler/icons-vue';
-import { NCard, NGrid, NGridItem, NSpace, NButton, NText, useThemeVars, useMessage } from 'naive-ui';
+import { NCard, NSpace, NButton, NText, useThemeVars, useMessage } from 'naive-ui';
 import { FunctionalComponent } from 'vue';
 
 import VectorSVG from './vector.svg?component';
@@ -51,7 +51,7 @@ const copyOverlayLink = () => {
               <IconSettings style="height: 25px" />
             </n-space>
           </n-button>
-          <n-button size="large" @click="copyOverlayLink">
+          <n-button size="large" secondary type="info" @click="copyOverlayLink">
             <n-space justify="space-between" align="center">
               <n-text>Copy overlay link</n-text>
               <IconCopy style="height: 25px" />
