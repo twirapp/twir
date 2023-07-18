@@ -5,6 +5,7 @@ import type {
 	GetInfoResponse,
 	GetResponse,
 } from '@twir/grpc/generated/api/api/modules_tts';
+import { Ref, unref } from 'vue';
 
 import { protectedApiClient } from '@/api/twirp.js';
 
@@ -12,6 +13,7 @@ import { protectedApiClient } from '@/api/twirp.js';
 export const useTtsOverlayManager = () => {
   const queryClient = useQueryClient();
   const queryKey = ['ttsSettings'];
+  const usersQueryKey = ['ttsUsersSettings'];
 
   return {
     getSettings: () => useQuery({
@@ -38,10 +40,21 @@ export const useTtsOverlayManager = () => {
       },
     }),
     getUsersSettings: () => useQuery({
-      queryKey: ['ttsUsersSettings'],
+      queryKey: usersQueryKey,
       queryFn: async (): Promise<GetUsersSettingsResponse> => {
         const call = await protectedApiClient.modulesTTSGetUsersSettings({});
         return call.response;
+      },
+    }),
+    deleteUsersSettings: () => useMutation({
+      mutationKey: ['ttsUsersSettingsDelete'],
+      mutationFn: async (ids: string[] | Ref<string[]>) => {
+        const usersIds = unref(ids);
+
+        await protectedApiClient.modulesTTSUsersDelete({ usersIds });
+      },
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(usersQueryKey);
       },
     }),
   };

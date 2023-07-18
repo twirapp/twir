@@ -24,6 +24,7 @@ const descriptionColor = computed(() => themeVars.value.textColor3);
 
 const ttsManager = useTtsOverlayManager();
 const { data: ttsUsersData, isLoading } = ttsManager.getUsersSettings();
+const usersSettingsDeleter = ttsManager.deleteUsersSettings();
 
 const usersIdsForRequest = computed(() => {
 	if (!ttsUsersData?.value?.data) return [];
@@ -69,6 +70,10 @@ function changeMarkedStateForAllUsers(state: boolean) {
 }
 
 const testText = ref('');
+
+async function deleteUsers() {
+	await usersSettingsDeleter.mutateAsync(users.value.filter(u => u.markedForDelete).map(u => u.userId));
+}
 </script>
 
 <template>
@@ -78,9 +83,9 @@ const testText = ref('');
         <n-skeleton v-if="!isLoading" size="large" height="60px" :sharp="false" />
       </n-grid-item>
     </n-grid>
-    <n-alert v-if="isLoading || !ttsUsersData?.data || !ttsUsersData.data.length" title="It's too quiet in here..." />
+
     <div v-else>
-      <n-space justify="space-between">
+      <n-space justify="space-between" style="margin-bottom: 10px">
         <n-input v-model:value="testText" placeholder="Text for test user settings" />
         <n-space>
           <n-button
@@ -92,12 +97,19 @@ const testText = ref('');
             {{ isSomeUserMarked ? 'Undo select' : 'Select all' }}
           </n-button>
 
-          <n-button secondary type="error" :disabled="!users.some(u => u.markedForDelete)">
+          <n-button
+            secondary
+            type="error"
+            :disabled="!users.some(u => u.markedForDelete)"
+            @click="deleteUsers"
+          >
             Delete {{ users.filter(u => u.markedForDelete).length }}
           </n-button>
         </n-space>
       </n-space>
-      <n-grid :cols="24" :x-gap="10" :y-gap="10" style="margin-top: 10px">
+
+      <n-alert v-if="!users.length" title="No one's created their own customizations yet." type="info" />
+      <n-grid v-else :cols="24" :x-gap="10" :y-gap="10">
         <n-grid-item v-for="(user, index) of users" :key="index" :span="12">
           <n-card
             class="user-card"
@@ -120,7 +132,6 @@ const testText = ref('');
                   <IconSpeakerphone style="display: flex" />
                   <n-checkbox
                     :checked="user.markedForDelete"
-                    @update-checked="(v) => console.log(v)"
                   />
                 </n-space>
               </n-row>

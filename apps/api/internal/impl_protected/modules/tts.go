@@ -98,6 +98,21 @@ func (c *Modules) ModulesTTSUpdate(
 	return &emptypb.Empty{}, nil
 }
 
+func (c *Modules) ModulesTTSUsersDelete(
+	ctx context.Context,
+	req *modules_tts.UsersDeleteRequest,
+) (*emptypb.Empty, error) {
+	dashboardId := ctx.Value("dashboardId").(string)
+	if err := c.Db.
+		WithContext(ctx).
+		Where(`"channelId" = ? AND "type" = ? AND "userId" in ?`, dashboardId, TTSType, req.UsersIds).
+		Delete(&model.ChannelModulesSettings{}).Error; err != nil {
+		return nil, fmt.Errorf("cannot delete users: %w", err)
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
 func (c *Modules) ModulesTTSGetInfo(
 	ctx context.Context,
 	_ *emptypb.Empty,
