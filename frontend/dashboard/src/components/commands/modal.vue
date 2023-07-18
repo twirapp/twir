@@ -27,6 +27,7 @@ import {
 	NSpace,
 	NAlert,
 	NText,
+	NButton,
 } from 'naive-ui';
 import { ref, reactive, onMounted, computed, toRaw } from 'vue';
 

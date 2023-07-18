@@ -13,6 +13,7 @@ import {
 	NCheckbox,
 	NButton,
 	NInput,
+	NPopconfirm,
 	useThemeVars,
 } from 'naive-ui';
 import { computed, ref, UnwrapRef, watch } from 'vue';
@@ -97,14 +98,19 @@ async function deleteUsers() {
             {{ isSomeUserMarked ? 'Undo select' : 'Select all' }}
           </n-button>
 
-          <n-button
-            secondary
-            type="error"
-            :disabled="!users.some(u => u.markedForDelete)"
-            @click="deleteUsers"
-          >
-            Delete {{ users.filter(u => u.markedForDelete).length }}
-          </n-button>
+          <n-popconfirm @positive-click="deleteUsers">
+            <template #trigger>
+              <n-button
+                secondary
+                type="error"
+                :disabled="!users.some(u => u.markedForDelete)"
+              >
+                Delete {{ users.filter(u => u.markedForDelete).length }}
+              </n-button>
+            </template>
+
+            Are you sure?
+          </n-popconfirm>
         </n-space>
       </n-space>
 

@@ -11,8 +11,8 @@ import type { EditableCommand, ListRowData } from '@/components/commands/types.j
 
 const props = withDefaults(defineProps<{
 	commands: Command[]
-	showHeader: boolean
-	showCreateButton: boolean,
+	showHeader?: boolean
+	showCreateButton?: boolean,
 }>(), {
 	showHeader: false,
 	showCreateButton: false,
