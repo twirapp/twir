@@ -28,40 +28,38 @@ const copyOverlayLink = () => {
 
 <template>
   <n-card content-style="padding: 0px" class="overlay-item">
-    <n-grid cols="5" style="height: 100%;">
-      <n-grid-item :span="1" class="section-icon">
+    <div style="height: 100%; display: flex">
+      <div class="section-icon">
         <div class="vector">
           <VectorSVG />
         </div>
 
         <slot name="icon" />
-      </n-grid-item>
+      </div>
 
-      <n-grid-item :span="4" class="section-info">
-        <div class="body">
-          <h2 style="margin:0px">
-            {{ title }}
-          </h2>
-          <n-text :style="{ color: themeVars.textColor3, 'margin-top': '12px' }">
-            {{ description }}
-          </n-text>
-          <n-space style="margin-top: 20px;">
-            <n-button secondary size="large" @click="$emit('openSettings')">
-              <n-space justify="space-between" align="center">
-                <n-text>Settings</n-text>
-                <IconSettings style="height: 25px" />
-              </n-space>
-            </n-button>
-            <n-button size="large" @click="copyOverlayLink">
-              <n-space justify="space-between" align="center">
-                <n-text>Copy overlay link</n-text>
-                <IconCopy style="height: 25px" />
-              </n-space>
-            </n-button>
-          </n-space>
-        </div>
-      </n-grid-item>
-    </n-grid>
+      <div class="section-info">
+        <h2 style="margin:0px">
+          {{ title }}
+        </h2>
+        <n-text :style="{ color: themeVars.textColor3, 'margin-top': '12px' }">
+          {{ description }}
+        </n-text>
+        <n-space style="margin-top: 20px;">
+          <n-button secondary size="large" @click="$emit('openSettings')">
+            <n-space justify="space-between" align="center">
+              <n-text>Settings</n-text>
+              <IconSettings style="height: 25px" />
+            </n-space>
+          </n-button>
+          <n-button size="large" @click="copyOverlayLink">
+            <n-space justify="space-between" align="center">
+              <n-text>Copy overlay link</n-text>
+              <IconCopy style="height: 25px" />
+            </n-space>
+          </n-button>
+        </n-space>
+      </div>
+    </div>
   </n-card>
 </template>
 
@@ -79,18 +77,14 @@ const copyOverlayLink = () => {
 	justify-content: center;
 	overflow: hidden;
 	position: relative;
+	flex: 0 0 120px;
 }
 
 .section-info {
 	display: flex;
 	align-items: flex-start;
-	margin: 32px
-}
-
-.section-info .body {
-	display: flex;
 	flex-direction: column;
-	//margin-left: 15px;
+	margin: 32px
 }
 
 .vector {
