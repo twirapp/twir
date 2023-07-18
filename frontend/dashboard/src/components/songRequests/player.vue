@@ -176,9 +176,15 @@ const formatLabelTime = (v: number) => {
     />
 
     <n-space vertical class="card-content">
-      <n-grid :cols="24" :x-gap="10" style="align-items: center; margin-top: 10px; margin-bottom: 10px" responsive="screen">
-        <n-grid-item :span="4">
-          <n-space align="center">
+      <n-grid
+        cols="1 s:1 m:1 l:1 xl:5"
+        responsive="screen"
+        :x-gap="10"
+        :y-gap="10"
+        style="align-items: center; margin-top: 10px; margin-bottom: 10px"
+      >
+        <n-grid-item :span="1" style="width: 100%">
+          <n-space align="center" justify="center">
             <n-button
               size="tiny"
               text
@@ -203,7 +209,7 @@ const formatLabelTime = (v: number) => {
           </n-space>
         </n-grid-item>
 
-        <n-grid-item :span="14">
+        <n-grid-item :span="2">
           <n-slider
             v-model:value="sliderTime"
             :format-tooltip="formatLabelTime"
@@ -217,7 +223,7 @@ const formatLabelTime = (v: number) => {
           />
         </n-grid-item>
 
-        <n-grid-item :span="6">
+        <n-grid-item :span="2">
           <n-space :wrap-item="false" :wrap="false" align="center">
             <n-button size="tiny" text round>
               <IconVolume v-if="!isMuted" @click="isMuted = true" />
