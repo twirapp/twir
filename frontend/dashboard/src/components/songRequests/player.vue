@@ -33,7 +33,7 @@ import { convertMillisToTime } from '@/components/songRequests/helpers.js';
 import { Video } from '@/components/songRequests/hook.js';
 
 const props = defineProps<{
-	currentVideo: Video | null
+	currentVideo?: Video | null
 	nextVideo: boolean
 	openSettingsModal: () => void
 }>();
