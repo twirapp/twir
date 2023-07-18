@@ -48,7 +48,7 @@ const voicesOptions = computed<VoiceGroup[]>(() => {
 
 	const voices: Record<string, VoiceGroup> = {};
 
-	for (const [, voice] of Object.entries(ttsInfo.data.value.voicesInfo)) {
+	for (const [voiceKey, voice] of Object.entries(ttsInfo.data.value.voicesInfo)) {
 		let lang = voice.lang;
 
 		if (voice.lang === 'tt') {
@@ -66,7 +66,7 @@ const voicesOptions = computed<VoiceGroup[]>(() => {
 
 		voices[lang].children.push({
 			key: lang,
-			value: voice.name,
+			value: voiceKey,
 			label: `${voice.name} (${voice.gender})`,
 		});
 	}

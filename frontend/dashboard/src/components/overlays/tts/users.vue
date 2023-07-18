@@ -24,6 +24,7 @@ const themeVars = useThemeVars();
 const descriptionColor = computed(() => themeVars.value.textColor3);
 
 const ttsManager = useTtsOverlayManager();
+const ttsSay = ttsManager.useSay();
 const { data: ttsUsersData, isLoading } = ttsManager.getUsersSettings();
 const usersSettingsDeleter = ttsManager.deleteUsersSettings();
 
@@ -74,6 +75,16 @@ const testText = ref('');
 
 async function deleteUsers() {
 	await usersSettingsDeleter.mutateAsync(users.value.filter(u => u.markedForDelete).map(u => u.userId));
+}
+
+async function testUserVoice(user: ListUser) {
+	await ttsSay.mutateAsync({
+		volume: user.volume,
+		voice: user.voice,
+		pitch: user.pitch,
+		rate: user.rate,
+		text: testText.value || 'Hello world, привет мир',
+	});
 }
 </script>
 
@@ -135,7 +146,10 @@ async function deleteUsers() {
 
               <n-row align-items="center">
                 <n-space align="center">
-                  <IconSpeakerphone style="display: flex" />
+                  <IconSpeakerphone
+                    style="display: flex; cursor: pointer"
+                    @click.stop="testUserVoice(user)"
+                  />
                   <n-checkbox
                     :checked="user.markedForDelete"
                   />

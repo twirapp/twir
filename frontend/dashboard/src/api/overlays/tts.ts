@@ -1,14 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import type {
-	PostRequest,
-	GetUsersSettingsResponse,
-	GetInfoResponse,
-	GetResponse,
+  PostRequest,
+  GetUsersSettingsResponse,
+  GetInfoResponse,
+  GetResponse,
+  SayRequest,
 } from '@twir/grpc/generated/api/api/modules_tts';
 import { Ref, unref } from 'vue';
 
-import { protectedApiClient } from '@/api/twirp.js';
+import { protectedApiClient, unprotectedApiClient } from '@/api/twirp.js';
 
+declare global {
+  interface Window {
+    webkitAudioContext: typeof AudioContext
+  }
+}
 
 export const useTtsOverlayManager = () => {
   const queryClient = useQueryClient();
@@ -55,6 +61,31 @@ export const useTtsOverlayManager = () => {
       },
       onSuccess: async () => {
         await queryClient.invalidateQueries(usersQueryKey);
+      },
+    }),
+    useSay: () => useMutation({
+      mutationKey: ['ttsSay'],
+      mutationFn: async (opts: SayRequest) => {
+        const audioContext = new (window.AudioContext || window!.webkitAudioContext)();
+        const gainNode = audioContext.createGain();
+
+        const req = await unprotectedApiClient.modulesTTSSay(opts);
+
+        const source = audioContext.createBufferSource();
+
+        source.buffer = await audioContext.decodeAudioData(req.response.file.buffer);
+
+        gainNode.gain.value = opts.volume / 100;
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        return new Promise((resolve) => {
+          source.onended = () => {
+            resolve(null);
+          };
+
+          source.start(0);
+        });
       },
     }),
   };
