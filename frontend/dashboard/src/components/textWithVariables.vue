@@ -10,8 +10,8 @@ const text = defineModel({ default: '' });
 
 const props = withDefaults(defineProps<{
 	inputType: 'text' | 'textarea',
-	minRows: 1,
-	maxRows: 6,
+	minRows: number,
+	maxRows: number,
 }>(), {
 	inputType: 'text',
 });

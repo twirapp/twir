@@ -55,13 +55,13 @@ const swatches = [
     :create-button-props="{ class: 'create-button' } as any"
   >
     <template #default="{ value }: { value: FormGroup }">
-      <n-grid :cols="12" :x-gap="5">
-        <n-grid-item :span="6">
+      <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
+        <n-grid-item :span="1">
           <n-form-item label="Name">
             <n-input v-model:value="value.name" type="text" />
           </n-form-item>
         </n-grid-item>
-        <n-grid-item :span="5">
+        <n-grid-item :span="1">
           <n-form-item label="Color">
             <n-color-picker
               v-model:value="value.color"

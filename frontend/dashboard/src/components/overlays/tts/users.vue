@@ -79,8 +79,8 @@ async function deleteUsers() {
 
 <template>
   <div style="padding: 15px">
-    <n-grid v-if="isLoading || !ttsUsersData" :cols="24" :x-gap="10" :y-gap="10">
-      <n-grid-item v-for="i in 16" :key="i" :span="12">
+    <n-grid v-if="isLoading || !ttsUsersData" cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="10" :y-gap="10">
+      <n-grid-item v-for="i in 16" :key="i" :span="1">
         <n-skeleton v-if="!isLoading" size="large" height="60px" :sharp="false" />
       </n-grid-item>
     </n-grid>
@@ -115,8 +115,8 @@ async function deleteUsers() {
       </n-space>
 
       <n-alert v-if="!users.length" title="No one's created their own customizations yet." type="info" />
-      <n-grid v-else cols="1 s:1 m:24 l:24 xl:24" responsive="screen" :x-gap="10" :y-gap="10">
-        <n-grid-item v-for="(user, index) of users" :key="index" :span="12">
+      <n-grid v-else cols="1 s:1 m:2 l:2" responsive="screen" :x-gap="10" :y-gap="10">
+        <n-grid-item v-for="(user, index) of users" :key="index" :span="1">
           <n-card
             class="user-card"
             content-style="padding: 5px"

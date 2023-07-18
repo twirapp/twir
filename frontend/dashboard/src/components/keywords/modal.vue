@@ -124,20 +124,20 @@ const rules: FormRules = {
 
       <n-divider>Settings</n-divider>
 
-      <n-grid :cols="12" :x-gap="5" responsive="self">
-        <n-grid-item :span="6">
+      <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
+        <n-grid-item :span="1">
           <n-form-item label="Cooldown" path="cooldown">
             <n-input-number v-model:value="formValue.cooldown" />
           </n-form-item>
         </n-grid-item>
 
-        <n-grid-item :span="6">
+        <n-grid-item :span="1">
           <n-form-item label="Usages counter" path="usages">
             <n-input-number v-model:value="formValue.usages" />
           </n-form-item>
         </n-grid-item>
 
-        <n-grid-item :span="6">
+        <n-grid-item :span="1">
           <n-card>
             <div class="settings-switch">
               <n-space vertical>

@@ -193,8 +193,8 @@ async function save() {
 
 <template>
   <n-form ref="formRef" :model="formValue" :rules="rules">
-    <n-grid :cols="12" :x-gap="10">
-      <n-grid-item :span="6">
+    <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="10">
+      <n-grid-item :span="1">
         <n-form-item label="Name" path="name" show-require-mark>
           <n-input-group>
             <n-input-group-label>!</n-input-group-label>
@@ -202,7 +202,7 @@ async function save() {
           </n-input-group>
         </n-form-item>
       </n-grid-item>
-      <n-grid-item :span="6">
+      <n-grid-item :span="1">
         <n-form-item label="Aliases" path="aliases">
           <n-dynamic-tags v-model:value="formValue.aliases" />
         </n-form-item>
@@ -292,8 +292,8 @@ async function save() {
       </n-select>
     </n-form-item>
 
-    <n-grid :cols="12" :x-gap="5" responsive="screen">
-      <n-grid-item :span="6">
+    <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
+      <n-grid-item :span="1">
         <n-form-item label="Denied users" path="deniedUsersIds">
           <twitch-users-multiple
             v-model="formValue.deniedUsersIds"
@@ -302,7 +302,7 @@ async function save() {
         </n-form-item>
       </n-grid-item>
 
-      <n-grid-item :span="6">
+      <n-grid-item :span="1">
         <n-form-item label="Allowed users" path="allowedUsersIds">
           <twitch-users-multiple
             v-model="formValue.allowedUsersIds"
@@ -316,8 +316,8 @@ async function save() {
       Restrictions by stats
     </n-divider>
 
-    <n-grid :cols="12" :x-gap="5">
-      <n-grid-item :span="6">
+    <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
+      <n-grid-item :span="1">
         <n-form-item label="Required watch time (hours)" path="requiredWatchTime">
           <n-input-number
             v-model:value="formValue.requiredWatchTime"
@@ -327,7 +327,7 @@ async function save() {
         </n-form-item>
       </n-grid-item>
 
-      <n-grid-item :span="6">
+      <n-grid-item :span="1">
         <n-form-item label="Required messages" path="requiredMessages">
           <n-input-number
             v-model:value="formValue.requiredMessages"
@@ -337,7 +337,7 @@ async function save() {
         </n-form-item>
       </n-grid-item>
 
-      <n-grid-item :span="6">
+      <n-grid-item :span="1">
         <n-form-item label="Required used channels points" path="requiredUsedChannelPoints">
           <n-input-number
             v-model:value="formValue.requiredUsedChannelPoints"
@@ -352,8 +352,8 @@ async function save() {
       Cooldown
     </n-divider>
 
-    <n-grid :cols="12" :x-gap="5">
-      <n-grid-item :span="6">
+    <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
+      <n-grid-item :span="1">
         <n-form-item label="Cooldown (seconds)" path="cooldown">
           <n-input-number
             v-model:value="formValue.cooldown"
@@ -363,7 +363,7 @@ async function save() {
         </n-form-item>
       </n-grid-item>
 
-      <n-grid-item :span="6">
+      <n-grid-item :span="1">
         <n-form-item label="Cooldown type" path="cooldownType" show-require-mark>
           <n-select
             v-model:value="formValue.cooldownType"
@@ -380,8 +380,8 @@ async function save() {
       Settings
     </n-divider>
 
-    <n-grid :cols="12" :x-gap="5" :y-gap="5" item-responsive>
-      <n-grid-item :span="6">
+    <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5" :y-gap="5">
+      <n-grid-item :span="1">
         <n-card>
           <div class="settings-card-body">
             <n-space vertical>
@@ -393,7 +393,7 @@ async function save() {
         </n-card>
       </n-grid-item>
 
-      <n-grid-item :span="6">
+      <n-grid-item :span="1">
         <n-card>
           <div class="settings-card-body">
             <n-space vertical>
@@ -405,7 +405,7 @@ async function save() {
         </n-card>
       </n-grid-item>
 
-      <n-grid-item :span="6">
+      <n-grid-item :span="1">
         <n-card>
           <div class="settings-card-body">
             <n-space vertical>
@@ -417,7 +417,7 @@ async function save() {
         </n-card>
       </n-grid-item>
 
-      <n-grid-item :span="6">
+      <n-grid-item :span="1">
         <n-card>
           <div class="settings-card-body">
             <n-space vertical>

@@ -112,7 +112,7 @@ async function save() {
     <n-skeleton v-if="!formValue || ttsSettings.isLoading.value" :sharp="false" size="large" />
 
     <n-form v-else style="margin-top: 15px">
-      <n-grid cols="1 s:1 m:2 l:2" responsive="screen" :x-gap="15" :y-gap="10">
+      <n-grid cols="1 s:1 m:2 l:2" responsive="screen" :x-gap="20" :y-gap="20">
         <n-grid-item :span="1">
           <n-space justify="space-between">
             <n-text>Enabled</n-text>

@@ -13,11 +13,14 @@ const primaryColor = computed(() => themeVars.value.hoverColor);
 </script>
 
 <template>
-  <n-grid cols="1 s:2 m:6 l:15 xl:21" :x-gap="10" :y-gap="10" responsive="screen">
-    <n-grid-item :span="3">
+  <n-grid cols="1 s:2 m:3 l:5" :x-gap="10" :y-gap="10" responsive="screen">
+    <n-grid-item :span="1">
       <tts />
     </n-grid-item>
-    <n-grid-item :span="3">
+    <n-grid-item :span="1">
+      <tts />
+    </n-grid-item>
+    <n-grid-item :span="1">
       <tts />
     </n-grid-item>
   </n-grid>
