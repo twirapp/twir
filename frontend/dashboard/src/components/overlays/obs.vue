@@ -14,7 +14,7 @@ const { data: obsSettings } = obsManager.getSettings();
 
 const userProfile = useProfile();
 const overlayLink = computed(() => {
-	if (obsSettings.value?.serverAddress) return;
+	if (!obsSettings.value?.serverAddress) return;
 
 	return `${window.location.origin}/overlays/${userProfile.data?.value?.apiKey}/obs`;
 });

@@ -24,6 +24,7 @@ const themeVars = useThemeVars();
 const descriptionColor = computed(() => themeVars.value.textColor3);
 
 const ttsManager = useTtsOverlayManager();
+const ttsSettings = ttsManager.getSettings();
 const ttsSay = ttsManager.useSay();
 const { data: ttsUsersData, isLoading } = ttsManager.getUsersSettings();
 const usersSettingsDeleter = ttsManager.deleteUsersSettings();
@@ -79,7 +80,7 @@ async function deleteUsers() {
 
 async function testUserVoice(user: ListUser) {
 	await ttsSay.mutateAsync({
-		volume: user.volume,
+		volume: ttsSettings.data?.value?.data?.volume || 50,
 		voice: user.voice,
 		pitch: user.pitch,
 		rate: user.rate,

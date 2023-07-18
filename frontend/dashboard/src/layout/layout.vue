@@ -9,8 +9,10 @@ import {
   NLayoutSider,
   NConfigProvider,
 	NMessageProvider,
+	NDrawer,
+	NDrawerContent,
 } from 'naive-ui';
-import { computed, ref, watch, onMounted } from 'vue';
+import { computed, watch } from 'vue';
 import { RouterView } from 'vue-router';
 
 import { useTheme } from '@/hooks/index.js';
@@ -20,12 +22,19 @@ import Sidebar from '@/layout/sidebar.vue';
 const { theme } = useTheme();
 const themeStyles = computed(() => theme.value === 'dark' ? darkTheme : lightTheme);
 
-
 const breakPoints = useBreakpoints(breakpointsTailwind);
 const smallerOrEqualLg = breakPoints.smallerOrEqual('lg');
 
 const storedSidebarValue = useLocalStorage('twirSidebarIsCollapsed', false);
-const toggleSidebar = () => storedSidebarValue.value = !storedSidebarValue.value;
+const storedDrawerValue = useLocalStorage('twirDrawerIsCollapsed', false);
+
+const toggleSidebar = () => {
+	if (smallerOrEqualLg.value) {
+		storedDrawerValue.value = !storedDrawerValue.value;
+	} else {
+		storedSidebarValue.value = !storedSidebarValue.value;
+	}
+};
 
 const isSidebarCollapsed = computed(() => {
 	return storedSidebarValue.value;
@@ -45,6 +54,7 @@ watch(smallerOrEqualLg, (v) => {
         </n-layout-header>
         <n-layout has-sider style="height: calc(100vh - 43px)">
           <n-layout-sider
+            v-if="!smallerOrEqualLg"
             bordered
             collapse-mode="width"
             :collapsed-width="64"
@@ -55,6 +65,11 @@ watch(smallerOrEqualLg, (v) => {
           >
             <Sidebar />
           </n-layout-sider>
+          <n-drawer v-else v-model:show="storedDrawerValue" placement="left">
+            <n-drawer-content body-content-style="padding: 0px">
+              <Sidebar />
+            </n-drawer-content>
+          </n-drawer>
           <n-layout-content content-style="padding: 24px; width: 100%">
             <router-view v-slot="{ Component, route }">
               <transition :name="route.meta.transition || 'fade'" mode="out-in">
