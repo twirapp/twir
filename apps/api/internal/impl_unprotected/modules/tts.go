@@ -1,11 +1,11 @@
 package modules
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"github.com/imroc/req/v3"
 	"github.com/satont/twir/libs/grpc/generated/api/modules_tts"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"net/url"
 	"strconv"
 )
@@ -13,7 +13,7 @@ import (
 func (c *Modules) ModulesTTSSay(
 	ctx context.Context,
 	request *modules_tts.SayRequest,
-) (*emptypb.Empty, error) {
+) (*modules_tts.SayResponse, error) {
 	reqUrl, err := url.Parse(fmt.Sprintf("http://%s/say", c.Config.TTSServiceUrl))
 	if err != nil {
 		return nil, err
@@ -29,13 +29,16 @@ func (c *Modules) ModulesTTSSay(
 
 	reqUrl.RawQuery = query.Encode()
 
-	resp, err := req.SetContext(ctx).Get(reqUrl.String())
+	var b bytes.Buffer
+	resp, err := req.SetContext(ctx).SetOutput(&b).Get(reqUrl.String())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot use say %w", err)
 	}
 	if !resp.IsSuccessState() {
 		return nil, fmt.Errorf("cannot use say %s", resp.String())
 	}
 
-	return &emptypb.Empty{}, nil
+	return &modules_tts.SayResponse{
+		File: b.Bytes(),
+	}, nil
 }

@@ -76,7 +76,7 @@ async function save() {
 
 <template>
   <n-form ref="formRef">
-    <n-form-item label="Name">
+    <n-form-item label="Name" show-require-mark>
       <n-input v-model:value="formValue.name" />
     </n-form-item>
 

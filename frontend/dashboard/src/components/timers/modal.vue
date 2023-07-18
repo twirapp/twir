@@ -143,10 +143,10 @@ const sliderMarks = {
     :rules="rules"
   >
     <n-space vertical style="width: 100%">
-      <n-form-item label="Name" path="name">
+      <n-form-item label="Name" path="name" show-require-mark>
         <n-input v-model:value="formValue.name" />
       </n-form-item>
-      <n-form-item label="Time interval in minutes" path="timeInterval">
+      <n-form-item label="Time interval in minutes" path="timeInterval" show-require-mark>
         <n-grid :cols="12" :x-gap="5">
           <n-grid-item :span="10">
             <n-slider
@@ -177,7 +177,7 @@ const sliderMarks = {
       >
         <template #default="{ value, index }: { value: EditableTimerResponse }">
           <n-space vertical style="width: 100%">
-            <n-form-item :path="`responses[${index}].text`" :rule="rules.responses">
+            <n-form-item :path="`responses[${index}].text`" :rule="rules.responses" show-require-mark>
               <n-input
                 v-model:value="value.text"
                 type="textarea"

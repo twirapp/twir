@@ -103,11 +103,11 @@ const selectOptions: Array<SelectOption> = [
     }"
   >
     <n-space vertical style="width: 100%">
-      <n-form-item label="Name" path="name">
+      <n-form-item label="Name" path="name" show-require-mark>
         <n-input v-model:value="formValue.name" />
       </n-form-item>
 
-      <n-form-item label="Type" path="type">
+      <n-form-item label="Type" path="type" show-require-mark>
         <n-select
           v-model:value="formValue.type"
           :options="selectOptions"

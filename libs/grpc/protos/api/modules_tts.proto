@@ -58,3 +58,19 @@ message SayRequest {
 	string text = 4;
 	string voice = 5;
 }
+
+message SayResponse {
+	bytes file = 1;
+}
+
+message GetUsersSettingsResponse {
+	message UserSettings {
+		string user_id = 1;
+		uint32 rate = 2;
+		uint32 volume = 3;
+		uint32 pitch = 4;
+		string voice = 5;
+	}
+
+	repeated UserSettings data = 1;
+}

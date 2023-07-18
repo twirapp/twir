@@ -90,13 +90,13 @@ const rules: FormRules = {
     :rules="rules"
   >
     <n-space vertical style="width: 100%">
-      <n-form-item label="User" path="userId">
+      <n-form-item label="User" path="userId" show-require-mark>
         <twitch-user-search
           v-model="formValue.userId"
           :initial-user-id="props.greeting?.userId"
         />
       </n-form-item>
-      <n-form-item label="Text" path="text">
+      <n-form-item label="Text" path="text" show-require-mark>
         <text-with-variables v-model="formValue.text" />
       </n-form-item>
 

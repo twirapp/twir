@@ -18,7 +18,7 @@ import {
 import type { TableColumn } from 'naive-ui/es/data-table/src/interface';
 import { h } from 'vue';
 
-import { timeAgo, convertMillisToTime } from '@/components/songRequests/helpers.js';
+import { convertMillisToTime } from '@/components/songRequests/helpers.js';
 import type { Video } from '@/components/songRequests/hook.js';
 
 const props = defineProps<{
@@ -35,7 +35,7 @@ const columns: TableColumn<Video>[] = [
 		title: '#',
 		key: 'position',
 		width: 25,
-		render(row, index) {
+		render(_, index) {
 			return index+1;
 		},
 	},

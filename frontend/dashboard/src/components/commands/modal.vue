@@ -194,7 +194,7 @@ async function save() {
   <n-form ref="formRef" :model="formValue" :rules="rules">
     <n-grid :cols="12" :x-gap="10">
       <n-grid-item :span="6">
-        <n-form-item label="Name" path="name">
+        <n-form-item label="Name" path="name" show-require-mark>
           <n-input-group>
             <n-input-group-label>!</n-input-group-label>
             <n-input v-model:value="formValue.name" placeholder="Input Name" />
@@ -363,7 +363,7 @@ async function save() {
       </n-grid-item>
 
       <n-grid-item :span="6">
-        <n-form-item label="Cooldown type" path="cooldownType">
+        <n-form-item label="Cooldown type" path="cooldownType" show-require-mark>
           <n-select
             v-model:value="formValue.cooldownType"
             :options="[
@@ -438,7 +438,7 @@ async function save() {
         v-model:value="formValue.groupId"
         :options="commandsGroupsOptions"
         clearable
-        :fallback-option="''"
+        :fallback-option="undefined"
       />
     </n-form-item>
 

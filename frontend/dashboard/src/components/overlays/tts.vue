@@ -24,9 +24,11 @@ import { ref, computed } from 'vue';
 
 import { useTtsOverlayManager, useCommandsManager, useProfile } from '@/api/index.js';
 import CommandsList from '@/components/commands/list.vue';
+import UsersSettings from '@/components/overlays/tts/users.vue';
 
 const ttsManager = useTtsOverlayManager();
 const ttsSettings = ttsManager.getSettings();
+const ttsUpdater = ttsManager.updateSettings();
 const ttsInfo = ttsManager.getInfo();
 
 type Voices = Array<{ label: string, value: string }>
@@ -62,6 +64,10 @@ const formValue = ref<TTSSettings['data']>({
 	readChatMessages: false,
 	readChatMessagesNicknames: false,
 });
+
+async function save() {
+	await ttsUpdater.mutateAsync({ data: formValue.value });
+}
 
 const commandsManager = useCommandsManager();
 const allCommands = commandsManager.getAll({});
@@ -105,7 +111,7 @@ const isModalOpened = ref(false);
     preset="card"
     title="TTS"
     content-style="padding: 0px; width: 100%"
-    style="width: 700px; max-width: calc(100vw - 40px);"
+    style="width: 800px; max-width: calc(100vw - 40px);"
   >
     <template #header-extra>
       <n-button secondary type="success" @click="copyOverlayLink">
@@ -120,7 +126,9 @@ const isModalOpened = ref(false);
             Hint: you can use events system to trigger tts on reward.
           </n-alert>
 
-          <n-form>
+          <n-skeleton v-if="!formValue || ttsSettings.isLoading.value" :sharp="false" size="large" />
+
+          <n-form v-else>
             <n-space justify="space-between">
               <n-text>Enabled</n-text>
               <n-switch v-model:value="formValue.enabled" />
@@ -190,10 +198,14 @@ const isModalOpened = ref(false);
               </n-form-item>
             </n-space>
           </n-form>
+
+          <n-button secondary type="success" block style="margin-top: 10px" @click="save">
+            Save
+          </n-button>
         </n-space>
       </n-tab-pane>
-      <n-tab-pane name="the beatles" tab="the Beatles">
-        Hey Jude
+      <n-tab-pane name="users" tab="Users tts settings">
+        <users-settings />
       </n-tab-pane>
       <n-tab-pane name="commands" tab="Commands">
         <commands-list :commands="ttsCommands" :show-header="false" />

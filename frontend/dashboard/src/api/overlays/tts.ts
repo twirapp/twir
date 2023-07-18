@@ -1,5 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
-import type { PostRequest } from '@twir/grpc/generated/api/api/modules_tts';
+import type {
+	PostRequest,
+	GetUsersSettingsResponse,
+	GetInfoResponse,
+	GetResponse,
+} from '@twir/grpc/generated/api/api/modules_tts';
 
 import { protectedApiClient } from '@/api/twirp.js';
 
@@ -11,7 +16,7 @@ export const useTtsOverlayManager = () => {
   return {
     getSettings: () => useQuery({
       queryKey,
-      queryFn: async () => {
+      queryFn: async (): Promise<GetResponse> => {
         const call = await protectedApiClient.modulesTTSGet({});
         return call.response;
       },
@@ -27,8 +32,15 @@ export const useTtsOverlayManager = () => {
     }),
     getInfo: () => useQuery({
       queryKey: ['ttsInfo'],
-      queryFn: async () => {
+      queryFn: async (): Promise<GetInfoResponse> => {
         const call = await protectedApiClient.modulesTTSGetInfo({});
+        return call.response;
+      },
+    }),
+    getUsersSettings: () => useQuery({
+      queryKey: ['ttsUsersSettings'],
+      queryFn: async (): Promise<GetUsersSettingsResponse> => {
+        const call = await protectedApiClient.modulesTTSGetUsersSettings({});
         return call.response;
       },
     }),

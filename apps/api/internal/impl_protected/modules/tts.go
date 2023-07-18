@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/imroc/req/v3"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/modules_tts"
 	"github.com/satont/twir/libs/types/types/api/modules"
@@ -18,7 +20,7 @@ func (c *Modules) ModulesTTSGet(ctx context.Context, empty *emptypb.Empty) (*mod
 	entity := &model.ChannelModulesSettings{}
 	if err := c.Db.
 		WithContext(ctx).
-		Where(`"channelId" = ? AND "type" = ? AND "userId" = ?`, dashboardId, TTSType, nil).
+		Where(`"channelId" = ? AND "type" = ? AND "userId" IS null`, dashboardId, TTSType).
 		First(entity).Error; err != nil {
 		return nil, err
 	}
@@ -57,8 +59,8 @@ func (c *Modules) ModulesTTSUpdate(
 	entity := &model.ChannelModulesSettings{}
 	if err := c.Db.
 		WithContext(ctx).
-		Where(`"channelId" = ? AND "type" = ? AND "userId" = ?`, dashboardId, TTSType, nil).
-		First(entity).Error; err != nil {
+		Where(`"channelId" = ? AND "type" = ? AND "userId" IS NULL`, dashboardId, TTSType).
+		Find(entity).Error; err != nil {
 		return nil, err
 	}
 
@@ -82,6 +84,12 @@ func (c *Modules) ModulesTTSUpdate(
 		return nil, err
 	}
 
+	if entity.ID == "" {
+		entity.ID = uuid.New().String()
+		entity.ChannelId = dashboardId
+		entity.Type = TTSType
+	}
+
 	entity.Settings = bytes
 	if err := c.Db.WithContext(ctx).Save(entity).Error; err != nil {
 		return nil, err
@@ -101,7 +109,7 @@ func (c *Modules) ModulesTTSGetInfo(
 		SetSuccessResult(&result).
 		Get(fmt.Sprintf("http://%s/info", c.Config.TTSServiceUrl))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("tts service is not available: %w", err)
 	}
 	if !resp.IsSuccessState() {
 		return nil, fmt.Errorf("tts service is not available: %w", err)
@@ -187,4 +195,40 @@ func (c *Modules) ModulesTTSGetInfo(
 		SupportedVoices: supportedVoices,
 		VoicesInfo:      voicesInfo,
 	}, nil
+}
+
+func (c *Modules) ModulesTTSGetUsersSettings(
+	ctx context.Context,
+	_ *emptypb.Empty,
+) (*modules_tts.GetUsersSettingsResponse, error) {
+	dashboardId := ctx.Value("dashboardId").(string)
+	var entities []model.ChannelModulesSettings
+	if err := c.Db.
+		WithContext(ctx).
+		Where(`"channelId" = ? AND "type" = ? AND "userId" IS NOT NULL`, dashboardId, TTSType).
+		Find(&entities).Error; err != nil {
+		return nil, fmt.Errorf("cannot get users settings: %w", err)
+	}
+
+	response := &modules_tts.GetUsersSettingsResponse{
+		Data: lo.Map(
+			entities,
+			func(item model.ChannelModulesSettings, _ int) *modules_tts.GetUsersSettingsResponse_UserSettings {
+				settings := &modules.TTSSettings{}
+				if err := json.Unmarshal(item.Settings, settings); err != nil {
+					return nil
+				}
+
+				return &modules_tts.GetUsersSettingsResponse_UserSettings{
+					UserId: item.UserId.String,
+					Rate:   uint32(settings.Rate),
+					Volume: uint32(settings.Volume),
+					Pitch:  uint32(settings.Pitch),
+					Voice:  settings.Voice,
+				}
+			},
+		),
+	}
+
+	return response, nil
 }

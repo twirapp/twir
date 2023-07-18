@@ -5,25 +5,25 @@
   "scripts": {
     "lint": "eslint --ext .ts,.vue apps/",
     "lint:fix": "eslint --fix --ext .ts,.vue,tsx apps/ frontend/",
-		"predev": "pnpm migrate:deploy && pnpm run setup && pnpm build:libs",
+    "predev": "pnpm migrate:deploy && pnpm run setup && pnpm build:libs",
     "dev": "go run ./tools/process-runner.go",
     "build": "turbo run build",
     "build:libs": "turbo run build --filter=./libs/**",
     "migrate:deploy": "pnpm --filter=@twir/typeorm run deploy",
-		"setup": "pnpm --filter=@twir/typeorm run setup",
-		"cache-golang-deps": "ts-node --esm --transpileOnly ./tools/cache-go-deps.ts"
+    "setup": "pnpm --filter=@twir/typeorm run setup",
+    "cache-golang-deps": "ts-node --esm --transpileOnly ./tools/cache-go-deps.ts"
   },
   "author": "Satont <satontworldwide@gmail.com>",
   "devDependencies": {
-    "@types/node": "18.11.10",
-    "@typescript-eslint/eslint-plugin": "5.45.0",
-    "@typescript-eslint/parser": "5.45.0",
+    "@types/node": "20.4.2",
+    "@typescript-eslint/eslint-plugin": "6.1.0",
+    "@typescript-eslint/parser": "6.1.0",
     "cross-env": "^7.0.3",
-    "eslint": "8.28.0",
-    "eslint-plugin-import": "2.26.0",
-    "eslint-plugin-vue": "^9.9.0",
+    "eslint": "8.45.0",
+    "eslint-plugin-import": "2.27.5",
+    "eslint-plugin-vue": "^9.15.1",
     "ts-node": "10.9.1",
     "turbo": "1.6.3",
-    "typescript": "4.9.3"
+    "typescript": "5.1.6"
   }
 }

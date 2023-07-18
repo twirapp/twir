@@ -106,7 +106,7 @@ const rules: FormRules = {
     :rules="rules"
   >
     <n-space vertical style="width: 100%">
-      <n-form-item label="Text" path="text">
+      <n-form-item label="Text" path="text" show-require-mark>
         <n-input v-model:value="formValue.text" />
       </n-form-item>
       <n-checkbox v-model:checked="formValue.isRegular">

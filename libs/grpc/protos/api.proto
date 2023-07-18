@@ -122,6 +122,7 @@ service Protected {
 	rpc ModulesTTSGet(google.protobuf.Empty) returns (api.modules_tts.GetResponse) {}
 	rpc ModulesTTSUpdate(api.modules_tts.PostRequest) returns (google.protobuf.Empty) {}
 	rpc ModulesTTSGetInfo(google.protobuf.Empty) returns (api.modules_tts.GetInfoResponse) {}
+	rpc ModulesTTSGetUsersSettings(google.protobuf.Empty) returns (api.modules_tts.GetUsersSettingsResponse) {}
 
 	rpc ModulesSRGet(google.protobuf.Empty) returns (api.modules_sr.GetResponse) {}
 	rpc ModulesSRSearchVideosOrChannels(api.modules_sr.GetSearchRequest) returns (api.modules_sr.GetSearchResponse) {}
@@ -171,5 +172,5 @@ service UnProtected {
 	rpc AuthGetLink(api.auth.GetLinkRequest) returns (api.auth.GetLinkResponse) {}
 	rpc AuthPostCode(api.auth.PostCodeRequest) returns (google.protobuf.Empty) {}
 
-	rpc ModulesTTSSay(api.modules_tts.SayRequest) returns (google.protobuf.Empty) {}
+	rpc ModulesTTSSay(api.modules_tts.SayRequest) returns (api.modules_tts.SayResponse) {}
 }
