@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { IconSettings, IconCopy } from '@tabler/icons-vue';
-import { NCard, NSpace, NButton, NText, useThemeVars, useMessage } from 'naive-ui';
+import { NCard, NSpace, NButton, NText, useThemeVars, useMessage, NTooltip } from 'naive-ui';
 import { FunctionalComponent } from 'vue';
 
 import VectorSVG from './vector.svg?component';
@@ -10,7 +10,7 @@ const themeVars = useThemeVars();
 const props = defineProps<{
 	description: string
 	title: string
-	overlayLink: string
+	overlayLink?: string
 }>();
 defineSlots<{
 	icon: FunctionalComponent<any>
@@ -21,6 +21,8 @@ defineEmits<{
 
 const messages = useMessage();
 const copyOverlayLink = () => {
+	if (!props.overlayLink) return;
+
 	navigator.clipboard.writeText(props.overlayLink);
 	messages.success('Copied link url, paste it in obs as browser source');
 };
@@ -51,12 +53,17 @@ const copyOverlayLink = () => {
               <IconSettings style="height: 25px" />
             </n-space>
           </n-button>
-          <n-button size="large" secondary type="info" @click="copyOverlayLink">
-            <n-space justify="space-between" align="center">
-              <n-text>Copy overlay link</n-text>
-              <IconCopy style="height: 25px" />
-            </n-space>
-          </n-button>
+          <n-tooltip :disabled="!!overlayLink">
+            <template #trigger>
+              <n-button size="large" secondary type="info" :disabled="!overlayLink" @click="copyOverlayLink">
+                <n-space justify="space-between" align="center">
+                  <n-text>Copy overlay link</n-text>
+                  <IconCopy style="height: 25px" />
+                </n-space>
+              </n-button>
+            </template>
+            You should configure overlay first
+          </n-tooltip>
         </n-space>
       </div>
     </div>

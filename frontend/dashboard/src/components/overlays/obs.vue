@@ -5,13 +5,17 @@ import { ref, computed } from 'vue';
 
 import Settings from './obs/settings.vue';
 
-import { useProfile } from '@/api/index.js';
+import { useProfile, useObsOverlayManager } from '@/api/index.js';
 import Card from '@/components/overlays/card.vue';
 
 const isModalOpened = ref(false);
+const obsManager = useObsOverlayManager();
+const { data: obsSettings } = obsManager.getSettings();
 
 const userProfile = useProfile();
 const overlayLink = computed(() => {
+	if (obsSettings.value?.serverAddress) return;
+
 	return `${window.location.origin}/overlays/${userProfile.data?.value?.apiKey}/obs`;
 });
 </script>
@@ -37,12 +41,6 @@ const overlayLink = computed(() => {
     content-style="padding: 10px; width: 100%"
     style="width: 500px; max-width: calc(100vw - 40px);"
   >
-    <template #header-extra>
-      <n-button secondary type="success" @click="copyOverlayLink">
-        Copy link url
-      </n-button>
-    </template>
-
     <Settings />
   </n-modal>
 </template>
