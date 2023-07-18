@@ -25,8 +25,8 @@ const {
 </script>
 
 <template>
-  <n-grid cols="1 s:1 m:1 l:12 xl:12" :y-gap="15" :x-gap="15" responsive="screen">
-    <n-grid-item :span="4">
+  <n-grid cols="1 s:1 m:1 l:3" responsive="screen" :y-gap="15" :x-gap="15">
+    <n-grid-item :span="1">
       <player
         :current-video="currentVideo"
         :next-video="videos.length > 1"
@@ -35,7 +35,7 @@ const {
       />
     </n-grid-item>
 
-    <n-grid-item :span="8">
+    <n-grid-item :span="2">
       <videos-queue
         :queue="videos"
         @delete-video="(id) => deleteVideo(id)"
