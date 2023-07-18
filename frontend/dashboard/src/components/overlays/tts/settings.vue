@@ -23,9 +23,15 @@ const ttsSettings = ttsManager.getSettings();
 const ttsUpdater = ttsManager.updateSettings();
 const ttsInfo = ttsManager.getInfo();
 
-const flagsMapping = {
-	'RU': '',
-	'MK': '',
+const countriesMapping: Record<string, string> = {
+	'ru': '🇷🇺 Russia',
+	'mk': '🇲🇰 North Macedonia',
+	'uk': '🇺🇦 Ukraine',
+	'ky': '🇰🇬 Kyrgyzstan',
+	'en': '🇺🇸 USA',
+	'pt': '🇵🇹 Portugal',
+	'ka': '🇬🇪 Georgia',
+	'eo': '🇺🇳 World Language :)',
 };
 
 type Voice = { label: string, value: string, key: string }
@@ -36,17 +42,23 @@ const voicesOptions = computed<VoiceGroup[]>(() => {
 	const voices: Record<string, VoiceGroup> = {};
 
 	for (const [, voice] of Object.entries(ttsInfo.data.value.voicesInfo)) {
-		if (!voices[voice.lang]) {
-			voices[voice.lang] = {
-				key: voice.lang,
-				label: voice.lang.toUpperCase(),
+		let lang = voice.lang;
+
+		if (voice.lang === 'tt') {
+			lang = 'ru';
+		}
+
+		if (!voices[lang]) {
+			voices[lang] = {
+				key: lang,
+				label: `${countriesMapping[lang] ?? ''}`,
 				type: 'group',
 				children: [],
 			};
 		}
 
-		voices[voice.lang].children.push({
-			key: voice.lang,
+		voices[lang].children.push({
+			key: lang,
 			value: voice.name,
 			label: voice.name,
 		});
