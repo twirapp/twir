@@ -8,6 +8,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/integrations"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"gorm.io/gorm"
 )
 
@@ -16,6 +17,7 @@ type Grpc struct {
 	Integrations integrations.IntegrationsClient
 	Bots         bots.BotsClient
 	Parser       parser.ParserClient
+	Websockets   websockets.WebsocketClient
 }
 
 type Deps struct {

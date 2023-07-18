@@ -18,6 +18,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/integrations"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -61,6 +62,9 @@ func main() {
 			},
 			func(c *cfg.Config) events.EventsClient {
 				return clients.NewEvents(c.AppEnv)
+			},
+			func(c *cfg.Config) websockets.WebsocketClient {
+				return clients.NewWebsocket(c.AppEnv)
 			},
 			func(config *cfg.Config, lc fx.Lifecycle) *redis.Client {
 				redisOpts, err := redis.ParseURL(config.RedisUrl)

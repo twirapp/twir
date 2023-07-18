@@ -39,6 +39,29 @@ func NewObs(services *types.Services) *OBS {
 	return obs
 }
 
+func (c *OBS) IsUserConnected(userId string) (bool, error) {
+	sessions, err := c.manager.Sessions()
+	if err != nil {
+		return false, err
+	}
+
+	for _, s := range sessions {
+		value, exists := s.Get("userId")
+		if !exists {
+			continue
+		}
+		castedValue, ok := value.(string)
+		if !ok {
+			continue
+		}
+		if castedValue == userId {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 func (c *OBS) SendEvent(userId, eventName string, data any) error {
 	message := &types.WebSocketMessage{
 		EventName: eventName,

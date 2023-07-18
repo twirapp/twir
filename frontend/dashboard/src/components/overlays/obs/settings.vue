@@ -10,9 +10,10 @@ import {
 	NInputNumber,
 	NButton,
 	NAlert,
+	NSpace,
 	useMessage,
 } from 'naive-ui';
-import { ref, watch, toRaw } from 'vue';
+import { ref, watch, toRaw, computed } from 'vue';
 
 import { useObsOverlayManager } from '@/api/index.js';
 
@@ -30,7 +31,7 @@ const formValue = ref<OBSSettings>({
 	serverPort: 4455,
 });
 const rules: FormRules = {
-	address: {
+	serverAddress: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: string) => {
 			if (!value || !value.length) {
@@ -40,7 +41,7 @@ const rules: FormRules = {
 			return true;
 		},
 	},
-	port: {
+	serverPort: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: number) => {
 			if (!value) {
@@ -50,7 +51,7 @@ const rules: FormRules = {
 			return true;
 		},
 	},
-	password: {
+	serverPassword: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: string) => {
 			if (!value || !value.length) {
@@ -73,7 +74,13 @@ async function save() {
 	await formRef.value.validate();
 
 	await obsSettingsUpdater.mutateAsync(formValue.value);
-	message.success('Settings updated');
+	message.success('Settings updated, now you can paste overlay link into obs', {
+		duration: 5000,
+	});
+}
+
+async function checkConnection() {
+	await obsSettings.refetch();
 }
 </script>
 
@@ -91,26 +98,36 @@ async function save() {
     <n-form-item
       label="Address."
       required
-      path="address"
+      path="serverAddress"
     >
-      <n-input placeholder="Usually it's localhost" />
+      <n-input v-model:value="formValue.serverAddress" placeholder="Usually it's localhost" />
     </n-form-item>
 
-    <n-form-item label="Port" required path="port">
-      <n-input-number :min="1" :max="66000" placeholder="Socket port" />
+    <n-form-item label="Port" required path="serverPort">
+      <n-input-number v-model:value="formValue.serverPort" :min="1" :max="66000" placeholder="Socket port" />
     </n-form-item>
 
-    <n-form-item label="Password" required path="password">
+    <n-form-item label="Password" required path="serverPassword">
       <n-input
+        v-model:value="formValue.serverPassword"
         type="password"
         show-password-on="click"
         placeholder="Socket password"
-        :maxlength="8"
       />
     </n-form-item>
 
-    <n-button block secondary type="success" @click="save">
-      Save
-    </n-button>
+    <n-alert :type="obsSettings.data.value?.isConnected ? 'success' : 'error'" :bordered="false">
+      {{ obsSettings.data.value?.isConnected ? 'Connected' : 'Not connected' }}
+    </n-alert>
+
+    <n-space vertical style="margin-top: 10px">
+      <n-button block secondary type="info" @click="checkConnection">
+        Check connection
+      </n-button>
+
+      <n-button block secondary type="success" @click="save">
+        Save
+      </n-button>
+    </n-space>
   </n-form>
 </template>

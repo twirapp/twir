@@ -7,6 +7,7 @@ service Websocket {
   rpc YoutubeAddSongToQueue(YoutubeAddSongToQueueRequest) returns (google.protobuf.Empty) {}
   rpc YoutubeRemoveSongToQueue(YoutubeRemoveSongFromQueueRequest) returns (google.protobuf.Empty) {}
 
+  rpc ObsCheckIsUserConnected(ObsCheckUserConnectedRequest) returns (ObsCheckUserConnectedResponse) {}
   rpc ObsSetScene(ObsSetSceneMessage) returns (google.protobuf.Empty) {}
   rpc ObsToggleSource(ObsToggleSourceMessage) returns (google.protobuf.Empty) {}
   rpc ObsToggleAudio(ObsToggleAudioMessage) returns (google.protobuf.Empty) {}
@@ -85,4 +86,13 @@ message TTSMessage {
 
 message TTSSkipMessage {
   string channelId = 1;
+}
+
+
+message ObsCheckUserConnectedRequest {
+  string user_id = 1;
+}
+
+message ObsCheckUserConnectedResponse {
+  bool state = 1;
 }

@@ -24,6 +24,7 @@ import (
 	integrationsGrpc "github.com/satont/twir/libs/grpc/generated/integrations"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -58,6 +59,7 @@ type Opts struct {
 	BotsGrpc         bots.BotsClient
 	IntegrationsGrpc integrationsGrpc.IntegrationsClient
 	ParserGrpc       parser.ParserClient
+	WebsocketsGrpc   websockets.WebsocketClient
 }
 
 func New(opts Opts) *Protected {
@@ -71,6 +73,7 @@ func New(opts Opts) *Protected {
 			Bots:         opts.BotsGrpc,
 			Integrations: opts.IntegrationsGrpc,
 			Parser:       opts.ParserGrpc,
+			Websockets:   opts.WebsocketsGrpc,
 		},
 	}
 

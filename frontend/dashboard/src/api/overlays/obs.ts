@@ -3,7 +3,7 @@ import type {
   GetResponse,
   PostRequest,
 } from '@twir/grpc/generated/api/api/modules_obs_websocket';
-import { Ref, toRaw, unref } from 'vue';
+import { Ref, unref } from 'vue';
 
 import { protectedApiClient } from '@/api/twirp.js';
 
@@ -24,6 +24,9 @@ export const useObsOverlayManager = () => {
       mutationFn: async (opts: PostRequest | Ref<PostRequest>) => {
         const data = unref(opts);
         await protectedApiClient.modulesOBSWebsocketUpdate(data);
+      },
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(queryKey);
       },
     }),
   };

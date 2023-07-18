@@ -10,6 +10,7 @@ message GetResponse {
 	repeated string sources = 4;
 	repeated string audio_sources = 5;
 	repeated string scenes = 6;
+	bool isConnected = 7;
 }
 
 message PostRequest {

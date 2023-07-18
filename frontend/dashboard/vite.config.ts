@@ -37,6 +37,17 @@ export default defineConfig({
 				ws: true,
 				rewrite: (path) => path.replace(/^\/socket/, ''),
 			},
+			'/p': {
+				target: 'http://127.0.0.1:3007',
+				changeOrigin: true,
+				ws: true,
+				// rewrite: (path) => path.replace(/^\/p/, ''),
+			},
+			'/overlays': {
+				target: 'http://127.0.0.1:3008',
+				changeOrigin: true,
+				ws: true,
+			},
 		},
 	},
 	clearScreen: false,

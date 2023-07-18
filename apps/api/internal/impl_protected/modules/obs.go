@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/modules_obs_websocket"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"github.com/satont/twir/libs/types/types/api/modules"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -24,7 +26,7 @@ func (c *Modules) ModulesOBSWebsocketGet(
 		WithContext(ctx).
 		Where(`"channelId" = ? AND "type" = ?`, dashboardId, ObsType).
 		First(entity).Error; err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot get obs settings: %w", err)
 	}
 
 	settings := &modules.OBSWebSocketSettings{}
@@ -35,9 +37,20 @@ func (c *Modules) ModulesOBSWebsocketGet(
 	results := make([][]string, 3)
 	for i, key := range keysForGet {
 		val := c.Redis.Get(ctx, fmt.Sprintf(key, dashboardId)).Val()
-		if err := json.Unmarshal([]byte(val), &results[i]); err != nil {
-			return nil, err
+		if val == "" {
+			continue
 		}
+		if err := json.Unmarshal([]byte(val), &results[i]); err != nil {
+			return nil, fmt.Errorf("cannot get cached redis data of obs: %w", err)
+		}
+	}
+
+	isConnectedResponse, err := c.Grpc.Websockets.
+		ObsCheckIsUserConnected(ctx, &websockets.ObsCheckUserConnectedRequest{
+			UserId: dashboardId,
+		})
+	if err != nil {
+		return nil, fmt.Errorf("cannot get is connected state: %w", err)
 	}
 
 	return &modules_obs_websocket.GetResponse{
@@ -47,6 +60,7 @@ func (c *Modules) ModulesOBSWebsocketGet(
 		Sources:        results[0],
 		AudioSources:   results[1],
 		Scenes:         results[2],
+		IsConnected:    isConnectedResponse.State,
 	}, nil
 }
 
@@ -56,8 +70,14 @@ func (c *Modules) ModulesOBSWebsocketUpdate(ctx context.Context, request *module
 	if err := c.Db.
 		WithContext(ctx).
 		Where(`"channelId" = ? AND "type" = ?`, dashboardId, ObsType).
-		First(entity).Error; err != nil {
-		return nil, err
+		Find(entity).Error; err != nil {
+		return nil, fmt.Errorf("cannot get obs settings: %w", err)
+	}
+
+	if entity.ID == "" {
+		entity.ID = uuid.New().String()
+		entity.ChannelId = dashboardId
+		entity.Type = ObsType
 	}
 
 	settings := &modules.OBSWebSocketSettings{
