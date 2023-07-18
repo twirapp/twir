@@ -204,7 +204,7 @@ const isModalOpened = ref(false);
           </n-button>
         </n-space>
       </n-tab-pane>
-      <n-tab-pane name="users" tab="Users tts settings">
+      <n-tab-pane name="users" tab="Users settings">
         <users-settings />
       </n-tab-pane>
       <n-tab-pane name="commands" tab="Commands">
