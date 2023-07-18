@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { IconBroadcast } from '@tabler/icons-vue';
-import {  NModal, NButton } from 'naive-ui';
+import { NModal } from 'naive-ui';
 import { ref, computed } from 'vue';
 
 import Settings from './obs/settings.vue';

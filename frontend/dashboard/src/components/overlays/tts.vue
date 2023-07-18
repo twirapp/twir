@@ -1,7 +1,6 @@
 <script setup lang='ts'>
 import {
 	NModal,
-	NButton,
 	NTabs,
 	NTabPane,
 } from 'naive-ui';
@@ -50,12 +49,6 @@ const isModalOpened = ref(false);
     content-style="padding: 0px; width: 100%"
     style="width: 800px; max-width: calc(100vw - 40px);"
   >
-    <template #header-extra>
-      <n-button secondary type="success" @click="copyOverlayLink">
-        Copy link url
-      </n-button>
-    </template>
-
     <n-tabs default-value="settings" justify-content="space-evenly" type="line" pane-style="padding-top: 0px">
       <n-tab-pane name="settings" tab="Settings">
         <TTSSettings />
