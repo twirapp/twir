@@ -42,21 +42,21 @@ const copyOverlayLink = () => {
 					{{ description }}
 				</span>
 			</div>
-			<div style="display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap">
-				<n-button secondary size="large" @click="$emit('openSettings')" class="card-button">
-					<span style="font-size: 14px; line-height: 20px">Settings</span>
-					<IconSettings style="height: 20px; width: 20px; margin-left: 8px" />
+			<div class="card-buttons">
+				<n-button secondary size="large" class="card-button" @click="$emit('openSettings')">
+					<span>Settings</span>
+					<IconSettings />
 				</n-button>
 				<n-tooltip :disabled="!!overlayLink">
 					<template #trigger>
 						<n-button
 							size="large"
 							:disabled="!overlayLink"
-							@click="copyOverlayLink"
 							class="card-button"
+							@click="copyOverlayLink"
 						>
-							<span style="font-size: 14px; line-height: 20px">Copy overlay link</span>
-							<IconCopy style="height: 20px; margin-left: 8px" />
+							<span>Copy overlay link</span>
+							<IconCopy />
 						</n-button>
 					</template>
 					You should configure overlay first
@@ -67,6 +67,17 @@ const copyOverlayLink = () => {
 </template>
 
 <style scoped>
+.card-button span {
+	font-size: 14px;
+	line-height: 20px
+}
+
+.card-button svg {
+	height: 20px;
+	width: 20px;
+	margin-left: 8px
+}
+
 @media (max-width: 568px) {
 	.card-button {
 		width: 100%;
@@ -78,5 +89,12 @@ const copyOverlayLink = () => {
 	margin: 0 0 12px 0;
 	font-size: 20px;
 	line-height: 24px;
+}
+
+.card-buttons {
+	display: flex;
+	gap: 8px;
+	margin-top: 20px;
+	flex-wrap: wrap;
 }
 </style>
