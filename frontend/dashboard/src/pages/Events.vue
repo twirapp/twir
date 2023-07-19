@@ -20,7 +20,7 @@ const { data: eventsList, isLoading } = eventsManager.getAll({});
 
 		<n-grid v-else responsive="screen" cols="1 s:2 m:2 l:3" :x-gap="10" :y-gap="10">
 			<n-grid-item v-for="event of eventsList!.events" :key="event.id">
-				<card style="height: 300px" :event="event" />
+				<card :event="event" />
 			</n-grid-item>
 		</n-grid>
 	</Transition>

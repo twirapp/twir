@@ -1,7 +1,12 @@
+import { IconUserPlus } from '@tabler/icons-vue';
+import { FunctionalComponent } from 'vue';
+
 export const EVENTS: Record<string, {
-	shortName: string;
+	name: string,
+	icon?: FunctionalComponent
 }> = {
 	'FOLLOW': {
-		shortName: 'Follow',
+		name: 'Follow',
+		icon: IconUserPlus,
 	},
 };

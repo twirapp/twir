@@ -1,8 +1,11 @@
 export const OPERATIONS: Record<string, {
-	shortName: string,
+	name: string,
 	description?: string
 }> = {
 	'SEND_MESSAGE': {
-		shortName: 'Send message',
+		name: 'Send message',
+	},
+	'SUBSCRIBE': {
+		name: 'Subscribe',
 	},
 };
