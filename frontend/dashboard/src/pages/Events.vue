@@ -1,8 +1,13 @@
 <script setup lang='ts'>
-import { NCard, NGrid, NGridItem, NSkeleton } from 'naive-ui';
+import { IconCalendarPlus } from '@tabler/icons-vue';
+import { NCard, NGrid, NGridItem, NSkeleton, useThemeVars } from 'naive-ui';
+import { computed } from 'vue';
 
 import { useEventsManager } from '@/api/index.js';
 import Card from '@/components/events/card.vue';
+
+const themeVars = useThemeVars();
+const cardHoverColor = computed(() => themeVars.value.hoverColor);
 
 const eventsManager = useEventsManager();
 const { data: eventsList, isLoading } = eventsManager.getAll({});
@@ -18,7 +23,19 @@ const { data: eventsList, isLoading } = eventsManager.getAll({});
 			</n-grid-item>
 		</n-grid>
 
-		<n-grid v-else responsive="screen" cols="1 s:2 m:2 l:3" :x-gap="10" :y-gap="10">
+		<n-grid v-else responsive="screen" item-responsive cols="1 s:2 m:2 l:3" :x-gap="10" :y-gap="10">
+			<n-grid-item>
+				<n-card
+					class="new-event-card"
+					content-style="
+						display: flex;
+						align-items: center;
+						justify-content: center;
+					"
+				>
+					<IconCalendarPlus style="height: 80px; width: 80px;" />
+				</n-card>
+			</n-grid-item>
 			<n-grid-item v-for="event of eventsList!.events" :key="event.id">
 				<card :event="event" />
 			</n-grid-item>
@@ -36,5 +53,15 @@ const { data: eventsList, isLoading } = eventsManager.getAll({});
 .v-leave-to {
   opacity: 0;
   transform: scale(0.9);
+}
+
+.new-event-card {
+	/* height: 120px; */
+	cursor: pointer;
+	height: 100%;
+}
+
+.new-event-card:hover {
+	background-color: v-bind(cardHoverColor);
 }
 </style>

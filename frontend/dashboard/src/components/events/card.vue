@@ -26,7 +26,7 @@ const throttledSwitchState = useThrottleFn((v: boolean) => {
 </script>
 
 <template>
-	<n-card segmented header-style="padding: 10px">
+	<n-card segmented header-style="padding: 10px; height: 100%;">
 		<template #header>
 			<n-space align="center">
 				<component :is="EVENTS[event.type]!.icon" v-if="EVENTS[event.type].icon" style="display: flex" />
