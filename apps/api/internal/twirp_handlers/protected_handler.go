@@ -36,51 +36,51 @@ func NewProtected(opts Opts) handlers.IHandler {
 					return &bots.BotInfo{}
 				},
 			},
-			// interceptors.CacheOpts{
-			// 	CacheMethod:       "CommandsGetAll",
-			// 	CacheDuration:     24 * time.Hour,
-			// 	ClearMethods:      []string{"CommandsCreate", "CommandsDelete", "CommandsUpdate", "CommandsEnableOrDisable"},
-			// 	WithChannelHeader: true,
-			// 	NewCastTo: func() any {
-			// 		return &commands.CommandsGetAllResponse{}
-			// 	},
-			// },
-			// interceptors.CacheOpts{
-			// 	CacheMethod:       "EventsGetAll",
-			// 	CacheDuration:     24 * time.Hour,
-			// 	ClearMethods:      []string{"EventsCreate", "EventsDelete", "EventsUpdate", "EventsEnableOrDisable"},
-			// 	WithChannelHeader: true,
-			// 	NewCastTo: func() any {
-			// 		return &events.GetAllResponse{}
-			// 	},
-			// },
-			// interceptors.CacheOpts{
-			// 	CacheMethod:       "GreetingsGetAll",
-			// 	CacheDuration:     24 * time.Hour,
-			// 	ClearMethods:      []string{"GreetingsCreate", "GreetingsDelete", "GreetingsUpdate", "GreetingsEnableOrDisable"},
-			// 	WithChannelHeader: true,
-			// 	NewCastTo: func() any {
-			// 		return &greetings.GetAllResponse{}
-			// 	},
-			// },
-			// interceptors.CacheOpts{
-			// 	CacheMethod:       "KeywordsGetAll",
-			// 	CacheDuration:     24 * time.Hour,
-			// 	ClearMethods:      []string{"KeywordsCreate", "KeywordsDelete", "KeywordsUpdate", "KeywordsEnableOrDisable"},
-			// 	WithChannelHeader: true,
-			// 	NewCastTo: func() any {
-			// 		return &keywords.GetAllResponse{}
-			// 	},
-			// },
-			// interceptors.CacheOpts{
-			// 	CacheMethod:       "TimersGetAll",
-			// 	CacheDuration:     24 * time.Hour,
-			// 	ClearMethods:      []string{"TimersCreate", "TimersDelete", "TimersUpdate", "TimersEnableOrDisable"},
-			// 	WithChannelHeader: true,
-			// 	NewCastTo: func() any {
-			// 		return &timers.GetResponse{}
-			// 	},
-			// },
+			//interceptors.CacheOpts{
+			//	CacheMethod:       "CommandsGetAll",
+			//	CacheDuration:     24 * time.Hour,
+			//	ClearMethods:      []string{"CommandsCreate", "CommandsDelete", "CommandsUpdate", "CommandsEnableOrDisable"},
+			//	WithChannelHeader: true,
+			//	CastTo: func() any {
+			//		return &commands.CommandsGetAllResponse{}
+			//	},
+			//},
+			//interceptors.CacheOpts{
+			//	CacheMethod:       "EventsGetAll",
+			//	CacheDuration:     24 * time.Hour,
+			//	ClearMethods:      []string{"EventsCreate", "EventsDelete", "EventsUpdate", "EventsEnableOrDisable"},
+			//	WithChannelHeader: true,
+			//	CastTo: func() any {
+			//		return &events.GetAllResponse{}
+			//	},
+			//},
+			//interceptors.CacheOpts{
+			//	CacheMethod:       "GreetingsGetAll",
+			//	CacheDuration:     24 * time.Hour,
+			//	ClearMethods:      []string{"GreetingsCreate", "GreetingsDelete", "GreetingsUpdate", "GreetingsEnableOrDisable"},
+			//	WithChannelHeader: true,
+			//	CastTo: func() any {
+			//		return &greetings.GetAllResponse{}
+			//	},
+			//},
+			//interceptors.CacheOpts{
+			//	CacheMethod:       "KeywordsGetAll",
+			//	CacheDuration:     24 * time.Hour,
+			//	ClearMethods:      []string{"KeywordsCreate", "KeywordsDelete", "KeywordsUpdate", "KeywordsEnableOrDisable"},
+			//	WithChannelHeader: true,
+			//	CastTo: func() any {
+			//		return &keywords.GetAllResponse{}
+			//	},
+			//},
+			//interceptors.CacheOpts{
+			//	CacheMethod:       "TimersGetAll",
+			//	CacheDuration:     24 * time.Hour,
+			//	ClearMethods:      []string{"TimersCreate", "TimersDelete", "TimersUpdate", "TimersEnableOrDisable"},
+			//	WithChannelHeader: true,
+			//	CastTo: func() any {
+			//		return &timers.GetResponse{}
+			//	},
+			//},
 			// interceptors.CacheOpts{
 			// 	CacheMethod:       "VariablesGetAll",
 			// 	CacheDuration:     24 * time.Hour,
