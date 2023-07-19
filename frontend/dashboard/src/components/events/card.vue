@@ -1,12 +1,14 @@
 <script setup lang="ts">
+import { IconSettings } from '@tabler/icons-vue';
 import { useThrottleFn } from '@vueuse/core';
-import { NCard, NTag, NSpace, NText, NRow, NTooltip, NSwitch, NButton } from 'naive-ui';
+import { NText, NButton, NTooltip, NTag, NRow, NSpace, NSwitch } from 'naive-ui';
 
 import { EVENTS } from './events.js';
 import { OPERATIONS } from './operations.js';
 import { EditableEvent } from './types.js';
 
 import { useEventsManager } from '@/api/index.js';
+import Card from '@/components/card/card.vue';
 
 const props = defineProps<{
 	event: EditableEvent
@@ -26,40 +28,38 @@ const throttledSwitchState = useThrottleFn((v: boolean) => {
 </script>
 
 <template>
-	<n-card segmented header-style="padding: 10px; height: 100%;">
-		<template #header>
-			<n-space align="center">
-				<component :is="EVENTS[event.type]!.icon" v-if="EVENTS[event.type].icon" style="display: flex" />
-				<n-text>{{ getEventName(event.type) }}</n-text>
-			</n-space>
-		</template>
-
-		<template #header-extra>
+	<card :icon="EVENTS[event.type]?.icon" :title="getEventName(event.type)">
+		<template #headerExtra>
 			<n-switch
 				:value="event.enabled"
 				@update-value="(v) => throttledSwitchState(v)"
 			/>
 		</template>
 
-		<n-space vertical>
-			<n-text>{{ event.description }}</n-text>
-			<n-row style="gap: 8px;">
-				<n-tooltip v-for="(operation, index) of event.operations" :key="index" :disabled="!operation.input">
-					<template #trigger>
-						<n-tag :disabled="!operation.enabled" :bordered="false" type="info">
-							{{ getOperationName(operation.type) }}
-						</n-tag>
-					</template>
-					<n-space vertical>
-						<n-text>{{ operation.input }}</n-text>
-						<n-text>Delay: {{ operation.delay }} | Repeat: {{ operation.repeat }}</n-text>
-					</n-space>
-				</n-tooltip>
-			</n-row>
-		</n-space>
+		<template #content>
+			<n-space vertical>
+				<n-text>{{ event.description }}</n-text>
+				<n-row style="gap: 8px;">
+					<n-tooltip v-for="(operation, index) of event.operations" :key="index" :disabled="!operation.input">
+						<template #trigger>
+							<n-tag :disabled="!operation.enabled" :bordered="false" type="info">
+								{{ getOperationName(operation.type) }}
+							</n-tag>
+						</template>
+						<n-space vertical>
+							<n-text>{{ operation.input }}</n-text>
+							<n-text>Delay: {{ operation.delay }} | Repeat: {{ operation.repeat }}</n-text>
+						</n-space>
+					</n-tooltip>
+				</n-row>
+			</n-space>
+		</template>
 
 		<template #footer>
-			<n-button>Edit</n-button>
+			<n-button block secondary size="large" @click="$emit('openSettings')">
+				<span>Settings</span>
+				<IconSettings />
+			</n-button>
 		</template>
-	</n-card>
+	</card>
 </template>
