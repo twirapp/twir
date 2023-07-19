@@ -3,10 +3,11 @@ package handler
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/satont/twir/libs/grpc/generated/events"
 	"go.uber.org/zap"
-	"time"
 )
 
 func (c *Handler) handleChannelFollow(

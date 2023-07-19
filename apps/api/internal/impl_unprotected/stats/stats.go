@@ -2,11 +2,12 @@ package stats
 
 import (
 	"context"
+	"sync"
+
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/stats"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"sync"
 )
 
 type Stats struct {

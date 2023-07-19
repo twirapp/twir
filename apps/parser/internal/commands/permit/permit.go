@@ -3,9 +3,10 @@ package permit
 import (
 	"context"
 	"fmt"
-	"github.com/satont/twir/apps/parser/internal/types"
 	"strconv"
 	"strings"
+
+	"github.com/satont/twir/apps/parser/internal/types"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"

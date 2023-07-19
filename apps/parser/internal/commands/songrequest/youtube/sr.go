@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/satont/twir/apps/parser/internal/types"
-	"github.com/satont/twir/apps/parser/internal/types/services"
 	"math"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types/services"
 
 	"github.com/guregu/null"
 	"github.com/satont/twir/libs/grpc/generated/ytsr"

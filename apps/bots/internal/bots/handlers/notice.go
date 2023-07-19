@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"context"
+	"strconv"
+
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/satont/twir/libs/grpc/generated/events"
-	"strconv"
 )
 
 func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {

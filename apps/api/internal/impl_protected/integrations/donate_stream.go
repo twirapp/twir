@@ -2,10 +2,11 @@ package integrations
 
 import (
 	"context"
+	"time"
+
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/integrations_donate_stream"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"time"
 )
 
 const donateStreamConfirmationKey = "donate_stream_confirmation"

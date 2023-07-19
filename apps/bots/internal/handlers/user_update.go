@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/satont/twir/libs/pubsub"
 
 	"github.com/satont/twir/apps/bots/internal/bots"

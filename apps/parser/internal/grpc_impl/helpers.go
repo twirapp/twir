@@ -3,10 +3,11 @@ package grpc_impl
 import (
 	"context"
 	"encoding/json"
-	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
 	"strings"
 	"time"
+
+	"github.com/samber/lo"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 func (c *parserGrpcServer) shouldCheckCooldown(badges []string) bool {

@@ -3,16 +3,17 @@ package twitch
 import (
 	"context"
 	"fmt"
+	"sort"
+	"strings"
+	"sync"
+	"time"
+
 	json "github.com/bytedance/sonic"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	generatedTwitch "github.com/satont/twir/libs/grpc/generated/api/twitch"
 	"github.com/satont/twir/libs/twitch"
-	"sort"
-	"strings"
-	"sync"
-	"time"
 )
 
 type Twitch struct {

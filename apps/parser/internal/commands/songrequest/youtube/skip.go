@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
+	"time"
+
 	"github.com/guregu/null"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
@@ -12,8 +15,6 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	youtube "github.com/satont/twir/libs/types/types/api/modules"
 	"gorm.io/gorm"
-	"math"
-	"time"
 )
 
 var SkipCommand = &types.DefaultCommand{

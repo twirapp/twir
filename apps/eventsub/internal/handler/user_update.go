@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+
 	"github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/satont/twir/libs/pubsub"
 	"go.uber.org/zap"

@@ -3,13 +3,14 @@ package community
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/community"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"strings"
 )
 
 type Community struct {

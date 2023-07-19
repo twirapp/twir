@@ -2,9 +2,10 @@ package channel_game
 
 import (
 	"context"
+	"strings"
+
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
-	"strings"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"

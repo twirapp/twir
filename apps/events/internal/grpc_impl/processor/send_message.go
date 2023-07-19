@@ -3,6 +3,7 @@ package processor
 import (
 	"context"
 	"fmt"
+
 	"github.com/samber/lo"
 	"github.com/satont/twir/libs/grpc/generated/bots"
 )

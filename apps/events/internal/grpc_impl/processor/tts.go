@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"github.com/satont/twir/libs/types/types/api/modules"
-	"strconv"
 )
 
 func (c *Processor) getTtsSettings(channelId, userId string) (*modules.TTSSettings, *model.ChannelModulesSettings) {

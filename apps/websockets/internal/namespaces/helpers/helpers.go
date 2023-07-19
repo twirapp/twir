@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"errors"
+
 	"github.com/olahol/melody"
 	model "github.com/satont/twir/libs/gomodels"
 	"go.uber.org/zap"

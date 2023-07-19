@@ -3,9 +3,10 @@ package emotes
 import (
 	"encoding/json"
 	"errors"
-	"github.com/samber/lo"
 	"io"
 	"net/http"
+
+	"github.com/samber/lo"
 )
 
 type BttvEmote struct {

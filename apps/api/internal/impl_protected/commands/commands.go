@@ -2,6 +2,8 @@ package commands
 
 import (
 	"context"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
@@ -11,7 +13,6 @@ import (
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
-	"strings"
 )
 
 type Commands struct {

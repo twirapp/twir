@@ -3,6 +3,7 @@ package integrations
 import (
 	"context"
 	"fmt"
+
 	"github.com/guregu/null"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/integrations_lastfm"

@@ -2,6 +2,10 @@ package main
 
 import (
 	"context"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/satont/twir/apps/scheduler/internal/timers"
 	"github.com/satont/twir/apps/scheduler/internal/types"
 	config "github.com/satont/twir/libs/config"
@@ -11,9 +15,6 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func main() {

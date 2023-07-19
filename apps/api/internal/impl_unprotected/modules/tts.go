@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/imroc/req/v3"
-	"github.com/satont/twir/libs/grpc/generated/api/modules_tts"
 	"net/url"
 	"strconv"
+
+	"github.com/imroc/req/v3"
+	"github.com/satont/twir/libs/grpc/generated/api/modules_tts"
 )
 
 func (c *Modules) ModulesTTSSay(

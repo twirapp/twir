@@ -2,6 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/getsentry/sentry-go"
 	goredislib "github.com/go-redis/redis/v9"
 	"github.com/go-redsync/redsync/v4"
@@ -16,12 +23,6 @@ import (
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
-	"net"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 func main() {

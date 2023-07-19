@@ -3,6 +3,9 @@ package grpc_impl
 import (
 	"context"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/do"
 	"github.com/satont/twir/apps/emotes-cacher/internal/di"
@@ -10,8 +13,6 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/emotes_cacher"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"sync"
-	"time"
 )
 
 type EmotesCacherImpl struct {

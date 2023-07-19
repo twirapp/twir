@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
+
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/integrations_streamlabs"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"net/url"
 )
 
 type streamlabsTokensResponse struct {

@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"context"
-	"github.com/satont/twir/libs/grpc/generated/events"
 	"strings"
+
+	"github.com/satont/twir/libs/grpc/generated/events"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/bots/handlers/messages"

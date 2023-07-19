@@ -5,6 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
+	"net/url"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
@@ -15,9 +19,6 @@ import (
 	"github.com/tidwall/gjson"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"net"
-	"net/url"
-	"strings"
 )
 
 func getSettings(

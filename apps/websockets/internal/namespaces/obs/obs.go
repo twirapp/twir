@@ -2,6 +2,7 @@ package obs
 
 import (
 	"encoding/json"
+
 	"github.com/olahol/melody"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"

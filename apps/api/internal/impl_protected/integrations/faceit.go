@@ -3,13 +3,14 @@ package integrations
 import (
 	"context"
 	"errors"
+	"net/url"
+
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/integrations_faceit"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"net/url"
 )
 
 func (c *Integrations) IntegrationsFaceitGetAuthLink(

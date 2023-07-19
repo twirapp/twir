@@ -2,10 +2,11 @@ package helpers
 
 import (
 	"context"
+	"net"
+
 	config "github.com/satont/twir/libs/config"
 	"golang.ngrok.com/ngrok"
 	ngrok_config "golang.ngrok.com/ngrok/config"
-	"net"
 )
 
 func GetAppTunnel(ctx context.Context, cfg *config.Config) (net.Listener, error) {

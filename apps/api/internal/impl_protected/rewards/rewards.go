@@ -3,6 +3,7 @@ package rewards
 import (
 	"context"
 	"fmt"
+
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"

@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+
 	"github.com/satont/twir/libs/grpc/generated/events"
 
 	"github.com/samber/lo"

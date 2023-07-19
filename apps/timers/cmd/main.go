@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/samber/do"
-	"github.com/satont/twir/apps/timers/internal/di"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/samber/do"
+	"github.com/satont/twir/apps/timers/internal/di"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 
 	"github.com/satont/twir/apps/timers/internal/scheduler"
 	"github.com/satont/twir/apps/timers/internal/types"

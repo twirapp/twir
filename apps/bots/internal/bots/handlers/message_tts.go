@@ -3,12 +3,13 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"strings"
+
 	"github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/types/types/api/modules"
-	"strings"
 )
 
 func (c *Handlers) handleTts(msg *Message, userBadges []string) {

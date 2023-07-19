@@ -2,8 +2,9 @@ package grpc_impl
 
 import (
 	"fmt"
-	"github.com/satont/twir/libs/grpc/generated/events"
 	"strings"
+
+	"github.com/satont/twir/libs/grpc/generated/events"
 )
 
 func predictionMapTopPredictors(predictors []*events.PredictionInfo_OutCome_TopPredictor) string {

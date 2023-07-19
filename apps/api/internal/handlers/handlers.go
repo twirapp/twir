@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"go.uber.org/fx"
 	"net/http"
+
+	"go.uber.org/fx"
 )
 
 type IHandler interface {

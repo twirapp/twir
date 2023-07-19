@@ -1,8 +1,9 @@
 package twirp_handlers
 
 import (
-	"github.com/satont/twir/apps/api/internal/handlers"
 	"time"
+
+	"github.com/satont/twir/apps/api/internal/handlers"
 
 	"github.com/satont/twir/apps/api/internal/interceptors"
 	"github.com/satont/twir/apps/api/internal/wrappers"

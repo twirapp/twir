@@ -2,12 +2,13 @@ package channel_title
 
 import (
 	"context"
+	"strconv"
+	"strings"
+
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"strconv"
-	"strings"
 
 	"github.com/samber/lo"
 )

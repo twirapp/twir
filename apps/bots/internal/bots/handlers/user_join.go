@@ -3,12 +3,13 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"time"
+
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/redis/go-redis/v9"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/events"
 	"go.uber.org/zap"
-	"time"
 )
 
 func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {

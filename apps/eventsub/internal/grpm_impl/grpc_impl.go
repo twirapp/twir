@@ -2,6 +2,7 @@ package grpm_impl
 
 import (
 	"context"
+
 	"github.com/satont/twir/apps/eventsub/internal/client"
 	"github.com/satont/twir/apps/eventsub/internal/types"
 	"github.com/satont/twir/libs/grpc/generated/eventsub"

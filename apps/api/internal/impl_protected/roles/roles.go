@@ -3,6 +3,7 @@ package roles
 import (
 	"context"
 	"encoding/json"
+
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"

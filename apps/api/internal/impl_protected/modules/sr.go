@@ -3,6 +3,9 @@ package modules
 import (
 	"context"
 	"encoding/json"
+	"strings"
+	"sync"
+
 	"github.com/google/uuid"
 	"github.com/raitonoberu/ytsearch"
 	"github.com/samber/lo"
@@ -12,8 +15,6 @@ import (
 	"github.com/satont/twir/libs/types/types/api/modules"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"strings"
-	"sync"
 )
 
 const SrType = "youtube_song_requests"

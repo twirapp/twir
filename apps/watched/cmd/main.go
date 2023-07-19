@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/satont/twir/libs/grpc/clients"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/satont/twir/libs/grpc/clients"
 
 	"github.com/satont/twir/apps/watched/internal/grpc_impl"
 	cfg "github.com/satont/twir/libs/config"

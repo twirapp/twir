@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
+
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/integrations_spotify"
 	"github.com/satont/twir/libs/integrations/spotify"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"net/url"
 )
 
 type spotifyTokensResponse struct {
