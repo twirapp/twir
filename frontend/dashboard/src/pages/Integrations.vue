@@ -14,29 +14,29 @@ import Vk from '@/components/integrations/vk.vue';
 </script>
 
 <template>
-  <div class="integrations">
-    <n-table :bordered="false" :single-line="false" size="large">
-      <thead style="display: none">
-        <tr>
-          <th></th>
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <Spotify />
-        <Lastfm />
-        <Vk />
-        <Streamlabs />
-        <Donationalerts />
-        <Faceit />
-        <Donatello />
-        <Donatepay />
-        <Donatestream />
-        <Valorant />
-      </tbody>
-    </n-table>
-  </div>
+	<div class="integrations">
+		<n-table :bordered="false" :single-line="false" size="large">
+			<thead style="display: none">
+				<tr>
+					<th></th>
+					<th></th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<Spotify />
+				<Lastfm />
+				<Vk />
+				<Streamlabs />
+				<Donationalerts />
+				<Faceit />
+				<Donatello />
+				<Donatepay />
+				<Donatestream />
+				<Valorant />
+			</tbody>
+		</n-table>
+	</div>
 </template>
 
 <style>

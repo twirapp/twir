@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
 import type { Keyword } from '@twir/grpc/generated/api/api/keywords';
+import { useThrottleFn } from '@vueuse/core';
 import {
 	type DataTableColumns,
   NDataTable,
@@ -21,7 +22,11 @@ import { renderIcon } from '@/helpers/index.js';
 const keywordsManager = useKeywordsManager();
 const keywords = keywordsManager.getAll({});
 const keywordsDeleter = keywordsManager.deleteOne;
-const keywordsPatcher = keywordsManager.patch;
+const keywordsPatcher = keywordsManager.patch!;
+
+const throttledSwitchState = useThrottleFn((id: string, v: boolean) => {
+	keywordsPatcher.mutate({ id, enabled: v });
+}, 500);
 
 const showModal = ref(false);
 
@@ -54,10 +59,7 @@ const columns: DataTableColumns<Keyword> = [
 			return h(NSwitch, {
 				value: row.enabled,
 				onUpdateValue: (value) => {
-					keywordsPatcher!.mutateAsync({
-						id: row.id,
-						enabled: value,
-					}).then(() => row.enabled = value);
+					throttledSwitchState(row.id, value);
 				},
 			});
 		},
@@ -111,31 +113,31 @@ function closeModal() {
 </script>
 
 <template>
-  <n-space justify="space-between" align="center">
-    <h2>Keywords</h2>
-    <n-button secondary type="success" @click="openModal(null)">
-      Create
-    </n-button>
-  </n-space>
-  <n-data-table
-    :isLoading="keywords.isLoading.value"
-    :columns="columns"
-    :data="keywords.data.value?.keywords ?? []"
-  />
+	<n-space justify="space-between" align="center">
+		<h2>Keywords</h2>
+		<n-button secondary type="success" @click="openModal(null)">
+			Create
+		</n-button>
+	</n-space>
+	<n-data-table
+		:isLoading="keywords.isLoading.value"
+		:columns="columns"
+		:data="keywords.data.value?.keywords ?? []"
+	/>
 
-  <n-modal
-    v-model:show="showModal"
-    :mask-closable="false"
-    :segmented="true"
-    preset="card"
-    :title="editableKeyword?.id ? 'Edit keyword' : 'New keyword'"
-    class="modal"
-    :style="{
-      width: '600px',
-      top: '50px',
-    }"
-    :on-close="closeModal"
-  >
-    <modal :keyword="editableKeyword" @close="closeModal" />
-  </n-modal>
+	<n-modal
+		v-model:show="showModal"
+		:mask-closable="false"
+		:segmented="true"
+		preset="card"
+		:title="editableKeyword?.id ? 'Edit keyword' : 'New keyword'"
+		class="modal"
+		:style="{
+			width: '600px',
+			top: '50px',
+		}"
+		:on-close="closeModal"
+	>
+		<modal :keyword="editableKeyword" @close="closeModal" />
+	</n-modal>
 </template>

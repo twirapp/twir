@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
 import type { Greeting } from '@twir/grpc/generated/api/api/greetings';
+import { useThrottleFn } from '@vueuse/core';
 import {
   type DataTableColumns,
   NDataTable,
@@ -25,6 +26,9 @@ const greetings = greetingsManager.getAll({});
 const greetingsDeleter = greetingsManager.deleteOne;
 const greetingsPatcher = greetingsManager.patch!;
 
+const throttledSwitchState = useThrottleFn((id: string, v: boolean) => {
+	greetingsPatcher.mutate({ id, enabled: v });
+}, 500);
 const showModal = ref(false);
 
 const twitchUsersIds = computed(() => {
@@ -75,9 +79,7 @@ const columns: DataTableColumns<Greeting> = [
 				{
 					value: row.enabled,
 					onUpdateValue: (value: boolean) => {
-						greetingsPatcher.mutateAsync({ id: row.id, enabled: value }).then(() => {
-							row.enabled = value;
-						});
+						throttledSwitchState(row.id, value);
 					},
 				},
 				{ default: () => row.enabled },

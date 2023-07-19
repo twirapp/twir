@@ -7,7 +7,6 @@ import type { ListRowData, EditableCommand } from '@/components/commands/types.j
 import { renderIcon } from '@/helpers/index.js';
 
 type Deleter = ReturnType<typeof useCommandsManager>['deleteOne']
-type Patcher = NonNullable<ReturnType<typeof useCommandsManager>['patch']>
 
 const rgbaPattern = /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)/;
 const computeGroupTextColor = (color?: string) => {
@@ -25,7 +24,7 @@ const computeGroupTextColor = (color?: string) => {
 export const createListColumns = (
 	editCommand: (command: EditableCommand) => void,
 	deleter: Deleter,
-	patcher: Patcher,
+	patcher: (id: string, value: boolean) => any,
 ): DataTableColumns<ListRowData> => {
 	return [
 		{
@@ -83,7 +82,7 @@ export const createListColumns = (
 						value: row.enabled,
 						onUpdateValue: (value: boolean) => {
 							row.enabled = value;
-							patcher.mutate({ commandId: row.id, enabled: value });
+							patcher(row.id, value);
 						},
 					},
 					{ default: () => row.enabled },

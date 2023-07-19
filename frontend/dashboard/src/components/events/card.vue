@@ -20,7 +20,7 @@ const getOperationName = (operationType: string) => {
 	return OPERATIONS[operationType]?.name ?? operationType;
 };
 
-const debouncedSwitchState = useThrottleFn((v: boolean) => {
+const throttledSwitchState = useThrottleFn((v: boolean) => {
 	eventsPatcher.mutate({ id: props.event.id!, enabled: v });
 }, 500);
 </script>
@@ -37,7 +37,7 @@ const debouncedSwitchState = useThrottleFn((v: boolean) => {
 		<template #header-extra>
 			<n-switch
 				:value="event.enabled"
-				@update-value="(v) => debouncedSwitchState(v)"
+				@update-value="(v) => throttledSwitchState(v)"
 			/>
 		</template>
 
