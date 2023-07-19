@@ -56,9 +56,12 @@ const throttledSwitchState = useThrottleFn((v: boolean) => {
 		</template>
 
 		<template #footer>
-			<n-button block secondary size="large" @click="$emit('openSettings')">
+			<n-button secondary size="large" @click="$emit('openSettings')">
 				<span>Settings</span>
 				<IconSettings />
+			</n-button>
+			<n-button secondary type="error" size="large" @click="$emit('openSettings')">
+				<span>Delete</span>
 			</n-button>
 		</template>
 	</card>
