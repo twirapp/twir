@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useThrottleFn } from '@vueuse/core';
-import { NCard, NTag, NSpace, NText, NRow, NTooltip, NSwitch } from 'naive-ui';
+import { NCard, NTag, NSpace, NText, NRow, NTooltip, NSwitch, NButton } from 'naive-ui';
 
 import { EVENTS } from './events.js';
 import { OPERATIONS } from './operations.js';
@@ -43,9 +43,6 @@ const throttledSwitchState = useThrottleFn((v: boolean) => {
 
 		<n-space vertical>
 			<n-text>{{ event.description }}</n-text>
-		</n-space>
-
-		<template #footer>
 			<n-row style="gap: 8px;">
 				<n-tooltip v-for="(operation, index) of event.operations" :key="index" :disabled="!operation.input">
 					<template #trigger>
@@ -59,6 +56,10 @@ const throttledSwitchState = useThrottleFn((v: boolean) => {
 					</n-space>
 				</n-tooltip>
 			</n-row>
+		</n-space>
+
+		<template #footer>
+			<n-button>Edit</n-button>
 		</template>
 	</n-card>
 </template>

@@ -6,13 +6,12 @@ import { FunctionalComponent, computed } from 'vue';
 const themeVars = useThemeVars();
 const titleColor = computed(() => themeVars.value.textColor1);
 
-const props =
-	defineProps<{
-		description: string;
-		title: string;
-		overlayLink?: string;
-		icon: FunctionalComponent;
-	}>();
+const props = defineProps<{
+	description: string;
+	title: string;
+	overlayLink?: string;
+	icon: FunctionalComponent;
+}>();
 
 defineEmits<{
 	openSettings: [];
