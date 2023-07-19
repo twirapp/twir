@@ -89,12 +89,12 @@ watch(smallerOrEqualLg, (v) => {
 <style>
 .router-enter-active,
 .router-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.2s cubic-bezier(0, 0, 0.2, 1);
 }
 
 .router-enter-from,
 .router-leave-to {
   opacity: 0;
-  transform: scale(0.9);
+  transform: scale(0.98);
 }
 </style>
