@@ -1,22 +1,20 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { IconSettings, IconCopy } from '@tabler/icons-vue';
-import { NCard, NSpace, NButton, NText, useThemeVars, useMessage, NTooltip, NGrid, NGridItem } from 'naive-ui';
+import { NCard, NButton, useThemeVars, useMessage, NTooltip } from 'naive-ui';
 import { FunctionalComponent } from 'vue';
-
-import VectorSVG from './vector.svg?component';
 
 const themeVars = useThemeVars();
 
-const props = defineProps<{
-	description: string
-	title: string
-	overlayLink?: string
-}>();
-defineSlots<{
-	icon: FunctionalComponent<any>
-}>();
+const props =
+	defineProps<{
+		description: string;
+		title: string;
+		overlayLink?: string;
+		icon: FunctionalComponent;
+	}>();
+
 defineEmits<{
-	openSettings: []
+	openSettings: [];
 }>();
 
 const messages = useMessage();
@@ -29,81 +27,55 @@ const copyOverlayLink = () => {
 </script>
 
 <template>
-  <n-card content-style="padding: 0px" class="overlay-item">
-    <n-grid cols="1 s:1 m:1 l:3" responsive="screen">
-      <n-grid-item :span="1">
-        <div class="section-icon">
-          <div class="vector">
-            <VectorSVG />
-          </div>
-
-          <slot name="icon" />
-        </div>
-      </n-grid-item>
-      <n-grid-item :span="2">
-        <div class="section-info">
-          <h2 style="margin:0px">
-            {{ title }}
-          </h2>
-          <n-text :style="{ color: themeVars.textColor3, 'margin-top': '12px' }">
-            {{ description }}
-          </n-text>
-          <n-space style="margin-top: 20px;">
-            <n-button secondary size="large" @click="$emit('openSettings')">
-              <n-space justify="space-between" align="center">
-                <n-text>Settings</n-text>
-                <IconSettings style="height: 25px" />
-              </n-space>
-            </n-button>
-            <n-tooltip :disabled="!!overlayLink">
-              <template #trigger>
-                <n-button size="large" secondary type="info" :disabled="!overlayLink" @click="copyOverlayLink">
-                  <n-space :wrap="false" justify="space-between" align="center">
-                    <n-text>Copy overlay link</n-text>
-                    <IconCopy style="height: 25px" />
-                  </n-space>
-                </n-button>
-              </template>
-              You should configure overlay first
-            </n-tooltip>
-          </n-space>
-        </div>
-      </n-grid-item>
-    </n-grid>
-  </n-card>
+	<n-card>
+		<div style="display: flex; flex-direction: column">
+			<component
+				:is="icon"
+				style="width: 48px; height: 48px; stroke-width: 2px; stroke: #61e8bb; margin-bottom: 16px"
+			/>
+			<div>
+				<h2
+					:style="{
+						color: themeVars.textColor1,
+						margin: '0 0 12px 0',
+						fontSize: '20px',
+						lineHeight: '24px',
+					}"
+				>
+					{{ title }}
+				</h2>
+				<span :style="{ color: themeVars.textColor3 }">
+					{{ description }}
+				</span>
+			</div>
+			<div style="display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap">
+				<n-button secondary size="large" @click="$emit('openSettings')" class="card-button">
+					<span style="font-size: 14px; line-height: 20px">Settings</span>
+					<IconSettings style="height: 20px; width: 20px; margin-left: 8px" />
+				</n-button>
+				<n-tooltip :disabled="!!overlayLink">
+					<template #trigger>
+						<n-button
+							size="large"
+							:disabled="!overlayLink"
+							@click="copyOverlayLink"
+							class="card-button"
+						>
+							<span style="font-size: 14px; line-height: 20px">Copy overlay link</span>
+							<IconCopy style="height: 20px; margin-left: 8px" />
+						</n-button>
+					</template>
+					You should configure overlay first
+				</n-tooltip>
+			</div>
+		</div>
+	</n-card>
 </template>
 
 <style scoped>
-.overlay-item {
-	overflow: hidden;
-	display: flex;
-	height: 100%;
-}
-
-.section-icon {
-	background: linear-gradient(48deg, #5557E6 0%, #3B6EEF 100%);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	overflow: hidden;
-	position: relative;
-	height: 100%;
-}
-
-.section-info {
-	display: flex;
-	align-items: flex-start;
-	flex-direction: column;
-	margin: 32px
-}
-
-.vector {
-	display: flex;
-	align-items: center;
-}
-
-.vector svg {
-	position: absolute;
-	transform: rotate(167deg);
+@media (max-width: 568px) {
+	.card-button {
+		width: 100%;
+	}
 }
 </style>
