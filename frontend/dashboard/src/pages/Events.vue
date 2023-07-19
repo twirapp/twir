@@ -2,6 +2,7 @@
 import { NCard, NGrid, NGridItem, NSkeleton } from 'naive-ui';
 
 import { useEventsManager } from '@/api/index.js';
+import Card from '@/components/events/card.vue';
 
 const eventsManager = useEventsManager();
 const { data: eventsList, isLoading } = eventsManager.getAll({});
@@ -18,10 +19,9 @@ const { data: eventsList, isLoading } = eventsManager.getAll({});
 		</n-grid>
 
 		<n-grid v-else responsive="screen" cols="1 s:2 m:2 l:3" :x-gap="10" :y-gap="10">
-			<n-grid-item v-for="event of eventsList?.events" :key="event.id">
-				<n-card style="height: 300px">
-					{{ event }}
-				</n-card>
+			<n-grid-item v-for="event of eventsList!.events" :key="event.id">
+				{{ event }}
+				<card style="height: 300px" :event="event" />
 			</n-grid-item>
 		</n-grid>
 	</Transition>
