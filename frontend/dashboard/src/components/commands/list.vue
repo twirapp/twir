@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { type Command } from '@twir/grpc/generated/api/api/commands';
-import { NDataTable, NButton, NSpace, NModal } from 'naive-ui';
+import { NDataTable, NButton, NSpace, NModal, NInput } from 'naive-ui';
 import { ref, toRaw, computed } from 'vue';
 
 import { useCommandsManager } from '@/api/index.js';
@@ -54,6 +54,13 @@ const commandsWithGroups = computed<ListRowData[]>(() => {
 	];
 });
 
+const commandsFilter = ref('');
+const filteredCommands = computed<ListRowData[]>(() => {
+	return commandsWithGroups.value.filter(c => {
+		return c.name.includes(commandsFilter.value) || c.aliases.some(a => a.includes(commandsFilter.value));
+	});
+});
+
 const showCommandEditModal = ref(false);
 const showManageGroupsModal = ref(false);
 
@@ -69,75 +76,78 @@ function onModalClose() {
 </script>
 
 <template>
-  <div>
-    <div v-if="showHeader" class="header">
-      <div>
-        <h2>Commands</h2>
-      </div>
-      <div>
-        <n-space>
-          <n-button secondary type="info" @click="showManageGroupsModal = true">
-            Manage groups
-          </n-button>
+	<div>
+		<div v-if="showHeader" class="header">
+			<div>
+				<n-space align="center">
+					<h2>Commands</h2>
+					<n-input v-model:value="commandsFilter" placeholder="Search command" />
+				</n-space>
+			</div>
+			<div>
+				<n-space>
+					<n-button secondary type="info" @click="showManageGroupsModal = true">
+						Manage groups
+					</n-button>
 
-          <n-button
-            v-if="showCreateButton"
-            secondary
-            type="success"
-            @click="() => {
-              editableCommand = null;
-              showCommandEditModal = true;
-            }"
-          >
-            Create command
-          </n-button>
-        </n-space>
-      </div>
-    </div>
+					<n-button
+						v-if="showCreateButton"
+						secondary
+						type="success"
+						@click="() => {
+							editableCommand = null;
+							showCommandEditModal = true;
+						}"
+					>
+						Create command
+					</n-button>
+				</n-space>
+			</div>
+		</div>
 
-    <n-data-table
-      :columns="createListColumns(editCommand, commandsDeleter, commandsPatcher)"
-      :data="commandsWithGroups"
-      :bordered="false"
-    />
+		<n-data-table
+			:columns="createListColumns(editCommand, commandsDeleter, commandsPatcher)"
+			:data="filteredCommands"
+			:bordered="false"
+		/>
 
-    <n-modal
-      v-model:show="showCommandEditModal"
-      :mask-closable="false"
-      :segmented="true"
-      preset="card"
-      :title="editableCommand?.name ?? 'New command'"
-      class="modal"
-      :style="{
-        width: '800px',
-        top: '50px',
-      }"
-      :on-close="onModalClose"
-    >
-      <modal
-        :command="editableCommand"
-        @close="() => {
-          showCommandEditModal = false;
-          onModalClose()
-        }"
-      />
-    </n-modal>
+		<n-modal
+			v-model:show="showCommandEditModal"
+			:mask-closable="false"
+			:segmented="true"
+			preset="card"
+			:title="editableCommand?.name ?? 'New command'"
+			class="modal"
+			:style="{
+				width: '800px',
+				top: '50px',
+			}"
+			:on-close="onModalClose"
+		>
+			<modal
+				:command="editableCommand"
+				@close="() => {
+					showCommandEditModal = false;
+					onModalClose()
+				}"
+			/>
+		</n-modal>
 
-    <n-modal
-      v-model:show="showManageGroupsModal"
-      :mask-closable="false"
-      :segmented="true"
-      preset="card"
-      title="Commands groups"
-      class="modal"
-      :style="{
-        width: '600px',
-      }"
-      :on-close="onModalClose"
-    >
-      <manage-groups />
-    </n-modal>
-  </div>
+		<n-modal
+			v-model:show="showManageGroupsModal"
+			:mask-closable="false"
+			:segmented="true"
+			preset="card"
+			title="Commands groups"
+			class="modal"
+			:style="{
+				width: '600px',
+			}"
+			:on-close="onModalClose"
+		>
+			<manage-groups />
+		</n-modal>
+	</div>
 </template>
 
 <style scoped>
