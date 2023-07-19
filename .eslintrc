@@ -105,7 +105,8 @@
     "vue/max-attributes-per-line": "off",
     "vue/static-class-names-order": "off",
     "vue/attribute-hyphenation": "off",
-    "vue/html-self-closing": "off"
+    "vue/html-self-closing": "off",
+		"vue/html-indent": ["error", "tab"]
   },
   "parserOptions": {
     "parser": "@typescript-eslint/parser",
