@@ -21,6 +21,7 @@
     "cross-env": "^7.0.3",
     "eslint": "8.45.0",
     "eslint-plugin-import": "2.27.5",
+    "eslint-plugin-unused-imports": "^3.0.0",
     "eslint-plugin-vue": "^9.15.1",
     "ts-node": "10.9.1",
     "turbo": "1.6.3",

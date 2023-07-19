@@ -4,11 +4,12 @@
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:import/typescript",
-    "plugin:vue/vue3-recommended"
+    "plugin:vue/vue3-recommended",
   ],
   "plugins": [
     "@typescript-eslint",
-    "import"
+    "import",
+		"unused-imports"
   ],
   "rules": {
     "quotes": [
@@ -106,7 +107,9 @@
     "vue/static-class-names-order": "off",
     "vue/attribute-hyphenation": "off",
     "vue/html-self-closing": "off",
-		"vue/html-indent": ["error", "tab"]
+		"vue/html-indent": ["error", "tab"],
+		"@typescript-eslint/no-unused-vars": "off",
+		"unused-imports/no-unused-imports": "error"
   },
   "parserOptions": {
     "parser": "@typescript-eslint/parser",
