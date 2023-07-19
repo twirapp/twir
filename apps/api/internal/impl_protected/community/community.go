@@ -16,7 +16,10 @@ type Community struct {
 	*impl_deps.Deps
 }
 
-func (c *Community) CommunityGetUsers(ctx context.Context, request *community.GetUsersRequest) (*community.GetUsersResponse, error) {
+func (c *Community) CommunityGetUsers(
+	ctx context.Context,
+	request *community.GetUsersRequest,
+) (*community.GetUsersResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	// get sql.DB instance
 	db, err := c.Db.DB()
@@ -46,11 +49,13 @@ func (c *Community) CommunityGetUsers(ctx context.Context, request *community.Ge
 		Select(`users_stats.*, COUNT("channels_emotes_usages"."id") AS "emotes"`).
 		From("users_stats").
 		LeftJoin(`"channels_emotes_usages" ON "channels_emotes_usages"."userId" = "users_stats"."userId" AND "channels_emotes_usages"."channelId" = "users_stats"."channelId"`).
-		Where(squirrel.And{
-			squirrel.Eq{`"users_stats"."channelId"`: dashboardId},
-			squirrel.NotEq{`"users_stats"."userId"`: dashboardId},
-			squirrel.NotEq{`"users_stats"."userId"`: channel.BotID},
-		}).
+		Where(
+			squirrel.And{
+				squirrel.Eq{`"users_stats"."channelId"`: dashboardId},
+				squirrel.NotEq{`"users_stats"."userId"`: dashboardId},
+				squirrel.NotEq{`"users_stats"."userId"`: channel.BotID},
+			},
+		).
 		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_stats"."userId")`).
 		Limit(uint64(request.Limit)).
 		Offset(uint64((request.Page - 1) * request.Limit)).
@@ -98,20 +103,25 @@ func (c *Community) CommunityGetUsers(ctx context.Context, request *community.Ge
 	//totalPages := (totalStats + int64(request.Limit) - 1) / int64(request.Limit)
 
 	return &community.GetUsersResponse{
-		Users: lo.Map(dbUsers, func(item *model.UsersStats, _ int) *community.GetUsersResponse_User {
-			return &community.GetUsersResponse_User{
-				Id:                item.UserID,
-				Watched:           fmt.Sprint(item.Watched),
-				Messages:          item.Messages,
-				Emotes:            fmt.Sprint(item.Emotes),
-				UsedChannelPoints: fmt.Sprint(item.UsedChannelPoints),
-			}
-		}),
+		Users: lo.Map(
+			dbUsers, func(item *model.UsersStats, _ int) *community.GetUsersResponse_User {
+				return &community.GetUsersResponse_User{
+					Id:                item.UserID,
+					Watched:           fmt.Sprint(item.Watched),
+					Messages:          item.Messages,
+					Emotes:            fmt.Sprint(item.Emotes),
+					UsedChannelPoints: fmt.Sprint(item.UsedChannelPoints),
+				}
+			},
+		),
 		TotalUsers: uint32(totalStats),
 	}, nil
 }
 
-func (c *Community) CommunityResetStats(ctx context.Context, request *community.ResetStatsRequest) (*emptypb.Empty, error) {
+func (c *Community) CommunityResetStats(
+	ctx context.Context,
+	request *community.ResetStatsRequest,
+) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	if request.Field == community.ResetStatsRequest_Emotes {

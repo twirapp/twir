@@ -243,7 +243,10 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 	return c.convertDbToRpc(cmd), nil
 }
 
-func (c *Commands) CommandsEnableOrDisable(ctx context.Context, request *commands.PatchRequest) (*commands.Command, error) {
+func (c *Commands) CommandsEnableOrDisable(
+	ctx context.Context,
+	request *commands.PatchRequest,
+) (*commands.Command, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	cmd := &model.ChannelsCommands{}
 	err := c.Db.
