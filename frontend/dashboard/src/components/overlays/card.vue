@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { IconSettings, IconCopy } from '@tabler/icons-vue';
 import { NCard, NButton, useThemeVars, useMessage, NTooltip } from 'naive-ui';
-import { FunctionalComponent } from 'vue';
+import { FunctionalComponent, computed } from 'vue';
 
 const themeVars = useThemeVars();
+const titleColor = computed(() => themeVars.value.textColor1);
 
 const props =
 	defineProps<{
@@ -34,14 +35,7 @@ const copyOverlayLink = () => {
 				style="width: 48px; height: 48px; stroke-width: 2px; stroke: #61e8bb; margin-bottom: 16px"
 			/>
 			<div>
-				<h2
-					:style="{
-						color: themeVars.textColor1,
-						margin: '0 0 12px 0',
-						fontSize: '20px',
-						lineHeight: '24px',
-					}"
-				>
+				<h2 class="card-title">
 					{{ title }}
 				</h2>
 				<span :style="{ color: themeVars.textColor3 }">
@@ -77,5 +71,12 @@ const copyOverlayLink = () => {
 	.card-button {
 		width: 100%;
 	}
+}
+
+.card-title {
+	color: v-bind(titleColor);
+	margin: 0 0 12px 0;
+	font-size: 20px;
+	line-height: 24px;
 }
 </style>
