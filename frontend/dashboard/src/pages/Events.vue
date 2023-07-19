@@ -1,16 +1,30 @@
 <script setup lang='ts'>
 import { IconCalendarPlus } from '@tabler/icons-vue';
-import { NCard, NGrid, NGridItem, NSkeleton, useThemeVars } from 'naive-ui';
-import { computed } from 'vue';
+import { NCard, NGrid, NGridItem, NSkeleton, useThemeVars, NModal } from 'naive-ui';
+import { computed, ref, toRaw } from 'vue';
 
 import { useEventsManager } from '@/api/index.js';
 import Card from '@/components/events/card.vue';
+import Modal from '@/components/events/modal.vue';
+import type { EditableEvent } from '@/components/events/types.js';
 
 const themeVars = useThemeVars();
 const cardHoverColor = computed(() => themeVars.value.hoverColor);
 
 const eventsManager = useEventsManager();
 const { data: eventsList, isLoading } = eventsManager.getAll({});
+
+const showModal = ref(false);
+const editableEvent = ref<EditableEvent | null>(null);
+
+function openSettings(id?: string) {
+	const event = eventsList.value?.events.find(e => e.id === id);
+	if (event) {
+		editableEvent.value = structuredClone(toRaw(event));
+	}
+
+	showModal.value = true;
+}
 </script>
 
 <template>
@@ -37,10 +51,25 @@ const { data: eventsList, isLoading } = eventsManager.getAll({});
 				</n-card>
 			</n-grid-item>
 			<n-grid-item v-for="event of eventsList!.events" :key="event.id">
-				<card :event="event" />
+				<card :event="event" @open-settings="openSettings" />
 			</n-grid-item>
 		</n-grid>
 	</Transition>
+
+	<n-modal
+		v-model:show="showModal"
+		:mask-closable="false"
+		:segmented="true"
+		preset="card"
+		:title="editableEvent?.type ?? 'New event'"
+		class="modal"
+		:style="{
+			width: '800px',
+		}"
+		@close="editableEvent = null"
+	>
+		<modal :event="editableEvent" />
+	</n-modal>
 </template>
 
 <style scoped>

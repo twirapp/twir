@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { IconSettings } from '@tabler/icons-vue';
 import { useThrottleFn } from '@vueuse/core';
-import { NText, NButton, NTooltip, NTag, NRow, NSpace, NSwitch } from 'naive-ui';
+import { NText, NButton, NTooltip, NTag, NRow, NSpace, NSwitch, NPopconfirm } from 'naive-ui';
 
 import { EVENTS } from './events.js';
 import { OPERATIONS } from './operations.js';
@@ -14,8 +14,13 @@ const props = defineProps<{
 	event: EditableEvent
 }>();
 
+defineEmits<{
+	openSettings: [id: string]
+}>();
+
 const eventsManager = useEventsManager();
 const eventsPatcher = eventsManager.patch!;
+const eventsDeleter = eventsManager.deleteOne;
 
 const getEventName = (eventType: string) => EVENTS[eventType]?.name ?? eventType;
 const getOperationName = (operationType: string) => {
@@ -56,13 +61,18 @@ const throttledSwitchState = useThrottleFn((v: boolean) => {
 		</template>
 
 		<template #footer>
-			<n-button secondary size="large" @click="$emit('openSettings')">
+			<n-button secondary size="large" @click="$emit('openSettings', event.id)">
 				<span>Settings</span>
 				<IconSettings />
 			</n-button>
-			<n-button secondary type="error" size="large" @click="$emit('openSettings')">
-				<span>Delete</span>
-			</n-button>
+			<n-popconfirm @positive-click="eventsDeleter.mutateAsync({ id: event.id! })">
+				<template #trigger>
+					<n-button secondary type="error" size="large">
+						<span>Delete</span>
+					</n-button>
+				</template>
+				Are you sure?
+			</n-popconfirm>
 		</template>
 	</card>
 </template>
