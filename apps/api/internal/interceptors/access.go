@@ -34,10 +34,12 @@ func (s *Service) ChannelAccessInterceptor(next twirp.Method) twirp.Method {
 			return next(ctx, req)
 		}
 
-		_, ok := lo.Find(user.Roles, func(a model.ChannelRoleUser) bool {
-			return a.Role.ChannelID == dashboardId &&
-				lo.Contains(a.Role.Permissions, model.RolePermissionCanAccessDashboard.String())
-		})
+		_, ok := lo.Find(
+			user.Roles, func(a model.ChannelRoleUser) bool {
+				return a.Role.ChannelID == dashboardId &&
+					lo.Contains(a.Role.Permissions, model.RolePermissionCanAccessDashboard.String())
+			},
+		)
 
 		if ok {
 			return next(ctx, req)

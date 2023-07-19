@@ -33,6 +33,7 @@ func (c *BuildInVariables) BuiltInVariablesGetAll(
 					Description: item.Description,
 					Visible:     item.Visible,
 				}
-			}),
+			},
+		),
 	}, nil
 }

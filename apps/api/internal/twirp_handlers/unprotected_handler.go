@@ -14,15 +14,17 @@ func NewUnProtected(opts Opts) handlers.IHandler {
 		twirp.WithServerInterceptors(opts.Interceptor.Errors),
 	)
 
-	h := handlers.New(handlers.Opts{
-		Pattern: twirpHandler.PathPrefix(),
-		Handler: wrappers.Wrap(
-			twirpHandler,
-			wrappers.WithCors,
-			wrappers.WithDashboardId,
-			wrappers.WithApiKeyHeader,
-		),
-	})
+	h := handlers.New(
+		handlers.Opts{
+			Pattern: twirpHandler.PathPrefix(),
+			Handler: wrappers.Wrap(
+				twirpHandler,
+				wrappers.WithCors,
+				wrappers.WithDashboardId,
+				wrappers.WithApiKeyHeader,
+			),
+		},
+	)
 
 	return h
 }

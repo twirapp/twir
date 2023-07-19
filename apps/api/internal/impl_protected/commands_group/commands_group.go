@@ -36,9 +36,11 @@ func (c *CommandsGroup) CommandsGroupGetAll(
 	}
 
 	return &commands_group.GetAllResponse{
-		Groups: lo.Map(entities, func(g *model.ChannelCommandGroup, _ int) *commands_group.Group {
-			return c.convertEntity(g)
-		}),
+		Groups: lo.Map(
+			entities, func(g *model.ChannelCommandGroup, _ int) *commands_group.Group {
+				return c.convertEntity(g)
+			},
+		),
 	}, nil
 }
 
@@ -48,7 +50,11 @@ func (c *CommandsGroup) CommandsGroupUpdate(
 ) (*commands_group.Group, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.ChannelCommandGroup{}
-	if err := c.Db.WithContext(ctx).Where(`"id" = ? and "channelId" = ?`, req.Id, dashboardId).First(entity).Error; err != nil {
+	if err := c.Db.WithContext(ctx).Where(
+		`"id" = ? and "channelId" = ?`,
+		req.Id,
+		dashboardId,
+	).First(entity).Error; err != nil {
 		return nil, err
 	}
 

@@ -50,49 +50,51 @@ type donatelloBody struct {
 }
 
 func (c *Donatello) Handler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodPost {
+				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+				return
+			}
 
-		apiKey := r.Header.Get("X-Key")
-		if apiKey == "" {
-			http.Error(w, "X-Key header is required", http.StatusBadRequest)
-			return
-		}
+			apiKey := r.Header.Get("X-Key")
+			if apiKey == "" {
+				http.Error(w, "X-Key header is required", http.StatusBadRequest)
+				return
+			}
 
-		integration := &model.ChannelsIntegrations{}
-		if err := c.db.
-			WithContext(r.Context()).
-			Where(`"id" = ?`, apiKey).
-			First(integration).
-			Error; err != nil {
-			http.Error(w, "Integration not found", http.StatusNotFound)
-			return
-		}
+			integration := &model.ChannelsIntegrations{}
+			if err := c.db.
+				WithContext(r.Context()).
+				Where(`"id" = ?`, apiKey).
+				First(integration).
+				Error; err != nil {
+				http.Error(w, "Integration not found", http.StatusNotFound)
+				return
+			}
 
-		body := &donatelloBody{}
-		if err := json.NewDecoder(r.Body).Decode(body); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+			body := &donatelloBody{}
+			if err := json.NewDecoder(r.Body).Decode(body); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
 
-		_, err := c.eventsGrpc.Donate(
-			r.Context(),
-			&events.DonateMessage{
-				BaseInfo: &events.BaseInfo{ChannelId: integration.ChannelID},
-				UserName: body.ClientName,
-				Amount:   body.Amount,
-				Currency: body.Currency,
-				Message:  body.Message,
-			},
-		)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+			_, err := c.eventsGrpc.Donate(
+				r.Context(),
+				&events.DonateMessage{
+					BaseInfo: &events.BaseInfo{ChannelId: integration.ChannelID},
+					UserName: body.ClientName,
+					Amount:   body.Amount,
+					Currency: body.Currency,
+					Message:  body.Message,
+				},
+			)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
 
-		w.WriteHeader(http.StatusOK)
-	})
+			w.WriteHeader(http.StatusOK)
+		},
+	)
 }

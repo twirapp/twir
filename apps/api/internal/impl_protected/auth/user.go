@@ -47,10 +47,12 @@ func (c *Auth) AuthGetDashboards(ctx context.Context, _ *emptypb.Empty) (*auth.G
 		}
 
 		for _, channel := range channels {
-			dashboards = append(dashboards, &auth.Dashboard{
-				Id:    channel.ID,
-				Flags: []string{model.RolePermissionCanAccessDashboard.String()},
-			})
+			dashboards = append(
+				dashboards, &auth.Dashboard{
+					Id:    channel.ID,
+					Flags: []string{model.RolePermissionCanAccessDashboard.String()},
+				},
+			)
 		}
 	} else {
 		var roles []*model.ChannelRoleUser
@@ -58,10 +60,12 @@ func (c *Auth) AuthGetDashboards(ctx context.Context, _ *emptypb.Empty) (*auth.G
 			return nil, err
 		}
 		for _, role := range roles {
-			dashboards = append(dashboards, &auth.Dashboard{
-				Id:    role.Role.ChannelID,
-				Flags: role.Role.Permissions,
-			})
+			dashboards = append(
+				dashboards, &auth.Dashboard{
+					Id:    role.Role.ChannelID,
+					Flags: role.Role.Permissions,
+				},
+			)
 		}
 	}
 

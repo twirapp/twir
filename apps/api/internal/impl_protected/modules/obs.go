@@ -46,9 +46,11 @@ func (c *Modules) ModulesOBSWebsocketGet(
 	}
 
 	isConnectedResponse, err := c.Grpc.Websockets.
-		ObsCheckIsUserConnected(ctx, &websockets.ObsCheckUserConnectedRequest{
-			UserId: dashboardId,
-		})
+		ObsCheckIsUserConnected(
+			ctx, &websockets.ObsCheckUserConnectedRequest{
+				UserId: dashboardId,
+			},
+		)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get is connected state: %w", err)
 	}
@@ -64,7 +66,10 @@ func (c *Modules) ModulesOBSWebsocketGet(
 	}, nil
 }
 
-func (c *Modules) ModulesOBSWebsocketUpdate(ctx context.Context, request *modules_obs_websocket.PostRequest) (*emptypb.Empty, error) {
+func (c *Modules) ModulesOBSWebsocketUpdate(
+	ctx context.Context,
+	request *modules_obs_websocket.PostRequest,
+) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.ChannelModulesSettings{}
 	if err := c.Db.

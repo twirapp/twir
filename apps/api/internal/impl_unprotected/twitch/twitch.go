@@ -82,12 +82,16 @@ func (c *Twitch) TwitchGetUsers(
 	var mu sync.Mutex
 	twitchUsers := make([]helix.User, 0, len(req.Ids)+len(req.Names))
 
-	req.Ids = lo.Filter(req.Ids, func(id string, _ int) bool {
-		return id != ""
-	})
-	req.Names = lo.Filter(req.Names, func(name string, _ int) bool {
-		return name != ""
-	})
+	req.Ids = lo.Filter(
+		req.Ids, func(id string, _ int) bool {
+			return id != ""
+		},
+	)
+	req.Names = lo.Filter(
+		req.Names, func(name string, _ int) bool {
+			return name != ""
+		},
+	)
 
 	if len(req.Ids) == 0 && len(req.Names) == 0 {
 		return &generatedTwitch.TwitchGetUsersResponse{
@@ -95,30 +99,46 @@ func (c *Twitch) TwitchGetUsers(
 		}, nil
 	}
 
-	cachedUsersByIds, err := c.getUsersFromCache(ctx, lo.Map(req.Ids, func(id string, _ int) string {
-		return redisIdsPrefix + id
-	}))
+	cachedUsersByIds, err := c.getUsersFromCache(
+		ctx, lo.Map(
+			req.Ids, func(id string, _ int) string {
+				return redisIdsPrefix + id
+			},
+		),
+	)
 	if err != nil {
 		return nil, err
 	}
-	req.Ids = lo.Filter(req.Ids, func(id string, _ int) bool {
-		return !lo.ContainsBy(cachedUsersByIds, func(user helix.User) bool {
-			return user.ID == id
-		})
-	})
+	req.Ids = lo.Filter(
+		req.Ids, func(id string, _ int) bool {
+			return !lo.ContainsBy(
+				cachedUsersByIds, func(user helix.User) bool {
+					return user.ID == id
+				},
+			)
+		},
+	)
 	twitchUsers = append(twitchUsers, cachedUsersByIds...)
 
-	cachedUsersByNames, err := c.getUsersFromCache(ctx, lo.Map(req.Names, func(name string, _ int) string {
-		return redisLoginsPrefix + strings.ToLower(name)
-	}))
+	cachedUsersByNames, err := c.getUsersFromCache(
+		ctx, lo.Map(
+			req.Names, func(name string, _ int) string {
+				return redisLoginsPrefix + strings.ToLower(name)
+			},
+		),
+	)
 	if err != nil {
 		return nil, err
 	}
-	req.Names = lo.Filter(req.Names, func(name string, _ int) bool {
-		return !lo.ContainsBy(cachedUsersByNames, func(user helix.User) bool {
-			return user.Login == strings.ToLower(name)
-		})
-	})
+	req.Names = lo.Filter(
+		req.Names, func(name string, _ int) bool {
+			return !lo.ContainsBy(
+				cachedUsersByNames, func(user helix.User) bool {
+					return user.Login == strings.ToLower(name)
+				},
+			)
+		},
+	)
 	twitchUsers = append(twitchUsers, cachedUsersByNames...)
 
 	idsChunks := lo.Chunk(req.Ids, 100)
@@ -128,9 +148,11 @@ func (c *Twitch) TwitchGetUsers(
 		wg.Add(1)
 		go func(ids []string) {
 			defer wg.Done()
-			users, err := c.getUsersFromTwitch(ctx, &helix.UsersParams{
-				IDs: ids,
-			})
+			users, err := c.getUsersFromTwitch(
+				ctx, &helix.UsersParams{
+					IDs: ids,
+				},
+			)
 			if err != nil {
 				return
 			}
@@ -144,9 +166,11 @@ func (c *Twitch) TwitchGetUsers(
 		wg.Add(1)
 		go func(ids []string) {
 			defer wg.Done()
-			users, err := c.getUsersFromTwitch(ctx, &helix.UsersParams{
-				Logins: ids,
-			})
+			users, err := c.getUsersFromTwitch(
+				ctx, &helix.UsersParams{
+					Logins: ids,
+				},
+			)
 			if err != nil {
 				return
 			}
@@ -158,23 +182,27 @@ func (c *Twitch) TwitchGetUsers(
 
 	wg.Wait()
 
-	twitchUsers = lo.UniqBy(twitchUsers, func(user helix.User) string {
-		return user.ID
-	})
+	twitchUsers = lo.UniqBy(
+		twitchUsers, func(user helix.User) string {
+			return user.ID
+		},
+	)
 
-	convertedUsers := lo.Map(twitchUsers, func(user helix.User, _ int) *generatedTwitch.TwitchUser {
-		return &generatedTwitch.TwitchUser{
-			Id:              user.ID,
-			Login:           user.Login,
-			DisplayName:     user.DisplayName,
-			Type:            user.Type,
-			BroadcasterType: user.BroadcasterType,
-			Description:     user.Description,
-			ProfileImageUrl: user.ProfileImageURL,
-			OfflineImageUrl: user.OfflineImageURL,
-			CreatedAt:       fmt.Sprint(user.CreatedAt.UnixMilli()),
-		}
-	})
+	convertedUsers := lo.Map(
+		twitchUsers, func(user helix.User, _ int) *generatedTwitch.TwitchUser {
+			return &generatedTwitch.TwitchUser{
+				Id:              user.ID,
+				Login:           user.Login,
+				DisplayName:     user.DisplayName,
+				Type:            user.Type,
+				BroadcasterType: user.BroadcasterType,
+				Description:     user.Description,
+				ProfileImageUrl: user.ProfileImageURL,
+				OfflineImageUrl: user.OfflineImageURL,
+				CreatedAt:       fmt.Sprint(user.CreatedAt.UnixMilli()),
+			}
+		},
+	)
 
 	return &generatedTwitch.TwitchGetUsersResponse{
 		Users: convertedUsers,
@@ -194,9 +222,11 @@ func (c *Twitch) TwitchSearchChannels(
 		return nil, err
 	}
 
-	twitchReq, twitchErr := twitchClient.SearchChannels(&helix.SearchChannelsParams{
-		Channel: request.Query,
-	})
+	twitchReq, twitchErr := twitchClient.SearchChannels(
+		&helix.SearchChannelsParams{
+			Channel: request.Query,
+		},
+	)
 	if twitchErr != nil {
 		return nil, twitchErr
 	}
@@ -204,34 +234,38 @@ func (c *Twitch) TwitchSearchChannels(
 		return nil, fmt.Errorf(twitchReq.ErrorMessage)
 	}
 
-	channels := lo.Map(twitchReq.Data.Channels, func(channel helix.Channel, _ int) *generatedTwitch.Channel {
-		return &generatedTwitch.Channel{
-			Id:              channel.ID,
-			Login:           channel.BroadcasterLogin,
-			DisplayName:     channel.DisplayName,
-			ProfileImageUrl: channel.ThumbnailURL,
-			Title:           channel.Title,
-			GameName:        channel.GameName,
-			GameId:          channel.GameID,
-			IsLive:          channel.IsLive,
-		}
-	})
+	channels := lo.Map(
+		twitchReq.Data.Channels, func(channel helix.Channel, _ int) *generatedTwitch.Channel {
+			return &generatedTwitch.Channel{
+				Id:              channel.ID,
+				Login:           channel.BroadcasterLogin,
+				DisplayName:     channel.DisplayName,
+				ProfileImageUrl: channel.ThumbnailURL,
+				Title:           channel.Title,
+				GameName:        channel.GameName,
+				GameId:          channel.GameID,
+				IsLive:          channel.IsLive,
+			}
+		},
+	)
 
-	sort.Slice(channels, func(i, j int) bool {
-		name1 := channels[i].Login
-		name2 := channels[j].Login
+	sort.Slice(
+		channels, func(i, j int) bool {
+			name1 := channels[i].Login
+			name2 := channels[j].Login
 
-		containsName1 := strings.Contains(name1, request.Query)
-		containsName2 := strings.Contains(name2, request.Query)
+			containsName1 := strings.Contains(name1, request.Query)
+			containsName2 := strings.Contains(name2, request.Query)
 
-		if containsName1 && !containsName2 {
-			return true
-		} else if !containsName1 && containsName2 {
-			return false
-		} else {
-			return name1 < name2
-		}
-	})
+			if containsName1 && !containsName2 {
+				return true
+			} else if !containsName1 && containsName2 {
+				return false
+			} else {
+				return name1 < name2
+			}
+		},
+	)
 
 	return &generatedTwitch.TwitchSearchChannelsResponse{
 		Channels: channels,

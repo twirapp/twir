@@ -113,55 +113,61 @@ func (c *Modules) ModulesSRSearchVideosOrChannels(
 
 	var mu sync.Mutex
 
-	loParallel.ForEach(request.Query, func(query string, _ int) {
-		if query == "" {
-			return
-		}
+	loParallel.ForEach(
+		request.Query, func(query string, _ int) {
+			if query == "" {
+				return
+			}
 
-		var search *ytsearch.SearchClient
-		if request.Type == modules_sr.GetSearchRequest_CHANNEL {
-			search = ytsearch.ChannelSearch(query)
-		} else {
-			search = ytsearch.VideoSearch(query)
-		}
+			var search *ytsearch.SearchClient
+			if request.Type == modules_sr.GetSearchRequest_CHANNEL {
+				search = ytsearch.ChannelSearch(query)
+			} else {
+				search = ytsearch.VideoSearch(query)
+			}
 
-		res, err := search.Next()
-		if err != nil {
-			zap.S().Error(err)
-			return
-		}
+			res, err := search.Next()
+			if err != nil {
+				zap.S().Error(err)
+				return
+			}
 
-		mu.Lock()
-		defer mu.Unlock()
-		if request.Type == modules_sr.GetSearchRequest_CHANNEL {
-			channels := lo.Map(res.Channels, func(item *ytsearch.ChannelItem, _ int) *modules_sr.GetSearchResponse_Result {
-				thumb := getThumbNailUrl(item.Thumbnails[len(item.Thumbnails)-1].URL)
-				return &modules_sr.GetSearchResponse_Result{
-					Id:        item.ID,
-					Title:     item.Title,
-					Thumbnail: thumb,
-				}
-			})
-			response.Items = append(
-				response.Items,
-				channels...,
-			)
-		} else {
-			videos := lo.Map(res.Videos, func(item *ytsearch.VideoItem, _ int) *modules_sr.GetSearchResponse_Result {
-				thumb := getThumbNailUrl(item.Thumbnails[len(item.Thumbnails)-1].URL)
+			mu.Lock()
+			defer mu.Unlock()
+			if request.Type == modules_sr.GetSearchRequest_CHANNEL {
+				channels := lo.Map(
+					res.Channels, func(item *ytsearch.ChannelItem, _ int) *modules_sr.GetSearchResponse_Result {
+						thumb := getThumbNailUrl(item.Thumbnails[len(item.Thumbnails)-1].URL)
+						return &modules_sr.GetSearchResponse_Result{
+							Id:        item.ID,
+							Title:     item.Title,
+							Thumbnail: thumb,
+						}
+					},
+				)
+				response.Items = append(
+					response.Items,
+					channels...,
+				)
+			} else {
+				videos := lo.Map(
+					res.Videos, func(item *ytsearch.VideoItem, _ int) *modules_sr.GetSearchResponse_Result {
+						thumb := getThumbNailUrl(item.Thumbnails[len(item.Thumbnails)-1].URL)
 
-				return &modules_sr.GetSearchResponse_Result{
-					Id:        item.ID,
-					Title:     item.Title,
-					Thumbnail: thumb,
-				}
-			})
-			response.Items = append(
-				response.Items,
-				videos...,
-			)
-		}
-	})
+						return &modules_sr.GetSearchResponse_Result{
+							Id:        item.ID,
+							Title:     item.Title,
+							Thumbnail: thumb,
+						}
+					},
+				)
+				response.Items = append(
+					response.Items,
+					videos...,
+				)
+			}
+		},
+	)
 
 	return response, nil
 }

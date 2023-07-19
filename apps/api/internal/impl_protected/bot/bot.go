@@ -56,10 +56,12 @@ func (c *Bot) BotInfo(ctx context.Context, _ *meta.BaseRequestMeta) (*bots.BotIn
 			return
 		}
 
-		mods, err := twitchClient.GetModerators(&helix.GetModeratorsParams{
-			BroadcasterID: dashboardId,
-			UserIDs:       []string{dbUser.Channel.BotID},
-		})
+		mods, err := twitchClient.GetModerators(
+			&helix.GetModeratorsParams{
+				BroadcasterID: dashboardId,
+				UserIDs:       []string{dbUser.Channel.BotID},
+			},
+		)
 		if err != nil {
 			return
 		}
@@ -69,9 +71,11 @@ func (c *Bot) BotInfo(ctx context.Context, _ *meta.BaseRequestMeta) (*bots.BotIn
 
 	go func() {
 		defer wg.Done()
-		infoReq, err := twitchClient.GetUsers(&helix.UsersParams{
-			IDs: []string{dbUser.Channel.BotID},
-		})
+		infoReq, err := twitchClient.GetUsers(
+			&helix.UsersParams{
+				IDs: []string{dbUser.Channel.BotID},
+			},
+		)
 		if err != nil {
 			return
 		}
@@ -127,15 +131,19 @@ func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest)
 	}
 
 	if dbChannel.IsEnabled {
-		c.Grpc.Bots.Join(context.Background(), &botsGrtpc.JoinOrLeaveRequest{
-			BotId:    dbChannel.BotID,
-			UserName: twitchUsers.Data.Users[0].Login,
-		})
+		c.Grpc.Bots.Join(
+			context.Background(), &botsGrtpc.JoinOrLeaveRequest{
+				BotId:    dbChannel.BotID,
+				UserName: twitchUsers.Data.Users[0].Login,
+			},
+		)
 	} else {
-		c.Grpc.Bots.Leave(context.Background(), &botsGrtpc.JoinOrLeaveRequest{
-			BotId:    dbChannel.BotID,
-			UserName: twitchUsers.Data.Users[0].Login,
-		})
+		c.Grpc.Bots.Leave(
+			context.Background(), &botsGrtpc.JoinOrLeaveRequest{
+				BotId:    dbChannel.BotID,
+				UserName: twitchUsers.Data.Users[0].Login,
+			},
+		)
 	}
 
 	return &emptypb.Empty{}, nil

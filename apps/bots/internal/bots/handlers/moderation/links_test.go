@@ -21,17 +21,19 @@ func TestHasLink(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		t.Run(test.name, func(t *testing.T) {
-			got := HasLink(test.msg, test.withSpaces)
-			if got != test.expected {
-				t.Errorf(
-					"msg=%q withspaces=%v expected=%v but got=%v",
-					test.msg,
-					test.withSpaces,
-					test.expected,
-					got,
-				)
-			}
-		})
+		t.Run(
+			test.name, func(t *testing.T) {
+				got := HasLink(test.msg, test.withSpaces)
+				if got != test.expected {
+					t.Errorf(
+						"msg=%q withspaces=%v expected=%v but got=%v",
+						test.msg,
+						test.withSpaces,
+						test.expected,
+						got,
+					)
+				}
+			},
+		)
 	}
 }

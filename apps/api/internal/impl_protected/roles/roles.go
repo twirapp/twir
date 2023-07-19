@@ -33,13 +33,15 @@ func (c *Roles) convertEntity(entity *model.ChannelRole) (*roles.Role, error) {
 			RequiredMessages:          settings.RequiredMessages,
 			RequiredUserChannelPoints: int32(settings.RequiredUsedChannelPoints),
 		},
-		Users: lo.Map(entity.Users, func(u *model.ChannelRoleUser, _ int) *roles.Role_User {
-			return &roles.Role_User{
-				Id:     u.ID,
-				UserId: u.UserID,
-				RoleId: u.RoleID,
-			}
-		}),
+		Users: lo.Map(
+			entity.Users, func(u *model.ChannelRoleUser, _ int) *roles.Role_User {
+				return &roles.Role_User{
+					Id:     u.ID,
+					UserId: u.UserID,
+					RoleId: u.RoleID,
+				}
+			},
+		),
 	}, nil
 }
 
@@ -90,22 +92,26 @@ func (c *Roles) RolesUpdate(
 
 	entity.Name = request.Role.Name
 	entity.Permissions = request.Role.Permissions
-	entity.Users = lo.Map(request.Role.Users, func(u *roles.CreateRequest_User, _ int) *model.ChannelRoleUser {
-		return &model.ChannelRoleUser{
-			ID:     uuid.New().String(),
-			UserID: u.UserId,
-			RoleID: entity.ID,
-		}
-	})
+	entity.Users = lo.Map(
+		request.Role.Users, func(u *roles.CreateRequest_User, _ int) *model.ChannelRoleUser {
+			return &model.ChannelRoleUser{
+				ID:     uuid.New().String(),
+				UserID: u.UserId,
+				RoleID: entity.ID,
+			}
+		},
+	)
 
-	txErr := c.Db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where(`"roleId" = ?`, entity.ID).Delete(&model.ChannelRoleUser{}).Error; err != nil {
+	txErr := c.Db.WithContext(ctx).Transaction(
+		func(tx *gorm.DB) error {
+			if err := tx.Where(`"roleId" = ?`, entity.ID).Delete(&model.ChannelRoleUser{}).Error; err != nil {
+				return err
+			}
+
+			err := tx.WithContext(ctx).Save(entity).Error
 			return err
-		}
-
-		err := tx.WithContext(ctx).Save(entity).Error
-		return err
-	})
+		},
+	)
 	if txErr != nil {
 		return nil, txErr
 	}
@@ -158,12 +164,14 @@ func (c *Roles) RolesCreate(
 		Type:        model.ChannelRoleTypeCustom,
 		Permissions: request.Permissions,
 		Settings:    settingsBytes,
-		Users: lo.Map(request.Users, func(u *roles.CreateRequest_User, _ int) *model.ChannelRoleUser {
-			return &model.ChannelRoleUser{
-				ID:     uuid.New().String(),
-				UserID: u.UserId,
-			}
-		}),
+		Users: lo.Map(
+			request.Users, func(u *roles.CreateRequest_User, _ int) *model.ChannelRoleUser {
+				return &model.ChannelRoleUser{
+					ID:     uuid.New().String(),
+					UserID: u.UserId,
+				}
+			},
+		),
 	}
 
 	if err := c.Db.WithContext(ctx).Create(entity).Error; err != nil {

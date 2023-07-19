@@ -6,5 +6,13 @@ import (
 
 func (c *Handlers) OnSelfJoin(msg twitch.UserJoinMessage) {
 	c.logger.Sugar().
-		Infow("Joined channel", "botId", c.BotClient.Model.ID, "botName", c.BotClient.TwitchUser.Login, "channel", msg.Channel)
+		Infow(
+			"Joined channel",
+			"botId",
+			c.BotClient.Model.ID,
+			"botName",
+			c.BotClient.TwitchUser.Login,
+			"channel",
+			msg.Channel,
+		)
 }

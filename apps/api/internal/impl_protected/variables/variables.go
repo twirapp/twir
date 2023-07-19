@@ -61,9 +61,11 @@ func (c *Variables) VariablesGetAll(ctx context.Context, req *emptypb.Empty) (*v
 	}
 
 	return &variables.GetAllResponse{
-		Variables: lo.Map(entities, func(v *model.ChannelsCustomvars, _ int) *variables.Variable {
-			return c.convertEntity(v)
-		}),
+		Variables: lo.Map(
+			entities, func(v *model.ChannelsCustomvars, _ int) *variables.Variable {
+				return c.convertEntity(v)
+			},
+		),
 	}, nil
 }
 

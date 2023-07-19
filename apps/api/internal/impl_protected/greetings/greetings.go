@@ -34,13 +34,18 @@ func (c *Greetings) GreetingsGetAll(ctx context.Context, _ *emptypb.Empty) (*gre
 	}
 
 	return &greetings.GetAllResponse{
-		Greetings: lo.Map(dbGreetings, func(entity *model.ChannelsGreetings, _ int) *greetings.Greeting {
-			return c.convertEntity(entity)
-		}),
+		Greetings: lo.Map(
+			dbGreetings, func(entity *model.ChannelsGreetings, _ int) *greetings.Greeting {
+				return c.convertEntity(entity)
+			},
+		),
 	}, nil
 }
 
-func (c *Greetings) GreetingsGetById(ctx context.Context, request *greetings.GetByIdRequest) (*greetings.Greeting, error) {
+func (c *Greetings) GreetingsGetById(
+	ctx context.Context,
+	request *greetings.GetByIdRequest,
+) (*greetings.Greeting, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	var dbGreetings model.ChannelsGreetings
 	err := c.Db.WithContext(ctx).Where(`"channelId" = ? AND "id" = ?`, dashboardId, request.Id).First(&dbGreetings).Error
@@ -51,7 +56,10 @@ func (c *Greetings) GreetingsGetById(ctx context.Context, request *greetings.Get
 	return c.convertEntity(&dbGreetings), nil
 }
 
-func (c *Greetings) GreetingsCreate(ctx context.Context, request *greetings.CreateRequest) (*greetings.Greeting, error) {
+func (c *Greetings) GreetingsCreate(
+	ctx context.Context,
+	request *greetings.CreateRequest,
+) (*greetings.Greeting, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.ChannelsGreetings{
 		ChannelID: dashboardId,
@@ -102,7 +110,10 @@ func (c *Greetings) GreetingsUpdate(ctx context.Context, request *greetings.PutR
 	return c.convertEntity(entity), nil
 }
 
-func (c *Greetings) GreetingsEnableOrDisable(ctx context.Context, request *greetings.PatchRequest) (*greetings.Greeting, error) {
+func (c *Greetings) GreetingsEnableOrDisable(
+	ctx context.Context,
+	request *greetings.PatchRequest,
+) (*greetings.Greeting, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.ChannelsGreetings{}
 	err := c.Db.

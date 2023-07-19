@@ -15,17 +15,19 @@ func TestIsTooLong(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		t.Run(test.name, func(t *testing.T) {
-			got := IsTooLong(test.msg, test.maxLength)
-			if got != test.expected {
-				t.Errorf(
-					"msg=%q maxLength=%v expected=%v but got=%v",
-					test.msg,
-					test.maxLength,
-					test.expected,
-					got,
-				)
-			}
-		})
+		t.Run(
+			test.name, func(t *testing.T) {
+				got := IsTooLong(test.msg, test.maxLength)
+				if got != test.expected {
+					t.Errorf(
+						"msg=%q maxLength=%v expected=%v but got=%v",
+						test.msg,
+						test.maxLength,
+						test.expected,
+						got,
+					)
+				}
+			},
+		)
 	}
 }

@@ -17,17 +17,19 @@ func TestHasBlackListedWord(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		t.Run(test.name, func(t *testing.T) {
-			got := HasBlackListedWord(test.msg, test.list)
-			if got != test.expected {
-				t.Errorf(
-					"msg=%q withspaces=%v expected=%v but got=%v",
-					test.msg,
-					test.list,
-					test.expected,
-					got,
-				)
-			}
-		})
+		t.Run(
+			test.name, func(t *testing.T) {
+				got := HasBlackListedWord(test.msg, test.list)
+				if got != test.expected {
+					t.Errorf(
+						"msg=%q withspaces=%v expected=%v but got=%v",
+						test.msg,
+						test.list,
+						test.expected,
+						got,
+					)
+				}
+			},
+		)
 	}
 }

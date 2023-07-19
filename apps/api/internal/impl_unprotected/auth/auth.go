@@ -27,20 +27,24 @@ func (c *Auth) AuthGetLink(ctx context.Context, request *auth.GetLinkRequest) (*
 		return nil, twirp.NewError(twirp.ErrorCode(400), "no state provided")
 	}
 
-	twitchClient, err := helix.NewClientWithContext(ctx, &helix.Options{
-		ClientID:    c.Config.TwitchClientId,
-		RedirectURI: c.Config.TwitchCallbackUrl,
-	})
+	twitchClient, err := helix.NewClientWithContext(
+		ctx, &helix.Options{
+			ClientID:    c.Config.TwitchClientId,
+			RedirectURI: c.Config.TwitchCallbackUrl,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	url := twitchClient.GetAuthorizationURL(&helix.AuthorizationURLParams{
-		ResponseType: "code",
-		Scopes:       c.TwitchScopes,
-		State:        request.State,
-		ForceVerify:  false,
-	})
+	url := twitchClient.GetAuthorizationURL(
+		&helix.AuthorizationURLParams{
+			ResponseType: "code",
+			Scopes:       c.TwitchScopes,
+			State:        request.State,
+			ForceVerify:  false,
+		},
+	)
 
 	return &auth.GetLinkResponse{Link: url}, nil
 }

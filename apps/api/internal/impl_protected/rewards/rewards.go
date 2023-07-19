@@ -25,9 +25,11 @@ func (c *Rewards) RewardsGet(
 		return nil, err
 	}
 
-	resp, err := twitchClient.GetCustomRewards(&helix.GetCustomRewardsParams{
-		BroadcasterID: dashboardId,
-	})
+	resp, err := twitchClient.GetCustomRewards(
+		&helix.GetCustomRewardsParams{
+			BroadcasterID: dashboardId,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}

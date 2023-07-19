@@ -31,9 +31,11 @@ func GetChannelSevenTvEmotes(channelID string) ([]string, error) {
 		return nil, errors.New("cannot fetch 7tv emotes")
 	}
 
-	mappedEmotes := lo.Map(reqData, func(item SevenTvEmote, _ int) string {
-		return item.Name
-	})
+	mappedEmotes := lo.Map(
+		reqData, func(item SevenTvEmote, _ int) string {
+			return item.Name
+		},
+	)
 
 	return mappedEmotes, nil
 }
@@ -55,9 +57,11 @@ func GetGlobalSevenTvEmotes() ([]string, error) {
 		return nil, errors.New("cannot fetch 7tv emotes")
 	}
 
-	mappedEmotes := lo.Map(reqData, func(item SevenTvEmote, _ int) string {
-		return item.Name
-	})
+	mappedEmotes := lo.Map(
+		reqData, func(item SevenTvEmote, _ int) string {
+			return item.Name
+		},
+	)
 
 	return mappedEmotes, nil
 }

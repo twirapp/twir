@@ -15,11 +15,13 @@ func TestIsTooMuchCaps(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		t.Run(test.name, func(t *testing.T) {
-			got := IsTooMuchCaps(test.msg, test.maxPercentage)
-			if got != test.expected {
-				t.Errorf("msg=%q expected=%v but got=%v", test.msg, test.expected, got)
-			}
-		})
+		t.Run(
+			test.name, func(t *testing.T) {
+				got := IsTooMuchCaps(test.msg, test.maxPercentage)
+				if got != test.expected {
+					t.Errorf("msg=%q expected=%v but got=%v", test.msg, test.expected, got)
+				}
+			},
+		)
 	}
 }

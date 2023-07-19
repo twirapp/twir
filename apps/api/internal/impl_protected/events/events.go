@@ -68,9 +68,11 @@ func (c *Events) EventsGetAll(ctx context.Context, _ *emptypb.Empty) (*events.Ge
 	}
 
 	return &events.GetAllResponse{
-		Events: lo.Map(evnts, func(entity *model.Event, _ int) *events.Event {
-			return c.convertEntity(entity)
-		}),
+		Events: lo.Map(
+			evnts, func(entity *model.Event, _ int) *events.Event {
+				return c.convertEntity(entity)
+			},
+		),
 	}, nil
 }
 
@@ -193,22 +195,27 @@ func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (
 		}
 	}
 
-	err := c.Db.Transaction(func(tx *gorm.DB) error {
-		for _, operation := range entity.Operations {
-			if err := tx.
-				WithContext(ctx).
-				Where(`"operationId" = ?`, operation.ID).
-				Delete(&model.EventOperationFilter{}).Error; err != nil {
+	err := c.Db.Transaction(
+		func(tx *gorm.DB) error {
+			for _, operation := range entity.Operations {
+				if err := tx.
+					WithContext(ctx).
+					Where(`"operationId" = ?`, operation.ID).
+					Delete(&model.EventOperationFilter{}).Error; err != nil {
+					return err
+				}
+			}
+
+			if err := tx.WithContext(ctx).Where(
+				`"eventId" = ?`,
+				entity.ID,
+			).Delete(&model.EventOperation{}).Error; err != nil {
 				return err
 			}
-		}
 
-		if err := tx.WithContext(ctx).Where(`"eventId" = ?`, entity.ID).Delete(&model.EventOperation{}).Error; err != nil {
-			return err
-		}
-
-		return tx.WithContext(ctx).Save(entity).Error
-	})
+			return tx.WithContext(ctx).Save(entity).Error
+		},
+	)
 
 	if err != nil {
 		return nil, err

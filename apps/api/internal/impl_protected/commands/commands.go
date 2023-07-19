@@ -41,23 +41,27 @@ func (c *Commands) convertDbToRpc(cmd *model.ChannelsCommands) *commands.Command
 		RequiredWatchTime:         uint32(cmd.RequiredWatchTime),
 		RequiredMessages:          uint32(cmd.RequiredMessages),
 		RequiredUsedChannelPoints: uint32(cmd.RequiredUsedChannelPoints),
-		Responses: lo.Map(cmd.Responses, func(res *model.ChannelsCommandsResponses, _ int) *commands.Command_Response {
-			return &commands.Command_Response{
-				Id:        res.ID,
-				Text:      res.Text.String,
-				CommandId: res.CommandID,
-				Order:     uint32(res.Order),
-			}
-		}),
+		Responses: lo.Map(
+			cmd.Responses, func(res *model.ChannelsCommandsResponses, _ int) *commands.Command_Response {
+				return &commands.Command_Response{
+					Id:        res.ID,
+					Text:      res.Text.String,
+					CommandId: res.CommandID,
+					Order:     uint32(res.Order),
+				}
+			},
+		),
 		GroupId: cmd.GroupID.Ptr(),
-		Group: lo.IfF(cmd.Group != nil, func() *commands.Command_Group {
-			return &commands.Command_Group{
-				Id:        cmd.Group.ID,
-				ChannelId: cmd.Group.ChannelID,
-				Name:      cmd.Group.Name,
-				Color:     cmd.Group.Color,
-			}
-		}).Else(nil),
+		Group: lo.IfF(
+			cmd.Group != nil, func() *commands.Command_Group {
+				return &commands.Command_Group{
+					Id:        cmd.Group.ID,
+					ChannelId: cmd.Group.ChannelID,
+					Name:      cmd.Group.Name,
+					Color:     cmd.Group.Color,
+				}
+			},
+		).Else(nil),
 	}
 }
 
@@ -76,9 +80,11 @@ func (c *Commands) CommandsGetAll(ctx context.Context, _ *emptypb.Empty) (*comma
 	}
 
 	return &commands.CommandsGetAllResponse{
-		Commands: lo.Map(cmds, func(cmd model.ChannelsCommands, _ int) *commands.Command {
-			return c.convertDbToRpc(&cmd)
-		}),
+		Commands: lo.Map(
+			cmds, func(cmd model.ChannelsCommands, _ int) *commands.Command {
+				return c.convertDbToRpc(&cmd)
+			},
+		),
 	}, nil
 }
 
@@ -110,9 +116,11 @@ func (c *Commands) CommandsCreate(ctx context.Context, request *commands.CreateR
 		CooldownType: request.CooldownType,
 		Enabled:      request.Enabled,
 		Aliases: lo.Map(
-			lo.IfF(request.Aliases == nil, func() []string {
-				return []string{}
-			}).Else(request.Aliases),
+			lo.IfF(
+				request.Aliases == nil, func() []string {
+					return []string{}
+				},
+			).Else(request.Aliases),
 			func(alias string, _ int) string {
 				return strings.TrimSuffix(strings.ToLower(alias), "!")
 			},
@@ -141,11 +149,13 @@ func (c *Commands) CommandsCreate(ctx context.Context, request *commands.CreateR
 			continue
 		}
 
-		command.Responses = append(command.Responses, &model.ChannelsCommandsResponses{
-			ID:    uuid.New().String(),
-			Text:  null.StringFrom(res.Text),
-			Order: int(res.Order),
-		})
+		command.Responses = append(
+			command.Responses, &model.ChannelsCommandsResponses{
+				ID:    uuid.New().String(),
+				Text:  null.StringFrom(res.Text),
+				Order: int(res.Order),
+			},
+		)
 	}
 
 	err := c.Db.WithContext(ctx).Create(command).Error
@@ -188,9 +198,11 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 	cmd.CooldownType = request.Command.CooldownType
 	cmd.Enabled = request.Command.Enabled
 	cmd.Aliases = lo.Map(
-		lo.IfF(request.Command.Aliases == nil, func() []string {
-			return []string{}
-		}).Else(request.Command.Aliases),
+		lo.IfF(
+			request.Command.Aliases == nil, func() []string {
+				return []string{}
+			},
+		).Else(request.Command.Aliases),
 		func(alias string, _ int) string {
 			return strings.TrimSuffix(strings.ToLower(alias), "!")
 		},
@@ -199,15 +211,21 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 	cmd.Visible = request.Command.Visible
 	cmd.IsReply = request.Command.IsReply
 	cmd.KeepResponsesOrder = request.Command.KeepResponsesOrder
-	cmd.AllowedUsersIDS = lo.IfF(request.Command.AllowedUsersIds == nil, func() []string {
-		return []string{}
-	}).Else(request.Command.AllowedUsersIds)
-	cmd.DeniedUsersIDS = lo.IfF(request.Command.DeniedUsersIds == nil, func() []string {
-		return []string{}
-	}).Else(request.Command.DeniedUsersIds)
-	cmd.RolesIDS = lo.IfF(request.Command.RolesIds == nil, func() []string {
-		return []string{}
-	}).Else(request.Command.RolesIds)
+	cmd.AllowedUsersIDS = lo.IfF(
+		request.Command.AllowedUsersIds == nil, func() []string {
+			return []string{}
+		},
+	).Else(request.Command.AllowedUsersIds)
+	cmd.DeniedUsersIDS = lo.IfF(
+		request.Command.DeniedUsersIds == nil, func() []string {
+			return []string{}
+		},
+	).Else(request.Command.DeniedUsersIds)
+	cmd.RolesIDS = lo.IfF(
+		request.Command.RolesIds == nil, func() []string {
+			return []string{}
+		},
+	).Else(request.Command.RolesIds)
 	cmd.OnlineOnly = request.Command.OnlineOnly
 	cmd.RequiredWatchTime = int(request.Command.RequiredWatchTime)
 	cmd.RequiredMessages = int(request.Command.RequiredMessages)
@@ -229,13 +247,15 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 		cmd.Responses = append(cmd.Responses, r)
 	}
 
-	txErr := c.Db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err = tx.Delete(&model.ChannelsCommandsResponses{}, `"commandId" = ?`, cmd.ID).Error; err != nil {
-			return err
-		}
+	txErr := c.Db.WithContext(ctx).Transaction(
+		func(tx *gorm.DB) error {
+			if err = tx.Delete(&model.ChannelsCommandsResponses{}, `"commandId" = ?`, cmd.ID).Error; err != nil {
+				return err
+			}
 
-		return tx.Save(cmd).Error
-	})
+			return tx.Save(cmd).Error
+		},
+	)
 	if txErr != nil {
 		return nil, err
 	}

@@ -37,9 +37,11 @@ func (c *Keywords) KeywordsGetAll(ctx context.Context, _ *emptypb.Empty) (*keywo
 	}
 
 	return &keywords.GetAllResponse{
-		Keywords: lo.Map(entities, func(item *model.ChannelsKeywords, _ int) *keywords.Keyword {
-			return c.convertEntity(item)
-		}),
+		Keywords: lo.Map(
+			entities, func(item *model.ChannelsKeywords, _ int) *keywords.Keyword {
+				return c.convertEntity(item)
+			},
+		),
 	}, nil
 }
 
