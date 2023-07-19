@@ -34,10 +34,10 @@ func (c *Events) convertEntity(entity *model.Event) *events.Event {
 		event.Operations[i] = &events.Event_Operation{
 			Type:           operation.Type.String(),
 			Input:          operation.Input.Ptr(),
-			Delay:          uint64(operation.Delay),
-			Repeat:         uint64(operation.Repeat),
+			Delay:          uint32(operation.Delay),
+			Repeat:         uint32(operation.Repeat),
 			UseAnnounce:    operation.UseAnnounce,
-			TimeoutTime:    uint64(operation.TimeoutTime),
+			TimeoutTime:    uint32(operation.TimeoutTime),
 			TimeoutMessage: operation.TimeoutMessage.Ptr(),
 			Target:         operation.Target.Ptr(),
 			Filters:        make([]*events.Event_OperationFilter, len(operation.Filters)),

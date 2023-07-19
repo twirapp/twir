@@ -58,6 +58,10 @@ export const router = createRouter({
 					path: '/dashboard/overlays',
 					component: () => import('./pages/Overlays.vue'),
 				},
+				{
+					path: '/dashboard/events',
+					component: () => import('./pages/Events.vue'),
+				},
 			],
 		},
 	],

@@ -14,10 +14,10 @@ message Event {
 	message Operation {
 		string type = 1;
 		optional string input = 2;
-		uint64 delay = 3;
-		uint64 repeat = 4;
+		uint32 delay = 3;
+		uint32 repeat = 4;
 		bool use_announce = 5;
-		uint64 timeout_time = 6;
+		uint32 timeout_time = 6;
 		optional string timeout_message = 7;
 		optional string target = 8;
 		repeated OperationFilter filters = 9;
