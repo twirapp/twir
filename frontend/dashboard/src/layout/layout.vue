@@ -46,54 +46,55 @@ watch(smallerOrEqualLg, (v) => {
 </script>
 
 <template>
-  <n-config-provider :theme="themeStyles" style="height: 100%">
-    <n-message-provider>
-      <n-layout style="height: 100%">
-        <n-layout-header bordered style="height: 43px;">
-          <Header :toggleSidebar="toggleSidebar" />
-        </n-layout-header>
-        <n-layout has-sider style="height: calc(100vh - 43px)">
-          <n-layout-sider
-            v-if="!smallerOrEqualLg"
-            bordered
-            collapse-mode="width"
-            :collapsed-width="64"
-            :width="240"
-            :native-scrollbar="false"
-            :collapsed="isSidebarCollapsed"
-            :show-collapsed-content="false"
-          >
-            <Sidebar />
-          </n-layout-sider>
-          <n-drawer v-else v-model:show="storedDrawerValue" placement="left">
-            <n-drawer-content body-content-style="padding: 0px">
-              <Sidebar />
-            </n-drawer-content>
-          </n-drawer>
-          <n-layout-content content-style="padding: 24px; width: 100%">
-            <router-view v-slot="{ Component, route }">
-              <transition :name="route.meta.transition || 'fade'" mode="out-in">
-                <div :key="route.name">
-                  <component :is="Component" />
-                </div>
-              </transition>
-            </router-view>
-          </n-layout-content>
-        </n-layout>
-      </n-layout>
-    </n-message-provider>
-  </n-config-provider>
+	<n-config-provider :theme="themeStyles" style="height: 100%">
+		<n-message-provider>
+			<n-layout style="height: 100%">
+				<n-layout-header bordered style="height: 43px;">
+					<Header :toggleSidebar="toggleSidebar" />
+				</n-layout-header>
+				<n-layout has-sider style="height: calc(100vh - 43px)">
+					<n-layout-sider
+						v-if="!smallerOrEqualLg"
+						bordered
+						collapse-mode="width"
+						:collapsed-width="64"
+						:width="240"
+						:native-scrollbar="false"
+						:collapsed="isSidebarCollapsed"
+						:show-collapsed-content="false"
+					>
+						<Sidebar />
+					</n-layout-sider>
+					<n-drawer v-else v-model:show="storedDrawerValue" placement="left">
+						<n-drawer-content body-content-style="padding: 0px">
+							<Sidebar />
+						</n-drawer-content>
+					</n-drawer>
+					<n-layout-content content-style="padding: 24px; width: 100%">
+						<router-view v-slot="{ Component, route }">
+							<transition :name="route.meta.transition as string || 'router'" mode="out-in">
+								<div :key="route.name ?? Date.now()">
+									<component :is="Component" />
+								</div>
+							</transition>
+						</router-view>
+					</n-layout-content>
+				</n-layout>
+			</n-layout>
+		</n-message-provider>
+	</n-config-provider>
 </template>
 
 
 <style>
-.fade-enter-active,
-.fade-leave-active {
-	transition: opacity 0.2s ease;
+.router-enter-active,
+.router-leave-active {
+  transition: all 0.3s ease;
 }
 
-.fade-enter-from,
-.fade-leave-to {
-	opacity: 0;
+.router-enter-from,
+.router-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
 }
 </style>

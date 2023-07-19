@@ -13,7 +13,7 @@ import {
   NSwitch,
   NAvatar,
 } from 'naive-ui';
-import { h, ref, watch, onMounted, computed } from 'vue';
+import { h, ref, computed } from 'vue';
 
 import { useGreetingsManager, useTwitchGetUsers } from '@/api/index.js';
 import Modal from '@/components/greetings/modal.vue';
@@ -138,38 +138,38 @@ function closeModal() {
 </script>
 
 <template>
-  <n-space justify="space-between" align="center">
-    <h2>Greetings</h2>
-    <n-button secondary type="success" @click="openModal(null)">
-      Create
-    </n-button>
-  </n-space>
-  <n-alert>
-    <p>Greeting system used for welcoming new users typed their first message on stream.</p>
-    <p>
-      If you wanna greet every user in chat, not only specified - then you can use events system.
-    </p>
-  </n-alert>
-  <n-data-table
-    :isLoading="greetings.isLoading.value || twitchUsers.isLoading.value"
-    :columns="columns"
-    :data="greetings.data.value?.greetings ?? []"
-    style="margin-top: 20px;"
-  />
+	<n-space justify="space-between" align="center">
+		<h2>Greetings</h2>
+		<n-button secondary type="success" @click="openModal(null)">
+			Create
+		</n-button>
+	</n-space>
+	<n-alert>
+		<p>Greeting system used for welcoming new users typed their first message on stream.</p>
+		<p>
+			If you wanna greet every user in chat, not only specified - then you can use events system.
+		</p>
+	</n-alert>
+	<n-data-table
+		:isLoading="greetings.isLoading.value || twitchUsers.isLoading.value"
+		:columns="columns"
+		:data="greetings.data.value?.greetings ?? []"
+		style="margin-top: 20px;"
+	/>
 
-  <n-modal
-    v-model:show="showModal"
-    :mask-closable="false"
-    :segmented="true"
-    preset="card"
-    :title="editableGreeting?.userName || 'Create greeting'"
-    class="modal"
-    :style="{
-      width: '400px',
-      top: '50px',
-    }"
-    :on-close="closeModal"
-  >
-    <modal :greeting="editableGreeting" @close="closeModal" />
-  </n-modal>
+	<n-modal
+		v-model:show="showModal"
+		:mask-closable="false"
+		:segmented="true"
+		preset="card"
+		:title="editableGreeting?.userName || 'Create greeting'"
+		class="modal"
+		:style="{
+			width: '400px',
+			top: '50px',
+		}"
+		:on-close="closeModal"
+	>
+		<modal :greeting="editableGreeting" @close="closeModal" />
+	</n-modal>
 </template>
