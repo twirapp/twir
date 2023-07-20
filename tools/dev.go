@@ -18,7 +18,27 @@ type App struct {
 	Port  int
 }
 
+func migrate() {
+	cmd := exec.Command(
+		"sh",
+		"-c",
+		"go run main.go",
+	)
+
+	cmd.Dir = "./libs/migrations"
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		panic(err)
+	}
+}
+
 func main() {
+	migrate()
+
 	// order matters
 	apps := []App{
 		{Stack: "go", Name: "tokens", Port: servers.TOKENS_SERVER_PORT},
