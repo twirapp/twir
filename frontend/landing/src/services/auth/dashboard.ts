@@ -1,9 +1,8 @@
 import { persistentAtom } from '@nanostores/persistent';
-import type { AuthUser, Dashboard } from '@twir/shared';
 
-export const selectedDashboardStore = persistentAtom<Dashboard | null>('selected_dashboard', null, {
-  encode: JSON.stringify,
-  decode: JSON.parse,
+export const selectedDashboardStore = persistentAtom<any | null>('selected_dashboard', null, {
+	encode: JSON.stringify,
+	decode: JSON.parse,
 });
 
 /**
@@ -15,14 +14,14 @@ export const selectedDashboardStore = persistentAtom<Dashboard | null>('selected
  *
  * @returns user dashboard
  */
-export const createUserDashboard = (user: AuthUser): Dashboard => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  // const { dashboards: _, ...userData } = user;
+export const createUserDashboard = (user: any): any => {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	// const { dashboards: _, ...userData } = user;
 
-  return {
-    id: '0',
-    channelId: user.id,
-    userId: user.id,
-    twitchUser: {},
-  };
+	return {
+		id: '0',
+		channelId: user.id,
+		userId: user.id,
+		twitchUser: {},
+	};
 };
