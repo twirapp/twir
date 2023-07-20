@@ -24,4 +24,5 @@ use (
 	./libs/ytsr
 	./libs/crypto
 	./tools
+	./libs/migrations
 )
