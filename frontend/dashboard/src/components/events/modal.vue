@@ -71,19 +71,24 @@ const rules: FormRules = {
 	},
 };
 
-const typeSelectOptions: (SelectOption | SelectGroupOption)[] = Object.entries(EVENTS).map(([key, value]) => {
-	return {
-		value: key,
-		label: value.name,
-		type: value.type ? 'group' : undefined,
-		children: value.childrens
-		? Object.entries(value.childrens).map(([childKey, childValue]) => ({
-			value: childKey,
-			label: childValue.name,
-		}))
-		: [],
-	};
-});
+const typeSelectOptions: (SelectOption | SelectGroupOption)[] = Object.entries(EVENTS)
+	.map(([key, value]) => {
+		const result: SelectOption | SelectGroupOption = {
+			value: key,
+			label: value.name,
+		};
+
+		if (value.type === 'group' && value.childrens) {
+			result.key = value.name;
+			result.type = 'group';
+			result.children = Object.entries(value.childrens).map(([childKey, childValue]) => ({
+				value: childKey,
+				label: childValue.name,
+			}));
+		}
+
+		return result;
+	});
 
 const availableEventVariables = computed(() => {
 	const evt = EVENTS[formValue.value.type];
