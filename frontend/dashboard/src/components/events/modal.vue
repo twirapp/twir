@@ -24,7 +24,7 @@ import { EVENTS } from './events.js';
 import { eventTypeSelectOptions, operationTypeSelectOptions, getOperation } from './helpers.js';
 import { EditableEvent } from './types.js';
 
-import { useCommandsManager, useObsOverlayManager, useVariablesManager } from '@/api';
+import { useCommandsManager, useKeywordsManager, useObsOverlayManager, useTwitchRewards, useVariablesManager } from '@/api';
 
 const props = defineProps<{
 	event: EditableEvent | null
@@ -69,6 +69,7 @@ const rules: FormRules = {
 	input: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, v: string) => {
+			if (!v) return new Error('Please type something');
 			if (v?.length > 100) return new Error('Too long input');
 
 			return true;
@@ -87,6 +88,24 @@ const rules: FormRules = {
 		validator: (_: FormItemRule, v: string) => {
 			if (formValue.value.type !== 'COMMAND_USED') return true;
 			if (!v) return new Error('Please select command');
+
+			return true;
+		},
+	},
+	rewardId: {
+		trigger: ['input', 'blur', 'focus'],
+		validator: (_: FormItemRule, v: string) => {
+			if (formValue.value.type !== 'REDEMPTION_CREATED') return true;
+			if (!v) return new Error('Please select reward');
+
+			return true;
+		},
+	},
+	keywordId: {
+		trigger: ['input', 'blur', 'focus'],
+		validator: (_: FormItemRule, v: string) => {
+			if (formValue.value.type !== 'KEYWORD_MATCHED') return true;
+			if (!v) return new Error('Please select keyword');
 
 			return true;
 		},
@@ -141,6 +160,24 @@ const commandsSelectOptions = computed(() => {
 		id: c.id,
 	})) ?? [];
 });
+
+const { data: rewardsData, isLoading: isRewardsLoading, isError: isRewardsError } = useTwitchRewards();
+const rewardsSelectOptions = computed(() => {
+	return rewardsData.value?.rewards.map(r => ({
+		value: r.id,
+		label: r.title,
+		image: r.image?.url4X,
+	})) ?? [];
+});
+
+const keywordsManager = useKeywordsManager();
+const { data: keywordsData, isLoading: isKeywordsLoading } = keywordsManager.getAll({});
+const keywordsSelectOptions = computed(() => {
+	return keywordsData.value?.keywords.map(k => ({
+		label: k.text,
+		value: k.id,
+	}));
+});
 </script>
 
 <template>
@@ -169,6 +206,35 @@ const commandsSelectOptions = computed(() => {
 							:loading="isCommandsLoading"
 						/>
 					</n-form-item>
+
+					<n-form-item
+						v-if="formValue.type === 'REDEMPTION_CREATED'"
+						label="Target twitch reward"
+						required
+						path="rewardId"
+					>
+						<n-select
+							v-model:value="formValue.rewardId"
+							:options="rewardsSelectOptions"
+							placeholder="Select reward"
+							:loading="isRewardsLoading"
+							:disabled="isRewardsError"
+						/>
+					</n-form-item>
+
+					<n-form-item
+						v-if="formValue.type === 'KEYWORD_MATCHED'"
+						label="Target keyword"
+						required
+						path="keywordId"
+					>
+						<n-select
+							v-model:value="formValue.keywordId"
+							:options="keywordsSelectOptions"
+							placeholder="Select keyword"
+							:loading="isKeywordsLoading"
+						/>
+					</n-form-item>
 				</n-space>
 
 				<n-space vertical>
@@ -187,18 +253,18 @@ const commandsSelectOptions = computed(() => {
 					<n-space vertical style="gap: 0">
 						<n-grid cols="3 s:1 m:3" :x-gap="5" :y-gap="5" responsive="screen">
 							<n-grid-item :span="1">
-								<n-form-item label="Operation">
+								<n-form-item label="Operation" required>
 									<n-select v-model:value="operation.type" :options="operationTypeSelectOptions" />
 								</n-form-item>
 							</n-grid-item>
 							<n-grid-item :span="1">
-								<n-form-item label="Delay">
-									<n-input-number v-model:value="operation.delay" />
+								<n-form-item label="Delay (seconds)">
+									<n-input-number v-model:value="operation.delay" :min="0" :max="10" />
 								</n-form-item>
 							</n-grid-item>
 							<n-grid-item :span="1">
-								<n-form-item label="Repeat">
-									<n-input-number v-model:value="operation.repeat" />
+								<n-form-item label="Repeat times">
+									<n-input-number v-model:value="operation.repeat" :min="0" :max="10" />
 								</n-form-item>
 							</n-grid-item>
 						</n-grid>
