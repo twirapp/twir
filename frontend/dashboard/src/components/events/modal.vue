@@ -12,6 +12,7 @@ import {
 	NText,
 	NTimeline,
 	NTimelineItem,
+	NMention,
 } from 'naive-ui';
 import { computed, onMounted, ref } from 'vue';
 
@@ -66,7 +67,10 @@ const typeSelectOptions: SelectOption[] = Object.entries(EVENTS).map(([key, valu
 const availableEventVariables = computed(() => {
 	const evt = EVENTS[formValue.value.type];
 
-	return evt?.variables?.map(v => `{${v}}`) ?? [];
+	return evt?.variables?.map(v => ({
+		label: `{${v}}`,
+		value: `${v}}`,
+	})) ?? [];
 });
 </script>
 
@@ -84,14 +88,16 @@ const availableEventVariables = computed(() => {
 					</n-form-item>
 				</n-space>
 
-				<n-text v-for="variable of availableEventVariables" :key="variable">
-					{{ variable }}
-				</n-text>
+				<n-space vertical>
+					<n-text v-for="variable of availableEventVariables" :key="variable.value">
+						{{ variable }}
+					</n-text>
+				</n-space>
 			</n-space>
 
 			<n-timeline>
 				<n-timeline-item>
-					qwe
+					<n-mention :options="availableEventVariables" :prefix="['{', '}']" />
 				</n-timeline-item>
 				<n-timeline-item>
 					qwe
