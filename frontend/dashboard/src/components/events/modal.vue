@@ -106,7 +106,7 @@ const availableEventVariables = computed(() => {
 			<n-space justify="space-between" item-style="width: 49%">
 				<n-space vertical item-style="width: 100%">
 					<n-form-item label="Type" path="type" show-require-mark>
-						<n-select v-model:value="formValue.type" :options="typeSelectOptions" />
+						<n-select v-model:value="formValue.type" filterable :options="typeSelectOptions" />
 					</n-form-item>
 
 					<n-form-item label="Description" path="description" show-require-mark>

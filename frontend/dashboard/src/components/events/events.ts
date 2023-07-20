@@ -75,7 +75,7 @@ export const EVENTS: Record<string, TwirEvent> = {
 		variables: ['userName', 'userDisplayName', 'rewardName', 'rewardCost', 'rewardInput'],
 	},
 	COMMAND_USED: {
-		name: 'Reward Activated',
+		name: 'Command used',
 		icon: IconStar,
 		variables: ['userName', 'userDisplayName', 'commandName', 'commandInput'],
 	},
@@ -121,7 +121,7 @@ export const EVENTS: Record<string, TwirEvent> = {
 			},
 		},
 	},
-	
+
 	ON_CHAT_CLEAR: {
 		name: 'On Chat Clear',
 		icon: IconEraser,
