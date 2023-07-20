@@ -1,8 +1,9 @@
 <script setup lang='ts'>
 import {
+	type SelectGroupOption,
+	type SelectOption,
 	NSpace,
 	NSelect,
-	SelectOption,
 	NForm,
 	NFormItem,
 	FormInst,
@@ -12,7 +13,7 @@ import {
 	NText,
 	NTimeline,
 	NTimelineItem,
-	NMention,
+	NAutoComplete,
 } from 'naive-ui';
 import { computed, onMounted, ref } from 'vue';
 
@@ -70,10 +71,17 @@ const rules: FormRules = {
 	},
 };
 
-const typeSelectOptions: SelectOption[] = Object.entries(EVENTS).map(([key, value]) => {
+const typeSelectOptions: (SelectOption | SelectGroupOption)[] = Object.entries(EVENTS).map(([key, value]) => {
 	return {
 		value: key,
 		label: value.name,
+		type: value.type ? 'group' : undefined,
+		children: value.childrens
+		? Object.entries(value.childrens).map(([childKey, childValue]) => ({
+			value: childKey,
+			label: childValue.name,
+		}))
+		: [],
 	};
 });
 
@@ -110,12 +118,11 @@ const availableEventVariables = computed(() => {
 
 			<n-timeline>
 				<n-timeline-item>
-					<n-mention
-						v-model:value="formValue.operations[0].input"
-						:options="availableEventVariables.map(v => ({ ...v, value: v.value + '}'}))"
-						:prefix="['{', '}']"
-						:show="true"
-						@focus="(e) => e.target.blur()"
+					<n-auto-complete
+						:options="availableEventVariables.map(v => ({
+							...v,
+							value: `${formValue.operations[0].input} {${v.value}}`
+						}))"
 					/>
 				</n-timeline-item>
 				<n-timeline-item>
