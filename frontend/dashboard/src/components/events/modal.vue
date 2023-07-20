@@ -1,4 +1,6 @@
 <script setup lang='ts'>
+
+
 import {
 	type SelectOption,
 	type FormInst,
@@ -249,6 +251,10 @@ const keywordsSelectOptions = computed(() => {
 					</n-text>
 				</n-space>
 			</n-space>
+
+			<n-divider title-placement="center">
+				Operations
+			</n-divider>
 
 			<n-timeline size="large">
 				<n-timeline-item

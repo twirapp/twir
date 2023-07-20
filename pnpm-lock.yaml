@@ -212,6 +212,9 @@ importers:
       vue:
         specifier: ^3.3.4
         version: 3.3.4
+      vue-i18n:
+        specifier: '9'
+        version: 9.2.2(vue@3.3.4)
       vue-router:
         specifier: '4'
         version: 4.1.6(vue@3.3.4)
@@ -18859,6 +18862,19 @@ packages:
       '@intlify/vue-devtools': 9.2.2
       '@vue/devtools-api': 6.5.0
       vue: 3.2.47
+    dev: false
+
+  /vue-i18n@9.2.2(vue@3.3.4):
+    resolution: {integrity: sha512-yswpwtj89rTBhegUAv9Mu37LNznyu3NpyLQmozF3i1hYOhwpG8RjcjIFIIfnu+2MDZJGSZPXaKWvnQA71Yv9TQ==}
+    engines: {node: '>= 14'}
+    peerDependencies:
+      vue: ^3.0.0
+    dependencies:
+      '@intlify/core-base': 9.2.2
+      '@intlify/shared': 9.2.2
+      '@intlify/vue-devtools': 9.2.2
+      '@vue/devtools-api': 6.5.0
+      vue: 3.3.4
     dev: false
 
   /vue-inbrowser-compiler-independent-utils@4.64.1(vue@3.2.47):
