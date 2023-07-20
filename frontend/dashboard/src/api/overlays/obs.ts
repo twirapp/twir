@@ -18,6 +18,7 @@ export const useObsOverlayManager = () => {
         const call = await protectedApiClient.modulesOBSWebsocketGet({});
         return call.response;
       },
+			refetchInterval: 1000,
     }),
     updateSettings: () => useMutation({
       mutationKey: ['obsSettingsUpdate'],
