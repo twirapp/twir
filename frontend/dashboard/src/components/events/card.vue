@@ -4,7 +4,7 @@ import { useThrottleFn } from '@vueuse/core';
 import { NText, NButton, NTooltip, NTag, NRow, NSpace, NSwitch, NPopconfirm } from 'naive-ui';
 
 import { EVENTS } from './events.js';
-import { OPERATIONS } from './operations.js';
+import { OPERATIONS, Operation } from './operations.js';
 import { EditableEvent } from './types.js';
 
 import { useEventsManager } from '@/api/index.js';
@@ -23,8 +23,21 @@ const eventsPatcher = eventsManager.patch!;
 const eventsDeleter = eventsManager.deleteOne;
 
 const getEventName = (eventType: string) => EVENTS[eventType]?.name ?? eventType;
-const getOperationName = (operationType: string) => {
-	return OPERATIONS[operationType]?.name ?? operationType;
+
+const flatOperations = Object.entries(OPERATIONS).reduce((acc, curr) => {
+	if (curr[1].type === 'group' && curr[1].childrens) {
+		Object.entries(curr[1].childrens).forEach(([key, value]) => acc[key] = value);
+		return acc;
+	}
+
+	acc[curr[0]] = curr[1];
+	return acc;
+}, {} as Record<string, Operation>);
+
+console.log(flatOperations);
+
+const getOperation = (operationType: string) => {
+	return flatOperations[operationType] ?? null;
 };
 
 const throttledSwitchState = useThrottleFn((v: boolean) => {
@@ -47,8 +60,12 @@ const throttledSwitchState = useThrottleFn((v: boolean) => {
 				<n-row style="gap: 8px;">
 					<n-tooltip v-for="(operation, index) of event.operations" :key="index" :disabled="!operation.input">
 						<template #trigger>
-							<n-tag :disabled="!operation.enabled" :bordered="false" type="info">
-								{{ getOperationName(operation.type) }}
+							<n-tag
+								:disabled="!operation.enabled"
+								:bordered="false"
+								:type="getOperation(operation.type)?.color ?? 'info'"
+							>
+								{{ getOperation(operation.type).description }}
 							</n-tag>
 						</template>
 						<n-space vertical>

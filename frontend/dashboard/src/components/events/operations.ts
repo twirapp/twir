@@ -1,10 +1,10 @@
-type Operation = {
+export type Operation = {
 	description: string;
 	haveInput?: boolean;
 	additionalValues?: Array<string>;
 	producedVariables?: Array<string>;
 	dependsOnEvents?: string[];
-	color?: string;
+	color?: 'default' | 'success' | 'error' | 'warning' | 'info' | 'primary';
 	type?: 'group'
 	childrens?: Record<string, Operation>
 }
@@ -166,53 +166,53 @@ export const OPERATIONS: Record<string, Operation> = {
 			OBS_SET_SCENE: {
 				description: 'Change scene',
 				additionalValues: ['target'],
-				color: 'dark',
+				color: 'default',
 			},
 			OBS_TOGGLE_SOURCE: {
 				description: `Toggle source visibility`,
 				additionalValues: ['target'],
-				color: 'dark',
+				color: 'default',
 			},
 			OBS_TOGGLE_AUDIO: {
 				description: 'Toggle audio on/off',
 				additionalValues: ['target'],
-				color: 'dark',
+				color: 'default',
 			},
 			OBS_AUDIO_SET_VOLUME: {
 				description: 'Set audio volume',
 				haveInput: true,
 				additionalValues: ['target'],
-				color: 'dark',
+				color: 'default',
 			},
 			OBS_AUDIO_DECREASE_VOLUME: {
 				description: 'Decrease audio volume',
 				haveInput: true,
 				additionalValues: ['target'],
-				color: 'dark',
+				color: 'default',
 			},
 			OBS_AUDIO_INCREASE_VOLUME: {
 				description: 'Increase audio volume',
 				haveInput: true,
 				additionalValues: ['target'],
-				color: 'dark',
+				color: 'default',
 			},
 			OBS_ENABLE_AUDIO: {
 				description: 'Enable audio source',
 				additionalValues: ['target'],
-				color: 'dark',
+				color: 'default',
 			},
 			OBS_DISABLE_AUDIO: {
 				description: 'Disable audio source',
 				additionalValues: ['target'],
-				color: 'dark',
+				color: 'default',
 			},
 			OBS_START_STREAM: {
 				description: 'Start stream',
-				color: 'dark',
+				color: 'default',
 			},
 			OBS_STOP_STREAM: {
 				description: 'Stop stream',
-				color: 'dark',
+				color: 'default',
 			},
 		},
 	},
@@ -248,31 +248,31 @@ export const OPERATIONS: Record<string, Operation> = {
 			TTS_SAY: {
 				description: 'Say text',
 				haveInput: true,
-				color: 'light',
+				color: 'info',
 			},
 			TTS_DISABLE: {
 				description: 'Disable TTS',
-				color: 'light',
+				color: 'info',
 			},
 			TTS_ENABLE: {
 				description: 'Enable TTS',
-				color: 'light',
+				color: 'info',
 			},
 			TTS_SKIP: {
 				description: 'Skip current text',
-				color: 'light',
+				color: 'info',
 			},
 			TTS_SWITCH_AUTOREAD: {
 				description: 'Switch autoread messages on/off',
-				color: 'light',
+				color: 'info',
 			},
 			TTS_DISABLE_AUTOREAD: {
 				description: 'Disable autoread messages',
-				color: 'light',
+				color: 'info',
 			},
 			TTS_ENABLE_AUTOREAD: {
 				description: 'Enable autoread messages',
-				color: 'light',
+				color: 'info',
 			},
 		},
 	},
