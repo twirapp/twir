@@ -221,7 +221,7 @@ const keywordsSelectOptions = computed(() => {
 							placeholder="Select reward"
 							:loading="isRewardsLoading"
 							:render-label="renderRewardTag"
-							:disabled="isRewardError"
+							:disabled="isRewardsError"
 						/>
 					</n-form-item>
 
