@@ -66,7 +66,7 @@ const typeSelectOptions: SelectOption[] = Object.entries(EVENTS).map(([key, valu
 const availableEventVariables = computed(() => {
 	const evt = EVENTS[formValue.value.type];
 
-	return (evt as any)?.variables?.map((v) => `{${v}}`) ?? [];
+	return evt?.variables?.map(v => `{${v}}`) ?? [];
 });
 </script>
 
