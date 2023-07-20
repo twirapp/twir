@@ -72,11 +72,12 @@ watch(smallerOrEqualLg, (v) => {
 					</n-drawer>
 					<n-layout-content content-style="padding: 24px; width: 100%">
 						<router-view v-slot="{ Component, route }">
-							<transition :name="route.meta.transition as string || 'router'" mode="out-in">
-								<div :key="route.name ?? Date.now()">
-									<component :is="Component" />
-								</div>
-							</transition>
+							<!-- TODO: THIS TRANSITION TRIGGERING WHEN WE OPENING DRAWER(MOBILES) -->
+							<!-- <transition :name="route.meta.transition as string || 'router'" mode="out-in"> -->
+							<div :key="route.name ?? Date.now()">
+								<component :is="Component" />
+							</div>
+							<!-- </transition> -->
 						</router-view>
 					</n-layout-content>
 				</n-layout>

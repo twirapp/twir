@@ -28,33 +28,33 @@ function openSettings(id?: string) {
 </script>
 
 <template>
-	<Transition appear mode="out-in">
-		<n-grid v-if="isLoading" responsive="screen" cols="1 s:2 m:2 l:3" :x-gap="10" :y-gap="10">
-			<n-grid-item v-for="index in 6" :key="index" :span="1">
-				<n-card content-style="padding: 0px">
-					<n-skeleton height="300px" />
-				</n-card>
-			</n-grid-item>
-		</n-grid>
+	<!-- <Transition appear mode="out-in"> -->
+	<n-grid v-if="isLoading" responsive="screen" cols="1 s:2 m:2 l:3" :x-gap="10" :y-gap="10">
+		<n-grid-item v-for="index in 6" :key="index" :span="1">
+			<n-card content-style="padding: 0px">
+				<n-skeleton height="300px" />
+			</n-card>
+		</n-grid-item>
+	</n-grid>
 
-		<n-grid v-else responsive="screen" item-responsive cols="1 s:2 m:2 l:3" :x-gap="10" :y-gap="10">
-			<n-grid-item>
-				<n-card
-					class="new-event-card"
-					content-style="
+	<n-grid v-else responsive="screen" item-responsive cols="1 s:2 m:2 l:3" :x-gap="10" :y-gap="10">
+		<n-grid-item>
+			<n-card
+				class="new-event-card"
+				content-style="
 						display: flex;
 						align-items: center;
 						justify-content: center;
 					"
-				>
-					<IconCalendarPlus style="height: 80px; width: 80px;" />
-				</n-card>
-			</n-grid-item>
-			<n-grid-item v-for="event of eventsList!.events" :key="event.id">
-				<card :event="event" @open-settings="openSettings" />
-			</n-grid-item>
-		</n-grid>
-	</Transition>
+			>
+				<IconCalendarPlus style="height: 80px; width: 80px;" />
+			</n-card>
+		</n-grid-item>
+		<n-grid-item v-for="event of eventsList!.events" :key="event.id">
+			<card :event="event" @open-settings="openSettings" />
+		</n-grid-item>
+	</n-grid>
+	<!-- </Transition> -->
 
 	<n-modal
 		v-model:show="showModal"
