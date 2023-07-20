@@ -1,28 +1,26 @@
 {
-  "name": "@twir/dota",
-  "type": "module",
-  "scripts": {
-    "prebuild": "rm -rf dist",
-    "build": "tsc",
-    "start": "node --enable-source-maps dist/index.js"
-  },
-  "devDependencies": {
-    "@types/steam-user": "4.26.0",
-    "@types/steamid": "2.0.1"
-  },
-  "dependencies": {
-    "@twir/config": "workspace:*",
-    "@twir/grpc": "workspace:*",
-    "@twir/shared": "workspace:*",
-    "@twir/typeorm": "workspace:*",
-    "@types/lodash": "^4.14.191",
-    "ioredis": "5.2.4",
-    "lodash": "4.17.21",
-    "nice-grpc": "^2.0.1",
-    "protobufjs": "7.1.2",
-    "reflect-metadata": "0.1.13",
-    "steam-user": "4.26.0",
-    "steamid": "2.0.0",
-    "tslib": "2.4.1"
-  }
+	"name": "@twir/dota",
+	"type": "module",
+	"scripts": {
+		"prebuild": "rm -rf dist",
+		"build": "tsc",
+		"start": "node --enable-source-maps dist/index.js"
+	},
+	"devDependencies": {
+		"@types/steam-user": "4.26.0",
+		"@types/steamid": "2.0.1"
+	},
+	"dependencies": {
+		"@twir/config": "workspace:*",
+		"@twir/grpc": "workspace:*",
+		"@types/lodash": "^4.14.191",
+		"ioredis": "5.2.4",
+		"lodash": "4.17.21",
+		"nice-grpc": "^2.0.1",
+		"protobufjs": "7.1.2",
+		"reflect-metadata": "0.1.13",
+		"steam-user": "4.26.0",
+		"steamid": "2.0.0",
+		"tslib": "2.4.1"
+	}
 }

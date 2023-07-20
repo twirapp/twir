@@ -149,19 +149,19 @@ RUN chmod +x docker-entrypoint.sh
 RUN npm i -g pnpm@8
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
-FROM builder as dota_builder
-RUN cd apps/dota && \
-    pnpm build && \
-    pnpm prune --prod
-
-FROM node_prod_base as dota
-WORKDIR /app
-COPY --from=dota_builder /app/apps/dota /app/apps/dota
-COPY --from=dota_builder /app/libs/config /app/libs/config
-COPY --from=dota_builder /app/libs/grpc /app/libs/grpc
-COPY --from=dota_builder /app/libs/shared /app/libs/shared
-COPY --from=dota_builder /app/libs/typeorm /app/libs/typeorm
-CMD ["pnpm", "--filter=@twir/dota", "start"]
+#FROM builder as dota_builder
+#RUN cd apps/dota && \
+#    pnpm build && \
+#    pnpm prune --prod
+#
+#FROM node_prod_base as dota
+#WORKDIR /app
+#COPY --from=dota_builder /app/apps/dota /app/apps/dota
+#COPY --from=dota_builder /app/libs/config /app/libs/config
+#COPY --from=dota_builder /app/libs/grpc /app/libs/grpc
+#COPY --from=dota_builder /app/libs/shared /app/libs/shared
+#COPY --from=dota_builder /app/libs/typeorm /app/libs/typeorm
+#CMD ["pnpm", "--filter=@twir/dota", "start"]
 
 FROM builder as eval_builder
 RUN cd apps/eval && \
