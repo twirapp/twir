@@ -28,7 +28,20 @@ const formValue = ref<EditableEvent>({
 	description: '',
 	enabled: true,
 	onlineOnly: false,
-	operations: [],
+	operations: [
+		{
+			delay: 0,
+			enabled: true,
+			filters: [],
+			repeat: 0,
+			timeoutTime: 0,
+			timeoutMessage: '',
+			type: 'SEND_MESSAGE',
+			useAnnounce: false,
+			input: '',
+			target: '',
+		},
+	],
 	type: '',
 });
 
@@ -69,7 +82,7 @@ const availableEventVariables = computed(() => {
 
 	return evt?.variables?.map(v => ({
 		label: `{${v}}`,
-		value: `${v}}`,
+		value: v,
 	})) ?? [];
 });
 </script>
@@ -97,7 +110,13 @@ const availableEventVariables = computed(() => {
 
 			<n-timeline>
 				<n-timeline-item>
-					<n-mention :options="availableEventVariables" :prefix="['{', '}']" />
+					<n-mention
+						v-model:value="formValue.operations[0].input"
+						:options="availableEventVariables.map(v => ({ ...v, value: v.value + '}'}))"
+						:prefix="['{', '}']"
+						:show="true"
+						@focus="(e) => e.target.blur()"
+					/>
 				</n-timeline-item>
 				<n-timeline-item>
 					qwe
