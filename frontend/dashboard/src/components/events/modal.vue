@@ -18,13 +18,13 @@ import {
 	NSwitch,
 	NAlert,
 } from 'naive-ui';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch, nextTick } from 'vue';
 
 import { EVENTS } from './events.js';
 import { eventTypeSelectOptions, operationTypeSelectOptions, getOperation } from './helpers.js';
 import { EditableEvent } from './types.js';
 
-import { useObsOverlayManager } from '@/api';
+import { useCommandsManager, useObsOverlayManager, useVariablesManager } from '@/api';
 
 const props = defineProps<{
 	event: EditableEvent | null
@@ -35,20 +35,7 @@ const formValue = ref<EditableEvent>({
 	description: '',
 	enabled: true,
 	onlineOnly: false,
-	operations: [
-		{
-			delay: 0,
-			enabled: true,
-			filters: [],
-			repeat: 0,
-			timeoutTime: 0,
-			timeoutMessage: '',
-			type: 'SEND_MESSAGE',
-			useAnnounce: false,
-			input: '',
-			target: '',
-		},
-	],
+	operations: [],
 	type: '',
 });
 
@@ -58,11 +45,15 @@ onMounted(() => {
 	}
 });
 
+watch(() => formValue.value.type, () => {
+	nextTick(formRef.value?.validate);
+});
+
 const rules: FormRules = {
 	type: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, v: string) => {
-			if (!v) throw new Error('Type required');
+			if (!v) return new Error('Type required');
 
 			return true;
 		},
@@ -70,7 +61,7 @@ const rules: FormRules = {
 	description: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, v: string) => {
-			if (!v) throw new Error('Description required');
+			if (!v) return new Error('Description required');
 
 			return true;
 		},
@@ -78,7 +69,7 @@ const rules: FormRules = {
 	input: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, v: string) => {
-			if (v?.length > 1) throw new Error('Too long input');
+			if (v?.length > 100) return new Error('Too long input');
 
 			return true;
 		},
@@ -86,7 +77,16 @@ const rules: FormRules = {
 	timeoutMessage: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, v: string) => {
-			if (v?.length > 1) throw new Error('Too long message');
+			if (v?.length > 100) return new Error('Too long message');
+
+			return true;
+		},
+	},
+	commandId: {
+		trigger: ['input', 'blur', 'focus'],
+		validator: (_: FormItemRule, v: string) => {
+			if (formValue.value.type !== 'COMMAND_USED') return true;
+			if (!v) return new Error('Please select command');
 
 			return true;
 		},
@@ -123,6 +123,24 @@ const obsAudioSources = computed(() => {
 		label: s,
 	})) ?? [];
 });
+
+const variablesManager = useVariablesManager();
+const { data: variablesData, isLoading: isVariablesLoading } = variablesManager.getAll({});
+const variablesSelectOptions = computed(() => {
+	return variablesData.value?.variables.map((v) => ({
+		label: v.name,
+		id: v.id,
+	})) ?? [];
+});
+
+const commandsManager = useCommandsManager();
+const { data: commandsData, isLoading: isCommandsLoading } = commandsManager.getAll({});
+const commandsSelectOptions = computed(() => {
+	return commandsData.value?.commands.map(c => ({
+		label: c.name,
+		id: c.id,
+	})) ?? [];
+});
 </script>
 
 <template>
@@ -136,6 +154,20 @@ const obsAudioSources = computed(() => {
 
 					<n-form-item label="Description" path="description" show-require-mark>
 						<n-input v-model:value="formValue.description" type="textarea" />
+					</n-form-item>
+
+					<n-form-item
+						v-if="formValue.type === 'COMMAND_USED'"
+						label="Target command"
+						required
+						path="commandId"
+					>
+						<n-select
+							v-model:value="formValue.commandId"
+							:options="commandsSelectOptions"
+							placeholder="Select variable"
+							:loading="isCommandsLoading"
+						/>
 					</n-form-item>
 				</n-space>
 
@@ -154,22 +186,26 @@ const obsAudioSources = computed(() => {
 				>
 					<n-space vertical style="gap: 0">
 						<n-grid cols="3 s:1 m:3" :x-gap="5" :y-gap="5" responsive="screen">
-							<n-grid-item>
+							<n-grid-item :span="1">
 								<n-form-item label="Operation">
 									<n-select v-model:value="operation.type" :options="operationTypeSelectOptions" />
 								</n-form-item>
 							</n-grid-item>
-							<n-grid-item>
+							<n-grid-item :span="1">
 								<n-form-item label="Delay">
 									<n-input-number v-model:value="operation.delay" />
 								</n-form-item>
 							</n-grid-item>
-							<n-grid-item>
+							<n-grid-item :span="1">
 								<n-form-item label="Repeat">
 									<n-input-number v-model:value="operation.repeat" />
 								</n-form-item>
 							</n-grid-item>
 						</n-grid>
+
+						<n-divider title-placement="left" style="margin-top: 0px">
+							Values
+						</n-divider>
 
 						<n-form-item
 							v-if="getOperation(operation.type)?.haveInput"
@@ -179,10 +215,6 @@ const obsAudioSources = computed(() => {
 						>
 							<n-input v-model:value="operation.input" />
 						</n-form-item>
-
-						<n-divider title-placement="left">
-							Settings
-						</n-divider>
 
 						<n-form-item v-if="operation.type === 'SEND_MESSAGE'" label="Use announce">
 							<n-switch v-model:value="operation.useAnnounce" />
@@ -220,7 +252,7 @@ const obsAudioSources = computed(() => {
 								</n-alert>
 							</n-grid-item>
 
-							<n-grid-item v-if="operation.type === 'OBS_SET_SCENE'" :span="1">
+							<n-grid-item v-if="operation.type === 'OBS_SET_SCENE'" :span="2">
 								<n-form-item label="Obs scene">
 									<n-select
 										v-model:value="operation.target"
@@ -231,7 +263,7 @@ const obsAudioSources = computed(() => {
 								</n-form-item>
 							</n-grid-item>
 
-							<n-grid-item v-if="operation.type === 'OBS_TOGGLE_SOURCE'" :span="1">
+							<n-grid-item v-if="operation.type === 'OBS_TOGGLE_SOURCE'" :span="2">
 								<n-form-item label="Obs source">
 									<n-select
 										v-model:value="operation.target"
@@ -251,7 +283,7 @@ const obsAudioSources = computed(() => {
 									'OBS_ENABLE_AUDIO',
 									'OBS_DISABLE_AUDIO'
 								].some(v => v === operation.type)"
-								:span="1"
+								:span="2"
 							>
 								<n-form-item label="Obs audio source">
 									<n-select
@@ -262,9 +294,24 @@ const obsAudioSources = computed(() => {
 									/>
 								</n-form-item>
 							</n-grid-item>
+
+							<n-grid-item
+								v-if="operation.type.endsWith('VARIABLE')"
+								:span="2"
+							>
+								<n-form-item label="Target variable">
+									<n-select
+										v-model:value="operation.target"
+										:options="variablesSelectOptions"
+										placeholder="Select variable"
+										:loading="isVariablesLoading"
+									/>
+								</n-form-item>
+							</n-grid-item>
 						</n-grid>
 					</n-space>
 				</n-timeline-item>
+				<n-timeline-item></n-timeline-item>
 			</n-timeline>
 		</n-space>
 	</n-form>
