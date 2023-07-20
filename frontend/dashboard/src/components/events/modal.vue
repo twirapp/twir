@@ -1,12 +1,13 @@
 <script setup lang='ts'>
 import {
+	type SelectOption,
+	type FormInst,
+	type FormItemRule,
+	type FormRules,
 	NSpace,
 	NSelect,
 	NForm,
 	NFormItem,
-	FormInst,
-	FormItemRule,
-	FormRules,
 	NInput,
 	NText,
 	NTimeline,
@@ -17,11 +18,11 @@ import {
 	NDivider,
 	NSwitch,
 	NAlert,
+NAvatar,
 } from 'naive-ui';
-import { computed, onMounted, ref, watch, nextTick } from 'vue';
+import { h, computed, onMounted, ref, watch, nextTick, type VNodeChild } from 'vue';
 
-import { EVENTS } from './events.js';
-import { eventTypeSelectOptions, operationTypeSelectOptions, getOperation } from './helpers.js';
+import { eventTypeSelectOptions, operationTypeSelectOptions, getOperation, flatEvents } from './helpers.js';
 import { EditableEvent } from './types.js';
 
 import { useCommandsManager, useKeywordsManager, useObsOverlayManager, useTwitchRewards, useVariablesManager } from '@/api';
@@ -84,7 +85,7 @@ const rules: FormRules = {
 		},
 	},
 	commandId: {
-		trigger: ['input', 'blur', 'focus'],
+		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, v: string) => {
 			if (formValue.value.type !== 'COMMAND_USED') return true;
 			if (!v) return new Error('Please select command');
@@ -93,7 +94,7 @@ const rules: FormRules = {
 		},
 	},
 	rewardId: {
-		trigger: ['input', 'blur', 'focus'],
+		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, v: string) => {
 			if (formValue.value.type !== 'REDEMPTION_CREATED') return true;
 			if (!v) return new Error('Please select reward');
@@ -111,15 +112,6 @@ const rules: FormRules = {
 		},
 	},
 };
-
-const availableEventVariables = computed(() => {
-	const evt = EVENTS[formValue.value.type];
-
-	return evt?.variables?.map(v => ({
-		label: `{${v}}`,
-		value: v,
-	})) ?? [];
-});
 
 const obsManager = useObsOverlayManager();
 const obsSettings = obsManager.getSettings();
@@ -148,7 +140,7 @@ const { data: variablesData, isLoading: isVariablesLoading } = variablesManager.
 const variablesSelectOptions = computed(() => {
 	return variablesData.value?.variables.map((v) => ({
 		label: v.name,
-		id: v.id,
+		value: v.id,
 	})) ?? [];
 });
 
@@ -157,7 +149,7 @@ const { data: commandsData, isLoading: isCommandsLoading } = commandsManager.get
 const commandsSelectOptions = computed(() => {
 	return commandsData.value?.commands.map(c => ({
 		label: c.name,
-		id: c.id,
+		value: c.id,
 	})) ?? [];
 });
 
@@ -169,6 +161,15 @@ const rewardsSelectOptions = computed(() => {
 		image: r.image?.url4X,
 	})) ?? [];
 });
+const renderRewardTag = (option: SelectOption & { image?: string }): VNodeChild => {
+	console.log(option);
+	return h(NSpace, { align: 'center' }, {
+		default: () => [
+			h(NAvatar, { src: option.image, round: true, size: 'small', style: 'display: flex;' }),
+			h(NText, { }, { default: () =>  option.label }),
+		],
+	});
+};
 
 const keywordsManager = useKeywordsManager();
 const { data: keywordsData, isLoading: isKeywordsLoading } = keywordsManager.getAll({});
@@ -215,10 +216,12 @@ const keywordsSelectOptions = computed(() => {
 					>
 						<n-select
 							v-model:value="formValue.rewardId"
+							size="large"
 							:options="rewardsSelectOptions"
 							placeholder="Select reward"
 							:loading="isRewardsLoading"
-							:disabled="isRewardsError"
+							:render-label="renderRewardTag"
+							:disabled="isRewardError"
 						/>
 					</n-form-item>
 
@@ -238,7 +241,10 @@ const keywordsSelectOptions = computed(() => {
 				</n-space>
 
 				<n-space vertical>
-					<n-text v-for="variable of availableEventVariables" :key="variable.value">
+					<n-text
+						v-for="(variable, variableIndex) of flatEvents[formValue.type]?.variables"
+						:key="variableIndex"
+					>
 						{{ variable }}
 					</n-text>
 				</n-space>

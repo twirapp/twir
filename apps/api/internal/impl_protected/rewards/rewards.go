@@ -3,7 +3,6 @@ package rewards
 import (
 	"context"
 	"fmt"
-
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
@@ -38,66 +37,70 @@ func (c *Rewards) RewardsGet(
 		return nil, fmt.Errorf("cannot get channel rewards: %v %s", resp.StatusCode, resp.ErrorMessage)
 	}
 
-	//resp.Data.ChannelCustomRewards = append(resp.Data.ChannelCustomRewards, helix.ChannelCustomReward{
-	//	BroadcasterID:    "",
-	//	BroadcasterLogin: "",
-	//	BroadcasterName:  "",
-	//	ID:               "1",
-	//	Title:            "qweqwe",
-	//	Prompt:           "description",
-	//	Cost:             0,
-	//	Image: helix.RewardImage{
-	//		Url1x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
-	//		Url2x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
-	//		Url4x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//resp.Data.ChannelCustomRewards = append(
+	//	resp.Data.ChannelCustomRewards, helix.ChannelCustomReward{
+	//		BroadcasterID:    "",
+	//		BroadcasterLogin: "",
+	//		BroadcasterName:  "",
+	//		ID:               "1",
+	//		Title:            "qweqwe",
+	//		Prompt:           "description",
+	//		Cost:             0,
+	//		Image: helix.RewardImage{
+	//			Url1x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//			Url2x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//			Url4x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//		},
+	//		BackgroundColor: "",
+	//		DefaultImage: helix.RewardImage{
+	//			Url1x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//			Url2x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//			Url4x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//		},
+	//		IsEnabled:                         false,
+	//		IsUserInputRequired:               false,
+	//		MaxPerStreamSetting:               helix.MaxPerStreamSettings{},
+	//		MaxPerUserPerStreamSetting:        helix.MaxPerUserPerStreamSettings{},
+	//		GlobalCooldownSetting:             helix.GlobalCooldownSettings{},
+	//		IsPaused:                          false,
+	//		IsInStock:                         false,
+	//		ShouldRedemptionsSkipRequestQueue: false,
+	//		RedemptionsRedeemedCurrentStream:  0,
+	//		CooldownExpiresAt:                 "",
 	//	},
-	//	BackgroundColor: "",
-	//	DefaultImage: helix.RewardImage{
-	//		Url1x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
-	//		Url2x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
-	//		Url4x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//)
+	//resp.Data.ChannelCustomRewards = append(
+	//	resp.Data.ChannelCustomRewards, helix.ChannelCustomReward{
+	//		BroadcasterID:    "",
+	//		BroadcasterLogin: "",
+	//		BroadcasterName:  "",
+	//		ID:               "2",
+	//		Title:            "qweqwe1",
+	//		Prompt:           "description2",
+	//		Cost:             0,
+	//		Image: helix.RewardImage{
+	//			Url1x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//			Url2x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//			Url4x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//		},
+	//		BackgroundColor: "",
+	//		DefaultImage: helix.RewardImage{
+	//			Url1x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//			Url2x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//			Url4x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
+	//		},
+	//		IsEnabled:                         false,
+	//		IsUserInputRequired:               true,
+	//		MaxPerStreamSetting:               helix.MaxPerStreamSettings{},
+	//		MaxPerUserPerStreamSetting:        helix.MaxPerUserPerStreamSettings{},
+	//		GlobalCooldownSetting:             helix.GlobalCooldownSettings{},
+	//		IsPaused:                          false,
+	//		IsInStock:                         false,
+	//		ShouldRedemptionsSkipRequestQueue: false,
+	//		RedemptionsRedeemedCurrentStream:  0,
+	//		CooldownExpiresAt:                 "",
 	//	},
-	//	IsEnabled:                         false,
-	//	IsUserInputRequired:               false,
-	//	MaxPerStreamSetting:               helix.MaxPerStreamSettings{},
-	//	MaxPerUserPerStreamSetting:        helix.MaxPerUserPerStreamSettings{},
-	//	GlobalCooldownSetting:             helix.GlobalCooldownSettings{},
-	//	IsPaused:                          false,
-	//	IsInStock:                         false,
-	//	ShouldRedemptionsSkipRequestQueue: false,
-	//	RedemptionsRedeemedCurrentStream:  0,
-	//	CooldownExpiresAt:                 "",
-	//})
-	//resp.Data.ChannelCustomRewards = append(resp.Data.ChannelCustomRewards, helix.ChannelCustomReward{
-	//	BroadcasterID:    "",
-	//	BroadcasterLogin: "",
-	//	BroadcasterName:  "",
-	//	ID:               "2",
-	//	Title:            "qweqwe1",
-	//	Prompt:           "description2",
-	//	Cost:             0,
-	//	Image: helix.RewardImage{
-	//		Url1x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
-	//		Url2x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
-	//		Url4x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
-	//	},
-	//	BackgroundColor: "",
-	//	DefaultImage: helix.RewardImage{
-	//		Url1x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
-	//		Url2x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
-	//		Url4x: "https://static-cdn.jtvnw.net/jtv_user_pictures/b3747334-82c5-4b48-bedd-5bb8a3c00e8b-profile_image-300x300.png",
-	//	},
-	//	IsEnabled:                         false,
-	//	IsUserInputRequired:               true,
-	//	MaxPerStreamSetting:               helix.MaxPerStreamSettings{},
-	//	MaxPerUserPerStreamSetting:        helix.MaxPerUserPerStreamSettings{},
-	//	GlobalCooldownSetting:             helix.GlobalCooldownSettings{},
-	//	IsPaused:                          false,
-	//	IsInStock:                         false,
-	//	ShouldRedemptionsSkipRequestQueue: false,
-	//	RedemptionsRedeemedCurrentStream:  0,
-	//	CooldownExpiresAt:                 "",
-	//})
+	//)
 
 	return &rewards.GetResponse{
 		Rewards: lo.Map(
