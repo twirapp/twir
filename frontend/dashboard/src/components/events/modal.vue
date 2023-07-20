@@ -1,7 +1,5 @@
 <script setup lang='ts'>
 import {
-	type SelectGroupOption,
-	type SelectOption,
 	NSpace,
 	NSelect,
 	NForm,
@@ -13,11 +11,14 @@ import {
 	NText,
 	NTimeline,
 	NTimelineItem,
-	NAutoComplete,
+	NGrid,
+	NGridItem,
+NInputNumber,
 } from 'naive-ui';
 import { computed, onMounted, ref } from 'vue';
 
 import { EVENTS } from './events.js';
+import { eventTypeSelectOptions, operationTypeSelectOptions, getOperation } from './helpers.js';
 import { EditableEvent } from './types.js';
 
 const props = defineProps<{
@@ -71,25 +72,6 @@ const rules: FormRules = {
 	},
 };
 
-const typeSelectOptions: (SelectOption | SelectGroupOption)[] = Object.entries(EVENTS)
-	.map(([key, value]) => {
-		const result: SelectOption | SelectGroupOption = {
-			value: key,
-			label: value.name,
-		};
-
-		if (value.type === 'group' && value.childrens) {
-			result.key = value.name;
-			result.type = 'group';
-			result.children = Object.entries(value.childrens).map(([childKey, childValue]) => ({
-				value: childKey,
-				label: childValue.name,
-			}));
-		}
-
-		return result;
-	});
-
 const availableEventVariables = computed(() => {
 	const evt = EVENTS[formValue.value.type];
 
@@ -106,7 +88,7 @@ const availableEventVariables = computed(() => {
 			<n-space justify="space-between" item-style="width: 49%">
 				<n-space vertical item-style="width: 100%">
 					<n-form-item label="Type" path="type" show-require-mark>
-						<n-select v-model:value="formValue.type" filterable :options="typeSelectOptions" />
+						<n-select v-model:value="formValue.type" filterable :options="eventTypeSelectOptions" />
 					</n-form-item>
 
 					<n-form-item label="Description" path="description" show-require-mark>
@@ -122,16 +104,34 @@ const availableEventVariables = computed(() => {
 			</n-space>
 
 			<n-timeline>
-				<n-timeline-item>
-					<n-auto-complete
-						:options="availableEventVariables.map(v => ({
-							...v,
-							value: `${formValue.operations[0].input} {${v.value}}`
-						}))"
-					/>
-				</n-timeline-item>
-				<n-timeline-item>
-					qwe
+				<n-timeline-item
+					v-for="(operation, operationIndex) of formValue.operations"
+					:key="operationIndex"
+					:type="getOperation(operation.type)?.color ?? 'default'"
+				>
+					<n-space vertical>
+						<n-grid cols="3 s:1 m:3" :x-gap="5" :y-gap="5">
+							<n-grid-item>
+								<n-form-item label="Operation">
+									<n-select v-model:value="operation.type" :options="operationTypeSelectOptions" />
+								</n-form-item>
+							</n-grid-item>
+							<n-grid-item>
+								<n-form-item label="Delay">
+									<n-input-number v-model:value="operation.delay" />
+								</n-form-item>
+							</n-grid-item>
+							<n-grid-item>
+								<n-form-item label="Repeat">
+									<n-input-number v-model:value="operation.repeat" />
+								</n-form-item>
+							</n-grid-item>
+						</n-grid>
+
+						<n-form-item v-if="getOperation(operation.type)?.haveInput" label="Operation input">
+							<n-input v-model:value="operation.input" />
+						</n-form-item>
+					</n-space>
 				</n-timeline-item>
 			</n-timeline>
 		</n-space>

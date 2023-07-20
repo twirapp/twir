@@ -20,7 +20,7 @@ import {
 } from '@tabler/icons-vue';
 import { FunctionalComponent } from 'vue';
 
-type TwirEvent = {
+export type TwirEvent = {
 	name: string,
 	icon?: FunctionalComponent,
 	variables?: string[],
