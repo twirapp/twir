@@ -112,7 +112,7 @@ const commandsGroupsOptions = computed(() => {
 	}));
 });
 
-const nameValidator = (rule: FormItemRule, value: string) => {
+const nameValidator = (_: FormItemRule, value: string) => {
 	if (!value) {
 		return new Error('Please input a name');
 	}
@@ -131,7 +131,7 @@ const rules: FormRules = {
 	}],
 	cooldown: {
 		trigger: ['input', 'blur'],
-		validator: (rule: FormItemRule, value: number) => {
+		validator: (_: FormItemRule, value: number) => {
 			if (value < 0) {
 				return new Error('Cooldown cannot be negative');
 			}
@@ -140,7 +140,7 @@ const rules: FormRules = {
 	},
 	description: {
 		trigger: ['input', 'blur'],
-		validator: (rule: FormItemRule, value: string) => {
+		validator: (_: FormItemRule, value: string) => {
 			if (value.length > 500) {
 				return new Error('Description cannot be longer than 500 characters');
 			}
@@ -149,7 +149,7 @@ const rules: FormRules = {
 	},
 	responses: {
 		trigger: ['input', 'blur', 'focus'],
-		validator: (rule: FormItemRule, value: string) => {
+		validator: (_: FormItemRule, value: string) => {
 			if (value.length === 0) {
 				return new Error('Please input text or remove response');
 			}
@@ -192,261 +192,261 @@ async function save() {
 </script>
 
 <template>
-  <n-form ref="formRef" :model="formValue" :rules="rules">
-    <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="10">
-      <n-grid-item :span="1">
-        <n-form-item label="Name" path="name" show-require-mark>
-          <n-input-group>
-            <n-input-group-label>!</n-input-group-label>
-            <n-input v-model:value="formValue.name" placeholder="Input Name" />
-          </n-input-group>
-        </n-form-item>
-      </n-grid-item>
-      <n-grid-item :span="1">
-        <n-form-item label="Aliases" path="aliases">
-          <n-dynamic-tags v-model:value="formValue.aliases" />
-        </n-form-item>
-      </n-grid-item>
-    </n-grid>
-    <n-form-item label="Description" path="description">
-      <n-input v-model:value="formValue.description" placeholder="Description" type="textarea" autosize />
-    </n-form-item>
+	<n-form ref="formRef" :model="formValue" :rules="rules">
+		<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="10">
+			<n-grid-item :span="1">
+				<n-form-item label="Name" path="name" show-require-mark>
+					<n-input-group>
+						<n-input-group-label>!</n-input-group-label>
+						<n-input v-model:value="formValue.name" placeholder="Input Name" />
+					</n-input-group>
+				</n-form-item>
+			</n-grid-item>
+			<n-grid-item :span="1">
+				<n-form-item label="Aliases" path="aliases">
+					<n-dynamic-tags v-model:value="formValue.aliases" />
+				</n-form-item>
+			</n-grid-item>
+		</n-grid>
+		<n-form-item label="Description" path="description">
+			<n-input v-model:value="formValue.description" placeholder="Description" type="textarea" autosize />
+		</n-form-item>
 
-    <n-divider>
-      Responses
-    </n-divider>
+		<n-divider>
+			Responses
+		</n-divider>
 
-    <div v-if="formValue.module === 'CUSTOM'">
-      <n-dynamic-input
-        v-if="formValue.module === 'CUSTOM'"
-        v-model:value="formValue.responses"
-        class="groups"
-        placeholder="Response"
-        :create-button-props="{ class: 'create-button' } as any"
-      >
-        <template #default="{ value, index }">
-          <n-form-item
-            style="width: 100%"
-            :path="`responses[${index}].text`"
-            :rule="rules.responses"
-          >
-            <text-with-variables
-              v-model="value.text"
-              inputType="textarea"
-              :minRows="3"
-              :maxRows="6"
-            >
-            </text-with-variables>
-          </n-form-item>
-        </template>
+		<div v-if="formValue.module === 'CUSTOM'">
+			<n-dynamic-input
+				v-if="formValue.module === 'CUSTOM'"
+				v-model:value="formValue.responses"
+				class="groups"
+				placeholder="Response"
+				:create-button-props="{ class: 'create-button' } as any"
+			>
+				<template #default="{ value, index }">
+					<n-form-item
+						style="width: 100%"
+						:path="`responses[${index}].text`"
+						:rule="rules.responses"
+					>
+						<text-with-variables
+							v-model="value.text"
+							inputType="textarea"
+							:minRows="3"
+							:maxRows="6"
+						>
+						</text-with-variables>
+					</n-form-item>
+				</template>
 
-        <template #action="{ index, remove, move }">
-          <div class="group-actions">
-            <n-button size="small" type="error" quaternary @click="() => remove(index)">
-              <IconTrash />
-            </n-button>
-            <n-button
-              size="small"
-              type="info"
-              quaternary
-              :disabled="index == 0"
-              @click="() => move('up', index)"
-            >
-              <IconArrowNarrowUp />
-            </n-button>
-            <n-button
-              size="small"
-              type="info"
-              quaternary
-              :disabled="!!formValue.responses.length && index === formValue.responses.length-1"
-              @click="() => move('down', index)"
-            >
-              <IconArrowNarrowDown />
-            </n-button>
-          </div>
-        </template>
-      </n-dynamic-input>
-      <n-button dashed block style="margin-top:10px" @click="() => formValue.responses.push({ text: '' })">
-        <IconPlus /> Create
-      </n-button>
-    </div>
+				<template #action="{ index, remove, move }">
+					<div class="group-actions">
+						<n-button size="small" type="error" quaternary @click="() => remove(index)">
+							<IconTrash />
+						</n-button>
+						<n-button
+							size="small"
+							type="info"
+							quaternary
+							:disabled="index == 0"
+							@click="() => move('up', index)"
+						>
+							<IconArrowNarrowUp />
+						</n-button>
+						<n-button
+							size="small"
+							type="info"
+							quaternary
+							:disabled="!!formValue.responses.length && index === formValue.responses.length-1"
+							@click="() => move('down', index)"
+						>
+							<IconArrowNarrowDown />
+						</n-button>
+					</div>
+				</template>
+			</n-dynamic-input>
+			<n-button dashed block style="margin-top:10px" @click="() => formValue.responses.push({ text: '' })">
+				<IconPlus /> Create
+			</n-button>
+		</div>
 
-    <n-alert v-else type="info" :show-icon="false">
-      Responses cannot be edited for built-in commands
-    </n-alert>
+		<n-alert v-else type="info" :show-icon="false">
+			Responses cannot be edited for built-in commands
+		</n-alert>
 
-    <n-divider>
-      Permissions
-    </n-divider>
+		<n-divider>
+			Permissions
+		</n-divider>
 
-    <n-form-item label="Roles" path="rolesIds">
-      <n-select
-        v-model:value="formValue.rolesIds"
-        multiple
-        :options="rolesSelectOptions"
-        :loading="roles.isLoading.value"
-      >
-        <template #arrow>
-          <IconShieldHalfFilled />
-        </template>
-      </n-select>
-    </n-form-item>
+		<n-form-item label="Roles" path="rolesIds">
+			<n-select
+				v-model:value="formValue.rolesIds"
+				multiple
+				:options="rolesSelectOptions"
+				:loading="roles.isLoading.value"
+			>
+				<template #arrow>
+					<IconShieldHalfFilled />
+				</template>
+			</n-select>
+		</n-form-item>
 
-    <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
-      <n-grid-item :span="1">
-        <n-form-item label="Denied users" path="deniedUsersIds">
-          <twitch-users-multiple
-            v-model="formValue.deniedUsersIds"
-            :initial-users-ids="formValue.deniedUsersIds"
-          />
-        </n-form-item>
-      </n-grid-item>
+		<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
+			<n-grid-item :span="1">
+				<n-form-item label="Denied users" path="deniedUsersIds">
+					<twitch-users-multiple
+						v-model="formValue.deniedUsersIds"
+						:initial-users-ids="formValue.deniedUsersIds"
+					/>
+				</n-form-item>
+			</n-grid-item>
 
-      <n-grid-item :span="1">
-        <n-form-item label="Allowed users" path="allowedUsersIds">
-          <twitch-users-multiple
-            v-model="formValue.allowedUsersIds"
-            :initial-users-ids="formValue.allowedUsersIds"
-          />
-        </n-form-item>
-      </n-grid-item>
-    </n-grid>
+			<n-grid-item :span="1">
+				<n-form-item label="Allowed users" path="allowedUsersIds">
+					<twitch-users-multiple
+						v-model="formValue.allowedUsersIds"
+						:initial-users-ids="formValue.allowedUsersIds"
+					/>
+				</n-form-item>
+			</n-grid-item>
+		</n-grid>
 
-    <n-divider>
-      Restrictions by stats
-    </n-divider>
+		<n-divider>
+			Restrictions by stats
+		</n-divider>
 
-    <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
-      <n-grid-item :span="1">
-        <n-form-item label="Required watch time (hours)" path="requiredWatchTime">
-          <n-input-number
-            v-model:value="formValue.requiredWatchTime"
-            :min="0"
-            class="grid-stats-item"
-          />
-        </n-form-item>
-      </n-grid-item>
+		<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
+			<n-grid-item :span="1">
+				<n-form-item label="Required watch time (hours)" path="requiredWatchTime">
+					<n-input-number
+						v-model:value="formValue.requiredWatchTime"
+						:min="0"
+						class="grid-stats-item"
+					/>
+				</n-form-item>
+			</n-grid-item>
 
-      <n-grid-item :span="1">
-        <n-form-item label="Required messages" path="requiredMessages">
-          <n-input-number
-            v-model:value="formValue.requiredMessages"
-            :min="0"
-            class="grid-stats-item"
-          />
-        </n-form-item>
-      </n-grid-item>
+			<n-grid-item :span="1">
+				<n-form-item label="Required messages" path="requiredMessages">
+					<n-input-number
+						v-model:value="formValue.requiredMessages"
+						:min="0"
+						class="grid-stats-item"
+					/>
+				</n-form-item>
+			</n-grid-item>
 
-      <n-grid-item :span="1">
-        <n-form-item label="Required used channels points" path="requiredUsedChannelPoints">
-          <n-input-number
-            v-model:value="formValue.requiredUsedChannelPoints"
-            :min="0"
-            class="grid-stats-item"
-          />
-        </n-form-item>
-      </n-grid-item>
-    </n-grid>
+			<n-grid-item :span="1">
+				<n-form-item label="Required used channels points" path="requiredUsedChannelPoints">
+					<n-input-number
+						v-model:value="formValue.requiredUsedChannelPoints"
+						:min="0"
+						class="grid-stats-item"
+					/>
+				</n-form-item>
+			</n-grid-item>
+		</n-grid>
 
-    <n-divider>
-      Cooldown
-    </n-divider>
+		<n-divider>
+			Cooldown
+		</n-divider>
 
-    <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
-      <n-grid-item :span="1">
-        <n-form-item label="Cooldown (seconds)" path="cooldown">
-          <n-input-number
-            v-model:value="formValue.cooldown"
-            :min="0"
-            class="grid-stats-item"
-          />
-        </n-form-item>
-      </n-grid-item>
+		<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
+			<n-grid-item :span="1">
+				<n-form-item label="Cooldown (seconds)" path="cooldown">
+					<n-input-number
+						v-model:value="formValue.cooldown"
+						:min="0"
+						class="grid-stats-item"
+					/>
+				</n-form-item>
+			</n-grid-item>
 
-      <n-grid-item :span="1">
-        <n-form-item label="Cooldown type" path="cooldownType" show-require-mark>
-          <n-select
-            v-model:value="formValue.cooldownType"
-            :options="[
-              { label: 'On command', value: 'GLOBAL' },
-              { label: 'On user (not working on mods, subscribers)', value: 'PER_USER' },
-            ]"
-          />
-        </n-form-item>
-      </n-grid-item>
-    </n-grid>
+			<n-grid-item :span="1">
+				<n-form-item label="Cooldown type" path="cooldownType" show-require-mark>
+					<n-select
+						v-model:value="formValue.cooldownType"
+						:options="[
+							{ label: 'On command', value: 'GLOBAL' },
+							{ label: 'On user (not working on mods, subscribers)', value: 'PER_USER' },
+						]"
+					/>
+				</n-form-item>
+			</n-grid-item>
+		</n-grid>
 
-    <n-divider>
-      Settings
-    </n-divider>
+		<n-divider>
+			Settings
+		</n-divider>
 
-    <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5" :y-gap="5">
-      <n-grid-item :span="1">
-        <n-card>
-          <div class="settings-card-body">
-            <n-space vertical>
-              <n-text>Reply</n-text>
-              <n-text>Bot will send command response as reply</n-text>
-            </n-space>
-            <n-switch v-model:value="formValue.isReply" />
-          </div>
-        </n-card>
-      </n-grid-item>
+		<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5" :y-gap="5">
+			<n-grid-item :span="1">
+				<n-card>
+					<div class="settings-card-body">
+						<n-space vertical>
+							<n-text>Reply</n-text>
+							<n-text>Bot will send command response as reply</n-text>
+						</n-space>
+						<n-switch v-model:value="formValue.isReply" />
+					</div>
+				</n-card>
+			</n-grid-item>
 
-      <n-grid-item :span="1">
-        <n-card>
-          <div class="settings-card-body">
-            <n-space vertical>
-              <n-text>Visible</n-text>
-              <n-text>Is command visible in commands list on public page and in chat commands variable</n-text>
-            </n-space>
-            <n-switch v-model:value="formValue.visible" />
-          </div>
-        </n-card>
-      </n-grid-item>
+			<n-grid-item :span="1">
+				<n-card>
+					<div class="settings-card-body">
+						<n-space vertical>
+							<n-text>Visible</n-text>
+							<n-text>Is command visible in commands list on public page and in chat commands variable</n-text>
+						</n-space>
+						<n-switch v-model:value="formValue.visible" />
+					</div>
+				</n-card>
+			</n-grid-item>
 
-      <n-grid-item :span="1">
-        <n-card>
-          <div class="settings-card-body">
-            <n-space vertical>
-              <n-text>Keep order</n-text>
-              <n-text>Keep order of responses when sending them in chat</n-text>
-            </n-space>
-            <n-switch v-model:value="formValue.keepResponsesOrder" />
-          </div>
-        </n-card>
-      </n-grid-item>
+			<n-grid-item :span="1">
+				<n-card>
+					<div class="settings-card-body">
+						<n-space vertical>
+							<n-text>Keep order</n-text>
+							<n-text>Keep order of responses when sending them in chat</n-text>
+						</n-space>
+						<n-switch v-model:value="formValue.keepResponsesOrder" />
+					</div>
+				</n-card>
+			</n-grid-item>
 
-      <n-grid-item :span="1">
-        <n-card>
-          <div class="settings-card-body">
-            <n-space vertical>
-              <n-text>Online only</n-text>
-              <n-text>Command will work only when stream online</n-text>
-            </n-space>
-            <n-switch v-model:value="formValue.onlineOnly" />
-          </div>
-        </n-card>
-      </n-grid-item>
-    </n-grid>
+			<n-grid-item :span="1">
+				<n-card>
+					<div class="settings-card-body">
+						<n-space vertical>
+							<n-text>Online only</n-text>
+							<n-text>Command will work only when stream online</n-text>
+						</n-space>
+						<n-switch v-model:value="formValue.onlineOnly" />
+					</div>
+				</n-card>
+			</n-grid-item>
+		</n-grid>
 
-    <n-divider>
-      Other
-    </n-divider>
+		<n-divider>
+			Other
+		</n-divider>
 
-    <n-form-item label="Command group" path="groupId">
-      <n-select
-        v-model:value="formValue.groupId"
-        :options="commandsGroupsOptions"
-        clearable
-        :fallback-option="undefined"
-      />
-    </n-form-item>
+		<n-form-item label="Command group" path="groupId">
+			<n-select
+				v-model:value="formValue.groupId"
+				:options="commandsGroupsOptions"
+				clearable
+				:fallback-option="undefined"
+			/>
+		</n-form-item>
 
-    <n-button secondary type="success" block @click="save">
-      Save
-    </n-button>
-  </n-form>
+		<n-button secondary type="success" block @click="save">
+			Save
+		</n-button>
+	</n-form>
 </template>
 
 <style scoped>

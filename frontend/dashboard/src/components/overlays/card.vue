@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { IconSettings, IconCopy } from '@tabler/icons-vue';
-import { NCard, NButton, useThemeVars, useMessage, NTooltip } from 'naive-ui';
-import { FunctionalComponent, computed } from 'vue';
+import { NButton, useMessage, NTooltip } from 'naive-ui';
+import { FunctionalComponent } from 'vue';
 
-const themeVars = useThemeVars();
-const titleColor = computed(() => themeVars.value.textColor1);
+import Card from '@/components/card/card.vue';
 
 const props = defineProps<{
 	description: string;
@@ -27,73 +26,29 @@ const copyOverlayLink = () => {
 </script>
 
 <template>
-	<n-card>
-		<div style="display: flex; flex-direction: column">
-			<component
-				:is="icon"
-				style="width: 48px; height: 48px; stroke-width: 2px; stroke: #61e8bb; margin-bottom: 16px"
-			/>
-			<div>
-				<h2 class="card-title">
-					{{ title }}
-				</h2>
-				<span :style="{ color: themeVars.textColor3 }">
-					{{ description }}
-				</span>
-			</div>
-			<div class="card-buttons">
-				<n-button secondary size="large" class="card-button" @click="$emit('openSettings')">
-					<span>Settings</span>
-					<IconSettings />
-				</n-button>
-				<n-tooltip :disabled="!!overlayLink">
-					<template #trigger>
-						<n-button
-							size="large"
-							:disabled="!overlayLink"
-							class="card-button"
-							@click="copyOverlayLink"
-						>
-							<span>Copy overlay link</span>
-							<IconCopy />
-						</n-button>
-					</template>
-					You should configure overlay first
-				</n-tooltip>
-			</div>
-		</div>
-	</n-card>
+	<card :title="title" :icon="icon">
+		<template #content>
+			{{ description }}
+		</template>
+
+		<template #footer>
+			<n-button secondary size="large" @click="$emit('openSettings')">
+				<span>Settings</span>
+				<IconSettings />
+			</n-button>
+			<n-tooltip :disabled="!!overlayLink">
+				<template #trigger>
+					<n-button
+						size="large"
+						:disabled="!overlayLink"
+						@click="copyOverlayLink"
+					>
+						<span>Copy overlay link</span>
+						<IconCopy />
+					</n-button>
+				</template>
+				You should configure overlay first
+			</n-tooltip>
+		</template>
+	</card>
 </template>
-
-<style scoped>
-.card-button span {
-	font-size: 14px;
-	line-height: 20px
-}
-
-.card-button svg {
-	height: 20px;
-	width: 20px;
-	margin-left: 8px
-}
-
-@media (max-width: 568px) {
-	.card-button {
-		width: 100%;
-	}
-}
-
-.card-title {
-	color: v-bind(titleColor);
-	margin: 0 0 12px 0;
-	font-size: 20px;
-	line-height: 24px;
-}
-
-.card-buttons {
-	display: flex;
-	gap: 8px;
-	margin-top: 20px;
-	flex-wrap: wrap;
-}
-</style>

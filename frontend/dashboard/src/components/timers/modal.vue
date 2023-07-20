@@ -49,7 +49,7 @@ const formValue = ref<EditableTimer>({
 const rules: FormRules = {
 	name: {
 		trigger: ['input', 'blur'],
-		validator: (rule: FormItemRule, value: string) => {
+		validator: (_: FormItemRule, value: string) => {
 			if (!value || !value.length) {
 				return new Error('Name is required');
 			}
@@ -61,7 +61,7 @@ const rules: FormRules = {
 	},
 	timeInterval: {
 		trigger: ['input', 'blur'],
-		validator: (rule: FormItemRule, value: number) => {
+		validator: (_: FormItemRule, value: number) => {
 			if (value < 1) {
 				return new Error('Time interval is too short');
 			}
@@ -73,7 +73,7 @@ const rules: FormRules = {
 	},
 	messageInterval: {
 		trigger: ['input', 'blur'],
-		validator: (rule: FormItemRule, value: number) => {
+		validator: (_: FormItemRule, value: number) => {
 			if (value < 0) {
 				return new Error('Message interval is too short');
 			}
@@ -85,7 +85,7 @@ const rules: FormRules = {
 	},
 	responses: {
 		trigger: ['input', 'blur'],
-		validator: (rule: FormItemRule, value: string) => {
+		validator: (_: FormItemRule, value: string) => {
 			if (!value || !value.length) {
 				return new Error('Text is required');
 			}
@@ -137,120 +137,120 @@ const sliderMarks = {
 </script>
 
 <template>
-  <n-form
-    ref="formRef"
-    :model="formValue"
-    :rules="rules"
-  >
-    <n-space vertical style="width: 100%">
-      <n-form-item label="Name" path="name" show-require-mark>
-        <n-input v-model:value="formValue.name" />
-      </n-form-item>
-      <n-form-item label="Time interval in minutes" path="timeInterval" show-require-mark>
-        <n-grid :cols="12" :x-gap="5">
-          <n-grid-item :span="10">
-            <n-slider
-              v-model:value="formValue.timeInterval"
-              :step="1"
-              :marks="sliderMarks"
-              :min="1"
-            />
-          </n-grid-item>
-          <n-grid-item :span="2">
-            <n-input-number v-model:value="formValue.timeInterval" size="small" :min="1" :max="100" />
-          </n-grid-item>
-        </n-grid>
-      </n-form-item>
-      <!--      <n-form-item label="Interval in messages" path="messageInterval">-->
-      <!--        <n-input-number v-model:value="formValue.messageInterval" :min="0" :max="5000" />-->
-      <!--      </n-form-item>-->
+	<n-form
+		ref="formRef"
+		:model="formValue"
+		:rules="rules"
+	>
+		<n-space vertical style="width: 100%">
+			<n-form-item label="Name" path="name" show-require-mark>
+				<n-input v-model:value="formValue.name" />
+			</n-form-item>
+			<n-form-item label="Time interval in minutes" path="timeInterval" show-require-mark>
+				<n-grid :cols="12" :x-gap="5">
+					<n-grid-item :span="10">
+						<n-slider
+							v-model:value="formValue.timeInterval"
+							:step="1"
+							:marks="sliderMarks"
+							:min="1"
+						/>
+					</n-grid-item>
+					<n-grid-item :span="2">
+						<n-input-number v-model:value="formValue.timeInterval" size="small" :min="1" :max="100" />
+					</n-grid-item>
+				</n-grid>
+			</n-form-item>
+			<!--      <n-form-item label="Interval in messages" path="messageInterval">-->
+			<!--        <n-input-number v-model:value="formValue.messageInterval" :min="0" :max="5000" />-->
+			<!--      </n-form-item>-->
 
-      <n-divider>
-        Responses
-      </n-divider>
+			<n-divider>
+				Responses
+			</n-divider>
 
-      <n-dynamic-input
-        v-model:value="formValue.responses"
-        placeholder="Timer response"
-        class="groups"
-        :create-button-props="{ class: 'create-button' } as any"
-      >
-        <template #default="{ value, index }: { value: EditableTimerResponse }">
-          <n-space vertical style="width: 100%">
-            <n-form-item :path="`responses[${index}].text`" :rule="rules.responses" show-require-mark>
-              <n-input
-                v-model:value="value.text"
-                type="textarea"
-                placeholder="Response text"
-                :autosize="{
-                  minRows: 1,
-                  maxRows: 5
-                }"
-              />
-            </n-form-item>
-            <n-checkbox v-model:checked="value.isAnnounce">
-              Use twitch announce
-            </n-checkbox>
-          </n-space>
-        </template>
+			<n-dynamic-input
+				v-model:value="formValue.responses"
+				placeholder="Timer response"
+				class="groups"
+				:create-button-props="{ class: 'create-button' } as any"
+			>
+				<template #default="{ value, index }: { value: EditableTimerResponse, index: number }">
+					<n-space vertical style="width: 100%">
+						<n-form-item :path="`responses[${index}].text`" :rule="rules.responses" show-require-mark>
+							<n-input
+								v-model:value="value.text"
+								type="textarea"
+								placeholder="Response text"
+								:autosize="{
+									minRows: 1,
+									maxRows: 5
+								}"
+							/>
+						</n-form-item>
+						<n-checkbox v-model:checked="value.isAnnounce">
+							Use twitch announce
+						</n-checkbox>
+					</n-space>
+				</template>
 
-        <template #action="{ index, remove, move }">
-          <div class="group-actions">
-            <n-button size="small" type="error" quaternary @click="() => remove(index)">
-              <IconTrash />
-            </n-button>
-            <n-button
-              size="small"
-              type="info"
-              quaternary
-              :disabled="index == 0"
-              @click="() => move('up', index)"
-            >
-              <IconArrowNarrowUp />
-            </n-button>
-            <n-button
-              size="small"
-              type="info"
-              quaternary
-              :disabled="!!formValue.responses.length && index === formValue.responses.length-1"
-              @click="() => move('down', index)"
-            >
-              <IconArrowNarrowDown />
-            </n-button>
-          </div>
-        </template>
-      </n-dynamic-input>
+				<template #action="{ index, remove, move }">
+					<div class="group-actions">
+						<n-button size="small" type="error" quaternary @click="() => remove(index)">
+							<IconTrash />
+						</n-button>
+						<n-button
+							size="small"
+							type="info"
+							quaternary
+							:disabled="index == 0"
+							@click="() => move('up', index)"
+						>
+							<IconArrowNarrowUp />
+						</n-button>
+						<n-button
+							size="small"
+							type="info"
+							quaternary
+							:disabled="!!formValue.responses.length && index === formValue.responses.length-1"
+							@click="() => move('down', index)"
+						>
+							<IconArrowNarrowDown />
+						</n-button>
+					</div>
+				</template>
+			</n-dynamic-input>
 
-      <n-button
-        dashed
-        block
-        @click="() => formValue.responses.push({ text: '', isAnnounce: false })"
-      >
-        <IconPlus /> Create
-      </n-button>
+			<n-button
+				dashed
+				block
+				@click="() => formValue.responses.push({ text: '', isAnnounce: false })"
+			>
+				<IconPlus /> Create
+			</n-button>
 
-      <n-divider />
+			<n-divider />
 
-      One response will be sent once every N intervals, example:
-      <n-timeline>
-        <n-timeline-item
-          v-for="(response, index) in formValue.responses"
-          :key="index"
-          type="info"
-          :title="`Response #${index+1}`"
-          :content="response.text.slice(0, 50) + '...'"
-          :time="new Date(nowTime.getTime() + (formValue.timeInterval * index * 60000)).toLocaleTimeString()"
-          line-type="dashed"
-        />
-      </n-timeline>
+			One response will be sent once every N intervals, example:
+			<n-timeline>
+				<n-timeline-item
+					v-for="(response, index) in formValue.responses"
+					:key="index"
+					type="info"
+					:title="`Response #${index+1}`"
+					:content="response.text.slice(0, 50) + '...'"
+					:time="new Date(nowTime.getTime() + (formValue.timeInterval * index * 60000)).toLocaleTimeString()"
+					line-type="dashed"
+				/>
+			</n-timeline>
 
-      <n-divider />
+			<n-divider />
 
-      <n-button secondary type="success" block style="margin-top: 10px" @click="save">
-        Save
-      </n-button>
-    </n-space>
-  </n-form>
+			<n-button secondary type="success" block style="margin-top: 10px" @click="save">
+				Save
+			</n-button>
+		</n-space>
+	</n-form>
 </template>
 
 <style scoped>
