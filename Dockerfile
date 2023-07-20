@@ -244,14 +244,10 @@ CMD ["nginx"]
 ### MIGRATIONS
 
 FROM builder as migrations_builder
-RUN cd libs/typeorm && \
-    pnpm build && \
-    pnpm prune --prod
+RUN cd libs/migrations && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./main.go && upx -9 -k ./out
 
-FROM node_prod_base as migrations
-WORKDIR /app
-COPY --from=builder /app/tsconfig.base.json /app/
-COPY --from=migrations_builder /app/libs/typeorm /app/libs/typeorm
-COPY --from=migrations_builder /app/libs/config /app/libs/config
-COPY --from=migrations_builder /app/libs/crypto /app/libs/crypto
-CMD ["pnpm", "run", "migrate:deploy"]
+FROM go_prod_base as migrations
+COPY --from=migrations_builder /app/libs/migrations/out /bin/migrations
+CMD ["/bin/migrations"]
