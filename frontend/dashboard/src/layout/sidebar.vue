@@ -18,10 +18,11 @@ import {
 	IconSword,
 	IconUsers,
 } from '@tabler/icons-vue';
-import { type MenuOption, type MenuDividerOption, NMenu } from 'naive-ui';
+import { type MenuOption, type MenuDividerOption, NMenu, NCard } from 'naive-ui';
 import { h, ref, onMounted } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 
+import DashboardMenu from './dashboardsMenu.vue';
 import { renderIcon } from '../helpers/index.js';
 
 const activeKey = ref<string | null>('/');
@@ -130,28 +131,26 @@ onMounted(async () => {
 	activeKey.value = router.currentRoute.value.path;
 });
 
+const isDashboardsMenu = ref(false);
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; justify-content: space-between; height: calc(100vh - 43px)">
-    <n-menu
-      v-model:value="activeKey"
-      :collapsed-width="64"
-      :collapsed-icon-size="22"
-      :options="menuOptions"
-    />
+	<div style="display: flex; flex-direction: column; justify-content: space-between; height: calc(100vh - 43px)">
+		<n-menu
+			v-if="!isDashboardsMenu"
+			v-model:value="activeKey"
+			:collapsed-width="64"
+			:collapsed-icon-size="22"
+			:options="menuOptions"
+		/>
+		<dashboard-menu v-else />
 
-    <n-menu
-      :options="[{
-        label: 'Logout',
-        key: 'logout',
-        onClick: () => {
-          window.location.href = '/logout';
-        },
-      }]"
-    >
-    </n-menu>
-  </div>
+		<div style="padding: 5px">
+			<n-card style="cursor: pointer;" size="small" @click="isDashboardsMenu = !isDashboardsMenu">
+				qwe
+			</n-card>
+		</div>
+	</div>
 </template>
 
 <style scoped>

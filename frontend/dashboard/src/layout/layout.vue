@@ -43,6 +43,7 @@ const isSidebarCollapsed = computed(() => {
 watch(smallerOrEqualLg, (v) => {
 	storedSidebarValue.value = v;
 });
+
 </script>
 
 <template>

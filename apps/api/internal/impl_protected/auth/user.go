@@ -2,8 +2,9 @@ package auth
 
 import (
 	"context"
-
+	"fmt"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/auth"
@@ -19,6 +20,25 @@ func (c *Auth) AuthUserProfile(ctx context.Context, _ *emptypb.Empty) (*auth.Pro
 	twitchUser := c.SessionManager.Get(ctx, "twitchUser").(helix.User)
 	selectedDashboardId := c.SessionManager.Get(ctx, "dashboardId").(string)
 
+	if !dbUser.IsBotAdmin {
+		var roles []*model.ChannelRoleUser
+		if err := c.Db.Where(`"userId" = ?`, dbUser.ID).Preload("Role").Find(&roles).Error; err != nil {
+			return nil, err
+		}
+
+		stillHasPermission := lo.SomeBy(
+			roles, func(role *model.ChannelRoleUser) bool {
+				return role.UserID == dbUser.ID &&
+					role.Role.ChannelID == selectedDashboardId &&
+					lo.Contains(role.Role.Permissions, model.RolePermissionCanAccessDashboard.String())
+			},
+		)
+		if !stillHasPermission {
+			selectedDashboardId = dbUser.ID
+			c.SessionManager.Put(ctx, "dashboardId", dbUser.ID)
+		}
+	}
+
 	return &auth.Profile{
 		Id:                  dbUser.ID,
 		Avatar:              twitchUser.ProfileImageURL,
@@ -31,6 +51,25 @@ func (c *Auth) AuthUserProfile(ctx context.Context, _ *emptypb.Empty) (*auth.Pro
 }
 
 func (c *Auth) AuthSetDashboard(ctx context.Context, req *auth.SetDashboard) (*emptypb.Empty, error) {
+	dbUser := c.SessionManager.Get(ctx, "dbUser").(model.Users)
+
+	var roles []*model.ChannelRoleUser
+	if err := c.Db.Where(`"userId" = ?`, dbUser.ID).Preload("Role").Find(&roles).Error; err != nil {
+		return nil, err
+	}
+
+	hasPermission := lo.SomeBy(
+		roles, func(role *model.ChannelRoleUser) bool {
+			return role.UserID == dbUser.ID &&
+				role.Role.ChannelID == req.DashboardId &&
+				lo.Contains(role.Role.Permissions, model.RolePermissionCanAccessDashboard.String())
+		},
+	)
+
+	if !hasPermission {
+		return nil, fmt.Errorf("user %s does not have permission to access dashboard %s", dbUser.ID, req.DashboardId)
+	}
+
 	c.SessionManager.Put(ctx, "dashboardId", req.DashboardId)
 
 	return &emptypb.Empty{}, nil

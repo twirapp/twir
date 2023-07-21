@@ -2,9 +2,7 @@ package bot
 
 import (
 	"context"
-	"net/http"
-	"sync"
-
+	"fmt"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
@@ -14,7 +12,9 @@ import (
 	botsGrtpc "github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twitchtv/twirp"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"net/http"
 )
 
 type Bot struct {
@@ -42,53 +42,60 @@ func (c *Bot) BotInfo(ctx context.Context, _ *meta.BaseRequestMeta) (*bots.BotIn
 		return nil, err
 	}
 
-	var wg sync.WaitGroup
 	result := &bots.BotInfo{
 		Enabled: dbUser.Channel.IsEnabled,
 	}
-	wg.Add(2)
 
-	go func() {
-		defer wg.Done()
+	g, ctx := errgroup.WithContext(ctx)
 
-		if dashboardId == dbUser.Channel.BotID {
-			result.IsMod = true
-			return
-		}
+	g.Go(
+		func() error {
+			if dashboardId == dbUser.Channel.BotID {
+				result.IsMod = true
+				return nil
+			}
 
-		mods, err := twitchClient.GetModerators(
-			&helix.GetModeratorsParams{
-				BroadcasterID: dashboardId,
-				UserIDs:       []string{dbUser.Channel.BotID},
-			},
-		)
-		if err != nil {
-			return
-		}
+			mods, err := twitchClient.GetModerators(
+				&helix.GetModeratorsParams{
+					BroadcasterID: dashboardId,
+					UserIDs:       []string{dbUser.Channel.BotID},
+				},
+			)
+			if err != nil {
+				return err
+			}
+			if mods.ErrorMessage != "" {
+				return fmt.Errorf("cannot get moderators: %s", mods.ErrorMessage)
+			}
 
-		result.IsMod = lo.If(len(mods.Data.Moderators) == 0, false).Else(true)
-	}()
+			result.IsMod = lo.If(len(mods.Data.Moderators) == 0, false).Else(true)
+			return nil
+		},
+	)
 
-	go func() {
-		defer wg.Done()
-		infoReq, err := twitchClient.GetUsers(
-			&helix.UsersParams{
-				IDs: []string{dbUser.Channel.BotID},
-			},
-		)
-		if err != nil {
-			return
-		}
+	g.Go(
+		func() error {
+			infoReq, err := twitchClient.GetUsers(
+				&helix.UsersParams{
+					IDs: []string{dbUser.Channel.BotID},
+				},
+			)
+			if err != nil {
+				return err
+			}
+			if len(infoReq.Data.Users) == 0 {
+				return fmt.Errorf("cannot get user info: %s", infoReq.ErrorMessage)
+			}
 
-		if len(infoReq.Data.Users) == 0 {
-			return
-		}
+			result.BotId = infoReq.Data.Users[0].ID
+			result.BotName = infoReq.Data.Users[0].Login
+			return nil
+		},
+	)
 
-		result.BotId = infoReq.Data.Users[0].ID
-		result.BotName = infoReq.Data.Users[0].Login
-	}()
-
-	wg.Wait()
+	if err := g.Wait(); err != nil {
+		return nil, fmt.Errorf("cannot get bot info: %w", err)
+	}
 
 	return result, nil
 }
