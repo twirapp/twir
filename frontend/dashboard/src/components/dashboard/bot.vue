@@ -1,8 +1,11 @@
 <script setup lang='ts'>
 import { NCard, NAlert, NSkeleton, NButton } from 'naive-ui';
 import { onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useBotInfo, useBotJoinPart } from '@/api/index.js';
+
+const { t } = useI18n();
 
 const { data, isLoading, isFetching, refetch } = useBotInfo();
 
@@ -37,12 +40,14 @@ onMounted(() => {
 		<n-skeleton v-if="!data" :sharp="false" />
 
 		<n-alert v-else :type="data!.isMod ? 'success' : 'error'" :bordered="false" class="bot-alert">
-			<span v-if="data?.isMod">
-				<b>{{ data!.botName }}</b> is a moderator.
-			</span>
-			<span v-else>
-				We have found that the bot is not a moderator on this channel. Please, use <b>/mod {{ data!.botName }}</b>, or some of functionality may work incorrectly.
-			</span>
+			<span
+				v-if="data?.isMod"
+				v-html="t('dashboard.botManage.moderator', { botName: data.botName})"
+			/>
+			<span
+				v-else
+				v-html="t('dashboard.botManage.notModerator', { botName: data.botName})"
+			/>
 		</n-alert>
 
 		<template #action>
@@ -53,7 +58,7 @@ onMounted(() => {
 				:disabled="isStateButtonDisabled"
 				@click="changeBotState"
 			>
-				{{ data?.enabled ? 'Leave' : 'Join' }}
+				{{ t(`dashboard.botManage.${data?.enabled ? 'leave' : 'join'}`) }}
 			</n-button>
 		</template>
 	</n-card>

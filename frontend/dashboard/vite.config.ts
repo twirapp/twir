@@ -1,5 +1,7 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 import { webUpdateNotice } from '@plugin-web-update-notification/vite';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
@@ -8,7 +10,7 @@ import svg from 'vite-svg-loader';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
+	plugins: [
 		vue({
 			script: {
 				defineModel: true,
@@ -18,11 +20,19 @@ export default defineConfig({
 		VitePWA(),
 		webUpdateNotice({
 			notificationProps: {
-        title: 'New version',
-        description: 'An update available, please refresh the page to get latest features and bug fixes!',
-        buttonText: 'refresh',
-      },
+				title: 'New version',
+				description: 'An update available, please refresh the page to get latest features and bug fixes!',
+				buttonText: 'refresh',
+			},
 			checkInterval: 1 * 60 * 1000,
+		}),
+		VueI18nPlugin({
+			include: [
+				path.resolve(__dirname, './src/locales/**'),
+				'./src/locales/en.json',
+			],
+			strictMessage: false,
+			escapeHtml: false,
 		}),
 	],
 	base: '/dashboard',

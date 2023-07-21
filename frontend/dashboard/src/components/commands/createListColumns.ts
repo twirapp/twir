@@ -1,6 +1,7 @@
 import { IconTrash, IconPencil } from '@tabler/icons-vue';
 import { DataTableColumns, NButton, NPopconfirm, NSpace, NSwitch, NTag, NText } from 'naive-ui';
 import { computed, h } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useCommandsManager, useUserAccessFlagChecker } from '@/api/index.js';
 import type { ListRowData, EditableCommand } from '@/components/commands/types.js';
@@ -27,10 +28,11 @@ export const createListColumns = (
 	patcher: (id: string, value: boolean) => any,
 ) => {
 	const userCanManageCommands = useUserAccessFlagChecker('MANAGE_COMMANDS');
+	const { t } = useI18n();
 
 	return computed<DataTableColumns<ListRowData>>(() => [
 		{
-			title: 'Name',
+			title: t('tables.columns.name'),
 			key: 'name',
 			width: 250,
 			render(row) {
@@ -51,7 +53,7 @@ export const createListColumns = (
 			},
 		},
 		{
-			title: 'Responses',
+			title: t('commands.table.responses.name'),
 			key: 'responses',
 			render(row) {
 				if (row.isGroup) return;
@@ -65,14 +67,14 @@ export const createListColumns = (
 								? h(NSpace, { vertical: true }, {
 									default: () => row.responses?.map(r => h('span', null, `${r.text}`)),
 								})
-								: 'Empty responses';
+								: t('commands.table.responses.empty');
 						},
 					},
 				);
 			},
 		},
 		{
-			title: 'Status',
+			title: t('tables.columns.status'),
 			key: 'enabled',
 			width: 100,
 			render(row) {
@@ -93,7 +95,7 @@ export const createListColumns = (
 			},
 		},
 		{
-			title: 'Actions',
+			title: t('tables.columns.actions'),
 			key: 'actions',
 			width: 150,
 			render(row) {
@@ -114,6 +116,8 @@ export const createListColumns = (
 					NPopconfirm,
 					{
 						onPositiveClick: () => deleter.mutate({ commandId: row.id }),
+						positiveText: t('deleteConfirmation.confirm'),
+						negativeText: t('deleteConfirmation.cancel'),
 					},
 					{
 						trigger: () => h(NButton, {
@@ -124,7 +128,7 @@ export const createListColumns = (
 						}, {
 							default: renderIcon(IconTrash),
 						}),
-						default: () => 'Are you sure you want to delete this command?',
+						default: () => t('deleteConfirmation.text'),
 					},
 				);
 

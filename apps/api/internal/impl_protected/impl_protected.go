@@ -24,6 +24,7 @@ import (
 	integrationsGrpc "github.com/satont/twir/libs/grpc/generated/integrations"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/scheduler"
+	timersGrpc "github.com/satont/twir/libs/grpc/generated/timers"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"go.uber.org/fx"
@@ -62,6 +63,7 @@ type Opts struct {
 	ParserGrpc       parser.ParserClient
 	WebsocketsGrpc   websockets.WebsocketClient
 	SchedulerGrpc    scheduler.SchedulerClient
+	TimersGrpc       timersGrpc.TimersClient
 }
 
 func New(opts Opts) *Protected {
@@ -77,6 +79,7 @@ func New(opts Opts) *Protected {
 			Parser:       opts.ParserGrpc,
 			Websockets:   opts.WebsocketsGrpc,
 			Scheduler:    opts.SchedulerGrpc,
+			Timers:       opts.TimersGrpc,
 		},
 	}
 

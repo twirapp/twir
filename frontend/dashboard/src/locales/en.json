@@ -1,0 +1,113 @@
+{
+  "hello": "world",
+  "sharedButtons": {
+    "create": "Create",
+		"save": "Save"
+  },
+	"deleteConfirmation": {
+		"text": "Are you sure you want delete this thing?",
+		"cancel": "Cancel",
+		"confirm": "Confirm"
+	},
+  "commands": {
+    "name": "Command | Commands",
+    "searchPlaceholder": "Search command",
+    "newCommandTitle": "New command",
+    "groups": {
+      "manageButton": "Manage groups",
+			"name": "Name",
+			"color": "Color"
+    },
+    "table": {
+      "responses": {
+        "name": "Responses",
+        "empty": "Responses are empty"
+      }
+    },
+    "modal": {
+      "name": {
+        "label": "Name",
+        "validations": {
+          "empty": "Command name is required",
+          "startsWith": "Command name should not start with !",
+          "len": "Command name should be less than 25 characters"
+        }
+      },
+      "aliases": {
+        "label": "Aliases"
+      },
+      "description": {
+        "label": "Command description"
+      },
+      "responses": {
+        "label": "Responses",
+        "validations": {
+          "empty": "Response should not be empty. Command can be created without responses, so you can omit this field.",
+          "len": "Response should be less than 500 characters"
+        },
+        "defaultWarning": "Responses cannot be edited for default commands"
+      },
+      "permissions": {
+        "divider": "Permissions",
+        "name": "Roles",
+        "placeholder": "Select roles, which will have permissions to use commands",
+        "deniedUsers": "Users, who cannot use that command",
+        "allowedUsers": "Users, who can bypass roles restriction for that command"
+      },
+      "restrictions": {
+        "name": "Restrictions by stats",
+        "watchTime": "Required watch time for use that command",
+        "messages": "Required messages for use that command",
+        "channelsPoints": "Required used channels points for use that command"
+      },
+      "cooldown": {
+        "label": "Cooldown",
+        "value": "Cooldown in seconds",
+        "type": {
+          "name": "Cooldown per",
+          "global": "Global",
+          "user": "Per user (individual)"
+        }
+      },
+			"settings": {
+				"divider": "Settings",
+				"reply": {
+					"label": "Reply",
+					"text": "Bot will send commands responses as reply"
+				},
+				"visible": {
+					"label": "Visibility",
+					"text": "Command visibility in public page, in commands list variable."
+				},
+				"keepOrder": {
+					"label": "Keep order of responses",
+					"text": "Bot will keep your order of respones when they sent in chat"
+				},
+				"onlineOnly": {
+					"label": "Online only",
+					"text": "Command will work only when stream online"
+				},
+				"other": {
+					"divider": "Other",
+					"commandGroup": "Group of command"
+				}
+			}
+    }
+  },
+  "tables": {
+    "columns": {
+      "name": "Name",
+      "actions": "Actions",
+      "status": "Status"
+    }
+  },
+	"dashboard": {
+		"botManage": {
+			"title": "Bot manage",
+			"moderator": "<b>{botName}</b> is a moderator",
+			"notModerator": "We have found that the bot is not a moderator on this channel. Please, use <b>/mod {botName}</b>, or some of functionality may work incorrectly.",
+			"leave": "Leave",
+			"join": "Join"
+		}
+	}
+}

@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import { getProfile } from './api/index.js';
 
 export const router = createRouter({
 	history: createWebHistory(),
@@ -67,13 +66,13 @@ export const router = createRouter({
 	],
 });
 
-router.beforeEach(async () => {
-	try {
-		await getProfile();
-		return true;
-	} catch (e) {
-		console.error(e);
-		window.location.replace('/');
-		return false;
-	}
-});
+// router.beforeEach(async () => {
+// 	try {
+// 		await getProfile();
+// 		return true;
+// 	} catch (e) {
+// 		console.error(e);
+// 		window.location.replace('/');
+// 		return false;
+// 	}
+// });

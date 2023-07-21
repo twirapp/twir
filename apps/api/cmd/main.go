@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/satont/twir/libs/grpc/generated/scheduler"
+	"github.com/satont/twir/libs/grpc/generated/timers"
 	"net/http"
 	"time"
 
@@ -73,6 +74,9 @@ func main() {
 			},
 			func(c *cfg.Config) scheduler.SchedulerClient {
 				return clients.NewScheduler(c.AppEnv)
+			},
+			func(c *cfg.Config) timers.TimersClient {
+				return clients.NewTimers(c.AppEnv)
 			},
 			func(config *cfg.Config, lc fx.Lifecycle) *redis.Client {
 				redisOpts, err := redis.ParseURL(config.RedisUrl)

@@ -8,6 +8,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/integrations"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/scheduler"
+	"github.com/satont/twir/libs/grpc/generated/timers"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"gorm.io/gorm"
@@ -20,6 +21,7 @@ type Grpc struct {
 	Parser       parser.ParserClient
 	Websockets   websockets.WebsocketClient
 	Scheduler    scheduler.SchedulerClient
+	Timers       timers.TimersClient
 }
 
 type Deps struct {

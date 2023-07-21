@@ -2,6 +2,7 @@ package timers
 
 import (
 	"context"
+	timersGrpc "github.com/satont/twir/libs/grpc/generated/timers"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -110,6 +111,15 @@ func (c *Timers) TimersUpdate(
 		return nil, txErr
 	}
 
+	grpcRequest := &timersGrpc.Request{
+		TimerId: entity.ID,
+	}
+	if entity.Enabled {
+		c.Grpc.Timers.AddTimerToQueue(ctx, grpcRequest)
+	} else {
+		c.Grpc.Timers.RemoveTimerFromQueue(ctx, grpcRequest)
+	}
+
 	return c.convertEntity(entity), nil
 }
 
@@ -155,6 +165,15 @@ func (c *Timers) TimersCreate(
 
 	if err := c.Db.WithContext(ctx).Create(entity).Error; err != nil {
 		return nil, err
+	}
+
+	grpcRequest := &timersGrpc.Request{
+		TimerId: entity.ID,
+	}
+	if entity.Enabled {
+		c.Grpc.Timers.AddTimerToQueue(ctx, grpcRequest)
+	} else {
+		c.Grpc.Timers.RemoveTimerFromQueue(ctx, grpcRequest)
 	}
 
 	return c.convertEntity(entity), nil

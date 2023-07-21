@@ -3,12 +3,16 @@ import { type Command } from '@twir/grpc/generated/api/api/commands';
 import { useThrottleFn } from '@vueuse/core';
 import { NDataTable, NButton, NSpace, NModal, NInput } from 'naive-ui';
 import { ref, toRaw, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useCommandsManager, useUserAccessFlagChecker } from '@/api/index.js';
 import { createListColumns } from '@/components/commands/createListColumns.js';
 import ManageGroups from '@/components/commands/manageGroups.vue';
 import Modal from '@/components/commands/modal.vue';
 import type { EditableCommand, ListRowData } from '@/components/commands/types.js';
+
+
+const { t } = useI18n();
 
 const props = withDefaults(defineProps<{
 	commands: Command[]
@@ -89,14 +93,17 @@ const columns = createListColumns(editCommand, commandsDeleter, throttledSwitchS
 		<div v-if="showHeader" class="header">
 			<div>
 				<n-space align="center">
-					<h2>Commands</h2>
-					<n-input v-model:value="commandsFilter" placeholder="Search command" />
+					<h2>{{ t('commands.name', 0) }}</h2>
+					<n-input
+						v-model:value="commandsFilter"
+						:placeholder="t('commands.searchPlaceholder')"
+					/>
 				</n-space>
 			</div>
 			<div>
 				<n-space>
 					<n-button :disabled="!userCanManageCommands" secondary type="info" @click="showManageGroupsModal = true">
-						Manage groups
+						{{ t('commands.groups.manageButton') }}
 					</n-button>
 
 					<n-button
@@ -109,7 +116,7 @@ const columns = createListColumns(editCommand, commandsDeleter, throttledSwitchS
 							showCommandEditModal = true;
 						}"
 					>
-						Create command
+						{{ t('sharedButtons.create') }}
 					</n-button>
 				</n-space>
 			</div>
@@ -126,7 +133,7 @@ const columns = createListColumns(editCommand, commandsDeleter, throttledSwitchS
 			:mask-closable="false"
 			:segmented="true"
 			preset="card"
-			:title="editableCommand?.name ?? 'New command'"
+			:title="editableCommand?.name ?? t('commands.newCommandTitle')"
 			class="modal"
 			:style="{
 				width: '800px',
@@ -148,7 +155,7 @@ const columns = createListColumns(editCommand, commandsDeleter, throttledSwitchS
 			:mask-closable="false"
 			:segmented="true"
 			preset="card"
-			title="Commands groups"
+			:title="t('commands.groups.manageButton')"
 			class="modal"
 			:style="{
 				width: '600px',
