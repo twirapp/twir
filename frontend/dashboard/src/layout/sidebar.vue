@@ -182,7 +182,7 @@ const selectedDashboard = computed(() => {
 					<n-avatar style="display: flex; align-self: center;" :src="selectedDashboard.profileImageUrl" />
 					<n-space vertical style="gap: 0; width: 100%">
 						<n-text>{{ selectedDashboard.displayName }}</n-text>
-						<n-text style="font-size: 13px;">
+						<n-text style="font-size: 12px;">
 							Manage dashboard
 						</n-text>
 					</n-space>
