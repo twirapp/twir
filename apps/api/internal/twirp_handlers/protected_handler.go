@@ -1,6 +1,7 @@
 package twirp_handlers
 
 import (
+	"github.com/satont/twir/apps/api/internal/hooks"
 	"time"
 
 	"github.com/satont/twir/apps/api/internal/handlers"
@@ -24,7 +25,7 @@ func NewProtected(opts Opts) handlers.IHandler {
 	twirpHandler := api.NewProtectedServer(
 		opts.ImplProtected,
 		twirp.WithServerPathPrefix("/v1"),
-		twirp.WithServerInterceptors(opts.Interceptor.Errors),
+		//twirp.WithServerInterceptors(opts.Interceptor.Errors),
 		twirp.WithServerInterceptors(opts.Interceptor.DbUserInterceptor),
 		twirp.WithServerInterceptors(opts.Interceptor.ChannelAccessInterceptor),
 		twirp.WithServerInterceptors(opts.Interceptor.DashboardId),
@@ -113,6 +114,7 @@ func NewProtected(opts Opts) handlers.IHandler {
 				// },
 			),
 		),
+		twirp.WithServerHooks(hooks.NewLoggingServerHooks(opts.Logger)),
 	)
 
 	h := handlers.New(

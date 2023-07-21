@@ -24,4 +24,4 @@ VueQueryPlugin.install(app, {
 	}),
 });
 
-	app.mount('#app');
+app.mount('#app');

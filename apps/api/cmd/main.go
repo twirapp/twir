@@ -43,6 +43,9 @@ func main() {
 			},
 		),
 		fx.Provide(
+			func() *zap.Logger {
+				return logger
+			},
 			func() *cfg.Config {
 				config, err := cfg.New()
 				if err != nil {
