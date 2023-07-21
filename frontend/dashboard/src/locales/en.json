@@ -194,6 +194,27 @@
 				"added": "Added",
 				"duration": "Duration"
 			}
+		},
+		"settings": {
+			"onlineOnly": "Accept requests only when stream online",
+			"announcePlay": "Announce song playing in chat",
+			"neededPercentageForskip": "Needed percentage of online users to skip song",
+			"channelReward": "Channel reward for requesting song",
+			"deniedChannels": "Denied youtube channels",
+			"deniedUsers": "Users, who can't request songs",
+			"deniedSongs": "Denied songs for request",
+			"users": {
+				"maxRequests": "Maximum requests by for 1 user",
+				"minimalWatchTime": "Minimal watch time for request song (minutes)",
+				"minimalMessages": "Minimal mininal messages for requesting song",
+				"minimalFollowTime": "Minimal follow time for request song (minutes)"
+			},
+			"songs": {
+				"maxRequests": "Maximum number of songs in queue",
+				"minLength": "Min length of song for request (minutes)",
+				"maxLength": "Max length of song for request (minutes)",
+				"minViews": "Minimal views on song for request"
+			}
 		}
 	}
 }

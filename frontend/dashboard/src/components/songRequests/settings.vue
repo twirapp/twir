@@ -8,7 +8,6 @@ import {
   NSpace,
   NSwitch,
   NText,
-  NInput,
   NInputNumber,
   NForm,
   NFormItem,
@@ -17,6 +16,7 @@ import {
   NButton,
 } from 'naive-ui';
 import { ref, computed, VNodeChild, h, watch, unref, toRaw } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useTwitchRewards, useYoutubeVideoOrChannelSearch, YoutubeSearchType } from '@/api/index.js';
 import { useYoutubeModuleSettings } from '@/api/index.js';
@@ -171,6 +171,8 @@ const songsSearchOptions = computed(() => {
 		};
 	}) ?? [];
 });
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -182,25 +184,25 @@ const songsSearchOptions = computed(() => {
 			<n-tab-pane name="general" tab="General">
 				<n-space vertical>
 					<n-space justify="space-between">
-						<n-text>Enabled</n-text>
+						<n-text>{{ t("sharedTexts.enabled") }}</n-text>
 						<n-switch v-model:value="formValue.enabled" />
 					</n-space>
 
 					<n-space justify="space-between">
-						<n-text>Accept requests only when stream online</n-text>
+						<n-text>{{ t('songRequests.settings.onlineOnly') }}</n-text>
 						<n-switch v-model:value="formValue.acceptOnlyWhenOnline" />
 					</n-space>
 
 					<n-space justify="space-between">
-						<n-text>Announce track play</n-text>
+						<n-text>{{ t('songRequests.settings.announcePlay') }}</n-text>
 						<n-switch v-model:value="formValue.announcePlay" />
 					</n-space>
 
-					<n-form-item label="Needed percentage of votes for skip song" path="neededVotesVorSkip">
+					<n-form-item :label="t('songRequests.settings.neededPercentageForskip')" path="neededVotesVorSkip">
 						<n-input-number v-model:value="formValue.neededVotesVorSkip" />
 					</n-form-item>
 
-					<n-form-item label="Channel reward for requesting songs" path="channelPointsRewardId">
+					<n-form-item :label="t('songRequests.settings.channelReward')" path="channelPointsRewardId">
 						<n-select
 							v-model:value="formValue.channelPointsRewardId"
 							:loading="twitchRewards.isLoading.value"
@@ -213,7 +215,7 @@ const songsSearchOptions = computed(() => {
 						/>
 					</n-form-item>
 
-					<n-form-item label="Denied channels" path="channelPointsRewardId">
+					<n-form-item :label="t('songRequests.settings.deniedChannels')" path="channelPointsRewardId">
 						<n-select
 							v-model:value="formValue.denyList!.channels"
 							:loading="selectedChannels.isLoading.value"
@@ -231,47 +233,47 @@ const songsSearchOptions = computed(() => {
 			</n-tab-pane>
 
 			<n-tab-pane name="users" tab="Users">
-				<n-form-item label="Maximum songs by user in queue" path="user.maxRequests">
+				<n-form-item :label="t('songRequests.settings.users.maxRequests')" path="user.maxRequests">
 					<n-input-number v-model:value="formValue.user!.maxRequests" :min="0" :max="1000" />
 				</n-form-item>
 				<n-form-item
-					label="Minimal watch time of user for request song (minutes)"
+					:label="t('songRequests.settings.users.minimalWatchTime')"
 					path="user.minWatchTime"
 				>
 					<n-input-number v-model:value="formValue.user!.minWatchTime" :min="0" :max="999999999" />
 				</n-form-item>
 				<n-form-item
-					label="Minimal messages by user for request song"
+					:label="t('songRequests.settings.users.minimalMessages')"
 					path="user.minMessages"
 				>
 					<n-input-number v-model:value="formValue.user!.minMessages" :min="0" :max="999999999" />
 				</n-form-item>
 				<n-form-item
-					label="Minimal follow time for request song (minutes)"
+					:label="t('songRequests.settings.users.mininalFollowTime')"
 					path="user.minFollowTime"
 				>
 					<n-input-number v-model:value="formValue.user!.minFollowTime" :min="0" :max="99999999999999" />
 				</n-form-item>
 
-				<n-form-item label="Denied users for requests">
+				<n-form-item :label="t('songRequests.settings.deniedUsers')">
 					<twitch-search-users v-model="formValue.denyList!.users" />
 				</n-form-item>
 			</n-tab-pane>
 
 			<n-tab-pane name="songs" tab="Songs">
-				<n-form-item label="Maximum number of songs in queue">
+				<n-form-item :label="t('songRequests.settings.songs.maxRequests')">
 					<n-input-number v-model:value="formValue.maxRequests" :min="0" :max="99999999999999" />
 				</n-form-item>
-				<n-form-item label="Min length of song for request (minutes)">
-					<n-input-number v-model:value="formValue.song!.minLength" :min="0" :max="99999999999999" />
+				<n-form-item :label="t('songRequests.settings.songs.minLinegth')">
+					<n-input-number v-model:value="formValue.song!.minLength" :min="0" :max="999999" />
 				</n-form-item>
-				<n-form-item label="Max length of song for request (minutes)">
-					<n-input-number v-model:value="formValue.song!.maxLength" :min="0" :max="99999999999999" />
+				<n-form-item :label="t('songRequests.settings.songs.maxLength')">
+					<n-input-number v-model:value="formValue.song!.maxLength" :min="0" :max="999999" />
 				</n-form-item>
-				<n-form-item label="Minimal views on song for request">
+				<n-form-item :label="t('songRequests.settings.songs.minViews')">
 					<n-input-number v-model:value="formValue.song!.minViews" :min="0" :max="99999999999999" />
 				</n-form-item>
-				<n-form-item label="Denied songs for request">
+				<n-form-item :label="t('songRequests.settings.deniedSongs')">
 					<n-select
 						v-model:value="formValue.denyList!.songs"
 						:loading="songsSearch.isLoading.value"
@@ -279,43 +281,16 @@ const songsSearchOptions = computed(() => {
 						filterable
 						multiple
 						:options="songsSearchOptions"
-						:render-label="renderSelectOption as any"
+						:render-label="renderSelectOption"
 						clearable
 						@search="(v) => songsSearchValue = v"
 					/>
 				</n-form-item>
 			</n-tab-pane>
-
-			<n-tab-pane name="translations" tab="Translations">
-				<div v-for="(key) in Object.keys(formValue.translations)" :key="key">
-					<n-form-item v-if="typeof formValue.translations?.[key] === 'string'" :label="key" :path="key">
-						<n-input
-							v-model:value="formValue.translations[key]"
-							type="textarea"
-							:autosize="{ minRows: 1, maxRows: 6 }"
-						/>
-					</n-form-item>
-
-					<div v-else>
-						<n-form-item
-							v-for="subKey of Object.keys(formValue.translations?.[key])"
-							:key="subKey"
-							:label="subKey"
-							:path="subKey"
-						>
-							<n-input
-								v-model:value="formValue.translations![key][subKey]"
-								type="textarea"
-								:autosize="{ minRows: 1, maxRows: 6 }"
-							/>
-						</n-form-item>
-					</div>
-				</div>
-			</n-tab-pane>
 		</n-tabs>
 
 		<n-button secondary block type="success" @click="save">
-			Save
+			{{ t('sharedButtons.save') }}
 		</n-button>
 	</n-form>
 </template>
