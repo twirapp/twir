@@ -1,7 +1,9 @@
 import { fileURLToPath } from 'node:url';
 
+import { webUpdateNotice } from '@plugin-web-update-notification/vite';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 import svg from 'vite-svg-loader';
 
 // https://vitejs.dev/config/
@@ -13,6 +15,14 @@ export default defineConfig({
 			},
 		}),
 		svg({ svgo: false }),
+		VitePWA(),
+		webUpdateNotice({
+			notificationProps: {
+        title: 'New version',
+        description: 'An update available, please refresh the page to get latest features and bug fixes!',
+        buttonText: 'refresh',
+      },
+		}),
 	],
 	base: '/dashboard',
 	resolve: {
