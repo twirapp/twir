@@ -25,10 +25,12 @@ import {
   NGridItem,
   NEmpty,
   NSpin,
+	NResult,
 } from 'naive-ui';
 import Plyr from 'plyr';
 import { ref, onMounted, watch, onUnmounted, computed } from 'vue';
 
+import { useProfile } from '@/api/index.js';
 import { convertMillisToTime } from '@/components/songRequests/helpers.js';
 import { Video } from '@/components/songRequests/hook.js';
 
@@ -147,129 +149,143 @@ const sliderVolume = computed(() => {
 const formatLabelTime = (v: number) => {
 	return `${convertMillisToTime(v * 1000)}/${convertMillisToTime((plyr.value?.duration ?? 0) * 1000)}`;
 };
+
+const { data: profile } = useProfile();
 </script>
 
 <template>
-  <n-card
-    title="Current Song"
-    content-style="padding: 0;"
-    header-style="padding: 10px;"
-    segmented
-  >
-    <template #header-extra>
-      <n-space :wrap="false" :wrap-item="false">
-        <n-button tertiary size="small" @click="playerDisplay = playerDisplay === 'block' ? 'none' : 'block'">
-          <IconEyeOff v-if="playerDisplay === 'block'" />
-          <IconEye v-else />
-        </n-button>
-        <n-button tertiary size="small" @click="openSettingsModal">
-          <IconSettings />
-        </n-button>
-      </n-space>
-    </template>
-    <video
-      ref="player"
-      :style="{
-        height: '300px',
-      }"
-      class="plyr"
-    />
+	<n-card
+		title="Current Song"
+		content-style="padding: 0;"
+		header-style="padding: 10px;"
+		segmented
+	>
+		<div v-if="profile?.id != profile?.selectedDashboardId" style="padding: 10px">
+			<n-result
+				status="404"
+				title="Player available only on your dashboard, you cannot listen songs requests on other users dashboards"
+				size="small"
+			>
+			</n-result>
+		</div>
 
-    <n-space vertical class="card-content">
-      <n-grid
-        cols="1 s:1 m:1 l:1 xl:5"
-        responsive="screen"
-        :x-gap="10"
-        :y-gap="10"
-        style="align-items: center; margin-top: 10px; margin-bottom: 10px"
-      >
-        <n-grid-item :span="1" style="width: 100%">
-          <n-space align="center" justify="center">
-            <n-button
-              size="tiny"
-              text
-              round
-              :disabled="currentVideo == null"
-              style="display: flex"
-              @click="isPlaying ? plyr?.pause() : plyr?.play()"
-            >
-              <IconPlayerPlayFilled v-if="!isPlaying" />
-              <IconPlayerPauseFilled v-else />
-            </n-button>
-            <n-button
-              style="display: flex"
-              size="tiny"
-              text
-              round
-              :disabled="currentVideo == null"
-              @click="playNext"
-            >
-              <IconPlayerSkipForwardFilled />
-            </n-button>
-          </n-space>
-        </n-grid-item>
 
-        <n-grid-item :span="2">
-          <n-slider
-            v-model:value="sliderTime"
-            :format-tooltip="formatLabelTime"
-            :step="1"
-            :max="plyr?.duration ?? 0"
-            placement="bottom"
-            :disabled="!currentVideo"
-            @update-value="(v) => {
-              plyr!.currentTime = v
-            }"
-          />
-        </n-grid-item>
+		<div v-else>
+			<video
+				ref="player"
+				:style="{
+					height: '300px',
+				}"
+				class="plyr"
+			/>
 
-        <n-grid-item :span="2">
-          <n-space :wrap-item="false" :wrap="false" align="center">
-            <n-button size="tiny" text round>
-              <IconVolume v-if="!isMuted" @click="isMuted = true" />
-              <IconVolume3 v-else @click="isMuted = false" />
-            </n-button>
-            <n-slider :value="sliderVolume" :step="1" @update-value="(v) => volume = v" />
-          </n-space>
-        </n-grid-item>
-      </n-grid>
-    </n-space>
+			<n-space vertical class="card-content">
+				<n-grid
+					cols="1 s:1 m:1 l:1 xl:5"
+					responsive="screen"
+					:x-gap="10"
+					:y-gap="10"
+					style="align-items: center; margin-top: 10px; margin-bottom: 10px"
+				>
+					<n-grid-item :span="1" style="width: 100%">
+						<n-space align="center" justify="center">
+							<n-button
+								size="tiny"
+								text
+								round
+								:disabled="currentVideo == null"
+								style="display: flex"
+								@click="isPlaying ? plyr?.pause() : plyr?.play()"
+							>
+								<IconPlayerPlayFilled v-if="!isPlaying" />
+								<IconPlayerPauseFilled v-else />
+							</n-button>
+							<n-button
+								style="display: flex"
+								size="tiny"
+								text
+								round
+								:disabled="currentVideo == null"
+								@click="playNext"
+							>
+								<IconPlayerSkipForwardFilled />
+							</n-button>
+						</n-space>
+					</n-grid-item>
 
-    <template #footer>
-      <n-list v-if="currentVideo" :show-divider="false">
-        <n-list-item>
-          <template #prefix>
-            <IconPlaylist class="card-icon" />
-          </template>
+					<n-grid-item :span="2">
+						<n-slider
+							v-model:value="sliderTime"
+							:format-tooltip="formatLabelTime"
+							:step="1"
+							:max="plyr?.duration ?? 0"
+							placement="bottom"
+							:disabled="!currentVideo"
+							@update-value="(v) => {
+								plyr!.currentTime = v
+							}"
+						/>
+					</n-grid-item>
 
-          {{ currentVideo?.title }}
-        </n-list-item>
+					<n-grid-item :span="2">
+						<n-space :wrap-item="false" :wrap="false" align="center">
+							<n-button size="tiny" text round>
+								<IconVolume v-if="!isMuted" @click="isMuted = true" />
+								<IconVolume3 v-else @click="isMuted = false" />
+							</n-button>
+							<n-slider :value="sliderVolume" :step="1" @update-value="(v) => volume = v" />
+						</n-space>
+					</n-grid-item>
+				</n-grid>
+			</n-space>
+		</div>
 
-        <n-list-item>
-          <template #prefix>
-            <IconUser class="card-icon" />
-          </template>
+		<template #header-extra>
+			<n-space :wrap="false" :wrap-item="false">
+				<n-button tertiary size="small" @click="playerDisplay = playerDisplay === 'block' ? 'none' : 'block'">
+					<IconEyeOff v-if="playerDisplay === 'block'" />
+					<IconEye v-else />
+				</n-button>
+				<n-button tertiary size="small" @click="openSettingsModal">
+					<IconSettings />
+				</n-button>
+			</n-space>
+		</template>
+		<template #footer>
+			<n-list v-if="currentVideo" :show-divider="false">
+				<n-list-item>
+					<template #prefix>
+						<IconPlaylist class="card-icon" />
+					</template>
 
-          {{ currentVideo?.orderedByDisplayName || currentVideo?.orderedByName }}
-        </n-list-item>
+					{{ currentVideo?.title }}
+				</n-list-item>
 
-        <n-list-item>
-          <template #prefix>
-            <IconLink class="card-icon" />
-          </template>
+				<n-list-item>
+					<template #prefix>
+						<IconUser class="card-icon" />
+					</template>
 
-          <n-button tag="a" type="primary" text :href="`https://youtu.be/${currentVideo?.videoId}`" target="_blank">
-            youtu.be/{{ currentVideo?.videoId }}
-          </n-button>
-        </n-list-item>
-      </n-list>
-      <n-empty v-else description="Waiting for songs">
-        <template #icon>
-          <n-spin size="small" stroke="#959596" />
-        </template>
-      </n-empty>
-    </template>
-  </n-card>
+					{{ currentVideo?.orderedByDisplayName || currentVideo?.orderedByName }}
+				</n-list-item>
+
+				<n-list-item>
+					<template #prefix>
+						<IconLink class="card-icon" />
+					</template>
+
+					<n-button tag="a" type="primary" text :href="`https://youtu.be/${currentVideo?.videoId}`" target="_blank">
+						youtu.be/{{ currentVideo?.videoId }}
+					</n-button>
+				</n-list-item>
+			</n-list>
+			<n-empty v-else description="Waiting for songs">
+				<template #icon>
+					<n-spin size="small" stroke="#959596" />
+				</template>
+			</n-empty>
+		</template>
+	</n-card>
 </template>
 
 <style scoped>
