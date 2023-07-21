@@ -53,11 +53,11 @@ const { t } = useI18n();
 			<div class="actions">
 				<n-button v-if="data?.userName" :disabled="!userCanManageIntegrations" strong secondary type="error" @click="logout">
 					<IconLogout />
-					{{ t('integrations.buttons.logout') }}
+					{{ t('sharedButtons.logout') }}
 				</n-button>
 				<n-button v-else :disabled="!userCanManageIntegrations || !authLink" trong secondary type="success" @click="login">
 					<IconLogin />
-					{{ t('integrations.buttons.login') }}
+					{{ t('sharedButtons.login') }}
 				</n-button>
 			</div>
 		</td>

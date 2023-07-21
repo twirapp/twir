@@ -23,6 +23,7 @@ import {
 NAvatar,
 } from 'naive-ui';
 import { h, computed, onMounted, ref, watch, nextTick, type VNodeChild } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { eventTypeSelectOptions, operationTypeSelectOptions, getOperation, flatEvents } from './helpers.js';
 import { EditableEvent } from './types.js';
@@ -181,6 +182,8 @@ const keywordsSelectOptions = computed(() => {
 		value: k.id,
 	}));
 });
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -188,31 +191,31 @@ const keywordsSelectOptions = computed(() => {
 		<n-space vertical>
 			<n-space justify="space-between" item-style="width: 49%">
 				<n-space vertical item-style="width: 100%">
-					<n-form-item label="Type" path="type" show-require-mark>
+					<n-form-item :label="t('events.operations.name')" path="type" show-require-mark>
 						<n-select v-model:value="formValue.type" filterable :options="eventTypeSelectOptions" />
 					</n-form-item>
 
-					<n-form-item label="Description" path="description" show-require-mark>
+					<n-form-item :label="t('events.description')" path="description" show-require-mark>
 						<n-input v-model:value="formValue.description" type="textarea" />
 					</n-form-item>
 
 					<n-form-item
 						v-if="formValue.type === 'COMMAND_USED'"
-						label="Target command"
+						:label="t('events.targetCommand')"
 						required
 						path="commandId"
 					>
 						<n-select
 							v-model:value="formValue.commandId"
 							:options="commandsSelectOptions"
-							placeholder="Select variable"
+							:placeholder="t('events.targetCommand')"
 							:loading="isCommandsLoading"
 						/>
 					</n-form-item>
 
 					<n-form-item
 						v-if="formValue.type === 'REDEMPTION_CREATED'"
-						label="Target twitch reward"
+						:label="t('events.targetTwitchReward')"
 						required
 						path="rewardId"
 					>
@@ -220,7 +223,7 @@ const keywordsSelectOptions = computed(() => {
 							v-model:value="formValue.rewardId"
 							size="large"
 							:options="rewardsSelectOptions"
-							placeholder="Select reward"
+							:placeholder="t('events.targetTwitchReward')"
 							:loading="isRewardsLoading"
 							:render-label="renderRewardTag"
 							:disabled="isRewardsError"
@@ -229,14 +232,14 @@ const keywordsSelectOptions = computed(() => {
 
 					<n-form-item
 						v-if="formValue.type === 'KEYWORD_MATCHED'"
-						label="Target keyword"
+						:label="t('events.targetKeyword')"
 						required
 						path="keywordId"
 					>
 						<n-select
 							v-model:value="formValue.keywordId"
 							:options="keywordsSelectOptions"
-							placeholder="Select keyword"
+							:placeholder="t('events.targetKeyword')"
 							:loading="isKeywordsLoading"
 						/>
 					</n-form-item>
@@ -253,7 +256,7 @@ const keywordsSelectOptions = computed(() => {
 			</n-space>
 
 			<n-divider title-placement="center">
-				Operations
+				{{ t('events.operations.divider') }}
 			</n-divider>
 
 			<n-timeline size="large">
@@ -265,29 +268,29 @@ const keywordsSelectOptions = computed(() => {
 					<n-space vertical style="gap: 0">
 						<n-grid cols="3 s:1 m:3" :x-gap="5" :y-gap="5" responsive="screen">
 							<n-grid-item :span="1">
-								<n-form-item label="Operation" required>
+								<n-form-item :label="t('events.operations.name')" required>
 									<n-select v-model:value="operation.type" :options="operationTypeSelectOptions" />
 								</n-form-item>
 							</n-grid-item>
 							<n-grid-item :span="1">
-								<n-form-item label="Delay (seconds)">
+								<n-form-item :label="t('events.delay')">
 									<n-input-number v-model:value="operation.delay" :min="0" :max="10" />
 								</n-form-item>
 							</n-grid-item>
 							<n-grid-item :span="1">
-								<n-form-item label="Repeat times">
+								<n-form-item :label="t('events.repeat')">
 									<n-input-number v-model:value="operation.repeat" :min="0" :max="10" />
 								</n-form-item>
 							</n-grid-item>
 						</n-grid>
 
 						<n-divider title-placement="left" style="margin-top: 0px">
-							Values
+							{{ t('events.operations.values') }}
 						</n-divider>
 
 						<n-form-item
 							v-if="getOperation(operation.type)?.haveInput"
-							label="Operation input"
+							:label="t('events.operations.input')"
 							:path="`operations[${operationIndex}].input`"
 							:rule="rules.input"
 						>
@@ -302,7 +305,7 @@ const keywordsSelectOptions = computed(() => {
 							<n-grid-item :span="3">
 								<n-form-item
 									v-if="['TIMEOUT', 'TIMEOUT_RANDOM', 'BAN', 'BAN_RANDOM'].some(v => operation.type === v)"
-									label="Ban message"
+									:label="t('events.operations.banMessage')"
 									:path="`operations[${operationIndex}].timeoutMessage`"
 									:rule="rules.timeoutMessage"
 								>
@@ -313,7 +316,7 @@ const keywordsSelectOptions = computed(() => {
 							<n-grid-item :span="1">
 								<n-form-item
 									v-if="['TIMEOUT', 'TIMEOUT_RANDOM'].some(v => operation.type === v)"
-									label="Ban time"
+									:label="t('events.operations.banTime')"
 								>
 									<n-input-number v-model:value="operation.timeoutTime" />
 								</n-form-item>
@@ -325,28 +328,28 @@ const keywordsSelectOptions = computed(() => {
 								"
 								:span="4"
 							>
-								<n-alert title="You have to configure obs first" type="error">
-									Seems like you not connected Twir with obs, please do it on overlays page.
+								<n-alert :title="t('events.operations.obs.warningTitle')" type="error">
+									{{ t('events.operations.obs.warningText') }}
 								</n-alert>
 							</n-grid-item>
 
 							<n-grid-item v-if="operation.type === 'OBS_SET_SCENE'" :span="2">
-								<n-form-item label="Obs scene">
+								<n-form-item :label="t('events.operations.obs.scene')">
 									<n-select
 										v-model:value="operation.target"
 										:options="obsScenes"
-										placeholder="Select obs scene"
+										:placeholder="t('events.operations.obs.scene')"
 										:disabled="!obsSettings.data.value?.isConnected"
 									/>
 								</n-form-item>
 							</n-grid-item>
 
 							<n-grid-item v-if="operation.type === 'OBS_TOGGLE_SOURCE'" :span="2">
-								<n-form-item label="Obs source">
+								<n-form-item :label="t('events.operations.obs.source')">
 									<n-select
 										v-model:value="operation.target"
 										:options="obsSources"
-										placeholder="Select obs source"
+										:placeholder="t('events.operations.obs.source')"
 										:disabled="!obsSettings.data.value?.isConnected"
 									/>
 								</n-form-item>
@@ -363,11 +366,11 @@ const keywordsSelectOptions = computed(() => {
 								].some(v => v === operation.type)"
 								:span="2"
 							>
-								<n-form-item label="Obs audio source">
+								<n-form-item :label="t('events.operations.obs.audioSource')">
 									<n-select
 										v-model:value="operation.target"
 										:options="obsAudioSources"
-										placeholder="Select obs audio source"
+										:placeholder="t('events.operations.obs.audioSource')"
 										:disabled="!obsSettings.data.value?.isConnected"
 									/>
 								</n-form-item>
@@ -377,11 +380,11 @@ const keywordsSelectOptions = computed(() => {
 								v-if="operation.type.endsWith('VARIABLE')"
 								:span="2"
 							>
-								<n-form-item label="Target variable">
+								<n-form-item :label="t('events.targetVariable')">
 									<n-select
 										v-model:value="operation.target"
 										:options="variablesSelectOptions"
-										placeholder="Select variable"
+										:placeholder="t('events.targetVariable')"
 										:loading="isVariablesLoading"
 									/>
 								</n-form-item>

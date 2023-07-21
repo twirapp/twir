@@ -44,7 +44,7 @@ const { t } = useI18n();
 		<td>
 			<n-button :disabled="!userCanManageIntegrations" strong secondary type="info" @click="showSettings = true">
 				<IconSettings />
-				{{ t('integrations.buttons.settings') }}
+				{{ t('sharedButtons.settings') }}
 			</n-button>
 		</td>
 	</tr>

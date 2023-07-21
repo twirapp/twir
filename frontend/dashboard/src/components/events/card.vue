@@ -2,6 +2,7 @@
 import { IconSettings } from '@tabler/icons-vue';
 import { useThrottleFn } from '@vueuse/core';
 import { NText, NButton, NTooltip, NTag, NRow, NSpace, NSwitch, NPopconfirm } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 
 import { EVENTS } from './events.js';
 import { getOperation } from './helpers.js';
@@ -27,6 +28,8 @@ const getEventName = (eventType: string) => EVENTS[eventType]?.name ?? eventType
 const throttledSwitchState = useThrottleFn((v: boolean) => {
 	eventsPatcher.mutate({ id: props.event.id!, enabled: v });
 }, 500);
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -42,7 +45,7 @@ const throttledSwitchState = useThrottleFn((v: boolean) => {
 			<n-space vertical>
 				<n-text>{{ event.description }}</n-text>
 				<n-row style="gap: 8px;">
-					<n-tooltip v-for="(operation, index) of event.operations" :key="index" :disabled="!operation.input">
+					<n-tooltip v-for="(operation, index) of event.operations" :key="index">
 						<template #trigger>
 							<n-tag
 								:disabled="!operation.enabled"
@@ -54,7 +57,7 @@ const throttledSwitchState = useThrottleFn((v: boolean) => {
 						</template>
 						<n-space vertical>
 							<n-text>{{ operation.input }}</n-text>
-							<n-text>Delay: {{ operation.delay }} | Repeat: {{ operation.repeat }}</n-text>
+							<n-text>{{ t('events.delay') }}: {{ operation.delay }} | {{ t('events.repeat') }}: {{ operation.repeat }}</n-text>
 						</n-space>
 					</n-tooltip>
 				</n-row>
@@ -63,16 +66,20 @@ const throttledSwitchState = useThrottleFn((v: boolean) => {
 
 		<template #footer>
 			<n-button secondary size="large" @click="$emit('openSettings', event.id)">
-				<span>Settings</span>
+				<span>{{ t('sharedButtons.settings') }}</span>
 				<IconSettings />
 			</n-button>
-			<n-popconfirm @positive-click="eventsDeleter.mutateAsync({ id: event.id! })">
+			<n-popconfirm
+				:positive-text="t('deleteConfirmation.confirm')"
+				:negative-text="t('deleteConfirmation.cancel')"
+				@positive-click="eventsDeleter.mutateAsync({ id: event.id! })"
+			>
 				<template #trigger>
 					<n-button secondary type="error" size="large">
-						<span>Delete</span>
+						<span>{{ t('sharedButtons.delete') }}</span>
 					</n-button>
 				</template>
-				Are you sure?
+				{{ t('deleteConfirmation.text') }}
 			</n-popconfirm>
 		</template>
 	</card>

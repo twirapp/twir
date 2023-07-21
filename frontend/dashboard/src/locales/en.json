@@ -4,7 +4,11 @@
     "create": "Create",
 		"save": "Save",
 		"close": "Close",
-		"copy": "Copy"
+		"copy": "Copy",
+		"delete": "Delete",
+		"settings": "Settings",
+		"login": "Login",
+		"logout": "Logout"
   },
 	"deleteConfirmation": {
 		"text": "Are you sure you want delete this thing?",
@@ -116,11 +120,31 @@
 		}
 	},
 	"integrations": {
-		"buttons": {
-			"login": "Login",
-			"logout": "Logout",
-			"settings": "Settings"
-		},
 		"notLoggedIn": "Not logged in"
+	},
+	"events": {
+		"delay": "Delay",
+		"repeat": "Repeat times",
+		"type": "Type",
+		"description": "Description",
+		"targetCommand": "Target command",
+		"targetVariable": "Target variable",
+		"targetTwitchReward": "Target twitch reward",
+		"targetKeyword": "Target keyword",
+		"operations": {
+			"divider": "Operations",
+			"name": "Operation",
+			"input": "Text for operation (supports variables)",
+			"banMessage": "Ban message",
+			"banTime": "Ban time",
+			"obs": {
+				"warningTitle": "You have to configure obs first",
+				"warningText": "Seems like you not connected Twir with obs, please do it on overlays page.",
+				"scene": "OBS Scene",
+				"source": "OBS Source",
+				"audioSource": "OBS Audio source"
+			},
+			"values": "Values"
+		}
 	}
 }
