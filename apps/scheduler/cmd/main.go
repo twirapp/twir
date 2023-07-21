@@ -2,10 +2,18 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"github.com/satont/twir/apps/scheduler/internal/grpc_impl"
+	"github.com/satont/twir/libs/grpc/generated/scheduler"
+	"github.com/satont/twir/libs/grpc/servers"
+	"google.golang.org/grpc"
+	"log"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
 
+	s "github.com/satont/twir/apps/scheduler/internal/services"
 	"github.com/satont/twir/apps/scheduler/internal/timers"
 	"github.com/satont/twir/apps/scheduler/internal/types"
 	config "github.com/satont/twir/libs/config"
@@ -43,22 +51,43 @@ func main() {
 		panic(err)
 	}
 
+	parserGrpc := clients.NewParser(cfg.AppEnv)
+	commands := s.NewCommands(db, parserGrpc)
+	roles := s.NewRoles(db)
+
 	services := &types.Services{
 		Grpc: &types.GrpcServices{
 			Emotes:  clients.NewEmotesCacher(cfg.AppEnv),
-			Parser:  clients.NewParser(cfg.AppEnv),
+			Parser:  parserGrpc,
 			Tokens:  clients.NewTokens(cfg.AppEnv),
 			Watched: clients.NewWatched(cfg.AppEnv),
 		},
-		Gorm:   db,
-		Config: cfg,
-		PubSub: pb,
+		Gorm:     db,
+		Config:   cfg,
+		PubSub:   pb,
+		Commands: commands,
+		Roles:    roles,
 	}
 
 	timers.NewWatched(appCtx, services)
 	timers.NewEmotes(appCtx, services)
 	timers.NewOnlineUsers(appCtx, services)
 	timers.NewStreams(appCtx, services)
+	timers.NewCommandsAndRoles(appCtx, services)
+
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.SCHEDULER_SERVER_PORT))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	grpcServer := grpc.NewServer()
+	scheduler.RegisterSchedulerServer(
+		grpcServer,
+		&grpc_impl.SchedulerGrpc{
+			Commands: commands,
+			Roles:    roles,
+		},
+	)
+	go grpcServer.Serve(lis)
 
 	logger.Sugar().Info("Scheduler started")
 

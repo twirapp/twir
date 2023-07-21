@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/satont/twir/libs/grpc/generated/scheduler"
 	"time"
 
 	"github.com/google/uuid"
@@ -142,6 +143,22 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 			ID:    twitchUser.ID,
 			BotID: defaultBot.ID,
 		}
+	}
+
+	_, err = c.Grpc.Scheduler.CreateDefaultRoles(
+		ctx,
+		&scheduler.CreateDefaultRolesRequest{UsersIds: []string{twitchUser.ID}},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = c.Grpc.Scheduler.CreateDefaultCommands(
+		ctx,
+		&scheduler.CreateDefaultCommandsRequest{UsersIds: []string{twitchUser.ID}},
+	)
+	if err != nil {
+		return nil, err
 	}
 
 	c.SessionManager.Put(ctx, "dbUser", &dbUser)
