@@ -1,18 +1,12 @@
 <script lang="ts" setup>
-import { useMagicKeys } from '@vueuse/core';
-import { type MenuOption, NMenu, NAvatar, NSpin } from 'naive-ui';
+import { type MenuOption, NMenu, NAvatar, NSpin, NInput } from 'naive-ui';
 import { computed, h, ref, watch } from 'vue';
 
 import { useProfile, useTwitchGetUsers, useDashboards, useSetDashboard } from '@/api/index.js';
 
-const keys = useMagicKeys();
-const CmdK = keys['Meta+K'];
-
-watch(CmdK, (v) => {
-	if (v) {
-		console.log('Meta + K has been pressed');
-	}
-});
+const emits = defineEmits<{
+	dashboardSelected: []
+}>();
 
 const { data: profile, isLoading: isProfileLoading } = useProfile();
 const { data: dashboards, isLoading: isDashboardsLoading } = useDashboards();
@@ -46,10 +40,17 @@ watch(activeDashboard, async (v) => {
 	if (v === profile.value?.selectedDashboardId) return;
 
 	await setDashboard.mutateAsync(v);
+	emits('dashboardSelected');
 });
 
+const filterValue = ref('');
+
 const menuOptions = computed<MenuOption[]>(() => {
-	return usersForSelect.data.value?.users.map((u) => {
+	return usersForSelect.data.value?.users
+	.filter(u => {
+		return u.displayName.includes(filterValue.value) || u.login.includes(filterValue.value);
+	})
+	.map((u) => {
 		return {
 			key: u.id,
 			label: u.login === u.displayName.toLocaleLowerCase()
@@ -57,18 +58,21 @@ const menuOptions = computed<MenuOption[]>(() => {
 				: `${u.displayName} (${u.login})`,
 			icon: () => h(NAvatar, { src: u.profileImageUrl, round: true, size: 'small' }),
 		};
-	}).filter(Boolean) as MenuOption[] ?? [];
+	}) ?? [];
 });
+
 </script>
 
 <template>
 	<n-spin v-if="isProfileLoading || isDashboardsLoading"></n-spin>
-	<n-menu
-		v-else
-		v-model:value="activeDashboard"
-		:collapsed-width="64"
-		:collapsed-icon-size="22"
-		:options="menuOptions"
-		:icon-size="35"
-	/>
+	<div v-else>
+		<n-input v-model:value="filterValue" placeholder="Search" />
+		<n-menu
+			v-model:value="activeDashboard"
+			:collapsed-width="64"
+			:collapsed-icon-size="22"
+			:options="menuOptions"
+			:icon-size="35"
+		/>
+	</div>
 </template>

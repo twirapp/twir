@@ -18,12 +18,15 @@ import {
 	IconSword,
 	IconUsers,
 } from '@tabler/icons-vue';
-import { type MenuOption, type MenuDividerOption, NMenu, NCard } from 'naive-ui';
-import { h, ref, onMounted } from 'vue';
+import { useMagicKeys } from '@vueuse/core';
+import { type MenuOption, type MenuDividerOption, NMenu, NCard, NSpin, NSpace, NAvatar, NText } from 'naive-ui';
+import { h, ref, onMounted, computed, watch } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 
 import DashboardMenu from './dashboardsMenu.vue';
 import { renderIcon } from '../helpers/index.js';
+
+import { useProfile, useTwitchGetUsers } from '@/api/index.js';
 
 const activeKey = ref<string | null>('/');
 const menuOptions: (MenuOption | MenuDividerOption)[] = [
@@ -132,6 +135,33 @@ onMounted(async () => {
 });
 
 const isDashboardsMenu = ref(false);
+
+const { Ctrl_k } = useMagicKeys({
+	passive: false,
+	onEventFired(e) {
+		if (e.ctrlKey && e.key === 'k' && e.type === 'keydown') {
+      e.preventDefault();
+		}
+  },
+});
+
+watch(Ctrl_k, (v) => {
+	if (v) {
+		isDashboardsMenu.value = !isDashboardsMenu.value;
+	}
+});
+
+const { data: profile, isLoading: isProfileLoading } = useProfile();
+const selectedDashboardId = computed(() => profile.value?.selectedDashboardId ?? '');
+const foundTwitchUsers = useTwitchGetUsers({
+	ids: selectedDashboardId,
+});
+const selectedDashboard = computed(() => {
+	const twitchUser = foundTwitchUsers.data.value?.users.find(u => u.id === profile.value?.selectedDashboardId);
+	if (!twitchUser) return null;
+
+	return twitchUser;
+});
 </script>
 
 <template>
@@ -143,11 +173,20 @@ const isDashboardsMenu = ref(false);
 			:collapsed-icon-size="22"
 			:options="menuOptions"
 		/>
-		<dashboard-menu v-else />
+		<dashboard-menu v-else @dashboard-selected="isDashboardsMenu = !isDashboardsMenu" />
 
 		<div style="padding: 5px">
 			<n-card style="cursor: pointer;" size="small" @click="isDashboardsMenu = !isDashboardsMenu">
-				qwe
+				<n-spin v-if="!selectedDashboard || isProfileLoading" />
+				<n-space v-else align="center">
+					<n-avatar style="display: flex; align-self: center;" :src="selectedDashboard.profileImageUrl" />
+					<n-space vertical style="gap: 0; width: 100%">
+						<n-text>{{ selectedDashboard.displayName }}</n-text>
+						<n-text style="font-size: 13px;">
+							Manage dashboard
+						</n-text>
+					</n-space>
+				</n-space>
 			</n-card>
 		</div>
 	</div>
