@@ -2,12 +2,17 @@
   "hello": "world",
   "sharedButtons": {
     "create": "Create",
-		"save": "Save"
+		"save": "Save",
+		"close": "Close",
+		"copy": "Copy"
   },
 	"deleteConfirmation": {
 		"text": "Are you sure you want delete this thing?",
 		"cancel": "Cancel",
 		"confirm": "Confirm"
+	},
+	"haveNoAccess": {
+		"message": "You are not authorized to view this page, ask broadcaster to provide it."
 	},
   "commands": {
     "name": "Command | Commands",
@@ -109,5 +114,13 @@
 			"leave": "Leave",
 			"join": "Join"
 		}
+	},
+	"integrations": {
+		"buttons": {
+			"login": "Login",
+			"logout": "Logout",
+			"settings": "Settings"
+		},
+		"notLoggedIn": "Not logged in"
 	}
 }

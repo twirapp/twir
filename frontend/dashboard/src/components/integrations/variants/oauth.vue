@@ -2,6 +2,7 @@
 import { IconLogin, IconLogout } from '@tabler/icons-vue';
 import { NButton, NTooltip, NAvatar, NText, NTag } from 'naive-ui';
 import type { FunctionalComponent } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useUserAccessFlagChecker } from '@/api/index.js';
 
@@ -23,6 +24,8 @@ async function login() {
 }
 
 const userCanManageIntegrations = useUserAccessFlagChecker('MANAGE_INTEGRATIONS');
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -43,18 +46,18 @@ const userCanManageIntegrations = useUserAccessFlagChecker('MANAGE_INTEGRATIONS'
 				</n-text>
 			</div>
 			<n-tag v-else :bordered="false" type="info">
-				Not Logged In
+				{{ t('integrations.notLoggedIn') }}
 			</n-tag>
 		</td>
 		<td>
 			<div class="actions">
 				<n-button v-if="data?.userName" :disabled="!userCanManageIntegrations" strong secondary type="error" @click="logout">
 					<IconLogout />
-					Logout
+					{{ t('integrations.buttons.logout') }}
 				</n-button>
 				<n-button v-else :disabled="!userCanManageIntegrations || !authLink" trong secondary type="success" @click="login">
 					<IconLogin />
-					Login
+					{{ t('integrations.buttons.login') }}
 				</n-button>
 			</div>
 		</td>

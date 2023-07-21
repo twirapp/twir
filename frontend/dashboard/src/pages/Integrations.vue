@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { NTable, NResult } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 
 import { useUserAccessFlagChecker } from '@/api/index.js';
 import Donatello from '@/components/integrations/donatello.vue';
@@ -14,10 +15,11 @@ import Valorant from '@/components/integrations/valorant.vue';
 import Vk from '@/components/integrations/vk.vue';
 
 const userCanViewIntegrations = useUserAccessFlagChecker('VIEW_INTEGRATIONS');
+const { t } = useI18n();
 </script>
 
 <template>
-	<n-result v-if="!userCanViewIntegrations" status="403" title="You haven't access to view integrations" />
+	<n-result v-if="!userCanViewIntegrations" status="403" :title="t('haveNoAccess.message')" />
 	<div v-else class="integrations">
 		<n-table :bordered="false" :single-line="false" size="large">
 			<thead style="display: none">

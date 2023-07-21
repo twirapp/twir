@@ -3,6 +3,7 @@ import { IconSettings } from '@tabler/icons-vue';
 import { NTooltip, NButton, NModal, NSpace } from 'naive-ui';
 import { ref } from 'vue';
 import { FunctionalComponent } from 'vue/dist/vue.js';
+import { useI18n } from 'vue-i18n';
 
 import { useUserAccessFlagChecker } from '@/api/index.js';
 
@@ -25,6 +26,8 @@ async function callSave() {
 }
 
 const userCanManageIntegrations = useUserAccessFlagChecker('MANAGE_INTEGRATIONS');
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -41,7 +44,7 @@ const userCanManageIntegrations = useUserAccessFlagChecker('MANAGE_INTEGRATIONS'
 		<td>
 			<n-button :disabled="!userCanManageIntegrations" strong secondary type="info" @click="showSettings = true">
 				<IconSettings />
-				Settings
+				{{ t('integrations.buttons.settings') }}
 			</n-button>
 		</td>
 	</tr>
@@ -68,10 +71,10 @@ const userCanManageIntegrations = useUserAccessFlagChecker('MANAGE_INTEGRATIONS'
 		<template #action>
 			<n-space justify="end">
 				<n-button secondary @click="showSettings = false">
-					Close
+					{{ t('sharedButtons.close') }}
 				</n-button>
 				<n-button v-if="save" secondary type="success" @click="callSave">
-					Save
+					{{ t('sharedButtons.save') }}
 				</n-button>
 			</n-space>
 		</template>

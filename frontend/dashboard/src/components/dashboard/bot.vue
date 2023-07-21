@@ -30,7 +30,7 @@ onMounted(() => {
 
 <template>
 	<n-card
-		title="Bot manage"
+		:title="t('dashboard.botManage.title')"
 		:content-style="{ padding: isLoading ? '10px' : '0px' }"
 		:segmented="{
 			content: true,
