@@ -10,10 +10,11 @@ import {
   NButton,
   NPopconfirm,
   NModal,
+	NResult,
 } from 'naive-ui';
-import { h, ref } from 'vue';
+import { computed, h, ref } from 'vue';
 
-import { useVariablesManager } from '@/api/index.js';
+import { useUserAccessFlagChecker, useVariablesManager } from '@/api/index.js';
 import Modal from '@/components/variables/modal.vue';
 import { type EditableVariable } from '@/components/variables/types.js';
 import { renderIcon } from '@/helpers/index.js';
@@ -24,7 +25,11 @@ const variablesDeleter = variablesManager.deleteOne;
 
 const showModal = ref(false);
 
-const columns: DataTableColumns<Variable> = [
+
+const userCanViewVariables = useUserAccessFlagChecker('VIEW_VARIABLES');
+const userCanManageVariables = useUserAccessFlagChecker('MANAGE_VARIABLES');
+
+const columns = computed<DataTableColumns<Variable>>(() => [
 	{
 		title: 'Name',
 		key: 'name',
@@ -73,6 +78,7 @@ const columns: DataTableColumns<Variable> = [
 					size: 'small',
 					onClick: () => openModal(row),
 					quaternary: true,
+					disabled: !userCanManageVariables.value,
 				}, {
 					icon: renderIcon(IconPencil),
 				});
@@ -87,6 +93,7 @@ const columns: DataTableColumns<Variable> = [
 						type: 'error',
 						size: 'small',
 						quaternary: true,
+						disabled: !userCanManageVariables.value,
 					}, {
 						default: renderIcon(IconTrash),
 					}),
@@ -97,7 +104,7 @@ const columns: DataTableColumns<Variable> = [
 			return h(NSpace, { }, { default: () => [editButton, deleteButton] });
 		},
 	},
-];
+]);
 
 const editableVariable = ref<EditableVariable | null>(null);
 function openModal(t: EditableVariable | null) {
@@ -110,35 +117,38 @@ function closeModal() {
 </script>
 
 <template>
-  <n-space justify="space-between" align="center">
-    <h2>Variables</h2>
-    <n-button secondary type="success" @click="openModal(null)">
-      Create
-    </n-button>
-  </n-space>
-  <n-alert>
-    When you create variable, then you can use them in bot responses.
-  </n-alert>
-  <n-data-table
-    :isLoading="variables.isLoading.value"
-    :columns="columns"
-    :data="variables.data.value?.variables ?? []"
-    style="margin-top: 20px;"
-  />
+	<n-result v-if="!userCanViewVariables" status="403" title="You haven't acces to view variables"></n-result>
+	<div v-else>
+		<n-space justify="space-between" align="center">
+			<h2>Variables</h2>
+			<n-button :disabled="!userCanManageVariables" secondary type="success" @click="openModal(null)">
+				Create
+			</n-button>
+		</n-space>
+		<n-alert>
+			When you create variable, then you can use them in bot responses.
+		</n-alert>
+		<n-data-table
+			:isLoading="variables.isLoading.value"
+			:columns="columns"
+			:data="variables.data.value?.variables ?? []"
+			style="margin-top: 20px;"
+		/>
 
-  <n-modal
-    v-model:show="showModal"
-    :mask-closable="false"
-    :segmented="true"
-    preset="card"
-    :title="editableVariable?.name ?? 'New variable'"
-    class="modal"
-    :style="{
-      width: 'auto',
-      top: '50px',
-    }"
-    :on-close="closeModal"
-  >
-    <modal :variable="editableVariable" @close="closeModal" />
-  </n-modal>
+		<n-modal
+			v-model:show="showModal"
+			:mask-closable="false"
+			:segmented="true"
+			preset="card"
+			:title="editableVariable?.name ?? 'New variable'"
+			class="modal"
+			:style="{
+				width: 'auto',
+				top: '50px',
+			}"
+			:on-close="closeModal"
+		>
+			<modal :variable="editableVariable" @close="closeModal" />
+		</n-modal>
+	</div>
 </template>

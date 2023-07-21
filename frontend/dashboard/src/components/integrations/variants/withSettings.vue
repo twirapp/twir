@@ -2,7 +2,9 @@
 import { IconSettings } from '@tabler/icons-vue';
 import { NTooltip, NButton, NModal, NSpace } from 'naive-ui';
 import { ref } from 'vue';
-import { defineSlots, FunctionalComponent } from 'vue/dist/vue.js';
+import { FunctionalComponent } from 'vue/dist/vue.js';
+
+import { useUserAccessFlagChecker } from '@/api/index.js';
 
 const props = defineProps<{
 	name: string,
@@ -21,55 +23,57 @@ async function callSave() {
 	await props.save?.();
 	showSettings.value = false;
 }
+
+const userCanManageIntegrations = useUserAccessFlagChecker('MANAGE_INTEGRATIONS');
 </script>
 
 <template>
-  <tr>
-    <td>
-      <n-tooltip trigger="hover" placement="left">
-        <template #trigger>
-          <slot name="icon" />
-        </template>
-        {{ name }}
-      </n-tooltip>
-    </td>
-    <td></td>
-    <td>
-      <n-button strong secondary type="info" @click="showSettings = true">
-        <IconSettings />
-        Settings
-      </n-button>
-    </td>
-  </tr>
+	<tr>
+		<td>
+			<n-tooltip trigger="hover" placement="left">
+				<template #trigger>
+					<slot name="icon" />
+				</template>
+				{{ name }}
+			</n-tooltip>
+		</td>
+		<td></td>
+		<td>
+			<n-button :disabled="!userCanManageIntegrations" strong secondary type="info" @click="showSettings = true">
+				<IconSettings />
+				Settings
+			</n-button>
+		</td>
+	</tr>
 
-  <n-modal
-    v-model:show="showSettings"
-    :mask-closable="false"
-    :segmented="true"
-    preset="card"
-    :title="name"
-    class="modal"
-    :style="{
-      width: modalWidth,
-      position: 'fixed',
-      left: `calc(50% - ${modalWidth}/2)`,
-      top: '50px',
-    }"
-  >
-    <template #header>
-      {{ name }}
-    </template>
-    <slot name="settings" />
+	<n-modal
+		v-model:show="showSettings"
+		:mask-closable="false"
+		:segmented="true"
+		preset="card"
+		:title="name"
+		class="modal"
+		:style="{
+			width: modalWidth,
+			position: 'fixed',
+			left: `calc(50% - ${modalWidth}/2)`,
+			top: '50px',
+		}"
+	>
+		<template #header>
+			{{ name }}
+		</template>
+		<slot name="settings" />
 
-    <template #action>
-      <n-space justify="end">
-        <n-button secondary @click="showSettings = false">
-          Close
-        </n-button>
-        <n-button v-if="save" secondary type="success" @click="callSave">
-          Save
-        </n-button>
-      </n-space>
-    </template>
-  </n-modal>
+		<template #action>
+			<n-space justify="end">
+				<n-button secondary @click="showSettings = false">
+					Close
+				</n-button>
+				<n-button v-if="save" secondary type="success" @click="callSave">
+					Save
+				</n-button>
+			</n-space>
+		</template>
+	</n-modal>
 </template>

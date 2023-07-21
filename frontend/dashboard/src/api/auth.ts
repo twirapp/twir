@@ -56,7 +56,47 @@ export const useSetDashboard = () => {
 };
 
 
-export const useUserAccessFlagChecker = (flag: string) => {
+export const PERMISSIONS_FLAGS = {
+	CAN_ACCESS_DASHBOARD: 'All permissions',
+	empty1: '',
+
+	UPDATE_CHANNEL_TITLE: 'Can update channel title',
+	UPDATE_CHANNEL_CATEGORY: 'Can update channel category',
+
+	VIEW_COMMANDS: 'Can view commands',
+	MANAGE_COMMANDS: 'Can manage commands',
+
+	VIEW_KEYWORDS: 'Can view keywords',
+	MANAGE_KEYWORDS: 'Can manage keywords',
+
+	VIEW_TIMERS: 'Can view timers',
+	MANAGE_TIMERS: 'Can manage timers',
+
+	VIEW_INTEGRATIONS: 'Can view integrations',
+	MANAGE_INTEGRATIONS: 'Can manage integrations',
+
+	VIEW_SONG_REQUESTS: 'Can view song requests',
+	MANAGE_SONG_REQUESTS: 'Can manage song requests',
+
+	VIEW_MODERATION: 'Can view moderation settings',
+	MANAGE_MODERATION: 'Can manage moderation settings',
+
+	VIEW_VARIABLES: 'Can view variables',
+	MANAGE_VARIABLES: 'Can manage variables',
+
+	VIEW_GREETINGS: 'Can view greetings',
+	MANAGE_GREETINGS: 'Can manage greetings',
+
+	VIEW_OVERLAYS: 'Can view overlays',
+	MANAGE_OVERLAYS: 'Can manage overlays',
+
+	VIEW_ROLES: 'Can view roles',
+	MANAGE_ROLES: 'Can manage roles',
+};
+
+export type PermissionsType = keyof typeof PERMISSIONS_FLAGS
+
+export const useUserAccessFlagChecker = (flag: PermissionsType) => {
 	const profile = useProfile();
 	const dashboards = useDashboards();
 

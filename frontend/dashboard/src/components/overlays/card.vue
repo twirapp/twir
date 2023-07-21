@@ -3,6 +3,7 @@ import { IconSettings, IconCopy } from '@tabler/icons-vue';
 import { NButton, useMessage, NTooltip } from 'naive-ui';
 import { FunctionalComponent } from 'vue';
 
+import { useProfile, useUserAccessFlagChecker } from '@/api/index.js';
 import Card from '@/components/card/card.vue';
 
 const props = defineProps<{
@@ -23,6 +24,10 @@ const copyOverlayLink = () => {
 	navigator.clipboard.writeText(props.overlayLink);
 	messages.success('Copied link url, paste it in obs as browser source');
 };
+
+const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
+
+const { data: profile } = useProfile();
 </script>
 
 <template>
@@ -32,7 +37,7 @@ const copyOverlayLink = () => {
 		</template>
 
 		<template #footer>
-			<n-button secondary size="large" @click="$emit('openSettings')">
+			<n-button :disabled="!userCanEditOverlays" secondary size="large" @click="$emit('openSettings')">
 				<span>Settings</span>
 				<IconSettings />
 			</n-button>
@@ -40,7 +45,7 @@ const copyOverlayLink = () => {
 				<template #trigger>
 					<n-button
 						size="large"
-						:disabled="!overlayLink"
+						:disabled="!overlayLink || profile?.id != profile?.selectedDashboardId"
 						@click="copyOverlayLink"
 					>
 						<span>Copy overlay link</span>

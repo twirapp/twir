@@ -14,8 +14,8 @@ import {
 } from 'naive-ui';
 import { ref, onMounted, toRaw, watch } from 'vue';
 
-import { useRolesManager } from '@/api/index.js';
-import { type EditableRole, permissions } from '@/components/roles/types.js';
+import { useRolesManager, PERMISSIONS_FLAGS } from '@/api/index.js';
+import { type EditableRole } from '@/components/roles/types.js';
 import UsersMultiSearch from '@/components/twitchUsers/multiple.vue';
 
 const props = defineProps<{
@@ -122,7 +122,7 @@ async function save() {
 		<n-checkbox-group v-model:value="formValue.permissions">
 			<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
 				<n-grid-item
-					v-for="(permission) of Object.entries(permissions)"
+					v-for="(permission) of Object.entries(PERMISSIONS_FLAGS)"
 					:key="permission[0]"
 					:span="1"
 				>

@@ -6,15 +6,15 @@ import OauthComponent from '@/components/integrations/variants/oauth.vue';
 const manager = useVKIntegration();
 const { data } = manager.useData();
 const logout = manager.useLogout();
-const getAuthLink = manager.useAuthLink();
+const { data: authLink } = manager.useAuthLink();
 </script>
 
 <template>
-  <oauth-component
-    name="VK"
-    :data="data"
-    :logout="() => logout.mutateAsync({})"
-    :getLoginLink="getAuthLink.refetch"
-    :icon="IconVk"
-  />
+	<oauth-component
+		name="VK"
+		:data="data"
+		:logout="() => logout.mutateAsync({})"
+		:authLink="authLink?.link"
+		:icon="IconVk"
+	/>
 </template>

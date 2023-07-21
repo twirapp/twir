@@ -6,15 +6,15 @@ import OauthComponent from '@/components/integrations/variants/oauth.vue';
 const manager = useSpotifyIntegration();
 const { data } = manager.useData();
 const logout = manager.useLogout();
-const getAuthLink = manager.useAuthLink();
+const { data: authLink } = manager.useAuthLink();
 </script>
 
 <template>
-  <oauth-component
-    name="Spotify"
-    :data="data"
-    :logout="() => logout.mutateAsync({})"
-    :getLoginLink="getAuthLink.refetch"
-    :icon="IconSpotify"
-  />
+	<oauth-component
+		name="Spotify"
+		:data="data"
+		:logout="() => logout.mutateAsync({})"
+		:authLink="authLink?.link"
+		:icon="IconSpotify"
+	/>
 </template>

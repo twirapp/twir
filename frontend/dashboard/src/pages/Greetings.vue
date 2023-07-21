@@ -1,9 +1,8 @@
 <script setup lang='ts'>
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
-import type { Greeting } from '@twir/grpc/generated/api/api/greetings';
 import { useThrottleFn } from '@vueuse/core';
 import {
-  type DataTableColumns,
+	type DataTableColumns,
   NDataTable,
   NSpace,
   NTag,
@@ -13,10 +12,11 @@ import {
   NModal,
   NSwitch,
   NAvatar,
+	NResult,
 } from 'naive-ui';
 import { h, ref, computed } from 'vue';
 
-import { useGreetingsManager, useTwitchGetUsers } from '@/api/index.js';
+import { useGreetingsManager, useTwitchGetUsers, useUserAccessFlagChecker } from '@/api/index.js';
 import Modal from '@/components/greetings/modal.vue';
 import { EditableGreeting } from '@/components/greetings/types.js';
 import { renderIcon } from '@/helpers/index.js';
@@ -38,7 +38,10 @@ const twitchUsers = useTwitchGetUsers({
 	ids: twitchUsersIds,
 });
 
-const columns: DataTableColumns<Greeting> = [
+const userCanViewGreetings = useUserAccessFlagChecker('VIEW_GREETINGS');
+const userCanManageGreetings = useUserAccessFlagChecker('MANAGE_GREETINGS');
+
+const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 	{
 		title: '',
 		key: 'avatar',
@@ -79,8 +82,9 @@ const columns: DataTableColumns<Greeting> = [
 				{
 					value: row.enabled,
 					onUpdateValue: (value: boolean) => {
-						throttledSwitchState(row.id, value);
+						throttledSwitchState(row.id!, value);
 					},
+					disabled: !userCanManageGreetings.value,
 				},
 				{ default: () => row.enabled },
 			);
@@ -98,6 +102,7 @@ const columns: DataTableColumns<Greeting> = [
 					size: 'small',
 					onClick: () => openModal(row),
 					quaternary: true,
+					disabled: !userCanManageGreetings.value,
 				}, {
 					icon: renderIcon(IconPencil),
 				});
@@ -112,6 +117,7 @@ const columns: DataTableColumns<Greeting> = [
 						type: 'error',
 						size: 'small',
 						quaternary: true,
+						disabled: !userCanManageGreetings.value,
 					}, {
 						default: renderIcon(IconTrash),
 					}),
@@ -122,7 +128,7 @@ const columns: DataTableColumns<Greeting> = [
 			return h(NSpace, { }, { default: () => [editButton, deleteButton] });
 		},
 	},
-];
+]);
 
 const editableGreeting = ref<EditableGreeting | null>(null);
 function openModal(t: EditableGreeting | null) {
@@ -140,38 +146,41 @@ function closeModal() {
 </script>
 
 <template>
-	<n-space justify="space-between" align="center">
-		<h2>Greetings</h2>
-		<n-button secondary type="success" @click="openModal(null)">
-			Create
-		</n-button>
-	</n-space>
-	<n-alert>
-		<p>Greeting system used for welcoming new users typed their first message on stream.</p>
-		<p>
-			If you wanna greet every user in chat, not only specified - then you can use events system.
-		</p>
-	</n-alert>
-	<n-data-table
-		:isLoading="greetings.isLoading.value || twitchUsers.isLoading.value"
-		:columns="columns"
-		:data="greetings.data.value?.greetings ?? []"
-		style="margin-top: 20px;"
-	/>
+	<n-result v-if="!userCanViewGreetings" status="403" title="You haven't permissions to view greetings" />
+	<div v-else>
+		<n-space justify="space-between" align="center">
+			<h2>Greetings</h2>
+			<n-button :disabled="!userCanManageGreetings" secondary type="success" @click="openModal(null)">
+				Create
+			</n-button>
+		</n-space>
+		<n-alert>
+			<p>Greeting system used for welcoming new users typed their first message on stream.</p>
+			<p>
+				If you wanna greet every user in chat, not only specified - then you can use events system.
+			</p>
+		</n-alert>
+		<n-data-table
+			:isLoading="greetings.isLoading.value || twitchUsers.isLoading.value"
+			:columns="columns"
+			:data="greetings.data.value?.greetings ?? []"
+			style="margin-top: 20px;"
+		/>
 
-	<n-modal
-		v-model:show="showModal"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		:title="editableGreeting?.userName || 'Create greeting'"
-		class="modal"
-		:style="{
-			width: '400px',
-			top: '50px',
-		}"
-		:on-close="closeModal"
-	>
-		<modal :greeting="editableGreeting" @close="closeModal" />
-	</n-modal>
+		<n-modal
+			v-model:show="showModal"
+			:mask-closable="false"
+			:segmented="true"
+			preset="card"
+			:title="editableGreeting?.userName || 'Create greeting'"
+			class="modal"
+			:style="{
+				width: '400px',
+				top: '50px',
+			}"
+			:on-close="closeModal"
+		>
+			<modal :greeting="editableGreeting" @close="closeModal" />
+		</n-modal>
+	</div>
 </template>

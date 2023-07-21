@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { NGrid, NGridItem } from 'naive-ui';
+import { NGrid, NGridItem, NResult } from 'naive-ui';
 
+import { useUserAccessFlagChecker } from '@/api/index.js';
 import OBS from '@/components/overlays/obs.vue';
 import TTS from '@/components/overlays/tts.vue';
+
+const userCanViewOverlays = useUserAccessFlagChecker('VIEW_OVERLAYS');
 </script>
 
 <template>
+	<n-result v-if="!userCanViewOverlays" status="403" title="You haven't acces to view overlays" />
 	<div
+		v-else
 		style="
 			display: flex;
 			align-items: center;
