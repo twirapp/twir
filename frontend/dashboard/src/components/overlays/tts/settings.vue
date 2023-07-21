@@ -18,6 +18,7 @@ import {
 	useMessage,
 } from 'naive-ui';
 import { computed, ref, watch, toRaw } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useTtsOverlayManager } from '@/api/index.js';
 
@@ -96,112 +97,114 @@ watch(ttsSettings.data, (v) => {
 }, { immediate: true });
 
 const message = useMessage();
+const { t } = useI18n();
+
 
 async function save() {
 	await ttsUpdater.mutateAsync({ data: formValue.value });
-	message.success('Settings updated');
+	message.success(t('sharedTexts.saved'));
 }
 </script>
 
 <template>
-  <n-space vertical style="padding: 20px;">
-    <n-alert type="info">
-      Hint: you can use events system to trigger tts on reward.
-    </n-alert>
+	<n-space vertical style="padding: 20px;">
+		<n-alert type="info">
+			{{ t('overlays.tts.eventsHint') }}
+		</n-alert>
 
-    <n-skeleton v-if="!formValue || ttsSettings.isLoading.value" :sharp="false" size="large" />
+		<n-skeleton v-if="!formValue || ttsSettings.isLoading.value" :sharp="false" size="large" />
 
-    <n-form v-else style="margin-top: 15px">
-      <n-grid cols="1 s:1 m:2 l:2" responsive="screen" :x-gap="20" :y-gap="20">
-        <n-grid-item :span="1">
-          <n-space justify="space-between">
-            <n-text>Enabled</n-text>
-            <n-switch v-model:value="formValue.enabled" />
-          </n-space>
-        </n-grid-item>
+		<n-form v-else style="margin-top: 15px">
+			<n-grid cols="1 s:1 m:2 l:2" responsive="screen" :x-gap="20" :y-gap="20">
+				<n-grid-item :span="1">
+					<n-space justify="space-between">
+						<n-text>{{ t('sharedTexts.enabled') }}</n-text>
+						<n-switch v-model:value="formValue.enabled" />
+					</n-space>
+				</n-grid-item>
 
-        <n-grid-item :span="1">
-          <n-row justify-content="space-between" align-items="flex-start" style="flex-wrap: nowrap">
-            <n-text>Allow users use different voices in main (!tts) command</n-text>
-            <n-switch v-model:value="formValue.allowUsersChooseVoiceInMainCommand" />
-          </n-row>
-        </n-grid-item>
+				<n-grid-item :span="1">
+					<n-row justify-content="space-between" align-items="flex-start" style="flex-wrap: nowrap">
+						<n-text>{{ t('overlays.tts.allowUsersChooseVoice') }}</n-text>
+						<n-switch v-model:value="formValue.allowUsersChooseVoiceInMainCommand" />
+					</n-row>
+				</n-grid-item>
 
-        <n-grid-item :span="1">
-          <n-space justify="space-between">
-            <n-text>Do not read emoji</n-text>
-            <n-switch v-model:value="formValue.doNotReadEmoji" />
-          </n-space>
-        </n-grid-item>
+				<n-grid-item :span="1">
+					<n-space justify="space-between">
+						<n-text>{{ t('overlays.tts.doNotReadEmoji') }}</n-text>
+						<n-switch v-model:value="formValue.doNotReadEmoji" />
+					</n-space>
+				</n-grid-item>
 
-        <n-grid-item :span="1">
-          <n-space justify="space-between">
-            <n-text>Do not read twitch emotes. Including 7tv, ffz, bttv</n-text>
-            <n-switch v-model:value="formValue.doNotReadTwitchEmotes" />
-          </n-space>
-        </n-grid-item>
+				<n-grid-item :span="1">
+					<n-space justify="space-between">
+						<n-text>{{ t('overlays.tts.doNotReadTwitchEmotes') }}</n-text>
+						<n-switch v-model:value="formValue.doNotReadTwitchEmotes" />
+					</n-space>
+				</n-grid-item>
 
-        <n-grid-item :span="1">
-          <n-space justify="space-between">
-            <n-text>Do not read links</n-text>
-            <n-switch v-model:value="formValue.doNotReadLinks" />
-          </n-space>
-        </n-grid-item>
+				<n-grid-item :span="1">
+					<n-space justify="space-between">
+						<n-text>{{ t('overlays.tts.doNotReadLinks') }}</n-text>
+						<n-switch v-model:value="formValue.doNotReadLinks" />
+					</n-space>
+				</n-grid-item>
 
-        <n-grid-item>
-          <n-space justify="space-between">
-            <n-text>Read all chat messages in tts</n-text>
-            <n-switch v-model:value="formValue.readChatMessages" />
-          </n-space>
-        </n-grid-item>
+				<n-grid-item>
+					<n-space justify="space-between">
+						<n-text>{{ t('overlays.tts.readChatMessages') }}</n-text>
+						<n-switch v-model:value="formValue.readChatMessages" />
+					</n-space>
+				</n-grid-item>
 
-        <n-grid-item :span="1">
-          <n-space justify="space-between">
-            <n-text>Read nicknames when reading tts</n-text>
-            <n-switch v-model:value="formValue.readChatMessagesNicknames" />
-          </n-space>
-        </n-grid-item>
-      </n-grid>
+				<n-grid-item :span="1">
+					<n-space justify="space-between">
+						<n-text>{{ t('overlays.tts.readChatMessagesNicknames') }}</n-text>
+						<n-switch v-model:value="formValue.readChatMessagesNicknames" />
+					</n-space>
+				</n-grid-item>
+			</n-grid>
 
-      <n-divider />
+			<n-divider />
 
-      <n-form-item label="Voice" show-require-mark>
-        <n-select
-          v-model:value="formValue.voice"
-          remote
-          :loading="ttsInfo.isLoading.value"
-          :options="voicesOptions"
-        />
-      </n-form-item>
+			<n-form-item :label="t('overlays.tts.voice')" show-require-mark>
+				<n-select
+					v-model:value="formValue.voice"
+					remote
+					:loading="ttsInfo.isLoading.value"
+					:options="voicesOptions"
+				/>
+			</n-form-item>
 
-      <n-form-item label="Disallowed for usage voices">
-        <n-select
-          v-model:value="formValue.disallowedVoices"
-          remote
-          clearable
-          :loading="ttsInfo.isLoading.value"
-          :options="voicesOptions"
-          multiple
-        />
-      </n-form-item>
+			<n-form-item :label="t('overlays.tts.disallowedVoices')">
+				<n-select
+					v-model:value="formValue.disallowedVoices"
+					remote
+					clearable
+					:loading="ttsInfo.isLoading.value"
+					:options="voicesOptions"
+					multiple
+				/>
+			</n-form-item>
 
-      <n-space style="width:100%" vertical size="small">
-        <n-form-item label="Volume" size="small">
-          <n-slider v-model:value="formValue.volume" :step="1" />
-        </n-form-item>
-        <n-form-item label="Pitch" size="small">
-          <n-slider v-model:value="formValue.pitch" :step="1" />
-        </n-form-item>
-        <n-form-item label="Rate" size="small">
-          <n-slider v-model:value="formValue.rate" :step="1" />
-        </n-form-item>
-      </n-space>
-    </n-form>
+			<n-space style="width:100%" vertical size="small">
+				<n-form-item :label="t('overlays.tts.volume')" size="small">
+					<n-slider v-model:value="formValue.volume" :step="1" />
+				</n-form-item>
+				<n-form-item :label="t('overlays.tts.pitch')" size="small">
+					<n-slider v-model:value="formValue.pitch" :step="1" />
+				</n-form-item>
+				<n-form-item :label="t('overlays.tts.rate')" size="small">
+					<n-slider v-model:value="formValue.rate" :step="1" />
+				</n-form-item>
+			</n-space>
+		</n-form>
 
-    <n-button secondary type="success" block style="margin-top: 10px" @click="save">
-      Save
-    </n-button>
-  </n-space>
+		<n-button secondary type="success" block style="margin-top: 10px" @click="save">
+			{{ t('sharedButtons.save') }}
+		</n-button>
+	</n-space>
 </template>
 
 <style scoped lang='postcss'>

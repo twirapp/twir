@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { NModal, NTabs, NTabPane } from 'naive-ui';
 import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import Card from './card.vue';
 import TTSSettings from './tts/settings.vue';
@@ -22,13 +23,15 @@ const overlayLink = computed(() => {
 });
 
 const isModalOpened = ref(false);
+
+const { t } = useI18n();
 </script>
 
 <template>
 	<card
 		title="Text to speech"
 		:icon="TTSIcon"
-		description="This overlay used for connect TwirApp with your obs. It gives opportunity to bot manage your sources, scenes, audio sources on events."
+		:description="t('overlays.tts.description')"
 		:overlay-link="overlayLink"
 		@open-settings="isModalOpened = true"
 	>

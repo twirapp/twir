@@ -17,6 +17,7 @@ import {
 	useThemeVars,
 } from 'naive-ui';
 import { computed, ref, UnwrapRef, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useTtsOverlayManager, useTwitchGetUsers } from '@/api/index.js';
 
@@ -87,81 +88,87 @@ async function testUserVoice(user: ListUser) {
 		text: testText.value || 'Hello world, привет мир',
 	});
 }
+
+const { t } = useI18n();
 </script>
 
 <template>
-  <div style="padding: 15px">
-    <n-grid v-if="isLoading || !ttsUsersData" cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="10" :y-gap="10">
-      <n-grid-item v-for="i in 16" :key="i" :span="1">
-        <n-skeleton v-if="!isLoading" size="large" height="60px" :sharp="false" />
-      </n-grid-item>
-    </n-grid>
+	<div style="padding: 15px">
+		<n-grid v-if="isLoading || !ttsUsersData" cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="10" :y-gap="10">
+			<n-grid-item v-for="i in 16" :key="i" :span="1">
+				<n-skeleton v-if="!isLoading" size="large" height="60px" :sharp="false" />
+			</n-grid-item>
+		</n-grid>
 
-    <div v-else>
-      <n-space justify="space-between" style="margin-bottom: 10px">
-        <n-input v-model:value="testText" placeholder="Text for test user settings" />
-        <n-space>
-          <n-button
-            secondary
-            type="info"
-            :disabled="!users.length"
-            @click="changeMarkedStateForAllUsers(!isSomeUserMarked)"
-          >
-            {{ isSomeUserMarked ? 'Undo select' : 'Select all' }}
-          </n-button>
+		<div v-else>
+			<n-space justify="space-between" style="margin-bottom: 10px">
+				<n-input v-model:value="testText" placeholder="Text for test user settings" />
+				<n-space>
+					<n-button
+						secondary
+						type="info"
+						:disabled="!users.length"
+						@click="changeMarkedStateForAllUsers(!isSomeUserMarked)"
+					>
+						{{ t(`overlays.tts.users.${isSomeUserMarked ? 'undoSelection' : 'selectAll'}`) }}
+					</n-button>
 
-          <n-popconfirm @positive-click="deleteUsers">
-            <template #trigger>
-              <n-button
-                secondary
-                type="error"
-                :disabled="!users.some(u => u.markedForDelete)"
-              >
-                Delete {{ users.filter(u => u.markedForDelete).length }}
-              </n-button>
-            </template>
+					<n-popconfirm
+						:positive-text="t('deleteConfirmation.confirm')"
+						:negative-text="t('deleteConfirmation.cancel')"
+						@positive-click="deleteUsers"
+					>
+						<template #trigger>
+							<n-button
+								secondary
+								type="error"
+								:disabled="!users.some(u => u.markedForDelete)"
+							>
+								{{ t('sharedButtons.delete') }} {{ users.filter(u => u.markedForDelete).length }}
+							</n-button>
+						</template>
 
-            Are you sure?
-          </n-popconfirm>
-        </n-space>
-      </n-space>
+						{{ t('deleteConfirmation.text') }}
+					</n-popconfirm>
+				</n-space>
+			</n-space>
 
-      <n-alert v-if="!users.length" title="No one's created their own customizations yet." type="info" />
-      <n-grid v-else cols="1 s:1 m:2 l:2" responsive="screen" :x-gap="10" :y-gap="10">
-        <n-grid-item v-for="(user, index) of users" :key="index" :span="1">
-          <n-card
-            class="user-card"
-            content-style="padding: 5px"
-            @click="user.markedForDelete = !user.markedForDelete"
-          >
-            <n-space align="center" justify="space-between">
-              <n-row align-items="center" style="gap: 10px">
-                <n-avatar :src="user.avatar" size="large" />
-                <n-space vertical size="small" class="info">
-                  <n-text>{{ user.name }}</n-text>
-                  <n-text class="description">
-                    Voice: {{ user.voice }} | Pitch: {{ user.pitch }} | Rate: {{ user.rate }}
-                  </n-text>
-                </n-space>
-              </n-row>
+			<n-alert v-if="!users.length" :title="t('overlays.tts.users.empty')" type="info" />
+			<n-grid v-else cols="1 s:1 m:2 l:2" responsive="screen" :x-gap="10" :y-gap="10">
+				<n-grid-item v-for="(user, index) of users" :key="index" :span="1">
+					<n-card
+						class="user-card"
+						content-style="padding: 5px"
+						@click="user.markedForDelete = !user.markedForDelete"
+					>
+						<n-space align="center" justify="space-between">
+							<n-row align-items="center" style="gap: 10px">
+								<n-avatar :src="user.avatar" size="large" />
+								<n-space vertical size="small" class="info">
+									<n-text>{{ user.name }}</n-text>
+									<n-text class="description">
+										{{ t('overlays.tts.voice') }}: {{ user.voice }} | {{ t('overlays.tts.pitch') }}: {{ user.pitch }} | {{ t('overlays.tts.rate') }}: {{ user.rate }}
+									</n-text>
+								</n-space>
+							</n-row>
 
-              <n-row align-items="center">
-                <n-space align="center">
-                  <IconSpeakerphone
-                    style="display: flex; cursor: pointer"
-                    @click.stop="testUserVoice(user)"
-                  />
-                  <n-checkbox
-                    :checked="user.markedForDelete"
-                  />
-                </n-space>
-              </n-row>
-            </n-space>
-          </n-card>
-        </n-grid-item>
-      </n-grid>
-    </div>
-  </div>
+							<n-row align-items="center">
+								<n-space align="center">
+									<IconSpeakerphone
+										style="display: flex; cursor: pointer"
+										@click.stop="testUserVoice(user)"
+									/>
+									<n-checkbox
+										:checked="user.markedForDelete"
+									/>
+								</n-space>
+							</n-row>
+						</n-space>
+					</n-card>
+				</n-grid-item>
+			</n-grid>
+		</div>
+	</div>
 </template>
 
 <style scoped>

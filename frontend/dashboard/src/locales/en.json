@@ -10,6 +10,10 @@
 		"login": "Login",
 		"logout": "Logout"
   },
+	"sharedTexts": {
+		"saved": "Saved",
+		"enabled": "Enabled"
+	},
 	"deleteConfirmation": {
 		"text": "Are you sure you want delete this thing?",
 		"cancel": "Cancel",
@@ -145,6 +149,35 @@
 				"audioSource": "OBS Audio source"
 			},
 			"values": "Values"
+		}
+	},
+	"overlays": {
+		"copyOverlayLink": "Copy overlay link",
+		"uncongirured": "You should configure overlay first",
+		"noAccess": "You cannot copy overlays of other users",
+		"copied": "Copied link url, paste it in obs as browser source",
+		"tts": {
+			"description": "Play audios in your OBS with some set of preconfigured voices. You can use that overlay via commands, or on events",
+			"eventsHint": "Hint: you can use events system to trigger tts on reward. ",
+			"allowUsersChooseVoice": "Allow users use different voices in main (!tts) command",
+			"doNotReadEmoji": "Do not read emoji",
+			"doNotReadTwitchEmotes": "Do not read Twitch emotes, including 7tv, FFZ, BTTV",
+			"doNotReadLinks": "Do not read links",
+			"readChatMessages": "Read all chat messages in overlay",
+			"readChatMessagesNicknames": "Read nicknames when reading chat messages",
+			"voice": "Voice",
+			"disallowedVoices": "Disallowed voices for usages in !tts voice command",
+			"volume": "Volume",
+			"pitch": "Pitch",
+			"rate": "Rate",
+			"users": {
+				"selectAll": "Select all",
+				"undoSelection": "Undo selection",
+				"empty": "No one's created their own customizations yet."
+			}
+		},
+		"obs": {
+			"description": "This overlay used for connect Twir with your obs. It gives opportunity to bot manage your sources, scenes, audio sources on events."
 		}
 	}
 }
