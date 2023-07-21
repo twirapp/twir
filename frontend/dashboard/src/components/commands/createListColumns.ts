@@ -32,7 +32,7 @@ export const createListColumns = (
 
 	return computed<DataTableColumns<ListRowData>>(() => [
 		{
-			title: t('tables.columns.name'),
+			title: t('sharedTexts.name'),
 			key: 'name',
 			width: 250,
 			render(row) {
@@ -53,7 +53,7 @@ export const createListColumns = (
 			},
 		},
 		{
-			title: t('commands.table.responses.name'),
+			title: t('sharedTexts.responses'),
 			key: 'responses',
 			render(row) {
 				if (row.isGroup) return;
@@ -74,7 +74,7 @@ export const createListColumns = (
 			},
 		},
 		{
-			title: t('tables.columns.status'),
+			title: t('sharedTexts.status'),
 			key: 'enabled',
 			width: 100,
 			render(row) {
@@ -95,7 +95,7 @@ export const createListColumns = (
 			},
 		},
 		{
-			title: t('tables.columns.actions'),
+			title: t('sharedTexts.actions'),
 			key: 'actions',
 			width: 150,
 			render(row) {

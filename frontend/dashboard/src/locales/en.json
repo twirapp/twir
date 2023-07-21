@@ -12,7 +12,11 @@
   },
 	"sharedTexts": {
 		"saved": "Saved",
-		"enabled": "Enabled"
+		"enabled": "Enabled",
+		"status": "Status",
+		"name": "Name",
+		"actions": "Actions",
+		"responses": "Responses"
 	},
 	"deleteConfirmation": {
 		"text": "Are you sure you want delete this thing?",
@@ -33,7 +37,6 @@
     },
     "table": {
       "responses": {
-        "name": "Responses",
         "empty": "Responses are empty"
       }
     },
@@ -53,7 +56,6 @@
         "label": "Command description"
       },
       "responses": {
-        "label": "Responses",
         "validations": {
           "empty": "Response should not be empty. Command can be created without responses, so you can omit this field.",
           "len": "Response should be less than 500 characters"
@@ -105,13 +107,6 @@
 					"commandGroup": "Group of command"
 				}
 			}
-    }
-  },
-  "tables": {
-    "columns": {
-      "name": "Name",
-      "actions": "Actions",
-      "status": "Status"
     }
   },
 	"dashboard": {
@@ -214,6 +209,14 @@
 				"minLength": "Min length of song for request (minutes)",
 				"maxLength": "Max length of song for request (minutes)",
 				"minViews": "Minimal views on song for request"
+			}
+		}
+	},
+	"timers": {
+		"table": {
+			"columns": {
+				"intervalInMinutes": "Interval in minutes",
+				"intervalInMessages": "Interval in messages"
 			}
 		}
 	}

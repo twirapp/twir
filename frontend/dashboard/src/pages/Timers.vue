@@ -14,6 +14,7 @@ import {
 	NResult,
 } from 'naive-ui';
 import { computed, h, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useTimersManager, useUserAccessFlagChecker } from '@/api/index.js';
 import Modal from '@/components/timers/modal.vue';
@@ -32,6 +33,8 @@ const throttledSwitchState = useThrottleFn((id: string, v: boolean) => {
 const userCanViewtimers = useUserAccessFlagChecker('VIEW_TIMERS');
 const userCanManageTimers = useUserAccessFlagChecker('MANAGE_TIMERS');
 
+const { t } = useI18n();
+
 const columns = computed<DataTableColumns<Timer>>(() => [
 	{
 		title: 'Name',
@@ -41,7 +44,7 @@ const columns = computed<DataTableColumns<Timer>>(() => [
 		},
 	},
 	{
-		title: 'Responses',
+		title: t('sharedTexts.responses'),
 		key: 'responses',
 		render(row) {
 			return h(NSpace, { vertical: true }, {
@@ -52,21 +55,21 @@ const columns = computed<DataTableColumns<Timer>>(() => [
 		},
 	},
 	{
-		title: 'Interval in minutes',
+		title: t('timers.table.columns.intervalInMinutes'),
 		key: 'timeInterval',
 		render(row) {
 			return h(NTag, { type: 'info' }, { default: () => `${row.timeInterval} m.` });
 		},
 	},
+	// {
+	// 	title: 'Interval in messages',
+	// 	key: 'messageInterval',
+	// 	render(row) {
+	// 		return h(NTag, { type: 'info' }, { default: () => `${row.messageInterval}` });
+	// 	},
+	// },
 	{
-		title: 'Interval in messages',
-		key: 'messageInterval',
-		render(row) {
-			return h(NTag, { type: 'info' }, { default: () => `${row.messageInterval}` });
-		},
-	},
-	{
-		title: 'Status',
+		title: t('sharedTexts.status'),
 		key: 'enabled',
 		render(row) {
 			return h(NSwitch, {
@@ -79,7 +82,7 @@ const columns = computed<DataTableColumns<Timer>>(() => [
 		},
 	},
 	{
-		title: 'Actions',
+		title: t('sharedTexts.actions'),
 		key: 'actions',
 		width: 150,
 		render(row) {
@@ -99,6 +102,8 @@ const columns = computed<DataTableColumns<Timer>>(() => [
 				NPopconfirm,
 				{
 					onPositiveClick: () => timersDeleter.mutate({ id: row.id }),
+					positiveText: t('deleteConfirmation.confirm'),
+					negativeText: t('deleteConfirmation.cancel'),
 				},
 				{
 					trigger: () => h(NButton, {
@@ -109,7 +114,7 @@ const columns = computed<DataTableColumns<Timer>>(() => [
 					}, {
 						default: renderIcon(IconTrash),
 					}),
-					default: () => 'Are you sure you want to delete this timer?',
+					default: () => t('deleteConfirmation.text'),
 				},
 			);
 

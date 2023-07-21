@@ -201,7 +201,7 @@ async function save() {
 		</n-form-item>
 
 		<n-divider>
-			{{ t('commands.modal.responses.label') }}
+			{{ t('sharedTexts.responses') }}
 		</n-divider>
 
 		<div v-if="formValue.module === 'CUSTOM'">
