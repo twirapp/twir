@@ -29,6 +29,7 @@ import {
 } from 'naive-ui';
 import Plyr from 'plyr';
 import { ref, onMounted, watch, onUnmounted, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useProfile } from '@/api/index.js';
 import { convertMillisToTime } from '@/components/songRequests/helpers.js';
@@ -151,11 +152,13 @@ const formatLabelTime = (v: number) => {
 };
 
 const { data: profile } = useProfile();
+
+const { t } = useI18n();
 </script>
 
 <template>
 	<n-card
-		title="Current Song"
+		:title="t('songRequests.player.title')"
 		content-style="padding: 0;"
 		header-style="padding: 10px;"
 		segmented
@@ -163,7 +166,7 @@ const { data: profile } = useProfile();
 		<div v-if="profile?.id != profile?.selectedDashboardId" style="padding: 10px">
 			<n-result
 				status="404"
-				title="Player available only on your dashboard, you cannot listen songs requests on other users dashboards"
+				:title="t('songRequests.player.noAccess')"
 				size="small"
 			>
 			</n-result>
@@ -279,7 +282,7 @@ const { data: profile } = useProfile();
 					</n-button>
 				</n-list-item>
 			</n-list>
-			<n-empty v-else description="Waiting for songs">
+			<n-empty v-else :description="t('songRequests.waiting')">
 				<template #icon>
 					<n-spin size="small" stroke="#959596" />
 				</template>

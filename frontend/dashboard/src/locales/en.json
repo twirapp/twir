@@ -179,5 +179,21 @@
 		"obs": {
 			"description": "This overlay used for connect Twir with your obs. It gives opportunity to bot manage your sources, scenes, audio sources on events."
 		}
+	},
+	"songRequests": {
+		"waiting": "Waiting for songs",
+		"player": {
+			"title": "Current song",
+			"noAccess": "Player available only on your dashboard, you cannot listen songs requests on other users dashboards"
+		},
+		"table": {
+			"title": "Queue",
+			"columns": {
+				"title": "Title",
+				"author": "Author",
+				"added": "Added",
+				"duration": "Duration"
+			}
+		}
 	}
 }

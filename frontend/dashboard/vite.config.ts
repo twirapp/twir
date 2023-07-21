@@ -7,6 +7,7 @@ import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import svg from 'vite-svg-loader';
+import { visualizer } from "rollup-plugin-visualizer";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -34,6 +35,7 @@ export default defineConfig({
 			strictMessage: false,
 			escapeHtml: false,
 		}),
+		visualizer(),
 	],
 	base: '/dashboard',
 	resolve: {

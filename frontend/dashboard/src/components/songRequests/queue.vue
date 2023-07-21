@@ -16,7 +16,8 @@ import {
 	NTime,
 } from 'naive-ui';
 import type { TableColumn } from 'naive-ui/es/data-table/src/interface';
-import { h } from 'vue';
+import { h, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { convertMillisToTime } from '@/components/songRequests/helpers.js';
 import type { Video } from '@/components/songRequests/hook.js';
@@ -30,7 +31,9 @@ const emits = defineEmits<{
 	moveVideo: [id: string, newPosition: number]
 }>();
 
-const columns: TableColumn<Video>[] = [
+const { t } = useI18n();
+
+const columns = computed<TableColumn<Video>[]>(() => [
 	{
 		title: '#',
 		key: 'position',
@@ -40,7 +43,7 @@ const columns: TableColumn<Video>[] = [
 		},
 	},
 	{
-		title: 'Title',
+		title: t('songRequests.table.title'),
 		key: 'title',
 		render(row) {
 			return h(NButton, {
@@ -55,14 +58,14 @@ const columns: TableColumn<Video>[] = [
 		},
 	},
 	{
-		title: 'Author',
+		title: t('songRequests.table.columns.author'),
 		key: 'author',
 		render(row) {
 			return h(NTag, { bordered: false, type: 'info' }, { default: () => row.orderedByDisplayName || row.orderedByName });
 		},
 	},
 	{
-		title: 'Added',
+		title: t('songRequests.table.columns.added'),
 		key: 'createdAt',
 		width: 150,
 		render(row) {
@@ -70,7 +73,7 @@ const columns: TableColumn<Video>[] = [
 		},
 	},
 	{
-		title: 'Duration',
+		title: t('songRequests.table.columns.duration'),
 		key: 'duration',
 		width: 100,
 		render(row) {
@@ -126,7 +129,7 @@ const columns: TableColumn<Video>[] = [
 			});
 		},
 	},
-];
+]);
 
 const createSummary: DataTableCreateSummary<Video> = (pageData) => {
 	return{
@@ -151,33 +154,33 @@ const createSummary: DataTableCreateSummary<Video> = (pageData) => {
 </script>
 
 <template>
-  <n-card
-    title="Current Song"
-    content-style="padding: 0;"
-    header-style="padding: 10px;"
-    segmented
-  >
-    <template #header-extra>
-      <n-button tertiary size="small" @click="$emit('deleteAllVideos')">
-        <IconTrash />
-      </n-button>
-    </template>
-    <n-data-table
-      :columns="columns"
-      :data="queue"
-      :loading="!queue.length"
-      :bordered="false"
-      :summary="createSummary"
-    >
-      <template #loading>
-        <n-space vertical align="center" style="margin-top: 50px;">
-          <n-spin :rotate="false" stroke="#959596">
-            <template #description>
-              <n-text>Waiting for songs</n-text>
-            </template>
-          </n-spin>
-        </n-space>
-      </template>
-    </n-data-table>
-  </n-card>
+	<n-card
+		:title="t('songRequests.table.title')"
+		content-style="padding: 0;"
+		header-style="padding: 10px;"
+		segmented
+	>
+		<template #header-extra>
+			<n-button tertiary size="small" @click="$emit('deleteAllVideos')">
+				<IconTrash />
+			</n-button>
+		</template>
+		<n-data-table
+			:columns="columns"
+			:data="queue"
+			:loading="!queue.length"
+			:bordered="false"
+			:summary="createSummary"
+		>
+			<template #loading>
+				<n-space vertical align="center" style="margin-top: 50px;">
+					<n-spin :rotate="false" stroke="#959596">
+						<template #description>
+							<n-text>{{ t('songRequests.waiting') }}</n-text>
+						</template>
+					</n-spin>
+				</n-space>
+			</template>
+		</n-data-table>
+	</n-card>
 </template>
