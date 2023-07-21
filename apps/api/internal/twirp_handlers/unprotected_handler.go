@@ -20,7 +20,6 @@ func NewUnProtected(opts Opts) handlers.IHandler {
 			Handler: wrappers.Wrap(
 				twirpHandler,
 				wrappers.WithCors,
-				wrappers.WithDashboardId,
 				wrappers.WithApiKeyHeader,
 			),
 		},

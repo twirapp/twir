@@ -27,6 +27,7 @@ func NewProtected(opts Opts) handlers.IHandler {
 		twirp.WithServerInterceptors(opts.Interceptor.Errors),
 		twirp.WithServerInterceptors(opts.Interceptor.DbUserInterceptor),
 		twirp.WithServerInterceptors(opts.Interceptor.ChannelAccessInterceptor),
+		twirp.WithServerInterceptors(opts.Interceptor.DashboardId),
 		twirp.WithServerInterceptors(
 			opts.Interceptor.NewCacheInterceptor(
 				interceptors.CacheOpts{
@@ -120,7 +121,6 @@ func NewProtected(opts Opts) handlers.IHandler {
 			Handler: wrappers.Wrap(
 				twirpHandler,
 				wrappers.WithCors,
-				wrappers.WithDashboardId,
 				wrappers.WithApiKeyHeader,
 			),
 		},

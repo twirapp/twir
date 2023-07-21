@@ -103,7 +103,7 @@ func (c *Bot) BotInfo(ctx context.Context, _ *meta.BaseRequestMeta) (*bots.BotIn
 func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest) (*emptypb.Empty, error) {
 	dashboardId, ok := ctx.Value("dashboardId").(string)
 	if !ok || dashboardId == "" {
-		return nil, twirp.NewError(twirp.ErrorCode(twirp.Internal), "no dashboardId provided")
+		return nil, twirp.Internal.Error("no dashboardId provided")
 	}
 
 	dbChannel := &model.Channels{}

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useMagicKeys } from '@vueuse/core';
-import { type MenuOption, NMenu, NAvatar } from 'naive-ui';
+import { type MenuOption, NMenu, NAvatar, NSpin } from 'naive-ui';
 import { computed, h, ref, watch } from 'vue';
 
 import { useProfile, useTwitchGetUsers, useDashboards, useSetDashboard } from '@/api/index.js';
@@ -41,6 +41,12 @@ watch(currentDashboard, (v) => {
 	if (!v) return;
 	activeDashboard.value = v.id;
 }, { immediate: true });
+
+watch(activeDashboard, async (v) => {
+	if (v === profile.value?.selectedDashboardId) return;
+
+	await setDashboard.mutateAsync(v);
+});
 
 const menuOptions = computed<MenuOption[]>(() => {
 	return usersForSelect.data.value?.users.map((u) => {

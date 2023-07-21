@@ -66,7 +66,7 @@ func (c *Auth) AuthSetDashboard(ctx context.Context, req *auth.SetDashboard) (*e
 		},
 	)
 
-	if !hasPermission {
+	if !hasPermission && !dbUser.IsBotAdmin {
 		return nil, fmt.Errorf("user %s does not have permission to access dashboard %s", dbUser.ID, req.DashboardId)
 	}
 
