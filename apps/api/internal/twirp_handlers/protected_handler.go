@@ -27,8 +27,8 @@ func NewProtected(opts Opts) handlers.IHandler {
 		twirp.WithServerPathPrefix("/v1"),
 		//twirp.WithServerInterceptors(opts.Interceptor.Errors),
 		twirp.WithServerInterceptors(opts.Interceptor.DbUserInterceptor),
-		twirp.WithServerInterceptors(opts.Interceptor.ChannelAccessInterceptor),
 		twirp.WithServerInterceptors(opts.Interceptor.DashboardId),
+		twirp.WithServerInterceptors(opts.Interceptor.ChannelAccessInterceptor),
 		twirp.WithServerInterceptors(
 			opts.Interceptor.NewCacheInterceptor(
 				interceptors.CacheOpts{

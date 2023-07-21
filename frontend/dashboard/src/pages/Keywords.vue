@@ -11,10 +11,11 @@ import {
   NButton,
   NPopconfirm,
   NModal,
+	NResult,
 } from 'naive-ui';
-import { h, ref } from 'vue';
+import { computed, h, ref } from 'vue';
 
-import { useKeywordsManager } from '@/api/index.js';
+import { useKeywordsManager, useUserAccessFlagChecker } from '@/api/index.js';
 import Modal from '@/components/keywords/modal.vue';
 import { type EditableKeyword } from '@/components/keywords/types.js';
 import { renderIcon } from '@/helpers/index.js';
@@ -30,7 +31,10 @@ const throttledSwitchState = useThrottleFn((id: string, v: boolean) => {
 
 const showModal = ref(false);
 
-const columns: DataTableColumns<Keyword> = [
+const userCanViewKeywords = useUserAccessFlagChecker('VIEW_KEYWORDS');
+const userCanManageKeywords = useUserAccessFlagChecker('MANAGE_KEYWORDS');
+
+const columns = computed<DataTableColumns<Keyword>>(() => [
 	{
 		title: 'Trigger',
 		key: 'text',
@@ -61,6 +65,7 @@ const columns: DataTableColumns<Keyword> = [
 				onUpdateValue: (value) => {
 					throttledSwitchState(row.id, value);
 				},
+				disabled: !userCanManageKeywords.value,
 			});
 		},
 	},
@@ -76,6 +81,7 @@ const columns: DataTableColumns<Keyword> = [
 					size: 'small',
 					onClick: () => openModal(row),
 					quaternary: true,
+					disabled: !userCanManageKeywords.value,
 				}, {
 					icon: renderIcon(IconPencil),
 				});
@@ -90,6 +96,7 @@ const columns: DataTableColumns<Keyword> = [
 						type: 'error',
 						size: 'small',
 						quaternary: true,
+						disabled: !userCanManageKeywords.value,
 					}, {
 						default: renderIcon(IconTrash),
 					}),
@@ -100,7 +107,7 @@ const columns: DataTableColumns<Keyword> = [
 			return h(NSpace, { }, { default: () => [editButton, deleteButton] });
 		},
 	},
-];
+]);
 
 const editableKeyword = ref<EditableKeyword | null>(null);
 function openModal(t: EditableKeyword | null) {
@@ -113,31 +120,35 @@ function closeModal() {
 </script>
 
 <template>
-	<n-space justify="space-between" align="center">
-		<h2>Keywords</h2>
-		<n-button secondary type="success" @click="openModal(null)">
-			Create
-		</n-button>
-	</n-space>
-	<n-data-table
-		:isLoading="keywords.isLoading.value"
-		:columns="columns"
-		:data="keywords.data.value?.keywords ?? []"
-	/>
+	<n-result v-if="!userCanViewKeywords" status="403" title="You can't view keywords" />
 
-	<n-modal
-		v-model:show="showModal"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		:title="editableKeyword?.id ? 'Edit keyword' : 'New keyword'"
-		class="modal"
-		:style="{
-			width: '600px',
-			top: '50px',
-		}"
-		:on-close="closeModal"
-	>
-		<modal :keyword="editableKeyword" @close="closeModal" />
-	</n-modal>
+	<div v-else>
+		<n-space justify="space-between" align="center">
+			<h2>Keywords</h2>
+			<n-button :disabled="!userCanManageKeywords" secondary type="success" @click="openModal(null)">
+				Create
+			</n-button>
+		</n-space>
+		<n-data-table
+			:isLoading="keywords.isLoading.value"
+			:columns="columns"
+			:data="keywords.data.value?.keywords ?? []"
+		/>
+
+		<n-modal
+			v-model:show="showModal"
+			:mask-closable="false"
+			:segmented="true"
+			preset="card"
+			:title="editableKeyword?.id ? 'Edit keyword' : 'New keyword'"
+			class="modal"
+			:style="{
+				width: '600px',
+				top: '50px',
+			}"
+			:on-close="closeModal"
+		>
+			<modal :keyword="editableKeyword" @close="closeModal" />
+		</n-modal>
+	</div>
 </template>

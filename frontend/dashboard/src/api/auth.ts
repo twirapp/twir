@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import { Profile } from '@twir/grpc/generated/api/api/auth';
+import { computed } from 'vue';
 
 import { protectedApiClient } from './twirp.js';
 
@@ -50,8 +51,26 @@ export const useSetDashboard = () => {
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries();
-			// await queryClient.invalidateQueries(dashboardsQueryKey);
-			// await queryClient.invalidateQueries(profileQueryKey);
 		},
+	});
+};
+
+
+export const useUserAccessFlagChecker = (flag: string) => {
+	const profile = useProfile();
+	const dashboards = useDashboards();
+
+	return computed(() => {
+		if (!dashboards.data.value?.dashboards || !profile.data.value?.selectedDashboardId) return false;
+
+		if (profile.data.value.id == profile.data.value.selectedDashboardId) {
+			return true;
+		}
+
+		const dashboard = dashboards.data.value.dashboards.find(d => d.id === profile.data.value!.selectedDashboardId);
+		if (!dashboard) return false;
+
+		if (dashboard.flags.includes('CAN_ACCESS_DASHBOARD')) return true;
+		return dashboard.flags.includes(flag);
 	});
 };

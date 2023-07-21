@@ -2,6 +2,7 @@ package interceptors
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
@@ -34,10 +35,22 @@ func (s *Service) ChannelAccessInterceptor(next twirp.Method) twirp.Method {
 			return next(ctx, req)
 		}
 
-		_, ok := lo.Find(
-			user.Roles, func(a model.ChannelRoleUser) bool {
-				return a.Role.ChannelID == dashboardId &&
-					lo.Contains(a.Role.Permissions, model.RolePermissionCanAccessDashboard.String())
+		var roles []model.ChannelRoleUser
+
+		if err := s.db.
+			Preload("Role", &model.ChannelRole{ChannelID: dashboardId.(string)}).
+			Where(`"userId" = ?`, user.ID).
+			Find(&roles).Error; err != nil {
+			return nil, fmt.Errorf("cannot get user roles: %w", err)
+		}
+
+		ok := lo.SomeBy(
+			roles,
+			func(a model.ChannelRoleUser) bool {
+				if a.Role == nil {
+					return false
+				}
+				return a.Role.ChannelID == dashboardId && a.UserID == user.ID
 			},
 		)
 
@@ -45,6 +58,6 @@ func (s *Service) ChannelAccessInterceptor(next twirp.Method) twirp.Method {
 			return next(ctx, req)
 		}
 
-		return nil, twirp.NewError(twirp.ErrorCode(twirp.PermissionDenied), "not authorized to that dashboard")
+		return nil, twirp.PermissionDenied.Error("not authorized to that dashboard")
 	}
 }

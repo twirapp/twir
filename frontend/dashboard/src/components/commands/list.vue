@@ -4,7 +4,7 @@ import { useThrottleFn } from '@vueuse/core';
 import { NDataTable, NButton, NSpace, NModal, NInput } from 'naive-ui';
 import { ref, toRaw, computed } from 'vue';
 
-import { useCommandsManager } from '@/api/index.js';
+import { useCommandsManager, useUserAccessFlagChecker } from '@/api/index.js';
 import { createListColumns } from '@/components/commands/createListColumns.js';
 import ManageGroups from '@/components/commands/manageGroups.vue';
 import Modal from '@/components/commands/modal.vue';
@@ -78,6 +78,10 @@ function editCommand(command: EditableCommand) {
 function onModalClose() {
 	editableCommand.value = null;
 }
+
+const userCanManageCommands = useUserAccessFlagChecker('MANAGE_COMMANDS');
+
+const columns = createListColumns(editCommand, commandsDeleter, throttledSwitchState);
 </script>
 
 <template>
@@ -91,7 +95,7 @@ function onModalClose() {
 			</div>
 			<div>
 				<n-space>
-					<n-button secondary type="info" @click="showManageGroupsModal = true">
+					<n-button :disabled="!userCanManageCommands" secondary type="info" @click="showManageGroupsModal = true">
 						Manage groups
 					</n-button>
 
@@ -99,6 +103,7 @@ function onModalClose() {
 						v-if="showCreateButton"
 						secondary
 						type="success"
+						:disabled="!userCanManageCommands"
 						@click="() => {
 							editableCommand = null;
 							showCommandEditModal = true;
@@ -111,7 +116,7 @@ function onModalClose() {
 		</div>
 
 		<n-data-table
-			:columns="createListColumns(editCommand, commandsDeleter, throttledSwitchState)"
+			:columns="columns"
 			:data="filteredCommands"
 			:bordered="false"
 		/>

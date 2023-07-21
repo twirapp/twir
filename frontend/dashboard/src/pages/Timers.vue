@@ -11,10 +11,11 @@ import {
   NButton,
   NPopconfirm,
   NModal,
+	NResult,
 } from 'naive-ui';
-import { h, ref } from 'vue';
+import { computed, h, ref } from 'vue';
 
-import { useTimersManager } from '@/api/index.js';
+import { useTimersManager, useUserAccessFlagChecker } from '@/api/index.js';
 import Modal from '@/components/timers/modal.vue';
 import { type EditableTimer } from '@/components/timers/types.js';
 import { renderIcon } from '@/helpers/index.js';
@@ -28,7 +29,10 @@ const throttledSwitchState = useThrottleFn((id: string, v: boolean) => {
 	timersPatcher.mutate({ id, enabled: v });
 }, 500);
 
-const columns: DataTableColumns<Timer> = [
+const userCanViewtimers = useUserAccessFlagChecker('VIEW_TIMERS');
+const userCanManageTimers = useUserAccessFlagChecker('MANAGE_TIMERS');
+
+const columns = computed<DataTableColumns<Timer>>(() => [
 	{
 		title: 'Name',
 		key: 'name',
@@ -67,6 +71,7 @@ const columns: DataTableColumns<Timer> = [
 		render(row) {
 			return h(NSwitch, {
 				value: row.enabled,
+				disabled: !userCanManageTimers.value,
 				onUpdateValue: (value) => {
 					throttledSwitchState(row.id, value);
 				},
@@ -85,6 +90,7 @@ const columns: DataTableColumns<Timer> = [
 					size: 'small',
 					onClick: () => openModal(row),
 					quaternary: true,
+					disabled: !userCanManageTimers.value,
 				}, {
 					icon: renderIcon(IconPencil),
 				});
@@ -99,6 +105,7 @@ const columns: DataTableColumns<Timer> = [
 						type: 'error',
 						size: 'small',
 						quaternary: true,
+						disabled: !userCanManageTimers.value,
 					}, {
 						default: renderIcon(IconTrash),
 					}),
@@ -109,7 +116,7 @@ const columns: DataTableColumns<Timer> = [
 			return h(NSpace, { }, { default: () => [editButton, deleteButton] });
 		},
 	},
-];
+]);
 
 const showModal = ref(false);
 
@@ -124,31 +131,34 @@ function closeModal() {
 </script>
 
 <template>
-	<n-space justify="space-between" align="center">
-		<h2>Timers</h2>
-		<n-button secondary type="success" @click="openModal(null)">
-			Create
-		</n-button>
-	</n-space>
-	<n-data-table
-		:isLoading="timers.isLoading.value"
-		:columns="columns"
-		:data="timers.data.value?.timers ?? []"
-	/>
+	<n-result v-if="!userCanViewtimers" status="403" title="You haven't access to view timers" />
+	<div v-else>
+		<n-space justify="space-between" align="center">
+			<h2>Timers</h2>
+			<n-button secondary type="success" :disabled="!userCanManageTimers" @click="openModal(null)">
+				Create
+			</n-button>
+		</n-space>
+		<n-data-table
+			:isLoading="timers.isLoading.value"
+			:columns="columns"
+			:data="timers.data.value?.timers ?? []"
+		/>
 
-	<n-modal
-		v-model:show="showModal"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		:title="editableTimer?.name ?? 'New timer'"
-		class="modal"
-		:style="{
-			width: '600px',
-			top: '50px',
-		}"
-		:on-close="closeModal"
-	>
-		<modal :timer="editableTimer" @close="closeModal" />
-	</n-modal>
+		<n-modal
+			v-model:show="showModal"
+			:mask-closable="false"
+			:segmented="true"
+			preset="card"
+			:title="editableTimer?.name ?? 'New timer'"
+			class="modal"
+			:style="{
+				width: '600px',
+				top: '50px',
+			}"
+			:on-close="closeModal"
+		>
+			<modal :timer="editableTimer" @close="closeModal" />
+		</n-modal>
+	</div>
 </template>

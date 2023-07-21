@@ -3,8 +3,8 @@ package roles
 import (
 	"context"
 	"encoding/json"
-
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
@@ -85,7 +85,7 @@ func (c *Roles) RolesUpdate(
 	if err := c.Db.
 		WithContext(ctx).
 		Preload("Users").
-		Where(`"channelId" = ?`, dashboardId).
+		Where(`"channelId" = ? and id = ?`, dashboardId, request.Id).
 		First(&entity).
 		Error; err != nil {
 		return nil, err
@@ -94,7 +94,8 @@ func (c *Roles) RolesUpdate(
 	entity.Name = request.Role.Name
 	entity.Permissions = request.Role.Permissions
 	entity.Users = lo.Map(
-		request.Role.Users, func(u *roles.CreateRequest_User, _ int) *model.ChannelRoleUser {
+		request.Role.Users,
+		func(u *roles.CreateRequest_User, _ int) *model.ChannelRoleUser {
 			return &model.ChannelRoleUser{
 				ID:     uuid.New().String(),
 				UserID: u.UserId,
@@ -102,6 +103,10 @@ func (c *Roles) RolesUpdate(
 			}
 		},
 	)
+
+	if entity.Permissions == nil {
+		entity.Permissions = pq.StringArray{}
+	}
 
 	txErr := c.Db.WithContext(ctx).Transaction(
 		func(tx *gorm.DB) error {
@@ -173,6 +178,10 @@ func (c *Roles) RolesCreate(
 				}
 			},
 		),
+	}
+
+	if entity.Permissions == nil {
+		entity.Permissions = pq.StringArray{}
 	}
 
 	if err := c.Db.WithContext(ctx).Create(entity).Error; err != nil {

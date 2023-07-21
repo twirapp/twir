@@ -75,68 +75,75 @@ async function save() {
 </script>
 
 <template>
-  <n-form ref="formRef">
-    <n-form-item label="Name" show-require-mark>
-      <n-input v-model:value="formValue.name" />
-    </n-form-item>
+	<n-form ref="formRef">
+		<n-form-item label="Name" show-require-mark>
+			<n-input v-model:value="formValue.name" />
+		</n-form-item>
 
-    <n-divider>Access to users</n-divider>
+		<n-divider>Access to users</n-divider>
 
-    <users-multi-search v-model="searchUsersIds" />
+		<users-multi-search v-model="searchUsersIds" />
 
-    <n-divider>Access by stats</n-divider>
+		<n-divider>Access by stats</n-divider>
 
-    <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
-      <n-grid-item :span="1">
-        <n-form-item label="Required watch time">
-          <n-input-number
-            v-model:value="formValue.settings!.requiredWatchTime"
-            :min="0" :max="99999999"
-          />
-        </n-form-item>
-      </n-grid-item>
+		<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
+			<n-grid-item :span="1">
+				<n-form-item label="Required watch time">
+					<n-input-number
+						v-model:value="formValue.settings!.requiredWatchTime"
+						:min="0" :max="99999999"
+					/>
+				</n-form-item>
+			</n-grid-item>
 
-      <n-grid-item :span="1">
-        <n-form-item label="Required messages">
-          <n-input-number
-            v-model:value="formValue.settings!.requiredMessages"
-            :min="0"
-            :max="99999999"
-          />
-        </n-form-item>
-      </n-grid-item>
+			<n-grid-item :span="1">
+				<n-form-item label="Required messages">
+					<n-input-number
+						v-model:value="formValue.settings!.requiredMessages"
+						:min="0"
+						:max="99999999"
+					/>
+				</n-form-item>
+			</n-grid-item>
 
-      <n-grid-item :span="1">
-        <n-form-item label="Required used channels points">
-          <n-input-number
-            v-model:value="formValue.settings!.requiredUserChannelPoints"
-            :min="0"
-            :max="999999999999"
-          />
-        </n-form-item>
-      </n-grid-item>
-    </n-grid>
+			<n-grid-item :span="1">
+				<n-form-item label="Required used channels points">
+					<n-input-number
+						v-model:value="formValue.settings!.requiredUserChannelPoints"
+						:min="0"
+						:max="999999999999"
+					/>
+				</n-form-item>
+			</n-grid-item>
+		</n-grid>
 
-    <n-divider>Permissions</n-divider>
+		<n-divider>Permissions</n-divider>
 
-    <n-checkbox-group v-model:value="formValue.permissions">
-      <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
-        <n-grid-item
-          v-for="(permission) of Object.entries(permissions)"
-          :key="permission[0]"
-          :span="1"
-        >
-          <n-checkbox :value="permission[0]" :label="permission[1]" :style="{ display: permission[1] == '' ? 'none' : undefined }" />
-        </n-grid-item>
-      </n-grid>
-    </n-checkbox-group>
+		<n-checkbox-group v-model:value="formValue.permissions">
+			<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
+				<n-grid-item
+					v-for="(permission) of Object.entries(permissions)"
+					:key="permission[0]"
+					:span="1"
+				>
+					<n-checkbox
+						:disabled="formValue.permissions.some(p => p === 'CAN_ACCESS_DASHBOARD') &&
+							permission[0] !== 'CAN_ACCESS_DASHBOARD'
+						"
+						:value="permission[0]"
+						:label="permission[1]"
+						:style="{ display: permission[1] == '' ? 'none' : undefined }"
+					/>
+				</n-grid-item>
+			</n-grid>
+		</n-checkbox-group>
 
-    <n-divider />
+		<n-divider />
 
-    <n-button secondary type="success" block style="margin-top:15px" @click="save">
-      Save
-    </n-button>
-  </n-form>
+		<n-button secondary type="success" block style="margin-top:15px" @click="save">
+			Save
+		</n-button>
+	</n-form>
 </template>
 
 <style scoped>

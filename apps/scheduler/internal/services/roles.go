@@ -28,7 +28,7 @@ var rolesForCreate = []string{
 
 func (c *Roles) CreateDefaultRoles(ctx context.Context, channelsIds []string) error {
 	var channels []model.Channels
-	if err := c.db.Where(`"id" IN ?`, channelsIds).Find(&channels).Error; err != nil {
+	if err := c.db.Where(`"id" IN ?`, channelsIds).Preload("Roles").Find(&channels).Error; err != nil {
 		return err
 	}
 
@@ -40,7 +40,8 @@ func (c *Roles) CreateDefaultRoles(ctx context.Context, channelsIds []string) er
 			func() error {
 				for _, roleType := range rolesForCreate {
 					isExists := lo.SomeBy(
-						channel.Roles, func(item *model.ChannelRole) bool {
+						channel.Roles,
+						func(item *model.ChannelRole) bool {
 							return item.Type.String() == roleType
 						},
 					)

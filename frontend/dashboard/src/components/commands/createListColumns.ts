@@ -1,8 +1,8 @@
 import { IconTrash, IconPencil } from '@tabler/icons-vue';
 import { DataTableColumns, NButton, NPopconfirm, NSpace, NSwitch, NTag, NText } from 'naive-ui';
-import { h } from 'vue';
+import { computed, h } from 'vue';
 
-import { useCommandsManager } from '@/api/index.js';
+import { useCommandsManager, useUserAccessFlagChecker } from '@/api/index.js';
 import type { ListRowData, EditableCommand } from '@/components/commands/types.js';
 import { renderIcon } from '@/helpers/index.js';
 
@@ -25,8 +25,10 @@ export const createListColumns = (
 	editCommand: (command: EditableCommand) => void,
 	deleter: Deleter,
 	patcher: (id: string, value: boolean) => any,
-): DataTableColumns<ListRowData> => {
-	return [
+) => {
+	const userCanManageCommands = useUserAccessFlagChecker('MANAGE_COMMANDS');
+
+	return computed<DataTableColumns<ListRowData>>(() => [
 		{
 			title: 'Name',
 			key: 'name',
@@ -80,6 +82,7 @@ export const createListColumns = (
 					NSwitch,
 					{
 						value: row.enabled,
+						disabled: !userCanManageCommands.value,
 						onUpdateValue: (value: boolean) => {
 							row.enabled = value;
 							patcher(row.id, value);
@@ -102,6 +105,7 @@ export const createListColumns = (
 						size: 'small',
 						onClick: () => editCommand(row),
 						quaternary: true,
+						disabled: !userCanManageCommands.value,
 					}, {
 						icon: renderIcon(IconPencil),
 					});
@@ -116,7 +120,7 @@ export const createListColumns = (
 							type: 'error',
 							size: 'small',
 							quaternary: true,
-							disabled: row.default,
+							disabled: row.default || !userCanManageCommands.value,
 						}, {
 							default: renderIcon(IconTrash),
 						}),
@@ -127,5 +131,5 @@ export const createListColumns = (
 				return h(NSpace, { }, { default: () => [editButton, deleteButton] });
 			},
 		},
-	];
+	]);
 };

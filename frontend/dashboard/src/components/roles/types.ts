@@ -3,7 +3,7 @@ import type { CreateRequest } from '@twir/grpc/generated/api/api/roles';
 export type EditableRole = CreateRequest & { id?: string };
 
 export const permissions = {
-	CAN_ACCESS_DASHBOARD: 'Can access dashboard',
+	CAN_ACCESS_DASHBOARD: 'All permissions',
 	empty1: '',
 
 	UPDATE_CHANNEL_TITLE: 'Can update channel title',

@@ -28,9 +28,7 @@ func (c *Auth) AuthUserProfile(ctx context.Context, _ *emptypb.Empty) (*auth.Pro
 
 		stillHasPermission := lo.SomeBy(
 			roles, func(role *model.ChannelRoleUser) bool {
-				return role.UserID == dbUser.ID &&
-					role.Role.ChannelID == selectedDashboardId &&
-					lo.Contains(role.Role.Permissions, model.RolePermissionCanAccessDashboard.String())
+				return role.UserID == dbUser.ID && role.Role.ChannelID == selectedDashboardId
 			},
 		)
 		if !stillHasPermission {
@@ -60,13 +58,11 @@ func (c *Auth) AuthSetDashboard(ctx context.Context, req *auth.SetDashboard) (*e
 
 	hasPermission := lo.SomeBy(
 		roles, func(role *model.ChannelRoleUser) bool {
-			return role.UserID == dbUser.ID &&
-				role.Role.ChannelID == req.DashboardId &&
-				lo.Contains(role.Role.Permissions, model.RolePermissionCanAccessDashboard.String())
+			return role.UserID == dbUser.ID && role.Role.ChannelID == req.DashboardId
 		},
 	)
 
-	if !hasPermission && !dbUser.IsBotAdmin {
+	if !hasPermission && !dbUser.IsBotAdmin && dbUser.ID != req.DashboardId {
 		return nil, fmt.Errorf("user %s does not have permission to access dashboard %s", dbUser.ID, req.DashboardId)
 	}
 

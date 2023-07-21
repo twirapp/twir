@@ -7,10 +7,6 @@ import { useTwitchSearchChannels, useTwitchGetUsers } from '@/api/index.js';
 
 const usersIds = defineModel<string[]>({ default: [] });
 
-const props = defineProps<{
-	initialUsersIds: string[];
-}>();
-
 const getUsers = useTwitchGetUsers({
 	ids: usersIds,
 });
@@ -130,20 +126,20 @@ const renderLabel = (option: Option) => {
 </script>
 
 <template>
-  <n-select
-    v-model:value="usersIds"
-    multiple
-    filterable
-    placeholder="Search users..."
-    :options="options"
-    :loading="twitchSearch.isLoading.value"
-    clearable
-    remote
-    :clear-filter-after-select="false"
-    :render-label="renderLabel as any"
-    :render-tag="renderMultipleSelectTag"
-    @search="handleSearch"
-  />
+	<n-select
+		v-model:value="usersIds"
+		multiple
+		filterable
+		placeholder="Search users..."
+		:options="options"
+		:loading="twitchSearch.isLoading.value"
+		clearable
+		remote
+		:clear-filter-after-select="false"
+		:render-label="renderLabel as any"
+		:render-tag="renderMultipleSelectTag"
+		@search="handleSearch"
+	/>
 </template>
 
 <style scoped lang='postcss'>
