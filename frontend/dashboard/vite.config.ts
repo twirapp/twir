@@ -22,6 +22,7 @@ export default defineConfig({
         description: 'An update available, please refresh the page to get latest features and bug fixes!',
         buttonText: 'refresh',
       },
+			checkInterval: 1 * 60 * 1000,
 		}),
 	],
 	base: '/dashboard',
