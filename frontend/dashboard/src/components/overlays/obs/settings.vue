@@ -13,7 +13,7 @@ import {
 	NSpace,
 	useMessage,
 } from 'naive-ui';
-import { ref, watch, toRaw, computed } from 'vue';
+import { ref, watch, toRaw } from 'vue';
 
 import { useObsOverlayManager } from '@/api/index.js';
 
@@ -22,7 +22,7 @@ const obsSettings = obsSettingsManager.getSettings();
 const obsSettingsUpdater = obsSettingsManager.updateSettings();
 
 const formRef = ref<FormInst | null>(null);
-const formValue = ref<OBSSettings>({
+const formValue = ref<Omit<OBSSettings, 'isConnected'>>({
 	audioSources: [],
 	scenes: [],
 	sources: [],
@@ -85,49 +85,49 @@ async function checkConnection() {
 </script>
 
 <template>
-  <n-alert type="info">
-    This overlay used for connect TwirApp with your obs. It gives opportunity to bot manage your sources, scenes, audio sources on events.
-  </n-alert>
+	<n-alert type="info">
+		This overlay used for connect TwirApp with your obs. It gives opportunity to bot manage your sources, scenes, audio sources on events.
+	</n-alert>
 
-  <n-form
-    ref="formRef"
-    :model="formValue"
-    :rules="rules"
-    style="margin-top:15px"
-  >
-    <n-form-item
-      label="Address."
-      required
-      path="serverAddress"
-    >
-      <n-input v-model:value="formValue.serverAddress" placeholder="Usually it's localhost" />
-    </n-form-item>
+	<n-form
+		ref="formRef"
+		:model="formValue"
+		:rules="rules"
+		style="margin-top:15px"
+	>
+		<n-form-item
+			label="Address."
+			required
+			path="serverAddress"
+		>
+			<n-input v-model:value="formValue.serverAddress" placeholder="Usually it's localhost" />
+		</n-form-item>
 
-    <n-form-item label="Port" required path="serverPort">
-      <n-input-number v-model:value="formValue.serverPort" :min="1" :max="66000" placeholder="Socket port" />
-    </n-form-item>
+		<n-form-item label="Port" required path="serverPort">
+			<n-input-number v-model:value="formValue.serverPort" :min="1" :max="66000" placeholder="Socket port" />
+		</n-form-item>
 
-    <n-form-item label="Password" required path="serverPassword">
-      <n-input
-        v-model:value="formValue.serverPassword"
-        type="password"
-        show-password-on="click"
-        placeholder="Socket password"
-      />
-    </n-form-item>
+		<n-form-item label="Password" required path="serverPassword">
+			<n-input
+				v-model:value="formValue.serverPassword"
+				type="password"
+				show-password-on="click"
+				placeholder="Socket password"
+			/>
+		</n-form-item>
 
-    <n-alert :type="obsSettings.data.value?.isConnected ? 'success' : 'error'" :bordered="false">
-      {{ obsSettings.data.value?.isConnected ? 'Connected' : 'Not connected' }}
-    </n-alert>
+		<n-alert :type="obsSettings.data.value?.isConnected ? 'success' : 'error'" :bordered="false">
+			{{ obsSettings.data.value?.isConnected ? 'Connected' : 'Not connected' }}
+		</n-alert>
 
-    <n-space vertical style="margin-top: 10px">
-      <n-button block secondary type="info" @click="checkConnection">
-        Check connection
-      </n-button>
+		<n-space vertical style="margin-top: 10px">
+			<n-button block secondary type="info" @click="checkConnection">
+				Check connection
+			</n-button>
 
-      <n-button block secondary type="success" @click="save">
-        Save
-      </n-button>
-    </n-space>
-  </n-form>
+			<n-button block secondary type="success" @click="save">
+				Save
+			</n-button>
+		</n-space>
+	</n-form>
 </template>

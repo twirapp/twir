@@ -1,10 +1,11 @@
 <script setup lang='ts'>
 import { refDebounced } from '@vueuse/core';
 import { NSelect, NTag, NAvatar } from 'naive-ui';
-import { computed, ref, watch, h, defineModel } from 'vue';
+import { computed, ref, watch, h } from 'vue';
 
 import { useTwitchSearchChannels, useTwitchGetUsers } from '@/api/index.js';
 
+// eslint-disable-next-line no-undef
 const userId = defineModel<string>({ default: '' });
 
 const props = defineProps<{

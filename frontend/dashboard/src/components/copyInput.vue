@@ -21,11 +21,11 @@ async function copy() {
 </script>
 
 <template>
-  <n-input-group>
-    <n-input type="text" size="small" :value="text" disabled />
-    <n-button size="small" type="primary" @click="copy">
-      <span v-if="!isPending">Copy</span>
-      <span v-else>Copied</span>
-    </n-button>
-  </n-input-group>
+	<n-input-group>
+		<n-input type="text" size="small" :value="text" disabled />
+		<n-button size="small" type="primary" @click="copy">
+			<span v-if="!isPending">Copy</span>
+			<span v-else>Copied</span>
+		</n-button>
+	</n-input-group>
 </template>

@@ -2,13 +2,14 @@
 import { IconVariable } from '@tabler/icons-vue';
 import { NText, NInput, NInputGroup, NButton, NPopselect } from 'naive-ui';
 import { type SelectMixedOption } from 'naive-ui/es/select/src/interface';
-import { computed, VNodeChild, h, defineModel, FunctionalComponent, defineSlots } from 'vue';
+import { computed, VNodeChild, h, FunctionalComponent } from 'vue';
 
 import { useAllVariables } from '@/api/index.js';
 
+// eslint-disable-next-line no-undef
 const text = defineModel({ default: '' });
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
 	inputType?: 'text' | 'textarea',
 	minRows?: number,
 	maxRows?: number,
@@ -97,27 +98,27 @@ function appendOptionToText(option: SelectMixedOption) {
 </script>
 
 <template>
-  <n-input-group>
-    <n-input
-      v-model:value="text"
-      style="width: 100%"
-      :type="inputType"
-      :autosize="inputType === 'text' ? {} : { minRows, maxRows }"
-      placeholder="Response text"
-    />
-    <n-popselect
-      :options="selectVariables"
-      :loading="allVariables.isLoading.value"
-      scrollable
-      :value="null"
-      :render-label="renderVariableSelectLabel as any"
-      :on-update-value="(_, option) => appendOptionToText(option)"
-    >
-      <n-button style="height:auto">
-        <IconVariable />
-      </n-button>
-    </n-popselect>
-  </n-input-group>
+	<n-input-group>
+		<n-input
+			v-model:value="text"
+			style="width: 100%"
+			:type="inputType"
+			:autosize="inputType === 'text' ? {} : { minRows, maxRows }"
+			placeholder="Response text"
+		/>
+		<n-popselect
+			:options="selectVariables"
+			:loading="allVariables.isLoading.value"
+			scrollable
+			:value="null"
+			:render-label="renderVariableSelectLabel as any"
+			:on-update-value="(_, option) => appendOptionToText(option)"
+		>
+			<n-button style="height:auto">
+				<IconVariable />
+			</n-button>
+		</n-popselect>
+	</n-input-group>
 </template>
 
 <style scoped lang='postcss'>
