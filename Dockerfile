@@ -63,6 +63,16 @@ FROM go_prod_base as emotes-cacher
 COPY --from=emotes-cacher_builder /app/apps/emotes-cacher/out /bin/emotes-cacher
 CMD ["/bin/emotes-cacher"]
 
+FROM builder as ytsr_builder
+WORKDIR /app
+RUN cd apps/ytsr && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as ytsr
+COPY --from=ytsr_builder /app/apps/ytsr/out /bin/ytsr
+CMD ["/bin/bots"]
+
 FROM builder as events_builder
 RUN cd apps/events && \
     go mod download && \
@@ -188,29 +198,16 @@ COPY --from=integrations_builder /app/libs/config /app/libs/config
 COPY --from=integrations_builder /app/libs/grpc /app/libs/grpc
 CMD ["pnpm", "--filter=@twir/integrations", "start"]
 
-FROM builder as ytsr_builder
-RUN cd apps/ytsr && \
-    pnpm build && \
-    pnpm prune --prod
-
-FROM node_prod_base as ytsr
-WORKDIR /app
-COPY --from=ytsr_builder /app/apps/ytsr /app/apps/ytsr
-COPY --from=ytsr_builder /app/libs/grpc /app/libs/grpc
-COPY --from=ytsr_builder /app/libs/config /app/libs/config
-CMD ["pnpm", "--filter=@twir/ytsr", "start"]
-
 ### FRONTEND
 
-FROM builder as dashboard_builder
+FROM builder as overlays_builder
 RUN cd frontend/dashboard && \
-    pnpm build && \
-    pnpm prune --prod
+    pnpm build
 
-FROM node_prod_base as dashboard
-WORKDIR /app
-COPY --from=dashboard_builder /app /app
-CMD ["pnpm", "--filter=@twir/dashboard", "start"]
+FROM steebchen/nginx-spa:stable as dashboard
+COPY --from=dashboard_builder /app/frontend/dashboard/dist/ /app
+EXPOSE 80
+CMD ["nginx"]
 
 FROM builder as landing_builder
 RUN cd frontend/landing && \
