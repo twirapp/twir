@@ -10,6 +10,7 @@ import {
 	NResult,
 } from 'naive-ui';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useRolesManager, useUserAccessFlagChecker } from '@/api/index.js';
 import RoleModal from '@/components/roles/modal.vue';
@@ -29,10 +30,12 @@ const closeModal = () => showModal.value = false;
 
 const userCanViewRoles = useUserAccessFlagChecker('VIEW_ROLES');
 const userCanManageRoles = useUserAccessFlagChecker('MANAGE_ROLES');
+
+const { t } = useI18n();
 </script>
 
 <template>
-	<n-result v-if="!userCanViewRoles" status="403" title="You haven't acces to view roles" />
+	<n-result v-if="!userCanViewRoles" status="403" :title="t('haveNoAccess.message')" />
 	<div v-else>
 		<n-space align="center" justify="center" vertical>
 			<n-card
@@ -66,15 +69,19 @@ const userCanManageRoles = useUserAccessFlagChecker('MANAGE_ROLES');
 					</n-text>
 					<n-space>
 						<n-button :disabled="!userCanManageRoles" secondary type="success" @click="openModal(role)">
-							Edit
+							{{ t('sharedButtons.edit') }}
 						</n-button>
-						<n-popconfirm @positive-click="() => rolesDeleter.mutateAsync({ id: role.id })">
+						<n-popconfirm
+							:positive-text="t('deleteConfirmation.confirm')"
+							:negative-text="t('deleteConfirmation.cancel')"
+							@positive-click="() => rolesDeleter.mutateAsync({ id: role.id })"
+						>
 							<template #trigger>
 								<n-button :disabled="role.type !== 'CUSTOM' || !userCanManageRoles" secondary type="error">
-									Remove
+									{{ t('sharedButtons.delete') }}
 								</n-button>
 							</template>
-							Are you sure?
+							{{ t('deleteConfirmation.text') }}
 						</n-popconfirm>
 					</n-space>
 				</n-space>

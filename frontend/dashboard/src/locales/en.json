@@ -8,7 +8,8 @@
 		"delete": "Delete",
 		"settings": "Settings",
 		"login": "Login",
-		"logout": "Logout"
+		"logout": "Logout",
+		"edit": "Edit"
   },
 	"sharedTexts": {
 		"saved": "Saved",
@@ -218,6 +219,25 @@
 				"intervalInMinutes": "Interval in minutes",
 				"intervalInMessages": "Interval in messages"
 			}
+		},
+		"modal": {
+			"timelineDescription": "One response will be sent once every N intervals, example:",
+			"validations": {
+				"nameLong": "Name is too long",
+				"nameRequired": "Name is required",
+				"responseRequired": "Response text is required",
+				"responseLong": "Response is to long"
+			}
+		}
+	},
+	"roles": {
+		"modal": {
+			"accessToUsers": "Users, who have access",
+			"accessByStats": "Stats, for get this role",
+			"requiredWatchTime": "Required watch time",
+			"requiredMessages": "Required messages",
+			"requiredChannelPoints": "Required channels points",
+			"permissions": "Permissions"
 		}
 	}
 }

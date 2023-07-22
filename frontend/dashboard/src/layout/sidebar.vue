@@ -28,6 +28,10 @@ import { renderIcon } from '../helpers/index.js';
 
 import { useProfile, useTwitchGetUsers } from '@/api/index.js';
 
+defineProps<{
+	isCollapsed: boolean
+}>();
+
 const activeKey = ref<string | null>('/');
 const menuOptions: (MenuOption | MenuDividerOption)[] = [
 	{
@@ -180,7 +184,7 @@ const selectedDashboard = computed(() => {
 				<n-spin v-if="!selectedDashboard || isProfileLoading" />
 				<n-space v-else align="center">
 					<n-avatar style="display: flex; align-self: center;" :src="selectedDashboard.profileImageUrl" />
-					<n-space vertical style="gap: 0; width: 100%">
+					<n-space v-if="!isCollapsed" vertical style="gap: 0; width: 100%">
 						<n-text>{{ selectedDashboard.displayName }}</n-text>
 						<n-text style="font-size: 12px;">
 							Manage dashboard

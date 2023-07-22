@@ -25,6 +25,7 @@ import {
   NCheckbox,
 } from 'naive-ui';
 import { ref, onMounted, toRaw } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useTimersManager } from '@/api/index.js';
 import type { EditableTimer, EditableTimerResponse } from '@/components/timers/types.js';
@@ -37,6 +38,8 @@ const emits = defineEmits<{
 }>();
 
 const nowTime = new Date();
+
+const { t } = useI18n();
 
 const formRef = ref<FormInst | null>(null);
 const formValue = ref<EditableTimer>({
@@ -51,10 +54,10 @@ const rules: FormRules = {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: string) => {
 			if (!value || !value.length) {
-				return new Error('Name is required');
+				return new Error(t('timers.modal.validations.nameRequired'));
 			}
-			if (value.length > 50) {
-				return new Error('Name is too long');
+			if (value.length > 25) {
+				return new Error(t('timers.modal.validations.nameLong'));
 			}
 			return true;
 		},
@@ -71,26 +74,14 @@ const rules: FormRules = {
 			return true;
 		},
 	},
-	messageInterval: {
-		trigger: ['input', 'blur'],
-		validator: (_: FormItemRule, value: number) => {
-			if (value < 0) {
-				return new Error('Message interval is too short');
-			}
-			if (value > 5000) {
-				return new Error('Message interval is too long');
-			}
-			return true;
-		},
-	},
 	responses: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: string) => {
 			if (!value || !value.length) {
-				return new Error('Text is required');
+				return new Error(t('timers.modal.validations.responseRequired'));
 			}
 			if (value.length > 500) {
-				return new Error('Text is too long');
+				return new Error(t('timers.modal.validations.responseLong'));
 			}
 			return true;
 		},
@@ -143,10 +134,10 @@ const sliderMarks = {
 		:rules="rules"
 	>
 		<n-space vertical style="width: 100%">
-			<n-form-item label="Name" path="name" show-require-mark>
-				<n-input v-model:value="formValue.name" />
+			<n-form-item :label="t('sharedTexts.name')" path="name" show-require-mark>
+				<n-input v-model:value="formValue.name" :placeholder="t('sharedTexts.name')" :maxlength="25" />
 			</n-form-item>
-			<n-form-item label="Time interval in minutes" path="timeInterval" show-require-mark>
+			<n-form-item :label="t('timers.table.columns.intervalInMinutes')" path="timeInterval" show-require-mark>
 				<n-grid :cols="12" :x-gap="5">
 					<n-grid-item :span="10">
 						<n-slider
@@ -166,12 +157,11 @@ const sliderMarks = {
 			<!--      </n-form-item>-->
 
 			<n-divider>
-				Responses
+				{{ t('sharedTexts.responses') }}
 			</n-divider>
 
 			<n-dynamic-input
 				v-model:value="formValue.responses"
-				placeholder="Timer response"
 				class="groups"
 				:create-button-props="{ class: 'create-button' } as any"
 			>
@@ -181,7 +171,7 @@ const sliderMarks = {
 							<n-input
 								v-model:value="value.text"
 								type="textarea"
-								placeholder="Response text"
+								placeholder="text"
 								:autosize="{
 									minRows: 1,
 									maxRows: 5
@@ -226,12 +216,12 @@ const sliderMarks = {
 				block
 				@click="() => formValue.responses.push({ text: '', isAnnounce: false })"
 			>
-				<IconPlus /> Create
+				<IconPlus /> {{ t('sharedButtons.create') }}
 			</n-button>
 
 			<n-divider />
 
-			One response will be sent once every N intervals, example:
+			{{ t('timers.modal.timelineDescription') }}
 			<n-timeline>
 				<n-timeline-item
 					v-for="(response, index) in formValue.responses"
@@ -247,7 +237,7 @@ const sliderMarks = {
 			<n-divider />
 
 			<n-button secondary type="success" block style="margin-top: 10px" @click="save">
-				Save
+				{{ t('sharedButtons.save') }}
 			</n-button>
 		</n-space>
 	</n-form>

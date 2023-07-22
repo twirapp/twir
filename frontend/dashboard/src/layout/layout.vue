@@ -64,11 +64,11 @@ watch(smallerOrEqualLg, (v) => {
 						:collapsed="isSidebarCollapsed"
 						:show-collapsed-content="false"
 					>
-						<Sidebar />
+						<Sidebar :is-collapsed="isSidebarCollapsed" />
 					</n-layout-sider>
 					<n-drawer v-else v-model:show="storedDrawerValue" placement="left">
 						<n-drawer-content body-content-style="padding: 0px">
-							<Sidebar />
+							<Sidebar :is-collapsed="isSidebarCollapsed" />
 						</n-drawer-content>
 					</n-drawer>
 					<n-layout-content content-style="padding: 24px; width: 100%">

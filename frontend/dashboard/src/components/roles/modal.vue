@@ -13,6 +13,7 @@ import {
   NButton,
 } from 'naive-ui';
 import { ref, onMounted, toRaw, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useRolesManager, PERMISSIONS_FLAGS } from '@/api/index.js';
 import { type EditableRole } from '@/components/roles/types.js';
@@ -71,24 +72,24 @@ async function save() {
 	emits('close');
 }
 
-
+const { t } = useI18n();
 </script>
 
 <template>
 	<n-form ref="formRef">
-		<n-form-item label="Name" show-require-mark>
+		<n-form-item :label="t('sharedTexts.name')" show-require-mark>
 			<n-input v-model:value="formValue.name" />
 		</n-form-item>
 
-		<n-divider>Access to users</n-divider>
+		<n-divider>{{ t('roles.modal.accessToUsers') }}</n-divider>
 
 		<users-multi-search v-model="searchUsersIds" />
 
-		<n-divider>Access by stats</n-divider>
+		<n-divider>{{ t('roles.modal.accessByStats') }}</n-divider>
 
 		<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
 			<n-grid-item :span="1">
-				<n-form-item label="Required watch time">
+				<n-form-item :label="t('roles.modal.requiredWatchTime')">
 					<n-input-number
 						v-model:value="formValue.settings!.requiredWatchTime"
 						:min="0" :max="99999999"
@@ -97,7 +98,7 @@ async function save() {
 			</n-grid-item>
 
 			<n-grid-item :span="1">
-				<n-form-item label="Required messages">
+				<n-form-item :label="t('roles.modal.requiredMessages')">
 					<n-input-number
 						v-model:value="formValue.settings!.requiredMessages"
 						:min="0"
@@ -107,7 +108,7 @@ async function save() {
 			</n-grid-item>
 
 			<n-grid-item :span="1">
-				<n-form-item label="Required used channels points">
+				<n-form-item :label="t('roles.modal.requiredChannelPoints')">
 					<n-input-number
 						v-model:value="formValue.settings!.requiredUserChannelPoints"
 						:min="0"
@@ -117,7 +118,7 @@ async function save() {
 			</n-grid-item>
 		</n-grid>
 
-		<n-divider>Permissions</n-divider>
+		<n-divider>{{ t('roles.modal.permissions') }}</n-divider>
 
 		<n-checkbox-group v-model:value="formValue.permissions">
 			<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
@@ -141,7 +142,7 @@ async function save() {
 		<n-divider />
 
 		<n-button secondary type="success" block style="margin-top:15px" @click="save">
-			Save
+			{{ t('sharedButtons.save') }}
 		</n-button>
 	</n-form>
 </template>
