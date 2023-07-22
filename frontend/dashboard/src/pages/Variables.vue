@@ -13,6 +13,7 @@ import {
 	NResult,
 } from 'naive-ui';
 import { computed, h, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useUserAccessFlagChecker, useVariablesManager } from '@/api/index.js';
 import Modal from '@/components/variables/modal.vue';
@@ -29,16 +30,18 @@ const showModal = ref(false);
 const userCanViewVariables = useUserAccessFlagChecker('VIEW_VARIABLES');
 const userCanManageVariables = useUserAccessFlagChecker('MANAGE_VARIABLES');
 
+const { t } = useI18n();
+
 const columns = computed<DataTableColumns<Variable>>(() => [
 	{
-		title: 'Name',
+		title: t('sharedTexts.name'),
 		key: 'name',
 		render(row) {
 			return h(NTag, { type: 'info', bordered: false }, { default: () => row.name });
 		},
 	},
 	{
-		title: 'Type',
+		title: t('variables.type'),
 		key: 'type',
 		render(row) {
 			return h(NTag, { type: 'info', bordered: true }, {
@@ -58,7 +61,7 @@ const columns = computed<DataTableColumns<Variable>>(() => [
 		},
 	},
 	{
-		title: 'Response',
+		title: t('sharedTexts.response'),
 		key: 'response',
 		render(row) {
 			return h(NTag, { type: 'info', bordered: true }, {
@@ -67,7 +70,7 @@ const columns = computed<DataTableColumns<Variable>>(() => [
 		},
 	},
 	{
-		title: 'Actions',
+		title: t('sharedTexts.actions'),
 		key: 'actions',
 		width: 150,
 		render(row) {
@@ -87,6 +90,8 @@ const columns = computed<DataTableColumns<Variable>>(() => [
 				NPopconfirm,
 				{
 					onPositiveClick: () => variablesDeleter.mutate({ id: row.id! }),
+					positiveText: t('deleteConfirmation.confirm'),
+					negativeText: t('deleteConfirmation.cancel'),
 				},
 				{
 					trigger: () => h(NButton, {
@@ -97,7 +102,7 @@ const columns = computed<DataTableColumns<Variable>>(() => [
 					}, {
 						default: renderIcon(IconTrash),
 					}),
-					default: () => 'Are you sure you want to delete this variable?',
+					default: () => t('deleteConfirmation.text'),
 				},
 			);
 
@@ -117,16 +122,16 @@ function closeModal() {
 </script>
 
 <template>
-	<n-result v-if="!userCanViewVariables" status="403" title="You haven't acces to view variables"></n-result>
+	<n-result v-if="!userCanViewVariables" status="403" :title="t('haveNoAccess.message')"></n-result>
 	<div v-else>
 		<n-space justify="space-between" align="center">
-			<h2>Variables</h2>
+			<h2>{{ t('variables.title') }}</h2>
 			<n-button :disabled="!userCanManageVariables" secondary type="success" @click="openModal(null)">
-				Create
+				{{ t('sharedButtons.create') }}
 			</n-button>
 		</n-space>
-		<n-alert>
-			When you create variable, then you can use them in bot responses.
+		<n-alert type="info">
+			{{ t('variables.info') }}
 		</n-alert>
 		<n-data-table
 			:isLoading="variables.isLoading.value"

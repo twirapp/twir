@@ -46,7 +46,7 @@ const columns = computed<DataTableColumns<Keyword>>(() => [
 		},
 	},
 	{
-		title: t('sharedTexts.responses'),
+		title: t('sharedTexts.response'),
 		key: 'response',
 		render(row) {
 			return h(NTag, { type: 'info', bordered: true }, { default: () => row.response || 'No response' });
@@ -125,7 +125,7 @@ function closeModal() {
 </script>
 
 <template>
-	<n-result v-if="!userCanViewKeywords" status="403" title="You can't view keywords" />
+	<n-result v-if="!userCanViewKeywords" status="403" :title="t('haveNoAccess.message')" />
 
 	<div v-else>
 		<n-space justify="space-between" align="center">

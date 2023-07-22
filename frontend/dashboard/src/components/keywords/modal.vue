@@ -114,7 +114,7 @@ const rules: FormRules = {
 				</n-alert>
 			</n-space>
 
-			<n-form-item :label="t('keywords.response')" path="response">
+			<n-form-item :label="t('sharedTexts.response')" path="response">
 				<text-with-variables
 					v-model="formValue.response"
 					:min-rows="1"

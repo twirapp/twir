@@ -13,6 +13,7 @@ import {
   NButton,
 } from 'naive-ui';
 import { ref, onMounted, toRaw } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useVariablesManager } from '@/api/index.js';
 import { EditableVariable } from '@/components/variables/types.js';
@@ -63,15 +64,17 @@ async function save() {
 	emits('close');
 }
 
+const { t } = useI18n();
+
 const rules: FormRules = {
 	name: {
 		trigger: ['input', 'blur'],
-		validator: (rule: FormItemRule, value: string) => {
+		validator: (_: FormItemRule, value: string) => {
 			if (!value || !value.length) {
-				return new Error('Name is required');
+				return new Error(t('variables.validations.nameRequired'));
 			}
 			if (value.length > 20) {
-				return new Error('Name is too long');
+				return new Error(t('variables.validations.nameLong'));
 			}
 			return true;
 		},
@@ -94,46 +97,42 @@ const selectOptions: Array<SelectOption> = [
 </script>
 
 <template>
-  <n-form
-    ref="formRef"
-    :model="formValue"
-    :rules="rules"
-    :style="{
-      width: formValue.type === VariableType.SCRIPT ? '900px' : '400px',
-    }"
-  >
-    <n-space vertical style="width: 100%">
-      <n-form-item label="Name" path="name" show-require-mark>
-        <n-input v-model:value="formValue.name" />
-      </n-form-item>
+	<n-form
+		ref="formRef"
+		:model="formValue"
+		:rules="rules"
+		:style="{
+			width: formValue.type === VariableType.SCRIPT ? '900px' : '400px',
+		}"
+	>
+		<n-space vertical style="width: 100%">
+			<n-form-item :label="t('sharedTexts.name')" path="name" show-require-mark>
+				<n-input v-model:value="formValue.name" />
+			</n-form-item>
 
-      <n-form-item label="Type" path="type" show-require-mark>
-        <n-select
-          v-model:value="formValue.type"
-          :options="selectOptions"
-        />
-      </n-form-item>
+			<n-form-item :label="t('variables.type')" path="type" show-require-mark>
+				<n-select
+					v-model:value="formValue.type"
+					:options="selectOptions"
+				/>
+			</n-form-item>
 
-      <n-form-item label="Eval value" path="response">
-        <vue-monaco-editor
-          v-if="formValue.type === VariableType.SCRIPT"
-          v-model:value="formValue.evalValue"
-          theme="vs-dark"
-          height="500px"
-          language="javascript"
-        />
-        <n-input
-          v-else
-          v-model:value="formValue.response"
-        />
-      </n-form-item>
-    </n-space>
-    <n-button secondary type="success" block style="margin-top: 10px" @click="save">
-      Save
-    </n-button>
-  </n-form>
+			<n-form-item label="JavaScript" path="response">
+				<vue-monaco-editor
+					v-if="formValue.type === VariableType.SCRIPT"
+					v-model:value="formValue.evalValue"
+					theme="vs-dark"
+					height="500px"
+					language="javascript"
+				/>
+				<n-input
+					v-else
+					v-model:value="formValue.response"
+				/>
+			</n-form-item>
+		</n-space>
+		<n-button secondary type="success" block style="margin-top: 10px" @click="save">
+			{{ t('sharedTexts.save') }}
+		</n-button>
+	</n-form>
 </template>
-
-<style scoped lang='postcss'>
-
-</style>
