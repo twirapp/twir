@@ -18,7 +18,7 @@ require (
 	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/pubsub v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/twitch v0.0.0-00010101000000-000000000000
-	github.com/satont/twir/libs/types v0.0.0-20230501072144-eb4ca703ed7c
+	github.com/satont/twir/libs/types v0.0.0-00010101000000-000000000000
 	github.com/satori/go.uuid v1.2.0
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.55.0
@@ -88,3 +88,5 @@ replace github.com/satont/twir/libs/grpc => ../../libs/grpc
 replace github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 
 replace github.com/satont/twir/libs/gopool => ../../libs/gopool
+
+replace github.com/satont/twir/libs/types => ../../libs/types

@@ -12,6 +12,7 @@ replace (
 
 require (
 	github.com/getsentry/sentry-go v0.18.0
+	github.com/guregu/null v4.0.0+incompatible
 	github.com/nicklaw5/helix/v2 v2.22.1
 	github.com/samber/lo v1.38.1
 	github.com/satont/twir/libs/config v0.0.0-00010101000000-000000000000
@@ -32,7 +33,6 @@ require (
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.3.1 // indirect
