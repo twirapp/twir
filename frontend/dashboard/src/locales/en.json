@@ -17,7 +17,11 @@
 		"status": "Status",
 		"name": "Name",
 		"actions": "Actions",
-		"responses": "Responses"
+		"responses": "Responses",
+		"reply": {
+			"label": "Reply",
+			"text": "Bot will send commands responses as reply"
+		}
 	},
 	"deleteConfirmation": {
 		"text": "Are you sure you want delete this thing?",
@@ -87,10 +91,6 @@
       },
 			"settings": {
 				"divider": "Settings",
-				"reply": {
-					"label": "Reply",
-					"text": "Bot will send commands responses as reply"
-				},
 				"visible": {
 					"label": "Visibility",
 					"text": "Command visibility in public page, in commands list variable."
@@ -238,6 +238,21 @@
 			"requiredMessages": "Required messages",
 			"requiredChannelPoints": "Required channels points",
 			"permissions": "Permissions"
+		}
+	},
+	"keywords": {
+		"title": "Keywords",
+		"triggerText": "Trigger text",
+		"usages": "Usages count",
+		"response": "Response",
+		"isRegular": "Is regular expression",
+		"regularDescription": "Regular expression should be written for golang!",
+		"settings": "Settings",
+		"cooldown": "Cooldown (seconds)",
+		"validations": {
+			"triggerRequired": "Trigger is required",
+			"triggerLong": "Trigger is to long",
+			"responseLong": "Response is to long"
 		}
 	}
 }

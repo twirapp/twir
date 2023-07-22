@@ -396,8 +396,8 @@ async function save() {
 				<n-card>
 					<div class="settings-card-body">
 						<n-space vertical>
-							<n-text>{{ t("commands.modal.settings.reply.label") }}</n-text>
-							<n-text>{{ t("commands.modal.settings.reply.text") }}</n-text>
+							<n-text>{{ t("sharedTexts.reply.label") }}</n-text>
+							<n-text>{{ t("sharedTexts.reply.text") }}</n-text>
 						</n-space>
 						<n-switch v-model:value="formValue.isReply" />
 					</div>

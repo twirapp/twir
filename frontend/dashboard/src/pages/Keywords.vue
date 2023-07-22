@@ -14,6 +14,7 @@ import {
 	NResult,
 } from 'naive-ui';
 import { computed, h, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useKeywordsManager, useUserAccessFlagChecker } from '@/api/index.js';
 import Modal from '@/components/keywords/modal.vue';
@@ -34,30 +35,32 @@ const showModal = ref(false);
 const userCanViewKeywords = useUserAccessFlagChecker('VIEW_KEYWORDS');
 const userCanManageKeywords = useUserAccessFlagChecker('MANAGE_KEYWORDS');
 
+const { t } = useI18n();
+
 const columns = computed<DataTableColumns<Keyword>>(() => [
 	{
-		title: 'Trigger',
+		title: t('keywords.triggerText'),
 		key: 'text',
 		render(row) {
 			return h(NTag, { type: 'info', bordered: false }, { default: () => row.text });
 		},
 	},
 	{
-		title: 'Response',
+		title: t('sharedTexts.responses'),
 		key: 'response',
 		render(row) {
 			return h(NTag, { type: 'info', bordered: true }, { default: () => row.response || 'No response' });
 		},
 	},
 	{
-		title: 'Usages',
+		title: t('keywords.usages'),
 		key: 'usages',
 		render(row) {
 			return h(NTag, { type: 'info', bordered: true }, { default: () => row.usages });
 		},
 	},
 	{
-		title: 'Status',
+		title: t('sharedTexts.status'),
 		key: 'enabled',
 		render(row) {
 			return h(NSwitch, {
@@ -70,7 +73,7 @@ const columns = computed<DataTableColumns<Keyword>>(() => [
 		},
 	},
 	{
-		title: 'Actions',
+		title: t('sharedTexts.actions'),
 		key: 'actions',
 		width: 150,
 		render(row) {
@@ -90,6 +93,8 @@ const columns = computed<DataTableColumns<Keyword>>(() => [
 				NPopconfirm,
 				{
 					onPositiveClick: () => keywordsDeleter.mutate({ id: row.id }),
+					positiveText: t('deleteConfirmation.confirm'),
+					negativeText: t('deleteConfirmation.cancel'),
 				},
 				{
 					trigger: () => h(NButton, {
@@ -100,7 +105,7 @@ const columns = computed<DataTableColumns<Keyword>>(() => [
 					}, {
 						default: renderIcon(IconTrash),
 					}),
-					default: () => 'Are you sure you want to delete this keyword?',
+					default: () => t('deleteConfirmation.text'),
 				},
 			);
 
@@ -124,9 +129,9 @@ function closeModal() {
 
 	<div v-else>
 		<n-space justify="space-between" align="center">
-			<h2>Keywords</h2>
+			<h2>{{ t('keywords.title') }}</h2>
 			<n-button :disabled="!userCanManageKeywords" secondary type="success" @click="openModal(null)">
-				Create
+				{{ t('sharedButtons.create') }}
 			</n-button>
 		</n-space>
 		<n-data-table

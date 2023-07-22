@@ -16,8 +16,10 @@ import {
   NCard,
   NText,
   NButton,
+	NAlert,
 } from 'naive-ui';
 import { ref, onMounted, toRaw } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useKeywordsManager } from '@/api/index.js';
 import type { EditableKeyword } from '@/components/keywords/types.js';
@@ -67,32 +69,26 @@ async function save() {
 	emits('close');
 }
 
+const { t } = useI18n();
+
 const rules: FormRules = {
 	text: {
 		trigger: ['input', 'blur'],
-		validator: (rule: FormItemRule, value: string) => {
+		validator: (_: FormItemRule, value: string) => {
 			if (!value || !value.length) {
-				return new Error('Text is required');
+				return new Error(t('keywords.validations.triggerRequired'));
 			}
 
-			return true;
-		},
-	},
-	usages: {
-		trigger: ['input', 'blur'],
-		validator: (rule: FormItemRule, value: number) => {
-			if (value < 0) {
-				return new Error('Usages are too short');
-			}
+			if (value.length > 500) return new Error(t('keywords.validations.triggerLong'));
 
 			return true;
 		},
 	},
 	response: {
 		trigger: ['input', 'blue'],
-		validator: (rule: FormItemRule, value: string) => {
+		validator: (_: FormItemRule, value: string) => {
 			if (value?.length > 500) {
-				return new Error('Response is too long');
+				return new Error(t('keywords.validations.responseLong'));
 			}
 		},
 	},
@@ -100,61 +96,66 @@ const rules: FormRules = {
 </script>
 
 <template>
-  <n-form
-    ref="formRef"
-    :model="formValue"
-    :rules="rules"
-  >
-    <n-space vertical style="width: 100%">
-      <n-form-item label="Text" path="text" show-require-mark>
-        <n-input v-model:value="formValue.text" />
-      </n-form-item>
-      <n-checkbox v-model:checked="formValue.isRegular">
-        Is regular expression
-      </n-checkbox>
+	<n-form
+		ref="formRef"
+		:model="formValue"
+		:rules="rules"
+	>
+		<n-space vertical style="width: 100%">
+			<n-space vertical style="gap:0">
+				<n-form-item :label="t('keywords.triggerText')" path="text" show-require-mark>
+					<n-input v-model:value="formValue.text" />
+				</n-form-item>
+				<n-checkbox v-model:checked="formValue.isRegular">
+					{{ t('keywords.isRegular') }}
+				</n-checkbox>
+				<n-alert v-if="formValue.isRegular" type="info">
+					{{ t('keywords.regularDescription') }}
+				</n-alert>
+			</n-space>
 
-      <n-form-item label="Response" path="response">
-        <text-with-variables
-          v-model="formValue.response"
-          :min-rows="1"
-          :max-rows="6"
-          inputType="textarea"
-        />
-      </n-form-item>
+			<n-form-item :label="t('keywords.response')" path="response">
+				<text-with-variables
+					v-model="formValue.response"
+					:min-rows="1"
+					:max-rows="6"
+					inputType="textarea"
+				/>
+			</n-form-item>
 
-      <n-divider>Settings</n-divider>
+			<n-divider>{{ t('keywords.settings') }}</n-divider>
 
-      <n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
-        <n-grid-item :span="1">
-          <n-form-item label="Cooldown" path="cooldown">
-            <n-input-number v-model:value="formValue.cooldown" />
-          </n-form-item>
-        </n-grid-item>
+			<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
+				<n-grid-item :span="1">
+					<n-form-item :label="t('keywords.cooldown')" path="cooldown">
+						<n-input-number v-model:value="formValue.cooldown" />
+					</n-form-item>
+				</n-grid-item>
 
-        <n-grid-item :span="1">
-          <n-form-item label="Usages counter" path="usages">
-            <n-input-number v-model:value="formValue.usages" />
-          </n-form-item>
-        </n-grid-item>
+				<n-grid-item :span="1">
+					<n-form-item :label="t('keywords.usages')" path="usages">
+						<n-input-number v-model:value="formValue.usages" />
+					</n-form-item>
+				</n-grid-item>
 
-        <n-grid-item :span="1">
-          <n-card>
-            <div class="settings-switch">
-              <n-space vertical>
-                <n-text>Reply</n-text>
-                <n-text>Bot will send message as reply</n-text>
-              </n-space>
-              <n-switch v-model:value="formValue.isReply" />
-            </div>
-          </n-card>
-        </n-grid-item>
-      </n-grid>
+				<n-grid-item :span="1">
+					<n-card>
+						<div class="settings-switch">
+							<n-space vertical>
+								<n-text>{{ t('sharedTexts.reply.label') }}</n-text>
+								<n-text>{{ t('sharedTexts.reply.text') }}</n-text>
+							</n-space>
+							<n-switch v-model:value="formValue.isReply" />
+						</div>
+					</n-card>
+				</n-grid-item>
+			</n-grid>
 
-      <n-button secondary type="success" block @click="save">
-        Save
-      </n-button>
-    </n-space>
-  </n-form>
+			<n-button secondary type="success" block @click="save">
+				{{ t('sharedTexts.save') }}
+			</n-button>
+		</n-space>
+	</n-form>
 </template>
 
 <style scoped>
