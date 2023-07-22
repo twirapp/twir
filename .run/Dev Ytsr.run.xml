@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Dev Api" type="GoApplicationRunConfiguration" factoryName="Go Application">
+  <configuration default="false" name="Dev Ytsr" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="twir" />
-    <working_directory value="$PROJECT_DIR$/apps/api" />
+    <working_directory value="$PROJECT_DIR$/apps/ytsr" />
     <EXTENSION ID="net.ashald.envfile">
       <option name="IS_ENABLED" value="false" />
       <option name="IS_SUBST" value="false" />
@@ -14,7 +14,7 @@
     </EXTENSION>
     <kind value="FILE" />
     <directory value="$PROJECT_DIR$" />
-    <filePath value="$PROJECT_DIR$/apps/api/cmd/main.go" />
+    <filePath value="$PROJECT_DIR$/apps/ytsr/cmd/main.go" />
     <method v="2" />
   </configuration>
 </component>
