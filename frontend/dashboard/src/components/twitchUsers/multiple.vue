@@ -137,7 +137,7 @@ const renderLabel = (option: Option) => {
 		remote
 		:clear-filter-after-select="false"
 		:render-label="renderLabel as any"
-		:render-tag="renderMultipleSelectTag"
+		:render-tag="renderMultipleSelectTag as any"
 		@search="handleSearch"
 	/>
 </template>

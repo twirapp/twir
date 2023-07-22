@@ -10,6 +10,7 @@ import {
 	NSwitch,
 } from 'naive-ui';
 import { ref, onMounted, toRaw } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useGreetingsManager } from '@/api/index.js';
 import type { EditableGreeting } from '@/components/greetings/types.js';
@@ -59,12 +60,14 @@ async function save() {
 	emits('close');
 }
 
+const { t } = useI18n();
+
 const rules: FormRules = {
 	userId: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: string) => {
 			if (!value || !value.length) {
-				return new Error('User is required');
+				return new Error(t('greetings.validations.userName'));
 			}
 
 			return true;
@@ -74,7 +77,7 @@ const rules: FormRules = {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: string) => {
 			if (!value || !value.length) {
-				return new Error('Text is required');
+				return new Error(t('greetings.validations.textRequired'));
 			}
 
 			return true;
@@ -84,29 +87,29 @@ const rules: FormRules = {
 </script>
 
 <template>
-  <n-form
-    ref="formRef"
-    :model="formValue"
-    :rules="rules"
-  >
-    <n-space vertical style="width: 100%">
-      <n-form-item label="User" path="userId" show-require-mark>
-        <twitch-user-search
-          v-model="formValue.userId"
-          :initial-user-id="props.greeting?.userId"
-        />
-      </n-form-item>
-      <n-form-item label="Text" path="text" show-require-mark>
-        <text-with-variables v-model="formValue.text" />
-      </n-form-item>
+	<n-form
+		ref="formRef"
+		:model="formValue"
+		:rules="rules"
+	>
+		<n-space vertical style="width: 100%">
+			<n-form-item :label="t('sharedTexts.userName')" path="userId" show-require-mark>
+				<twitch-user-search
+					v-model="formValue.userId"
+					:initial-user-id="props.greeting?.userId"
+				/>
+			</n-form-item>
+			<n-form-item label="Text" path="text" show-require-mark>
+				<text-with-variables v-model="formValue.text" />
+			</n-form-item>
 
-      <n-form-item label="Use twitch reply" path="text">
-        <n-switch v-model:value="formValue.isReply" />
-      </n-form-item>
-    </n-space>
+			<n-form-item :label="t('sharedTexts.reply.text')" path="text">
+				<n-switch v-model:value="formValue.isReply" />
+			</n-form-item>
+		</n-space>
 
-    <n-button secondary type="success" block @click="save">
-      Save
-    </n-button>
-  </n-form>
+		<n-button secondary type="success" block @click="save">
+			{{ t('sharedButtons.save') }}
+		</n-button>
+	</n-form>
 </template>

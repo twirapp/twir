@@ -22,7 +22,8 @@
 			"label": "Reply",
 			"text": "Bot will send commands responses as reply"
 		},
-		"response": "Response"
+		"response": "Response",
+		"userName": "User name"
 	},
 	"deleteConfirmation": {
 		"text": "Are you sure you want delete this thing?",
@@ -262,6 +263,17 @@
 		"validations": {
 			"nameRequired": "Name is required",
 			"nameLong":"Name is too long"
+		}
+	},
+	"greetings": {
+		"title": "Greeting",
+		"info": {
+			"title": "Greeting system used for welcoming new users typed their first message on stream.",
+			"text": "If you wanna greet every user in chat, not only specified - then you can use events system."
+		},
+		"validations": {
+			"userName": "User is required",
+			"textRequired": "Response is required"
 		}
 	}
 }

@@ -15,9 +15,10 @@ import {
 	NResult,
 } from 'naive-ui';
 import { h, ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useGreetingsManager, useTwitchGetUsers, useUserAccessFlagChecker } from '@/api/index.js';
-import Modal from '@/components/greetings/modal.vue';
+import GreetingsModal from '@/components/greetings/modal.vue';
 import { EditableGreeting } from '@/components/greetings/types.js';
 import { renderIcon } from '@/helpers/index.js';
 
@@ -41,6 +42,8 @@ const twitchUsers = useTwitchGetUsers({
 const userCanViewGreetings = useUserAccessFlagChecker('VIEW_GREETINGS');
 const userCanManageGreetings = useUserAccessFlagChecker('MANAGE_GREETINGS');
 
+const { t } = useI18n();
+
 const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 	{
 		title: '',
@@ -54,7 +57,7 @@ const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 		},
 	},
 	{
-		title: 'User name',
+		title: t('sharedTexts.userName'),
 		key: 'userName',
 		render(row) {
 			return h(NTag, { type: 'info', bordered: false }, {
@@ -66,14 +69,14 @@ const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 		},
 	},
 	{
-		title: 'Text',
+		title: t('sharedTexts.response'),
 		key: 'text',
 		render(row) {
 			return h(NTag, { type: 'info', bordered: true }, { default: () => row.text });
 		},
 	},
 	{
-		title: 'Status',
+		title: t('sharedTexts.status'),
 		key: 'enabled',
 		width: 100,
 		render(row) {
@@ -91,7 +94,7 @@ const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 		},
 	},
 	{
-		title: 'Actions',
+		title: t('sharedTexts.actions'),
 		key: 'actions',
 		width: 150,
 		render(row) {
@@ -111,6 +114,8 @@ const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 				NPopconfirm,
 				{
 					onPositiveClick: () => greetingsDeleter.mutate({ id: row.id! }),
+					positiveText: t('deleteConfirmation.confirm'),
+					negativeText: t('deleteConfirmation.cancel'),
 				},
 				{
 					trigger: () => h(NButton, {
@@ -121,7 +126,7 @@ const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 					}, {
 						default: renderIcon(IconTrash),
 					}),
-					default: () => 'Are you sure you want to delete this variable?',
+					default: () => t('deleteConfirmation.text'),
 				},
 			);
 
@@ -146,18 +151,19 @@ function closeModal() {
 </script>
 
 <template>
-	<n-result v-if="!userCanViewGreetings" status="403" title="You haven't permissions to view greetings" />
+	<n-result v-if="!userCanViewGreetings" status="403" :title="t('haveNoAccess.message')" />
+
 	<div v-else>
 		<n-space justify="space-between" align="center">
-			<h2>Greetings</h2>
+			<h2>{{ t('greetings.title') }}</h2>
 			<n-button :disabled="!userCanManageGreetings" secondary type="success" @click="openModal(null)">
-				Create
+				{{ t('sharedButtons.create') }}
 			</n-button>
 		</n-space>
-		<n-alert>
-			<p>Greeting system used for welcoming new users typed their first message on stream.</p>
+		<n-alert type="info">
+			<p>{{ t('greetings.info.title') }} </p>
 			<p>
-				If you wanna greet every user in chat, not only specified - then you can use events system.
+				{{ t('greetings.info.text') }}
 			</p>
 		</n-alert>
 		<n-data-table
@@ -172,7 +178,7 @@ function closeModal() {
 			:mask-closable="false"
 			:segmented="true"
 			preset="card"
-			:title="editableGreeting?.userName || 'Create greeting'"
+			:title="editableGreeting?.userName || 'Create'"
 			class="modal"
 			:style="{
 				width: '400px',
@@ -180,7 +186,7 @@ function closeModal() {
 			}"
 			:on-close="closeModal"
 		>
-			<modal :greeting="editableGreeting" @close="closeModal" />
+			<greetings-modal :greeting="editableGreeting" @close="closeModal" />
 		</n-modal>
 	</div>
 </template>

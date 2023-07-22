@@ -51,14 +51,14 @@ function handleSearch(query: string) {
 type Option = {
 	label: string;
 	value: string;
-	profileImageUrl: string;
+	profileImageUrl?: string;
 };
 
 const renderMultipleSelectTag = ({ option }: {
 	option: Option;
 	handleClose: () => void;
 }) => {
-	return !option ? null : h(
+	return !option.label ? h('p') : h(
 		NTag,
 		{
 			style: {
@@ -125,19 +125,19 @@ const renderLabel = (option: Option | undefined) => {
 </script>
 
 <template>
-  <n-select
-    v-model:value="userId"
-    filterable
-    placeholder="Search users..."
-    :options="options"
-    :loading="twitchSearch.isLoading.value"
-    clearable
-    remote
-    :clear-filter-after-select="false"
-    :render-label="renderLabel as any"
-    :render-tag="renderMultipleSelectTag as any"
-    @search="handleSearch"
-  />
+	<n-select
+		v-model:value="userId"
+		filterable
+		placeholder="Search users..."
+		:options="options"
+		:loading="twitchSearch.isLoading.value"
+		clearable
+		remote
+		:clear-filter-after-select="false"
+		:render-label="renderLabel as any"
+		:render-tag="renderMultipleSelectTag as any"
+		@search="handleSearch"
+	/>
 </template>
 
 <style scoped lang='postcss'>
