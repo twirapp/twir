@@ -1,6 +1,6 @@
 {
-  "languageName": "English",
-	"languageFlag": "🇺🇸",
+  "languageName": "Russian",
+	"languageFlag": "🇷🇺",
   "sharedButtons": {
     "create": "Create",
 		"save": "Save",
@@ -267,7 +267,7 @@
 		}
 	},
 	"greetings": {
-		"title": "Greeting",
+		"title": "Приветствия",
 		"info": {
 			"title": "Greeting system used for welcoming new users typed their first message on stream.",
 			"text": "If you wanna greet every user in chat, not only specified - then you can use events system."

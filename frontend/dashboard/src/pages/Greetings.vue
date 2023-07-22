@@ -160,11 +160,8 @@ function closeModal() {
 				{{ t('sharedButtons.create') }}
 			</n-button>
 		</n-space>
-		<n-alert type="info">
-			<p>{{ t('greetings.info.title') }} </p>
-			<p>
-				{{ t('greetings.info.text') }}
-			</p>
+		<n-alert type="info" :title="t('greetings.info.title')">
+			{{ t('greetings.info.text') }}
 		</n-alert>
 		<n-data-table
 			:isLoading="greetings.isLoading.value || twitchUsers.isLoading.value"

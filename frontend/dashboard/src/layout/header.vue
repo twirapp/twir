@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { IconMenu2, IconSun, IconMoon, IconLogout } from '@tabler/icons-vue';
+import { useLocalStorage } from '@vueuse/core';
 import {
   type DropdownOption,
   NButton,
@@ -7,9 +8,17 @@ import {
   NSpin,
   NAvatar,
 	NText,
+	NSpace,
+	NDivider,
+useThemeVars,
 } from 'naive-ui';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+import Logo from '../../public/brand/TwirInCircle.svg?component';
 
 import { useProfile, useLogout } from '@/api/index.js';
+import DiscordLogo from '@/assets/icons/integrations/discord.svg?component';
 import { renderIcon } from '@/helpers/index.js';
 import { useTheme } from '@/hooks/index.js';
 
@@ -18,6 +27,9 @@ defineProps<{
 }>();
 
 const { theme, toggleTheme } = useTheme();
+
+const themeVars = useThemeVars();
+const discordIconColor = computed(() => themeVars.value.textColor2);
 
 const logout = useLogout();
 const profileOptions: DropdownOption[] = [{
@@ -35,6 +47,12 @@ const profileOptions: DropdownOption[] = [{
 }];
 
 const { data: profileData, isLoading: isProfileLoading } = useProfile();
+
+const { t, availableLocales, locale } = useI18n({ useScope: 'global' });
+
+const localStorageLocale = useLocalStorage('twirLocale', 'en');
+
+const openDiscord = () => window.open('https://discord.gg/Q9NBZq3zVV', '_blank');
 </script>
 
 <template>
@@ -43,13 +61,40 @@ const { data: profileData, isLoading: isProfileLoading } = useProfile();
 			<n-button text @click="toggleSidebar">
 				<IconMenu2 />
 			</n-button>
-			<n-text strong>
-				TwirApp
-			</n-text>
+			<n-space align="center" style="gap: 8px">
+				<Logo style="width: 25px; height: 25px; display: flex" />
+				<n-text strong style="font-size: 20px;">
+					Twir
+				</n-text>
+			</n-space>
 		</div>
 
 		<div>
-			<n-button tertiary @click="toggleTheme">
+			<n-button
+				tertiary
+				style="padding: 5px"
+				@click="openDiscord"
+			>
+				<DiscordLogo :style="{ width: '20px', fill: discordIconColor }" />
+			</n-button>
+			<n-divider vertical style="height: 2em" />
+			<n-dropdown
+				trigger="click"
+				:options="availableLocales.map(l => ({
+					title: `${t('languageFlag', {}, { locale: l })} ${t('languageName', {}, { locale: l })}`,
+					key: l as string,
+				}))"
+				size="medium"
+				@select="(l) => {
+					locale = l
+					localStorageLocale = l
+				}"
+			>
+				<n-button tertiary style="padding: 5px; font-size: 25px">
+					{{ t('languageFlag') }}
+				</n-button>
+			</n-dropdown>
+			<n-button tertiary style="padding: 5px" @click="toggleTheme">
 				<IconSun v-if="theme === 'dark'" color="orange" />
 				<IconMoon v-else />
 			</n-button>

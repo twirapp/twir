@@ -71,7 +71,7 @@ watch(smallerOrEqualLg, (v) => {
 							<Sidebar :is-collapsed="isSidebarCollapsed" />
 						</n-drawer-content>
 					</n-drawer>
-					<n-layout-content content-style="padding: 24px; width: 100%">
+					<n-layout-content content-style="padding-left: 24px; padding-right:24px; width: 100%">
 						<router-view v-slot="{ Component, route }">
 							<!-- TODO: THIS TRANSITION TRIGGERING WHEN WE OPENING DRAWER(MOBILES) -->
 							<!-- <transition :name="route.meta.transition as string || 'router'" mode="out-in"> -->
