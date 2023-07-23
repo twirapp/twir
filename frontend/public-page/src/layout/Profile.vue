@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useProfile } from '@/api/index.js';
@@ -14,6 +14,12 @@ const channelName = computed<string>(() => {
 });
 
 const { data: profile, isLoading } = useProfile(channelName);
+
+watch(profile, (v) => {
+	if (!v) return;
+
+	window.document.title = `Twir - ${v.displayName}`;
+});
 </script>
 
 <template>
