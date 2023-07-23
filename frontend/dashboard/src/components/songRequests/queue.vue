@@ -43,7 +43,7 @@ const columns = computed<TableColumn<Video>[]>(() => [
 		},
 	},
 	{
-		title: t('songRequests.table.title'),
+		title: t('sharedTexts.name'),
 		key: 'title',
 		render(row) {
 			return h(NButton, {
@@ -51,7 +51,7 @@ const columns = computed<TableColumn<Video>[]>(() => [
 				type: 'primary',
 				text: true,
 				target: '_blank',
-				href: `https://youtu.be/${row.videoId}`,
+				href: row.songLink,
 			}, {
 				default: () => row.title,
 			});
@@ -77,7 +77,7 @@ const columns = computed<TableColumn<Video>[]>(() => [
 		key: 'duration',
 		width: 100,
 		render(row) {
-			return convertMillisToTime(row.duration);
+			return convertMillisToTime(row.duration * 1000);
 		},
 	},
 	{
@@ -145,7 +145,7 @@ const createSummary: DataTableCreateSummary<Video> = (pageData) => {
 			value: h(
 				'span',
 				{ style: 'font-weight: bold;' },
-				convertMillisToTime(pageData.reduce((acc, cur) => acc + cur.duration, 0)),
+				convertMillisToTime(pageData.reduce((acc, cur) => acc + cur.duration * 1000, 0)),
 			),
 			colSpan: 2,
 		},

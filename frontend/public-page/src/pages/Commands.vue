@@ -33,12 +33,14 @@ const commandsGroups = computed<Record<string, Command[]>>(() => {
 		'empty': cmds.filter(c => c.module === 'CUSTOM' && !c.group),
 	};
 
+	// custom commands with groups
 	for (const cmd of cmds.filter(c => c.group && c.module === 'CUSTOM')) {
 		if (!groups[cmd.group!]) groups[cmd.group!] = [];
 		groups[cmd.group!].push(cmd);
 	}
 
-	for (const cmd of cmds.filter(c => c.group || c.module !== 'CUSTOM')) {
+	// default commands
+	for (const cmd of cmds.filter(c => c.module !== 'CUSTOM')) {
 		if (!groups[cmd.module!]) groups[cmd.module!] = [];
 		groups[cmd.module!].push(cmd);
 	}

@@ -52,7 +52,7 @@ const { data: queue } = useSongsQueue(channelId);
 						{{ index+1 }}
 					</th>
 					<th class="px-6 py-4">
-						<a href="text-" class="text-purple-200">{{ song.title }}</a>
+						<a :href="song.songLink" target="_blank" class="text-purple-200">{{ song.title }}</a>
 					</th>
 					<th class="px-6 py-4 w-2">
 						{{ song.requestedBy }}

@@ -53,4 +53,5 @@ export const useSongsQueue = (channelId: ComputedRef<string | null>) => useQuery
 
 		return call.response;
 	},
+	refetchInterval: 1000,
 });

@@ -21,6 +21,7 @@ const {
 	deleteVideo,
 	deleteAllVideos,
 	moveVideo,
+	sendPlaying,
 } = useYoutubeSocket();
 </script>
 
@@ -32,6 +33,7 @@ const {
 				:next-video="videos.length > 1"
 				:open-settings-modal="openSettingsModal"
 				@next="nextVideo"
+				@playing="sendPlaying"
 			/>
 		</n-grid-item>
 

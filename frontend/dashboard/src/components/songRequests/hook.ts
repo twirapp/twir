@@ -100,6 +100,19 @@ export const useYoutubeSocket = () => {
 		websocket.send(request);
 	};
 
+	const sendPlaying = () => {
+		if (!currentVideo.value) return;
+
+		const request = JSON.stringify({
+			eventName: 'play',
+			data: {
+				id: currentVideo.value.id,
+				duration: currentVideo.value.duration,
+			},
+		});
+		websocket.send(request);
+	};
+
 	return {
 		videos,
 		currentVideo,
@@ -107,6 +120,7 @@ export const useYoutubeSocket = () => {
 		deleteVideo,
 		deleteAllVideos,
 		moveVideo,
+		sendPlaying,
 	};
 };
 

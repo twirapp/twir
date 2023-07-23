@@ -71,12 +71,14 @@ const menuOptions: (MenuOption | MenuDividerOption)[] = [
 		],
 	},
 	{
-		label: 'Community',
+		label: 'Users',
 		icon: renderIcon(IconUsers),
-		children: [
-			{ label: 'Users', icon: renderIcon(IconUsers), path: '/dashboard/community/users' },
-			{ label: 'Roles', icon: renderIcon(IconShieldHalfFilled), path: '/dashboard/community/roles' },
-		],
+		path: '/dashboard/community/users',
+	},
+	{
+		label: 'Permissions',
+		icon: renderIcon(IconShieldHalfFilled),
+		path: '/dashboard/community/roles',
 	},
 	{
 		label: 'Timers',

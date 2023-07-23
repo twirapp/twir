@@ -43,6 +43,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
 	next: []
+	playing: []
 }>();
 
 const player = ref<HTMLVideoElement | null>(null);
@@ -71,6 +72,7 @@ onMounted(() => {
 
 	plyr.value.on('play', () => {
 		isPlaying.value = true;
+		emits('playing');
 	});
 
 	plyr.value.on('pause', () => {

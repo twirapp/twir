@@ -14,6 +14,7 @@ import {
   NSelect,
   NAvatar,
   NButton,
+useMessage,
 } from 'naive-ui';
 import { ref, computed, VNodeChild, h, watch, unref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -21,6 +22,8 @@ import { useI18n } from 'vue-i18n';
 import { useTwitchRewards, useYoutubeVideoOrChannelSearch, YoutubeSearchType } from '@/api/index.js';
 import { useYoutubeModuleSettings } from '@/api/index.js';
 import TwitchSearchUsers from '@/components/twitchUsers/multiple.vue';
+
+const { t } = useI18n();
 
 const youtubeModuleManager = useYoutubeModuleSettings();
 const youtubeModuleData = youtubeModuleManager.getAll();
@@ -90,10 +93,13 @@ watch(youtubeModuleSettings, async (v) => {
 	formValue.value = toRaw(v);
 });
 
+
+const message = useMessage();
 async function save() {
 	const data = unref(formValue);
 
 	await youtubeModuleUpdater.mutateAsync({ data });
+	message.success(t('sharedTexts.saved'));
 }
 
 const twitchRewards = useTwitchRewards();
@@ -171,8 +177,6 @@ const songsSearchOptions = computed(() => {
 		};
 	}) ?? [];
 });
-
-const { t } = useI18n();
 </script>
 
 <template>
