@@ -7,16 +7,20 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/ytsr"
 	"go.uber.org/zap"
+	"net/url"
 	"regexp"
+	"strings"
 	"sync"
 )
 
 type YtsrServer struct {
 	ytsr.UnimplementedYtsrServer
 
-	ytRegexp regexp.Regexp
-	config   cfg.Config
-	logger   *zap.Logger
+	ytRegexp    regexp.Regexp
+	linksRegexp regexp.Regexp
+
+	config cfg.Config
+	logger *zap.Logger
 }
 
 func NewYtsrServer(config cfg.Config, logger *zap.Logger) *YtsrServer {
@@ -35,7 +39,16 @@ type internalSong struct {
 }
 
 func (c *YtsrServer) Search(ctx context.Context, req *ytsr.SearchRequest) (*ytsr.SearchResponse, error) {
-	linkMatches := c.ytRegexp.FindAllString(req.Search, -1)
+	var linkMatches []string
+
+	for _, part := range strings.Split(req.Search, " ") {
+		u, err := url.Parse(part)
+		if err != nil || u.Host == "" {
+			continue
+		}
+
+		linkMatches = append(linkMatches, part)
+	}
 
 	var mu sync.Mutex
 	internalSongs := make([]internalSong, 0, len(linkMatches))
@@ -66,6 +79,7 @@ func (c *YtsrServer) Search(ctx context.Context, req *ytsr.SearchRequest) (*ytsr
 				}
 
 				// push song with odesli link to slice
+
 				internalSongs = append(
 					internalSongs,
 					internalSong{
@@ -91,10 +105,21 @@ func (c *YtsrServer) Search(ctx context.Context, req *ytsr.SearchRequest) (*ytsr
 
 	for _, internalLink := range internalSongs {
 		wg.Add(1)
+		internalLink := internalLink
+
+		youtubeMatch := c.ytRegexp.FindStringSubmatch(internalLink.youtubeQuery)
+
 		go func() {
 			defer wg.Done()
 
-			res, err := c.searchByText(ctx, internalLink.youtubeQuery)
+			res, err := c.searchByText(
+				ctx,
+				lo.IfF(
+					len(youtubeMatch) != 0, func() string {
+						return youtubeMatch[0]
+					},
+				).Else(internalLink.youtubeQuery),
+			)
 			if err != nil {
 				c.logger.Error("searchByText", zap.Error(err))
 				return
