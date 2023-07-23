@@ -1,6 +1,6 @@
 
 import { useWebSocket } from '@vueuse/core';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { useProfile } from '@/api/index.js';
 
@@ -32,6 +32,7 @@ export const useYoutubeSocket = () => {
 		const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 		return `${protocol}://${host}/socket/youtube?apiKey=${userProfile.value.apiKey}`;
 	});
+
 	const websocket = useWebSocket(socketUrl, {
 		immediate: false,
 		autoReconnect: {
@@ -56,9 +57,10 @@ export const useYoutubeSocket = () => {
 			}
 	});
 
-	onMounted(() => {
+	watch(socketUrl, (v) => {
+		if (!v) return;
 		websocket.open();
-	});
+	}, { immediate: true });
 
 	const callWsSkip = (ids: string | string[]) => {
 		const request = JSON.stringify({
