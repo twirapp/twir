@@ -328,7 +328,7 @@ async function save() {
 						v-for="(variable, variableIndex) of flatEvents[formValue.type]?.variables"
 						:key="variableIndex"
 					>
-						{{ variable }}
+						{{ '{'+variable+'}' }} - {{ t(`events.variables.${variable}`) }}
 					</n-text>
 				</n-space>
 			</n-space>
