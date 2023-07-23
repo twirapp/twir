@@ -71,7 +71,7 @@ RUN cd apps/ytsr && \
 
 FROM go_prod_base as ytsr
 COPY --from=ytsr_builder /app/apps/ytsr/out /bin/ytsr
-CMD ["/bin/bots"]
+CMD ["/bin/ytsr"]
 
 FROM builder as events_builder
 RUN cd apps/events && \
