@@ -12,16 +12,16 @@ use (
 	./apps/tokens
 	./apps/watched
 	./apps/websockets
+	./apps/ytsr
 	./libs/config
+	./libs/crypto
 	./libs/gomodels
 	./libs/gopool
 	./libs/grpc
 	./libs/integrations/spotify
+	./libs/migrations
 	./libs/pubsub
 	./libs/twitch
 	./libs/types
-	./libs/crypto
 	./tools
-	./libs/migrations
-	./apps/ytsr
 )

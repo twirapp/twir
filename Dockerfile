@@ -200,7 +200,7 @@ CMD ["pnpm", "--filter=@twir/integrations", "start"]
 
 ### FRONTEND
 
-FROM builder as overlays_builder
+FROM builder as dashboard_builder
 RUN cd frontend/dashboard && \
     pnpm build
 
