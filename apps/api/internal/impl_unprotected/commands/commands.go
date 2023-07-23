@@ -21,7 +21,7 @@ func (c *Commands) GetChannelCommands(
 	var entities []*model.ChannelsCommands
 	if err := c.Db.
 		WithContext(ctx).
-		Where(`"channelId" = ?`, req.ChannelId).
+		Where(`"channelId" = ? AND visible = ? AND enabled = ?`, req.ChannelId, true, true).
 		Preload("Responses").
 		Preload("Group").
 		Find(&entities).Error; err != nil {
