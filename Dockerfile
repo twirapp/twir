@@ -219,15 +219,14 @@ WORKDIR /app
 COPY --from=landing_builder /app /app
 CMD ["pnpm", "--filter=@twir/landing", "start"]
 
-FROM builder as public_builder
-RUN cd frontend/public && \
-    pnpm build && \
-    pnpm prune --prod
+FROM builder as public-page_builder
+RUN cd frontend/public-page && \
+    pnpm build
 
-FROM node_prod_base as public
-WORKDIR /app
-COPY --from=public_builder /app /app
-CMD ["pnpm", "--filter=@twir/public", "start"]
+FROM steebchen/nginx-spa:stable as public
+COPY --from=public-page_builder /app/frontend/public-page/dist/ /app
+EXPOSE 80
+CMD ["nginx"]
 
 FROM builder as overlays_builder
 RUN cd frontend/overlays && \
