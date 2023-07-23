@@ -343,7 +343,7 @@ services:
       placement:
         constraints:
           - node.role == manager
-#
+  #
   dashboard:
     build:
       context: .
@@ -353,7 +353,7 @@ services:
     secrets:
       - tsuwari_doppler_token
     ports:
-      - target: 3000
+      - target: 80
         published: 3002
         mode: host
     networks:
@@ -367,7 +367,7 @@ services:
       placement:
         constraints:
           - node.role == manager
-#
+  #
   public:
     build:
       context: .
@@ -377,7 +377,7 @@ services:
     secrets:
       - tsuwari_doppler_token
     ports:
-      - target: 3000
+      - target: 80
         published: 3006
         mode: host
     networks:
