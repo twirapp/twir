@@ -53,7 +53,7 @@ const formValue = ref<EditableEvent>({
 	type: '',
 });
 
-const selectedOperationsTab = ref(0);
+const selectedOperationsTab = ref(-1);
 const currentOperation = ref<EventOperation | null>(null);
 
 watch(selectedOperationsTab, (v) => {
