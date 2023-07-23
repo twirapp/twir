@@ -44,7 +44,7 @@ func processStreams(services *types.Services) {
 	}
 
 	var existedStreams []model.ChannelsStreams
-	err = services.Gorm.Select("id", `"userId"`, `"parsedMesages"`).Find(&existedStreams).Error
+	err = services.Gorm.Select("id", `"userId"`, `"parsedMessages"`).Find(&existedStreams).Error
 	if err != nil {
 		zap.S().Error(err)
 		return
