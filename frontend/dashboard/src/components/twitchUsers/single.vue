@@ -134,7 +134,7 @@ const renderLabel = (option: Option | undefined) => {
 		:loading="twitchSearch.isLoading.value"
 		clearable
 		remote
-		:clear-filter-after-select="false"
+		:clear-filter-after-select="true"
 		:render-label="renderLabel as any"
 		:render-tag="renderMultipleSelectTag as any"
 		@search="handleSearch"
