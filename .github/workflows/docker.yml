@@ -15,7 +15,7 @@ jobs:
           [
             api,
             bots,
-            dota,
+            #            dota,
             eval,
             eventsub,
             integrations,
