@@ -9,7 +9,7 @@ RUN apk add \
 	openssl \
     wget
 
-RUN pip3 install --upgrade pip && pip3 install awscli
+RUN pip3 install --upgrade pip --break-system-packages && pip3 install awscli --break-system-packages
 
 RUN wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
   echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories && \
