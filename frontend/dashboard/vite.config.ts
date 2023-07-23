@@ -23,6 +23,7 @@ export default defineConfig({
 				title: 'New version',
 				description: 'An update available, please refresh the page to get latest features and bug fixes!',
 				buttonText: 'refresh',
+				dismissButtonText: 'cancel',
 			},
 			checkInterval: 1 * 60 * 1000,
 		}),
