@@ -8,7 +8,7 @@ import Stats from '@/components/dashboard/stats.vue';
 
 <template>
 	<Stats />
-	<n-grid :x-gap="12" :y-gap="12" cols="1 sm:1 md:2 l:4" style="padding: 24px; width: auto">
+	<n-grid :x-gap="12" :y-gap="12" cols="1 sm:1 md:2 l:4" responsive="screen" style="padding: 24px; width: auto">
 		<n-grid-item :span="2">
 			<Chat />
 		</n-grid-item>
