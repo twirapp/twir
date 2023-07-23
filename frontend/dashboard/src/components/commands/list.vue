@@ -33,16 +33,19 @@ const throttledSwitchState = useThrottleFn((commandId: string, v: boolean) => {
 
 const commandsWithGroups = computed<ListRowData[]>(() => {
 	const commands = props.commands;
+	let i = 0;
 	const groups: Record<string, ListRowData> = {
 		'no-group': {
 			name: 'no-group',
 			children: [],
 			isGroup: true,
 			groupColor: '',
+			index: i,
 		} as any as ListRowData,
 	};
 
 	for (const command of commands) {
+		i++;
 		const group = command.group?.name ?? 'no-group';
 		if (!groups[group]) {
 			groups[group] = {
@@ -50,6 +53,7 @@ const commandsWithGroups = computed<ListRowData[]>(() => {
 				children: [],
 				isGroup: true,
 				groupColor: command.group!.color,
+				index: i,
 			} as any as ListRowData;
 		}
 
@@ -65,6 +69,7 @@ const commandsWithGroups = computed<ListRowData[]>(() => {
 
 const commandsFilter = ref('');
 const filteredCommands = computed<ListRowData[]>(() => {
+	console.log(commandsWithGroups.value);
 	return commandsWithGroups.value.filter(c => {
 		return c.name.includes(commandsFilter.value) || c.aliases.some(a => a.includes(commandsFilter.value));
 	});
@@ -126,6 +131,7 @@ const columns = createListColumns(editCommand, commandsDeleter, throttledSwitchS
 			:columns="columns"
 			:data="filteredCommands"
 			:bordered="false"
+			:row-key="r => r.index"
 		/>
 
 		<n-modal

@@ -19,6 +19,7 @@ import {
 	NAlert,
 	NAvatar,
 	NButton,
+	useThemeVars,
 } from 'naive-ui';
 import { h, computed, onMounted, ref, watch, nextTick, type VNodeChild } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next';
@@ -36,6 +37,9 @@ import {
 	useTwitchRewards,
 	useVariablesManager,
 } from '@/api/index.js';
+
+const themeVars = useThemeVars();
+const selectedTabBackground = computed(() => themeVars.value.cardColor);
 
 const props = defineProps<{
 	event: EditableEvent | null
@@ -65,7 +69,7 @@ onMounted(() => {
 		formValue.value = props.event;
 
 		if (props.event.operations.length) {
-			currentOperation.value = props.event.operations.at(0)!;
+			selectedOperationsTab.value = 0;
 		}
 	}
 });
@@ -349,7 +353,10 @@ async function save() {
 					<div
 						v-for="(operation, operationIndex) of formValue.operations"
 						:key="operationIndex"
-						style="display:flex; gap: 5px; margin-top: 5px; width: 100%"
+						style="display:flex; gap: 5px; margin-top: 5px; width: 100%; padding: 5px; border-radius: 11px;"
+						:style="{
+							'background-color': selectedOperationsTab === operationIndex ? selectedTabBackground : undefined,
+						}"
 					>
 						<n-button text>
 							<IconGripVertical style="width: 18px" />
@@ -415,8 +422,6 @@ async function save() {
 					<n-form-item
 						v-if="getOperation(currentOperation.type)?.haveInput"
 						:label="t('events.operations.input')"
-						:path="`operations[${selectedOperationsTab}].input`"
-						:rule="rules.input"
 					>
 						<n-input v-model:value="currentOperation.input" />
 					</n-form-item>

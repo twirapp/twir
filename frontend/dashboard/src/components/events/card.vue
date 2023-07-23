@@ -4,8 +4,7 @@ import { useThrottleFn } from '@vueuse/core';
 import { NText, NButton, NTooltip, NTag, NRow, NSpace, NSwitch, NPopconfirm } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
-import { EVENTS } from './events.js';
-import { getOperation } from './helpers.js';
+import { getOperation, flatEvents } from './helpers.js';
 import { EditableEvent } from './types.js';
 
 import { useEventsManager } from '@/api/index.js';
@@ -23,7 +22,7 @@ const eventsManager = useEventsManager();
 const eventsPatcher = eventsManager.patch!;
 const eventsDeleter = eventsManager.deleteOne;
 
-const getEventName = (eventType: string) => EVENTS[eventType]?.name ?? eventType;
+const getEventName = (eventType: string) => flatEvents[eventType]?.name ?? eventType;
 
 const throttledSwitchState = useThrottleFn((v: boolean) => {
 	eventsPatcher.mutate({ id: props.event.id!, enabled: v });
@@ -33,7 +32,7 @@ const { t } = useI18n();
 </script>
 
 <template>
-	<card :icon="EVENTS[event.type]?.icon" :title="getEventName(event.type)">
+	<card style="height:100%" :icon="flatEvents[event.type]?.icon" :title="getEventName(event.type)">
 		<template #headerExtra>
 			<n-switch
 				:value="event.enabled"

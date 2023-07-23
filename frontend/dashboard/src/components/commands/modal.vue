@@ -405,11 +405,11 @@ async function save() {
 			</n-grid-item>
 
 			<n-grid-item :span="1">
-				<n-card>
+				<n-card style="height: 100%">
 					<div class="settings-card-body">
 						<n-space vertical>
 							<n-text>{{ t('commands.modal.settings.visible.label') }}</n-text>
-							<n-text>{{ t('commands.modal.settings.reply.text') }}</n-text>
+							<n-text>{{ t('commands.modal.settings.visible.text') }}</n-text>
 						</n-space>
 						<n-switch v-model:value="formValue.visible" />
 					</div>

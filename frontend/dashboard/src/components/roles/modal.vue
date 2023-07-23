@@ -1,6 +1,8 @@
 <script setup lang='ts'>
 import {
 	type FormInst,
+	type FormRules,
+	type FormItemRule,
   NInput,
   NForm,
   NFormItem,
@@ -38,6 +40,20 @@ const formValue = ref<EditableRole>({
 		requiredWatchTime: 0,
 	},
 });
+
+const rules: FormRules = {
+	name: {
+		trigger: ['input', 'blur'],
+		validator: (_: FormItemRule, value: string) => {
+			if (!value || !value.length) {
+				return new Error(t('roles.validations.nameRequired'));
+			}
+
+			return true;
+		},
+	},
+};
+
 const searchUsersIds = ref<string[]>([]);
 watch(searchUsersIds, (value) => {
 	formValue.value.users = value.map((id) => ({ userId: id }));
@@ -76,8 +92,8 @@ const { t } = useI18n();
 </script>
 
 <template>
-	<n-form ref="formRef">
-		<n-form-item :label="t('sharedTexts.name')" show-require-mark>
+	<n-form ref="formRef" v-model="formValue" :rules="rules">
+		<n-form-item :label="t('sharedTexts.name')" path="name" show-require-mark>
 			<n-input v-model:value="formValue.name" />
 		</n-form-item>
 

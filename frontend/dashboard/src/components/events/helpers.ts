@@ -50,5 +50,6 @@ export const flatEvents = createFlat(EVENTS);
 export const flatOperations = createFlat(OPERATIONS);
 
 export const getOperation = (type: string): Operation | undefined => {
+	console.log(flatOperations);
 	return flatOperations[type];
 };

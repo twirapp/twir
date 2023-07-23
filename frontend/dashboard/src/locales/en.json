@@ -187,10 +187,12 @@
     "predictionTitle": "Title of prediction",
     "predictionOptionsNames": "Options of prediction, joined by · symbol",
     "predictionTotalChannelPoints": "Total used channel points for prediction",
-    "predictionWinner.title": "Title of winner option",
-    "predictionWinner.totalUsers": "Total users who voted for winner option",
-    "predictionWinner.totalPoints": "Total used channel points for winner option",
-    "predictionWinner.topUsers": "Top 10 users who voted for winner option"
+		"predictionWinner": {
+			"title": "Title of winner option",
+			"totalUsers": "Total users who voted for winner option",
+			"totalPoints": "Total used channel points for winner option",
+			"topUsers": "Top 10 users who voted for winner option"
+		}
 		}
 	},
 	"overlays": {
@@ -284,6 +286,9 @@
 			"requiredMessages": "Required messages",
 			"requiredChannelPoints": "Required channels points",
 			"permissions": "Permissions"
+		},
+		"validations": {
+			"nameRequired": "Name is required"
 		}
 	},
 	"keywords": {

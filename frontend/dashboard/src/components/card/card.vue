@@ -24,24 +24,22 @@ defineSlots<{
 
 <template>
 	<n-card>
-		<div style="display: flex; flex-direction: column">
+		<div style="display:flex; flex-direction:column; flex:1; height: 100%">
 			<component
 				:is="icon"
 				v-if="icon"
 				style="width: 48px; height: 48px; stroke-width: 2px; stroke: #61e8bb; margin-bottom: 16px"
 			/>
-			<div>
-				<n-space justify="space-between">
-					<h2 class="card-title">
-						{{ title }}
-					</h2>
-					<slot name="headerExtra" />
-				</n-space>
-				<div :style="{ color: themeVars.textColor3 }">
-					<slot name="content" />
-				</div>
+			<n-space justify="space-between">
+				<h2 class="card-title">
+					{{ title }}
+				</h2>
+				<slot name="headerExtra" />
+			</n-space>
+			<div :style="{ color: themeVars.textColor3, 'margin-bottom': '10px' }">
+				<slot name="content" />
 			</div>
-			<div class="footer">
+			<div class="footer" style="margin-top: auto;">
 				<slot name="footer" />
 			</div>
 		</div>
