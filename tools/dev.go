@@ -58,7 +58,7 @@ func main() {
 		{Stack: "frontend", Name: "dashboard", Port: 3006},
 		{Stack: "frontend", Name: "landing", Port: 3005},
 		{Stack: "frontend", Name: "overlays", Port: 3008},
-		{Stack: "frontend", Name: "public", Port: 3007},
+		{Stack: "frontend", Name: "public-page", Port: 3007},
 	}
 
 	var processes []*os.Process

@@ -1,5 +1,7 @@
+import './main.css';
+
 import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor';
-import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query';
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query';
 import { createApp } from 'vue';
 
 import { getProfile } from './api/index.js';

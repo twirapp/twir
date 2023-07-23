@@ -7,6 +7,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/auth"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/commands"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/modules"
+	"github.com/satont/twir/apps/api/internal/impl_unprotected/songs"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/stats"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/twitch"
 	cfg "github.com/satont/twir/libs/config"
@@ -26,6 +27,7 @@ type UnProtected struct {
 	*commands.Commands
 	*auth.Auth
 	*modules.Modules
+	*songs.Songs
 }
 
 type Opts struct {
@@ -91,6 +93,9 @@ func New(opts Opts) *UnProtected {
 			},
 		},
 		Modules: &modules.Modules{
+			Deps: d,
+		},
+		Songs: &songs.Songs{
 			Deps: d,
 		},
 	}
