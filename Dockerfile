@@ -205,6 +205,7 @@ RUN cd frontend/dashboard && \
     pnpm build
 
 FROM caddy:latest as dashboard
+COPY Caddyfile /etc/caddy/Caddyfile
 COPY --from=dashboard_builder /app/frontend/dashboard/dist/ /usr/share/caddy
 EXPOSE 80
 
@@ -223,6 +224,7 @@ RUN cd frontend/public-page && \
     pnpm build
 
 FROM caddy:latest as public
+COPY Caddyfile /etc/caddy/Caddyfile
 COPY --from=public-page_builder /app/frontend/public-page/dist/ /usr/share/caddy
 EXPOSE 80
 
