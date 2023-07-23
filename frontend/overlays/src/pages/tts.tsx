@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
+import { unprotectedApiClient } from '../libs/twirp';
 
 declare global {
   interface Window {
@@ -21,7 +22,6 @@ export const TTS: React.FC = () => {
 	useEffect(() => {
 		if (!lastMessage) return;
 		const parsedData = JSON.parse(lastMessage.data);
-		console.log(parsedData);
 
 		if (parsedData.eventName === 'say') {
 			queueRef.current.push(parsedData.data);
@@ -59,27 +59,28 @@ export const TTS: React.FC = () => {
 
   const say = async (data: Record<string, string>) => {
     if (!apiKey || !data.text) return;
-
-    const query = new URLSearchParams(data);
-
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const gainNode = audioContext.createGain();
 
-    const req = await fetch(`/api/v1/tts/say?${query}`, {
-      headers: {
-        'Api-Key': apiKey,
-      },
+    console.log({
+      voice: data.voice,
+      text: data.text,
+      volume: Number(data.volume),
+      pitch: Number(data.pitch),
+      rate: Number(data.rate),
     });
-    if (!req.ok) {
-      currentAudioBuffer.current = null;
-      return;
-    }
-    const arrayBuffer = await req.arrayBuffer();
+    const req = await unprotectedApiClient.modulesTTSSay({
+      voice: data.voice,
+      text: data.text,
+      volume: Number(data.volume),
+      pitch: Number(data.pitch),
+      rate: Number(data.rate),
+    });
 
     const source = audioContext.createBufferSource();
     currentAudioBuffer.current = source;
 
-    source.buffer = await audioContext.decodeAudioData(arrayBuffer);
+    source.buffer = await audioContext.decodeAudioData(req.response.file.buffer);
 
     gainNode.gain.value = parseInt(data.volume) / 100;
     source.connect(gainNode);

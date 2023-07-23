@@ -14,11 +14,6 @@ type YouTubeSongSettings struct {
 	AcceptedCategories []string `validate:"dive,max=300"       json:"acceptedCategories"`
 }
 
-type YouTubeDenySettingsUsers struct {
-	UserID   string `json:"userId"   validate:"max=50"`
-	UserName string `json:"userName" validate:"required"`
-}
-
 type YouTubeDenySettingsSongs struct {
 	ID        string `validate:"required,min=1,max=300" json:"id"`
 	Title     string `validate:"required,min=1,max=300" json:"title"`
@@ -32,10 +27,10 @@ type YouTubeDenySettingsChannels struct {
 }
 
 type YouTubeDenyList struct {
-	Users        []YouTubeDenySettingsUsers    `validate:"required,dive"         json:"users"`
-	Songs        []YouTubeDenySettingsSongs    `validate:"required,dive"         json:"songs"`
-	Channels     []YouTubeDenySettingsChannels `validate:"required,dive"         json:"channels"`
-	ArtistsNames []string                      `validate:"required,dive,max=300" json:"artistsNames"`
+	Users        []string `validate:"required,dive"         json:"users"`
+	Songs        []string `validate:"required,dive"         json:"songs"`
+	Channels     []string `validate:"required,dive"         json:"channels"`
+	ArtistsNames []string `validate:"required,dive,max=300" json:"artistsNames"`
 }
 
 type YouTubeUserTranslations struct {

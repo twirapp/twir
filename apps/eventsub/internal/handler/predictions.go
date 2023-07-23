@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+
 	"github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/samber/lo"
 	"github.com/satont/twir/libs/grpc/generated/events"

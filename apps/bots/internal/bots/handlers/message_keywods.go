@@ -3,11 +3,12 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"github.com/satont/twir/libs/grpc/generated/events"
 	"regexp"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/satont/twir/libs/grpc/generated/events"
 
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"

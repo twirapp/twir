@@ -7,7 +7,9 @@
   </div>
   <div v-if="isError" class="flex h-screen select-none">
     <div class="m-auto flex flex-col items-center space-y-5 text-center text-white">
-      <h1 class="font-bold text-7xl">Oops!</h1>
+      <h1 class="font-bold text-7xl">
+        Oops!
+      </h1>
       <p class="text-lg text-gray-70 inline-block">
         {{ error }}
       </p>
@@ -22,7 +24,7 @@
 <script lang="ts" setup>
 import { TswButton, TswLoader } from '@twir/ui-components';
 
-import { useTwitchAuth, redirectToLogin } from '@/services/auth';
+import { redirectToLogin, useTwitchAuth } from '@/services/auth';
 
 const { isLoading, isError, error } = useTwitchAuth();
 </script>

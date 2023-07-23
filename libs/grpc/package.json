@@ -1,19 +1,32 @@
 {
   "name": "@twir/grpc",
   "scripts": {
-    "build": "rm -rf dist && ts-node --transpileOnly gen.ts && tsc"
+		"prebuild": "rm -rf dist generated",
+		"gen": "ts-node --transpileOnly gen.ts",
+    "build": "pnpm gen && pnpm build:esm && pnpm build:cjs && pnpm build:types",
+		"build:esm": "tsc --module ESNext --outDir dist/esm --declaration false --declarationMap false",
+		"build:cjs": "tsc --module CommonJS --declaration false --declarationMap false --outDir dist/cjs",
+		"build:types": "tsc --emitDeclarationOnly --outDir dist/types",
+		"postbuild": "echo '{\"type\": \"module\"}' > ./dist/esm/package.json && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json"
   },
-  "exports": {
-    "./*": "./dist/*.js"
+	"exports": {
+    "./*": {
+      "import": "./dist/esm/*.js",
+      "require": "./dist/cjs/*.js"
+		}
   },
   "typesVersions": {
     "*": {
       "*": [
-        "./dist/*.d.ts"
+        "./dist/types/*.d.ts"
       ]
     }
   },
   "dependencies": {
+    "@protobuf-ts/plugin": "^2.9.0",
+    "@protobuf-ts/runtime": "^2.9.0",
+    "@protobuf-ts/runtime-rpc": "^2.9.0",
+    "@protobuf-ts/twirp-transport": "^2.9.0",
     "grpc-tools": "^1.11.3",
     "long": "^5.2.1",
     "nice-grpc": "^2.0.1",

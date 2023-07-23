@@ -16,7 +16,7 @@ var (
 )
 
 type ChannelsCommandsResponses struct {
-	ID        string      `gorm:"primaryKey;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	ID        string      `gorm:"primaryKey;column:id;type:TEXT;default:uuid_generate_v4()" json:"id"`
 	Text      null.String `gorm:"column:text;type:TEXT;"                         json:"text"      swaggertype:"string"`
 	CommandID string      `gorm:"column:commandId;type:TEXT;"                    json:"commandId"`
 	Order     int         `gorm:"column:order;type:INT"                          json:"order"`

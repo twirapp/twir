@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/satont/twir/apps/scheduler/internal/services"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/emotes_cacher"
 	"github.com/satont/twir/libs/grpc/generated/parser"
@@ -18,8 +19,10 @@ type GrpcServices struct {
 }
 
 type Services struct {
-	Grpc   *GrpcServices
-	Gorm   *gorm.DB
-	Config *config.Config
-	PubSub *pubsub.PubSub
+	Grpc     *GrpcServices
+	Gorm     *gorm.DB
+	Config   *config.Config
+	PubSub   *pubsub.PubSub
+	Commands *services.Commands
+	Roles    *services.Roles
 }

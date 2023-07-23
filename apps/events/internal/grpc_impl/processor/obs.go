@@ -2,9 +2,10 @@ package processor
 
 import (
 	"context"
+	"strconv"
+
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
-	"strconv"
 )
 
 func (c *Processor) ObsSetScene(input string) error {

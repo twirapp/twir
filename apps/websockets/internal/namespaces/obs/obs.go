@@ -2,6 +2,7 @@ package obs
 
 import (
 	"encoding/json"
+
 	"github.com/olahol/melody"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
@@ -27,6 +28,7 @@ func NewObs(services *types.Services) *OBS {
 				services.Logger.Error(err)
 				return
 			}
+			session.Write([]byte(`{"eventName":"connected"}`))
 		},
 	)
 
@@ -37,6 +39,31 @@ func NewObs(services *types.Services) *OBS {
 	)
 
 	return obs
+}
+
+func (c *OBS) IsUserConnected(userId string) (bool, error) {
+	sessions, err := c.manager.Sessions()
+	if err != nil {
+		return false, err
+	}
+
+	for _, s := range sessions {
+		userIdValue, isUserIdExists := s.Get("userId")
+		isConnectedValue, isConnectedExists := s.Get("obsConnected")
+		if !isUserIdExists || !isConnectedExists {
+			continue
+		}
+		castedUserId, isUserCastOk := userIdValue.(string)
+		castedIsConnected, isConnectCastOk := isConnectedValue.(bool)
+		if !isUserCastOk || !isConnectCastOk {
+			continue
+		}
+		if castedUserId == userId {
+			return castedIsConnected, nil
+		}
+	}
+
+	return false, nil
 }
 
 func (c *OBS) SendEvent(userId, eventName string, data any) error {

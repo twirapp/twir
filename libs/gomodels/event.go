@@ -48,7 +48,7 @@ const (
 )
 
 type Event struct {
-	ID          string      `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	ID          string      `gorm:"primaryKey;column:id;type:TEXT;default:uuid_generate_v4()" json:"id"`
 	ChannelID   string      `gorm:"column:channelId;type:TEXT;" json:"channelId"`
 	Type        EventType   `gorm:"column:type;type:TEXT;"                     json:"type"`
 	RewardID    null.String `gorm:"column:rewardId;type:TEXT;"                     json:"rewardId"`

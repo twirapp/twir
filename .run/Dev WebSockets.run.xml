@@ -1,7 +1,17 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Dev WebSockets" type="GoApplicationRunConfiguration" factoryName="Go Application">
-    <module name="tsuwari" />
+    <module name="twir" />
     <working_directory value="$PROJECT_DIR$/apps/websockets" />
+    <EXTENSION ID="net.ashald.envfile">
+      <option name="IS_ENABLED" value="false" />
+      <option name="IS_SUBST" value="false" />
+      <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+      <option name="IS_IGNORE_MISSING_FILES" value="false" />
+      <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+      <ENTRIES>
+        <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+      </ENTRIES>
+    </EXTENSION>
     <kind value="FILE" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/apps/websockets/cmd/main.go" />

@@ -7,9 +7,11 @@ import (
 )
 
 func (c *Processor) ChangeCategory(newCategory string) error {
-	searchCategory, err := c.streamerApiClient.SearchCategories(&helix.SearchCategoriesParams{
-		Query: newCategory,
-	})
+	searchCategory, err := c.streamerApiClient.SearchCategories(
+		&helix.SearchCategoriesParams{
+			Query: newCategory,
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -18,10 +20,12 @@ func (c *Processor) ChangeCategory(newCategory string) error {
 		return errors.New("cannot get category with that name")
 	}
 
-	editReq, err := c.streamerApiClient.EditChannelInformation(&helix.EditChannelInformationParams{
-		BroadcasterID: c.channelId,
-		GameID:        searchCategory.Data.Categories[0].ID,
-	})
+	editReq, err := c.streamerApiClient.EditChannelInformation(
+		&helix.EditChannelInformationParams{
+			BroadcasterID: c.channelId,
+			GameID:        searchCategory.Data.Categories[0].ID,
+		},
+	)
 	if err != nil {
 		return err
 	}

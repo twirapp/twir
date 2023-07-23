@@ -23,7 +23,7 @@ type ChannelsTimers struct {
 	TimeInterval             int32                     `gorm:"column:timeInterval;type:INT4;default:0;"             json:"timeInterval"`
 	MessageInterval          int32                     `gorm:"column:messageInterval;type:INT4;default:0;"          json:"messageInterval"`
 	LastTriggerMessageNumber int32                     `gorm:"column:lastTriggerMessageNumber;type:INT4;default:0;" json:"-"`
-	Responses                []ChannelsTimersResponses `gorm:"foreignKey:TimerID"                                   json:"responses"`
+	Responses                []*ChannelsTimersResponses `gorm:"foreignKey:TimerID"                                   json:"responses"`
 	Channel                  *Channels                 `gorm:"foreignKey:ChannelID" json:"channel"`
 }
 

@@ -3,13 +3,14 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"time"
+
 	"github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/events"
 	"github.com/satont/twir/libs/pubsub"
 	"go.uber.org/zap"
-	"time"
 )
 
 func (c *Handler) handleChannelUpdate(

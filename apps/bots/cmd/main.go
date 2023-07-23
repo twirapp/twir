@@ -2,11 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/redis/go-redis/v9"
-	"github.com/samber/do"
-	"github.com/satont/twir/apps/bots/internal/di"
-	"github.com/satont/twir/libs/grpc/generated/events"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"log"
 	"net"
 	"net/http"
@@ -14,6 +9,12 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/redis/go-redis/v9"
+	"github.com/samber/do"
+	"github.com/satont/twir/apps/bots/internal/di"
+	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	cfg "github.com/satont/twir/libs/config"

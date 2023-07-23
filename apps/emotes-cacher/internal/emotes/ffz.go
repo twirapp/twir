@@ -41,9 +41,11 @@ func GetChannelFfzEmotes(channelID string) ([]string, error) {
 
 	emotes := []string{}
 	for _, set := range reqData.Sets {
-		mapped := lo.Map(set.Emoticons, func(e FfzEmote, _ int) string {
-			return e.Name
-		})
+		mapped := lo.Map(
+			set.Emoticons, func(e FfzEmote, _ int) string {
+				return e.Name
+			},
+		)
 
 		emotes = append(emotes, mapped...)
 	}
@@ -70,9 +72,11 @@ func GetGlobalFfzEmotes() ([]string, error) {
 
 	emotes := []string{}
 	for _, set := range reqData.Sets {
-		mapped := lo.Map(set.Emoticons, func(e FfzEmote, _ int) string {
-			return e.Name
-		})
+		mapped := lo.Map(
+			set.Emoticons, func(e FfzEmote, _ int) string {
+				return e.Name
+			},
+		)
 
 		emotes = append(emotes, mapped...)
 	}

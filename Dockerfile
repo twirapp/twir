@@ -8,6 +8,7 @@ WORKDIR /app
 RUN apk add git curl wget upx protoc libc6-compat && \
     go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
+    go install github.com/twitchtv/twirp/protoc-gen-twirp@latest && \
     npm i -g pnpm@8
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc go.work go.work.sum docker-entrypoint.sh ./
@@ -61,6 +62,16 @@ RUN cd apps/emotes-cacher && \
 FROM go_prod_base as emotes-cacher
 COPY --from=emotes-cacher_builder /app/apps/emotes-cacher/out /bin/emotes-cacher
 CMD ["/bin/emotes-cacher"]
+
+FROM builder as ytsr_builder
+WORKDIR /app
+RUN cd apps/ytsr && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as ytsr
+COPY --from=ytsr_builder /app/apps/ytsr/out /bin/ytsr
+CMD ["/bin/bots"]
 
 FROM builder as events_builder
 RUN cd apps/events && \
@@ -149,19 +160,19 @@ RUN chmod +x docker-entrypoint.sh
 RUN npm i -g pnpm@8
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
-FROM builder as dota_builder
-RUN cd apps/dota && \
-    pnpm build && \
-    pnpm prune --prod
-
-FROM node_prod_base as dota
-WORKDIR /app
-COPY --from=dota_builder /app/apps/dota /app/apps/dota
-COPY --from=dota_builder /app/libs/config /app/libs/config
-COPY --from=dota_builder /app/libs/grpc /app/libs/grpc
-COPY --from=dota_builder /app/libs/shared /app/libs/shared
-COPY --from=dota_builder /app/libs/typeorm /app/libs/typeorm
-CMD ["pnpm", "--filter=@twir/dota", "start"]
+#FROM builder as dota_builder
+#RUN cd apps/dota && \
+#    pnpm build && \
+#    pnpm prune --prod
+#
+#FROM node_prod_base as dota
+#WORKDIR /app
+#COPY --from=dota_builder /app/apps/dota /app/apps/dota
+#COPY --from=dota_builder /app/libs/config /app/libs/config
+#COPY --from=dota_builder /app/libs/grpc /app/libs/grpc
+#COPY --from=dota_builder /app/libs/shared /app/libs/shared
+#COPY --from=dota_builder /app/libs/typeorm /app/libs/typeorm
+#CMD ["pnpm", "--filter=@twir/dota", "start"]
 
 FROM builder as eval_builder
 RUN cd apps/eval && \
@@ -185,33 +196,18 @@ WORKDIR /app
 COPY --from=integrations_builder /app/apps/integrations /app/apps/integrations
 COPY --from=integrations_builder /app/libs/config /app/libs/config
 COPY --from=integrations_builder /app/libs/grpc /app/libs/grpc
-COPY --from=integrations_builder /app/libs/shared /app/libs/shared
-COPY --from=integrations_builder /app/libs/typeorm /app/libs/typeorm
 CMD ["pnpm", "--filter=@twir/integrations", "start"]
-
-FROM builder as ytsr_builder
-RUN cd apps/ytsr && \
-    pnpm build && \
-    pnpm prune --prod
-
-FROM node_prod_base as ytsr
-WORKDIR /app
-COPY --from=ytsr_builder /app/apps/ytsr /app/apps/ytsr
-COPY --from=ytsr_builder /app/libs/grpc /app/libs/grpc
-COPY --from=ytsr_builder /app/libs/config /app/libs/config
-CMD ["pnpm", "--filter=@twir/ytsr", "start"]
 
 ### FRONTEND
 
-FROM builder as dashboard_builder
+FROM builder as overlays_builder
 RUN cd frontend/dashboard && \
-    pnpm build && \
-    pnpm prune --prod
+    pnpm build
 
-FROM node_prod_base as dashboard
-WORKDIR /app
-COPY --from=dashboard_builder /app /app
-CMD ["pnpm", "--filter=@twir/dashboard", "start"]
+FROM steebchen/nginx-spa:stable as dashboard
+COPY --from=dashboard_builder /app/frontend/dashboard/dist/ /app
+EXPOSE 80
+CMD ["nginx"]
 
 FROM builder as landing_builder
 RUN cd frontend/landing && \
@@ -223,15 +219,14 @@ WORKDIR /app
 COPY --from=landing_builder /app /app
 CMD ["pnpm", "--filter=@twir/landing", "start"]
 
-FROM builder as public_builder
-RUN cd frontend/public && \
-    pnpm build && \
-    pnpm prune --prod
+FROM builder as public-page_builder
+RUN cd frontend/public-page && \
+    pnpm build
 
-FROM node_prod_base as public
-WORKDIR /app
-COPY --from=public_builder /app /app
-CMD ["pnpm", "--filter=@twir/public", "start"]
+FROM steebchen/nginx-spa:stable as public
+COPY --from=public-page_builder /app/frontend/public-page/dist/ /app
+EXPOSE 80
+CMD ["nginx"]
 
 FROM builder as overlays_builder
 RUN cd frontend/overlays && \
@@ -244,14 +239,10 @@ CMD ["nginx"]
 ### MIGRATIONS
 
 FROM builder as migrations_builder
-RUN cd libs/typeorm && \
-    pnpm build && \
-    pnpm prune --prod
+RUN cd libs/migrations && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./main.go && upx -9 -k ./out
 
-FROM node_prod_base as migrations
-WORKDIR /app
-COPY --from=builder /app/tsconfig.base.json /app/
-COPY --from=migrations_builder /app/libs/typeorm /app/libs/typeorm
-COPY --from=migrations_builder /app/libs/config /app/libs/config
-COPY --from=migrations_builder /app/libs/crypto /app/libs/crypto
-CMD ["pnpm", "run", "migrate:deploy"]
+FROM go_prod_base as migrations
+COPY --from=migrations_builder /app/libs/migrations/out /bin/migrations
+CMD ["/bin/migrations"]

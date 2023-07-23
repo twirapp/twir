@@ -7,10 +7,12 @@ import (
 )
 
 func (c *Processor) ChangeTitle(newTitle string) error {
-	req, err := c.streamerApiClient.EditChannelInformation(&helix.EditChannelInformationParams{
-		BroadcasterID: c.channelId,
-		Title:         newTitle,
-	})
+	req, err := c.streamerApiClient.EditChannelInformation(
+		&helix.EditChannelInformationParams{
+			BroadcasterID: c.channelId,
+			Title:         newTitle,
+		},
+	)
 	if err != nil {
 		return err
 	}

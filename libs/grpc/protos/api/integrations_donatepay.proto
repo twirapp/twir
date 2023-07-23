@@ -1,0 +1,11 @@
+syntax = "proto3";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/integrations_donatepay";
+package api.integrations_donatepay;
+
+message GetResponse {
+	string api_key = 1;
+}
+
+message PostRequest {
+	string api_key = 1;
+}

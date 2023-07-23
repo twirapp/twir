@@ -12,9 +12,11 @@ import (
 var TLDS = func() []string {
 	req, err := req.R().
 		SetRetryCount(10).
-		SetRetryInterval(func(resp *req.Response, attempt int) time.Duration {
-			return 2 * time.Second
-		}).
+		SetRetryInterval(
+			func(resp *req.Response, attempt int) time.Duration {
+				return 2 * time.Second
+			},
+		).
 		Get("https://data.iana.org/TLD/tlds-alpha-by-domain.txt")
 	if err != nil {
 		panic(err)

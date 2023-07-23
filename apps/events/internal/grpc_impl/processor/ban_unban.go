@@ -3,8 +3,9 @@ package processor
 import (
 	"errors"
 	"fmt"
-	"github.com/guregu/null"
 	"strings"
+
+	"github.com/guregu/null"
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"

@@ -3,11 +3,12 @@ package song
 import (
 	"context"
 	"fmt"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	spotify "github.com/satont/twir/libs/integrations/spotify"
+	"github.com/satont/twir/libs/integrations/spotify"
 )
 
 var Song = &types.Variable{

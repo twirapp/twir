@@ -22,6 +22,7 @@ devbox/go
 !*/**/.gitkeep
 
 main
+main.~
 
 .vscode
 .idea

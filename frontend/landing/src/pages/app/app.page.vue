@@ -22,7 +22,7 @@
         </button>
         <TswDropdown>
           <template #button="{ onClick }">
-            <TswAvatar :src="user.profile_image_url" @click="onClick" />
+            <TswAvatar :src="user.avatar" @click="onClick" />
           </template>
           <template #menu>
             <div class="profile-dropdown">
@@ -98,7 +98,7 @@ import { TswIcon, TswAvatar, cssURL, TswDropdown } from '@twir/ui-components';
 import { appMenu, appMenuIcons } from './router.js';
 
 import TsuwariLogo from '@/assets/brand/TsuwariInCircle.svg';
-import { useUserProfile, logoutAndRemoveToken, redirectToLanding } from '@/services/auth';
+import { useUserProfile, logout, redirectToLanding } from '@/services/auth';
 import { useTranslation } from '@/services/locale';
 
 const { tm } = useTranslation<'app'>();
@@ -107,7 +107,7 @@ const { data: user } = useUserProfile();
 const menuTranslation = tm('pages');
 
 const logoutAndGoToLanding = async () => {
-  const isLoggedOut = await logoutAndRemoveToken();
+  const isLoggedOut = await logout();
   if (isLoggedOut) {
     return redirectToLanding();
   }

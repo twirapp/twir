@@ -3,11 +3,12 @@ package sr_youtube
 import (
 	"context"
 	"fmt"
-	"github.com/guregu/null"
-	"github.com/satont/twir/apps/parser/internal/types"
 	"log"
 	"strconv"
 	"time"
+
+	"github.com/guregu/null"
+	"github.com/satont/twir/apps/parser/internal/types"
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/websockets"

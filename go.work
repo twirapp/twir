@@ -20,8 +20,8 @@ use (
 	./libs/pubsub
 	./libs/twitch
 	./libs/types
-	./libs/ytdl
-	./libs/ytsr
 	./libs/crypto
 	./tools
+	./libs/migrations
+	./apps/ytsr
 )

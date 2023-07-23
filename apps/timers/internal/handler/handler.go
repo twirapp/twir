@@ -62,7 +62,7 @@ func (c *Handler) Handle(j gocron.Job) {
 	var timerResponse *model.ChannelsTimersResponses
 	for index, r := range t.Model.Responses {
 		if index == t.SendIndex {
-			timerResponse = &r
+			timerResponse = r
 			break
 		}
 	}

@@ -2,10 +2,11 @@ package processor
 
 import (
 	"fmt"
-	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
 	"strconv"
 	"strings"
+
+	"github.com/samber/lo"
+	model "github.com/satont/twir/libs/gomodels"
 )
 
 func (c *Processor) ChangeVariableValue(variableId, input string) error {

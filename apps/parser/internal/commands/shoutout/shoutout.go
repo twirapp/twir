@@ -3,6 +3,7 @@ package shoutout
 import (
 	"context"
 	"fmt"
+
 	"github.com/satont/twir/apps/parser/internal/types"
 
 	"github.com/guregu/null"

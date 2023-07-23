@@ -22,7 +22,7 @@ const (
 )
 
 type EventOperationFilter struct {
-	ID          string                   `gorm:"primary_key;column:id;type:UUID;" json:"id"`
+	ID          string                   `gorm:"primaryKey;column:id;type:UUID;default:uuid_generate_v4()" json:"id"`
 	OperationID string                   `gorm:"column:operationId;type:UUID;" json:"operationId"`
 	Type        EventOperationFilterType `gorm:"column:type;type:TEXT;" json:"type"`
 	Left        string                   `gorm:"column:left;type:TEXT;" json:"left"`

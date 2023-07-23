@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/olahol/melody"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/websockets/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/bots"
-	"strings"
-	"time"
 
 	"github.com/satont/twir/libs/types/types/api/modules"
 )
@@ -147,7 +148,7 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 	if song.SongLink.Valid {
 		songLink = song.SongLink.String
 	} else {
-		songLink = fmt.Sprintf("https://youtube.be/%s", song.VideoID)
+		songLink = fmt.Sprintf("https://youtu.be/%s", song.VideoID)
 	}
 
 	if current == "" && song.ID != "" && youtubeSettings.AnnouncePlay != nil && *youtubeSettings.AnnouncePlay {

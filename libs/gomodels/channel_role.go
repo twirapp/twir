@@ -73,4 +73,7 @@ const (
 
 	RolePermissionViewGreetings   RolePermissionEnum = "VIEW_GREETINGS"
 	RolePermissionManageGreetings RolePermissionEnum = "MANAGE_GREETINGS"
+
+	RolePermissionViewOverlays   RolePermissionEnum = "VIEW_OVERLAYS"
+	RolePermissionManageOverlays RolePermissionEnum = "MANAGE_OVERLAYS"
 )

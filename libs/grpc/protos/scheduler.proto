@@ -1,12 +1,17 @@
 syntax = "proto3";
-import "google/protobuf/empty.proto"; 
+import "google/protobuf/empty.proto";
 package scheduler;
 option go_package = "tsuwari/grpc/scheduler";
 
 service Scheduler {
-  rpc CreateDefaultCommands(CreateDefaultCommandsRequest) returns (google.protobuf.Empty) {}
+	rpc CreateDefaultCommands(CreateDefaultCommandsRequest) returns (google.protobuf.Empty) {}
+	rpc CreateDefaultRoles(CreateDefaultRolesRequest) returns (google.protobuf.Empty) {}
 }
 
 message CreateDefaultCommandsRequest {
-  string userId = 1;
+	repeated string usersIds = 1;
+}
+
+message CreateDefaultRolesRequest {
+	repeated string usersIds = 1;
 }

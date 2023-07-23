@@ -1,0 +1,63 @@
+syntax = "proto3";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/events";
+package api.events;
+
+import "api/meta.proto";
+
+message Event {
+	message OperationFilter {
+		string type = 1;
+		string left = 2;
+		string right = 3;
+	}
+
+	message Operation {
+		string type = 1;
+		optional string input = 2;
+		uint32 delay = 3;
+		uint32 repeat = 4;
+		bool use_announce = 5;
+		uint32 timeout_time = 6;
+		optional string timeout_message = 7;
+		optional string target = 8;
+		repeated OperationFilter filters = 9;
+		bool enabled = 10;
+	}
+
+	string id = 1;
+	string channel_id = 2;
+	string type = 3;
+	optional string reward_id = 4;
+	optional string command_id = 5;
+	optional string keyword_id = 6;
+	string description = 7;
+	bool enabled = 8;
+	bool online_only = 9;
+	repeated Operation operations = 10;
+}
+
+message GetAllResponse {
+	repeated Event events = 1;
+}
+
+message GetByIdRequest {
+	string id = 1;
+}
+
+message CreateRequest {
+	Event event = 1;
+}
+
+message PutRequest {
+	string id = 1;
+	Event event = 2;
+}
+
+message DeleteRequest {
+	string id = 1;
+}
+
+message PatchRequest {
+	string id = 1;
+	bool enabled = 2;
+}

@@ -17,6 +17,10 @@ var (
 
 type EventOperationType string
 
+func (r EventOperationType) String() string {
+	return string(r)
+}
+
 const (
 	OperationTimeout                  EventOperationType = "TIMEOUT"
 	OperationTimeoutRandom            EventOperationType = "TIMEOUT_RANDOM"
@@ -67,7 +71,7 @@ const (
 )
 
 type EventOperation struct {
-	ID      string             `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	ID      string             `gorm:"primaryKey;column:id;type:TEXT;default:uuid_generate_v4()" json:"id"`
 	Type    EventOperationType `gorm:"column:type;type:TEXT;"                     json:"type"`
 	Delay   int                `gorm:"column:delay;type:int" json:"delay"`
 	EventID string             `gorm:"column:eventId;type:string" json:"eventId"`

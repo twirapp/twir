@@ -1,0 +1,12 @@
+@import url('https://fonts.googleapis.com/css?family=Inter');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+	line-height: 1.5;
+	font-weight: 400;
+	background-color: #1f1f21;
+}

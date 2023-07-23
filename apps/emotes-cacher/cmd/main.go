@@ -2,6 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/getsentry/sentry-go"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/do"
@@ -14,12 +21,6 @@ import (
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
-	"net"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 func main() {

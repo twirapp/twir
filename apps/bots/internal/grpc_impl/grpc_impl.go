@@ -129,7 +129,7 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 
 	data.Message = strings.ReplaceAll(data.Message, "\n", " ")
 
-	if data.IsAnnounce != nil && *data.IsAnnounce == true {
+	if data.IsAnnounce != nil && *data.IsAnnounce {
 		twitchClient.SendChatAnnouncement(
 			&helix.SendChatAnnouncementParams{
 				BroadcasterID: channel.ID,
@@ -147,7 +147,7 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 func (c *botsGrpcServer) Join(ctx context.Context, data *bots.JoinOrLeaveRequest) (*emptypb.Empty, error) {
 	bot, ok := c.botsService.Instances[data.BotId]
 	if !ok {
-		return &emptypb.Empty{}, nil
+		return nil, errors.New("bot not found")
 	}
 
 	rateLimitedChannel := bot.RateLimiters.Channels.Items[data.UserName]
@@ -166,10 +166,10 @@ func (c *botsGrpcServer) Join(ctx context.Context, data *bots.JoinOrLeaveRequest
 func (c *botsGrpcServer) Leave(ctx context.Context, data *bots.JoinOrLeaveRequest) (*emptypb.Empty, error) {
 	bot, ok := c.botsService.Instances[data.BotId]
 	if !ok {
-		return nil, nil
+		return nil, errors.New("bot not found")
 	}
 
 	delete(bot.RateLimiters.Channels.Items, data.UserName)
 	bot.Depart(data.UserName)
-	return nil, nil
+	return &emptypb.Empty{}, nil
 }

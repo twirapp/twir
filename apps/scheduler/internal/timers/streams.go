@@ -25,8 +25,7 @@ func NewStreams(ctx context.Context, services *types.Services) {
 			case <-ctx.Done():
 				ticker.Stop()
 				return
-			case t := <-ticker.C:
-				zap.S().Debugf("streams timer %s", t.String())
+			case <-ticker.C:
 				processStreams(services)
 			}
 		}

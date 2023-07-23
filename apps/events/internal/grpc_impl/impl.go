@@ -2,12 +2,13 @@ package grpc_impl
 
 import (
 	"context"
+	"strings"
+
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/events"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"strings"
 )
 
 type EventsGrpcImplementation struct {

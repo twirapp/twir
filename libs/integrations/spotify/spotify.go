@@ -145,7 +145,7 @@ func (c *Spotify) GetProfile() (*SpotifyProfile, error) {
 	data := SpotifyProfile{}
 	req, err := req.R().
 		SetBearerAuthToken(c.integration.AccessToken.String).
-		SetResult(&data).
+		SetSuccessResult(&data).
 		Get("https://api.spotify.com/v1/me")
 
 	if req.StatusCode == 401 && !c.isRetry {
@@ -156,6 +156,10 @@ func (c *Spotify) GetProfile() (*SpotifyProfile, error) {
 
 	if err != nil {
 		return nil, err
+	}
+
+	if !req.IsSuccessState() {
+		return nil, errors.New("cannot get profile")
 	}
 
 	return &data, nil

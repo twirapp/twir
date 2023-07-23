@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/satont/twir/apps/parser/internal/types"
-	"github.com/satont/twir/apps/parser/internal/types/services"
 	"math"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/satont/twir/apps/parser/internal/types/services"
 
 	"github.com/guregu/null"
 	"github.com/satont/twir/libs/grpc/generated/ytsr"
@@ -227,8 +228,8 @@ func validate(
 	if len(settings.DenyList.Users) > 0 {
 		_, isUserDenied := lo.Find(
 			settings.DenyList.Users,
-			func(u youtube.YouTubeDenySettingsUsers) bool {
-				return u.UserID == userId
+			func(u string) bool {
+				return u == userId
 			},
 		)
 
@@ -240,8 +241,8 @@ func validate(
 	if len(settings.DenyList.Channels) > 0 && song.Author != nil {
 		_, isChannelBlacklisted := lo.Find(
 			settings.DenyList.Channels,
-			func(u youtube.YouTubeDenySettingsChannels) bool {
-				return u.ID == song.Author.ChannelId
+			func(u string) bool {
+				return u == song.Author.ChannelId
 			},
 		)
 
@@ -253,8 +254,8 @@ func validate(
 	if len(settings.DenyList.Songs) > 0 {
 		_, isSongBlackListed := lo.Find(
 			settings.DenyList.Songs,
-			func(u youtube.YouTubeDenySettingsSongs) bool {
-				return u.ID == song.Id
+			func(u string) bool {
+				return u == song.Id
 			},
 		)
 

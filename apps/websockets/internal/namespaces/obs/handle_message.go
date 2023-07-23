@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/olahol/melody"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/websockets/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/types/types/api/modules"
-	"time"
 )
 
 func (c *OBS) handleMessage(session *melody.Session, msg []byte) {
@@ -49,6 +50,10 @@ func (c *OBS) handleMessage(session *melody.Session, msg []byte) {
 
 	if data.EventName == "requestSettings" {
 		c.handleRequestSettings(userId.(string))
+	}
+
+	if data.EventName == "obsConnected" {
+		session.Set("obsConnected", true)
 	}
 }
 

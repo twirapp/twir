@@ -2,6 +2,7 @@ package youtube
 
 import (
 	"encoding/json"
+
 	"github.com/olahol/melody"
 	"github.com/satont/twir/apps/websockets/types"
 	model "github.com/satont/twir/libs/gomodels"
@@ -23,6 +24,7 @@ func (c *YouTube) handleConnect(session *melody.Session) {
 	var currentSongs []model.RequestedSong
 	err := c.services.Gorm.
 		Where(`"channelId" = ? AND "deletedAt" IS NULL`, userId.(string)).
+		Order(`"queuePosition" ASC`).
 		Find(&currentSongs).
 		Error
 

@@ -1,0 +1,169 @@
+<script setup lang='ts'>
+import { IconPencil, IconTrash } from '@tabler/icons-vue';
+import { type Timer } from '@twir/grpc/generated/api/api/timers';
+import { useThrottleFn } from '@vueuse/core';
+import {
+	type DataTableColumns,
+  NDataTable,
+  NSpace,
+  NTag,
+  NSwitch,
+  NButton,
+  NPopconfirm,
+  NModal,
+	NResult,
+} from 'naive-ui';
+import { computed, h, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+import { useTimersManager, useUserAccessFlagChecker } from '@/api/index.js';
+import Modal from '@/components/timers/modal.vue';
+import { type EditableTimer } from '@/components/timers/types.js';
+import { renderIcon } from '@/helpers/index.js';
+
+const timersManager = useTimersManager();
+const timers = timersManager.getAll({});
+const timersDeleter = timersManager.deleteOne;
+const timersPatcher = timersManager.patch!;
+
+const throttledSwitchState = useThrottleFn((id: string, v: boolean) => {
+	timersPatcher.mutate({ id, enabled: v });
+}, 500);
+
+const userCanViewtimers = useUserAccessFlagChecker('VIEW_TIMERS');
+const userCanManageTimers = useUserAccessFlagChecker('MANAGE_TIMERS');
+
+const { t } = useI18n();
+
+const columns = computed<DataTableColumns<Timer>>(() => [
+	{
+		title: 'Name',
+		key: 'name',
+		render(row) {
+			return h(NTag, { type: 'info', bordered: false }, { default: () => row.name });
+		},
+	},
+	{
+		title: t('sharedTexts.responses'),
+		key: 'responses',
+		render(row) {
+			return h(NSpace, { vertical: true }, {
+				default: () => row.responses.map((response) => {
+					return h('span', null, response.text);
+				}),
+			});
+		},
+	},
+	{
+		title: t('timers.table.columns.intervalInMinutes'),
+		key: 'timeInterval',
+		render(row) {
+			return h(NTag, { type: 'info' }, { default: () => `${row.timeInterval} m.` });
+		},
+	},
+	// {
+	// 	title: 'Interval in messages',
+	// 	key: 'messageInterval',
+	// 	render(row) {
+	// 		return h(NTag, { type: 'info' }, { default: () => `${row.messageInterval}` });
+	// 	},
+	// },
+	{
+		title: t('sharedTexts.status'),
+		key: 'enabled',
+		render(row) {
+			return h(NSwitch, {
+				value: row.enabled,
+				disabled: !userCanManageTimers.value,
+				onUpdateValue: (value) => {
+					throttledSwitchState(row.id, value);
+				},
+			});
+		},
+	},
+	{
+		title: t('sharedTexts.actions'),
+		key: 'actions',
+		width: 150,
+		render(row) {
+			const editButton = h(
+				NButton,
+				{
+					type: 'primary',
+					size: 'small',
+					onClick: () => openModal(row),
+					quaternary: true,
+					disabled: !userCanManageTimers.value,
+				}, {
+					icon: renderIcon(IconPencil),
+				});
+
+			const deleteButton = h(
+				NPopconfirm,
+				{
+					onPositiveClick: () => timersDeleter.mutate({ id: row.id }),
+					positiveText: t('deleteConfirmation.confirm'),
+					negativeText: t('deleteConfirmation.cancel'),
+				},
+				{
+					trigger: () => h(NButton, {
+						type: 'error',
+						size: 'small',
+						quaternary: true,
+						disabled: !userCanManageTimers.value,
+					}, {
+						default: renderIcon(IconTrash),
+					}),
+					default: () => t('deleteConfirmation.text'),
+				},
+			);
+
+			return h(NSpace, { }, { default: () => [editButton, deleteButton] });
+		},
+	},
+]);
+
+const showModal = ref(false);
+
+const editableTimer = ref<EditableTimer | null>(null);
+function openModal(t: EditableTimer | null) {
+	editableTimer.value = t;
+	showModal.value = true;
+}
+function closeModal() {
+	showModal.value = false;
+}
+</script>
+
+<template>
+	<n-result v-if="!userCanViewtimers" status="403" title="You haven't access to view timers" />
+	<div v-else>
+		<n-space justify="space-between" align="center">
+			<h2>Timers</h2>
+			<n-button secondary type="success" :disabled="!userCanManageTimers" @click="openModal(null)">
+				Create
+			</n-button>
+		</n-space>
+		<n-data-table
+			:isLoading="timers.isLoading.value"
+			:columns="columns"
+			:data="timers.data.value?.timers ?? []"
+		/>
+
+		<n-modal
+			v-model:show="showModal"
+			:mask-closable="false"
+			:segmented="true"
+			preset="card"
+			:title="editableTimer?.name ?? 'New timer'"
+			class="modal"
+			:style="{
+				width: '600px',
+				top: '50px',
+			}"
+			:on-close="closeModal"
+		>
+			<modal :timer="editableTimer" @close="closeModal" />
+		</n-modal>
+	</div>
+</template>

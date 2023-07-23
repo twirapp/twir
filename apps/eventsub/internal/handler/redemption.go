@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -14,7 +16,6 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/types/types/api/modules"
 	"go.uber.org/zap"
-	"strconv"
 )
 
 func (c *Handler) handleChannelPointsRewardRedemptionAdd(

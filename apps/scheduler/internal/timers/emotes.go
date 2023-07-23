@@ -24,9 +24,7 @@ func NewEmotes(ctx context.Context, services *types.Services) {
 			case <-ctx.Done():
 				channelsTicker.Stop()
 				return
-			case t := <-channelsTicker.C:
-				zap.S().Debugf("Emotes tick at %s", t)
-
+			case <-channelsTicker.C:
 				var channels []model.Channels
 				err := services.Gorm.
 					Where(`"isEnabled" = ? and "isBanned" = ?`, true, false).

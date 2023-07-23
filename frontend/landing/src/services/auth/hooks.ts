@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/vue-query';
 
 import { getProfile } from './api.js';
-import { redirectToDashboard } from './locationHelpers.js';
-import { accessTokenStore } from './token.js';
-import { handleTwitchLoginCallback } from './twitch.js';
+
+import { redirectToDashboard } from '@/services/auth/locationHelpers.js';
+import { handleTwitchLoginCallback } from '@/services/auth/twitch.js';
 
 export const useUserProfile = () =>
   useQuery(['profile'], getProfile, {
@@ -13,28 +13,15 @@ export const useUserProfile = () =>
   });
 
 export const useTwitchAuth = () =>
-  useQuery(
-    ['twitchAuth'],
-    async () => {
-      const accessToken = accessTokenStore.get();
-
-      if (accessToken) {
-        try {
-          await getProfile();
-          return { accessToken };
-          // eslint-disable-next-line no-empty
-        } catch (e) {}
-      }
-
-      return await handleTwitchLoginCallback();
-    },
-    {
-      onSuccess: (data) => {
-        accessTokenStore.set(data.accessToken);
-        redirectToDashboard();
-      },
-      retry: false,
-      refetchOnReconnect: true,
-      refetchOnWindowFocus: false,
-    },
-  );
+	useQuery(
+		['twitchAuth'],
+		async () => {
+			await handleTwitchLoginCallback();
+			redirectToDashboard();
+		},
+		{
+			retry: false,
+			refetchOnReconnect: true,
+			refetchOnWindowFocus: false,
+		},
+	);

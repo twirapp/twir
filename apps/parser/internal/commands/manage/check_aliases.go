@@ -2,12 +2,13 @@ package manage
 
 import (
 	"context"
+	"strings"
+
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/satont/twir/apps/parser/internal/types"
 
 	"go.uber.org/zap"
-	"strings"
 
 	model "github.com/satont/twir/libs/gomodels"
 )

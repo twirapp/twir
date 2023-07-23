@@ -2,6 +2,7 @@ package grpc_impl
 
 import (
 	"context"
+
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -85,4 +86,18 @@ func (c *grpcImpl) ObsStartStream(_ context.Context, msg *websockets.ObsStopOrSt
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+func (c *grpcImpl) ObsCheckIsUserConnected(
+	_ context.Context,
+	msg *websockets.ObsCheckUserConnectedRequest,
+) (*websockets.ObsCheckUserConnectedResponse, error) {
+	res, err := c.sockets.OBS.IsUserConnected(msg.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &websockets.ObsCheckUserConnectedResponse{
+		State: res,
+	}, nil
 }

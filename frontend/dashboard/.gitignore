@@ -1,3 +1,2 @@
-.next
-/public/sw*
-/public/workbox-*
+dev-dist
+stats.html

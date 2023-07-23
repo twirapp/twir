@@ -1,0 +1,11 @@
+syntax = "proto3";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/integrations_valorant";
+package api.integrations_valorant;
+
+message GetResponse {
+	optional string user_name = 1;
+}
+
+message PostRequest {
+	string user_name = 2;
+}

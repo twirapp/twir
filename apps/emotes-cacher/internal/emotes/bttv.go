@@ -3,9 +3,10 @@ package emotes
 import (
 	"encoding/json"
 	"errors"
-	"github.com/samber/lo"
 	"io"
 	"net/http"
+
+	"github.com/samber/lo"
 )
 
 type BttvEmote struct {
@@ -36,12 +37,16 @@ func GetChannelBttvEmotes(channelID string) ([]string, error) {
 
 	emotes := []string{}
 
-	mappedChannelEmotes := lo.Map(reqData.ChannelEmotes, func(e BttvEmote, _ int) string {
-		return e.Code
-	})
-	mappedSharedEmotes := lo.Map(reqData.SharedEmotes, func(e BttvEmote, _ int) string {
-		return e.Code
-	})
+	mappedChannelEmotes := lo.Map(
+		reqData.ChannelEmotes, func(e BttvEmote, _ int) string {
+			return e.Code
+		},
+	)
+	mappedSharedEmotes := lo.Map(
+		reqData.SharedEmotes, func(e BttvEmote, _ int) string {
+			return e.Code
+		},
+	)
 
 	emotes = append(emotes, mappedChannelEmotes...)
 	emotes = append(emotes, mappedSharedEmotes...)
@@ -66,7 +71,9 @@ func GetGlobalBttvEmotes() ([]string, error) {
 		return nil, errors.New("cannot fetch bttv emotes")
 	}
 
-	return lo.Map(emotes, func(item BttvEmote, _ int) string {
-		return item.Code
-	}), nil
+	return lo.Map(
+		emotes, func(item BttvEmote, _ int) string {
+			return item.Code
+		},
+	), nil
 }
