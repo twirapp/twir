@@ -204,10 +204,9 @@ FROM builder as dashboard_builder
 RUN cd frontend/dashboard && \
     pnpm build
 
-FROM steebchen/nginx-spa:stable as dashboard
-COPY --from=dashboard_builder /app/frontend/dashboard/dist/ /app
+FROM caddy:latest as dashboard
+COPY --from=dashboard_builder /app/frontend/dashboard/dist/ /usr/share/caddy
 EXPOSE 80
-CMD ["nginx"]
 
 FROM builder as landing_builder
 RUN cd frontend/landing && \
@@ -223,10 +222,9 @@ FROM builder as public-page_builder
 RUN cd frontend/public-page && \
     pnpm build
 
-FROM steebchen/nginx-spa:stable as public
-COPY --from=public-page_builder /app/frontend/public-page/dist/ /app
+FROM caddy:latest as public
+COPY --from=public-page_builder /app/frontend/public-page/dist/ /usr/share/caddy
 EXPOSE 80
-CMD ["nginx"]
 
 FROM builder as overlays_builder
 RUN cd frontend/overlays && \
