@@ -31,7 +31,10 @@ func (c *CommandsGroup) CommandsGroupGetAll(
 ) (*commands_group.GetAllResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	var entities []*model.ChannelCommandGroup
-	if err := c.Db.WithContext(ctx).Where(`"channelId" = ?`, dashboardId).Find(&entities).Error; err != nil {
+	if err := c.Db.WithContext(ctx).Where(
+		`"channelId" = ?`,
+		dashboardId,
+	).Group(`"id"`).Find(&entities).Error; err != nil {
 		return nil, err
 	}
 

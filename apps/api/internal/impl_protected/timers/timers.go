@@ -50,6 +50,7 @@ func (c *Timers) TimersGetAll(
 		WithContext(ctx).
 		Preload("Responses").
 		Where(`"channelId" = ?`, dashboardId).
+		Group(`"id"`).
 		Find(&entities).Error; err != nil {
 		return nil, err
 	}

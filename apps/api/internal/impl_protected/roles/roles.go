@@ -56,6 +56,7 @@ func (c *Roles) RolesGetAll(
 		WithContext(ctx).
 		Preload("Users").
 		Where(`"channelId" = ?`, dashboardId).
+		Group(`"id"`).
 		Find(&entities).
 		Error; err != nil {
 		return nil, err

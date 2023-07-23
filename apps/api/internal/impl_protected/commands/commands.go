@@ -75,6 +75,7 @@ func (c *Commands) CommandsGetAll(ctx context.Context, _ *emptypb.Empty) (*comma
 		Where(`"channelId" = ?`, dashboardId).
 		Preload("Responses").
 		Preload("Group").
+		Group(`"id"`).
 		Find(&cmds).Error
 	if err != nil {
 		return nil, err

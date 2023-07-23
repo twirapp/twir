@@ -33,7 +33,10 @@ func (c *Keywords) convertEntity(entity *model.ChannelsKeywords) *keywords.Keywo
 func (c *Keywords) KeywordsGetAll(ctx context.Context, _ *emptypb.Empty) (*keywords.GetAllResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	var entities []*model.ChannelsKeywords
-	if err := c.Db.WithContext(ctx).Where(`"channelId" = ?`, dashboardId).Find(&entities).Error; err != nil {
+	if err := c.Db.WithContext(ctx).
+		Where(`"channelId" = ?`, dashboardId).
+		Group(`"id"`).
+		Find(&entities).Error; err != nil {
 		return nil, err
 	}
 

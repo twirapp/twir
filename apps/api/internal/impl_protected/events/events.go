@@ -64,6 +64,7 @@ func (c *Events) EventsGetAll(ctx context.Context, _ *emptypb.Empty) (*events.Ge
 		WithContext(ctx).
 		Preload("Operations").
 		Preload("Operations.Filters").
+		Group(`"id"`).
 		Where(`"channelId" = ?`, dashboardId).Find(&evnts).Error; err != nil {
 		return nil, err
 	}

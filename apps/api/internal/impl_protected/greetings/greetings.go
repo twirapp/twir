@@ -49,7 +49,10 @@ func (c *Greetings) GreetingsGetById(
 ) (*greetings.Greeting, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	var dbGreetings model.ChannelsGreetings
-	err := c.Db.WithContext(ctx).Where(`"channelId" = ? AND "id" = ?`, dashboardId, request.Id).First(&dbGreetings).Error
+	err := c.Db.WithContext(ctx).
+		Where(`"channelId" = ? AND "id" = ?`, dashboardId, request.Id).
+		Group(`"id"`).
+		First(&dbGreetings).Error
 	if err != nil {
 		return nil, err
 	}

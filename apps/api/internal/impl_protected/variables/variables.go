@@ -57,6 +57,7 @@ func (c *Variables) VariablesGetAll(ctx context.Context, req *emptypb.Empty) (*v
 	if err := c.Db.
 		WithContext(ctx).
 		Where(`"channelId" = ?`, dashboardId).
+		Group(`"id"`).
 		Find(&entities).Error; err != nil {
 		return nil, err
 	}
