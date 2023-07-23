@@ -225,7 +225,14 @@ const removeOperation = (index: number) => {
 					</n-form-item>
 
 					<n-form-item :label="t('events.description')" path="description" show-require-mark>
-						<n-input v-model:value="formValue.description" type="textarea" />
+						<n-input
+							v-model:value="formValue.description"
+							type="textarea"
+							:autosize="{
+								minRows: 1,
+								maxRows: 5
+							}"
+						/>
 					</n-form-item>
 
 					<n-form-item
@@ -306,6 +313,7 @@ const removeOperation = (index: number) => {
 							secondary
 							size="small"
 							style="flex-grow: 1;"
+							:type="getOperation(operation.type)?.color ?? 'default'"
 							@click="() => selectedOperationsTab = operationIndex"
 						>
 							{{ getOperation(operation.type)?.name.slice(0, 15) ?? '' }}
