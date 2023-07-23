@@ -21,6 +21,8 @@ function openSettings(id?: string) {
 	const event = eventsList.value?.events.find(e => e.id === id);
 	if (event) {
 		editableEvent.value = structuredClone(toRaw(event));
+	} else {
+		editableEvent.value = null;
 	}
 
 	showModal.value = true;
@@ -46,12 +48,13 @@ function openSettings(id?: string) {
 						align-items: center;
 						justify-content: center;
 					"
+				@click="openSettings"
 			>
 				<IconCalendarPlus style="height: 80px; width: 80px;" />
 			</n-card>
 		</n-grid-item>
 		<n-grid-item v-for="event of eventsList!.events" :key="event.id">
-			<card :event="event" @open-settings="openSettings" />
+			<card :event="event" @open-settings="openSettings(event.id)" />
 		</n-grid-item>
 	</n-grid>
 	<!-- </Transition> -->
@@ -68,7 +71,7 @@ function openSettings(id?: string) {
 		}"
 		@close="editableEvent = null"
 	>
-		<modal :event="editableEvent" />
+		<modal :event="editableEvent" @saved="showModal = false" />
 	</n-modal>
 </template>
 

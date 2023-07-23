@@ -27,10 +27,21 @@ import { useI18n } from 'vue-i18n';
 import { eventTypeSelectOptions, operationTypeSelectOptions, getOperation, flatEvents } from './helpers.js';
 import type { EditableEvent, EventOperation } from './types.js';
 
-import { useCommandsManager, useKeywordsManager, useObsOverlayManager, useTwitchRewards, useVariablesManager } from '@/api';
+import {
+	useCommandsManager,
+	useEventsManager,
+	useKeywordsManager,
+	useObsOverlayManager,
+	useProfile,
+	useTwitchRewards,
+	useVariablesManager,
+} from '@/api/index.js';
 
 const props = defineProps<{
 	event: EditableEvent | null
+}>();
+const emits = defineEmits<{
+	saved: []
 }>();
 
 const formRef = ref<FormInst | null>(null);
@@ -194,9 +205,8 @@ const keywordsSelectOptions = computed(() => {
 
 const { t } = useI18n();
 
-
 const addOperation = () => {
-	formValue.value.operations.push({
+	const newLength = formValue.value.operations.push({
 		delay: 0,
 		enabled: true,
 		filters: [],
@@ -208,11 +218,43 @@ const addOperation = () => {
 		target: '',
 		timeoutMessage: '',
 	});
+	selectedOperationsTab.value = newLength-1;
 };
 
 const removeOperation = (index: number) => {
+	if (index === selectedOperationsTab.value) selectedOperationsTab.value = 0;
 	formValue.value.operations = formValue.value.operations.filter((_, i) => i != index);
 };
+
+const eventsManager = useEventsManager();
+const eventsUpdater = eventsManager.update;
+const eventsCreator = eventsManager.create;
+
+const { data: profile } = useProfile();
+
+async function save() {
+	if (!formRef.value || !profile.value) return;
+	await formRef.value.validate();
+
+	const event = {
+		...formValue.value,
+		channelId: profile.value.selectedDashboardId,
+		id: formValue.value.id ?? '',
+	};
+
+	if (!formValue.value.id) {
+		await eventsCreator.mutateAsync({
+			event,
+		});
+	} else {
+		await eventsUpdater.mutateAsync({
+			id: formValue.value.id,
+			event,
+		});
+	}
+
+	emits('saved');
+}
 </script>
 
 <template>
@@ -328,6 +370,7 @@ const removeOperation = (index: number) => {
 					block
 					size="small"
 					secondary
+					:disabled="formValue.operations.length >= 10"
 					@click="addOperation"
 				>
 					<IconPlus />
@@ -342,6 +385,11 @@ const removeOperation = (index: number) => {
 						<n-grid-item :span="2">
 							<n-form-item :label="t('events.operations.name')" required>
 								<n-select v-model:value="currentOperation.type" :options="operationTypeSelectOptions" />
+							</n-form-item>
+						</n-grid-item>
+						<n-grid-item :span="1">
+							<n-form-item :label="t('sharedTexts.status')">
+								<n-switch v-model:value="currentOperation.enabled" />
 							</n-form-item>
 						</n-grid-item>
 						<n-grid-item :span="1">
@@ -465,5 +513,9 @@ const removeOperation = (index: number) => {
 				</n-space>
 			</div>
 		</n-space>
+
+		<n-button block secondary type="success" style="margin-top:15px" @click="save">
+			{{ t('sharedButtons.save') }}
+		</n-button>
 	</n-form>
 </template>

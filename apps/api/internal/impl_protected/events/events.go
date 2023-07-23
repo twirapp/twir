@@ -171,6 +171,7 @@ func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (
 
 	for i, operation := range request.Event.Operations {
 		entity.Operations[i] = model.EventOperation{
+			ID:             uuid.New().String(),
 			EventID:        entity.ID,
 			Type:           model.EventOperationType(operation.Type),
 			Delay:          int(operation.Delay),
@@ -188,6 +189,7 @@ func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (
 
 		for j, filter := range operation.Filters {
 			entity.Operations[i].Filters[j] = &model.EventOperationFilter{
+				ID:          uuid.New().String(),
 				OperationID: entity.Operations[i].ID,
 				Type:        model.EventOperationFilterType(filter.Type),
 				Left:        filter.Left,
