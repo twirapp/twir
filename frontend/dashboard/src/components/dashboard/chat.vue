@@ -4,7 +4,7 @@ import { useLocalStorage } from '@vueuse/core';
 import { NCard, NButton } from 'naive-ui';
 import { computed } from 'vue';
 
-import { useProfile } from '@/api/index.js';
+import { useProfile, useTwitchGetUsers } from '@/api/index.js';
 import { type Theme } from '@/hooks/index.js';
 
 const { data: profile } = useProfile();
@@ -15,10 +15,15 @@ const toggleTheme = () => {
 	chatTheme.value = chatTheme.value === 'light' ? 'dark' : 'light';
 };
 
-const chatUrl = computed(() => {
-	if (!profile.value) return;
+const selectedTwitchId = computed(() => profile.value?.selectedDashboardId ?? '');
+const selectedDashboardTwitchUser = useTwitchGetUsers({ ids: selectedTwitchId });
 
-	let url = `https://www.twitch.tv/embed/${profile.value.login}/chat?parent=${window.location.host}`;
+const chatUrl = computed(() => {
+	if (!selectedDashboardTwitchUser.data.value?.users.length) return;
+
+	const user = selectedDashboardTwitchUser.data.value.users.at(0)!;
+
+	let url = `https://www.twitch.tv/embed/${user.login}/chat?parent=${window.location.host}`;
 
 	if (chatTheme.value === 'dark') {
 		url += '&darkpopout';
