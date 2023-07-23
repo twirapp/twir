@@ -1,16 +1,12 @@
-{
-	auto_https off
-}
-
 :80 {
-	handle_path /p*
+	handle /p*
 		root * /app
 		encode gzip
 		try_files {path} {path}/ /index.html
 		file_server
 	}
 
-	handle_path /public*
+	handle /public*
   		root * /app
   		encode gzip
   		try_files {path} {path}/ /index.html
