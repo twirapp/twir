@@ -34,6 +34,8 @@ import "api/rewards.proto";
 
 import "api/built_in_variables.proto";
 
+import "api/dashboard_stats.proto";
+
 service Protected {
 	rpc AuthUserProfile(google.protobuf.Empty) returns (api.auth.Profile) {}
 	rpc AuthSetDashboard(api.auth.SetDashboard) returns (google.protobuf.Empty) {}
@@ -154,6 +156,8 @@ service Protected {
 	rpc CommandsGroupCreate(api.commands_group.CreateRequest) returns (api.commands_group.Group) {}
 	rpc CommandsGroupDelete(api.commands_group.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc CommandsGroupUpdate(api.commands_group.PutRequest) returns (api.commands_group.Group) {}
+
+	rpc GetDashboardStats(google.protobuf.Empty) returns (api.dashboard_stats.DashboardStatsResponse) {}
 }
 
 // UnProtected

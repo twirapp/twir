@@ -23,7 +23,7 @@ defineSlots<{
 </script>
 
 <template>
-	<n-card>
+	<n-card embedded>
 		<div style="display:flex; flex-direction:column; flex:1; height: 100%">
 			<component
 				:is="icon"

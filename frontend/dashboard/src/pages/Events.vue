@@ -48,6 +48,7 @@ function openSettings(id?: string) {
 						align-items: center;
 						justify-content: center;
 					"
+				embedded
 				@click="openSettings"
 			>
 				<IconCalendarPlus style="height: 80px; width: 80px;" />

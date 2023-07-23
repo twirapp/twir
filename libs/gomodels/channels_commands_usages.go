@@ -16,10 +16,11 @@ var (
 )
 
 type ChannelsCommandsUsages struct {
-	ID        string `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
-	UserID    string `gorm:"column:userId;type:TEXT;"                        json:"user_id"`
-	ChannelID string `gorm:"column:channelId;type:TEXT;"                     json:"channel_id"`
-	CommandID string `gorm:"column:commandId;type:TEXT;"                     json:"command_id"`
+	ID        string    `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	UserID    string    `gorm:"column:userId;type:TEXT;"                        json:"user_id"`
+	ChannelID string    `gorm:"column:channelId;type:TEXT;"                     json:"channel_id"`
+	CommandID string    `gorm:"column:commandId;type:TEXT;"                     json:"command_id"`
+	CreatedAt time.Time `gorm:"column:createdAt;type:TIMESTAMP;"              json:"created_at"`
 }
 
 func (c *ChannelsCommandsUsages) TableName() string {

@@ -10,6 +10,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/commands"
 	"github.com/satont/twir/apps/api/internal/impl_protected/commands_group"
 	"github.com/satont/twir/apps/api/internal/impl_protected/community"
+	"github.com/satont/twir/apps/api/internal/impl_protected/dashboard_stats"
 	"github.com/satont/twir/apps/api/internal/impl_protected/events"
 	"github.com/satont/twir/apps/api/internal/impl_protected/greetings"
 	"github.com/satont/twir/apps/api/internal/impl_protected/integrations"
@@ -47,6 +48,7 @@ type Protected struct {
 	*variables.Variables
 	*commands_group.CommandsGroup
 	*build_in_variables.BuildInVariables
+	*dashboard_stats.DashboardStats
 }
 
 type Opts struct {
@@ -99,5 +101,6 @@ func New(opts Opts) *Protected {
 		Variables:        &variables.Variables{Deps: d},
 		CommandsGroup:    &commands_group.CommandsGroup{Deps: d},
 		BuildInVariables: &build_in_variables.BuildInVariables{Deps: d},
+		DashboardStats:   &dashboard_stats.DashboardStats{Deps: d},
 	}
 }

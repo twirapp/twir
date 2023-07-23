@@ -44,7 +44,7 @@ func processStreams(services *types.Services) {
 	}
 
 	var existedStreams []model.ChannelsStreams
-	err = services.Gorm.Select("id", `"userId"`).Find(&existedStreams).Error
+	err = services.Gorm.Select("id", `"userId"`, `"parsedMesages"`).Find(&existedStreams).Error
 	if err != nil {
 		zap.S().Error(err)
 		return
@@ -87,7 +87,7 @@ func processStreams(services *types.Services) {
 						return stream.UserID == channel.ID
 					},
 				)
-				_, dbStreamExists := lo.Find(
+				dbStream, dbStreamExists := lo.Find(
 					existedStreams, func(stream model.ChannelsStreams) bool {
 						return stream.UserId == channel.ID
 					},
@@ -115,11 +115,11 @@ func processStreams(services *types.Services) {
 					TagIds:         nil,
 					Tags:           tags,
 					IsMature:       twitchStream.IsMature,
-					ParsedMessages: 0,
+					ParsedMessages: dbStream.ParsedMessages,
 				}
 
 				if twitchStreamExists && dbStreamExists {
-					err = services.Gorm.Where(`"userId" = ?`, channel.ID).Updates(channelStream).Error
+					err = services.Gorm.Where(`"userId" = ?`, channel.ID).Save(channelStream).Error
 					if err != nil {
 						zap.S().Error(err)
 						return
@@ -127,12 +127,6 @@ func processStreams(services *types.Services) {
 				}
 
 				if twitchStreamExists && !dbStreamExists {
-					err = services.Gorm.Create(channelStream).Error
-					if err != nil {
-						zap.S().Error(err)
-						return
-					}
-
 					bytes, err := json.Marshal(
 						&streamOnlineMessage{
 							StreamID:  channelStream.ID,

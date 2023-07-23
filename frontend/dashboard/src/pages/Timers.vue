@@ -136,12 +136,12 @@ function closeModal() {
 </script>
 
 <template>
-	<n-result v-if="!userCanViewtimers" status="403" title="You haven't access to view timers" />
+	<n-result v-if="!userCanViewtimers" status="403" :title="t('haveNoAccess.message')" />
 	<div v-else>
 		<n-space justify="space-between" align="center">
 			<h2>Timers</h2>
 			<n-button secondary type="success" :disabled="!userCanManageTimers" @click="openModal(null)">
-				Create
+				{{ t('sharedButtons.create') }}
 			</n-button>
 		</n-space>
 		<n-data-table

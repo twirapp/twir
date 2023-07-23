@@ -11,6 +11,9 @@ export const router = createRouter({
 				{
 					path: '/dashboard',
 					component: () => import('./pages/Dashboard.vue'),
+					meta: {
+						noPadding: true,
+					},
 				},
 				{
 					name: 'Integrations',

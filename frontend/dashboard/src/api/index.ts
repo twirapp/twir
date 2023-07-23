@@ -8,3 +8,4 @@ export * from './community.js';
 export * from './youtubeSearch.js';
 export * from './modules/index.js';
 export * from './overlays/index.js';
+export * from './dashboardStats.js';

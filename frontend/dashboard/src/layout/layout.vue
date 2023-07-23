@@ -71,10 +71,15 @@ watch(smallerOrEqualLg, (v) => {
 							<Sidebar :is-collapsed="isSidebarCollapsed" />
 						</n-drawer-content>
 					</n-drawer>
-					<n-layout-content content-style="padding: 24px; width: 100%">
+					<n-layout-content>
 						<router-view v-slot="{ Component, route }">
 							<transition :name="route.meta.transition as string || 'router'" mode="out-in">
-								<div :key="route.path">
+								<div
+									:key="route.path"
+									:style="{
+										padding: route.meta?.noPadding ? undefined: '24px'
+									}"
+								>
 									<component :is="Component" />
 								</div>
 							</transition>
