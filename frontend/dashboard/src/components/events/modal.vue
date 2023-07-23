@@ -321,6 +321,10 @@ async function save() {
 							:loading="isKeywordsLoading"
 						/>
 					</n-form-item>
+
+					<n-form-item :label="t('events.onlineOnly')">
+						<n-switch v-model:value="formValue.onlineOnly" />
+					</n-form-item>
 				</n-space>
 
 				<n-space vertical>
