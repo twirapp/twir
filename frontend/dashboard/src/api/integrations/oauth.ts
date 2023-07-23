@@ -48,7 +48,6 @@ export const createIntegrationOauth = <
 				return call.response;
 			},
 			retry: false,
-			enabled: false,
 		}),
 		usePostCode: () => useMutation({
 			mutationKey: [`${queryKey}/post-code`],
