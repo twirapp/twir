@@ -206,7 +206,16 @@ RUN cd frontend/dashboard && \
 
 FROM caddy:latest as dashboard
 COPY Caddyfile /etc/caddy/Caddyfile
-COPY --from=dashboard_builder /app/frontend/dashboard/dist/ /usr/share/caddy
+COPY --from=dashboard_builder /app/frontend/dashboard/dist/ /app
+EXPOSE 80
+
+FROM builder as public-page_builder
+RUN cd frontend/public-page && \
+    pnpm build
+
+FROM caddy:latest as public
+COPY Caddyfile /etc/caddy/Caddyfile
+COPY --from=public-page_builder /app/frontend/public-page/dist/ /app
 EXPOSE 80
 
 FROM builder as landing_builder
@@ -218,15 +227,6 @@ FROM node_prod_base as landing
 WORKDIR /app
 COPY --from=landing_builder /app /app
 CMD ["pnpm", "--filter=@twir/landing", "start"]
-
-FROM builder as public-page_builder
-RUN cd frontend/public-page && \
-    pnpm build
-
-FROM caddy:latest as public
-COPY Caddyfile /etc/caddy/Caddyfile
-COPY --from=public-page_builder /app/frontend/public-page/dist/ /usr/share/caddy
-EXPOSE 80
 
 FROM builder as overlays_builder
 RUN cd frontend/overlays && \
