@@ -17,7 +17,7 @@ import { useI18n } from 'vue-i18n';
 
 import Logo from '../../public/brand/TwirInCircle.svg?component';
 
-import { useProfile, useLogout } from '@/api/index.js';
+import { useProfile, useLogout, useTwitchGetUsers } from '@/api/index.js';
 import DiscordLogo from '@/assets/icons/integrations/discord.svg?component';
 import { renderIcon } from '@/helpers/index.js';
 import { useTheme } from '@/hooks/index.js';
@@ -52,7 +52,19 @@ const { t, availableLocales, locale } = useI18n({ useScope: 'global' });
 
 const localStorageLocale = useLocalStorage('twirLocale', 'en');
 
+const selectedUserId = computed(() => {
+	return (profileData.value?.selectedDashboardId ?? profileData?.value?.id) || '';
+});
+const selectedDashboardTwitchUser = useTwitchGetUsers({
+	ids: selectedUserId,
+});
+
 const openDiscord = () => window.open('https://discord.gg/Q9NBZq3zVV', '_blank');
+const publicPageHref = computed<string>(() => {
+	if (!profileData.value || !selectedDashboardTwitchUser.data.value?.users.length) return '';
+
+	return `${window.location.origin}/p/${selectedDashboardTwitchUser.data.value.users.at(0)!.login}`;
+});
 </script>
 
 <template>
@@ -70,6 +82,9 @@ const openDiscord = () => window.open('https://discord.gg/Q9NBZq3zVV', '_blank')
 		</div>
 
 		<div>
+			<n-button tag="a" tertiary target="_blank" :href="publicPageHref">
+				Public page
+			</n-button>
 			<n-button
 				tertiary
 				style="padding: 5px"

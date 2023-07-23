@@ -4,13 +4,15 @@ import type {
 	TwitchGetUsersResponse,
 	TwitchSearchChannelsResponse,
 } from '@twir/grpc/generated/api/api/twitch';
-import { Ref, isRef } from 'vue';
+import { ComputedRef, Ref, isRef } from 'vue';
 
 import { unprotectedApiClient, protectedApiClient } from '@/api/twirp.js';
 
+
+type TwitchIn = Ref<string[]> | Ref<string> | ComputedRef<string> | ComputedRef<string[]> | string[]
 export const useTwitchGetUsers = (opts: {
-	ids?: Ref<string[]> | Ref<string> | string[],
-	names?: Ref<string[]> | Ref<string> | string[]
+	ids?: TwitchIn,
+	names?: TwitchIn
 }) => useQuery({
 	queryKey: ['twitch', 'search', 'users', opts.ids, opts.names],
 	queryFn: async (): Promise<TwitchGetUsersResponse> => {
