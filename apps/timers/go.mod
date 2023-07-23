@@ -20,7 +20,6 @@ require (
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/jackc/pgx/v5 v5.4.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/rogpeppe/go-internal v1.10.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/goleak v1.1.12 // indirect
