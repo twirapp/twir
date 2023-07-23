@@ -34,7 +34,7 @@ const { data: profile } = useProfile();
 </script>
 
 <template>
-	<card :title="title" :icon="icon">
+	<card :title="title" :icon="icon" style="height: 100%;">
 		<template #content>
 			{{ description }}
 		</template>
