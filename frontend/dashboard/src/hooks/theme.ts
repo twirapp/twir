@@ -1,7 +1,6 @@
 import { useLocalStorage } from '@vueuse/core';
 
-type Theme = 'light' | 'dark'
-
+export type Theme = 'light' | 'dark'
 
 export const useTheme = () => {
 	const theme = useLocalStorage<Theme>('twirTheme', 'dark');

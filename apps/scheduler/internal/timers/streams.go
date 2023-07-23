@@ -127,6 +127,12 @@ func processStreams(services *types.Services) {
 				}
 
 				if twitchStreamExists && !dbStreamExists {
+					err = services.Gorm.Where(`"userId" = ?`, channel.ID).Save(channelStream).Error
+					if err != nil {
+						zap.S().Error(err)
+						return
+					}
+
 					bytes, err := json.Marshal(
 						&streamOnlineMessage{
 							StreamID:  channelStream.ID,
