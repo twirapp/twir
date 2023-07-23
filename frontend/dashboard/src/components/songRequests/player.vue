@@ -279,8 +279,14 @@ const { t } = useI18n();
 						<IconLink class="card-icon" />
 					</template>
 
-					<n-button tag="a" type="primary" text :href="`https://youtu.be/${currentVideo?.videoId}`" target="_blank">
-						youtu.be/{{ currentVideo?.videoId }}
+					<n-button
+						tag="a"
+						type="primary"
+						text
+						:href="currentVideo.songLink ?? `https://youtu.be/${currentVideo?.videoId}`"
+						target="_blank"
+					>
+						{{ currentVideo.songLink || `youtu.be/${currentVideo?.videoId}` }}
 					</n-button>
 				</n-list-item>
 			</n-list>

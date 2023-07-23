@@ -1,6 +1,6 @@
 
 import { useWebSocket } from '@vueuse/core';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 import { useProfile } from '@/api/index.js';
 
@@ -60,6 +60,12 @@ export const useYoutubeSocket = () => {
 	watch(socketUrl, (v) => {
 		if (!v) return;
 		websocket.open();
+	});
+
+	onMounted(() => {
+		if (websocket.status.value !== 'OPEN' && socketUrl.value) {
+			websocket.open();
+		}
 	});
 
 	const callWsSkip = (ids: string | string[]) => {

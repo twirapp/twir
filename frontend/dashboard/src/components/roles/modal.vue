@@ -45,6 +45,7 @@ const rules: FormRules = {
 	name: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: string) => {
+			console.log(value);
 			if (!value || !value.length) {
 				return new Error(t('roles.validations.nameRequired'));
 			}
@@ -92,7 +93,7 @@ const { t } = useI18n();
 </script>
 
 <template>
-	<n-form ref="formRef" v-model="formValue" :rules="rules">
+	<n-form ref="formRef" :model="formValue" :rules="rules">
 		<n-form-item :label="t('sharedTexts.name')" path="name" show-require-mark>
 			<n-input v-model:value="formValue.name" />
 		</n-form-item>

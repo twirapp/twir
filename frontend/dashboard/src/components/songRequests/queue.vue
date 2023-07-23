@@ -45,6 +45,7 @@ const columns = computed<TableColumn<Video>[]>(() => [
 	{
 		title: t('sharedTexts.name'),
 		key: 'title',
+		ellipsis: true,
 		render(row) {
 			return h(NButton, {
 				tag: 'a',
@@ -60,6 +61,7 @@ const columns = computed<TableColumn<Video>[]>(() => [
 	{
 		title: t('songRequests.table.columns.author'),
 		key: 'author',
+		width: 150,
 		render(row) {
 			return h(NTag, { bordered: false, type: 'info' }, { default: () => row.orderedByDisplayName || row.orderedByName });
 		},
