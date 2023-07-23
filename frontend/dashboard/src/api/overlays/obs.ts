@@ -14,9 +14,13 @@ export const useObsOverlayManager = () => {
   return {
     getSettings: () => useQuery({
       queryKey,
-      queryFn: async (): Promise<GetResponse> => {
-        const call = await protectedApiClient.modulesOBSWebsocketGet({});
-        return call.response;
+      queryFn: async (): Promise<GetResponse | null> => {
+				try {
+					const call = await protectedApiClient.modulesOBSWebsocketGet({});
+					return call.response;
+				} catch {
+					return null;
+				}
       },
 			refetchInterval: 1000,
     }),

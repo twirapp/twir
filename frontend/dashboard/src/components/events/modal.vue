@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+import { IconTrash, IconGripVertical, IconPlus } from '@tabler/icons-vue';
 import {
 	type SelectOption,
 	type FormInst,
@@ -10,21 +11,21 @@ import {
 	NFormItem,
 	NInput,
 	NText,
-	NTimeline,
-	NTimelineItem,
 	NGrid,
 	NGridItem,
 	NInputNumber,
 	NDivider,
 	NSwitch,
 	NAlert,
-NAvatar,
+	NAvatar,
+	NButton,
 } from 'naive-ui';
 import { h, computed, onMounted, ref, watch, nextTick, type VNodeChild } from 'vue';
+import { VueDraggableNext } from 'vue-draggable-next';
 import { useI18n } from 'vue-i18n';
 
 import { eventTypeSelectOptions, operationTypeSelectOptions, getOperation, flatEvents } from './helpers.js';
-import { EditableEvent } from './types.js';
+import type { EditableEvent, EventOperation } from './types.js';
 
 import { useCommandsManager, useKeywordsManager, useObsOverlayManager, useTwitchRewards, useVariablesManager } from '@/api';
 
@@ -41,9 +42,20 @@ const formValue = ref<EditableEvent>({
 	type: '',
 });
 
+const selectedOperationsTab = ref(0);
+const currentOperation = ref<EventOperation | null>(null);
+
+watch(selectedOperationsTab, (v) => {
+	currentOperation.value = formValue.value.operations[v];
+}, { immediate: true });
+
 onMounted(() => {
 	if (props.event) {
 		formValue.value = props.event;
+
+		if (props.event.operations.length) {
+			currentOperation.value = props.event.operations.at(0)!;
+		}
 	}
 });
 
@@ -163,7 +175,6 @@ const rewardsSelectOptions = computed(() => {
 	})) ?? [];
 });
 const renderRewardTag = (option: SelectOption & { image?: string }): VNodeChild => {
-	console.log(option);
 	return h(NSpace, { align: 'center' }, {
 		default: () => [
 			h(NAvatar, { src: option.image, round: true, size: 'small', style: 'display: flex;' }),
@@ -182,6 +193,26 @@ const keywordsSelectOptions = computed(() => {
 });
 
 const { t } = useI18n();
+
+
+const addOperation = () => {
+	formValue.value.operations.push({
+		delay: 0,
+		enabled: true,
+		filters: [],
+		repeat: 0,
+		timeoutTime: 0,
+		type: 'SEND_MESSAGE',
+		useAnnounce: false,
+		input: '',
+		target: '',
+		timeoutMessage: '',
+	});
+};
+
+const removeOperation = (index: number) => {
+	formValue.value.operations = formValue.value.operations.filter((_, i) => i != index);
+};
 </script>
 
 <template>
@@ -256,142 +287,175 @@ const { t } = useI18n();
 			<n-divider title-placement="center">
 				{{ t('events.operations.divider') }}
 			</n-divider>
+		</n-space>
 
-			<n-timeline size="large">
-				<n-timeline-item
-					v-for="(operation, operationIndex) of formValue.operations"
-					:key="operationIndex"
-					:type="getOperation(operation.type)?.color ?? 'default'"
-				>
-					<n-space vertical style="gap: 0">
-						<n-grid cols="3 s:1 m:3" :x-gap="5" :y-gap="5" responsive="screen">
-							<n-grid-item :span="1">
-								<n-form-item :label="t('events.operations.name')" required>
-									<n-select v-model:value="operation.type" :options="operationTypeSelectOptions" />
-								</n-form-item>
-							</n-grid-item>
-							<n-grid-item :span="1">
-								<n-form-item :label="t('events.delay')">
-									<n-input-number v-model:value="operation.delay" :min="0" :max="10" />
-								</n-form-item>
-							</n-grid-item>
-							<n-grid-item :span="1">
-								<n-form-item :label="t('events.repeat')">
-									<n-input-number v-model:value="operation.repeat" :min="0" :max="10" />
-								</n-form-item>
-							</n-grid-item>
-						</n-grid>
 
-						<n-divider title-placement="left" style="margin-top: 0px">
-							{{ t('events.operations.values') }}
-						</n-divider>
+		<n-space :wrap="false">
+			<n-space vertical style="height:100%" :x-gap="5">
+				<VueDraggableNext v-model="formValue.operations">
+					<div
+						v-for="(operation, operationIndex) of formValue.operations"
+						:key="operationIndex"
+						style="display:flex; gap: 5px; margin-top: 5px; width: 100%"
+					>
+						<n-button text>
+							<IconGripVertical style="width: 18px" />
+						</n-button>
 
-						<n-form-item
-							v-if="getOperation(operation.type)?.haveInput"
-							:label="t('events.operations.input')"
-							:path="`operations[${operationIndex}].input`"
-							:rule="rules.input"
+						<n-button
+							secondary
+							size="small"
+							style="flex-grow: 1;"
+							@click="() => selectedOperationsTab = operationIndex"
 						>
-							<n-input v-model:value="operation.input" />
-						</n-form-item>
+							{{ getOperation(operation.type)?.name.slice(0, 15) ?? '' }}
+						</n-button>
 
-						<n-form-item v-if="operation.type === 'SEND_MESSAGE'" label="Use announce">
-							<n-switch v-model:value="operation.useAnnounce" />
-						</n-form-item>
+						<n-button text>
+							<IconTrash style="width: 18px; display: flex" @click="removeOperation(operationIndex)" />
+						</n-button>
+					</div>
+				</VueDraggableNext>
+				<n-button
+					block
+					size="small"
+					secondary
+					@click="addOperation"
+				>
+					<IconPlus />
+				</n-button>
+			</n-space>
 
-						<n-grid cols="4 s:1 m:4" :x-gap="5" :y-gap="5" responsive="screen">
-							<n-grid-item :span="3">
-								<n-form-item
-									v-if="['TIMEOUT', 'TIMEOUT_RANDOM', 'BAN', 'BAN_RANDOM'].some(v => operation.type === v)"
-									:label="t('events.operations.banMessage')"
-									:path="`operations[${operationIndex}].timeoutMessage`"
-									:rule="rules.timeoutMessage"
-								>
-									<n-input v-model:value="operation.timeoutMessage" />
-								</n-form-item>
-							</n-grid-item>
+			<n-divider vertical style="height:100%" />
 
-							<n-grid-item :span="1">
-								<n-form-item
-									v-if="['TIMEOUT', 'TIMEOUT_RANDOM'].some(v => operation.type === v)"
-									:label="t('events.operations.banTime')"
-								>
-									<n-input-number v-model:value="operation.timeoutTime" />
-								</n-form-item>
-							</n-grid-item>
+			<div v-if="currentOperation">
+				<n-space vertical style="gap: 0">
+					<n-grid cols="3 s:1 m:3" :x-gap="5" :y-gap="5" responsive="screen">
+						<n-grid-item :span="2">
+							<n-form-item :label="t('events.operations.name')" required>
+								<n-select v-model:value="currentOperation.type" :options="operationTypeSelectOptions" />
+							</n-form-item>
+						</n-grid-item>
+						<n-grid-item :span="1">
+							<n-form-item :label="t('events.delay')">
+								<n-input-number v-model:value="currentOperation.delay" :min="0" :max="10" />
+							</n-form-item>
+						</n-grid-item>
+						<n-grid-item :span="1">
+							<n-form-item :label="t('events.repeat')">
+								<n-input-number v-model:value="currentOperation.repeat" :min="0" :max="10" />
+							</n-form-item>
+						</n-grid-item>
+					</n-grid>
 
-							<n-grid-item
-								v-if="operation.type.startsWith('OBS')
-									&& (!obsSettings.data.value?.isConnected || !obsSettings.data.value?.serverPassword)
-								"
-								:span="4"
+					<n-divider title-placement="left" style="margin-top: 0px">
+						{{ t('events.operations.values') }}
+					</n-divider>
+
+					<n-form-item
+						v-if="getOperation(currentOperation.type)?.haveInput"
+						:label="t('events.operations.input')"
+						:path="`operations[${selectedOperationsTab}].input`"
+						:rule="rules.input"
+					>
+						<n-input v-model:value="currentOperation.input" />
+					</n-form-item>
+
+					<n-form-item v-if="currentOperation.type === 'SEND_MESSAGE'" label="Use announce">
+						<n-switch v-model:value="currentOperation.useAnnounce" />
+					</n-form-item>
+
+					<n-grid cols="4 s:1 m:4" :x-gap="5" :y-gap="5" responsive="screen">
+						<n-grid-item :span="3">
+							<n-form-item
+								v-if="['TIMEOUT', 'TIMEOUT_RANDOM', 'BAN', 'BAN_RANDOM'].some(v => currentOperation!.type === v)"
+								:label="t('events.operations.banMessage')"
+								:path="`operations[${selectedOperationsTab}].timeoutMessage`"
+								:rule="rules.timeoutMessage"
 							>
-								<n-alert :title="t('events.operations.obs.warningTitle')" type="error">
-									{{ t('events.operations.obs.warningText') }}
-								</n-alert>
-							</n-grid-item>
+								<n-input v-model:value="currentOperation.timeoutMessage" />
+							</n-form-item>
+						</n-grid-item>
 
-							<n-grid-item v-if="operation.type === 'OBS_SET_SCENE'" :span="2">
-								<n-form-item :label="t('events.operations.obs.scene')">
-									<n-select
-										v-model:value="operation.target"
-										:options="obsScenes"
-										:placeholder="t('events.operations.obs.scene')"
-										:disabled="!obsSettings.data.value?.isConnected"
-									/>
-								</n-form-item>
-							</n-grid-item>
-
-							<n-grid-item v-if="operation.type === 'OBS_TOGGLE_SOURCE'" :span="2">
-								<n-form-item :label="t('events.operations.obs.source')">
-									<n-select
-										v-model:value="operation.target"
-										:options="obsSources"
-										:placeholder="t('events.operations.obs.source')"
-										:disabled="!obsSettings.data.value?.isConnected"
-									/>
-								</n-form-item>
-							</n-grid-item>
-
-							<n-grid-item
-								v-if="[
-									'OBS_TOGGLE_AUDIO',
-									'OBS_AUDIO_SET_VOLUME',
-									'OBS_AUDIO_DECREASE_VOLUME',
-									'OBS_AUDIO_INCREASE_VOLUME',
-									'OBS_ENABLE_AUDIO',
-									'OBS_DISABLE_AUDIO'
-								].some(v => v === operation.type)"
-								:span="2"
+						<n-grid-item :span="1">
+							<n-form-item
+								v-if="['TIMEOUT', 'TIMEOUT_RANDOM'].some(v => currentOperation!.type === v)"
+								:label="t('events.operations.banTime')"
 							>
-								<n-form-item :label="t('events.operations.obs.audioSource')">
-									<n-select
-										v-model:value="operation.target"
-										:options="obsAudioSources"
-										:placeholder="t('events.operations.obs.audioSource')"
-										:disabled="!obsSettings.data.value?.isConnected"
-									/>
-								</n-form-item>
-							</n-grid-item>
+								<n-input-number v-model:value="currentOperation.timeoutTime" />
+							</n-form-item>
+						</n-grid-item>
 
-							<n-grid-item
-								v-if="operation.type.endsWith('VARIABLE')"
-								:span="2"
-							>
-								<n-form-item :label="t('events.targetVariable')">
-									<n-select
-										v-model:value="operation.target"
-										:options="variablesSelectOptions"
-										:placeholder="t('events.targetVariable')"
-										:loading="isVariablesLoading"
-									/>
-								</n-form-item>
-							</n-grid-item>
-						</n-grid>
-					</n-space>
-				</n-timeline-item>
-				<n-timeline-item></n-timeline-item>
-			</n-timeline>
+						<n-grid-item
+							v-if="currentOperation.type.startsWith('OBS')
+								&& (!obsSettings.data.value?.isConnected || !obsSettings.data.value?.serverPassword)
+							"
+							:span="4"
+						>
+							<n-alert :title="t('events.operations.obs.warningTitle')" type="error">
+								{{ t('events.operations.obs.warningText') }}
+							</n-alert>
+						</n-grid-item>
+
+						<n-grid-item v-if="currentOperation.type === 'OBS_SET_SCENE'" :span="2">
+							<n-form-item :label="t('events.operations.obs.scene')">
+								<n-select
+									v-model:value="currentOperation.target"
+									:options="obsScenes"
+									:placeholder="t('events.operations.obs.scene')"
+									:disabled="!obsSettings.data.value?.isConnected"
+								/>
+							</n-form-item>
+						</n-grid-item>
+
+						<n-grid-item v-if="currentOperation.type === 'OBS_TOGGLE_SOURCE'" :span="2">
+							<n-form-item :label="t('events.operations.obs.source')">
+								<n-select
+									v-model:value="currentOperation.target"
+									:options="obsSources"
+									:placeholder="t('events.operations.obs.source')"
+									:disabled="!obsSettings.data.value?.isConnected"
+								/>
+							</n-form-item>
+						</n-grid-item>
+
+						<n-grid-item
+							v-if="[
+								'OBS_TOGGLE_AUDIO',
+								'OBS_AUDIO_SET_VOLUME',
+								'OBS_AUDIO_DECREASE_VOLUME',
+								'OBS_AUDIO_INCREASE_VOLUME',
+								'OBS_ENABLE_AUDIO',
+								'OBS_DISABLE_AUDIO'
+							].some(v => v === currentOperation!.type)"
+							:span="2"
+						>
+							<n-form-item :label="t('events.operations.obs.audioSource')">
+								<n-select
+									v-model:value="currentOperation.target"
+									:options="obsAudioSources"
+									:placeholder="t('events.operations.obs.audioSource')"
+									:disabled="!obsSettings.data.value?.isConnected"
+								/>
+							</n-form-item>
+						</n-grid-item>
+
+						<n-grid-item
+							v-if="currentOperation.type.endsWith('VARIABLE')"
+							:span="2"
+						>
+							<n-form-item :label="t('events.targetVariable')">
+								<n-select
+									v-model:value="currentOperation.target"
+									:options="variablesSelectOptions"
+									:placeholder="t('events.targetVariable')"
+									:loading="isVariablesLoading"
+								/>
+							</n-form-item>
+						</n-grid-item>
+					</n-grid>
+				</n-space>
+			</div>
 		</n-space>
 	</n-form>
 </template>

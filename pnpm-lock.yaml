@@ -182,6 +182,9 @@ importers:
       vue:
         specifier: ^3.3.4
         version: 3.3.4
+      vue-draggable-next:
+        specifier: ^2.2.1
+        version: 2.2.1(sortablejs@1.15.0)(vue@3.3.4)
       vue-i18n:
         specifier: ^9.2.2
         version: 9.2.2(vue@3.3.4)
@@ -3378,7 +3381,7 @@ packages:
       '@egjs/axes': 3.8.4
       '@egjs/component': 3.0.4
       '@egjs/imready': 1.4.1
-      '@egjs/list-differ': 1.0.0
+      '@egjs/list-differ': 1.0.1
     dev: false
 
   /@egjs/flicking@4.10.8:
@@ -3395,10 +3398,6 @@ packages:
     dependencies:
       '@cfcs/core': 0.0.24
       '@egjs/component': 3.0.4
-    dev: false
-
-  /@egjs/list-differ@1.0.0:
-    resolution: {integrity: sha512-HsbMKc0ZAQH+EUeCmI/2PvTYSybmkaWwakU8QGDYYgMVIg9BQ5sM0A0Nnombjxo2+JzXHxmH+jw//yGX+y6GYw==}
     dev: false
 
   /@egjs/list-differ@1.0.1:
@@ -16169,6 +16168,10 @@ packages:
       atomic-sleep: 1.0.0
     dev: false
 
+  /sortablejs@1.15.0:
+    resolution: {integrity: sha512-bv9qgVMjUMf89wAvM6AxVvS/4MX3sPeN0+agqShejLU5z5GX4C75ow1O2e5k4L6XItUyAK3gH6AxSbXrOM5e8w==}
+    dev: false
+
   /source-list-map@2.0.1:
     resolution: {integrity: sha512-qnQ7gVMxGNxsiL4lEuJwe/To8UnK7fAnmbGEEH8RpLouuKbeEm0lhbQVFIrNSuB+G7tVrAlVsZgETT5nljf+Iw==}
     dev: true
@@ -18046,6 +18049,16 @@ packages:
       - '@babel/preset-env'
       - supports-color
     dev: true
+
+  /vue-draggable-next@2.2.1(sortablejs@1.15.0)(vue@3.3.4):
+    resolution: {integrity: sha512-EAMS1IRHF0kZO0o5PMOinsQsXIqsrKT1hKmbICxG3UEtn7zLFkLxlAtajcCcUTisNvQ6TtCB5COjD9a1raNADw==}
+    peerDependencies:
+      sortablejs: ^1.14.0
+      vue: ^3.2.2
+    dependencies:
+      sortablejs: 1.15.0
+      vue: 3.3.4
+    dev: false
 
   /vue-eslint-parser@9.3.1(eslint@8.45.0):
     resolution: {integrity: sha512-Clr85iD2XFZ3lJ52/ppmUDG/spxQu6+MAeHXjjyI4I1NUYZ9xmenQp4N0oaHJhrA8OOxltCVxMRfANGa70vU0g==}
