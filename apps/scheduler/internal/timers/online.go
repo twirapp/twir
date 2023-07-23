@@ -31,7 +31,7 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 			case <-ticker.C:
 
 				var streams []*model.ChannelsStreams
-				err := services.Gorm.Find(&streams).Error
+				err := services.Gorm.Preload("Channel").Find(&streams).Error
 				if err != nil {
 					zap.S().Error(err)
 					return
@@ -39,6 +39,10 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 
 				streamsWg := &sync.WaitGroup{}
 				for _, stream := range streams {
+					if stream.Channel != nil && (!stream.Channel.IsEnabled || stream.Channel.IsBanned) {
+						continue
+					}
+
 					streamsWg.Add(1)
 
 					twitchClient, err := twitch.NewUserClient(stream.UserId, *services.Config, services.Grpc.Tokens)

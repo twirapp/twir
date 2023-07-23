@@ -35,8 +35,8 @@ func NewStreams(ctx context.Context, services *types.Services) {
 func processStreams(services *types.Services) {
 	var channels []model.Channels
 	err := services.Gorm.
-		Where(`"isEnabled" = ?`, true).
-		Select("id", `"isEnabled"`).
+		Where(`"isEnabled" = ? and "isBanned" = ?`, true, false).
+		Select("id", `"isEnabled"`, `"isBanned"`).
 		Find(&channels).Error
 	if err != nil {
 		zap.S().Error(err)

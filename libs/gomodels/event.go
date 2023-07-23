@@ -59,6 +59,7 @@ type Event struct {
 	OnlineOnly  bool        `gorm:"column:online_only;type:BOOL" json:"onlineOnly"`
 
 	Operations []EventOperation `json:"operations"`
+	Channel    *Channels        `gorm:"foreignKey:ChannelID" json:"channel"`
 }
 
 func (c *Event) TableName() string {
