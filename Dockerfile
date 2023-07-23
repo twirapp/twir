@@ -204,19 +204,19 @@ FROM builder as dashboard_builder
 RUN cd frontend/dashboard && \
     pnpm build
 
-FROM caddy:latest as dashboard
-COPY Caddyfile /etc/caddy/Caddyfile
+FROM steebchen/nginx-spa:stable as dashboard
 COPY --from=dashboard_builder /app/frontend/dashboard/dist/ /app
 EXPOSE 80
+CMD ["nginx"]
 
 FROM builder as public-page_builder
 RUN cd frontend/public-page && \
     pnpm build
 
-FROM caddy:latest as public
-COPY Caddyfile /etc/caddy/Caddyfile
+FROM steebchen/nginx-spa:stable as public
 COPY --from=public-page_builder /app/frontend/public-page/dist/ /app
 EXPOSE 80
+CMD ["nginx"]
 
 FROM builder as landing_builder
 RUN cd frontend/landing && \
