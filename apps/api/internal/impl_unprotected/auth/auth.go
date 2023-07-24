@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/satont/twir/libs/grpc/generated/scheduler"
 	"time"
 
@@ -53,11 +54,11 @@ func (c *Auth) AuthGetLink(ctx context.Context, request *auth.GetLinkRequest) (*
 func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) (*emptypb.Empty, error) {
 	twitchClient, err := twitch.NewAppClientWithContext(ctx, *c.Config, c.Grpc.Tokens)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot create twitch client: %w", err)
 	}
 	tokens, err := twitchClient.RequestUserAccessToken(request.Code)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot user data from twitch: %w", err)
 	}
 	if tokens.ErrorMessage != "" {
 		return nil, errors.New(tokens.ErrorMessage)
@@ -76,7 +77,7 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 	twitchUser := users.Data.Users[0]
 
 	dbUser := &model.Users{}
-	err = c.Db.WithContext(ctx).Where("id = ?", twitchUser.ID).Find(dbUser).Error
+	err = c.Db.WithContext(ctx).Where("id = ?", twitchUser.ID).Preload("Token").Find(dbUser).Error
 	if err != nil {
 		return nil, err
 	}
@@ -91,34 +92,27 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 		return nil, twirp.Internal.Error("no default bot found")
 	}
 
+	accessToken, err := crypto.Encrypt(tokens.Data.AccessToken, c.Config.TokensCipherKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot encrypt user access token: %w", err)
+	}
+
+	refreshToken, err := crypto.Encrypt(tokens.Data.RefreshToken, c.Config.TokensCipherKey)
+	if err != nil {
+		return nil, fmt.Errorf("ecnrypt user refres token: %w", err)
+	}
+	tokenData := model.Tokens{
+		ID:                  uuid.New().String(),
+		AccessToken:         accessToken,
+		RefreshToken:        refreshToken,
+		ExpiresIn:           int32(tokens.Data.ExpiresIn),
+		ObtainmentTimestamp: time.Now().UTC(),
+		Scopes:              tokens.Data.Scopes,
+	}
+
 	if dbUser.ID == "" {
-		accessToken, err := crypto.Encrypt(tokens.Data.AccessToken, c.Config.TokensCipherKey)
-		if err != nil {
-			return nil, err
-		}
-
-		refreshToken, err := crypto.Encrypt(tokens.Data.RefreshToken, c.Config.TokensCipherKey)
-		if err != nil {
-			return nil, err
-		}
-
-		tokenData := model.Tokens{
-			ID:                  uuid.New().String(),
-			AccessToken:         accessToken,
-			RefreshToken:        refreshToken,
-			ExpiresIn:           int32(tokens.Data.ExpiresIn),
-			ObtainmentTimestamp: time.Now().UTC(),
-			Scopes:              tokens.Data.Scopes,
-		}
-
-		err = c.Db.WithContext(ctx).Create(&tokenData).Error
-		if err != nil {
-			return nil, err
-		}
-
 		newUser := &model.Users{
 			ID:         twitchUser.ID,
-			TokenID:    sql.NullString{String: tokenData.ID, Valid: true},
 			IsTester:   false,
 			IsBotAdmin: false,
 			ApiKey:     uuid.New().String(),
@@ -131,18 +125,33 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 				BotID:          defaultBot.ID,
 			},
 		}
-		err = c.Db.WithContext(ctx).Create(newUser).Error
-		if err != nil {
-			return nil, err
-		}
 
 		dbUser = newUser
 	}
+
+	if dbUser.TokenID.Valid {
+		tokenData.ID = dbUser.TokenID.String
+	}
+
+	if err := c.Db.WithContext(ctx).Save(tokenData).Error; err != nil {
+		return nil, fmt.Errorf("cannot update user token: %w", err)
+	}
+	dbUser.Token = &tokenData
+
+	dbUser.TokenID = sql.NullString{
+		String: dbUser.Token.ID,
+		Valid:  true,
+	}
+
 	if dbUser.Channel == nil || dbUser.Channel.ID == "" {
 		dbUser.Channel = &model.Channels{
 			ID:    twitchUser.ID,
 			BotID: defaultBot.ID,
 		}
+	}
+
+	if err := c.Db.Save(dbUser).Error; err != nil {
+		return nil, fmt.Errorf("cannot create user channel: %w", err)
 	}
 
 	_, err = c.Grpc.Scheduler.CreateDefaultRoles(
