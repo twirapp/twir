@@ -34,7 +34,7 @@ const chatUrl = computed(() => {
 </script>
 
 <template>
-	<n-card embedded title="Chat" style="min-height: 600px" content-style="padding: 0px">
+	<n-card embedded title="Chat" content-style="padding: 0px">
 		<template #header-extra>
 			<n-button tertiary style="padding: 5px" @click="toggleTheme">
 				<IconSun v-if="chatTheme === 'dark'" color="orange" />
@@ -45,7 +45,7 @@ const chatUrl = computed(() => {
 			v-if="chatUrl"
 			:src="chatUrl"
 			width="100%"
-			height="100%"
+			height="500px"
 			style="border: 0;"
 		>
 		</iframe>
