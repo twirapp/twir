@@ -1,26 +1,35 @@
 <script setup lang='ts'>
 import { IconGripVertical } from '@tabler/icons-vue';
 import { useIntervalFn, useLocalStorage } from '@vueuse/core';
-import { intervalToDuration, type Duration } from 'date-fns';
+import { intervalToDuration } from 'date-fns';
 import { NCard, NSpace, NSkeleton } from 'naive-ui';
 import { computed, onBeforeUnmount, ref, watchEffect } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next';
 
 import { useDashboardStats } from '@/api/index.js';
+import { padTo2Digits } from '@/helpers/convertMillisToTime.js';
 
 
 const { data: stats, refetch } = useDashboardStats();
 
 const { pause: pauseStatsFetch } = useIntervalFn(refetch, 5000);
 
-const uptime = ref<Duration | null>(null);
+const uptime = ref<string | null>(null);
 const { pause } = useIntervalFn(async () => {
 	if (!stats.value?.startedAt) return;
 
-	uptime.value = intervalToDuration({
+	const duration = intervalToDuration({
 		start: new Date(Number(stats.value?.startedAt)),
 		end: new Date(),
 	});
+
+	const mappedDuration = [duration.hours ?? 0, duration.minutes ?? 0, duration.seconds ?? 0];
+	if (duration.days !== undefined && duration.days != 0) mappedDuration.unshift(duration.days);
+
+	uptime.value = mappedDuration
+		.map(v => padTo2Digits(v!))
+		.filter(v => typeof v !== 'undefined')
+		.join(':');
 }, 1000, { immediate: true });
 
 onBeforeUnmount(() => {
@@ -34,7 +43,7 @@ const statsItems = computed(() => {
 	const u = uptime.value;
 
 	const items: Record<string, any> = {
-		Uptime: u ? `${u.days}:${u.hours}:${u.minutes}:${u.seconds}` : 'Offline',
+		Uptime: u ?? 'Offline',
 		Viewers: s.viewers,
 		Followers: s.followers,
 		Messages: s.chatMessages,
@@ -103,7 +112,7 @@ watchEffect(() => {
 							embedded
 						>
 							<n-space vertical>
-								<span style="display: flex">
+								<span style="display: flex;">
 									<IconGripVertical style="width: 18px;" /> {{ item }}
 								</span>
 								<span style="font-size:20px">

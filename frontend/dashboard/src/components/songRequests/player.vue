@@ -32,8 +32,8 @@ import { ref, onMounted, watch, onUnmounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useProfile } from '@/api/index.js';
-import { convertMillisToTime } from '@/components/songRequests/helpers.js';
 import { Video } from '@/components/songRequests/hook.js';
+import { convertMillisToTime } from '@/helpers/convertMillisToTime.js';
 
 const props = defineProps<{
 	currentVideo?: Video | null
