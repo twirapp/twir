@@ -73,7 +73,7 @@ const publicPageHref = computed<string>(() => {
 			<n-button text @click="toggleSidebar">
 				<IconMenu2 />
 			</n-button>
-			<n-space align="center" style="gap: 8px">
+			<n-space align="center" style="gap: 8px; margin-left: 5px;">
 				<Logo style="width: 25px; height: 25px; display: flex" />
 				<n-text strong style="font-size: 20px;">
 					Twir
