@@ -9,7 +9,7 @@ export const usePositions = () => useLocalStorage('twirWidgetsPositions', {
 		isActive: false,
 	},
 	botManage: {
-		x: 20,
+		x: 460,
 		y: 20,
 		width: 330,
 		height: 200,
