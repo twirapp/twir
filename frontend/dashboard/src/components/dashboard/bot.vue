@@ -36,6 +36,7 @@ onMounted(() => {
 			content: true,
 			footer: 'soft'
 		}"
+		style="width: 100%; height: 100%"
 	>
 		<n-skeleton v-if="!data" :sharp="false" />
 
@@ -67,5 +68,6 @@ onMounted(() => {
 <style scoped>
 .bot-alert {
 	border-radius: 0px;
+	height: 100%
 }
 </style>

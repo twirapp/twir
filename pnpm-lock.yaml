@@ -176,6 +176,9 @@ importers:
       date-fns:
         specifier: ^2.30.0
         version: 2.30.0
+      draggable-resizable-vue3:
+        specifier: 1.0.94-beta
+        version: 1.0.94-beta
       naive-ui:
         specifier: ^2.34.4
         version: 2.34.4(vue@3.3.4)
@@ -10032,6 +10035,10 @@ packages:
     resolution: {integrity: sha512-NTZOW9A7ipb0n7z7nC3wftvsbceircwVHSgzobJsEQa+7RnOMbhrfX5IflA6CtC4GA63DSAiHYXa4JKEy9F7cA==}
     dependencies:
       detect-libc: 1.0.3
+    dev: false
+
+  /draggable-resizable-vue3@1.0.94-beta:
+    resolution: {integrity: sha512-5faM6lkLIrh9lgiviOeA+kOYatU6MjGHiA93P4B/eFTGYu9EkLDniN0QudhxTm60aLAFLBO3QlZOskeYKTH9dg==}
     dev: false
 
   /duplexify@3.7.1:

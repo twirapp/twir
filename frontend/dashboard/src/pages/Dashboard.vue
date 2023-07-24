@@ -1,20 +1,56 @@
 <script setup lang='ts'>
-import { NGrid, NGridItem } from 'naive-ui';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { DraggableResizableVue, DraggableResizableContainer } from 'draggable-resizable-vue3';
 
 import Bot from '@/components/dashboard/bot.vue';
 import Chat from '@/components/dashboard/chat.vue';
+import { usePositions } from '@/components/dashboard/positions';
 import Stats from '@/components/dashboard/stats.vue';
+
+const widgetsPositions = usePositions();
 </script>
 
 <template>
 	<Stats />
-	<n-grid :x-gap="12" :y-gap="12" cols="1 sm:1 md:2 l:4" responsive="screen" style="padding: 24px; width: auto">
-		<n-grid-item :span="2">
+	<draggable-resizable-container
+		:grid="[40, 40]"
+		:show-grid="true"
+		class="drag-container"
+	>
+		<draggable-resizable-vue
+			v-model:x="widgetsPositions.chat.x"
+			v-model:y="widgetsPositions.chat.y"
+			v-model:h="widgetsPositions.chat.height"
+			v-model:w="widgetsPositions.chat.width"
+			v-model:active="widgetsPositions.chat.isActive"
+			:minWidth="300"
+			:minHeight="400"
+		>
 			<Chat />
-		</n-grid-item>
-		<n-grid-item :span="1">
+		</draggable-resizable-vue>
+		<draggable-resizable-vue
+			v-model:x="widgetsPositions.botManage.x"
+			v-model:y="widgetsPositions.botManage.y"
+			v-model:h="widgetsPositions.botManage.height"
+			v-model:w="widgetsPositions.botManage.width"
+			v-model:active="widgetsPositions.botManage.isActive"
+			:minWidth="330"
+			:minHeight="200"
+		>
 			<Bot />
-		</n-grid-item>
-	</n-grid>
+		</draggable-resizable-vue>
+	</draggable-resizable-container>
 </template>
 
+<style scoped>
+.drag-container {
+	-webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+	width: auto;
+	padding: 10px;
+	height: 79vh;
+}
+
+</style>

@@ -16,6 +16,7 @@
     "@twir/grpc": "workspace:^",
     "@vueuse/core": "^9.13.0",
     "date-fns": "^2.30.0",
+    "draggable-resizable-vue3": "1.0.94-beta",
     "naive-ui": "^2.34.4",
     "plyr": "^3.7.8",
     "vue": "^3.3.4",
