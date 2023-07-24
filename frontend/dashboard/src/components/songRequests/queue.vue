@@ -19,8 +19,8 @@ import type { TableColumn } from 'naive-ui/es/data-table/src/interface';
 import { h, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { convertMillisToTime } from '@/components/songRequests/helpers.js';
 import type { Video } from '@/components/songRequests/hook.js';
+import { convertMillisToTime } from '@/helpers/convertMillisToTime.js';
 
 const props = defineProps<{
 	queue: Video[]
