@@ -19,7 +19,17 @@ import {
 	IconUsers,
 } from '@tabler/icons-vue';
 import { useMagicKeys } from '@vueuse/core';
-import { type MenuOption, type MenuDividerOption, NMenu, NCard, NSpin, NSpace, NAvatar, NText } from 'naive-ui';
+import {
+	type MenuOption,
+	type MenuDividerOption,
+	NMenu,
+	NCard,
+	NSpin,
+	NSpace,
+	NAvatar,
+	NText,
+	NScrollbar,
+} from 'naive-ui';
 import { h, ref, onMounted, computed, watch } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 
@@ -172,14 +182,16 @@ const selectedDashboard = computed(() => {
 
 <template>
 	<div style="display: flex; flex-direction: column; justify-content: space-between; height: calc(100vh - 43px)">
-		<n-menu
-			v-if="!isDashboardsMenu"
-			v-model:value="activeKey"
-			:collapsed-width="64"
-			:collapsed-icon-size="22"
-			:options="menuOptions"
-		/>
-		<dashboard-menu v-else @dashboard-selected="isDashboardsMenu = !isDashboardsMenu" />
+		<n-scrollbar trigger="none">
+			<n-menu
+				v-if="!isDashboardsMenu"
+				v-model:value="activeKey"
+				:collapsed-width="64"
+				:collapsed-icon-size="22"
+				:options="menuOptions"
+			/>
+			<dashboard-menu v-else @dashboard-selected="isDashboardsMenu = !isDashboardsMenu" />
+		</n-scrollbar>
 
 		<div style="padding: 5px">
 			<n-card style="cursor: pointer;" size="small" @click="isDashboardsMenu = !isDashboardsMenu">
