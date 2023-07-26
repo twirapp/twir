@@ -42,12 +42,19 @@ const columns = computed<DataTableColumns<Keyword>>(() => [
 		title: t('keywords.triggerText'),
 		key: 'text',
 		render(row) {
-			return h(NTag, { type: 'info', bordered: false }, { default: () => row.text });
+			return h(
+				NTag,
+				{ type: 'info', bordered: false },
+				{
+					default: () => row.text.slice(0, 100) + (row.text.length > 100 ? '...' : ''),
+				},
+				);
 		},
 	},
 	{
 		title: t('sharedTexts.response'),
 		key: 'response',
+		width: 200,
 		render(row) {
 			return h(NTag, { type: 'info', bordered: true }, { default: () => row.response || 'No response' });
 		},
