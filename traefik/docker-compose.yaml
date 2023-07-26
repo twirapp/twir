@@ -11,7 +11,7 @@ services:
       - ./static.yml:/etc/traefik/traefik.yml:ro
       - traefik-certificates:/certificates
     networks:
-      - traefik-public
+      - traefik
     deploy:
       labels:
         - traefik.enable=true
