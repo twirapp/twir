@@ -117,13 +117,13 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 			IsBotAdmin: false,
 			ApiKey:     uuid.New().String(),
 			Channel: &model.Channels{
-				ID:             twitchUser.ID,
-				IsEnabled:      false,
-				IsTwitchBanned: false,
-				IsBanned:       false,
-				IsBotMod:       false,
-				BotID:          defaultBot.ID,
+				ID:    twitchUser.ID,
+				BotID: defaultBot.ID,
 			},
+		}
+
+		if err := c.Db.Create(newUser).Error; err != nil {
+			return nil, fmt.Errorf("cannot create user: %w", err)
 		}
 
 		dbUser = newUser
@@ -150,8 +150,8 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 		}
 	}
 
-	if err := c.Db.Save(dbUser).Error; err != nil {
-		return nil, fmt.Errorf("cannot create user channel: %w", err)
+	if err := c.Db.WithContext(ctx).Debug().Save(dbUser).Error; err != nil {
+		return nil, fmt.Errorf("cannot update db user: %w", err)
 	}
 
 	_, err = c.Grpc.Scheduler.CreateDefaultRoles(
