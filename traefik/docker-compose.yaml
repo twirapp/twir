@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./static.yml:/etc/traefik/traefik.yml:ro
+      - traefik-certificates:/certificates
+    networks:
+      - traefik-public
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik
+        - traefik.http.middlewares.admin-auth.basicauth.users=${USERNAME?Variable not set}:${HASHED_PASSWORD?Variable not set}
+        - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+        - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+        - traefik.http.routers.traefik-http.rule=Host(`${DOMAIN?Variable not set}`)
+        - traefik.http.routers.traefik-http.entrypoints=http
+        - traefik.http.routers.traefik-http.middlewares=https-redirect
+        - traefik.http.routers.traefik-https.rule=Host(`${DOMAIN?Variable not set}`)
+        - traefik.http.routers.traefik-https.entrypoints=https
+        - traefik.http.routers.traefik-https.tls=true
+        - traefik.http.routers.traefik-https.service=api@internal
+        - traefik.http.routers.traefik-https.tls.certresolver=le
+        - traefik.http.routers.traefik-https.middlewares=admin-auth
+        - traefik.http.services.traefik.loadbalancer.server.port=8080
+
+networks:
+  traefik:
+    external: true
+
+volumes:
+  traefik-certificates:

@@ -1,0 +1,29 @@
+global:
+  sendAnonymousUsage: false
+
+api:
+  dashboard: true
+
+accesslog: true
+
+log: true
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    swarmMode: true
+
+entryPoints:
+  http:
+    address: ":80"
+
+  https:
+    address: ":443"
+
+certificatesResolvers:
+  le:
+    acme:
+      email: satontworldwide@gmail.com
+      storage: /certificates/acme.json
+      tlschallenge: true

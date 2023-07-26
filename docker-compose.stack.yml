@@ -109,7 +109,7 @@ services:
         max_attempts: 30
 
   redis:
-    image: redis/redis-stack:7.0.6-RC2
+    image: redis/redis:latest
     volumes:
       - redis-data:/data
     networks:
@@ -139,6 +139,11 @@ services:
     networks:
       - tsuwari
     deploy:
+      labels:
+        - traefik.http.routers.twir-api.rule=(Host(`twir.app`) && PathPrefix(`/api`))
+        - traefik.http.routers.twir-api.tls=true
+        - traefik.http.routers.twir-api.tls.certresolver=letsencrypt
+        - traefik.http.services.blog-svc.loadbalancer.server.port=3002"
       restart_policy:
         condition: any
         delay: 30s

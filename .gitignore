@@ -1,5 +1,6 @@
 node_modules
 .env
+traefik/.env
 dist
 tsconfig.tsbuildinfo
 .turbo
@@ -27,3 +28,4 @@ main.~
 .vscode
 .idea
 !.vscode/extensions.json
+!traefik/*
