@@ -84,6 +84,8 @@ services:
     networks:
       - tsuwari
     command: redis-server --save 60 1
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
     deploy:
       restart_policy:
         condition: any
