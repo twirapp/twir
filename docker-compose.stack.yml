@@ -12,8 +12,6 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-adminer.rule=Host(`adminer.twir.app`)
-        - traefik.http.routers.twir-adminer.tls=true
-        - traefik.http.routers.twir-adminer.tls.certresolver=le
         - traefik.http.routers.twir-adminer.middlewares=admin-auth
         - traefik.http.services.twir-adminer.loadbalancer.server.port=8080
 
@@ -233,8 +231,6 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-eventsub.rule=Host(`eventsub.twir.app`)
-        - traefik.http.routers.twir-eventsub.tls=true
-        - traefik.http.routers.twir-eventsub.tls.certresolver=le
         - traefik.http.services.twir-eventsub.loadbalancer.server.port=3003
 
   eval:
