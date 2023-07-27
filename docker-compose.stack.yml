@@ -224,9 +224,6 @@ services:
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.role == manager
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-eventsub.rule=Host(`eventsub.twir.app`)
