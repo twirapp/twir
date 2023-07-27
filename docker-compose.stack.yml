@@ -293,8 +293,6 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-landing.rule=Host(`twir.app`)
-        - traefik.http.routers.twir-landing.tls=true
-        - traefik.http.routers.twir-landing.tls.certresolver=le
         - traefik.http.services.twir-landing.loadbalancer.server.port=3000
 
   dashboard:
