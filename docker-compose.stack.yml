@@ -78,9 +78,9 @@ services:
         max_attempts: 30
 
   redis:
-    image: redis/redis:latest
+    image: bitnami/redis:latest
     volumes:
-      - redis-data:/data
+      - redis-data:/bitnami/redis/data
     networks:
       - tsuwari
     command: redis-server --save 60 1
