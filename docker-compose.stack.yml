@@ -14,6 +14,7 @@ services:
         - traefik.http.routers.twir-adminer.rule=Host(`adminer.twir.app`)
         - traefik.http.routers.twir-adminer.tls=true
         - traefik.http.services.twir-adminer.loadbalancer.server.port=8080
+        - traefik.http.routers.traefik-public-https.middlewares=admin-auth
 
   postgres:
     image: postgres:14-alpine
