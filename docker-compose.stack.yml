@@ -86,6 +86,7 @@ services:
     command: redis-server --save 60 1
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
+      - PROTECTED_MODE=no
     deploy:
       restart_policy:
         condition: any
@@ -111,8 +112,6 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-api.rule=(Host(`twir.app`) && PathPrefix(`/api`))
-        - traefik.http.routers.twir-api.tls.certresolver=le
-        - traefik.http.routers.twir-api.tls=true
         - traefik.http.services.twir-api.loadbalancer.server.port=3002
       restart_policy:
         condition: any
@@ -349,8 +348,6 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-public.rule=(Host(`twir.app`) && PathPrefix(`/p`))
-        - traefik.http.routers.twir-public.tls=true
-        - traefik.http.routers.twir-public.tls.certresolver=le
         - traefik.http.services.twir-public.loadbalancer.server.port=3006
 
   overlays:
@@ -371,8 +368,6 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-overlays.rule=(Host(`twir.app`) && PathPrefix(`/overlays`))
-        - traefik.http.routers.twir-overlays.tls=true
-        - traefik.http.routers.twir-overlays.tls.certresolver=le
         - traefik.http.services.twir-overlays.loadbalancer.server.port=3007
 
   websockets:
@@ -395,8 +390,6 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-websockets.rule=(Host(`twir.app`) && PathPrefix(`/socket`))
-        - traefik.http.routers.twir-websockets.tls=true
-        - traefik.http.routers.twir-websockets.tls.certresolver=le
         - traefik.http.services.twir-websockets.loadbalancer.server.port=3004
 
   tokens:
