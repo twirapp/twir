@@ -308,10 +308,6 @@ services:
     image: registry.satont.ru/twir/dashboard
     secrets:
       - tsuwari_doppler_token
-    ports:
-      - target: 80
-        published: 3002
-        mode: host
     networks:
       - tsuwari
       - traefik-public
@@ -326,7 +322,7 @@ services:
       - traefik.http.routers.twir-dashboard.rule=Host(`twir.app`) && PathPrefix(`/dashboard`)
       - traefik.http.routers.twir-dashboard.tls=true
       - traefik.http.routers.twir-dashboard.tls.certresolver=le
-      - traefik.http.services.twir-dashboard.loadbalancer.server.port=3000
+      - traefik.http.services.twir-dashboard.loadbalancer.server.port=80
 
   public:
     build:
@@ -348,7 +344,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-public.rule=Host(`twir.app`) && PathPrefix(`/p`)
-        - traefik.http.services.twir-public.loadbalancer.server.port=3006
+        - traefik.http.services.twir-public.loadbalancer.server.port=80
 
   overlays:
     build:
@@ -368,7 +364,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-overlays.rule=Host(`twir.app`) && PathPrefix(`/overlays`)
-        - traefik.http.services.twir-overlays.loadbalancer.server.port=3007
+        - traefik.http.services.twir-overlays.loadbalancer.server.port=80
 
   websockets:
     build:
