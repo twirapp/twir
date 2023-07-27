@@ -351,7 +351,6 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: overlays
-    restart: unless-stopped
     image: registry.satont.ru/twir/overlays
     networks:
       - tsuwari
@@ -476,7 +475,6 @@ services:
       replicas: 5
 
   tts:
-    restart: unless-stopped
     image: aculeasis/rhvoice-rest:amd64
     networks:
       - tsuwari

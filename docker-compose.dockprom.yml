@@ -6,14 +6,14 @@ networks:
   tsuwari:
     name: tsuwari
     external: true
-  
+  traefik-public:
+    external: true
 
 volumes:
-    tsuwari-prometheus-data: {}
-    tsuwari-grafana-data: {}
+  tsuwari-prometheus-data: { }
+  tsuwari-grafana-data: { }
 
 services:
-
   prometheus:
     image: prom/prometheus:v2.40.1
     container_name: prometheus
@@ -33,6 +33,7 @@ services:
     networks:
       - monitor-net
       - tsuwari
+      - traefik-public
     labels:
       org.label-schema.group: "monitoring"
 
@@ -50,6 +51,7 @@ services:
     networks:
       - monitor-net
       - tsuwari
+      - traefik-public
     labels:
       org.label-schema.group: "monitoring"
 
@@ -71,6 +73,7 @@ services:
     networks:
       - monitor-net
       - tsuwari
+      - traefik-public
     labels:
       org.label-schema.group: "monitoring"
 
@@ -92,6 +95,7 @@ services:
     networks:
       - monitor-net
       - tsuwari
+      - traefik-public
     labels:
       org.label-schema.group: "monitoring"
 
@@ -112,6 +116,7 @@ services:
     networks:
       - monitor-net
       - tsuwari
+      - traefik-public
     labels:
       org.label-schema.group: "monitoring"
 
@@ -124,6 +129,7 @@ services:
     networks:
       - monitor-net
       - tsuwari
+      - traefik-public
     labels:
       org.label-schema.group: "monitoring"
 
@@ -143,5 +149,6 @@ services:
     networks:
       - monitor-net
       - tsuwari
+      - traefik-public
     labels:
       org.label-schema.group: "monitoring"
