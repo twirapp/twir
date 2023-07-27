@@ -1,38 +1,59 @@
-version: '3'
+version: '3.3'
 
 services:
+
   traefik:
+    # Use the latest Traefik image
     image: traefik:latest
-    container_name: traefik
-    restart: unless-stopped
-    network_mode: host
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./static.yml:/etc/traefik/traefik.yml:ro
-      - traefik-certificates:/certificates
-    networks:
-      - traefik
+    ports:
+      # Listen on port 80, default for HTTP, necessary to redirect to HTTPS
+      - target: 80
+        published: 80
+        mode: host
+      # Listen on port 443, default for HTTPS
+      - target: 443
+        published: 443
+        mode: host
     deploy:
       labels:
         - traefik.enable=true
-        - traefik.docker.network=traefik
+        #- traefik.docker.network=traefik-public
         - traefik.http.middlewares.admin-auth.basicauth.users=${USERNAME?Variable not set}:${HASHED_PASSWORD?Variable not set}
         - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
         - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
-        - traefik.http.routers.traefik-http.rule=Host(`${DOMAIN?Variable not set}`)
-        - traefik.http.routers.traefik-http.entrypoints=http
-        - traefik.http.routers.traefik-http.middlewares=https-redirect
-        - traefik.http.routers.traefik-https.rule=Host(`${DOMAIN?Variable not set}`)
-        - traefik.http.routers.traefik-https.entrypoints=https
-        - traefik.http.routers.traefik-https.tls=true
-        - traefik.http.routers.traefik-https.service=api@internal
-        - traefik.http.routers.traefik-https.tls.certresolver=le
-        - traefik.http.routers.traefik-https.middlewares=admin-auth
-        - traefik.http.services.traefik.loadbalancer.server.port=8080
-
-networks:
-  traefik:
-    external: true
+        - traefik.http.routers.traefik-public-http.rule=Host(`${DOMAIN?Variable not set}`)
+        - traefik.http.routers.traefik-public-http.entrypoints=http
+        - traefik.http.routers.traefik-public-http.middlewares=https-redirect
+        - traefik.http.routers.traefik-public-https.rule=Host(`${DOMAIN?Variable not set}`)
+        - traefik.http.routers.traefik-public-https.entrypoints=https
+        - traefik.http.routers.traefik-public-https.tls=true
+        - traefik.http.routers.traefik-public-https.service=api@internal
+        - traefik.http.routers.traefik-public-https.tls.certresolver=le
+        - traefik.http.routers.traefik-public-https.middlewares=admin-auth
+        - traefik.http.services.traefik-public.loadbalancer.server.port=8080
+    volumes:
+      # Add Docker as a mounted volume, so that Traefik can read the labels of other services
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Mount the volume to store the certificates
+      - traefik-public-certificates:/certificates
+    command:
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.swarmmode
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
+      - --certificatesresolvers.le.acme.email=${EMAIL?Variable not set}
+      - --certificatesresolvers.le.acme.storage=/certificates/acme.json
+      - --certificatesresolvers.le.acme.dnschallenge=true
+      - --accesslog
+      - --log
+      - --api
+    networks:
+      - traefik-public
 
 volumes:
-  traefik-certificates:
+  traefik-public-certificates:
+
+networks:
+  traefik-public:
+    external: true
