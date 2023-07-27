@@ -13,7 +13,7 @@ services:
         - traefik.enable=true
         - traefik.http.routers.twir-adminer.rule=Host(`adminer.twir.app`)
         - traefik.http.routers.twir-adminer.tls=true
-        - traefik.http.services.twir-adminer.loadbalancer.server.port=8080"
+        - traefik.http.services.twir-adminer.loadbalancer.server.port=8080
 
   postgres:
     image: postgres:14-alpine
@@ -107,7 +107,7 @@ services:
         - traefik.enable=true
         - traefik.http.routers.twir-api.rule=(Host(`twir.app`) && PathPrefix(`/api`))
         - traefik.http.routers.twir-api.tls=true
-        - traefik.http.services.twir-api.loadbalancer.server.port=3002"
+        - traefik.http.services.twir-api.loadbalancer.server.port=3002
       restart_policy:
         condition: any
         delay: 30s
@@ -228,7 +228,7 @@ services:
         - traefik.enable=true
         - traefik.http.routers.twir-eventsub.rule=Host(`eventsub.twir.app`)
         - traefik.http.routers.twir-eventsub.tls=true
-        - traefik.http.services.twir-eventsub.loadbalancer.server.port=3003"
+        - traefik.http.services.twir-eventsub.loadbalancer.server.port=3003
 
   eval:
     build:
@@ -291,7 +291,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.twir-landing.rule=Host(`twir.app`)
       - traefik.http.routers.twir-landing.tls=true
-      - traefik.http.services.twir-landing.loadbalancer.server.port=3000"
+      - traefik.http.services.twir-landing.loadbalancer.server.port=3000
 
   dashboard:
     build:
@@ -318,7 +318,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.twir-dashboard.rule=(Host(`twir.app`) && PathPrefix(`/dashboard`))
       - traefik.http.routers.twir-dashboard.tls=true
-      - traefik.http.services.twir-dashboard.loadbalancer.server.port=3000"
+      - traefik.http.services.twir-dashboard.loadbalancer.server.port=3000
 
   public:
     build:
@@ -341,7 +341,7 @@ services:
         - traefik.enable=true
         - traefik.http.routers.twir-dashboard.rule=(Host(`twir.app`) && PathPrefix(`/p`))
         - traefik.http.routers.twir-dashboard.tls=true
-        - traefik.http.services.twir-dashboard.loadbalancer.server.port=3006"
+        - traefik.http.services.twir-dashboard.loadbalancer.server.port=3006
 
   overlays:
     build:
@@ -362,7 +362,7 @@ services:
         - traefik.enable=true
         - traefik.http.routers.twir-overlays.rule=(Host(`twir.app`) && PathPrefix(`/overlays`))
         - traefik.http.routers.twir-overlays.tls=true
-        - traefik.http.services.twir-overlays.loadbalancer.server.port=3007"
+        - traefik.http.services.twir-overlays.loadbalancer.server.port=3007
 
   websockets:
     build:
@@ -385,7 +385,7 @@ services:
         - traefik.enable=true
         - traefik.http.routers.twir-websockets.rule=(Host(`twir.app`) && PathPrefix(`/socket`))
         - traefik.http.routers.twir-websockets.tls=true
-        - traefik.http.services.twir-websockets.loadbalancer.server.port=3004"
+        - traefik.http.services.twir-websockets.loadbalancer.server.port=3004
 
   tokens:
     build:
