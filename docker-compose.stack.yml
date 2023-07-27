@@ -314,12 +314,12 @@ services:
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.twir-dashboard.rule=Host(`twir.app`) && PathPrefix(`/dashboard`)
-      - traefik.http.routers.twir-dashboard.middlewares=dashboard-stripprefix
-      - traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/dashboard
-      - traefik.http.services.twir-dashboard.loadbalancer.server.port=80
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.twir-dashboard.rule=Host(`twir.app`) && PathPrefix(`/dashboard`)
+        - traefik.http.routers.twir-dashboard.middlewares=dashboard-stripprefix
+        - traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/dashboard
+        - traefik.http.services.twir-dashboard.loadbalancer.server.port=80
 
   public:
     build:
