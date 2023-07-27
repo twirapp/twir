@@ -385,6 +385,8 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-websockets.rule=Host(`twir.app`) && PathPrefix(`/socket`)
+        - traefik.http.routers.twir-websockets.middlewares=sockets-stripprefix
+        - traefik.http.middlewares.sockets-stripprefix.stripprefix.prefixes=/socket
         - traefik.http.services.twir-websockets.loadbalancer.server.port=3004
 
   tokens:
