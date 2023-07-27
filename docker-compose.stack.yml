@@ -85,7 +85,7 @@ services:
       - tsuwari
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
-    command: redis-server --protected-mode no --save 60 1
+    command: /opt/bitnami/scripts/redis/run.sh --protected-mode no
     deploy:
       restart_policy:
         condition: any
