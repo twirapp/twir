@@ -43,7 +43,7 @@ services:
       - --entrypoints.https.address=:443
       - --certificatesresolvers.le.acme.email=${EMAIL?Variable not set}
       - --certificatesresolvers.le.acme.storage=/certificates/acme.json
-      - --certificatesresolvers.le.acme.dnschallenge=true
+      - --certificatesresolvers.le.acme.tlschallenge=true
       - --accesslog
       - --log
       - --api
