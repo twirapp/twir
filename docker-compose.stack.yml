@@ -83,6 +83,7 @@ services:
       - redis-data:/data
     networks:
       - tsuwari
+    command: redis-server --save 60 1
     deploy:
       restart_policy:
         condition: any
