@@ -83,10 +83,9 @@ services:
       - redis-data:/bitnami/redis/data
     networks:
       - tsuwari
-    command: redis-server --save 60 1
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
-      - PROTECTED_MODE=no
+    command: redis-server --protected-mode no --save 60 1
     deploy:
       restart_policy:
         condition: any
