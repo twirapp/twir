@@ -111,6 +111,8 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-api.rule=Host(`twir.app`) && PathPrefix(`/api`)
+        - traefik.http.routers.twir-api.middlewares=api-stripprefix
+        - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api
         - traefik.http.services.twir-api.loadbalancer.server.port=3002
       restart_policy:
         condition: any
