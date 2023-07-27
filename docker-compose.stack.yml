@@ -321,7 +321,7 @@ services:
       - traefik.http.routers.twir-dashboard.rule=Host(`twir.app`) && PathPrefix(`/dashboard`)
       - traefik.http.routers.twir-dashboard.tls=true
       - traefik.http.routers.twir-dashboard.tls.certresolver=le
-      - traefik.http.routers.twir-public.middlewares=dashboard-stripprefix
+      - traefik.http.routers.twir-dashboard.middlewares=dashboard-stripprefix
       - traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/dashboard
       - traefik.http.services.twir-dashboard.loadbalancer.server.port=80
 
@@ -367,7 +367,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-overlays.rule=Host(`twir.app`) && PathPrefix(`/overlays`)
-        - traefik.http.routers.twir-public.middlewares=overlays-stripprefix
+        - traefik.http.routers.twir-overlays.middlewares=overlays-stripprefix
         - traefik.http.middlewares.overlays-stripprefix.stripprefix.prefixes=/overlays
         - traefik.http.services.twir-overlays.loadbalancer.server.port=80
 
