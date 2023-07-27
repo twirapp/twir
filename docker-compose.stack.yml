@@ -3,16 +3,17 @@ version: "3.9"
 services:
   adminer:
     image: adminer
-    ports:
-      - 54323:8080
     environment:
       - ADMINER_PLUGINS=enum-types
     networks:
       - tsuwari
+      - traefik-public
     deploy:
-      placement:
-        constraints:
-          - node.role == manager
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.twir-adminer.rule=Host(`adminer.twir.app`)
+        - traefik.http.routers.twir-adminer.tls=true
+        - traefik.http.services.twir-adminer.loadbalancer.server.port=8080"
 
   postgres:
     image: postgres:14-alpine
@@ -58,40 +59,6 @@ services:
         constraints:
           - node.role == manager
 
-  # minio:
-  #   image: quay.io/minio/minio
-  #   command: server --address 0.0.0.0:9000 --console-address ":9001" /data
-  #   volumes:
-  #     - minio-data:/data
-  #   ports:
-  #     - 9000:9000
-  #     - 9001:9001
-  #   environment:
-  #     MINIO_ROOT_USER: ${MINIO_USER}
-  #     MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
-  #     MINIO_REGION_NAME: eu-east-1
-  #     MINIO_SERVER_URL: https://minio.tsuwari.app
-  #   secrets:
-  #     - tsuwari_doppler_token
-  #   healthcheck:
-  #     test:
-  #       [
-  #         "CMD",
-  #         "curl",
-  #         "-f",
-  #         "http://localhost:9000/minio/health/live"
-  #       ]
-  #     interval: 30s
-  #     timeout: 20s
-  #     retries: 3
-  #   networks:
-  #     - tsuwari
-  #   deploy:
-  #     restart_policy:
-  #       condition: any
-  #       delay: 3s
-  #       max_attempts: 30
-
   migrations:
     build:
       context: .
@@ -132,26 +99,20 @@ services:
     image: registry.satont.ru/twir/api
     secrets:
       - tsuwari_doppler_token
-    ports:
-      - target: 3002
-        published: 3004
-        mode: host
     networks:
       - tsuwari
+      - traefik-public
     deploy:
       labels:
+        - traefik.enable=true
         - traefik.http.routers.twir-api.rule=(Host(`twir.app`) && PathPrefix(`/api`))
         - traefik.http.routers.twir-api.tls=true
-        - traefik.http.routers.twir-api.tls.certresolver=letsencrypt
-        - traefik.http.services.blog-svc.loadbalancer.server.port=3002"
+        - traefik.http.services.twir-api.loadbalancer.server.port=3002"
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.role == manager
 
   bots:
     build:
@@ -189,7 +150,7 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
       mode: replicated
-      replicas: 8
+      replicas: 4
 
   parser:
     build:
@@ -207,7 +168,7 @@ services:
         delay: 30s
         max_attempts: 30
       mode: replicated
-      replicas: 10
+      replicas: 5
       endpoint_mode: dnsrr
     networks:
       - tsuwari
@@ -254,12 +215,9 @@ services:
     image: registry.satont.ru/twir/eventsub
     secrets:
       - tsuwari_doppler_token
-    ports:
-      - target: 3003
-        published: 3003
-        mode: host
     networks:
       - tsuwari
+      - traefik-public
     deploy:
       restart_policy:
         condition: any
@@ -269,23 +227,11 @@ services:
       placement:
         constraints:
           - node.role == manager
-
-  dota:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: dota
-    image: registry.satont.ru/twir/dota
-    secrets:
-      - tsuwari_doppler_token
-    networks:
-      - tsuwari
-    deploy:
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.twir-eventsub.rule=Host(`eventsub.twir.app`)
+        - traefik.http.routers.twir-eventsub.tls=true
+        - traefik.http.services.twir-eventsub.loadbalancer.server.port=3003"
 
   eval:
     build:
@@ -299,7 +245,7 @@ services:
       update_config:
         parallelism: 10
       mode: replicated
-      replicas: 10
+      replicas: 5
       endpoint_mode: dnsrr
       restart_policy:
         condition: any
@@ -333,22 +279,23 @@ services:
     image: registry.satont.ru/twir/landing
     secrets:
       - tsuwari_doppler_token
-    ports:
-      - target: 3000
-        published: 3001
-        mode: host
     networks:
       - tsuwari
+      - traefik-public
     deploy:
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
+      mode: replicated
+      replicas: 5
       endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.role == manager
-  #
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.twir-landing.rule=Host(`twir.app`)
+      - traefik.http.routers.twir-landing.tls=true
+      - traefik.http.services.twir-landing.loadbalancer.server.port=3000"
+
   dashboard:
     build:
       context: .
@@ -363,16 +310,19 @@ services:
         mode: host
     networks:
       - tsuwari
+      - traefik-public
     deploy:
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.role == manager
-  #
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.twir-dashboard.rule=(Host(`twir.app`) && PathPrefix(`/dashboard`))
+      - traefik.http.routers.twir-dashboard.tls=true
+      - traefik.http.services.twir-dashboard.loadbalancer.server.port=3000"
+
   public:
     build:
       context: .
@@ -381,21 +331,20 @@ services:
     image: registry.satont.ru/twir/public
     secrets:
       - tsuwari_doppler_token
-    ports:
-      - target: 80
-        published: 3006
-        mode: host
     networks:
       - tsuwari
+      - traefik-public
     deploy:
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.role == manager
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.twir-dashboard.rule=(Host(`twir.app`) && PathPrefix(`/p`))
+        - traefik.http.routers.twir-dashboard.tls=true
+        - traefik.http.services.twir-dashboard.loadbalancer.server.port=3006"
 
   overlays:
     build:
@@ -404,21 +353,20 @@ services:
       target: overlays
     restart: unless-stopped
     image: registry.satont.ru/twir/overlays
-    ports:
-      - target: 80
-        published: 3007
-        mode: host
     networks:
       - tsuwari
+      - traefik-public
     deploy:
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.role == manager
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.twir-overlays.rule=(Host(`twir.app`) && PathPrefix(`/overlays`))
+        - traefik.http.routers.twir-overlays.tls=true
+        - traefik.http.services.twir-overlays.loadbalancer.server.port=3007"
 
   websockets:
     build:
@@ -430,19 +378,18 @@ services:
       - tsuwari_doppler_token
     networks:
       - tsuwari
-    ports:
-      - target: 3004
-        published: 3005
-        mode: host
+      - traefik-public
     deploy:
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.role == manager
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.twir-websockets.rule=(Host(`twir.app`) && PathPrefix(`/socket`))
+        - traefik.http.routers.twir-websockets.tls=true
+        - traefik.http.services.twir-websockets.loadbalancer.server.port=3004"
 
   tokens:
     build:
@@ -458,7 +405,7 @@ services:
       update_config:
         parallelism: 5
       mode: replicated
-      replicas: 10
+      replicas: 2
       restart_policy:
         condition: any
         delay: 30s
@@ -484,7 +431,7 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
       mode: replicated
-      replicas: 10
+      replicas: 5
 
   events:
     build:
@@ -505,7 +452,7 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
       mode: replicated
-      replicas: 10
+      replicas: 5
 
   ytsr:
     build:
@@ -526,7 +473,7 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
       mode: replicated
-      replicas: 10
+      replicas: 5
 
   tts:
     restart: unless-stopped
@@ -542,7 +489,7 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
       mode: replicated
-      replicas: 5
+      replicas: 2
 
 
 volumes:
@@ -554,6 +501,8 @@ volumes:
 networks:
   tsuwari:
     name: tsuwari
+    external: true
+  traefik-public:
     external: true
 
 secrets:
