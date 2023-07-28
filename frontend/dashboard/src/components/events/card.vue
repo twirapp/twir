@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n';
 import { getOperation, flatEvents } from './helpers.js';
 import { EditableEvent } from './types.js';
 
-import { useEventsManager } from '@/api/index.js';
+import { useEventsManager, useUserAccessFlagChecker } from '@/api/index.js';
 import Card from '@/components/card/card.vue';
 
 const props = defineProps<{
@@ -29,6 +29,8 @@ const throttledSwitchState = useThrottleFn((v: boolean) => {
 }, 500);
 
 const { t } = useI18n();
+
+const userCanEditEvents = useUserAccessFlagChecker('MANAGE_EVENTS');
 </script>
 
 <template>
@@ -36,6 +38,7 @@ const { t } = useI18n();
 		<template #headerExtra>
 			<n-switch
 				:value="event.enabled"
+				:disabled="!userCanEditEvents"
 				@update-value="(v) => throttledSwitchState(v)"
 			/>
 		</template>
@@ -64,7 +67,7 @@ const { t } = useI18n();
 		</template>
 
 		<template #footer>
-			<n-button secondary size="large" @click="$emit('openSettings', event.id)">
+			<n-button secondary size="large" :disabled="!userCanEditEvents" @click="$emit('openSettings', event.id)">
 				<span>{{ t('sharedButtons.settings') }}</span>
 				<IconSettings />
 			</n-button>
@@ -74,7 +77,7 @@ const { t } = useI18n();
 				@positive-click="eventsDeleter.mutateAsync({ id: event.id! })"
 			>
 				<template #trigger>
-					<n-button secondary type="error" size="large">
+					<n-button secondary type="error" size="large" :disabled="!userCanEditEvents">
 						<span>{{ t('sharedButtons.delete') }}</span>
 					</n-button>
 				</template>

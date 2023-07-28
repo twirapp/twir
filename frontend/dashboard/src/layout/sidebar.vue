@@ -36,114 +36,155 @@ import { RouterLink, useRouter } from 'vue-router';
 import DashboardMenu from './dashboardsMenu.vue';
 import { renderIcon } from '../helpers/index.js';
 
-import { useProfile, useTwitchGetUsers } from '@/api/index.js';
+import { useProfile, useTwitchGetUsers, useUserAccessFlagChecker } from '@/api/index.js';
 
 defineProps<{
 	isCollapsed: boolean
 }>();
 
+const router = useRouter();
+
 const activeKey = ref<string | null>('/');
-const menuOptions: (MenuOption | MenuDividerOption)[] = [
-	{
-		label: 'Dashboard',
-		icon: renderIcon(IconDashboard),
-		path: '/dashboard',
-	},
-	{
-		label: 'Integrations',
-		icon: renderIcon(IconBox),
-		path: '/dashboard/integrations',
-	},
-	{
-		label: 'Events',
-		icon: renderIcon(IconCalendarEvent),
-		path: '/dashboard/events',
-	},
-	{
-		label: 'OBS Overlays',
-		icon: renderIcon(IconDeviceDesktop),
-		path: '/dashboard/overlays',
-	},
-	{
-		label: 'Song Requests',
-		icon: renderIcon(IconHeadphones),
-		path: '/dashboard/song-requests',
-	},
-	{
-		label: 'Commands',
-		icon: renderIcon(IconCommand),
-		children: [
-			{ label: 'Custom', icon: renderIcon(IconPencilPlus), path: '/dashboard/commands/custom' },
-			{ label: 'Stats', icon: renderIcon(IconDeviceDesktopAnalytics), path: '/dashboard/commands/stats' },
-			{ label: 'Moderation', icon: renderIcon(IconSword), path: '/dashboard/commands/moderation' },
-			{ label: 'Songs', icon: renderIcon(IconPlaylist), path: '/dashboard/commands/songs' },
-			{ label: 'Manage', icon: renderIcon(IconClipboardCopy), path: '/dashboard/commands/manage' },
-		],
-	},
-	{
-		label: 'Users',
-		icon: renderIcon(IconUsers),
-		path: '/dashboard/community/users',
-	},
-	{
-		label: 'Permissions',
-		icon: renderIcon(IconShieldHalfFilled),
-		path: '/dashboard/community/roles',
-	},
-	{
-		label: 'Timers',
-		icon: renderIcon(IconClockHour7),
-		path: '/dashboard/timers',
-	},
-	// {
-	// 	label: 'Moderation',
-	// 	icon: renderIcon(IconSword),
-	// 	path: '/dashboard/moderation'
-	// },
-	{
-		label: 'Keywords',
-		icon: renderIcon(IconKey),
-		path: '/dashboard/keywords' },
-	{
-		label: 'Variables',
-		icon: renderIcon(IconActivity),
-		path: '/dashboard/variables' },
-	{
-		label: 'Greetings',
-		icon: renderIcon(IconSpeakerphone),
-		path: '/dashboard/greetings',
-	},
-	{
-		type: 'divider',
-	},
-].map((item) => ({
-	...item,
-	key: item.path ?? item.label,
-	label: !item.path ? item.label ?? undefined : () => h(
-		RouterLink,
+const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
+	const canViewIntegrations = useUserAccessFlagChecker('VIEW_INTEGRATIONS');
+	const canViewEvents = useUserAccessFlagChecker('VIEW_EVENTS');
+	const canViewOverlays = useUserAccessFlagChecker('VIEW_OVERLAYS');
+	const canViewSongRequests = useUserAccessFlagChecker('VIEW_SONG_REQUESTS');
+	const canViewCommands = useUserAccessFlagChecker('VIEW_COMMANDS');
+	const canViewTimers = useUserAccessFlagChecker('VIEW_TIMERS');
+	const canViewKeywords = useUserAccessFlagChecker('VIEW_KEYWORDS');
+	const canViewVariabls = useUserAccessFlagChecker('VIEW_VARIABLES');
+	const canViewGreetings = useUserAccessFlagChecker('VIEW_GREETINGS');
+	const canViewRoles = useUserAccessFlagChecker('VIEW_ROLES');
+
+	return [
 		{
-			to: {
-				path: item.path,
-			},
+			label: 'Dashboard',
+			icon: renderIcon(IconDashboard),
+			path: '/dashboard',
 		},
-		{ default: () => item.label },
-	),
-	children: item.children?.map((child) => ({
-		...child,
-		key: child.path,
-		label: () => h(
+		{
+			label: 'Integrations',
+			icon: renderIcon(IconBox),
+			path: '/dashboard/integrations',
+			disabled: !canViewIntegrations.value,
+		},
+		{
+			label: 'Events',
+			icon: renderIcon(IconCalendarEvent),
+			path: '/dashboard/events',
+			disabled: !canViewEvents.value,
+		},
+		{
+			label: 'OBS Overlays',
+			icon: renderIcon(IconDeviceDesktop),
+			path: '/dashboard/overlays',
+			disabled: !canViewOverlays.value,
+		},
+		{
+			label: 'Song Requests',
+			icon: renderIcon(IconHeadphones),
+			path: '/dashboard/song-requests',
+			disabled: !canViewSongRequests.value,
+		},
+		{
+			label: 'Commands',
+			icon: renderIcon(IconCommand),
+			disabled: !canViewCommands.value,
+			children: [
+				{
+					label: 'Custom',
+					icon: renderIcon(IconPencilPlus),
+					path: '/dashboard/commands/custom',
+				},
+				{
+					label: 'Stats',
+					icon: renderIcon(IconDeviceDesktopAnalytics),
+					path: '/dashboard/commands/stats',
+				},
+				{
+					label: 'Moderation',
+					icon: renderIcon(IconSword),
+					path: '/dashboard/commands/moderation',
+				},
+				{
+					label: 'Songs',
+					icon: renderIcon(IconPlaylist),
+					path: '/dashboard/commands/songs',
+				},
+				{
+					label: 'Manage',
+					icon: renderIcon(IconClipboardCopy),
+					path: '/dashboard/commands/manage',
+				},
+			],
+		},
+		{
+			label: 'Users',
+			icon: renderIcon(IconUsers),
+			path: '/dashboard/community/users',
+		},
+		{
+			label: 'Permissions',
+			icon: renderIcon(IconShieldHalfFilled),
+			path: '/dashboard/community/roles',
+			disabled: !canViewRoles.value,
+		},
+		{
+			label: 'Timers',
+			icon: renderIcon(IconClockHour7),
+			path: '/dashboard/timers',
+			disabled: !canViewTimers.value,
+		},
+		{
+			label: 'Keywords',
+			icon: renderIcon(IconKey),
+			path: '/dashboard/keywords',
+			disabled: !canViewKeywords.value,
+		},
+		{
+			label: 'Variables',
+			icon: renderIcon(IconActivity),
+			path: '/dashboard/variables',
+			disabled: !canViewVariabls.value,
+		},
+		{
+			label: 'Greetings',
+			icon: renderIcon(IconSpeakerphone),
+			path: '/dashboard/greetings',
+			disabled: !canViewGreetings.value,
+		},
+		{
+			type: 'divider',
+		},
+	].map((item) => ({
+		...item,
+		key: item.path ?? item.label,
+		extra: item.disabled ? 'No perms' : undefined,
+		label: !item.path || item.disabled ? item.label ?? undefined : () => h(
 			RouterLink,
 			{
 				to: {
-					path: child.path,
+					path: item.path,
 				},
 			},
-			{ default: () => child.label },
+			{ default: () => item.label },
 		),
-	})),
-}));
-
-const router = useRouter();
+		children: item.children?.map((child) => ({
+			...child,
+			key: child.path,
+			label: item.disabled ? child.label : () => h(
+				RouterLink,
+				{
+					to: {
+						path: child.path,
+					},
+				},
+				{ default: () => child.label },
+			),
+		})),
+	}));
+});
 
 onMounted(async () => {
 	await router.isReady();

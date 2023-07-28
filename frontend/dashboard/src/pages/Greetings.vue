@@ -12,7 +12,6 @@ import {
   NModal,
   NSwitch,
   NAvatar,
-	NResult,
 } from 'naive-ui';
 import { h, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -39,7 +38,6 @@ const twitchUsers = useTwitchGetUsers({
 	ids: twitchUsersIds,
 });
 
-const userCanViewGreetings = useUserAccessFlagChecker('VIEW_GREETINGS');
 const userCanManageGreetings = useUserAccessFlagChecker('MANAGE_GREETINGS');
 
 const { t } = useI18n();
@@ -151,39 +149,35 @@ function closeModal() {
 </script>
 
 <template>
-	<n-result v-if="!userCanViewGreetings" status="403" :title="t('haveNoAccess.message')" />
+	<n-space justify="space-between" align="center">
+		<h2>{{ t('greetings.title') }}</h2>
+		<n-button :disabled="!userCanManageGreetings" secondary type="success" @click="openModal(null)">
+			{{ t('sharedButtons.create') }}
+		</n-button>
+	</n-space>
+	<n-alert type="info" :title="t('greetings.info.title')">
+		{{ t('greetings.info.text') }}
+	</n-alert>
+	<n-data-table
+		:isLoading="greetings.isLoading.value || twitchUsers.isLoading.value"
+		:columns="columns"
+		:data="greetings.data.value?.greetings ?? []"
+		style="margin-top: 20px;"
+	/>
 
-	<div v-else>
-		<n-space justify="space-between" align="center">
-			<h2>{{ t('greetings.title') }}</h2>
-			<n-button :disabled="!userCanManageGreetings" secondary type="success" @click="openModal(null)">
-				{{ t('sharedButtons.create') }}
-			</n-button>
-		</n-space>
-		<n-alert type="info" :title="t('greetings.info.title')">
-			{{ t('greetings.info.text') }}
-		</n-alert>
-		<n-data-table
-			:isLoading="greetings.isLoading.value || twitchUsers.isLoading.value"
-			:columns="columns"
-			:data="greetings.data.value?.greetings ?? []"
-			style="margin-top: 20px;"
-		/>
-
-		<n-modal
-			v-model:show="showModal"
-			:mask-closable="false"
-			:segmented="true"
-			preset="card"
-			:title="editableGreeting?.userName || 'Create'"
-			class="modal"
-			:style="{
-				width: '400px',
-				top: '50px',
-			}"
-			:on-close="closeModal"
-		>
-			<greetings-modal :greeting="editableGreeting" @close="closeModal" />
-		</n-modal>
-	</div>
+	<n-modal
+		v-model:show="showModal"
+		:mask-closable="false"
+		:segmented="true"
+		preset="card"
+		:title="editableGreeting?.userName || 'Create'"
+		class="modal"
+		:style="{
+			width: '400px',
+			top: '50px',
+		}"
+		:on-close="closeModal"
+	>
+		<greetings-modal :greeting="editableGreeting" @close="closeModal" />
+	</n-modal>
 </template>

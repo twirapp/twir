@@ -1,9 +1,9 @@
 <script setup lang='ts'>
 import { IconCalendarPlus } from '@tabler/icons-vue';
-import { NCard, NGrid, NGridItem, NSkeleton, useThemeVars, NModal } from 'naive-ui';
+import { NCard, NGrid, NGridItem, NModal, NSkeleton, useThemeVars } from 'naive-ui';
 import { computed, ref, toRaw } from 'vue';
 
-import { useEventsManager } from '@/api/index.js';
+import { useEventsManager, useUserAccessFlagChecker } from '@/api/index.js';
 import Card from '@/components/events/card.vue';
 import Modal from '@/components/events/modal.vue';
 import type { EditableEvent } from '@/components/events/types.js';
@@ -17,7 +17,11 @@ const { data: eventsList, isLoading } = eventsManager.getAll({});
 const showModal = ref(false);
 const editableEvent = ref<EditableEvent | null>(null);
 
+const userCanManageEvents = useUserAccessFlagChecker('MANAGE_EVENTS');
+
 function openSettings(id?: string) {
+	if (!userCanManageEvents.value) return;
+
 	const event = eventsList.value?.events.find(e => e.id === id);
 	if (event) {
 		editableEvent.value = structuredClone(toRaw(event));
@@ -48,6 +52,9 @@ function openSettings(id?: string) {
 						align-items: center;
 						justify-content: center;
 					"
+				:style="{
+					cursor: userCanManageEvents ? 'pointer' : 'not-allowed'
+				}"
 				embedded
 				@click="openSettings"
 			>
@@ -79,18 +86,17 @@ function openSettings(id?: string) {
 <style scoped>
 .v-enter-active,
 .v-leave-active {
-  transition: all 0.5s ease;
+	transition: all 0.5s ease;
 }
 
 .v-enter-from,
 .v-leave-to {
-  opacity: 0;
-  transform: scale(0.9);
+	opacity: 0;
+	transform: scale(0.9);
 }
 
 .new-event-card {
 	/* height: 120px; */
-	cursor: pointer;
 	height: 100%;
 }
 

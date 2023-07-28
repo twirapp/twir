@@ -10,7 +10,6 @@ import {
   NButton,
   NPopconfirm,
   NModal,
-	NResult,
 } from 'naive-ui';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -26,8 +25,6 @@ const variablesDeleter = variablesManager.deleteOne;
 
 const showModal = ref(false);
 
-
-const userCanViewVariables = useUserAccessFlagChecker('VIEW_VARIABLES');
 const userCanManageVariables = useUserAccessFlagChecker('MANAGE_VARIABLES');
 
 const { t } = useI18n();
@@ -122,38 +119,35 @@ function closeModal() {
 </script>
 
 <template>
-	<n-result v-if="!userCanViewVariables" status="403" :title="t('haveNoAccess.message')"></n-result>
-	<div v-else>
-		<n-space justify="space-between" align="center">
-			<h2>{{ t('variables.title') }}</h2>
-			<n-button :disabled="!userCanManageVariables" secondary type="success" @click="openModal(null)">
-				{{ t('sharedButtons.create') }}
-			</n-button>
-		</n-space>
-		<n-alert type="info">
-			{{ t('variables.info') }}
-		</n-alert>
-		<n-data-table
-			:isLoading="variables.isLoading.value"
-			:columns="columns"
-			:data="variables.data.value?.variables ?? []"
-			style="margin-top: 20px;"
-		/>
+	<n-space justify="space-between" align="center">
+		<h2>{{ t('variables.title') }}</h2>
+		<n-button :disabled="!userCanManageVariables" secondary type="success" @click="openModal(null)">
+			{{ t('sharedButtons.create') }}
+		</n-button>
+	</n-space>
+	<n-alert type="info">
+		{{ t('variables.info') }}
+	</n-alert>
+	<n-data-table
+		:isLoading="variables.isLoading.value"
+		:columns="columns"
+		:data="variables.data.value?.variables ?? []"
+		style="margin-top: 20px;"
+	/>
 
-		<n-modal
-			v-model:show="showModal"
-			:mask-closable="false"
-			:segmented="true"
-			preset="card"
-			:title="editableVariable?.name ?? 'New variable'"
-			class="modal"
-			:style="{
-				width: 'auto',
-				top: '50px',
-			}"
-			:on-close="closeModal"
-		>
-			<modal :variable="editableVariable" @close="closeModal" />
-		</n-modal>
-	</div>
+	<n-modal
+		v-model:show="showModal"
+		:mask-closable="false"
+		:segmented="true"
+		preset="card"
+		:title="editableVariable?.name ?? 'New variable'"
+		class="modal"
+		:style="{
+			width: 'auto',
+			top: '50px',
+		}"
+		:on-close="closeModal"
+	>
+		<modal :variable="editableVariable" @close="closeModal" />
+	</n-modal>
 </template>

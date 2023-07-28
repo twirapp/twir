@@ -7,7 +7,6 @@ import {
   NModal,
   NButton,
   NPopconfirm,
-	NResult,
 } from 'naive-ui';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -28,78 +27,74 @@ function openModal(role: EditableRole | null) {
 }
 const closeModal = () => showModal.value = false;
 
-const userCanViewRoles = useUserAccessFlagChecker('VIEW_ROLES');
 const userCanManageRoles = useUserAccessFlagChecker('MANAGE_ROLES');
 
 const { t } = useI18n();
 </script>
 
 <template>
-	<n-result v-if="!userCanViewRoles" status="403" :title="t('haveNoAccess.message')" />
-	<div v-else>
-		<n-space align="center" justify="center" vertical>
-			<n-card
-				class="card"
-				:style="{ cursor: userCanManageRoles ? 'pointer' : 'not-allowed' }"
-				size="small"
-				bordered
-				hoverable
-				@click="() => {
-					if (userCanManageRoles) {
-						openModal(null)
-					}
-				}"
-			>
-				<n-space align="center" justify="center" vertical>
-					<n-text class="text">
-						<IconPlus />
-					</n-text>
+	<n-space align="center" justify="center" vertical>
+		<n-card
+			class="card"
+			:style="{ cursor: userCanManageRoles ? 'pointer' : 'not-allowed' }"
+			size="small"
+			bordered
+			hoverable
+			@click="() => {
+				if (userCanManageRoles) {
+					openModal(null)
+				}
+			}"
+		>
+			<n-space align="center" justify="center" vertical>
+				<n-text class="text">
+					<IconPlus />
+				</n-text>
+			</n-space>
+		</n-card>
+		<n-card
+			v-for="role in roles?.roles"
+			:key="role.id"
+			size="small"
+			class="card"
+			hoverable
+		>
+			<n-space justify="space-between" align="center">
+				<n-text class="text">
+					{{ role.name }}
+				</n-text>
+				<n-space>
+					<n-button :disabled="!userCanManageRoles" secondary type="success" @click="openModal(role)">
+						{{ t('sharedButtons.edit') }}
+					</n-button>
+					<n-popconfirm
+						:positive-text="t('deleteConfirmation.confirm')"
+						:negative-text="t('deleteConfirmation.cancel')"
+						@positive-click="() => rolesDeleter.mutateAsync({ id: role.id })"
+					>
+						<template #trigger>
+							<n-button :disabled="role.type !== 'CUSTOM' || !userCanManageRoles" secondary type="error">
+								{{ t('sharedButtons.delete') }}
+							</n-button>
+						</template>
+						{{ t('deleteConfirmation.text') }}
+					</n-popconfirm>
 				</n-space>
-			</n-card>
-			<n-card
-				v-for="role in roles?.roles"
-				:key="role.id"
-				size="small"
-				class="card"
-				hoverable
-			>
-				<n-space justify="space-between" align="center">
-					<n-text class="text">
-						{{ role.name }}
-					</n-text>
-					<n-space>
-						<n-button :disabled="!userCanManageRoles" secondary type="success" @click="openModal(role)">
-							{{ t('sharedButtons.edit') }}
-						</n-button>
-						<n-popconfirm
-							:positive-text="t('deleteConfirmation.confirm')"
-							:negative-text="t('deleteConfirmation.cancel')"
-							@positive-click="() => rolesDeleter.mutateAsync({ id: role.id })"
-						>
-							<template #trigger>
-								<n-button :disabled="role.type !== 'CUSTOM' || !userCanManageRoles" secondary type="error">
-									{{ t('sharedButtons.delete') }}
-								</n-button>
-							</template>
-							{{ t('deleteConfirmation.text') }}
-						</n-popconfirm>
-					</n-space>
-				</n-space>
-			</n-card>
+			</n-space>
+		</n-card>
 
-			<n-modal
-				v-model:show="showModal"
-				:mask-closable="false"
-				:segmented="true"
-				preset="card"
-				:title="editableRole?.name || 'Create role'"
-				:style="{ width: '600px',top: '50px' }"
-				:on-close="closeModal"
-			>
-				<role-modal :role="editableRole" @close="closeModal" />
-			</n-modal>
-		</n-space>
-	</div>
+		<n-modal
+			v-model:show="showModal"
+			:mask-closable="false"
+			:segmented="true"
+			preset="card"
+			:title="editableRole?.name || 'Create role'"
+			:style="{ width: '600px',top: '50px' }"
+			:on-close="closeModal"
+		>
+			<role-modal :role="editableRole" @close="closeModal" />
+		</n-modal>
+	</n-space>
 </template>
 
 <style scoped>

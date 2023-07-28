@@ -6,32 +6,36 @@ import { createApp } from 'vue';
 
 import { getProfile } from './api/index.js';
 import { i18n } from './i18n.js';
-import { router } from './router.js';
+import { newRouter } from './router.js';
 
 import App from '@/App.vue';
 
-const app = createApp(App).use(router);
+const app = createApp(App);
 
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			refetchOnWindowFocus: false,
+			refetchOnMount: false,
+			refetchOnReconnect: false,
+			retry: false,
+		},
+	},
+});
 
-getProfile().catch(error => {
+VueQueryPlugin.install(app, {
+	queryClient,
+});
+
+getProfile(queryClient).catch(error => {
 	console.error(error);
 	window.location.replace('/');
+}).then(() => {
+	app
+		.use(i18n)
+		.use(newRouter(queryClient))
+		.use(VueMonacoEditorPlugin);
+
+	app.mount('#app');
 });
 
-
-app.use(i18n);
-app.use(VueMonacoEditorPlugin);
-VueQueryPlugin.install(app, {
-	queryClient: new QueryClient({
-		defaultOptions: {
-			queries: {
-				refetchOnWindowFocus: false,
-				refetchOnMount: false,
-				refetchOnReconnect: false,
-				retry: false,
-			},
-		},
-	}),
-});
-
-app.mount('#app');

@@ -11,7 +11,6 @@ import {
   NButton,
   NPopconfirm,
   NModal,
-	NResult,
 } from 'naive-ui';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -32,7 +31,6 @@ const throttledSwitchState = useThrottleFn((id: string, v: boolean) => {
 
 const showModal = ref(false);
 
-const userCanViewKeywords = useUserAccessFlagChecker('VIEW_KEYWORDS');
 const userCanManageKeywords = useUserAccessFlagChecker('MANAGE_KEYWORDS');
 
 const { t } = useI18n();
@@ -132,35 +130,31 @@ function closeModal() {
 </script>
 
 <template>
-	<n-result v-if="!userCanViewKeywords" status="403" :title="t('haveNoAccess.message')" />
+	<n-space justify="space-between" align="center">
+		<h2>{{ t('keywords.title') }}</h2>
+		<n-button :disabled="!userCanManageKeywords" secondary type="success" @click="openModal(null)">
+			{{ t('sharedButtons.create') }}
+		</n-button>
+	</n-space>
+	<n-data-table
+		:isLoading="keywords.isLoading.value"
+		:columns="columns"
+		:data="keywords.data.value?.keywords ?? []"
+	/>
 
-	<div v-else>
-		<n-space justify="space-between" align="center">
-			<h2>{{ t('keywords.title') }}</h2>
-			<n-button :disabled="!userCanManageKeywords" secondary type="success" @click="openModal(null)">
-				{{ t('sharedButtons.create') }}
-			</n-button>
-		</n-space>
-		<n-data-table
-			:isLoading="keywords.isLoading.value"
-			:columns="columns"
-			:data="keywords.data.value?.keywords ?? []"
-		/>
-
-		<n-modal
-			v-model:show="showModal"
-			:mask-closable="false"
-			:segmented="true"
-			preset="card"
-			:title="editableKeyword?.id ? 'Edit keyword' : 'New keyword'"
-			class="modal"
-			:style="{
-				width: '600px',
-				top: '50px',
-			}"
-			:on-close="closeModal"
-		>
-			<modal :keyword="editableKeyword" @close="closeModal" />
-		</n-modal>
-	</div>
+	<n-modal
+		v-model:show="showModal"
+		:mask-closable="false"
+		:segmented="true"
+		preset="card"
+		:title="editableKeyword?.id ? 'Edit keyword' : 'New keyword'"
+		class="modal"
+		:style="{
+			width: '600px',
+			top: '50px',
+		}"
+		:on-close="closeModal"
+	>
+		<modal :keyword="editableKeyword" @close="closeModal" />
+	</n-modal>
 </template>

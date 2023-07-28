@@ -11,7 +11,6 @@ import {
   NButton,
   NPopconfirm,
   NModal,
-	NResult,
 } from 'naive-ui';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -30,7 +29,6 @@ const throttledSwitchState = useThrottleFn((id: string, v: boolean) => {
 	timersPatcher.mutate({ id, enabled: v });
 }, 500);
 
-const userCanViewtimers = useUserAccessFlagChecker('VIEW_TIMERS');
 const userCanManageTimers = useUserAccessFlagChecker('MANAGE_TIMERS');
 
 const { t } = useI18n();
@@ -136,34 +134,31 @@ function closeModal() {
 </script>
 
 <template>
-	<n-result v-if="!userCanViewtimers" status="403" :title="t('haveNoAccess.message')" />
-	<div v-else>
-		<n-space justify="space-between" align="center">
-			<h2>Timers</h2>
-			<n-button secondary type="success" :disabled="!userCanManageTimers" @click="openModal(null)">
-				{{ t('sharedButtons.create') }}
-			</n-button>
-		</n-space>
-		<n-data-table
-			:isLoading="timers.isLoading.value"
-			:columns="columns"
-			:data="timers.data.value?.timers ?? []"
-		/>
+	<n-space justify="space-between" align="center">
+		<h2>Timers</h2>
+		<n-button secondary type="success" :disabled="!userCanManageTimers" @click="openModal(null)">
+			{{ t('sharedButtons.create') }}
+		</n-button>
+	</n-space>
+	<n-data-table
+		:isLoading="timers.isLoading.value"
+		:columns="columns"
+		:data="timers.data.value?.timers ?? []"
+	/>
 
-		<n-modal
-			v-model:show="showModal"
-			:mask-closable="false"
-			:segmented="true"
-			preset="card"
-			:title="editableTimer?.name ?? 'New timer'"
-			class="modal"
-			:style="{
-				width: '600px',
-				top: '50px',
-			}"
-			:on-close="closeModal"
-		>
-			<modal :timer="editableTimer" @close="closeModal" />
-		</n-modal>
-	</div>
+	<n-modal
+		v-model:show="showModal"
+		:mask-closable="false"
+		:segmented="true"
+		preset="card"
+		:title="editableTimer?.name ?? 'New timer'"
+		class="modal"
+		:style="{
+			width: '600px',
+			top: '50px',
+		}"
+		:on-close="closeModal"
+	>
+		<modal :timer="editableTimer" @close="closeModal" />
+	</n-modal>
 </template>

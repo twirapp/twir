@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
-import { Profile } from '@twir/grpc/generated/api/api/auth';
+import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
+import { Dashboard, Profile } from '@twir/grpc/generated/api/api/auth';
 import { computed } from 'vue';
 
 import { protectedApiClient } from './twirp.js';
@@ -26,9 +26,12 @@ export const useLogout = () => useMutation({
 	},
 });
 
-export const getProfile = async () => {
+export const getProfile = async (queryClient: QueryClient) => {
 	const call = await protectedApiClient.authUserProfile({});
-	return call.response;
+	queryClient.setQueryData(profileQueryKey, call.response);
+
+	const dashboardsCall = await protectedApiClient.authGetDashboards({});
+	queryClient.setQueryData(dashboardsQueryKey, dashboardsCall.response);
 };
 
 const dashboardsQueryKey = ['authDashboards'];
@@ -92,6 +95,9 @@ export const PERMISSIONS_FLAGS = {
 
 	VIEW_ROLES: 'Can view roles',
 	MANAGE_ROLES: 'Can manage roles',
+
+	VIEW_EVENTS: 'Can view events',
+	MANAGE_EVENTS: 'Can manage events',
 };
 
 export type PermissionsType = keyof typeof PERMISSIONS_FLAGS
@@ -113,4 +119,18 @@ export const useUserAccessFlagChecker = (flag: PermissionsType) => {
 		if (dashboard.flags.includes('CAN_ACCESS_DASHBOARD')) return true;
 		return dashboard.flags.includes(flag);
 	});
+};
+
+export const userAccessFlagChecker = async (queryClient: QueryClient, flag: PermissionsType) => {
+	const profile = await queryClient.getQueryData(profileQueryKey) as Profile | null;
+	const { dashboards } = await queryClient.getQueryData(dashboardsQueryKey) as { dashboards: Dashboard[] };
+
+	if (!dashboards || !profile || !profile.selectedDashboardId) return false;
+	if (profile.selectedDashboardId == profile.id) return true;
+
+	const dashboard = dashboards.find(d => d.id === profile.selectedDashboardId);
+	if (!dashboard) return false;
+
+	if (dashboard.flags.includes('CAN_ACCESS_DASHBOARD')) return true;
+	return dashboard.flags.includes(flag);
 };
