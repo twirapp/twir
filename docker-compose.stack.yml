@@ -395,7 +395,7 @@ services:
         - traefik.http.routers.twir-websockets.middlewares=sockets-stripprefix
         - traefik.http.middlewares.sockets-stripprefix.stripprefix.prefixes=/socket
         - traefik.http.services.twir-websockets.loadbalancer.server.port=3004
-        - traefik.docker.network=tsuwari
+        - traefik.docker.network=traefik-public
 
   tokens:
     build:
