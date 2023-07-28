@@ -2,25 +2,38 @@ version: '3.3'
 
 services:
   traefik:
+    # Use the latest Traefik image
     image: traefik:latest
     ports:
+      # Listen on port 80, default for HTTP, necessary to redirect to HTTPS
       - target: 80
         published: 80
         mode: host
+      # Listen on port 443, default for HTTPS
       - target: 443
         published: 443
         mode: host
     deploy:
       labels:
         - traefik.enable=true
+        #- traefik.docker.network=traefik-public
         - traefik.http.middlewares.admin-auth.basicauth.users=${USERNAME?Variable not set}:${HASHED_PASSWORD?Variable not set}
+        # - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+        # - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
         - traefik.http.routers.traefik-public-http.rule=Host(`${DOMAIN?Variable not set}`)
         - traefik.http.routers.traefik-public-http.entrypoints=http
+        # - traefik.http.routers.traefik-public-http.middlewares=https-redirect
+        # - traefik.http.routers.traefik-public-https.rule=Host(`${DOMAIN?Variable not set}`)
+        # - traefik.http.routers.traefik-public-https.entrypoints=https
+        # - traefik.http.routers.traefik-public-https.tls=true
         - traefik.http.routers.traefik-public-http.service=api@internal
+        # - traefik.http.routers.traefik-public-https.tls.certresolver=le
         - traefik.http.routers.traefik-public-http.middlewares=admin-auth
         - traefik.http.services.traefik-public.loadbalancer.server.port=8080
     volumes:
+      # Add Docker as a mounted volume, so that Traefik can read the labels of other services
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Mount the volume to store the certificates
       - traefik-public-certificates:/certificates
     command:
       - --providers.docker
@@ -34,8 +47,22 @@ services:
       - --accesslog
       - --log
       - --api
+      - --tracing=true
+      - --tracing.jaeger.localAgentHostPort=jaeger:6831
     networks:
       - traefik-public
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    networks:
+      - traefik-public
+    environment:
+      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
+    deploy:
+      labels:
+        traefik.enable: "true"
+        traefik.http.routers.jaeger.rule: Host(`jaeger.twir.app`)
+        traefik.http.routers.jaeger.middlewares: admin-auth
+        traefik.http.services.jaeger.loadbalancer.server.port: 16686
 
 volumes:
   traefik-public-certificates:
