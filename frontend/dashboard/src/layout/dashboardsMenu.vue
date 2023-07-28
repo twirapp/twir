@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { type MenuOption, NMenu, NAvatar, NSpin, NInput } from 'naive-ui';
-import { computed, h, ref, watch } from 'vue';
+import { type MenuOption, NAvatar, NInput, NMenu, NSpin } from 'naive-ui';
+import { computed, h, ref, shallowRef, watch } from 'vue';
 
-import { useProfile, useTwitchGetUsers, useDashboards, useSetDashboard } from '@/api/index.js';
+import { useDashboards, useProfile, useSetDashboard, useTwitchGetUsers } from '@/api/index.js';
 
 const emits = defineEmits<{
 	dashboardSelected: []
@@ -45,21 +45,25 @@ watch(activeDashboard, async (v) => {
 
 const filterValue = ref('');
 
-const menuOptions = computed<MenuOption[]>(() => {
-	return usersForSelect.data.value?.users
-	.filter(u => {
-		return u.displayName.includes(filterValue.value) || u.login.includes(filterValue.value);
-	})
-	.map((u) => {
-		return {
-			key: u.id,
-			label: u.login === u.displayName.toLocaleLowerCase()
-				? u.displayName
-				: `${u.displayName} (${u.login})`,
-			icon: () => h(NAvatar, { src: u.profileImageUrl, round: true, size: 'small' }),
-		};
-	}) ?? [];
-});
+const menuOptions = shallowRef<MenuOption[]>([]);
+
+watch(usersForSelect.data, (data) => {
+	if (!data?.users.length) return;
+
+	menuOptions.value = usersForSelect.data.value?.users
+		.filter(u => {
+			return u.displayName.includes(filterValue.value) || u.login.includes(filterValue.value);
+		})
+		.map((u) => {
+			return {
+				key: u.id,
+				label: u.login === u.displayName.toLocaleLowerCase()
+					? u.displayName
+					: `${u.displayName} (${u.login})`,
+				icon: () => h(NAvatar, { src: u.profileImageUrl, round: true, size: 'small' }),
+			};
+		}) ?? [];
+}, { immediate: true });
 
 </script>
 
