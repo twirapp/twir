@@ -14,7 +14,7 @@ services:
         - traefik.http.routers.twir-adminer.rule=Host(`adminer.twir.app`)
         - traefik.http.routers.twir-adminer.middlewares=admin-auth
         - traefik.http.services.twir-adminer.loadbalancer.server.port=8080
-        - traefik.docker.network=tsuwari
+        - traefik.docker.network=traefik-public
 
   postgres:
     image: postgres:14-alpine
@@ -113,7 +113,7 @@ services:
         - traefik.http.routers.twir-api.middlewares=api-stripprefix
         - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api
         - traefik.http.services.twir-api.loadbalancer.server.port=3002
-        - traefik.docker.network=tsuwari
+        - traefik.docker.network=traefik-public
       restart_policy:
         condition: any
         delay: 30s
@@ -234,7 +234,7 @@ services:
         - traefik.enable=true
         - traefik.http.routers.twir-eventsub.rule=Host(`eventsub.twir.app`)
         - traefik.http.services.twir-eventsub.loadbalancer.server.port=3003
-        - traefik.docker.network=tsuwari
+        - traefik.docker.network=traefik-public
 
   eval:
     build:
@@ -297,7 +297,7 @@ services:
         - traefik.enable=true
         - traefik.http.routers.twir-landing.rule=Host(`twir.app`)
         - traefik.http.services.twir-landing.loadbalancer.server.port=3000
-        - traefik.docker.network=tsuwari
+        - traefik.docker.network=traefik-public
 
   dashboard:
     build:
@@ -322,7 +322,7 @@ services:
         - traefik.http.routers.twir-dashboard.middlewares=dashboard-stripprefix
         - traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/dashboard
         - traefik.http.services.twir-dashboard.loadbalancer.server.port=80
-        - traefik.docker.network=tsuwari
+        - traefik.docker.network=traefik-public
 
   public:
     build:
@@ -347,7 +347,7 @@ services:
         - traefik.http.routers.twir-public.middlewares=public-stripprefix
         - traefik.http.middlewares.public-stripprefix.stripprefix.prefixes=/p
         - traefik.http.services.twir-public.loadbalancer.server.port=80
-        - traefik.docker.network=tsuwari
+        - traefik.docker.network=traefik-public
 
   overlays:
     build:
@@ -370,7 +370,7 @@ services:
         - traefik.http.routers.twir-overlays.middlewares=overlays-stripprefix
         - traefik.http.middlewares.overlays-stripprefix.stripprefix.prefixes=/overlays
         - traefik.http.services.twir-overlays.loadbalancer.server.port=80
-        - traefik.docker.network=tsuwari
+        - traefik.docker.network=traefik-public
 
   websockets:
     build:
