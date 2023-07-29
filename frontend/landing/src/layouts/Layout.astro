@@ -1,0 +1,39 @@
+---
+import Header from './Header.astro';
+interface Props {
+    title: string;
+}
+
+const { title } = Astro.props;
+
+const description = 'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width"/>
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+	<meta name="generator" content={Astro.generator}/>
+	<meta name="description" content={description}>
+	<meta name="keywords" content="twir, twir bot, tsuwari, twitch bot, tsuwari bot">
+	<meta name="author" content="Satont, me@satont.ru">
+
+	<meta property="og:title" content={title}>
+	<meta property="og:url" content="/"/>
+	<meta property="og:description" content={description}/>
+	<meta property="og:image" content=""/>
+	<title>{title}</title>
+</head>
+<body>
+<Header/>
+<slot/>
+</body>
+</html>
+
+<style is:global>
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+</style>

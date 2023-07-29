@@ -1,0 +1,20 @@
+---
+import Logo from '../assets/TwirInCircle.svg';
+
+interface Props {
+    title: string;
+}
+
+const { title } = Astro.props;
+
+const description = 'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.';
+---
+
+<div class="flex justify-between items-center px-20">
+	<div class="flex items-center gap-4">
+		<img src={Logo} width="40" height="40"/>
+		<span>TWIR</span>
+	</div>
+	<div>second</div>
+	<div>third</div>
+</div>
