@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Hero from '../components/index/Hero.astro';
 import Stats from '../components/index/Stats.astro';
 import Features from '../components/index/Features.astro';
+import Integrations from '../components/index/Integrations.astro';
 ---
 
 <Layout title="Twir - Main page">
@@ -15,11 +16,7 @@ import Features from '../components/index/Features.astro';
 	<section id="features">
 		<Features />
 	</section>
+	<section id="integrations">
+		<Integrations />
+	</section>
 </Layout>
-
-<style>
-	#hero {
-		background: linear-gradient(45deg, #1F84FC 0%, #844BFF 100%);
-		filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
-	}
-</style>

@@ -2,6 +2,7 @@
 import CommandsSvg from '../../assets/features/commands.svg'
 import TimersSvg from '../../assets/features/timers.svg'
 import GreetingsSvg from '../../assets/features/greetings.svg'
+import FeaturesBg from '../../assets/bg-image-15.svg'
 
 const features = [
 	{
@@ -37,7 +38,7 @@ const features = [
 ]
 ---
 
-<div class=" bg-[#17171A]">
+<div class="features">
 	<div class="container mx-auto flex flex-col items-center p-[80px]">
 		<div class="flex flex-col items-center gap-[20px]">
 			<span class="font-['Inter'] font-semibold text-[#B0ADFF] text-base uppercase">Features</span>
@@ -55,3 +56,9 @@ const features = [
 		</div>
 	</div>
 </div>
+
+<style>
+	.features {
+		background: url(../../assets/bg-image-15.svg), #09090b 0px -0.187px / 100% 100.03% no-repeat;
+	}
+</style>
