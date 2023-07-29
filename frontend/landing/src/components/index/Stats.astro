@@ -1,25 +1,29 @@
 ---
 import { unProtectedClient } from '../../api/twirp.js';
+import { Response } from '@twir/grpc/generated/api/api/stats'
 
-const req = await unProtectedClient.getStats({});
-const res = req.response;
+let res: Response | null = null
+try {
+	const req = await unProtectedClient.getStats({});
+	res = req.response;
+} catch {}
 
 const stats = [
   {
     type: 'Users',
-    count: res.users,
+    count: res?.users ?? 0,
   },
   {
     type: 'Channels',
-    count: res.channels,
+    count: res?.channels ?? 0,
   },
   {
     type: 'Commands',
-    count: res.commands,
+    count: res?.commands ?? 0,
   },
   {
     type: 'Messages',
-    count: res.messages,
+    count: res?.messages ?? 0,
   },
 ];
 ---
