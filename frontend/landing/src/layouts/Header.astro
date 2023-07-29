@@ -1,30 +1,49 @@
 ---
-import Logo from '../assets/TwirInCircle.svg';
-import Profile from '../components/profile.vue';
+import Profile from '../components/Profile.vue';
+import { Icon } from 'astro-icon';
+
+const navItems: { href: string; label: string }[] = [
+	{
+		href: '#',
+		label: 'Features',
+	},
+	{
+		href: '#',
+		label: 'Reviews',
+	},
+	{
+		href: '#',
+		label: 'Team',
+	},
+	{
+		href: '#',
+		label: 'Pricing',
+	},
+];
 ---
-<section id="header">
-	<div class="container mx-auto">
-		<div class="flex justify-between items-center border-b border-gray-400 py-[12px] px-[32px]">
-			<div class="flex items-center gap-[12px]">
-				<img src={Logo} width="35" height="35"/>
-				<span class="font-['Golos_Text'] text-2xl font-semibold text-white">TWIR</span>
+
+<header class="bg-[#09090B]/25">
+	<div class="container">
+		<div class="flex justify-between items-center border-b border-[#9DA2BA]/30 py-4 px-[32px]">
+			<div class="inline-flex gap-x-8">
+				<div class="flex items-center gap-[12px]">
+					<Icon name="TwirLogo" size="36px" />
+					<span class="text-2xl font-semibold text-white">Twir</span>
+				</div>
+				<nav class="inline-flex gap-x-1">
+					{
+						navItems.map((item) => (
+							<a
+								href={item.href}
+								class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] transition-colors ">
+								{item.label}
+							</a>
+						))
+					}
+				</nav>
 			</div>
-			<div class="flex gap-[32px]">
-				<a href="#" class="font-['Inter'] text-[#ADB0B8] font-semibold font-sm">Features</a>
-				<a href="#" class="font-['Inter'] text-[#ADB0B8] font-semibold font-sm">Features</a>
-				<a href="#" class="font-['Inter'] text-[#ADB0B8] font-semibold font-sm">Features</a>
-				<a href="#" class="font-['Inter'] text-[#ADB0B8] font-semibold font-sm">Features</a>
-			</div>
-			<div>
-				<Profile client:only="vue" />
-			</div>
+
+			<Profile client:only="vue" />
 		</div>
 	</div>
-</section>
-
-<style>
-	#header {
-		background: linear-gradient(45deg, #1F84FC 0%, #844BFF 100%);
-		filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
-	}
-</style>
+</header>

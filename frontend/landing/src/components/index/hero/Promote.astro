@@ -1,47 +1,34 @@
 ---
-import ArrowRight from '../../../assets/arrowright.svg';
+import { Icon } from 'astro-icon';
 ---
+
 <div class="flex flex-col items-start w-[700px]">
 	<button
-		class="
-			flex gap-[8px]
-			items-center
-			px-[14px]
-			py-[6px]
-			rounded-full
-			bg-[#1a1a22]
-			border-2
-			border-solid
-			border-[#72757d26]
-			font-['Inter']
-			font-medium
-			text-sm
-			text-white
-			"
-	>
+		class="flex gap-[8px] items-center pr-[10px] pl-2 py-1 rounded-full bg-[#1a1a22] border border-[#72757d26] font-medium text-sm text-white">
 		🚀 View latest updates
-		<img src={ArrowRight} width="16" height="16"/>
+		<Icon
+			name="ArrowRight"
+			class="h-4 w-4 stroke-white/50 stroke-[1.5] flex-shrink-0"
+			stroke-linecap="round"
+		/>
 	</button>
+	<h1 class="pt-[16px] text-[64px] font-bold text-white tracking-tight leading-[1.2]">
+		Engage your audience like never before
+	</h1>
 
-	<span class="pt-[16px] font-['Inter'] text-6xl font-bold text-white"
-	>Engage your audience like never before</span>
+	<span class="pt-[24px] max-w-xl text-[#ADB0B8] text-xl leading-normal">
+		Our Twitch bot is the ultimate all-in-one solution for streamers looking to take their channel
+		to the next level.
+	</span>
 
-	<span class="pt-[24px] font-['Inter'] font-normal text-[#ADB0B8]">
-						Our Twitch bot is the ultimate all-in-one solution for streamers looking to take their channel to the next level.
-					</span>
-
-	<div class="pt-[48px] flex gap-[12px]">
-		<button class="hero-button border-[#393A3E] border border-solid">
+	<div class="pt-[48px] inline-flex gap-x-3">
+		<button
+			class="inline-flex px-7 py-4 font-semibold text-white rounded-lg ring-[#393A3E] ring-1 text-lg hover:bg-[#393A3E]/50 transition-[background,box-shadow] focus-visible:ring-4 focus-visible:outline-none">
 			Learn more
 		</button>
-		<button class="hero-button bg-[#5D58F5]">
+		<button
+			class="inline-flex px-7 py-4 font-semibold text-white rounded-lg bg-[#5D58F5] hover:bg-[#6964FF] transition-[background,box-shadow] text-lg focus-visible:outline-none focus-visible:ring-[#5D58F5]/50 focus-visible:ring-4">
 			Start for free
 		</button>
 	</div>
 </div>
-
-<style>
-    .hero-button {
-        @apply flex px-[28px] py-[16px] font-['Inter'] font-normal text-[#FFFFFF] rounded-md
-    }
-</style>

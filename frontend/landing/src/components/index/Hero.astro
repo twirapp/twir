@@ -2,17 +2,20 @@
 import Chat from './hero/Chat.astro';
 import Promote from './hero/Promote.astro';
 ---
+
 <div class="hero">
-	<div class="container mx-auto p-[80px]">
-		<div class="flex justify-between flex-wrap items-center px-[32px] gap-[60px]">
-			<Promote/>
-			<Chat/>
+	<div class="container py-20">
+		<div class="flex justify-between flex-wrap items-center px-8 gap-[60px]">
+			<Promote />
+			<Chat />
 		</div>
 	</div>
 </div>
 
 <style>
 	.hero {
-		background: url(../../assets/bg-image-15.svg), #09090b 0px -0.187px / 100% 100.03% no-repeat;
+		background:
+			url(../../assets/bg-image-15.svg),
+			#09090b 0px -0.187px / 100% 100.03% no-repeat;
 	}
 </style>
