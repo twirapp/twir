@@ -1,0 +1,47 @@
+---
+import { unProtectedClient } from '../../api/twirp.js';
+
+const req = await unProtectedClient.getStats({});
+const res = req.response;
+
+const stats = [
+  {
+    type: 'Users',
+    count: res.users,
+  },
+  {
+    type: 'Channels',
+    count: res.channels,
+  },
+  {
+    type: 'Commands',
+    count: res.commands,
+  },
+  {
+    type: 'Messages',
+    count: res.messages,
+  },
+];
+---
+
+<div class="bg-[#17171A] px-[32px] py-[20px]">
+	<div class="container mx-auto">
+		<div class="flex justify-center flex-wrap gap-[32px]">
+    {stats.map((item) =>
+			<div class="flex flex-col items-center gap-[12px] min-w-[200px]">
+				<span class="font=['Inter'] font-semibold text-6xl text-white stats-count" data-stats-count={item.count}/>
+				<span class="font=['Inter'] font-normal text-lg text-[#ADB0B8]">{item.type}</span>
+			</div>
+		)}
+		</div>
+	</div>
+</div>
+
+<script is:inline type="module" lang="ts">
+  const numberFormatter = new Intl.NumberFormat(navigator.language, { notation: 'compact' });
+  const spans = document.querySelectorAll('[data-stats-count]');
+  spans.forEach((s) => {
+		// @ts-ignore
+    s.innerText = numberFormatter.format(Number(s.dataset['statsCount'] ?? 0));
+  });
+</script>

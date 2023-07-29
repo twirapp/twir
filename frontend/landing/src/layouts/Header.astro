@@ -1,20 +1,30 @@
 ---
 import Logo from '../assets/TwirInCircle.svg';
-
-interface Props {
-    title: string;
-}
-
-const { title } = Astro.props;
-
-const description = 'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.';
+import Profile from '../components/profile.jsx';
 ---
-
-<div class="flex justify-between items-center px-20">
-	<div class="flex items-center gap-4">
-		<img src={Logo} width="40" height="40"/>
-		<span>TWIR</span>
+<section id="header">
+	<div class="container mx-auto">
+		<div class="flex justify-between items-center border-b border-gray-400 py-[12px] px-[32px]">
+			<div class="flex items-center gap-[12px]">
+				<img src={Logo} width="35" height="35"/>
+				<span class="font-['Golos_Text'] text-2xl font-semibold text-white">TWIR</span>
+			</div>
+			<div class="flex gap-[32px]">
+				<a href="#" class="font-['Inter'] text-[#ADB0B8] font-semibold font-sm">Features</a>
+				<a href="#" class="font-['Inter'] text-[#ADB0B8] font-semibold font-sm">Features</a>
+				<a href="#" class="font-['Inter'] text-[#ADB0B8] font-semibold font-sm">Features</a>
+				<a href="#" class="font-['Inter'] text-[#ADB0B8] font-semibold font-sm">Features</a>
+			</div>
+			<div>
+				<Profile client:only="preact" />
+			</div>
+		</div>
 	</div>
-	<div>second</div>
-	<div>third</div>
-</div>
+</section>
+
+<style>
+	#header {
+		background: linear-gradient(45deg, #1F84FC 0%, #844BFF 100%);
+		filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+	}
+</style>

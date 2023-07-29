@@ -6,7 +6,8 @@ import { bool, cleanEnv, str } from 'envalid';
 try {
   dotenv.config({ path: resolve(process.cwd(), '../../.env') });
   // eslint-disable-next-line no-empty
-} catch {}
+} catch {
+}
 
 export const config = cleanEnv(process.env, {
   DATABASE_URL: str({
@@ -21,7 +22,7 @@ export const config = cleanEnv(process.env, {
   JWT_REFRESH_SECRET: str({ default: 'Cool`SecretForRefresh' }),
   REDIS_URL: str({ default: 'redis://localhost:6379/0' }),
   SAY_IN_CHAT: bool({ default: true }),
-  HOSTNAME: str({ default: '' }),
+  HOSTNAME: str({ default: 'localhost:3005' }),
   STEAM_USERNAME: str({ default: '' }),
   STEAM_PASSWORD: str({ default: '' }),
   STEAM_API_KEY: str({ default: '' }),

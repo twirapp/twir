@@ -1,12 +1,11 @@
 import node from '@astrojs/node';
+import preact from '@astrojs/preact';
 import tailwind from '@astrojs/tailwind';
-import * as config from '@twir/config';
+import { config } from '@twir/config';
 import { defineConfig } from 'astro/config';
 
-console.log(config);
-// process.env.HOST = config.HOSTNAME ?? 'localhost:3005';
-
-import.meta.env.HOST = config.HOSTNAME ?? 'localhost:3005';
+// eslint-disable-next-line no-undef
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 // https://astro.build/config
 export default defineConfig({
@@ -17,44 +16,24 @@ export default defineConfig({
 		tailwind({
 			applyBaseStyles: false,
 		}),
+		preact({ compat: true }),
 	],
 	vite: {
 		ssr: {
 			noExternal: true,
 		},
+		clearScreen: false,
+		define: {
+			'import.meta.env.HOST': JSON.stringify(config.HOSTNAME || 'localhost:3005'),
+		},
 	},
 	server: {
 		port: 3005,
 		host: true,
-		proxy: {
-			'/api': {
-				target: 'http://127.0.0.1:3002',
-				changeOrigin: true,
-				rewrite: (path) => path.replace(/^\/api/, ''),
-				ws: true,
-			},
-			'/dashboard': {
-				target: 'http://127.0.0.1:3006',
-				changeOrigin: true,
-				ws: true,
-			},
-			'/socket': {
-				target: 'http://127.0.0.1:3004',
-				changeOrigin: true,
-				ws: true,
-				rewrite: (path) => path.replace(/^\/socket/, ''),
-			},
-			'/p': {
-				target: 'http://127.0.0.1:3007',
-				changeOrigin: true,
-				ws: true,
-				// rewrite: (path) => path.replace(/^\/p/, ''),
-			},
-			'/overlays': {
-				target: 'http://127.0.0.1:3008',
-				changeOrigin: true,
-				ws: true,
-			},
-		},
 	},
 });
+
+process
+	.on('uncaughtException', console.error)
+	.on('unhandledRejection', console.error);
+

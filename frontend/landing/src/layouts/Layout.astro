@@ -1,7 +1,8 @@
 ---
+import { GoogleFontsOptimizer } from 'astro-google-fonts-optimizer';
 import Header from './Header.astro';
 interface Props {
-    title: string;
+	title: string;
 }
 
 const { title } = Astro.props;
@@ -25,6 +26,11 @@ const description = 'Powerful and useful Twitch bot that helps manage chat on bi
 	<meta property="og:description" content={description}/>
 	<meta property="og:image" content=""/>
 	<title>{title}</title>
+
+	<GoogleFontsOptimizer
+		url="https://fonts.googleapis.com/css2?family=Golos+Text:wght@200;400;500;600;700&display=swap"
+	/>
+	<GoogleFontsOptimizer url="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500;600;700&display=swap"/>
 </head>
 <body>
 <Header/>
@@ -33,7 +39,7 @@ const description = 'Powerful and useful Twitch bot that helps manage chat on bi
 </html>
 
 <style is:global>
-    @tailwind base;
-    @tailwind components;
-    @tailwind utilities;
+	@tailwind base;
+	@tailwind components;
+	@tailwind utilities;
 </style>
