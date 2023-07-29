@@ -41,7 +41,7 @@ onMounted(() => {
 			</template>
 			<template v-else>
 				<img :src="profile.avatar" class="rounded-full" width="30" height="30" />
-				{profile.displayName}
+				{{ profile.displayName }}
 			</template>
 		</template>
 	</a>
