@@ -1,6 +1,6 @@
 ---
 import Logo from '../assets/TwirInCircle.svg';
-import Profile from '../components/profile.jsx';
+import Profile from '../components/profile.vue';
 ---
 <section id="header">
 	<div class="container mx-auto">
@@ -16,7 +16,7 @@ import Profile from '../components/profile.jsx';
 				<a href="#" class="font-['Inter'] text-[#ADB0B8] font-semibold font-sm">Features</a>
 			</div>
 			<div>
-				<Profile client:only="preact" />
+				<Profile client:only="vue" />
 			</div>
 		</div>
 	</div>

@@ -1,6 +1,6 @@
 import node from '@astrojs/node';
-import preact from '@astrojs/preact';
 import tailwind from '@astrojs/tailwind';
+import vue from '@astrojs/vue';
 import { config } from '@twir/config';
 import { defineConfig } from 'astro/config';
 
@@ -16,12 +16,12 @@ export default defineConfig({
 		tailwind({
 			applyBaseStyles: false,
 		}),
-		preact({ compat: true }),
+		vue(),
 	],
 	vite: {
-		ssr: {
-			noExternal: true,
-		},
+		// ssr: {
+		// 	noExternal: true,
+		// },
 		clearScreen: false,
 		define: {
 			'import.meta.env.HOST': JSON.stringify(config.HOSTNAME || 'localhost:3005'),
