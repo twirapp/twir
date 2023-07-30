@@ -3,6 +3,7 @@ import tailwind from '@astrojs/tailwind';
 import vue from '@astrojs/vue';
 import { config } from '@twir/config';
 import { defineConfig } from 'astro/config';
+import svg from 'vite-svg-loader';
 
 // eslint-disable-next-line no-undef
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -22,6 +23,7 @@ export default defineConfig({
 		// ssr: {
 		// 	noExternal: true,
 		// },
+		plugins: [svg()],
 		clearScreen: false,
 		define: {
 			'import.meta.env.HOST': JSON.stringify(config.HOSTNAME || 'localhost:3005'),
@@ -33,7 +35,4 @@ export default defineConfig({
 	},
 });
 
-process
-	.on('uncaughtException', console.error)
-	.on('unhandledRejection', console.error);
-
+process.on('uncaughtException', console.error).on('unhandledRejection', console.error);
