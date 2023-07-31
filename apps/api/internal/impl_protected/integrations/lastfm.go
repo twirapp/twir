@@ -98,6 +98,7 @@ func (c *Integrations) IntegrationsLastFMLogout(ctx context.Context, _ *emptypb.
 
 	integration.Data = &model.ChannelsIntegrationsData{}
 	integration.APIKey = null.String{}
+	integration.Enabled = false
 
 	if err = c.Db.WithContext(ctx).Save(&integration).Error; err != nil {
 		return nil, err

@@ -124,6 +124,7 @@ func (c *Integrations) IntegrationsFaceitPostCode(
 
 	integrationData.Avatar = lo.ToPtr(profileResult["avatar"].(string))
 	integration.Data = &integrationData
+	integration.Enabled = true
 
 	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {
 		return nil, err
@@ -144,6 +145,7 @@ func (c *Integrations) IntegrationsFaceitLogout(ctx context.Context, empty *empt
 	integration.Data = &model.ChannelsIntegrationsData{}
 	integration.AccessToken = null.String{}
 	integration.RefreshToken = null.String{}
+	integration.Enabled = false
 
 	if err = c.Db.WithContext(ctx).Save(&integration).Error; err != nil {
 		return nil, err

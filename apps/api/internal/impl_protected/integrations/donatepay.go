@@ -35,6 +35,7 @@ func (c *Integrations) IntegrationsDonatepayPut(
 	}
 
 	integration.APIKey = null.StringFrom(request.ApiKey)
+	integration.Enabled = true
 	if err = c.Db.WithContext(ctx).Save(&integration).Error; err != nil {
 		return nil, err
 	}

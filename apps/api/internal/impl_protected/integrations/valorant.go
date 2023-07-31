@@ -33,6 +33,7 @@ func (c *Integrations) IntegrationsValorantUpdate(
 	}
 
 	integration.Data.UserName = &request.UserName
+	integration.Enabled = *integration.Data.UserName != ""
 	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {
 		return nil, err
 	}
