@@ -7,6 +7,7 @@ import StreamElements from '../../assets/integrations/streamelements.svg'
 import Streamlabs from '../../assets/integrations/streamlabs.svg'
 import Twitch from '../../assets/integrations/twitch.svg'
 import Vk from '../../assets/integrations/vk.svg'
+import Cube from '../../assets/cube.svg'
 
 const integrations = [
 	{ icon: DonationAlerts },
@@ -22,10 +23,11 @@ const integrations = [
 
 <div class="bg-[#17171A]">
 	<div class="container mx-auto">
-		<div class="px-[32px] pt-[140px] pb-[100px]">
+		<div class="px-[32px] pb-[100px]">
 			<div class="flex flex-col flex-wrap items-center text-center gap-[20px]">
-				<span class="font=['Inter'] text-4xl text-white font-bold">Bot has a built-in API for the most necessary apps</span>
-				<span class="font=['Inter'] text-xl text-[#ADB0B8] font-normal">Powerful, self-serve product and growth analytics to help you convert, engage, and retain more users. Trusted by over 4,000 startups.</span>
+				<img src={Cube} style="position: relative; bottom: -110px" />
+				<span class="text-4xl text-white font-bold">Bot has a built-in API for the most necessary apps</span>
+				<span class="text-xl text-[#ADB0B8] font-normal">Powerful, self-serve product and growth analytics to help you convert, engage, and retain more users. Trusted by over 4,000 startups.</span>
 			</div>
 			<div class="flex flex-wrap justify-center mt-[64px] gap-[32px]">
 				{integrations.map((i) => <img src={i.icon} style="width: 70px; height: 70px" />)}

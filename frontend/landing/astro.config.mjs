@@ -23,7 +23,7 @@ export default defineConfig({
 		// ssr: {
 		// 	noExternal: true,
 		// },
-		plugins: [svg()],
+		plugins: [svg({ defaultImport: 'url' })],
 		clearScreen: false,
 		define: {
 			'import.meta.env.HOST': JSON.stringify(config.HOSTNAME || 'localhost:3005'),

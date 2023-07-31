@@ -2,7 +2,6 @@
 import CommandsSvg from '../../assets/features/commands.svg'
 import TimersSvg from '../../assets/features/timers.svg'
 import GreetingsSvg from '../../assets/features/greetings.svg'
-import FeaturesBg from '../../assets/bg-image-15.svg'
 
 const features = [
 	{
@@ -41,17 +40,17 @@ const features = [
 <div class="features">
 	<div class="container mx-auto flex flex-col items-center p-[80px]">
 		<div class="flex flex-col items-center gap-[20px]">
-			<span class="font-['Inter'] font-semibold text-[#B0ADFF] text-base uppercase">Features</span>
-			<span class="font-['Inter'] font-semibold text-white text-4xl">Analytics that feels like it’s from the future</span>
-			<span class="font-['Inter'] font-semibold text-[#ADB0B8] text-xl">Powerful, self-serve product and growth analytics to help you convert, engage, and retain more users. Trusted by over 4,000 startups.</span>
+			<span class=" font-semibold text-[#B0ADFF] text-base uppercase">Features</span>
+			<span class=" font-semibold text-white text-4xl">Analytics that feels like it’s from the future</span>
+			<span class=" font-semibold text-[#ADB0B8] text-xl">Powerful, self-serve product and growth analytics to help you convert, engage, and retain more users. Trusted by over 4,000 startups.</span>
 		</div>
 		<div class="mt-[64px] grid grid-cols-2 md:grid-cols-3 gap-x-[32px] gap-y-[64px]">
 			{features.map((f) => <div class="flex flex-col items-center text-center gap-[8px]">
 				<div style="display: flex; padding: 10px; border-radius: 58px;border: 10px solid rgba(177, 174, 255, 0.12); background: rgba(177, 174, 255, 0.05);">
 					<img src={f.icon} />
 				</div>
-				<span class="font-['Inter'] text-xl text-white font-semibold">{f.title}</span>
-				<span class="font-['Inter'] text-base text-[#ADB0B8] font-normal">{f.description}</span>
+				<span class=" text-xl text-white font-semibold">{f.title}</span>
+				<span class=" text-base text-[#ADB0B8] font-normal">{f.description}</span>
 			</div>)}
 		</div>
 	</div>

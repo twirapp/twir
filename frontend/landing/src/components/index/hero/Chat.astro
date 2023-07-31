@@ -1,72 +1,72 @@
 ---
 import Logo from '../../../assets/TwirInCircle.svg';
 import DialogTail from '../../../assets/dialog-tail.svg';
-import DialogAvatar from '../../../assets/dialog-avatar.svg';
+import DialogAvatar from '../../../assets/dialog-avatar.png';
 
 const messages = [
-  {
-    type: 'redemption',
-    title: '<b>melkam</b> Получает награду: Таймаут неугодного чаттерса(1000 🪙)',
-    input: 'Satont',
-  },
-  {
-    sender: 'bot',
-    message: 'melkam выключил(а) чат для Satont на 5 минут',
-    type: 'message',
-  },
-  {
-    sender: 'user',
-    message: '!skip',
-    type: 'message',
-  },
-  {
-    sender: 'bot',
-    message: 'Song skipped, now playing “Mother Mother — Arms Tonite”',
-    type: 'message',
-  },
-  {
-    sender: 'user',
-    message: '!song',
-    type: 'message',
-  },
-  {
-    sender: 'bot',
-    message: 'Linkin Park — Numb',
-    type: 'message',
-  },
-  {
-    sender: 'user',
-    message: '!title Playling League of Legends with my friend',
-    type: 'message',
-  },
-  {
-    sender: 'bot',
-    message: '✅ Title succesfully changed.',
-    type: 'message',
-  },
+	{
+		type: 'redemption',
+		title: '<b>melkam</b> Получает награду: Таймаут неугодного чаттерса(1000 🪙)',
+		input: 'Satont',
+	},
+	{
+		sender: 'bot',
+		message: 'melkam выключил(а) чат для Satont на 5 минут',
+		type: 'message',
+	},
+	{
+		sender: 'user',
+		message: '!skip',
+		type: 'message',
+	},
+	{
+		sender: 'bot',
+		message: 'Song skipped, now playing “Mother Mother — Arms Tonite”',
+		type: 'message',
+	},
+	{
+		sender: 'user',
+		message: '!song',
+		type: 'message',
+	},
+	{
+		sender: 'bot',
+		message: 'Linkin Park — Numb',
+		type: 'message',
+	},
+	{
+		sender: 'user',
+		message: '!title Playling League of Legends with my friend',
+		type: 'message',
+	},
+	{
+		sender: 'bot',
+		message: '✅ Title succesfully changed.',
+		type: 'message',
+	},
 ];
 ---
 
 <div class="flex flex-col h-[540px] justify-end gap-[12px]">
-  {messages.map((item) => (
-			<div class="flex items-end gap-[16px]">
-     {item.sender === 'bot' && <img src={Logo} width="32" height="32"/>}
-     {item.sender === 'user' && <img src={DialogAvatar} width="32" height="32"/>}
-				<div class="w-full">
-      {item.type === 'message' &&
-							<div
-								class:list={['flex flex-col px-[16px] py-[10px] rounded-lg rounded-bl-none font-[\'Inter\'] text-white', {
-          'bg-[#534FDB]': item.sender === 'bot',
-          'bg-[#232427]': item.sender === 'user',
-        }]}
-							>
-         {item.message}
-							</div>
-      }
-      {item.type === 'redemption' &&
-							<div
-								class="
-						font-['Inter']
+	{messages.map((item) => (
+		<div class="flex items-end gap-[16px]">
+			{item.sender === 'bot' &&
+				<img src={Logo} class="h-8 w-8"/>}
+			{item.sender === 'user' && <img src={DialogAvatar} class="h-8 w-8"/>}
+			<div class="w-full">
+				{item.type === 'message' &&
+					<div
+						class:list={['flex flex-col px-[16px] py-[10px] rounded-lg rounded-bl-none text-white', {
+							'bg-[#534FDB]': item.sender === 'bot',
+							'bg-[#232427]': item.sender === 'user',
+						}]}
+					>
+						{item.message}
+					</div>
+				}
+				{item.type === 'redemption' &&
+					<div
+						class="
 						font-normal
 						text-white
 						flex
@@ -74,17 +74,17 @@ const messages = [
 						rounded-lg
 						rounded-l-none
 						border-l-4
-						border-l-[#4C47F5]
+						border-l-[#a748bb]
 						py-[12px]
 						px-[16px]
 						bg-[#534FDB]
 						gap-[12px]
 						"
-							>
-								<span class="text-xs" set:html={item.title}/>
-								<span class="text-sm">{item.input}</span>
-							</div>}
-				</div>
+					>
+						<span class="text-xs" set:html={item.title}/>
+						<span class="text-sm">{item.input}</span>
+					</div>}
 			</div>
-  ))}
+		</div>
+	))}
 </div>
