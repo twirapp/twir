@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { type MenuOption, NAvatar, NInput, NMenu, NSpin } from 'naive-ui';
-import { computed, h, ref, shallowRef, watch } from 'vue';
+import { computed, h, ref, watch } from 'vue';
 
 import { useDashboards, useProfile, useSetDashboard, useTwitchGetUsers } from '@/api/index.js';
 
@@ -45,12 +45,8 @@ watch(activeDashboard, async (v) => {
 
 const filterValue = ref('');
 
-const menuOptions = shallowRef<MenuOption[]>([]);
-
-watch(usersForSelect.data, (data) => {
-	if (!data?.users.length) return;
-
-	menuOptions.value = usersForSelect.data.value?.users
+const menuOptions = computed<MenuOption[]>(() => {
+	return usersForSelect.data.value?.users
 		.filter(u => {
 			return u.displayName.includes(filterValue.value) || u.login.includes(filterValue.value);
 		})
@@ -63,7 +59,7 @@ watch(usersForSelect.data, (data) => {
 				icon: () => h(NAvatar, { src: u.profileImageUrl, round: true, size: 'small' }),
 			};
 		}) ?? [];
-}, { immediate: true });
+});
 
 </script>
 
