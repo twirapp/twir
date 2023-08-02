@@ -49,7 +49,7 @@ export class DonationAlerts {
 			const event = await db.insert({
 				id: randomUUID(),
 				channelId: this.twitchUserId,
-			}).into('channels_events_list').returning('*');
+			}).into('channel_events_list').returning('*');
 
 			await db.insert({
 				id: randomUUID(),
@@ -59,7 +59,7 @@ export class DonationAlerts {
 				toUserId: this.twitchUserId,
 				message: data.message,
 				username: data.username,
-			}).into('channels_events_donations');
+			}).into('channel_events_donations');
 
 			const msg = !data.message || data.message === 'null' ? '' : data.message;
 

@@ -28,7 +28,7 @@ export class StreamLabs {
 		const event = await db.insert({
 			id: randomUUID(),
 			channelId: this.twitchUserId,
-		}).into('channels_events_list').returning('*');
+		}).into('channel_events_list').returning('*');
 
 		await db.insert({
 			id: randomUUID(),
@@ -38,7 +38,7 @@ export class StreamLabs {
 			toUserId: this.twitchUserId,
 			message: data.message,
 			username: data.from,
-		}).into('channels_events_donations');
+		}).into('channel_events_donations');
 
 		eventsGrpcClient.donate({
 			amount: data.amount.toString(),
