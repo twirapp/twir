@@ -1,6 +1,7 @@
 package grpc_impl
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -108,7 +109,7 @@ func (c *EventsGrpcImplementation) processOperations(channelId string, event mod
 		c.services.Logger.Sugar().Error(err)
 		return
 	}
-
+	fmt.Println("on", event.OnlineOnly)
 	// won't process stream if event setted to online only streams and stream is offline
 	if event.OnlineOnly {
 		stream := &model.ChannelsStreams{}
@@ -147,6 +148,8 @@ operationsLoop:
 		if !operation.Enabled {
 			continue
 		}
+
+		operation.Repeat++
 
 		allFiltersOk := c.processFilters(processor, operation.Filters, data)
 		if !allFiltersOk {
