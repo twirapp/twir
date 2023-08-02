@@ -1,8 +1,8 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { IconGripVertical } from '@tabler/icons-vue';
 import { useIntervalFn, useLocalStorage } from '@vueuse/core';
 import { intervalToDuration } from 'date-fns';
-import { NCard, NSpace, NSkeleton } from 'naive-ui';
+import { NCard, NSkeleton, NSpace } from 'naive-ui';
 import { computed, onBeforeUnmount, ref, watchEffect } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next';
 
@@ -67,14 +67,14 @@ watchEffect(() => {
 
 <template>
 	<div style="margin:5px">
-		<div style="display: flex; flex-wrap: wrap; width: 100%; gap: 5px;">
-			<n-card style="flex:1 1 400px" :bordered="false" embedded content-style="padding: 5px;">
+		<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px;">
+			<n-card style="flex: 1 1 200px;" :bordered="false" embedded content-style="padding: 5px;">
 				<span style="font-size:15px">
 					{{ stats?.title || 'Offline' }}
 				</span>
 			</n-card>
 
-			<n-card style="flex:1 1 400px" :bordered="false" embedded content-style="padding: 5px;">
+			<n-card style="flex: 1 1 200px;" :bordered="false" embedded content-style="padding: 5px;">
 				<span style="font-size:15px">
 					{{ stats?.categoryName || 'Offline' }}
 				</span>
@@ -82,7 +82,10 @@ watchEffect(() => {
 		</div>
 
 		<Transition mode="out-in" appear>
-			<div v-if="!Object.keys(statsItems).length" style="display: flex; flex-wrap: wrap; width: 100%; gap: 5px; margin-top: 5px">
+			<div
+				v-if="!Object.keys(statsItems).length"
+				style="display: flex; flex-wrap: wrap; width: 100%; gap: 5px; margin-top: 5px"
+			>
 				<n-skeleton
 					v-for="i of 6"
 					:key="i"
@@ -143,10 +146,10 @@ watchEffect(() => {
 <style scoped>
 .v-enter-active,
 .v-leave-active {
-  transition: opacity 0.1s ease-in-out;
+	transition: opacity 0.1s ease-in-out;
 }
 
 .v-enter-from,
 .v-leave-to {
-  opacity: 0;
+	opacity: 0;
 }</style>
