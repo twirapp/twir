@@ -63,7 +63,7 @@ export class DonatePay {
 			const event = await db.insert({
 				id: randomUUID(),
 				channelId: this.twitchUserId,
-			}).into('channel_event').returning('*');
+			}).into('channels_events_list').returning('*');
 
 			await db.insert({
 				id: randomUUID(),
@@ -73,7 +73,7 @@ export class DonatePay {
 				toUserId: this.twitchUserId,
 				message: vars.comment,
 				username: vars.name,
-			});
+			}).into('channels_events_donations');
 
 			const msg = vars.comment || '';
 
