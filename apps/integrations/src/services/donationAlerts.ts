@@ -49,6 +49,7 @@ export class DonationAlerts {
 			const event = await db.insert({
 				id: randomUUID(),
 				channelId: this.twitchUserId,
+				type: 'donation',
 			}).into('channel_events_list').returning('*');
 
 			await db.insert({
