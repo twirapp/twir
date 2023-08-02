@@ -16,7 +16,7 @@ const streamUrl = computed(() => {
 
 	const user = selectedDashboardTwitchUser.data.value.users.at(0)!;
 
-	const url = `https://player.twitch.tv/?${user.login}&parent=${window.location.host}`;
+	const url = `https://player.twitch.tv/?channel=${user.login}&parent=${window.location.host}`;
 
 	return url;
 });
