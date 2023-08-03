@@ -2,13 +2,18 @@
 import { IconGripVertical } from '@tabler/icons-vue';
 import { useIntervalFn, useLocalStorage } from '@vueuse/core';
 import { intervalToDuration } from 'date-fns';
-import { NCard, NSkeleton, NSpace } from 'naive-ui';
+import {
+	NCard,
+	NSkeleton,
+	NSpace,
+} from 'naive-ui';
 import { computed, onBeforeUnmount, ref, watchEffect } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next';
 
+import ChannelInfo from './statsChannelInfo.vue';
+
 import { useDashboardStats } from '@/api/index.js';
 import { padTo2Digits } from '@/helpers/convertMillisToTime.js';
-
 
 const { data: stats, refetch } = useDashboardStats();
 
@@ -67,19 +72,7 @@ watchEffect(() => {
 
 <template>
 	<div style="margin:5px">
-		<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px;">
-			<n-card style="flex: 1 1 200px;" :bordered="false" embedded content-style="padding: 5px;">
-				<span style="font-size:15px">
-					{{ stats?.title || 'Offline' }}
-				</span>
-			</n-card>
-
-			<n-card style="flex: 1 1 200px;" :bordered="false" embedded content-style="padding: 5px;">
-				<span style="font-size:15px">
-					{{ stats?.categoryName || 'Offline' }}
-				</span>
-			</n-card>
-		</div>
+		<ChannelInfo :category-id="stats?.categoryId" :title="stats?.title" :category-name="stats?.categoryName" />
 
 		<Transition mode="out-in" appear>
 			<div
@@ -129,19 +122,6 @@ watchEffect(() => {
 		</Transition>
 	</div>
 </template>
-
-<!-- <style scoped>
-.v-enter-active,
-.v-leave-active {
-	transition: all 1s cubic-bezier(0, 0, 0.2, 1);
-}
-
-.v-enter-from,
-.v-leave-to {
-	opacity: 0;
-	transform: scale(0.98);
-}
-</style> -->
 
 <style scoped>
 .v-enter-active,

@@ -35,6 +35,7 @@ import "api/rewards.proto";
 import "api/built_in_variables.proto";
 
 import "api/dashboard_stats.proto";
+import "api/twitch_protected.proto";
 
 service Protected {
 	rpc AuthUserProfile(google.protobuf.Empty) returns (api.auth.Profile) {}
@@ -158,6 +159,12 @@ service Protected {
 	rpc CommandsGroupUpdate(api.commands_group.PutRequest) returns (api.commands_group.Group) {}
 
 	rpc GetDashboardStats(google.protobuf.Empty) returns (api.dashboard_stats.DashboardStatsResponse) {}
+
+	rpc TwitchSearchCategories(api.twitch_protected.SearchCategoriesRequest)
+		returns (api.twitch_protected.SearchCategoriesResponse
+		) {}
+	rpc TwitchSetChannelInformation(api.twitch_protected.SetChannelInformationRequest)
+		returns (google.protobuf.Empty) {}
 }
 
 // UnProtected

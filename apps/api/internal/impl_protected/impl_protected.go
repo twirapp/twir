@@ -19,6 +19,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/rewards"
 	"github.com/satont/twir/apps/api/internal/impl_protected/roles"
 	"github.com/satont/twir/apps/api/internal/impl_protected/timers"
+	"github.com/satont/twir/apps/api/internal/impl_protected/twitch"
 	"github.com/satont/twir/apps/api/internal/impl_protected/variables"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/bots"
@@ -49,6 +50,7 @@ type Protected struct {
 	*commands_group.CommandsGroup
 	*build_in_variables.BuildInVariables
 	*dashboard_stats.DashboardStats
+	*twitch.Twitch
 }
 
 type Opts struct {
@@ -102,5 +104,6 @@ func New(opts Opts) *Protected {
 		CommandsGroup:    &commands_group.CommandsGroup{Deps: d},
 		BuildInVariables: &build_in_variables.BuildInVariables{Deps: d},
 		DashboardStats:   &dashboard_stats.DashboardStats{Deps: d},
+		Twitch:           &twitch.Twitch{Deps: d},
 	}
 }

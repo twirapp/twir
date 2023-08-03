@@ -9,7 +9,9 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/dashboard_stats"
 	"github.com/satont/twir/libs/twitch"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"sync"
 )
 
 type DashboardStats struct {
@@ -32,17 +34,48 @@ func (c *DashboardStats) GetDashboardStats(
 		return nil, fmt.Errorf("failed to create twitch client: %w", err)
 	}
 
-	followsReq, err := twitchClient.GetChannelFollows(
-		&helix.GetChannelFollowsParams{
-			BroadcasterID: dashboardId,
-		},
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get channel follows: %w", err)
-	}
-	if followsReq.ErrorMessage != "" {
-		return nil, fmt.Errorf("failed to get channel follows: %s", followsReq.ErrorMessage)
-	}
+	startedAt := fmt.Sprint(stream.StartedAt.UnixMilli())
+	var channelCategoryId string
+	var channelCategoryName string
+	var channelTitle string
+	var followersCount uint32
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		followsReq, err := twitchClient.GetChannelFollows(
+			&helix.GetChannelFollowsParams{
+				BroadcasterID: dashboardId,
+			},
+		)
+		if err != nil {
+			zap.S().Error(err)
+		} else if followsReq.ErrorMessage != "" {
+			zap.S().Error(followsReq.ErrorMessage)
+		} else {
+			followersCount = uint32(followsReq.Data.Total)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		infoReq, err := twitchClient.GetChannelInformation(
+			&helix.GetChannelInformationParams{
+				BroadcasterIDs: []string{dashboardId},
+			},
+		)
+		if err != nil {
+			zap.S().Error(err)
+		} else if infoReq.ErrorMessage != "" {
+			zap.S().Error(infoReq.ErrorMessage)
+		} else if len(infoReq.Data.Channels) > 0 {
+			channelCategoryId = infoReq.Data.Channels[0].GameID
+			channelTitle = infoReq.Data.Channels[0].Title
+			channelCategoryName = infoReq.Data.Channels[0].GameName
+		}
+	}()
 
 	var usedEmotes int64
 	if err := c.Db.
@@ -62,16 +95,16 @@ func (c *DashboardStats) GetDashboardStats(
 		return nil, fmt.Errorf("failed to get requested songs: %w", err)
 	}
 
-	startedAt := fmt.Sprint(stream.StartedAt.UnixMilli())
+	wg.Wait()
 
 	return &dashboard_stats.DashboardStatsResponse{
-		CategoryId:     stream.GameId,
-		CategoryName:   stream.GameName,
+		CategoryId:     channelCategoryId,
+		CategoryName:   channelCategoryName,
 		Viewers:        uint32(stream.ViewerCount),
 		StartedAt:      lo.If[*string](stream.ID == "", nil).Else(&startedAt),
-		Title:          stream.Title,
+		Title:          channelTitle,
 		ChatMessages:   uint32(stream.ParsedMessages),
-		Followers:      uint32(followsReq.Data.Total),
+		Followers:      followersCount,
 		UsedEmotes:     uint32(usedEmotes),
 		RequestedSongs: 0,
 	}, nil
