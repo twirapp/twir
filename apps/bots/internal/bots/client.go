@@ -3,6 +3,7 @@ package bots
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"sync"
 	"time"
 
@@ -200,6 +201,15 @@ func newBot(opts *ClientOpts) *types.BotClient {
 					if message.TargetUserID != "" {
 						return
 					}
+					opts.DB.Create(
+						&model.ChannelsEventsListItem{
+							ID:        uuid.New().String(),
+							ChannelID: message.RoomID,
+							Type:      model.ChannelEventListItemTypeChatClear,
+							CreatedAt: time.Now().UTC(),
+							Data:      &model.ChannelsEventsListItemData{},
+						},
+					)
 					eventsGrpc.ChatClear(
 						context.Background(), &events.ChatClearMessage{
 							BaseInfo: &events.BaseInfo{ChannelId: message.RoomID},

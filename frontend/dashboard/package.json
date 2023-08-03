@@ -14,6 +14,7 @@
     "@tabler/icons-vue": "^2.24.0",
     "@tanstack/vue-query": "^4.24.10",
     "@twir/grpc": "workspace:^",
+    "@vueuse/components": "^10.2.1",
     "@vueuse/core": "^9.13.0",
     "date-fns": "^2.30.0",
     "draggable-resizable-vue3": "1.0.94-beta",

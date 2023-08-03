@@ -10,3 +10,11 @@ export const useDashboardStats = () => useQuery({
 		return call.response;
 	},
 });
+
+export const useDashboardEvents = () => useQuery({
+	queryKey: ['dashboardEvents'],
+	queryFn: async () => {
+		const call = await protectedApiClient.getDashboardEventsList({});
+		return call.response;
+	},
+});

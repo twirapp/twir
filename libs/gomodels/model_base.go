@@ -29,20 +29,6 @@ var (
 
 func init() {
 	tables = make(map[string]*TableInfo)
-
-	// tables["_prisma_migrations"] = _prisma_migrationsTableInfo
-	tables["channels_dota_accounts"] = channels_dota_accountsTableInfo
-	tables["channels_permits"] = channels_permitsTableInfo
-	tables["dota_game_modes"] = dota_game_modesTableInfo
-	tables["dota_heroes"] = dota_heroesTableInfo
-	tables["dota_matches"] = dota_matchesTableInfo
-	tables["dota_matches_cards"] = dota_matches_cardsTableInfo
-	tables["dota_matches_results"] = dota_matches_resultsTableInfo
-	tables["dota_medals"] = dota_medalsTableInfo
-	tables["notifications"] = notificationsTableInfo
-	tables["notifications_messages"] = notifications_messagesTableInfo
-	tables["users_files"] = users_filesTableInfo
-	tables["users_viewed_notifications"] = users_viewed_notificationsTableInfo
 }
 
 // String describe the action

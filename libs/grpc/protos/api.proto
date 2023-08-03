@@ -34,137 +34,138 @@ import "api/rewards.proto";
 
 import "api/built_in_variables.proto";
 
-import "api/dashboard_stats.proto";
+import "api/dashboard.proto";
 import "api/twitch_protected.proto";
 
 service Protected {
-	rpc AuthUserProfile(google.protobuf.Empty) returns (api.auth.Profile) {}
-	rpc AuthSetDashboard(api.auth.SetDashboard) returns (google.protobuf.Empty) {}
-	rpc AuthGetDashboards(google.protobuf.Empty) returns (api.auth.GetDashboardsResponse) {}
-	rpc AuthLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc AuthUserProfile(google.protobuf.Empty) returns (api.auth.Profile) {}
+  rpc AuthSetDashboard(api.auth.SetDashboard) returns (google.protobuf.Empty) {}
+  rpc AuthGetDashboards(google.protobuf.Empty) returns (api.auth.GetDashboardsResponse) {}
+  rpc AuthLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
-	rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
-	rpc BotJoinPart(api.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
+  rpc BotInfo(api.meta.BaseRequestMeta) returns (api.bots.BotInfo) {}
+  rpc BotJoinPart(api.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
 
-	rpc CommandsGetAll(google.protobuf.Empty) returns (api.commands.CommandsGetAllResponse) {}
-	rpc CommandsGetById(api.commands.GetByIdRequest) returns (api.commands.Command) {}
-	rpc CommandsCreate(api.commands.CreateRequest) returns (api.commands.Command) {}
-	rpc CommandsDelete(api.commands.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc CommandsUpdate(api.commands.PutRequest) returns (api.commands.Command) {}
-	rpc CommandsEnableOrDisable(api.commands.PatchRequest) returns (api.commands.Command) {}
+  rpc CommandsGetAll(google.protobuf.Empty) returns (api.commands.CommandsGetAllResponse) {}
+  rpc CommandsGetById(api.commands.GetByIdRequest) returns (api.commands.Command) {}
+  rpc CommandsCreate(api.commands.CreateRequest) returns (api.commands.Command) {}
+  rpc CommandsDelete(api.commands.DeleteRequest) returns (google.protobuf.Empty) {}
+  rpc CommandsUpdate(api.commands.PutRequest) returns (api.commands.Command) {}
+  rpc CommandsEnableOrDisable(api.commands.PatchRequest) returns (api.commands.Command) {}
 
-	rpc CommunityGetUsers(api.community.GetUsersRequest) returns (api.community.GetUsersResponse) {}
-	rpc CommunityResetStats(api.community.ResetStatsRequest) returns (google.protobuf.Empty) {}
+  rpc CommunityGetUsers(api.community.GetUsersRequest) returns (api.community.GetUsersResponse) {}
+  rpc CommunityResetStats(api.community.ResetStatsRequest) returns (google.protobuf.Empty) {}
 
-	rpc EventsGetAll(google.protobuf.Empty) returns (api.events.GetAllResponse) {}
-	rpc EventsGetById(api.events.GetByIdRequest) returns (api.events.Event) {}
-	rpc EventsCreate(api.events.CreateRequest) returns (api.events.Event) {}
-	rpc EventsDelete(api.events.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc EventsUpdate(api.events.PutRequest) returns (api.events.Event) {}
-	rpc EventsEnableOrDisable(api.events.PatchRequest) returns (api.events.Event) {}
+  rpc EventsGetAll(google.protobuf.Empty) returns (api.events.GetAllResponse) {}
+  rpc EventsGetById(api.events.GetByIdRequest) returns (api.events.Event) {}
+  rpc EventsCreate(api.events.CreateRequest) returns (api.events.Event) {}
+  rpc EventsDelete(api.events.DeleteRequest) returns (google.protobuf.Empty) {}
+  rpc EventsUpdate(api.events.PutRequest) returns (api.events.Event) {}
+  rpc EventsEnableOrDisable(api.events.PatchRequest) returns (api.events.Event) {}
 
-	rpc GreetingsGetAll(google.protobuf.Empty) returns (api.greetings.GetAllResponse) {}
-	rpc GreetingsGetById(api.greetings.GetByIdRequest) returns (api.greetings.Greeting) {}
-	rpc GreetingsCreate(api.greetings.CreateRequest) returns (api.greetings.Greeting) {}
-	rpc GreetingsDelete(api.greetings.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc GreetingsUpdate(api.greetings.PutRequest) returns (api.greetings.Greeting) {}
-	rpc GreetingsEnableOrDisable(api.greetings.PatchRequest) returns (api.greetings.Greeting) {}
+  rpc GreetingsGetAll(google.protobuf.Empty) returns (api.greetings.GetAllResponse) {}
+  rpc GreetingsGetById(api.greetings.GetByIdRequest) returns (api.greetings.Greeting) {}
+  rpc GreetingsCreate(api.greetings.CreateRequest) returns (api.greetings.Greeting) {}
+  rpc GreetingsDelete(api.greetings.DeleteRequest) returns (google.protobuf.Empty) {}
+  rpc GreetingsUpdate(api.greetings.PutRequest) returns (api.greetings.Greeting) {}
+  rpc GreetingsEnableOrDisable(api.greetings.PatchRequest) returns (api.greetings.Greeting) {}
 
-	rpc IntegrationsDonateStreamGet(google.protobuf.Empty) returns (api.integrations_donate_stream.DonateStreamResponse) {}
-	rpc IntegrationsDonateStreamPostSecret(api.integrations_donate_stream.DonateStreamPostSecretRequest) returns (google.protobuf.Empty) {}
+  rpc IntegrationsDonateStreamGet(google.protobuf.Empty) returns (api.integrations_donate_stream.DonateStreamResponse) {}
+  rpc IntegrationsDonateStreamPostSecret(api.integrations_donate_stream.DonateStreamPostSecretRequest) returns (google.protobuf.Empty) {}
 
-	rpc IntegrationsDonatelloGet(google.protobuf.Empty) returns (api.integrations_donatello.GetResponse) {}
+  rpc IntegrationsDonatelloGet(google.protobuf.Empty) returns (api.integrations_donatello.GetResponse) {}
 
-	rpc IntegrationsDonatepayGet(google.protobuf.Empty) returns (api.integrations_donatepay.GetResponse) {}
-	rpc IntegrationsDonatepayPut(api.integrations_donatepay.PostRequest) returns (google.protobuf.Empty) {}
+  rpc IntegrationsDonatepayGet(google.protobuf.Empty) returns (api.integrations_donatepay.GetResponse) {}
+  rpc IntegrationsDonatepayPut(api.integrations_donatepay.PostRequest) returns (google.protobuf.Empty) {}
 
-	rpc IntegrationsDonationAlertsGetAuthLink(google.protobuf.Empty) returns (api.integrations_donationalerts.GetAuthLink) {}
-	rpc IntegrationsDonationAlertsGetData(google.protobuf.Empty) returns (api.integrations_donationalerts.GetDataResponse) {}
-	rpc IntegrationsDonationAlertsPostCode(api.integrations_donationalerts.PostCodeRequest) returns (google.protobuf.Empty) {}
-	rpc IntegrationsDonationAlertsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc IntegrationsDonationAlertsGetAuthLink(google.protobuf.Empty) returns (api.integrations_donationalerts.GetAuthLink) {}
+  rpc IntegrationsDonationAlertsGetData(google.protobuf.Empty) returns (api.integrations_donationalerts.GetDataResponse) {}
+  rpc IntegrationsDonationAlertsPostCode(api.integrations_donationalerts.PostCodeRequest) returns (google.protobuf.Empty) {}
+  rpc IntegrationsDonationAlertsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
-	rpc IntegrationsFaceitGetAuthLink(google.protobuf.Empty) returns (api.integrations_faceit.GetAuthLink) {}
-	rpc IntegrationsFaceitGetData(google.protobuf.Empty) returns (api.integrations_faceit.GetDataResponse) {}
-	rpc IntegrationsFaceitPostCode(api.integrations_faceit.PostCodeRequest) returns (google.protobuf.Empty) {}
-	rpc IntegrationsFaceitLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc IntegrationsFaceitGetAuthLink(google.protobuf.Empty) returns (api.integrations_faceit.GetAuthLink) {}
+  rpc IntegrationsFaceitGetData(google.protobuf.Empty) returns (api.integrations_faceit.GetDataResponse) {}
+  rpc IntegrationsFaceitPostCode(api.integrations_faceit.PostCodeRequest) returns (google.protobuf.Empty) {}
+  rpc IntegrationsFaceitLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
-	rpc IntegrationsLastFMGetAuthLink(google.protobuf.Empty) returns (api.integrations_lastfm.GetAuthLink) {}
-	rpc IntegrationsLastFMGetData(google.protobuf.Empty) returns (api.integrations_lastfm.GetDataResponse) {}
-	rpc IntegrationsLastFMPostCode(api.integrations_lastfm.PostCodeRequest) returns (google.protobuf.Empty) {}
-	rpc IntegrationsLastFMLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc IntegrationsLastFMGetAuthLink(google.protobuf.Empty) returns (api.integrations_lastfm.GetAuthLink) {}
+  rpc IntegrationsLastFMGetData(google.protobuf.Empty) returns (api.integrations_lastfm.GetDataResponse) {}
+  rpc IntegrationsLastFMPostCode(api.integrations_lastfm.PostCodeRequest) returns (google.protobuf.Empty) {}
+  rpc IntegrationsLastFMLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
 
-	rpc IntegrationsSpotifyGetAuthLink(google.protobuf.Empty) returns (api.integrations_spotify.GetAuthLink) {}
-	rpc IntegrationsSpotifyGetData(google.protobuf.Empty) returns (api.integrations_spotify.GetDataResponse) {}
-	rpc IntegrationsSpotifyPostCode(api.integrations_spotify.PostCodeRequest) returns (google.protobuf.Empty) {}
-	rpc IntegrationsSpotifyLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc IntegrationsSpotifyGetAuthLink(google.protobuf.Empty) returns (api.integrations_spotify.GetAuthLink) {}
+  rpc IntegrationsSpotifyGetData(google.protobuf.Empty) returns (api.integrations_spotify.GetDataResponse) {}
+  rpc IntegrationsSpotifyPostCode(api.integrations_spotify.PostCodeRequest) returns (google.protobuf.Empty) {}
+  rpc IntegrationsSpotifyLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
-	rpc IntegrationsStreamlabsGetAuthLink(google.protobuf.Empty) returns (api.integrations_streamlabs.GetAuthLink) {}
-	rpc IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (api.integrations_streamlabs.GetDataResponse) {}
-	rpc IntegrationsStreamlabsPostCode(api.integrations_streamlabs.PostCodeRequest) returns (google.protobuf.Empty) {}
-	rpc IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc IntegrationsStreamlabsGetAuthLink(google.protobuf.Empty) returns (api.integrations_streamlabs.GetAuthLink) {}
+  rpc IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (api.integrations_streamlabs.GetDataResponse) {}
+  rpc IntegrationsStreamlabsPostCode(api.integrations_streamlabs.PostCodeRequest) returns (google.protobuf.Empty) {}
+  rpc IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
-	rpc IntegrationsVKGetAuthLink(google.protobuf.Empty) returns (api.integrations_vk.GetAuthLink) {}
-	rpc IntegrationsVKGetData(google.protobuf.Empty) returns (api.integrations_vk.GetDataResponse) {}
-	rpc IntegrationsVKPostCode(api.integrations_vk.PostCodeRequest) returns (google.protobuf.Empty) {}
-	rpc IntegrationsVKLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc IntegrationsVKGetAuthLink(google.protobuf.Empty) returns (api.integrations_vk.GetAuthLink) {}
+  rpc IntegrationsVKGetData(google.protobuf.Empty) returns (api.integrations_vk.GetDataResponse) {}
+  rpc IntegrationsVKPostCode(api.integrations_vk.PostCodeRequest) returns (google.protobuf.Empty) {}
+  rpc IntegrationsVKLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
-	rpc IntegrationsValorantGet(google.protobuf.Empty) returns (api.integrations_valorant.GetResponse) {}
-	rpc IntegrationsValorantUpdate(api.integrations_valorant.PostRequest) returns (google.protobuf.Empty) {}
+  rpc IntegrationsValorantGet(google.protobuf.Empty) returns (api.integrations_valorant.GetResponse) {}
+  rpc IntegrationsValorantUpdate(api.integrations_valorant.PostRequest) returns (google.protobuf.Empty) {}
 
-	rpc KeywordsGetAll(google.protobuf.Empty) returns (api.keywords.GetAllResponse) {}
-	rpc KeywordsGetById(api.keywords.GetByIdRequest) returns (api.keywords.Keyword) {}
-	rpc KeywordsCreate(api.keywords.CreateRequest) returns (api.keywords.Keyword) {}
-	rpc KeywordsDelete(api.keywords.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc KeywordsUpdate(api.keywords.PutRequest) returns (api.keywords.Keyword) {}
-	rpc KeywordsEnableOrDisable(api.keywords.PatchRequest) returns (api.keywords.Keyword) {}
+  rpc KeywordsGetAll(google.protobuf.Empty) returns (api.keywords.GetAllResponse) {}
+  rpc KeywordsGetById(api.keywords.GetByIdRequest) returns (api.keywords.Keyword) {}
+  rpc KeywordsCreate(api.keywords.CreateRequest) returns (api.keywords.Keyword) {}
+  rpc KeywordsDelete(api.keywords.DeleteRequest) returns (google.protobuf.Empty) {}
+  rpc KeywordsUpdate(api.keywords.PutRequest) returns (api.keywords.Keyword) {}
+  rpc KeywordsEnableOrDisable(api.keywords.PatchRequest) returns (api.keywords.Keyword) {}
 
-	rpc ModulesOBSWebsocketGet(google.protobuf.Empty) returns (api.modules_obs_websocket.GetResponse) {}
-	rpc ModulesOBSWebsocketUpdate(api.modules_obs_websocket.PostRequest) returns (google.protobuf.Empty) {}
+  rpc ModulesOBSWebsocketGet(google.protobuf.Empty) returns (api.modules_obs_websocket.GetResponse) {}
+  rpc ModulesOBSWebsocketUpdate(api.modules_obs_websocket.PostRequest) returns (google.protobuf.Empty) {}
 
-	rpc ModulesTTSGet(google.protobuf.Empty) returns (api.modules_tts.GetResponse) {}
-	rpc ModulesTTSUpdate(api.modules_tts.PostRequest) returns (google.protobuf.Empty) {}
-	rpc ModulesTTSGetInfo(google.protobuf.Empty) returns (api.modules_tts.GetInfoResponse) {}
-	rpc ModulesTTSGetUsersSettings(google.protobuf.Empty) returns (api.modules_tts.GetUsersSettingsResponse) {}
-	rpc ModulesTTSUsersDelete(api.modules_tts.UsersDeleteRequest) returns (google.protobuf.Empty) {}
+  rpc ModulesTTSGet(google.protobuf.Empty) returns (api.modules_tts.GetResponse) {}
+  rpc ModulesTTSUpdate(api.modules_tts.PostRequest) returns (google.protobuf.Empty) {}
+  rpc ModulesTTSGetInfo(google.protobuf.Empty) returns (api.modules_tts.GetInfoResponse) {}
+  rpc ModulesTTSGetUsersSettings(google.protobuf.Empty) returns (api.modules_tts.GetUsersSettingsResponse) {}
+  rpc ModulesTTSUsersDelete(api.modules_tts.UsersDeleteRequest) returns (google.protobuf.Empty) {}
 
-	rpc ModulesSRGet(google.protobuf.Empty) returns (api.modules_sr.GetResponse) {}
-	rpc ModulesSRSearchVideosOrChannels(api.modules_sr.GetSearchRequest) returns (api.modules_sr.GetSearchResponse) {}
-	rpc ModulesSRUpdate(api.modules_sr.PostRequest) returns (google.protobuf.Empty) {}
+  rpc ModulesSRGet(google.protobuf.Empty) returns (api.modules_sr.GetResponse) {}
+  rpc ModulesSRSearchVideosOrChannels(api.modules_sr.GetSearchRequest) returns (api.modules_sr.GetSearchResponse) {}
+  rpc ModulesSRUpdate(api.modules_sr.PostRequest) returns (google.protobuf.Empty) {}
 
-	rpc RewardsGet(google.protobuf.Empty) returns (api.rewards.GetResponse) {}
+  rpc RewardsGet(google.protobuf.Empty) returns (api.rewards.GetResponse) {}
 
-	rpc RolesGetAll(google.protobuf.Empty) returns (api.roles.GetAllResponse) {}
-	rpc RolesUpdate(api.roles.UpdateRequest) returns (api.roles.Role) {}
-	rpc RolesDelete(api.roles.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc RolesCreate(api.roles.CreateRequest) returns (api.roles.Role) {}
+  rpc RolesGetAll(google.protobuf.Empty) returns (api.roles.GetAllResponse) {}
+  rpc RolesUpdate(api.roles.UpdateRequest) returns (api.roles.Role) {}
+  rpc RolesDelete(api.roles.DeleteRequest) returns (google.protobuf.Empty) {}
+  rpc RolesCreate(api.roles.CreateRequest) returns (api.roles.Role) {}
 
-	rpc TimersGetAll(google.protobuf.Empty) returns (api.timers.GetResponse) {}
-	rpc TimersUpdate(api.timers.UpdateRequest) returns (api.timers.Timer) {}
-	rpc TimersDelete(api.timers.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc TimersCreate(api.timers.CreateRequest) returns (api.timers.Timer) {}
-	rpc TimersEnableOrDisable(api.timers.PatchRequest) returns (api.timers.Timer) {}
+  rpc TimersGetAll(google.protobuf.Empty) returns (api.timers.GetResponse) {}
+  rpc TimersUpdate(api.timers.UpdateRequest) returns (api.timers.Timer) {}
+  rpc TimersDelete(api.timers.DeleteRequest) returns (google.protobuf.Empty) {}
+  rpc TimersCreate(api.timers.CreateRequest) returns (api.timers.Timer) {}
+  rpc TimersEnableOrDisable(api.timers.PatchRequest) returns (api.timers.Timer) {}
 
-	rpc VariablesGetAll(google.protobuf.Empty) returns (api.variables.GetAllResponse) {}
-	rpc VariablesGetById(api.variables.GetByIdRequest) returns (api.variables.Variable) {}
-	rpc VariablesCreate(api.variables.CreateRequest) returns (api.variables.Variable) {}
-	rpc VariablesDelete(api.variables.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc VariablesUpdate(api.variables.PutRequest) returns (api.variables.Variable) {}
+  rpc VariablesGetAll(google.protobuf.Empty) returns (api.variables.GetAllResponse) {}
+  rpc VariablesGetById(api.variables.GetByIdRequest) returns (api.variables.Variable) {}
+  rpc VariablesCreate(api.variables.CreateRequest) returns (api.variables.Variable) {}
+  rpc VariablesDelete(api.variables.DeleteRequest) returns (google.protobuf.Empty) {}
+  rpc VariablesUpdate(api.variables.PutRequest) returns (api.variables.Variable) {}
 
-	rpc BuiltInVariablesGetAll(google.protobuf.Empty) returns (api.built_in_variables.GetAllResponse) {}
+  rpc BuiltInVariablesGetAll(google.protobuf.Empty) returns (api.built_in_variables.GetAllResponse) {}
 
-	rpc CommandsGroupGetAll(google.protobuf.Empty) returns (api.commands_group.GetAllResponse) {}
-	rpc CommandsGroupCreate(api.commands_group.CreateRequest) returns (api.commands_group.Group) {}
-	rpc CommandsGroupDelete(api.commands_group.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc CommandsGroupUpdate(api.commands_group.PutRequest) returns (api.commands_group.Group) {}
+  rpc CommandsGroupGetAll(google.protobuf.Empty) returns (api.commands_group.GetAllResponse) {}
+  rpc CommandsGroupCreate(api.commands_group.CreateRequest) returns (api.commands_group.Group) {}
+  rpc CommandsGroupDelete(api.commands_group.DeleteRequest) returns (google.protobuf.Empty) {}
+  rpc CommandsGroupUpdate(api.commands_group.PutRequest) returns (api.commands_group.Group) {}
 
-	rpc GetDashboardStats(google.protobuf.Empty) returns (api.dashboard_stats.DashboardStatsResponse) {}
+  rpc GetDashboardStats(google.protobuf.Empty) returns (api.dashboard.DashboardStatsResponse) {}
+  rpc GetDashboardEventsList(google.protobuf.Empty) returns (api.dashboard.DashboardEventsList) {}
 
-	rpc TwitchSearchCategories(api.twitch_protected.SearchCategoriesRequest)
-		returns (api.twitch_protected.SearchCategoriesResponse
-		) {}
-	rpc TwitchSetChannelInformation(api.twitch_protected.SetChannelInformationRequest)
-		returns (google.protobuf.Empty) {}
+  rpc TwitchSearchCategories(api.twitch_protected.SearchCategoriesRequest)
+      returns (api.twitch_protected.SearchCategoriesResponse
+      ) {}
+  rpc TwitchSetChannelInformation(api.twitch_protected.SetChannelInformationRequest)
+      returns (google.protobuf.Empty) {}
 }
 
 // UnProtected
@@ -175,16 +176,16 @@ import "api/auth.proto";
 import "api/songs_unprotected.proto";
 
 service UnProtected {
-	rpc TwitchGetUsers(api.twitch.TwitchGetUsersRequest) returns (api.twitch.TwitchGetUsersResponse) {}
-	rpc TwitchSearchChannels(api.twitch.TwitchSearchChannelsRequest) returns (api.twitch.TwitchSearchChannelsResponse) {}
+  rpc TwitchGetUsers(api.twitch.TwitchGetUsersRequest) returns (api.twitch.TwitchGetUsersResponse) {}
+  rpc TwitchSearchChannels(api.twitch.TwitchSearchChannelsRequest) returns (api.twitch.TwitchSearchChannelsResponse) {}
 
-	rpc GetStats(google.protobuf.Empty) returns (api.stats.Response) {}
+  rpc GetStats(google.protobuf.Empty) returns (api.stats.Response) {}
 
-	rpc GetChannelCommands(api.commands_unprotected.GetChannelCommandsRequest) returns (api.commands_unprotected.GetChannelCommandsResponse) {}
-	rpc GetSongsQueue(api.songs_unprotected.GetSongsQueueRequest) returns (api.songs_unprotected.GetSongsQueueResponse) {}
+  rpc GetChannelCommands(api.commands_unprotected.GetChannelCommandsRequest) returns (api.commands_unprotected.GetChannelCommandsResponse) {}
+  rpc GetSongsQueue(api.songs_unprotected.GetSongsQueueRequest) returns (api.songs_unprotected.GetSongsQueueResponse) {}
 
-	rpc AuthGetLink(api.auth.GetLinkRequest) returns (api.auth.GetLinkResponse) {}
-	rpc AuthPostCode(api.auth.PostCodeRequest) returns (google.protobuf.Empty) {}
+  rpc AuthGetLink(api.auth.GetLinkRequest) returns (api.auth.GetLinkResponse) {}
+  rpc AuthPostCode(api.auth.PostCodeRequest) returns (google.protobuf.Empty) {}
 
-	rpc ModulesTTSSay(api.modules_tts.SayRequest) returns (api.modules_tts.SayResponse) {}
+  rpc ModulesTTSSay(api.modules_tts.SayRequest) returns (api.modules_tts.SayResponse) {}
 }
