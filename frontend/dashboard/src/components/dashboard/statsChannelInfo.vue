@@ -97,27 +97,18 @@ async function saveChannelInformation() {
 			content-style="padding: 5px;"
 			@click="openEditInformationModalModal"
 		>
-			<n-space justify="space-between">
-				<span style="font-size:15px">
-					{{ props?.title || 'Offline' }}
-				</span>
-				<IconEdit style="display: flex" />
-			</n-space>
-		</n-card>
+			<div style="display: flex; justify-content: space-between; align-items: center">
+				<div style="display: flex; flex-direction: column">
+					<span style="font-size:15px">
+						{{ props?.title || 'cannot get title' }}
+					</span>
+					<span style="font-size:15px">
+						{{ props?.categoryName || 'cannot get category' }}
+					</span>
+				</div>
 
-		<n-card
-			class="card"
-			:bordered="false"
-			embedded
-			content-style="padding: 5px;"
-			@click="openEditInformationModalModal"
-		>
-			<n-space justify="space-between">
-				<span style="font-size:15px">
-					{{ props?.categoryName || 'Offline' }}
-				</span>
-				<IconEdit style="display: flex" />
-			</n-space>
+				<IconEdit style="display: flex; width: 35px; height: 35px" />
+			</div>
 		</n-card>
 	</div>
 
