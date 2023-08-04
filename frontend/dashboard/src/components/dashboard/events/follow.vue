@@ -14,7 +14,7 @@ defineProps<{
 </script>
 
 <template>
-	<Base :icon="IconHeartFilled" icon-color="red" :created-at="createdAt">
+	<Base :icon="IconHeartFilled" :created-at="createdAt">
 		<template #leftContent>
 			{{ createUserName(userName, userDisplayName) }}
 		</template>

@@ -3,9 +3,10 @@ package bots
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/samber/do"
 	"github.com/satont/twir/apps/bots/internal/di"

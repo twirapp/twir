@@ -29,7 +29,7 @@ defineSlots<{
 				</div>
 			</div>
 
-			<div style="display: flex; align-items: flex-end; font-size: 11px; height: 100%; padding-right: 10px">
+			<div style="display: flex; align-items: flex-end; font-size: 11px; height: 100%; padding-right: 10px; flex-shrink: 0;">
 				<UseTimeAgo v-slot="{ timeAgo }" :time="new Date(Number(createdAt))" :update-interval="1000" show-second>
 					{{ timeAgo }}
 				</UseTimeAgo>
@@ -46,7 +46,14 @@ defineSlots<{
 	padding-left: 5px;
 	padding-right: 5px;
 	border-bottom: 1px solid v-bind(borderColor);
+	-webkit-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
 }
+
+/* .event:last-of-type {
+	border-bottom: 0px;
+} */
 
 .event .content {
 	display: flex;

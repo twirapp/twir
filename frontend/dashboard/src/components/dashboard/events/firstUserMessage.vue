@@ -15,7 +15,7 @@ defineProps<{
 </script>
 
 <template>
-	<Base :icon="IconMoodPlus" icon-color="green" :created-at="createdAt">
+	<Base :icon="IconMoodPlus" :created-at="createdAt">
 		<template #leftContent>
 			<div style="display: flex; flex-direction:column">
 				<span>{{ createUserName(userName, userDisplayName) }} <b style="font-size: 11px">first time joined chat</b></span>

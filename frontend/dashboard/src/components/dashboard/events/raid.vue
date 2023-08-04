@@ -15,7 +15,7 @@ defineProps<{
 </script>
 
 <template>
-	<Base :icon="IconPick" icon-color="green" :created-at="createdAt">
+	<Base :icon="IconPick" :created-at="createdAt">
 		<template #leftContent>
 			<span>
 

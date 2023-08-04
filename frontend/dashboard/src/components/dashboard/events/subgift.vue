@@ -17,7 +17,7 @@ defineProps<{
 </script>
 
 <template>
-	<Base :icon="IconGift" icon-color="green" :created-at="createdAt">
+	<Base :icon="IconGift" :created-at="createdAt">
 		<template #leftContent>
 			<span>
 				{{ createUserName(userName, userDisplayName) }} <b style="font-size: 11px">gifted sub to</b> {{ createUserName(targetUserName, targetUserDisplayName) }}

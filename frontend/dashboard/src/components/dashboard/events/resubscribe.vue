@@ -17,7 +17,7 @@ defineProps<{
 </script>
 
 <template>
-	<Base :icon="IconRepeat" icon-color="green" :created-at="createdAt">
+	<Base :icon="IconRepeat" :created-at="createdAt">
 		<template #leftContent>
 			<span>
 				{{ createUserName(userName, userDisplayName) }} <b style="font-size: 11px">resubscribed with</b> {{ level }} tier
