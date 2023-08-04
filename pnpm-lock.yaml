@@ -335,8 +335,6 @@ importers:
         specifier: ^4.1.6
         version: 4.1.6(vue@3.2.47)
 
-  frontend/landing/dist/server: {}
-
   frontend/overlays:
     dependencies:
       '@protobuf-ts/twirp-transport':

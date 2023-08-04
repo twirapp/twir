@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { EventType } from '@twir/grpc/generated/api/api/dashboard';
 import { useIntervalFn, useLocalStorage } from '@vueuse/core';
-import { NCard, NScrollbar } from 'naive-ui';
+import { NCard, NScrollbar, NResult, NSpin } from 'naive-ui';
 import { computed } from 'vue';
 
 import Donate from './events/donate.vue';
@@ -39,7 +39,7 @@ const eventsHeight = computed(() => positions.value.events.height);
 		header-style="padding: 5px;"
 		:style="{ width: '100%', height: '100%' }"
 	>
-		<n-scrollbar trigger="none" :style="{ 'max-height': `${eventsHeight - 25}px` }">
+		<n-scrollbar v-if="filteredEvents.length" trigger="none" :style="{ 'max-height': `${eventsHeight - 25}px` }">
 			<TransitionGroup name="list">
 				<template v-for="(event) of filteredEvents" :key="event.createdAt">
 					<Follow
@@ -98,6 +98,11 @@ const eventsHeight = computed(() => positions.value.events.height);
 				</template>
 			</TransitionGroup>
 		</n-scrollbar>
+		<n-result v-else status="404" title="Waiting for events" style="margin-top: 15px;">
+			<template #icon>
+				<n-spin />
+			</template>
+		</n-result>
 	</n-card>
 </template>
 
