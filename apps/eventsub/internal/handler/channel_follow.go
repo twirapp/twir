@@ -3,6 +3,8 @@ package handler
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
+	model "github.com/satont/twir/libs/gomodels"
 	"time"
 
 	"github.com/dnsge/twitch-eventsub-bindings"
@@ -11,7 +13,8 @@ import (
 )
 
 func (c *Handler) handleChannelFollow(
-	h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelFollow,
+	_ *eventsub_bindings.ResponseHeaders,
+	event *eventsub_bindings.EventChannelFollow,
 ) {
 	redisKey := fmt.Sprintf("follows-cache:%s:%s", event.BroadcasterUserID, event.UserID)
 	key, _ := c.services.Redis.Get(context.Background(), redisKey).Result()
@@ -28,8 +31,25 @@ func (c *Handler) handleChannelFollow(
 		"userName", event.UserLogin,
 	)
 
+	c.services.Gorm.Create(
+		&model.ChannelsEventsListItem{
+			ID:        uuid.New().String(),
+			ChannelID: event.BroadcasterUserID,
+			UserID:    event.UserID,
+			Type:      model.ChannelEventListItemTypeFollow,
+			CreatedAt: time.Now().UTC(),
+			Data: &model.ChannelsEventsListItemData{
+				FollowUserName:        event.UserLogin,
+				FollowUserDisplayName: event.UserName,
+			},
+		},
+	)
+
+	ctx := context.Background()
+
 	c.services.Grpc.Events.Follow(
-		context.Background(), &events.FollowMessage{
+		ctx,
+		&events.FollowMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
 			UserName:        event.UserLogin,
 			UserDisplayName: event.UserName,
@@ -37,5 +57,5 @@ func (c *Handler) handleChannelFollow(
 		},
 	)
 
-	c.services.Redis.Set(context.Background(), redisKey, redisKey, 24*7*time.Hour)
+	c.services.Redis.Set(ctx, redisKey, redisKey, 24*7*time.Hour)
 }

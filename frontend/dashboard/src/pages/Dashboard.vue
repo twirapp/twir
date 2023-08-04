@@ -5,7 +5,8 @@ import { DraggableResizableContainer, DraggableResizableVue } from 'draggable-re
 
 import Bot from '@/components/dashboard/bot.vue';
 import Chat from '@/components/dashboard/chat.vue';
-import { usePositions } from '@/components/dashboard/positions';
+import Events from '@/components/dashboard/events.vue';
+import { usePositions } from '@/components/dashboard/positions.js';
 import Stats from '@/components/dashboard/stats.vue';
 import Stream from '@/components/dashboard/stream.vue';
 
@@ -53,6 +54,19 @@ const widgetsPositions = usePositions();
 			:minHeight="200"
 		>
 			<Stream />
+		</draggable-resizable-vue>
+
+
+		<draggable-resizable-vue
+			v-model:x="widgetsPositions.events.x"
+			v-model:y="widgetsPositions.events.y"
+			v-model:h="widgetsPositions.events.height"
+			v-model:w="widgetsPositions.events.width"
+			v-model:active="widgetsPositions.events.isActive"
+			:minWidth="330"
+			:minHeight="200"
+		>
+			<events />
 		</draggable-resizable-vue>
 	</draggable-resizable-container>
 </template>

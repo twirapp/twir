@@ -6,6 +6,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/samber/do"
 	"github.com/satont/twir/apps/bots/internal/di"
 	"github.com/satont/twir/libs/grpc/generated/events"
@@ -200,6 +202,15 @@ func newBot(opts *ClientOpts) *types.BotClient {
 					if message.TargetUserID != "" {
 						return
 					}
+					opts.DB.Create(
+						&model.ChannelsEventsListItem{
+							ID:        uuid.New().String(),
+							ChannelID: message.RoomID,
+							Type:      model.ChannelEventListItemTypeChatClear,
+							CreatedAt: time.Now().UTC(),
+							Data:      &model.ChannelsEventsListItemData{},
+						},
+					)
 					eventsGrpc.ChatClear(
 						context.Background(), &events.ChatClearMessage{
 							BaseInfo: &events.BaseInfo{ChannelId: message.RoomID},

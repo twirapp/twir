@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/google/uuid"
@@ -29,6 +30,23 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 		"userId", event.UserID,
 		"channelName", event.BroadcasterUserLogin,
 		"channelId", event.BroadcasterUserID,
+	)
+
+	c.services.Gorm.Create(
+		&model.ChannelsEventsListItem{
+			ID:        uuid.New().String(),
+			ChannelID: event.BroadcasterUserID,
+			UserID:    event.UserID,
+			Type:      model.ChannelEventListItemTypeRedemptionCreated,
+			CreatedAt: time.Now().UTC(),
+			Data: &model.ChannelsEventsListItemData{
+				RedemptionInput:           event.UserInput,
+				RedemptionTitle:           event.Reward.Title,
+				RedemptionUserName:        event.UserLogin,
+				RedemptionUserDisplayName: event.UserName,
+				RedemptionCost:            fmt.Sprint(event.Reward.Cost),
+			},
+		},
 	)
 
 	// fire event to events microsevice

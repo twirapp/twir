@@ -36,6 +36,7 @@ onMounted(() => {
 			content: true,
 			footer: 'soft'
 		}"
+		header-style="padding: 5px;"
 		style="width: 100%; height: 100%"
 	>
 		<n-skeleton v-if="!data" :sharp="false" />

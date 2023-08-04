@@ -2,7 +2,10 @@ package handlers
 
 import (
 	"context"
+	"github.com/google/uuid"
+	model "github.com/satont/twir/libs/gomodels"
 	"strconv"
+	"time"
 
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/satont/twir/libs/grpc/generated/events"
@@ -13,6 +16,20 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 		viewers := message.MsgParams["msg-param-viewerCount"]
 		intViewers, _ := strconv.Atoi(viewers)
 
+		c.db.Create(
+			&model.ChannelsEventsListItem{
+				ID:        uuid.New().String(),
+				ChannelID: message.RoomID,
+				UserID:    message.MsgParams["user-id"],
+				Type:      model.ChannelEventListItemTypeRaided,
+				CreatedAt: time.Now().UTC(),
+				Data: &model.ChannelsEventsListItemData{
+					RaidedViewersCount:    viewers,
+					RaidedFromDisplayName: message.MsgParams["msg-param-displayName"],
+					RaidedFromUserName:    message.MsgParams["msg-param-login"],
+				},
+			},
+		)
 		c.eventsGrpc.Raided(
 			context.Background(), &events.RaidedMessage{
 				BaseInfo:        &events.BaseInfo{ChannelId: message.RoomID},
@@ -27,6 +44,19 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 	if message.Tags["msg-id"] == "sub" {
 		level := getSubPlan(message.MsgParams["msg-param-sub-plan"])
 
+		c.db.Create(
+			&model.ChannelsEventsListItem{
+				ID:        uuid.New().String(),
+				ChannelID: message.RoomID,
+				Type:      model.ChannelEventListItemTypeSubscribe,
+				CreatedAt: time.Now().UTC(),
+				Data: &model.ChannelsEventsListItemData{
+					SubUserName:        message.Tags["login"],
+					SubUserDisplayName: message.Tags["display-name"],
+					SubLevel:           level,
+				},
+			},
+		)
 		c.eventsGrpc.Subscribe(
 			context.Background(), &events.SubscribeMessage{
 				BaseInfo:        &events.BaseInfo{ChannelId: message.RoomID},
@@ -43,6 +73,21 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 		months, _ := strconv.Atoi(message.MsgParams["msg-param-streak-months"])
 		streak, _ := strconv.Atoi(message.MsgParams["msg-param-cumulative-months"])
 
+		c.db.Create(
+			&model.ChannelsEventsListItem{
+				ID:        uuid.New().String(),
+				ChannelID: message.RoomID,
+				Type:      model.ChannelEventListItemTypeReSubscribe,
+				CreatedAt: time.Now().UTC(),
+				Data: &model.ChannelsEventsListItemData{
+					ReSubUserName:        message.Tags["login"],
+					ReSubUserDisplayName: message.Tags["display-name"],
+					ReSubLevel:           level,
+					ReSubStreak:          message.MsgParams["msg-param-streak-months"],
+					ReSubMonths:          message.MsgParams["msg-param-cumulative-months"],
+				},
+			},
+		)
 		c.eventsGrpc.ReSubscribe(
 			context.Background(), &events.ReSubscribeMessage{
 				BaseInfo:        &events.BaseInfo{ChannelId: message.RoomID},
@@ -61,6 +106,21 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 	if message.Tags["msg-id"] == "subgift" {
 		level := getSubPlan(message.MsgParams["msg-param-sub-plan"])
 
+		c.db.Create(
+			&model.ChannelsEventsListItem{
+				ID:        uuid.New().String(),
+				ChannelID: message.RoomID,
+				Type:      model.ChannelEventListItemTypeSubGift,
+				CreatedAt: time.Now().UTC(),
+				Data: &model.ChannelsEventsListItemData{
+					SubGiftLevel:                 level,
+					SubGiftUserName:              message.Tags["login"],
+					SubGiftUserDisplayName:       message.Tags["display-name"],
+					SubGiftTargetUserName:        message.MsgParams["msg-param-recipient-user-name"],
+					SubGiftTargetUserDisplayName: message.MsgParams["msg-param-recipient-display-name"],
+				},
+			},
+		)
 		c.eventsGrpc.SubGift(
 			context.Background(), &events.SubGiftMessage{
 				BaseInfo:          &events.BaseInfo{ChannelId: message.RoomID},

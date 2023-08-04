@@ -1,6 +1,6 @@
 import { useLocalStorage } from '@vueuse/core';
 
-const version = '2';
+const version = '3';
 
 export const usePositions = () => useLocalStorage(`twirWidgetsPositions-v${version}`, {
 	chat: {
@@ -11,9 +11,16 @@ export const usePositions = () => useLocalStorage(`twirWidgetsPositions-v${versi
 		isActive: false,
 	},
 	botManage: {
-		x: 460,
+		x: 350,
 		y: 20,
 		width: 330,
+		height: 200,
+		isActive: false,
+	},
+	events: {
+		x: 350,
+		y: 250,
+		width: 400,
 		height: 200,
 		isActive: false,
 	},
