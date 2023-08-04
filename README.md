@@ -2,7 +2,7 @@
 
 ## Prerequirements
 
-Before starting developing application you need thos tools installed:
+Before starting developing application you need these tools installed:
 
 #### All system wide dependencies provided by VSCode and Devcontainers
 
