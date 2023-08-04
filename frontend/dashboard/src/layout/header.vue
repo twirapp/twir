@@ -12,7 +12,7 @@ import {
 	NDivider,
 useThemeVars,
 } from 'naive-ui';
-import { computed } from 'vue';
+import { computed, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import Logo from '../../public/brand/TwirInCircle.svg?component';
@@ -65,6 +65,8 @@ const publicPageHref = computed<string>(() => {
 
 	return `${window.location.origin}/p/${selectedDashboardTwitchUser.data.value.users.at(0)!.login}`;
 });
+
+const renderFlagIcon = (code: string) => defineAsyncComponent(() => import(`@/assets/icons/flags/${code}.svg?component`));
 </script>
 
 <template>
@@ -96,7 +98,7 @@ const publicPageHref = computed<string>(() => {
 			<n-dropdown
 				trigger="click"
 				:options="availableLocales.map(l => ({
-					title: `${t('languageFlag', {}, { locale: l })} ${t('languageName', {}, { locale: l })}`,
+					title: t('languageName', {}, { locale: l }),
 					key: l as string,
 				}))"
 				size="medium"
@@ -106,7 +108,7 @@ const publicPageHref = computed<string>(() => {
 				}"
 			>
 				<n-button tertiary style="padding: 5px; font-size: 25px">
-					{{ t('languageFlag') }}
+					<component :is="renderFlagIcon(localStorageLocale)" style="width: 35px; height: 50px;" />
 				</n-button>
 			</n-dropdown>
 			<n-button tertiary style="padding: 5px" @click="toggleTheme">
