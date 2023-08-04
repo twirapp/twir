@@ -6,6 +6,7 @@ require (
 	github.com/aidenwallis/go-ratelimiting v0.0.1
 	github.com/gempir/go-twitch-irc/v3 v3.2.0
 	github.com/getsentry/sentry-go v0.18.0
+	github.com/google/uuid v1.3.0
 	github.com/imroc/req/v3 v3.37.2
 	github.com/nicklaw5/helix/v2 v2.22.2
 	github.com/prometheus/client_golang v1.14.0
