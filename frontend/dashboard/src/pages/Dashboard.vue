@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { IconPencilPlus } from '@tabler/icons-vue';
 import { GridLayout, GridItem } from 'grid-layout-plus';
-import { NButton, NDropdown } from 'naive-ui';
+import { NButton, NDropdown, useThemeVars } from 'naive-ui';
 import { computed } from 'vue';
 
 import Bot from '@/components/dashboard/bot.vue';
@@ -29,11 +29,16 @@ const addWidget = (key: string) => {
 	item.x = (widgetsLength * 2) % 12;
   item.y = widgetsLength + 12;
 };
+
+const theme = useThemeVars();
+const statsBackground = computed(() => theme.value.tabColor);
 </script>
 
 <template>
-	<Stats />
-	<div style="display: flex; flex-direction: row; width: 100%; height: 100%; gap: 5px; margin-top: 10px">
+	<div style="display: flex; width: 100%;" :style="{ 'background-color': statsBackground }">
+		<Stats />
+	</div>
+	<div style="display: flex; width: 100%; height: 100%; gap: 5px; margin-top: 10px">
 		<GridLayout
 			v-model:layout="widgets"
 			:row-height="30"
@@ -48,7 +53,7 @@ const addWidget = (key: string) => {
 				:i="item.i"
 				:min-w="item.minW"
 				:min-h="item.minH"
-				drag-allow-from=".vue-draggable-handle"
+				drag-allow-from=".widgets-draggable-handle"
 			>
 				<Chat v-if="item.i === 'Chat'" :item="item" class="item" />
 				<Bot v-if="item.i === 'Bot'" :item="item" class="item" />
@@ -75,4 +80,3 @@ const addWidget = (key: string) => {
 	height: 100%;
 }
 </style>
-@/components/dashboard/widgets.js

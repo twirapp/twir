@@ -34,7 +34,7 @@ const hideItem = () => {
 		v-bind="$attrs"
 	>
 		<template #header>
-			<div class="vue-draggable-handle" style="display: flex; align-items: center">
+			<div class="widgets-draggable-handle" style="display: flex; align-items: center">
 				<IconGripVertical style="width: 20px; height: 20px;" />
 				{{ attrs.item.i }}
 			</div>
