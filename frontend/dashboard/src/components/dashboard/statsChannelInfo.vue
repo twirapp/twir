@@ -21,8 +21,7 @@ import { twitchSetChannelInformationMutation, useTwitchSearchCategories } from '
 
 const { t } = useI18n();
 
-const themeColors = useThemeVars();
-const cardHoverColor = computed(() => themeColors.value.hoverColor);
+const theme = useThemeVars();
 
 const props = defineProps<{
 	title?: string,
@@ -85,28 +84,29 @@ async function saveChannelInformation() {
 	isEditInformationModalShowed.value = false;
 	messages.success('Channel information updated');
 }
+
 </script>
 
 <template>
-	<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px;">
+	<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px; height: 100%">
 		<n-card
 			class="card"
 			:bordered="false"
 			embedded
 			content-style="padding: 5px;"
-			@click="openEditInformationModalModal"
+			:style="{ 'background-color': theme.actionColor }"
 		>
 			<div style="display: flex; justify-content: space-between; align-items: center">
-				<div style="display: flex; flex-direction: column">
-					<span style="font-size:15px">
+				<div style="display: flex; font-size:15px; flex-direction: column; white-space: nowrap; overflow: hidden;text-overflow: ellipsis">
+					<span style="font-size:15px;">
 						{{ props?.title || 'cannot get title' }}
 					</span>
-					<span style="font-size:15px">
+					<span style="font-size:15px;">
 						{{ props?.categoryName || 'cannot get category' }}
 					</span>
 				</div>
 
-				<IconEdit style="display: flex; width: 35px; height: 35px" />
+				<IconEdit style="display: flex; width: 35px; height: 35px" @click="openEditInformationModalModal" />
 			</div>
 		</n-card>
 	</div>
@@ -149,9 +149,5 @@ async function saveChannelInformation() {
 .card {
 	flex: 1 1 200px;
 	cursor: pointer;
-}
-
-.card:hover {
-	background-color: v-bind(cardHoverColor);
 }
 </style>
