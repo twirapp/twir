@@ -97,11 +97,11 @@ async function saveChannelInformation() {
 			:style="{ 'background-color': theme.actionColor }"
 		>
 			<div style="display: flex; justify-content: space-between; align-items: center">
-				<div style="display: flex; flex-direction: column">
-					<span style="font-size:15px">
+				<div style="display: flex; font-size:15px; flex-direction: column; white-space: nowrap; overflow: hidden;text-overflow: ellipsis">
+					<span style="font-size:15px;">
 						{{ props?.title || 'cannot get title' }}
 					</span>
-					<span style="font-size:15px">
+					<span style="font-size:15px;">
 						{{ props?.categoryName || 'cannot get category' }}
 					</span>
 				</div>

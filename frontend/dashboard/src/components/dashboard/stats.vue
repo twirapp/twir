@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { IconGripVertical, IconEyeOff, IconPencilPlus } from '@tabler/icons-vue';
+import { IconPencilPlus, IconEyeOff } from '@tabler/icons-vue';
 import { useIntervalFn, useLocalStorage } from '@vueuse/core';
 import { intervalToDuration } from 'date-fns';
 import { GridLayout, GridItem } from 'grid-layout-plus';
-import { NCard, NButton, NDropdown, useThemeVars } from 'naive-ui';
+import { NButton, NDropdown, useThemeVars, NCard } from 'naive-ui';
 import { computed, onBeforeUnmount, ref, watchEffect } from 'vue';
 
 import { useStats } from './stats.js';
@@ -100,6 +100,7 @@ const theme = useThemeVars();
 		:row-height="60"
 		:max-rows="3"
 		:vertical-compact="false"
+		prevent-collision
 	>
 		<GridItem
 			v-if="channelInfoWidget"
@@ -109,8 +110,8 @@ const theme = useThemeVars();
 			:w="channelInfoWidget.w"
 			:h="channelInfoWidget.h"
 			:i="channelInfoWidget.i"
-			:min-w="channelInfoWidget.minW"
-			:min-h="channelInfoWidget.minH"
+			:min-w="channelInfoWidget.minW ?? 3"
+			:min-h="channelInfoWidget.minH ?? 1"
 		>
 			<ChannelInfo :category-id="stats?.categoryId" :title="stats?.title" :category-name="stats?.categoryName" />
 		</GridItem>
@@ -123,9 +124,8 @@ const theme = useThemeVars();
 			:w="widget.w"
 			:h="widget.h"
 			:i="widget.i"
-			:min-w="widget.minW ?? 2"
+			:min-w="widget.minW ?? 1"
 			:min-h="widget.minH ?? 1"
-			drag-allow-from=".stats-draggable-handle"
 		>
 			<n-card
 				v-if="typeof statsItems[widget.i] !== 'undefined'"
@@ -136,18 +136,17 @@ const theme = useThemeVars();
 				:style="{ 'background-color': theme.actionColor }"
 			>
 				<n-space vertical>
-					<span style="display: flex; justify-content: space-between;">
-						<div style="display: flex">
-							<IconGripVertical class="stats-draggable-handle" style="width: 18px;" />
-							{{ widget.i }}
+					<div style="display: flex; justify-content: space-between;">
+						<div style="white-space: nowrap; overflow: hidden;text-overflow: ellipsis">
+							<span>{{ widget.i }}</span>
 						</div>
 						<n-button text @click="hideWidget(widget.i)">
 							<IconEyeOff />
 						</n-button>
-					</span>
-					<span style="font-size:20px">
+					</div>
+					<div style="font-size:20px; white-space: nowrap; overflow: hidden;text-overflow: ellipsis">
 						{{ statsItems[widget.i] }}
-					</span>
+					</div>
 				</n-space>
 			</n-card>
 		</GridItem>
