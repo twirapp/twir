@@ -39,9 +39,10 @@ func (c *Dashboard) GetDashboardStats(
 	var channelCategoryName string
 	var channelTitle string
 	var followersCount uint32
+	var subs uint32
 
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(3)
 
 	go func() {
 		defer wg.Done()
@@ -77,6 +78,22 @@ func (c *Dashboard) GetDashboardStats(
 		}
 	}()
 
+	go func() {
+		defer wg.Done()
+		subsReq, err := twitchClient.GetSubscriptions(
+			&helix.SubscriptionsParams{
+				BroadcasterID: dashboardId,
+			},
+		)
+		if err != nil {
+			zap.S().Error(err)
+		} else if subsReq.ErrorMessage != "" {
+			zap.S().Error(subsReq.ErrorMessage)
+		} else {
+			subs = uint32(subsReq.Data.Total)
+		}
+	}()
+
 	var usedEmotes int64
 	if err := c.Db.
 		WithContext(ctx).
@@ -107,6 +124,7 @@ func (c *Dashboard) GetDashboardStats(
 		Followers:      followersCount,
 		UsedEmotes:     uint32(usedEmotes),
 		RequestedSongs: 0,
+		Subs:           subs,
 	}, nil
 }
 

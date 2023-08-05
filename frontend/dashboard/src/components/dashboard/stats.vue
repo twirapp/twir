@@ -51,6 +51,7 @@ const statsItems = computed(() => {
 		Messages: s.chatMessages,
 		'Used emotes': s.usedEmotes,
 		'Requested songs': s.requestedSongs,
+		'Subs': s.subs,
 	};
 
 	return items;
@@ -100,7 +101,6 @@ const theme = useThemeVars();
 		:row-height="60"
 		:max-rows="3"
 		:vertical-compact="false"
-		prevent-collision
 	>
 		<GridItem
 			v-if="channelInfoWidget"

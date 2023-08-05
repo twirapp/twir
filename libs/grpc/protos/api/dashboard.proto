@@ -13,6 +13,7 @@ message DashboardStatsResponse {
 	uint32 followers = 7;
 	uint32 used_emotes = 8;
 	uint32 requested_songs = 9;
+	uint32 subs = 10;
 }
 
 enum EventType {
