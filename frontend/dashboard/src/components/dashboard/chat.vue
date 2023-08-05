@@ -1,16 +1,16 @@
 <script lang="ts" setup>
 import { IconSun, IconMoon } from '@tabler/icons-vue';
 import { useLocalStorage } from '@vueuse/core';
-import { NCard, NButton } from 'naive-ui';
+import { NButton } from 'naive-ui';
 import { computed } from 'vue';
 
-import { usePositions } from './positions.js';
+import Card from './card.vue';
+
 
 import { useProfile, useTwitchGetUsers } from '@/api/index.js';
 import { type Theme } from '@/hooks/index.js';
 
 const { data: profile } = useProfile();
-
 
 const chatTheme = useLocalStorage<Theme>('twirTwitchChatTheme', 'dark');
 const toggleTheme = () => {
@@ -33,27 +33,26 @@ const chatUrl = computed(() => {
 
 	return url;
 });
-
-const positions = usePositions();
 </script>
 
 <template>
-	<n-card embedded title="Chat" header-style="height: 30px; padding: 5" content-style="padding: 0px;">
+	<card>
 		<template #header-extra>
-			<n-button tertiary style="padding: 5px" @click="toggleTheme">
+			<n-button size="small" text @click="toggleTheme">
 				<IconSun v-if="chatTheme === 'dark'" color="orange" />
 				<IconMoon v-else />
 			</n-button>
 		</template>
+
 		<iframe
 			v-if="chatUrl"
 			:src="chatUrl"
 			width="100%"
-			:height="positions.chat.height - 50"
+			height="100%"
 			frameborder="0"
 			scrolling="no"
 			allowfullscreen="true"
 		>
 		</iframe>
-	</n-card>
+	</card>
 </template>

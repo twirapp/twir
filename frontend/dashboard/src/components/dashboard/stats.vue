@@ -71,7 +71,7 @@ watchEffect(() => {
 </script>
 
 <template>
-	<div style="margin:5px">
+	<div style="background-color: #000; padding: 10px">
 		<ChannelInfo :category-id="stats?.categoryId" :title="stats?.title" :category-name="stats?.categoryName" />
 
 		<Transition mode="out-in" appear>

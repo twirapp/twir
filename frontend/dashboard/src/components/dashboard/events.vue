@@ -2,9 +2,10 @@
 import { IconSettings } from '@tabler/icons-vue';
 import { EventType } from '@twir/grpc/generated/api/api/dashboard';
 import { useIntervalFn, useLocalStorage } from '@vueuse/core';
-import { NCard, NScrollbar, NResult, NSpin, NButton, NPopselect } from 'naive-ui';
+import { NScrollbar, NResult, NSpin, NButton, NPopselect } from 'naive-ui';
 import { computed } from 'vue';
 
+import Card from './card.vue';
 import ChatClear from './events/chatClear.vue';
 import Donate from './events/donate.vue';
 import FirstUserMessage from './events/firstUserMessage.vue';
@@ -14,7 +15,6 @@ import RedemptionCreated from './events/redemptionCreated.vue';
 import ReSubscribe from './events/resubscribe.vue';
 import SubGift from './events/subgift.vue';
 import Subscribe from './events/subscribe.vue';
-import { usePositions } from './positions.js';
 
 import { useDashboardEvents } from '@/api/index.js';
 
@@ -64,21 +64,11 @@ const enabledEventsOptions = [
 		value: 8,
 	},
 ];
-
-const positions = usePositions();
-const eventsHeight = computed(() => positions.value.events.height);
 </script>
 
 <template>
-	<n-card
-		title="Events"
-		:content-style="{ padding: isLoading ? '10px' : '0px', height: `${eventsHeight-50}px` }"
-		:segmented="{
-			content: true,
-			footer: 'soft'
-		}"
-		header-style="padding: 5px;"
-		:style="{ width: '100%', height: '100%' }"
+	<card
+		:content-style="{ padding: isLoading ? '10px' : '0px', height: '80%' }"
 	>
 		<template #header-extra>
 			<n-popselect v-model:value="enabledEvents" multiple :options="enabledEventsOptions" trigger="click">
@@ -87,7 +77,7 @@ const eventsHeight = computed(() => positions.value.events.height);
 				</n-button>
 			</n-popselect>
 		</template>
-		<n-scrollbar v-if="filteredEvents.length" trigger="none" :style="{ 'max-height': `${eventsHeight - 25}px` }">
+		<n-scrollbar v-if="filteredEvents.length" trigger="none">
 			<TransitionGroup name="list">
 				<template v-for="(event) of filteredEvents" :key="event.createdAt">
 					<Follow
@@ -164,7 +154,7 @@ const eventsHeight = computed(() => positions.value.events.height);
 				<n-spin />
 			</template>
 		</n-result>
-	</n-card>
+	</card>
 </template>
 
 <style scoped>

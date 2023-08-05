@@ -1,19 +1,21 @@
 <script setup lang='ts'>
-import { NCard, NAlert, NSkeleton, NButton } from 'naive-ui';
+import { NAlert, NSkeleton, NButton } from 'naive-ui';
 import { onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+
+import Card from './card.vue';
 
 import { useBotInfo, useBotJoinPart } from '@/api/index.js';
 
 const { t } = useI18n();
 
-const { data, isLoading, isFetching, refetch } = useBotInfo();
+const { data, isFetching, refetch } = useBotInfo();
 
 const stateMutation = useBotJoinPart();
 const isStateButtonDisabled = ref(true);
 async function changeBotState() {
 	isStateButtonDisabled.value = true;
-	await stateMutation.mutate(data?.value?.enabled ? 'part' : 'join');
+	await stateMutation.mutateAsync(data?.value?.enabled ? 'part' : 'join');
 }
 
 watch(isFetching, (value) => {
@@ -29,16 +31,7 @@ onMounted(() => {
 </script>
 
 <template>
-	<n-card
-		:title="t('dashboard.botManage.title')"
-		:content-style="{ padding: isLoading ? '10px' : '0px' }"
-		:segmented="{
-			content: true,
-			footer: 'soft'
-		}"
-		header-style="padding: 5px;"
-		style="width: 100%; height: 100%"
-	>
+	<card>
 		<n-skeleton v-if="!data" :sharp="false" />
 
 		<n-alert v-else :type="data!.isMod ? 'success' : 'error'" :bordered="false" class="bot-alert">
@@ -63,7 +56,7 @@ onMounted(() => {
 				{{ t(`dashboard.botManage.${data?.enabled ? 'leave' : 'join'}`) }}
 			</n-button>
 		</template>
-	</n-card>
+	</card>
 </template>
 
 <style scoped>

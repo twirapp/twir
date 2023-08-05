@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { NCard } from 'naive-ui';
 import { computed } from 'vue';
 
-import { usePositions } from './positions.js';
+import Card from './card.vue';
 
 import { useProfile, useTwitchGetUsers } from '@/api/index.js';
 
@@ -20,21 +19,19 @@ const streamUrl = computed(() => {
 
 	return url;
 });
-
-const positions = usePositions();
 </script>
 
 <template>
-	<n-card embedded title="Stream" header-style="height: 30px; padding: 5" content-style="padding: 0px;">
+	<card>
 		<iframe
 			v-if="streamUrl"
 			:src="streamUrl"
 			width="100%"
-			:height="positions.stream.height - 50"
+			height="100%"
 			frameborder="0"
 			scrolling="no"
 			allowfullscreen="true"
 		>
 		</iframe>
-	</n-card>
+	</card>
 </template>
