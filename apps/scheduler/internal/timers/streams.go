@@ -3,6 +3,7 @@ package timers
 import (
 	"context"
 	"encoding/json"
+	"gorm.io/gorm"
 	"sync"
 	"time"
 
@@ -119,17 +120,33 @@ func processStreams(services *types.Services) {
 				}
 
 				if twitchStreamExists && dbStreamExists {
-					err = services.Gorm.Where(`"userId" = ?`, channel.ID).Save(channelStream).Error
-					if err != nil {
-						zap.S().Error(err)
+					if result := services.Gorm.Where(`"userId" = ?`, channel.ID).Save(channelStream); result.Error != nil {
+						zap.S().Error(
+							result.Error,
+							zap.String(
+								"query", result.ToSQL(
+									func(tx *gorm.DB) *gorm.DB {
+										return tx.Where(`"userId" = ?`, channel.ID).Save(channelStream)
+									},
+								),
+							),
+						)
 						return
 					}
 				}
 
 				if twitchStreamExists && !dbStreamExists {
-					err = services.Gorm.Where(`"userId" = ?`, channel.ID).Save(channelStream).Error
-					if err != nil {
-						zap.S().Error(err)
+					if result := services.Gorm.Where(`"userId" = ?`, channel.ID).Save(channelStream); result.Error != nil {
+						zap.S().Error(
+							result.Error,
+							zap.String(
+								"query", result.ToSQL(
+									func(tx *gorm.DB) *gorm.DB {
+										return tx.Where(`"userId" = ?`, channel.ID).Save(channelStream)
+									},
+								),
+							),
+						)
 						return
 					}
 
