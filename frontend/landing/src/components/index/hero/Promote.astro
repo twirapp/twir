@@ -1,5 +1,6 @@
 ---
 import { Icon } from 'astro-icon';
+import HeroStartButton from './heroStartButton.vue';
 ---
 
 <div class="flex flex-col items-start w-[700px]">
@@ -28,10 +29,6 @@ import { Icon } from 'astro-icon';
 		>
 			Learn more
 		</button>
-		<button
-			class="inline-flex px-7 py-4 font-semibold text-white rounded-lg bg-[#5D58F5] hover:bg-[#6964FF] transition-[background,box-shadow] text-lg focus-visible:outline-none focus-visible:ring-[#5D58F5]/50 focus-visible:ring-4"
-		>
-			Start for free
-		</button>
+		<HeroStartButton client:load/>
 	</div>
 </div>
