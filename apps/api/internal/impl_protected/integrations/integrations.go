@@ -49,7 +49,7 @@ func (c *Integrations) getChannelIntegrationByService(
 
 	if channelIntegration.ID == "" {
 		channelIntegration = &model.ChannelsIntegrations{
-			Enabled:       false,
+			Enabled:       true,
 			ChannelID:     channelId,
 			IntegrationID: integration.ID,
 			AccessToken:   null.String{},

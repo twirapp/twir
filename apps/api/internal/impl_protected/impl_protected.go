@@ -10,7 +10,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/commands"
 	"github.com/satont/twir/apps/api/internal/impl_protected/commands_group"
 	"github.com/satont/twir/apps/api/internal/impl_protected/community"
-	"github.com/satont/twir/apps/api/internal/impl_protected/dashboard_stats"
+	"github.com/satont/twir/apps/api/internal/impl_protected/dashboard"
 	"github.com/satont/twir/apps/api/internal/impl_protected/events"
 	"github.com/satont/twir/apps/api/internal/impl_protected/greetings"
 	"github.com/satont/twir/apps/api/internal/impl_protected/integrations"
@@ -19,6 +19,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/rewards"
 	"github.com/satont/twir/apps/api/internal/impl_protected/roles"
 	"github.com/satont/twir/apps/api/internal/impl_protected/timers"
+	"github.com/satont/twir/apps/api/internal/impl_protected/twitch"
 	"github.com/satont/twir/apps/api/internal/impl_protected/variables"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/bots"
@@ -48,7 +49,8 @@ type Protected struct {
 	*variables.Variables
 	*commands_group.CommandsGroup
 	*build_in_variables.BuildInVariables
-	*dashboard_stats.DashboardStats
+	*dashboard.Dashboard
+	*twitch.Twitch
 }
 
 type Opts struct {
@@ -101,6 +103,7 @@ func New(opts Opts) *Protected {
 		Variables:        &variables.Variables{Deps: d},
 		CommandsGroup:    &commands_group.CommandsGroup{Deps: d},
 		BuildInVariables: &build_in_variables.BuildInVariables{Deps: d},
-		DashboardStats:   &dashboard_stats.DashboardStats{Deps: d},
+		Dashboard:        &dashboard.Dashboard{Deps: d},
+		Twitch:           &twitch.Twitch{Deps: d},
 	}
 }

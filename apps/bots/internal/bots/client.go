@@ -6,6 +6,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/samber/do"
 	"github.com/satont/twir/apps/bots/internal/di"
 	"github.com/satont/twir/libs/grpc/generated/events"
@@ -109,12 +111,11 @@ func newBot(opts *ClientOpts) *types.BotClient {
 					BotId: opts.Model.ID,
 				},
 			)
-
-			twitchClient.SetUserAccessToken(token.AccessToken)
-
 			if err != nil {
 				panic(err)
 			}
+
+			twitchClient.SetUserAccessToken(token.AccessToken)
 
 			joinChannels(opts.DB, opts.Cfg, opts.Logger, &client)
 			client.Client.SetIRCToken(fmt.Sprintf("oauth:%s", token.AccessToken))
@@ -124,11 +125,13 @@ func newBot(opts *ClientOpts) *types.BotClient {
 				},
 			)
 			if err != nil {
+				opts.Logger.Sugar().Error(err)
 				return
 			}
 
 			if len(meReq.Data.Users) == 0 {
-				panic("No user found for bot " + opts.Model.ID)
+				opts.Logger.Sugar().Error("No user found for bot " + opts.Model.ID)
+				return
 			}
 
 			client.OnConnect(botHandlers.OnConnect)
@@ -199,6 +202,15 @@ func newBot(opts *ClientOpts) *types.BotClient {
 					if message.TargetUserID != "" {
 						return
 					}
+					opts.DB.Create(
+						&model.ChannelsEventsListItem{
+							ID:        uuid.New().String(),
+							ChannelID: message.RoomID,
+							Type:      model.ChannelEventListItemTypeChatClear,
+							CreatedAt: time.Now().UTC(),
+							Data:      &model.ChannelsEventsListItemData{},
+						},
+					)
 					eventsGrpc.ChatClear(
 						context.Background(), &events.ChatClearMessage{
 							BaseInfo: &events.BaseInfo{ChannelId: message.RoomID},
@@ -209,8 +221,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 			client.OnUserNoticeMessage(botHandlers.OnNotice)
 			client.OnUserJoinMessage(botHandlers.OnUserJoin)
 
-			err = client.Connect()
-			if err != nil {
+			if err = client.Connect(); err != nil {
 				opts.Logger.Sugar().Error(err)
 			}
 		}

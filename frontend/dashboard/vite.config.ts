@@ -20,7 +20,42 @@ export default defineConfig(({ mode }) => {
 				},
 			}),
 			svg({ svgo: false }),
-			VitePWA(),
+			VitePWA({
+				devOptions: {
+					enabled: true,
+				},
+				includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+				manifest: {
+					name: 'Twir - The perfect bot for your stream',
+					short_name: 'TwirApp',
+					description: 'The perfect bot for your stream. Created by streamers. Made for streamers. Used by streamers. For streamers with love.',
+					theme_color: '#101014',
+					icons: [
+						{
+							src: 'pwa-192x192.png',
+							sizes: '192x192',
+							type: 'image/png',
+						},
+						{
+							src: 'pwa-512x512.png',
+							sizes: '512x512',
+							type: 'image/png',
+						},
+						{
+							src: 'pwa-512x512.png',
+							sizes: '512x512',
+							type: 'image/png',
+							purpose: 'any',
+						},
+						{
+							src: 'pwa-512x512.png',
+							sizes: '512x512',
+							type: 'image/png',
+							purpose: 'maskable',
+						},
+					],
+				},
+			}),
 			webUpdateNotice({
 				notificationProps: {
 					title: 'New version',

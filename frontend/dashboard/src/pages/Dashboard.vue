@@ -1,56 +1,82 @@
-<script setup lang='ts'>
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { DraggableResizableVue, DraggableResizableContainer } from 'draggable-resizable-vue3';
+<script setup lang="ts">
+import { IconPencilPlus } from '@tabler/icons-vue';
+import { GridLayout, GridItem } from 'grid-layout-plus';
+import { NButton, NDropdown, useThemeVars } from 'naive-ui';
+import { computed } from 'vue';
 
 import Bot from '@/components/dashboard/bot.vue';
 import Chat from '@/components/dashboard/chat.vue';
-import { usePositions } from '@/components/dashboard/positions';
+import Events from '@/components/dashboard/events.vue';
 import Stats from '@/components/dashboard/stats.vue';
+import Stream from '@/components/dashboard/stream.vue';
+import { useWidgets } from '@/components/dashboard/widgets.js';
 
-const widgetsPositions = usePositions();
+const widgets = useWidgets();
+const visibleWidgets = computed(() => widgets.value.filter((v) => v.visible));
+const dropdownOptions = computed(() => {
+	return widgets.value
+		.filter((v) => !v.visible)
+		.map((v) => ({ label: v.i, key: v.i }));
+});
+
+const addWidget = (key: string) => {
+	const item = widgets.value.find(v => v.i === key);
+	if (!item) return;
+
+	const widgetsLength = visibleWidgets.value.length;
+
+	item.visible = true;
+	item.x = (widgetsLength * 2) % 12;
+  item.y = widgetsLength + 12;
+};
+
+const theme = useThemeVars();
+const statsBackground = computed(() => theme.value.tabColor);
 </script>
 
 <template>
-	<Stats />
-	<draggable-resizable-container
-		:grid="[40, 40]"
-		:show-grid="true"
-		class="drag-container"
-	>
-		<draggable-resizable-vue
-			v-model:x="widgetsPositions.chat.x"
-			v-model:y="widgetsPositions.chat.y"
-			v-model:h="widgetsPositions.chat.height"
-			v-model:w="widgetsPositions.chat.width"
-			v-model:active="widgetsPositions.chat.isActive"
-			:minWidth="300"
-			:minHeight="400"
+	<div style="display: flex; width: 100%;" :style="{ 'background-color': statsBackground }">
+		<Stats />
+	</div>
+	<div style="display: flex; width: 100%; height: 100%; gap: 5px; margin-top: 10px">
+		<GridLayout
+			v-model:layout="widgets"
+			:row-height="30"
 		>
-			<Chat />
-		</draggable-resizable-vue>
-		<draggable-resizable-vue
-			v-model:x="widgetsPositions.botManage.x"
-			v-model:y="widgetsPositions.botManage.y"
-			v-model:h="widgetsPositions.botManage.height"
-			v-model:w="widgetsPositions.botManage.width"
-			v-model:active="widgetsPositions.botManage.isActive"
-			:minWidth="330"
-			:minHeight="200"
-		>
-			<Bot />
-		</draggable-resizable-vue>
-	</draggable-resizable-container>
+			<GridItem
+				v-for="item in visibleWidgets"
+				:key="item.i"
+				:x="item.x"
+				:y="item.y"
+				:w="item.w"
+				:h="item.h"
+				:i="item.i"
+				:min-w="item.minW"
+				:min-h="item.minH"
+				drag-allow-from=".widgets-draggable-handle"
+			>
+				<Chat v-if="item.i === 'Chat'" :item="item" class="item" />
+				<Bot v-if="item.i === 'Bot'" :item="item" class="item" />
+				<Stream v-if="item.i === 'Stream'" :item="item" class="item" />
+				<Events v-if="item.i === 'Events'" :item="item" class="item" />
+			</GridItem>
+		</GridLayout>
+		<div v-if="dropdownOptions.length" style="padding-right: 10px; padding-top: 10px;">
+			<n-dropdown size="huge" trigger="click" :options="dropdownOptions" @select="addWidget">
+				<n-button block dashed type="success" style="width: 100%; height: 100%; padding: 5px">
+					<IconPencilPlus style="width: 30px; height: 30px" />
+				</n-button>
+			</n-dropdown>
+		</div>
+	</div>
 </template>
 
 <style scoped>
-.drag-container {
-	-webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-	width: auto;
-	padding: 10px;
-	height: 79vh;
+.vgl-layout {
+  width: 100%
 }
 
+.item {
+	height: 100%;
+}
 </style>

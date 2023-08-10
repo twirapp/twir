@@ -2,7 +2,10 @@ package webhooks
 
 import (
 	"encoding/json"
+	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"net/http"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/handlers"
@@ -78,6 +81,24 @@ func (c *Donatello) Handler() http.Handler {
 			if err := json.NewDecoder(r.Body).Decode(body); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
+			}
+
+			if err := c.db.Create(
+				&model.ChannelsEventsListItem{
+					ID:        uuid.New().String(),
+					ChannelID: integration.ChannelID,
+					UserID:    "",
+					Type:      model.ChannelEventListItemTypeDonation,
+					Data: &model.ChannelsEventsListItemData{
+						DonationAmount:   body.Amount,
+						DonationCurrency: body.Currency,
+						DonationMessage:  body.Message,
+						DonationUsername: body.ClientName,
+					},
+					CreatedAt: time.Now(),
+				},
+			).Error; err != nil {
+				zap.S().Error(err)
 			}
 
 			_, err := c.eventsGrpc.Donate(

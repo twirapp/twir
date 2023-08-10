@@ -1,14 +1,16 @@
-<script setup lang='ts'>
-import { IconGripVertical } from '@tabler/icons-vue';
+<script setup lang="ts">
+import { IconPencilPlus, IconEyeOff } from '@tabler/icons-vue';
 import { useIntervalFn, useLocalStorage } from '@vueuse/core';
 import { intervalToDuration } from 'date-fns';
-import { NCard, NSpace, NSkeleton } from 'naive-ui';
+import { GridLayout, GridItem } from 'grid-layout-plus';
+import { NButton, NDropdown, useThemeVars, NCard } from 'naive-ui';
 import { computed, onBeforeUnmount, ref, watchEffect } from 'vue';
-import { VueDraggableNext } from 'vue-draggable-next';
+
+import { useStats } from './stats.js';
+import ChannelInfo from './statsChannelInfo.vue';
 
 import { useDashboardStats } from '@/api/index.js';
 import { padTo2Digits } from '@/helpers/convertMillisToTime.js';
-
 
 const { data: stats, refetch } = useDashboardStats();
 
@@ -49,6 +51,7 @@ const statsItems = computed(() => {
 		Messages: s.chatMessages,
 		'Used emotes': s.usedEmotes,
 		'Requested songs': s.requestedSongs,
+		'Subs': s.subs,
 	};
 
 	return items;
@@ -63,90 +66,112 @@ watchEffect(() => {
 		if (!localStorageOrder.value.includes(item)) localStorageOrder.value.push(item);
 	}
 });
+
+const statsWidgets = useStats();
+const channelInfoWidget = computed(() => statsWidgets.value.find(v => v.i === 'Stats'));
+const hideWidget = (key: string | number) => {
+	const item = statsWidgets.value.find(i => i.i === key);
+	if (!item) return;
+	item.visible = false;
+};
+
+const dropdownOptions = computed(() => {
+	return statsWidgets.value
+		.filter((v) => !v.visible)
+		.map((v) => ({ label: v.i, key: v.i }));
+});
+
+const addWidget = (key: string) => {
+	const item = statsWidgets.value.find(v => v.i === key);
+	if (!item) return;
+
+	const filteredWidgets = statsWidgets.value.filter(w => w.visible);
+
+	item.visible = true;
+  item.y = Math.max(...filteredWidgets.map(w => w.y));
+	item.x = Math.max(...filteredWidgets.filter(w => w.y === item.y).map(w => w.x)) + 2;
+};
+
+const theme = useThemeVars();
 </script>
 
 <template>
-	<div style="margin:5px">
-		<div style="display: flex; flex-wrap: wrap; width: 100%; gap: 5px;">
-			<n-card style="flex:1 1 400px" :bordered="false" embedded content-style="padding: 5px;">
-				<span style="font-size:15px">
-					{{ stats?.title || 'Offline' }}
-				</span>
-			</n-card>
+	<GridLayout
+		v-model:layout="statsWidgets"
+		:row-height="60"
+		:max-rows="3"
+		:vertical-compact="false"
+	>
+		<GridItem
+			v-if="channelInfoWidget"
+			:key="channelInfoWidget.i"
+			:x="channelInfoWidget.x"
+			:y="channelInfoWidget.y"
+			:w="channelInfoWidget.w"
+			:h="channelInfoWidget.h"
+			:i="channelInfoWidget.i"
+			:min-w="channelInfoWidget.minW ?? 3"
+			:min-h="channelInfoWidget.minH ?? 1"
+		>
+			<ChannelInfo :category-id="stats?.categoryId" :title="stats?.title" :category-name="stats?.categoryName" />
+		</GridItem>
 
-			<n-card style="flex:1 1 400px" :bordered="false" embedded content-style="padding: 5px;">
-				<span style="font-size:15px">
-					{{ stats?.categoryName || 'Offline' }}
-				</span>
-			</n-card>
-		</div>
-
-		<Transition mode="out-in" appear>
-			<div v-if="!Object.keys(statsItems).length" style="display: flex; flex-wrap: wrap; width: 100%; gap: 5px; margin-top: 5px">
-				<n-skeleton
-					v-for="i of 6"
-					:key="i"
-					:sharp="false"
-					height="74px"
-					style="flex:1 1 100px; margin-top: 5px;"
-				/>
-			</div>
-
-
-			<vue-draggable-next
-				v-else
-				v-model="localStorageOrder"
-				style="display: flex; flex-wrap: wrap; width: 100%; gap: 5px; margin-top: 5px"
+		<GridItem
+			v-for="widget of statsWidgets.filter(w => w.visible && w.i !== 'Stats')"
+			:key="widget.i"
+			:x="widget.x"
+			:y="widget.y"
+			:w="widget.w"
+			:h="widget.h"
+			:i="widget.i"
+			:min-w="widget.minW ?? 1"
+			:min-h="widget.minH ?? 1"
+		>
+			<n-card
+				v-if="typeof statsItems[widget.i] !== 'undefined'"
+				size="small"
+				:bordered="false"
+				embedded
+				content-style="padding: 2px"
+				:style="{ 'background-color': theme.actionColor }"
 			>
-				<transition-group>
-					<template
-						v-for="(item) of localStorageOrder"
-						:key="item"
-					>
-						<n-card
-							v-if="typeof statsItems[item] !== 'undefined'"
-							style="flex:1 1 100px; cursor: pointer"
-							size="small"
-							:bordered="false"
-							content-style="padding: 5px;"
-							embedded
-						>
-							<n-space vertical>
-								<span style="display: flex;">
-									<IconGripVertical style="width: 18px;" /> {{ item }}
-								</span>
-								<span style="font-size:20px">
-									{{ statsItems[item] }}
-								</span>
-							</n-space>
-						</n-card>
-					</template>
-				</transition-group>
-			</vue-draggable-next>
-		</Transition>
+				<n-space vertical>
+					<div style="display: flex; justify-content: space-between;">
+						<div style="white-space: nowrap; overflow: hidden;text-overflow: ellipsis">
+							<span>{{ widget.i }}</span>
+						</div>
+						<n-button text @click="hideWidget(widget.i)">
+							<IconEyeOff />
+						</n-button>
+					</div>
+					<div style="font-size:20px; white-space: nowrap; overflow: hidden;text-overflow: ellipsis">
+						{{ statsItems[widget.i] }}
+					</div>
+				</n-space>
+			</n-card>
+		</GridItem>
+	</GridLayout>
+	<div v-if="dropdownOptions.length" style="padding-right: 10px; padding-top: 10px; padding-bottom: 10px;">
+		<n-dropdown placement="left" size="huge" trigger="click" :options="dropdownOptions" @select="addWidget">
+			<n-button dashed type="success" style="width: 100%; height: 100%; padding: 5px">
+				<IconPencilPlus style="width: 30px; height: 30px" />
+			</n-button>
+		</n-dropdown>
 	</div>
 </template>
 
-<!-- <style scoped>
+<style scoped>
+.vgl-layout {
+  width: 100%;
+	user-select: none;
+}
+
 .v-enter-active,
 .v-leave-active {
-	transition: all 1s cubic-bezier(0, 0, 0.2, 1);
+	transition: opacity 0.1s ease-in-out;
 }
 
 .v-enter-from,
 .v-leave-to {
 	opacity: 0;
-	transform: scale(0.98);
-}
-</style> -->
-
-<style scoped>
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.1s ease-in-out;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
 }</style>

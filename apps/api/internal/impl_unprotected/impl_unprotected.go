@@ -90,6 +90,7 @@ func New(opts Opts) *UnProtected {
 				"channel:manage:polls",
 				"channel:read:predictions",
 				"channel:manage:predictions",
+				"channel:read:subscriptions",
 			},
 		},
 		Modules: &modules.Modules{

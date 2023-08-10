@@ -2,7 +2,6 @@ package grpc_impl
 
 import (
 	"errors"
-
 	"github.com/satont/twir/apps/events/internal"
 	model "github.com/satont/twir/libs/gomodels"
 )

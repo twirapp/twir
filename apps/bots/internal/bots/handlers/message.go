@@ -2,7 +2,11 @@ package handlers
 
 import (
 	"context"
+	"github.com/google/uuid"
+	model "github.com/satont/twir/libs/gomodels"
+	"go.uber.org/zap"
 	"strings"
+	"time"
 
 	"github.com/satont/twir/libs/grpc/generated/events"
 
@@ -87,6 +91,22 @@ func (c *Handlers) OnMessage(msg *Message) {
 	if msg.Tags["first-msg"] == "1" {
 		c.workersPool.Submit(
 			func() {
+				if err := c.db.Create(
+					&model.ChannelsEventsListItem{
+						ID:        uuid.New().String(),
+						ChannelID: msg.Channel.ID,
+						UserID:    msg.User.ID,
+						Type:      model.ChannelEventListItemTypeFirstUserMessage,
+						CreatedAt: time.Now().UTC(),
+						Data: &model.ChannelsEventsListItemData{
+							FirstUserMessageUserName:        msg.User.Name,
+							FirstUserMessageUserDisplayName: msg.User.DisplayName,
+							FirstUserMessageMessage:         msg.Message,
+						},
+					},
+				).Error; err != nil {
+					zap.S().Error(err)
+				}
 				c.eventsGrpc.FirstUserMessage(
 					context.Background(), &events.FirstUserMessageMessage{
 						BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},

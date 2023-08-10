@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
-    "analize": "vite-bundle-visualizer"
+    "analize": "vite-bundle-visualizer",
+    "generate-pwa-assets": "pwa-assets-generator"
   },
   "dependencies": {
     "@guolao/vue-monaco-editor": "^1.1.3",
@@ -14,9 +15,10 @@
     "@tabler/icons-vue": "^2.24.0",
     "@tanstack/vue-query": "^4.24.10",
     "@twir/grpc": "workspace:^",
+    "@vueuse/components": "^10.2.1",
     "@vueuse/core": "^9.13.0",
     "date-fns": "^2.30.0",
-    "draggable-resizable-vue3": "1.0.94-beta",
+    "grid-layout-plus": "^1.0.2",
     "naive-ui": "^2.34.4",
     "plyr": "^3.7.8",
     "vue": "^3.3.4",
@@ -28,6 +30,7 @@
     "@intlify/unplugin-vue-i18n": "^0.12.2",
     "@plugin-web-update-notification/vite": "^1.6.4",
     "@protobuf-ts/runtime-rpc": "^2.9.0",
+    "@vite-pwa/assets-generator": "^0.0.4",
     "@vitejs/plugin-vue": "^4.2.3",
     "rollup-plugin-visualizer": "^5.9.2",
     "sass": "^1.63.6",
