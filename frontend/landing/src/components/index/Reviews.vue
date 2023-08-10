@@ -1,19 +1,18 @@
 <script lang="ts" setup>
-import { Fade, AutoPlay } from '@egjs/flicking-plugins';
+import { Fade } from '@egjs/flicking-plugins';
 import Flicking from '@egjs/vue3-flicking';
 import { type TwitchUser } from '@twir/grpc/generated/api/api/twitch';
 import { onMounted, ref, computed } from 'vue';
 
-import RatingStarFilled from '../../assets/rating-star-filled.svg?url';
 
-const plugins = [new Fade(), new AutoPlay({ duration: 2000, direction: 'NEXT', stopOnHover: true })];
+const plugins = [new Fade()];
 
 const reviews = [
 {
     id: '139336353',
     username: '7ssk7',
 		roles: ['Streamer', 'pro player'],
-    comment: `I've been using the bot for a few years now, and I'm happy with it. There are convenient integrations with Volaroant, Spotify. It's easy to add and remove commands from the chat. I am pleased with its stability and functionality.`,
+    comment: `I've been using Twir for a few years now. There are useful integrations with Volaroant, Spotify. I am pleased with its stability and functionality.`,
     avatarUrl:
       'https://static-cdn.jtvnw.net/jtv_user_pictures/66cb7060-1a8a-4fca-9ccd-f760b70af636-profile_image-70x70.png',
     rating: 5,
@@ -27,6 +26,22 @@ const reviews = [
       'https://static-cdn.jtvnw.net/jtv_user_pictures/a477bccc-9b23-44d7-a379-fe64f67898c3-profile_image-70x70.png',
     rating: 4,
   },
+	{
+		id: '155644238',
+		username: 'le_xot',
+		roles: ['Streamer'],
+		comment: 'Twir combines a simple and clear interface, extensive customization and integration options, making this bot an indispensable assistant on my broadcasts.',
+		avatarUrl: 'https://static-cdn.jtvnw.net/jtv_user_pictures/423e40e6-9534-46ac-9ed8-5714657dd03b-profile_image-70x70.png',
+		rating: 5,
+	},
+	{
+		id: '155644238',
+		username: 'le_xot',
+		roles: ['Streamer'],
+		comment: 'Twir combines a simple and clear interface, extensive customization and integration options, making this bot an indispensable assistant on my broadcasts.',
+		avatarUrl: 'https://static-cdn.jtvnw.net/jtv_user_pictures/423e40e6-9534-46ac-9ed8-5714657dd03b-profile_image-70x70.png',
+		rating: 5,
+	},
 	{
 		id: '155644238',
 		username: 'le_xot',
@@ -88,9 +103,9 @@ const mappedReviews = computed(() => {
 		:plugins="plugins"
 		class="cursor-grab mb-20"
 	>
-		<div v-for="review of mappedReviews" :key="review.id" class="rounded-[12px] bg-[#24242780] border-[#393A3E] inline-flex flex-col border select-none slider-review-card">
-			<div class="flex flex-col gap-5 p-6">
-				<div class="flex gap-4">
+		<div v-for="review of mappedReviews" :key="review.id" class="gap-5 p-6 rounded-[12px] bg-[#24242780] border-[#393A3E] inline-flex flex-col border select-none slider-review-card">
+			<div class="flex justify-between">
+				<div class="flex items-center gap-4">
 					<img :src="review.avatarUrl" class="w-11 h-11 rounded-full" />
 					<div class="flex flex-col">
 						<a
@@ -103,17 +118,15 @@ const mappedReviews = computed(() => {
 						<span class="text-sm text-stone-400">{{ review.roles.join(', ') }}</span>
 					</div>
 				</div>
-				<span class="text-base text-stone-400">
-					{{ review.comment }}
-				</span>
-				<div class="flex justify-between">
-					<div></div>
-					<div class="flex gap-1">
-						<img v-for="(_, index) of Array(review.rating)" :key="index" :src="RatingStarFilled" />
-						<img v-for="(_, index) of Array(5 - review.rating)" :key="index" :src="RatingStarFilled" />
-					</div>
-				</div>
+
+				<!-- <div class="flex gap-1">
+					<img v-for="(_, index) of Array(review.rating)" :key="index" :src="RatingStarFilled" />
+					<img v-for="(_, index) of Array(5 - review.rating)" :key="index" :src="RatingStarFilled" />
+				</div> -->
 			</div>
+			<span class="text-base text-stone-400 line-clamp-5" :alt="review.comment">
+				{{ review.comment }}
+			</span>
 		</div>
 	</Flicking>
 </template>
